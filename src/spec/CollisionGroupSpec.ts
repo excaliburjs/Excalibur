@@ -10,6 +10,10 @@ describe('A Collision Group', () => {
     groupC = ex.CollisionGroupManager.create('groupC');
   });
 
+  afterEach(() => {
+    ex.CollisionGroupManager.reset();
+  });
+
   it('should not collide with itself', () => {
     expect(groupA.canCollide(groupA)).toBe(false, 'Group groupA should not collide with itself');
     expect(groupB.canCollide(groupB)).toBe(false, 'Group groupB should not collide with itself');

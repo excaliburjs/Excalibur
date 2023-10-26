@@ -1,5 +1,4 @@
 import { Logger } from '../..';
-import { ExcaliburWebGLContextAccessor } from './webgl-adapter';
 
 /**
  * Helper that defines and index buffer for quad geometry
@@ -8,7 +7,7 @@ import { ExcaliburWebGLContextAccessor } from './webgl-adapter';
  * it is almost always worth it in terms of performance to use an index buffer.
  */
 export class QuadIndexBuffer {
-  private _gl: WebGL2RenderingContext = ExcaliburWebGLContextAccessor.gl;
+  private _gl: WebGL2RenderingContext;
   private _logger: Logger = Logger.getInstance();
   /**
    * Access to the webgl buffer handle
@@ -24,11 +23,12 @@ export class QuadIndexBuffer {
   public bufferGlType: number;
 
   /**
+   * @param gl WebGL2RenderingContext this layout will be attached to, these cannot be reused across contexts.
    * @param numberOfQuads Specify the max number of quads you want to draw
    * @param useUint16 Optionally force a uint16 buffer
    */
-  constructor(numberOfQuads: number, useUint16?: boolean) {
-    const gl = this._gl;
+  constructor(gl: WebGL2RenderingContext, numberOfQuads: number, useUint16?: boolean) {
+    this._gl = gl;
     this.buffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.buffer);
 

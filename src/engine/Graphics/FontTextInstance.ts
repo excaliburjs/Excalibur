@@ -1,18 +1,19 @@
 import { BoundingBox } from '../Collision/BoundingBox';
 import { Color } from '../Color';
 import { line } from '../Util/DrawUtil';
+import { ExcaliburGraphicsContextWebGL } from './Context/ExcaliburGraphicsContextWebGL';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
-import { TextureLoader } from './Context/texture-loader';
 import { Font } from './Font';
 
 export class FontTextInstance {
   public canvas: HTMLCanvasElement;
   public ctx: CanvasRenderingContext2D;
-  private _textFragments: {x: number, y: number, canvas: HTMLCanvasElement}[] = [];
+  private _textFragments: { x: number; y: number; canvas: HTMLCanvasElement }[] = [];
   public dimensions: BoundingBox;
-  public disposed: boolean = false;;
+  public disposed: boolean = false;
   private _lastHashCode: string;
-  constructor(public readonly font: Font, public readonly text: string, public readonly color: Color) {
+
+  constructor(public readonly font: Font, public readonly text: string, public readonly color: Color, public readonly maxWidth?: number) {
     this.canvas = document.createElement('canvas');
     this.ctx = this.canvas.getContext('2d');
     this.dimensions = this.measureText(text);
@@ -20,12 +21,17 @@ export class FontTextInstance {
     this._lastHashCode = this.getHashCode();
   }
 
-  measureText(text: string): BoundingBox {
+  measureText(text: string, maxWidth?: number): BoundingBox {
     if (this.disposed) {
       throw Error('Accessing disposed text instance! ' + this.text);
     }
+    let lines = null;
+    if (maxWidth != null) {
+      lines = this._getLinesFromText(text, maxWidth);
+    } else {
+      lines = text.split('\n');
+    }
 
-    const lines = text.split('\n');
     const maxWidthLine = lines.reduce((a, b) => {
       return a.length > b.length ? a : b;
     });
@@ -51,7 +57,6 @@ export class FontTextInstance {
   }
 
   private _setDimension(textBounds: BoundingBox, bitmap: CanvasRenderingContext2D) {
-
     // Changing the width and height clears the context properties
     // We double the bitmap width to account for all possible alignment
     // We scale by "quality" so we render text without jaggies
@@ -60,7 +65,9 @@ export class FontTextInstance {
   }
 
   public static getHashCode(font: Font, text: string, color?: Color) {
-    const hash = text + '__hashcode__' +
+    const hash =
+      text +
+      '__hashcode__' +
       font.fontString +
       font.showDebug +
       font.textAlign +
@@ -68,11 +75,11 @@ export class FontTextInstance {
       font.direction +
       JSON.stringify(font.shadow) +
       (font.padding.toString() +
-      font.smoothing.toString() +
-      font.lineWidth.toString() +
-      font.lineDash.toString() +
-      font.strokeColor?.toString() +
-      (color ? color.toString() : font.color.toString()));
+        font.smoothing.toString() +
+        font.lineWidth.toString() +
+        font.lineDash.toString() +
+        font.strokeColor?.toString() +
+        (color ? color.toString() : font.color.toString()));
     return hash;
   }
 
@@ -90,6 +97,7 @@ export class FontTextInstance {
   }
 
   private _applyFont(ctx: CanvasRenderingContext2D) {
+    ctx.resetTransform();
     ctx.translate(this.font.padding + ctx.canvas.width / 2, this.font.padding + ctx.canvas.height / 2);
     ctx.scale(this.font.quality, this.font.quality);
     ctx.textAlign = this.font.textAlign;
@@ -105,8 +113,7 @@ export class FontTextInstance {
     }
   }
 
-  private _drawText(ctx: CanvasRenderingContext2D, text: string, lineHeight: number): void {
-    const lines = text.split('\n');
+  private _drawText(ctx: CanvasRenderingContext2D, lines: string[], lineHeight: number): void {
     this._applyRasterProperties(ctx);
     this._applyFont(ctx);
 
@@ -124,7 +131,7 @@ export class FontTextInstance {
     if (this.font.showDebug) {
       // Horizontal line
       /* istanbul ignore next */
-      line(ctx, Color.Red, -ctx.canvas.width / 2, 0, ctx.canvas.width / 2, 0, 2);
+      line(ctx, Color.Green, -ctx.canvas.width / 2, 0, ctx.canvas.width / 2, 0, 2);
       // Vertical line
       /* istanbul ignore next */
       line(ctx, Color.Red, 0, -ctx.canvas.height / 2, 0, ctx.canvas.height / 2, 2);
@@ -132,7 +139,7 @@ export class FontTextInstance {
   }
 
   private _splitTextBitmap(bitmap: CanvasRenderingContext2D) {
-    const textImages: {x: number, y: number, canvas: HTMLCanvasElement}[] = [];
+    const textImages: { x: number; y: number; canvas: HTMLCanvasElement }[] = [];
     let currentX = 0;
     let currentY = 0;
     // 4k is the max for mobile devices
@@ -151,7 +158,7 @@ export class FontTextInstance {
         // draw current slice to new bitmap in < 4k chunks
         ctx.drawImage(bitmap.canvas, currentX, currentY, width, height, 0, 0, width, height);
 
-        textImages.push({x: currentX, y: currentY, canvas});
+        textImages.push({ x: currentX, y: currentY, canvas });
         currentY += height;
       }
       currentX += width;
@@ -164,10 +171,12 @@ export class FontTextInstance {
     this._dirty = true;
   }
   private _dirty = true;
-  public render(ex: ExcaliburGraphicsContext, x: number, y: number) {
+  private _ex: ExcaliburGraphicsContext;
+  public render(ex: ExcaliburGraphicsContext, x: number, y: number, maxWidth?: number) {
     if (this.disposed) {
       throw Error('Accessing disposed text instance! ' + this.text);
     }
+    this._ex = ex;
     const hashCode = this.getHashCode();
     if (this._lastHashCode !== hashCode) {
       this._dirty = true;
@@ -175,24 +184,28 @@ export class FontTextInstance {
 
     // Calculate image chunks
     if (this._dirty) {
-      this.dimensions = this.measureText(this.text);
+      this.dimensions = this.measureText(this.text, maxWidth);
       this._setDimension(this.dimensions, this.ctx);
-      const lines = this.text.split('\n');
+      const lines = this._getLinesFromText(this.text, maxWidth);
       const lineHeight = this.dimensions.height / lines.length;
 
       // draws the text to the main bitmap
-      this._drawText(this.ctx, this.text, lineHeight);
+      this._drawText(this.ctx, lines, lineHeight);
 
       // clear any out old fragments
-      for (const frag of this._textFragments) {
-        TextureLoader.delete(frag.canvas);
+      if (ex instanceof ExcaliburGraphicsContextWebGL) {
+        for (const frag of this._textFragments) {
+          ex.textureLoader.delete(frag.canvas);
+        }
       }
 
       // splits to < 4k fragments for large text
       this._textFragments = this._splitTextBitmap(this.ctx);
 
-      for (const frag of this._textFragments) {
-        TextureLoader.load(frag.canvas, this.font.filtering, true);
+      if (ex instanceof ExcaliburGraphicsContextWebGL) {
+        for (const frag of this._textFragments) {
+          ex.textureLoader.load(frag.canvas, this.font.filtering, true);
+        }
       }
       this._lastHashCode = hashCode;
       this._dirty = false;
@@ -219,9 +232,53 @@ export class FontTextInstance {
     this.dimensions = undefined;
     this.canvas = undefined;
     this.ctx = undefined;
-    for (const frag of this._textFragments) {
-      TextureLoader.delete(frag.canvas);
+    if (this._ex instanceof ExcaliburGraphicsContextWebGL) {
+      for (const frag of this._textFragments) {
+        this._ex.textureLoader.delete(frag.canvas);
+      }
     }
     this._textFragments.length = 0;
+  }
+
+  /**
+   * Return array of lines split based on the \n character, and the maxWidth? constraint
+   * @param text
+   * @param maxWidth
+   */
+  private _chachedText: string;
+  private _chachedLines: string[];
+  private _cachedRenderWidth: number;
+  private _getLinesFromText(text: string, maxWidth?: number) {
+    if (this._chachedText === text && this._cachedRenderWidth === maxWidth) {
+      return this._chachedLines;
+    }
+
+    const lines = text.split('\n');
+
+    if (maxWidth == null) {
+      return lines;
+    }
+
+    // If the current line goes past the maxWidth, append a new line without modifying the underlying text.
+    for (let i = 0; i < lines.length; i++) {
+      let line = lines[i];
+      let newLine = '';
+      if (this.measureText(line).width > maxWidth) {
+        while (this.measureText(line).width > maxWidth) {
+          newLine = line[line.length - 1] + newLine;
+          line = line.slice(0, -1); // Remove last character from line
+        }
+
+        // Update the array with our new values
+        lines[i] = line;
+        lines[i + 1] = newLine;
+      }
+    }
+
+    this._chachedText = text;
+    this._chachedLines = lines;
+    this._cachedRenderWidth = maxWidth;
+
+    return lines;
   }
 }

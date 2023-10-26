@@ -281,6 +281,58 @@ describe('A TileMap', () => {
     await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/TileMapSpec/TileMapCulling.png');
   });
 
+  it('should handle offscreen culling correctly when scaled', async () => {
+    await texture.load();
+    const tm = new ex.TileMap({
+      pos: ex.vec(100, 100),
+      tileWidth: 64,
+      tileHeight: 48,
+      rows: 20,
+      columns: 20
+    });
+    tm.scale = ex.vec(2, 2);
+    const spriteTiles = ex.SpriteSheet.fromImageSource({
+      image:texture,
+      grid: {
+        rows: 1,
+        columns: 1,
+        spriteWidth: 64,
+        spriteHeight: 48
+      }
+    });
+    tm.tiles.forEach(function (cell: ex.Tile) {
+      cell.solid = true;
+      cell.addGraphic(spriteTiles.sprites[0]);
+    });
+    tm._initialize(engine);
+    engine.currentScene.add(tm);
+
+    engine.currentScene.camera.x = 600;
+    engine.currentScene.update(engine, 100);
+    engine.currentScene.draw(engine.graphicsContext, 100);
+    engine.graphicsContext.flush();
+
+    expect(tm.getTile(0, 0).bounds).toEqual(
+      new ex.BoundingBox({
+        left: 100,
+        top: 100,
+        right: 228,
+        bottom: 196
+      })
+    );
+
+    expect(tm.getTile(1, 0).bounds).toEqual(
+      new ex.BoundingBox({
+        left: 228,
+        top: 100,
+        right: 356,
+        bottom: 196
+      })
+    );
+
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/TileMapSpec/tilemap-scaled.png');
+  });
+
   it('can return a tile by xy coord', () => {
     const sut = new ex.TileMap({
       pos: ex.vec(-100, -100),
@@ -302,6 +354,33 @@ describe('A TileMap', () => {
     expect(sut.getTileByPoint(ex.vec(19 * 64 - 100, 19 * 48 - 100)).x).toBe(19);
     expect(sut.getTileByPoint(ex.vec(19 * 64 - 100, 19 * 48 - 100)).y).toBe(19);
     expect(sut.getTileByPoint(ex.vec(19 * 64, 19 * 48))).toBeNull();
+
+    expect(sut.getTileByIndex(20 * 20 - 1)).toBe(tile);
+  });
+
+  it('can return a tile by xy coord when scaled', () => {
+    const sut = new ex.TileMap({
+      pos: ex.vec(-100, -100),
+      tileWidth: 64,
+      tileHeight: 48,
+      rows: 20,
+      columns: 20
+    });
+    sut.scale = ex.vec(2, 2);
+    sut.flagTilesDirty();
+
+    expect(sut.pos).toBeVector(ex.vec(-100, -100));
+    const tile = sut.getTile(19, 19);
+    expect(tile.x).toBe(19);
+    expect(tile.y).toBe(19);
+    expect(tile.pos).toBeVector(ex.vec(19 * 64 * 2 - 100, 19 * 48 * 2 - 100));
+
+    const nullTile = sut.getTile(20, 20);
+    expect(nullTile).toBeNull();
+
+    expect(sut.getTileByPoint(ex.vec(19 * 64 * 2 - 100, 19 * 48 * 2 - 100)).x).toBe(19);
+    expect(sut.getTileByPoint(ex.vec(19 * 64 * 2 - 100, 19 * 48 * 2 - 100)).y).toBe(19);
+    expect(sut.getTileByPoint(ex.vec(19 * 64 * 2, 19 * 48 * 2))).toBeNull();
 
     expect(sut.getTileByIndex(20 * 20 - 1)).toBe(tile);
   });

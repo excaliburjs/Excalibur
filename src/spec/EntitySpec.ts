@@ -20,6 +20,17 @@ describe('An entity', () => {
     expect(e.has('C')).toBe(true);
   });
 
+  it('can override existing components', () => {
+    const e = new ex.Entity([
+      new FakeComponent('A')
+    ]);
+
+    spyOn(e, 'removeComponent');
+    const newComponent = new FakeComponent('A');
+    e.addComponent(newComponent, true);
+    expect(e.removeComponent).toHaveBeenCalledWith(newComponent, true);
+  });
+
   it('has a unique id', () => {
     const entity1 = new ex.Entity();
     const entity2 = new ex.Entity();
@@ -34,9 +45,15 @@ describe('An entity', () => {
     expect(e.name).toBe('my-name');
   });
 
+  it('can have a name set after construction', () => {
+    const e = new ex.Entity();
+    e.name = 'MyCoolName';
+    expect(e.name).toBe('MyCoolName');
+  });
+
   it('has a default name', () => {
     const e = new ex.Entity();
-    expect(e.name).toBe('anonymous');
+    expect(e.name).toMatch(/^Entity#\d+$/);
   });
 
   it('can be killed', () => {
@@ -375,7 +392,21 @@ describe('An entity', () => {
     expect(e.scene).toBe(null);
     expect(child.scene).toBe(null);
     expect(grandchild.scene).toBe(null);
+  });
 
+  it('will inherit the scene from the parent entity after being added', () => {
+    const parent = new ex.Entity([], 'parent');
+    const child = new ex.Entity([], 'child');
+
+    const scene = new ex.Scene();
+
+    scene.add(parent);
+
+    expect(parent.scene).toBe(scene);
+
+    parent.addChild(child);
+
+    expect(child.scene).toBe(scene);
   });
 
   it('can removeAllChildren correctly', () => {

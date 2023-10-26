@@ -56,6 +56,25 @@ describe('A Circle Graphic', () => {
     await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsCircleSpec/circle.png');
   });
 
+  it('can set a lineWidth', async () => {
+    const sut = new ex.Circle({
+      radius: 30,
+      lineWidth: 15,
+      color: ex.Color.Green,
+      strokeColor: ex.Color.Black
+    });
+
+    const canvasElement = document.createElement('canvas');
+    canvasElement.width = 100;
+    canvasElement.height = 100;
+    const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+
+    ctx.clear();
+    sut.draw(ctx, 0, 0);
+
+    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsCircleSpec/line-width.png');
+  });
+
   it('can be cloned', () => {
     const sut = new ex.Circle({
       radius: 10,

@@ -18,7 +18,6 @@ import { DebugText } from './debug-text';
 import { ScreenDimension } from '../../Screen';
 import { RenderTarget } from './render-target';
 import { PostProcessor } from '../PostProcessor/PostProcessor';
-import { ExcaliburWebGLContextAccessor } from './webgl-adapter';
 import { TextureLoader } from './texture-loader';
 import { RendererPlugin } from './renderer';
 
@@ -32,6 +31,9 @@ import { CircleRenderer } from './circle-renderer/circle-renderer';
 import { Pool } from '../../Util/Pool';
 import { DrawCall } from './draw-call';
 import { AffineMatrix } from '../../Math/affine-matrix';
+import { Material, MaterialOptions } from './material';
+import { MaterialRenderer } from './material-renderer/material-renderer';
+import { Shader, ShaderOptions } from './shader';
 
 export const pixelSnapEpsilon = 0.0001;
 
@@ -126,6 +128,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   public backgroundColor: Color = Color.ExcaliburBlue;
 
+  public textureLoader: TextureLoader;
+
   public get z(): number {
     return this._state.current.z;
   }
@@ -189,8 +193,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     if (!this.__gl) {
       throw Error('Failed to retrieve webgl context from browser');
     }
-    ExcaliburWebGLContextAccessor.register(this.__gl);
-    TextureLoader.register(this.__gl);
+    this.textureLoader = new TextureLoader(this.__gl);
     this.snapToPixel = snapToPixel ?? this.snapToPixel;
     this.smoothing = smoothing ?? this.smoothing;
     this.backgroundColor = backgroundColor ?? this.backgroundColor;
@@ -220,6 +223,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
     // Setup builtin renderers
     this.register(new ImageRenderer());
+    this.register(new MaterialRenderer());
     this.register(new RectangleRenderer());
     this.register(new CircleRenderer());
     this.register(new PointRenderer());
@@ -295,6 +299,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
         drawCall.state.z = this._state.current.z;
         drawCall.state.opacity = this._state.current.opacity;
         drawCall.state.tint = this._state.current.tint;
+        drawCall.state.material = this._state.current.material;
         drawCall.args = args;
         this._drawCalls.push(drawCall);
       } else {
@@ -372,7 +377,12 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       }
       return;
     }
-    this.draw<ImageRenderer>('ex.image', image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
+
+    if (this._state.current.material) {
+      this.draw<MaterialRenderer>('ex.material', image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
+    } else {
+      this.draw<ImageRenderer>('ex.image', image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
+    }
   }
 
   public drawLine(start: Vector, end: Vector, color: Color, thickness = 1) {
@@ -437,6 +447,61 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   public clearPostProcessors() {
     this._postprocessors.length = 0;
+  }
+
+  private _totalPostProcessorTime = 0;
+  public updatePostProcessors(delta: number) {
+    for (const postprocessor of this._postprocessors) {
+      const shader = postprocessor.getShader();
+      shader.use();
+      const uniforms = shader.getUniforms();
+      this._totalPostProcessorTime += delta;
+
+      if (uniforms.find(u => u.name ==='u_time_ms')) {
+        shader.setUniformFloat('u_time_ms', this._totalPostProcessorTime);
+      }
+      if (uniforms.find(u => u.name ==='u_elapsed_ms')) {
+        shader.setUniformFloat('u_elapsed_ms', delta);
+      }
+      if (uniforms.find(u => u.name ==='u_resolution')) {
+        shader.setUniformFloatVector('u_resolution', vec(this.width, this.height));
+      }
+
+      if (postprocessor.onUpdate) {
+        postprocessor.onUpdate(delta);
+      }
+    }
+  }
+
+  public set material(material: Material) {
+    this._state.current.material = material;
+  }
+
+  public get material(): Material | null {
+    return this._state.current.material;
+  }
+
+  /**
+   * Creates and initializes the material which compiles the internal shader
+   * @param options
+   * @returns Material
+   */
+  public createMaterial(options: MaterialOptions): Material {
+    const material = new Material(options);
+    material.initialize(this.__gl, this);
+    return material;
+  }
+
+  public createShader(options: Omit<ShaderOptions, 'gl'>): Shader {
+    const gl = this.__gl;
+    const { vertexSource, fragmentSource } = options;
+    const shader = new Shader({
+      gl,
+      vertexSource,
+      fragmentSource
+    });
+    shader.compile();
+    return shader;
   }
 
   clear() {

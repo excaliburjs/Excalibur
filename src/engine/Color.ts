@@ -37,7 +37,6 @@ export class Color {
 
   /**
    * Creates a new instance of Color from an r, g, b, a
-   *
    * @param r  The red component of color (0-255)
    * @param g  The green component of color (0-255)
    * @param b  The blue component of color (0-255)
@@ -52,7 +51,6 @@ export class Color {
 
   /**
    * Creates a new instance of Color from an r, g, b, a
-   *
    * @param r  The red component of color (0-255)
    * @param g  The green component of color (0-255)
    * @param b  The blue component of color (0-255)
@@ -64,7 +62,6 @@ export class Color {
 
   /**
    * Creates a new instance of Color from a rgb string
-   *
    * @param string  CSS color string of the form rgba(255, 255, 255, 1) or rgb(255, 255, 255)
    */
   public static fromRGBString(string: string): Color {
@@ -86,7 +83,6 @@ export class Color {
 
   /**
    * Creates a new instance of Color from a hex string
-   *
    * @param hex  CSS color string of the form #ffffff, the alpha component is optional
    */
   public static fromHex(hex: string): Color {
@@ -108,7 +104,6 @@ export class Color {
 
   /**
    * Creates a new instance of Color from hsla values
-   *
    * @param h  Hue is represented [0-1]
    * @param s  Saturation is represented [0-1]
    * @param l  Luminance is represented [0-1]
@@ -121,7 +116,6 @@ export class Color {
 
   /**
    * Lightens the current color by a specified amount
-   *
    * @param factor  The amount to lighten by [0-1]
    */
   public lighten(factor: number = 0.1): Color {
@@ -132,7 +126,6 @@ export class Color {
 
   /**
    * Darkens the current color by a specified amount
-   *
    * @param factor  The amount to darken by [0-1]
    */
   public darken(factor: number = 0.1): Color {
@@ -143,7 +136,6 @@ export class Color {
 
   /**
    * Saturates the current color by a specified amount
-   *
    * @param factor  The amount to saturate by [0-1]
    */
   public saturate(factor: number = 0.1): Color {
@@ -154,7 +146,6 @@ export class Color {
 
   /**
    * Desaturates the current color by a specified amount
-   *
    * @param factor  The amount to desaturate by [0-1]
    */
   public desaturate(factor: number = 0.1): Color {
@@ -165,7 +156,6 @@ export class Color {
 
   /**
    * Multiplies a color by another, results in a darker color
-   *
    * @param color  The other color
    */
   public multiply(color: Color): Color {
@@ -178,7 +168,6 @@ export class Color {
 
   /**
    * Screens a color by another, results in a lighter color
-   *
    * @param color  The other color
    */
   public screen(color: Color): Color {
@@ -196,7 +185,6 @@ export class Color {
 
   /**
    * Averages the current color with another
-   *
    * @param color  The other color
    */
   public average(color: Color): Color {
@@ -213,7 +201,6 @@ export class Color {
 
   /**
    * Returns a CSS string representation of a color.
-   *
    * @param format Color representation, accepts: rgb, hsl, or hex
    */
   public toString(format: 'rgb' | 'hsl' | 'hex' = 'rgb') {

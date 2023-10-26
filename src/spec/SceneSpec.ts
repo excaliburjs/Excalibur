@@ -524,6 +524,64 @@ describe('A scene', () => {
     expect(scene.actors.length).toBe(1);
   });
 
+  it('can have actors transferred to another scene', () => {
+    const scene1 = new ex.Scene();
+    const scene2 = new ex.Scene();
+    const actor = new ex.Actor();
+
+    const entityRemoved = jasmine.createSpy('entityremoved');
+    const entityAdded = jasmine.createSpy('entityadded');
+
+    scene1.on('entityremoved', entityRemoved);
+    scene2.on('entityadded', entityAdded);
+
+    scene1.add(actor);
+
+    expect(actor.scene).toBe(scene1);
+    expect(scene1.contains(actor)).toBeTrue();
+    expect(scene2.contains(actor)).toBeFalse();
+
+    scene2.transfer(actor);
+
+    expect(actor.scene).toBe(scene2);
+    expect(scene1.contains(actor)).toBeFalse();
+    expect(scene2.contains(actor)).toBeTrue();
+
+    expect(entityAdded).toHaveBeenCalledTimes(1);
+    expect(entityRemoved).toHaveBeenCalledTimes(1);
+
+  });
+
+  it('can transfer timers', () => {
+    const scene1 = new ex.Scene();
+    const scene2 = new ex.Scene();
+    const timer = new ex.Timer({
+      fcn: () => { /* pass */ },
+      interval: 100
+    });
+
+    const entityRemoved = jasmine.createSpy('entityremoved');
+    const entityAdded = jasmine.createSpy('entityadded');
+
+    scene1.on('entityremoved', entityRemoved);
+    scene2.on('entityadded', entityAdded);
+
+    scene1.add(timer);
+
+    expect(timer.scene).toBe(scene1);
+    expect(scene1.timers.includes(timer)).toBeTrue();
+    expect(scene2.timers.includes(timer)).toBeFalse();
+
+    scene2.transfer(timer);
+
+    expect(timer.scene).toBe(scene2);
+    expect(scene1.timers.includes(timer)).toBeFalse();
+    expect(scene2.timers.includes(timer)).toBeTrue();
+
+    expect(entityAdded).toHaveBeenCalledTimes(1);
+    expect(entityRemoved).toHaveBeenCalledTimes(1);
+  });
+
   it('can have timers added and retrieved', () => {
     const timer = new ex.Timer({
       repeats: true,
@@ -762,6 +820,7 @@ describe('A scene', () => {
 
     it('can have onPreDraw overridden safely', () => {
       scene._initialize(engine);
+      engine.screen.setCurrentCamera(engine.currentScene.camera);
       scene.onPreDraw = (ctx, delta) => {
         expect(<any>ctx).not.toBe(null);
         expect(delta).toBe(100);
@@ -779,6 +838,7 @@ describe('A scene', () => {
 
     it('can have onPostDraw overridden safely', () => {
       scene._initialize(engine);
+      engine.screen.setCurrentCamera(engine.currentScene.camera);
       scene.onPostDraw = (ctx, delta) => {
         expect(<any>ctx).not.toBe(null);
         expect(delta).toBe(100);

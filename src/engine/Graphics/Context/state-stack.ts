@@ -1,5 +1,6 @@
 import { Color } from '../../Color';
 import { ExcaliburGraphicsContextState } from './ExcaliburGraphicsContext';
+import { Material } from './material';
 
 export class StateStack {
   private _states: ExcaliburGraphicsContextState[] = [];
@@ -9,7 +10,8 @@ export class StateStack {
     return {
       opacity: 1,
       z: 0,
-      tint: Color.White
+      tint: Color.White,
+      material: null as Material
     };
   }
 
@@ -17,7 +19,8 @@ export class StateStack {
     return {
       opacity: this._currentState.opacity,
       z: this._currentState.z,
-      tint: this._currentState.tint.clone()
+      tint: this._currentState.tint.clone(),
+      material: this._currentState.material // TODO is this going to cause problems when cloning
     };
   }
 

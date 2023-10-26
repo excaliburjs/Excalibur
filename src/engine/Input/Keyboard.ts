@@ -1,6 +1,7 @@
 import { Logger } from '../Util/Log';
-import { Class } from '../Class';
 import * as Events from '../Events';
+import { isCrossOriginIframe } from '../Util/IFrame';
+import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
 
 /**
  * Enum representing physical input key codes
@@ -189,54 +190,85 @@ export class KeyEvent extends Events.GameEvent<any> {
   }
 }
 
+export interface KeyboardInitOptions {
+  global?: GlobalEventHandlers,
+  grabWindowFocus?: boolean
+}
+
+export type KeyEvents = {
+  press: KeyEvent,
+  hold: KeyEvent,
+  release: KeyEvent
+};
+
+export const KeyEvents = {
+  Press: 'press',
+  Hold: 'hold',
+  Release: 'release'
+};
+
 /**
  * Provides keyboard support for Excalibur.
  */
-export class Keyboard extends Class {
+export class Keyboard {
+  public events = new EventEmitter<KeyEvents>();
+  /**
+   * Keys that are currently held down
+   */
   private _keys: Keys[] = [];
+  /**
+   * Keys up in the current frame
+   */
   private _keysUp: Keys[] = [];
+  /**
+   * Keys down in the current frame
+   */
   private _keysDown: Keys[] = [];
 
-  constructor() {
-    super();
+  public emit<TEventName extends EventKey<KeyEvents>>(eventName: TEventName, event: KeyEvents[TEventName]): void;
+  public emit(eventName: string, event?: any): void;
+  public emit<TEventName extends EventKey<KeyEvents> | string>(eventName: TEventName, event?: any): void {
+    this.events.emit(eventName, event);
   }
 
-  public on(eventName: Events.press, handler: (event: KeyEvent) => void): void;
-  public on(eventName: Events.release, handler: (event: KeyEvent) => void): void;
-  public on(eventName: Events.hold, handler: (event: KeyEvent) => void): void;
-  public on(eventName: string, handler: (event: Events.GameEvent<any>) => void): void;
-  public on(eventName: string, handler: (event: any) => void): void {
-    super.on(eventName, handler);
+  public on<TEventName extends EventKey<KeyEvents>>(eventName: TEventName, handler: Handler<KeyEvents[TEventName]>): Subscription;
+  public on(eventName: string, handler: Handler<unknown>): Subscription;
+  public on<TEventName extends EventKey<KeyEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+    return this.events.on(eventName, handler);
+  }
+
+  public once<TEventName extends EventKey<KeyEvents>>(eventName: TEventName, handler: Handler<KeyEvents[TEventName]>): Subscription;
+  public once(eventName: string, handler: Handler<unknown>): Subscription;
+  public once<TEventName extends EventKey<KeyEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+    return this.events.once(eventName, handler);
+  }
+
+  public off<TEventName extends EventKey<KeyEvents>>(eventName: TEventName, handler: Handler<KeyEvents[TEventName]>): void;
+  public off(eventName: string, handler: Handler<unknown>): void;
+  public off(eventName: string): void;
+  public off<TEventName extends EventKey<KeyEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
+    this.events.off(eventName, handler);
   }
 
   /**
    * Initialize Keyboard event listeners
    */
-  init(global?: GlobalEventHandlers): void {
+  init(keyboardOptions?: KeyboardInitOptions): void {
+    let { global } = keyboardOptions;
+    const { grabWindowFocus } = keyboardOptions;
     if (!global) {
-      try {
-        // Try and listen to events on top window frame if within an iframe.
-        //
-        // See https://github.com/excaliburjs/Excalibur/issues/1294
-        //
-        // Attempt to add an event listener, which triggers a DOMException on
-        // cross-origin iframes
-        const noop = () => {
-          return;
-        };
-        window.top.addEventListener('blur', noop);
-        window.top.removeEventListener('blur', noop);
-
-        // this will be the same as window if not embedded within an iframe
-        global = window.top;
-      } catch {
-        // fallback to current frame
+      if (isCrossOriginIframe()) {
         global = window;
+        // Workaround for iframes like for itch.io or codesandbox
+        // https://www.reddit.com/r/gamemaker/comments/kfs5cs/keyboard_inputs_no_longer_working_in_html5_game/
+        // https://forum.gamemaker.io/index.php?threads/solved-keyboard-issue-on-itch-io.87336/
+        if (grabWindowFocus) {
+          window.focus();
+        }
 
-        Logger.getInstance().warn(
-          'Failed to bind to keyboard events to top frame. ' +
-            'If you are trying to embed Excalibur in a cross-origin iframe, keyboard events will not fire.'
-        );
+        Logger.getInstance().warn('Excalibur might be in a cross-origin iframe, in order to receive keyboard events it must be in focus');
+      } else {
+        global = window.top;
       }
     }
 
@@ -251,14 +283,30 @@ export class Keyboard extends Class {
     global.addEventListener('keydown', this._handleKeyDown);
   }
 
+  private _releaseAllKeys = (ev: KeyboardEvent) => {
+    for (const code of this._keys) {
+      const keyEvent = new KeyEvent(code, ev.key, ev);
+      this.events.emit('up', keyEvent);
+      this.events.emit('release', keyEvent);
+    }
+    this._keysUp = Array.from((new Set(this._keys.concat(this._keysUp))));
+    this._keys.length = 0;
+  };
+
   private _handleKeyDown = (ev: KeyboardEvent) => {
+    // handle macos meta key issue
+    // https://github.com/excaliburjs/Excalibur/issues/2608
+    if (!ev.metaKey && (this._keys.includes(Keys.MetaLeft) || this._keys.includes(Keys.MetaRight))) {
+      this._releaseAllKeys(ev);
+    }
+
     const code = ev.code as Keys;
     if (this._keys.indexOf(code) === -1) {
       this._keys.push(code);
       this._keysDown.push(code);
       const keyEvent = new KeyEvent(code, ev.key, ev);
-      this.eventDispatcher.emit('down', keyEvent);
-      this.eventDispatcher.emit('press', keyEvent);
+      this.events.emit('down', keyEvent);
+      this.events.emit('press', keyEvent);
     }
   };
 
@@ -270,8 +318,14 @@ export class Keyboard extends Class {
     const keyEvent = new KeyEvent(code, ev.key, ev);
 
     // alias the old api, we may want to deprecate this in the future
-    this.eventDispatcher.emit('up', keyEvent);
-    this.eventDispatcher.emit('release', keyEvent);
+    this.events.emit('up', keyEvent);
+    this.events.emit('release', keyEvent);
+
+    // handle macos meta key issue
+    // https://github.com/excaliburjs/Excalibur/issues/2608
+    if (ev.key === 'Meta') {
+      this._releaseAllKeys(ev);
+    }
   };
 
   public update() {
@@ -281,7 +335,7 @@ export class Keyboard extends Class {
 
     // Emit synthetic "hold" event
     for (let i = 0; i < this._keys.length; i++) {
-      this.eventDispatcher.emit('hold', new KeyEvent(this._keys[i]));
+      this.events.emit('hold', new KeyEvent(this._keys[i]));
     }
   }
 

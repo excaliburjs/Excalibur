@@ -113,21 +113,21 @@ rightWall.body.collisionType = ex.CollisionType.Fixed;
 rightWall.collider.useBoxCollider(10, 400);
 game.add(rightWall);
 
-game.input.keyboard.on('down', (evt: ex.Input.KeyEvent) => {
-  if (evt.key === ex.Input.Keys.B) {
+game.input.keyboard.on('down', (evt: ex.KeyEvent) => {
+  if (evt.key === ex.Keys.B) {
     spawnBlock(280, 0);
   }
 
-  if (evt.key === ex.Input.Keys.C) {
+  if (evt.key === ex.Keys.C) {
     spawnCircle(300, 0);
   }
 
-  if (evt.key === ex.Input.Keys.R) {
+  if (evt.key === ex.Keys.R) {
     globalRotation += Math.PI / 4;
   }
 });
 
-game.input.pointers.primary.on('down', (evt: ex.Input.PointerEvent) => {
+game.input.pointers.primary.on('down', (evt: ex.PointerEvent) => {
   // spawnBlock(evt.worldPos.x, evt.worldPos.y);
   spawnCircle(evt.worldPos.x, evt.worldPos.y);
 });

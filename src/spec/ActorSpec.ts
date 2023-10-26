@@ -37,7 +37,7 @@ describe('A game actor', () => {
     const clock = engine.clock as ex.TestClock;
     clock.step(1);
     collisionSystem.initialize(scene);
-    scene.world.systemManager.get(ex.Input.PointerSystem).initialize(scene);
+    scene.world.systemManager.get(ex.PointerSystem).initialize(scene);
 
     ex.Physics.useArcadePhysics();
     ex.Physics.acc.setTo(0, 0);
@@ -102,6 +102,41 @@ describe('A game actor', () => {
     expect(actor2.pos.y).toBe(5);
   });
 
+  it('can be cloned', () => {
+    const original = new ex.Actor({
+      width: 10,
+      height: 100,
+      anchor: ex.vec(0, 1),
+      color: ex.Color.Azure
+    });
+    original.pos = ex.vec(10, 20);
+    original.vel = ex.vec(30, 30);
+
+    const sut = original.clone();
+
+    expect(sut.get(ex.TransformComponent)).not.toBe(original.get(ex.TransformComponent));
+    expect(sut.get(ex.MotionComponent)).not.toBe(original.get(ex.MotionComponent));
+    expect(sut.get(ex.ActionsComponent)).not.toBe(original.get(ex.ActionsComponent));
+    expect(sut.get(ex.PointerComponent)).not.toBe(original.get(ex.PointerComponent));
+    expect(sut.get(ex.BodyComponent)).not.toBe(original.get(ex.BodyComponent));
+    expect(sut.get(ex.ColliderComponent)).not.toBe(original.get(ex.ColliderComponent));
+    expect(sut.get(ex.GraphicsComponent)).not.toBe(original.get(ex.GraphicsComponent));
+
+    // New refs
+    expect(sut).not.toBe(original);
+    expect(sut.id).not.toBe(original.id);
+    expect(sut.color).not.toBe(original.color);
+    expect(sut.anchor).not.toBe(original.anchor);
+
+    // Same values
+    expect(sut.pos).toBeVector(original.pos);
+    expect(sut.vel).toBeVector(original.vel);
+    expect(sut.width).toBe(original.width);
+    expect(sut.height).toBe(original.height);
+    expect(sut.anchor).toEqual(original.anchor);
+    expect(sut.color).toEqual(original.color);
+  });
+
   it('should have default properties set', () => {
     const actor = new ex.Actor();
 
@@ -116,6 +151,21 @@ describe('A game actor', () => {
 
     actor.anchor = ex.vec(0, 0);
     expect(actor.graphics.anchor).toEqual(ex.vec(0, 0));
+  });
+
+  it('will inherit the scene from the parent entity after being added', () => {
+    const parent = new ex.Actor();
+    const child = new ex.Actor();
+
+    const engine = TestUtils.engine();
+
+    engine.add(parent);
+
+    expect(parent.scene).toBe(engine.currentScene);
+
+    parent.addChild(child);
+
+    expect(child.scene).toBe(engine.currentScene);
   });
 
   it('should create actor with valid default options', () => {
@@ -591,6 +641,7 @@ describe('A game actor', () => {
     engine.addScene('test', scene);
     engine.goToScene('test');
     scene._initialize(engine);
+    engine.screen.setCurrentCamera(engine.currentScene.camera);
 
     spyOn(scene, 'draw').and.callThrough();
     spyOn(scene, 'debugDraw').and.callThrough();

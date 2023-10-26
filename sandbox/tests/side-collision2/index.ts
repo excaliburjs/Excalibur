@@ -38,15 +38,15 @@ class Player3 extends ex.Actor {
     this.vel.x = 0;
 
     // Player input
-    if (engine.input.keyboard.isHeld(ex.Input.Keys.Left)) {
+    if (engine.input.keyboard.isHeld(ex.Keys.Left)) {
       this.vel.x = -150;
     }
 
-    if (engine.input.keyboard.isHeld(ex.Input.Keys.Right)) {
+    if (engine.input.keyboard.isHeld(ex.Keys.Right)) {
       this.vel.x = 150;
     }
 
-    if (engine.input.keyboard.isHeld(ex.Input.Keys.Up) && this.onGround) {
+    if (engine.input.keyboard.isHeld(ex.Keys.Up) && this.onGround) {
       this.vel.y = -400;
       this.onGround = false;
     }

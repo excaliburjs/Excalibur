@@ -17,6 +17,41 @@ describe('A ColliderComponent', () => {
     expect(contacts.length).toBe(1);
   });
 
+  it('can be cloned', () => {
+    const collider = new ex.ColliderComponent(ex.Shape.Circle(50));
+    const owner = new ex.Entity([collider]);
+
+    const originalCollisionHandler = jasmine.createSpy();
+    owner.on('collisionstart', originalCollisionHandler);
+
+    const clone = owner.clone();
+
+    const cloneCollisionHandler = jasmine.createSpy();
+    clone.on('collisionstart', cloneCollisionHandler);
+
+    const sut = clone.get(ex.ColliderComponent);
+
+    // Should be same value
+    expect(sut.get().bounds).toEqual(collider.get().bounds);
+    expect(sut.bounds).toEqual(collider.bounds);
+
+    // Should be new refs
+    expect(sut).not.toBe(collider);
+
+    // Should have a new owner
+    expect(sut.owner).toBe(clone);
+
+    // Original handler should fire not the clone
+    collider.get().events.emit('collisionstart',
+      new ex.CollisionStartEvent<ex.Collider>(
+        ex.Shape.Circle(50),
+        ex.Shape.Circle(50),
+        null));
+
+    expect(originalCollisionHandler).toHaveBeenCalledTimes(1);
+    expect(cloneCollisionHandler).not.toHaveBeenCalled();
+  });
+
   it('can handle composite components', () => {
     const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10)]);
 
@@ -54,7 +89,7 @@ describe('A ColliderComponent', () => {
   it('clear a collider', () => {
     const collider = ex.Shape.Circle(50);
     const comp = new ex.ColliderComponent(collider);
-    spyOn(comp.events, 'unwire');
+    spyOn(collider.events, 'unpipe');
     spyOn(comp.$colliderRemoved, 'notifyAll');
     const e = new ex.Entity();
     e.addComponent(comp);
@@ -63,7 +98,7 @@ describe('A ColliderComponent', () => {
     comp.clear();
 
     expect(comp.get()).toBeNull();
-    expect(comp.events.unwire).toHaveBeenCalled();
+    expect(collider.events.unpipe).toHaveBeenCalled();
     expect(comp.$colliderRemoved.notifyAll).toHaveBeenCalled();
     expect(collider.owner).toBeNull();
   });

@@ -1,4 +1,4 @@
-import { Label, Color, Input } from '../engine';
+import { Label, Color, Keys } from '../engine';
 import { withEngine } from './utils';
 
 export default {
@@ -27,7 +27,7 @@ export const keyEvents = withEngine(async (game) => {
     if (keys.length === 0) {
       keyLabel.text = 'Press some keys';
     } else {
-      const lastKeysPressed = keys.map((k) => k as Input.Keys).join('');
+      const lastKeysPressed = keys.map((k) => k as Keys).join('');
       keyLabel.text = lastKeysPressed;
     }
   });

@@ -12,8 +12,9 @@ export class ScreenShader {
   private _shader: Shader;
   private _buffer: VertexBuffer;
   private _layout: VertexLayout;
-  constructor(fragmentSource: string) {
+  constructor(gl: WebGL2RenderingContext, fragmentSource: string) {
     this._shader = new Shader({
+      gl,
       vertexSource: `#version 300 es
       in vec2 a_position;
       in vec2 a_texcoord;
@@ -29,6 +30,7 @@ export class ScreenShader {
     this._shader.compile();
     // Setup memory layout
     this._buffer = new VertexBuffer({
+      gl,
       type: 'static',
       // clip space quad + uv since we don't need a camera
       data: new Float32Array([
@@ -42,6 +44,7 @@ export class ScreenShader {
       ])
     });
     this._layout = new VertexLayout({
+      gl,
       shader: this._shader,
       vertexBuffer: this._buffer,
       attributes: [

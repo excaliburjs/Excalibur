@@ -12,7 +12,6 @@ export class Flags {
 
   /**
    * Force excalibur to load the Canvas 2D graphics context fallback
-   *
    * @warning not all features of excalibur are supported in the Canvas 2D fallback
    */
   public static useCanvasGraphicsContext() {

@@ -28,6 +28,7 @@ describe('The OffscreenSystem', () => {
   it('decorates offscreen entities with "offscreen" tag', () => {
     const sut = new ex.OffscreenSystem();
     engine.currentScene.camera.update(engine, 1);
+    engine.screen.setCurrentCamera(engine.currentScene.camera);
     engine.currentScene._initialize(engine);
     sut.initialize(engine.currentScene);
 
@@ -45,8 +46,8 @@ describe('The OffscreenSystem', () => {
     const offscreenSpy = jasmine.createSpy('offscreenSpy');
     const onscreenSpy = jasmine.createSpy('onscreenSpy');
 
-    offscreen.eventDispatcher.on('enterviewport', onscreenSpy);
-    offscreen.eventDispatcher.on('exitviewport', offscreenSpy);
+    offscreen.events.on('enterviewport', onscreenSpy);
+    offscreen.events.on('exitviewport', offscreenSpy);
 
     // Should be offscreen
     sut.update([offscreen]);

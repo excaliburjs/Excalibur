@@ -3,7 +3,6 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-
 ## [Unreleased]
 
 ### Breaking Changes
@@ -12,10 +11,147 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
+-
+
+### Added
+
+-
+
+### Fixed
+
+- Fixed issue with input mapper where `keyboard.wasPressed(...)` did not fire
+- Fixed issue issue where TileMaps would not properly draw Tiles when setup in screen space coordinates
+- Fixed issue where the ex.Line graphics bounds were incorrect causing erroneous offscreen culling
+- Fixed event type signature on `ex.Engine.input.pointers.primary.on('wheel', ...)` for wheel events
+
+### Updates
+
+- Improved performance in TileMaps when drawing tiles using QuadTree data structure
+
+### Changed
+
+- Allow entity names to be set after construction! Entities will now default to a name "Entity#1234" followed by an id.
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [v0.28.0]
+
+### Breaking Changes
+
+- Removed `ex.Class` base class type, this was a common base class for many excalibur types that provided old on/off event functionality. This functionality has been preserved on the types that had it before using `ex.EventEmitter`
+
+### Deprecated
+
+- The `ex.Input.*` import site is deprecated, will be removed in v0.29.0. All the imports are still available on `ex.` now
 - [[ex.Input.Gamepad]] `isButtonPressed` has been renamed to `isButtonHeld`
+- `ex.EventDispatcher` is marked deprecated, will eventually be removed in v0.29.0
 
 
 ### Added
+
+- Added new `ex.InputMapper` for mapping multiple input sources into actions! This can be useful for providing accessibility into your games and allowing users to map inputs to different game commands.
+  ```typescript
+   const moveRight = (amount: number) => { actor.vel.x = 100 * amount }
+   const moveLeft = (amount: number) => { actor.vel.x = -100 * amount }
+   const moveUp = (amount: number) => { actor.vel.y = -100 * amount }
+   const moveDown = (amount: number) => { actor.vel.y = 100 * amount }
+   engine.inputMapper.on(({keyboard}) => keyboard.isHeld(ex.Keys.ArrowRight) ? 1 : 0, moveRight);
+   engine.inputMapper.on(({gamepads}) => gamepads.at(0).isButtonPressed(ex.Buttons.DpadRight) ? 1 : 0, moveRight);
+   engine.inputMapper.on(({gamepads}) => gamepads.at(0).getAxes(ex.Axes.LeftStickX) > 0 ? gamepads.at(0).getAxes(ex.Axes.LeftStickX) : 0, moveRight);
+  ```
+- Added strongly typed events with `ex.EventEmitter<TEventMap>`
+- Added new convenience properties for flipping all the graphics on an Actor
+  * `ex.Actor.graphics.flipHorizontal` - Flips all the graphics horizontally
+  * `ex.Actor.graphics.flipVertical` - Flips all the graphics vertically
+- Added new `ex.Scene.transfer(actor)` method for transferring actors between scenes, useful if you want to only have an actor in 1 scene at a time.
+- Added new `ex.Material` to add custom shaders per `ex.Actor`!
+  * This feature cant be applied using the `ex.Actor.graphics.material = material` property or by setting the material property on the `ex.ExcaliburGraphicsContext.material = material` with `.save()/.restore()`
+  * This feature opt out of batch rendering and issues a separate draw call 
+  * A custom vertex shader can be provided, otherwise a default will be provided
+  * A number of default uniforms are available to shaders
+    * Pre-built varyings:
+      * `in vec2 v_uv` - UV coordinate
+    * Pre-built uniforms:
+      * `uniform sampler2D u_graphic` - The current graphic displayed by the GraphicsComponent
+      * `uniform vec2 u_resolution` - The current resolution of the screen
+      * `uniform vec2 u_size;` - The current size of the graphic
+      * `uniform vec4 u_color` - The current color of the material
+      * `uniform float u_opacity` - The current opacity of the graphics context
+  ```typescript
+  const material = new ex.Material({
+    name: 'test',
+    color: ex.Color.Red,
+    fragmentSource: `#version 300 es
+    precision mediump float;
+    // UV coord
+    in vec2 v_uv;
+    uniform sampler2D u_graphic;
+    uniform vec4 u_color;
+    uniform float u_opacity;
+    out vec4 fragColor;
+    void main() {
+      vec4 color = u_color;
+      color = texture(u_graphic, v_uv);
+      color.rgb = color.rgb * u_opacity;
+      color.a = color.a * u_opacity;
+      fragColor = color * u_color;
+    }`
+  });
+  ```
+- Added updates to `ex.PostProcessor` 
+  * New optional `ex.PostProcessor.onUpdate` hook for updating custom uniforms
+  * Added default uniforms that are automatically added
+    * `uniform float u_time_ms` - total playback time in milliseconds
+    * `uniform float u_elapsed_ms` - the elapsed time from the last frame in milliseconds
+    * `uniform vec2 u_resolution` - the resolution of the canvas (in pixels)
+
+- Added new helper called `ex.Animation.fromSpriteSheetCoordinates` to help build animations more tersely from SpriteSheets
+  ```typescript
+   const spriteSheet = SpriteSheet.fromImageSource({...});
+      const anim = Animation.fromSpriteSheetCoordinates({
+    spriteSheet,
+    frameCoordinates: [
+      {x: 0, y: 5, duration: 100},
+      {x: 1, y: 5, duration: 200},
+      {x: 2, y: 5, duration: 100},
+      {x: 3, y: 5, duration: 500}
+    ],
+    strategy: AnimationStrategy.PingPong
+   });
+  ```
+
+- Added new `FrameEvent` to `ex.Animation` which includes the frame index of the current frame!
+  ```typescript
+    const anim = new Animation();
+
+    // TS autocompletes the handler
+    anim.on('frame', (frame: FrameEvent) => {
+      // Do stuff on frame
+    });
+  ```
+
+- Added new typed `ex.EventEmitter` which will eventually replace the old `ex.EventDispatcher`, this gives users a way of strongly typing the possible events that can be emitted using a type map. This is loosely typed you can still emit any event you want, you only get type completion suggestions for the type map.
+  ```typescript
+  export type AnimationEvents = {
+    frame: FrameEvent;
+    loop: Animation;
+    ended: Animation;
+  };
+
+  export class Animation {
+    public events = new EventEmitter<AnimationEvents>();
+    ...
+  }
+
+  const anim = new Animation();
+
+  // TS autocompletes the handler
+  anim.on('frame', (frame: FrameEvent) => {
+    // Do stuff on frame
+  });
+  ```
 
 - Added ability to perform arbitrary ray casts into `ex.Scene`, the `ex.PhysicsWorld` can be passed a variety of options to influence the types of ray cast hits that
 are returned
@@ -39,12 +175,31 @@ are returned
     });
 
   ```
+- Added word-wrap support for `ex.Text` using the optional parameter `maxWidth`
 - Added the emitted particle transform style as part of `ex.ParticleEmitter({particleTransform: ex.ParticleTransform.Global})`, [[ParticleTransform.Global]] is the default and emits particles as if they were world space objects, useful for most effects. If set to [[ParticleTransform.Local]] particles are children of the emitter and move relative to the emitter as they would in a parent/child actor relationship.
 - Added `wasButtonReleased` and `wasButtonPressed` methods to [[ex.Input.Gamepad]]
 - Added `clone()` method to `ex.SpriteSheet` 
 
 ### Fixed
 
+- Fixed issue with `ex.TileMap` collider consolidation where custom colliders would prevent normal solid tile colliders from being included.
+- Fixed memory leak in the internal `ex.EntityManager`, it did not properly clear internal state when removing entities
+- Fixed issue where scaling a `ex.TileMap` didn't properly offscreen cull due to the bounds not scaling properly.
+- Fixed issue where `ex.Text.flipHorizontal` or `ex.Text.flipVertical` would not work
+- Fixed issue where overriding existing components did not work properly because of deferred component removal
+- Fixed issue where `ex.ScreenElement` pointer events were not working by default.
+- Fixed issue where setting lineWidth on `ex.Circle` was not accounted for in the bitmap
+- Fixed issue in macos where the meta key would prevent keyup's from firing correctly
+- Fixed issue when excalibur was hosted in a x-origin iframe, the engine will grab window focus by default if in an iframe. This can be suppressed with `new ex.Engine({grabWindowFocus: false})`
+- Fixed issue where `ex.Camera.rotation = ...` did not work to rotate the camera, also addressed offscreen culling issues that were revealed by this fix.
+- Fixed issue where the `ex.ScreenElement` anchor was not being accounted for properly when passed as a constructor parameter.
+- Fixed issue where you could not use multiple instances of Excalibur on the same page, you can now have as many Excalibur's as you want (up to the webgl context limit).
+- Fixed issue where `ex.ScreenElement` would log a warning when created without a height or width
+- Fixed issue where `ex.Sound` would get confused parsing and playing sound files with a querystring in their path
+- Fixed issue where `ex.ColliderComponent` was not deeply cloning the stored `ex.Collider` causing them to be shared across clones.
+- Fixed issue where `ex.GraphicsComponent` was not deeploy cloning the
+stored `ex.Graphics` causing them to be shared across clones.
+- Fixed issue where `Actor.clone()` and `Entity.clone()` crashed.
 - Fixed issue where zero mtv collisions cause erroneous precollision events to be fired in the `ArcadeSolver` and `RealisticSolver`
 - Fixed issue where calling `.kill()` on a child entity would not remove it from the parent `Entity`
 - Fixed issue where calling `.removeAllChildren()` would not remove all the children from the parent `Entity`
@@ -66,13 +221,9 @@ are returned
 
 ### Changed
 
--
+- Excalibur will now use `ex.EventEmitter` to broadcast events, Excalibur types that have events support will also have an `.events` member.
+- Excalibur resources by default no longer add cache busting query string to resources. All built in resources now expose a `bustCache` property to allow setting this before loading, for example `ex.Sound.bustCache`.
 
-
-
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
 ## [0.27.0] - 2022-07-08
 

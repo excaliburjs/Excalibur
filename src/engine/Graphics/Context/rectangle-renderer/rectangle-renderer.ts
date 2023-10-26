@@ -27,11 +27,12 @@ export class RectangleRenderer implements RendererPlugin {
   private _vertexIndex: number = 0;
 
 
-  initialize(gl: WebGLRenderingContext, context: ExcaliburGraphicsContextWebGL): void {
+  initialize(gl: WebGL2RenderingContext, context: ExcaliburGraphicsContextWebGL): void {
     this._gl = gl;
     this._context = context;
     // https://stackoverflow.com/questions/59197671/glsl-rounded-rectangle-with-variable-border
     this._shader = new Shader({
+      gl,
       fragmentSource: frag,
       vertexSource: vert
     });
@@ -42,11 +43,13 @@ export class RectangleRenderer implements RendererPlugin {
     this._shader.setUniformMatrix('u_matrix', context.ortho);
 
     this._buffer = new VertexBuffer({
+      gl,
       size: 16 * 4 * this._maxRectangles,
       type: 'dynamic'
     });
 
     this._layout = new VertexLayout({
+      gl,
       shader: this._shader,
       vertexBuffer: this._buffer,
       attributes: [
@@ -59,7 +62,7 @@ export class RectangleRenderer implements RendererPlugin {
         ['a_strokeThickness', 1]
       ]
     });
-    this._quads = new QuadIndexBuffer(this._maxRectangles, true);
+    this._quads = new QuadIndexBuffer(gl, this._maxRectangles, true);
   }
 
   private _isFull() {

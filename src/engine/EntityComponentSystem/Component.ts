@@ -58,7 +58,7 @@ export abstract class Component<TypeName extends string = string> {
   /**
    * Clones any properties on this component, if that property value has a `clone()` method it will be called
    */
-  clone(): this {
+  clone(): Component {
     const newComponent = new (this.constructor as any)();
     for (const prop in this) {
       if (this.hasOwnProperty(prop)) {

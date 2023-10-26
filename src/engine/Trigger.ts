@@ -1,13 +1,23 @@
 import { Engine } from './Engine';
-import { EventDispatcher } from './EventDispatcher';
 import { Vector } from './Math/vector';
 import { ExitTriggerEvent, EnterTriggerEvent, CollisionEndEvent, CollisionStartEvent } from './Events';
 import { CollisionType } from './Collision/CollisionType';
 import { Entity } from './EntityComponentSystem';
-import { Actor } from './Actor';
+import { Actor, ActorEvents } from './Actor';
+import { EventEmitter } from './EventEmitter';
+
+export type TriggerEvents = ActorEvents & {
+  exittrigger: ExitTriggerEvent,
+  entertrigger: EnterTriggerEvent
+}
+
+export const TriggerEvents = {
+  ExitTrigger: 'exittrigger',
+  EnterTrigger: 'entertrigger'
+};
 
 /**
- * ITriggerOptions
+ * TriggerOptions
  */
 export interface TriggerOptions {
   // position of the trigger
@@ -46,6 +56,7 @@ const triggerDefaults: Partial<TriggerOptions> = {
  * are invisible, and can only be seen when [[Trigger.visible]] is set to `true`.
  */
 export class Trigger extends Actor {
+  public events = new EventEmitter<TriggerEvents>();
   private _target: Entity;
   /**
    * Action to fire when triggered by collision
@@ -83,7 +94,6 @@ export class Trigger extends Actor {
 
     this.graphics.visible = opts.visible;
     this.body.collisionType = CollisionType.Passive;
-    this.eventDispatcher = new EventDispatcher();
 
     this.events.on('collisionstart', (evt: CollisionStartEvent<Actor>) => {
       if (this.filter(evt.other)) {

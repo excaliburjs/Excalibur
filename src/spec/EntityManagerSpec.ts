@@ -80,7 +80,7 @@ describe('An EntityManager', () => {
     entityManager.addEntity(entity);
     entityManager.addEntity(entity2);
     expect(entityManager.getByName('some-e')).toEqual([entity]);
-    expect(entityManager.getByName('anonymous')).toEqual([entity2]);
+    expect(entityManager.getByName(entity2.name)).toEqual([entity2]);
   });
 
   it('can clear entities', () => {
@@ -92,7 +92,10 @@ describe('An EntityManager', () => {
 
     expect(entityManager.entities.length).toBe(2);
     entityManager.clear();
+    expect((entityManager as any)._entitiesToRemove.length).toBe(2);
+    expect(entityManager.entities.length).toBe(2);
     entityManager.processEntityRemovals();
     expect(entityManager.entities.length).toBe(0);
+    expect((entityManager as any)._entitiesToRemove.length).toBe(0);
   });
 });

@@ -5,6 +5,7 @@ import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { Logger } from '../Util/Log';
 import { BoundingBox } from '../Collision/Index';
 import { Component } from '../EntityComponentSystem/Component';
+import { Material } from './Context/material';
 
 /**
  * Type guard for checking if a Graphic HasTick (used for graphics that change over time like animations)
@@ -176,6 +177,12 @@ export class GraphicsLayer {
   public get currentKeys(): string {
     return this.name ?? 'anonymous';
   }
+
+  public clone(graphicsComponent: GraphicsComponent): GraphicsLayer {
+    const layer = new GraphicsLayer({...this._options}, graphicsComponent);
+    layer.graphics = [...this.graphics.map(g => ({graphic: g.graphic.clone(), options: {...g.options}}))];
+    return layer;
+  }
 }
 
 export class GraphicsLayers {
@@ -233,6 +240,18 @@ export class GraphicsLayers {
   private _getLayer(name: string): GraphicsLayer | undefined {
     return this._layerMap[name];
   }
+
+  public clone(graphicsComponent: GraphicsComponent): GraphicsLayers {
+    const layers = new GraphicsLayers(graphicsComponent);
+    layers._layerMap = {};
+    layers._layers = [];
+    layers.default = this.default.clone(graphicsComponent);
+    layers._maybeAddLayer(layers.default);
+    // Remove the default layer out of the clone
+    const clonedLayers = this._layers.filter(l => l.name !== 'default').map(l => l.clone(graphicsComponent));
+    clonedLayers.forEach(layer => layers._maybeAddLayer(layer));
+    return layers;
+  }
 }
 
 /**
@@ -244,6 +263,8 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
   private _graphics: { [graphicName: string]: Graphic } = {};
 
   public layers: GraphicsLayers;
+
+  public material: Material;
 
   public getGraphic(name: string): Graphic | undefined {
     return this._graphics[name];
@@ -285,6 +306,16 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
    * Anchor to apply to graphics by default
    */
   public anchor: Vector = Vector.Half;
+
+  /**
+   * Flip all graphics horizontally along the y-axis
+   */
+  public flipHorizontal: boolean = false;
+
+  /**
+   * Flip all graphics vertically along the x-axis
+   */
+  public flipVertical: boolean = false;
 
   /**
    * If set to true graphics added to the component will be copied. This can affect performance
@@ -432,5 +463,20 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
         }
       }
     }
+  }
+
+  public clone(): GraphicsComponent {
+    const graphics = new GraphicsComponent();
+    graphics._graphics = { ...this._graphics };
+    graphics.offset = this.offset.clone();
+    graphics.opacity = this.opacity;
+    graphics.anchor = this.anchor.clone();
+    graphics.copyGraphics = this.copyGraphics;
+    graphics.onPreDraw = this.onPreDraw;
+    graphics.onPostDraw = this.onPostDraw;
+    graphics.visible = this.visible;
+    graphics.layers = this.layers.clone(graphics);
+
+    return graphics;
   }
 }

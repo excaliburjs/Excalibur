@@ -3,7 +3,7 @@
 var game = new ex.Engine({
   width: 600,
   height: 400,
-  pointerScope: ex.Input.PointerScope.Canvas
+  pointerScope: ex.PointerScope.Canvas
 });
 var actor = new ex.Actor({x: 100, y: 100, width: 50, height: 50, color: ex.Color.Red});
 
@@ -13,7 +13,7 @@ game.start().then(() => {});
 
 var easingFn = ex.EasingFunctions.EaseInOutQuad;
 
-game.input.pointers.primary.on('down', (evt: ex.Input.PointerEvent) => {
+game.input.pointers.primary.on('down', (evt: ex.PointerEvent) => {
   game.currentScene.camera.move(new ex.Vector(evt.worldPos.x, evt.worldPos.y), 500, easingFn).then((v) => onLerpEnd(v));
   document.getElementById('lerp-false').style.display = 'none';
   document.getElementById('lerp-true').style.display = 'inline';

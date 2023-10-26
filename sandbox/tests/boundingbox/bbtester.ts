@@ -26,24 +26,24 @@ var block2 = new ex.Actor({
 
 // Set drag flag
 var boxPointerDragging = false;
-block2.on('pointerdragstart', (pe: ex.Input.PointerEvent) => {
+block2.on('pointerdragstart', (pe: ex.PointerEvent) => {
   boxPointerDragging = true;
 });
 
 // Set drag flag
-block2.on('pointerdragend', (pe: ex.Input.PointerEvent) => {
+block2.on('pointerdragend', (pe: ex.PointerEvent) => {
   boxPointerDragging = false;
 });
 
 // Drag box around
-block2.on('pointerdragmove', (pe: ex.Input.PointerEvent) => {
+block2.on('pointerdragmove', (pe: ex.PointerEvent) => {
   if (boxPointerDragging) {
     block2.pos = pe.worldPos;
   }
 });
 
 // Drag box around
-block2.on('pointerdragleave', (pe: ex.Input.PointerEvent) => {
+block2.on('pointerdragleave', (pe: ex.PointerEvent) => {
   if (boxPointerDragging) {
     block2.pos = pe.worldPos;
   }

@@ -79,7 +79,7 @@ floor.collider.useBoxCollider(50, 50);
 game.add(floor);
 
 game.input.keyboard.on('press', (evt) => {
-  if (evt.key === ex.Input.Keys.B) {
+  if (evt.key === ex.Keys.B) {
     spawnBox();
   }
 });

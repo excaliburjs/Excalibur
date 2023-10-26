@@ -1,11 +1,11 @@
 import { vec } from '../../../Math/vector';
+import { ImageFiltering } from '../../Filtering';
 import { GraphicsDiagnostics } from '../../GraphicsDiagnostics';
 import { HTMLImageSource } from '../ExcaliburGraphicsContext';
 import { ExcaliburGraphicsContextWebGL, pixelSnapEpsilon } from '../ExcaliburGraphicsContextWebGL';
 import { QuadIndexBuffer } from '../quad-index-buffer';
 import { RendererPlugin } from '../renderer';
 import { Shader } from '../shader';
-import { TextureLoader } from '../texture-loader';
 import { VertexBuffer } from '../vertex-buffer';
 import { VertexLayout } from '../vertex-layout';
 import frag from './image-renderer.frag.glsl';
@@ -30,7 +30,7 @@ export class ImageRenderer implements RendererPlugin {
   private _textures: WebGLTexture[] = [];
   private _vertexIndex: number = 0;
 
-  initialize(gl: WebGLRenderingContext, context: ExcaliburGraphicsContextWebGL): void {
+  initialize(gl: WebGL2RenderingContext, context: ExcaliburGraphicsContextWebGL): void {
     this._gl = gl;
     this._context = context;
     // Transform shader source
@@ -39,6 +39,7 @@ export class ImageRenderer implements RendererPlugin {
     const transformedFrag = this._transformFragmentSource(frag, this._maxTextures);
     // Compile shader
     this._shader = new Shader({
+      gl,
       fragmentSource: transformedFrag,
       vertexSource: vert
     });
@@ -55,10 +56,12 @@ export class ImageRenderer implements RendererPlugin {
 
     // Setup memory layout
     this._buffer = new VertexBuffer({
+      gl,
       size: 10 * 4 * this._maxImages, // 10 components * 4 verts
       type: 'dynamic'
     });
     this._layout = new VertexLayout({
+      gl,
       shader: this._shader,
       vertexBuffer: this._buffer,
       attributes: [
@@ -71,7 +74,7 @@ export class ImageRenderer implements RendererPlugin {
     });
 
     // Setup index buffer
-    this._quads = new QuadIndexBuffer(this._maxImages, true);
+    this._quads = new QuadIndexBuffer(gl, this._maxImages, true);
   }
 
   private _transformFragmentSource(source: string, maxTextures: number): string {
@@ -91,7 +94,17 @@ export class ImageRenderer implements RendererPlugin {
   }
 
   private _addImageAsTexture(image: HTMLImageSource) {
-    const texture = TextureLoader.load(image);
+    const maybeFiltering = image.getAttribute('filtering');
+    let filtering: ImageFiltering = null;
+    if (maybeFiltering === ImageFiltering.Blended ||
+        maybeFiltering === ImageFiltering.Pixel) {
+      filtering = maybeFiltering;
+    }
+
+    const force = image.getAttribute('forceUpload') === 'true' ? true : false;
+    const texture = this._context.textureLoader.load(image, filtering, force);
+    // remove force attribute after upload
+    image.removeAttribute('forceUpload');
     if (this._textures.indexOf(texture) === -1) {
       this._textures.push(texture);
     }
@@ -107,7 +120,8 @@ export class ImageRenderer implements RendererPlugin {
 
   private _getTextureIdForImage(image: HTMLImageSource) {
     if (image) {
-      return this._textures.indexOf(TextureLoader.get(image));
+      const maybeTexture = this._context.textureLoader.get(image);
+      return this._textures.indexOf(maybeTexture);
     }
     return -1;
   }
@@ -139,6 +153,7 @@ export class ImageRenderer implements RendererPlugin {
     }
 
     this._imageCount++;
+    // This creates and uploads the texture if not already done
     this._addImageAsTexture(image);
 
     let width = image?.width || swidth || 0;

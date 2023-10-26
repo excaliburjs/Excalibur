@@ -384,7 +384,6 @@ export class FrameStats implements FrameStatistics {
 
   /**
    * Zero out values or clone other IFrameStat stats. Allows instance reuse.
-   *
    * @param [otherStats] Optional stats to clone
    */
   public reset(otherStats?: FrameStatistics) {
@@ -504,7 +503,6 @@ export class PhysicsStats implements PhysicsStatistics {
 
   /**
    * Zero out values or clone other IPhysicsStats stats. Allows instance reuse.
-   *
    * @param [otherStats] Optional stats to clone
    */
   public reset(otherStats?: PhysicsStatistics) {

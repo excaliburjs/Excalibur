@@ -163,7 +163,6 @@ export class SpriteSheet {
    *   }
    * })
    * ```
-   *
    * @param options
    */
   public static fromImageSource(options: SpriteSheetGridOptions): SpriteSheet {

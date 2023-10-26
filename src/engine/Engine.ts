@@ -1,4 +1,9 @@
 import { EX_VERSION } from './';
+import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
+import { Gamepads } from './Input/Gamepad';
+import { Keyboard } from './Input/Keyboard';
+import { PointerScope } from './Input/PointerScope';
+import { EngineInput } from './Input/EngineInput';
 import { Flags } from './Flags';
 import { polyfill } from './Polyfill';
 polyfill();
@@ -21,7 +26,6 @@ import {
   PostUpdateEvent,
   PreFrameEvent,
   PostFrameEvent,
-  GameEvent,
   DeactivateEvent,
   ActivateEvent,
   PreDrawEvent,
@@ -33,9 +37,6 @@ import { Color } from './Color';
 import { Scene } from './Scene';
 import { Entity } from './EntityComponentSystem/Entity';
 import { Debug, DebugStats } from './Debug/Debug';
-import { Class } from './Class';
-import * as Input from './Input/Index';
-import * as Events from './Events';
 import { BrowserEvents } from './Util/Browser';
 import { ExcaliburGraphicsContext, ExcaliburGraphicsContext2DCanvas, ExcaliburGraphicsContextWebGL, TextureLoader } from './Graphics';
 import { PointerEventReceiver } from './Input/PointerEventReceiver';
@@ -43,6 +44,37 @@ import { Clock, StandardClock } from './Util/Clock';
 import { ImageFiltering } from './Graphics/Filtering';
 import { GraphicsDiagnostics } from './Graphics/GraphicsDiagnostics';
 import { Toaster } from './Util/Toaster';
+import { InputMapper } from './Input/InputMapper';
+
+export type EngineEvents = {
+  fallbackgraphicscontext: ExcaliburGraphicsContext2DCanvas,
+  initialize: InitializeEvent<Engine>,
+  visible: VisibleEvent,
+  hidden: HiddenEvent,
+  start: GameStartEvent,
+  stop: GameStopEvent,
+  preupdate: PreUpdateEvent<Engine>,
+  postupdate: PostUpdateEvent<Engine>,
+  preframe: PreFrameEvent,
+  postframe: PostFrameEvent,
+  predraw: PreDrawEvent,
+  postdraw: PostDrawEvent,
+}
+
+export const EngineEvents = {
+  FallbackGraphicsContext: 'fallbackgraphicscontext',
+  Initialize: 'initialize',
+  Visible: 'visible',
+  Hidden: 'hidden',
+  Start: 'start',
+  Stop: 'stop',
+  PreUpdate: 'preupdate',
+  PostUpdate: 'postupdate',
+  PreFrame: 'preframe',
+  PostFrame: 'postframe',
+  PreDraw: 'predraw',
+  PostDraw: 'postdraw'
+} as const;
 
 /**
  * Enum representing the different mousewheel event bubble prevention
@@ -140,7 +172,7 @@ export interface EngineOptions {
    * Configures the pointer scope. Pointers scoped to the 'Canvas' can only fire events within the canvas viewport; whereas, 'Document'
    * (default) scoped will fire anywhere on the page.
    */
-  pointerScope?: Input.PointerScope;
+  pointerScope?: PointerScope;
 
   /**
    * Suppress boot up console message, which contains the "powered by Excalibur message"
@@ -165,6 +197,15 @@ export interface EngineOptions {
    * for certain browser features to work like web audio.
    */
   suppressPlayButton?: boolean;
+
+  /**
+   * Sets the focus of the window, this is needed when hosting excalibur in a cross-origin iframe in order for certain events
+   * (like keyboard) to work.
+   * For example: itch.io or codesandbox.io
+   *
+   * By default set to true,
+   */
+  grabWindowFocus?: boolean;
 
   /**
    * Scroll prevention method.
@@ -237,7 +278,12 @@ export interface EngineOptions {
  * starting/stopping the game, maintaining state, transmitting events,
  * loading resources, and managing the scene.
  */
-export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
+export class Engine implements CanInitialize, CanUpdate, CanDraw {
+  /**
+   * Listen to and emit events on the Engine
+   */
+  public events = new EventEmitter<EngineEvents>();
+
   /**
    * Excalibur browser events abstraction used for wiring to native browser events safely
    */
@@ -357,7 +403,12 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   /**
    * Access engine input like pointer, keyboard, or gamepad
    */
-  public input: Input.EngineInput;
+  public input: EngineInput;
+
+  /**
+   * Map multiple input sources to specific game actions actions
+   */
+  public inputMapper: InputMapper;
 
   /**
    * Access Excalibur debugging functionality.
@@ -475,55 +526,29 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
 
   private _deferredGoTo: string = null;
 
-  public on(eventName: 'fallbackgraphicscontext', handler: (event: ExcaliburGraphicsContext2DCanvas) => void): void;
-  public on(eventName: Events.initialize, handler: (event: Events.InitializeEvent<Engine>) => void): void;
-  public on(eventName: Events.visible, handler: (event: VisibleEvent) => void): void;
-  public on(eventName: Events.hidden, handler: (event: HiddenEvent) => void): void;
-  public on(eventName: Events.start, handler: (event: GameStartEvent) => void): void;
-  public on(eventName: Events.stop, handler: (event: GameStopEvent) => void): void;
-  public on(eventName: Events.preupdate, handler: (event: PreUpdateEvent<Engine>) => void): void;
-  public on(eventName: Events.postupdate, handler: (event: PostUpdateEvent<Engine>) => void): void;
-  public on(eventName: Events.preframe, handler: (event: PreFrameEvent) => void): void;
-  public on(eventName: Events.postframe, handler: (event: PostFrameEvent) => void): void;
-  public on(eventName: Events.predraw, handler: (event: PreDrawEvent) => void): void;
-  public on(eventName: Events.postdraw, handler: (event: PostDrawEvent) => void): void;
-  public on(eventName: string, handler: (event: GameEvent<any>) => void): void;
-  public on(eventName: string, handler: (event: any) => void): void {
-    super.on(eventName, handler);
+  public emit<TEventName extends EventKey<EngineEvents>>(eventName: TEventName, event: EngineEvents[TEventName]): void;
+  public emit(eventName: string, event?: any): void;
+  public emit<TEventName extends EventKey<EngineEvents> | string>(eventName: TEventName, event?: any): void {
+    this.events.emit(eventName, event);
   }
 
-  public once(eventName: 'fallbackgraphicscontext', handler: (event: ExcaliburGraphicsContext2DCanvas) => void): void;
-  public once(eventName: Events.initialize, handler: (event: Events.InitializeEvent<Engine>) => void): void;
-  public once(eventName: Events.visible, handler: (event: VisibleEvent) => void): void;
-  public once(eventName: Events.hidden, handler: (event: HiddenEvent) => void): void;
-  public once(eventName: Events.start, handler: (event: GameStartEvent) => void): void;
-  public once(eventName: Events.stop, handler: (event: GameStopEvent) => void): void;
-  public once(eventName: Events.preupdate, handler: (event: PreUpdateEvent<Engine>) => void): void;
-  public once(eventName: Events.postupdate, handler: (event: PostUpdateEvent<Engine>) => void): void;
-  public once(eventName: Events.preframe, handler: (event: PreFrameEvent) => void): void;
-  public once(eventName: Events.postframe, handler: (event: PostFrameEvent) => void): void;
-  public once(eventName: Events.predraw, handler: (event: PreDrawEvent) => void): void;
-  public once(eventName: Events.postdraw, handler: (event: PostDrawEvent) => void): void;
-  public once(eventName: string, handler: (event: GameEvent<any>) => void): void;
-  public once(eventName: string, handler: (event: any) => void): void {
-    super.once(eventName, handler);
+  public on<TEventName extends EventKey<EngineEvents>>(eventName: TEventName, handler: Handler<EngineEvents[TEventName]>): Subscription;
+  public on(eventName: string, handler: Handler<unknown>): Subscription;
+  public on<TEventName extends EventKey<EngineEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+    return this.events.on(eventName, handler);
   }
 
-  public off(eventName: 'fallbackgraphicscontext', handler?: (event: ExcaliburGraphicsContext2DCanvas) => void): void;
-  public off(eventName: Events.initialize, handler?: (event: Events.InitializeEvent<Engine>) => void): void;
-  public off(eventName: Events.visible, handler?: (event: VisibleEvent) => void): void;
-  public off(eventName: Events.hidden, handler?: (event: HiddenEvent) => void): void;
-  public off(eventName: Events.start, handler?: (event: GameStartEvent) => void): void;
-  public off(eventName: Events.stop, handler?: (event: GameStopEvent) => void): void;
-  public off(eventName: Events.preupdate, handler?: (event: PreUpdateEvent<Engine>) => void): void;
-  public off(eventName: Events.postupdate, handler?: (event: PostUpdateEvent<Engine>) => void): void;
-  public off(eventName: Events.preframe, handler?: (event: PreFrameEvent) => void): void;
-  public off(eventName: Events.postframe, handler?: (event: PostFrameEvent) => void): void;
-  public off(eventName: Events.predraw, handler?: (event: PreDrawEvent) => void): void;
-  public off(eventName: Events.postdraw, handler?: (event: PostDrawEvent) => void): void;
-  public off(eventName: string, handler?: (event: GameEvent<any>) => void): void;
-  public off(eventName: string, handler?: (event: any) => void): void {
-    super.off(eventName, handler);
+  public once<TEventName extends EventKey<EngineEvents>>(eventName: TEventName, handler: Handler<EngineEvents[TEventName]>): Subscription;
+  public once(eventName: string, handler: Handler<unknown>): Subscription;
+  public once<TEventName extends EventKey<EngineEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+    return this.events.once(eventName, handler);
+  }
+
+  public off<TEventName extends EventKey<EngineEvents>>(eventName: TEventName, handler: Handler<EngineEvents[TEventName]>): void;
+  public off(eventName: string, handler: Handler<unknown>): void;
+  public off(eventName: string): void;
+  public off<TEventName extends EventKey<EngineEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
+    this.events.off(eventName, handler);
   }
 
   /**
@@ -542,11 +567,12 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
     canvasElementId: '',
     canvasElement: undefined,
     snapToPixel: false,
-    pointerScope: Input.PointerScope.Canvas,
+    pointerScope: PointerScope.Canvas,
     suppressConsoleBootMessage: null,
     suppressMinimumBrowserFeatureDetection: null,
     suppressHiDPIScaling: null,
     suppressPlayButton: null,
+    grabWindowFocus: true,
     scrollPreventionMode: ScrollPreventionMode.Canvas,
     backgroundColor: Color.fromHex('#2185d0') // Excalibur blue
   };
@@ -568,7 +594,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
    *   enableCanvasTransparency: true, // the transparencySection of the canvas
    *   canvasElementId: '', // the DOM canvas element ID, if you are providing your own
    *   displayMode: ex.DisplayMode.FullScreen, // the display mode
-   *   pointerScope: ex.Input.PointerScope.Document, // the scope of capturing pointer (mouse/touch) events
+   *   pointerScope: ex.PointerScope.Document, // the scope of capturing pointer (mouse/touch) events
    *   backgroundColor: ex.Color.fromHex('#2185d0') // background color of the engine
    * });
    *
@@ -579,8 +605,6 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
    * ```
    */
   constructor(options?: EngineOptions) {
-    super();
-
     options = { ...Engine._DEFAULT_ENGINE_OPTIONS, ...options };
     this._originalOptions = options;
 
@@ -843,7 +867,7 @@ O|===|* >________________>\n\
 
     // Reset pointers
     this.input.pointers.detach();
-    const pointerTarget = options && options.pointerScope === Input.PointerScope.Document ? document : this.canvas;
+    const pointerTarget = options && options.pointerScope === PointerScope.Document ? document : this.canvas;
     this.input.pointers = this.input.pointers.recreate(pointerTarget, this);
     this.input.pointers.init();
   }
@@ -895,7 +919,6 @@ O|===|* >________________>\n\
   /**
    * Adds a [[Scene]] to the engine, think of scenes in Excalibur as you
    * would levels or menus.
-   *
    * @param key  The name of the scene, must be unique
    * @param scene The scene to add to the engine
    */
@@ -960,7 +983,6 @@ O|===|* >________________>\n\
    *
    * Actors can only be drawn if they are a member of a scene, and only
    * the [[currentScene]] may be drawn or updated.
-   *
    * @param actor  The actor to add to the [[currentScene]]
    */
   public add(actor: Actor): void;
@@ -1009,7 +1031,6 @@ O|===|* >________________>\n\
    * Removes an actor from the [[currentScene]] of the game. This is synonymous
    * to calling `engine.currentScene.removeChild(actor)`.
    * Actors that are removed from a scene will no longer be drawn or updated.
-   *
    * @param actor  The actor to remove from the [[currentScene]].
    */
   public remove(actor: Actor): void;
@@ -1055,7 +1076,7 @@ O|===|* >________________>\n\
       if (this.currentScene.isInitialized) {
         const context = { engine: this, previousScene, nextScene };
         this.currentScene._deactivate.apply(this.currentScene, [context, nextScene]);
-        this.currentScene.eventDispatcher.emit('deactivate', new DeactivateEvent(context, this.currentScene));
+        this.currentScene.events.emit('deactivate', new DeactivateEvent(context, this.currentScene));
       }
 
       // set current scene to new one
@@ -1067,7 +1088,7 @@ O|===|* >________________>\n\
 
       const context = { engine: this, previousScene, nextScene, data };
       this.currentScene._activate.apply(this.currentScene, [context, nextScene]);
-      this.currentScene.eventDispatcher.emit('activate', new ActivateEvent(context, this.currentScene));
+      this.currentScene.events.emit('activate', new ActivateEvent(context, this.currentScene));
     } else {
       this._logger.error('Scene', key, 'does not exist!');
     }
@@ -1096,25 +1117,30 @@ O|===|* >________________>\n\
     this.pageScrollPreventionMode = options.scrollPreventionMode;
 
     // initialize inputs
-    const pointerTarget = options && options.pointerScope === Input.PointerScope.Document ? document : this.canvas;
+    const pointerTarget = options && options.pointerScope === PointerScope.Document ? document : this.canvas;
     this.input = {
-      keyboard: new Input.Keyboard(),
+      keyboard: new Keyboard(),
       pointers: new PointerEventReceiver(pointerTarget, this),
-      gamepads: new Input.Gamepads()
+      gamepads: new Gamepads()
     };
-    this.input.keyboard.init();
-    this.input.pointers.init();
+    this.input.keyboard.init({
+      grabWindowFocus: this._originalOptions?.grabWindowFocus ?? true
+    });
+    this.input.pointers.init({
+      grabWindowFocus: this._originalOptions?.grabWindowFocus ?? true
+    });
     this.input.gamepads.init();
+    this.inputMapper = new InputMapper(this.input);
 
     // Issue #385 make use of the visibility api
     // https://developer.mozilla.org/en-US/docs/Web/Guide/User_experience/Using_the_Page_Visibility_API
 
     this.browser.document.on('visibilitychange', () => {
       if (document.visibilityState === 'hidden') {
-        this.eventDispatcher.emit('hidden', new HiddenEvent(this));
+        this.events.emit('hidden', new HiddenEvent(this));
         this._logger.debug('Window hidden');
       } else if (document.visibilityState === 'visible') {
-        this.eventDispatcher.emit('visible', new VisibleEvent(this));
+        this.events.emit('visible', new VisibleEvent(this));
         this._logger.debug('Window visible');
       }
     });
@@ -1155,7 +1181,7 @@ O|===|* >________________>\n\
   private _overrideInitialize(engine: Engine) {
     if (!this.isInitialized) {
       this.onInitialize(engine);
-      super.emit('initialize', new InitializeEvent(engine, this));
+      this.events.emit('initialize', new InitializeEvent(engine, this));
       this._isInitialized = true;
       if (this._deferredGoTo) {
         const deferredScene = this._deferredGoTo;
@@ -1176,6 +1202,7 @@ O|===|* >________________>\n\
       // suspend updates until loading is finished
       this._loader.update(this, delta);
       // Update input listeners
+      this.inputMapper.execute();
       this.input.keyboard.update();
       this.input.gamepads.update();
       return;
@@ -1188,10 +1215,14 @@ O|===|* >________________>\n\
     // process engine level events
     this.currentScene.update(this, delta);
 
+    // Update graphics postprocessors
+    this.graphicsContext.updatePostProcessors(delta);
+
     // Publish update event
     this._postupdate(delta);
 
     // Update input listeners
+    this.inputMapper.execute();
     this.input.keyboard.update();
     this.input.gamepads.update();
   }

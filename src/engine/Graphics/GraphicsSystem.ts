@@ -117,6 +117,11 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
       // Position the entity + estimate lag
       this._applyTransform(entity);
 
+      // If there is a material enable it on the context
+      if (graphics.material) {
+        this._graphicsContext.material = graphics.material;
+      }
+
       // Optionally run the onPreDraw graphics lifecycle draw
       if (graphics.onPreDraw) {
         graphics.onPreDraw(this._graphicsContext, delta);
@@ -149,11 +154,15 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
 
   private _drawGraphicsComponent(graphicsComponent: GraphicsComponent) {
     if (graphicsComponent.visible) {
-      // this should be moved to the graphics system
+      const flipHorizontal = graphicsComponent.flipHorizontal;
+      const flipVertical = graphicsComponent.flipVertical;
+
       for (const layer of graphicsComponent.layers.get()) {
         for (const { graphic, options } of layer.graphics) {
           let anchor = graphicsComponent.anchor;
           let offset = graphicsComponent.offset;
+
+          // handle layer specific overrides
           if (options?.anchor) {
             anchor = options.anchor;
           }
@@ -164,7 +173,24 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
           const offsetX = -graphic.width * anchor.x + offset.x;
           const offsetY = -graphic.height * anchor.y + offset.y;
 
-          graphic?.draw(this._graphicsContext, offsetX + layer.offset.x, offsetY + layer.offset.y);
+          const oldFlipHorizontal = graphic.flipHorizontal;
+          const oldFlipVertical = graphic.flipVertical;
+          if (flipHorizontal || flipVertical) {
+
+            // flip any currently flipped graphics
+            graphic.flipHorizontal = flipHorizontal ? !oldFlipHorizontal : oldFlipHorizontal;
+            graphic.flipVertical = flipVertical ? !oldFlipVertical : oldFlipVertical;
+          }
+
+          graphic?.draw(
+            this._graphicsContext,
+            offsetX + layer.offset.x,
+            offsetY + layer.offset.y);
+
+          if (flipHorizontal || flipVertical) {
+            graphic.flipHorizontal = oldFlipHorizontal;
+            graphic.flipVertical = oldFlipVertical;
+          }
 
           if (this._engine?.isDebug && this._engine.debug.graphics.showBounds) {
             const offset = vec(offsetX + layer.offset.x, offsetY + layer.offset.y);

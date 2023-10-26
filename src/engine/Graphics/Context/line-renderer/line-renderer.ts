@@ -11,17 +11,18 @@ export class LineRenderer implements RendererPlugin {
   public readonly type = 'ex.line';
   public priority: number = 0;
   private _context: ExcaliburGraphicsContextWebGL;
-  private _gl: WebGLRenderingContext;
+  private _gl: WebGL2RenderingContext;
   private _shader: Shader;
   private _maxLines: number = 10922;
   private _vertexBuffer: VertexBuffer;
   private _layout: VertexLayout;
   private _vertexIndex = 0;
   private _lineCount = 0;
-  initialize(gl: WebGLRenderingContext, context: ExcaliburGraphicsContextWebGL): void {
+  initialize(gl: WebGL2RenderingContext, context: ExcaliburGraphicsContextWebGL): void {
     this._gl = gl;
     this._context = context;
     this._shader = new Shader({
+      gl,
       vertexSource: lineVertexSource,
       fragmentSource: lineFragmentSource
     });
@@ -31,11 +32,13 @@ export class LineRenderer implements RendererPlugin {
     this._shader.setUniformMatrix('u_matrix', this._context.ortho);
 
     this._vertexBuffer = new VertexBuffer({
+      gl,
       size: 6 * 2 * this._maxLines,
       type: 'dynamic'
     });
 
     this._layout = new VertexLayout({
+      gl,
       vertexBuffer: this._vertexBuffer,
       shader: this._shader,
       attributes: [

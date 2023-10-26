@@ -25,9 +25,15 @@ export class ScreenElement extends Actor {
   constructor(config?: ActorArgs) {
     super({ ...config });
     this.get(TransformComponent).coordPlane = CoordPlane.Screen;
-    this.anchor = vec(0, 0);
-    this.body.collisionType = CollisionType.PreventCollision;
-    this.collider.useBoxCollider(this.width, this.height, this.anchor);
+    this.anchor = config?.anchor ?? vec(0, 0);
+    this.body.collisionType = config?.collisionType ?? CollisionType.PreventCollision;
+    this.pointer.useGraphicsBounds = true;
+    this.pointer.useColliderShape = false;
+    if (!config?.collider &&
+        config?.width > 0 &&
+        config?.height > 0) {
+      this.collider.useBoxCollider(this.width, this.height, this.anchor);
+    }
   }
 
   public _initialize(engine: Engine) {

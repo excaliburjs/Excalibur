@@ -1,6 +1,9 @@
 import { GameEvent } from './Events';
 import { Eventable } from './Interfaces/Evented';
 
+/**
+ * @deprecated Use [[EventEmitter]] will be removed in v0.29.0
+ */
 export class EventDispatcher<T = any> implements Eventable {
   private _handlers: { [key: string]: { (event: GameEvent<T>): void }[] } = {};
   private _wiredEventDispatchers: Eventable[] = [];
@@ -73,7 +76,6 @@ export class EventDispatcher<T = any> implements Eventable {
    * Unsubscribe an event handler(s) from an event. If a specific handler
    * is specified for an event, only that handler will be unsubscribed.
    * Otherwise all handlers will be unsubscribed for that event.
-   *
    * @param eventName  The name of the event to unsubscribe
    * @param handler    Optionally the specific handler to unsubscribe
    */
@@ -100,7 +102,6 @@ export class EventDispatcher<T = any> implements Eventable {
 
   /**
    * Once listens to an event one time, then unsubscribes from that event
-   *
    * @param eventName The name of the event to subscribe to once
    * @param handler   The handler of the event that will be auto unsubscribed
    */

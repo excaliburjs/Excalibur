@@ -1,4 +1,4 @@
-import { DisplayMode, Engine, EngineOptions, Input, Logger } from '../engine';
+import { DisplayMode, Engine, EngineOptions, KeyEvent, Keys, Logger, PointerScope } from '../engine';
 
 interface HTMLCanvasElement {
   gameRef?: Engine;
@@ -48,14 +48,14 @@ export const withEngine = (storyFn: (game: Engine, args?: Record<string, any>) =
       canvasElement: canvas,
       displayMode: DisplayMode.FitScreen,
       suppressPlayButton: true,
-      pointerScope: Input.PointerScope.Canvas,
+      pointerScope: PointerScope.Canvas,
       ...options
     });
 
     Logger.getInstance().info('Press \'d\' for debug mode');
 
-    game.input.keyboard.on('down', (keyDown?: Input.KeyEvent) => {
-      if (keyDown.key === Input.Keys.D) {
+    game.input.keyboard.on('down', (keyDown?: KeyEvent) => {
+      if (keyDown.key === Keys.D) {
         game.toggleDebug();
       }
     });

@@ -18,7 +18,7 @@ var actor = new ex.Actor({
 game.add(actor);
 
 var zoomedIn = false;
-game.input.pointers.primary.on('down', (evt: ex.Input.PointerEvent) => {
+game.input.pointers.primary.on('down', (evt: ex.PointerEvent) => {
   if (!zoomedIn) {
     zoomedIn = true;
     game.currentScene.camera.zoomOverTime(5, 1000);

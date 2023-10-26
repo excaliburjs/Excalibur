@@ -2,14 +2,14 @@ import { Resource } from '../Resources/Resource';
 import { Sprite } from './Sprite';
 import { Loadable } from '../Interfaces/Index';
 import { Logger } from '../Util/Log';
-import { TextureLoader } from '.';
 import { ImageFiltering } from './Filtering';
 import { Future } from '../Util/Future';
+import { TextureLoader } from '../Graphics/Context/texture-loader';
 
 export class ImageSource implements Loadable<HTMLImageElement> {
   private _logger = Logger.getInstance();
   private _resource: Resource<Blob>;
-  private _filtering: ImageFiltering;
+  public filtering: ImageFiltering;
 
   /**
    * The original size of the source image in pixels
@@ -60,10 +60,22 @@ export class ImageSource implements Loadable<HTMLImageElement> {
    */
   constructor(public readonly path: string, bustCache: boolean = false, filtering?: ImageFiltering) {
     this._resource = new Resource(path, 'blob', bustCache);
-    this._filtering = filtering;
+    this.filtering = filtering;
     if (path.endsWith('.svg') || path.endsWith('.gif')) {
       this._logger.warn(`Image type is not fully supported, you may have mixed results ${path}. Fully supported: jpg, bmp, and png`);
     }
+  }
+
+  /**
+   * Should excalibur add a cache busting querystring? By default false.
+   * Must be set before loading
+   */
+  public get bustCache() {
+    return this._resource.bustCache;
+  }
+
+  public set bustCache(val: boolean) {
+    this._resource.bustCache = val;
   }
 
   /**
@@ -96,11 +108,19 @@ export class ImageSource implements Loadable<HTMLImageElement> {
       await loadedFuture.promise;
 
       // Set results
+      // We defer loading the texture into webgl until the first draw that way we avoid a singleton
+      // and for the multi-engine case the texture needs to be created in EACH webgl context to work
+      // See image-renderer.ts draw()
       this.data = image;
+
+      // emit warning if potentially too big
+      TextureLoader.checkImageSizeSupportedAndLog(this.data);
     } catch (error) {
       throw `Error loading ImageSource from path '${this.path}' with error [${error.message}]`;
     }
-    TextureLoader.load(this.data, this._filtering);
+    // Do a bad thing to pass the filtering as an attribute
+    this.data.setAttribute('filtering', this.filtering);
+
     // todo emit complete
     this._readyFuture.resolve(this.data);
     return this.data;

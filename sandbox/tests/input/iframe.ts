@@ -11,7 +11,7 @@ game.on('postupdate', (ue: ex.PostUpdateEvent) => {
   var keys = game.input.keyboard
     .getKeys()
     .map((k) => {
-      return (ex.Input.Keys[k] || 'Unknown') + '(' + k.toString() + ')';
+      return (ex.Keys[k] || 'Unknown') + '(' + k.toString() + ')';
     })
     .join(', ');
 

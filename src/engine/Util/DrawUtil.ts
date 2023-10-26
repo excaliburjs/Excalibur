@@ -10,7 +10,6 @@ export type LineCapStyle = 'butt' | 'round' | 'square';
 /* istanbul ignore next */
 /**
  * Draw a line on canvas context
- *
  * @param ctx The canvas context
  * @param color The color of the line
  * @param x1 The start x coordinate
@@ -96,7 +95,6 @@ export interface BorderRadius {
 
 /**
  * Draw a round rectangle on a canvas context
- *
  * @param ctx The canvas context
  * @param x The top-left x coordinate
  * @param y The top-left y coordinate
