@@ -4,10 +4,14 @@ const path = require('path');
 const lightCodeTheme = require('prism-react-renderer/themes/github');
 const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 
+const typedocLocalProjectRoot = path.join(__dirname, '..', 'src', 'engine');
+const typedocCIProjectRoot = path.join(__dirname, '..', 'repo', 'src', 'engine');
+const typedocProjectRoot = process.env.NODE_ENV === 'development' ? typedocLocalProjectRoot : typedocCIProjectRoot;
+
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'My Site',
-  tagline: 'Dinosaurs are cool',
+  title: 'Excalibur.js',
+  tagline: 'The friendly TypeScript 2D game engine for the web',
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
@@ -60,7 +64,7 @@ const config = {
     [
       'docusaurus-plugin-typedoc-api',
       {
-        projectRoot: path.join(__dirname, '..', 'src', 'engine'),
+        projectRoot: typedocProjectRoot,
         packages: [
           {
             path: '',
