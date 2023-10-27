@@ -1,0 +1,40 @@
+diff --git a/node_modules/docusaurus-plugin-typedoc-api/lib/plugin/data.js b/node_modules/docusaurus-plugin-typedoc-api/lib/plugin/data.js
+index b443d83..5bc6923 100644
+--- a/node_modules/docusaurus-plugin-typedoc-api/lib/plugin/data.js
++++ b/node_modules/docusaurus-plugin-typedoc-api/lib/plugin/data.js
+@@ -241,6 +241,13 @@ function extractReflectionModules(project, isSinglePackage) {
+   }
+   return modules;
+ }
++function findEntrySourceFileInChildren(modChildren, relEntryPoint) {
++  const matchingChild = modChildren.find(child => child.sources.find(sf => sf.fileName == relEntryPoint));
++  if (matchingChild) {
++    return matchingChild.sources.find(sf => sf.fileName == relEntryPoint).fileName;
++  }
++  return '';
++}
+ function flattenAndGroupPackages(packageConfigs, project, urlPrefix, options, versioned = false) {
+   const isSinglePackage = packageConfigs.length === 1;
+   const modules = extractReflectionModules(project, isSinglePackage);
+@@ -250,10 +257,11 @@ function flattenAndGroupPackages(packageConfigs, project, urlPrefix, options, ve
+   const packagesWithDeepImports = [];
+   modules.forEach(mod => {
+     // Monorepos of 1 package don't have sources, so use the child sources
+-    const relSources = mod.sources ?? mod.children?.[0].sources ?? [];
+-    const relSourceFile = relSources.find(sf => !!sf.fileName)?.fileName ?? '';
++    const relModSources = mod.sources ?? [];
++    const relModSourceFile = relModSources.find(sf => !!sf.fileName)?.fileName ?? '';
+     packageConfigs.some(cfg => Object.entries(cfg.entryPoints).some(([importPath, entry]) => {
+       const relEntryPoint = url.joinUrl(cfg.packagePath, entry.path);
++      const relSourceFile = relModSourceFile || (findEntrySourceFileInChildren(mod.children, relEntryPoint));
+       const isUsingDeepImports = !entry.path.match(/\.tsx?$/);
+       if (!matchesEntryPoint(relSourceFile, relEntryPoint, {
+         deep: isUsingDeepImports,
+@@ -308,6 +316,7 @@ function flattenAndGroupPackages(packageConfigs, project, urlPrefix, options, ve
+       // Update the reflection name since its useless
+       reflection.name = importPath === 'index' ? packages[cfg.packagePath].packageName : url.joinUrl(packages[cfg.packagePath].packageName, importPath);
+       return true;
++
+     }));
+   });
+ 
