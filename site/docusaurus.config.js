@@ -14,11 +14,6 @@ const getTypedocJson = () => {
     return null;
   }
 };
-const typedocJson = getTypedocJson();
-
-if (!typedocJson) {
-  console.warn("No typedoc JSON found. Run 'npm start' at least once to generate it.");
-}
 
 /**
  * @param {string} symbolPath
@@ -146,18 +141,16 @@ const config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl: 'https://github.com/excaliburjs/Excalibur/tree/main/site/docs/',
-          remarkPlugins: typedocJson
-            ? [
-                [
-                  typedocSymbolLinks,
-                  {
-                    basePath: '/api/',
-                    typedoc: typedocJson,
-                    linkBuilder: buildSymbolLink
-                  }
-                ]
-              ]
-            : []
+          remarkPlugins: [
+            [
+              typedocSymbolLinks,
+              {
+                basePath: '/api/',
+                typedoc: getTypedocJson,
+                linkBuilder: buildSymbolLink
+              }
+            ]
+          ]
         },
         blog: {
           showReadingTime: true,
