@@ -28,3 +28,9 @@
   --ifm-color-primary-lightest: #4fddbf;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
+
+.tsdoc-link.tsdoc-link--missing {
+  border-bottom: 1px dashed red;
+  cursor: help;
+  color: rgba(255, 0, 0, 0.8);
+}
