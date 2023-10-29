@@ -1,0 +1,8 @@
+{
+  "label": "Math",
+  "position": 9,
+  "link": {
+    "type": "generated-index",
+    "description": "Learn about math operations and primitives."
+  }
+}
