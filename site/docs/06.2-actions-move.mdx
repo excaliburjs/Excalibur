@@ -1,0 +1,38 @@
+---
+title: MoveTo/MoveBy
+path: /docs/actions-move
+section: Actions
+---
+
+Moving actions are super useful for creating patrolling behavior, and are often paired with [repeat](/doc/actions-repeat#repeat) or [repeatForever](/doc/actions-repeat#repeat)
+
+## MoveTo
+
+This method will move an actor to the specified x and y world position at the speed specified (in pixels per second) and return back the actor. This method is part of the actor 'Action' fluent API allowing action chaining.
+
+```typescript
+const actor = new ex.Actor({...});
+
+// move in a square at 200 pixels/second
+// Actor will move exactly to those world coordinates
+actor.actions.moveTo(ex.vec(100, 0), 200).moveTo(ex.vec(100, 100), 200).moveTo(ex.vec(0, 100), 200).moveTo(ex.vec(0, 0), 200);
+
+```
+
+## MoveBy
+
+This method will move an actor by the specified x offset and y offset from the Actor's current position, at a certain speed. This method is part of the actor 'Action' fluent API allowing action chaining.
+
+```typescript
+const actor = new ex.Actor({
+  pos: ex.vec(200, 200),
+})
+
+// move in a square at 200 pixels/second
+// Actor will move relative to it's current (200, 200) position
+actor.actions
+  .moveBy(ex.vec(100, 0), 200)
+  .moveBy(ex.vec(100, 100), 200)
+  .moveBy(ex.vec(0, 100), 200)
+  .moveBy(ex.vec(0, 0), 200)
+```

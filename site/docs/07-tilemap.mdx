@@ -1,0 +1,41 @@
+---
+title: TileMap
+path: /docs/tilemap
+section: TileMaps
+---
+
+TileMaps can be useful tools to build levels for platformers or top down games.
+
+Excalibur supports building tile based games, often referred to as "TileMaps." Excalibur has a [Tiled plugin](https://github.com/excaliburjs/excalibur-tiled/pull/162) to support the popular [Tiled](https://www.mapeditor.org/) editor map files.
+
+## Tilemap
+
+[[Tilemap|Tilemaps]] consist of a uniform grid of cells that can be solid or not. Each cell can have it's own graphics.
+
+Tile maps are made up of [[Cell|Cells]] which can draw [[Graphics]]. Tile
+maps support multiple layers of Graphics and work well for building tile-based games such as RPGs,
+adventure games, strategy games, and others. Cells can be [[Cell.solid|solid]] so
+that Actors can't pass through them.
+
+`embed:excalibur-snippets/src/tilemap/main.ts{snippet: "tilemap"}`
+
+<IFrameEmbed src="https://excaliburjs.com/excalibur-snippets/tilemap/"/>
+
+## Tiled plugin
+
+Excalibur has a Tiled map plugin https://github.com/excaliburjs/excalibur-tiled/ for loading `.tmx` maps.
+
+We recommend using the [Tiled map editor](http://www.mapeditor.org/) to build your maps
+and export them to JSON. You can then load them using a [[Resource|Generic Resource]]
+and process them to create your levels. A [[TileMap]] can then be used as part of a
+level or map class that adds enemies and builds game objects from the Tiled map.
+
+`embed:excalibur-snippets/src/tiled/main.ts{snippet: "tiled"}`
+
+<IFrameEmbed src="https://excaliburjs.com/excalibur-snippets/tiled/"/>
+
+## Currently unsupported
+
+Hexagonal and Isometric TileMaps are not yet supported out of the box (but they are in our plans), but with some engenuity you can replicate them.
+
+We recommend reading some of the [material on Red Blob Games](https://www.redblobgames.com/) for algorithms around Hexagonal and Isometric

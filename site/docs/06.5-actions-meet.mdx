@@ -1,0 +1,25 @@
+---
+title: Meet
+path: /docs/actions-meet
+section: Actions
+---
+
+[[ActionsContext.meet|Meet]] can be useful for building tracking projectiles that always reach their target.
+
+This method will cause the entity to move towards another until they are within 1 pixel of each other at a specified speed.
+
+<Note variant="warning">
+
+This action could possibly never complete! Any actions chained off of it will not fire until the target is met. You will need to call `.clearActions()` to schedule new actions.
+
+</Note>
+
+```typescript
+const missile = new ex.Actor({...});
+
+const target = new ex.Actor({...});
+
+// Track towards the target at 100 pixels/second
+missile.actions.meet(target, 100)
+
+```

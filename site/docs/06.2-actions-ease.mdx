@@ -1,0 +1,38 @@
+---
+title: EaseTo
+path: /docs/actions-ease
+section: Actions
+---
+
+The easing action is a lot like the [moveTo](/docs/actions-move#moveto) except you can specify an [[EasingFunction]]. With built in easing functions like [[EasingFunctionsEasingFunctions.EaseInOutCubic]] you can make things look really smooth.
+
+https://easings.net/ is a great site to visualize easing functions
+
+## EaseTo
+
+This method will move an actor to the specified `x` and `y` position over the specified duration using a given [[EasingFunctions]]. This method is part of the actor 'Action' fluent API allowing action chaining.
+
+```typescript
+const actor = new ex.Actor({...})
+// Move to (100, 100) in world coordinates over 1000ms using EaseInOutCubic
+label.actions.easeTo(ex.vec(100, 100), 1000, ex.EasingFunctions.EaseInOutCubic)
+```
+
+## Custom Easing Functions
+
+As long as you implement the easing function interface
+
+The Standard easing functions for motion in Excalibur, defined on a domain of [0, duration] and a range from [+startValue,+endValue] given a time, the function will return a value from positive startValue to positive endValue.
+
+```typescript
+export interface EasingFunction {
+  (
+    currentTime: number,
+    startValue: number,
+    endValue: number,
+    duration: number
+  ): number
+}
+```
+
+There is a helper to wrap your easing functions and make them reversible [[EasingFunctions.CreateReversibleEasingFunction]]

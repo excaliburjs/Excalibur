@@ -1,0 +1,47 @@
+---
+title: RotateTo/RotateBy
+path: /docs/actions-rotate
+section: Actions
+---
+
+Rotation actions are useful for creating spinning objects in your game.
+
+## RotateTo
+
+This method will rotate an actor to the specified angle at the speed specified (in radians per second) and return back the actor. This method is part of the actor 'Action' fluent API allowing action chaining.
+
+```typescript
+const actor = new ex.Actor({...});
+
+// angle in radians and a speed in radians/second
+actor.actions.rotateTo(Math.PI / 2, Math.PI, ex.RotationType.Clockwise);
+
+```
+
+## RotateBy
+
+This method will rotate an actor by the specified angle offset, from it's current rotation given a certain speed in radians/sec and return back the actor. This method is part of the actor 'Action' fluent API allowing action chaining.
+
+```typescript
+const actor = new ex.Actor({
+    ...
+    rotation: Math.PI
+});
+
+// angle in radians and a speed in radians/second
+// rotate relative to the actor's current angle
+actor.actions.rotateBy(Math.PI / 2, Math.PI, ex.RotationType.CounterClockwise);
+
+```
+
+## RotationType
+
+Excalibur offers a choice in how an Actor rotates to a target angle.
+
+- [[RotationType.ShortestPath]] will take the direction of the smallest angle between starting and ending angle. This strategy is the default behavior.
+
+- [[RotationType.LongestPath]] will take the direction of the largest angle between starting and ending angle.
+
+- [[RotationType.Clockwise]] will always take the clockwise direction regardless of the starting and ending angle.
+
+- [[RotationType.CounterClockwise] will always take the counterclockwise direction regardless of the starting and ending angle.

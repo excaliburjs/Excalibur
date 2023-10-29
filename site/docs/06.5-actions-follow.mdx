@@ -1,0 +1,25 @@
+---
+title: Follow
+path: /docs/actions-follow
+section: Actions
+---
+
+[[ActionsContext.follow|Follow]] can be useful for building things that need to follow behind another actor.
+
+This method will cause the entity to follow another at a specified distance
+
+<Note variant="warning">
+
+This action will never complete! Any actions chained off of it will not fire. You will need to call `.clearActions()` to schedule new actions.
+
+</Note>
+
+```typescript
+const friend = new ex.Actor({...});
+
+const target = new ex.Actor({...});
+
+// Follow the target at a distance of 100 pixels
+friend.actions.follow(target, 100)
+
+```

@@ -1,0 +1,22 @@
+---
+title: CallMethod
+path: /docs/actions-callmethod
+section: Actions
+---
+
+This method allows you to call an arbitrary method as the next action in the action queue. This is useful if you want to execute code in after a specific action, i.e An actor arrives at a destination after traversing a path
+
+```typescript
+const actor = new ex.Actor({...});
+
+// move in a square at 200 pixels/second
+// then trigger an alert when complete
+actor.actions
+     .moveTo(ex.vec(100, 0), 200)
+     .moveTo(ex.vec(100, 100), 200)
+     .moveTo(ex.vec(0, 100), 200)
+     .moveTo(ex.vec(0, 0), 200)
+     .callMethod(() => {
+         alert("DONE!");
+     });
+```

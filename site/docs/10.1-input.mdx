@@ -1,0 +1,30 @@
+---
+title: Input
+path: /docs/input
+section: Input
+---
+
+Excalibur offers several modes of input for your games.
+
+The [[Engine.input]] property can be inspected during [[Actor.update]]
+or other areas of the game. This allows you to respond to any type
+of user input without writing complex input event code yourself.
+
+Learn more about [Keyboard](/docs/keyboard), [Mouse and Touch](/docs/pointers), and [Gamepads](/docs/gamepad) support.
+
+### Inspecting engine input
+
+Access [[Engine.input]] to see if any input is being tracked during the current update frame.
+
+```ts
+class Player extends ex.Actor {
+  public update(engine, delta) {
+    if (
+      engine.input.keyboard.isHeld(ex.Input.Keys.W) ||
+      engine.input.gamepads.at(0).getAxes(ex.Input.Axes.LeftStickY) > 0.5
+    ) {
+      player._moveForward()
+    }
+  }
+}
+```

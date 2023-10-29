@@ -1,0 +1,30 @@
+---
+title: Queries
+path: /docs/queries
+section: Entity Component System
+---
+
+[[Query|Queries]] can be used to identify Entities that match a certain type. This is useful if you need to maintain a list of entities that match
+a list of component types or tags. Queries update automatically as part of the [[World]] update.
+
+## Query
+
+```typescript
+const game = new ex.Engine({...});
+
+const entityA = new ex.Entity();
+entityA.addTag("tagA");
+
+const entityB = new ex.Entity();
+entityB.addTag("tagB");
+
+game.currentScene.add(entityA);
+game.currentScene.add(entityB);
+
+const queryA = game.currentScene.world.queryManager.create(["tagA"]);
+const queryB = game.currentScene.world.queryManager.create(["tagB"]);
+
+const entityA = queryA.getEntities()[0];
+const entityB = queryA.getEntities()[0];
+
+```

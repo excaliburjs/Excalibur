@@ -1,0 +1,53 @@
+---
+title: Components
+path: /docs/components
+section: Entity Component System
+---
+
+[[Component|Components]] are a useful tool for storing data associated with an entity. Components can be used with [[System|Systems]] to implement complex behavior. Sometimes [[Component|Components]] can be a better choice than creating an inherited
+
+## Custom Components
+
+To create a new component, you must extend the built in component class.
+
+<Note variant="warning">
+
+It is important to select a unique component type name, otherwise the excalibur system runtime will be confused.
+
+</Note>
+
+<Note>
+
+Type names with the prefix "ex." are reserved for excalibur
+
+</Note>
+
+```typescript
+export class MyComponent extends ex.Component<'mycomponent'> {
+  // Unique type name is required
+  public readonly type = 'mycomponent'
+
+  public mydata: string = 'my custom data'
+}
+```
+
+## Built in Excalibur Components
+
+### [[TagComponent]]
+
+Tag components are useful when you want to flag an entity with something, for example "offscreen". A good way to think about it is to use a flag for a non-default state. They are a special component that is only a type.
+
+```ts
+const entity = new ex.Entity()
+entity.addComponent(new ex.TagComponent('offscreen'))
+
+console.log(entity.tags) // ['offscreen']
+```
+
+### [[TransformComponent]]
+
+The Excalibur TransformComponent component primarily keeps track of the [[TransformComponent.z|z-index]] [[TransformComponent.pos|position]], [[TransformComponent.rotation|rotation]], and [[TransformComponent.scale|scale]] of an entity.
+
+Additionally it keeps track of the [[TransformComponent.coordPlane|coordinate plane]] which is whether it draws to the [[CoordPlane.Screen]] or part of the [[CoordPlane.World]].
+The default is drawing in [[CoordPlane.World]] which shifts the entities in "world space" by the position of the current [[Camera]]
+If you are drawing in [[CoordPlane.Screen]] the entity is not influenced by the camera, for example an entity at (0, 0) will always be at the top left of the screen regardless of what happens to the current [[Camera]].

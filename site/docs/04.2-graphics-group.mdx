@@ -1,0 +1,42 @@
+---
+title: Graphics Group
+path: /docs/graphics-group
+section: Graphics
+---
+
+A graphics group is an new graphic that draws a graphics in some relation to one another. This can be useful when you want to compose graphics together into a single graphic. Graphics groups do support all types of graphics including [animations](#Animation)
+
+```typescript
+const group = new ex.GraphicsGroup({
+  members: [
+    {
+      graphic: newSprite,
+      pos: ex.vec(0, 0),
+    },
+    {
+      graphic: newSprite,
+      pos: ex.vec(50, 0),
+    },
+    {
+      graphic: newSprite,
+      pos: ex.vec(0, 50),
+    },
+    {
+      graphic: text,
+      pos: ex.vec(100, 20),
+    },
+    {
+      graphic: circle,
+      pos: ex.vec(50, 50),
+    },
+    {
+      graphic: anim,
+      pos: ex.vec(200, 200),
+    },
+    {
+      graphic: triangle,
+      pos: ex.vec(0, 200),
+    },
+  ],
+})
+```

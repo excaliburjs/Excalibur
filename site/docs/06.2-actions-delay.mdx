@@ -1,0 +1,24 @@
+---
+title: Delay
+path: /docs/actions-delay
+section: Actions
+---
+
+Delays are useful when you need to wait a certain amount of time between actions.
+
+This method will delay the next action from executing for a certain amount of time (in milliseconds). This method is part of the actor 'Action' fluent API allowing action chaining.
+
+```typescript
+const actor = new ex.Actor({...});
+
+// move in a square at 200 pixels/second
+// wait 1000 milliseconds between each section of the square
+actor.actions
+     .moveTo(ex.vec(100, 0), 200)
+     .delay(1000)
+     .moveTo(ex.vec(100, 100), 200)
+     .delay(1000)
+     .moveTo(ex.vec(0, 100), 200)
+     .delay(1000)
+     .moveTo(ex.vec(0, 0), 200)
+```

@@ -1,0 +1,66 @@
+---
+title: Systems
+path: /docs/systems
+section: Entity Component System
+---
+
+Core behavior in Excalibur is implemented by Systems. Systems process all entities that have matching component types and perform some action.
+
+Examples of systems are the [[GraphicsSystem]], [[MotionSystem]], [[CollisionSystem]], and [[DebugSystem]]
+
+## System
+
+Each Excalibur [[System]] loops through all entities in `System.priority` order.
+
+## System Types
+
+There are two system types [[SystemType.Update|update]] and [[SystemType.Draw|draw]].
+
+[[SystemType.Update]] type systems all run before [[SystemType.Draw]] type systems.
+
+## Lifecycle
+
+- sort(a: Entity, b: Entity);
+- update(entities: Entity[], delta: number);
+- preupdate();
+- postupdate();
+
+## Built in Systems
+
+Excalibur has a few built in systems that are used to enable the default behavior. These `Systems` are defined at Scene constructor time.
+
+### [[MotionSystem]]
+
+The motion system implements motion on entities, like Actors moving with velocity and acceleration.
+
+This system makes use of the [[TransformComponent]] and [[MotionComponent]] to implement motion.
+
+If a [[BodyComponent]] is present that will be used to apply sleep or global acceleration [[Physics.acc]] to all [[CollisionType.Active]] bodies.
+
+### [[CollisionSystem]]
+
+The collision system uses the [[TransformComponent]], [[MotionComponent]], and [[ColliderComponent]] to implement collision detection and resolution behavior.
+
+### [[GraphicsSystem]]
+
+The Excalibur GraphicsSystem takes any entity with a [[TransformComponent]] and a [[GraphicsComponent]] and draws it to the screen using the [[ExcaliburGraphicsContext]].
+
+### [[DebugSystem]]
+
+The debug system is slightly odd, it operates on all entities with a [[TransformComponent]] to display debug information to the screen when [[Engine.showDebug]] is enabled.
+
+Read more about the debug options here [[Debug]]
+
+## Implementing your own Components & Systems
+
+To build your own component, extend the Excalibur [[Component]] abstract class and pick a unique type name (duplicate type names will cause problems).
+
+For custom component types it is recommended you prefix your types, like `type = 'myCustomPrefixTransform'`
+
+In this example, we create a "search" type component, that searches for a target position. Notice how this component implementation is mostly data.
+
+`embed:excalibur-snippets/src/ecs/main.ts{snippet: "ecs"}`
+
+<IFrameEmbed src="https://excaliburjs.com/excalibur-snippets/ecs/" />
+
+Any entity that has the new component attached will be processed by the new system once added to the world!

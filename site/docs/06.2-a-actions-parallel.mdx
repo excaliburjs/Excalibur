@@ -1,0 +1,47 @@
+---
+title: Parallel Actions
+path: /docs/actions-parallel
+section: Actions
+---
+
+Sometimes it's useful to run actions in parallel to produce scripted behavior.
+
+<Note variant="warning">
+
+Keep in mind that all actions must complete in the [[ParallelActions]] before it is considered complete
+
+</Note>
+
+## Action Sequences
+
+Parallel actions can be constructed from a list of stand-alone actions or [[ActionSequence]]s.
+
+```typescript
+const actor = new ex.Actor({...});
+
+const moveInBox = new ex.ActionSequence(actor, ctx => {
+  ctx.easeBy(ex.vec(200, 0), 1000, ex.EasingFunctions.EaseInOutCubic);
+  ctx.delay(500);
+  ctx.easeBy(ex.vec(0, 200), 1000, ex.EasingFunctions.EaseInOutCubic);
+  ctx.delay(500);
+  ctx.easeBy(ex.vec(-200, 0), 1000, ex.EasingFunctions.EaseInOutCubic);
+  ctx.delay(500);
+  ctx.easeBy(ex.vec(0, -200), 1000, ex.EasingFunctions.EaseInOutCubic);
+  ctx.delay(500);
+});
+
+const rotateAroundBackAndForth = new ex.ActionSequence(actor, ctx => {
+  ctx.rotateBy(Math.PI, Math.PI, ex.RotationType.Clockwise);
+  ctx.delay(500);
+  ctx.rotateBy(Math.PI, Math.PI, ex.RotationType.CounterClockwise);
+  ctx.delay(500);
+  ctx.rotateBy(Math.PI, Math.PI, ex.RotationType.Clockwise);
+  ctx.delay(500);
+  ctx.rotateBy(Math.PI, Math.PI, ex.RotationType.CounterClockwise);
+  ctx.delay(500);
+});
+
+const parallel = new ex.ParallelActions([moveInBox, rotateAroundBackAndForth]);
+
+actor.actions.runAction(parallel);
+```

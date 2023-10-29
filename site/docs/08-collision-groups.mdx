@@ -1,0 +1,51 @@
+---
+title: Collision Groups
+path: /docs/collisiongroups
+section: Physics
+---
+
+Collision groups are useful when you want to filter the collision that are possible between colliders
+on a granular level above and beyond collision type. This idea is also known as collision layers, collision filters, or collision filtering.
+
+```typescript
+// Create a group for each distinct category of "collidable" in your game
+const playerGroup = ex.CollisionGroupManager.create('player')
+const npcGroup = ex.CollisionGroupManager.create('npcGroup')
+const floorGroup = ex.CollisionGroupManager.create('floorGroup')
+const enemyGroup = ex.CollisionGroupManager.create('enemyGroup')
+
+// Define your rules
+const playersCanCollideWith = ex.CollisionGroup.collidesWith([
+  playersGroup, // collide with other players
+  floorGroup, // collide with the floor
+  enemyGroup, // collide with enemies
+])
+
+const enemiesCanCollideWith = ex.CollisionGroup.collidesWith([
+  playerGroup, // collide with players
+  floorGroup, // collide with the floor
+])
+
+const npcGroupCanCollideWith = ex.CollisionGroup.collidesWith([
+  floorGroup, // only collides with the floor
+])
+
+const player = new ex.Actor({
+  collisionGroup: playersCanCollideWith,
+})
+
+const npc = new ex.Actor({
+  collisionGroup: npcGroupCanCollideWith,
+})
+
+const enemy = new ex.Actor({
+  collisionGroup: enemiesCanCollideWith,
+})
+
+const floor = new ex.Actor({
+  pos: ex.vec(100, 400),
+  width: 100,
+  height: 20,
+  collisionGroup: floorGroup,
+})
+```

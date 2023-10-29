@@ -1,0 +1,22 @@
+---
+title: Ray
+path: /docs/ray
+section: Math
+---
+
+[[Ray]]'s are a useful tool for testing if geometry intersects a line of sight with [[Collider.rayCast]]. You can think of them as a point in space with a direction.
+
+```typescript
+const actor = new ex.Actor({
+  pos: ex.vec(200, 100),
+  width: 100,
+  height: 100,
+  color: ex.Color.Red,
+})
+
+const ray = new ex.Ray(ex.vec(100, 100), ex.Vector.Right)
+
+// Ray cast against the collider geometry, returns a point if intersects or null if not
+const point = actor.collider.get().rayCast(ray)
+// Vector(150, 100)
+```

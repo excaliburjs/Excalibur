@@ -1,0 +1,20 @@
+---
+title: Fade
+path: /docs/actions-fade
+section: Actions
+---
+
+## Fade
+
+This action method will cause Actor or Entity [[GraphicsComponent]] opacity to change from its current value to the provided value by a specified time (in milliseconds). This method is part of the actor 'Action' fluent API allowing action chaining.
+
+```typescript
+const actor = new ex.Actor({
+  width: 100,
+  height: 100,
+  color: ex.Color.Red,
+})
+
+// fade to invisible over 2000 ms
+actor.actions.fade(0, 2000)
+```

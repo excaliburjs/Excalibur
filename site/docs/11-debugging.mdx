@@ -1,0 +1,23 @@
+---
+title: Debugging Tips
+path: /docs/debugging
+section: Other
+---
+
+### Issue: My game only shows a white screen
+
+- Did you remember to call `game.start()`?
+
+### Issue: My [[Actor]] or [[Entity]] is not drawing on the screen:
+
+- Ensure your [[Actor]] or [[Entity]] is added to the correct [[Scene]].
+- Add a name to your [[Actor]] or [[Entity]] and toggle debug to see if you can see it's name in debug
+- Is your [[Actor]] or [[Entity]] offscreen? Check it's position in the debugger
+
+### Issue: Poor/laggy game performance
+
+- Consult our [performance guide](/docs/performance)
+
+### Issue: My images show up as black rectangles on mobile or other platforms
+
+- Ensure your images are less than 4k pixels in width or height, this is usually the limit for mobile devices in webgl.

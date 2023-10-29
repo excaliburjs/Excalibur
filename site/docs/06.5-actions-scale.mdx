@@ -1,0 +1,41 @@
+---
+title: ScaleTo/ScaleBy
+path: /docs/actions-scale
+section: Actions
+---
+
+## ScaleTo
+
+This method will scale an actor to the specified absolute scale at the speed specified (in scale factor per second) and return back the actor. This method is part of the actor 'Action' fluent API allowing action chaining.
+
+```typescript
+const actor = new ex.Actor({
+    pos: ex.vec(100, 100),
+    width: 100,
+    height: 100
+    color: ex.Color.Red
+});
+
+// Scale up the actor to twice the size, at .1 scale factor per second
+actor.actions.scaleTo(ex.vec(2, 2), ex.vec(.1, .1));
+
+```
+
+## ScaleBy
+
+This method will scale an actor by an amount relative to the current scale at a certain speed in scale factor per second and return back the actor. This method is part of the. This method is part of the actor 'Action' fluent API allowing action chaining.
+
+```typescript
+
+const actor = new ex.Actor({
+    pos: ex.vec(100, 100),
+    width: 100,
+    height: 100,
+    scale: ex.vec(2, 2)
+    color: ex.Color.Red
+});
+
+// Scale the actor relative to it's current scale down to 1, at .1 scale factor per second
+actor.actions.scaleBy(ex.vec(-1, -1), .1);
+
+```

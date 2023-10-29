@@ -1,0 +1,17 @@
+---
+title: Die
+path: /docs/actions-die
+section: Actions
+---
+
+[[ActionContext.die|Die]] is a quick wrapper around [[Entity.kill]] to remove something from a scene.
+
+This method will add an action to the queue that will remove the actor from the scene once it has completed its previous Any actions on the action queue after this action will not be executed.
+
+```typescript
+const actor = new ex.Actor({...})
+scene.add(actor);
+
+// Move the actor to world position (100, 100) then remove from the scene
+actor.moveTo(ex.vec(100, 100), 100).die();
+```

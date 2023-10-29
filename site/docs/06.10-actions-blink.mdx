@@ -1,0 +1,22 @@
+---
+title: Blink
+path: /docs/actions-blink
+section: Actions
+---
+
+Blinking is useful for showing that damage has been taken
+
+## Blink
+
+This method will cause an actor to [[ActionContext.blink|blink]] (become visible and not visible). Optionally, you may specify the number of blinks. Specify the amount of time the actor should be visible per blink, and the amount of time not visible. This method is part of the actor 'Action' fluent API allowing action chaining.
+
+```typescript
+const actor = new ex.Actor({
+  width: 100,
+  height: 100,
+  color: ex.Color.Red,
+})
+
+// time visible in milliseconds, time not visible in milliseconds, optional number of blinks
+actor.actions.blink(200, 200, 10)
+```
