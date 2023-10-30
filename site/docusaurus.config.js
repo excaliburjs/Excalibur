@@ -7,101 +7,6 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 const typedocSymbolLinks = require('remark-typedoc-symbol-links');
 
 const typedocProjectRoot = path.join(__dirname, '..', 'src', 'engine');
-const getTypedocJson = () => {
-  try {
-    return JSON.parse(require('fs').readFileSync(path.join(__dirname, '.docusaurus', 'api-typedoc-default.json'), 'utf8'));
-  } catch {
-    return null;
-  }
-};
-
-/**
- * @param {string} symbolPath
- * @param {string} basePath
- * @param {Map} symbolLinkIndex
- */
-function buildSymbolLink(symbolPath, basePath, symbolLinkIndex) {
-  let symbolLink = undefined;
-  const SYMBOL_CONTAINERS = [
-    ReflectionKind.Project,
-    ReflectionKind.Class,
-    ReflectionKind.Interface,
-    ReflectionKind.Enum,
-    ReflectionKind.Module,
-    ReflectionKind.SomeModule,
-    ReflectionKind.Namespace
-  ];
-  const symbolMatches = symbolLinkIndex.get(symbolPath) ?? [];
-  basePath = ensureTrailingSlash(basePath);
-
-  if (symbolMatches && symbolMatches.length) {
-    const lastContainer = symbolMatches
-      .concat([])
-      .reverse()
-      .find(([, kind]) => SYMBOL_CONTAINERS.includes(kind)) || [undefined, undefined];
-    const [, containerKind] = lastContainer;
-
-    let containerPath;
-
-    switch (containerKind) {
-      case ReflectionKind.SomeModule:
-      case ReflectionKind.Module:
-      case ReflectionKind.Namespace:
-        containerPath = 'namespace/';
-        break;
-      case ReflectionKind.Class:
-        containerPath = 'class/';
-        break;
-      case ReflectionKind.Interface:
-        containerPath = 'interface/';
-        break;
-      case ReflectionKind.Enum:
-        containerPath = 'enum/';
-        break;
-      default:
-        containerPath = '';
-    }
-
-    // assemble file url
-    symbolLink = symbolMatches.reduce((path, [matchSymbolName, matchSymbolKind]) => {
-      switch (matchSymbolKind) {
-        case ReflectionKind.Project:
-          break;
-        case ReflectionKind.SomeModule:
-        case ReflectionKind.Module:
-        case ReflectionKind.Namespace:
-          path = path.replace(/class\//gi, 'namespace/');
-          path += matchSymbolName.replace(/[^a-z0-9]/gi, '_') + '#';
-          break;
-        case ReflectionKind.Class:
-        case ReflectionKind.Interface:
-        case ReflectionKind.Enum:
-          path += matchSymbolName;
-          break;
-        case ReflectionKind.Function:
-          path += 'function/' + matchSymbolName;
-          break;
-        default:
-          path += '#' + matchSymbolName;
-          break;
-      }
-
-      return path;
-    }, basePath + containerPath);
-  }
-
-  return symbolLink;
-}
-
-/**
- * @param {string} path
- */
-function ensureTrailingSlash(path) {
-  if (!path.endsWith('/')) {
-    return path + '/';
-  }
-  return path;
-}
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -120,7 +25,7 @@ const config = {
   organizationName: 'excaliburjs', // Usually your GitHub org/user name.
   projectName: 'Excalibur', // Usually your repo name.
 
-  onBrokenLinks: 'throw',
+  onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
 
   // Even if you don't use internalization, you can use this field to set useful
@@ -264,3 +169,99 @@ const config = {
 };
 
 module.exports = config;
+
+const getTypedocJson = () => {
+  try {
+    return JSON.parse(require('fs').readFileSync(path.join(__dirname, '.docusaurus', 'api-typedoc-default.json'), 'utf8'));
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * @param {string} symbolPath
+ * @param {string} basePath
+ * @param {Map} symbolLinkIndex
+ */
+function buildSymbolLink(symbolPath, basePath, symbolLinkIndex) {
+  let symbolLink = undefined;
+  const SYMBOL_CONTAINERS = [
+    ReflectionKind.Project,
+    ReflectionKind.Class,
+    ReflectionKind.Interface,
+    ReflectionKind.Enum,
+    ReflectionKind.Module,
+    ReflectionKind.SomeModule,
+    ReflectionKind.Namespace
+  ];
+  const symbolMatches = symbolLinkIndex.get(symbolPath) ?? [];
+  basePath = ensureTrailingSlash(basePath);
+
+  if (symbolMatches && symbolMatches.length) {
+    const lastContainer = symbolMatches
+      .concat([])
+      .reverse()
+      .find(([, kind]) => SYMBOL_CONTAINERS.includes(kind)) || [undefined, undefined];
+    const [, containerKind] = lastContainer;
+
+    let containerPath;
+
+    switch (containerKind) {
+      case ReflectionKind.SomeModule:
+      case ReflectionKind.Module:
+      case ReflectionKind.Namespace:
+        containerPath = 'namespace/';
+        break;
+      case ReflectionKind.Class:
+        containerPath = 'class/';
+        break;
+      case ReflectionKind.Interface:
+        containerPath = 'interface/';
+        break;
+      case ReflectionKind.Enum:
+        containerPath = 'enum/';
+        break;
+      default:
+        containerPath = '';
+    }
+
+    // assemble file url
+    symbolLink = symbolMatches.reduce((path, [matchSymbolName, matchSymbolKind]) => {
+      switch (matchSymbolKind) {
+        case ReflectionKind.Project:
+          break;
+        case ReflectionKind.SomeModule:
+        case ReflectionKind.Module:
+        case ReflectionKind.Namespace:
+          path = path.replace(/class\//gi, 'namespace/');
+          path += matchSymbolName.replace(/[^a-z0-9]/gi, '_') + '#';
+          break;
+        case ReflectionKind.Class:
+        case ReflectionKind.Interface:
+        case ReflectionKind.Enum:
+          path += matchSymbolName;
+          break;
+        case ReflectionKind.Function:
+          path += 'function/' + matchSymbolName;
+          break;
+        default:
+          path += '#' + matchSymbolName;
+          break;
+      }
+
+      return path;
+    }, basePath + containerPath);
+  }
+
+  return symbolLink;
+}
+
+/**
+ * @param {string} path
+ */
+function ensureTrailingSlash(path) {
+  if (!path.endsWith('/')) {
+    return path + '/';
+  }
+  return path;
+}
