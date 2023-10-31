@@ -1,3 +1,5 @@
+/* eslint-disable storybook/context-in-play-function */
+import { Meta, StoryObj } from '@storybook/html';
 import { action } from '@storybook/addon-actions';
 import playIcon from '@fortawesome/fontawesome-free/svgs/solid/play.svg';
 import pauseIcon from '@fortawesome/fontawesome-free/svgs/solid/pause.svg';
@@ -12,210 +14,209 @@ import forestLoop from './assets/loop-forest.mp3';
 
 export default {
   title: 'Audio'
-};
+} as Meta;
 
-export const playingASound: Story = withEngine(async (game) => {
-  const loader = new Loader();
-  const guitarLoopSound = new Sound(guitarLoop);
-  const playIconTx = new ImageSource(playIcon);
-  const pauseIconTx = new ImageSource(pauseIcon);
-  const stopIconTx = new ImageSource(stopIcon);
+export const PlayingASound: StoryObj = {
+  render: withEngine(async (game) => {
+    const loader = new Loader();
+    const guitarLoopSound = new Sound(guitarLoop);
+    const playIconTx = new ImageSource(playIcon);
+    const pauseIconTx = new ImageSource(pauseIcon);
+    const stopIconTx = new ImageSource(stopIcon);
 
-  loader.addResources([guitarLoopSound, playIconTx, pauseIconTx, stopIconTx]);
+    loader.addResources([guitarLoopSound, playIconTx, pauseIconTx, stopIconTx]);
 
-  guitarLoopSound.on('processed', (e: NativeSoundProcessedEvent) => {
-    action('Guitar loop sound processed')(e);
-  });
+    guitarLoopSound.on('processed', (e: NativeSoundProcessedEvent) => {
+      action('Guitar loop sound processed')(e);
+    });
 
-  await game.start(loader);
+    await game.start(loader);
 
-  const startOrPauseBtn = new Actor({ x: game.currentScene.camera.x - 42, y: 50, width: 32, height: 32 });
-  const stopBtn = new Actor({ x: game.currentScene.camera.x, y: 50, width: 32, height: 32, color: Color.Blue });
-  const playHead = new Actor({ x: game.currentScene.camera.x, y: 100, width: 2, height: 25, color: Color.White });
-  const playTimeline = new Actor({ x: game.currentScene.camera.x, y: 100, width: 250, height: 3, color: Color.White });
+    const startOrPauseBtn = new Actor({ x: game.currentScene.camera.x - 42, y: 50, width: 32, height: 32 });
+    const stopBtn = new Actor({ x: game.currentScene.camera.x, y: 50, width: 32, height: 32, color: Color.Blue });
+    const playHead = new Actor({ x: game.currentScene.camera.x, y: 100, width: 2, height: 25, color: Color.White });
+    const playTimeline = new Actor({ x: game.currentScene.camera.x, y: 100, width: 250, height: 3, color: Color.White });
 
-  const playSprite = new Sprite({ image: playIconTx, destSize: { width: 32, height: 32 } });
-  // playSprite.fill(Color.White);
-  const pauseSprite = new Sprite({ image: pauseIconTx, destSize: { width: 32, height: 32 } });
-  // pauseSprite.fill(Color.White);
-  const stopSprite = new Sprite({ image: stopIconTx, destSize: { width: 32, height: 32 } });
-  // stopSprite.fill(Color.White);
+    const playSprite = new Sprite({ image: playIconTx, destSize: { width: 32, height: 32 } });
+    // playSprite.fill(Color.White);
+    const pauseSprite = new Sprite({ image: pauseIconTx, destSize: { width: 32, height: 32 } });
+    // pauseSprite.fill(Color.White);
+    const stopSprite = new Sprite({ image: stopIconTx, destSize: { width: 32, height: 32 } });
+    // stopSprite.fill(Color.White);
 
-  startOrPauseBtn.graphics.add('play', playSprite);
-  startOrPauseBtn.graphics.add('pause', pauseSprite);
-  startOrPauseBtn.graphics.show('play');
+    startOrPauseBtn.graphics.add('play', playSprite);
+    startOrPauseBtn.graphics.add('pause', pauseSprite);
+    startOrPauseBtn.graphics.show('play');
 
-  startOrPauseBtn.on('pointerup', (evt) => {
-    if (!guitarLoopSound.isPlaying()) {
-      guitarLoopSound.play();
-    } else {
-      guitarLoopSound.pause();
-    }
+    startOrPauseBtn.on('pointerup', (evt) => {
+      if (!guitarLoopSound.isPlaying()) {
+        guitarLoopSound.play();
+      } else {
+        guitarLoopSound.pause();
+      }
 
-    evt.cancel();
-  });
-  stopBtn.graphics.show(stopSprite);
+      evt.cancel();
+    });
+    stopBtn.graphics.show(stopSprite);
 
-  const playheadStartPos = playTimeline.collider.bounds.left;
-  const playheadEndPos = playTimeline.collider.bounds.right;
-  let startTime = 0;
-  let elapsedTime = 0;
+    const playheadStartPos = playTimeline.collider.bounds.left;
+    const playheadEndPos = playTimeline.collider.bounds.right;
+    let startTime = 0;
+    let elapsedTime = 0;
 
-  playHead.pos.setTo(playheadStartPos, playHead.pos.y);
-
-  guitarLoopSound.on('playbackstart', (e: NativeSoundEvent) => {
     playHead.pos.setTo(playheadStartPos, playHead.pos.y);
-    if (guitarLoopSound.duration > 0) {
+
+    guitarLoopSound.on('playbackstart', (e: NativeSoundEvent) => {
+      playHead.pos.setTo(playheadStartPos, playHead.pos.y);
+      if (guitarLoopSound.duration > 0) {
+        startTime = Date.now();
+        elapsedTime = 0;
+        playHead.actions.easeTo(playheadEndPos, playHead.pos.y, guitarLoopSound.duration * 1000, EasingFunctions.Linear);
+      }
+      startOrPauseBtn.graphics.show('pause');
+      action('playbackstart')(e);
+    });
+
+    guitarLoopSound.on('pause', (e) => {
+      elapsedTime = Date.now() - startTime + elapsedTime;
+      playHead.actions.clearActions();
+      startOrPauseBtn.graphics.show('play');
+      action('pause')(e, elapsedTime);
+    });
+
+    guitarLoopSound.on('resume', (e: NativeSoundEvent) => {
       startTime = Date.now();
-      elapsedTime = 0;
-      playHead.actions.easeTo(playheadEndPos, playHead.pos.y, guitarLoopSound.duration * 1000, EasingFunctions.Linear);
-    }
-    startOrPauseBtn.graphics.show('pause');
-    action('playbackstart')(e);
-  });
+      if (guitarLoopSound.duration > 0) {
+        playHead.actions.easeTo(playheadEndPos, playHead.pos.y, guitarLoopSound.duration * 1000 - elapsedTime, EasingFunctions.Linear);
+      }
+      startOrPauseBtn.graphics.show('pause');
+      action('resume')(e);
+    });
 
-  guitarLoopSound.on('pause', (e) => {
-    elapsedTime = Date.now() - startTime + elapsedTime;
-    playHead.actions.clearActions();
-    startOrPauseBtn.graphics.show('play');
-    action('pause')(e, elapsedTime);
-  });
+    guitarLoopSound.on('playbackend', (e) => {
+      playHead.actions.clearActions();
+      playHead.pos.setTo(playheadStartPos, playHead.pos.y);
+      startOrPauseBtn.graphics.show('play');
+      action('playbackend')(e);
+    });
 
-  guitarLoopSound.on('resume', (e: NativeSoundEvent) => {
-    startTime = Date.now();
-    if (guitarLoopSound.duration > 0) {
-      playHead.actions.easeTo(playheadEndPos, playHead.pos.y, guitarLoopSound.duration * 1000 - elapsedTime, EasingFunctions.Linear);
-    }
-    startOrPauseBtn.graphics.show('pause');
-    action('resume')(e);
-  });
+    stopBtn.on('pointerup', (evt) => {
+      guitarLoopSound.stop();
+      playHead.pos.setTo(playheadStartPos, playHead.pos.y);
 
-  guitarLoopSound.on('playbackend', (e) => {
-    playHead.actions.clearActions();
-    playHead.pos.setTo(playheadStartPos, playHead.pos.y);
-    startOrPauseBtn.graphics.show('play');
-    action('playbackend')(e);
-  });
+      evt.cancel();
+    });
 
-  stopBtn.on('pointerup', (evt) => {
-    guitarLoopSound.stop();
-    playHead.pos.setTo(playheadStartPos, playHead.pos.y);
-
-    evt.cancel();
-  });
-
-  game.add(stopBtn);
-  game.add(startOrPauseBtn);
-  game.add(playTimeline);
-  game.add(playHead);
-});
-
-export const multipleTracksAndLooping: Story = withEngine(async (game, { beginGuitarDelay }) => {
-  const loader = new Loader();
-  const guitarLoopSound = new Sound(guitarLoop);
-  const campfireLoopSound = new Sound(campfireLoop);
-  const forestLoopSound = new Sound(forestLoop);
-  const playIconTx = new ImageSource(playIcon);
-  loader.addResources([guitarLoopSound, campfireLoopSound, forestLoopSound, playIconTx]);
-
-  game.on('visible', () => {
-    action('visible')('Game was visible, sound should continue playing');
-  });
-
-  game.on('hidden', () => {
-    action('hidden')('Game was hidden, sound should pause playing');
-  });
-
-  await game.start(loader);
-
-  const playAction = action('play');
-  const startGuitarAt = beginGuitarDelay;
-
-  const startBtn = new Actor({x: game.currentScene.camera.x - 42, y: 50, width: 32, height: 32, color: Color.White });
-  const playSprite = new Sprite({ image: playIconTx, destSize: { width: 32, height: 32 } });
-  // playSprite.fill(Color.White);
-
-  startBtn.graphics.add(playSprite);
-  startBtn.on('pointerup', (evt) => {
-    playAction('Playing campfire and forest sounds ');
-    // playSprite.fill(Color.Green);
-
-    guitarLoopSound.loop = true;
-    campfireLoopSound.loop = true;
-    forestLoopSound.loop = true;
-    campfireLoopSound.play();
-    forestLoopSound.play();
-
-    setTimeout(() => {
-      playAction('Playing guitar loop');
-      guitarLoopSound.play();
-    }, startGuitarAt);
-
-    evt.cancel();
-  });
-
-  game.add(startBtn);
-});
-
-multipleTracksAndLooping.args = {
-  beginGuitarDelay: 2000
+    game.add(stopBtn);
+    game.add(startOrPauseBtn);
+    game.add(playTimeline);
+    game.add(playHead);
+  })
 };
 
-export const volumeLevels: Story = withEngine(async (game, { initialVolume, delayVolume }) => {
-  const loader = new Loader();
-  const testSound = new Sound(guitarLoop);
-  const playIconTx = new ImageSource(playIcon);
+export const MultipleTracksAndLooping: StoryObj = {
+  render: withEngine(async (game, { beginGuitarDelay }) => {
+    const loader = new Loader();
+    const guitarLoopSound = new Sound(guitarLoop);
+    const campfireLoopSound = new Sound(campfireLoop);
+    const forestLoopSound = new Sound(forestLoop);
+    const playIconTx = new ImageSource(playIcon);
+    loader.addResources([guitarLoopSound, campfireLoopSound, forestLoopSound, playIconTx]);
 
-  loader.addResources([testSound, playIconTx]);
+    game.on('visible', () => {
+      action('visible')('Game was visible, sound should continue playing');
+    });
 
-  // click a button to play the sound
-  const playAction = action('play');
-  const startBtn = new Actor({x: game.currentScene.camera.x - 42, y: 50, width: 32, height: 32, color: Color.White });
-  const playSprite = new Sprite({ image: playIconTx, destSize: { width: 32, height: 32 } });
-  // playSprite.fill(Color.White);
-  startBtn.graphics.add(playSprite);
+    game.on('hidden', () => {
+      action('hidden')('Game was hidden, sound should pause playing');
+    });
 
-  startBtn.on('pointerup', function () {
-    playAction('Playing guitar sound, volume will adjust in 2 seconds');
+    await game.start(loader);
 
-    // playSprite.fill(Color.Green);
+    const playAction = action('play');
+    const startGuitarAt = beginGuitarDelay;
 
-    //button will turn red again when song is done
-    if (!testSound.isPlaying()) {
-      testSound.play(initialVolume).then(function () {
-        // playSprite.fill(Color.White);
-      });
+    const startBtn = new Actor({ x: game.currentScene.camera.x - 42, y: 50, width: 32, height: 32, color: Color.White });
+    const playSprite = new Sprite({ image: playIconTx, destSize: { width: 32, height: 32 } });
+    // playSprite.fill(Color.White);
 
-      //change volume of the sound after 2000 ms to show that
-      //initial setting worked
-      setTimeout(function () {
-        testSound.volume = delayVolume;
-      }, 2000);
-    }
-  });
-  game.add(startBtn);
+    startBtn.graphics.add(playSprite);
+    startBtn.on('pointerup', (evt) => {
+      playAction('Playing campfire and forest sounds ');
+      // playSprite.fill(Color.Green);
 
-  await game.start(loader);
-});
-volumeLevels.argTypes = {
-  initialVolume: {
-    control: {
-      type: 'range',
-      min: 0,
-      max: 1,
-      step: 0.1
-    }
-  },
-  delayVolume: {
-    control: {
-      type: 'range',
-      min: 0,
-      max: 1,
-      step: 0.1
-    }
+      guitarLoopSound.loop = true;
+      campfireLoopSound.loop = true;
+      forestLoopSound.loop = true;
+      campfireLoopSound.play();
+      forestLoopSound.play();
+
+      setTimeout(() => {
+        playAction('Playing guitar loop');
+        guitarLoopSound.play();
+      }, startGuitarAt);
+
+      evt.cancel();
+    });
+
+    game.add(startBtn);
+  }),
+  args: {
+    beginGuitarDelay: 2000
   }
 };
-volumeLevels.args = {
-  initialVolume: 0.2,
-  delayVolume: 1
+
+export const VolumeLevels: StoryObj = {
+  render: withEngine(async (game, { initialVolume, delayVolume }) => {
+    const loader = new Loader();
+    const testSound = new Sound(guitarLoop);
+    const playIconTx = new ImageSource(playIcon);
+
+    loader.addResources([testSound, playIconTx]);
+
+    // click a button to play the sound
+    const playAction = action('play');
+    const startBtn = new Actor({ x: game.currentScene.camera.x - 42, y: 50, width: 32, height: 32, color: Color.White });
+    const playSprite = new Sprite({ image: playIconTx, destSize: { width: 32, height: 32 } });
+    startBtn.graphics.add(playSprite);
+
+    startBtn.on('pointerup', function () {
+      playAction('Playing guitar sound, volume will adjust in 2 seconds');
+
+      if (!testSound.isPlaying()) {
+        testSound.play(initialVolume).then(function () {
+          /* do nothing */
+        });
+
+        setTimeout(function () {
+          testSound.volume = delayVolume;
+        }, 2000);
+      }
+    });
+    game.add(startBtn);
+
+    await game.start(loader);
+  }),
+  argTypes: {
+    initialVolume: {
+      control: {
+        type: 'range',
+        min: 0,
+        max: 1,
+        step: 0.1
+      }
+    },
+    delayVolume: {
+      control: {
+        type: 'range',
+        min: 0,
+        max: 1,
+        step: 0.1
+      }
+    }
+  },
+  args: {
+    initialVolume: 0.2,
+    delayVolume: 1
+  }
 };

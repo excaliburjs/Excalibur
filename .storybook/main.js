@@ -3,9 +3,7 @@ const path = require('path');
 module.exports = {
   stories: ['../src/stories/*.stories.ts'],
   addons: ['@storybook/addon-links', '@storybook/addon-essentials'],
-  core: {
-    builder: 'webpack5'
-  },
+
   webpackFinal: async (config, { configType }) => {
     config.module.rules.push({
       test: /\.glsl$/,
@@ -36,5 +34,14 @@ module.exports = {
     }
 
     return config;
+  },
+
+  framework: {
+    name: '@storybook/html-webpack5',
+    options: {}
+  },
+
+  docs: {
+    autodocs: true
   }
 };
