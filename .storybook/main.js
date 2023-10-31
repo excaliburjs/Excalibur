@@ -5,9 +5,21 @@ module.exports = {
   addons: ['@storybook/addon-links', '@storybook/addon-essentials'],
 
   webpackFinal: async (config, { configType }) => {
+    const cssLoader = config.module.rules.findIndex((r) => r.test && r.test.toString().includes('.css'));
+
+    if (cssLoader > -1) {
+      // TODO: Investigate why css-loader messes with toString() expressions
+      config.module.rules.splice(cssLoader, 1);
+    }
+
     config.module.rules.push({
       test: /\.glsl$/,
       use: ['raw-loader']
+    });
+
+    config.module.rules.push({
+      test: /\.css$/,
+      use: ['css-loader']
     });
 
     config.module.rules.push({
@@ -42,6 +54,6 @@ module.exports = {
   },
 
   docs: {
-    autodocs: true
+    autodocs: false
   }
 };

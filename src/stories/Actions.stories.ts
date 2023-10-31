@@ -304,6 +304,11 @@ export const Ease: StoryObj = {
     easeY: 0
   }
 };
+
+/**
+ * 'Use `Actor.actions.scaleBy()` and `Actor.actions.scaleTo()`
+ * to scale the Actor by a scale factor at a specific speed'
+ */
 export const Scale: StoryObj = {
   render: withEngine(async (game, { scaleX, scaleY, speed }) => {
     const heartTx = new ImageSource(heartTexture);
@@ -344,11 +349,5 @@ export const Scale: StoryObj = {
     speed: 2,
     scaleX: 2,
     scaleY: 2
-  },
-  parameters: {
-    docs: {
-      storyDescription:
-        'Use `Actor.actions.scaleBy()` and `Actor.actions.scaleTo()` to scale the Actor by a scale factor at a specific speed'
-    }
   }
 };
