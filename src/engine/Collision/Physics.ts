@@ -103,18 +103,6 @@ export class Physics {
    */
   public static dynamicTreeVelocityMultiplier = 2;
 
-  @obsolete({
-    message: 'Alias for incorrect spelling used in older versions, will be removed in v0.25.0',
-    alternateMethod: 'dynamicTreeVelocityMultiplier'
-  })
-  public static get dynamicTreeVelocityMultiplyer() {
-    return Physics.dynamicTreeVelocityMultiplier;
-  }
-
-  public static set dynamicTreeVelocityMultiplyer(value: number) {
-    Physics.dynamicTreeVelocityMultiplier = value;
-  }
-
   /**
    * Pad RigidBody BoundingBox by a constant amount
    */

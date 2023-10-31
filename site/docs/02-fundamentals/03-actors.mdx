@@ -1,8 +1,4 @@
----
-title: Actors
-path: /docs/actors
-section: Fundamentals
----
+import ActorMain from '!!raw-loader!./examples/ActorMain.tsx';
 
 [[Actor|Actors]] are prebuilt Excalibur [[Entity|Entities]] that come with the batteries included for most applications.
 Like [[TransformComponent|position]], [[MotionComponent|velocity]], [[GraphicsComponent|graphics]], and [[ColliderComponent|collision detection]].
@@ -19,9 +15,9 @@ and manipulate it directly.
 Actors (and other entities) must be added to a [Scene](/docs/scene) to be drawn
 and updated on-screen.
 
-`embed:excalibur-snippets/src/actor/main.ts{snippet: "actor"}`
-
-<IFrameEmbed src="https://excaliburjs.com/excalibur-snippets/actor/" />
+<CodeBlock live noInline language="tsx">
+{ActorMain}
+</CodeBlock>
 
 [[Engine.add|game.add]] is a convenience method for adding an actor to the current scene. The equivalent verbose call is [[Scene.add|game.currentScene.add]].
 
@@ -333,8 +329,6 @@ an actor participate, you need to switch from the default [[CollisionType.Preven
 to [[CollisionType.Active|active]], [[CollisionType.Fixed|fixed]], or [[CollisionType.Passive|passive]] collision type.
 
 `embed:excalibur-snippets/src/collision/main.ts{snippet: "collision"}`
-
-<IFrameEmbed src="https://excaliburjs.com/excalibur-snippets/collision/" />
 
 :::note
 

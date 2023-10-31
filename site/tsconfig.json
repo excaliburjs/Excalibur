@@ -1,7 +1,12 @@
 {
   // This file is not used in compilation. It is here just for a nice editor experience.
-  "extends": "@docusaurus/tsconfig",
+  "extends": ["../src/engine/tsconfig.json", "@docusaurus/tsconfig"],
   "compilerOptions": {
-    "baseUrl": "."
+    "baseUrl": ".",
+    "paths": {
+      "@site/*": ["./*"],
+      "excalibur": ["../src/engine"],
+      "excalibur/*": ["../src/engine/*"],
+    }
   }
 }

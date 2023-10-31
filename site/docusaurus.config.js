@@ -2,6 +2,7 @@
 // Note: type annotations allow type checking and IDEs autocompletion
 const { ReflectionKind } = require('typedoc');
 const path = require('path');
+const webpack = require('webpack');
 const { themes } = require('prism-react-renderer');
 const lightCodeTheme = themes.github;
 const darkCodeTheme = themes.dracula;
@@ -72,7 +73,49 @@ const config = {
     ]
   ],
 
+  themes: ['@docusaurus/theme-live-codeblock'],
+
   plugins: [
+    async function excaliburPlugin(context, options) {
+      return {
+        name: 'excalibur-plugin',
+        configureWebpack(config, isServer, utils) {
+          const postCssLoader = config.module.rules.find((r) => r.test && r.test.toString().includes('.css$'));
+
+          if (postCssLoader) {
+            console.log('FOUND POSTCSS-LOADER');
+            postCssLoader.exclude = [postCssLoader.exclude, path.resolve(__dirname, '../src/engine')];
+          }
+
+          return {
+            module: {
+              rules: [
+                {
+                  test: /\.css$/,
+                  include: path.resolve(__dirname, '../src/engine'),
+                  use: ['css-loader']
+                },
+                {
+                  test: /\.glsl$/,
+                  include: path.resolve(__dirname, '../src/engine'),
+                  use: ['raw-loader']
+                }
+              ]
+            },
+            plugins: [
+              new webpack.DefinePlugin({
+                'process.env.__EX_VERSION': JSON.stringify('docusaurus')
+              })
+            ],
+            resolve: {
+              alias: {
+                excalibur: path.resolve(__dirname, '../src/engine')
+              }
+            }
+          };
+        }
+      };
+    },
     [
       'docusaurus-plugin-typedoc-api',
       {
@@ -166,6 +209,13 @@ const config = {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
         additionalLanguages: ['bash', 'diff', 'json']
+      },
+      liveCodeBlock: {
+        /**
+         * The position of the live playground, above or under the editor
+         * Possible values: "top" | "bottom"
+         */
+        playgroundPosition: 'bottom'
       }
     })
 };
