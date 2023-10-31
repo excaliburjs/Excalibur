@@ -170,13 +170,13 @@ const config = {
 
 module.exports = config;
 
-const getTypedocJson = () => {
+function getTypedocJson() {
   try {
     return JSON.parse(require('fs').readFileSync(path.join(__dirname, '.docusaurus', 'api-typedoc-default.json'), 'utf8'));
   } catch {
     return null;
   }
-};
+}
 
 /**
  * @param {string} symbolPath
