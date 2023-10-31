@@ -14,14 +14,14 @@ In a TypeScript project, you can reference Excalibur with the ES6 import style s
 
 ```js
 // Excalibur is loaded into the ex global namespace
-import * as ex from 'excalibur'
+import * as ex from 'excalibur';
 ```
 
 or
 
 ```js
 // Excalibur is loaded into the ex global namespace
-import { Actor, Engine } from 'excalibur'
+import { Actor, Engine } from 'excalibur';
 ```
 
 #### TSConfig
@@ -36,15 +36,7 @@ We have a base recommended tsconfig.json that the TypeScript compiler uses as co
     "target": "es2015" /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019', 'ES2020', or 'ESNEXT'. */,
     "module": "es2015" /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', 'es2020', or 'ESNext'. */,
     /* Specify library files to be included in the compilation. */
-    "lib": [
-      "dom",
-      "es5",
-      "es2015.Proxy",
-      "es2015.promise",
-      "es2015.collection",
-      "es2015.iterable",
-      "es2015"
-    ],
+    "lib": ["dom", "es5", "es2015.Proxy", "es2015.promise", "es2015.collection", "es2015.iterable", "es2015"],
 
     /* Strict Type-Checking Options */
     "strict": true /* Enable all strict type-checking options. */,
@@ -65,25 +57,25 @@ In a module loader system, such as Webpack or Parcel, it will automatically bund
 To support tree-shaking, you should use _named imports_:
 
 ```js
-import { Actor } from 'excalibur'
+import { Actor } from 'excalibur';
 ```
 
-<Note variant="warning">
+:::warning
 
 Excalibur doesn't do the best optimization to support tree-shaking--likely
 you'll end up importing everything at the moment but this is slowly getting better.
 
-</Note>
+:::
 
 ### Parcel
 
 Parcel is by far the easiest way to get a bundler up and running with excalibur. We recommend looking at the [template](https://github.com/excaliburjs/template-ts-parcel).
 
-<Note variant="warning">
+:::warning
 
 Adding an `import "regenerator-runtime/runtime";` in your entry file is needed to force parcel to understand async/await inside excalibur
 
-</Note>
+:::
 
 Using npm to install parcel, excalibur, and typescript
 
@@ -99,10 +91,10 @@ Build your game script
 // ./src/index.ts
 const game = new Engine({
   width: 600,
-  height: 400,
-})
+  height: 400
+});
 
-game.start()
+game.start();
 ```
 
 Include the **typescript** file in your html
@@ -124,13 +116,13 @@ Build and run with parcel!
 
 Webpack is the battleship solution, and if you need a lot of control over your build process, this might be the way to go.
 
-<Note variant="warning">
+:::warning
 
 Configuring webpack is not for the faint of heart, we recommend thoroughly reading webpack's documentation on how to understand and configure webpack.
 
 [Our template](https://github.com/excaliburjs/template-ts-webpack) is a good starting point.
 
-</Note>
+:::
 
 ### Deno
 
@@ -150,11 +142,11 @@ Either [esm.sh](https://esm.sh/excalibur) or [skypack.dev](https://www.skypack.d
 deno bundle https://esm.sh/excalibur excalibur.bundle.js
 ```
 
-<Note>
+:::note
 
 Learn more about the `deno bundle` command in the [official docs](https://deno.land/manual/tools/bundler#bundling).
 
-</Note>
+:::
 
 Using as a native module works in Chrome without any extras:
 
@@ -162,28 +154,28 @@ Using as a native module works in Chrome without any extras:
 <!-- index.html -->
 
 <script type="module">
-  import ex from './excalibur.bundle.js'
+  import ex from './excalibur.bundle.js';
 
-  const game = new ex.Engine()
-  game.start()
+  const game = new ex.Engine();
+  game.start();
 </script>
 ```
 
 The drawback to this method is that it doesn't give you type annotations in your IDE, like [the following method](#importing-into-a-javascript-or-typescript-file).
 
-<Note>
+:::note
 
 Learn more about the `type="module"` attribute [on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules).
 
-</Note>
+:::
 
 #### Importing into a JavaScript or TypeScript File
 
-<Note>
+:::note
 
 We have tested the following examples with version 0.26.0-alpha.264 of the excalibur package. We recommend you run at least that version for this to work. You can get [the latest excalibur version on npm](https://www.npmjs.com/package/excalibur).
 
-</Note>
+:::
 
 More likely, you will want to import Excalibur into a JavaScript or TypeScript file.
 
@@ -209,10 +201,10 @@ Then Excalibur can be imported. This can be done in two ways:
 ```typescript
 // index.ts
 
-import { Engine } from 'https://esm.sh/excalibur@0.26.0-alpha.264'
+import { Engine } from 'https://esm.sh/excalibur@0.26.0-alpha.264';
 
-const game = new Engine()
-game.start()
+const game = new Engine();
+game.start();
 ```
 
 **Alternative: Namespace Import **
@@ -220,10 +212,10 @@ game.start()
 ```typescript
 // index.ts
 
-import * as ex from 'https://esm.sh/excalibur@0.26.0-alpha.264'
+import * as ex from 'https://esm.sh/excalibur@0.26.0-alpha.264';
 
-const game = new ex.Engine()
-game.start()
+const game = new ex.Engine();
+game.start();
 ```
 
 ##### Aside - Why do we recommend named imports over namespace imports?
@@ -234,19 +226,19 @@ There are two main reasons:
 
 - They can help with _tree shaking_, as explained in [this relatively beginner-friendly developers.google tutorial](https://developers.google.com/web/fundamentals/performance/optimizing-javascript/tree-shaking/#finding_opportunities_to_shake_a_tree).
 
-<Note>
+:::note
 
 _Tree shaking_ means dropping unused code, reducing the size of your bundle so that your app can load faster for the end-user. This can be done by build tools such as [Rollup](https://rollupjs.org/guide/en/#tree-shaking) and [Webpack](https://webpack.js.org/guides/tree-shaking/).
 
-</Note>
+:::
 
 Both approaches work. you might have your reasons for using namespace imports. We encourage you to do your own research!
 
-<Note>
+:::note
 
 The official MDN documentation is a great place to start learning about [modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules) and [imports](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import).
 
-</Note>
+:::
 
 #### Bundling and Applying
 
@@ -256,11 +248,11 @@ Set up your `tsconfig.json` and your `index.ts` as described in [the section abo
 deno bundle index.ts game.bundle.js --config tsconfig.json
 ```
 
-<Note>
+:::note
 
 Learn more about the `deno bundle` command in the official [Deno docs](https://deno.land/manual/tools/bundler#bundling).
 
-</Note>
+:::
 
 And you can apply it in your `index.html` with a regular script tag:
 
@@ -276,11 +268,11 @@ To enable type annotations and IntelliSense in a Deno environment, you might nee
 
 Make sure to read the instructions of the extension. you might also need to install the Deno CLI and later initialize the extension in your IDE workspace.
 
-<Note variant="warning">
+:::warning
 
 It might also take a few seconds until the IntelliSense starts working. Deno is resolving the import URLs and downloading the necessary files in the background.
 
-</Note>
+:::
 
 **If you're using skypack.dev**, you might also need to add the `?dts` query parameter to the package name. your import should read something like this:
 
@@ -294,8 +286,8 @@ Or, if you want to use a specific version:
 import { Engine } from "https://cdn.skypack.dev/excalibur@0.26.0-alpha.264?dts
 ```
 
-<Note>
+:::note
 
 Read more about TypeScript declarations in the official [skypack.dev docs](https://docs.skypack.dev/skypack-cdn/api-reference/lookup-urls#typescript-declarations).
 
-</Note>
+:::

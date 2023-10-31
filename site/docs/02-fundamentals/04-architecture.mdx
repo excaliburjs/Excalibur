@@ -23,12 +23,12 @@ const game = new ex.Engine({
   height: 600, // the height of the canvas
   canvasElementId: '', // the DOM canvas element ID, if you are providing your own
   displayMode: ex.DisplayMode.FitScreen, // the display mode
-  pointerScope: ex.Input.PointerScope.Document, // the scope of capturing pointer (mouse/touch) events
-})
+  pointerScope: ex.Input.PointerScope.Document // the scope of capturing pointer (mouse/touch) events
+});
 // call game.start, which is a Promise
 game.start().then(function () {
   // ready, set, go!
-})
+});
 ```
 
 You would include your script (or [bundle it](/docs/installation#module-loaders-and-bundlers)) on an HTML page and that page does _not need anything else_.
@@ -97,15 +97,15 @@ Learn more about the [scene lifecycle](/docs/scenes#scene-lifecycle).
 ### Adding a scene
 
 ```js
-const game = new ex.Engine()
+const game = new ex.Engine();
 // create a new level
-const level1 = new ex.Scene()
+const level1 = new ex.Scene();
 // add level 1 to the game
-game.add('level1', level1)
+game.add('level1', level1);
 // in response to user input, go to level 1
-game.goToScene('level1')
+game.goToScene('level1');
 // go back to main menu
-game.goToScene('root')
+game.goToScene('root');
 ```
 
 ### Accessing the current scene
@@ -120,8 +120,8 @@ In Excalibur there are option bag constructors available on most types. These su
 For example instead of doing this:
 
 ```typescript
-const actor = new ex.Actor(1, 2, 100, 100, ex.Color.Red)
-actor.body.collisionType = ex.CollisionType.Active
+const actor = new ex.Actor(1, 2, 100, 100, ex.Color.Red);
+actor.body.collisionType = ex.CollisionType.Active;
 ```
 
 This is possible:
@@ -142,23 +142,23 @@ In fact you can create a duplicate this way
 
 ```typescript
 const actor = new ex.Actor({
-  pos: new ex.Vector(1, 2),
-})
-const actorClone = new ex.Actor(actor)
+  pos: new ex.Vector(1, 2)
+});
+const actorClone = new ex.Actor(actor);
 
-expect(actor.pos).toBe(actorClone.pos) // true;
+expect(actor.pos).toBe(actorClone.pos); // true;
 ```
 
 Types that support option bags can have their properties mass assigned using the assign method.
 
 ```typescript
-const actor = new ex.Actor(options)
+const actor = new ex.Actor(options);
 
 actor.assign({
   pos: new ex.Vector(100, 100),
   width: 1000,
-  color: ex.Color.Red,
-})
+  color: ex.Color.Red
+});
 ```
 
 ## Extending the engine
@@ -170,20 +170,20 @@ You can customize the options or provide more for your game by extending [[Engin
 ```ts
 class Game extends ex.Engine {
   constructor() {
-    super({ width: 800, height: 600, displayMode: DisplayMode.FitScreen })
+    super({ width: 800, height: 600, displayMode: DisplayMode.FitScreen });
   }
 
   public start() {
     // add custom scenes
-    this.add('mainmenu', new MainMenu())
+    this.add('mainmenu', new MainMenu());
     return super.start(myLoader).then(() => {
-      this.goToScene('mainmenu')
+      this.goToScene('mainmenu');
       // custom start-up
-    })
+    });
   }
 }
-const game = new Game()
-game.start()
+const game = new Game();
+game.start();
 ```
 
 ## Event handling
@@ -203,7 +203,7 @@ For example:
 ```typescript
 actor.on('predraw', (evtObj: PreDrawEvent) => {
   // do some pre drawing
-})
+});
 ```
 
 ### Example: Actor events
@@ -243,15 +243,15 @@ an example.
 
 ```js
 // create a publisher on an empty object
-var vent = new ex.EventDispatcher({})
+var vent = new ex.EventDispatcher({});
 // handler for an event
 var subscription = function (event) {
-  console.log(event)
-}
+  console.log(event);
+};
 // add a subscription
-vent.on('someevent', subscription)
+vent.on('someevent', subscription);
 // publish an event somewhere in the game
-vent.emit('someevent', new ex.GameEvent())
+vent.emit('someevent', new ex.GameEvent());
 ```
 
 ## Managing game state
@@ -260,11 +260,11 @@ Excalibur does not provide any out-of-the-box way to manage game state but typic
 
 The benefit of something like a state machine is that state can be separated from the actions an actor may take and you can then _save_ and _load_ state more easily to enable save game management. You could choose for example to have a global game state that you can serialize and deserialize.
 
-<Note>
+:::note
 
 Have you implemented state management in your Excalibur game? [Let us know](https://github.com/excaliburjs/Excalibur#questions)!
 
-</Note>
+:::
 
 ## Enabling debug mode
 

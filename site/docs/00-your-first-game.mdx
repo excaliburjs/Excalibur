@@ -1,6 +1,7 @@
 ---
 tags: [Tutorial]
 ---
+
 # Hello Excalibur
 
 ## Introduction
@@ -13,17 +14,17 @@ Excalibur uses a theater-style metaphor to organize your games. There are `Actor
 
 In this tutorial, we are using "ES Style" imports, but the global `ex.` namespace can also be used if you are using a standalone script tag.
 
-<Note>
+:::note
 
 See [docs on how to configure bundlers for ES imports](/docs/bundlers) with module loaders and bundlers, there are template repos for [parcel v1](https://github.com/excaliburjs/template-ts-parcel), [parcel v2](https://github.com/excaliburjs/template-ts-parcel-v2), [vite](https://github.com/excaliburjs/template-ts-vite), [webpack](https://github.com/excaliburjs/template-ts-webpack), and [rollup](https://github.com/excaliburjs/template-ts-rollup).
 
-</Note>
+:::
 
 ```ts
 // ES Style Imports
-import { Actor } from 'excalibur'
+import { Actor } from 'excalibur';
 
-const actor = new Actor()
+const actor = new Actor();
 ```
 
 ### Script Tag
@@ -48,41 +49,41 @@ Excalibur can be used as a script reference, see [standalone script](/docs/insta
 // game.js
 // Standalone style 'ex' global exists ambiently from an included script.
 
-const actor = new ex.Actor()
+const actor = new ex.Actor();
 ```
 
 ## Hello Excalibur: Building Breakout!
 
-In this example we'll build a simple version of the popular game breakout. [Breakout](https://en.wikipedia.org/wiki/Breakout_(video_game)) is a game where you break bricks at the top of the screen using a ball that bounces off of a player paddle. You must break all the bricks to win and avoid the ball falling off the bottom of the screen.
+In this example we'll build a simple version of the popular game breakout. [Breakout](<https://en.wikipedia.org/wiki/Breakout_(video_game)>) is a game where you break bricks at the top of the screen using a ball that bounces off of a player paddle. You must break all the bricks to win and avoid the ball falling off the bottom of the screen.
 
 The whole code example in this guide is on [GitHub](https://github.com/excaliburjs/sample-breakout) if you want to skip to the code.
 
-<Note>
+:::note
 
 This example creates the game in a single file for simplicity, we recommend splitting you game into separate files to keep your project more manageable.
 
-</Note>
+:::
 
 ### Basic Engine Start
 
 Create a script in your project, here I’ve named it `game.ts`. Excalibur games are built off of the [Engine](/docs/engine) container. It is important to start the engine once you are done building your game.
 
-<Note>
+:::note
 
 It is important to call `game.start()` otherwise the game wont start!
 
-</Note>
+:::
 
 ```typescript
 // ES style import from excalibur
-import { Engine } from 'excalibur'
+import { Engine } from 'excalibur';
 ```
 
 `embed:sample-breakout/src/main.ts{snippet: "create-engine"}`
 
 ```typescript
 // Start the engine to begin the game.
-game.start()
+game.start();
 ```
 
 Open a browser and view the blank blue screen of goodness.
@@ -95,11 +96,11 @@ Actors must be added to a [Scene][docs-scene] to be drawn and updated.
 
 Think of actors like you would the actors in a play. If you change scenes different actors might be on stage.
 
-<Note>
+:::note
 
 Actors must be added to a scene to be drawn or updated! `game.add(actor)` Will add an actor to the current scene.
 
-</Note>
+:::
 
 Below we are going to create the paddle Actor for our breakout game. Actors can be given a position, width, and height.
 
@@ -113,11 +114,11 @@ That’s neat, but this game is way more fun if things move around. Let’s make
 
 `embed:sample-breakout/src/main.ts{snippet: "mouse-move"}`
 
-<Note>
+:::note
 
 **Important!** Actors have a default [anchor][docs-graphics-component-anchor] of (0.5, 0.5) which means their graphics are positioned in their center (not top-left) by default.
 
-</Note>
+:::
 
 ## Creating the ball with Actors
 

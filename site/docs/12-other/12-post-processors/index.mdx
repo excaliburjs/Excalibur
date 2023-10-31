@@ -19,11 +19,11 @@ The three most common forms of [color blindness](https://en.wikipedia.org/wiki/C
 - [[ColorBlindnessMode.Deuteranope|Deuteranope]]
 - [[ColorBlindnessMode.Tritanope|Tritanope]]
 
-<Note>
+:::note
 
 The color blindness correction is only an attempt to bump the colors into differentiable range. It is still best when designing to pick color blind friendly colors and to not use color to communicate information in your games without something else like a glyph. Remember, the best practice is to design with color blindness in mind.
 
-</Note>
+:::
 
 ### Original
 
@@ -72,7 +72,7 @@ In this example we can make the entire game gray scale:
 
 ```typescript
 class GrayScalePostProcessor implements ex.PostProcessor {
-  private _shader: ex.ScreenShader
+  private _shader: ex.ScreenShader;
   initialize(gl: WebGLRenderingContext): void {
     this._shader = new ex.ScreenShader(
       `#version 300 es
@@ -91,15 +91,15 @@ class GrayScalePostProcessor implements ex.PostProcessor {
       float avg = 0.2126 * tex.r + 0.7152 * tex.g + 0.0722 * tex.b;
       fragColor = vec4(avg, avg, avg, 1.0);
     }`
-    )
+    );
   }
 
   getLayout(): ex.VertexLayout {
-    return this._shader.getLayout()
+    return this._shader.getLayout();
   }
 
   getShader(): ex.Shader {
-    return this._shader.getShader()
+    return this._shader.getShader();
   }
 }
 ```

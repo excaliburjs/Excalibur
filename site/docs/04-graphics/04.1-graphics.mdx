@@ -6,7 +6,7 @@ section: Graphics
 
 Graphics are special object that abstract something that can be drawn to the screen. Examples include [circles](#circle), [polygons](#polygon), and [sprites](/docs/sprites).
 
-<Note variant="warning">
+:::warning
 
 The
 
@@ -32,7 +32,7 @@ Read more
 
 </a>
 
-</Note>
+:::
 
 ## Graphics
 
@@ -95,13 +95,13 @@ A custom raster can be built implementing the `execute` function, this is in fac
 ```typescript
 export class MyRaster extends ex.Raster {
   constructor() {
-    super()
+    super();
   }
 
   execute(ctx: CanvasRenderingContext2D): void {
     // my custom raster
-    ctx.fillStyle = 'blue'
-    ctx.fillRect(0, 0, 20, 20)
+    ctx.fillStyle = 'blue';
+    ctx.fillRect(0, 0, 20, 20);
   }
 }
 ```
@@ -123,8 +123,8 @@ Polygon creates a rastered polygon graphic given a set of points
 ```typescript
 const triangle = new ex.Polygon({
   points: [ex.vec(10 * 5, 0), ex.vec(0, 20 * 5), ex.vec(20 * 5, 20 * 5)],
-  color: ex.Color.Yellow,
-})
+  color: ex.Color.Yellow
+});
 ```
 
 ### Circle
@@ -134,8 +134,8 @@ Circle creates a rastered circle graphic given a raidus
 ```typescript
 const circle = new ex.Circle({
   radius: 10,
-  color: ex.Color.Red,
-})
+  color: ex.Color.Red
+});
 ```
 
 ### Rectangle
@@ -146,8 +146,8 @@ Rectangle creates a rastered rectange graphic given a width and height
 const rect = new ex.Rectangle({
   width: 100,
   height: 100,
-  color: ex.Color.Green,
-})
+  color: ex.Color.Green
+});
 ```
 
 ### Canvas

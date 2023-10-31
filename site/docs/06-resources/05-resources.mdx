@@ -17,16 +17,16 @@ When calling [[Engine.start]], you can optionally pass an asset [[Loader]]. This
 ```ts
 const loader = new ex.Loader([
   /* add Loadables here */
-])
+]);
 ```
 
 [[Loadable|Loadables]] are different kinds of assets such as [image](/doc/imagesource), sounds, and generic resources.
 
-<Note>
+:::note
 
 **Anytime** you call `game.start(loader)`, the game will pause and the engine will load assets. This means that you _do not have to load every asset at once_! Instead you may want to call `game.start(loader)` initially with core assets and then again when [initializing a Scene](/docs/scenes#initialization).
 
-</Note>
+:::
 
 ## Generic [[Resource|Resources]]
 

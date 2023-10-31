@@ -10,13 +10,13 @@ The canvas is a special type of graphic that acts like a shim between direct Can
 
 This type of graphic is re-rendered every time the graphic is drawn, thus it should be used sparingly due to this inefficiency. It is recommended you use the `cache: true` property and call `flagDirty()` when there is something new to draw.
 
-<Note variant="warning">
+:::warning
 
 It is recommended you specify your ex.Canvas width and height in the constructor.
 
 Keep in mind that the underlying HTML canvas has a default size depending on your platform, this will be used for centering.
 
-</Note>
+:::
 
 ```typescript
 const canvas = new Canvas({

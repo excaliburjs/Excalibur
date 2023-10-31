@@ -11,8 +11,8 @@ In Excalibur there are option bag constructors available on most types. These su
 For example instead of doing this:
 
 ```typescript
-const actor = new ex.Actor(1, 2, 100, 100, ex.Color.Red)
-actor.body.collider.type = ex.CollisionType.Active
+const actor = new ex.Actor(1, 2, 100, 100, ex.Color.Red);
+actor.body.collider.type = ex.CollisionType.Active;
 ```
 
 This is possible:
@@ -33,23 +33,23 @@ In fact you can create a duplicate this way
 
 ```typescript
 const actor = new ex.Actor({
-  pos: new ex.Vector(1, 2),
-})
-const actorClone = new ex.Actor(actor)
+  pos: new ex.Vector(1, 2)
+});
+const actorClone = new ex.Actor(actor);
 
-expect(actor.pos).toBe(actorClone.pos) // true;
+expect(actor.pos).toBe(actorClone.pos); // true;
 ```
 
 Types that support option bags can have their properties mass assigned using the assign method.
 
 ```typescript
-const actor = new ex.Actor(options)
+const actor = new ex.Actor(options);
 
 actor.assign({
   pos: new ex.Vector(100, 100),
   width: 1000,
-  color: ex.Color.Red,
-})
+  color: ex.Color.Red
+});
 ```
 
 ## Timers
@@ -57,32 +57,32 @@ actor.assign({
 Timers in Excalibur hook into the main loop so they should be used instead of `setTimeout` as they will
 start and stop accordingly with the loop.
 
-<Note>
+:::note
 
 Timers must be added to the game so they are updated!
 
-</Note>
+:::
 
 ```js
-const game = new ex.Engine()
+const game = new ex.Engine();
 const timer = new ex.Timer(() => {
   // do something every 1000ms
-}, 1000)
+}, 1000);
 
 // Add the timer to the current scene
-game.add(timer)
+game.add(timer);
 
 // start the game and the timer
 game.start().then(() => {
   // start the timer
-  timer.start()
+  timer.start();
 
   // reset the timer
-  timer.reset()
+  timer.reset();
 
   // stop the timer
-  timer.stop()
-})
+  timer.stop();
+});
 ```
 
 ## Triggers
@@ -100,8 +100,8 @@ Triggers run infinitely by default whenever an actor collides with them. To run 
 var game = new ex.Engine({
   width: 800,
   height: 600,
-  displayMode: ex.DisplayMode.FullScreen,
-})
+  displayMode: ex.DisplayMode.FullScreen
+});
 
 // Uncomment next line to make the trigger box visible
 // game.showDebug(true);
@@ -109,7 +109,7 @@ var game = new ex.Engine({
 // create a handler
 function onTrigger() {
   // `this` will be the Trigger instance
-  ex.Logger.getInstance().info('Trigger was triggered!', this)
+  ex.Logger.getInstance().info('Trigger was triggered!', this);
 }
 
 // set a trigger at (100, 100) that is 40x40px that can only be fired once
@@ -119,22 +119,22 @@ var trigger = new ex.Trigger({
   pos: new ex.Vector(100, 100),
   repeat: 1,
   target: actor,
-  action: onTrigger,
-})
+  action: onTrigger
+});
 
 // create an actor above the trigger
-var actor = new ex.Actor(100, 0, 40, 40, ex.Color.Red)
+var actor = new ex.Actor(100, 0, 40, 40, ex.Color.Red);
 
 // Enable collision on actor (else trigger won't fire)
-actor.body.collider.type = ex.CollisionType.Active
+actor.body.collider.type = ex.CollisionType.Active;
 
 // tell the actor to move across the trigger with a velocity of 100
-actor.actions.moveTo(100, 200, 100)
+actor.actions.moveTo(100, 200, 100);
 
 // Add trigger and actor to our scene and start the scene
-game.add(trigger)
-game.add(actor)
-game.start()
+game.add(trigger);
+game.add(actor);
+game.start();
 ```
 
 ## Logging
@@ -146,15 +146,15 @@ with engine options and eventually will support different output mechanisms.
 
 ```js
 // set default log level (default: Info)
-ex.Logger.getInstance().defaultLevel = ex.LogLevel.Warn
+ex.Logger.getInstance().defaultLevel = ex.LogLevel.Warn;
 // this will not be shown because it is below Warn
-ex.Logger.getInstance().info('This will be logged as Info')
+ex.Logger.getInstance().info('This will be logged as Info');
 // this will show because it is Warn
-ex.Logger.getInstance().warn('This will be logged as Warn')
+ex.Logger.getInstance().warn('This will be logged as Warn');
 // this will show because it is above Warn
-ex.Logger.getInstance().error('This will be logged as Error')
+ex.Logger.getInstance().error('This will be logged as Error');
 // this will show because it is above Warn
-ex.Logger.getInstance().fatal('This will be logged as Fatal')
+ex.Logger.getInstance().fatal('This will be logged as Fatal');
 ```
 
 ## Async Promises
@@ -165,11 +165,11 @@ The first [[Promise]] you will encounter is probably [[Engine.start]]
 which resolves when the game has finished loading.
 
 ```js
-const game = new ex.Engine()
+const game = new ex.Engine();
 // perform start-up logic once game is ready
 game.start().then(function () {
   // start-up & initialization logic
-})
+});
 ```
 
 ### Differences from Native Promises
@@ -183,13 +183,13 @@ You can optionally pass an error handler to [[Promise.then]] which will handle
 any errors that occur during Promise execution.
 
 ```js
-const game = new ex.Engine()
+const game = new ex.Engine();
 game.start().then(
   // success handler
   function () {},
   // error handler
   function (err) {}
-)
+);
 ```
 
 Any errors that go unhandled will be bubbled up to the browser.

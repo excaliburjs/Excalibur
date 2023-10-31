@@ -24,51 +24,42 @@ strategy is to have the [[Camera]] follow an [[Actor]].
 
 In order to user the different built-in strategies, you can access [[Camera.strategy]]
 
-<Note variant="warning">
+:::warning
 
 It is important to add the camera strategy in your Engine, Scene, or Actor's `onInitialize()`, the strategy will automatically update itself so do not put it in a update/draw lifecycle event.
 
-</Note>
+:::
 
 Lock the camera exactly to the center of the actor's bounding box
 
 ```typescript
-game.currentScene.camera.strategy.lockToActor(actor)
+game.currentScene.camera.strategy.lockToActor(actor);
 ```
 
 Lock the camera to one axis of the actor, in this case follow the actors x position
 
 ```typescript
-game.currentScene.camera.strategy.lockToActorAxis(actor, ex.Axis.X)
+game.currentScene.camera.strategy.lockToActorAxis(actor, ex.Axis.X);
 ```
 
 Elastically move the camera to an actor in a smooth motion see [[ElasticToActorStrategy]] for details
 
 ```typescript
-game.currentScene.camera.strategy.elasticToActor(
-  actor,
-  cameraElasticity,
-  cameraFriction
-)
+game.currentScene.camera.strategy.elasticToActor(actor, cameraElasticity, cameraFriction);
 ```
 
 Keep the actor within a circle around the focus
 
 ```typescript
-game.currentScene.camera.strategy.radiusAroundActor(actor, radius)
+game.currentScene.camera.strategy.radiusAroundActor(actor, radius);
 ```
 
 Keep the camera limited within camera constraints.  
 Make sure that the camera bounds are at least as large as the viewport size.
 
 ```typescript
-let boundingBox = new BoundingBox(
-  leftBorder,
-  topBorder,
-  rightBorder,
-  bottomBorder
-)
-game.currentScene.camera.strategy.limitCameraBounds(boundingBox)
+let boundingBox = new BoundingBox(leftBorder, topBorder, rightBorder, bottomBorder);
+game.currentScene.camera.strategy.limitCameraBounds(boundingBox);
 ```
 
 #### Custom strategies
@@ -85,12 +76,12 @@ export interface CameraStrategy<T> {
   /**
    * Target of the camera strategy that will be passed to the action
    */
-  target: T
+  target: T;
 
   /**
    * Camera strategies perform an action to calculate a new focus returned out of the strategy
    */
-  action: (target: T, camera: Camera, engine: Engine, delta: number) => Vector
+  action: (target: T, camera: Camera, engine: Engine, delta: number) => Vector;
 }
 ```
 

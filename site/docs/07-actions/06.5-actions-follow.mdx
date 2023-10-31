@@ -8,11 +8,11 @@ section: Actions
 
 This method will cause the entity to follow another at a specified distance
 
-<Note variant="warning">
+:::warning
 
 This action will never complete! Any actions chained off of it will not fire. You will need to call `.clearActions()` to schedule new actions.
 
-</Note>
+:::
 
 ```typescript
 const friend = new ex.Actor({...});

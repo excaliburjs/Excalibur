@@ -13,8 +13,8 @@ For many games specifying a static width and height is all you need. This exampl
 ```typescript
 const game = new ex.Engine({
   width: 800,
-  height: 600,
-})
+  height: 600
+});
 ```
 
 The above snippet has the affect of setting the logical resolution to 800x600 and the viewport css pixels to 800x600.
@@ -37,10 +37,10 @@ const game = new ex.Engine({
   viewport: { width: 800, height: 600 },
 
   // sets the resolution
-  resolution: ex.Resolution.GameBoy,
-})
+  resolution: ex.Resolution.GameBoy
+});
 
-const screen = game.screen
+const screen = game.screen;
 ```
 
 ## HiDPI scaling
@@ -54,7 +54,7 @@ You may wish to disable this scaling for a few reasons:
 1. Large resolutions in addition to the scaling can cause games to break on mobile (4k pixels in width or height will cause mobile devices to fail loading to the GPU).
 2. Performance, a smaller resolution means the game does not need to drive as many pixels.
 
-<Note>
+:::note
 
 Large resolutions (Commonly in the range 4000x4000) can cause problems on HiDPI screens (aka Retina), the underlying WebGL technology will limit the size.
 
@@ -67,11 +67,11 @@ const game = new ex.Engine({
 
   // sets the resolution
   resolution: { width: 3000, height: 3000 },
-  suppressHiDPIScaling: true,
-})
+  suppressHiDPIScaling: true
+});
 ```
 
-</Note>
+:::
 
 ## Coordinate systems
 
@@ -113,29 +113,29 @@ The best way to change the viewport and resolution is in the [[Engine]] construc
 
 ```typescript
 // get or set the viewport
-const viewport = game.screen.viewport
-game.screen.viewport = { width: 400, height: 300 }
+const viewport = game.screen.viewport;
+game.screen.viewport = { width: 400, height: 300 };
 
 // get or set the resolution
-const resolution = game.screen.resolution
-game.screen.resolution = { width: 100, height: 100 }
+const resolution = game.screen.resolution;
+game.screen.resolution = { width: 100, height: 100 };
 
 // Apply changes to viewport and resolution to the canvas and graphics context
-game.screen.applyResolutionAndViewport()
+game.screen.applyResolutionAndViewport();
 ```
 
 Sometimes you might want to switch between 2 different resolutions and viewports, perhaps for different scenes, or for some in game animation. This can be done with [[Screen.pushResolutionAndViewport]] and [[Screen.popResolutionAndViewport]].
 
 ```typescript
 // Save the current resolution and viewport
-game.screen.pushResolutionAndViewport()
+game.screen.pushResolutionAndViewport();
 // Change and apply
-game.screen.resolution = ex.Resolution.NES
-game.screen.applyResolutionAndViewport()
+game.screen.resolution = ex.Resolution.NES;
+game.screen.applyResolutionAndViewport();
 
 // Show some animation or do something at NES resolution
 
 // Restore the old resolution and viewport, then apply
-game.screen.popResolutionAndViewport()
-game.screen.applyResolutionAndViewport()
+game.screen.popResolutionAndViewport();
+game.screen.applyResolutionAndViewport();
 ```

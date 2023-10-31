@@ -33,19 +33,19 @@ actor. This is optional, but is nice for encapsulating your specifics.
 
 ```ts
 class Player extends ex.Actor {
-  public health: number = 100
-  public ammo: number = 20
+  public health: number = 100;
+  public ammo: number = 20;
 
   constructor() {
-    super({ x: 10, y: 10 })
+    super({ x: 10, y: 10 });
   }
 
   shoot() {
     if (this.ammo < 1) {
-      return
+      return;
     }
 
-    this.ammo -= 1
+    this.ammo -= 1;
   }
 }
 ```
@@ -70,30 +70,30 @@ for an actor (such as configuring state). `onInitialize` gets called
 **once** before the first frame an actor is drawn/updated. It is passed
 an instance of [Engine](/docs/engine) to access global state or perform coordinate math.
 
-<Note>
+:::note
 
 This is the recommended way to manage startup logic for actor, _not_ the constructor since
 you don't incur the cost of initialization until an actor is ready to be updated in the game.
 
-</Note>
+:::
 
 ```ts
 class Player extends ex.Actor {
-  public level = 1
-  public endurance = 0
-  public fortitude = 0
+  public level = 1;
+  public endurance = 0;
+  public fortitude = 0;
 
   constructor() {
-    super({ x: 50, y: 50 })
+    super({ x: 50, y: 50 });
   }
 
   public onInitialize(engine: ex.Engine) {
-    this.endurance = 20
-    this.fortitude = 16
+    this.endurance = 20;
+    this.fortitude = 16;
   }
 
   public getMaxHealth() {
-    return 0.4 * this.endurance + 0.9 * this.fortitude + this.level * 1.2
+    return 0.4 * this.endurance + 0.9 * this.fortitude + this.level * 1.2;
   }
 }
 ```
@@ -105,11 +105,11 @@ can be used to perform coordinate math or access global state. It is also
 passed `delta` which is the time in milliseconds since the last frame, which can be used
 to perform time-based movement or time-based math (such as a [timer](/docs/utilities)).
 
-<Note>
+:::note
 
 Reference [Actor lifecycle](#actor-lifecycle) for a breakdown of each phase and when things are executed.
 
-</Note>
+:::
 
 ### Update
 
@@ -119,27 +119,27 @@ You can override the core [[Actor.update]] but it is important to call the `supe
 class Player extends Actor {
   public update(engine: Engine, delta: number) {
     // Custom update here
-    super.update(engine, delta)
+    super.update(engine, delta);
     // Custom update here
   }
 }
 ```
 
-<Note variant="warning">
+:::warning
 
 Actions will not function properly if you override `Actor.update()` without calling the `super.update()`
 
-</Note>
+:::
 
 ### Pre-update
 
 Override the [[Actor.onPreUpdate]] method to update the state of your actor before [[Actor.update]].
 
-<Note>
+:::note
 
 **Important:** This logic will run _before_ the core Excalibur update logic runs, so you may not have the latest transform matrix applied or other positional information updated. Essentially you will be working with the _last frame's state_.
 
-</Note>
+:::
 
 ```ts
 class Player extends Actor {
@@ -148,7 +148,7 @@ class Player extends Actor {
    */
   public onPreUpdate(engine: ex.Engine, delta: number) {
     // update velocity
-    this.vel.setTo(-1, 0)
+    this.vel.setTo(-1, 0);
   }
 }
 ```
@@ -157,11 +157,11 @@ class Player extends Actor {
 
 [[Actor.onPostUpdate]] is called after [[Actor.update]] to prepare state for the _next_ frame. Things that need to be updated include state, drawing, or position.
 
-<Note>
+:::note
 
 This is the recommended method to override for adding update logic to your actors since it runs after Excalibur has done all the update logic for the frame and before things get drawn to the screen.
 
-</Note>
+:::
 
 ```ts
 class Player extends Actor {
@@ -172,8 +172,8 @@ class Player extends Actor {
   public onPostUpdate(engine: ex.Engine, delta: number) {
     // check if player died
     if (this.health <= 0) {
-      this.kill()
-      return
+      this.kill();
+      return;
     }
   }
 }
@@ -194,30 +194,30 @@ Think of an [[ImageSource]] as the raw image file that will be loaded into Excal
 In order for it to be drawn it must be converted to a [Sprite](/docs/graphics#sprites).
 
 ```typescript
-const image = new ex.ImageSource('./path/to/image.png')
-const sprite = image.toSprite()
+const image = new ex.ImageSource('./path/to/image.png');
+const sprite = image.toSprite();
 
-actor.graphics.use(sprite)
+actor.graphics.use(sprite);
 ```
 
 A common pattern is to define graphics in the `onInitialize`
 
 ```ts
-const image = new ex.ImageSource('./path/to/player.png')
+const image = new ex.ImageSource('./path/to/player.png');
 
 class Player extends ex.Actor {
   public onInitialize(engine: ex.Engine) {
     // set as the "default" drawing
-    this.graphics.use(image.toSprite())
+    this.graphics.use(image.toSprite());
   }
 }
 ```
 
-<Note>
+:::note
 
 **Important!** Actors have a default anchor of (0.5, 0.5) which means their graphics are positioned in their center (not top-left) by default.
 
-</Note>
+:::
 
 ## Drawing hooks
 
@@ -229,31 +229,31 @@ For drawing hooks the `ExcaliburGraphicsContext` is replacing the browser `Canva
 const canvas = new ex.Canvas({
   cache: true, // If true draw once until flagged dirty again, otherwise draw every time
   draw: (ctx: CanvasRenderingContext2D) => {
-    ctx.fillStyle = 'red'
-    ctx.fillRect(0, 0, 200, 200)
-  },
-})
+    ctx.fillStyle = 'red';
+    ctx.fillRect(0, 0, 200, 200);
+  }
+});
 
-actor.graphics.use(canvas)
+actor.graphics.use(canvas);
 ```
 
 Override the [[GraphicsComponent.onPreDraw|Actor.graphics.onPreDraw]] or [[GraphicsComponent.onPostDraw|Actor.graphics.onPostDraw]] methods to customize the draw logic at different points in the loop.
 
-<Note>
+:::note
 
 Reference [Actor lifecycle](#actor-lifecycle) for a breakdown of each phase and when things are executed.
 
-</Note>
+:::
 
 ### Pre-draw
 
 [[GraphicsComponent.onPreDraw|Actor.graphics.onPreDraw]] is run _before_ the core draw logic to prepare the frame.
 
-<Note>
+:::note
 
 **Important:** This runs _before_ Excalibur has run all its draw logic to apply effects, transform information, etc. so you essentially are working with the _last frame's draw state_.
 
-</Note>
+:::
 
 ```ts
 class Player extends ex.Actor {
@@ -261,12 +261,9 @@ class Player extends ex.Actor {
     /**
      * ADVANCED: This is run before Actor.graphics.onPreDraw core logic.
      */
-    this.graphics.onPreDraw = (
-      ctx: ExcaliburGraphicsContext,
-      delta: number
-    ) => {
+    this.graphics.onPreDraw = (ctx: ExcaliburGraphicsContext, delta: number) => {
       // custom drawing
-    }
+    };
   }
 }
 ```
@@ -275,11 +272,11 @@ class Player extends ex.Actor {
 
 [[GraphicsComponent.onPostDraw|Actor.graphics.onPostDraw]] is run _after_ the core draw and will draw in the current frame.
 
-<Note>
+:::note
 
 This is the recommended method to override since Excalibur has run its core draw logic and you can now customize what gets drawn during the current frame.
 
-</Note>
+:::
 
 ```ts
 class Player extends ex.Actor {
@@ -287,12 +284,9 @@ class Player extends ex.Actor {
     /**
      * ADVANCED: This is run before Actor.graphics.onPreDraw core logic.
      */
-    this.graphics.onPostDraw = (
-      ctx: ExcaliburGraphicsContext,
-      delta: number
-    ) => {
+    this.graphics.onPostDraw = (ctx: ExcaliburGraphicsContext, delta: number) => {
       // custom drawing
-    }
+    };
   }
 }
 ```
@@ -317,19 +311,19 @@ game.start();
 You can also add actors to a [[Scene]] instance specifically.
 
 ```js
-const game = new ex.Engine()
-const level1 = new ex.Scene()
-const player = new ex.Actor()
-const enemy = new ex.Actor()
+const game = new ex.Engine();
+const level1 = new ex.Scene();
+const player = new ex.Actor();
+const enemy = new ex.Actor();
 // add actors to level1
-level1.add(player)
-level1.add(enemy)
+level1.add(player);
+level1.add(enemy);
 // add level1 to the game
-game.add('level1', level1)
+game.add('level1', level1);
 // start the game
-game.start()
+game.start();
 // after player clicks start game, for example
-game.goToScene('level1')
+game.goToScene('level1');
 ```
 
 ## Collision Detection
@@ -342,8 +336,8 @@ to [[CollisionType.Active|active]], [[CollisionType.Fixed|fixed]], or [[Collisio
 
 <IFrameEmbed src="https://excaliburjs.com/excalibur-snippets/collision/" />
 
-<Note>
+:::note
 
 For more information on collisions, see [Physics](/docs/physics).
 
-</Note>
+:::
