@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { IframeHTMLAttributes } from 'react'
 
 const DEFAULT_FRAME_STYLE = {
   width: '100%',
@@ -7,6 +7,6 @@ const DEFAULT_FRAME_STYLE = {
   overflow: 'hidden',
 }
 
-export default ({ src, ...props }) => (
+export default ({ src, ...props }: IframeHTMLAttributes<HTMLIFrameElement>) => (
   <iframe src={src} style={DEFAULT_FRAME_STYLE} {...props}></iframe>
 )
