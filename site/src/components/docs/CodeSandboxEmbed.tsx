@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { ComponentProps } from 'react'
 import IFrameEmbed from './IFrameEmbed'
 
-export default ({ src, title, ...props }) => (
+export default ({ src, title, ...props }: ComponentProps<typeof IFrameEmbed>) => (
   <IFrameEmbed
     src={src}
     style={{

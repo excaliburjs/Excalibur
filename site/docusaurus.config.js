@@ -83,7 +83,8 @@ const config = {
           const postCssLoader = config.module.rules.find((r) => r.test && r.test.toString().includes('.css$'));
 
           if (postCssLoader) {
-            console.log('FOUND POSTCSS-LOADER');
+            // Exclude engine CSS files from postcss because they will be inlined
+            // during engine build
             postCssLoader.exclude = [postCssLoader.exclude, path.resolve(__dirname, '../src/engine')];
           }
 

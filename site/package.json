@@ -31,7 +31,7 @@
     "@docusaurus/module-type-aliases": "3.0.0",
     "@docusaurus/tsconfig": "^3.0.0",
     "@types/react": "^18.2.29",
-    "docusaurus-plugin-typedoc-api": "^3.0.1",
+    "docusaurus-plugin-typedoc-api": "^4.0.1",
     "patch-package": "^8.0.0",
     "remark-typedoc-symbol-links": "^2.1.0",
     "typescript": "~5.2.2"
