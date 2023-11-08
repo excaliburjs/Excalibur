@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
-import { DisplayMode, Engine, PointerScope, ScrollPreventionMode, vec } from 'excalibur';
+import BrowserOnly from '@docusaurus/BrowserOnly';
+import type * as ex from 'excalibur';
 
 /**
  * Workaround for https://github.com/excaliburjs/Excalibur/issues/1431
@@ -14,9 +15,9 @@ function cleanUpPlayButtons() {
   });
 }
 
-const Game = ({ onStart }: { onStart: (game: Engine) => void }) => {
+const Game = ({ exc, onStart }: { exc: typeof ex; onStart: (game: ex.Engine) => void }) => {
   const canvasRef = useRef<HTMLCanvasElement>();
-  const gameRef = useRef<Engine>(null);
+  const gameRef = useRef<ex.Engine>(null);
 
   const resetGame = () => {
     if (gameRef.current) {
@@ -29,18 +30,18 @@ const Game = ({ onStart }: { onStart: (game: Engine) => void }) => {
     // HMR support
     resetGame();
 
-    gameRef.current = new Engine({
+    gameRef.current = new exc.Engine({
       width: 600,
       height: 400,
-      displayMode: DisplayMode.Fixed,
+      displayMode: exc.DisplayMode.Fixed,
       canvasElement: canvasRef.current,
-      pointerScope: PointerScope.Canvas,
+      pointerScope: exc.PointerScope.Canvas,
       grabWindowFocus: false,
-      scrollPreventionMode: ScrollPreventionMode.None
+      scrollPreventionMode: exc.ScrollPreventionMode.None
     });
 
     gameRef.current.start().then(() => {
-      gameRef.current.currentScene.camera.pos = vec(0, 0);
+      gameRef.current.currentScene.camera.pos = exc.vec(0, 0);
 
       onStart(gameRef.current);
     });
@@ -51,4 +52,12 @@ const Game = ({ onStart }: { onStart: (game: Engine) => void }) => {
   return <canvas ref={canvasRef}></canvas>;
 }
 
-export default Game;
+const GameBrowserOnly = ({ onStart }: { onStart: (game: ex.Engine) => void }) => {
+  return (
+    <BrowserOnly fallback={<div></div>}>
+      {() => <Game exc={require('excalibur')} onStart={onStart} />}
+    </BrowserOnly>
+  )
+}
+
+export default GameBrowserOnly;
