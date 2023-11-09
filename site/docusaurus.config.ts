@@ -1,17 +1,17 @@
-// @ts-check
-// Note: type annotations allow type checking and IDEs autocompletion
-const { ReflectionKind } = require('typedoc');
-const path = require('path');
-const webpack = require('webpack');
-const { themes } = require('prism-react-renderer');
+import { Config } from '@docusaurus/types';
+import { Options as ClassicPresetOptions, ThemeConfig as ClassicPresetThemeConfig } from '@docusaurus/preset-classic';
+import { ReflectionKind } from 'typedoc';
+import path from 'path';
+import webpack from 'webpack';
+import { themes } from 'prism-react-renderer';
+import typedocSymbolLinks from 'remark-typedoc-symbol-links';
+
 const lightCodeTheme = themes.github;
 const darkCodeTheme = themes.dracula;
-const typedocSymbolLinks = require('remark-typedoc-symbol-links');
 
 const typedocProjectRoot = path.join(__dirname, '..', 'src', 'engine');
 
-/** @type {import('@docusaurus/types').Config} */
-const config = {
+const config: Config = {
   title: 'Excalibur.js',
   tagline: 'Your friendly TypeScript 2D game engine for the web',
   favicon: 'img/favicon.ico',
@@ -42,7 +42,7 @@ const config = {
     [
       'classic',
       /** @type {import('@docusaurus/preset-classic').Options} */
-      ({
+      {
         docs: {
           sidebarCollapsed: false,
           sidebarPath: require.resolve('./sidebars.js'),
@@ -69,7 +69,7 @@ const config = {
         theme: {
           customCss: require.resolve('./src/css/custom.css')
         }
-      })
+      } as ClassicPresetOptions
     ]
   ],
 
@@ -134,94 +134,92 @@ const config = {
     ]
   ],
 
-  themeConfig:
-    /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
-    ({
-      // Replace with your project's social card
-      image: 'img/docusaurus-social-card.jpg',
-      navbar: {
-        title: 'Excalibur.js',
-        logo: {
-          alt: 'Excalibur.js Logo',
-          src: 'img/logo.svg'
+  themeConfig: {
+    // Replace with your project's social card
+    image: 'img/docusaurus-social-card.jpg',
+    navbar: {
+      title: 'Excalibur.js',
+      logo: {
+        alt: 'Excalibur.js Logo',
+        src: 'img/logo.svg'
+      },
+      items: [
+        {
+          type: 'docSidebar',
+          sidebarId: 'learnSidebar',
+          position: 'left',
+          label: 'Learn'
         },
-        items: [
-          {
-            type: 'docSidebar',
-            sidebarId: 'learnSidebar',
-            position: 'left',
-            label: 'Learn'
-          },
-          { to: '/api', label: 'API', position: 'left' },
-          { to: '/blog', label: 'Blog', position: 'left' },
-          {
-            href: 'https://github.com/excaliburjs/Excalibur',
-            label: 'GitHub',
-            position: 'right'
-          }
-        ]
-      },
-      footer: {
-        style: 'dark',
-        links: [
-          {
-            title: 'Docs',
-            items: [
-              {
-                label: 'Tutorial',
-                to: '/docs/intro'
-              }
-            ]
-          },
-          {
-            title: 'Community',
-            items: [
-              {
-                label: 'Stack Overflow',
-                href: 'https://stackoverflow.com/questions/tagged/docusaurus'
-              },
-              {
-                label: 'Discord',
-                href: 'https://discordapp.com/invite/docusaurus'
-              },
-              {
-                label: 'Twitter',
-                href: 'https://twitter.com/docusaurus'
-              }
-            ]
-          },
-          {
-            title: 'More',
-            items: [
-              {
-                label: 'Blog',
-                to: '/blog'
-              },
-              {
-                label: 'GitHub',
-                href: 'https://github.com/facebook/docusaurus'
-              }
-            ]
-          }
-        ],
-        copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`
-      },
-      prism: {
-        theme: lightCodeTheme,
-        darkTheme: darkCodeTheme,
-        additionalLanguages: ['bash', 'diff', 'json']
-      },
-      liveCodeBlock: {
-        /**
-         * The position of the live playground, above or under the editor
-         * Possible values: "top" | "bottom"
-         */
-        playgroundPosition: 'bottom'
-      }
-    })
+        { to: '/api', label: 'API', position: 'left' },
+        { to: '/blog', label: 'Blog', position: 'left' },
+        {
+          href: 'https://github.com/excaliburjs/Excalibur',
+          label: 'GitHub',
+          position: 'right'
+        }
+      ]
+    },
+    footer: {
+      style: 'dark',
+      links: [
+        {
+          title: 'Docs',
+          items: [
+            {
+              label: 'Tutorial',
+              to: '/docs/intro'
+            }
+          ]
+        },
+        {
+          title: 'Community',
+          items: [
+            {
+              label: 'Stack Overflow',
+              href: 'https://stackoverflow.com/questions/tagged/docusaurus'
+            },
+            {
+              label: 'Discord',
+              href: 'https://discordapp.com/invite/docusaurus'
+            },
+            {
+              label: 'Twitter',
+              href: 'https://twitter.com/docusaurus'
+            }
+          ]
+        },
+        {
+          title: 'More',
+          items: [
+            {
+              label: 'Blog',
+              to: '/blog'
+            },
+            {
+              label: 'GitHub',
+              href: 'https://github.com/facebook/docusaurus'
+            }
+          ]
+        }
+      ],
+      copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`
+    },
+    prism: {
+      theme: lightCodeTheme,
+      darkTheme: darkCodeTheme,
+      additionalLanguages: ['bash', 'diff', 'json']
+    },
+    liveCodeBlock: {
+      /**
+       * The position of the live playground, above or under the editor
+       * Possible values: "top" | "bottom"
+       */
+      playgroundPosition: 'bottom'
+    }
+  } as ClassicPresetThemeConfig
 };
 
-module.exports = config;
+export default config;
 
 function getTypedocJson() {
   try {
