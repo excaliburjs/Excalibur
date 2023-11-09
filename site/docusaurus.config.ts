@@ -1,8 +1,7 @@
-import { Config } from '@docusaurus/types';
+import { Config, Plugin } from '@docusaurus/types';
 import { Options as ClassicPresetOptions, ThemeConfig as ClassicPresetThemeConfig } from '@docusaurus/preset-classic';
 import { ReflectionKind } from 'typedoc';
-import { sync as readUpSync } from 'read-pkg-up';
-import { buildStaticStandalone } from '@storybook/core-server';
+import { build } from '@storybook/core-server';
 import { cache } from '@storybook/core-common';
 import path from 'path';
 import webpack from 'webpack';
@@ -40,6 +39,8 @@ const config: Config = {
     defaultLocale: 'en',
     locales: ['en']
   },
+
+  staticDirectories: ['static', 'build-storybook'],
 
   presets: [
     [
@@ -79,21 +80,51 @@ const config: Config = {
   themes: ['@docusaurus/theme-live-codeblock'],
 
   plugins: [
-    async function storybookPlugin(context, options) {
-      return {
-        name: 'storybook-plugin',
-        async loadContent() {
-          await buildStaticStandalone({
-            configDir: path.join(__dirname, '..', '.storybook'),
-            outputDir: path.join(__dirname, 'static', 'examples'),
-            ignorePreview: false,
-            configType: 'PRODUCTION',
-            cache,
-            packageJson: readUpSync({ cwd: __dirname }).packageJson
-          });
-        }
-      };
-    },
+    [
+      async function storybookPlugin(context, options: { staticDir: string; storybookOptions?: any }) {
+        const isProd = process.env.NODE_ENV === 'production';
+        let storybookDevServer: any = null;
+
+        return {
+          name: 'storybook-plugin',
+          async postBuild() {
+            await build({
+              mode: 'static',
+              configDir: path.join(__dirname, '..', '.storybook'),
+              outputDir: path.join(__dirname, context.outDir, 'examples'),
+              ignorePreview: false,
+              cache,
+              ...(options?.storybookOptions ?? {})
+            });
+          },
+          async loadContent() {
+            if (isProd) {
+              return null;
+            }
+
+            if (!storybookDevServer) {
+              storybookDevServer = await build({
+                mode: 'dev',
+                ci: true,
+                configDir: path.join(__dirname, '..', '.storybook'),
+                outputDir: path.join(__dirname, options.staticDir, 'examples'),
+                ignorePreview: false,
+                cache,
+                ...(options?.storybookOptions ?? {})
+              });
+            }
+
+            return { address: storybookDevServer.address }
+          },
+          async contentLoaded({ content, actions }) {
+            actions.setGlobalData({
+              address: content?.address
+            });
+          }
+        } as Plugin<{ address?: string}>;
+      },
+      { staticDir: 'build-storybook' }
+    ],
     async function excaliburPlugin(context, options) {
       return {
         name: 'excalibur-plugin',
@@ -169,7 +200,7 @@ const config: Config = {
           label: 'Learn'
         },
         { to: '/api', label: 'API', position: 'left' },
-        { href: '/examples', label: 'Examples', position: 'left' },
+        { href: '/examples', label: 'Examples', position: 'left', prependBaseUrlToHref: true },
         { to: '/blog', label: 'Blog', position: 'left' },
         {
           href: 'https://github.com/excaliburjs/Excalibur',
