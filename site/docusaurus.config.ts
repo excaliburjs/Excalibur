@@ -229,12 +229,7 @@ function getTypedocJson() {
   }
 }
 
-/**
- * @param {string} symbolPath
- * @param {string} basePath
- * @param {Map} symbolLinkIndex
- */
-function buildSymbolLink(symbolPath, basePath, symbolLinkIndex) {
+function buildSymbolLink(symbolPath: string, basePath: string, symbolLinkIndex: Map<string, [string, ReflectionKind][]>) {
   let symbolLink = undefined;
   const SYMBOL_CONTAINERS = [
     ReflectionKind.Project,
@@ -307,10 +302,7 @@ function buildSymbolLink(symbolPath, basePath, symbolLinkIndex) {
   return symbolLink;
 }
 
-/**
- * @param {string} path
- */
-function ensureTrailingSlash(path) {
+function ensureTrailingSlash(path: string) {
   if (!path.endsWith('/')) {
     return path + '/';
   }
