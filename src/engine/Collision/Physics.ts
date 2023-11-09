@@ -1,5 +1,4 @@
 import { Vector } from '../Math/vector';
-import { obsolete } from '../Util/Decorators';
 
 
 /**

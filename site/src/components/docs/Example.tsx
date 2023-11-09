@@ -1,4 +1,5 @@
 import React from 'react'
+import useBaseUrl from '@docusaurus/useBaseUrl'
 
 const FRAME_STYLE = {
   border: '1px solid #aaa',
@@ -9,13 +10,18 @@ const FRAME_STYLE = {
  *
  * @prop story The story ID in the URL to navigate to
  */
-export default ({ story = '' }) => (
-  <iframe
-    title="Excalibur Storybook Example"
-    src={`https://excaliburjs.com/examples/?nav=0&path=/docs/${story}`}
-    frameBorder={0}
-    width="100%"
-    height="600"
-    style={FRAME_STYLE}
-  ></iframe>
-)
+export default function Example({ story = '' }) {
+  const storyUrl = useBaseUrl(`/examples/?nav=0&path=/docs/${story}`);
+
+  return (
+    <iframe
+      title="Excalibur Storybook Example"
+      allowFullScreen
+      src={storyUrl}
+      frameBorder={0}
+      width="100%"
+      height="600"
+      style={FRAME_STYLE}
+    ></iframe>
+  )
+}

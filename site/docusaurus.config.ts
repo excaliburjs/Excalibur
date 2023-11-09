@@ -1,6 +1,9 @@
 import { Config } from '@docusaurus/types';
 import { Options as ClassicPresetOptions, ThemeConfig as ClassicPresetThemeConfig } from '@docusaurus/preset-classic';
 import { ReflectionKind } from 'typedoc';
+import { sync as readUpSync } from 'read-pkg-up';
+import { buildStaticStandalone } from '@storybook/core-server';
+import { cache } from '@storybook/core-common';
 import path from 'path';
 import webpack from 'webpack';
 import { themes } from 'prism-react-renderer';
@@ -76,6 +79,21 @@ const config: Config = {
   themes: ['@docusaurus/theme-live-codeblock'],
 
   plugins: [
+    async function storybookPlugin(context, options) {
+      return {
+        name: 'storybook-plugin',
+        async loadContent() {
+          await buildStaticStandalone({
+            configDir: path.join(__dirname, '..', '.storybook'),
+            outputDir: path.join(__dirname, 'static', 'examples'),
+            ignorePreview: false,
+            configType: 'PRODUCTION',
+            cache,
+            packageJson: readUpSync({ cwd: __dirname }).packageJson
+          });
+        }
+      };
+    },
     async function excaliburPlugin(context, options) {
       return {
         name: 'excalibur-plugin',
@@ -151,6 +169,7 @@ const config: Config = {
           label: 'Learn'
         },
         { to: '/api', label: 'API', position: 'left' },
+        { href: '/examples', label: 'Examples', position: 'left' },
         { to: '/blog', label: 'Blog', position: 'left' },
         {
           href: 'https://github.com/excaliburjs/Excalibur',
