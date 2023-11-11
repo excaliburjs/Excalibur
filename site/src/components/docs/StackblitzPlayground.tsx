@@ -19,9 +19,7 @@ const StackblitzPlayground = ({ code }: { code: string }) => {
             <canvas id="game"></canvas>
             <script src="https://cdn.jsdelivr.net/npm/excalibur/dist/excalibur.min.js"></script>
           `,
-            'index.ts': `
-import * as ex from 'excalibur';
-import onStart from './example';
+            'game.ts': `import * as ex from 'excalibur';
 
 const game = new ex.Engine({
   canvasElementId: 'game',
@@ -33,15 +31,11 @@ const game = new ex.Engine({
   scrollPreventionMode: ex.ScrollPreventionMode.None
 });
       
-game.start().then(() => {
-  onStart(game);
-});`,
-            'example.ts': `
-import * as ex from 'excalibur';
+export default game;`,
+            'index.ts': `import * as ex from 'excalibur';
+import game from './game';
 
-export default function onStart(game: ex.Engine) {
-${indentString(code, 2)};
-}`
+${code}`
           },
           dependencies: {
             'excalibur': 'latest'

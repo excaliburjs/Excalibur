@@ -1,4 +1,3 @@
-// start-snippet{collision}
 ex.Physics.useRealisticPhysics();
 ex.Physics.acc = ex.vec(0, 300);
 
@@ -35,10 +34,12 @@ const ground = new ex.Actor({
     color: ex.Color.DarkGray,
     collisionType: ex.CollisionType.Fixed
 });
-// end-snippet{collision}
 
 game.currentScene.add(box);
 game.currentScene.add(circle);
 game.currentScene.add(triangle);
 game.currentScene.add(ground);
 game.currentScene.camera.pos = ex.vec(game.halfDrawWidth, game.halfDrawHeight);
+
+// start the game
+game.start();

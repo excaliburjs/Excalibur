@@ -11,3 +11,6 @@ basicPlayer.vel.x = 15;
 
 // add player to game
 game.add(basicPlayer);
+
+// start the game
+game.start();
