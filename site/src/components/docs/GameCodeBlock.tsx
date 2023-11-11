@@ -1,5 +1,6 @@
 import CodeBlock from '@theme/CodeBlock';
 import { ComponentProps, useCallback, useMemo } from 'react';
+import StackblitzPlayground from './StackblitzPlayground';
 
 declare module '@theme/CodeBlock' {
   export interface Props {
@@ -15,7 +16,7 @@ type Props = ComponentProps<typeof CodeBlock> & {
   snippet?: string;
 }
 
-export default function GameCodeBlock({ children, snippet, live, ...props }: Props) {
+function GameCodeBlock({ children, snippet, live, ...props }: Props) {
   const { body, before, after } = useMemo(() => getSnippetCode(children, snippet), [children, snippet]);
   const handleTransformCode = useCallback((code: string) => {
     return `function onStart(game) {${before}${code}${after}}
@@ -27,6 +28,14 @@ export default function GameCodeBlock({ children, snippet, live, ...props }: Pro
       {body}
     </CodeBlock>
   )
+}
+
+export default function StackblitzCodeBlock({ children, snippet, live, ...props }: Props) {
+  if (live) {
+    return <StackblitzPlayground code={children} />
+  }
+
+  return GameCodeBlock({ children, snippet, live, ...props });
 }
 
 /**
