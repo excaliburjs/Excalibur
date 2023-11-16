@@ -1,11 +1,11 @@
-import sdk from '@stackblitz/sdk';
+import sdk, { VM } from '@stackblitz/sdk';
 import { useEffect, useRef } from 'react';
 import { useColorMode } from '@docusaurus/theme-common';
 
 const StackblitzPlayground = ({ code }: { code: string }) => {
   const { colorMode } = useColorMode();
   const embedRef = useRef<HTMLDivElement>();
-  const vmRef = useRef<any>();
+  const vmRef = useRef<Promise<VM>>();
 
   useEffect(() => {
     if (embedRef.current && !vmRef.current) {
@@ -52,6 +52,14 @@ ${code}`
       );
     }
   }, []);
+
+  useEffect(() => {
+    if (vmRef.current) {
+      vmRef.current.then(vm => {
+        vm.editor.setTheme(colorMode === 'dark' ? 'dark' : 'light')
+      });
+    }
+  }, [colorMode]);
 
   return (
     <div ref={embedRef} />
