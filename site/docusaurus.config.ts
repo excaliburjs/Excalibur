@@ -5,6 +5,10 @@ import path from 'path';
 import webpack from 'webpack';
 import { themes } from 'prism-react-renderer';
 import typedocSymbolLinks from 'remark-typedoc-symbol-links';
+import remarkShikiTwoSlash, { Options as RemarkShikiTwoslashOptions } from 'remark-shiki-twoslash';
+const remarkShikiOptions: RemarkShikiTwoslashOptions = {
+  themes: ['github-light', 'github-dark']
+};
 
 const lightCodeTheme = themes.github;
 const darkCodeTheme = themes.dracula;
@@ -49,6 +53,7 @@ const config: Config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl: 'https://github.com/excaliburjs/Excalibur/tree/main/site/docs/',
+          beforeDefaultRemarkPlugins: [[remarkShikiTwoSlash, remarkShikiOptions]],
           remarkPlugins: [
             [
               typedocSymbolLinks,
@@ -60,17 +65,22 @@ const config: Config = {
             ]
           ]
         },
+        pages: {
+          beforeDefaultRemarkPlugins: [[remarkShikiTwoSlash, remarkShikiOptions]]
+        },
         blog: {
           showReadingTime: true,
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          editUrl: 'https://github.com/excaliburjs/Excalibur/tree/main/site/blog/'
+          editUrl: 'https://github.com/excaliburjs/Excalibur/tree/main/site/blog/',
+          beforeDefaultRemarkPlugins: [[remarkShikiTwoSlash, remarkShikiOptions]]
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css')
         }
       } as ClassicPresetOptions
-    ]
+    ],
+    ['docusaurus-preset-shiki-twoslash', { ...remarkShikiOptions }]
   ],
 
   themes: ['@docusaurus/theme-live-codeblock'],
