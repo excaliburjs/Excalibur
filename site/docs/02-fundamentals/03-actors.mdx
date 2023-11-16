@@ -29,7 +29,10 @@ and manipulate it directly.
 Actors (and other entities) must be added to a [Scene](/docs/scene) to be drawn
 and updated on-screen.
 
-<GameCodeBlock live>{BasicActorExample}</GameCodeBlock>
+<GameCodeBlock live 
+  title="Basic actors"
+  code={BasicActorExample} 
+/>
 
 [[Engine.add|game.add]] is a convenience method for adding an actor to the current scene. The equivalent verbose call is [[Scene.add|game.currentScene.add]].
 
@@ -39,7 +42,7 @@ For "real-world" games, it is common to extend the `Actor` class.
 This gives you much greater control and encapsulates logic for that
 actor. This is optional, but is nice for encapsulating your specifics.
 
-<GameCodeBlock>{CustomActorExample}</GameCodeBlock>
+<GameCodeBlock code={CustomActorExample} />
 
 Custom actors make it easier to hook into the actor lifecycle and encapsulate the actor's state better than a basic actor.
 

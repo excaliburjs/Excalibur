@@ -89,6 +89,13 @@ const config: Config = {
           }
 
           return {
+            devServer: {
+              client: {
+                overlay: {
+                  runtimeErrors: false
+                }
+              }
+            },
             module: {
               rules: [
                 {

@@ -7,7 +7,10 @@ const basicPlayer = new ex.Actor({
 });
 
 // move the player
-basicPlayer.vel.x = 15;
+basicPlayer.actions.repeatForever((builder) => {
+  builder.moveBy(ex.vec(100, 0), 20);
+  builder.moveBy(ex.vec(-100, 0), 20);
+});
 
 // add player to game
 game.add(basicPlayer);

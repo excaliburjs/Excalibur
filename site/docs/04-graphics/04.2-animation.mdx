@@ -1,8 +1,10 @@
 ---
-title: Animation
 path: /docs/animation
-section: Graphics
 ---
+import AnimationExample from '!!raw-loader!./examples/animation.ts'
+import playerRun from './examples/player-run.png'
+
+# Animation
 
 Animations are a series of graphics that take a specific duration in milliseconds. Each of these units is called a "Frame". There are a few playing strategies as well to consider
 
@@ -57,9 +59,11 @@ Animations can be constructed quickly from [`ex.SpriteSheets`](#SpriteSheet)
 
 ![Character running sprite sheet](player-run.png)
 
-`embed:excalibur-snippets/src/animation/main.ts{snippet: "animation"}`
-
-<IFrameEmbed src="https://excaliburjs.com/excalibur-snippets/animation/" />
+<GameCodeBlock 
+  live 
+  code={AnimationExample} 
+  assets={{'player-run.png': playerRun}} 
+/>
 
 Animations also emit events per frame, per loop, and per end (if it completes).
 

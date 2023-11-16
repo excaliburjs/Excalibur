@@ -12,8 +12,9 @@ declare module '@theme/CodeBlock' {
 
 type Props = ComponentProps<typeof CodeBlock> & {
   children: string;
-  live?: boolean;
   snippet?: string;
+  code?: string;
+  assets?: Record<string, string>;
 }
 
 function GameCodeBlock({ children, snippet, live, ...props }: Props) {
@@ -30,12 +31,17 @@ function GameCodeBlock({ children, snippet, live, ...props }: Props) {
   )
 }
 
-export default function StackblitzCodeBlock({ children, snippet, live, ...props }: Props) {
+export default function StackblitzCodeBlock({ children, code, snippet, live, title, ...props }: Props) {
+  const rawCode = code || children;
   if (live) {
-    return <StackblitzPlayground code={children} />
+    return <StackblitzPlayground
+      code={rawCode}
+      title={title}
+      {...props}
+    />
   }
 
-  return GameCodeBlock({ children, snippet, live, ...props });
+  return GameCodeBlock({ children: rawCode, snippet, live, ...props });
 }
 
 /**
