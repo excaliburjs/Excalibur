@@ -1,15 +1,4 @@
-import AddingActorsExample from '!!raw-loader!./examples/adding-actors.ts';
-import AddingActorsToSceneExample from '!!raw-loader!./examples/adding-actors-to-scene.ts';
 import BasicActorExample from '!!raw-loader!./examples/basic-actors.ts';
-import CustomActorExample from '!!raw-loader!./examples/custom-actors.ts';
-import ActorInitializationExample from '!!raw-loader!./examples/initialization.ts';
-import ActorOverrideUpdateExample from '!!raw-loader!./examples/override-update.ts';
-import ActorPreUpdateExample from '!!raw-loader!./examples/pre-update.ts';
-import ActorPostUpdateExample from '!!raw-loader!./examples/post-update.ts';
-import ActorSpriteGraphicsExample from '!!raw-loader!./examples/sprite-graphics.ts';
-import ActorCanvasGraphicsExample from '!!raw-loader!./examples/canvas-graphics.ts';
-import ActorPreDrawExample from '!!raw-loader!./examples/pre-draw.ts';
-import ActorPostDrawExample from '!!raw-loader!./examples/post-draw.ts';
 import ActorCollisionExample from '!!raw-loader!./examples/collision.ts';
 
 # Actors
@@ -20,6 +9,12 @@ Like [[TransformComponent|position]], [[MotionComponent|velocity]], [[GraphicsCo
 [[Actor|Actors]] are the recommended way to use Excalibur, they are the primary way to show something on the screen.
 
 If you don't want these built-ins and you want to build only what you want, read about entities [here](/docs/entities)
+
+```twoslash include ex
+/// <reference path="../src/engine/excalibur.d.ts" />
+declare const game: ex.Engine;
+// ---cut---
+```
 
 ## Basic actors
 
@@ -42,7 +37,25 @@ For "real-world" games, it is common to extend the `Actor` class.
 This gives you much greater control and encapsulates logic for that
 actor. This is optional, but is nice for encapsulating your specifics.
 
-<GameCodeBlock code={CustomActorExample} />
+```ts twoslash
+// @include: ex
+class ShootemUpPlayer extends ex.Actor {
+  public health: number = 100;
+  public ammo: number = 20;
+
+  constructor() {
+    super({ x: 10, y: 10 });
+  }
+
+  shoot() {
+    if (this.ammo < 1) {
+      return;
+    }
+
+    this.ammo -= 1;
+  }
+}
+```
 
 Custom actors make it easier to hook into the actor lifecycle and encapsulate the actor's state better than a basic actor.
 
@@ -71,7 +84,27 @@ you don't incur the cost of initialization until an actor is ready to be updated
 
 :::
 
-<GameCodeBlock>{ActorInitializationExample}</GameCodeBlock>
+```ts twoslash {9-12}
+// @include: ex
+class Player extends ex.Actor {
+  public level = 1;
+  public endurance = 0;
+  public fortitude = 0;
+
+  constructor() {
+    super({ x: 50, y: 50 });
+  }
+
+  public onInitialize(_engine: ex.Engine) {
+    this.endurance = 20;
+    this.fortitude = 16;
+  }
+
+  public getMaxHealth() {
+    return 0.4 * this.endurance + 0.9 * this.fortitude + this.level * 1.2;
+  }
+}
+```
 
 There are three ways to hook into the update loop of an actor: [[Actor.onPreUpdate]], [[Actor.update]] and [[Actor.onPostUpdate]]. Actors (and other entities in Excalibur) all have "core" logic that runs in the update or draw loop. The pre- and post-method hooks allow you to choose when you want to run logic in each phase. _Normally_ you will run logic in the "post" hook but sometimes you may want to completely override the core logic or run logic that uses state that was updated _before_ the core logic runs.
 
@@ -90,7 +123,17 @@ Reference [Actor lifecycle](#actor-lifecycle) for a breakdown of each phase and 
 
 You can override the core [[Actor.update]] but it is important to call the `super.update(...)` method in order to preserve the Excalibur core update implementation.
 
-<GameCodeBlock>{ActorOverrideUpdateExample}</GameCodeBlock>
+```ts twoslash {2-6}
+// @include: ex
+class Player extends ex.Actor {
+  public update(engine: ex.Engine, delta: number) {
+    // Custom update here
+    super.update(engine, delta);
+    // Custom update here
+  }
+}
+
+```
 
 :::warning
 
@@ -108,7 +151,15 @@ Override the [[Actor.onPreUpdate]] method to update the state of your actor befo
 
 :::
 
-<GameCodeBlock>{ActorPreUpdateExample}</GameCodeBlock>
+```ts twoslash {2-6}
+// @include: ex
+class Player extends ex.Actor {
+  public onPreUpdate(engine: ex.Engine, delta: number) {
+    // update velocity
+    this.vel.setTo(-1, 0);
+  }
+}
+```
 
 ### Post-update
 
@@ -120,7 +171,21 @@ This is the recommended method to override for adding update logic to your actor
 
 :::
 
-<GameCodeBlock>{ActorPostUpdateExample}</GameCodeBlock>
+```ts twoslash {4-10}
+// @include: ex
+class Player extends ex.Actor {
+  private health: number = 100;
+
+  public onPostUpdate(engine: ex.Engine, delta: number) {
+    // check if player died
+    if (this.health <= 0) {
+      this.kill();
+      return;
+    }
+  }
+}
+
+```
 
 ## Drawing actors
 
@@ -136,7 +201,26 @@ Think of an [[ImageSource]] as the raw image file that will be loaded into Excal
 
 In order for it to be drawn it must be converted to a [Sprite](/docs/graphics#sprites). A common pattern is to define graphics in the `onInitialize` method of an actor.
 
-<GameCodeBlock>{ActorSpriteGraphicsExample}</GameCodeBlock>
+```ts twoslash
+// @module: esnext
+// @allowUmdGlobalAccess
+/// <reference path="../src/engine/excalibur.d.ts" />
+
+// @filename: resources.ts
+export const playerImage = new ex.ImageSource('./path/to/player.png');
+
+// @filename: player.ts
+// ---cut---
+import { playerImage } from './resources';
+//       ^?
+
+class Player extends ex.Actor {
+  public onInitialize() {
+    // Set as the default drawing
+    this.graphics.use(playerImage.toSprite());
+  }
+}
+```
 
 :::note
 
@@ -148,7 +232,23 @@ In order for it to be drawn it must be converted to a [Sprite](/docs/graphics#sp
 
 If you need to do some custom drawing using the `CanvasRenderingContext2D` the new [[Canvas]] graphic has your back.
 
-<GameCodeBlock>{ActorCanvasGraphicsExample}</GameCodeBlock>
+```ts twoslash {1-7, 12}
+// @include: ex
+const canvas = new ex.Canvas({
+  cache: true, // If true draw once until flagged dirty again, otherwise draw every time
+  draw: (ctx: CanvasRenderingContext2D) => {
+    ctx.fillStyle = 'red';
+    ctx.fillRect(0, 0, 200, 200);
+  }
+});
+
+class Player extends ex.Actor {
+  public onInitialize(engine: ex.Engine) {
+    // set as the "default" drawing
+    this.graphics.use(canvas);
+  }
+}
+```
 
 ### Pre-draw
 
@@ -162,7 +262,21 @@ Reference [Actor lifecycle](#actor-lifecycle) for a breakdown of each phase and 
 
 :::
 
-<GameCodeBlock>{ActorPreDrawExample}</GameCodeBlock>
+```ts twoslash
+// @include: ex
+class Player extends ex.Actor {
+  constructor(config?: ex.ActorArgs) {
+    super(config);
+
+    /**
+     * ADVANCED: This is run before Actor.graphics.onPreDraw core logic.
+     */
+    this.graphics.onPreDraw = (ctx: ex.ExcaliburGraphicsContext, delta: number) => {
+      // custom drawing
+    };
+  }
+}
+```
 
 ### Post-draw
 
@@ -174,7 +288,22 @@ This is the recommended method to override since Excalibur has run its core draw
 
 :::
 
-<GameCodeBlock>{ActorPostDrawExample}</GameCodeBlock>
+```ts twoslash
+// @include: ex
+class Player extends ex.Actor {
+  constructor(config?: ex.ActorArgs) {
+    super(config);
+
+    /**
+     * ADVANCED: This is run after the core draw logic.
+     */
+    this.graphics.onPostDraw = (ctx: ex.ExcaliburGraphicsContext, delta: number) => {
+      // custom drawing
+    };
+  }
+}
+
+```
 
 ### Adding actors to the scene
 
@@ -182,11 +311,44 @@ For an [[Actor]] to be drawn and updated, it needs to be part of the "scene grap
 The [[Engine]] provides several easy ways to quickly add/remove actors from the
 current scene.
 
-<GameCodeBlock>{AddingActorsExample}</GameCodeBlock>
+```twoslash include actors
+const player = new ex.Actor();
+const enemy = new ex.Actor();
+```
+
+```ts twoslash
+// @include: ex
+// @include: actors
+
+// add them to the "root" scene
+game.add(player);
+game.add(enemy);
+
+// start game
+game.start();
+```
 
 You can also add actors to a [[Scene]] instance specifically:
 
-<GameCodeBlock>{AddingActorsToSceneExample}</GameCodeBlock>
+```ts twoslash
+// @include: ex
+// @include: actors
+// ---cut---
+const level1 = new ex.Scene();
+
+// add actors to level1
+level1.add(player);
+level1.add(enemy);
+
+// add level1 to the game
+game.add('level1', level1);
+
+// start the game
+game.start();
+
+// after player clicks start game, for example
+game.goToScene('level1');
+```
 
 ## Collision Detection
 

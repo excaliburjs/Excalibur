@@ -77,7 +77,13 @@ const config: Config = {
         }
       } as ClassicPresetOptions
     ],
-    ['docusaurus-preset-shiki-twoslash', { themes: ['github-light', 'github-dark'], ignoreCodeblocksWithCodefenceMeta: ['live'] }]
+    [
+      'docusaurus-preset-shiki-twoslash',
+      {
+        themes: ['github-light', 'github-dark'],
+        ignoreCodeblocksWithCodefenceMeta: ['live']
+      }
+    ]
   ],
 
   plugins: [
