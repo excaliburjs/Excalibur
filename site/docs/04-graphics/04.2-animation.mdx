@@ -8,7 +8,7 @@ import playerRun from './examples/player-run.png'
 
 [[Animation|Animations]] are a series of graphics that take a specific duration in milliseconds. Each of these units is called a "Frame". There are a few playing strategies as well to consider
 
-```twoslash include main
+```twoslash include ex
 /// <reference path="../src/engine/excalibur.d.ts" />
 
 const newSprite = new ex.Sprite({
@@ -29,7 +29,9 @@ const triangle = new ex.Polygon({
   points: [ex.vec(10 * 5, 0), ex.vec(0, 20 * 5), ex.vec(20 * 5, 20 * 5)],
   color: ex.Color.Yellow
 });
-// ---cut---
+```
+
+```twoslash include animation
 const animation = new ex.Animation({
   frames: [
     {
@@ -78,7 +80,9 @@ Animation frames can be created by hand in the following example
 
 
 ```ts twoslash
-// @include: main
+// @include: ex
+// ---cut---
+// @include: animation
 ```
 
 Animations can be constructed quickly from [`ex.SpriteSheets`](#SpriteSheet)
@@ -94,7 +98,8 @@ Animations can be constructed quickly from [`ex.SpriteSheets`](#SpriteSheet)
 Animations also emit events per frame, per loop, and per end (if it completes).
 
 ```ts twoslash
-// @include: main
+// @include: ex
+// @include: animation
 // ---cut---
 animation.events.on('loop', (a) => {
   console.log('loop')
