@@ -18,14 +18,16 @@
   "dependencies": {
     "@docusaurus/core": "3.0.0",
     "@docusaurus/preset-classic": "3.0.0",
-    "@docusaurus/theme-live-codeblock": "^3.0.0",
     "@mdx-js/react": "^3.0.0",
     "@stackblitz/sdk": "^1.9.0",
     "clsx": "^1.2.1",
+    "docusaurus-plugin-typedoc-api": "^4.0.1",
     "docusaurus-preset-shiki-twoslash": "^1.1.41",
     "prism-react-renderer": "^2.1.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "rehype-raw": "^7.0.0",
+    "remark-typedoc-symbol-links": "^2.1.0"
   },
   "devDependencies": {
     "@babel/plugin-proposal-decorators": "^7.23.2",
@@ -33,9 +35,8 @@
     "@docusaurus/module-type-aliases": "3.0.0",
     "@docusaurus/tsconfig": "^3.0.0",
     "@types/react": "^18.2.29",
-    "docusaurus-plugin-typedoc-api": "^4.0.1",
+    "micromark-extension-mdxjs": "^3.0.0",
     "patch-package": "^8.0.0",
-    "remark-typedoc-symbol-links": "^2.1.0",
     "typescript": "~5.2.2"
   },
   "browserslist": {

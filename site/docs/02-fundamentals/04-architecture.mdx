@@ -17,7 +17,10 @@ instance of a game at a time, so it is safe to use globally.
 You can then call [[Engine.start|start]] which starts the game and optionally accepts
 a [[Loader]] which you can use to [load assets](/docs/assets) like sprites and sounds.
 
-```js
+```ts twoslash
+/// <reference path="../build/esm/excalibur.d.ts" />
+
+// ---cut---
 const game = new ex.Engine({
   width: 800, // the width of the canvas
   height: 600, // the height of the canvas

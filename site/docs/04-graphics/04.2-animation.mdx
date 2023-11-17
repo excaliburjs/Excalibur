@@ -6,9 +6,53 @@ import playerRun from './examples/player-run.png'
 
 # Animation
 
-Animations are a series of graphics that take a specific duration in milliseconds. Each of these units is called a "Frame". There are a few playing strategies as well to consider
+[[Animation|Animations]] are a series of graphics that take a specific duration in milliseconds. Each of these units is called a "Frame". There are a few playing strategies as well to consider
 
-```typescript
+```twoslash include main
+/// <reference path="../build/dist/excalibur.d.ts" />
+
+const newSprite = new ex.Sprite({
+  image: new ex.ImageSource('./player-run.png'),
+  width: 96,
+  height: 96,
+});
+const circle = new ex.Circle({
+  radius: 50,
+  color: ex.Color.Red,
+});
+const rect = new ex.Rectangle({
+  width: 50,
+  height: 50,
+  color: ex.Color.Red,
+});
+const triangle = new ex.Polygon({
+  points: [ex.vec(10 * 5, 0), ex.vec(0, 20 * 5), ex.vec(20 * 5, 20 * 5)],
+  color: ex.Color.Yellow
+});
+// ---cut---
+const animation = new ex.Animation({
+  frames: [
+    {
+      graphic: newSprite,
+      duration: 500,
+    },
+    {
+      graphic: circle,
+      duration: 1000,
+    },
+    {
+      graphic: rect,
+      duration: 1500,
+    },
+    {
+      graphic: triangle,
+      duration: 2000,
+    },
+  ],
+});
+```
+
+```ts
 export enum AnimationStrategy {
   /**
    * Animation ends without displaying anything
@@ -32,27 +76,9 @@ export enum AnimationStrategy {
 
 Animation frames can be created by hand in the following example
 
-```typescript
-const animation = new ex.Animation({
-  frames: [
-    {
-      graphic: newSprite,
-      duration: 500,
-    },
-    {
-      graphic: circle,
-      duration: 1000,
-    },
-    {
-      graphic: rect,
-      duration: 1500,
-    },
-    {
-      graphic: triangle,
-      duration: 2000,
-    },
-  ],
-})
+
+```ts twoslash
+// @include: main
 ```
 
 Animations can be constructed quickly from [`ex.SpriteSheets`](#SpriteSheet)
@@ -67,14 +93,16 @@ Animations can be constructed quickly from [`ex.SpriteSheets`](#SpriteSheet)
 
 Animations also emit events per frame, per loop, and per end (if it completes).
 
-```typescript
-anim.on('loop', (a) => {
+```ts twoslash
+// @include: main
+// ---cut---
+animation.events.on('loop', (a) => {
   console.log('loop')
 })
-anim.on('frame', (f) => {
+animation.events.on('frame', (f) => {
   console.log('frame')
 })
-anim.on('end', (a) => {
+animation.events.on('end', (a) => {
   console.log('ended')
 })
 ```
