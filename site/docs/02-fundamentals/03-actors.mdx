@@ -13,7 +13,6 @@ If you don't want these built-ins and you want to build only what you want, read
 ```twoslash include ex
 /// <reference path="../src/engine/excalibur.d.ts" />
 declare const game: ex.Engine;
-// ---cut---
 ```
 
 ## Basic actors
@@ -39,6 +38,7 @@ actor. This is optional, but is nice for encapsulating your specifics.
 
 ```ts twoslash
 // @include: ex
+// ---cut---
 class ShootemUpPlayer extends ex.Actor {
   public health: number = 100;
   public ammo: number = 20;
@@ -86,6 +86,7 @@ you don't incur the cost of initialization until an actor is ready to be updated
 
 ```ts twoslash {9-12}
 // @include: ex
+// ---cut---
 class Player extends ex.Actor {
   public level = 1;
   public endurance = 0;
@@ -125,6 +126,7 @@ You can override the core [[Actor.update]] but it is important to call the `supe
 
 ```ts twoslash {2-6}
 // @include: ex
+// ---cut---
 class Player extends ex.Actor {
   public update(engine: ex.Engine, delta: number) {
     // Custom update here
@@ -153,6 +155,7 @@ Override the [[Actor.onPreUpdate]] method to update the state of your actor befo
 
 ```ts twoslash {2-6}
 // @include: ex
+// ---cut---
 class Player extends ex.Actor {
   public onPreUpdate(engine: ex.Engine, delta: number) {
     // update velocity
@@ -173,6 +176,7 @@ This is the recommended method to override for adding update logic to your actor
 
 ```ts twoslash {4-10}
 // @include: ex
+// ---cut---
 class Player extends ex.Actor {
   private health: number = 100;
 
@@ -234,6 +238,7 @@ If you need to do some custom drawing using the `CanvasRenderingContext2D` the n
 
 ```ts twoslash {1-7, 12}
 // @include: ex
+// ---cut---
 const canvas = new ex.Canvas({
   cache: true, // If true draw once until flagged dirty again, otherwise draw every time
   draw: (ctx: CanvasRenderingContext2D) => {
@@ -264,6 +269,7 @@ Reference [Actor lifecycle](#actor-lifecycle) for a breakdown of each phase and 
 
 ```ts twoslash
 // @include: ex
+// ---cut---
 class Player extends ex.Actor {
   constructor(config?: ex.ActorArgs) {
     super(config);
@@ -290,6 +296,7 @@ This is the recommended method to override since Excalibur has run its core draw
 
 ```ts twoslash
 // @include: ex
+// ---cut---
 class Player extends ex.Actor {
   constructor(config?: ex.ActorArgs) {
     super(config);
@@ -318,6 +325,7 @@ const enemy = new ex.Actor();
 
 ```ts twoslash
 // @include: ex
+// ---cut---
 // @include: actors
 
 // add them to the "root" scene
