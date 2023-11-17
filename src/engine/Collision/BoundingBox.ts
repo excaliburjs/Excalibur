@@ -103,7 +103,6 @@ export class BoundingBox {
    * @param height
    * @param anchor Default Vector.Half
    * @param pos Default Vector.Zero
-   * @returns
    */
   public static fromDimension(width: number, height: number, anchor: Vector = Vector.Half, pos: Vector = Vector.Zero) {
     return new BoundingBox(

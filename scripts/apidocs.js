@@ -18,7 +18,6 @@ child_process.execSync(
     ' --name "Excalibur.js ' +
     title +
     ' API Documentation"' +
-    ' --readme src/engine/Docs/Index.md' +
     ' --out docs/api' +
     ' --hideGenerator' +
     ' --excludePrivate' +
