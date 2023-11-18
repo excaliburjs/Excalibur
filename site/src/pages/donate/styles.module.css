@@ -19,7 +19,7 @@
 
   background-image: url(/img/support/patreon.png);
   background-position: 50% 70%;
-  background-size: 100px;
+  background-size: 40%;
   background-repeat: no-repeat;
 
   border: solid 3px;
@@ -45,6 +45,7 @@
 
 .kofi {
   background-image: url(/img/support/kofi_s_logo_nolabel.webp);
+  background-size: 60%;
 }
 
 .liberapay {
