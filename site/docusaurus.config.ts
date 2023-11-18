@@ -159,7 +159,7 @@ const config: Config = {
       title: 'Excalibur.js',
       logo: {
         alt: 'Excalibur.js Logo',
-        src: 'img/logo.svg'
+        src: 'img/ex-logo.png'
       },
       items: [
         {
@@ -170,6 +170,14 @@ const config: Config = {
         },
         { to: '/api', label: 'API', position: 'left' },
         { to: '/blog', label: 'Blog', position: 'left' },
+        { to: '/samples', label: 'Samples', position: 'left' },
+        { to: '/donate', label: 'Donate', position: 'left' },
+        { to: '/premium-support', label: 'Premium Support', position: 'left' },
+        {
+          href: 'https://github.com/excaliburjs/Excalibur/discussions',
+          label: 'Community',
+          position: 'left'
+        },
         {
           href: 'https://github.com/excaliburjs/Excalibur',
           label: 'GitHub',
@@ -193,16 +201,8 @@ const config: Config = {
           title: 'Community',
           items: [
             {
-              label: 'Stack Overflow',
-              href: 'https://stackoverflow.com/questions/tagged/docusaurus'
-            },
-            {
-              label: 'Discord',
-              href: 'https://discordapp.com/invite/docusaurus'
-            },
-            {
               label: 'Twitter',
-              href: 'https://twitter.com/docusaurus'
+              href: 'https://twitter.com/excaliburjs'
             }
           ]
         },
@@ -220,7 +220,7 @@ const config: Config = {
           ]
         }
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`
+      copyright: `Copyright © ${new Date().getFullYear()} Excalibur.js Project. Built with Docusaurus.`
     },
     prism: {
       theme: lightCodeTheme,

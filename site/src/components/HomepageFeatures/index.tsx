@@ -10,32 +10,29 @@ type FeatureItem = {
 
 const FeatureList: FeatureItem[] = [
   {
-    title: 'Easy to Use',
+    title: 'Made with TypeScript',
     Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
     description: (
       <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
+        Excalibur was built from the ground up for TypeScript, a typed superset of JavaScript that feels familiar to C#, Java, and other strongly-typed languages. This makes Excalibur code clean, readable, and maintainable.
       </>
     ),
   },
   {
-    title: 'Focus on What Matters',
+    title: 'Extensive Documentation',
     Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
     description: (
       <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
+        Excalibur has a fully-documented API reference that is automatically kept up-to-date with every version, including the main code branch.
       </>
     ),
   },
   {
-    title: 'Powered by React',
+    title: 'Designed for Cross-Platform',
     Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
     description: (
       <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
+        Excalibur games compile to modern JavaScript and therefore work in the majority of browsers, including mobile. Since Excalibur games are "just JavaScript", you can use native app packaging wrappers like Apache Cordova, Universal Windows Apps, or Electron to create cross-platform games.
       </>
     ),
   },
