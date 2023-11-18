@@ -153,8 +153,7 @@ const config: Config = {
   ],
 
   themeConfig: {
-    // Replace with your project's social card
-    image: 'img/docusaurus-social-card.jpg',
+    image: 'img/ex-social.jpg',
     navbar: {
       title: 'Excalibur.js',
       logo: {
