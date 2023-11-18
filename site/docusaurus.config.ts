@@ -172,7 +172,7 @@ const config: Config = {
         { to: '/blog', label: 'Blog', position: 'left' },
         { to: '/samples', label: 'Samples', position: 'left' },
         { to: '/donate', label: 'Donate', position: 'left' },
-        { to: '/premium-support', label: 'Premium Support', position: 'left' },
+        { to: '/premium-support', label: 'Premium Support', position: 'right' },
         {
           href: 'https://github.com/excaliburjs/Excalibur/discussions',
           label: 'Community',
