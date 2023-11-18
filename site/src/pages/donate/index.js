@@ -53,7 +53,7 @@ export default function DonatePage() {
 
           <p>
             Excalibur is currently a labor of love and something we do outside of
-            our day job, our goal is to one day fund part time or full time
+            our day jobs; our goal is to one day fund part-time or full-time
             development.
           </p>
         </div>
