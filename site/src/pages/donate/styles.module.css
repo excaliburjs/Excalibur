@@ -1,0 +1,63 @@
+.main {
+  margin: 2rem;
+}
+
+.sponsor-options {
+  display:flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  margin-bottom: 20px;
+}
+
+.sponsor-button {
+  display: block;
+  text-align: center;
+  width: 200px;
+  height: 200px;
+  padding: 10px;
+  margin-bottom: 10px;
+
+  background-image: url(/img/support/patreon.png);
+  background-position: 50% 70%;
+  background-size: 40%;
+  background-repeat: no-repeat;
+
+  border: solid 3px;
+  border-radius: 6px;
+
+
+  text-align: center;
+  text-decoration: none;
+  transition: transform .25s;
+}
+
+.sponsor-button:hover {
+  transform: scale(1.1);
+}
+
+.patreon {
+  background-image: url(/img/support/patreon.png);
+}
+
+.gh {
+  background-image: url(/img/support/original.png);
+}
+
+.kofi {
+  background-image: url(/img/support/kofi_s_logo_nolabel.webp);
+  background-size: 60%;
+}
+
+.liberapay {
+  background-image: url(/img/support/icon-v2_white-on-yellow.svg);
+}
+
+@media (min-width: 768px) {
+  .index-menu {
+    float: right;
+  }
+
+  .index-menu .item {
+    justify-content: unset;
+  }
+}

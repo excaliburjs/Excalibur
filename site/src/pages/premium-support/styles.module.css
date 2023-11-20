@@ -1,0 +1,30 @@
+.main {
+  margin: 2rem;
+}
+
+.support-options {
+  display:flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  margin-bottom: 20px;
+}
+
+.support-button {
+  display: block;
+  text-align: center;
+  width: 400px;
+  padding: 10px;
+  margin-bottom: 10px;
+
+  border: solid 1px;
+  border-radius: 6px;
+
+
+  text-align: center;
+  text-decoration: none;
+  transition: transform .25s;
+}
+
+.sponsor-button:hover {
+  transform: scale(1.1);
+}
