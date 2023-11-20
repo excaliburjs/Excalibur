@@ -19,9 +19,9 @@ const StackblitzPlayground = ({ code, title = '', assets = {} }: { title: string
               'index.html': `
               <canvas id="game"></canvas>
             `,
-              'game.ts': `import * as ex from 'excalibur';
-  
-  const game = new ex.Engine({
+              'game.ts': `import * as ex from './excalibur';
+
+const game = new ex.Engine({
     canvasElementId: 'game',
     width: 600,
     height: 400,
@@ -32,10 +32,19 @@ const StackblitzPlayground = ({ code, title = '', assets = {} }: { title: string
   });
         
   export default game;`,
-              'index.ts': `import * as ex from 'excalibur';
+              'index.ts': `import * as ex from './excalibur';
 import game from './game';
   
 ${code}`,
+              'index.d.ts': `/// <reference types="excalibur" />`,
+              'tsconfig.json': `{
+  "compilerOptions": {
+    "module": "esnext",
+    "esModuleInterop": true,
+    "allowJs": true
+  },
+  "include": ["**/*.ts", "excalibur.js"]
+}`,
               ...assetFiles
             },
             dependencies: {
@@ -45,7 +54,7 @@ ${code}`,
           {
             openFile: 'index.ts',
             clickToLoad: true,
-            hideExplorer: true,
+            hideExplorer: false,
             hideNavigation: true,
             hideDevTools: true,
             height: 400,
@@ -76,22 +85,28 @@ function indentString(str: string, indent: number) {
 async function buildFileAssets(assets: Record<string, string>) {
   // player-run.png: "/assets/images/player-run-43f110652c0efed153e43ba4126a14a2.png"
 
+  assets['excalibur.js'] = '/excalibur.js';
+
   if (Object.values(assets).length === 0) {
     return { assetFiles: {} };
   }
 
   const assetPromises = Object.entries(assets).reduce((acc, [name, url]) => {
-    acc[name] = fetch(url).then(res => res.blob()).then(blob => {
-      return new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          resolve(reader.result as string);
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-      });
-    });
 
+    if (name === 'excalibur.js') {
+      acc[name] = fetch(url).then(res => res.text());
+    } else {
+      acc[name] = fetch(url).then(res => res.blob()).then(blob => {
+        return new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            resolve(reader.result as string);
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      });
+    }
     return acc;
   }, {} as Record<string, Promise<string>>);
 
@@ -101,10 +116,13 @@ async function buildFileAssets(assets: Record<string, string>) {
 
   for (const [name, assetPromise] of Object.entries(assetPromises)) {
     const asset = await assetPromise;
-    assetFiles[`${name}.ts`] = `export default '${asset}';`;
-  }
 
-  console.log('buildFileAssets', assetFiles);
+    if (name.endsWith('.js')) {
+      assetFiles[name] = `// @ts-nocheck\n\n${asset}`;
+    } else {
+      assetFiles[`${name}.ts`] = `export default '${asset}';`;
+    }
+  }
 
   return {
     assetFiles: {

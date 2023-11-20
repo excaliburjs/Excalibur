@@ -91,32 +91,76 @@ const config: Config = {
       return {
         name: 'excalibur-plugin',
         configureWebpack(config, isServer, utils) {
-          const postCssLoader = config.module.rules.find((r) => r.test && r.test.toString().includes('.css$'));
+          // const postCssLoader = config.module.rules.find((r) => r.test && r.test.toString().includes('.css$'));
 
-          if (postCssLoader) {
-            // Exclude engine CSS files from postcss because they will be inlined
-            // during engine build
-            postCssLoader.exclude = [postCssLoader.exclude, path.resolve(__dirname, '../src/engine')];
-          }
+          // if (postCssLoader) {
+          //   // Exclude engine CSS files from postcss because they will be inlined
+          //   // during engine build
+          //   postCssLoader.exclude = [postCssLoader.exclude, path.resolve(__dirname, '../src/engine')];
+          // }
 
           return {
             devServer: {
               client: {
                 overlay: {
+                  // There are sometimes errors with the embedded SDKs like
+                  // Stackblitz that present a fullscreen error
                   runtimeErrors: false
                 }
               }
+            }
+          };
+        },
+        configureAdditionalWebpack() {
+          // TODO: Does not work properly in dev mode.
+          return {
+            name: 'excalibur',
+            devtool: false,
+            mode: 'production',
+            context: path.resolve(__dirname, '../src/engine'),
+            entry: {
+              excalibur: {
+                import: './index.ts',
+                library: {
+                  name: 'ex',
+                  type: 'window'
+                },                
+                filename: 'excalibur.js'
+              }
+            },
+            output: {
+              path: context.outDir,
+              publicPath: context.baseUrl,
+            },
+            optimization: {
+              minimize: true
+            },
+            resolve: {
+              extensions: ['.ts', '.tsx', '.js']
             },
             module: {
               rules: [
                 {
+                  test: /\.tsx?$/,
+                  use: ['ts-loader']
+                },
+                {
                   test: /\.css$/,
-                  include: path.resolve(__dirname, '../src/engine'),
                   use: ['css-loader']
                 },
                 {
+                  test: /\.(png|jpg|gif|mp3)$/i,
+                  use: [
+                    {
+                      loader: 'url-loader',
+                      options: {
+                        limit: 8192
+                      }
+                    }
+                  ]
+                },
+                {
                   test: /\.glsl$/,
-                  include: path.resolve(__dirname, '../src/engine'),
                   use: ['raw-loader']
                 }
               ]
@@ -125,12 +169,7 @@ const config: Config = {
               new webpack.DefinePlugin({
                 'process.env.__EX_VERSION': JSON.stringify('docusaurus')
               })
-            ],
-            resolve: {
-              alias: {
-                excalibur: path.resolve(__dirname, '../src/engine')
-              }
-            }
+            ]
           };
         }
       };
