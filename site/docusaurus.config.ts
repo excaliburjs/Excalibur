@@ -103,15 +103,15 @@ const config: Config = {
             }
           };
         },
-        configureAdditionalWebpack(config: webpack.Configuration): webpack.Configuration {
-          const isCssLoader = (rule: webpack.RuleSetRule) => rule.test && rule.test.toString().includes('.css$');
-          const postCssLoader = config.module.rules.find(isCssLoader) as webpack.RuleSetRule | undefined;
+        configureAdditionalWebpack(): webpack.Configuration {
+          // const isCssLoader = (rule: webpack.RuleSetRule) => rule.test && rule.test.toString().includes('.css$');
+          // const postCssLoader = config.module.rules.find(isCssLoader) as webpack.RuleSetRule | undefined;
 
-          if (postCssLoader) {
-            // Exclude engine CSS files from postcss because they will be inlined
-            // during engine build
-            postCssLoader.exclude = [postCssLoader.exclude, path.resolve(__dirname, '../src/engine')];
-          }
+          // if (postCssLoader) {
+          //   // Exclude engine CSS files from postcss because they will be inlined
+          //   // during engine build
+          //   postCssLoader.exclude = [postCssLoader.exclude, path.resolve(__dirname, '../src/engine')];
+          // }
 
           return {
             name: 'excalibur',

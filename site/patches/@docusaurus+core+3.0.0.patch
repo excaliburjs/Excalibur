@@ -1,5 +1,5 @@
 diff --git a/node_modules/@docusaurus/core/lib/commands/build.js b/node_modules/@docusaurus/core/lib/commands/build.js
-index ac08099..2f56e01 100644
+index ac08099..6f4f134 100644
 --- a/node_modules/@docusaurus/core/lib/commands/build.js
 +++ b/node_modules/@docusaurus/core/lib/commands/build.js
 @@ -152,8 +152,9 @@ async function buildLocale({ siteDir, locale, cliOptions, forceTerminate, isLast
@@ -19,7 +19,7 @@ index ac08099..2f56e01 100644
          }
 +        if (configureAdditionalWebpack) {
 +          additionalPluginConfigs.push((0, utils_2.applyConfigureWebpack)(configureAdditionalWebpack.bind(plugin), // The plugin lifecycle may reference `this`.
-+            {}, false, props.siteConfig.webpack?.jsLoader, plugin.content)
++          {}, false, props.siteConfig.webpack?.jsLoader, plugin.content)
 +          )
 +        }
      });
@@ -35,7 +35,7 @@ index ac08099..2f56e01 100644
      if (typeof serverConfig.output?.filename === 'string') {
          const serverBundle = path_1.default.join(outDir, serverConfig.output.filename);
 diff --git a/node_modules/@docusaurus/core/lib/commands/start.js b/node_modules/@docusaurus/core/lib/commands/start.js
-index ad7dee0..5b35ad1 100644
+index ad7dee0..3a162a4 100644
 --- a/node_modules/@docusaurus/core/lib/commands/start.js
 +++ b/node_modules/@docusaurus/core/lib/commands/start.js
 @@ -113,8 +113,9 @@ async function start(siteDirParam = '.', cliOptions = {}) {
@@ -55,7 +55,7 @@ index ad7dee0..5b35ad1 100644
          }
 +        if (configureAdditionalWebpack) {
 +          additionalPluginConfigs.push((0, utils_2.applyConfigureWebpack)(configureAdditionalWebpack.bind(plugin), // The plugin lifecycle may reference `this`.
-+            config, false, props.siteConfig.webpack?.jsLoader, plugin.content)
++            {}, false, props.siteConfig.webpack?.jsLoader, plugin.content)
 +          )
 +        }
      });
