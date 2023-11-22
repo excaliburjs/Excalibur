@@ -2,7 +2,7 @@ import sdk, { VM } from '@stackblitz/sdk';
 import { useEffect, useRef } from 'react';
 import { useColorMode } from '@docusaurus/theme-common';
 
-const StackblitzPlayground = ({ code, title = '', assets = {} }: { title: string; code: string; assets?: Record<string, string> }) => {
+const StackblitzPlayground = ({ code, title, assets = {} }: { title: string; code: string; assets?: Record<string, string> }) => {
   const { colorMode } = useColorMode();
   const embedRef = useRef<HTMLDivElement>();
   const vmRef = useRef<Promise<VM>>();
@@ -16,9 +16,7 @@ const StackblitzPlayground = ({ code, title = '', assets = {} }: { title: string
             description: 'Blank starter project for building ES6 apps.',
             template: 'typescript',
             files: {
-              'index.html': `
-              <canvas id="game"></canvas>
-            `,
+              'index.html': `<canvas id="game"></canvas>`,
               'game.ts': `import * as ex from './excalibur';
 
 const game = new ex.Engine({
@@ -37,14 +35,6 @@ import game from './game';
   
 ${code}`,
               'index.d.ts': `/// <reference types="excalibur" />`,
-              'tsconfig.json': `{
-  "compilerOptions": {
-    "module": "esnext",
-    "esModuleInterop": true,
-    "allowJs": true
-  },
-  "include": ["**/*.ts", "excalibur.js"]
-}`,
               ...assetFiles
             },
             dependencies: {
@@ -56,7 +46,7 @@ ${code}`,
             clickToLoad: true,
             hideExplorer: false,
             hideNavigation: true,
-            hideDevTools: true,
+            hideDevTools: false,
             height: 400,
             theme: colorMode === 'dark' ? 'dark' : 'light'
           },
@@ -67,8 +57,10 @@ ${code}`,
 
   useEffect(() => {
     if (vmRef.current) {
-      vmRef.current.then(vm => {
+      vmRef.current.then((vm) => {
         vm.editor.setTheme(colorMode === 'dark' ? 'dark' : 'light')
+      }, (err) => {
+        console.log('Could not set Stackblitz theme', err);
       });
     }
   }, [colorMode]);
@@ -76,10 +68,6 @@ ${code}`,
   return (
     <div ref={embedRef} />
   )
-}
-
-function indentString(str: string, indent: number) {
-  return str.split('\n').map(line => ' '.repeat(indent) + line).join('\n');
 }
 
 async function buildFileAssets(assets: Record<string, string>) {
@@ -94,7 +82,10 @@ async function buildFileAssets(assets: Record<string, string>) {
   const assetPromises = Object.entries(assets).reduce((acc, [name, url]) => {
 
     if (name === 'excalibur.js') {
-      acc[name] = fetch(url).then(res => res.text());
+      acc[name] = fetch(url).then(res => res.text()).then(rawScript => {
+        const script = stripWebpackHmrDevServerRequire(rawScript);
+        return `// @ts-nocheck\n\n${script}`;
+      });
     } else {
       acc[name] = fetch(url).then(res => res.blob()).then(blob => {
         return new Promise<string>((resolve, reject) => {
@@ -118,7 +109,7 @@ async function buildFileAssets(assets: Record<string, string>) {
     const asset = await assetPromise;
 
     if (name.endsWith('.js')) {
-      assetFiles[name] = `// @ts-nocheck\n\n${asset}`;
+      assetFiles[`${name.split('.')[0]}.ts`] = asset;
     } else {
       assetFiles[`${name}.ts`] = `export default '${asset}';`;
     }
@@ -136,6 +127,10 @@ async function buildFileAssets(assets: Record<string, string>) {
       ...assetFiles
     },
   }
+}
+
+function stripWebpackHmrDevServerRequire(script: string) {
+  return script.replace(/__webpack_require__\((448|825)\);/g, '');
 }
 
 export default StackblitzPlayground;

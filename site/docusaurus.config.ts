@@ -2,7 +2,7 @@ import { Config } from '@docusaurus/types';
 import { Options as ClassicPresetOptions, ThemeConfig as ClassicPresetThemeConfig } from '@docusaurus/preset-classic';
 import { ReflectionKind } from 'typedoc';
 import path from 'path';
-import webpack from 'webpack';
+import webpack, { web } from 'webpack';
 import { themes } from 'prism-react-renderer';
 import typedocSymbolLinks from 'remark-typedoc-symbol-links';
 import rehypeRaw from 'rehype-raw';
@@ -87,18 +87,10 @@ const config: Config = {
   ],
 
   plugins: [
-    async function excaliburPlugin(context, options) {
+    async function excaliburPlugin(context) {
       return {
         name: 'excalibur-plugin',
-        configureWebpack(config, isServer, utils) {
-          // const postCssLoader = config.module.rules.find((r) => r.test && r.test.toString().includes('.css$'));
-
-          // if (postCssLoader) {
-          //   // Exclude engine CSS files from postcss because they will be inlined
-          //   // during engine build
-          //   postCssLoader.exclude = [postCssLoader.exclude, path.resolve(__dirname, '../src/engine')];
-          // }
-
+        configureWebpack() {
           return {
             devServer: {
               client: {
@@ -111,8 +103,16 @@ const config: Config = {
             }
           };
         },
-        configureAdditionalWebpack() {
-          // TODO: Does not work properly in dev mode.
+        configureAdditionalWebpack(config: webpack.Configuration): webpack.Configuration {
+          const isCssLoader = (rule: webpack.RuleSetRule) => rule.test && rule.test.toString().includes('.css$');
+          const postCssLoader = config.module.rules.find(isCssLoader) as webpack.RuleSetRule | undefined;
+
+          if (postCssLoader) {
+            // Exclude engine CSS files from postcss because they will be inlined
+            // during engine build
+            postCssLoader.exclude = [postCssLoader.exclude, path.resolve(__dirname, '../src/engine')];
+          }
+
           return {
             name: 'excalibur',
             devtool: false,
@@ -123,17 +123,19 @@ const config: Config = {
                 import: './index.ts',
                 library: {
                   name: 'ex',
-                  type: 'window'
-                },                
+                  type: 'umd'
+                },
                 filename: 'excalibur.js'
               }
             },
             output: {
               path: context.outDir,
               publicPath: context.baseUrl,
+              uniqueName: 'excalibur',
             },
             optimization: {
-              minimize: true
+              minimize: false,
+              runtimeChunk: false
             },
             resolve: {
               extensions: ['.ts', '.tsx', '.js']
@@ -204,7 +206,7 @@ const config: Config = {
           type: 'docSidebar',
           sidebarId: 'learnSidebar',
           position: 'left',
-          label: 'Learn'
+          label: 'Docs'
         },
         { to: '/api', label: 'API', position: 'left' },
         { to: '/blog', label: 'Blog', position: 'left' },

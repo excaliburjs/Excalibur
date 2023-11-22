@@ -42,4 +42,4 @@ game.currentScene.add(ground);
 game.currentScene.camera.pos = ex.vec(game.halfDrawWidth, game.halfDrawHeight);
 
 // start the game
-//game.start();
+game.start();

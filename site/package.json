@@ -37,7 +37,9 @@
     "@types/react": "^18.2.29",
     "micromark-extension-mdxjs": "^3.0.0",
     "patch-package": "^8.0.0",
-    "typescript": "~5.2.2"
+    "ts-loader": "^9.5.1",
+    "typescript": "~5.2.2",
+    "url-loader": "^4.1.1"
   },
   "browserslist": {
     "production": [
