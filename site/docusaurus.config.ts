@@ -262,6 +262,12 @@ const config: Config = {
       ],
       copyright: `Copyright © ${new Date().getFullYear()} Excalibur.js Project. Built with Docusaurus.`
     },
+    algolia: {
+      appId: 'IVI5ONIKWP',
+      apiKey: 'f8e274d9f62a3088bb54ab80f766d740',
+      indexName: 'excaliburjs',
+      contextualSearch: true,
+    },
     prism: {
       theme: lightCodeTheme,
       darkTheme: darkCodeTheme,
