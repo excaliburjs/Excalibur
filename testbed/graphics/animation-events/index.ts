@@ -1,12 +1,14 @@
+import * as ex from '../../../build/dist/';
+import imagePath from './explosion.png';
 
-var game = new ex.Engine({
+const game = new ex.Engine({
   width: 400,
   height: 400
 });
 
-var animationImage = new ex.ImageSource('./explosion.png');
+const animationImage = new ex.ImageSource(imagePath);
 
-var explosionSpriteSheet = ex.SpriteSheet.fromImageSource({
+const explosionSpriteSheet = ex.SpriteSheet.fromImageSource({
   image: animationImage,
   grid: {
       rows: 2,
@@ -16,7 +18,7 @@ var explosionSpriteSheet = ex.SpriteSheet.fromImageSource({
   }
 });
 
-var animation = ex.Animation.fromSpriteSheetCoordinates({
+const animation = ex.Animation.fromSpriteSheetCoordinates({
   spriteSheet: explosionSpriteSheet,
   frameCoordinates: [
       {x: 0, y: 0, duration: 100 },
@@ -45,9 +47,9 @@ animation.events.on('loop', (anim) => {
   console.log('loop', anim)
 });
 
-var loader = new ex.Loader([animationImage]);
+const loader = new ex.Loader([animationImage]);
 
-var actor = new ex.Actor({
+const actor = new ex.Actor({
   pos: ex.vec(200, 200),
 });
 actor.graphics.use(animation);
