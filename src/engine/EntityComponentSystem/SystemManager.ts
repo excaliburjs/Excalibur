@@ -111,8 +111,8 @@ export class SystemManager<ContextType> {
   }
 
   public clear(): void {
-    for (const system of this.systems) {
-      this.removeSystem(system);
+    for (let i = this.systems.length - 1; i >= 0; i--) {
+      this.removeSystem(this.systems[i]);
     }
   }
 }

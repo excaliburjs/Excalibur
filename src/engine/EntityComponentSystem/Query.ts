@@ -71,8 +71,8 @@ export class Query<T extends Component = Component> extends Observable<AddedEnti
    */
   public clear(): void {
     this._entities.length = 0;
-    for (const observer of this.observers) {
-      this.unregister(observer);
+    for (let i = this.observers.length - 1; i >= 0; i--) {
+      this.unregister(this.observers[i]);
     }
   }
 
