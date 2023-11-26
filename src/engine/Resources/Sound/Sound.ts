@@ -361,22 +361,18 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
   private async _startPlayback(): Promise<boolean> {
     const track = this._getTrackInstance(this.data);
 
-    // this._tracks.push(track);
-
     const complete = await track.play(() => {
       this.events.emit('playbackstart', new NativeSoundEvent(this, track));
       this.logger.debug('Playing new instance for sound', this.path);
     });
 
-    // when done, remove track
-    const doneTracks = this._tracks.filter(t => t.isStopped());
-    doneTracks.forEach((track: WebAudioInstance) => {
-      this.events.emit('playbackend', new NativeSoundEvent(this, track));
-    });
-    // this._tracks.splice(this.getTrackId(track), 1);
+    this.events.emit('playbackend', new NativeSoundEvent(this, track));
 
     // cleanup any done tracks
-    this._tracks = this._tracks.filter(t => !t.isStopped());
+    const trackId = this.getTrackId(track);
+    if (trackId !== -1) {
+      this._tracks.splice(this.getTrackId(track), 1);
+    }
 
     return complete;
   }

@@ -330,17 +330,17 @@ describe('Sound resource', () => {
       sut.loop = false;
       // start playing first track
       sut.play().then(() => {
-        expect(sut.instanceCount()).toBe(1, 'should be one track');
+        expect(sut.instanceCount()).withContext('should be on track').toBe(1);
       });
 
       // wait 250ms then play 2nd track
       setTimeout(() => {
         sut.on('playbackstart', () => {
-          expect(sut.instanceCount()).toBe(2, 'should be two simultaneous tracks');
+          expect(sut.instanceCount()).withContext('should be two simultaneous tracks').toBe(2);
         });
 
         sut.play().then(() => {
-          expect(sut.instanceCount()).toBe(0, 'should be no tracks');
+          expect(sut.instanceCount()).withContext('should be no tracks').toBe(0);
           done();
         });
       }, 250);
