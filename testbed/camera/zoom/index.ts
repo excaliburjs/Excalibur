@@ -1,13 +1,13 @@
-/// <reference path='../../lib/excalibur.d.ts' />
+import * as ex from '../../../build/dist/';
 
-var game = new ex.Engine({
+const game = new ex.Engine({
   width: 500,
   height: 500
 });
 
 game.backgroundColor = ex.Color.Blue;
 
-var actor = new ex.Actor({
+const actor = new ex.Actor({
   x: 250,
   y: 250,
   width: 10,
@@ -17,7 +17,7 @@ var actor = new ex.Actor({
 
 game.add(actor);
 
-var zoomedIn = false;
+let zoomedIn = false;
 game.input.pointers.primary.on('down', (evt: ex.PointerEvent) => {
   if (!zoomedIn) {
     zoomedIn = true;

@@ -1,17 +1,17 @@
-/// <reference path='../../lib/excalibur.d.ts' />
+import * as ex from '../../../build/dist/';
 
-var game = new ex.Engine({
+const game = new ex.Engine({
   width: 600,
   height: 400,
   pointerScope: ex.PointerScope.Canvas
 });
-var actor = new ex.Actor({x: 100, y: 100, width: 50, height: 50, color: ex.Color.Red});
+const actor = new ex.Actor({x: 100, y: 100, width: 50, height: 50, color: ex.Color.Red});
 
 game.add(actor);
 
 game.start().then(() => {});
 
-var easingFn = ex.EasingFunctions.EaseInOutQuad;
+let easingFn = ex.EasingFunctions.EaseInOutQuad;
 
 game.input.pointers.primary.on('down', (evt: ex.PointerEvent) => {
   game.currentScene.camera.move(new ex.Vector(evt.worldPos.x, evt.worldPos.y), 500, easingFn).then((v) => onLerpEnd(v));
@@ -27,7 +27,7 @@ document.getElementById('move-ease-out-cubic').addEventListener('click', moveCam
 document.getElementById('move-ease-linear').addEventListener('click', moveCameraEase.bind(this, ex.EasingFunctions.Linear));
 document.getElementById('move-xy').addEventListener('click', moveCameraViaXY);
 
-var sw = true;
+let sw = true;
 
 function moveCameraEase(_easingFn) {
   easingFn = _easingFn;
