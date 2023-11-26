@@ -19,6 +19,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed async issue where sound could not be stopped if stop()/start() were called in rapid succession
 - Fixed issue with input mapper where `keyboard.wasPressed(...)` did not fire
 - Fixed issue issue where TileMaps would not properly draw Tiles when setup in screen space coordinates
 - Fixed issue where the ex.Line graphics bounds were incorrect causing erroneous offscreen culling

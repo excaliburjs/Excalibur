@@ -2,6 +2,7 @@ import { StateMachine } from '../../Util/StateMachine';
 import { Audio } from '../../Interfaces/Audio';
 import { clamp } from '../../Math/util';
 import { AudioContextFactory } from './AudioContext';
+import { Future } from '../../Util/Future';
 
 interface SoundState {
   startedAt: number;
@@ -16,10 +17,8 @@ export class WebAudioInstance implements Audio {
   private _instance: AudioBufferSourceNode;
   private _audioContext: AudioContext = AudioContextFactory.create();
   private _volumeNode = this._audioContext.createGain();
-  private _playingResolve: (value: boolean) => void;
-  private _playingPromise = new Promise<boolean>((resolve) => {
-    this._playingResolve = resolve;
-  });
+
+  private _playingFuture = new Future<boolean>();
   private _stateMachine = StateMachine.create({
     start: 'STOPPED',
     states: {
@@ -42,7 +41,7 @@ export class WebAudioInstance implements Audio {
         onExit: ({to}) => {
           // If you've exited early only resolve if explicitly STOPPED
           if (to === 'STOPPED') {
-            this._playingResolve(true);
+            this._playingFuture.resolve(true);
           }
           // Whenever you're not playing... you stop!
           this._instance.onended = null; // disconnect the wired on-end handler
@@ -63,7 +62,7 @@ export class WebAudioInstance implements Audio {
         onEnter: ({data}: {from: string, data: SoundState}) => {
           data.pausedAt = 0;
           data.startedAt = 0;
-          this._playingResolve(true);
+          this._playingFuture.resolve(true);
         },
         transitions: ['PLAYING', 'PAUSED', 'SEEK']
       },
@@ -94,7 +93,7 @@ export class WebAudioInstance implements Audio {
   private _handleEnd() {
     if (!this.loop) {
       this._instance.onended = () => {
-        this._playingResolve(true);
+        this._playingFuture.resolve(true);
       };
     }
   }
@@ -110,7 +109,7 @@ export class WebAudioInstance implements Audio {
       this._instance.loop = value;
       if (!this.loop) {
         this._instance.onended = () => {
-          this._playingResolve(true);
+          this._playingFuture.resolve(true);
         };
       }
     }
@@ -168,11 +167,15 @@ export class WebAudioInstance implements Audio {
     return this._stateMachine.in('PAUSED') || this._stateMachine.in('SEEK');
   }
 
+  public isStopped() {
+    return this._stateMachine.in('STOPPED');
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   public play(playStarted: () => any = () => {}) {
     this._playStarted = playStarted;
     this._stateMachine.go('PLAYING');
-    return this._playingPromise;
+    return this._playingFuture.promise;
   }
 
   public pause() {
