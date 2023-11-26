@@ -371,7 +371,7 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
     // cleanup any done tracks
     const trackId = this.getTrackId(track);
     if (trackId !== -1) {
-      this._tracks.splice(this.getTrackId(track), 1);
+      this._tracks.splice(trackId, 1);
     }
 
     return complete;
