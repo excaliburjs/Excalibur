@@ -91,13 +91,13 @@ export interface AnimationOptions {
 export type AnimationEvents = {
   frame: FrameEvent;
   loop: Animation;
-  ended: Animation;
+  end: Animation;
 };
 
 export const AnimationEvents = {
   Frame: 'frame',
   Loop: 'loop',
-  Ended: 'ended'
+  End: 'end'
 };
 
 export interface FromSpriteSheetOptions {
