@@ -1,3 +1,4 @@
+import * as ex from '../../../build/dist/';
 var game = new ex.Engine({
   width: 800,
   height: 600,
