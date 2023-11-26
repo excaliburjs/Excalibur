@@ -293,11 +293,8 @@ describe('Sound resource', () => {
     }, 500);
   });
 
-  // FIXME: test times out
-  xit('should not have any tracks when stopped', (done) => {
+  it('should not have any tracks when stopped', (done) => {
     sut.load().then(() => {
-      sut.play();
-
       sut.once('playbackstart', () => {
         expect(sut.instanceCount()).toBe(1, 'should be one track');
 
@@ -307,14 +304,12 @@ describe('Sound resource', () => {
 
         done();
       });
+      sut.play();
     });
   });
 
-  // FIXME: test times out
-  xit('should not remove instance if paused', (done) => {
+  it('should not remove instance if paused', (done) => {
     sut.load().then(() => {
-      sut.play();
-
       sut.once('playbackstart', () => {
         expect(sut.instanceCount()).toBe(1, 'should be one track');
 
@@ -324,6 +319,7 @@ describe('Sound resource', () => {
 
         done();
       });
+      sut.play();
     });
   });
 
@@ -414,11 +410,9 @@ describe('Sound resource', () => {
       engine = null;
     });
 
-    // FIXME: test times out
-    xit('should stop all tracks when engine is stopped', (done) => {
+    it('should stop all tracks when engine is stopped', (done) => {
       sut.load().then(() => {
         sut.wireEngine(engine);
-        sut.play();
 
         sut.once('playbackstart', () => {
           expect(sut.instanceCount()).toBe(1, 'should be one track');
@@ -430,14 +424,13 @@ describe('Sound resource', () => {
 
           done();
         });
+        sut.play();
       });
     });
-    // FIXME: test times out
-    xit('should not allow playing tracks when engine is stopped', (done) => {
+
+    fit('should not allow playing tracks when engine is stopped', (done) => {
       sut.load().then(() => {
         sut.wireEngine(engine);
-        sut.play();
-
         sut.once('playbackstart', () => {
           expect(sut.isPlaying()).toBe(true, 'should be playing');
 
@@ -449,6 +442,7 @@ describe('Sound resource', () => {
 
           done();
         });
+        sut.play();
       });
     });
 
