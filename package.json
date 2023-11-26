@@ -63,7 +63,7 @@
     "release": "cross-env release=true npm run all"
   },
   "devDependencies": {
-    "@babel/core": "7.23.0",
+    "@babel/core": "7.23.3",
     "@fortawesome/fontawesome-free": "6.4.2",
     "@octokit/rest": "19.0.13",
     "@parcel/transformer-glsl": "2.10.3",
@@ -76,7 +76,7 @@
     "@types/jasmine": "4.3.6",
     "@types/node": "18.18.1",
     "@types/react-color": "3.0.7",
-    "@types/webpack-env": "1.18.2",
+    "@types/webpack-env": "1.18.4",
     "@typescript-eslint/eslint-plugin": "6.9.1",
     "@typescript-eslint/parser": "6.9.1",
     "babel-loader": "9.1.3",
