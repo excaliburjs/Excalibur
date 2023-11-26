@@ -1,8 +1,9 @@
-﻿/// <reference path='../../lib/excalibur.d.ts' />
+﻿import * as ex from '../../../build/dist/';
+import imagePath from './culling-sprite.png';
 
 var width = 600;
 var height = 400;
-var playerTexture = new ex.ImageSource('culling-sprite.png');
+var playerTexture = new ex.ImageSource(imagePath);
 var speed = 100;
 
 var engine = new ex.Engine({ width: width, height: height, canvasElementId: 'game' });

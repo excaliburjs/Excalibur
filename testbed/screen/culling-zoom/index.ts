@@ -1,4 +1,4 @@
-/// <reference path='../../lib/excalibur.d.ts' />
+import * as ex from '../../../build/dist';
 var game = new ex.Engine({
   canvasElementId: 'game',
   width: 400,

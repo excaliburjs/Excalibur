@@ -1,3 +1,4 @@
+import * as ex from '../../../build/dist/';
 
 var engine = new ex.Engine({
   width: 400,

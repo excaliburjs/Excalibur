@@ -1,4 +1,4 @@
-
+import * as ex from '../../../build/dist/';
 async function main() {
     const game = new ex.Engine({
         width: 3000,
