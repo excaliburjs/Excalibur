@@ -18,7 +18,7 @@ export class WebAudioInstance implements Audio {
   private _audioContext: AudioContext = AudioContextFactory.create();
   private _volumeNode = this._audioContext.createGain();
 
-  private _playingFuture = new Future<boolean>()
+  private _playingFuture = new Future<boolean>();
   private _stateMachine = StateMachine.create({
     start: 'STOPPED',
     states: {

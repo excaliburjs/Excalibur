@@ -372,7 +372,7 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
     const doneTracks = this._tracks.filter(t => t.isStopped());
     doneTracks.forEach((track: WebAudioInstance) => {
       this.events.emit('playbackend', new NativeSoundEvent(this, track));
-    })
+    });
     // this._tracks.splice(this.getTrackId(track), 1);
 
     // cleanup any done tracks
