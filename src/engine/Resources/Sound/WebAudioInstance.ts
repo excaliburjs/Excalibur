@@ -41,7 +41,6 @@ export class WebAudioInstance implements Audio {
         onExit: ({to}) => {
           // If you've exited early only resolve if explicitly STOPPED
           if (to === 'STOPPED') {
-            // this._playingResolve(true);
             this._playingFuture.resolve(true);
           }
           // Whenever you're not playing... you stop!
@@ -63,7 +62,6 @@ export class WebAudioInstance implements Audio {
         onEnter: ({data}: {from: string, data: SoundState}) => {
           data.pausedAt = 0;
           data.startedAt = 0;
-          // this._playingResolve(true);
           this._playingFuture.resolve(true);
         },
         transitions: ['PLAYING', 'PAUSED', 'SEEK']
@@ -95,7 +93,6 @@ export class WebAudioInstance implements Audio {
   private _handleEnd() {
     if (!this.loop) {
       this._instance.onended = () => {
-        // this._playingResolve(true);
         this._playingFuture.resolve(true);
       };
     }
@@ -112,7 +109,6 @@ export class WebAudioInstance implements Audio {
       this._instance.loop = value;
       if (!this.loop) {
         this._instance.onended = () => {
-          // this._playingResolve(true);
           this._playingFuture.resolve(true);
         };
       }
@@ -179,7 +175,6 @@ export class WebAudioInstance implements Audio {
   public play(playStarted: () => any = () => {}) {
     this._playStarted = playStarted;
     this._stateMachine.go('PLAYING');
-    // return this._playingPromise;
     return this._playingFuture.promise;
   }
 
