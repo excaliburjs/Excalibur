@@ -469,12 +469,10 @@ describe('Sound resource', () => {
       });
     });
 
-    // FIXME: test times out
-    xit('should resume tracks when game is visible from hidden and pauseAudioWhenHidden is true', (done) => {
+    it('should resume tracks when game is visible from hidden and pauseAudioWhenHidden is true', (done) => {
       sut.load().then(() => {
         engine.pauseAudioWhenHidden = true;
         sut.wireEngine(engine);
-        sut.play();
 
         sut.once('playbackstart', () => {
           expect(sut.isPlaying()).toBe(true, 'should be playing');
@@ -483,6 +481,8 @@ describe('Sound resource', () => {
             engine.emit('hidden', new ex.HiddenEvent(engine));
           }, 100);
         });
+
+        sut.play();
 
         engine.once('hidden', () => {
           setTimeout(() => {
