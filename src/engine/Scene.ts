@@ -579,10 +579,10 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * @param deferred
    */
   public clear(deferred: boolean = true): void {
-    for (let i = this.entities.length; i >= 0; i--) {
+    for (let i = this.entities.length - 1; i >= 0; i--) {
       this.world.remove(this.entities[i], deferred);
     }
-    for (let i = this.timers.length; i >= 0; i--) {
+    for (let i = this.timers.length - 1; i >= 0; i--) {
       this.removeTimer(this.timers[i]);
     }
   }

@@ -148,7 +148,7 @@ export class EntityManager<ContextType = any> implements Observer<RemovedCompone
   }
 
   public clear(): void {
-    for (let i = this.entities.length; i >= 0; i--) {
+    for (let i = this.entities.length - 1; i >= 0; i--) {
       this.removeEntity(this.entities[i])
     }
   }
