@@ -1,4 +1,5 @@
-
+import * as ex from '../../../build/dist/';
+import imagePath from './spritefont.png';
 var engine = new ex.Engine({
   width: 600,
   height: 400
@@ -10,7 +11,7 @@ engine.debug.transform.showPosition = true;
 
 engine.showDebug(true);
 
-var image = new ex.ImageSource('./spritefont.png');
+var image = new ex.ImageSource(imagePath);
 
 var loader = new ex.Loader([image]);
 
