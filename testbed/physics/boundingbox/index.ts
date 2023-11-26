@@ -1,12 +1,10 @@
-/// <reference path='../../lib/excalibur.d.ts' />
-
-var game = new ex.Engine({
-  canvasElementId: 'game',
+import * as ex from '../../../build/dist/';
+const game = new ex.Engine({
   width: 600,
   height: 400
 });
 
-var block1 = new ex.Actor({
+const block1 = new ex.Actor({
   pos: ex.Vector.Zero.clone(),
   anchor: ex.Vector.Zero.clone(),
   width: 100,
@@ -15,7 +13,7 @@ var block1 = new ex.Actor({
   collisionType: ex.CollisionType.PreventCollision
 });
 
-var block2 = new ex.Actor({
+const  block2 = new ex.Actor({
   pos: ex.Vector.Zero.clone(),
   anchor: ex.Vector.Half.clone(),
   width: 50,
@@ -25,7 +23,7 @@ var block2 = new ex.Actor({
 });
 
 // Set drag flag
-var boxPointerDragging = false;
+let boxPointerDragging = false;
 block2.on('pointerdragstart', (pe: ex.PointerEvent) => {
   boxPointerDragging = true;
 });
@@ -59,23 +57,23 @@ game.onPostUpdate = (engine) => {
 };
 
 var vectorPos = new ex.Vector(100, 100);
-game.onPostDraw = (ctx) => {
-  if (collisionVector) {
-    ctx.beginPath();
-    ctx.strokeStyle = 'yellow';
-    ctx.moveTo(vectorPos.x, vectorPos.y);
-    ctx.arc(vectorPos.x, vectorPos.y, 3, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.closePath();
+// game.onPostDraw = (ctx) => {
+//   if (collisionVector) {
+//     ctx.beginPath();
+//     ctx.strokeStyle = 'yellow';
+//     ctx.moveTo(vectorPos.x, vectorPos.y);
+//     ctx.arc(vectorPos.x, vectorPos.y, 3, 0, Math.PI * 2);
+//     ctx.stroke();
+//     ctx.closePath();
 
-    ctx.beginPath();
-    ctx.strokeStyle = 'yellow';
-    ctx.moveTo(vectorPos.x, vectorPos.y);
-    ctx.lineTo(vectorPos.x + collisionVector.x, vectorPos.y + collisionVector.y);
-    ctx.stroke();
-    ctx.closePath();
-  }
-};
+//     ctx.beginPath();
+//     ctx.strokeStyle = 'yellow';
+//     ctx.moveTo(vectorPos.x, vectorPos.y);
+//     ctx.lineTo(vectorPos.x + collisionVector.x, vectorPos.y + collisionVector.y);
+//     ctx.stroke();
+//     ctx.closePath();
+//   }
+// };
 
 game.start().then(() => {
   game.currentScene.camera.x = 0;

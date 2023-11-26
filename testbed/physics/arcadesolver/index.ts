@@ -1,13 +1,13 @@
-
+import * as ex from '../../../build/dist/';
 // 0,0 3.0625,0 3,6.0625 -0.0625,6
 
-var game = new ex.Engine({
+const game = new ex.Engine({
   width: 600,
   height: 800
 });
 game.toggleDebug();
 
-var player = new ex.Actor({
+const player = new ex.Actor({
   pos: ex.vec(100, 100),
   width: 16,
   height: 16,
@@ -47,14 +47,14 @@ game.add(player);
 // offset 
 // _x: 352
 // _y: 160
-var offset = ex.vec(352, 160);
+const offset = ex.vec(352, 160);
 // var offset = ex.vec(10, 10);
 // var offset = ex.vec(0, 0);
-var collider = new ex.Actor({
+const collider = new ex.Actor({
   pos: ex.vec(150, 100),
   collisionType: ex.CollisionType.Fixed
 });
-var points = [
+const points = [
   ex.vec(6.0625, 8.875),
   ex.vec(9.125, 8.875),
   ex.vec(9.0625, 14.9375),
@@ -63,7 +63,7 @@ var points = [
 collider.graphics.use(new ex.Polygon({points, color: ex.Color.Red}), { offset });
 const polygon = ex.Shape.Polygon(points);
 polygon.offset = offset;
-var composite = collider.collider.useCompositeCollider([polygon]);
+const composite = collider.collider.useCompositeCollider([polygon]);
 // collider.collider.set(polygon);
 game.add(collider);
 

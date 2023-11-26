@@ -1,3 +1,8 @@
+# Ignore Parcel Stuff #
+###############
+.parcel-cache
+dist/
+
 #Ignore compiled javascript #
 ######################
 .baseDir.ts
