@@ -428,7 +428,7 @@ describe('Sound resource', () => {
       });
     });
 
-    fit('should not allow playing tracks when engine is stopped', (done) => {
+    it('should not allow playing tracks when engine is stopped', (done) => {
       sut.load().then(() => {
         sut.wireEngine(engine);
         sut.once('playbackstart', () => {
