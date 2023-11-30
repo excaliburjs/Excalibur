@@ -19,6 +19,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fix bug in `useCanvas2DFallback()` where `antialiasing` settings could be lost
+- Fix bug in `useCanvas2DFallback()` where opacity was not respected in `save
 - Fixed typo in trigger event signature `entertrigger` should have been `enter`
 - Fixed typo in trigger event signature `exittrigger` should have been `exit`
 - Fixed typo in animation event signature `ended` should have been `end`
@@ -35,6 +37,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Changed the canvas 2d fallback default, no longer is enabled by default. Developers must opt in.
 - Allow entity names to be set after construction! Entities will now default to a name "Entity#1234" followed by an id.
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
