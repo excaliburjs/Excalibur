@@ -264,6 +264,7 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
    */
   save(): void {
     this.__ctx.save();
+    this._state.save();
   }
 
   /**
@@ -271,6 +272,7 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
    */
   restore(): void {
     this.__ctx.restore();
+    this._state.restore();
   }
 
   /**
