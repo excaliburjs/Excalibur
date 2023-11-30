@@ -251,7 +251,7 @@ export interface EngineOptions {
    */
   configurePerformanceCanvas2DFallback?: {
     /**
-     * By default `true`, this will switch the internal graphics context to Canvas2D which can improve performance on non hardware
+     * By default `false`, this will switch the internal graphics context to Canvas2D which can improve performance on non hardware
      * accelerated browsers.
      */
     allow: boolean;
@@ -560,7 +560,7 @@ export class Engine implements CanInitialize, CanUpdate, CanDraw {
     enableCanvasTransparency: true,
     useDrawSorting: true,
     configurePerformanceCanvas2DFallback: {
-      allow: true,
+      allow: false,
       showPlayerMessage: false,
       threshold: { fps: 20, numberOfFrames: 100 }
     },

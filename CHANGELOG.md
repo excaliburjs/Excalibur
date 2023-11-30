@@ -33,6 +33,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Changed the canvas 2d fallback default, no longer is enabled by default. Developers must opt in.
 - Allow entity names to be set after construction! Entities will now default to a name "Entity#1234" followed by an id.
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
