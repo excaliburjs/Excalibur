@@ -6,15 +6,92 @@ section: Other
 
 [[Trigger|Triggers]] can be used to fire logic when an [[Actor]] intersects with a [[Collider]], this is useful for in game switches, doors, or other in game sensors.
 
+Under the hood, triggers are just [[Actor|Actors]] that have sugar to help wire up and fire logic on collision start or end events.
+
 ## Trigger
 
+By default triggers will fire when **any** geometry in your game intersects with the trigger area. Triggers are also **not visible** by default, generally you will layer triggers on top of your scene. They can be given a finite amount of repeat triggers with the `repeat`, a value of `-1` means repeat forever.
+
 ```typescript
+// Example trigger will fire on any geometry
 const trigger = new ex.Trigger({
   width: 100,
   height: 100,
   pos: ex.vec(100, 100),
+  repeat: -1,
   action: () => {
     console.log('triggered')
   },
 })
+```
+
+However this might not be desired all the time, you may have a specific [[Actor]], such as a player, that you want to trigger on. Using a `target` will override any `filter`'s provided.
+
+```typescript
+const player = new ex.Actor({...})
+
+// Example trigger will fire on any geometry
+const trigger = new ex.Trigger({
+  width: 100,
+  height: 100,
+  pos: ex.vec(100, 100),
+  target: player, // only trigger logic on player
+  action: () => {
+    console.log('triggered')
+  },
+})
+```
+
+## Filtering Triggers
+
+Sometimes your trigger logic needs to be more complicated than just a target, this can be accomplished with a `filter` function. Returning a `true`thy value out of the function will allow the trigger to fire.
+
+This need not be just logic on actors, you can use this for more complex game logic like "Only allow the trigger if there is a key in the inventory"
+
+```typescript
+const player = new ex.Actor({...})
+
+// Example trigger will fire on any geometry
+const trigger = new ex.Trigger({
+  width: 100,
+  height: 100,
+  pos: ex.vec(100, 100),
+  filter: (actor) => {
+    if (actor.name === 'player' && keyInInventory && isLevel42) {
+      return true;
+    }
+  },
+  action: () => {
+    console.log('triggered')
+  },
+})
+```
+
+Additionally it is also possible to use [collision groups](/docs/collision-groups) to filter collisions between triggers and other actors because triggers are also actors.
+
+```typescript
+const PlayerGroup = ex.CollisionGroupManager.create('player')
+
+const player = new ex.Actor({
+  name: 'player',
+  pos: ex.vec(0, 100),
+  width: 16,
+  height: 16,
+  collisionType: ex.CollisionType.Active,
+  collisionGroup: PlayerGroup,
+  color: ex.Color.Red,
+})
+
+player.vel.x = 10
+
+export const trigger = new ex.Trigger({
+  width: 16,
+  height: 16,
+  pos: ex.vec(100, 100),
+  repeat: -1,
+  action: () => {
+    console.log('triggered')
+  },
+})
+trigger.body.group = ex.CollisionGroup.collidesWith([PlayerGroup])
 ```
