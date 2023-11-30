@@ -49,7 +49,6 @@ var game = new ex.Engine({
   suppressPlayButton: true,
   pointerScope: ex.PointerScope.Canvas,
   displayMode: ex.DisplayMode.FitScreenAndFill,
-  antialiasing: false,
   snapToPixel: false,
   maxFps: 60,
   configurePerformanceCanvas2DFallback: {
@@ -58,6 +57,7 @@ var game = new ex.Engine({
     threshold: { fps: 20, numberOfFrames: 100 }
   }
 });
+game.setAntialiasing(false);
 game.currentScene.onPreDraw = (ctx: ex.ExcaliburGraphicsContext) => {
   ctx.save();
   ctx.z = 99;

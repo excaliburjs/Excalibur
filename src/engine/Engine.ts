@@ -835,7 +835,7 @@ O|===|* >________________>\n\
     this.canvas.parentNode.replaceChild(newCanvas, this.canvas);
     this.canvas = newCanvas;
 
-    const options = this._originalOptions;
+    const options = { ...this._originalOptions, antialiasing: this.getAntialiasing() };
     const displayMode = this._originalDisplayMode;
 
     // New graphics context

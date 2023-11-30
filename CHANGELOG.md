@@ -19,6 +19,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fix bug in `useCanvas2DFallback()` where `antialiasing` settings could be lost
 - Fix bug in `useCanvas2DFallback()` where opacity was not respected in `save()`/`restore()`
 - Fixed typo in animation event signature `ended` should have been `end`
 - Fixed issue where some excalibur `clear()`` implementations modified the collection they were iterating over
