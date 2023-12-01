@@ -1,4 +1,4 @@
-from ubuntu:20.04
+from ubuntu:22.04
 # Referenced https://github.com/actions/virtual-environments/blob/main/images/linux/Ubuntu2004-Readme.md
 # ubuntu-latest https://github.com/actions/virtual-environments
 
