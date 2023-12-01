@@ -14,6 +14,7 @@ import { clamp } from './Math/util';
 import { Sound } from './Resources/Sound/Sound';
 import { Future } from './Util/Future';
 import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
+import { ScreenResizeEvent } from './Screen';
 
 export type LoaderEvents = {
   // Add event types here
@@ -148,6 +149,13 @@ export class Loader implements Loadable<Loadable<any>[]> {
     return this._imageElement;
   }
 
+  private _getScreenParent() {
+    if (this._engine) {
+      return this._engine.screen.canvas.parentElement;
+    }
+    return document.body;
+  }
+
   public suppressPlayButton: boolean = false;
   public get playButtonRootElement(): HTMLElement | null {
     return this._playButtonRootElement;
@@ -169,7 +177,10 @@ export class Loader implements Loadable<Loadable<any>[]> {
       this._playButtonRootElement = document.createElement('div');
       this._playButtonRootElement.id = 'excalibur-play-root';
       this._playButtonRootElement.style.position = 'absolute';
-      document.body.appendChild(this._playButtonRootElement);
+
+      // attach play button to canvas parent, this is important for fullscreen
+      const parent = this._getScreenParent();
+      parent.appendChild(this._playButtonRootElement);
     }
     if (!this._styleBlock) {
       this._styleBlock = document.createElement('style');
@@ -212,10 +223,23 @@ export class Loader implements Loadable<Loadable<any>[]> {
     }
   }
 
+  private _loaderResizeHandler = (evt: ScreenResizeEvent) => {
+    // Configure resolution for loader, it expects resolution === viewport
+    this._engine.screen.resolution = this._engine.screen.viewport;
+    this._engine.screen.applyResolutionAndViewport();
+
+    this.canvas.width = evt.viewport.width;
+    this.canvas.height = evt.viewport.height;
+    this.canvas.flagDirty();
+  };
+
   public wireEngine(engine: Engine) {
-    this._engine = engine;
-    this.canvas.width = this._engine.canvas.width;
-    this.canvas.height = this._engine.canvas.height;
+    // wire once
+    if (!this._engine) {
+      this._engine = engine;
+      this.canvas.width = this._engine.canvas.width;
+      this.canvas.height = this._engine.canvas.height;
+    }
   }
 
   /**
@@ -328,6 +352,8 @@ export class Loader implements Loadable<Loadable<any>[]> {
    * that resolves when loading of all is complete AND the user has clicked the "Play button"
    */
   public async load(): Promise<Loadable<any>[]> {
+    this._engine.screen.events.on('resize', this._loaderResizeHandler);
+
     await this._image?.decode(); // decode logo if it exists
     this.canvas.flagDirty();
 
@@ -358,6 +384,9 @@ export class Loader implements Loadable<Loadable<any>[]> {
     // See: https://github.com/excaliburjs/Excalibur/issues/262
     // See: https://github.com/excaliburjs/Excalibur/issues/1031
     await WebAudio.unlock();
+
+    // unload loader resize watcher
+    this._engine.screen.events.off('resize', this._loaderResizeHandler);
 
     return (this.data = this._resourceList);
   }

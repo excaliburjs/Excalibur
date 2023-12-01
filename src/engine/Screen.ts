@@ -7,6 +7,7 @@ import { ExcaliburGraphicsContext } from './Graphics/Context/ExcaliburGraphicsCo
 import { getPosition } from './Util/Util';
 import { ExcaliburGraphicsContextWebGL } from './Graphics/Context/ExcaliburGraphicsContextWebGL';
 import { ExcaliburGraphicsContext2DCanvas } from './Graphics/Context/ExcaliburGraphicsContext2DCanvas';
+import { EventEmitter } from './EventEmitter';
 
 /**
  * Enum representing the different display modes available to Excalibur.
@@ -184,10 +185,72 @@ export interface ScreenOptions {
 }
 
 /**
+ * Fires when the screen resizes, useful if you have logic that needs to be aware of resolution/viewport constraints
+ */
+export interface ScreenResizeEvent {
+  /**
+   * Current viewport in css pixels of the screen
+   */
+  viewport: ScreenDimension;
+  /**
+   * Current resolution in world pixels of the screen
+   */
+  resolution: ScreenDimension;
+}
+
+/**
+ * Fires when the pixel ratio changes, useful to know if you've moved to a hidpi screen or back
+ */
+export interface PixelRatioChangeEvent {
+  /**
+   * Current pixel ratio of the screen
+   */
+  pixelRatio: number;
+}
+
+/**
+ * Fires when the browser fullscreen api is successfully engaged or disengaged
+ */
+export interface FullScreenChangeEvent {
+  /**
+   * Current fullscreen state
+   */
+  fullscreen: boolean;
+}
+
+/**
+ * Built in events supported by all entities
+ */
+export type ScreenEvents = {
+  /**
+   * Fires when the screen resizes, useful if you have logic that needs to be aware of resolution/viewport constraints
+   */
+  'resize': ScreenResizeEvent;
+  /**
+   * Fires when the pixel ratio changes, useful to know if you've moved to a hidpi screen or back
+   */
+  'pixelratio': PixelRatioChangeEvent;
+  /**
+   * Fires when the browser fullscreen api is successfully engaged or disengaged
+   */
+  'fullscreen': FullScreenChangeEvent;
+};
+
+export const ScreenEvents = {
+  ScreenResize: 'resize',
+  PixelRatioChange: 'pixelratio',
+  FullScreenChange: 'fullscreen'
+} as const;
+
+/**
  * The Screen handles all aspects of interacting with the screen for Excalibur.
  */
 export class Screen {
   public graphicsContext: ExcaliburGraphicsContext;
+  /**
+   * Listen to screen events [[ScreenEvents]]
+   */
+  public events = new EventEmitter<ScreenEvents>();
   private _canvas: HTMLCanvasElement;
   private _antialiasing: boolean = true;
   private _contentResolution: ScreenDimension;
@@ -261,6 +324,9 @@ export class Screen {
   private _fullscreenChangeHandler = () => {
     this._isFullScreen = !this._isFullScreen;
     this._logger.debug('Fullscreen Change', this._isFullScreen);
+    this.events.emit('fullscreen', {
+      fullscreen: this.isFullScreen
+    } satisfies FullScreenChangeEvent);
   };
 
   private _pixelRatioChangeHandler = () => {
@@ -268,6 +334,9 @@ export class Screen {
     this._listenForPixelRatio();
     this._devicePixelRatio = this._calculateDevicePixelRatio();
     this.applyResolutionAndViewport();
+    this.events.emit('pixelratio', {
+      pixelRatio: this.pixelRatio
+    } satisfies PixelRatioChangeEvent);
   };
 
   private _resizeHandler = () => {
@@ -275,6 +344,11 @@ export class Screen {
     this._logger.debug('View port resized');
     this._setResolutionAndViewportByDisplayMode(parent);
     this.applyResolutionAndViewport();
+    // Emit resize event
+    this.events.emit('resize', {
+      resolution: this.resolution,
+      viewport: this.viewport
+    } satisfies ScreenResizeEvent);
   };
 
   private _calculateDevicePixelRatio() {
@@ -447,7 +521,12 @@ export class Screen {
     if (elementId) {
       const maybeElement = document.getElementById(elementId);
       if (maybeElement) {
-        return maybeElement.requestFullscreen();
+        if (!maybeElement.getAttribute('ex-fullscreen-listener')) {
+          maybeElement.setAttribute('ex-fullscreen-listener', 'true');
+          maybeElement.addEventListener('fullscreenchange', this._fullscreenChangeHandler);
+        }
+        const fullscreenPromise = maybeElement.requestFullscreen();
+        return fullscreenPromise;
       }
     }
     return this._canvas.requestFullscreen();
