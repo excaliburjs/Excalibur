@@ -280,6 +280,13 @@ export interface EngineOptions {
  */
 export class Engine implements CanInitialize, CanUpdate, CanDraw {
   /**
+   * Current Excalibur version string
+   *
+   * Useful for plugins or other tools that need to know what features are available
+   */
+  public readonly version = EX_VERSION;
+
+  /**
    * Listen to and emit events on the Engine
    */
   public events = new EventEmitter<EngineEvents>();

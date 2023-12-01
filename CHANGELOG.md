@@ -15,7 +15,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
--
+- Added `ex.Engine.version` to report the current excalibur version build string
 
 ### Fixed
 
