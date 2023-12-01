@@ -8,8 +8,11 @@ env:
   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }
   
 jobs:
-  deploy_alpha:
+  build:
+    uses: ./.github/workflows/build.yml
+  deploy_release:
     name: Publish npm package
+    needs: [build]
     runs-on: [ubuntu-latest]
 
     steps:

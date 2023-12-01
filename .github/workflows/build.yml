@@ -13,6 +13,8 @@ on:
     branches: [ main ]
   push:
     branches: [ main ]
+  workflow_call:
+    branches: [ main ]
 
 jobs:
   build:
