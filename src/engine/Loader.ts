@@ -224,14 +224,14 @@ export class Loader implements Loadable<Loadable<any>[]> {
   }
 
   private _loaderResizeHandler = (evt: ScreenResizeEvent) => {
-     // Configure resolution for loader, it expects resolution === viewport
-     this._engine.screen.resolution = this._engine.screen.viewport;
-     this._engine.screen.applyResolutionAndViewport();
+    // Configure resolution for loader, it expects resolution === viewport
+    this._engine.screen.resolution = this._engine.screen.viewport;
+    this._engine.screen.applyResolutionAndViewport();
 
-     this.canvas.width = evt.viewport.width;
-     this.canvas.height = evt.viewport.height;
-     this.canvas.flagDirty();
-  }
+    this.canvas.width = evt.viewport.width;
+    this.canvas.height = evt.viewport.height;
+    this.canvas.flagDirty();
+  };
 
   public wireEngine(engine: Engine) {
     // wire once

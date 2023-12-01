@@ -43,7 +43,7 @@
     "core:bundle:esm": "webpack --progress --config webpack.config.js --mode production --env output=esm",
     "core:watch": "npm run core:bundle -- --watch",
     "lint": "npm run eslint && npm run eslint:spec",
-    "lint:fix": "npm run eslint --fix && npm run eslint:spec --fix",
+    "lint:fix": "npm run eslint -- --fix && npm run eslint:spec -- --fix",
     "eslint": "eslint \"src/engine/**/*.ts\"",
     "eslint:sandbox": "eslint \"sandbox/**/*.ts\"",
     "eslint:spec": "eslint \"src/spec/**/*.ts\"",
