@@ -16,9 +16,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - Added `ex.Engine.version` to report the current excalibur version build string
+- Added new `ex.Screen.events`
+  - `screen.events.on('resize', (evt) => )` Will emit when the screen is resized
+  - `screen.events.on('fullscreen', (evt) => )` Will emit when the screen is changed into browser fullscreen mode
+  - `screen.events.on('pixelratio', (evt) => )` Will emit when the screen's pixel ratio changes (moving from a hidpi screen to a non, or vice versa)
 
 ### Fixed
 
+- Fixed issue where play button was hidden when going fullscreen mode
+- Fix issue where screen resizing caused artifacts on the loading screen
 - Fix bug in `useCanvas2DFallback()` where `antialiasing` settings could be lost
 - Fix bug in `useCanvas2DFallback()` where opacity was not respected in `save
 - Fixed typo in trigger event signature `entertrigger` should have been `enter`
