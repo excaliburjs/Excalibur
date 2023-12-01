@@ -83,7 +83,7 @@
     "coveralls": "3.1.1",
     "cross-env": "7.0.3",
     "css-loader": "6.8.1",
-    "eslint": "8.50.0",
+    "eslint": "8.54.0",
     "eslint-config-prettier": "8.10.0",
     "eslint-plugin-jsdoc": "46.8.2",
     "excalibur-jasmine": "0.2.0",
