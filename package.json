@@ -109,7 +109,7 @@
     "source-map-support": "0.5.21",
     "sync-request": "6.1.0",
     "terser-webpack-plugin": "5.3.9",
-    "ts-loader": "9.4.4",
+    "ts-loader": "9.5.1",
     "typedoc": "0.25.3",
     "typescript": "5.2.2",
     "url-loader": "4.1.1",
