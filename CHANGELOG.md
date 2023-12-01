@@ -23,15 +23,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where removing handlers by function reference only removed the first registered one
 - Fixed issue where play button was hidden when going fullscreen mode
-- Fix issue where screen resizing caused artifacts on the loading screen
-- Fix bug in `useCanvas2DFallback()` where `antialiasing` settings could be lost
-- Fix bug in `useCanvas2DFallback()` where opacity was not respected in `save
+- Fixed issue where screen resizing caused artifacts on the loading screen
+- Fixed bug in `useCanvas2DFallback()` where `antialiasing` settings could be lost
+- Fixed bug in `useCanvas2DFallback()` where opacity was not respected in `save
 - Fixed typo in trigger event signature `entertrigger` should have been `enter`
 - Fixed typo in trigger event signature `exittrigger` should have been `exit`
 - Fixed typo in animation event signature `ended` should have been `end`
-- Fixed issue where some excalibur `clear()`` implementations modified the collection they were iterating over
-- Fixed async issue where sound could not be stopped if stop()/start() were called in rapid succession
+- Fixed issue where some excalibur `clear()` implementations modified the collection they were iterating over
+- Fixed async issue where sound could not be stopped if `stop()`/`start()` were called in rapid succession
 - Fixed issue with input mapper where `keyboard.wasPressed(...)` did not fire
 - Fixed issue issue where TileMaps would not properly draw Tiles when setup in screen space coordinates
 - Fixed issue where the ex.Line graphics bounds were incorrect causing erroneous offscreen culling
