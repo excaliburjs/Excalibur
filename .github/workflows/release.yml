@@ -1,7 +1,7 @@
 name: Release to NPM
 on:
   release:
-    types: [created]
+    types: [published]
 
 env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
