@@ -32,7 +32,7 @@
     "linux:ci": "npm run clean && npm run all:ci && npm run coveralls && npm run apidocs",
     "appveyor": "npm run all:ci && npm run nuget 0.0.1",
     "browserstack": "karma start karma.conf.browsers.js",
-    "nuget": ".\\src\\tools\\NuGet.exe pack Excalibur.nuspec -OutputDirectory .\\build\\dist -version",
+    "nuget": ".\\src\\tools\\NuGet.exe pack Excalibur.nuspec -OutputDirectory .\\build\\nuget -version",
     "start": "npm run core:watch",
     "build": "npm run core",
     "build:esm": "npm run core:bundle:esm",
