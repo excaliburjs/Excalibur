@@ -1,3 +1,5 @@
+import { CollisionGroupManager } from './CollisionGroupManager';
+
 /**
  * CollisionGroups indicate like members that do not collide with each other. Use [[CollisionGroupManager]] to create [[CollisionGroup]]s
  *
@@ -88,10 +90,14 @@ export class CollisionGroup {
 
   /**
    * Evaluates whether 2 collision groups can collide
+   *
+   * This means the mask has the same bit set the other category and vice versa
    * @param other  CollisionGroup
    */
   public canCollide(other: CollisionGroup): boolean {
-    return (this.category & other.mask) !== 0 && (other.category & this.mask) !== 0;
+    const overlap1 = this.category & other.mask;
+    const overlap2 = this.mask & other.category;
+    return (overlap1 !== 0) && (overlap2 !== 0);
   }
 
   /**
@@ -100,7 +106,9 @@ export class CollisionGroup {
    * @returns CollisionGroup
    */
   public invert(): CollisionGroup {
-    return new CollisionGroup('~(' + this.name + ')', ~this.category, ~this.mask);
+    const group = CollisionGroupManager.create('~(' + this.name + ')', ~this.mask | 0);
+    group._category = ~this.category;
+    return group;
   }
 
   /**
@@ -112,7 +120,7 @@ export class CollisionGroup {
     const combinedCategory = collisionGroups.reduce((current, g) => g.category | current, 0b0);
     const combinedMask = ~combinedCategory;
 
-    return new CollisionGroup(combinedName, combinedCategory, combinedMask);
+    return CollisionGroupManager.create(combinedName, combinedMask);
   }
 
   /**
@@ -120,6 +128,15 @@ export class CollisionGroup {
    * @param collisionGroups
    */
   public static collidesWith(collisionGroups: CollisionGroup[]) {
-    return CollisionGroup.combine(collisionGroups).invert();
+    const combinedName = `collidesWith(${collisionGroups.map((c) => c.name).join('+')})`;
+    const combinedMask = collisionGroups.reduce((current, g) => g.category | current, 0b0);
+    return CollisionGroupManager.create(combinedName, combinedMask);
+  }
+
+  public toString() {
+    return `
+category: ${this.category.toString(2).padStart(32, '0')}
+mask:     ${(this.mask>>>0).toString(2).padStart(32, '0')}
+    `;
   }
 }

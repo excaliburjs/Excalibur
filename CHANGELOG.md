@@ -15,6 +15,50 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added new feature to collision group raycasting, directly provide a `collisionMask` that you want to search for.
+
+```typescript
+const playerGroup = ex.CollisionGroupManager.create('playerGroup');
+const notPlayersMask = ~playersGroup.category;
+const hits = engine.currentScene.physics.rayCast(
+  new ex.Ray(player.pos, playerDir),
+  {
+    maxDistance: playerSightDistance,
+    // Search for all categories that match the mask
+    collisionMask: notPlayers,
+    searchAllColliders: false
+  });
+```
+
+
+### Fixed
+
+- Fixed issue where raycasting with more complex collision groups was not working as expected
+
+### Updates
+
+- 
+
+### Changed
+
+- 
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [v0.28.2]
+
+### Breaking Changes
+
+-
+
+### Deprecated
+
+-
+
+### Added
+
 - Added `ex.Engine.version` to report the current excalibur version build string
 - Added new `ex.Screen.events`
   - `screen.events.on('resize', (evt) => )` Will emit when the screen is resized
@@ -46,10 +90,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Changed the canvas 2d fallback default, no longer is enabled by default. Developers must opt in.
 - Allow entity names to be set after construction! Entities will now default to a name "Entity#1234" followed by an id.
-
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
 ## [v0.28.0]
 
