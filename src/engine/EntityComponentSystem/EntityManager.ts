@@ -2,6 +2,7 @@ import { Entity, RemovedComponent, AddedComponent, isAddedComponent, isRemovedCo
 import { Observer } from '../Util/Observable';
 import { World } from './World';
 import { Util } from '..';
+import { profile } from '../Profiler';
 
 // Add/Remove entities and components
 
@@ -15,6 +16,7 @@ export class EntityManager<ContextType = any> implements Observer<RemovedCompone
    * Runs the entity lifecycle
    * @param _context
    */
+  @profile()
   public updateEntities(_context: ContextType, elapsed: number) {
     for (const entity of this.entities) {
       // TODO is this right?
@@ -25,6 +27,7 @@ export class EntityManager<ContextType = any> implements Observer<RemovedCompone
     }
   }
 
+  @profile()
   public findEntitiesForRemoval() {
     for (const entity of this.entities) {
       if (!entity.active) {
@@ -37,6 +40,7 @@ export class EntityManager<ContextType = any> implements Observer<RemovedCompone
    * EntityManager observes changes on entities
    * @param message
    */
+  @profile()
   public notify(message: RemovedComponent | AddedComponent): void {
     if (isAddedComponent(message)) {
       // we don't need the component, it's already on the entity
@@ -52,6 +56,7 @@ export class EntityManager<ContextType = any> implements Observer<RemovedCompone
    * Adds an entity to be tracked by the EntityManager
    * @param entity
    */
+  @profile()
   public addEntity(entity: Entity): void {
     entity.active = true;
     entity.scene = (this._world.context as any);
@@ -82,6 +87,7 @@ export class EntityManager<ContextType = any> implements Observer<RemovedCompone
 
   public removeEntity(entity: Entity, deferred?: boolean): void;
   public removeEntity(id: number, deferred?: boolean): void;
+  @profile()
   public removeEntity(idOrEntity: number | Entity, deferred = true): void {
     let id = 0;
     if (idOrEntity instanceof Entity) {
@@ -123,6 +129,7 @@ export class EntityManager<ContextType = any> implements Observer<RemovedCompone
   }
 
   private _entitiesToRemove: Entity[] = [];
+  @profile()
   public processEntityRemovals(): void {
     for (const entity of this._entitiesToRemove) {
       if (entity.active) {
@@ -133,6 +140,7 @@ export class EntityManager<ContextType = any> implements Observer<RemovedCompone
     this._entitiesToRemove.length = 0;
   }
 
+  @profile()
   public processComponentRemovals(): void {
     for (const entity of this.entities) {
       entity.processComponentRemoval();

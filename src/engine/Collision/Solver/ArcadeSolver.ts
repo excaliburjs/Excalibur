@@ -4,6 +4,7 @@ import { CollisionType } from '../CollisionType';
 import { Side } from '../Side';
 import { CollisionSolver } from './Solver';
 import { BodyComponent } from '../BodyComponent';
+import { profile } from '../../Profiler';
 
 /**
  * ArcadeSolver is the default in Excalibur. It solves collisions so that there is no overlap between contacts,
@@ -16,6 +17,7 @@ export class ArcadeSolver implements CollisionSolver {
   directionMap = new Map<string, string>();
   distanceMap = new Map<string, number>();
 
+  @profile()
   public solve(contacts: CollisionContact[]): CollisionContact[] {
     // Events and init
     this.preSolve(contacts);
@@ -45,6 +47,7 @@ export class ArcadeSolver implements CollisionSolver {
     return contacts;
   }
 
+  @profile()
   public preSolve(contacts: CollisionContact[]) {
     const epsilon = .0001;
     for (const contact of contacts) {
@@ -68,6 +71,7 @@ export class ArcadeSolver implements CollisionSolver {
     }
   }
 
+  @profile()
   public postSolve(contacts: CollisionContact[]) {
     for (const contact of contacts) {
       if (contact.isCanceled()) {
@@ -94,6 +98,7 @@ export class ArcadeSolver implements CollisionSolver {
     }
   }
 
+  @profile()
   public solvePosition(contact: CollisionContact) {
     const epsilon = .0001;
     // if bounds no longer intersect skip to the next
@@ -141,6 +146,7 @@ export class ArcadeSolver implements CollisionSolver {
   }
 
 
+  @profile()
   public solveVelocity(contact: CollisionContact) {
     if (contact.isCanceled()) {
       return;

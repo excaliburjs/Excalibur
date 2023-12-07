@@ -24,13 +24,38 @@ const esmOutput = {
   }
 };
 
-module.exports = (env, argv) => {
-  const version = process.env.release ? versioner.getReleaseVersion() : versioner.getAlphaVersion();
-  console.log('[version]:', version);
-  return {
+const tsLoader = (env) => ({
+  loader: 'ts-loader',
+  options: {
+    compilerOptions: {
+      outDir: env.output === 'esm' ? esmOutput.path : umdOutput.path
+    }
+  }
+})
+
+const removeInstrumentation = {
+    loader: 'string-replace-loader',
+    options: {
+      multiple: [
+        // kill imports
+        { search: /.*Profiler(?:\'|\");/g, replace: '' },
+        // kill decorator
+        { search: /\s*@profile\(\)/g, replace: '' },
+        // kill inlined
+        { search: /Profiler\.start\(.*\);?/g, replace: '' },
+        // kill inlined
+        { search: /Profiler\.end\(\);?/g, replace: '' }
+     ]
+    }
+}
+
+const defaultConfig = ({version, env, useInstrumentation}) => ({
     mode: 'production',
     devtool: 'source-map',
-    entry: {
+    entry: useInstrumentation ? {
+      'excalibur.instrumented': './index.ts'
+    }
+    : {
       excalibur: './index.ts',
       'excalibur.min': './index.ts'
     },
@@ -39,7 +64,8 @@ module.exports = (env, argv) => {
       minimize: true,
       minimizer: [
         new TerserPlugin({
-          include: /\.min\.js$/
+          include: /\.min\.js$/,
+          extractComments: 'some'
         })
       ]
     },
@@ -59,12 +85,7 @@ module.exports = (env, argv) => {
         // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
         {
           test: /\.tsx?$/,
-          loader: 'ts-loader',
-          options: {
-            compilerOptions: {
-              outDir: env.output === 'esm' ? esmOutput.path : umdOutput.path
-            }
-          }
+          use: useInstrumentation ? [tsLoader(env)] : [tsLoader(env), removeInstrumentation]
         },
         {
           test: /\.css$/,
@@ -94,11 +115,19 @@ module.exports = (env, argv) => {
       }),
       new webpack.BannerPlugin(
         `${pkg.name} - ${version} - ${dt}
-${pkg.homepage}
-Copyright (c) ${now.getFullYear()} Excalibur.js <${pkg.author}>
-Licensed ${pkg.license}
-@preserve`
+  ${pkg.homepage}
+  Copyright (c) ${now.getFullYear()} Excalibur.js <${pkg.author}>
+  Licensed ${pkg.license}
+  @preserve`
       )
     ]
-  }
+  })
+
+module.exports = (env, argv) => {
+  const version = process.env.release ? versioner.getReleaseVersion() : versioner.getAlphaVersion();
+  console.log('[version]:', version);
+  return [
+    defaultConfig({version, env, useInstrumentation: true}),
+    defaultConfig({version, env, useInstrumentation: false})
+  ];
 };

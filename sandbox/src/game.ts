@@ -563,6 +563,12 @@ player.on('collisionend', () => {
   console.log('collision end');
 });
 
+// player.on('precollision', () => {
+//   for (let i = 0; i < 100_000_000; i++) {
+//     Math.sqrt(i * Math.random());
+//   }
+// })
+
 // Health bar example
 var healthbar = new ex.Actor({
   name: 'player healthbar',

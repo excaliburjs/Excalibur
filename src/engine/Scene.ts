@@ -33,6 +33,7 @@ import { OffscreenSystem } from './Graphics/OffscreenSystem';
 import { ExcaliburGraphicsContext } from './Graphics';
 import { PhysicsWorld } from './Collision/PhysicsWorld';
 import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
+import { profile } from './Profiler';
 
 export type SceneEvents = {
   initialize: InitializeEvent<Scene>,
@@ -259,6 +260,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * Excalibur
    * @internal
    */
+  @profile()
   public _initialize(engine: Engine) {
     if (!this.isInitialized) {
       this.engine = engine;
@@ -284,6 +286,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * Activates the scene with the base behavior, then calls the overridable `onActivate` implementation.
    * @internal
    */
+  @profile()
   public _activate(context: SceneActivationContext<TActivationData>): void {
     this._logger.debug('Scene.onActivate', this);
     this.onActivate(context);
@@ -295,6 +298,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * Deactivates the scene with the base behavior, then calls the overridable `onDeactivate` implementation.
    * @internal
    */
+  @profile()
   public _deactivate(context: SceneActivationContext<never>): void {
     this._logger.debug('Scene.onDeactivate', this);
     this.onDeactivate(context);
@@ -306,6 +310,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * Internal _preupdate handler for [[onPreUpdate]] lifecycle event
    * @internal
    */
+  @profile()
   public _preupdate(_engine: Engine, delta: number): void {
     this.emit('preupdate', new PreUpdateEvent(_engine, delta, this));
     this.onPreUpdate(_engine, delta);
@@ -317,6 +322,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * Internal _preupdate handler for [[onPostUpdate]] lifecycle event
    * @internal
    */
+  @profile()
   public _postupdate(_engine: Engine, delta: number): void {
     this.emit('postupdate', new PostUpdateEvent(_engine, delta, this));
     this.onPostUpdate(_engine, delta);
@@ -328,6 +334,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * Internal _predraw handler for [[onPreDraw]] lifecycle event
    * @internal
    */
+  @profile()
   public _predraw(_ctx: ExcaliburGraphicsContext, _delta: number): void {
     this.emit('predraw', new PreDrawEvent(_ctx, _delta, this));
     this.onPreDraw(_ctx, _delta);
@@ -339,6 +346,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * Internal _postdraw handler for [[onPostDraw]] lifecycle event
    * @internal
    */
+  @profile()
   public _postdraw(_ctx: ExcaliburGraphicsContext, _delta: number): void {
     this.emit('postdraw', new PostDrawEvent(_ctx, _delta, this));
     this.onPostDraw(_ctx, _delta);
@@ -349,6 +357,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * @param engine  Reference to the current Engine
    * @param delta   The number of milliseconds since the last update
    */
+  @profile()
   public update(engine: Engine, delta: number) {
     this._preupdate(engine, delta);
 
@@ -382,6 +391,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * @param ctx    The current rendering context
    * @param delta  The number of milliseconds since the last draw
    */
+  @profile()
   public draw(ctx: ExcaliburGraphicsContext, delta: number) {
     this._predraw(ctx, delta);
 
@@ -398,6 +408,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * @param ctx  The current rendering context
    */
   /* istanbul ignore next */
+  @profile()
   public debugDraw(ctx: ExcaliburGraphicsContext) {
     this.emit('predebugdraw', new PreDebugDrawEvent(ctx, this));
     // pass
@@ -633,6 +644,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
     return false;
   }
 
+  @profile()
   private _collectActorStats(engine: Engine) {
     const screenElements = this.actors.filter((a) => a instanceof ScreenElement) as ScreenElement[];
     for (const _ui of screenElements) {
