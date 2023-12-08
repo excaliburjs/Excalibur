@@ -8,6 +8,7 @@ import { Shader } from '../shader';
 import { VertexBuffer } from '../vertex-buffer';
 import { VertexLayout } from '../vertex-layout';
 import { GraphicsDiagnostics } from '../../GraphicsDiagnostics';
+import { profile } from '../../../Profiler';
 
 export class PointRenderer implements RendererPlugin {
   public readonly type = 'ex.point';
@@ -89,6 +90,7 @@ export class PointRenderer implements RendererPlugin {
     return this._pointCount !== 0;
   }
 
+  @profile()
   flush(): void {
     // nothing to draw early exit
     if (this._pointCount === 0) {

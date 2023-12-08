@@ -10,6 +10,7 @@ import { ParallaxComponent } from './ParallaxComponent';
 import { Vector } from '../Math/vector';
 import { CoordPlane } from '../Math/coord-plane';
 import { BoundingBox } from '../Collision/BoundingBox';
+import { profile } from '../Profiler';
 
 export class OffscreenSystem extends System<TransformComponent | GraphicsComponent> {
   public readonly types = ['ex.transform', 'ex.graphics'] as const;
@@ -58,6 +59,7 @@ export class OffscreenSystem extends System<TransformComponent | GraphicsCompone
     }
   }
 
+  @profile()
   private _isOffscreen(transform: TransformComponent, graphics: GraphicsComponent, parallaxOffset: Vector) {
     if (transform.coordPlane === CoordPlane.World) {
       let bounds = graphics.localBounds;

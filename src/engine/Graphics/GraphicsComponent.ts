@@ -6,6 +6,7 @@ import { Logger } from '../Util/Log';
 import { BoundingBox } from '../Collision/Index';
 import { Component } from '../EntityComponentSystem/Component';
 import { Material } from './Context/material';
+import { profile } from '../Profiler';
 
 /**
  * Type guard for checking if a Graphic HasTick (used for graphics that change over time like animations)
@@ -422,6 +423,7 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
     this._localBounds = bounds;
   }
 
+  @profile()
   public recalculateBounds() {
     let bb = new BoundingBox();
     for (const layer of this.layers.get()) {
@@ -455,6 +457,7 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
    * @param elapsed
    * @internal
    */
+  @profile()
   public update(elapsed: number, idempotencyToken: number = 0) {
     for (const layer of this.layers.get()) {
       for (const { graphic } of layer.graphics) {

@@ -34,6 +34,7 @@ import { AffineMatrix } from '../../Math/affine-matrix';
 import { Material, MaterialOptions } from './material';
 import { MaterialRenderer } from './material-renderer/material-renderer';
 import { Shader, ShaderOptions } from './shader';
+import { Profiler, profile } from '../../Profiler';
 
 export const pixelSnapEpsilon = 0.0001;
 
@@ -516,13 +517,15 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   /**
    * Flushes all batched rendering to the screen
    */
+  @profile()
   flush() {
     const gl = this.__gl;
-
+    Profiler.start('render target');
     // render target captures all draws and redirects to the render target
     this._renderTarget.use();
 
     if (this.useDrawSorting) {
+      Profiler.start('sort');
       // sort draw calls
       // Find the original order of the first instance of the draw call
       const originalSort = new Map<string, number>();
@@ -543,10 +546,12 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
         }
         return zIndex;
       });
+      Profiler.end();
 
       const oldTransform = this._transform.current;
       const oldState = this._state.current;
 
+      Profiler.start('batch draws');
       if (this._drawCalls.length) {
         let currentRendererName = this._drawCalls[0].renderer;
         let currentRenderer = this._renderers.get(currentRendererName);
@@ -569,14 +574,17 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
           currentRenderer.flush();
         }
       }
+      Profiler.end();
 
       // reset state
       this._transform.current = oldTransform;
       this._state.current = oldState;
 
+      Profiler.start('pool cleanup');
       // reclaim draw calls
       this._drawCallPool.done();
       this._drawCalls.length = 0;
+      Profiler.end();
     } else {
       // This is the final flush at the moment to draw any leftover pending draw
       for (const renderer of this._renderers.values()) {
@@ -587,7 +595,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     }
 
     this._renderTarget.disable();
-
+    Profiler.end();
+    Profiler.start('postprocessing');
     // post process step
     const source = this._renderTarget.toRenderSource();
     source.use();
@@ -602,5 +611,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     // passing null switches rendering back to the canvas
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     this._screenRenderer.renderToScreen();
+    Profiler.end();
   }
 }

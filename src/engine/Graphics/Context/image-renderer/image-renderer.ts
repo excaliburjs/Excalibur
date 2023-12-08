@@ -1,4 +1,5 @@
 import { vec } from '../../../Math/vector';
+import { profile } from '../../../Profiler';
 import { ImageFiltering } from '../../Filtering';
 import { GraphicsDiagnostics } from '../../GraphicsDiagnostics';
 import { HTMLImageSource } from '../ExcaliburGraphicsContext';
@@ -269,6 +270,7 @@ export class ImageRenderer implements RendererPlugin {
     return this._imageCount !== 0;
   }
 
+  @profile()
   flush(): void {
     // nothing to draw early exit
     if (this._imageCount === 0) {

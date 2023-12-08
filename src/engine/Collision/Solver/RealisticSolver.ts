@@ -8,6 +8,7 @@ import { Physics } from '../Physics';
 import { CollisionSolver } from './Solver';
 import { BodyComponent, DegreeOfFreedom } from '../BodyComponent';
 import { CollisionJumpTable } from '../Colliders/CollisionJumpTable';
+import { profile } from '../../Profiler';
 
 export class RealisticSolver implements CollisionSolver {
   lastFrameContacts: Map<string, CollisionContact> = new Map();
@@ -38,6 +39,7 @@ export class RealisticSolver implements CollisionSolver {
     return contacts;
   }
 
+  @profile()
   preSolve(contacts: CollisionContact[]) {
     const epsilon = .0001;
     for (const contact of contacts) {
@@ -153,6 +155,7 @@ export class RealisticSolver implements CollisionSolver {
     }
   }
 
+  @profile()
   postSolve(contacts: CollisionContact[]) {
     for (const contact of contacts) {
       const bodyA = contact.colliderA.owner.get(BodyComponent);
@@ -197,6 +200,7 @@ export class RealisticSolver implements CollisionSolver {
    * Warm up body's based on previous frame contact points
    * @param contacts
    */
+  @profile()
   warmStart(contacts: CollisionContact[]) {
     for (const contact of contacts) {
       const bodyA = contact.colliderA.owner?.get(BodyComponent);
@@ -224,6 +228,7 @@ export class RealisticSolver implements CollisionSolver {
    * Iteratively solve the position overlap constraint
    * @param contacts
    */
+  @profile()
   solvePosition(contacts: CollisionContact[]) {
     for (let i = 0; i < Physics.positionIterations; i++) {
       for (const contact of contacts) {
@@ -288,6 +293,7 @@ export class RealisticSolver implements CollisionSolver {
     }
   }
 
+  @profile()
   solveVelocity(contacts: CollisionContact[]) {
     for (let i = 0; i < Physics.velocityIterations; i++) {
       for (const contact of contacts) {

@@ -1,5 +1,6 @@
 import { Color } from '../../../Color';
 import { vec, Vector } from '../../../Math/vector';
+import { profile } from '../../../Profiler';
 import { GraphicsDiagnostics } from '../../GraphicsDiagnostics';
 import { ExcaliburGraphicsContextWebGL, pixelSnapEpsilon } from '../ExcaliburGraphicsContextWebGL';
 import { QuadIndexBuffer } from '../quad-index-buffer';
@@ -332,6 +333,7 @@ export class RectangleRenderer implements RendererPlugin {
     return this._rectangleCount !== 0;
   }
 
+  @profile()
   flush(): void {
     // nothing to draw early exit
     if (this._rectangleCount === 0) {

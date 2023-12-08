@@ -1,14 +1,17 @@
 export interface ProfilerData {
   name: string,
+  start: number,
+  duration: number,
   value: number,
   children: ProfilerData[];
 }
-// TODO use decorator!?
 export class Profiler {
   static enabled = false;
   static data: ProfilerData = {
     name: 'root',
+    start: performance.now(),
     value: performance.now(), // store the start time
+    duration: 0,
     children: []
   };
 
@@ -16,9 +19,12 @@ export class Profiler {
 
   static init() {
     Profiler.enabled = true;
+    const start = performance.now();
     Profiler.data = {
       name: 'root',
-      value: performance.now(), // store the start time
+      start,
+      value: start, // store the start time
+      duration: 0,
       children: []
     };
     Profiler.stack = [Profiler.data];
@@ -28,9 +34,12 @@ export class Profiler {
     if (!Profiler.enabled) return;
     // attach the frame to the parent
     const parent = Profiler.stack.at(-1);
+    const start = performance.now();
     const frame: ProfilerData = {
       name,
-      value: performance.now(),
+      start,
+      value: start,
+      duration: 0,
       children: []
     }
     parent.children.push(frame);
@@ -43,9 +52,10 @@ export class Profiler {
     if (Profiler.stack.length > 1) {
       const frame = Profiler.stack.pop();
       frame.value = now - frame.value; // store the total time
-      // console.log(frame.value);
+      frame.duration = frame.value;
     } else {
       Profiler.stack[0].value = now - Profiler.stack[0].value;
+      Profiler.stack[0].duration = Profiler.stack[0].value;
     }
   }
 
