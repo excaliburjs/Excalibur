@@ -2,6 +2,7 @@ export interface ProfilerData {
   name: string,
   start: number,
   duration: number,
+  type: 'task' | 'sub-task',
   value: number,
   children: ProfilerData[];
 }
@@ -9,6 +10,7 @@ export class Profiler {
   static enabled = false;
   static data: ProfilerData = {
     name: 'root',
+    type: 'task',
     start: performance.now(),
     value: performance.now(), // store the start time
     duration: 0,
@@ -23,6 +25,7 @@ export class Profiler {
     Profiler.data = {
       name: 'root',
       start,
+      type: 'task',
       value: start, // store the start time
       duration: 0,
       children: []
@@ -38,6 +41,7 @@ export class Profiler {
     const frame: ProfilerData = {
       name,
       start,
+      type: 'sub-task',
       value: start,
       duration: 0,
       children: []

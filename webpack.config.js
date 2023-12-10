@@ -49,11 +49,11 @@ const removeInstrumentation = {
     }
 }
 
-const defaultConfig = ({version, env, useInstrumentation}) => ({
-    mode: 'production',
+const defaultConfig = ({mode, version, env, useInstrumentation}) => ({
+    mode: mode ?? 'production',
     devtool: 'source-map',
     entry: useInstrumentation ? {
-      'excalibur.instrumented': './index.ts'
+      'excalibur.dev': './index.ts'
     }
     : {
       excalibur: './index.ts',
@@ -127,7 +127,7 @@ module.exports = (env, argv) => {
   const version = process.env.release ? versioner.getReleaseVersion() : versioner.getAlphaVersion();
   console.log('[version]:', version);
   return [
-    defaultConfig({version, env, useInstrumentation: true}),
-    defaultConfig({version, env, useInstrumentation: false})
+    defaultConfig({mode: 'development', version, env, useInstrumentation: true}),
+    defaultConfig({mode: 'production', version, env, useInstrumentation: false})
   ];
 };
