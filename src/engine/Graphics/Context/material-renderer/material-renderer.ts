@@ -1,5 +1,6 @@
 import { vec } from '../../../Math/vector';
 import { ImageFiltering } from '../../Filtering';
+import { GraphicsDiagnostics } from '../../GraphicsDiagnostics';
 import { HTMLImageSource } from '../ExcaliburGraphicsContext';
 import { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
 import { QuadIndexBuffer } from '../quad-index-buffer';
@@ -140,6 +141,9 @@ export class MaterialRenderer implements RendererPlugin {
     // apply resolution
     shader.trySetUniformFloatVector('u_resolution', vec(this._context.width, this._context.height));
 
+    // apply graphic resolution
+    shader.trySetUniformFloatVector('u_graphic_resolution', vec(imageWidth, imageHeight));
+
     // apply size
     shader.trySetUniformFloatVector('u_size', vec(sw, sh));
 
@@ -159,6 +163,9 @@ export class MaterialRenderer implements RendererPlugin {
 
     // Draw a single quad
     gl.drawElements(gl.TRIANGLES, 6, this._quads.bufferGlType, 0);
+
+    GraphicsDiagnostics.DrawnImagesCount++;
+    GraphicsDiagnostics.DrawCallCount++;
   }
 
   private _addImageAsTexture(image: HTMLImageSource) {

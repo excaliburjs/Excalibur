@@ -129,4 +129,72 @@ describe('A Material', () => {
     await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
       .toEqualImage('src/spec/images/MaterialRendererSpec/material-component.png');
   });
+
+  it('can be draw multiple materials', async () => {
+    const material1 = new ex.Material({
+      name: 'material1',
+      color: ex.Color.Red,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      uniform vec4 u_color;
+      out vec4 fragColor;
+      void main() {
+        fragColor = u_color;
+      }`
+    });
+
+    const material2 = new ex.Material({
+      name: 'material2',
+      color: ex.Color.Blue,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      uniform vec4 u_color;
+      out vec4 fragColor;
+      void main() {
+        fragColor = u_color;
+      }`
+    });
+
+    const engine = TestUtils.engine({
+      width: 100,
+      height: 100,
+      antialiasing: false,
+      snapToPixel: true
+    });
+    const context = engine.graphicsContext as ex.ExcaliburGraphicsContextWebGL;
+
+    const tex = new ex.ImageSource('src/spec/images/MaterialRendererSpec/sword.png');
+
+    const loader = new ex.Loader([tex]);
+
+    await TestUtils.runToReady(engine, loader);
+
+    const actor1 = new ex.Actor({
+      x: 0,
+      y: 0,
+      width: 100,
+      height: 100
+    });
+    actor1.graphics.use(tex.toSprite());
+    actor1.graphics.material = material1;
+
+    const actor2 = new ex.Actor({
+      x: 100,
+      y: 100,
+      width: 100,
+      height: 100
+    });
+    actor2.graphics.use(tex.toSprite());
+    actor2.graphics.material = material2;
+
+    context.clear();
+    engine.currentScene.add(actor1);
+    engine.currentScene.add(actor2);
+    engine.currentScene.draw(context, 100);
+    context.flush();
+
+    expect(context.material).toBe(null);
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
+      .toEqualImage('src/spec/images/MaterialRendererSpec/multi-mat.png');
+  });
 });

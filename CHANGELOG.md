@@ -33,6 +33,7 @@ const hits = engine.currentScene.physics.rayCast(
 
 ### Fixed
 
+- Fixed issue where rendering multiple materials at once would crash the renderer
 - Fixed issue where raycasting with more complex collision groups was not working as expected
 
 ### Updates
