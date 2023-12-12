@@ -196,5 +196,5 @@ describe('A Material', () => {
     expect(context.material).toBe(null);
     await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
       .toEqualImage('src/spec/images/MaterialRendererSpec/multi-mat.png');
-  })
+  });
 });
