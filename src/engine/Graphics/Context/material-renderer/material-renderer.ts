@@ -1,5 +1,6 @@
 import { vec } from '../../../Math/vector';
 import { ImageFiltering } from '../../Filtering';
+import { GraphicsDiagnostics } from '../../GraphicsDiagnostics';
 import { HTMLImageSource } from '../ExcaliburGraphicsContext';
 import { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
 import { QuadIndexBuffer } from '../quad-index-buffer';
@@ -162,6 +163,9 @@ export class MaterialRenderer implements RendererPlugin {
 
     // Draw a single quad
     gl.drawElements(gl.TRIANGLES, 6, this._quads.bufferGlType, 0);
+
+    GraphicsDiagnostics.DrawnImagesCount++;
+    GraphicsDiagnostics.DrawCallCount++;
   }
 
   private _addImageAsTexture(image: HTMLImageSource) {
