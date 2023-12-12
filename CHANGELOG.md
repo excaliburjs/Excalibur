@@ -15,6 +15,38 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- 
+
+
+### Fixed
+
+- 
+
+### Updates
+
+- 
+
+### Changed
+
+- 
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+
+## [v0.28.2]
+
+### Breaking Changes
+
+-
+
+### Deprecated
+
+-
+
+### Added
+
 - Added new feature to collision group raycasting, directly provide a `collisionMask` that you want to search for.
 
 ```typescript
@@ -43,10 +75,6 @@ const hits = engine.currentScene.physics.rayCast(
 ### Changed
 
 - 
-
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
 ## [v0.28.2]
 
