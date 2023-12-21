@@ -1,6 +1,5 @@
 import * as ex from '@excalibur';
 import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
-import { omit } from '../engine/Util/Util';
 
 class TestGraphic extends ex.Graphic {
   constructor(options?: ex.GraphicOptions) {
