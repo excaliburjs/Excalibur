@@ -158,8 +158,8 @@ export abstract class Graphic {
 
   public cloneGraphicOptions(): GraphicOptions {
     return {
-      width: this._width,
-      height: this.height,
+      width: this.width / this.scale.x,
+      height: this.height / this.scale.y,
       origin: this.origin ? this.origin.clone() : null,
       flipHorizontal: this.flipHorizontal,
       flipVertical: this.flipVertical,

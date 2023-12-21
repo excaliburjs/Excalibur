@@ -5,8 +5,8 @@ import { omit } from '../engine/Util/Util';
 class TestGraphic extends ex.Graphic {
   constructor(options?: ex.GraphicOptions) {
     super(options ?? {});
-    this.width = options.width ?? 50;
-    this.height = options.height ?? 50;
+    this.width = options?.width ?? 50;
+    this.height = options?.height ?? 50;
   }
   private _rect1 = new ex.Rectangle({
     width: 25,
