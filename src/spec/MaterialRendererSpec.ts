@@ -76,6 +76,98 @@ describe('A Material', () => {
       .toEqualImage('src/spec/images/MaterialRendererSpec/material.png');
   });
 
+  it('can draw the screen texture', async () => {
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 100;
+    canvas.height = 100;
+    const context = new ex.ExcaliburGraphicsContextWebGL({
+      canvasElement: canvas,
+      backgroundColor: ex.Color.ExcaliburBlue,
+      smoothing: false,
+      snapToPixel: true
+    });
+
+    const material = context.createMaterial({
+      name: 'test',
+      color: ex.Color.Red,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      // UV coord
+      in vec2 v_uv;
+      in vec2 v_screenuv;
+      uniform sampler2D u_screen_texture;
+      uniform sampler2D u_graphic;
+
+      out vec4 fragColor;
+      void main() {
+        fragColor = texture(u_screen_texture, v_screenuv) * texture(u_graphic, v_uv);
+      }`
+    });
+
+    const tex = new ex.ImageSource('src/spec/images/MaterialRendererSpec/sword.png');
+    await tex.load();
+
+    context.clear();
+    context.save();
+    context.material = material;
+    context.drawImage(tex.image, 0, 0);
+    context.flush();
+    context.restore();
+
+    expect(context.material).toBe(null);
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(canvas))
+      .toEqualImage('src/spec/images/MaterialRendererSpec/multiply-comp.png');
+  });
+
+  it('can update uniforms with the .update()', async () => {
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 100;
+    canvas.height = 100;
+    const context = new ex.ExcaliburGraphicsContextWebGL({
+      canvasElement: canvas,
+      backgroundColor: ex.Color.ExcaliburBlue,
+      smoothing: false,
+      snapToPixel: true
+    });
+
+    const material = context.createMaterial({
+      name: 'test',
+      color: ex.Color.Red,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      // UV coord
+      in vec2 v_uv;
+      in vec2 v_screenuv;
+      uniform sampler2D u_screen_texture;
+      uniform sampler2D u_graphic;
+      uniform vec4 customcolor;
+
+      out vec4 fragColor;
+      void main() {
+        fragColor = texture(u_screen_texture, v_screenuv) * texture(u_graphic, v_uv) - customcolor;
+      }`
+    });
+
+    const tex = new ex.ImageSource('src/spec/images/MaterialRendererSpec/sword.png');
+    await tex.load();
+
+    context.clear();
+    context.save();
+    context.material = material;
+    material.update(shader => {
+      shader.setUniformFloatColor('customcolor', ex.Color.Red);
+    });
+    context.drawImage(tex.image, 0, 0);
+    context.flush();
+    context.restore();
+
+    expect(context.material).toBe(null);
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(canvas))
+      .toEqualImage('src/spec/images/MaterialRendererSpec/update-uniform.png');
+  });
+
   it('can be created with a custom fragment shader with the graphics component', async () => {
     const material = new ex.Material({
       name: 'test',
