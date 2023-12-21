@@ -82,10 +82,10 @@ describe('A Graphic', () => {
 
     const sut = new TestGraphic(options);
 
-    for (let prop in options) {
+    for (const prop in options) {
       expect(sut[prop]).toEqual(options[prop]);
     }
-  })
+  });
 
   it('can clone all graphic options', () => {
     const originalOptions: Required<ex.GraphicOptions> = {
