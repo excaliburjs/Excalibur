@@ -67,7 +67,7 @@ describe('A Graphic', () => {
     expect(graphic1.id).not.toBe(graphic2.id);
   });
 
-  fit('can provide all graphic options', () => {
+  it('can provide all graphic options', () => {
     const options: Required<ex.GraphicOptions> = {
       width: 100,
       height: 100,
@@ -87,7 +87,7 @@ describe('A Graphic', () => {
     }
   })
 
-  fit('can clone all graphic options', () => {
+  it('can clone all graphic options', () => {
     const originalOptions: Required<ex.GraphicOptions> = {
       width: 100,
       height: 100,
