@@ -15,7 +15,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- 
+- Materials have a new convenience method for updating uniforms
+  ```typescript
+  game.input.pointers.primary.on('move', evt => {
+    heartActor.pos = evt.worldPos;
+    swirlMaterial.update(shader => {
+      shader.trySetUniformFloatVector('iMouse', evt.worldPos);
+    });
+  });
+  ```
 
 
 ### Fixed
@@ -24,7 +32,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Updates
 
-- 
+- Materials can now reference a new uniform for the screen texture and a screen uv attribute in their fragment shaders
+  * `u_screen_texture` - This is the texture of the screen right before the material draw call
+  * `a_screenuv` - The vertex attribute corresponding to the screen uv relative to the current graphic
+  * `v_screenuv` - The fragment varying corresponding to the screen uv relative to the current graphic
+
+- Materials can now reference the current time in their shaders
+  * `u_time_ms` - This is the ms since page navigation (performance.now() under the hood)
 
 ### Changed
 
