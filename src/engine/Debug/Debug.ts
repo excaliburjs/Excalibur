@@ -357,8 +357,8 @@ export class Debug implements DebugFlags {
     colliderBoundsColor: Color.fromHex('#8080807F'), // grayish
     showColliderGeometry: true,
     colliderGeometryColor: Color.Green,
-    showQuadTree: false,
-  }
+    showQuadTree: false
+  };
 }
 
 /**
