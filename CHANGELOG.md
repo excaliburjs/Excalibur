@@ -28,7 +28,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
-- 
+- Adjusted the `FontCache` font timeout to 400 ms and makes it configurable as a static `FontCache.FONT_TIMEOUT`. This is to help prevent a downward spiral on mobile devices that might take a long while to render a few starting frames causing the cache to repeatedly clear and never recover.
 
 ### Updates
 
