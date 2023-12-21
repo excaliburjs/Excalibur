@@ -26,7 +26,7 @@ export class MaterialRenderer implements RendererPlugin {
     // Setup memory layout
     this._buffer = new VertexBuffer({
       gl,
-      size: 4 * 4, // 4 components * 4 verts
+      size: 6 * 4, // 6 components * 4 verts
       type: 'dynamic'
     });
 
@@ -36,7 +36,8 @@ export class MaterialRenderer implements RendererPlugin {
       vertexBuffer: this._buffer,
       attributes: [
         ['a_position', 2],
-        ['a_uv', 2]
+        ['a_uv', 2],
+        ['a_screenuv', 2]
       ]
     });
 
@@ -101,29 +102,44 @@ export class MaterialRenderer implements RendererPlugin {
     const uvx1 = (sx + sw - 0.01) / imageWidth;
     const uvy1 = (sy + sh - 0.01) / imageHeight;
 
+    const topLeftScreen = transform.getPosition();
+    const bottomRightScreen = topLeftScreen.add(bottomRight);
+    const screenUVX0 = topLeftScreen.x / this._context.width;
+    const screenUVY0 = topLeftScreen.y / this._context.height;
+    const screenUVX1 = bottomRightScreen.x / this._context.width;
+    const screenUVY1 = bottomRightScreen.y / this._context.height;
+
     // (0, 0) - 0
     vertexBuffer[vertexIndex++] = topLeft.x;
     vertexBuffer[vertexIndex++] = topLeft.y;
     vertexBuffer[vertexIndex++] = uvx0;
     vertexBuffer[vertexIndex++] = uvy0;
+    vertexBuffer[vertexIndex++] = screenUVX0;
+    vertexBuffer[vertexIndex++] = screenUVY0;
 
     // (0, 1) - 1
     vertexBuffer[vertexIndex++] = bottomLeft.x;
     vertexBuffer[vertexIndex++] = bottomLeft.y;
     vertexBuffer[vertexIndex++] = uvx0;
     vertexBuffer[vertexIndex++] = uvy1;
+    vertexBuffer[vertexIndex++] = screenUVX0;
+    vertexBuffer[vertexIndex++] = screenUVY1;
 
     // (1, 0) - 2
     vertexBuffer[vertexIndex++] = topRight.x;
     vertexBuffer[vertexIndex++] = topRight.y;
     vertexBuffer[vertexIndex++] = uvx1;
     vertexBuffer[vertexIndex++] = uvy0;
+    vertexBuffer[vertexIndex++] = screenUVX1;
+    vertexBuffer[vertexIndex++] = screenUVY0;
 
     // (1, 1) - 3
     vertexBuffer[vertexIndex++] = bottomRight.x;
     vertexBuffer[vertexIndex++] = bottomRight.y;
     vertexBuffer[vertexIndex++] = uvx1;
     vertexBuffer[vertexIndex++] = uvy1;
+    vertexBuffer[vertexIndex++] = screenUVX1;
+    vertexBuffer[vertexIndex++] = screenUVY1;
 
     // This creates and uploads the texture if not already done
     const texture = this._addImageAsTexture(image);
@@ -134,6 +150,9 @@ export class MaterialRenderer implements RendererPlugin {
     this._layout.shader = shader;
     // apply layout and geometry
     this._layout.use(true);
+
+    // apply time in ms since the page (performance.now())
+    shader.trySetUniformFloat('u_time_ms', performance.now());
 
     // apply opacity
     shader.trySetUniformFloat('u_opacity', opacity);
@@ -157,6 +176,11 @@ export class MaterialRenderer implements RendererPlugin {
     gl.activeTexture(gl.TEXTURE0 + 0);
     gl.bindTexture(gl.TEXTURE_2D, texture);
     shader.trySetUniformInt('u_graphic', 0);
+
+    // bind the screen texture
+    gl.activeTexture(gl.TEXTURE0 + 1);
+    gl.bindTexture(gl.TEXTURE_2D, this._context.materialScreenTexture);
+    shader.trySetUniformInt('u_screen_texture', 1);
 
     // bind quad index buffer
     this._quads.bind();
