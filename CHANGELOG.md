@@ -15,6 +15,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Ability to configure TileMap debug drawing with the `ex.Engine.debug.tilemap` property.
 - Materials have a new convenience method for updating uniforms
   ```typescript
   game.input.pointers.primary.on('move', evt => {
@@ -28,6 +29,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where TileMap solid tiles tile packing algorithm would incorrectly merge tiles in certain situations.
 - Sprite tint was not respected when supplied in the constructor, this has been fixed!
 - Adjusted the `FontCache` font timeout to 400 ms and makes it configurable as a static `FontCache.FONT_TIMEOUT`. This is to help prevent a downward spiral on mobile devices that might take a long while to render a few starting frames causing the cache to repeatedly clear and never recover.
 
@@ -43,7 +45,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
-- 
+- TileMap debug draw is now less verbose by default to save draw cycles when toggling to debug
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->

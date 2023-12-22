@@ -198,6 +198,9 @@ describe('DebugSystem', () => {
     debugSystem.initialize(engine.currentScene);
 
     engine.graphicsContext.clear();
+    engine.debug.tilemap.showGrid = true;
+    engine.debug.tilemap.showSolidBounds = true;
+    engine.debug.tilemap.showColliderGeometry = true;
 
     const tilemap = new ex.TileMap({
       pos: ex.vec(0, 0),

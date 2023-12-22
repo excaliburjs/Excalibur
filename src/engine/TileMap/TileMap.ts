@@ -12,13 +12,13 @@ import { removeItemFromArray } from '../Util/Util';
 import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
 import { ColliderComponent } from '../Collision/ColliderComponent';
 import { CompositeCollider } from '../Collision/Colliders/CompositeCollider';
-import { Color } from '../Color';
 import { DebugGraphicsComponent } from '../Graphics/DebugGraphicsComponent';
 import { Collider } from '../Collision/Colliders/Collider';
 import { PostDrawEvent, PostUpdateEvent, PreDrawEvent, PreUpdateEvent } from '../Events';
 import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
 import { CoordPlane } from '../Math/coord-plane';
 import { QuadTree } from '../Collision/Detection/QuadTree';
+import { Debug } from '../Debug';
 
 export interface TileMapOptions {
   /**
@@ -220,7 +220,7 @@ export class TileMap extends Entity {
         onPostDraw: (ctx, delta) => this.draw(ctx, delta)
       })
     );
-    this.addComponent(new DebugGraphicsComponent((ctx) => this.debug(ctx), false));
+    this.addComponent(new DebugGraphicsComponent((ctx, debugFlags) => this.debug(ctx, debugFlags), false));
     this.addComponent(new ColliderComponent());
     this._graphics = this.get(GraphicsComponent);
     this._transform = this.get(TransformComponent);
@@ -314,14 +314,55 @@ export class TileMap extends Entity {
     this._composite = this._collider.useCompositeCollider([]);
     let current: BoundingBox;
 
-    // Bad square tesselation algo
+    /**
+     * Returns wether or not the 2 boxes share an edge and are the same height
+     * @param prev
+     * @param next
+     * @returns true if they share and edge, false if not
+     */
+    const shareEdges = (prev: BoundingBox, next: BoundingBox) => {
+      if (prev && next) {
+        // same top/bottom
+        return prev.top === next.top &&
+        prev.bottom === next.bottom &&
+        // Shared right/left edge
+        prev.right === next.left;
+      }
+      return false;
+    };
+
+    /**
+     * Potentially merges the current collider into a list of previous ones, mutating the list
+     * If checkAndCombine returns true, the collider was successfully merged and should be thrown away
+     * @param current current collider to test
+     * @param colliders List of colliders to consider merging with
+     * @param maxLookBack The amount of colliders to look back for combindation
+     * @returns false when no combination found, true when successfully combined
+     */
+    const checkAndCombine = (current: BoundingBox, colliders: BoundingBox[], maxLookBack = 10) => {
+      if (!current) {
+        return false;
+      }
+      // walk backwards through the list of colliders and combine with the first that shares an edge
+      for (let i = colliders.length - 1; i >= 0; i--) {
+        if (maxLookBack-- < 0) {
+          // blunt the O(n^2) algorithm a bit
+          return false;
+        }
+        const prev = colliders[i];
+        if (shareEdges(prev, current)) {
+          colliders[i] = prev.combine(current);
+          return true;
+        }
+      }
+      return false;
+    };
+
+    // ? configurable bias perhaps, horizontal strips vs. vertical ones
+    // Bad tile collider packing algorithm
     for (let i = 0; i < this.columns; i++) {
       // Scan column for colliders
       for (let j = 0; j < this.rows; j++) {
-        // Columns start with a new collider
-        if (j === 0) {
-          current = null;
-        }
         const tile = this.tiles[i + j * this.columns];
         // Current tile in column is solid build up current collider
         if (tile.solid) {
@@ -335,11 +376,11 @@ export class TileMap extends Entity {
               this._composite.addCollider(collider);
             }
             //we push any current collider before nulling the current run
-            if (current) {
+            if (current && !checkAndCombine(current, colliders)) {
               colliders.push(current);
             }
             current = null;
-          // Use the bounding box
+            // Use the bounding box
           } else {
             if (!current) {
               // no current run, start one
@@ -351,23 +392,20 @@ export class TileMap extends Entity {
           }
         } else {
           // Not solid skip and cut off the current collider
-          if (current) {
+          // End of run check and combine
+          if (current && !checkAndCombine(current, colliders)) {
             colliders.push(current);
           }
           current = null;
         }
       }
       // After a column is complete check to see if it can be merged into the last one
-      if (current) {
-        // if previous is the same combine it
-        const prev = colliders[colliders.length - 1];
-        if (prev && prev.top === current.top && prev.bottom === current.bottom) {
-          colliders[colliders.length - 1] = prev.combine(current);
-        } else {
-          // else new collider
-          colliders.push(current);
-        }
+      // Eno of run check and combine
+      if (current && !checkAndCombine(current, colliders)) {
+        // else new collider if no combination
+        colliders.push(current);
       }
+      current = null;
     }
 
     for (const c of colliders) {
@@ -421,7 +459,7 @@ export class TileMap extends Entity {
     this.onPreUpdate(engine, delta);
     this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
     if (!this._oldPos.equals(this.pos) ||
-       this._oldRotation !== this.rotation ||
+      this._oldRotation !== this.rotation ||
       !this._oldScale.equals(this.scale)) {
       this.flagCollidersDirty();
       this.flagTilesDirty();
@@ -487,39 +525,67 @@ export class TileMap extends Entity {
     this.emit('postdraw', new PostDrawEvent(ctx as any, delta, this));
   }
 
-  public debug(gfx: ExcaliburGraphicsContext) {
+  public debug(gfx: ExcaliburGraphicsContext, debugFlags: Debug) {
+    const {
+      showAll,
+      showGrid,
+      gridColor,
+      gridWidth,
+      showSolidBounds: showColliderBounds,
+      solidBoundsColor: colliderBoundsColor,
+      showColliderGeometry,
+      colliderGeometryColor,
+      showQuadTree
+    } = debugFlags.tilemap;
     const width = this.tileWidth * this.columns * this.scale.x;
     const height = this.tileHeight * this.rows * this.scale.y;
     const pos = this.pos;
-    for (let r = 0; r < this.rows + 1; r++) {
-      const yOffset = vec(0, r * this.tileHeight * this.scale.y);
-      gfx.drawLine(pos.add(yOffset), pos.add(vec(width, yOffset.y)), Color.Red, 2);
+    if (showGrid || showAll) {
+      for (let r = 0; r < this.rows + 1; r++) {
+        const yOffset = vec(0, r * this.tileHeight * this.scale.y);
+        gfx.drawLine(pos.add(yOffset), pos.add(vec(width, yOffset.y)), gridColor, gridWidth);
+      }
+
+      for (let c = 0; c < this.columns + 1; c++) {
+        const xOffset = vec(c * this.tileWidth * this.scale.x, 0);
+        gfx.drawLine(pos.add(xOffset), pos.add(vec(xOffset.x, height)), gridColor, gridWidth);
+      }
     }
 
-    for (let c = 0; c < this.columns + 1; c++) {
-      const xOffset = vec(c * this.tileWidth * this.scale.x, 0);
-      gfx.drawLine(pos.add(xOffset), pos.add(vec(xOffset.x, height)), Color.Red, 2);
+    if (showAll || showColliderBounds || showColliderGeometry) {
+      const colliders = this._composite.getColliders();
+      gfx.save();
+      gfx.translate(this.pos.x, this.pos.y);
+      gfx.scale(this.scale.x, this.scale.y);
+      for (const collider of colliders) {
+        const bounds = collider.localBounds;
+        const pos = collider.worldPos.sub(this.pos);
+        if (showColliderBounds) {
+          gfx.drawRectangle(pos, bounds.width, bounds.height, colliderBoundsColor);
+        }
+      }
+      gfx.restore();
+      if (showColliderGeometry) {
+        for (const collider of colliders) {
+          collider.debug(gfx, colliderGeometryColor);
+        }
+      }
     }
 
-    const colliders = this._composite.getColliders();
-    gfx.save();
-    gfx.translate(this.pos.x, this.pos.y);
-    gfx.scale(this.scale.x, this.scale.y);
-    for (const collider of colliders) {
-      const grayish = Color.Gray;
-      grayish.a = 0.5;
-      const bounds = collider.localBounds;
-      const pos = collider.worldPos.sub(this.pos);
-      gfx.drawRectangle(pos, bounds.width, bounds.height, grayish);
+    if (showAll || showQuadTree || showColliderBounds) {
+      gfx.save();
+      gfx.z = 999;
+      if (showQuadTree) {
+        this._quadTree.debug(gfx);
+      }
+
+      if (showColliderBounds) {
+        for (let i = 0; i < this.tiles.length; i++) {
+          this.tiles[i].bounds.draw(gfx);
+        }
+      }
+      gfx.restore();
     }
-    gfx.restore();
-    gfx.save();
-    gfx.z = 999;
-    this._quadTree.debug(gfx);
-    for (let i = 0; i < this.tiles.length; i++) {
-      this.tiles[i].bounds.draw(gfx);
-    }
-    gfx.restore();
   }
 }
 

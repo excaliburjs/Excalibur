@@ -346,6 +346,19 @@ export class Debug implements DebugFlags {
 
     showZoom: false
   };
+
+  public tilemap = {
+    showAll: false,
+
+    showGrid: false,
+    gridColor: Color.Red,
+    gridWidth: .5,
+    showSolidBounds: false,
+    solidBoundsColor: Color.fromHex('#8080807F'), // grayish
+    showColliderGeometry: true,
+    colliderGeometryColor: Color.Green,
+    showQuadTree: false
+  };
 }
 
 /**
