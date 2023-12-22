@@ -103,7 +103,7 @@ describe('A TileMap', () => {
     expect(tm.getColumns()[4][2].y).toBe(2);
   });
 
-  fit('can pack tile colliders', () => {
+  it('can pack tile colliders', () => {
     const tm = new ex.TileMap({
       pos: ex.vec(200, 200),
       tileWidth: 16,
