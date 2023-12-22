@@ -316,8 +316,8 @@ export class TileMap extends Entity {
 
     /**
      * Returns wether or not the 2 boxes share an edge and are the same height
-     * @param prev 
-     * @param next 
+     * @param prev
+     * @param next
      * @returns true if they share and edge, false if not
      */
     const shareEdges = (prev: BoundingBox, next: BoundingBox) => {
@@ -326,10 +326,10 @@ export class TileMap extends Entity {
         return prev.top === next.top &&
         prev.bottom === next.bottom &&
         // Shared right/left edge
-        prev.right === next.left
+        prev.right === next.left;
       }
       return false;
-    }
+    };
 
     /**
      * Potentially merges the current collider into a list of previous ones, mutating the list
@@ -340,21 +340,23 @@ export class TileMap extends Entity {
      * @returns false when no combination found, true when successfully combined
      */
     const checkAndCombine = (current: BoundingBox, colliders: BoundingBox[], maxLookBack = 10) => {
-      if (!current) return false;
+      if (!current) {
+        return false;
+      }
       // walk backwards through the list of colliders and combine with the first that shares an edge
       for (let i = colliders.length - 1; i >= 0; i--) {
-          if (maxLookBack-- < 0) {
-            // blunt the O(n^2) algorithm a bit
-            return false;
-          }
-          const prev = colliders[i];
-          if (shareEdges(prev, current)) {
-            colliders[i] = prev.combine(current);
-            return true;
-          }
+        if (maxLookBack-- < 0) {
+          // blunt the O(n^2) algorithm a bit
+          return false;
+        }
+        const prev = colliders[i];
+        if (shareEdges(prev, current)) {
+          colliders[i] = prev.combine(current);
+          return true;
+        }
       }
       return false;
-    }
+    };
 
     // ? configurable bias perhaps, horizontal strips vs. vertical ones
     // Bad tile collider packing algorithm
