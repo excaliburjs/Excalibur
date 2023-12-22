@@ -15,6 +15,42 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- 
+
+
+### Fixed
+
+-
+
+### Updates
+
+-
+
+### Changed
+
+-
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+# Change Log
+
+All notable changes to this project will be documented in this file.
+This project adheres to [Semantic Versioning](http://semver.org/).
+
+## [v0.28.4]
+
+### Breaking Changes
+
+-
+
+### Deprecated
+
+-
+
+### Added
+
 - Ability to configure TileMap debug drawing with the `ex.Engine.debug.tilemap` property.
 - Materials have a new convenience method for updating uniforms
   ```typescript
@@ -47,12 +83,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - TileMap debug draw is now less verbose by default to save draw cycles when toggling to debug
 
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-
-
-## [v0.28.2]
+## [v0.28.3]
 
 ### Breaking Changes
 
