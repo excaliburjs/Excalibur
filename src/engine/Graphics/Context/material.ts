@@ -65,6 +65,9 @@ in vec2 a_position;
 in vec2 a_uv;
 out vec2 v_uv;
 
+in vec2 a_screenuv;
+out vec2 v_screenuv;
+
 uniform mat4 u_matrix;
 uniform mat4 u_transform;
 
@@ -74,6 +77,7 @@ void main() {
 
   // Pass through the UV coord to the fragment shader
   v_uv = a_uv;
+  v_screenuv = a_screenuv;
 }
 `;
 
@@ -107,6 +111,17 @@ export class Material {
 
   get name() {
     return this._name ?? 'anonymous material';
+  }
+
+  get isUsingScreenTexture() {
+    return this._fragmentSource.includes('u_screen_texture');
+  }
+
+  update(callback: (shader: Shader) => any) {
+    if (this._shader) {
+      this._shader.use();
+      callback(this._shader);
+    }
   }
 
   getShader(): Shader | null {

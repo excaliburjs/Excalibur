@@ -90,3 +90,18 @@ export function delay(milliseconds: number, clock?: Clock): Promise<void> {
   }, milliseconds);
   return future.promise;
 }
+
+/**
+ * Remove keys from object literals
+ * @param object
+ * @param keys
+ */
+export function omit<TObject extends Object, Keys extends (keyof TObject)>(object: TObject, keys: Keys[]) {
+  const newObj: Omit<TObject, Keys> = {} as any;
+  for (const key in object) {
+    if (!keys.includes(key as any)) {
+      (newObj as any)[key] = object[key];
+    }
+  }
+  return newObj;
+}
