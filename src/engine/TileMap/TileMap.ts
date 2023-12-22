@@ -530,8 +530,9 @@ export class TileMap extends Entity {
       showAll,
       showGrid,
       gridColor,
-      showColliderBounds,
-      colliderBoundsColor,
+      gridWidth,
+      showSolidBounds: showColliderBounds,
+      solidBoundsColor: colliderBoundsColor,
       showColliderGeometry,
       colliderGeometryColor,
       showQuadTree
@@ -542,12 +543,12 @@ export class TileMap extends Entity {
     if (showGrid || showAll) {
       for (let r = 0; r < this.rows + 1; r++) {
         const yOffset = vec(0, r * this.tileHeight * this.scale.y);
-        gfx.drawLine(pos.add(yOffset), pos.add(vec(width, yOffset.y)), gridColor, 2);
+        gfx.drawLine(pos.add(yOffset), pos.add(vec(width, yOffset.y)), gridColor, gridWidth);
       }
 
       for (let c = 0; c < this.columns + 1; c++) {
         const xOffset = vec(c * this.tileWidth * this.scale.x, 0);
-        gfx.drawLine(pos.add(xOffset), pos.add(vec(xOffset.x, height)), gridColor, 2);
+        gfx.drawLine(pos.add(xOffset), pos.add(vec(xOffset.x, height)), gridColor, gridWidth);
       }
     }
 

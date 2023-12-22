@@ -352,9 +352,9 @@ export class Debug implements DebugFlags {
 
     showGrid: false,
     gridColor: Color.Red,
-    gridWidth: 2,
-    showColliderBounds: true,
-    colliderBoundsColor: Color.fromHex('#8080807F'), // grayish
+    gridWidth: .5,
+    showSolidBounds: false,
+    solidBoundsColor: Color.fromHex('#8080807F'), // grayish
     showColliderGeometry: true,
     colliderGeometryColor: Color.Green,
     showQuadTree: false

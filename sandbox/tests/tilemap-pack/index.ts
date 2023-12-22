@@ -7,20 +7,8 @@ var game = new ex.Engine({
 
 game.toggleDebug();
 game.debug.entity.showId = false;
-
-var texture = new ex.ImageSource('desert.png');
-
-var loader = new ex.Loader([texture]);
-
-var ss = ex.SpriteSheet.fromImageSource({
-  image: texture,
-  grid: {
-    rows: 1,
-    columns: 1,
-    spriteWidth: 16,
-    spriteHeight: 16
-  }
-});
+game.debug.tilemap.showSolidBounds = true;
+game.debug.tilemap.showGrid = true;
 
 var tm = new ex.TileMap({
   pos: ex.vec(200, 200),
@@ -55,12 +43,6 @@ tm.getTile(4, 1).solid = true;
 tm.getTile(4, 2).solid = true;
 tm.getTile(4, 3).solid = true;
 
-// var tilesprite = ss.sprites[0];
-
-// for (var i = 0; i < tm.columns * tm.rows; i++) {
-//   tm.getTileByIndex(i).addGraphic(tilesprite);
-// }
-
 game.add(tm);
 game.input.pointers.primary.on('down', (evt: ex.PointerEvent) => {
   const tile = tm.getTileByPoint(evt.worldPos);
@@ -89,6 +71,8 @@ game.input.pointers.primary.on('wheel', (wheelEvent) => {
    }
 });
 
-game.start(loader).then(() => {
+game.start().then(() => {
+  game.currentScene.camera.pos = ex.vec(250, 225);
+  game.currentScene.camera.zoom = 3.5;
   currentPointer = game.currentScene.camera.pos;
 });
