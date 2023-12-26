@@ -264,7 +264,7 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
 
   public layers: GraphicsLayers;
 
-  public material: Material;
+  public material: Material | null = null;
 
   public getGraphic(name: string): Graphic | undefined {
     return this._graphics[name];
