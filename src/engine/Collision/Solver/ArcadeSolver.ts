@@ -4,6 +4,7 @@ import { CollisionType } from '../CollisionType';
 import { Side } from '../Side';
 import { CollisionSolver } from './Solver';
 import { BodyComponent } from '../BodyComponent';
+import { Vector } from '../../Math/vector';
 
 /**
  * ArcadeSolver is the default in Excalibur. It solves collisions so that there is no overlap between contacts,
@@ -110,7 +111,7 @@ export class ArcadeSolver implements CollisionSolver {
       return;
     }
 
-    let mtv = contact.mtv;
+    let mtv = this._vecToOrthogonal(contact.mtv);
     const colliderA = contact.colliderA;
     const colliderB = contact.colliderB;
     const bodyA = colliderA.owner?.get(BodyComponent);
@@ -140,6 +141,20 @@ export class ArcadeSolver implements CollisionSolver {
     }
   }
 
+  private _vecToOrthogonal(normal: Vector) {
+    const dirs = [Vector.Up, Vector.Down, Vector.Left, Vector.Right];
+    let maxDir = dirs[0];
+    let currentMax = -999;
+    for (let dir of dirs) {
+      const val = normal.dot(dir);
+      if (val > currentMax) {
+        currentMax = val;
+        maxDir = dir;
+      }
+    }
+    const size = normal.size;
+    return maxDir.scale(size);
+  }
 
   public solveVelocity(contact: CollisionContact) {
     if (contact.isCanceled()) {
@@ -157,7 +172,7 @@ export class ArcadeSolver implements CollisionSolver {
         return;
       }
 
-      const normal = contact.normal;
+      const normal = this._vecToOrthogonal(contact.normal);
       const opposite = normal.negate();
 
       if (bodyA.collisionType === CollisionType.Active) {
