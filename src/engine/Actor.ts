@@ -13,7 +13,9 @@ import {
   PreDrawEvent,
   PostDrawEvent,
   PreDebugDrawEvent,
-  PostDebugDrawEvent
+  PostDebugDrawEvent,
+  ActionStartEvent,
+  ActionCompleteEvent
 } from './Events';
 import { Engine } from './Engine';
 import { Color } from './Color';
@@ -166,6 +168,8 @@ export type ActorEvents = EntityEvents & {
   pointerdragmove: PointerEvent;
   enterviewport: EnterViewPortEvent;
   exitviewport: ExitViewPortEvent;
+  actionstart: ActionStartEvent;
+  actioncomplete: ActionCompleteEvent;
 }
 
 export const ActorEvents = {
@@ -193,7 +197,9 @@ export const ActorEvents = {
   PointerDragLeave: 'pointerdragleave',
   PointerDragMove: 'pointerdragmove',
   EnterViewPort: 'enterviewport',
-  ExitViewPort: 'exitviewport'
+  ExitViewPort: 'exitviewport',
+  ActionStart: 'actionstart',
+  ActionComplete: 'actioncomplete'
 };
 
 /**
