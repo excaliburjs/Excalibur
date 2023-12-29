@@ -15,7 +15,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- 
+- Added `actionstart` and `actioncomplete` events to the Actor that are fired when an action starts and completes
 
 
 ### Fixed
