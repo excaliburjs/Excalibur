@@ -13,6 +13,7 @@ import { OnInitialize, OnPreUpdate, OnPostUpdate, SceneActivationContext } from 
 import { BodyComponent } from './Collision/BodyComponent';
 import { ExcaliburGraphicsContext } from './Graphics';
 import { Axes, Buttons, Gamepad } from './Input/Gamepad';
+import { Action } from './Actions/Action';
 
 export enum EventTypes {
   Kill = 'kill',
@@ -80,7 +81,10 @@ export enum EventTypes {
   PointerDragEnd = 'pointerdragend',
   PointerDragEnter = 'pointerdragenter',
   PointerDragLeave = 'pointerdragleave',
-  PointerDragMove = 'pointerdragmove'
+  PointerDragMove = 'pointerdragmove',
+
+  ActionStart = 'actionstart',
+  ActionComplete = 'actioncomplete'
 }
 
 /* istanbul ignore next */
@@ -542,6 +546,24 @@ export class EnterTriggerEvent extends GameEvent<Actor> {
 
 export class ExitTriggerEvent extends GameEvent<Actor> {
   constructor(public target: Trigger, public actor: Actor) {
+    super();
+  }
+}
+
+/**
+ * Event thrown on an [[Actor]] when an action starts.
+ */
+export class ActionStartEvent extends GameEvent<Entity> {
+  constructor(public action: Action, public target: Entity) {
+    super();
+  }
+}
+
+/**
+ * Event thrown on an [[Actor]] when an action completes.
+ */
+export class ActionCompleteEvent extends GameEvent<Entity> {
+  constructor(public action: Action, public target: Entity) {
     super();
   }
 }

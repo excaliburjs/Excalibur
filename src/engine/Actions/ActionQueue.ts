@@ -1,3 +1,4 @@
+import { ActionCompleteEvent, ActionStartEvent } from '../Events';
 import { Entity } from '../EntityComponentSystem/Entity';
 import { Action } from './Action';
 
@@ -90,10 +91,15 @@ export class ActionQueue {
    */
   public update(elapsedMs: number) {
     if (this._actions.length > 0) {
-      this._currentAction = this._actions[0];
+      if (this._currentAction !== this._actions[0]) {
+        this._currentAction = this._actions[0];
+        this._entity.emit('actionstart', new ActionStartEvent(this._currentAction, this._entity));
+      }
+
       this._currentAction.update(elapsedMs);
 
       if (this._currentAction.isComplete(this._entity)) {
+        this._entity.emit('actioncomplete', new ActionCompleteEvent(this._currentAction, this._entity));
         this._completedActions.push(this._actions.shift());
       }
     }
