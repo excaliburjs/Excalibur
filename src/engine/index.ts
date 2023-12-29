@@ -6,6 +6,8 @@ export const EX_VERSION = process.env.__EX_VERSION;
 import { polyfill } from './Polyfill';
 polyfill();
 
+export * from './Profiler';
+
 // This file is used as the bundle entry point and exports everything
 // that will be exposed as the `ex` global variable.
 export * from './Flags';

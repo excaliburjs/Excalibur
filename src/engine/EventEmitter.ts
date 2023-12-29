@@ -1,3 +1,5 @@
+import { Profiler } from "./Profiler";
+
 export type EventMap = Record<string, any>;
 export type EventKey<T extends EventMap> = string & keyof T;
 export type Handler<EventType> = (event: EventType) => void;
@@ -62,6 +64,7 @@ export class EventEmitter<TEventMap extends EventMap = any> {
   emit<TEventName extends EventKey<TEventMap>>(eventName: TEventName, event: TEventMap[TEventName]): void;
   emit(eventName: string, event?: any): void;
   emit<TEventName extends EventKey<TEventMap> | string>(eventName: TEventName, event?: TEventMap[TEventName]): void {
+    Profiler.start('emit:'+eventName);
     if (this._paused) {
       return;
     }
@@ -74,6 +77,7 @@ export class EventEmitter<TEventMap extends EventMap = any> {
     this._pipes.forEach((pipe) => {
       pipe.emit(eventName, event);
     });
+    Profiler.end();
   }
 
   pipe(emitter: EventEmitter<any>): Subscription {

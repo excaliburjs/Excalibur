@@ -7,9 +7,12 @@ import { LineSegment } from '../../Math/line-segment';
 import { Vector } from '../../Math/vector';
 import { TransformComponent } from '../../EntityComponentSystem';
 import { Pair } from '../Detection/Pair';
+import { Profiler } from '../../Profiler';
 
 export const CollisionJumpTable = {
   CollideCircleCircle(circleA: CircleCollider, circleB: CircleCollider): CollisionContact[] {
+    try { 
+    Profiler.start('CollideCircleCircle');
     const circleAPos = circleA.worldPos;
     const circleBPos = circleB.worldPos;
     const combinedRadius = circleA.radius + circleB.radius;
@@ -38,6 +41,9 @@ export const CollisionJumpTable = {
     };
 
     return [new CollisionContact(circleA, circleB, mvt, normal, tangent, [point], [local], info)];
+    } finally {
+      Profiler.end();
+    }
   },
 
   CollideCirclePolygon(circle: CircleCollider, polygon: PolygonCollider): CollisionContact[] {
@@ -213,6 +219,8 @@ export const CollisionJumpTable = {
   },
 
   CollidePolygonPolygon(polyA: PolygonCollider, polyB: PolygonCollider): CollisionContact[] {
+    try {
+      Profiler.start('CollidePolygonPolygon');
     // Multi contact from SAT
     // https://gamedev.stackexchange.com/questions/111390/multiple-contacts-for-sat-collision-detection
     // do a SAT test to find a min axis if it exists
@@ -274,9 +282,15 @@ export const CollisionJumpTable = {
       return [new CollisionContact(polyA, polyB, normal.scale(-separation.separation), normal, tangent, points, localPoints, separation)];
     }
     return [];
+    } finally {
+        Profiler.end();
+    }
   },
 
   FindContactSeparation(contact: CollisionContact, localPoint: Vector) {
+    try {
+
+    Profiler.start('FindContactSeparation');
     const shapeA = contact.colliderA;
     const txA = contact.colliderA.owner?.get(TransformComponent) ?? new TransformComponent();
     const shapeB = contact.colliderB;
@@ -355,5 +369,8 @@ export const CollisionJumpTable = {
     }
 
     return 0;
+  } finally {
+    Profiler.end();
+  }
   }
 };

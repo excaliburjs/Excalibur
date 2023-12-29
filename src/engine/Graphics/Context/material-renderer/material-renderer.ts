@@ -1,4 +1,5 @@
 import { vec } from '../../../Math/vector';
+import { profile } from '../../../Profiler';
 import { ImageFiltering } from '../../Filtering';
 import { GraphicsDiagnostics } from '../../GraphicsDiagnostics';
 import { HTMLImageSource } from '../ExcaliburGraphicsContext';
@@ -45,6 +46,7 @@ export class MaterialRenderer implements RendererPlugin {
     this._quads = new QuadIndexBuffer(gl, 1, true);
   }
 
+  @profile()
   draw(image: HTMLImageSource,
     sx: number,
     sy: number,

@@ -1,5 +1,6 @@
 import { Color } from '../../Color';
 import { ExcaliburGraphicsContext } from '../../Graphics';
+import { profile } from '../../Profiler';
 import { BoundingBox } from '../BoundingBox';
 
 export interface QuadTreeItem {
@@ -164,8 +165,8 @@ export class QuadTree<TItem extends QuadTreeItem> {
    * @param boundingBox
    * @returns items
    */
+  @profile()
   query(boundingBox: BoundingBox): TItem[] {
-
     let results = this.items;
 
     if (this._isDivided) {

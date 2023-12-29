@@ -14,6 +14,7 @@ import { CompositeCollider } from './Colliders/CompositeCollider';
 import { Engine, ExcaliburGraphicsContext, Scene } from '..';
 import { DynamicTreeCollisionProcessor } from './Detection/DynamicTreeCollisionProcessor';
 import { PhysicsWorld } from './PhysicsWorld';
+import { profile, Profiler } from '../Profiler';
 export class CollisionSystem extends System<TransformComponent | MotionComponent | ColliderComponent> {
   public readonly types = ['ex.transform', 'ex.motion', 'ex.collider'] as const;
   public systemType = SystemType.Update;
@@ -36,6 +37,7 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
     this._untrackCollider = (c: Collider) => this._processor.untrack(c);
   }
 
+  @profile()
   notify(message: AddedEntity | RemovedEntity) {
     if (isAddedSystemEntity(message)) {
       const colliderComponent = message.data.get(ColliderComponent);
@@ -64,6 +66,7 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
       return;
     }
 
+    Profiler.start('collect colliders');
     // Collect up all the colliders and update them
     let colliders: Collider[] = [];
     for (const entity of entities) {
@@ -79,25 +82,35 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
         }
       }
     }
+    Profiler.end();
 
     // Update the spatial partitioning data structures
     // TODO if collider invalid it will break the processor
     // TODO rename "update" to something more specific
+    Profiler.start('update collisiontree')
     this._processor.update(colliders);
+    Profiler.end();
 
     // Run broadphase on all colliders and locates potential collisions
+    Profiler.start('broadphase');
     const pairs = this._processor.broadphase(colliders, elapsedMs);
+    Profiler.end();
 
     this._currentFrameContacts.clear();
 
     // Given possible pairs find actual contacts
+    Profiler.start('narrowphase');
     let contacts = this._processor.narrowphase(pairs, this._engine?.debug?.stats?.currFrame);
+    Profiler.end();
 
     const solver: CollisionSolver = this.getSolver();
 
     // Solve, this resolves the position/velocity so entities aren't overlapping
+    Profiler.start('solver')
     contacts = solver.solve(contacts);
+    Profiler.end();
 
+    Profiler.start('contact events');
     // Record contacts for start/end
     for (const contact of contacts) {
       // Process composite ids, things with the same composite id are treated as the same collider for start/end
@@ -118,6 +131,7 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
 
     // Keep track of collisions contacts that have started or ended
     this._lastFrameContacts = new Map(this._currentFrameContacts);
+    Profiler.end();
   }
 
   getSolver(): CollisionSolver {

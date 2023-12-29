@@ -1,3 +1,4 @@
+import { profile } from '../Profiler';
 import { Entity } from './Entity';
 import { EntityManager } from './EntityManager';
 import { QueryManager } from './QueryManager';
@@ -21,6 +22,7 @@ export class World<ContextType> {
   /**
    * Update systems by type and time elapsed in milliseconds
    */
+  @profile()
   update(type: SystemType, delta: number) {
     if (type === SystemType.Update) {
       this.entityManager.updateEntities(this.context, delta);

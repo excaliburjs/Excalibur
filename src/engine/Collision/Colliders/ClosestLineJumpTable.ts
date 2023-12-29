@@ -4,6 +4,7 @@ import { Ray } from '../../Math/ray';
 import { PolygonCollider } from './PolygonCollider';
 import { EdgeCollider } from './EdgeCollider';
 import { CircleCollider } from './CircleCollider';
+import { Profiler } from '../../Profiler';
 
 /**
  * Finds the closes line between 2 line segments, were the magnitude of u, v are the lengths of each segment
@@ -102,6 +103,8 @@ export function ClosestLine(p0: Vector, u: Vector, q0: Vector, v: Vector) {
 
 export const ClosestLineJumpTable = {
   PolygonPolygonClosestLine(polygonA: PolygonCollider, polygonB: PolygonCollider) {
+    try {
+    Profiler.start('PolygonPolygonClosestLine')
     // Find the 2 closest faces on each polygon
     const otherWorldPos = polygonB.worldPos;
     const otherDirection = otherWorldPos.sub(polygonA.worldPos);
@@ -125,6 +128,9 @@ export const ClosestLineJumpTable = {
     const v = otherFace.face.getEdge();
 
     return ClosestLine(p0, u, q0, v);
+    } finally {
+      Profiler.end();
+    }
   },
 
   PolygonEdgeClosestLine(polygon: PolygonCollider, edge: EdgeCollider) {

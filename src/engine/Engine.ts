@@ -45,6 +45,7 @@ import { ImageFiltering } from './Graphics/Filtering';
 import { GraphicsDiagnostics } from './Graphics/GraphicsDiagnostics';
 import { Toaster } from './Util/Toaster';
 import { InputMapper } from './Input/InputMapper';
+import { profile } from './Profiler';
 
 export type EngineEvents = {
   fallbackgraphicscontext: ExcaliburGraphicsContext2DCanvas,
@@ -1204,6 +1205,7 @@ O|===|* >________________>\n\
    * Updates the entire state of the game
    * @param delta  Number of milliseconds elapsed since the last update.
    */
+  @profile()
   private _update(delta: number) {
     if (!this.ready) {
       // suspend updates until loading is finished
@@ -1237,6 +1239,7 @@ O|===|* >________________>\n\
   /**
    * @internal
    */
+  @profile()
   public _preupdate(delta: number) {
     this.emit('preupdate', new PreUpdateEvent(this, delta, this));
     this.onPreUpdate(this, delta);
@@ -1249,6 +1252,7 @@ O|===|* >________________>\n\
   /**
    * @internal
    */
+  @profile()
   public _postupdate(delta: number) {
     this.emit('postupdate', new PostUpdateEvent(this, delta, this));
     this.onPostUpdate(this, delta);
@@ -1262,6 +1266,7 @@ O|===|* >________________>\n\
    * Draws the entire game
    * @param delta  Number of milliseconds elapsed since the last draw.
    */
+  @profile()
   private _draw(delta: number) {
     this.graphicsContext.beginDrawLifecycle();
     this.graphicsContext.clear();
@@ -1290,6 +1295,7 @@ O|===|* >________________>\n\
   /**
    * @internal
    */
+  @profile()
   public _predraw(_ctx: ExcaliburGraphicsContext, delta: number) {
     this.emit('predraw', new PreDrawEvent(_ctx, delta, this));
     this.onPreDraw(_ctx, delta);
@@ -1302,6 +1308,7 @@ O|===|* >________________>\n\
   /**
    * @internal
    */
+  @profile()
   public _postdraw(_ctx: ExcaliburGraphicsContext, delta: number) {
     this.emit('postdraw', new PostDrawEvent(_ctx, delta, this));
     this.onPostDraw(_ctx, delta);
@@ -1357,6 +1364,7 @@ O|===|* >________________>\n\
    *
    * Note: start() only resolves AFTER the user has clicked the play button
    */
+  @profile()
   public async start(loader?: Loader): Promise<void> {
     if (!this._compatible) {
       throw new Error('Excalibur is incompatible with your browser');
@@ -1414,6 +1422,7 @@ O|===|* >________________>\n\
   public currentFrameLagMs = 0;
 
   private _lagMs = 0;
+  @profile()
   private _mainloop(elapsed: number) {
     this.emit('preframe', new PreFrameEvent(this, this.stats.prevFrame));
     const delta = elapsed * this.timescale;

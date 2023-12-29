@@ -13,6 +13,7 @@ import { ParallaxComponent } from './ParallaxComponent';
 import { CoordPlane } from '../Math/coord-plane';
 import { BodyComponent } from '../Collision/BodyComponent';
 import { FontCache } from './FontCache';
+import { profile, Profiler } from '../Profiler';
 
 export class GraphicsSystem extends System<TransformComponent | GraphicsComponent> {
   public readonly types = ['ex.transform', 'ex.graphics'] as const;
@@ -38,6 +39,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
     this._zHasChanged = true;
   };
 
+  @profile()
   public preupdate(): void {
     // Graphics context could be switched to fallback in a new frame
     this._graphicsContext = this._engine.graphicsContext;
@@ -49,6 +51,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
     }
   }
 
+  @profile()
   public notify(entityAddedOrRemoved: AddedEntity | RemovedEntity): void {
     if (isAddedSystemEntity(entityAddedOrRemoved)) {
       const tx = entityAddedOrRemoved.data.get(TransformComponent);
@@ -65,6 +68,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
     }
   }
 
+  @profile()
   public update(_entities: Entity[], delta: number): void {
     this._token++;
     let graphics: GraphicsComponent;
@@ -124,7 +128,9 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
 
       // Optionally run the onPreDraw graphics lifecycle draw
       if (graphics.onPreDraw) {
+        Profiler.start('graphics predraw');
         graphics.onPreDraw(this._graphicsContext, delta);
+        Profiler.end();
       }
 
       // TODO remove this hack on the particle redo
@@ -136,7 +142,9 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
 
       // Optionally run the onPostDraw graphics lifecycle draw
       if (graphics.onPostDraw) {
+        Profiler.start('graphics postdraw');
         graphics.onPostDraw(this._graphicsContext, delta);
+        Profiler.end();
       }
 
       this._graphicsContext.restore();
@@ -152,6 +160,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
     this._graphicsContext.restore();
   }
 
+  @profile()
   private _drawGraphicsComponent(graphicsComponent: GraphicsComponent) {
     if (graphicsComponent.visible) {
       const flipHorizontal = graphicsComponent.flipHorizontal;
@@ -212,6 +221,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
    * This applies the current entity transform to the graphics context
    * @param entity
    */
+  @profile()
   private _applyTransform(entity: Entity): void {
     const ancestors = entity.getAncestors();
     for (const ancestor of ancestors) {

@@ -6,6 +6,7 @@ import { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL'
 import { RendererPlugin } from '../renderer';
 import { Shader, VertexBuffer, VertexLayout } from '../..';
 import { GraphicsDiagnostics } from '../../GraphicsDiagnostics';
+import { profile } from '../../../Profiler';
 
 export class LineRenderer implements RendererPlugin {
   public readonly type = 'ex.line';
@@ -90,6 +91,7 @@ export class LineRenderer implements RendererPlugin {
     return this._lineCount !== 0;
   }
 
+  @profile()
   flush(): void {
     // nothing to draw early exit
     if (this._lineCount === 0) {

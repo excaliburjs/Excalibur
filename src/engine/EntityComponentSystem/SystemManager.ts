@@ -1,6 +1,7 @@
 import { System, SystemType } from './System';
 import { Scene, Util } from '..';
 import { World } from './World';
+import { Profiler, profile } from '../Profiler';
 
 export interface SystemCtor<T extends System> {
   new (...args: any[]): T;
@@ -66,6 +67,7 @@ export class SystemManager<ContextType> {
    *
    * Systems added after initialize() will be initialized on add
    */
+  @profile()
   public initialize() {
     if (!this.initialized) {
       this.initialized = true;
@@ -83,11 +85,14 @@ export class SystemManager<ContextType> {
    * @param context context reference
    * @param delta time in milliseconds
    */
+  @profile()
   public updateSystems(type: SystemType, context: ContextType, delta: number) {
     const systems = this.systems.filter((s) => s.systemType === type);
     for (const s of systems) {
       if (s.preupdate) {
+        Profiler.start(s.constructor.name + ':preupdate');
         s.preupdate(context, delta);
+        Profiler.end();
       }
     }
 
@@ -100,12 +105,16 @@ export class SystemManager<ContextType> {
           entity._initialize(context?.engine);
         }
       }
+      Profiler.start(s.constructor.name + ':update');
       s.update(entities, delta);
+      Profiler.end();
     }
 
     for (const s of systems) {
       if (s.postupdate) {
+        Profiler.start(s.constructor.name + ':postupdate');
         s.postupdate(context, delta);
+        Profiler.end();
       }
     }
   }
