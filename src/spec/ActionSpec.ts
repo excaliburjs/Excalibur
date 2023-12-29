@@ -1286,9 +1286,9 @@ describe('Action', () => {
 
       const completeCalls = completeSpy.calls.all();
       expect(completeSpy).toHaveBeenCalledTimes(3);
-      expect(completeCalls[0].args[0]).toEqual(jasmine.objectContaining({ target: actor, action: jasmine.any(ex.Repeat) }));
+      expect(completeCalls[0].args[0]).toEqual(jasmine.objectContaining({ target: actor, action: jasmine.any(ex.MoveTo) }));
       expect(completeCalls[1].args[0]).toEqual(jasmine.objectContaining({ target: actor, action: jasmine.any(ex.MoveTo) }));
-      expect(completeCalls[2].args[0]).toEqual(jasmine.objectContaining({ target: actor, action: jasmine.any(ex.MoveTo) }));
+      expect(completeCalls[2].args[0]).toEqual(jasmine.objectContaining({ target: actor, action: jasmine.any(ex.Repeat) }));
     });
   });
 });
