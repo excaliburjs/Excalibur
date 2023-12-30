@@ -17,6 +17,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Added method to suppress convex polygon warning for library code usage
 - Added more configuration options to debug draw flags, including isometric map controls
+- Added `actionstart` and `actioncomplete` events to the Actor that are fired when an action starts and completes
 
 
 ### Fixed
