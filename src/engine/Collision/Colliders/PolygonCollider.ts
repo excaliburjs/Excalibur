@@ -233,9 +233,9 @@ export class PolygonCollider extends Collider {
     /**
      * Calculate the area of the triangle
      */
-    function triangleArea(a: Vector, b: Vector, c: Vector) {
-      return Math.abs(a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - c.y))/2;
-    }
+    // function triangleArea(a: Vector, b: Vector, c: Vector) {
+    //   return Math.abs(a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - c.y))/2;
+    // }
 
     /**
      * Find the next suitable ear tip
@@ -295,12 +295,15 @@ export class PolygonCollider extends Collider {
       const vc = vertices[next];
 
       // Clockwise winding
+      // if (triangleArea(va, vb, vc) > 0) {
       triangles.push([va, vb, vc]);
+      // }
       vertices.splice(index, 1);
       convexVertices.splice(index, 1);
       vertexCount--;
     }
 
+    // Loop over all the vertices finding ears
     while (vertexCount > 3) {
       const earIndex = findEarTip();
       cutEarTip(earIndex);
@@ -310,12 +313,13 @@ export class PolygonCollider extends Collider {
         convexVertices[i] = isConvex(i);
       }
     }
-    if (triangleArea(vertices[0], vertices[1], vertices[2]) > 0) {
-      triangles.push([vertices[0], vertices[1], vertices[2]]);
-    }
-    // Last triangle after the loop
 
-    return new CompositeCollider(triangles.map(points => Shape.Polygon(points)));
+    // Last triangle after the loop
+    triangles.push([vertices[0], vertices[1], vertices[2]]);
+
+    // FIXME: there is a colinear triangle that sneaks in here sometimes
+    return new CompositeCollider(
+      triangles.map(points => Shape.Polygon(points, Vector.Zero, true)));
   }
 
   /**
