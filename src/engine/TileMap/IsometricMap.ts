@@ -19,10 +19,13 @@ export class IsometricTile extends Entity {
   /**
    * Tile graphics
    */
-  public addGraphic(graphic: Graphic) {
+  public addGraphic(graphic: Graphic, options?: {offset?: Vector}) {
     this._graphics.push(graphic);
     this._gfx.visible = this.map.visible;
     this._gfx.opacity = this.map.opacity;
+    if (options?.offset) {
+      this._gfx.offset = options.offset;
+    }
     // TODO detect when this changes on the map and apply to all tiles
     this._gfx.localBounds = this._recalculateBounds();
   }
