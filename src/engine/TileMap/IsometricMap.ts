@@ -149,7 +149,7 @@ export class IsometricTile extends Entity {
     // The y position needs to go down with every x step
     const yPos = (this.x + this.y) * halfTileHeight;
     this._transform.pos = vec(xPos, yPos);
-    this._isometricEntityComponent.elevation = 0;
+    this._isometricEntityComponent.elevation = map.elevation;
 
     this._gfx = this.get(GraphicsComponent);
     this._gfx.visible = false; // start not visible
@@ -214,6 +214,8 @@ export interface IsometricMapOptions {
    * The number of tile  rows, or the number of tiles high
    */
   rows: number;
+
+  elevation?: number;
 }
 
 /**
@@ -226,6 +228,8 @@ export interface IsometricMapOptions {
  * your art assets.
  */
 export class IsometricMap extends Entity {
+  public readonly elevation: number = 0;
+
   /**
    * Width of individual tile in pixels
    */
@@ -276,7 +280,7 @@ export class IsometricMap extends Entity {
       new ColliderComponent(),
       new DebugGraphicsComponent((ctx, debugFlags) => this.debug(ctx, debugFlags), false)
     ], options.name);
-    const { pos, tileWidth, tileHeight, columns: width, rows: height, renderFromTopOfGraphic, graphicsOffset } = options;
+    const { pos, tileWidth, tileHeight, columns: width, rows: height, renderFromTopOfGraphic, graphicsOffset, elevation } = options;
 
     this.transform = this.get(TransformComponent);
     if (pos) {
@@ -292,6 +296,7 @@ export class IsometricMap extends Entity {
     this.renderFromTopOfGraphic = renderFromTopOfGraphic ?? this.renderFromTopOfGraphic;
     this.graphicsOffset = graphicsOffset ?? this.graphicsOffset;
 
+    this.elevation = elevation ?? this.elevation;
     this.tileWidth = tileWidth;
     this.tileHeight = tileHeight;
     this.columns = width;
