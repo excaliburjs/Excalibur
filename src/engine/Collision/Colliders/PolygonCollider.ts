@@ -155,9 +155,9 @@ export class PolygonCollider extends Collider {
   }
 
   /**
-  * Triangulate the polygon collider using the "Ear Clipping" algorithm.
-  * Returns a new [[CompositeCollider]] made up of smaller triangles.
-  */
+   * Triangulate the polygon collider using the "Ear Clipping" algorithm.
+   * Returns a new [[CompositeCollider]] made up of smaller triangles.
+   */
   public triangulate(): CompositeCollider {
     // https://www.youtube.com/watch?v=hTJFcHutls8
     if (this.points.length < 3) {
@@ -169,14 +169,23 @@ export class PolygonCollider extends Collider {
     const vertices = [...this.points].reverse();
     let vertexCount = vertices.length;
 
+    /**
+     * Returns the previous index based on the current vertex
+     */
     function getPrevIndex(index: number) {
       return index === 0 ? vertexCount - 1 : index - 1;
     }
 
+    /**
+     * Retrieves the next index based on the current vertex
+     */
     function getNextIndex(index: number) {
       return index === vertexCount - 1 ? 0 : index + 1;
     }
 
+    /**
+     * Whether or not the angle at this vertex index is convex
+     */
     function isConvex(index: number) {
       const prev = getPrevIndex(index);
       const next = getNextIndex(index);
@@ -192,14 +201,14 @@ export class PolygonCollider extends Collider {
       if (leftArm.cross(rightArm) < 0) {
         return false;
       }
-      return true
+      return true;
     }
 
     const convexVertices = vertices.map((_,i) => isConvex(i));
 
     /**
-      * Quick test for point in triangle 
-      */
+     * Quick test for point in triangle
+     */
     function isPointInTriangle(point: Vector, a: Vector, b: Vector, c: Vector) {
       const ab = b.sub(a);
       const bc = c.sub(b);
@@ -219,6 +228,9 @@ export class PolygonCollider extends Collider {
       return true;
     }
 
+    /**
+     * Find the next suitable ear tip
+     */
     function findEarTip() {
       for (let i = 0; i < vertexCount; i++) {
         if (convexVertices[i]) {
@@ -262,6 +274,9 @@ export class PolygonCollider extends Collider {
       return 0;
     }
 
+    /**
+     * Cut the ear and produce a triangle, update internal state
+     */
     function cutEarTip(index: number) {
       const prev = getPrevIndex(index);
       const next = getNextIndex(index);

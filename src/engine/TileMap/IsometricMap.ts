@@ -416,7 +416,7 @@ export class IsometricMap extends Entity {
    * @param gfx
    */
   public debug(gfx: ExcaliburGraphicsContext, debugFlags: Debug) {
-    const { 
+    const {
       showAll,
       showPosition,
       positionColor,
@@ -452,7 +452,7 @@ export class IsometricMap extends Entity {
     }
     if (showAll || showColliders) {
       for (const tile of this.tiles) {
-        for(const collider of tile.getColliders()) {
+        for (const collider of tile.getColliders()) {
           collider.debug(gfx, colliderColor, { lineWidth: colliderLineWidth, pointSize: colliderPointSize });
         }
       }

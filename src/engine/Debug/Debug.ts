@@ -374,7 +374,7 @@ export class Debug implements DebugFlags {
     colliderColor: Color.Green,
     colliderLineWidth: 1,
     colliderPointSize: .5
-  }
+  };
 }
 
 /**

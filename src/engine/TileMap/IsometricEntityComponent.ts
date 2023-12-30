@@ -22,13 +22,13 @@ export class IsometricEntityComponent extends Component<'ex.isometricentity'> {
 
   /**
    * Specify the isometric map to use to position this entity's z-index
-   * @param map
+   * @param mapOrOptions
    */
   constructor(mapOrOptions: IsometricMap | IsometricEntityComponentOptions) {
     super();
     this.columns = mapOrOptions.columns;
     this.rows = mapOrOptions.rows;
-    this.tileWidth = mapOrOptions.tileWidth
-    this.tileHeight = mapOrOptions.tileHeight; 
+    this.tileWidth = mapOrOptions.tileWidth;
+    this.tileHeight = mapOrOptions.tileHeight;
   }
 }
