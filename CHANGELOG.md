@@ -15,7 +15,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- Added base elevation for `IsometricMap` so multiple maps can sort correctly
+- Added `visibility` and `opacity` to `ex.IsometricMap`
+- Added base elevation for `ex.IsometricMap` so multiple maps can sort correctly
 - Added method to suppress convex polygon warning for library code usage
 - Added more configuration options to debug draw flags, including isometric map controls
 - Added `actionstart` and `actioncomplete` events to the Actor that are fired when an action starts and completes

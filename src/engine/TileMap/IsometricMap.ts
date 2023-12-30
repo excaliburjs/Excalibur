@@ -21,7 +21,9 @@ export class IsometricTile extends Entity {
    */
   public addGraphic(graphic: Graphic) {
     this._graphics.push(graphic);
-    this._gfx.visible = true;
+    this._gfx.visible = this.map.visible;
+    this._gfx.opacity = this.map.opacity;
+    // TODO detect when this changes on the map and apply to all tiles
     this._gfx.localBounds = this._recalculateBounds();
   }
 
@@ -252,6 +254,16 @@ export class IsometricMap extends Entity {
   public readonly tiles: IsometricTile[];
 
   /**
+   * Whether tiles should be visible
+   */
+  public visible = true;
+
+  /**
+   * Opacity of tiles
+   */
+  public opacity = 1.0;
+
+  /**
    * Render the tile graphic from the top instead of the bottom
    *
    * default is `false` meaning rendering from the bottom
@@ -310,7 +322,6 @@ export class IsometricMap extends Entity {
         const tile = new IsometricTile(x, y, this.graphicsOffset, this);
         this.tiles[x + y * width] = tile;
         this.addChild(tile);
-        // TODO row/columns helpers
       }
     }
   }
