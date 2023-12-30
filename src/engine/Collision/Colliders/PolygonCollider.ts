@@ -78,10 +78,12 @@ export class PolygonCollider extends Collider {
       this.points.reverse();
     }
 
-    if (!options.suppressConvexWarning && !this.isConvex()) {
-      this._logger.warn(
-        'Excalibur only supports convex polygon colliders and will not behave properly.' +
-        'Call PolygonCollider.triangulate() to build a new collider composed of smaller convex triangles');
+    if (!this.isConvex()) {
+      if (!options.suppressConvexWarning) {
+        this._logger.warn(
+          'Excalibur only supports convex polygon colliders and will not behave properly.' +
+          'Call PolygonCollider.triangulate() to build a new collider composed of smaller convex triangles');
+      }
     }
 
     // calculate initial transformation
@@ -228,6 +230,10 @@ export class PolygonCollider extends Collider {
       return true;
     }
 
+    function triangleArea(a: Vector, b: Vector, c: Vector) {
+      return Math.abs(a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - c.y))/2
+    }
+
     /**
      * Find the next suitable ear tip
      */
@@ -301,9 +307,10 @@ export class PolygonCollider extends Collider {
         convexVertices[i] = isConvex(i);
       }
     }
-
+    if (triangleArea(vertices[0], vertices[1], vertices[2]) > 0) {
+      triangles.push([vertices[0], vertices[1], vertices[2]]);
+    }
     // Last triangle after the loop
-    triangles.push([vertices[0], vertices[1], vertices[2]]);
 
     return new CompositeCollider(triangles.map(points => Shape.Polygon(points)));
   }

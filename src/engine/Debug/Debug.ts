@@ -256,6 +256,7 @@ export class Debug implements DebugFlags {
   public transform = {
     showAll: false,
 
+    debugZIndex: 10_000_000,
     showPosition: false,
     showPositionLabel: false,
     positionColor: Color.Yellow,
@@ -285,7 +286,7 @@ export class Debug implements DebugFlags {
   public collider = {
     showAll: false,
 
-    showBounds: true,
+    showBounds: false,
     boundsColor: Color.Blue,
 
     showOwner: false,

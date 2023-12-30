@@ -71,7 +71,21 @@ var points = [
   ex.vec(468,597)
 ]
 
-var shape = ex.Shape.Polygon(points);
+var colinear = [
+  ex.vec(160, 80),
+  ex.vec(80, 40),
+  ex.vec(0, 0),
+];
+
+function triangleArea(a: ex.Vector, b: ex.Vector, c: ex.Vector) {
+  return Math.abs((a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - c.y)))/2
+}
+
+console.log('triangle area', triangleArea(ex.vec(160, 80),
+ex.vec(80, 40),
+ex.vec(0, 0)));
+
+var shape = ex.Shape.Polygon(points, ex.Vector.Zero, true);
 
 var triangulated = shape.triangulate();
 actor.collider.set(triangulated);
