@@ -204,7 +204,10 @@ export class DebugSystem extends System<TransformComponent> {
       if (colliderComp) {
         const collider = colliderComp.get();
         if ((colliderSettings.showAll || colliderSettings.showGeometry) && collider) {
-          collider.debug(this._graphicsContext, colliderSettings.geometryColor, { lineWidth: colliderSettings.geometryLineWidth, pointSize: colliderSettings.geometryPointSize });
+          collider.debug(this._graphicsContext, colliderSettings.geometryColor, {
+            lineWidth: colliderSettings.geometryLineWidth,
+            pointSize: colliderSettings.geometryPointSize
+          });
         }
         if (colliderSettings.showAll || colliderSettings.showBounds) {
           if (collider instanceof CompositeCollider) {

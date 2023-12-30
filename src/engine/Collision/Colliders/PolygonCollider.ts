@@ -230,8 +230,11 @@ export class PolygonCollider extends Collider {
       return true;
     }
 
+    /**
+     * Calculate the area of the triangle
+     */
     function triangleArea(a: Vector, b: Vector, c: Vector) {
-      return Math.abs(a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - c.y))/2
+      return Math.abs(a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - c.y))/2;
     }
 
     /**
