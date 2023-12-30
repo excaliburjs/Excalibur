@@ -1,4 +1,4 @@
-import { Color } from '../../Color';
+﻿import { Color } from '../../Color';
 import { BoundingBox } from '../BoundingBox';
 import { EdgeCollider } from './EdgeCollider';
 import { CollisionJumpTable } from './CollisionJumpTable';
@@ -11,7 +11,7 @@ import { AffineMatrix } from '../../Math/affine-matrix';
 import { Ray } from '../../Math/ray';
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
 import { Collider } from './Collider';
-import { ExcaliburGraphicsContext, Logger, range } from '../..';
+import { ExcaliburGraphicsContext, Logger } from '../..';
 import { CompositeCollider } from './CompositeCollider';
 import { Shape } from './Shape';
 import { Transform } from '../../Math/transform';
@@ -115,13 +115,13 @@ export class PolygonCollider extends Collider {
     for (const [i, point] of this.points.entries()) {
       oldPoint = newPoint;
       oldDirection = direction;
-      newPoint =  point;
+      newPoint = point;
       direction = Math.atan2(newPoint.y - oldPoint.y, newPoint.x - oldPoint.x);
       if (oldPoint.equals(newPoint)) {
         return false; // repeat point
       }
       let angle = direction - oldDirection;
-      if (angle <= -Math.PI){
+      if (angle <= -Math.PI) {
         angle += Math.PI * 2;
       } else if (angle > Math.PI) {
         angle -= Math.PI * 2;
@@ -130,7 +130,7 @@ export class PolygonCollider extends Collider {
         if (angle === 0.0) {
           return false;
         }
-        orientation = angle  > 0 ? 1 : -1;
+        orientation = angle > 0 ? 1 : -1;
       } else {
         if (orientation * angle <= 0) {
           return false;
@@ -155,31 +155,51 @@ export class PolygonCollider extends Collider {
   }
 
   /**
-   * Triangulate the polygon collider using the "Ear Clipping" algorithm.
-   * Returns a new [[CompositeCollider]] made up of smaller triangles.
-   */
+  * Triangulate the polygon collider using the "Ear Clipping" algorithm.
+  * Returns a new [[CompositeCollider]] made up of smaller triangles.
+  */
   public triangulate(): CompositeCollider {
     // https://www.youtube.com/watch?v=hTJFcHutls8
     if (this.points.length < 3) {
       throw Error('Invalid polygon');
     }
 
-    /**
-     * Helper to get a vertex in the list
-     */
-    function getItem<T>(index: number, list: T[]) {
-      if (index >= list.length) {
-        return list[index % list.length];
-      } else if (index < 0) {
-        return list[index % list.length + list.length];
-      } else {
-        return list[index];
-      }
+    const triangles: [Vector, Vector, Vector][] = [];
+    // algorithm likes clockwise
+    const vertices = [...this.points].reverse();
+    let vertexCount = vertices.length;
+
+    function getPrevIndex(index: number) {
+      return index === 0 ? vertexCount - 1 : index - 1;
     }
 
+    function getNextIndex(index: number) {
+      return index === vertexCount - 1 ? 0 : index + 1;
+    }
+
+    function isConvex(index: number) {
+      const prev = getPrevIndex(index);
+      const next = getNextIndex(index);
+
+      const va = vertices[prev];
+      const vb = vertices[index];
+      const vc = vertices[next];
+
+      // Check convexity
+      const leftArm = va.sub(vb);
+      const rightArm = vc.sub(vb);
+      // Positive cross product is convex
+      if (leftArm.cross(rightArm) < 0) {
+        return false;
+      }
+      return true
+    }
+
+    const convexVertices = vertices.map((_,i) => isConvex(i));
+
     /**
-     * Quick test for point in triangle
-     */
+      * Quick test for point in triangle 
+      */
     function isPointInTriangle(point: Vector, a: Vector, b: Vector, c: Vector) {
       const ab = b.sub(a);
       const bc = c.sub(b);
@@ -199,59 +219,76 @@ export class PolygonCollider extends Collider {
       return true;
     }
 
-    const triangles: Vector[][] = [];
-    const vertices = [...this.points];
-    const indices = range(0, this.points.length - 1);
+    function findEarTip() {
+      for (let i = 0; i < vertexCount; i++) {
+        if (convexVertices[i]) {
 
-    // 1. Loop through vertices clockwise
-    //    if the vertex is convex (interior angle is < 180) (cross product positive)
-    //    if the polygon formed by it's edges doesn't contain the points
-    //         it's an ear add it to our list of triangles, and restart
+          const prev = getPrevIndex(i);
+          const next = getNextIndex(i);
 
-    while (indices.length > 3) {
-      for (let i = 0; i < indices.length; i++) {
-        const a = indices[i];
-        const b = getItem(i - 1, indices);
-        const c = getItem(i + 1, indices);
+          const va = vertices[prev];
+          const vb = vertices[i];
+          const vc = vertices[next];
 
-        const va = vertices[a];
-        const vb = vertices[b];
-        const vc = vertices[c];
-
-        // Check convexity
-        const leftArm = vb.sub(va);
-        const rightArm = vc.sub(va);
-        const isConvex = rightArm.cross(leftArm) > 0; // positive cross means convex
-        if (!isConvex) {
-          continue;
-        }
-
-        let isEar = true;
-        // Check that if any vertices are in the triangle a, b, c
-        for (let j = 0; j < indices.length; j++) {
-          const vertIndex = indices[j];
-          // We can skip these
-          if (vertIndex === a || vertIndex === b || vertIndex === c) {
-            continue;
+          let isEar = true;
+          // Check that if any vertices are in the triangle a, b, c
+          for (let j = 0; j < vertexCount; j++) {
+            // We can skip these verts because they are the triangle we are testing
+            if (j === i || j === prev || j === next) {
+              continue;
+            }
+            const point = vertices[j];
+            if (isPointInTriangle(point, va, vb, vc)) {
+              isEar = false;
+              break;
+            }
           }
 
-          const point = vertices[vertIndex];
-          if (isPointInTriangle(point, vb, va, vc)) {
-            isEar = false;
-            break;
+          // Add ear to polygon list and remove from list
+          if (isEar) {
+            return i;
           }
         }
+      }
 
-        // Add ear to polygon list and remove from list
-        if (isEar) {
-          triangles.push([vb, va, vc]);
-          indices.splice(i, 1);
-          break;
+      // Fall back to any convex vertex
+      for (let i = 0; i < vertexCount; i++) {
+        if (convexVertices[i]) {
+          return i;
         }
+      }
+
+      // bail and return the first one?
+      return 0;
+    }
+
+    function cutEarTip(index: number) {
+      const prev = getPrevIndex(index);
+      const next = getNextIndex(index);
+
+      const va = vertices[prev];
+      const vb = vertices[index];
+      const vc = vertices[next];
+
+      // Clockwise winding
+      triangles.push([va, vb, vc]);
+      vertices.splice(index, 1);
+      convexVertices.splice(index, 1);
+      vertexCount--;
+    }
+
+    while (vertexCount > 3) {
+      const earIndex = findEarTip();
+      cutEarTip(earIndex);
+
+      // reclassify vertices
+      for (let i = 0; i < vertexCount; i++) {
+        convexVertices[i] = isConvex(i);
       }
     }
 
-    triangles.push([vertices[indices[0]], vertices[indices[1]], vertices[indices[2]]]);
+    // Last triangle after the loop
+    triangles.push([vertices[0], vertices[1], vertices[2]]);
 
     return new CompositeCollider(triangles.map(points => Shape.Polygon(points)));
   }
