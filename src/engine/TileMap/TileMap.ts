@@ -437,7 +437,7 @@ export class TileMap extends Entity {
    * Returns the [[Tile]] by testing a point in world coordinates,
    * returns `null` if no Tile was found.
    */
-  public getTileByPoint(point: Vector): Tile {
+  public getTileByPoint(point: Vector): Tile | null {
     const x = Math.floor((point.x - this.pos.x) / (this.tileWidth * this.scale.x));
     const y = Math.floor((point.y - this.pos.y) / (this.tileHeight * this.scale.y));
     const tile = this.getTile(x, y);
