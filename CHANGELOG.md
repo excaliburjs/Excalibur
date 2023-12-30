@@ -29,7 +29,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
--
+- Removed dependency on `ex.IsometricMap` in the `ex.IsometricEntityComponent`, this allows for greater flexibility when using the component when a map may not be known or constructed.
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
