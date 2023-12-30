@@ -620,13 +620,14 @@ export class PolygonCollider extends Collider {
     return new Projection(min, max);
   }
 
-  public debug(ex: ExcaliburGraphicsContext, color: Color) {
+  public debug(ex: ExcaliburGraphicsContext, color: Color, options?: { lineWidth: number, pointSize: number }) {
     const firstPoint = this.getTransformedPoints()[0];
     const points = [firstPoint, ...this.getTransformedPoints(), firstPoint];
+    const { lineWidth, pointSize } = { ...{ lineWidth: 1, pointSize: 1 }, ...options };
     for (let i = 0; i < points.length - 1; i++) {
-      ex.drawLine(points[i], points[i + 1], color, 2);
-      ex.drawCircle(points[i], 2, color);
-      ex.drawCircle(points[i + 1], 2, color);
+      ex.drawLine(points[i], points[i + 1], color, lineWidth);
+      ex.drawCircle(points[i], pointSize, color);
+      ex.drawCircle(points[i + 1], pointSize, color);
     }
   }
 }

@@ -16,6 +16,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - Added method to suppress convex polygon warning for library code usage
+- Added more configuration options to debug draw flags, including isometric map controls
 
 
 ### Fixed
@@ -29,6 +30,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Tweaked debug draw to be less noisey by default
 - Removed dependency on `ex.IsometricMap` in the `ex.IsometricEntityComponent`, this allows for greater flexibility when using the component when a map may not be known or constructed.
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->

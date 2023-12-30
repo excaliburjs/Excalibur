@@ -1,9 +1,9 @@
-import { BodyComponent, BoundingBox, Collider, ColliderComponent, CollisionType, Color, CompositeCollider, vec, Vector } from '..';
+import { BodyComponent, BoundingBox, Collider, ColliderComponent, CollisionType, CompositeCollider, vec, Vector } from '..';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { Entity } from '../EntityComponentSystem/Entity';
 import { DebugGraphicsComponent, ExcaliburGraphicsContext, Graphic, GraphicsComponent } from '../Graphics';
 import { IsometricEntityComponent } from './IsometricEntityComponent';
-
+import { Debug } from '../Debug';
 export class IsometricTile extends Entity {
   /**
    * Indicates whether this tile is solid
@@ -274,7 +274,7 @@ export class IsometricMap extends Entity {
         type: CollisionType.Fixed
       }),
       new ColliderComponent(),
-      new DebugGraphicsComponent((ctx) => this.debug(ctx), false)
+      new DebugGraphicsComponent((ctx, debugFlags) => this.debug(ctx, debugFlags), false)
     ], options.name);
     const { pos, tileWidth, tileHeight, columns: width, rows: height, renderFromTopOfGraphic, graphicsOffset } = options;
 
@@ -415,23 +415,47 @@ export class IsometricMap extends Entity {
    * Debug draw for IsometricMap, called internally by excalibur when debug mode is toggled on
    * @param gfx
    */
-  public debug(gfx: ExcaliburGraphicsContext) {
+  public debug(gfx: ExcaliburGraphicsContext, debugFlags: Debug) {
+    const { 
+      showAll,
+      showPosition,
+      positionColor,
+      positionSize,
+      showGrid,
+      gridColor,
+      gridWidth,
+      showColliders,
+      colliderColor,
+      colliderLineWidth,
+      colliderPointSize
+    } = debugFlags.isometric;
     gfx.save();
     gfx.z = this._getMaxZIndex() + 0.5;
-    for (let y = 0; y < this.rows + 1; y++) {
-      const left = this.tileToWorld(vec(0, y));
-      const right = this.tileToWorld(vec(this.columns, y));
-      gfx.drawLine(left, right, Color.Red, 2);
+    if (showAll || showGrid) {
+      for (let y = 0; y < this.rows + 1; y++) {
+        const left = this.tileToWorld(vec(0, y));
+        const right = this.tileToWorld(vec(this.columns, y));
+        gfx.drawLine(left, right, gridColor, gridWidth);
+      }
+
+      for (let x = 0; x < this.columns + 1; x++) {
+        const top = this.tileToWorld(vec(x, 0));
+        const bottom = this.tileToWorld(vec(x, this.rows));
+        gfx.drawLine(top, bottom, gridColor, gridWidth);
+      }
     }
 
-    for (let x = 0; x < this.columns + 1; x++) {
-      const top = this.tileToWorld(vec(x, 0));
-      const bottom = this.tileToWorld(vec(x, this.rows));
-      gfx.drawLine(top, bottom, Color.Red, 2);
+    if (showAll || showPosition) {
+      for (const tile of this.tiles) {
+        gfx.drawCircle(this.tileToWorld(vec(tile.x, tile.y)), positionSize, positionColor);
+      }
     }
-
-    for (const tile of this.tiles) {
-      gfx.drawCircle(this.tileToWorld(vec(tile.x, tile.y)), 3, Color.Yellow);
+    if (showAll || showColliders) {
+      for (const tile of this.tiles) {
+        for(const collider of tile.getColliders()) {
+          collider.debug(gfx, colliderColor, { lineWidth: colliderLineWidth, pointSize: colliderPointSize });
+        }
+      }
     }
     gfx.restore();
   }

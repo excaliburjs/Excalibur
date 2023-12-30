@@ -246,7 +246,7 @@ export class Debug implements DebugFlags {
    */
   public entity = {
     showAll: false,
-    showId: true,
+    showId: false,
     showName: false
   };
 
@@ -275,7 +275,7 @@ export class Debug implements DebugFlags {
   public graphics = {
     showAll: false,
 
-    showBounds: true,
+    showBounds: false,
     boundsColor: Color.Yellow
   };
 
@@ -291,7 +291,9 @@ export class Debug implements DebugFlags {
     showOwner: false,
 
     showGeometry: true,
-    geometryColor: Color.Green
+    geometryColor: Color.Green,
+    geometryLineWidth: 1,
+    geometryPointSize: .5
   };
 
   /**
@@ -359,6 +361,20 @@ export class Debug implements DebugFlags {
     colliderGeometryColor: Color.Green,
     showQuadTree: false
   };
+
+  public isometric = {
+    showAll: false,
+    showPosition: false,
+    positionColor: Color.Yellow,
+    positionSize: 1,
+    showGrid: false,
+    gridColor: Color.Red,
+    gridWidth: 1,
+    showColliders: true,
+    colliderColor: Color.Green,
+    colliderLineWidth: 1,
+    colliderPointSize: .5
+  }
 }
 
 /**
