@@ -15,7 +15,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- 
+- Added method to suppress convex polygon warning for library code usage
 
 
 ### Fixed

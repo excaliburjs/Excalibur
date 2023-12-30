@@ -1,4 +1,4 @@
-﻿import { Color } from '../../Color';
+import { Color } from '../../Color';
 import { BoundingBox } from '../BoundingBox';
 import { EdgeCollider } from './EdgeCollider';
 import { CollisionJumpTable } from './CollisionJumpTable';
@@ -25,6 +25,11 @@ export interface PolygonColliderOptions {
    * Points in the polygon in order around the perimeter in local coordinates. These are relative from the body transform position.
    */
   points: Vector[];
+
+  /**
+   * Suppresses convexity warning
+   */
+  suppressConvexWarning?: boolean;
 }
 
 /**
@@ -72,9 +77,10 @@ export class PolygonCollider extends Collider {
     if (!counterClockwise) {
       this.points.reverse();
     }
-    if (!this.isConvex()) {
+
+    if (!options.suppressConvexWarning && !this.isConvex()) {
       this._logger.warn(
-        'Excalibur only supports convex polygon colliders and will not behave properly.'+
+        'Excalibur only supports convex polygon colliders and will not behave properly.' +
         'Call PolygonCollider.triangulate() to build a new collider composed of smaller convex triangles');
     }
 

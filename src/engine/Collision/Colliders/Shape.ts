@@ -31,10 +31,11 @@ export class Shape {
    * @param points Points specified in counter clockwise
    * @param offset Optional offset relative to the collider in local coordinates
    */
-  static Polygon(points: Vector[], offset: Vector = Vector.Zero): PolygonCollider {
+  static Polygon(points: Vector[], offset: Vector = Vector.Zero, suppressConvexWarning = false): PolygonCollider {
     return new PolygonCollider({
       points: points,
-      offset: offset
+      offset: offset,
+      suppressConvexWarning
     });
   }
 
