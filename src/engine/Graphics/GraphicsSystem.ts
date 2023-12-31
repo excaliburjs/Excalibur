@@ -13,6 +13,7 @@ import { ParallaxComponent } from './ParallaxComponent';
 import { CoordPlane } from '../Math/coord-plane';
 import { BodyComponent } from '../Collision/BodyComponent';
 import { FontCache } from './FontCache';
+import { PostDrawEvent, PreDrawEvent } from '..';
 
 export class GraphicsSystem extends System<TransformComponent | GraphicsComponent> {
   public readonly types = ['ex.transform', 'ex.graphics'] as const;
@@ -126,6 +127,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
       if (graphics.onPreDraw) {
         graphics.onPreDraw(this._graphicsContext, delta);
       }
+      entity.events.emit('predraw', new PreDrawEvent(this._graphicsContext, delta, entity));
 
       // TODO remove this hack on the particle redo
       const particleOpacity = (entity instanceof Particle) ? entity.opacity : 1;
@@ -138,6 +140,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
       if (graphics.onPostDraw) {
         graphics.onPostDraw(this._graphicsContext, delta);
       }
+      entity.events.emit('postdraw', new PostDrawEvent(this._graphicsContext, delta, entity));
 
       this._graphicsContext.restore();
 
