@@ -25,6 +25,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed Actor so it receives `predraw`/`postdraw` events per the advertised strongly typed events
 - Fixed infinite loop :bomb: when certain degenerate polygons were attempted to be triangulated!
 - Fixed incorrect type on `ex.Tilemap.getTileByPoint()`
 - Fixed TS type on `GraphicsComponent` and allow `.material` to be null to unset, current workaround is using `.material = null as any`
