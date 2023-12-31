@@ -615,7 +615,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    *
    * Synonymous with the event handler `.on('initialize', (evt) => {...})`
    */
-  public onInitialize(_engine: Engine): void {
+  public onInitialize(engine: Engine): void {
     // Override me
   }
 
@@ -666,9 +666,9 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * Internal _prekill handler for [[onPreKill]] lifecycle event
    * @internal
    */
-  public _prekill(_scene: Scene) {
+  public _prekill(scene: Scene) {
     this.events.emit('prekill', new PreKillEvent(this));
-    this.onPreKill(_scene);
+    this.onPreKill(scene);
   }
 
   /**
@@ -676,7 +676,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    *
    * `onPreKill` is called directly before an actor is killed and removed from its current [[Scene]].
    */
-  public onPreKill(_scene: Scene) {
+  public onPreKill(scene: Scene) {
     // Override me
   }
 
@@ -686,9 +686,9 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * Internal _prekill handler for [[onPostKill]] lifecycle event
    * @internal
    */
-  public _postkill(_scene: Scene) {
+  public _postkill(scene: Scene) {
     this.events.emit('postkill', new PostKillEvent(this));
-    this.onPostKill(_scene);
+    this.onPostKill(scene);
   }
 
   /**
@@ -696,7 +696,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    *
    * `onPostKill` is called directly after an actor is killed and remove from its current [[Scene]].
    */
-  public onPostKill(_scene: Scene) {
+  public onPostKill(scene: Scene) {
     // Override me
   }
 
@@ -865,7 +865,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    *
    * `onPreUpdate` is called directly before an actor is updated.
    */
-  public onPreUpdate(_engine: Engine, _delta: number): void {
+  public onPreUpdate(engine: Engine, delta: number): void {
     // Override me
   }
 
@@ -874,7 +874,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    *
    * `onPostUpdate` is called directly after an actor is updated.
    */
-  public onPostUpdate(_engine: Engine, _delta: number): void {
+  public onPostUpdate(engine: Engine, delta: number): void {
     // Override me
   }
 

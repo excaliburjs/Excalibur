@@ -78,7 +78,7 @@ export interface CanInitialize {
   /**
    * Overridable implementation
    */
-  onInitialize(_engine: Engine): void;
+  onInitialize(engine: Engine): void;
 
   /**
    * Event signatures
@@ -127,7 +127,7 @@ export interface CanUpdate {
   /**
    * Overridable implementation
    */
-  onPreUpdate(_engine: Engine, _delta: number): void;
+  onPreUpdate(engine: Engine, delta: number): void;
 
   /**
    * Event signature
@@ -139,7 +139,7 @@ export interface CanUpdate {
   /**
    * Overridable implementation
    */
-  onPostUpdate(_engine: Engine, _delta: number): void;
+  onPostUpdate(engine: Engine, delta: number): void;
 
   /**
    * Event signatures
@@ -153,7 +153,7 @@ export interface OnPreDraw {
   /**
    * Overridable implementation
    */
-  onPreDraw(_ctx: ExcaliburGraphicsContext, _delta: number): void;
+  onPreDraw(ctx: ExcaliburGraphicsContext, delta: number): void;
 
   /**
    * Event signatures
@@ -167,7 +167,7 @@ export interface OnPostDraw {
   /**
    * Overridable implementation
    */
-  onPostDraw(_ctx: ExcaliburGraphicsContext, _delta: number): void;
+  onPostDraw(ctx: ExcaliburGraphicsContext, delta: number): void;
 
   /**
    * Event signatures

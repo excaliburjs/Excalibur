@@ -336,7 +336,7 @@ export class Loader implements Loadable<Loadable<any>[]> {
     }
   }
 
-  update(_engine: Engine, _delta: number): void {
+  update(engine: Engine, delta: number): void {
     // override me
   }
 

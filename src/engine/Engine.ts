@@ -1157,7 +1157,7 @@ O|===|* >________________>\n\
     }
   }
 
-  public onInitialize(_engine: Engine) {
+  public onInitialize(engine: Engine) {
     // Override me
   }
 
@@ -1242,7 +1242,7 @@ O|===|* >________________>\n\
     this.onPreUpdate(this, delta);
   }
 
-  public onPreUpdate(_engine: Engine, _delta: number) {
+  public onPreUpdate(engine: Engine, delta: number) {
     // Override me
   }
 
@@ -1254,7 +1254,7 @@ O|===|* >________________>\n\
     this.onPostUpdate(this, delta);
   }
 
-  public onPostUpdate(_engine: Engine, _delta: number) {
+  public onPostUpdate(engine: Engine, delta: number) {
     // Override me
   }
 
@@ -1290,24 +1290,24 @@ O|===|* >________________>\n\
   /**
    * @internal
    */
-  public _predraw(_ctx: ExcaliburGraphicsContext, delta: number) {
-    this.emit('predraw', new PreDrawEvent(_ctx, delta, this));
-    this.onPreDraw(_ctx, delta);
+  public _predraw(ctx: ExcaliburGraphicsContext, delta: number) {
+    this.emit('predraw', new PreDrawEvent(ctx, delta, this));
+    this.onPreDraw(ctx, delta);
   }
 
-  public onPreDraw(_ctx: ExcaliburGraphicsContext, _delta: number) {
+  public onPreDraw(ctx: ExcaliburGraphicsContext, delta: number) {
     // Override me
   }
 
   /**
    * @internal
    */
-  public _postdraw(_ctx: ExcaliburGraphicsContext, delta: number) {
-    this.emit('postdraw', new PostDrawEvent(_ctx, delta, this));
-    this.onPostDraw(_ctx, delta);
+  public _postdraw(ctx: ExcaliburGraphicsContext, delta: number) {
+    this.emit('postdraw', new PostDrawEvent(ctx, delta, this));
+    this.onPostDraw(ctx, delta);
   }
 
-  public onPostDraw(_ctx: ExcaliburGraphicsContext, _delta: number) {
+  public onPostDraw(ctx: ExcaliburGraphicsContext, delta: number) {
     // Override me
   }
 

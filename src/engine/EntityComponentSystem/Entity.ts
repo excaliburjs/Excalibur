@@ -513,7 +513,7 @@ export class Entity implements OnInitialize, OnPreUpdate, OnPostUpdate {
    *
    * Synonymous with the event handler `.on('initialize', (evt) => {...})`
    */
-  public onInitialize(_engine: Engine): void {
+  public onInitialize(engine: Engine): void {
     // Override me
   }
 
@@ -522,7 +522,7 @@ export class Entity implements OnInitialize, OnPreUpdate, OnPostUpdate {
    *
    * `onPreUpdate` is called directly before an entity is updated.
    */
-  public onPreUpdate(_engine: Engine, _delta: number): void {
+  public onPreUpdate(engine: Engine, delta: number): void {
     // Override me
   }
 
@@ -531,7 +531,7 @@ export class Entity implements OnInitialize, OnPreUpdate, OnPostUpdate {
    *
    * `onPostUpdate` is called directly after an entity is updated.
    */
-  public onPostUpdate(_engine: Engine, _delta: number): void {
+  public onPostUpdate(engine: Engine, delta: number): void {
     // Override me
   }
 

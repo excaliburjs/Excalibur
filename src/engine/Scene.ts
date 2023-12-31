@@ -178,7 +178,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * This is called before the first update of the [[Scene]]. Initializes scene members like the camera. This method is meant to be
    * overridden. This is where initialization of child actors should take place.
    */
-  public onInitialize(_engine: Engine): void {
+  public onInitialize(engine: Engine): void {
     // will be overridden
   }
 
@@ -186,7 +186,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * This is called when the scene is made active and started. It is meant to be overridden,
    * this is where you should setup any DOM UI or event handlers needed for the scene.
    */
-  public onActivate(_context: SceneActivationContext<TActivationData>): void {
+  public onActivate(context: SceneActivationContext<TActivationData>): void {
     // will be overridden
   }
 
@@ -194,7 +194,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * This is called when the scene is made transitioned away from and stopped. It is meant to be overridden,
    * this is where you should cleanup any DOM UI or event handlers needed for the scene.
    */
-  public onDeactivate(_context: SceneActivationContext): void {
+  public onDeactivate(context: SceneActivationContext): void {
     // will be overridden
   }
 
@@ -203,7 +203,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    *
    * `onPreUpdate` is called directly before a scene is updated.
    */
-  public onPreUpdate(_engine: Engine, _delta: number): void {
+  public onPreUpdate(engine: Engine, delta: number): void {
     // will be overridden
   }
 
@@ -212,7 +212,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    *
    * `onPostUpdate` is called directly after a scene is updated.
    */
-  public onPostUpdate(_engine: Engine, _delta: number): void {
+  public onPostUpdate(engine: Engine, delta: number): void {
     // will be overridden
   }
 
@@ -222,7 +222,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * `onPreDraw` is called directly before a scene is drawn.
    *
    */
-  public onPreDraw(_ctx: ExcaliburGraphicsContext, _delta: number): void {
+  public onPreDraw(ctx: ExcaliburGraphicsContext, delta: number): void {
     // will be overridden
   }
 
@@ -232,7 +232,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * `onPostDraw` is called directly after a scene is drawn.
    *
    */
-  public onPostDraw(_ctx: ExcaliburGraphicsContext, _delta: number): void {
+  public onPostDraw(ctx: ExcaliburGraphicsContext, delta: number): void {
     // will be overridden
   }
 
@@ -306,9 +306,9 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * Internal _preupdate handler for [[onPreUpdate]] lifecycle event
    * @internal
    */
-  public _preupdate(_engine: Engine, delta: number): void {
-    this.emit('preupdate', new PreUpdateEvent(_engine, delta, this));
-    this.onPreUpdate(_engine, delta);
+  public _preupdate(engine: Engine, delta: number): void {
+    this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
+    this.onPreUpdate(engine, delta);
   }
 
   /**
@@ -317,9 +317,9 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * Internal _preupdate handler for [[onPostUpdate]] lifecycle event
    * @internal
    */
-  public _postupdate(_engine: Engine, delta: number): void {
-    this.emit('postupdate', new PostUpdateEvent(_engine, delta, this));
-    this.onPostUpdate(_engine, delta);
+  public _postupdate(engine: Engine, delta: number): void {
+    this.emit('postupdate', new PostUpdateEvent(engine, delta, this));
+    this.onPostUpdate(engine, delta);
   }
 
   /**
@@ -328,9 +328,9 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * Internal _predraw handler for [[onPreDraw]] lifecycle event
    * @internal
    */
-  public _predraw(_ctx: ExcaliburGraphicsContext, _delta: number): void {
-    this.emit('predraw', new PreDrawEvent(_ctx, _delta, this));
-    this.onPreDraw(_ctx, _delta);
+  public _predraw(ctx: ExcaliburGraphicsContext, delta: number): void {
+    this.emit('predraw', new PreDrawEvent(ctx, delta, this));
+    this.onPreDraw(ctx, delta);
   }
 
   /**
@@ -339,9 +339,9 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * Internal _postdraw handler for [[onPostDraw]] lifecycle event
    * @internal
    */
-  public _postdraw(_ctx: ExcaliburGraphicsContext, _delta: number): void {
-    this.emit('postdraw', new PostDrawEvent(_ctx, _delta, this));
-    this.onPostDraw(_ctx, _delta);
+  public _postdraw(ctx: ExcaliburGraphicsContext, delta: number): void {
+    this.emit('postdraw', new PostDrawEvent(ctx, delta, this));
+    this.onPostDraw(ctx, delta);
   }
 
   /**
