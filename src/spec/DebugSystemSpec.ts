@@ -87,6 +87,8 @@ describe('DebugSystem', () => {
     actor.vel = ex.vec(100, 0);
     actor.acc = ex.vec(100, -100);
     engine.debug.motion.showAll = true;
+    engine.debug.collider.showGeometry = true;
+    engine.debug.collider.geometryLineWidth = 2;
     debugSystem.update([actor], 100);
 
     engine.graphicsContext.flush();
@@ -124,6 +126,7 @@ describe('DebugSystem', () => {
 
     const actor = new ex.Actor({ name: 'thingy', x: -100 + center.x, y: center.y, width: 50, height: 50, color: ex.Color.Yellow });
     actor.id = 0;
+    engine.debug.entity.showId = true;
     engine.debug.collider.showAll = true;
     debugSystem.update([actor], 100);
 
@@ -144,6 +147,7 @@ describe('DebugSystem', () => {
     actor.collider.useCompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(150, 20), ex.Shape.Box(10, 150)]);
     actor.id = 0;
     engine.debug.collider.showAll = true;
+    engine.debug.collider.geometryLineWidth = 3;
     debugSystem.update([actor], 100);
 
     engine.graphicsContext.flush();

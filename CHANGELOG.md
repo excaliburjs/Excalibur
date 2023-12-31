@@ -15,11 +15,18 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added ability to apply draw offset to `ex.IsometricMap` and `ex.Tilemap`
+- Added `visibility` and `opacity` to `ex.IsometricMap`
+- Added base elevation for `ex.IsometricMap` so multiple maps can sort correctly
+- Added method to suppress convex polygon warning for library code usage
+- Added more configuration options to debug draw flags, including isometric map controls
 - Added `actionstart` and `actioncomplete` events to the Actor that are fired when an action starts and completes
 
 
 ### Fixed
 
+- Fixed infinite loop :bomb: when certain degenerate polygons were attempted to be triangulated!
+- Fixed incorrect type on `ex.Tilemap.getTileByPoint()`
 - Fixed TS type on `GraphicsComponent` and allow `.material` to be null to unset, current workaround is using `.material = null as any`
 
 ### Updates
@@ -28,7 +35,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
--
+- Tweaked debug draw to be less noisy by default
+- Removed dependency on `ex.IsometricMap` in the `ex.IsometricEntityComponent`, this allows for greater flexibility when using the component when a map may not be known or constructed.
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->

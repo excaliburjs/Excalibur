@@ -236,10 +236,10 @@ export class CompositeCollider extends Collider {
     }
   }
 
-  public debug(ex: ExcaliburGraphicsContext, color: Color) {
+  public debug(ex: ExcaliburGraphicsContext, color: Color,  options?: { lineWidth: number, pointSize: number }) {
     const colliders = this.getColliders();
     for (const collider of colliders) {
-      collider.debug(ex, color);
+      collider.debug(ex, color, options);
     }
   }
 

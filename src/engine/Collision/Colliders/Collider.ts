@@ -113,7 +113,7 @@ export abstract class Collider implements Clonable<Collider> {
   abstract update(transform: Transform): void;
 
 
-  abstract debug(ex: ExcaliburGraphicsContext, color: Color): void;
+  abstract debug(ex: ExcaliburGraphicsContext, color: Color, options?: { lineWidth: number, pointSize: number }): void;
 
   abstract clone(): Collider;
 }

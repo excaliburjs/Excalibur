@@ -91,6 +91,7 @@ export class DebugSystem extends System<TransformComponent> {
       this._pushCameraTransform(tx);
 
       this._graphicsContext.save();
+      this._graphicsContext.z = txSettings.debugZIndex;
 
       this._applyTransform(entity);
       if (tx) {
@@ -182,6 +183,9 @@ export class DebugSystem extends System<TransformComponent> {
 
       this._graphicsContext.restore();
 
+      // World space
+      this._graphicsContext.save();
+      this._graphicsContext.z = txSettings.debugZIndex;
       motion = entity.get(MotionComponent);
       if (motion) {
         if (motionSettings.showAll || motionSettings.showVelocity) {
@@ -200,7 +204,10 @@ export class DebugSystem extends System<TransformComponent> {
       if (colliderComp) {
         const collider = colliderComp.get();
         if ((colliderSettings.showAll || colliderSettings.showGeometry) && collider) {
-          collider.debug(this._graphicsContext, colliderSettings.geometryColor);
+          collider.debug(this._graphicsContext, colliderSettings.geometryColor, {
+            lineWidth: colliderSettings.geometryLineWidth,
+            pointSize: colliderSettings.geometryPointSize
+          });
         }
         if (colliderSettings.showAll || colliderSettings.showBounds) {
           if (collider instanceof CompositeCollider) {
@@ -225,6 +232,7 @@ export class DebugSystem extends System<TransformComponent> {
         }
       }
 
+      this._graphicsContext.restore();
       this._popCameraTransform(tx);
     }
 

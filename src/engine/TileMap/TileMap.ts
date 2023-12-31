@@ -8,7 +8,6 @@ import { BodyComponent } from '../Collision/BodyComponent';
 import { CollisionType } from '../Collision/CollisionType';
 import { Shape } from '../Collision/Colliders/Shape';
 import { ExcaliburGraphicsContext, Graphic, GraphicsComponent, hasGraphicsTick, ParallaxComponent } from '../Graphics';
-import { removeItemFromArray } from '../Util/Util';
 import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
 import { ColliderComponent } from '../Collision/ColliderComponent';
 import { CompositeCollider } from '../Collision/Colliders/CompositeCollider';
@@ -437,7 +436,7 @@ export class TileMap extends Entity {
    * Returns the [[Tile]] by testing a point in world coordinates,
    * returns `null` if no Tile was found.
    */
-  public getTileByPoint(point: Vector): Tile {
+  public getTileByPoint(point: Vector): Tile | null {
     const x = Math.floor((point.x - this.pos.x) / (this.tileWidth * this.scale.x));
     const y = Math.floor((point.y - this.pos.y) / (this.tileHeight * this.scale.y));
     const tile = this.getTile(x, y);
@@ -507,17 +506,19 @@ export class TileMap extends Entity {
     for (let i = 0; i < tiles.length; i++) {
       const tile = tiles[i];
       // get non-negative tile sprites
+      const offsets = tile.getGraphicsOffsets();
       graphics = tile.getGraphics();
 
       for (graphicsIndex = 0, graphicsLen = graphics.length; graphicsIndex < graphicsLen; graphicsIndex++) {
         // draw sprite, warning if sprite doesn't exist
         const graphic = graphics[graphicsIndex];
+        const offset = offsets[graphicsIndex];
         if (graphic) {
           if (hasGraphicsTick(graphic)) {
             graphic?.tick(delta, this._token);
           }
           const offsetY = this.renderFromTopOfGraphic ? 0 : (graphic.height - this.tileHeight);
-          graphic.draw(ctx, tile.x * this.tileWidth, tile.y * this.tileHeight - offsetY);
+          graphic.draw(ctx, tile.x * this.tileWidth + offset.x, tile.y * this.tileHeight - offsetY + offset.y);
         }
       }
     }
@@ -618,7 +619,6 @@ export class Tile extends Entity {
   private _geometry: BoundingBox;
   private _pos: Vector;
   private _posDirty = false;
-  // private _transform: TransformComponent;
 
   /**
    * Return the world position of the top left corner of the tile
@@ -678,6 +678,7 @@ export class Tile extends Entity {
   }
 
   private _graphics: Graphic[] = [];
+  private _offsets: Vector[] = [];
 
   /**
    * Current list of graphics for this tile
@@ -687,18 +688,34 @@ export class Tile extends Entity {
   }
 
   /**
+   * Current list of offsets for this tile's graphics
+   */
+  public getGraphicsOffsets(): readonly Vector[] {
+    return this._offsets;
+  }
+
+  /**
    * Add another [[Graphic]] to this TileMap tile
    * @param graphic
    */
-  public addGraphic(graphic: Graphic) {
+  public addGraphic(graphic: Graphic, options?: { offset?: Vector }) {
     this._graphics.push(graphic);
+    if (options?.offset) {
+      this._offsets.push(options.offset);
+    } else {
+      this._offsets.push(Vector.Zero);
+    }
   }
 
   /**
    * Remove an instance of a [[Graphic]] from this tile
    */
   public removeGraphic(graphic: Graphic) {
-    removeItemFromArray(graphic, this._graphics);
+    const index = this._graphics.indexOf(graphic);
+    if (index > -1) {
+      this._graphics.splice(index, 1);
+      this._offsets.splice(index, 1);
+    }
   }
 
   /**
@@ -706,6 +723,7 @@ export class Tile extends Entity {
    */
   public clearGraphics() {
     this._graphics.length = 0;
+    this._offsets.length = 0;
   }
 
   /**

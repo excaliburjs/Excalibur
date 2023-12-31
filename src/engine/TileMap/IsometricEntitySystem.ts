@@ -15,7 +15,7 @@ export class IsometricEntitySystem extends System<TransformComponent | Isometric
       transform = entity.get(TransformComponent);
       iso = entity.get(IsometricEntityComponent);
 
-      const maxZindexPerElevation = Math.max(iso.map.columns * iso.map.tileWidth, iso.map.rows * iso.map.tileHeight);
+      const maxZindexPerElevation = Math.max(iso.columns * iso.tileWidth, iso.rows * iso.tileHeight);
 
       const newZ = maxZindexPerElevation * iso.elevation + transform.pos.y;
       transform.z = newZ;

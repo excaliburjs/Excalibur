@@ -253,7 +253,8 @@ export class CircleCollider extends Collider {
     return new Projection(Math.min.apply(Math, scalars), Math.max.apply(Math, scalars));
   }
 
-  public debug(ex: ExcaliburGraphicsContext, color: Color) {
+  public debug(ex: ExcaliburGraphicsContext, color: Color, options?: { lineWidth: number }) {
+    const { lineWidth } = { ...{ lineWidth: 1 }, ...options };
     const tx = this._transform;
     const scale = tx?.globalScale ?? Vector.One;
     const rotation = tx?.globalRotation ?? 0;
@@ -262,7 +263,7 @@ export class CircleCollider extends Collider {
     ex.translate(pos.x, pos.y);
     ex.rotate(rotation);
     ex.scale(scale.x, scale.y);
-    ex.drawCircle((this.offset ?? Vector.Zero), this._naturalRadius, Color.Transparent, color, 2);
+    ex.drawCircle((this.offset ?? Vector.Zero), this._naturalRadius, Color.Transparent, color, lineWidth);
     ex.restore();
   }
 }

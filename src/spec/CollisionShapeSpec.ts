@@ -499,9 +499,9 @@ describe('Collision Shape', () => {
 
       const colliders = composite.getColliders() as ex.PolygonCollider[];
       expect(colliders.length).toBe(3);
-      expect(colliders[0].points).toEqual([ex.vec(0, 0), ex.vec(10, 0), ex.vec(10, 10)]);
-      expect(colliders[1].points).toEqual([ex.vec(0, 0), ex.vec(10, 10), ex.vec(0, 10)]);
-      expect(colliders[2].points).toEqual([ex.vec(0, 0), ex.vec(5, 5), ex.vec(0, 10)]);
+      expect(colliders[0].points).toEqual([ex.vec(5, 5), ex.vec(0, 0), ex.vec(10, 0)]);
+      expect(colliders[1].points).toEqual([ex.vec(0, 10), ex.vec(5, 5), ex.vec(10, 0)]);
+      expect(colliders[2].points).toEqual([ex.vec(10, 0), ex.vec(10, 10), ex.vec(0, 10)]);
 
       expect(concave.isConvex()).withContext('Should be concave').toBe(false);
     });
