@@ -566,7 +566,7 @@ export class Camera implements CanUpdate, CanInitialize {
    *
    * `onPreUpdate` is called directly before a scene is updated.
    */
-  public onPreUpdate(_engine: Engine, _delta: number): void {
+  public onPreUpdate(engine: Engine, delta: number): void {
     // Overridable
   }
 
@@ -586,7 +586,7 @@ export class Camera implements CanUpdate, CanInitialize {
    *
    * `onPostUpdate` is called directly after a scene is updated.
    */
-  public onPostUpdate(_engine: Engine, _delta: number): void {
+  public onPostUpdate(engine: Engine, delta: number): void {
     // Overridable
   }
 
@@ -597,10 +597,10 @@ export class Camera implements CanUpdate, CanInitialize {
     return this._isInitialized;
   }
 
-  public _initialize(_engine: Engine) {
+  public _initialize(engine: Engine) {
     if (!this.isInitialized) {
-      this._engine = _engine;
-      this._screen = _engine.screen;
+      this._engine = engine;
+      this._screen = engine.screen;
 
       const currentRes = this._screen.contentArea;
       let center = vec(currentRes.width / 2, currentRes.height / 2);
@@ -625,7 +625,7 @@ export class Camera implements CanUpdate, CanInitialize {
       this.updateTransform();
 
       // Run strategies for first frame
-      this.runStrategies(_engine, _engine.clock.elapsed());
+      this.runStrategies(engine, engine.clock.elapsed());
 
       // Setup the first frame viewport
       this.updateViewport();
@@ -634,8 +634,8 @@ export class Camera implements CanUpdate, CanInitialize {
       // This prevents jitter
       this.updateTransform();
 
-      this.onInitialize(_engine);
-      this.events.emit('initialize', new InitializeEvent(_engine, this));
+      this.onInitialize(engine);
+      this.events.emit('initialize', new InitializeEvent(engine, this));
       this._isInitialized = true;
     }
   }
@@ -645,7 +645,7 @@ export class Camera implements CanUpdate, CanInitialize {
    *
    * `onPostUpdate` is called directly after a scene is updated.
    */
-  public onInitialize(_engine: Engine) {
+  public onInitialize(engine: Engine) {
     // Overridable
   }
 
@@ -690,9 +690,9 @@ export class Camera implements CanUpdate, CanInitialize {
     );
   }
 
-  public update(_engine: Engine, delta: number) {
-    this._initialize(_engine);
-    this._preupdate(_engine, delta);
+  public update(engine: Engine, delta: number) {
+    this._initialize(engine);
+    this._preupdate(engine, delta);
 
     // Update placements based on linear algebra
     this.pos = this.pos.add(this.vel.scale(delta / 1000));
@@ -754,7 +754,7 @@ export class Camera implements CanUpdate, CanInitialize {
       this._yShake = ((Math.random() * this._shakeMagnitudeY) | 0) + 1;
     }
 
-    this.runStrategies(_engine, delta);
+    this.runStrategies(engine, delta);
 
     this.updateViewport();
 
@@ -762,7 +762,7 @@ export class Camera implements CanUpdate, CanInitialize {
     // This prevents jitter
     this.updateTransform();
 
-    this._postupdate(_engine, delta);
+    this._postupdate(engine, delta);
   }
 
   /**

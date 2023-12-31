@@ -320,7 +320,7 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     // pass
   }
 
-  public updatePostProcessors(_delta: number) {
+  public updatePostProcessors(delta: number) {
     // pass
   }
 
@@ -332,7 +332,7 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     // pass
   }
 
-  public set material(material: Material) {
+  public set material(material: Material | null) {
     this._state.current.material = material;
   }
 
