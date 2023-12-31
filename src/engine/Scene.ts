@@ -33,6 +33,7 @@ import { OffscreenSystem } from './Graphics/OffscreenSystem';
 import { ExcaliburGraphicsContext } from './Graphics';
 import { PhysicsWorld } from './Collision/PhysicsWorld';
 import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
+import { Color } from './Color';
 
 export type SceneEvents = {
   initialize: InitializeEvent<Scene>,
@@ -74,6 +75,11 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * Gets or sets the current camera for the scene
    */
   public camera: Camera = new Camera();
+
+  /**
+   * Scene specific background color
+   */
+  public backgroundColor?: Color;
 
   /**
    * The ECS world for the scene

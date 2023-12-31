@@ -1274,7 +1274,8 @@ O|===|* >________________>\n\
       return;
     }
 
-    this.graphicsContext.backgroundColor = this.backgroundColor;
+    // Use scene background color if present, fallback to engine
+    this.graphicsContext.backgroundColor = this.currentScene.backgroundColor ?? this.backgroundColor;
 
     this.currentScene.draw(this.graphicsContext, delta);
 
