@@ -15,6 +15,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added Scene specific background color
 - Added ability to apply draw offset to `ex.IsometricMap` and `ex.Tilemap`
 - Added `visibility` and `opacity` to `ex.IsometricMap`
 - Added base elevation for `ex.IsometricMap` so multiple maps can sort correctly

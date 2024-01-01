@@ -707,6 +707,7 @@ player.on('pointerwheel', () => {
 });
 
 var newScene = new ex.Scene();
+newScene.backgroundColor = ex.Color.Yellow;
 newScene.add(new ex.Label({text: 'MAH LABEL!', x: 200, y: 100}));
 newScene.on('activate', (evt?: ex.ActivateEvent) => {
   console.log('activate newScene');
