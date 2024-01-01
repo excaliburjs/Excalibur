@@ -535,9 +535,13 @@ export class TileMap extends Entity {
       showSolidBounds: showColliderBounds,
       solidBoundsColor: colliderBoundsColor,
       showColliderGeometry,
-      colliderGeometryColor,
       showQuadTree
     } = debugFlags.tilemap;
+    const {
+      geometryColor,
+      geometryLineWidth,
+      geometryPointSize
+    } = debugFlags.collider;
     const width = this.tileWidth * this.columns * this.scale.x;
     const height = this.tileHeight * this.rows * this.scale.y;
     const pos = this.pos;
@@ -568,7 +572,7 @@ export class TileMap extends Entity {
       gfx.restore();
       if (showColliderGeometry) {
         for (const collider of colliders) {
-          collider.debug(gfx, colliderGeometryColor);
+          collider.debug(gfx, geometryColor, { lineWidth: geometryLineWidth, pointSize: geometryPointSize });
         }
       }
     }

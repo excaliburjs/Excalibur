@@ -443,11 +443,14 @@ export class IsometricMap extends Entity {
       showGrid,
       gridColor,
       gridWidth,
-      showColliders,
-      colliderColor,
-      colliderLineWidth,
-      colliderPointSize
+      showColliderGeometry
     } = debugFlags.isometric;
+
+    const {
+      geometryColor,
+      geometryLineWidth,
+      geometryPointSize
+    } = debugFlags.collider;
     gfx.save();
     gfx.z = this._getMaxZIndex() + 0.5;
     if (showAll || showGrid) {
@@ -469,10 +472,10 @@ export class IsometricMap extends Entity {
         gfx.drawCircle(this.tileToWorld(vec(tile.x, tile.y)), positionSize, positionColor);
       }
     }
-    if (showAll || showColliders) {
+    if (showAll || showColliderGeometry) {
       for (const tile of this.tiles) {
         for (const collider of tile.getColliders()) {
-          collider.debug(gfx, colliderColor, { lineWidth: colliderLineWidth, pointSize: colliderPointSize });
+          collider.debug(gfx, geometryColor, { lineWidth: geometryLineWidth, pointSize: geometryPointSize });
         }
       }
     }
