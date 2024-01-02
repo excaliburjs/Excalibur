@@ -140,6 +140,12 @@ Parallax values can be set in Tiled and they will be respected in Excalibur!
 
 ![parallax factor](./tiled/parallax.png)
 
+### Infinite Tile maps
+
+Tiled allows Infinite Tile Maps, these allow you to build tile maps without width/height constraints in tiled. This is supported in the plugin, it will generate 1 Excalibur Tilemap that includes all the chunks for a layer.
+
+![infinite tile map](./tiled/infinite.png)
+
 ## Tilesets
 
 The plugin supports every type of tilesets in Tiled, embedded, external, collection of images, etc.
@@ -345,6 +351,14 @@ const tiledMap = new TiledResource('./path/to/map', {
    fileLoader: async (path: string, contentType: 'json' | 'xml') => Promise<any>
 });
 ```
+
+## Unsupported Features
+
+PRs welcome!
+
+* Tiled world support - These are json configuration files that allow you to stitch multiple tile maps together into one giant world.
+* Group Layers - These are automatically flattened in the plugin parser currently preserving the order of the layers within, none of the properties or metadata on group layers is supported. You can still use them for grouping layers in Tiled, but that is all the plugin currently supports.
+* Non-Circle Ellipse Colliders - Excalibur currently does not support ellipse collision geometry, but if it were added we could support it!
 
 ## Bundlers
 
