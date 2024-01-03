@@ -48,7 +48,7 @@ export abstract class Collider implements Clonable<Collider> {
    * Pixel offset of the collision collider relative to the collider, by default (0, 0) meaning the collider is positioned
    * on top of the collider.
    */
-  offset: Vector;
+  offset: Vector = Vector.Zero;
 
   /**
    * Position of the collision collider in world coordinates
