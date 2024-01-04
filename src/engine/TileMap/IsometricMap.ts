@@ -474,8 +474,10 @@ export class IsometricMap extends Entity {
     }
     if (showAll || showColliderGeometry) {
       for (const tile of this.tiles) {
-        for (const collider of tile.getColliders()) {
-          collider.debug(gfx, geometryColor, { lineWidth: geometryLineWidth, pointSize: geometryPointSize });
+        if (tile.solid) { // only draw solid tiles
+          for (const collider of tile.getColliders()) {
+            collider.debug(gfx, geometryColor, { lineWidth: geometryLineWidth, pointSize: geometryPointSize });
+          }
         }
       }
     }
