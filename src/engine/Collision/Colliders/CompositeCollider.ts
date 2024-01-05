@@ -26,6 +26,9 @@ export class CompositeCollider extends Collider {
     }
   }
 
+  // TODO composite offset
+
+
   clearColliders() {
     this._colliders = [];
   }
@@ -51,7 +54,6 @@ export class CompositeCollider extends Collider {
   }
 
   get worldPos(): Vector {
-    // TODO transform component world pos
     return this._transform?.pos ?? Vector.Zero;
   }
 

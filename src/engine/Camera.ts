@@ -100,7 +100,7 @@ export enum Axis {
  */
 export class LockCameraToActorStrategy implements CameraStrategy<Actor> {
   constructor(public target: Actor) {}
-  public action = (target: Actor, _cam: Camera, _eng: Engine, _delta: number) => {
+  public action = (target: Actor, camera: Camera, engine: Engine, delta: number) => {
     const center = target.center;
     return center;
   };
@@ -314,6 +314,14 @@ export class Camera implements CanUpdate, CanInitialize {
     this._pos = watchAny(vec, () => (this._posChanged = true));
     this._posChanged = true;
   }
+  /**
+   * Interpolated camera position if more draws are running than updates
+   *
+   * Enabled when `Engine.fixedUpdateFps` is enabled
+   */
+  public interpolatedPos: Vector = this.pos.clone();
+
+  private _oldPos = this.pos.clone();
 
   /**
    * Get or set the camera's velocity
@@ -622,7 +630,7 @@ export class Camera implements CanUpdate, CanInitialize {
 
       // Ensure camera tx is correct
       // Run update twice to ensure properties are init'd
-      this.updateTransform();
+      this.updateTransform(this.pos);
 
       // Run strategies for first frame
       this.runStrategies(engine, engine.clock.elapsed());
@@ -632,7 +640,8 @@ export class Camera implements CanUpdate, CanInitialize {
 
       // It's important to update the camera after strategies
       // This prevents jitter
-      this.updateTransform();
+      this.updateTransform(this.pos);
+      this.pos.clone(this._oldPos);
 
       this.onInitialize(engine);
       this.events.emit('initialize', new InitializeEvent(engine, this));
@@ -693,6 +702,7 @@ export class Camera implements CanUpdate, CanInitialize {
   public update(engine: Engine, delta: number) {
     this._initialize(engine);
     this._preupdate(engine, delta);
+    this.pos.clone(this._oldPos);
 
     // Update placements based on linear algebra
     this.pos = this.pos.add(this.vel.scale(delta / 1000));
@@ -760,7 +770,7 @@ export class Camera implements CanUpdate, CanInitialize {
 
     // It's important to update the camera after strategies
     // This prevents jitter
-    this.updateTransform();
+    this.updateTransform(this.pos);
 
     this._postupdate(engine, delta);
   }
@@ -770,14 +780,28 @@ export class Camera implements CanUpdate, CanInitialize {
    * @param ctx Canvas context to apply transformations
    */
   public draw(ctx: ExcaliburGraphicsContext): void {
+    // default to the current position
+    this.pos.clone(this.interpolatedPos);
+
+    // interpolation if fixed update is on
+    // must happen on the draw, because more draws are potentially happening than updates
+    if (this._engine.fixedUpdateFps) {
+      const blend = this._engine.currentFrameLagMs / (1000 / this._engine.fixedUpdateFps);
+      const interpolatedPos = this.pos.scale(blend).add(
+        this._oldPos.scale(1.0 - blend)
+      );
+      interpolatedPos.clone(this.interpolatedPos);
+      this.updateTransform(interpolatedPos);
+    }
+
     ctx.multiply(this.transform);
   }
 
-  public updateTransform() {
+  public updateTransform(pos: Vector) {
     // center the camera
     const newCanvasWidth = this._screen.resolution.width / this.zoom;
     const newCanvasHeight = this._screen.resolution.height / this.zoom;
-    const cameraPos = vec(-this.x + newCanvasWidth / 2 + this._xShake, -this.y + newCanvasHeight / 2 + this._yShake);
+    const cameraPos = vec(-pos.x + newCanvasWidth / 2 + this._xShake, -pos.y + newCanvasHeight / 2 + this._yShake);
 
     // Calculate camera transform
     this.transform.reset();
