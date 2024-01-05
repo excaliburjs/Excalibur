@@ -101,7 +101,7 @@ export enum Axis {
 export class LockCameraToActorStrategy implements CameraStrategy<Actor> {
   constructor(public target: Actor) {}
   public action = (target: Actor, camera: Camera, engine: Engine, delta: number) => {
-    let center = target.center;
+    const center = target.center;
     return center;
   };
 }

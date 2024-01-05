@@ -1,10 +1,13 @@
-import { Transform } from "../Math/transform";
+import { Transform } from '../Math/transform';
 
+/**
+ * Blend 2 transforms for interpolation
+ */
 export function blendTransform(oldTx: Transform, newTx: Transform, blend: number, target?: Transform): Transform {
   let interpolatedPos = newTx.pos;
   let interpolatedScale = newTx.scale;
   let interpolatedRotation = newTx.rotation;
-  
+
   interpolatedPos = newTx.pos.scale(blend).add(
     oldTx.pos.scale(1.0 - blend)
   );
