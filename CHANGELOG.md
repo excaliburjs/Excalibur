@@ -26,6 +26,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where the `Camera` wasn't interpolated during fixed update, which is very noticeable when using camera locked strategies
 - Fixed issue where `IsometricMap` would debug draw collision geometry on non-solid tiles
 - Fixed issue where `CompositeCollider` offset was undefined if not set
 - Fixed Actor so it receives `predraw`/`postdraw` events per the advertised strongly typed events
