@@ -15,6 +15,26 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added collision lifecycle convenience methods to `Actor`, you can now override the following events
+  ```typescript
+  class MyActor extends ex.Actor {
+    constructor(args: ex.ActorArgs) {
+      super(args);
+    }
+    onPreCollisionResolve(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
+      
+    }
+    onPostCollisionResolve(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
+      
+    }
+    onCollisionStart(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
+      
+    }
+    onCollisionEnd(self: ex.Collider, other: ex.Collider): void {
+      
+    }
+  }
+  ```
 - Added Scene specific background color
 - Added ability to apply draw offset to `ex.IsometricMap` and `ex.Tilemap`
 - Added `visibility` and `opacity` to `ex.IsometricMap`

@@ -11,7 +11,7 @@ import { RealisticSolver } from './Solver/RealisticSolver';
 import { CollisionSolver } from './Solver/Solver';
 import { ColliderComponent } from './ColliderComponent';
 import { CompositeCollider } from './Colliders/CompositeCollider';
-import { Engine, ExcaliburGraphicsContext, Scene } from '..';
+import { Engine, ExcaliburGraphicsContext, Scene, Side } from '..';
 import { DynamicTreeCollisionProcessor } from './Detection/DynamicTreeCollisionProcessor';
 import { PhysicsWorld } from './PhysicsWorld';
 export class CollisionSystem extends System<TransformComponent | MotionComponent | ColliderComponent> {
@@ -135,10 +135,12 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
       if (!this._lastFrameContacts.has(id)) {
         const colliderA = c.colliderA;
         const colliderB = c.colliderB;
-        colliderA.events.emit('collisionstart', new CollisionStartEvent(colliderA, colliderB, c));
-        colliderA.events.emit('contactstart', new ContactStartEvent(colliderA, colliderB, c) as any);
-        colliderB.events.emit('collisionstart', new CollisionStartEvent(colliderB, colliderA, c));
-        colliderB.events.emit('contactstart', new ContactStartEvent(colliderB, colliderA, c) as any);
+        const side = Side.fromDirection(c.mtv);
+        const opposite = Side.getOpposite(side);
+        colliderA.events.emit('collisionstart', new CollisionStartEvent(colliderA, colliderB, side, c));
+        colliderA.events.emit('contactstart', new ContactStartEvent(colliderA, colliderB, side, c) as any);
+        colliderB.events.emit('collisionstart', new CollisionStartEvent(colliderB, colliderA, opposite, c));
+        colliderB.events.emit('contactstart', new ContactStartEvent(colliderB, colliderA, opposite, c) as any);
       }
     }
 
