@@ -879,7 +879,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   }
 
   /**
-   * Fires every frame before collision resolution for a confirmed contact
+   * Fires before every collision resolution for a confirmed contact
    * @param self
    * @param other
    * @param side
@@ -890,7 +890,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   }
 
   /**
-   * Fires every after collision resolution for a confirmed contact.
+   * Fires after every resolution for a confirmed contact.
    * @param self
    * @param other
    * @param side
@@ -901,8 +901,8 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   }
 
   /**
-   * Fires once when 2 objects first start colliding or touching, if the objects stay in contact this does not continue firing
-   * until they separate and re-collide.
+   * Fires once when 2 entities with a ColliderComponent first start colliding or touching, if the Colliders stay in contact this
+   * does not continue firing until they separate and re-collide.
    * @param self
    * @param other
    * @param side
@@ -913,7 +913,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   }
 
   /**
-   * Fires once when 2 objects separate after having been in contact.
+   * Fires once when 2 entities with a ColliderComponent separate after having been in contact.
    * @param self
    * @param other
    */

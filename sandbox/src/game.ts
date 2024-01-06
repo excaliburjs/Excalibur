@@ -50,7 +50,7 @@ var game = new ex.Engine({
   pointerScope: ex.PointerScope.Canvas,
   displayMode: ex.DisplayMode.FitScreenAndFill,
   snapToPixel: false,
-  fixedUpdateFps: 60,
+  fixedUpdateFps: 30,
   maxFps: 60,
   configurePerformanceCanvas2DFallback: {
     allow: true,
@@ -597,7 +597,7 @@ class OtherActor extends ex.Actor {
     console.log('other collision start')
   }
   onCollisionEnd(self: ex.Collider, other: ex.Collider): void {
-    console.log('other collision start')
+    console.log('other collision end')
   }
 }
 
