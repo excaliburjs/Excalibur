@@ -15,6 +15,37 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+-
+
+### Fixed
+
+-
+
+### Updates
+
+-
+
+### Changed
+
+-
+
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [v0.28.5]
+
+### Breaking Changes
+
+-
+
+### Deprecated
+
+-
+
+### Added
+
 - Added collision lifecycle convenience methods to `Actor`, you can now override the following events
   ```typescript
   class MyActor extends ex.Actor {
@@ -64,15 +95,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Removed dunder prefixed parameters from overrideable methods
 - Tweaked debug draw to be less noisy by default
 - Removed dependency on `ex.IsometricMap` in the `ex.IsometricEntityComponent`, this allows for greater flexibility when using the component when a map may not be known or constructed.
-
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-
-# Change Log
-
-All notable changes to this project will be documented in this file.
-This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [v0.28.4]
 
