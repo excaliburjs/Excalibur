@@ -36,7 +36,7 @@ import { Rectangle } from './Graphics/Rectangle';
 import { ColliderComponent } from './Collision/ColliderComponent';
 import { Shape } from './Collision/Colliders/Shape';
 import { watch } from './Util/Watch';
-import { Collider, CollisionGroup } from './Collision/Index';
+import { Collider, CollisionContact, CollisionGroup, Side } from './Collision/Index';
 import { Circle } from './Graphics/Circle';
 import { PointerEvent } from './Input/PointerEvent';
 import { WheelEvent } from './Input/WheelEvent';
@@ -875,6 +875,49 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * `onPostUpdate` is called directly after an actor is updated.
    */
   public onPostUpdate(engine: Engine, delta: number): void {
+    // Override me
+  }
+
+  /**
+   * Fires every frame before collision resolution for a confirmed contact
+   * @param self
+   * @param other
+   * @param side
+   * @param contact
+   */
+  public onPreCollisionResolve(self: Collider, other: Collider, side: Side, contact: CollisionContact) {
+    // Override me
+  }
+
+  /**
+   * Fires every after collision resolution for a confirmed contact.
+   * @param self
+   * @param other
+   * @param side
+   * @param contact
+   */
+  public onPostCollisionResolve(self: Collider, other: Collider, side: Side, contact: CollisionContact) {
+    // Override me
+  }
+
+  /**
+   * Fires once when 2 objects first start colliding or touching, if the objects stay in contact this does not continue firing
+   * until they separate and re-collide.
+   * @param self
+   * @param other
+   * @param side
+   * @param contact
+   */
+  public onCollisionStart(self: Collider, other: Collider, side: Side, contact: CollisionContact) {
+    // Override me
+  }
+
+  /**
+   * Fires once when 2 objects separate after having been in contact.
+   * @param self
+   * @param other
+   */
+  public onCollisionEnd(self: Collider, other: Collider) {
     // Override me
   }
 

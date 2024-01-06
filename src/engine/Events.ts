@@ -393,7 +393,7 @@ export class PreCollisionEvent<T extends BodyComponent | Collider | Entity = Act
    * @param side          The side that will be collided with the current actor
    * @param intersection  Intersection vector
    */
-  constructor(actor: T, public other: T, public side: Side, public intersection: Vector) {
+  constructor(actor: T, public other: T, public side: Side, public intersection: Vector, public contact: CollisionContact) {
     super();
     this.target = actor;
   }
@@ -409,7 +409,7 @@ export class PostCollisionEvent<T extends Collider | Entity = Actor> extends Gam
    * @param side          The side that did collide with the current actor
    * @param intersection  Intersection vector
    */
-  constructor(actor: T, public other: T, public side: Side, public intersection: Vector) {
+  constructor(actor: T, public other: T, public side: Side, public intersection: Vector, public contact: CollisionContact) {
     super();
     this.target = actor;
   }
@@ -424,7 +424,7 @@ export class PostCollisionEvent<T extends Collider | Entity = Actor> extends Gam
 }
 
 export class ContactStartEvent<T> {
-  constructor(public target: T, public other: T, public contact: CollisionContact) {}
+  constructor(public target: T, public other: T, public side: Side, public contact: CollisionContact) {}
 }
 
 export class ContactEndEvent<T> {
@@ -447,9 +447,10 @@ export class CollisionStartEvent<T extends BodyComponent | Collider | Entity = A
    *
    * @param actor
    * @param other
+   * @param side
    * @param contact
    */
-  constructor(actor: T, public other: T, public contact: CollisionContact) {
+  constructor(actor: T, public other: T, public side: Side, public contact: CollisionContact) {
     super();
     this.target = actor;
   }

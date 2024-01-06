@@ -13,6 +13,7 @@ import { PolygonCollider } from './Colliders/PolygonCollider';
 import { EdgeCollider } from './Colliders/EdgeCollider';
 import { Shape } from './Colliders/Shape';
 import { EventEmitter } from '../EventEmitter';
+import { Actor } from '../Actor';
 
 export class ColliderComponent extends Component<'ex.collider'> {
   public readonly type = 'ex.collider';
@@ -151,23 +152,46 @@ export class ColliderComponent extends Component<'ex.collider'> {
       const precollision = evt as PreCollisionEvent<Collider>;
       entity.events.emit(
         'precollision',
-        new PreCollisionEvent(precollision.target.owner, precollision.other.owner, precollision.side, precollision.intersection)
+        new PreCollisionEvent(
+          precollision.target.owner,
+          precollision.other.owner,
+          precollision.side,
+          precollision.intersection,
+          precollision.contact
+        )
       );
+      if (entity instanceof Actor) {
+        entity.onPreCollisionResolve(precollision.target, precollision.other, precollision.side, precollision.contact);
+      }
     });
     this.events.on('postcollision', (evt: any) => {
       const postcollision = evt as PostCollisionEvent<Collider>;
       entity.events.emit(
         'postcollision',
-        new PostCollisionEvent(postcollision.target.owner, postcollision.other.owner, postcollision.side, postcollision.intersection)
+        new PostCollisionEvent(
+          postcollision.target.owner,
+          postcollision.other.owner,
+          postcollision.side,
+          postcollision.intersection,
+          postcollision.contact)
       );
+      if (entity instanceof Actor) {
+        entity.onPostCollisionResolve(postcollision.target, postcollision.other, postcollision.side, postcollision.contact);
+      }
     });
     this.events.on('collisionstart', (evt: any) => {
       const start = evt as CollisionStartEvent<Collider>;
-      entity.events.emit('collisionstart', new CollisionStartEvent(start.target.owner, start.other.owner, start.contact));
+      entity.events.emit('collisionstart', new CollisionStartEvent(start.target.owner, start.other.owner, start.side, start.contact));
+      if (entity instanceof Actor) {
+        entity.onCollisionStart(start.target, start.other, start.side, start.contact);
+      }
     });
     this.events.on('collisionend', (evt: any) => {
       const end = evt as CollisionEndEvent<Collider>;
       entity.events.emit('collisionend', new CollisionEndEvent(end.target.owner, end.other.owner));
+      if (entity instanceof Actor) {
+        entity.onCollisionEnd(end.target, end.other);
+      }
     });
   }
 

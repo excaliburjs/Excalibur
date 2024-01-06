@@ -50,6 +50,7 @@ var game = new ex.Engine({
   pointerScope: ex.PointerScope.Canvas,
   displayMode: ex.DisplayMode.FitScreenAndFill,
   snapToPixel: false,
+  fixedUpdateFps: 60,
   maxFps: 60,
   configurePerformanceCanvas2DFallback: {
     allow: true,
@@ -552,6 +553,13 @@ follower.actions
     console.log('Player met!!');
   });
 
+player.onCollisionStart = (_a,_b,_c, contact) => {
+  console.log('start', contact);
+}
+player.onCollisionEnd = (_a,_b) => {
+  console.log('end');
+}
+
 // follow player
 
 player.rotation = 0;
@@ -580,6 +588,29 @@ player.addChild(healthbar);
 //   // ctx.debug.drawLine(ex.vec(0, 0), ex.vec(200, 0));
 //   // ctx.debug.drawPoint(ex.vec(0, 0), { size: 20, color: ex.Color.Black });
 // };
+
+class OtherActor extends ex.Actor {
+  constructor(args: ex.ActorArgs) {
+    super(args);
+  }
+  onCollisionStart(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
+    console.log('other collision start')
+  }
+  onCollisionEnd(self: ex.Collider, other: ex.Collider): void {
+    console.log('other collision start')
+  }
+}
+
+var other = new OtherActor({
+  name: 'other',
+  pos: new ex.Vector(200, -200),
+  width: 100,
+  height: 100,
+  color: ex.Color.Violet,
+  collisionType: ex.CollisionType.Active
+});
+
+game.add(other);
 
 var healthbar2 = new ex.Rectangle({
   width: 140,
