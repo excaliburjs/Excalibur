@@ -317,9 +317,9 @@ export class Camera implements CanUpdate, CanInitialize {
   /**
    * Interpolated camera position if more draws are running than updates
    *
-   * Enabled when `Engine.fixedUpdateFps` is enabled
+   * Enabled when `Engine.fixedUpdateFps` is enabled, in all other cases this will be the same as pos
    */
-  public interpolatedPos: Vector = this.pos.clone();
+  public drawPos: Vector = this.pos.clone();
 
   private _oldPos = this.pos.clone();
 
@@ -626,6 +626,7 @@ export class Camera implements CanUpdate, CanInitialize {
       if (!this._posChanged) {
         this.pos = center;
       }
+      this.pos.clone(this.drawPos);
       // First frame bootstrap
 
       // Ensure camera tx is correct
@@ -781,7 +782,7 @@ export class Camera implements CanUpdate, CanInitialize {
    */
   public draw(ctx: ExcaliburGraphicsContext): void {
     // default to the current position
-    this.pos.clone(this.interpolatedPos);
+    this.pos.clone(this.drawPos);
 
     // interpolation if fixed update is on
     // must happen on the draw, because more draws are potentially happening than updates
@@ -790,7 +791,7 @@ export class Camera implements CanUpdate, CanInitialize {
       const interpolatedPos = this.pos.scale(blend).add(
         this._oldPos.scale(1.0 - blend)
       );
-      interpolatedPos.clone(this.interpolatedPos);
+      interpolatedPos.clone(this.drawPos);
       this.updateTransform(interpolatedPos);
     }
 

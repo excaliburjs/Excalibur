@@ -112,7 +112,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
         // https://doc.mapeditor.org/en/latest/manual/layers/#parallax-scrolling-factor
         // cameraPos * (1 - parallaxFactor)
         const oneMinusFactor = Vector.One.sub(parallax.parallaxFactor);
-        const parallaxOffset = this._camera.pos.scale(oneMinusFactor);
+        const parallaxOffset = this._camera.drawPos.scale(oneMinusFactor);
         this._graphicsContext.translate(parallaxOffset.x, parallaxOffset.y);
       }
 
