@@ -252,7 +252,7 @@ export interface EngineOptions {
    */
   configurePerformanceCanvas2DFallback?: {
     /**
-     * By default `true`, this will switch the internal graphics context to Canvas2D which can improve performance on non hardware
+     * By default `false`, this will switch the internal graphics context to Canvas2D which can improve performance on non hardware
      * accelerated browsers.
      */
     allow: boolean;
@@ -280,6 +280,13 @@ export interface EngineOptions {
  * loading resources, and managing the scene.
  */
 export class Engine implements CanInitialize, CanUpdate, CanDraw {
+  /**
+   * Current Excalibur version string
+   *
+   * Useful for plugins or other tools that need to know what features are available
+   */
+  public readonly version = EX_VERSION;
+
   /**
    * Listen to and emit events on the Engine
    */
@@ -570,7 +577,7 @@ export class Engine implements CanInitialize, CanUpdate, CanDraw {
     enableCanvasTransparency: true,
     useDrawSorting: true,
     configurePerformanceCanvas2DFallback: {
-      allow: true,
+      allow: false,
       showPlayerMessage: false,
       threshold: { fps: 20, numberOfFrames: 100 }
     },
@@ -840,7 +847,7 @@ O|===|* >________________>\n\
     this.canvas.parentNode.replaceChild(newCanvas, this.canvas);
     this.canvas = newCanvas;
 
-    const options = this._originalOptions;
+    const options = { ...this._originalOptions, antialiasing: this.getAntialiasing() };
     const displayMode = this._originalDisplayMode;
 
     // New graphics context
@@ -1143,7 +1150,7 @@ O|===|* >________________>\n\
     }
   }
 
-  public onInitialize(_engine: Engine) {
+  public onInitialize(engine: Engine) {
     // Override me
   }
 
@@ -1222,7 +1229,7 @@ O|===|* >________________>\n\
     this.onPreUpdate(this, delta);
   }
 
-  public onPreUpdate(_engine: Engine, _delta: number) {
+  public onPreUpdate(engine: Engine, delta: number) {
     // Override me
   }
 
@@ -1234,7 +1241,7 @@ O|===|* >________________>\n\
     this.onPostUpdate(this, delta);
   }
 
-  public onPostUpdate(_engine: Engine, _delta: number) {
+  public onPostUpdate(engine: Engine, delta: number) {
     // Override me
   }
 
@@ -1257,7 +1264,8 @@ O|===|* >________________>\n\
       return;
     }
 
-    this.graphicsContext.backgroundColor = this.backgroundColor;
+    // Use scene background color if present, fallback to engine
+    this.graphicsContext.backgroundColor = this.currentScene.backgroundColor ?? this.backgroundColor;
 
     this.currentScene.draw(this.graphicsContext, delta);
 
@@ -1273,24 +1281,24 @@ O|===|* >________________>\n\
   /**
    * @internal
    */
-  public _predraw(_ctx: ExcaliburGraphicsContext, delta: number) {
-    this.emit('predraw', new PreDrawEvent(_ctx, delta, this));
-    this.onPreDraw(_ctx, delta);
+  public _predraw(ctx: ExcaliburGraphicsContext, delta: number) {
+    this.emit('predraw', new PreDrawEvent(ctx, delta, this));
+    this.onPreDraw(ctx, delta);
   }
 
-  public onPreDraw(_ctx: ExcaliburGraphicsContext, _delta: number) {
+  public onPreDraw(ctx: ExcaliburGraphicsContext, delta: number) {
     // Override me
   }
 
   /**
    * @internal
    */
-  public _postdraw(_ctx: ExcaliburGraphicsContext, delta: number) {
-    this.emit('postdraw', new PostDrawEvent(_ctx, delta, this));
-    this.onPostDraw(_ctx, delta);
+  public _postdraw(ctx: ExcaliburGraphicsContext, delta: number) {
+    this.emit('postdraw', new PostDrawEvent(ctx, delta, this));
+    this.onPostDraw(ctx, delta);
   }
 
-  public onPostDraw(_ctx: ExcaliburGraphicsContext, _delta: number) {
+  public onPostDraw(ctx: ExcaliburGraphicsContext, delta: number) {
     // Override me
   }
 

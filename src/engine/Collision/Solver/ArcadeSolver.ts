@@ -60,10 +60,12 @@ export class ArcadeSolver implements CollisionSolver {
       this.distanceMap.set(contact.id, distance);
 
       // Publish collision events on both participants
-      contact.colliderA.events.emit('precollision', new PreCollisionEvent(contact.colliderA, contact.colliderB, side, mtv));
+      contact.colliderA.events.emit(
+        'precollision',
+        new PreCollisionEvent(contact.colliderA, contact.colliderB, side, mtv, contact));
       contact.colliderB.events.emit(
         'precollision',
-        new PreCollisionEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), mtv.negate())
+        new PreCollisionEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), mtv.negate(), contact)
       );
     }
   }
@@ -86,10 +88,12 @@ export class ArcadeSolver implements CollisionSolver {
       const side = Side.fromDirection(contact.mtv);
       const mtv = contact.mtv.negate();
       // Publish collision events on both participants
-      contact.colliderA.events.emit('postcollision', new PostCollisionEvent(contact.colliderA, contact.colliderB, side, mtv));
+      contact.colliderA.events.emit(
+        'postcollision',
+        new PostCollisionEvent(contact.colliderA, contact.colliderB, side, mtv, contact));
       contact.colliderB.events.emit(
         'postcollision',
-        new PostCollisionEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), mtv.negate())
+        new PostCollisionEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), mtv.negate(), contact)
       );
     }
   }

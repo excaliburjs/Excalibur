@@ -13,7 +13,9 @@ import {
   PreDrawEvent,
   PostDrawEvent,
   PreDebugDrawEvent,
-  PostDebugDrawEvent
+  PostDebugDrawEvent,
+  ActionStartEvent,
+  ActionCompleteEvent
 } from './Events';
 import { Engine } from './Engine';
 import { Color } from './Color';
@@ -34,7 +36,7 @@ import { Rectangle } from './Graphics/Rectangle';
 import { ColliderComponent } from './Collision/ColliderComponent';
 import { Shape } from './Collision/Colliders/Shape';
 import { watch } from './Util/Watch';
-import { Collider, CollisionGroup } from './Collision/Index';
+import { Collider, CollisionContact, CollisionGroup, Side } from './Collision/Index';
 import { Circle } from './Graphics/Circle';
 import { PointerEvent } from './Input/PointerEvent';
 import { WheelEvent } from './Input/WheelEvent';
@@ -166,6 +168,8 @@ export type ActorEvents = EntityEvents & {
   pointerdragmove: PointerEvent;
   enterviewport: EnterViewPortEvent;
   exitviewport: ExitViewPortEvent;
+  actionstart: ActionStartEvent;
+  actioncomplete: ActionCompleteEvent;
 }
 
 export const ActorEvents = {
@@ -193,7 +197,9 @@ export const ActorEvents = {
   PointerDragLeave: 'pointerdragleave',
   PointerDragMove: 'pointerdragmove',
   EnterViewPort: 'enterviewport',
-  ExitViewPort: 'exitviewport'
+  ExitViewPort: 'exitviewport',
+  ActionStart: 'actionstart',
+  ActionComplete: 'actioncomplete'
 };
 
 /**
@@ -609,7 +615,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    *
    * Synonymous with the event handler `.on('initialize', (evt) => {...})`
    */
-  public onInitialize(_engine: Engine) {
+  public onInitialize(engine: Engine): void {
     // Override me
   }
 
@@ -660,9 +666,9 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * Internal _prekill handler for [[onPreKill]] lifecycle event
    * @internal
    */
-  public _prekill(_scene: Scene) {
+  public _prekill(scene: Scene) {
     this.events.emit('prekill', new PreKillEvent(this));
-    this.onPreKill(_scene);
+    this.onPreKill(scene);
   }
 
   /**
@@ -670,7 +676,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    *
    * `onPreKill` is called directly before an actor is killed and removed from its current [[Scene]].
    */
-  public onPreKill(_scene: Scene) {
+  public onPreKill(scene: Scene) {
     // Override me
   }
 
@@ -680,9 +686,9 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * Internal _prekill handler for [[onPostKill]] lifecycle event
    * @internal
    */
-  public _postkill(_scene: Scene) {
+  public _postkill(scene: Scene) {
     this.events.emit('postkill', new PostKillEvent(this));
-    this.onPostKill(_scene);
+    this.onPostKill(scene);
   }
 
   /**
@@ -690,7 +696,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    *
    * `onPostKill` is called directly after an actor is killed and remove from its current [[Scene]].
    */
-  public onPostKill(_scene: Scene) {
+  public onPostKill(scene: Scene) {
     // Override me
   }
 
@@ -859,7 +865,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    *
    * `onPreUpdate` is called directly before an actor is updated.
    */
-  public onPreUpdate(_engine: Engine, _delta: number): void {
+  public onPreUpdate(engine: Engine, delta: number): void {
     // Override me
   }
 
@@ -868,7 +874,50 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    *
    * `onPostUpdate` is called directly after an actor is updated.
    */
-  public onPostUpdate(_engine: Engine, _delta: number): void {
+  public onPostUpdate(engine: Engine, delta: number): void {
+    // Override me
+  }
+
+  /**
+   * Fires before every collision resolution for a confirmed contact
+   * @param self
+   * @param other
+   * @param side
+   * @param contact
+   */
+  public onPreCollisionResolve(self: Collider, other: Collider, side: Side, contact: CollisionContact) {
+    // Override me
+  }
+
+  /**
+   * Fires after every resolution for a confirmed contact.
+   * @param self
+   * @param other
+   * @param side
+   * @param contact
+   */
+  public onPostCollisionResolve(self: Collider, other: Collider, side: Side, contact: CollisionContact) {
+    // Override me
+  }
+
+  /**
+   * Fires once when 2 entities with a ColliderComponent first start colliding or touching, if the Colliders stay in contact this
+   * does not continue firing until they separate and re-collide.
+   * @param self
+   * @param other
+   * @param side
+   * @param contact
+   */
+  public onCollisionStart(self: Collider, other: Collider, side: Side, contact: CollisionContact) {
+    // Override me
+  }
+
+  /**
+   * Fires once when 2 entities with a ColliderComponent separate after having been in contact.
+   * @param self
+   * @param other
+   */
+  public onCollisionEnd(self: Collider, other: Collider) {
     // Override me
   }
 

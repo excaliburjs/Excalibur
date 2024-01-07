@@ -7,13 +7,13 @@ import { Actor, ActorEvents } from './Actor';
 import { EventEmitter } from './EventEmitter';
 
 export type TriggerEvents = ActorEvents & {
-  exittrigger: ExitTriggerEvent,
-  entertrigger: EnterTriggerEvent
+  exit: ExitTriggerEvent,
+  enter: EnterTriggerEvent
 }
 
 export const TriggerEvents = {
-  ExitTrigger: 'exittrigger',
-  EnterTrigger: 'entertrigger'
+  ExitTrigger: 'exit',
+  EnterTrigger: 'enter'
 };
 
 /**
@@ -56,7 +56,7 @@ const triggerDefaults: Partial<TriggerOptions> = {
  * are invisible, and can only be seen when [[Trigger.visible]] is set to `true`.
  */
 export class Trigger extends Actor {
-  public events = new EventEmitter<TriggerEvents>();
+  public events = new EventEmitter<TriggerEvents & ActorEvents>();
   private _target: Entity;
   /**
    * Action to fire when triggered by collision
@@ -97,7 +97,7 @@ export class Trigger extends Actor {
 
     this.events.on('collisionstart', (evt: CollisionStartEvent<Actor>) => {
       if (this.filter(evt.other)) {
-        this.emit('enter', new EnterTriggerEvent(this, evt.other));
+        this.events.emit('enter', new EnterTriggerEvent(this, evt.other));
         this._dispatchAction();
         // remove trigger if its done, -1 repeat forever
         if (this.repeat === 0) {
@@ -108,7 +108,7 @@ export class Trigger extends Actor {
 
     this.events.on('collisionend', (evt: CollisionEndEvent<Actor>) => {
       if (this.filter(evt.other)) {
-        this.emit('exit', new ExitTriggerEvent(this, evt.other));
+        this.events.emit('exit', new ExitTriggerEvent(this, evt.other));
       }
     });
   }

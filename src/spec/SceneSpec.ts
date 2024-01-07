@@ -31,6 +31,21 @@ describe('A scene', () => {
     expect(ex.Scene).toBeTruthy();
   });
 
+  it('can have a background color set', () => {
+    engine.backgroundColor = ex.Color.Black;
+
+    const newScene = new ex.Scene();
+    newScene.backgroundColor = ex.Color.Yellow;
+
+    engine.addScene('background', newScene);
+    engine.goToScene('background');
+
+    (engine as any)._draw(100);
+
+    expect(engine.graphicsContext.backgroundColor).toEqual(ex.Color.Yellow);
+    expect(engine.graphicsContext.backgroundColor).toEqual(newScene.backgroundColor);
+  });
+
   it('cannot have the same ScreenElement added to it more than once', () => {
     engine.goToScene('root');
     const screenElement = new ex.ScreenElement();

@@ -40,9 +40,13 @@ export interface RayCastOptions {
    */
   maxDistance?: number;
   /**
-   * Optionally specify a collision group to consider in the ray cast, default is All
+   * Optionally specify a collision group to target in the ray cast, default is All.
    */
   collisionGroup?: CollisionGroup;
+  /**
+   * Optionally specify a collision mask to target multiple collision categories
+   */
+  collisionMask?: number;
   /**
    * Optionally specify to search for all colliders that intersect the ray cast, not just the first which is the default
    */
@@ -67,13 +71,17 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
   public rayCast(ray: Ray, options?: RayCastOptions): RayCastHit[] {
     const results: RayCastHit[] = [];
     const maxDistance = options?.maxDistance ?? Infinity;
-    const collisionGroup = options?.collisionGroup ?? CollisionGroup.All;
+    const collisionGroup = options?.collisionGroup;
+    const collisionMask = !collisionGroup ? options?.collisionMask ?? CollisionGroup.All.category : collisionGroup.category;
     const searchAllColliders = options?.searchAllColliders ?? false;
     this._dynamicCollisionTree.rayCastQuery(ray, maxDistance, (collider) => {
       const owner = collider.owner;
       const maybeBody = owner.get(BodyComponent);
+
+      const canCollide = (collisionMask & maybeBody.group.category) !== 0;
+
       // Early exit if not the right group
-      if (collisionGroup.mask !== CollisionGroup.All.mask && maybeBody?.group?.mask !== collisionGroup.mask) {
+      if (maybeBody?.group && !canCollide) {
         return false;
       }
 

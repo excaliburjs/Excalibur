@@ -1,0 +1,31 @@
+name: Release to NPM
+on:
+  release:
+    types: [published]
+
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+  
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+  deploy_release:
+    name: Publish npm package
+    needs: [build]
+    runs-on: [ubuntu-latest]
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+        fetch-depth: 100
+    - uses: actions/setup-node@v4
+      with:
+        node-version-file: '.nvmrc'
+        registry-url: 'https://registry.npmjs.org'
+        cache: npm
+    - run: npm ci
+    - run: npm run build
+    - run: npm run build:esm
+    - run: npm publish

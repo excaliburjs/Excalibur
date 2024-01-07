@@ -45,18 +45,28 @@ var game = new ex.Engine({
   height: 600 / 2,
   viewport: { width: 800, height: 600 },
   canvasElementId: 'game',
-  pixelRatio: 1,
-  suppressPlayButton: true,
+  // pixelRatio: 1,
+  // suppressPlayButton: true,
   pointerScope: ex.PointerScope.Canvas,
   displayMode: ex.DisplayMode.FitScreenAndFill,
-  antialiasing: false,
   snapToPixel: false,
+  fixedUpdateFps: 30,
   maxFps: 60,
   configurePerformanceCanvas2DFallback: {
     allow: true,
     showPlayerMessage: true,
     threshold: { fps: 20, numberOfFrames: 100 }
   }
+});
+game.setAntialiasing(false);
+game.screen.events.on('fullscreen', (evt) => {
+  console.log('fullscreen', evt);
+});
+game.screen.events.on('resize', (evt) => {
+  console.log('resize', evt);
+});
+game.screen.events.on('pixelratio', (evt) => {
+  console.log('pixelratio', evt);
 });
 game.currentScene.onPreDraw = (ctx: ex.ExcaliburGraphicsContext) => {
   ctx.save();
@@ -543,6 +553,13 @@ follower.actions
     console.log('Player met!!');
   });
 
+player.onCollisionStart = (_a,_b,_c, contact) => {
+  console.log('start', contact);
+}
+player.onCollisionEnd = (_a,_b) => {
+  console.log('end');
+}
+
 // follow player
 
 player.rotation = 0;
@@ -571,6 +588,29 @@ player.addChild(healthbar);
 //   // ctx.debug.drawLine(ex.vec(0, 0), ex.vec(200, 0));
 //   // ctx.debug.drawPoint(ex.vec(0, 0), { size: 20, color: ex.Color.Black });
 // };
+
+class OtherActor extends ex.Actor {
+  constructor(args: ex.ActorArgs) {
+    super(args);
+  }
+  onCollisionStart(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
+    console.log('other collision start')
+  }
+  onCollisionEnd(self: ex.Collider, other: ex.Collider): void {
+    console.log('other collision end')
+  }
+}
+
+var other = new OtherActor({
+  name: 'other',
+  pos: new ex.Vector(200, -200),
+  width: 100,
+  height: 100,
+  color: ex.Color.Violet,
+  collisionType: ex.CollisionType.Active
+});
+
+game.add(other);
 
 var healthbar2 = new ex.Rectangle({
   width: 140,
@@ -698,6 +738,7 @@ player.on('pointerwheel', () => {
 });
 
 var newScene = new ex.Scene();
+newScene.backgroundColor = ex.Color.Yellow;
 newScene.add(new ex.Label({text: 'MAH LABEL!', x: 200, y: 100}));
 newScene.on('activate', (evt?: ex.ActivateEvent) => {
   console.log('activate newScene');

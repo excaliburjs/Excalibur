@@ -26,6 +26,9 @@ export class CompositeCollider extends Collider {
     }
   }
 
+  // TODO composite offset
+
+
   clearColliders() {
     this._colliders = [];
   }
@@ -51,7 +54,6 @@ export class CompositeCollider extends Collider {
   }
 
   get worldPos(): Vector {
-    // TODO transform component world pos
     return this._transform?.pos ?? Vector.Zero;
   }
 
@@ -236,10 +238,10 @@ export class CompositeCollider extends Collider {
     }
   }
 
-  public debug(ex: ExcaliburGraphicsContext, color: Color) {
+  public debug(ex: ExcaliburGraphicsContext, color: Color,  options?: { lineWidth: number, pointSize: number }) {
     const colliders = this.getColliders();
     for (const collider of colliders) {
-      collider.debug(ex, color);
+      collider.debug(ex, color, options);
     }
   }
 

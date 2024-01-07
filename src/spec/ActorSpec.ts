@@ -839,6 +839,28 @@ fdescribe('A game actor', () => {
     expect(animation.tick).toHaveBeenCalledWith(100, 2);
   });
 
+  it('will receive predraw/postdraw', () => {
+    const predraw = jasmine.createSpy('predraw');
+    const postdraw = jasmine.createSpy('postdraw');
+
+    const actor = new ex.Actor({
+      name: 'events',
+      pos: ex.vec(100, 100),
+      width: 100,
+      height: 100,
+      color: ex.Color.Red
+    });
+
+    actor.events.on('predraw', predraw);
+    actor.events.on('postdraw', postdraw);
+
+    scene.add(actor);
+    scene.draw(engine.graphicsContext, 100);
+
+    expect(predraw).toHaveBeenCalledOnceWith(new ex.PreDrawEvent(engine.graphicsContext, 100, actor));
+    expect(postdraw).toHaveBeenCalledOnceWith(new ex.PostDrawEvent(engine.graphicsContext, 100, actor));
+  });
+
   it('can detect containment off of child actors', () => {
     const parent = new ex.Actor({ x: 600, y: 100, width: 100, height: 100 });
     const child = new ex.Actor({ x: 0, y: 0, width: 100, height: 100 });

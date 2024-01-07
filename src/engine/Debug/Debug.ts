@@ -246,7 +246,7 @@ export class Debug implements DebugFlags {
    */
   public entity = {
     showAll: false,
-    showId: true,
+    showId: false,
     showName: false
   };
 
@@ -256,6 +256,7 @@ export class Debug implements DebugFlags {
   public transform = {
     showAll: false,
 
+    debugZIndex: 10_000_000,
     showPosition: false,
     showPositionLabel: false,
     positionColor: Color.Yellow,
@@ -275,7 +276,7 @@ export class Debug implements DebugFlags {
   public graphics = {
     showAll: false,
 
-    showBounds: true,
+    showBounds: false,
     boundsColor: Color.Yellow
   };
 
@@ -285,13 +286,15 @@ export class Debug implements DebugFlags {
   public collider = {
     showAll: false,
 
-    showBounds: true,
+    showBounds: false,
     boundsColor: Color.Blue,
 
     showOwner: false,
 
     showGeometry: true,
-    geometryColor: Color.Green
+    geometryColor: Color.Green,
+    geometryLineWidth: 1,
+    geometryPointSize: .5
   };
 
   /**
@@ -345,6 +348,29 @@ export class Debug implements DebugFlags {
     focusColor: Color.Red,
 
     showZoom: false
+  };
+
+  public tilemap = {
+    showAll: false,
+
+    showGrid: false,
+    gridColor: Color.Red,
+    gridWidth: .5,
+    showSolidBounds: false,
+    solidBoundsColor: Color.fromHex('#8080807F'), // grayish
+    showColliderGeometry: true,
+    showQuadTree: false
+  };
+
+  public isometric = {
+    showAll: false,
+    showPosition: false,
+    positionColor: Color.Yellow,
+    positionSize: 1,
+    showGrid: false,
+    gridColor: Color.Red,
+    gridWidth: 1,
+    showColliderGeometry: true
   };
 }
 

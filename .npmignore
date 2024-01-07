@@ -10,6 +10,10 @@ coverage/
 docs/
 sandbox/
 src/
+site/
+docker/
+sandbox/
+scripts/
 typedoc-default-themes/
 scripts/
 node_cache/*

@@ -5,6 +5,7 @@ import { Vector } from '../Math/vector';
 import { BoundingBox } from '../Collision/BoundingBox';
 import { watch } from '../Util/Watch';
 import { ImageFiltering } from './Filtering';
+import { omit } from '../Util/Util';
 
 export interface RasterOptions {
   /**
@@ -75,7 +76,7 @@ export abstract class Raster extends Graphic {
   private _dirty: boolean = true;
 
   constructor(options?: GraphicOptions & RasterOptions) {
-    super(options);
+    super(omit(options, ['width', 'height'])); // rasters do some special sauce with width/height
     if (options) {
       this.quality = options.quality ?? this.quality;
       this.color = options.color ?? Color.Black;

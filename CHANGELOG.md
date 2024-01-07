@@ -19,6 +19,198 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+-
+
+### Updates
+
+-
+
+### Changed
+
+-
+
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [v0.28.5]
+
+### Breaking Changes
+
+-
+
+### Deprecated
+
+-
+
+### Added
+
+- Added collision lifecycle convenience methods to `Actor`, you can now override the following events
+  ```typescript
+  class MyActor extends ex.Actor {
+    constructor(args: ex.ActorArgs) {
+      super(args);
+    }
+    onPreCollisionResolve(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
+      
+    }
+    onPostCollisionResolve(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
+      
+    }
+    onCollisionStart(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
+      
+    }
+    onCollisionEnd(self: ex.Collider, other: ex.Collider): void {
+      
+    }
+  }
+  ```
+- Added Scene specific background color
+- Added ability to apply draw offset to `ex.IsometricMap` and `ex.Tilemap`
+- Added `visibility` and `opacity` to `ex.IsometricMap`
+- Added base elevation for `ex.IsometricMap` so multiple maps can sort correctly
+- Added method to suppress convex polygon warning for library code usage
+- Added more configuration options to debug draw flags, including isometric map controls
+- Added `actionstart` and `actioncomplete` events to the Actor that are fired when an action starts and completes
+
+
+### Fixed
+
+- Fixed issue where the `Camera` wasn't interpolated during fixed update, which is very noticeable when using camera locked strategies
+- Fixed issue where `IsometricMap` would debug draw collision geometry on non-solid tiles
+- Fixed issue where `CompositeCollider` offset was undefined if not set
+- Fixed Actor so it receives `predraw`/`postdraw` events per the advertised strongly typed events
+- Fixed infinite loop :bomb: when certain degenerate polygons were attempted to be triangulated!
+- Fixed incorrect type on `ex.Tilemap.getTileByPoint()`
+- Fixed TS type on `GraphicsComponent` and allow `.material` to be null to unset, current workaround is using `.material = null as any`
+
+### Updates
+
+-
+
+### Changed
+
+- All debug geometry settings are controlled from debug.collider now
+- Removed dunder prefixed parameters from overrideable methods
+- Tweaked debug draw to be less noisy by default
+- Removed dependency on `ex.IsometricMap` in the `ex.IsometricEntityComponent`, this allows for greater flexibility when using the component when a map may not be known or constructed.
+
+## [v0.28.4]
+
+### Breaking Changes
+
+-
+
+### Deprecated
+
+-
+
+### Added
+
+- Ability to configure TileMap debug drawing with the `ex.Engine.debug.tilemap` property.
+- Materials have a new convenience method for updating uniforms
+  ```typescript
+  game.input.pointers.primary.on('move', evt => {
+    heartActor.pos = evt.worldPos;
+    swirlMaterial.update(shader => {
+      shader.trySetUniformFloatVector('iMouse', evt.worldPos);
+    });
+  });
+  ```
+
+
+### Fixed
+
+- Fixed issue where TileMap solid tiles tile packing algorithm would incorrectly merge tiles in certain situations.
+- Sprite tint was not respected when supplied in the constructor, this has been fixed!
+- Adjusted the `FontCache` font timeout to 400 ms and makes it configurable as a static `FontCache.FONT_TIMEOUT`. This is to help prevent a downward spiral on mobile devices that might take a long while to render a few starting frames causing the cache to repeatedly clear and never recover.
+
+### Updates
+
+- Materials can now reference a new uniform for the screen texture and a screen uv attribute in their fragment shaders
+  * `u_screen_texture` - This is the texture of the screen right before the material draw call
+  * `a_screenuv` - The vertex attribute corresponding to the screen uv relative to the current graphic
+  * `v_screenuv` - The fragment varying corresponding to the screen uv relative to the current graphic
+
+- Materials can now reference the current time in their shaders
+  * `u_time_ms` - This is the ms since page navigation (performance.now() under the hood)
+
+### Changed
+
+- TileMap debug draw is now less verbose by default to save draw cycles when toggling to debug
+
+## [v0.28.3]
+
+### Breaking Changes
+
+-
+
+### Deprecated
+
+-
+
+### Added
+
+- Added new feature to collision group raycasting, directly provide a `collisionMask` that you want to search for.
+
+```typescript
+const playerGroup = ex.CollisionGroupManager.create('playerGroup');
+const notPlayersMask = ~playersGroup.category;
+const hits = engine.currentScene.physics.rayCast(
+  new ex.Ray(player.pos, playerDir),
+  {
+    maxDistance: playerSightDistance,
+    // Search for all categories that match the mask
+    collisionMask: notPlayers,
+    searchAllColliders: false
+  });
+```
+
+
+### Fixed
+
+- Fixed issue where rendering multiple materials at once would crash the renderer
+- Fixed issue where raycasting with more complex collision groups was not working as expected
+
+### Updates
+
+- 
+
+### Changed
+
+- 
+
+## [v0.28.2]
+
+### Breaking Changes
+
+-
+
+### Deprecated
+
+-
+
+### Added
+
+- Added `ex.Engine.version` to report the current excalibur version build string
+- Added new `ex.Screen.events`
+  - `screen.events.on('resize', (evt) => )` Will emit when the screen is resized
+  - `screen.events.on('fullscreen', (evt) => )` Will emit when the screen is changed into browser fullscreen mode
+  - `screen.events.on('pixelratio', (evt) => )` Will emit when the screen's pixel ratio changes (moving from a hidpi screen to a non, or vice versa)
+
+### Fixed
+
+- Fixed issue where removing handlers by function reference only removed the first registered one
+- Fixed issue where play button was hidden when going fullscreen mode
+- Fixed issue where screen resizing caused artifacts on the loading screen
+- Fixed bug in `useCanvas2DFallback()` where `antialiasing` settings could be lost
+- Fixed bug in `useCanvas2DFallback()` where opacity was not respected in `save
+- Fixed typo in trigger event signature `entertrigger` should have been `enter`
+- Fixed typo in trigger event signature `exittrigger` should have been `exit`
+- Fixed typo in animation event signature `ended` should have been `end`
+- Fixed issue where some excalibur `clear()` implementations modified the collection they were iterating over
+- Fixed async issue where sound could not be stopped if `stop()`/`start()` were called in rapid succession
 - Fixed issue with input mapper where `keyboard.wasPressed(...)` did not fire
 - Fixed issue issue where TileMaps would not properly draw Tiles when setup in screen space coordinates
 - Fixed issue where the ex.Line graphics bounds were incorrect causing erroneous offscreen culling
@@ -30,11 +222,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Changed the canvas 2d fallback default, no longer is enabled by default. Developers must opt in.
 - Allow entity names to be set after construction! Entities will now default to a name "Entity#1234" followed by an id.
-
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
 ## [v0.28.0]
 

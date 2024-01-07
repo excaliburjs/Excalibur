@@ -8,16 +8,19 @@ env:
   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
 jobs:
+  build:
+    uses: ./.github/workflows/build.yml
   deploy_alpha:
     name: Publish alpha npm package
+    needs: [build]
     runs-on: [ubuntu-latest]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: true
         fetch-depth: 100
-    - uses: actions/setup-node@v3
+    - uses: actions/setup-node@v4
       with:
         node-version-file: '.nvmrc'
         registry-url: 'https://registry.npmjs.org'
@@ -29,6 +32,17 @@ jobs:
     - run: echo $alpha_version
     - run: npm --no-git-tag-version version $alpha_version
     - run: npm publish --tag next
+    - name: Create Tag
+      uses: actions/github-script@v7.0.1
+      with:
+        script: |
+          const {alpha_version} = process.env;
+          github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/tags/${alpha_version}`,
+              sha: context.sha
+          })
 
   docs:
     name: docs

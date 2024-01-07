@@ -5,13 +5,18 @@ var game = new ex.Engine({
   displayMode: ex.DisplayMode.FitScreenAndFill
 });
 var random = new ex.Random(1337);
+// collides with everything but players
+var playerGroup = ex.CollisionGroupManager.create('playerGroup');
 var blockGroup = ex.CollisionGroupManager.create('blockGroup');
+var notPlayers = ~playerGroup.category;
+var notPlayers2 = playerGroup.invert();
 
 var player = new ex.Actor({
   name: 'player',
   pos: ex.vec(100, 100),
   width: 40,
   height: 40,
+  collisionGroup: playerGroup,
   color: ex.Color.Red,
   z: 10
 });
@@ -39,7 +44,8 @@ player.onPostUpdate = (engine) => {
     new ex.Ray(player.pos, playerDir),
     {
       maxDistance: playerSightDistance,
-      collisionGroup: blockGroup,
+      // collisionMask: notPlayers,
+      collisionGroup: notPlayers2,
       searchAllColliders: false
     });
 

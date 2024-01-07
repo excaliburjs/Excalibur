@@ -1244,4 +1244,51 @@ fdescribe('Action', () => {
       expect(actor.graphics.opacity).toBe(0);
     });
   });
+
+  describe('events', () => {
+    it('emits actionstart event', () => {
+      const spy = jasmine.createSpy();
+      actor.actions.moveTo(20, 0, 20);
+      actor.on('actionstart', spy);
+      scene.update(engine, 500);
+      scene.update(engine, 500);
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(jasmine.objectContaining({ target: actor, action: jasmine.any(ex.MoveTo) }));
+    });
+
+    it('emits actioncomplete event', () => {
+      const spy = jasmine.createSpy();
+      actor.actions.moveTo(20, 0, 20);
+      actor.on('actioncomplete', spy);
+      for (let i = 0; i < 10; i++) {
+        scene.update(engine, 200);
+      }
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(jasmine.objectContaining({ target: actor, action: jasmine.any(ex.MoveTo) }));
+    });
+
+    it('emits actionstart and actioncomplete events for each action in a repeat', () => {
+      const startSpy = jasmine.createSpy();
+      const completeSpy = jasmine.createSpy();
+      actor.actions.repeat((ctx) => ctx.moveTo(20, 0, 20).moveTo(0, 0, 20), 1);
+      actor.on('actionstart', startSpy);
+      actor.on('actioncomplete', completeSpy);
+
+      for (let i = 0; i < 10; i++) {
+        scene.update(engine, 500);
+      }
+
+      const startCalls = startSpy.calls.all();
+      expect(startSpy).toHaveBeenCalledTimes(3);
+      expect(startCalls[0].args[0]).toEqual(jasmine.objectContaining({ target: actor, action: jasmine.any(ex.Repeat) }));
+      expect(startCalls[1].args[0]).toEqual(jasmine.objectContaining({ target: actor, action: jasmine.any(ex.MoveTo) }));
+      expect(startCalls[2].args[0]).toEqual(jasmine.objectContaining({ target: actor, action: jasmine.any(ex.MoveTo) }));
+
+      const completeCalls = completeSpy.calls.all();
+      expect(completeSpy).toHaveBeenCalledTimes(3);
+      expect(completeCalls[0].args[0]).toEqual(jasmine.objectContaining({ target: actor, action: jasmine.any(ex.MoveTo) }));
+      expect(completeCalls[1].args[0]).toEqual(jasmine.objectContaining({ target: actor, action: jasmine.any(ex.MoveTo) }));
+      expect(completeCalls[2].args[0]).toEqual(jasmine.objectContaining({ target: actor, action: jasmine.any(ex.Repeat) }));
+    });
+  });
 });

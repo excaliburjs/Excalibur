@@ -159,7 +159,7 @@ fdescribe('A camera', () => {
     Camera._initialize(engine);
     Camera.rotation = Math.PI / 2;
 
-    Camera.updateTransform();
+    Camera.updateTransform(Camera.pos);
 
     expect(Camera.transform.getRotation()).toBe(Math.PI / 2);
   });

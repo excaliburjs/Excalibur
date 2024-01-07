@@ -129,7 +129,10 @@ fdescribe('The engine', () => {
 
   it('can switch to the canvas fallback on poor performance', async () => {
     engine = TestUtils.engine({
-      suppressPlayButton: false
+      suppressPlayButton: false,
+      configurePerformanceCanvas2DFallback: {
+        allow: true
+      }
     });
     await TestUtils.runToReady(engine);
     spyOn(engine, 'useCanvas2DFallback');

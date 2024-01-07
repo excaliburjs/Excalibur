@@ -4,8 +4,8 @@ import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 class TestGraphic extends ex.Graphic {
   constructor(options?: ex.GraphicOptions) {
     super(options ?? {});
-    this.width = 50;
-    this.height = 50;
+    this.width = options?.width ?? 50;
+    this.height = options?.height ?? 50;
   }
   private _rect1 = new ex.Rectangle({
     width: 25,
@@ -66,14 +66,37 @@ describe('A Graphic', () => {
     expect(graphic1.id).not.toBe(graphic2.id);
   });
 
-  it('can clone all graphic options', () => {
-    const originalOptions: ex.GraphicOptions = {
+  it('can provide all graphic options', () => {
+    const options: Required<ex.GraphicOptions> = {
+      width: 100,
+      height: 100,
       origin: ex.vec(1, 1),
       flipHorizontal: true,
       flipVertical: true,
       rotation: Math.PI / 8,
       opacity: 0.25,
-      scale: ex.vec(0.5, 0.75)
+      tint: ex.Color.fromRGB(0, 0, 0),
+      scale: ex.vec(1, 1)
+    };
+
+    const sut = new TestGraphic(options);
+
+    for (const prop in options) {
+      expect(sut[prop]).toEqual(options[prop]);
+    }
+  });
+
+  it('can clone all graphic options', () => {
+    const originalOptions: Required<ex.GraphicOptions> = {
+      width: 100,
+      height: 100,
+      origin: ex.vec(1, 1),
+      flipHorizontal: true,
+      flipVertical: true,
+      rotation: Math.PI / 8,
+      opacity: 0.25,
+      tint: ex.Color.fromRGB(0, 0, 0),
+      scale: ex.vec(1, 1)
     };
 
     const sut = new TestGraphic(originalOptions);

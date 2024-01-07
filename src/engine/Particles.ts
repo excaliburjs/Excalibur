@@ -151,7 +151,7 @@ export class ParticleImpl extends Entity {
     this.emitter.removeParticle(this);
   }
 
-  public update(_engine: Engine, delta: number) {
+  public update(engine: Engine, delta: number) {
     this.life = this.life - delta;
     this.elapsedMultiplier = this.elapsedMultiplier + delta;
 

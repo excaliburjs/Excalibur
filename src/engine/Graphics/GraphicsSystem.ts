@@ -13,6 +13,8 @@ import { ParallaxComponent } from './ParallaxComponent';
 import { CoordPlane } from '../Math/coord-plane';
 import { BodyComponent } from '../Collision/BodyComponent';
 import { FontCache } from './FontCache';
+import { PostDrawEvent, PreDrawEvent, Transform } from '..';
+import { blendTransform } from './TransformInterpolation';
 
 export class GraphicsSystem extends System<TransformComponent | GraphicsComponent> {
   public readonly types = ['ex.transform', 'ex.graphics'] as const;
@@ -110,7 +112,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
         // https://doc.mapeditor.org/en/latest/manual/layers/#parallax-scrolling-factor
         // cameraPos * (1 - parallaxFactor)
         const oneMinusFactor = Vector.One.sub(parallax.parallaxFactor);
-        const parallaxOffset = this._camera.pos.scale(oneMinusFactor);
+        const parallaxOffset = this._camera.drawPos.scale(oneMinusFactor);
         this._graphicsContext.translate(parallaxOffset.x, parallaxOffset.y);
       }
 
@@ -126,6 +128,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
       if (graphics.onPreDraw) {
         graphics.onPreDraw(this._graphicsContext, delta);
       }
+      entity.events.emit('predraw', new PreDrawEvent(this._graphicsContext, delta, entity));
 
       // TODO remove this hack on the particle redo
       const particleOpacity = (entity instanceof Particle) ? entity.opacity : 1;
@@ -138,6 +141,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
       if (graphics.onPostDraw) {
         graphics.onPostDraw(this._graphicsContext, delta);
       }
+      entity.events.emit('postdraw', new PostDrawEvent(this._graphicsContext, delta, entity));
 
       this._graphicsContext.restore();
 
@@ -208,6 +212,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
     }
   }
 
+  private _targetInterpolationTransform = new Transform();
   /**
    * This applies the current entity transform to the graphics context
    * @param entity
@@ -217,34 +222,22 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
     for (const ancestor of ancestors) {
       const transform = ancestor?.get(TransformComponent);
       const optionalBody = ancestor?.get(BodyComponent);
-      let interpolatedPos = transform.pos;
-      let interpolatedScale = transform.scale;
-      let interpolatedRotation = transform.rotation;
+      let tx = transform.get();
       if (optionalBody) {
         if (this._engine.fixedUpdateFps &&
             optionalBody.__oldTransformCaptured &&
             optionalBody.enableFixedUpdateInterpolate) {
-
           // Interpolate graphics if needed
           const blend = this._engine.currentFrameLagMs / (1000 / this._engine.fixedUpdateFps);
-          interpolatedPos = transform.pos.scale(blend).add(
-            optionalBody.oldPos.scale(1.0 - blend)
-          );
-          interpolatedScale = transform.scale.scale(blend).add(
-            optionalBody.oldScale.scale(1.0 - blend)
-          );
-          // Rotational lerp https://stackoverflow.com/a/30129248
-          const cosine = (1.0 - blend) * Math.cos(optionalBody.oldRotation) + blend * Math.cos(transform.rotation);
-          const sine = (1.0 - blend) * Math.sin(optionalBody.oldRotation) + blend * Math.sin(transform.rotation);
-          interpolatedRotation = Math.atan2(sine, cosine);
+          tx = blendTransform(optionalBody.oldTransform, transform.get(), blend, this._targetInterpolationTransform);
         }
       }
 
       if (transform) {
         this._graphicsContext.z = transform.z;
-        this._graphicsContext.translate(interpolatedPos.x, interpolatedPos.y);
-        this._graphicsContext.scale(interpolatedScale.x, interpolatedScale.y);
-        this._graphicsContext.rotate(interpolatedRotation);
+        this._graphicsContext.translate(tx.pos.x, tx.pos.y);
+        this._graphicsContext.scale(tx.scale.x, tx.scale.y);
+        this._graphicsContext.rotate(tx.rotation);
       }
     }
   }

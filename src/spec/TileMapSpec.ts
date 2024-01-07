@@ -103,6 +103,61 @@ describe('A TileMap', () => {
     expect(tm.getColumns()[4][2].y).toBe(2);
   });
 
+  it('can pack tile colliders', () => {
+    const tm = new ex.TileMap({
+      pos: ex.vec(200, 200),
+      tileWidth: 16,
+      tileHeight: 16,
+      columns: 6,
+      rows: 4
+    });
+    tm._initialize(engine);
+
+    tm.getTile(0, 0).solid = true;
+    tm.getTile(0, 1).solid = true;
+    tm.getTile(0, 2).solid = true;
+    tm.getTile(0, 3).solid = true;
+
+    tm.getTile(1, 0).solid = false;
+    tm.getTile(1, 1).solid = false;
+    tm.getTile(1, 2).solid = false;
+    tm.getTile(1, 3).solid = false;
+
+    tm.getTile(2, 0).solid = false;
+    tm.getTile(2, 1).solid = false;
+    tm.getTile(2, 2).solid = false;
+    tm.getTile(2, 3).solid = false;
+
+    tm.getTile(3, 0).solid = true;
+    tm.getTile(3, 1).solid = true;
+    tm.getTile(3, 2).solid = true;
+    tm.getTile(3, 3).solid = true;
+
+    tm.getTile(4, 0).solid = true;
+    tm.getTile(4, 1).solid = true;
+    tm.getTile(4, 2).solid = true;
+    tm.getTile(4, 3).solid = true;
+
+    tm.flagCollidersDirty();
+
+    tm.update(engine, 1);
+
+    const collider = tm.get(ex.ColliderComponent);
+    const composite = collider.get() as ex.CompositeCollider;
+    const colliders = composite.getColliders();
+
+    expect(colliders.length).toBe(2);
+    expect(colliders[0].bounds.top).toBe(200);
+    expect(colliders[0].bounds.left).toBe(200);
+    expect(colliders[0].bounds.right).toBe(216);
+    expect(colliders[0].bounds.bottom).toBe(264);
+
+    expect(colliders[1].bounds.left).toBe(248);
+    expect(colliders[1].bounds.right).toBe(280);
+    expect(colliders[1].bounds.top).toBe(200);
+    expect(colliders[1].bounds.bottom).toBe(264);
+  });
+
   it('can store arbitrary data in cells', () => {
     const tm = new ex.TileMap({
       pos: ex.vec(0, 0),
