@@ -191,9 +191,9 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * Event hook to provide Scenes a way of loading scene specific resources.
    *
    * This is called before the Scene.onInitialize during scene transition.
-   * @param _loader
+   * @param loader
    */
-  public onPreLoad(_loader: BaseLoader) {
+  public onPreLoad(loader: BaseLoader) {
     // will be overridden
   }
 
