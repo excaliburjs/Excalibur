@@ -27,13 +27,13 @@ class BaseScene extends ex.Scene {
   }
 }
 
-var scene1 = new BaseScene("scene1");
+var scene11 = new BaseScene("scene1");
 var scene22 = new BaseScene("scene2");
-var scene3 = new BaseScene("scene3");
+var scene33 = new BaseScene("scene3");
 
-game.add('scene1', scene1);
+game.add('scene1', scene11);
 game.add('scene2', scene22);
-game.add('scene3', scene3);
+game.add('scene3', scene33);
 
 game.start(loader).then(() => {
   game.goToScene('scene1');
