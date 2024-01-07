@@ -949,8 +949,7 @@ O|===|* >________________>\n\
 
   /**
    * Asserts that a scene does exist to the type system
-   * @param scene 
-   * @returns 
+   * @param scene
    */
   public assertScene<TScene extends string>(scene: TScene): Engine<WithRoot<TKnownScenes> | TScene> {
     return this as Engine<WithRoot<TKnownScenes> | TScene>;

@@ -50,7 +50,7 @@ fdescribe('The engine', () => {
     const exceptionSpy = jasmine.createSpy('exception');
     const boot = async () => {
       const engine = TestUtils.engine();
-      await TestUtils.runToReady(engine)
+      await TestUtils.runToReady(engine);
       const clock = engine.clock as ex.TestClock;
       clock.setFatalExceptionHandler(exceptionSpy);
       clock.start();

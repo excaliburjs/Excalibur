@@ -22,7 +22,7 @@ export const LoaderEvents = {
   // Add event types here
 };
 
-// TODO RENAME DefaultLoader :D 
+// TODO RENAME DefaultLoader :D
 export class BaseLoader implements Loadable<Loadable<any>[]> {
   public data: Loadable<any>[];
   public events = new EventEmitter();

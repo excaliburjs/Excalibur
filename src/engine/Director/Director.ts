@@ -232,7 +232,7 @@ export class Director<TKnownScenes extends string = any> {
 
   /**
    * Returns a scene by name if it exists
-   * @param name 
+   * @param name
    */
   getScene(name: string): Scene | undefined {
     const maybeScene = this.scenes[name as TKnownScenes];
@@ -246,8 +246,7 @@ export class Director<TKnownScenes extends string = any> {
 
   /**
    * Returns the same Director, but asserts a scene DOES exist to the type system
-   * @param name 
-   * @returns 
+   * @param name
    */
   assert<TScene extends string>(name: TScene): Director<TKnownScenes | TScene> {
     return this as Director<TKnownScenes | TScene>;
