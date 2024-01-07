@@ -1,12 +1,25 @@
 /// <reference path='../../lib/excalibur.d.ts' />
-
-var game = new ex.Engine({
+var scene1 = new ex.Scene();
+var scene2 = new ex.Scene();
+var gameWithTransitions = new ex.Engine({
   width: 800,
   height: 600,
-  displayMode: ex.DisplayMode.FitScreenAndFill
+  displayMode: ex.DisplayMode.FitScreenAndFill,
+  scenes: {
+    scene1: {
+      scene: scene1,
+      in: new ex.FadeInOut({duration: 1000, direction: 'in'})
+    },
+    scene2: {
+      scene: scene2,
+      loader: new ex.BaseLoader(),
+      out: new ex.FadeInOut({duration: 1000, direction: 'out'}),
+      in: new ex.CrossFade({duration: 500, direction: 'in', hideLoader: true})
+    }
+  }
 });
 
-var scene1 = new ex.Scene();
+
 var actor = new ex.Actor({
   width: 100,
   height: 100,
@@ -21,7 +34,7 @@ actor.addChild(new ex.Actor({
 }));
 scene1.add(actor);
 
-var scene2 = new ex.Scene();
+
 scene2.onPreLoad = (loader) => {
   const image1 = new ex.ImageSource('./spritefont.png?=1');
   const image2 = new ex.ImageSource('./spritefont.png?=2');
@@ -36,7 +49,7 @@ scene2.onPreLoad = (loader) => {
 }
 scene1.onActivate = () => {
   setTimeout(() => {
-    game.router.goto('scene2');
+    gameWithTransitions.goto('scene2');
     // router.goto('scene2', {
     //   outTransition: new ex.FadeOut({duration: 1000, direction: 'in'}),
     //   inTransition: new ex.FadeOut({duration: 1000, direction: 'out'})
@@ -62,30 +75,18 @@ boot.addResource(image3);
 boot.addResource(image4);
 boot.addResource(sword);
 
-game.input.pointers.primary.on('down', () => {
-  game.router.goto('scene1');
+gameWithTransitions.input.pointers.primary.on('down', () => {
+  gameWithTransitions.goto('scene1');
 });
 var startTransition = new ex.FadeInOut({duration: 500, direction: 'in', color: ex.Color.ExcaliburBlue});
 // startTransition.events.on('kill', () => {
 //   console.log(game.currentScene.entities);
 //   console.log('killed!');
 // })
-game.start({
+gameWithTransitions.start({
   start: {
     name: 'scene1',
     in: startTransition
   },
-  loader: boot,
-  routes: {
-    scene1: {
-      scene: scene1,
-      in: new ex.FadeInOut({duration: 1000, direction: 'in'})
-    },
-    scene2: {
-      scene: scene2,
-      loader: new ex.BaseLoader(),
-      out: new ex.FadeInOut({duration: 1000, direction: 'out'}),
-      in: new ex.CrossFade({duration: 500, direction: 'in', hideLoader: true})
-    }
-  }
+  loader: boot
 });

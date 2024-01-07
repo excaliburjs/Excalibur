@@ -33,7 +33,7 @@ export interface TransitionOptions {
    */
   easingFunction?: EasingFunction;
   /**
-   * Optionally specify a transition direction, by default 'up'
+   * Optionally specify a transition direction, by default 'out'
    *
    * * For 'in' direction transitions start at 1 and complete is at 0
    * * For 'out' direction transitions start at 0 and complete is at 1

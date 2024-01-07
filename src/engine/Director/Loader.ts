@@ -20,15 +20,6 @@ export interface BootLoaderOptions {
   suppressPlayButton: boolean;
 }
 
-
-export type BootLoaderEvents = {
-  // Add event types here
-}
-
-export const BootLoaderEvents = {
-  // Add event types here
-};
-
 /**
  * Pre-loading assets
  *

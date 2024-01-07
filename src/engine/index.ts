@@ -41,7 +41,7 @@ export * from './Resources/Index';
 
 export * from './EntityComponentSystem/index';
 
-export * from './Router/index';
+export * from './Director/index';
 
 export * from './Color';
 

@@ -7,30 +7,30 @@ import { Logger } from '../Util/Log';
 import { ActivateEvent, DeactivateEvent } from '../Events';
 import { EventEmitter } from '../EventEmitter';
 
-export interface RouterNavigationEvent {
+export interface DirectorNavigationEvent {
   sourceName: string;
   sourceScene: Scene;
   destinationName: string;
   destinationScene: Scene;
 }
 
-export type RouterEvents = {
-  navigationstart: RouterNavigationEvent,
-  navigation: RouterNavigationEvent,
-  navigationend: RouterNavigationEvent,
+export type DirectorEvents = {
+  navigationstart: DirectorNavigationEvent,
+  navigation: DirectorNavigationEvent,
+  navigationend: DirectorNavigationEvent,
 }
 
-export const RouterEvents = {
+export const DirectorEvents = {
   NavigationStart: 'navigationstart',
   Navigation: 'navigation',
   NavigationEnd: 'navigationend'
 };
 
-export interface Route {
+export interface SceneWithOptions {
   /**
    * Scene associated with this route
    */
-  scene: Scene;
+  scene: Scene; // TODO lazy load scene
   /**
    * Optionally specify a transition when going "in" to this scene
    */
@@ -45,10 +45,24 @@ export interface Route {
   loader?: BaseLoader;
 }
 
-// TODO do we want to support lazy loading routes?
-export type RouteMap = Record<string, Scene | Route>;
+export type WithRoot<TScenes> = TScenes | 'root';
 
-export type StartOptions = string | { name: string, in: Transition };
+// TODO do we want to support lazy loading scenes?
+export type SceneMap<TKnownScenes extends string> = Record<TKnownScenes, Scene | SceneWithOptions>;
+
+export type StartScene<TKnownScenes extends string> = TKnownScenes | { name: TKnownScenes, in: Transition };
+
+export interface StartOptions<TKnownScenes extends string> {
+  /**
+   * Starting scene name with optional transition
+   */
+  start: StartScene<WithRoot<TKnownScenes>>;
+  /**
+   * Optionally provide a main loader to run before the game starts
+   */
+  loader?: BaseLoader
+}
+
 
 /**
  * Provide scene activation data and override any existing configured route transitions or loaders
@@ -72,28 +86,13 @@ export interface GoToOptions {
   loader?: BaseLoader
 }
 
-export interface RouterOptions {
-  /**
-   * Starting route
-   */
-  start: StartOptions;
-  /**
-   * Optionally provide a main loader to run before the game starts
-   */
-  loader?: BaseLoader,
-  /**
-   * Provide routes to scenes for your game
-   */
-  routes: RouteMap;
-}
-
 /**
- * The Router is responsible for managing scenes and changing scenes in Excalibur
+ * The Director is responsible for managing scenes and changing scenes in Excalibur
  *
  * It deals with transitions, scene loaders, switching scenes
  */
-export class Router {
-  public events = new EventEmitter<RouterEvents>();
+export class Director<TKnownScenes extends string = any> {
+  public events = new EventEmitter<DirectorEvents>();
   private _logger = Logger.getInstance();
   private _deferredGoto: string;
   private _initialized = false;
@@ -112,9 +111,9 @@ export class Router {
   currentTransition: Transition | null;
 
   /**
-   * Currently configured routes for the game
+   * All registered scenes in Excalibur
    */
-  routes: RouteMap;
+  public readonly scenes: SceneMap<WithRoot<TKnownScenes>> = {} as SceneMap<WithRoot<TKnownScenes>>;
 
   startScene: string;
   mainLoader: BaseLoader;
@@ -123,11 +122,6 @@ export class Router {
    * The default [[Scene]] of the game, use [[Engine.goto]] to transition to different scenes.
    */
   public readonly rootScene: Scene;
-
-  /**
-   * Contains all the scenes currently registered with Excalibur
-   */
-  public readonly scenes: { [sceneName: string]: Scene } = {};
 
   private _sceneToLoader = new Map<string, BaseLoader>();
   private _sceneToTransition = new Map<string, {in: Transition, out: Transition }>();
@@ -139,7 +133,7 @@ export class Router {
   private _isTransitioning = false;
 
   /**
-   * Gets whether the router currently transitioning between scenes
+   * Gets whether the director currently transitioning between scenes
    *
    * Useful if you need to block behavior during transition
    */
@@ -147,13 +141,17 @@ export class Router {
     return this._isTransitioning;
   }
 
-  constructor(private _engine: Engine) {
+  constructor(private _engine: Engine, scenes: SceneMap<TKnownScenes>) {
     this.rootScene = this.currentScene = new Scene();
     this.add('root', this.rootScene);
+    for (const sceneKey in scenes) {
+      const sceneOrOptions = scenes[sceneKey];
+      this.add(sceneKey, sceneOrOptions);
+    }
   }
 
   /**
-   * Initialize the router's internal state
+   * Initialize the director's internal state
    */
   async onInitialize() {
     if (!this._initialized) {
@@ -173,13 +171,12 @@ export class Router {
   }
 
   /**
-   * Configures the routes that the router knows about
+   * Configures the start scene and loader for the director
    *
-   * Typically this is called at the beginning of the game to configure the scene route and never again.
+   * Typically this is called at the beginning of the game to the start scene and transition and never again.
    * @param options
    */
-  configure(options: RouterOptions) {
-    this.routes = options.routes;
+  start(options: StartOptions<WithRoot<TKnownScenes>>) {
     this.mainLoader = options.loader ?? new Loader();
 
     let startScene: string;
@@ -194,12 +191,6 @@ export class Router {
     }
 
     this.startScene = startScene;
-
-
-    for (const sceneKey in this.routes) {
-      const sceneOrRoute = this.routes[sceneKey];
-      this.add(sceneKey, sceneOrRoute);
-    }
 
     if (maybeStartTransition) {
       this.swapScene(this.startScene);
@@ -216,7 +207,7 @@ export class Router {
   }
 
   private _getInTransition(sceneName: string) {
-    const sceneOrRoute = this.routes[sceneName];
+    const sceneOrRoute = this.scenes[sceneName as TKnownScenes];
     if (sceneOrRoute instanceof Scene) {
       return null;
     }
@@ -224,7 +215,7 @@ export class Router {
   }
 
   private _getOutTransition(sceneName: string) {
-    const sceneOrRoute = this.routes[sceneName];
+    const sceneOrRoute = this.scenes[sceneName as TKnownScenes];
     if (sceneOrRoute instanceof Scene) {
       return null;
     }
@@ -232,10 +223,34 @@ export class Router {
   }
 
   getDeferredScene() {
-    if (this._deferredGoto && this.scenes[this._deferredGoto]) {
-      return this.scenes[this._deferredGoto];
+    const maybeDeferred = this.getScene(this._deferredGoto);
+    if (this._deferredGoto && maybeDeferred) {
+      return maybeDeferred;
     }
     return null;
+  }
+
+  /**
+   * Returns a scene by name if it exists
+   * @param name 
+   */
+  getScene(name: string): Scene | undefined {
+    const maybeScene = this.scenes[name as TKnownScenes];
+    if (maybeScene instanceof Scene) {
+      return maybeScene;
+    } else if (maybeScene) {
+      return maybeScene.scene;
+    }
+    return undefined;
+  }
+
+  /**
+   * Returns the same Director, but asserts a scene DOES exist to the type system
+   * @param name 
+   * @returns 
+   */
+  assert<TScene extends string>(name: TScene): Director<TKnownScenes | TScene> {
+    return this as Director<TKnownScenes | TScene>;
   }
 
   /**
@@ -243,37 +258,38 @@ export class Router {
    * @param name
    * @param sceneOrRoute
    */
-  add(name: string, sceneOrRoute: Scene | Route) {
-    let parsedScene: Scene;
-    let parsedRoute: Route;
-    if (sceneOrRoute instanceof Scene) {
-      parsedScene = sceneOrRoute;
-      parsedRoute = { scene: sceneOrRoute };
-    } else {
-      parsedScene = sceneOrRoute.scene;
-      parsedRoute = sceneOrRoute;
-      const { loader, in: inTransition, out: outTransition } = parsedRoute;
+  add(name: string, sceneOrRoute: Scene | SceneWithOptions) { // TODO return a director with the scene map type
+    if (!(sceneOrRoute instanceof Scene)) {
+      const { loader, in: inTransition, out: outTransition } = sceneOrRoute;
       this._sceneToTransition.set(name, {in: inTransition, out: outTransition});
       this._sceneToLoader.set(name, loader);
     }
 
-    if (this.scenes[name]) {
+    if (this.scenes[name as TKnownScenes]) {
       this._logger.warn('Scene', name, 'already exists overwriting');
     }
-    this.scenes[name] = parsedScene;
+    this.scenes[name as TKnownScenes] = sceneOrRoute;
   }
 
   remove(scene: Scene): void;
-  remove(name: string): void;
-  remove(nameOrScene: string | Scene) {
+  remove(name: TKnownScenes): void;
+  remove(nameOrScene: TKnownScenes | Scene | string) { // TODO return a director with the scene map type
     if (nameOrScene instanceof Scene) {
       // remove scene
       for (const key in this.scenes) {
         if (this.scenes.hasOwnProperty(key)) {
-          if (this.scenes[key] === nameOrScene) {
+          const potentialSceneOrOptions = this.scenes[key as TKnownScenes];
+          let scene: Scene;
+          if (potentialSceneOrOptions instanceof Scene) {
+            scene = potentialSceneOrOptions;
+          } else {
+            scene = potentialSceneOrOptions.scene;
+          }
+
+          if (scene === nameOrScene) {
             this._sceneToTransition.delete(key);
             this._sceneToLoader.delete(key);
-            delete this.scenes[key];
+            delete this.scenes[key as TKnownScenes];
           }
         }
       }
@@ -282,7 +298,7 @@ export class Router {
       // remove scene
       this._sceneToTransition.delete(nameOrScene);
       this._sceneToLoader.delete(nameOrScene);
-      delete this.scenes[nameOrScene];
+      delete this.scenes[nameOrScene as TKnownScenes];
     }
   }
 
@@ -291,12 +307,19 @@ export class Router {
    * @param destinationScene
    * @param options
    */
-  async goto(destinationScene: string, options?: GoToOptions) {
+  async goto(destinationScene: TKnownScenes | string, options?: GoToOptions) {
     if (destinationScene === this.currentSceneName) {
       return;
     }
 
+    const maybeDest = this.getScene(destinationScene);
+    if (!maybeDest) {
+      this._logger.warn(`Scene ${destinationScene} does not exist! Check the name, are you sure you added it?`);
+      return;
+    }
+
     if (this._isTransitioning) {
+      // ? is this going to suck? I remember flux would block actions if one was already running and it made me sad
       this._logger.warn('Cannot transition while a transition is in progress');
       return;
     }
@@ -333,6 +356,7 @@ export class Router {
     await inTransition?.onPreviousSceneDeactivate(this.currentScene);
 
     // Swap to the new scene
+    // TODO should we detect if a scene init is sync/async and run it accordingly?
     await this.swapScene(destinationScene, sceneActivationData);
     this._emitEvent('navigation', sourceScene, destinationScene);
 
@@ -350,8 +374,8 @@ export class Router {
    */
   async maybeLoadScene(scene: string, hideLoader = false) {
     const loader = this._getLoader(scene) ?? new Loader();
-    const sceneToLoad = this._engine.scenes[scene];
-    if (!this._loadedScenes.has(sceneToLoad)) {
+    const sceneToLoad = this.getScene(scene);
+    if (sceneToLoad && !this._loadedScenes.has(sceneToLoad)) {
       sceneToLoad.onPreLoad(loader);
       sceneToLoad.events.emit('preload', { loader });
       if (hideLoader) {
@@ -392,9 +416,11 @@ export class Router {
       return;
     }
 
-    if (this.scenes[destinationScene]) {
+    const maybeDest = this.getScene(destinationScene);
+
+    if (maybeDest) {
       const previousScene = this.currentScene;
-      const nextScene = this.scenes[destinationScene];
+      const nextScene = maybeDest;
 
       this._logger.debug('Going to scene:', destinationScene);
 
@@ -425,13 +451,15 @@ export class Router {
     }
   }
 
-  private _emitEvent(eventName: keyof RouterEvents, sourceScene: string, destinationScene: string) {
+  private _emitEvent(eventName: keyof DirectorEvents, sourceScene: string, destinationScene: string) {
+    const source = this.getScene(sourceScene)!;
+    const dest = this.getScene(destinationScene)!;
     this.events.emit(eventName, {
-      sourceScene: this.scenes[sourceScene],
+      sourceScene: source,
       sourceName: sourceScene,
-      destinationScene: this.scenes[destinationScene],
+      destinationScene: dest,
       destinationName: destinationScene
-    } as RouterNavigationEvent);
+    } as DirectorNavigationEvent);
   }
 
   /**

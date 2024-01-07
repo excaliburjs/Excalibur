@@ -34,7 +34,7 @@ import { ExcaliburGraphicsContext } from './Graphics';
 import { PhysicsWorld } from './Collision/PhysicsWorld';
 import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
 import { Color } from './Color';
-import { BaseLoader } from './Router/BaseLoader';
+import { BaseLoader } from './Director/BaseLoader';
 
 export class PreLoadEvent {
   loader: BaseLoader;

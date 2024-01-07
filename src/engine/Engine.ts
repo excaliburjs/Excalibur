@@ -16,8 +16,8 @@ import { ScreenElement } from './ScreenElement';
 import { Actor } from './Actor';
 import { Timer } from './Timer';
 import { TileMap } from './TileMap';
-import { BaseLoader } from './Router/BaseLoader';
-import { Loader } from './Router/Loader';
+import { BaseLoader } from './Director/BaseLoader';
+import { Loader } from './Director/Loader';
 import { Detector } from './Util/Detector';
 import {
   VisibleEvent,
@@ -45,7 +45,7 @@ import { ImageFiltering } from './Graphics/Filtering';
 import { GraphicsDiagnostics } from './Graphics/GraphicsDiagnostics';
 import { Toaster } from './Util/Toaster';
 import { InputMapper } from './Input/InputMapper';
-import { GoToOptions, Router, RouterOptions } from './Router/Router';
+import { GoToOptions, SceneMap, Director, StartOptions, SceneWithOptions, WithRoot } from './Director/Director';
 
 export type EngineEvents = {
   fallbackgraphicscontext: ExcaliburGraphicsContext2DCanvas,
@@ -98,7 +98,7 @@ export enum ScrollPreventionMode {
 /**
  * Defines the available options to configure the Excalibur engine at constructor time.
  */
-export interface EngineOptions {
+export interface EngineOptions<TKnownScenes extends string = any> {
   /**
    * Optionally configure the width of the viewport in css pixels
    */
@@ -269,7 +269,14 @@ export interface EngineOptions {
      * Canvas renderer.
      */
     threshold?: { numberOfFrames: number, fps: number };
-  }
+  },
+
+  /**
+   * Optionally specify scenes with their transitions and loaders to excalibur's scene [[Director]]
+   *
+   * Scene transitions can can overridden dynamically by the `Scene` or by the call to `.goto`
+   */
+  scenes?: SceneMap<TKnownScenes>
 }
 
 /**
@@ -279,7 +286,7 @@ export interface EngineOptions {
  * starting/stopping the game, maintaining state, transmitting events,
  * loading resources, and managing the scene.
  */
-export class Engine implements CanInitialize, CanUpdate, CanDraw {
+export class Engine<TKnownScenes extends string = any> implements CanInitialize, CanUpdate, CanDraw {
   /**
    * Current Excalibur version string
    *
@@ -303,9 +310,9 @@ export class Engine implements CanInitialize, CanUpdate, CanDraw {
   public screen: Screen;
 
   /**
-   * Scene Router
+   * Scene director, manages all scenes, scene transitions, and loaders in excalibur
    */
-  public router = new Router(this);
+  public director: Director<TKnownScenes>;
 
   /**
    * Direct access to the engine's canvas element
@@ -444,21 +451,21 @@ export class Engine implements CanInitialize, CanUpdate, CanDraw {
    * The current [[Scene]] being drawn and updated on screen
    */
   public get currentScene(): Scene {
-    return this.router.currentScene;
+    return this.director.currentScene;
   }
 
   /**
    * The default [[Scene]] of the game, use [[Engine.goto]] to transition to different scenes.
    */
   public get rootScene(): Scene {
-    return this.router.rootScene;
+    return this.director.rootScene;
   }
 
   /**
    * Contains all the scenes currently registered with Excalibur
    */
-  public get scenes(): { [key: string]: Scene } {
-    return this.router.scenes;
+  public get scenes(): { [key: string]: Scene | SceneWithOptions } {
+    return this.director.scenes;
   };
 
   /**
@@ -621,7 +628,7 @@ export class Engine implements CanInitialize, CanUpdate, CanDraw {
    * });
    * ```
    */
-  constructor(options?: EngineOptions) {
+  constructor(options?: EngineOptions<TKnownScenes>) {
     options = { ...Engine._DEFAULT_ENGINE_OPTIONS, ...options };
     this._originalOptions = options;
 
@@ -777,6 +784,8 @@ O|===|* >________________>\n\
     this.enableCanvasTransparency = options.enableCanvasTransparency;
 
     this.debug = new Debug(this);
+
+    this.director = new Director(this, options.scenes); // TODO default transition & root scene in here
 
     this._initialize(options);
 
@@ -934,8 +943,17 @@ O|===|* >________________>\n\
    * @param key  The name of the scene, must be unique
    * @param scene The scene to add to the engine
    */
-  public addScene(key: string, scene: Scene) {
-    this.router.add(key, scene);
+  public addScene(key: string, scene: Scene) { // todo return new engine with the new known scenes
+    this.director.add(key, scene);
+  }
+
+  /**
+   * Asserts that a scene does exist to the type system
+   * @param scene 
+   * @returns 
+   */
+  public assertScene<TScene extends string>(scene: TScene): Engine<WithRoot<TKnownScenes> | TScene> {
+    return this as Engine<WithRoot<TKnownScenes> | TScene>;
   }
 
   /**
@@ -952,7 +970,7 @@ O|===|* >________________>\n\
    * @internal
    */
   public removeScene(entity: any): void {
-    this.router.remove(entity);
+    this.director.remove(entity);
   }
 
   /**
@@ -993,10 +1011,10 @@ O|===|* >________________>\n\
   public add(screenElement: ScreenElement): void;
   public add(entity: any): void {
     if (arguments.length === 2) {
-      this.router.add(<string>arguments[0], <Scene>arguments[1]);
+      this.director.add(<string>arguments[0], <Scene>arguments[1]);
       return;
     }
-    const maybeDeferred = this.router.getDeferredScene();
+    const maybeDeferred = this.director.getDeferredScene();
     if (maybeDeferred) {
       maybeDeferred.add(entity);
     } else {
@@ -1078,8 +1096,8 @@ O|===|* >________________>\n\
    * @param destinationScene
    * @param options
    */
-  public async goto(destinationScene: string, options?: GoToOptions) {
-    await this.router.goto(destinationScene, options);
+  public async goto(destinationScene: WithRoot<TKnownScenes>, options?: GoToOptions) {
+    await this.director.goto(destinationScene, options);
   }
 
   /**
@@ -1091,7 +1109,7 @@ O|===|* >________________>\n\
    */
   @obsolete({message: 'Engine.goToScene is deprecated, will be removed in v1', alternateMethod: 'Engine.goto'})
   public async goToScene<TData = undefined>(key: string, data?: TData): Promise<void> {
-    await this.router.swapScene(key, data);
+    await this.director.swapScene(key, data);
   }
 
   /**
@@ -1183,7 +1201,7 @@ O|===|* >________________>\n\
       await this.onInitialize(engine);
       this.events.emit('initialize', new InitializeEvent(engine, this));
       this._isInitialized = true;
-      await this.router.onInitialize();
+      await this.director.onInitialize();
     }
   }
 
@@ -1192,7 +1210,7 @@ O|===|* >________________>\n\
    * @param delta  Number of milliseconds elapsed since the last update.
    */
   private _update(delta: number) {
-    this.router.update(delta);
+    this.director.update(delta);
     if (this._isLoading) {
       // suspend updates until loading is finished
       this._loader?.onUpdate(this, delta);
@@ -1335,8 +1353,8 @@ O|===|* >________________>\n\
     return this._isReadyFuture.promise;
   }
 
-  private _isRouterOptions(maybeRouterOptions: any): maybeRouterOptions is RouterOptions {
-    if (maybeRouterOptions && maybeRouterOptions.start && maybeRouterOptions.routes) {
+  private _isStartOptions(maybeRouterOptions: any): maybeRouterOptions is StartOptions<WithRoot<TKnownScenes>> {
+    if (maybeRouterOptions && maybeRouterOptions.start) {
       return true;
     }
     return false;
@@ -1354,22 +1372,27 @@ O|===|* >________________>\n\
   public async start(loader?: BaseLoader): Promise<void>;
   /**
    * Starts the internal game loop for Excalibur after configuring any routes, loaders, or transitions
-   * @param router Optional [[RouterOptions]] to configure the routes for scenes in Excalibur
+   * @param startOptions Optional [[StartOptions]] to configure the routes for scenes in Excalibur
    *
    * Note: start() only resolves AFTER the user has clicked the play button
    */
-  public async start(router?: RouterOptions): Promise<void>;
-  public async start(loaderOrRouterOptions?: BaseLoader | RouterOptions): Promise<void> {
+  public async start(startOptions?: StartOptions<WithRoot<TKnownScenes>>): Promise<void>;
+  /**
+   * Starts the internal game loop after any loader is finished
+   * @param loader
+   */
+  public async start(loader?: BaseLoader): Promise<void>;
+  public async start(loaderOrStartOptions?: BaseLoader | StartOptions<WithRoot<TKnownScenes>>): Promise<void> {
     if (!this._compatible) {
       throw new Error('Excalibur is incompatible with your browser');
     }
     this._isLoading = true;
     let loader: BaseLoader;
-    if (this._isRouterOptions(loaderOrRouterOptions)) {
-      this.router.configure(loaderOrRouterOptions);
-      loader = this.router.mainLoader;
+    if (this._isStartOptions(loaderOrStartOptions)) {
+      this.director.start(loaderOrStartOptions);
+      loader = this.director.mainLoader;
     } else {
-      loader = loaderOrRouterOptions;
+      loader = loaderOrStartOptions;
     }
 
     // Start the excalibur clock which drives the mainloop
