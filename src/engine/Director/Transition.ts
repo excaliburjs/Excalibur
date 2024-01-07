@@ -98,7 +98,7 @@ export class Transition extends Entity {
     }
   }
 
-  public override onPreUpdate(_engine: Engine, delta: number): void {
+  public override onPreUpdate(engine: Engine, delta: number): void {
     if (this.complete) {
       return;
     }
@@ -121,17 +121,17 @@ export class Transition extends Entity {
 
   /**
    * Called once at the beginning of the transition
-   * @param _progress
+   * @param progress
    */
-  onStart(_progress: number) {
+  onStart(progress: number) {
     // override me
   }
 
   /**
    * Called every frame of the transition
-   * @param _progress
+   * @param progress
    */
-  onUpdate(_progress: number) {
+  onUpdate(progress: number) {
     // override me
   }
 
@@ -139,7 +139,7 @@ export class Transition extends Entity {
    * Called at the end of the transition
    * @param _progress
    */
-  onEnd(_progress: number) {
+  onEnd(progress: number) {
     // override me
   }
 

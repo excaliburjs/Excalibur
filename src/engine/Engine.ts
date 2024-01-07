@@ -1209,7 +1209,7 @@ O|===|* >________________>\n\
    * @param delta  Number of milliseconds elapsed since the last update.
    */
   private _update(delta: number) {
-    this.director.update(delta);
+    this.director.update();
     if (this._isLoading) {
       // suspend updates until loading is finished
       this._loader?.onUpdate(this, delta);

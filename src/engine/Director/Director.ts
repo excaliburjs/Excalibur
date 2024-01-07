@@ -463,9 +463,8 @@ export class Director<TKnownScenes extends string = any> {
 
   /**
    * Updates internal transitions
-   * @param _elapsedMilliseconds
    */
-  update(_elapsedMilliseconds: number) {
+  update() {
     if (this.currentTransition) {
       this.currentTransition.execute();
     }
