@@ -96,7 +96,7 @@ scene2.add(new ex.Actor({
   color: ex.Color.Blue
 }));
 
-var boot = new ex.DefaultLoader() as ex.Loader;
+var boot = new ex.Loader();
 const image1 = new ex.ImageSource('./spritefont.png?=1');
 const image2 = new ex.ImageSource('./spritefont.png?=2');
 const image3 = new ex.ImageSource('./spritefont.png?=3');

@@ -8,10 +8,10 @@ import { Sound } from '../Resources/Sound/Sound';
 import { Future } from '../Util/Future';
 import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
 import { Color } from '../Color';
+import { Util } from '..';
 
 export interface LoaderOptions {
   loadables: Loadable<any>[];
-  suppressPlayButton: boolean;
 }
 
 export type LoaderEvents = {
@@ -50,24 +50,47 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
   /**
    * @param loadables  Optionally provide the list of resources you want to load at constructor time
    */
-  constructor(loadables?: Loadable<any>[]) {
-    if (loadables) {
-      this.addResources(loadables);
+  constructor(options?: LoaderOptions) {
+    if (options && options.loadables?.length) {
+      this.addResources(options.loadables);
     }
   }
 
+  /**
+   * Called by the engine before loading
+   * @param engine
+   */
   public onInitialize(engine: Engine) {
     this.engine = engine;
     this.canvas.width = this.engine.screen.canvasWidth;
     this.canvas.height = this.engine.screen.canvasHeight;
   }
 
+  /**
+    * Return a promise that resolves when the user interacts with the loading screen in some way, usually a click.
+    *
+    * It's important to implement this in order to unlock the audio context in the browser. Browsers automatically prevent
+    * audio from playing until the user performs an action.
+    *
+    */
+  public onUserAction(): Promise<void> {
+
+    return Promise.resolve();
+  }
+
+  /**
+   * Overridable lifecycle method, called directly before loading starts
+   */
   public async onBeforeLoad() {
     // override me
   }
 
+  /**
+   * Overridable lifecycle method, called after loading has completed
+   */
   public async onAfterLoad() {
     // override me
+    await Util.delay(500, this.engine.clock); // avoid a flicker
   }
 
   /**
@@ -113,7 +136,7 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
   private _totalTimeMs = 0;
 
   /**
-   *
+   * Optionally override the onUpdate
    * @param engine
    * @param elapsedMilliseconds
    */
@@ -126,7 +149,7 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
    * Optionally override the onDraw
    */
   onDraw(ctx: CanvasRenderingContext2D) {
-    const seconds = this._totalTimeMs/1000;
+    const seconds = this._totalTimeMs / 1000;
 
     ctx.fillStyle = Color.Black.toRGBA();
     ctx.fillRect(0, 0, this.engine.screen.drawWidth, this.engine.screen.drawHeight);
@@ -157,8 +180,10 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
   }
 
   /**
+   * Not meant to be overridden
+   *
    * Begin loading all of the supplied resources, returning a promise
-   * that resolves when loading of all is complete AND the user has clicked the "Play button"
+   * that resolves when loading of all is complete AND the user has interacted with the loading screen
    */
   public async load(): Promise<Loadable<any>[]> {
     await this.onBeforeLoad();
@@ -187,6 +212,7 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
     // Unlock browser AudioContext in after user gesture
     // See: https://github.com/excaliburjs/Excalibur/issues/262
     // See: https://github.com/excaliburjs/Excalibur/issues/1031
+    await this.onUserAction();
     await WebAudio.unlock();
 
     await this.onAfterLoad();

@@ -1,5 +1,4 @@
 import { Color } from '../Color';
-import { WebAudio } from '../Util/WebAudio';
 import { Loadable } from '../Interfaces/Loadable';
 import * as DrawUtil from '../Util/DrawUtil';
 
@@ -11,14 +10,6 @@ import { EventEmitter } from '../EventEmitter';
 import { DefaultLoader } from './DefaultLoader';
 import { Engine } from '..';
 import { Screen } from '../Screen';
-import { Canvas } from '../Graphics/Canvas';
-import { ImageFiltering } from '../Graphics/Filtering';
-
-
-export interface BootLoaderOptions {
-  loadables: Loadable<any>[];
-  suppressPlayButton: boolean;
-}
 
 /**
  * Pre-loading assets
@@ -88,12 +79,6 @@ export interface BootLoaderOptions {
 export class Loader extends DefaultLoader {
   public events = new EventEmitter();
   public screen: Screen;
-  public canvas: Canvas = new Canvas({
-    filtering: ImageFiltering.Blended,
-    smoothing: true,
-    cache: true,
-    draw: this.draw.bind(this)
-  });
   private _playButtonShown: boolean = false;
 
   // logo drawing stuff
@@ -197,10 +182,10 @@ export class Loader extends DefaultLoader {
    * @param loadables  Optionally provide the list of resources you want to load at constructor time
    */
   constructor(loadables?: Loadable<any>[]) {
-    super(loadables);
+    super({loadables});
   }
 
-  public onInitialize(engine: Engine): void {
+  public override onInitialize(engine: Engine): void {
     this.engine = engine;
     this.screen = engine.screen;
   }
@@ -269,7 +254,15 @@ export class Loader extends DefaultLoader {
 
   data: Loadable<any>[];
 
-  public async onBeforeLoad(): Promise<void> {
+  public override async onUserAction(): Promise<void> {
+    // short delay in showing the button for aesthetics
+    await delay(200, this.engine?.clock);
+    this.canvas.flagDirty();
+    // show play button
+    await this.showPlayButton();
+  }
+
+  public override async onBeforeLoad(): Promise<void> {
     // Push the current user entered resolution/viewport
     this.screen.pushResolutionAndViewport();
     // Configure resolution for loader, it expects resolution === viewport
@@ -282,19 +275,10 @@ export class Loader extends DefaultLoader {
     await this._image?.decode(); // decode logo if it exists
   }
 
-  public async onAfterLoad(): Promise<void> {
-    // short delay in showing the button for aesthetics
-    await delay(200, this.engine?.clock);
-    this.canvas.flagDirty();
-
-    await this.showPlayButton();
-    // Unlock browser AudioContext in after user gesture
-    // See: https://github.com/excaliburjs/Excalibur/issues/262
-    // See: https://github.com/excaliburjs/Excalibur/issues/1031
-    await WebAudio.unlock();
-
+  public override async onAfterLoad(): Promise<void> {
     this.screen.popResolutionAndViewport();
     this.screen.applyResolutionAndViewport();
+    this.dispose();
   }
 
   private _positionPlayButton() {
@@ -322,7 +306,7 @@ export class Loader extends DefaultLoader {
    * Override `logo`, `logoWidth`, `logoHeight` and `backgroundColor` properties
    * to customize the drawing, or just override entire method.
    */
-  public draw(ctx: CanvasRenderingContext2D) {
+  public override onDraw(ctx: CanvasRenderingContext2D) {
     const canvasHeight = this.engine.canvasHeight / this.engine.pixelRatio;
     const canvasWidth = this.engine.canvasWidth / this.engine.pixelRatio;
 
