@@ -5,7 +5,9 @@ import { OnInitialize, OnPreUpdate, OnPostUpdate } from '../Interfaces/Lifecycle
 import { Engine } from '../Engine';
 import { InitializeEvent, PreUpdateEvent, PostUpdateEvent } from '../Events';
 import { KillEvent } from '../Events';
-import { EventEmitter, EventKey, Handler, Scene, Subscription, Util } from '..';
+import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
+import { Scene } from '../Scene';
+import { removeItemFromArray } from '../Util/Util';
 
 /**
  * Interface holding an entity component pair
@@ -272,7 +274,7 @@ export class Entity implements OnInitialize, OnPreUpdate, OnPostUpdate {
    */
   public removeChild(entity: Entity): Entity {
     if (entity.parent === this) {
-      Util.removeItemFromArray(entity, this._children);
+      removeItemFromArray(entity, this._children);
       entity._parent = null;
       this.childrenRemoved$.notifyAll(entity);
     }
