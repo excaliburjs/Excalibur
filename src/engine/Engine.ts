@@ -1137,8 +1137,8 @@ O|===|* >________________>\n\
     this.input = new InputHost({
       pointerTarget,
       grabWindowFocus: this._originalOptions?.grabWindowFocus ?? true,
-      engine: this,
-    })
+      engine: this
+    });
     this.inputMapper = this.input.inputMapper;
 
     // Issue #385 make use of the visibility api

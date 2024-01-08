@@ -370,7 +370,9 @@ export class PointerEventReceiver {
    * Responsible for handling and parsing pointer events
    */
   private _handle(ev: NativeTouchEvent | NativePointerEvent | NativeMouseEvent) {
-    if (!this._enabled) return;
+    if (!this._enabled) {
+      return;
+    }
     ev.preventDefault();
     const eventCoords = new Map<number, GlobalCoordinates>();
     let button: PointerButton;
@@ -429,7 +431,9 @@ export class PointerEventReceiver {
   }
 
   private _handleWheel(ev: NativeWheelEvent) {
-    if (!this._enabled) return;
+    if (!this._enabled) {
+      return;
+    }
     // Should we prevent page scroll because of this event
     if (
       this.engine.pageScrollPreventionMode === ScrollPreventionMode.All ||

@@ -1,8 +1,8 @@
-import { Engine } from "../Engine";
-import { Gamepads } from "./Gamepad";
-import { InputMapper } from "./InputMapper";
-import { Keyboard } from "./Keyboard";
-import { PointerEventReceiver } from "./PointerEventReceiver";
+import { Engine } from '../Engine';
+import { Gamepads } from './Gamepad';
+import { InputMapper } from './InputMapper';
+import { Keyboard } from './Keyboard';
+import { PointerEventReceiver } from './PointerEventReceiver';
 
 export interface InputHostOptions {
   pointerTarget: Document | HTMLCanvasElement
@@ -20,9 +20,9 @@ export class InputHost {
 
   constructor(options: InputHostOptions) {
     const {pointerTarget, grabWindowFocus, engine } = options;
-    this.keyboard = new Keyboard(),
-    this.pointers = new PointerEventReceiver(pointerTarget, engine),
-    this.gamepads = new Gamepads()
+    this.keyboard = new Keyboard();
+    this.pointers = new PointerEventReceiver(pointerTarget, engine);
+    this.gamepads = new Gamepads();
 
     this.keyboard.init({grabWindowFocus});
     this.pointers.init({grabWindowFocus});

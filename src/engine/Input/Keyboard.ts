@@ -299,7 +299,9 @@ export class Keyboard {
   };
 
   private _handleKeyDown = (ev: KeyboardEvent) => {
-    if (!this._enabled) return;
+    if (!this._enabled) {
+      return;
+    }
 
     // handle macos meta key issue
     // https://github.com/excaliburjs/Excalibur/issues/2608
@@ -318,7 +320,9 @@ export class Keyboard {
   };
 
   private _handleKeyUp = (ev: KeyboardEvent) => {
-    if (!this._enabled) return;
+    if (!this._enabled) {
+      return;
+    }
     const code = ev.code as Keys;
     const key = this._keys.indexOf(code);
     this._keys.splice(key, 1);

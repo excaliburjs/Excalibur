@@ -23,6 +23,9 @@ export const LoaderEvents = {
 };
 
 export type LoaderConstructor = new (...args: any[]) => DefaultLoader;
+/**
+ *
+ */
 export function isLoaderConstructor(x: any): x is LoaderConstructor {
   return !!x?.prototype && !!x?.prototype?.constructor?.name;
 }

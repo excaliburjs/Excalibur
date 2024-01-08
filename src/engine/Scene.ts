@@ -68,6 +68,9 @@ export const SceneEvents = {
 };
 
 export type SceneConstructor = new (...args: any[]) => Scene;
+/**
+ *
+ */
 export function isSceneConstructor(x: any): x is SceneConstructor {
   return !!x?.prototype && !!x?.prototype?.constructor?.name;
 }
@@ -207,12 +210,12 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * Event hook fired directly before transition, either "in" or "out" of the scene
    *
    * This overrides the Engine scene definition. However transitions specified in goto take hightest precedence
-   * 
+   *
    * ```typescript
    * // Overrides all
    * Engine.goto('scene', { destinationIn: ..., sourceOut: ... });
    * ```
-   * 
+   *
    * This can be used to configure custom transitions for a scene dynamically
    */
   public onTransition(direction: 'in' | 'out'): Transition | undefined {

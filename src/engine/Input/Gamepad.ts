@@ -139,7 +139,9 @@ export class Gamepads {
     if (!this.enabled || !this.supported) {
       return;
     }
-    if (!this._enabled) return;
+    if (!this._enabled) {
+      return;
+    }
     this.init();
 
     const gamepads = this._navigator.getGamepads();

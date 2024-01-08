@@ -282,7 +282,7 @@ export class Director<TKnownScenes extends string = any> {
       this._sceneToTransition.set(name, {in: inTransition, out: outTransition});
 
       if (isLoaderConstructor(loader)) {
-        this._sceneToLoader.set(name, new loader())
+        this._sceneToLoader.set(name, new loader());
       } else {
         this._sceneToLoader.set(name, loader);
       }
@@ -299,7 +299,7 @@ export class Director<TKnownScenes extends string = any> {
   remove(name: TKnownScenes): void;
   remove(nameOrScene: TKnownScenes | Scene | SceneConstructor | string) { // TODO return a director with the scene map type
     if (nameOrScene instanceof Scene || isSceneConstructor(nameOrScene)) {
-      let sceneOrCtor = nameOrScene;
+      const sceneOrCtor = nameOrScene;
       // remove scene
       for (const key in this.scenes) {
         if (this.scenes.hasOwnProperty(key)) {
@@ -397,18 +397,25 @@ export class Director<TKnownScenes extends string = any> {
     this._isTransitioning = false;
   }
 
+  /**
+   * Retrieves a scene instance by key if it's registered.
+   *
+   * This will call any constructors that were given as a definition
+   * @param scene
+   */
   getSceneInstance(scene: string): Scene | undefined {
     const sceneDefinition = this.getSceneDefinition(scene);
-    if (!sceneDefinition) return undefined;
+    if (!sceneDefinition) {
+      return undefined;
+    }
     if (this._sceneToInstance.has(scene)) {
       return this._sceneToInstance.get(scene) as Scene;
     }
     if (sceneDefinition instanceof Scene) {
       this._sceneToInstance.set(scene, sceneDefinition);
-      return sceneDefinition
+      return sceneDefinition;
     }
     const newScene = new sceneDefinition();
-    console.log('New scene');
     this._sceneToInstance.set(scene, newScene);
     return newScene;
   }
