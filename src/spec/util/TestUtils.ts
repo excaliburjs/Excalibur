@@ -41,7 +41,7 @@ export namespace TestUtils {
   /**
    *
    */
-  export async function runToReady(engine: ex.Engine, loader?: ex.BaseLoader) {
+  export async function runToReady(engine: ex.Engine, loader?: ex.DefaultLoader) {
     const clock = engine.clock as ex.TestClock;
     const start = await engine.start(loader);
     // If loader

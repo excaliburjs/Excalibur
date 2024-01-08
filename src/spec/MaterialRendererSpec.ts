@@ -199,7 +199,7 @@ describe('A Material', () => {
 
     const tex = new ex.ImageSource('src/spec/images/MaterialRendererSpec/sword.png');
 
-    const loader = new ex.BaseLoader([tex]);
+    const loader = new ex.DefaultLoader([tex]);
 
     await TestUtils.runToReady(engine, loader);
 
