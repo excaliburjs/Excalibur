@@ -5,7 +5,8 @@ import { FontRenderer } from './FontCommon';
 import { Graphic, GraphicOptions } from './Graphic';
 import { Sprite } from './Sprite';
 import { SpriteSheet } from './SpriteSheet';
-import { BoundingBox, Color } from '..';
+import { BoundingBox } from '../Collision/BoundingBox';
+import { Color } from '../Color'
 
 export interface SpriteFontOptions {
   /**

@@ -1,4 +1,4 @@
-import { Logger } from '..';
+import { Logger } from '../Util/Log';
 import { FpsSampler } from './Fps';
 
 export interface ClockOptions {

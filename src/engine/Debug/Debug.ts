@@ -2,7 +2,7 @@ import { DebugFlags, ColorBlindFlags } from './DebugFlags';
 import { Engine } from '../Engine';
 import { Color } from '../Color';
 import { CollisionContact } from '../Collision/Detection/CollisionContact';
-import { StandardClock, TestClock } from '..';
+import { StandardClock, TestClock } from '../Util/Clock';
 
 /**
  * Debug stats containing current and previous frame statistics

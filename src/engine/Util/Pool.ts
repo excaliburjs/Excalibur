@@ -1,4 +1,4 @@
-import { Logger } from '..';
+import { Logger } from '../Util/Log';
 export class Pool<Type> {
   public totalAllocations = 0;
   public index = 0;

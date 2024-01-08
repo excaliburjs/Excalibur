@@ -7,13 +7,14 @@ import { Entity } from '../EntityComponentSystem/Entity';
 import { Camera } from '../Camera';
 import { AddedEntity, isAddedSystemEntity, RemovedEntity, System, SystemType } from '../EntityComponentSystem';
 import { Engine } from '../Engine';
-import { GraphicsGroup } from '.';
+import { GraphicsGroup } from './GraphicsGroup';
 import { Particle } from '../Particles';
 import { ParallaxComponent } from './ParallaxComponent';
 import { CoordPlane } from '../Math/coord-plane';
 import { BodyComponent } from '../Collision/BodyComponent';
 import { FontCache } from './FontCache';
-import { PostDrawEvent, PreDrawEvent, Transform } from '..';
+import { PostDrawEvent, PreDrawEvent } from '../Events';
+import { Transform } from '../Math/transform';
 import { blendTransform } from './TransformInterpolation';
 
 export class GraphicsSystem extends System<TransformComponent | GraphicsComponent> {

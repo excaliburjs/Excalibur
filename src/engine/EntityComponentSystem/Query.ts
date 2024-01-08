@@ -1,7 +1,8 @@
 import { Entity } from './Entity';
 import { buildTypeKey } from './Util';
 import { Observable } from '../Util/Observable';
-import { Util, Component, ComponentCtor } from '..';
+import { removeItemFromArray, contains } from '../Util/Util';
+import { Component, ComponentCtor } from '../EntityComponentSystem/Component';
 import { AddedEntity, RemovedEntity } from './System';
 
 /**
@@ -50,7 +51,7 @@ export class Query<T extends Component = Component> extends Observable<AddedEnti
    * @param entity
    */
   public addEntity(entity: Entity): void {
-    if (!Util.contains(this._entities, entity) && this.matches(entity)) {
+    if (!contains(this._entities, entity) && this.matches(entity)) {
       this._entities.push(entity);
       this.notifyAll(new AddedEntity(entity));
     }
@@ -61,7 +62,7 @@ export class Query<T extends Component = Component> extends Observable<AddedEnti
    * @param entity
    */
   public removeEntity(entity: Entity): void {
-    if (Util.removeItemFromArray(entity, this._entities)) {
+    if (removeItemFromArray(entity, this._entities)) {
       this.notifyAll(new RemovedEntity(entity));
     }
   }
