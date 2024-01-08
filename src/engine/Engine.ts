@@ -942,16 +942,9 @@ O|===|* >________________>\n\
    * @param key  The name of the scene, must be unique
    * @param scene The scene to add to the engine
    */
-  public addScene(key: string, scene: Scene) { // todo return new engine with the new known scenes
+  public addScene<TScene extends string>(key: TScene, scene: Scene): Engine<TKnownScenes | TScene> {
     this.director.add(key, scene);
-  }
-
-  /**
-   * Asserts that a scene does exist to the type system
-   * @param scene
-   */
-  public assertScene<TScene extends string>(scene: TScene): Engine<WithRoot<TKnownScenes> | TScene> {
-    return this as Engine<WithRoot<TKnownScenes> | TScene>;
+    return this as Engine<TKnownScenes | TScene>;
   }
 
   /**

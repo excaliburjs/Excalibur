@@ -54,10 +54,9 @@ export interface SceneWithOptions {
 
 export type WithRoot<TScenes> = TScenes | 'root';
 
-// TODO do we want to support lazy loading scenes?
 export type SceneMap<TKnownScenes extends string> = Record<TKnownScenes, Scene | SceneConstructor | SceneWithOptions>;
 
-export type StartScene<TKnownScenes extends string> = TKnownScenes | { name: TKnownScenes, in: Transition };
+export type StartScene<TKnownScenes extends string> = TKnownScenes | { scene: TKnownScenes, in: Transition };
 
 export interface StartOptions<TKnownScenes extends string> {
   /**
@@ -204,7 +203,7 @@ export class Director<TKnownScenes extends string = any> {
     if (typeof options.start === 'string') {
       startScene = options.start;
     } else {
-      const { name, in: inTransition } = options.start;
+      const { scene: name, in: inTransition } = options.start;
       startScene = name;
       maybeStartTransition = inTransition;
     }
@@ -276,7 +275,7 @@ export class Director<TKnownScenes extends string = any> {
    * @param name
    * @param sceneOrRoute
    */
-  add(name: string, sceneOrRoute: Scene | SceneConstructor | SceneWithOptions) { // TODO return a director with the scene map type
+  add<TScene extends string>(name: TScene, sceneOrRoute: Scene | SceneConstructor | SceneWithOptions): Director<TKnownScenes | TScene> {
     if (!(sceneOrRoute instanceof Scene) && !(isSceneConstructor(sceneOrRoute))) {
       const { loader, transitions: {in: inTransition, out: outTransition } } = sceneOrRoute;
       this._sceneToTransition.set(name, {in: inTransition, out: outTransition});
@@ -288,16 +287,17 @@ export class Director<TKnownScenes extends string = any> {
       }
     }
 
-    if (this.scenes[name as TKnownScenes]) {
+    if (this.scenes[name as unknown as TKnownScenes]) {
       this._logger.warn('Scene', name, 'already exists overwriting');
     }
-    this.scenes[name as TKnownScenes] = sceneOrRoute;
+    this.scenes[name as unknown as TKnownScenes] = sceneOrRoute;
+    return this.assert(name);
   }
 
   remove(scene: Scene): void;
   remove(sceneCtor: SceneConstructor): void;
   remove(name: TKnownScenes): void;
-  remove(nameOrScene: TKnownScenes | Scene | SceneConstructor | string) { // TODO return a director with the scene map type
+  remove(nameOrScene: TKnownScenes | Scene | SceneConstructor | string) {
     if (nameOrScene instanceof Scene || isSceneConstructor(nameOrScene)) {
       const sceneOrCtor = nameOrScene;
       // remove scene
