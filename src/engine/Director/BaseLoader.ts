@@ -8,6 +8,7 @@ import { Sound } from '../Resources/Sound/Sound';
 import { Future } from '../Util/Future';
 import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
 import { Color } from '../Color';
+import { Util } from '..';
 
 export interface LoaderOptions {
   loadables: Loadable<any>[];
@@ -51,8 +52,8 @@ export class BaseLoader implements Loadable<Loadable<any>[]> {
 
   public onInitialize(engine: Engine) {
     this.engine = engine;
-    this.canvas.width = this.engine.canvas.width;
-    this.canvas.height = this.engine.canvas.height;
+    this.canvas.width = this.engine.screen.canvasWidth;
+    this.canvas.height = this.engine.screen.canvasHeight;
   }
 
   public async onBeforeLoad() {
@@ -61,6 +62,9 @@ export class BaseLoader implements Loadable<Loadable<any>[]> {
 
   public async onAfterLoad() {
     // override me
+
+    // DELETE ME
+    await Util.delay(3000, this.engine.clock);
   }
 
   /**
@@ -103,12 +107,15 @@ export class BaseLoader implements Loadable<Loadable<any>[]> {
     return this._numLoaded === this._resources.length;
   }
 
+  private _totalTimeMs = 0;
+
   /**
    *
-   * @param _engine
-   * @param _elapsedMilliseconds
+   * @param engine
+   * @param elapsedMilliseconds
    */
-  onUpdate(_engine: Engine, _elapsedMilliseconds: number): void {
+  onUpdate(engine: Engine, elapsedMilliseconds: number): void {
+    this._totalTimeMs += elapsedMilliseconds;
     // override me
   }
 
@@ -116,12 +123,31 @@ export class BaseLoader implements Loadable<Loadable<any>[]> {
    * Optionally override the onDraw
    */
   onDraw(ctx: CanvasRenderingContext2D) {
+    const seconds = this._totalTimeMs/1000;
+
     ctx.fillStyle = Color.Black.toRGBA();
     ctx.fillRect(0, 0, this.engine.screen.drawWidth, this.engine.screen.drawHeight);
 
-    ctx.fillStyle = 'lime';
-    ctx.font = '30px Consolas';
-    ctx.fillText((this.progress * 100).toFixed(2) + '%', this.engine.screen.center.x, this.engine.screen.center.y);
+    ctx.save();
+    ctx.translate(this.engine.screen.center.x, this.engine.screen.center.y);
+    ctx.rotate(seconds * 10);
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 10;
+    ctx.lineCap = 'round';
+    ctx.arc(0, 0, 40, 0, Math.PI * 3 / 2);
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.save();
+    ctx.translate(this.engine.screen.center.x, this.engine.screen.center.y);
+    ctx.fillStyle = 'white';
+    ctx.font = '16px sans-serif';
+    const text = (this.progress * 100).toFixed(0) + '%';
+    const textbox = ctx.measureText(text);
+    const width = Math.abs(textbox.actualBoundingBoxLeft) + Math.abs(textbox.actualBoundingBoxRight);
+    const height = Math.abs(textbox.actualBoundingBoxAscent) + Math.abs(textbox.actualBoundingBoxDescent);
+    ctx.fillText(text, -width / 2, height / 2); // center
+    ctx.restore();
   }
 
 

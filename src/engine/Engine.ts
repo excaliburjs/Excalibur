@@ -1,11 +1,8 @@
-import { EX_VERSION } from './';
+import { EX_VERSION, SceneConstructor } from './';
 import { obsolete } from './Util/Decorators';
 import { Future } from './Util/Future';
 import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
-import { Gamepads } from './Input/Gamepad';
-import { Keyboard } from './Input/Keyboard';
 import { PointerScope } from './Input/PointerScope';
-import { EngineInput } from './Input/EngineInput';
 import { Flags } from './Flags';
 import { polyfill } from './Polyfill';
 polyfill();
@@ -39,13 +36,13 @@ import { Entity } from './EntityComponentSystem/Entity';
 import { Debug, DebugStats } from './Debug/Debug';
 import { BrowserEvents } from './Util/Browser';
 import { ExcaliburGraphicsContext, ExcaliburGraphicsContext2DCanvas, ExcaliburGraphicsContextWebGL, TextureLoader } from './Graphics';
-import { PointerEventReceiver } from './Input/PointerEventReceiver';
 import { Clock, StandardClock } from './Util/Clock';
 import { ImageFiltering } from './Graphics/Filtering';
 import { GraphicsDiagnostics } from './Graphics/GraphicsDiagnostics';
 import { Toaster } from './Util/Toaster';
 import { InputMapper } from './Input/InputMapper';
 import { GoToOptions, SceneMap, Director, StartOptions, SceneWithOptions, WithRoot } from './Director/Director';
+import { InputHost } from './Input/InputHost';
 
 export type EngineEvents = {
   fallbackgraphicscontext: ExcaliburGraphicsContext2DCanvas,
@@ -423,12 +420,14 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   /**
    * Access engine input like pointer, keyboard, or gamepad
    */
-  public input: EngineInput;
+  public input: InputHost;
 
   /**
    * Map multiple input sources to specific game actions actions
    */
   public inputMapper: InputMapper;
+
+  private _inputEnabled: boolean = true;
 
   /**
    * Access Excalibur debugging functionality.
@@ -464,7 +463,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   /**
    * Contains all the scenes currently registered with Excalibur
    */
-  public get scenes(): { [key: string]: Scene | SceneWithOptions } {
+  public get scenes(): { [key: string]: Scene | SceneConstructor | SceneWithOptions } {
     return this.director.scenes;
   };
 
@@ -1014,7 +1013,7 @@ O|===|* >________________>\n\
       return;
     }
     const maybeDeferred = this.director.getDeferredScene();
-    if (maybeDeferred) {
+    if (maybeDeferred instanceof Scene) {
       maybeDeferred.add(entity);
     } else {
       this.currentScene.add(entity);
@@ -1135,19 +1134,12 @@ O|===|* >________________>\n\
 
     // initialize inputs
     const pointerTarget = options && options.pointerScope === PointerScope.Document ? document : this.canvas;
-    this.input = {
-      keyboard: new Keyboard(),
-      pointers: new PointerEventReceiver(pointerTarget, this),
-      gamepads: new Gamepads()
-    };
-    this.input.keyboard.init({
-      grabWindowFocus: this._originalOptions?.grabWindowFocus ?? true
-    });
-    this.input.pointers.init({
-      grabWindowFocus: this._originalOptions?.grabWindowFocus ?? true
-    });
-    this.input.gamepads.init();
-    this.inputMapper = new InputMapper(this.input);
+    this.input = new InputHost({
+      pointerTarget,
+      grabWindowFocus: this._originalOptions?.grabWindowFocus ?? true,
+      engine: this,
+    })
+    this.inputMapper = this.input.inputMapper;
 
     // Issue #385 make use of the visibility api
     // https://developer.mozilla.org/en-US/docs/Web/Guide/User_experience/Using_the_Page_Visibility_API
@@ -1165,6 +1157,11 @@ O|===|* >________________>\n\
     if (!this.canvasElementId && !options.canvasElement) {
       document.body.appendChild(this.canvas);
     }
+  }
+
+  public toggleInputEnabled(enabled: boolean) {
+    this._inputEnabled = enabled;
+    this.input.toggleEnabled(this._inputEnabled);
   }
 
   public onInitialize(engine: Engine) {
@@ -1214,9 +1211,7 @@ O|===|* >________________>\n\
       // suspend updates until loading is finished
       this._loader?.onUpdate(this, delta);
       // Update input listeners
-      this.inputMapper.execute();
-      this.input.keyboard.update();
-      this.input.gamepads.update();
+      this.input.update();
       return;
     }
 
@@ -1233,9 +1228,7 @@ O|===|* >________________>\n\
     this._postupdate(delta);
 
     // Update input listeners
-    this.inputMapper.execute();
-    this.input.keyboard.update();
-    this.input.gamepads.update();
+    this.input.update();
   }
 
   /**

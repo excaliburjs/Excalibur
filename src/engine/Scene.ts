@@ -35,6 +35,7 @@ import { PhysicsWorld } from './Collision/PhysicsWorld';
 import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
 import { Color } from './Color';
 import { BaseLoader } from './Director/BaseLoader';
+import { Transition } from './Director';
 
 export class PreLoadEvent {
   loader: BaseLoader;
@@ -65,6 +66,11 @@ export const SceneEvents = {
   PostDebugDraw: 'postdebugdraw',
   PreLoad: 'preload'
 };
+
+export type SceneConstructor = new (...args: any[]) => Scene;
+export function isSceneConstructor(x: any): x is SceneConstructor {
+  return !!x?.prototype && !!x?.prototype?.constructor?.name;
+}
 
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
@@ -190,11 +196,28 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
   /**
    * Event hook to provide Scenes a way of loading scene specific resources.
    *
-   * This is called before the Scene.onInitialize during scene transition.
+   * This is called before the Scene.onInitialize during scene transition. It will only ever fire once for a scene.
    * @param loader
    */
   public onPreLoad(loader: BaseLoader) {
     // will be overridden
+  }
+
+  /**
+   * Event hook fired directly before transition, either "in" or "out" of the scene
+   *
+   * This overrides the Engine scene definition. However transitions specified in goto take hightest precedence
+   * 
+   * ```typescript
+   * // Overrides all
+   * Engine.goto('scene', { destinationIn: ..., sourceOut: ... });
+   * ```
+   * 
+   * This can be used to configure custom transitions for a scene dynamically
+   */
+  public onTransition(direction: 'in' | 'out'): Transition | undefined {
+    // will be overridden
+    return undefined;
   }
 
   /**

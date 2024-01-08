@@ -1,6 +1,6 @@
 import { Engine } from '../Engine';
 import { BaseLoader } from './BaseLoader';
-import { Scene } from '../Scene';
+import { Scene, SceneConstructor, isSceneConstructor } from '../Scene';
 import { Transition } from './Transition';
 import { Loader } from './Loader';
 import { Logger } from '../Util/Log';
@@ -29,16 +29,23 @@ export const DirectorEvents = {
 export interface SceneWithOptions {
   /**
    * Scene associated with this route
+   *
+   * If a constructor is provided it will not be constructed until navigation is requested
    */
-  scene: Scene; // TODO lazy load scene
+  scene: Scene | SceneConstructor;
   /**
-   * Optionally specify a transition when going "in" to this scene
+   * Specify scene transitions
    */
-  in?: Transition;
-  /**
-   * Optionally specify a transition when going "out" of this scene
-   */
-  out?: Transition;
+  transitions?: {
+    /**
+     * Optionally specify a transition when going "in" to this scene
+     */
+    in?: Transition;
+    /**
+     * Optionally specify a transition when going "out" of this scene
+     */
+    out?: Transition;
+  };
   /**
    * Optionally specify a loader for the scene
    */
@@ -48,7 +55,7 @@ export interface SceneWithOptions {
 export type WithRoot<TScenes> = TScenes | 'root';
 
 // TODO do we want to support lazy loading scenes?
-export type SceneMap<TKnownScenes extends string> = Record<TKnownScenes, Scene | SceneWithOptions>;
+export type SceneMap<TKnownScenes extends string> = Record<TKnownScenes, Scene | SceneConstructor | SceneWithOptions>;
 
 export type StartScene<TKnownScenes extends string> = TKnownScenes | { name: TKnownScenes, in: Transition };
 
@@ -73,15 +80,15 @@ export interface GoToOptions {
    */
   sceneActivationData?: any,
   /**
-   * Optionally supply destination scene "in" transition
+   * Optionally supply destination scene "in" transition, this will override any previously defined transition
    */
   destinationIn?: Transition,
   /**
-   * Optionally supply source scene "out" transition
+   * Optionally supply source scene "out" transition, this will override any previously defined transition
    */
   sourceOut?: Transition,
   /**
-   * Optionally supply a different loader for the destination scene
+   * Optionally supply a different loader for the destination scene, this will override any previously defined loader
    */
   loader?: BaseLoader
 }
@@ -114,6 +121,11 @@ export class Director<TKnownScenes extends string = any> {
    * All registered scenes in Excalibur
    */
   public readonly scenes: SceneMap<WithRoot<TKnownScenes>> = {} as SceneMap<WithRoot<TKnownScenes>>;
+
+  /**
+   * Holds all instantiated scenes
+   */
+  private _sceneToInstance = new Map<string, Scene>();
 
   startScene: string;
   mainLoader: BaseLoader;
@@ -206,24 +218,24 @@ export class Director<TKnownScenes extends string = any> {
     return this._sceneToLoader.get(sceneName);
   }
 
-  private _getInTransition(sceneName: string) {
+  private _getInTransition(sceneName: string): Transition | undefined {
     const sceneOrRoute = this.scenes[sceneName as TKnownScenes];
-    if (sceneOrRoute instanceof Scene) {
+    if (sceneOrRoute instanceof Scene || isSceneConstructor(sceneOrRoute)) {
       return null;
     }
-    return sceneOrRoute?.in;
+    return sceneOrRoute?.transitions?.in;
   }
 
-  private _getOutTransition(sceneName: string) {
+  private _getOutTransition(sceneName: string): Transition | undefined {
     const sceneOrRoute = this.scenes[sceneName as TKnownScenes];
-    if (sceneOrRoute instanceof Scene) {
+    if (sceneOrRoute instanceof Scene || isSceneConstructor(sceneOrRoute)) {
       return null;
     }
-    return sceneOrRoute?.out;
+    return sceneOrRoute?.transitions?.out;
   }
 
   getDeferredScene() {
-    const maybeDeferred = this.getScene(this._deferredGoto);
+    const maybeDeferred = this.getSceneDefinition(this._deferredGoto);
     if (this._deferredGoto && maybeDeferred) {
       return maybeDeferred;
     }
@@ -231,12 +243,12 @@ export class Director<TKnownScenes extends string = any> {
   }
 
   /**
-   * Returns a scene by name if it exists
+   * Returns a scene by name if it exists, might be the constructor and not the instance of a scene
    * @param name
    */
-  getScene(name: string): Scene | undefined {
+  getSceneDefinition(name: string): Scene | SceneConstructor | undefined {
     const maybeScene = this.scenes[name as TKnownScenes];
-    if (maybeScene instanceof Scene) {
+    if (maybeScene instanceof Scene || isSceneConstructor(maybeScene)) {
       return maybeScene;
     } else if (maybeScene) {
       return maybeScene.scene;
@@ -257,9 +269,9 @@ export class Director<TKnownScenes extends string = any> {
    * @param name
    * @param sceneOrRoute
    */
-  add(name: string, sceneOrRoute: Scene | SceneWithOptions) { // TODO return a director with the scene map type
-    if (!(sceneOrRoute instanceof Scene)) {
-      const { loader, in: inTransition, out: outTransition } = sceneOrRoute;
+  add(name: string, sceneOrRoute: Scene | SceneConstructor | SceneWithOptions) { // TODO return a director with the scene map type
+    if (!(sceneOrRoute instanceof Scene) && !(isSceneConstructor(sceneOrRoute))) {
+      const { loader, transitions: {in: inTransition, out: outTransition } } = sceneOrRoute;
       this._sceneToTransition.set(name, {in: inTransition, out: outTransition});
       this._sceneToLoader.set(name, loader);
     }
@@ -271,21 +283,23 @@ export class Director<TKnownScenes extends string = any> {
   }
 
   remove(scene: Scene): void;
+  remove(sceneCtor: SceneConstructor): void;
   remove(name: TKnownScenes): void;
-  remove(nameOrScene: TKnownScenes | Scene | string) { // TODO return a director with the scene map type
-    if (nameOrScene instanceof Scene) {
+  remove(nameOrScene: TKnownScenes | Scene | SceneConstructor | string) { // TODO return a director with the scene map type
+    if (nameOrScene instanceof Scene || isSceneConstructor(nameOrScene)) {
+      let sceneOrCtor = nameOrScene;
       // remove scene
       for (const key in this.scenes) {
         if (this.scenes.hasOwnProperty(key)) {
           const potentialSceneOrOptions = this.scenes[key as TKnownScenes];
-          let scene: Scene;
-          if (potentialSceneOrOptions instanceof Scene) {
+          let scene: Scene | SceneConstructor;
+          if (potentialSceneOrOptions instanceof Scene || isSceneConstructor(potentialSceneOrOptions)) {
             scene = potentialSceneOrOptions;
           } else {
             scene = potentialSceneOrOptions.scene;
           }
 
-          if (scene === nameOrScene) {
+          if (scene === sceneOrCtor) {
             this._sceneToTransition.delete(key);
             this._sceneToLoader.delete(key);
             delete this.scenes[key as TKnownScenes];
@@ -311,7 +325,7 @@ export class Director<TKnownScenes extends string = any> {
       return;
     }
 
-    const maybeDest = this.getScene(destinationScene);
+    const maybeDest = this.getSceneInstance(destinationScene);
     if (!maybeDest) {
       this._logger.warn(`Scene ${destinationScene} does not exist! Check the name, are you sure you added it?`);
       return;
@@ -326,9 +340,14 @@ export class Director<TKnownScenes extends string = any> {
     const sourceScene = this.currentSceneName;
     this._isTransitioning = true;
 
+    const maybeSourceOut = this.getSceneInstance(sourceScene)?.onTransition('out');
+    const maybeDestinationIn = maybeDest?.onTransition('in');
+
     options = {
-      ...this._getOutTransition(this.currentSceneName),
-      ...this._getInTransition(destinationScene),
+      // Engine configuration then dynamic scene transitions
+      ...{ sourceOut: this._getOutTransition(this.currentSceneName) ?? maybeSourceOut},
+      ...{ destinationIn: this._getInTransition(destinationScene) ?? maybeDestinationIn},
+      // Goto options
       ...options };
 
     const { sourceOut, destinationIn, sceneActivationData } = options;
@@ -355,7 +374,6 @@ export class Director<TKnownScenes extends string = any> {
     await inTransition?.onPreviousSceneDeactivate(this.currentScene);
 
     // Swap to the new scene
-    // TODO should we detect if a scene init is sync/async and run it accordingly?
     await this.swapScene(destinationScene, sceneActivationData);
     this._emitEvent('navigation', sourceScene, destinationScene);
 
@@ -363,7 +381,24 @@ export class Director<TKnownScenes extends string = any> {
     await this.playTransition(inTransition);
     this._emitEvent('navigationend', sourceScene, destinationScene);
 
+    this._engine.toggleInputEnabled(true);
     this._isTransitioning = false;
+  }
+
+  getSceneInstance(scene: string): Scene | undefined {
+    const sceneDefinition = this.getSceneDefinition(scene);
+    if (!sceneDefinition) return undefined;
+    if (this._sceneToInstance.has(scene)) {
+      return this._sceneToInstance.get(scene) as Scene;
+    }
+    if (sceneDefinition instanceof Scene) {
+      this._sceneToInstance.set(scene, sceneDefinition);
+      return sceneDefinition
+    }
+    const newScene = new sceneDefinition();
+    console.log('New scene');
+    this._sceneToInstance.set(scene, newScene);
+    return newScene;
   }
 
   /**
@@ -372,18 +407,19 @@ export class Director<TKnownScenes extends string = any> {
    * @param hideLoader
    */
   async maybeLoadScene(scene: string, hideLoader = false) {
-    const loader = this._getLoader(scene) ?? new Loader();
-    const sceneToLoad = this.getScene(scene);
-    if (sceneToLoad && !this._loadedScenes.has(sceneToLoad)) {
-      sceneToLoad.onPreLoad(loader);
-      sceneToLoad.events.emit('preload', { loader });
+    const loader = this._getLoader(scene) ?? new BaseLoader();
+    const sceneToLoad = this.getSceneDefinition(scene);
+    const sceneToLoadInstance = this.getSceneInstance(scene);
+    if (sceneToLoad && sceneToLoadInstance && !this._loadedScenes.has(sceneToLoadInstance)) {
+      sceneToLoadInstance.onPreLoad(loader);
+      sceneToLoadInstance.events.emit('preload', { loader });
       if (hideLoader) {
         // Don't await a hidden loader
         this._engine.load(loader, hideLoader);
       } else {
         await this._engine.load(loader);
       }
-      this._loadedScenes.add(sceneToLoad);
+      this._loadedScenes.add(sceneToLoadInstance);
     }
   }
 
@@ -394,6 +430,7 @@ export class Director<TKnownScenes extends string = any> {
   async playTransition(transition: Transition) {
     if (transition) {
       this.currentTransition = transition;
+      this._engine.toggleInputEnabled(!transition.blockInput);
       this._engine.add(this.currentTransition);
       await this.currentTransition.done;
     }
@@ -415,7 +452,7 @@ export class Director<TKnownScenes extends string = any> {
       return;
     }
 
-    const maybeDest = this.getScene(destinationScene);
+    const maybeDest = this.getSceneInstance(destinationScene);
 
     if (maybeDest) {
       const previousScene = this.currentScene;
@@ -451,8 +488,8 @@ export class Director<TKnownScenes extends string = any> {
   }
 
   private _emitEvent(eventName: keyof DirectorEvents, sourceScene: string, destinationScene: string) {
-    const source = this.getScene(sourceScene)!;
-    const dest = this.getScene(destinationScene)!;
+    const source = this.getSceneDefinition(sourceScene)!;
+    const dest = this.getSceneDefinition(destinationScene)!;
     this.events.emit(eventName, {
       sourceScene: source,
       sourceName: sourceScene,

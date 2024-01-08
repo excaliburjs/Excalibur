@@ -8,7 +8,7 @@ import { EasingFunction, EasingFunctions } from '../Util/EasingFunctions';
 
 export interface TransitionOptions {
   /**
-   * Duration in milliseconds
+   * Transition duration in milliseconds
    */
   duration: number;
 
@@ -41,6 +41,9 @@ export interface TransitionOptions {
   direction?: 'out' | 'in';
 }
 
+/**
+ * Base Transition that can be extended to provide custom scene transitions in Excalibur.
+ */
 export class Transition extends Entity {
   transform = new TransformComponent();
   graphics = new GraphicsComponent();
@@ -98,6 +101,13 @@ export class Transition extends Entity {
     }
   }
 
+  /**
+   * Overridable lifecycle method, called before each update.
+   *
+   * **WARNING BE SURE** to call `super.onPreUpdate()` if overriding in your own custom implementation
+   * @param engine
+   * @param delta
+   */
   public override onPreUpdate(engine: Engine, delta: number): void {
     if (this.complete) {
       return;
@@ -115,12 +125,20 @@ export class Transition extends Entity {
     }
   }
 
-  async onPreviousSceneDeactivate(_scene: Scene) {
+  /**
+   * Overridable lifecycle method, called right before the previous scene has deactivated.
+   *
+   * This gives incoming transition a chance to grab info from previous scene if desired
+   * @param scene
+   */
+  async onPreviousSceneDeactivate(scene: Scene) {
     // override me
   }
 
   /**
-   * Called once at the beginning of the transition
+   * Overridable lifecycle method, called once at the beginning of the transition
+   *
+   * `progress` is given between 0 and 1
    * @param progress
    */
   onStart(progress: number) {
@@ -128,7 +146,9 @@ export class Transition extends Entity {
   }
 
   /**
-   * Called every frame of the transition
+   * Overridable lifecycle method, called every frame of the transition
+   *
+   * `progress` is given between 0 and 1
    * @param progress
    */
   onUpdate(progress: number) {
@@ -136,20 +156,27 @@ export class Transition extends Entity {
   }
 
   /**
-   * Called at the end of the transition
-   * @param _progress
+   * Overridable lifecycle method, called at the end of the transition,
+   *
+   * `progress` is given between 0 and 1
+   * @param progress
    */
   onEnd(progress: number) {
     // override me
   }
 
   /**
-   * Called when the transition is reset
+   * Overridable lifecycle method, called when the transition is reset
+   *
+   * Use this to override and provide your own reset logic for internal state in custom transition implementations
    */
   onReset() {
     // override me
   }
 
+  /**
+   * reset() is called by the engine to reset transitions
+   */
   reset() {
     this.started = false;
     this._completeFuture = new Future<void>();
@@ -163,6 +190,9 @@ export class Transition extends Entity {
     this.onReset();
   }
 
+  /**
+   * execute() is called by the engine every frame to update the Transition lifecycle onStart/onUpdate/onEnd
+   */
   execute() {
     if (!this.isInitialized) {
       return;

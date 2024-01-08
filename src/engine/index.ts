@@ -80,9 +80,6 @@ export {
   CapturePointerConfig
 } from './Input/CapturePointerConfig';
 
-export {
-  EngineInput
-} from './Input/EngineInput';
 
 export {
   NativePointerEvent,

@@ -74,7 +74,13 @@ export class PointerEventReceiver {
   public currentFrameCancel: PointerEvent[] = [];
   public currentFrameWheel: WheelEvent[] = [];
 
+  private _enabled = true;
+
   constructor(public readonly target: GlobalEventHandlers & EventTarget, public engine: Engine) {}
+
+  public toggleEnabled(enabled: boolean) {
+    this._enabled = enabled;
+  }
 
   /**
    * Creates a new PointerEventReceiver with a new target and engine while preserving existing pointer event
@@ -364,6 +370,7 @@ export class PointerEventReceiver {
    * Responsible for handling and parsing pointer events
    */
   private _handle(ev: NativeTouchEvent | NativePointerEvent | NativeMouseEvent) {
+    if (!this._enabled) return;
     ev.preventDefault();
     const eventCoords = new Map<number, GlobalCoordinates>();
     let button: PointerButton;
@@ -422,6 +429,7 @@ export class PointerEventReceiver {
   }
 
   private _handleWheel(ev: NativeWheelEvent) {
+    if (!this._enabled) return;
     // Should we prevent page scroll because of this event
     if (
       this.engine.pageScrollPreventionMode === ScrollPreventionMode.All ||
