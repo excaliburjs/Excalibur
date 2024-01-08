@@ -1338,12 +1338,6 @@ O|===|* >________________>\n\
     return this._isReadyFuture.promise;
   }
 
-  private _isStartOptions(maybeRouterOptions: any): maybeRouterOptions is StartOptions<WithRoot<TKnownScenes>> {
-    if (maybeRouterOptions && maybeRouterOptions.start) {
-      return true;
-    }
-    return false;
-  }
 
 
   /**
@@ -1361,23 +1355,23 @@ O|===|* >________________>\n\
    *
    * Note: start() only resolves AFTER the user has clicked the play button
    */
-  public async start(startOptions?: StartOptions<WithRoot<TKnownScenes>>): Promise<void>;
+  public async start(sceneName: WithRoot<TKnownScenes>, options?: StartOptions): Promise<void>;
   /**
    * Starts the internal game loop after any loader is finished
    * @param loader
    */
   public async start(loader?: DefaultLoader): Promise<void>;
-  public async start(loaderOrStartOptions?: DefaultLoader | StartOptions<WithRoot<TKnownScenes>>): Promise<void> {
+  public async start(sceneNameOrLoader?: WithRoot<TKnownScenes> | DefaultLoader, options?: StartOptions): Promise<void> {
     if (!this._compatible) {
       throw new Error('Excalibur is incompatible with your browser');
     }
     this._isLoading = true;
     let loader: DefaultLoader;
-    if (this._isStartOptions(loaderOrStartOptions)) {
-      this.director.start(loaderOrStartOptions);
+    if (sceneNameOrLoader instanceof DefaultLoader) {
+      loader = sceneNameOrLoader;
+    } else if (typeof sceneNameOrLoader === 'string') {
+      this.director.start(sceneNameOrLoader, options);
       loader = this.director.mainLoader;
-    } else {
-      loader = loaderOrStartOptions;
     }
 
     // Start the excalibur clock which drives the mainloop

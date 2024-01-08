@@ -54,15 +54,13 @@ export interface SceneWithOptions {
 
 export type WithRoot<TScenes> = TScenes | 'root';
 
-export type SceneMap<TKnownScenes extends string> = Record<TKnownScenes, Scene | SceneConstructor | SceneWithOptions>;
+export type SceneMap<TKnownScenes extends string = any> = Record<TKnownScenes, Scene | SceneConstructor | SceneWithOptions>;
 
-export type StartScene<TKnownScenes extends string> = TKnownScenes | { scene: TKnownScenes, in: Transition };
-
-export interface StartOptions<TKnownScenes extends string> {
+export interface StartOptions {
   /**
-   * Starting scene name with optional transition
+   * First transition from the game start screen
    */
-  start: StartScene<WithRoot<TKnownScenes>>;
+  inTransition: Transition;
   /**
    * Optionally provide a main loader to run before the game starts
    */
@@ -182,12 +180,13 @@ export class Director<TKnownScenes extends string = any> {
   }
 
   /**
-   * Configures the start scene and loader for the director
+   * Configures the start scene, and optionally the transition & loader for the director
    *
    * Typically this is called at the beginning of the game to the start scene and transition and never again.
+   * @param startScene
    * @param options
    */
-  start(options: StartOptions<WithRoot<TKnownScenes>>) {
+  start(startScene: WithRoot<TKnownScenes>, options?: StartOptions) {
     const maybeLoaderOrCtor = options.loader;
     if (maybeLoaderOrCtor instanceof DefaultLoader) {
       this.mainLoader = maybeLoaderOrCtor;
@@ -197,14 +196,10 @@ export class Director<TKnownScenes extends string = any> {
       this.mainLoader = new Loader();
     }
 
-    let startScene: string;
     let maybeStartTransition: Transition;
 
-    if (typeof options.start === 'string') {
-      startScene = options.start;
-    } else {
-      const { scene: name, in: inTransition } = options.start;
-      startScene = name;
+    if (options) {
+      const { inTransition } = options;
       maybeStartTransition = inTransition;
     }
 

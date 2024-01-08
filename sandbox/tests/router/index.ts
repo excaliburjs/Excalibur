@@ -27,27 +27,29 @@ class MyCustomScene extends ex.Scene {
   }
 }
 
+let scenes = {
+  scene1: {
+    scene: scene1,
+    transitions: {
+      in: new ex.FadeInOut({duration: 500, direction: 'in'})
+    }
+  },
+  scene2: {
+    scene: scene2,
+    loader: ex.DefaultLoader,
+    transitions: {
+      out: new ex.FadeInOut({duration: 500, direction: 'out'}),
+      in: new ex.CrossFade({duration: 500, direction: 'in', blockInput: true})
+    }
+  },
+  scene3: MyCustomScene
+} satisfies ex.SceneMap<any>;
+
 var gameWithTransitions = new ex.Engine({
   width: 800,
   height: 600,
   displayMode: ex.DisplayMode.FitScreenAndFill,
-  scenes: {
-    scene1: {
-      scene: scene1,
-      transitions: {
-        in: new ex.FadeInOut({duration: 500, direction: 'in'})
-      }
-    },
-    scene2: {
-      scene: scene2,
-      loader: ex.DefaultLoader,
-      transitions: {
-        out: new ex.FadeInOut({duration: 500, direction: 'out'}),
-        in: new ex.CrossFade({duration: 500, direction: 'in', blockInput: true})
-      }
-    },
-    scene3: MyCustomScene
-  }
+  scenes
 });
 
 
@@ -118,10 +120,8 @@ var startTransition = new ex.FadeInOut({duration: 500, direction: 'in', color: e
 //   console.log(game.currentScene.entities);
 //   console.log('killed!');
 // })
-gameWithTransitions.start({
-  start: {
-    name: 'scene1',
-    in: startTransition
-  },
+gameWithTransitions.start('scene1',
+{
+  inTransition: startTransition,
   loader: boot
 });
