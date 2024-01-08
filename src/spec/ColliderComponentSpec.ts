@@ -46,6 +46,7 @@ fdescribe('A ColliderComponent', () => {
       new ex.CollisionStartEvent<ex.Collider>(
         ex.Shape.Circle(50),
         ex.Shape.Circle(50),
+        null, 
         null));
 
     expect(originalCollisionHandler).toHaveBeenCalledTimes(1);

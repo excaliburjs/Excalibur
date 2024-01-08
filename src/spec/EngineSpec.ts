@@ -243,7 +243,7 @@ fdescribe('The engine', () => {
     );
 
     const testClock = engine.clock as ex.TestClock;
-    const loader = new ex.DefaultLoader([new ex.ImageSource('src/spec/images/SpriteSpec/icon.png')]);
+    const loader = new ex.Loader([new ex.ImageSource('src/spec/images/SpriteSpec/icon.png')]);
 
     TestUtils.runToReady(engine, loader).then(() => {
       // With suppress play there is another 500 ms delay in engine load()

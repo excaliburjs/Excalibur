@@ -24,7 +24,7 @@ fdescribe('A ColorBlindCorrector', () => {
 
     engine = TestUtils.engine({ width: 800, height: 200 }, []);
     bg = new ex.ImageSource('src/spec/images/ColorBlindCorrectorSpec/actor.png');
-    const loader = new ex.DefaultLoader([bg]);
+    const loader = new ex.Loader([bg]);
     clock = engine.clock as ex.TestClock;
     await TestUtils.runToReady(engine, loader);
   });
