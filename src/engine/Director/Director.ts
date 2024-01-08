@@ -266,8 +266,16 @@ export class Director<TKnownScenes extends string = any> {
    * Returns the same Director, but asserts a scene DOES exist to the type system
    * @param name
    */
-  assert<TScene extends string>(name: TScene): Director<TKnownScenes | TScene> {
+  assertAdded<TScene extends string>(name: TScene): Director<TKnownScenes | TScene> {
     return this as Director<TKnownScenes | TScene>;
+  }
+
+  /**
+   * Returns the same Director, but asserts a scene DOES NOT exist to the type system
+   * @param name
+   */
+  assertRemoved<TScene extends string>(name: TScene): Director<Exclude<TKnownScenes, TScene>> {
+    return this as Director<Exclude<TKnownScenes, TScene>>;
   }
 
   /**
@@ -291,7 +299,7 @@ export class Director<TKnownScenes extends string = any> {
       this._logger.warn('Scene', name, 'already exists overwriting');
     }
     this.scenes[name as unknown as TKnownScenes] = sceneOrRoute;
-    return this.assert(name);
+    return this.assertAdded(name);
   }
 
   remove(scene: Scene): void;

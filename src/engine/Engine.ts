@@ -1,4 +1,4 @@
-import { EX_VERSION, SceneConstructor } from './';
+import { EX_VERSION, SceneConstructor, isSceneConstructor } from './';
 import { obsolete } from './Util/Decorators';
 import { Future } from './Util/Future';
 import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
@@ -942,7 +942,7 @@ O|===|* >________________>\n\
    * @param key  The name of the scene, must be unique
    * @param scene The scene to add to the engine
    */
-  public addScene<TScene extends string>(key: TScene, scene: Scene): Engine<TKnownScenes | TScene> {
+  public addScene<TScene extends string>(key: TScene, scene: Scene | SceneConstructor | SceneWithOptions): Engine<TKnownScenes | TScene> {
     this.director.add(key, scene);
     return this as Engine<TKnownScenes | TScene>;
   }
@@ -951,7 +951,7 @@ O|===|* >________________>\n\
    * Removes a [[Scene]] instance from the engine
    * @param scene  The scene to remove
    */
-  public removeScene(scene: Scene): void;
+  public removeScene(scene: Scene | SceneConstructor): void;
   /**
    * Removes a scene from the engine by key
    * @param key  The scene key to remove
@@ -970,7 +970,7 @@ O|===|* >________________>\n\
    * @param sceneKey  The key of the scene, must be unique
    * @param scene     The scene to add to the engine
    */
-  public add(sceneKey: string, scene: Scene): void;
+  public add(sceneKey: string, scene: Scene | SceneConstructor | SceneWithOptions): void;
   /**
    * Adds a [[Timer]] to the [[currentScene]].
    * @param timer  The timer to add to the [[currentScene]].
@@ -1002,7 +1002,7 @@ O|===|* >________________>\n\
   public add(screenElement: ScreenElement): void;
   public add(entity: any): void {
     if (arguments.length === 2) {
-      this.director.add(<string>arguments[0], <Scene>arguments[1]);
+      this.director.add(<string>arguments[0], <Scene | SceneConstructor | SceneWithOptions>arguments[1]);
       return;
     }
     const maybeDeferred = this.director.getDeferredScene();
@@ -1017,7 +1017,7 @@ O|===|* >________________>\n\
    * Removes a scene instance from the engine
    * @param scene  The scene to remove
    */
-  public remove(scene: Scene): void;
+  public remove(scene: Scene | SceneConstructor): void;
   /**
    * Removes a scene from the engine by key
    * @param sceneKey  The scene to remove
@@ -1049,7 +1049,7 @@ O|===|* >________________>\n\
       this.currentScene.remove(entity);
     }
 
-    if (entity instanceof Scene) {
+    if (entity instanceof Scene || isSceneConstructor(entity)) {
       this.removeScene(entity);
     }
 
