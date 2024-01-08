@@ -6,6 +6,11 @@ import { ImageFiltering } from './Filtering';
 import { Future } from '../Util/Future';
 import { TextureLoader } from '../Graphics/Context/texture-loader';
 
+export interface ImageSourceOptions {
+  filtering?: ImageFiltering;
+  bustCache?: boolean;
+}
+
 export class ImageSource implements Loadable<HTMLImageElement> {
   private _logger = Logger.getInstance();
   private _resource: Resource<Blob>;
@@ -70,13 +75,17 @@ export class ImageSource implements Loadable<HTMLImageElement> {
    * Create an ImageSource from and HTML <image> tag element
    * @param image
    */
-  static fromHtmlImageElement(image: HTMLImageElement) {
+  static fromHtmlImageElement(image: HTMLImageElement, options?: ImageSourceOptions) {
     const imageSource = new ImageSource('');
     imageSource._src = 'image-element';
     imageSource.data = image;
     imageSource.data.setAttribute('data-original-src', 'image-element');
-    // TODO imagefiltering
-    imageSource.data.setAttribute('filtering', ImageFiltering.Blended);
+
+    if (options?.filtering) {
+      imageSource.data.setAttribute('filtering', options?.filtering);
+    } else {
+      imageSource.data.setAttribute('filtering', ImageFiltering.Blended);
+    }
 
     TextureLoader.checkImageSizeSupportedAndLog(image);
     imageSource._readyFuture.resolve(image);
