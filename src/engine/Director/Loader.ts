@@ -8,7 +8,7 @@ import { Vector } from '../Math/vector';
 import { delay } from '../Util/Util';
 import { EventEmitter } from '../EventEmitter';
 import { DefaultLoader } from './DefaultLoader';
-import { Engine } from '..';
+import { Engine } from '../Engine';
 import { Screen } from '../Screen';
 
 /**

@@ -1,4 +1,6 @@
-import { Engine, Future, Scene } from '..';
+import { Engine } from '../Engine';
+import { Scene } from '../Scene';
+import { Future } from '../Util/Future';
 import { Entity, TransformComponent } from '../EntityComponentSystem';
 import { GraphicsComponent } from '../Graphics';
 import { CoordPlane } from '../Math/coord-plane';

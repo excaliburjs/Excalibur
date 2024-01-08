@@ -1,4 +1,7 @@
-import { Color, Engine, Rectangle, vec } from '..';
+import { Engine } from '../Engine';
+import { Color } from '../Color';
+import { vec } from '../Math/vector';
+import { Rectangle } from '../Graphics';
 import { Transition, TransitionOptions } from './Transition';
 
 export interface FadeOptions {

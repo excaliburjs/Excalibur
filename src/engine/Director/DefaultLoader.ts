@@ -8,7 +8,7 @@ import { Sound } from '../Resources/Sound/Sound';
 import { Future } from '../Util/Future';
 import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
 import { Color } from '../Color';
-import { Util } from '..';
+import { delay } from '../Util/Util';
 
 export interface LoaderOptions {
   loadables: Loadable<any>[];
@@ -48,7 +48,7 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
 
 
   /**
-   * @param loadables  Optionally provide the list of resources you want to load at constructor time
+   * @param options Optionally provide the list of resources you want to load at constructor time
    */
   constructor(options?: LoaderOptions) {
     if (options && options.loadables?.length) {
@@ -67,12 +67,12 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
   }
 
   /**
-    * Return a promise that resolves when the user interacts with the loading screen in some way, usually a click.
-    *
-    * It's important to implement this in order to unlock the audio context in the browser. Browsers automatically prevent
-    * audio from playing until the user performs an action.
-    *
-    */
+   * Return a promise that resolves when the user interacts with the loading screen in some way, usually a click.
+   *
+   * It's important to implement this in order to unlock the audio context in the browser. Browsers automatically prevent
+   * audio from playing until the user performs an action.
+   *
+   */
   public onUserAction(): Promise<void> {
 
     return Promise.resolve();
@@ -90,7 +90,7 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
    */
   public async onAfterLoad() {
     // override me
-    await Util.delay(500, this.engine.clock); // avoid a flicker
+    await delay(500, this.engine.clock); // avoid a flicker
   }
 
   /**

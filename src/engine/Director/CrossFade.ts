@@ -1,4 +1,6 @@
-import { Engine, ImageSource, Scene, Sprite } from '..';
+import { ImageSource, Sprite } from '../Graphics';
+import { Engine } from '../Engine';
+import { Scene } from '../Scene';
 import { Transition, TransitionOptions } from './Transition';
 import { vec } from '../Math/vector';
 

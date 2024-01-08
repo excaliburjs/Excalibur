@@ -1,4 +1,4 @@
-import { EX_VERSION, SceneConstructor, isSceneConstructor } from './';
+import { EX_VERSION } from './index';
 import { obsolete } from './Util/Decorators';
 import { Future } from './Util/Future';
 import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
@@ -31,7 +31,7 @@ import {
 } from './Events';
 import { Logger, LogLevel } from './Util/Log';
 import { Color } from './Color';
-import { Scene } from './Scene';
+import { Scene, SceneConstructor, isSceneConstructor } from './Scene';
 import { Entity } from './EntityComponentSystem/Entity';
 import { Debug, DebugStats } from './Debug/Debug';
 import { BrowserEvents } from './Util/Browser';
