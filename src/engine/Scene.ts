@@ -34,11 +34,11 @@ import { ExcaliburGraphicsContext } from './Graphics';
 import { PhysicsWorld } from './Collision/PhysicsWorld';
 import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
 import { Color } from './Color';
-import { BaseLoader } from './Director/BaseLoader';
+import { DefaultLoader } from './Director/DefaultLoader';
 import { Transition } from './Director';
 
 export class PreLoadEvent {
-  loader: BaseLoader;
+  loader: DefaultLoader;
 }
 
 export type SceneEvents = {
@@ -199,7 +199,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * This is called before the Scene.onInitialize during scene transition. It will only ever fire once for a scene.
    * @param loader
    */
-  public onPreLoad(loader: BaseLoader) {
+  public onPreLoad(loader: DefaultLoader) {
     // will be overridden
   }
 

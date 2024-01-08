@@ -1,5 +1,5 @@
 import { Engine } from '../Engine';
-import { BaseLoader } from './BaseLoader';
+import { DefaultLoader } from './DefaultLoader';
 import { Scene, SceneConstructor, isSceneConstructor } from '../Scene';
 import { Transition } from './Transition';
 import { Loader } from './Loader';
@@ -49,7 +49,7 @@ export interface SceneWithOptions {
   /**
    * Optionally specify a loader for the scene
    */
-  loader?: BaseLoader;
+  loader?: DefaultLoader;
 }
 
 export type WithRoot<TScenes> = TScenes | 'root';
@@ -67,7 +67,7 @@ export interface StartOptions<TKnownScenes extends string> {
   /**
    * Optionally provide a main loader to run before the game starts
    */
-  loader?: BaseLoader
+  loader?: DefaultLoader
 }
 
 
@@ -90,7 +90,7 @@ export interface GoToOptions {
   /**
    * Optionally supply a different loader for the destination scene, this will override any previously defined loader
    */
-  loader?: BaseLoader
+  loader?: DefaultLoader
 }
 
 /**
@@ -128,14 +128,14 @@ export class Director<TKnownScenes extends string = any> {
   private _sceneToInstance = new Map<string, Scene>();
 
   startScene: string;
-  mainLoader: BaseLoader;
+  mainLoader: DefaultLoader;
 
   /**
    * The default [[Scene]] of the game, use [[Engine.goto]] to transition to different scenes.
    */
   public readonly rootScene: Scene;
 
-  private _sceneToLoader = new Map<string, BaseLoader>();
+  private _sceneToLoader = new Map<string, DefaultLoader>();
   private _sceneToTransition = new Map<string, {in: Transition, out: Transition }>();
   /**
    * Used to keep track of scenes that have already been loaded so we don't load multiple times
@@ -407,7 +407,7 @@ export class Director<TKnownScenes extends string = any> {
    * @param hideLoader
    */
   async maybeLoadScene(scene: string, hideLoader = false) {
-    const loader = this._getLoader(scene) ?? new BaseLoader();
+    const loader = this._getLoader(scene) ?? new DefaultLoader();
     const sceneToLoad = this.getSceneDefinition(scene);
     const sceneToLoadInstance = this.getSceneInstance(scene);
     if (sceneToLoad && sceneToLoadInstance && !this._loadedScenes.has(sceneToLoadInstance)) {

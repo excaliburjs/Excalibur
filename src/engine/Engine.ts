@@ -13,7 +13,7 @@ import { ScreenElement } from './ScreenElement';
 import { Actor } from './Actor';
 import { Timer } from './Timer';
 import { TileMap } from './TileMap';
-import { BaseLoader } from './Director/BaseLoader';
+import { DefaultLoader } from './Director/DefaultLoader';
 import { Loader } from './Director/Loader';
 import { Detector } from './Util/Detector';
 import {
@@ -545,7 +545,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   private _timescale: number = 1.0;
 
   // loading
-  private _loader: BaseLoader;
+  private _loader: DefaultLoader;
 
   private _isInitialized: boolean = false;
 
@@ -1361,7 +1361,7 @@ O|===|* >________________>\n\
    *
    * Note: start() only resolves AFTER the user has clicked the play button
    */
-  public async start(loader?: BaseLoader): Promise<void>;
+  public async start(loader?: DefaultLoader): Promise<void>;
   /**
    * Starts the internal game loop for Excalibur after configuring any routes, loaders, or transitions
    * @param startOptions Optional [[StartOptions]] to configure the routes for scenes in Excalibur
@@ -1373,13 +1373,13 @@ O|===|* >________________>\n\
    * Starts the internal game loop after any loader is finished
    * @param loader
    */
-  public async start(loader?: BaseLoader): Promise<void>;
-  public async start(loaderOrStartOptions?: BaseLoader | StartOptions<WithRoot<TKnownScenes>>): Promise<void> {
+  public async start(loader?: DefaultLoader): Promise<void>;
+  public async start(loaderOrStartOptions?: DefaultLoader | StartOptions<WithRoot<TKnownScenes>>): Promise<void> {
     if (!this._compatible) {
       throw new Error('Excalibur is incompatible with your browser');
     }
     this._isLoading = true;
-    let loader: BaseLoader;
+    let loader: DefaultLoader;
     if (this._isStartOptions(loaderOrStartOptions)) {
       this.director.start(loaderOrStartOptions);
       loader = this.director.mainLoader;
@@ -1517,7 +1517,7 @@ O|===|* >________________>\n\
    * will appear.
    * @param loader  Some [[Loadable]] such as a [[Loader]] collection, [[Sound]], or [[Texture]].
    */
-  public async load(loader: BaseLoader, hideLoader = false): Promise<void> {
+  public async load(loader: DefaultLoader, hideLoader = false): Promise<void> {
     try {
       // early exit if loaded
       if (loader.isLoaded()) {

@@ -8,7 +8,7 @@ import loaderCss from './Loader.css';
 import { Vector } from '../Math/vector';
 import { delay } from '../Util/Util';
 import { EventEmitter } from '../EventEmitter';
-import { BaseLoader } from './BaseLoader';
+import { DefaultLoader } from './DefaultLoader';
 import { Engine } from '..';
 import { Screen } from '../Screen';
 import { Canvas } from '../Graphics/Canvas';
@@ -85,7 +85,7 @@ export interface BootLoaderOptions {
  * engine.start(loader).then(() => {});
  * ```
  */
-export class Loader extends BaseLoader {
+export class Loader extends DefaultLoader {
   public events = new EventEmitter();
   public screen: Screen;
   public canvas: Canvas = new Canvas({
