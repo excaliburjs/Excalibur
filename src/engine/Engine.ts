@@ -1,4 +1,4 @@
-import { EX_VERSION } from './index';
+import { EX_VERSION } from './';
 import { obsolete } from './Util/Decorators';
 import { Future } from './Util/Future';
 import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';

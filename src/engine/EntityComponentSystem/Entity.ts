@@ -4,7 +4,8 @@ import { Observable, Message } from '../Util/Observable';
 import { OnInitialize, OnPreUpdate, OnPostUpdate } from '../Interfaces/LifecycleEvents';
 import { Engine } from '../Engine';
 import { InitializeEvent, PreUpdateEvent, PostUpdateEvent } from '../Events';
-import { EventEmitter, EventKey, Handler, KillEvent, Scene, Subscription, Util } from '..';
+import { KillEvent } from '../Events';
+import { EventEmitter, EventKey, Handler, Scene, Subscription, Util } from '..';
 
 /**
  * Interface holding an entity component pair
