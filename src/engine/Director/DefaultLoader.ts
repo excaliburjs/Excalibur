@@ -8,7 +8,6 @@ import { Sound } from '../Resources/Sound/Sound';
 import { Future } from '../Util/Future';
 import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
 import { Color } from '../Color';
-import { Util } from '..';
 
 export interface LoaderOptions {
   loadables: Loadable<any>[];
@@ -22,6 +21,11 @@ export type LoaderEvents = {
 export const LoaderEvents = {
   // Add event types here
 };
+
+export type LoaderConstructor = new (...args: any[]) => DefaultLoader;
+export function isLoaderConstructor(x: any): x is LoaderConstructor {
+  return !!x?.prototype && !!x?.prototype?.constructor?.name;
+}
 
 export class DefaultLoader implements Loadable<Loadable<any>[]> {
   public data: Loadable<any>[];
@@ -61,9 +65,6 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
 
   public async onAfterLoad() {
     // override me
-
-    // DELETE ME
-    await Util.delay(3000, this.engine.clock);
   }
 
   /**
@@ -129,16 +130,13 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
 
     ctx.save();
     ctx.translate(this.engine.screen.center.x, this.engine.screen.center.y);
-    ctx.rotate(seconds * 10);
+    const speed = seconds * 10;
     ctx.strokeStyle = 'white';
     ctx.lineWidth = 10;
     ctx.lineCap = 'round';
-    ctx.arc(0, 0, 40, 0, Math.PI * 3 / 2);
+    ctx.arc(0, 0, 40, speed, speed + (Math.PI * 3 / 2));
     ctx.stroke();
-    ctx.restore();
 
-    ctx.save();
-    ctx.translate(this.engine.screen.center.x, this.engine.screen.center.y);
     ctx.fillStyle = 'white';
     ctx.font = '16px sans-serif';
     const text = (this.progress * 100).toFixed(0) + '%';

@@ -274,7 +274,7 @@ export class Loader extends DefaultLoader {
     this.screen.pushResolutionAndViewport();
     // Configure resolution for loader, it expects resolution === viewport
     this.screen.resolution = this.screen.viewport;
-    this.screen.applyResolutionAndViewport(); // FIXME applying resolution causes a screen flash
+    this.screen.applyResolutionAndViewport();
 
     this.canvas.width = this.engine.canvas.width;
     this.canvas.height = this.engine.canvas.height;
@@ -294,7 +294,7 @@ export class Loader extends DefaultLoader {
     await WebAudio.unlock();
 
     this.screen.popResolutionAndViewport();
-    this.screen.applyResolutionAndViewport(); // FIXME applying resolution causes a screen flash
+    this.screen.applyResolutionAndViewport();
   }
 
   private _positionPlayButton() {

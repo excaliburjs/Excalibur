@@ -1,5 +1,5 @@
 import { Engine } from '../Engine';
-import { DefaultLoader } from './DefaultLoader';
+import { DefaultLoader, LoaderConstructor, isLoaderConstructor } from './DefaultLoader';
 import { Scene, SceneConstructor, isSceneConstructor } from '../Scene';
 import { Transition } from './Transition';
 import { Loader } from './Loader';
@@ -49,7 +49,7 @@ export interface SceneWithOptions {
   /**
    * Optionally specify a loader for the scene
    */
-  loader?: DefaultLoader;
+  loader?: DefaultLoader | LoaderConstructor;
 }
 
 export type WithRoot<TScenes> = TScenes | 'root';
@@ -67,7 +67,7 @@ export interface StartOptions<TKnownScenes extends string> {
   /**
    * Optionally provide a main loader to run before the game starts
    */
-  loader?: DefaultLoader
+  loader?: DefaultLoader | LoaderConstructor
 }
 
 
@@ -189,7 +189,14 @@ export class Director<TKnownScenes extends string = any> {
    * @param options
    */
   start(options: StartOptions<WithRoot<TKnownScenes>>) {
-    this.mainLoader = options.loader ?? new Loader();
+    const maybeLoaderOrCtor = options.loader;
+    if (maybeLoaderOrCtor instanceof DefaultLoader) {
+      this.mainLoader = maybeLoaderOrCtor;
+    } else if (isLoaderConstructor(maybeLoaderOrCtor)) {
+      this.mainLoader = new maybeLoaderOrCtor();
+    } else {
+      this.mainLoader = new Loader();
+    }
 
     let startScene: string;
     let maybeStartTransition: Transition;
@@ -273,7 +280,12 @@ export class Director<TKnownScenes extends string = any> {
     if (!(sceneOrRoute instanceof Scene) && !(isSceneConstructor(sceneOrRoute))) {
       const { loader, transitions: {in: inTransition, out: outTransition } } = sceneOrRoute;
       this._sceneToTransition.set(name, {in: inTransition, out: outTransition});
-      this._sceneToLoader.set(name, loader);
+
+      if (isLoaderConstructor(loader)) {
+        this._sceneToLoader.set(name, new loader())
+      } else {
+        this._sceneToLoader.set(name, loader);
+      }
     }
 
     if (this.scenes[name as TKnownScenes]) {

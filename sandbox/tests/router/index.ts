@@ -10,7 +10,7 @@ class MyCustomScene extends ex.Scene {
       duration: 2000
     });
   }
-  onPreLoad(loader: ex.BaseLoader): void {
+  onPreLoad(loader: ex.DefaultLoader): void {
     const image1 = new ex.ImageSource('./spritefont.png?=1');
     const image2 = new ex.ImageSource('./spritefont.png?=2');
     const image3 = new ex.ImageSource('./spritefont.png?=3');
@@ -40,10 +40,10 @@ var gameWithTransitions = new ex.Engine({
     },
     scene2: {
       scene: scene2,
-      loader: new ex.BaseLoader(),
+      loader: ex.DefaultLoader,
       transitions: {
         out: new ex.FadeInOut({duration: 500, direction: 'out'}),
-        in: new ex.CrossFade({duration: 500, direction: 'in', hideLoader: true, blockInput: true})
+        in: new ex.CrossFade({duration: 500, direction: 'in', blockInput: true})
       }
     },
     scene3: MyCustomScene
@@ -94,7 +94,7 @@ scene2.add(new ex.Actor({
   color: ex.Color.Blue
 }));
 
-var boot = new ex.Loader()
+var boot = new ex.DefaultLoader() as ex.Loader;
 const image1 = new ex.ImageSource('./spritefont.png?=1');
 const image2 = new ex.ImageSource('./spritefont.png?=2');
 const image3 = new ex.ImageSource('./spritefont.png?=3');
