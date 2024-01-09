@@ -527,7 +527,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
    * The action to take when a fatal exception is thrown
    */
   public onFatalException = (e: any) => {
-    Logger.getInstance().fatal(e);
+    Logger.getInstance().fatal(e, e.stack);
   };
 
   /**
@@ -1189,10 +1189,10 @@ O|===|* >________________>\n\
 
   private async _overrideInitialize(engine: Engine) {
     if (!this.isInitialized) {
+      await this.director.onInitialize();
       await this.onInitialize(engine);
       this.events.emit('initialize', new InitializeEvent(engine, this));
       this._isInitialized = true;
-      await this.director.onInitialize();
     }
   }
 
