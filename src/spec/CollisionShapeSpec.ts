@@ -3,7 +3,7 @@ import { CollisionJumpTable } from '@excalibur';
 import { ExcaliburMatchers, ensureImagesLoaded, ExcaliburAsyncMatchers } from 'excalibur-jasmine';
 import { TestUtils } from './util/TestUtils';
 
-fdescribe('Collision Shape', () => {
+describe('Collision Shape', () => {
   beforeAll(() => {
     jasmine.addMatchers(ExcaliburMatchers);
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);

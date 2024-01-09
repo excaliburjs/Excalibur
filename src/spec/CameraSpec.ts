@@ -2,7 +2,7 @@ import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 
-fdescribe('A camera', () => {
+describe('A camera', () => {
   let Camera: ex.Camera;
   let actor: ex.Actor;
   let engine: ex.Engine;

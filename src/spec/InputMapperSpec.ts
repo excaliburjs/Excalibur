@@ -1,7 +1,7 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 
-fdescribe('An InputMapper', () => {
+describe('An InputMapper', () => {
   it('exists', () => {
     expect(ex.InputMapper).toBeDefined();
   });

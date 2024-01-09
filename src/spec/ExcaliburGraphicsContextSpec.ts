@@ -15,7 +15,7 @@ function flushWebGLCanvasTo2D(source: HTMLCanvasElement): HTMLCanvasElement {
   return canvas;
 }
 
-fdescribe('The ExcaliburGraphicsContext', () => {
+describe('The ExcaliburGraphicsContext', () => {
   describe('2D', () => {
     beforeEach(() => {
       jasmine.addMatchers(ExcaliburMatchers);

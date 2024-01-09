@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 
-fdescribe('An Easing Function', () => {
+describe('An Easing Function', () => {
   it('can interpolate linearly', () => {
     const zeroTime = ex.EasingFunctions.Linear(0, 10, 20, 100);
     const quarterTime = ex.EasingFunctions.Linear(25, 10, 20, 100);

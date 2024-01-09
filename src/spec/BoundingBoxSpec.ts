@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 
-fdescribe('A Bounding Box constructed with no parameters', () => {
+describe('A Bounding Box constructed with no parameters', () => {
   const bb = new ex.BoundingBox();
 
   it('has a left', () => {
@@ -20,7 +20,7 @@ fdescribe('A Bounding Box constructed with no parameters', () => {
   });
 });
 
-fdescribe('A Bounding Box', function () {
+describe('A Bounding Box', function () {
   it('can have zero dimensions', () => {
     const zeroWidth = new ex.BoundingBox({ left: 0, right: 0, top: 0, bottom: 10 });
     expect(zeroWidth.hasZeroDimensions()).withContext('zero width bb should have zero dimensions').toBe(true);

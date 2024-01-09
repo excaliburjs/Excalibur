@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 
-fdescribe('A Collision Group', () => {
+describe('A Collision Group', () => {
   let groupA: ex.CollisionGroup;
   let groupB: ex.CollisionGroup;
   let groupC: ex.CollisionGroup;

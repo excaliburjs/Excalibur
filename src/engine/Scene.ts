@@ -319,7 +319,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
 
       // This order is important! we want to be sure any custom init that add actors
       // fire before the actor init
-      await this.onInitialize.call(this, engine);
+      await this.onInitialize(engine);
       this._initializeChildren();
 
       this._logger.debug('Scene.onInitialize', this, engine);
@@ -400,6 +400,9 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * @param delta   The number of milliseconds since the last update
    */
   public update(engine: Engine, delta: number) {
+    if (!this.isInitialized) {
+      throw new Error('Scene update called before it was initialized!');
+    }
     this._preupdate(engine, delta);
 
     // TODO differed entity removal for timers

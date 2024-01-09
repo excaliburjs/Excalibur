@@ -32,7 +32,7 @@ class TestObsolete {
 @ex.obsolete()
 class ObsoleteClass {}
 
-fdescribe('An @obsolete decorator', () => {
+describe('An @obsolete decorator', () => {
   let testObsolete: TestObsolete = null;
   let logger = null;
   beforeEach(() => {

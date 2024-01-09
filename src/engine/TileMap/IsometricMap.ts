@@ -2,7 +2,7 @@ import { BodyComponent } from '../Collision/BodyComponent';
 import { BoundingBox} from '../Collision/BoundingBox';
 import { ColliderComponent } from '../Collision/ColliderComponent';
 import { Collider } from '../Collision/Colliders/Collider';
-import { CollisionType } from '../Collision/CollisionType'
+import { CollisionType } from '../Collision/CollisionType';
 import { CompositeCollider } from '../Collision/Colliders/CompositeCollider';
 import { vec, Vector } from '../Math/vector';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';

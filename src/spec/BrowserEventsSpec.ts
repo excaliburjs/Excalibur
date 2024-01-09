@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 
-fdescribe('The BrowserEvents facade', () => {
+describe('The BrowserEvents facade', () => {
   let browser: ex.BrowserEvents;
   beforeEach(() => {
     browser = new ex.BrowserEvents(window, document);

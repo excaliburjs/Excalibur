@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 
-fdescribe('A Future', () => {
+describe('A Future', () => {
   it('exists', () => {
     expect(ex.Future).toBeDefined();
   });

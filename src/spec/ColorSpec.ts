@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 
-fdescribe('A color', () => {
+describe('A color', () => {
   let color;
   beforeEach(() => {
     color = new ex.Color(0, 0, 0);

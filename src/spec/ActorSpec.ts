@@ -3,7 +3,7 @@ import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 import { PhysicsWorld } from '../engine/Collision/PhysicsWorld';
 import { TestUtils } from './util/TestUtils';
 
-fdescribe('A game actor', () => {
+describe('A game actor', () => {
   let actor: ex.Actor;
 
   let engine: ex.Engine;
@@ -628,10 +628,11 @@ fdescribe('A game actor', () => {
     expect(scene.actors.length).toBe(0);
   });
 
-  it('once killed is not drawn', () => {
+  it('once killed is not drawn', async () => {
     engine.stop();
     engine = null;
     engine = TestUtils.engine({ width: 100, height: 100 });
+    await TestUtils.runToReady(engine);
     actor = new ex.Actor();
     actor.body.collisionType = ex.CollisionType.Active;
     motionSystem = new ex.MotionSystem();
@@ -639,8 +640,7 @@ fdescribe('A game actor', () => {
     scene = new ex.Scene();
     scene.add(actor);
     engine.addScene('test', scene);
-    engine.goToScene('test');
-    scene._initialize(engine);
+    await engine.goToScene('test');
     engine.screen.setCurrentCamera(engine.currentScene.camera);
 
     spyOn(scene, 'draw').and.callThrough();
@@ -900,12 +900,11 @@ fdescribe('A game actor', () => {
     expect(parent.contains(250, 250, true)).toBeTruthy();
   });
 
-  it('with an active collision type can be placed on a fixed type', () => {
+  it('with an active collision type can be placed on a fixed type', async () => {
     ex.Physics.useArcadePhysics();
     const scene = new ex.Scene();
     engine.add('somescene', scene);
-    engine.goToScene('somescene');
-    scene._initialize(engine);
+    await engine.goToScene('somescene');
 
     const active = new ex.Actor({ x: 0, y: -50, width: 100, height: 100 });
     active.body.collisionType = ex.CollisionType.Active;
@@ -936,9 +935,9 @@ fdescribe('A game actor', () => {
     expect(fixed.pos.y).toBe(50);
   });
 
-  it('with an active collision type can jump on a fixed type', () => {
+  it('with an active collision type can jump on a fixed type', async () => {
     const scene = new ex.Scene();
-    scene._initialize(engine);
+    await scene._initialize(engine);
     const active = new ex.Actor({ x: 0, y: -50, width: 100, height: 100 });
     active.body.collisionType = ex.CollisionType.Active;
     active.vel.y = -100;

@@ -14,7 +14,7 @@ function flushWebGLCanvasTo2D(source: HTMLCanvasElement): HTMLCanvasElement {
   return canvas;
 }
 
-fdescribe('A ColorBlindCorrector', () => {
+describe('A ColorBlindCorrector', () => {
   let bg: ex.ImageSource;
   let engine: ex.Engine;
   let clock: ex.TestClock;

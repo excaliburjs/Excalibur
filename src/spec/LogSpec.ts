@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 
-fdescribe('Logger', () => {
+describe('Logger', () => {
   let logger: ex.Logger;
 
   describe('ConsoleAppender', () => {

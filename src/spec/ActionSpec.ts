@@ -2,7 +2,7 @@ import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { ExcaliburMatchers } from 'excalibur-jasmine';
 
-fdescribe('Action', () => {
+describe('Action', () => {
   let actor: ex.Actor;
 
   let engine: ex.Engine & any;

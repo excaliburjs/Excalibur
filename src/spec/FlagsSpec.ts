@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 
-fdescribe('Feature Flags', () => {
+describe('Feature Flags', () => {
   beforeEach(() => {
     ex.Flags._reset();
   });

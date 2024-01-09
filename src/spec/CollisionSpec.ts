@@ -1,7 +1,7 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 
-fdescribe('A Collision', () => {
+describe('A Collision', () => {
   let actor1: ex.Actor = null;
   let actor2: ex.Actor = null;
   let engine: ex.Engine = null;
@@ -29,7 +29,7 @@ fdescribe('A Collision', () => {
     actor2 = null;
   });
 
-  it('should throw one event for each actor participating', async () => {
+  it('should throw one event for each actor participating', () => {
     let actor1Collision = 0;
     let actor2Collision = 0;
     actor1.on('precollision', (e: ex.PreCollisionEvent) => {

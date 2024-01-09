@@ -1,7 +1,7 @@
 import * as ex from '@excalibur';
 import { ExcaliburMatchers } from 'excalibur-jasmine';
 
-fdescribe('A AffineMatrix', () => {
+describe('A AffineMatrix', () => {
   beforeAll(() => {
     jasmine.addMatchers(ExcaliburMatchers);
   });

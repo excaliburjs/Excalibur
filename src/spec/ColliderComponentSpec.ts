@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-fdescribe('A ColliderComponent', () => {
+describe('A ColliderComponent', () => {
   it('exists', () => {
     expect(ex.ColliderComponent).toBeDefined();
   });
@@ -46,7 +46,7 @@ fdescribe('A ColliderComponent', () => {
       new ex.CollisionStartEvent<ex.Collider>(
         ex.Shape.Circle(50),
         ex.Shape.Circle(50),
-        null, 
+        null,
         null));
 
     expect(originalCollisionHandler).toHaveBeenCalledTimes(1);

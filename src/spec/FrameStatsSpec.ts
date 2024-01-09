@@ -3,7 +3,7 @@ import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
 import { TestClock } from '@excalibur';
 
-fdescribe('The engine', () => {
+describe('The engine', () => {
   let engine: ex.Engine;
   let scene: ex.Scene;
   const mock = new Mocks.Mocker();

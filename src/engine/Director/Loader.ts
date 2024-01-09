@@ -277,6 +277,7 @@ export class Loader extends DefaultLoader {
     await this._image?.decode(); // decode logo if it exists
   }
 
+  // eslint-disable-next-line require-await
   public override async onAfterLoad(): Promise<void> {
     this.screen.popResolutionAndViewport();
     this.screen.applyResolutionAndViewport();

@@ -90,6 +90,7 @@ describe('The engine', () => { // TODO timeout
   it('should log if loading fails', async () => {
     class FailedLoader extends ex.DefaultLoader {
       data = undefined;
+      // eslint-disable-next-line require-await
       async load(): Promise<ex.Loadable<any>[]> {
         throw new Error('I failed');
       }

@@ -1,7 +1,7 @@
 import { ExcaliburMatchers } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
 
-fdescribe('Vectors', () => {
+describe('Vectors', () => {
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
   });
