@@ -18,6 +18,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - New property and methods overloads to `ex.Animation`
   * `ex.Animation.currentFrameTimeLeft` will return the current time in milliseconds left in the current
   * `ex.Animation.goToFrame(frameNumber: number, duration?: number)` now accepts an optional duration for the target frame
+  * `ex.Animation.speed` can set the speed multiplier on an animation 1 = 1x speed, 2 = 2x speed.
 
 ### Fixed
 
