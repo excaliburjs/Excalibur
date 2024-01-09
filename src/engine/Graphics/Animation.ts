@@ -385,7 +385,12 @@ export class Animation extends Graphic implements HasTick {
   public reset(): void {
     this._done = false;
     this._firstTick = true;
-    this.goToFrame(0);
+    this._currentFrame = 0;
+    this._timeLeftInFrame = this.frameDuration;
+    const maybeFrame = this.frames[this._currentFrame];
+    if (maybeFrame) {
+      this._timeLeftInFrame = (maybeFrame?.duration || this.frameDuration);
+    }
   }
 
   /**

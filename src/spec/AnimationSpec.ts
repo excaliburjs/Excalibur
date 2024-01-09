@@ -582,6 +582,36 @@ describe('A Graphics Animation', () => {
     expect(anim.currentFrameTimeLeft).toBe(100);
   });
 
+  it('reset will reset time in frame', () => {
+
+    const rect = new ex.Rectangle({
+      width: 100,
+      height: 100,
+      color: ex.Color.Blue
+    });
+    const frames: ex.Frame[] = [
+      {
+        graphic: rect,
+        duration: 100
+      },
+      {
+        graphic: rect,
+        duration: 100
+      }
+    ];
+    const anim = new ex.Animation({
+      frames: frames
+    });
+    anim.play();
+    expect(anim.currentFrameIndex).toBe(0);
+    expect(anim.currentFrameTimeLeft).toBe(100);
+    anim.tick(60, 1);
+    expect(anim.currentFrameIndex).toBe(0);
+    expect(anim.currentFrameTimeLeft).toBe(40);
+    anim.reset();
+    expect(anim.currentFrameTimeLeft).toBe(100);
+  });
+
   it('can go to a frame with an overridden duration', () => {
     const rect = new ex.Rectangle({
       width: 100,
