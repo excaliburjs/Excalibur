@@ -71,11 +71,17 @@ export interface AnimationOptions {
    */
   frames: Frame[];
   /**
+   * Optionally set a positive speed multiplier on the animation.
+   *
+   * By default 1, meaning 1x speed. If set to 2, it will play the animation twice as fast.
+   */
+  speed?: number;
+  /**
    * Optionally reverse the direction of play
    */
   reverse?: boolean;
   /**
-   * Optionally specify a default frame duration in ms (Default is 1000)
+   * Optionally specify a default frame duration in ms (Default is 100)
    */
   frameDuration?: number;
   /**
@@ -118,6 +124,12 @@ export interface FromSpriteSheetOptions {
    */
   durationPerFrameMs?: number;
   /**
+   * Optionally set a positive speed multiplier on the animation.
+   *
+   * By default 1, meaning 1x speed. If set to 2, it will play the animation twice as fast.
+   */
+  speed?: number;
+  /**
    * Optionally specify the animation strategy for this animation, by default animations loop [[AnimationStrategy.Loop]]
    */
   strategy?: AnimationStrategy
@@ -138,7 +150,6 @@ export class Animation extends Graphic implements HasTick {
   public frames: Frame[] = [];
   public strategy: AnimationStrategy = AnimationStrategy.Loop;
   public frameDuration: number = 100;
-  public timeScale: number = 1;
 
   private _idempotencyToken = -1;
 
@@ -148,10 +159,12 @@ export class Animation extends Graphic implements HasTick {
   private _pingPongDirection = 1;
   private _done = false;
   private _playing = true;
+  private _speed = 1;
 
   constructor(options: GraphicOptions & AnimationOptions) {
     super(options);
     this.frames = options.frames;
+    this.speed = options.speed ?? this.speed;
     this.strategy = options.strategy ?? this.strategy;
     this.frameDuration = options.totalDuration ? options.totalDuration / this.frames.length : options.frameDuration ?? this.frameDuration;
     if (options.reverse) {
@@ -164,6 +177,7 @@ export class Animation extends Graphic implements HasTick {
     return new Animation({
       frames: this.frames.map((f) => ({ ...f })),
       frameDuration: this.frameDuration,
+      speed: this.speed,
       reverse: this._reversed,
       strategy: this.strategy,
       ...this.cloneGraphicOptions()
@@ -248,7 +262,7 @@ export class Animation extends Graphic implements HasTick {
    * @returns Animation
    */
   public static fromSpriteSheetCoordinates(options: FromSpriteSheetOptions): Animation {
-    const { spriteSheet, frameCoordinates, durationPerFrameMs, strategy, reverse } = options;
+    const { spriteSheet, frameCoordinates, durationPerFrameMs, speed, strategy, reverse } = options;
     const defaultDuration = durationPerFrameMs ?? 100;
     const frames: Frame[] = [];
     for (const coord of frameCoordinates) {
@@ -269,8 +283,29 @@ export class Animation extends Graphic implements HasTick {
     return new Animation({
       frames,
       strategy,
+      speed,
       reverse
     });
+  }
+
+  /**
+   * Current animation speed
+   *
+   * 1 meaning normal 1x speed.
+   * 2 meaning 2x speed and so on.
+   */
+  public get speed(): number {
+    return this._speed;
+  }
+
+  /**
+   * Current animation speed
+   *
+   * 1 meaning normal 1x speed.
+   * 2 meaning 2x speed and so on.
+   */
+  public set speed(val: number) {
+    this._speed = clamp(Math.abs(val), 0, Infinity);
   }
 
   /**
@@ -293,6 +328,13 @@ export class Animation extends Graphic implements HasTick {
    */
   public get currentFrameIndex(): number {
     return this._currentFrame;
+  }
+
+  /**
+   * Returns the amount of time in milliseconds left in the current frame
+   */
+  public get currentFrameTimeLeft(): number {
+    return this._timeLeftInFrame;
   }
 
   /**
@@ -344,6 +386,11 @@ export class Animation extends Graphic implements HasTick {
     this._done = false;
     this._firstTick = true;
     this._currentFrame = 0;
+    this._timeLeftInFrame = this.frameDuration;
+    const maybeFrame = this.frames[this._currentFrame];
+    if (maybeFrame) {
+      this._timeLeftInFrame = (maybeFrame?.duration || this.frameDuration);
+    }
   }
 
   /**
@@ -373,14 +420,18 @@ export class Animation extends Graphic implements HasTick {
 
   /**
    * Jump the animation immediately to a specific frame if it exists
+   *
+   * Optionally specify an override for the duration of the frame, useful for
+   * keeping multiple animations in sync with one another.
    * @param frameNumber
+   * @param duration
    */
-  public goToFrame(frameNumber: number) {
+  public goToFrame(frameNumber: number, duration?: number) {
     this._currentFrame = frameNumber;
-    this._timeLeftInFrame = this.frameDuration;
+    this._timeLeftInFrame = duration ?? this.frameDuration;
     const maybeFrame = this.frames[this._currentFrame];
     if (maybeFrame && !this._done) {
-      this._timeLeftInFrame = maybeFrame?.duration || this.frameDuration;
+      this._timeLeftInFrame = duration ?? (maybeFrame?.duration || this.frameDuration);
       this.events.emit('frame', {...maybeFrame, frameIndex: this.currentFrameIndex });
     }
   }
@@ -455,7 +506,7 @@ export class Animation extends Graphic implements HasTick {
       this.events.emit('frame', {...this.currentFrame, frameIndex: this.currentFrameIndex });
     }
 
-    this._timeLeftInFrame -= elapsedMilliseconds * this.timeScale;
+    this._timeLeftInFrame -= elapsedMilliseconds * this._speed;
     if (this._timeLeftInFrame <= 0) {
       this.goToFrame(this._nextFrame());
     }
