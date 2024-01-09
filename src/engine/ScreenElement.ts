@@ -36,9 +36,9 @@ export class ScreenElement extends Actor {
     }
   }
 
-  public async _initialize(engine: Engine) {
+  public _initialize(engine: Engine) {
     this._engine = engine;
-    await super._initialize(engine);
+    super._initialize(engine);
   }
 
   public contains(x: number, y: number, useWorld: boolean = true) {

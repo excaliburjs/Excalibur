@@ -320,7 +320,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
       // This order is important! we want to be sure any custom init that add actors
       // fire before the actor init
       await this.onInitialize.call(this, engine);
-      await this._initializeChildren();
+      this._initializeChildren();
 
       this._logger.debug('Scene.onInitialize', this, engine);
       this.events.emit('initialize', new InitializeEvent(engine, this));

@@ -122,8 +122,8 @@ export class Trigger extends Actor {
     return this._target;
   }
 
-  public async _initialize(engine: Engine) {
-    await super._initialize(engine);
+  public _initialize(engine: Engine) {
+    super._initialize(engine);
   }
 
   private _dispatchAction() {
