@@ -73,9 +73,9 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
    * audio from playing until the user performs an action.
    *
    */
-  public onUserAction(): Promise<void> {
+  public async onUserAction(): Promise<void> {
 
-    return Promise.resolve();
+    return await Promise.resolve();
   }
 
   /**
