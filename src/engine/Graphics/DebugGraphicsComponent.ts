@@ -1,4 +1,4 @@
-import { ExcaliburGraphicsContext } from '.';
+import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { Debug } from '../Debug';
 import { Component } from '../EntityComponentSystem/Component';
 
