@@ -41,6 +41,8 @@ export class Sprite extends Graphic {
     this.sourceView = options.sourceView ?? { x: 0, y: 0, width: width ?? 0, height: height ?? 0 };
     this.destSize = options.destSize ?? { width: width ?? 0, height: height ?? 0 };
     this._updateSpriteDimensions();
+    // Fire when loaded
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.image.ready.then(() => {
       this._updateSpriteDimensions();
     });

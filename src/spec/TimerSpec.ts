@@ -19,7 +19,7 @@ describe('A Timer', () => {
     });
     scene = new ex.Scene();
     engine.addScene('root', scene);
-    
+
     await TestUtils.runToReady(engine);
   });
 

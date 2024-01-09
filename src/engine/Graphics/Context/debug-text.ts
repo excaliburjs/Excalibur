@@ -10,6 +10,8 @@ import debugFont from './debug-font.png';
  */
 export class DebugText {
   constructor() {
+    // We fire and forget, we don't care if it's loaded or not
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.load();
   }
 

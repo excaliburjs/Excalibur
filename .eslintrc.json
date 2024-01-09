@@ -41,7 +41,6 @@
     ],
     "@typescript-eslint/indent": ["error", 2],
     "@typescript-eslint/no-empty-function": "error",
-    "@typescript-eslint/no-floating-promises": "warn",
     "curly": "error",
     "dot-notation": "error",
     "no-caller": "error",
