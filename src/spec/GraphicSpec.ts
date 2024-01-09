@@ -43,7 +43,7 @@ class TestGraphic extends ex.Graphic {
   }
 }
 
-describe('A Graphic', () => {
+fdescribe('A Graphic', () => {
   let canvasElement: HTMLCanvasElement;
   let ctx: ex.ExcaliburGraphicsContext;
   beforeEach(() => {

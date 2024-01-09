@@ -764,6 +764,7 @@ O|===|* >________________>\n\
       pixelRatio: options.suppressHiDPIScaling ? 1 : (options.pixelRatio ?? null)
     });
 
+    // TODO REMOVE STATIC!!!
     // Set default filtering based on antialiasing
     TextureLoader.filtering = options.antialiasing ? ImageFiltering.Blended : ImageFiltering.Pixel;
 
@@ -784,7 +785,7 @@ O|===|* >________________>\n\
 
     this.debug = new Debug(this);
 
-    this.director = new Director(this, options.scenes); // TODO default transition & root scene in here
+    this.director = new Director(this, options.scenes);
 
     this._initialize(options);
 
@@ -1127,9 +1128,10 @@ O|===|* >________________>\n\
 
     // initialize inputs
     const pointerTarget = options && options.pointerScope === PointerScope.Document ? document : this.canvas;
+    const grabWindowFocus = this._originalOptions?.grabWindowFocus ?? true;
     this.input = new InputHost({
       pointerTarget,
-      grabWindowFocus: this._originalOptions?.grabWindowFocus ?? true,
+      grabWindowFocus,
       engine: this
     });
     this.inputMapper = this.input.inputMapper;

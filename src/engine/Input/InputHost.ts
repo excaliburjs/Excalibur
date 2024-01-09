@@ -11,7 +11,7 @@ export interface InputHostOptions {
 }
 
 export class InputHost {
-  private _enabled = false;
+  private _enabled = true;
 
   keyboard: Keyboard;
   pointers: PointerEventReceiver;
@@ -19,7 +19,7 @@ export class InputHost {
   inputMapper: InputMapper;
 
   constructor(options: InputHostOptions) {
-    const {pointerTarget, grabWindowFocus, engine } = options;
+    const { pointerTarget, grabWindowFocus, engine } = options;
     this.keyboard = new Keyboard();
     this.pointers = new PointerEventReceiver(pointerTarget, engine);
     this.gamepads = new Gamepads();
@@ -27,7 +27,11 @@ export class InputHost {
     this.keyboard.init({grabWindowFocus});
     this.pointers.init({grabWindowFocus});
     this.gamepads.init();
-    this.inputMapper = new InputMapper(this);
+    this.inputMapper = new InputMapper({
+      keyboard: this.keyboard,
+      pointers: this.pointers,
+      gamepads: this.gamepads
+    });
   }
 
   toggleEnabled(enabled: boolean) {

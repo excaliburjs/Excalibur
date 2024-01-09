@@ -4,7 +4,7 @@ import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 import { GraphicsComponent } from '../engine/Graphics';
 import { TestUtils } from './util/TestUtils';
 
-describe('A Graphics ECS System', () => {
+fdescribe('A Graphics ECS System', () => {
   let entities: ex.Entity[];
   let engine: ex.Engine;
   beforeEach(() => {

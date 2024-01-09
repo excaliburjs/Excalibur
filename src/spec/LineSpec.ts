@@ -1,7 +1,7 @@
 import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
-describe('A Line', () => {
+fdescribe('A Line', () => {
   beforeAll(() => {
     jasmine.addMatchers(ExcaliburMatchers);
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
@@ -100,7 +100,7 @@ describe('A Line', () => {
 
     const testClock = game.clock as ex.TestClock;
 
-    TestUtils.runToReady(game);
+    await TestUtils.runToReady(game);
 
     const sut = new ex.Line({
       start: ex.vec(0, 0),

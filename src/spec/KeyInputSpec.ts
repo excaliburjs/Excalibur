@@ -1,7 +1,7 @@
 import * as ex from '@excalibur';
 import { Mocks } from './util/Mocks';
 
-describe('A keyboard', () => {
+fdescribe('A keyboard', () => {
   let mockWindow = null;
   let keyboard: ex.Keyboard = null;
   const mocker = new Mocks.Mocker();

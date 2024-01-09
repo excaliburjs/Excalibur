@@ -222,7 +222,7 @@ describe('A loader', () => {
     const pointerHandler = jasmine.createSpy('pointerHandler');
     engine.input.pointers.primary.on('up', pointerHandler);
     const loader = new ex.Loader([new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png')]);
-    engine.start(loader);
+    await engine.start(loader);
 
     await loader.areResourcesLoaded();
     clock.step(200);

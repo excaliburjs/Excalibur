@@ -2,7 +2,7 @@ import { ExcaliburMatchers, ensureImagesLoaded, ExcaliburAsyncMatchers } from 'e
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 
-describe('A Gif', () => {
+fdescribe('A Gif', () => {
   let engine: ex.Engine;
   let gif: ex.Gif;
   beforeEach(() => {

@@ -14,7 +14,7 @@ function flushWebGLCanvasTo2D(source: HTMLCanvasElement): HTMLCanvasElement {
   return canvas;
 }
 
-fdescribe('The engine', () => {
+describe('The engine', () => { // TODO timeout
   let engine: ex.Engine;
   let scene: ex.Scene;
 

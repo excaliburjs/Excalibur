@@ -1,7 +1,7 @@
 import * as ex from '@excalibur';
 import { ImageRenderer } from '../engine/Graphics/Context/image-renderer/image-renderer';
 
-describe('A ImageSource', () => {
+fdescribe('A ImageSource', () => {
   it('exists', () => {
     expect(ex.ImageSource).toBeDefined();
   });

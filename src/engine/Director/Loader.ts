@@ -188,6 +188,8 @@ export class Loader extends DefaultLoader {
   public override onInitialize(engine: Engine): void {
     this.engine = engine;
     this.screen = engine.screen;
+    this.canvas.width = this.engine.canvas.width;
+    this.canvas.height = this.engine.canvas.height;
   }
 
   /**

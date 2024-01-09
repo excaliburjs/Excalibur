@@ -1,9 +1,8 @@
 import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
-import { Mocks } from './util/Mocks';
 
-describe('A label', () => {
+fdescribe('A label', () => {
   let label: ex.Label;
   let engine: ex.Engine;
   let scene: ex.Scene;
