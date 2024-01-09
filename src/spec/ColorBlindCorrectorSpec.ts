@@ -14,7 +14,7 @@ function flushWebGLCanvasTo2D(source: HTMLCanvasElement): HTMLCanvasElement {
   return canvas;
 }
 
-describe('A ColorBlindCorrector', () => { // TODO times out probably loader
+fdescribe('A ColorBlindCorrector', () => {
   let bg: ex.ImageSource;
   let engine: ex.Engine;
   let clock: ex.TestClock;
