@@ -2,7 +2,7 @@ import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { ExcaliburAsyncMatchers } from 'excalibur-jasmine';
 
-describe('A Material', () => {
+fdescribe('A Material', () => {
   beforeAll(() => {
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
   });

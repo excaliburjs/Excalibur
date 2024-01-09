@@ -296,6 +296,13 @@ export class Animation extends Graphic implements HasTick {
   }
 
   /**
+   * Returns the amount of time in milliseconds left in the current frame
+   */
+  public get currentFrameTimeLeft(): number {
+    return this._timeLeftInFrame;
+  }
+
+  /**
    * Returns `true` if the animation is playing
    */
   public get isPlaying(): boolean {
@@ -343,7 +350,7 @@ export class Animation extends Graphic implements HasTick {
   public reset(): void {
     this._done = false;
     this._firstTick = true;
-    this._currentFrame = 0;
+    this.goToFrame(0);
   }
 
   /**
@@ -373,14 +380,18 @@ export class Animation extends Graphic implements HasTick {
 
   /**
    * Jump the animation immediately to a specific frame if it exists
+   *
+   * Optionally specify an override for the duration of the frame, useful for
+   * keeping multiple animations in sync with one another.
    * @param frameNumber
+   * @param duration
    */
-  public goToFrame(frameNumber: number) {
+  public goToFrame(frameNumber: number, duration?: number) {
     this._currentFrame = frameNumber;
-    this._timeLeftInFrame = this.frameDuration;
+    this._timeLeftInFrame = duration ?? this.frameDuration;
     const maybeFrame = this.frames[this._currentFrame];
     if (maybeFrame && !this._done) {
-      this._timeLeftInFrame = maybeFrame?.duration || this.frameDuration;
+      this._timeLeftInFrame = duration ?? (maybeFrame?.duration || this.frameDuration);
       this.events.emit('frame', {...maybeFrame, frameIndex: this.currentFrameIndex });
     }
   }
