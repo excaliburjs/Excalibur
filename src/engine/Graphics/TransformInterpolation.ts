@@ -37,6 +37,9 @@ export function blendTransform(oldTx: Transform, newTx: Transform, blend: number
   return tx;
 }
 
+/**
+ *
+ */
 export function blendGlobalTransform(oldTx: Transform, newTx: Transform, blend: number, target?: Transform): Transform {
   let interpolatedPos = newTx.globalPos;
   let interpolatedScale = newTx.globalScale;
