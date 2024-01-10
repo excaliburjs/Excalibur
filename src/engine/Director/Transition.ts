@@ -24,7 +24,7 @@ export interface TransitionOptions {
   hideLoader?: boolean;
 
   /**
-   * Optionally blocks input during a transition
+   * Optionally blocks user input during a transition
    *
    * Default false
    */
@@ -33,7 +33,7 @@ export interface TransitionOptions {
   /**
    * Optionally specify a easing function, by default linear
    */
-  easingFunction?: EasingFunction;
+  easing?: EasingFunction;
   /**
    * Optionally specify a transition direction, by default 'out'
    *
@@ -66,8 +66,8 @@ export class Transition extends Entity {
   /**
    * Returns a number between [0, 1] indicating what state the transition is in.
    *
-   * * For 'out' direction transitions complete is at 0
-   * * For 'in' direction transitions complete is at 1
+   * * For 'out' direction transitions start at 0 and end at 1
+   * * For 'in' direction transitions start at 1 and end at 0
    */
   get progress(): number {
     return this._currentProgress;
@@ -85,7 +85,7 @@ export class Transition extends Entity {
     super();
     this.name = `Transition#${this.id}`;
     this.duration = options.duration;
-    this.easing = options.easingFunction ?? EasingFunctions.Linear;
+    this.easing = options.easing ?? EasingFunctions.Linear;
     this.direction = options.direction ?? 'out';
     this.hideLoader = options.hideLoader ?? false;
     this.blockInput = options.blockInput ?? false;
@@ -207,7 +207,7 @@ export class Transition extends Entity {
 
     this.onUpdate(this.progress);
 
-    if (this.complete) {
+    if (this.complete && !this._completeFuture.isCompleted) {
       this.onEnd(this.progress);
       this._completeFuture.resolve();
     }
