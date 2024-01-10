@@ -154,7 +154,7 @@ describe('A Graphics ECS System', () => {
 
     actor.body.__oldTransformCaptured = true;
 
-    spyOn(game.graphicsContext, 'translate');
+    const translateSpy = spyOn(game.graphicsContext, 'translate');
     spyOn(game.graphicsContext, 'rotate');
     spyOn(game.graphicsContext, 'scale');
 
@@ -163,10 +163,11 @@ describe('A Graphics ECS System', () => {
     graphicsSystem.preupdate();
     graphicsSystem.notify(new ex.AddedEntity(actor));
 
-    game.currentFrameLagMs = 8; // current lag in a 30 fps frame
-    graphicsSystem.update([actor], 30);
+    game.currentFrameLagMs = (1000 / 30) / 2; // current lag in a 30 fps frame
+    graphicsSystem.update([actor], 16);
 
-    expect(game.graphicsContext.translate).toHaveBeenCalledWith(24, 24);
+    expect(translateSpy.calls.argsFor(0)).toEqual([10, 10]);
+    expect(translateSpy.calls.argsFor(1)).toEqual([45, 45]); // 45 because the parent offets by (-10, -10)
   });
 
   it('will not interpolate body graphics if disabled', async () => {
