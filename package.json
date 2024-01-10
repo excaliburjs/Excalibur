@@ -34,6 +34,7 @@
     "browserstack": "karma start karma.conf.browsers.js",
     "nuget": ".\\src\\tools\\NuGet.exe pack Excalibur.nuspec -OutputDirectory .\\build\\nuget -version",
     "start": "npm run core:watch",
+    "start:esm": "npm run core:bundle:esm -- --watch",
     "build": "npm run core",
     "build:esm": "npm run core:bundle:esm",
     "core": "npm run core:tsc && npm run core:copy && npm run core:bundle",
