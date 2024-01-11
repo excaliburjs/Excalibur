@@ -16,15 +16,25 @@ export interface LoaderOptions {
 
 export type LoaderEvents = {
   // Add event types here
+  beforeload: void,
+  afterload: void,
+  useraction: void,
+  loadresourcestart: Loadable<any>,
+  loadresourceend: Loadable<any>,
 }
 
 export const LoaderEvents = {
   // Add event types here
+  BeforeLoad: 'beforeload',
+  AfterLoad: 'afterload',
+  UserAction: 'useraction',
+  LoadResourceStart: 'loadresourcestart',
+  LoadResourceEnd: 'loadresourceend'
 };
 
 export type LoaderConstructor = new (...args: any[]) => DefaultLoader;
 /**
- *
+ * Returns true if the constructor is for an Excalibur Loader
  */
 export function isLoaderConstructor(x: any): x is LoaderConstructor {
   return !!x?.prototype && !!x?.prototype?.constructor?.name;
@@ -32,7 +42,7 @@ export function isLoaderConstructor(x: any): x is LoaderConstructor {
 
 export class DefaultLoader implements Loadable<Loadable<any>[]> {
   public data: Loadable<any>[];
-  public events = new EventEmitter();
+  public events = new EventEmitter<LoaderEvents>();
   public canvas: Canvas = new Canvas({
     filtering: ImageFiltering.Blended,
     smoothing: true,
@@ -192,10 +202,12 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
 
     await Promise.all(
       this._resources.map(async (r) => {
+        this.events.emit('loadresourcestart', r);
         await r.load().finally(() => {
           // capture progress
           this._numLoaded++;
           this.canvas.flagDirty();
+          this.events.emit('loadresourceend', r);
         });
       })
     );
@@ -213,6 +225,7 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
     // See: https://github.com/excaliburjs/Excalibur/issues/262
     // See: https://github.com/excaliburjs/Excalibur/issues/1031
     await this.onUserAction();
+    this.events.emit('useraction');
     await WebAudio.unlock();
 
     await this.onAfterLoad();
