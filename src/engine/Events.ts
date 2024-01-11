@@ -264,6 +264,29 @@ export class PostDrawEvent extends GameEvent<Entity | Scene | Engine | TileMap> 
 }
 
 /**
+ * The 'pretransformdraw' event is emitted on actors/entities before any graphics transforms have taken place.
+ * Useful if you need to completely customize the draw or modify the transform before drawing in the draw step (for example needing
+ * latest camera positions)
+ *
+ */
+export class PreTransformDrawEvent extends GameEvent<Entity> {
+  constructor(public ctx: ExcaliburGraphicsContext, public delta: number, public target: Entity) {
+    super();
+  }
+}
+
+/**
+ * The 'posttransformdraw' event is emitted on actors/entities after all graphics have been draw and transforms reset.
+ * Useful if you need to completely custom the draw after everything is done.
+ *
+ */
+export class PostTransformDrawEvent extends GameEvent<Entity> {
+  constructor(public ctx: ExcaliburGraphicsContext, public delta: number, public target: Entity) {
+    super();
+  }
+}
+
+/**
  * The 'predebugdraw' event is emitted on actors, scenes, and engine before debug drawing starts.
  */
 export class PreDebugDrawEvent extends GameEvent<Entity | Actor | Scene | Engine> {
