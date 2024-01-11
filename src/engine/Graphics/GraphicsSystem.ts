@@ -92,6 +92,12 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
         continue;
       }
 
+      // Optionally run the onPreTransformDraw graphics lifecycle draw
+      if (graphics.onPreTransformDraw) {
+        graphics.onPreTransformDraw(this._graphicsContext, delta);
+      }
+      entity.events.emit('pretransformdraw', new PreDrawEvent(this._graphicsContext, delta, entity));
+
       // This optionally sets our camera based on the entity coord plan (world vs. screen)
       if (transform.coordPlane === CoordPlane.Screen) {
         this._graphicsContext.restore();
@@ -152,6 +158,12 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
           this._camera.draw(this._graphicsContext);
         }
       }
+
+      // Optionally run the onPreTransformDraw graphics lifecycle draw
+      if (graphics.onPostTransformDraw) {
+        graphics.onPostTransformDraw(this._graphicsContext, delta);
+      }
+      entity.events.emit('posttransformdraw', new PreDrawEvent(this._graphicsContext, delta, entity));
     }
     this._graphicsContext.restore();
   }
