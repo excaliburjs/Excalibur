@@ -13,7 +13,8 @@ import { ParallaxComponent } from './ParallaxComponent';
 import { CoordPlane } from '../Math/coord-plane';
 import { BodyComponent } from '../Collision/BodyComponent';
 import { FontCache } from './FontCache';
-import { PostDrawEvent, PreDrawEvent, Transform } from '..';
+import { PostDrawEvent, PostTransformDrawEvent, PreDrawEvent, PreTransformDrawEvent } from '../Events';
+import { Transform } from '../Math/transform';
 import { blendTransform } from './TransformInterpolation';
 
 export class GraphicsSystem extends System<TransformComponent | GraphicsComponent> {
@@ -92,6 +93,12 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
         continue;
       }
 
+      // Optionally run the onPreTransformDraw graphics lifecycle draw
+      if (graphics.onPreTransformDraw) {
+        graphics.onPreTransformDraw(this._graphicsContext, delta);
+      }
+      entity.events.emit('pretransformdraw', new PreTransformDrawEvent(this._graphicsContext, delta, entity));
+
       // This optionally sets our camera based on the entity coord plan (world vs. screen)
       if (transform.coordPlane === CoordPlane.Screen) {
         this._graphicsContext.restore();
@@ -152,6 +159,12 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
           this._camera.draw(this._graphicsContext);
         }
       }
+
+      // Optionally run the onPreTransformDraw graphics lifecycle draw
+      if (graphics.onPostTransformDraw) {
+        graphics.onPostTransformDraw(this._graphicsContext, delta);
+      }
+      entity.events.emit('posttransformdraw', new PostTransformDrawEvent(this._graphicsContext, delta, entity));
     }
     this._graphicsContext.restore();
   }

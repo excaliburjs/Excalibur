@@ -15,6 +15,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- New graphics events and hooks that allow you to hook into graphics drawing before or after any drawing transformations have been applied
+  * `Actor.graphics.onPreTransformDraw` with the corresponding event `.on('pretransformdraw')`
+  * `Actor.graphics.onPostTransformDraw` with the corresponding event `.on('posttransformdraw')`
 - New property and methods overloads to `ex.Animation`
   * `ex.Animation.currentFrameTimeLeft` will return the current time in milliseconds left in the current
   * `ex.Animation.goToFrame(frameNumber: number, duration?: number)` now accepts an optional duration for the target frame

@@ -152,6 +152,8 @@ export type ActorEvents = EntityEvents & {
   postkill: PostKillEvent;
   predraw: PreDrawEvent;
   postdraw: PostDrawEvent;
+  pretransformdraw: PreDrawEvent;
+  posttransformdraw: PostDrawEvent;
   predebugdraw: PreDebugDrawEvent;
   postdebugdraw: PostDebugDrawEvent;
   pointerup: PointerEvent;
@@ -182,6 +184,8 @@ export const ActorEvents = {
   PostKill: 'postkill',
   PreDraw: 'predraw',
   PostDraw: 'postdraw',
+  PreTransformDraw: 'pretransformdraw',
+  PostTransformDraw: 'posttransformdraw',
   PreDebugDraw: 'predebugdraw',
   PostDebugDraw: 'postdebugdraw',
   PointerUp: 'pointerup',
