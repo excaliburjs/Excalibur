@@ -427,7 +427,9 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
   public captureOldTransform() {
     // Capture old values before integration step updates them
     this.__oldTransformCaptured = true;
-    this.transform.get().clone(this.oldTransform);
+    const tx = this.transform.get();
+    tx.clone(this.oldTransform);
+    this.oldTransform.parent = tx.parent; // also grab parent
     this.oldVel.setTo(this.vel.x, this.vel.y);
     this.oldAcc.setTo(this.acc.x, this.acc.y);
   }
