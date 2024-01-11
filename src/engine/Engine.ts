@@ -1065,25 +1065,26 @@ O|===|* >________________>\n\
    * * Transitions
    * * Loaders
    *
-   * Scenes routes are defined in the Engine.start()
+   * Example:
    * ```typescript
-   * game.start({
-      start: 'startScene',
-      loader: boot,
-      routes: {
-        startScene: {
-          scene: scene1,
-          out: new ex.FadeOut({duration: 1000, direction: 'in', color: ex.Color.Black}),
-          in: new ex.FadeOut({duration: 1000, direction: 'out'})
-        },
-        scene2: {
-          scene: scene2,
-          loader: new ex.Loader(),
-          out: new ex.FadeOut({duration: 1000, direction: 'in'}),
-          in: new ex.FadeOut({duration: 1000, direction: 'out', color: ex.Color.Black })
-        }
-      }
+   * game.goto('myScene', {
+   *   sceneActivationData: {any: 'thing at all'},
+   *   destinationIn: new FadeInOut({duration: 1000, direction: 'in'}),
+   *   sourceOut: new FadeInOut({duration: 1000, direction: 'out'}),
+   *   loader: MyLoader
+   * });
+   * ```
+   *
+   * Scenes are defined in the Engine constructor
+   * ```typescript
+   * const engine = new ex.Engine({
+      scenes: {...}
     });
+   * ```
+   * Or by adding dynamically
+   *
+   * ```typescript
+   * engine.addScene('myScene', new ex.Scene());
    * ```
    * @param destinationScene
    * @param options

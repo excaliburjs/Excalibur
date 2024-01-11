@@ -1,6 +1,18 @@
 /// <reference path='../../lib/excalibur.d.ts' />
 var scene1 = new ex.Scene();
+scene1.add(new ex.Label({
+  pos: ex.vec(100, 100),
+  color: ex.Color.Green,
+  text: 'Scene 1',
+  z: 99
+}))
 var scene2 = new ex.Scene();
+scene2.add(new ex.Label({
+  pos: ex.vec(100, 100),
+  color: ex.Color.Violet,
+  text: 'Scene 2',
+  z: 99
+}))
 
 class MyCustomScene extends ex.Scene {
   onTransition(direction: "in" | "out") {
@@ -39,7 +51,7 @@ let scenes = {
     loader: ex.DefaultLoader,
     transitions: {
       out: new ex.FadeInOut({duration: 500, direction: 'out'}),
-      in: new ex.CrossFade({duration: 500, direction: 'in', blockInput: true})
+      in: new ex.CrossFade({duration: 2500, direction: 'in', blockInput: true})
     }
   },
   scene3: MyCustomScene

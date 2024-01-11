@@ -487,7 +487,6 @@ export class Director<TKnownScenes extends string = any> {
       const nextScene = maybeDest;
 
       this._logger.debug('Going to scene:', destinationScene);
-
       // only deactivate when initialized
       if (this.currentScene.isInitialized) {
         const context = { engine, previousScene, nextScene };
