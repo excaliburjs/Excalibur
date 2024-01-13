@@ -26,6 +26,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 - Fixed issue where nesting `ex.CompositeColliders` inside one another would cause a crash on collision
+- Fixed issue where `ex.CompositeColliders` did not respect collider offset
 - Fixed issue where parenting a entity with fixed updates on would cause a drawing flicker, transform interpolation now is aware of changing parents so it interpolates drawing continuously to prevent any flickering
 - `ex.Animation.reset()` did not properly reset all internal state
 
