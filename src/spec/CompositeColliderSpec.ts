@@ -1,7 +1,7 @@
 import * as ex from '@excalibur';
 import { BoundingBox, GameEvent, LineSegment, Projection, Ray, vec, Vector } from '@excalibur';
 import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
-fdescribe('A CompositeCollider', () => {
+describe('A CompositeCollider', () => {
   beforeAll(() => {
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
     jasmine.addMatchers(ExcaliburMatchers);
