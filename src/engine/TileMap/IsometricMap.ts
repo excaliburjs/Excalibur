@@ -125,6 +125,11 @@ export class IsometricTile extends Entity {
   }
 
   /**
+   * Arbitrary data storage per tile, useful for any game specific data
+   */
+  public data = new Map<string, any>();
+
+  /**
    * Construct a new IsometricTile
    * @param x tile coordinate in x (not world position)
    * @param y tile coordinate in y (not world position)

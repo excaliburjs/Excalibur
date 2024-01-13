@@ -15,6 +15,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added arbitrary data storage in isometric tiles, `ex.IsometricTile.data` this brings it into feature parity with normal `ex.Tile.data`
 - New graphics events and hooks that allow you to hook into graphics drawing before or after any drawing transformations have been applied
   * `Actor.graphics.onPreTransformDraw` with the corresponding event `.on('pretransformdraw')`
   * `Actor.graphics.onPostTransformDraw` with the corresponding event `.on('posttransformdraw')`
