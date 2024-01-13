@@ -26,19 +26,26 @@ export class CompositeCollider extends Collider {
     }
   }
 
-  // TODO composite offset
-
-
   clearColliders() {
     this._colliders = [];
   }
 
   addCollider(collider: Collider) {
-    collider.events.pipe(this.events);
-    collider.__compositeColliderId = this.id;
-    this._colliders.push(collider);
-    this._collisionProcessor.track(collider);
-    this._dynamicAABBTree.trackCollider(collider);
+    let colliders: Collider[];
+    if (collider instanceof CompositeCollider) {
+      colliders = collider.getColliders();
+      colliders.forEach(c => c.offset.addEqual(collider.offset));
+    } else {
+      colliders = [collider];
+    }
+    // Flatten composites
+    for (let c of colliders) {
+      c.events.pipe(this.events);
+      c.__compositeColliderId = this.id;
+      this._colliders.push(c);
+      this._collisionProcessor.track(c);
+      this._dynamicAABBTree.trackCollider(c);
+    }
   }
 
   removeCollider(collider: Collider) {
@@ -54,11 +61,11 @@ export class CompositeCollider extends Collider {
   }
 
   get worldPos(): Vector {
-    return this._transform?.pos ?? Vector.Zero;
+    return (this._transform?.pos ?? Vector.Zero).add(this.offset);
   }
 
   get center(): Vector {
-    return this._transform?.pos ?? Vector.Zero;
+    return (this._transform?.pos ?? Vector.Zero).add(this.offset);
   }
 
   get bounds(): BoundingBox {
@@ -69,7 +76,7 @@ export class CompositeCollider extends Collider {
       colliders[0]?.bounds ?? new BoundingBox().translate(this.worldPos)
     );
 
-    return results;
+    return results.translate(this.offset);
   }
 
   get localBounds(): BoundingBox {
@@ -240,9 +247,12 @@ export class CompositeCollider extends Collider {
 
   public debug(ex: ExcaliburGraphicsContext, color: Color,  options?: { lineWidth: number, pointSize: number }) {
     const colliders = this.getColliders();
+    ex.save();
+    ex.translate(this.offset.x, this.offset.y);
     for (const collider of colliders) {
       collider.debug(ex, color, options);
     }
+    ex.restore()
   }
 
   clone(): Collider {
