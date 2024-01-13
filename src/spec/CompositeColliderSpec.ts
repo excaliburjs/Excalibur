@@ -1,7 +1,7 @@
 import * as ex from '@excalibur';
 import { BoundingBox, GameEvent, LineSegment, Projection, Ray, vec, Vector } from '@excalibur';
 import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
-describe('A CompositeCollider', () => {
+fdescribe('A CompositeCollider', () => {
   beforeAll(() => {
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
     jasmine.addMatchers(ExcaliburMatchers);
@@ -277,5 +277,27 @@ describe('A CompositeCollider', () => {
 
     dynamicTreeProcessor.untrack(compCollider);
     expect(dynamicTreeProcessor.getColliders().length).toBe(0);
+  });
+
+  it('flattens composite colliders inside composite colliders with adjusted offset', () => {
+    const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
+    compCollider.offset = ex.vec(50, 100);
+    expect(compCollider.getColliders()[0].offset).toBeVector(Vector.Zero);
+    expect(compCollider.getColliders()[1].offset).toBeVector(Vector.Zero);
+
+    const sut = new ex.CompositeCollider([]);
+
+    sut.addCollider(compCollider);
+
+    expect(sut.getColliders().length).toBe(2);
+    expect(sut.getColliders()[0].offset).toBeVector(compCollider.offset);
+    expect(sut.getColliders()[1].offset).toBeVector(compCollider.offset);
+  });
+
+  it('has the correct bounds when offset', () => {
+    const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
+    expect(compCollider.bounds).toEqual(new ex.BoundingBox({left: -100, right: 100, top: -50, bottom: 50}));
+    compCollider.offset = ex.vec(50, 100);
+    expect(compCollider.bounds).toEqual(new ex.BoundingBox({left: -50, right: 150, top: 50, bottom: 150}));
   });
 });
