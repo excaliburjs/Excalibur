@@ -39,7 +39,7 @@ export class CompositeCollider extends Collider {
       colliders = [collider];
     }
     // Flatten composites
-    for (let c of colliders) {
+    for (const c of colliders) {
       c.events.pipe(this.events);
       c.__compositeColliderId = this.id;
       this._colliders.push(c);
@@ -252,10 +252,12 @@ export class CompositeCollider extends Collider {
     for (const collider of colliders) {
       collider.debug(ex, color, options);
     }
-    ex.restore()
+    ex.restore();
   }
 
   clone(): Collider {
-    return new CompositeCollider(this._colliders.map((c) => c.clone()));
+    const result = new CompositeCollider(this._colliders.map((c) => c.clone()));
+    result.offset = this.offset.clone();
+    return result;
   }
 }
