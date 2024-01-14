@@ -448,8 +448,10 @@ export class Screen {
   }
 
   public popResolutionAndViewport() {
-    this.resolution = this._resolutionStack.pop();
-    this.viewport = this._viewportStack.pop();
+    if (this._resolutionStack.length && this._viewportStack.length) {
+      this.resolution = this._resolutionStack.pop();
+      this.viewport = this._viewportStack.pop();
+    }
   }
 
   private _alreadyWarned = false;

@@ -1,28 +1,15 @@
-import { Color } from './Color';
-import { WebAudio } from './Util/WebAudio';
-import { Engine } from './Engine';
-import { Loadable } from './Interfaces/Loadable';
-import * as DrawUtil from './Util/DrawUtil';
+import { Color } from '../Color';
+import { Loadable } from '../Interfaces/Loadable';
+import * as DrawUtil from '../Util/DrawUtil';
 
 import logoImg from './Loader.logo.png';
 import loaderCss from './Loader.css';
-import { Canvas } from './Graphics/Canvas';
-import { Vector } from './Math/vector';
-import { delay } from './Util/Util';
-import { ImageFiltering } from './Graphics/Filtering';
-import { clamp } from './Math/util';
-import { Sound } from './Resources/Sound/Sound';
-import { Future } from './Util/Future';
-import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
-import { ScreenResizeEvent } from './Screen';
-
-export type LoaderEvents = {
-  // Add event types here
-}
-
-export const LoaderEvents = {
-  // Add event types here
-};
+import { Vector } from '../Math/vector';
+import { delay } from '../Util/Util';
+import { EventEmitter } from '../EventEmitter';
+import { DefaultLoader } from './DefaultLoader';
+import { Engine } from '../Engine';
+import { Screen } from '../Screen';
 
 /**
  * Pre-loading assets
@@ -89,23 +76,10 @@ export const LoaderEvents = {
  * engine.start(loader).then(() => {});
  * ```
  */
-export class Loader implements Loadable<Loadable<any>[]> {
+export class Loader extends DefaultLoader {
   public events = new EventEmitter();
-  public canvas: Canvas = new Canvas({
-    filtering: ImageFiltering.Blended,
-    smoothing: true,
-    cache: true,
-    draw: this.draw.bind(this)
-  });
-  private _resourceList: Loadable<any>[] = [];
-  private _index = 0;
-
+  public screen: Screen;
   private _playButtonShown: boolean = false;
-  private _resourceCount: number = 0;
-  private _numLoaded: number = 0;
-  private _progressCounts: { [key: string]: number } = {};
-  private _totalCounts: { [key: string]: number } = {};
-  private _engine: Engine;
 
   // logo drawing stuff
 
@@ -149,13 +123,6 @@ export class Loader implements Loadable<Loadable<any>[]> {
     return this._imageElement;
   }
 
-  private _getScreenParent() {
-    if (this._engine) {
-      return this._engine.screen.canvas.parentElement;
-    }
-    return document.body;
-  }
-
   public suppressPlayButton: boolean = false;
   public get playButtonRootElement(): HTMLElement | null {
     return this._playButtonRootElement;
@@ -177,10 +144,7 @@ export class Loader implements Loadable<Loadable<any>[]> {
       this._playButtonRootElement = document.createElement('div');
       this._playButtonRootElement.id = 'excalibur-play-root';
       this._playButtonRootElement.style.position = 'absolute';
-
-      // attach play button to canvas parent, this is important for fullscreen
-      const parent = this._getScreenParent();
-      parent.appendChild(this._playButtonRootElement);
+      document.body.appendChild(this._playButtonRootElement);
     }
     if (!this._styleBlock) {
       this._styleBlock = document.createElement('style');
@@ -218,60 +182,14 @@ export class Loader implements Loadable<Loadable<any>[]> {
    * @param loadables  Optionally provide the list of resources you want to load at constructor time
    */
   constructor(loadables?: Loadable<any>[]) {
-    if (loadables) {
-      this.addResources(loadables);
-    }
+    super({loadables});
   }
 
-  private _loaderResizeHandler = (evt: ScreenResizeEvent) => {
-    // Configure resolution for loader, it expects resolution === viewport
-    this._engine.screen.resolution = this._engine.screen.viewport;
-    this._engine.screen.applyResolutionAndViewport();
-
-    this.canvas.width = evt.viewport.width;
-    this.canvas.height = evt.viewport.height;
-    this.canvas.flagDirty();
-  };
-
-  public wireEngine(engine: Engine) {
-    // wire once
-    if (!this._engine) {
-      this._engine = engine;
-      this.canvas.width = this._engine.canvas.width;
-      this.canvas.height = this._engine.canvas.height;
-    }
-  }
-
-  /**
-   * Add a resource to the loader to load
-   * @param loadable  Resource to add
-   */
-  public addResource(loadable: Loadable<any>) {
-    const key = this._index++;
-    this._resourceList.push(loadable);
-    this._progressCounts[key] = 0;
-    this._totalCounts[key] = 1;
-    this._resourceCount++;
-  }
-
-  /**
-   * Add a list of resources to the loader to load
-   * @param loadables  The list of resources to load
-   */
-  public addResources(loadables: Loadable<any>[]) {
-    let i = 0;
-    const len = loadables.length;
-
-    for (i; i < len; i++) {
-      this.addResource(loadables[i]);
-    }
-  }
-
-  /**
-   * Returns true if the loader has completely loaded all resources
-   */
-  public isLoaded() {
-    return this._numLoaded === this._resourceCount;
+  public override onInitialize(engine: Engine): void {
+    this.engine = engine;
+    this.screen = engine.screen;
+    this.canvas.width = this.engine.canvas.width;
+    this.canvas.height = this.engine.canvas.height;
   }
 
   /**
@@ -281,13 +199,13 @@ export class Loader implements Loadable<Loadable<any>[]> {
     if (this.suppressPlayButton) {
       this.hidePlayButton();
       // Delay is to give the logo a chance to show, otherwise don't delay
-      await delay(500, this._engine?.clock);
+      await delay(500, this.engine?.clock);
     } else {
       const resizeHandler = () => {
         this._positionPlayButton();
       };
-      if (this._engine?.browser) {
-        this._engine.browser.window.on('resize', resizeHandler);
+      if (this.engine?.browser) {
+        this.engine.browser.window.on('resize', resizeHandler);
       }
       this._playButtonShown = true;
       this._playButton.style.display = 'block';
@@ -303,8 +221,8 @@ export class Loader implements Loadable<Loadable<any>[]> {
           e.stopPropagation();
           // Hide Button after click
           this.hidePlayButton();
-          if (this._engine?.browser) {
-            this._engine.browser.window.off('resize', resizeHandler);
+          if (this.engine?.browser) {
+            this.engine.browser.window.off('resize', resizeHandler);
           }
           resolve();
         };
@@ -336,79 +254,43 @@ export class Loader implements Loadable<Loadable<any>[]> {
     }
   }
 
-  update(engine: Engine, delta: number): void {
-    // override me
-  }
-
   data: Loadable<any>[];
 
-  private _loadingFuture = new Future<void>();
-  public areResourcesLoaded() {
-    return this._loadingFuture.promise;
+  public override async onUserAction(): Promise<void> {
+    // short delay in showing the button for aesthetics
+    await delay(200, this.engine?.clock);
+    this.canvas.flagDirty();
+    // show play button
+    await this.showPlayButton();
   }
 
-  /**
-   * Begin loading all of the supplied resources, returning a promise
-   * that resolves when loading of all is complete AND the user has clicked the "Play button"
-   */
-  public async load(): Promise<Loadable<any>[]> {
-    this._engine.screen.events.on('resize', this._loaderResizeHandler);
+  public override async onBeforeLoad(): Promise<void> {
+    // Push the current user entered resolution/viewport
+    this.screen.pushResolutionAndViewport();
+    // Configure resolution for loader, it expects resolution === viewport
+    this.screen.resolution = this.screen.viewport;
+    this.screen.applyResolutionAndViewport();
+
+    this.canvas.width = this.engine.canvas.width;
+    this.canvas.height = this.engine.canvas.height;
 
     await this._image?.decode(); // decode logo if it exists
-    this.canvas.flagDirty();
-
-    await Promise.all(
-      this._resourceList.map(async (r) => {
-        await r.load().finally(() => {
-          // capture progress
-          this._numLoaded++;
-          this.canvas.flagDirty();
-        });
-      })
-    );
-    // Wire all sound to the engine
-    for (const resource of this._resourceList) {
-      if (resource instanceof Sound) {
-        resource.wireEngine(this._engine);
-      }
-    }
-
-    this._loadingFuture.resolve();
-
-    // short delay in showing the button for aesthetics
-    await delay(200, this._engine?.clock);
-    this.canvas.flagDirty();
-
-    await this.showPlayButton();
-    // Unlock browser AudioContext in after user gesture
-    // See: https://github.com/excaliburjs/Excalibur/issues/262
-    // See: https://github.com/excaliburjs/Excalibur/issues/1031
-    await WebAudio.unlock();
-
-    // unload loader resize watcher
-    this._engine.screen.events.off('resize', this._loaderResizeHandler);
-
-    return (this.data = this._resourceList);
   }
 
-  public markResourceComplete(): void {
-    this._numLoaded++;
-  }
-
-  /**
-   * Returns the progress of the loader as a number between [0, 1] inclusive.
-   */
-  public get progress(): number {
-    return this._resourceCount > 0 ? clamp(this._numLoaded, 0, this._resourceCount) / this._resourceCount : 1;
+  // eslint-disable-next-line require-await
+  public override async onAfterLoad(): Promise<void> {
+    this.screen.popResolutionAndViewport();
+    this.screen.applyResolutionAndViewport();
+    this.dispose();
   }
 
   private _positionPlayButton() {
-    if (this._engine) {
-      const screenHeight = this._engine.screen.viewport.height;
-      const screenWidth = this._engine.screen.viewport.width;
+    if (this.engine) {
+      const screenHeight = this.engine.screen.viewport.height;
+      const screenWidth = this.engine.screen.viewport.width;
       if (this._playButtonRootElement) {
-        const left = this._engine.canvas.offsetLeft;
-        const top = this._engine.canvas.offsetTop;
+        const left = this.engine.canvas.offsetLeft;
+        const top = this.engine.canvas.offsetTop;
         const buttonWidth = this._playButton.clientWidth;
         const buttonHeight = this._playButton.clientHeight;
         if (this.playButtonPosition) {
@@ -427,9 +309,9 @@ export class Loader implements Loadable<Loadable<any>[]> {
    * Override `logo`, `logoWidth`, `logoHeight` and `backgroundColor` properties
    * to customize the drawing, or just override entire method.
    */
-  public draw(ctx: CanvasRenderingContext2D) {
-    const canvasHeight = this._engine.canvasHeight / this._engine.pixelRatio;
-    const canvasWidth = this._engine.canvasWidth / this._engine.pixelRatio;
+  public override onDraw(ctx: CanvasRenderingContext2D) {
+    const canvasHeight = this.engine.canvasHeight / this.engine.pixelRatio;
+    const canvasWidth = this.engine.canvasWidth / this.engine.pixelRatio;
 
     this._positionPlayButton();
 
@@ -446,8 +328,8 @@ export class Loader implements Loadable<Loadable<any>[]> {
     }
 
     const imageHeight = Math.floor(width * (this.logoHeight / this.logoWidth)); // OG height/width factor
-    const oldAntialias = this._engine.getAntialiasing();
-    this._engine.setAntialiasing(true);
+    const oldAntialias = this.engine.getAntialiasing();
+    this.engine.setAntialiasing(true);
     if (!this.logoPosition) {
       ctx.drawImage(this._image, 0, 0, this.logoWidth, this.logoHeight, logoX, logoY - imageHeight - 20, width, imageHeight);
     } else {
@@ -456,7 +338,7 @@ export class Loader implements Loadable<Loadable<any>[]> {
 
     // loading box
     if (!this.suppressPlayButton && this._playButtonShown) {
-      this._engine.setAntialiasing(oldAntialias);
+      this.engine.setAntialiasing(oldAntialias);
       return;
     }
 
@@ -483,31 +365,6 @@ export class Loader implements Loadable<Loadable<any>[]> {
       null,
       this.loadingBarColor
     );
-    this._engine.setAntialiasing(oldAntialias);
-  }
-
-  public emit<TEventName extends EventKey<LoaderEvents>>(eventName: TEventName, event: LoaderEvents[TEventName]): void;
-  public emit(eventName: string, event?: any): void;
-  public emit<TEventName extends EventKey<LoaderEvents> | string>(eventName: TEventName, event?: any): void {
-    this.events.emit(eventName, event);
-  }
-
-  public on<TEventName extends EventKey<LoaderEvents>>(eventName: TEventName, handler: Handler<LoaderEvents[TEventName]>): Subscription;
-  public on(eventName: string, handler: Handler<unknown>): Subscription;
-  public on<TEventName extends EventKey<LoaderEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
-    return this.events.on(eventName, handler);
-  }
-
-  public once<TEventName extends EventKey<LoaderEvents>>(eventName: TEventName, handler: Handler<LoaderEvents[TEventName]>): Subscription;
-  public once(eventName: string, handler: Handler<unknown>): Subscription;
-  public once<TEventName extends EventKey<LoaderEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
-    return this.events.once(eventName, handler);
-  }
-
-  public off<TEventName extends EventKey<LoaderEvents>>(eventName: TEventName, handler: Handler<LoaderEvents[TEventName]>): void;
-  public off(eventName: string, handler: Handler<unknown>): void;
-  public off(eventName: string): void;
-  public off<TEventName extends EventKey<LoaderEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
-    this.events.off(eventName, handler);
+    this.engine.setAntialiasing(oldAntialias);
   }
 }

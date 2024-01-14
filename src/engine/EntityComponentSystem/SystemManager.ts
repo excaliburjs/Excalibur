@@ -1,6 +1,7 @@
 import { System, SystemType } from './System';
-import { Scene, Util } from '..';
+import { Scene } from '../Scene';
 import { World } from './World';
+import { removeItemFromArray } from '../Util/Util';
 
 export interface SystemCtor<T extends System> {
   new (...args: any[]): T;
@@ -53,7 +54,7 @@ export class SystemManager<ContextType> {
    * @param system
    */
   public removeSystem(system: System<any, ContextType>) {
-    Util.removeItemFromArray(system, this.systems);
+    removeItemFromArray(system, this.systems);
     const query = this._world.queryManager.getQuery(system.types);
     if (query) {
       query.unregister(system);

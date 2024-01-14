@@ -1,4 +1,4 @@
-import { GlobalCoordinates } from '..';
+import { GlobalCoordinates } from '../Math/global-coordinates';
 import { WheelDeltaMode } from '../Input/WheelDeltaMode';
 import { ExEvent } from './ExEvent';
 

@@ -26,7 +26,7 @@ describe('A TileMap', () => {
     });
     scene = new ex.Scene();
     engine.addScene('root', scene);
-    engine.start();
+    await TestUtils.runToReady(engine);
     const clock = engine.clock as ex.TestClock;
     texture = new ex.ImageSource('src/spec/images/TileMapSpec/Blocks.png');
     await texture.load();
@@ -188,6 +188,7 @@ describe('A TileMap', () => {
       columns: 5
     });
     tm._initialize(engine);
+    tm.update(engine, 99);
 
     const cell = tm.getTile(0, 0);
     const rectangle = new ex.Rectangle({

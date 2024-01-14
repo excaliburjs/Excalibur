@@ -11,7 +11,10 @@ import { RealisticSolver } from './Solver/RealisticSolver';
 import { CollisionSolver } from './Solver/Solver';
 import { ColliderComponent } from './ColliderComponent';
 import { CompositeCollider } from './Colliders/CompositeCollider';
-import { Engine, ExcaliburGraphicsContext, Scene, Side } from '..';
+import { Engine } from '../Engine';
+import { ExcaliburGraphicsContext } from '../Graphics/Context/ExcaliburGraphicsContext';
+import { Scene } from '../Scene';
+import { Side } from '../Collision/Side';
 import { DynamicTreeCollisionProcessor } from './Detection/DynamicTreeCollisionProcessor';
 import { PhysicsWorld } from './PhysicsWorld';
 export class CollisionSystem extends System<TransformComponent | MotionComponent | ColliderComponent> {

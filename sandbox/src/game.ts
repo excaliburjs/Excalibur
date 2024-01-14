@@ -128,16 +128,16 @@ cards2.draw(game.graphicsContext, 0, 0);
 
 jump.volume = 0.3;
 
-var loader = new ex.Loader();
-loader.addResource(heartImageSource);
-loader.addResource(heartTex);
-loader.addResource(imageRun);
-loader.addResource(imageJump);
-loader.addResource(imageBlocks);
-loader.addResource(spriteFontImage);
-loader.addResource(cards);
-loader.addResource(cloud);
-loader.addResource(jump);
+var boot = new ex.Loader();
+boot.addResource(heartImageSource);
+boot.addResource(heartTex);
+boot.addResource(imageRun);
+boot.addResource(imageJump);
+boot.addResource(imageBlocks);
+boot.addResource(spriteFontImage);
+boot.addResource(cards);
+boot.addResource(cloud);
+boot.addResource(jump);
 
 // Set background color
 game.backgroundColor = new ex.Color(114, 213, 224);
@@ -942,6 +942,6 @@ game.currentScene.camera.strategy.lockToActorAxis(player, ex.Axis.X);
 game.currentScene.camera.y = 200;
 
 // Run the mainloop
-game.start(loader).then(() => {
+game.start(boot).then(() => {
   logger.info('All Resources have finished loading');
 });

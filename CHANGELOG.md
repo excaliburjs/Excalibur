@@ -16,7 +16,49 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- 
+- Scene Transition & Loader API, this gives you the ability to have first class support for individual scene resource loading and scene transitions.
+  * Add or remove scenes by constructor
+  * Add loaders by constructor
+  * New `ex.DefaultLoader` type that allows for easier custom loader creation
+  * New `ex.Transition` type for building custom transitions
+  * New scene lifecycle to allow scene specific resource loading
+      * `onTransition(direction: "in" | "out") {...}`
+      * `onPreLoad(loader: DefaultLoader) {...}`
+  * New async goto API that allows overriding loaders/transitions between scenes
+  * Scenes now can have `async onInitialize` and `async onActivate`!
+  * New scenes director API that allows upfront definition of scenes/transitions/loaders
+
+  * Example:
+    Defining scenes upfront
+    ```typescript
+    const game = new ex.Engine({
+      scenes: {
+        scene1: {
+          scene: scene1,
+          transitions: {
+            out: new ex.FadeInOut({duration: 1000, direction: 'out', color: ex.Color.Black}),
+            in: new ex.FadeInOut({duration: 1000, direction: 'in'})
+          }
+        },
+        scene2: {
+          scene: scene2,
+          loader: ex.DefaultLoader, // Constructor only option!
+          transitions: {
+            out: new ex.FadeInOut({duration: 1000, direction: 'out'}),
+            in: new ex.FadeInOut({duration: 1000, direction: 'in', color: ex.Color.Black })
+          }
+        },
+      scene3: ex.Scene // Constructor only option!
+      } 
+    })
+
+    // Specify the boot loader & first scene transition from loader
+    game.start('scene1',
+    {
+      inTransition: new ex.FadeInOut({duration: 500, direction: 'in', color: ex.Color.ExcaliburBlue})
+      loader: boot,
+    });
+    ```
 
 ### Fixed
 

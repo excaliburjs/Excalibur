@@ -38,6 +38,7 @@ export class Semaphore {
     return this._waitQueue.length;
   }
 
+  // eslint-disable-next-line require-await
   public async enter() {
     if (this._count !== 0) {
       this._count--;

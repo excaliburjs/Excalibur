@@ -15,7 +15,7 @@ describe('A ScreenElement', () => {
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
     screenElement = new ex.ScreenElement({
       pos: new ex.Vector(50, 50),
       width: 100,
@@ -28,7 +28,8 @@ describe('A ScreenElement', () => {
     scene = new ex.Scene();
     engine.addScene('test', scene);
     engine.goToScene('test');
-    engine.start();
+
+    await TestUtils.runToReady(engine);
 
     clock = engine.clock as ex.TestClock;
 

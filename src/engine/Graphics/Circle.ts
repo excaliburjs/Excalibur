@@ -1,4 +1,4 @@
-import { ImageFiltering } from '.';
+import { ImageFiltering } from './Filtering';
 import { Raster, RasterOptions } from './Raster';
 
 export interface CircleOptions {

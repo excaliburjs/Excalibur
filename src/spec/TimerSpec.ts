@@ -6,7 +6,7 @@ describe('A Timer', () => {
   let scene: ex.Scene;
   let engine: ex.Engine;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     engine = TestUtils.engine({
       width: 600,
       height: 400
@@ -19,7 +19,8 @@ describe('A Timer', () => {
     });
     scene = new ex.Scene();
     engine.addScene('root', scene);
-    scene._initialize(engine);
+
+    await TestUtils.runToReady(engine);
   });
 
   it('has a unique id', () => {

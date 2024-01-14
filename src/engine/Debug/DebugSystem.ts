@@ -8,7 +8,11 @@ import { System, SystemType } from '../EntityComponentSystem/System';
 import { ExcaliburGraphicsContext } from '../Graphics/Context/ExcaliburGraphicsContext';
 import { vec, Vector } from '../Math/vector';
 import { toDegrees } from '../Math/util';
-import { BodyComponent, CollisionSystem, CompositeCollider, GraphicsComponent, Particle } from '..';
+import { BodyComponent } from '../Collision/BodyComponent';
+import { CollisionSystem } from '../Collision/CollisionSystem';
+import { CompositeCollider  } from '../Collision/Colliders/CompositeCollider';
+import { GraphicsComponent } from '../Graphics/GraphicsComponent';
+import { Particle } from '../Particles';
 import { DebugGraphicsComponent } from '../Graphics/DebugGraphicsComponent';
 import { CoordPlane } from '../Math/coord-plane';
 

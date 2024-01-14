@@ -34,6 +34,12 @@ import { ExcaliburGraphicsContext } from './Graphics';
 import { PhysicsWorld } from './Collision/PhysicsWorld';
 import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
 import { Color } from './Color';
+import { DefaultLoader } from './Director/DefaultLoader';
+import { Transition } from './Director';
+
+export class PreLoadEvent {
+  loader: DefaultLoader;
+}
 
 export type SceneEvents = {
   initialize: InitializeEvent<Scene>,
@@ -45,6 +51,7 @@ export type SceneEvents = {
   postdraw: PostDrawEvent,
   predebugdraw: PreDebugDrawEvent,
   postdebugdraw: PostDebugDrawEvent
+  preload: PreLoadEvent
 }
 
 export const SceneEvents = {
@@ -56,8 +63,17 @@ export const SceneEvents = {
   PreDraw: 'predraw',
   PostDraw: 'postdraw',
   PreDebugDraw: 'predebugdraw',
-  PostDebugDraw: 'postdebugdraw'
+  PostDebugDraw: 'postdebugdraw',
+  PreLoad: 'preload'
 };
+
+export type SceneConstructor = new (...args: any[]) => Scene;
+/**
+ *
+ */
+export function isSceneConstructor(x: any): x is SceneConstructor {
+  return !!x?.prototype && !!x?.prototype?.constructor?.name;
+}
 
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
@@ -181,6 +197,33 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
   }
 
   /**
+   * Event hook to provide Scenes a way of loading scene specific resources.
+   *
+   * This is called before the Scene.onInitialize during scene transition. It will only ever fire once for a scene.
+   * @param loader
+   */
+  public onPreLoad(loader: DefaultLoader) {
+    // will be overridden
+  }
+
+  /**
+   * Event hook fired directly before transition, either "in" or "out" of the scene
+   *
+   * This overrides the Engine scene definition. However transitions specified in goto take hightest precedence
+   *
+   * ```typescript
+   * // Overrides all
+   * Engine.goto('scene', { destinationIn: ..., sourceOut: ... });
+   * ```
+   *
+   * This can be used to configure custom transitions for a scene dynamically
+   */
+  public onTransition(direction: 'in' | 'out'): Transition | undefined {
+    // will be overridden
+    return undefined;
+  }
+
+  /**
    * This is called before the first update of the [[Scene]]. Initializes scene members like the camera. This method is meant to be
    * overridden. This is where initialization of child actors should take place.
    */
@@ -245,7 +288,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
   /**
    * Initializes actors in the scene
    */
-  private _initializeChildren(): void {
+  private _initializeChildren() {
     for (const child of this.entities) {
       child._initialize(this.engine);
     }
@@ -258,6 +301,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
     return this._isInitialized;
   }
 
+
   /**
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
@@ -265,7 +309,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * Excalibur
    * @internal
    */
-  public _initialize(engine: Engine) {
+  public async _initialize(engine: Engine) {
     if (!this.isInitialized) {
       this.engine = engine;
       // Initialize camera first
@@ -275,7 +319,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
 
       // This order is important! we want to be sure any custom init that add actors
       // fire before the actor init
-      this.onInitialize.call(this, engine);
+      await this.onInitialize(engine);
       this._initializeChildren();
 
       this._logger.debug('Scene.onInitialize', this, engine);
@@ -290,9 +334,9 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * Activates the scene with the base behavior, then calls the overridable `onActivate` implementation.
    * @internal
    */
-  public _activate(context: SceneActivationContext<TActivationData>): void {
+  public async _activate(context: SceneActivationContext<TActivationData>) {
     this._logger.debug('Scene.onActivate', this);
-    this.onActivate(context);
+    await this.onActivate(context);
   }
 
   /**
@@ -301,9 +345,9 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * Deactivates the scene with the base behavior, then calls the overridable `onDeactivate` implementation.
    * @internal
    */
-  public _deactivate(context: SceneActivationContext<never>): void {
+  public async _deactivate(context: SceneActivationContext<never>) {
     this._logger.debug('Scene.onDeactivate', this);
-    this.onDeactivate(context);
+    await this.onDeactivate(context);
   }
 
   /**
@@ -356,6 +400,9 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * @param delta   The number of milliseconds since the last update
    */
   public update(engine: Engine, delta: number) {
+    if (!this.isInitialized) {
+      throw new Error('Scene update called before it was initialized!');
+    }
     this._preupdate(engine, delta);
 
     // TODO differed entity removal for timers

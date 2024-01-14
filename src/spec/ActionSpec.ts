@@ -8,7 +8,7 @@ describe('Action', () => {
   let engine: ex.Engine & any;
   let scene: ex.Scene;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     jasmine.addMatchers(ExcaliburMatchers);
     engine = TestUtils.engine({ width: 100, height: 100 });
 
@@ -16,8 +16,8 @@ describe('Action', () => {
     scene = new ex.Scene();
     scene.add(actor);
     engine.addScene('test', scene);
-    engine.goToScene('test');
-    engine.start();
+    await engine.goToScene('test');
+    await engine.start();
     const clock = engine.clock as ex.TestClock;
     clock.step(100);
 
