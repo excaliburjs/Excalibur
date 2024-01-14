@@ -3,6 +3,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+
 ## [Unreleased]
 
 ### Breaking Changes
@@ -15,18 +16,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- New graphics events and hooks that allow you to hook into graphics drawing before or after any drawing transformations have been applied
-  * `Actor.graphics.onPreTransformDraw` with the corresponding event `.on('pretransformdraw')`
-  * `Actor.graphics.onPostTransformDraw` with the corresponding event `.on('posttransformdraw')`
-- New property and methods overloads to `ex.Animation`
-  * `ex.Animation.currentFrameTimeLeft` will return the current time in milliseconds left in the current
-  * `ex.Animation.goToFrame(frameNumber: number, duration?: number)` now accepts an optional duration for the target frame
-  * `ex.Animation.speed` can set the speed multiplier on an animation 1 = 1x speed, 2 = 2x speed.
+- 
 
 ### Fixed
 
-- Fixed issue where parenting a entity with fixed updates on would cause a drawing flicker, transform interpolation now is aware of changing parents so it interpolates drawing continuously to prevent any flickering
-- `ex.Animation.reset()` did not properly reset all internal state
+- 
 
 ### Updates
 
@@ -40,6 +34,42 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [v0.28.6]
+
+### Breaking Changes
+
+-
+
+### Deprecated
+
+-
+
+### Added
+
+- Added arbitrary data storage in isometric tiles, `ex.IsometricTile.data` this brings it into feature parity with normal `ex.Tile.data`
+- New graphics events and hooks that allow you to hook into graphics drawing before or after any drawing transformations have been applied
+  * `Actor.graphics.onPreTransformDraw` with the corresponding event `.on('pretransformdraw')`
+  * `Actor.graphics.onPostTransformDraw` with the corresponding event `.on('posttransformdraw')`
+- New property and methods overloads to `ex.Animation`
+  * `ex.Animation.currentFrameTimeLeft` will return the current time in milliseconds left in the current
+  * `ex.Animation.goToFrame(frameNumber: number, duration?: number)` now accepts an optional duration for the target frame
+  * `ex.Animation.speed` can set the speed multiplier on an animation 1 = 1x speed, 2 = 2x speed.
+
+### Fixed
+
+- Fixed issue where nesting `ex.CompositeColliders` inside one another would cause a crash on collision
+- Fixed issue where `ex.CompositeColliders` did not respect collider offset
+- Fixed issue where parenting a entity with fixed updates on would cause a drawing flicker, transform interpolation now is aware of changing parents so it interpolates drawing continuously to prevent any flickering
+- `ex.Animation.reset()` did not properly reset all internal state
+
+### Updates
+
+-
+
+### Changed
+
+-
 
 ## [v0.28.5]
 
