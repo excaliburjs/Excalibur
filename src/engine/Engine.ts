@@ -680,6 +680,12 @@ O|===|* >________________>\n\
 
     if (options.canvasElementId) {
       this._logger.debug('Using Canvas element specified: ' + options.canvasElementId);
+
+      //test for existence of element
+      if (document.getElementById(options.canvasElementId) === null)  {
+        throw new Error('Cannot find existing element in the DOM, please ensure element is created prior to engine creation.');
+      }
+
       this.canvas = <HTMLCanvasElement>document.getElementById(options.canvasElementId);
     } else if (options.canvasElement) {
       this._logger.debug('Using Canvas element specified:', options.canvasElement);
