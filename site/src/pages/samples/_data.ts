@@ -6,8 +6,16 @@ import sampleElectron from './images/electron.png'
 import sampleMatterjs from './images/matterjs.gif'
 import sampleTiled from './images/tiled.gif'
 import sampleGrid from './images/grid.gif'
+import sampleTactics from './images/tinytactics-small.gif'
 
 export default [
+  {
+    title: 'Tiny Tactics',
+    image: sampleTactics,
+    description: 'High fidelity example of a tactics game, with multiple levels, AI, and pathfinding!',
+    url: 'https://excaliburjs.com/sample-tactics',
+    source: 'https://github.com/excaliburjs/sample-tactics',
+  },
   {
     title: 'Grid Movement',
     image: sampleGrid,

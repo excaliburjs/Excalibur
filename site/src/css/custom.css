@@ -38,6 +38,20 @@
   display: none;
 }
 
+.navbar__link {
+  white-space: nowrap;
+}
+
+.hero {
+  padding-top: 2rem !important;
+  padding-bottom: 12rem !important;
+  background-image: url('/static/img/hero.png');
+  background-size: 20rem;
+  background-position-y: bottom 1rem !important;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
 .tsdoc-link.tsdoc-link--missing {
   border-bottom: 1px dashed red;
   cursor: help;

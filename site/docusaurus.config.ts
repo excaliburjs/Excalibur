@@ -17,7 +17,7 @@ const rehypeRawOptions = {
 
 const config: Config = {
   title: 'Excalibur.js',
-  tagline: 'Your friendly TypeScript 2D game engine for the web',
+  tagline: 'Your friendly TypeScript 2D game engine for the web.',
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
@@ -212,12 +212,17 @@ const config: Config = {
         { to: '/blog', label: 'Blog', position: 'left' },
         { to: '/samples', label: 'Samples', position: 'left' },
         { to: '/donate', label: 'Donate', position: 'left' },
-        { to: '/premium-support', label: 'Premium Support', position: 'right' },
         {
           href: 'https://github.com/excaliburjs/Excalibur/discussions',
-          label: 'Community',
+          label: 'Discussions',
           position: 'left'
         },
+        {
+          href: 'https://discord.gg/W6zUd4tTY3',
+          label: 'Discord',
+          position: 'left'
+        },
+        { to: '/premium-support', label: 'Premium Support', position: 'right' },
         {
           href: 'https://github.com/excaliburjs/Excalibur',
           label: 'GitHub',
@@ -243,7 +248,16 @@ const config: Config = {
             {
               label: 'Twitter',
               href: 'https://twitter.com/excaliburjs'
-            }
+            },
+            {
+              label: 'Discord',
+              href: 'https://discord.gg/W6zUd4tTY3'
+            },
+            {
+              label: 'Discussions',
+              href: 'https://github.com/excaliburjs/Excalibur/discussions'
+            },
+            
           ]
         },
         {

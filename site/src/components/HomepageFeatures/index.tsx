@@ -9,9 +9,18 @@ type FeatureItem = {
 };
 
 const FeatureList: FeatureItem[] = [
+{
+    title: 'Free and Open Source',
+    Svg: require('@site/static/img/OSI_Keyhole.svg').default,
+    description: (
+      <>
+        Excalibur is and always will be free and open source! Excalibur public projects are BSD 2 Clause, and will never, ever change.
+      </>
+    ),
+  },
   {
     title: 'Made with TypeScript',
-    Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
+    Svg: require('@site/static/img/ts-logo-256.svg').default,
     description: (
       <>
         Excalibur was built from the ground up for TypeScript, a typed superset of JavaScript that feels familiar to C#, Java, and other strongly-typed languages. This makes Excalibur code clean, readable, and maintainable.
@@ -56,7 +65,7 @@ export default function HomepageFeatures(): JSX.Element {
   return (
     <section className={styles.features}>
       <div className="container">
-        <div className="row">
+        <div className={clsx('row', styles.rowCenter)}>
           {FeatureList.map((props, idx) => (
             <Feature key={idx} {...props} />
           ))}
