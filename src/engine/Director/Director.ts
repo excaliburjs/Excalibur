@@ -91,9 +91,12 @@ export interface GoToOptions {
 }
 
 /**
- * The Director is responsible for managing scenes and changing scenes in Excalibur
+ * The Director is responsible for managing scenes and changing scenes in Excalibur.
  *
  * It deals with transitions, scene loaders, switching scenes
+ *
+ * This is used internally by Excalibur, generally not mean to
+ * be instantiated end users directly.
  */
 export class Director<TKnownScenes extends string = any> {
   public events = new EventEmitter<DirectorEvents>();
@@ -153,6 +156,8 @@ export class Director<TKnownScenes extends string = any> {
   constructor(private _engine: Engine, scenes: SceneMap<TKnownScenes>) {
     this.rootScene = this.currentScene = new Scene();
     this.add('root', this.rootScene);
+    this.currentScene = this.rootScene;
+    this.currentSceneName = 'root';
     for (const sceneKey in scenes) {
       const sceneOrOptions = scenes[sceneKey];
       this.add(sceneKey, sceneOrOptions);
@@ -186,8 +191,8 @@ export class Director<TKnownScenes extends string = any> {
    * @param startScene
    * @param options
    */
-  start(startScene: WithRoot<TKnownScenes>, options?: StartOptions) {
-    const maybeLoaderOrCtor = options.loader;
+  configureStart(startScene: WithRoot<TKnownScenes>, options?: StartOptions) {
+    const maybeLoaderOrCtor = options?.loader;
     if (maybeLoaderOrCtor instanceof DefaultLoader) {
       this.mainLoader = maybeLoaderOrCtor;
     } else if (isLoaderConstructor(maybeLoaderOrCtor)) {
@@ -284,7 +289,8 @@ export class Director<TKnownScenes extends string = any> {
    */
   add<TScene extends string>(name: TScene, sceneOrRoute: Scene | SceneConstructor | SceneWithOptions): Director<TKnownScenes | TScene> {
     if (!(sceneOrRoute instanceof Scene) && !(isSceneConstructor(sceneOrRoute))) {
-      const { loader, transitions: {in: inTransition, out: outTransition } } = sceneOrRoute;
+      const { loader, transitions } = sceneOrRoute;
+      const {in: inTransition, out: outTransition } = transitions ?? {};
       this._sceneToTransition.set(name, {in: inTransition, out: outTransition});
 
       if (isLoaderConstructor(loader)) {
@@ -303,8 +309,9 @@ export class Director<TKnownScenes extends string = any> {
 
   remove(scene: Scene): void;
   remove(sceneCtor: SceneConstructor): void;
-  remove(name: TKnownScenes): void;
+  remove(name: WithRoot<TKnownScenes>): void;
   remove(nameOrScene: TKnownScenes | Scene | SceneConstructor | string) {
+
     if (nameOrScene instanceof Scene || isSceneConstructor(nameOrScene)) {
       const sceneOrCtor = nameOrScene;
       // remove scene
@@ -319,6 +326,10 @@ export class Director<TKnownScenes extends string = any> {
           }
 
           if (scene === sceneOrCtor) {
+            if (key === this.currentSceneName) {
+              throw new Error(`Cannot remove a currently active scene: ${key}`);
+            }
+
             this._sceneToTransition.delete(key);
             this._sceneToLoader.delete(key);
             delete this.scenes[key as TKnownScenes];
@@ -327,6 +338,10 @@ export class Director<TKnownScenes extends string = any> {
       }
     }
     if (typeof nameOrScene === 'string') {
+      if (nameOrScene === this.currentSceneName) {
+        throw new Error(`Cannot remove a currently active scene: ${nameOrScene}`);
+      }
+
       // remove scene
       this._sceneToTransition.delete(nameOrScene);
       this._sceneToLoader.delete(nameOrScene);

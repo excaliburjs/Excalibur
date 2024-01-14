@@ -1373,7 +1373,7 @@ O|===|* >________________>\n\
     if (sceneNameOrLoader instanceof DefaultLoader) {
       loader = sceneNameOrLoader;
     } else if (typeof sceneNameOrLoader === 'string') {
-      this.director.start(sceneNameOrLoader, options);
+      this.director.configureStart(sceneNameOrLoader, options);
       loader = this.director.mainLoader;
     }
 
