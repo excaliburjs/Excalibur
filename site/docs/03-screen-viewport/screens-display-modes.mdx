@@ -6,6 +6,10 @@ section: Screen & Viewport
 
 Excalibur can render the screen in various different display modes by default.
 
+```twoslash include ex
+/// <reference path="../src/engine/excalibur.d.ts" />
+```
+
 ## Managing display modes
 
 Excalibur supports multiple display modes for a game. Pass in a [[EngineOptions.displayMode|displayMode]]
@@ -15,15 +19,21 @@ option when creating a game to customize the viewport.
 
 [[DisplayMode.Fixed]] is the default, use a specified resolution for the game. Like 600x400 pixels for example.
 
+```ts twoslash {4}
+// @include: ex
+// ---cut---
+const game = new ex.Engine({
+    width: 600,
+    height: 400,
+    displayMode: ex.DisplayMode.Fixed // fixed is the default so this is optional
+});
+```
+
 <div class="snippet-resizer snippet-border" alt="Resize me!">
 
 <IFrameEmbed className="snippet-resized" src="https://excaliburjs.com/excalibur-snippets/displaymode/fixed/" />
 
 </div>
-
-Click and drag right corner to resize!
-
-`embed:excalibur-snippets/src/displaymode/fixed/main.ts{snippet: "displaymode.fixed"}`
 
 ### Fit Screen Display Mode
 
@@ -33,7 +43,27 @@ This is not the same as [[Screen.goFullScreen]], which uses the fullscreen api, 
 
 You may want to center your game and fit to the screen here is an example:
 
-`embed:excalibur-snippets/src/displaymode/fitscreen/main.ts{snippet: "displaymode.fitscreen.css"}`
+```css
+html, body {
+    height: 100%;
+}
+body {
+    display: flex;
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
+}
+```
+
+```ts twoslash {4}
+// @include: ex
+// ---cut---
+const game = new ex.Engine({
+    width: 600,
+    height: 400,
+    displayMode: ex.DisplayMode.FitScreen
+});
+```
 
 <div class="snippet-resizer snippet-border" alt="Resize me!">
 
@@ -43,11 +73,17 @@ You may want to center your game and fit to the screen here is an example:
 
 Click and drag right corner to resize!
 
-`embed:excalibur-snippets/src/displaymode/fitscreen/main.ts{snippet: "displaymode.fitscreen"}`
-
 ### Fill Screen Display Mode
 
 [[DisplayMode.FillScreen]] Fill the entire screen's css width/height for the game resolution dynamically. This means the resolution of the game will change dynamically as the window is resized. This is not the same as [[Screen.goFullScreen]]
+
+```ts twoslash {1}
+// @include: ex
+// ---cut---
+const game = new ex.Engine({
+    displayMode: ex.DisplayMode.FillScreen
+});
+```
 
 <div class="snippet-resizer snippet-border" alt="Resize me!">
 
@@ -57,11 +93,43 @@ Click and drag right corner to resize!
 
 Click and drag right corner to resize!
 
-`embed:excalibur-snippets/src/displaymode/fillscreen/main.ts{snippet: "displaymode.fillscreen"}`
-
 ### Fit Container Display Mode
 
 [[DisplayMode.FitContainer]] Fit to parent element width/height using as much space as possible while maintaining aspect ratio and resolution.
+
+```css
+.container {
+    /* Flexbox used to center game */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    /* Container size with border */
+    border: red 4px dashed;
+    width: 50%;
+    height: 300px;
+}
+
+.snippet-resizer { display:flex; margin:0; padding:0; resize:both; overflow:hidden }
+.snippet-resizer > .snippet-resized { flex-grow:1; margin:0; padding:0; border:0 }
+```
+
+```html
+<div class="container snippet-resizer">
+    <canvas id="game"></canvas>
+</div>
+```
+
+```ts twoslash {5}
+// @include: ex
+// ---cut---
+const game = new ex.Engine({
+    canvasElementId: 'game',
+    width: 600,
+    height: 400,
+    displayMode: ex.DisplayMode.FitContainer
+});
+```
 
 <div class="snippet-resizer snippet-border" alt="Resize me!">
 
@@ -71,15 +139,35 @@ Click and drag right corner to resize!
 
 Click and drag right corner to resize!
 
-`embed:excalibur-snippets/src/displaymode/fitcontainer/index.html{snippet: "container-css"}`
-
-`embed:excalibur-snippets/src/displaymode/fitcontainer/index.html{snippet: "container-html"}`
-
-`embed:excalibur-snippets/src/displaymode/fitcontainer/main.ts{snippet: "displaymode.fitcontainer"}`
-
 ### Fill Container Display Mode
 
 [[DisplayMode.FillContainer]] will fill the entire screen's css width/height for the game resolution dynamically. This means the resolution of the game will change dynamically as the window is resized. This is not the same as [[Screen.goFullScreen]]
+
+```css
+.container {
+    border: red 4px dashed;
+    width: 50%;
+    height: 300px;
+}
+
+.snippet-resizer { display:flex; margin:0; padding:0; resize:both; overflow:hidden }
+.snippet-resizer > .snippet-resized { flex-grow:1; margin:0; padding:0; border:0 }
+```
+
+```html
+<div class="container snippet-resizer">
+    <canvas id="game"></canvas>
+</div>
+```
+
+```ts twoslash {3}
+// @include: ex
+// ---cut---
+const game = new ex.Engine({
+    canvasElementId: 'game',
+    displayMode: ex.DisplayMode.FillContainer
+});
+```
 
 <div class="snippet-resizer snippet-border" alt="Resize me!">
 
@@ -88,12 +176,6 @@ Click and drag right corner to resize!
 </div>
 
 Click and drag right corner to resize!
-
-`embed:excalibur-snippets/src/displaymode/fillcontainer/index.html{snippet: "container-css"}`
-
-`embed:excalibur-snippets/src/displaymode/fillcontainer/index.html{snippet: "container-html"}`
-
-`embed:excalibur-snippets/src/displaymode/fillcontainer/main.ts{snippet: "displaymode.fillcontainer"}`
 
 ### Fit Screen And Fill Display Mode
 
@@ -141,7 +223,12 @@ This requires an explicit user gesture due to browser security, so wiring it int
 
 :::
 
-`embed:excalibur-snippets/src/fullscreen/main.ts{snippet: "fullscreen"}`
+```typescript
+document.getElementById('go-fullscreen')!.addEventListener('click', () => {
+    game.screen.goFullScreen();
+});
+```
+
 
 ```typescript
 await game.screen.goFullScreen();

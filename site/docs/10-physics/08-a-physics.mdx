@@ -4,6 +4,8 @@ slug: /physics
 section: Physics
 ---
 
+import PhysicsExample from '!!raw-loader!./examples/physics.ts';
+
 Excalibur comes built in with two physics simulations.
 
 - "Arcade" style physics which is good for basic collision detection for non-rotated rectangular areas.
@@ -33,7 +35,10 @@ const game = new Engine({...});
 
 ### Example
 
-`embed:excalibur-snippets/src/collision/main.ts{snippet: "collision"}`
+<GameCodeBlock live 
+  title="Physics"
+  code={PhysicsExample} 
+/>
 
 <IFrameEmbed src="https://excaliburjs.com/excalibur-snippets/collision/" />
 

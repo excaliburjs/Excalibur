@@ -21,7 +21,26 @@ Some source spritesheets may have margin between sprites and an offset, like the
 
 ![Kenney.nl pixel art playing cards](kenny-cards.png)
 
-`embed:excalibur-snippets/src/spritesheet/main.ts{snippet: "spritesheet"}`
+```typescript
+
+const kennyCardsImage = new ex.ImageSource(kennyCardsImageSrc);
+
+const spriteSheet = ex.SpriteSheet.fromImageSource({
+    image: kennyCardsImage,
+    grid: {
+        rows: 4,
+        columns: 14,
+        spriteWidth: 42,
+        spriteHeight: 60
+    },
+    spacing: {
+        // Optionally specify the offset from the top left of sheet to start parsing
+        originOffset: { x: 11, y: 2 },
+        // Optionally specify the margin between each sprite
+        margin: { x: 23, y: 5}
+    }
+});
+```
 
 <IFrameEmbed src="https://excaliburjs.com/excalibur-snippets/spritesheet/" />
 

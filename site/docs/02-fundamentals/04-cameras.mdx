@@ -97,6 +97,19 @@ in-game effects.
 and it enables the camera focus to move smoothly between two points using timing functions.
 Use [[Camera.move]] to ease to a specific point using a provided [[EasingFunction]].
 
+```typescript
+export interface EasingFunction {
+  (currentTime: number, startValue: number, endValue: number, duration: number): number;
+}
+
+// or any builtin
+
+const linear = ex.EasingFunctions.Linear;
+const easinQuad = ex.EasingFunctions.EaseInQuad;
+// ... and more!
+
+```
+
 ### Camera zooming
 
 To adjust the zoom for your game, use [[Camera.zoom]] which will scale the

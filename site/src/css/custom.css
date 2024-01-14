@@ -43,3 +43,6 @@
   cursor: help;
   color: rgba(255, 0, 0, 0.8);
 }
+
+.snippet-resizer { display:flex; margin:0; padding:0; resize:both; overflow:hidden }
+.snippet-resizer > .snippet-resized { flex-grow:1; margin:0; padding:0; border:0 }

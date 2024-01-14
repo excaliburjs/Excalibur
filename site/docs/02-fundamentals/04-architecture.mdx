@@ -166,8 +166,7 @@ actor.assign({
 
 ## Extending the engine
 
-For complex games, any entity that inherits [[Class]] can be extended to override built-in
-functionality. This is recommended for [[Actor|actors]] and [[Scene|scenes]], especially.
+For complex games, this is recommended for [[Actor|actors]] and [[Scene|scenes]], especially.
 You can customize the options or provide more for your game by extending [[Engine]].
 
 ```ts
@@ -211,11 +210,11 @@ actor.on('predraw', (evtObj: PreDrawEvent) => {
 
 ### Example: Actor events
 
-Actors implement an EventDispatcher ([[Actor.eventDispatcher]]) so they can
+Actors implement an EventDispatcher ([[Actor.events]]) so they can
 send and receive events. For example, they can enable Pointer events (mouse/touch)
 and you can respond to them by subscribing to the event names.
 You can also emit any other kind of event for your game just by using a custom
-`string` value and implementing a class that inherits from [[GameEvent]].
+`string` for the name, and any value for the event.
 
 ```js
 var player = new ex.Actor(...);
@@ -246,15 +245,18 @@ an example.
 
 ```js
 // create a publisher on an empty object
-var vent = new ex.EventDispatcher({});
+const vent = new ex.EventEmitter();
 // handler for an event
-var subscription = function (event) {
+const handler = function (event) {
   console.log(event);
 };
-// add a subscription
-vent.on('someevent', subscription);
+// add a handler
+const sub = vent.on('someevent', handler);
 // publish an event somewhere in the game
-vent.emit('someevent', new ex.GameEvent());
+vent.emit('someevent', { any: 'value or object'});
+
+// Clean up handler subscription, handler will no longer fire for 'someevent'
+sub.close();
 ```
 
 ## Managing game state
@@ -271,4 +273,4 @@ Have you implemented state management in your Excalibur game? [Let us know](http
 
 ## Enabling debug mode
 
-Call [[Engine.showDebug]] with a `true` or `false` to enable or disable Excalibur's debug feature. This will enable [actor debug drawing](/docs/actors#debug-draw) to help diagnose drawing issues.
+Call [[Engine.toggleDebug]], or [[Engine.showDebug]] with a `true` or `false` to enable or disable Excalibur's debug feature. This will enable [actor debug drawing](/docs/actors#debug-draw) to help diagnose drawing issues.

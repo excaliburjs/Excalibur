@@ -110,7 +110,7 @@ class Player extends ex.Actor {
 }
 ```
 
-There are three ways to hook into the update loop of an actor: [[Actor.onPreUpdate]], [[Actor.update]] and [[Actor.onPostUpdate]]. Actors (and other entities in Excalibur) all have "core" logic that runs in the update or draw loop. The pre- and post-method hooks allow you to choose when you want to run logic in each phase. _Normally_ you will run logic in the "post" hook but sometimes you may want to completely override the core logic or run logic that uses state that was updated _before_ the core logic runs.
+There are three ways to hook into the update loop of an actor: [[Actor.onPreUpdate]], [[Actor.update]], and [[Actor.onPostUpdate]]. Actors (and other entities in Excalibur) all have "core" logic that runs in the update or draw loop. The pre- and post-method hooks allow you to choose when you want to run logic in each phase. _Normally_ you will run logic in the "post" hook but sometimes you may want to completely override the core logic or run logic that uses state that was updated _before_ the core logic runs.
 
 All update methods are passed an instance of the Excalibur engine, which
 can be used to perform coordinate math or access global state. It is also
