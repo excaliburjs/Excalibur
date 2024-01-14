@@ -16,9 +16,8 @@ describe('The engine', () => {
       height: 400
     });
     scene = new ex.Scene();
-    engine.removeScene('root');
-    engine.addScene('root', scene);
-    await engine.goToScene('root'); // TODO use new method
+    engine.addScene('newScene', scene);
+    await engine.goToScene('newScene'); // TODO use new method
     actor = new ex.Actor({ x: 0, y: 0, width: 10, height: 10, color: ex.Color.Red });
 
     scene.add(actor);

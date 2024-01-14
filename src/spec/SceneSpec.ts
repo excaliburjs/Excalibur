@@ -13,9 +13,8 @@ describe('A scene', () => {
     scene = new ex.Scene();
 
     spyOn(scene, 'draw').and.callThrough();
-    engine.removeScene('root');
-    engine.addScene('root', scene);
-    engine.goToScene('root');
+    engine.addScene('newScene', scene);
+    engine.goToScene('newScene');
     await TestUtils.runToReady(engine);
 
     clock = engine.clock as ex.TestClock;
@@ -319,10 +318,10 @@ describe('A scene', () => {
     const scene = new ex.Scene();
     spyOn(scene, 'onInitialize');
 
-    engine.addScene('newScene', scene);
+    engine.addScene('otherScene', scene);
     expect(scene.onInitialize).toHaveBeenCalledTimes(0);
 
-    await engine.goToScene('newScene');
+    await engine.goToScene('otherScene');
 
     expect(scene.onInitialize).toHaveBeenCalledTimes(1);
   });
@@ -357,8 +356,8 @@ describe('A scene', () => {
     engine = TestUtils.engine({ width: 100, height: 100 });
     scene = new ex.Scene();
 
-    engine.removeScene('root');
-    engine.addScene('root', scene);
+    engine.removeScene('otherScene');
+    engine.addScene('otherScene', scene);
 
     let initialized = false;
     scene.on('initialize', (evt: ex.InitializeEvent) => {
@@ -369,7 +368,7 @@ describe('A scene', () => {
       done();
     });
 
-    engine.goToScene('root');
+    engine.goToScene('otherScene');
     engine.start();
     const clock = engine.clock as ex.TestClock;
     clock.step(100);
@@ -379,8 +378,8 @@ describe('A scene', () => {
     engine = TestUtils.engine({ width: 100, height: 100 });
     scene = new ex.Scene();
 
-    engine.removeScene('root');
-    engine.addScene('root', scene);
+    engine.removeScene('otherScene');
+    engine.addScene('otherScene', scene);
 
     let sceneInitialized = false;
     const sceneActivated = false;
@@ -400,7 +399,7 @@ describe('A scene', () => {
     });
 
     scene.add(actor);
-    engine.goToScene('root');
+    engine.goToScene('otherScene');
     engine.start();
     const clock = engine.clock as ex.TestClock;
     clock.step(100);
@@ -754,8 +753,8 @@ describe('A scene', () => {
     beforeEach(() => {
       engine = TestUtils.engine({ width: 100, height: 100 });
       scene = new ex.Scene();
-      engine.removeScene('root');
-      engine.addScene('root', scene);
+      engine.removeScene('newScene');
+      engine.addScene('newScene', scene);
     });
 
     afterEach(() => {
@@ -778,7 +777,7 @@ describe('A scene', () => {
       spyOn(scene, 'onInitialize').and.callThrough();
 
       await TestUtils.runToReady(engine);
-      await engine.goToScene('root');
+      await engine.goToScene('newScene');
       clock.step(100);
 
       expect(initCalled).toBe(true);
