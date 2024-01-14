@@ -47,7 +47,7 @@
   padding-bottom: 12rem !important;
   background-image: url('/static/img/hero.png');
   background-size: 20rem;
-  background-position-y: bottom 1rem !important;
+  background-position-y: bottom !important;
   background-repeat: no-repeat;
   background-position: center;
 }
