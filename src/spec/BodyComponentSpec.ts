@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-import { BodyComponent, CollisionGroup, CollisionType } from '@excalibur';
+import { BodyComponent } from '@excalibur';
 import { ExcaliburMatchers } from 'excalibur-jasmine';
 
 describe('A body component', () => {

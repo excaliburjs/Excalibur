@@ -7,7 +7,7 @@ describe('A Collision', () => {
   let engine: ex.Engine = null;
   let clock: ex.TestClock = null;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     engine = TestUtils.engine({ width: 600, height: 400 });
     clock = engine.clock = engine.clock.toTestClock();
 
@@ -16,7 +16,7 @@ describe('A Collision', () => {
     actor1.body.collisionType = ex.CollisionType.Active;
     actor2.body.collisionType = ex.CollisionType.Active;
 
-    engine.start();
+    await engine.start();
     engine.add(actor1);
     engine.add(actor2);
   });
@@ -29,7 +29,7 @@ describe('A Collision', () => {
     actor2 = null;
   });
 
-  it('should throw one event for each actor participating', async () => {
+  it('should throw one event for each actor participating', () => {
     let actor1Collision = 0;
     let actor2Collision = 0;
     actor1.on('precollision', (e: ex.PreCollisionEvent) => {

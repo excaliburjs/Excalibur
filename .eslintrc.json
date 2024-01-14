@@ -95,6 +95,7 @@
     "no-unused-labels": "error",
     "no-var": "error",
     "prefer-const": "error",
+    "require-await": "warn",
     "radix": "error",
     "max-len": [
       "error",

@@ -16,13 +16,13 @@ describe('Collision Shape', () => {
     let circle: ex.CircleCollider;
     let actor: ex.Actor;
 
-    beforeEach(() => {
+    beforeEach(async () => {
       engine = TestUtils.engine();
       engine.backgroundColor = ex.Color.Transparent;
       scene = new ex.Scene();
       engine.add('test', scene);
-      engine.goToScene('test');
-      engine.start();
+      await engine.goToScene('test');
+      await engine.start();
       const clock = engine.clock as ex.TestClock;
       clock.step(1);
 
@@ -423,13 +423,13 @@ describe('Collision Shape', () => {
   describe('a ConvexPolygon', () => {
     let engine: ex.Engine;
     let scene: ex.Scene;
-    beforeEach(() => {
+    beforeEach(async () => {
       engine = TestUtils.engine();
       engine.backgroundColor = ex.Color.Transparent;
       scene = new ex.Scene();
       engine.addScene('test', scene);
-      engine.goToScene('test');
-      engine.start();
+      await engine.goToScene('test');
+      await engine.start();
       const clock = engine.clock as ex.TestClock;
       clock.step(1);
     });
@@ -499,9 +499,9 @@ describe('Collision Shape', () => {
 
       const colliders = composite.getColliders() as ex.PolygonCollider[];
       expect(colliders.length).toBe(3);
-      expect(colliders[0].points).toEqual([ex.vec(0, 0), ex.vec(10, 0), ex.vec(10, 10)]);
-      expect(colliders[1].points).toEqual([ex.vec(0, 0), ex.vec(10, 10), ex.vec(0, 10)]);
-      expect(colliders[2].points).toEqual([ex.vec(0, 0), ex.vec(5, 5), ex.vec(0, 10)]);
+      expect(colliders[0].points).toEqual([ex.vec(5, 5), ex.vec(0, 0), ex.vec(10, 0)]);
+      expect(colliders[1].points).toEqual([ex.vec(0, 10), ex.vec(5, 5), ex.vec(10, 0)]);
+      expect(colliders[2].points).toEqual([ex.vec(10, 0), ex.vec(10, 10), ex.vec(0, 10)]);
 
       expect(concave.isConvex()).withContext('Should be concave').toBe(false);
     });
@@ -821,13 +821,13 @@ describe('Collision Shape', () => {
       engine = null;
     });
 
-    beforeEach(() => {
+    beforeEach(async () => {
       engine = TestUtils.engine();
       engine.backgroundColor = ex.Color.Transparent;
       scene = new ex.Scene();
       engine.addScene('test', scene);
-      engine.goToScene('test');
-      engine.start();
+      await engine.goToScene('test');
+      await engine.start();
       const clock = engine.clock as ex.TestClock;
       clock.step(1);
 

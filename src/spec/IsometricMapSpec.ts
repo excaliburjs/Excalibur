@@ -111,6 +111,9 @@ describe('A IsometricMap', () => {
     engine.debug.entity.showName = false;
     engine.debug.entity.showId = false;
     engine.debug.graphics.showBounds = false;
+    engine.debug.transform.showPosition = true;
+    engine.debug.isometric.showGrid = true;
+    engine.debug.isometric.showPosition = true;
     const clock = engine.clock as ex.TestClock;
     const image = new ex.ImageSource('src/spec/images/IsometricMapSpec/cube.png');
     await image.load();

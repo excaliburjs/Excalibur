@@ -22,11 +22,11 @@ describe('A pointer', () => {
     target.dispatchEvent(evt);
   }
 
-  beforeEach(() => {
+  beforeEach(async () => {
     engine = TestUtils.engine({
       pointerScope: ex.PointerScope.Document
     });
-    engine.start();
+    await TestUtils.runToReady(engine);
 
     const clock = engine.clock as ex.TestClock;
     clock.step(1);

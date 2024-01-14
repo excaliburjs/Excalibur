@@ -5,7 +5,7 @@ import { Text } from './Graphics/Text';
 import { GraphicsComponent, SpriteFont } from './Graphics';
 import { Font } from './Graphics/Font';
 import { Actor } from './Actor';
-import { ActorArgs } from '.';
+import { ActorArgs } from './Actor';
 
 /**
  * Option for creating a label

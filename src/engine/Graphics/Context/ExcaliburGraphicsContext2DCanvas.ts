@@ -264,6 +264,7 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
    */
   save(): void {
     this.__ctx.save();
+    this._state.save();
   }
 
   /**
@@ -271,6 +272,7 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
    */
   restore(): void {
     this.__ctx.restore();
+    this._state.restore();
   }
 
   /**
@@ -318,7 +320,7 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     // pass
   }
 
-  public updatePostProcessors(_delta: number) {
+  public updatePostProcessors(delta: number) {
     // pass
   }
 
@@ -330,7 +332,7 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     // pass
   }
 
-  public set material(material: Material) {
+  public set material(material: Material | null) {
     this._state.current.material = material;
   }
 

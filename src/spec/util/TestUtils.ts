@@ -39,9 +39,12 @@ export namespace TestUtils {
   }
 
   /**
-   *
+   * Waits for the internal loader state to be ready by ticking the test clock
    */
-  export async function runToReady(engine: ex.Engine, loader?: ex.Loader) {
+  export async function runToReady(engine: ex.Engine, loader?: ex.DefaultLoader) {
+    if (!(engine.clock instanceof ex.TestClock)) {
+      throw Error('Engine does not have TestClock enabled');
+    }
     const clock = engine.clock as ex.TestClock;
     const start = engine.start(loader);
     // If loader
@@ -53,6 +56,7 @@ export namespace TestUtils {
       });
       await engine.isReady();
     }
+    await start;
   }
 
   /**

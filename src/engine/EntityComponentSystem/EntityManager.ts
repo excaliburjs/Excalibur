@@ -1,7 +1,7 @@
 import { Entity, RemovedComponent, AddedComponent, isAddedComponent, isRemovedComponent } from './Entity';
 import { Observer } from '../Util/Observable';
 import { World } from './World';
-import { Util } from '..';
+import { removeItemFromArray } from '../Util/Util';
 
 // Add/Remove entities and components
 
@@ -102,7 +102,7 @@ export class EntityManager<ContextType = any> implements Observer<RemovedCompone
     delete this._entityIndex[id];
     if (entity) {
       entity.scene = null;
-      Util.removeItemFromArray(entity, this.entities);
+      removeItemFromArray(entity, this.entities);
       this._world.queryManager.removeEntity(entity);
       entity.componentAdded$.unregister(this);
       entity.componentRemoved$.unregister(this);
@@ -148,8 +148,8 @@ export class EntityManager<ContextType = any> implements Observer<RemovedCompone
   }
 
   public clear(): void {
-    for (const entity of this.entities) {
-      this.removeEntity(entity);
+    for (let i = this.entities.length - 1; i >= 0; i--) {
+      this.removeEntity(this.entities[i]);
     }
   }
 }

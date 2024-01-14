@@ -152,17 +152,21 @@ export abstract class Graphic {
       this.rotation = options.rotation ?? this.rotation;
       this.opacity = options.opacity ?? this.opacity;
       this.scale = options.scale ?? this.scale;
+      this.tint = options.tint ?? this.tint;
     }
   }
 
   public cloneGraphicOptions(): GraphicOptions {
     return {
+      width: this.width / this.scale.x,
+      height: this.height / this.scale.y,
       origin: this.origin ? this.origin.clone() : null,
       flipHorizontal: this.flipHorizontal,
       flipVertical: this.flipVertical,
       rotation: this.rotation,
       opacity: this.opacity,
-      scale: this.scale ? this.scale.clone() : null
+      scale: this.scale ? this.scale.clone() : null,
+      tint: this.tint ? this.tint.clone(): null
     };
   }
 

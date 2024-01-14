@@ -61,7 +61,7 @@ declare global {
 /**
  *
  */
-export async function waitForFontLoad(font: string, timeout = 2000, interval = 100) {
+export function waitForFontLoad(font: string, timeout = 2000, interval = 100): Promise<boolean> {
   return new Promise((resolve, reject) => {
     // repeatedly poll check
     const poller = setInterval(async () => {

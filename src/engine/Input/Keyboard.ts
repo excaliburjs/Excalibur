@@ -212,6 +212,7 @@ export const KeyEvents = {
  */
 export class Keyboard {
   public events = new EventEmitter<KeyEvents>();
+  private _enabled = true;
   /**
    * Keys that are currently held down
    */
@@ -283,6 +284,10 @@ export class Keyboard {
     global.addEventListener('keydown', this._handleKeyDown);
   }
 
+  toggleEnabled(enabled: boolean) {
+    this._enabled = enabled;
+  }
+
   private _releaseAllKeys = (ev: KeyboardEvent) => {
     for (const code of this._keys) {
       const keyEvent = new KeyEvent(code, ev.key, ev);
@@ -294,6 +299,10 @@ export class Keyboard {
   };
 
   private _handleKeyDown = (ev: KeyboardEvent) => {
+    if (!this._enabled) {
+      return;
+    }
+
     // handle macos meta key issue
     // https://github.com/excaliburjs/Excalibur/issues/2608
     if (!ev.metaKey && (this._keys.includes(Keys.MetaLeft) || this._keys.includes(Keys.MetaRight))) {
@@ -311,6 +320,9 @@ export class Keyboard {
   };
 
   private _handleKeyUp = (ev: KeyboardEvent) => {
+    if (!this._enabled) {
+      return;
+    }
     const code = ev.code as Keys;
     const key = this._keys.indexOf(code);
     this._keys.splice(key, 1);

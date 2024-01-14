@@ -83,6 +83,34 @@ describe('An EventEmitter', () => {
     expect(handler).toHaveBeenCalledTimes(3);
   });
 
+  it('can be switched off by name and handler for multiple installs', () => {
+    const emitter = new ex.EventEmitter();
+    const handler = jasmine.createSpy('handler');
+
+    emitter.on('myevent2', handler);
+    emitter.on('myevent2', handler);
+
+    emitter.off('myevent2', handler);
+
+    emitter.emit('myevent2');
+
+    expect(handler).toHaveBeenCalledTimes(0);
+  });
+
+  it('can be switched off by name and handler for multiple installs in once', () => {
+    const emitter = new ex.EventEmitter();
+    const handler = jasmine.createSpy('handler');
+
+    emitter.once('myevent2', handler);
+    emitter.once('myevent2', handler);
+
+    emitter.off('myevent2', handler);
+
+    emitter.emit('myevent2');
+
+    expect(handler).toHaveBeenCalledTimes(0);
+  });
+
   it('can be switched off by name and handler for "once"', () => {
     const emitter = new ex.EventEmitter();
     const handler = jasmine.createSpy('handler');

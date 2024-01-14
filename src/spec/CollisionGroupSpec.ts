@@ -33,7 +33,12 @@ describe('A Collision Group', () => {
 
   it('can invert collision groups', () => {
     const invertedA = groupA.invert();
+    expect(invertedA.category).toBe(~groupA.category);
+    expect(invertedA.mask).toBe(~groupA.mask);
     expect(invertedA.name).toBe('~(groupA)');
+    expect(groupA.canCollide(groupA)).toBe(false);
+    expect(groupA.canCollide(groupB)).toBe(true);
+    expect(groupA.canCollide(groupC)).toBe(true);
     expect(invertedA.canCollide(groupA)).toBe(true);
     expect(invertedA.canCollide(groupB)).toBe(false);
     expect(invertedA.canCollide(groupC)).toBe(false);
@@ -49,7 +54,7 @@ describe('A Collision Group', () => {
 
   it('can create collidesWith groups', () => {
     const collidesWithBAndC = ex.CollisionGroup.collidesWith([groupB, groupC]);
-    expect(collidesWithBAndC.name).toBe('~(groupB+groupC)');
+    expect(collidesWithBAndC.name).toBe('collidesWith(groupB+groupC)');
     expect(collidesWithBAndC.canCollide(groupA)).toBe(false);
     expect(collidesWithBAndC.canCollide(groupB)).toBe(true);
     expect(collidesWithBAndC.canCollide(groupC)).toBe(true);
@@ -80,10 +85,10 @@ describe('A Collision Group', () => {
 
   it('should throw if 2 groups of the same name are created', () => {
     ex.CollisionGroupManager.reset();
-    const maybeA = ex.CollisionGroupManager.create('A');
+    const maybeA = ex.CollisionGroupManager.create('A', 0b1);
     expect(() => {
-      const maybeAAlso = ex.CollisionGroupManager.create('A');
-    }).toThrowError('Collision group A already exists');
+      const maybeAAlso = ex.CollisionGroupManager.create('A', 0b10);
+    }).toThrowError('Collision group A already exists with a different mask!');
   });
 
   it('should allow 32 collision groups', () => {

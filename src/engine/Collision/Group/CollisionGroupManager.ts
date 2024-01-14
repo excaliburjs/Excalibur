@@ -21,7 +21,11 @@ export class CollisionGroupManager {
       throw new Error(`Cannot have more than ${this._MAX_GROUPS} collision groups`);
     }
     if (this._GROUPS.get(name)) {
-      throw new Error(`Collision group ${name} already exists`);
+      const existingGroup = this._GROUPS.get(name);
+      if (existingGroup.mask === mask) {
+        return existingGroup;
+      }
+      throw new Error(`Collision group ${name} already exists with a different mask!`);
     }
     const group = new CollisionGroup(name, this._CURRENT_BIT, mask !== undefined ? mask : ~this._CURRENT_BIT);
     this._CURRENT_BIT = (this._CURRENT_BIT << 1) | 0;

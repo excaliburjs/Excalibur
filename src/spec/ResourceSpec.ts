@@ -31,14 +31,11 @@ describe('A generic Resource', () => {
   });
 
   describe('without data', () => {
-    it('should not fail on load', (done) => {
+    it('should not fail on load', async () => {
       const emptyLoader = new ex.Loader();
       const game = TestUtils.engine();
-      TestUtils.runToReady(game, emptyLoader).then(() => {
-        expect(emptyLoader.isLoaded()).toBe(true);
-        game.stop();
-        done();
-      });
+      await game.start();
+      expect(emptyLoader.isLoaded()).toBe(true);
     });
   });
 

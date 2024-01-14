@@ -264,7 +264,7 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
 
   public layers: GraphicsLayers;
 
-  public material: Material;
+  public material: Material | null = null;
 
   public getGraphic(name: string): Graphic | undefined {
     return this._graphics[name];
@@ -278,7 +278,7 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
   }
 
   /**
-   * Draws after the entity transform has bene applied, but before graphics component graphics have been drawn
+   * Draws after the entity transform has been applied, but before graphics component graphics have been drawn
    */
   public onPreDraw: (ctx: ExcaliburGraphicsContext, elapsedMilliseconds: number) => void;
 
@@ -286,6 +286,16 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
    * Draws after the entity transform has been applied, and after graphics component graphics has been drawn
    */
   public onPostDraw: (ctx: ExcaliburGraphicsContext, elapsedMilliseconds: number) => void;
+
+  /**
+   * Draws before the entity transform has been applied before any any graphics component drawing
+   */
+  public onPreTransformDraw: (ctx: ExcaliburGraphicsContext, elapsedMilliseconds: number) => void;
+
+  /**
+   * Draws after the entity transform has been applied, and after all graphics component drawing
+   */
+  public onPostTransformDraw: (ctx: ExcaliburGraphicsContext, elapsedMilliseconds: number) => void;
 
   /**
    * Sets or gets wether any drawing should be visible in this component

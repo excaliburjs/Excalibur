@@ -1,21 +1,20 @@
 import { EX_VERSION } from './';
+import { obsolete } from './Util/Decorators';
+import { Future } from './Util/Future';
 import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
-import { Gamepads } from './Input/Gamepad';
-import { Keyboard } from './Input/Keyboard';
 import { PointerScope } from './Input/PointerScope';
-import { EngineInput } from './Input/EngineInput';
 import { Flags } from './Flags';
 import { polyfill } from './Polyfill';
 polyfill();
 import { CanUpdate, CanDraw, CanInitialize } from './Interfaces/LifecycleEvents';
-import { Loadable } from './Interfaces/Loadable';
 import { Vector } from './Math/vector';
 import { Screen, DisplayMode, ScreenDimension, Resolution } from './Screen';
 import { ScreenElement } from './ScreenElement';
 import { Actor } from './Actor';
 import { Timer } from './Timer';
 import { TileMap } from './TileMap';
-import { Loader } from './Loader';
+import { DefaultLoader } from './Director/DefaultLoader';
+import { Loader } from './Director/Loader';
 import { Detector } from './Util/Detector';
 import {
   VisibleEvent,
@@ -26,25 +25,24 @@ import {
   PostUpdateEvent,
   PreFrameEvent,
   PostFrameEvent,
-  DeactivateEvent,
-  ActivateEvent,
   PreDrawEvent,
   PostDrawEvent,
   InitializeEvent
 } from './Events';
 import { Logger, LogLevel } from './Util/Log';
 import { Color } from './Color';
-import { Scene } from './Scene';
+import { Scene, SceneConstructor, isSceneConstructor } from './Scene';
 import { Entity } from './EntityComponentSystem/Entity';
 import { Debug, DebugStats } from './Debug/Debug';
 import { BrowserEvents } from './Util/Browser';
 import { ExcaliburGraphicsContext, ExcaliburGraphicsContext2DCanvas, ExcaliburGraphicsContextWebGL, TextureLoader } from './Graphics';
-import { PointerEventReceiver } from './Input/PointerEventReceiver';
 import { Clock, StandardClock } from './Util/Clock';
 import { ImageFiltering } from './Graphics/Filtering';
 import { GraphicsDiagnostics } from './Graphics/GraphicsDiagnostics';
 import { Toaster } from './Util/Toaster';
 import { InputMapper } from './Input/InputMapper';
+import { GoToOptions, SceneMap, Director, StartOptions, SceneWithOptions, WithRoot } from './Director/Director';
+import { InputHost } from './Input/InputHost';
 
 export type EngineEvents = {
   fallbackgraphicscontext: ExcaliburGraphicsContext2DCanvas,
@@ -97,7 +95,7 @@ export enum ScrollPreventionMode {
 /**
  * Defines the available options to configure the Excalibur engine at constructor time.
  */
-export interface EngineOptions {
+export interface EngineOptions<TKnownScenes extends string = any> {
   /**
    * Optionally configure the width of the viewport in css pixels
    */
@@ -251,7 +249,7 @@ export interface EngineOptions {
    */
   configurePerformanceCanvas2DFallback?: {
     /**
-     * By default `true`, this will switch the internal graphics context to Canvas2D which can improve performance on non hardware
+     * By default `false`, this will switch the internal graphics context to Canvas2D which can improve performance on non hardware
      * accelerated browsers.
      */
     allow: boolean;
@@ -268,7 +266,14 @@ export interface EngineOptions {
      * Canvas renderer.
      */
     threshold?: { numberOfFrames: number, fps: number };
-  }
+  },
+
+  /**
+   * Optionally specify scenes with their transitions and loaders to excalibur's scene [[Director]]
+   *
+   * Scene transitions can can overridden dynamically by the `Scene` or by the call to `.goto`
+   */
+  scenes?: SceneMap<TKnownScenes>
 }
 
 /**
@@ -278,7 +283,14 @@ export interface EngineOptions {
  * starting/stopping the game, maintaining state, transmitting events,
  * loading resources, and managing the scene.
  */
-export class Engine implements CanInitialize, CanUpdate, CanDraw {
+export class Engine<TKnownScenes extends string = any> implements CanInitialize, CanUpdate, CanDraw {
+  /**
+   * Current Excalibur version string
+   *
+   * Useful for plugins or other tools that need to know what features are available
+   */
+  public readonly version = EX_VERSION;
+
   /**
    * Listen to and emit events on the Engine
    */
@@ -293,6 +305,11 @@ export class Engine implements CanInitialize, CanUpdate, CanDraw {
    * Screen abstraction
    */
   public screen: Screen;
+
+  /**
+   * Scene director, manages all scenes, scene transitions, and loaders in excalibur
+   */
+  public director: Director<TKnownScenes>;
 
   /**
    * Direct access to the engine's canvas element
@@ -403,12 +420,14 @@ export class Engine implements CanInitialize, CanUpdate, CanDraw {
   /**
    * Access engine input like pointer, keyboard, or gamepad
    */
-  public input: EngineInput;
+  public input: InputHost;
 
   /**
    * Map multiple input sources to specific game actions actions
    */
   public inputMapper: InputMapper;
+
+  private _inputEnabled: boolean = true;
 
   /**
    * Access Excalibur debugging functionality.
@@ -430,17 +449,23 @@ export class Engine implements CanInitialize, CanUpdate, CanDraw {
   /**
    * The current [[Scene]] being drawn and updated on screen
    */
-  public currentScene: Scene;
+  public get currentScene(): Scene {
+    return this.director.currentScene;
+  }
 
   /**
-   * The default [[Scene]] of the game, use [[Engine.goToScene]] to transition to different scenes.
+   * The default [[Scene]] of the game, use [[Engine.goto]] to transition to different scenes.
    */
-  public readonly rootScene: Scene;
+  public get rootScene(): Scene {
+    return this.director.rootScene;
+  }
 
   /**
    * Contains all the scenes currently registered with Excalibur
    */
-  public readonly scenes: { [key: string]: Scene } = {};
+  public get scenes(): { [key: string]: Scene | SceneConstructor | SceneWithOptions } {
+    return this.director.scenes;
+  };
 
   /**
    * Indicates whether the engine is set to fullscreen or not
@@ -502,7 +527,7 @@ export class Engine implements CanInitialize, CanUpdate, CanDraw {
    * The action to take when a fatal exception is thrown
    */
   public onFatalException = (e: any) => {
-    Logger.getInstance().fatal(e);
+    Logger.getInstance().fatal(e, e.stack);
   };
 
   /**
@@ -520,11 +545,9 @@ export class Engine implements CanInitialize, CanUpdate, CanDraw {
   private _timescale: number = 1.0;
 
   // loading
-  private _loader: Loader;
+  private _loader: DefaultLoader;
 
   private _isInitialized: boolean = false;
-
-  private _deferredGoTo: string = null;
 
   public emit<TEventName extends EventKey<EngineEvents>>(eventName: TEventName, event: EngineEvents[TEventName]): void;
   public emit(eventName: string, event?: any): void;
@@ -560,7 +583,7 @@ export class Engine implements CanInitialize, CanUpdate, CanDraw {
     enableCanvasTransparency: true,
     useDrawSorting: true,
     configurePerformanceCanvas2DFallback: {
-      allow: true,
+      allow: false,
       showPlayerMessage: false,
       threshold: { fps: 20, numberOfFrames: 100 }
     },
@@ -604,7 +627,7 @@ export class Engine implements CanInitialize, CanUpdate, CanDraw {
    * });
    * ```
    */
-  constructor(options?: EngineOptions) {
+  constructor(options?: EngineOptions<TKnownScenes>) {
     options = { ...Engine._DEFAULT_ENGINE_OPTIONS, ...options };
     this._originalOptions = options;
 
@@ -741,6 +764,7 @@ O|===|* >________________>\n\
       pixelRatio: options.suppressHiDPIScaling ? 1 : (options.pixelRatio ?? null)
     });
 
+    // TODO REMOVE STATIC!!!
     // Set default filtering based on antialiasing
     TextureLoader.filtering = options.antialiasing ? ImageFiltering.Blended : ImageFiltering.Pixel;
 
@@ -759,15 +783,12 @@ O|===|* >________________>\n\
 
     this.enableCanvasTransparency = options.enableCanvasTransparency;
 
-    this._loader = new Loader();
-    this._loader.wireEngine(this);
     this.debug = new Debug(this);
+
+    this.director = new Director(this, options.scenes);
 
     this._initialize(options);
 
-    this.rootScene = this.currentScene = new Scene();
-
-    this.addScene('root', this.rootScene);
     (window as any).___EXCALIBUR_DEVTOOL = this;
   }
 
@@ -835,7 +856,7 @@ O|===|* >________________>\n\
     this.canvas.parentNode.replaceChild(newCanvas, this.canvas);
     this.canvas = newCanvas;
 
-    const options = this._originalOptions;
+    const options = { ...this._originalOptions, antialiasing: this.getAntialiasing() };
     const displayMode = this._originalDisplayMode;
 
     // New graphics context
@@ -922,18 +943,16 @@ O|===|* >________________>\n\
    * @param key  The name of the scene, must be unique
    * @param scene The scene to add to the engine
    */
-  public addScene(key: string, scene: Scene) {
-    if (this.scenes[key]) {
-      this._logger.warn('Scene', key, 'already exists overwriting');
-    }
-    this.scenes[key] = scene;
+  public addScene<TScene extends string>(key: TScene, scene: Scene | SceneConstructor | SceneWithOptions): Engine<TKnownScenes | TScene> {
+    this.director.add(key, scene);
+    return this as Engine<TKnownScenes | TScene>;
   }
 
   /**
    * Removes a [[Scene]] instance from the engine
    * @param scene  The scene to remove
    */
-  public removeScene(scene: Scene): void;
+  public removeScene(scene: Scene | SceneConstructor): void;
   /**
    * Removes a scene from the engine by key
    * @param key  The scene key to remove
@@ -943,21 +962,7 @@ O|===|* >________________>\n\
    * @internal
    */
   public removeScene(entity: any): void {
-    if (entity instanceof Scene) {
-      // remove scene
-      for (const key in this.scenes) {
-        if (this.scenes.hasOwnProperty(key)) {
-          if (this.scenes[key] === entity) {
-            delete this.scenes[key];
-          }
-        }
-      }
-    }
-
-    if (typeof entity === 'string') {
-      // remove scene
-      delete this.scenes[entity];
-    }
+    this.director.remove(entity);
   }
 
   /**
@@ -966,7 +971,7 @@ O|===|* >________________>\n\
    * @param sceneKey  The key of the scene, must be unique
    * @param scene     The scene to add to the engine
    */
-  public add(sceneKey: string, scene: Scene): void;
+  public add(sceneKey: string, scene: Scene | SceneConstructor | SceneWithOptions): void;
   /**
    * Adds a [[Timer]] to the [[currentScene]].
    * @param timer  The timer to add to the [[currentScene]].
@@ -998,11 +1003,12 @@ O|===|* >________________>\n\
   public add(screenElement: ScreenElement): void;
   public add(entity: any): void {
     if (arguments.length === 2) {
-      this.addScene(<string>arguments[0], <Scene>arguments[1]);
+      this.director.add(<string>arguments[0], <Scene | SceneConstructor | SceneWithOptions>arguments[1]);
       return;
     }
-    if (this._deferredGoTo && this.scenes[this._deferredGoTo]) {
-      this.scenes[this._deferredGoTo].add(entity);
+    const maybeDeferred = this.director.getDeferredScene();
+    if (maybeDeferred instanceof Scene) {
+      maybeDeferred.add(entity);
     } else {
       this.currentScene.add(entity);
     }
@@ -1012,7 +1018,7 @@ O|===|* >________________>\n\
    * Removes a scene instance from the engine
    * @param scene  The scene to remove
    */
-  public remove(scene: Scene): void;
+  public remove(scene: Scene | SceneConstructor): void;
   /**
    * Removes a scene from the engine by key
    * @param sceneKey  The scene to remove
@@ -1044,7 +1050,7 @@ O|===|* >________________>\n\
       this.currentScene.remove(entity);
     }
 
-    if (entity instanceof Scene) {
+    if (entity instanceof Scene || isSceneConstructor(entity)) {
       this.removeScene(entity);
     }
 
@@ -1054,44 +1060,49 @@ O|===|* >________________>\n\
   }
 
   /**
+   * Changes the current scene with optionally supplied:
+   * * Activation data
+   * * Transitions
+   * * Loaders
+   *
+   * Example:
+   * ```typescript
+   * game.goto('myScene', {
+   *   sceneActivationData: {any: 'thing at all'},
+   *   destinationIn: new FadeInOut({duration: 1000, direction: 'in'}),
+   *   sourceOut: new FadeInOut({duration: 1000, direction: 'out'}),
+   *   loader: MyLoader
+   * });
+   * ```
+   *
+   * Scenes are defined in the Engine constructor
+   * ```typescript
+   * const engine = new ex.Engine({
+      scenes: {...}
+    });
+   * ```
+   * Or by adding dynamically
+   *
+   * ```typescript
+   * engine.addScene('myScene', new ex.Scene());
+   * ```
+   * @param destinationScene
+   * @param options
+   */
+  public async goto(destinationScene: WithRoot<TKnownScenes>, options?: GoToOptions) {
+    await this.director.goto(destinationScene, options);
+  }
+
+  /**
    * Changes the currently updating and drawing scene to a different,
    * named scene. Calls the [[Scene]] lifecycle events.
    * @param key  The key of the scene to transition to.
    * @param data Optional data to send to the scene's onActivate method
+   * @deprecated Use [[Engine.goto]] will be removed in v1!
    */
-  public goToScene<TData = undefined>(key: string, data?: TData): void {
-    // if not yet initialized defer goToScene
-    if (!this.isInitialized) {
-      this._deferredGoTo = key;
-      return;
-    }
-
-    if (this.scenes[key]) {
-      const previousScene = this.currentScene;
-      const nextScene = this.scenes[key];
-
-      this._logger.debug('Going to scene:', key);
-
-      // only deactivate when initialized
-      if (this.currentScene.isInitialized) {
-        const context = { engine: this, previousScene, nextScene };
-        this.currentScene._deactivate.apply(this.currentScene, [context, nextScene]);
-        this.currentScene.events.emit('deactivate', new DeactivateEvent(context, this.currentScene));
-      }
-
-      // set current scene to new one
-      this.currentScene = nextScene;
-      this.screen.setCurrentCamera(nextScene.camera);
-
-      // initialize the current scene if has not been already
-      this.currentScene._initialize(this);
-
-      const context = { engine: this, previousScene, nextScene, data };
-      this.currentScene._activate.apply(this.currentScene, [context, nextScene]);
-      this.currentScene.events.emit('activate', new ActivateEvent(context, this.currentScene));
-    } else {
-      this._logger.error('Scene', key, 'does not exist!');
-    }
+  @obsolete({message: 'Engine.goToScene is deprecated, will be removed in v1', alternateMethod: 'Engine.goto'})
+  public async goToScene<TData = undefined>(key: string, data?: TData): Promise<void> {
+    await this.director.swapScene(key, data);
   }
 
   /**
@@ -1118,19 +1129,13 @@ O|===|* >________________>\n\
 
     // initialize inputs
     const pointerTarget = options && options.pointerScope === PointerScope.Document ? document : this.canvas;
-    this.input = {
-      keyboard: new Keyboard(),
-      pointers: new PointerEventReceiver(pointerTarget, this),
-      gamepads: new Gamepads()
-    };
-    this.input.keyboard.init({
-      grabWindowFocus: this._originalOptions?.grabWindowFocus ?? true
+    const grabWindowFocus = this._originalOptions?.grabWindowFocus ?? true;
+    this.input = new InputHost({
+      pointerTarget,
+      grabWindowFocus,
+      engine: this
     });
-    this.input.pointers.init({
-      grabWindowFocus: this._originalOptions?.grabWindowFocus ?? true
-    });
-    this.input.gamepads.init();
-    this.inputMapper = new InputMapper(this.input);
+    this.inputMapper = this.input.inputMapper;
 
     // Issue #385 make use of the visibility api
     // https://developer.mozilla.org/en-US/docs/Web/Guide/User_experience/Using_the_Page_Visibility_API
@@ -1150,7 +1155,12 @@ O|===|* >________________>\n\
     }
   }
 
-  public onInitialize(_engine: Engine) {
+  public toggleInputEnabled(enabled: boolean) {
+    this._inputEnabled = enabled;
+    this.input.toggleEnabled(this._inputEnabled);
+  }
+
+  public onInitialize(engine: Engine) {
     // Override me
   }
 
@@ -1178,18 +1188,12 @@ O|===|* >________________>\n\
     return this._isInitialized;
   }
 
-  private _overrideInitialize(engine: Engine) {
+  private async _overrideInitialize(engine: Engine) {
     if (!this.isInitialized) {
-      this.onInitialize(engine);
+      await this.director.onInitialize();
+      await this.onInitialize(engine);
       this.events.emit('initialize', new InitializeEvent(engine, this));
       this._isInitialized = true;
-      if (this._deferredGoTo) {
-        const deferredScene = this._deferredGoTo;
-        this._deferredGoTo = null;
-        this.goToScene(deferredScene);
-      } else {
-        this.goToScene('root');
-      }
     }
   }
 
@@ -1198,16 +1202,14 @@ O|===|* >________________>\n\
    * @param delta  Number of milliseconds elapsed since the last update.
    */
   private _update(delta: number) {
-    if (!this.ready) {
+    this.director.update();
+    if (this._isLoading) {
       // suspend updates until loading is finished
-      this._loader.update(this, delta);
+      this._loader?.onUpdate(this, delta);
       // Update input listeners
-      this.inputMapper.execute();
-      this.input.keyboard.update();
-      this.input.gamepads.update();
+      this.input.update();
       return;
     }
-
 
     // Publish preupdate events
     this._preupdate(delta);
@@ -1222,9 +1224,7 @@ O|===|* >________________>\n\
     this._postupdate(delta);
 
     // Update input listeners
-    this.inputMapper.execute();
-    this.input.keyboard.update();
-    this.input.gamepads.update();
+    this.input.update();
   }
 
   /**
@@ -1235,7 +1235,7 @@ O|===|* >________________>\n\
     this.onPreUpdate(this, delta);
   }
 
-  public onPreUpdate(_engine: Engine, _delta: number) {
+  public onPreUpdate(engine: Engine, delta: number) {
     // Override me
   }
 
@@ -1247,7 +1247,7 @@ O|===|* >________________>\n\
     this.onPostUpdate(this, delta);
   }
 
-  public onPostUpdate(_engine: Engine, _delta: number) {
+  public onPostUpdate(engine: Engine, delta: number) {
     // Override me
   }
 
@@ -1261,13 +1261,17 @@ O|===|* >________________>\n\
     this._predraw(this.graphicsContext, delta);
 
     // Drawing nothing else while loading
-    if (!this._isReady) {
-      this._loader.canvas.draw(this.graphicsContext, 0, 0);
-      this.graphicsContext.flush();
+    if (this._isLoading) {
+      if (!this._hideLoader) {
+        this._loader?.canvas.draw(this.graphicsContext, 0, 0);
+        this.graphicsContext.flush();
+        this.graphicsContext.endDrawLifecycle();
+      }
       return;
     }
 
-    this.graphicsContext.backgroundColor = this.backgroundColor;
+    // Use scene background color if present, fallback to engine
+    this.graphicsContext.backgroundColor = this.currentScene.backgroundColor ?? this.backgroundColor;
 
     this.currentScene.draw(this.graphicsContext, delta);
 
@@ -1283,24 +1287,24 @@ O|===|* >________________>\n\
   /**
    * @internal
    */
-  public _predraw(_ctx: ExcaliburGraphicsContext, delta: number) {
-    this.emit('predraw', new PreDrawEvent(_ctx, delta, this));
-    this.onPreDraw(_ctx, delta);
+  public _predraw(ctx: ExcaliburGraphicsContext, delta: number) {
+    this.emit('predraw', new PreDrawEvent(ctx, delta, this));
+    this.onPreDraw(ctx, delta);
   }
 
-  public onPreDraw(_ctx: ExcaliburGraphicsContext, _delta: number) {
+  public onPreDraw(ctx: ExcaliburGraphicsContext, delta: number) {
     // Override me
   }
 
   /**
    * @internal
    */
-  public _postdraw(_ctx: ExcaliburGraphicsContext, delta: number) {
-    this.emit('postdraw', new PostDrawEvent(_ctx, delta, this));
-    this.onPostDraw(_ctx, delta);
+  public _postdraw(ctx: ExcaliburGraphicsContext, delta: number) {
+    this.emit('postdraw', new PostDrawEvent(ctx, delta, this));
+    this.onPostDraw(ctx, delta);
   }
 
-  public onPostDraw(_ctx: ExcaliburGraphicsContext, _delta: number) {
+  public onPostDraw(ctx: ExcaliburGraphicsContext, delta: number) {
     // Override me
   }
 
@@ -1320,80 +1324,73 @@ O|===|* >________________>\n\
     return this._isDebug;
   }
 
-  private _loadingComplete: boolean = false;
-
   /**
    * Returns true when loading is totally complete and the player has clicked start
    */
   public get loadingComplete() {
-    return this._loadingComplete;
+    return !this._isLoading;
   }
 
-  private _isReady = false;
+  private _isLoading = false;
+  private _hideLoader = false;
+  private _isReadyFuture = new Future<void>();
   public get ready() {
-    return this._isReady;
+    return this._isReadyFuture.isCompleted;
   }
-  private _isReadyResolve: () => any;
-  private _isReadyPromise = new Promise<void>(resolve => {
-    this._isReadyResolve = resolve;
-  });
   public isReady(): Promise<void> {
-    return this._isReadyPromise;
+    return this._isReadyFuture.promise;
   }
+
 
 
   /**
    * Starts the internal game loop for Excalibur after loading
    * any provided assets.
-   * @param loader  Optional [[Loader]] to use to load resources. The default loader is [[Loader]], override to provide your own
-   * custom loader.
+   * @param loader  Optional [[Loader]] to use to load resources. The default loader is [[Loader]],
+   * override to provide your own custom loader.
    *
    * Note: start() only resolves AFTER the user has clicked the play button
    */
-  public async start(loader?: Loader): Promise<void> {
+  public async start(loader?: DefaultLoader): Promise<void>;
+  /**
+   * Starts the internal game loop for Excalibur after configuring any routes, loaders, or transitions
+   * @param startOptions Optional [[StartOptions]] to configure the routes for scenes in Excalibur
+   *
+   * Note: start() only resolves AFTER the user has clicked the play button
+   */
+  public async start(sceneName: WithRoot<TKnownScenes>, options?: StartOptions): Promise<void>;
+  /**
+   * Starts the internal game loop after any loader is finished
+   * @param loader
+   */
+  public async start(loader?: DefaultLoader): Promise<void>;
+  public async start(sceneNameOrLoader?: WithRoot<TKnownScenes> | DefaultLoader, options?: StartOptions): Promise<void> {
     if (!this._compatible) {
       throw new Error('Excalibur is incompatible with your browser');
     }
-
-    // Wire loader if we have it
-    if (loader) {
-      // Push the current user entered resolution/viewport
-      this.screen.pushResolutionAndViewport();
-
-      // Configure resolution for loader, it expects resolution === viewport
-      this.screen.resolution = this.screen.viewport;
-      this.screen.applyResolutionAndViewport();
-      this._loader = loader;
-      this._loader.suppressPlayButton = this._suppressPlayButton || this._loader.suppressPlayButton;
-      this._loader.wireEngine(this);
+    this._isLoading = true;
+    let loader: DefaultLoader;
+    if (sceneNameOrLoader instanceof DefaultLoader) {
+      loader = sceneNameOrLoader;
+    } else if (typeof sceneNameOrLoader === 'string') {
+      this.director.configureStart(sceneNameOrLoader, options);
+      loader = this.director.mainLoader;
     }
 
     // Start the excalibur clock which drives the mainloop
-    // has started is a slight misnomer, it's really mainloop started
     this._logger.debug('Starting game clock...');
     this.browser.resume();
     this.clock.start();
     this._logger.debug('Game clock started');
 
-    if (loader) {
-      await this.load(this._loader);
-      this._loadingComplete = true;
-
-      // reset back to previous user resolution/viewport
-      this.screen.popResolutionAndViewport();
-      this.screen.applyResolutionAndViewport();
-    }
-
-    this._loadingComplete = true;
+    await this.load(loader ?? new Loader());
 
     // Initialize before ready
-    this._overrideInitialize(this);
+    await this._overrideInitialize(this);
 
-    this._isReady = true;
-
-    this._isReadyResolve();
+    this._isReadyFuture.resolve();
     this.emit('start', new GameStartEvent(this));
-    return this._isReadyPromise;
+    return this._isReadyFuture.promise;
   }
 
   /**
@@ -1510,12 +1507,29 @@ O|===|* >________________>\n\
    * will appear.
    * @param loader  Some [[Loadable]] such as a [[Loader]] collection, [[Sound]], or [[Texture]].
    */
-  public async load(loader: Loadable<any>): Promise<void> {
+  public async load(loader: DefaultLoader, hideLoader = false): Promise<void> {
     try {
+      // early exit if loaded
+      if (loader.isLoaded()) {
+        return;
+      }
+      this._loader = loader;
+      this._isLoading = true;
+      this._hideLoader = hideLoader;
+
+      if (loader instanceof Loader) {
+        loader.suppressPlayButton = this._suppressPlayButton;
+      }
+      this._loader.onInitialize(this);
+
       await loader.load();
     } catch (e) {
       this._logger.error('Error loading resources, things may not behave properly', e);
       await Promise.resolve();
+    } finally {
+      this._isLoading = false;
+      this._hideLoader = false;
+      this._loader = null;
     }
   }
 }

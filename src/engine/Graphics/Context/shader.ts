@@ -461,6 +461,9 @@ export class Shader {
   }
 
   private _processSourceForError(source: string, errorInfo: string) {
+    if (!source) {
+      return errorInfo;
+    }
     const lines = source.split('\n');
     const errorLineStart = errorInfo.search(/\d:\d/);
     const errorLineEnd = errorInfo.indexOf(' ', errorLineStart);

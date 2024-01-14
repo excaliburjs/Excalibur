@@ -9,7 +9,7 @@ export class Transform {
   get parent() {
     return this._parent;
   }
-  set parent(transform: Transform) {
+  set parent(transform: Transform | null) {
     if (this._parent) {
       const index = this._parent._children.indexOf(this);
       if (index > -1) {
@@ -219,6 +219,11 @@ export class Transform {
     this.flagDirty();
   }
 
+  /**
+   * Clones the current transform
+   * **Warning does not clone the parent**
+   * @param dest
+   */
   public clone(dest?: Transform) {
     const target = dest ?? new Transform();
     this._pos.clone(target._pos);

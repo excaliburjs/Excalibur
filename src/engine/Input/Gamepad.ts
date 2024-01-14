@@ -42,6 +42,7 @@ export class Gamepads {
   private _initSuccess: boolean = false;
   private _navigator: NavigatorGamepads = <any>navigator;
   private _minimumConfiguration: GamepadConfiguration = null;
+  private _enabled = true;
 
   public init() {
     if (!this.supported) {
@@ -57,6 +58,10 @@ export class Gamepads {
     if (this._oldPads.length && this._oldPads[0]) {
       this._initSuccess = true;
     }
+  }
+
+  public toggleEnabled(enabled: boolean) {
+    this._enabled = enabled;
   }
 
   /**
@@ -132,6 +137,9 @@ export class Gamepads {
    */
   public update() {
     if (!this.enabled || !this.supported) {
+      return;
+    }
+    if (!this._enabled) {
       return;
     }
     this.init();

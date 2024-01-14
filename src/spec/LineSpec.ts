@@ -100,7 +100,7 @@ describe('A Line', () => {
 
     const testClock = game.clock as ex.TestClock;
 
-    TestUtils.runToReady(game);
+    await TestUtils.runToReady(game);
 
     const sut = new ex.Line({
       start: ex.vec(0, 0),

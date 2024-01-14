@@ -50,10 +50,10 @@ describe('An InputMapper', () => {
     expect(command).toHaveBeenCalledTimes(0);
   });
 
-  it('can fire wasPressed events when used in a engine', () => {
+  it('can fire wasPressed events when used in a engine', async () => {
 
     const engine = TestUtils.engine({ width: 100, height: 100 });
-
+    await TestUtils.runToReady(engine);
     const clock = engine.clock as ex.TestClock;
     clock.start();
     engine.input.keyboard.triggerEvent('down', ex.Keys.Space);

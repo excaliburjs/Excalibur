@@ -17,7 +17,7 @@ function flushWebGLCanvasTo2D(source: HTMLCanvasElement): HTMLCanvasElement {
 describe('A particle', () => {
   let engine: ex.Engine;
   let scene: ex.Scene;
-  beforeEach(() => {
+  beforeEach(async () => {
     jasmine.addMatchers(ExcaliburMatchers);
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
     engine = TestUtils.engine(
@@ -30,8 +30,7 @@ describe('A particle', () => {
     );
     scene = new ex.Scene();
     engine.addScene('root', scene);
-    engine.start();
-
+    await TestUtils.runToReady(engine);
     const clock = engine.clock as ex.TestClock;
     clock.step(1);
 

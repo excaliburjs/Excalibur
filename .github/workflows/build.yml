@@ -13,17 +13,18 @@ on:
     branches: [ main ]
   push:
     branches: [ main ]
+  workflow_call:
 
 jobs:
   build:
     runs-on: [ubuntu-latest]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: true
         fetch-depth: 100
-    - uses: actions/setup-node@v3
+    - uses: actions/setup-node@v4
       with:
         node-version-file: '.nvmrc'
         registry-url: 'https://registry.npmjs.org'
@@ -41,11 +42,11 @@ jobs:
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
       
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: true
         fetch-depth: 100
-    - uses: actions/setup-node@v3
+    - uses: actions/setup-node@v4
       with:
         node-version-file: '.nvmrc'
         cache: npm
@@ -59,11 +60,11 @@ jobs:
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
       
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: true
         fetch-depth: 100
-    - uses: actions/setup-node@v3
+    - uses: actions/setup-node@v4
       with:
         node-version-file: '.nvmrc'
         cache: npm
