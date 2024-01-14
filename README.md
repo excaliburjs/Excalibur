@@ -67,7 +67,6 @@ Excalibur is committed to supporting the latest 2 versions of popular desktop an
 ### Prerequisites
 
 - **Required:** [Node.js](https://nodejs.org/) 14.x & npm 6.x
-- _Recommended:_ [Prettier plugin for VS Code](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
 - _Recommended:_ [ESLint plugin for VS Code](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
 
 After cloning the repository, run:

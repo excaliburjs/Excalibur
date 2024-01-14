@@ -59,7 +59,6 @@
     "test:watch": "karma start --auto-watch --single-run=false",
     "coveralls": "echo 'Temporarily Remove Coveralls Due To Outage'",
     "apidocs": "node scripts/apidocs.js",
-    "pretty": "prettier --write \"{src,sandbox/src,sandbox/tests}/**/*.{ts,js,json,css,md}\" --config prettier.config.js",
     "release": "cross-env release=true npm run all"
   },
   "devDependencies": {
