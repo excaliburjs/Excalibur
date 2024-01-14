@@ -1,0 +1,8 @@
+{
+  "label": "Graphics",
+  "position": 5,
+  "link": {
+    "type": "generated-index",
+    "description": "Learn about the graphics and drawing system."
+  }
+}

@@ -1,0 +1,32 @@
+---
+title: Sound
+slug: /sound
+section: Resources
+---
+
+Plenty of times you'll want sound effects in your game. The [[Sound]] resource will help you load files in order of preference in case the browser doesn't support them.
+
+## Audio with the Sound Resource
+
+Excalibur supports any audio the browser supports like `.wav`, `.mp3`, and `.ogg`. Due to mixed browser support you may wish to specify a list of
+source files and codecs, the order of the files specifies order of preference (we recommend mp3, wav).
+
+Major Browser support table [documented on MDN](https://developer.mozilla.org/en-US/docs/Web/Guide/Audio_and_video_delivery/Cross-browser_audio_basics#audio_codec_support)
+
+Pass an instance of [[Sound]] to a [[Loader]] to preload it. Once a sound
+is loaded, you can [[Sound.play|play]] it. You can pass an argument from 0.0 - 1.0
+into [[Sound.play|play]] in order to play the sound at that volume.
+
+```typescript
+const game = new Engine({...});
+const sound = new Sound('./path/to/my.mp3', './path/to/fallback.wav');
+
+const loader = new Loader([sound]);
+await game.start(loader);
+
+sound.play(0.5);
+```
+
+See the [examples](https://excaliburjs.com/examples/?path=/docs/audio) or API documentation for [[Sound]] for additional features available such as looping, volume setting, and more.
+
+<!-- <Example story="audio" /> -->

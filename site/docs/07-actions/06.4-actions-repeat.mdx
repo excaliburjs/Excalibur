@@ -1,0 +1,31 @@
+---
+title: Repeat
+slug: /actions-repeat
+section: Actions
+---
+
+It is sometimes useful to repeat a sequence of action for your games. For example if you want an enemy to patrol back and forth, or for a platform to repeat a certain pattern.
+
+## Repeat
+
+This method will cause the actor to repeat all of the actions built in the `repeatBuilder` callback. If the number of repeats is not specified it will repeat forever. This method is part of the actor 'Action' fluent API allowing action chaining.
+
+```typescript
+// Move up in a zig-zag by repeated moveBy's
+actor.actions.repeat((repeatCtx) => {
+  repeatCtx.moveBy(10, 0, 10)
+  repeatCtx.moveBy(0, 10, 10)
+}, 5)
+```
+
+## Repeat Forever
+
+This method will cause the actor to repeat all of the actions built in the `repeatBuilder` callback. If the number of repeats is not specified it will repeat forever. This method is part of the actor 'Action' fluent API allowing action chaining.
+
+```typescript
+// Move up in a zig-zag by repeated moveBy's
+actor.actions.repeatForever((repeatCtx) => {
+  repeatCtx.moveBy(10, 0, 10)
+  repeatCtx.moveBy(0, 10, 10)
+})
+```

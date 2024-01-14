@@ -1,0 +1,8 @@
+{
+  "label": "Plugins",
+  "position": 13,
+  "link": {
+    "type": "generated-index",
+    "description": "Plugins for Excalibur"
+  }
+}

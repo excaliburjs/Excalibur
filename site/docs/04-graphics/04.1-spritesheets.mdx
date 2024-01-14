@@ -1,0 +1,59 @@
+---
+title: Spritesheets
+slug: /spritesheets
+section: Graphics
+---
+
+SpriteSheet is really an ordered collection of sprites from the same base image.
+
+```typescript
+const spriteSheet = new ex.SpriteSheet({
+  image: imageRun,
+  sprites: [...]
+})
+```
+
+## Uniform Grid Based Spritesheet
+
+If you spritesheet is a neat grid there is a static builder for you to slice up that image source. Most sprite sheets are tightly packed like so.
+
+Some source spritesheets may have margin between sprites and an offset, like these [playing cards from Kenny.nl](https://www.kenney.nl/assets/playing-cards-pack)
+
+![Kenney.nl pixel art playing cards](kenny-cards.png)
+
+```typescript
+
+const kennyCardsImage = new ex.ImageSource(kennyCardsImageSrc);
+
+const spriteSheet = ex.SpriteSheet.fromImageSource({
+    image: kennyCardsImage,
+    grid: {
+        rows: 4,
+        columns: 14,
+        spriteWidth: 42,
+        spriteHeight: 60
+    },
+    spacing: {
+        // Optionally specify the offset from the top left of sheet to start parsing
+        originOffset: { x: 11, y: 2 },
+        // Optionally specify the margin between each sprite
+        margin: { x: 23, y: 5}
+    }
+});
+```
+
+<IFrameEmbed src="https://excaliburjs.com/excalibur-snippets/spritesheet/" />
+
+## Sparse Spritesheet
+
+You can also build a spritesheet from a list of different sized source views using [[SpriteSheet.fromImageSourceWithSourceViews]] method
+
+```typescript
+const ss = ex.SpriteSheet.fromImageSourceWithSourceViews({
+  image,
+  sourceViews: [
+    { x: 0, y: 0, width: 20, height: 30 },
+    { x: 20, y: 0, width: 40, height: 50 },
+  ],
+})
+```

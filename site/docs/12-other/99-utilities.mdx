@@ -1,0 +1,195 @@
+---
+title: Utilities
+slug: /utilities
+section: Other
+---
+
+## Constructor Arguments
+
+In Excalibur there are option bag constructors available on most types. These support any public property or member, methods are not supported. The API documentation does not provide an exhaustive list of possible properties but a list of commonly used properties.
+
+For example instead of doing this:
+
+```typescript
+const actor = new ex.Actor(1, 2, 100, 100, ex.Color.Red);
+actor.body.collider.type = ex.CollisionType.Active;
+```
+
+This is possible:
+
+```typescript
+const options: ActorArgs = {
+   pos: new ex.Vector(1,2);
+   width: 100,
+   height: 100,
+   color: ex.Color.Red,
+}
+
+const actor = new ex.Actor(options);
+actor.body.collider.type = ex.CollisionType.Active;
+```
+
+In fact you can create a duplicate this way
+
+```typescript
+const actor = new ex.Actor({
+  pos: new ex.Vector(1, 2)
+});
+const actorClone = new ex.Actor(actor);
+
+expect(actor.pos).toBe(actorClone.pos); // true;
+```
+
+Types that support option bags can have their properties mass assigned using the assign method.
+
+```typescript
+const actor = new ex.Actor(options);
+
+actor.assign({
+  pos: new ex.Vector(100, 100),
+  width: 1000,
+  color: ex.Color.Red
+});
+```
+
+## Timers
+
+Timers in Excalibur hook into the main loop so they should be used instead of `setTimeout` as they will
+start and stop accordingly with the loop.
+
+:::note
+
+Timers must be added to the game so they are updated!
+
+:::
+
+```js
+const game = new ex.Engine();
+const timer = new ex.Timer(() => {
+  // do something every 1000ms
+}, 1000);
+
+// Add the timer to the current scene
+game.add(timer);
+
+// start the game and the timer
+game.start().then(() => {
+  // start the timer
+  timer.start();
+
+  // reset the timer
+  timer.reset();
+
+  // stop the timer
+  timer.stop();
+});
+```
+
+## Triggers
+
+[[Trigger|Triggers]] are a special kind of [Actor](/docs/actors) that allow you to run logic when another actor collides with its bounding box. Think of how traps work in an RPG: they are invisible but let you do custom logic whenever your character steps on one. This is one case where you can use triggers instead of trying to implement a special actor yourself.
+
+### Infinite vs. run once
+
+Triggers run infinitely by default whenever an actor collides with them. To run a trigger **once**, you can pass [[Trigger.repeat|`repeat: 1`]].
+
+### Creating a trigger
+
+```js
+// Start the engine
+var game = new ex.Engine({
+  width: 800,
+  height: 600,
+  displayMode: ex.DisplayMode.FullScreen
+});
+
+// Uncomment next line to make the trigger box visible
+// game.showDebug(true);
+
+// create a handler
+function onTrigger() {
+  // `this` will be the Trigger instance
+  ex.Logger.getInstance().info('Trigger was triggered!', this);
+}
+
+// set a trigger at (100, 100) that is 40x40px that can only be fired once
+var trigger = new ex.Trigger({
+  width: 40,
+  height: 40,
+  pos: new ex.Vector(100, 100),
+  repeat: 1,
+  target: actor,
+  action: onTrigger
+});
+
+// create an actor above the trigger
+var actor = new ex.Actor(100, 0, 40, 40, ex.Color.Red);
+
+// Enable collision on actor (else trigger won't fire)
+actor.body.collider.type = ex.CollisionType.Active;
+
+// tell the actor to move across the trigger with a velocity of 100
+actor.actions.moveTo(100, 200, 100);
+
+// Add trigger and actor to our scene and start the scene
+game.add(trigger);
+game.add(actor);
+game.start();
+```
+
+## Logging
+
+Rather than using `console.log` you can use Excalibur's native logging provider which can be controlled
+with engine options and eventually will support different output mechanisms.
+
+### Example: Logging
+
+```js
+// set default log level (default: Info)
+ex.Logger.getInstance().defaultLevel = ex.LogLevel.Warn;
+// this will not be shown because it is below Warn
+ex.Logger.getInstance().info('This will be logged as Info');
+// this will show because it is Warn
+ex.Logger.getInstance().warn('This will be logged as Warn');
+// this will show because it is above Warn
+ex.Logger.getInstance().error('This will be logged as Error');
+// this will show because it is above Warn
+ex.Logger.getInstance().fatal('This will be logged as Fatal');
+```
+
+## Async Promises
+
+Promises can be chained together and can be useful for creating a queue
+of functions to be called when something is done.
+The first [[Promise]] you will encounter is probably [[Engine.start]]
+which resolves when the game has finished loading.
+
+```js
+const game = new ex.Engine();
+// perform start-up logic once game is ready
+game.start().then(function () {
+  // start-up & initialization logic
+});
+```
+
+### Differences from Native Promises
+
+We are working on rewriting Excalibur to use native ES2015 Promises but until then,
+you may notice inconsistencies. You should still be able to use `async` / `await`.
+
+### Handling errors
+
+You can optionally pass an error handler to [[Promise.then]] which will handle
+any errors that occur during Promise execution.
+
+```js
+const game = new ex.Engine();
+game.start().then(
+  // success handler
+  function () {},
+  // error handler
+  function (err) {}
+);
+```
+
+Any errors that go unhandled will be bubbled up to the browser.

@@ -1,0 +1,235 @@
+---
+title: Migration
+slug: /migration
+section: Migration Guides
+---
+
+## Migrating from v0.26.0 to v0.27.0
+
+- `ex.Engine.snapToPixel` now defaults to `false`, it was unexpected to have pixel snapping on by default it has now been switched. You may need to explicitly switch it depending on your desired effect.
+- The `ex.Physics.useRealisticPhysics()` physics solver has been updated to fix a bug in bounciness to be more physically accurate, this does change how physics behaves. Setting `ex.Body.bounciness = 0` will simulate the old behavior.
+- `ex.TransformComponent.getGlobalMatrix()` has been removed, use this instead
+  ```typescript
+  const actor = new ex.Actor({...});
+  const transform = actor.get(TransformComponent);
+  const matrix = transform.get().matrix;
+  ```
+- `ex.TransformComponent.posChanged$` has been removed, it incurs a steep performance cost.
+- `ex.EventDispatcher` meta events 'subscribe' and 'unsubscribe' were unused and undocumented and have been removed.
+- `ex.TileMap` tiles are now drawn from the lower left by default to match with `ex.IsometricMap` and Tiled, but can be configured with `renderFromTopOfGraphic` to restore the previous behavior.
+
+  ```typescript
+  const tilemap = new ex.TileMap({
+    ...
+    renderFromTopOfGraphic: true
+  })
+  ```
+
+- Scene `onActivate` and `onDeactivate` methods have been changed to receive a single context parameter, an object containing the `previousScene`, `nextScene`, and optional `data` passed in from `goToScene()`. Update any `onActivate` or `onDeactivate` handlers
+  ```typescript
+  onActivate(ctx: SceneActivationContext<TActivationData>) {
+    ...
+  }
+  ```
+
+## Migrating from v0.25.3 to v0.26.0
+
+The old drawing API had been removed from excalibur, this should not affect you unless you were using the `ex.Flags.useLegacyDrawing()`. If so you must switch to the new [graphics api](/docs/graphics).
+
+`ex.TileMap` has several breaking changes around naming, but brings it consistent with Tiled terminology and the new `ex.IsometricMap`. Additionally the new names are easier to follow.
+
+- Constructor has been changed to the following
+  ```typescript
+  new ex.TileMap({
+    pos: ex.vec(100, 100),
+    tileWidth: 64,
+    tileHeight: 48,
+    rows: 20,
+    columns: 20,
+  })
+  ```
+- `ex.Cell` has been renamed to `ex.Tile`
+  - `ex.Tile` now uses `addGraphic(...)`, `removeGraphic(...)`, `clearGraphics()` and `getGraphics()` instead of having an accessible `ex.Tile.graphics` array.
+- `ex.TileMap.data` has been renamed to `ex.TileMap.tiles`
+- `ex.TileMap.getCell(..)` has been renamed to `ex.TileMap.getTile(...)`
+- `ex.TileMap.getCellByIndex(...)` has been renamed to `ex.TileMap.getTileByIndex(...)`
+- `ex.TileMap.getCellByPoint(...)` has been renamed to `ex.TileMap.getTileByPoint(...)`
+
+The following types have been removed:
+
+- `ex.SortedList` old sorted list is removed, use the built in browser Array.sort
+- `ex.Collection` old collection type is removed, use the built in browser Array
+- `ex.Util` import site, exported code promoted `ex.*`
+- `ex.DisplayMode.Position` is removed, use CSS to position the canvas
+- `ex.Trait` interface, traits are not longer supported
+- `ex.Promises` old promise implementation is removed in favor of browser promises
+
+Notable method & property removals
+
+- `ex.Actor`
+  - `.getZIndex()` and `.setZIndex()` removed use `.z`
+- `ex.Scene`
+  - `.screenElements` removed in favor of `.entities`
+  - `.addScreenElement(...)` removed use `.add(...)`
+  - `.addTileMap(...)` removed use `.add(...)`
+  - `.removeTileMap(...)` removed use `.remove(...)`
+- `ex.Timer`
+  - `.unpause()` removed use `.resume()`
+- `ex.Camera`
+  - `.rx` removed use `.angularVelocity`
+- `ex.BodyComponent`
+  - `.sx` removed use `.scaleFactor`
+  - `.rx` removed use `.angularVelocity`
+- `ex.ActionsComponent`
+  - `.asPromise()` removed use `.toPromise()`
+- `ex.ActionContext`
+  - `.asPromise()` removed use `.toPromise()`
+- `ex.Color`
+  - Misspellings corrected
+
+## Migrating from v0.25.1 to v0.25.2
+
+- [[EventEmitter]] no longer tampers with `this` on the event callbacks which may be a breaking change for some people. Change callbacks's to be an arrow function to capture `this`
+
+```typescript
+class MyActor extends ex.Actor {
+  constructor() {
+    super()
+    // Change from this
+    this.on('precollision', this.onPreCollision)
+
+    // To this
+    this.on('precollision', (evt) => this.onPreCollision(evt))
+  }
+}
+```
+
+## Migrating from v0.24.5 to v0.25.0
+
+### Graphics
+
+- Replace `ex.Texture` with `ex.ImageSource`
+
+- Replace `ex.Texture.asSprite()` with `ex.ImageSource.toSprit()`
+
+```typescript
+const image = new ex.ImageSource('./img/myimage.png')
+// keep in mind this wont work until the image source is loaded
+const sprite = image.toSprite()
+```
+
+- Update `ex.Sprite` constructor arguments
+
+```typescript
+const image = new ex.ImageSource('./path/to/image.png')
+const sprite = new ex.Sprite({
+  image: image,
+  sourceView: {
+    // Take a small slice of the source image starting at pixel (10, 10) with dimension 20 pixels x 20 pixels
+    x: 10,
+    y: 10,
+    width: 20,
+    height: 20,
+  },
+  destSize: {
+    // Optionally specify a different projected size, otherwise use the source
+    width: 100,
+    height: 100,
+  },
+})
+```
+
+- Update `new ex.SpriteSheet()` constructor with `ex.SpriteSheet.fromImageSource()`
+
+```typescript
+const runImage = new ex.ImageSource(runImageSrc)
+
+const runSheet = ex.SpriteSheet.fromImageSource({
+  image: runImage,
+  grid: {
+    rows: 1,
+    columns: 21,
+    spriteWidth: 96,
+    spriteHeight: 96,
+  },
+})
+```
+
+- Replace Legacy Drawing Usage
+
+  - `ex.Actor.addDrawing()` with `ex.Actor.graphics.add()`
+  - `ex.Actor.setDrawing()` with `ex.Actor.graphics.use()` or `ex.Actor.graphics.show()`
+
+- Replace Legacy `ex.Actor.onPostDraw` and `ex.Actor.onPreDraw` with `actor.graphics` or `ex.Canvas`
+
+```typescript
+const canvas = new ex.Canvas({
+  cache: true,
+  draw: (ctx: CanvasRenderingContext2D) => {
+    // custom drawing with CanvasRenderingContext2D
+  },
+})
+
+actor.use(canvas)
+
+actor.graphics.onPreDraw = (exctx: ExcaliburGraphicsContext) => {
+  // custom drawing with ExcaliburGraphicsContext
+}
+
+actor.graphics.onPostDraw = (exctx: ExcaliburGraphicsContext) => {
+  // custom drawing with ExcaliburGraphicsContext
+}
+```
+
+### Actors
+
+- Actor only supports the option bag constructor `new ex.Actor({...})`
+- Label only supports the option bag constructor `new ex.Label({...})`
+- Replace `ex.Actor.rx` with `ex.Actor.angularVelocity`
+
+### Camera
+
+- `ex.Camera.z` has been renamed to property `ex.Camera.zoom` which is the zoom factor
+- `ex.Camera.zoom(...)` has been renamed to function `ex.Camera.zoomOverTime()`
+
+### Engine
+
+- `DisplayMode`'s have changed ([#1733](https://github.com/excaliburjs/Excalibur/issues/1733)) & ([#1928](https://github.com/excaliburjs/Excalibur/issues/1928)):
+
+  - `DisplayMode.FitContainer` fits the screen to the available width/height in the canvas parent element, while maintaining aspect ratio and resolution
+  - `DisplayMode.FillContainer` update the resolution and viewport dynamically to fill the available space in the canvas parent element, DOES NOT preserve `aspectRatio`
+  - `DisplayMode.FitScreen` fits the screen to the available browser window space, while maintaining aspect ratio and resolution
+  - `DisplayMode.FillScreen` now does what `DisplayMode.FullScreen` used to do, the resolution and viewport dynamically adjust to fill the available space in the window, DOES NOT preserve `aspectRatio` ([#1733](https://github.com/excaliburjs/Excalibur/issues/1733))
+  - `DisplayMode.FullScreen` is now removed, use `Screen.goFullScreen()`.
+
+### Physics
+
+- Rename `ex.Edge` to `ex.EdgeCollider` and `ex.ConvexPolygon` to `ex.PolygonCollider`
+
+### Timer
+
+- Timers must be added to a scene and `Timer.start()` called for them to start
+- `Timer.unpause()` has be deprecated in favor of `Timer.resume()` ([#1864](https://github.com/excaliburjs/Excalibur/issues/1864))
+
+### Actions
+
+- Rewrite `ex.Actor.actions.repeat()` and `ex.Actor.actions.repeatForever()` to use the `ctx` to define the set of repeating actions
+
+```typescript
+const actor = new ex.Actor()
+
+actor.actions
+  // Move up in a zig-zag by repeating 5 times
+  .repeat((ctx) => {
+    ctx.moveBy(10, 0, 10)
+    ctx.moveBy(0, 10, 10)
+  }, 5)
+  .callMethod(() => {
+    console.log('Done repeating!')
+  })
+```
+
+### TileMap
+
+- TileMap no longer needs registered SpriteSheets, `Sprite`'s can be added directly to `Cell`'s with `addGraphic`
+  - The confusing `TileSprite` type is removed (Related to TileMap plugin updates https://github.com/excaliburjs/excalibur-tiled/issues/4, https://github.com/excaliburjs/excalibur-tiled/issues/23, https://github.com/excaliburjs/excalibur-tiled/issues/108)

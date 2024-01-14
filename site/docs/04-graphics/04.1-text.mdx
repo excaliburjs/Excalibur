@@ -1,0 +1,208 @@
+---
+title: Text & Fonts
+slug: /text
+section: Graphics
+---
+
+You may want to display [[Text]] in your game, this can be achieved with the [[Text]], [[Font]], and [[SpriteFont]].
+
+## Text
+
+Text is a [raster](#raster) [graphic](#graphic) that can be used to draw text to the screen, all of the normal things that can be done with [rasters](#raster) and [graphics](#graphic) can be done with text.
+
+Text supports both normal OS/web fonts and Sprite fonts.
+
+Example
+
+```typescript
+var text = new ex.Text({
+  text: 'This is raster text ❤️',
+  font: new ex.Font({ size: 30 }),
+})
+```
+
+[[Text]] is a prebuilt [[Graphic]] that can be used to draw text to the screen. Multiple lines of text are supported.
+
+```typescript
+const game = new ex.Engine({...});
+const text = new ex.Text({
+    text: 'Some Text Drawn Here\nNext line'
+});
+
+const actor = new ex.Actor({
+    pos: ex.vec(100, 100)
+});
+actor.graphics.use(text);
+
+game.currentScene.add(actor);
+```
+
+## Labels
+
+[[Label|Labels]] are a batteries included [[Actor|Actors]] with [[Text]] built and font built in.
+
+```typescript
+const label = new ex.Label({
+    text: 'Some text',
+    pos: ex.vec(100, 100),
+    font: new ex.Font({
+        family: 'impact',
+        size: 24,
+        unit: ex.FontUnit.Px
+    })
+});
+```
+
+## Font
+
+A [[Font]] is a traditional system or loaded web font.
+
+Possible font options
+
+```typescript
+export interface FontOptions {
+  size?: number
+  unit?: FontUnit
+  family?: string
+  style?: FontStyle
+  bold?: boolean
+  textAlign?: TextAlign
+  baseAlign?: BaseAlign
+  direction?: Direction
+  shadow?: {
+    blur?: number
+    offset?: Vector
+    color?: Color
+  }
+}
+```
+
+```typescript
+var text = new ex.Text({
+  text: 'This is raster text ❤️',
+  font: new ex.Font({
+    size: 30,
+    unit: FontUnit.Px,
+    family: 'sans-serif',
+    style: FontStyle.Normal,
+    bold: false,
+    textAlign: TextAlign.Left,
+    baseAlign: BaseAlign.Alphabetic,
+    direction: Direction.LeftToRight,
+    shadow: {
+      blur: 2,
+      offset: ex.Vec(2, 2),
+      color: ex.Color.Black,
+    };
+  })
+});
+```
+
+It is recommended you load any font important to your game and not rely on any pre-installed system fonts, those will be different from computer to computer.
+
+For example the [google fonts](https://fonts.google.com/) loader is a common way to do this.
+
+```html
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap"
+  rel="stylesheet"
+/>
+```
+
+```typescript
+const font = new ex.Font({
+  family: 'Roboto',
+  size: 24,
+  unit: ex.FontUnit.Px,
+})
+```
+
+One potential issue with using web fonts is they won't render correctly until loaded see [article for details](https://erikonarheim.com/posts/dont-test-fonts/).
+
+```typescript
+async function waitForFontLoad(font, timeout = 2000, interval = 100) {
+  return new Promise((resolve, reject) => {
+    // repeatedly poll check
+    const poller = setInterval(async () => {
+      try {
+        await document.fonts.load(font);
+      } catch (err) {
+        reject(err);
+      }
+      if (document.fonts.check(font)) {
+        clearInterval(poller);
+        resolve(true);
+      }
+    }, interval);
+    setTimeout(() => clearInterval(poller), timeout);
+  });
+}
+
+// Load font before game start
+await waitForFontLoad('24px Roboto');
+
+const game = new ex.Engine({...})
+await game.start();
+```
+
+## SpriteFont
+
+Sometimes you want to use a custom font based on a sprite sheet of character glyphs
+
+![Custom pixel art glyphs](debug-font.png)
+
+```typescript
+const image = new ex.ImageSource('./path/to/sprite-font.png')
+
+const spriteSheet = SpriteSheet.fromImageSource({
+  image: image,
+  grid: {
+    rows: 3,
+    columns: 16,
+    spriteWidth: 16,
+    spriteHeight: 16,
+  },
+})
+
+const spriteFont = new SpriteFont({
+  alphabet: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ,!\'&."?-()+ ',
+  caseInsensitive: true,
+  spriteSheet: this._spriteSheet,
+  spacing: -6,
+})
+
+const text = new ex.Text({
+  text: 'some text with a sprite font!',
+  font: spriteFont,
+})
+```
+
+#### SpriteFont
+
+Sometimes you want to use text of your own creation from a [spritesheet](#spritesheet),
+
+```typescript
+const spriteFontSheet = ex.SpriteSheet.fromImageSource({
+  image: spriteFontImage,
+  grid: {
+    rows: 3,
+    columns: 16,
+    spriteWidth: 16,
+    spriteHeight: 16
+  }
+});
+
+const spriteFont = new ex.SpriteFont({
+    alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
+    caseInsensitive: true,
+    spriteSheet: spriteFontSheet
+  });
+});
+
+const text = new ex.Text({
+  text: 'This is sprite font text!!',
+  font: spriteFont
+});
+```

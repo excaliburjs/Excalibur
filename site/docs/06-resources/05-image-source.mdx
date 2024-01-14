@@ -1,0 +1,69 @@
+---
+title: ImageSource
+slug: /imagesource
+section: Resources
+---
+
+Often you want external images loaded into your game, this is accomplished with [[ImageSource]]. In some other engines/frameworks this can be known as a Texture.
+
+[[ImageSource]] represents the source bitmap and contains the logic for loading that image from a file. You can think of this as the file representation in Excalibur for the image. Use [Sprites](/docs/sprites) to draw them to the screen.
+
+## Loading Images with the [[ImageSource]] Resource
+
+Excalibur supports `.png`, `.jpg`, `.gif`, and `.bmp` image sources with partial support for `.svg`
+
+- `.png` and `.svg` will be completely lossless formats. For pixel art type games we recommend `.png`
+- `.jpg` and `.gif` are lossy formats, useful to optimize for download size.
+- `.bmp` are the biggest
+- `base64` useful if you don't want to pay the loading time cost of your images at the expense of larger source download
+  - `data:image/png;base64,BASE64DATA...`
+
+```typescript
+const game = new Engine({...});
+const spriteSheetImage = new ImageSource('./my/spritesheet.png');
+
+const loader = new Loader([spriteSheetImage]);
+await game.start(loader);
+
+const spriteSheet = SpriteSheet.fromImageSource({
+  image: spriteFontImage,
+  grid: {
+    rows: 5,
+    columns: 2,
+    spriteWidth: 32, // pixels
+    spriteHeight: 32 // pixels
+  }
+});
+
+```
+
+These images can be presented to the loader at the start of an Excalibur game
+
+```typescript
+const game = new ex.Engine({ width: 800, height: 600 })
+
+const image = new ex.ImageSource('./img/myimg.png')
+
+const loader = new ex.Loader()
+loader.addResource(image)
+
+game.start(loader).then(() => {
+  // resources like ImageSource loaded before game started
+})
+```
+
+Or they can be loaded out of band **Note: it is important to check that a ImageSource has been loaded before using it at runtime to avoid errors and visual bugs if your game is loading images this way.**
+
+```typescript
+const image = new ex.ImageSource('./img/myimg.png')
+
+image.load().then(() => {
+  // image loaded
+  // good for use in sprites inside this function
+})
+
+if (image.isLoaded()) {
+  // image.data is good for use in sprites
+  const mySprite = image.toSprite()
+}
+```

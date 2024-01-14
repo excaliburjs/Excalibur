@@ -1,3 +1,4 @@
+site/
 scripts/apidocs.js
 scripts/release.js
 karma.conf.js

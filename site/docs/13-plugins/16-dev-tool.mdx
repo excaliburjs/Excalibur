@@ -1,0 +1,28 @@
+---
+title: Dev Tool
+slug: /devtool
+section: Plugins
+---
+
+This is a dev tool to help you debug your game written in excalibur.
+
+This tool allows you to see information about the engine, currentScene, camera, clock, entities, and more!
+
+## Using the Dev Tool
+
+1. Install using npm
+
+```
+> npm install @excaliburjs/dev-tools
+```
+
+2. Inside your game code pass your game to the devtool
+
+```typescript
+const game = new ex.Engine({...});
+const devtool = new DevTool(game);
+```
+
+3. Voila!
+
+![](https://user-images.githubusercontent.com/612071/150462738-433536d9-28b0-486c-b5bb-8e8b4e2526fc.png)

@@ -1,0 +1,56 @@
+---
+title: Clock
+slug: /clock
+section: Fundamentals
+---
+
+The Excalibur mainloop, the infinite update and draw cycle, is driven by the [[Clock]].
+
+## Standard clock
+
+The standard clock is the default, and runs continuously once started. The internal implementation uses the browser [`requestAnimationFrame()`](https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame) to drive each game tick.
+
+The FPS of the clock can be artificially limited in the [[Engine]] constructor, this can be useful to produce a consistent experience on many platforms or testing lower a framerate.
+
+If no max is set, the FPS will be whatever the browser allows (usually display refresh rate)
+
+For example, limiting to 30fps:
+
+```typescript
+const game = new ex.Engine({
+    ...
+    maxFps: 30
+});
+```
+
+### Scheduling tasks (also see [[Timer]])
+
+Instead of using the browser [`setTimeout()`](https://developer.mozilla.org/en-US/docs/Web/API/setTimeout) the clock can be used to schedule tasks that are tied to the excalibur clock, this means they will respect when a game is stopped and not fire.
+
+```typescript
+const game = new ex.Engine({...});
+game.clock.schedule(() => {
+    console.log('Hello in 300ms');
+}, 300);
+```
+
+## Test clock
+
+The test clock allows single stepping of each clock tick, which can be useful for debugging and unit testing.
+
+### Stepping & Running the clock
+
+```typescript
+const game = new ex.Engine({...});
+const testClock = game.debug.useTestClock();
+
+// Single Step as if we are running 60fps
+testClock.step(16.6);
+
+// Multiple steps at once, for example 100 steps at 60fps
+testClock.run(100, 16.6);
+
+// to switch back to the standard clock
+game.debug.useStandardClock();
+
+```

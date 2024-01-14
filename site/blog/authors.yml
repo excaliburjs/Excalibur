@@ -1,0 +1,40 @@
+erik:
+  name: Erik Onarheim
+  title: Maintainer of Excalibur
+  url: https://erikonarheim.com
+  image_url: https://github.com/eonarheim.png
+
+jedeen:
+  name: Jae Edeen
+  title: Maintainer of Excalibur
+  url: https://www.edeen.dev/
+  image_url: https://github.com/jedeen.png
+
+kamran:
+  name: Kamran Ayub
+  title: Maintainer of Excalibur
+  url: https://kamranicus.com/
+  image_url: https://github.com/kamranayub.png
+
+alan:
+  name: Alan Grgic
+  title: Excalibur Contributor
+  url: https://twitter.com/spellgrgicright
+  image_url: https://github.com/alanag13.png
+
+ante:
+  name: Ante Grgic
+  title: Excalibur Contributor
+  url: https://twitter.com/antegrgic
+  image_url: https://pbs.twimg.com/profile_images/732631653747556353/3glCLkSZ_400x400.jpg
+
+emily:
+  name: Emily Grgic
+  title: Excalibur Contributor
+  url: https://www.instagram.com/corgicocktail/
+
+sean:
+  name: Sean Igo
+  title: Excalibur Contributor
+  url: https://twitter.com/SeanCIgo
+  image_url: https://pbs.twimg.com/profile_images/1013431941390065665/W1ZaEs_Q_400x400.jpg
