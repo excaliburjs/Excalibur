@@ -278,7 +278,7 @@ const config: Config = {
     },
     algolia: {
       appId: 'IVI5ONIKWP',
-      apiKey: 'f8e274d9f62a3088bb54ab80f766d740',
+      apiKey: 'b6bd39e31669ade42444bfb948e9cff9',
       indexName: 'excaliburjs',
       contextualSearch: true,
     },
