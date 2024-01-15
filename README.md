@@ -51,7 +51,7 @@ Prerequisites
 
 # Writing Documentation
 
-We love when people help improve our documentation. You can contribute to the docs in [this repository](https://github.com/excaliburjs/excaliburjs.github.io).
+We love when people help improve our documentation. You can contribute to the docs in this repo under [`/site`](https://github.com/excaliburjs/Excalibur/tree/main/site)
 
 ## Environment Setup
 
