@@ -280,7 +280,7 @@ const config: Config = {
       appId: 'IVI5ONIKWP',
       apiKey: 'b6bd39e31669ade42444bfb948e9cff9',
       indexName: 'excaliburjs',
-      contextualSearch: true,
+      contextualSearch: false,
     },
     prism: {
       theme: lightCodeTheme,
