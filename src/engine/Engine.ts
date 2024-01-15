@@ -453,6 +453,14 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
     return this.director.currentScene;
   }
 
+
+  /**
+   * The current [[Scene]] being drawn and updated on screen
+   */
+  public get currentSceneName(): string {
+    return this.director.currentSceneName;
+  }
+
   /**
    * The default [[Scene]] of the game, use [[Engine.goto]] to transition to different scenes.
    */
