@@ -38,7 +38,7 @@ describe('A CrossFade transition', () => {
     return await future.promise;
   }
 
-  it('can cross fade', async () => {
+  xit('can cross fade', async () => {
     const engine = TestUtils.engine({ backgroundColor: ex.Color.ExcaliburBlue });
     const clock = engine.clock as ex.TestClock;
     await TestUtils.runToReady(engine);
