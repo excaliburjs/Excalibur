@@ -59,6 +59,23 @@ This project adheres to [Semantic Versioning](http://semver.org/).
       loader: boot,
     });
     ```
+  - Scene specific input API so that you can add input handlers that only fire when a scene is active!
+    ```typescript
+    class SceneWithInput extends ex.Scene {
+      onInitialize(engine: ex.Engine<any>): void {
+        this.input.pointers.on('down', () => {
+          console.log('pointer down from scene1');
+        });
+      }
+    }
+    class OtherSceneWithInput extends ex.Scene {
+      onInitialize(engine: ex.Engine<any>): void {
+        this.input.pointers.on('down', () => {
+          console.log('pointer down from scene2');
+        });
+      }
+    }
+    ```
 
 ### Fixed
 

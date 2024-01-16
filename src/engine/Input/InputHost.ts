@@ -34,6 +34,10 @@ export class InputHost {
     });
   }
 
+  get enabled() {
+    return this._enabled;
+  }
+
   toggleEnabled(enabled: boolean) {
     this._enabled = enabled;
     this.keyboard.toggleEnabled(this._enabled);

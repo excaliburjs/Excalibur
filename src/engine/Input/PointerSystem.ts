@@ -29,7 +29,8 @@ export class PointerSystem extends System<TransformComponent | PointerComponent>
   public priority = -1;
 
   private _engine: Engine;
-  private _receiver: PointerEventReceiver;
+  private _scene: Scene;
+  private _receivers: PointerEventReceiver[];
 
   /**
    * Optionally override component configuration for all entities
@@ -45,6 +46,7 @@ export class PointerSystem extends System<TransformComponent | PointerComponent>
 
   public initialize(scene: Scene): void {
     this._engine = scene.engine;
+    this._scene = scene;
   }
 
   private _sortedTransforms: TransformComponent[] = [];
@@ -57,7 +59,7 @@ export class PointerSystem extends System<TransformComponent | PointerComponent>
 
   public preupdate(): void {
     // event receiver might change per frame
-    this._receiver = this._engine.input.pointers;
+    this._receivers = [this._engine.input.pointers, this._scene.input.pointers];
     if (this._zHasChanged) {
       this._sortedTransforms.sort((a, b) => {
         return b.z - a.z;
@@ -122,11 +124,11 @@ export class PointerSystem extends System<TransformComponent | PointerComponent>
     this._dispatchEvents(this._sortedEntities);
 
     // Clear last frame's events
-    this._receiver.update();
+    this._receivers.forEach(r => r.update());
     this.lastFrameEntityToPointers.clear();
     this.lastFrameEntityToPointers = new Map<number, number[]>(this.currentFrameEntityToPointers);
     this.currentFrameEntityToPointers.clear();
-    this._receiver.clear();
+    this._receivers.forEach(r => r.clear());
   }
 
   private _processPointerToEntity(entities: Entity[]) {
@@ -140,29 +142,31 @@ export class PointerSystem extends System<TransformComponent | PointerComponent>
 
     // Pre-process find entities under pointers
     for (const entity of entities) {
-      transform = entity.get(TransformComponent);
-      pointer = entity.get(PointerComponent) ?? new PointerComponent;
-      // Check collider contains pointer
-      collider = entity.get(ColliderComponent);
-      if (collider && (pointer.useColliderShape || this.overrideUseColliderShape)) {
-        collider.update();
-        const geom = collider.get();
-        if (geom) {
-          for (const [pointerId, pos] of this._receiver.currentFramePointerCoords.entries()) {
-            if (geom.contains(transform.coordPlane === CoordPlane.World ? pos.worldPos : pos.screenPos)) {
-              this.addPointerToEntity(entity, pointerId);
+      for (const receiver of this._receivers) {
+        transform = entity.get(TransformComponent);
+        pointer = entity.get(PointerComponent) ?? new PointerComponent;
+        // Check collider contains pointer
+        collider = entity.get(ColliderComponent);
+        if (collider && (pointer.useColliderShape || this.overrideUseColliderShape)) {
+          collider.update();
+          const geom = collider.get();
+          if (geom) {
+            for (const [pointerId, pos] of receiver.currentFramePointerCoords.entries()) {
+              if (geom.contains(transform.coordPlane === CoordPlane.World ? pos.worldPos : pos.screenPos)) {
+                this.addPointerToEntity(entity, pointerId);
+              }
             }
           }
         }
-      }
 
-      // Check graphics contains pointer
-      graphics = entity.get(GraphicsComponent);
-      if (graphics && (pointer.useGraphicsBounds || this.overrideUseGraphicsBounds)) {
-        const graphicBounds = graphics.localBounds.transform(transform.get().matrix);
-        for (const [pointerId, pos] of this._receiver.currentFramePointerCoords.entries()) {
-          if (graphicBounds.contains(transform.coordPlane === CoordPlane.World ? pos.worldPos : pos.screenPos)) {
-            this.addPointerToEntity(entity, pointerId);
+        // Check graphics contains pointer
+        graphics = entity.get(GraphicsComponent);
+        if (graphics && (pointer.useGraphicsBounds || this.overrideUseGraphicsBounds)) {
+          const graphicBounds = graphics.localBounds.transform(transform.get().matrix);
+          for (const [pointerId, pos] of receiver.currentFramePointerCoords.entries()) {
+            if (graphicBounds.contains(transform.coordPlane === CoordPlane.World ? pos.worldPos : pos.screenPos)) {
+              this.addPointerToEntity(entity, pointerId);
+            }
           }
         }
       }
@@ -170,16 +174,18 @@ export class PointerSystem extends System<TransformComponent | PointerComponent>
   }
 
   private _processDownAndEmit(entity: Entity): Map<number, PointerEvent> {
-    const lastDownPerPointer = new Map<number, PointerEvent>();
+    const lastDownPerPointer = new Map<number, PointerEvent>(); // TODO will this get confused between receivers?
     // Loop through down and dispatch to entities
-    for (const event of this._receiver.currentFrameDown) {
-      if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, event.pointerId)) {
-        entity.events.emit('pointerdown', event as any);
-        if (this._receiver.isDragStart(event.pointerId)) {
-          entity.events.emit('pointerdragstart', event as any);
+    for (const receiver of this._receivers) {
+      for (const event of receiver.currentFrameDown) {
+        if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, event.pointerId)) {
+          entity.events.emit('pointerdown', event as any);
+          if (receiver.isDragStart(event.pointerId)) {
+            entity.events.emit('pointerdragstart', event as any);
+          }
         }
+        lastDownPerPointer.set(event.pointerId, event);
       }
-      lastDownPerPointer.set(event.pointerId, event);
     }
     return lastDownPerPointer;
   }
@@ -187,14 +193,16 @@ export class PointerSystem extends System<TransformComponent | PointerComponent>
   private _processUpAndEmit(entity: Entity): Map<number, PointerEvent> {
     const lastUpPerPointer = new Map<number, PointerEvent>();
     // Loop through up and dispatch to entities
-    for (const event of this._receiver.currentFrameUp) {
-      if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, event.pointerId)) {
-        entity.events.emit('pointerup', event as any);
-        if (this._receiver.isDragEnd(event.pointerId)) {
-          entity.events.emit('pointerdragend', event as any);
+    for (const receiver of this._receivers) {
+      for (const event of receiver.currentFrameUp) {
+        if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, event.pointerId)) {
+          entity.events.emit('pointerup', event as any);
+          if (receiver.isDragEnd(event.pointerId)) {
+            entity.events.emit('pointerdragend', event as any);
+          }
         }
+        lastUpPerPointer.set(event.pointerId, event);
       }
-      lastUpPerPointer.set(event.pointerId, event);
     }
     return lastUpPerPointer;
   }
@@ -202,60 +210,68 @@ export class PointerSystem extends System<TransformComponent | PointerComponent>
   private _processMoveAndEmit(entity: Entity): Map<number, PointerEvent> {
     const lastMovePerPointer = new Map<number, PointerEvent>();
     // Loop through move and dispatch to entities
-    for (const event of this._receiver.currentFrameMove) {
-      if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, event.pointerId)) {
-        // move
-        entity.events.emit('pointermove', event as any);
+    for (const receiver of this._receivers) {
+      for (const event of receiver.currentFrameMove) {
+        if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, event.pointerId)) {
+          // move
+          entity.events.emit('pointermove', event as any);
 
-        if (this._receiver.isDragging(event.pointerId)) {
-          entity.events.emit('pointerdragmove', event as any);
+          if (receiver.isDragging(event.pointerId)) {
+            entity.events.emit('pointerdragmove', event as any);
+          }
         }
+        lastMovePerPointer.set(event.pointerId, event);
       }
-      lastMovePerPointer.set(event.pointerId, event);
     }
     return lastMovePerPointer;
   }
 
   private _processEnterLeaveAndEmit(entity: Entity, lastUpDownMoveEvents: PointerEvent[]) {
     // up, down, and move are considered for enter and leave
-    for (const event of lastUpDownMoveEvents) {
-      // enter
-      if (event.active && entity.active && this.entered(entity, event.pointerId)) {
-        entity.events.emit('pointerenter', event as any);
-        if (this._receiver.isDragging(event.pointerId)) {
-          entity.events.emit('pointerdragenter', event as any);
+    for (const receiver of this._receivers) {
+      for (const event of lastUpDownMoveEvents) {
+        // enter
+        if (event.active && entity.active && this.entered(entity, event.pointerId)) {
+          entity.events.emit('pointerenter', event as any);
+          if (receiver.isDragging(event.pointerId)) {
+            entity.events.emit('pointerdragenter', event as any);
+          }
+          break;
         }
-        break;
-      }
-      if (event.active && entity.active &&
-          // leave can happen on move
-          (this.left(entity, event.pointerId) ||
-          // or leave can happen on pointer up
-          (this.entityCurrentlyUnderPointer(entity, event.pointerId) && event.type === 'up'))) {
-        entity.events.emit('pointerleave', event as any);
-        if (this._receiver.isDragging(event.pointerId)) {
-          entity.events.emit('pointerdragleave', event as any);
+        if (event.active && entity.active &&
+            // leave can happen on move
+            (this.left(entity, event.pointerId) ||
+            // or leave can happen on pointer up
+            (this.entityCurrentlyUnderPointer(entity, event.pointerId) && event.type === 'up'))) {
+          entity.events.emit('pointerleave', event as any);
+          if (receiver.isDragging(event.pointerId)) {
+            entity.events.emit('pointerdragleave', event as any);
+          }
+          break;
         }
-        break;
       }
     }
   }
 
   private _processCancelAndEmit(entity: Entity) {
     // cancel
-    for (const event of this._receiver.currentFrameCancel) {
-      if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, event.pointerId)){
-        entity.events.emit('pointercancel', event as any);
+    for (const receiver of this._receivers) {
+      for (const event of receiver.currentFrameCancel) {
+        if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, event.pointerId)){
+          entity.events.emit('pointercancel', event as any);
+        }
       }
     }
   }
 
   private _processWheelAndEmit(entity: Entity) {
     // wheel
-    for (const event of this._receiver.currentFrameWheel) {
-      // Currently the wheel only fires under the primary pointer '0'
-      if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, 0)) {
-        entity.events.emit('pointerwheel', event as any);
+    for (const receiver of this._receivers) {
+      for (const event of receiver.currentFrameWheel) {
+        // Currently the wheel only fires under the primary pointer '0'
+        if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, 0)) {
+          entity.events.emit('pointerwheel', event as any);
+        }
       }
     }
   }
