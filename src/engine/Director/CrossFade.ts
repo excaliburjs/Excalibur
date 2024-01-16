@@ -18,12 +18,15 @@ export class CrossFade extends Transition {
   image: HTMLImageElement;
   screenCover: Sprite;
   constructor(options: TransitionOptions & CrossFadeOptions) {
-    super(options);
+    super({direction: 'in', ...options}); // default the correct direction
     this.name = `CrossFade#${this.id}`;
   }
 
   override async onPreviousSceneDeactivate(scene: Scene<unknown>) {
     this.image = await scene.engine.screenshot(true);
+    // Firefox is particularly slow
+    // needed in case the image isn't ready yet
+    await this.image.decode();
   }
 
   override onInitialize(engine: Engine): void {
