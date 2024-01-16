@@ -51,8 +51,8 @@ var engineWithInput = new ex.Engine({
   width: 800,
   height: 800,
   scenes: {
-    scene1: SceneWithInput,
-    scene2: OtherSceneWithInput
+    scene1: { scene: SceneWithInput, transitions: {in: new ex.CrossFade({duration: 1000, blockInput: true})}},
+    scene2: { scene: OtherSceneWithInput, transitions: {in: new ex.CrossFade({duration: 1000, blockInput: true})}}
   }
 });
 
