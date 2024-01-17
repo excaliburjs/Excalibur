@@ -149,3 +149,26 @@ class Level extends Scene {
   }
 }
 ```
+
+## Loading 🧪
+
+Scenes can now load resources specific to them by implementing the [[Scene.onPreLoad]].
+
+```typescript
+import * as ex from 'excalibur';
+
+class LevelOne extends ex.Scene {
+  spriteFont!: ex.ImageSource;
+  playerSpriteSheet!: ex.ImageSource;
+
+  override onPreLoad(loader: DefaultLoader) {
+    this.spriteFont = new ex.ImageSource('./res/spritefont.png');
+    this.playerSpriteSheet = new ex.ImageSource('./res/player-sheet.png');
+    loader.addResource(this.spriteFont);
+    loader.addResource(this.playerSpriteSheet);
+  }
+}
+
+```
+
+Read more in the [loaders documentation](/docs/loaders);
