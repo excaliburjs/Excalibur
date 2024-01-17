@@ -1,0 +1,86 @@
+.main {
+  margin: 2rem;
+}
+
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.card {
+  font-size: 1em;
+  display: flex;
+  word-wrap: break-word;
+  margin: 10px;
+  /* background: #fff; */
+  border: none;
+  border-radius: 0.25rem;
+  box-shadow: 0 1px 3px 0 #4c4c51, 0 0 0 1px #4c4c51;
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
+  min-height: 0;
+  padding: 0;
+  position: relative;
+  transition: box-shadow .1s ease, transform .1s ease;
+  width: 290px;
+}
+
+.card>.image {
+  background: rgba(0, 0, 0, .05);
+  display: block;
+  flex: 0 0 auto;
+  padding: 0;
+  position: relative;
+}
+
+.card>.content {
+  background: none;
+  border: none;
+  border-radius: 0;
+  border-top: 1px solid rgba(34, 36, 38, .1);
+  box-shadow: none;
+  flex-grow: 1;
+  font-size: 1em;
+  margin: 0;
+  padding: 1em;
+}
+
+.card>.extra {
+  background: none;
+  border-top: 1px solid rgba(0,0,0,.05)!important;
+  box-shadow: none;
+  color: rgba(0,0,0,.4);
+  flex-grow: 0;
+  left: 0;
+  margin: 0;
+  max-width: 100%;
+  min-height: 0!important;
+  padding: 0.75em 1em;
+  position: static;
+  top: 0;
+  transition: color .1s ease;
+  width: auto;
+}
+
+.cards>.card [class*="right floated"] {
+  float: right;
+}
+
+.green {
+  background-color: rgb(31, 150, 50);
+  color: #ececec;
+  font-size: 1.5em;
+  font-weight: bold;
+  padding: 10px;
+  border: none;
+  border-radius: 0.25rem;
+}
+.green:hover {
+  color: #ececec;
+  text-decoration: none;
+}
+
+.small {
+  font-size: 1.2em;
+}
