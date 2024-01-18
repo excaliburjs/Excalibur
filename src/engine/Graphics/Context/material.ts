@@ -1,12 +1,19 @@
 import { Color } from '../../Color';
+import { ExcaliburGraphicsContext } from './ExcaliburGraphicsContext';
 import { ExcaliburGraphicsContextWebGL } from './ExcaliburGraphicsContextWebGL';
 import { Shader } from './shader';
+import { Logger } from '../../Util/Log';
 
 export interface MaterialOptions {
   /**
    * Name the material for debugging
    */
   name?: string;
+
+  /**
+   * Excalibur graphics context to create the material (only WebGL is supported at the moment)
+   */
+  graphicsContext?: ExcaliburGraphicsContext;
 
   /**
    * Optionally specify a vertex shader
@@ -82,6 +89,7 @@ void main() {
 `;
 
 export class Material {
+  private _logger = Logger.getInstance();
   private _name: string;
   private _shader: Shader;
   private _color: Color = Color.Transparent;
@@ -89,19 +97,27 @@ export class Material {
   private _fragmentSource: string;
   private _vertexSource: string;
   constructor(options: MaterialOptions) {
-    const { color, name, vertexSource, fragmentSource } = options;
+    const { color, name, vertexSource, fragmentSource, graphicsContext } = options;
     this._name = name;
     this._vertexSource = vertexSource ?? defaultVertexSource;
     this._fragmentSource = fragmentSource;
     this._color = color ?? this._color;
+    if (!graphicsContext) {
+      throw Error(`Material ${name} must be provided an excalibur webgl graphics context`);
+    }
+    if (graphicsContext instanceof ExcaliburGraphicsContextWebGL) {
+      this._initialize(graphicsContext);
+    } else {
+      this._logger.warn(`Material ${name} was created in 2D Canvas mode, currently only WebGL is supported`);
+    }
   }
 
-  initialize(_gl: WebGL2RenderingContext, _context: ExcaliburGraphicsContextWebGL) {
+  private _initialize(graphicsContextWebGL: ExcaliburGraphicsContextWebGL) {
     if (this._initialized) {
       return;
     }
 
-    this._shader = _context.createShader({
+    this._shader = graphicsContextWebGL.createShader({
       vertexSource: this._vertexSource,
       fragmentSource: this._fragmentSource
     });

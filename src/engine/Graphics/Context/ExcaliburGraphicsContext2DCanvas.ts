@@ -340,7 +340,7 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     return this._state.current.material;
   }
 
-  public createMaterial(_options: MaterialOptions): Material {
+  public createMaterial(options: Omit<MaterialOptions, 'graphicsContext'>): Material {
     // pass
     return null;
   }
