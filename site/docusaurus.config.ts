@@ -286,7 +286,7 @@ const config: Config = {
     prism: {
       theme: lightCodeTheme,
       darkTheme: darkCodeTheme,
-      additionalLanguages: ['bash', 'diff', 'json']
+      additionalLanguages: ['bash', 'diff', 'json', 'glsl']
     },
     liveCodeBlock: {
       /**
