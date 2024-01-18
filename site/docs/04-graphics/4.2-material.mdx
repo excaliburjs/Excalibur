@@ -58,6 +58,16 @@ Excalibur only supports GLSL ES 300 shaders `#version 300 es`, this version decl
 
 :::
 
+:::warning
+
+Excalibur deals in pre-multiplied alphas! This means your shader transparency might not be what you expect.
+
+Generally this can be solved by adding `fragColor.rgb = fragColor.rgb * fragColor.a;` or similar to your code.
+
+Check out [this great post](https://www.realtimerendering.com/blog/gpus-prefer-premultiplication/) about premultiplied alphas
+
+:::
+
 Once a [[Material|material]] is created it can be added/removed from the [[Actor|actor's]] [[GraphicsComponent|graphics component]] by accessing the [[GraphicsComponent.material]] property.
 
 ## Passing parameters to Materials
