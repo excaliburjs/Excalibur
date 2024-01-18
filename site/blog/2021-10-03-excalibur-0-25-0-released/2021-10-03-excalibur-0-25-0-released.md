@@ -135,7 +135,7 @@ The `Capsule` collider is a useful geometry tool for making games with ramps or 
 
 ![an image of two green circles connected on each outer side by two green lines. the structure is standing on a platform](./excalibur-0-25-0-release-capsule-collider.png)
 
-`CollisionGroup`s allow more granular control over what collides above and beyond [collision type](https://excaliburjs.com/docs/api/edge/enums/CollisionType.html). Collsion groups allow you to create named groups of colliders like "player", "npc", or "enemy". With these groups, you can specify that players and enemies collide, player and npcs don't collide, and that npcs and enemies don't collide without needing to implement that logic in a collision event handler.
+`CollisionGroup`s allow more granular control over what collides above and beyond [collision type](https://excaliburjs.com/api/enum/CollisionType/). Collsion groups allow you to create named groups of colliders like "player", "npc", or "enemy". With these groups, you can specify that players and enemies collide, player and npcs don't collide, and that npcs and enemies don't collide without needing to implement that logic in a collision event handler.
 
 ```typescript
 // Create a group for each distinct category of "collidable" in your game
