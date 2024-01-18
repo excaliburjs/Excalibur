@@ -498,9 +498,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
    * @param options
    * @returns Material
    */
-  public createMaterial(options: MaterialOptions): Material {
-    const material = new Material(options);
-    material.initialize(this.__gl, this);
+  public createMaterial(options: Omit<MaterialOptions, 'graphicsContext'>): Material {
+    const material = new Material({...options, graphicsContext: this});
     return material;
   }
 
