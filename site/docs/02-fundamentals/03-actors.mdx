@@ -18,6 +18,16 @@ If you don't want these built-ins and you want to build only what you want, read
 declare const game: ex.Engine;
 ```
 
+:::warning
+
+Actors use collision geometry for pointer events meaning they need at least a width/height or custom collider, but can be configured to use graphics bounds for pointer testing.
+
+[[Actor.pointer]] and [[PointerComponent]]
+
+Read more [here](/docs/pointers#actor-pointer-events)
+
+::: 
+
 ## Basic actors
 
 For quick and dirty games, you may be able to create an instance of an [[Actor]]
