@@ -10,8 +10,17 @@ import krakenImage from './images/kraken.png'
 import swordAdventureImage from './images/sword-adventure.png'
 import superMetronomeImage from './images/super-metronome-hero.png'
 import nightBikeImage from './images/nightbike.png'
+import retroSkiImage from './images/retroski.png'
 
 export default [
+  {
+    title: 'Retro Ski',
+    image: retroSkiImage,
+    description:
+      'Put your skis and let\'s race some randomly generated alpine ski tracks with your friends.',
+    url: 'https://mathieuher.github.io/RetroSki/',
+    source: 'https://github.com/mathieuher/RetroSki',
+  },
   {
     title: 'Night Bike',
     image: nightBikeImage,
