@@ -72,7 +72,7 @@ export interface MaterialOptions {
    *
    * Specify a dictionary of uniform sampler names to ImageSource
    */
-  images?: Record<string, ImageSource | { image: ImageSource, options: MaterialImageOptions}>
+  images?: Record<string, ImageSource>
 }
 
 const defaultVertexSource = `#version 300 es
@@ -134,13 +134,7 @@ export class Material {
 
     if (images) {
       for (const key in images) {
-        const imageOrOptions = images[key];
-        if (imageOrOptions instanceof ImageSource) {
-          this.addImageSource(key, imageOrOptions);
-        } else {
-          const {image, options} = imageOrOptions;
-          this.addImageSource(key, image, options);
-        }
+        this.addImageSource(key, images[key]);
       }
     }
   }
@@ -179,15 +173,9 @@ export class Material {
     return this._shader;
   }
 
-  addImageSource(textureUniformName: string, image: ImageSource, options?: MaterialImageOptions) {
+  addImageSource(textureUniformName: string, image: ImageSource) {
     if (this._images.size < this._maxTextureSlots) {
       this._images.set(textureUniformName, image);
-      if (options) {
-        const { filtering } = options;
-        image.data.setAttribute('filtering', filtering);
-      } else {
-        image.data.setAttribute('filtering', ImageFiltering.Blended);
-      }
     } else {
       this._logger.warn(`Max number texture slots ${this._maxTextureSlots} have been reached for material "${this.name}", `+
       `no more textures will be uploaded due to hardware constraints.`);

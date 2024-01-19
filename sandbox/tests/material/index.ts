@@ -265,10 +265,10 @@ void main() {
   vec3 mixColor = (u_color.rgb * u_color.a); // pre-multiplied alpha
   
   fragColor.rgb = mix(screen_color.rgb, mixColor, u_color.a)*fragColor.a + (wave_crest_color.rgb * wave_crest);
-  //fragColor.rgb = texture(u_noise, v_uv).rgb * fragColor.a;
+  fragColor.rgb = texture(u_noise, v_uv).rgb * fragColor.a;
 }`;
 
-const noise = new ex.ImageSource('./noise.avif');
+const noise = new ex.ImageSource('./noise.avif', false, ex.ImageFiltering.Pixel);
 loader.addResource(noise);
 
 var waterMaterial = game.graphicsContext.createMaterial({
@@ -276,7 +276,7 @@ var waterMaterial = game.graphicsContext.createMaterial({
   fragmentSource: waterFrag,
   color: ex.Color.fromRGB(55, 0, 200, .6),
   images: {
-    u_noise: {image: noise, options: { filtering: ex.ImageFiltering.Pixel }}
+    u_noise: noise
   }
 });
 var reflection = new ex.Actor({
