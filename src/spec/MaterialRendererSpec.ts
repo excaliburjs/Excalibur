@@ -439,6 +439,7 @@ describe('A Material', () => {
     });
 
     expect(material).toBeDefined();
-    expect(logger.warn).toHaveBeenCalledWith('Max number texture slots 30 have been reached for material "test", no more textures will be uploaded due to hardware constraints.');
+    expect(logger.warn).toHaveBeenCalledWith(
+      'Max number texture slots 30 have been reached for material "test", no more textures will be uploaded due to hardware constraints.');
   });
 });
