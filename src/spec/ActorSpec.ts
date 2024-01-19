@@ -183,19 +183,19 @@ describe('A game actor', () => {
 
   it('can be created with a radius with default circle collider and graphic', () => {
     const actor = new ex.Actor({ x: 50, y: 50, color: ex.Color.Red, radius: 10 });
-    expect(actor.graphics.current[0].graphic).toBeInstanceOf(ex.Circle);
-    expect((actor.graphics.current[0].graphic as ex.Circle).radius).toBe(10);
-    expect((actor.graphics.current[0].graphic as ex.Circle).color).toEqual(ex.Color.Red);
+    expect(actor.graphics.current).toBeInstanceOf(ex.Circle);
+    expect((actor.graphics.current as ex.Circle).radius).toBe(10);
+    expect((actor.graphics.current as ex.Circle).color).toEqual(ex.Color.Red);
     expect(actor.collider.get()).toBeInstanceOf(ex.CircleCollider);
     expect(actor.collider.get().offset).toBeVector(ex.vec(0, 0));
   });
 
   it('can be created with a width/height with default rectangle collider and graphic', () => {
     const actor = new ex.Actor({ x: 50, y: 50, color: ex.Color.Red, width: 10, height: 10 });
-    expect(actor.graphics.current[0].graphic).toBeInstanceOf(ex.Rectangle);
-    expect((actor.graphics.current[0].graphic as ex.Rectangle).width).toBe(10);
-    expect((actor.graphics.current[0].graphic as ex.Rectangle).height).toBe(10);
-    expect((actor.graphics.current[0].graphic as ex.Rectangle).color).toEqual(ex.Color.Red);
+    expect(actor.graphics.current).toBeInstanceOf(ex.Rectangle);
+    expect((actor.graphics.current as ex.Rectangle).width).toBe(10);
+    expect((actor.graphics.current as ex.Rectangle).height).toBe(10);
+    expect((actor.graphics.current as ex.Rectangle).color).toEqual(ex.Color.Red);
     expect(actor.collider.get()).toBeInstanceOf(ex.PolygonCollider);
   });
 
@@ -599,7 +599,7 @@ describe('A game actor', () => {
     expect(grandChildActor.getGlobalPos().y).toBe(75);
   });
 
-  it('can find its global coordinates if it doesnt have a parent', () => {
+  it('can find its global coordinates if it doesn\'t have a parent', () => {
     expect(actor.pos.x).toBe(0);
     expect(actor.pos.y).toBe(0);
 

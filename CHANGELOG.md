@@ -8,7 +8,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
--
+- Remove confusing Graphics Layering from `ex.GraphicsComponent`, recommend we use the `ex.GraphicsGroup` to manage this behavior
+  * Update `ex.GraphicsGroup` to be consistent and use `offset` instead of `pos` for graphics relative positioning
 
 ### Deprecated
 

@@ -40,7 +40,7 @@ describe('The OffscreenSystem', () => {
 
     const offscreen = new ex.Entity([new TransformComponent(), new GraphicsComponent()]);
 
-    offscreen.get(GraphicsComponent).show(rect);
+    offscreen.get(GraphicsComponent).use(rect);
     offscreen.get(TransformComponent).pos = ex.vec(112.5, 112.5);
 
     const offscreenSpy = jasmine.createSpy('offscreenSpy');

@@ -16,6 +16,7 @@ import { FontCache } from './FontCache';
 import { PostDrawEvent, PostTransformDrawEvent, PreDrawEvent, PreTransformDrawEvent } from '../Events';
 import { Transform } from '../Math/transform';
 import { blendTransform } from './TransformInterpolation';
+import { Graphic } from './Graphic';
 
 export class GraphicsSystem extends System<TransformComponent | GraphicsComponent> {
   public readonly types = ['ex.transform', 'ex.graphics'] as const;
@@ -175,51 +176,59 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
       const flipHorizontal = graphicsComponent.flipHorizontal;
       const flipVertical = graphicsComponent.flipVertical;
 
-      for (const layer of graphicsComponent.layers.get()) {
-        for (const { graphic, options } of layer.graphics) {
-          let anchor = graphicsComponent.anchor;
-          let offset = graphicsComponent.offset;
+      const graphic = graphicsComponent.current;
+      const options = graphicsComponent.currentOptions ?? {};
 
-          // handle layer specific overrides
-          if (options?.anchor) {
-            anchor = options.anchor;
-          }
-          if (options?.offset) {
-            offset = options.offset;
-          }
-          // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
-          const offsetX = -graphic.width * anchor.x + offset.x;
-          const offsetY = -graphic.height * anchor.y + offset.y;
+      if (graphic) {
+        let anchor = graphicsComponent.anchor;
+        let offset = graphicsComponent.offset;
 
-          const oldFlipHorizontal = graphic.flipHorizontal;
-          const oldFlipVertical = graphic.flipVertical;
-          if (flipHorizontal || flipVertical) {
+        // handle specific overrides
+        if (options?.anchor) {
+          anchor = options.anchor;
+        }
+        if (options?.offset) {
+          offset = options.offset;
+        }
+        // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
+        const offsetX = -graphic.width * anchor.x + offset.x;
+        const offsetY = -graphic.height * anchor.y + offset.y;
 
-            // flip any currently flipped graphics
-            graphic.flipHorizontal = flipHorizontal ? !oldFlipHorizontal : oldFlipHorizontal;
-            graphic.flipVertical = flipVertical ? !oldFlipVertical : oldFlipVertical;
-          }
+        const oldFlipHorizontal = graphic.flipHorizontal;
+        const oldFlipVertical = graphic.flipVertical;
+        if (flipHorizontal || flipVertical) {
+          // flip any currently flipped graphics
+          graphic.flipHorizontal = flipHorizontal ? !oldFlipHorizontal : oldFlipHorizontal;
+          graphic.flipVertical = flipVertical ? !oldFlipVertical : oldFlipVertical;
+        }
 
-          graphic?.draw(
-            this._graphicsContext,
-            offsetX + layer.offset.x,
-            offsetY + layer.offset.y);
+        graphic?.draw(
+          this._graphicsContext,
+          offsetX,
+          offsetY);
 
-          if (flipHorizontal || flipVertical) {
-            graphic.flipHorizontal = oldFlipHorizontal;
-            graphic.flipVertical = oldFlipVertical;
-          }
+        if (flipHorizontal || flipVertical) {
+          graphic.flipHorizontal = oldFlipHorizontal;
+          graphic.flipVertical = oldFlipVertical;
+        }
 
-          if (this._engine?.isDebug && this._engine.debug.graphics.showBounds) {
-            const offset = vec(offsetX + layer.offset.x, offsetY + layer.offset.y);
-            if (graphic instanceof GraphicsGroup) {
-              for (const g of graphic.members) {
-                g.graphic?.localBounds.translate(offset.add(g.pos)).draw(this._graphicsContext, this._engine.debug.graphics.boundsColor);
+        if (this._engine?.isDebug && this._engine.debug.graphics.showBounds) {
+          const offset = vec(offsetX, offsetY);
+          if (graphic instanceof GraphicsGroup) {
+            for (const member of graphic.members) {
+              let g: Graphic;
+              let pos: Vector = Vector.Zero;
+              if (member instanceof Graphic) {
+                g = member;
+              } else {
+                g = member.graphic;
+                pos = member.offset;
               }
-            } else {
-              /* istanbul ignore next */
-              graphic?.localBounds.translate(offset).draw(this._graphicsContext, this._engine.debug.graphics.boundsColor);
+              g?.localBounds.translate(offset.add(pos)).draw(this._graphicsContext, this._engine.debug.graphics.boundsColor);
             }
+          } else {
+            /* istanbul ignore next */
+            graphic?.localBounds.translate(offset).draw(this._graphicsContext, this._engine.debug.graphics.boundsColor);
           }
         }
       }
@@ -239,8 +248,8 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
       let tx = transform.get();
       if (optionalBody) {
         if (this._engine.fixedUpdateFps &&
-            optionalBody.__oldTransformCaptured &&
-            optionalBody.enableFixedUpdateInterpolate) {
+          optionalBody.__oldTransformCaptured &&
+          optionalBody.enableFixedUpdateInterpolate) {
           // Interpolate graphics if needed
           const blend = this._engine.currentFrameLagMs / (1000 / this._engine.fixedUpdateFps);
           tx = blendTransform(optionalBody.oldTransform, transform.get(), blend, this._targetInterpolationTransform);

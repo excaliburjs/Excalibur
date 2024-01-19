@@ -618,12 +618,6 @@ var healthbar2 = new ex.Rectangle({
   color: new ex.Color(0, 255, 0)
 });
 
-var backroundLayer = player.graphics.layers.create({
-  name: 'background',
-  order: -1
-});
-
-backroundLayer.show(healthbar2, { offset: ex.vec(0, -70) });
 var playerText = new ex.Text({
   text: 'A long piece of text is long',
   font: new ex.Font({
@@ -631,8 +625,24 @@ var playerText = new ex.Text({
     family: 'Times New Roman'
   })
 });
-// playerText.showDebug = true;
-backroundLayer.show(playerText, { offset: ex.vec(0, -70) });
+
+var group = new ex.GraphicsGroup({
+  members: [
+    { graphic: healthbar2, pos: ex.vec(0, -70)},
+    { graphic: playerText, pos: ex.vec(0, -70)}
+  ]
+})
+healthbar.graphics.use(group);
+
+// var backgroundLayer = player.graphics.layers.create({
+//   name: 'background',
+//   order: -1
+// });
+
+// backgroundLayer.show(healthbar2, { offset: ex.vec(0, -70) });
+
+// // playerText.showDebug = true;
+// backgroundLayer.show(playerText, { offset: ex.vec(0, -70) });
 
 // Retrieve animations for player from sprite sheet
 var left = ex.Animation.fromSpriteSheet(spriteSheetRun, ex.range(1, 10), 50);
