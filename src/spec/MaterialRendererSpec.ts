@@ -311,4 +311,135 @@ describe('A Material', () => {
     await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
       .toEqualImage('src/spec/images/MaterialRendererSpec/multi-mat.png');
   });
+
+
+  it('will allow addition images', async () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 100;
+    canvas.height = 100;
+    const graphicsContext = new ex.ExcaliburGraphicsContextWebGL({
+      canvasElement: canvas,
+      backgroundColor: ex.Color.Black,
+      smoothing: false,
+      snapToPixel: true
+    });
+
+    const stars = new ex.ImageSource('src/spec/images/MaterialRendererSpec/stars.png');
+    await stars.load();
+
+    const material = new ex.Material({
+      name: 'test',
+      graphicsContext,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      // UV coord
+      in vec2 v_uv;
+      uniform sampler2D u_graphic;
+      uniform sampler2D u_additional;
+      uniform vec4 u_color;
+      uniform float u_opacity;
+      out vec4 fragColor;
+      void main() {
+        vec4 color = u_color;
+        color = mix(texture(u_additional, v_uv), texture(u_graphic, v_uv), .5);
+        color.rgb = color.rgb * u_opacity;
+        color.a = color.a * u_opacity;
+        fragColor = color * u_color;
+      }`,
+      images: {
+        u_additional: stars
+      }
+    });
+
+    const tex = new ex.ImageSource('src/spec/images/MaterialRendererSpec/sword.png');
+    await tex.load();
+
+    graphicsContext.clear();
+    graphicsContext.save();
+    graphicsContext.material = material;
+    graphicsContext.drawImage(tex.image, 0, 0);
+    graphicsContext.flush();
+    graphicsContext.restore();
+
+    expect(graphicsContext.material).toBe(null);
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(canvas))
+      .toEqualImage('src/spec/images/MaterialRendererSpec/additional.png');
+  });
+
+  it('will log a warning if you exceed you texture slots', () => {
+    const logger = ex.Logger.getInstance();
+    spyOn(logger, 'warn');
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 100;
+    canvas.height = 100;
+    const graphicsContext = new ex.ExcaliburGraphicsContextWebGL({
+      canvasElement: canvas,
+      backgroundColor: ex.Color.Black,
+      smoothing: false,
+      snapToPixel: true
+    });
+
+    const stars = new ex.ImageSource('src/spec/images/MaterialRendererSpec/stars.png');
+
+    const material = new ex.Material({
+      name: 'test',
+      graphicsContext,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      // UV coord
+      in vec2 v_uv;
+      uniform sampler2D u_graphic;
+      uniform sampler2D u_additional;
+      uniform vec4 u_color;
+      uniform float u_opacity;
+      out vec4 fragColor;
+      void main() {
+        vec4 color = u_color;
+        color = mix(texture(u_additional, v_uv), texture(u_graphic, v_uv), .5);
+        color.rgb = color.rgb * u_opacity;
+        color.a = color.a * u_opacity;
+        fragColor = color * u_color;
+      }`,
+      images: {
+        u_additional: stars,
+        u_additional1: stars,
+        u_additional2: stars,
+        u_additional3: stars,
+        u_additional4: stars,
+        u_additional5: stars,
+        u_additional6: stars,
+        u_additional7: stars,
+        u_additional8: stars,
+        u_additional9: stars,
+        u_additional10: stars,
+        u_additional11: stars,
+        u_additional12: stars,
+        u_additional13: stars,
+        u_additional14: stars,
+        u_additional15: stars,
+        u_additional16: stars,
+        u_additional17: stars,
+        u_additional18: stars,
+        u_additional19: stars,
+        u_additional20: stars,
+        u_additional21: stars,
+        u_additional22: stars,
+        u_additional23: stars,
+        u_additional24: stars,
+        u_additional25: stars,
+        u_additional26: stars,
+        u_additional27: stars,
+        u_additional28: stars,
+        u_additional29: stars,
+        u_additional30: stars,
+        u_additional31: stars,
+        u_additional32: stars
+      }
+    });
+
+    expect(material).toBeDefined();
+    expect(logger.warn).toHaveBeenCalledWith(
+      'Max number texture slots 30 have been reached for material "test", no more textures will be uploaded due to hardware constraints.');
+  });
 });
