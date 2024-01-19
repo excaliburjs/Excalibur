@@ -16,6 +16,30 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added ability to load additional images into `ex.Material`s!
+  ```typescript
+  const noise = new ex.ImageSource('./noise.avif');
+  loader.addResource(noise);
+
+  var waterMaterial = game.graphicsContext.createMaterial({
+    name: 'water',
+    fragmentSource: waterFrag,
+    color: ex.Color.fromRGB(55, 0, 200, .6),
+    images: {
+      u_noise: noise
+    }
+  });
+
+  // optionally specify image filtering
+  var waterMaterial = game.graphicsContext.createMaterial({
+    name: 'water',
+    fragmentSource: waterFrag,
+    color: ex.Color.fromRGB(55, 0, 200, .6),
+    images: {
+      u_noise: {image: noise, options: { filtering: ex.ImageFiltering.Pixel }}
+    }
+  });
+  ```
 - Scene Transition & Loader API, this gives you the ability to have first class support for individual scene resource loading and scene transitions.
   * Add or remove scenes by constructor
   * Add loaders by constructor

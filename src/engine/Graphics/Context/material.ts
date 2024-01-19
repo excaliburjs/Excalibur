@@ -3,6 +3,8 @@ import { ExcaliburGraphicsContext } from './ExcaliburGraphicsContext';
 import { ExcaliburGraphicsContextWebGL } from './ExcaliburGraphicsContextWebGL';
 import { Shader } from './shader';
 import { Logger } from '../../Util/Log';
+import { ImageSource } from '../ImageSource';
+import { ImageFiltering } from '../Filtering';
 
 export interface MaterialOptions {
   /**
@@ -64,6 +66,13 @@ export interface MaterialOptions {
    * Add custom color, by default ex.Color.Transparent
    */
   color?: Color,
+
+  /**
+   * Add additional images to the material, you are limited by the GPU's maximum texture slots
+   *
+   * Specify a dictionary of uniform sampler names to ImageSource
+   */
+  images?: Record<string, ImageSource | { image: ImageSource, options: MaterialImageOptions}>
 }
 
 const defaultVertexSource = `#version 300 es
@@ -88,6 +97,11 @@ void main() {
 }
 `;
 
+export interface MaterialImageOptions {
+  filtering?: ImageFiltering,
+
+}
+
 export class Material {
   private _logger = Logger.getInstance();
   private _name: string;
@@ -96,9 +110,15 @@ export class Material {
   private _initialized = false;
   private _fragmentSource: string;
   private _vertexSource: string;
+
+  private _images = new Map<string, ImageSource>();
+  private _textures = new Map<ImageSource, WebGLTexture>();
+  private _maxTextureSlots: number;
+  private _graphicsContext: ExcaliburGraphicsContextWebGL;
+
   constructor(options: MaterialOptions) {
-    const { color, name, vertexSource, fragmentSource, graphicsContext } = options;
-    this._name = name;
+    const { color, name, vertexSource, fragmentSource, graphicsContext, images } = options;
+    this._name = name ?? 'anonymous material';
     this._vertexSource = vertexSource ?? defaultVertexSource;
     this._fragmentSource = fragmentSource;
     this._color = color ?? this._color;
@@ -106,9 +126,22 @@ export class Material {
       throw Error(`Material ${name} must be provided an excalibur webgl graphics context`);
     }
     if (graphicsContext instanceof ExcaliburGraphicsContextWebGL) {
+      this._graphicsContext = graphicsContext;
       this._initialize(graphicsContext);
     } else {
       this._logger.warn(`Material ${name} was created in 2D Canvas mode, currently only WebGL is supported`);
+    }
+
+    if (images) {
+      for (const key in images) {
+        const imageOrOptions = images[key];
+        if (imageOrOptions instanceof ImageSource) {
+          this.addImageSource(key, imageOrOptions);
+        } else {
+          const {image, options} = imageOrOptions;
+          this.addImageSource(key, image, options);
+        }
+      }
     }
   }
 
@@ -116,7 +149,9 @@ export class Material {
     if (this._initialized) {
       return;
     }
-
+    const gl = graphicsContextWebGL.__gl;
+    // max texture slots - 2 for the graphic texture and screen texture
+    this._maxTextureSlots = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS) - 2;
     this._shader = graphicsContextWebGL.createShader({
       vertexSource: this._vertexSource,
       fragmentSource: this._fragmentSource
@@ -144,12 +179,71 @@ export class Material {
     return this._shader;
   }
 
+  addImageSource(textureUniformName: string, image: ImageSource, options?: MaterialImageOptions) {
+    if (this._images.size < this._maxTextureSlots) {
+      this._images.set(textureUniformName, image);
+      if (options) {
+        const { filtering } = options;
+        image.data.setAttribute('filtering', filtering);
+      } else {
+        image.data.setAttribute('filtering', ImageFiltering.Blended);
+      }
+    } else {
+      this._logger.warn(`Max texture slots have been reached for this material ${this.name}, `+
+      `no more textures will be uploaded due to hardware constraints.`);
+    }
+  }
+
+  removeImageSource(textureName: string) {
+    const image = this._images.get(textureName);
+    this._graphicsContext.textureLoader.delete(image.image);
+    this._images.delete(textureName);
+  }
+
+  private _loadImageSource(image: ImageSource) {
+    const imageElement = image.image;
+    const maybeFiltering = imageElement.getAttribute('filtering');
+    let filtering: ImageFiltering = null;
+    if (maybeFiltering === ImageFiltering.Blended ||
+        maybeFiltering === ImageFiltering.Pixel) {
+      filtering = maybeFiltering;
+    }
+
+    const force = imageElement.getAttribute('forceUpload') === 'true' ? true : false;
+    const texture = this._graphicsContext.textureLoader.load(imageElement, filtering, force);
+    // remove force attribute after upload
+    imageElement.removeAttribute('forceUpload');
+    if (!this._textures.has(image)) {
+      this._textures.set(image, texture);
+    }
+
+    return texture;
+  }
+
+  uploadAndBind(gl: WebGL2RenderingContext, startingTextureSlot: number = 2) {
+
+    let textureSlot = startingTextureSlot;
+    for (const [textureName, image] of this._images.entries()) {
+      if (!image.isLoaded()) {
+        continue;
+      } // skip unloaded images, maybe warn
+      const texture = this._loadImageSource(image);
+
+      gl.activeTexture(gl.TEXTURE0 + textureSlot);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      this._shader.trySetUniformInt(textureName, textureSlot);
+
+      textureSlot++;
+    }
+  }
+
   use() {
     if (this._initialized) {
       // bind the shader
       this._shader.use();
       // Apply standard uniforms
       this._shader.trySetUniformFloatColor('u_color', this._color);
+
     } else {
       throw Error(`Material ${this.name} not yet initialized, use the ExcaliburGraphicsContext.createMaterial() to work around this.`);
     }
