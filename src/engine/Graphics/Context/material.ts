@@ -189,7 +189,7 @@ export class Material {
         image.data.setAttribute('filtering', ImageFiltering.Blended);
       }
     } else {
-      this._logger.warn(`Max texture slots have been reached for this material ${this.name}, `+
+      this._logger.warn(`Max number texture slots ${this._maxTextureSlots} have been reached for material "${this.name}", `+
       `no more textures will be uploaded due to hardware constraints.`);
     }
   }
