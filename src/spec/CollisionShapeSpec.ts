@@ -148,8 +148,8 @@ describe('Collision Shape', () => {
       const rayTangent = new ex.Ray(new ex.Vector(-100, 10), ex.Vector.Right.clone());
       const rayNoHit = new ex.Ray(new ex.Vector(-100, 10), ex.Vector.Left.clone());
 
-      const point = circle.rayCast(ray);
-      const pointTangent = circle.rayCast(rayTangent);
+      const point = circle.rayCast(ray).point;
+      const pointTangent = circle.rayCast(rayTangent).point;
       const pointNoHit = circle.rayCast(rayNoHit);
       const pointTooFar = circle.rayCast(ray, 1);
 
@@ -166,13 +166,13 @@ describe('Collision Shape', () => {
     it('can be raycast against only positive time of impact (toi)', () => {
       const ray = new ex.Ray(new ex.Vector(0, 0), ex.Vector.Right.clone());
 
-      const point = circle.rayCast(ray);
+      const point = circle.rayCast(ray).point;
 
       expect(point.x).toBe(10);
       expect(point.y).toBe(0);
     });
 
-    it('doesnt have axes', () => {
+    it('doesn\'t have axes', () => {
       // technically circles have infinite axes
       expect(circle.axes).toEqual([]);
     });
@@ -361,7 +361,7 @@ describe('Collision Shape', () => {
       await expectAsync(canvasElement).toEqualImage('src/spec/images/CollisionShapeSpec/circle-debug.png');
     });
 
-    it('can be drawn with actor when in contructor', async () => {
+    it('can be drawn with actor when in constructor', async () => {
       const circleActor = new ex.Actor({
         pos: new ex.Vector(100, 100),
         color: ex.Color.Blue,
@@ -732,7 +732,7 @@ describe('Collision Shape', () => {
       const rayTowards = new ex.Ray(new ex.Vector(-100, 0), ex.Vector.Right.clone());
       const rayAway = new ex.Ray(new ex.Vector(-100, 0), new ex.Vector(-1, 0));
 
-      const point = polyA.rayCast(rayTowards);
+      const point = polyA.rayCast(rayTowards).point;
       const noHit = polyA.rayCast(rayAway);
       const tooFar = polyA.rayCast(rayTowards, 1);
 
@@ -873,9 +873,9 @@ describe('Collision Shape', () => {
       const rayRightTangent = new ex.Ray(new ex.Vector(10, -100), ex.Vector.Down.clone());
       const rayNoHit = new ex.Ray(new ex.Vector(5, -100), ex.Vector.Up.clone());
 
-      const midPoint = edge.rayCast(ray);
-      const leftTan = edge.rayCast(rayLeftTangent);
-      const rightTan = edge.rayCast(rayRightTangent);
+      const midPoint = edge.rayCast(ray).point;
+      const leftTan = edge.rayCast(rayLeftTangent).point;
+      const rightTan = edge.rayCast(rayRightTangent).point;
       const noHit = edge.rayCast(rayNoHit);
       const tooFar = edge.rayCast(ray, 1);
 

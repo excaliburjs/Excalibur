@@ -11,6 +11,7 @@ import { createId, Id } from '../../Id';
 import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
 import { Transform } from '../../Math/transform';
 import { EventEmitter } from '../../EventEmitter';
+import { RayCastHit } from '../Detection/RayCastHit';
 
 /**
  * A collision collider specifies the geometry that can detect when other collision colliders intersect
@@ -100,7 +101,7 @@ export abstract class Collider implements Clonable<Collider> {
   /**
    * Return the point on the border of the collision collider that intersects with a ray (if any).
    */
-  abstract rayCast(ray: Ray, max?: number): Vector;
+  abstract rayCast(ray: Ray, max?: number): RayCastHit | null;
 
   /**
    * Create a projection of this collider along an axis. Think of this as casting a "shadow" along an axis

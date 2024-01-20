@@ -11,10 +11,11 @@ import { AffineMatrix } from '../../Math/affine-matrix';
 import { Ray } from '../../Math/ray';
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
 import { Collider } from './Collider';
-import { ExcaliburGraphicsContext, Logger } from '../..';
+import { BodyComponent, ExcaliburGraphicsContext, Logger } from '../..';
 import { CompositeCollider } from './CompositeCollider';
 import { Shape } from './Shape';
 import { Transform } from '../../Math/transform';
+import { RayCastHit } from '../Detection/RayCastHit';
 
 export interface PolygonColliderOptions {
   /**
@@ -645,24 +646,32 @@ export class PolygonCollider extends Collider {
   /**
    * Casts a ray into the polygon and returns a vector representing the point of contact (in world space) or null if no collision.
    */
-  public rayCast(ray: Ray, max: number = Infinity) {
+  public rayCast(ray: Ray, max: number = Infinity): RayCastHit | null {
     // find the minimum contact time greater than 0
     // contact times less than 0 are behind the ray and we don't want those
     const sides = this.getSides();
     const len = sides.length;
     let minContactTime = Number.MAX_VALUE;
+    let contactSide: LineSegment;
     let contactIndex = -1;
     for (let i = 0; i < len; i++) {
       const contactTime = ray.intersect(sides[i]);
       if (contactTime >= 0 && contactTime < minContactTime && contactTime <= max) {
         minContactTime = contactTime;
+        contactSide = sides[i];
         contactIndex = i;
       }
     }
 
     // contact was found
     if (contactIndex >= 0) {
-      return ray.getPoint(minContactTime);
+      return {
+        collider: this,
+        distance: minContactTime,
+        body: this.owner?.get(BodyComponent),
+        point: ray.getPoint(minContactTime),
+        normal: contactSide.normal()
+      } satisfies RayCastHit;
     }
 
     // no contact found
