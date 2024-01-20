@@ -91,7 +91,6 @@ export class Sprite extends Graphic {
     super._preDraw(ex, x, y);
   }
 
-  private _logNotLoadedWarning = false;
   public _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number): void {
     if (this.image.isLoaded()) {
       ex.drawImage(
@@ -106,14 +105,11 @@ export class Sprite extends Graphic {
         this.destSize.height
       );
     } else {
-      if (!this._logNotLoadedWarning) {
-        this._logger.warn(
-          `ImageSource ${this.image.path}` +
-          ` is not yet loaded and won't be drawn. Please call .load() or include in a Loader.\n\n` +
-          `Read https://excaliburjs.com/docs/imagesource for more information.`
-        );
-      }
-      this._logNotLoadedWarning = true;
+      this._logger.warnOnce(
+        `ImageSource ${this.image.path}` +
+        ` is not yet loaded and won't be drawn. Please call .load() or include in a Loader.\n\n` +
+        `Read https://excaliburjs.com/docs/imagesource for more information.`
+      );
     }
   }
 

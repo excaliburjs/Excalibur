@@ -660,7 +660,7 @@ describe('A Screen', () => {
     sut.applyResolutionAndViewport();
 
     // The camera is always center screen
-    // The absense of a camera is treated like a camera at (0, 0) in world space
+    // The absence of a camera is treated like a camera at (0, 0) in world space
     expect(sut.screenToWorldCoordinates(ex.vec(400, 300))).toBeVector(ex.vec(0, 0));
     expect(sut.screenToWorldCoordinates(ex.vec(0, 0))).toBeVector(ex.vec(-400, -300));
     expect(sut.screenToWorldCoordinates(ex.vec(800, 0))).toBeVector(ex.vec(400, -300));
@@ -679,7 +679,7 @@ describe('A Screen', () => {
     sut.applyResolutionAndViewport();
 
     // The camera is always center screen
-    // The absense of a camera is treated like a camera at (0, 0) in world space
+    // The absence of a camera is treated like a camera at (0, 0) in world space
     expect(sut.worldToScreenCoordinates(ex.vec(0, 0))).toBeVector(ex.vec(400, 300));
     expect(sut.worldToScreenCoordinates(ex.vec(-400, -300))).toBeVector(ex.vec(0, 0));
     expect(sut.worldToScreenCoordinates(ex.vec(400, -300))).toBeVector(ex.vec(800, 0));
@@ -706,7 +706,7 @@ describe('A Screen', () => {
     camera._initialize({screen: sut, clock: { elapsed: () => 16}} as ex.Engine);
 
     // The camera is always center screen
-    // The absense of a camera is treated like a camera at (0, 0) in world space
+    // The absence of a camera is treated like a camera at (0, 0) in world space
     expect(sut.screenToWorldCoordinates(ex.vec(400, 300))).toBeVector(ex.vec(400, 300));
     expect(sut.screenToWorldCoordinates(ex.vec(0, 0))).toBeVector(ex.vec(200, 150));
     expect(sut.screenToWorldCoordinates(ex.vec(800, 0))).toBeVector(ex.vec(600, 150));
@@ -733,7 +733,7 @@ describe('A Screen', () => {
     camera._initialize({screen: sut, clock: { elapsed: () => 16}} as ex.Engine);
 
     // The camera is always center screen
-    // The absense of a camera is treated like a camera at (0, 0) in world space
+    // The absence of a camera is treated like a camera at (0, 0) in world space
     expect(sut.worldToScreenCoordinates(ex.vec(400, 300))).toBeVector(ex.vec(400, 300));
     expect(sut.worldToScreenCoordinates(ex.vec(200, 150))).toBeVector(ex.vec(0, 0));
     expect(sut.worldToScreenCoordinates(ex.vec(600, 150))).toBeVector(ex.vec(800, 0));
@@ -854,7 +854,7 @@ describe('A Screen', () => {
 
   it('will warn if the resolution is too large', () => {
     const logger = ex.Logger.getInstance();
-    spyOn(logger, 'warn');
+    spyOn(logger, 'warnOnce');
 
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
@@ -879,7 +879,7 @@ describe('A Screen', () => {
     sut.resolution = { width: 3000, height: 3000 };
     sut.applyResolutionAndViewport();
     expect(context.checkIfResolutionSupported).toHaveBeenCalled();
-    expect(logger.warn).toHaveBeenCalledOnceWith(
+    expect(logger.warnOnce).toHaveBeenCalledOnceWith(
       `The currently configured resolution (${sut.resolution.width}x${sut.resolution.height}) and pixel ratio (${sut.pixelRatio})` +
           ' are too large for the platform WebGL implementation, this may work but cause WebGL rendering to behave oddly.' +
           ' Try reducing the resolution or disabling Hi DPI scaling to avoid this' +

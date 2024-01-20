@@ -894,7 +894,7 @@ describe('A Text Graphic', () => {
 
   it('will log warnings when there are issues', async () => {
     const logger = ex.Logger.getInstance();
-    spyOn(logger, 'warn');
+    spyOn(logger, 'warnOnce');
 
     const spriteFontImage = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
 
@@ -929,21 +929,18 @@ describe('A Text Graphic', () => {
 
     sut.text = '~';
     sut.draw(ctx, 0, 0);
-    sut.draw(ctx, 0, 0);
-    const warnSpy = logger.warn as jasmine.Spy;
+    const warnSpy = logger.warnOnce as jasmine.Spy;
     expect(warnSpy.calls.argsFor(0)).toEqual([
       'SpriteFont - Cannot find letter \'~\' in configured alphabet \'0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- \'.']);
     expect(warnSpy.calls.argsFor(1)).toEqual([
       'There maybe be more issues in the SpriteFont configuration. No additional warnings will be logged.']);
-    expect(warnSpy.calls.argsFor(2)).toEqual([]); // warn only once
+    warnSpy.calls.reset();
     sut.text = '?';
     sut.draw(ctx, 0, 0);
-    sut.draw(ctx, 0, 0);
-    expect(warnSpy.calls.argsFor(2)).toEqual([
+    expect(warnSpy.calls.argsFor(0)).toEqual([
       'SpriteFont - Cannot find sprite for \'?\' at index \'42\' in configured SpriteSheet']);
-    expect(warnSpy.calls.argsFor(3)).toEqual([
+    expect(warnSpy.calls.argsFor(1)).toEqual([
       'There maybe be more issues in the SpriteFont configuration. No additional warnings will be logged.']);
-    expect(warnSpy.calls.argsFor(4)).toEqual([]); // warn only once
   });
 
   it('can do some simple shadowing', async () => {
@@ -1060,7 +1057,7 @@ describe('A Text Graphic', () => {
     await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsTextSpec/spritefont-alignment.png');
   });
 
-  it('can draw mutliple lines of text (spritefont)', async () => {
+  it('can draw multiple lines of text (spritefont)', async () => {
     const spriteFontImage = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
     await spriteFontImage.load();
     const spriteFontSheet = ex.SpriteSheet.fromImageSource({

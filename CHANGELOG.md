@@ -17,6 +17,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added the ability to log a message once to all log levels
+  * `debugOnce`
+  * `infoOnce`
+  * `warnOnce`
+  * `errorOnce`
+  * `fatalOnce`
 - Added ability to load additional images into `ex.Material`s!
   ```typescript
   const noise = new ex.ImageSource('./noise.avif');

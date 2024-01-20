@@ -213,6 +213,8 @@ export class Material {
     let textureSlot = startingTextureSlot;
     for (const [textureName, image] of this._images.entries()) {
       if (!image.isLoaded()) {
+        this._logger.warnOnce(`Image named ${textureName} in material ${this.name} not loaded, nothing will be uploaded to the shader.` +
+        ` Did you forget to add this to a loader? https://excaliburjs.com/docs/loaders/`);
         continue;
       } // skip unloaded images, maybe warn
       const texture = this._loadImageSource(image);

@@ -106,7 +106,7 @@ describe('A Sprite Graphic', () => {
     expect(sut.destSize.height).toBe(55);
   });
 
-  it('can specify a source/dest viewof an image with default width and height', async () => {
+  it('can specify a source/dest view of an image with default width and height', async () => {
     const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
     const sut = new ex.Sprite({
       image,
@@ -310,7 +310,7 @@ describe('A Sprite Graphic', () => {
 
   it('will log one warning if the imagesource is not loaded', () => {
     const logger = Logger.getInstance();
-    spyOn(logger, 'warn');
+    spyOn(logger, 'warnOnce');
     const image = new ex.ImageSource('path/to/non/existing/image');
 
     const sut = image.toSprite();
@@ -319,7 +319,7 @@ describe('A Sprite Graphic', () => {
     sut.draw(ctx, 0, 0);
     sut.draw(ctx, 0, 0);
 
-    expect(logger.warn).toHaveBeenCalledOnceWith(
+    expect(logger.warnOnce).toHaveBeenCalledWith(
       `ImageSource path/to/non/existing/image is not yet loaded and won't be drawn. Please call .load() or include in a Loader.\n\n` +
       'Read https://excaliburjs.com/docs/imagesource for more information.'
     );
