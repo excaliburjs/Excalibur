@@ -160,15 +160,15 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
     // Initialize systems
 
     // Update
-    this.world.add(new ActionsSystem());
-    this.world.add(new MotionSystem());
+    this.world.add(ActionsSystem);
+    this.world.add(MotionSystem);
     this.world.add(new CollisionSystem(this.physics));
-    this.world.add(new PointerSystem());
-    this.world.add(new IsometricEntitySystem());
+    this.world.add(PointerSystem);
+    this.world.add(IsometricEntitySystem);
     // Draw
-    this.world.add(new OffscreenSystem());
-    this.world.add(new GraphicsSystem());
-    this.world.add(new DebugSystem());
+    this.world.add(OffscreenSystem);
+    this.world.add(GraphicsSystem);
+    this.world.add(DebugSystem);
   }
 
   public emit<TEventName extends EventKey<SceneEvents>>(eventName: TEventName, event: SceneEvents[TEventName]): void;

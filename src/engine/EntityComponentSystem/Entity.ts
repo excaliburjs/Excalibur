@@ -1,4 +1,5 @@
-import { Component, ComponentCtor, TagComponent } from './Component';
+import { Component, ComponentCtor } from './Component';
+import { TagsComponent } from './Components/TagsComponent';
 
 import { Observable, Message } from '../Util/Observable';
 import { OnInitialize, OnPreUpdate, OnPostUpdate } from '../Interfaces/LifecycleEvents';
@@ -8,6 +9,7 @@ import { KillEvent } from '../Events';
 import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
 import { Scene } from '../Scene';
 import { removeItemFromArray } from '../Util/Util';
+import { MaybeKnownComponent } from './Types';
 
 /**
  * Interface holding an entity component pair
@@ -22,7 +24,7 @@ export interface EntityComponent {
  */
 export class AddedComponent implements Message<EntityComponent> {
   readonly type: 'Component Added' = 'Component Added';
-  constructor(public data: EntityComponent) {}
+  constructor(public data: EntityComponent) { }
 }
 
 /**
@@ -37,7 +39,7 @@ export function isAddedComponent(x: Message<EntityComponent>): x is AddedCompone
  */
 export class RemovedComponent implements Message<EntityComponent> {
   readonly type: 'Component Removed' = 'Component Removed';
-  constructor(public data: EntityComponent) {}
+  constructor(public data: EntityComponent) { }
 }
 
 /**
@@ -64,6 +66,11 @@ export const EntityEvents = {
   Kill: 'kill'
 } as const;
 
+export interface EntityOptions<TComponents extends Component> {
+  name?: string;
+  components: TComponents[];
+}
+
 /**
  * An Entity is the base type of anything that can have behavior in Excalibur, they are part of the built in entity component system
  *
@@ -75,32 +82,51 @@ export const EntityEvents = {
  * entity.components.b; // Type ComponentB
  * ```
  */
-export class Entity implements OnInitialize, OnPreUpdate, OnPostUpdate {
+export class Entity<TKnownComponents extends Component = any> implements OnInitialize, OnPreUpdate, OnPostUpdate {
   private static _ID = 0;
-
-  /**
-   * Listen to or emit events for an entity
-   */
-  public events = new EventEmitter<EntityEvents>();
-
-  constructor(components?: Component[], name?: string) {
-    this._setName(name);
-    if (components) {
-      for (const component of components) {
-        this.addComponent(component);
-      }
-    }
-  }
-
   /**
    * The unique identifier for the entity
    */
   public id: number = Entity._ID++;
 
   /**
-   * The scene that the entity is in, if any
+   * Listen to or emit events for an entity
    */
-  public scene: Scene = null;
+  public events = new EventEmitter<EntityEvents>();
+  public tagsComponent = new TagsComponent;
+  public componentAdded$ = new Observable<Component>;
+  public componentRemoved$ = new Observable<Component>;
+  public components = new Map<Function, Component>();
+  private _componentsToRemove: ComponentCtor[] = [];
+
+  constructor(options: EntityOptions<TKnownComponents>);
+  constructor(components?: TKnownComponents[], name?: string);
+  constructor(componentsOrOptions?: TKnownComponents[] | EntityOptions<TKnownComponents>, name?: string) {
+    let componentsToAdd!: TKnownComponents[];
+    let nameToAdd: string | undefined;
+    if (Array.isArray(componentsOrOptions)) {
+      componentsToAdd = componentsOrOptions;
+      nameToAdd = name;
+    } else if (typeof componentsOrOptions === 'object') {
+      const { components, name } = componentsOrOptions;
+      componentsToAdd = components;
+      nameToAdd = name;
+    }
+    if (nameToAdd) {
+      this._setName(nameToAdd);
+    }
+    if (componentsToAdd) {
+      for (const component of componentsToAdd) {
+        this.addComponent(component);
+      }
+    }
+    this.addComponent(this.tagsComponent);
+  }
+
+  /**
+   * The current scene that the entity is in, if any
+   */
+  public scene: Scene | null = null;
 
   private _name: string = 'anonymous';
   protected _setName(name: string) {
@@ -140,10 +166,10 @@ export class Entity implements OnInitialize, OnPreUpdate, OnPostUpdate {
   }
 
   /**
-   * Specifically get the tags on the entity from [[TagComponent]]
+   * Specifically get the tags on the entity from [[TagsComponent]]
    */
-  public get tags(): readonly string[] {
-    return this._tagsMemo;
+  public get tags(): Set<string> {
+    return this.tagsComponent.tags;
   }
 
   /**
@@ -151,7 +177,7 @@ export class Entity implements OnInitialize, OnPreUpdate, OnPostUpdate {
    * @param tag name to check for
    */
   public hasTag(tag: string): boolean {
-    return this.tags.includes(tag);
+    return this.tagsComponent.tags.has(tag);
   }
 
   /**
@@ -160,7 +186,7 @@ export class Entity implements OnInitialize, OnPreUpdate, OnPostUpdate {
    * @returns Entity
    */
   public addTag(tag: string) {
-    return this.addComponent(new TagComponent(tag));
+    return this.tagsComponent.tags.add(tag);
   }
 
   /**
@@ -170,62 +196,44 @@ export class Entity implements OnInitialize, OnPreUpdate, OnPostUpdate {
    * @param tag
    * @param force Remove component immediately, no deferred
    */
-  public removeTag(tag: string, force = false) {
-    return this.removeComponent(tag, force);
+  public removeTag(tag: string) {
+    return this.tagsComponent.tags.delete(tag);
   }
 
   /**
    * The types of the components on the Entity
    */
-  public get types(): string[] {
-    return this._typesMemo;
+  public get types(): ComponentCtor[] {
+    return Array.from(this.components.keys()) as ComponentCtor[];
   }
 
   /**
-   * Bucket to hold on to deferred removals
+   * Returns all component instances on entity
    */
-  private _componentsToRemove: (Component | string)[] = [];
-  private _componentTypeToInstance = new Map<ComponentCtor, Component>();
-  private _componentStringToInstance = new Map<string, Component>();
-
-  private _tagsMemo: string[] = [];
-  private _typesMemo: string[] = [];
-  private _rebuildMemos() {
-    this._tagsMemo = Array.from(this._componentStringToInstance.values())
-      .filter((c) => c instanceof TagComponent)
-      .map((c) => c.type);
-    this._typesMemo = Array.from(this._componentStringToInstance.keys());
-  }
-
   public getComponents(): Component[] {
-    return Array.from(this._componentStringToInstance.values());
+    return Array.from(this.components.values());
   }
 
   /**
-   * Observable that keeps track of component add or remove changes on the entity
+   * Verifies that an entity has all the required types
+   * @param requiredTypes
    */
-  public componentAdded$ = new Observable<AddedComponent>();
-  private _notifyAddComponent(component: Component) {
-    this._rebuildMemos();
-    const added = new AddedComponent({
-      component,
-      entity: this
-    });
-    this.componentAdded$.notifyAll(added);
+  hasAll<TComponent extends Component>(requiredTypes: ComponentCtor<TComponent>[]): boolean {
+    for (let i = 0; i < requiredTypes.length; i++) {
+      if (!this.components.has(requiredTypes[i])) {
+        return false;
+      }
+    }
+    return true;
   }
 
-  public componentRemoved$ = new Observable<RemovedComponent>();
-  private _notifyRemoveComponent(component: Component) {
-    const removed = new RemovedComponent({
-      component,
-      entity: this
-    });
-    this.componentRemoved$.notifyAll(removed);
-    this._rebuildMemos();
+  get<TComponent extends Component>(type: ComponentCtor<TComponent>): MaybeKnownComponent<TComponent, TKnownComponents> {
+    // TODO instance of type memoization
+    return this.components.get(type) as MaybeKnownComponent<TComponent, TKnownComponents>;
   }
 
-  private _parent: Entity = null;
-  public get parent(): Entity {
+  private _parent: Entity | null = null;
+  public get parent(): Entity | null {
     return this._parent;
   }
 
@@ -313,8 +321,10 @@ export class Entity implements OnInitialize, OnPreUpdate, OnPostUpdate {
     let queue: Entity[] = [this];
     while (queue.length > 0) {
       const curr = queue.pop();
-      queue = queue.concat(curr.children);
-      result = result.concat(curr.children);
+      if (curr) {
+        queue = queue.concat(curr.children);
+        result = result.concat(curr.children);
+      }
     }
     return result;
   }
@@ -325,7 +335,10 @@ export class Entity implements OnInitialize, OnPreUpdate, OnPostUpdate {
   public clone(): Entity {
     const newEntity = new Entity();
     for (const c of this.types) {
-      newEntity.addComponent(this.get(c).clone());
+      const componentInstance = this.get(c);
+      if (componentInstance) {
+        newEntity.addComponent(componentInstance.clone());
+      }
     }
     for (const child of this.children) {
       newEntity.addChild(child.clone());
@@ -333,35 +346,36 @@ export class Entity implements OnInitialize, OnPreUpdate, OnPostUpdate {
     return newEntity;
   }
 
-  /**
-   * Adds a copy of all the components from another template entity as a "prefab"
-   * @param templateEntity Entity to use as a template
-   * @param force Force component replacement if it already exists on the target entity
-   */
-  public addTemplate(templateEntity: Entity, force: boolean = false): Entity {
-    for (const c of templateEntity.getComponents()) {
-      this.addComponent(c.clone(), force);
-    }
-    for (const child of templateEntity.children) {
-      this.addChild(child.clone().addTemplate(child));
-    }
-    return this;
-  }
+  // TODO templates?
+  // /**
+  //  * Adds a copy of all the components from another template entity as a "prefab"
+  //  * @param templateEntity Entity to use as a template
+  //  * @param force Force component replacement if it already exists on the target entity
+  //  */
+  // public addTemplate(templateEntity: Entity, force: boolean = false): Entity {
+  //   for (const c of templateEntity.getComponents()) {
+  //     this.addComponent(c.clone(), force);
+  //   }
+  //   for (const child of templateEntity.children) {
+  //     this.addChild(child.clone().addTemplate(child));
+  //   }
+  //   return this;
+  // }
 
   /**
    * Adds a component to the entity
    * @param component Component or Entity to add copy of components from
    * @param force Optionally overwrite any existing components of the same type
    */
-  public addComponent<T extends Component>(component: T, force: boolean = false): Entity {
+  public addComponent<TComponent extends Component>(component: TComponent, force: boolean = false): Entity<TKnownComponents | TComponent> {
     // if component already exists, skip if not forced
-    if (this.has(component.type)) {
+    if (this.has(component.constructor as ComponentCtor)) {
       if (force) {
         // Remove existing component type if exists when forced
-        this.removeComponent(component, true);
+        this.removeComponent(component.constructor as ComponentCtor, true);
       } else {
         // early exit component exits
-        return this;
+        return this as Entity<TKnownComponents | TComponent>;
       }
     }
 
@@ -373,56 +387,39 @@ export class Entity implements OnInitialize, OnPreUpdate, OnPostUpdate {
     }
 
     component.owner = this;
-    const constuctorType = component.constructor as ComponentCtor<T>;
-    this._componentTypeToInstance.set(constuctorType, component);
-    this._componentStringToInstance.set(component.type, component);
+    this.components.set(component.constructor, component);
     if (component.onAdd) {
       component.onAdd(this);
     }
-    this._notifyAddComponent(component);
 
-    return this;
+    this.componentAdded$.notifyAll(component);
+    return this as Entity<TKnownComponents | TComponent>;
   }
 
   /**
    * Removes a component from the entity, by default removals are deferred to the end of entity update to avoid consistency issues
    *
    * Components can be force removed with the `force` flag, the removal is not deferred and happens immediately
-   * @param componentOrType
+   * @param type
    * @param force
    */
-  public removeComponent<ComponentOrType extends string | Component>(componentOrType: ComponentOrType, force = false): Entity {
+  public removeComponent<TComponent extends Component>(type: ComponentCtor<TComponent>, force = false): Entity<Exclude<TKnownComponents, TComponent>> {
     if (force) {
-      if (typeof componentOrType === 'string') {
-        this._removeComponentByType(componentOrType);
-      } else if (componentOrType instanceof Component) {
-        this._removeComponentByType(componentOrType.type);
+      const componentToRemove = this.components.get(type);
+      if (componentToRemove) {
+        this.componentRemoved$.notifyAll(componentToRemove);
       }
     } else {
-      this._componentsToRemove.push(componentOrType);
+      this._componentsToRemove.push(type);
     }
 
     return this as any;
   }
 
   public clearComponents() {
-    const components = this.getComponents();
+    const components = this.types;
     for (const c of components) {
       this.removeComponent(c);
-    }
-  }
-
-  private _removeComponentByType(type: string) {
-    if (this.has(type)) {
-      const component = this.get(type);
-      component.owner = null;
-      if (component.onRemove) {
-        component.onRemove(this);
-      }
-      const ctor = component.constructor as ComponentCtor;
-      this._componentTypeToInstance.delete(ctor);
-      this._componentStringToInstance.delete(component.type);
-      this._notifyRemoveComponent(component);
     }
   }
 
@@ -431,9 +428,8 @@ export class Entity implements OnInitialize, OnPreUpdate, OnPostUpdate {
    * @internal
    */
   public processComponentRemoval() {
-    for (const componentOrType of this._componentsToRemove) {
-      const type = typeof componentOrType === 'string' ? componentOrType : componentOrType.type;
-      this._removeComponentByType(type);
+    for (const type of this._componentsToRemove) {
+      this.removeComponent(type, true);
     }
     this._componentsToRemove.length = 0;
   }
@@ -442,30 +438,8 @@ export class Entity implements OnInitialize, OnPreUpdate, OnPostUpdate {
    * Check if a component type exists
    * @param type
    */
-  public has<T extends Component>(type: ComponentCtor<T>): boolean;
-  public has(type: string): boolean;
-  public has<T extends Component>(type: ComponentCtor<T> | string): boolean {
-    if (typeof type === 'string') {
-      return this._componentStringToInstance.has(type);
-    } else {
-      return this._componentTypeToInstance.has(type);
-    }
-  }
-
-  /**
-   * Get a component by type with typecheck
-   *
-   * (Does not work on tag components, use .hasTag("mytag") instead)
-   * @param type
-   */
-  public get<T extends Component>(type: ComponentCtor<T>): T | null;
-  public get<T extends Component>(type: string): T | null;
-  public get<T extends Component>(type: ComponentCtor<T> | string): T | null {
-    if (typeof type === 'string') {
-      return this._componentStringToInstance.get(type) as T;
-    } else {
-      return this._componentTypeToInstance.get(type) as T;
-    }
+  public has<TComponent extends Component>(type: ComponentCtor<TComponent>): boolean {
+    return this.components.has(type);
   }
 
   private _isInitialized = false;
@@ -579,6 +553,10 @@ export class Entity implements OnInitialize, OnPreUpdate, OnPostUpdate {
   public off(eventName: string, handler: Handler<unknown>): void;
   public off(eventName: string): void;
   public off<TEventName extends EventKey<EntityEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
-    this.events.off(eventName, handler);
+    if (handler) {
+      this.events.off(eventName, handler);
+    } else {
+      this.events.off(eventName);
+    }
   }
 }

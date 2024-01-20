@@ -1,24 +1,23 @@
-import { Entity, RemovedComponent, AddedComponent, isAddedComponent, isRemovedComponent } from './Entity';
-import { Observer } from '../Util/Observable';
+import { Entity } from './Entity';
 import { World } from './World';
 import { removeItemFromArray } from '../Util/Util';
+import { Scene } from '../Scene';
 
 // Add/Remove entities and components
 
-export class EntityManager<ContextType = any> implements Observer<RemovedComponent | AddedComponent> {
+export class EntityManager {
   public entities: Entity[] = [];
   public _entityIndex: { [entityId: string]: Entity } = {};
 
-  constructor(private _world: World<ContextType>) {}
+  constructor(private _world: World) {}
 
   /**
    * Runs the entity lifecycle
    * @param _context
    */
-  public updateEntities(_context: ContextType, elapsed: number) {
+  public updateEntities(scene: Scene, elapsed: number) {
     for (const entity of this.entities) {
-      // TODO is this right?
-      entity.update((_context as any).engine, elapsed);
+      entity.update(scene.engine, elapsed);
       if (!entity.active) {
         this.removeEntity(entity);
       }
@@ -34,33 +33,16 @@ export class EntityManager<ContextType = any> implements Observer<RemovedCompone
   }
 
   /**
-   * EntityManager observes changes on entities
-   * @param message
-   */
-  public notify(message: RemovedComponent | AddedComponent): void {
-    if (isAddedComponent(message)) {
-      // we don't need the component, it's already on the entity
-      this._world.queryManager.addEntity(message.data.entity);
-    }
-
-    if (isRemovedComponent(message)) {
-      this._world.queryManager.removeComponent(message.data.entity, message.data.component);
-    }
-  }
-
-  /**
    * Adds an entity to be tracked by the EntityManager
    * @param entity
    */
   public addEntity(entity: Entity): void {
     entity.active = true;
-    entity.scene = (this._world.context as any);
+    entity.scene = this._world.scene;
     if (entity && !this._entityIndex[entity.id]) {
       this._entityIndex[entity.id] = entity;
       this.entities.push(entity);
       this._world.queryManager.addEntity(entity);
-      entity.componentAdded$.register(this);
-      entity.componentRemoved$.register(this);
 
       // if entity has children
       entity.children.forEach((c) => {
@@ -104,8 +86,6 @@ export class EntityManager<ContextType = any> implements Observer<RemovedCompone
       entity.scene = null;
       removeItemFromArray(entity, this.entities);
       this._world.queryManager.removeEntity(entity);
-      entity.componentAdded$.unregister(this);
-      entity.componentRemoved$.unregister(this);
 
       // if entity has children
       entity.children.forEach((c) => {
@@ -116,8 +96,8 @@ export class EntityManager<ContextType = any> implements Observer<RemovedCompone
       entity.childrenRemoved$.clear();
 
       // stats
-      if ((this._world.context as any)?.engine) {
-        (this._world.context as any).engine.stats.currFrame.actors.killed++;
+      if (this._world.scene.engine) {
+        this._world.scene.engine.stats.currFrame.actors.killed++;
       }
     }
   }

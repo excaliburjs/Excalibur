@@ -1,9 +1,8 @@
 import { Entity } from './Entity';
-import { buildTypeKey } from './Util';
 import { Observable } from '../Util/Observable';
-import { removeItemFromArray, contains } from '../Util/Util';
 import { Component, ComponentCtor } from '../EntityComponentSystem/Component';
-import { AddedEntity, RemovedEntity } from './System';
+
+export type ComponentInstance<T> = T extends ComponentCtor<infer R> ? R : never;
 
 /**
  * Represents query for entities that match a list of types that is cached and observable
@@ -13,25 +12,42 @@ import { AddedEntity, RemovedEntity } from './System';
  * const queryAB = new ex.Query<ComponentTypeA | ComponentTypeB>(['A', 'B']);
  * ```
  */
-export class Query<T extends Component = Component> extends Observable<AddedEntity | RemovedEntity> {
-  public types: readonly string[];
-  private _entities: Entity[] = [];
-  private _key: string;
-  public get key(): string {
-    if (this._key) {
-      return this._key;
+export class Query<TKnownComponentCtors extends ComponentCtor<Component> = never> {
+  public readonly id: string;
+  public components = new Set<TKnownComponentCtors>();
+  public entities: Entity<ComponentInstance<TKnownComponentCtors>>[] = [];
+  public entityAdded$ = new Observable<Entity<ComponentInstance<TKnownComponentCtors>>>();
+  public entityRemoved$ = new Observable<Entity<ComponentInstance<TKnownComponentCtors>>>(); // TODO is this accurate with deferred removal?
+
+  constructor(public readonly requiredComponents: TKnownComponentCtors[]) {
+    for (let type of requiredComponents) {
+      this.components.add(type);
     }
-    return (this._key = buildTypeKey(this.types));
+    // TODO what happens if a user defines the same type name as a built in type
+    // ! TODO this could be dangerous depending on the bundler's settings for names
+    // Maybe some kind of hash function is better here?
+    this.id = requiredComponents.slice().map(c => c.name).sort().join('-');
   }
 
-  constructor(types: readonly string[]);
-  constructor(types: readonly ComponentCtor<T>[]);
-  constructor(types: readonly string[] | readonly ComponentCtor<T>[]) {
-    super();
-    if (types[0] instanceof Function) {
-      this.types = (types as ComponentCtor<T>[]).map(T =>  (new T).type);
-    } else {
-      this.types = types as string[];
+  /**
+   * Potentially adds an entity to a query index, returns true if added, false if not
+   * @param entity 
+   * @returns 
+   */
+  checkAndAdd(entity: Entity) {
+    if (!this.entities.includes(entity) && entity.hasAll(Array.from(this.components))) {
+        this.entities.push(entity);
+        this.entityAdded$.notifyAll(entity);
+        return true;
+    }
+    return false;
+  }
+
+  removeEntity(entity: Entity) {
+    const index = this.entities.indexOf(entity);
+    if (index > -1) {
+        this.entities.splice(index, 1);
+        this.entityRemoved$.notifyAll(entity);
     }
   }
 
@@ -39,74 +55,10 @@ export class Query<T extends Component = Component> extends Observable<AddedEnti
    * Returns a list of entities that match the query
    * @param sort Optional sorting function to sort entities returned from the query
    */
-  public getEntities(sort?: (a: Entity, b: Entity) => number): Entity[] {
+  public getEntities(sort?: (a: Entity, b: Entity) => number): Entity<ComponentInstance<TKnownComponentCtors>>[] {
     if (sort) {
-      this._entities.sort(sort);
+      this.entities.sort(sort);
     }
-    return this._entities;
-  }
-
-  /**
-   * Add an entity to the query, will only be added if the entity matches the query types
-   * @param entity
-   */
-  public addEntity(entity: Entity): void {
-    if (!contains(this._entities, entity) && this.matches(entity)) {
-      this._entities.push(entity);
-      this.notifyAll(new AddedEntity(entity));
-    }
-  }
-
-  /**
-   * If the entity is part of the query it will be removed regardless of types
-   * @param entity
-   */
-  public removeEntity(entity: Entity): void {
-    if (removeItemFromArray(entity, this._entities)) {
-      this.notifyAll(new RemovedEntity(entity));
-    }
-  }
-
-  /**
-   * Removes all entities and observers from the query
-   */
-  public clear(): void {
-    this._entities.length = 0;
-    for (let i = this.observers.length - 1; i >= 0; i--) {
-      this.unregister(this.observers[i]);
-    }
-  }
-
-  /**
-   * Returns whether the entity's types match query
-   * @param entity
-   */
-  public matches(entity: Entity): boolean;
-
-  /**
-   * Returns whether the list of ComponentTypes have at least the same types as the query
-   * @param types
-   */
-  public matches(types: string[]): boolean;
-  public matches(typesOrEntity: string[] | Entity): boolean {
-    let types: string[] = [];
-    if (typesOrEntity instanceof Entity) {
-      types = typesOrEntity.types;
-    } else {
-      types = typesOrEntity;
-    }
-
-    let matches = true;
-    for (const type of this.types) {
-      matches = matches && types.indexOf(type) > -1;
-      if (!matches) {
-        return false;
-      }
-    }
-    return matches;
-  }
-
-  public contain(type: string) {
-    return this.types.indexOf(type) > -1;
+    return this.entities;
   }
 }

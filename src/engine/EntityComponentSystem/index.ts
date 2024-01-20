@@ -6,6 +6,8 @@ export * from './QueryManager';
 export * from './System';
 export * from './SystemManager';
 export * from './World';
+export * from './Types';
+export * from './Priority';
 
 export * from './Components/TransformComponent';
 export * from './Components/MotionComponent';
