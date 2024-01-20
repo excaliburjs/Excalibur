@@ -303,35 +303,35 @@ var group = new ex.GraphicsGroup({
   members: [
     {
       graphic: newSprite,
-      pos: ex.vec(0, 0)
+      offset: ex.vec(0, 0)
     },
     {
       graphic: newSprite,
-      pos: ex.vec(50, 0)
+      offset: ex.vec(50, 0)
     },
     {
       graphic: newSprite,
-      pos: ex.vec(0, 50)
+      offset: ex.vec(0, 50)
     },
     {
       graphic: text,
-      pos: ex.vec(100, 20)
+      offset: ex.vec(100, 20)
     },
     {
       graphic: circle,
-      pos: ex.vec(50, 50)
+      offset: ex.vec(50, 50)
     },
     {
       graphic: anim,
-      pos: ex.vec(200, 200)
+      offset: ex.vec(200, 200)
     },
     {
       graphic: cardAnimation,
-      pos: ex.vec(0, 200)
+      offset: ex.vec(0, 200)
     },
     {
       graphic: spriteText,
-      pos: ex.vec(300, 200)
+      offset: ex.vec(300, 200)
     }
   ]
 });
@@ -628,8 +628,8 @@ var playerText = new ex.Text({
 
 var group = new ex.GraphicsGroup({
   members: [
-    { graphic: healthbar2, pos: ex.vec(0, -70)},
-    { graphic: playerText, pos: ex.vec(0, -70)}
+    { graphic: healthbar2, offset: ex.vec(0, -70)},
+    { graphic: playerText, offset: ex.vec(0, -70)}
   ]
 })
 healthbar.graphics.use(group);

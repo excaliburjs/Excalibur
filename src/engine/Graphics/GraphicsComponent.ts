@@ -256,6 +256,16 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
   }
 
   /**
+   * Shows a graphic, will be removed
+   * @param nameOrGraphic
+   * @param options
+   * @deprecated will be removed in v0.30.0, use `graphics.use(...)`
+   */
+  public show<T extends Graphic = Graphic>(nameOrGraphic: string | T, options?: GraphicsShowOptions): T {
+    return this.use(nameOrGraphic, options);
+  }
+
+  /**
    * Use a graphic only, swap out any graphics on the **default** layer, returns the new [[Graphic]]
    * @param nameOrGraphic
    * @param options

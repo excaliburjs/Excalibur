@@ -40,7 +40,7 @@ actor.onInitialize = () => {
 
   const group = new ex.GraphicsGroup({
     members: [
-      {graphic: shadow, pos: ex.vec(10, 10)},
+      {graphic: shadow, offset: ex.vec(10, 10)},
       sprite
     ]
   })
