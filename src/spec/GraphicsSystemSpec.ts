@@ -64,19 +64,19 @@ describe('A Graphics ECS System', () => {
 
     entities[0].get(TransformComponent).pos = ex.vec(25, 25);
     entities[0].get(TransformComponent).rotation = Math.PI / 4;
-    entities[0].get(GraphicsComponent).show(rect);
+    entities[0].get(GraphicsComponent).use(rect);
 
     entities[1].get(TransformComponent).pos = ex.vec(75, 75);
-    entities[1].get(GraphicsComponent).show(circle);
+    entities[1].get(GraphicsComponent).use(circle);
 
     entities[2].get(TransformComponent).pos = ex.vec(75, 25);
     entities[2].get(TransformComponent).scale = ex.vec(2, 2);
-    entities[2].get(GraphicsComponent).show(rect2);
+    entities[2].get(GraphicsComponent).use(rect2);
 
     const offscreenRect = rect.clone();
     const offscreen = new ex.Entity().addComponent(new TransformComponent()).addComponent(new GraphicsComponent());
     offscreen.get(TransformComponent).pos = ex.vec(112.5, 112.5);
-    offscreen.get(GraphicsComponent).show(offscreenRect);
+    offscreen.get(GraphicsComponent).use(offscreenRect);
 
     spyOn(rect, 'draw').and.callThrough();
     spyOn(circle, 'draw').and.callThrough();

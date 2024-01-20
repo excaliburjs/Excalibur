@@ -266,6 +266,7 @@ void main() {
   
   fragColor.rgb = mix(screen_color.rgb, mixColor, u_color.a)*fragColor.a + (wave_crest_color.rgb * wave_crest);
   fragColor.rgb = texture(u_noise, v_uv).rgb * fragColor.a;
+  fragColor.rgb = vec3(gl_FragCoord.xy/u_resolution, 0.0);
 }`;
 
 const noise = new ex.ImageSource('./noise.avif', false, ex.ImageFiltering.Pixel);
