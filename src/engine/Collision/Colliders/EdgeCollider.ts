@@ -14,6 +14,8 @@ import { ClosestLineJumpTable } from './ClosestLineJumpTable';
 import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
 import { Transform } from '../../Math/transform';
 import { AffineMatrix } from '../../Math/affine-matrix';
+import { BodyComponent } from '../Index';
+import { RayCastHit } from '../Detection/RayCastHit';
 
 export interface EdgeColliderOptions {
   /**
@@ -111,7 +113,7 @@ export class EdgeCollider extends Collider {
   /**
    * @inheritdoc
    */
-  public rayCast(ray: Ray, max: number = Infinity): Vector {
+  public rayCast(ray: Ray, max: number = Infinity): RayCastHit | null {
     const numerator = this._getTransformedBegin().sub(ray.pos);
 
     // Test is line and ray are parallel and non intersecting
@@ -130,7 +132,13 @@ export class EdgeCollider extends Collider {
     if (t >= 0 && t <= max) {
       const u = numerator.cross(ray.dir) / divisor / this.getLength();
       if (u >= 0 && u <= 1) {
-        return ray.getPoint(t);
+        return {
+          distance: t,
+          normal: this.asLine().normal(),
+          collider: this,
+          body: this.owner?.get(BodyComponent),
+          point: ray.getPoint(t)
+        } satisfies RayCastHit;
       }
     }
 

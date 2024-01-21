@@ -115,7 +115,7 @@ export class ColliderComponent extends Component<'ex.collider'> {
       return [];
     }
 
-    // If we have a composite lefthand side :(
+    // If we have a composite left hand side :(
     // Might bite us, but to avoid updating all the handlers make composite always left side
     let flipped = false;
     if (colliderB instanceof CompositeCollider) {

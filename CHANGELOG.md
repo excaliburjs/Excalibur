@@ -17,6 +17,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added `RayCastHit`as part of every raycast not just the physics world query!
+  * Additionally added the ray distance and the contact normal for the surface
 - Added the ability to log a message once to all log levels
   * `debugOnce`
   * `infoOnce`

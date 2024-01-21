@@ -19,6 +19,7 @@ export * from './Group/CollisionGroupManager';
 
 export * from './Detection/Pair';
 export * from './Detection/CollisionContact';
+export * from './Detection/RayCastHit';
 export * from './Detection/CollisionProcessor';
 export * from './Detection/DynamicTree';
 export * from './Detection/DynamicTreeCollisionProcessor';

@@ -197,20 +197,26 @@ describe('A CompositeCollider', () => {
 
     const rayRight = new Ray(vec(-200, 0), Vector.Right);
 
-    const leftBox = compCollider.rayCast(rayRight);
+    const leftBox = compCollider.rayCast(rayRight).point;
     expect(leftBox).toEqual(vec(-100, 0));
 
     const rayDown = new Ray(vec(0, -200), Vector.Down);
-    const topCircle = compCollider.rayCast(rayDown);
+    const topCircle = compCollider.rayCast(rayDown).point;
     expect(topCircle).toEqual(vec(0, -50));
 
     const rayUp = new Ray(vec(0, 200), Vector.Up);
-    const bottomCircle = compCollider.rayCast(rayUp);
+    const bottomCircle = compCollider.rayCast(rayUp).point;
     expect(bottomCircle).toEqual(vec(0, 50));
 
     const rayLeft = new Ray(vec(200, 0), Vector.Left);
-    const rightBox = compCollider.rayCast(rayLeft);
+    const rightBox = compCollider.rayCast(rayLeft).point;
     expect(rightBox).toEqual(vec(100, 0));
+
+    const hit = compCollider.rayCast(rayLeft);
+    expect(hit.normal).toBeVector(Vector.Right);
+    expect(hit.distance).toBe(100);
+    expect(hit.body).toBe(undefined);
+    expect(hit.collider).toBe(compCollider.getColliders()[1]);
   });
 
   it('can project onto an axis', () => {
