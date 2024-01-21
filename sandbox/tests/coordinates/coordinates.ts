@@ -53,6 +53,7 @@ class PointLabel extends ex.Actor {
     this.addChild(this._actualLabel);
   }
 
+  //@ts-ignore
   update(engine: ex.Engine, delta: number) {
     super.update(engine, delta);
 
