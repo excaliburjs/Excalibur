@@ -1,7 +1,7 @@
-import { Entity } from '../EntityComponentSystem';
+import { ComponentCtor, Query, SystemPriority, World } from '../EntityComponentSystem';
 import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
-import { AddedEntity, isAddedSystemEntity, RemovedEntity, System, SystemType } from '../EntityComponentSystem/System';
+import { System, SystemType } from '../EntityComponentSystem/System';
 import { CollisionEndEvent, CollisionStartEvent, ContactEndEvent, ContactStartEvent } from '../Events';
 import { CollisionResolutionStrategy, Physics } from './Physics';
 import { ArcadeSolver } from './Solver/ArcadeSolver';
@@ -17,10 +17,10 @@ import { Scene } from '../Scene';
 import { Side } from '../Collision/Side';
 import { DynamicTreeCollisionProcessor } from './Detection/DynamicTreeCollisionProcessor';
 import { PhysicsWorld } from './PhysicsWorld';
-export class CollisionSystem extends System<TransformComponent | MotionComponent | ColliderComponent> {
-  public readonly types = ['ex.transform', 'ex.motion', 'ex.collider'] as const;
+export class CollisionSystem extends System {
   public systemType = SystemType.Update;
-  public priority = -1;
+  public priority = SystemPriority.Higher;
+  public query: Query<ComponentCtor<TransformComponent> | ComponentCtor<MotionComponent> | ComponentCtor<ColliderComponent>>;
 
   private _engine: Engine;
   private _realisticSolver = new RealisticSolver();
@@ -57,19 +57,35 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
     }
   }
 
-  initialize(scene: Scene) {
+  initialize(world: World, scene: Scene) {
     this._engine = scene.engine;
-
+    this.query = world.query([TransformComponent, MotionComponent, ColliderComponent]);
+    this.query.entityAdded$.subscribe(e => {
+      const colliderComponent = e.get(ColliderComponent);
+      colliderComponent.$colliderAdded.subscribe(this._trackCollider);
+      colliderComponent.$colliderRemoved.subscribe(this._untrackCollider);
+      const collider = colliderComponent.get();
+      if (collider) {
+        this._processor.track(collider);
+      }
+    });
+    this.query.entityRemoved$.subscribe(e => {
+      const colliderComponent = e.get(ColliderComponent);
+      const collider = colliderComponent.get();
+      if (colliderComponent && collider) {
+        this._processor.untrack(collider);
+      }
+    });
   }
 
-  update(entities: Entity[], elapsedMs: number): void {
+  update(elapsedMs: number): void {
     if (!Physics.enabled) {
       return;
     }
 
     // Collect up all the colliders and update them
     let colliders: Collider[] = [];
-    for (const entity of entities) {
+    for (const entity of this.query.entities) {
       const colliderComp = entity.get(ColliderComponent);
       const collider = colliderComp?.get();
       if (colliderComp && colliderComp.owner?.active && collider) {
