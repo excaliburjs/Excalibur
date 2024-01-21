@@ -20,7 +20,7 @@ export class Query<TKnownComponentCtors extends ComponentCtor<Component> = never
   public entityRemoved$ = new Observable<Entity<ComponentInstance<TKnownComponentCtors>>>(); // TODO is this accurate with deferred removal?
 
   constructor(public readonly requiredComponents: TKnownComponentCtors[]) {
-    for (let type of requiredComponents) {
+    for (const type of requiredComponents) {
       this.components.add(type);
     }
     // TODO what happens if a user defines the same type name as a built in type
@@ -31,14 +31,13 @@ export class Query<TKnownComponentCtors extends ComponentCtor<Component> = never
 
   /**
    * Potentially adds an entity to a query index, returns true if added, false if not
-   * @param entity 
-   * @returns 
+   * @param entity
    */
   checkAndAdd(entity: Entity) {
     if (!this.entities.includes(entity) && entity.hasAll(Array.from(this.components))) {
-        this.entities.push(entity);
-        this.entityAdded$.notifyAll(entity);
-        return true;
+      this.entities.push(entity);
+      this.entityAdded$.notifyAll(entity);
+      return true;
     }
     return false;
   }
@@ -46,8 +45,8 @@ export class Query<TKnownComponentCtors extends ComponentCtor<Component> = never
   removeEntity(entity: Entity) {
     const index = this.entities.indexOf(entity);
     if (index > -1) {
-        this.entities.splice(index, 1);
-        this.entityRemoved$.notifyAll(entity);
+      this.entities.splice(index, 1);
+      this.entityRemoved$.notifyAll(entity);
     }
   }
 

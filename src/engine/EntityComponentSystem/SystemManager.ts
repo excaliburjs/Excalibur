@@ -7,6 +7,9 @@ export interface SystemCtor<T extends System> {
   new (...args: any[]): T;
 }
 
+/**
+ *
+ */
 export function isSystemConstructor(x: any): x is SystemCtor<System> {
   return !!x?.prototype && !!x?.prototype?.constructor?.name;
 }

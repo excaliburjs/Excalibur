@@ -107,7 +107,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
     if (Array.isArray(componentsOrOptions)) {
       componentsToAdd = componentsOrOptions;
       nameToAdd = name;
-    } else if (typeof componentsOrOptions === 'object') {
+    } else if (componentsOrOptions && typeof componentsOrOptions === 'object') {
       const { components, name } = componentsOrOptions;
       componentsToAdd = components;
       nameToAdd = name;
@@ -194,7 +194,6 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    *
    * Removals are deferred until the end of update
    * @param tag
-   * @param force Remove component immediately, no deferred
    */
   public removeTag(tag: string) {
     return this.tagsComponent.tags.delete(tag);
@@ -403,7 +402,8 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    * @param type
    * @param force
    */
-  public removeComponent<TComponent extends Component>(type: ComponentCtor<TComponent>, force = false): Entity<Exclude<TKnownComponents, TComponent>> {
+  public removeComponent<TComponent extends Component>(
+    type: ComponentCtor<TComponent>, force = false): Entity<Exclude<TKnownComponents, TComponent>> {
     if (force) {
       const componentToRemove = this.components.get(type);
       if (componentToRemove) {

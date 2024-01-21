@@ -9,19 +9,20 @@ import { ParallaxComponent } from './ParallaxComponent';
 import { Vector } from '../Math/vector';
 import { CoordPlane } from '../Math/coord-plane';
 import { BoundingBox } from '../Collision/BoundingBox';
-import { World } from '../EntityComponentSystem';
+import { Query, SystemPriority, World } from '../EntityComponentSystem';
 
 export class OffscreenSystem extends System {
   public systemType = SystemType.Draw;
-  priority: number = -1;
+  priority: number = SystemPriority.Higher;
   private _camera: Camera;
   private _screen: Screen;
   private _worldBounds: BoundingBox;
+  query: Query<typeof TransformComponent | typeof GraphicsComponent>;
 
-  query = this.world.query([TransformComponent, GraphicsComponent]);
 
   constructor(public world: World) {
     super();
+    this.query = this.world.query([TransformComponent, GraphicsComponent]);
   }
 
   public initialize(world: World, scene: Scene): void {

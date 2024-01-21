@@ -5,7 +5,7 @@ import { vec, Vector } from '../Math/vector';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { Entity } from '../EntityComponentSystem/Entity';
 import { Camera } from '../Camera';
-import { System, SystemPriority, SystemType, World } from '../EntityComponentSystem';
+import { Query, System, SystemPriority, SystemType, World } from '../EntityComponentSystem';
 import { Engine } from '../Engine';
 import { GraphicsGroup } from './GraphicsGroup';
 import { Particle } from '../Particles'; // this import seems to bomb wallaby
@@ -25,16 +25,15 @@ export class GraphicsSystem extends System {
   private _graphicsContext: ExcaliburGraphicsContext;
   private _camera: Camera;
   private _engine: Engine;
-
-  query = this.world.query([TransformComponent, GraphicsComponent]);
-
   private _sortedTransforms: TransformComponent[] = [];
+  query: Query<typeof TransformComponent | typeof GraphicsComponent>;
   public get sortedTransforms() {
     return this._sortedTransforms;
   }
 
   constructor(public world: World) {
     super();
+    this.query = this.world.query([TransformComponent, GraphicsComponent]);
     this.query.entityAdded$.subscribe(e => {
       const tx = e.get(TransformComponent);
       this._sortedTransforms.push(tx);
@@ -48,7 +47,7 @@ export class GraphicsSystem extends System {
       if (index > -1) {
         this._sortedTransforms.splice(index, 1);
       }
-    })
+    });
   }
 
   public initialize(world: World, scene: Scene): void {

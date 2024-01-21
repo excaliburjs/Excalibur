@@ -100,7 +100,7 @@ export class ActionQueue {
 
       if (this._currentAction.isComplete(this._entity)) {
         this._entity.emit('actioncomplete', new ActionCompleteEvent(this._currentAction, this._entity));
-        const complete = this._actions.shift()
+        const complete = this._actions.shift();
         if (complete) {
           this._completedActions.push(complete);
         }

@@ -23,10 +23,10 @@ export class World {
 
   /**
    * Query the ECS world for entities that match your components
-   * @param requiredTypes 
-   * @returns 
+   * @param requiredTypes
    */
-  query<TKnownComponentCtors extends ComponentCtor<Component>>(requiredTypes: TKnownComponentCtors[]): Query<TKnownComponentCtors> {
+  query<TKnownComponentCtors extends ComponentCtor<Component>>(
+    requiredTypes: TKnownComponentCtors[]): Query<TKnownComponentCtors> {
     return this.queryManager.createQuery(requiredTypes);
   }
 
@@ -62,6 +62,13 @@ export class World {
     if (entityOrSystem instanceof System || isSystemConstructor(entityOrSystem)) {
       this.systemManager.addSystem(entityOrSystem);
     }
+  }
+
+  /**
+   * Get a system out of the ECS world
+   */
+  get(system: SystemCtor<System>) {
+    return this.systemManager.get(system);
   }
 
   /**

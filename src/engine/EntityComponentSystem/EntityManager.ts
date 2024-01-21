@@ -13,7 +13,8 @@ export class EntityManager {
 
   /**
    * Runs the entity lifecycle
-   * @param _context
+   * @param scene
+   * @param elapsed
    */
   public updateEntities(scene: Scene, elapsed: number) {
     for (const entity of this.entities) {

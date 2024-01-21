@@ -3,7 +3,7 @@ import { Scene } from '../Scene';
 import { Camera } from '../Camera';
 import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
 import { ColliderComponent } from '../Collision/ColliderComponent';
-import { Entity, SystemPriority, TransformComponent, World } from '../EntityComponentSystem';
+import { Entity, Query, SystemPriority, TransformComponent, World } from '../EntityComponentSystem';
 import { System, SystemType } from '../EntityComponentSystem/System';
 import { ExcaliburGraphicsContext } from '../Graphics/Context/ExcaliburGraphicsContext';
 import { vec, Vector } from '../Math/vector';
@@ -23,11 +23,11 @@ export class DebugSystem extends System {
   private _collisionSystem: CollisionSystem;
   private _camera: Camera;
   private _engine: Engine;
-
-  query = this.world.query([TransformComponent]);
+  query: Query<typeof TransformComponent>;
 
   constructor(public world: World) {
-    super()
+    super();
+    this.query = this.world.query([TransformComponent]);
   }
 
   public initialize(world: World, scene: Scene): void {

@@ -32,33 +32,11 @@ export class CollisionSystem extends System {
   private _trackCollider: (c: Collider) => void;
   private _untrackCollider: (c: Collider) => void;
 
-  constructor(physics: PhysicsWorld) {
+  constructor(world: World, physics: PhysicsWorld) {
     super();
     this._processor = physics.collisionProcessor;
     this._trackCollider = (c: Collider) => this._processor.track(c);
     this._untrackCollider = (c: Collider) => this._processor.untrack(c);
-  }
-
-  notify(message: AddedEntity | RemovedEntity) {
-    if (isAddedSystemEntity(message)) {
-      const colliderComponent = message.data.get(ColliderComponent);
-      colliderComponent.$colliderAdded.subscribe(this._trackCollider);
-      colliderComponent.$colliderRemoved.subscribe(this._untrackCollider);
-      const collider = colliderComponent.get();
-      if (collider) {
-        this._processor.track(collider);
-      }
-    } else {
-      const colliderComponent = message.data.get(ColliderComponent);
-      const collider = colliderComponent.get();
-      if (colliderComponent && collider) {
-        this._processor.untrack(collider);
-      }
-    }
-  }
-
-  initialize(world: World, scene: Scene) {
-    this._engine = scene.engine;
     this.query = world.query([TransformComponent, MotionComponent, ColliderComponent]);
     this.query.entityAdded$.subscribe(e => {
       const colliderComponent = e.get(ColliderComponent);
@@ -76,6 +54,10 @@ export class CollisionSystem extends System {
         this._processor.untrack(collider);
       }
     });
+  }
+
+  initialize(world: World, scene: Scene) {
+    this._engine = scene.engine;
   }
 
   update(elapsedMs: number): void {

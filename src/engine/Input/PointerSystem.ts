@@ -5,7 +5,9 @@ import {
   TransformComponent,
   SystemType,
   Entity,
-  World
+  World,
+  Query,
+  SystemPriority
 } from '../EntityComponentSystem';
 import { GraphicsComponent } from '../Graphics/GraphicsComponent';
 import { Scene } from '../Scene';
@@ -23,15 +25,15 @@ import { CoordPlane } from '../Math/coord-plane';
  */
 export class PointerSystem extends System {
   public readonly systemType = SystemType.Update;
-  public priority = -1;
+  public priority = SystemPriority.Higher;
 
   private _engine: Engine;
   private _receiver: PointerEventReceiver;
-
-  query = this.world.query([TransformComponent, PointerComponent]);
+  query: Query<typeof TransformComponent | typeof PointerComponent>;
 
   constructor(public world: World) {
     super();
+    this.query = this.world.query([TransformComponent, PointerComponent]);
     this.query.entityAdded$.subscribe(e => {
       const tx = e.get(TransformComponent);
       this._sortedTransforms.push(tx);
@@ -87,7 +89,7 @@ export class PointerSystem extends System {
     }
   }
 
- 
+
 
   public entityCurrentlyUnderPointer(entity: Entity, pointerId: number) {
     return this.currentFrameEntityToPointers.has(entity.id) &&
