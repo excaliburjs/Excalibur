@@ -211,6 +211,12 @@ describe('A CompositeCollider', () => {
     const rayLeft = new Ray(vec(200, 0), Vector.Left);
     const rightBox = compCollider.rayCast(rayLeft).point;
     expect(rightBox).toEqual(vec(100, 0));
+
+    const hit = compCollider.rayCast(rayLeft);
+    expect(hit.normal).toBeVector(Vector.Right);
+    expect(hit.distance).toBe(100);
+    expect(hit.body).toBe(undefined);
+    expect(hit.collider).toBe(compCollider.getColliders()[1]);
   });
 
   it('can project onto an axis', () => {

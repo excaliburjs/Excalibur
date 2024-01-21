@@ -148,10 +148,16 @@ describe('Collision Shape', () => {
       const rayTangent = new ex.Ray(new ex.Vector(-100, 10), ex.Vector.Right.clone());
       const rayNoHit = new ex.Ray(new ex.Vector(-100, 10), ex.Vector.Left.clone());
 
+      const hit = circle.rayCast(ray);
       const point = circle.rayCast(ray).point;
       const pointTangent = circle.rayCast(rayTangent).point;
       const pointNoHit = circle.rayCast(rayNoHit);
       const pointTooFar = circle.rayCast(ray, 1);
+
+      expect(hit.normal).toBeVector(ex.Vector.Left);
+      expect(hit.distance).toBe(90);
+      expect(hit.collider).toBe(circle);
+      expect(hit.body).toBe(actor.body);
 
       expect(point.x).toBe(-10);
       expect(point.y).toBe(0);
@@ -732,12 +738,18 @@ describe('Collision Shape', () => {
       const rayTowards = new ex.Ray(new ex.Vector(-100, 0), ex.Vector.Right.clone());
       const rayAway = new ex.Ray(new ex.Vector(-100, 0), new ex.Vector(-1, 0));
 
-      const point = polyA.rayCast(rayTowards).point;
+      const hit = polyA.rayCast(rayTowards);
+      const point = hit.point;
       const noHit = polyA.rayCast(rayAway);
       const tooFar = polyA.rayCast(rayTowards, 1);
 
       expect(point.x).toBeCloseTo(-5, 0.001);
       expect(point.y).toBeCloseTo(0, 0.001);
+      expect(hit.normal.x).toBe(-1);
+      expect(hit.normal.y).toBe(0);
+      expect(hit.collider).toBe(polyA);
+      expect(hit.body).toBe(actor.body);
+      expect(hit.distance).toBe(95);
       expect(noHit).toBe(null);
       expect(tooFar).toBe(null, 'The polygon should be too far away for a hit');
     });
@@ -873,11 +885,17 @@ describe('Collision Shape', () => {
       const rayRightTangent = new ex.Ray(new ex.Vector(10, -100), ex.Vector.Down.clone());
       const rayNoHit = new ex.Ray(new ex.Vector(5, -100), ex.Vector.Up.clone());
 
+      const hit = edge.rayCast(ray);
       const midPoint = edge.rayCast(ray).point;
       const leftTan = edge.rayCast(rayLeftTangent).point;
       const rightTan = edge.rayCast(rayRightTangent).point;
       const noHit = edge.rayCast(rayNoHit);
       const tooFar = edge.rayCast(ray, 1);
+
+      expect(hit.normal).toBeVector(ex.Vector.Up);
+      expect(hit.collider).toBe(edge);
+      expect(hit.body).toBe(actor.body);
+      expect(hit.distance).toBe(100);
 
       expect(midPoint.x).toBeCloseTo(5, 0.001);
       expect(midPoint.y).toBeCloseTo(0, 0.001);
