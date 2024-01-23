@@ -10,6 +10,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Remove confusing Graphics Layering from `ex.GraphicsComponent`, recommend we use the `ex.GraphicsGroup` to manage this behavior
   * Update `ex.GraphicsGroup` to be consistent and use `offset` instead of `pos` for graphics relative positioning
+- ECS implementation has been updated to remove the "stringly" typed nature of components & systems
+  * For average users of Excalibur folks shouldn't notice any difference
+  * For folks leveraging the ECS, Systems/Components no longer have type parameters based on strings. The type itself is used to track changes.
+  * `class MySystem extends System<'ex.component'>` becomes `class MySystem extends System`
+  * `class MyComponent extends Component<'ex.component'>` becomes `class MyComponent extends Component`
+  * `ex.System.update(elapsedMs: number)` is only passed an elapsed time no longer 
+
 
 ### Deprecated
 
@@ -17,6 +24,24 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- New simplified way to query entities `ex.World.query([MyComponentA, MyComponentB])`
+- New way to query for tags on entities `ex.World.queryTags(['A', 'B'])`
+- Systems can be added as a constructor to a world, if they are the world will construct and pass a world instance to them
+  ```typescript
+  world.add(MySystem);
+  ...
+
+  class MySystem extends System {
+    query: Query;
+    constructor(world: World) {
+      super()
+      this.query = world.query([MyComponent]);
+    }
+
+    update
+  }
+  
+  ```
 - Added ability to load additional images into `ex.Material`s!
   ```typescript
   const noise = new ex.ImageSource('./noise.avif');

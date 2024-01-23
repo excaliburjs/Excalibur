@@ -1,5 +1,5 @@
-import { Observable } from "../Util/Observable";
-import { Entity } from "./Entity";
+import { Observable } from '../Util/Observable';
+import { Entity } from './Entity';
 
 
 export class TagQuery<TKnownTags extends string = never> {

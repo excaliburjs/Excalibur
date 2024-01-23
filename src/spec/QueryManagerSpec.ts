@@ -3,7 +3,6 @@ import * as ex from '@excalibur';
 class FakeComponentA extends ex.Component {}
 class FakeComponentB extends ex.Component {}
 class FakeComponentC extends ex.Component {}
-class FakeComponentD extends ex.Component {}
 
 describe('A QueryManager', () => {
   it('exists', () => {
@@ -73,6 +72,26 @@ describe('A QueryManager', () => {
     expect(queryAB.getEntities()).toEqual([entity1, entity2]);
   });
 
+  it('can add entities to tag queries', () => {
+    const world = new ex.World(null);
+    const entity1 = new ex.Entity();
+    entity1.addTag('A');
+    entity1.addTag('B');
+
+    const entity2 = new ex.Entity();
+    entity2.addTag('A');
+    entity2.addTag('B');
+
+    const queryAB = world.queryTags(['A', 'B']);
+    expect(queryAB.getEntities()).toEqual([]);
+
+    world.queryManager.addEntity(entity1);
+    expect(queryAB.getEntities()).toEqual([entity1]);
+
+    world.queryManager.addEntity(entity2);
+    expect(queryAB.getEntities()).toEqual([entity1, entity2]);
+  });
+
   it('can remove entities from queries', () => {
     const world = new ex.World(null);
     const entity1 = new ex.Entity();
@@ -84,6 +103,28 @@ describe('A QueryManager', () => {
     entity2.addComponent(new FakeComponentB);
 
     const queryAB = world.query([FakeComponentA, FakeComponentB]);
+    world.queryManager.addEntity(entity1);
+    world.queryManager.addEntity(entity2);
+    expect(queryAB.getEntities()).toEqual([entity1, entity2]);
+
+    world.queryManager.removeEntity(entity1);
+    expect(queryAB.getEntities()).toEqual([entity2]);
+
+    world.queryManager.removeEntity(entity2);
+    expect(queryAB.getEntities()).toEqual([]);
+  });
+
+  it('can remove entities from tag queries', () => {
+    const world = new ex.World(null);
+    const entity1 = new ex.Entity();
+    entity1.addTag('A');
+    entity1.addTag('B');
+
+    const entity2 = new ex.Entity();
+    entity2.addTag('A');
+    entity2.addTag('B');
+
+    const queryAB = world.queryTags(['A', 'B']);
     world.queryManager.addEntity(entity1);
     world.queryManager.addEntity(entity2);
     expect(queryAB.getEntities()).toEqual([entity1, entity2]);
@@ -114,6 +155,28 @@ describe('A QueryManager', () => {
     const removed = entity1.get(FakeComponentA);
     entity1.removeComponent(FakeComponentA);
     world.queryManager.removeComponent(entity1, removed);
+
+    expect(queryAB.getEntities()).toEqual([entity2]);
+  });
+
+  it('can update tag queries when a component is removed', () => {
+    const world = new ex.World(null);
+    const entity1 = new ex.Entity();
+    entity1.addTag('A');
+    entity1.addTag('B');
+
+    const entity2 = new ex.Entity();
+    entity2.addTag('A');
+    entity2.addTag('B');
+
+    const queryAB = world.queryTags(['A', 'B']);
+    world.queryManager.addEntity(entity1);
+    world.queryManager.addEntity(entity2);
+
+    expect(queryAB.getEntities()).toEqual([entity1, entity2]);
+
+    entity1.removeTag('A');
+    world.queryManager.removeTag(entity1, 'A');
 
     expect(queryAB.getEntities()).toEqual([entity2]);
   });

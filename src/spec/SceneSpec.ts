@@ -78,7 +78,7 @@ describe('A scene', () => {
     scene.clear();
 
     expect(scene.entities.length).withContext('deferred entity removal means entities cleared at end of update').toBe(3);
-    expect(scene.timers.length).withContext('timers dont have deferred removal').toBe(0);
+    expect(scene.timers.length).withContext('timers don\'t have deferred removal').toBe(0);
 
     scene.update(engine, 100);
     expect(scene.entities.length).toBe(0);

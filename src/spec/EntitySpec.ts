@@ -498,5 +498,5 @@ describe('An entity', () => {
     sut.addComponent(superBody);
     expect(sut.get(MyBody)).toBe(undefined);
     expect(sut.get(ex.BodyComponent)).toBe(superBody);
-  })
+  });
 });

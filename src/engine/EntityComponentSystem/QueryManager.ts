@@ -183,8 +183,8 @@ export class QueryManager {
 
   /**
    * Updates any queries when a tag is added to an entity
-   * @param entity 
-   * @param tag 
+   * @param entity
+   * @param tag
    */
   addTag(entity: Entity, tag: string) {
     const queries = this._tagToQueriesIndex.get(tag) ?? [];
@@ -195,8 +195,8 @@ export class QueryManager {
 
   /**
    * Updates any queries when a component is removed from an entity
-   * @param entity 
-   * @param tag 
+   * @param entity
+   * @param tag
    */
   removeTag(entity: Entity, tag: string) {
     const queries = this._tagToQueriesIndex.get(tag) ?? [];

@@ -180,7 +180,6 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
   /**
    * Adds a tag to an entity
    * @param tag
-   * @returns Entity
    */
   public addTag(tag: string) {
     this._tags.add(tag);
@@ -238,7 +237,8 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
     return true;
   }
 
-  private _getCachedInstanceOfType<TComponent extends Component>(type: ComponentCtor<TComponent>): MaybeKnownComponent<TComponent, TKnownComponents> | undefined {
+  private _getCachedInstanceOfType<TComponent extends Component>(
+    type: ComponentCtor<TComponent>): MaybeKnownComponent<TComponent, TKnownComponents> | undefined {
     if (this._instanceOfComponentCacheDirty) {
       this._instanceOfComponentCacheDirty = false;
       this._instanceOfComponentCache.clear();
@@ -248,7 +248,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
       return this._instanceOfComponentCache.get(type) as MaybeKnownComponent<TComponent, TKnownComponents>;
     }
 
-    for (let instance of this.components.values()) {
+    for (const instance of this.components.values()) {
       if (instance instanceof type) {
         this._instanceOfComponentCache.set(type, instance);
         return instance as MaybeKnownComponent<TComponent, TKnownComponents>;
