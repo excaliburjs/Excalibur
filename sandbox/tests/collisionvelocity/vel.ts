@@ -29,6 +29,7 @@ var player = new ex.Actor({
   collisionType: ex.CollisionType.Active
 });
 
+//@ts-ignore
 player.update = (e, ms) => {
   if (engine.input.keyboard.isHeld(ex.Keys.Space)) {
     player.vel.x = 0;

@@ -454,7 +454,6 @@ export class Screen {
     }
   }
 
-  private _alreadyWarned = false;
   public applyResolutionAndViewport() {
     this._canvas.width = this.scaledWidth;
     this._canvas.height = this.scaledHeight;
@@ -464,9 +463,8 @@ export class Screen {
         width: this.scaledWidth,
         height: this.scaledHeight
       });
-      if (!supported && !this._alreadyWarned) {
-        this._alreadyWarned = true; // warn once
-        this._logger.warn(
+      if (!supported) {
+        this._logger.warnOnce(
           `The currently configured resolution (${this.resolution.width}x${this.resolution.height}) and pixel ratio (${this.pixelRatio})` +
           ' are too large for the platform WebGL implementation, this may work but cause WebGL rendering to behave oddly.' +
           ' Try reducing the resolution or disabling Hi DPI scaling to avoid this' +

@@ -15,7 +15,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * For folks leveraging the ECS, Systems/Components no longer have type parameters based on strings. The type itself is used to track changes.
   * `class MySystem extends System<'ex.component'>` becomes `class MySystem extends System`
   * `class MyComponent extends Component<'ex.component'>` becomes `class MyComponent extends Component`
-  * `ex.System.update(elapsedMs: number)` is only passed an elapsed time no longer 
+  * `ex.System.update(elapsedMs: number)` is only passed an elapsed time
+- Prevent people from inadvertently overriding `update()` in `ex.Scene` and `ex.Actor`. This method can still be overridden with the `//@ts-ignore` pragma
 
 
 ### Deprecated
@@ -42,6 +43,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   }
   
   ```
+- Added `RayCastHit`as part of every raycast not just the physics world query!
+  * Additionally added the ray distance and the contact normal for the surface
+- Added the ability to log a message once to all log levels
+  * `debugOnce`
+  * `infoOnce`
+  * `warnOnce`
+  * `errorOnce`
+  * `fatalOnce`
 - Added ability to load additional images into `ex.Material`s!
   ```typescript
   const noise = new ex.ImageSource('./noise.avif');

@@ -14,6 +14,7 @@ describe('Logger', () => {
       appender = new ex.ConsoleAppender();
 
       logger = ex.Logger.getInstance();
+      logger.clearAppenders();
       logger.addAppender(appender);
       spiedAppender = spyOn(appender, 'log');
       spiedAppender.and.callThrough();
@@ -72,10 +73,32 @@ describe('Logger', () => {
       expect(spiedConsoleLog).toHaveBeenCalled();
     });
 
+    it('should call console debug once', () => {
+      logger.debugOnce('test');
+      logger.debugOnce('test');
+      logger.debugOnce('test');
+      logger.debugOnce('test');
+      logger.debugOnce('test');
+      logger.debugOnce('test');
+
+      expect(spiedConsoleLog).toHaveBeenCalledTimes(1);
+    });
+
     it('should call console log for level Info', () => {
       logger.info('test');
 
       expect(spiedConsoleLog).toHaveBeenCalled();
+    });
+
+    it('should call console info once', () => {
+      logger.infoOnce('test');
+      logger.infoOnce('test');
+      logger.infoOnce('test');
+      logger.infoOnce('test');
+      logger.infoOnce('test');
+      logger.infoOnce('test');
+
+      expect(spiedConsoleLog).toHaveBeenCalledTimes(1);
     });
 
     it('should call console warn for level Warn', () => {
@@ -84,16 +107,49 @@ describe('Logger', () => {
       expect(spiedConsoleWarn).toHaveBeenCalled();
     });
 
+    it('should call console warn once', () => {
+      logger.warnOnce('test');
+      logger.warnOnce('test');
+      logger.warnOnce('test');
+      logger.warnOnce('test');
+      logger.warnOnce('test');
+      logger.warnOnce('test');
+
+      expect(spiedConsoleWarn).toHaveBeenCalledTimes(1);
+    });
+
     it('should call console error for level Error', () => {
       logger.error('test');
 
       expect(spiedConsoleError).toHaveBeenCalled();
     });
 
+    it('should call console error once', () => {
+      logger.errorOnce('test');
+      logger.errorOnce('test');
+      logger.errorOnce('test');
+      logger.errorOnce('test');
+      logger.errorOnce('test');
+      logger.errorOnce('test');
+
+      expect(spiedConsoleError).toHaveBeenCalledTimes(1);
+    });
+
     it('should call console error for level Fatal', () => {
       logger.fatal('test');
 
       expect(spiedConsoleError).toHaveBeenCalled();
+    });
+
+    it('should call console fatal once', () => {
+      logger.fatalOnce('test');
+      logger.fatalOnce('test');
+      logger.fatalOnce('test');
+      logger.fatalOnce('test');
+      logger.fatalOnce('test');
+      logger.fatalOnce('test');
+
+      expect(spiedConsoleError).toHaveBeenCalledTimes(1);
     });
 
     it('should format message to console with appropriate level', () => {

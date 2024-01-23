@@ -955,3 +955,11 @@ game.currentScene.camera.y = 200;
 game.start(boot).then(() => {
   logger.info('All Resources have finished loading');
 });
+
+
+class MySceneCustomUpdate extends ex.Scene {
+  //@ts-ignore
+  update() {
+    console.log('my update')
+  }
+}
