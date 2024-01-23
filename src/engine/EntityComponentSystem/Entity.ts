@@ -1,5 +1,4 @@
-import { Component, ComponentCtor } from './Component';
-import { TagsComponent } from './Components/TagsComponent';
+import { Component, ComponentCtor, isComponentCtor } from './Component';
 
 import { Observable, Message } from '../Util/Observable';
 import { OnInitialize, OnPreUpdate, OnPostUpdate } from '../Interfaces/LifecycleEvents';
@@ -89,15 +88,29 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    */
   public id: number = Entity._ID++;
 
+  public name = `Entity#${this.id}`;
+
   /**
    * Listen to or emit events for an entity
    */
   public events = new EventEmitter<EntityEvents>();
-  public tagsComponent = new TagsComponent;
+  private _tags = new Set<string>();
   public componentAdded$ = new Observable<Component>;
   public componentRemoved$ = new Observable<Component>;
-  public components = new Map<Function, Component>();
+  public tagAdded$ = new Observable<string>;
+  public tagRemoved$ = new Observable<string>;
+  /**
+   * Current components on the entity
+   *
+   * **Do not modify**
+   *
+   * Use addComponent/removeComponent otherwise the ECS will not be notified of changes.
+   */
+  public readonly components = new Map<Function, Component>();
   private _componentsToRemove: ComponentCtor[] = [];
+
+  private _instanceOfComponentCacheDirty = true;
+  private _instanceOfComponentCache = new Map<Function, Component>();
 
   constructor(options: EntityOptions<TKnownComponents>);
   constructor(components?: TKnownComponents[], name?: string);
@@ -113,36 +126,20 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
       nameToAdd = name;
     }
     if (nameToAdd) {
-      this._setName(nameToAdd);
+      this.name = nameToAdd;
     }
     if (componentsToAdd) {
       for (const component of componentsToAdd) {
         this.addComponent(component);
       }
     }
-    this.addComponent(this.tagsComponent);
+    // this.addComponent(this.tagsComponent);
   }
 
   /**
    * The current scene that the entity is in, if any
    */
   public scene: Scene | null = null;
-
-  private _name: string = 'anonymous';
-  protected _setName(name: string) {
-    if (name) {
-      this._name = name;
-    } else {
-      this._name = `Entity#${this.id}`;
-    }
-  }
-  public get name(): string {
-    return this._name;
-  }
-
-  public set name(name: string) {
-    this._setName(name);
-  }
 
   /**
    * Whether this entity is active, if set to false it will be reclaimed
@@ -169,7 +166,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    * Specifically get the tags on the entity from [[TagsComponent]]
    */
   public get tags(): Set<string> {
-    return this.tagsComponent.tags;
+    return this._tags;
   }
 
   /**
@@ -177,7 +174,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    * @param tag name to check for
    */
   public hasTag(tag: string): boolean {
-    return this.tagsComponent.tags.has(tag);
+    return this._tags.has(tag);
   }
 
   /**
@@ -186,7 +183,8 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    * @returns Entity
    */
   public addTag(tag: string) {
-    return this.tagsComponent.tags.add(tag);
+    this._tags.add(tag);
+    this.tagAdded$.notifyAll(tag);
   }
 
   /**
@@ -196,7 +194,8 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    * @param tag
    */
   public removeTag(tag: string) {
-    return this.tagsComponent.tags.delete(tag);
+    this._tags.delete(tag);
+    this.tagRemoved$.notifyAll(tag);
   }
 
   /**
@@ -226,9 +225,41 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
     return true;
   }
 
+  /**
+   * Verifies that an entity has all the required tags
+   * @param requiredTags
+   */
+  hasAllTags(requiredTags: string[]): boolean {
+    for (let i = 0; i < requiredTags.length; i++) {
+      if (!this.tags.has(requiredTags[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private _getCachedInstanceOfType<TComponent extends Component>(type: ComponentCtor<TComponent>): MaybeKnownComponent<TComponent, TKnownComponents> | undefined {
+    if (this._instanceOfComponentCacheDirty) {
+      this._instanceOfComponentCacheDirty = false;
+      this._instanceOfComponentCache.clear();
+    }
+
+    if (this._instanceOfComponentCache.has(type)) {
+      return this._instanceOfComponentCache.get(type) as MaybeKnownComponent<TComponent, TKnownComponents>;
+    }
+
+    for (let instance of this.components.values()) {
+      if (instance instanceof type) {
+        this._instanceOfComponentCache.set(type, instance);
+        return instance as MaybeKnownComponent<TComponent, TKnownComponents>;
+      }
+    }
+    return undefined;
+  }
+
   get<TComponent extends Component>(type: ComponentCtor<TComponent>): MaybeKnownComponent<TComponent, TKnownComponents> {
-    // TODO instance of type memoization
-    return this.components.get(type) as MaybeKnownComponent<TComponent, TKnownComponents>;
+    const maybeComponent = this._getCachedInstanceOfType(type);
+    return maybeComponent ?? this.components.get(type) as MaybeKnownComponent<TComponent, TKnownComponents>;
   }
 
   private _parent: Entity | null = null;
@@ -345,21 +376,20 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
     return newEntity;
   }
 
-  // TODO templates?
-  // /**
-  //  * Adds a copy of all the components from another template entity as a "prefab"
-  //  * @param templateEntity Entity to use as a template
-  //  * @param force Force component replacement if it already exists on the target entity
-  //  */
-  // public addTemplate(templateEntity: Entity, force: boolean = false): Entity {
-  //   for (const c of templateEntity.getComponents()) {
-  //     this.addComponent(c.clone(), force);
-  //   }
-  //   for (const child of templateEntity.children) {
-  //     this.addChild(child.clone().addTemplate(child));
-  //   }
-  //   return this;
-  // }
+  /**
+   * Adds a copy of all the components from another template entity as a "prefab"
+   * @param templateEntity Entity to use as a template
+   * @param force Force component replacement if it already exists on the target entity
+   */
+  public addTemplate(templateEntity: Entity, force: boolean = false): Entity {
+    for (const c of templateEntity.getComponents()) {
+      this.addComponent(c.clone(), force);
+    }
+    for (const child of templateEntity.children) {
+      this.addChild(child.clone().addTemplate(child));
+    }
+    return this;
+  }
 
   /**
    * Adds a component to the entity
@@ -367,6 +397,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    * @param force Optionally overwrite any existing components of the same type
    */
   public addComponent<TComponent extends Component>(component: TComponent, force: boolean = false): Entity<TKnownComponents | TComponent> {
+    this._instanceOfComponentCacheDirty = true;
     // if component already exists, skip if not forced
     if (this.has(component.constructor as ComponentCtor)) {
       if (force) {
@@ -399,16 +430,30 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    * Removes a component from the entity, by default removals are deferred to the end of entity update to avoid consistency issues
    *
    * Components can be force removed with the `force` flag, the removal is not deferred and happens immediately
-   * @param type
+   * @param typeOrInstance
    * @param force
    */
   public removeComponent<TComponent extends Component>(
-    type: ComponentCtor<TComponent>, force = false): Entity<Exclude<TKnownComponents, TComponent>> {
+    typeOrInstance: ComponentCtor<TComponent> | TComponent, force = false): Entity<Exclude<TKnownComponents, TComponent>> {
+
+    let type: ComponentCtor<TComponent>;
+    if (isComponentCtor(typeOrInstance)) {
+      type = typeOrInstance;
+    } else {
+      type = typeOrInstance.constructor as ComponentCtor<TComponent>;
+    }
+
     if (force) {
       const componentToRemove = this.components.get(type);
       if (componentToRemove) {
         this.componentRemoved$.notifyAll(componentToRemove);
+        componentToRemove.owner = undefined;
+        if (componentToRemove.onRemove) {
+          componentToRemove.onRemove(this);
+        }
       }
+      this.components.delete(type); // remove after the notify to preserve typing
+      this._instanceOfComponentCacheDirty = true;
     } else {
       this._componentsToRemove.push(type);
     }

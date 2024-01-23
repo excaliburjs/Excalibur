@@ -702,6 +702,7 @@ describe('A scene', () => {
   it('will update TileMaps that were added in a Timer callback', () => {
     let updated = false;
     const tilemap = new ex.TileMap({ pos: ex.vec(0, 0), tileWidth: 1, tileHeight: 1, columns: 1, rows: 1});
+    tilemap._initialize(scene.engine);
     tilemap.on('postupdate', () => {
       updated = true;
     });

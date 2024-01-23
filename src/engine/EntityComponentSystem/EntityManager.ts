@@ -97,7 +97,7 @@ export class EntityManager {
       entity.childrenRemoved$.clear();
 
       // stats
-      if (this._world.scene.engine) {
+      if (this._world?.scene?.engine) {
         this._world.scene.engine.stats.currFrame.actors.killed++;
       }
     }

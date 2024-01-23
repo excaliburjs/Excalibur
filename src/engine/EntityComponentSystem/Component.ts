@@ -6,6 +6,13 @@ import { Entity } from './Entity';
 export declare type ComponentCtor<TComponent extends Component = Component> = new (...args:any[]) => TComponent;
 
 /**
+ *
+ */
+export function isComponentCtor(value: any): value is ComponentCtor<Component> {
+  return !!value && !!value.prototype && !!value.prototype.constructor;
+}
+
+/**
  * Type guard to check if a component implements clone
  * @param x
  */

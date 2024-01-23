@@ -1,17 +1,22 @@
 import * as ex from '@excalibur';
 import { SystemType } from '@excalibur';
 
-class FakeComponent<T extends string> extends ex.Component<T> {
-  constructor(public type: T) {
-    super();
-  }
-}
+class FakeComponentA extends ex.Component {}
+class FakeComponentB extends ex.Component {}
+class FakeComponentC extends ex.Component {}
 
-class FakeSystem extends ex.System<null> {
-  constructor(public priority: number, public name: string, public types: string[], public systemType: ex.SystemType) {
+class FakeSystem extends ex.System {
+  query: ex.Query<ex.ComponentCtor<ex.Component>>;
+  constructor(
+    public world: ex.World,
+    public priority: number,
+    public name: string,
+    public types: ex.ComponentCtor[],
+    public systemType: ex.SystemType) {
     super();
+    this.query = this.world.query(types);
   }
-  update(entities: ex.Entity[], delta: number): void {
+  update(delta: number): void {
     // fake
   }
 }
@@ -26,14 +31,15 @@ describe('A SystemManager', () => {
   });
 
   it('can add systems', () => {
-    const sm = new ex.World(null).systemManager;
+    const world = new ex.World(null);
+    const sm = world.systemManager;
 
     // Lower priority
-    const s3 = new FakeSystem(2, 'System3', ['C'], SystemType.Update);
+    const s3 = new FakeSystem(world, 2, 'System3', [FakeComponentC], SystemType.Update);
     sm.addSystem(s3);
     // Systems of equal priority should preserve order
-    const s1 = new FakeSystem(1, 'System1', ['A'], SystemType.Update);
-    const s2 = new FakeSystem(1, 'System2', ['C', 'B'], SystemType.Update);
+    const s1 = new FakeSystem(world, 1, 'System1', [FakeComponentA], SystemType.Update);
+    const s2 = new FakeSystem(world, 1, 'System2', [FakeComponentC, FakeComponentB], SystemType.Update);
     sm.addSystem(s1);
     sm.addSystem(s2);
 
@@ -41,14 +47,15 @@ describe('A SystemManager', () => {
   });
 
   it('can remove systems', () => {
-    const sm = new ex.World(null).systemManager;
+    const world = new ex.World(null);
+    const sm = world.systemManager;
 
     // Lower priority
-    const s3 = new FakeSystem(2, 'System3', ['C'], SystemType.Update);
+    const s3 = new FakeSystem(world, 2, 'System3', [FakeComponentC], SystemType.Update);
     sm.addSystem(s3);
     // Systems of equal priority should preserve order
-    const s1 = new FakeSystem(1, 'System1', ['A'], SystemType.Update);
-    const s2 = new FakeSystem(1, 'System2', ['C', 'B'], SystemType.Update);
+    const s1 = new FakeSystem(world, 1, 'System1', [FakeComponentA], SystemType.Update);
+    const s2 = new FakeSystem(world, 1, 'System2', [FakeComponentC, FakeComponentB], SystemType.Update);
     sm.addSystem(s1);
     sm.addSystem(s2);
 
@@ -59,8 +66,9 @@ describe('A SystemManager', () => {
   });
 
   it('can update systems', () => {
-    const sm = new ex.World(null).systemManager;
-    const system = new FakeSystem(2, 'System3', ['C'], SystemType.Update);
+    const world = new ex.World(null);
+    const sm = world.systemManager;
+    const system = new FakeSystem(world, 2, 'System3', [FakeComponentC], SystemType.Update);
     system.preupdate = () => {}; // eslint-disable-line @typescript-eslint/no-empty-function
     system.postupdate = () => {}; // eslint-disable-line @typescript-eslint/no-empty-function
     spyOn(system, 'preupdate');
@@ -78,31 +86,31 @@ describe('A SystemManager', () => {
     const sm = world.systemManager;
     const qm = world.queryManager;
     const em = world.entityManager;
-    const system = new FakeSystem(2, 'System3', ['A', 'C'], SystemType.Update);
+    const system = new FakeSystem(world, 2, 'System3', [FakeComponentA, FakeComponentC], SystemType.Update);
     spyOn(system, 'update').and.callThrough();
     sm.addSystem(system);
 
     const e1 = new ex.Entity();
-    e1.addComponent(new FakeComponent('A'));
-    e1.addComponent(new FakeComponent('C'));
+    e1.addComponent(new FakeComponentA);
+    e1.addComponent(new FakeComponentC);
 
     const e2 = new ex.Entity();
-    e2.addComponent(new FakeComponent('B'));
+    e2.addComponent(new FakeComponentB);
 
     const e3 = new ex.Entity();
-    e3.addComponent(new FakeComponent('C'));
-    e3.addComponent(new FakeComponent('A'));
+    e3.addComponent(new FakeComponentC);
+    e3.addComponent(new FakeComponentA);
 
     em.addEntity(e1);
     em.addEntity(e2);
     em.addEntity(e3);
 
-    const query = qm.getQuery(['A', 'C']);
+    const query = qm.createQuery([FakeComponentA, FakeComponentC]);
     expect(query.getEntities()).toEqual([e1, e3]);
 
     sm.updateSystems(SystemType.Update, null, 10);
 
-    expect(system.update).toHaveBeenCalledWith([e1, e3], 10);
+    expect(system.update).toHaveBeenCalledWith(10);
   });
 
   it('only updates system of the specified system type', () => {
@@ -110,33 +118,24 @@ describe('A SystemManager', () => {
     const sm = world.systemManager;
     const qm = world.queryManager;
     const em = world.entityManager;
-    const system1 = new FakeSystem(2, 'System1', ['A', 'C'], SystemType.Update);
+    const system1 = new FakeSystem(world, 2, 'System1', [FakeComponentA, FakeComponentC], SystemType.Update);
     spyOn(system1, 'update').and.callThrough();
     sm.addSystem(system1);
-    const system2 = new FakeSystem(2, 'System1', ['A', 'C'], SystemType.Draw);
+    const system2 = new FakeSystem(world, 2, 'System1', [FakeComponentA, FakeComponentC], SystemType.Draw);
     spyOn(system2, 'update').and.callThrough();
     sm.addSystem(system2);
 
     sm.updateSystems(SystemType.Draw, null, 10);
 
     expect(system1.update).not.toHaveBeenCalled();
-    expect(system2.update).toHaveBeenCalledWith([], 10);
+    expect(system2.update).toHaveBeenCalledWith(10);
   });
 
   it('should throw on invalid system', () => {
-    const sm = new ex.World(null).systemManager;
+    const world = new ex.World(null);
+    const sm = world.systemManager;
     expect(() => {
-      sm.addSystem(new FakeSystem(0, 'ErrorSystem', [], SystemType.Update));
-    }).toThrow(new Error('Attempted to add a System without any types'));
-  });
-
-  it('type guards on messages should work', () => {
-    const add = new ex.AddedEntity(new ex.Entity());
-    expect(ex.isAddedSystemEntity(add)).toBe(true);
-    expect(ex.isRemoveSystemEntity(add)).toBe(false);
-
-    const remove = new ex.RemovedEntity(new ex.Entity());
-    expect(ex.isRemoveSystemEntity(remove)).toBe(true);
-    expect(ex.isAddedSystemEntity(remove)).toBe(false);
+      sm.addSystem(new FakeSystem(world, 0, 'ErrorSystem', [], SystemType.Update));
+    }).toThrow(new Error('Cannot create query without components'));
   });
 });

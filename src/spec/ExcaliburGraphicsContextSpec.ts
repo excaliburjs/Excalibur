@@ -527,7 +527,7 @@ describe('The ExcaliburGraphicsContext', () => {
       sut.useDrawSorting = false;
 
       sut.drawLine(ex.vec(0, 0), ex.vec(100, 100), ex.Color.Red, 2);
-      expect(rectangleRenderer.flush).withContext('rectangle line render not flusehd yet').not.toHaveBeenCalled();
+      expect(rectangleRenderer.flush).withContext('rectangle line render not flushed yet').not.toHaveBeenCalled();
 
       sut.drawCircle(ex.Vector.Zero, 100, ex.Color.Red, ex.Color.Black, 2);
       expect(circleRenderer.flush).withContext('circle is batched not flushed yet').not.toHaveBeenCalled();

@@ -27,23 +27,25 @@ describe('A Graphics ECS System', () => {
   });
 
   it('sorts entities by transform.z', () => {
-    const sut = new ex.GraphicsSystem();
+    const world = engine.currentScene.world;
+    const sut = new ex.GraphicsSystem(world);
     engine.currentScene._initialize(engine);
-    sut.initialize(engine.currentScene);
+    sut.initialize(world, engine.currentScene);
     const es = [...entities];
-    es.forEach(e => sut.notify(new ex.AddedEntity(e)));
+    es.forEach(e => sut.query.entityAdded$.notifyAll(e));
     sut.preupdate();
     expect(sut.sortedTransforms.map(t => t.owner)).toEqual(entities.reverse());
   });
 
   it('draws entities with transform and graphics components', async () => {
-    const sut = new ex.GraphicsSystem();
-    const offscreenSystem = new ex.OffscreenSystem();
+    const world = engine.currentScene.world;
+    const sut = new ex.GraphicsSystem(world);
+    const offscreenSystem = new ex.OffscreenSystem(world);
     engine.currentScene.camera.update(engine, 1);
     engine.currentScene._initialize(engine);
     engine.screen.setCurrentCamera(engine.currentScene.camera);
-    offscreenSystem.initialize(engine.currentScene);
-    sut.initialize(engine.currentScene);
+    offscreenSystem.initialize(world, engine.currentScene);
+    sut.initialize(world, engine.currentScene);
 
     const rect = new ex.Rectangle({
       width: 25,
@@ -85,12 +87,13 @@ describe('A Graphics ECS System', () => {
 
     entities.push(offscreen);
     engine.graphicsContext.clear();
-    entities.forEach(e => sut.notify(new ex.AddedEntity(e)));
+    entities.forEach(e => offscreenSystem.query.checkAndAdd(e));
+    entities.forEach(e => sut.query.checkAndAdd(e));
 
-    offscreenSystem.update(entities);
+    offscreenSystem.update();
 
     sut.preupdate();
-    sut.update(entities, 1);
+    sut.update(1);
 
     expect(rect.draw).toHaveBeenCalled();
     expect(circle.draw).toHaveBeenCalled();
@@ -121,13 +124,13 @@ describe('A Graphics ECS System', () => {
     spyOn(game.graphicsContext, 'rotate');
     spyOn(game.graphicsContext, 'scale');
 
-    const graphicsSystem = new ex.GraphicsSystem();
-    graphicsSystem.initialize(game.currentScene);
+    const graphicsSystem = new ex.GraphicsSystem(game.currentScene.world);
+    graphicsSystem.initialize(game.currentScene.world, game.currentScene);
     graphicsSystem.preupdate();
-    graphicsSystem.notify(new ex.AddedEntity(actor));
+    graphicsSystem.query.checkAndAdd(actor);
 
     game.currentFrameLagMs = 8; // current lag in a 30 fps frame
-    graphicsSystem.update([actor], 30);
+    graphicsSystem.update(30);
 
     expect(game.graphicsContext.translate).toHaveBeenCalledWith(24, 24);
   });
@@ -158,16 +161,16 @@ describe('A Graphics ECS System', () => {
     spyOn(game.graphicsContext, 'rotate');
     spyOn(game.graphicsContext, 'scale');
 
-    const graphicsSystem = new ex.GraphicsSystem();
-    graphicsSystem.initialize(game.currentScene);
+    const graphicsSystem = new ex.GraphicsSystem(game.currentScene.world);
+    graphicsSystem.initialize(game.currentScene.world, game.currentScene);
     graphicsSystem.preupdate();
-    graphicsSystem.notify(new ex.AddedEntity(actor));
+    graphicsSystem.query.checkAndAdd(actor);
 
     game.currentFrameLagMs = (1000 / 30) / 2; // current lag in a 30 fps frame
-    graphicsSystem.update([actor], 16);
+    graphicsSystem.update(16);
 
     expect(translateSpy.calls.argsFor(0)).toEqual([10, 10]);
-    expect(translateSpy.calls.argsFor(1)).toEqual([45, 45]); // 45 because the parent offets by (-10, -10)
+    expect(translateSpy.calls.argsFor(1)).toEqual([45, 45]); // 45 because the parent offsets by (-10, -10)
   });
 
   it('will not interpolate body graphics if disabled', async () => {
@@ -190,26 +193,27 @@ describe('A Graphics ECS System', () => {
     spyOn(game.graphicsContext, 'rotate');
     spyOn(game.graphicsContext, 'scale');
 
-    const graphicsSystem = new ex.GraphicsSystem();
-    graphicsSystem.initialize(game.currentScene);
+    const graphicsSystem = new ex.GraphicsSystem(game.currentScene.world);
+    graphicsSystem.initialize(game.currentScene.world, game.currentScene);
     graphicsSystem.preupdate();
-    graphicsSystem.notify(new ex.AddedEntity(actor));
+    graphicsSystem.query.checkAndAdd(actor);
 
     actor.body.enableFixedUpdateInterpolate = false;
     game.currentFrameLagMs = 8; // current lag in a 30 fps frame
-    graphicsSystem.update([actor], 30);
+    graphicsSystem.update(30);
 
     expect(game.graphicsContext.translate).toHaveBeenCalledWith(100, 100);
   });
 
   it('will multiply the opacity set on the context', async () => {
-    const sut = new ex.GraphicsSystem();
-    const offscreenSystem = new ex.OffscreenSystem();
+    const world = engine.currentScene.world;
+    const sut = new ex.GraphicsSystem(world);
+    const offscreenSystem = new ex.OffscreenSystem(world);
     engine.currentScene.camera.update(engine, 1);
     engine.currentScene._initialize(engine);
     engine.screen.setCurrentCamera(engine.currentScene.camera);
-    offscreenSystem.initialize(engine.currentScene);
-    sut.initialize(engine.currentScene);
+    offscreenSystem.initialize(world, engine.currentScene);
+    sut.initialize(world, engine.currentScene);
 
 
 
@@ -224,13 +228,14 @@ describe('A Graphics ECS System', () => {
     });
     actor.graphics.opacity = .5;
 
-    sut.notify(new ex.AddedEntity(actor));
+    sut.query.checkAndAdd(actor);
 
-    offscreenSystem.update([actor]);
+    offscreenSystem.query.checkAndAdd(actor);
+    offscreenSystem.update();
 
     engine.graphicsContext.clear();
     sut.preupdate();
-    sut.update([actor], 1);
+    sut.update(1);
 
     engine.graphicsContext.flush();
     await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
@@ -238,13 +243,14 @@ describe('A Graphics ECS System', () => {
   });
 
   it('can flip graphics horizontally', async () => {
-    const sut = new ex.GraphicsSystem();
-    const offscreenSystem = new ex.OffscreenSystem();
+    const world = engine.currentScene.world;
+    const sut = new ex.GraphicsSystem(world);
+    const offscreenSystem = new ex.OffscreenSystem(world);
     engine.currentScene.camera.update(engine, 1);
     engine.currentScene._initialize(engine);
     engine.screen.setCurrentCamera(engine.currentScene.camera);
-    offscreenSystem.initialize(engine.currentScene);
-    sut.initialize(engine.currentScene);
+    offscreenSystem.initialize(world, engine.currentScene);
+    sut.initialize(world, engine.currentScene);
 
     const sword = new ex.ImageSource('src/spec/images/GraphicsSystemSpec/sword.png');
     await sword.load();
@@ -258,13 +264,13 @@ describe('A Graphics ECS System', () => {
     actor.graphics.use(sword.toSprite());
     actor.graphics.flipHorizontal = true;
 
-    sut.notify(new ex.AddedEntity(actor));
+    sut.query.checkAndAdd(actor);
 
-    offscreenSystem.update([actor]);
+    offscreenSystem.update();
 
     engine.graphicsContext.clear();
     sut.preupdate();
-    sut.update([actor], 1);
+    sut.update(1);
 
     engine.graphicsContext.flush();
     await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
@@ -272,13 +278,14 @@ describe('A Graphics ECS System', () => {
   });
 
   it('can flip graphics vertically', async () => {
-    const sut = new ex.GraphicsSystem();
-    const offscreenSystem = new ex.OffscreenSystem();
+    const world = engine.currentScene.world;
+    const sut = new ex.GraphicsSystem(world);
+    const offscreenSystem = new ex.OffscreenSystem(world);
     engine.currentScene.camera.update(engine, 1);
     engine.currentScene._initialize(engine);
     engine.screen.setCurrentCamera(engine.currentScene.camera);
-    offscreenSystem.initialize(engine.currentScene);
-    sut.initialize(engine.currentScene);
+    offscreenSystem.initialize(world, engine.currentScene);
+    sut.initialize(world, engine.currentScene);
 
     const sword = new ex.ImageSource('src/spec/images/GraphicsSystemSpec/sword.png');
     await sword.load();
@@ -292,13 +299,13 @@ describe('A Graphics ECS System', () => {
     actor.graphics.use(sword.toSprite());
     actor.graphics.flipVertical = true;
 
-    sut.notify(new ex.AddedEntity(actor));
+    sut.query.checkAndAdd(actor);
 
-    offscreenSystem.update([actor]);
+    offscreenSystem.update();
 
     engine.graphicsContext.clear();
     sut.preupdate();
-    sut.update([actor], 1);
+    sut.update(1);
 
     engine.graphicsContext.flush();
     await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
@@ -306,13 +313,14 @@ describe('A Graphics ECS System', () => {
   });
 
   it('can flip graphics both horizontally and vertically', async () => {
-    const sut = new ex.GraphicsSystem();
-    const offscreenSystem = new ex.OffscreenSystem();
+    const world = engine.currentScene.world;
+    const sut = new ex.GraphicsSystem(world);
+    const offscreenSystem = new ex.OffscreenSystem(world);
     engine.currentScene.camera.update(engine, 1);
     engine.currentScene._initialize(engine);
     engine.screen.setCurrentCamera(engine.currentScene.camera);
-    offscreenSystem.initialize(engine.currentScene);
-    sut.initialize(engine.currentScene);
+    offscreenSystem.initialize(world, engine.currentScene);
+    sut.initialize(world, engine.currentScene);
 
     const sword = new ex.ImageSource('src/spec/images/GraphicsSystemSpec/sword.png');
     await sword.load();
@@ -327,13 +335,13 @@ describe('A Graphics ECS System', () => {
     actor.graphics.flipVertical = true;
     actor.graphics.flipHorizontal = true;
 
-    sut.notify(new ex.AddedEntity(actor));
+    sut.query.checkAndAdd(actor);
 
-    offscreenSystem.update([actor]);
+    offscreenSystem.update();
 
     engine.graphicsContext.clear();
     sut.preupdate();
-    sut.update([actor], 1);
+    sut.update(1);
 
     engine.graphicsContext.flush();
     await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
@@ -341,13 +349,14 @@ describe('A Graphics ECS System', () => {
   });
 
   it('can flip graphics both horizontally and vertically with an offset', async () => {
-    const sut = new ex.GraphicsSystem();
-    const offscreenSystem = new ex.OffscreenSystem();
+    const world = engine.currentScene.world;
+    const sut = new ex.GraphicsSystem(world);
+    const offscreenSystem = new ex.OffscreenSystem(world);
     engine.currentScene.camera.update(engine, 1);
     engine.currentScene._initialize(engine);
     engine.screen.setCurrentCamera(engine.currentScene.camera);
-    offscreenSystem.initialize(engine.currentScene);
-    sut.initialize(engine.currentScene);
+    offscreenSystem.initialize(world, engine.currentScene);
+    sut.initialize(world, engine.currentScene);
 
     const sword = new ex.ImageSource('src/spec/images/GraphicsSystemSpec/sword.png');
     await sword.load();
@@ -363,13 +372,13 @@ describe('A Graphics ECS System', () => {
     actor.graphics.flipHorizontal = true;
     actor.graphics.offset = ex.vec(25, 25);
 
-    sut.notify(new ex.AddedEntity(actor));
+    sut.query.checkAndAdd(actor);
 
-    offscreenSystem.update([actor]);
+    offscreenSystem.update();
 
     engine.graphicsContext.clear();
     sut.preupdate();
-    sut.update([actor], 1);
+    sut.update(1);
 
     engine.graphicsContext.flush();
     await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))

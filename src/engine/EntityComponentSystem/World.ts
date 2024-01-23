@@ -6,12 +6,13 @@ import { Query } from './Query';
 import { QueryManager } from './QueryManager';
 import { System, SystemType } from './System';
 import { SystemCtor, SystemManager, isSystemConstructor } from './SystemManager';
+import { TagQuery } from './TagQuery';
 
 /**
  * The World is a self-contained entity component system for a particular context.
  */
 export class World {
-  public queryManager: QueryManager = new QueryManager();
+  public queryManager: QueryManager = new QueryManager(this);
   public entityManager: EntityManager = new EntityManager(this);
   public systemManager: SystemManager = new SystemManager(this);
 
@@ -28,6 +29,10 @@ export class World {
   query<TKnownComponentCtors extends ComponentCtor<Component>>(
     requiredTypes: TKnownComponentCtors[]): Query<TKnownComponentCtors> {
     return this.queryManager.createQuery(requiredTypes);
+  }
+
+  queryTags<TKnownTags extends string>(requiredTags: TKnownTags[]): TagQuery<TKnownTags> {
+    return this.queryManager.createTagQuery(requiredTags);
   }
 
   /**
@@ -89,6 +94,10 @@ export class World {
     if (entityOrSystem instanceof System) {
       this.systemManager.removeSystem(entityOrSystem);
     }
+  }
+
+  get entities() {
+    return this.entityManager.entities;
   }
 
   clearEntities(): void {

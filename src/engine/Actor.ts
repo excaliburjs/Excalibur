@@ -533,7 +533,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
       ...config
     };
 
-    this._setName(name);
+    this.name = name ?? this.name;
     this.anchor = anchor ?? Actor.defaults.anchor.clone();
     const tx = new TransformComponent();
     this.addComponent(tx);

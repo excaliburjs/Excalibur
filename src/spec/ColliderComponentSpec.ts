@@ -82,7 +82,7 @@ describe('A ColliderComponent', () => {
 
     const e = new ex.Entity();
     e.addComponent(comp);
-    e.removeComponent(comp, true);
+    e.removeComponent(ex.ColliderComponent, true);
 
     expect(comp.events.clear).toHaveBeenCalled();
   });

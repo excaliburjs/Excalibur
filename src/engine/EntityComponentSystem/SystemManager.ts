@@ -94,15 +94,6 @@ export class SystemManager {
     }
 
     for (const s of systems) {
-      // // Get entities that match the system types, pre-sort
-      // const entities = this._world.queryManager.getQuery(s.types).getEntities(s.sort);
-      // // Initialize entities if needed
-      // if (scene instanceof Scene) {
-      //   for (const entity of entities) {
-      //     entity._initialize(scene?.engine);
-      //   }
-      // }
-      // TODO do we need to init entities here, I don't think so!
       s.update(delta);
     }
 
