@@ -495,10 +495,9 @@ export class PointerEventReceiver {
     }
 
     // Force update pointer system
-    const pointerSystem = this.engine.currentScene.world.systemManager.get(PointerSystem);
-    const transformEntities = this.engine.currentScene.world.queryManager.createQuery(pointerSystem.types);
-    pointerSystem.preupdate();
-    pointerSystem.update(transformEntities.getEntities());
+    const pointerSystem = this.engine.currentScene.world.get(PointerSystem);
+    pointerSystem.preupdate(this.engine.currentScene, 1);
+    pointerSystem.update(1);
   }
 
   private _nativeButtonToPointerButton(s: NativePointerButton): PointerButton {

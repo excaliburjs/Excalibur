@@ -78,7 +78,7 @@ describe('A scene', () => {
     scene.clear();
 
     expect(scene.entities.length).withContext('deferred entity removal means entities cleared at end of update').toBe(3);
-    expect(scene.timers.length).withContext('timers dont have deferred removal').toBe(0);
+    expect(scene.timers.length).withContext('timers don\'t have deferred removal').toBe(0);
 
     scene.update(engine, 100);
     expect(scene.entities.length).toBe(0);
@@ -702,6 +702,7 @@ describe('A scene', () => {
   it('will update TileMaps that were added in a Timer callback', () => {
     let updated = false;
     const tilemap = new ex.TileMap({ pos: ex.vec(0, 0), tileWidth: 1, tileHeight: 1, columns: 1, rows: 1});
+    tilemap._initialize(scene.engine);
     tilemap.on('postupdate', () => {
       updated = true;
     });

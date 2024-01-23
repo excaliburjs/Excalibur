@@ -15,8 +15,7 @@ import { Shape } from './Colliders/Shape';
 import { EventEmitter } from '../EventEmitter';
 import { Actor } from '../Actor';
 
-export class ColliderComponent extends Component<'ex.collider'> {
-  public readonly type = 'ex.collider';
+export class ColliderComponent extends Component {
 
   public events = new EventEmitter();
   /**

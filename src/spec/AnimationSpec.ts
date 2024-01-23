@@ -459,7 +459,7 @@ describe('A Graphics Animation', () => {
     anim.reset();
     expect(anim.currentFrame).toBe(anim.frames[0]);
     anim.tick(100, 2);
-    // Reseting should re-fire the first tick frame event
+    // Reset should re-fire the first tick frame event
     expect(onFrame).toHaveBeenCalledTimes(2);
   });
 
