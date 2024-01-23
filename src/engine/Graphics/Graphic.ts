@@ -31,7 +31,7 @@ export interface GraphicOptions {
    */
   scale?: Vector;
   /**
-   * The opacity of the graphic
+   * The opacity of the graphic between (0 -1)
    */
   opacity?: number;
   /**
@@ -39,7 +39,7 @@ export interface GraphicOptions {
    */
   tint?: Color;
   /**
-   * The origin of the drawing in pixels to use when applying transforms, by default it will be the center of the image
+   * The origin of the drawing in pixels to use when applying transforms, by default it will be the center of the image in pixels
    */
   origin?: Vector;
 }

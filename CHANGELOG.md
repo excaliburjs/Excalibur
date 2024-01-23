@@ -11,6 +11,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Remove confusing Graphics Layering from `ex.GraphicsComponent`, recommend we use the `ex.GraphicsGroup` to manage this behavior
   * Update `ex.GraphicsGroup` to be consistent and use `offset` instead of `pos` for graphics relative positioning
 - Prevent people from inadvertently overriding `update()` in `ex.Scene` and `ex.Actor`. This method can still be overridden with the `//@ts-ignore` pragma
+- `ex.SpriteSheet.getSprite(...)` will now throw on invalid sprite coordinates, this is likely always an error and a warning is inappropriate. This also has the side benefit that you will always get a definite type out of the method.
 
 ### Deprecated
 
@@ -18,6 +19,20 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added additional options to `ex.SpriteSheet.getSprite(..., options)`. You can pass any valid `ex.GraphicOption` to modify a copy of the sprite from the spritesheet.
+  ```typescript
+  const sprite = ss.getSprite(0, 0, {
+    flipHorizontal: true,
+    flipVertical: true,
+    width: 200,
+    height: 201,
+    opacity: .5,
+    scale: ex.vec(2, 2),
+    origin: ex.vec(0, 1),
+    tint: ex.Color.Red,
+    rotation: 4
+  });
+  ```
 - Added `RayCastHit`as part of every raycast not just the physics world query!
   * Additionally added the ray distance and the contact normal for the surface
 - Added the ability to log a message once to all log levels
