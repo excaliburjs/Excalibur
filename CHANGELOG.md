@@ -10,8 +10,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Remove confusing Graphics Layering from `ex.GraphicsComponent`, recommend we use the `ex.GraphicsGroup` to manage this behavior
   * Update `ex.GraphicsGroup` to be consistent and use `offset` instead of `pos` for graphics relative positioning
+- ECS implementation has been updated to remove the "stringly" typed nature of components & systems
+  * For average users of Excalibur folks shouldn't notice any difference
+  * For folks leveraging the ECS, Systems/Components no longer have type parameters based on strings. The type itself is used to track changes.
+  * `class MySystem extends System<'ex.component'>` becomes `class MySystem extends System`
+  * `class MyComponent extends Component<'ex.component'>` becomes `class MyComponent extends Component`
+  * `ex.System.update(elapsedMs: number)` is only passed an elapsed time
 - Prevent people from inadvertently overriding `update()` in `ex.Scene` and `ex.Actor`. This method can still be overridden with the `//@ts-ignore` pragma
 - `ex.SpriteSheet.getSprite(...)` will now throw on invalid sprite coordinates, this is likely always an error and a warning is inappropriate. This also has the side benefit that you will always get a definite type out of the method.
+
 
 ### Deprecated
 
@@ -45,6 +52,22 @@ This project adheres to [Semantic Versioning](http://semver.org/).
     tint: ex.Color.Red,
     rotation: 4
   });
+- New simplified way to query entities `ex.World.query([MyComponentA, MyComponentB])`
+- New way to query for tags on entities `ex.World.queryTags(['A', 'B'])`
+- Systems can be added as a constructor to a world, if they are the world will construct and pass a world instance to them
+  ```typescript
+  world.add(MySystem);
+  ...
+
+  class MySystem extends System {
+    query: Query;
+    constructor(world: World) {
+      super()
+      this.query = world.query([MyComponent]);
+    }
+
+    update
+  }
   ```
 - Added `RayCastHit`as part of every raycast not just the physics world query!
   * Additionally added the ray distance and the contact normal for the surface

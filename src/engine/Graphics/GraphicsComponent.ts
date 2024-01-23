@@ -70,9 +70,8 @@ export interface GraphicsComponentOptions {
 /**
  * Component to manage drawings, using with the position component
  */
-export class GraphicsComponent extends Component<'ex.graphics'> {
+export class GraphicsComponent extends Component {
   private _logger = Logger.getInstance();
-  readonly type = 'ex.graphics';
 
   private _current: string = 'default';
   private _graphics: Record<string, Graphic> = {};

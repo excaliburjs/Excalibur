@@ -6,8 +6,7 @@ import { Entity } from '../Entity';
 import { Observable } from '../../Util/Observable';
 
 
-export class TransformComponent extends Component<'ex.transform'> {
-  public readonly type = 'ex.transform';
+export class TransformComponent extends Component {
 
   private _transform = new Transform();
   public get() {

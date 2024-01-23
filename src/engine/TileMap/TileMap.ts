@@ -206,7 +206,7 @@ export class TileMap extends Entity {
    * @param options
    */
   constructor(options: TileMapOptions) {
-    super(null, options.name);
+    super([], options.name);
     this.addComponent(new TransformComponent());
     this.addComponent(new MotionComponent());
     this.addComponent(
@@ -335,7 +335,7 @@ export class TileMap extends Entity {
      * If checkAndCombine returns true, the collider was successfully merged and should be thrown away
      * @param current current collider to test
      * @param colliders List of colliders to consider merging with
-     * @param maxLookBack The amount of colliders to look back for combindation
+     * @param maxLookBack The amount of colliders to look back for combination
      * @returns false when no combination found, true when successfully combined
      */
     const checkAndCombine = (current: BoundingBox, colliders: BoundingBox[], maxLookBack = 10) => {

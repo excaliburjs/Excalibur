@@ -8,8 +8,7 @@ export interface IsometricEntityComponentOptions {
   tileHeight: number;
 }
 
-export class IsometricEntityComponent extends Component<'ex.isometricentity'> {
-  public readonly type = 'ex.isometricentity';
+export class IsometricEntityComponent extends Component {
   /**
    * Vertical "height" in the isometric world
    */

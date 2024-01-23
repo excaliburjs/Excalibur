@@ -5,7 +5,7 @@ import { vec, Vector } from '../Math/vector';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { Entity } from '../EntityComponentSystem/Entity';
 import { Camera } from '../Camera';
-import { AddedEntity, isAddedSystemEntity, RemovedEntity, System, SystemType } from '../EntityComponentSystem';
+import { Query, System, SystemPriority, SystemType, World } from '../EntityComponentSystem';
 import { Engine } from '../Engine';
 import { GraphicsGroup } from './GraphicsGroup';
 import { Particle } from '../Particles'; // this import seems to bomb wallaby
@@ -18,21 +18,39 @@ import { Transform } from '../Math/transform';
 import { blendTransform } from './TransformInterpolation';
 import { Graphic } from './Graphic';
 
-export class GraphicsSystem extends System<TransformComponent | GraphicsComponent> {
-  public readonly types = ['ex.transform', 'ex.graphics'] as const;
+export class GraphicsSystem extends System {
   public readonly systemType = SystemType.Draw;
-  public priority = 0;
+  public priority = SystemPriority.Average;
   private _token = 0;
   private _graphicsContext: ExcaliburGraphicsContext;
   private _camera: Camera;
   private _engine: Engine;
-
   private _sortedTransforms: TransformComponent[] = [];
+  query: Query<typeof TransformComponent | typeof GraphicsComponent>;
   public get sortedTransforms() {
     return this._sortedTransforms;
   }
 
-  public initialize(scene: Scene): void {
+  constructor(public world: World) {
+    super();
+    this.query = this.world.query([TransformComponent, GraphicsComponent]);
+    this.query.entityAdded$.subscribe(e => {
+      const tx = e.get(TransformComponent);
+      this._sortedTransforms.push(tx);
+      tx.zIndexChanged$.subscribe(this._zIndexUpdate);
+      this._zHasChanged = true;
+    });
+    this.query.entityRemoved$.subscribe(e => {
+      const tx = e.get(TransformComponent);
+      tx.zIndexChanged$.unsubscribe(this._zIndexUpdate);
+      const index = this._sortedTransforms.indexOf(tx);
+      if (index > -1) {
+        this._sortedTransforms.splice(index, 1);
+      }
+    });
+  }
+
+  public initialize(world: World, scene: Scene): void {
     this._camera = scene.camera;
     this._engine = scene.engine;
   }
@@ -53,23 +71,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
     }
   }
 
-  public notify(entityAddedOrRemoved: AddedEntity | RemovedEntity): void {
-    if (isAddedSystemEntity(entityAddedOrRemoved)) {
-      const tx = entityAddedOrRemoved.data.get(TransformComponent);
-      this._sortedTransforms.push(tx);
-      tx.zIndexChanged$.subscribe(this._zIndexUpdate);
-      this._zHasChanged = true;
-    } else {
-      const tx = entityAddedOrRemoved.data.get(TransformComponent);
-      tx.zIndexChanged$.unsubscribe(this._zIndexUpdate);
-      const index = this._sortedTransforms.indexOf(tx);
-      if (index > -1) {
-        this._sortedTransforms.splice(index, 1);
-      }
-    }
-  }
-
-  public update(_entities: Entity[], delta: number): void {
+  public update(delta: number): void {
     this._token++;
     let graphics: GraphicsComponent;
     FontCache.checkAndClearCache();

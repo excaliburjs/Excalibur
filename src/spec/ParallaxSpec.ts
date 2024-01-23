@@ -74,6 +74,7 @@ describe('A Parallax Component', () => {
     tilemap.addComponent(new ex.ParallaxComponent(ex.vec(0.5, 0.5)));
 
     game.add(tilemap);
+    tilemap._initialize(game);
 
     clock.step(16);
 

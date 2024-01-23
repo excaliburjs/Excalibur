@@ -28,8 +28,7 @@ export enum DegreeOfFreedom {
  * Body describes all the physical properties pos, vel, acc, rotation, angular velocity for the purpose of
  * of physics simulation.
  */
-export class BodyComponent extends Component<'ex.body'> implements Clonable<BodyComponent> {
-  public readonly type = 'ex.body';
+export class BodyComponent extends Component implements Clonable<BodyComponent> {
   public dependencies = [TransformComponent, MotionComponent];
   public static _ID = 0;
   public readonly id: Id<'body'> = createId('body', BodyComponent._ID++);
