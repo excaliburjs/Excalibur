@@ -19,7 +19,20 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- Added additional options to `ex.SpriteSheet.getSprite(..., options)`. You can pass any valid `ex.GraphicOption` to modify a copy of the sprite from the spritesheet.
+- Added additional options to `ex.Animation.fromSpriteSheetCoordinates()` you can now pass any valid `ex.GraphicOptions` to influence the sprite per frame
+  ```typescript
+  const anim = ex.Animation.fromSpriteSheetCoordinates({
+    spriteSheet: ss,
+    frameCoordinates: [
+      {x: 0, y: 0, duration: 100, options: { flipHorizontal: true }},
+      {x: 1, y: 0, duration: 100, options: { flipVertical: true }},
+      {x: 2, y: 0, duration: 100},
+      {x: 3, y: 0, duration: 100}
+    ],
+    strategy: ex.AnimationStrategy.Freeze
+  });
+  ```
+- Added additional options to `ex.SpriteSheet.getSprite(..., options)`. You can pass any valid `ex.GraphicOptions` to modify a copy of the sprite from the spritesheet.
   ```typescript
   const sprite = ss.getSprite(0, 0, {
     flipHorizontal: true,
