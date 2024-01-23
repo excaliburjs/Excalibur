@@ -86,8 +86,8 @@ describe('A Graphics Animation', () => {
     const anim = ex.Animation.fromSpriteSheetCoordinates({
       spriteSheet: ss,
       frameCoordinates: [
-        {x: 0, y: 0, duration: 100},
-        {x: 1, y: 0, duration: 100},
+        {x: 0, y: 0, duration: 100, options: { flipHorizontal: true }},
+        {x: 1, y: 0, duration: 100, options: { flipVertical: true }},
         {x: 2, y: 0, duration: 100},
         {x: 3, y: 0, duration: 100}
       ],
@@ -96,6 +96,8 @@ describe('A Graphics Animation', () => {
 
     expect(anim.strategy).toBe(ex.AnimationStrategy.Freeze);
     expect(anim.frames[0].duration).toBe(100);
+    expect(anim.frames[0].graphic.flipHorizontal).toBe(true);
+    expect(anim.frames[1].graphic.flipVertical).toBe(true);
     expect(anim.frames.length).toBe(4);
   });
 

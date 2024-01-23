@@ -1,6 +1,6 @@
 import { ImageSource } from './ImageSource';
 import { SourceView, Sprite } from './Sprite';
-import { Logger } from '../Util/Log';
+import { GraphicOptions } from './Graphic';
 
 /**
  * Specify sprite sheet spacing options, useful if your sprites are not tightly packed
@@ -81,11 +81,12 @@ export interface SpriteSheetOptions {
   columns?: number;
 }
 
+export interface GetSpriteOptions extends GraphicOptions {}
+
 /**
  * Represents a collection of sprites from a source image with some organization in a grid
  */
 export class SpriteSheet {
-  private _logger = Logger.getInstance();
   public readonly sprites: Sprite[] = [];
   public readonly rows: number;
   public readonly columns: number;
@@ -104,21 +105,37 @@ export class SpriteSheet {
   }
 
   /**
-   * Find a sprite by their x/y position in the SpriteSheet, for example `getSprite(0, 0)` is the [[Sprite]] in the top-left
+   * Find a sprite by their x/y integer coordinates in the SpriteSheet, for example `getSprite(0, 0)` is the [[Sprite]] in the top-left
+   * and `getSprite(1, 0)` is the sprite one to the right.
    * @param x
    * @param y
    */
-  public getSprite(x: number, y: number): Sprite | null {
+  public getSprite(x: number, y: number, options?: GetSpriteOptions): Sprite {
     if (x >= this.columns || x < 0) {
-      this._logger.warn(`No sprite exists in the SpriteSheet at (${x}, ${y}), x: ${x} should be between 0 and ${this.columns - 1}`);
-      return null;
+      throw Error(`No sprite exists in the SpriteSheet at (${x}, ${y}), x: ${x} should be between 0 and ${this.columns - 1}`);
     }
     if (y >= this.rows || y < 0) {
-      this._logger.warn(`No sprite exists in the SpriteSheet at (${x}, ${y}), y: ${y} should be between 0 and ${this.rows - 1}`);
-      return null;
+      throw Error(`No sprite exists in the SpriteSheet at (${x}, ${y}), y: ${y} should be between 0 and ${this.rows - 1}`);
     }
     const spriteIndex = x + y * this.columns;
-    return this.sprites[spriteIndex];
+    const sprite = this.sprites[spriteIndex];
+    if (sprite) {
+      if (options) {
+        const spriteWithOptions = sprite.clone();
+        spriteWithOptions.flipHorizontal = options.flipHorizontal ?? spriteWithOptions.flipHorizontal;
+        spriteWithOptions.flipVertical = options.flipVertical ?? spriteWithOptions.flipVertical;
+        spriteWithOptions.width = options.width ?? spriteWithOptions.width;
+        spriteWithOptions.height = options.height ?? spriteWithOptions.height;
+        spriteWithOptions.rotation = options.rotation ?? spriteWithOptions.rotation;
+        spriteWithOptions.scale = options.scale ?? spriteWithOptions.scale;
+        spriteWithOptions.opacity = options.opacity ?? spriteWithOptions.opacity;
+        spriteWithOptions.tint = options.tint ?? spriteWithOptions.tint;
+        spriteWithOptions.origin = options.origin ?? spriteWithOptions.origin;
+        return spriteWithOptions;
+      }
+      return sprite;
+    }
+    throw Error(`Invalid sprite coordinates (${x}, ${y}`);
   }
 
   /**
