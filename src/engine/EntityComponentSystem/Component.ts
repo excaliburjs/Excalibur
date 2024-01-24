@@ -72,7 +72,7 @@ export abstract class Component {
   onAdd?(owner: Entity): void;
 
   /**
-   * Optional callback called when a component is added to an entity
+   * Optional callback called when a component is removed from an entity
    */
   onRemove?(previousOwner: Entity): void;
 }

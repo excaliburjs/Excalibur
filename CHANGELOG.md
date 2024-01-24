@@ -26,6 +26,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added missing dual of `ex.GraphicsComponent.add()`, you can now `ex.GraphicsComponent.remove(name)`;
 - Added additional options to `ex.Animation.fromSpriteSheetCoordinates()` you can now pass any valid `ex.GraphicOptions` to influence the sprite per frame
   ```typescript
   const anim = ex.Animation.fromSpriteSheetCoordinates({

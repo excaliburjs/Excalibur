@@ -131,6 +131,30 @@ describe('A Graphics ECS Component', () => {
     });
   });
 
+  it('can remove graphics', () => {
+    const rect = new ex.Rectangle({
+      width: 40,
+      height: 40
+    });
+    const sut = new ex.GraphicsComponent();
+
+    sut.add('rect', rect, { offset: ex.vec(1, 2), anchor: ex.vec(1, 1) });
+    expect(sut.current).toBe(undefined);
+    expect(sut.currentOptions).toBe(undefined);
+
+    expect(sut.getNames()).toEqual(['rect']);
+
+    sut.use('rect');
+    expect(sut.current).toEqual(rect);
+    expect(sut.currentOptions).toEqual(undefined);
+
+    sut.remove('rect');
+
+    expect(sut.current).toBe(undefined);
+    expect(sut.currentOptions).toBe(undefined);
+    expect(sut.getNames()).toEqual([]);
+  });
+
   it('can show graphics by name if it exists', () => {
     const rect = new ex.Rectangle({
       width: 40,

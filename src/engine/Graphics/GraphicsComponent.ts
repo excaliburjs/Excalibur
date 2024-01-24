@@ -255,6 +255,19 @@ export class GraphicsComponent extends Component {
   }
 
   /**
+   * Removes a registered graphic, if the removed graphic is the current it will switch to the default
+   * @param name
+   */
+  public remove(name: string) {
+    delete this._graphics[name];
+    delete this._options[name];
+    if (this._current === name) {
+      this._current = 'default';
+      this.recalculateBounds();
+    }
+  }
+
+  /**
    * Shows a graphic, will be removed
    * @param nameOrGraphic
    * @param options
@@ -265,7 +278,9 @@ export class GraphicsComponent extends Component {
   }
 
   /**
-   * Use a graphic only, swap out any graphics on the **default** layer, returns the new [[Graphic]]
+   * Use a graphic only, will set the default graphic. Returns the new [[Graphic]]
+   *
+   * Optionally override the stored options
    * @param nameOrGraphic
    * @param options
    */
