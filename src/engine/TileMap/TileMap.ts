@@ -455,6 +455,7 @@ export class TileMap extends Entity {
   }
 
   public update(engine: Engine, delta: number) {
+    this._initialize(engine);
     this.onPreUpdate(engine, delta);
     this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
     if (!this._oldPos.equals(this.pos) ||
