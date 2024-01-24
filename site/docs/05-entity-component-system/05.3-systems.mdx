@@ -64,9 +64,7 @@ For custom component types it is recommended you prefix your types, like `type =
 
 In this example, we create a "search" type component, that searches for a target position. Notice how this component implementation is mostly data.
 
-```ts twoslash
-// @include: ex
-// ---cut---
+```typescript
 class SearchComponent extends ex.Component<'search'> {
     public readonly type = 'search'
     constructor(public target: ex.Vector) {
