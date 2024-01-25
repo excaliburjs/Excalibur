@@ -37,10 +37,6 @@ import { Color } from './Color';
 import { DefaultLoader } from './Director/DefaultLoader';
 import { Transition } from './Director';
 
-declare const _: unique symbol;
-type Forbidden = { [_]: typeof _; }
-type NoOverride<T=void> = T & Forbidden;
-
 export class PreLoadEvent {
   loader: DefaultLoader;
 }
@@ -399,16 +395,11 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
   }
 
   /**
-   * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
-   *
-   * Use **[[onPreUpdate]]** or **[[onPostUpdate]]**, or be sure to call the **`super.update()`**
-   *
    * Updates all the actors and timers in the scene. Called by the [[Engine]].
-   * @internal
    * @param engine  Reference to the current Engine
    * @param delta   The number of milliseconds since the last update
    */
-  public update(engine: Engine, delta: number): NoOverride<void> {
+  public update(engine: Engine, delta: number) {
     if (!this.isInitialized) {
       throw new Error('Scene update called before it was initialized!');
     }
@@ -440,16 +431,11 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
   }
 
   /**
-   * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
-   *
-   * Use **[[onPreDraw]]** or **[[onPostDraw]]**, or be sure to call the **`super.update()`**
-   *
    * Draws all the actors in the Scene. Called by the [[Engine]].
-   * @internal
    * @param ctx    The current rendering context
    * @param delta  The number of milliseconds since the last draw
    */
-  public draw(ctx: ExcaliburGraphicsContext, delta: number): NoOverride<void> {
+  public draw(ctx: ExcaliburGraphicsContext, delta: number) {
     this._predraw(ctx, delta);
 
     this.world.update(SystemType.Draw, delta);

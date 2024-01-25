@@ -47,10 +47,6 @@ import { Text } from './Graphics/Text';
 import { CoordPlane } from './Math/coord-plane';
 import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
 
-declare const _: unique symbol;
-type Forbidden = { [_]: typeof _; }
-type NoOverride<T=void> = T & Forbidden;
-
 /**
  * Type guard for checking if something is an Actor
  * @param x
@@ -856,16 +852,12 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   // #region Update
 
   /**
-   * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
-   *
-   * Use **[[onPreUpdate]]** or **[[onPostUpdate]]**, or be sure to call the **`super.update()`**
-   *
    * Called by the Engine, updates the state of the actor
    * @internal
    * @param engine The reference to the current game engine
    * @param delta  The time elapsed since the last update in milliseconds
    */
-  public update(engine: Engine, delta: number): NoOverride<void> {
+  public update(engine: Engine, delta: number) {
     this._initialize(engine);
     this._preupdate(engine, delta);
     this._postupdate(engine, delta);
