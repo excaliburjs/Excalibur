@@ -11,8 +11,17 @@ import swordAdventureImage from './images/sword-adventure.png'
 import superMetronomeImage from './images/super-metronome-hero.png'
 import nightBikeImage from './images/nightbike.png'
 import retroSkiImage from './images/retroski.png'
+import excalifarm from './images/excalifarm.png'
 
 export default [
+  {
+    title: 'Excali-Farm',
+    image: excalifarm,
+    description:
+      'A little farming game created with the Excalibur Tiled plugin. Come and enjoy the supremely cozy vibes on this lovely farm.',
+    url: 'https://excali-farm.netlify.app/',
+    source: 'https://github.com/mahbarahona/tiles',
+  },
   {
     title: 'Retro Ski',
     image: retroSkiImage,
