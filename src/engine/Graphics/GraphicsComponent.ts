@@ -2,7 +2,6 @@ import { Vector, vec } from '../Math/vector';
 import { Graphic } from './Graphic';
 import { HasTick } from './Animation';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
-import { Logger } from '../Util/Log';
 import { BoundingBox } from '../Collision/Index';
 import { Component } from '../EntityComponentSystem/Component';
 import { Material } from './Context/material';
