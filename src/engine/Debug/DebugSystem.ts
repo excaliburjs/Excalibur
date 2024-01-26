@@ -91,6 +91,9 @@ export class DebugSystem extends System<TransformComponent> {
       this._pushCameraTransform(tx);
 
       this._graphicsContext.save();
+      if (tx.coordPlane === CoordPlane.Screen) {
+        this._graphicsContext.translate(this._engine.screen.contentArea.left, this._engine.screen.contentArea.top);
+      }
       this._graphicsContext.z = txSettings.debugZIndex;
 
       this._applyTransform(entity);
@@ -185,6 +188,9 @@ export class DebugSystem extends System<TransformComponent> {
 
       // World space
       this._graphicsContext.save();
+      if (tx.coordPlane === CoordPlane.Screen) {
+        this._graphicsContext.translate(this._engine.screen.contentArea.left, this._engine.screen.contentArea.top);
+      }
       this._graphicsContext.z = txSettings.debugZIndex;
       motion = entity.get(MotionComponent);
       if (motion) {

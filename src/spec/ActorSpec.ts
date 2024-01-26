@@ -146,11 +146,11 @@ describe('A game actor', () => {
   it('should have constructor anchor set on graphics component', () => {
     const actor = new ex.Actor({anchor: ex.vec(.7, .7)});
 
-    expect(actor.anchor).toEqual(ex.vec(.7, .7));
-    expect(actor.graphics.anchor).toEqual(ex.vec(.7, .7));
+    expect(actor.anchor).toBeVector(ex.vec(.7, .7));
+    expect(actor.graphics.anchor).toBeVector(ex.vec(.7, .7));
 
     actor.anchor = ex.vec(0, 0);
-    expect(actor.graphics.anchor).toEqual(ex.vec(0, 0));
+    expect(actor.graphics.anchor).toBeVector(ex.vec(0, 0));
   });
 
   it('will inherit the scene from the parent entity after being added', () => {
