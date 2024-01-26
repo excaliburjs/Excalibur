@@ -3,8 +3,39 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-
 ## [Unreleased]
+
+### Breaking Changes
+
+-
+
+### Deprecated
+
+-
+
+### Added
+
+-
+
+### Fixed
+
+-
+
+### Updates
+
+-
+
+### Changed
+
+-
+
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+
+## [v0.28.7]
 
 ### Breaking Changes
 
@@ -30,11 +61,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - Changed a rough edge in the `ex.Material` API, if a material was created with a constructor it was lazily initialized. However this causes confusion because now the two ways of creating a material behave differently (the shader is not available immediately on the lazy version). Now `ex.Material` requires the GL graphics context to make sure it always works the same.
-
-
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
 ## [v0.28.6]
 
