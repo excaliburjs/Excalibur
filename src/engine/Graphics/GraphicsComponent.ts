@@ -456,20 +456,22 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
 
   public recalculateBounds() {
     let bb = new BoundingBox();
-    for (const layer of this.layers.get()) {
-      for (const { graphic, options } of layer.graphics) {
-        let anchor = this.anchor;
-        let offset = this.offset;
-        if (options?.anchor) {
-          anchor = options.anchor;
+    if (this.layers) {
+      for (const layer of this.layers.get()) {
+        for (const { graphic, options } of layer.graphics) {
+          let anchor = this.anchor;
+          let offset = this.offset;
+          if (options?.anchor) {
+            anchor = options.anchor;
+          }
+          if (options?.offset) {
+            offset = options.offset;
+          }
+          const bounds = graphic.localBounds;
+          const offsetX = -bounds.width *  anchor.x + offset.x;
+          const offsetY = -bounds.height *  anchor.y + offset.y;
+          bb = graphic?.localBounds.translate(vec(offsetX + layer.offset.x, offsetY + layer.offset.y)).combine(bb);
         }
-        if (options?.offset) {
-          offset = options.offset;
-        }
-        const bounds = graphic.localBounds;
-        const offsetX = -bounds.width *  anchor.x + offset.x;
-        const offsetY = -bounds.height *  anchor.y + offset.y;
-        bb = graphic?.localBounds.translate(vec(offsetX + layer.offset.x, offsetY + layer.offset.y)).combine(bb);
       }
     }
     this._localBounds = bb;
