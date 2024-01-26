@@ -544,7 +544,8 @@ export class Screen {
    * Excalibur screen space.
    *
    * Excalibur screen space starts at the top left (0, 0) corner of the viewport, and extends to the
-   * bottom right corner (resolutionX, resolutionY)
+   * bottom right corner (resolutionX, resolutionY). When using *AndFill suffixed display modes screen space
+   * (0, 0) is the top left of the safe content area bounding box not the viewport.
    * @param point
    */
   public pageToScreenCoordinates(point: Vector): Vector {
@@ -575,6 +576,10 @@ export class Screen {
     newX = (newX / this.viewport.width) * this.resolution.width;
     newY = (newY / this.viewport.height) * this.resolution.height;
 
+    // offset by content area
+    newX = newX - this.contentArea.left;
+    newY = newY - this.contentArea.top;
+
     return new Vector(newX, newY);
   }
 
@@ -589,6 +594,10 @@ export class Screen {
   public screenToPageCoordinates(point: Vector): Vector {
     let newX = point.x;
     let newY = point.y;
+
+    // offset by content area
+    newX = newX + this.contentArea.left;
+    newY = newY + this.contentArea.top;
 
     newX = (newX / this.resolution.width) * this.viewport.width;
     newY = (newY / this.resolution.height) * this.viewport.height;

@@ -6,6 +6,7 @@ import { BoundingBox } from '../Collision/Index';
 import { Component } from '../EntityComponentSystem/Component';
 import { Material } from './Context/material';
 import { Logger } from '../Util/Log';
+import { WatchVector } from '../Math/watch-vector';
 
 /**
  * Type guard for checking if a Graphic HasTick (used for graphics that change over time like animations)
@@ -79,8 +80,6 @@ export class GraphicsComponent extends Component {
 
   public material: Material | null = null;
 
-
-
   /**
    * Draws after the entity transform has been applied, but before graphics component graphics have been drawn
    */
@@ -111,15 +110,36 @@ export class GraphicsComponent extends Component {
    */
   public opacity: number = 1;
 
+
+  private _offset: Vector = Vector.Zero;
+
   /**
    * Offset to apply to graphics by default
    */
-  public offset: Vector = Vector.Zero;
+  public get offset(): Vector {
+    return new WatchVector(this._offset, () => {
+      this.recalculateBounds();
+    });
+  }
+  public set offset(value: Vector) {
+    this._offset = value;
+    this.recalculateBounds();
+  }
+
+  private _anchor: Vector = Vector.Half;
 
   /**
    * Anchor to apply to graphics by default
    */
-  public anchor: Vector = Vector.Half;
+  public get anchor(): Vector {
+    return new WatchVector(this._anchor, () => {
+      this.recalculateBounds();
+    });
+  }
+  public set anchor(value: Vector) {
+    this._anchor = value;
+    this.recalculateBounds();
+  }
 
   /**
    * Flip all graphics horizontally along the y-axis

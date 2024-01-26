@@ -168,6 +168,42 @@ describe('A pointer', () => {
     expect(actualOrder).toEqual(['actor4', 'actor3', 'actor2', 'actor1']);
   });
 
+  it('should dispatch point events on screen elements', () => {
+    const pointerDownSpy = jasmine.createSpy('pointerdown');
+    const screenElement = new ex.ScreenElement({
+      x: 50,
+      y: 50,
+      width: 100,
+      height: 100,
+      color: ex.Color.Red
+    });
+    screenElement.on('pointerdown', pointerDownSpy);
+
+    engine.add(screenElement);
+
+    executeMouseEvent('pointerdown', <any>document, null, 50, 50);
+    executeMouseEvent('pointerdown', <any>document, null, 50, 150);
+    executeMouseEvent('pointerdown', <any>document, null, 150, 50);
+    executeMouseEvent('pointerdown', <any>document, null, 150, 150);
+    executeMouseEvent('pointerdown', <any>document, null, 100, 100);
+
+    engine.currentScene.update(engine, 0);
+
+    expect(pointerDownSpy).toHaveBeenCalledTimes(5);
+
+    pointerDownSpy.calls.reset();
+
+    executeMouseEvent('pointerdown', <any>document, null, 49, 49);
+    executeMouseEvent('pointerdown', <any>document, null, 49, 151);
+    executeMouseEvent('pointerdown', <any>document, null, 151, 49);
+    executeMouseEvent('pointerdown', <any>document, null, 151, 151);
+
+    engine.currentScene.update(engine, 0);
+
+    expect(pointerDownSpy).toHaveBeenCalledTimes(0);
+
+  });
+
   it('can have pointer event canceled', () => {
     const actualOrder = [];
 
