@@ -58,7 +58,6 @@ export class MaterialRenderer implements RendererPlugin {
 
     // Extract context info
     const material = this._context.material;
-    material.initialize(gl, this._context);
 
     const transform = this._context.getTransform();
     const opacity = this._context.opacity;
@@ -181,6 +180,9 @@ export class MaterialRenderer implements RendererPlugin {
     gl.activeTexture(gl.TEXTURE0 + 1);
     gl.bindTexture(gl.TEXTURE_2D, this._context.materialScreenTexture);
     shader.trySetUniformInt('u_screen_texture', 1);
+
+    // bind any additional textures in the material
+    material.uploadAndBind(gl);
 
     // bind quad index buffer
     this._quads.bind();

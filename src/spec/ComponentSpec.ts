@@ -1,12 +1,9 @@
 import * as ex from '@excalibur';
 
-class Dep extends ex.Component<'dep'> {
-  public readonly type = 'dep';
-}
+class Dep extends ex.Component {}
 
-class ComponentImplementation extends ex.Component<'imp'> {
+class ComponentImplementation extends ex.Component {
   public dependencies = [Dep];
-  public readonly type = 'imp';
   public otherprop = 'somestring';
   constructor(public clonable: ex.Vector = ex.Vector.Zero) {
     super();
@@ -24,8 +21,7 @@ describe('A Component', () => {
   it('can be created', () => {
     const imp = new ComponentImplementation();
 
-    expect(imp.type).toBe('imp');
-    expect(imp.owner).toBe(null);
+    expect(imp.owner).toBe(undefined);
     expect(imp.onAdd).not.toHaveBeenCalled();
     expect(imp.onRemove).not.toHaveBeenCalled();
   });
@@ -35,14 +31,13 @@ describe('A Component', () => {
     const imp = new ComponentImplementation();
     entity.addComponent(imp);
 
-    expect(entity.types).toEqual(['dep', 'imp']);
-    expect(imp.type).toBe('imp');
+    expect(entity.types).toEqual([Dep, ComponentImplementation]);
     expect(imp.owner).toBe(entity);
     expect(imp.onAdd).toHaveBeenCalledWith(entity);
     expect(imp.onRemove).not.toHaveBeenCalled();
 
-    entity.removeComponent(imp, true);
-    expect(imp.owner).toBe(null);
+    entity.removeComponent(ComponentImplementation, true);
+    expect(imp.owner).toBe(undefined);
     expect(imp.onRemove).toHaveBeenCalledWith(entity);
   });
 

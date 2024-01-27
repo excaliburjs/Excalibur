@@ -142,33 +142,52 @@ engine.input.pointers.at(1).on('move', paint('red')); // 2nd finger
 engine.input.pointers.at(2).on('move', paint('green')); // 3rd finger
 ```
 
-### Actor pointer events
+### Actor Pointer Events
 
-By default, [actors](/docs/actors) do not participate in pointer events. In other
-words, when you "click" an Actor, it will not throw an event **for that Actor**,
-only a generic pointer event for the game. This is to keep performance
-high and allow actors to "opt-in" to handling pointer events. Actors will automatically
-opt-in if a pointer related event handler is set on them `actor.on("pointerdown", () => {})` for example.
+Actors will participate in pointer events, by default it uses the collision geometry to test whether the pointer is
+in or out of the actor. In the example below the actor has default box geometry of 100x100.
 
-To opt-in manually, set [[Actor.enableCapturePointer]] to `true` and the [[Actor]] will
-start publishing `pointerup` and `pointerdown` events. `pointermove` events
-will not be published by default due to performance implications. If you want
-an actor to receive move events, set [[CapturePointerConfig.captureMoveEvents]] to
-`true`.
+```typescript
+class MyActor extends ex.Actor {
+  constructor() {
+    super({
+      pos: ex.vec(200, 200),
+      width: 100,
+      height: 100});
+    this.on('pointerenter', () => {
+      console.log('enter')
+    });
+    this.on('pointerleave', () => {
+      console.log('leave')
+    });
+  }
+}
 
-Actor pointer events will be prefixed with `pointer`.
-
-```js
-const player = new ex.Actor();
-// enable propagating pointer events
-player.enableCapturePointer = true;
-// enable move events, warning: performance intensive!
-player.capturePointer.captureMoveEvents = true;
-// subscribe to input
-player.on('pointerup', function (ev) {
-  player.logger.info('Player selected!', ev);
-});
 ```
+:::warning
+If your [[Actor]] has no geometry and only graphics you will need to enable graphics bounds testing.
+:::
+
+To enable graphics bounds testing for pointer events you can grab the [[Actor]]'s [[PointerComponent]]
+
+```typescript
+class MyGraphicsActor extends ex.Actor {
+  constructor(image: ImageSource) {
+    super({pos: ex.vec(200, 200)});
+    this.pointer.useGraphicsBounds = true;
+    this.graphics.use(image.toSprite());
+
+    this.on('pointerenter', () => {
+      console.log('enter')
+    });
+    this.on('pointerleave', () => {
+      console.log('leave')
+    });
+  }
+}
+
+```
+
 
 #### Actor Events
 

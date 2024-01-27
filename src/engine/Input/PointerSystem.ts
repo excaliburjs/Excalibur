@@ -5,9 +5,9 @@ import {
   TransformComponent,
   SystemType,
   Entity,
-  AddedEntity,
-  RemovedEntity,
-  isAddedSystemEntity
+  World,
+  Query,
+  SystemPriority
 } from '../EntityComponentSystem';
 import { GraphicsComponent } from '../Graphics/GraphicsComponent';
 import { Scene } from '../Scene';
@@ -23,14 +23,36 @@ import { CoordPlane } from '../Math/coord-plane';
  * The PointerSystem can be optionally configured by the [[PointerComponent]], by default Entities use
  * the [[Collider]]'s shape for pointer events.
  */
-export class PointerSystem extends System<TransformComponent | PointerComponent> {
-  public readonly types = ['ex.transform', 'ex.pointer'] as const;
+export class PointerSystem extends System {
   public readonly systemType = SystemType.Update;
-  public priority = -1;
+  public priority = SystemPriority.Higher;
 
   private _engine: Engine;
   private _receivers: PointerEventReceiver[];
   private _engineReceiver: PointerEventReceiver;
+  query: Query<typeof TransformComponent | typeof PointerComponent>;
+
+  constructor(public world: World) {
+    super();
+    this.query = this.world.query([TransformComponent, PointerComponent]);
+    this.query.entityAdded$.subscribe(e => {
+      const tx = e.get(TransformComponent);
+      this._sortedTransforms.push(tx);
+      this._sortedEntities.push(tx.owner);
+      tx.zIndexChanged$.subscribe(this._zIndexUpdate);
+      this._zHasChanged = true;
+    });
+
+    this.query.entityRemoved$.subscribe(e => {
+      const tx = e.get(TransformComponent);
+      tx.zIndexChanged$.unsubscribe(this._zIndexUpdate);
+      const index = this._sortedTransforms.indexOf(tx);
+      if (index > -1) {
+        this._sortedTransforms.splice(index, 1);
+        this._sortedEntities.splice(index, 1);
+      }
+    });
+  }
 
   /**
    * Optionally override component configuration for all entities
@@ -45,7 +67,7 @@ export class PointerSystem extends System<TransformComponent | PointerComponent>
   public currentFrameEntityToPointers = new Map<number, number[]>();
   private _scene: Scene<unknown>;
 
-  public initialize(scene: Scene): void {
+  public initialize(world: World, scene: Scene): void {
     this._engine = scene.engine;
     this._scene = scene;
   }
@@ -71,23 +93,7 @@ export class PointerSystem extends System<TransformComponent | PointerComponent>
     }
   }
 
-  public notify(entityAddedOrRemoved: AddedEntity | RemovedEntity): void {
-    if (isAddedSystemEntity(entityAddedOrRemoved)) {
-      const tx = entityAddedOrRemoved.data.get(TransformComponent);
-      this._sortedTransforms.push(tx);
-      this._sortedEntities.push(tx.owner);
-      tx.zIndexChanged$.subscribe(this._zIndexUpdate);
-      this._zHasChanged = true;
-    } else {
-      const tx = entityAddedOrRemoved.data.get(TransformComponent);
-      tx.zIndexChanged$.unsubscribe(this._zIndexUpdate);
-      const index = this._sortedTransforms.indexOf(tx);
-      if (index > -1) {
-        this._sortedTransforms.splice(index, 1);
-        this._sortedEntities.splice(index, 1);
-      }
-    }
-  }
+
 
   public entityCurrentlyUnderPointer(entity: Entity, pointerId: number) {
     return this.currentFrameEntityToPointers.has(entity.id) &&
@@ -118,7 +124,7 @@ export class PointerSystem extends System<TransformComponent | PointerComponent>
     this.currentFrameEntityToPointers.set(entity.id, pointers.concat(pointerId));
   }
 
-  public update(_entities: Entity[]): void {
+  public update(): void {
     // Locate all the pointer/entity mappings
     this._processPointerToEntity(this._sortedEntities);
 

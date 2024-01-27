@@ -84,27 +84,78 @@ actor.graphics.onPostDraw = (ctx: ex.ExcaliburGraphicsContext) => {
 }
 ```
 
-### Layers
+### Multiple Graphics at Once
 
-The layer's component adds a way for multiple [graphics](#graphics) to be on top or behind each other for a certain actor or entity.
+Sometimes you want to draw multiple pieces of graphics at once! There are two recommended ways to accomplish this!
 
-Layers can be ordered numerically, larger negative layers behind, and positive layers in front.
+#### GraphicsGroup
+
+[[GraphicsGroup|Graphics groups]] allow you to compose multiple graphics together into 1. This can be useful if you have multi layered or complex graphics requirements. One limitation however is you can only influence the relative offset from you Actor.
 
 ```typescript
-actor.graphics.layers.create({ name: 'background', order: -1 })
-actor.graphics.layers.create({ name: 'foreground', order: 1 })
+const healthBarActor = new ex.Actor({...})
 
-actor.graphics.layers.get('background').show(myBackground)
-actor.graphics.layers.get('foreground').show(myForeground)
+const healthBarRectangle = new ex.Rectangle({
+  width: 140,
+  height: 5,
+  color: new ex.Color(0, 255, 0)
+});
 
-// no longer display the background
-actor.graphics.layers.get('background').hide()
+const healthBarText = new ex.Text({
+  text: 'A long piece of text is long',
+  font: new ex.Font({
+    size: 20,
+    family: 'Times New Roman'
+  })
+});
+
+const group = new ex.GraphicsGroup({
+  members: [
+    { graphic: healthbarRectangle, pos: ex.vec(0, -70)},
+    { graphic: healthBarText, pos: ex.vec(0, -70)}
+  ]
+});
+
+healthBarActor.graphics.use(group);
 ```
 
-There is always a layer named `'default'` at `order: 0`
+#### Child Actor or Entity
+
+If you need independent articulation and a lot of control over positioning, rotation, and scale this is this strategy to reach for. One example is you might have a main actor, and a child actor for every limb of a paper doll.
 
 ```typescript
-actor.graphics.show(myAnimation)
-// is equivalent to
-actor.graphics.layers.get('default').show(myAnimation)
+
+import { Resources } from './Resources';
+
+class PaperDoll extends ex.Actor {
+  this.leftArm = new ex.Actor({
+    pos: ex.vec(-10, 10)
+  });
+  this.rightArm = new ex.Actor({
+    pos: ex.vec(10, 10)
+  });
+  this.head = new ex.Actor({
+    pos: ex.vec(0, -10)
+  });
+  this.body = new ex.Actor({
+    pos: ex.vec(0, 20)
+  });
+  this.leftLeg = new ex.Actor({
+    pos: ex.vec(-10, 30)
+  });
+  this.rightLeg = new ex.Actor({
+    pos: ex.vec(10, 30)
+  });
+
+  constructor() {
+    this.leftArm.graphics.use(Resources.LeftArm);
+    this.rightArm.graphics.use(Resources.RightArm);
+
+    this.head.graphics.use(Resources.Head);
+    this.body.graphics.use(Resources.Body);
+
+    this.leftLeg.graphics.use(Resources.LeftLeg);
+    this.rightLeg.graphics.use(Resources.RightLeg);
+  }
+}
 ```

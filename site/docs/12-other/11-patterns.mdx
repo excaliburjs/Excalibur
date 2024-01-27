@@ -4,6 +4,11 @@ slug: /patterns
 section: Other
 ---
 
+```twoslash include ex
+/// <reference path="../src/engine/excalibur.d.ts" />
+declare const game: ex.Engine;
+```
+
 Here are a few patterns and guidelines that you can use in your Excalibur projects.
 
 ## Project Structure
@@ -37,7 +42,35 @@ Keep the `main.ts` entrypoint as small as possible (this is where we create a ne
 
 Keep all of our assets/resources in one file `resources.ts` and load them all at once in the `main.ts`
 
-`embed:excalibur-snippets/src/resources/main.ts{snippet: "resources"}`
+```ts twoslash
+// @include: ex
+declare interface Object {
+  values(res: any): ex.Resource<any>[];
+}
+// ---cut---
+// Because snippets uses a bundler we load the image with an import
+// Optionally do this
+// import playerUrl from './player.png';
+
+// If you aren't using a bundler like parcel or webpack you can do this:
+// const imagePlayer = new ex.ImageSource('./player.png')
+const Resources = {
+    ImagePlayer: new ex.ImageSource('./player.png'),
+    //... more resources
+} as const; // <-- Important for strong typing
+
+const loader = new ex.Loader();
+for (let res of Object.values(Resources)) {
+  loader.addResource(res);
+}
+
+class Player extends ex.Actor {
+    public onInitialize(engine: ex.Engine) {
+        // set as the "default" drawing
+        this.graphics.use(Resources.ImagePlayer.toSprite());
+    }
+}
+```
 
 <IFrameEmbed src="https://excaliburjs.com/excalibur-snippets/resources/" />
 

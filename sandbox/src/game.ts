@@ -303,35 +303,35 @@ var group = new ex.GraphicsGroup({
   members: [
     {
       graphic: newSprite,
-      pos: ex.vec(0, 0)
+      offset: ex.vec(0, 0)
     },
     {
       graphic: newSprite,
-      pos: ex.vec(50, 0)
+      offset: ex.vec(50, 0)
     },
     {
       graphic: newSprite,
-      pos: ex.vec(0, 50)
+      offset: ex.vec(0, 50)
     },
     {
       graphic: text,
-      pos: ex.vec(100, 20)
+      offset: ex.vec(100, 20)
     },
     {
       graphic: circle,
-      pos: ex.vec(50, 50)
+      offset: ex.vec(50, 50)
     },
     {
       graphic: anim,
-      pos: ex.vec(200, 200)
+      offset: ex.vec(200, 200)
     },
     {
       graphic: cardAnimation,
-      pos: ex.vec(0, 200)
+      offset: ex.vec(0, 200)
     },
     {
       graphic: spriteText,
-      pos: ex.vec(300, 200)
+      offset: ex.vec(300, 200)
     }
   ]
 });
@@ -618,12 +618,6 @@ var healthbar2 = new ex.Rectangle({
   color: new ex.Color(0, 255, 0)
 });
 
-var backroundLayer = player.graphics.layers.create({
-  name: 'background',
-  order: -1
-});
-
-backroundLayer.show(healthbar2, { offset: ex.vec(0, -70) });
 var playerText = new ex.Text({
   text: 'A long piece of text is long',
   font: new ex.Font({
@@ -631,8 +625,24 @@ var playerText = new ex.Text({
     family: 'Times New Roman'
   })
 });
-// playerText.showDebug = true;
-backroundLayer.show(playerText, { offset: ex.vec(0, -70) });
+
+var group = new ex.GraphicsGroup({
+  members: [
+    { graphic: healthbar2, offset: ex.vec(0, -70)},
+    { graphic: playerText, offset: ex.vec(0, -70)}
+  ]
+})
+healthbar.graphics.use(group);
+
+// var backgroundLayer = player.graphics.layers.create({
+//   name: 'background',
+//   order: -1
+// });
+
+// backgroundLayer.show(healthbar2, { offset: ex.vec(0, -70) });
+
+// // playerText.showDebug = true;
+// backgroundLayer.show(playerText, { offset: ex.vec(0, -70) });
 
 // Retrieve animations for player from sprite sheet
 var left = ex.Animation.fromSpriteSheet(spriteSheetRun, ex.range(1, 10), 50);

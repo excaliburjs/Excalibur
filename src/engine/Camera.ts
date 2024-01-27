@@ -691,7 +691,7 @@ export class Camera implements CanUpdate, CanInitialize {
   }
 
   public updateViewport() {
-    // recalc viewport
+    // recalculate viewport
     this._viewport = new BoundingBox(
       this.x - this._halfWidth,
       this.y - this._halfHeight,

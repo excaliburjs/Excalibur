@@ -25,7 +25,7 @@ Our user documentation is at https://excaliburjs.com/docs (and you can contribut
 
 # API Reference
 
-Visit the [API Reference](https://excaliburjs.com/docs/api/edge) section for fully-annotated documentation of the API.
+Visit the [API Reference](https://excaliburjs.com/docs/) section for fully-annotated documentation of the API.
 
 # Questions
 

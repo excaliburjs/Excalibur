@@ -8,7 +8,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
--
+- Remove confusing Graphics Layering from `ex.GraphicsComponent`, recommend we use the `ex.GraphicsGroup` to manage this behavior
+  * Update `ex.GraphicsGroup` to be consistent and use `offset` instead of `pos` for graphics relative positioning
+- ECS implementation has been updated to remove the "stringly" typed nature of components & systems
+  * For average users of Excalibur folks shouldn't notice any difference
+  * For folks leveraging the ECS, Systems/Components no longer have type parameters based on strings. The type itself is used to track changes.
+  * `class MySystem extends System<'ex.component'>` becomes `class MySystem extends System`
+  * `class MyComponent extends Component<'ex.component'>` becomes `class MyComponent extends Component`
+  * `ex.System.update(elapsedMs: number)` is only passed an elapsed time
+- Prevent people from inadvertently overriding `update()` in `ex.Scene` and `ex.Actor`. This method can still be overridden with the `//@ts-ignore` pragma
+- `ex.SpriteSheet.getSprite(...)` will now throw on invalid sprite coordinates, this is likely always an error and a warning is inappropriate. This also has the side benefit that you will always get a definite type out of the method.
+
 
 ### Deprecated
 
@@ -16,6 +26,72 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added missing dual of `ex.GraphicsComponent.add()`, you can now `ex.GraphicsComponent.remove(name)`;
+- Added additional options to `ex.Animation.fromSpriteSheetCoordinates()` you can now pass any valid `ex.GraphicOptions` to influence the sprite per frame
+  ```typescript
+  const anim = ex.Animation.fromSpriteSheetCoordinates({
+    spriteSheet: ss,
+    frameCoordinates: [
+      {x: 0, y: 0, duration: 100, options: { flipHorizontal: true }},
+      {x: 1, y: 0, duration: 100, options: { flipVertical: true }},
+      {x: 2, y: 0, duration: 100},
+      {x: 3, y: 0, duration: 100}
+    ],
+    strategy: ex.AnimationStrategy.Freeze
+  });
+  ```
+- Added additional options to `ex.SpriteSheet.getSprite(..., options)`. You can pass any valid `ex.GraphicOptions` to modify a copy of the sprite from the spritesheet.
+  ```typescript
+  const sprite = ss.getSprite(0, 0, {
+    flipHorizontal: true,
+    flipVertical: true,
+    width: 200,
+    height: 201,
+    opacity: .5,
+    scale: ex.vec(2, 2),
+    origin: ex.vec(0, 1),
+    tint: ex.Color.Red,
+    rotation: 4
+  });
+- New simplified way to query entities `ex.World.query([MyComponentA, MyComponentB])`
+- New way to query for tags on entities `ex.World.queryTags(['A', 'B'])`
+- Systems can be added as a constructor to a world, if they are the world will construct and pass a world instance to them
+  ```typescript
+  world.add(MySystem);
+  ...
+
+  class MySystem extends System {
+    query: Query;
+    constructor(world: World) {
+      super()
+      this.query = world.query([MyComponent]);
+    }
+
+    update
+  }
+  ```
+- Added `RayCastHit`as part of every raycast not just the physics world query!
+  * Additionally added the ray distance and the contact normal for the surface
+- Added the ability to log a message once to all log levels
+  * `debugOnce`
+  * `infoOnce`
+  * `warnOnce`
+  * `errorOnce`
+  * `fatalOnce`
+- Added ability to load additional images into `ex.Material`s!
+  ```typescript
+  const noise = new ex.ImageSource('./noise.avif');
+  loader.addResource(noise);
+
+  var waterMaterial = game.graphicsContext.createMaterial({
+    name: 'water',
+    fragmentSource: waterFrag,
+    color: ex.Color.fromRGB(55, 0, 200, .6),
+    images: {
+      u_noise: noise
+    }
+  });
+  ```
 - Scene Transition & Loader API, this gives you the ability to have first class support for individual scene resource loading and scene transitions.
   * Add or remove scenes by constructor
   * Add loaders by constructor
@@ -79,7 +155,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
-- 
+- Fixed issue where an empty constructor on `new ex.Label()` would crash
+- Fixed issue where pointer events did not work properly when using [[ScreenElement]]s
+- Fixed issue where debug draw was not accurate when using *AndFill suffixed [[DisplayMode]]s
 
 ### Updates
 
@@ -87,7 +165,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
--
+- Changed a rough edge in the `ex.Material` API, if a material was created with a constructor it was lazily initialized. However this causes confusion because now the two ways of creating a material behave differently (the shader is not available immediately on the lazy version). Now `ex.Material` requires the GL graphics context to make sure it always works the same.
 
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->

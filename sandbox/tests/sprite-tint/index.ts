@@ -38,8 +38,14 @@ actor.onInitialize = () => {
     })
   );
 
-  actor.graphics.show(shadow, {offset: ex.vec(10, 10)});
-  actor.graphics.show(sprite);
+  const group = new ex.GraphicsGroup({
+    members: [
+      {graphic: shadow, offset: ex.vec(10, 10)},
+      sprite
+    ]
+  })
+
+  actor.graphics.use(group);
 };
 
 

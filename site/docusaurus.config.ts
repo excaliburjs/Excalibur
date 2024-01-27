@@ -211,6 +211,7 @@ const config: Config = {
         { to: '/api', label: 'API', position: 'left' },
         { to: '/blog', label: 'Blog', position: 'left' },
         { to: '/samples', label: 'Samples', position: 'left' },
+        { to: '/showcase', label: 'Showcase', position: 'left' },
         { to: '/donate', label: 'Donate', position: 'left' },
         {
           href: 'https://github.com/excaliburjs/Excalibur/discussions',
@@ -285,7 +286,7 @@ const config: Config = {
     prism: {
       theme: lightCodeTheme,
       darkTheme: darkCodeTheme,
-      additionalLanguages: ['bash', 'diff', 'json']
+      additionalLanguages: ['bash', 'diff', 'json', 'glsl']
     },
     liveCodeBlock: {
       /**

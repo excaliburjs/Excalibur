@@ -24,6 +24,12 @@ describe('A label', () => {
     expect(sut).not.toBeNull();
   });
 
+  it('can construct with empty text', () => {
+    expect(() => {
+      const sut = new ex.Label();
+    }).not.toThrow();
+  });
+
   it('can be constructed with a font', () => {
     const sut = new ex.Label({
       text: 'some text',

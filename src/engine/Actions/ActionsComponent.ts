@@ -12,10 +12,9 @@ import { Action } from './Action';
 
 export interface ActionContextMethods extends Pick<ActionContext, keyof ActionContext> { };
 
-export class ActionsComponent extends Component<'ex.actions'> implements ActionContextMethods {
-  public readonly type = 'ex.actions';
+export class ActionsComponent extends Component implements ActionContextMethods {
   dependencies = [TransformComponent, MotionComponent];
-  private _ctx: ActionContext;
+  private _ctx: ActionContext | null = null;
 
   onAdd(entity: Entity) {
     this._ctx = new ActionContext(entity);
@@ -25,16 +24,29 @@ export class ActionsComponent extends Component<'ex.actions'> implements ActionC
     this._ctx = null;
   }
 
+  private _getCtx() {
+    if (!this._ctx) {
+      throw new Error('Actions component not attached to an entity, no context available');
+    }
+    return this._ctx;
+  }
+
   /**
    * Returns the internal action queue
    * @returns action queue
    */
   public getQueue(): ActionQueue {
-    return this._ctx?.getQueue();
+    if (!this._ctx) {
+      throw new Error('Actions component not attached to an entity, no queue available');
+    }
+    return this._ctx.getQueue();
   }
 
   public runAction(action: Action): ActionContext {
-    return this._ctx?.runAction(action);
+    if (!this._ctx) {
+      throw new Error('Actions component not attached to an entity, cannot run action');
+    }
+    return this._ctx.runAction(action);
   }
 
   /**
@@ -72,13 +84,13 @@ export class ActionsComponent extends Component<'ex.actions'> implements ActionC
    */
   public easeTo(x: number, y: number, duration: number, easingFcn?: EasingFunction): ActionContext;
   public easeTo(...args: any[]): ActionContext {
-    return this._ctx.easeTo.apply(this._ctx, args);
+    return this._getCtx().easeTo.apply(this._ctx, args as any);
   }
 
   public easeBy(offset: Vector, duration: number, easingFcn?: EasingFunction): ActionContext;
   public easeBy(offsetX: number, offsetY: number, duration: number, easingFcn?: EasingFunction): ActionContext;
   public easeBy(...args: any[]): ActionContext {
-    return this._ctx.easeBy.apply(this._ctx, args);
+    return this._getCtx().easeBy.apply(this._ctx, args as any);
   }
 
   /**
@@ -99,7 +111,7 @@ export class ActionsComponent extends Component<'ex.actions'> implements ActionC
    */
   public moveTo(x: number, y: number, speed: number): ActionContext;
   public moveTo(xOrPos: number | Vector, yOrSpeed: number, speedOrUndefined?: number): ActionContext {
-    return this._ctx.moveTo.apply(this._ctx, [xOrPos, yOrSpeed, speedOrUndefined]);
+    return this._getCtx().moveTo.apply(this._ctx, [xOrPos, yOrSpeed, speedOrUndefined] as any);
   }
 
   /**
@@ -118,7 +130,7 @@ export class ActionsComponent extends Component<'ex.actions'> implements ActionC
    */
   public moveBy(xOffset: number, yOffset: number, speed: number): ActionContext;
   public moveBy(xOffsetOrVector: number | Vector, yOffsetOrSpeed: number, speedOrUndefined?: number): ActionContext {
-    return this._ctx.moveBy.apply(this._ctx, [xOffsetOrVector, yOffsetOrSpeed, speedOrUndefined]);
+    return this._getCtx().moveBy.apply(this._ctx, [xOffsetOrVector, yOffsetOrSpeed, speedOrUndefined] as any);
   }
 
   /**
@@ -130,7 +142,7 @@ export class ActionsComponent extends Component<'ex.actions'> implements ActionC
    * @param rotationType  The [[RotationType]] to use for this rotation
    */
   public rotateTo(angleRadians: number, speed: number, rotationType?: RotationType): ActionContext {
-    return this._ctx.rotateTo(angleRadians, speed, rotationType);
+    return this._getCtx().rotateTo(angleRadians, speed, rotationType);
   }
 
   /**
@@ -142,7 +154,7 @@ export class ActionsComponent extends Component<'ex.actions'> implements ActionC
    * @param rotationType  The [[RotationType]] to use for this rotation, default is shortest path
    */
   public rotateBy(angleRadiansOffset: number, speed: number, rotationType?: RotationType): ActionContext {
-    return this._ctx.rotateBy(angleRadiansOffset, speed, rotationType);
+    return this._getCtx().rotateBy(angleRadiansOffset, speed, rotationType);
   }
 
   /**
@@ -170,7 +182,7 @@ export class ActionsComponent extends Component<'ex.actions'> implements ActionC
     sizeYOrSpeed: number | Vector,
     speedXOrUndefined?: number,
     speedYOrUndefined?: number): ActionContext {
-    return this._ctx.scaleTo.apply(this._ctx, [sizeXOrVector, sizeYOrSpeed, speedXOrUndefined, speedYOrUndefined]);
+    return this._getCtx().scaleTo.apply(this._ctx, [sizeXOrVector, sizeYOrSpeed, speedXOrUndefined, speedYOrUndefined] as any);
   }
 
   /**
@@ -191,7 +203,7 @@ export class ActionsComponent extends Component<'ex.actions'> implements ActionC
    */
   public scaleBy(sizeOffsetX: number, sizeOffsetY: number, speed: number): ActionContext;
   public scaleBy(sizeOffsetXOrVector: number | Vector, sizeOffsetYOrSpeed: number, speed?: number): ActionContext {
-    return this._ctx.scaleBy.apply(this._ctx, [sizeOffsetXOrVector, sizeOffsetYOrSpeed, speed]);
+    return this._getCtx().scaleBy.apply(this._ctx, [sizeOffsetXOrVector, sizeOffsetYOrSpeed, speed] as any);
   }
 
   /**
@@ -204,7 +216,7 @@ export class ActionsComponent extends Component<'ex.actions'> implements ActionC
    * @param numBlinks       The number of times to blink
    */
   public blink(timeVisible: number, timeNotVisible: number, numBlinks?: number): ActionContext {
-    return this._ctx.blink(timeVisible, timeNotVisible, numBlinks);
+    return this._getCtx().blink(timeVisible, timeNotVisible, numBlinks);
   }
 
   /**
@@ -215,7 +227,7 @@ export class ActionsComponent extends Component<'ex.actions'> implements ActionC
    * @param time     The time it should take to fade the actor (in milliseconds)
    */
   public fade(opacity: number, time: number): ActionContext {
-    return this._ctx.fade(opacity, time);
+    return this._getCtx().fade(opacity, time);
   }
 
   /**
@@ -225,7 +237,7 @@ export class ActionsComponent extends Component<'ex.actions'> implements ActionC
    * @param time  The amount of time to delay the next action in the queue from executing in milliseconds
    */
   public delay(time: number): ActionContext {
-    return this._ctx.delay(time);
+    return this._getCtx().delay(time);
   }
 
   /**
@@ -234,7 +246,7 @@ export class ActionsComponent extends Component<'ex.actions'> implements ActionC
    * action queue after this action will not be executed.
    */
   public die(): ActionContext {
-    return this._ctx.die();
+    return this._getCtx().die();
   }
 
   /**
@@ -243,7 +255,7 @@ export class ActionsComponent extends Component<'ex.actions'> implements ActionC
    * action, i.e An actor arrives at a destination after traversing a path
    */
   public callMethod(method: () => any): ActionContext {
-    return this._ctx.callMethod(method);
+    return this._getCtx().callMethod(method);
   }
 
   /**
@@ -264,7 +276,7 @@ export class ActionsComponent extends Component<'ex.actions'> implements ActionC
    * will repeat forever
    */
   public repeat(repeatBuilder: (repeatContext: ActionContext) => any, times?: number): ActionContext {
-    return this._ctx.repeat(repeatBuilder, times);
+    return this._getCtx().repeat(repeatBuilder, times);
   }
 
   /**
@@ -283,7 +295,7 @@ export class ActionsComponent extends Component<'ex.actions'> implements ActionC
    * @param repeatBuilder The builder to specify the repeatable list of actions
    */
   public repeatForever(repeatBuilder: (repeatContext: ActionContext) => any): ActionContext {
-    return this._ctx.repeatForever(repeatBuilder);
+    return this._getCtx().repeatForever(repeatBuilder);
   }
 
   /**
@@ -292,7 +304,7 @@ export class ActionsComponent extends Component<'ex.actions'> implements ActionC
    * @param followDistance  The distance to maintain when following, if not specified the actor will follow at the current distance.
    */
   public follow(entity: Actor, followDistance?: number): ActionContext {
-    return this._ctx.follow(entity, followDistance);
+    return this._getCtx().follow(entity, followDistance);
   }
 
   /**
@@ -302,7 +314,7 @@ export class ActionsComponent extends Component<'ex.actions'> implements ActionC
    * @param speed  The speed in pixels per second to move, if not specified it will match the speed of the other actor
    */
   public meet(entity: Actor, speed?: number): ActionContext {
-    return this._ctx.meet(entity, speed);
+    return this._getCtx().meet(entity, speed);
   }
 
   /**
@@ -310,6 +322,6 @@ export class ActionsComponent extends Component<'ex.actions'> implements ActionC
    * is finished.
    */
   public toPromise(): Promise<void> {
-    return this._ctx.toPromise();
+    return this._getCtx().toPromise();
   }
 }

@@ -31,7 +31,7 @@ describe('A Collision Pair', () => {
       width: 20,
       height: 20
     });
-    actor2.removeComponent('ex.body', true);
+    actor2.removeComponent(ex.BodyComponent, true);
 
     const sut = ex.Pair.canCollide(actor1.collider.get(), actor2.collider.get());
 

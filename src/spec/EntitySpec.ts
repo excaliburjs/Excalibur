@@ -1,11 +1,10 @@
 import * as ex from '@excalibur';
-import { TagComponent } from '@excalibur';
 
-class FakeComponent extends ex.Component {
-  constructor(public type: string) {
-    super();
-  }
-}
+class FakeComponentA extends ex.Component {}
+class FakeComponentB extends ex.Component {}
+class FakeComponentC extends ex.Component {}
+class FakeComponentD extends ex.Component {}
+class FakeComponentZ extends ex.Component {}
 
 describe('An entity', () => {
   it('exists', () => {
@@ -13,22 +12,21 @@ describe('An entity', () => {
   });
 
   it('can be constructed with a list of components', () => {
-    const e = new ex.Entity([new FakeComponent('A'), new FakeComponent('B'), new FakeComponent('C')]);
+    const e = new ex.Entity([new FakeComponentA, new FakeComponentB, new FakeComponentC]);
 
-    expect(e.has('A')).toBe(true);
-    expect(e.has('B')).toBe(true);
-    expect(e.has('C')).toBe(true);
+    expect(e.has(FakeComponentA)).toBe(true);
+    expect(e.has(FakeComponentB)).toBe(true);
+    expect(e.has(FakeComponentC)).toBe(true);
   });
 
   it('can override existing components', () => {
-    const e = new ex.Entity([
-      new FakeComponent('A')
-    ]);
+    const original = new FakeComponentA;
+    const e = new ex.Entity([original]);
 
     spyOn(e, 'removeComponent');
-    const newComponent = new FakeComponent('A');
+    const newComponent = new FakeComponentA;
     e.addComponent(newComponent, true);
-    expect(e.removeComponent).toHaveBeenCalledWith(newComponent, true);
+    expect(e.removeComponent).toHaveBeenCalledWith(FakeComponentA, true);
   });
 
   it('has a unique id', () => {
@@ -65,44 +63,44 @@ describe('An entity', () => {
 
   it('can have types by component', () => {
     const entity = new ex.Entity();
-    const typeA = new FakeComponent('A');
-    const typeB = new FakeComponent('B');
+    const typeA = new FakeComponentA;
+    const typeB = new FakeComponentB;
     expect(entity.types).toEqual([]);
 
     entity.addComponent(typeA);
-    expect(entity.types).toEqual(['A']);
+    expect(entity.types).toEqual([FakeComponentA]);
     entity.addComponent(typeB);
-    expect(entity.types).toEqual(['A', 'B']);
-    entity.removeComponent(typeA, true);
-    expect(entity.types).toEqual(['B']);
-    entity.removeComponent(typeB, true);
+    expect(entity.types).toEqual([ FakeComponentA, FakeComponentB]);
+    entity.removeComponent(FakeComponentA, true);
+    expect(entity.types).toEqual([FakeComponentB]);
+    entity.removeComponent(FakeComponentB, true);
     expect(entity.types).toEqual([]);
   });
 
   it('can get a list of components', () => {
     const entity = new ex.Entity();
-    const typeA = new FakeComponent('A');
-    const typeB = new FakeComponent('B');
-    const typeC = new FakeComponent('C');
+    const typeA = new FakeComponentA;
+    const typeB = new FakeComponentB;
+    const typeC = new FakeComponentC;
 
     expect(entity.getComponents()).toEqual([]);
 
     entity.addComponent(typeA).addComponent(typeB).addComponent(typeC);
 
-    expect(entity.getComponents().sort((a, b) => a.type.localeCompare(b.type))).toEqual([typeA, typeB, typeC]);
+    expect(entity.getComponents().sort((a, b) => a.constructor.name.localeCompare(b.constructor.name))).toEqual([typeA, typeB, typeC]);
   });
 
   it('can have type from tag components', () => {
     const entity = new ex.Entity();
-    const isOffscreen = new TagComponent('offscreen');
-    const nonTag = new FakeComponent('A');
+    // const isOffscreen = new TagComponent('offscreen');
+    const nonTag = new FakeComponentA;
 
     expect(entity.types).toEqual([]);
-    entity.addComponent(isOffscreen);
+    entity.addTag('offscreen');
     entity.addComponent(nonTag);
 
-    expect(entity.types).toEqual(['offscreen', 'A']);
-    expect(entity.tags).toEqual(['offscreen']);
+    expect(entity.types).toEqual([FakeComponentA]);
+    expect(entity.tags).toEqual(new Set(['offscreen']));
     expect(entity.hasTag('offscreen')).toBeTrue();
   });
 
@@ -112,27 +110,21 @@ describe('An entity', () => {
     entity.addTag('someTag2');
     entity.addTag('someTag3');
 
-    expect(entity.tags).toEqual(['someTag1', 'someTag2', 'someTag3']);
-
-    // deferred removal
+    expect(entity.tags).toEqual(new Set(['someTag1', 'someTag2', 'someTag3']));
     entity.removeTag('someTag3');
-    expect(entity.tags).toEqual(['someTag1', 'someTag2', 'someTag3']);
-    entity.processComponentRemoval();
-    expect(entity.tags).toEqual(['someTag1', 'someTag2']);
 
-    // immediate removal
-    entity.removeTag('someTag2', true);
-    expect(entity.tags).toEqual(['someTag1']);
+    expect(entity.tags).toEqual(new Set(['someTag1', 'someTag2']));
+    entity.removeTag('someTag2');
+    expect(entity.tags).toEqual(new Set(['someTag1']));
   });
 
   it('can be observed for added changes', (done) => {
     const entity = new ex.Entity();
-    const typeA = new FakeComponent('A');
+    const typeA = new FakeComponentA;
     entity.componentAdded$.register({
       notify: (change) => {
-        expect(change.type).toBe('Component Added');
-        expect(change.data.entity).toBe(entity);
-        expect(change.data.component).toBe(typeA);
+        expect(change.owner).toBe(entity);
+        expect(change).toBe(typeA);
         done();
       }
     });
@@ -141,63 +133,62 @@ describe('An entity', () => {
 
   it('can be observed for removed changes', (done) => {
     const entity = new ex.Entity();
-    const typeA = new FakeComponent('A');
+    const typeA = new FakeComponentA;
 
     entity.addComponent(typeA);
     entity.componentRemoved$.register({
       notify: (change) => {
-        expect(change.type).toBe('Component Removed');
-        expect(change.data.entity).toBe(entity);
-        expect(change.data.component).toBe(typeA);
+        expect(change.owner).toBe(entity);
+        expect(change).toBe(typeA);
         done();
       }
     });
-    entity.removeComponent(typeA);
+    entity.removeComponent(FakeComponentA);
     entity.processComponentRemoval();
   });
 
   it('can be cloned', () => {
     const entity = new ex.Entity();
-    const typeA = new FakeComponent('A');
-    const typeB = new FakeComponent('B');
+    const typeA = new FakeComponentA;
+    const typeB = new FakeComponentB;
     entity.addComponent(typeA);
     entity.addComponent(typeB);
-    entity.addChild(new ex.Entity([new FakeComponent('Z')]));
+    entity.addChild(new ex.Entity([new FakeComponentZ]));
 
     const clone = entity.clone();
     expect(clone).not.toBe(entity);
     expect(clone.id).not.toBe(entity.id);
-    expect(clone.get('A')).not.toBe(entity.get('A'));
-    expect(clone.get('B')).not.toBe(entity.get('B'));
-    expect(clone.get('A').type).toBe(entity.get('A').type);
-    expect(clone.get('B').type).toBe(entity.get('B').type);
+    expect(clone.get(FakeComponentA)).not.toBe(entity.get(FakeComponentA));
+    expect(clone.get(FakeComponentB)).not.toBe(entity.get(FakeComponentB));
+    expect(clone.get(FakeComponentA).constructor).toBe(entity.get(FakeComponentA).constructor);
+    expect(clone.get(FakeComponentB).constructor).toBe(entity.get(FakeComponentB).constructor);
     expect(clone.children.length).toBe(1);
-    expect(clone.children[0].types).toEqual(['Z']);
+    expect(clone.children[0].types).toEqual([FakeComponentZ]);
   });
 
   it('can be initialized with a template', () => {
     const entity = new ex.Entity();
-    const template = new ex.Entity([new FakeComponent('A'), new FakeComponent('B')]).addChild(
-      new ex.Entity([new FakeComponent('C'), new FakeComponent('D')]).addChild(new ex.Entity([new FakeComponent('Z')]))
+    const template = new ex.Entity([new FakeComponentA, new FakeComponentB]).addChild(
+      new ex.Entity([new FakeComponentC, new FakeComponentD]).addChild(new ex.Entity([new FakeComponentZ]))
     );
 
     expect(entity.getComponents()).toEqual([]);
     entity.addTemplate(template);
-    expect(entity.types.sort((a, b) => a.localeCompare(b))).toEqual(['A', 'B']);
-    expect(entity.children[0].types.sort((a, b) => a.localeCompare(b))).toEqual(['C', 'D']);
-    expect(entity.children[0].children[0].types).toEqual(['Z']);
+    expect(entity.types.sort((a, b) => a.name.localeCompare(b.name))).toEqual([FakeComponentA, FakeComponentB]);
+    expect(entity.children[0].types.sort((a, b) => a.name.localeCompare(b.name))).toEqual([FakeComponentC, FakeComponentD]);
+    expect(entity.children[0].children[0].types).toEqual([FakeComponentZ]);
   });
 
   it('can be checked if it has a component', () => {
     const entity = new ex.Entity();
-    const typeA = new FakeComponent('A');
-    const typeB = new FakeComponent('B');
+    const typeA = new FakeComponentA;
+    const typeB = new FakeComponentB;
     entity.addComponent(typeA);
     entity.addComponent(typeB);
 
-    expect(entity.has('A')).toBe(true);
-    expect(entity.has('B')).toBe(true);
-    expect(entity.has('C')).toBe(false);
+    expect(entity.has(FakeComponentA)).toBe(true);
+    expect(entity.has(FakeComponentB)).toBe(true);
+    expect(entity.has(FakeComponentC)).toBe(false);
   });
 
   it('has an overridable initialize lifecycle handler', (done) => {
@@ -305,11 +296,11 @@ describe('An entity', () => {
   it('can\'t parent if already parented', () => {
     const parent = new ex.Entity();
     const child = new ex.Entity();
-    const otherparent = new ex.Entity();
+    const otherParent = new ex.Entity();
 
     parent.addChild(child);
     expect(() => {
-      otherparent.addChild(child);
+      otherParent.addChild(child);
     }).toThrowError('Entity already has a parent, cannot add without unparenting');
   });
 
@@ -319,7 +310,7 @@ describe('An entity', () => {
     e.componentAdded$.register({
       notify: addedSpy
     });
-    const component = new FakeComponent('A');
+    const component = new FakeComponentA;
     e.addComponent(component);
     expect(addedSpy).toHaveBeenCalledTimes(1);
   });
@@ -330,9 +321,9 @@ describe('An entity', () => {
     e.componentRemoved$.register({
       notify: removedSpy
     });
-    const component = new FakeComponent('A');
+    const component = new FakeComponentA;
     e.addComponent(component);
-    e.removeComponent(component);
+    e.removeComponent(FakeComponentA);
     e.processComponentRemoval();
     expect(removedSpy).toHaveBeenCalledTimes(1);
   });
@@ -491,5 +482,21 @@ describe('An entity', () => {
     expect(e.children.length).toBe(0);
     expect(child6.children.length).toBe(1);
     expect(grandChild.parent).toBe(child6);
+  });
+
+  it('will return subclass instances of types', () => {
+    class MyBody extends ex.BodyComponent {}
+    const body = new MyBody;
+    const sut = new ex.Entity([body]);
+
+    expect(sut.get(MyBody)).toBe(body);
+    expect(sut.get(ex.BodyComponent)).toBe(body);
+
+    sut.removeComponent(body, true);
+
+    const superBody = new ex.BodyComponent;
+    sut.addComponent(superBody);
+    expect(sut.get(MyBody)).toBe(undefined);
+    expect(sut.get(ex.BodyComponent)).toBe(superBody);
   });
 });

@@ -1,17 +1,22 @@
 import { System, SystemType } from '../EntityComponentSystem/System';
-import { Entity } from '../EntityComponentSystem/Entity';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { IsometricEntityComponent } from './IsometricEntityComponent';
+import { Query, SystemPriority, World } from '../EntityComponentSystem';
 
 
-export class IsometricEntitySystem extends System<TransformComponent | IsometricEntityComponent> {
-  public readonly types = ['ex.transform', 'ex.isometricentity'] as const;
+export class IsometricEntitySystem extends System {
   public readonly systemType = SystemType.Update;
-  priority: number = 99;
-  update(entities: Entity[], _delta: number): void {
+  priority: number = SystemPriority.Lower;
+  query: Query<typeof TransformComponent | typeof IsometricEntityComponent>;
+  constructor(public world: World) {
+    super();
+    this.query = this.world.query([TransformComponent, IsometricEntityComponent]);
+  }
+
+  update(): void {
     let transform: TransformComponent;
     let iso: IsometricEntityComponent;
-    for (const entity of entities) {
+    for (const entity of this.query.entities) {
       transform = entity.get(TransformComponent);
       iso = entity.get(IsometricEntityComponent);
 

@@ -101,7 +101,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
   /**
    * The ECS world for the scene
    */
-  public world = new World(this);
+  public world: World = new World(this);
 
   /**
    * The Excalibur physics world for the scene. Used to interact
@@ -115,7 +115,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * The actors in the current scene
    */
   public get actors(): readonly Actor[] {
-    return this.world.entityManager.entities.filter((e) => {
+    return this.world.entityManager.entities.filter((e: Entity<any>) => {
       return e instanceof Actor;
     }) as Actor[];
   }
@@ -131,7 +131,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * The triggers in the current scene
    */
   public get triggers(): readonly Trigger[] {
-    return this.world.entityManager.entities.filter((e) => {
+    return this.world.entityManager.entities.filter((e: Entity<any>) => {
       return e instanceof Trigger;
     }) as Trigger[];
   }
@@ -140,7 +140,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * The [[TileMap]]s in the scene, if any
    */
   public get tileMaps(): readonly TileMap[] {
-    return this.world.entityManager.entities.filter((e) => {
+    return this.world.entityManager.entities.filter((e: Entity<any>) => {
       return e instanceof TileMap;
     }) as TileMap[];
   }
@@ -166,15 +166,15 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
     // Initialize systems
 
     // Update
-    this.world.add(new ActionsSystem());
-    this.world.add(new MotionSystem());
-    this.world.add(new CollisionSystem(this.physics));
-    this.world.add(new PointerSystem());
-    this.world.add(new IsometricEntitySystem());
+    this.world.add(ActionsSystem);
+    this.world.add(MotionSystem);
+    this.world.add(new CollisionSystem(this.world, this.physics));
+    this.world.add(PointerSystem);
+    this.world.add(IsometricEntitySystem);
     // Draw
-    this.world.add(new OffscreenSystem());
-    this.world.add(new GraphicsSystem());
-    this.world.add(new DebugSystem());
+    this.world.add(OffscreenSystem);
+    this.world.add(GraphicsSystem);
+    this.world.add(DebugSystem);
   }
 
   public emit<TEventName extends EventKey<SceneEvents>>(eventName: TEventName, event: SceneEvents[TEventName]): void;

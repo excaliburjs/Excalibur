@@ -2,7 +2,6 @@ import { GraphicsComponent } from './GraphicsComponent';
 import { EnterViewPortEvent, ExitViewPortEvent } from '../Events';
 import { Scene } from '../Scene';
 import { Screen } from '../Screen';
-import { Entity } from '../EntityComponentSystem/Entity';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { Camera } from '../Camera';
 import { System, SystemType } from '../EntityComponentSystem/System';
@@ -10,27 +9,34 @@ import { ParallaxComponent } from './ParallaxComponent';
 import { Vector } from '../Math/vector';
 import { CoordPlane } from '../Math/coord-plane';
 import { BoundingBox } from '../Collision/BoundingBox';
+import { Query, SystemPriority, World } from '../EntityComponentSystem';
 
-export class OffscreenSystem extends System<TransformComponent | GraphicsComponent> {
-  public readonly types = ['ex.transform', 'ex.graphics'] as const;
+export class OffscreenSystem extends System {
   public systemType = SystemType.Draw;
-  priority: number = -1;
+  priority: number = SystemPriority.Higher;
   private _camera: Camera;
   private _screen: Screen;
   private _worldBounds: BoundingBox;
+  query: Query<typeof TransformComponent | typeof GraphicsComponent>;
 
-  public initialize(scene: Scene): void {
+
+  constructor(public world: World) {
+    super();
+    this.query = this.world.query([TransformComponent, GraphicsComponent]);
+  }
+
+  public initialize(world: World, scene: Scene): void {
     this._camera = scene.camera;
     this._screen = scene.engine.screen;
   }
 
-  update(entities: Entity[]): void {
+  update(): void {
     this._worldBounds = this._screen.getWorldBounds();
     let transform: TransformComponent;
     let graphics: GraphicsComponent;
     let maybeParallax: ParallaxComponent;
 
-    for (const entity of entities) {
+    for (const entity of this.query.entities) {
       graphics = entity.get(GraphicsComponent);
       transform = entity.get(TransformComponent);
       maybeParallax = entity.get(ParallaxComponent);

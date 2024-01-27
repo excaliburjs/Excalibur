@@ -4,6 +4,11 @@ slug: /ui
 section: Other
 ---
 
+```twoslash include ex
+/// <reference path="../src/engine/excalibur.d.ts" />
+declare const game: ex.Engine;
+```
+
 HTML5 is super great at building UI's, there are many popular front end frameworks and toolkits that will deliver highly polished UIs, so we recommend that first.
 
 Please consider [html based first](#html-based-ui) but if the UI makes more sense in-canvas look to [screen elements](#screen-elements).
@@ -178,34 +183,36 @@ game.start()
 
 ## Labels
 
+Sometimes you need in game canvas based text, [[Label]]s are a special type of actor that help you quickly setup [[Text]] graphics and a [[Font]].
+
 You can pass in arguments to the [[Label#ctor|Label]] constructor or simply set the
 properties you need after creating an instance of the label.
+
 Since labels are also [Actors](/docs/actors), they need to be added to a [Scene](/docs/scenes)
 to be drawn and updated on-screen.
 
-```js
-const game = new ex.Engine()
+```ts twoslash
+// @include: ex
+// ---cut---
 // constructor
-const label = new ex.Label('Hello World', 50, 50, 'Arial')
-// properties
-const label = new ex.Label()
-label.pos.x = 50
-label.pos.y = 50
-label.fontFamily = 'Arial'
-label.fontSize = 10
-label.fontUnit = ex.FontUnit.Px // pixels are the default
-label.text = 'Foo'
-label.color = ex.Color.White
-label.textAlign = ex.TextAlign.Center
-// add to current scene
-game.add(label)
-// start game
-game.start()
+const label = new ex.Label({
+  text: 'Foo',
+  pos: ex.vec(50, 50)
+});
+label.font = new ex.Font({
+  family: 'Arial',
+  size: 10,
+  unit: ex.FontUnit.Px, // pixels are the default
+  textAlign: ex.TextAlign.Center
+})
+label.color = ex.Color.White;
 ```
 
 ### Adjusting Fonts
 
-You can use the [[Label.fontFamily]], [[Label.fontSize]], [[Label.fontUnit]], [[Label.textAlign]], and [[Label.baseAlign]]
+Excalibur has 2 types of fonts [[SpriteFont]] which sources text glyphs from a bitmap source. and [[Font]] which sources glyphs from a a web font.
+
+You can use the [[Label.font]] property to adjust the [[Font.family]], [[Font.size]], [[Font.unit]], [[Font.textAlign]], and [[Font.baseAlign]]
 properties to customize how the label is drawn.
 
 You can also use [[Label.getTextWidth]] to retrieve the measured width of the rendered text for
@@ -216,7 +223,7 @@ helping in calculations.
 The HTML5 Canvas API draws text using CSS syntax. Because of this, [Web Fonts](https://developer.mozilla.org/en-US/docs/Learn/CSS/Styling_text/Web_fonts)
 are fully supported. To draw a web font, follow the same procedure you use
 for CSS. Then simply pass in the font string to the [[Label#ctor|Label]] constructor
-or set [[Label.fontFamily]].
+or set [[Font.family]].
 
 **index.html**
 
@@ -236,15 +243,16 @@ or set [[Label.fontFamily]].
 
 **game.js**
 
-```js
-const game = new ex.Engine()
-const label = new ex.Label()
-label.fontFamily = 'Foobar, Arial, Sans-Serif'
-label.fontSize = 10
-label.fontUnit = ex.FontUnit.Em
-label.text = 'Hello World'
-game.add(label)
-game.start()
+```ts twoslash
+// @include: ex
+// ---cut---
+const label = new ex.Label();
+label.font.family = 'Foobar, Arial, Sans-Serif';
+label.font.size = 10;
+label.font.unit = ex.FontUnit.Em;
+label.text = 'Hello World';
+game.add(label);
+game.start();
 ```
 
 {/* TODO: Example */}
