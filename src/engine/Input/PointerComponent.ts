@@ -18,7 +18,7 @@ export class PointerComponent extends Component {
   public useColliderShape = true;
   /**
    * Use any existing Graphics component bounds for pointers. This is useful if you want the axis aligned
-   * bounds around the graphic to trigger pointer events. Default is `false`.
+   * bounds around the graphic to trigger pointer events. Default is `true`.
    */
-  public useGraphicsBounds = false;
+  public useGraphicsBounds = true;
 }
