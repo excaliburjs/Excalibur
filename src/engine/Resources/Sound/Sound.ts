@@ -309,6 +309,11 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
   }
 
   public getTotalPlaybackDuration() {
+    if (!this.isLoaded()) {
+      this.logger.warnOnce(`Sound from ${this.path} is not loaded, cannot return total playback duration.` +
+      `Did you forget to add Sound to a loader? https://excaliburjs.com/docs/loaders/`);
+      return 0;
+    }
     return this.data.duration;
   }
 

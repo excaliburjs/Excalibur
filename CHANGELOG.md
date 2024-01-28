@@ -138,6 +138,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where `ex.Sound.getTotalPlaybackDuration()` would crash if not loaded, now logs friendly warning
 - Fixed issue where an empty constructor on `new ex.Label()` would crash
 - Fixed issue where pointer events did not work properly when using [[ScreenElement]]s
 - Fixed issue where debug draw was not accurate when using *AndFill suffixed [[DisplayMode]]s
