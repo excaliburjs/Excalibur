@@ -444,6 +444,35 @@ describe('A Text Graphic', () => {
     });
   });
 
+  it('can have line height', async () => {
+    const sut = new ex.Text({
+      text: 'green text\nthat has multiple\nlines to it.',
+      color: ex.Color.Green,
+      font: new ex.Font({
+        family: 'Open Sans',
+        size: 18,
+        quality: 1,
+        lineHeight: 36
+      })
+    });
+
+    const canvasElement = document.createElement('canvas');
+    canvasElement.width = 100;
+    canvasElement.height = 100;
+    const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+
+    ctx.clear();
+    sut.draw(ctx, 10, 10);
+
+    await runOnWindows(async () => {
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsTextSpec/line-height.png');
+    });
+
+    await runOnLinux(async () => {
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsTextSpec/line-height-linux.png');
+    });
+  });
+
   it('can have a shadow', async () => {
     const sut = new ex.Text({
       text: 'green text',
@@ -889,6 +918,45 @@ describe('A Text Graphic', () => {
       sut.draw(ctx, 0, 50);
 
       await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsTextSpec/spritefont-text.png');
+    });
+
+    it('can have a custom lineHeight', async () => {
+      const spriteFontImage = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+
+      await spriteFontImage.load();
+
+      const spriteFontSheet = ex.SpriteSheet.fromImageSource({
+        image: spriteFontImage,
+        grid: {
+          rows: 3,
+          columns: 16,
+          spriteWidth: 16,
+          spriteHeight: 16
+        }
+      });
+
+      const spriteFont = new ex.SpriteFont({
+        alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
+        caseInsensitive: true,
+        spacing: -5,
+        spriteSheet: spriteFontSheet,
+        lineHeight: 32
+      });
+
+      const sut = new ex.Text({
+        text: '111\n222\n333\n444',
+        font: spriteFont
+      });
+
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 200;
+      canvasElement.height = 100;
+      const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+
+      ctx.clear();
+      sut.draw(ctx, 0, 0);
+
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsTextSpec/sprite-font-line-height.png');
     });
   });
 

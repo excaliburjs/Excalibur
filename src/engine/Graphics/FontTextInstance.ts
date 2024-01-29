@@ -61,7 +61,7 @@ export class FontTextInstance {
     // We double the bitmap width to account for all possible alignment
     // We scale by "quality" so we render text without jaggies
     bitmap.canvas.width = (textBounds.width + this.font.padding * 2) * 2 * this.font.quality;
-    bitmap.canvas.height = (textBounds.height + this.font.padding * 2) * 2 * this.font.quality;
+    bitmap.canvas.height = (textBounds.height + this.font.padding * 2) * 2 * this.font.quality * (this.font.lineHeight/this.font.size);
   }
 
   public static getHashCode(font: Font, text: string, color?: Color) {

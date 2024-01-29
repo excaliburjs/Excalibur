@@ -50,12 +50,13 @@ export class SpriteFont extends Graphic implements FontRenderer {
 
   constructor(options: SpriteFontOptions & GraphicOptions) {
     super(options);
-    const { alphabet, spriteSheet, caseInsensitive, spacing, shadow } = options;
+    const { alphabet, spriteSheet, caseInsensitive, spacing, shadow, lineHeight } = options;
     this.alphabet = alphabet;
     this.spriteSheet = spriteSheet;
     this.caseInsensitive = caseInsensitive ?? this.caseInsensitive;
     this.spacing = spacing ?? this.spacing;
     this.shadow = shadow ?? this.shadow;
+    this.lineHeight = lineHeight ?? this.lineHeight;
   }
 
   private _getCharacterSprites(text: string): Sprite[] {
