@@ -264,7 +264,7 @@ export interface ExcaliburGraphicsContext {
    * @param options
    * @returns
    */
-  createMaterial(options: MaterialOptions): Material;
+  createMaterial(options: Omit<MaterialOptions, 'graphicsContext'>): Material;
 
   /**
    * Clears the screen with the current background color

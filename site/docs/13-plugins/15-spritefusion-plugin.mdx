@@ -1,0 +1,77 @@
+---
+title: Sprite Fusion Plugin ✨New!✨
+slug: /spritefusion-plugin
+section: Plugins
+---
+
+[Sprite Fusion](https://www.spritefusion.com/) is a new, exiting, and easy to use tile map editor based on the web! It's goal is to be lightweight and easy to use.
+
+The current Excalibur plugin is designed to parse all data provided by the Sprite Fusion JSON export format and make it available to users. Not all features may be supported directly in Excalibur but the majority are.
+
+The plugin officially supports the latest version of Sprite Fusion that has been published and will warn if you are using an older version.
+
+## Installation 
+
+```sh
+npm install @excaliburjs/plugin-spritefusion
+```
+
+Create your resource, load it, then add it to your scene!
+
+```typescript
+const game = new ex.Engine({...});
+
+const spriteFusionMap = new SpriteFusionResource({
+    mapPath: './map/map.json',
+    spritesheetPath: './map/spritesheet.png'
+});
+
+const loader = new ex.Loader([spriteFusionMap]);
+
+game.start(loader).then(() => {
+    spriteFusionMap.addToScene(game.currentScene);
+});
+```
+
+![Sprite Fusion example](./spritefusion/sprite-fusion-example.png)
+
+## Solid Layers
+
+In order to create solid layers in Excalibur, use the Sprite Fusion collision layer check box. Any tiles in this layer will be treated as solid by Excalibur.
+
+![solid layer example](./spritefusion/solid-layer.png)
+
+
+## Entity Factories
+
+Sometimes it is useful to supply a custom type to have the plugin construct when it runs across a particular entity, this might be the player, a collectable, or an enemy.
+
+You can specify a factory to run and create your preferred type, once you've returned the [[Entity]] out of the factory it will automatically be added to the [[Scene]]. This is also a useful time to run any other custom code you want per [[Entity]].
+
+```typescript
+
+const spriteFusionMap = new SpriteFusionResource({
+    mapPath: './map/map.json',
+    spritesheetPath: './map/spritesheet.png',
+    entityTileIdFactories: {
+        0 : (props) => {
+            return new ex.Actor({
+                pos: props.worldPos,
+                width: 16,
+                height: 16,
+                color: ex.Color.Red,
+                z: props.layer.order + 1
+            });
+        }
+    }
+});
+
+```
+
+Currently you need to count the sprite id from the exported spritesheet.png.
+
+![count tile id](./spritefusion/tile-id.png)
+
+For example, now tile id `0` is replaced with a custom implementation that shows a red box.
+
+![factory custom implementation](./spritefusion/factory-result.png)

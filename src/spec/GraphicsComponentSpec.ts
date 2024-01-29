@@ -18,7 +18,7 @@ describe('A Graphics ECS Component', () => {
     expect(sut.offset).toBeVector(ex.vec(0, 0));
     expect(sut.opacity).toBe(1);
     expect(sut.visible).toBe(true);
-    expect(sut.current).toEqual([]);
+    expect(sut.current).toBeUndefined();
     expect(sut.graphics).toEqual({});
   });
 
@@ -43,7 +43,6 @@ describe('A Graphics ECS Component', () => {
     graphics.onPreDraw = () => { /* do nothing */ };
     graphics.onPostDraw = () => { /* do nothing */};
     graphics.use(rect);
-    graphics.layers.create({name: 'background', order: -1}).use(rect2);
 
     const clone = owner.clone();
 
@@ -57,21 +56,11 @@ describe('A Graphics ECS Component', () => {
     expect(sut.copyGraphics).toEqual(graphics.copyGraphics);
     expect(sut.onPreDraw).toBe(sut.onPreDraw);
     expect(sut.onPostDraw).toBe(sut.onPostDraw);
-    expect(sut.layers.get().length).toEqual(graphics.layers.get().length);
-    expect((sut.layers.get('background').graphics[0].graphic as ex.Rectangle).color)
-      .toEqual((graphics.layers.get('background').graphics[0].graphic as ex.Rectangle).color);
-    expect((sut.layers.get('background').graphics[0].graphic as ex.Rectangle).width)
-      .toEqual((graphics.layers.get('background').graphics[0].graphic as ex.Rectangle).width);
-    expect((sut.layers.get('background').graphics[0].graphic as ex.Rectangle).height)
-      .toEqual((graphics.layers.get('background').graphics[0].graphic as ex.Rectangle).height);
-    expect(sut.layers.get('background').graphics[0].options).toEqual(graphics.layers.get('background').graphics[0].options);
 
     // Should be new refs
     expect(sut).not.toBe(graphics);
     expect(sut.offset).not.toBe(graphics.offset);
     expect(sut.anchor).not.toBe(graphics.anchor);
-    expect(sut.layers.get()).not.toBe(graphics.layers.get());
-    expect(sut.layers.get('background').graphics).not.toBe(graphics.layers.get('background').graphics);
 
     // Should have a new owner
     expect(sut.owner).toBe(clone);
@@ -114,7 +103,7 @@ describe('A Graphics ECS Component', () => {
     const sut = new ex.GraphicsComponent({
       copyGraphics: true
     });
-    const shownRect = sut.show(rect);
+    const shownRect = sut.use(rect);
     expect(shownRect.id).not.toEqual(rect.id);
   });
 
@@ -125,25 +114,45 @@ describe('A Graphics ECS Component', () => {
     });
     const sut = new ex.GraphicsComponent();
 
-    sut.show(rect, { offset: ex.vec(1, 2), anchor: ex.vec(1, 1) });
-    sut.show(rect, { offset: ex.vec(-1, -2), anchor: ex.vec(0, 0) });
+    sut.use(rect, { offset: ex.vec(1, 2), anchor: ex.vec(1, 1) });
 
-    expect(sut.current).toEqual([
-      {
-        graphic: rect,
-        options: {
-          offset: ex.vec(1, 2),
-          anchor: ex.vec(1, 1)
-        }
-      },
-      {
-        graphic: rect,
-        options: {
-          offset: ex.vec(-1, -2),
-          anchor: ex.vec(0, 0)
-        }
-      }
-    ]);
+    expect(sut.current).toEqual(rect);
+    expect(sut.currentOptions).toEqual({
+      offset: ex.vec(1, 2),
+      anchor: ex.vec(1, 1)
+    });
+
+    sut.use(rect, { offset: ex.vec(-1, -2), anchor: ex.vec(0, 0) });
+
+    expect(sut.current).toEqual(rect);
+    expect(sut.currentOptions).toEqual({
+      offset: ex.vec(-1, -2),
+      anchor: ex.vec(0, 0)
+    });
+  });
+
+  it('can remove graphics', () => {
+    const rect = new ex.Rectangle({
+      width: 40,
+      height: 40
+    });
+    const sut = new ex.GraphicsComponent();
+
+    sut.add('rect', rect, { offset: ex.vec(1, 2), anchor: ex.vec(1, 1) });
+    expect(sut.current).toBe(undefined);
+    expect(sut.currentOptions).toBe(undefined);
+
+    expect(sut.getNames()).toEqual(['rect']);
+
+    sut.use('rect');
+    expect(sut.current).toEqual(rect);
+    expect(sut.currentOptions).toEqual(undefined);
+
+    sut.remove('rect');
+
+    expect(sut.current).toBe(undefined);
+    expect(sut.currentOptions).toBe(undefined);
+    expect(sut.getNames()).toEqual([]);
   });
 
   it('can show graphics by name if it exists', () => {
@@ -158,20 +167,16 @@ describe('A Graphics ECS Component', () => {
     });
 
     const logger = ex.Logger.getInstance();
-    spyOn(logger, 'error');
+    spyOn(logger, 'warn');
 
-    expect(sut.current).toEqual([]);
-    sut.show('some-gfx-2');
-    expect(sut.current).toEqual([
-      {
-        graphic: rect,
-        options: {}
-      }
-    ]);
+    expect(sut.current).toBeUndefined();
+    sut.use('some-gfx-2');
+    expect(sut.current).toEqual(rect);
+    expect(sut.currentOptions).toBeUndefined();
 
-    const none = sut.show('made-up-name');
-    expect(none).toBeNull();
-    expect(logger.error).toHaveBeenCalled();
+    const none = sut.use('made-up-name');
+    expect(none).toBeUndefined();
+    expect(logger.warn).toHaveBeenCalled();
   });
 
   it('can swap all the graphics for a graphic', () => {
@@ -185,26 +190,18 @@ describe('A Graphics ECS Component', () => {
     });
     const sut = new ex.GraphicsComponent();
 
-    sut.show(rect, { offset: ex.vec(1, 2), anchor: ex.vec(1, 1) });
+    sut.use(rect, { offset: ex.vec(1, 2), anchor: ex.vec(1, 1) });
 
-    expect(sut.current).toEqual([
-      {
-        graphic: rect,
-        options: {
-          offset: ex.vec(1, 2),
-          anchor: ex.vec(1, 1)
-        }
-      }
-    ]);
+    expect(sut.current).toEqual(rect);
+    expect(sut.currentOptions).toEqual({
+      offset: ex.vec(1, 2),
+      anchor: ex.vec(1, 1)
+    });
 
     sut.use(rect2);
 
-    expect(sut.current).toEqual([
-      {
-        graphic: rect2,
-        options: {}
-      }
-    ]);
+    expect(sut.current).toEqual(rect2);
+    expect(sut.currentOptions).toBeUndefined();
   });
 
   it('can hide graphics', () => {
@@ -214,12 +211,11 @@ describe('A Graphics ECS Component', () => {
     });
     const sut = new ex.GraphicsComponent();
 
-    sut.show(rect, { offset: ex.vec(1, 2), anchor: ex.vec(1, 1) });
-    sut.show(rect, { offset: ex.vec(-1, -2), anchor: ex.vec(0, 0) });
+    sut.use(rect, { offset: ex.vec(1, 2), anchor: ex.vec(1, 1) });
 
     sut.hide();
 
-    expect(sut.current).toEqual([]);
+    expect(sut.current).toBeUndefined();
   });
 
   it('can hide graphics by reference or name', () => {
@@ -238,16 +234,13 @@ describe('A Graphics ECS Component', () => {
       }
     });
 
-    const shown = sut.show('gfx-1');
+    const shown = sut.use('gfx-1');
     expect(shown).not.toBeNull();
-    const shown2 = sut.show('gfx-2');
+    const shown2 = sut.use('gfx-2');
     expect(shown2).not.toBeNull();
 
-    sut.hide(shown);
-    expect(sut.current.length).toBe(1);
-
-    sut.hide('gfx-2');
-    expect(sut.current.length).toBe(0);
+    sut.hide();
+    expect(sut.current).toBeUndefined();
   });
 
   it('can have graphics added to it', () => {
@@ -264,27 +257,6 @@ describe('A Graphics ECS Component', () => {
     expect(sut.graphics.default).toBe(rect);
   });
 
-  it('can have multiple layers', () => {
-    const rect = new ex.Rectangle({
-      width: 40,
-      height: 40
-    });
-    const sut = new ex.GraphicsComponent();
-
-    sut.show(rect);
-    sut.layers.create({ name: 'background', order: -1 }).show(rect);
-
-    const layers = sut.layers.get();
-
-    expect(sut.layers.has('background')).toBeTrue();
-    expect(sut.layers.has('default')).toBeTrue();
-    expect(layers.length).toBe(2);
-    expect(layers[0].name).toBe('background');
-    expect(layers[0].order).toBe(-1);
-    expect(layers[1].name).toBe('default');
-    expect(layers[1].order).toBe(0);
-  });
-
   it('ticks graphics that need ticking', () => {
     const animation = new ex.Animation({
       frames: []
@@ -299,27 +271,9 @@ describe('A Graphics ECS Component', () => {
     expect(animation.tick).toHaveBeenCalledWith(123, 4);
   });
 
-  it('currentKeys should return names of graphics show in all layers', () => {
-    const rect = new ex.Rectangle({
-      width: 40,
-      height: 40
-    });
-    const sut = new ex.GraphicsComponent();
-    sut.layers.create({ name: 'background', order: -1 }).show(rect);
-    const layers = sut.layers.currentKeys();
-    expect(typeof layers).toBe('object');
-    expect(layers.length).toBe(2);
-  });
 
   it('correctly calculates graphics bounds (rasters)', () => {
     const sut = new ex.GraphicsComponent();
-    const rec = new ex.Rectangle({
-      width: 40,
-      height: 40
-    });
-    rec.scale = ex.vec(3, 3);
-    sut.add(rec);
-
     const rec2 = new ex.Rectangle({
       width: 200,
       height: 10
@@ -330,56 +284,42 @@ describe('A Graphics ECS Component', () => {
     expect(sut.localBounds).toEqual(new ex.BoundingBox({
       left: -200,
       right: 200,
-      top: -60,
-      bottom: 60
+      top: -10,
+      bottom: 10
     }));
   });
 
   it('correctly calculates graphics bounds (rasters + offset)', () => {
     const sut = new ex.GraphicsComponent();
-    const rec = new ex.Rectangle({
-      width: 40,
-      height: 40
-    });
-    rec.scale = ex.vec(3, 3);
-    sut.add(rec);
-
     const rec2 = new ex.Rectangle({
       width: 200,
       height: 10
     });
-    rec2.scale = ex.vec(2, 2);
-    sut.show(rec2, { offset: ex.vec(100, 0)});
+    rec2.scale = ex.vec(2, 2); // width 400, height 20
+    sut.use(rec2, { offset: ex.vec(100, 0)}); // offset 100 to the right
 
     expect(sut.localBounds).toEqual(new ex.BoundingBox({
       left: -100,
       right: 300,
-      top: -60,
-      bottom: 60
+      top: -10,
+      bottom: 10
     }));
   });
 
   it('correctly calculates graphics bounds (rasters + anchor)', () => {
     const sut = new ex.GraphicsComponent();
-    const rec = new ex.Rectangle({
-      width: 40,
-      height: 40
-    });
-    rec.scale = ex.vec(3, 3);
-    sut.add(rec);
-
     const rec2 = new ex.Rectangle({
       width: 200,
       height: 10
     });
-    rec2.scale = ex.vec(2, 2);
-    sut.show(rec2, { anchor: ex.vec(1, 1)});
+    rec2.scale = ex.vec(2, 2); // width 400, height 20
+    sut.use(rec2, { anchor: ex.vec(1, 1)}); // anchor at the bottom right
 
     expect(sut.localBounds).toEqual(new ex.BoundingBox({
       left: -400,
-      right: 60,
-      top: -60,
-      bottom: 60
+      right: 0,
+      top: -20,
+      bottom: 0
     }));
   });
 

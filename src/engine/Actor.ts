@@ -56,7 +56,7 @@ export function isActor(x: any): x is Actor {
 }
 
 /**
- * Actor contructor options
+ * Actor constructor options
  */
 export interface ActorArgs {
   /**
@@ -137,7 +137,7 @@ export interface ActorArgs {
    */
   collider?: Collider;
   /**
-   * Optionally suppy a [[CollisionGroup]]
+   * Optionally supply a [[CollisionGroup]]
    */
   collisionGroup?: CollisionGroup;
 }
@@ -492,8 +492,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   }
   public set color(v: Color) {
     this._color = v.clone();
-    const defaultLayer = this.graphics.layers.default;
-    const currentGraphic = defaultLayer.graphics[0]?.graphic;
+    const currentGraphic = this.graphics.current;
     if (currentGraphic instanceof Raster || currentGraphic instanceof Text) {
       currentGraphic.color = this._color;
     }
@@ -534,7 +533,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
       ...config
     };
 
-    this._setName(name);
+    this.name = name ?? this.name;
     this.anchor = anchor ?? Actor.defaults.anchor.clone();
     const tx = new TransformComponent();
     this.addComponent(tx);

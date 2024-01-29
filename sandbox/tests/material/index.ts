@@ -232,6 +232,7 @@ uniform float u_time_ms;
 uniform vec4 u_color;
 uniform sampler2D u_graphic;
 uniform sampler2D u_screen_texture;
+uniform sampler2D u_noise;
 
 uniform vec2 u_resolution; // screen resolution
 uniform vec2 u_graphic_resolution; // graphic resolution
@@ -251,8 +252,8 @@ void main() {
         cos(0.2 * v_uv.x * scale.x /wave_period + time_sec * wave_speed) *
         wave_amplitude - wave_amplitude;
 
-  
-  float distortion = noise(v_uv*scale*vec2(2.1, 1.05) + time_sec * 0.12) * .25 - .125;
+  float distortion = (texture(u_noise, v_uv)).x;
+  //float distortion = noise(v_uv*scale*vec2(2.1, 1.05) + time_sec * 0.12) * .25 - .125;
 
   vec2 reflected_screenuv = vec2(v_screenuv.x - distortion, v_screenuv.y);
   vec4 screen_color = texture(u_screen_texture, reflected_screenuv);
@@ -264,13 +265,20 @@ void main() {
   vec3 mixColor = (u_color.rgb * u_color.a); // pre-multiplied alpha
   
   fragColor.rgb = mix(screen_color.rgb, mixColor, u_color.a)*fragColor.a + (wave_crest_color.rgb * wave_crest);
+  fragColor.rgb = texture(u_noise, v_uv).rgb * fragColor.a;
+  fragColor.rgb = vec3(gl_FragCoord.xy/u_resolution, 0.0);
 }`;
 
+const noise = new ex.ImageSource('./noise.avif', false, ex.ImageFiltering.Pixel);
+loader.addResource(noise);
 
 var waterMaterial = game.graphicsContext.createMaterial({
   name: 'water',
   fragmentSource: waterFrag,
-  color: ex.Color.fromRGB(55, 0, 200, .6)
+  color: ex.Color.fromRGB(55, 0, 200, .6),
+  images: {
+    u_noise: noise
+  }
 });
 var reflection = new ex.Actor({
   x: 0,

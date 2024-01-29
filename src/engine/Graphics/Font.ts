@@ -43,6 +43,7 @@ export class Font extends Graphic implements FontRenderer {
     this.textAlign = options?.textAlign ?? this.textAlign;
     this.baseAlign = options?.baseAlign ?? this.baseAlign;
     this.direction = options?.direction ?? this.direction;
+    this.lineHeight = options?.lineHeight ?? this.lineHeight;
     this.quality = options?.quality ?? this.quality;
     if (options?.shadow) {
       this.shadow = {};
@@ -98,6 +99,10 @@ export class Font extends Graphic implements FontRenderer {
   public textAlign: TextAlign = TextAlign.Left;
   public baseAlign: BaseAlign = BaseAlign.Alphabetic;
   public direction: Direction = Direction.LeftToRight;
+  /**
+   * Font line height in pixels, default line height if unset
+   */
+  public lineHeight: number | undefined = undefined;
   public size: number = 10;
   public shadow: { blur?: number; offset?: Vector; color?: Color } = null;
 

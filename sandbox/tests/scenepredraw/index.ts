@@ -1,3 +1,4 @@
+
 var paddle = new ex.Actor({
   x: 150, y: 150,
   width: 200, height: 200,
@@ -24,14 +25,18 @@ class MyScene extends ex.Scene {
 }
 
 
-class CustomDraw extends ex.System<ex.GraphicsComponent> {
-  public readonly types = ['ex.graphics'] as const;
+class CustomDraw extends ex.System {
   public readonly systemType = ex.SystemType.Draw;
 
   private _graphicsContext?: ex.ExcaliburGraphicsContext;
   private _engine?: ex.Engine;
+  query: ex.Query<typeof ex.GraphicsComponent>;
+  constructor(public world: ex.World) {
+    super();
+    this.query = this.world.query([ex.GraphicsComponent]);
+  }
 
-  public initialize(scene: ex.Scene): void {
+  public initialize(world: ex.World, scene: ex.Scene): void {
     this._graphicsContext = scene.engine.graphicsContext;
     this._engine = scene.engine;
   }
@@ -44,7 +49,7 @@ class CustomDraw extends ex.System<ex.GraphicsComponent> {
     this._graphicsContext = this._engine.graphicsContext;
   }
 
-  public update(entities: ex.Entity[], delta: number) {
+  public update( delta: number) {
     if (this._graphicsContext == null) {
       throw new Error("Uninitialized ObjectSystem");
     }
@@ -63,9 +68,9 @@ var game = new ex.Engine({
   height: 600,
 });
 
-var thescene = new MyScene();
-thescene.world.add(new CustomDraw());
-game.addScene('test', thescene);
+var theScene = new MyScene();
+theScene.world.add(CustomDraw);
+game.addScene('test', theScene);
 game.goToScene('test');
 
 game.add(paddle);

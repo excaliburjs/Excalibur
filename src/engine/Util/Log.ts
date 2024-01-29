@@ -78,12 +78,32 @@ export class Logger {
     }
   }
 
+
+  private _logOnceSet = new Set<any>();
+  private _logOnce(level: LogLevel, args: any[]): void {
+    const serialized = level + args.join('+');
+    if (this._logOnceSet.has(serialized)) {
+      return;
+    } else {
+      this._logOnceSet.add(serialized);
+      this._log(level, args);
+    }
+  }
+
   /**
    * Writes a log message at the [[LogLevel.Debug]] level
    * @param args  Accepts any number of arguments
    */
   public debug(...args: any[]): void {
     this._log(LogLevel.Debug, args);
+  }
+
+  /**
+   * Writes a log message once at the [[LogLevel.Fatal]] level, if it sees the same args again it wont log
+   * @param args  Accepts any number of arguments
+   */
+  public debugOnce(...args: any[]): void {
+    this._logOnce(LogLevel.Debug, args);
   }
 
   /**
@@ -95,11 +115,27 @@ export class Logger {
   }
 
   /**
+   * Writes a log message once at the [[LogLevel.Info]] level, if it sees the same args again it wont log
+   * @param args  Accepts any number of arguments
+   */
+  public infoOnce(...args: any[]): void {
+    this._logOnce(LogLevel.Info, args);
+  }
+
+  /**
    * Writes a log message at the [[LogLevel.Warn]] level
    * @param args  Accepts any number of arguments
    */
   public warn(...args: any[]): void {
     this._log(LogLevel.Warn, args);
+  }
+
+  /**
+   * Writes a log message once at the [[LogLevel.Warn]] level, if it sees the same args again it won't log
+   * @param args  Accepts any number of arguments
+   */
+  public warnOnce(...args: any[]): void {
+    this._logOnce(LogLevel.Warn, args);
   }
 
   /**
@@ -111,11 +147,27 @@ export class Logger {
   }
 
   /**
+   * Writes a log message once at the [[LogLevel.Error]] level, if it sees the same args again it won't log
+   * @param args  Accepts any number of arguments
+   */
+  public errorOnce(...args: any[]): void {
+    this._logOnce(LogLevel.Error, args);
+  }
+
+  /**
    * Writes a log message at the [[LogLevel.Fatal]] level
    * @param args  Accepts any number of arguments
    */
   public fatal(...args: any[]): void {
     this._log(LogLevel.Fatal, args);
+  }
+
+  /**
+   * Writes a log message once at the [[LogLevel.Fatal]] level, if it sees the same args again it won't log
+   * @param args  Accepts any number of arguments
+   */
+  public fatalOnce(...args: any[]): void {
+    this._logOnce(LogLevel.Fatal, args);
   }
 }
 

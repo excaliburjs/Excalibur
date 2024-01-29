@@ -10,6 +10,7 @@ import { BoundingBox } from '../BoundingBox';
 import { CollisionContact } from '../Detection/CollisionContact';
 import { DynamicTree } from '../Detection/DynamicTree';
 import { DynamicTreeCollisionProcessor } from '../Detection/DynamicTreeCollisionProcessor';
+import { RayCastHit } from '../Detection/RayCastHit';
 import { Collider } from './Collider';
 import { Transform } from '../../Math/transform';
 
@@ -191,42 +192,42 @@ export class CompositeCollider extends Collider {
     }
     return false;
   }
-  rayCast(ray: Ray, max?: number): Vector {
+  rayCast(ray: Ray, max?: number): RayCastHit | null {
     const colliders = this.getColliders();
-    const points: Vector[] = [];
+    const hits: RayCastHit[] = [];
     for (const collider of colliders) {
-      const vec = collider.rayCast(ray, max);
-      if (vec) {
-        points.push(vec);
+      const hit = collider.rayCast(ray, max);
+      if (hit) {
+        hits.push(hit);
       }
     }
-    if (points.length) {
-      let minPoint = points[0];
-      let minDistance = minPoint.dot(ray.dir);
-      for (const point of points) {
-        const distance = ray.dir.dot(point);
+    if (hits.length) {
+      let minHit = hits[0];
+      let minDistance = minHit.point.dot(ray.dir);
+      for (const hit of hits) {
+        const distance = ray.dir.dot(hit.point);
         if (distance < minDistance) {
-          minPoint = point;
+          minHit = hit;
           minDistance = distance;
         }
       }
-      return minPoint;
+      return minHit;
     }
     return null;
   }
   project(axis: Vector): Projection {
     const colliders = this.getColliders();
-    const projs: Projection[] = [];
+    const projections: Projection[] = [];
     for (const collider of colliders) {
       const proj = collider.project(axis);
       if (proj) {
-        projs.push(proj);
+        projections.push(proj);
       }
     }
     // Merge all proj's on the same axis
-    if (projs.length) {
-      const newProjection = new Projection(projs[0].min, projs[0].max);
-      for (const proj of projs) {
+    if (projections.length) {
+      const newProjection = new Projection(projections[0].min, projections[0].max);
+      for (const proj of projections) {
         newProjection.min = Math.min(proj.min, newProjection.min);
         newProjection.max = Math.max(proj.max, newProjection.max);
       }

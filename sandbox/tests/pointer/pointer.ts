@@ -8,6 +8,24 @@ class Player extends ex.Actor {
 
 class Game2 extends ex.Engine {
   initialize() {
+    const screenElement = new ex.ScreenElement({
+      x: 100,
+      y: 100,
+      height: 50,
+      width: 100,
+      color: ex.Color.Red
+    });
+    screenElement.pointer.useColliderShape = true;
+    screenElement.pointer.useGraphicsBounds = true;
+    screenElement.on('pointerdown', () => {
+      console.log('screen element down')
+    });
+    screenElement.on('pointerup', () => {
+      console.log('screen element up')
+    });
+    this.add(screenElement);
+
+
     const player1 = new Player(ex.Color.Green);
     this.add(player1);
     player1.z = 10;
@@ -44,6 +62,14 @@ class Game2 extends ex.Engine {
     this.start(loader);
   }
 }
-var game2 = new Game2({width: 600, height: 400});
+var game2 = new Game2({
+  width: 600,
+  height: 400,
+  antialiasing: false,
+  displayMode: ex.DisplayMode.FitScreenAndFill
+});
+game2.debug.collider.showBounds = true;
+game2.debug.graphics.showBounds = true;
+game2.toggleDebug();
 
 game2.initialize();

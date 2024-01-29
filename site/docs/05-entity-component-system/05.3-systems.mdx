@@ -4,6 +4,11 @@ slug: /systems
 section: Entity Component System
 ---
 
+```twoslash include ex
+/// <reference path="../src/engine/excalibur.d.ts" />
+declare const game: ex.Engine;
+```
+
 Core behavior in Excalibur is implemented by Systems. Systems process all entities that have matching component types and perform some action.
 
 Examples of systems are the [[GraphicsSystem]], [[MotionSystem]], [[CollisionSystem]], and [[DebugSystem]]
@@ -59,7 +64,54 @@ For custom component types it is recommended you prefix your types, like `type =
 
 In this example, we create a "search" type component, that searches for a target position. Notice how this component implementation is mostly data.
 
-`embed:excalibur-snippets/src/ecs/main.ts{snippet: "ecs"}`
+```typescript
+class SearchComponent extends ex.Component<'search'> {
+    public readonly type = 'search'
+    constructor(public target: ex.Vector) {
+        super();
+    }
+}
+
+class SearchSystem extends ex.System<ex.TransformComponent | SearchComponent> {
+    // Types need to be listed as a const literal
+    public readonly types = ['ex.transform', 'search'] as const;
+
+    // Lower numbers mean higher priority
+    // 99 is low priority
+    public priority = 99;
+
+    // Run this system in the "update" phase
+    public systemType = ex.SystemType.Update
+
+    private _searchSpeed = 100 // pixels/sec
+
+    public update(entities: ex.Entity[], delta: number) {
+        for (let entity of entities) {
+            const target = entity.get(SearchComponent)!.target;
+            // ex.TransformComponent is a built in type
+            const transform = entity.get(ex.TransformComponent) as ex.TransformComponent;
+
+            const direction = target.sub(transform.pos);
+            const motion = direction.normalize().scale(this._searchSpeed);
+
+            // Moves these entities towards the target at 10 pixels per second
+            transform.pos = transform.pos.add(motion.scale(delta / 1000))
+        }
+    }
+}
+
+const scene = new ex.Scene();
+scene.world.add(new SearchSystem());
+
+// Actors come with batteries included built in features
+const actor = new ex.Actor({
+    pos: ex.vec(100, 100),
+    width: 30,
+    height: 30,
+    color: ex.Color.Red
+});
+actor.addComponent(new SearchComponent(ex.vec(600, 400)));
+```
 
 <IFrameEmbed src="https://excaliburjs.com/excalibur-snippets/ecs/" />
 

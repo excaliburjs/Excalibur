@@ -2,10 +2,11 @@ import { Vector, vec } from '../Math/vector';
 import { Graphic } from './Graphic';
 import { HasTick } from './Animation';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
-import { Logger } from '../Util/Log';
 import { BoundingBox } from '../Collision/Index';
 import { Component } from '../EntityComponentSystem/Component';
 import { Material } from './Context/material';
+import { Logger } from '../Util/Log';
+import { WatchVector } from '../Math/watch-vector';
 
 /**
  * Type guard for checking if a Graphic HasTick (used for graphics that change over time like animations)
@@ -22,11 +23,18 @@ export interface GraphicsShowOptions {
 export interface GraphicsComponentOptions {
   onPostDraw?: (ex: ExcaliburGraphicsContext, elapsed: number) => void;
   onPreDraw?: (ex: ExcaliburGraphicsContext, elapsed: number) => void;
+  onPreTransformDraw?: (ex: ExcaliburGraphicsContext, elapsed: number) => void;
+  onPostTransformDraw?: (ex: ExcaliburGraphicsContext, elapsed: number) => void;
 
   /**
    * Name of current graphic to use
    */
   current?: string;
+
+  /**
+   * Optionally set a material to use on the graphic
+   */
+  material?: Material;
 
   /**
    * Optionally copy instances of graphics by calling .clone(), you may set this to false to avoid sharing graphics when added to the
@@ -45,9 +53,9 @@ export interface GraphicsComponentOptions {
   opacity?: number;
 
   /**
-   * List of graphics
+   * List of graphics and optionally the options per graphic
    */
-  graphics?: { [graphicName: string]: Graphic };
+  graphics?: { [graphicName: string]: Graphic | { graphic: Graphic, options: GraphicsShowOptions } };
 
   /**
    * Optional offset in absolute pixels to shift all graphics in this component from each graphic's anchor (default is top left corner)
@@ -60,222 +68,17 @@ export interface GraphicsComponentOptions {
   anchor?: Vector;
 }
 
-export interface GraphicsLayerOptions {
-  /**
-   * Name of the layer required, for example 'background'
-   */
-  name: string;
-  /**
-   * Order of the layer, a layer with order -1 will be below a layer with order of 1
-   */
-  order: number;
-  /**
-   * Offset to shift the entire layer
-   */
-  offset?: Vector;
-}
-export class GraphicsLayer {
-  public graphics: { graphic: Graphic; options: GraphicsShowOptions }[] = [];
-  constructor(private _options: GraphicsLayerOptions, private _graphics: GraphicsComponent) {}
-  public get name(): string {
-    return this._options.name;
-  }
-
-  /**
-   * Remove any instance(s) of a graphic currently being shown in this layer
-   */
-  public hide(nameOrGraphic: string | Graphic): void;
-  /**
-   * Remove all currently shown graphics in this layer
-   */
-  public hide(): void;
-  public hide(nameOrGraphic?: string | Graphic): void {
-    if (!nameOrGraphic) {
-      this.graphics.length = 0;
-    } else {
-      let gfx: Graphic = null;
-      if (nameOrGraphic instanceof Graphic) {
-        gfx = nameOrGraphic;
-      } else {
-        gfx = this._graphics.getGraphic(nameOrGraphic);
-      }
-      this.graphics = this.graphics.filter((g) => g.graphic !== gfx);
-      this._graphics.recalculateBounds();
-    }
-  }
-
-  /**
-   * Show a graphic by name or instance at an offset, graphics are shown in the order in which `show()` is called.
-   *
-   * If `show()` is called multiple times for the same graphic it will be shown multiple times.
-   * @param nameOrGraphic
-   * @param options
-   */
-  public show<T extends Graphic = Graphic>(nameOrGraphic: string | T, options?: GraphicsShowOptions): T {
-    options = { ...options };
-    let gfx: Graphic;
-    if (nameOrGraphic instanceof Graphic) {
-      gfx = this._graphics.copyGraphics ? nameOrGraphic.clone() : nameOrGraphic;
-    } else {
-      gfx = this._graphics.getGraphic(nameOrGraphic);
-      if (!gfx) {
-        Logger.getInstance().error(
-          `No such graphic added to component named ${nameOrGraphic}. These named graphics are available: `,
-          this._graphics.getNames()
-        );
-      }
-    }
-    if (gfx) {
-      this.graphics.push({ graphic: gfx, options });
-      this._graphics.recalculateBounds();
-      return gfx as T;
-    } else {
-      return null;
-    }
-  }
-
-  /**
-   * Use a specific graphic, swap out any current graphics being shown
-   * @param nameOrGraphic
-   * @param options
-   */
-  public use<T extends Graphic = Graphic>(nameOrGraphic: string | T, options?: GraphicsShowOptions): T {
-    options = { ...options };
-    this.hide();
-    return this.show<T>(nameOrGraphic, options);
-  }
-
-  /**
-   * Current order of the layer, higher numbers are on top, lower numbers are on the bottom.
-   *
-   * For example a layer with `order = -1` would be under a layer of `order = 1`
-   */
-  public get order(): number {
-    return this._options.order;
-  }
-
-  /**
-   * Set the order of the layer, higher numbers are on top, lower numbers are on the bottom.
-   *
-   * For example a layer with `order = -1` would be under a layer of `order = 1`
-   */
-  public set order(order: number) {
-    this._options.order = order;
-  }
-
-  /**
-   * Get or set the pixel offset from the layer anchor for all graphics in the layer
-   */
-  public get offset(): Vector {
-    return this._options.offset ?? Vector.Zero;
-  }
-
-  public set offset(value: Vector) {
-    this._options.offset = value;
-  }
-
-  public get currentKeys(): string {
-    return this.name ?? 'anonymous';
-  }
-
-  public clone(graphicsComponent: GraphicsComponent): GraphicsLayer {
-    const layer = new GraphicsLayer({...this._options}, graphicsComponent);
-    layer.graphics = [...this.graphics.map(g => ({graphic: g.graphic.clone(), options: {...g.options}}))];
-    return layer;
-  }
-}
-
-export class GraphicsLayers {
-  private _layers: GraphicsLayer[] = [];
-  private _layerMap: { [layerName: string]: GraphicsLayer } = {};
-  public default: GraphicsLayer;
-  constructor(private _component: GraphicsComponent) {
-    this.default = new GraphicsLayer({ name: 'default', order: 0 }, _component);
-    this._maybeAddLayer(this.default);
-  }
-  public create(options: GraphicsLayerOptions): GraphicsLayer {
-    const layer = new GraphicsLayer(options, this._component);
-    return this._maybeAddLayer(layer);
-  }
-
-  /**
-   * Retrieve a single layer by name
-   * @param name
-   */
-  public get(name: string): GraphicsLayer;
-  /**
-   * Retrieve all layers
-   */
-  public get(): readonly GraphicsLayer[];
-  public get(name?: string): GraphicsLayer | readonly GraphicsLayer[] {
-    if (name) {
-      return this._getLayer(name);
-    }
-    return this._layers;
-  }
-
-  public currentKeys() {
-    const graphicsLayerKeys = [];
-    for (const layer of this._layers) {
-      graphicsLayerKeys.push(layer.currentKeys);
-    }
-    return graphicsLayerKeys;
-  }
-
-  public has(name: string): boolean {
-    return name in this._layerMap;
-  }
-
-  private _maybeAddLayer(layer: GraphicsLayer) {
-    if (this._layerMap[layer.name]) {
-      // todo log warning
-      return this._layerMap[layer.name];
-    }
-    this._layerMap[layer.name] = layer;
-    this._layers.push(layer);
-    this._layers.sort((a, b) => a.order - b.order);
-    return layer;
-  }
-
-  private _getLayer(name: string): GraphicsLayer | undefined {
-    return this._layerMap[name];
-  }
-
-  public clone(graphicsComponent: GraphicsComponent): GraphicsLayers {
-    const layers = new GraphicsLayers(graphicsComponent);
-    layers._layerMap = {};
-    layers._layers = [];
-    layers.default = this.default.clone(graphicsComponent);
-    layers._maybeAddLayer(layers.default);
-    // Remove the default layer out of the clone
-    const clonedLayers = this._layers.filter(l => l.name !== 'default').map(l => l.clone(graphicsComponent));
-    clonedLayers.forEach(layer => layers._maybeAddLayer(layer));
-    return layers;
-  }
-}
-
 /**
  * Component to manage drawings, using with the position component
  */
-export class GraphicsComponent extends Component<'ex.graphics'> {
-  readonly type = 'ex.graphics';
+export class GraphicsComponent extends Component {
+  private _logger = Logger.getInstance();
 
-  private _graphics: { [graphicName: string]: Graphic } = {};
-
-  public layers: GraphicsLayers;
+  private _current: string = 'default';
+  private _graphics: Record<string, Graphic> = {};
+  private _options: Record<string, GraphicsShowOptions> = {};
 
   public material: Material | null = null;
-
-  public getGraphic(name: string): Graphic | undefined {
-    return this._graphics[name];
-  }
-
-  /**
-   * Get registered graphics names
-   */
-  public getNames(): string[] {
-    return Object.keys(this._graphics);
-  }
 
   /**
    * Draws after the entity transform has been applied, but before graphics component graphics have been drawn
@@ -307,15 +110,36 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
    */
   public opacity: number = 1;
 
+
+  private _offset: Vector = Vector.Zero;
+
   /**
    * Offset to apply to graphics by default
    */
-  public offset: Vector = Vector.Zero;
+  public get offset(): Vector {
+    return new WatchVector(this._offset, () => {
+      this.recalculateBounds();
+    });
+  }
+  public set offset(value: Vector) {
+    this._offset = value;
+    this.recalculateBounds();
+  }
+
+  private _anchor: Vector = Vector.Half;
 
   /**
    * Anchor to apply to graphics by default
    */
-  public anchor: Vector = Vector.Half;
+  public get anchor(): Vector {
+    return new WatchVector(this._anchor, () => {
+      this.recalculateBounds();
+    });
+  }
+  public set anchor(value: Vector) {
+    this._anchor = value;
+    this.recalculateBounds();
+  }
 
   /**
    * Flip all graphics horizontally along the y-axis
@@ -328,7 +152,8 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
   public flipVertical: boolean = false;
 
   /**
-   * If set to true graphics added to the component will be copied. This can affect performance
+   * If set to true graphics added to the component will be copied. This can effect performance, but is useful if you don't want
+   * changes to a graphic to effect all the places it is used.
    */
   public copyGraphics: boolean = false;
 
@@ -337,31 +162,74 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
     // Defaults
     options = {
       visible: this.visible,
+      graphics: {},
       ...options
     };
 
-    const { current, anchor, opacity, visible, graphics, offset, copyGraphics, onPreDraw, onPostDraw } = options;
+    const {
+      current,
+      anchor,
+      opacity,
+      visible,
+      graphics,
+      offset,
+      copyGraphics,
+      onPreDraw,
+      onPostDraw,
+      onPreTransformDraw,
+      onPostTransformDraw
+    } = options;
 
-    this._graphics = graphics || {};
+    for (const [key, graphicOrOptions] of Object.entries(graphics)) {
+      if (graphicOrOptions instanceof Graphic) {
+        this._graphics[key] = graphicOrOptions;
+      } else {
+        this._graphics[key] = graphicOrOptions.graphic;
+        this._options[key] = graphicOrOptions.options;
+      }
+    }
+
     this.offset = offset ?? this.offset;
     this.opacity = opacity ?? this.opacity;
     this.anchor = anchor ?? this.anchor;
     this.copyGraphics = copyGraphics ?? this.copyGraphics;
     this.onPreDraw = onPreDraw ?? this.onPreDraw;
     this.onPostDraw = onPostDraw ?? this.onPostDraw;
+    this.onPreDraw = onPreTransformDraw ?? this.onPreTransformDraw;
+    this.onPostTransformDraw = onPostTransformDraw ?? this.onPostTransformDraw;
     this.visible = !!visible;
-
-    this.layers = new GraphicsLayers(this);
+    this._current = current ?? this._current;
     if (current && this._graphics[current]) {
-      this.show(this._graphics[current]);
+      this.use(current);
     }
   }
 
+  public getGraphic(name: string): Graphic | undefined {
+    return this._graphics[name];
+  }
+  public getOptions(name: string): GraphicsShowOptions | undefined {
+    return this._options[name];
+  }
+
   /**
-   * Returns the currently displayed graphics and their offsets, empty array if hidden
+   * Get registered graphics names
    */
-  public get current(): { graphic: Graphic; options: GraphicsShowOptions }[] {
-    return this.layers.default.graphics;
+  public getNames(): string[] {
+    return Object.keys(this._graphics);
+  }
+
+  /**
+   * Returns the currently displayed graphic
+   */
+  public get current(): Graphic | undefined {
+    return this._graphics[this._current];
+  }
+
+  /**
+   * Returns the currently displayed graphic offsets
+   */
+  public get currentOptions(): GraphicsShowOptions | undefined {
+    return this._options[this._current];
   }
 
   /**
@@ -372,59 +240,96 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
   }
 
   /**
+   * Returns all graphics options associated with this component
+   */
+  public get options(): { [graphicName: string]: GraphicsShowOptions } {
+    return this._options;
+  }
+
+  /**
    * Adds a named graphic to this component, if the name is "default" or not specified, it will be shown by default without needing to call
-   * `show("default")`
    * @param graphic
    */
-  public add(graphic: Graphic): Graphic;
-  public add(name: string, graphic: Graphic): Graphic;
-  public add(nameOrGraphic: string | Graphic, graphic?: Graphic): Graphic {
+  public add(graphic: Graphic, options?: GraphicsShowOptions): Graphic;
+  public add(name: string, graphic: Graphic, options?: GraphicsShowOptions): Graphic;
+  public add(nameOrGraphic: string | Graphic, graphicOrOptions?: Graphic | GraphicsShowOptions, options?: GraphicsShowOptions): Graphic {
     let name = 'default';
     let graphicToSet: Graphic = null;
-    if (typeof nameOrGraphic === 'string') {
+    let optionsToSet: GraphicsShowOptions | undefined = undefined;
+    if (typeof nameOrGraphic === 'string' && graphicOrOptions instanceof Graphic) {
       name = nameOrGraphic;
-      graphicToSet = graphic;
-    } else {
+      graphicToSet = graphicOrOptions;
+      optionsToSet = options;
+    }
+    if (nameOrGraphic instanceof Graphic && !(graphicOrOptions instanceof Graphic)) {
       graphicToSet = nameOrGraphic;
+      optionsToSet = graphicOrOptions;
     }
 
     this._graphics[name] = this.copyGraphics ? graphicToSet.clone() : graphicToSet;
+    this._options[name] = this.copyGraphics ? {...optionsToSet} : optionsToSet;
     if (name === 'default') {
-      this.show('default');
+      this.use('default');
     }
     return graphicToSet;
   }
 
   /**
-   * Show a graphic by name on the **default** layer, returns the new [[Graphic]]
+   * Removes a registered graphic, if the removed graphic is the current it will switch to the default
+   * @param name
    */
-  public show<T extends Graphic = Graphic>(nameOrGraphic: string | T, options?: GraphicsShowOptions): T {
-    const result = this.layers.default.show<T>(nameOrGraphic, options);
-    this.recalculateBounds();
-    return result;
+  public remove(name: string) {
+    delete this._graphics[name];
+    delete this._options[name];
+    if (this._current === name) {
+      this._current = 'default';
+      this.recalculateBounds();
+    }
   }
 
   /**
-   * Use a graphic only, swap out any graphics on the **default** layer, returns the new [[Graphic]]
+   * Shows a graphic, will be removed
+   * @param nameOrGraphic
+   * @param options
+   * @deprecated will be removed in v0.30.0, use `graphics.use(...)`
+   */
+  public show<T extends Graphic = Graphic>(nameOrGraphic: string | T, options?: GraphicsShowOptions): T {
+    return this.use(nameOrGraphic, options);
+  }
+
+  /**
+   * Use a graphic only, will set the default graphic. Returns the new [[Graphic]]
+   *
+   * Optionally override the stored options
    * @param nameOrGraphic
    * @param options
    */
   public use<T extends Graphic = Graphic>(nameOrGraphic: string | T, options?: GraphicsShowOptions): T {
-    const result = this.layers.default.use<T>(nameOrGraphic, options);
+    if (nameOrGraphic instanceof Graphic) {
+      let graphic = nameOrGraphic as Graphic;
+      if (this.copyGraphics) {
+        graphic = nameOrGraphic.clone();
+      }
+      this._current = 'default';
+      this._graphics[this._current] = graphic;
+      this._options[this._current] = options;
+    } else {
+      this._current = nameOrGraphic;
+      this._options[this._current] = options;
+      if (!(this._current in this._graphics)) {
+        this._logger.warn(
+          `Graphic ${this._current} is not registered with the graphics component owned by ${this.owner?.name}. Nothing will be drawn.`);
+      }
+    }
     this.recalculateBounds();
-    return result;
+    return this.current as T;
   }
 
   /**
-   * Remove any instance(s) of a graphic currently being shown in the **default** layer
+   * Hide currently shown graphic
    */
-  public hide(nameOrGraphic: string | Graphic): void;
-  /**
-   * Remove all currently shown graphics in the **default** layer
-   */
-  public hide(): void;
-  public hide(nameOrGraphic?: string | Graphic): void {
-    this.layers.default.hide(nameOrGraphic);
+  public hide(): void {
+    this._current = 'ex.none';
   }
 
   private _localBounds: BoundingBox = null;
@@ -434,22 +339,26 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
 
   public recalculateBounds() {
     let bb = new BoundingBox();
-    for (const layer of this.layers.get()) {
-      for (const { graphic, options } of layer.graphics) {
-        let anchor = this.anchor;
-        let offset = this.offset;
-        if (options?.anchor) {
-          anchor = options.anchor;
-        }
-        if (options?.offset) {
-          offset = options.offset;
-        }
-        const bounds = graphic.localBounds;
-        const offsetX = -bounds.width *  anchor.x + offset.x;
-        const offsetY = -bounds.height *  anchor.y + offset.y;
-        bb = graphic?.localBounds.translate(vec(offsetX + layer.offset.x, offsetY + layer.offset.y)).combine(bb);
-      }
+    const graphic = this._graphics[this._current];
+    const options = this._options[this._current];
+
+    if (!graphic) {
+      this._localBounds = bb;
+      return;
     }
+
+    let anchor = this.anchor;
+    let offset = this.offset;
+    if (options?.anchor) {
+      anchor = options.anchor;
+    }
+    if (options?.offset) {
+      offset = options.offset;
+    }
+    const bounds = graphic.localBounds;
+    const offsetX = -bounds.width *  anchor.x + offset.x;
+    const offsetY = -bounds.height *  anchor.y + offset.y;
+    bb = graphic?.localBounds.translate(vec(offsetX, offsetY)).combine(bb);
     this._localBounds = bb;
   }
 
@@ -461,23 +370,22 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
   }
 
   /**
-   * Update underlying graphics if necesary, called internally
+   * Update underlying graphics if necessary, called internally
    * @param elapsed
    * @internal
    */
   public update(elapsed: number, idempotencyToken: number = 0) {
-    for (const layer of this.layers.get()) {
-      for (const { graphic } of layer.graphics) {
-        if (hasGraphicsTick(graphic)) {
-          graphic?.tick(elapsed, idempotencyToken);
-        }
-      }
+    const graphic = this.current;
+    if (graphic && hasGraphicsTick(graphic)) {
+      graphic.tick(elapsed, idempotencyToken);
     }
   }
+
 
   public clone(): GraphicsComponent {
     const graphics = new GraphicsComponent();
     graphics._graphics = { ...this._graphics };
+    graphics._options = {... this._options};
     graphics.offset = this.offset.clone();
     graphics.opacity = this.opacity;
     graphics.anchor = this.anchor.clone();
@@ -485,7 +393,6 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
     graphics.onPreDraw = this.onPreDraw;
     graphics.onPostDraw = this.onPostDraw;
     graphics.visible = this.visible;
-    graphics.layers = this.layers.clone(graphics);
 
     return graphics;
   }

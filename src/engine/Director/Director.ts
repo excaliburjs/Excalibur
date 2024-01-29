@@ -372,6 +372,7 @@ export class Director<TKnownScenes extends string = any> {
     }
 
     const sourceScene = this.currentSceneName;
+    const engineInputEnabled = this._engine.input?.enabled ?? true;
     this._isTransitioning = true;
 
     const maybeSourceOut = this.getSceneInstance(sourceScene)?.onTransition('out');
@@ -416,7 +417,7 @@ export class Director<TKnownScenes extends string = any> {
     await this.playTransition(inTransition);
     this._emitEvent('navigationend', sourceScene, destinationScene);
 
-    this._engine.toggleInputEnabled(true);
+    this._engine.input?.toggleEnabled(engineInputEnabled);
     this._isTransitioning = false;
   }
 
@@ -473,9 +474,16 @@ export class Director<TKnownScenes extends string = any> {
   async playTransition(transition: Transition) {
     if (transition) {
       this.currentTransition = transition;
-      this._engine.toggleInputEnabled(!transition.blockInput);
+      const currentScene = this._engine.currentScene;
+      const sceneInputEnabled = currentScene.input?.enabled ?? true;
+
+      currentScene.input?.toggleEnabled(!transition.blockInput);
+      this._engine.input?.toggleEnabled(!transition.blockInput);
+
       this._engine.add(this.currentTransition);
       await this.currentTransition.done;
+
+      currentScene.input?.toggleEnabled(sceneInputEnabled);
     }
     this.currentTransition?.kill();
     this.currentTransition?.reset();

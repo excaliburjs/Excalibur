@@ -290,14 +290,11 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._isDrawLifecycle = false;
   }
 
-  private _alreadyWarnedDrawLifecycle = false;
-
   public draw<TRenderer extends RendererPlugin>(rendererName: TRenderer['type'], ...args: Parameters<TRenderer['draw']>) {
-    if (!this._isDrawLifecycle && !this._alreadyWarnedDrawLifecycle) {
-      this._logger.warn(
+    if (!this._isDrawLifecycle) {
+      this._logger.warnOnce(
         `Attempting to draw outside the the drawing lifecycle (preDraw/postDraw) is not supported and is a source of bugs/errors.\n` +
         `If you want to do custom drawing, use Actor.graphics, or any onPreDraw or onPostDraw handler.`);
-      this._alreadyWarnedDrawLifecycle = true;
     }
 
     const renderer = this._renderers.get(rendererName);
@@ -498,9 +495,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
    * @param options
    * @returns Material
    */
-  public createMaterial(options: MaterialOptions): Material {
-    const material = new Material(options);
-    material.initialize(this.__gl, this);
+  public createMaterial(options: Omit<MaterialOptions, 'graphicsContext'>): Material {
+    const material = new Material({...options, graphicsContext: this});
     return material;
   }
 

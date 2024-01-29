@@ -21,7 +21,7 @@ const config: Config = {
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
-  url: 'https://beta.excaliburjs.com',
+  url: 'https://excaliburjs.com',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/',
@@ -211,6 +211,7 @@ const config: Config = {
         { to: '/api', label: 'API', position: 'left' },
         { to: '/blog', label: 'Blog', position: 'left' },
         { to: '/samples', label: 'Samples', position: 'left' },
+        { to: '/showcase', label: 'Showcase', position: 'left' },
         { to: '/donate', label: 'Donate', position: 'left' },
         {
           href: 'https://github.com/excaliburjs/Excalibur/discussions',
@@ -280,12 +281,12 @@ const config: Config = {
       appId: 'IVI5ONIKWP',
       apiKey: 'b6bd39e31669ade42444bfb948e9cff9',
       indexName: 'excaliburjs',
-      contextualSearch: true,
+      contextualSearch: false,
     },
     prism: {
       theme: lightCodeTheme,
       darkTheme: darkCodeTheme,
-      additionalLanguages: ['bash', 'diff', 'json']
+      additionalLanguages: ['bash', 'diff', 'json', 'glsl']
     },
     liveCodeBlock: {
       /**

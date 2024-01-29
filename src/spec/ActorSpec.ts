@@ -21,10 +21,10 @@ describe('A game actor', () => {
     engine = TestUtils.engine({ width: 100, height: 100 });
     actor = new ex.Actor({name: 'Default'});
     actor.body.collisionType = ex.CollisionType.Active;
-    motionSystem = new ex.MotionSystem();
-    collisionSystem = new ex.CollisionSystem(new PhysicsWorld());
-    actionSystem = new ex.ActionsSystem();
     scene = new ex.Scene();
+    motionSystem = new ex.MotionSystem(scene.world);
+    collisionSystem = new ex.CollisionSystem(scene.world, new PhysicsWorld());
+    actionSystem = new ex.ActionsSystem(scene.world);
     scene.add(actor);
     engine.addScene('test', scene);
     await engine.goToScene('test');
@@ -36,8 +36,8 @@ describe('A game actor', () => {
     await engine.start();
     const clock = engine.clock as ex.TestClock;
     clock.step(1);
-    collisionSystem.initialize(scene);
-    scene.world.systemManager.get(ex.PointerSystem).initialize(scene);
+    collisionSystem.initialize(scene.world, scene);
+    scene.world.systemManager.get(ex.PointerSystem).initialize(scene.world, scene);
 
     ex.Physics.useArcadePhysics();
     ex.Physics.acc.setTo(0, 0);
@@ -146,11 +146,11 @@ describe('A game actor', () => {
   it('should have constructor anchor set on graphics component', () => {
     const actor = new ex.Actor({anchor: ex.vec(.7, .7)});
 
-    expect(actor.anchor).toEqual(ex.vec(.7, .7));
-    expect(actor.graphics.anchor).toEqual(ex.vec(.7, .7));
+    expect(actor.anchor).toBeVector(ex.vec(.7, .7));
+    expect(actor.graphics.anchor).toBeVector(ex.vec(.7, .7));
 
     actor.anchor = ex.vec(0, 0);
-    expect(actor.graphics.anchor).toEqual(ex.vec(0, 0));
+    expect(actor.graphics.anchor).toBeVector(ex.vec(0, 0));
   });
 
   it('will inherit the scene from the parent entity after being added', () => {
@@ -183,19 +183,19 @@ describe('A game actor', () => {
 
   it('can be created with a radius with default circle collider and graphic', () => {
     const actor = new ex.Actor({ x: 50, y: 50, color: ex.Color.Red, radius: 10 });
-    expect(actor.graphics.current[0].graphic).toBeInstanceOf(ex.Circle);
-    expect((actor.graphics.current[0].graphic as ex.Circle).radius).toBe(10);
-    expect((actor.graphics.current[0].graphic as ex.Circle).color).toEqual(ex.Color.Red);
+    expect(actor.graphics.current).toBeInstanceOf(ex.Circle);
+    expect((actor.graphics.current as ex.Circle).radius).toBe(10);
+    expect((actor.graphics.current as ex.Circle).color).toEqual(ex.Color.Red);
     expect(actor.collider.get()).toBeInstanceOf(ex.CircleCollider);
     expect(actor.collider.get().offset).toBeVector(ex.vec(0, 0));
   });
 
   it('can be created with a width/height with default rectangle collider and graphic', () => {
     const actor = new ex.Actor({ x: 50, y: 50, color: ex.Color.Red, width: 10, height: 10 });
-    expect(actor.graphics.current[0].graphic).toBeInstanceOf(ex.Rectangle);
-    expect((actor.graphics.current[0].graphic as ex.Rectangle).width).toBe(10);
-    expect((actor.graphics.current[0].graphic as ex.Rectangle).height).toBe(10);
-    expect((actor.graphics.current[0].graphic as ex.Rectangle).color).toEqual(ex.Color.Red);
+    expect(actor.graphics.current).toBeInstanceOf(ex.Rectangle);
+    expect((actor.graphics.current as ex.Rectangle).width).toBe(10);
+    expect((actor.graphics.current as ex.Rectangle).height).toBe(10);
+    expect((actor.graphics.current as ex.Rectangle).color).toEqual(ex.Color.Red);
     expect(actor.collider.get()).toBeInstanceOf(ex.PolygonCollider);
   });
 
@@ -213,7 +213,7 @@ describe('A game actor', () => {
     actor.pos = ex.vec(10, 10);
     actor.vel = ex.vec(10, 10);
 
-    motionSystem.update([actor], 1000);
+    motionSystem.update(1000);
 
     expect(actor.oldPos.x).toBe(10);
     expect(actor.oldPos.y).toBe(10);
@@ -238,11 +238,11 @@ describe('A game actor', () => {
     expect(actor.pos.x).toBe(0);
     expect(actor.pos.y).toBe(0);
 
-    motionSystem.update([actor], 1000);
+    motionSystem.update(1000);
     expect(actor.pos.x).toBe(-10);
     expect(actor.pos.y).toBe(10);
 
-    motionSystem.update([actor], 1000);
+    motionSystem.update(1000);
     expect(actor.pos.x).toBe(-20);
     expect(actor.pos.y).toBe(20);
   });
@@ -252,7 +252,7 @@ describe('A game actor', () => {
     actor.vel = ex.vec(10, 10);
     actor.acc = ex.vec(10, 10);
 
-    motionSystem.update([actor], 1000);
+    motionSystem.update(1000);
 
     expect(actor.oldVel.x).toBe(10);
     expect(actor.oldVel.y).toBe(10);
@@ -448,8 +448,8 @@ describe('A game actor', () => {
 
     scene.add(actor);
     scene.add(other);
-    collisionSystem.update([actor, other], 20);
-    collisionSystem.update([actor, other], 20);
+    collisionSystem.update(20);
+    collisionSystem.update(20);
     scene.update(engine, 20);
     scene.update(engine, 20);
 
@@ -466,7 +466,7 @@ describe('A game actor', () => {
     const child = new ex.Actor({ x: 10, y: 0, width: 10, height: 10 }); // (20, 10)
 
     actor.addChild(child);
-    motionSystem.update([actor], 100);
+    motionSystem.update(100);
 
     expect(child.getGlobalPos().x).toBeCloseTo(10, 0.001);
     expect(child.getGlobalPos().y).toBeCloseTo(20, 0.001);
@@ -483,7 +483,7 @@ describe('A game actor', () => {
 
     actor.addChild(child);
     child.addChild(grandchild);
-    motionSystem.update([actor], 100);
+    motionSystem.update(100);
 
     expect(grandchild.getGlobalRotation()).toBe(rotation);
     expect(grandchild.getGlobalPos().x).toBeCloseTo(10, 0.001);
@@ -498,7 +498,7 @@ describe('A game actor', () => {
     const child = new ex.Actor({ x: 10, y: 10, width: 10, height: 10 });
 
     actor.addChild(child);
-    motionSystem.update([actor], 100);
+    motionSystem.update(100);
 
     expect(child.getGlobalPos().x).toBe(30);
     expect(child.getGlobalPos().y).toBe(30);
@@ -514,7 +514,7 @@ describe('A game actor', () => {
 
     actor.addChild(child);
     child.addChild(grandchild);
-    motionSystem.update([actor], 100);
+    motionSystem.update(100);
 
     // Logic:
     // p = (10, 10)
@@ -534,7 +534,7 @@ describe('A game actor', () => {
     const child = new ex.Actor({ x: 10, y: 0, width: 10, height: 10 }); // (30, 10)
 
     actor.addChild(child);
-    motionSystem.update([actor], 100);
+    motionSystem.update(100);
 
     expect(child.getGlobalPos().x).toBeCloseTo(10, 0.001);
     expect(child.getGlobalPos().y).toBeCloseTo(30, 0.001);
@@ -552,7 +552,7 @@ describe('A game actor', () => {
 
     actor.addChild(child);
     child.addChild(grandchild);
-    motionSystem.update([actor], 100);
+    motionSystem.update(100);
 
     expect(grandchild.getGlobalPos().x).toBeCloseTo(10, 0.001);
     expect(grandchild.getGlobalPos().y).toBeCloseTo(50, 0.001);
@@ -567,13 +567,13 @@ describe('A game actor', () => {
     expect(childActor.pos.y).toBe(50);
 
     actor.addChild(childActor);
-    actionSystem.notify(new ex.AddedEntity(actor));
+    actionSystem.query.checkAndAdd(actor);
 
     actor.actions.moveTo(10, 15, 1000);
-    actionSystem.update([actor], 1000);
-    motionSystem.update([actor], 1000);
-    actionSystem.update([actor], 1);
-    motionSystem.update([actor], 1);
+    actionSystem.update(1000);
+    motionSystem.update(1000);
+    actionSystem.update(1);
+    motionSystem.update(1);
 
     expect(childActor.getGlobalPos().x).toBe(60);
     expect(childActor.getGlobalPos().y).toBe(65);
@@ -599,7 +599,7 @@ describe('A game actor', () => {
     expect(grandChildActor.getGlobalPos().y).toBe(75);
   });
 
-  it('can find its global coordinates if it doesnt have a parent', () => {
+  it('can find its global coordinates if it doesn\'t have a parent', () => {
     expect(actor.pos.x).toBe(0);
     expect(actor.pos.y).toBe(0);
 
@@ -635,8 +635,8 @@ describe('A game actor', () => {
     await TestUtils.runToReady(engine);
     actor = new ex.Actor();
     actor.body.collisionType = ex.CollisionType.Active;
-    motionSystem = new ex.MotionSystem();
-    collisionSystem = new ex.CollisionSystem(new PhysicsWorld());
+    motionSystem = new ex.MotionSystem(engine.currentScene.world);
+    collisionSystem = new ex.CollisionSystem(engine.currentScene.world, new PhysicsWorld());
     scene = new ex.Scene();
     scene.add(actor);
     engine.addScene('test', scene);
@@ -878,7 +878,7 @@ describe('A game actor', () => {
 
     // in world coordinates this should be true
     expect(child.contains(550.01, 50.01)).withContext('(550.1, 50.1) world should be top-left of of child').toBeTruthy();
-    expect(child.contains(650, 150)).withContext('(650, 150) world should be bottom-rght of child').toBeTruthy();
+    expect(child.contains(650, 150)).withContext('(650, 150) world should be bottom-right of child').toBeTruthy();
 
     // second order child shifted to the origin
     expect(child2.contains(-49.99, -49.99)).withContext('(-50, -50) world should be top left of second order child').toBeTruthy();

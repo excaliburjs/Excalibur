@@ -3,7 +3,7 @@ import { Scene } from '../Scene';
 import { Camera } from '../Camera';
 import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
 import { ColliderComponent } from '../Collision/ColliderComponent';
-import { Entity, TransformComponent } from '../EntityComponentSystem';
+import { Entity, Query, SystemPriority, TransformComponent, World } from '../EntityComponentSystem';
 import { System, SystemType } from '../EntityComponentSystem/System';
 import { ExcaliburGraphicsContext } from '../Graphics/Context/ExcaliburGraphicsContext';
 import { vec, Vector } from '../Math/vector';
@@ -16,23 +16,28 @@ import { Particle } from '../Particles';
 import { DebugGraphicsComponent } from '../Graphics/DebugGraphicsComponent';
 import { CoordPlane } from '../Math/coord-plane';
 
-export class DebugSystem extends System<TransformComponent> {
-  public readonly types = ['ex.transform'] as const;
+export class DebugSystem extends System {
   public readonly systemType = SystemType.Draw;
-  public priority = 999; // lowest priority
+  public priority = SystemPriority.Lowest;
   private _graphicsContext: ExcaliburGraphicsContext;
   private _collisionSystem: CollisionSystem;
   private _camera: Camera;
   private _engine: Engine;
+  query: Query<typeof TransformComponent>;
 
-  public initialize(scene: Scene): void {
+  constructor(public world: World) {
+    super();
+    this.query = this.world.query([TransformComponent]);
+  }
+
+  public initialize(world: World, scene: Scene): void {
     this._graphicsContext = scene.engine.graphicsContext;
     this._camera = scene.camera;
     this._engine = scene.engine;
-    this._collisionSystem = scene.world.systemManager.get(CollisionSystem);
+    this._collisionSystem = world.systemManager.get(CollisionSystem);
   }
 
-  update(entities: Entity[], _delta: number): void {
+  update(): void {
     if (!this._engine.isDebug) {
       return;
     }
@@ -63,7 +68,7 @@ export class DebugSystem extends System<TransformComponent> {
     const bodySettings = this._engine.debug.body;
 
     const cameraSettings = this._engine.debug.camera;
-    for (const entity of entities) {
+    for (const entity of this.query.entities) {
       if (entity.hasTag('offscreen')) {
         // skip offscreen entities
         continue;
@@ -95,6 +100,9 @@ export class DebugSystem extends System<TransformComponent> {
       this._pushCameraTransform(tx);
 
       this._graphicsContext.save();
+      if (tx.coordPlane === CoordPlane.Screen) {
+        this._graphicsContext.translate(this._engine.screen.contentArea.left, this._engine.screen.contentArea.top);
+      }
       this._graphicsContext.z = txSettings.debugZIndex;
 
       this._applyTransform(entity);
@@ -189,6 +197,9 @@ export class DebugSystem extends System<TransformComponent> {
 
       // World space
       this._graphicsContext.save();
+      if (tx.coordPlane === CoordPlane.Screen) {
+        this._graphicsContext.translate(this._engine.screen.contentArea.left, this._engine.screen.contentArea.top);
+      }
       this._graphicsContext.z = txSettings.debugZIndex;
       motion = entity.get(MotionComponent);
       if (motion) {

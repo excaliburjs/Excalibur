@@ -1,6 +1,6 @@
 import { Graphic, GraphicOptions } from './Graphic';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
-import { SpriteSheet } from './SpriteSheet';
+import { GetSpriteOptions, SpriteSheet } from './SpriteSheet';
 import { Logger } from '../Util/Log';
 import { clamp } from '../Math/util';
 import { EventEmitter } from '../EventEmitter';
@@ -118,7 +118,7 @@ export interface FromSpriteSheetOptions {
    * You may optionally specify a duration for the frame in milliseconds as well, this will override
    * the default duration.
    */
-  frameCoordinates: {x: number, y: number, duration?: number}[];
+  frameCoordinates: {x: number, y: number, duration?: number, options?: GetSpriteOptions}[];
   /**
    * Optionally specify a default duration for frames in milliseconds
    */
@@ -250,7 +250,7 @@ export class Animation extends Graphic implements HasTick {
    * const anim = Animation.fromSpriteSheetCoordinates({
    *  spriteSheet,
    *  frameCoordinates: [
-   *    {x: 0, y: 5, duration: 100},
+   *    {x: 0, y: 5, duration: 100, options { flipHorizontal: true }},
    *    {x: 1, y: 5, duration: 200},
    *    {x: 2, y: 5, duration: 100},
    *    {x: 3, y: 5, duration: 500}
@@ -266,8 +266,8 @@ export class Animation extends Graphic implements HasTick {
     const defaultDuration = durationPerFrameMs ?? 100;
     const frames: Frame[] = [];
     for (const coord of frameCoordinates) {
-      const {x, y, duration} = coord;
-      const sprite = spriteSheet.getSprite(x, y);
+      const {x, y, duration, options } = coord;
+      const sprite = spriteSheet.getSprite(x, y, options);
       if (sprite) {
         frames.push({
           graphic: sprite,

@@ -148,6 +148,10 @@ export interface FontOptions {
    */
   direction?: Direction;
   /**
+   * Optionally override the text line height in pixels, useful for multiline text. If unset will use default.
+   */
+  lineHeight?: number | undefined;
+  /**
    * Optionally specify the quality of the text bitmap, it is a multiplier on the size size, by default 2.
    * Higher quality text has a higher memory impact
    */

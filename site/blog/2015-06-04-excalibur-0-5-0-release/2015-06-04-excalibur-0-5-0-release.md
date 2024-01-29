@@ -33,6 +33,6 @@ There are also a number of improvements and bug fixes to make Excalibur faster a
 
 Releases are also available in Bower and NuGet; please reference the [installation guide](https://excaliburjs.com/docs/install.html) for more information. If you’re brand new, welcome! Check out the [Getting Started guide](https://excaliburjs.com/docs/quickstart.html) to start working with Excalibur.
 
-The [main Excalibur branch](https://github.com/excaliburjs/Excalibur) is constantly being improved by the team. If you crave living on the edge, reference the [edge documentation](https://excaliburjs.com/docs/api/edge/modules/ex.html) to keep up with what we’re working on. It is automatically updated with every commit.
+The [main Excalibur branch](https://github.com/excaliburjs/Excalibur) is constantly being improved by the team. If you crave living on the edge, reference the [edge documentation](https://excaliburjs.com/docs/) to keep up with what we’re working on. It is automatically updated with every commit.
 
 If you’ve used Excalibur for a project, please send it our way so we can consider showcasing it on the website!

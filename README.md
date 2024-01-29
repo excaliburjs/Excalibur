@@ -25,7 +25,7 @@ Our user documentation is at https://excaliburjs.com/docs (and you can contribut
 
 # API Reference
 
-Visit the [API Reference](https://excaliburjs.com/docs/api/edge) section for fully-annotated documentation of the API.
+Visit the [API Reference](https://excaliburjs.com/docs/) section for fully-annotated documentation of the API.
 
 # Questions
 
@@ -51,7 +51,7 @@ Prerequisites
 
 # Writing Documentation
 
-We love when people help improve our documentation. You can contribute to the docs in [this repository](https://github.com/excaliburjs/excaliburjs.github.io).
+We love when people help improve our documentation. You can contribute to the docs in this repo under [`/site`](https://github.com/excaliburjs/Excalibur/tree/main/site)
 
 ## Environment Setup
 

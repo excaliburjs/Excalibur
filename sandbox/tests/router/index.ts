@@ -14,6 +14,13 @@ scene2.add(new ex.Label({
   z: 99
 }))
 
+class MyLoader extends ex.DefaultLoader {
+  onDraw(ctx: CanvasRenderingContext2D): void {
+    super.onDraw(ctx);
+    console.log(this.progress);
+  }
+}
+
 class MyCustomScene extends ex.Scene {
   onTransition(direction: "in" | "out") {
     return new ex.FadeInOut({
@@ -48,7 +55,7 @@ let scenes = {
   },
   scene2: {
     scene: scene2,
-    loader: ex.DefaultLoader,
+    loader: MyLoader,
     transitions: {
       out: new ex.FadeInOut({duration: 500, direction: 'out'}),
       in: new ex.CrossFade({duration: 2500, direction: 'in', blockInput: true})
@@ -108,7 +115,7 @@ scene2.add(new ex.Actor({
   color: ex.Color.Blue
 }));
 
-var boot = new ex.Loader();
+var boot = new ex.Loader() as ex.Loader;
 const image1 = new ex.ImageSource('./spritefont.png?=1');
 const image2 = new ex.ImageSource('./spritefont.png?=2');
 const image3 = new ex.ImageSource('./spritefont.png?=3');

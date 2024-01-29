@@ -36,6 +36,8 @@ import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
 import { Color } from './Color';
 import { DefaultLoader } from './Director/DefaultLoader';
 import { Transition } from './Director';
+import { InputHost } from './Input/InputHost';
+import { PointerScope } from './Input/PointerScope';
 
 export class PreLoadEvent {
   loader: DefaultLoader;
@@ -100,7 +102,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
   /**
    * The ECS world for the scene
    */
-  public world = new World(this);
+  public world: World = new World(this);
 
   /**
    * The Excalibur physics world for the scene. Used to interact
@@ -114,7 +116,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * The actors in the current scene
    */
   public get actors(): readonly Actor[] {
-    return this.world.entityManager.entities.filter((e) => {
+    return this.world.entityManager.entities.filter((e: Entity<any>) => {
       return e instanceof Actor;
     }) as Actor[];
   }
@@ -130,7 +132,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * The triggers in the current scene
    */
   public get triggers(): readonly Trigger[] {
-    return this.world.entityManager.entities.filter((e) => {
+    return this.world.entityManager.entities.filter((e: Entity<any>) => {
       return e instanceof Trigger;
     }) as Trigger[];
   }
@@ -139,7 +141,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * The [[TileMap]]s in the scene, if any
    */
   public get tileMaps(): readonly TileMap[] {
-    return this.world.entityManager.entities.filter((e) => {
+    return this.world.entityManager.entities.filter((e: Entity<any>) => {
       return e instanceof TileMap;
     }) as TileMap[];
   }
@@ -148,6 +150,11 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * Access to the Excalibur engine
    */
   public engine: Engine;
+
+  /**
+   * Access scene specific input, handlers on this only fire when this scene is active.
+   */
+  public input: InputHost;
 
   private _isInitialized: boolean = false;
   private _timers: Timer[] = [];
@@ -160,15 +167,15 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
     // Initialize systems
 
     // Update
-    this.world.add(new ActionsSystem());
-    this.world.add(new MotionSystem());
-    this.world.add(new CollisionSystem(this.physics));
-    this.world.add(new PointerSystem());
-    this.world.add(new IsometricEntitySystem());
+    this.world.add(ActionsSystem);
+    this.world.add(MotionSystem);
+    this.world.add(new CollisionSystem(this.world, this.physics));
+    this.world.add(PointerSystem);
+    this.world.add(IsometricEntitySystem);
     // Draw
-    this.world.add(new OffscreenSystem());
-    this.world.add(new GraphicsSystem());
-    this.world.add(new DebugSystem());
+    this.world.add(OffscreenSystem);
+    this.world.add(GraphicsSystem);
+    this.world.add(DebugSystem);
   }
 
   public emit<TEventName extends EventKey<SceneEvents>>(eventName: TEventName, event: SceneEvents[TEventName]): void;
@@ -312,6 +319,11 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
   public async _initialize(engine: Engine) {
     if (!this.isInitialized) {
       this.engine = engine;
+      this.input = new InputHost({
+        pointerTarget: engine.pointerScope === PointerScope.Canvas ? engine.canvas : document,
+        grabWindowFocus: engine.grabWindowFocus,
+        engine
+      });
       // Initialize camera first
       this.camera._initialize(engine);
 
@@ -336,6 +348,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    */
   public async _activate(context: SceneActivationContext<TActivationData>) {
     this._logger.debug('Scene.onActivate', this);
+    this.input.toggleEnabled(true);
     await this.onActivate(context);
   }
 
@@ -347,6 +360,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    */
   public async _deactivate(context: SceneActivationContext<never>) {
     this._logger.debug('Scene.onDeactivate', this);
+    this.input.toggleEnabled(false);
     await this.onDeactivate(context);
   }
 
@@ -428,6 +442,8 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
     this._collectActorStats(engine);
 
     this._postupdate(engine, delta);
+
+    this.input.update();
   }
 
   /**

@@ -7,9 +7,9 @@ import ActorCollisionExample from '!!raw-loader!./examples/collision.ts';
 # Actors
 
 [[Actor|Actors]] are prebuilt Excalibur [[Entity|Entities]] that come with the batteries included for most applications.
-Like [[TransformComponent|position]], [[MotionComponent|velocity]], [[GraphicsComponent|graphics]], and [[ColliderComponent|collision detection]].
+Such as [[TransformComponent|position]], [[MotionComponent|velocity]], [[GraphicsComponent|graphics]], and [[ColliderComponent|collision detection]].
 
-[[Actor|Actors]] are the recommended way to use Excalibur, they are the primary way to show something on the screen.
+[[Actor|Actors]] are the recommended way to use Excalibur to show something on the screen.
 
 If you don't want these built-ins and you want to build only what you want, read about entities [here](/docs/entities)
 
@@ -18,12 +18,22 @@ If you don't want these built-ins and you want to build only what you want, read
 declare const game: ex.Engine;
 ```
 
+:::warning
+
+Actors use collision geometry for pointer events meaning they need at least a width/height or custom collider, but can be configured to use graphics bounds for pointer testing.
+
+[[Actor.pointer]] and [[PointerComponent]]
+
+Read more [here](/docs/pointers#actor-pointer-events)
+
+::: 
+
 ## Basic actors
 
-For quick and dirty games, you can just create an instance of an [[Actor]]
+For quick and dirty games, you may be able to create an instance of an [[Actor]]
 and manipulate it directly.
 
-Actors (and other entities) must be added to a [Scene](/docs/scene) to be drawn
+Actors (and other entities) must be added to a [Scene](/docs/scenes) to be drawn
 and updated on-screen.
 
 <GameCodeBlock live 
@@ -36,8 +46,8 @@ and updated on-screen.
 ## Custom actors
 
 For "real-world" games, it is common to extend the `Actor` class.
-This gives you much greater control and encapsulates logic for that
-actor. This is optional, but is nice for encapsulating your specifics.
+This is optional, and gives you much greater control and encapsulates logic for that
+actor.
 
 ```ts twoslash
 // @include: ex
@@ -60,24 +70,24 @@ class ShootemUpPlayer extends ex.Actor {
 }
 ```
 
-Custom actors make it easier to hook into the actor lifecycle and encapsulate the actor's state better than a basic actor.
+Custom actors make it easy to hook into the actor lifecycle and encapsulate the actor's state better than a basic actor.
 
 ## Actor lifecycle
 
 An actor has a basic lifecycle that dictates how it is initialized, updated, and drawn. Once an actor is part of a
-[scene](/docs/scene), it will follow this lifecycle.
+[scene](/docs/scenes), it will follow this lifecycle.
 
 ![Actor Lifecycle](ActorLifecycle.png)
 
 ## Updating actors
 
-In most games, things are happening on screen: the background is parallaxing, your hero responds to input, or enemies shoot bullets. In Excalibur, the logic that updates game state is run during the [update loop](/docs/engine#engine-lifecycle). Actors are a way to encapsulate that logic, such as a `Player` or `Enemy` or `MenuButton`. Actors can be pretty much anything!
+In most games, things are happening on screen: the background is parallax-ing, your hero responds to input, and enemies shoot bullets. In Excalibur, the logic that updates game state is run during the [update loop](/docs/engine#engine-lifecycle). Actors are a way to encapsulate that logic, such as a `Player`, `Enemy`, and `MenuButton`. Actors are designed to be pretty much anything!
 
 ### Initialization
 
 You should override the [[Actor.onInitialize]] method to perform any startup logic
 for an actor (such as configuring state). `onInitialize` gets called
-**once** before the first frame an actor is drawn/updated. It is passed
+**once** before the first frame of an actor is drawn/updated. It is passed
 an instance of [Engine](/docs/engine) to access global state or perform coordinate math.
 
 :::note
@@ -142,7 +152,7 @@ class Player extends ex.Actor {
 
 :::warning
 
-Actions will not function properly if you override `Actor.update()` without calling the `super.update()`
+Actors will not function properly if you override `Actor.update()` without calling the `super.update()`
 
 :::
 
@@ -169,11 +179,11 @@ class Player extends ex.Actor {
 
 ### Post-update
 
-[[Actor.onPostUpdate]] is called after [[Actor.update]] to prepare state for the _next_ frame. Things that need to be updated include state, drawing, or position.
+[[Actor.onPostUpdate]] is called after [[Actor.update]] to prepare state for the _next_ frame. Things that need to be updated include state, drawing, and position.
 
 :::tip
 
-This is the recommended method to override for adding update logic to your actors since it runs after Excalibur has done all the update logic for the frame and before things get drawn to the screen.
+[[Actor.onPostUpdate]] is the recommended method to override for adding update logic to your actors since it runs after Excalibur has done all the update logic for the frame and before things get drawn to the screen.
 
 :::
 
@@ -196,9 +206,9 @@ class Player extends ex.Actor {
 
 ## Drawing actors
 
-Actors by default have no associated [graphics](/docs/graphics), meaning that they will be rendered without any graphics unless you've assigned a default [[Actor.color]].
+Actors by default have no associated [graphics](/docs/graphics), meaning that they will be rendered non-visually unless you've assigned a default [[Actor.color]].
 
-If an actor has a color set, it will draw a box or circle in that color, if width/height or radius is set.
+If an actor has a color and width/height or radius is set, it will draw a box or circle in that color.
 
 This can be useful at the beginning of development when you're just tinkering but for most games you might want to add sprites, animations, and other drawings over simple shapes.
 
@@ -264,7 +274,7 @@ class Player extends ex.Actor {
 
 :::warning
 
-This runs _before_ Excalibur has run all its draw logic to apply effects, transform information, etc. so you essentially are working with the _last frame's draw state_.
+[[GraphicsComponent.onPreDraw|Actor.graphics.onPreDraw]] runs _before_ Excalibur has run all its draw logic to apply effects, transform information, etc. so you essentially are working with the _last frame's draw state_.
 
 Reference [Actor lifecycle](#actor-lifecycle) for a breakdown of each phase and when things are executed.
 
@@ -293,7 +303,7 @@ class Player extends ex.Actor {
 
 :::tip
 
-This is the recommended method to override since Excalibur has run its core draw logic and you can now customize what gets drawn during the current frame.
+[[GraphicsComponent.onPostDraw|Actor.graphics.onPostDraw]] is the recommended method to override since Excalibur has run its core draw logic and you can now customize what gets drawn during the current frame.
 
 :::
 
@@ -365,7 +375,7 @@ game.goToScene('level1');
 
 By default Actors do not participate in collisions. If you wish to make
 an actor participate, you need to switch from the default [[CollisionType.PreventCollision|prevent collision]]
-to [[CollisionType.Active|active]], [[CollisionType.Fixed|fixed]], or [[CollisionType.Passive|passive]] collision type.
+to an [[CollisionType.Active|active]], [[CollisionType.Fixed|fixed]], or [[CollisionType.Passive|passive]] collision type.
 
 <GameCodeBlock live snippet="collision">
 {ActorCollisionExample}

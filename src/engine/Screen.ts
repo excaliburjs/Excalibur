@@ -454,7 +454,6 @@ export class Screen {
     }
   }
 
-  private _alreadyWarned = false;
   public applyResolutionAndViewport() {
     this._canvas.width = this.scaledWidth;
     this._canvas.height = this.scaledHeight;
@@ -464,9 +463,8 @@ export class Screen {
         width: this.scaledWidth,
         height: this.scaledHeight
       });
-      if (!supported && !this._alreadyWarned) {
-        this._alreadyWarned = true; // warn once
-        this._logger.warn(
+      if (!supported) {
+        this._logger.warnOnce(
           `The currently configured resolution (${this.resolution.width}x${this.resolution.height}) and pixel ratio (${this.pixelRatio})` +
           ' are too large for the platform WebGL implementation, this may work but cause WebGL rendering to behave oddly.' +
           ' Try reducing the resolution or disabling Hi DPI scaling to avoid this' +
@@ -546,7 +544,8 @@ export class Screen {
    * Excalibur screen space.
    *
    * Excalibur screen space starts at the top left (0, 0) corner of the viewport, and extends to the
-   * bottom right corner (resolutionX, resolutionY)
+   * bottom right corner (resolutionX, resolutionY). When using *AndFill suffixed display modes screen space
+   * (0, 0) is the top left of the safe content area bounding box not the viewport.
    * @param point
    */
   public pageToScreenCoordinates(point: Vector): Vector {
@@ -577,6 +576,10 @@ export class Screen {
     newX = (newX / this.viewport.width) * this.resolution.width;
     newY = (newY / this.viewport.height) * this.resolution.height;
 
+    // offset by content area
+    newX = newX - this.contentArea.left;
+    newY = newY - this.contentArea.top;
+
     return new Vector(newX, newY);
   }
 
@@ -591,6 +594,10 @@ export class Screen {
   public screenToPageCoordinates(point: Vector): Vector {
     let newX = point.x;
     let newY = point.y;
+
+    // offset by content area
+    newX = newX + this.contentArea.left;
+    newY = newY + this.contentArea.top;
 
     newX = (newX / this.resolution.width) * this.viewport.width;
     newY = (newY / this.resolution.height) * this.viewport.height;
@@ -625,6 +632,9 @@ export class Screen {
    * @param point  Screen coordinate to convert
    */
   public screenToWorldCoordinates(point: Vector): Vector {
+    // offset by content area
+    point = point.add(vec(this.contentArea.left, this.contentArea.top));
+
     // the only difference between screen & world is the camera transform
     if (this._camera) {
       return this._camera.inverse.multiply(point);

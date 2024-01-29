@@ -57,11 +57,15 @@ export class FontTextInstance {
   }
 
   private _setDimension(textBounds: BoundingBox, bitmap: CanvasRenderingContext2D) {
+    let lineHeightRatio = 1;
+    if (this.font.lineHeight) {
+      lineHeightRatio = (this.font.lineHeight/this.font.size);
+    }
     // Changing the width and height clears the context properties
     // We double the bitmap width to account for all possible alignment
     // We scale by "quality" so we render text without jaggies
     bitmap.canvas.width = (textBounds.width + this.font.padding * 2) * 2 * this.font.quality;
-    bitmap.canvas.height = (textBounds.height + this.font.padding * 2) * 2 * this.font.quality;
+    bitmap.canvas.height = (textBounds.height + this.font.padding * 2) * 2 * this.font.quality * lineHeightRatio;
   }
 
   public static getHashCode(font: Font, text: string, color?: Color) {
@@ -73,6 +77,7 @@ export class FontTextInstance {
       font.textAlign +
       font.baseAlign +
       font.direction +
+      font.lineHeight +
       JSON.stringify(font.shadow) +
       (font.padding.toString() +
         font.smoothing.toString() +
@@ -187,7 +192,7 @@ export class FontTextInstance {
       this.dimensions = this.measureText(this.text, maxWidth);
       this._setDimension(this.dimensions, this.ctx);
       const lines = this._getLinesFromText(this.text, maxWidth);
-      const lineHeight = this.dimensions.height / lines.length;
+      const lineHeight = this.font.lineHeight ?? this.dimensions.height / lines.length;
 
       // draws the text to the main bitmap
       this._drawText(this.ctx, lines, lineHeight);
@@ -245,12 +250,12 @@ export class FontTextInstance {
    * @param text
    * @param maxWidth
    */
-  private _chachedText: string;
-  private _chachedLines: string[];
+  private _cachedText: string;
+  private _cachedLines: string[];
   private _cachedRenderWidth: number;
   private _getLinesFromText(text: string, maxWidth?: number) {
-    if (this._chachedText === text && this._cachedRenderWidth === maxWidth) {
-      return this._chachedLines;
+    if (this._cachedText === text && this._cachedRenderWidth === maxWidth) {
+      return this._cachedLines;
     }
 
     const lines = text.split('\n');
@@ -275,8 +280,8 @@ export class FontTextInstance {
       }
     }
 
-    this._chachedText = text;
-    this._chachedLines = lines;
+    this._cachedText = text;
+    this._cachedLines = lines;
     this._cachedRenderWidth = maxWidth;
 
     return lines;
