@@ -57,11 +57,15 @@ export class FontTextInstance {
   }
 
   private _setDimension(textBounds: BoundingBox, bitmap: CanvasRenderingContext2D) {
+    let lineHeightRatio = 1;
+    if (this.font.lineHeight) {
+      lineHeightRatio = (this.font.lineHeight/this.font.size);
+    }
     // Changing the width and height clears the context properties
     // We double the bitmap width to account for all possible alignment
     // We scale by "quality" so we render text without jaggies
     bitmap.canvas.width = (textBounds.width + this.font.padding * 2) * 2 * this.font.quality;
-    bitmap.canvas.height = (textBounds.height + this.font.padding * 2) * 2 * this.font.quality * (this.font.lineHeight/this.font.size);
+    bitmap.canvas.height = (textBounds.height + this.font.padding * 2) * 2 * this.font.quality * lineHeightRatio;
   }
 
   public static getHashCode(font: Font, text: string, color?: Color) {

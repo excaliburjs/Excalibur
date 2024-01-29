@@ -148,7 +148,7 @@ export interface FontOptions {
    */
   direction?: Direction;
   /**
-   * Optionally override the text line height, useful for multiline text. If unset will use default.
+   * Optionally override the text line height in pixels, useful for multiline text. If unset will use default.
    */
   lineHeight?: number | undefined;
   /**
