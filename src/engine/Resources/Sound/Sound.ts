@@ -346,7 +346,6 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
       // ensure we resume *current* tracks (if paused)
       for (const track of this._tracks) {
         resumed.push(track.play().then(() => {
-          this.events.emit('playbackend', new NativeSoundEvent(this, track as WebAudioInstance));
           this._tracks.splice(this.getTrackId(track), 1);
           return true;
         }));
