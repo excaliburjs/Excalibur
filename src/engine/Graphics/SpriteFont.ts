@@ -23,6 +23,10 @@ export interface SpriteFontOptions {
    */
   caseInsensitive?: boolean;
   /**
+   * Optionally override the text line height, useful for multiline text. If unset will use default.
+   */
+  lineHeight?: number | undefined;
+  /**
    * Optionally adjust the spacing between character sprites
    */
   spacing?: number;
@@ -40,6 +44,7 @@ export class SpriteFont extends Graphic implements FontRenderer {
   public shadow: { offset: Vector } = null;
   public caseInsensitive = false;
   public spacing: number = 0;
+  public lineHeight: number | undefined = undefined;
 
   private _logger = Logger.getInstance();
 
@@ -109,7 +114,7 @@ export class SpriteFont extends Graphic implements FontRenderer {
         height = Math.max(height, sprite.height);
       }
       xCursor = 0;
-      yCursor += height;
+      yCursor += this.lineHeight ?? height;
     }
   }
 
