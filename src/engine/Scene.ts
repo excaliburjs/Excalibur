@@ -37,6 +37,7 @@ import { Color } from './Color';
 import { DefaultLoader } from './Director/DefaultLoader';
 import { Transition } from './Director';
 import { InputHost } from './Input/InputHost';
+import { PointerScope } from './excalibur';
 
 export class PreLoadEvent {
   loader: DefaultLoader;
@@ -319,8 +320,8 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
     if (!this.isInitialized) {
       this.engine = engine;
       this.input = new InputHost({
-        pointerTarget: engine.canvas, // todo make this configurable
-        grabWindowFocus: false, // todo make this configurable
+        pointerTarget: engine.pointerScope === PointerScope.Canvas ? engine.canvas : document,
+        grabWindowFocus: engine.grabWindowFocus,
         engine
       });
       // Initialize camera first
