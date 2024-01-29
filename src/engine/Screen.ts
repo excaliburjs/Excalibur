@@ -632,6 +632,9 @@ export class Screen {
    * @param point  Screen coordinate to convert
    */
   public screenToWorldCoordinates(point: Vector): Vector {
+    // offset by content area
+    point = point.add(vec(this.contentArea.left, this.contentArea.top));
+
     // the only difference between screen & world is the camera transform
     if (this._camera) {
       return this._camera.inverse.multiply(point);
