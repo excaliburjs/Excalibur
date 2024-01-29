@@ -36,6 +36,8 @@ import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
 import { Color } from './Color';
 import { DefaultLoader } from './Director/DefaultLoader';
 import { Transition } from './Director';
+import { InputHost } from './Input/InputHost';
+import { PointerScope } from './Input/PointerScope';
 
 export class PreLoadEvent {
   loader: DefaultLoader;
@@ -148,6 +150,11 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * Access to the Excalibur engine
    */
   public engine: Engine;
+
+  /**
+   * Access scene specific input, handlers on this only fire when this scene is active.
+   */
+  public input: InputHost;
 
   private _isInitialized: boolean = false;
   private _timers: Timer[] = [];
@@ -312,6 +319,11 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
   public async _initialize(engine: Engine) {
     if (!this.isInitialized) {
       this.engine = engine;
+      this.input = new InputHost({
+        pointerTarget: engine.pointerScope === PointerScope.Canvas ? engine.canvas : document,
+        grabWindowFocus: engine.grabWindowFocus,
+        engine
+      });
       // Initialize camera first
       this.camera._initialize(engine);
 
@@ -336,6 +348,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    */
   public async _activate(context: SceneActivationContext<TActivationData>) {
     this._logger.debug('Scene.onActivate', this);
+    this.input.toggleEnabled(true);
     await this.onActivate(context);
   }
 
@@ -347,6 +360,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    */
   public async _deactivate(context: SceneActivationContext<never>) {
     this._logger.debug('Scene.onDeactivate', this);
+    this.input.toggleEnabled(false);
     await this.onDeactivate(context);
   }
 
@@ -428,6 +442,8 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
     this._collectActorStats(engine);
 
     this._postupdate(engine, delta);
+
+    this.input.update();
   }
 
   /**

@@ -352,6 +352,9 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
    */
   public clock: Clock;
 
+  public readonly pointerScope: PointerScope;
+  public readonly grabWindowFocus: boolean;
+
   /**
    * The width of the game canvas in pixels (physical width component of the
    * resolution of the canvas element)
@@ -785,6 +788,9 @@ O|===|* >________________>\n\
     if (options.backgroundColor) {
       this.backgroundColor = options.backgroundColor.clone();
     }
+
+    this.grabWindowFocus = options.grabWindowFocus;
+    this.pointerScope = options.pointerScope;
 
     this.maxFps = options.maxFps ?? this.maxFps;
     this.fixedUpdateFps = options.fixedUpdateFps ?? this.fixedUpdateFps;
