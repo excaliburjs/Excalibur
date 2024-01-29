@@ -37,7 +37,7 @@ import { Color } from './Color';
 import { DefaultLoader } from './Director/DefaultLoader';
 import { Transition } from './Director';
 import { InputHost } from './Input/InputHost';
-import { PointerScope } from './excalibur';
+import { PointerScope } from './Input/PointerScope';
 
 export class PreLoadEvent {
   loader: DefaultLoader;
