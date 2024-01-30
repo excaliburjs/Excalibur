@@ -794,7 +794,14 @@ export class Camera implements CanUpdate, CanInitialize {
       interpolatedPos.clone(this.drawPos);
       this.updateTransform(interpolatedPos);
     }
-
+    // Snap camera to pixel
+    if (ctx.snapToPixel) {
+      const snapPos = this.drawPos.clone();
+      snapPos.x = ~~(snapPos.x + .001);
+      snapPos.y = ~~(snapPos.y + .001);
+      snapPos.clone(this.drawPos);
+      this.updateTransform(snapPos);
+    }
     ctx.multiply(this.transform);
   }
 
