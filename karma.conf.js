@@ -26,14 +26,18 @@ const seedReporter =  {
 module.exports = (config) => {
   config.set({
     singleRun: true,
-    frameworks: ['jasmine', 'webpack'],
+    frameworks: ['parallel', 'jasmine', 'webpack'],
     plugins: [
+      require('karma-parallel'),
       require('karma-jasmine'),
       require('karma-webpack'),
       require('karma-chrome-launcher'),
       require('karma-coverage-istanbul-reporter'),
       seedReporter
     ],
+    parallelOptions: {
+      shardStrategy: 'round-robin'
+    },
     client: {
       // Excalibur logs / console logs suppressed when captureConsole = false;
       captureConsole: false,
