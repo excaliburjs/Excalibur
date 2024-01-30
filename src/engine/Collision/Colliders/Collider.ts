@@ -11,6 +11,7 @@ import { createId, Id } from '../../Id';
 import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
 import { Transform } from '../../Math/transform';
 import { EventEmitter } from '../../EventEmitter';
+import { RayCastHit } from '../Detection/RayCastHit';
 
 /**
  * A collision collider specifies the geometry that can detect when other collision colliders intersect
@@ -48,7 +49,7 @@ export abstract class Collider implements Clonable<Collider> {
    * Pixel offset of the collision collider relative to the collider, by default (0, 0) meaning the collider is positioned
    * on top of the collider.
    */
-  offset: Vector;
+  offset: Vector = Vector.Zero;
 
   /**
    * Position of the collision collider in world coordinates
@@ -100,7 +101,7 @@ export abstract class Collider implements Clonable<Collider> {
   /**
    * Return the point on the border of the collision collider that intersects with a ray (if any).
    */
-  abstract rayCast(ray: Ray, max?: number): Vector;
+  abstract rayCast(ray: Ray, max?: number): RayCastHit | null;
 
   /**
    * Create a projection of this collider along an axis. Think of this as casting a "shadow" along an axis
@@ -113,7 +114,7 @@ export abstract class Collider implements Clonable<Collider> {
   abstract update(transform: Transform): void;
 
 
-  abstract debug(ex: ExcaliburGraphicsContext, color: Color): void;
+  abstract debug(ex: ExcaliburGraphicsContext, color: Color, options?: { lineWidth: number, pointSize: number }): void;
 
   abstract clone(): Collider;
 }

@@ -10,6 +10,7 @@ import { BoundingBox } from '../BoundingBox';
 import { CollisionContact } from '../Detection/CollisionContact';
 import { DynamicTree } from '../Detection/DynamicTree';
 import { DynamicTreeCollisionProcessor } from '../Detection/DynamicTreeCollisionProcessor';
+import { RayCastHit } from '../Detection/RayCastHit';
 import { Collider } from './Collider';
 import { Transform } from '../../Math/transform';
 
@@ -31,11 +32,21 @@ export class CompositeCollider extends Collider {
   }
 
   addCollider(collider: Collider) {
-    collider.events.pipe(this.events);
-    collider.__compositeColliderId = this.id;
-    this._colliders.push(collider);
-    this._collisionProcessor.track(collider);
-    this._dynamicAABBTree.trackCollider(collider);
+    let colliders: Collider[];
+    if (collider instanceof CompositeCollider) {
+      colliders = collider.getColliders();
+      colliders.forEach(c => c.offset.addEqual(collider.offset));
+    } else {
+      colliders = [collider];
+    }
+    // Flatten composites
+    for (const c of colliders) {
+      c.events.pipe(this.events);
+      c.__compositeColliderId = this.id;
+      this._colliders.push(c);
+      this._collisionProcessor.track(c);
+      this._dynamicAABBTree.trackCollider(c);
+    }
   }
 
   removeCollider(collider: Collider) {
@@ -51,12 +62,11 @@ export class CompositeCollider extends Collider {
   }
 
   get worldPos(): Vector {
-    // TODO transform component world pos
-    return this._transform?.pos ?? Vector.Zero;
+    return (this._transform?.pos ?? Vector.Zero).add(this.offset);
   }
 
   get center(): Vector {
-    return this._transform?.pos ?? Vector.Zero;
+    return (this._transform?.pos ?? Vector.Zero).add(this.offset);
   }
 
   get bounds(): BoundingBox {
@@ -67,7 +77,7 @@ export class CompositeCollider extends Collider {
       colliders[0]?.bounds ?? new BoundingBox().translate(this.worldPos)
     );
 
-    return results;
+    return results.translate(this.offset);
   }
 
   get localBounds(): BoundingBox {
@@ -182,42 +192,42 @@ export class CompositeCollider extends Collider {
     }
     return false;
   }
-  rayCast(ray: Ray, max?: number): Vector {
+  rayCast(ray: Ray, max?: number): RayCastHit | null {
     const colliders = this.getColliders();
-    const points: Vector[] = [];
+    const hits: RayCastHit[] = [];
     for (const collider of colliders) {
-      const vec = collider.rayCast(ray, max);
-      if (vec) {
-        points.push(vec);
+      const hit = collider.rayCast(ray, max);
+      if (hit) {
+        hits.push(hit);
       }
     }
-    if (points.length) {
-      let minPoint = points[0];
-      let minDistance = minPoint.dot(ray.dir);
-      for (const point of points) {
-        const distance = ray.dir.dot(point);
+    if (hits.length) {
+      let minHit = hits[0];
+      let minDistance = minHit.point.dot(ray.dir);
+      for (const hit of hits) {
+        const distance = ray.dir.dot(hit.point);
         if (distance < minDistance) {
-          minPoint = point;
+          minHit = hit;
           minDistance = distance;
         }
       }
-      return minPoint;
+      return minHit;
     }
     return null;
   }
   project(axis: Vector): Projection {
     const colliders = this.getColliders();
-    const projs: Projection[] = [];
+    const projections: Projection[] = [];
     for (const collider of colliders) {
       const proj = collider.project(axis);
       if (proj) {
-        projs.push(proj);
+        projections.push(proj);
       }
     }
     // Merge all proj's on the same axis
-    if (projs.length) {
-      const newProjection = new Projection(projs[0].min, projs[0].max);
-      for (const proj of projs) {
+    if (projections.length) {
+      const newProjection = new Projection(projections[0].min, projections[0].max);
+      for (const proj of projections) {
         newProjection.min = Math.min(proj.min, newProjection.min);
         newProjection.max = Math.max(proj.max, newProjection.max);
       }
@@ -236,14 +246,19 @@ export class CompositeCollider extends Collider {
     }
   }
 
-  public debug(ex: ExcaliburGraphicsContext, color: Color) {
+  public debug(ex: ExcaliburGraphicsContext, color: Color,  options?: { lineWidth: number, pointSize: number }) {
     const colliders = this.getColliders();
+    ex.save();
+    ex.translate(this.offset.x, this.offset.y);
     for (const collider of colliders) {
-      collider.debug(ex, color);
+      collider.debug(ex, color, options);
     }
+    ex.restore();
   }
 
   clone(): Collider {
-    return new CompositeCollider(this._colliders.map((c) => c.clone()));
+    const result = new CompositeCollider(this._colliders.map((c) => c.clone()));
+    result.offset = this.offset.clone();
+    return result;
   }
 }

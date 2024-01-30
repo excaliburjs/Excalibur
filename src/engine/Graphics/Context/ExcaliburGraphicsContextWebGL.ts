@@ -130,6 +130,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   public textureLoader: TextureLoader;
 
+  public materialScreenTexture: WebGLTexture;
+
   public get z(): number {
     return this._state.current.z;
   }
@@ -229,6 +231,16 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this.register(new PointRenderer());
     this.register(new LineRenderer());
 
+
+    this.materialScreenTexture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, this.materialScreenTexture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+
     this._screenRenderer = new ScreenPassPainter(gl);
 
     this._renderTarget = new RenderTarget({
@@ -280,14 +292,11 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._isDrawLifecycle = false;
   }
 
-  private _alreadyWarnedDrawLifecycle = false;
-
   public draw<TRenderer extends RendererPlugin>(rendererName: TRenderer['type'], ...args: Parameters<TRenderer['draw']>) {
-    if (!this._isDrawLifecycle && !this._alreadyWarnedDrawLifecycle) {
-      this._logger.warn(
+    if (!this._isDrawLifecycle) {
+      this._logger.warnOnce(
         `Attempting to draw outside the the drawing lifecycle (preDraw/postDraw) is not supported and is a source of bugs/errors.\n` +
         `If you want to do custom drawing, use Actor.graphics, or any onPreDraw or onPostDraw handler.`);
-      this._alreadyWarnedDrawLifecycle = true;
     }
 
     const renderer = this._renderers.get(rendererName);
@@ -488,9 +497,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
    * @param options
    * @returns Material
    */
-  public createMaterial(options: MaterialOptions): Material {
-    const material = new Material(options);
-    material.initialize(this.__gl, this);
+  public createMaterial(options: Omit<MaterialOptions, 'graphicsContext'>): Material {
+    const material = new Material({...options, graphicsContext: this});
     return material;
   }
 
@@ -564,6 +572,13 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
             currentRenderer = this._renderers.get(currentRendererName);
           }
 
+          // ! hack to grab screen texture before materials run because they might want it
+          if (currentRenderer instanceof MaterialRenderer && this.material.isUsingScreenTexture) {
+            const gl = this.__gl;
+            gl.bindTexture(gl.TEXTURE_2D, this.materialScreenTexture);
+            gl.copyTexImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 0, 0, this.width, this.height, 0);
+            this._renderTarget.use();
+          }
           // If we are still using the same renderer we can add to the current batch
           currentRenderer.draw(...this._drawCalls[i].args);
         }

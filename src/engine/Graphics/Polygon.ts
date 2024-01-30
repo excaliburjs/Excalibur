@@ -1,4 +1,4 @@
-import { ImageFiltering } from '.';
+import { ImageFiltering } from './Filtering';
 import { Vector, vec } from '../Math/vector';
 import { Raster, RasterOptions } from './Raster';
 

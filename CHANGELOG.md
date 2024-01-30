@@ -8,6 +8,405 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- Remove confusing Graphics Layering from `ex.GraphicsComponent`, recommend we use the `ex.GraphicsGroup` to manage this behavior
+  * Update `ex.GraphicsGroup` to be consistent and use `offset` instead of `pos` for graphics relative positioning
+- ECS implementation has been updated to remove the "stringly" typed nature of components & systems
+  * For average users of Excalibur folks shouldn't notice any difference
+  * For folks leveraging the ECS, Systems/Components no longer have type parameters based on strings. The type itself is used to track changes.
+  * `class MySystem extends System<'ex.component'>` becomes `class MySystem extends System`
+  * `class MyComponent extends Component<'ex.component'>` becomes `class MyComponent extends Component`
+  * `ex.System.update(elapsedMs: number)` is only passed an elapsed time
+- Prevent people from inadvertently overriding `update()` in `ex.Scene` and `ex.Actor`. This method can still be overridden with the `//@ts-ignore` pragma
+- `ex.SpriteSheet.getSprite(...)` will now throw on invalid sprite coordinates, this is likely always an error and a warning is inappropriate. This also has the side benefit that you will always get a definite type out of the method.
+
+
+### Deprecated
+
+-
+
+### Added
+
+- Added new `lineHeight` property on `SpriteFont` and `Font` to manually adjust the line height when rendering text.
+- Added missing dual of `ex.GraphicsComponent.add()`, you can now `ex.GraphicsComponent.remove(name)`;
+- Added additional options to `ex.Animation.fromSpriteSheetCoordinates()` you can now pass any valid `ex.GraphicOptions` to influence the sprite per frame
+  ```typescript
+  const anim = ex.Animation.fromSpriteSheetCoordinates({
+    spriteSheet: ss,
+    frameCoordinates: [
+      {x: 0, y: 0, duration: 100, options: { flipHorizontal: true }},
+      {x: 1, y: 0, duration: 100, options: { flipVertical: true }},
+      {x: 2, y: 0, duration: 100},
+      {x: 3, y: 0, duration: 100}
+    ],
+    strategy: ex.AnimationStrategy.Freeze
+  });
+  ```
+- Added additional options to `ex.SpriteSheet.getSprite(..., options)`. You can pass any valid `ex.GraphicOptions` to modify a copy of the sprite from the spritesheet.
+  ```typescript
+  const sprite = ss.getSprite(0, 0, {
+    flipHorizontal: true,
+    flipVertical: true,
+    width: 200,
+    height: 201,
+    opacity: .5,
+    scale: ex.vec(2, 2),
+    origin: ex.vec(0, 1),
+    tint: ex.Color.Red,
+    rotation: 4
+  });
+- New simplified way to query entities `ex.World.query([MyComponentA, MyComponentB])`
+- New way to query for tags on entities `ex.World.queryTags(['A', 'B'])`
+- Systems can be added as a constructor to a world, if they are the world will construct and pass a world instance to them
+  ```typescript
+  world.add(MySystem);
+  ...
+
+  class MySystem extends System {
+    query: Query;
+    constructor(world: World) {
+      super()
+      this.query = world.query([MyComponent]);
+    }
+
+    update
+  }
+  ```
+- Added `RayCastHit`as part of every raycast not just the physics world query!
+  * Additionally added the ray distance and the contact normal for the surface
+- Added the ability to log a message once to all log levels
+  * `debugOnce`
+  * `infoOnce`
+  * `warnOnce`
+  * `errorOnce`
+  * `fatalOnce`
+- Added ability to load additional images into `ex.Material`s!
+  ```typescript
+  const noise = new ex.ImageSource('./noise.avif');
+  loader.addResource(noise);
+
+  var waterMaterial = game.graphicsContext.createMaterial({
+    name: 'water',
+    fragmentSource: waterFrag,
+    color: ex.Color.fromRGB(55, 0, 200, .6),
+    images: {
+      u_noise: noise
+    }
+  });
+  ```
+- Scene Transition & Loader API, this gives you the ability to have first class support for individual scene resource loading and scene transitions.
+  * Add or remove scenes by constructor
+  * Add loaders by constructor
+  * New `ex.DefaultLoader` type that allows for easier custom loader creation
+  * New `ex.Transition` type for building custom transitions
+  * New scene lifecycle to allow scene specific resource loading
+      * `onTransition(direction: "in" | "out") {...}`
+      * `onPreLoad(loader: DefaultLoader) {...}`
+  * New async goto API that allows overriding loaders/transitions between scenes
+  * Scenes now can have `async onInitialize` and `async onActivate`!
+  * New scenes director API that allows upfront definition of scenes/transitions/loaders
+
+  * Example:
+    Defining scenes upfront
+    ```typescript
+    const game = new ex.Engine({
+      scenes: {
+        scene1: {
+          scene: scene1,
+          transitions: {
+            out: new ex.FadeInOut({duration: 1000, direction: 'out', color: ex.Color.Black}),
+            in: new ex.FadeInOut({duration: 1000, direction: 'in'})
+          }
+        },
+        scene2: {
+          scene: scene2,
+          loader: ex.DefaultLoader, // Constructor only option!
+          transitions: {
+            out: new ex.FadeInOut({duration: 1000, direction: 'out'}),
+            in: new ex.FadeInOut({duration: 1000, direction: 'in', color: ex.Color.Black })
+          }
+        },
+      scene3: ex.Scene // Constructor only option!
+      } 
+    })
+
+    // Specify the boot loader & first scene transition from loader
+    game.start('scene1',
+    {
+      inTransition: new ex.FadeInOut({duration: 500, direction: 'in', color: ex.Color.ExcaliburBlue})
+      loader: boot,
+    });
+    ```
+  - Scene specific input API so that you can add input handlers that only fire when a scene is active!
+    ```typescript
+    class SceneWithInput extends ex.Scene {
+      onInitialize(engine: ex.Engine<any>): void {
+        this.input.pointers.on('down', () => {
+          console.log('pointer down from scene1');
+        });
+      }
+    }
+    class OtherSceneWithInput extends ex.Scene {
+      onInitialize(engine: ex.Engine<any>): void {
+        this.input.pointers.on('down', () => {
+          console.log('pointer down from scene2');
+        });
+      }
+    }
+    ```
+
+### Fixed
+
+- Fixed issue with *AndFill suffixed [[DisplayModes]]s where content area offset was not accounted for in world space
+- Fixed issue where `ex.Sound.getTotalPlaybackDuration()` would crash if not loaded, now logs friendly warning
+- Fixed issue where an empty constructor on `new ex.Label()` would crash
+- Fixed issue where pointer events did not work properly when using [[ScreenElement]]s
+- Fixed issue where debug draw was not accurate when using *AndFill suffixed [[DisplayMode]]s
+
+### Updates
+
+-
+
+### Changed
+
+- Changed the default `ex.PointerComponent.useGraphicsBounds = true`, users expect this to just work by default.
+- Changed a rough edge in the `ex.Material` API, if a material was created with a constructor it was lazily initialized. However this causes confusion because now the two ways of creating a material behave differently (the shader is not available immediately on the lazy version). Now `ex.Material` requires the GL graphics context to make sure it always works the same.
+
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [v0.28.6]
+
+### Breaking Changes
+
+-
+
+### Deprecated
+
+-
+
+### Added
+
+- Added arbitrary data storage in isometric tiles, `ex.IsometricTile.data` this brings it into feature parity with normal `ex.Tile.data`
+- New graphics events and hooks that allow you to hook into graphics drawing before or after any drawing transformations have been applied
+  * `Actor.graphics.onPreTransformDraw` with the corresponding event `.on('pretransformdraw')`
+  * `Actor.graphics.onPostTransformDraw` with the corresponding event `.on('posttransformdraw')`
+- New property and methods overloads to `ex.Animation`
+  * `ex.Animation.currentFrameTimeLeft` will return the current time in milliseconds left in the current
+  * `ex.Animation.goToFrame(frameNumber: number, duration?: number)` now accepts an optional duration for the target frame
+  * `ex.Animation.speed` can set the speed multiplier on an animation 1 = 1x speed, 2 = 2x speed.
+
+### Fixed
+
+- Fixed issue where nesting `ex.CompositeColliders` inside one another would cause a crash on collision
+- Fixed issue where `ex.CompositeColliders` did not respect collider offset
+- Fixed issue where parenting a entity with fixed updates on would cause a drawing flicker, transform interpolation now is aware of changing parents so it interpolates drawing continuously to prevent any flickering
+- `ex.Animation.reset()` did not properly reset all internal state
+
+### Updates
+
+-
+
+### Changed
+
+-
+
+## [v0.28.5]
+
+### Breaking Changes
+
+-
+
+### Deprecated
+
+-
+
+### Added
+
+- Added collision lifecycle convenience methods to `Actor`, you can now override the following events
+  ```typescript
+  class MyActor extends ex.Actor {
+    constructor(args: ex.ActorArgs) {
+      super(args);
+    }
+    onPreCollisionResolve(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
+      
+    }
+    onPostCollisionResolve(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
+      
+    }
+    onCollisionStart(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
+      
+    }
+    onCollisionEnd(self: ex.Collider, other: ex.Collider): void {
+      
+    }
+  }
+  ```
+- Added Scene specific background color
+- Added ability to apply draw offset to `ex.IsometricMap` and `ex.Tilemap`
+- Added `visibility` and `opacity` to `ex.IsometricMap`
+- Added base elevation for `ex.IsometricMap` so multiple maps can sort correctly
+- Added method to suppress convex polygon warning for library code usage
+- Added more configuration options to debug draw flags, including isometric map controls
+- Added `actionstart` and `actioncomplete` events to the Actor that are fired when an action starts and completes
+
+
+### Fixed
+
+- Fixed issue where the `Camera` wasn't interpolated during fixed update, which is very noticeable when using camera locked strategies
+- Fixed issue where `IsometricMap` would debug draw collision geometry on non-solid tiles
+- Fixed issue where `CompositeCollider` offset was undefined if not set
+- Fixed Actor so it receives `predraw`/`postdraw` events per the advertised strongly typed events
+- Fixed infinite loop :bomb: when certain degenerate polygons were attempted to be triangulated!
+- Fixed incorrect type on `ex.Tilemap.getTileByPoint()`
+- Fixed TS type on `GraphicsComponent` and allow `.material` to be null to unset, current workaround is using `.material = null as any`
+
+### Updates
+
+-
+
+### Changed
+
+- All debug geometry settings are controlled from debug.collider now
+- Removed dunder prefixed parameters from overrideable methods
+- Tweaked debug draw to be less noisy by default
+- Removed dependency on `ex.IsometricMap` in the `ex.IsometricEntityComponent`, this allows for greater flexibility when using the component when a map may not be known or constructed.
+
+## [v0.28.4]
+
+### Breaking Changes
+
+-
+
+### Deprecated
+
+-
+
+### Added
+
+- Ability to configure TileMap debug drawing with the `ex.Engine.debug.tilemap` property.
+- Materials have a new convenience method for updating uniforms
+  ```typescript
+  game.input.pointers.primary.on('move', evt => {
+    heartActor.pos = evt.worldPos;
+    swirlMaterial.update(shader => {
+      shader.trySetUniformFloatVector('iMouse', evt.worldPos);
+    });
+  });
+  ```
+
+
+### Fixed
+
+- Fixed issue where TileMap solid tiles tile packing algorithm would incorrectly merge tiles in certain situations.
+- Sprite tint was not respected when supplied in the constructor, this has been fixed!
+- Adjusted the `FontCache` font timeout to 400 ms and makes it configurable as a static `FontCache.FONT_TIMEOUT`. This is to help prevent a downward spiral on mobile devices that might take a long while to render a few starting frames causing the cache to repeatedly clear and never recover.
+
+### Updates
+
+- Materials can now reference a new uniform for the screen texture and a screen uv attribute in their fragment shaders
+  * `u_screen_texture` - This is the texture of the screen right before the material draw call
+  * `a_screenuv` - The vertex attribute corresponding to the screen uv relative to the current graphic
+  * `v_screenuv` - The fragment varying corresponding to the screen uv relative to the current graphic
+
+- Materials can now reference the current time in their shaders
+  * `u_time_ms` - This is the ms since page navigation (performance.now() under the hood)
+
+### Changed
+
+- TileMap debug draw is now less verbose by default to save draw cycles when toggling to debug
+
+## [v0.28.3]
+
+### Breaking Changes
+
+-
+
+### Deprecated
+
+-
+
+### Added
+
+- Added new feature to collision group raycasting, directly provide a `collisionMask` that you want to search for.
+
+```typescript
+const playerGroup = ex.CollisionGroupManager.create('playerGroup');
+const notPlayersMask = ~playersGroup.category;
+const hits = engine.currentScene.physics.rayCast(
+  new ex.Ray(player.pos, playerDir),
+  {
+    maxDistance: playerSightDistance,
+    // Search for all categories that match the mask
+    collisionMask: notPlayers,
+    searchAllColliders: false
+  });
+```
+
+
+### Fixed
+
+- Fixed issue where rendering multiple materials at once would crash the renderer
+- Fixed issue where raycasting with more complex collision groups was not working as expected
+
+### Updates
+
+- 
+
+### Changed
+
+- 
+
+## [v0.28.2]
+
+### Breaking Changes
+
+-
+
+### Deprecated
+
+-
+
+### Added
+
+- Added `ex.Engine.version` to report the current excalibur version build string
+- Added new `ex.Screen.events`
+  - `screen.events.on('resize', (evt) => )` Will emit when the screen is resized
+  - `screen.events.on('fullscreen', (evt) => )` Will emit when the screen is changed into browser fullscreen mode
+  - `screen.events.on('pixelratio', (evt) => )` Will emit when the screen's pixel ratio changes (moving from a hidpi screen to a non, or vice versa)
+
+### Fixed
+
+- Fixed issue where removing handlers by function reference only removed the first registered one
+- Fixed issue where play button was hidden when going fullscreen mode
+- Fixed issue where screen resizing caused artifacts on the loading screen
+- Fixed bug in `useCanvas2DFallback()` where `antialiasing` settings could be lost
+- Fixed bug in `useCanvas2DFallback()` where opacity was not respected in `save
+- Fixed typo in trigger event signature `entertrigger` should have been `enter`
+- Fixed typo in trigger event signature `exittrigger` should have been `exit`
+- Fixed typo in animation event signature `ended` should have been `end`
+- Fixed issue where some excalibur `clear()` implementations modified the collection they were iterating over
+- Fixed async issue where sound could not be stopped if `stop()`/`start()` were called in rapid succession
+- Fixed issue with input mapper where `keyboard.wasPressed(...)` did not fire
+- Fixed issue issue where TileMaps would not properly draw Tiles when setup in screen space coordinates
+- Fixed issue where the ex.Line graphics bounds were incorrect causing erroneous offscreen culling
+- Fixed event type signature on `ex.Engine.input.pointers.primary.on('wheel', ...)` for wheel events
+
+### Updates
+
+- Improved performance in TileMaps when drawing tiles using QuadTree data structure
+
+### Changed
+
+- Changed the canvas 2d fallback default, no longer is enabled by default. Developers must opt in.
+- Allow entity names to be set after construction! Entities will now default to a name "Entity#1234" followed by an id.
+
+## [v0.28.0]
+
+### Breaking Changes
+
 - Removed `ex.Class` base class type, this was a common base class for many excalibur types that provided old on/off event functionality. This functionality has been preserved on the types that had it before using `ex.EventEmitter`
 
 ### Deprecated
@@ -192,11 +591,6 @@ stored `ex.Graphics` causing them to be shared across clones.
 - Excalibur will now use `ex.EventEmitter` to broadcast events, Excalibur types that have events support will also have an `.events` member.
 - Excalibur resources by default no longer add cache busting query string to resources. All built in resources now expose a `bustCache` property to allow setting this before loading, for example `ex.Sound.bustCache`.
 
-
-
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
 ## [0.27.0] - 2022-07-08
 

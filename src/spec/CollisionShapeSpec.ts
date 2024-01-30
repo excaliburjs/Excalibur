@@ -16,13 +16,13 @@ describe('Collision Shape', () => {
     let circle: ex.CircleCollider;
     let actor: ex.Actor;
 
-    beforeEach(() => {
+    beforeEach(async () => {
       engine = TestUtils.engine();
       engine.backgroundColor = ex.Color.Transparent;
       scene = new ex.Scene();
       engine.add('test', scene);
-      engine.goToScene('test');
-      engine.start();
+      await engine.goToScene('test');
+      await engine.start();
       const clock = engine.clock as ex.TestClock;
       clock.step(1);
 
@@ -148,10 +148,16 @@ describe('Collision Shape', () => {
       const rayTangent = new ex.Ray(new ex.Vector(-100, 10), ex.Vector.Right.clone());
       const rayNoHit = new ex.Ray(new ex.Vector(-100, 10), ex.Vector.Left.clone());
 
-      const point = circle.rayCast(ray);
-      const pointTangent = circle.rayCast(rayTangent);
+      const hit = circle.rayCast(ray);
+      const point = circle.rayCast(ray).point;
+      const pointTangent = circle.rayCast(rayTangent).point;
       const pointNoHit = circle.rayCast(rayNoHit);
       const pointTooFar = circle.rayCast(ray, 1);
+
+      expect(hit.normal).toBeVector(ex.Vector.Left);
+      expect(hit.distance).toBe(90);
+      expect(hit.collider).toBe(circle);
+      expect(hit.body).toBe(actor.body);
 
       expect(point.x).toBe(-10);
       expect(point.y).toBe(0);
@@ -166,13 +172,13 @@ describe('Collision Shape', () => {
     it('can be raycast against only positive time of impact (toi)', () => {
       const ray = new ex.Ray(new ex.Vector(0, 0), ex.Vector.Right.clone());
 
-      const point = circle.rayCast(ray);
+      const point = circle.rayCast(ray).point;
 
       expect(point.x).toBe(10);
       expect(point.y).toBe(0);
     });
 
-    it('doesnt have axes', () => {
+    it('doesn\'t have axes', () => {
       // technically circles have infinite axes
       expect(circle.axes).toEqual([]);
     });
@@ -361,7 +367,7 @@ describe('Collision Shape', () => {
       await expectAsync(canvasElement).toEqualImage('src/spec/images/CollisionShapeSpec/circle-debug.png');
     });
 
-    it('can be drawn with actor when in contructor', async () => {
+    it('can be drawn with actor when in constructor', async () => {
       const circleActor = new ex.Actor({
         pos: new ex.Vector(100, 100),
         color: ex.Color.Blue,
@@ -423,13 +429,13 @@ describe('Collision Shape', () => {
   describe('a ConvexPolygon', () => {
     let engine: ex.Engine;
     let scene: ex.Scene;
-    beforeEach(() => {
+    beforeEach(async () => {
       engine = TestUtils.engine();
       engine.backgroundColor = ex.Color.Transparent;
       scene = new ex.Scene();
       engine.addScene('test', scene);
-      engine.goToScene('test');
-      engine.start();
+      await engine.goToScene('test');
+      await engine.start();
       const clock = engine.clock as ex.TestClock;
       clock.step(1);
     });
@@ -499,9 +505,9 @@ describe('Collision Shape', () => {
 
       const colliders = composite.getColliders() as ex.PolygonCollider[];
       expect(colliders.length).toBe(3);
-      expect(colliders[0].points).toEqual([ex.vec(0, 0), ex.vec(10, 0), ex.vec(10, 10)]);
-      expect(colliders[1].points).toEqual([ex.vec(0, 0), ex.vec(10, 10), ex.vec(0, 10)]);
-      expect(colliders[2].points).toEqual([ex.vec(0, 0), ex.vec(5, 5), ex.vec(0, 10)]);
+      expect(colliders[0].points).toEqual([ex.vec(5, 5), ex.vec(0, 0), ex.vec(10, 0)]);
+      expect(colliders[1].points).toEqual([ex.vec(0, 10), ex.vec(5, 5), ex.vec(10, 0)]);
+      expect(colliders[2].points).toEqual([ex.vec(10, 0), ex.vec(10, 10), ex.vec(0, 10)]);
 
       expect(concave.isConvex()).withContext('Should be concave').toBe(false);
     });
@@ -732,12 +738,18 @@ describe('Collision Shape', () => {
       const rayTowards = new ex.Ray(new ex.Vector(-100, 0), ex.Vector.Right.clone());
       const rayAway = new ex.Ray(new ex.Vector(-100, 0), new ex.Vector(-1, 0));
 
-      const point = polyA.rayCast(rayTowards);
+      const hit = polyA.rayCast(rayTowards);
+      const point = hit.point;
       const noHit = polyA.rayCast(rayAway);
       const tooFar = polyA.rayCast(rayTowards, 1);
 
       expect(point.x).toBeCloseTo(-5, 0.001);
       expect(point.y).toBeCloseTo(0, 0.001);
+      expect(hit.normal.x).toBe(-1);
+      expect(hit.normal.y).toBe(0);
+      expect(hit.collider).toBe(polyA);
+      expect(hit.body).toBe(actor.body);
+      expect(hit.distance).toBe(95);
       expect(noHit).toBe(null);
       expect(tooFar).toBe(null, 'The polygon should be too far away for a hit');
     });
@@ -821,13 +833,13 @@ describe('Collision Shape', () => {
       engine = null;
     });
 
-    beforeEach(() => {
+    beforeEach(async () => {
       engine = TestUtils.engine();
       engine.backgroundColor = ex.Color.Transparent;
       scene = new ex.Scene();
       engine.addScene('test', scene);
-      engine.goToScene('test');
-      engine.start();
+      await engine.goToScene('test');
+      await engine.start();
       const clock = engine.clock as ex.TestClock;
       clock.step(1);
 
@@ -873,11 +885,17 @@ describe('Collision Shape', () => {
       const rayRightTangent = new ex.Ray(new ex.Vector(10, -100), ex.Vector.Down.clone());
       const rayNoHit = new ex.Ray(new ex.Vector(5, -100), ex.Vector.Up.clone());
 
-      const midPoint = edge.rayCast(ray);
-      const leftTan = edge.rayCast(rayLeftTangent);
-      const rightTan = edge.rayCast(rayRightTangent);
+      const hit = edge.rayCast(ray);
+      const midPoint = edge.rayCast(ray).point;
+      const leftTan = edge.rayCast(rayLeftTangent).point;
+      const rightTan = edge.rayCast(rayRightTangent).point;
       const noHit = edge.rayCast(rayNoHit);
       const tooFar = edge.rayCast(ray, 1);
+
+      expect(hit.normal).toBeVector(ex.Vector.Up);
+      expect(hit.collider).toBe(edge);
+      expect(hit.body).toBe(actor.body);
+      expect(hit.distance).toBe(100);
 
       expect(midPoint.x).toBeCloseTo(5, 0.001);
       expect(midPoint.y).toBeCloseTo(0, 0.001);

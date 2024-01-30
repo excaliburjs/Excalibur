@@ -194,6 +194,7 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
 
       this._engine.on('visible', () => {
         if (engine.pauseAudioWhenHidden && this._wasPlayingOnHidden) {
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.play();
           this._wasPlayingOnHidden = false;
         }
@@ -226,6 +227,10 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
 
   public isPaused(): boolean {
     return this._tracks.some(t => t.isPaused());
+  }
+
+  public isStopped(): boolean {
+    return this._tracks.some(t => t.isStopped());
   }
 
   /**
@@ -304,6 +309,11 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
   }
 
   public getTotalPlaybackDuration() {
+    if (!this.isLoaded()) {
+      this.logger.warnOnce(`Sound from ${this.path} is not loaded, cannot return total playback duration.` +
+      `Did you forget to add Sound to a loader? https://excaliburjs.com/docs/loaders/`);
+      return 0;
+    }
     return this.data.duration;
   }
 
@@ -336,7 +346,6 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
       // ensure we resume *current* tracks (if paused)
       for (const track of this._tracks) {
         resumed.push(track.play().then(() => {
-          this.events.emit('playbackend', new NativeSoundEvent(this, track as WebAudioInstance));
           this._tracks.splice(this.getTrackId(track), 1);
           return true;
         }));
@@ -355,16 +364,20 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
    * Starts playback, returns a promise that resolves when playback is complete
    */
   private async _startPlayback(): Promise<boolean> {
-    const track = await this._getTrackInstance(this.data);
+    const track = this._getTrackInstance(this.data);
 
     const complete = await track.play(() => {
       this.events.emit('playbackstart', new NativeSoundEvent(this, track));
       this.logger.debug('Playing new instance for sound', this.path);
     });
 
-    // when done, remove track
     this.events.emit('playbackend', new NativeSoundEvent(this, track));
-    this._tracks.splice(this.getTrackId(track), 1);
+
+    // cleanup any done tracks
+    const trackId = this.getTrackId(track);
+    if (trackId !== -1) {
+      this._tracks.splice(trackId, 1);
+    }
 
     return complete;
   }

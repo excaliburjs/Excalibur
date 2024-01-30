@@ -33,6 +33,15 @@ import { OffscreenSystem } from './Graphics/OffscreenSystem';
 import { ExcaliburGraphicsContext } from './Graphics';
 import { PhysicsWorld } from './Collision/PhysicsWorld';
 import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
+import { Color } from './Color';
+import { DefaultLoader } from './Director/DefaultLoader';
+import { Transition } from './Director';
+import { InputHost } from './Input/InputHost';
+import { PointerScope } from './Input/PointerScope';
+
+export class PreLoadEvent {
+  loader: DefaultLoader;
+}
 
 export type SceneEvents = {
   initialize: InitializeEvent<Scene>,
@@ -44,6 +53,7 @@ export type SceneEvents = {
   postdraw: PostDrawEvent,
   predebugdraw: PreDebugDrawEvent,
   postdebugdraw: PostDebugDrawEvent
+  preload: PreLoadEvent
 }
 
 export const SceneEvents = {
@@ -55,8 +65,17 @@ export const SceneEvents = {
   PreDraw: 'predraw',
   PostDraw: 'postdraw',
   PreDebugDraw: 'predebugdraw',
-  PostDebugDraw: 'postdebugdraw'
+  PostDebugDraw: 'postdebugdraw',
+  PreLoad: 'preload'
 };
+
+export type SceneConstructor = new (...args: any[]) => Scene;
+/**
+ *
+ */
+export function isSceneConstructor(x: any): x is SceneConstructor {
+  return !!x?.prototype && !!x?.prototype?.constructor?.name;
+}
 
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
@@ -76,9 +95,14 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
   public camera: Camera = new Camera();
 
   /**
+   * Scene specific background color
+   */
+  public backgroundColor?: Color;
+
+  /**
    * The ECS world for the scene
    */
-  public world = new World(this);
+  public world: World = new World(this);
 
   /**
    * The Excalibur physics world for the scene. Used to interact
@@ -92,7 +116,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * The actors in the current scene
    */
   public get actors(): readonly Actor[] {
-    return this.world.entityManager.entities.filter((e) => {
+    return this.world.entityManager.entities.filter((e: Entity<any>) => {
       return e instanceof Actor;
     }) as Actor[];
   }
@@ -108,7 +132,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * The triggers in the current scene
    */
   public get triggers(): readonly Trigger[] {
-    return this.world.entityManager.entities.filter((e) => {
+    return this.world.entityManager.entities.filter((e: Entity<any>) => {
       return e instanceof Trigger;
     }) as Trigger[];
   }
@@ -117,7 +141,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * The [[TileMap]]s in the scene, if any
    */
   public get tileMaps(): readonly TileMap[] {
-    return this.world.entityManager.entities.filter((e) => {
+    return this.world.entityManager.entities.filter((e: Entity<any>) => {
       return e instanceof TileMap;
     }) as TileMap[];
   }
@@ -126,6 +150,11 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * Access to the Excalibur engine
    */
   public engine: Engine;
+
+  /**
+   * Access scene specific input, handlers on this only fire when this scene is active.
+   */
+  public input: InputHost;
 
   private _isInitialized: boolean = false;
   private _timers: Timer[] = [];
@@ -138,15 +167,15 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
     // Initialize systems
 
     // Update
-    this.world.add(new ActionsSystem());
-    this.world.add(new MotionSystem());
-    this.world.add(new CollisionSystem(this.physics));
-    this.world.add(new PointerSystem());
-    this.world.add(new IsometricEntitySystem());
+    this.world.add(ActionsSystem);
+    this.world.add(MotionSystem);
+    this.world.add(new CollisionSystem(this.world, this.physics));
+    this.world.add(PointerSystem);
+    this.world.add(IsometricEntitySystem);
     // Draw
-    this.world.add(new OffscreenSystem());
-    this.world.add(new GraphicsSystem());
-    this.world.add(new DebugSystem());
+    this.world.add(OffscreenSystem);
+    this.world.add(GraphicsSystem);
+    this.world.add(DebugSystem);
   }
 
   public emit<TEventName extends EventKey<SceneEvents>>(eventName: TEventName, event: SceneEvents[TEventName]): void;
@@ -175,10 +204,37 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
   }
 
   /**
+   * Event hook to provide Scenes a way of loading scene specific resources.
+   *
+   * This is called before the Scene.onInitialize during scene transition. It will only ever fire once for a scene.
+   * @param loader
+   */
+  public onPreLoad(loader: DefaultLoader) {
+    // will be overridden
+  }
+
+  /**
+   * Event hook fired directly before transition, either "in" or "out" of the scene
+   *
+   * This overrides the Engine scene definition. However transitions specified in goto take hightest precedence
+   *
+   * ```typescript
+   * // Overrides all
+   * Engine.goto('scene', { destinationIn: ..., sourceOut: ... });
+   * ```
+   *
+   * This can be used to configure custom transitions for a scene dynamically
+   */
+  public onTransition(direction: 'in' | 'out'): Transition | undefined {
+    // will be overridden
+    return undefined;
+  }
+
+  /**
    * This is called before the first update of the [[Scene]]. Initializes scene members like the camera. This method is meant to be
    * overridden. This is where initialization of child actors should take place.
    */
-  public onInitialize(_engine: Engine): void {
+  public onInitialize(engine: Engine): void {
     // will be overridden
   }
 
@@ -186,7 +242,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * This is called when the scene is made active and started. It is meant to be overridden,
    * this is where you should setup any DOM UI or event handlers needed for the scene.
    */
-  public onActivate(_context: SceneActivationContext<TActivationData>): void {
+  public onActivate(context: SceneActivationContext<TActivationData>): void {
     // will be overridden
   }
 
@@ -194,7 +250,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * This is called when the scene is made transitioned away from and stopped. It is meant to be overridden,
    * this is where you should cleanup any DOM UI or event handlers needed for the scene.
    */
-  public onDeactivate(_context: SceneActivationContext): void {
+  public onDeactivate(context: SceneActivationContext): void {
     // will be overridden
   }
 
@@ -203,7 +259,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    *
    * `onPreUpdate` is called directly before a scene is updated.
    */
-  public onPreUpdate(_engine: Engine, _delta: number): void {
+  public onPreUpdate(engine: Engine, delta: number): void {
     // will be overridden
   }
 
@@ -212,7 +268,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    *
    * `onPostUpdate` is called directly after a scene is updated.
    */
-  public onPostUpdate(_engine: Engine, _delta: number): void {
+  public onPostUpdate(engine: Engine, delta: number): void {
     // will be overridden
   }
 
@@ -222,7 +278,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * `onPreDraw` is called directly before a scene is drawn.
    *
    */
-  public onPreDraw(_ctx: ExcaliburGraphicsContext, _delta: number): void {
+  public onPreDraw(ctx: ExcaliburGraphicsContext, delta: number): void {
     // will be overridden
   }
 
@@ -232,14 +288,14 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * `onPostDraw` is called directly after a scene is drawn.
    *
    */
-  public onPostDraw(_ctx: ExcaliburGraphicsContext, _delta: number): void {
+  public onPostDraw(ctx: ExcaliburGraphicsContext, delta: number): void {
     // will be overridden
   }
 
   /**
    * Initializes actors in the scene
    */
-  private _initializeChildren(): void {
+  private _initializeChildren() {
     for (const child of this.entities) {
       child._initialize(this.engine);
     }
@@ -252,6 +308,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
     return this._isInitialized;
   }
 
+
   /**
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
@@ -259,9 +316,14 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * Excalibur
    * @internal
    */
-  public _initialize(engine: Engine) {
+  public async _initialize(engine: Engine) {
     if (!this.isInitialized) {
       this.engine = engine;
+      this.input = new InputHost({
+        pointerTarget: engine.pointerScope === PointerScope.Canvas ? engine.canvas : document,
+        grabWindowFocus: engine.grabWindowFocus,
+        engine
+      });
       // Initialize camera first
       this.camera._initialize(engine);
 
@@ -269,7 +331,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
 
       // This order is important! we want to be sure any custom init that add actors
       // fire before the actor init
-      this.onInitialize.call(this, engine);
+      await this.onInitialize(engine);
       this._initializeChildren();
 
       this._logger.debug('Scene.onInitialize', this, engine);
@@ -284,9 +346,10 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * Activates the scene with the base behavior, then calls the overridable `onActivate` implementation.
    * @internal
    */
-  public _activate(context: SceneActivationContext<TActivationData>): void {
+  public async _activate(context: SceneActivationContext<TActivationData>) {
     this._logger.debug('Scene.onActivate', this);
-    this.onActivate(context);
+    this.input.toggleEnabled(true);
+    await this.onActivate(context);
   }
 
   /**
@@ -295,9 +358,10 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * Deactivates the scene with the base behavior, then calls the overridable `onDeactivate` implementation.
    * @internal
    */
-  public _deactivate(context: SceneActivationContext<never>): void {
+  public async _deactivate(context: SceneActivationContext<never>) {
     this._logger.debug('Scene.onDeactivate', this);
-    this.onDeactivate(context);
+    this.input.toggleEnabled(false);
+    await this.onDeactivate(context);
   }
 
   /**
@@ -306,9 +370,9 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * Internal _preupdate handler for [[onPreUpdate]] lifecycle event
    * @internal
    */
-  public _preupdate(_engine: Engine, delta: number): void {
-    this.emit('preupdate', new PreUpdateEvent(_engine, delta, this));
-    this.onPreUpdate(_engine, delta);
+  public _preupdate(engine: Engine, delta: number): void {
+    this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
+    this.onPreUpdate(engine, delta);
   }
 
   /**
@@ -317,33 +381,31 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * Internal _preupdate handler for [[onPostUpdate]] lifecycle event
    * @internal
    */
-  public _postupdate(_engine: Engine, delta: number): void {
-    this.emit('postupdate', new PostUpdateEvent(_engine, delta, this));
-    this.onPostUpdate(_engine, delta);
+  public _postupdate(engine: Engine, delta: number): void {
+    this.emit('postupdate', new PostUpdateEvent(engine, delta, this));
+    this.onPostUpdate(engine, delta);
   }
 
   /**
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * Internal _predraw handler for [[onPreDraw]] lifecycle event
-   *
    * @internal
    */
-  public _predraw(_ctx: ExcaliburGraphicsContext, _delta: number): void {
-    this.emit('predraw', new PreDrawEvent(_ctx, _delta, this));
-    this.onPreDraw(_ctx, _delta);
+  public _predraw(ctx: ExcaliburGraphicsContext, delta: number): void {
+    this.emit('predraw', new PreDrawEvent(ctx, delta, this));
+    this.onPreDraw(ctx, delta);
   }
 
   /**
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * Internal _postdraw handler for [[onPostDraw]] lifecycle event
-   *
    * @internal
    */
-  public _postdraw(_ctx: ExcaliburGraphicsContext, _delta: number): void {
-    this.emit('postdraw', new PostDrawEvent(_ctx, _delta, this));
-    this.onPostDraw(_ctx, _delta);
+  public _postdraw(ctx: ExcaliburGraphicsContext, delta: number): void {
+    this.emit('postdraw', new PostDrawEvent(ctx, delta, this));
+    this.onPostDraw(ctx, delta);
   }
 
   /**
@@ -352,6 +414,9 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * @param delta   The number of milliseconds since the last update
    */
   public update(engine: Engine, delta: number) {
+    if (!this.isInitialized) {
+      throw new Error('Scene update called before it was initialized!');
+    }
     this._preupdate(engine, delta);
 
     // TODO differed entity removal for timers
@@ -377,11 +442,12 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
     this._collectActorStats(engine);
 
     this._postupdate(engine, delta);
+
+    this.input.update();
   }
 
   /**
    * Draws all the actors in the Scene. Called by the [[Engine]].
-   *
    * @param ctx    The current rendering context
    * @param delta  The number of milliseconds since the last draw
    */
@@ -582,11 +648,11 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * @param deferred
    */
   public clear(deferred: boolean = true): void {
-    for (const entity of this.entities) {
-      this.world.remove(entity, deferred);
+    for (let i = this.entities.length - 1; i >= 0; i--) {
+      this.world.remove(this.entities[i], deferred);
     }
-    for (const timer of this.timers) {
-      this.removeTimer(timer);
+    for (let i = this.timers.length - 1; i >= 0; i--) {
+      this.removeTimer(this.timers[i]);
     }
   }
 

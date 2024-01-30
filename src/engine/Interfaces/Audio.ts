@@ -29,6 +29,11 @@ export interface Audio {
   isPaused(): boolean;
 
   /**
+   * Returns if the audio is stopped
+   */
+  isStopped(): boolean;
+
+  /**
    * Will play the sound or resume if paused
    */
   play(): Promise<any>;

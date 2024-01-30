@@ -19,7 +19,6 @@ export interface RendererPlugin {
 
   /**
    * Initialize your renderer
-   *
    * @param gl
    * @param context
    */

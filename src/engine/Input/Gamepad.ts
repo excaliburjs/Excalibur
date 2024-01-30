@@ -42,6 +42,7 @@ export class Gamepads {
   private _initSuccess: boolean = false;
   private _navigator: NavigatorGamepads = <any>navigator;
   private _minimumConfiguration: GamepadConfiguration = null;
+  private _enabled = true;
 
   public init() {
     if (!this.supported) {
@@ -57,6 +58,10 @@ export class Gamepads {
     if (this._oldPads.length && this._oldPads[0]) {
       this._initSuccess = true;
     }
+  }
+
+  public toggleEnabled(enabled: boolean) {
+    this._enabled = enabled;
   }
 
   /**
@@ -132,6 +137,9 @@ export class Gamepads {
    */
   public update() {
     if (!this.enabled || !this.supported) {
+      return;
+    }
+    if (!this._enabled) {
       return;
     }
     this.init();
@@ -304,7 +312,6 @@ export class Gamepad {
 
   /**
    * Whether or not the given button is pressed
-   *
    * @deprecated will be removed in v0.28.0. Use isButtonHeld instead
    * @param button     The button to query
    * @param threshold  The threshold over which the button is considered to be pressed
@@ -315,7 +322,6 @@ export class Gamepad {
 
   /**
    * Tests if a certain button is held down. This is persisted between frames.
-   *
    * @param button     The button to query
    * @param threshold  The threshold over which the button is considered to be pressed
    */
@@ -325,7 +331,6 @@ export class Gamepad {
 
   /**
    * Tests if a certain button was just pressed this frame. This is cleared at the end of the update frame.
-   *
    * @param button Test whether a button was just pressed
    * @param threshold  The threshold over which the button is considered to be pressed
    */
@@ -335,7 +340,6 @@ export class Gamepad {
 
   /**
    * Tests if a certain button was just released this frame. This is cleared at the end of the update frame.
-   *
    * @param button  Test whether a button was just released
    */
   public wasButtonReleased(button: Buttons) {

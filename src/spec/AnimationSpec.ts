@@ -86,8 +86,8 @@ describe('A Graphics Animation', () => {
     const anim = ex.Animation.fromSpriteSheetCoordinates({
       spriteSheet: ss,
       frameCoordinates: [
-        {x: 0, y: 0, duration: 100},
-        {x: 1, y: 0, duration: 100},
+        {x: 0, y: 0, duration: 100, options: { flipHorizontal: true }},
+        {x: 1, y: 0, duration: 100, options: { flipVertical: true }},
         {x: 2, y: 0, duration: 100},
         {x: 3, y: 0, duration: 100}
       ],
@@ -96,6 +96,8 @@ describe('A Graphics Animation', () => {
 
     expect(anim.strategy).toBe(ex.AnimationStrategy.Freeze);
     expect(anim.frames[0].duration).toBe(100);
+    expect(anim.frames[0].graphic.flipHorizontal).toBe(true);
+    expect(anim.frames[1].graphic.flipVertical).toBe(true);
     expect(anim.frames.length).toBe(4);
   });
 
@@ -459,7 +461,7 @@ describe('A Graphics Animation', () => {
     anim.reset();
     expect(anim.currentFrame).toBe(anim.frames[0]);
     anim.tick(100, 2);
-    // Reseting should re-fire the first tick frame event
+    // Reset should re-fire the first tick frame event
     expect(onFrame).toHaveBeenCalledTimes(2);
   });
 
@@ -546,5 +548,155 @@ describe('A Graphics Animation', () => {
     expect(anim.currentFrame).toBe(anim.frames[1]);
     anim.tick(expectedFrameDuration, 2);
     expect(anim.currentFrame).toBe(anim.frames[0]);
+  });
+
+  it('has a current time left in a frame', () => {
+
+    const rect = new ex.Rectangle({
+      width: 100,
+      height: 100,
+      color: ex.Color.Blue
+    });
+    const frames: ex.Frame[] = [
+      {
+        graphic: rect,
+        duration: 100
+      },
+      {
+        graphic: rect,
+        duration: 100
+      }
+    ];
+    const anim = new ex.Animation({
+      frames: frames
+    });
+    anim.play();
+    expect(anim.currentFrameIndex).toBe(0);
+    expect(anim.currentFrameTimeLeft).toBe(100);
+    anim.tick(10, 1);
+    expect(anim.currentFrameIndex).toBe(0);
+    expect(anim.currentFrameTimeLeft).toBe(90);
+    anim.tick(10, 2);
+    expect(anim.currentFrameIndex).toBe(0);
+    expect(anim.currentFrameTimeLeft).toBe(80);
+    anim.tick(80, 3);
+    expect(anim.currentFrameIndex).toBe(1);
+    expect(anim.currentFrameTimeLeft).toBe(100);
+  });
+
+  it('reset will reset time in frame', () => {
+
+    const rect = new ex.Rectangle({
+      width: 100,
+      height: 100,
+      color: ex.Color.Blue
+    });
+    const frames: ex.Frame[] = [
+      {
+        graphic: rect,
+        duration: 100
+      },
+      {
+        graphic: rect,
+        duration: 100
+      }
+    ];
+    const anim = new ex.Animation({
+      frames: frames
+    });
+    anim.play();
+    expect(anim.currentFrameIndex).toBe(0);
+    expect(anim.currentFrameTimeLeft).toBe(100);
+    anim.tick(60, 1);
+    expect(anim.currentFrameIndex).toBe(0);
+    expect(anim.currentFrameTimeLeft).toBe(40);
+    anim.reset();
+    expect(anim.currentFrameTimeLeft).toBe(100);
+  });
+
+  it('can go to a frame with an overridden duration', () => {
+    const rect = new ex.Rectangle({
+      width: 100,
+      height: 100,
+      color: ex.Color.Blue
+    });
+    const frames: ex.Frame[] = [
+      {
+        graphic: rect,
+        duration: 100
+      },
+      {
+        graphic: rect,
+        duration: 100
+      }
+    ];
+    const anim = new ex.Animation({
+      frames: frames
+    });
+    anim.play();
+    expect(anim.currentFrameIndex).toBe(0);
+    expect(anim.currentFrameTimeLeft).toBe(100);
+
+    anim.goToFrame(1, 50);
+    expect(anim.currentFrameIndex).toBe(1);
+    expect(anim.currentFrameTimeLeft).toBe(50);
+  });
+
+  it('can adjust playback speed', () => {
+    const rect = new ex.Rectangle({
+      width: 100,
+      height: 100,
+      color: ex.Color.Blue
+    });
+    const frames: ex.Frame[] = [
+      {
+        graphic: rect,
+        duration: 100
+      },
+      {
+        graphic: rect,
+        duration: 100
+      }
+    ];
+    const anim = new ex.Animation({
+      frames: frames,
+      speed: 2
+    });
+    anim.play();
+    expect(anim.currentFrameIndex).toBe(0);
+    expect(anim.currentFrameTimeLeft).toBe(100);
+
+    anim.tick(20, 1);
+    expect(anim.currentFrameIndex).toBe(0);
+    expect(anim.currentFrameTimeLeft).toBe(60);
+  });
+
+  it('can adjust playback speed (only positive', () => {
+    const rect = new ex.Rectangle({
+      width: 100,
+      height: 100,
+      color: ex.Color.Blue
+    });
+    const frames: ex.Frame[] = [
+      {
+        graphic: rect,
+        duration: 100
+      },
+      {
+        graphic: rect,
+        duration: 100
+      }
+    ];
+    const anim = new ex.Animation({
+      frames: frames
+    });
+    anim.speed = -100;
+    expect(anim.speed).toBe(100);
+
+    anim.speed = 0;
+    expect(anim.speed).toBe(0);
+
+    anim.speed = 100;
+    expect(anim.speed).toBe(100);
   });
 });

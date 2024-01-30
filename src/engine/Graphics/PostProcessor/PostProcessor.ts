@@ -1,5 +1,5 @@
 
-import { VertexLayout } from '..';
+import { VertexLayout } from '../Context/vertex-layout';
 import { Shader } from '../Context/shader';
 
 

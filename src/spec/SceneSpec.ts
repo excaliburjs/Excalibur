@@ -7,16 +7,15 @@ describe('A scene', () => {
   let scene: ex.Scene;
   let clock: ex.TestClock;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     actor = new ex.Actor();
     engine = TestUtils.engine({ width: 100, height: 100 });
     scene = new ex.Scene();
 
     spyOn(scene, 'draw').and.callThrough();
-    engine.removeScene('root');
-    engine.addScene('root', scene);
-    engine.goToScene('root');
-    engine.start();
+    engine.addScene('newScene', scene);
+    engine.goToScene('newScene');
+    await TestUtils.runToReady(engine);
 
     clock = engine.clock as ex.TestClock;
     clock.step(100);
@@ -29,6 +28,21 @@ describe('A scene', () => {
 
   it('should be loaded', () => {
     expect(ex.Scene).toBeTruthy();
+  });
+
+  it('can have a background color set', async () => {
+    engine.backgroundColor = ex.Color.Black;
+
+    const newScene = new ex.Scene();
+    newScene.backgroundColor = ex.Color.Yellow;
+
+    engine.addScene('background', newScene);
+    await engine.goToScene('background');
+
+    (engine as any)._draw(100);
+
+    expect(engine.graphicsContext.backgroundColor).toEqual(ex.Color.Yellow);
+    expect(engine.graphicsContext.backgroundColor).toEqual(newScene.backgroundColor);
   });
 
   it('cannot have the same ScreenElement added to it more than once', () => {
@@ -64,7 +78,7 @@ describe('A scene', () => {
     scene.clear();
 
     expect(scene.entities.length).withContext('deferred entity removal means entities cleared at end of update').toBe(3);
-    expect(scene.timers.length).withContext('timers dont have deferred removal').toBe(0);
+    expect(scene.timers.length).withContext('timers don\'t have deferred removal').toBe(0);
 
     scene.update(engine, 100);
     expect(scene.entities.length).toBe(0);
@@ -300,39 +314,30 @@ describe('A scene', () => {
     expect(actor.graphics.onPostDraw).not.toHaveBeenCalled();
   });
 
-  it('initializes after start or play in first update', () => {
+  it('initializes after start or play in first update', async () => {
     const scene = new ex.Scene();
     spyOn(scene, 'onInitialize');
 
-    engine.removeScene('root');
-    engine.addScene('root', scene);
+    engine.addScene('otherScene', scene);
     expect(scene.onInitialize).toHaveBeenCalledTimes(0);
 
-    engine.goToScene('root');
-    engine.start();
-    clock.step(100);
+    await engine.goToScene('otherScene');
 
     expect(scene.onInitialize).toHaveBeenCalledTimes(1);
   });
 
-  it('calls onActivate and onDeactivate with the correct args', () => {
+  it('calls onActivate and onDeactivate with the correct args', async () => {
     const sceneA = new ex.Scene();
     sceneA.onDeactivate = jasmine.createSpy('onDeactivate()');
     const sceneB = new ex.Scene();
     sceneB.onActivate = jasmine.createSpy('onActivate()');
 
-    engine.removeScene('root');
-    engine.addScene('root', sceneA);
+    engine.addScene('sceneA', sceneA);
     engine.addScene('sceneB', sceneB);
 
-    engine.goToScene('root');
-    engine.start();
-    clock.step(100);
-    clock.step(100);
+    await engine.goToScene('sceneA');
 
-    engine.goToScene('sceneB', { foo: 'bar' });
-    clock.step(100);
-    clock.step(100);
+    await engine.goToScene('sceneB', { foo: 'bar' });
 
     expect(sceneA.onDeactivate).toHaveBeenCalledWith({
       engine,
@@ -351,8 +356,8 @@ describe('A scene', () => {
     engine = TestUtils.engine({ width: 100, height: 100 });
     scene = new ex.Scene();
 
-    engine.removeScene('root');
-    engine.addScene('root', scene);
+    engine.removeScene('otherScene');
+    engine.addScene('otherScene', scene);
 
     let initialized = false;
     scene.on('initialize', (evt: ex.InitializeEvent) => {
@@ -363,7 +368,7 @@ describe('A scene', () => {
       done();
     });
 
-    engine.goToScene('root');
+    engine.goToScene('otherScene');
     engine.start();
     const clock = engine.clock as ex.TestClock;
     clock.step(100);
@@ -373,8 +378,8 @@ describe('A scene', () => {
     engine = TestUtils.engine({ width: 100, height: 100 });
     scene = new ex.Scene();
 
-    engine.removeScene('root');
-    engine.addScene('root', scene);
+    engine.removeScene('otherScene');
+    engine.addScene('otherScene', scene);
 
     let sceneInitialized = false;
     const sceneActivated = false;
@@ -394,44 +399,39 @@ describe('A scene', () => {
     });
 
     scene.add(actor);
-    engine.goToScene('root');
+    engine.goToScene('otherScene');
     engine.start();
     const clock = engine.clock as ex.TestClock;
     clock.step(100);
   });
 
-  it('can only be initialized once', () => {
+  it('can only be initialized once', async () => {
     engine = TestUtils.engine({ width: 100, height: 100 });
-    const clock = engine.clock as ex.TestClock;
+    await TestUtils.runToReady(engine);
     scene = new ex.Scene();
 
-    engine.removeScene('root');
-    engine.addScene('root', scene);
+    engine.addScene('newScene', scene);
 
-    let initializeCount = 0;
-    scene.on('initialize', (evt) => {
-      initializeCount++;
-    });
+    const initSpy = jasmine.createSpy('init');
+    scene.on('initialize', initSpy);
 
-    engine.goToScene('root');
-    engine.start();
-    clock.step(1);
+    await engine.goToScene('newScene');
     scene.update(engine, 100);
     scene.update(engine, 100);
-    scene._initialize(engine);
-    scene._initialize(engine);
-    scene._initialize(engine);
+    await scene._initialize(engine);
+    await scene._initialize(engine);
+    await scene._initialize(engine);
 
-    expect(initializeCount).toBe(1, 'Scenes can only be initialized once');
+    expect(initSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('should initialize before actors in the scene', () => {
+  it('should initialize before actors in the scene', async () => {
     engine = TestUtils.engine({ width: 100, height: 100 });
+    await TestUtils.runToReady(engine);
     const clock = engine.clock as ex.TestClock;
+    clock.step(1);
     scene = new ex.Scene();
-
-    engine.removeScene('root');
-    engine.addScene('root', scene);
+    engine.addScene('newScene', scene);
 
     const actor = new ex.Actor();
     scene.add(actor);
@@ -443,8 +443,8 @@ describe('A scene', () => {
       expect(sceneInit).toBe(true, 'Scene should be initialized first before any actors');
     };
 
-    engine.goToScene('root');
-    engine.start();
+    await engine.goToScene('newScene');
+
     clock.step(1);
     scene.update(engine, 100);
   });
@@ -702,6 +702,7 @@ describe('A scene', () => {
   it('will update TileMaps that were added in a Timer callback', () => {
     let updated = false;
     const tilemap = new ex.TileMap({ pos: ex.vec(0, 0), tileWidth: 1, tileHeight: 1, columns: 1, rows: 1});
+    tilemap._initialize(scene.engine);
     tilemap.on('postupdate', () => {
       updated = true;
     });
@@ -737,11 +738,11 @@ describe('A scene', () => {
     expect(otherScene.isCurrentScene()).toBe(false);
   });
 
-  it('will not be the current scene if the scene was switched', () => {
+  it('will not be the current scene if the scene was switched', async () => {
     const otherScene = new ex.Scene();
-    engine.goToScene('root');
+    await engine.goToScene('root');
     engine.addScene('secondaryScene', otherScene);
-    engine.goToScene('secondaryScene');
+    await engine.goToScene('secondaryScene');
 
     expect(scene.isCurrentScene()).toBe(false);
     expect(otherScene.isCurrentScene()).toBe(true);
@@ -753,8 +754,8 @@ describe('A scene', () => {
     beforeEach(() => {
       engine = TestUtils.engine({ width: 100, height: 100 });
       scene = new ex.Scene();
-      engine.removeScene('root');
-      engine.addScene('root', scene);
+      engine.removeScene('newScene');
+      engine.addScene('newScene', scene);
     });
 
     afterEach(() => {
@@ -763,7 +764,7 @@ describe('A scene', () => {
       scene = null;
     });
 
-    it('can have onInitialize overridden safely', () => {
+    it('can have onInitialize overridden safely', async () => {
       const clock = engine.clock as ex.TestClock;
       let initCalled = false;
       scene.onInitialize = (engine) => {
@@ -776,16 +777,16 @@ describe('A scene', () => {
 
       spyOn(scene, 'onInitialize').and.callThrough();
 
-      TestUtils.runToReady(engine);
-      engine.goToScene('root');
+      await TestUtils.runToReady(engine);
+      await engine.goToScene('newScene');
       clock.step(100);
 
       expect(initCalled).toBe(true);
       expect(scene.onInitialize).toHaveBeenCalledTimes(1);
     });
 
-    it('can have onPostUpdate overridden safely', () => {
-      scene._initialize(engine);
+    it('can have onPostUpdate overridden safely', async () => {
+      await scene._initialize(engine);
       scene.onPostUpdate = (engine, delta) => {
         expect(engine).not.toBe(null);
         expect(delta).toBe(100);
@@ -801,8 +802,8 @@ describe('A scene', () => {
       expect(scene.onPostUpdate).toHaveBeenCalledTimes(2);
     });
 
-    it('can have onPreUpdate overridden safely', () => {
-      scene._initialize(engine);
+    it('can have onPreUpdate overridden safely', async () => {
+      await scene._initialize(engine);
       scene.onPreUpdate = (engine, delta) => {
         expect(engine).not.toBe(null);
         expect(delta).toBe(100);

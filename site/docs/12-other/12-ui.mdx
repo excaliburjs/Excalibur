@@ -1,0 +1,269 @@
+---
+title: UI
+slug: /ui
+section: Other
+---
+
+```twoslash include ex
+/// <reference path="../src/engine/excalibur.d.ts" />
+declare const game: ex.Engine;
+```
+
+HTML5 is super great at building UI's, there are many popular front end frameworks and toolkits that will deliver highly polished UIs, so we recommend that first.
+
+Please consider [html based first](#html-based-ui) but if the UI makes more sense in-canvas look to [screen elements](#screen-elements).
+
+## Screen Elements
+
+In Excalibur, if you want to display something like a HUD element or UI element, you can create an instance of [[ScreenElement]]. A screen element has the following semantics that differ from a regular [actor](/docs/actors):
+
+- They automatically [capture pointer events](/docs/input#actor-pointer-events)
+- They do not participate in collisions
+- They appear above all "normal" actors in a [scene](/docs/scenes)
+- Invoking [[ScreenElement.contains]] will check against [screen coordinates](/docs/engine#screen-coordinates) by default.
+
+Other than that, they are the same as normal actors where you can assign drawings, perform actions, etc.
+
+{/* TODO: Example */}
+
+```ts
+import * as ex from 'excalibur'
+import Resources from './resources'
+
+class StartButton extends ex.ScreenElement {
+  constructor() {
+    super({
+      x: 50,
+      y: 50,
+    })
+  }
+
+  onInitialize() {
+    this.graphics.add('idle', Resources.StartButtonBackground)
+    this.graphics.add('hover', Resources.StartButtonHovered)
+
+    this.on('pointerup', () => {
+      alert("I've been clicked")
+    })
+
+    this.on('pointerenter', () => {
+      this.graphics.show('hover')
+    })
+
+    this.on('pointerleave', () => {
+      this.graphics.show('idle')
+    })
+  }
+}
+
+game.add(new StartButton())
+game.start()
+```
+
+## HTML-based UI
+
+A [screen element](#screen-elements) is useful because it's an actor, it is rendered within the game engine and can take advantage of all the power Excalibur provides. However, this can also be a drawback -- for performance reasons, you may want to host your game UI _outside_ Excalibur. Since Excalibur is a web-based game engine, HTML & CSS is a natural way to write game UI but it does require you to hook into them through [HTML DOM APIs](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Introduction).
+
+The trick is _positioning the game UI above Excalibur_ and reacting to Excalibur events appropriately. With some tweaks to the way you embed Excalibur, this can be accomplished without too much code.
+
+Do not forget to set [[PointerScope.Canvas]], otherwise Excalibur will capture all mouse input and HTML GUI won't work properly.
+
+**index.html**
+
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <style type="text/css">
+      #root {
+        /* When this is relative, child elements positioned absolutely will
+           be relative to this element, not the document providing more accurate
+           positioning, since the canvas will be at (0, 0) */
+        position: relative;
+      }
+
+      #root #ui {
+        /* This will make the UI appear on top of the canvas */
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+
+      /* These are scene-based UI styles */
+      #ui.MainMenu .button.button--start {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        background: red;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Define a wrapping element, in case you want to customize positions -->
+    <div id="root">
+      <!-- Provide your own canvas to Excalibur -->
+      <canvas id="game"></canvas>
+
+      <!-- The UI will automatically be drawn above the game due to z-indexing -->
+      <div id="ui">
+        <!-- This is where your game UI will go, dynamically created per scene -->
+      </div>
+    </div>
+
+    <script type="text/javascript" src="game.js"></script>
+  </body>
+</html>
+```
+
+**game.ts**
+
+```ts
+import * as ex from 'excalibur'
+
+// Hold a reference globally to our UI container
+// This would probably be encapsulated in a UIManager module
+const ui = document.getElementById('ui')
+
+// Create our game
+const game = new ex.Engine({
+  /**
+   * Specify our custom canvas element so Excalibur doesn't make one
+   */
+  canvasElementId: 'game',
+  /**
+   * Specify pointer scope to ensure that excalibur won't capture the mouse input
+   * meant to be captured by HTML GUI
+   */
+  pointerScope: ex.Input.PointerScope.Canvas,
+})
+
+/**
+ * Our main menu scene, which will have HTML-based UI
+ */
+class MainMenu extends ex.Scene {
+  onActivate() {
+    // Add a CSS class to `ui` that helps indicate which scene is being displayed
+    ui.classList.add('MainMenu')
+
+    // Create a <button /> element
+    const btnStart = document.createElement('button')
+
+    // Style it outside JavaScript for ease of use
+    btnStart.className = 'button button--start'
+
+    // Handle the DOM click event
+    btnStart.onclick = (e) => {
+      e.preventDefault()
+
+      // Transition the game to the new scene
+      game.goToScene('level')
+    }
+
+    // Append the <button /> to our `ui` container
+    ui.appendChild(btnStart)
+  }
+
+  onDeactivate() {
+    // Ensure we cleanup the DOM and remove any children when transitioning scenes
+    ui.classList.remove('MainMenu')
+    ui.innerHTML = ''
+  }
+}
+
+const level = new ex.Scene()
+const menu = new MainMenu()
+
+game.addScene('menu', menu)
+game.addScene('level', level)
+game.goToScene('menu')
+
+game.start()
+```
+
+## Labels
+
+Sometimes you need in game canvas based text, [[Label]]s are a special type of actor that help you quickly setup [[Text]] graphics and a [[Font]].
+
+You can pass in arguments to the [[Label#ctor|Label]] constructor or simply set the
+properties you need after creating an instance of the label.
+
+Since labels are also [Actors](/docs/actors), they need to be added to a [Scene](/docs/scenes)
+to be drawn and updated on-screen.
+
+```ts twoslash
+// @include: ex
+// ---cut---
+// constructor
+const label = new ex.Label({
+  text: 'Foo',
+  pos: ex.vec(50, 50)
+});
+label.font = new ex.Font({
+  family: 'Arial',
+  size: 10,
+  unit: ex.FontUnit.Px, // pixels are the default
+  textAlign: ex.TextAlign.Center
+})
+label.color = ex.Color.White;
+```
+
+### Adjusting Fonts
+
+Excalibur has 2 types of fonts [[SpriteFont]] which sources text glyphs from a bitmap source. and [[Font]] which sources glyphs from a a web font.
+
+You can use the [[Label.font]] property to adjust the [[Font.family]], [[Font.size]], [[Font.unit]], [[Font.textAlign]], and [[Font.baseAlign]]
+properties to customize how the label is drawn.
+
+You can also use [[Label.getTextWidth]] to retrieve the measured width of the rendered text for
+helping in calculations.
+
+### Web Fonts
+
+The HTML5 Canvas API draws text using CSS syntax. Because of this, [Web Fonts](https://developer.mozilla.org/en-US/docs/Learn/CSS/Styling_text/Web_fonts)
+are fully supported. To draw a web font, follow the same procedure you use
+for CSS. Then simply pass in the font string to the [[Label#ctor|Label]] constructor
+or set [[Font.family]].
+
+**index.html**
+
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Include the web font per usual -->
+    <script src="//google.com/fonts/foobar"></script>
+  </head>
+  <body>
+    <canvas id="game"></canvas>
+    <script src="game.js"></script>
+  </body>
+</html>
+```
+
+**game.js**
+
+```ts twoslash
+// @include: ex
+// ---cut---
+const label = new ex.Label();
+label.font.family = 'Foobar, Arial, Sans-Serif';
+label.font.size = 10;
+label.font.unit = ex.FontUnit.Em;
+label.text = 'Hello World';
+game.add(label);
+game.start();
+```
+
+{/* TODO: Example */}
+
+### Performance Implications
+
+It is recommended to use a [[SpriteFont]] for labels as the raw Canvas
+API for drawing text is slow (`fillText`). Too many labels that
+do not use sprite fonts will visibly affect the frame rate of your game.
+
+Alternatively, you can always use HTML and CSS to draw UI elements, but
+currently Excalibur does not provide a way to easily interact with the
+DOM. Still, this will not affect canvas performance and is a way to
+lighten your game, if needed.

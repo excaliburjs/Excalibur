@@ -1,23 +1,30 @@
 import { System, SystemType } from './System';
-import { Scene, Util } from '..';
+import { Scene } from '../Scene';
 import { World } from './World';
+import { removeItemFromArray } from '../Util/Util';
 
 export interface SystemCtor<T extends System> {
   new (...args: any[]): T;
 }
 
 /**
+ *
+ */
+export function isSystemConstructor(x: any): x is SystemCtor<System> {
+  return !!x?.prototype && !!x?.prototype?.constructor?.name;
+}
+
+/**
  * The SystemManager is responsible for keeping track of all systems in a scene.
  * Systems are scene specific
  */
-export class SystemManager<ContextType> {
+export class SystemManager {
   /**
    * List of systems, to add a new system call [[SystemManager.addSystem]]
    */
-  public systems: System<any, ContextType>[] = [];
-  public _keyToSystem: { [key: string]: System<any, ContextType> };
+  public systems: System[] = [];
   public initialized = false;
-  constructor(private _world: World<ContextType>) {}
+  constructor(private _world: World) {}
 
   /**
    * Get a system registered in the manager by type
@@ -29,22 +36,22 @@ export class SystemManager<ContextType> {
 
   /**
    * Adds a system to the manager, it will now be updated every frame
-   * @param system
+   * @param systemOrCtor
    */
-  public addSystem(system: System<any, ContextType>): void {
-    // validate system has types
-    if (!system.types || system.types.length === 0) {
-      throw new Error(`Attempted to add a System without any types`);
+  public addSystem(systemOrCtor: SystemCtor<System> | System): void {
+    let system: System;
+    if (systemOrCtor instanceof System) {
+      system = systemOrCtor;
+    } else {
+      system = new systemOrCtor(this._world);
     }
 
-    const query = this._world.queryManager.createQuery(system.types);
     this.systems.push(system);
     this.systems.sort((a, b) => a.priority - b.priority);
-    query.register(system);
     // If systems are added and the manager has already been init'd
     // then immediately init the system
     if (this.initialized && system.initialize) {
-      system.initialize(this._world.context);
+      system.initialize(this._world, this._world.scene);
     }
   }
 
@@ -52,13 +59,8 @@ export class SystemManager<ContextType> {
    * Removes a system from the manager, it will no longer be updated
    * @param system
    */
-  public removeSystem(system: System<any, ContextType>) {
-    Util.removeItemFromArray(system, this.systems);
-    const query = this._world.queryManager.getQuery(system.types);
-    if (query) {
-      query.unregister(system);
-      this._world.queryManager.maybeRemoveQuery(query);
-    }
+  public removeSystem(system: System) {
+    removeItemFromArray(system, this.systems);
   }
 
   /**
@@ -71,7 +73,7 @@ export class SystemManager<ContextType> {
       this.initialized = true;
       for (const s of this.systems) {
         if (s.initialize) {
-          s.initialize(this._world.context);
+          s.initialize(this._world, this._world.scene);
         }
       }
     }
@@ -80,39 +82,31 @@ export class SystemManager<ContextType> {
   /**
    * Updates all systems
    * @param type whether this is an update or draw system
-   * @param context context reference
+   * @param scene context reference
    * @param delta time in milliseconds
    */
-  public updateSystems(type: SystemType, context: ContextType, delta: number) {
+  public updateSystems(type: SystemType, scene: Scene, delta: number) {
     const systems = this.systems.filter((s) => s.systemType === type);
     for (const s of systems) {
       if (s.preupdate) {
-        s.preupdate(context, delta);
+        s.preupdate(scene, delta);
       }
     }
 
     for (const s of systems) {
-      // Get entities that match the system types, pre-sort
-      const entities = this._world.queryManager.getQuery(s.types).getEntities(s.sort);
-      // Initialize entities if needed
-      if (context instanceof Scene) {
-        for (const entity of entities) {
-          entity._initialize(context?.engine);
-        }
-      }
-      s.update(entities, delta);
+      s.update(delta);
     }
 
     for (const s of systems) {
       if (s.postupdate) {
-        s.postupdate(context, delta);
+        s.postupdate(scene, delta);
       }
     }
   }
 
   public clear(): void {
-    for (const system of this.systems) {
-      this.removeSystem(system);
+    for (let i = this.systems.length - 1; i >= 0; i--) {
+      this.removeSystem(this.systems[i]);
     }
   }
 }

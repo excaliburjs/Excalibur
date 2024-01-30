@@ -19,7 +19,6 @@ export interface Eventable {
    * Unsubscribe an event handler(s) from an event. If a specific handler
    * is specified for an event, only that handler will be unsubscribed.
    * Otherwise all handlers will be unsubscribed for that event.
-   *
    * @param eventName  The name of the event to unsubscribe
    * @param handler    Optionally the specific handler to unsubscribe
    */
@@ -27,7 +26,6 @@ export interface Eventable {
 
   /**
    * Once listens to an event once then auto unsubscribes from that event
-   *
    * @param eventName The name of the event to subscribe to once
    * @param handler   The handler of the event that will be auto unsubscribed
    */

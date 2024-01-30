@@ -28,14 +28,13 @@ export enum DegreeOfFreedom {
  * Body describes all the physical properties pos, vel, acc, rotation, angular velocity for the purpose of
  * of physics simulation.
  */
-export class BodyComponent extends Component<'ex.body'> implements Clonable<BodyComponent> {
-  public readonly type = 'ex.body';
+export class BodyComponent extends Component implements Clonable<BodyComponent> {
   public dependencies = [TransformComponent, MotionComponent];
   public static _ID = 0;
   public readonly id: Id<'body'> = createId('body', BodyComponent._ID++);
   public events = new EventEmitter();
 
-  private _oldTransform = new Transform();
+  public oldTransform = new Transform();
 
   /**
    * Indicates whether the old transform has been captured at least once for interpolation
@@ -250,7 +249,7 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
    * The position of the actor last frame (x, y) in pixels
    */
   public get oldPos(): Vector {
-    return this._oldTransform.pos;
+    return this.oldTransform.pos;
   }
 
   /**
@@ -301,7 +300,7 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
    * Gets/sets the rotation of the body from the last frame.
    */
   public get oldRotation(): number {
-    return this._oldTransform.rotation;
+    return this.oldTransform.rotation;
   }
 
   /**
@@ -330,7 +329,7 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
    * The scale of the actor last frame
    */
   public get oldScale(): Vector {
-    return this._oldTransform.scale;
+    return this.oldTransform.scale;
   }
 
   /**
@@ -427,7 +426,9 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
   public captureOldTransform() {
     // Capture old values before integration step updates them
     this.__oldTransformCaptured = true;
-    this.transform.get().clone(this._oldTransform);
+    const tx = this.transform.get();
+    tx.clone(this.oldTransform);
+    this.oldTransform.parent = tx.parent; // also grab parent
     this.oldVel.setTo(this.vel.x, this.vel.y);
     this.oldAcc.setTo(this.acc.x, this.acc.y);
   }

@@ -174,8 +174,8 @@ describe('A Trigger', () => {
 
     const exitSpy = jasmine.createSpy('exit');
     const collisionEnd = jasmine.createSpy('collisionend');
-    trigger.on('exit', exitSpy);
-    trigger.on('collisionend', collisionEnd);
+    trigger.events.on('exit', exitSpy);
+    trigger.events.on('collisionend', collisionEnd);
 
     // Act
     actor.vel = ex.vec(0, 10);

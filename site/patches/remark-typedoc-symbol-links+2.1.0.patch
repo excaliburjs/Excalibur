@@ -1,0 +1,74 @@
+diff --git a/node_modules/remark-typedoc-symbol-links/dist/index.js b/node_modules/remark-typedoc-symbol-links/dist/index.js
+index f6f5b3b..604ae6a 100644
+--- a/node_modules/remark-typedoc-symbol-links/dist/index.js
++++ b/node_modules/remark-typedoc-symbol-links/dist/index.js
+@@ -7,6 +7,7 @@ const ts_mdast_1 = require("ts-mdast");
+ const helpers_1 = require("./helpers");
+ const DEFAULT_OPTIONS = {
+     basePath: '/',
++    linkBuilder: undefined,
+     linkClassName: 'tsdoc-link',
+     linkAliasedClassName: 'tsdoc-link--aliased',
+     linkMissingClassName: 'tsdoc-link--missing',
+@@ -19,7 +20,15 @@ function isSymbolLinkTextNode(node) {
+ }
+ module.exports = function remarkTypedocSymbolLinks(userOptions = {}) {
+     const options = { ...DEFAULT_OPTIONS, ...userOptions };
+-    const symbolLinkIndex = (0, helpers_1.buildSymbolLinkIndex)(options.typedoc);
++    const typedoc = typeof options.typedoc === 'function' ? options.typedoc() : options.typedoc;
++
++    if (!typedoc) {
++      console.warn("remark-typedoc-symbol-links: No typedoc data found. Ensure you have specified `options.typedoc` as either a Function or the raw object.");
++      return;
++    }
++
++    const symbolLinkIndex = (0, helpers_1.buildSymbolLinkIndex)(typedoc);
++    
+     const remarkLegacyLinkModifier = (_node, index, parent) => {
+         const node = _node;
+         const nodeIndex = parent.children.indexOf(node);
+@@ -37,7 +46,7 @@ module.exports = function remarkTypedocSymbolLinks(userOptions = {}) {
+             }
+             const [symbol, ...alias] = linkText.split('|');
+             const displayValue = alias.length ? alias.join('') : linkText;
+-            const symbolLink = (0, helpers_1.generateLinkFromSymbol)(symbol, options.basePath, symbolLinkIndex);
++            const symbolLink = options.linkBuilder ? options.linkBuilder(symbol, options.basePath, symbolLinkIndex) : (0, helpers_1.generateLinkFromSymbol)(symbol, options.basePath, symbolLinkIndex);
+             const missing = !symbolLink;
+             if (process.env.NODE_ENV === 'development' && missing) {
+                 console.warn('remark-typedoc-symbol-links: Could not resolve symbol:', linkText);
+@@ -56,7 +65,6 @@ module.exports = function remarkTypedocSymbolLinks(userOptions = {}) {
+                 data: {
+                     hProperties: {
+                         className: classNames.join(' '),
+-                        target: '_blank',
+                     },
+                 },
+                 children: [
+@@ -79,7 +87,7 @@ module.exports = function remarkTypedocSymbolLinks(userOptions = {}) {
+         const linkText = firstMatch[1];
+         const [symbol, ...alias] = linkText.split('|');
+         const displayValue = alias.length ? alias.join('') : linkText;
+-        const symbolLink = (0, helpers_1.generateLinkFromSymbol)(symbol, options.basePath, symbolLinkIndex);
++        const symbolLink = options.linkBuilder ? options.linkBuilder(symbol, options.basePath, symbolLinkIndex) : (0, helpers_1.generateLinkFromSymbol)(symbol, options.basePath, symbolLinkIndex);
+         const missing = !symbolLink;
+         if (process.env.NODE_ENV === 'development' && missing) {
+             console.warn('remark-typedoc-symbol-links: Could not resolve symbol:', linkText);
+@@ -98,7 +106,6 @@ module.exports = function remarkTypedocSymbolLinks(userOptions = {}) {
+             data: {
+                 hProperties: {
+                     className: classNames.join(' '),
+-                    target: '_blank',
+                 },
+             },
+             children: [
+@@ -131,7 +138,9 @@ module.exports = function remarkTypedocSymbolLinks(userOptions = {}) {
+     const transformLinks = (0, unist_util_modify_children_1.default)(linkModifier);
+     return transformer;
+     function transformer(tree) {
++      if (tree) {
+         transformLinks(tree);
++      }
+     }
+ };
+ //# sourceMappingURL=index.js.map
+\ No newline at end of file

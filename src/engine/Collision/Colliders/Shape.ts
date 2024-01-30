@@ -31,10 +31,11 @@ export class Shape {
    * @param points Points specified in counter clockwise
    * @param offset Optional offset relative to the collider in local coordinates
    */
-  static Polygon(points: Vector[], offset: Vector = Vector.Zero): PolygonCollider {
+  static Polygon(points: Vector[], offset: Vector = Vector.Zero, suppressConvexWarning = false): PolygonCollider {
     return new PolygonCollider({
       points: points,
-      offset: offset
+      offset: offset,
+      suppressConvexWarning
     });
   }
 
@@ -71,7 +72,6 @@ export class Shape {
    *
    * Capsule colliders are useful for platformers with incline or jagged floors to have a smooth
    * player experience.
-   *
    * @param width
    * @param height
    * @param offset Optional offset

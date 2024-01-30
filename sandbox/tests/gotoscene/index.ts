@@ -1,5 +1,8 @@
 class Scene1 extends ex.Scene {
-  onInitialize(_engine: ex.Engine): void {
+  async onInitialize(_engine: ex.Engine) {
+    console.log('before async');
+    await ex.Util.delay(1000);
+    console.log('after async');
     const actor = new ex.Actor({
       x: _engine.halfDrawWidth,
       y: _engine.halfDrawHeight,
@@ -11,20 +14,21 @@ class Scene1 extends ex.Scene {
 
     _engine.input.pointers.primary.on(
       "down",
-      (event: ex.PointerEvent): void => {
-        _engine.goToScene("scene2");
+      async (event: ex.PointerEvent) => {
+        await _engine.goToScene("scene2");
       }
     );
   }
 
-  onActivate(): void {
+  async onActivate() {
     console.log('Scene 1 Activate')
   }
 }
 
 
 class Scene2 extends ex.Scene {
-  onInitialize(_engine: ex.Engine): void {
+  async onInitialize(_engine: ex.Engine) {
+    await ex.Util.delay(1000);
     // _engine.start();
     const actor = new ex.Actor({
       pos: ex.Vector.Zero,
@@ -32,9 +36,11 @@ class Scene2 extends ex.Scene {
       height: 1000,
       color: ex.Color.Cyan,
     });
+    actor.angularVelocity = 1;
     _engine.add(actor);
   }
-  onActivate(): void {
+  async onActivate() {
+    await ex.Util.delay(1000);
     console.log('Scene 2 Activate')
   }
 }

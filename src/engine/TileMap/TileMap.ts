@@ -8,15 +8,16 @@ import { BodyComponent } from '../Collision/BodyComponent';
 import { CollisionType } from '../Collision/CollisionType';
 import { Shape } from '../Collision/Colliders/Shape';
 import { ExcaliburGraphicsContext, Graphic, GraphicsComponent, hasGraphicsTick, ParallaxComponent } from '../Graphics';
-import { removeItemFromArray } from '../Util/Util';
 import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
 import { ColliderComponent } from '../Collision/ColliderComponent';
 import { CompositeCollider } from '../Collision/Colliders/CompositeCollider';
-import { Color } from '../Color';
 import { DebugGraphicsComponent } from '../Graphics/DebugGraphicsComponent';
 import { Collider } from '../Collision/Colliders/Collider';
 import { PostDrawEvent, PostUpdateEvent, PreDrawEvent, PreUpdateEvent } from '../Events';
 import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
+import { CoordPlane } from '../Math/coord-plane';
+import { QuadTree } from '../Collision/Detection/QuadTree';
+import { Debug } from '../Debug';
 
 export interface TileMapOptions {
   /**
@@ -75,6 +76,7 @@ export class TileMap extends Entity {
   private _engine: Engine;
 
   public logger: Logger = Logger.getInstance();
+  private _quadTree: QuadTree<Tile>;
   public readonly tiles: Tile[] = [];
   private _rows: Tile[][] = [];
   private _cols: Tile[][] = [];
@@ -135,12 +137,13 @@ export class TileMap extends Entity {
     }
   }
 
+  private _oldRotation: number;
   public get rotation(): number {
     return this._transform?.rotation ?? 0;
   }
 
   public set rotation(val: number) {
-    if (this._transform?.rotation) {
+    if (this._transform) {
       this._transform.rotation = val;
     }
   }
@@ -203,7 +206,7 @@ export class TileMap extends Entity {
    * @param options
    */
   constructor(options: TileMapOptions) {
-    super(null, options.name);
+    super([], options.name);
     this.addComponent(new TransformComponent());
     this.addComponent(new MotionComponent());
     this.addComponent(
@@ -216,7 +219,7 @@ export class TileMap extends Entity {
         onPostDraw: (ctx, delta) => this.draw(ctx, delta)
       })
     );
-    this.addComponent(new DebugGraphicsComponent((ctx) => this.debug(ctx)));
+    this.addComponent(new DebugGraphicsComponent((ctx, debugFlags) => this.debug(ctx, debugFlags), false));
     this.addComponent(new ColliderComponent());
     this._graphics = this.get(GraphicsComponent);
     this._transform = this.get(TransformComponent);
@@ -232,24 +235,31 @@ export class TileMap extends Entity {
     this.tileHeight = options.tileHeight;
     this.rows = options.rows;
     this.columns = options.columns;
+
+    // TODO we need to invalidate the quad tree if the tilemap ever moves
+    this._quadTree = new QuadTree<Tile>(
+      BoundingBox.fromDimension(
+        this.columns * this.tileWidth,
+        this.rows * this.tileHeight, Vector.Zero, this.pos));
     this.tiles = new Array<Tile>(this.rows * this.columns);
     this._rows = new Array(this.rows);
     this._cols = new Array(this.columns);
     let currentCol: Tile[] = [];
     for (let i = 0; i < this.columns; i++) {
       for (let j = 0; j < this.rows; j++) {
-        const cd = new Tile({
+        const tile = new Tile({
           x: i,
           y: j,
           map: this
         });
-        cd.map = this;
-        this.tiles[i + j * this.columns] = cd;
-        currentCol.push(cd);
+        tile.map = this;
+        this._quadTree.insert(tile);
+        this.tiles[i + j * this.columns] = tile;
+        currentCol.push(tile);
         if (!this._rows[j]) {
           this._rows[j] = [];
         }
-        this._rows[j].push(cd);
+        this._rows[j].push(tile);
       }
       this._cols[i] = currentCol;
       currentCol = [];
@@ -279,6 +289,20 @@ export class TileMap extends Entity {
       return this._originalOffsets.get(collider);
     }
   }
+
+  private _updateQuadTree() {
+    this._quadTree = new QuadTree<Tile>(
+      BoundingBox.fromDimension(this.columns * this.tileWidth, this.rows * this.tileHeight, Vector.Zero, Vector.Zero)
+        .scale(this.scale)
+        .translate(this.pos)
+        .rotate(this.rotation, this.pos)
+    );
+
+    for (let i = 0; i < this.tiles.length; i++) {
+      this._quadTree.insert(this.tiles[i]);
+    }
+  }
+
   /**
    * Tiles colliders based on the solid tiles in the tilemap.
    */
@@ -288,14 +312,56 @@ export class TileMap extends Entity {
     const colliders: BoundingBox[] = [];
     this._composite = this._collider.useCompositeCollider([]);
     let current: BoundingBox;
-    // Bad square tesselation algo
+
+    /**
+     * Returns wether or not the 2 boxes share an edge and are the same height
+     * @param prev
+     * @param next
+     * @returns true if they share and edge, false if not
+     */
+    const shareEdges = (prev: BoundingBox, next: BoundingBox) => {
+      if (prev && next) {
+        // same top/bottom
+        return prev.top === next.top &&
+        prev.bottom === next.bottom &&
+        // Shared right/left edge
+        prev.right === next.left;
+      }
+      return false;
+    };
+
+    /**
+     * Potentially merges the current collider into a list of previous ones, mutating the list
+     * If checkAndCombine returns true, the collider was successfully merged and should be thrown away
+     * @param current current collider to test
+     * @param colliders List of colliders to consider merging with
+     * @param maxLookBack The amount of colliders to look back for combination
+     * @returns false when no combination found, true when successfully combined
+     */
+    const checkAndCombine = (current: BoundingBox, colliders: BoundingBox[], maxLookBack = 10) => {
+      if (!current) {
+        return false;
+      }
+      // walk backwards through the list of colliders and combine with the first that shares an edge
+      for (let i = colliders.length - 1; i >= 0; i--) {
+        if (maxLookBack-- < 0) {
+          // blunt the O(n^2) algorithm a bit
+          return false;
+        }
+        const prev = colliders[i];
+        if (shareEdges(prev, current)) {
+          colliders[i] = prev.combine(current);
+          return true;
+        }
+      }
+      return false;
+    };
+
+    // ? configurable bias perhaps, horizontal strips vs. vertical ones
+    // Bad tile collider packing algorithm
     for (let i = 0; i < this.columns; i++) {
       // Scan column for colliders
       for (let j = 0; j < this.rows; j++) {
-        // Columns start with a new collider
-        if (j === 0) {
-          current = null;
-        }
         const tile = this.tiles[i + j * this.columns];
         // Current tile in column is solid build up current collider
         if (tile.solid) {
@@ -309,38 +375,36 @@ export class TileMap extends Entity {
               this._composite.addCollider(collider);
             }
             //we push any current collider before nulling the current run
-            if (current) {
+            if (current && !checkAndCombine(current, colliders)) {
               colliders.push(current);
             }
             current = null;
+            // Use the bounding box
           } else {
             if (!current) {
               // no current run, start one
-              current = tile.bounds;
+              current = tile.defaultGeometry;
             } else {
               // combine with current run
-              current = current.combine(tile.bounds);
+              current = current.combine(tile.defaultGeometry);
             }
           }
         } else {
           // Not solid skip and cut off the current collider
-          if (current) {
+          // End of run check and combine
+          if (current && !checkAndCombine(current, colliders)) {
             colliders.push(current);
           }
           current = null;
         }
       }
       // After a column is complete check to see if it can be merged into the last one
-      if (current) {
-        // if previous is the same combine it
-        const prev = colliders[colliders.length - 1];
-        if (prev && prev.top === current.top && prev.bottom === current.bottom) {
-          colliders[colliders.length - 1] = prev.combine(current);
-        } else {
-          // else new collider
-          colliders.push(current);
-        }
+      // Eno of run check and combine
+      if (current && !checkAndCombine(current, colliders)) {
+        // else new collider if no combination
+        colliders.push(current);
       }
+      current = null;
     }
 
     for (const c of colliders) {
@@ -372,7 +436,7 @@ export class TileMap extends Entity {
    * Returns the [[Tile]] by testing a point in world coordinates,
    * returns `null` if no Tile was found.
    */
-  public getTileByPoint(point: Vector): Tile {
+  public getTileByPoint(point: Vector): Tile | null {
     const x = Math.floor((point.x - this.pos.x) / (this.tileWidth * this.scale.x));
     const y = Math.floor((point.y - this.pos.y) / (this.tileHeight * this.scale.y));
     const tile = this.getTile(x, y);
@@ -391,21 +455,25 @@ export class TileMap extends Entity {
   }
 
   public update(engine: Engine, delta: number) {
+    this._initialize(engine);
     this.onPreUpdate(engine, delta);
     this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
     if (!this._oldPos.equals(this.pos) ||
-        !this._oldScale.equals(this.scale)) {
+      this._oldRotation !== this.rotation ||
+      !this._oldScale.equals(this.scale)) {
       this.flagCollidersDirty();
       this.flagTilesDirty();
     }
     if (this._collidersDirty) {
       this._collidersDirty = false;
       this._updateColliders();
+      this._updateQuadTree();
     }
 
     this._token++;
 
     this.pos.clone(this._oldPos);
+    this._oldRotation = this.rotation;
     this.scale.clone(this._oldScale);
     this._transform.pos = this.pos;
     this.onPostUpdate(engine, delta);
@@ -420,13 +488,10 @@ export class TileMap extends Entity {
   public draw(ctx: ExcaliburGraphicsContext, delta: number): void {
     this.emit('predraw', new PreDrawEvent(ctx as any, delta, this)); // TODO fix event
     let worldBounds = this._engine.screen.getWorldBounds();
-    // TODO can we trim this down by using world bounds?
-    let x = 0;
-    const xEnd = this.columns;
-    let y = 0;
-    const yEnd = this.rows;
+    const screenBounds = this._engine.screen.getScreenBounds();
 
     let graphics: readonly Graphic[], graphicsIndex: number, graphicsLen: number;
+    const isScreenCoords = this._transform.coordPlane === CoordPlane.Screen;
 
     const maybeParallax = this.get(ParallaxComponent);
     if (maybeParallax) {
@@ -438,57 +503,94 @@ export class TileMap extends Entity {
       worldBounds = worldBounds.translate(pos);
     }
 
-    let tile: Tile;
-    for (x; x < xEnd; x++) {
-      for (y; y < yEnd; y++) {
-        tile = this.getTile(x, y);
-        // fixme: This has a large perf impact, we iterate over every tile in the tilemap
-        // this probably requires a spatial data structure to do more efficiently
-        if (!worldBounds.overlaps(tile.bounds)) {
-          continue;
-        }
-        // get non-negative tile sprites
-        graphics = this.getTile(x, y).getGraphics();
+    const tiles = this._quadTree.query(isScreenCoords ? screenBounds : worldBounds);
+    for (let i = 0; i < tiles.length; i++) {
+      const tile = tiles[i];
+      // get non-negative tile sprites
+      const offsets = tile.getGraphicsOffsets();
+      graphics = tile.getGraphics();
 
-        for (graphicsIndex = 0, graphicsLen = graphics.length; graphicsIndex < graphicsLen; graphicsIndex++) {
-          // draw sprite, warning if sprite doesn't exist
-          const graphic = graphics[graphicsIndex];
-          if (graphic) {
-            if (hasGraphicsTick(graphic)) {
-              graphic?.tick(delta, this._token);
-            }
-            const offsetY = this.renderFromTopOfGraphic ? 0 : (graphic.height - this.tileHeight);
-            graphic.draw(ctx, x * this.tileWidth, y * this.tileHeight - offsetY);
+      for (graphicsIndex = 0, graphicsLen = graphics.length; graphicsIndex < graphicsLen; graphicsIndex++) {
+        // draw sprite, warning if sprite doesn't exist
+        const graphic = graphics[graphicsIndex];
+        const offset = offsets[graphicsIndex];
+        if (graphic) {
+          if (hasGraphicsTick(graphic)) {
+            graphic?.tick(delta, this._token);
           }
+          const offsetY = this.renderFromTopOfGraphic ? 0 : (graphic.height - this.tileHeight);
+          graphic.draw(ctx, tile.x * this.tileWidth + offset.x, tile.y * this.tileHeight - offsetY + offset.y);
         }
       }
-      y = 0;
     }
 
     this.emit('postdraw', new PostDrawEvent(ctx as any, delta, this));
   }
 
-  public debug(gfx: ExcaliburGraphicsContext) {
-    const width = this.tileWidth * this.columns;
-    const height = this.tileHeight * this.rows;
-    const pos = Vector.Zero;
-    for (let r = 0; r < this.rows + 1; r++) {
-      const yOffset = vec(0, r * this.tileHeight);
-      gfx.drawLine(pos.add(yOffset), pos.add(vec(width, yOffset.y)), Color.Red, 2);
+  public debug(gfx: ExcaliburGraphicsContext, debugFlags: Debug) {
+    const {
+      showAll,
+      showGrid,
+      gridColor,
+      gridWidth,
+      showSolidBounds: showColliderBounds,
+      solidBoundsColor: colliderBoundsColor,
+      showColliderGeometry,
+      showQuadTree
+    } = debugFlags.tilemap;
+    const {
+      geometryColor,
+      geometryLineWidth,
+      geometryPointSize
+    } = debugFlags.collider;
+    const width = this.tileWidth * this.columns * this.scale.x;
+    const height = this.tileHeight * this.rows * this.scale.y;
+    const pos = this.pos;
+    if (showGrid || showAll) {
+      for (let r = 0; r < this.rows + 1; r++) {
+        const yOffset = vec(0, r * this.tileHeight * this.scale.y);
+        gfx.drawLine(pos.add(yOffset), pos.add(vec(width, yOffset.y)), gridColor, gridWidth);
+      }
+
+      for (let c = 0; c < this.columns + 1; c++) {
+        const xOffset = vec(c * this.tileWidth * this.scale.x, 0);
+        gfx.drawLine(pos.add(xOffset), pos.add(vec(xOffset.x, height)), gridColor, gridWidth);
+      }
     }
 
-    for (let c = 0; c < this.columns + 1; c++) {
-      const xOffset = vec(c * this.tileWidth, 0);
-      gfx.drawLine(pos.add(xOffset), pos.add(vec(xOffset.x, height)), Color.Red, 2);
+    if (showAll || showColliderBounds || showColliderGeometry) {
+      const colliders = this._composite.getColliders();
+      gfx.save();
+      gfx.translate(this.pos.x, this.pos.y);
+      gfx.scale(this.scale.x, this.scale.y);
+      for (const collider of colliders) {
+        const bounds = collider.localBounds;
+        const pos = collider.worldPos.sub(this.pos);
+        if (showColliderBounds) {
+          gfx.drawRectangle(pos, bounds.width, bounds.height, colliderBoundsColor);
+        }
+      }
+      gfx.restore();
+      if (showColliderGeometry) {
+        for (const collider of colliders) {
+          collider.debug(gfx, geometryColor, { lineWidth: geometryLineWidth, pointSize: geometryPointSize });
+        }
+      }
     }
 
-    const colliders = this._composite.getColliders();
-    for (const collider of colliders) {
-      const grayish = Color.Gray;
-      grayish.a = 0.5;
-      const bounds = collider.localBounds;
-      const pos = collider.worldPos.sub(this.pos);
-      gfx.drawRectangle(pos, bounds.width, bounds.height, grayish);
+    if (showAll || showQuadTree || showColliderBounds) {
+      gfx.save();
+      gfx.z = 999;
+      if (showQuadTree) {
+        this._quadTree.debug(gfx);
+      }
+
+      if (showColliderBounds) {
+        for (let i = 0; i < this.tiles.length; i++) {
+          this.tiles[i].bounds.draw(gfx);
+        }
+      }
+      gfx.restore();
     }
   }
 }
@@ -519,9 +621,9 @@ export interface TileOptions {
  */
 export class Tile extends Entity {
   private _bounds: BoundingBox;
+  private _geometry: BoundingBox;
   private _pos: Vector;
   private _posDirty = false;
-  // private _transform: TransformComponent;
 
   /**
    * Return the world position of the top left corner of the tile
@@ -581,6 +683,7 @@ export class Tile extends Entity {
   }
 
   private _graphics: Graphic[] = [];
+  private _offsets: Vector[] = [];
 
   /**
    * Current list of graphics for this tile
@@ -590,18 +693,34 @@ export class Tile extends Entity {
   }
 
   /**
+   * Current list of offsets for this tile's graphics
+   */
+  public getGraphicsOffsets(): readonly Vector[] {
+    return this._offsets;
+  }
+
+  /**
    * Add another [[Graphic]] to this TileMap tile
    * @param graphic
    */
-  public addGraphic(graphic: Graphic) {
+  public addGraphic(graphic: Graphic, options?: { offset?: Vector }) {
     this._graphics.push(graphic);
+    if (options?.offset) {
+      this._offsets.push(options.offset);
+    } else {
+      this._offsets.push(Vector.Zero);
+    }
   }
 
   /**
    * Remove an instance of a [[Graphic]] from this tile
    */
   public removeGraphic(graphic: Graphic) {
-    removeItemFromArray(graphic, this._graphics);
+    const index = this._graphics.indexOf(graphic);
+    if (index > -1) {
+      this._graphics.splice(index, 1);
+      this._offsets.splice(index, 1);
+    }
   }
 
   /**
@@ -609,6 +728,7 @@ export class Tile extends Entity {
    */
   public clearGraphics() {
     this._graphics.length = 0;
+    this._offsets.length = 0;
   }
 
   /**
@@ -678,13 +798,21 @@ export class Tile extends Entity {
   }
 
   private _recalculate() {
+    const geometryPos = this.map.pos.add(vec(this.x * this.map.tileWidth, this.y * this.map.tileHeight));
+    this._geometry = new BoundingBox(geometryPos.x, geometryPos.y, geometryPos.x + this.map.tileWidth, geometryPos.y + this.map.tileHeight);
+
     this._width = this.map.tileWidth * this.map.scale.x;
     this._height = this.map.tileHeight * this.map.scale.y;
+
     this._pos = this.map.pos.add(
       vec(
         this.x * this._width,
         this.y * this._height));
     this._bounds = new BoundingBox(this._pos.x, this._pos.y, this._pos.x + this._width, this._pos.y + this._height);
+
+    if (this.map.rotation) {
+      this._bounds = this._bounds.rotate(this.map.rotation, this.map.pos);
+    }
     this._posDirty = false;
   }
 
@@ -696,6 +824,10 @@ export class Tile extends Entity {
       this._recalculate();
     }
     return this._bounds;
+  }
+
+  public get defaultGeometry() {
+    return this._geometry;
   }
 
   /**

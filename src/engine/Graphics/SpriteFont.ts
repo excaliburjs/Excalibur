@@ -5,7 +5,8 @@ import { FontRenderer } from './FontCommon';
 import { Graphic, GraphicOptions } from './Graphic';
 import { Sprite } from './Sprite';
 import { SpriteSheet } from './SpriteSheet';
-import { BoundingBox, Color } from '..';
+import { BoundingBox } from '../Collision/BoundingBox';
+import { Color } from '../Color';
 
 export interface SpriteFontOptions {
   /**
@@ -21,6 +22,10 @@ export interface SpriteFontOptions {
    * Optionally ignore case in the supplied text;
    */
   caseInsensitive?: boolean;
+  /**
+   * Optionally override the text line height, useful for multiline text. If unset will use default.
+   */
+  lineHeight?: number | undefined;
   /**
    * Optionally adjust the spacing between character sprites
    */
@@ -39,21 +44,21 @@ export class SpriteFont extends Graphic implements FontRenderer {
   public shadow: { offset: Vector } = null;
   public caseInsensitive = false;
   public spacing: number = 0;
+  public lineHeight: number | undefined = undefined;
 
   private _logger = Logger.getInstance();
 
   constructor(options: SpriteFontOptions & GraphicOptions) {
     super(options);
-    const { alphabet, spriteSheet, caseInsensitive, spacing, shadow } = options;
+    const { alphabet, spriteSheet, caseInsensitive, spacing, shadow, lineHeight } = options;
     this.alphabet = alphabet;
     this.spriteSheet = spriteSheet;
     this.caseInsensitive = caseInsensitive ?? this.caseInsensitive;
     this.spacing = spacing ?? this.spacing;
     this.shadow = shadow ?? this.shadow;
+    this.lineHeight = lineHeight ?? this.lineHeight;
   }
 
-  private _alreadyWarnedAlphabet = false;
-  private _alreadyWarnedSpriteSheet = false;
   private _getCharacterSprites(text: string): Sprite[] {
     const results: Sprite[] = [];
     // handle case insensitive
@@ -67,22 +72,16 @@ export class SpriteFont extends Graphic implements FontRenderer {
       let spriteIndex = alphabet.indexOf(letter);
       if (spriteIndex === -1) {
         spriteIndex = 0;
-        if (!this._alreadyWarnedAlphabet) {
-          this._logger.warn(`SpriteFont - Cannot find letter '${letter}' in configured alphabet '${alphabet}'.`);
-          this._logger.warn('There maybe be more issues in the SpriteFont configuration. No additional warnings will be logged.');
-          this._alreadyWarnedAlphabet = true;
-        }
+        this._logger.warnOnce(`SpriteFont - Cannot find letter '${letter}' in configured alphabet '${alphabet}'.`);
+        this._logger.warnOnce('There maybe be more issues in the SpriteFont configuration. No additional warnings will be logged.');
       }
 
       const letterSprite = this.spriteSheet.sprites[spriteIndex];
       if (letterSprite) {
         results.push(letterSprite);
       } else {
-        if (!this._alreadyWarnedSpriteSheet) {
-          this._logger.warn(`SpriteFont - Cannot find sprite for '${letter}' at index '${spriteIndex}' in configured SpriteSheet`);
-          this._logger.warn('There maybe be more issues in the SpriteFont configuration. No additional warnings will be logged.');
-          this._alreadyWarnedSpriteSheet = true;
-        }
+        this._logger.warnOnce(`SpriteFont - Cannot find sprite for '${letter}' at index '${spriteIndex}' in configured SpriteSheet`);
+        this._logger.warnOnce('There maybe be more issues in the SpriteFont configuration. No additional warnings will be logged.');
       }
     }
     return results;
@@ -116,7 +115,7 @@ export class SpriteFont extends Graphic implements FontRenderer {
         height = Math.max(height, sprite.height);
       }
       xCursor = 0;
-      yCursor += height;
+      yCursor += this.lineHeight ?? height;
     }
   }
 

@@ -1,0 +1,174 @@
+---
+title: Physics
+slug: /physics
+section: Physics
+---
+
+import PhysicsExample from '!!raw-loader!./examples/physics.ts';
+
+Excalibur comes built in with two physics simulations.
+
+- "Arcade" style physics which is good for basic collision detection for non-rotated rectangular areas.
+  - Example: platformers, tile based games, top down, etc
+- "Realistic" style physics which is good for rigid body games where realistic collisions are desired
+  - Example: block stacking, angry bird's style games, etc
+
+## Arcade
+
+Arcade physics simulation is on by default, but can be enabled explicitly at any time with `ex.Physics.useArcadePhysics()`
+
+```typescript
+Physics.useArcadePhysics();
+
+const game = new Engine({...});
+```
+
+## Realistic
+
+Realistic physics are not on by default, but can be enabled explicitly at any time with `ex.Physics.useRealisticPhysics()`
+
+```typescript
+Physics.useRealisticPhysics();
+
+const game = new Engine({...});
+```
+
+### Example
+
+<GameCodeBlock live 
+  title="Physics"
+  code={PhysicsExample} 
+/>
+
+<IFrameEmbed src="https://excaliburjs.com/excalibur-snippets/collision/" />
+
+## Other Physics Settings
+
+See [[Physics]] documentation for more
+
+- Turn off excalibur physics `ex.Physics.enabled = false`
+- Global acceleration applied to [[CollisionType.Active|active objects]] `ex.Physics.acc = ex.vec(0, 100)`
+- Fast moving object detection (continuous collision) `ex.Physics.checkForFastBodies = true`
+- Physics realistic passes, more passes mean higher quality simulation at the expense of cpu
+  - Realistic solver position iterations, improves overlap resolution `ex.Physics.positionIterations = 3`
+  - Realistic solver velocity iterations, improves response and stability `ex.Physics.velocityIterations = 8`
+
+## Using Physics with Actors or Entities
+
+The physics simulation has 2 major pieces for actors
+
+1. [[BodyComponent]] - Controls the motion and qualities of the physics simulation
+2. [[ColliderComponent]] - Stores the geometry of any collider and performs overlap testing
+
+### Actors
+
+Actors come out of the box with both of these components, an implicitly created [[BodyComponent]] and a [[ColliderComponent]]
+of a [[ConvexPolygon|box]] that matches the specified `width` and `height`, or a [[CircleCollider|circle]]
+
+```typescript
+const actor = new ex.Actor({
+  pos: ex.vec(200, 200),
+  width: 100,
+  height: 100,
+  collisionType: ex.CollisionType.Active,
+})
+
+const builtInBox = actor.collider.get()
+```
+
+### Entities
+
+Reminder entities don't have anything pre-built, all Actors are Entities, but with the common built in features included.
+
+```typescript
+const entity = new ex.Entity([
+  new TransformComponent(),
+  new BodyComponent(),
+  new ColliderComponent(),
+])
+
+const tx = entity.get(TransformComponent)
+
+const body = entity.get(BodyComponent)
+
+const collider = entity.get(ColliderComponent)
+```
+
+## Collision System Under the Hood
+
+## Example Active-Active/Active-Fixed scenario
+
+```ts
+// setup game
+const game = new ex.Engine({
+  width: 600,
+  height: 400
+});
+// use rigid body
+ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
+// set global acceleration simulating gravity pointing down
+ex.Physics.acc.setTo(0, 700);
+
+const block = new ex.Actor({
+  pos: new ex.Vector(300, 0),
+  width: 20,
+  height: 20,
+  color: ex.Color.Blue
+});
+block.body.useBoxCollider(); // useBoxCollision is the default, technically optional
+block.body.collider.type = ex.CollisionType.Active;
+game.add(block);
+
+// or
+
+const block = new ex.Actor({
+    pos: new ex.Vector(300, 0),
+    color: ex.Color.Blue,
+    body: new ex.Body({
+        collider: new ex.Collider({
+            type: ex.CollisionType.Active,
+            shape: ex.Shape.Box(20, 20)
+        })
+    })
+});
+
+const circle = new ex.Actor({
+  x: 301,
+  y: 100,
+  width: 20,
+  height: 20,
+  color: ex.Color.Red
+});
+circle.body.useCircleCollider(10);
+circle.body.collider.type = ex.CollisionType.Active;
+game.add(circle);
+
+// or
+
+const circle = new ex.Actor({
+    pos: new ex.Vector(301, 100),
+    color: ex.Color.Red,
+    body: new ex.Body({
+        collider: new ex.Collider({
+            shape: ex.Shape.Circle(10),
+            type: ex.CollisionType.Active
+        })
+    })
+});
+
+const ground = new ex.Actor({
+  x: 300,
+  y: 380,
+  width: 600,
+  height: 10,
+  color: ex.Color.Black;
+});
+
+ground.body.useBoxCollider(); // optional
+ground.body.collider.type = ex.CollisionType.Fixed;
+
+game.add(ground);
+// start the game
+
+game.start();
+```

@@ -16,7 +16,6 @@ let observer: MutationObserver;
 /**
  * When Storybook unmounts story, make sure we cleanup the running game
  * to avoid weird state issues, or at least not to balloon memory.
- *
  * @param records Change records
  */
 const onDomMutated: MutationCallback = (records) => {
@@ -39,7 +38,7 @@ const onDomMutated: MutationCallback = (records) => {
 export const withEngine = (storyFn: (game: Engine, args?: Record<string, any>) => void, options?: EngineOptions) => {
   if (!observer) {
     observer = new MutationObserver(onDomMutated);
-    observer.observe(document.getElementById('root'), { childList: true, subtree: true });
+    observer.observe(document.getElementById('storybook-root'), { childList: true, subtree: true });
   }
 
   return (args?: any) => {

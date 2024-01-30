@@ -6,6 +6,11 @@ import { ImageFiltering } from './Filtering';
 import { Future } from '../Util/Future';
 import { TextureLoader } from '../Graphics/Context/texture-loader';
 
+export interface ImageSourceOptions {
+  filtering?: ImageFiltering;
+  bustCache?: boolean;
+}
+
 export class ImageSource implements Loadable<HTMLImageElement> {
   private _logger = Logger.getInstance();
   private _resource: Resource<Blob>;
@@ -64,6 +69,27 @@ export class ImageSource implements Loadable<HTMLImageElement> {
     if (path.endsWith('.svg') || path.endsWith('.gif')) {
       this._logger.warn(`Image type is not fully supported, you may have mixed results ${path}. Fully supported: jpg, bmp, and png`);
     }
+  }
+
+  /**
+   * Create an ImageSource from and HTML <image> tag element
+   * @param image
+   */
+  static fromHtmlImageElement(image: HTMLImageElement, options?: ImageSourceOptions) {
+    const imageSource = new ImageSource('');
+    imageSource._src = 'image-element';
+    imageSource.data = image;
+    imageSource.data.setAttribute('data-original-src', 'image-element');
+
+    if (options?.filtering) {
+      imageSource.data.setAttribute('filtering', options?.filtering);
+    } else {
+      imageSource.data.setAttribute('filtering', ImageFiltering.Blended);
+    }
+
+    TextureLoader.checkImageSizeSupportedAndLog(image);
+    imageSource._readyFuture.resolve(image);
+    return imageSource;
   }
 
   /**

@@ -89,6 +89,7 @@ export class VertexLayout {
     if (!this._shader.compiled) {
       throw Error('Shader not compiled, shader must be compiled before defining a vertex layout');
     }
+    this._vertexTotalSizeBytes = 0;
     this._layout.length = 0;
     const shaderAttributes = this._shader.attributes;
     for (const attribute of this._attributes) {
@@ -120,7 +121,6 @@ export class VertexLayout {
 
   /**
    * Bind this layout with it's associated vertex buffer
-   *
    * @param uploadBuffer Optionally indicate you wish to upload the buffer to the GPU associated with this layout
    */
   use(uploadBuffer = false, count?: number) {

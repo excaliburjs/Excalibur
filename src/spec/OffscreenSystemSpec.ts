@@ -26,11 +26,11 @@ describe('The OffscreenSystem', () => {
   });
 
   it('decorates offscreen entities with "offscreen" tag', () => {
-    const sut = new ex.OffscreenSystem();
+    const sut = new ex.OffscreenSystem(engine.currentScene.world);
     engine.currentScene.camera.update(engine, 1);
     engine.screen.setCurrentCamera(engine.currentScene.camera);
     engine.currentScene._initialize(engine);
-    sut.initialize(engine.currentScene);
+    sut.initialize(engine.currentScene.world, engine.currentScene);
 
     const rect = new ex.Rectangle({
       width: 25,
@@ -40,7 +40,7 @@ describe('The OffscreenSystem', () => {
 
     const offscreen = new ex.Entity([new TransformComponent(), new GraphicsComponent()]);
 
-    offscreen.get(GraphicsComponent).show(rect);
+    offscreen.get(GraphicsComponent).use(rect);
     offscreen.get(TransformComponent).pos = ex.vec(112.5, 112.5);
 
     const offscreenSpy = jasmine.createSpy('offscreenSpy');
@@ -48,9 +48,10 @@ describe('The OffscreenSystem', () => {
 
     offscreen.events.on('enterviewport', onscreenSpy);
     offscreen.events.on('exitviewport', offscreenSpy);
+    sut.query.checkAndAdd(offscreen);
 
     // Should be offscreen
-    sut.update([offscreen]);
+    sut.update();
     expect(offscreenSpy).toHaveBeenCalled();
     expect(onscreenSpy).not.toHaveBeenCalled();
     expect(offscreen.hasTag('ex.offscreen')).toBeTrue();
@@ -59,7 +60,7 @@ describe('The OffscreenSystem', () => {
 
     // Should be onscreen
     offscreen.get(TransformComponent).pos = ex.vec(80, 80);
-    sut.update([offscreen]);
+    sut.update();
     offscreen.processComponentRemoval();
     expect(offscreenSpy).not.toHaveBeenCalled();
     expect(onscreenSpy).toHaveBeenCalled();

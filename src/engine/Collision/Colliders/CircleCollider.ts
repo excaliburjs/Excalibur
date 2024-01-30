@@ -15,6 +15,8 @@ import { ClosestLineJumpTable } from './ClosestLineJumpTable';
 import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
 import { Transform } from '../../Math/transform';
 import { AffineMatrix } from '../../Math/affine-matrix';
+import { BodyComponent } from '../Index';
+import { RayCastHit } from '../Detection/RayCastHit';
 
 export interface CircleColliderOptions {
   /**
@@ -105,7 +107,7 @@ export class CircleCollider extends Collider {
    * Casts a ray at the Circle collider and returns the nearest point of collision
    * @param ray
    */
-  public rayCast(ray: Ray, max: number = Infinity): Vector {
+  public rayCast(ray: Ray, max: number = Infinity): RayCastHit | null {
     //https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
     const c = this.center;
     const dir = ray.dir;
@@ -118,13 +120,21 @@ export class CircleCollider extends Collider {
       return null;
     } else {
       let toi = 0;
+      // tangent case
       if (discriminant === 0) {
         toi = -dir.dot(orig.sub(c));
         if (toi > 0 && toi < max) {
-          return ray.getPoint(toi);
+          const point = ray.getPoint(toi);
+          return {
+            point,
+            normal: point.sub(c).normalize(),
+            collider: this,
+            body: this.owner?.get(BodyComponent),
+            distance: toi
+          } satisfies RayCastHit;
         }
         return null;
-      } else {
+      } else { // two point
         const toi1 = -dir.dot(orig.sub(c)) + discriminant;
         const toi2 = -dir.dot(orig.sub(c)) - discriminant;
 
@@ -137,9 +147,16 @@ export class CircleCollider extends Collider {
           positiveToi.push(toi2);
         }
 
-        const mintoi = Math.min(...positiveToi);
-        if (mintoi <= max) {
-          return ray.getPoint(mintoi);
+        const minToi = Math.min(...positiveToi);
+        if (minToi <= max) {
+          const point =  ray.getPoint(minToi);
+          return {
+            point,
+            normal: point.sub(c).normalize(),
+            collider: this,
+            body: this.owner?.get(BodyComponent),
+            distance: minToi
+          } satisfies RayCastHit;
         }
         return null;
       }
@@ -253,7 +270,8 @@ export class CircleCollider extends Collider {
     return new Projection(Math.min.apply(Math, scalars), Math.max.apply(Math, scalars));
   }
 
-  public debug(ex: ExcaliburGraphicsContext, color: Color) {
+  public debug(ex: ExcaliburGraphicsContext, color: Color, options?: { lineWidth: number }) {
+    const { lineWidth } = { ...{ lineWidth: 1 }, ...options };
     const tx = this._transform;
     const scale = tx?.globalScale ?? Vector.One;
     const rotation = tx?.globalRotation ?? 0;
@@ -262,7 +280,7 @@ export class CircleCollider extends Collider {
     ex.translate(pos.x, pos.y);
     ex.rotate(rotation);
     ex.scale(scale.x, scale.y);
-    ex.drawCircle((this.offset ?? Vector.Zero), this._naturalRadius, Color.Transparent, color, 2);
+    ex.drawCircle((this.offset ?? Vector.Zero), this._naturalRadius, Color.Transparent, color, lineWidth);
     ex.restore();
   }
 }

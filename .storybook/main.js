@@ -3,13 +3,23 @@ const path = require('path');
 module.exports = {
   stories: ['../src/stories/*.stories.ts'],
   addons: ['@storybook/addon-links', '@storybook/addon-essentials'],
-  core: {
-    builder: 'webpack5'
-  },
+
   webpackFinal: async (config, { configType }) => {
+    const cssLoader = config.module.rules.findIndex((r) => r.test && r.test.toString().includes('.css'));
+
+    if (cssLoader > -1) {
+      // TODO: Investigate why css-loader messes with toString() expressions
+      config.module.rules.splice(cssLoader, 1);
+    }
+
     config.module.rules.push({
       test: /\.glsl$/,
       use: ['raw-loader']
+    });
+
+    config.module.rules.push({
+      test: /\.css$/,
+      use: ['css-loader']
     });
 
     config.module.rules.push({
@@ -36,5 +46,14 @@ module.exports = {
     }
 
     return config;
+  },
+
+  framework: {
+    name: '@storybook/html-webpack5',
+    options: {}
+  },
+
+  docs: {
+    autodocs: false
   }
 };

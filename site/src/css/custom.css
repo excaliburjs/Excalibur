@@ -1,0 +1,62 @@
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ */
+
+/* You can override the default Infima variables here. */
+:root {
+  --ifm-color-primary: #2185d0;
+  --ifm-color-primary-dark: #1e78bb;
+  --ifm-color-primary-darker: #1c71b1;
+  --ifm-color-primary-darkest: #175d92;
+  --ifm-color-primary-light: #2c91dd;
+  --ifm-color-primary-lighter: #3697df;
+  --ifm-color-primary-lightest: #55a7e4;
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+}
+
+/* For readability concerns, you should choose a lighter palette in dark mode. */
+[data-theme='dark'] {
+  --ifm-color-primary: #7bbaea;
+  --ifm-color-primary-dark: #5caae5;
+  --ifm-color-primary-darker: #4da2e3;
+  --ifm-color-primary-darkest: #2289d8;
+  --ifm-color-primary-light: #9acaef;
+  --ifm-color-primary-lighter: #a9d2f1;
+  --ifm-color-primary-lightest: #d7eaf9;
+  --ifm-background-color: #041e2f;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+[data-theme='light'] .shiki.github-dark {
+  display: none;
+}
+
+[data-theme='dark'] .shiki.github-light {
+  display: none;
+}
+
+.navbar__link {
+  white-space: nowrap;
+}
+
+.hero {
+  padding-top: 2rem !important;
+  padding-bottom: 12rem !important;
+  background-image: url('/static/img/hero.png');
+  background-size: 20rem;
+  background-position-y: bottom !important;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.tsdoc-link.tsdoc-link--missing {
+  border-bottom: 1px dashed red;
+  cursor: help;
+  color: rgba(255, 0, 0, 0.8);
+}
+
+.snippet-resizer { display:flex; margin:0; padding:0; resize:both; overflow:hidden }
+.snippet-resizer > .snippet-resized { flex-grow:1; margin:0; padding:0; border:0 }

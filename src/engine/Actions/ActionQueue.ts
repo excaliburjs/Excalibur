@@ -1,3 +1,4 @@
+import { ActionCompleteEvent, ActionStartEvent } from '../Events';
 import { Entity } from '../EntityComponentSystem/Entity';
 import { Action } from './Action';
 
@@ -14,7 +15,7 @@ import { Action } from './Action';
 export class ActionQueue {
   private _entity: Entity;
   private _actions: Action[] = [];
-  private _currentAction: Action;
+  private _currentAction: Action | null = null;
   private _completedActions: Action[] = [];
   constructor(entity: Entity) {
     this._entity = entity;
@@ -90,11 +91,19 @@ export class ActionQueue {
    */
   public update(elapsedMs: number) {
     if (this._actions.length > 0) {
-      this._currentAction = this._actions[0];
+      if (this._currentAction !== this._actions[0]) {
+        this._currentAction = this._actions[0];
+        this._entity.emit('actionstart', new ActionStartEvent(this._currentAction, this._entity));
+      }
+
       this._currentAction.update(elapsedMs);
 
       if (this._currentAction.isComplete(this._entity)) {
-        this._completedActions.push(this._actions.shift());
+        this._entity.emit('actioncomplete', new ActionCompleteEvent(this._currentAction, this._entity));
+        const complete = this._actions.shift();
+        if (complete) {
+          this._completedActions.push(complete);
+        }
       }
     }
   }

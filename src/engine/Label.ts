@@ -5,7 +5,7 @@ import { Text } from './Graphics/Text';
 import { GraphicsComponent, SpriteFont } from './Graphics';
 import { Font } from './Graphics/Font';
 import { Actor } from './Actor';
-import { ActorArgs } from '.';
+import { ActorArgs } from './Actor';
 
 /**
  * Option for creating a label
@@ -99,7 +99,7 @@ export class Label extends Actor {
    */
   constructor(options?: LabelOptions & ActorArgs) {
     super(options);
-    const {text, pos, x, y, spriteFont, font, color} = options;
+    const {text, pos, x, y, spriteFont, font, color} = { text: '', ...options };
 
     this.pos = pos ?? (x && y ? vec(x, y) : this.pos);
     this.text = text ?? this.text;

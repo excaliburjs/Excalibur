@@ -17,7 +17,7 @@ class MyGame2 extends ex.Engine {
       console.log("scene deactivate");
     }
   }
-  onInitialize() {
+  async onInitialize() {
     console.log("engine init");
   }
 }

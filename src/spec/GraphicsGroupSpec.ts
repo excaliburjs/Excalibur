@@ -26,8 +26,8 @@ describe('A Graphics Group', () => {
 
     const group = new ex.GraphicsGroup({
       members: [
-        { pos: ex.vec(0, 0), graphic: rect1 },
-        { pos: ex.vec(25, 25), graphic: rect2 }
+        { offset: ex.vec(0, 0), graphic: rect1 },
+        { offset: ex.vec(25, 25), graphic: rect2 }
       ]
     });
 
@@ -52,7 +52,7 @@ describe('A Graphics Group', () => {
       frames: []
     });
     const group = new ex.GraphicsGroup({
-      members: [{ pos: ex.vec(0, 0), graphic: animation }]
+      members: [{ offset: ex.vec(0, 0), graphic: animation }]
     });
 
     const clone = group.clone();
@@ -68,7 +68,7 @@ describe('A Graphics Group', () => {
     });
 
     const group = new ex.GraphicsGroup({
-      members: [{ pos: ex.vec(0, 0), graphic: animation }]
+      members: [{ offset: ex.vec(0, 0), graphic: animation }]
     });
 
     group.tick(100, 1234);
@@ -84,7 +84,7 @@ describe('A Graphics Group', () => {
     });
 
     const group = new ex.GraphicsGroup({
-      members: [{ pos: ex.vec(0, 0), graphic: animation }]
+      members: [{ offset: ex.vec(0, 0), graphic: animation }]
     });
 
     group.reset();

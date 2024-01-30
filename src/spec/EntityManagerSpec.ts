@@ -39,40 +39,6 @@ describe('An EntityManager', () => {
     expect(entityManager.entities).toEqual([]);
   });
 
-  it('will be notified when entity components are added', (done) => {
-    const entityManager = new ex.EntityManager(new ex.World(null));
-    const entity = new ex.Entity();
-    const componentA = new FakeComponent('A');
-    entityManager.addEntity(entity);
-
-    entityManager.notify = (message) => {
-      expect(message.type).toBe('Component Added');
-      expect(message.data.entity).toBe(entity);
-      expect(message.data.component).toBe(componentA);
-      done();
-    };
-
-    entity.addComponent(componentA);
-  });
-
-  it('will be notified when entity components are removed', (done) => {
-    const entityManager = new ex.EntityManager(new ex.World(null));
-    const entity = new ex.Entity();
-    const componentA = new FakeComponent('A');
-    entity.addComponent(componentA);
-    entityManager.addEntity(entity);
-
-    entityManager.notify = (message) => {
-      expect(message.type).toBe('Component Removed');
-      expect(message.data.entity).toBe(entity);
-      expect(message.data.component).toBe(componentA);
-      done();
-    };
-
-    entity.removeComponent(componentA);
-    entity.processComponentRemoval();
-  });
-
   it('can find entities by name', () => {
     const entityManager = new ex.EntityManager(new ex.World(null));
     const entity = new ex.Entity([], 'some-e');
@@ -80,7 +46,7 @@ describe('An EntityManager', () => {
     entityManager.addEntity(entity);
     entityManager.addEntity(entity2);
     expect(entityManager.getByName('some-e')).toEqual([entity]);
-    expect(entityManager.getByName('anonymous')).toEqual([entity2]);
+    expect(entityManager.getByName(entity2.name)).toEqual([entity2]);
   });
 
   it('can clear entities', () => {

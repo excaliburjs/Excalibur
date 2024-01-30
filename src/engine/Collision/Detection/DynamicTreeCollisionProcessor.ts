@@ -14,25 +14,7 @@ import { BodyComponent } from '../BodyComponent';
 import { CompositeCollider } from '../Colliders/CompositeCollider';
 import { CollisionGroup } from '../Group/CollisionGroup';
 import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
-
-export interface RayCastHit {
-  /**
-   * The distance along the ray cast in pixels that a hit was detected
-   */
-  distance: number;
-  /**
-   * Reference to the collider that was hit
-   */
-  collider: Collider;
-  /**
-   * Reference to the body that was hit
-   */
-  body: BodyComponent;
-  /**
-   * World space point of the hit
-   */
-  point: Vector;
-}
+import { RayCastHit } from './RayCastHit';
 
 export interface RayCastOptions {
   /**
@@ -40,9 +22,13 @@ export interface RayCastOptions {
    */
   maxDistance?: number;
   /**
-   * Optionally specify a collision group to consider in the ray cast, default is All
+   * Optionally specify a collision group to target in the ray cast, default is All.
    */
   collisionGroup?: CollisionGroup;
+  /**
+   * Optionally specify a collision mask to target multiple collision categories
+   */
+  collisionMask?: number;
   /**
    * Optionally specify to search for all colliders that intersect the ray cast, not just the first which is the default
    */
@@ -67,24 +53,23 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
   public rayCast(ray: Ray, options?: RayCastOptions): RayCastHit[] {
     const results: RayCastHit[] = [];
     const maxDistance = options?.maxDistance ?? Infinity;
-    const collisionGroup = options?.collisionGroup ?? CollisionGroup.All;
+    const collisionGroup = options?.collisionGroup;
+    const collisionMask = !collisionGroup ? options?.collisionMask ?? CollisionGroup.All.category : collisionGroup.category;
     const searchAllColliders = options?.searchAllColliders ?? false;
     this._dynamicCollisionTree.rayCastQuery(ray, maxDistance, (collider) => {
       const owner = collider.owner;
       const maybeBody = owner.get(BodyComponent);
+
+      const canCollide = (collisionMask & maybeBody.group.category) !== 0;
+
       // Early exit if not the right group
-      if (collisionGroup.mask !== CollisionGroup.All.mask && maybeBody?.group?.mask !== collisionGroup.mask) {
+      if (maybeBody?.group && !canCollide) {
         return false;
       }
 
       const hit = collider.rayCast(ray, maxDistance);
       if (hit) {
-        results.push({
-          distance: hit.sub(ray.pos).distance(),
-          point: hit,
-          collider: collider,
-          body: maybeBody
-        });
+        results.push(hit);
         if (!searchAllColliders) {
           // returning true exits the search
           return true;
@@ -221,9 +206,9 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
           let minTranslate: Vector = new Vector(Infinity, Infinity);
           this._dynamicCollisionTree.rayCastQuery(ray, updateDistance + Physics.surfaceEpsilon * 2, (other: Collider) => {
             if (!this._pairExists(collider, other) && Pair.canCollide(collider, other)) {
-              const hitPoint = other.rayCast(ray, updateDistance + Physics.surfaceEpsilon * 10);
-              if (hitPoint) {
-                const translate = hitPoint.sub(origin);
+              const hit = other.rayCast(ray, updateDistance + Physics.surfaceEpsilon * 10);
+              if (hit) {
+                const translate = hit.point.sub(origin);
                 if (translate.size < minTranslate.size) {
                   minTranslate = translate;
                   minCollider = other;

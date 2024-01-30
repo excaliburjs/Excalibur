@@ -10,19 +10,18 @@ describe('The engine', () => {
   let actor: ex.Actor;
   let stats: ex.FrameStats;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     engine = TestUtils.engine({
       width: 400,
       height: 400
     });
     scene = new ex.Scene();
-    engine.removeScene('root');
-    engine.addScene('root', scene);
-    engine.goToScene('root');
+    engine.addScene('newScene', scene);
+    await engine.goToScene('newScene'); // TODO use new method
     actor = new ex.Actor({ x: 0, y: 0, width: 10, height: 10, color: ex.Color.Red });
 
     scene.add(actor);
-    TestUtils.runToReady(engine);
+    await TestUtils.runToReady(engine);
     const clock = engine.clock as TestClock;
     clock.step(16.6);
     stats = engine.stats.currFrame;

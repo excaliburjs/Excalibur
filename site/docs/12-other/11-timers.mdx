@@ -1,0 +1,45 @@
+---
+title: Timers
+slug: /timers
+section: Other
+---
+
+Timers are useful for running tasks synchronized with the Excalibur update and framerate, using the browser `setTimeout()` or `setInterval()`.
+
+## Timer
+
+Timers can be created to repeat forever or for a fixed number of repeats.
+
+Timers do not start until they are explicitly started with `.start()` and added to a `Scene`
+
+```typescript
+const timer = new ex.Timer({
+  fcn: () => console.log('Every 100 ms'),
+  repeats: true,
+  interval: 100,
+})
+
+game.currentScene.add(timer)
+
+timer.start()
+```
+
+## Random Intervals
+
+Timers can be created with random intervals.
+
+For example, this timer will repeat every 500 milliseconds with an added random interval between 0-500 milliseconds.
+
+```typescript
+const random = new ex.Random(1337)
+const timer = new ex.Timer({
+  random,
+  randomRange: [0, 500],
+  interval: 500,
+  repeats: true,
+})
+```
+
+## One off callbacks
+
+Instead of using the browser `setTimeout`, check out [[Clock.schedule]] you can read more in the [clock documentation](/docs/clock)

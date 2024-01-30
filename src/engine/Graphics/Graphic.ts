@@ -31,7 +31,7 @@ export interface GraphicOptions {
    */
   scale?: Vector;
   /**
-   * The opacity of the graphic
+   * The opacity of the graphic between (0 -1)
    */
   opacity?: number;
   /**
@@ -39,7 +39,7 @@ export interface GraphicOptions {
    */
   tint?: Color;
   /**
-   * The origin of the drawing in pixels to use when applying transforms, by default it will be the center of the image
+   * The origin of the drawing in pixels to use when applying transforms, by default it will be the center of the image in pixels
    */
   origin?: Vector;
 }
@@ -152,17 +152,21 @@ export abstract class Graphic {
       this.rotation = options.rotation ?? this.rotation;
       this.opacity = options.opacity ?? this.opacity;
       this.scale = options.scale ?? this.scale;
+      this.tint = options.tint ?? this.tint;
     }
   }
 
   public cloneGraphicOptions(): GraphicOptions {
     return {
+      width: this.width / this.scale.x,
+      height: this.height / this.scale.y,
       origin: this.origin ? this.origin.clone() : null,
       flipHorizontal: this.flipHorizontal,
       flipVertical: this.flipVertical,
       rotation: this.rotation,
       opacity: this.opacity,
-      scale: this.scale ? this.scale.clone() : null
+      scale: this.scale ? this.scale.clone() : null,
+      tint: this.tint ? this.tint.clone(): null
     };
   }
 

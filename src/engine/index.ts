@@ -23,7 +23,6 @@ export * from './Events/MediaEvents';
 export * from './Events';
 export * from './Label';
 export { FontStyle, FontUnit, TextAlign, BaseAlign } from './Graphics/FontCommon';
-export * from './Loader';
 export { Particle, ParticleTransform, ParticleEmitter, ParticleArgs, ParticleEmitterArgs, EmitterType } from './Particles';
 export * from './Collision/Physics';
 export * from './Scene';
@@ -41,6 +40,8 @@ export * from './Interfaces/Index';
 export * from './Resources/Index';
 
 export * from './EntityComponentSystem/index';
+
+export * from './Director/index';
 
 export * from './Color';
 
@@ -79,9 +80,6 @@ export {
   CapturePointerConfig
 } from './Input/CapturePointerConfig';
 
-export {
-  EngineInput
-} from './Input/EngineInput';
 
 export {
   NativePointerEvent,

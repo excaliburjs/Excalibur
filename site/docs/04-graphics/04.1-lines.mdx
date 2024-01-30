@@ -1,0 +1,25 @@
+---
+title: Lines
+slug: /lines
+section: Graphics
+---
+
+The line graphic object can be used to draw lines using Excalibur. The Actor [[GraphicsComponent]] centers graphics by default, so it might be desireable to set the [anchor][docs-graphics-component-anchor] to (0, 0);
+
+```typescript
+const lineActor = new ex.Actor({
+  pos: ex.vec(100, 0),
+})
+lineActor.graphics.anchor = ex.Vector.Zero
+lineActor.graphics.use(
+  new ex.Line({
+    start: ex.vec(0, 0),
+    end: ex.vec(200, 200),
+    color: ex.Color.Green,
+    thickness: 10,
+  })
+)
+game.add(lineActor)
+```
+
+[docs-graphics-component-anchor]: /docs/graphics-component/#component-specific-overrides

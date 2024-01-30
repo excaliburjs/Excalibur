@@ -46,6 +46,7 @@ describe('A ColliderComponent', () => {
       new ex.CollisionStartEvent<ex.Collider>(
         ex.Shape.Circle(50),
         ex.Shape.Circle(50),
+        null,
         null));
 
     expect(originalCollisionHandler).toHaveBeenCalledTimes(1);
@@ -81,7 +82,7 @@ describe('A ColliderComponent', () => {
 
     const e = new ex.Entity();
     e.addComponent(comp);
-    e.removeComponent(comp, true);
+    e.removeComponent(ex.ColliderComponent, true);
 
     expect(comp.events.clear).toHaveBeenCalled();
   });

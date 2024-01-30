@@ -13,6 +13,7 @@ import { OnInitialize, OnPreUpdate, OnPostUpdate, SceneActivationContext } from 
 import { BodyComponent } from './Collision/BodyComponent';
 import { ExcaliburGraphicsContext } from './Graphics';
 import { Axes, Buttons, Gamepad } from './Input/Gamepad';
+import { Action } from './Actions/Action';
 
 export enum EventTypes {
   Kill = 'kill',
@@ -80,7 +81,10 @@ export enum EventTypes {
   PointerDragEnd = 'pointerdragend',
   PointerDragEnter = 'pointerdragenter',
   PointerDragLeave = 'pointerdragleave',
-  PointerDragMove = 'pointerdragmove'
+  PointerDragMove = 'pointerdragmove',
+
+  ActionStart = 'actionstart',
+  ActionComplete = 'actioncomplete'
 }
 
 /* istanbul ignore next */
@@ -195,8 +199,8 @@ export class GameEvent<T, U = T> {
 /**
  * The 'kill' event is emitted on actors when it is killed. The target is the actor that was killed.
  */
-export class KillEvent extends GameEvent<Actor> {
-  constructor(public target: Actor) {
+export class KillEvent extends GameEvent<Entity> {
+  constructor(public target: Entity) {
     super();
   }
 }
@@ -255,6 +259,29 @@ export class PreDrawEvent extends GameEvent<Entity | Scene | Engine | TileMap> {
  */
 export class PostDrawEvent extends GameEvent<Entity | Scene | Engine | TileMap> {
   constructor(public ctx: ExcaliburGraphicsContext, public delta: number, public target: Entity | Scene | Engine | TileMap) {
+    super();
+  }
+}
+
+/**
+ * The 'pretransformdraw' event is emitted on actors/entities before any graphics transforms have taken place.
+ * Useful if you need to completely customize the draw or modify the transform before drawing in the draw step (for example needing
+ * latest camera positions)
+ *
+ */
+export class PreTransformDrawEvent extends GameEvent<Entity> {
+  constructor(public ctx: ExcaliburGraphicsContext, public delta: number, public target: Entity) {
+    super();
+  }
+}
+
+/**
+ * The 'posttransformdraw' event is emitted on actors/entities after all graphics have been draw and transforms reset.
+ * Useful if you need to completely custom the draw after everything is done.
+ *
+ */
+export class PostTransformDrawEvent extends GameEvent<Entity> {
+  constructor(public ctx: ExcaliburGraphicsContext, public delta: number, public target: Entity) {
     super();
   }
 }
@@ -389,7 +416,7 @@ export class PreCollisionEvent<T extends BodyComponent | Collider | Entity = Act
    * @param side          The side that will be collided with the current actor
    * @param intersection  Intersection vector
    */
-  constructor(actor: T, public other: T, public side: Side, public intersection: Vector) {
+  constructor(actor: T, public other: T, public side: Side, public intersection: Vector, public contact: CollisionContact) {
     super();
     this.target = actor;
   }
@@ -405,7 +432,7 @@ export class PostCollisionEvent<T extends Collider | Entity = Actor> extends Gam
    * @param side          The side that did collide with the current actor
    * @param intersection  Intersection vector
    */
-  constructor(actor: T, public other: T, public side: Side, public intersection: Vector) {
+  constructor(actor: T, public other: T, public side: Side, public intersection: Vector, public contact: CollisionContact) {
     super();
     this.target = actor;
   }
@@ -420,7 +447,7 @@ export class PostCollisionEvent<T extends Collider | Entity = Actor> extends Gam
 }
 
 export class ContactStartEvent<T> {
-  constructor(public target: T, public other: T, public contact: CollisionContact) {}
+  constructor(public target: T, public other: T, public side: Side, public contact: CollisionContact) {}
 }
 
 export class ContactEndEvent<T> {
@@ -443,9 +470,10 @@ export class CollisionStartEvent<T extends BodyComponent | Collider | Entity = A
    *
    * @param actor
    * @param other
+   * @param side
    * @param contact
    */
-  constructor(actor: T, public other: T, public contact: CollisionContact) {
+  constructor(actor: T, public other: T, public side: Side, public contact: CollisionContact) {
     super();
     this.target = actor;
   }
@@ -542,6 +570,24 @@ export class EnterTriggerEvent extends GameEvent<Actor> {
 
 export class ExitTriggerEvent extends GameEvent<Actor> {
   constructor(public target: Trigger, public actor: Actor) {
+    super();
+  }
+}
+
+/**
+ * Event thrown on an [[Actor]] when an action starts.
+ */
+export class ActionStartEvent extends GameEvent<Entity> {
+  constructor(public action: Action, public target: Entity) {
+    super();
+  }
+}
+
+/**
+ * Event thrown on an [[Actor]] when an action completes.
+ */
+export class ActionCompleteEvent extends GameEvent<Entity> {
+  constructor(public action: Action, public target: Entity) {
     super();
   }
 }

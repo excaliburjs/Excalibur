@@ -197,20 +197,26 @@ describe('A CompositeCollider', () => {
 
     const rayRight = new Ray(vec(-200, 0), Vector.Right);
 
-    const leftBox = compCollider.rayCast(rayRight);
+    const leftBox = compCollider.rayCast(rayRight).point;
     expect(leftBox).toEqual(vec(-100, 0));
 
     const rayDown = new Ray(vec(0, -200), Vector.Down);
-    const topCircle = compCollider.rayCast(rayDown);
+    const topCircle = compCollider.rayCast(rayDown).point;
     expect(topCircle).toEqual(vec(0, -50));
 
     const rayUp = new Ray(vec(0, 200), Vector.Up);
-    const bottomCircle = compCollider.rayCast(rayUp);
+    const bottomCircle = compCollider.rayCast(rayUp).point;
     expect(bottomCircle).toEqual(vec(0, 50));
 
     const rayLeft = new Ray(vec(200, 0), Vector.Left);
-    const rightBox = compCollider.rayCast(rayLeft);
+    const rightBox = compCollider.rayCast(rayLeft).point;
     expect(rightBox).toEqual(vec(100, 0));
+
+    const hit = compCollider.rayCast(rayLeft);
+    expect(hit.normal).toBeVector(Vector.Right);
+    expect(hit.distance).toBe(100);
+    expect(hit.body).toBe(undefined);
+    expect(hit.collider).toBe(compCollider.getColliders()[1]);
   });
 
   it('can project onto an axis', () => {
@@ -277,5 +283,27 @@ describe('A CompositeCollider', () => {
 
     dynamicTreeProcessor.untrack(compCollider);
     expect(dynamicTreeProcessor.getColliders().length).toBe(0);
+  });
+
+  it('flattens composite colliders inside composite colliders with adjusted offset', () => {
+    const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
+    compCollider.offset = ex.vec(50, 100);
+    expect(compCollider.getColliders()[0].offset).toBeVector(Vector.Zero);
+    expect(compCollider.getColliders()[1].offset).toBeVector(Vector.Zero);
+
+    const sut = new ex.CompositeCollider([]);
+
+    sut.addCollider(compCollider);
+
+    expect(sut.getColliders().length).toBe(2);
+    expect(sut.getColliders()[0].offset).toBeVector(compCollider.offset);
+    expect(sut.getColliders()[1].offset).toBeVector(compCollider.offset);
+  });
+
+  it('has the correct bounds when offset', () => {
+    const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
+    expect(compCollider.bounds).toEqual(new ex.BoundingBox({left: -100, right: 100, top: -50, bottom: 50}));
+    compCollider.offset = ex.vec(50, 100);
+    expect(compCollider.bounds).toEqual(new ex.BoundingBox({left: -50, right: 150, top: 50, bottom: 150}));
   });
 });

@@ -1,0 +1,101 @@
+---
+title: Patterns
+slug: /patterns
+section: Other
+---
+
+```twoslash include ex
+/// <reference path="../src/engine/excalibur.d.ts" />
+declare const game: ex.Engine;
+```
+
+Here are a few patterns and guidelines that you can use in your Excalibur projects.
+
+## Project Structure
+
+We have found this structure to work pretty well for games, see an [example game](https://github.com/excaliburjs/ludum-50)
+
+```
+game/
+  images/
+    image1.png
+    image2.png
+  sounds/
+    sound1.mp3
+    sound2.mp3
+  src/
+    main.ts
+    level1.ts
+    level2.ts
+    config.ts
+    resources.ts
+    preferences.ts
+```
+
+## Entry Point
+
+Define a `main.ts` file to serve as the "main" entrypoint into your game.
+
+Keep the `main.ts` entrypoint as small as possible (this is where we create a new `ex.Engine()` and configure anything else at the engine level)
+
+## Resource Loading
+
+Keep all of our assets/resources in one file `resources.ts` and load them all at once in the `main.ts`
+
+```ts twoslash
+// @include: ex
+declare interface Object {
+  values(res: any): ex.Resource<any>[];
+}
+// ---cut---
+// Because snippets uses a bundler we load the image with an import
+// Optionally do this
+// import playerUrl from './player.png';
+
+// If you aren't using a bundler like parcel or webpack you can do this:
+// const imagePlayer = new ex.ImageSource('./player.png')
+const Resources = {
+    ImagePlayer: new ex.ImageSource('./player.png'),
+    //... more resources
+} as const; // <-- Important for strong typing
+
+const loader = new ex.Loader();
+for (let res of Object.values(Resources)) {
+  loader.addResource(res);
+}
+
+class Player extends ex.Actor {
+    public onInitialize(engine: ex.Engine) {
+        // set as the "default" drawing
+        this.graphics.use(Resources.ImagePlayer.toSprite());
+    }
+}
+```
+
+<IFrameEmbed src="https://excaliburjs.com/excalibur-snippets/resources/" />
+
+## Configuration
+
+Keep a `config.ts` for tweaking global constant values easily, we've wired up things like [dat.gui](https://github.com/dataarts/dat.gui) or [tweakpane](https://cocopon.github.io/tweakpane/) that make changing config during development easy
+
+## Prefer `onInitialize` to the constructor
+
+Where possible we use `onInitialize()` for initialization logic over the constructor, this saves CPU cycles because it's called before the first update an entity is needed and makes it easy to restart a game or reusing something by manually calling `onInitialize()`.
+
+## Use `ex.Scene` as the [Composition Root](https://freecontent.manning.com/dependency-injection-in-net-2nd-edition-understanding-the-composition-root/)
+
+Generally it is useful to extend ex.Scene (like in [level.ts](https://github.com/excaliburjs/ludum-50/blob/main/src/level.ts)) and use `onInitialize()` to assemble all the different bits of your game.
+
+```typescript
+class MyLevel extends ex.Scene {
+
+  onInitialize() {
+     const myActor1 = new ex.Actor({...});
+     this.add(myActor1);
+
+     const map = new ex.TileMap({...});
+     this.add(map);
+  }
+}
+
+```

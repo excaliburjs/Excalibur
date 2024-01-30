@@ -1,0 +1,97 @@
+---
+title: TileMap
+slug: /tilemap
+section: TileMaps
+---
+
+TileMaps can be useful tools to build levels for platformers or top down games.
+
+Excalibur supports building tile based games, often referred to as "TileMaps." Excalibur has a [Tiled plugin](https://github.com/excaliburjs/excalibur-tiled/pull/162) to support the popular [Tiled](https://www.mapeditor.org/) editor map files.
+
+## Tilemap
+
+[[TileMap|Tilemaps]] consist of a uniform grid of cells that can be solid or not. Each cell can have it's own graphics.
+
+Tile maps are made up of [[Tile|Tiles]] which can draw [[Graphic|Graphics]]. Tile
+maps support multiple layers of Graphics and work well for building tile-based games such as RPGs,
+adventure games, strategy games, and others. Tiles can be [[Tile.solid|solid]] so
+that Actors can't pass through them.
+
+```typescript
+// Load your favorite tileset (maybe from Kenny.nl)
+const kennyRougeLikePack = new ex.ImageSource(rougeLikeImageSrc);
+
+// Create a sprite sheet
+const rougeLikeSpriteSheet = ex.SpriteSheet.fromImageSource({
+    image: kennyRougeLikePack,
+    grid: {
+        rows: 31,
+        columns: 51,
+        spriteHeight: 16,
+        spriteWidth: 16
+    },
+    spacing: {
+        margin: {
+            x: 1,
+            y: 1
+        }
+    }
+});
+
+// Create a tilemap
+const tilemap = new ex.TileMap({
+    rows: 10,
+    columns: 10,
+    tileWidth: 16,
+    tileHeight: 16,
+});
+
+// loop through tilemap cells
+for (let tile of tilemap.tiles) {
+    const sprite = rougeLikeSpriteSheet.getSprite(0, 0);
+    if (sprite) {
+        tile.addGraphic(sprite);
+    }
+}
+```
+
+<IFrameEmbed src="https://excaliburjs.com/excalibur-snippets/tilemap/"/>
+
+## Tiled plugin
+
+Excalibur has a Tiled map plugin https://github.com/excaliburjs/excalibur-tiled/ for loading `.tmx` maps.
+
+We recommend using the [Tiled map editor](http://www.mapeditor.org/) to build your maps
+and export them to JSON. You can then load them using a [[Resource|Generic Resource]]
+and process them to create your levels. A [[TileMap]] can then be used as part of a
+level or map class that adds enemies and builds game objects from the Tiled map.
+
+Read more [here](/docs/tiled-plugin)! 
+
+```typescript
+import * as ex from 'excalibur'
+import * as tiled from '@excaliburjs/plugin-tiled';
+import exampleCityUrl from './example-city.tmx';
+
+const game = new ex.Engine({
+    width: 600,
+    height: 400,
+    displayMode: ex.DisplayMode.FitScreen
+});
+
+const tiledMapResource = new tiled.TiledResource(exampleCityUrl);
+
+const loader = new ex.Loader([tiledMapResource])
+game.start(loader).then(() => {
+    tiledMapResource.addToScene(game.currentScene);
+    game.currentScene.camera.zoom = 2;
+});
+```
+
+<IFrameEmbed src="https://excaliburjs.com/excalibur-snippets/tiled/"/>
+
+## Currently unsupported
+
+Hexagonal and Staggered TileMaps are not yet supported out of the box (but they are in our plans).
+
+We recommend reading some of the [material on Red Blob Games](https://www.redblobgames.com/) for algorithms around Hexagonal.

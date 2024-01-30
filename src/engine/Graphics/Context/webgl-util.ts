@@ -55,7 +55,6 @@ export function getAttributeComponentSize(gl: WebGLRenderingContext, type: numbe
 /**
  * Based on the attribute return the corresponding supported attrib pointer type
  * https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/vertexAttribPointer
- *
  * @param gl
  * @param type
  */

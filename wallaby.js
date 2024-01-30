@@ -3,6 +3,7 @@ const webpack = require('webpack');
 
 module.exports = function (wallaby) {
   return {
+    runMode: 'onsave',
     files: [
       { pattern: 'src/spec/util/*.ts', load: false },
       { pattern: 'src/engine/**/*.ts', load: false },
@@ -19,7 +20,7 @@ module.exports = function (wallaby) {
     env: {
       kind: 'chrome',
       // This is tied to the puppeteer install
-      runner: './node_modules/puppeteer/.local-chromium/win64-1011831/chrome-win/chrome.exe',
+      runner: './node_modules/puppeteer/.local-chromium/win64-1022525/chrome-win/chrome.exe',
       params: {
         runner: '--headless --mute-audio --autoplay-policy=no-user-gesture-required'
       }
@@ -31,6 +32,9 @@ module.exports = function (wallaby) {
     postprocessor: wallaby.postprocessors.webpack({
       mode: 'none',
       devtool: 'source-map',
+      optimization: {
+        providedExports: true,
+      },
       resolve: {
         extensions: ['.ts', '.js'],
         alias: {

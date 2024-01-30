@@ -1,5 +1,8 @@
-import { ExcaliburGraphicsContext, ImageSource, SpriteFont, SpriteSheet } from '..';
-import { Vector } from '../..';
+import { ExcaliburGraphicsContext } from '../Context/ExcaliburGraphicsContext';
+import { ImageSource } from '../ImageSource';
+import { SpriteFont } from '../SpriteFont';
+import { SpriteSheet } from '../SpriteSheet';
+import { Vector } from '../../Math/vector';
 import debugFont from './debug-font.png';
 
 /**
@@ -7,6 +10,8 @@ import debugFont from './debug-font.png';
  */
 export class DebugText {
   constructor() {
+    // We fire and forget, we don't care if it's loaded or not
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.load();
   }
 
@@ -24,14 +29,14 @@ export class DebugText {
       this._spriteSheet = SpriteSheet.fromImageSource({
         image: this._imageSource,
         grid: {
-          rows: 3,
+          rows: 4,
           columns: 16,
           spriteWidth: 16,
           spriteHeight: 16
         }
       });
       this._spriteFont = new SpriteFont({
-        alphabet: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ,!\'&."?-()+ ',
+        alphabet: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ,!\'&."?-()+# ',
         caseInsensitive: true,
         spriteSheet: this._spriteSheet,
         spacing: -6

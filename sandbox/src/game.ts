@@ -45,18 +45,28 @@ var game = new ex.Engine({
   height: 600 / 2,
   viewport: { width: 800, height: 600 },
   canvasElementId: 'game',
-  pixelRatio: 1,
-  suppressPlayButton: true,
+  // pixelRatio: 1,
+  // suppressPlayButton: true,
   pointerScope: ex.PointerScope.Canvas,
   displayMode: ex.DisplayMode.FitScreenAndFill,
-  antialiasing: false,
   snapToPixel: false,
+  fixedUpdateFps: 30,
   maxFps: 60,
   configurePerformanceCanvas2DFallback: {
     allow: true,
     showPlayerMessage: true,
     threshold: { fps: 20, numberOfFrames: 100 }
   }
+});
+game.setAntialiasing(false);
+game.screen.events.on('fullscreen', (evt) => {
+  console.log('fullscreen', evt);
+});
+game.screen.events.on('resize', (evt) => {
+  console.log('resize', evt);
+});
+game.screen.events.on('pixelratio', (evt) => {
+  console.log('pixelratio', evt);
 });
 game.currentScene.onPreDraw = (ctx: ex.ExcaliburGraphicsContext) => {
   ctx.save();
@@ -118,16 +128,16 @@ cards2.draw(game.graphicsContext, 0, 0);
 
 jump.volume = 0.3;
 
-var loader = new ex.Loader();
-loader.addResource(heartImageSource);
-loader.addResource(heartTex);
-loader.addResource(imageRun);
-loader.addResource(imageJump);
-loader.addResource(imageBlocks);
-loader.addResource(spriteFontImage);
-loader.addResource(cards);
-loader.addResource(cloud);
-loader.addResource(jump);
+var boot = new ex.Loader();
+boot.addResource(heartImageSource);
+boot.addResource(heartTex);
+boot.addResource(imageRun);
+boot.addResource(imageJump);
+boot.addResource(imageBlocks);
+boot.addResource(spriteFontImage);
+boot.addResource(cards);
+boot.addResource(cloud);
+boot.addResource(jump);
 
 // Set background color
 game.backgroundColor = new ex.Color(114, 213, 224);
@@ -293,35 +303,35 @@ var group = new ex.GraphicsGroup({
   members: [
     {
       graphic: newSprite,
-      pos: ex.vec(0, 0)
+      offset: ex.vec(0, 0)
     },
     {
       graphic: newSprite,
-      pos: ex.vec(50, 0)
+      offset: ex.vec(50, 0)
     },
     {
       graphic: newSprite,
-      pos: ex.vec(0, 50)
+      offset: ex.vec(0, 50)
     },
     {
       graphic: text,
-      pos: ex.vec(100, 20)
+      offset: ex.vec(100, 20)
     },
     {
       graphic: circle,
-      pos: ex.vec(50, 50)
+      offset: ex.vec(50, 50)
     },
     {
       graphic: anim,
-      pos: ex.vec(200, 200)
+      offset: ex.vec(200, 200)
     },
     {
       graphic: cardAnimation,
-      pos: ex.vec(0, 200)
+      offset: ex.vec(0, 200)
     },
     {
       graphic: spriteText,
-      pos: ex.vec(300, 200)
+      offset: ex.vec(300, 200)
     }
   ]
 });
@@ -404,8 +414,16 @@ var tileBlockWidth = 64,
 var blockGroup = ex.CollisionGroupManager.create('ground');
 // create a collision map
 // var tileMap = new ex.TileMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500);
-var tileMap = new ex.TileMap({name: 'tilemap', pos: ex.vec(100, 300), tileWidth: tileBlockWidth, tileHeight: tileBlockHeight, rows: 4, columns: 500 });
+var tileMap = new ex.TileMap({
+  name: 'tilemap', 
+  pos: ex.vec(-300, 300),
+  tileWidth: tileBlockWidth,
+  tileHeight: tileBlockHeight,
+  rows: 4,
+  columns: 500 
+});
 tileMap.get(ex.BodyComponent).group = blockGroup;
+// tileMap.get(ex.TransformComponent).coordPlane = ex.CoordPlane.Screen;
 var blocks = ex.Sprite.from(imageBlocks);
 // var flipped = spriteTiles.sprites[0].clone();
 // flipped.flipVertical = true;
@@ -535,6 +553,13 @@ follower.actions
     console.log('Player met!!');
   });
 
+player.onCollisionStart = (_a,_b,_c, contact) => {
+  console.log('start', contact);
+}
+player.onCollisionEnd = (_a,_b) => {
+  console.log('end');
+}
+
 // follow player
 
 player.rotation = 0;
@@ -564,18 +589,35 @@ player.addChild(healthbar);
 //   // ctx.debug.drawPoint(ex.vec(0, 0), { size: 20, color: ex.Color.Black });
 // };
 
+class OtherActor extends ex.Actor {
+  constructor(args: ex.ActorArgs) {
+    super(args);
+  }
+  onCollisionStart(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
+    console.log('other collision start')
+  }
+  onCollisionEnd(self: ex.Collider, other: ex.Collider): void {
+    console.log('other collision end')
+  }
+}
+
+var other = new OtherActor({
+  name: 'other',
+  pos: new ex.Vector(200, -200),
+  width: 100,
+  height: 100,
+  color: ex.Color.Violet,
+  collisionType: ex.CollisionType.Active
+});
+
+game.add(other);
+
 var healthbar2 = new ex.Rectangle({
   width: 140,
   height: 5,
   color: new ex.Color(0, 255, 0)
 });
 
-var backroundLayer = player.graphics.layers.create({
-  name: 'background',
-  order: -1
-});
-
-backroundLayer.show(healthbar2, { offset: ex.vec(0, -70) });
 var playerText = new ex.Text({
   text: 'A long piece of text is long',
   font: new ex.Font({
@@ -583,8 +625,24 @@ var playerText = new ex.Text({
     family: 'Times New Roman'
   })
 });
-// playerText.showDebug = true;
-backroundLayer.show(playerText, { offset: ex.vec(0, -70) });
+
+var group = new ex.GraphicsGroup({
+  members: [
+    { graphic: healthbar2, offset: ex.vec(0, -70)},
+    { graphic: playerText, offset: ex.vec(0, -70)}
+  ]
+})
+healthbar.graphics.use(group);
+
+// var backgroundLayer = player.graphics.layers.create({
+//   name: 'background',
+//   order: -1
+// });
+
+// backgroundLayer.show(healthbar2, { offset: ex.vec(0, -70) });
+
+// // playerText.showDebug = true;
+// backgroundLayer.show(playerText, { offset: ex.vec(0, -70) });
 
 // Retrieve animations for player from sprite sheet
 var left = ex.Animation.fromSpriteSheet(spriteSheetRun, ex.range(1, 10), 50);
@@ -690,6 +748,7 @@ player.on('pointerwheel', () => {
 });
 
 var newScene = new ex.Scene();
+newScene.backgroundColor = ex.Color.Yellow;
 newScene.add(new ex.Label({text: 'MAH LABEL!', x: 200, y: 100}));
 newScene.on('activate', (evt?: ex.ActivateEvent) => {
   console.log('activate newScene');
@@ -893,6 +952,6 @@ game.currentScene.camera.strategy.lockToActorAxis(player, ex.Axis.X);
 game.currentScene.camera.y = 200;
 
 // Run the mainloop
-game.start(loader).then(() => {
+game.start(boot).then(() => {
   logger.info('All Resources have finished loading');
 });

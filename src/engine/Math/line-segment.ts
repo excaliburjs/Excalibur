@@ -176,7 +176,6 @@ export class LineSegment {
   /**
    * Finds a point on the line given only an X or a Y value. Given an X value, the function returns
    * a new point with the calculated Y value and vice-versa.
-   *
    * @param x The known X value of the target point
    * @param y The known Y value of the target point
    * @returns A new point with the other calculated axis value

@@ -1,0 +1,181 @@
+---
+title: Custom Renderer Plugins
+slug: /custom-renderer-plugins
+section: Graphics
+---
+
+Excalibur knows how to draw many types graphics to the screen by default comes with those pre-installed into the [[ExcaliburGraphicsContext]]. However, you may have a unique requirement to provide custom WebGL commands into excalibur, this can be done with a custom renderer plugin.
+
+:::warning
+
+This is an advanced API it is recommended you use built in graphics unless you are comfortable with building WebGL geometry and shaders.
+
+:::
+
+## Registering a renderer plugin
+
+Registering a renderer with the graphics context will allow you to call it's draw method during your game.
+
+```typescript
+const game = new ex.Engine({...});
+
+game.start().then(() => {
+    // register
+    game.graphicsContext.register(new MyCustomRenderer());
+});
+
+// call from a graphics callback or event
+const actor = new ex.Actor({...});
+actor.graphics.onPostDraw = (graphicsContext) => {
+    graphicsContext.draw<MyCustomRenderer>('myrenderer', ...);
+}
+```
+
+## Writing a custom render plugin
+
+In order to build a custom renderer extend the [[RendererPlugin]] interface
+
+```typescript
+export class MyCustomRenderer extends ex.RendererPlugin {
+  /**
+   * Unique type name for this renderer plugin
+   */
+  readonly type: string = 'myrenderer';
+
+  /**
+   * Render priority tie breaker when drawings are at the same z index
+   * @warning Not yet used by excalibur
+   */
+  priority: number = 0;
+
+  /**
+   * Initialize your renderer
+   *
+   * @param gl
+   * @param context
+   */
+  initialize(gl: WebGLRenderingContext, context: ExcaliburGraphicsContextWebGL): void {
+    // initialize and compile shader
+  }
+
+  /**
+   * Issue a draw command to draw something to the screen
+   * @param args
+   */
+  draw(some: ex.Vector, args: ex.Color): void {
+    // update internal state with draw command with the args
+  }
+
+  /**
+   * @returns if there are any pending draws in the renderer
+   */
+  hasPendingDraws(): boolean {
+    // if there are any un-flushed drawings
+    return false;
+  }
+
+  /**
+   * Flush any pending graphics draws to the screen
+   */
+  flush(): void {
+    // flush all pending draws to the screen
+  }
+}
+```
+
+For example this is the [[PointRenderer]] implementation
+
+```typescript
+export class PointRenderer implements RendererPlugin {
+  public readonly type = 'ex.point';
+  public priority: number = 0;
+  private _shader: Shader;
+  private _maxPoints: number = 10922;
+  private _buffer: VertexBuffer;
+  private _layout: VertexLayout;
+  private _gl: WebGLRenderingContext;
+  private _context: ExcaliburGraphicsContextWebGL;
+  private _pointCount: number = 0;
+  private _vertexIndex: number = 0;
+  initialize(gl: WebGLRenderingContext, context: ExcaliburGraphicsContextWebGL): void {
+    this._gl = gl;
+    this._context = context;
+    this._shader = new Shader({
+      vertexSource: pointVertexSource,
+      fragmentSource: pointFragmentSource
+    });
+    this._shader.compile();
+    this._shader.use();
+    this._shader.setUniformMatrix('u_matrix', this._context.ortho);
+    this._buffer = new VertexBuffer({
+      size: 7 * this._maxPoints,
+      type: 'dynamic'
+    });
+
+    this._layout = new VertexLayout({
+      shader: this._shader,
+      vertexBuffer: this._buffer,
+      attributes: [
+        ['a_position', 2],
+        ['a_color', 4],
+        ['a_size', 1]
+      ]
+    });
+  }
+
+  draw(point: Vector, color: Color, size: number): void {
+    // Force a render if the batch is full
+    if (this._isFull()) {
+      this.flush();
+    }
+
+    this._pointCount++;
+
+    const transform = this._context.getTransform();
+    const opacity = this._context.opacity;
+
+    const finalPoint = transform.multv(point);
+
+    const vertexBuffer = this._buffer.bufferData;
+    vertexBuffer[this._vertexIndex++] = finalPoint.x;
+    vertexBuffer[this._vertexIndex++] = finalPoint.y;
+    vertexBuffer[this._vertexIndex++] = color.r / 255;
+    vertexBuffer[this._vertexIndex++] = color.g / 255;
+    vertexBuffer[this._vertexIndex++] = color.b / 255;
+    vertexBuffer[this._vertexIndex++] = color.a * opacity;
+    vertexBuffer[this._vertexIndex++] = size * Math.max(transform.getScaleX(), transform.getScaleY());
+  }
+
+  private _isFull() {
+    if (this._pointCount >= this._maxPoints) {
+      return true;
+    }
+    return false;
+  }
+
+  hasPendingDraws(): boolean {
+    return this._pointCount !== 0;
+  }
+
+  flush(): void {
+    // nothing to draw early exit
+    if (this._pointCount === 0) {
+      return;
+    }
+
+    const gl = this._gl;
+    this._shader.use();
+    this._layout.use(true);
+
+    this._shader.setUniformMatrix('u_matrix', this._context.ortho);
+
+    gl.drawArrays(gl.POINTS, 0, this._pointCount);
+
+    GraphicsDiagnostics.DrawnImagesCount += this._pointCount;
+    GraphicsDiagnostics.DrawCallCount++;
+
+    this._pointCount = 0;
+    this._vertexIndex = 0;
+  }
+}
+```

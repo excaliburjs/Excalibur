@@ -1,7 +1,6 @@
 import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
-import { Mocks } from './util/Mocks';
 
 describe('A label', () => {
   let label: ex.Label;
@@ -23,6 +22,12 @@ describe('A label', () => {
   it('can be constructed', () => {
     const sut = new ex.Label({text: 'some text'});
     expect(sut).not.toBeNull();
+  });
+
+  it('can construct with empty text', () => {
+    expect(() => {
+      const sut = new ex.Label();
+    }).not.toThrow();
   });
 
   it('can be constructed with a font', () => {

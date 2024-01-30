@@ -74,7 +74,13 @@ export class PointerEventReceiver {
   public currentFrameCancel: PointerEvent[] = [];
   public currentFrameWheel: WheelEvent[] = [];
 
+  private _enabled = true;
+
   constructor(public readonly target: GlobalEventHandlers & EventTarget, public engine: Engine) {}
+
+  public toggleEnabled(enabled: boolean) {
+    this._enabled = enabled;
+  }
 
   /**
    * Creates a new PointerEventReceiver with a new target and engine while preserving existing pointer event
@@ -212,6 +218,7 @@ export class PointerEventReceiver {
     for (const event of this.currentFrameWheel) {
       this.emit('wheel', event);
       this.primary.emit('pointerwheel', event);
+      this.primary.emit('wheel', event);
     }
   }
 
@@ -363,6 +370,9 @@ export class PointerEventReceiver {
    * Responsible for handling and parsing pointer events
    */
   private _handle(ev: NativeTouchEvent | NativePointerEvent | NativeMouseEvent) {
+    if (!this._enabled) {
+      return;
+    }
     ev.preventDefault();
     const eventCoords = new Map<number, GlobalCoordinates>();
     let button: PointerButton;
@@ -421,6 +431,9 @@ export class PointerEventReceiver {
   }
 
   private _handleWheel(ev: NativeWheelEvent) {
+    if (!this._enabled) {
+      return;
+    }
     // Should we prevent page scroll because of this event
     if (
       this.engine.pageScrollPreventionMode === ScrollPreventionMode.All ||
@@ -482,10 +495,9 @@ export class PointerEventReceiver {
     }
 
     // Force update pointer system
-    const pointerSystem = this.engine.currentScene.world.systemManager.get(PointerSystem);
-    const transformEntities = this.engine.currentScene.world.queryManager.createQuery(pointerSystem.types);
-    pointerSystem.preupdate();
-    pointerSystem.update(transformEntities.getEntities());
+    const pointerSystem = this.engine.currentScene.world.get(PointerSystem);
+    pointerSystem.preupdate(this.engine.currentScene, 1);
+    pointerSystem.update(1);
   }
 
   private _nativeButtonToPointerButton(s: NativePointerButton): PointerButton {

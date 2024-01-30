@@ -5,30 +5,52 @@ import { vec, Vector } from '../Math/vector';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { Entity } from '../EntityComponentSystem/Entity';
 import { Camera } from '../Camera';
-import { AddedEntity, isAddedSystemEntity, RemovedEntity, System, SystemType } from '../EntityComponentSystem';
+import { Query, System, SystemPriority, SystemType, World } from '../EntityComponentSystem';
 import { Engine } from '../Engine';
-import { GraphicsGroup } from '.';
-import { Particle } from '../Particles';
+import { GraphicsGroup } from './GraphicsGroup';
+import { Particle } from '../Particles'; // this import seems to bomb wallaby
 import { ParallaxComponent } from './ParallaxComponent';
 import { CoordPlane } from '../Math/coord-plane';
 import { BodyComponent } from '../Collision/BodyComponent';
 import { FontCache } from './FontCache';
+import { PostDrawEvent, PostTransformDrawEvent, PreDrawEvent, PreTransformDrawEvent } from '../Events';
+import { Transform } from '../Math/transform';
+import { blendTransform } from './TransformInterpolation';
+import { Graphic } from './Graphic';
 
-export class GraphicsSystem extends System<TransformComponent | GraphicsComponent> {
-  public readonly types = ['ex.transform', 'ex.graphics'] as const;
+export class GraphicsSystem extends System {
   public readonly systemType = SystemType.Draw;
-  public priority = 0;
+  public priority = SystemPriority.Average;
   private _token = 0;
   private _graphicsContext: ExcaliburGraphicsContext;
   private _camera: Camera;
   private _engine: Engine;
-
   private _sortedTransforms: TransformComponent[] = [];
+  query: Query<typeof TransformComponent | typeof GraphicsComponent>;
   public get sortedTransforms() {
     return this._sortedTransforms;
   }
 
-  public initialize(scene: Scene): void {
+  constructor(public world: World) {
+    super();
+    this.query = this.world.query([TransformComponent, GraphicsComponent]);
+    this.query.entityAdded$.subscribe(e => {
+      const tx = e.get(TransformComponent);
+      this._sortedTransforms.push(tx);
+      tx.zIndexChanged$.subscribe(this._zIndexUpdate);
+      this._zHasChanged = true;
+    });
+    this.query.entityRemoved$.subscribe(e => {
+      const tx = e.get(TransformComponent);
+      tx.zIndexChanged$.unsubscribe(this._zIndexUpdate);
+      const index = this._sortedTransforms.indexOf(tx);
+      if (index > -1) {
+        this._sortedTransforms.splice(index, 1);
+      }
+    });
+  }
+
+  public initialize(world: World, scene: Scene): void {
     this._camera = scene.camera;
     this._engine = scene.engine;
   }
@@ -49,23 +71,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
     }
   }
 
-  public notify(entityAddedOrRemoved: AddedEntity | RemovedEntity): void {
-    if (isAddedSystemEntity(entityAddedOrRemoved)) {
-      const tx = entityAddedOrRemoved.data.get(TransformComponent);
-      this._sortedTransforms.push(tx);
-      tx.zIndexChanged$.subscribe(this._zIndexUpdate);
-      this._zHasChanged = true;
-    } else {
-      const tx = entityAddedOrRemoved.data.get(TransformComponent);
-      tx.zIndexChanged$.unsubscribe(this._zIndexUpdate);
-      const index = this._sortedTransforms.indexOf(tx);
-      if (index > -1) {
-        this._sortedTransforms.splice(index, 1);
-      }
-    }
-  }
-
-  public update(_entities: Entity[], delta: number): void {
+  public update(delta: number): void {
     this._token++;
     let graphics: GraphicsComponent;
     FontCache.checkAndClearCache();
@@ -90,6 +96,12 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
         continue;
       }
 
+      // Optionally run the onPreTransformDraw graphics lifecycle draw
+      if (graphics.onPreTransformDraw) {
+        graphics.onPreTransformDraw(this._graphicsContext, delta);
+      }
+      entity.events.emit('pretransformdraw', new PreTransformDrawEvent(this._graphicsContext, delta, entity));
+
       // This optionally sets our camera based on the entity coord plan (world vs. screen)
       if (transform.coordPlane === CoordPlane.Screen) {
         this._graphicsContext.restore();
@@ -110,7 +122,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
         // https://doc.mapeditor.org/en/latest/manual/layers/#parallax-scrolling-factor
         // cameraPos * (1 - parallaxFactor)
         const oneMinusFactor = Vector.One.sub(parallax.parallaxFactor);
-        const parallaxOffset = this._camera.pos.scale(oneMinusFactor);
+        const parallaxOffset = this._camera.drawPos.scale(oneMinusFactor);
         this._graphicsContext.translate(parallaxOffset.x, parallaxOffset.y);
       }
 
@@ -126,8 +138,10 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
       if (graphics.onPreDraw) {
         graphics.onPreDraw(this._graphicsContext, delta);
       }
+      entity.events.emit('predraw', new PreDrawEvent(this._graphicsContext, delta, entity));
 
       // TODO remove this hack on the particle redo
+      // Remove this line after removing the wallaby import
       const particleOpacity = (entity instanceof Particle) ? entity.opacity : 1;
       this._graphicsContext.opacity *= graphics.opacity * particleOpacity;
 
@@ -138,6 +152,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
       if (graphics.onPostDraw) {
         graphics.onPostDraw(this._graphicsContext, delta);
       }
+      entity.events.emit('postdraw', new PostDrawEvent(this._graphicsContext, delta, entity));
 
       this._graphicsContext.restore();
 
@@ -148,6 +163,12 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
           this._camera.draw(this._graphicsContext);
         }
       }
+
+      // Optionally run the onPreTransformDraw graphics lifecycle draw
+      if (graphics.onPostTransformDraw) {
+        graphics.onPostTransformDraw(this._graphicsContext, delta);
+      }
+      entity.events.emit('posttransformdraw', new PostTransformDrawEvent(this._graphicsContext, delta, entity));
     }
     this._graphicsContext.restore();
   }
@@ -157,57 +178,66 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
       const flipHorizontal = graphicsComponent.flipHorizontal;
       const flipVertical = graphicsComponent.flipVertical;
 
-      for (const layer of graphicsComponent.layers.get()) {
-        for (const { graphic, options } of layer.graphics) {
-          let anchor = graphicsComponent.anchor;
-          let offset = graphicsComponent.offset;
+      const graphic = graphicsComponent.current;
+      const options = graphicsComponent.currentOptions ?? {};
 
-          // handle layer specific overrides
-          if (options?.anchor) {
-            anchor = options.anchor;
-          }
-          if (options?.offset) {
-            offset = options.offset;
-          }
-          // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
-          const offsetX = -graphic.width * anchor.x + offset.x;
-          const offsetY = -graphic.height * anchor.y + offset.y;
+      if (graphic) {
+        let anchor = graphicsComponent.anchor;
+        let offset = graphicsComponent.offset;
 
-          const oldFlipHorizontal = graphic.flipHorizontal;
-          const oldFlipVertical = graphic.flipVertical;
-          if (flipHorizontal || flipVertical) {
+        // handle specific overrides
+        if (options?.anchor) {
+          anchor = options.anchor;
+        }
+        if (options?.offset) {
+          offset = options.offset;
+        }
+        // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
+        const offsetX = -graphic.width * anchor.x + offset.x;
+        const offsetY = -graphic.height * anchor.y + offset.y;
 
-            // flip any currently flipped graphics
-            graphic.flipHorizontal = flipHorizontal ? !oldFlipHorizontal : oldFlipHorizontal;
-            graphic.flipVertical = flipVertical ? !oldFlipVertical : oldFlipVertical;
-          }
+        const oldFlipHorizontal = graphic.flipHorizontal;
+        const oldFlipVertical = graphic.flipVertical;
+        if (flipHorizontal || flipVertical) {
+          // flip any currently flipped graphics
+          graphic.flipHorizontal = flipHorizontal ? !oldFlipHorizontal : oldFlipHorizontal;
+          graphic.flipVertical = flipVertical ? !oldFlipVertical : oldFlipVertical;
+        }
 
-          graphic?.draw(
-            this._graphicsContext,
-            offsetX + layer.offset.x,
-            offsetY + layer.offset.y);
+        graphic?.draw(
+          this._graphicsContext,
+          offsetX,
+          offsetY);
 
-          if (flipHorizontal || flipVertical) {
-            graphic.flipHorizontal = oldFlipHorizontal;
-            graphic.flipVertical = oldFlipVertical;
-          }
+        if (flipHorizontal || flipVertical) {
+          graphic.flipHorizontal = oldFlipHorizontal;
+          graphic.flipVertical = oldFlipVertical;
+        }
 
-          if (this._engine?.isDebug && this._engine.debug.graphics.showBounds) {
-            const offset = vec(offsetX + layer.offset.x, offsetY + layer.offset.y);
-            if (graphic instanceof GraphicsGroup) {
-              for (const g of graphic.members) {
-                g.graphic?.localBounds.translate(offset.add(g.pos)).draw(this._graphicsContext, this._engine.debug.graphics.boundsColor);
+        if (this._engine?.isDebug && this._engine.debug.graphics.showBounds) {
+          const offset = vec(offsetX, offsetY);
+          if (graphic instanceof GraphicsGroup) {
+            for (const member of graphic.members) {
+              let g: Graphic;
+              let pos: Vector = Vector.Zero;
+              if (member instanceof Graphic) {
+                g = member;
+              } else {
+                g = member.graphic;
+                pos = member.offset;
               }
-            } else {
-              /* istanbul ignore next */
-              graphic?.localBounds.translate(offset).draw(this._graphicsContext, this._engine.debug.graphics.boundsColor);
+              g?.localBounds.translate(offset.add(pos)).draw(this._graphicsContext, this._engine.debug.graphics.boundsColor);
             }
+          } else {
+            /* istanbul ignore next */
+            graphic?.localBounds.translate(offset).draw(this._graphicsContext, this._engine.debug.graphics.boundsColor);
           }
         }
       }
     }
   }
 
+  private _targetInterpolationTransform = new Transform();
   /**
    * This applies the current entity transform to the graphics context
    * @param entity
@@ -217,34 +247,22 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
     for (const ancestor of ancestors) {
       const transform = ancestor?.get(TransformComponent);
       const optionalBody = ancestor?.get(BodyComponent);
-      let interpolatedPos = transform.pos;
-      let interpolatedScale = transform.scale;
-      let interpolatedRotation = transform.rotation;
+      let tx = transform.get();
       if (optionalBody) {
         if (this._engine.fixedUpdateFps &&
-            optionalBody.__oldTransformCaptured &&
-            optionalBody.enableFixedUpdateInterpolate) {
-
+          optionalBody.__oldTransformCaptured &&
+          optionalBody.enableFixedUpdateInterpolate) {
           // Interpolate graphics if needed
           const blend = this._engine.currentFrameLagMs / (1000 / this._engine.fixedUpdateFps);
-          interpolatedPos = transform.pos.scale(blend).add(
-            optionalBody.oldPos.scale(1.0 - blend)
-          );
-          interpolatedScale = transform.scale.scale(blend).add(
-            optionalBody.oldScale.scale(1.0 - blend)
-          );
-          // Rotational lerp https://stackoverflow.com/a/30129248
-          const cosine = (1.0 - blend) * Math.cos(optionalBody.oldRotation) + blend * Math.cos(transform.rotation);
-          const sine = (1.0 - blend) * Math.sin(optionalBody.oldRotation) + blend * Math.sin(transform.rotation);
-          interpolatedRotation = Math.atan2(sine, cosine);
+          tx = blendTransform(optionalBody.oldTransform, transform.get(), blend, this._targetInterpolationTransform);
         }
       }
 
       if (transform) {
         this._graphicsContext.z = transform.z;
-        this._graphicsContext.translate(interpolatedPos.x, interpolatedPos.y);
-        this._graphicsContext.scale(interpolatedScale.x, interpolatedScale.y);
-        this._graphicsContext.rotate(interpolatedRotation);
+        this._graphicsContext.translate(tx.pos.x, tx.pos.y);
+        this._graphicsContext.scale(tx.scale.x, tx.scale.y);
+        this._graphicsContext.rotate(tx.rotation);
       }
     }
   }

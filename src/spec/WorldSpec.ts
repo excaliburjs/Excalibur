@@ -1,13 +1,16 @@
 import * as ex from '@excalibur';
 import { SystemType } from '@excalibur';
 
-class FakeComponent extends ex.Component<'A'> {
-  public readonly type = 'A';
+class FakeComponent extends ex.Component {
 }
-class FakeSystem extends ex.System<FakeComponent> {
-  public readonly types = ['A'] as const;
+class FakeSystem extends ex.System {
   public systemType = ex.SystemType.Update;
-  public update(entities) {
+  query: ex.Query<typeof FakeComponent>;
+  constructor(public world: ex.World) {
+    super();
+    this.query = world.query([FakeComponent]);
+  }
+  public update() {
     // nothing
   }
 }
@@ -47,7 +50,7 @@ describe('A World', () => {
     const world = new ex.World(null);
     world.systemManager = jasmine.createSpyObj('SystemManager', ['addSystem']);
 
-    const system = new FakeSystem();
+    const system = new FakeSystem(world);
 
     world.add(system);
     expect(world.systemManager.addSystem).toHaveBeenCalledWith(system);
@@ -57,7 +60,7 @@ describe('A World', () => {
     const world = new ex.World(null);
     world.systemManager = jasmine.createSpyObj('SystemManager', ['addSystem', 'removeSystem']);
 
-    const system = new FakeSystem();
+    const system = new FakeSystem(world);
 
     world.add(system);
     world.remove(system);
@@ -77,14 +80,15 @@ describe('A World', () => {
   });
 
   it('can update', () => {
-    const world = new ex.World('context');
+    const scene = new ex.Scene;
+    const world = new ex.World(scene);
     world.entityManager = jasmine.createSpyObj('EntityManager',
       ['processEntityRemovals', 'findEntitiesForRemoval', 'processComponentRemovals', 'updateEntities']);
     world.systemManager = jasmine.createSpyObj('SystemManager', ['updateSystems']);
 
     world.update(SystemType.Update, 100);
 
-    expect(world.systemManager.updateSystems).toHaveBeenCalledWith(SystemType.Update, 'context', 100);
+    expect(world.systemManager.updateSystems).toHaveBeenCalledWith(SystemType.Update, scene, 100);
     expect(world.entityManager.processComponentRemovals).toHaveBeenCalled();
     expect(world.entityManager.processEntityRemovals).toHaveBeenCalled();
   });

@@ -1,0 +1,66 @@
+diff --git a/node_modules/@docusaurus/core/lib/commands/build.js b/node_modules/@docusaurus/core/lib/commands/build.js
+index ac08099..6f4f134 100644
+--- a/node_modules/@docusaurus/core/lib/commands/build.js
++++ b/node_modules/@docusaurus/core/lib/commands/build.js
+@@ -152,8 +152,9 @@ async function buildLocale({ siteDir, locale, cliOptions, forceTerminate, isLast
+         });
+     }
+     // Plugin Lifecycle - configureWebpack and configurePostCss.
++    const additionalPluginConfigs = [];
+     plugins.forEach((plugin) => {
+-        const { configureWebpack, configurePostCss } = plugin;
++        const { configureWebpack, configurePostCss, configureAdditionalWebpack } = plugin;
+         if (configurePostCss) {
+             clientConfig = (0, utils_2.applyConfigurePostCss)(configurePostCss.bind(plugin), clientConfig);
+         }
+@@ -163,6 +164,11 @@ async function buildLocale({ siteDir, locale, cliOptions, forceTerminate, isLast
+             serverConfig = (0, utils_2.applyConfigureWebpack)(configureWebpack.bind(plugin), // The plugin lifecycle may reference `this`.
+             serverConfig, true, props.siteConfig.webpack?.jsLoader, plugin.content);
+         }
++        if (configureAdditionalWebpack) {
++          additionalPluginConfigs.push((0, utils_2.applyConfigureWebpack)(configureAdditionalWebpack.bind(plugin), // The plugin lifecycle may reference `this`.
++          {}, false, props.siteConfig.webpack?.jsLoader, plugin.content)
++          )
++        }
+     });
+     // Make sure generated client-manifest is cleaned first so we don't reuse
+     // the one from previous builds.
+@@ -170,7 +176,7 @@ async function buildLocale({ siteDir, locale, cliOptions, forceTerminate, isLast
+         await fs_extra_1.default.unlink(clientManifestPath);
+     }
+     // Run webpack to build JS bundle (client) and static html files (server).
+-    await (0, utils_2.compile)([clientConfig, serverConfig]);
++    await (0, utils_2.compile)([clientConfig, serverConfig, ...additionalPluginConfigs]);
+     // Remove server.bundle.js because it is not needed.
+     if (typeof serverConfig.output?.filename === 'string') {
+         const serverBundle = path_1.default.join(outDir, serverConfig.output.filename);
+diff --git a/node_modules/@docusaurus/core/lib/commands/start.js b/node_modules/@docusaurus/core/lib/commands/start.js
+index ad7dee0..3a162a4 100644
+--- a/node_modules/@docusaurus/core/lib/commands/start.js
++++ b/node_modules/@docusaurus/core/lib/commands/start.js
+@@ -113,8 +113,9 @@ async function start(siteDirParam = '.', cliOptions = {}) {
+         ],
+     });
+     // Plugin Lifecycle - configureWebpack and configurePostCss.
++    const additionalPluginConfigs = [];
+     plugins.forEach((plugin) => {
+-        const { configureWebpack, configurePostCss } = plugin;
++        const { configureWebpack, configurePostCss, configureAdditionalWebpack } = plugin;
+         if (configurePostCss) {
+             config = (0, utils_2.applyConfigurePostCss)(configurePostCss.bind(plugin), config);
+         }
+@@ -122,8 +123,13 @@ async function start(siteDirParam = '.', cliOptions = {}) {
+             config = (0, utils_2.applyConfigureWebpack)(configureWebpack.bind(plugin), // The plugin lifecycle may reference `this`.
+             config, false, props.siteConfig.webpack?.jsLoader, plugin.content);
+         }
++        if (configureAdditionalWebpack) {
++          additionalPluginConfigs.push((0, utils_2.applyConfigureWebpack)(configureAdditionalWebpack.bind(plugin), // The plugin lifecycle may reference `this`.
++            {}, false, props.siteConfig.webpack?.jsLoader, plugin.content)
++          )
++        }
+     });
+-    const compiler = (0, webpack_1.default)(config);
++    const compiler = (0, webpack_1.default)([config, ...additionalPluginConfigs]);
+     compiler.hooks.done.tap('done', (stats) => {
+         const errorsWarnings = stats.toJson('errors-warnings');
+         const statsErrorMessage = (0, utils_2.formatStatsErrorMessage)(errorsWarnings);

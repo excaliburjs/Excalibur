@@ -48,14 +48,16 @@ export class RealisticSolver implements CollisionSolver {
       }
       // Publish collision events on both participants
       const side = Side.fromDirection(contact.mtv);
-      contact.colliderA.events.emit('precollision', new PreCollisionEvent(contact.colliderA, contact.colliderB, side, contact.mtv));
+      contact.colliderA.events.emit(
+        'precollision',
+        new PreCollisionEvent(contact.colliderA, contact.colliderB, side, contact.mtv, contact));
       contact.colliderA.events.emit(
         'beforecollisionresolve',
         new CollisionPreSolveEvent(contact.colliderA, contact.colliderB, side, contact.mtv, contact) as any
       );
       contact.colliderB.events.emit(
         'precollision',
-        new PreCollisionEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate())
+        new PreCollisionEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate(), contact)
       );
       contact.colliderB.events.emit(
         'beforecollisionresolve',
@@ -171,14 +173,17 @@ export class RealisticSolver implements CollisionSolver {
 
       // Publish collision events on both participants
       const side = Side.fromDirection(contact.mtv);
-      contact.colliderA.events.emit('postcollision', new PostCollisionEvent(contact.colliderA, contact.colliderB, side, contact.mtv));
+      contact.colliderA.events.emit(
+        'postcollision',
+        new PostCollisionEvent(contact.colliderA, contact.colliderB, side, contact.mtv, contact)
+      );
       contact.colliderA.events.emit(
         'aftercollisionresolve',
         new CollisionPostSolveEvent(contact.colliderA, contact.colliderB, side, contact.mtv, contact) as any
       );
       contact.colliderB.events.emit(
         'postcollision',
-        new PostCollisionEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate())
+        new PostCollisionEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate(), contact)
       );
       contact.colliderB.events.emit(
         'aftercollisionresolve',

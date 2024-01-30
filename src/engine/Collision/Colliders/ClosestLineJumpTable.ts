@@ -110,8 +110,8 @@ export const ClosestLineJumpTable = {
     const rayTowardsOther = new Ray(polygonA.worldPos, otherDirection);
     const rayTowardsThis = new Ray(otherWorldPos, thisDirection);
 
-    const thisPoint = polygonA.rayCast(rayTowardsOther).add(rayTowardsOther.dir.scale(0.1));
-    const otherPoint = polygonB.rayCast(rayTowardsThis).add(rayTowardsThis.dir.scale(0.1));
+    const thisPoint = polygonA.rayCast(rayTowardsOther).point.add(rayTowardsOther.dir.scale(0.1));
+    const otherPoint = polygonB.rayCast(rayTowardsThis).point.add(rayTowardsThis.dir.scale(0.1));
 
     const thisFace = polygonA.getClosestFace(thisPoint);
     const otherFace = polygonB.getClosestFace(otherPoint);
@@ -134,7 +134,7 @@ export const ClosestLineJumpTable = {
 
     const rayTowardsOther = new Ray(polygon.worldPos, otherDirection);
 
-    const thisPoint = polygon.rayCast(rayTowardsOther).add(rayTowardsOther.dir.scale(0.1));
+    const thisPoint = polygon.rayCast(rayTowardsOther).point.add(rayTowardsOther.dir.scale(0.1));
 
     const thisFace = polygon.getClosestFace(thisPoint);
 
@@ -160,7 +160,7 @@ export const ClosestLineJumpTable = {
 
     const rayTowardsOther = new Ray(polygon.worldPos, otherDirection.normalize());
 
-    const thisPoint = polygon.rayCast(rayTowardsOther).add(rayTowardsOther.dir.scale(0.1));
+    const thisPoint = polygon.rayCast(rayTowardsOther).point.add(rayTowardsOther.dir.scale(0.1));
 
     const thisFace = polygon.getClosestFace(thisPoint);
 
@@ -200,12 +200,12 @@ export const ClosestLineJumpTable = {
     const thisPoint = circleA.rayCast(rayTowardsOther);
     const otherPoint = circleB.rayCast(rayTowardsThis);
 
-    return new LineSegment(thisPoint, otherPoint);
+    return new LineSegment(thisPoint.point, otherPoint.point);
   },
 
   CircleEdgeClosestLine(circle: CircleCollider, edge: EdgeCollider) {
     // https://math.stackexchange.com/questions/1919177/how-to-find-point-on-line-closest-to-sphere
-    const circleWorlPos = circle.worldPos;
+    const circleWorldPos = circle.worldPos;
 
     // L1 = P(s) = p0 + s * u, where s is time and p0 is the start of the line
     const edgeLine = edge.asLine();
@@ -215,7 +215,7 @@ export const ClosestLineJumpTable = {
     const u = edgeVector;
 
     // Time of minimum distance
-    let t = (u.x * (circleWorlPos.x - p0.x) + u.y * (circleWorlPos.y - p0.y)) / (u.x * u.x + u.y * u.y);
+    let t = (u.x * (circleWorldPos.x - p0.x) + u.y * (circleWorldPos.y - p0.y)) / (u.x * u.x + u.y * u.y);
 
     // If time of minimum is past the edge clamp to edge
     if (t > 1) {
@@ -225,11 +225,11 @@ export const ClosestLineJumpTable = {
     }
 
     // Minimum distance
-    const d = Math.sqrt(Math.pow(p0.x + u.x * t - circleWorlPos.x, 2) + Math.pow(p0.y + u.y * t - circleWorlPos.y, 2)) - circle.radius;
+    const d = Math.sqrt(Math.pow(p0.x + u.x * t - circleWorldPos.x, 2) + Math.pow(p0.y + u.y * t - circleWorldPos.y, 2)) - circle.radius;
 
-    const circlex = ((p0.x + u.x * t - circleWorlPos.x) * circle.radius) / (circle.radius + d);
-    const circley = ((p0.y + u.y * t - circleWorlPos.y) * circle.radius) / (circle.radius + d);
-    return new LineSegment(u.scale(t).add(p0), new Vector(circleWorlPos.x + circlex, circleWorlPos.y + circley));
+    const circlex = ((p0.x + u.x * t - circleWorldPos.x) * circle.radius) / (circle.radius + d);
+    const circley = ((p0.y + u.y * t - circleWorldPos.y) * circle.radius) / (circle.radius + d);
+    return new LineSegment(u.scale(t).add(p0), new Vector(circleWorldPos.x + circlex, circleWorldPos.y + circley));
   },
 
   EdgeEdgeClosestLine(edgeA: EdgeCollider, edgeB: EdgeCollider) {

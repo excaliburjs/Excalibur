@@ -1,0 +1,8 @@
+{
+  "label": "Tile Maps",
+  "position": 9,
+  "link": {
+    "type": "generated-index",
+    "description": "Learn about creating tile maps."
+  }
+}

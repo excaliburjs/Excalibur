@@ -39,26 +39,29 @@ describe('DebugSystem', () => {
   });
 
   it('does not crash with an empty collider', async () => {
-    const debugSystem = new ex.DebugSystem();
+    const world = engine.currentScene.world;
+    const debugSystem = new ex.DebugSystem(world);
     engine.currentScene.world.add(debugSystem);
-    debugSystem.initialize(engine.currentScene);
+    debugSystem.initialize(world, engine.currentScene);
 
     engine.graphicsContext.clear();
     await (engine.graphicsContext.debug as any)._debugText.load();
 
     const entity = new ex.Entity([new ex.TransformComponent(), new ex.ColliderComponent()]);
+    debugSystem.query.checkAndAdd(entity);
 
     engine.debug.collider.showAll = true;
 
     expect(() => {
-      debugSystem.update([entity], 100);
+      debugSystem.update();
     }).not.toThrow();
   });
 
   it('can show transform and entity info', async () => {
-    const debugSystem = new ex.DebugSystem();
+    const world = engine.currentScene.world;
+    const debugSystem = new ex.DebugSystem(world);
     engine.currentScene.world.add(debugSystem);
-    debugSystem.initialize(engine.currentScene);
+    debugSystem.initialize(world, engine.currentScene);
 
     engine.graphicsContext.clear();
     await (engine.graphicsContext.debug as any)._debugText.load();
@@ -67,7 +70,8 @@ describe('DebugSystem', () => {
     actor.id = 0;
     engine.debug.transform.showAll = true;
     engine.debug.entity.showAll = true;
-    debugSystem.update([actor], 100);
+    debugSystem.query.checkAndAdd(actor);
+    debugSystem.update();
 
     engine.graphicsContext.flush();
 
@@ -75,9 +79,10 @@ describe('DebugSystem', () => {
   });
 
   it('can show motion info', async () => {
-    const debugSystem = new ex.DebugSystem();
+    const world = engine.currentScene.world;
+    const debugSystem = new ex.DebugSystem(world);
     engine.currentScene.world.add(debugSystem);
-    debugSystem.initialize(engine.currentScene);
+    debugSystem.initialize(world, engine.currentScene);
 
     engine.graphicsContext.clear();
     await (engine.graphicsContext.debug as any)._debugText.load();
@@ -86,8 +91,11 @@ describe('DebugSystem', () => {
     actor.id = 0;
     actor.vel = ex.vec(100, 0);
     actor.acc = ex.vec(100, -100);
+    debugSystem.query.checkAndAdd(actor);
     engine.debug.motion.showAll = true;
-    debugSystem.update([actor], 100);
+    engine.debug.collider.showGeometry = true;
+    engine.debug.collider.geometryLineWidth = 2;
+    debugSystem.update();
 
     engine.graphicsContext.flush();
 
@@ -95,9 +103,10 @@ describe('DebugSystem', () => {
   });
 
   it('can show body info', async () => {
-    const debugSystem = new ex.DebugSystem();
+    const world = engine.currentScene.world;
+    const debugSystem = new ex.DebugSystem(world);
     engine.currentScene.world.add(debugSystem);
-    debugSystem.initialize(engine.currentScene);
+    debugSystem.initialize(world, engine.currentScene);
 
     engine.graphicsContext.clear();
     await (engine.graphicsContext.debug as any)._debugText.load();
@@ -106,8 +115,9 @@ describe('DebugSystem', () => {
     actor.id = 0;
     actor.vel = ex.vec(100, 0);
     actor.acc = ex.vec(100, -100);
+    debugSystem.query.checkAndAdd(actor);
     engine.debug.body.showAll = true;
-    debugSystem.update([actor], 100);
+    debugSystem.update();
 
     engine.graphicsContext.flush();
 
@@ -115,17 +125,20 @@ describe('DebugSystem', () => {
   });
 
   it('can show collider info', async () => {
-    const debugSystem = new ex.DebugSystem();
+    const world = engine.currentScene.world;
+    const debugSystem = new ex.DebugSystem(world);
     engine.currentScene.world.add(debugSystem);
-    debugSystem.initialize(engine.currentScene);
+    debugSystem.initialize(world, engine.currentScene);
 
     engine.graphicsContext.clear();
     await (engine.graphicsContext.debug as any)._debugText.load();
 
     const actor = new ex.Actor({ name: 'thingy', x: -100 + center.x, y: center.y, width: 50, height: 50, color: ex.Color.Yellow });
     actor.id = 0;
+    debugSystem.query.checkAndAdd(actor);
+    engine.debug.entity.showId = true;
     engine.debug.collider.showAll = true;
-    debugSystem.update([actor], 100);
+    debugSystem.update();
 
     engine.graphicsContext.flush();
 
@@ -133,9 +146,10 @@ describe('DebugSystem', () => {
   });
 
   it('can show composite collider info', async () => {
-    const debugSystem = new ex.DebugSystem();
+    const world = engine.currentScene.world;
+    const debugSystem = new ex.DebugSystem(world);
     engine.currentScene.world.add(debugSystem);
-    debugSystem.initialize(engine.currentScene);
+    debugSystem.initialize(world, engine.currentScene);
 
     engine.graphicsContext.clear();
     await (engine.graphicsContext.debug as any)._debugText.load();
@@ -143,8 +157,10 @@ describe('DebugSystem', () => {
     const actor = new ex.Actor({ name: 'thingy', x: -100 + center.x, y: center.y, width: 50, height: 50, color: ex.Color.Yellow });
     actor.collider.useCompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(150, 20), ex.Shape.Box(10, 150)]);
     actor.id = 0;
+    debugSystem.query.checkAndAdd(actor);
     engine.debug.collider.showAll = true;
-    debugSystem.update([actor], 100);
+    engine.debug.collider.geometryLineWidth = 3;
+    debugSystem.update();
 
     engine.graphicsContext.flush();
 
@@ -152,9 +168,10 @@ describe('DebugSystem', () => {
   });
 
   it('can show graphics info', async () => {
-    const debugSystem = new ex.DebugSystem();
+    const world = engine.currentScene.world;
+    const debugSystem = new ex.DebugSystem(world);
     engine.currentScene.world.add(debugSystem);
-    debugSystem.initialize(engine.currentScene);
+    debugSystem.initialize(world, engine.currentScene);
 
     engine.graphicsContext.clear();
     await (engine.graphicsContext.debug as any)._debugText.load();
@@ -162,11 +179,12 @@ describe('DebugSystem', () => {
     const actor = new ex.Actor({ name: 'thingy', x: -100 + center.x, y: center.y, width: 50, height: 50 });
     actor.graphics.use(new ex.Rectangle({ width: 200, height: 100, color: ex.Color.Red }));
     actor.id = 0;
+    debugSystem.query.checkAndAdd(actor);
     engine.debug.collider.showBounds = false;
     engine.debug.collider.showGeometry = false;
     engine.debug.collider.showOwner = false;
     engine.debug.graphics.showAll = true;
-    debugSystem.update([actor], 100);
+    debugSystem.update();
 
     engine.graphicsContext.flush();
 
@@ -174,9 +192,10 @@ describe('DebugSystem', () => {
   });
 
   it('can show DebugGraphicsComponent', async () => {
-    const debugSystem = new ex.DebugSystem();
+    const world = engine.currentScene.world;
+    const debugSystem = new ex.DebugSystem(world);
     engine.currentScene.world.add(debugSystem);
-    debugSystem.initialize(engine.currentScene);
+    debugSystem.initialize(world, engine.currentScene);
 
     engine.graphicsContext.clear();
 
@@ -185,7 +204,8 @@ describe('DebugSystem', () => {
       new ex.DebugGraphicsComponent(ctx => {
         ctx.drawCircle(ex.vec(250, 250), 100, ex.Color.Blue);
       })]);
-    debugSystem.update([entity], 100);
+    debugSystem.query.checkAndAdd(entity);
+    debugSystem.update();
 
     engine.graphicsContext.flush();
     await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
@@ -193,11 +213,15 @@ describe('DebugSystem', () => {
   });
 
   it('can debug draw a tilemap', async () => {
-    const debugSystem = new ex.DebugSystem();
+    const world = engine.currentScene.world;
+    const debugSystem = new ex.DebugSystem(world);
     engine.currentScene.world.add(debugSystem);
-    debugSystem.initialize(engine.currentScene);
+    debugSystem.initialize(world, engine.currentScene);
 
     engine.graphicsContext.clear();
+    engine.debug.tilemap.showGrid = true;
+    engine.debug.tilemap.showSolidBounds = true;
+    engine.debug.tilemap.showColliderGeometry = true;
 
     const tilemap = new ex.TileMap({
       pos: ex.vec(0, 0),
@@ -208,7 +232,8 @@ describe('DebugSystem', () => {
     });
     tilemap.tiles[0].solid = true;
     tilemap.update(engine, 1);
-    debugSystem.update([tilemap], 100);
+    debugSystem.query.checkAndAdd(tilemap);
+    debugSystem.update();
 
     engine.graphicsContext.flush();
     await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/DebugSystemSpec/tilemap-debug.png');
