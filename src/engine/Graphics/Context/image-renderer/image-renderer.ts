@@ -208,10 +208,12 @@ export class ImageRenderer implements RendererPlugin {
     const imageWidth = image.width || width;
     const imageHeight = image.height || height;
 
-    const uvx0 = (sx) / imageWidth;
-    const uvy0 = (sy) / imageHeight;
-    const uvx1 = (sx + sw - 0.01) / imageWidth;
-    const uvy1 = (sy + sh - 0.01) / imageHeight;
+    // TODO make configurable
+    const epsilon = 0.15; // in pixels
+    const uvx0 = (sx + epsilon) / imageWidth;
+    const uvy0 = (sy + epsilon) / imageHeight;
+    const uvx1 = (sx + sw - epsilon) / imageWidth;
+    const uvy1 = (sy + sh - epsilon) / imageHeight;
 
     // update data
     const vertexBuffer = this._layout.vertexBuffer.bufferData;
