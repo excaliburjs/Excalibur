@@ -7,7 +7,7 @@ import loaderCss from './Loader.css';
 import { Vector } from '../Math/vector';
 import { delay } from '../Util/Util';
 import { EventEmitter } from '../EventEmitter';
-import { DefaultLoader } from './DefaultLoader';
+import { DefaultLoader, LoaderOptions } from './DefaultLoader';
 import { Engine } from '../Engine';
 import { Screen } from '../Screen';
 
@@ -76,7 +76,19 @@ import { Screen } from '../Screen';
  * engine.start(loader).then(() => {});
  * ```
  */
+
+/* export interface LoaderOptions {
+  fullscreenAfterLoad?: boolean;
+  fullscreenContainer?: HTMLElement;
+} */
+
 export class Loader extends DefaultLoader {
+  private static _DEFAULT_LOADER_OPTIONS: LoaderOptions = {
+    loadables:[],
+    fullscreenAfterLoad: false,
+    fullscreenContainer: undefined
+  };
+  private _originalOptions: LoaderOptions = {loadables:[]};
   public events = new EventEmitter();
   public screen: Screen;
   private _playButtonShown: boolean = false;
@@ -181,8 +193,9 @@ export class Loader extends DefaultLoader {
   /**
    * @param loadables  Optionally provide the list of resources you want to load at constructor time
    */
-  constructor(loadables?: Loadable<any>[]) {
-    super({loadables});
+  constructor(options?: LoaderOptions) {
+    super(options);
+    this._originalOptions = { ...Loader._DEFAULT_LOADER_OPTIONS, ...options };
   }
 
   public override onInitialize(engine: Engine): void {
@@ -215,8 +228,8 @@ export class Loader extends DefaultLoader {
         }
       });
       this._positionPlayButton();
-      const playButtonClicked = new Promise<void>((resolve) => {
-        const startButtonHandler = (e: Event) => {
+      const playButtonClicked = new Promise<void>(resolve => {
+        const startButtonHandler =  (e: Event) => {
           // We want to stop propagation to keep bubbling to the engine pointer handlers
           e.stopPropagation();
           // Hide Button after click
@@ -224,6 +237,18 @@ export class Loader extends DefaultLoader {
           if (this.engine?.browser) {
             this.engine.browser.window.off('resize', resizeHandler);
           }
+
+          if (this._originalOptions.fullscreenAfterLoad && this._originalOptions.fullscreenContainer !== undefined) {
+            try {
+              // eslint-disable-next-line no-console
+              console.log('REQUESTING FULLSCREEN');
+              this._originalOptions.fullscreenContainer.requestFullscreen();
+            } catch (error) {
+              // eslint-disable-next-line no-console
+              console.log('FULLSCREEN EXCEPTION,', error);
+            }
+          }
+
           resolve();
         };
         this._playButton.addEventListener('click', startButtonHandler);

@@ -12,6 +12,9 @@ import { delay } from '../Util/Util';
 
 export interface LoaderOptions {
   loadables: Loadable<any>[];
+  fullscreenAfterLoad?: boolean;
+  fullscreenContainer?: HTMLElement;
+
 }
 
 export type LoaderEvents = {
