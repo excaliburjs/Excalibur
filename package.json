@@ -100,7 +100,7 @@
     "karma-coverage-istanbul-reporter": "3.0.3",
     "karma-jasmine": "5.1.0",
     "karma-summary-reporter": "3.1.1",
-    "karma-webpack": "5.0.0",
+    "karma-webpack": "5.0.1",
     "puppeteer": "15.5.0",
     "raw-loader": "4.0.2",
     "react": "17.0.2",
