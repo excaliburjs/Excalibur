@@ -114,7 +114,7 @@ export class VertexLayout {
     }
 
     if (this._vertexBuffer.bufferData.length % componentsPerVertex !== 0) {
-      this._logger.warn(`The vertex component size (${componentsPerVertex})  does divide evenly into the specified vertex buffer`
+      this._logger.warn(`The vertex component size (${componentsPerVertex})  does NOT divide evenly into the specified vertex buffer`
       +` (${this._vertexBuffer.bufferData.length})`);
     }
   }

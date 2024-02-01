@@ -4,7 +4,17 @@ export interface RenderTargetOptions {
   gl: WebGL2RenderingContext;
   width: number;
   height: number;
+  /**
+   * Optionally enable render buffer multisample anti-aliasing
+   *
+   * By default false
+   */
   antialias?: boolean;
+  /**
+   * Optionally specify number of anti-aliasing samples to use
+   *
+   * By default the max for the platform is used if antialias is on.
+   */
   samples?: number;
 }
 
@@ -12,7 +22,7 @@ export class RenderTarget {
   width: number;
   height: number;
   antialias: boolean = false;
-  samples: number = 0;
+  samples: number = 1;
   private _gl: WebGL2RenderingContext;
   constructor(options: RenderTargetOptions) {
     this._gl = options.gl;
@@ -66,7 +76,7 @@ export class RenderTarget {
   private _setupRenderBuffer() {
     if (this.antialias) {
       const gl = this._gl;
-      
+
       // Render buffers can be used as an input to a shader
       this._renderBuffer = gl.createRenderbuffer();
       this._renderFrameBuffer = gl.createFramebuffer();
@@ -103,18 +113,6 @@ export class RenderTarget {
     this._frameBuffer = gl.createFramebuffer();
     gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, attachmentPoint, gl.TEXTURE_2D, this._frameTexture, 0);
-    
-    // TODO bind render buffer
-    // gl.framebufferRenderbuffer(gl.FRAMEBUFFER, attachmentPoint, gl.RENDERBUFFER, this.renderBuffer);
-    
-    // TODO to render set the draw to null and blit
-    // gl.bindFramebuffer(gl.READ_FRAMEBUFFER, this._frameBuffer);
-    // gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
-    // gl.blitFramebuffer(
-    //   0, 0, this.width, this.height,
-    //   0, 0, this.width, this.height,
-    //   gl.COLOR_BUFFER_BIT, gl.LINEAR);
-
 
     // Reset after initialized
     this.disable();

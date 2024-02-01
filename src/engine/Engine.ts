@@ -35,7 +35,7 @@ import { Scene, SceneConstructor, isSceneConstructor } from './Scene';
 import { Entity } from './EntityComponentSystem/Entity';
 import { Debug, DebugStats } from './Debug/Debug';
 import { BrowserEvents } from './Util/Browser';
-import { ExcaliburGraphicsContext, ExcaliburGraphicsContext2DCanvas, ExcaliburGraphicsContextWebGL, TextureLoader } from './Graphics';
+import { AntialiasOptions, ExcaliburGraphicsContext, ExcaliburGraphicsContext2DCanvas, ExcaliburGraphicsContextWebGL, TextureLoader } from './Graphics';
 import { Clock, StandardClock } from './Util/Clock';
 import { ImageFiltering } from './Graphics/Filtering';
 import { GraphicsDiagnostics } from './Graphics/GraphicsDiagnostics';
@@ -73,6 +73,8 @@ export const EngineEvents = {
   PreDraw: 'predraw',
   PostDraw: 'postdraw'
 } as const;
+
+
 
 /**
  * Enum representing the different mousewheel event bubble prevention
@@ -122,12 +124,34 @@ export interface EngineOptions<TKnownScenes extends string = any> {
    * Optionally specify antialiasing (smoothing), by default true (smooth pixels)
    *
    *  * `true` - useful for high resolution art work you would like smoothed, this also hints excalibur to load images
-   * with [[ImageFiltering.Blended]]
+   * with default blending [[ImageFiltering.Blended]]
    *
    *  * `false` - useful for pixel art style art work you would like sharp, this also hints excalibur to load images
-   * with [[ImageFiltering.Pixel]]
+   * with default blending [[ImageFiltering.Pixel]]
+   *
+   * * [[AntialiasOptions]] Optionally deeply configure the different antialiasing settings, **WARNING** thar be dragons here. It is recommended
+   * you stick to `true` or `false` unless you understand what you're doing and need to control rendering to a high degree.
    */
-  antialiasing?: boolean;
+  antialiasing?: boolean | AntialiasOptions
+
+  /**
+   * Quick convenience property to configure Excalibur to use special settings for "pretty" anti-aliased pixel art
+   *
+   * 1. Turns on special shader condition to blend for pixel art and enables various antialiasing settings,
+   *  notice blending is ON for this special mode.
+   *
+   * Equivalent to:
+   * ```javascript
+   * antialiasing: {
+   *  pixelArtSampler: true,
+   *  canvasImageRendering: 'auto',
+   *  filtering: ImageFiltering.Blended,
+   *  webglAntialiasing: true,
+   *  multiSampleAntialiasing: true
+   * }
+   * ```
+   */
+  pixelArt?: boolean;
 
   /**
    * Optionally upscale the number of pixels in the canvas. Normally only useful if you need a smoother look to your assets, especially

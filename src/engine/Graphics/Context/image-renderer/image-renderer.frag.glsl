@@ -10,12 +10,44 @@ in lowp float v_textureIndex;
 // Textures in the current draw
 uniform sampler2D u_textures[%%count%%];
 
+uniform bool u_pixelart;
+
 // Opacity
 in float v_opacity;
 
 in vec4 v_tint;
 
+in vec2 v_res;
+
 out vec4 fragColor;
+
+// Inigo Quilez pixel art filter https://jorenjoestar.github.io/post/pixel_art_filtering/
+vec2 uv_iq( vec2 uv, vec2 texture_size) {
+    vec2 pixel = uv * texture_size;
+
+    vec2 seam = floor(pixel + 0.5);
+    vec2 dudv = fwidth(pixel);
+    pixel = seam + clamp( (pixel - seam) / dudv, -0.5, 0.5);
+
+    return pixel / texture_size;
+}
+
+vec2 v2len(in vec2 a, in vec2 b) {
+  return sqrt(a*a+b*b);
+}
+vec2 uv_blocky(in vec2 uv, in vec2 res) {
+  vec2 pixels = uv * res; // enter texel coordinate space.
+
+  vec2 seam = floor(pixels +.5); // find the nearest seam between texels.
+
+  // here's where the magic happens. scale up the distance to the seam so that all
+  // interpolation happens in a one-pixel-wide space.
+  pixels = (pixels-seam)/v2len(dFdx(pixels),dFdy(pixels))+seam;
+
+  pixels = clamp(pixels, seam-.5, seam+.5); // clamp to the center of a texel.
+
+  return pixels / res;// convert back to 0..1 coordinate space.
+}
 
 void main() {
    // In order to support the most efficient sprite batching, we have multiple

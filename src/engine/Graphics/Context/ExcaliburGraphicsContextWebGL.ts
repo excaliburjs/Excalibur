@@ -122,9 +122,29 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   private _state = new StateStack();
   private _ortho!: Matrix;
 
+  /**
+   * 
+   */
   public snapToPixel: boolean = false;
 
-  public smoothing: boolean = false;
+  /**
+   * 
+   */
+  public readonly smoothing: boolean = false;
+
+  /**
+   * Multi sample antialias samples, if unset the platform maximum will be used
+   */
+  public readonly samples?: number;
+
+  public readonly multiSampleAntialiasing: boolean = true;
+
+  /**
+   * UV padding in pixels to use in internal image rendering
+   *
+   * 
+   */
+  public uvPadding = .15;
 
   public backgroundColor: Color = Color.ExcaliburBlue;
 
@@ -182,15 +202,23 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   }
 
   constructor(options: ExcaliburGraphicsContextOptions) {
-    const { canvasElement, enableTransparency, smoothing, snapToPixel, backgroundColor, useDrawSorting } = options;
+    const {
+      canvasElement,
+      enableTransparency,
+      smoothing,
+      uvPadding,
+      multiSampleAntialias,
+      powerPreference,
+      snapToPixel,
+      backgroundColor,
+      useDrawSorting
+    } = options;
     this.__gl = canvasElement.getContext('webgl2', {
       antialias: smoothing ?? this.smoothing,
-      premultipliedAlpha: false,
+      premultipliedAlpha: false, // Shouldn't pre multiplied be on?
       alpha: enableTransparency ?? true,
-      depth: true,
-      powerPreference: 'high-performance'
-      // TODO Chromium fixed the bug where this didn't work now it breaks CI :(
-      // failIfMajorPerformanceCaveat: true
+      depth: false,
+      powerPreference: powerPreference ?? 'high-performance'
     });
     if (!this.__gl) {
       throw Error('Failed to retrieve webgl context from browser');
@@ -198,6 +226,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this.textureLoader = new TextureLoader(this.__gl);
     this.snapToPixel = snapToPixel ?? this.snapToPixel;
     this.smoothing = smoothing ?? this.smoothing;
+    this.uvPadding = uvPadding ?? this.uvPadding;
+    this.multiSampleAntialiasing = multiSampleAntialias ? !!multiSampleAntialias : this.multiSampleAntialiasing;
+    this.samples = multiSampleAntialias ? multiSampleAntialias.samples : undefined;
     this.backgroundColor = backgroundColor ?? this.backgroundColor;
     this.useDrawSorting = useDrawSorting ?? this.useDrawSorting;
     this._drawCallPool.disableWarnings = true;
@@ -247,8 +278,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       gl,
       width: gl.canvas.width,
       height: gl.canvas.height,
-      antialias: true,
-      samples: 16
+      antialias: this.multiSampleAntialiasing,
+      samples: this.samples ?? 16
     });
 
 
@@ -605,18 +636,18 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
     this._renderTarget.disable();
 
-    // // post process step
-    // const source = this._renderTarget.toRenderSource();
-    // source.use();
+    // post process step
+    const source = this._renderTarget.toRenderSource();
+    source.use();
 
     // flip flop render targets
-    // for (let i = 0; i < this._postprocessors.length; i++) {
-    //   this._postProcessTargets[i % 2].use();
-    //   this._screenRenderer.renderWithPostProcessor(this._postprocessors[i]);
-    //   this._postProcessTargets[i % 2].toRenderSource().use();
-    // }
+    for (let i = 0; i < this._postprocessors.length; i++) {
+      this._postProcessTargets[i % 2].use();
+      this._screenRenderer.renderWithPostProcessor(this._postprocessors[i]);
+      this._postProcessTargets[i % 2].toRenderSource().use();
+    }
 
-    
+
     // TODO does post processors cause issues here
     if (this._renderTarget.antialias) {
       gl.bindFramebuffer(gl.READ_FRAMEBUFFER, this._renderTarget.renderFrameBuffer);

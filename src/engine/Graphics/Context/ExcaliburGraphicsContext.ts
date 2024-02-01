@@ -4,15 +4,96 @@ import { ScreenDimension } from '../../Screen';
 import { PostProcessor } from '../PostProcessor/PostProcessor';
 import { AffineMatrix } from '../../Math/affine-matrix';
 import { Material, MaterialOptions } from './material';
+import { ImageFiltering } from '../Filtering';
 
 export type HTMLImageSource = HTMLImageElement | HTMLCanvasElement;
 
+export interface AntialiasOptions {
+  /**
+   * Turns on the special pixel art sampler in excalibur's image shader
+   *
+   * Default false
+   */
+  pixelArtSampler?: boolean;
+  /**
+   * Configures the webgl's getContext('webgl2', {antialias: true | false})
+   *
+   * Default false
+   */
+  webglContextAntialiasing?: boolean;
+  /**
+   * Configures the internal render buffer multi-sampling settings
+   *
+   * Default true, with max samples that the platform supports
+   */
+  multiSampleAntialiasing?: boolean | {
+    /**
+     * Optionally specify number of samples (will be clamped to the max the platform supports)
+     *
+     * Default most platforms are 16 samples
+     */
+    samples?: number;
+  };
+  /**
+   * Sets the default image filtering for excalibur
+   *
+   * Default [[ImageFiltering.Blended]]
+   */
+  filtering?: ImageFiltering;
+  /**
+   * Sets the canvas image rendering CSS style
+   *
+   * Default 'auto'
+   */
+  canvasImageRendering?: 'pixelated' | 'auto';
+}
+
 export interface ExcaliburGraphicsContextOptions {
+  /**
+   * Target existing html canvas element
+   */
   canvasElement: HTMLCanvasElement;
+  /**
+   * Enables antialiasing on the canvas context
+   */
   smoothing?: boolean;
+  /**
+   * Enable canvas transparency
+   */
   enableTransparency?: boolean;
+  /**
+   * Enable or disable multi-sample antialiasing in the internal render buffer
+   *
+   * By default enabled
+   */
+  multiSampleAntialias?: false | {
+    /**
+     * Specify number of samples to use during the multi sample anti-alias
+     * Limited by the hardware (usually 16)
+     */
+    samples: number
+  },
+  /**
+   * UV padding in pixels to use in the internal image rendering
+   *
+   * Recommended .25 - .5 of a pixel
+   */
+  uvPadding?: number;
+  /**
+   * Hint the power preference to the graphics context
+   */
+  powerPreference?: "default" | "high-performance" | "low-power";
+  /**
+   * Snaps the pixel to an integer value (floor)
+   */
   snapToPixel?: boolean;
+  /**
+   * Current clearing color of the context
+   */
   backgroundColor?: Color;
+  /**
+   * Feature flag that enables draw sorting will removed in v0.29
+   */
   useDrawSorting?: boolean;
 }
 
