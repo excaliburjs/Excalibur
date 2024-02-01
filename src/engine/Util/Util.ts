@@ -1,4 +1,4 @@
-import { Vector } from '../Math/vector';
+import { Vector, vec } from '../Math/vector';
 import { Clock } from './Clock';
 import { Future } from './Future';
 
@@ -6,27 +6,9 @@ import { Future } from './Future';
  * Find the screen position of an HTML element
  */
 export function getPosition(el: HTMLElement): Vector {
-  let oLeft: number = 0,
-    oTop: number = 0;
-
-  const calcOffsetLeft = (parent: HTMLElement) => {
-    oLeft += parent.offsetLeft;
-
-    if (parent.offsetParent) {
-      calcOffsetLeft(<HTMLElement>parent.offsetParent);
-    }
-  };
-  const calcOffsetTop = (parent: HTMLElement) => {
-    oTop += parent.offsetTop;
-    if (parent.offsetParent) {
-      calcOffsetTop(<HTMLElement>parent.offsetParent);
-    }
-  };
-
-  calcOffsetLeft(el);
-  calcOffsetTop(el);
-
-  return new Vector(oLeft, oTop);
+  // do we need the scroll too? technically the offset method before did that
+  const rect = el.getBoundingClientRect();
+  return vec(rect.x + window.scrollX, rect.y + window.scrollY);
 }
 
 /**
