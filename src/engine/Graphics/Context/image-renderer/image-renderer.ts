@@ -1,3 +1,4 @@
+import { sign } from '../../../Math/util';
 import { vec } from '../../../Math/vector';
 import { ImageFiltering } from '../../Filtering';
 import { GraphicsDiagnostics } from '../../GraphicsDiagnostics';
@@ -204,17 +205,17 @@ export class ImageRenderer implements RendererPlugin {
     bottomRight = transform.multiply(bottomRight);
 
     if (snapToPixel) {
-      topLeft.x = ~~(topLeft.x + pixelSnapEpsilon);
-      topLeft.y = ~~(topLeft.y + pixelSnapEpsilon);
+      topLeft.x = ~~(topLeft.x + sign(topLeft.x) * pixelSnapEpsilon);
+      topLeft.y = ~~(topLeft.y + sign(topLeft.y) * pixelSnapEpsilon);
 
-      topRight.x = ~~(topRight.x + pixelSnapEpsilon);
-      topRight.y = ~~(topRight.y + pixelSnapEpsilon);
+      topRight.x = ~~(topRight.x + sign(topRight.x) * pixelSnapEpsilon);
+      topRight.y = ~~(topRight.y + sign(topRight.y) * pixelSnapEpsilon);
 
-      bottomLeft.x = ~~(bottomLeft.x + pixelSnapEpsilon);
-      bottomLeft.y = ~~(bottomLeft.y + pixelSnapEpsilon);
+      bottomLeft.x = ~~(bottomLeft.x + sign(bottomLeft.x) * pixelSnapEpsilon);
+      bottomLeft.y = ~~(bottomLeft.y + sign(bottomLeft.y) * pixelSnapEpsilon);
 
-      bottomRight.x = ~~(bottomRight.x + pixelSnapEpsilon);
-      bottomRight.y = ~~(bottomRight.y + pixelSnapEpsilon);
+      bottomRight.x = ~~(bottomRight.x + sign(bottomRight.x) * pixelSnapEpsilon);
+      bottomRight.y = ~~(bottomRight.y + sign(bottomRight.y) * pixelSnapEpsilon);
     }
 
     const tint = this._context.tint;
