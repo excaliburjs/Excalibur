@@ -62,8 +62,8 @@
     "release": "cross-env release=true npm run all"
   },
   "devDependencies": {
-    "@babel/core": "7.23.7",
-    "@babel/preset-env": "7.23.8",
+    "@babel/core": "7.23.9",
+    "@babel/preset-env": "7.23.9",
     "@babel/preset-typescript": "7.23.3",
     "@fortawesome/fontawesome-free": "6.5.1",
     "@octokit/rest": "19.0.13",
@@ -73,8 +73,8 @@
     "@storybook/html": "7.5.2",
     "@storybook/html-webpack5": "7.5.2",
     "@types/jasmine": "5.1.4",
-    "@types/node": "20.11.8",
-    "@types/react-color": "3.0.10",
+    "@types/node": "20.11.15",
+    "@types/react-color": "3.0.11",
     "@types/webpack-env": "1.18.4",
     "@typescript-eslint/eslint-plugin": "6.13.1",
     "@typescript-eslint/parser": "6.13.1",
@@ -83,7 +83,7 @@
     "copyfiles": "2.4.1",
     "coveralls": "3.1.1",
     "cross-env": "7.0.3",
-    "css-loader": "6.8.1",
+    "css-loader": "6.10.0",
     "eslint": "8.55.0",
     "eslint-config-prettier": "9.0.0",
     "eslint-plugin-jsdoc": "46.9.0",
@@ -100,7 +100,7 @@
     "karma-coverage-istanbul-reporter": "3.0.3",
     "karma-jasmine": "5.1.0",
     "karma-summary-reporter": "3.1.1",
-    "karma-webpack": "5.0.0",
+    "karma-webpack": "5.0.1",
     "puppeteer": "15.5.0",
     "raw-loader": "4.0.2",
     "react": "17.0.2",
@@ -121,7 +121,7 @@
     "webpack-cli": "5.1.4"
   },
   "dependencies": {
-    "core-js": "3.33.3"
+    "core-js": "3.35.1"
   },
   "overrides": {
     "typedoc": {

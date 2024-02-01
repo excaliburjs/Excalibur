@@ -173,6 +173,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 - Fixed issue with `snapToPixel` where the `ex.Camera` was not snapping correctly
+- Fixed issue where using CSS transforms on the canvas confused Excalibur pointers
 - Fixed issue with *AndFill suffixed [[DisplayModes]]s where content area offset was not accounted for in world space
 - Fixed issue where `ex.Sound.getTotalPlaybackDuration()` would crash if not loaded, now logs friendly warning
 - Fixed issue where an empty constructor on `new ex.Label()` would crash

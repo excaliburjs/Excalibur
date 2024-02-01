@@ -66,7 +66,7 @@ var game2 = new Game2({
   width: 600,
   height: 400,
   antialiasing: false,
-  displayMode: ex.DisplayMode.FitScreenAndFill
+  displayMode: ex.DisplayMode.Fixed
 });
 game2.debug.collider.showBounds = true;
 game2.debug.graphics.showBounds = true;
