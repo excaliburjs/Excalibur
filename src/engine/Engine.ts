@@ -35,7 +35,15 @@ import { Scene, SceneConstructor, isSceneConstructor } from './Scene';
 import { Entity } from './EntityComponentSystem/Entity';
 import { Debug, DebugStats } from './Debug/Debug';
 import { BrowserEvents } from './Util/Browser';
-import { AntialiasOptions, ExcaliburGraphicsContext, ExcaliburGraphicsContext2DCanvas, ExcaliburGraphicsContextWebGL, TextureLoader } from './Graphics';
+import {
+  AntialiasOptions,
+  DefaultAntialiasOptions,
+  DefaultPixelArtOptions,
+  ExcaliburGraphicsContext,
+  ExcaliburGraphicsContext2DCanvas,
+  ExcaliburGraphicsContextWebGL,
+  TextureLoader
+} from './Graphics';
 import { Clock, StandardClock } from './Util/Clock';
 import { ImageFiltering } from './Graphics/Filtering';
 import { GraphicsDiagnostics } from './Graphics/GraphicsDiagnostics';
@@ -129,8 +137,9 @@ export interface EngineOptions<TKnownScenes extends string = any> {
    *  * `false` - useful for pixel art style art work you would like sharp, this also hints excalibur to load images
    * with default blending [[ImageFiltering.Pixel]]
    *
-   * * [[AntialiasOptions]] Optionally deeply configure the different antialiasing settings, **WARNING** thar be dragons here. It is recommended
-   * you stick to `true` or `false` unless you understand what you're doing and need to control rendering to a high degree.
+   * * [[AntialiasOptions]] Optionally deeply configure the different antialiasing settings, **WARNING** thar be dragons here.
+   * It is recommended you stick to `true` or `false` unless you understand what you're doing and need to control rendering to
+   * a high degree.
    */
   antialiasing?: boolean | AntialiasOptions
 
@@ -152,6 +161,21 @@ export interface EngineOptions<TKnownScenes extends string = any> {
    * ```
    */
   pixelArt?: boolean;
+
+  /**
+   * Specify any UV padding you want use in pixels, this brings sampling into the texture if you're using
+   * a sprite sheet in one image to prevent sampling bleed.
+   *
+   * By default .15 pixels
+   */
+  uvPadding?: number;
+
+  /**
+   * Optionally hint the graphics context into a specific power profile
+   *
+   * Default "high-performance"
+   */
+  powerPreference?: 'default' | 'high-performance' | 'low-power';
 
   /**
    * Optionally upscale the number of pixels in the canvas. Normally only useful if you need a smoother look to your assets, especially
@@ -625,6 +649,10 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
     canvasElementId: '',
     canvasElement: undefined,
     snapToPixel: false,
+    antialiasing: true,
+    pixelArt: false,
+    uvPadding: 0.15,
+    powerPreference: 'high-performance',
     pointerScope: PointerScope.Canvas,
     suppressConsoleBootMessage: null,
     suppressMinimumBrowserFeatureDetection: null,
@@ -759,6 +787,31 @@ O|===|* >________________>\n\
 
     this._originalDisplayMode = displayMode;
 
+    let pixelArtSampler: boolean;
+    let nativeContextAntialiasing:boolean;
+    let canvasImageRendering: 'pixelated' | 'auto';
+    let filtering: ImageFiltering;
+    let multiSampleAntialiasing: boolean | { samples: number };
+    if (typeof options.antialiasing === 'object') {
+      ({
+        pixelArtSampler,
+        nativeContextAntialiasing,
+        multiSampleAntialiasing,
+        filtering,
+        canvasImageRendering
+      } = {
+        ...(options.pixelArt ? DefaultPixelArtOptions : DefaultAntialiasOptions),
+        ...options.antialiasing
+      });
+
+    } else {
+      pixelArtSampler = !!options.pixelArt;
+      nativeContextAntialiasing = options.antialiasing;
+      multiSampleAntialiasing = options.antialiasing;
+      canvasImageRendering = options.antialiasing ? 'auto' : 'pixelated';
+      filtering = options.antialiasing ? ImageFiltering.Blended : ImageFiltering.Pixel;
+    }
+
     // Canvas 2D fallback can be flagged on
     let useCanvasGraphicsContext = Flags.isEnabled('use-canvas-context');
     if (!useCanvasGraphicsContext) {
@@ -767,7 +820,11 @@ O|===|* >________________>\n\
         this.graphicsContext = new ExcaliburGraphicsContextWebGL({
           canvasElement: this.canvas,
           enableTransparency: this.enableCanvasTransparency,
-          smoothing: options.antialiasing,
+          pixelArtSampler: pixelArtSampler,
+          antialiasing: nativeContextAntialiasing,
+          multiSampleAntialiasing: multiSampleAntialiasing,
+          uvPadding: options.uvPadding,
+          powerPreference: options.powerPreference,
           backgroundColor: options.backgroundColor,
           snapToPixel: options.snapToPixel,
           useDrawSorting: options.useDrawSorting
@@ -787,7 +844,7 @@ O|===|* >________________>\n\
       this.graphicsContext = new ExcaliburGraphicsContext2DCanvas({
         canvasElement: this.canvas,
         enableTransparency: this.enableCanvasTransparency,
-        smoothing: options.antialiasing,
+        antialiasing: nativeContextAntialiasing,
         backgroundColor: options.backgroundColor,
         snapToPixel: options.snapToPixel,
         useDrawSorting: options.useDrawSorting
@@ -797,7 +854,8 @@ O|===|* >________________>\n\
     this.screen = new Screen({
       canvas: this.canvas,
       context: this.graphicsContext,
-      antialiasing: options.antialiasing ?? true,
+      antialiasing: nativeContextAntialiasing,
+      canvasImageRendering: canvasImageRendering,
       browser: this.browser,
       viewport: options.viewport ?? (options.width && options.height ? { width: options.width, height: options.height } : Resolution.SVGA),
       resolution: options.resolution,
@@ -807,7 +865,7 @@ O|===|* >________________>\n\
 
     // TODO REMOVE STATIC!!!
     // Set default filtering based on antialiasing
-    TextureLoader.filtering = options.antialiasing ? ImageFiltering.Blended : ImageFiltering.Pixel;
+    TextureLoader.filtering = filtering;
 
     if (options.backgroundColor) {
       this.backgroundColor = options.backgroundColor.clone();
@@ -907,7 +965,7 @@ O|===|* >________________>\n\
     this.graphicsContext = new ExcaliburGraphicsContext2DCanvas({
       canvasElement: this.canvas,
       enableTransparency: this.enableCanvasTransparency,
-      smoothing: options.antialiasing,
+      antialiasing: options.antialiasing,
       backgroundColor: options.backgroundColor,
       snapToPixel: options.snapToPixel,
       useDrawSorting: options.useDrawSorting

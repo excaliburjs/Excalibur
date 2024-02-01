@@ -11,9 +11,17 @@ import { VertexLayout } from '../vertex-layout';
 import frag from './image-renderer.frag.glsl';
 import vert from './image-renderer.vert.glsl';
 
+export interface ImageRendererOptions {
+  pixelArtSampler: boolean;
+  uvPadding: number;
+}
+
 export class ImageRenderer implements RendererPlugin {
   public readonly type = 'ex.image';
   public priority: number = 0;
+
+  public readonly pixelArtSampler: boolean;
+  public readonly uvPadding: number;
 
   private _maxImages: number = 10922; // max(uint16) / 6 verts
   private _maxTextures: number = 0;
@@ -29,6 +37,11 @@ export class ImageRenderer implements RendererPlugin {
   private _imageCount: number = 0;
   private _textures: WebGLTexture[] = [];
   private _vertexIndex: number = 0;
+
+  constructor(options: ImageRendererOptions) {
+    this.pixelArtSampler = options.pixelArtSampler;
+    this.uvPadding = options.uvPadding;
+  }
 
   initialize(gl: WebGL2RenderingContext, context: ExcaliburGraphicsContextWebGL): void {
     this._gl = gl;
@@ -210,12 +223,10 @@ export class ImageRenderer implements RendererPlugin {
     const imageWidth = image.width || width;
     const imageHeight = image.height || height;
 
-    // TODO make configurable "uv padding"
-    const epsilon = 0.15; // in pixels
-    const uvx0 = (sx + epsilon) / imageWidth;
-    const uvy0 = (sy + epsilon) / imageHeight;
-    const uvx1 = (sx + sw - epsilon) / imageWidth;
-    const uvy1 = (sy + sh - epsilon) / imageHeight;
+    const uvx0 = (sx + this.uvPadding) / imageWidth;
+    const uvy0 = (sy + this.uvPadding) / imageHeight;
+    const uvx1 = (sx + sw - this.uvPadding) / imageWidth;
+    const uvy1 = (sy + sh - this.uvPadding) / imageHeight;
 
     const txWidth = image.width;
     const txHeight = image.height;
@@ -299,7 +310,9 @@ export class ImageRenderer implements RendererPlugin {
 
     // Update ortho matrix uniform
     this._shader.setUniformMatrix('u_matrix', this._context.ortho);
-    this._shader.setUniformBoolean('u_pixelart', true); // TODO make configurable
+
+    // Turn on pixel art aa sampler
+    this._shader.setUniformBoolean('u_pixelart', this.pixelArtSampler);
 
     // Bind textures to
     this._bindTextures(gl);

@@ -123,12 +123,12 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   private _ortho!: Matrix;
 
   /**
-   * 
+   *
    */
   public snapToPixel: boolean = false;
 
   /**
-   * 
+   *
    */
   public readonly smoothing: boolean = false;
 
@@ -139,10 +139,11 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   public readonly multiSampleAntialiasing: boolean = true;
 
+  public readonly pixelArtSampler: boolean = false;
+
   /**
-   * UV padding in pixels to use in internal image rendering
+   * UV padding in pixels to use in internal image rendering to prevent texture bleed
    *
-   * 
    */
   public uvPadding = .15;
 
@@ -205,17 +206,18 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     const {
       canvasElement,
       enableTransparency,
-      smoothing,
+      antialiasing,
       uvPadding,
-      multiSampleAntialias,
+      pixelArtSampler,
+      multiSampleAntialiasing: multiSampleAntialias,
       powerPreference,
       snapToPixel,
       backgroundColor,
       useDrawSorting
     } = options;
     this.__gl = canvasElement.getContext('webgl2', {
-      antialias: smoothing ?? this.smoothing,
-      premultipliedAlpha: false, // Shouldn't pre multiplied be on?
+      antialias: antialiasing ?? this.smoothing,
+      premultipliedAlpha: false, // TODO Shouldn't pre multiplied be on?
       alpha: enableTransparency ?? true,
       depth: false,
       powerPreference: powerPreference ?? 'high-performance'
@@ -225,10 +227,11 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     }
     this.textureLoader = new TextureLoader(this.__gl);
     this.snapToPixel = snapToPixel ?? this.snapToPixel;
-    this.smoothing = smoothing ?? this.smoothing;
+    this.smoothing = antialiasing ?? this.smoothing;
+    this.pixelArtSampler = pixelArtSampler ?? this.pixelArtSampler;
     this.uvPadding = uvPadding ?? this.uvPadding;
-    this.multiSampleAntialiasing = multiSampleAntialias ? !!multiSampleAntialias : this.multiSampleAntialiasing;
-    this.samples = multiSampleAntialias ? multiSampleAntialias.samples : undefined;
+    this.multiSampleAntialiasing = typeof multiSampleAntialias === 'boolean' ? multiSampleAntialias : this.multiSampleAntialiasing;
+    this.samples = typeof multiSampleAntialias === 'object' ? multiSampleAntialias.samples : undefined;
     this.backgroundColor = backgroundColor ?? this.backgroundColor;
     this.useDrawSorting = useDrawSorting ?? this.useDrawSorting;
     this._drawCallPool.disableWarnings = true;
@@ -255,7 +258,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
     // Setup builtin renderers
-    this.register(new ImageRenderer());
+    this.register(new ImageRenderer({
+      uvPadding: this.uvPadding,
+      pixelArtSampler: this.pixelArtSampler
+    }));
     this.register(new MaterialRenderer());
     this.register(new RectangleRenderer());
     this.register(new CircleRenderer());

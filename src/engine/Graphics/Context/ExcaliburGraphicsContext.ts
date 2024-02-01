@@ -10,17 +10,20 @@ export type HTMLImageSource = HTMLImageElement | HTMLCanvasElement;
 
 export interface AntialiasOptions {
   /**
-   * Turns on the special pixel art sampler in excalibur's image shader
+   * Turns on the special pixel art sampler in excalibur's image shader for sub pixel
+   * anti-aliasing
    *
    * Default false
    */
   pixelArtSampler?: boolean;
   /**
-   * Configures the webgl's getContext('webgl2', {antialias: true | false})
+   * Configures the webgl's getContext('webgl2', {antialias: true | false}) or configures
+   * Canvas2D imageSmoothing = true;
+   *
    *
    * Default false
    */
-  webglContextAntialiasing?: boolean;
+  nativeContextAntialiasing?: boolean;
   /**
    * Configures the internal render buffer multi-sampling settings
    *
@@ -32,7 +35,7 @@ export interface AntialiasOptions {
      *
      * Default most platforms are 16 samples
      */
-    samples?: number;
+    samples: number;
   };
   /**
    * Sets the default image filtering for excalibur
@@ -48,15 +51,35 @@ export interface AntialiasOptions {
   canvasImageRendering?: 'pixelated' | 'auto';
 }
 
+export const DefaultAntialiasOptions: Required<AntialiasOptions> = {
+  pixelArtSampler: false,
+  nativeContextAntialiasing: true,
+  multiSampleAntialiasing: true,
+  filtering: ImageFiltering.Blended,
+  canvasImageRendering: 'auto'
+};
+
+export const DefaultPixelArtOptions: Required<AntialiasOptions> = {
+  pixelArtSampler: true,
+  nativeContextAntialiasing: true,
+  multiSampleAntialiasing: true,
+  filtering: ImageFiltering.Blended,
+  canvasImageRendering: 'auto'
+};
+
 export interface ExcaliburGraphicsContextOptions {
   /**
    * Target existing html canvas element
    */
   canvasElement: HTMLCanvasElement;
   /**
-   * Enables antialiasing on the canvas context
+   * Enables antialiasing on the canvas context (smooths pixels with default canvas sampling)
    */
-  smoothing?: boolean;
+  antialiasing?: boolean;
+  /**
+   * Enable the sub pixel antialiasing pixel art sampler for nice looking pixel art
+   */
+  pixelArtSampler?: boolean;
   /**
    * Enable canvas transparency
    */
@@ -66,7 +89,7 @@ export interface ExcaliburGraphicsContextOptions {
    *
    * By default enabled
    */
-  multiSampleAntialias?: false | {
+  multiSampleAntialiasing?: boolean | {
     /**
      * Specify number of samples to use during the multi sample anti-alias
      * Limited by the hardware (usually 16)
@@ -82,7 +105,7 @@ export interface ExcaliburGraphicsContextOptions {
   /**
    * Hint the power preference to the graphics context
    */
-  powerPreference?: "default" | "high-performance" | "low-power";
+  powerPreference?: 'default' | 'high-performance' | 'low-power';
   /**
    * Snaps the pixel to an integer value (floor)
    */
@@ -176,7 +199,7 @@ export interface ExcaliburGraphicsContext {
   snapToPixel: boolean;
 
   /**
-   * Enable smoothed drawing (also known as anti-aliasing), by default false
+   * Enable smoothed drawing (also known as anti-aliasing), by default true
    */
   smoothing: boolean;
 
