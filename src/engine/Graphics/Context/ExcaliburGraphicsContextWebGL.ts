@@ -123,22 +123,19 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   private _ortho!: Matrix;
 
   /**
-   *
+   * Snaps the drawing x/y coordinate to the nearest whole pixel
    */
   public snapToPixel: boolean = false;
 
   /**
-   *
+   * Native context smoothing
    */
   public readonly smoothing: boolean = false;
 
+
   /**
-   * Multi sample antialias samples, if unset the platform maximum will be used
+   * Whether the pixel art sampler is enabled for smooth sub pixel anti-aliasing
    */
-  public readonly samples?: number;
-
-  public readonly multiSampleAntialiasing: boolean = true;
-
   public readonly pixelArtSampler: boolean = false;
 
   /**
@@ -209,7 +206,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       antialiasing,
       uvPadding,
       pixelArtSampler,
-      multiSampleAntialiasing: multiSampleAntialias,
       powerPreference,
       snapToPixel,
       backgroundColor,
@@ -230,8 +226,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this.smoothing = antialiasing ?? this.smoothing;
     this.pixelArtSampler = pixelArtSampler ?? this.pixelArtSampler;
     this.uvPadding = uvPadding ?? this.uvPadding;
-    this.multiSampleAntialiasing = typeof multiSampleAntialias === 'boolean' ? multiSampleAntialias : this.multiSampleAntialiasing;
-    this.samples = typeof multiSampleAntialias === 'object' ? multiSampleAntialias.samples : undefined;
+    // this.multiSampleAntialiasing = typeof multiSampleAntialias === 'boolean' ? multiSampleAntialias : this.multiSampleAntialiasing;
+    // this.samples = typeof multiSampleAntialias === 'object' ? multiSampleAntialias.samples : undefined;
     this.backgroundColor = backgroundColor ?? this.backgroundColor;
     this.useDrawSorting = useDrawSorting ?? this.useDrawSorting;
     this._drawCallPool.disableWarnings = true;

@@ -791,12 +791,12 @@ O|===|* >________________>\n\
     let nativeContextAntialiasing:boolean;
     let canvasImageRendering: 'pixelated' | 'auto';
     let filtering: ImageFiltering;
-    let multiSampleAntialiasing: boolean | { samples: number };
+    // let multiSampleAntialiasing: boolean | { samples: number };
     if (typeof options.antialiasing === 'object') {
       ({
         pixelArtSampler,
         nativeContextAntialiasing,
-        multiSampleAntialiasing,
+        // multiSampleAntialiasing,
         filtering,
         canvasImageRendering
       } = {
@@ -807,7 +807,7 @@ O|===|* >________________>\n\
     } else {
       pixelArtSampler = !!options.pixelArt;
       nativeContextAntialiasing = options.antialiasing;
-      multiSampleAntialiasing = options.antialiasing;
+      // multiSampleAntialiasing = options.antialiasing;
       canvasImageRendering = options.antialiasing ? 'auto' : 'pixelated';
       filtering = options.antialiasing ? ImageFiltering.Blended : ImageFiltering.Pixel;
     }
@@ -822,7 +822,7 @@ O|===|* >________________>\n\
           enableTransparency: this.enableCanvasTransparency,
           pixelArtSampler: pixelArtSampler,
           antialiasing: nativeContextAntialiasing,
-          multiSampleAntialiasing: multiSampleAntialiasing,
+          // multiSampleAntialiasing: multiSampleAntialiasing,
           uvPadding: options.uvPadding,
           powerPreference: options.powerPreference,
           backgroundColor: options.backgroundColor,

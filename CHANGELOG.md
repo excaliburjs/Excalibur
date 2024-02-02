@@ -37,7 +37,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
           pixelArtSampler: false,
           filtering: ex.ImageFiltering.Pixel,
           nativeContextAntialiasing: false,
-          multiSampleAntialiasing: false,
           canvasImageRendering: 'pixelated'
       }
    })
