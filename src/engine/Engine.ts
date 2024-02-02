@@ -155,8 +155,7 @@ export interface EngineOptions<TKnownScenes extends string = any> {
    *  pixelArtSampler: true,
    *  canvasImageRendering: 'auto',
    *  filtering: ImageFiltering.Blended,
-   *  webglAntialiasing: true,
-   *  multiSampleAntialiasing: true
+   *  webglAntialiasing: true
    * }
    * ```
    */
