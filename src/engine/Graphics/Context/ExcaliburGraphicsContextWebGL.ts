@@ -106,6 +106,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   // Main render target
   private _renderTarget: RenderTarget;
 
+  // Quad boundary MSAA
+  private _msaaTarget: RenderTarget;
+
   // Postprocessing is a tuple with 2 render targets, these are flip-flopped during the postprocessing process
   private _postProcessTargets: RenderTarget[] = [];
 
@@ -199,12 +202,16 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     return supported;
   }
 
+  public readonly multiSampleAntialiasing: boolean = true;
+  public readonly samples?: number;
+
   constructor(options: ExcaliburGraphicsContextOptions) {
     const {
       canvasElement,
       enableTransparency,
       antialiasing,
       uvPadding,
+      multiSampleAntialiasing,
       pixelArtSampler,
       powerPreference,
       snapToPixel,
@@ -226,8 +233,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this.smoothing = antialiasing ?? this.smoothing;
     this.pixelArtSampler = pixelArtSampler ?? this.pixelArtSampler;
     this.uvPadding = uvPadding ?? this.uvPadding;
-    // this.multiSampleAntialiasing = typeof multiSampleAntialias === 'boolean' ? multiSampleAntialias : this.multiSampleAntialiasing;
-    // this.samples = typeof multiSampleAntialias === 'object' ? multiSampleAntialias.samples : undefined;
+    this.multiSampleAntialiasing = typeof multiSampleAntialiasing === 'boolean' ? multiSampleAntialiasing : this.multiSampleAntialiasing;
+    this.samples = typeof multiSampleAntialiasing === 'object' ? multiSampleAntialiasing.samples : undefined;
     this.backgroundColor = backgroundColor ?? this.backgroundColor;
     this.useDrawSorting = useDrawSorting ?? this.useDrawSorting;
     this._drawCallPool.disableWarnings = true;
@@ -294,6 +301,14 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
         height: gl.canvas.height
       })
     ];
+
+    this._msaaTarget = new RenderTarget({
+      gl,
+      width: gl.canvas.width,
+      height: gl.canvas.height,
+      antialias: this.multiSampleAntialiasing,
+      samples: this.samples
+    });
   }
 
   public register<T extends RendererPlugin>(renderer: T) {
@@ -373,6 +388,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._ortho = this._ortho = Matrix.ortho(0, resolution.width, resolution.height, 0, 400, -400);
 
     this._renderTarget.setResolution(gl.canvas.width, gl.canvas.height);
+    this._msaaTarget.setResolution(gl.canvas.width, gl.canvas.height);
     this._postProcessTargets[0].setResolution(gl.canvas.width, gl.canvas.height);
     this._postProcessTargets[1].setResolution(gl.canvas.width, gl.canvas.height);
   }
@@ -646,8 +662,17 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       this._postProcessTargets[i % 2].toRenderSource().use();
     }
 
+    if (this.multiSampleAntialiasing) {
+      this._msaaTarget.use();
+      this._screenRenderer.renderToScreen();
+    }
+
     // passing null switches rendering back to the canvas
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    this._screenRenderer.renderToScreen();
+    if (this.multiSampleAntialiasing) {
+      this._msaaTarget.blitToScreen();
+    } else {
+      this._screenRenderer.renderToScreen();
+    }
   }
 }

@@ -165,7 +165,7 @@ export interface EngineOptions<TKnownScenes extends string = any> {
    * Specify any UV padding you want use in pixels, this brings sampling into the texture if you're using
    * a sprite sheet in one image to prevent sampling bleed.
    *
-   * By default .15 pixels
+   * By default .01 pixels, and .25 pixels if `pixelArt: true`
    */
   uvPadding?: number;
 
@@ -650,7 +650,6 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
     snapToPixel: false,
     antialiasing: true,
     pixelArt: false,
-    uvPadding: 0.01,
     powerPreference: 'high-performance',
     pointerScope: PointerScope.Canvas,
     suppressConsoleBootMessage: null,
@@ -787,15 +786,16 @@ O|===|* >________________>\n\
     this._originalDisplayMode = displayMode;
 
     let pixelArtSampler: boolean;
-    let nativeContextAntialiasing:boolean;
+    let uvPadding: number;
+    let nativeContextAntialiasing: boolean;
     let canvasImageRendering: 'pixelated' | 'auto';
     let filtering: ImageFiltering;
-    // let multiSampleAntialiasing: boolean | { samples: number };
+    let multiSampleAntialiasing: boolean | { samples: number };
     if (typeof options.antialiasing === 'object') {
       ({
         pixelArtSampler,
         nativeContextAntialiasing,
-        // multiSampleAntialiasing,
+        multiSampleAntialiasing,
         filtering,
         canvasImageRendering
       } = {
@@ -806,10 +806,16 @@ O|===|* >________________>\n\
     } else {
       pixelArtSampler = !!options.pixelArt;
       nativeContextAntialiasing = options.antialiasing;
-      // multiSampleAntialiasing = options.antialiasing;
+      multiSampleAntialiasing = options.antialiasing;
       canvasImageRendering = options.antialiasing ? 'auto' : 'pixelated';
       filtering = options.antialiasing ? ImageFiltering.Blended : ImageFiltering.Pixel;
     }
+
+    if (options.pixelArt) {
+      uvPadding = .25;
+    }
+    // Override with any user option, if non default to .25 for pixel art, 0.01 for everything else
+    uvPadding = options.uvPadding ?? uvPadding ?? 0.01;
 
     // Canvas 2D fallback can be flagged on
     let useCanvasGraphicsContext = Flags.isEnabled('use-canvas-context');
@@ -821,8 +827,8 @@ O|===|* >________________>\n\
           enableTransparency: this.enableCanvasTransparency,
           pixelArtSampler: pixelArtSampler,
           antialiasing: nativeContextAntialiasing,
-          // multiSampleAntialiasing: multiSampleAntialiasing,
-          uvPadding: options.uvPadding,
+          multiSampleAntialiasing: multiSampleAntialiasing,
+          uvPadding: uvPadding,
           powerPreference: options.powerPreference,
           backgroundColor: options.backgroundColor,
           snapToPixel: options.snapToPixel,

@@ -123,6 +123,19 @@ export class RenderTarget {
     return source;
   }
 
+  public blitToScreen() {
+    if (this._renderBuffer) {
+      const gl = this._gl;
+      gl.bindFramebuffer(gl.READ_FRAMEBUFFER, this.renderFrameBuffer);
+      gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
+      gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 1.0, 1.0]);
+      gl.blitFramebuffer(
+        0, 0, this.width, this.height,
+        0, 0, this.width, this.height,
+        gl.COLOR_BUFFER_BIT, gl.LINEAR);
+    }
+  }
+
   public blitRenderBuffer() {
     if (this._renderBuffer) {
       const gl = this._gl;
