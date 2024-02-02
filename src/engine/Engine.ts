@@ -1271,6 +1271,7 @@ O|===|* >________________>\n\
    * canvas. Set this to `false` if you want a 'jagged' pixel art look to your
    * image resources.
    * @param isSmooth  Set smoothing to true or false
+   * @deprecated Set in engine constructor, will be removed in v0.30
    */
   public setAntialiasing(isSmooth: boolean) {
     this.screen.antialiasing = isSmooth;
@@ -1278,6 +1279,7 @@ O|===|* >________________>\n\
 
   /**
    * Return the current smoothing status of the canvas
+   * @deprecated Set in engine constructor, will be removed in v0.30
    */
   public getAntialiasing(): boolean {
     return this.screen.antialiasing;

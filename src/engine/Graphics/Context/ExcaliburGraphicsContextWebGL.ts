@@ -283,7 +283,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._renderTarget = new RenderTarget({
       gl,
       width: gl.canvas.width,
-      height: gl.canvas.height,
+      height: gl.canvas.height
     });
 
     this._postProcessTargets = [
