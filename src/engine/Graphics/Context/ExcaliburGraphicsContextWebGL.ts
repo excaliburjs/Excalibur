@@ -142,7 +142,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
    * UV padding in pixels to use in internal image rendering to prevent texture bleed
    *
    */
-  public uvPadding = .15;
+  public uvPadding = .01;
 
   public backgroundColor: Color = Color.ExcaliburBlue;
 
@@ -213,7 +213,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     } = options;
     this.__gl = canvasElement.getContext('webgl2', {
       antialias: antialiasing ?? this.smoothing,
-      premultipliedAlpha: false, // TODO Shouldn't pre multiplied be on?
+      premultipliedAlpha: false,
       alpha: enableTransparency ?? true,
       depth: false,
       powerPreference: powerPreference ?? 'high-performance'

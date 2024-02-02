@@ -83,16 +83,11 @@ export class TextureLoader {
 
     // NEAREST for pixel art, LINEAR for hi-res
     const filterMode = filtering ?? TextureLoader.filtering;
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filterMode === ImageFiltering.Pixel ? gl.NEAREST_MIPMAP_NEAREST : gl.LINEAR);
+
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filterMode === ImageFiltering.Pixel ? gl.NEAREST : gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filterMode === ImageFiltering.Pixel ? gl.NEAREST : gl.LINEAR);
 
-    // TODO make configurable
-    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_BASE_LEVEL, 1);
-    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAX_LEVEL, 7);
-
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-    // TODO does this need POT?
-    gl.generateMipmap(gl.TEXTURE_2D); // TODO make configurable
 
     this._textureMap.set(image, tex);
     return tex;
