@@ -12,6 +12,8 @@ import { ExcaliburGraphicsContext } from './Graphics/Context/ExcaliburGraphicsCo
 import { watchAny } from './Util/Watch';
 import { AffineMatrix } from './Math/affine-matrix';
 import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
+import { pixelSnapEpsilon } from './Graphics';
+import { sign } from './Math/util';
 
 /**
  * Interface that describes a custom camera strategy for tracking targets
@@ -776,6 +778,7 @@ export class Camera implements CanUpdate, CanInitialize {
     this._postupdate(engine, delta);
   }
 
+  private _snapPos = vec(0, 0);
   /**
    * Applies the relevant transformations to the game canvas to "move" or apply effects to the Camera
    * @param ctx Canvas context to apply transformations
@@ -796,9 +799,9 @@ export class Camera implements CanUpdate, CanInitialize {
     }
     // Snap camera to pixel
     if (ctx.snapToPixel) {
-      const snapPos = this.drawPos.clone();
-      snapPos.x = ~~(snapPos.x + .001);
-      snapPos.y = ~~(snapPos.y + .001);
+      const snapPos = this.drawPos.clone(this._snapPos);
+      snapPos.x = ~~(snapPos.x + pixelSnapEpsilon * sign(snapPos.x));
+      snapPos.y = ~~(snapPos.y + pixelSnapEpsilon * sign(snapPos.y));
       snapPos.clone(this.drawPos);
       this.updateTransform(snapPos);
     }
