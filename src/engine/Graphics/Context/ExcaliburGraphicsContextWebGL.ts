@@ -106,6 +106,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   // Main render target
   private _renderTarget: RenderTarget;
 
+  // Quad boundary MSAA
+  private _msaaTarget: RenderTarget;
+
   // Postprocessing is a tuple with 2 render targets, these are flip-flopped during the postprocessing process
   private _postProcessTargets: RenderTarget[] = [];
 
@@ -122,9 +125,27 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   private _state = new StateStack();
   private _ortho!: Matrix;
 
+  /**
+   * Snaps the drawing x/y coordinate to the nearest whole pixel
+   */
   public snapToPixel: boolean = false;
 
-  public smoothing: boolean = false;
+  /**
+   * Native context smoothing
+   */
+  public readonly smoothing: boolean = false;
+
+
+  /**
+   * Whether the pixel art sampler is enabled for smooth sub pixel anti-aliasing
+   */
+  public readonly pixelArtSampler: boolean = false;
+
+  /**
+   * UV padding in pixels to use in internal image rendering to prevent texture bleed
+   *
+   */
+  public uvPadding = .01;
 
   public backgroundColor: Color = Color.ExcaliburBlue;
 
@@ -181,23 +202,41 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     return supported;
   }
 
+  public readonly multiSampleAntialiasing: boolean = true;
+  public readonly samples?: number;
+  public readonly transparency: boolean = true;
+
   constructor(options: ExcaliburGraphicsContextOptions) {
-    const { canvasElement, enableTransparency, smoothing, snapToPixel, backgroundColor, useDrawSorting } = options;
+    const {
+      canvasElement,
+      enableTransparency,
+      antialiasing,
+      uvPadding,
+      multiSampleAntialiasing,
+      pixelArtSampler,
+      powerPreference,
+      snapToPixel,
+      backgroundColor,
+      useDrawSorting
+    } = options;
     this.__gl = canvasElement.getContext('webgl2', {
-      antialias: smoothing ?? this.smoothing,
+      antialias: antialiasing ?? this.smoothing,
       premultipliedAlpha: false,
-      alpha: enableTransparency ?? true,
-      depth: true,
-      powerPreference: 'high-performance'
-      // TODO Chromium fixed the bug where this didn't work now it breaks CI :(
-      // failIfMajorPerformanceCaveat: true
+      alpha: enableTransparency ?? this.transparency,
+      depth: false,
+      powerPreference: powerPreference ?? 'high-performance'
     });
     if (!this.__gl) {
       throw Error('Failed to retrieve webgl context from browser');
     }
     this.textureLoader = new TextureLoader(this.__gl);
     this.snapToPixel = snapToPixel ?? this.snapToPixel;
-    this.smoothing = smoothing ?? this.smoothing;
+    this.smoothing = antialiasing ?? this.smoothing;
+    this.transparency = enableTransparency ?? this.transparency;
+    this.pixelArtSampler = pixelArtSampler ?? this.pixelArtSampler;
+    this.uvPadding = uvPadding ?? this.uvPadding;
+    this.multiSampleAntialiasing = typeof multiSampleAntialiasing === 'boolean' ? multiSampleAntialiasing : this.multiSampleAntialiasing;
+    this.samples = typeof multiSampleAntialiasing === 'object' ? multiSampleAntialiasing.samples : undefined;
     this.backgroundColor = backgroundColor ?? this.backgroundColor;
     this.useDrawSorting = useDrawSorting ?? this.useDrawSorting;
     this._drawCallPool.disableWarnings = true;
@@ -224,7 +263,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
     // Setup builtin renderers
-    this.register(new ImageRenderer());
+    this.register(new ImageRenderer({
+      uvPadding: this.uvPadding,
+      pixelArtSampler: this.pixelArtSampler
+    }));
     this.register(new MaterialRenderer());
     this.register(new RectangleRenderer());
     this.register(new CircleRenderer());
@@ -245,23 +287,34 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
     this._renderTarget = new RenderTarget({
       gl,
+      transparency: this.transparency,
       width: gl.canvas.width,
       height: gl.canvas.height
     });
 
-
     this._postProcessTargets = [
       new RenderTarget({
         gl,
+        transparency: this.transparency,
         width: gl.canvas.width,
         height: gl.canvas.height
       }),
       new RenderTarget({
         gl,
+        transparency: this.transparency,
         width: gl.canvas.width,
         height: gl.canvas.height
       })
     ];
+
+    this._msaaTarget = new RenderTarget({
+      gl,
+      transparency: this.transparency,
+      width: gl.canvas.width,
+      height: gl.canvas.height,
+      antialias: this.multiSampleAntialiasing,
+      samples: this.samples
+    });
   }
 
   public register<T extends RendererPlugin>(renderer: T) {
@@ -341,6 +394,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._ortho = this._ortho = Matrix.ortho(0, resolution.width, resolution.height, 0, 400, -400);
 
     this._renderTarget.setResolution(gl.canvas.width, gl.canvas.height);
+    this._msaaTarget.setResolution(gl.canvas.width, gl.canvas.height);
     this._postProcessTargets[0].setResolution(gl.canvas.width, gl.canvas.height);
     this._postProcessTargets[1].setResolution(gl.canvas.width, gl.canvas.height);
   }
@@ -514,7 +568,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   clear() {
     const gl = this.__gl;
-    this._renderTarget.use();
+    const currentTarget = this.multiSampleAntialiasing ? this._msaaTarget : this._renderTarget;
+    currentTarget.use();
     gl.clearColor(this.backgroundColor.r / 255, this.backgroundColor.g / 255, this.backgroundColor.b / 255, this.backgroundColor.a);
     // Clear the context with the newly set color. This is
     // the function call that actually does the drawing.
@@ -525,10 +580,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
    * Flushes all batched rendering to the screen
    */
   flush() {
-    const gl = this.__gl;
-
     // render target captures all draws and redirects to the render target
-    this._renderTarget.use();
+    let currentTarget = this.multiSampleAntialiasing ? this._msaaTarget : this._renderTarget;
+    currentTarget.use();
 
     if (this.useDrawSorting) {
       // sort draw calls
@@ -572,10 +626,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
           // ! hack to grab screen texture before materials run because they might want it
           if (currentRenderer instanceof MaterialRenderer && this.material.isUsingScreenTexture) {
-            const gl = this.__gl;
-            gl.bindTexture(gl.TEXTURE_2D, this.materialScreenTexture);
-            gl.copyTexImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 0, 0, this.width, this.height, 0);
-            this._renderTarget.use();
+            currentTarget.copyToTexture(this.materialScreenTexture);
+            currentTarget.use();
           }
           // If we are still using the same renderer we can add to the current batch
           currentRenderer.draw(...this._drawCalls[i].args);
@@ -601,21 +653,23 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       }
     }
 
-    this._renderTarget.disable();
+    currentTarget.disable();
 
     // post process step
-    const source = this._renderTarget.toRenderSource();
-    source.use();
+    if (this._postprocessors.length > 0) {
+      const source = currentTarget.toRenderSource();
+      source.use();
+    }
 
-    // flip flop render targets
+    // flip flop render targets for post processing
     for (let i = 0; i < this._postprocessors.length; i++) {
+      currentTarget = this._postProcessTargets[i % 2];
       this._postProcessTargets[i % 2].use();
       this._screenRenderer.renderWithPostProcessor(this._postprocessors[i]);
       this._postProcessTargets[i % 2].toRenderSource().use();
     }
 
-    // passing null switches rendering back to the canvas
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    this._screenRenderer.renderToScreen();
+    // Final blit to the screen
+    currentTarget.blitToScreen();
   }
 }

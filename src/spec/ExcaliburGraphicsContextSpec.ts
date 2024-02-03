@@ -288,7 +288,8 @@ describe('The ExcaliburGraphicsContext', () => {
       const context = new ex.ExcaliburGraphicsContextWebGL({
         canvasElement: canvas,
         backgroundColor: ex.Color.Black,
-        smoothing: false,
+        antialiasing: false,
+        multiSampleAntialiasing: false,
         snapToPixel: true
       });
       const rect = new ex.Rectangle({
@@ -311,7 +312,8 @@ describe('The ExcaliburGraphicsContext', () => {
       const context = new ex.ExcaliburGraphicsContextWebGL({
         canvasElement: canvas,
         backgroundColor: ex.Color.Black,
-        smoothing: false,
+        antialiasing: false,
+        multiSampleAntialiasing: false,
         snapToPixel: true
       });
       const rect = new ex.Rectangle({
@@ -336,7 +338,8 @@ describe('The ExcaliburGraphicsContext', () => {
       const context = new ex.ExcaliburGraphicsContextWebGL({
         canvasElement: canvas,
         backgroundColor: ex.Color.Black,
-        smoothing: false,
+        antialiasing: false,
+        multiSampleAntialiasing: false,
         snapToPixel: true
       });
 
@@ -356,7 +359,8 @@ describe('The ExcaliburGraphicsContext', () => {
       const context = new ex.ExcaliburGraphicsContextWebGL({
         canvasElement: canvas,
         backgroundColor: ex.Color.Black,
-        smoothing: false,
+        antialiasing: false,
+        multiSampleAntialiasing: false,
         snapToPixel: true
       });
 
@@ -376,7 +380,8 @@ describe('The ExcaliburGraphicsContext', () => {
       const context = new ex.ExcaliburGraphicsContextWebGL({
         canvasElement: canvas,
         backgroundColor: ex.Color.Black,
-        smoothing: false,
+        antialiasing: false,
+        multiSampleAntialiasing: false,
         snapToPixel: true
       });
 
@@ -396,7 +401,8 @@ describe('The ExcaliburGraphicsContext', () => {
       const context = new ex.ExcaliburGraphicsContextWebGL({
         canvasElement: canvas,
         backgroundColor: ex.Color.Black,
-        smoothing: false,
+        antialiasing: false,
+        multiSampleAntialiasing: false,
         snapToPixel: true
       });
 
@@ -430,11 +436,6 @@ describe('The ExcaliburGraphicsContext', () => {
 
       sut.clear();
       sut.drawImage(rect._bitmap, 20, 20);
-      // sut.opacity = .5;
-      // sut.drawCircle(ex.vec(50, 50), 50, ex.Color.Green);
-      // sut.drawLine(ex.vec(10, 10), ex.vec(90, 90), ex.Color.Red, 5);
-      // sut.drawLine(ex.vec(90, 10), ex.vec(10, 90), ex.Color.Red, 5);
-      // sut.drawRectangle(ex.vec(10, 10), 80, 80, ex.Color.Blue);
       sut.flush();
 
       await expectAsync(flushWebGLCanvasTo2D(canvasElement)).toEqualImage(
@@ -510,6 +511,8 @@ describe('The ExcaliburGraphicsContext', () => {
       const sut = new ex.ExcaliburGraphicsContextWebGL({
         canvasElement: canvasElement,
         enableTransparency: false,
+        antialiasing: false,
+        multiSampleAntialiasing: false,
         backgroundColor: ex.Color.White,
         snapToPixel: false
       });
@@ -523,6 +526,8 @@ describe('The ExcaliburGraphicsContext', () => {
       spyOn(imageRenderer, 'flush').and.callThrough();
       const rectangleRenderer = sut.get('ex.rectangle');
       spyOn(rectangleRenderer, 'flush').and.callThrough();
+
+      sut.clear();
 
       sut.useDrawSorting = false;
 
@@ -560,6 +565,8 @@ describe('The ExcaliburGraphicsContext', () => {
       const sut = new ex.ExcaliburGraphicsContextWebGL({
         canvasElement: canvasElement,
         enableTransparency: false,
+        antialiasing: false,
+        multiSampleAntialiasing: false,
         backgroundColor: ex.Color.White,
         snapToPixel: false
       });
@@ -574,6 +581,7 @@ describe('The ExcaliburGraphicsContext', () => {
       const rectangleRenderer = sut.get('ex.rectangle');
       spyOn(rectangleRenderer, 'flush').and.callThrough();
 
+      sut.clear();
       sut.useDrawSorting = true;
 
       sut.drawLine(ex.vec(0, 0), ex.vec(100, 100), ex.Color.Red, 2);
@@ -608,6 +616,8 @@ describe('The ExcaliburGraphicsContext', () => {
       const sut = new ex.ExcaliburGraphicsContextWebGL({
         canvasElement: canvasElement,
         enableTransparency: false,
+        antialiasing: false,
+        multiSampleAntialiasing: false,
         backgroundColor: ex.Color.White
       });
 
@@ -629,6 +639,8 @@ describe('The ExcaliburGraphicsContext', () => {
       const sut = new ex.ExcaliburGraphicsContextWebGL({
         canvasElement: canvasElement,
         enableTransparency: false,
+        antialiasing: false,
+        multiSampleAntialiasing: false,
         backgroundColor: ex.Color.White
       });
 
@@ -881,6 +893,8 @@ describe('The ExcaliburGraphicsContext', () => {
       const sut = new ex.ExcaliburGraphicsContextWebGL({
         canvasElement: canvasElement,
         enableTransparency: false,
+        antialiasing: false,
+        multiSampleAntialiasing: false,
         backgroundColor: ex.Color.White,
         snapToPixel: false
       });
@@ -899,6 +913,8 @@ describe('The ExcaliburGraphicsContext', () => {
       const sut = new ex.ExcaliburGraphicsContextWebGL({
         canvasElement: canvasElement,
         enableTransparency: false,
+        antialiasing: false,
+        multiSampleAntialiasing: false,
         backgroundColor: ex.Color.White
       });
 

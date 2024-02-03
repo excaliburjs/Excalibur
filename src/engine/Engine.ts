@@ -35,7 +35,15 @@ import { Scene, SceneConstructor, isSceneConstructor } from './Scene';
 import { Entity } from './EntityComponentSystem/Entity';
 import { Debug, DebugStats } from './Debug/Debug';
 import { BrowserEvents } from './Util/Browser';
-import { ExcaliburGraphicsContext, ExcaliburGraphicsContext2DCanvas, ExcaliburGraphicsContextWebGL, TextureLoader } from './Graphics';
+import {
+  AntialiasOptions,
+  DefaultAntialiasOptions,
+  DefaultPixelArtOptions,
+  ExcaliburGraphicsContext,
+  ExcaliburGraphicsContext2DCanvas,
+  ExcaliburGraphicsContextWebGL,
+  TextureLoader
+} from './Graphics';
 import { Clock, StandardClock } from './Util/Clock';
 import { ImageFiltering } from './Graphics/Filtering';
 import { GraphicsDiagnostics } from './Graphics/GraphicsDiagnostics';
@@ -73,6 +81,8 @@ export const EngineEvents = {
   PreDraw: 'predraw',
   PostDraw: 'postdraw'
 } as const;
+
+
 
 /**
  * Enum representing the different mousewheel event bubble prevention
@@ -122,12 +132,49 @@ export interface EngineOptions<TKnownScenes extends string = any> {
    * Optionally specify antialiasing (smoothing), by default true (smooth pixels)
    *
    *  * `true` - useful for high resolution art work you would like smoothed, this also hints excalibur to load images
-   * with [[ImageFiltering.Blended]]
+   * with default blending [[ImageFiltering.Blended]]
    *
    *  * `false` - useful for pixel art style art work you would like sharp, this also hints excalibur to load images
-   * with [[ImageFiltering.Pixel]]
+   * with default blending [[ImageFiltering.Pixel]]
+   *
+   * * [[AntialiasOptions]] Optionally deeply configure the different antialiasing settings, **WARNING** thar be dragons here.
+   * It is recommended you stick to `true` or `false` unless you understand what you're doing and need to control rendering to
+   * a high degree.
    */
-  antialiasing?: boolean;
+  antialiasing?: boolean | AntialiasOptions
+
+  /**
+   * Quick convenience property to configure Excalibur to use special settings for "pretty" anti-aliased pixel art
+   *
+   * 1. Turns on special shader condition to blend for pixel art and enables various antialiasing settings,
+   *  notice blending is ON for this special mode.
+   *
+   * Equivalent to:
+   * ```javascript
+   * antialiasing: {
+   *  pixelArtSampler: true,
+   *  canvasImageRendering: 'auto',
+   *  filtering: ImageFiltering.Blended,
+   *  webglAntialiasing: true
+   * }
+   * ```
+   */
+  pixelArt?: boolean;
+
+  /**
+   * Specify any UV padding you want use in pixels, this brings sampling into the texture if you're using
+   * a sprite sheet in one image to prevent sampling bleed.
+   *
+   * By default .01 pixels, and .25 pixels if `pixelArt: true`
+   */
+  uvPadding?: number;
+
+  /**
+   * Optionally hint the graphics context into a specific power profile
+   *
+   * Default "high-performance"
+   */
+  powerPreference?: 'default' | 'high-performance' | 'low-power';
 
   /**
    * Optionally upscale the number of pixels in the canvas. Normally only useful if you need a smoother look to your assets, especially
@@ -601,6 +648,9 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
     canvasElementId: '',
     canvasElement: undefined,
     snapToPixel: false,
+    antialiasing: true,
+    pixelArt: false,
+    powerPreference: 'high-performance',
     pointerScope: PointerScope.Canvas,
     suppressConsoleBootMessage: null,
     suppressMinimumBrowserFeatureDetection: null,
@@ -735,6 +785,43 @@ O|===|* >________________>\n\
 
     this._originalDisplayMode = displayMode;
 
+    let pixelArtSampler: boolean;
+    let uvPadding: number;
+    let nativeContextAntialiasing: boolean;
+    let canvasImageRendering: 'pixelated' | 'auto';
+    let filtering: ImageFiltering;
+    let multiSampleAntialiasing: boolean | { samples: number };
+    if (typeof options.antialiasing === 'object') {
+      ({
+        pixelArtSampler,
+        nativeContextAntialiasing,
+        multiSampleAntialiasing,
+        filtering,
+        canvasImageRendering
+      } = {
+        ...(options.pixelArt ? DefaultPixelArtOptions : DefaultAntialiasOptions),
+        ...options.antialiasing
+      });
+
+    } else {
+      pixelArtSampler = !!options.pixelArt;
+      nativeContextAntialiasing = false;
+      multiSampleAntialiasing = options.antialiasing;
+      canvasImageRendering = options.antialiasing ? 'auto' : 'pixelated';
+      filtering = options.antialiasing ? ImageFiltering.Blended : ImageFiltering.Pixel;
+    }
+
+    if (nativeContextAntialiasing && multiSampleAntialiasing) {
+      this._logger.warnOnce(`Cannot use antialias setting nativeContextAntialiasing and multiSampleAntialiasing` +
+      ` at the same time, they are incompatible settings. If you aren\'t sure use multiSampleAntialiasing`);
+    }
+
+    if (options.pixelArt) {
+      uvPadding = .25;
+    }
+    // Override with any user option, if non default to .25 for pixel art, 0.01 for everything else
+    uvPadding = options.uvPadding ?? uvPadding ?? 0.01;
+
     // Canvas 2D fallback can be flagged on
     let useCanvasGraphicsContext = Flags.isEnabled('use-canvas-context');
     if (!useCanvasGraphicsContext) {
@@ -743,7 +830,11 @@ O|===|* >________________>\n\
         this.graphicsContext = new ExcaliburGraphicsContextWebGL({
           canvasElement: this.canvas,
           enableTransparency: this.enableCanvasTransparency,
-          smoothing: options.antialiasing,
+          pixelArtSampler: pixelArtSampler,
+          antialiasing: nativeContextAntialiasing,
+          multiSampleAntialiasing: multiSampleAntialiasing,
+          uvPadding: uvPadding,
+          powerPreference: options.powerPreference,
           backgroundColor: options.backgroundColor,
           snapToPixel: options.snapToPixel,
           useDrawSorting: options.useDrawSorting
@@ -763,7 +854,7 @@ O|===|* >________________>\n\
       this.graphicsContext = new ExcaliburGraphicsContext2DCanvas({
         canvasElement: this.canvas,
         enableTransparency: this.enableCanvasTransparency,
-        smoothing: options.antialiasing,
+        antialiasing: nativeContextAntialiasing,
         backgroundColor: options.backgroundColor,
         snapToPixel: options.snapToPixel,
         useDrawSorting: options.useDrawSorting
@@ -773,7 +864,8 @@ O|===|* >________________>\n\
     this.screen = new Screen({
       canvas: this.canvas,
       context: this.graphicsContext,
-      antialiasing: options.antialiasing ?? true,
+      antialiasing: nativeContextAntialiasing,
+      canvasImageRendering: canvasImageRendering,
       browser: this.browser,
       viewport: options.viewport ?? (options.width && options.height ? { width: options.width, height: options.height } : Resolution.SVGA),
       resolution: options.resolution,
@@ -783,7 +875,7 @@ O|===|* >________________>\n\
 
     // TODO REMOVE STATIC!!!
     // Set default filtering based on antialiasing
-    TextureLoader.filtering = options.antialiasing ? ImageFiltering.Blended : ImageFiltering.Pixel;
+    TextureLoader.filtering = filtering;
 
     if (options.backgroundColor) {
       this.backgroundColor = options.backgroundColor.clone();
@@ -883,7 +975,7 @@ O|===|* >________________>\n\
     this.graphicsContext = new ExcaliburGraphicsContext2DCanvas({
       canvasElement: this.canvas,
       enableTransparency: this.enableCanvasTransparency,
-      smoothing: options.antialiasing,
+      antialiasing: options.antialiasing,
       backgroundColor: options.backgroundColor,
       snapToPixel: options.snapToPixel,
       useDrawSorting: options.useDrawSorting
@@ -1189,6 +1281,7 @@ O|===|* >________________>\n\
    * canvas. Set this to `false` if you want a 'jagged' pixel art look to your
    * image resources.
    * @param isSmooth  Set smoothing to true or false
+   * @deprecated Set in engine constructor, will be removed in v0.30
    */
   public setAntialiasing(isSmooth: boolean) {
     this.screen.antialiasing = isSmooth;
@@ -1196,6 +1289,7 @@ O|===|* >________________>\n\
 
   /**
    * Return the current smoothing status of the canvas
+   * @deprecated Set in engine constructor, will be removed in v0.30
    */
   public getAntialiasing(): boolean {
     return this.screen.antialiasing;

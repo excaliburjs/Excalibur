@@ -71,16 +71,19 @@ export class TextureLoader {
     // No texture exists create a new one
     tex = gl.createTexture();
 
+    // TODO implement texture gc with weakmap and timer
     TextureLoader.checkImageSizeSupportedAndLog(image);
 
     gl.bindTexture(gl.TEXTURE_2D, tex);
 
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+    // TODO make configurable
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
     // NEAREST for pixel art, LINEAR for hi-res
     const filterMode = filtering ?? TextureLoader.filtering;
+
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filterMode === ImageFiltering.Pixel ? gl.NEAREST : gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filterMode === ImageFiltering.Pixel ? gl.NEAREST : gl.LINEAR);
 

@@ -134,7 +134,7 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
   }
 
   constructor(options: ExcaliburGraphicsContextOptions) {
-    const { canvasElement, enableTransparency, snapToPixel, smoothing, backgroundColor } = options;
+    const { canvasElement, enableTransparency, snapToPixel, antialiasing: smoothing, backgroundColor } = options;
     this.__ctx = canvasElement.getContext('2d', {
       alpha: enableTransparency ?? true
     });

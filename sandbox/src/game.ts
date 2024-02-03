@@ -52,13 +52,13 @@ var game = new ex.Engine({
   snapToPixel: false,
   fixedUpdateFps: 30,
   maxFps: 60,
+  antialiasing: false,
   configurePerformanceCanvas2DFallback: {
     allow: true,
     showPlayerMessage: true,
     threshold: { fps: 20, numberOfFrames: 100 }
   }
 });
-game.setAntialiasing(false);
 game.screen.events.on('fullscreen', (evt) => {
   console.log('fullscreen', evt);
 });

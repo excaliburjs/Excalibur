@@ -1,3 +1,4 @@
+import { sign } from '../../../Math/util';
 import { vec } from '../../../Math/vector';
 import { ImageFiltering } from '../../Filtering';
 import { GraphicsDiagnostics } from '../../GraphicsDiagnostics';
@@ -11,9 +12,17 @@ import { VertexLayout } from '../vertex-layout';
 import frag from './image-renderer.frag.glsl';
 import vert from './image-renderer.vert.glsl';
 
+export interface ImageRendererOptions {
+  pixelArtSampler: boolean;
+  uvPadding: number;
+}
+
 export class ImageRenderer implements RendererPlugin {
   public readonly type = 'ex.image';
   public priority: number = 0;
+
+  public readonly pixelArtSampler: boolean;
+  public readonly uvPadding: number;
 
   private _maxImages: number = 10922; // max(uint16) / 6 verts
   private _maxTextures: number = 0;
@@ -29,6 +38,11 @@ export class ImageRenderer implements RendererPlugin {
   private _imageCount: number = 0;
   private _textures: WebGLTexture[] = [];
   private _vertexIndex: number = 0;
+
+  constructor(options: ImageRendererOptions) {
+    this.pixelArtSampler = options.pixelArtSampler;
+    this.uvPadding = options.uvPadding;
+  }
 
   initialize(gl: WebGL2RenderingContext, context: ExcaliburGraphicsContextWebGL): void {
     this._gl = gl;
@@ -57,7 +71,7 @@ export class ImageRenderer implements RendererPlugin {
     // Setup memory layout
     this._buffer = new VertexBuffer({
       gl,
-      size: 10 * 4 * this._maxImages, // 10 components * 4 verts
+      size: 12 * 4 * this._maxImages, // 12 components * 4 verts
       type: 'dynamic'
     });
     this._layout = new VertexLayout({
@@ -67,6 +81,7 @@ export class ImageRenderer implements RendererPlugin {
       attributes: [
         ['a_position', 2],
         ['a_opacity', 1],
+        ['a_res', 2],
         ['a_texcoord', 2],
         ['a_textureIndex', 1],
         ['a_tint', 4]
@@ -86,7 +101,8 @@ export class ImageRenderer implements RendererPlugin {
       } else {
         texturePickerBuilder += `   else if (v_textureIndex <= ${i}.5) {\n`;
       }
-      texturePickerBuilder += `      color = texture(u_textures[${i}], v_texcoord);\n`;
+      texturePickerBuilder += `      vec2 uv = u_pixelart ? uv_iq(v_texcoord, v_res) : v_texcoord;\n`;
+      texturePickerBuilder += `      color = texture(u_textures[${i}], uv);\n`;
       texturePickerBuilder += `   }\n`;
     }
     newSource = newSource.replace('%%texture_picker%%', texturePickerBuilder);
@@ -189,17 +205,17 @@ export class ImageRenderer implements RendererPlugin {
     bottomRight = transform.multiply(bottomRight);
 
     if (snapToPixel) {
-      topLeft.x = ~~(topLeft.x + pixelSnapEpsilon);
-      topLeft.y = ~~(topLeft.y + pixelSnapEpsilon);
+      topLeft.x = ~~(topLeft.x + sign(topLeft.x) * pixelSnapEpsilon);
+      topLeft.y = ~~(topLeft.y + sign(topLeft.y) * pixelSnapEpsilon);
 
-      topRight.x = ~~(topRight.x + pixelSnapEpsilon);
-      topRight.y = ~~(topRight.y + pixelSnapEpsilon);
+      topRight.x = ~~(topRight.x + sign(topRight.x) * pixelSnapEpsilon);
+      topRight.y = ~~(topRight.y + sign(topRight.y) * pixelSnapEpsilon);
 
-      bottomLeft.x = ~~(bottomLeft.x + pixelSnapEpsilon);
-      bottomLeft.y = ~~(bottomLeft.y + pixelSnapEpsilon);
+      bottomLeft.x = ~~(bottomLeft.x + sign(bottomLeft.x) * pixelSnapEpsilon);
+      bottomLeft.y = ~~(bottomLeft.y + sign(bottomLeft.y) * pixelSnapEpsilon);
 
-      bottomRight.x = ~~(bottomRight.x + pixelSnapEpsilon);
-      bottomRight.y = ~~(bottomRight.y + pixelSnapEpsilon);
+      bottomRight.x = ~~(bottomRight.x + sign(bottomRight.x) * pixelSnapEpsilon);
+      bottomRight.y = ~~(bottomRight.y + sign(bottomRight.y) * pixelSnapEpsilon);
     }
 
     const tint = this._context.tint;
@@ -208,10 +224,13 @@ export class ImageRenderer implements RendererPlugin {
     const imageWidth = image.width || width;
     const imageHeight = image.height || height;
 
-    const uvx0 = (sx) / imageWidth;
-    const uvy0 = (sy) / imageHeight;
-    const uvx1 = (sx + sw - 0.01) / imageWidth;
-    const uvy1 = (sy + sh - 0.01) / imageHeight;
+    const uvx0 = (sx + this.uvPadding) / imageWidth;
+    const uvy0 = (sy + this.uvPadding) / imageHeight;
+    const uvx1 = (sx + sw - this.uvPadding) / imageWidth;
+    const uvy1 = (sy + sh - this.uvPadding) / imageHeight;
+
+    const txWidth = image.width;
+    const txHeight = image.height;
 
     // update data
     const vertexBuffer = this._layout.vertexBuffer.bufferData;
@@ -220,6 +239,8 @@ export class ImageRenderer implements RendererPlugin {
     vertexBuffer[this._vertexIndex++] = topLeft.x;
     vertexBuffer[this._vertexIndex++] = topLeft.y;
     vertexBuffer[this._vertexIndex++] = opacity;
+    vertexBuffer[this._vertexIndex++] = txWidth;
+    vertexBuffer[this._vertexIndex++] = txHeight;
     vertexBuffer[this._vertexIndex++] = uvx0;
     vertexBuffer[this._vertexIndex++] = uvy0;
     vertexBuffer[this._vertexIndex++] = textureId;
@@ -232,6 +253,8 @@ export class ImageRenderer implements RendererPlugin {
     vertexBuffer[this._vertexIndex++] = bottomLeft.x;
     vertexBuffer[this._vertexIndex++] = bottomLeft.y;
     vertexBuffer[this._vertexIndex++] = opacity;
+    vertexBuffer[this._vertexIndex++] = txWidth;
+    vertexBuffer[this._vertexIndex++] = txHeight;
     vertexBuffer[this._vertexIndex++] = uvx0;
     vertexBuffer[this._vertexIndex++] = uvy1;
     vertexBuffer[this._vertexIndex++] = textureId;
@@ -244,6 +267,8 @@ export class ImageRenderer implements RendererPlugin {
     vertexBuffer[this._vertexIndex++] = topRight.x;
     vertexBuffer[this._vertexIndex++] = topRight.y;
     vertexBuffer[this._vertexIndex++] = opacity;
+    vertexBuffer[this._vertexIndex++] = txWidth;
+    vertexBuffer[this._vertexIndex++] = txHeight;
     vertexBuffer[this._vertexIndex++] = uvx1;
     vertexBuffer[this._vertexIndex++] = uvy0;
     vertexBuffer[this._vertexIndex++] = textureId;
@@ -256,6 +281,8 @@ export class ImageRenderer implements RendererPlugin {
     vertexBuffer[this._vertexIndex++] = bottomRight.x;
     vertexBuffer[this._vertexIndex++] = bottomRight.y;
     vertexBuffer[this._vertexIndex++] = opacity;
+    vertexBuffer[this._vertexIndex++] = txWidth;
+    vertexBuffer[this._vertexIndex++] = txHeight;
     vertexBuffer[this._vertexIndex++] = uvx1;
     vertexBuffer[this._vertexIndex++] = uvy1;
     vertexBuffer[this._vertexIndex++] = textureId;
@@ -280,10 +307,13 @@ export class ImageRenderer implements RendererPlugin {
     this._shader.use();
 
     // Bind the memory layout and upload data
-    this._layout.use(true, 4 * 10 * this._imageCount);
+    this._layout.use(true, 4 * 12 * this._imageCount); // 4 verts * 12 components
 
     // Update ortho matrix uniform
     this._shader.setUniformMatrix('u_matrix', this._context.ortho);
+
+    // Turn on pixel art aa sampler
+    this._shader.setUniformBoolean('u_pixelart', this.pixelArtSampler);
 
     // Bind textures to
     this._bindTextures(gl);
