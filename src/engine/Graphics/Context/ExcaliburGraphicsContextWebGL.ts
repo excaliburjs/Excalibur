@@ -562,7 +562,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   clear() {
     const gl = this.__gl;
-    this._renderTarget.use();
+    const currentTarget = this.multiSampleAntialiasing ? this._msaaTarget : this._renderTarget;
+    currentTarget.use();
     gl.clearColor(this.backgroundColor.r / 255, this.backgroundColor.g / 255, this.backgroundColor.b / 255, this.backgroundColor.a);
     // Clear the context with the newly set color. This is
     // the function call that actually does the drawing.
@@ -573,8 +574,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
    * Flushes all batched rendering to the screen
    */
   flush() {
-    const gl = this.__gl;
-
     // render target captures all draws and redirects to the render target
     let currentTarget = this.multiSampleAntialiasing ? this._msaaTarget : this._renderTarget;
     currentTarget.use();
@@ -621,8 +620,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
           // ! hack to grab screen texture before materials run because they might want it
           if (currentRenderer instanceof MaterialRenderer && this.material.isUsingScreenTexture) {
-            gl.bindTexture(gl.TEXTURE_2D, this.materialScreenTexture);
-            gl.copyTexImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 0, 0, this.width, this.height, 0);
+            currentTarget.copyToTexture(this.materialScreenTexture);
             currentTarget.use();
           }
           // If we are still using the same renderer we can add to the current batch

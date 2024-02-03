@@ -160,6 +160,16 @@ export class RenderTarget {
     }
   }
 
+  public copyToTexture(texture: WebGLTexture) {
+    const gl = this._gl;
+    if (this._renderBuffer) {
+      this.blitRenderBufferToFrameBuffer();
+    }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.copyTexImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 0, 0, this.width, this.height, 0);
+  }
+
   /**
    * When called, all drawing gets redirected to this render target
    */
