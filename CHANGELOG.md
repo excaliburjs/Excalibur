@@ -26,6 +26,21 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added new `new ex.Engine({uvPadding: .25})` option to allow users using texture atlases in their sprite sheets to configure this to avoid texture bleed. This can happen if you're sampling from images meant for pixel art
+- Added new antialias settings for pixel art! This allows for smooth subpixel rendering of pixel art without shimmer/fat-pixel artifacts.
+  - Use `new ex.Engine({pixelArt: true})` to opt in to all the right defaults to make this work!
+- Added new antialias configuration options to deeply configure how Excalibur does any antialiasing, or you can provide `antialiasing: true`/`antialiasing: false` to use the old defaults.
+  - Example;
+   ```typescript
+   const game = new ex.Engine({
+      antialiasing: {
+          pixelArtSampler: false,
+          filtering: ex.ImageFiltering.Pixel,
+          nativeContextAntialiasing: false,
+          canvasImageRendering: 'pixelated'
+      }
+   })
+   ```
 - Added new `lineHeight` property on `SpriteFont` and `Font` to manually adjust the line height when rendering text.
 - Added missing dual of `ex.GraphicsComponent.add()`, you can now `ex.GraphicsComponent.remove(name)`;
 - Added additional options to `ex.Animation.fromSpriteSheetCoordinates()` you can now pass any valid `ex.GraphicOptions` to influence the sprite per frame
@@ -156,6 +171,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue with `snapToPixel` where the `ex.Camera` was not snapping correctly
 - Fixed issue where using CSS transforms on the canvas confused Excalibur pointers
 - Fixed issue with *AndFill suffixed [[DisplayModes]]s where content area offset was not accounted for in world space
 - Fixed issue where `ex.Sound.getTotalPlaybackDuration()` would crash if not loaded, now logs friendly warning

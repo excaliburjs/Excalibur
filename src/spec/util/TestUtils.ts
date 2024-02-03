@@ -16,6 +16,7 @@ export namespace TestUtils {
       suppressHiDPIScaling: true,
       suppressPlayButton: true,
       snapToPixel: false,
+      antialiasing: false,
       displayMode: ex.DisplayMode.Fixed,
       ...options
     };

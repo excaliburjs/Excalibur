@@ -86,7 +86,7 @@ describe('A ImageSource', () => {
     const webgl = new ex.ExcaliburGraphicsContextWebGL({
       canvasElement: canvas
     });
-    const imageRenderer = new ImageRenderer();
+    const imageRenderer = new ImageRenderer({pixelArtSampler: false, uvPadding: 0});
     imageRenderer.initialize(webgl.__gl, webgl);
     spyOn(webgl.textureLoader, 'load').and.callThrough();
 
@@ -107,7 +107,7 @@ describe('A ImageSource', () => {
     const webgl = new ex.ExcaliburGraphicsContextWebGL({
       canvasElement: canvas
     });
-    const imageRenderer = new ImageRenderer();
+    const imageRenderer = new ImageRenderer({pixelArtSampler: false, uvPadding: 0});
     imageRenderer.initialize(webgl.__gl, webgl);
     spyOn(webgl.textureLoader, 'load').and.callThrough();
 
@@ -145,7 +145,7 @@ describe('A ImageSource', () => {
     expect(spriteFontImage.image.src).toBe('');
   });
 
-  it('will resolve the image if alreadly loaded', async () => {
+  it('will resolve the image if already loaded', async () => {
     const spriteFontImage = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
     const image = await spriteFontImage.load();
 

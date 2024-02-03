@@ -3,8 +3,12 @@
 var game = new ex.Engine({
   canvasElementId: 'game',
   width: 600,
-  height: 400
+  height: 400,
+  displayMode: ex.DisplayMode.FitScreenAndFill,
+  pixelArt: true,
+  // antialiasing: false
 });
+
 
 var tex = new ex.ImageSource('https://cdn.rawgit.com/excaliburjs/Excalibur/7dd48128/assets/sword.png');
 
@@ -23,3 +27,7 @@ actor.onInitialize = () => {
 };
 game.add(actor);
 game.start(loader);
+
+game.currentScene.camera.pos = actor.pos;
+game.currentScene.camera.zoom = 7;
+actor.angularVelocity = .1;

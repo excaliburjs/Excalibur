@@ -164,6 +164,11 @@ export interface ScreenOptions {
    * Optionally set antialiasing, defaults to true. If set to true, images will be smoothed
    */
   antialiasing?: boolean;
+
+  /**
+   * Optionally set the image rendering CSS hint on the canvas element, default is auto
+   */
+  canvasImageRendering?: 'auto' | 'pixelated';
   /**
    * Optionally override the pixel ratio to use for the screen, otherwise calculated automatically from the browser
    */
@@ -253,6 +258,7 @@ export class Screen {
   public events = new EventEmitter<ScreenEvents>();
   private _canvas: HTMLCanvasElement;
   private _antialiasing: boolean = true;
+  private _canvasImageRendering: 'auto' | 'pixelated' = 'auto';
   private _contentResolution: ScreenDimension;
   private _browser: BrowserEvents;
   private _camera: Camera;
@@ -276,6 +282,7 @@ export class Screen {
     this._canvas = options.canvas;
     this.graphicsContext = options.context;
     this._antialiasing = options.antialiasing ?? this._antialiasing;
+    this._canvasImageRendering = options.canvasImageRendering ?? this._canvasImageRendering;
     this._browser = options.browser;
     this._pixelRatioOverride = options.pixelRatio;
 
@@ -472,7 +479,7 @@ export class Screen {
       }
     }
 
-    if (this._antialiasing) {
+    if (this._canvasImageRendering === 'auto') {
       this._canvas.style.imageRendering = 'auto';
     } else {
       this._canvas.style.imageRendering = 'pixelated';

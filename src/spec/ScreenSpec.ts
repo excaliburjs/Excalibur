@@ -558,6 +558,7 @@ describe('A Screen', () => {
     const sut = new ex.Screen({
       canvas,
       context,
+      canvasImageRendering: 'pixelated',
       browser,
       viewport: { width: 800, height: 600 },
       pixelRatio: 2,
@@ -596,6 +597,7 @@ describe('A Screen', () => {
       canvas: canvasStub,
       context,
       browser,
+      canvasImageRendering: 'pixelated',
       viewport: { width: 800, height: 600 },
       pixelRatio: 2,
       antialiasing: false
