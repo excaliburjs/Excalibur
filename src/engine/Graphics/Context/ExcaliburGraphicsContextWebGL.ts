@@ -204,6 +204,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   public readonly multiSampleAntialiasing: boolean = true;
   public readonly samples?: number;
+  public readonly transparency: boolean = true;
 
   constructor(options: ExcaliburGraphicsContextOptions) {
     const {
@@ -221,7 +222,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this.__gl = canvasElement.getContext('webgl2', {
       antialias: antialiasing ?? this.smoothing,
       premultipliedAlpha: false,
-      alpha: enableTransparency ?? true,
+      alpha: enableTransparency ?? this.transparency,
       depth: false,
       powerPreference: powerPreference ?? 'high-performance'
     });
@@ -231,6 +232,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this.textureLoader = new TextureLoader(this.__gl);
     this.snapToPixel = snapToPixel ?? this.snapToPixel;
     this.smoothing = antialiasing ?? this.smoothing;
+    this.transparency = enableTransparency ?? this.transparency;
     this.pixelArtSampler = pixelArtSampler ?? this.pixelArtSampler;
     this.uvPadding = uvPadding ?? this.uvPadding;
     this.multiSampleAntialiasing = typeof multiSampleAntialiasing === 'boolean' ? multiSampleAntialiasing : this.multiSampleAntialiasing;
@@ -285,6 +287,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
     this._renderTarget = new RenderTarget({
       gl,
+      transparency: this.transparency,
       width: gl.canvas.width,
       height: gl.canvas.height
     });
@@ -292,11 +295,13 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._postProcessTargets = [
       new RenderTarget({
         gl,
+        transparency: this.transparency,
         width: gl.canvas.width,
         height: gl.canvas.height
       }),
       new RenderTarget({
         gl,
+        transparency: this.transparency,
         width: gl.canvas.width,
         height: gl.canvas.height
       })
@@ -304,6 +309,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
     this._msaaTarget = new RenderTarget({
       gl,
+      transparency: this.transparency,
       width: gl.canvas.width,
       height: gl.canvas.height,
       antialias: this.multiSampleAntialiasing,

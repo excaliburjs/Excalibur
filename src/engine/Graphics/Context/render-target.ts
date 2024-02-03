@@ -1,9 +1,20 @@
 import { RenderSource } from './render-source';
 
+declare global {
+  interface WebGL2RenderingContext {
+    /**
+     * Experimental only in chrome
+     */
+    drawingBufferFormat?: number;
+  }
+}
+
+
 export interface RenderTargetOptions {
   gl: WebGL2RenderingContext;
   width: number;
   height: number;
+  transparency: boolean;
   /**
    * Optionally enable render buffer multisample anti-aliasing
    *
@@ -21,15 +32,33 @@ export interface RenderTargetOptions {
 export class RenderTarget {
   width: number;
   height: number;
+  transparency: boolean;
   antialias: boolean = false;
   samples: number = 1;
   private _gl: WebGL2RenderingContext;
+  public readonly bufferFormat: number;
   constructor(options: RenderTargetOptions) {
     this._gl = options.gl;
     this.width = options.width;
     this.height = options.height;
+    this.transparency = options.transparency;
     this.antialias = options.antialias ?? this.antialias;
     this.samples = options.samples ?? this._gl.getParameter(this._gl.MAX_SAMPLES);
+
+    const gl = this._gl;
+    // Determine current context format for blitting later needs to match
+    if (gl.drawingBufferFormat) {
+      this.bufferFormat = gl.drawingBufferFormat;
+    } else {
+      // Documented in webgl spec
+      // https://registry.khronos.org/webgl/specs/latest/1.0/
+      if (this.transparency) {
+        this.bufferFormat = gl.RGBA8;
+      } else {
+        this.bufferFormat = gl.RGB8;
+      }
+    }
+
     this._setupRenderBuffer();
     this._setupFramebuffer();
   }
@@ -49,7 +78,7 @@ export class RenderTarget {
       gl.renderbufferStorageMultisample(
         gl.RENDERBUFFER,
         Math.min(this.samples, gl.getParameter(gl.MAX_SAMPLES)),
-        gl.RGBA8,
+        this.bufferFormat,
         this.width,
         this.height);
     }
@@ -76,7 +105,6 @@ export class RenderTarget {
   private _setupRenderBuffer() {
     if (this.antialias) {
       const gl = this._gl;
-
       // Render buffers can be used as an input to a shader
       this._renderBuffer = gl.createRenderbuffer();
       this._renderFrameBuffer = gl.createFramebuffer();
@@ -84,7 +112,7 @@ export class RenderTarget {
       gl.renderbufferStorageMultisample(
         gl.RENDERBUFFER,
         Math.min(this.samples, gl.getParameter(gl.MAX_SAMPLES)),
-        gl.RGBA8,
+        this.bufferFormat,
         this.width,
         this.height);
       gl.bindFramebuffer(gl.FRAMEBUFFER, this._renderFrameBuffer);
@@ -128,6 +156,7 @@ export class RenderTarget {
 
   public blitToScreen() {
     const gl = this._gl;
+    // set to size of canvas's drawingBuffer
     if (this._renderBuffer) {
       gl.bindFramebuffer(gl.READ_FRAMEBUFFER, this.renderFrameBuffer);
       gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
