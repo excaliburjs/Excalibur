@@ -759,6 +759,65 @@ describe('The engine', () => { // TODO timeout
     await expectAsync(image).toEqualImage('src/spec/images/EngineSpec/screenshot.png', 1.0);
   });
 
+  it('can snap to pixel', async () => {
+    const engine = TestUtils.engine({
+      snapToPixel: true,
+      antialiasing: false,
+      width: 256,
+      height: 256
+    });
+    const clock = engine.clock as ex.TestClock;
+    await TestUtils.runToReady(engine);
+    const playerImage = new ex.ImageSource('src/spec/images/EngineSpec/hero.png');
+    const playerSpriteSheet = ex.SpriteSheet.fromImageSource({
+      image: playerImage,
+      grid: {
+        spriteWidth: 16,
+        spriteHeight: 16,
+        rows: 8,
+        columns: 8
+      }
+    });
+    const backgroundImage = new ex.ImageSource('src/spec/images/EngineSpec/tileset.png');
+    const backgroundSpriteSheet = ex.SpriteSheet.fromImageSource({
+      image: backgroundImage,
+      grid: {
+        spriteHeight: 16,
+        spriteWidth: 16,
+        columns: 27,
+        rows: 15
+      }
+    });
+    await playerImage.load();
+    await backgroundImage.load();
+
+
+    const tilemap = new ex.TileMap({
+      tileWidth: 16,
+      tileHeight: 16,
+      rows: 20,
+      columns: 20,
+      pos: ex.vec(0, 0)
+    });
+    tilemap.tiles.forEach(t => {
+      t.addGraphic(backgroundSpriteSheet.getSprite(6, 0))
+    });
+
+    const player = new ex.Actor({
+      anchor: ex.vec(0, 0),
+      pos: ex.vec(16 * 8 + .9, 16 * 8 + .9)
+    });
+    player.graphics.use(playerSpriteSheet.getSprite(0, 0));
+
+    engine.add(tilemap);
+    engine.add(player);
+    engine.currentScene.camera.pos = player.pos.add(ex.vec(.05, .05));
+
+    clock.step();
+
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/EngineSpec/snaptopixel.png');
+  });
+
   describe('lifecycle overrides', () => {
     let engine: ex.Engine;
     beforeEach(() => {
