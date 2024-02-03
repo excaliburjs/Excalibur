@@ -805,10 +805,15 @@ O|===|* >________________>\n\
 
     } else {
       pixelArtSampler = !!options.pixelArt;
-      nativeContextAntialiasing = options.antialiasing;
+      nativeContextAntialiasing = false;
       multiSampleAntialiasing = options.antialiasing;
       canvasImageRendering = options.antialiasing ? 'auto' : 'pixelated';
       filtering = options.antialiasing ? ImageFiltering.Blended : ImageFiltering.Pixel;
+    }
+
+    if (nativeContextAntialiasing && multiSampleAntialiasing) {
+      this._logger.warnOnce(`Cannot use antialias setting nativeContextAntialiasing and multiSampleAntialiasing` +
+      ` at the same time, they are incompatible settings. If you aren\'t sure use multiSampleAntialiasing`);
     }
 
     if (options.pixelArt) {

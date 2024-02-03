@@ -20,6 +20,7 @@ export interface AntialiasOptions {
    * Configures the webgl's getContext('webgl2', {antialias: true | false}) or configures
    * Canvas2D imageSmoothing = true;
    *
+   * **Note** this option is incompatible with `multiSampleAntialiasing`
    *
    * Default false
    */
@@ -53,7 +54,7 @@ export interface AntialiasOptions {
 
 export const DefaultAntialiasOptions: Required<AntialiasOptions> = {
   pixelArtSampler: false,
-  nativeContextAntialiasing: true,
+  nativeContextAntialiasing: false,
   multiSampleAntialiasing: true,
   filtering: ImageFiltering.Blended,
   canvasImageRendering: 'auto'
@@ -61,7 +62,7 @@ export const DefaultAntialiasOptions: Required<AntialiasOptions> = {
 
 export const DefaultPixelArtOptions: Required<AntialiasOptions> = {
   pixelArtSampler: true,
-  nativeContextAntialiasing: true,
+  nativeContextAntialiasing: false,
   multiSampleAntialiasing: true,
   filtering: ImageFiltering.Blended,
   canvasImageRendering: 'auto'
@@ -85,13 +86,15 @@ export interface ExcaliburGraphicsContextOptions {
    */
   enableTransparency?: boolean;
   /**
-   * Enable or disable multi-sample antialiasing in the internal render buffer
+   * Enable or disable multi-sample antialiasing in the internal render buffer.
+   *
+   * If true the max number of samples will be used
    *
    * By default enabled
    */
   multiSampleAntialiasing?: boolean | {
     /**
-     * Specify number of samples to use during the multi sample anti-alias
+     * Specify number of samples to use during the multi sample anti-alias, if not specified the max will be used.
      * Limited by the hardware (usually 16)
      */
     samples: number

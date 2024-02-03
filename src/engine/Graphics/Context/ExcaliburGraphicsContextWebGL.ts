@@ -576,7 +576,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     const gl = this.__gl;
 
     // render target captures all draws and redirects to the render target
-    this._renderTarget.use();
+    let currentTarget = this.multiSampleAntialiasing ? this._msaaTarget : this._renderTarget;
+    currentTarget.use();
 
     if (this.useDrawSorting) {
       // sort draw calls
@@ -620,10 +621,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
           // ! hack to grab screen texture before materials run because they might want it
           if (currentRenderer instanceof MaterialRenderer && this.material.isUsingScreenTexture) {
-            const gl = this.__gl;
             gl.bindTexture(gl.TEXTURE_2D, this.materialScreenTexture);
             gl.copyTexImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 0, 0, this.width, this.height, 0);
-            this._renderTarget.use();
+            currentTarget.use();
           }
           // If we are still using the same renderer we can add to the current batch
           currentRenderer.draw(...this._drawCalls[i].args);
@@ -649,30 +649,23 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       }
     }
 
-    this._renderTarget.disable();
+    currentTarget.disable();
 
     // post process step
-    const source = this._renderTarget.toRenderSource();
-    source.use();
+    if (this._postprocessors.length > 0) {
+      const source = currentTarget.toRenderSource();
+      source.use();
+    }
 
-    // flip flop render targets
+    // flip flop render targets for post processing
     for (let i = 0; i < this._postprocessors.length; i++) {
+      currentTarget = this._postProcessTargets[i % 2];
       this._postProcessTargets[i % 2].use();
       this._screenRenderer.renderWithPostProcessor(this._postprocessors[i]);
       this._postProcessTargets[i % 2].toRenderSource().use();
     }
 
-    if (this.multiSampleAntialiasing) {
-      this._msaaTarget.use();
-      this._screenRenderer.renderToScreen();
-    }
-
-    // passing null switches rendering back to the canvas
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    if (this.multiSampleAntialiasing) {
-      this._msaaTarget.blitToScreen();
-    } else {
-      this._screenRenderer.renderToScreen();
-    }
+    // Final blit to the screen
+    currentTarget.blitToScreen();
   }
 }
