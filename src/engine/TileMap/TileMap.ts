@@ -104,7 +104,7 @@ export class TileMap extends Entity {
   private _transform: TransformComponent;
   private _motion: MotionComponent;
   private _graphics: GraphicsComponent;
-  private _collider: ColliderComponent;
+  public collider: ColliderComponent;
   private _composite: CompositeCollider;
 
   public get x(): number {
@@ -224,8 +224,8 @@ export class TileMap extends Entity {
     this._graphics = this.get(GraphicsComponent);
     this._transform = this.get(TransformComponent);
     this._motion = this.get(MotionComponent);
-    this._collider = this.get(ColliderComponent);
-    this._composite = this._collider.useCompositeCollider([]);
+    this.collider = this.get(ColliderComponent);
+    this._composite = this.collider.useCompositeCollider([]);
 
     this._transform.pos = options.pos ?? Vector.Zero;
     this._oldPos = this._transform.pos.clone();
@@ -307,10 +307,10 @@ export class TileMap extends Entity {
    * Tiles colliders based on the solid tiles in the tilemap.
    */
   private _updateColliders(): void {
-    this._collider.$colliderRemoved.notifyAll(this._composite);
+    this.collider.$colliderRemoved.notifyAll(this._composite);
     this._composite.clearColliders();
     const colliders: BoundingBox[] = [];
-    this._composite = this._collider.useCompositeCollider([]);
+    this._composite = this.collider.useCompositeCollider([]);
     let current: BoundingBox;
 
     /**
@@ -412,9 +412,9 @@ export class TileMap extends Entity {
       collider.owner = this;
       this._composite.addCollider(collider);
     }
-    this._collider.update();
+    this.collider.update();
     // Notify that colliders have been updated
-    this._collider.$colliderAdded.notifyAll(this._composite);
+    this.collider.$colliderAdded.notifyAll(this._composite);
   }
 
   /**
