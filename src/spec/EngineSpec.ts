@@ -800,7 +800,7 @@ describe('The engine', () => { // TODO timeout
       pos: ex.vec(0, 0)
     });
     tilemap.tiles.forEach(t => {
-      t.addGraphic(backgroundSpriteSheet.getSprite(6, 0))
+      t.addGraphic(backgroundSpriteSheet.getSprite(6, 0));
     });
 
     const player = new ex.Actor({
@@ -816,6 +816,72 @@ describe('The engine', () => { // TODO timeout
     clock.step();
 
     await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/EngineSpec/snaptopixel.png');
+  });
+
+  it('can do subpixel AA on pixel art', async () => {
+    const engine = TestUtils.engine({
+      pixelArt: true,
+      antialiasing: {
+        nativeContextAntialiasing: false,
+        multiSampleAntialiasing: true,
+        pixelArtSampler: true,
+        canvasImageRendering: 'auto',
+        filtering: ex.ImageFiltering.Blended
+      },
+      width: 256,
+      height: 256,
+      suppressHiDPIScaling: false,
+      pixelRatio: 2
+    });
+    const clock = engine.clock as ex.TestClock;
+    await TestUtils.runToReady(engine);
+    const playerImage = new ex.ImageSource('src/spec/images/EngineSpec/hero.png');
+    const playerSpriteSheet = ex.SpriteSheet.fromImageSource({
+      image: playerImage,
+      grid: {
+        spriteWidth: 16,
+        spriteHeight: 16,
+        rows: 8,
+        columns: 8
+      }
+    });
+    const backgroundImage = new ex.ImageSource('src/spec/images/EngineSpec/tileset.png');
+    const backgroundSpriteSheet = ex.SpriteSheet.fromImageSource({
+      image: backgroundImage,
+      grid: {
+        spriteHeight: 16,
+        spriteWidth: 16,
+        columns: 27,
+        rows: 15
+      }
+    });
+    await playerImage.load();
+    await backgroundImage.load();
+
+
+    const tilemap = new ex.TileMap({
+      tileWidth: 16,
+      tileHeight: 16,
+      rows: 20,
+      columns: 20,
+      pos: ex.vec(0, 0)
+    });
+    tilemap.tiles.forEach(t => {
+      t.addGraphic(backgroundSpriteSheet.getSprite(6, 0));
+    });
+
+    const player = new ex.Actor({
+      anchor: ex.vec(0, 0),
+      pos: ex.vec(127.45599999999973, 117.3119999999999)
+    });
+    player.graphics.use(playerSpriteSheet.getSprite(0, 0));
+
+    engine.add(tilemap);
+    engine.add(player);
+    engine.currentScene.camera.pos = player.pos;
+
+    clock.step();
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/EngineSpec/pixelart.png');
   });
 
   describe('lifecycle overrides', () => {
