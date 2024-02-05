@@ -2,6 +2,9 @@ import { Color, Logger, Vector } from '../..';
 import { Matrix } from '../../Math/matrix';
 import { getAttributeComponentSize, getAttributePointerType } from './webgl-util';
 
+/**
+ * List of the possible glsl uniform types
+ */
 export type UniformTypeNames =
   'uniform1f' |
   'uniform1i' |

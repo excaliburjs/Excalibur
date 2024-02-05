@@ -360,13 +360,13 @@ export class ParticleEmitter extends Actor {
    * Gets the opacity of each particle from 0 to 1.0
    */
   public get opacity(): number {
-    return super.graphics.opacity;
+    return this.graphics.opacity;
   }
   /**
    * Gets the opacity of each particle from 0 to 1.0
    */
   public set opacity(opacity: number) {
-    super.graphics.opacity = opacity;
+    this.graphics.opacity = opacity;
   }
   /**
    * Gets or sets the fade flag which causes particles to gradually fade out over the course of their life.

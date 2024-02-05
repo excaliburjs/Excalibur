@@ -54,7 +54,7 @@ describe('A Material', () => {
     const graphicsContext = new ex.ExcaliburGraphicsContextWebGL({
       canvasElement: canvas,
       backgroundColor: ex.Color.Black,
-      smoothing: false,
+      antialiasing: false,
       snapToPixel: true
     });
     const material = new ex.Material({
@@ -101,7 +101,7 @@ describe('A Material', () => {
     const context = new ex.ExcaliburGraphicsContextWebGL({
       canvasElement: canvas,
       backgroundColor: ex.Color.ExcaliburBlue,
-      smoothing: false,
+      antialiasing: false,
       snapToPixel: true
     });
 
@@ -145,7 +145,7 @@ describe('A Material', () => {
     const context = new ex.ExcaliburGraphicsContextWebGL({
       canvasElement: canvas,
       backgroundColor: ex.Color.ExcaliburBlue,
-      smoothing: false,
+      antialiasing: false,
       snapToPixel: true
     });
 
@@ -320,7 +320,7 @@ describe('A Material', () => {
     const graphicsContext = new ex.ExcaliburGraphicsContextWebGL({
       canvasElement: canvas,
       backgroundColor: ex.Color.Black,
-      smoothing: false,
+      antialiasing: false,
       snapToPixel: true
     });
 
@@ -376,7 +376,7 @@ describe('A Material', () => {
     const graphicsContext = new ex.ExcaliburGraphicsContextWebGL({
       canvasElement: canvas,
       backgroundColor: ex.Color.Black,
-      smoothing: false,
+      antialiasing: false,
       snapToPixel: true
     });
 
