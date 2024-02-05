@@ -146,7 +146,7 @@ export class GraphicsSystem extends System {
       this._graphicsContext.opacity *= graphics.opacity * particleOpacity;
 
       // Draw the graphics component
-      this._drawGraphicsComponent(graphics);
+      this._drawGraphicsComponent(graphics, transform);
 
       // Optionally run the onPostDraw graphics lifecycle draw
       if (graphics.onPostDraw) {
@@ -173,7 +173,7 @@ export class GraphicsSystem extends System {
     this._graphicsContext.restore();
   }
 
-  private _drawGraphicsComponent(graphicsComponent: GraphicsComponent) {
+  private _drawGraphicsComponent(graphicsComponent: GraphicsComponent, transformComponent: TransformComponent) {
     if (graphicsComponent.visible) {
       const flipHorizontal = graphicsComponent.flipHorizontal;
       const flipVertical = graphicsComponent.flipVertical;
@@ -184,7 +184,8 @@ export class GraphicsSystem extends System {
       if (graphic) {
         let anchor = graphicsComponent.anchor;
         let offset = graphicsComponent.offset;
-
+        let scaleX = 1;
+        let scaleY = 1;
         // handle specific overrides
         if (options?.anchor) {
           anchor = options.anchor;
@@ -192,9 +193,13 @@ export class GraphicsSystem extends System {
         if (options?.offset) {
           offset = options.offset;
         }
+        const globalScale = transformComponent.globalScale;
+        scaleX *= graphic.scale.x * globalScale.x;
+        scaleY *= graphic.scale.y * globalScale.y;
+
         // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
-        const offsetX = -graphic.width * anchor.x + offset.x;
-        const offsetY = -graphic.height * anchor.y + offset.y;
+        const offsetX = -graphic.width * anchor.x + offset.x * scaleX;
+        const offsetY = -graphic.height * anchor.y + offset.y * scaleY;
 
         const oldFlipHorizontal = graphic.flipHorizontal;
         const oldFlipVertical = graphic.flipVertical;
@@ -214,6 +219,7 @@ export class GraphicsSystem extends System {
           graphic.flipVertical = oldFlipVertical;
         }
 
+        // TODO move debug code out?
         if (this._engine?.isDebug && this._engine.debug.graphics.showBounds) {
           const offset = vec(offsetX, offsetY);
           if (graphic instanceof GraphicsGroup) {
