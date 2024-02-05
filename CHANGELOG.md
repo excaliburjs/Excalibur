@@ -26,6 +26,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added Graphics `opacity` on the Actor constructor `new ex.Actor({opacity: .5})`
+- Added Graphics pixel `offset` on the Actor constructor `new ex.Actor({offset: ex.vec(-15, -15)})`
 - Added new `new ex.Engine({uvPadding: .25})` option to allow users using texture atlases in their sprite sheets to configure this to avoid texture bleed. This can happen if you're sampling from images meant for pixel art
 - Added new antialias settings for pixel art! This allows for smooth subpixel rendering of pixel art without shimmer/fat-pixel artifacts.
   - Use `new ex.Engine({pixelArt: true})` to opt in to all the right defaults to make this work!
@@ -171,6 +173,23 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where Actor built in components could not be extended because of the way the Actor based type was built.
+  - Actors now use instance properties for built-ins instead of getters
+  - With the ECS refactor you can now subtype built-in `Components` and `.get(Builtin)` will return the correct subtype.
+  ```typescript
+  class MyBodyComponent extends ex.BodyComponent {}
+
+  class MyActor extends ex.Actor {
+      constructor() {
+        super({})
+        this.removeComponent(ex.BodyComponent);
+        this.addComponent(new MyBodyComponent())
+      }
+  }
+
+  const myActor = new MyActor();
+  const myBody = myActor.get(ex.BodyComponent); // Returns the new MyBodyComponent subtype!
+  ```
 - Fixed issue with `snapToPixel` where the `ex.Camera` was not snapping correctly
 - Fixed issue where using CSS transforms on the canvas confused Excalibur pointers
 - Fixed issue with *AndFill suffixed [[DisplayModes]]s where content area offset was not accounted for in world space
