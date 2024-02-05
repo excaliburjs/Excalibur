@@ -1,4 +1,5 @@
 import { Vector } from '../Math/vector';
+import { ContactSolveBias } from './Solver/ContactBias';
 
 
 /**
@@ -161,4 +162,6 @@ export class Physics {
    * Excalibur will always perform the fast body raycast regardless of speed.
    */
   public static disableMinimumSpeedForFastBody = false;
+
+  public static arcadeContactSolveBias = ContactSolveBias.None;
 }

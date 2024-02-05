@@ -26,6 +26,7 @@ export * from './Detection/DynamicTreeCollisionProcessor';
 export * from './Detection/QuadTree';
 
 export * from './Solver/ArcadeSolver';
+export * from './Solver/ContactBias';
 export * from './Solver/ContactConstraintPoint';
 export * from './Solver/RealisticSolver';
 export * from './Solver/Solver';

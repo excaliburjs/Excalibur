@@ -4,6 +4,8 @@ import { CollisionType } from '../CollisionType';
 import { Side } from '../Side';
 import { CollisionSolver } from './Solver';
 import { BodyComponent } from '../BodyComponent';
+import { ContactBias, ContactSolveBias, HorizontalFirst, None, VerticalFirst } from './ContactBias';
+import { Physics } from '../Physics';
 
 /**
  * ArcadeSolver is the default in Excalibur. It solves collisions so that there is no overlap between contacts,
@@ -13,7 +15,7 @@ import { BodyComponent } from '../BodyComponent';
  *
  */
 export class ArcadeSolver implements CollisionSolver {
-  directionMap = new Map<string, string>();
+  directionMap = new Map<string, 'horizontal' | 'vertical'>();
   distanceMap = new Map<string, number>();
 
   public solve(contacts: CollisionContact[]): CollisionContact[] {
@@ -23,12 +25,31 @@ export class ArcadeSolver implements CollisionSolver {
     // Remove any canceled contacts
     contacts = contacts.filter(c => !c.isCanceled());
 
+    // Locate collision bias order
+    let bias: ContactBias;
+    switch (Physics.arcadeContactSolveBias) {
+      case ContactSolveBias.HorizontalFirst: {
+        bias = HorizontalFirst;
+        break;
+      }
+      case ContactSolveBias.VerticalFirst: {
+        bias = VerticalFirst;
+        break;
+      }
+      default: {
+        bias = None;
+      }
+    }
+
+    // Sort by bias (None, VerticalFirst, HorizontalFirst) to avoid artifacts with seams
     // Sort contacts by distance to avoid artifacts with seams
     // It's important to solve in a specific order
     contacts.sort((a, b) => {
+      const aDir = this.directionMap.get(a.id);
+      const bDir = this.directionMap.get(b.id);
       const aDist = this.distanceMap.get(a.id);
       const bDist = this.distanceMap.get(b.id);
-      return aDist - bDist;
+      return (bias[aDir] - bias[bDir]) || (aDist - bDist);
     });
 
     for (const contact of contacts) {
@@ -58,6 +79,8 @@ export class ArcadeSolver implements CollisionSolver {
 
       const distance = contact.colliderA.worldPos.squareDistance(contact.colliderB.worldPos);
       this.distanceMap.set(contact.id, distance);
+
+      this.directionMap.set(contact.id, side === Side.Left || side === Side.Right ? 'horizontal' : 'vertical');
 
       // Publish collision events on both participants
       contact.colliderA.events.emit(
