@@ -145,7 +145,8 @@ describe('A Text Graphic', () => {
         family: 'Open Sans',
         size: 18,
         quality: 1,
-        padding: 0
+        padding: 0,
+        baseAlign: ex.BaseAlign.Alphabetic
       })
     });
 
@@ -174,7 +175,8 @@ describe('A Text Graphic', () => {
         family: 'Open Sans',
         size: 18,
         quality: 1,
-        padding: 0
+        padding: 0,
+        baseAlign: ex.BaseAlign.Alphabetic
       })
     });
 
@@ -237,7 +239,8 @@ describe('A Text Graphic', () => {
         family: 'Open Sans',
         size: 18,
         quality: 1,
-        padding: 0
+        padding: 0,
+        baseAlign: ex.BaseAlign.Alphabetic
       })
     });
 
@@ -268,7 +271,8 @@ describe('A Text Graphic', () => {
         family: 'Open Sans',
         size: 18,
         quality: 1,
-        padding: 0
+        padding: 0,
+        baseAlign: ex.BaseAlign.Alphabetic
       })
     });
 
@@ -299,7 +303,8 @@ describe('A Text Graphic', () => {
         family: 'Open Sans',
         size: 18,
         quality: 1,
-        padding: 0
+        padding: 0,
+        baseAlign: ex.BaseAlign.Alphabetic
       })
     });
 
@@ -330,7 +335,8 @@ describe('A Text Graphic', () => {
         family: 'Open Sans',
         size: 18,
         quality: 1,
-        padding: 0
+        padding: 0,
+        baseAlign: ex.BaseAlign.Alphabetic
       })
     });
 
@@ -361,7 +367,8 @@ describe('A Text Graphic', () => {
         family: 'Open Sans',
         size: 18,
         quality: 1,
-        padding: 0
+        padding: 0,
+        baseAlign: ex.BaseAlign.Alphabetic
       })
     });
 
@@ -393,7 +400,8 @@ describe('A Text Graphic', () => {
         bold: true,
         size: 18,
         quality: 1,
-        padding: 0
+        padding: 0,
+        baseAlign: ex.BaseAlign.Alphabetic
       })
     });
 
@@ -423,7 +431,8 @@ describe('A Text Graphic', () => {
         style: ex.FontStyle.Italic,
         size: 18,
         quality: 1,
-        padding: 0
+        padding: 0,
+        baseAlign: ex.BaseAlign.Alphabetic
       })
     });
 
@@ -452,7 +461,8 @@ describe('A Text Graphic', () => {
         family: 'Open Sans',
         size: 18,
         quality: 1,
-        lineHeight: 36
+        lineHeight: 36,
+        baseAlign: ex.BaseAlign.Alphabetic
       })
     });
 
@@ -482,6 +492,7 @@ describe('A Text Graphic', () => {
         size: 18,
         quality: 1,
         padding: 0,
+        baseAlign: ex.BaseAlign.Alphabetic,
         shadow: {
           blur: 5,
           offset: ex.vec(4, 4),
@@ -669,7 +680,8 @@ describe('A Text Graphic', () => {
     const sut = new ex.Font({
       family: 'Open Sans',
       size: 18,
-      quality: 1
+      quality: 1,
+      baseAlign: ex.BaseAlign.Alphabetic
     });
 
     const text1 = new ex.Text({
@@ -819,7 +831,8 @@ describe('A Text Graphic', () => {
         family: 'Open Sans',
         size: 18,
         quality: 4,
-        padding: 0
+        padding: 0,
+        baseAlign: ex.BaseAlign.Alphabetic
       })
     });
 
@@ -1231,7 +1244,8 @@ describe('A Text Graphic', () => {
     const sut = new ex.Font({
       family: 'Open Sans',
       size: 18,
-      quality: 1
+      quality: 1,
+      baseAlign: ex.BaseAlign.Alphabetic
     });
 
     const text1 = new ex.Text({

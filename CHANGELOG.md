@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- Changed the `Font` default base align to `Top` this is more in line with user expectations. This does change the default rendering to the top left corner of the font instead of the bottom left.
 - Remove confusing Graphics Layering from `ex.GraphicsComponent`, recommend we use the `ex.GraphicsGroup` to manage this behavior
   * Update `ex.GraphicsGroup` to be consistent and use `offset` instead of `pos` for graphics relative positioning
 - ECS implementation has been updated to remove the "stringly" typed nature of components & systems
