@@ -97,7 +97,7 @@ export class Font extends Graphic implements FontRenderer {
   public bold: boolean = false;
   public unit: FontUnit = FontUnit.Px;
   public textAlign: TextAlign = TextAlign.Left;
-  public baseAlign: BaseAlign = BaseAlign.Alphabetic;
+  public baseAlign: BaseAlign = BaseAlign.Top;
   public direction: Direction = Direction.LeftToRight;
   /**
    * Font line height in pixels, default line height if unset
