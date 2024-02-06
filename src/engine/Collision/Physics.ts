@@ -163,5 +163,15 @@ export class Physics {
    */
   public static disableMinimumSpeedForFastBody = false;
 
+  /**
+   * Hints the [[ArcadeSolver]] to preferentially solve certain contact directions first.
+   *
+   * Options:
+   * * Solve [[ContactSolveBias.VerticalFirst]] which will do vertical contact resolution first (useful for platformers
+   * with up/down gravity)
+   * * Solve [[ContactSolveBias.HorizontalFirst]] which will do horizontal contact resolution first (useful for games with
+   * left/right forces)
+   * * By default [[ContactSolveBias.None]] which sorts by distance
+   */
   public static arcadeContactSolveBias = ContactSolveBias.None;
 }
