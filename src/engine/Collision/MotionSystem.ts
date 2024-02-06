@@ -2,16 +2,16 @@ import { Query, SystemPriority, World } from '../EntityComponentSystem';
 import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { System, SystemType } from '../EntityComponentSystem/System';
-import { Physics } from './Physics';
 import { BodyComponent } from './BodyComponent';
 import { CollisionType } from './CollisionType';
 import { EulerIntegrator } from './Integrator';
+import { PhysicsWorld } from './PhysicsWorld';
 
 export class MotionSystem extends System {
   public systemType = SystemType.Update;
   public priority = SystemPriority.Higher;
   query: Query<typeof TransformComponent | typeof MotionComponent>;
-  constructor(public world: World) {
+  constructor(public world: World, public physics: PhysicsWorld) {
     super();
     this.query = this.world.query([TransformComponent, MotionComponent]);
   }
@@ -31,7 +31,7 @@ export class MotionSystem extends System {
 
       const totalAcc = motion.acc.clone();
       if (optionalBody?.collisionType === CollisionType.Active && optionalBody?.useGravity) {
-        totalAcc.addEqual(Physics.gravity);
+        totalAcc.addEqual(this.physics.config.gravity);
       }
       optionalBody?.captureOldTransform();
 

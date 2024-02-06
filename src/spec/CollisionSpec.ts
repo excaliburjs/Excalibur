@@ -22,7 +22,7 @@ describe('A Collision', () => {
   });
 
   afterEach(() => {
-    ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Arcade;
+    ex.Physics.collisionResolutionStrategy = ex.SolverStrategy.Arcade;
     engine.stop();
     engine = null;
     actor1 = null;
@@ -185,7 +185,7 @@ describe('A Collision', () => {
   });
 
   it('should not collide when active and passive', (done) => {
-    ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Realistic;
+    ex.Physics.collisionResolutionStrategy = ex.SolverStrategy.Realistic;
 
     const activeBlock = new ex.Actor({x: 200, y: 200, width: 50, height: 50, color: ex.Color.Red.clone()});
     activeBlock.body.collisionType = ex.CollisionType.Active;
@@ -217,7 +217,7 @@ describe('A Collision', () => {
   });
 
   it('should emit a start collision once when objects start colliding', () => {
-    ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Realistic;
+    ex.Physics.collisionResolutionStrategy = ex.SolverStrategy.Realistic;
 
     const activeBlock = new ex.Actor({x: 200, y: 200, width: 50, height: 50, color: ex.Color.Red.clone()});
     activeBlock.body.collisionType = ex.CollisionType.Active;
@@ -243,7 +243,7 @@ describe('A Collision', () => {
   });
 
   it('should emit a end collision once when objects stop colliding', () => {
-    ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Realistic;
+    ex.Physics.collisionResolutionStrategy = ex.SolverStrategy.Realistic;
 
     const activeBlock = new ex.Actor({x: 200, y: 200, width: 50, height: 50, color: ex.Color.Red.clone()});
     activeBlock.body.collisionType = ex.CollisionType.Active;
@@ -269,7 +269,7 @@ describe('A Collision', () => {
   });
 
   it('should cancel out velocity when objects collide', () => {
-    ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Arcade;
+    ex.Physics.collisionResolutionStrategy = ex.SolverStrategy.Arcade;
     engine.currentScene.clear();
     const activeBlock = new ex.Actor({name: 'active-block', x: 200, y: 200, width: 50, height: 50, color: ex.Color.Red.clone()});
     activeBlock.body.collisionType = ex.CollisionType.Active;
@@ -286,7 +286,7 @@ describe('A Collision', () => {
   });
 
   it('should not cancel out velocity when objects move away', () => {
-    ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Arcade;
+    ex.Physics.collisionResolutionStrategy = ex.SolverStrategy.Arcade;
 
     const activeBlock = new ex.Actor({x: 350, y: 200, width: 50, height: 50, color: ex.Color.Red.clone()});
     activeBlock.body.collisionType = ex.CollisionType.Active;
@@ -304,7 +304,7 @@ describe('A Collision', () => {
   });
 
   it('should have the actor as the handler context for collisionstart', (done) => {
-    ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Realistic;
+    ex.Physics.collisionResolutionStrategy = ex.SolverStrategy.Realistic;
 
     const activeBlock = new ex.Actor({x: 200, y: 200, width: 50, height: 50, color: ex.Color.Red.clone()});
     activeBlock.body.collisionType = ex.CollisionType.Active;
@@ -327,7 +327,7 @@ describe('A Collision', () => {
   });
 
   it('should have the actor as the handler context for collisionend', (done) => {
-    ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Realistic;
+    ex.Physics.collisionResolutionStrategy = ex.SolverStrategy.Realistic;
 
     const activeBlock = new ex.Actor({x: 200, y: 200, width: 50, height: 50, color: ex.Color.Red.clone()});
     activeBlock.body.collisionType = ex.CollisionType.Active;

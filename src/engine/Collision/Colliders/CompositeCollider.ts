@@ -13,11 +13,12 @@ import { DynamicTreeCollisionProcessor } from '../Detection/DynamicTreeCollision
 import { RayCastHit } from '../Detection/RayCastHit';
 import { Collider } from './Collider';
 import { Transform } from '../../Math/transform';
+import { DefaultPhysicsConfig } from '../PhysicsConfig';
 
 export class CompositeCollider extends Collider {
   private _transform: Transform;
-  private _collisionProcessor = new DynamicTreeCollisionProcessor();
-  private _dynamicAABBTree = new DynamicTree();
+  private _collisionProcessor = new DynamicTreeCollisionProcessor(DefaultPhysicsConfig);
+  private _dynamicAABBTree = new DynamicTree(DefaultPhysicsConfig.dynamicTree);
   private _colliders: Collider[] = [];
 
   constructor(colliders: Collider[]) {

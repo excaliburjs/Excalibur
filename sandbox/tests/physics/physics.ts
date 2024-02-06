@@ -15,7 +15,7 @@ game.debug.collider.showBounds = true;
 game.debug.motion.showAll = true;
 game.debug.body.showMotion = true;
 
-ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Realistic;
+ex.Physics.collisionResolutionStrategy = ex.SolverStrategy.Realistic;
 ex.Physics.bodiesCanSleepByDefault = true;
 ex.Physics.gravity = ex.vec(0, 100);
 

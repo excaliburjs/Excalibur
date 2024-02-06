@@ -8,6 +8,19 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- `ex.Physics` static is marked as deprecated, configuring these setting will move to the `ex.Engine({...})` constructor
+  ```typescript
+  const engine = new ex.Engine({
+    ...
+    physics: {
+      solver: ex.SolverStrategy.Realistic,
+      gravity: ex.vec(0, 20),
+      arcade: {
+        contactSolveBias: ex.ContactSolveBias.VerticalFirst
+      },
+    }
+  })
+  ```
 - Changed the `Font` default base align to `Top` this is more in line with user expectations. This does change the default rendering to the top left corner of the font instead of the bottom left.
 - Remove confusing Graphics Layering from `ex.GraphicsComponent`, recommend we use the `ex.GraphicsGroup` to manage this behavior
   * Update `ex.GraphicsGroup` to be consistent and use `offset` instead of `pos` for graphics relative positioning

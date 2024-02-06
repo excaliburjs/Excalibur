@@ -1,6 +1,7 @@
 export * from './BodyComponent';
 export * from './ColliderComponent';
 export * from './CollisionType';
+export * from './SolverStrategy';
 
 export * from './Colliders/Collider';
 export * from './BoundingBox';

@@ -1,4 +1,3 @@
-import { Physics } from '../Physics';
 import { CollisionProcessor } from './CollisionProcessor';
 import { DynamicTree } from './DynamicTree';
 import { Pair } from './Pair';
@@ -15,6 +14,8 @@ import { CompositeCollider } from '../Colliders/CompositeCollider';
 import { CollisionGroup } from '../Group/CollisionGroup';
 import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
 import { RayCastHit } from './RayCastHit';
+import { DeepRequired } from '../../Util/Required';
+import { PhysicsConfig } from '../PhysicsConfig';
 
 export interface RayCastOptions {
   /**
@@ -40,11 +41,15 @@ export interface RayCastOptions {
  * the narrowphase (actual collision contacts)
  */
 export class DynamicTreeCollisionProcessor implements CollisionProcessor {
-  private _dynamicCollisionTree = new DynamicTree<Collider>();
+  private _dynamicCollisionTree: DynamicTree<Collider>;
   private _pairs = new Set<string>();
 
   private _collisionPairCache: Pair[] = [];
   private _colliders: Collider[] = [];
+
+  constructor(private _config: DeepRequired<PhysicsConfig>) {
+    this._dynamicCollisionTree = new DynamicTree<Collider>(_config.dynamicTree);
+  }
 
   public getColliders(): readonly Collider[] {
     return this._colliders;
@@ -171,7 +176,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
 
     // Check dynamic tree for fast moving objects
     // Fast moving objects are those moving at least there smallest bound per frame
-    if (Physics.checkForFastBodies) {
+    if (this._config.continuous.checkForFastBodies) {
       for (const collider of potentialColliders) {
         const body = collider.owner.get(BodyComponent);
         // Skip non-active objects. Does not make sense on other collision types
@@ -186,7 +191,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
 
         // Find the minimum dimension
         const minDimension = Math.min(collider.bounds.height, collider.bounds.width);
-        if (Physics.disableMinimumSpeedForFastBody || updateDistance > minDimension / 2) {
+        if (this._config.continuous.disableMinimumSpeedForFastBody || updateDistance > minDimension / 2) {
           if (stats) {
             stats.physics.fastBodies++;
           }
@@ -201,12 +206,12 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
           const ray: Ray = new Ray(origin, body.vel);
 
           // back the ray up by -2x surfaceEpsilon to account for fast moving objects starting on the surface
-          ray.pos = ray.pos.add(ray.dir.scale(-2 * Physics.surfaceEpsilon));
+          ray.pos = ray.pos.add(ray.dir.scale(-2 * this._config.continuous.surfaceEpsilon));
           let minCollider: Collider;
           let minTranslate: Vector = new Vector(Infinity, Infinity);
-          this._dynamicCollisionTree.rayCastQuery(ray, updateDistance + Physics.surfaceEpsilon * 2, (other: Collider) => {
+          this._dynamicCollisionTree.rayCastQuery(ray, updateDistance + this._config.continuous.surfaceEpsilon * 2, (other: Collider) => {
             if (!this._pairExists(collider, other) && Pair.canCollide(collider, other)) {
-              const hit = other.rayCast(ray, updateDistance + Physics.surfaceEpsilon * 10);
+              const hit = other.rayCast(ray, updateDistance + this._config.continuous.surfaceEpsilon * 10);
               if (hit) {
                 const translate = hit.point.sub(origin);
                 if (translate.size < minTranslate.size) {
@@ -230,7 +235,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
             body.globalPos = origin
               .add(shift)
               .add(minTranslate)
-              .add(ray.dir.scale(10 * Physics.surfaceEpsilon)); // needed to push the shape slightly into contact
+              .add(ray.dir.scale(10 * this._config.continuous.surfaceEpsilon)); // needed to push the shape slightly into contact
             collider.update(body.transform.get());
 
             if (stats) {

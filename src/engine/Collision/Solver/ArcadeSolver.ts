@@ -5,7 +5,8 @@ import { Side } from '../Side';
 import { CollisionSolver } from './Solver';
 import { BodyComponent } from '../BodyComponent';
 import { ContactBias, ContactSolveBias, HorizontalFirst, None, VerticalFirst } from './ContactBias';
-import { Physics } from '../Physics';
+import { PhysicsConfig } from '../PhysicsConfig';
+import { DeepRequired } from '../../Util/Required';
 
 /**
  * ArcadeSolver is the default in Excalibur. It solves collisions so that there is no overlap between contacts,
@@ -18,6 +19,8 @@ export class ArcadeSolver implements CollisionSolver {
   directionMap = new Map<string, 'horizontal' | 'vertical'>();
   distanceMap = new Map<string, number>();
 
+  constructor(public config: DeepRequired<Pick<PhysicsConfig, 'arcade'>['arcade']>) {}
+
   public solve(contacts: CollisionContact[]): CollisionContact[] {
     // Events and init
     this.preSolve(contacts);
@@ -27,7 +30,7 @@ export class ArcadeSolver implements CollisionSolver {
 
     // Locate collision bias order
     let bias: ContactBias;
-    switch (Physics.arcadeContactSolveBias) {
+    switch (this.config.contactSolveBias) {
       case ContactSolveBias.HorizontalFirst: {
         bias = HorizontalFirst;
         break;
