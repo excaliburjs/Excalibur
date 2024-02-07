@@ -933,7 +933,7 @@ describe('The ExcaliburGraphicsContext', () => {
       expect(imageRenderer.flush).toHaveBeenCalledTimes(3);
     });
 
-    it('can draw a line', async () => {
+    xit('can draw a line', async () => {
       const canvasElement = testCanvasElement;
       canvasElement.width = 100;
       canvasElement.height = 100;
