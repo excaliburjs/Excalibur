@@ -79,6 +79,10 @@ class ExcaliburGraphicsContext2DCanvasDebug implements DebugDraw {
   }
 }
 
+export interface ExcaliburGraphicsContext2DOptions extends ExcaliburGraphicsContextOptions {
+  context?: CanvasRenderingContext2D;
+}
+
 export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContext {
   /**
    * Meant for internal use only. Access the internal context at your own risk and no guarantees this will exist in the future.
@@ -133,11 +137,14 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     this.__ctx.imageSmoothingEnabled = value;
   }
 
-  constructor(options: ExcaliburGraphicsContextOptions) {
-    const { canvasElement, enableTransparency, snapToPixel, antialiasing: smoothing, backgroundColor } = options;
-    this.__ctx = canvasElement.getContext('2d', {
+  constructor(options: ExcaliburGraphicsContext2DOptions) {
+    const { canvasElement, context, enableTransparency, snapToPixel, antialiasing: smoothing, backgroundColor } = options;
+    this.__ctx = context ?? canvasElement.getContext('2d', {
       alpha: enableTransparency ?? true
     });
+    if (!this.__ctx) {
+      throw new Error('Cannot build new ExcaliburGraphicsContext2D for some reason!');
+    }
     this.backgroundColor = backgroundColor ?? this.backgroundColor;
     this.snapToPixel = snapToPixel ?? this.snapToPixel;
     this.smoothing = smoothing ?? this.smoothing;

@@ -5,8 +5,10 @@ const webpack = require('webpack');
 process.env.CHROMIUM_BIN = require('puppeteer').executablePath();
 process.env.CHROME_BIN = require('puppeteer').executablePath();
 
+console.log('Chromium', process.env.CHROMIUM_BIN);
+
 const isAppveyor = process.env.APPVEYOR_BUILD_NUMBER ? true : false;
-const karmaJasmineSeedReporter = function(baseReporterDecorator) {
+const KarmaJasmineSeedReporter = function(baseReporterDecorator) {
   baseReporterDecorator(this);
 
   this.onBrowserComplete = function(browser, result) {
@@ -20,8 +22,31 @@ const karmaJasmineSeedReporter = function(baseReporterDecorator) {
 };
 
 const seedReporter =  {
-  'reporter:jasmine-seed': ['type', karmaJasmineSeedReporter] // 1. 'jasmine-seed' is a name that can be referenced in karma.conf.js
+  'reporter:jasmine-seed': ['type', KarmaJasmineSeedReporter], // 1. 'jasmine-seed' is a name that can be referenced in karma.conf.js
 };
+
+const SlowSpecsReporter = function(baseReporterDecorator) {
+  baseReporterDecorator(this);
+  let slowSpecs = [];
+  this.specSuccess = this.specFailure = function (browser, result) {
+    const seconds = (result.time) / 1000;
+    slowSpecs.push({time: result.time, message:`Spec ${result.fullName} took ${seconds} seconds\n`});
+  };
+
+  this.onBrowserComplete = function(browser, result) {
+    this.write('\n')
+    slowSpecs.sort((a, b) => {
+      return b.time - a.time;
+    })
+    for (const spec of slowSpecs.slice(0, 20)) {
+      this.write(spec.message);
+    }
+    slowSpecs.length = 0;
+  };
+};
+const timingReporter = {
+  'reporter:jasmine-slow': ['type', SlowSpecsReporter], // 1. 
+}
 
 module.exports = (config) => {
   config.set({
@@ -32,13 +57,15 @@ module.exports = (config) => {
       require('karma-webpack'),
       require('karma-chrome-launcher'),
       require('karma-coverage-istanbul-reporter'),
-      seedReporter
+      require('karma-spec-reporter'),
+      seedReporter,
+      timingReporter
     ],
     client: {
       // Excalibur logs / console logs suppressed when captureConsole = false;
       captureConsole: false,
       jasmine: {
-        random: true,
+        random: false,
         timeoutInterval: 70000 // needs to be bigger than no-activity
       }
     },
@@ -120,7 +147,7 @@ module.exports = (config) => {
     // i. e.
         stats: 'normal'
     },
-    reporters: ['progress', 'coverage-istanbul', 'jasmine-seed'],
+    reporters: ['spec', 'coverage-istanbul', 'jasmine-seed', 'jasmine-slow'],
     coverageReporter: {
       reporters: [
           { type: 'html', dir: 'coverage/' }, 
@@ -145,7 +172,13 @@ module.exports = (config) => {
       },
       ChromiumHeadless_with_audio: {
           base: 'ChromiumHeadless',
-          flags: ['--autoplay-policy=no-user-gesture-required', '--mute-audio', '--disable-gpu', '--no-sandbox']
+          flags: [
+            '--autoplay-policy=no-user-gesture-required',
+            '--mute-audio',
+            '--disable-gpu',
+            '--no-sandbox',
+            '--js-flags="--max_old_space_size=4096"'
+          ]
       },
       ChromiumHeadless_with_debug: {
         base: 'ChromiumHeadless',
@@ -153,7 +186,7 @@ module.exports = (config) => {
       },
       Chromium_with_debug: {
         base: 'Chromium',
-        flags: ['--remote-debugging-port=9334', '--no-sandbox']
+        flags: ['--remote-debugging-address=0.0.0.0', '--remote-debugging-port=9222', '--disable-web-security', '--mute-audio', '--no-sandbox']
       }
     }
   });

@@ -13,7 +13,6 @@ function flushWebGLCanvasTo2D(source: HTMLCanvasElement): HTMLCanvasElement {
   ctx.drawImage(source, 0, 0);
   return canvas;
 }
-
 describe('The engine', () => { // TODO timeout
   let engine: ex.Engine;
   let scene: ex.Scene;
@@ -78,7 +77,7 @@ describe('The engine', () => { // TODO timeout
         setTimeout(() => { // needed for the delay to work
           testClock.run(1, 100);
           engine.graphicsContext.flush();
-          expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
+          expectAsync(engine.canvas)
             .toEqualImage('src/spec/images/EngineSpec/engine-load-complete.png').then(() => {
               done();
             });
@@ -250,7 +249,7 @@ describe('The engine', () => { // TODO timeout
       // With suppress play there is another 500 ms delay in engine load()
       testClock.step(1);
       engine.graphicsContext.flush();
-      expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
+      expectAsync(engine.canvas)
         .toEqualImage('src/spec/images/EngineSpec/engine-suppress-play.png').then(() => {
           done();
         });
@@ -815,7 +814,7 @@ describe('The engine', () => { // TODO timeout
 
     clock.step();
 
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/EngineSpec/snaptopixel.png');
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/EngineSpec/snaptopixel.png');
   });
 
   it('can do subpixel AA on pixel art', async () => {
@@ -881,7 +880,7 @@ describe('The engine', () => { // TODO timeout
     engine.currentScene.camera.pos = player.pos;
 
     clock.step();
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/EngineSpec/pixelart.png');
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/EngineSpec/pixelart.png');
   });
 
   describe('lifecycle overrides', () => {

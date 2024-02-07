@@ -86,6 +86,10 @@ export interface WebGLGraphicsContextInfo {
   context: ExcaliburGraphicsContextWebGL;
 }
 
+export interface ExcaliburGraphicsContextWebGLOptions extends ExcaliburGraphicsContextOptions {
+  context?: WebGL2RenderingContext
+}
+
 export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   private _logger = Logger.getInstance();
   private _renderers: Map<string, RendererPlugin> = new Map<string, RendererPlugin>();
@@ -100,7 +104,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       instance.renderer = undefined;
       instance.args = undefined;
       return instance;
-    }, 4000);
+    }, 10);
   private _drawCalls: DrawCall[] = [];
 
   // Main render target
@@ -206,9 +210,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   public readonly samples?: number;
   public readonly transparency: boolean = true;
 
-  constructor(options: ExcaliburGraphicsContextOptions) {
+  constructor(options: ExcaliburGraphicsContextWebGLOptions) {
     const {
       canvasElement,
+      context,
       enableTransparency,
       antialiasing,
       uvPadding,
@@ -219,7 +224,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       backgroundColor,
       useDrawSorting
     } = options;
-    this.__gl = canvasElement.getContext('webgl2', {
+    this.__gl = context ?? canvasElement.getContext('webgl2', {
       antialias: antialiasing ?? this.smoothing,
       premultipliedAlpha: false,
       alpha: enableTransparency ?? this.transparency,

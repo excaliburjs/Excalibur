@@ -133,7 +133,7 @@ describe('A Director', () => {
     expect(sut.currentSceneName).toBe('scene1');
     expect(sut.currentScene).toBe(scene1);
 
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('/src/spec/images/DirectorSpec/fadein.png');
+    await expectAsync(engine.canvas).toEqualImage('/src/spec/images/DirectorSpec/fadein.png');
   });
 
   it('will run the loader cycle on a scene only once', async () => {

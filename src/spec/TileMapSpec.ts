@@ -212,14 +212,14 @@ describe('A TileMap', () => {
     drawWithTransform(engine.graphicsContext, tm, 99);
     engine.graphicsContext.flush();
 
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/TileMapSpec/TileMapGraphicSquare.png');
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/TileMapSpec/TileMapGraphicSquare.png');
 
     tm.update(engine, 99);
 
     drawWithTransform(engine.graphicsContext, tm, 99);
     engine.graphicsContext.flush();
 
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/TileMapSpec/TileMapGraphicCircle.png');
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/TileMapSpec/TileMapGraphicCircle.png');
   });
 
   it('should draw the correct proportions', async () => {
@@ -249,7 +249,7 @@ describe('A TileMap', () => {
     drawWithTransform(engine.graphicsContext, tm, 100);
     engine.graphicsContext.flush();
 
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/TileMapSpec/TileMap.png');
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/TileMapSpec/TileMap.png');
   });
 
   it('should draw from the bottom', async () => {
@@ -275,7 +275,7 @@ describe('A TileMap', () => {
     drawWithTransform(engine.graphicsContext, tm, 100);
     engine.graphicsContext.flush();
 
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/TileMapSpec/tilemap-from-bottom.png');
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/TileMapSpec/tilemap-from-bottom.png');
   });
 
   it('should draw from the top', async () => {
@@ -302,7 +302,7 @@ describe('A TileMap', () => {
     drawWithTransform(engine.graphicsContext, tm, 100);
     engine.graphicsContext.flush();
 
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/TileMapSpec/tilemap-from-top.png');
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/TileMapSpec/tilemap-from-top.png');
   });
 
   it('should handle offscreen culling correctly with negative coords', async () => {
@@ -334,7 +334,7 @@ describe('A TileMap', () => {
     drawWithTransform(engine.graphicsContext, tm, 100);
     engine.graphicsContext.flush();
 
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/TileMapSpec/TileMapCulling.png');
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/TileMapSpec/TileMapCulling.png');
   });
 
   it('should handle offscreen culling correctly when scaled', async () => {
@@ -386,7 +386,7 @@ describe('A TileMap', () => {
       })
     );
 
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/TileMapSpec/tilemap-scaled.png');
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/TileMapSpec/tilemap-scaled.png');
   });
 
   it('can return a tile by xy coord', () => {

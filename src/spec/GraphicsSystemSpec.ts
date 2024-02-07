@@ -101,7 +101,7 @@ describe('A Graphics ECS System', () => {
     expect(offscreenRect.draw).not.toHaveBeenCalled();
 
     engine.graphicsContext.flush();
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/GraphicsSystemSpec/graphics-system.png');
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GraphicsSystemSpec/graphics-system.png');
   });
 
   it('will interpolate body graphics when fixed update is enabled', async () => {
@@ -238,7 +238,7 @@ describe('A Graphics ECS System', () => {
     sut.update(1);
 
     engine.graphicsContext.flush();
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
+    await expectAsync(engine.canvas)
       .toEqualImage('src/spec/images/GraphicsSystemSpec/graphics-context-opacity.png');
   });
 
@@ -273,7 +273,7 @@ describe('A Graphics ECS System', () => {
     sut.update(1);
 
     engine.graphicsContext.flush();
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
+    await expectAsync(engine.canvas)
       .toEqualImage('src/spec/images/GraphicsSystemSpec/sword-flip-horizontal.png');
   });
 
@@ -308,7 +308,7 @@ describe('A Graphics ECS System', () => {
     sut.update(1);
 
     engine.graphicsContext.flush();
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
+    await expectAsync(engine.canvas)
       .toEqualImage('src/spec/images/GraphicsSystemSpec/sword-flip-vertical.png');
   });
 
@@ -344,7 +344,7 @@ describe('A Graphics ECS System', () => {
     sut.update(1);
 
     engine.graphicsContext.flush();
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
+    await expectAsync(engine.canvas)
       .toEqualImage('src/spec/images/GraphicsSystemSpec/sword-flip-both.png');
   });
 
@@ -381,7 +381,7 @@ describe('A Graphics ECS System', () => {
     sut.update(1);
 
     engine.graphicsContext.flush();
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
+    await expectAsync(engine.canvas)
       .toEqualImage('src/spec/images/GraphicsSystemSpec/sword-flip-both-offset.png');
   });
 });

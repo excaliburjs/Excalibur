@@ -85,6 +85,6 @@ describe('A CrossFade transition', () => {
 
     expect(engine.currentSceneName).toBe('newScene');
     expect(onDeactivateSpy).toHaveBeenCalledTimes(1);
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('/src/spec/images/CrossFadeSpec/crossfade.png');
+    await expectAsync(engine.canvas).toEqualImage('/src/spec/images/CrossFadeSpec/crossfade.png');
   });
 });
