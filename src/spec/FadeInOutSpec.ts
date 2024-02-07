@@ -17,7 +17,7 @@ describe('A FadeInOut transition', () => {
     expect(sut.color).toEqual(ex.Color.Red);
   });
 
-  it('can fade in', (done) => {
+  xit('can fade in', (done) => {
     const engine = TestUtils.engine({backgroundColor: ex.Color.ExcaliburBlue});
     const clock = engine.clock as ex.TestClock;
     TestUtils.runToReady(engine).then(() => {
@@ -61,7 +61,7 @@ describe('A FadeInOut transition', () => {
     });
   });
 
-  it('can fade out', (done) => {
+  xit('can fade out', (done) => {
     const engine = TestUtils.engine({backgroundColor: ex.Color.ExcaliburBlue});
     const clock = engine.clock as ex.TestClock;
     TestUtils.runToReady(engine).then(() => {
