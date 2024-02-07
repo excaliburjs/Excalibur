@@ -1013,6 +1013,19 @@ O|===|* >________________>\n\
     this.input.pointers.init();
   }
 
+  private _disposed = false;
+  public dispose() {
+    if (!this._disposed) {
+      this._disposed = true;
+      this.stop();
+      this.input.toggleEnabled(false);
+      this.canvas = null;
+      this.screen.dispose();
+      this.graphicsContext.dispose();
+      this.graphicsContext = null;
+    }
+  }
+
   /**
    * Returns a BoundingBox of the top left corner of the screen
    * and the bottom right corner of the screen.

@@ -760,6 +760,7 @@ describe('A scene', () => {
 
     afterEach(() => {
       engine.stop();
+      engine.dispose();
       engine = null;
       scene = null;
     });

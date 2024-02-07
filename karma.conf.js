@@ -30,7 +30,11 @@ const SlowSpecsReporter = function(baseReporterDecorator) {
   let slowSpecs = [];
   this.specSuccess = this.specFailure = function (browser, result) {
     const seconds = (result.time) / 1000;
-    slowSpecs.push({time: result.time, message:`Spec ${result.fullName} took ${seconds} seconds\n`});
+    slowSpecs.push({
+      time: result.time,
+      name: result.fullName,
+      message:`Spec ${result.fullName} took ${seconds} seconds\n`
+    });
   };
 
   this.onBrowserComplete = function(browser, result) {
@@ -50,7 +54,7 @@ const timingReporter = {
 
 module.exports = (config) => {
   config.set({
-    singleRun: true,
+    singleRun: false,
     frameworks: ['jasmine', 'webpack'],
     plugins: [
       require('karma-jasmine'),
@@ -63,7 +67,7 @@ module.exports = (config) => {
     ],
     client: {
       // Excalibur logs / console logs suppressed when captureConsole = false;
-      captureConsole: false,
+      captureConsole: true,
       jasmine: {
         random: false,
         timeoutInterval: 70000 // needs to be bigger than no-activity
@@ -130,7 +134,7 @@ module.exports = (config) => {
             test: /\.glsl$/,
             use: ['raw-loader']
           },
-          {
+          /*{
             test: /\.ts$/,
             enforce: 'post',
             include: path.resolve('src/engine/'),
@@ -138,7 +142,7 @@ module.exports = (config) => {
               loader: 'istanbul-instrumenter-loader',
               options: { esModules: true }
             }
-          }
+          }*/
         ]
       }
     },
@@ -147,7 +151,7 @@ module.exports = (config) => {
     // i. e.
         stats: 'normal'
     },
-    reporters: ['spec', 'coverage-istanbul', 'jasmine-seed', 'jasmine-slow'],
+    reporters: ['spec', /*'coverage-istanbul',*/ 'jasmine-seed', 'jasmine-slow'],
     coverageReporter: {
       reporters: [
           { type: 'html', dir: 'coverage/' }, 
@@ -171,13 +175,15 @@ module.exports = (config) => {
           flags: ['--autoplay-policy=no-user-gesture-required', '--mute-audio', '--disable-gpu', '--no-sandbox']
       },
       ChromiumHeadless_with_audio: {
-          base: 'ChromiumHeadless',
+          base: 'Chromium',
           flags: [
             '--autoplay-policy=no-user-gesture-required',
             '--mute-audio',
             '--disable-gpu',
             '--no-sandbox',
-            '--js-flags="--max_old_space_size=4096"'
+            '--enable-precise-memory-info',
+            '--js-flags="--max_old_space_size=8192"',
+            '--js-flags="--expose-gc"'
           ]
       },
       ChromiumHeadless_with_debug: {

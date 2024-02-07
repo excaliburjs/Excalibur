@@ -385,5 +385,7 @@ export interface ExcaliburGraphicsContext {
 
   beginDrawLifecycle(): void;
 
-  endDrawLifecycle(): void
+  endDrawLifecycle(): void;
+
+  dispose(): void;
 }

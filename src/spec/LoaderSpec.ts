@@ -9,6 +9,10 @@ describe('A loader', () => {
     engine = TestUtils.engine();
   });
 
+  afterEach(() => {
+    engine.dispose();
+  });
+
   it('exists', () => {
     expect(ex.Loader).toBeDefined();
   });
@@ -237,7 +241,7 @@ describe('A loader', () => {
     expect(btnClickHandler).toHaveBeenCalled();
   });
 
-  it('updates the play button postion on resize', () => {
+  it('updates the play button position on resize', () => {
     const engine = new ex.Engine({width: 1000, height: 1000});
     const loader = new ex.Loader([, , , ,]);
     loader.onInitialize(engine);

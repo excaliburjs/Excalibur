@@ -20,6 +20,7 @@ xdescribe('A ColorBlindCorrector', () => {
 
   afterEach(() => {
     engine.stop();
+    engine.dispose();
   });
 
   it('is normal', (done) => {

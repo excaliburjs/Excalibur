@@ -245,14 +245,14 @@ describe('The ExcaliburGraphicsContext', () => {
     let testCanvasElement: HTMLCanvasElement;
     let testContext: WebGL2RenderingContext;
     beforeAll(() => {
-      testCanvasElement =  document.createElement('canvas');
-      testContext = testCanvasElement.getContext('webgl2', {
-        antialias: false,
-        premultipliedAlpha: false,
-        alpha: false,
-        depth: false,
-        powerPreference: 'high-performance'
-      });
+      // testCanvasElement =  document.createElement('canvas');
+      // testContext = testCanvasElement.getContext('webgl2', {
+      //   antialias: false,
+      //   premultipliedAlpha: false,
+      //   alpha: false,
+      //   depth: false,
+      //   powerPreference: 'high-performance'
+      // });
     });
     afterAll(() => {
       testCanvasElement.width = 0;
@@ -264,7 +264,7 @@ describe('The ExcaliburGraphicsContext', () => {
       jasmine.addMatchers(ExcaliburMatchers);
       jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
       TextureLoader.filtering = ex.ImageFiltering.Pixel;
-      // testCanvasElement = document.createElement('canvas');
+      testCanvasElement = document.createElement('canvas');
     });
 
     it('exists', () => {
@@ -279,6 +279,7 @@ describe('The ExcaliburGraphicsContext', () => {
         backgroundColor: ex.Color.Red
       });
       expect(context).toBeDefined();
+      context.dispose();
     });
     it('will throw if an invalid renderer is specified', () => {
       const canvas = testCanvasElement;
@@ -303,6 +304,7 @@ describe('The ExcaliburGraphicsContext', () => {
       });
       expect(context.width).toBe(canvas.width);
       expect(context.height).toBe(canvas.height);
+      context.dispose();
     });
 
     it('will snap rectangles to the nearest pixel', async () => {
@@ -328,6 +330,7 @@ describe('The ExcaliburGraphicsContext', () => {
       context.flush();
 
       await expectAsync(canvas).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/pixel-snap.png');
+      context.dispose();
     });
 
     it('will snap rectangle graphics to the next pixel if close to the border', async () => {
@@ -355,6 +358,7 @@ describe('The ExcaliburGraphicsContext', () => {
       await expectAsync(canvas).toEqualImage(
         'src/spec/images/ExcaliburGraphicsContextSpec/pixel-snap-next.png'
       );
+      context.dispose();
     });
 
     it('will snap rectangles to the next pixel if close to the border', async () => {
@@ -377,6 +381,7 @@ describe('The ExcaliburGraphicsContext', () => {
       await expectAsync(canvas).toEqualImage(
         'src/spec/images/ExcaliburGraphicsContextSpec/pixel-snap-next.png'
       );
+      context.dispose();
     });
 
     it('will snap lines to the next pixel if close to the border', async () => {
@@ -399,6 +404,7 @@ describe('The ExcaliburGraphicsContext', () => {
       await expectAsync(canvas).toEqualImage(
         'src/spec/images/ExcaliburGraphicsContextSpec/pixel-snap-line-next.png'
       );
+      context.dispose();
     });
 
     it('will snap circles to the next pixel if close to the border', async () => {
@@ -421,6 +427,7 @@ describe('The ExcaliburGraphicsContext', () => {
       await expectAsync(canvas).toEqualImage(
         'src/spec/images/ExcaliburGraphicsContextSpec/pixel-snap-circle-next.png'
       );
+      context.dispose();
     });
 
     it('will snap points to the next pixel if close to the border', async () => {
@@ -446,6 +453,7 @@ describe('The ExcaliburGraphicsContext', () => {
       await expectAsync(canvas).toEqualImage(
         'src/spec/images/ExcaliburGraphicsContextSpec/pixel-snap-point-next.png'
       );
+      context.dispose();
     });
 
     it('can draw a graphic', async () => {
@@ -472,6 +480,7 @@ describe('The ExcaliburGraphicsContext', () => {
       await expectAsync(canvasElement).toEqualImage(
         'src/spec/images/ExcaliburGraphicsContextSpec/2d-drawgraphic.png'
       );
+      sut.dispose();
     });
 
     it('can draw debug point', async () => {
@@ -495,6 +504,7 @@ describe('The ExcaliburGraphicsContext', () => {
       await expectAsync(canvasElement).toEqualImage(
         'src/spec/images/ExcaliburGraphicsContextSpec/webgl-drawpoint.png'
       );
+      sut.dispose();
     });
 
     it('will log a warning if you attempt to draw outside the lifecycle', () => {
@@ -516,6 +526,7 @@ describe('The ExcaliburGraphicsContext', () => {
       expect(logger.warnOnce).toHaveBeenCalledWith(
         `Attempting to draw outside the the drawing lifecycle (preDraw/postDraw) is not supported and is a source of bugs/errors.\n`+
         `If you want to do custom drawing, use Actor.graphics, or any onPreDraw or onPostDraw handler.`);
+      sut.dispose();
     });
 
     it('will not log a warning inside the lifecycle', () => {
@@ -536,6 +547,7 @@ describe('The ExcaliburGraphicsContext', () => {
       sut.drawCircle(ex.vec(0, 0), 10, ex.Color.Blue);
       expect(logger.warn).not.toHaveBeenCalled();
       sut.endDrawLifecycle();
+      sut.dispose();
     });
 
     it('will preserve the painter order when switching renderer (no draw sorting)', async () => {
@@ -591,6 +603,7 @@ describe('The ExcaliburGraphicsContext', () => {
         'src/spec/images/ExcaliburGraphicsContextSpec/painter-order-circle-image-rect.png',
         .97
       );
+      sut.dispose();
     });
 
     it('will preserve the painter order when switching renderer (draw sorting)', async () => {
@@ -643,6 +656,7 @@ describe('The ExcaliburGraphicsContext', () => {
         'src/spec/images/ExcaliburGraphicsContextSpec/painter-order-circle-image-rect.png',
         .97
       );
+      sut.dispose();
     });
 
     it('can draw debug line', async () => {
@@ -667,6 +681,7 @@ describe('The ExcaliburGraphicsContext', () => {
       await expectAsync(canvasElement).toEqualImage(
         'src/spec/images/ExcaliburGraphicsContextSpec/webgl-drawline.png'
       );
+      sut.dispose();
     });
 
     it('can draw debug rectangle', async () => {
@@ -689,6 +704,7 @@ describe('The ExcaliburGraphicsContext', () => {
       sut.flush();
 
       await expectAsync(canvasElement).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/webgl-rect.png');
+      sut.dispose();
     });
 
     it('can draw rectangle', async () => {
@@ -709,6 +725,7 @@ describe('The ExcaliburGraphicsContext', () => {
       await expectAsync(canvasElement).toEqualImage(
         'src/spec/images/ExcaliburGraphicsContextSpec/webgl-solid-rect.png'
       );
+      sut.dispose();
     });
 
     it('can draw circle', async () => {
@@ -727,6 +744,7 @@ describe('The ExcaliburGraphicsContext', () => {
       sut.flush();
 
       await expectAsync(canvasElement).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/webgl-circle.png');
+      sut.dispose();
     });
 
     it('can draw circle with opacity', async () => {
@@ -747,6 +765,7 @@ describe('The ExcaliburGraphicsContext', () => {
 
       await expectAsync(canvasElement).toEqualImage(
         'src/spec/images/ExcaliburGraphicsContextSpec/webgl-circle-with-opacity.png');
+      sut.dispose();
     });
 
     it('can draw circles in batches (no draw sorting)', () => {
@@ -776,6 +795,7 @@ describe('The ExcaliburGraphicsContext', () => {
         sut.drawCircle(ex.vec(50, 50), 50, ex.Color.Blue);
       }
       expect(circleRenderer.flush).toHaveBeenCalledTimes(2);
+      sut.dispose();
     });
 
     it('can draw circles in batches (draw sorting)', () => {
@@ -804,6 +824,7 @@ describe('The ExcaliburGraphicsContext', () => {
       }
       sut.flush();
       expect(circleRenderer.flush).toHaveBeenCalledTimes(3);
+      sut.dispose();
     });
 
     it('can draw rectangles in batches (no draw sorting)', () => {
@@ -835,6 +856,7 @@ describe('The ExcaliburGraphicsContext', () => {
         sut.drawRectangle(ex.vec(50, 50), 50, 50, ex.Color.Blue);
       }
       expect(rectangleRenderer.flush).toHaveBeenCalledTimes(2);
+      sut.dispose();
     });
 
     it('can draw rectangles in batches (draw sorting)', () => {
@@ -866,6 +888,7 @@ describe('The ExcaliburGraphicsContext', () => {
 
       sut.flush();
       expect(rectangleRenderer.flush).toHaveBeenCalledTimes(3);
+      sut.dispose();
     });
 
     it('can draw images in batches (no draw sorting)', async () => {
@@ -899,6 +922,7 @@ describe('The ExcaliburGraphicsContext', () => {
         sut.drawImage(tex.image, 0, 0);
       }
       expect(imageRenderer.flush).toHaveBeenCalledTimes(2);
+      sut.dispose();
     });
 
     it('can draw images in batches (draw sorting)', async () => {
@@ -931,6 +955,7 @@ describe('The ExcaliburGraphicsContext', () => {
       }
       sut.flush();
       expect(imageRenderer.flush).toHaveBeenCalledTimes(3);
+      sut.dispose();
     });
 
     it('can draw a line', async () => {
@@ -950,8 +975,8 @@ describe('The ExcaliburGraphicsContext', () => {
       sut.clear();
       sut.drawLine(ex.vec(0, 0), ex.vec(100, 100), ex.Color.Blue, 5);
       sut.flush();
-
       await expectAsync(canvasElement).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/webgl-line.png');
+      sut.dispose();
     });
 
     it('can transform the context', async () => {
@@ -986,6 +1011,7 @@ describe('The ExcaliburGraphicsContext', () => {
       await expectAsync(canvasElement).toEqualImage(
         'src/spec/images/ExcaliburGraphicsContextSpec/webgl-transform.png'
       );
+      sut.dispose();
     });
 
     it('can snap drawings to pixel', async () => {
@@ -1013,6 +1039,7 @@ describe('The ExcaliburGraphicsContext', () => {
       await expectAsync(canvasElement).toEqualImage(
         'src/spec/images/ExcaliburGraphicsContextSpec/2d-snap-to-pixel.png'
       );
+      sut.dispose();
     });
 
     it('can handle drawing a zero dimension image', () => {
@@ -1046,6 +1073,7 @@ describe('The ExcaliburGraphicsContext', () => {
         sut.drawImage(rect._bitmap, 0, 0, 10, 10, 0, 0, 0, 0);
         sut.flush();
       }).not.toThrow();
+      sut.dispose();
     });
   });
 });

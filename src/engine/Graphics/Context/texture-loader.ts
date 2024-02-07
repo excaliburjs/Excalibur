@@ -13,6 +13,14 @@ export class TextureLoader {
     TextureLoader._MAX_TEXTURE_SIZE = gl.getParameter(gl.MAX_TEXTURE_SIZE);
   }
 
+  public dispose() {
+    for (const [image] of this._textureMap) {
+      this.delete(image);
+    }
+    this._textureMap.clear();
+    this._gl = null;
+  }
+
   /**
    * Sets the default filtering for the Excalibur texture loader, default [[ImageFiltering.Blended]]
    */

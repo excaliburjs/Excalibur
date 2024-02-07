@@ -87,4 +87,10 @@ export class VertexBuffer {
       gl.bufferData(gl.ARRAY_BUFFER, this.bufferData, this.type === 'static' ? gl.STATIC_DRAW : gl.DYNAMIC_DRAW);
     }
   }
+
+  dispose() {
+    const gl = this._gl;
+    gl.deleteBuffer(this.buffer);
+    this._gl = null;
+  }
 }

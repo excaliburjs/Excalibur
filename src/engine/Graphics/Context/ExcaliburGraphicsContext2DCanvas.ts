@@ -366,4 +366,8 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
   flush(): void {
     // pass
   }
+
+  dispose(): void {
+    this.__ctx = null;
+  }
 }

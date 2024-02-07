@@ -325,10 +325,14 @@ export class Screen {
         this._mediaQueryList.removeListener(this._pixelRatioChangeHandler);
       }
       this._canvas.removeEventListener('fullscreenchange', this._fullscreenChangeHandler);
+      this._canvas = null;
     }
   }
 
   private _fullscreenChangeHandler = () => {
+    if (this._isDisposed) {
+      return;
+    }
     this._isFullScreen = !this._isFullScreen;
     this._logger.debug('Fullscreen Change', this._isFullScreen);
     this.events.emit('fullscreen', {
@@ -337,6 +341,9 @@ export class Screen {
   };
 
   private _pixelRatioChangeHandler = () => {
+    if (this._isDisposed) {
+      return;
+    }
     this._logger.debug('Pixel Ratio Change', window.devicePixelRatio);
     this._listenForPixelRatio();
     this._devicePixelRatio = this._calculateDevicePixelRatio();
@@ -347,6 +354,9 @@ export class Screen {
   };
 
   private _resizeHandler = () => {
+    if (this._isDisposed) {
+      return;
+    }
     const parent = this.parent;
     this._logger.debug('View port resized');
     this._setResolutionAndViewportByDisplayMode(parent);

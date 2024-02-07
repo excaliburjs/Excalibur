@@ -249,6 +249,21 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._init();
   }
 
+  private _disposed = false;
+  public dispose() {
+    if (!this._disposed) {
+      this._disposed = true;
+      this.textureLoader.dispose();
+      for (const renderer of this._renderers.values()) {
+        renderer.dispose();
+      }
+      this._renderers.clear();
+      this._drawCallPool = null;
+      this._drawCalls.length = 0;
+      this.__gl = null;
+    }
+  }
+
   private _init() {
     const gl = this.__gl;
     // Setup viewport and view matrix

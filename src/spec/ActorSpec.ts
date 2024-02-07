@@ -45,6 +45,7 @@ describe('A game actor', () => {
 
   afterEach(() => {
     engine.stop();
+    engine.dispose();
     engine = null;
   });
 

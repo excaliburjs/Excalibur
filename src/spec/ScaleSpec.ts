@@ -23,6 +23,7 @@ describe('A scaled and rotated actor', () => {
 
   afterEach(() => {
     engine.stop();
+    engine.dispose();
   });
 
   xit('is drawn correctly scaled at 90 degrees', (done) => {

@@ -91,6 +91,7 @@ describe('A Material', () => {
     expect(graphicsContext.material).toBe(null);
     await expectAsync(canvas)
       .toEqualImage('src/spec/images/MaterialRendererSpec/material.png');
+    graphicsContext.dispose();
   });
 
   it('can draw the screen texture', async () => {
@@ -135,6 +136,7 @@ describe('A Material', () => {
     expect(context.material).toBe(null);
     await expectAsync(canvas)
       .toEqualImage('src/spec/images/MaterialRendererSpec/multiply-comp.png');
+    context.dispose();
   });
 
   it('can update uniforms with the .update()', async () => {

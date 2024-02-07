@@ -112,6 +112,12 @@ export class Shader {
     this.fragmentSource = fragmentSource;
   }
 
+  dispose() {
+    const gl = this._gl;
+    gl.deleteProgram(this.program);
+    this._gl = null;
+  }
+
   /**
    * Binds the shader program
    */

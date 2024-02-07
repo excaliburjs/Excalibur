@@ -142,5 +142,6 @@ describe('A ScreenElement', () => {
     game.currentScene.draw(game.graphicsContext, 100);
     game.graphicsContext.flush();
     await expectAsync(game.canvas).toEqualImage('src/spec/images/ScreenElementSpec/emptyctor.png');
+    game.dispose();
   });
 });
