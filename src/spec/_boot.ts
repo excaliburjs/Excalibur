@@ -32,7 +32,9 @@ const MemoryReporter = {
   // },
 
   specDone: function(result) {
-    (window as any).gc();
+    if ((window as any).gc) {
+      (window as any).gc();
+    }
     const currentMemory = (window.performance as any).memory;
     const megabytes =  (currentMemory.usedJSHeapSize - this.previousMemory.usedJSHeapSize) * 0.000001;
     if (megabytes > 1) {

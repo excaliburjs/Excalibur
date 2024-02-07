@@ -54,7 +54,7 @@ const timingReporter = {
 
 module.exports = (config) => {
   config.set({
-    singleRun: false,
+    singleRun: true,
     frameworks: ['jasmine', 'webpack'],
     plugins: [
       require('karma-jasmine'),
@@ -67,7 +67,7 @@ module.exports = (config) => {
     ],
     client: {
       // Excalibur logs / console logs suppressed when captureConsole = false;
-      captureConsole: true,
+      captureConsole: false,
       jasmine: {
         random: false,
         timeoutInterval: 70000 // needs to be bigger than no-activity
@@ -134,7 +134,7 @@ module.exports = (config) => {
             test: /\.glsl$/,
             use: ['raw-loader']
           },
-          /*{
+          {
             test: /\.ts$/,
             enforce: 'post',
             include: path.resolve('src/engine/'),
@@ -142,7 +142,7 @@ module.exports = (config) => {
               loader: 'istanbul-instrumenter-loader',
               options: { esModules: true }
             }
-          }*/
+          }
         ]
       }
     },
@@ -151,7 +151,7 @@ module.exports = (config) => {
     // i. e.
         stats: 'normal'
     },
-    reporters: ['spec', /*'coverage-istanbul',*/ 'jasmine-seed', 'jasmine-slow'],
+    reporters: ['progress', /*'spec'*/, 'coverage-istanbul','jasmine-seed', 'jasmine-slow'],
     coverageReporter: {
       reporters: [
           { type: 'html', dir: 'coverage/' }, 
@@ -175,7 +175,7 @@ module.exports = (config) => {
           flags: ['--autoplay-policy=no-user-gesture-required', '--mute-audio', '--disable-gpu', '--no-sandbox']
       },
       ChromiumHeadless_with_audio: {
-          base: 'Chromium',
+          base: 'ChromiumHeadless',
           flags: [
             '--autoplay-policy=no-user-gesture-required',
             '--mute-audio',
