@@ -69,7 +69,7 @@ module.exports = (config) => {
       // Excalibur logs / console logs suppressed when captureConsole = false;
       captureConsole: false,
       jasmine: {
-        random: false,
+        random: true,
         timeoutInterval: 70000 // needs to be bigger than no-activity
       }
     },
@@ -182,8 +182,7 @@ module.exports = (config) => {
             '--disable-gpu',
             '--no-sandbox',
             '--enable-precise-memory-info',
-            '--js-flags="--max_old_space_size=8192"',
-            '--js-flags="--expose-gc"'
+            '--js-flags="--max_old_space_size=8192 --expose-gc"'
           ]
       },
       ChromiumHeadless_with_debug: {
