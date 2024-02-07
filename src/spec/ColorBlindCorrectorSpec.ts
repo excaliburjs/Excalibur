@@ -29,7 +29,7 @@ describe('A ColorBlindCorrector', () => {
     engine.once('postframe', (ev: ex.PostDrawEvent) => {
       expectAsync(engine.canvas).toEqualImage('src/spec/images/ColorBlindCorrectorSpec/normal.png').then(() => {
         done();
-      })
+      });
     });
     clock.step(1);
   });

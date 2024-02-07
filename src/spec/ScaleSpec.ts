@@ -47,7 +47,7 @@ describe('A scaled and rotated actor', () => {
 
       expectAsync(engine.canvas).toEqualImage('src/spec/images/ScaleSpec/scale.png').then(() => {
         done();
-      })
+      });
     });
   });
 });
