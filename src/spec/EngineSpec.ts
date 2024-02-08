@@ -231,7 +231,7 @@ describe('The engine', () => {
     expect(ex.TextureLoader.filtering).toBe(ex.ImageFiltering.Pixel);
   });
 
-  xit('should not show the play button when suppressPlayButton is turned on', (done) => {
+  it('should not show the play button when suppressPlayButton is turned on', (done) => {
     reset();
     engine = TestUtils.engine({
       suppressPlayButton: true
@@ -255,7 +255,6 @@ describe('The engine', () => {
       expectAsync(engine.canvas)
         .toEqualImage('src/spec/images/EngineSpec/engine-suppress-play.png').then(() => {
           done();
-          engine.dispose();
         });
     });
   });
@@ -673,7 +672,7 @@ describe('The engine', () => {
     engine.dispose();
   });
 
-  xit('can screen shot the game (in WebGL)', (done) => {
+  it('can screen shot the game (in WebGL)', (done) => {
 
     const engine = TestUtils.engine({}, []);
     const clock = engine.clock as ex.TestClock;

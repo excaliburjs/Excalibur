@@ -2,7 +2,7 @@ import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { ExcaliburAsyncMatchers, ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
 
-xdescribe('A ColorBlindCorrector', () => {
+describe('A ColorBlindCorrector', () => {
   let bg: ex.ImageSource;
   let engine: ex.Engine;
   let clock: ex.TestClock;

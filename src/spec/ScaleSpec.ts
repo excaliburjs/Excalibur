@@ -26,7 +26,7 @@ describe('A scaled and rotated actor', () => {
     engine.dispose();
   });
 
-  xit('is drawn correctly scaled at 90 degrees', (done) => {
+  it('is drawn correctly scaled at 90 degrees', (done) => {
     const clock = engine.clock as ex.TestClock;
     const bg = new ex.ImageSource('./src/spec/images/ScaleSpec/logo.png');
     const loader = new ex.Loader([bg]);
@@ -48,6 +48,7 @@ describe('A scaled and rotated actor', () => {
 
       expectAsync(engine.canvas).toEqualImage('src/spec/images/ScaleSpec/scale.png').then(() => {
         done();
+        engine.dispose();
       });
     });
   });

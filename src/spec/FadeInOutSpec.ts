@@ -17,7 +17,7 @@ describe('A FadeInOut transition', () => {
     expect(sut.color).toEqual(ex.Color.Red);
   });
 
-  xit('can fade in', (done) => {
+  it('can fade in', (done) => {
     const engine = TestUtils.engine({backgroundColor: ex.Color.ExcaliburBlue});
     const clock = engine.clock as ex.TestClock;
     TestUtils.runToReady(engine).then(() => {
@@ -56,12 +56,13 @@ describe('A FadeInOut transition', () => {
         expect(onDeactivateSpy).toHaveBeenCalledTimes(1);
         expectAsync(engine.canvas).toEqualImage('/src/spec/images/FadeInOutSpec/fadein.png').then(() => {
           done();
+          engine.dispose();
         });
       });
     });
   });
 
-  xit('can fade out', (done) => {
+  it('can fade out', (done) => {
     const engine = TestUtils.engine({backgroundColor: ex.Color.ExcaliburBlue});
     const clock = engine.clock as ex.TestClock;
     TestUtils.runToReady(engine).then(() => {
@@ -94,6 +95,7 @@ describe('A FadeInOut transition', () => {
         clock.step(1);
         expectAsync(engine.canvas).toEqualImage('/src/spec/images/FadeInOutSpec/fadeout.png').then(() => {
           done();
+          engine.dispose();
         });
       });
     });
