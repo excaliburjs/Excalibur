@@ -13,13 +13,13 @@ function flushWebGLCanvasTo2D(source: HTMLCanvasElement): HTMLCanvasElement {
   ctx.drawImage(source, 0, 0);
   return canvas;
 }
-
-describe('The engine', () => { // TODO timeout
+describe('The engine', () => {
   let engine: ex.Engine;
   let scene: ex.Scene;
 
   const reset = () => {
     engine.stop();
+    engine.dispose();
     engine = null;
     (<any>window).devicePixelRatio = 1;
     const playButton = document.getElementById('excalibur-play');
@@ -55,6 +55,7 @@ describe('The engine', () => { // TODO timeout
       clock.setFatalExceptionHandler(exceptionSpy);
       clock.start();
       clock.step(100);
+      engine.dispose();
     };
 
     await boot();
@@ -78,7 +79,7 @@ describe('The engine', () => { // TODO timeout
         setTimeout(() => { // needed for the delay to work
           testClock.run(1, 100);
           engine.graphicsContext.flush();
-          expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
+          expectAsync(engine.canvas)
             .toEqualImage('src/spec/images/EngineSpec/engine-load-complete.png').then(() => {
               done();
             });
@@ -147,6 +148,7 @@ describe('The engine', () => { // TODO timeout
     clock.run(100, 1);
 
     expect(engine.useCanvas2DFallback).toHaveBeenCalled();
+    engine.dispose();
   });
 
   it('can use a fixed update fps and can catch up', async () => {
@@ -250,7 +252,7 @@ describe('The engine', () => { // TODO timeout
       // With suppress play there is another 500 ms delay in engine load()
       testClock.step(1);
       engine.graphicsContext.flush();
-      expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
+      expectAsync(engine.canvas)
         .toEqualImage('src/spec/images/EngineSpec/engine-suppress-play.png').then(() => {
           done();
         });
@@ -667,6 +669,7 @@ describe('The engine', () => { // TODO timeout
     expect(engine.currentScene).toBe(scene2);
     expect(scene1.actors.length).toBe(0);
     expect(scene2.actors.length).toBe(1);
+    engine.dispose();
   });
 
   it('can screen shot the game (in WebGL)', (done) => {
@@ -687,6 +690,7 @@ describe('The engine', () => { // TODO timeout
       engine.screenshot().then((image) => {
         expectAsync(image).toEqualImage(flushWebGLCanvasTo2D(engine.canvas)).then(() => {
           done();
+          engine.dispose();
         });
       });
       clock.step(1);
@@ -727,6 +731,7 @@ describe('The engine', () => { // TODO timeout
     expect(hidpiImage.width).toBe(1000);
     expect(hidpiImage.height).toBe(1000);
     await expectAsync(hidpiImage).toEqualImage(flushWebGLCanvasTo2D(engine.canvas));
+    engine.dispose();
   });
 
   it('can screen shot and match the anti-aliasing with a half pixel when pixelRatio != 1.0', async () => {
@@ -815,7 +820,7 @@ describe('The engine', () => { // TODO timeout
 
     clock.step();
 
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/EngineSpec/snaptopixel.png');
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/EngineSpec/snaptopixel.png');
   });
 
   it('can do subpixel AA on pixel art', async () => {
@@ -881,7 +886,7 @@ describe('The engine', () => { // TODO timeout
     engine.currentScene.camera.pos = player.pos;
 
     clock.step();
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/EngineSpec/pixelart.png');
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/EngineSpec/pixelart.png');
   });
 
   describe('lifecycle overrides', () => {

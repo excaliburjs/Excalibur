@@ -11,7 +11,7 @@ describe('A SpriteSheet for Graphics', () => {
     canvasElement = document.createElement('canvas');
     canvasElement.width = 120;
     canvasElement.height = 120;
-    ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement, smoothing: false });
+    ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement, antialiasing: false });
   });
 
   it('exists', () => {

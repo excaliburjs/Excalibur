@@ -2,17 +2,6 @@ import * as ex from '@excalibur';
 import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 import { delay } from '../engine/Util/Util';
 
-/**
- *
- */
-function flushWebGLCanvasTo2D(source: HTMLCanvasElement): HTMLCanvasElement {
-  const canvas = document.createElement('canvas');
-  canvas.width = source.width;
-  canvas.height = source.height;
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(source, 0, 0);
-  return canvas;
-}
 
 /**
  *
@@ -845,11 +834,11 @@ describe('A Text Graphic', () => {
     ctx.flush();
 
     await runOnWindows(async () => {
-      await expectAsync(flushWebGLCanvasTo2D(canvasElement)).toEqualImage('src/spec/images/GraphicsTextSpec/long-text.png');
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsTextSpec/long-text.png');
     });
 
     await runOnLinux(async () => {
-      await expectAsync(flushWebGLCanvasTo2D(canvasElement)).toEqualImage('src/spec/images/GraphicsTextSpec/long-text-linux.png');
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsTextSpec/long-text-linux.png');
     });
   });
 

@@ -1,4 +1,4 @@
-import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
+import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
@@ -10,6 +10,7 @@ describe('A scaled and rotated actor', () => {
 
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
+    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
 
     actor = new ex.ScreenElement({x: 50, y:50, width: 100, height: 50});
     actor.color = ex.Color.Blue;
@@ -22,6 +23,7 @@ describe('A scaled and rotated actor', () => {
 
   afterEach(() => {
     engine.stop();
+    engine.dispose();
   });
 
   it('is drawn correctly scaled at 90 degrees', (done) => {
@@ -44,9 +46,9 @@ describe('A scaled and rotated actor', () => {
 
       clock.step(1);
 
-      ensureImagesLoaded(TestUtils.flushWebGLCanvasTo2D(engine.canvas), 'src/spec/images/ScaleSpec/scale.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
+      expectAsync(engine.canvas).toEqualImage('src/spec/images/ScaleSpec/scale.png').then(() => {
         done();
+        engine.dispose();
       });
     });
   });

@@ -65,6 +65,14 @@ export class RectangleRenderer implements RendererPlugin {
     this._quads = new QuadIndexBuffer(gl, this._maxRectangles, true);
   }
 
+  public dispose() {
+    this._buffer.dispose();
+    this._quads.dispose();
+    this._shader.dispose();
+    this._context = null;
+    this._gl = null;
+  }
+
   private _isFull() {
     if (this._rectangleCount >= this._maxRectangles) {
       return true;

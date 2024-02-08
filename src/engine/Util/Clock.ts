@@ -209,6 +209,7 @@ export class StandardClock extends Clock {
   }
 
   public stop(): void {
+    window.cancelAnimationFrame(this._requestId);
     this._running = false;
   }
 }

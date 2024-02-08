@@ -39,4 +39,9 @@ export interface RendererPlugin {
    * Flush any pending graphics draws to the screen
    */
   flush(): void;
+
+  /**
+   * Clear out any allocated memory
+   */
+  dispose(): void;
 }

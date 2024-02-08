@@ -86,4 +86,10 @@ export class QuadIndexBuffer {
     const gl = this._gl;
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.buffer);
   }
+
+  public dispose() {
+    const gl = this._gl;
+    gl.deleteBuffer(this.buffer);
+    this._gl = null;
+  }
 }

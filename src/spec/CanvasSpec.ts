@@ -135,7 +135,7 @@ describe('A Canvas Graphic', () => {
 
     expect(sut.width).toBe(50);
     expect(sut.height).toBe(50);
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/GraphicsCanvasSpec/centered.png');
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GraphicsCanvasSpec/centered.png');
 
   });
 });

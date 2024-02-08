@@ -377,7 +377,7 @@ describe('Collision Shape', () => {
       scene.draw(engine.graphicsContext, 100);
       engine.graphicsContext.flush();
 
-      await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/CollisionShapeSpec/circle.png');
+      await expectAsync(engine.canvas).toEqualImage('src/spec/images/CollisionShapeSpec/circle.png');
     });
 
     it('can calculate the distance to another circle', () => {
@@ -767,7 +767,7 @@ describe('Collision Shape', () => {
       engine.graphicsContext.restore();
       engine.graphicsContext.flush();
 
-      await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/CollisionShapeSpec/triangle.png');
+      await expectAsync(engine.canvas).toEqualImage('src/spec/images/CollisionShapeSpec/triangle.png');
     });
 
     it('can be drawn with actor', async () => {
@@ -781,7 +781,7 @@ describe('Collision Shape', () => {
       scene.draw(engine.graphicsContext, 100);
       engine.graphicsContext.flush();
 
-      await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/CollisionShapeSpec/triangle.png');
+      await expectAsync(engine.canvas).toEqualImage('src/spec/images/CollisionShapeSpec/triangle.png');
     });
 
     it('can calculate the distance to another circle', () => {
@@ -991,7 +991,7 @@ describe('Collision Shape', () => {
       engine.graphicsContext.restore();
       engine.graphicsContext.flush();
 
-      await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/CollisionShapeSpec/edge.png');
+      await expectAsync(engine.canvas).toEqualImage('src/spec/images/CollisionShapeSpec/edge.png');
     });
 
     it('can be drawn with actor', async () => {
@@ -1005,7 +1005,7 @@ describe('Collision Shape', () => {
       scene.draw(engine.graphicsContext, 100);
       engine.graphicsContext.flush();
 
-      await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/CollisionShapeSpec/edge.png');
+      await expectAsync(engine.canvas).toEqualImage('src/spec/images/CollisionShapeSpec/edge.png');
     });
 
     it('can calculate the distance to another circle', () => {
