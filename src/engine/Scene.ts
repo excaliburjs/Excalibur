@@ -320,8 +320,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
   public async _initialize(engine: Engine) {
     if (!this.isInitialized) {
       this.engine = engine;
-      // FIXME ECK this kinda sucks deferred configuration of the physics world :/
-      // ! Will this cause problems?
+      // PhysicsWorld config is watched so things will automagically update
       this.physics.config = this.engine.physics;
       this.input = new InputHost({
         pointerTarget: engine.pointerScope === PointerScope.Canvas ? engine.canvas : document,

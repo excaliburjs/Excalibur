@@ -2,7 +2,7 @@ import { ExcaliburMatchers } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
 import { DefaultPhysicsConfig } from '../engine/Collision/PhysicsConfig';
 
-describe('An ArcadeSolver', () => {
+describe('A RealisticSolver', () => {
   beforeAll(() => {
     jasmine.addMatchers(ExcaliburMatchers);
   });

@@ -1,6 +1,27 @@
 import * as ex from '@excalibur';
+import { watchDeep } from '../engine/Util/Watch';
 
 describe('Utility functions', () => {
+
+  it('can watch deep', () => {
+    const deepObject =  {
+      top: {
+        oneLevel: {
+          twoLevel: {
+            value: true
+          }
+        }
+      }
+    };
+
+    const changed = jasmine.createSpy('changed');
+    const watched = watchDeep(deepObject, changed);
+    watched.top.oneLevel.twoLevel.value = false;
+
+    expect(changed).toHaveBeenCalledWith(deepObject);
+    expect(watched.top.oneLevel.twoLevel.value).toEqual(false);
+    expect(deepObject.top.oneLevel.twoLevel.value).toEqual(false);
+  });
 
   it('can clamp a number to a maximum and minimum', () => {
     expect(ex.clamp(0, 10, 20)).toBe(10);

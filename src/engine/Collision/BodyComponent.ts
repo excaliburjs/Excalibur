@@ -50,6 +50,9 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   public enableFixedUpdateInterpolate = true;
 
   private _bodyConfig: DeepRequired<Pick<PhysicsConfig, 'bodies'>['bodies']>;
+  private static _DEFAULT_CONFIG: DeepRequired<Pick<PhysicsConfig, 'bodies'>['bodies']> = {
+    ...DefaultPhysicsConfig.bodies
+  };
   public wakeThreshold: number;
 
   constructor(options?: BodyComponentOptions) {
@@ -67,15 +70,33 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
         ...DefaultPhysicsConfig.bodies
       };
     }
-    this._mass = this._bodyConfig.defaultMass;
-    this.canSleep = this._bodyConfig.canSleepByDefault;
-    this.sleepMotion =  this._bodyConfig.sleepEpsilon * 5;
-    this.wakeThreshold = this._bodyConfig.wakeThreshold;
-    this._bodyConfig = this._bodyConfig;
+    this.updatePhysicsConfig(this._bodyConfig);
+    this._mass = BodyComponent._DEFAULT_CONFIG.defaultMass;
   }
 
   public get matrix() {
     return this.transform.get().matrix;
+  }
+
+  /**
+   * Called by excalibur to update physics config defaults if they change
+   * @param config
+   */
+  public updatePhysicsConfig(config: DeepRequired<Pick<PhysicsConfig, 'bodies'>['bodies']>) {
+    this._bodyConfig = {
+      ...DefaultPhysicsConfig.bodies,
+      ...config
+    };
+    this.canSleep = this._bodyConfig.canSleepByDefault;
+    this.sleepMotion =  this._bodyConfig.sleepEpsilon * 5;
+    this.wakeThreshold = this._bodyConfig.wakeThreshold;
+  }
+  /**
+   * Called by excalibur to update defaults
+   * @param config
+   */
+  public static updateDefaultPhysicsConfig(config: DeepRequired<Pick<PhysicsConfig, 'bodies'>['bodies']>) {
+    BodyComponent._DEFAULT_CONFIG = config;
   }
 
   /**

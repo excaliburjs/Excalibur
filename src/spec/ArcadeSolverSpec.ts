@@ -262,4 +262,62 @@ describe('An ArcadeSolver', () => {
     // Considers infinitesimally overlapping to no longer be overlapping and thus cancels the contact
     expect(contact.isCanceled()).toBe(true);
   });
+
+  it('should allow solver bias and solve certain contacts first', async () => {
+    const game = TestUtils.engine({
+      width: 1000,
+      height: 1000,
+      fixedUpdateFps: 60,
+      physics: {
+        gravity: ex.vec(0, 5000),
+        solver: ex.SolverStrategy.Arcade,
+        arcade: {
+          contactSolveBias: ex.ContactSolveBias.VerticalFirst
+        }
+      }
+    });
+    const clock = game.clock as ex.TestClock;
+    await TestUtils.runToReady(game);
+    // big tiles so distance heuristic doesn't work
+    const lastPos = ex.vec(0, 0);
+    for (let x = 0; x < 10; x++) {
+      const width = (x % 2 === 1 ? 16 : 200);
+      game.add(
+        new ex.Actor({
+          name: 'floor-tile',
+          x: lastPos.x,
+          y: 300,
+          width: width,
+          height: x % 2 ? 16 : 900,
+          anchor: ex.Vector.Zero,
+          color: ex.Color.Red,
+          collisionType: ex.CollisionType.Fixed
+        })
+      );
+      lastPos.x += width;
+    }
+
+    const player = new ex.Actor({
+      pos: ex.vec(100, 270),
+      width: 16,
+      height: 16,
+      collisionType: ex.CollisionType.Active,
+      color: ex.Color.Red
+    });
+
+    // place player on tiles
+    player.vel.x = 164;
+    game.add(player);
+
+    // run simulation and ensure now left/right contacts are generated
+    player.on('postcollision', evt => {
+      expect(evt.side).not.toBe(ex.Side.Left);
+      expect(evt.side).not.toBe(ex.Side.Right);
+      expect(evt.side).toBe(ex.Side.Bottom);
+    });
+
+    for (let i = 0; i < 40; i++) {
+      clock.step(16);
+    }
+  });
 });
