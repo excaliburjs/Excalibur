@@ -58,17 +58,20 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
       this.collisionType = options.type ?? this.collisionType;
       this.group = options.group ?? this.group;
       this.useGravity = options.useGravity ?? this.useGravity;
-      const bodyConfig = {
+      this._bodyConfig = {
         ...DefaultPhysicsConfig.bodies,
         ...options.config
       };
-      this._mass = bodyConfig.defaultMass;
-      this.canSleep = bodyConfig.canSleepByDefault;
-      this.sleepMotion =  bodyConfig.sleepEpsilon * 5;
-      this.wakeThreshold = bodyConfig.wakeThreshold;
-      this._bodyConfig = bodyConfig;
-
+    } else {
+      this._bodyConfig = {
+        ...DefaultPhysicsConfig.bodies
+      };
     }
+    this._mass = this._bodyConfig.defaultMass;
+    this.canSleep = this._bodyConfig.canSleepByDefault;
+    this.sleepMotion =  this._bodyConfig.sleepEpsilon * 5;
+    this.wakeThreshold = this._bodyConfig.wakeThreshold;
+    this._bodyConfig = this._bodyConfig;
   }
 
   public get matrix() {

@@ -1,5 +1,6 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
+import { DefaultPhysicsConfig } from '../engine/Collision/PhysicsConfig';
 
 describe('A Collision', () => {
   let actor1: ex.Actor = null;
@@ -48,7 +49,7 @@ describe('A Collision', () => {
   });
 
   it('order of actors collision should not matter when an Active and Active Collision', () => {
-    const collisionTree = new ex.DynamicTreeCollisionProcessor();
+    const collisionTree = new ex.DynamicTreeCollisionProcessor(DefaultPhysicsConfig);
 
     actor1.body.collisionType = ex.CollisionType.Active;
     actor2.body.collisionType = ex.CollisionType.Active;
@@ -65,7 +66,7 @@ describe('A Collision', () => {
   });
 
   it('order of actors collision should not matter when an Active and Passive Collision', () => {
-    const collisionTree = new ex.DynamicTreeCollisionProcessor();
+    const collisionTree = new ex.DynamicTreeCollisionProcessor(DefaultPhysicsConfig);
 
     actor1.body.collisionType = ex.CollisionType.Active;
     actor2.body.collisionType = ex.CollisionType.Passive;
@@ -82,7 +83,7 @@ describe('A Collision', () => {
   });
 
   it('order of actors collision should not matter when an Active and PreventCollision', () => {
-    const collisionTree = new ex.DynamicTreeCollisionProcessor();
+    const collisionTree = new ex.DynamicTreeCollisionProcessor(DefaultPhysicsConfig);
 
     actor1.body.collisionType = ex.CollisionType.Active;
     actor2.body.collisionType = ex.CollisionType.PreventCollision;
@@ -99,7 +100,7 @@ describe('A Collision', () => {
   });
 
   it('order of actors collision should not matter when an Active and Fixed', () => {
-    const collisionTree = new ex.DynamicTreeCollisionProcessor();
+    const collisionTree = new ex.DynamicTreeCollisionProcessor(DefaultPhysicsConfig);
 
     actor1.body.collisionType = ex.CollisionType.Active;
     actor2.body.collisionType = ex.CollisionType.Fixed;
@@ -116,7 +117,7 @@ describe('A Collision', () => {
   });
 
   it('order of actors collision should not matter when an Fixed and Fixed', () => {
-    const collisionTree = new ex.DynamicTreeCollisionProcessor();
+    const collisionTree = new ex.DynamicTreeCollisionProcessor(DefaultPhysicsConfig);
 
     actor1.body.collisionType = ex.CollisionType.Fixed;
     actor2.body.collisionType = ex.CollisionType.Fixed;

@@ -1,6 +1,7 @@
 import * as ex from '@excalibur';
 import { BoundingBox, GameEvent, LineSegment, Projection, Ray, vec, Vector } from '@excalibur';
 import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
+import { DefaultPhysicsConfig } from '../engine/Collision/PhysicsConfig';
 describe('A CompositeCollider', () => {
   beforeAll(() => {
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
@@ -265,7 +266,7 @@ describe('A CompositeCollider', () => {
   it('is separated into a series of colliders in the dynamic tree', () => {
     const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
 
-    const dynamicTreeProcessor = new ex.DynamicTreeCollisionProcessor();
+    const dynamicTreeProcessor = new ex.DynamicTreeCollisionProcessor(DefaultPhysicsConfig);
     dynamicTreeProcessor.track(compCollider);
 
     expect(dynamicTreeProcessor.getColliders().length).toBe(2);
@@ -276,7 +277,7 @@ describe('A CompositeCollider', () => {
   it('removes all colliders in the dynamic tree', () => {
     const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
 
-    const dynamicTreeProcessor = new ex.DynamicTreeCollisionProcessor();
+    const dynamicTreeProcessor = new ex.DynamicTreeCollisionProcessor(DefaultPhysicsConfig);
     dynamicTreeProcessor.track(compCollider);
 
     expect(dynamicTreeProcessor.getColliders().length).toBe(2);

@@ -1,6 +1,7 @@
 import * as ex from '@excalibur';
 import { ExcaliburMatchers } from 'excalibur-jasmine';
 import { TestUtils } from './util/TestUtils';
+import { DefaultPhysicsConfig } from '../engine/Collision/PhysicsConfig';
 
 describe('An ArcadeSolver', () => {
   beforeAll(() => {
@@ -24,7 +25,7 @@ describe('An ArcadeSolver', () => {
     const contacts = [...pair1.collide(), ...pair2.collide()];
     expect(contacts.length).toBe(2);
 
-    const sut = new ex.ArcadeSolver();
+    const sut = new ex.ArcadeSolver(DefaultPhysicsConfig.arcade);
 
     for (const contact of contacts) {
       sut.solvePosition(contact);
@@ -91,7 +92,7 @@ describe('An ArcadeSolver', () => {
   });
 
   it('should cancel collision contacts where there is no more overlap', () => {
-    const arcadeSolver = new ex.ArcadeSolver();
+    const arcadeSolver = new ex.ArcadeSolver(DefaultPhysicsConfig.arcade);
 
     const player = new ex.Actor({
       x: 0,
@@ -127,7 +128,7 @@ describe('An ArcadeSolver', () => {
 
   it('should NOT cancel collisions where the bodies are moving away from the contact', () => {
 
-    const arcadeSolver = new ex.ArcadeSolver();
+    const arcadeSolver = new ex.ArcadeSolver(DefaultPhysicsConfig.arcade);
 
     const player = new ex.Actor({
       x: 0,
@@ -166,7 +167,7 @@ describe('An ArcadeSolver', () => {
   });
 
   it('should cancel near zero mtv collisions', () => {
-    const arcadeSolver = new ex.ArcadeSolver();
+    const arcadeSolver = new ex.ArcadeSolver(DefaultPhysicsConfig.arcade);
 
     const player = new ex.Actor({
       x: 0,
@@ -203,7 +204,7 @@ describe('An ArcadeSolver', () => {
   });
 
   it('should cancel near zero overlap collisions', () => {
-    const arcadeSolver = new ex.ArcadeSolver();
+    const arcadeSolver = new ex.ArcadeSolver(DefaultPhysicsConfig.arcade);
 
     const player = new ex.Actor({
       x: 0,
@@ -232,7 +233,7 @@ describe('An ArcadeSolver', () => {
   });
 
   it('should cancel zero overlap collisions during presolve', () => {
-    const arcadeSolver = new ex.ArcadeSolver();
+    const arcadeSolver = new ex.ArcadeSolver(DefaultPhysicsConfig.arcade);
 
     const player = new ex.Actor({
       x: 0,
