@@ -38,7 +38,10 @@ var logger = ex.Logger.getInstance();
 logger.defaultLevel = ex.LogLevel.Debug;
 
 var fullscreenButton = document.getElementById('fullscreen') as HTMLButtonElement;
-
+// setup physics defaults
+// ex.Physics.useArcadePhysics();
+// ex.Physics.checkForFastBodies = true;
+// ex.Physics.acc = new ex.Vector(0, 10); // global accel
 // Create an the game container
 var game = new ex.Engine({
   width: 800 / 2,
@@ -53,6 +56,17 @@ var game = new ex.Engine({
   fixedUpdateFps: 30,
   maxFps: 60,
   antialiasing: false,
+  uvPadding: 0,
+  physics: {
+    solver: ex.SolverStrategy.Realistic,
+    gravity: ex.vec(0, 20),
+    arcade: {
+      contactSolveBias: ex.ContactSolveBias.VerticalFirst
+    },
+    continuous: {
+      checkForFastBodies: true
+    }
+  },
   configurePerformanceCanvas2DFallback: {
     allow: true,
     showPlayerMessage: true,
@@ -142,10 +156,7 @@ boot.addResource(jump);
 // Set background color
 game.backgroundColor = new ex.Color(114, 213, 224);
 
-// setup physics defaults
-ex.Physics.useArcadePhysics();
-ex.Physics.checkForFastBodies = true;
-ex.Physics.acc = new ex.Vector(0, 10); // global accel
+
 
 // Add some UI
 //var heart = new ex.ScreenElement(0, 0, 20, 20);

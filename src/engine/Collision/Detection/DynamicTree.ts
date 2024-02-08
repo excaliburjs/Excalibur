@@ -1,12 +1,11 @@
-import { Physics } from '../Physics';
 import { BoundingBox } from '../BoundingBox';
-
 import { Ray } from '../../Math/ray';
 import { Logger } from '../../Util/Log';
 import { Id } from '../../Id';
 import { Entity } from '../../EntityComponentSystem/Entity';
 import { BodyComponent } from '../BodyComponent';
 import { Color, ExcaliburGraphicsContext } from '../..';
+import { PhysicsConfig } from '../PhysicsConfig';
 
 /**
  * Dynamic Tree Node used for tracking bounds within the tree
@@ -47,7 +46,9 @@ export interface ColliderProxy<T> {
 export class DynamicTree<T extends ColliderProxy<Entity>> {
   public root: TreeNode<T>;
   public nodes: { [key: number]: TreeNode<T> };
-  constructor(public worldBounds: BoundingBox = new BoundingBox(-Number.MAX_VALUE, -Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE)) {
+  constructor(
+    private _config: Required<Pick<PhysicsConfig, 'dynamicTree'>['dynamicTree']>,
+    public worldBounds: BoundingBox = new BoundingBox(-Number.MAX_VALUE, -Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE)) {
     this.root = null;
     this.nodes = {};
   }
@@ -243,17 +244,17 @@ export class DynamicTree<T extends ColliderProxy<Entity>> {
     }
 
     this._remove(node);
-    b.left -= Physics.boundsPadding;
-    b.top -= Physics.boundsPadding;
-    b.right += Physics.boundsPadding;
-    b.bottom += Physics.boundsPadding;
+    b.left -= this._config.boundsPadding;
+    b.top -= this._config.boundsPadding;
+    b.right += this._config.boundsPadding;
+    b.bottom += this._config.boundsPadding;
 
-    // THIS IS CAUSING UNECESSARY CHECKS
+    // THIS IS CAUSING UNNECESSARY CHECKS
     if (collider.owner) {
       const body = collider.owner?.get(BodyComponent);
       if (body) {
-        const multdx = ((body.vel.x * 32) / 1000) * Physics.dynamicTreeVelocityMultiplier;
-        const multdy = ((body.vel.y * 32) / 1000) * Physics.dynamicTreeVelocityMultiplier;
+        const multdx = ((body.vel.x * 32) / 1000) * this._config.velocityMultiplier;
+        const multdy = ((body.vel.y * 32) / 1000) * this._config.velocityMultiplier;
 
         if (multdx < 0) {
           b.left += multdx;

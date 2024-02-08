@@ -51,6 +51,8 @@ import { Toaster } from './Util/Toaster';
 import { InputMapper } from './Input/InputMapper';
 import { GoToOptions, SceneMap, Director, StartOptions, SceneWithOptions, WithRoot } from './Director/Director';
 import { InputHost } from './Input/InputHost';
+import { DefaultPhysicsConfig, DeprecatedStaticToConfig, PhysicsConfig } from './Collision/PhysicsConfig';
+import { DeepRequired } from './Util/Required';
 
 export type EngineEvents = {
   fallbackgraphicscontext: ExcaliburGraphicsContext2DCanvas,
@@ -181,7 +183,7 @@ export interface EngineOptions<TKnownScenes extends string = any> {
 
   /**
    * Optionally upscale the number of pixels in the canvas. Normally only useful if you need a smoother look to your assets, especially
-   * [[Text]].
+   * [[Text]] or Pixel Art assets.
    *
    * **WARNING** It is recommended you try using `antialiasing: true` before adjusting pixel ratio. Pixel ratio will consume more memory
    * and on mobile may break if the internal size of the canvas exceeds 4k pixels in width or height.
@@ -319,6 +321,15 @@ export interface EngineOptions<TKnownScenes extends string = any> {
   },
 
   /**
+   * Optionally configure the physics simulation in excalibur
+   *
+   * If false, Excalibur will not produce a physics simulation.
+   *
+   * Default is configured to use [[SolverStrategy.Arcade]] physics simulation
+   */
+  physics?: boolean | PhysicsConfig
+
+  /**
    * Optionally specify scenes with their transitions and loaders to excalibur's scene [[Director]]
    *
    * Scene transitions can can overridden dynamically by the `Scene` or by the call to `.goto`
@@ -375,6 +386,11 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
    * Direct access to the canvas element ID, if an ID exists
    */
   public canvasElementId: string;
+
+  /**
+   * Direct access to the physics configuration for excalibur
+   */
+  public physics: DeepRequired<PhysicsConfig>;
 
   /**
    * Optionally set the maximum fps if not set Excalibur will go as fast as the device allows.
@@ -902,6 +918,20 @@ O|===|* >________________>\n\
     });
 
     this.enableCanvasTransparency = options.enableCanvasTransparency;
+
+    if (typeof options.physics === 'boolean') {
+      this.physics = {
+        ...DefaultPhysicsConfig,
+        ...DeprecatedStaticToConfig(),
+        enabled: options.physics
+      };
+    } else {
+      this.physics = {
+        ...DefaultPhysicsConfig,
+        ...DeprecatedStaticToConfig(),
+        ...options.physics as DeepRequired<PhysicsConfig>
+      };
+    }
 
     this.debug = new Debug(this);
 

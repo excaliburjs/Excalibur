@@ -1,5 +1,4 @@
 import { Vector } from '../../Math/vector';
-import { Physics } from '../Physics';
 import { Collider } from '../Colliders/Collider';
 import { CollisionType } from '../CollisionType';
 import { Pair } from './Pair';
@@ -93,10 +92,10 @@ export class CollisionContact {
     const bodyB = this.colliderB.owner.get(BodyComponent);
     if (bodyA && bodyB) {
       if (bodyA.sleeping !== bodyB.sleeping) {
-        if (bodyA.sleeping && bodyA.collisionType !== CollisionType.Fixed && bodyB.sleepMotion >= Physics.wakeThreshold) {
+        if (bodyA.sleeping && bodyA.collisionType !== CollisionType.Fixed && bodyB.sleepMotion >= bodyA.wakeThreshold) {
           bodyA.setSleeping(false);
         }
-        if (bodyB.sleeping && bodyB.collisionType !== CollisionType.Fixed && bodyA.sleepMotion >= Physics.wakeThreshold) {
+        if (bodyB.sleeping && bodyB.collisionType !== CollisionType.Fixed && bodyA.sleepMotion >= bodyB.wakeThreshold) {
           bodyB.setSleeping(false);
         }
       }

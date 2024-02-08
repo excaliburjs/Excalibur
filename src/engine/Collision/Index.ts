@@ -1,6 +1,7 @@
 export * from './BodyComponent';
 export * from './ColliderComponent';
 export * from './CollisionType';
+export * from './SolverStrategy';
 
 export * from './Colliders/Collider';
 export * from './BoundingBox';
@@ -26,6 +27,7 @@ export * from './Detection/DynamicTreeCollisionProcessor';
 export * from './Detection/QuadTree';
 
 export * from './Solver/ArcadeSolver';
+export * from './Solver/ContactBias';
 export * from './Solver/ContactConstraintPoint';
 export * from './Solver/RealisticSolver';
 export * from './Solver/Solver';

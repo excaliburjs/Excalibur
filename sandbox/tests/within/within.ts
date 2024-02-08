@@ -4,7 +4,7 @@
 
 
 ex.Physics.acc = new ex.Vector(0, 200);
-ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Realistic;
+ex.Physics.collisionResolutionStrategy = ex.SolverStrategy.Realistic;
 var game = new ex.Engine({
   width: 600,
   height: 400
