@@ -7,15 +7,16 @@ var game = new ex.Engine({
 
 game.toggleDebug();
 game.debug.entity.showId = false;
-game.debug.tilemap.showSolidBounds = true;
-game.debug.tilemap.showGrid = true;
+game.debug.tilemap.showSolidBounds = false;
+// game.debug.tilemap.showGrid = true;
 
 var tm = new ex.TileMap({
   pos: ex.vec(200, 200),
   tileWidth: 16,
   tileHeight: 16,
-  columns: 6,
-  rows: 4
+  columns: 60,
+  rows: 60,
+  meshingLookBehind: Infinity
 });
 
 tm.getTile(0, 0).solid = true;

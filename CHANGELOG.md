@@ -40,6 +40,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added configuration option to `ex.TileMap({ meshingLookBehind: Infinity })` which allows users to configure how far the TileMap looks behind for matching colliders (default is 10).
 - Added Arcade Collision Solver bias to help mitigate seams in geometry that can cause problems for certain games.
   - `ex.ContactSolveBias.None` No bias, current default behavior collisions are solved in the default distance order
   - `ex.ContactSolveBias.VerticalFirst` Vertical collisions are solved first (useful for platformers with up/down gravity)
