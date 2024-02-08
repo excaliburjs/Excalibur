@@ -12,6 +12,10 @@ export class Pool<Type> {
     public maxObjects: number = 100
   ) {}
 
+  dispose() {
+    this.objects.length = 0;
+  }
+
   preallocate() {
     for (let i = 0; i < this.maxObjects; i++) {
       this.objects[i] = this.builder();
