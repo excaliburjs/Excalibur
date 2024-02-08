@@ -4,19 +4,6 @@ ex.Flags.enable('suppress-obsolete-message');
 const testsContext = require.context('.', true, /Spec$/);
 testsContext.keys().forEach(testsContext);
 
-// // Relieve memory pressure in CI
-// let previousMemory = (window.performance as any).memory;
-// afterEach(() => {
-//   (window as any).gc();
-
-//   const currentMemory = (window.performance as any).memory;
-//   const megabytes =  (currentMemory.usedJSHeapSize - previousMemory.usedJSHeapSize) * 0.000001
-//   if (megabytes > 1) {
-//     console.log('After test memory change MB:', megabytes);
-//   }
-//   previousMemory = currentMemory;
-// });
-
 const MemoryReporter = {
   previousMemory: (window.performance as any).memory,
   largeMemory: [],
@@ -24,17 +11,8 @@ const MemoryReporter = {
     this.previousMemory = (window.performance as any).memory;
   },
 
-  // suiteStarted: function(result) {
-  // },
-
-  // specStarted: function(result) {
-
-  // },
 
   specDone: function(result) {
-    if ((window as any).gc) {
-      (window as any).gc();
-    }
     const currentMemory = (window.performance as any).memory;
     const megabytes =  (currentMemory.usedJSHeapSize - this.previousMemory.usedJSHeapSize) * 0.000001;
     if (megabytes > 1) {
@@ -43,9 +21,6 @@ const MemoryReporter = {
     }
     this.previousMemory = currentMemory;
   },
-
-  // suiteDone: function(result) {
-  // },
 
   jasmineDone: function(result) {
     this.largeMemory.sort((a, b) => {
@@ -57,5 +32,5 @@ const MemoryReporter = {
   }
 };
 
-jasmine.getEnv().addReporter(MemoryReporter);
+// jasmine.getEnv().addReporter(MemoryReporter);
 
