@@ -202,7 +202,11 @@ export class Loader extends DefaultLoader {
       await delay(500, this.engine?.clock);
     } else {
       const resizeHandler = () => {
-        this._positionPlayButton();
+        try {
+          this._positionPlayButton();
+        } catch {
+          // swallow if can't position
+        };
       };
       if (this.engine?.browser) {
         this.engine.browser.window.on('resize', resizeHandler);

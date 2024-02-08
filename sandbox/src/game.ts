@@ -903,10 +903,16 @@ var emitter = new ex.ParticleEmitter({
   acceleration: new ex.Vector(0, 460),
   beginColor: ex.Color.Red,
   endColor: ex.Color.Yellow,
-  // particleSprite: blockSpriteLegacy,
+  particleSprite: blockSprite,
   particleRotationalVelocity: Math.PI / 10,
   randomRotation: true
 });
+const original = (ex.ParticleEmitter.prototype as any)._createParticle;
+(ex.ParticleEmitter.prototype as any)._createParticle = function () {
+  const particle = original.call(this);
+  particle.graphics.onPostDraw = () => {};
+  return particle;
+}
 game.add(emitter);
 
 var exploding = false;

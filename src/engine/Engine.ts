@@ -167,7 +167,10 @@ export interface EngineOptions<TKnownScenes extends string = any> {
    * Specify any UV padding you want use in pixels, this brings sampling into the texture if you're using
    * a sprite sheet in one image to prevent sampling bleed.
    *
-   * By default .01 pixels, and .25 pixels if `pixelArt: true`
+   * Defaults:
+   * * `antialiasing: false` or `filtering: ImageFiltering.Pixel` - 0.0;
+   * * `pixelArt: true` - 0.25
+   * * All else 0.01
    */
   uvPadding?: number;
 
@@ -835,6 +838,11 @@ O|===|* >________________>\n\
     if (options.pixelArt) {
       uvPadding = .25;
     }
+
+    if (!options.antialiasing || filtering === ImageFiltering.Pixel) {
+      uvPadding = 0;
+    }
+
     // Override with any user option, if non default to .25 for pixel art, 0.01 for everything else
     uvPadding = options.uvPadding ?? uvPadding ?? 0.01;
 
@@ -1033,6 +1041,19 @@ O|===|* >________________>\n\
     const pointerTarget = options && options.pointerScope === PointerScope.Document ? document : this.canvas;
     this.input.pointers = this.input.pointers.recreate(pointerTarget, this);
     this.input.pointers.init();
+  }
+
+  private _disposed = false;
+  public dispose() {
+    if (!this._disposed) {
+      this._disposed = true;
+      this.stop();
+      this.input.toggleEnabled(false);
+      this.canvas = null;
+      this.screen.dispose();
+      this.graphicsContext.dispose();
+      this.graphicsContext = null;
+    }
   }
 
   /**

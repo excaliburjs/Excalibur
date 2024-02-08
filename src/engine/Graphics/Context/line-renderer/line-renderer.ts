@@ -48,6 +48,13 @@ export class LineRenderer implements RendererPlugin {
     });
   }
 
+  public dispose() {
+    this._vertexBuffer.dispose();
+    this._shader.dispose();
+    this._context = null;
+    this._gl = null;
+  }
+
   draw(start: Vector, end: Vector, color: Color): void {
     // Force a render if the batch is full
     if (this._isFull()) {

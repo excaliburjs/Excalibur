@@ -45,6 +45,14 @@ export class MaterialRenderer implements RendererPlugin {
     this._quads = new QuadIndexBuffer(gl, 1, true);
   }
 
+  public dispose() {
+    this._buffer.dispose();
+    this._quads.dispose();
+    this._textures.length = 0;
+    this._context = null;
+    this._gl = null;
+  }
+
   draw(image: HTMLImageSource,
     sx: number,
     sy: number,

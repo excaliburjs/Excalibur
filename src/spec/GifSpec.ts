@@ -42,7 +42,7 @@ describe('A Gif', () => {
     sprite.draw(engine.graphicsContext, 0, 0);
     engine.graphicsContext.flush();
 
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/GifSpec/frame1.png');
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GifSpec/frame1.png');
     engine.graphicsContext.backgroundColor = ex.Color.Transparent;
     engine.graphicsContext.clear();
 
@@ -51,7 +51,7 @@ describe('A Gif', () => {
     sprite.draw(engine.graphicsContext, 0, 0);
     engine.graphicsContext.flush();
 
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/GifSpec/frame2.png');
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GifSpec/frame2.png');
   });
 
   it('should be read as a SpriteSheet', async () => {
@@ -62,7 +62,7 @@ describe('A Gif', () => {
     sprite.draw(engine.graphicsContext, 0, 0);
     engine.graphicsContext.flush();
 
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/GifSpec/frame1.png');
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GifSpec/frame1.png');
   });
 
   it('should be read as an Animation', async () => {
@@ -77,6 +77,6 @@ describe('A Gif', () => {
     frame2.graphic.draw(engine.graphicsContext, 0, 0);
     engine.graphicsContext.flush();
 
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/GifSpec/frame2.png');
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GifSpec/frame2.png');
   });
 });

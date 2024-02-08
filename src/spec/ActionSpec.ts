@@ -27,6 +27,7 @@ describe('Action', () => {
 
   afterEach(() => {
     engine.stop();
+    engine.dispose();
     engine = null;
   });
 
