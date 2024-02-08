@@ -4,7 +4,7 @@ import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 
 
 
-fdescribe('The ExcaliburGraphicsContext', () => {
+describe('The ExcaliburGraphicsContext', () => {
   describe('2D', () => {
     let testCanvasElement: HTMLCanvasElement;
     let testContext: CanvasRenderingContext2D;
