@@ -3,7 +3,7 @@ import { MotionComponent } from '../EntityComponentSystem/Components/MotionCompo
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { System, SystemType } from '../EntityComponentSystem/System';
 import { CollisionEndEvent, CollisionStartEvent, ContactEndEvent, ContactStartEvent } from '../Events';
-import { CollisionResolutionStrategy, Physics } from './Physics';
+import { SolverStrategy } from './SolverStrategy';
 import { ArcadeSolver } from './Solver/ArcadeSolver';
 import { Collider } from './Colliders/Collider';
 import { CollisionContact } from './Detection/CollisionContact';
@@ -23,18 +23,23 @@ export class CollisionSystem extends System {
   public query: Query<ComponentCtor<TransformComponent> | ComponentCtor<MotionComponent> | ComponentCtor<ColliderComponent>>;
 
   private _engine: Engine;
-  private _realisticSolver = new RealisticSolver();
-  private _arcadeSolver = new ArcadeSolver();
+  private _configDirty = false;
+  private _realisticSolver: RealisticSolver;
+  private _arcadeSolver: ArcadeSolver;
   private _lastFrameContacts = new Map<string, CollisionContact>();
   private _currentFrameContacts = new Map<string, CollisionContact>();
-  private _processor: DynamicTreeCollisionProcessor;
+  private get _processor(): DynamicTreeCollisionProcessor {
+    return this._physics.collisionProcessor;
+  };
 
   private _trackCollider: (c: Collider) => void;
   private _untrackCollider: (c: Collider) => void;
 
-  constructor(world: World, physics: PhysicsWorld) {
+  constructor(world: World, private _physics: PhysicsWorld) {
     super();
-    this._processor = physics.collisionProcessor;
+    this._arcadeSolver = new ArcadeSolver(_physics.config.arcade);
+    this._realisticSolver = new RealisticSolver(_physics.config.realistic);
+    this._physics.$configUpdate.subscribe(() => this._configDirty = true);
     this._trackCollider = (c: Collider) => this._processor.track(c);
     this._untrackCollider = (c: Collider) => this._processor.untrack(c);
     this.query = world.query([TransformComponent, MotionComponent, ColliderComponent]);
@@ -61,7 +66,7 @@ export class CollisionSystem extends System {
   }
 
   update(elapsedMs: number): void {
-    if (!Physics.enabled) {
+    if (!this._physics.config.enabled) {
       return;
     }
 
@@ -122,7 +127,12 @@ export class CollisionSystem extends System {
   }
 
   getSolver(): CollisionSolver {
-    return Physics.collisionResolutionStrategy === CollisionResolutionStrategy.Realistic ? this._realisticSolver : this._arcadeSolver;
+    if (this._configDirty) {
+      this._configDirty = false;
+      this._arcadeSolver = new ArcadeSolver(this._physics.config.arcade);
+      this._realisticSolver = new RealisticSolver(this._physics.config.realistic);
+    }
+    return this._physics.config.solver === SolverStrategy.Realistic ? this._realisticSolver : this._arcadeSolver;
   }
 
   debug(ex: ExcaliburGraphicsContext) {

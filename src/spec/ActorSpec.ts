@@ -22,8 +22,9 @@ describe('A game actor', () => {
     actor = new ex.Actor({name: 'Default'});
     actor.body.collisionType = ex.CollisionType.Active;
     scene = new ex.Scene();
-    motionSystem = new ex.MotionSystem(scene.world);
-    collisionSystem = new ex.CollisionSystem(scene.world, new PhysicsWorld());
+    const physicsWorld = new PhysicsWorld(engine.physics);
+    motionSystem = new ex.MotionSystem(scene.world, physicsWorld);
+    collisionSystem = new ex.CollisionSystem(scene.world, physicsWorld);
     actionSystem = new ex.ActionsSystem(scene.world);
     scene.add(actor);
     engine.addScene('test', scene);
@@ -636,8 +637,9 @@ describe('A game actor', () => {
     await TestUtils.runToReady(engine);
     actor = new ex.Actor();
     actor.body.collisionType = ex.CollisionType.Active;
-    motionSystem = new ex.MotionSystem(engine.currentScene.world);
-    collisionSystem = new ex.CollisionSystem(engine.currentScene.world, new PhysicsWorld());
+    const physicsWorld = new PhysicsWorld(engine.physics);
+    motionSystem = new ex.MotionSystem(engine.currentScene.world, physicsWorld);
+    collisionSystem = new ex.CollisionSystem(engine.currentScene.world, physicsWorld);
     scene = new ex.Scene();
     scene.add(actor);
     engine.addScene('test', scene);

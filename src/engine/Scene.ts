@@ -38,6 +38,7 @@ import { DefaultLoader } from './Director/DefaultLoader';
 import { Transition } from './Director';
 import { InputHost } from './Input/InputHost';
 import { PointerScope } from './Input/PointerScope';
+import { DefaultPhysicsConfig } from './Collision/PhysicsConfig';
 
 export class PreLoadEvent {
   loader: DefaultLoader;
@@ -110,7 +111,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    *
    * Can be used to perform scene ray casts, track colliders, broadphase, and narrowphase.
    */
-  public physics = new PhysicsWorld();
+  public physics = new PhysicsWorld(DefaultPhysicsConfig);
 
   /**
    * The actors in the current scene
@@ -168,7 +169,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
 
     // Update
     this.world.add(ActionsSystem);
-    this.world.add(MotionSystem);
+    this.world.add(new MotionSystem(this.world, this.physics));
     this.world.add(new CollisionSystem(this.world, this.physics));
     this.world.add(PointerSystem);
     this.world.add(IsometricEntitySystem);
@@ -319,6 +320,8 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
   public async _initialize(engine: Engine) {
     if (!this.isInitialized) {
       this.engine = engine;
+      // PhysicsWorld config is watched so things will automagically update
+      this.physics.config = this.engine.physics;
       this.input = new InputHost({
         pointerTarget: engine.pointerScope === PointerScope.Canvas ? engine.canvas : document,
         grabWindowFocus: engine.grabWindowFocus,

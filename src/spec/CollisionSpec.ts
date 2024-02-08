@@ -1,5 +1,6 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
+import { DefaultPhysicsConfig } from '../engine/Collision/PhysicsConfig';
 
 describe('A Collision', () => {
   let actor1: ex.Actor = null;
@@ -22,7 +23,7 @@ describe('A Collision', () => {
   });
 
   afterEach(() => {
-    ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Arcade;
+    ex.Physics.collisionResolutionStrategy = ex.SolverStrategy.Arcade;
     engine.stop();
     engine = null;
     actor1 = null;
@@ -48,7 +49,7 @@ describe('A Collision', () => {
   });
 
   it('order of actors collision should not matter when an Active and Active Collision', () => {
-    const collisionTree = new ex.DynamicTreeCollisionProcessor();
+    const collisionTree = new ex.DynamicTreeCollisionProcessor(DefaultPhysicsConfig);
 
     actor1.body.collisionType = ex.CollisionType.Active;
     actor2.body.collisionType = ex.CollisionType.Active;
@@ -65,7 +66,7 @@ describe('A Collision', () => {
   });
 
   it('order of actors collision should not matter when an Active and Passive Collision', () => {
-    const collisionTree = new ex.DynamicTreeCollisionProcessor();
+    const collisionTree = new ex.DynamicTreeCollisionProcessor(DefaultPhysicsConfig);
 
     actor1.body.collisionType = ex.CollisionType.Active;
     actor2.body.collisionType = ex.CollisionType.Passive;
@@ -82,7 +83,7 @@ describe('A Collision', () => {
   });
 
   it('order of actors collision should not matter when an Active and PreventCollision', () => {
-    const collisionTree = new ex.DynamicTreeCollisionProcessor();
+    const collisionTree = new ex.DynamicTreeCollisionProcessor(DefaultPhysicsConfig);
 
     actor1.body.collisionType = ex.CollisionType.Active;
     actor2.body.collisionType = ex.CollisionType.PreventCollision;
@@ -99,7 +100,7 @@ describe('A Collision', () => {
   });
 
   it('order of actors collision should not matter when an Active and Fixed', () => {
-    const collisionTree = new ex.DynamicTreeCollisionProcessor();
+    const collisionTree = new ex.DynamicTreeCollisionProcessor(DefaultPhysicsConfig);
 
     actor1.body.collisionType = ex.CollisionType.Active;
     actor2.body.collisionType = ex.CollisionType.Fixed;
@@ -116,7 +117,7 @@ describe('A Collision', () => {
   });
 
   it('order of actors collision should not matter when an Fixed and Fixed', () => {
-    const collisionTree = new ex.DynamicTreeCollisionProcessor();
+    const collisionTree = new ex.DynamicTreeCollisionProcessor(DefaultPhysicsConfig);
 
     actor1.body.collisionType = ex.CollisionType.Fixed;
     actor2.body.collisionType = ex.CollisionType.Fixed;
@@ -185,7 +186,7 @@ describe('A Collision', () => {
   });
 
   it('should not collide when active and passive', (done) => {
-    ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Realistic;
+    ex.Physics.collisionResolutionStrategy = ex.SolverStrategy.Realistic;
 
     const activeBlock = new ex.Actor({x: 200, y: 200, width: 50, height: 50, color: ex.Color.Red.clone()});
     activeBlock.body.collisionType = ex.CollisionType.Active;
@@ -217,7 +218,7 @@ describe('A Collision', () => {
   });
 
   it('should emit a start collision once when objects start colliding', () => {
-    ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Realistic;
+    ex.Physics.collisionResolutionStrategy = ex.SolverStrategy.Realistic;
 
     const activeBlock = new ex.Actor({x: 200, y: 200, width: 50, height: 50, color: ex.Color.Red.clone()});
     activeBlock.body.collisionType = ex.CollisionType.Active;
@@ -243,7 +244,7 @@ describe('A Collision', () => {
   });
 
   it('should emit a end collision once when objects stop colliding', () => {
-    ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Realistic;
+    ex.Physics.collisionResolutionStrategy = ex.SolverStrategy.Realistic;
 
     const activeBlock = new ex.Actor({x: 200, y: 200, width: 50, height: 50, color: ex.Color.Red.clone()});
     activeBlock.body.collisionType = ex.CollisionType.Active;
@@ -269,7 +270,7 @@ describe('A Collision', () => {
   });
 
   it('should cancel out velocity when objects collide', () => {
-    ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Arcade;
+    ex.Physics.collisionResolutionStrategy = ex.SolverStrategy.Arcade;
     engine.currentScene.clear();
     const activeBlock = new ex.Actor({name: 'active-block', x: 200, y: 200, width: 50, height: 50, color: ex.Color.Red.clone()});
     activeBlock.body.collisionType = ex.CollisionType.Active;
@@ -286,7 +287,7 @@ describe('A Collision', () => {
   });
 
   it('should not cancel out velocity when objects move away', () => {
-    ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Arcade;
+    ex.Physics.collisionResolutionStrategy = ex.SolverStrategy.Arcade;
 
     const activeBlock = new ex.Actor({x: 350, y: 200, width: 50, height: 50, color: ex.Color.Red.clone()});
     activeBlock.body.collisionType = ex.CollisionType.Active;
@@ -304,7 +305,7 @@ describe('A Collision', () => {
   });
 
   it('should have the actor as the handler context for collisionstart', (done) => {
-    ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Realistic;
+    ex.Physics.collisionResolutionStrategy = ex.SolverStrategy.Realistic;
 
     const activeBlock = new ex.Actor({x: 200, y: 200, width: 50, height: 50, color: ex.Color.Red.clone()});
     activeBlock.body.collisionType = ex.CollisionType.Active;
@@ -327,7 +328,7 @@ describe('A Collision', () => {
   });
 
   it('should have the actor as the handler context for collisionend', (done) => {
-    ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Realistic;
+    ex.Physics.collisionResolutionStrategy = ex.SolverStrategy.Realistic;
 
     const activeBlock = new ex.Actor({x: 200, y: 200, width: 50, height: 50, color: ex.Color.Red.clone()});
     activeBlock.body.collisionType = ex.CollisionType.Active;

@@ -8,6 +8,19 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- `ex.Physics` static is marked as deprecated, configuring these setting will move to the `ex.Engine({...})` constructor
+  ```typescript
+  const engine = new ex.Engine({
+    ...
+    physics: {
+      solver: ex.SolverStrategy.Realistic,
+      gravity: ex.vec(0, 20),
+      arcade: {
+        contactSolveBias: ex.ContactSolveBias.VerticalFirst
+      },
+    }
+  })
+  ```
 - Changed the `Font` default base align to `Top` this is more in line with user expectations. This does change the default rendering to the top left corner of the font instead of the bottom left.
 - Remove confusing Graphics Layering from `ex.GraphicsComponent`, recommend we use the `ex.GraphicsGroup` to manage this behavior
   * Update `ex.GraphicsGroup` to be consistent and use `offset` instead of `pos` for graphics relative positioning
@@ -27,6 +40,21 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added Arcade Collision Solver bias to help mitigate seams in geometry that can cause problems for certain games.
+  - `ex.ContactSolveBias.None` No bias, current default behavior collisions are solved in the default distance order
+  - `ex.ContactSolveBias.VerticalFirst` Vertical collisions are solved first (useful for platformers with up/down gravity)
+  - `ex.ContactSolveBias.HorizontalFirst` Horizontal collisions are solved first (useful for games with left/right predominant forces)
+    ```typescript
+    const engine = new ex.Engine({
+      ...
+      physics: {
+        solver: ex.SolverStrategy.Realistic,
+        arcade: {
+          contactSolveBias: ex.ContactSolveBias.VerticalFirst
+        },
+      }
+    })
+    ```
 - Added Graphics `opacity` on the Actor constructor `new ex.Actor({opacity: .5})`
 - Added Graphics pixel `offset` on the Actor constructor `new ex.Actor({offset: ex.vec(-15, -15)})`
 - Added new `new ex.Engine({uvPadding: .25})` option to allow users using texture atlases in their sprite sheets to configure this to avoid texture bleed. This can happen if you're sampling from images meant for pixel art

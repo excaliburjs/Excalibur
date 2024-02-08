@@ -1,4 +1,5 @@
 import * as ex from '@excalibur';
+import { DefaultPhysicsConfig } from '../engine/Collision/PhysicsConfig';
 
 describe('A DynamicTree Broadphase', () => {
   let actorA: ex.Actor;
@@ -27,13 +28,13 @@ describe('A DynamicTree Broadphase', () => {
   });
 
   it('can be constructed', () => {
-    const dt = new ex.DynamicTreeCollisionProcessor();
+    const dt = new ex.DynamicTreeCollisionProcessor(DefaultPhysicsConfig);
 
     expect(dt).not.toBe(null);
   });
 
   it('can find collision pairs for actors that are potentially colliding', () => {
-    const dt = new ex.DynamicTreeCollisionProcessor();
+    const dt = new ex.DynamicTreeCollisionProcessor(DefaultPhysicsConfig);
     dt.track(actorA.collider.get());
     dt.track(actorB.collider.get());
     dt.track(actorC.collider.get());
@@ -52,7 +53,7 @@ describe('A DynamicTree Broadphase', () => {
       box
     ]);
     const actor = new ex.Actor({collider: compCollider});
-    const dt = new ex.DynamicTreeCollisionProcessor();
+    const dt = new ex.DynamicTreeCollisionProcessor(DefaultPhysicsConfig);
     dt.track(compCollider);
 
     const pairs = dt.broadphase([circle, box], 100);
@@ -68,7 +69,7 @@ describe('A DynamicTree Broadphase', () => {
     ]);
     const actor = new ex.Actor({collider: compCollider, collisionType: ex.CollisionType.Active});
     actor.body.vel = ex.vec(2000, 0); // extra fast to trigger the fast object detection
-    const dt = new ex.DynamicTreeCollisionProcessor();
+    const dt = new ex.DynamicTreeCollisionProcessor(DefaultPhysicsConfig);
     dt.track(compCollider);
 
     const pairs = dt.broadphase([circle, box], 100);
