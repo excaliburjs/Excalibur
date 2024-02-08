@@ -1,5 +1,4 @@
 import * as ex from '@excalibur';
-import { TestUtils } from './util/TestUtils';
 
 describe('A webaudio instance', () => {
   let webaudio: ex.WebAudioInstance;

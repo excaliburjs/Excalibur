@@ -86,6 +86,10 @@ export interface WebGLGraphicsContextInfo {
   context: ExcaliburGraphicsContextWebGL;
 }
 
+export interface ExcaliburGraphicsContextWebGLOptions extends ExcaliburGraphicsContextOptions {
+  context?: WebGL2RenderingContext
+}
+
 export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   private _logger = Logger.getInstance();
   private _renderers: Map<string, RendererPlugin> = new Map<string, RendererPlugin>();
@@ -206,9 +210,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   public readonly samples?: number;
   public readonly transparency: boolean = true;
 
-  constructor(options: ExcaliburGraphicsContextOptions) {
+  constructor(options: ExcaliburGraphicsContextWebGLOptions) {
     const {
       canvasElement,
+      context,
       enableTransparency,
       antialiasing,
       uvPadding,
@@ -219,7 +224,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       backgroundColor,
       useDrawSorting
     } = options;
-    this.__gl = canvasElement.getContext('webgl2', {
+    this.__gl = context ?? canvasElement.getContext('webgl2', {
       antialias: antialiasing ?? this.smoothing,
       premultipliedAlpha: false,
       alpha: enableTransparency ?? this.transparency,
@@ -242,6 +247,21 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._drawCallPool.disableWarnings = true;
     this._drawCallPool.preallocate();
     this._init();
+  }
+
+  private _disposed = false;
+  public dispose() {
+    if (!this._disposed) {
+      this._disposed = true;
+      this.textureLoader.dispose();
+      for (const renderer of this._renderers.values()) {
+        renderer.dispose();
+      }
+      this._renderers.clear();
+      this._drawCallPool.dispose();
+      this._drawCalls.length = 0;
+      this.__gl = null;
+    }
   }
 
   private _init() {

@@ -45,6 +45,7 @@ describe('A game actor', () => {
 
   afterEach(() => {
     engine.stop();
+    engine.dispose();
     engine = null;
   });
 
@@ -712,14 +713,14 @@ describe('A game actor', () => {
     scene.draw(engine.graphicsContext, 100);
     engine.graphicsContext.flush();
 
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/ActorSpec/zindex-blue-top.png');
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/ActorSpec/zindex-blue-top.png');
 
     green.z = 2;
     blue.z = 1;
     scene.draw(engine.graphicsContext, 100);
     engine.graphicsContext.flush();
 
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/ActorSpec/zindex-green-top.png');
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/ActorSpec/zindex-green-top.png');
   });
 
   it('can have a graphic drawn at an opacity', async () => {
@@ -760,7 +761,7 @@ describe('A game actor', () => {
     scene.draw(engine.graphicsContext, 100);
     engine.graphicsContext.flush();
 
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/SpriteSpec/opacity.png');
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/SpriteSpec/opacity.png');
   });
 
   // it('will tick animations when drawing switched', async () => {

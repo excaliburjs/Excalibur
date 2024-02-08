@@ -49,6 +49,13 @@ export class PointRenderer implements RendererPlugin {
     });
   }
 
+  public dispose() {
+    this._buffer.dispose();
+    this._shader.dispose();
+    this._context = null;
+    this._gl = null;
+  }
+
   draw(point: Vector, color: Color, size: number): void {
     // Force a render if the batch is full
     if (this._isFull()) {

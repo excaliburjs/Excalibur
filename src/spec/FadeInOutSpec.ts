@@ -54,8 +54,9 @@ describe('A FadeInOut transition', () => {
       setTimeout(() => {
         clock.step(1);
         expect(onDeactivateSpy).toHaveBeenCalledTimes(1);
-        expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('/src/spec/images/FadeInOutSpec/fadein.png').then(() => {
+        expectAsync(engine.canvas).toEqualImage('/src/spec/images/FadeInOutSpec/fadein.png').then(() => {
           done();
+          engine.dispose();
         });
       });
     });
@@ -92,8 +93,9 @@ describe('A FadeInOut transition', () => {
       });
       setTimeout(() => {
         clock.step(1);
-        expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('/src/spec/images/FadeInOutSpec/fadeout.png').then(() => {
+        expectAsync(engine.canvas).toEqualImage('/src/spec/images/FadeInOutSpec/fadeout.png').then(() => {
           done();
+          engine.dispose();
         });
       });
     });

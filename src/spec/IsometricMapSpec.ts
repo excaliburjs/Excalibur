@@ -45,9 +45,7 @@ describe('A IsometricMap', () => {
     engine.add(sut);
     clock.step(100);
 
-    const canvas = TestUtils.flushWebGLCanvasTo2D(engine.canvas);
-
-    await expectAsync(canvas).toEqualImage('src/spec/images/IsometricMapSpec/map.png');
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/IsometricMapSpec/map.png');
   });
 
   it('can be drawn from the top', async () => {
@@ -73,9 +71,7 @@ describe('A IsometricMap', () => {
     engine.add(sut);
     clock.step(100);
 
-    const canvas = TestUtils.flushWebGLCanvasTo2D(engine.canvas);
-
-    await expectAsync(canvas).toEqualImage('src/spec/images/IsometricMapSpec/cube-map-top.png');
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/IsometricMapSpec/cube-map-top.png');
   });
 
   it('can be drawn from the bottom', async () => {
@@ -100,9 +96,7 @@ describe('A IsometricMap', () => {
     engine.add(sut);
     clock.step(100);
 
-    const canvas = TestUtils.flushWebGLCanvasTo2D(engine.canvas);
-
-    await expectAsync(canvas).toEqualImage('src/spec/images/IsometricMapSpec/cube-map-bottom.png');
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/IsometricMapSpec/cube-map-bottom.png');
   });
 
   it('can be debug drawn', async () => {
@@ -132,9 +126,8 @@ describe('A IsometricMap', () => {
 
     engine.add(sut);
     clock.step(100);
-    const canvas = TestUtils.flushWebGLCanvasTo2D(engine.canvas);
 
-    await expectAsync(canvas).toEqualImage('src/spec/images/IsometricMapSpec/cube-map-debug.png');
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/IsometricMapSpec/cube-map-debug.png');
   });
 
   it('can find a tile coordinate from a world position', async () => {

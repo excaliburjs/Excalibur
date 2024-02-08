@@ -92,6 +92,15 @@ export class ImageRenderer implements RendererPlugin {
     this._quads = new QuadIndexBuffer(gl, this._maxImages, true);
   }
 
+  public dispose() {
+    this._buffer.dispose();
+    this._quads.dispose();
+    this._shader.dispose();
+    this._textures.length = 0;
+    this._context = null;
+    this._gl = null;
+  }
+
   private _transformFragmentSource(source: string, maxTextures: number): string {
     let newSource = source.replace('%%count%%', maxTextures.toString());
     let texturePickerBuilder = '';

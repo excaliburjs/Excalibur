@@ -89,8 +89,9 @@ describe('A Material', () => {
     graphicsContext.restore();
 
     expect(graphicsContext.material).toBe(null);
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(canvas))
+    await expectAsync(canvas)
       .toEqualImage('src/spec/images/MaterialRendererSpec/material.png');
+    graphicsContext.dispose();
   });
 
   it('can draw the screen texture', async () => {
@@ -133,8 +134,9 @@ describe('A Material', () => {
     context.restore();
 
     expect(context.material).toBe(null);
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(canvas))
+    await expectAsync(canvas)
       .toEqualImage('src/spec/images/MaterialRendererSpec/multiply-comp.png');
+    context.dispose();
   });
 
   it('can update uniforms with the .update()', async () => {
@@ -181,7 +183,7 @@ describe('A Material', () => {
     context.restore();
 
     expect(context.material).toBe(null);
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(canvas))
+    await expectAsync(canvas)
       .toEqualImage('src/spec/images/MaterialRendererSpec/update-uniform.png');
   });
 
@@ -237,7 +239,7 @@ describe('A Material', () => {
     graphicsContext.flush();
 
     expect(graphicsContext.material).toBe(null);
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
+    await expectAsync(engine.canvas)
       .toEqualImage('src/spec/images/MaterialRendererSpec/material-component.png');
   });
 
@@ -308,7 +310,7 @@ describe('A Material', () => {
     graphicsContext.flush();
 
     expect(graphicsContext.material).toBe(null);
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
+    await expectAsync(engine.canvas)
       .toEqualImage('src/spec/images/MaterialRendererSpec/multi-mat.png');
   });
 
@@ -362,7 +364,7 @@ describe('A Material', () => {
     graphicsContext.restore();
 
     expect(graphicsContext.material).toBe(null);
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(canvas))
+    await expectAsync(canvas)
       .toEqualImage('src/spec/images/MaterialRendererSpec/additional.png');
   });
 
