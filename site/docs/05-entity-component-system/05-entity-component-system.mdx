@@ -26,7 +26,7 @@ pieces live and can interact together. Each [[Scene]] in Excalibur contains an E
 
 Inside an ECS [[World]] there is an [[EntityManager]], [[QueryManager]], and [[SystemManager]] that handle all the details.
 
-- [[EntityManager]] - Manages all the entities known by the world, it is an [[Observer]] of entity component changes over time.
+- [[EntityManager]] - Manages all the entities known by the world, it is an [[Util.Observer|Observer]] of entity component changes over time.
 - [[QueryManager]] - Manages all the entity queries, a [[Query]] allows a search of all known entities by a set of component types.
 - [[SystemManager]] - Manages all the systems known by the world, it updates a [[System]] in priority order (low to high) and gives them a set of entities that match types.
 

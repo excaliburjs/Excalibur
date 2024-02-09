@@ -1,8 +1,18 @@
 ---
-title: Gamepad
+title: Gamepads and Controllers
 slug: /gamepad
 section: Input
 ---
+
+You can query any [[Input.Gamepad|Gamepads]] that are connected or listen to events ("button" and "axis").
+
+You must opt-in to controller support ([[Input.Gamepads.enabled|engine.inputs.gamepads.enabled]]) because it is a polling-based
+API, so we have to check it each update frame. If an gamepad related event handler is set, you will
+automatically opt-in to controller polling.
+
+HTML5 Gamepad API only supports a maximum of 4 gamepads. You can access them using the [[Input.Gamepads.at|engine.input.gamepads.at]] method. If a [[Input.Gamepad|Gamepad]] is
+not connected, it will simply not throw events.
+
 
 ### Gamepad Filtering
 

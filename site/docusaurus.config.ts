@@ -327,7 +327,12 @@ function buildSymbolLink(symbolPath: string, basePath: string, symbolLinkIndex: 
       .concat([])
       .reverse()
       .find(([, kind]) => SYMBOL_CONTAINERS.includes(kind)) || [undefined, undefined];
-    const [, containerKind] = lastContainer;
+    const moduleContainer = symbolMatches.find(([, kind]) => kind === ReflectionKind.SomeModule || kind === ReflectionKind.Module || kind === ReflectionKind.Namespace);
+    let [, containerKind] = lastContainer;
+
+    if (moduleContainer) {
+      containerKind = moduleContainer[1];
+    }
 
     let containerPath;
 
