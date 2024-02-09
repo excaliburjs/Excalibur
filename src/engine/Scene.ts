@@ -418,7 +418,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    */
   public update(engine: Engine, delta: number) {
     if (!this.isInitialized) {
-      throw new Error('Scene update called before it was initialized!');
+      throw new Error('Scene update called before it was initialized! Was there an error in actor or entity initialization?');
     }
     this._preupdate(engine, delta);
 
