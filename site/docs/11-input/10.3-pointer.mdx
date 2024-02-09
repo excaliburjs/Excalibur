@@ -118,7 +118,9 @@ engine.input.pointers.primary.lastScreenPos;
 engine.input.pointers.primary.lastWorldPos;
 ```
 
-Note that the value may be `null` if the Pointer was not active the last frame.
+:::note
+The value may be `null` if the Pointer was not active the last frame.
+:::
 
 ### Pointer Scope (Window vs. Canvas)
 
@@ -234,8 +236,10 @@ exist, it will propagate events, otherwise it will remain idle.
 Excalibur does not impose a limit to the amount of pointers you can
 subscribe to, so by all means, support all 10 fingers.
 
-_Note:_ There is no way to identify touches after they happen; you can only
+:::note
+There is no way to identify touches after they happen; you can only
 know that there are _n_ touches on the screen at once.
+:::
 
 ```ts twoslash
 // @include: ex
