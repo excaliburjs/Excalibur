@@ -349,4 +349,33 @@ describe('A Collision', () => {
 
     clock.run(5, 1000);
   });
+
+  it('should not fire onCollisionStart if the collision has been canceled', () => {
+    const block1 = new ex.Actor({x: 200, y: 200, width: 50, height: 50, color: ex.Color.Red.clone()});
+    block1.body.collisionType = ex.CollisionType.Active;
+    block1.vel.x = 100;
+
+    const block2 = new ex.Actor({x: 400, y: 200, width: 50, height: 50, color: ex.Color.DarkGray.clone()});
+    block2.collider.useCompositeCollider([
+      ex.Shape.Box(50, 50),
+      ex.Shape.Box(50, 50)
+    ]);
+    block2.body.collisionType = ex.CollisionType.Fixed;
+    block2.vel.x = -100;
+
+
+    block1.onCollisionStart = jasmine.createSpy('onCollisionStart');
+    block2.onPreCollisionResolve = (self, other, side, contact) => {
+      contact.cancel();
+    };
+    spyOn(block2, 'onPreCollisionResolve').and.callThrough();
+
+    engine.add(block1);
+    engine.add(block2);
+
+    clock.run(1, 1000);
+
+    expect(block2.onPreCollisionResolve).toHaveBeenCalled();
+    expect(block1.onCollisionStart).not.toHaveBeenCalled();
+  });
 });

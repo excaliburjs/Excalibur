@@ -106,6 +106,9 @@ export class CollisionSystem extends System {
 
     // Record contacts for start/end
     for (const contact of contacts) {
+      if (contact.isCanceled()) {
+        continue;
+      }
       // Process composite ids, things with the same composite id are treated as the same collider for start/end
       const index = contact.id.indexOf('|');
       if (index > 0) {
