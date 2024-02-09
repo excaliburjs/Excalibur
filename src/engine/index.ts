@@ -90,6 +90,7 @@ export {
   PointerEventReceiver
 } from './Input/PointerEventReceiver';
 
+export { PointerAbstraction } from './Input/PointerAbstraction';
 export { PointerComponent } from './Input/PointerComponent';
 export { PointerSystem } from './Input/PointerSystem';
 export { PointerType } from './Input/PointerType';
@@ -113,6 +114,7 @@ export {
   KeyboardInitOptions,
   Keyboard
 } from './Input/Keyboard';
+export * from './Input/InputHost';
 export * from './Input/InputMapper';
 
 // ex.Util namespaces
