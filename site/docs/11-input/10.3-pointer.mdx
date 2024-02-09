@@ -1,76 +1,118 @@
 ---
-title: Pointers
+title: Mouse and Touch
 slug: /pointers
 section: Input
 ---
 
-## Mouse and Touch
+```twoslash include ex
+/// <reference path="../src/engine/excalibur.d.ts" />
+declare const engine: ex.Engine;
+```
 
-Excalibur handles mouse and touch input using a [[Pointers]] API that closely follows the [W3C Pointer Events](https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events) spec. Excalibur normalizes mouse and touch events to a [[PointerEvent]]
-that your game can subscribe to and handle ([[Engine.input|engine.input.pointers]]`).
+Excalibur handles mouse and touch input by abstracting event handling into a [[Engine.input|engine.input.pointers]] API that closely follows the [W3C Pointer Events](https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events) spec. Excalibur normalizes both mouse and touch events to a single [[Input.PointerEvent|PointerEvent]]
+that your game can subscribe to and handle.
 
-There is always at least one [[Pointer]] available ([[Pointers.primary]]) and
+## The Primary Pointer
+
+There is always at least one [[PointerAbstraction|Pointer]] available ([[Input.PointerEventReceiver.primary|engine.input.pointers.primary]]) and
 you can request multiple pointers to support multi-touch scenarios.
 
-Since [[Pointers.primary]] normalizes both mouse and touch events, your game
+```ts twoslash
+// @include: ex
+// ---cut---
+engine.input.pointers.primary;
+```
+
+Since a pointer normalizes both mouse and touch events, your game
 automatically supports touch for the primary pointer by default. When
 you handle the events, you can customize what your game does based on the type
 of pointer, if applicable.
 
-:::note
+## Handling Pointer Events Globally
 
-For performance reasons,
+You can subscribe (or unsubscribe) to pointer events multiple ways using the [[Input.PointerEventReceiver.on|on]], [[Input.PointerEventReceiver.once|once]], or [[Input.PointerEventReceiver.off|off]] methods. Each method takes two arguments: the event name and the handler.
 
-<em>
+```ts twoslash
+// @include: ex
+// @noErrors
+// ---cut---
 
-actors do not automatically capture pointer events
+engine.input.pointers.primary.o
+//                             ^|
 
-<a href="#actor-pointer-events">
 
-until they are opted-in
+```
 
-</a>
+You can subscribe to the primary pointer, all pointers, or a specific pointer.
 
-.
+```ts twoslash
+// @include: ex
+// ---cut---
 
-</em>
+// Subscribe to the primary pointer
+engine.input.pointers.primary.on;
+//                            ^?
 
-:::
+// Subscribe to a specific pointer (multi-touch)
+engine.input.pointers.at(1).on;
+//                          ^?
 
-### Pointer Events
+// Subscribe to all pointers (advanced)
+engine.input.pointers.on;
+//                    ^?
+```
 
-You can subscribe to pointer events through `engine.input.pointers.on`. A [[PointerEvent]] object is
-passed to your handler which offers information about the pointer input being received.
+### Event Names
+
+The event name is a string and can be one of the following:
 
 - `down` - When a pointer is pressed down (any mouse button or finger press)
 - `up` - When a pointer is lifted
 - `move` - When a pointer moves (be wary of performance issues when subscribing to this)
 - `cancel` - When a pointer event is canceled for some reason
+- `wheel` - When a mousewheel is activated (trackpad scroll or mouse wheel)
 
-```js
+### Event Handlers
+
+A [[Input.PointerEvent|PointerEvent]] object (or in the case of `wheel`, a [[Input.WheelEvent|WheelEvent]]) is
+passed to your handler which offers information about the pointer input being received.
+
+```ts twoslash
+// @include: ex
+// ---cut---
+
+// Subscribe to the primary pointer
 engine.input.pointers.primary.on('down', function (evt) {});
+//                                                 ^?
 engine.input.pointers.primary.on('up', function (evt) {});
 engine.input.pointers.primary.on('move', function (evt) {});
 engine.input.pointers.primary.on('cancel', function (evt) {});
-```
+engine.input.pointers.primary.on('wheel', function (evt) {});
+//                                                  ^?
 
-#### Wheel Event
+// Subscribe to a specific pointer (multi-touch)
+engine.input.pointers.at(1).on('down', function (evt) {});
+engine.input.pointers.at(1).on('up', function (evt) {});
+engine.input.pointers.at(1).on('move', function (evt) {});
+engine.input.pointers.at(1).on('cancel', function (evt) {});
+engine.input.pointers.at(1).on('wheel', function (evt) {});
 
-You can also subscribe to the mouse wheel event through `engine.input.pointers.on`. A [[WheelEvent]]
-object is passed to your handler which offers information about the wheel event being received.
-
-- `wheel` - When a mousewheel is activated (trackpad scroll or mouse wheel)
-
-```js
+// Subscribe to all pointers (advanced)
+engine.input.pointers.on('down', function (evt) {});
+engine.input.pointers.on('up', function (evt) {});
+engine.input.pointers.on('move', function (evt) {});
+engine.input.pointers.on('cancel', function (evt) {});
 engine.input.pointers.on('wheel', function (evt) {});
 ```
 
-### Last position querying
+### Querying the Last Position
 
-If you don't wish to subscribe to events, you can also access the [[Pointer.lastPagePos]], [[Pointer.lastScreenPos]]
-or [[Pointer.lastWorldPos]] coordinates ([[Vector]]) on the pointer you're targeting.
+If you don't wish to subscribe to events, you can also access the [[PointerAbstraction.lastPagePos]], [[PointerAbstraction.lastScreenPos]]
+or [[PointerAbstraction.lastWorldPos]] coordinates ([[Vector]]) on the pointer you're targeting.
 
-```js
+```ts twoslash
+// @include: ex
+// ---cut---
 engine.input.pointers.primary.lastPagePos;
 engine.input.pointers.primary.lastScreenPos;
 engine.input.pointers.primary.lastWorldPos;
@@ -78,29 +120,97 @@ engine.input.pointers.primary.lastWorldPos;
 
 Note that the value may be `null` if the Pointer was not active the last frame.
 
-### Pointer scope (window vs. canvas)
+### Pointer Scope (Window vs. Canvas)
 
 You have the option to handle _all_ pointer events in the browser by setting
-[[EngineOptions.pointerScope]] to [[PointerScope.Document]]. If this is enabled,
+[[EngineOptions.pointerScope]] to [[Input.PointerScope.Document|PointerScope.Document]]. If this is enabled, Excalibur will handle every pointer event in the browser. This is useful for handling complex input and having control over every interaction.
 
-Excalibur will handle every pointer event in the browser. This is useful for handling
-complex input and having control over every interaction.
-
-You can also use [[PointerScope.Canvas]] to only scope event handling to the game
-canvas. This is useful if you don't care about events that occur outside the game.
+You can also use [[Input.PointerScope.Canvas|PointerScope.Canvas]] to only scope event handling to the game canvas. This is useful if you don't care about events that occur outside the game.
 
 One real-world example is dragging and gestures. Sometimes a player will drag their
-finger outside your game and then into it, expecting it to work. If [[PointerScope]]
-is set to [[PointerScope.Canvas|Canvas]] this will not work. If it is set to
-[[PointerScope.Document|Document]], it will.
+finger outside your game and then into it, expecting it to work. If [[Input.PointerScope|PointerScope]]
+is set to [[Input.PointerScope.Canvas|Canvas]] this will not work. If it is set to
+[[Input.PointerScope.Document|Document]], it will.
 
-### Responding to input
+
+## Handling Pointer Events on Actors
+
+[[Actor|Actors]] can handle pointer events targeted to them. By default, the collision geometry is used to test whether the pointer is
+in or out of the actor. 
+
+In the example below the actor has default box geometry of 100x100:
+
+```ts twoslash
+// @include: ex
+// ---cut---
+class MyActor extends ex.Actor {
+  constructor() {
+    super({
+      pos: ex.vec(200, 200),
+      width: 100,
+      height: 100
+    });
+
+    this.on('pointerenter', () => {
+      console.log('enter')
+    });
+
+    this.on('pointerleave', () => {
+      console.log('leave')
+    });
+  }
+}
+
+```
+:::warning
+If your [[Actor]] has no geometry and only graphics you will need to enable graphics bounds testing.
+:::
+
+### Graphics Bounds Testing
+
+Rather than using the collision geometry, you can use the graphics bounds to test whether the pointer is in or out of the actor. This is useful when you have an actor with no collision geometry and only graphics, or when the graphics have custom dimensions that don't match the collision geometry.
+
+To enable graphics bounds testing for pointer events you can grab the [[Actor]]'s [[Input.PointerComponent|PointerComponent]] with `this.pointer` and set `useGraphicsBounds` to `true`.
+
+```ts twoslash {4}
+// @include: ex
+// ---cut---
+class MyGraphicsActor extends ex.Actor {
+  constructor(image: ex.ImageSource) {
+    super({pos: ex.vec(200, 200)});
+    this.pointer.useGraphicsBounds = true;
+    this.graphics.use(image.toSprite());
+
+    this.on('pointerenter', () => {
+      console.log('enter')
+    });
+    this.on('pointerleave', () => {
+      console.log('leave')
+    });
+  }
+}
+
+```
+
+### Actor Pointer Event List
+
+Actors have the following **extra** events you can subscribe to:
+
+- `pointerenter` - When a pointer enters the bounds of an actor
+- `pointerleave` - When a pointer leaves the bounds of an actor
+- `pointerdragstart` - When a pointer starts a drag on an actor
+- `pointerdragmove` - When a pointer drags an actor
+- `pointerdragend` - When a pointer ends a drag on an actor
+
+## Checking the Pointer Type
 
 The primary pointer can be a mouse, stylus, or single finger touch event. You
-can inspect what type of pointer it is from the [[PointerEvent]] handled.
+can inspect what type of pointer it is from the [[Input.PointerEvent|PointerEvent]] handled.
 
-```js
-engine.input.pointers.primary.on('down', function (pe) {
+```ts twoslash
+// @include: ex
+// ---cut---
+engine.input.pointers.primary.on('down', function (pe: ex.Input.PointerEvent) {
   if (pe.pointerType === ex.Input.PointerType.Mouse) {
     ex.Logger.getInstance().info('Mouse event:', pe);
   } else if (pe.pointerType === ex.Input.PointerType.Touch) {
@@ -109,7 +219,7 @@ engine.input.pointers.primary.on('down', function (pe) {
 });
 ```
 
-### Multiple Pointers (Multi-Touch)
+## Multiple Pointers (Multi-Touch)
 
 When there is more than one pointer detected on the screen,
 this is considered multi-touch. For example, pressing one finger,
@@ -127,85 +237,18 @@ subscribe to, so by all means, support all 10 fingers.
 _Note:_ There is no way to identify touches after they happen; you can only
 know that there are _n_ touches on the screen at once.
 
-```js
-function paint(color) {
+```ts twoslash
+// @include: ex
+// ---cut---
+function paint(color: ex.Color) {
   // create a handler for the event
-  return function (pe) {
+  return function (pe: ex.Input.PointerEvent) {
     if (pe.pointerType === ex.Input.PointerType.Touch) {
-      engine.canvas.fillStyle = color;
-      engine.canvas.fillRect(pe.x, pe.y, 5, 5);
+      engine.graphicsContext.drawRectangle(pe.worldPos, 5, 5, color);
     }
   };
 }
-engine.input.pointers.at(0).on('move', paint('blue')); // 1st finger
-engine.input.pointers.at(1).on('move', paint('red')); // 2nd finger
-engine.input.pointers.at(2).on('move', paint('green')); // 3rd finger
+engine.input.pointers.at(0).on('move', paint(ex.Color.Blue)); // 1st finger
+engine.input.pointers.at(1).on('move', paint(ex.Color.Red)); // 2nd finger
+engine.input.pointers.at(2).on('move', paint(ex.Color.Green)); // 3rd finger
 ```
-
-### Actor Pointer Events
-
-Actors will participate in pointer events, by default it uses the collision geometry to test whether the pointer is
-in or out of the actor. In the example below the actor has default box geometry of 100x100.
-
-```typescript
-class MyActor extends ex.Actor {
-  constructor() {
-    super({
-      pos: ex.vec(200, 200),
-      width: 100,
-      height: 100});
-    this.on('pointerenter', () => {
-      console.log('enter')
-    });
-    this.on('pointerleave', () => {
-      console.log('leave')
-    });
-  }
-}
-
-```
-:::warning
-If your [[Actor]] has no geometry and only graphics you will need to enable graphics bounds testing.
-:::
-
-To enable graphics bounds testing for pointer events you can grab the [[Actor]]'s [[PointerComponent]]
-
-```typescript
-class MyGraphicsActor extends ex.Actor {
-  constructor(image: ImageSource) {
-    super({pos: ex.vec(200, 200)});
-    this.pointer.useGraphicsBounds = true;
-    this.graphics.use(image.toSprite());
-
-    this.on('pointerenter', () => {
-      console.log('enter')
-    });
-    this.on('pointerleave', () => {
-      console.log('leave')
-    });
-  }
-}
-
-```
-
-
-#### Actor Events
-
-Actors have the following **extra** events you can subscribe to:
-
-- `pointerenter` - When a pointer enters the bounds of an actor
-- `pointerleave` - When a pointer leaves the bounds of an actor
-- `pointerdragstart` - When a pointer starts a drag on an actor
-- `pointerdragmove` - When a pointer drags an actor
-- `pointerdragend` - When a pointer ends a drag on an actor
-
-## Gamepads and Controllers
-
-You can query any [[Gamepad|Gamepads]] that are connected or listen to events ("button" and "axis").
-
-You must opt-in to controller support ([[Gamepads.enabled]]) because it is a polling-based
-API, so we have to check it each update frame. If an gamepad related event handler is set, you will
-automatically opt-in to controller polling.
-
-HTML5 Gamepad API only supports a maximum of 4 gamepads. You can access them using the [[Gamepads.at]] method. If a [[Gamepad]] is
-not connected, it will simply not throw events.
