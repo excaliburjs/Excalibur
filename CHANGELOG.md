@@ -203,6 +203,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where particles would have an errant draw if using a particle sprite
 - Fixed issue where a null/undefined graphics group member graphic would cause a crash, now logs a warning.
 - Fixed issue where Actor built in components could not be extended because of the way the Actor based type was built.
   - Actors now use instance properties for built-ins instead of getters
