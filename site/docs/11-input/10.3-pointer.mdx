@@ -122,18 +122,52 @@ engine.input.pointers.primary.lastWorldPos;
 The value may be `null` if the Pointer was not active the last frame.
 :::
 
-### Pointer Scope (Window vs. Canvas)
+### Scoping Events to Canvas vs. Document
 
-You have the option to handle _all_ pointer events in the browser by setting
-[[EngineOptions.pointerScope]] to [[Input.PointerScope.Document|PointerScope.Document]]. If this is enabled, Excalibur will handle every pointer event in the browser. This is useful for handling complex input and having control over every interaction.
+You can customize how pointer events are handled by setting the [[EngineOptions.pointerScope]] option when creating a new [[Engine]] instance, like this:
 
-You can also use [[Input.PointerScope.Canvas|PointerScope.Canvas]] to only scope event handling to the game canvas. This is useful if you don't care about events that occur outside the game.
+```ts twoslash
+// @noErrors
+/// <reference path="../src/engine/excalibur.d.ts" />
+// ---cut---
+const game = new ex.Engine({
+  pointerScope: ex.Input.PointerScope.C
+//                                     ^|
+});
+```
+
+The default scope is [[Input.PointerScope.Canvas|PointerScope.Canvas]]. For many games, this works really well. It scopes event handling to the game canvas.
+
+This is useful if you don't care about events that occur outside the game.
+
+You also have the option to handle _all_ pointer events in the browser window by using [[Input.PointerScope.Document|PointerScope.Document]], like this:
+
+```ts twoslash
+// @noErrors
+/// <reference path="../src/engine/excalibur.d.ts" />
+// ---cut---
+const game = new ex.Engine({
+  pointerScope: ex.Input.PointerScope.D
+//                                     ^|
+});
+```
+
+This is useful for handling complex input and having control over every interaction.
+
+:::note When to Use Document Scope
 
 One real-world example is dragging and gestures. Sometimes a player will drag their
 finger outside your game and then into it, expecting it to work. If [[Input.PointerScope|PointerScope]]
 is set to [[Input.PointerScope.Canvas|Canvas]] this will not work. If it is set to
 [[Input.PointerScope.Document|Document]], it will.
 
+:::
+
+:::info What about HTML elements?
+`PointerScope.Canvas` does not affect handling native HTML events like `click`, `mouseover`, `mouseout`, etc. on any HTML-based UI. It only applies to pointer events that are targeted to the HTML `<canvas>` element Excalibur uses to render your game.
+
+However, `PointerScope.Document` will handle all pointer events in the browser window, including those targeted to HTML elements. If you overlay any HTML elements on top of your game, be aware that pointer events will also be handled by Excalibur.
+:::
 
 ## Handling Pointer Events on Actors
 
