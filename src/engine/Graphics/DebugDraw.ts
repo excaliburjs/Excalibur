@@ -1,8 +1,8 @@
-import { Vector } from "../Math/vector";
-import { ExcaliburGraphicsContext } from "./Context/ExcaliburGraphicsContext";
+import { Vector } from '../Math/vector';
+import { ExcaliburGraphicsContext, LineGraphicsOptions, PointGraphicsOptions } from './Context/ExcaliburGraphicsContext';
 import { Color } from '../Color';
-import { Ray } from "../Math/ray";
-import { BoundingBox } from "../excalibur";
+import { Ray } from '../Math/ray';
+import { BoundingBox } from '../excalibur';
 
 export class DebugDraw {
   static _drawCalls: ((ctx: ExcaliburGraphicsContext) => void)[] = [];
@@ -14,16 +14,22 @@ export class DebugDraw {
     this._drawCalls.push(debugDrawCall);
   }
 
-  static drawPoint(vector: Vector, options?: {radius?: number, color?: Color}) {
-
+  static drawPoint(point: Vector, options?: PointGraphicsOptions) {
+    DebugDraw.draw(ctx => {
+      ctx.debug.drawPoint(point, options);
+    });
   }
 
-  static drawVector(origin: Vector, vector: Vector, options?: { width?: number, color?: Color }) {
-
+  static drawLine(start: Vector, end: Vector, options?: LineGraphicsOptions) {
+    DebugDraw.draw(ctx => {
+      ctx.debug.drawLine(start, end, options);
+    });
   }
 
   static drawBounds(boundingBox: BoundingBox, options?: { width?: number, color?: Color }): void {
-
+    DebugDraw.draw(ctx => {
+      ctx.debug.drawRect(boundingBox.left, boundingBox.top, boundingBox.width, boundingBox.height, options);
+    });
   }
 
   static drawRay(ray: Ray, options?: { distance?: number, color?: Color, width?: number }) {
@@ -32,13 +38,13 @@ export class DebugDraw {
       width: 1,
       distance: 10,
       ...options
-    }
+    };
     DebugDraw.draw((ctx) => {
-      const start = ray.pos
-      const end = ray.pos.add(ray.dir.scale(distance))
+      const start = ray.pos;
+      const end = ray.pos.add(ray.dir.scale(distance));
 
       ctx.drawLine(start, end, color, width);
-    })
+    });
   }
 
   static flush(ctx: ExcaliburGraphicsContext) {
