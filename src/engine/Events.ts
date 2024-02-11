@@ -545,7 +545,7 @@ export class DeactivateEvent extends GameEvent<Scene> {
 }
 
 /**
- * Event thrown on an [[Actor]] when it completely leaves the screen.
+ * Event thrown on an [[Actor]] when the graphics bounds completely leaves the screen.
  */
 export class ExitViewPortEvent extends GameEvent<Entity> {
   constructor(public target: Entity) {
@@ -554,7 +554,7 @@ export class ExitViewPortEvent extends GameEvent<Entity> {
 }
 
 /**
- * Event thrown on an [[Actor]] when it completely leaves the screen.
+ * Event thrown on an [[Actor]] when any part of the graphics bounds are on screen.
  */
 export class EnterViewPortEvent extends GameEvent<Entity> {
   constructor(public target: Entity) {
