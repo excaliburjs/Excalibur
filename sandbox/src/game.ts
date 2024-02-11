@@ -54,17 +54,18 @@ var game = new ex.Engine({
   displayMode: ex.DisplayMode.FitScreenAndFill,
   snapToPixel: false,
   // fixedUpdateFps: 30,
+  pixelRatio: 2,
   maxFps: 60,
   antialiasing: {
-    pixelArtSampler: false,
-    canvasImageRendering: 'pixelated',
+    pixelArtSampler: true,
+    canvasImageRendering: 'auto',
     nativeContextAntialiasing: false,
     filtering: ex.ImageFiltering.Pixel,
     multiSampleAntialiasing: true,
   },
   uvPadding: 0,
   physics: {
-    solver: ex.SolverStrategy.Realistic,
+    solver: ex.SolverStrategy.Arcade,
     gravity: ex.vec(0, 20),
     arcade: {
       contactSolveBias: ex.ContactSolveBias.VerticalFirst
@@ -558,9 +559,9 @@ player.onPostUpdate = (engine) => {
   });
   // console.log(hits);
 }
-player.graphics.onPostDraw = (ctx) => {
-  ctx.drawLine(ex.Vector.Zero, ex.Vector.Down.scale(100), ex.Color.Red, 2);
-}
+// player.graphics.onPostDraw = (ctx) => {
+//   ctx.drawLine(ex.Vector.Zero, ex.Vector.Down.scale(100), ex.Color.Red, 2);
+// }
 player.body.canSleep = false;
 player.graphics.copyGraphics = false;
 follower.actions
@@ -598,10 +599,22 @@ var healthbar = new ex.Actor({
   color: new ex.Color(0, 255, 0)});
 player.addChild(healthbar);
 player.onPostUpdate = () => {
+  ex.Debug.drawLine(
+    player.pos,
+    player.pos.add(ex.Vector.Down.scale(100)), {
+      color: ex.Color.Red,
+      width: 2
+    });
   ex.Debug.drawPoint(player.pos, {
-    size: 10,
+    size: 1,
     color: ex.Color.Violet
   });
+  ex.Debug.drawCircle(player.pos, 100, {
+    color: ex.Color.Transparent,
+    strokeColor: ex.Color.Black,
+    width: 1
+  });
+  ex.Debug.drawBounds(player.collider.bounds, { color: ex.Color.Yellow });
 }
 // player.onPostDraw = (ctx: CanvasRenderingContext2D) => {
 //   ctx.fillStyle = 'red';
