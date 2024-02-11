@@ -53,9 +53,15 @@ var game = new ex.Engine({
   pointerScope: ex.PointerScope.Canvas,
   displayMode: ex.DisplayMode.FitScreenAndFill,
   snapToPixel: false,
-  fixedUpdateFps: 30,
+  // fixedUpdateFps: 30,
   maxFps: 60,
-  antialiasing: false,
+  antialiasing: {
+    pixelArtSampler: false,
+    canvasImageRendering: 'pixelated',
+    nativeContextAntialiasing: false,
+    filtering: ex.ImageFiltering.Pixel,
+    multiSampleAntialiasing: true,
+  },
   uvPadding: 0,
   physics: {
     solver: ex.SolverStrategy.Realistic,
@@ -591,6 +597,12 @@ var healthbar = new ex.Actor({
   height: 5,
   color: new ex.Color(0, 255, 0)});
 player.addChild(healthbar);
+player.onPostUpdate = () => {
+  ex.Debug.drawPoint(player.pos, {
+    size: 10,
+    color: ex.Color.Violet
+  });
+}
 // player.onPostDraw = (ctx: CanvasRenderingContext2D) => {
 //   ctx.fillStyle = 'red';
 //   ctx.fillRect(0, 0, 100, 100);

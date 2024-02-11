@@ -15,6 +15,7 @@ import { GraphicsComponent } from '../Graphics/GraphicsComponent';
 import { Particle } from '../Particles';
 import { DebugGraphicsComponent } from '../Graphics/DebugGraphicsComponent';
 import { CoordPlane } from '../Math/coord-plane';
+import { Debug } from '../Graphics/Debug';
 
 export class DebugSystem extends System {
   public readonly systemType = SystemType.Draw;
@@ -288,6 +289,15 @@ export class DebugSystem extends System {
     }
 
     this._graphicsContext.flush();
+  }
+
+  postupdate(engine: Scene<unknown>, elapsedMs: number): void {
+    this._graphicsContext.save();
+    if (this._camera) {
+      this._camera.draw(this._graphicsContext);
+    }
+    Debug.flush(this._graphicsContext);
+    this._graphicsContext.restore();
   }
 
   /**

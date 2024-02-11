@@ -9,7 +9,7 @@ import { TransformComponent } from '../EntityComponentSystem/Components/Transfor
 import { Entity } from '../EntityComponentSystem/Entity';
 import { DebugGraphicsComponent, ExcaliburGraphicsContext, Graphic, GraphicsComponent } from '../Graphics';
 import { IsometricEntityComponent } from './IsometricEntityComponent';
-import { Debug } from '../Debug';
+import { DebugConfig } from '../Debug';
 export class IsometricTile extends Entity {
   /**
    * Indicates whether this tile is solid
@@ -445,7 +445,7 @@ export class IsometricMap extends Entity {
    * Debug draw for IsometricMap, called internally by excalibur when debug mode is toggled on
    * @param gfx
    */
-  public debug(gfx: ExcaliburGraphicsContext, debugFlags: Debug) {
+  public debug(gfx: ExcaliburGraphicsContext, debugFlags: DebugConfig) {
     const {
       showAll,
       showPosition,

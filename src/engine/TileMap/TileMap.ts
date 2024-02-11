@@ -17,7 +17,7 @@ import { PostDrawEvent, PostUpdateEvent, PreDrawEvent, PreUpdateEvent } from '..
 import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
 import { CoordPlane } from '../Math/coord-plane';
 import { QuadTree } from '../Collision/Detection/QuadTree';
-import { Debug } from '../Debug';
+import { DebugConfig } from '../Debug';
 
 export interface TileMapOptions {
   /**
@@ -527,7 +527,7 @@ export class TileMap extends Entity {
     this.emit('postdraw', new PostDrawEvent(ctx as any, delta, this));
   }
 
-  public debug(gfx: ExcaliburGraphicsContext, debugFlags: Debug) {
+  public debug(gfx: ExcaliburGraphicsContext, debugFlags: DebugConfig) {
     const {
       showAll,
       showGrid,
