@@ -27,7 +27,7 @@ export default [
     image: retroSkiImage,
     description:
       'Put your skis and let\'s race some randomly generated alpine ski tracks with your friends.',
-    url: 'https://mathieuher.github.io/RetroSki/',
+    url: 'https://une-entreprise.ch/retroski/',
     source: 'https://github.com/mathieuher/RetroSki',
   },
   {

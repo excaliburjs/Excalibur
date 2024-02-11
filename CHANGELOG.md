@@ -40,6 +40,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added configuration option to `ex.TileMap({ meshingLookBehind: Infinity })` which allows users to configure how far the TileMap looks behind for matching colliders (default is 10).
 - Added Arcade Collision Solver bias to help mitigate seams in geometry that can cause problems for certain games.
   - `ex.ContactSolveBias.None` No bias, current default behavior collisions are solved in the default distance order
   - `ex.ContactSolveBias.VerticalFirst` Vertical collisions are solved first (useful for platformers with up/down gravity)
@@ -202,6 +203,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where particles would have an errant draw if using a particle sprite
+- Fixed issue where a null/undefined graphics group member graphic would cause a crash, now logs a warning.
 - Fixed issue where Actor built in components could not be extended because of the way the Actor based type was built.
   - Actors now use instance properties for built-ins instead of getters
   - With the ECS refactor you can now subtype built-in `Components` and `.get(Builtin)` will return the correct subtype.

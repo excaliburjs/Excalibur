@@ -9,9 +9,9 @@ import { CollisionType } from './Collision/CollisionType';
 import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
 import { GraphicsComponent } from './Graphics/GraphicsComponent';
 import { Entity } from './EntityComponentSystem/Entity';
-import { Sprite } from './Graphics/Sprite';
 import { BoundingBox } from './Collision/BoundingBox';
 import { clamp, randomInRange } from './Math/util';
+import { Graphic } from './Graphics';
 
 /**
  * An enum that represents the types of emitter nozzles
@@ -56,7 +56,7 @@ export class ParticleImpl extends Entity {
 
   public emitter: ParticleEmitter = null;
   public particleSize: number = 5;
-  public particleSprite: Sprite = null;
+  public particleSprite: Graphic = null;
 
   public startSize: number;
   public endSize: number;
@@ -79,7 +79,8 @@ export class ParticleImpl extends Entity {
     velocity?: Vector,
     acceleration?: Vector,
     startSize?: number,
-    endSize?: number
+    endSize?: number,
+    particleSprite?: Graphic
   ) {
     super();
     let emitter = emitterOrConfig;
@@ -95,6 +96,7 @@ export class ParticleImpl extends Entity {
       acceleration = config.acceleration;
       startSize = config.startSize;
       endSize = config.endSize;
+      particleSprite = config.particleSprite;
     }
     this.emitter = <ParticleEmitter>emitter;
     this.life = life || this.life;
@@ -102,6 +104,7 @@ export class ParticleImpl extends Entity {
     this.endColor = endColor || this.endColor.clone();
     this.beginColor = beginColor || this.beginColor.clone();
     this._currentColor = this.beginColor.clone();
+    this.particleSprite = particleSprite;
 
     if (this.emitter.particleTransform === ParticleTransform.Global) {
       const globalPos = this.emitter.transform.globalPos;
@@ -207,7 +210,7 @@ export interface ParticleArgs extends Partial<ParticleImpl> {
   particleRotationalVelocity?: number;
   currentRotation?: number;
   particleSize?: number;
-  particleSprite?: Sprite;
+  particleSprite?: Graphic;
 }
 
 /**
@@ -225,7 +228,8 @@ export class Particle extends Configurable(ParticleImpl) {
     velocity?: Vector,
     acceleration?: Vector,
     startSize?: number,
-    endSize?: number
+    endSize?: number,
+    particleSprite?: Graphic
   );
   constructor(
     emitterOrConfig: ParticleEmitter | ParticleArgs,
@@ -237,9 +241,10 @@ export class Particle extends Configurable(ParticleImpl) {
     velocity?: Vector,
     acceleration?: Vector,
     startSize?: number,
-    endSize?: number
+    endSize?: number,
+    particleSprite?: Graphic
   ) {
-    super(emitterOrConfig, life, opacity, beginColor, endColor, position, velocity, acceleration, startSize, endSize);
+    super(emitterOrConfig, life, opacity, beginColor, endColor, position, velocity, acceleration, startSize, endSize, particleSprite);
   }
 }
 
@@ -288,7 +293,7 @@ export interface ParticleEmitterArgs {
   maxSize?: number;
   beginColor?: Color;
   endColor?: Color;
-  particleSprite?: Sprite;
+  particleSprite?: Graphic;
   emitterType?: EmitterType;
   radius?: number;
   particleRotationalVelocity?: number;
@@ -408,15 +413,15 @@ export class ParticleEmitter extends Actor {
    */
   public endColor: Color = Color.White;
 
-  private _sprite: Sprite = null;
+  private _sprite: Graphic = null;
   /**
    * Gets or sets the sprite that a particle should use
    */
-  public get particleSprite(): Sprite {
+  public get particleSprite(): Graphic {
     return this._sprite;
   }
 
-  public set particleSprite(val: Sprite) {
+  public set particleSprite(val: Graphic) {
     if (val) {
       this._sprite = val;
     }
@@ -576,15 +581,11 @@ export class ParticleEmitter extends Actor {
       new Vector(dx, dy),
       this.acceleration,
       this.startSize,
-      this.endSize
+      this.endSize,
+      this.particleSprite
     );
     p.fadeFlag = this.fadeFlag;
     p.particleSize = size;
-    if (this.particleSprite) {
-      p.particleSprite = this.particleSprite;
-      p.graphics.opacity = this.opacity;
-      p.graphics.use(this._sprite);
-    }
     p.particleRotationalVelocity = this.particleRotationalVelocity;
     if (this.randomRotation) {
       p.currentRotation = randomInRange(0, Math.PI * 2, this.random);

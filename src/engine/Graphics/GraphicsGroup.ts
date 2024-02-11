@@ -3,6 +3,7 @@ import { Graphic, GraphicOptions } from './Graphic';
 import { Animation, HasTick } from './Animation';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { BoundingBox } from '../Collision/Index';
+import { Logger } from '../Util/Log';
 
 export interface GraphicsGroupingOptions {
   members: (GraphicsGrouping | Graphic)[];
@@ -14,6 +15,7 @@ export interface GraphicsGrouping {
 }
 
 export class GraphicsGroup extends Graphic implements HasTick {
+  private _logger = Logger.getInstance();
   public members: (GraphicsGrouping | Graphic)[] = [];
 
   constructor(options: GraphicsGroupingOptions & GraphicOptions) {
@@ -43,7 +45,11 @@ export class GraphicsGroup extends Graphic implements HasTick {
         bb = member.localBounds.combine(bb);
       } else {
         const { graphic, offset: pos } = member;
-        bb = graphic.localBounds.translate(pos).combine(bb);
+        if (graphic) {
+          bb = graphic.localBounds.translate(pos).combine(bb);
+        } else {
+          this._logger.warnOnce(`Graphics group member has an null or undefined graphic, member definition: ${JSON.stringify(member)}.`);
+        }
       }
     }
     return bb;
@@ -95,6 +101,9 @@ export class GraphicsGroup extends Graphic implements HasTick {
       } else {
         graphic = member.graphic;
         member.offset.clone(pos);
+      }
+      if (!graphic) {
+        continue;
       }
       ex.save();
       ex.translate(x, y);

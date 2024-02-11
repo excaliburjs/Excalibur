@@ -49,6 +49,16 @@ export interface TileMapOptions {
    * Optionally render from the top of the graphic, by default tiles are rendered from the bottom
    */
   renderFromTopOfGraphic?: boolean;
+
+  /**
+   * Optionally configure the meshing lookbehind for Tilemap, Tilemaps combine solid tiles into optimal
+   * geometry and the lookbehind configures how far back the Tilemap to look for geometry when combining. Meshing
+   * is an expensive operation, so when the Tilemap geometry is invalidated it must be recalculated.
+   *
+   * Default is 10 slots, but if your Tilemap does not change positions or solid tiles often you can increase this to
+   * Infinity.
+   */
+  meshingLookBehind?: number;
 }
 
 export type TileMapEvents = EntityEvents & {
@@ -87,6 +97,7 @@ export class TileMap extends Entity {
   public readonly columns: number;
 
   public renderFromTopOfGraphic = false;
+  public meshingLookBehind = 10;
 
   private _collidersDirty = true;
   public flagCollidersDirty() {
@@ -207,6 +218,7 @@ export class TileMap extends Entity {
    */
   constructor(options: TileMapOptions) {
     super([], options.name);
+    this.meshingLookBehind = options.meshingLookBehind ?? this.meshingLookBehind;
     this.addComponent(new TransformComponent());
     this.addComponent(new MotionComponent());
     this.addComponent(
@@ -338,7 +350,7 @@ export class TileMap extends Entity {
      * @param maxLookBack The amount of colliders to look back for combination
      * @returns false when no combination found, true when successfully combined
      */
-    const checkAndCombine = (current: BoundingBox, colliders: BoundingBox[], maxLookBack = 10) => {
+    const checkAndCombine = (current: BoundingBox, colliders: BoundingBox[], maxLookBack = this.meshingLookBehind) => {
       if (!current) {
         return false;
       }

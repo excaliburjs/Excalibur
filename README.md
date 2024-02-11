@@ -6,7 +6,7 @@
 [![npm downloads](https://img.shields.io/npm/dt/excalibur.svg)](https://www.npmjs.com/package/excalibur)
 [![NuGet version](https://img.shields.io/nuget/v/Excalibur.svg)](https://www.nuget.org/packages/Excalibur/)
 
-![Sweep Stacks](http://excaliburjs.com/assets/images/homepage-xp.png)
+![Sweep Stacks](assets/homepage-xp.png)
 
 Excalibur is a free game engine written in TypeScript for making 2D games in HTML5 canvas. Our goal is to make it easier for you to create 2D HTML/JS games, whether you're new to game development or you're an experienced game developer. We take care of all of the boilerplate engine code, cross-platform targeting (using [browserstack](http://browserstack.com/) 😎), and more! Use as much or as little as you need!
 
