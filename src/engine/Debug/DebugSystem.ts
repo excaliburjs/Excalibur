@@ -261,7 +261,7 @@ export class DebugSystem extends System {
       for (const [_, contact] of this._engine.debug.stats.currFrame.physics.contacts) {
         if (physicsSettings.showAll || physicsSettings.showCollisionContacts) {
           for (const point of contact.points) {
-            this._graphicsContext.debug.drawPoint(point, { size: 5, color: physicsSettings.collisionContactColor });
+            this._graphicsContext.debug.drawPoint(point, { size: physicsSettings.contactSize, color: physicsSettings.collisionContactColor });
           }
         }
 

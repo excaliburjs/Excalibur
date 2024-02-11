@@ -27,6 +27,45 @@ export class Debug {
     });
   }
 
+  static drawLines(points: Vector[], options?: { color?: Color }) {
+    if (points.length > 1) {
+      Debug.draw(ctx => {
+        for (let i = 0; i < points.length - 1; i++) {
+          ctx.debug.drawLine(points[i], points[i + 1], options);
+        }
+      });
+    }
+  }
+
+
+  static drawPolygon(points: Vector[], options?: { color?: Color }) {
+    if (points.length > 1) {
+      Debug.draw(ctx => {
+        const firstPoint = points[0];
+        const polygon = [...points, firstPoint];
+        for (let i = 0; i < polygon.length - 1; i++) {
+          ctx.debug.drawLine(polygon[i], polygon[i + 1], options);
+        }
+      });
+    }
+  }
+
+  static drawCircle(center: Vector, radius: number, options?: {
+    color?: Color,
+    strokeColor?: Color,
+    width?: number
+  }) {
+    const { color, strokeColor, width} = {
+      color: Color.Black,
+      strokeColor: undefined,
+      width: undefined,
+      ...options
+    }
+    Debug.draw(ctx => {
+      ctx.drawCircle(center, radius, color, strokeColor, width);
+    })
+  }
+
   static drawBounds(boundingBox: BoundingBox, options?: { width?: number, color?: Color }): void {
     Debug.draw(ctx => {
       ctx.debug.drawRect(boundingBox.left, boundingBox.top, boundingBox.width, boundingBox.height, options);
@@ -49,13 +88,16 @@ export class Debug {
   }
 
   static flush(ctx: ExcaliburGraphicsContext) {
-    // TODO do we need to adjust the transform? or do a protective save/restore?
     ctx.save();
     ctx.z = Debug.z;
     for (const drawCall of Debug._drawCalls) {
       drawCall(ctx);
     }
     ctx.restore();
+    Debug.clear();
+  }
+
+  static clear() {
     Debug._drawCalls.length = 0;
   }
 }
