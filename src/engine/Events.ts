@@ -451,7 +451,7 @@ export class ContactStartEvent<T> {
 }
 
 export class ContactEndEvent<T> {
-  constructor(public target: T, public other: T) {}
+  constructor(public target: T, public other: T, public side: Side, public lastContact: CollisionContact) {}
 }
 
 export class CollisionPreSolveEvent<T> {
@@ -494,7 +494,7 @@ export class CollisionEndEvent<T extends BodyComponent | Collider | Entity = Act
   /**
    *
    */
-  constructor(actor: T, public other: T) {
+  constructor(actor: T, public other: T, public side: Side, public lastContact: CollisionContact) {
     super();
     this.target = actor;
   }

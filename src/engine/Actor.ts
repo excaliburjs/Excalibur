@@ -973,8 +973,10 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * Fires once when 2 entities with a ColliderComponent separate after having been in contact.
    * @param self
    * @param other
+   * @param side
+   * @param lastContact
    */
-  public onCollisionEnd(self: Collider, other: Collider) {
+  public onCollisionEnd(self: Collider, other: Collider, side: Side, lastContact: CollisionContact) {
     // Override me
   }
 

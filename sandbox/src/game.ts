@@ -53,12 +53,15 @@ var game = new ex.Engine({
   pointerScope: ex.PointerScope.Canvas,
   displayMode: ex.DisplayMode.FitScreenAndFill,
   snapToPixel: false,
-  fixedUpdateFps: 30,
+  fixedUpdateFps: 60,
   maxFps: 60,
   antialiasing: false,
   uvPadding: 0,
   physics: {
-    solver: ex.SolverStrategy.Realistic,
+    colliders: {
+      compositeStrategy: 'together'
+    },
+    solver: ex.SolverStrategy.Arcade,
     gravity: ex.vec(0, 20),
     arcade: {
       contactSolveBias: ex.ContactSolveBias.VerticalFirst
@@ -578,8 +581,8 @@ player.on('collisionstart', () => {
   console.log('collision start');
 });
 
-player.on('collisionend', () => {
-  console.log('collision end');
+player.on('collisionend', (e) => {
+  console.log('collision end', e.other.collider);
 });
 
 // Health bar example
