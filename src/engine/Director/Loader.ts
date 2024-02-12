@@ -293,11 +293,14 @@ export class Loader extends DefaultLoader {
     await this.showPlayButton();
   }
 
+  private _configuredPixelRatio: number | null = null;
   public override async onBeforeLoad(): Promise<void> {
+    this._configuredPixelRatio = this.screen.pixelRatioOverride;
     // Push the current user entered resolution/viewport
     this.screen.pushResolutionAndViewport();
     // Configure resolution for loader, it expects resolution === viewport
     this.screen.resolution = this.screen.viewport;
+    this.screen.pixelRatioOverride = 1;
     this.screen.applyResolutionAndViewport();
 
     this.canvas.width = this.engine.canvas.width;
@@ -308,6 +311,7 @@ export class Loader extends DefaultLoader {
 
   // eslint-disable-next-line require-await
   public override async onAfterLoad(): Promise<void> {
+    this.screen.pixelRatioOverride = this._configuredPixelRatio;
     this.screen.popResolutionAndViewport();
     this.screen.applyResolutionAndViewport();
     this.dispose();

@@ -205,7 +205,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
--  Fixes an issue where a collider that was part of a contact that was deleted did not fire a collision end event, this was unexpected
+- Fixed errant warning about resolution when using `pixelRatio` on low res games to upscale
+- Fixes an issue where a collider that was part of a contact that was deleted did not fire a collision end event, this was unexpected
 - Fixes an issue where you may want to have composite colliders behave as constituent colliders for the purposes of start/end collision events. A new property is added to physics config, the current behavior is the default which is `'together'`, this means the whole composite collider is treated as 1 collider for onCollisionStart/onCollisionEnd. Now you can configure a `separate` which will fire onCollisionStart/onCollisionEnd for every separate collider included in the composite (useful if you are building levels or things with gaps that you need to disambiguate). You can also configure this on a per composite level to mix and match `CompositeCollider.compositeStrategy`
 - Fixed issue where particles would have an errant draw if using a particle sprite
 - Fixed issue where a null/undefined graphics group member graphic would cause a crash, now logs a warning.
