@@ -35,14 +35,16 @@ export interface PhysicsConfig {
    */
   colliders?: {
     /**
-     * Default treat composite collider's individual colliders as either separate colliders for the purposes of onCollisionStart/onCollision
+     * Treat composite collider's member colliders as either separate colliders for the purposes of onCollisionStart/onCollision
      * or as a single collider together.
      *
-     * This property can be overridden on individual composites
+     * This property can be overridden on individual [[CompositeColliders]].
      *
-     * For composites without gaps, you probably want together
+     * For composites without gaps or small groups of colliders, you probably want 'together'
      *
-     * For composites with gaps, like a platforming level layout, you probably want separate treatment
+     * For composites with deliberate gaps, like a platforming level layout, you probably want 'separate'
+     *
+     * Default is 'together' if unset
      */
     compositeStrategy?: 'separate' | 'together'
   }
