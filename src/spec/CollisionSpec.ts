@@ -25,6 +25,7 @@ describe('A Collision', () => {
   afterEach(() => {
     ex.Physics.collisionResolutionStrategy = ex.SolverStrategy.Arcade;
     engine.stop();
+    engine.dispose();
     engine = null;
     actor1 = null;
     actor2 = null;
@@ -377,5 +378,51 @@ describe('A Collision', () => {
 
     expect(block2.onPreCollisionResolve).toHaveBeenCalled();
     expect(block1.onCollisionStart).not.toHaveBeenCalled();
+  });
+
+  it('should collisionend for a deleted collider', async () => {
+    engine.stop();
+    engine.dispose();
+    engine = TestUtils.engine({ width: 600, height: 400, physics: { enabled: true, solver: ex.SolverStrategy.Arcade }});
+    clock = engine.clock = engine.clock.toTestClock();
+    await TestUtils.runToReady(engine);
+    const activeBlock = new ex.Actor({
+      x: 200,
+      y: 200,
+      width: 50,
+      height: 50,
+      color: ex.Color.Red.clone(),
+      collisionType: ex.CollisionType.Active
+    });
+    activeBlock.acc.x = 100;
+    engine.add(activeBlock);
+
+    const fixedBlock = new ex.Actor({
+      x: 400,
+      y: 200,
+      width: 50,
+      height: 50,
+      color: ex.Color.DarkGray.clone(),
+      collisionType: ex.CollisionType.Fixed
+    });
+    engine.add(fixedBlock);
+
+    const collisionStart = jasmine.createSpy('collisionstart');
+    const collisionEnd = jasmine.createSpy('collisionend');
+
+    activeBlock.on('collisionstart', collisionStart);
+    activeBlock.on('collisionend', collisionEnd);
+
+    clock.run(20, 100);
+
+    expect(collisionStart).toHaveBeenCalled();
+    expect(collisionEnd).not.toHaveBeenCalled();
+
+    activeBlock.collider.set(ex.Shape.Circle(5));
+
+    clock.run(10, 100);
+
+    expect(collisionEnd).toHaveBeenCalledTimes(1);
+
   });
 });
