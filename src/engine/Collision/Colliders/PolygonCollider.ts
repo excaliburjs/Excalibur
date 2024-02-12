@@ -43,16 +43,21 @@ export class PolygonCollider extends Collider {
    */
   public offset: Vector;
 
+  public flagDirty() {
+    this._localBoundsDirty = true;
+    this._localSidesDirty = true;
+    this._sidesDirty = true;
+  }
+
   private _points: Vector[];
+
   /**
    * Points in the polygon in order around the perimeter in local coordinates. These are relative from the body transform position.
    * Excalibur stores these in counter-clockwise order
    */
   public set points(points: Vector[]) {
-    this._localBoundsDirty = true;
-    this._localSidesDirty = true;
-    this._sidesDirty = true;
     this._points = points;
+    this.flagDirty();
   }
 
   /**

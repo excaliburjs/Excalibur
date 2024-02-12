@@ -79,6 +79,9 @@ export class CollisionSystem extends System {
         colliderComp.update();
         if (collider instanceof CompositeCollider) {
           const compositeColliders = collider.getColliders();
+          if (!collider.compositeStrategy) {
+            collider.compositeStrategy = this._physics.config.colliders.compositeStrategy;
+          }
           colliders = colliders.concat(compositeColliders);
         } else {
           colliders.push(collider);
@@ -127,6 +130,14 @@ export class CollisionSystem extends System {
 
     // Keep track of collisions contacts that have started or ended
     this._lastFrameContacts = new Map(this._currentFrameContacts);
+
+    // Process deferred collider removals
+    for (const entity of this.query.entities) {
+      const collider = entity.get(ColliderComponent);
+      if (collider) {
+        collider.processColliderRemoval();
+      }
+    }
   }
 
   getSolver(): CollisionSolver {
@@ -143,7 +154,7 @@ export class CollisionSystem extends System {
   }
 
   public runContactStartEnd() {
-    // Composite collider collisions may have a duplicate id because we want to treat those as a singular start/end
+    // If composite colliders are 'together' collisions may have a duplicate id because we want to treat those as a singular start/end
     for (const [id, c] of this._currentFrameContacts) {
       // find all new contacts
       if (!this._lastFrameContacts.has(id)) {
@@ -163,10 +174,12 @@ export class CollisionSystem extends System {
       if (!this._currentFrameContacts.has(id)) {
         const colliderA = c.colliderA;
         const colliderB = c.colliderB;
-        colliderA.events.emit('collisionend', new CollisionEndEvent(colliderA, colliderB));
-        colliderA.events.emit('contactend', new ContactEndEvent(colliderA, colliderB) as any);
-        colliderB.events.emit('collisionend', new CollisionEndEvent(colliderB, colliderA));
-        colliderB.events.emit('contactend', new ContactEndEvent(colliderB, colliderA) as any);
+        const side = Side.fromDirection(c.mtv);
+        const opposite = Side.getOpposite(side);
+        colliderA.events.emit('collisionend', new CollisionEndEvent(colliderA, colliderB, side, c));
+        colliderA.events.emit('contactend', new ContactEndEvent(colliderA, colliderB, side, c) as any);
+        colliderB.events.emit('collisionend', new CollisionEndEvent(colliderB, colliderA, opposite, c));
+        colliderB.events.emit('contactend', new ContactEndEvent(colliderB, colliderA, opposite, c) as any);
       }
     }
   }

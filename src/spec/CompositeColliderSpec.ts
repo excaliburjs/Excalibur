@@ -158,6 +158,23 @@ describe('A CompositeCollider', () => {
       ex.Pair.calculatePairHash(compCollider.id, circle.id));
   });
 
+  it('creates contacts that have the don\'t have composite collider id when in separate mode', () => {
+    const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
+    compCollider.compositeStrategy = 'separate';
+
+    const circle = ex.Shape.Circle(50);
+    const xf = new ex.Transform();
+    xf.pos = vec(149, 0);
+    circle.update(xf);
+
+    const contactBoxCircle = compCollider.collide(circle);
+    // Composite collisions have a special id that appends the "parent" id to the id to accurately track start/end
+    expect(contactBoxCircle[0].id).toBe(
+      ex.Pair.calculatePairHash(compCollider.getColliders()[1].id, circle.id) +
+      '|' +
+      ex.Pair.calculatePairHash(compCollider.getColliders()[1].id, circle.id));
+  });
+
   it('can collide with other composite colliders', () => {
     const compCollider1 = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
 

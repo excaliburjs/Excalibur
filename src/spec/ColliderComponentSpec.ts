@@ -97,6 +97,7 @@ describe('A ColliderComponent', () => {
     expect(collider.owner).not.toBeNull();
 
     comp.clear();
+    comp.processColliderRemoval();
 
     expect(comp.get()).toBeNull();
     expect(collider.events.unpipe).toHaveBeenCalled();
