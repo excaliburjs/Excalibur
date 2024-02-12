@@ -40,6 +40,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added additional data `side` and `lastContact` to `onCollisionEnd` and `collisionend` events
+- Added configuration option to `ex.PhysicsConfig` to configure composite collider onCollisionStart/End behavior
 - Added configuration option to `ex.TileMap({ meshingLookBehind: Infinity })` which allows users to configure how far the TileMap looks behind for matching colliders (default is 10).
 - Added Arcade Collision Solver bias to help mitigate seams in geometry that can cause problems for certain games.
   - `ex.ContactSolveBias.None` No bias, current default behavior collisions are solved in the default distance order
@@ -203,6 +205,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+-  Fixes an issue where a collider that was part of a contact that was deleted did not fire a collision end event, this was unexpected
+- Fixes an issue where you may want to have composite colliders behave as constituent colliders for the purposes of start/end collision events. A new property is added to physics config, the current behavior is the default which is `'together'`, this means the whole composite collider is treated as 1 collider for onCollisionStart/onCollisionEnd. Now you can configure a `separate` which will fire onCollisionStart/onCollisionEnd for every separate collider included in the composite (useful if you are building levels or things with gaps that you need to disambiguate). You can also configure this on a per composite level to mix and match `CompositeCollider.compositeStrategy`
 - Fixed issue where particles would have an errant draw if using a particle sprite
 - Fixed issue where a null/undefined graphics group member graphic would cause a crash, now logs a warning.
 - Fixed issue where Actor built in components could not be extended because of the way the Actor based type was built.
