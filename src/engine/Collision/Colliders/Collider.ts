@@ -12,6 +12,7 @@ import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphi
 import { Transform } from '../../Math/transform';
 import { EventEmitter } from '../../EventEmitter';
 import { RayCastHit } from '../Detection/RayCastHit';
+import { CompositeCollider } from './CompositeCollider';
 
 /**
  * A collision collider specifies the geometry that can detect when other collision colliders intersect
@@ -21,11 +22,11 @@ export abstract class Collider implements Clonable<Collider> {
   private static _ID = 0;
   public readonly id: Id<'collider'> = createId('collider', Collider._ID++);
   /**
-   * Excalibur uses this to signal to the [[CollisionSystem]] this is part of a composite collider
-   * @internal
-   * @hidden
+   * Composite collider if any this collider is attached to
+   *
+   * **WARNING** do not tamper with this property
    */
-  public __compositeColliderId: Id<'collider'> | null = null;
+  public composite: CompositeCollider | null = null;
   public events = new EventEmitter();
 
   /**

@@ -58,15 +58,22 @@ export class ColliderComponent extends Component {
     return collider;
   }
 
+  private _collidersToRemove: Collider[] = [];
   /**
    * Remove collider geometry from collider component
    */
   public clear() {
     if (this._collider) {
-      this._collider.events.unpipe(this.events);
-      this.$colliderRemoved.notifyAll(this._collider);
-      this._collider.owner = null;
+      this._collidersToRemove.push(this._collider);
       this._collider = null;
+    }
+  }
+
+  public processColliderRemoval() {
+    for (const collider of this._collidersToRemove) {
+      collider.events.unpipe(this.events);
+      this.$colliderRemoved.notifyAll(collider);
+      collider.owner = null;
     }
   }
 
@@ -187,9 +194,9 @@ export class ColliderComponent extends Component {
     });
     this.events.on('collisionend', (evt: any) => {
       const end = evt as CollisionEndEvent<Collider>;
-      entity.events.emit('collisionend', new CollisionEndEvent(end.target.owner, end.other.owner));
+      entity.events.emit('collisionend', new CollisionEndEvent(end.target.owner, end.other.owner, end.side, end.lastContact));
       if (entity instanceof Actor) {
-        entity.onCollisionEnd(end.target, end.other);
+        entity.onCollisionEnd(end.target, end.other, end.side, end.lastContact);
       }
     });
   }

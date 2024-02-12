@@ -31,6 +31,25 @@ export interface PhysicsConfig {
   solver?: SolverStrategy;
 
   /**
+   * Configure colliders
+   */
+  colliders?: {
+    /**
+     * Treat composite collider's member colliders as either separate colliders for the purposes of onCollisionStart/onCollision
+     * or as a single collider together.
+     *
+     * This property can be overridden on individual [[CompositeColliders]].
+     *
+     * For composites without gaps or small groups of colliders, you probably want 'together'
+     *
+     * For composites with deliberate gaps, like a platforming level layout, you probably want 'separate'
+     *
+     * Default is 'together' if unset
+     */
+    compositeStrategy?: 'separate' | 'together'
+  }
+
+  /**
    * Configure excalibur continuous collision (WIP)
    */
   continuous?: {
@@ -183,6 +202,9 @@ export const DefaultPhysicsConfig: DeepRequired<PhysicsConfig> = {
   enabled: true,
   gravity: vec(0, 0),
   solver: SolverStrategy.Arcade,
+  colliders: {
+    compositeStrategy: 'together'
+  },
   continuous: {
     checkForFastBodies: true,
     disableMinimumSpeedForFastBody: false,
@@ -223,6 +245,9 @@ export function DeprecatedStaticToConfig(): DeepRequired<PhysicsConfig> {
       checkForFastBodies: Physics.checkForFastBodies,
       disableMinimumSpeedForFastBody: Physics.disableMinimumSpeedForFastBody,
       surfaceEpsilon: Physics.surfaceEpsilon
+    },
+    colliders: {
+      compositeStrategy: 'together'
     },
     bodies: {
       canSleepByDefault: Physics.bodiesCanSleepByDefault,
