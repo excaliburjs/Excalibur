@@ -40,6 +40,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added additional options in rayCast options
+  * `ignoreCollisionGroupAll: boolean` will ignore testing against anything with the `CollisionGroup.All` which is the default for all
+  * `filter: (hit: RayCastHit) => boolean` will allow people to do arbitrary filtering on raycast results, this runs very last after all other collision group/collision mask decisions have been made
 - Added additional data `side` and `lastContact` to `onCollisionEnd` and `collisionend` events
 - Added configuration option to `ex.PhysicsConfig` to configure composite collider onCollisionStart/End behavior
 - Added configuration option to `ex.TileMap({ meshingLookBehind: Infinity })` which allows users to configure how far the TileMap looks behind for matching colliders (default is 10).
