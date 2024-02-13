@@ -97,13 +97,17 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
         if (options?.filter) {
           if (options.filter(hit)) {
             results.push(hit);
+            if (!searchAllColliders) {
+              // returning true exits the search
+              return true;
+            }
           }
         } else {
           results.push(hit);
-        }
-        if (!searchAllColliders) {
-          // returning true exits the search
-          return true;
+          if (!searchAllColliders) {
+            // returning true exits the search
+            return true;
+          }
         }
       }
       return false;
