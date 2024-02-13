@@ -71,11 +71,11 @@ export interface StartOptions {
 /**
  * Provide scene activation data and override any existing configured route transitions or loaders
  */
-export interface GoToOptions {
+export interface GoToOptions<TActivationData = any> {
   /**
    * Optionally supply scene activation data passed to Scene.onActivate
    */
-  sceneActivationData?: any,
+  sceneActivationData?: TActivationData,
   /**
    * Optionally supply destination scene "in" transition, this will override any previously defined transition
    */

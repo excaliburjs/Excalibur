@@ -1,5 +1,4 @@
 import { EX_VERSION } from './';
-import { obsolete } from './Util/Decorators';
 import { Future } from './Util/Future';
 import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
 import { PointerScope } from './Input/PointerScope';
@@ -1261,11 +1260,10 @@ O|===|* >________________>\n\
    * named scene. Calls the [[Scene]] lifecycle events.
    * @param key  The key of the scene to transition to.
    * @param data Optional data to send to the scene's onActivate method
-   * @deprecated Use [[Engine.goto]] will be removed in v1!
    */
-  @obsolete({message: 'Engine.goToScene is deprecated, will be removed in v1', alternateMethod: 'Engine.goto'})
-  public async goToScene<TData = undefined>(key: string, data?: TData): Promise<void> {
-    await this.director.swapScene(key, data);
+  public async goToScene<TData = undefined>(destinationScene: WithRoot<TKnownScenes>, options?: GoToOptions<TData>): Promise<void> {
+    await this.director.goto(destinationScene, options);
+    // await this.director.swapScene(destinationScene, data);
   }
 
   /**
