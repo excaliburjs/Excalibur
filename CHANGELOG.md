@@ -40,6 +40,18 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Experimental `ex.coroutine` for running code that changes over time, useful for modeling complex animation code. Coroutines return a promise when they are complete. You can think of each `yield` as a frame.
+  * The result of a yield is the current elapsed time
+  * You can yield a number in milliseconds and it will wait that long before resuming
+  * You can yield a promise and it will wait until it resolves before resuming
+  ```typescript
+    const completePromise = coroutine(engine, function * () {
+      let elapsed = 0;
+      elapsed = yield 200; // frame 1 wait 200 ms before resuming
+      elapsed = yield fetch('./some/data.json'); // frame 2
+      elapsed = yield; // frame 3
+    });
+  ```
 - Added additional options in rayCast options
   * `ignoreCollisionGroupAll: boolean` will ignore testing against anything with the `CollisionGroup.All` which is the default for all
   * `filter: (hit: RayCastHit) => boolean` will allow people to do arbitrary filtering on raycast results, this runs very last after all other collision group/collision mask decisions have been made
