@@ -35,7 +35,6 @@ describe('A FadeInOut transition', () => {
     engine.director.getSceneInstance('root').onDeactivate = onDeactivateSpy;
 
     const sut = new ex.FadeInOut({ duration: 1000, direction: 'in' });
-    sut.name;//?
     const scene = new ex.Scene();
     scene.add(new ex.Actor({
       pos: ex.vec(200, 200),
@@ -57,7 +56,7 @@ describe('A FadeInOut transition', () => {
   it('can fade out', async () => {
     const engine = TestUtils.engine({ backgroundColor: ex.Color.ExcaliburBlue });
     const clock = engine.clock as ex.TestClock;
-    TestUtils.runToReady(engine)
+    TestUtils.runToReady(engine);
     engine.add(new ex.Actor({
       pos: ex.vec(20, 20),
       width: 100,

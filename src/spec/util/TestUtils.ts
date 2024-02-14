@@ -60,8 +60,11 @@ export namespace TestUtils {
     await start;
   }
 
+  /**
+   *
+   */
   export async function flushMicrotasks(clock: ex.TestClock, times: number) {
-    for( let i = 0; i < times; i++) {
+    for ( let i = 0; i < times; i++) {
       clock.step(0);
       await Promise.resolve();
     }

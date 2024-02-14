@@ -1258,8 +1258,8 @@ O|===|* >________________>\n\
   /**
    * Changes the currently updating and drawing scene to a different,
    * named scene. Calls the [[Scene]] lifecycle events.
-   * @param key  The key of the scene to transition to.
-   * @param data Optional data to send to the scene's onActivate method
+   * @param destinationScene  The key of the scene to transition to.
+   * @param options Optional data to send to the scene's onActivate method
    */
   public async goToScene<TData = undefined>(destinationScene: WithRoot<TKnownScenes>, options?: GoToOptions<TData>): Promise<void> {
     await this.director.goto(destinationScene, options);
