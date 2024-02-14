@@ -1,4 +1,4 @@
-import { Engine } from "../Engine";
+import { Engine } from '../Engine';
 // import { Entity } from "../EntityComponentSystem";
 // import { Scene } from "../Scene";
 
@@ -6,14 +6,13 @@ export type CoroutineEventType = 'postupdate' | 'preupdate';
 export type CoroutineGenerator = () => Generator<number | Promise<any>, void, number>;
 
 /**
- * Excalibur coroutine helper, returns a promise when complete 
- * 
+ * Excalibur coroutine helper, returns a promise when complete
+ *
  * Coroutines get passed the elapsed time
- * 
+ *
  * If you yield a promise it will be awaited
  * If you yield a number it will wait that many ms
- *
- * @param generator 
+ * @param generator
  */
 export function coroutine(engine: Engine, coroutineGenerator: CoroutineGenerator): Promise<void> {
   return new Promise<void>((resolve, reject) => {
@@ -29,7 +28,7 @@ export function coroutine(engine: Engine, coroutineGenerator: CoroutineGenerator
           value.then(() => {
             // schedule next loop
             engine.clock.schedule(loop);
-          })
+          });
         } else if (value === undefined || value === (void 0)) {
           // schedule next frame
           engine.clock.schedule(loop);
@@ -40,7 +39,7 @@ export function coroutine(engine: Engine, coroutineGenerator: CoroutineGenerator
       } catch {
         reject();
       }
-    }
+    };
     loop(engine.clock.elapsed());// run first frame immediately
   });
 }

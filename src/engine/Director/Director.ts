@@ -271,9 +271,9 @@ export class Director<TKnownScenes extends string = any> {
   }
 
   getSceneName(scene: Scene) {
-    for (let [name, sceneInstance] of this._sceneToInstance) {
+    for (const [name, sceneInstance] of this._sceneToInstance) {
       if (scene === sceneInstance) {
-        return name
+        return name;
       }
     }
     return 'unknown scene name';

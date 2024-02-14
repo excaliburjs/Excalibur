@@ -467,7 +467,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    */
   public draw(ctx: ExcaliburGraphicsContext, delta: number) {
     if (!this.isInitialized) {
-      this._logger.warnOnce(`Scene draw called before initialize!`)
+      this._logger.warnOnce(`Scene draw called before initialize!`);
       return;
     }
     this._predraw(ctx, delta);
