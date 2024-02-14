@@ -337,7 +337,7 @@ describe('A scene', () => {
 
     await engine.goToScene('sceneA');
 
-    await engine.goToScene('sceneB', { foo: 'bar' });
+    await engine.goToScene('sceneB', { sceneActivationData: { foo: 'bar' }});
 
     expect(sceneA.onDeactivate).toHaveBeenCalledWith({
       engine,

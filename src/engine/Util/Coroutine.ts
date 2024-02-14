@@ -3,7 +3,7 @@ import { Engine } from "../Engine";
 // import { Scene } from "../Scene";
 
 export type CoroutineEventType = 'postupdate' | 'preupdate';
-export type CoroutineGenerator = () => Generator<number, number | Promise<any> | undefined, number>;
+export type CoroutineGenerator = () => Generator<number | Promise<any>, void, number>;
 
 /**
  * Excalibur coroutine helper, returns a promise when complete 
@@ -30,18 +30,17 @@ export function coroutine(engine: Engine, coroutineGenerator: CoroutineGenerator
             // schedule next loop
             engine.clock.schedule(loop);
           })
-        } else if (value === undefined) {
+        } else if (value === undefined || value === (void 0)) {
           // schedule next frame
           engine.clock.schedule(loop);
         } else {
           // schedule value milliseconds from now
-          engine.clock.schedule(loop, value);
+          engine.clock.schedule(loop, value || 0);
         }
       } catch {
         reject();
       }
     }
     loop(engine.clock.elapsed());// run first frame immediately
-    engine.clock.schedule(loop);
   });
 }

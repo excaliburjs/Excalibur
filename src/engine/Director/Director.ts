@@ -161,6 +161,10 @@ export class Director<TKnownScenes extends string = any> {
     for (const sceneKey in scenes) {
       const sceneOrOptions = scenes[sceneKey];
       this.add(sceneKey, sceneOrOptions);
+      if (sceneKey === 'root') {
+        this.rootScene = this.getSceneInstance('root');
+        this.currentScene = this.rootScene;
+      }
     }
   }
 
@@ -264,6 +268,15 @@ export class Director<TKnownScenes extends string = any> {
       return maybeScene.scene;
     }
     return undefined;
+  }
+
+  getSceneName(scene: Scene) {
+    for (let [name, sceneInstance] of this._sceneToInstance) {
+      if (scene === sceneInstance) {
+        return name
+      }
+    }
+    return 'unknown scene name';
   }
 
   /**
@@ -480,8 +493,7 @@ export class Director<TKnownScenes extends string = any> {
       currentScene.input?.toggleEnabled(!transition.blockInput);
       this._engine.input?.toggleEnabled(!transition.blockInput);
 
-      this._engine.add(this.currentTransition);
-      await this.currentTransition.done;
+      await this.currentTransition.play(this._engine);
 
       currentScene.input?.toggleEnabled(sceneInputEnabled);
     }
@@ -546,15 +558,6 @@ export class Director<TKnownScenes extends string = any> {
       destinationScene: dest,
       destinationName: destinationScene
     } as DirectorNavigationEvent);
-  }
-
-  /**
-   * Updates internal transitions
-   */
-  update() {
-    if (this.currentTransition) {
-      this.currentTransition.execute();
-    }
   }
 }
 

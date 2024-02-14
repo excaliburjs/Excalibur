@@ -319,26 +319,31 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    */
   public async _initialize(engine: Engine) {
     if (!this.isInitialized) {
-      this.engine = engine;
-      // PhysicsWorld config is watched so things will automagically update
-      this.physics.config = this.engine.physics;
-      this.input = new InputHost({
-        pointerTarget: engine.pointerScope === PointerScope.Canvas ? engine.canvas : document,
-        grabWindowFocus: engine.grabWindowFocus,
-        engine
-      });
-      // Initialize camera first
-      this.camera._initialize(engine);
+      try {
+        this.engine = engine;
+        // PhysicsWorld config is watched so things will automagically update
+        this.physics.config = this.engine.physics;
+        this.input = new InputHost({
+          pointerTarget: engine.pointerScope === PointerScope.Canvas ? engine.canvas : document,
+          grabWindowFocus: engine.grabWindowFocus,
+          engine
+        });
+        // Initialize camera first
+        this.camera._initialize(engine);
 
-      this.world.systemManager.initialize();
+        this.world.systemManager.initialize();
 
-      // This order is important! we want to be sure any custom init that add actors
-      // fire before the actor init
-      await this.onInitialize(engine);
-      this._initializeChildren();
+        // This order is important! we want to be sure any custom init that add actors
+        // fire before the actor init
+        await this.onInitialize(engine);
+        this._initializeChildren();
 
-      this._logger.debug('Scene.onInitialize', this, engine);
-      this.events.emit('initialize', new InitializeEvent(engine, this));
+        this._logger.debug('Scene.onInitialize', this, engine);
+        this.events.emit('initialize', new InitializeEvent(engine, this));
+      } catch (e) {
+        this._logger.error(`Error during scene initialization for scene ${engine.director?.getSceneName(this)}!`);
+        throw e;
+      }
       this._isInitialized = true;
     }
   }
@@ -350,9 +355,14 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * @internal
    */
   public async _activate(context: SceneActivationContext<TActivationData>) {
-    this._logger.debug('Scene.onActivate', this);
-    this.input.toggleEnabled(true);
-    await this.onActivate(context);
+    try {
+      this._logger.debug('Scene.onActivate', this);
+      this.input.toggleEnabled(true);
+      await this.onActivate(context);
+    } catch (e) {
+      this._logger.error(`Error during scene activation for scene ${this.engine?.director?.getSceneName(this)}!`);
+      throw e;
+    }
   }
 
   /**
@@ -418,7 +428,8 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    */
   public update(engine: Engine, delta: number) {
     if (!this.isInitialized) {
-      throw new Error('Scene update called before it was initialized! Was there an error in actor or entity initialization?');
+      this._logger.warnOnce(`Scene update called before initialize for scene ${engine.director?.getSceneName(this)}!`);
+      return;
     }
     this._preupdate(engine, delta);
 
@@ -455,6 +466,10 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * @param delta  The number of milliseconds since the last draw
    */
   public draw(ctx: ExcaliburGraphicsContext, delta: number) {
+    if (!this.isInitialized) {
+      this._logger.warnOnce(`Scene draw called before initialize!`)
+      return;
+    }
     this._predraw(ctx, delta);
 
     this.world.update(SystemType.Draw, delta);

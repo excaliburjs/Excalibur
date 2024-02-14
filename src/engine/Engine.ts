@@ -1263,7 +1263,6 @@ O|===|* >________________>\n\
    */
   public async goToScene<TData = undefined>(destinationScene: WithRoot<TKnownScenes>, options?: GoToOptions<TData>): Promise<void> {
     await this.director.goto(destinationScene, options);
-    // await this.director.swapScene(destinationScene, data);
   }
 
   /**
@@ -1365,7 +1364,6 @@ O|===|* >________________>\n\
    * @param delta  Number of milliseconds elapsed since the last update.
    */
   private _update(delta: number) {
-    this.director.update();
     if (this._isLoading) {
       // suspend updates until loading is finished
       this._loader?.onUpdate(this, delta);
