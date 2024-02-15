@@ -71,11 +71,11 @@ export interface StartOptions {
 /**
  * Provide scene activation data and override any existing configured route transitions or loaders
  */
-export interface GoToOptions {
+export interface GoToOptions<TActivationData = any> {
   /**
    * Optionally supply scene activation data passed to Scene.onActivate
    */
-  sceneActivationData?: any,
+  sceneActivationData?: TActivationData,
   /**
    * Optionally supply destination scene "in" transition, this will override any previously defined transition
    */
@@ -131,7 +131,7 @@ export class Director<TKnownScenes extends string = any> {
   mainLoader: DefaultLoader;
 
   /**
-   * The default [[Scene]] of the game, use [[Engine.goto]] to transition to different scenes.
+   * The default [[Scene]] of the game, use [[Engine.goToScene]] to transition to different scenes.
    */
   public readonly rootScene: Scene;
 
@@ -161,6 +161,10 @@ export class Director<TKnownScenes extends string = any> {
     for (const sceneKey in scenes) {
       const sceneOrOptions = scenes[sceneKey];
       this.add(sceneKey, sceneOrOptions);
+      if (sceneKey === 'root') {
+        this.rootScene = this.getSceneInstance('root');
+        this.currentScene = this.rootScene;
+      }
     }
   }
 
@@ -264,6 +268,15 @@ export class Director<TKnownScenes extends string = any> {
       return maybeScene.scene;
     }
     return undefined;
+  }
+
+  getSceneName(scene: Scene) {
+    for (const [name, sceneInstance] of this._sceneToInstance) {
+      if (scene === sceneInstance) {
+        return name;
+      }
+    }
+    return 'unknown scene name';
   }
 
   /**
@@ -480,8 +493,7 @@ export class Director<TKnownScenes extends string = any> {
       currentScene.input?.toggleEnabled(!transition.blockInput);
       this._engine.input?.toggleEnabled(!transition.blockInput);
 
-      this._engine.add(this.currentTransition);
-      await this.currentTransition.done;
+      await this.currentTransition.play(this._engine);
 
       currentScene.input?.toggleEnabled(sceneInputEnabled);
     }
@@ -546,15 +558,6 @@ export class Director<TKnownScenes extends string = any> {
       destinationScene: dest,
       destinationName: destinationScene
     } as DirectorNavigationEvent);
-  }
-
-  /**
-   * Updates internal transitions
-   */
-  update() {
-    if (this.currentTransition) {
-      this.currentTransition.execute();
-    }
   }
 }
 

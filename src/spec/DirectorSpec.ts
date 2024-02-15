@@ -62,7 +62,6 @@ describe('A Director', () => {
       loader
     });
     await engine.load(loader);
-    sut.update();
 
     expect(sut.currentTransition).toBe(fadeIn);
     expect(sut.currentSceneName).toBe('scene1');
@@ -86,7 +85,6 @@ describe('A Director', () => {
 
     sut.onInitialize();
     await engine.load(loader);
-    sut.update();
 
     expect(sut.currentTransition).toBe(fadeIn);
     expect(sut.currentSceneName).toBe('scene1');
@@ -121,13 +119,9 @@ describe('A Director', () => {
     await (engine as any)._overrideInitialize(engine);
 
     clock.step(100);
-    sut.update();
     clock.step(100);
-    sut.update();
     clock.step(100);
-    sut.update();
     clock.step(100);
-    sut.update();
 
     expect(sut.currentTransition).toBe(fadeIn);
     expect(sut.currentSceneName).toBe('scene1');
