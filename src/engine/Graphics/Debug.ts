@@ -60,10 +60,10 @@ export class Debug {
       strokeColor: undefined,
       width: undefined,
       ...options
-    }
+    };
     Debug.draw(ctx => {
       ctx.drawCircle(center, radius, color, strokeColor, width);
-    })
+    });
   }
 
   static drawBounds(boundingBox: BoundingBox, options?: { width?: number, color?: Color }): void {
