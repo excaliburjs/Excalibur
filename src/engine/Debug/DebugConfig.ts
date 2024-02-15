@@ -1,4 +1,4 @@
-import { DebugFlags, ColorBlindFlags } from './DebugFlags';
+import { ColorBlindFlags } from './DebugFlags';
 import { Engine } from '../Engine';
 import { Color } from '../Color';
 import { CollisionContact } from '../Collision/Detection/CollisionContact';
@@ -152,7 +152,7 @@ export interface GraphicsStatistics {
  * best to do so on the `postupdate` event for [[Engine]], after all values have been
  * updated during a frame.
  */
-export class Debug implements DebugFlags {
+export class DebugConfig {
   private _engine: Engine;
 
   constructor(engine: Engine) {
@@ -309,6 +309,7 @@ export class Debug implements DebugFlags {
     collisionNormalColor: Color.Cyan,
 
     showCollisionContacts: true,
+    contactSize: 2,
     collisionContactColor: Color.Red
   };
 

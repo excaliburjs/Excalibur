@@ -11,7 +11,7 @@ import { AffineMatrix } from '../../Math/affine-matrix';
 import { Ray } from '../../Math/ray';
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
 import { Collider } from './Collider';
-import { BodyComponent, ExcaliburGraphicsContext, Logger } from '../..';
+import { BodyComponent, Debug, ExcaliburGraphicsContext, Logger } from '../..';
 import { CompositeCollider } from './CompositeCollider';
 import { Shape } from './Shape';
 import { Transform } from '../../Math/transform';
@@ -46,6 +46,7 @@ export class PolygonCollider extends Collider {
   public flagDirty() {
     this._localBoundsDirty = true;
     this._localSidesDirty = true;
+    this._transformedPointsDirty = true;
     this._sidesDirty = true;
   }
 
@@ -701,13 +702,7 @@ export class PolygonCollider extends Collider {
   }
 
   public debug(ex: ExcaliburGraphicsContext, color: Color, options?: { lineWidth: number, pointSize: number }) {
-    const firstPoint = this.getTransformedPoints()[0];
-    const points = [firstPoint, ...this.getTransformedPoints(), firstPoint];
-    const { lineWidth, pointSize } = { ...{ lineWidth: 1, pointSize: 1 }, ...options };
-    for (let i = 0; i < points.length - 1; i++) {
-      ex.drawLine(points[i], points[i + 1], color, lineWidth);
-      ex.drawCircle(points[i], pointSize, color);
-      ex.drawCircle(points[i + 1], pointSize, color);
-    }
+    const points = this.getTransformedPoints();
+    Debug.drawPolygon(points, { color });
   }
 }

@@ -62,6 +62,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added new `ex.Debug` static for more convenient debug drawing where you might not have a graphics context accessible to you. This works by batching up all the debug draw requests and flushing them during the debug draw step.
+  * `ex.Debug.drawRay(ray: Ray, options?: { distance?: number, color?: Color })`
+  * `ex.Debug.drawBounds(boundingBox: BoundingBox, options?: { color?: Color })`
+  * `ex.Debug.drawCircle(center: Vector, radius: number, options?: ...)`
+  * `ex.Debug.drawPolygon(points: Vector[], options?: { color?: Color })`
+  * `ex.Debug.drawText(text: string, pos: Vector)`
+  * `ex.Debug.drawLine(start: Vector, end: Vector, options?: LineGraphicsOptions)`
+  * `ex.Debug.drawLines(points: Vector[], options?: LineGraphicsOptions)`
+  * `drawPoint(point: Vector, options?: PointGraphicsOptions)`
 - Experimental `ex.coroutine` for running code that changes over time, useful for modeling complex animation code. Coroutines return a promise when they are complete. You can think of each `yield` as a frame.
   * The result of a yield is the current elapsed time
   * You can yield a number in milliseconds and it will wait that long before resuming

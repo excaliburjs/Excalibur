@@ -130,11 +130,11 @@ export interface ExcaliburGraphicsContextState {
   material: Material;
 }
 export interface LineGraphicsOptions {
-  color: Color;
+  color?: Color;
 }
 
 export interface RectGraphicsOptions {
-  color: Color;
+  color?: Color;
 }
 
 export interface PointGraphicsOptions {

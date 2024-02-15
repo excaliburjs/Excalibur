@@ -7,6 +7,11 @@ import { RendererPlugin } from '../renderer';
 import { Shader, VertexBuffer, VertexLayout } from '../..';
 import { GraphicsDiagnostics } from '../../GraphicsDiagnostics';
 
+export interface LineOptions {
+  color?: Color;
+  width?: number;
+}
+
 export class LineRenderer implements RendererPlugin {
   public readonly type = 'ex.line';
   public priority: number = 0;
