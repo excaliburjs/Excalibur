@@ -27,7 +27,7 @@ export class Debug {
     });
   }
 
-  static drawLines(points: Vector[], options?: { color?: Color }) {
+  static drawLines(points: Vector[], options?: LineGraphicsOptions) {
     if (points.length > 1) {
       Debug.draw(ctx => {
         for (let i = 0; i < points.length - 1; i++) {
@@ -37,6 +37,11 @@ export class Debug {
     }
   }
 
+  static drawText(text: string, pos: Vector) {
+    Debug.draw(ctx => {
+      ctx.debug.drawText(text, pos);
+    });
+  }
 
   static drawPolygon(points: Vector[], options?: { color?: Color }) {
     if (points.length > 1) {

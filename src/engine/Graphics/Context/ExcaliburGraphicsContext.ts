@@ -131,12 +131,10 @@ export interface ExcaliburGraphicsContextState {
 }
 export interface LineGraphicsOptions {
   color?: Color;
-  width?: number;
 }
 
 export interface RectGraphicsOptions {
   color?: Color;
-  width?: number;
 }
 
 export interface PointGraphicsOptions {
