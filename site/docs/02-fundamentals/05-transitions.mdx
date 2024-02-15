@@ -55,7 +55,7 @@ const game = new ex.Engine({
 });
 
 
-game.goto('scene1');
+game.goToScene('scene1');
 
 ```
 
@@ -129,7 +129,7 @@ const transition = new ex.Transition({
 
 There are 2 ways to override pre-defined transitions
 
-* `goto('myscene', { destinationIn: ..., sourceOut: ... })` takes the highest precedence and will override any transition
+* `goToScene('myscene', { destinationIn: ..., sourceOut: ... })` takes the highest precedence and will override any transition
 * Extending [[Scene.onTransition]] you can provide dynamic transitions depending on your scene's state
 
 ```typescript

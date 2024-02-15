@@ -63,6 +63,16 @@ export namespace TestUtils {
   /**
    *
    */
+  export async function flushMicrotasks(clock: ex.TestClock, times: number) {
+    for ( let i = 0; i < times; i++) {
+      clock.step(0);
+      await Promise.resolve();
+    }
+  }
+
+  /**
+   *
+   */
   export function flushWebGLCanvasTo2D(source: HTMLCanvasElement): HTMLCanvasElement {
     const canvas = document.createElement('canvas');
     canvas.width = source.width;

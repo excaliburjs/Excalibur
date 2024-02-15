@@ -51,10 +51,11 @@ var game = new ex.Engine({
   // pixelRatio: 1,
   // suppressPlayButton: true,
   pointerScope: ex.PointerScope.Canvas,
-  displayMode: ex.DisplayMode.FitScreenAndFill,
+  displayMode: ex.DisplayMode.FitScreenAndZoom,
   snapToPixel: false,
   // fixedUpdateFps: 30,
   pixelRatio: 2,
+  fixedUpdateFps: 60,
   maxFps: 60,
   antialiasing: {
     pixelArtSampler: true,
@@ -65,6 +66,9 @@ var game = new ex.Engine({
   },
   uvPadding: 0,
   physics: {
+    colliders: {
+      compositeStrategy: 'together'
+    },
     solver: ex.SolverStrategy.Arcade,
     gravity: ex.vec(0, 20),
     arcade: {
@@ -585,8 +589,8 @@ player.on('collisionstart', () => {
   console.log('collision start');
 });
 
-player.on('collisionend', () => {
-  console.log('collision end');
+player.on('collisionend', (e) => {
+  console.log('collision end', e.other.collider);
 });
 
 // Health bar example

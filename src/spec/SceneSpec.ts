@@ -337,7 +337,7 @@ describe('A scene', () => {
 
     await engine.goToScene('sceneA');
 
-    await engine.goToScene('sceneB', { foo: 'bar' });
+    await engine.goToScene('sceneB', { sceneActivationData: { foo: 'bar' }});
 
     expect(sceneA.onDeactivate).toHaveBeenCalledWith({
       engine,
@@ -820,8 +820,8 @@ describe('A scene', () => {
       expect(scene.onPreUpdate).toHaveBeenCalledTimes(2);
     });
 
-    it('can have onPreDraw overridden safely', () => {
-      scene._initialize(engine);
+    it('can have onPreDraw overridden safely', async () => {
+      await scene._initialize(engine);
       engine.screen.setCurrentCamera(engine.currentScene.camera);
       scene.onPreDraw = (ctx, delta) => {
         expect(<any>ctx).not.toBe(null);
@@ -838,8 +838,8 @@ describe('A scene', () => {
       expect(scene.onPreDraw).toHaveBeenCalledTimes(2);
     });
 
-    it('can have onPostDraw overridden safely', () => {
-      scene._initialize(engine);
+    it('can have onPostDraw overridden safely', async () => {
+      await scene._initialize(engine);
       engine.screen.setCurrentCamera(engine.currentScene.camera);
       scene.onPostDraw = (ctx, delta) => {
         expect(<any>ctx).not.toBe(null);

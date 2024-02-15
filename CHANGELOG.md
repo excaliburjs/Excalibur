@@ -8,6 +8,28 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- `ex.Engine.goToScene`'s second argument now takes `GoToOptions` instead of just scene activation data
+  ```typescript
+  {
+    /**
+     * Optionally supply scene activation data passed to Scene.onActivate
+    */
+    sceneActivationData?: TActivationData,
+    /**
+     * Optionally supply destination scene "in" transition, this will override any previously defined transition
+    */
+    destinationIn?: Transition,
+    /**
+     * Optionally supply source scene "out" transition, this will override any previously defined transition
+    */
+    sourceOut?: Transition,
+    /**
+     * Optionally supply a different loader for the destination scene, this will override any previously defined loader
+    */
+    loader?: DefaultLoader
+  }
+  ```
+
 - `ex.Physics` static is marked as deprecated, configuring these setting will move to the `ex.Engine({...})` constructor
   ```typescript
   const engine = new ex.Engine({
@@ -40,6 +62,23 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Experimental `ex.coroutine` for running code that changes over time, useful for modeling complex animation code. Coroutines return a promise when they are complete. You can think of each `yield` as a frame.
+  * The result of a yield is the current elapsed time
+  * You can yield a number in milliseconds and it will wait that long before resuming
+  * You can yield a promise and it will wait until it resolves before resuming
+  ```typescript
+    const completePromise = coroutine(engine, function * () {
+      let elapsed = 0;
+      elapsed = yield 200; // frame 1 wait 200 ms before resuming
+      elapsed = yield fetch('./some/data.json'); // frame 2
+      elapsed = yield; // frame 3
+    });
+  ```
+- Added additional options in rayCast options
+  * `ignoreCollisionGroupAll: boolean` will ignore testing against anything with the `CollisionGroup.All` which is the default for all
+  * `filter: (hit: RayCastHit) => boolean` will allow people to do arbitrary filtering on raycast results, this runs very last after all other collision group/collision mask decisions have been made
+- Added additional data `side` and `lastContact` to `onCollisionEnd` and `collisionend` events
+- Added configuration option to `ex.PhysicsConfig` to configure composite collider onCollisionStart/End behavior
 - Added configuration option to `ex.TileMap({ meshingLookBehind: Infinity })` which allows users to configure how far the TileMap looks behind for matching colliders (default is 10).
 - Added Arcade Collision Solver bias to help mitigate seams in geometry that can cause problems for certain games.
   - `ex.ContactSolveBias.None` No bias, current default behavior collisions are solved in the default distance order
@@ -148,7 +187,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * New scene lifecycle to allow scene specific resource loading
       * `onTransition(direction: "in" | "out") {...}`
       * `onPreLoad(loader: DefaultLoader) {...}`
-  * New async goto API that allows overriding loaders/transitions between scenes
+  * New async `goToScene()` API that allows overriding loaders/transitions between scenes
   * Scenes now can have `async onInitialize` and `async onActivate`!
   * New scenes director API that allows upfront definition of scenes/transitions/loaders
 
@@ -203,6 +242,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed errant warning about resolution when using `pixelRatio` on low res games to upscale
+- Fixes an issue where a collider that was part of a contact that was deleted did not fire a collision end event, this was unexpected
+- Fixes an issue where you may want to have composite colliders behave as constituent colliders for the purposes of start/end collision events. A new property is added to physics config, the current behavior is the default which is `'together'`, this means the whole composite collider is treated as 1 collider for onCollisionStart/onCollisionEnd. Now you can configure a `separate` which will fire onCollisionStart/onCollisionEnd for every separate collider included in the composite (useful if you are building levels or things with gaps that you need to disambiguate). You can also configure this on a per composite level to mix and match `CompositeCollider.compositeStrategy`
 - Fixed issue where particles would have an errant draw if using a particle sprite
 - Fixed issue where a null/undefined graphics group member graphic would cause a crash, now logs a warning.
 - Fixed issue where Actor built in components could not be extended because of the way the Actor based type was built.

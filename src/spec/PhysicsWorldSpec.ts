@@ -117,4 +117,75 @@ describe('A physics world', () => {
     expect(hits[0].distance).toBe(75);
     expect(hits[0].point).toEqual(ex.vec(75, 0));
   });
+
+  it('can rayCast with ignoreCollisionGroupAll, returns 1 hit', () => {
+    const sut = TestUtils.engine();
+    const actor1 = new ex.Actor({x: 100, y: 0, width: 50, height: 50});
+    sut.currentScene.add(actor1);
+    const actor2 = new ex.Actor({x: 200, y: 0, width: 50, height: 50});
+    sut.currentScene.add(actor2);
+    const actor3 = new ex.Actor({x: 300, y: 0, width: 50, height: 50, collisionGroup: new ex.CollisionGroup('test', 0b1, ~0b1)});
+    sut.currentScene.add(actor3);
+
+    const ray = new ex.Ray(ex.vec(0, 0), ex.Vector.Right);
+    const hits = sut.currentScene.physics.rayCast(ray, {
+      searchAllColliders: true,
+      collisionMask: 0b1,
+      ignoreCollisionGroupAll: true
+    });
+
+    expect(hits.length).toBe(1);
+    expect(hits[0].body).toEqual(actor3.body);
+    expect(hits[0].collider).toEqual(actor3.collider.get());
+    expect(hits[0].distance).toBe(275);
+    expect(hits[0].point).toEqual(ex.vec(275, 0));
+  });
+
+  it('can rayCast with filter, returns 1 hit', () => {
+    const sut = TestUtils.engine();
+    const actor1 = new ex.Actor({x: 100, y: 0, width: 50, height: 50});
+    sut.currentScene.add(actor1);
+    const actor2 = new ex.Actor({x: 200, y: 0, width: 50, height: 50});
+    sut.currentScene.add(actor2);
+    const actor3 = new ex.Actor({x: 300, y: 0, width: 50, height: 50, collisionGroup: new ex.CollisionGroup('test', 0b1, ~0b1)});
+    sut.currentScene.add(actor3);
+
+    const ray = new ex.Ray(ex.vec(0, 0), ex.Vector.Right);
+    const hits = sut.currentScene.physics.rayCast(ray, {
+      searchAllColliders: true,
+      filter: (hit) => {
+        return hit.body.group.name === 'test';
+      }
+    });
+
+    expect(hits.length).toBe(1);
+    expect(hits[0].body).toEqual(actor3.body);
+    expect(hits[0].collider).toEqual(actor3.collider.get());
+    expect(hits[0].distance).toBe(275);
+    expect(hits[0].point).toEqual(ex.vec(275, 0));
+  });
+
+  it('can rayCast with filter and search all colliders false, returns 1 hit', () => {
+    const sut = TestUtils.engine();
+    const actor1 = new ex.Actor({x: 100, y: 0, width: 50, height: 50});
+    sut.currentScene.add(actor1);
+    const actor2 = new ex.Actor({x: 200, y: 0, width: 50, height: 50});
+    sut.currentScene.add(actor2);
+    const actor3 = new ex.Actor({x: 300, y: 0, width: 50, height: 50, collisionGroup: new ex.CollisionGroup('test', 0b1, ~0b1)});
+    sut.currentScene.add(actor3);
+
+    const ray = new ex.Ray(ex.vec(0, 0), ex.Vector.Right);
+    const hits = sut.currentScene.physics.rayCast(ray, {
+      searchAllColliders: false,
+      filter: (hit) => {
+        return hit.body.group.name === 'test';
+      }
+    });
+
+    expect(hits.length).toBe(1);
+    expect(hits[0].body).toEqual(actor3.body);
+    expect(hits[0].collider).toEqual(actor3.collider.get());
+    expect(hits[0].distance).toBe(275);
+    expect(hits[0].point).toEqual(ex.vec(275, 0));
+  });
 });

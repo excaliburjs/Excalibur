@@ -34,6 +34,21 @@ export interface RayCastOptions {
    * Optionally specify to search for all colliders that intersect the ray cast, not just the first which is the default
    */
   searchAllColliders?: boolean;
+  /**
+   * Optionally ignore things with CollisionGroup.All and only test against things with an explicit group
+   *
+   * Default false
+   */
+  ignoreCollisionGroupAll?: boolean;
+
+  /**
+   * Optionally provide a any filter function to filter on arbitrary qualities of a ray cast hit
+   *
+   * Filters run after any collision mask/collision group filtering, it is the last decision
+   *
+   * Returning true means you want to include the collider in your results, false means exclude it
+   */
+  filter?: (hit: RayCastHit) => boolean;
 }
 
 /**
@@ -65,6 +80,10 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
       const owner = collider.owner;
       const maybeBody = owner.get(BodyComponent);
 
+      if (options?.ignoreCollisionGroupAll && maybeBody.group === CollisionGroup.All) {
+        return false;
+      }
+
       const canCollide = (collisionMask & maybeBody.group.category) !== 0;
 
       // Early exit if not the right group
@@ -73,11 +92,22 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
       }
 
       const hit = collider.rayCast(ray, maxDistance);
+
       if (hit) {
-        results.push(hit);
-        if (!searchAllColliders) {
-          // returning true exits the search
-          return true;
+        if (options?.filter) {
+          if (options.filter(hit)) {
+            results.push(hit);
+            if (!searchAllColliders) {
+              // returning true exits the search
+              return true;
+            }
+          }
+        } else {
+          results.push(hit);
+          if (!searchAllColliders) {
+            // returning true exits the search
+            return true;
+          }
         }
       }
       return false;

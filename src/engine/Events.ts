@@ -451,7 +451,7 @@ export class ContactStartEvent<T> {
 }
 
 export class ContactEndEvent<T> {
-  constructor(public target: T, public other: T) {}
+  constructor(public target: T, public other: T, public side: Side, public lastContact: CollisionContact) {}
 }
 
 export class CollisionPreSolveEvent<T> {
@@ -494,7 +494,7 @@ export class CollisionEndEvent<T extends BodyComponent | Collider | Entity = Act
   /**
    *
    */
-  constructor(actor: T, public other: T) {
+  constructor(actor: T, public other: T, public side: Side, public lastContact: CollisionContact) {
     super();
     this.target = actor;
   }
@@ -545,7 +545,7 @@ export class DeactivateEvent extends GameEvent<Scene> {
 }
 
 /**
- * Event thrown on an [[Actor]] when it completely leaves the screen.
+ * Event thrown on an [[Actor]] when the graphics bounds completely leaves the screen.
  */
 export class ExitViewPortEvent extends GameEvent<Entity> {
   constructor(public target: Entity) {
@@ -554,7 +554,7 @@ export class ExitViewPortEvent extends GameEvent<Entity> {
 }
 
 /**
- * Event thrown on an [[Actor]] when it completely leaves the screen.
+ * Event thrown on an [[Actor]] when any part of the graphics bounds are on screen.
  */
 export class EnterViewPortEvent extends GameEvent<Entity> {
   constructor(public target: Entity) {

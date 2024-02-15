@@ -562,7 +562,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
 
   /**
    *
-   *Entity update lifecycle, called internally
+   * Entity update lifecycle, called internally
    * @internal
    * @param engine
    * @param delta

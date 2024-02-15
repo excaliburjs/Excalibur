@@ -7,6 +7,8 @@ import { CoordPlane } from '../Math/coord-plane';
 import { Vector } from '../Math/vector';
 import { clamp } from '../Math/util';
 import { EasingFunction, EasingFunctions } from '../Util/EasingFunctions';
+import { coroutine } from '../Util/Coroutine';
+import { Logger } from '../Util/Log';
 
 export interface TransitionOptions {
   /**
@@ -47,6 +49,7 @@ export interface TransitionOptions {
  * Base Transition that can be extended to provide custom scene transitions in Excalibur.
  */
 export class Transition extends Entity {
+  private _logger: Logger = Logger.getInstance();
   transform = new TransformComponent();
   graphics = new GraphicsComponent();
   readonly hideLoader: boolean;
@@ -106,11 +109,11 @@ export class Transition extends Entity {
   /**
    * Overridable lifecycle method, called before each update.
    *
-   * **WARNING BE SURE** to call `super.onPreUpdate()` if overriding in your own custom implementation
+   * **WARNING BE SURE** to call `super.updateTransition()` if overriding in your own custom implementation
    * @param engine
    * @param delta
    */
-  public override onPreUpdate(engine: Engine, delta: number): void {
+  public updateTransition(engine: Engine, delta: number): void {
     if (this.complete) {
       return;
     }
@@ -190,6 +193,23 @@ export class Transition extends Entity {
       this._currentProgress = 1;
     }
     this.onReset();
+  }
+
+  play(engine: Engine) {
+    if (this.started) {
+      this._logger.warn(`Attempted to play a transition ${this.name} that is already playing`);
+      return Promise.resolve();
+    }
+
+    engine.add(this);
+    const self = this;
+    return coroutine(engine, function * () {
+      while (!self.complete) {
+        const elapsed = yield; // per frame
+        self.updateTransition(engine, elapsed);
+        self.execute();
+      }
+    });
   }
 
   /**

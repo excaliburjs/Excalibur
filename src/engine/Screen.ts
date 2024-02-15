@@ -381,12 +381,28 @@ export class Screen {
   // Asking the window.devicePixelRatio is expensive we do it once
   private _devicePixelRatio = this._calculateDevicePixelRatio();
 
+  /**
+   * Returns the computed pixel ratio, first using any override, then the device pixel ratio
+   */
   public get pixelRatio(): number {
     if (this._pixelRatioOverride) {
       return this._pixelRatioOverride;
     }
 
     return this._devicePixelRatio;
+  }
+
+  /**
+   * Get or set the pixel ratio override
+   *
+   * You will need to call applyResolutionAndViewport() affect change on the screen
+   */
+  public get pixelRatioOverride(): number | undefined {
+    return this._pixelRatioOverride;
+  }
+
+  public set pixelRatioOverride(value: number | undefined) {
+    this._pixelRatioOverride = value;
   }
 
   public get isHiDpi() {

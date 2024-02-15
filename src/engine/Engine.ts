@@ -1,5 +1,4 @@
 import { EX_VERSION } from './';
-import { obsolete } from './Util/Decorators';
 import { Future } from './Util/Future';
 import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
 import { PointerScope } from './Input/PointerScope';
@@ -332,7 +331,7 @@ export interface EngineOptions<TKnownScenes extends string = any> {
   /**
    * Optionally specify scenes with their transitions and loaders to excalibur's scene [[Director]]
    *
-   * Scene transitions can can overridden dynamically by the `Scene` or by the call to `.goto`
+   * Scene transitions can can overridden dynamically by the `Scene` or by the call to `.goToScene`
    */
   scenes?: SceneMap<TKnownScenes>
 }
@@ -531,7 +530,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   }
 
   /**
-   * The default [[Scene]] of the game, use [[Engine.goto]] to transition to different scenes.
+   * The default [[Scene]] of the game, use [[Engine.goToScene]] to transition to different scenes.
    */
   public get rootScene(): Scene {
     return this.director.rootScene;
@@ -1230,7 +1229,42 @@ O|===|* >________________>\n\
    *
    * Example:
    * ```typescript
-   * game.goto('myScene', {
+   * game.goToScene('myScene', {
+   *   sceneActivationData: {any: 'thing at all'},
+   *   destinationIn: new FadeInOut({duration: 1000, direction: 'in'}),
+   *   sourceOut: new FadeInOut({duration: 1000, direction: 'out'}),
+   *   loader: MyLoader
+   * });
+   * ```
+   *
+   * Scenes are defined in the Engine constructor
+   * ```typescript
+   * const engine = new ex.Engine({
+      scenes: {...}
+    });
+   * ```
+   * Or by adding dynamically
+   *
+   * ```typescript
+   * engine.addScene('myScene', new ex.Scene());
+   * ```
+   * @param destinationScene
+   * @param options
+   * @deprecated use goToScene, it now behaves the same as goto
+   */
+  public async goto(destinationScene: WithRoot<TKnownScenes>, options?: GoToOptions) {
+    await this.director.goto(destinationScene, options);
+  }
+
+  /**
+   * Changes the current scene with optionally supplied:
+   * * Activation data
+   * * Transitions
+   * * Loaders
+   *
+   * Example:
+   * ```typescript
+   * game.goToScene('myScene', {
    *   sceneActivationData: {any: 'thing at all'},
    *   destinationIn: new FadeInOut({duration: 1000, direction: 'in'}),
    *   sourceOut: new FadeInOut({duration: 1000, direction: 'out'}),
@@ -1252,20 +1286,8 @@ O|===|* >________________>\n\
    * @param destinationScene
    * @param options
    */
-  public async goto(destinationScene: WithRoot<TKnownScenes>, options?: GoToOptions) {
+  public async goToScene<TData = undefined>(destinationScene: WithRoot<TKnownScenes>, options?: GoToOptions<TData>): Promise<void> {
     await this.director.goto(destinationScene, options);
-  }
-
-  /**
-   * Changes the currently updating and drawing scene to a different,
-   * named scene. Calls the [[Scene]] lifecycle events.
-   * @param key  The key of the scene to transition to.
-   * @param data Optional data to send to the scene's onActivate method
-   * @deprecated Use [[Engine.goto]] will be removed in v1!
-   */
-  @obsolete({message: 'Engine.goToScene is deprecated, will be removed in v1', alternateMethod: 'Engine.goto'})
-  public async goToScene<TData = undefined>(key: string, data?: TData): Promise<void> {
-    await this.director.swapScene(key, data);
   }
 
   /**
@@ -1367,7 +1389,6 @@ O|===|* >________________>\n\
    * @param delta  Number of milliseconds elapsed since the last update.
    */
   private _update(delta: number) {
-    this.director.update();
     if (this._isLoading) {
       // suspend updates until loading is finished
       this._loader?.onUpdate(this, delta);

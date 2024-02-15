@@ -102,10 +102,6 @@ scene2.onPreLoad = (loader) => {
 scene1.onActivate = () => {
   setTimeout(() => {
     gameWithTransitions.goto('scene2');
-    // router.goto('scene2', {
-    //   outTransition: new ex.FadeOut({duration: 1000, direction: 'in'}),
-    //   inTransition: new ex.FadeOut({duration: 1000, direction: 'out'})
-    // });
   }, 1000);
 }
 scene2.add(new ex.Actor({
@@ -141,6 +137,5 @@ var startTransition = new ex.FadeInOut({duration: 500, direction: 'in', color: e
 // })
 gameWithTransitions.start('scene1',
 {
-  inTransition: startTransition,
-  loader: boot
+  inTransition: startTransition
 });

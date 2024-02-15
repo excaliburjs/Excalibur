@@ -21,6 +21,26 @@ export class CompositeCollider extends Collider {
   private _dynamicAABBTree = new DynamicTree(DefaultPhysicsConfig.dynamicTree);
   private _colliders: Collider[] = [];
 
+  private _compositeStrategy?: 'separate' | 'together';
+  /**
+   * Treat composite collider's member colliders as either separate colliders for the purposes of onCollisionStart/onCollision
+   * or as a single collider together.
+   *
+   * This property can be overridden on individual [[CompositeColliders]].
+   *
+   * For composites without gaps or small groups of colliders, you probably want 'together'
+   *
+   * For composites with deliberate gaps, like a platforming level layout, you probably want 'separate'
+   *
+   * Default is 'together' if unset
+   */
+  public set compositeStrategy(value: 'separate' | 'together') {
+    this._compositeStrategy = value;
+  }
+  public get compositeStrategy() {
+    return this._compositeStrategy;
+  }
+
   constructor(colliders: Collider[]) {
     super();
     for (const c of colliders) {
@@ -43,7 +63,7 @@ export class CompositeCollider extends Collider {
     // Flatten composites
     for (const c of colliders) {
       c.events.pipe(this.events);
-      c.__compositeColliderId = this.id;
+      c.composite = this;
       this._colliders.push(c);
       this._collisionProcessor.track(c);
       this._dynamicAABBTree.trackCollider(c);
@@ -52,7 +72,7 @@ export class CompositeCollider extends Collider {
 
   removeCollider(collider: Collider) {
     collider.events.pipe(this.events);
-    collider.__compositeColliderId = null;
+    collider.composite = null;
     Util.removeItemFromArray(collider, this._colliders);
     this._collisionProcessor.untrack(collider);
     this._dynamicAABBTree.untrackCollider(collider);
