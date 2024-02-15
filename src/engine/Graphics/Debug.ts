@@ -71,16 +71,15 @@ export class Debug {
     });
   }
 
-  static drawBounds(boundingBox: BoundingBox, options?: { width?: number, color?: Color }): void {
+  static drawBounds(boundingBox: BoundingBox, options?: { color?: Color }): void {
     Debug.draw(ctx => {
       ctx.debug.drawRect(boundingBox.left, boundingBox.top, boundingBox.width, boundingBox.height, options);
     });
   }
 
-  static drawRay(ray: Ray, options?: { distance?: number, color?: Color, width?: number }) {
-    const { distance, color, width } = {
+  static drawRay(ray: Ray, options?: { distance?: number, color?: Color }) {
+    const { distance, color } = {
       color: Color.Blue,
-      width: 1,
       distance: 10,
       ...options
     };
@@ -88,7 +87,7 @@ export class Debug {
       const start = ray.pos;
       const end = ray.pos.add(ray.dir.scale(distance));
 
-      ctx.drawLine(start, end, color, width);
+      ctx.debug.drawLine(start, end, { color });
     });
   }
 
