@@ -35,7 +35,7 @@ export abstract class Clock {
   public fpsSampler: FpsSampler;
   private _options: ClockOptions;
   private _elapsed: number = 1;
-  private _scheduledCbs: [cb: () => any, scheduledTime: number][] = [];
+  private _scheduledCbs: [cb: (elapsedMs: number) => any, scheduledTime: number][] = [];
   private _totalElapsed: number = 0;
   constructor(options: ClockOptions) {
     this._options = options;
@@ -91,7 +91,7 @@ export abstract class Clock {
    * @param cb callback to fire
    * @param timeoutMs Optionally specify a timeout in milliseconds from now, default is 0ms which means the next possible tick
    */
-  public schedule(cb: () => any, timeoutMs: number = 0) {
+  public schedule(cb: (elapsedMs: number) => any, timeoutMs: number = 0) {
     // Scheduled based on internal elapsed time
     const scheduledTime = this._totalElapsed + timeoutMs;
     this._scheduledCbs.push([cb, scheduledTime]);
@@ -101,7 +101,7 @@ export abstract class Clock {
     // walk backwards to delete items as we loop
     for (let i = this._scheduledCbs.length - 1; i > -1; i--) {
       if (this._scheduledCbs[i][1] <= this._totalElapsed) {
-        this._scheduledCbs[i][0]();
+        this._scheduledCbs[i][0](this._elapsed);
         this._scheduledCbs.splice(i, 1);
       }
     }

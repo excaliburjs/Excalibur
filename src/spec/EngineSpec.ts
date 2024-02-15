@@ -638,10 +638,10 @@ describe('The engine', () => {
     expect(engine.currentScene.actors.length).toBe(0);
   });
 
-  it('will log an error if the scene does not exist', () => {
-    spyOn(ex.Logger.getInstance(), 'error');
-    engine.goToScene('madeUp');
-    expect(ex.Logger.getInstance().error).toHaveBeenCalledWith('Scene', 'madeUp', 'does not exist!');
+  it('will log an error if the scene does not exist', async () => {
+    spyOn(ex.Logger.getInstance(), 'warn');
+    await engine.goToScene('madeUp');
+    expect(ex.Logger.getInstance().warn).toHaveBeenCalledWith('Scene madeUp does not exist! Check the name, are you sure you added it?');
   });
 
   it('will add actors to the correct scene when initialized after a deferred goTo', async () => {

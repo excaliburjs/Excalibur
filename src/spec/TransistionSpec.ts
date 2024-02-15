@@ -63,20 +63,20 @@ describe('A Transition', () => {
     expect(sut.onStart).toHaveBeenCalledWith(0);
     expect(sut.onUpdate).toHaveBeenCalledWith(0);
 
-    sut.onPreUpdate(engine, 16);
+    sut.updateTransition(engine, 16);
     sut.execute();
     expect(onUpdateSpy.calls.argsFor(1)).toEqual([16/3000]);
 
-    sut.onPreUpdate(engine, 16);
+    sut.updateTransition(engine, 16);
     sut.execute();
     expect(onUpdateSpy.calls.argsFor(2)).toEqual([32/3000]);
 
-    sut.onPreUpdate(engine, 3200 -32);
+    sut.updateTransition(engine, 3200 -32);
     sut.execute();
     expect(onEndSpy).toHaveBeenCalledWith(1);
     expect(sut.complete).toBe(true);
 
-    sut.onPreUpdate(engine, 4000);
+    sut.updateTransition(engine, 4000);
     sut.execute();
 
     // Start and end should only be called once
@@ -102,20 +102,20 @@ describe('A Transition', () => {
     expect(sut.onStart).toHaveBeenCalledWith(0);
     expect(sut.onUpdate).toHaveBeenCalledWith(0);
 
-    sut.onPreUpdate(engine, 16);
+    sut.updateTransition(engine, 16);
     sut.execute();
     expect(onUpdateSpy.calls.argsFor(1)).toEqual([16/3000]);
 
-    sut.onPreUpdate(engine, 16);
+    sut.updateTransition(engine, 16);
     sut.execute();
     expect(onUpdateSpy.calls.argsFor(2)).toEqual([32/3000]);
 
-    sut.onPreUpdate(engine, 3200 -32);
+    sut.updateTransition(engine, 3200 -32);
     sut.execute();
     expect(onEndSpy).toHaveBeenCalledWith(1);
     expect(sut.complete).toBe(true);
 
-    sut.onPreUpdate(engine, 4000);
+    sut.updateTransition(engine, 4000);
     sut.execute();
 
     expect(sut.complete).toBe(true);
