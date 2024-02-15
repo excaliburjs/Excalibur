@@ -217,11 +217,11 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
   /**
    * Event hook fired directly before transition, either "in" or "out" of the scene
    *
-   * This overrides the Engine scene definition. However transitions specified in goto take hightest precedence
+   * This overrides the Engine scene definition. However transitions specified in goToScene take highest precedence
    *
    * ```typescript
    * // Overrides all
-   * Engine.goto('scene', { destinationIn: ..., sourceOut: ... });
+   * Engine.goToScene('scene', { destinationIn: ..., sourceOut: ... });
    * ```
    *
    * This can be used to configure custom transitions for a scene dynamically

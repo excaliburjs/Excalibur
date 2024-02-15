@@ -8,6 +8,28 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- `ex.Engine.goToScene`'s second argument now takes `GoToOptions` instead of just scene activation data
+  ```typescript
+  {
+    /**
+     * Optionally supply scene activation data passed to Scene.onActivate
+    */
+    sceneActivationData?: TActivationData,
+    /**
+     * Optionally supply destination scene "in" transition, this will override any previously defined transition
+    */
+    destinationIn?: Transition,
+    /**
+     * Optionally supply source scene "out" transition, this will override any previously defined transition
+    */
+    sourceOut?: Transition,
+    /**
+     * Optionally supply a different loader for the destination scene, this will override any previously defined loader
+    */
+    loader?: DefaultLoader
+  }
+  ```
+
 - `ex.Physics` static is marked as deprecated, configuring these setting will move to the `ex.Engine({...})` constructor
   ```typescript
   const engine = new ex.Engine({
@@ -165,7 +187,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * New scene lifecycle to allow scene specific resource loading
       * `onTransition(direction: "in" | "out") {...}`
       * `onPreLoad(loader: DefaultLoader) {...}`
-  * New async goto API that allows overriding loaders/transitions between scenes
+  * New async `goToScene()` API that allows overriding loaders/transitions between scenes
   * Scenes now can have `async onInitialize` and `async onActivate`!
   * New scenes director API that allows upfront definition of scenes/transitions/loaders
 
