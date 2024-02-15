@@ -606,8 +606,7 @@ player.onPostUpdate = () => {
   ex.Debug.drawLine(
     player.pos,
     player.pos.add(ex.Vector.Down.scale(100)), {
-      color: ex.Color.Red,
-      width: 2
+      color: ex.Color.Red
     });
   ex.Debug.drawPoint(player.pos, {
     size: 1,
