@@ -5,8 +5,13 @@ describe('Debug draw static', () => {
   beforeAll(() => {
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
   });
+
   it('exists', () => {
     expect(ex.Debug).toBeDefined();
+  });
+
+  afterEach(() => {
+    ex.Debug.clear();
   });
 
   it('can draw a point', async () => {
@@ -25,6 +30,7 @@ describe('Debug draw static', () => {
     context.flush();
 
     await expectAsync(canvas).toEqualImage('src/spec/images/DebugSpec/point.png');
+    context.dispose();
   });
 
   it('can draw a line', async () => {
@@ -43,6 +49,7 @@ describe('Debug draw static', () => {
     context.flush();
 
     await expectAsync(canvas).toEqualImage('src/spec/images/DebugSpec/line.png');
+    context.dispose();
   });
 
   it('can draw lines', async () => {
@@ -61,6 +68,7 @@ describe('Debug draw static', () => {
     context.flush();
 
     await expectAsync(canvas).toEqualImage('src/spec/images/DebugSpec/lines.png');
+    context.dispose();
   });
 
   xit('can draw text', async () => {
@@ -97,6 +105,7 @@ describe('Debug draw static', () => {
     context.flush();
 
     await expectAsync(canvas).toEqualImage('src/spec/images/DebugSpec/polygon.png');
+    context.dispose();
   });
 
   it('can draw a circle', async () => {
@@ -115,6 +124,7 @@ describe('Debug draw static', () => {
     context.flush();
 
     await expectAsync(canvas).toEqualImage('src/spec/images/DebugSpec/circle.png');
+    context.dispose();
   });
 
   it('can draw bounds', async () => {
@@ -140,6 +150,7 @@ describe('Debug draw static', () => {
     context.flush();
 
     await expectAsync(canvas).toEqualImage('src/spec/images/DebugSpec/bounds.png');
+    context.dispose();
   });
 
   it('can draw a ray', async () => {
@@ -160,5 +171,6 @@ describe('Debug draw static', () => {
     context.flush();
 
     await expectAsync(canvas).toEqualImage('src/spec/images/DebugSpec/ray.png');
+    context.dispose();
   });
 });
