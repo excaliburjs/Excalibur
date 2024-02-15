@@ -49,6 +49,9 @@ export * from './Context/vertex-layout';
 export * from './Context/quad-index-buffer';
 export * from './Context/material';
 
+// Debug
+export * from './Debug';
+
 // Util
 
 import * as webgl from './Context/webgl-util';

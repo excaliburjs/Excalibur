@@ -32,7 +32,7 @@ import { Logger, LogLevel } from './Util/Log';
 import { Color } from './Color';
 import { Scene, SceneConstructor, isSceneConstructor } from './Scene';
 import { Entity } from './EntityComponentSystem/Entity';
-import { Debug, DebugStats } from './Debug/Debug';
+import { DebugConfig, DebugStats } from './Debug/DebugConfig';
 import { BrowserEvents } from './Util/Browser';
 import {
   AntialiasOptions,
@@ -505,7 +505,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
    *   * Graphics
    *   * Colliders
    */
-  public debug: Debug;
+  public debug: DebugConfig;
 
   /**
    * Access [[stats]] that holds frame statistics.
@@ -932,7 +932,7 @@ O|===|* >________________>\n\
       };
     }
 
-    this.debug = new Debug(this);
+    this.debug = new DebugConfig(this);
 
     this.director = new Director(this, options.scenes);
 

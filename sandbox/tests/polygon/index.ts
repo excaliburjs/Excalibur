@@ -91,5 +91,5 @@ var triangulated = shape.triangulate();
 actor.collider.set(triangulated);
 game.add(actor);
 
-
+game.currentScene.camera.zoom = .75;
 game.start();

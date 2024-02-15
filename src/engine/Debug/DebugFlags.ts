@@ -3,10 +3,6 @@ import { ColorBlindnessPostProcessor } from '../Graphics/PostProcessor/ColorBlin
 import { Engine } from '../Engine';
 import { ExcaliburGraphicsContextWebGL } from '../Graphics/Context/ExcaliburGraphicsContextWebGL';
 
-export interface DebugFlags {
-  colorBlindMode: ColorBlindFlags;
-}
-
 export class ColorBlindFlags {
   private _engine: Engine;
   private _colorBlindPostProcessor: ColorBlindnessPostProcessor;
