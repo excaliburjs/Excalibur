@@ -83,7 +83,7 @@ A screen coordinate is a point on a user's physical screen. `(0, 0)` in screen c
 
 ### World coordinates
 
-A world coordinate is a point _in the game world_ relative to a [scene's camera](/docs/scenes#camera). The world space is the default place where actors operate. `(0, 0)` in the game world may be _displayed_ at the center of your game because that may be the camera's focal point.
+A world coordinate is a point _in the game world_ relative to a [scene's camera](/docs/scenes#camera). The world space is the default place where actors operate. By default the camera is centered such that the origin is in the top left. If the camera is not moved `(0, 0)` in the game world will be the top left of your game, but if you move the camera to `(0, 0)` the actor will now be center screen.
 
 ### Converting between coordinates
 
