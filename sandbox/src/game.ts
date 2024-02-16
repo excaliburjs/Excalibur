@@ -153,7 +153,10 @@ cards2.draw(game.graphicsContext, 0, 0);
 
 jump.volume = 0.3;
 
-var boot = new ex.Loader();
+var boot = new ex.Loader({
+  fullscreenAfterLoad: true,
+  fullscreenContainer: document.getElementById('container')
+});
 boot.addResource(heartImageSource);
 boot.addResource(heartTex);
 boot.addResource(imageRun);
