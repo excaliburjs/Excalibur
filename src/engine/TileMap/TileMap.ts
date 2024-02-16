@@ -21,11 +21,11 @@ import { DebugConfig } from '../Debug';
 
 export interface TileMapOptions {
   /**
-   * Optionally name the isometric tile map
+   * Optionally name the tile map
    */
   name?: string;
   /**
-   * Optionally specify the position of the isometric tile map
+   * Optionally specify the position of the tile map
    */
   pos?: Vector;
   /**
