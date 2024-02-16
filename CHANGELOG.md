@@ -62,6 +62,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added fullscreen after load feature! You can optionally provide a `fullscreenContainer` with a string id or an instance of the `HTMLElement`
+  ```typescript
+  new ex.Loader({
+    fullscreenAfterLoad: true,
+    fullscreenContainer: document.getElementById('container')
+  });
+  ```
 - Added new `ex.Debug` static for more convenient debug drawing where you might not have a graphics context accessible to you. This works by batching up all the debug draw requests and flushing them during the debug draw step.
   * `ex.Debug.drawRay(ray: Ray, options?: { distance?: number, color?: Color })`
   * `ex.Debug.drawBounds(boundingBox: BoundingBox, options?: { color?: Color })`

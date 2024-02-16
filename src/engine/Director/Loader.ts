@@ -7,9 +7,21 @@ import loaderCss from './Loader.css';
 import { Vector } from '../Math/vector';
 import { delay } from '../Util/Util';
 import { EventEmitter } from '../EventEmitter';
-import { DefaultLoader } from './DefaultLoader';
+import { DefaultLoader, DefaultLoaderOptions } from './DefaultLoader';
 import { Engine } from '../Engine';
 import { Screen } from '../Screen';
+import { Logger } from '../Util/Log';
+
+export interface LoaderOptions extends DefaultLoaderOptions {
+  /**
+   * Go fullscreen after loading and clicking play
+   */
+  fullscreenAfterLoad?: boolean;
+  /**
+   * Fullscreen container element or id
+   */
+  fullscreenContainer?: HTMLElement | string;
+}
 
 /**
  * Pre-loading assets
@@ -77,6 +89,13 @@ import { Screen } from '../Screen';
  * ```
  */
 export class Loader extends DefaultLoader {
+  private _logger = Logger.getInstance();
+  private static _DEFAULT_LOADER_OPTIONS: LoaderOptions = {
+    loadables: [],
+    fullscreenAfterLoad: false,
+    fullscreenContainer: undefined
+  };
+  private _originalOptions: LoaderOptions = {loadables:[]};
   public events = new EventEmitter();
   public screen: Screen;
   private _playButtonShown: boolean = false;
@@ -179,10 +198,19 @@ export class Loader extends DefaultLoader {
   };
 
   /**
+   * @param options Optionally provide options to loader
+   */
+  constructor(options?: LoaderOptions);
+  /**
    * @param loadables  Optionally provide the list of resources you want to load at constructor time
    */
-  constructor(loadables?: Loadable<any>[]) {
-    super({loadables});
+  constructor(loadables?: Loadable<any>[]);
+  constructor(loadablesOrOptions?: Loadable<any>[] | LoaderOptions) {
+    const options = Array.isArray(loadablesOrOptions) ? {
+      loadables: loadablesOrOptions
+    } : loadablesOrOptions;
+    super(options);
+    this._originalOptions = { ...Loader._DEFAULT_LOADER_OPTIONS, ...options };
   }
 
   public override onInitialize(engine: Engine): void {
@@ -219,8 +247,8 @@ export class Loader extends DefaultLoader {
         }
       });
       this._positionPlayButton();
-      const playButtonClicked = new Promise<void>((resolve) => {
-        const startButtonHandler = (e: Event) => {
+      const playButtonClicked = new Promise<void>(resolve => {
+        const startButtonHandler =  (e: Event) => {
           // We want to stop propagation to keep bubbling to the engine pointer handlers
           e.stopPropagation();
           // Hide Button after click
@@ -228,6 +256,20 @@ export class Loader extends DefaultLoader {
           if (this.engine?.browser) {
             this.engine.browser.window.off('resize', resizeHandler);
           }
+
+          if (this._originalOptions.fullscreenAfterLoad) {
+            try {
+              this._logger.info('requesting fullscreen');
+              if (this._originalOptions.fullscreenContainer instanceof HTMLElement) {
+                this._originalOptions.fullscreenContainer.requestFullscreen();
+              } else {
+                this.engine.screen.goFullScreen(this._originalOptions.fullscreenContainer);
+              }
+            } catch (error) {
+              this._logger.error('could not go fullscreen', error);
+            }
+          }
+
           resolve();
         };
         this._playButton.addEventListener('click', startButtonHandler);

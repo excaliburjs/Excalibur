@@ -10,8 +10,11 @@ import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
 import { Color } from '../Color';
 import { delay } from '../Util/Util';
 
-export interface LoaderOptions {
-  loadables: Loadable<any>[];
+export interface DefaultLoaderOptions {
+  /**
+   * List of loadables
+   */
+  loadables?: Loadable<any>[];
 }
 
 export type LoaderEvents = {
@@ -60,7 +63,7 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
   /**
    * @param options Optionally provide the list of resources you want to load at constructor time
    */
-  constructor(options?: LoaderOptions) {
+  constructor(options?: DefaultLoaderOptions) {
     if (options && options.loadables?.length) {
       this.addResources(options.loadables);
     }
