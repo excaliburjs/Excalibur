@@ -20,6 +20,7 @@ export namespace TestUtils {
       displayMode: ex.DisplayMode.Fixed,
       ...options
     };
+    ex.Debug.clear();
     ex.Flags._reset();
     ex.Flags.enable('suppress-obsolete-message');
     flags.forEach(f => ex.Flags.enable(f));

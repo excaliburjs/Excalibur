@@ -182,7 +182,7 @@ module.exports = (config) => {
             '--disable-gpu',
             '--no-sandbox',
             '--enable-precise-memory-info',
-            '--js-flags="--max_old_space_size=8192 --expose-gc"'
+            '--js-flags="--max_old_space_size=8192"'
           ]
       },
       ChromiumHeadless_with_debug: {

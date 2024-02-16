@@ -295,12 +295,14 @@ export class DebugSystem extends System {
   }
 
   postupdate(engine: Scene<unknown>, elapsedMs: number): void {
-    this._graphicsContext.save();
-    if (this._camera) {
-      this._camera.draw(this._graphicsContext);
+    if (this._engine.isDebug) {
+      this._graphicsContext.save();
+      if (this._camera) {
+        this._camera.draw(this._graphicsContext);
+      }
+      Debug.flush(this._graphicsContext);
+      this._graphicsContext.restore();
     }
-    Debug.flush(this._graphicsContext);
-    this._graphicsContext.restore();
   }
 
   /**

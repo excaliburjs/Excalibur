@@ -9,6 +9,9 @@ describe('Debug draw static', () => {
   it('exists', () => {
     expect(ex.Debug).toBeDefined();
   });
+  beforeEach(() => {
+    ex.Debug.clear();
+  });
 
   afterEach(() => {
     ex.Debug.clear();
