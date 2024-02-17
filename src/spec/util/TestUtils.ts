@@ -82,4 +82,26 @@ export namespace TestUtils {
     ctx.drawImage(source, 0, 0);
     return canvas;
   }
+
+  /**
+   *
+   */
+  export async function runOnWindows(ctx: () => Promise<any>): Promise<boolean> {
+    if (navigator.platform === 'Win32' || navigator.platform === 'Win64') {
+      await ctx();
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   *
+   */
+  export async function runOnLinux(ctx: () => Promise<any>): Promise<boolean> {
+    if (navigator.platform.includes('Linux')) {
+      await ctx();
+      return true;
+    }
+    return false;
+  }
 }

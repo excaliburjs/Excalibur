@@ -1,4 +1,9 @@
 /* eslint-disable no-console */
+
+import { Engine } from '../Engine';
+import { vec } from '../Math/vector';
+import { Color } from '../Color';
+
 /**
  * Logging level that Excalibur will tag
  */
@@ -230,28 +235,64 @@ export class ConsoleAppender implements Appender {
   }
 }
 
+export interface ScreenAppenderOptions {
+  engine: Engine;
+  /**
+   * Optionally set the width of the overlay canvas
+   */
+  width?: number;
+  /**
+   * Optionally set the height of the overlay canvas
+   */
+  height?: number;
+  /**
+   * Adjust the text offset from the left side of the screen
+   */
+  xPos?: number;
+  /**
+   * Provide a text color
+   */
+  color?: Color;
+  /**
+   * Optionally set the CSS zindex of the overlay canvas
+   */
+  zIndex?: number;
+}
+
 /**
  * On-screen (canvas) appender
  */
 export class ScreenAppender implements Appender {
-  // @todo Clean this up
 
   private _messages: string[] = [];
-  private _canvas: HTMLCanvasElement;
+  public canvas: HTMLCanvasElement;
   private _ctx: CanvasRenderingContext2D;
+  private _pos = 10;
+  private _color = Color.Black;
+  private _options: ScreenAppenderOptions;
+  constructor(options: ScreenAppenderOptions) {
+    this._options = options;
+    this.canvas = <HTMLCanvasElement>document.createElement('canvas');
+    this._ctx = this.canvas.getContext('2d')!;
+    this.canvas.style.position = 'absolute';
+    this.canvas.style.zIndex = options.zIndex?.toString() ?? '99';
+    document.body.appendChild(this.canvas);
+    this._positionScreenAppenderCanvas();
+    options.engine.screen.events.on('resize', () => {
+      this._positionScreenAppenderCanvas();
+    });
+  }
 
-  /**
-   * @param width   Width of the screen appender in pixels
-   * @param height  Height of the screen appender in pixels
-   */
-  constructor(width?: number, height?: number) {
-    this._canvas = <HTMLCanvasElement>document.createElement('canvas');
-    this._canvas.width = width || window.innerWidth;
-    this._canvas.height = height || window.innerHeight;
-    this._canvas.style.position = 'absolute';
-    // eslint-disable-next-line
-    this._ctx = <CanvasRenderingContext2D>this._canvas.getContext('2d'); // eslint-disable-line
-    document.body.appendChild(this._canvas);
+  private _positionScreenAppenderCanvas() {
+    const options = this._options;
+    this.canvas.width = options.width ?? options.engine.screen.resolution.width;
+    this.canvas.height = options.height ?? options.engine.screen.resolution.height;
+    this.canvas.style.position = 'absolute';
+    const pagePos = options.engine.screen.screenToPageCoordinates(vec(0, 0));
+    this.canvas.style.left = pagePos.x + 'px';
+    this.canvas.style.top = pagePos.y + 'px';
+    this._pos = options.xPos ?? this._pos;
+    this._color = options.color ?? this._color;
   }
 
   /**
@@ -262,17 +303,17 @@ export class ScreenAppender implements Appender {
   public log(level: LogLevel, args: any[]): void {
     const message = args.join(',');
 
-    this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+    this._ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     this._messages.unshift('[' + LogLevel[level] + '] : ' + message);
 
     let pos = 10;
-    let opacity = 1.0;
+
+    this._messages = this._messages.slice(0, 1000);
     for (let i = 0; i < this._messages.length; i++) {
-      this._ctx.fillStyle = 'rgba(255,255,255,' + opacity.toFixed(2) + ')';
-      this._ctx.fillText(this._messages[i], 200, pos);
+      this._ctx.fillStyle = this._color.toRGBA();
+      this._ctx.fillText(this._messages[i], this._pos, pos);
       pos += 10;
-      opacity = opacity > 0 ? opacity - 0.05 : 0;
     }
   }
 }
