@@ -14,6 +14,7 @@ module.exports = function (wallaby) {
       { pattern: 'src/spec/images/**/*.gif' },
       { pattern: 'src/spec/images/**/*.txt' },
       { pattern: 'src/spec/images/**/*.css' },
+      { pattern: 'src/spec/fonts/**/*.ttf' },
       { pattern: 'src/spec/images/**/*.woff2' }
     ],
     tests: ['./src/spec/*Spec.ts'],
