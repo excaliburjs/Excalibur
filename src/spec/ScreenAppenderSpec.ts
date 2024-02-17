@@ -15,6 +15,7 @@ describe('A ScreenAppender', () => {
     const engine = TestUtils.engine({width: 100, height: 100});
     const sut = new ex.ScreenAppender({engine});
     expect(sut).toBeDefined();
+    engine.dispose();
   });
 
   it('can be configured to log', async () => {
@@ -39,5 +40,6 @@ describe('A ScreenAppender', () => {
     await TestUtils.runOnLinux(async () => {
       await expectAsync(sut.canvas).toEqualImage('src/spec/images/ScreenAppenderSpec/screen-log-linux.png');
     });
+    engine.dispose();
   });
 });
