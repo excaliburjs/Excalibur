@@ -281,6 +281,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixes issue where mis-matched coordinate planes on parent/children caused bizarre issues. Now children are forced to inherit their parent's coordinate plane, it will always be the coordinate plane of the top most parent.
 - Fixed issue with Log ScreenAppender utility where it was not positioned correctly, you can now deeply configure it!
   ```typescript
   export interface ScreenAppenderOptions {
