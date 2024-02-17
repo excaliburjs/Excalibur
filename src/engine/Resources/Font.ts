@@ -13,9 +13,9 @@ export interface FontSourceOptions
 
 export class FontSource implements Loadable<FontFace> {
   private _resource: Resource<Blob>
-  private _isLoaded = false
+  private _isLoaded = false  
   private path: string
-  private options: FontSourceOptions
+  private options: FontSourceOptions  
 
   data!: FontFace
 
@@ -44,12 +44,12 @@ export class FontSource implements Loadable<FontFace> {
       const blob = await this._resource.load()
       const url = URL.createObjectURL(blob)
 
-      const fontFile = new FontFace(this.family, `url(${url})`)
-      
-      document.fonts.add(fontFile)      
+      if (!this.data) {
+        this.data = new FontFace(this.family, `url(${url})`)
+        document.fonts.add(this.data)
+      }
 
-      await fontFile.load()
-      this.data = fontFile
+      await this.data.load()      
       this._isLoaded = true
     } catch (error) {
       throw `Error loading FontSource from path '${this.path}' with error [${

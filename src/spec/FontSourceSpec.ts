@@ -18,6 +18,14 @@ describe('A FontSource', () => {
     expect(fontSource.data).not.toBeUndefined();
   });
 
+  it('adds a FontFace to document.fonts', async () => {
+    const fontSource = new ex.FontSource('src/spec/fonts/Gorgeous Pixel.ttf', 'Gorgeous Pixel');
+  
+    await fontSource.load()
+
+    expect(document.fonts.has(fontSource.data)).toBeTrue()
+  })
+
   it('can convert to a Font', async () => {
     const fontSource = new ex.FontSource('src/spec/fonts/Gorgeous Pixel.ttf', 'Gorgeous Pixel');
     
