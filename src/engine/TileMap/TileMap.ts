@@ -466,6 +466,30 @@ export class TileMap extends Entity {
     return this._cols;
   }
 
+  /**
+   * Returns the on screen tiles for a tilemap, this will overshoot by a small amount because of the internal quad tree data structure.
+   *
+   * Useful if you need to perform specific logic on onscreen tiles
+   */
+  public getOnScreenTiles(): readonly Tile[] {
+    let worldBounds = this._engine.screen.getWorldBounds();
+    const screenBounds = this._engine.screen.getScreenBounds();
+    const isScreenCoords = this._transform.coordPlane === CoordPlane.Screen;
+
+    const maybeParallax = this.get(ParallaxComponent);
+    if (maybeParallax && this.isInitialized) {
+      let pos = this.pos;
+      const oneMinusFactor = Vector.One.sub(maybeParallax.parallaxFactor);
+      const parallaxOffset = this._engine.currentScene.camera.pos.scale(oneMinusFactor);
+      pos = pos.sub(parallaxOffset);
+      // adjust world bounds by parallax factor
+      worldBounds = worldBounds.translate(pos);
+    }
+
+    const tiles = this._quadTree.query(isScreenCoords ? screenBounds : worldBounds);
+    return tiles;
+  }
+
   public update(engine: Engine, delta: number) {
     this._initialize(engine);
     this.onPreUpdate(engine, delta);
@@ -499,23 +523,11 @@ export class TileMap extends Entity {
    */
   public draw(ctx: ExcaliburGraphicsContext, delta: number): void {
     this.emit('predraw', new PreDrawEvent(ctx as any, delta, this)); // TODO fix event
-    let worldBounds = this._engine.screen.getWorldBounds();
-    const screenBounds = this._engine.screen.getScreenBounds();
 
     let graphics: readonly Graphic[], graphicsIndex: number, graphicsLen: number;
-    const isScreenCoords = this._transform.coordPlane === CoordPlane.Screen;
 
-    const maybeParallax = this.get(ParallaxComponent);
-    if (maybeParallax) {
-      let pos = this.pos;
-      const oneMinusFactor = Vector.One.sub(maybeParallax.parallaxFactor);
-      const parallaxOffset = this._engine.currentScene.camera.pos.scale(oneMinusFactor);
-      pos = pos.sub(parallaxOffset);
-      // adjust world bounds by parallax factor
-      worldBounds = worldBounds.translate(pos);
-    }
+    const tiles = this.getOnScreenTiles();
 
-    const tiles = this._quadTree.query(isScreenCoords ? screenBounds : worldBounds);
     for (let i = 0; i < tiles.length; i++) {
       const tile = tiles[i];
       // get non-negative tile sprites

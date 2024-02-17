@@ -62,6 +62,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added new `ex.Tilemap.getOnScreenTiles()` method to help users access onscreen tiles for logic or other concerns.
 - Added `ex.FontSource` resource type
   ```typescript
   const fontSource = new ex.FontSource('/my-font.ttf', 'My Font')
