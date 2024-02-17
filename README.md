@@ -31,7 +31,7 @@ Visit the [API Reference](https://excaliburjs.com/docs/) section for fully-annot
 
 - :question: Ask us anything in the [GitHub Discussions area](https://github.com/excaliburjs/Excalibur/discussions).
 - :bug: If you find a bug, report it on the [GitHub issues page](https://github.com/excaliburjs/Excalibur/issues) (please review our [guidelines for reporting bugs](https://github.com/excaliburjs/Excalibur/blob/main/.github/CONTRIBUTING.md#reporting-bugs)).
-- :mega: You can also follow us on Twitter [@excaliburjs](http://twitter.com/excaliburjs) or [read the blog](http://blog.excaliburjs.com).
+- :mega: You can also follow us on Twitter [@excaliburjs](http://twitter.com/excaliburjs) or [read the blog](https://excaliburjs.com/blog).
 
 # Samples
 
@@ -41,7 +41,7 @@ Compiled examples can be found [in the Excalibur Samples collection](http://exca
 
 Please read our [Contributing Guidelines](.github/CONTRIBUTING.md) and our [Code of Conduct](.github/CODE_OF_CONDUCT.md). Whether you've spotted a bug, have a question, or think of a new feature, we thank you for your help!
 
-## Mac
+## Mac/Linux
 
 Prerequisites
 * Docker for Mac https://docs.docker.com/desktop/mac/install/
@@ -66,7 +66,7 @@ Excalibur is committed to supporting the latest 2 versions of popular desktop an
 
 ### Prerequisites
 
-- **Required:** [Node.js](https://nodejs.org/) 14.x & npm 6.x
+- **Required:** [Node.js](https://nodejs.org/) LTS Version
 - _Recommended:_ [ESLint plugin for VS Code](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
 
 After cloning the repository, run:
@@ -94,9 +94,6 @@ npm run test
 # Start Storybook-based sandbox
 # Used for creating interactive visual tests and examples for docs
 npm run sandbox
-
-# Compile API docs
-npm run apidocs
 
 # Build a nuget package and specify a version
 npm run nuget -- 1.1.1
