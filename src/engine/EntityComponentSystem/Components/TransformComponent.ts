@@ -4,10 +4,12 @@ import { Transform } from '../../Math/transform';
 import { Component } from '../Component';
 import { Entity } from '../Entity';
 import { Observable } from '../../Util/Observable';
+import { Logger } from '../../Util/Log';
 
 
 export class TransformComponent extends Component {
-
+  private _logger = Logger.getInstance();
+  private _parentComponent: TransformComponent | null = null;
   private _transform = new Transform();
   public get() {
     return this._transform;
@@ -17,6 +19,7 @@ export class TransformComponent extends Component {
     const childTxComponent = child.get(TransformComponent);
     if (childTxComponent) {
       childTxComponent._transform.parent = this._transform;
+      childTxComponent._parentComponent = this;
     }
   };
   onAdd(owner: Entity): void {
@@ -28,11 +31,13 @@ export class TransformComponent extends Component {
       const childTxComponent = child.get(TransformComponent);
       if (childTxComponent) {
         childTxComponent._transform.parent = null;
+        childTxComponent._parentComponent = null;
       }
     });
   }
   onRemove(_previousOwner: Entity): void {
     this._transform.parent = null;
+    this._parentComponent = null;
   }
 
   /**
@@ -57,10 +62,25 @@ export class TransformComponent extends Component {
     }
   }
 
+  private _coordPlane = CoordPlane.World;
   /**
    * The [[CoordPlane|coordinate plane|]] for this transform for the entity.
    */
-  public coordPlane = CoordPlane.World;
+  public get coordPlane() {
+    if (this._parentComponent) {
+      return this._parentComponent.coordPlane;
+    }
+    return this._coordPlane;
+  }
+
+  public set coordPlane(value: CoordPlane) {
+    if (!this._parentComponent) {
+      this._coordPlane = value;
+    } else {
+      this._logger.warn(
+        `Cannot set coordinate plane on child entity ${this.owner?.name}, children inherit their coordinate plane from their parents.`);
+    }
+  }
 
   get pos() {
     return this._transform.pos;
