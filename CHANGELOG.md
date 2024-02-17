@@ -62,6 +62,29 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added `ex.FontSource` resource type
+  ```typescript
+  const fontSource = new ex.FontSource('/my-font.ttf', 'My Font')
+  loader.addResource(fontSource)
+
+  game.start(loader).then(() => {
+    const font = fontSource.toFont() // returns ex.Font
+  })
+  ```
+
+  Font options can be defined either at the source or at the `toFont()` call. If defined in both, `toFont(options)` will
+  override the options in the `FontSource`.
+
+  ```typescript
+  const fontSource = new ex.FontSource('/my-font.ttf', 'My Font', { 
+    filtering: ex.ImageFiltering.Pixel,
+    size: 16, // set a default size
+  })
+  const font = fontSource.toFont({
+    // override just the size
+    size: 20,
+  })
+  ```
 - Added fullscreen after load feature! You can optionally provide a `fullscreenContainer` with a string id or an instance of the `HTMLElement`
   ```typescript
   new ex.Loader({
