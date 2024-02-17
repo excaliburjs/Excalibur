@@ -12,59 +12,59 @@ describe('A FontSource', () => {
 
   it('can load fonts', async () => {
     const fontSource = new ex.FontSource('src/spec/fonts/Gorgeous Pixel.ttf', 'Gorgeous Pixel');
-    
-    await fontSource.load()
+
+    await fontSource.load();
 
     expect(fontSource.data).not.toBeUndefined();
   });
 
   it('adds a FontFace to document.fonts', async () => {
     const fontSource = new ex.FontSource('src/spec/fonts/Gorgeous Pixel.ttf', 'Gorgeous Pixel');
-  
-    await fontSource.load()
 
-    expect(document.fonts.has(fontSource.data)).toBeTrue()
-  })
+    await fontSource.load();
+
+    expect(document.fonts.has(fontSource.data)).toBeTrue();
+  });
 
   it('can convert to a Font', async () => {
     const fontSource = new ex.FontSource('src/spec/fonts/Gorgeous Pixel.ttf', 'Gorgeous Pixel');
-    
-    await fontSource.load()
-    const font = fontSource.toFont()
-    
-    expect(font).toBeInstanceOf(ex.Font)
+
+    await fontSource.load();
+    const font = fontSource.toFont();
+
+    expect(font).toBeInstanceOf(ex.Font);
   });
 
   it('will use options from FontSource', async () => {
-    const fontSource = new ex.FontSource('src/spec/fonts/Gorgeous Pixel.ttf', 'Gorgeous Pixel', { 
+    const fontSource = new ex.FontSource('src/spec/fonts/Gorgeous Pixel.ttf', 'Gorgeous Pixel', {
       size: 50
     });
-    
-    await fontSource.load()
-    const font = fontSource.toFont()
 
-    expect(font.size).toBe(50)
+    await fontSource.load();
+    const font = fontSource.toFont();
+
+    expect(font.size).toBe(50);
   });
 
   it('will override options when converting to a Font', async () => {
-    const fontSource = new ex.FontSource('src/spec/fonts/Gorgeous Pixel.ttf', 'Gorgeous Pixel', { 
+    const fontSource = new ex.FontSource('src/spec/fonts/Gorgeous Pixel.ttf', 'Gorgeous Pixel', {
       size: 50,
       opacity: 0.5
     });
-    
-    await fontSource.load()
+
+    await fontSource.load();
     const font = fontSource.toFont({
       size: 100
-    })
+    });
 
-    expect(font.size).toBe(100)
-    expect(font.opacity).toBe(0.5)
+    expect(font.size).toBe(100);
+    expect(font.opacity).toBe(0.5);
   });
 
   it('will resolve the font if already loaded', async () => {
     const fontSource = new ex.FontSource('src/spec/fonts/Gorgeous Pixel.ttf', 'Gorgeous Pixel');
-    
-    const font = await fontSource.load()
+
+    const font = await fontSource.load();
 
     expect(fontSource.isLoaded()).toBe(true);
     const alreadyLoadedFont = await fontSource.load();
