@@ -37,7 +37,7 @@ describe('A ScreenAppender', () => {
     });
 
     await TestUtils.runOnLinux(async () => {
-      await expectAsync(sut.canvas).toEqualImage('src/spec/images/ScreenAppenderSpec/screen-log.png');
+      await expectAsync(sut.canvas).toEqualImage('src/spec/images/ScreenAppenderSpec/screen-log-linux.png');
     });
   });
 });
