@@ -298,7 +298,8 @@ describe('A TransformComponent', () => {
     // Can't change and logs warning
     child2.get(TransformComponent).coordPlane = ex.CoordPlane.World;
     expect(child2.get(TransformComponent).coordPlane).toBe(ex.CoordPlane.Screen);
-    expect(logger.warn).toHaveBeenCalledOnceWith('Cannot set coordinate plane on child entity Entity#1, children inherit their coordinate plane from their parents.');
+    expect(logger.warn).toHaveBeenCalledOnceWith(
+      'Cannot set coordinate plane on child entity Entity#1, children inherit their coordinate plane from their parents.');
   });
 
   it('can be cloned', () => {
