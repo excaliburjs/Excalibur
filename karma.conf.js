@@ -86,6 +86,7 @@ module.exports = (config) => {
             { pattern: 'src/spec/images/**/*.txt', included: false, served: true },
             { pattern: 'src/spec/images/**/*.css', included: false, served: true },
             { pattern: 'src/spec/images/**/*.woff2', included: false, served: true },
+            { pattern: 'src/spec/fonts/**/*.ttf', included: false, served: true },
            ],
     mime: { 'text/x-typescript': ['ts', 'tsx'] },
     preprocessors: {
