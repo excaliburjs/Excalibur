@@ -282,6 +282,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Performance improvement in `ex.TileMap` finding onscreen tiles is now BLAZINGLY FAST thanks to a suggestion from Kristen Maeyvn in the Discord.
+  - TileMaps no longer need a quad tree, we can calculate the onscreen tiles with math by converting the screen into tilemap space 😎
+- Fixed bug where `ex.TileMap.getTileByPoint()` did not take into account the rotation/scale of the tilemap.
 - Fixes issue where mis-matched coordinate planes on parent/children caused bizarre issues. Now children are forced to inherit their parent's coordinate plane, it will always be the coordinate plane of the top most parent.
 - Fixed issue with Log ScreenAppender utility where it was not positioned correctly, you can now deeply configure it!
   ```typescript

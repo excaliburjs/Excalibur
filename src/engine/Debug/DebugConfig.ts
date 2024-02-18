@@ -359,8 +359,7 @@ export class DebugConfig {
     gridWidth: .5,
     showSolidBounds: false,
     solidBoundsColor: Color.fromHex('#8080807F'), // grayish
-    showColliderGeometry: true,
-    showQuadTree: false
+    showColliderGeometry: true
   };
 
   public isometric = {

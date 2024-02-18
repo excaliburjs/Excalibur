@@ -16,8 +16,8 @@ import { Collider } from '../Collision/Colliders/Collider';
 import { PostDrawEvent, PostUpdateEvent, PreDrawEvent, PreUpdateEvent } from '../Events';
 import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
 import { CoordPlane } from '../Math/coord-plane';
-import { QuadTree } from '../Collision/Detection/QuadTree';
 import { DebugConfig } from '../Debug';
+import { clamp } from '../Math/util';
 
 export interface TileMapOptions {
   /**
@@ -86,7 +86,6 @@ export class TileMap extends Entity {
   private _engine: Engine;
 
   public logger: Logger = Logger.getInstance();
-  private _quadTree: QuadTree<Tile>;
   public readonly tiles: Tile[] = [];
   private _rows: Tile[][] = [];
   private _cols: Tile[][] = [];
@@ -112,71 +111,71 @@ export class TileMap extends Entity {
     }
   }
 
-  private _transform: TransformComponent;
+  public transform: TransformComponent;
   private _motion: MotionComponent;
   private _graphics: GraphicsComponent;
   public collider: ColliderComponent;
   private _composite: CompositeCollider;
 
   public get x(): number {
-    return this._transform.pos.x ?? 0;
+    return this.transform.pos.x ?? 0;
   }
 
   public set x(val: number) {
-    if (this._transform?.pos) {
+    if (this.transform?.pos) {
       this.get(TransformComponent).pos = vec(val, this.y);
     }
   }
 
   public get y(): number {
-    return this._transform?.pos.y ?? 0;
+    return this.transform?.pos.y ?? 0;
   }
 
   public set y(val: number) {
-    if (this._transform?.pos) {
-      this._transform.pos = vec(this.x, val);
+    if (this.transform?.pos) {
+      this.transform.pos = vec(this.x, val);
     }
   }
 
   public get z(): number {
-    return this._transform.z ?? 0;
+    return this.transform.z ?? 0;
   }
 
   public set z(val: number) {
-    if (this._transform) {
-      this._transform.z = val;
+    if (this.transform) {
+      this.transform.z = val;
     }
   }
 
   private _oldRotation: number;
   public get rotation(): number {
-    return this._transform?.rotation ?? 0;
+    return this.transform?.rotation ?? 0;
   }
 
   public set rotation(val: number) {
-    if (this._transform) {
-      this._transform.rotation = val;
+    if (this.transform) {
+      this.transform.rotation = val;
     }
   }
 
   private _oldScale: Vector;
   public get scale(): Vector {
-    return this._transform?.scale ?? Vector.One;
+    return this.transform?.scale ?? Vector.One;
   }
 
   public set scale(val: Vector) {
-    if (this._transform?.scale) {
-      this._transform.scale = val;
+    if (this.transform?.scale) {
+      this.transform.scale = val;
     }
   }
 
   private _oldPos: Vector;
   public get pos(): Vector {
-    return this._transform.pos;
+    return this.transform.pos;
   }
 
   public set pos(val: Vector) {
-    this._transform.pos = val;
+    this.transform.pos = val;
   }
 
   public get vel(): Vector {
@@ -234,25 +233,20 @@ export class TileMap extends Entity {
     this.addComponent(new DebugGraphicsComponent((ctx, debugFlags) => this.debug(ctx, debugFlags), false));
     this.addComponent(new ColliderComponent());
     this._graphics = this.get(GraphicsComponent);
-    this._transform = this.get(TransformComponent);
+    this.transform = this.get(TransformComponent);
     this._motion = this.get(MotionComponent);
     this.collider = this.get(ColliderComponent);
     this._composite = this.collider.useCompositeCollider([]);
 
-    this._transform.pos = options.pos ?? Vector.Zero;
-    this._oldPos = this._transform.pos.clone();
-    this._oldScale = this._transform.scale.clone();
+    this.transform.pos = options.pos ?? Vector.Zero;
+    this._oldPos = this.transform.pos.clone();
+    this._oldScale = this.transform.scale.clone();
     this.renderFromTopOfGraphic = options.renderFromTopOfGraphic ?? this.renderFromTopOfGraphic;
     this.tileWidth = options.tileWidth;
     this.tileHeight = options.tileHeight;
     this.rows = options.rows;
     this.columns = options.columns;
 
-    // TODO we need to invalidate the quad tree if the tilemap ever moves
-    this._quadTree = new QuadTree<Tile>(
-      BoundingBox.fromDimension(
-        this.columns * this.tileWidth,
-        this.rows * this.tileHeight, Vector.Zero, this.pos));
     this.tiles = new Array<Tile>(this.rows * this.columns);
     this._rows = new Array(this.rows);
     this._cols = new Array(this.columns);
@@ -265,7 +259,6 @@ export class TileMap extends Entity {
           map: this
         });
         tile.map = this;
-        this._quadTree.insert(tile);
         this.tiles[i + j * this.columns] = tile;
         currentCol.push(tile);
         if (!this._rows[j]) {
@@ -302,18 +295,6 @@ export class TileMap extends Entity {
     }
   }
 
-  private _updateQuadTree() {
-    this._quadTree = new QuadTree<Tile>(
-      BoundingBox.fromDimension(this.columns * this.tileWidth, this.rows * this.tileHeight, Vector.Zero, Vector.Zero)
-        .scale(this.scale)
-        .translate(this.pos)
-        .rotate(this.rotation, this.pos)
-    );
-
-    for (let i = 0; i < this.tiles.length; i++) {
-      this._quadTree.insert(this.tiles[i]);
-    }
-  }
 
   /**
    * Tiles colliders based on the solid tiles in the tilemap.
@@ -437,6 +418,9 @@ export class TileMap extends Entity {
   }
   /**
    * Returns the [[Tile]] by its x and y integer coordinates
+   *
+   * For example, if I want the tile in fifth column (x), and second row (y):
+   * `getTile(4, 1)` 0 based, so 0 is the first in row/column
    */
   public getTile(x: number, y: number): Tile {
     if (x < 0 || y < 0 || x >= this.columns || y >= this.rows) {
@@ -449,13 +433,21 @@ export class TileMap extends Entity {
    * returns `null` if no Tile was found.
    */
   public getTileByPoint(point: Vector): Tile | null {
-    const x = Math.floor((point.x - this.pos.x) / (this.tileWidth * this.scale.x));
-    const y = Math.floor((point.y - this.pos.y) / (this.tileHeight * this.scale.y));
+    const {x, y} = this._getTileCoordinates(point);
     const tile = this.getTile(x, y);
     if (x >= 0 && y >= 0 && x < this.columns && y < this.rows && tile) {
       return tile;
     }
     return null;
+  }
+
+  private _getTileCoordinates(point: Vector): {x: number, y: number} {
+    // Convert to Tile Space point
+    point = this.transform.applyInverse(point);
+
+    const x = Math.floor(point.x / this.tileWidth);
+    const y = Math.floor(point.y / this.tileHeight);
+    return {x, y};
   }
 
   public getRows(): readonly Tile[][] {
@@ -473,9 +465,6 @@ export class TileMap extends Entity {
    */
   public getOnScreenTiles(): readonly Tile[] {
     let worldBounds = this._engine.screen.getWorldBounds();
-    const screenBounds = this._engine.screen.getScreenBounds();
-    const isScreenCoords = this._transform.coordPlane === CoordPlane.Screen;
-
     const maybeParallax = this.get(ParallaxComponent);
     if (maybeParallax && this.isInitialized) {
       let pos = this.pos;
@@ -486,7 +475,37 @@ export class TileMap extends Entity {
       worldBounds = worldBounds.translate(pos);
     }
 
-    const tiles = this._quadTree.query(isScreenCoords ? screenBounds : worldBounds);
+    const bounds = this.transform.coordPlane === CoordPlane.Screen ?
+      this._engine.screen.getScreenBounds() :
+      worldBounds;
+    const topLeft = this._getTileCoordinates(bounds.topLeft);
+    const topRight = this._getTileCoordinates(bounds.topRight);
+    const bottomRight = this._getTileCoordinates(bounds.bottomRight);
+    const bottomLeft = this._getTileCoordinates(bounds.bottomLeft);
+
+    const tileStartX = Math.min(
+      clamp(topLeft.x, 0, this.columns - 1),
+      clamp(topRight.x, 0, this.columns - 1)
+    );
+    const tileStartY = Math.min(
+      clamp(topLeft.y, 0, this.rows - 1),
+      clamp(topRight.y, 0, this.rows - 1)
+    );
+    const tileEndX = Math.max(
+      clamp(bottomRight.x, 0, this.columns - 1),
+      clamp(bottomLeft.x, 0, this.columns - 1)
+    );
+    const tileEndY = Math.max(
+      clamp(bottomRight.y, 0, this.rows - 1),
+      clamp(bottomLeft.y, 0, this.rows - 1)
+    );
+
+    const tiles: Tile[] = [];
+    for (let x = tileStartX; x <= tileEndX; x++) {
+      for (let y = tileStartY; y <= tileEndY; y++) {
+        tiles.push(this.getTile(x, y));
+      }
+    }
     return tiles;
   }
 
@@ -503,7 +522,6 @@ export class TileMap extends Entity {
     if (this._collidersDirty) {
       this._collidersDirty = false;
       this._updateColliders();
-      this._updateQuadTree();
     }
 
     this._token++;
@@ -511,7 +529,7 @@ export class TileMap extends Entity {
     this.pos.clone(this._oldPos);
     this._oldRotation = this.rotation;
     this.scale.clone(this._oldScale);
-    this._transform.pos = this.pos;
+    this.transform.pos = this.pos;
     this.onPostUpdate(engine, delta);
     this.emit('postupdate', new PostUpdateEvent(engine, delta, this));
   }
@@ -522,12 +540,14 @@ export class TileMap extends Entity {
    * @param delta  The number of milliseconds since the last draw
    */
   public draw(ctx: ExcaliburGraphicsContext, delta: number): void {
+    if (!this.isInitialized) {
+      return;
+    }
     this.emit('predraw', new PreDrawEvent(ctx as any, delta, this)); // TODO fix event
 
     let graphics: readonly Graphic[], graphicsIndex: number, graphicsLen: number;
 
     const tiles = this.getOnScreenTiles();
-
     for (let i = 0; i < tiles.length; i++) {
       const tile = tiles[i];
       // get non-negative tile sprites
@@ -547,7 +567,6 @@ export class TileMap extends Entity {
         }
       }
     }
-
     this.emit('postdraw', new PostDrawEvent(ctx as any, delta, this));
   }
 
@@ -559,8 +578,7 @@ export class TileMap extends Entity {
       gridWidth,
       showSolidBounds: showColliderBounds,
       solidBoundsColor: colliderBoundsColor,
-      showColliderGeometry,
-      showQuadTree
+      showColliderGeometry
     } = debugFlags.tilemap;
     const {
       geometryColor,
@@ -602,13 +620,9 @@ export class TileMap extends Entity {
       }
     }
 
-    if (showAll || showQuadTree || showColliderBounds) {
+    if (showAll || showColliderBounds) {
       gfx.save();
       gfx.z = 999;
-      if (showQuadTree) {
-        this._quadTree.debug(gfx);
-      }
-
       if (showColliderBounds) {
         for (let i = 0; i < this.tiles.length; i++) {
           this.tiles[i].bounds.draw(gfx);

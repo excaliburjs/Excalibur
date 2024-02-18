@@ -141,6 +141,22 @@ export class BoundingBox {
     return new Vector((this.left + this.right) / 2, (this.top + this.bottom) / 2);
   }
 
+  public get topLeft(): Vector {
+    return new Vector(this.left, this.top);
+  }
+
+  public get bottomRight(): Vector {
+    return new Vector(this.right, this.bottom);
+  }
+
+  public get topRight(): Vector {
+    return new Vector(this.right, this.top);
+  }
+
+  public get bottomLeft(): Vector {
+    return new Vector(this.left, this.bottom);
+  }
+
   public translate(pos: Vector): BoundingBox {
     return new BoundingBox(this.left + pos.x, this.top + pos.y, this.right + pos.x, this.bottom + pos.y);
   }
