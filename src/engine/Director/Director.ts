@@ -75,19 +75,24 @@ export interface GoToOptions<TActivationData = any> {
   /**
    * Optionally supply scene activation data passed to Scene.onActivate
    */
-  sceneActivationData?: TActivationData,
+  sceneActivationData?: TActivationData;
   /**
    * Optionally supply destination scene "in" transition, this will override any previously defined transition
    */
-  destinationIn?: Transition,
+  destinationIn?: Transition;
   /**
    * Optionally supply source scene "out" transition, this will override any previously defined transition
    */
-  sourceOut?: Transition,
+  sourceOut?: Transition;
   /**
    * Optionally supply a different loader for the destination scene, this will override any previously defined loader
    */
-  loader?: DefaultLoader
+  loader?: DefaultLoader;
+
+  /**
+   * Optionally force a scene transition to happen, by default this will log a warning and prevent the transition
+   */
+  force?: boolean;
 }
 
 /**
@@ -377,10 +382,10 @@ export class Director<TKnownScenes extends string = any> {
       this._logger.warn(`Scene ${destinationScene} does not exist! Check the name, are you sure you added it?`);
       return;
     }
-
-    if (this._isTransitioning) {
+    const force = options?.force ?? false;
+    if (this._isTransitioning && !force) {
       // ? is this going to suck? I remember flux would block actions if one was already running and it made me sad
-      this._logger.warn('Cannot transition while a transition is in progress');
+      this._logger.warn('Cannot transition while a transition is in progress, use goToScene({force: true}) to override');
       return;
     }
 
