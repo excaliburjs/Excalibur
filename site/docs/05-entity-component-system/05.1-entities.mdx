@@ -8,7 +8,7 @@ An [[Entity]] in is an empty container for [[Component|Components]] which store 
 
 They are useful for defining bare bones game objects with custom behavior.
 
-If you want a batteries included prebuilt Entity use an [[Actor]], read more [here](/docs/actor).
+If you want a batteries included prebuilt Entity use an [[Actor]], read more [here](/docs/actor). Remember an Excalibur [[Actor]] is just an Entity with a list of prebuilt components and some useful apis built over them.
 
 ## Entity
 
@@ -88,9 +88,9 @@ const components: Component[] = entity.getComponents()
 
 Tags are special components that are only types. Useful when the presence of a component is all that is needed.
 
-- `Entity.addTag("sometag")` - Add a tag to an entity
-- `Entity.removeTag("sometag")` - Remove a tag on an entity
-- `Entity.hasTag("sometag")` - Check if a tag exists
+- `Entity.addTag("someTag")` - Add a tag to an entity
+- `Entity.removeTag("someTag")` - Remove a tag on an entity
+- `Entity.hasTag("someTag")` - Check if a tag exists
 
 ## Templates aka Prefab
 

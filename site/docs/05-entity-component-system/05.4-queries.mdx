@@ -7,7 +7,33 @@ section: Entity Component System
 [[Query|Queries]] can be used to identify Entities that match a certain type. This is useful if you need to maintain a list of entities that match
 a list of component types or tags. Queries update automatically as part of the [[World]] update.
 
-## Query
+## Component Query
+
+Component queries are the heart and soul of [[System|Systems]], these allow you to find all the entities that have a list of desired components.
+
+```typescript
+const game = new ex.Engine({...});
+
+const entityA = new ex.Entity();
+entityA.addComponent(new ex.TransformComponent());
+
+const entityB = new ex.Entity();
+entityB.addComponent(new ex.MotionComponent());
+
+game.currentScene.add(entityA);
+game.currentScene.add(entityB);
+
+const queryA = game.currentScene.world.query([ex.TransformComponent]);
+const queryB = game.currentScene.world.query([ex.MotionComponent]);
+
+console.log(entityA === queryA.entities[0]); // true
+console.log(entityB === queryB.entities[0]); // true
+
+```
+
+## Tag Query
+
+It is possible query all entities by their tags! This can be useful for flagging entities as dead, hostile, aggressive, having some status effect, etc.
 
 ```typescript
 const game = new ex.Engine({...});
@@ -21,10 +47,10 @@ entityB.addTag("tagB");
 game.currentScene.add(entityA);
 game.currentScene.add(entityB);
 
-const queryA = game.currentScene.world.queryManager.create(["tagA"]);
-const queryB = game.currentScene.world.queryManager.create(["tagB"]);
+const queryA = game.currentScene.world.queryTags(["tagA"]);
+const queryB = game.currentScene.world.queryTags(["tagB"]);
 
-const entityA = queryA.getEntities()[0];
-const entityB = queryA.getEntities()[0];
+const entityA = queryA.entities[0];
+const entityB = queryB.entities[0];
 
 ```

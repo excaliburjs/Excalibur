@@ -60,15 +60,15 @@ export abstract class System {
 
   /**
    * Optionally run a preupdate before the system processes matching entities
-   * @param engine
+   * @param scene
    * @param elapsedMs Time in milliseconds since the last frame
    */
-  preupdate?(engine: Scene, elapsedMs: number): void;
+  preupdate?(scene: Scene, elapsedMs: number): void;
 
   /**
    * Optionally run a postupdate after the system processes matching entities
-   * @param engine
+   * @param scene
    * @param elapsedMs Time in milliseconds since the last frame
    */
-  postupdate?(engine: Scene, elapsedMs: number): void;
+  postupdate?(scene: Scene, elapsedMs: number): void;
 }

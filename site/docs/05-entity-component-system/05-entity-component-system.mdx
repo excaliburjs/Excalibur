@@ -6,13 +6,13 @@ section: Entity Component System
 
 Excalibur has a built in Entity Component System (ECS for short), which is a popular software technique in the video game industry
 for managing behavior in a game in a composable and reusable way. Many ECS implementations also focus on memory cache optimization
-techniques, that is not a goal of the current Excalibur implemenation.
+techniques, that is not a goal of the current Excalibur implementation.
 
 ## What is an Entity-Component-System
 
 The [wikipedia](https://en.wikipedia.org/wiki/Entity_component_system) article does a pretty good job of explaining the design pattern, but here is the gist:
 
-- [[Entity]] - Any "thing" in the game that has behavior, it has an id place to to put components.
+- [[Entity]] - Any "thing" in the game that has behavior, it has an `id` place to to put components.
 - [[Component]] - Any state for a particular entity, generally these are state only, but can contain small amounts of logic
 - [[System]] - Implementation of behavior given a set of components on an entity
 

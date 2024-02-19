@@ -4,6 +4,99 @@ slug: /migration
 section: Migration Guides
 ---
 
+## Migrating from v0.28.x to v0.29.0
+ - `ex.Entity.tags` is now a javascript `Set` instead of an `Array` this will affect methods that inspected tags as an array before.
+ - `ex.SpriteSheet.getSprite(...)` will now throw on invalid sprite coordinates, this is likely always an error and a warning is inappropriate. This also has the side benefit that you will always get a definite type out of the method.
+
+ - Changed the `Font` default base align to `Top` this is more in line with user expectations. This does change the default rendering to the top left corner of the font instead of the bottom left.
+
+ - `ex.Physics` static is marked as deprecated, configuring these setting will move to the `ex.Engine({...})` constructor
+    ```typescript
+      const engine = new ex.Engine({
+        ...
+        physics: {
+          solver: ex.SolverStrategy.Realistic,
+          gravity: ex.vec(0, 20),
+          arcade: {
+            contactSolveBias: ex.ContactSolveBias.VerticalFirst
+          },
+        }
+      })
+    ```
+
+ - `ex.Engine.goToScene`'s second argument now takes `GoToOptions` instead of just scene activation data
+    ```typescript
+    game.goToScene('myscene', {
+      /**
+       * Optionally supply scene activation data passed to Scene.onActivate
+      */
+      sceneActivationData?: TActivationData,
+      /**
+       * Optionally supply destination scene "in" transition, this will override any previously defined transition
+      */
+      destinationIn?: Transition,
+      /**
+       * Optionally supply source scene "out" transition, this will override any previously defined transition
+      */
+      sourceOut?: Transition,
+      /**
+       * Optionally supply a different loader for the destination scene, this will override any previously defined loader
+      */
+      loader?: DefaultLoader
+    });
+    ```
+- ECS components and system are now simplified to not require a string type name, now they just use the runtime type name instead.
+  - On your components remove the type argument `class MyComponent extends Component<'mycomponent'>` to `class MyComponent extends Component`
+  - On your systems remove the type arguments `class MySystem extends System<MyComponent>` to `class MySystem extends System`
+  - Systems no longer get magically passed the entities in `System.update()` you now must create an explicit `query`. Queries automatically get updated 
+    ```typescript
+    export class MyComponent extends Component {
+      data = 'foo';
+    }
+
+    class MySystem extends System {
+      systemType = SystemType.Update;
+      query: Query<typeof MyComponent>;
+      constructor(world: World) {
+          super();
+          this.query = world.query([MyComponent]);
+      }
+      update(elapsedMs: number): void {
+          for (let entity of this.query.entities) {
+              const myComponent = entity.get(MyComponent);
+              console.log(myComponent.data);
+          }
+      }
+    }
+    ```
+- Graphics components no longer support layering built in, they now ONLY hold 1 graphic at a time. WIth this `actor.graphics.show()` is now deprecated. This change simplifies usage of graphics for folks building games and removes complexity caused by supporting layering and multiple graphics in Excalibur.
+  - To use layering use 
+    1. A [[GraphicsGroup]], you can specify a list of graphics in painter order (first is draw first, then so on)
+        ```typescript
+        const actor = new ex.Actor({...});
+        const graphicsGroup = new ex.GraphicsGroup({
+          members: [
+            new ex.Rectangle({width: 100, height: 100, color: ex.Color.Red}),
+            { offset: ex.vec(100, 100), graphic: new ex.Circle({radius: 100, color: ex.Color.Blue})}
+          ]
+        });
+        actor.graphics.use(graphicsGroup);
+        ```
+    2. Child actors if you need more control over graphic movement, transform, or behavior
+        ```typescript
+        const actor = new ex.Actor({...});
+        const child = new ex.Actor({
+          pos: ex.vec(100, 100),
+          rotation: Math.PI / 4,
+          scale: ex.vec(3, 3)
+        });
+        actor.addChild(child);
+        actor.graphics.use(new ex.Rectangle({width: 100, height: 100, color: ex.Color.Red}));
+        child.graphics.use(new ex.Rectangle({width: 10, height: 10, color: ex.Color.Blue}));
+
+        ```
+
+
 ## Migrating from v0.26.0 to v0.27.0
 
 - `ex.Engine.snapToPixel` now defaults to `false`, it was unexpected to have pixel snapping on by default it has now been switched. You may need to explicitly switch it depending on your desired effect.
@@ -110,7 +203,7 @@ class MyActor extends ex.Actor {
 
 - Replace `ex.Texture` with `ex.ImageSource`
 
-- Replace `ex.Texture.asSprite()` with `ex.ImageSource.toSprit()`
+- Replace `ex.Texture.asSprite()` with `ex.ImageSource.toSprite()`
 
 ```typescript
 const image = new ex.ImageSource('./img/myimage.png')
