@@ -3,7 +3,6 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-
 ## [Unreleased]
 
 ### Breaking Changes
@@ -339,6 +338,39 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed issue with *AndFill suffixed [[DisplayModes]]s where content area offset was not accounted for in world space
 - Fixed issue where `ex.Sound.getTotalPlaybackDuration()` would crash if not loaded, now logs friendly warning
 - Fixed issue where an empty constructor on `new ex.Label()` would crash
+-
+
+
+### Updates
+
+-
+
+### Changed
+
+-
+
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+
+## [v0.28.7]
+
+### Breaking Changes
+
+-
+
+### Deprecated
+
+-
+
+### Added
+
+- 
+
+### Fixed
+
 - Fixed issue where pointer events did not work properly when using [[ScreenElement]]s
 - Fixed issue where debug draw was not accurate when using *AndFill suffixed [[DisplayMode]]s
 
@@ -350,11 +382,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Changed the default `ex.PointerComponent.useGraphicsBounds = true`, users expect this to just work by default.
 - Changed a rough edge in the `ex.Material` API, if a material was created with a constructor it was lazily initialized. However this causes confusion because now the two ways of creating a material behave differently (the shader is not available immediately on the lazy version). Now `ex.Material` requires the GL graphics context to make sure it always works the same.
+- Changed a rough edge in the `ex.Material` API, if a material was created with a constructor it was lazily initialized. However this causes confusion because now the two ways of creating a material behave differently (the shader is not available immediately on the lazy version). Now `ex.Material` requires the GL graphics context to make sure it always works the same.
 
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
 
 ## [v0.28.6]
 
