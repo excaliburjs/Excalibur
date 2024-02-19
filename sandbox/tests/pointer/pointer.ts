@@ -66,10 +66,23 @@ var game2 = new Game2({
   width: 600,
   height: 400,
   antialiasing: false,
-  displayMode: ex.DisplayMode.Fixed
+  displayMode: ex.DisplayMode.FitScreenAndFill
 });
 game2.debug.collider.showBounds = true;
 game2.debug.graphics.showBounds = true;
 game2.toggleDebug();
+
+game2.input.pointers.primary.on('down', (evt) => {
+  const pos = game2.screen.worldToPageCoordinates(evt.worldPos);
+  const div = document.createElement('div');
+  div.style.left = pos.x + 'px';
+  div.style.top = pos.y + 'px';
+  div.style.position = 'absolute';
+  div.style.width = '100px';
+  div.style.height = '100px';
+  div.style.zIndex = '999';
+  div.style.backgroundColor = 'black';
+  document.body.appendChild(div);
+});
 
 game2.initialize();

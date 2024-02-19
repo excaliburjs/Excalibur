@@ -628,9 +628,7 @@ export class Screen {
     let newX = point.x;
     let newY = point.y;
 
-    // offset by content area
-    newX = newX + this.contentArea.left;
-    newY = newY + this.contentArea.top;
+    // no need to offset by content area, drawing is already offset by this
 
     newX = (newX / this.resolution.width) * this.viewport.width;
     newY = (newY / this.resolution.height) * this.viewport.height;
