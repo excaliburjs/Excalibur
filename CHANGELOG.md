@@ -7,6 +7,36 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+-
+
+### Deprecated
+
+-
+
+### Added
+
+-
+
+### Fixed
+
+-
+
+### Updates
+
+-
+
+### Changed
+
+-
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [v0.29.0]
+
+### Breaking Changes
+
 - `ex.Engine.goToScene`'s second argument now takes `GoToOptions` instead of just scene activation data
   ```typescript
   {
@@ -348,11 +378,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 -
-
-
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
 
 ## [v0.28.7]
