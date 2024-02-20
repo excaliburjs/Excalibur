@@ -368,9 +368,6 @@ export class Director<TKnownScenes extends string = any> {
    * @param options
    */
   async goto(destinationScene: TKnownScenes | string, options?: GoToOptions) {
-    if (destinationScene === this.currentSceneName) {
-      return;
-    }
 
     const maybeDest = this.getSceneInstance(destinationScene);
     if (!maybeDest) {
