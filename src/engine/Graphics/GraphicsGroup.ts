@@ -12,6 +12,14 @@ export interface GraphicsGroupingOptions {
 export interface GraphicsGrouping {
   offset: Vector;
   graphic: Graphic;
+  /**
+   * Optionally disable this graphics bounds as part of group calculation, default true
+   * if unspecified
+   *
+   * You may want to do this if you're using text because their bounds will affect
+   * the centering of the whole group
+   */
+  useBounds?: boolean;
 }
 
 export class GraphicsGroup extends Graphic implements HasTick {
@@ -44,9 +52,12 @@ export class GraphicsGroup extends Graphic implements HasTick {
       if (member instanceof Graphic) {
         bb = member.localBounds.combine(bb);
       } else {
-        const { graphic, offset: pos } = member;
+        const { graphic, offset: pos, useBounds } = member;
+        const shouldUseBounds = useBounds === undefined ? true : useBounds;
         if (graphic) {
-          bb = graphic.localBounds.translate(pos).combine(bb);
+          if (shouldUseBounds) {
+            bb = graphic.localBounds.translate(pos).combine(bb);
+          }
         } else {
           this._logger.warnOnce(`Graphics group member has an null or undefined graphic, member definition: ${JSON.stringify(member)}.`);
         }

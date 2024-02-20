@@ -1043,11 +1043,17 @@ O|===|* >________________>\n\
   }
 
   private _disposed = false;
+  /**
+   * Attempts to completely clean up excalibur resources, including removing the canvas from the dom.
+   *
+   * To start again you will need to new up an Engine.
+   */
   public dispose() {
     if (!this._disposed) {
       this._disposed = true;
       this.stop();
       this.input.toggleEnabled(false);
+      this.canvas.parentNode.removeChild(this.canvas);
       this.canvas = null;
       this.screen.dispose();
       this.graphicsContext.dispose();

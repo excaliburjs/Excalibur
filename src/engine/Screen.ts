@@ -313,7 +313,9 @@ export class Screen {
     if (!this._isDisposed) {
       // Clean up handlers
       this._isDisposed = true;
+      this.events.clear();
       this._browser.window.off('resize', this._resizeHandler);
+      this._browser.window.clear();
       if (this._resizeObserver) {
         this._resizeObserver.disconnect();
       }
