@@ -1,0 +1,39 @@
+---
+title: Events
+slug: /events
+section: Fundamentals
+---
+
+```twoslash include ex
+/// <reference path="../src/engine/excalibur.d.ts" />
+declare const engine: ex.Engine;
+```
+
+Nearly everything in Excalibur has a way to listen to events! This is useful when you want to know exactly when things happen in Excalibur and respond to them with game logic. [[Actor|Actors]], [[Scene|Scenes]], [[Engine|Engines]], [[ActionsComponent|Actions]], [[Animation|Animations]], and various components have events you can hook into just look for the `.events` member!
+
+:::info
+
+Excalibur events are handled synchronously, which is great for debugging and reducing timing bugs.
+
+:::
+
+## Strongly Typed Events
+
+Excalibur has types on all it's event listeners, you can check these types with intellisense in vscode or by following the typescript definition.
+
+![event auto complete](events.png)
+
+Excalibur also allows you to listen/send any event you want to as well, but you'll need to provide your own types for that.
+
+```typescript
+
+interface MyEvents {
+  coolevent: MyCoolEvent;
+  forsure: ForSureEvent;
+}
+
+class MyActor extends Actor {
+  public events = new EventEmitter<ActorEvents & MyEvents>();
+}
+
+```

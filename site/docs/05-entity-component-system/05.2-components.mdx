@@ -6,48 +6,82 @@ section: Entity Component System
 
 [[Component|Components]] are a useful tool for storing data associated with an entity. Components can be used with [[System|Systems]] to implement complex behavior. Sometimes [[Component|Components]] can be a better choice than using inheritance. Components provide reusable behavior that can be easier to maintain over complex inheritance hierarchies.
 
+:::note
+Excalibur is not a "pure" ECS, so building components with behavior is perfectly acceptable. Often this is really useful for sharing behavior.
+:::
+
 ## Custom Components
 
 To create a new component, you must extend the built in component class.
 
-:::warning
-
-It is important to select a unique component type name, otherwise the excalibur system runtime will be confused.
-
-:::
-
-:::note
-
-Type names with the prefix "ex." are reserved for excalibur
-
-:::
-
 ```typescript
-export class MyComponent extends ex.Component<'mycomponent'> {
-  // Unique type name is required
-  public readonly type = 'mycomponent';
-
-  public mydata: string = 'my custom data';
+export class MyComponent extends ex.Component {
+  public myData: string = 'my custom data';
 }
 ```
 
 ## Built in Excalibur Components
 
-### [[TagComponent]]
-
-Tag components are useful when you want to flag an entity with something, for example "offscreen". A good way to think about it is to use a flag for a non-default state. They are a special component that is only a type.
-
-```ts
-const entity = new ex.Entity();
-entity.addComponent(new ex.TagComponent('offscreen'));
-
-console.log(entity.tags); // ['offscreen']
-```
-
 ### [[TransformComponent]]
 
-The Excalibur TransformComponent component primarily keeps track of the [[TransformComponent.z|z-index]] [[TransformComponent.pos|position]], [[TransformComponent.rotation|rotation]], and [[TransformComponent.scale|scale]] of an entity.
+The Excalibur [[TransformComponent]] component primarily keeps track of the [[TransformComponent.z|z-index]] [[TransformComponent.pos|position]], [[TransformComponent.rotation|rotation]], and [[TransformComponent.scale|scale]] of an entity.
 
 Additionally it keeps track of the [[TransformComponent.coordPlane|coordinate plane]] which is whether it draws to the [[CoordPlane.Screen]] or part of the [[CoordPlane.World]].
 The default is drawing in [[CoordPlane.World]] which shifts the entities in "world space" by the position of the current [[Camera]]
 If you are drawing in [[CoordPlane.Screen]] the entity is not influenced by the camera, for example an entity at (0, 0) will always be at the top left of the screen regardless of what happens to the current [[Camera]].
+
+### [[MotionComponent]]
+
+The [[MotionComponent]] keeps track of velocities, acceleration, torque, and inertia on an Entity. Motion component velocity units are in pixels per second.
+
+### [[GraphicsComponent]]
+
+The [[GraphicsComponent]] holds an excalibur [[Graphic]] and draws it to the screen for an entity. The [[GraphicsComponent]] can only show 1 graphic at a time, to show more use a [[GraphicsGroup]] or child entities with graphics components.
+
+1. A [[GraphicsGroup]], you can specify a list of graphics in painter order (first is draw first, then so on)
+        ```typescript
+        const actor = new ex.Actor({...});
+        const graphicsGroup = new ex.GraphicsGroup({
+          members: [
+            new ex.Rectangle({width: 100, height: 100, color: ex.Color.Red}),
+            { offset: ex.vec(100, 100), graphic: new ex.Circle({radius: 100, color: ex.Color.Blue})}
+          ]
+        });
+        actor.graphics.use(graphicsGroup);
+        ```
+2. Child actors if you need more control over graphic movement, transform, or behavior
+    ```typescript
+    const actor = new ex.Actor({...});
+    const child = new ex.Actor({
+      pos: ex.vec(100, 100),
+      rotation: Math.PI / 4,
+      scale: ex.vec(3, 3)
+    });
+    actor.addChild(child);
+    actor.graphics.use(new ex.Rectangle({width: 100, height: 100, color: ex.Color.Red}));
+    child.graphics.use(new ex.Rectangle({width: 10, height: 10, color: ex.Color.Blue}));
+
+    ```
+
+### [[PointerComponent]]
+
+The [[PointerComponent]] configures pointer event behavior on entities. Entities only receive pointer events if they have the component.
+
+### [[ActionsComponent]]
+
+The [[ActionsComponent]] is useful for producing scripted behavior on an entity. Read more [here](/docs/actions)
+
+For example:
+
+```typescript
+const entity = new ex.Entity();
+const actions = new ActionsComponent();
+entity.add(actions);
+
+actions.repeatForever(ctx => {
+  ctx.moveTo(100, 100, 100); // moveTo (100, 100) at 100 pixels/sec
+  ctx.moveTo(0, 0, 100); // moveTo (0, 0) at 100 pixels/sec
+});
+
+```
+

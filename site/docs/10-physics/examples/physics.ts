@@ -1,6 +1,3 @@
-ex.Physics.useRealisticPhysics();
-ex.Physics.acc = ex.vec(0, 300);
-
 const box = new ex.Actor({
     pos: ex.vec(game.halfDrawWidth, -100),
     width: 50,
@@ -35,6 +32,8 @@ const ground = new ex.Actor({
     collisionType: ex.CollisionType.Fixed
 });
 game.start().then(() => {
+    game.currentScene.physics.config.solver = ex.SolverStrategy.Realistic;
+    game.currentScene.physics.config.gravity = ex.vec(0, 300);
     game.currentScene.add(box);
     game.currentScene.add(circle);
     game.currentScene.add(triangle);

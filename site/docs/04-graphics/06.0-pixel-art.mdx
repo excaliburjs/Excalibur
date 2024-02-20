@@ -1,0 +1,58 @@
+---
+title: Pixel Art
+slug: /pixel-art
+section: Graphics
+---
+
+# Pixel Art
+
+Pixel art is deceptively challenging to get right. There are a few rendering artifacts that can plague pixel art games in this guide hopefully we'll get you to the prettiest possible pixel art.
+
+## Basic Approach: Nearest Neighbor and No Antialiasing
+
+This is the first approach that most people try, and for some games might be fine if you are snapping to whole pixel values and scale your graphics by integer amounts. In fact many games are shipped this way.
+
+If you set Excalibur to `new ex.Engine({antialiasing: false})` this is what you'll get!
+
+### Cons: Artifacts
+
+Using the basic approach comes with some downsides: shimmering artifacts (inconsistent line widths) and jaggies when rotating objects.
+
+Solution might be to use `new ex.Engine({pixelRatio: 3})` to "upscale" lower resolutions to more pixels.
+
+## New Approach: Texture Filtering, Scaling, and special Antialiasing
+
+Excalibur has a special pixel art mode that will put you into this mode released in v0.29.0!
+
+```typescript
+const game = new ex.Engine({
+  pixelArt: true // and that's it!
+});
+```
+
+This will set a few presets in excalibur, this above setting is equivalent to the following
+
+```typescript 
+const game = new ex.Engine({
+  antialiasing: {
+    pixelArtSampler: true, // turns on the sub-pixel shader for pixel art
+    nativeContextAntialiasing: false, // turns off canvas aa
+    multiSampleAntialiasing: true, // turns on msaa which smooths quad boundaries
+    filtering: ImageFiltering.Blended, // hints the image loader to use blended filtering
+    canvasImageRendering: 'auto' // applies the 'auto'-matic css to the canvas CSS image-rendering
+  }
+})
+```
+
+This is great article explaining the approach
+
+* https://jorenjoestar.github.io/post/pixel_art_filtering/
+
+Here is a shader toy demonstrating
+* Shader Toy showing https://www.shadertoy.com/view/mdSXWy
+
+:::note
+
+If you have very low resolutions less than 500x500, you might want to consider artificially scaling the graphics by setting `pixelRatio: 2` or `pixelRatio: 3` this increases the internal resolution (effectively up-scaling) giving Excalibur more pixels to work with and smooth. This produces more pleasing results when simulating a very low res game
+
+:::

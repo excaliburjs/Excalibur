@@ -15,22 +15,28 @@ Excalibur comes built in with two physics simulations.
 
 ## Arcade
 
-Arcade physics simulation is on by default, but can be enabled explicitly at any time with `ex.Physics.useArcadePhysics()`
+Arcade physics simulation is on by default, but can be enabled explicitly in the `Engine` constructor.
 
 ```typescript
-Physics.useArcadePhysics();
-
-const game = new Engine({...});
+const game = new Engine({
+  physics: {
+    solver: SolverStrategy.Arcade
+  },
+  ...
+});
 ```
 
 ## Realistic
 
-Realistic physics are not on by default, but can be enabled explicitly at any time with `ex.Physics.useRealisticPhysics()`
+Realistic physics are not on by default, but can be enabled explicitly in the `Engine` constructor.
 
 ```typescript
-Physics.useRealisticPhysics();
-
-const game = new Engine({...});
+const game = new Engine({
+  physics: {
+    solver: SolverStrategy.Realistic
+  },
+  ...
+});
 ```
 
 ### Example
@@ -44,14 +50,14 @@ const game = new Engine({...});
 
 ## Other Physics Settings
 
-See [[Physics]] documentation for more
+See [[PhysicsConfig]] documentation for more
 
-- Turn off excalibur physics `ex.Physics.enabled = false`
-- Global acceleration applied to [[CollisionType.Active|active objects]] `ex.Physics.acc = ex.vec(0, 100)`
-- Fast moving object detection (continuous collision) `ex.Physics.checkForFastBodies = true`
+- Turn off excalibur physics [[PhysicsConfig.enabled]]
+- Global acceleration applied to [[CollisionType.Active|active objects]] with [[PhysicsConfig.gravity]]
+- Configure Fast moving object detection (continuous collision) [[PhysicsConfig.continuous]]
 - Physics realistic passes, more passes mean higher quality simulation at the expense of cpu
-  - Realistic solver position iterations, improves overlap resolution `ex.Physics.positionIterations = 3`
-  - Realistic solver velocity iterations, improves response and stability `ex.Physics.velocityIterations = 8`
+  - Realistic solver position iterations, improves overlap resolution [[PhysicsConfig.realistic|PhysicsConfig.realistic.positionIterations]]
+  - Realistic solver velocity iterations, improves response and stability [[PhysicsConfig.realistic|PhysicsConfig.realistic.velocityIterations]]
 
 ## Using Physics with Actors or Entities
 
@@ -63,7 +69,7 @@ The physics simulation has 2 major pieces for actors
 ### Actors
 
 Actors come out of the box with both of these components, an implicitly created [[BodyComponent]] and a [[ColliderComponent]]
-of a [[ConvexPolygon|box]] that matches the specified `width` and `height`, or a [[CircleCollider|circle]]
+of a [[PolygonCollider|box]] that matches the specified `width` and `height`, or a [[CircleCollider|circle]]
 
 ```typescript
 const actor = new ex.Actor({
@@ -96,19 +102,35 @@ const collider = entity.get(ColliderComponent)
 
 ## Collision System Under the Hood
 
+Under the hood excalibur does a broadphase/narrowphase approach to locating and resolving collisions.
+
+1. Broadphase is run against a dynamic tree spatial data structure to locate potential collision pairs
+2. Narrowphase is run to find any actual overlapping colliders
+3. The collision solver is run (Arcade or Realistic). Collisions are resolved according to the configured solver, either Arcade which does axis aligned resolution, or realistic which attempts to do a force based resolution.
+
+    a. `precollision` events are fired on Entities just before collision resolution, you have an opportunity to call [[CollisionContact.cancel]] and stop the collision at this time.
+
+    b. `postcollision`events are fire after resolution.
+
+    c. `collisionstart` events fire when two colliders first touch, and does not fire in subsequent frames until they separate.
+
+    d. `collisionend` events fire when two colliders separate, and does not fire in subsequent frames until they touch again.
+
 ## Example Active-Active/Active-Fixed scenario
 
 ```ts
 // setup game
 const game = new ex.Engine({
   width: 600,
-  height: 400
-});
-// use rigid body
-ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
-// set global acceleration simulating gravity pointing down
-ex.Physics.acc.setTo(0, 700);
+  height: 400,
+  physics: {
+    // use rigid body realistic
+    solver: ex.SolverStrategy.Realistic,
 
+    // set global acceleration simulating gravity pointing down
+    gravity: ex.vec(0, 700)
+  }
+});
 const block = new ex.Actor({
   pos: new ex.Vector(300, 0),
   width: 20,
@@ -118,19 +140,6 @@ const block = new ex.Actor({
 block.body.useBoxCollider(); // useBoxCollision is the default, technically optional
 block.body.collider.type = ex.CollisionType.Active;
 game.add(block);
-
-// or
-
-const block = new ex.Actor({
-    pos: new ex.Vector(300, 0),
-    color: ex.Color.Blue,
-    body: new ex.Body({
-        collider: new ex.Collider({
-            type: ex.CollisionType.Active,
-            shape: ex.Shape.Box(20, 20)
-        })
-    })
-});
 
 const circle = new ex.Actor({
   x: 301,
@@ -142,19 +151,6 @@ const circle = new ex.Actor({
 circle.body.useCircleCollider(10);
 circle.body.collider.type = ex.CollisionType.Active;
 game.add(circle);
-
-// or
-
-const circle = new ex.Actor({
-    pos: new ex.Vector(301, 100),
-    color: ex.Color.Red,
-    body: new ex.Body({
-        collider: new ex.Collider({
-            shape: ex.Shape.Circle(10),
-            type: ex.CollisionType.Active
-        })
-    })
-});
 
 const ground = new ex.Actor({
   x: 300,

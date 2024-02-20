@@ -15,7 +15,20 @@ Examples of systems are the [[GraphicsSystem]], [[MotionSystem]], [[CollisionSys
 
 ## System
 
-Each Excalibur [[System]] loops through all entities in `System.priority` order.
+Each Excalibur [[System]] loops through all entities in `System.priority` order. There are a list of built in system priorities [[SystemPriority]] that can be used to assign priority. Lower number means higher priority which runs first.
+
+```typescript
+/**
+ * Higher priorities run earlier than others in the system update
+ */
+export const SystemPriority = {
+  Highest: -Infinity,
+  Higher: -5,
+  Average: 0,
+  Lower: 5,
+  Lowest: Infinity
+} as const;
+```
 
 ## System Types
 
@@ -25,10 +38,18 @@ There are two system types [[SystemType.Update|update]] and [[SystemType.Draw|dr
 
 ## Lifecycle
 
-- sort(a: Entity, b: Entity);
-- update(entities: Entity[], delta: number);
-- preupdate();
-- postupdate();
+Systems execute in this order
+
+1. one-time `constructor(world: World)`
+   * Initialize your query here
+2. one-time `initialize(world: World, scene: Scene)`
+   * Initialize anything that relies on the scene/engine here
+3. every frame `preupdate(scene: Scene, elapsedMs: number)`
+   * Run setup code for the update
+4. every frame `update(delta: number)`
+   * Update all your entities here
+5. every frame `preupdate(scene: Scene, elapsedMs: number)`
+   * Run cleanup code for the update
 
 ## Built in Systems
 
@@ -65,39 +86,40 @@ For custom component types it is recommended you prefix your types, like `type =
 In this example, we create a "search" type component, that searches for a target position. Notice how this component implementation is mostly data.
 
 ```typescript
-class SearchComponent extends ex.Component<'search'> {
-    public readonly type = 'search'
+class SearchComponent extends ex.Component {
     constructor(public target: ex.Vector) {
         super();
     }
 }
 
-class SearchSystem extends ex.System<ex.TransformComponent | SearchComponent> {
-    // Types need to be listed as a const literal
-    public readonly types = ['ex.transform', 'search'] as const;
+class SearchSystem extends ex.System {
 
-    // Lower numbers mean higher priority
-    // 99 is low priority
-    public priority = 99;
+  query: Query<typeof SearchComponent>;
+  constructor(world: World) {
+    this.query = world.query([TransformComponent, SearchComponent]);
+  }
 
-    // Run this system in the "update" phase
-    public systemType = ex.SystemType.Update
+  // Lower numbers mean higher priority
+  // 99 is low priority
+  public priority = 99;
 
-    private _searchSpeed = 100 // pixels/sec
+  // Run this system in the "update" phase
+  public systemType = ex.SystemType.Update
 
-    public update(entities: ex.Entity[], delta: number) {
-        for (let entity of entities) {
-            const target = entity.get(SearchComponent)!.target;
-            // ex.TransformComponent is a built in type
-            const transform = entity.get(ex.TransformComponent) as ex.TransformComponent;
+  private _searchSpeed = 100 // pixels/sec
 
-            const direction = target.sub(transform.pos);
-            const motion = direction.normalize().scale(this._searchSpeed);
+  public update(delta: number) {
+    for (let entity of this.query.entities) {
+        const target = entity.get(SearchComponent).target;
+        const transform = entity.get(ex.TransformComponent);
 
-            // Moves these entities towards the target at 10 pixels per second
-            transform.pos = transform.pos.add(motion.scale(delta / 1000))
-        }
+        const direction = target.sub(transform.pos);
+        const motion = direction.normalize().scale(this._searchSpeed);
+
+        // Moves these entities towards the target at 10 pixels per second
+        transform.pos = transform.pos.add(motion.scale(delta / 1000))
     }
+  }
 }
 
 const scene = new ex.Scene();

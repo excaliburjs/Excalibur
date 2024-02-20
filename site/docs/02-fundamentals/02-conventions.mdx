@@ -1,0 +1,27 @@
+---
+title: Conventions
+slug: /conventions
+---
+
+There are a few things that Excalibur does that are good to know before you start building games!
+
+# Conventions
+
+1. Excalibur uses a theater metaphor, for example: [[Scene|Scenes]], [[Actor|Actors]], and [Actions](/docs/actions).
+
+2. Excalibur uses [Resources](docs/category/resources) to load external files like [images](/docs/ImageSource) and [sounds](/docs/Sound). They can also be used to load other things like data or config.
+
+2. The negative y direction is up, and the positive y direction is down.
+
+2. Distance units are in pixels, velocity in pixels per second, and acceleration in pixels per second per second.
+
+3. Rotation units are in radians.
+
+4. All elapsed times and durations in Excalibur in are milliseconds.
+
+5. Actor z-index's follow the browser way of doing things.
+   * Things with larger positive numbers are on top of lower numbers.
+
+6. Excalibur handles offscreen draw culling for you! No need to manage that!
+
+7. Excalibur uses pre-multiplied alphas when drawing which is important to know if you use [Material](/docs/materials)

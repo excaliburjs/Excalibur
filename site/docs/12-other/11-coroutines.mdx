@@ -1,0 +1,24 @@
+---
+title: Coroutines
+slug: /coroutines
+section: Other
+---
+
+New `ex.coroutine` for running code that changes over time, useful for modeling complex animation code. It can do a lot of what the Actions API can do, but this is useful when things really get complicated.
+
+## Using Coroutines
+
+Coroutines start immediately when the `coroutine()` function is called. Their updates are scheduled using the excalibur [[Clock]].
+
+Coroutines return a promise when they are complete. You can think of each `yield` as a frame.
+  * The result of a yield is the current elapsed time
+  * You can yield a number in milliseconds and it will wait that long before resuming
+  * You can yield a promise and it will wait until it resolves before resuming
+  ```typescript
+    const completePromise = coroutine(engine, function * () {
+      let elapsed = 0;
+      elapsed = yield 200; // frame 1 wait 200 ms before resuming
+      elapsed = yield fetch('./some/data.json'); // frame 2
+      elapsed = yield; // frame 3
+    });
+  ```
