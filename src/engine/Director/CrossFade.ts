@@ -31,8 +31,7 @@ export class CrossFade extends Transition {
 
   override onInitialize(engine: Engine): void {
     this.engine = engine;
-    const bounds = engine.screen.getWorldBounds();
-    this.transform.pos = vec(bounds.left, bounds.top);
+    this.transform.pos = engine.screen.unsafeArea.topLeft;
     this.screenCover = ImageSource.fromHtmlImageElement(this.image).toSprite();
     this.graphics.add(this.screenCover);
     this.transform.scale = vec(1 / engine.screen.pixelRatio, 1 / engine.screen.pixelRatio);

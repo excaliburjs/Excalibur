@@ -6,7 +6,15 @@ scene1.add(new ex.Label({
   text: 'Scene 1',
   z: 99
 }))
+scene1.onInitialize = () => {
+  scene1.camera.pos = ex.vec(200, 200);
+  scene1.camera.zoom = 2;
+}
 var scene2 = new ex.Scene();
+scene2.onInitialize = () => {
+  scene2.camera.pos = ex.vec(200, 200);
+  scene2.camera.zoom = 2;
+}
 scene2.add(new ex.Label({
   pos: ex.vec(100, 100),
   color: ex.Color.Violet,

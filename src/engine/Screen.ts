@@ -806,6 +806,16 @@ export class Screen {
     return this._contentArea;
   }
 
+  /**
+   * Returns the unsafe area in screen space, this is the full screen and some space may not be onscreen.
+   */
+  public get unsafeArea(): BoundingBox {
+    return this._unsafeArea;
+  }
+
+  private _contentArea: BoundingBox = new BoundingBox();
+  private _unsafeArea: BoundingBox = new BoundingBox();
+
   private _computeFit() {
     document.body.style.margin = '0px';
     document.body.style.overflow = 'hidden';
@@ -825,9 +835,9 @@ export class Screen {
       height: adjustedHeight
     };
     this._contentArea = BoundingBox.fromDimension(this.resolution.width, this.resolution.height, Vector.Zero);
+    this._unsafeArea = BoundingBox.fromDimension(this.resolution.width, this.resolution.height, Vector.Zero);
   }
 
-  private _contentArea: BoundingBox = new BoundingBox();
   private _computeFitScreenAndFill() {
     document.body.style.margin = '0px';
     document.body.style.overflow = 'hidden';
@@ -866,6 +876,12 @@ export class Screen {
         right: this._contentResolution.width,
         bottom: this.resolution.height - clip
       });
+      this._unsafeArea = new BoundingBox({
+        top: -clip,
+        left: 0,
+        right: this._contentResolution.width,
+        bottom: this.resolution.height + clip
+      });
     } else {
       this.resolution = {
         width: vh *  this._contentResolution.height / vh * vw / vh,
@@ -876,6 +892,12 @@ export class Screen {
         top: 0,
         left: clip,
         right: this.resolution.width - clip,
+        bottom: this._contentResolution.height
+      });
+      this._unsafeArea = new BoundingBox({
+        top: 0,
+        left: -clip,
+        right: this.resolution.width + clip,
         bottom: this._contentResolution.height
       });
     }

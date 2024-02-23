@@ -1,6 +1,5 @@
 import { Engine } from '../Engine';
 import { Color } from '../Color';
-import { vec } from '../Math/vector';
 import { Rectangle } from '../Graphics';
 import { Transition, TransitionOptions } from './Transition';
 
@@ -22,11 +21,10 @@ export class FadeInOut extends Transition {
   }
 
   public onInitialize(engine: Engine): void {
-    const bounds = engine.screen.getWorldBounds();
-    this.transform.pos = vec(bounds.left, bounds.top);
+    this.transform.pos = engine.screen.unsafeArea.topLeft;
     this.screenCover = new Rectangle({
-      width: bounds.width,
-      height: bounds.height,
+      width: engine.screen.resolution.width,
+      height: engine.screen.resolution.height,
       color: this.color
     });
     this.graphics.add(this.screenCover);
