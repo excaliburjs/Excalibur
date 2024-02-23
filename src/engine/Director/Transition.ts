@@ -195,13 +195,14 @@ export class Transition extends Entity {
     this.onReset();
   }
 
-  play(engine: Engine) {
+  play(engine: Engine, targetScene?: Scene) {
     if (this.started) {
-      this._logger.warn(`Attempted to play a transition ${this.name} that is already playing`);
-      return Promise.resolve();
+      this.reset();
+      this._logger.warn(`Attempted to play a transition ${this.name} that is already playing, reset transition.`);
     }
 
-    engine.add(this);
+    const currentScene = targetScene ?? engine.currentScene;
+    currentScene.add(this);
     const self = this;
     return coroutine(engine, function * () {
       while (!self.complete) {

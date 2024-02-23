@@ -138,7 +138,11 @@ gameWithTransitions.input.keyboard.on('press', evt => {
 gameWithTransitions.input.pointers.primary.on('down', () => {
   gameWithTransitions.goto('scene1');
 });
-var startTransition = new ex.FadeInOut({duration: 500, direction: 'in', color: ex.Color.ExcaliburBlue});
+var startTransition = new ex.FadeInOut({
+  duration: 3500,
+  direction: 'in',
+  color: ex.Color.Black
+});
 // startTransition.events.on('kill', () => {
 //   console.log(game.currentScene.entities);
 //   console.log('killed!');
