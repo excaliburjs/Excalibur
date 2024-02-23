@@ -46,6 +46,7 @@ describe('A Director', () => {
 
   it('can configure start, non deferred', async () => {
     const engine = TestUtils.engine();
+    const clock = engine.clock as ex.TestClock;
     const scene1 = new ex.Scene();
     const scene2 = new ex.Scene();
     const sut = new ex.Director(engine, {
@@ -62,10 +63,12 @@ describe('A Director', () => {
       loader
     });
     await engine.load(loader);
+    await TestUtils.flushMicrotasks(clock, 5);
 
     expect(sut.currentTransition).toBe(fadeIn);
     expect(sut.currentSceneName).toBe('scene1');
     expect(sut.currentScene).toBe(scene1);
+    engine.dispose();
   });
 
   it('can configure start deferred', async () => {

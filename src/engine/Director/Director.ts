@@ -102,6 +102,7 @@ export class Director<TKnownScenes extends string = any> {
   public events = new EventEmitter<DirectorEvents>();
   private _logger = Logger.getInstance();
   private _deferredGoto: string;
+  private _deferredTransition: Transition;
   private _initialized = false;
 
   /**
@@ -176,8 +177,13 @@ export class Director<TKnownScenes extends string = any> {
       this._initialized = true;
       if (this._deferredGoto) {
         const deferredScene = this._deferredGoto;
+        const deferredTransition = this._deferredTransition;
         this._deferredGoto = null;
+        this._deferredTransition = null;
         await this.swapScene(deferredScene);
+        if (deferredTransition) {
+          await this.playTransition(deferredTransition);
+        }
       } else {
         await this.swapScene('root');
       }
@@ -217,9 +223,10 @@ export class Director<TKnownScenes extends string = any> {
     // Fire and forget promise for the initial scene
     if (maybeStartTransition) {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.swapScene(this.startScene);
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.playTransition(maybeStartTransition);
+      this.swapScene(this.startScene).then(() => {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        this.playTransition(maybeStartTransition);
+      });
     } else {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.swapScene(this.startScene);
@@ -476,6 +483,11 @@ export class Director<TKnownScenes extends string = any> {
    * @param transition
    */
   async playTransition(transition: Transition) {
+    if (!this.isInitialized) {
+      this._deferredTransition = transition;
+      return;
+    }
+
     if (transition) {
       this.currentTransition = transition;
       const currentScene = this._engine.currentScene;

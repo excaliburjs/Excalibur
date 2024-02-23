@@ -6,7 +6,15 @@ scene1.add(new ex.Label({
   text: 'Scene 1',
   z: 99
 }))
+scene1.onInitialize = () => {
+  scene1.camera.pos = ex.vec(200, 200);
+  scene1.camera.zoom = 2;
+}
 var scene2 = new ex.Scene();
+scene2.onInitialize = () => {
+  scene2.camera.pos = ex.vec(200, 200);
+  scene2.camera.zoom = 2;
+}
 scene2.add(new ex.Label({
   pos: ex.vec(100, 100),
   color: ex.Color.Violet,
@@ -130,7 +138,11 @@ gameWithTransitions.input.keyboard.on('press', evt => {
 gameWithTransitions.input.pointers.primary.on('down', () => {
   gameWithTransitions.goto('scene1');
 });
-var startTransition = new ex.FadeInOut({duration: 500, direction: 'in', color: ex.Color.ExcaliburBlue});
+var startTransition = new ex.FadeInOut({
+  duration: 3500,
+  direction: 'in',
+  color: ex.Color.Black
+});
 // startTransition.events.on('kill', () => {
 //   console.log(game.currentScene.entities);
 //   console.log('killed!');

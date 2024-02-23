@@ -75,8 +75,8 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
    */
   public onInitialize(engine: Engine) {
     this.engine = engine;
-    this.canvas.width = this.engine.screen.canvasWidth;
-    this.canvas.height = this.engine.screen.canvasHeight;
+    this.canvas.width = this.engine.screen.resolution.width;
+    this.canvas.height = this.engine.screen.resolution.height;
   }
 
   /**
@@ -165,10 +165,10 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
     const seconds = this._totalTimeMs / 1000;
 
     ctx.fillStyle = Color.Black.toRGBA();
-    ctx.fillRect(0, 0, this.engine.screen.drawWidth, this.engine.screen.drawHeight);
+    ctx.fillRect(0, 0, this.engine.screen.resolution.width, this.engine.screen.resolution.height);
 
     ctx.save();
-    ctx.translate(this.engine.screen.center.x, this.engine.screen.center.y);
+    ctx.translate(this.engine.screen.resolution.width / 2, this.engine.screen.resolution.height / 2);
     const speed = seconds * 10;
     ctx.strokeStyle = 'white';
     ctx.lineWidth = 10;
