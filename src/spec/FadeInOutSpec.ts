@@ -56,7 +56,7 @@ describe('A FadeInOut transition', () => {
   it('can fade out', async () => {
     const engine = TestUtils.engine({ backgroundColor: ex.Color.ExcaliburBlue });
     const clock = engine.clock as ex.TestClock;
-    TestUtils.runToReady(engine);
+    await TestUtils.runToReady(engine);
     engine.add(new ex.Actor({
       pos: ex.vec(20, 20),
       width: 100,
@@ -75,7 +75,7 @@ describe('A FadeInOut transition', () => {
     }));
     engine.addScene('newScene', scene);
 
-    const goto = engine.goto('newScene', { sourceOut: sut });
+    const goto = engine.goToScene('newScene', { sourceOut: sut });
     await TestUtils.flushMicrotasks(clock, 3);
     clock.step(900);
     await Promise.resolve();
