@@ -210,7 +210,7 @@ describe('A VertexLayout', () => {
     }).toThrowMatching((e: Error) => e.message.includes('VertexLayout size definition for attribute: [a_position, 4]'));
   });
 
-  it('will calculate vertex size and webgl vbo corretly', () => {
+  it('will calculate vertex size and webgl vbo correctly', () => {
     const shader = new ex.Shader({
       gl,
       vertexSource: `
