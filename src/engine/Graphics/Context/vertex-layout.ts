@@ -1,7 +1,7 @@
 import { Logger } from '../..';
 import { Shader, VertexAttributeDefinition } from './shader';
 import { VertexBuffer } from './vertex-buffer';
-import { getGlTypeSizeBytes } from './webgl-util';
+import { getGLTypeFromSource, getGlTypeSizeBytes, isAttributeInSource } from './webgl-util';
 
 
 export interface VertexLayoutOptions {
@@ -78,10 +78,15 @@ export class VertexLayout {
     return this._shader;
   }
 
+  private _initialized = false;
+
   /**
    * Layouts need shader locations and must be bound to a shader
    */
   initialize() {
+    if (this._initialized) {
+      return;
+    }
     if (!this._shader) {
       return;
     }
@@ -95,14 +100,36 @@ export class VertexLayout {
     for (const attribute of this._attributes) {
       const attrib = shaderAttributes[attribute[0]];
       if (!attrib) {
-        throw Error(`The attribute named: ${attribute[0]} size ${attribute[1]}`+
-        ` not found in the shader source code:\n ${this._shader.vertexSource}`);
+        if (!isAttributeInSource(this._shader.vertexSource, attribute[0])) {
+          throw Error(`The attribute named: ${attribute[0]} size ${attribute[1]}`+
+          ` not found in the shader source code:\n ${this._shader.vertexSource}`);
+        }
+
+        this._logger.warn(`The attribute named: ${attribute[0]} size ${attribute[1]}`+
+        ` not found in the compiled shader. This is possibly a bug:\n` +
+        ` 1. Not a bug, but should remove unused code - attribute "${attribute[0]}" is unused in` +
+        ` vertex/fragment and has been automatically removed by glsl compiler.\n` +
+        ` 2. Definitely a bug, attribute "${attribute[0]}" in layout has been mistyped or is missing` +
+        ` in shader, check vertex/fragment source.`);
+
+        const glType = getGLTypeFromSource(this._gl, this._shader.vertexSource, attribute[0]);
+
+        // Unused attribute placeholder
+        this._layout.push({
+          name: attribute[0],
+          glType,
+          size: attribute[1],
+          location: -1,
+          normalized: false
+        });
       }
-      if (attrib.size !== attribute[1]) {
-        throw Error(`VertexLayout size definition for attribute: [${attribute[0]}, ${attribute[1]}],`
-        +` doesnt match shader source size ${attrib.size}:\n ${this._shader.vertexSource}`);
+      if (attrib) {
+        if (attrib.size !== attribute[1]) {
+          throw Error(`VertexLayout size definition for attribute: [${attribute[0]}, ${attribute[1]}],`
+          +` doesn\'t match shader source size ${attrib.size}:\n ${this._shader.vertexSource}`);
+        }
+        this._layout.push(attrib);
       }
-      this._layout.push(attrib);
     }
 
     // calc size
@@ -117,6 +144,9 @@ export class VertexLayout {
       this._logger.warn(`The vertex component size (${componentsPerVertex})  does NOT divide evenly into the specified vertex buffer`
       +` (${this._vertexBuffer.bufferData.length})`);
     }
+
+    this._initialized = true;
+    // TODO Use VAO here instead
   }
 
   /**
@@ -139,8 +169,10 @@ export class VertexLayout {
     let offset = 0;
     // TODO switch to VAOs if the extension is
     for (const vert of this._layout) {
-      gl.vertexAttribPointer(vert.location, vert.size, vert.glType, vert.normalized, this.totalVertexSizeBytes, offset);
-      gl.enableVertexAttribArray(vert.location);
+      if (vert.location !== -1) { // skip unused attributes
+        gl.vertexAttribPointer(vert.location, vert.size, vert.glType, vert.normalized, this.totalVertexSizeBytes, offset);
+        gl.enableVertexAttribArray(vert.location);
+      }
       offset += getGlTypeSizeBytes(gl, vert.glType) * vert.size;
     }
   }

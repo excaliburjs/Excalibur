@@ -50,6 +50,7 @@ export interface MaterialOptions {
    * Pre-built varyings:
    *
    * * `in vec2 v_uv` - UV coordinate
+   * * `in vec2 v_screenuv` - UV coordinate
    *
    * Pre-built uniforms:
    *
