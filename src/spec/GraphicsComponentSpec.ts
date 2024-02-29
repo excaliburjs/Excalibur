@@ -289,6 +289,27 @@ describe('A Graphics ECS Component', () => {
     }));
   });
 
+  it('correctly calculates graphics world bounds (rasters)', () => {
+    const tx = new ex.TransformComponent();
+    tx.pos = ex.vec(500, 900);
+    const sut = new ex.GraphicsComponent();
+    const rec2 = new ex.Rectangle({
+      width: 200,
+      height: 10
+    });
+    rec2.scale = ex.vec(2, 2);
+    sut.add(rec2);
+
+    const entity = new ex.Entity([tx, sut]);
+
+    expect(sut.bounds).toEqual(new ex.BoundingBox({
+      left: 300,
+      right: 700,
+      top: 890,
+      bottom: 910
+    }));
+  });
+
   it('correctly calculates graphics bounds (rasters + offset)', () => {
     const sut = new ex.GraphicsComponent();
     const rec2 = new ex.Rectangle({

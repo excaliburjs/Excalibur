@@ -16,7 +16,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
--
+- Added `GraphicsComponent.bounds` which will report the world bounds of the graphic if applicable!
 
 ### Fixed
 

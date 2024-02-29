@@ -7,6 +7,7 @@ import { Component } from '../EntityComponentSystem/Component';
 import { Material } from './Context/material';
 import { Logger } from '../Util/Log';
 import { WatchVector } from '../Math/watch-vector';
+import { TransformComponent } from '../EntityComponentSystem';
 
 /**
  * Type guard for checking if a Graphic HasTick (used for graphics that change over time like animations)
@@ -362,11 +363,28 @@ export class GraphicsComponent extends Component {
     this._localBounds = bb;
   }
 
+  /**
+   * Get local bounds of graphics component
+   */
   public get localBounds(): BoundingBox {
     if (!this._localBounds || this._localBounds.hasZeroDimensions()) {
       this.recalculateBounds();
     }
     return this._localBounds;
+  }
+
+  /**
+   * Get world bounds of graphics component
+   */
+  public get bounds(): BoundingBox {
+    let bounds = this.localBounds;
+    if (this.owner) {
+      const tx = this.owner.get(TransformComponent);
+      if (tx) {
+        bounds = bounds.transform(tx.get().matrix);
+      }
+    }
+    return bounds;
   }
 
   /**
