@@ -22,7 +22,13 @@ export interface VertexLayoutOptions {
    *
    * **Important** must specify them in the order that they will be in the vertex buffer!!
    */
-  attributes: [name: string, numberOfComponents: number][]
+  attributes: [name: string, numberOfComponents: number][],
+  /**
+   * Optionally suppress any warnings out of vertex layouts
+   *
+   * **BEWARE** this may cause you to have issues go unnoticed
+   */
+  suppressWarnings?: boolean
 }
 
 /**
@@ -36,6 +42,7 @@ export interface VertexLayoutOptions {
 export class VertexLayout {
   private _gl: WebGL2RenderingContext;
   private _logger = Logger.getInstance();
+  private _suppressWarnings = false;
   private _shader: Shader;
   private _layout: VertexAttributeDefinition[] = [];
   private _attributes: [name: string, numberOfComponents: number][] = [];
@@ -49,11 +56,12 @@ export class VertexLayout {
   }
 
   constructor(options: VertexLayoutOptions) {
-    const {gl, shader, vertexBuffer, attributes} = options;
+    const {gl, shader, vertexBuffer, attributes, suppressWarnings } = options;
     this._gl = gl;
     this._vertexBuffer = vertexBuffer;
     this._attributes = attributes;
     this._shader = shader;
+    this._suppressWarnings = suppressWarnings;
     if (shader) {
       this.initialize();
     }
@@ -105,12 +113,14 @@ export class VertexLayout {
           ` not found in the shader source code:\n ${this._shader.vertexSource}`);
         }
 
-        this._logger.warn(`The attribute named: ${attribute[0]} size ${attribute[1]}`+
-        ` not found in the compiled shader. This is possibly a bug:\n` +
-        ` 1. Not a bug, but should remove unused code - attribute "${attribute[0]}" is unused in` +
-        ` vertex/fragment and has been automatically removed by glsl compiler.\n` +
-        ` 2. Definitely a bug, attribute "${attribute[0]}" in layout has been mistyped or is missing` +
-        ` in shader, check vertex/fragment source.`);
+        if (!this._suppressWarnings) {
+          this._logger.warn(`The attribute named: ${attribute[0]} size ${attribute[1]}`+
+          ` not found in the compiled shader. This is possibly a bug:\n` +
+          ` 1. Not a bug, but should remove unused code - attribute "${attribute[0]}" is unused in` +
+          ` vertex/fragment and has been automatically removed by glsl compiler.\n` +
+          ` 2. Definitely a bug, attribute "${attribute[0]}" in layout has been mistyped or is missing` +
+          ` in shader, check vertex/fragment source.`);
+        }
 
         const glType = getGLTypeFromSource(this._gl, this._shader.vertexSource, attribute[0]);
 

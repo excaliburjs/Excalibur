@@ -38,7 +38,8 @@ export class MaterialRenderer implements RendererPlugin {
         ['a_position', 2],
         ['a_uv', 2],
         ['a_screenuv', 2]
-      ]
+      ],
+      suppressWarnings: true
     });
 
     // Setup index buffer
