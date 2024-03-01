@@ -115,7 +115,7 @@ export class Transform {
 
   private _scale: Vector = vec(1, 1);
   set scale(v: Vector) {
-    if (!v.equals(this._scale)) {
+    if (v.x !== this._scale.x || v.y !== this._scale.y) {
       this._scale.x = v.x;
       this._scale.y = v.y;
       this.flagDirty();

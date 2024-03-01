@@ -17,9 +17,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - Added `GraphicsComponent.bounds` which will report the world bounds of the graphic if applicable!
+- Added `ex.Vector.EQUALS_EPSILON` to configure the `ex.Vector.equals(v)` threshold
 
 ### Fixed
 
+- Fixed incongruent behavior as small scales when setting `transform.scale = v` and `transform.scale.setTo(x, y)`
+- Fixed `ex.coroutine` TypeScript type to include yielding `undefined`
 - Fixed issue where Firefox on Linux would throw an error when using custom Materials due to unused attributes caused by glsl compiler optimization. 
 - Fixed issue where start transition did not work properly if deferred
 - Fixed issue where transitions did not cover the whole screen if camera was zoomed

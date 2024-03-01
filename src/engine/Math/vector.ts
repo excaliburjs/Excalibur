@@ -7,6 +7,10 @@ import { clamp } from './util';
 
 export class Vector implements Clonable<Vector> {
   /**
+   * Get or set the vector equals epsilon, by default 0.001 meaning vectors within that tolerance on x or y will be considered equal.
+   */
+  public static EQUALS_EPSILON = .001;
+  /**
    * A (0, 0) vector
    */
   public static get Zero() {
@@ -152,7 +156,7 @@ export class Vector implements Clonable<Vector> {
    * @param vector The other point to compare to
    * @param tolerance Amount of euclidean distance off we are willing to tolerate
    */
-  public equals(vector: Vector, tolerance: number = 0.001): boolean {
+  public equals(vector: Vector, tolerance: number = Vector.EQUALS_EPSILON): boolean {
     return Math.abs(this.x - vector.x) <= tolerance && Math.abs(this.y - vector.y) <= tolerance;
   }
 
