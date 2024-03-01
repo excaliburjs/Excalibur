@@ -1,5 +1,5 @@
 import { Engine } from '../Engine';
-export type CoroutineGenerator = () => Generator<number | Promise<any>, void, number>;
+export type CoroutineGenerator = () => Generator<number | Promise<any> | undefined, void, number>;
 
 /**
  * Excalibur coroutine helper, returns a promise when complete. Coroutines run before frame update.
