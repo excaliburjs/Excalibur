@@ -134,6 +134,7 @@ export class ParticleImpl extends Entity {
     this.transform.pos = this.position;
     this.transform.rotation = this.currentRotation;
     this.transform.scale = vec(1, 1); // TODO wut
+    this.transform.z = this.emitter.z;
     if (this.particleSprite) {
       this.graphics.opacity = this.opacity;
       this.graphics.use(this.particleSprite);
@@ -264,6 +265,7 @@ export enum ParticleTransform {
 export interface ParticleEmitterArgs {
   x?: number;
   y?: number;
+  z?: number;
   pos?: Vector;
   width?: number;
   height?: number;
@@ -465,6 +467,7 @@ export class ParticleEmitter extends Actor {
     const {
       x,
       y,
+      z,
       pos,
       isEmitting,
       minVel,
@@ -494,6 +497,7 @@ export class ParticleEmitter extends Actor {
     } = { ...config };
 
     this.pos = pos ?? vec(x ?? 0, y ?? 0);
+    this.z = z ?? 0;
     this.isEmitting = isEmitting ?? this.isEmitting;
     this.minVel = minVel ?? this.minVel;
     this.maxVel = maxVel ?? this.maxVel;
