@@ -16,9 +16,22 @@ import { pixelSnapEpsilon } from './Graphics';
 import { sign } from './Math/util';
 
 /**
+ * Higher priorities on camera strategies run later meaning they have the final say on camera position
+ */
+export const CameraStrategyPriority = {
+  Highest: Infinity,
+  Higher: 5,
+  Average: 0,
+  Lower: -5,
+  Lowest: -Infinity
+} as const;
+
+/**
  * Interface that describes a custom camera strategy for tracking targets
  */
 export interface CameraStrategy<T> {
+  priority: number;
+
   /**
    * Target of the camera strategy that will be passed to the action
    */
@@ -101,6 +114,7 @@ export enum Axis {
  * Lock a camera to the exact x/y position of an actor.
  */
 export class LockCameraToActorStrategy implements CameraStrategy<Actor> {
+  priority = CameraStrategyPriority.Average;
   constructor(public target: Actor) {}
   public action = (target: Actor, camera: Camera, engine: Engine, delta: number) => {
     const center = target.center;
@@ -112,6 +126,7 @@ export class LockCameraToActorStrategy implements CameraStrategy<Actor> {
  * Lock a camera to a specific axis around an actor.
  */
 export class LockCameraToActorAxisStrategy implements CameraStrategy<Actor> {
+  priority = CameraStrategyPriority.Higher;
   constructor(public target: Actor, public axis: Axis) {}
   public action = (target: Actor, cam: Camera, _eng: Engine, _delta: number) => {
     const center = target.center;
@@ -128,6 +143,7 @@ export class LockCameraToActorAxisStrategy implements CameraStrategy<Actor> {
  * Using [Hook's law](https://en.wikipedia.org/wiki/Hooke's_law), elastically move the camera towards the target actor.
  */
 export class ElasticToActorStrategy implements CameraStrategy<Actor> {
+  priority = CameraStrategyPriority.Higher;
   /**
    * If cameraElasticity < cameraFriction < 1.0, the behavior will be a dampened spring that will slowly end at the target without bouncing
    * If cameraFriction < cameraElasticity < 1.0, the behavior will be an oscillating spring that will over
@@ -162,6 +178,7 @@ export class ElasticToActorStrategy implements CameraStrategy<Actor> {
 }
 
 export class RadiusAroundActorStrategy implements CameraStrategy<Actor> {
+  priority = CameraStrategyPriority.Higher;
   /**
    *
    * @param target Target actor to follow when it is "radius" pixels away
@@ -186,6 +203,8 @@ export class RadiusAroundActorStrategy implements CameraStrategy<Actor> {
  * Prevent a camera from going beyond the given camera dimensions.
  */
 export class LimitCameraBoundsStrategy implements CameraStrategy<BoundingBox> {
+  priority = CameraStrategyPriority.Highest;
+
   /**
    * Useful for limiting the camera to a [[TileMap]]'s dimensions, or a specific area inside the map.
    *
@@ -543,6 +562,7 @@ export class Camera implements CanUpdate, CanInitialize {
    */
   public addStrategy<T>(cameraStrategy: CameraStrategy<T>) {
     this._cameraStrategies.push(cameraStrategy);
+    this._cameraStrategies.sort((a, b) => a.priority - b.priority);
   }
 
   /**
