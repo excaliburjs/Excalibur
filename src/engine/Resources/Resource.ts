@@ -26,6 +26,10 @@ export class Resource<T> implements Loadable<T> {
   public data: T = null;
   public logger: Logger = Logger.getInstance();
   public events = new EventEmitter();
+  /**
+   * Response headers are populated after load
+   */
+  public headers = new Map<string, string>();
 
   /**
    * @param path          Path to the remote resource
@@ -90,6 +94,25 @@ export class Resource<T> implements Loadable<T> {
         this.logger.debug('Completed loading resource', this.path);
         resolve(this.data);
       });
+      request.addEventListener('readystatechange', e => {
+        if (request.readyState === XMLHttpRequest.HEADERS_RECEIVED) {
+          // Get the raw header string
+          const headers = request.getAllResponseHeaders();
+      
+          // Convert the header string into an array
+          // of individual headers
+          const arr = headers.trim().split(/[\r\n]+/);
+
+          // Create a map of header names to values
+          arr.forEach((line) => {
+            const parts = line.split(": ");
+            const header = parts.shift();
+            const value = parts.join(": ");
+            this.headers.set(header.toLowerCase(), value.toLowerCase());
+          });
+        }
+      });
+
       request.send();
     });
   }
