@@ -18,9 +18,18 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Added `GraphicsComponent.bounds` which will report the world bounds of the graphic if applicable!
 - Added `ex.Vector.EQUALS_EPSILON` to configure the `ex.Vector.equals(v)` threshold
+- Added way to add custom WebGL context lost/recovered handlers for your game
+  ```typescript
+  const game = new ex.Engine({
+    handleContextLost: (e) => {...},
+    handleContextRestored: (e) => {...}
+  })
+  ```
 
 ### Fixed
 
+- Fixed issue when WebGL context lost occurs where there was no friendly output to the user
+- Fixed issue where HiDPI scaling could accidentally scale past the 4k mobile limit, if the context would scale too large it will now attempt to recover by backing off.
 - Fixed issue where `ex.ParticleEmitter` z-index did not propagate to particles
 - Fixed incongruent behavior as small scales when setting `transform.scale = v` and `transform.scale.setTo(x, y)`
 - Fixed `ex.coroutine` TypeScript type to include yielding `undefined`

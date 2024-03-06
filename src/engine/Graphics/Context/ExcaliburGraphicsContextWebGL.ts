@@ -87,7 +87,9 @@ export interface WebGLGraphicsContextInfo {
 }
 
 export interface ExcaliburGraphicsContextWebGLOptions extends ExcaliburGraphicsContextOptions {
-  context?: WebGL2RenderingContext
+  context?: WebGL2RenderingContext,
+  handleContextLost?: (e: Event) => void,
+  handleContextRestored?: (e: Event) => void
 }
 
 export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
@@ -209,6 +211,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   public readonly multiSampleAntialiasing: boolean = true;
   public readonly samples?: number;
   public readonly transparency: boolean = true;
+  private _isContextLost = false;
 
   constructor(options: ExcaliburGraphicsContextWebGLOptions) {
     const {
@@ -222,7 +225,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       powerPreference,
       snapToPixel,
       backgroundColor,
-      useDrawSorting
+      useDrawSorting,
+      handleContextLost,
+      handleContextRestored
     } = options;
     this.__gl = context ?? canvasElement.getContext('webgl2', {
       antialias: antialiasing ?? this.smoothing,
@@ -234,6 +239,23 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     if (!this.__gl) {
       throw Error('Failed to retrieve webgl context from browser');
     }
+
+    if (handleContextLost) {
+      this.__gl.canvas.addEventListener('webglcontextlost', handleContextLost, false);
+    }
+
+    if (handleContextRestored) {
+      this.__gl.canvas.addEventListener('webglcontextrestored', handleContextRestored, false);
+    }
+
+    this.__gl.canvas.addEventListener('webglcontextlost', () => {
+      this._isContextLost = true;
+    });
+
+    this.__gl.canvas.addEventListener('webglcontextrestored', () => {
+      this._isContextLost = false;
+    });
+
     this.textureLoader = new TextureLoader(this.__gl);
     this.snapToPixel = snapToPixel ?? this.snapToPixel;
     this.smoothing = antialiasing ?? this.smoothing;
@@ -368,6 +390,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       this._logger.warnOnce(
         `Attempting to draw outside the the drawing lifecycle (preDraw/postDraw) is not supported and is a source of bugs/errors.\n` +
         `If you want to do custom drawing, use Actor.graphics, or any onPreDraw or onPostDraw handler.`);
+    }
+    if (this._isContextLost) {
+      this._logger.errorOnce(`Unable to draw ${rendererName}, the webgl context is lost`);
+      return;
     }
 
     const renderer = this._renderers.get(rendererName);
@@ -600,6 +626,11 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
    * Flushes all batched rendering to the screen
    */
   flush() {
+    if (this._isContextLost) {
+      this._logger.errorOnce(`Unable to flush the webgl context is lost`);
+      return;
+    }
+
     // render target captures all draws and redirects to the render target
     let currentTarget = this.multiSampleAntialiasing ? this._msaaTarget : this._renderTarget;
     currentTarget.use();

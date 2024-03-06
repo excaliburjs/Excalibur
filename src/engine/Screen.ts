@@ -489,23 +489,41 @@ export class Screen {
     }
   }
 
-  public applyResolutionAndViewport() {
-    this._canvas.width = this.scaledWidth;
-    this._canvas.height = this.scaledHeight;
 
+
+  public applyResolutionAndViewport() {
     if (this.graphicsContext instanceof ExcaliburGraphicsContextWebGL) {
-      const supported = this.graphicsContext.checkIfResolutionSupported({
+      const scaledResolutionSupported = this.graphicsContext.checkIfResolutionSupported({
         width: this.scaledWidth,
         height: this.scaledHeight
       });
-      if (!supported) {
+      if (!scaledResolutionSupported) {
         this._logger.warnOnce(
           `The currently configured resolution (${this.resolution.width}x${this.resolution.height}) and pixel ratio (${this.pixelRatio})` +
           ' are too large for the platform WebGL implementation, this may work but cause WebGL rendering to behave oddly.' +
           ' Try reducing the resolution or disabling Hi DPI scaling to avoid this' +
           ' (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).');
+
+        // Attempt to recover if the user hasn't configured a specific ratio for up scaling
+        if (!this.pixelRatioOverride) {
+          let currentPixelRatio = this.pixelRatio - .5;
+          while (!this.graphicsContext.checkIfResolutionSupported({
+            width: this._resolution.width * currentPixelRatio,
+            height: this._resolution.height * currentPixelRatio})) {
+            currentPixelRatio -= .5;
+          }
+          this.pixelRatioOverride = currentPixelRatio;
+          this._logger.warnOnce(
+            'Scaled resolution too big recovery!' +
+            ` Pixel ratio was automatically reduced to (${this.pixelRatio}) to avoid 4k texture limit.` +
+            ' Setting `ex.Engine({pixelRatio: ...}) will override any automatic recalculation, do so at your own risk.` ' +
+            ' (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).');
+        }
       }
     }
+
+    this._canvas.width = this.scaledWidth;
+    this._canvas.height = this.scaledHeight;
 
     if (this._canvasImageRendering === 'auto') {
       this._canvas.style.imageRendering = 'auto';

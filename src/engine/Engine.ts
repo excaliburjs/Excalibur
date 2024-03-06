@@ -285,7 +285,7 @@ export interface EngineOptions<TKnownScenes extends string = any> {
    *
    * By default is unset and updates will use the current instantaneous framerate with 1 update and 1 draw each clock step.
    */
-  fixedUpdateFps?: number
+  fixedUpdateFps?: number;
 
   /**
    * Default `true`, optionally configure excalibur to use optimal draw call sorting, to opt out set this to `false`.
@@ -294,6 +294,16 @@ export interface EngineOptions<TKnownScenes extends string = any> {
    * this can disrupt a specific desired painter order.
    */
   useDrawSorting?: boolean;
+
+  /**
+   * Optionally provide a custom handler for the webgl context lost event
+   */
+  handleContextLost?: (e: Event) => void;
+
+  /**
+   * Optionally provide a custom handler for the webgl context restored event
+   */
+  handleContextRestored?: (e: Event) => void;
 
   /**
    * Optionally configure how excalibur handles poor performance on a player's browser
@@ -860,7 +870,9 @@ O|===|* >________________>\n\
           powerPreference: options.powerPreference,
           backgroundColor: options.backgroundColor,
           snapToPixel: options.snapToPixel,
-          useDrawSorting: options.useDrawSorting
+          useDrawSorting: options.useDrawSorting,
+          handleContextLost: options.handleContextLost ?? this._handleWebGLContextLost,
+          handleContextRestored: options.handleContextRestored
         });
       } catch (e) {
         this._logger.warn(
@@ -940,6 +952,49 @@ O|===|* >________________>\n\
 
     (window as any).___EXCALIBUR_DEVTOOL = this;
   }
+
+  private _handleWebGLContextLost = (e: Event) => {
+    e.preventDefault();
+    this.clock.stop();
+    this._logger.fatalOnce('WebGL Graphics Lost', e);
+    const container = document.createElement('div');
+    container.id = 'ex-webgl-graphics-context-lost';
+    container.style.position = 'absolute';
+    container.style.zIndex = '99';
+    container.style.left = '50%';
+    container.style.top = '50%';
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column';
+    container.style.transform = 'translate(-50%, -50%)';
+    container.style.backgroundColor = 'white';
+    container.style.padding = '10px';
+    container.style.borderStyle = 'solid 1px';
+
+    const div = document.createElement('div');
+    div.innerHTML = `
+      <h1>There was an issue rendering, please refresh the page.</h1>
+      <div>
+        <p>WebGL Graphics Context Lost</p>
+
+        <button id="ex-webgl-graphics-reload">Refresh Page</button>
+
+        <p>There are a few reasons this might happen:</p>
+        <ul>
+          <li>Two or more pages are placing a high demand on the GPU</li>
+          <li>Another page or operation has stalled the GPU and the browser has decided to reset the GPU</li>
+          <li>The computer has multiple GPUs and the user has switched between them</li>
+          <li>Graphics driver has crashed or restarted</li>
+          <li>Graphics driver was updated</li>
+        </ul>
+      </div>
+    `;
+    container.appendChild(div);
+    if (this.canvas?.parentElement) {
+      this.canvas.parentElement.appendChild(container);
+      const button = div.querySelector('#ex-webgl-graphics-reload');
+      button?.addEventListener('click', () => location.reload());
+    }
+  };
 
   private _performanceThresholdTriggered = false;
   private _fpsSamples: number[] = [];
