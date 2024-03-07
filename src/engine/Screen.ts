@@ -140,9 +140,13 @@ export class Resolution {
   }
 }
 
+export type ScreenUnit = 'pixel' | 'percent';
+
 export interface ScreenDimension {
   width: number;
   height: number;
+  widthUnit?: ScreenUnit;
+  heightUnit?: ScreenUnit;
 }
 
 export interface ScreenOptions {
@@ -518,13 +522,11 @@ export class Screen {
       }
     }
 
-    if (this.displayMode === DisplayMode.FitContainerAndFill) {
-      this._canvas.style.width = '100%';
-      this._canvas.style.height = '100%';
-    } else {
-      this._canvas.style.width = this.viewport.width + 'px';
-      this._canvas.style.height = this.viewport.height + 'px';
-    }
+    const widthUnit = this.viewport.widthUnit === 'percent' ? '%' : 'px';
+    const heightUnit = this.viewport.heightUnit === 'percent' ? '%' : 'px';
+
+    this._canvas.style.width = this.viewport.width + widthUnit;
+    this._canvas.style.height = this.viewport.height + heightUnit;
 
     // After messing with the canvas width/height the graphics context is invalidated and needs to have some properties reset
     this.graphicsContext.updateViewport(this.resolution);
@@ -863,22 +865,27 @@ export class Screen {
 
 
   private _computeFitContainerAndFill() {
-    // const parent = this.canvas.parentElement;
-    // const { width, height } = parent.getBoundingClientRect();
     this.canvas.style.width = '100%';
     this.canvas.style.height = '100%';
-    
-    this._computeFitAndFill(this.canvas.offsetWidth, this.canvas.offsetHeight);
+
+    this._computeFitAndFill(
+      this.canvas.offsetWidth,
+      this.canvas.offsetHeight, {
+        width: 100,
+        widthUnit: 'percent',
+        height: 100,
+        heightUnit: 'percent'
+      });
     this.events.emit('resize', {
       resolution: this.resolution,
       viewport: this.viewport
     } satisfies ScreenResizeEvent);
   }
 
-  private _computeFitAndFill(vw: number, vh: number) {
-    this.viewport = {
+  private _computeFitAndFill(vw: number, vh: number, viewport?: ScreenDimension) {
+    this.viewport = viewport ?? {
       width: vw,
-      height: vh
+      height: vh,
     };
     // if the current screen aspectRatio is less than the original aspectRatio
     if (vw / vh <= this._contentResolution.width / this._contentResolution.height) {
@@ -937,15 +944,12 @@ export class Screen {
   }
 
   private _computeFitContainerAndZoom() {
-    document.body.style.margin = '0px';
-    document.body.style.overflow = 'hidden';
-    this.canvas.style.position = 'absolute';
+    this.canvas.style.width = '100%';
+    this.canvas.style.height = '100%';
+    this.canvas.style.position = 'relative';
     const parent = this.canvas.parentElement;
-    parent.style.position = 'relative';
     parent.style.overflow = 'hidden';
-
-    const vw = parent.clientWidth;
-    const vh = parent.clientHeight;
+    const { offsetWidth: vw, offsetHeight: vh } = this.canvas;
 
     this._computeFitAndZoom(vw, vh);
     this.events.emit('resize', {
@@ -1016,18 +1020,26 @@ export class Screen {
     const aspect = this.aspectRatio;
     let adjustedWidth = 0;
     let adjustedHeight = 0;
+    let widthUnit: ScreenUnit = 'pixel';
+    let heightUnit: ScreenUnit = 'pixel';
     const parent = this.canvas.parentElement;
     if (parent.clientWidth / aspect < parent.clientHeight) {
-      adjustedWidth = parent.clientWidth;
-      adjustedHeight = parent.clientWidth / aspect;
+      this.canvas.style.width = '100%';
+      adjustedWidth = 100;
+      widthUnit = 'percent';
+      adjustedHeight = this.canvas.offsetWidth / aspect;
     } else {
-      adjustedWidth = parent.clientHeight * aspect;
-      adjustedHeight = parent.clientHeight;
+      this.canvas.style.height = '100%';
+      adjustedHeight = 100;
+      heightUnit = 'percent';
+      adjustedWidth = this.canvas.offsetHeight * aspect;
     }
 
     this.viewport = {
       width: adjustedWidth,
-      height: adjustedHeight
+      widthUnit,
+      height: adjustedHeight,
+      heightUnit
     };
     this._contentArea = BoundingBox.fromDimension(this.resolution.width, this.resolution.height, Vector.Zero);
     this.events.emit('resize', {
