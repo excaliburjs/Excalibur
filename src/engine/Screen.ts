@@ -885,7 +885,7 @@ export class Screen {
   private _computeFitAndFill(vw: number, vh: number, viewport?: ScreenDimension) {
     this.viewport = viewport ?? {
       width: vw,
-      height: vh,
+      height: vh
     };
     // if the current screen aspectRatio is less than the original aspectRatio
     if (vw / vh <= this._contentResolution.width / this._contentResolution.height) {
@@ -1075,7 +1075,7 @@ export class Screen {
         widthUnit: 'percent',
         height: 100,
         heightUnit: 'percent'
-      }
+      };
       this.resolution = {
         width: this.canvas.offsetWidth,
         height: this.canvas.offsetHeight
