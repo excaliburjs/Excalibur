@@ -863,9 +863,12 @@ export class Screen {
 
 
   private _computeFitContainerAndFill() {
-    const parent = this.canvas.parentElement;
-    const { width, height } = parent.getBoundingClientRect();
-    this._computeFitAndFill(width, height);
+    // const parent = this.canvas.parentElement;
+    // const { width, height } = parent.getBoundingClientRect();
+    this.canvas.style.width = '100%';
+    this.canvas.style.height = '100%';
+    
+    this._computeFitAndFill(this.canvas.offsetWidth, this.canvas.offsetHeight);
     this.events.emit('resize', {
       resolution: this.resolution,
       viewport: this.viewport
