@@ -440,9 +440,15 @@ export class Screen {
   }
 
   public set resolution(resolution: ScreenDimension) {
+    if (resolution.heightUnit === 'percent' || resolution.widthUnit === 'percent') {
+      throw Error('Screen resolution only supports pixels not percentage sizes');
+    }
     this._resolution = resolution;
   }
 
+  /**
+   * Returns screen dimensions in pixels or percentage
+   */
   public get viewport(): ScreenDimension {
     if (this._viewport) {
       return this._viewport;
