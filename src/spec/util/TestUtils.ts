@@ -49,7 +49,6 @@ export namespace TestUtils {
     }
     const clock = engine.clock as ex.TestClock;
     const start = engine.start(loader);
-    // If loader
     if (loader) {
       await loader.areResourcesLoaded();
       clock.step(200);

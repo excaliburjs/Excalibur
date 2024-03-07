@@ -319,8 +319,9 @@ export class Loader extends DefaultLoader {
 
   private _configuredPixelRatio: number | null = null;
   public override async onBeforeLoad(): Promise<void> {
+    const image = this._image;
     await this._imageLoaded.promise;
-    await this._image?.decode(); // decode logo if it exists
+    await image?.decode(); // decode logo if it exists
   }
 
   // eslint-disable-next-line require-await
