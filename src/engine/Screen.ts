@@ -1068,12 +1068,18 @@ export class Screen {
    */
   private _setResolutionAndViewportByDisplayMode(parent: HTMLElement | Window) {
     if (this.displayMode === DisplayMode.FillContainer) {
+      this.canvas.style.width = '100%';
+      this.canvas.style.height = '100%';
+      this.viewport = {
+        width: 100,
+        widthUnit: 'percent',
+        height: 100,
+        heightUnit: 'percent'
+      }
       this.resolution = {
-        width: (<HTMLElement> parent).clientWidth,
-        height: (<HTMLElement> parent).clientHeight
+        width: this.canvas.offsetWidth,
+        height: this.canvas.offsetHeight
       };
-
-      this.viewport = this.resolution;
     }
 
     if (this.displayMode === DisplayMode.FillScreen) {
