@@ -319,14 +319,6 @@ export class Loader extends DefaultLoader {
 
   private _configuredPixelRatio: number | null = null;
   public override async onBeforeLoad(): Promise<void> {
-    this._configuredPixelRatio = this.screen.pixelRatioOverride;
-    // Push the current user entered resolution/viewport
-    this.screen.pushResolutionAndViewport();
-    // Configure resolution for loader, it expects resolution === viewport
-    this.screen.resolution = this.screen.viewport;
-    this.screen.pixelRatioOverride = 1;
-    this.screen.applyResolutionAndViewport();
-
     await this._imageLoaded.promise;
     await this._image?.decode(); // decode logo if it exists
   }
@@ -341,8 +333,10 @@ export class Loader extends DefaultLoader {
 
   private _positionPlayButton() {
     if (this.engine) {
-      const screenHeight = this.engine.screen.viewport.height;
-      const screenWidth = this.engine.screen.viewport.width;
+      const {
+        width: screenWidth,
+        height: screenHeight
+      } = this.engine.canvas.getBoundingClientRect();
       if (this._playButtonRootElement) {
         const left = this.engine.canvas.offsetLeft;
         const top = this.engine.canvas.offsetTop;
