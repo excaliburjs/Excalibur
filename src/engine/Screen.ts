@@ -517,8 +517,14 @@ export class Screen {
         this._canvas.style.imageRendering = 'crisp-edges';
       }
     }
-    this._canvas.style.width = this.viewport.width + 'px';
-    this._canvas.style.height = this.viewport.height + 'px';
+
+    if (this.displayMode === DisplayMode.FitContainerAndFill) {
+      this._canvas.style.width = '100%';
+      this._canvas.style.height = '100%';
+    } else {
+      this._canvas.style.width = this.viewport.width + 'px';
+      this._canvas.style.height = this.viewport.height + 'px';
+    }
 
     // After messing with the canvas width/height the graphics context is invalidated and needs to have some properties reset
     this.graphicsContext.updateViewport(this.resolution);
@@ -836,6 +842,10 @@ export class Screen {
     };
     this._contentArea = BoundingBox.fromDimension(this.resolution.width, this.resolution.height, Vector.Zero);
     this._unsafeArea = BoundingBox.fromDimension(this.resolution.width, this.resolution.height, Vector.Zero);
+    this.events.emit('resize', {
+      resolution: this.resolution,
+      viewport: this.viewport
+    } satisfies ScreenResizeEvent);
   }
 
   private _computeFitScreenAndFill() {
@@ -844,17 +854,22 @@ export class Screen {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     this._computeFitAndFill(vw, vh);
+    this.events.emit('resize', {
+      resolution: this.resolution,
+      viewport: this.viewport
+    } satisfies ScreenResizeEvent);
   }
 
 
 
   private _computeFitContainerAndFill() {
-    document.body.style.margin = '0px';
-    document.body.style.overflow = 'hidden';
     const parent = this.canvas.parentElement;
-    const vw = parent.clientWidth;
-    const vh = parent.clientHeight;
-    this._computeFitAndFill(vw, vh);
+    const { width, height } = parent.getBoundingClientRect();
+    this._computeFitAndFill(width, height);
+    this.events.emit('resize', {
+      resolution: this.resolution,
+      viewport: this.viewport
+    } satisfies ScreenResizeEvent);
   }
 
   private _computeFitAndFill(vw: number, vh: number) {
@@ -912,6 +927,10 @@ export class Screen {
     const vh = window.innerHeight;
 
     this._computeFitAndZoom(vw, vh);
+    this.events.emit('resize', {
+      resolution: this.resolution,
+      viewport: this.viewport
+    } satisfies ScreenResizeEvent);
   }
 
   private _computeFitContainerAndZoom() {
@@ -926,6 +945,10 @@ export class Screen {
     const vh = parent.clientHeight;
 
     this._computeFitAndZoom(vw, vh);
+    this.events.emit('resize', {
+      resolution: this.resolution,
+      viewport: this.viewport
+    } satisfies ScreenResizeEvent);
   }
 
   private _computeFitAndZoom(vw: number, vh: number) {
@@ -1004,6 +1027,10 @@ export class Screen {
       height: adjustedHeight
     };
     this._contentArea = BoundingBox.fromDimension(this.resolution.width, this.resolution.height, Vector.Zero);
+    this.events.emit('resize', {
+      resolution: this.resolution,
+      viewport: this.viewport
+    } satisfies ScreenResizeEvent);
   }
 
   private _applyDisplayMode() {
