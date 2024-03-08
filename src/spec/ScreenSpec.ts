@@ -902,4 +902,45 @@ describe('A Screen', () => {
           ' (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).'
     );
   });
+
+  it('will warn if the resolution is too large and attempt to recover', () => {
+    const logger = ex.Logger.getInstance();
+    const warnOnce = spyOn(logger, 'warnOnce');
+
+    const canvasElement = document.createElement('canvas');
+    canvasElement.width = 100;
+    canvasElement.height = 100;
+
+    const context = new ex.ExcaliburGraphicsContextWebGL({
+      canvasElement: canvasElement,
+      enableTransparency: false,
+      snapToPixel: true,
+      backgroundColor: ex.Color.White
+    });
+
+    const sut = new ex.Screen({
+      canvas,
+      context,
+      browser,
+      viewport: { width: 800, height: 600 }
+    });
+
+    spyOn(context, 'checkIfResolutionSupported').and.callThrough();
+    sut.resolution = { width: 2000, height: 2000 };
+    (sut as any)._devicePixelRatio = 3;
+    sut.applyResolutionAndViewport();
+    expect(context.checkIfResolutionSupported).toHaveBeenCalled();
+    expect(warnOnce.calls.argsFor(0)).toEqual([
+      `The currently configured resolution (${sut.resolution.width}x${sut.resolution.height}) and pixel ratio (3)` +
+          ' are too large for the platform WebGL implementation, this may work but cause WebGL rendering to behave oddly.' +
+          ' Try reducing the resolution or disabling Hi DPI scaling to avoid this' +
+          ' (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).'
+    ]);
+    expect(warnOnce.calls.argsFor(1)).toEqual([
+      'Scaled resolution too big attempted recovery!' +
+            ` Pixel ratio was automatically reduced to (2) to avoid 4k texture limit.` +
+            ' Setting `ex.Engine({pixelRatio: ...}) will override any automatic recalculation, do so at your own risk.` ' +
+            ' (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).'
+    ]);
+  });
 });
