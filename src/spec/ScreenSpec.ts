@@ -164,8 +164,12 @@ describe('A Screen', () => {
     expect(sut.resolution.height).toBe(800);
     expect(sut.contentArea.width).toBe(800);
     expect(sut.contentArea.height).toBe(600);
-    expect(sut.viewport.width).toBe(1300);
-    expect(sut.viewport.height).toBe(1300);
+    expect(sut.viewport.width).toBe(100);
+    expect(sut.viewport.widthUnit).toBe('percent');
+    expect(sut.viewport.height).toBe(100);
+    expect(sut.viewport.heightUnit).toBe('percent');
+    expect(sut.canvas.offsetWidth).toBe(1300);
+    expect(sut.canvas.offsetHeight).toBe(1300);
 
   });
 
@@ -192,8 +196,12 @@ describe('A Screen', () => {
     expect(sut.resolution.height).toBe(600);
     expect(sut.contentArea.width).toBe(800);
     expect(sut.contentArea.height).toBe(600);
-    expect(sut.viewport.width).toBe(1300);
-    expect(sut.viewport.height).toBe(800);
+    expect(sut.viewport.width).toBe(100);
+    expect(sut.viewport.widthUnit).toBe('percent');
+    expect(sut.viewport.height).toBe(100);
+    expect(sut.viewport.heightUnit).toBe('percent');
+    expect(sut.canvas.offsetWidth).toBe(1300);
+    expect(sut.canvas.offsetHeight).toBe(800);
 
   });
 
@@ -317,7 +325,10 @@ describe('A Screen', () => {
       expect(sut.resolution.width).toBe(800);
       expect(sut.resolution.height).toBe(600);
       expect(sut.viewport.width).toBe(800 * sut.aspectRatio);
-      expect(sut.viewport.height).toBe(800);
+      expect(sut.viewport.height).toBe(100);
+      expect(sut.viewport.heightUnit).toBe('percent');
+      expect(sut.canvas.offsetHeight).toBe(800);
+      expect(sut.canvas.offsetWidth).toBe(Math.ceil(800 * sut.aspectRatio));
     });
 
     it('will adjust to width', () => {
@@ -340,8 +351,11 @@ describe('A Screen', () => {
       expect(sut.parent).toBe(parentEl);
       expect(sut.resolution.width).toBe(800);
       expect(sut.resolution.height).toBe(600);
-      expect(sut.viewport.width).toBe(1000);
+      expect(sut.viewport.width).toBe(100);
+      expect(sut.viewport.widthUnit).toBe('percent');
       expect(sut.viewport.height).toBe(1000 / sut.aspectRatio);
+      expect(sut.canvas.offsetHeight).toBe(1000 / sut.aspectRatio);
+      expect(sut.canvas.offsetWidth).toBe(1000);
     });
   });
 

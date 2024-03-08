@@ -11,6 +11,7 @@ import { DefaultLoader, DefaultLoaderOptions } from './DefaultLoader';
 import { Engine } from '../Engine';
 import { Screen } from '../Screen';
 import { Logger } from '../Util/Log';
+import { Future } from '../Util/Future';
 
 export interface LoaderOptions extends DefaultLoaderOptions {
   /**
@@ -133,9 +134,11 @@ export class Loader extends DefaultLoader {
   public backgroundColor: string = '#176BAA';
 
   protected _imageElement: HTMLImageElement;
+  protected _imageLoaded: Future<void> = new Future();
   protected get _image() {
     if (!this._imageElement) {
       this._imageElement = new Image();
+      this._imageElement.onload = () => this._imageLoaded.resolve();
       this._imageElement.src = this.logo;
     }
 
@@ -218,6 +221,10 @@ export class Loader extends DefaultLoader {
     this.screen = engine.screen;
     this.canvas.width = this.engine.canvas.width;
     this.canvas.height = this.engine.canvas.height;
+    this.screen.events.on('resize', () => {
+      this.canvas.width = this.engine.canvas.width;
+      this.canvas.height = this.engine.canvas.height;
+    });
   }
 
   /**
@@ -312,18 +319,9 @@ export class Loader extends DefaultLoader {
 
   private _configuredPixelRatio: number | null = null;
   public override async onBeforeLoad(): Promise<void> {
-    this._configuredPixelRatio = this.screen.pixelRatioOverride;
-    // Push the current user entered resolution/viewport
-    this.screen.pushResolutionAndViewport();
-    // Configure resolution for loader, it expects resolution === viewport
-    this.screen.resolution = this.screen.viewport;
-    this.screen.pixelRatioOverride = 1;
-    this.screen.applyResolutionAndViewport();
-
-    this.canvas.width = this.engine.canvas.width;
-    this.canvas.height = this.engine.canvas.height;
-
-    await this._image?.decode(); // decode logo if it exists
+    const image = this._image;
+    await this._imageLoaded.promise;
+    await image?.decode(); // decode logo if it exists
   }
 
   // eslint-disable-next-line require-await
@@ -336,8 +334,10 @@ export class Loader extends DefaultLoader {
 
   private _positionPlayButton() {
     if (this.engine) {
-      const screenHeight = this.engine.screen.viewport.height;
-      const screenWidth = this.engine.screen.viewport.width;
+      const {
+        width: screenWidth,
+        height: screenHeight
+      } = this.engine.canvas.getBoundingClientRect();
       if (this._playButtonRootElement) {
         const left = this.engine.canvas.offsetLeft;
         const top = this.engine.canvas.offsetTop;
