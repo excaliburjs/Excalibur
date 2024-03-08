@@ -516,15 +516,16 @@ export class Screen {
 
         // Attempt to recover if the user hasn't configured a specific ratio for up scaling
         if (!this.pixelRatioOverride) {
-          let currentPixelRatio = this.pixelRatio - .5;
-          while (!this.graphicsContext.checkIfResolutionSupported({
-            width: this._resolution.width * currentPixelRatio,
-            height: this._resolution.height * currentPixelRatio})) {
-            currentPixelRatio -= .5;
+          let currentPixelRatio = Math.min(1, this.pixelRatio - .5);
+          while (currentPixelRatio > 1 &&
+            !this.graphicsContext.checkIfResolutionSupported({
+              width: this._resolution.width * currentPixelRatio,
+              height: this._resolution.height * currentPixelRatio})) {
+            currentPixelRatio = Math.min(1, this.pixelRatio - .5);
           }
           this.pixelRatioOverride = currentPixelRatio;
           this._logger.warnOnce(
-            'Scaled resolution too big recovery!' +
+            'Scaled resolution too big attempted recovery!' +
             ` Pixel ratio was automatically reduced to (${this.pixelRatio}) to avoid 4k texture limit.` +
             ' Setting `ex.Engine({pixelRatio: ...}) will override any automatic recalculation, do so at your own risk.` ' +
             ' (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).');
