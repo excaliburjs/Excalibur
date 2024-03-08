@@ -21,6 +21,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where logo was sometimes not loaded during `ex.Loader`
+- Fixed issue where unbounded containers would grow infinitely when using the following display modes:
+  * `DisplayMode.FillContainer`
+  * `DisplayMode.FitContainer`
+  * `DisplayMode.FitContainerAndFill`
+  * `DisplayMode.FitContainerAndZoom`
 - Fixed issue where `ex.ParticleEmitter` z-index did not propagate to particles
 - Fixed incongruent behavior as small scales when setting `transform.scale = v` and `transform.scale.setTo(x, y)`
 - Fixed `ex.coroutine` TypeScript type to include yielding `undefined`
@@ -34,7 +40,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
--
+- Simplified `ex.Loader` viewport/resolution internal configuration
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
