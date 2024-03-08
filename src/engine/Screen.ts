@@ -516,12 +516,13 @@ export class Screen {
 
         // Attempt to recover if the user hasn't configured a specific ratio for up scaling
         if (!this.pixelRatioOverride) {
-          let currentPixelRatio = Math.min(1, this.pixelRatio - .5);
-          while (currentPixelRatio > 1 &&
-            !this.graphicsContext.checkIfResolutionSupported({
-              width: this._resolution.width * currentPixelRatio,
-              height: this._resolution.height * currentPixelRatio})) {
-            currentPixelRatio = Math.min(1, this.pixelRatio - .5);
+          let currentPixelRatio = Math.max(1, this.pixelRatio - .5);
+          let newResolutionSupported = false;
+          while (currentPixelRatio > 1 && !newResolutionSupported) {
+            currentPixelRatio = Math.max(1, currentPixelRatio - .5);
+            const width = this._resolution.width * currentPixelRatio;
+            const height = this._resolution.height * currentPixelRatio;
+            newResolutionSupported = this.graphicsContext.checkIfResolutionSupported({ width, height });
           }
           this.pixelRatioOverride = currentPixelRatio;
           this._logger.warnOnce(
