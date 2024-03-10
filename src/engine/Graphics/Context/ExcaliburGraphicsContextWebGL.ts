@@ -15,7 +15,7 @@ import { Color } from '../../Color';
 import { StateStack } from './state-stack';
 import { Logger } from '../../Util/Log';
 import { DebugText } from './debug-text';
-import { ScreenDimension } from '../../Screen';
+import { Resolution } from '../../Screen';
 import { RenderTarget } from './render-target';
 import { PostProcessor } from '../PostProcessor/PostProcessor';
 import { TextureLoader } from './texture-loader';
@@ -199,7 +199,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
    * Checks the underlying webgl implementation if the requested internal resolution is supported
    * @param dim
    */
-  public checkIfResolutionSupported(dim: ScreenDimension): boolean {
+  public checkIfResolutionSupported(dim: Resolution): boolean {
     // Slight hack based on this thread https://groups.google.com/g/webgl-dev-list/c/AHONvz3oQTo
     let supported = true;
     if (dim.width > 4096 || dim.height > 4096) {
@@ -435,7 +435,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._transform.current = AffineMatrix.identity();
   }
 
-  public updateViewport(resolution: ScreenDimension): void {
+  public updateViewport(resolution: Resolution): void {
     const gl = this.__gl;
     this._ortho = this._ortho = Matrix.ortho(0, resolution.width, resolution.height, 0, 400, -400);
 

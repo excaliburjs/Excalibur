@@ -11,7 +11,7 @@ import { Color } from '../../Color';
 import { StateStack } from './state-stack';
 import { GraphicsDiagnostics } from '../GraphicsDiagnostics';
 import { DebugText } from './debug-text';
-import { ScreenDimension } from '../../Screen';
+import { Resolution } from '../../Screen';
 import { PostProcessor } from '../PostProcessor/PostProcessor';
 import { AffineMatrix } from '../../Math/affine-matrix';
 import { Material, MaterialOptions } from './material';
@@ -154,7 +154,7 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     this.__ctx.resetTransform();
   }
 
-  public updateViewport(_resolution: ScreenDimension): void {
+  public updateViewport(_resolution: Resolution): void {
     // pass
   }
 

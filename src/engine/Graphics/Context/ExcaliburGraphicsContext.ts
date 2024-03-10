@@ -1,6 +1,6 @@
 import { Vector } from '../../Math/vector';
 import { Color } from '../../Color';
-import { ScreenDimension } from '../../Screen';
+import { Resolution } from '../../Screen';
 import { PostProcessor } from '../PostProcessor/PostProcessor';
 import { AffineMatrix } from '../../Math/affine-matrix';
 import { Material, MaterialOptions } from './material';
@@ -240,7 +240,7 @@ export interface ExcaliburGraphicsContext {
   /**
    * Update the context with the current viewport dimensions (used in resizing)
    */
-  updateViewport(resolution: ScreenDimension): void;
+  updateViewport(resolution: Resolution): void;
 
   /**
    * Access the debug drawing api
