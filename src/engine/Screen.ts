@@ -100,53 +100,58 @@ export enum DisplayMode {
  */
 export class Resolution {
   /* istanbul ignore next */
-  public static get SVGA(): ScreenDimension {
+  public static get SVGA(): Resolution {
     return { width: 800, height: 600 };
   }
 
   /* istanbul ignore next */
-  public static get Standard(): ScreenDimension {
+  public static get Standard(): Resolution {
     return { width: 1920, height: 1080 };
   }
 
   /* istanbul ignore next */
-  public static get Atari2600(): ScreenDimension {
+  public static get Atari2600(): Resolution {
     return { width: 160, height: 192 };
   }
 
   /* istanbul ignore next */
-  public static get GameBoy(): ScreenDimension {
+  public static get GameBoy(): Resolution {
     return { width: 160, height: 144 };
   }
 
   /* istanbul ignore next */
-  public static get GameBoyAdvance(): ScreenDimension {
+  public static get GameBoyAdvance(): Resolution {
     return { width: 240, height: 160 };
   }
 
   /* istanbul ignore next */
-  public static get NintendoDS(): ScreenDimension {
+  public static get NintendoDS(): Resolution {
     return { width: 256, height: 192 };
   }
 
   /* istanbul ignore next */
-  public static get NES(): ScreenDimension {
+  public static get NES(): Resolution {
     return { width: 256, height: 224 };
   }
 
   /* istanbul ignore next */
-  public static get SNES(): ScreenDimension {
+  public static get SNES(): Resolution {
     return { width: 256, height: 244 };
   }
 }
 
-export type ScreenUnit = 'pixel' | 'percent';
+export type ViewportUnit = 'pixel' | 'percent';
 
-export interface ScreenDimension {
+export interface Resolution {
   width: number;
   height: number;
-  widthUnit?: ScreenUnit;
-  heightUnit?: ScreenUnit;
+}
+
+export interface ViewportDimension {
+  widthUnit?: ViewportUnit;
+  heightUnit?: ViewportUnit;
+  width: number;
+  height: number;
 }
 
 export interface ScreenOptions {
@@ -182,11 +187,11 @@ export interface ScreenOptions {
    * resolution will be the same as the viewport. Resolution will be overridden by [[DisplayMode.FillContainer]] and
    * [[DisplayMode.FillScreen]].
    */
-  resolution?: ScreenDimension;
+  resolution?: Resolution;
   /**
    * Visual viewport size in css pixel, if resolution is not specified it will be the same as the viewport
    */
-  viewport: ScreenDimension;
+  viewport: ViewportDimension;
   /**
    * Set the display mode of the screen, by default DisplayMode.Fixed.
    */
@@ -200,11 +205,11 @@ export interface ScreenResizeEvent {
   /**
    * Current viewport in css pixels of the screen
    */
-  viewport: ScreenDimension;
+  viewport: ViewportDimension;
   /**
    * Current resolution in world pixels of the screen
    */
-  resolution: ScreenDimension;
+  resolution: Resolution;
 }
 
 /**
@@ -263,13 +268,13 @@ export class Screen {
   private _canvas: HTMLCanvasElement;
   private _antialiasing: boolean = true;
   private _canvasImageRendering: 'auto' | 'pixelated' = 'auto';
-  private _contentResolution: ScreenDimension;
+  private _contentResolution: Resolution;
   private _browser: BrowserEvents;
   private _camera: Camera;
-  private _resolution: ScreenDimension;
-  private _resolutionStack: ScreenDimension[] = [];
-  private _viewport: ScreenDimension;
-  private _viewportStack: ScreenDimension[] = [];
+  private _resolution: Resolution;
+  private _resolutionStack: Resolution[] = [];
+  private _viewport: ViewportDimension;
+  private _viewportStack: ViewportDimension[] = [];
   private _pixelRatioOverride: number | null = null;
   private _displayMode: DisplayMode;
   private _isFullScreen = false;
@@ -435,28 +440,25 @@ export class Screen {
     }
   }
 
-  public get resolution(): ScreenDimension {
+  public get resolution(): Resolution {
     return this._resolution;
   }
 
-  public set resolution(resolution: ScreenDimension) {
-    if (resolution.heightUnit === 'percent' || resolution.widthUnit === 'percent') {
-      throw Error('Screen resolution only supports pixels not percentage sizes');
-    }
+  public set resolution(resolution: Resolution) {
     this._resolution = resolution;
   }
 
   /**
    * Returns screen dimensions in pixels or percentage
    */
-  public get viewport(): ScreenDimension {
+  public get viewport(): ViewportDimension {
     if (this._viewport) {
       return this._viewport;
     }
     return this._resolution;
   }
 
-  public set viewport(viewport: ScreenDimension) {
+  public set viewport(viewport: ViewportDimension) {
     this._viewport = viewport;
   }
 
@@ -484,11 +486,11 @@ export class Screen {
     this.viewport = { ...this.viewport };
   }
 
-  public peekViewport(): ScreenDimension {
+  public peekViewport(): ViewportDimension {
     return this._viewportStack[this._viewportStack.length - 1];
   }
 
-  public peekResolution(): ScreenDimension {
+  public peekResolution(): Resolution {
     return this._resolutionStack[this._resolutionStack.length - 1];
   }
 
@@ -608,6 +610,13 @@ export class Screen {
     return document.exitFullscreen();
   }
 
+  private _viewportToPixels(viewport: ViewportDimension) {
+    return {
+      width: viewport.widthUnit === 'percent' ? this.canvas.offsetWidth : viewport.width,
+      height: viewport.heightUnit === 'percent' ? this.canvas.offsetHeight : viewport.height
+    } satisfies ViewportDimension;
+  }
+
   /**
    * Takes a coordinate in normal html page space, for example from a pointer move event, and translates it to
    * Excalibur screen space.
@@ -626,24 +635,26 @@ export class Screen {
       newY -= getPosition(this._canvas).y;
     }
 
+    const viewport = this._viewportToPixels(this.viewport);
+
     // if fullscreen api on it centers with black bars
     // we need to adjust the screen to world coordinates in this case
     if (this._isFullScreen) {
       if (window.innerWidth / this.aspectRatio < window.innerHeight) {
         const screenHeight = window.innerWidth / this.aspectRatio;
         const screenMarginY = (window.innerHeight - screenHeight) / 2;
-        newY = ((newY - screenMarginY) / screenHeight) * this.viewport.height;
-        newX = (newX / window.innerWidth) * this.viewport.width;
+        newY = ((newY - screenMarginY) / screenHeight) * viewport.height;
+        newX = (newX / window.innerWidth) * viewport.width;
       } else {
         const screenWidth = window.innerHeight * this.aspectRatio;
         const screenMarginX = (window.innerWidth - screenWidth) / 2;
-        newX = ((newX - screenMarginX) / screenWidth) * this.viewport.width;
-        newY = (newY / window.innerHeight) * this.viewport.height;
+        newX = ((newX - screenMarginX) / screenWidth) * viewport.width;
+        newY = (newY / window.innerHeight) * viewport.height;
       }
     }
 
-    newX = (newX / this.viewport.width) * this.resolution.width;
-    newY = (newY / this.viewport.height) * this.resolution.height;
+    newX = (newX / viewport.width) * this.resolution.width;
+    newY = (newY / viewport.height) * this.resolution.height;
 
     // offset by content area
     newX = newX - this.contentArea.left;
@@ -666,20 +677,22 @@ export class Screen {
 
     // no need to offset by content area, drawing is already offset by this
 
-    newX = (newX / this.resolution.width) * this.viewport.width;
-    newY = (newY / this.resolution.height) * this.viewport.height;
+    const viewport = this._viewportToPixels(this.viewport);
+
+    newX = (newX / this.resolution.width) * viewport.width;
+    newY = (newY / this.resolution.height) * viewport.height;
 
     if (this._isFullScreen) {
       if (window.innerWidth / this.aspectRatio < window.innerHeight) {
         const screenHeight = window.innerWidth / this.aspectRatio;
         const screenMarginY = (window.innerHeight - screenHeight) / 2;
-        newY = (newY / this.viewport.height) * screenHeight + screenMarginY;
-        newX = (newX / this.viewport.width) * window.innerWidth;
+        newY = (newY / viewport.height) * screenHeight + screenMarginY;
+        newX = (newX / viewport.width) * window.innerWidth;
       } else {
         const screenWidth = window.innerHeight * this.aspectRatio;
         const screenMarginX = (window.innerWidth - screenWidth) / 2;
-        newX = (newX / this.viewport.width) * screenWidth + screenMarginX;
-        newY = (newY / this.viewport.height) * window.innerHeight;
+        newX = (newX / viewport.width) * screenWidth + screenMarginX;
+        newY = (newY / viewport.height) * window.innerHeight;
       }
     }
 
@@ -908,7 +921,7 @@ export class Screen {
     } satisfies ScreenResizeEvent);
   }
 
-  private _computeFitAndFill(vw: number, vh: number, viewport?: ScreenDimension) {
+  private _computeFitAndFill(vw: number, vh: number, viewport?: ViewportDimension) {
     this.viewport = viewport ?? {
       width: vw,
       height: vh
@@ -1046,8 +1059,8 @@ export class Screen {
     const aspect = this.aspectRatio;
     let adjustedWidth = 0;
     let adjustedHeight = 0;
-    let widthUnit: ScreenUnit = 'pixel';
-    let heightUnit: ScreenUnit = 'pixel';
+    let widthUnit: ViewportUnit = 'pixel';
+    let heightUnit: ViewportUnit = 'pixel';
     const parent = this.canvas.parentElement;
     if (parent.clientWidth / aspect < parent.clientHeight) {
       this.canvas.style.width = '100%';

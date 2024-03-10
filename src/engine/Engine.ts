@@ -7,7 +7,7 @@ import { polyfill } from './Polyfill';
 polyfill();
 import { CanUpdate, CanDraw, CanInitialize } from './Interfaces/LifecycleEvents';
 import { Vector } from './Math/vector';
-import { Screen, DisplayMode, ScreenDimension, Resolution } from './Screen';
+import { Screen, DisplayMode, Resolution, ViewportDimension } from './Screen';
 import { ScreenElement } from './ScreenElement';
 import { Actor } from './Actor';
 import { Timer } from './Timer';
@@ -121,13 +121,13 @@ export interface EngineOptions<TKnownScenes extends string = any> {
    * Optionally configure the width & height of the viewport in css pixels.
    * Use `viewport` instead of [[EngineOptions.width]] and [[EngineOptions.height]], or vice versa.
    */
-  viewport?: ScreenDimension;
+  viewport?: ViewportDimension;
 
   /**
    * Optionally specify the size the logical pixel resolution, if not specified it will be width x height.
    * See [[Resolution]] for common presets.
    */
-  resolution?: ScreenDimension;
+  resolution?: Resolution;
 
   /**
    * Optionally specify antialiasing (smoothing), by default true (smooth pixels)
