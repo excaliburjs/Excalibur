@@ -5,16 +5,27 @@ import { Logger } from '../Util/Log';
 import { ImageFiltering } from './Filtering';
 import { Future } from '../Util/Future';
 import { TextureLoader } from '../Graphics/Context/texture-loader';
+import { ImageWrapping } from './Wrapping';
 
 export interface ImageSourceOptions {
   filtering?: ImageFiltering;
+  wrapping?: {
+    x: ImageWrapping,
+    y: ImageWrapping
+  };
   bustCache?: boolean;
+}
+
+export interface ImageWrapConfiguration {
+  x: ImageWrapping;
+  y: ImageWrapping;
 }
 
 export class ImageSource implements Loadable<HTMLImageElement> {
   private _logger = Logger.getInstance();
   private _resource: Resource<Blob>;
   public filtering: ImageFiltering;
+  public wrapping: ImageWrapConfiguration;
 
   /**
    * The original size of the source image in pixels
@@ -57,15 +68,33 @@ export class ImageSource implements Loadable<HTMLImageElement> {
    */
   public ready: Promise<HTMLImageElement> = this._readyFuture.promise;
 
+  public readonly path: string;
+
+  /**
+   *
+   * @param path
+   * @param options
+   */
+  constructor(path: string, options?: ImageSourceOptions);
   /**
    * The path to the image, can also be a data url like 'data:image/'
    * @param path {string} Path to the image resource relative from the HTML document hosting the game, or absolute
    * @param bustCache {boolean} Should excalibur add a cache busting querystring?
    * @param filtering {ImageFiltering} Optionally override the image filtering set by [[EngineOptions.antialiasing]]
    */
-  constructor(public readonly path: string, bustCache: boolean = false, filtering?: ImageFiltering) {
+  constructor(path: string, bustCache: boolean, filtering?: ImageFiltering);
+  constructor(path: string, bustCacheOrOptions: boolean | ImageSourceOptions, filtering?: ImageFiltering) {
+    this.path = path;
+    let bustCache = false;
+    let wrapping: ImageWrapConfiguration;
+    if (typeof bustCacheOrOptions === 'boolean') {
+      bustCache = bustCacheOrOptions;
+    } else {
+      ({ filtering, wrapping, bustCache } = {...bustCacheOrOptions});
+    }
     this._resource = new Resource(path, 'blob', bustCache);
-    this.filtering = filtering;
+    this.filtering = filtering ?? this.filtering;
+    this.wrapping = wrapping ?? this.wrapping;
     if (path.endsWith('.svg') || path.endsWith('.gif')) {
       this._logger.warn(`Image type is not fully supported, you may have mixed results ${path}. Fully supported: jpg, bmp, and png`);
     }
@@ -85,6 +114,14 @@ export class ImageSource implements Loadable<HTMLImageElement> {
       imageSource.data.setAttribute('filtering', options?.filtering);
     } else {
       imageSource.data.setAttribute('filtering', ImageFiltering.Blended);
+    }
+
+    if (options?.wrapping) {
+      imageSource.data.setAttribute('wrapping-x', options?.wrapping.x);
+      imageSource.data.setAttribute('wrapping-y', options?.wrapping.y);
+    } else {
+      imageSource.data.setAttribute('wrapping-x', ImageWrapping.Clamp);
+      imageSource.data.setAttribute('wrapping-y', ImageWrapping.Clamp);
     }
 
     TextureLoader.checkImageSizeSupportedAndLog(image);
@@ -146,6 +183,8 @@ export class ImageSource implements Loadable<HTMLImageElement> {
     }
     // Do a bad thing to pass the filtering as an attribute
     this.data.setAttribute('filtering', this.filtering);
+    this.data.setAttribute('wrapping-x', this.wrapping?.x);
+    this.data.setAttribute('wrapping-y', this.wrapping?.y);
 
     // todo emit complete
     this._readyFuture.resolve(this.data);
