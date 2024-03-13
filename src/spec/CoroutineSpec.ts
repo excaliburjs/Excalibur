@@ -25,17 +25,19 @@ describe('A Coroutine', () => {
   });
 
   it('can should throw without engine outside scope ', () => {
-    expect(() => {
-      const result = ex.coroutine(function* () {
-        const elapsed = yield;
-        expect(this).toBe(globalThis);
-        expect(elapsed).toBe(100);
-        yield;
-      });
-    }).toThrowError(
-      'Cannot run coroutine without engine parameter outside of an excalibur lifecycle method.\n' +
-      'Pass an engine parameter to ex.coroutine(engine, function * {...})'
-    );
+    ex.Engine.Context.scope(null, () => {
+      expect(() => {
+        const result = ex.coroutine(function* () {
+          const elapsed = yield;
+          expect(this).toBe(globalThis);
+          expect(elapsed).toBe(100);
+          yield;
+        });
+      }).toThrowError(
+        'Cannot run coroutine without engine parameter outside of an excalibur lifecycle method.\n' +
+        'Pass an engine parameter to ex.coroutine(engine, function * {...})'
+      );
+    });
   });
 
   it('can bind a this arg overload 1', async () => {
