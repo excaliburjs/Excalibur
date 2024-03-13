@@ -1,5 +1,10 @@
 import { Engine } from '../Engine';
+import { ScheduledCallbackTiming } from './Clock';
 export type CoroutineGenerator = () => Generator<number | Promise<any> | undefined, void, number>;
+
+export interface CoroutineOptions {
+  timing?: ScheduledCallbackTiming
+}
 
 /**
  * Excalibur coroutine helper, returns a promise when complete. Coroutines run before frame update.
@@ -11,8 +16,10 @@ export type CoroutineGenerator = () => Generator<number | Promise<any> | undefin
  * If you yield a number it will wait that many ms before resumed
  * @param engine
  * @param coroutineGenerator
+ * @param {CoroutineOptions} options optionally schedule coroutine pre/post update
  */
-export function coroutine(engine: Engine, coroutineGenerator: CoroutineGenerator): Promise<void> {
+export function coroutine(engine: Engine, coroutineGenerator: CoroutineGenerator, options?: CoroutineOptions): Promise<void> {
+  const schedule = options?.timing;
   return new Promise<void>((resolve, reject) => {
     const generator = coroutineGenerator();
     const loop = (elapsedMs: number) => {
@@ -25,14 +32,14 @@ export function coroutine(engine: Engine, coroutineGenerator: CoroutineGenerator
         if (value instanceof Promise) {
           value.then(() => {
             // schedule next loop
-            engine.clock.schedule(loop);
+            engine.clock.schedule(loop, 0, schedule);
           });
         } else if (value === undefined || value === (void 0)) {
           // schedule next frame
-          engine.clock.schedule(loop);
+          engine.clock.schedule(loop, 0, schedule);
         } else {
           // schedule value milliseconds from now
-          engine.clock.schedule(loop, value || 0);
+          engine.clock.schedule(loop, value || 0, schedule);
         }
       } catch (e) {
         reject(e);

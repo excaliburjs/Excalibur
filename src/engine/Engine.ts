@@ -1459,6 +1459,7 @@ O|===|* >________________>\n\
     }
 
     // Publish preupdate events
+    this.clock.__runScheduledCbs('preupdate');
     this._preupdate(delta);
 
     // process engine level events
@@ -1468,6 +1469,7 @@ O|===|* >________________>\n\
     this.graphicsContext.updatePostProcessors(delta);
 
     // Publish update event
+    this.clock.__runScheduledCbs('postupdate');
     this._postupdate(delta);
 
     // Update input listeners
@@ -1505,12 +1507,14 @@ O|===|* >________________>\n\
   private _draw(delta: number) {
     this.graphicsContext.beginDrawLifecycle();
     this.graphicsContext.clear();
+    this.clock.__runScheduledCbs('predraw');
     this._predraw(this.graphicsContext, delta);
 
     // Drawing nothing else while loading
     if (this._isLoading) {
       if (!this._hideLoader) {
         this._loader?.canvas.draw(this.graphicsContext, 0, 0);
+        this.clock.__runScheduledCbs('postdraw');
         this.graphicsContext.flush();
         this.graphicsContext.endDrawLifecycle();
       }
@@ -1522,6 +1526,7 @@ O|===|* >________________>\n\
 
     this.currentScene.draw(this.graphicsContext, delta);
 
+    this.clock.__runScheduledCbs('postdraw');
     this._postdraw(this.graphicsContext, delta);
 
     // Flush any pending drawings

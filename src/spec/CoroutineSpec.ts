@@ -20,6 +20,74 @@ describe('A Coroutine', () => {
     await expectAsync(result).toBeResolved();
   });
 
+  it('can be run on scheduled timing', async () => {
+    const engine = TestUtils.engine({ width: 100, height: 100});
+    const clock = engine.clock as ex.TestClock;
+    clock.start();
+
+    const calls = jasmine.createSpy('calls');
+
+    const preframe = ex.coroutine(engine, function * () {
+      const elapsed = yield;
+      calls('preframe');
+      expect(elapsed).toBe(100);
+      yield;
+    }, { timing: 'preframe'});
+
+    const postframe = ex.coroutine(engine, function * () {
+      const elapsed = yield;
+      calls('postframe');
+      expect(elapsed).toBe(100);
+      yield;
+    }, { timing: 'postframe'});
+
+    const preupdate = ex.coroutine(engine, function * () {
+      const elapsed = yield;
+      calls('preupdate');
+      expect(elapsed).toBe(100);
+      yield;
+    }, { timing: 'preupdate'});
+
+    const postupdate = ex.coroutine(engine, function * () {
+      const elapsed = yield;
+      calls('postupdate');
+      expect(elapsed).toBe(100);
+      yield;
+    }, { timing: 'postupdate'});
+
+    const predraw = ex.coroutine(engine, function * () {
+      const elapsed = yield;
+      calls('predraw');
+      expect(elapsed).toBe(100);
+      yield;
+    }, { timing: 'predraw'});
+
+    const postdraw = ex.coroutine(engine, function * () {
+      const elapsed = yield;
+      calls('postdraw');
+      expect(elapsed).toBe(100);
+      yield;
+    }, { timing: 'postdraw'});
+
+    clock.step(100);
+    clock.step(100);
+    expect(calls.calls.allArgs()).toEqual([
+      ['preframe'],
+      ['preupdate'],
+      ['postupdate'],
+      ['predraw'],
+      ['postdraw'],
+      ['postframe']
+    ]);
+    await expectAsync(preframe).toBeResolved();
+    await expectAsync(preupdate).toBeResolved();
+    await expectAsync(postupdate).toBeResolved();
+    await expectAsync(predraw).toBeResolved();
+    await expectAsync(postdraw).toBeResolved();
+    await expectAsync(postframe).toBeResolved();
+  });
+
+
   it('can wait for given ms', async () => {
     const engine = TestUtils.engine({ width: 100, height: 100});
     const clock = engine.clock as ex.TestClock;
