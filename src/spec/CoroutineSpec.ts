@@ -26,8 +26,6 @@ describe('A Coroutine', () => {
 
   it('can should throw without engine outside scope ', () => {
     const engine = TestUtils.engine({ width: 100, height: 100 });
-    const clock = engine.clock as ex.TestClock;
-    clock.start();
     expect(() => {
       const result = ex.coroutine(function* () {
         const elapsed = yield;

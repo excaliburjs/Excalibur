@@ -371,6 +371,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
    * @param cb
    */
   scope = (cb: () => any) => Engine.Context.scope(this, cb);
+  scopeAsync = async (cb: () => Promise<any>) => await Engine.Context.scopeAsync(this, cb);
 
   /**
    * Current Excalibur version string
@@ -1332,7 +1333,9 @@ O|===|* >________________>\n\
    * @deprecated use goToScene, it now behaves the same as goto
    */
   public async goto(destinationScene: WithRoot<TKnownScenes>, options?: GoToOptions) {
-    await this.director.goto(destinationScene, options);
+    await this.scopeAsync(async () => {
+      await this.director.goto(destinationScene, options);
+    });
   }
 
   /**
@@ -1366,7 +1369,9 @@ O|===|* >________________>\n\
    * @param options
    */
   public async goToScene<TData = undefined>(destinationScene: WithRoot<TKnownScenes>, options?: GoToOptions<TData>): Promise<void> {
-    await this.director.goto(destinationScene, options);
+    await this.scopeAsync(async () => {
+      await this.director.goto(destinationScene, options);
+    });
   }
 
   /**
@@ -1635,32 +1640,34 @@ O|===|* >________________>\n\
    */
   public async start(loader?: DefaultLoader): Promise<void>;
   public async start(sceneNameOrLoader?: WithRoot<TKnownScenes> | DefaultLoader, options?: StartOptions): Promise<void> {
-    if (!this._compatible) {
-      throw new Error('Excalibur is incompatible with your browser');
-    }
-    this._isLoading = true;
-    let loader: DefaultLoader;
-    if (sceneNameOrLoader instanceof DefaultLoader) {
-      loader = sceneNameOrLoader;
-    } else if (typeof sceneNameOrLoader === 'string') {
-      this.director.configureStart(sceneNameOrLoader, options);
-      loader = this.director.mainLoader;
-    }
+    await this.scopeAsync(async () => {
+      if (!this._compatible) {
+        throw new Error('Excalibur is incompatible with your browser');
+      }
+      this._isLoading = true;
+      let loader: DefaultLoader;
+      if (sceneNameOrLoader instanceof DefaultLoader) {
+        loader = sceneNameOrLoader;
+      } else if (typeof sceneNameOrLoader === 'string') {
+        this.director.configureStart(sceneNameOrLoader, options);
+        loader = this.director.mainLoader;
+      }
 
-    // Start the excalibur clock which drives the mainloop
-    this._logger.debug('Starting game clock...');
-    this.browser.resume();
-    this.clock.start();
-    this._logger.debug('Game clock started');
+      // Start the excalibur clock which drives the mainloop
+      this._logger.debug('Starting game clock...');
+      this.browser.resume();
+      this.clock.start();
+      this._logger.debug('Game clock started');
 
-    await this.load(loader ?? new Loader());
+      await this.load(loader ?? new Loader());
 
-    // Initialize before ready
-    await this._overrideInitialize(this);
+      // Initialize before ready
+      await this._overrideInitialize(this);
 
-    this._isReadyFuture.resolve();
-    this.emit('start', new GameStartEvent(this));
-    return this._isReadyFuture.promise;
+      this._isReadyFuture.resolve();
+      this.emit('start', new GameStartEvent(this));
+      return this._isReadyFuture.promise;
+    });
   }
 
   /**
@@ -1780,28 +1787,30 @@ O|===|* >________________>\n\
    * @param loader  Some [[Loadable]] such as a [[Loader]] collection, [[Sound]], or [[Texture]].
    */
   public async load(loader: DefaultLoader, hideLoader = false): Promise<void> {
-    try {
-      // early exit if loaded
-      if (loader.isLoaded()) {
-        return;
-      }
-      this._loader = loader;
-      this._isLoading = true;
-      this._hideLoader = hideLoader;
+    await this.scopeAsync(async () => {
+      try {
+        // early exit if loaded
+        if (loader.isLoaded()) {
+          return;
+        }
+        this._loader = loader;
+        this._isLoading = true;
+        this._hideLoader = hideLoader;
 
-      if (loader instanceof Loader) {
-        loader.suppressPlayButton = this._suppressPlayButton;
-      }
-      this._loader.onInitialize(this);
+        if (loader instanceof Loader) {
+          loader.suppressPlayButton = this._suppressPlayButton;
+        }
+        this._loader.onInitialize(this);
 
-      await loader.load();
-    } catch (e) {
-      this._logger.error('Error loading resources, things may not behave properly', e);
-      await Promise.resolve();
-    } finally {
-      this._isLoading = false;
-      this._hideLoader = false;
-      this._loader = null;
-    }
+        await loader.load();
+      } catch (e) {
+        this._logger.error('Error loading resources, things may not behave properly', e);
+        await Promise.resolve();
+      } finally {
+        this._isLoading = false;
+        this._hideLoader = false;
+        this._loader = null;
+      }
+    });
   }
 }
