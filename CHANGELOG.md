@@ -16,6 +16,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added simplified `ex.coroutine` overloads, you need not pass engine as long as you are in an Excalibur lifecycle
+  ```typescript
+  const result = ex.coroutine(function* () {...});
+  ```
+- Added way to bind 'this' to `ex.coroutine` overloads, you need not pass engine as long as you are in an Excalibur lifecycle
+  ```typescript
+  const result = ex.coroutine({myThis: 'cool'}, function* () {...});
+  ```
 - Added optional `ex.coroutine` timing parameter to schedule when they are updated
   ```typescript
   const result = ex.coroutine(engine, function * () {...}, { timing: 'postupdate' })

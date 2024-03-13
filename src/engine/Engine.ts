@@ -52,6 +52,7 @@ import { GoToOptions, SceneMap, Director, StartOptions, SceneWithOptions, WithRo
 import { InputHost } from './Input/InputHost';
 import { DefaultPhysicsConfig, DeprecatedStaticToConfig, PhysicsConfig } from './Collision/PhysicsConfig';
 import { DeepRequired } from './Util/Required';
+import { Context, createContext, useContext } from './Context';
 
 export type EngineEvents = {
   fallbackgraphicscontext: ExcaliburGraphicsContext2DCanvas,
@@ -354,6 +355,23 @@ export interface EngineOptions<TKnownScenes extends string = any> {
  * loading resources, and managing the scene.
  */
 export class Engine<TKnownScenes extends string = any> implements CanInitialize, CanUpdate, CanDraw {
+  static Context: Context<Engine | null> = createContext<Engine | null>(null);
+  static useEngine(): Engine {
+    const value = useContext(Engine.Context);
+
+    if (!value) {
+      throw new Error('Cannot inject engine with `useEngine()`, `useEngine()` was called outside of Engine lifecycle scope.');
+    }
+
+    return value;
+  }
+
+  /**
+   * Anything run under scope can use `useEngine()` to inject the current engine
+   * @param cb
+   */
+  scope = (cb: () => any) => Engine.Context.scope(this, cb);
+
   /**
    * Current Excalibur version string
    *
@@ -1657,43 +1675,45 @@ O|===|* >________________>\n\
 
   private _lagMs = 0;
   private _mainloop(elapsed: number) {
-    this.emit('preframe', new PreFrameEvent(this, this.stats.prevFrame));
-    const delta = elapsed * this.timescale;
-    this.currentFrameElapsedMs = delta;
+    this.scope(() => {
+      this.emit('preframe', new PreFrameEvent(this, this.stats.prevFrame));
+      const delta = elapsed * this.timescale;
+      this.currentFrameElapsedMs = delta;
 
-    // reset frame stats (reuse existing instances)
-    const frameId = this.stats.prevFrame.id + 1;
-    this.stats.currFrame.reset();
-    this.stats.currFrame.id = frameId;
-    this.stats.currFrame.delta = delta;
-    this.stats.currFrame.fps = this.clock.fpsSampler.fps;
-    GraphicsDiagnostics.clear();
+      // reset frame stats (reuse existing instances)
+      const frameId = this.stats.prevFrame.id + 1;
+      this.stats.currFrame.reset();
+      this.stats.currFrame.id = frameId;
+      this.stats.currFrame.delta = delta;
+      this.stats.currFrame.fps = this.clock.fpsSampler.fps;
+      GraphicsDiagnostics.clear();
 
-    const beforeUpdate = this.clock.now();
-    const fixedTimestepMs = 1000 / this.fixedUpdateFps;
-    if (this.fixedUpdateFps) {
-      this._lagMs += delta;
-      while (this._lagMs >= fixedTimestepMs) {
-        this._update(fixedTimestepMs);
-        this._lagMs -= fixedTimestepMs;
+      const beforeUpdate = this.clock.now();
+      const fixedTimestepMs = 1000 / this.fixedUpdateFps;
+      if (this.fixedUpdateFps) {
+        this._lagMs += delta;
+        while (this._lagMs >= fixedTimestepMs) {
+          this._update(fixedTimestepMs);
+          this._lagMs -= fixedTimestepMs;
+        }
+      } else {
+        this._update(delta);
       }
-    } else {
-      this._update(delta);
-    }
-    const afterUpdate = this.clock.now();
-    this.currentFrameLagMs = this._lagMs;
-    this._draw(delta);
-    const afterDraw = this.clock.now();
+      const afterUpdate = this.clock.now();
+      this.currentFrameLagMs = this._lagMs;
+      this._draw(delta);
+      const afterDraw = this.clock.now();
 
-    this.stats.currFrame.duration.update = afterUpdate - beforeUpdate;
-    this.stats.currFrame.duration.draw = afterDraw - afterUpdate;
-    this.stats.currFrame.graphics.drawnImages = GraphicsDiagnostics.DrawnImagesCount;
-    this.stats.currFrame.graphics.drawCalls = GraphicsDiagnostics.DrawCallCount;
+      this.stats.currFrame.duration.update = afterUpdate - beforeUpdate;
+      this.stats.currFrame.duration.draw = afterDraw - afterUpdate;
+      this.stats.currFrame.graphics.drawnImages = GraphicsDiagnostics.DrawnImagesCount;
+      this.stats.currFrame.graphics.drawCalls = GraphicsDiagnostics.DrawCallCount;
 
-    this.emit('postframe', new PostFrameEvent(this, this.stats.currFrame));
-    this.stats.prevFrame.reset(this.stats.currFrame);
+      this.emit('postframe', new PostFrameEvent(this, this.stats.currFrame));
+      this.stats.prevFrame.reset(this.stats.currFrame);
 
-    this._monitorPerformanceThresholdAndTriggerFallback();
+      this._monitorPerformanceThresholdAndTriggerFallback();
+    });
   }
 
   /**
