@@ -16,6 +16,18 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added simplified `ex.coroutine` overloads, you need not pass engine as long as you are in an Excalibur lifecycle
+  ```typescript
+  const result = ex.coroutine(function* () {...});
+  ```
+- Added way to bind 'this' to `ex.coroutine` overloads, you need not pass engine as long as you are in an Excalibur lifecycle
+  ```typescript
+  const result = ex.coroutine({myThis: 'cool'}, function* () {...});
+  ```
+- Added optional `ex.coroutine` timing parameter to schedule when they are updated
+  ```typescript
+  const result = ex.coroutine(engine, function * () {...}, { timing: 'postupdate' })
+  ```
 - Added `GraphicsComponent.bounds` which will report the world bounds of the graphic if applicable!
 - Added `ex.Vector.EQUALS_EPSILON` to configure the `ex.Vector.equals(v)` threshold
 - Added way to add custom WebGL context lost/recovered handlers for your game

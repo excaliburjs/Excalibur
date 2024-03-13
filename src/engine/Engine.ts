@@ -52,6 +52,7 @@ import { GoToOptions, SceneMap, Director, StartOptions, SceneWithOptions, WithRo
 import { InputHost } from './Input/InputHost';
 import { DefaultPhysicsConfig, DeprecatedStaticToConfig, PhysicsConfig } from './Collision/PhysicsConfig';
 import { DeepRequired } from './Util/Required';
+import { Context, createContext, useContext } from './Context';
 
 export type EngineEvents = {
   fallbackgraphicscontext: ExcaliburGraphicsContext2DCanvas,
@@ -354,6 +355,23 @@ export interface EngineOptions<TKnownScenes extends string = any> {
  * loading resources, and managing the scene.
  */
 export class Engine<TKnownScenes extends string = any> implements CanInitialize, CanUpdate, CanDraw {
+  static Context: Context<Engine | null> = createContext<Engine | null>();
+  static useEngine(): Engine {
+    const value = useContext(Engine.Context);
+
+    if (!value) {
+      throw new Error('Cannot inject engine with `useEngine()`, `useEngine()` was called outside of Engine lifecycle scope.');
+    }
+
+    return value;
+  }
+
+  /**
+   * Anything run under scope can use `useEngine()` to inject the current engine
+   * @param cb
+   */
+  scope = <TReturn>(cb: () => TReturn) => Engine.Context.scope(this, cb);
+
   /**
    * Current Excalibur version string
    *
@@ -1314,7 +1332,9 @@ O|===|* >________________>\n\
    * @deprecated use goToScene, it now behaves the same as goto
    */
   public async goto(destinationScene: WithRoot<TKnownScenes>, options?: GoToOptions) {
-    await this.director.goto(destinationScene, options);
+    await this.scope(async () => {
+      await this.director.goto(destinationScene, options);
+    });
   }
 
   /**
@@ -1348,7 +1368,9 @@ O|===|* >________________>\n\
    * @param options
    */
   public async goToScene<TData = undefined>(destinationScene: WithRoot<TKnownScenes>, options?: GoToOptions<TData>): Promise<void> {
-    await this.director.goto(destinationScene, options);
+    await this.scope(async () => {
+      await this.director.goto(destinationScene, options);
+    });
   }
 
   /**
@@ -1459,6 +1481,7 @@ O|===|* >________________>\n\
     }
 
     // Publish preupdate events
+    this.clock.__runScheduledCbs('preupdate');
     this._preupdate(delta);
 
     // process engine level events
@@ -1468,6 +1491,7 @@ O|===|* >________________>\n\
     this.graphicsContext.updatePostProcessors(delta);
 
     // Publish update event
+    this.clock.__runScheduledCbs('postupdate');
     this._postupdate(delta);
 
     // Update input listeners
@@ -1505,12 +1529,14 @@ O|===|* >________________>\n\
   private _draw(delta: number) {
     this.graphicsContext.beginDrawLifecycle();
     this.graphicsContext.clear();
+    this.clock.__runScheduledCbs('predraw');
     this._predraw(this.graphicsContext, delta);
 
     // Drawing nothing else while loading
     if (this._isLoading) {
       if (!this._hideLoader) {
         this._loader?.canvas.draw(this.graphicsContext, 0, 0);
+        this.clock.__runScheduledCbs('postdraw');
         this.graphicsContext.flush();
         this.graphicsContext.endDrawLifecycle();
       }
@@ -1522,6 +1548,7 @@ O|===|* >________________>\n\
 
     this.currentScene.draw(this.graphicsContext, delta);
 
+    this.clock.__runScheduledCbs('postdraw');
     this._postdraw(this.graphicsContext, delta);
 
     // Flush any pending drawings
@@ -1612,32 +1639,34 @@ O|===|* >________________>\n\
    */
   public async start(loader?: DefaultLoader): Promise<void>;
   public async start(sceneNameOrLoader?: WithRoot<TKnownScenes> | DefaultLoader, options?: StartOptions): Promise<void> {
-    if (!this._compatible) {
-      throw new Error('Excalibur is incompatible with your browser');
-    }
-    this._isLoading = true;
-    let loader: DefaultLoader;
-    if (sceneNameOrLoader instanceof DefaultLoader) {
-      loader = sceneNameOrLoader;
-    } else if (typeof sceneNameOrLoader === 'string') {
-      this.director.configureStart(sceneNameOrLoader, options);
-      loader = this.director.mainLoader;
-    }
+    await this.scope(async () => {
+      if (!this._compatible) {
+        throw new Error('Excalibur is incompatible with your browser');
+      }
+      this._isLoading = true;
+      let loader: DefaultLoader;
+      if (sceneNameOrLoader instanceof DefaultLoader) {
+        loader = sceneNameOrLoader;
+      } else if (typeof sceneNameOrLoader === 'string') {
+        this.director.configureStart(sceneNameOrLoader, options);
+        loader = this.director.mainLoader;
+      }
 
-    // Start the excalibur clock which drives the mainloop
-    this._logger.debug('Starting game clock...');
-    this.browser.resume();
-    this.clock.start();
-    this._logger.debug('Game clock started');
+      // Start the excalibur clock which drives the mainloop
+      this._logger.debug('Starting game clock...');
+      this.browser.resume();
+      this.clock.start();
+      this._logger.debug('Game clock started');
 
-    await this.load(loader ?? new Loader());
+      await this.load(loader ?? new Loader());
 
-    // Initialize before ready
-    await this._overrideInitialize(this);
+      // Initialize before ready
+      await this._overrideInitialize(this);
 
-    this._isReadyFuture.resolve();
-    this.emit('start', new GameStartEvent(this));
-    return this._isReadyFuture.promise;
+      this._isReadyFuture.resolve();
+      this.emit('start', new GameStartEvent(this));
+      return this._isReadyFuture.promise;
+    });
   }
 
   /**
@@ -1652,43 +1681,45 @@ O|===|* >________________>\n\
 
   private _lagMs = 0;
   private _mainloop(elapsed: number) {
-    this.emit('preframe', new PreFrameEvent(this, this.stats.prevFrame));
-    const delta = elapsed * this.timescale;
-    this.currentFrameElapsedMs = delta;
+    this.scope(() => {
+      this.emit('preframe', new PreFrameEvent(this, this.stats.prevFrame));
+      const delta = elapsed * this.timescale;
+      this.currentFrameElapsedMs = delta;
 
-    // reset frame stats (reuse existing instances)
-    const frameId = this.stats.prevFrame.id + 1;
-    this.stats.currFrame.reset();
-    this.stats.currFrame.id = frameId;
-    this.stats.currFrame.delta = delta;
-    this.stats.currFrame.fps = this.clock.fpsSampler.fps;
-    GraphicsDiagnostics.clear();
+      // reset frame stats (reuse existing instances)
+      const frameId = this.stats.prevFrame.id + 1;
+      this.stats.currFrame.reset();
+      this.stats.currFrame.id = frameId;
+      this.stats.currFrame.delta = delta;
+      this.stats.currFrame.fps = this.clock.fpsSampler.fps;
+      GraphicsDiagnostics.clear();
 
-    const beforeUpdate = this.clock.now();
-    const fixedTimestepMs = 1000 / this.fixedUpdateFps;
-    if (this.fixedUpdateFps) {
-      this._lagMs += delta;
-      while (this._lagMs >= fixedTimestepMs) {
-        this._update(fixedTimestepMs);
-        this._lagMs -= fixedTimestepMs;
+      const beforeUpdate = this.clock.now();
+      const fixedTimestepMs = 1000 / this.fixedUpdateFps;
+      if (this.fixedUpdateFps) {
+        this._lagMs += delta;
+        while (this._lagMs >= fixedTimestepMs) {
+          this._update(fixedTimestepMs);
+          this._lagMs -= fixedTimestepMs;
+        }
+      } else {
+        this._update(delta);
       }
-    } else {
-      this._update(delta);
-    }
-    const afterUpdate = this.clock.now();
-    this.currentFrameLagMs = this._lagMs;
-    this._draw(delta);
-    const afterDraw = this.clock.now();
+      const afterUpdate = this.clock.now();
+      this.currentFrameLagMs = this._lagMs;
+      this._draw(delta);
+      const afterDraw = this.clock.now();
 
-    this.stats.currFrame.duration.update = afterUpdate - beforeUpdate;
-    this.stats.currFrame.duration.draw = afterDraw - afterUpdate;
-    this.stats.currFrame.graphics.drawnImages = GraphicsDiagnostics.DrawnImagesCount;
-    this.stats.currFrame.graphics.drawCalls = GraphicsDiagnostics.DrawCallCount;
+      this.stats.currFrame.duration.update = afterUpdate - beforeUpdate;
+      this.stats.currFrame.duration.draw = afterDraw - afterUpdate;
+      this.stats.currFrame.graphics.drawnImages = GraphicsDiagnostics.DrawnImagesCount;
+      this.stats.currFrame.graphics.drawCalls = GraphicsDiagnostics.DrawCallCount;
 
-    this.emit('postframe', new PostFrameEvent(this, this.stats.currFrame));
-    this.stats.prevFrame.reset(this.stats.currFrame);
+      this.emit('postframe', new PostFrameEvent(this, this.stats.currFrame));
+      this.stats.prevFrame.reset(this.stats.currFrame);
 
-    this._monitorPerformanceThresholdAndTriggerFallback();
+      this._monitorPerformanceThresholdAndTriggerFallback();
+    });
   }
 
   /**
@@ -1755,28 +1786,30 @@ O|===|* >________________>\n\
    * @param loader  Some [[Loadable]] such as a [[Loader]] collection, [[Sound]], or [[Texture]].
    */
   public async load(loader: DefaultLoader, hideLoader = false): Promise<void> {
-    try {
-      // early exit if loaded
-      if (loader.isLoaded()) {
-        return;
-      }
-      this._loader = loader;
-      this._isLoading = true;
-      this._hideLoader = hideLoader;
+    await this.scope(async () => {
+      try {
+        // early exit if loaded
+        if (loader.isLoaded()) {
+          return;
+        }
+        this._loader = loader;
+        this._isLoading = true;
+        this._hideLoader = hideLoader;
 
-      if (loader instanceof Loader) {
-        loader.suppressPlayButton = this._suppressPlayButton;
-      }
-      this._loader.onInitialize(this);
+        if (loader instanceof Loader) {
+          loader.suppressPlayButton = this._suppressPlayButton;
+        }
+        this._loader.onInitialize(this);
 
-      await loader.load();
-    } catch (e) {
-      this._logger.error('Error loading resources, things may not behave properly', e);
-      await Promise.resolve();
-    } finally {
-      this._isLoading = false;
-      this._hideLoader = false;
-      this._loader = null;
-    }
+        await loader.load();
+      } catch (e) {
+        this._logger.error('Error loading resources, things may not behave properly', e);
+        await Promise.resolve();
+      } finally {
+        this._isLoading = false;
+        this._hideLoader = false;
+        this._loader = null;
+      }
+    });
   }
 }
