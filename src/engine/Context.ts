@@ -4,14 +4,7 @@ export interface Context<TValue> {
    * @param value
    * @param cb
    */
-  scope: (value: TValue, cb: () => any) => any;
-  /**
-   * Wait for async cb to finish before popping the context value
-   * @param value
-   * @param cb
-   * @returns
-   */
-  scopeAsync: (value: TValue, cb: () => Promise<any>) => Promise<any>;
+  scope: <TReturn>(value: TValue, cb: () => TReturn) => TReturn;
   value: TValue;
 }
 
@@ -29,24 +22,13 @@ export interface Context<TValue> {
  *
  * ```
  */
-export function createContext<TValue>(defaultValue: TValue) {
-  const currentValue = defaultValue;
+export function createContext<TValue>() {
   const ctx: Context<TValue> = {
     scope: (value, cb) => {
-      const old = ctx.value;
       ctx.value = value;
-      const val = cb();
-      ctx.value = old;
-      return val;
+      return cb();
     },
-    scopeAsync: async (value, cb) => {
-      const old = ctx.value;
-      ctx.value = value;
-      const val = await cb();
-      ctx.value = old;
-      return val;
-    },
-    value: currentValue
+    value: undefined
   };
   return ctx;
 }

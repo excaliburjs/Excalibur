@@ -355,7 +355,7 @@ export interface EngineOptions<TKnownScenes extends string = any> {
  * loading resources, and managing the scene.
  */
 export class Engine<TKnownScenes extends string = any> implements CanInitialize, CanUpdate, CanDraw {
-  static Context: Context<Engine | null> = createContext<Engine | null>(null);
+  static Context: Context<Engine | null> = createContext<Engine | null>();
   static useEngine(): Engine {
     const value = useContext(Engine.Context);
 
@@ -370,8 +370,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
    * Anything run under scope can use `useEngine()` to inject the current engine
    * @param cb
    */
-  scope = (cb: () => any) => Engine.Context.scope(this, cb);
-  scopeAsync = async (cb: () => Promise<any>) => await Engine.Context.scopeAsync(this, cb);
+  scope = <TReturn>(cb: () => TReturn) => Engine.Context.scope(this, cb);
 
   /**
    * Current Excalibur version string
@@ -1333,7 +1332,7 @@ O|===|* >________________>\n\
    * @deprecated use goToScene, it now behaves the same as goto
    */
   public async goto(destinationScene: WithRoot<TKnownScenes>, options?: GoToOptions) {
-    await this.scopeAsync(async () => {
+    await this.scope(async () => {
       await this.director.goto(destinationScene, options);
     });
   }
@@ -1369,7 +1368,7 @@ O|===|* >________________>\n\
    * @param options
    */
   public async goToScene<TData = undefined>(destinationScene: WithRoot<TKnownScenes>, options?: GoToOptions<TData>): Promise<void> {
-    await this.scopeAsync(async () => {
+    await this.scope(async () => {
       await this.director.goto(destinationScene, options);
     });
   }
@@ -1640,7 +1639,7 @@ O|===|* >________________>\n\
    */
   public async start(loader?: DefaultLoader): Promise<void>;
   public async start(sceneNameOrLoader?: WithRoot<TKnownScenes> | DefaultLoader, options?: StartOptions): Promise<void> {
-    await this.scopeAsync(async () => {
+    await this.scope(async () => {
       if (!this._compatible) {
         throw new Error('Excalibur is incompatible with your browser');
       }
@@ -1787,7 +1786,7 @@ O|===|* >________________>\n\
    * @param loader  Some [[Loadable]] such as a [[Loader]] collection, [[Sound]], or [[Texture]].
    */
   public async load(loader: DefaultLoader, hideLoader = false): Promise<void> {
-    await this.scopeAsync(async () => {
+    await this.scope(async () => {
       try {
         // early exit if loaded
         if (loader.isLoaded()) {
