@@ -209,10 +209,17 @@ export class GraphicsSystem extends System {
           graphic.flipVertical = flipVertical ? !oldFlipVertical : oldFlipVertical;
         }
 
-        graphic?.draw(
-          this._graphicsContext,
-          offsetX,
-          offsetY);
+        if (graphic instanceof GraphicsGroup) {
+          graphic?.draw(
+            this._graphicsContext,
+            0,
+            0);
+        } else {
+          graphic?.draw(
+            this._graphicsContext,
+            offsetX,
+            offsetY);
+        }
 
         if (flipHorizontal || flipVertical) {
           graphic.flipHorizontal = oldFlipHorizontal;
@@ -232,7 +239,7 @@ export class GraphicsSystem extends System {
                 g = member.graphic;
                 pos = member.offset;
               }
-              g?.localBounds.translate(offset.add(pos)).draw(this._graphicsContext, this._engine.debug.graphics.boundsColor);
+              g?.localBounds.translate(pos).draw(this._graphicsContext, this._engine.debug.graphics.boundsColor);
             }
           } else {
             /* istanbul ignore next */

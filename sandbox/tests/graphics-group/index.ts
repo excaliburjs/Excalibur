@@ -3,6 +3,7 @@
 var game = new ex.Engine({
   width: 1000,
   height: 1000,
+  pixelArt: true
 });
 
 var heartImage = new ex.ImageSource('./heart.png');
@@ -21,26 +22,24 @@ class MyActor2 extends ex.Actor {
       new ex.GraphicsGroup({
         members: [
           {
-            graphic: undefined,
-            offset: ex.vec(8, 8),
+            graphic: heartImage.toSprite(),
+            offset: ex.vec(0, 0),
           },
           {
             graphic: heartImage.toSprite(),
-            offset: ex.vec(8, -16),
+            offset: ex.vec(0, 16),
+          },
+          {
+            graphic: heartImage.toSprite(),
+            offset: ex.vec(16, 16),
+          },
+          {
+            graphic: heartImage.toSprite(),
+            offset: ex.vec(16, 0),
           },
         ],
-      }),
-      {
-        anchor: ex.vec(0, 0),
-      }
+      })
     );
-    this.graphics.add(
-      "noninteractive",
-      heartImage.toSprite(),
-      {
-        anchor: ex.vec(8, 8),
-      }
-    )
   }
 
   onPreUpdate(engine: ex.Engine<any>, delta: number): void {
@@ -51,3 +50,5 @@ class MyActor2 extends ex.Actor {
 game.add(new MyActor2());
 
 game.start(loader)
+game.currentScene.camera.pos = ex.vec(200, 200);
+game.currentScene.camera.zoom = 3;
