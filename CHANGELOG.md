@@ -40,6 +40,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where adding scenes with the same name did not work when it was previously removed
 - Fixed issue when WebGL context lost occurs where there was no friendly output to the user
 - Fixed issue where HiDPI scaling could accidentally scale past the 4k mobile limit, if the context would scale too large it will now attempt to recover by backing off.
 - Fixed issue where logo was sometimes not loaded during `ex.Loader`

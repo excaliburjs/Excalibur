@@ -194,6 +194,29 @@ describe('A Director', () => {
     expect(() => sut.remove(sut.rootScene)).toThrowError('Cannot remove a currently active scene: root');
   });
 
+  it('can add a scene that was already deleted', async () => {
+    const engine = TestUtils.engine();
+    const clock = engine.clock as ex.TestClock;
+    clock.start();
+    const scene1 = new ex.Scene();
+    const scene2 = new ex.Scene();
+    const sut = new ex.Director(engine, {
+      scene1,
+      scene2
+    });
+    sut.configureStart('scene1');
+    sut.onInitialize();
+    await sut.goto('scene2');
+    expect(sut.currentScene).toBe(scene2);
+    sut.remove('scene1');
+
+    const newScene = new ex.Scene();
+    sut.add('scene1', newScene);
+
+    await sut.goto('scene1');
+    expect(sut.currentScene).toBe(newScene);
+  });
+
   it('can goto a scene', async () => {
     const engine = TestUtils.engine();
     const clock = engine.clock as ex.TestClock;

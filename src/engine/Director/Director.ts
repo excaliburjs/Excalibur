@@ -350,6 +350,7 @@ export class Director<TKnownScenes extends string = any> {
               throw new Error(`Cannot remove a currently active scene: ${key}`);
             }
 
+            this._sceneToInstance.delete(key);
             this._sceneToTransition.delete(key);
             this._sceneToLoader.delete(key);
             delete this.scenes[key as TKnownScenes];
@@ -363,6 +364,7 @@ export class Director<TKnownScenes extends string = any> {
       }
 
       // remove scene
+      this._sceneToInstance.delete(nameOrScene);
       this._sceneToTransition.delete(nameOrScene);
       this._sceneToLoader.delete(nameOrScene);
       delete this.scenes[nameOrScene as TKnownScenes];
