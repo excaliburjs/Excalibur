@@ -101,7 +101,7 @@ export const TileMapEvents = {
   PointerDragEnd: 'pointerdragend',
   PointerDragEnter: 'pointerdragenter',
   PointerDragLeave: 'pointerdragleave',
-  PointerDragMove: 'pointerdragmove',
+  PointerDragMove: 'pointerdragmove'
 };
 
 /**
@@ -322,7 +322,7 @@ export class TileMap extends Entity {
     if (tile) {
       tile.events.emit(eventType, evt);
     }
-  }
+  };
 
   private _setupPointerToTile() {
     this.events.on('pointerup', this._forwardPointerEventToTile('pointerup'));
@@ -330,7 +330,7 @@ export class TileMap extends Entity {
     this.events.on('pointermove', this._forwardPointerEventToTile('pointermove'));
     this.events.on('pointerwheel', this._forwardPointerEventToTile('pointerwheel'));
     this.events.on('pointercancel', this._forwardPointerEventToTile('pointercancel'));
-    
+
     // TODO do pointer enter,leave,drag even work like this? since we are forwarding events I don't think so
     this.events.on('pointerenter', this._forwardPointerEventToTile('pointerenter'));
     this.events.on('pointerleave', this._forwardPointerEventToTile('pointerleave'));
@@ -721,7 +721,7 @@ export class Tile {
   private _pos: Vector;
   private _posDirty = false;
 
-  public events = new EventEmitter<TilePointerEvents>()
+  public events = new EventEmitter<TilePointerEvents>();
 
   /**
    * Return the world position of the top left corner of the tile

@@ -17,6 +17,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - Added pointer event support to `ex.TileMap`'s and individual `ex.Tile`'s
+- Added pointer event support to `ex.IsometricMap`'s and individual `ex.IsometricTile`'s
 - Added simplified `ex.coroutine` overloads, you need not pass engine as long as you are in an Excalibur lifecycle
   ```typescript
   const result = ex.coroutine(function* () {...});
