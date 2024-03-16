@@ -327,11 +327,14 @@ export class TileMap extends Entity {
   private _setupPointerToTile() {
     this.events.on('pointerup', this._forwardPointerEventToTile('pointerup'));
     this.events.on('pointerdown', this._forwardPointerEventToTile('pointerdown'));
+    this.events.on('pointermove', this._forwardPointerEventToTile('pointermove'));
+    this.events.on('pointerwheel', this._forwardPointerEventToTile('pointerwheel'));
+    this.events.on('pointercancel', this._forwardPointerEventToTile('pointercancel'));
+    
+    // TODO do pointer enter,leave,drag even work like this? since we are forwarding events I don't think so
     this.events.on('pointerenter', this._forwardPointerEventToTile('pointerenter'));
     this.events.on('pointerleave', this._forwardPointerEventToTile('pointerleave'));
-    this.events.on('pointermove', this._forwardPointerEventToTile('pointermove'));
-    this.events.on('pointercancel', this._forwardPointerEventToTile('pointercancel'));
-    this.events.on('pointerwheel', this._forwardPointerEventToTile('pointerwheel'));
+
     this.events.on('pointerdragstart', this._forwardPointerEventToTile('pointerdragstart'));
     this.events.on('pointerdragend', this._forwardPointerEventToTile('pointerdragend'));
     this.events.on('pointerdragenter', this._forwardPointerEventToTile('pointerdragenter'));
