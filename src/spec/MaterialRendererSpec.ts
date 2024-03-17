@@ -3,14 +3,21 @@ import { TestUtils } from './util/TestUtils';
 import { ExcaliburAsyncMatchers } from 'excalibur-jasmine';
 
 describe('A Material', () => {
+  let engine: ex.Engine;
   let graphicsContext: ex.ExcaliburGraphicsContext;
   beforeAll(() => {
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
   });
 
   beforeEach(() => {
-    const engine = TestUtils.engine();
+    engine = TestUtils.engine();
     graphicsContext = engine.graphicsContext;
+  });
+  afterEach(() => {
+    engine.stop();
+    engine.dispose();
+    engine = null;
+    graphicsContext = null;
   });
 
   it('exists', () => {
@@ -241,6 +248,7 @@ describe('A Material', () => {
     expect(graphicsContext.material).toBe(null);
     await expectAsync(engine.canvas)
       .toEqualImage('src/spec/images/MaterialRendererSpec/material-component.png');
+    engine.dispose();
   });
 
   it('can be draw multiple materials', async () => {
@@ -312,6 +320,8 @@ describe('A Material', () => {
     expect(graphicsContext.material).toBe(null);
     await expectAsync(engine.canvas)
       .toEqualImage('src/spec/images/MaterialRendererSpec/multi-mat.png');
+
+    engine.dispose();
   });
 
 

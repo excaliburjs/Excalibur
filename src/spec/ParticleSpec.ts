@@ -25,6 +25,7 @@ describe('A particle', () => {
   });
   afterEach(() => {
     engine.stop();
+    engine.dispose();
     engine = null;
   });
 

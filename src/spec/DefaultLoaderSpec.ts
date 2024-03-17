@@ -11,6 +11,12 @@ describe('A DefaultLoader', () => {
     engine = TestUtils.engine();
   });
 
+  afterEach(() => {
+    engine.stop();
+    engine.dispose();
+    engine = null;
+  });
+
   it('exists', () => {
     expect(ex.DefaultLoader).toBeDefined();
   });

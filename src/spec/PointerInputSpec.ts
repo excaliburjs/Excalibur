@@ -34,6 +34,8 @@ describe('A pointer', () => {
 
   afterEach(() => {
     engine.stop();
+    engine.dispose();
+    engine = null;
   });
 
   it('should detect pointer event', () => {

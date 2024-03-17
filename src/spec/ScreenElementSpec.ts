@@ -36,6 +36,7 @@ describe('A ScreenElement', () => {
 
   afterEach(() => {
     engine.stop();
+    engine.dispose();
     engine = null;
   });
 

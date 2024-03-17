@@ -36,6 +36,7 @@ describe('A generic Resource', () => {
       const game = TestUtils.engine();
       await game.start();
       expect(emptyLoader.isLoaded()).toBe(true);
+      game.dispose();
     });
   });
 

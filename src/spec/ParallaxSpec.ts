@@ -49,6 +49,7 @@ describe('A Parallax Component', () => {
     clock.step();
     expect(game.currentScene.camera.pos).toBeVector(ex.vec(620, 620));
     expect(actor.hasTag('ex.offscreen')).toBeTrue();
+    game.dispose();
   });
 
   it('works with TileMaps correctly', async () => {
@@ -86,5 +87,6 @@ describe('A Parallax Component', () => {
     clock.step(16);
 
     await expectAsync(game.canvas).toEqualImage('src/spec/images/ParallaxSpec/tilemap2.png');
+    game.dispose();
   });
 });

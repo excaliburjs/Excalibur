@@ -80,5 +80,6 @@ describe('A FadeInOut transition', () => {
     clock.step(900);
     await Promise.resolve();
     await expectAsync(engine.canvas).toEqualImage('/src/spec/images/FadeInOutSpec/fadeout.png');
+    engine.dispose();
   });
 });

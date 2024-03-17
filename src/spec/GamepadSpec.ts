@@ -18,6 +18,12 @@ describe('A gamepad', () => {
     });
   });
 
+  afterEach(() => {
+    engine.stop();
+    engine.dispose();
+    engine = null;
+  });
+
   it('should fire an event on connect', () => {
     let fired = false;
 

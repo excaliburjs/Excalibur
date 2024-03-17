@@ -365,6 +365,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
 
     return value;
   }
+  static InstanceCount = 0;
 
   /**
    * Anything run under scope can use `useEngine()` to inject the current engine
@@ -969,6 +970,7 @@ O|===|* >________________>\n\
     this._initialize(options);
 
     (window as any).___EXCALIBUR_DEVTOOL = this;
+    Engine.InstanceCount++;
   }
 
   private _handleWebGLContextLost = (e: Event) => {
@@ -1131,6 +1133,7 @@ O|===|* >________________>\n\
       this.screen.dispose();
       this.graphicsContext.dispose();
       this.graphicsContext = null;
+      Engine.InstanceCount--;
     }
   }
 

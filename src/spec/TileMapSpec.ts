@@ -34,6 +34,7 @@ describe('A TileMap', () => {
   });
   afterEach(() => {
     engine.stop();
+    engine.dispose();
     engine = null;
   });
 
@@ -503,6 +504,7 @@ describe('A TileMap', () => {
     expect(tile.getColliders().length).toBe(0);
     const tileMapCollider2 = sut.get(ColliderComponent).get() as ex.CompositeCollider;
     expect(tileMapCollider2.getColliders().length).toBe(0);
+    engine.dispose();
   });
 
   it('can get the bounds of a tile', () => {

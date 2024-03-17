@@ -168,6 +168,7 @@ describe('A game actor', () => {
     parent.addChild(child);
 
     expect(child.scene).toBe(engine.currentScene);
+    engine.dispose();
   });
 
   it('should create actor with valid default options', () => {
@@ -632,6 +633,7 @@ describe('A game actor', () => {
 
   it('once killed is not drawn', async () => {
     engine.stop();
+    engine.dispose();
     engine = null;
     engine = TestUtils.engine({ width: 100, height: 100 });
     await TestUtils.runToReady(engine);
@@ -688,6 +690,10 @@ describe('A game actor', () => {
   });
 
   it('can be drawn with a z-index', async () => {
+    engine.stop();
+    engine.dispose();
+    engine = null;
+
     engine = TestUtils.engine({
       width: 100,
       height: 100,
@@ -726,6 +732,10 @@ describe('A game actor', () => {
   });
 
   it('can have a graphic drawn at an opacity', async () => {
+    engine.stop();
+    engine.dispose();
+    engine = null;
+
     engine = TestUtils.engine({
       width: 62,
       height: 64,

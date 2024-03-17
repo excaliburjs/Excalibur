@@ -102,6 +102,8 @@ describe('The engine', () => {
     const logger = ex.Logger.getInstance();
     spyOn(logger, 'error');
 
+    engine.dispose();
+    engine = null;
     engine = TestUtils.engine();
 
 
@@ -111,6 +113,8 @@ describe('The engine', () => {
   });
 
   it('can switch to the canvas fallback on command', () => {
+    engine.dispose();
+    engine = null;
     engine = TestUtils.engine({
       suppressPlayButton: false
     });
@@ -130,6 +134,9 @@ describe('The engine', () => {
   });
 
   it('can switch to the canvas fallback on poor performance', async () => {
+    engine.dispose();
+    engine = null;
+
     engine = TestUtils.engine({
       suppressPlayButton: false,
       configurePerformanceCanvas2DFallback: {
@@ -152,6 +159,8 @@ describe('The engine', () => {
   });
 
   it('can use a fixed update fps and can catch up', async () => {
+    engine.dispose();
+    engine = null;
     engine = TestUtils.engine({
       fixedUpdateFps: 30
     });
@@ -170,6 +179,8 @@ describe('The engine', () => {
   });
 
   it('can use a fixed update fps and will skip updates', async () => {
+    engine.dispose();
+    engine = null;
     engine = TestUtils.engine({
       fixedUpdateFps: 30
     });
@@ -190,6 +201,8 @@ describe('The engine', () => {
   });
 
   it('can flag on to the canvas fallback', async () => {
+    engine.dispose();
+    engine = null;
     engine = TestUtils.engine({
       suppressPlayButton: false
     }, ['use-canvas-context']);
@@ -199,6 +212,8 @@ describe('The engine', () => {
   });
 
   it('should update the frame stats every tick', async () => {
+    engine.dispose();
+    engine = null;
     engine = TestUtils.engine();
     await TestUtils.runToReady(engine);
     const testClock = engine.clock as ex.TestClock;
@@ -215,9 +230,12 @@ describe('The engine', () => {
     expect(engine.screen.displayMode).toBe(ex.DisplayMode.FitScreen);
     expect(engine.screen.resolution.width).toBe(800);
     expect(engine.screen.resolution.height).toBe(600);
+    engine.dispose();
   });
 
   it('should hint the texture loader image filter to Blended when aa=true', () => {
+    engine.dispose();
+    engine = null;
     engine = TestUtils.engine({
       antialiasing: true
     });
@@ -225,6 +243,8 @@ describe('The engine', () => {
   });
 
   it('should hint the texture loader image filter to Pixel when aa=false', () => {
+    engine.dispose();
+    engine = null;
     engine = TestUtils.engine({
       antialiasing: false
     });
@@ -260,6 +280,8 @@ describe('The engine', () => {
   });
 
   it('can set snapToPixel', () => {
+    engine.dispose();
+    engine = null;
     engine = TestUtils.engine({width: 100, height: 100});
     expect(engine.snapToPixel).toBeFalse();
 
@@ -270,6 +292,8 @@ describe('The engine', () => {
   });
 
   it('can set pixelRatio', () => {
+    engine.dispose();
+    engine = null;
     engine = TestUtils.engine({width: 100, height: 100, pixelRatio: 5, suppressHiDPIScaling: false});
     expect(engine.pixelRatio).toBe(5);
     expect(engine.screen.pixelRatio).toBe(5);
@@ -278,9 +302,13 @@ describe('The engine', () => {
   });
 
   it('can use draw sorting', () => {
+    engine.dispose();
+    engine = null;
     engine = TestUtils.engine({width: 100, height: 100, useDrawSorting: false}, []);
     expect(engine.graphicsContext.useDrawSorting).toBe(false);
 
+    engine.dispose();
+    engine = null;
     engine = TestUtils.engine({width: 100, height: 100, useDrawSorting: true}, []);
     expect(engine.graphicsContext.useDrawSorting).toBe(true);
   });
@@ -502,6 +530,7 @@ describe('The engine', () => {
     });
 
     expect(game.backgroundColor.toString()).toEqual(ex.Color.White.toString());
+    game.dispose();
   });
 
   it('should accept default backgroundColor #2185d0', () => {
@@ -513,6 +542,7 @@ describe('The engine', () => {
     });
 
     expect(game.backgroundColor.toString()).toEqual(ex.Color.fromHex('#2185d0').toString());
+    game.dispose();
   });
 
   it('should detect hidpi when the device pixel ratio is greater than 1', (done) => {
@@ -524,6 +554,8 @@ describe('The engine', () => {
     const newWidth = oldWidth * (<any>window).devicePixelRatio;
     const newHeight = oldHeight * (<any>window).devicePixelRatio;
 
+    engine.dispose();
+    engine = null;
     engine = TestUtils.engine({
       width: 100,
       height: 100,
@@ -549,6 +581,8 @@ describe('The engine', () => {
     const newHeight = oldHeight * (<any>window).devicePixelRatio;
 
     // Act
+    engine.dispose();
+    engine = null;
     engine = TestUtils.engine({
       width: 100,
       height: 100,
@@ -567,6 +601,8 @@ describe('The engine', () => {
     (<any>window).devicePixelRatio = 2;
 
     // Act
+    engine.dispose();
+    engine = null;
     engine = TestUtils.engine({
       width: 100,
       height: 100,
@@ -591,6 +627,7 @@ describe('The engine', () => {
       suppressConsoleBootMessage: true
     });
     expect(game.enableCanvasTransparency).toBe(false);
+    game.dispose();
   });
 
   it('should accept default enableCanvasTransparency true', () => {
@@ -600,6 +637,7 @@ describe('The engine', () => {
       suppressConsoleBootMessage: true
     });
     expect(game.enableCanvasTransparency).toBe(true);
+    game.dispose();
   });
 
   it('will warn if scenes are being overwritten', () => {
@@ -697,7 +735,6 @@ describe('The engine', () => {
       clock.step(1);
       clock.step(1);
     });
-
   });
 
   it('can screen shot the game HiDPI (in WebGL)', async () => {
@@ -762,6 +799,7 @@ describe('The engine', () => {
     const image = await screenShotPromise;
 
     await expectAsync(image).toEqualImage('src/spec/images/EngineSpec/screenshot.png', 1.0);
+    engine.dispose();
   });
 
   it('can snap to pixel', async () => {
@@ -821,6 +859,7 @@ describe('The engine', () => {
     clock.step();
 
     await expectAsync(engine.canvas).toEqualImage('src/spec/images/EngineSpec/snaptopixel.png');
+    engine.dispose();
   });
 
   it('can do subpixel AA on pixel art', async () => {
@@ -887,6 +926,7 @@ describe('The engine', () => {
 
     clock.step();
     await expectAsync(engine.canvas).toEqualImage('src/spec/images/EngineSpec/pixelart.png');
+    engine.dispose();
   });
 
   describe('lifecycle overrides', () => {
@@ -897,6 +937,7 @@ describe('The engine', () => {
 
     afterEach(() => {
       engine.stop();
+      engine.dispose();
       engine = null;
     });
 
