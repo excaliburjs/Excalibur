@@ -51,7 +51,7 @@ var game = new ex.Engine({
   // pixelRatio: 1,
   // suppressPlayButton: true,
   pointerScope: ex.PointerScope.Canvas,
-  displayMode: ex.DisplayMode.FitScreenAndZoom,
+  displayMode: ex.DisplayMode.Fixed,
   snapToPixel: false,
   // fixedUpdateFps: 30,
   pixelRatio: 2,
@@ -153,10 +153,11 @@ cards2.draw(game.graphicsContext, 0, 0);
 
 jump.volume = 0.3;
 
-var boot = new ex.Loader({
-  fullscreenAfterLoad: true,
-  fullscreenContainer: document.getElementById('container')
-});
+var boot = new ex.Loader();
+// var boot = new ex.Loader({
+//   fullscreenAfterLoad: true,
+//   fullscreenContainer: document.getElementById('container')
+// });
 boot.addResource(heartImageSource);
 boot.addResource(heartTex);
 boot.addResource(imageRun);
@@ -984,6 +985,10 @@ game.input.pointers.primary.on('down', (evt: ex.PointerEvent) => {
       c.addGraphic(spriteTiles.sprites[0]);
     }
   }
+});
+
+tileMap.tiles[0].events.on('pointerdown', (evt) => {
+  console.log('tile clicked', evt);
 });
 
 game.input.keyboard.on('up', (evt?: ex.KeyEvent) => {
