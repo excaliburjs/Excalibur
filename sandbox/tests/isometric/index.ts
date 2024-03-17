@@ -40,6 +40,9 @@ var isoMap2 = new ex.IsometricMap({
 });
 isoMap2.tiles.forEach(t => t.addGraphic(isoTileSprite));
 game.currentScene.add(isoMap2);
+isoMap2.tiles[0].events.on('pointerdown', (evt: ex.PointerEvent) => {
+  console.log(evt, isoMap2.tiles[0]);
+});
 
 var tileCoord = ex.vec(0, 0);
 game.input.pointers.on('move', evt => {
