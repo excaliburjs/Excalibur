@@ -1137,6 +1137,10 @@ O|===|* >________________>\n\
     }
   }
 
+  public isDisposed() {
+    return this._disposed;
+  }
+
   /**
    * Returns a BoundingBox of the top left corner of the screen
    * and the bottom right corner of the screen.

@@ -249,6 +249,9 @@ export class PointerEventReceiver {
    * browser events.
    */
   public init(options?: PointerInitOptions) {
+    if (this.engine.isDisposed()) {
+      return;
+    }
     // Disabling the touch action avoids browser/platform gestures from firing on the canvas
     // It is important on mobile to have touch action 'none'
     // https://stackoverflow.com/questions/48124372/pointermove-event-not-working-with-touch-why-not
