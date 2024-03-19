@@ -40,6 +40,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where `ex.TileMap` culling did not work properly when using fixed updates lower than refresh rate
 - Fixed incomplete types for font options in `ex.FontSource().toFont(options)`
 - Fixed issue with `ex.Loader` start button position when using CSS transforms
 - Fixed issue where adding scenes with the same name did not work when it was previously removed

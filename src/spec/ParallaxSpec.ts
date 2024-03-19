@@ -25,6 +25,7 @@ describe('A Parallax Component', () => {
     const game = TestUtils.engine({width: 500, height: 500}, ['use-canvas-context']);
     await TestUtils.runToReady(game);
     game.currentScene.camera.pos = ex.vec(0, 0);
+    game.currentScene.camera.drawPos = ex.vec(0, 0);
 
     const clock = game.clock as ex.TestClock;
 
@@ -33,6 +34,7 @@ describe('A Parallax Component', () => {
     game.add(actor);
 
     game.currentScene.camera.pos = ex.vec(100, 100);
+    game.currentScene.camera.drawPos = ex.vec(100, 100);
     expect(game.currentScene.camera.pos).toBeVector(ex.vec(100, 100));
 
     clock.step(16);
@@ -40,12 +42,14 @@ describe('A Parallax Component', () => {
     expect(actor.hasTag('ex.offscreen')).toBeFalse();
 
     game.currentScene.camera.pos = ex.vec(520, 520);
+    game.currentScene.camera.drawPos = ex.vec(520, 520);
     clock.step();
     expect(game.currentScene.camera.pos).toBeVector(ex.vec(520, 520));
     await expectAsync(game.canvas).toEqualImage('src/spec/images/ParallaxSpec/parallax2.png');
     expect(actor.hasTag('ex.offscreen')).toBeFalse();
 
     game.currentScene.camera.pos = ex.vec(620, 620);
+    game.currentScene.camera.drawPos = ex.vec(620, 620);
     clock.step();
     expect(game.currentScene.camera.pos).toBeVector(ex.vec(620, 620));
     expect(actor.hasTag('ex.offscreen')).toBeTrue();
