@@ -13,12 +13,28 @@ export class TextureLoader {
     TextureLoader._MAX_TEXTURE_SIZE = gl.getParameter(gl.MAX_TEXTURE_SIZE);
   }
 
+  public startGarbageCollector() {
+    if (!this._collectHandle) {
+      this._garbageCollector();
+    }
+  }
+  public stopGarbageCollector() {
+    cancelIdleCallback(this._collectHandle);
+  }
+
+  private _collectHandle: number;
+  private _garbageCollector = () => {
+    this.collect();
+    this._collectHandle = requestIdleCallback(this._garbageCollector);
+  };
+
   public dispose() {
     for (const [image] of this._textureMap) {
       this.delete(image);
     }
     this._textureMap.clear();
     this._gl = null;
+    this.stopGarbageCollector();
   }
 
   /**
@@ -29,6 +45,7 @@ export class TextureLoader {
   private _gl: WebGL2RenderingContext;
 
   private _textureMap = new Map<HTMLImageSource, WebGLTexture>();
+  private _collectionMap = new Map<HTMLImageSource, number>() ;
 
   private static _MAX_TEXTURE_SIZE: number = 4096;
 
@@ -73,6 +90,7 @@ export class TextureLoader {
         gl.bindTexture(gl.TEXTURE_2D, tex);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
       }
+      this._collectionMap.set(image, Date.now());
       return tex;
     }
 
@@ -108,10 +126,13 @@ export class TextureLoader {
       return null;
     }
 
-    let tex: WebGLTexture = null;
     if (this.has(image)) {
-      tex = this.get(image);
-      gl.deleteTexture(tex);
+      const tex = this.get(image);
+      if (tex) {
+        this._textureMap.delete(image);
+        this._collectionMap.delete(image);
+        gl.deleteTexture(tex);
+      }
     }
   }
 
@@ -138,5 +159,21 @@ export class TextureLoader {
         `Read more here: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#understand_system_limits`);
     }
     return true;
+  }
+
+  /**
+   * Looks for textures that haven't been drawn in a while
+   */
+  public collect() {
+    if (this._gl) {
+      const now = Date.now();
+      for (const [image, time] of this._collectionMap.entries()) {
+        if ((time + (1000 * 60)) < now) {
+          const name = image.dataset.originalSrc ?? image.constructor.name;
+          TextureLoader._LOGGER.debug(`WebGL Texture for ${name} collected`);
+          this.delete(image);
+        }
+      }
+    }
   }
 }

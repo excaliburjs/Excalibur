@@ -257,6 +257,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     });
 
     this.textureLoader = new TextureLoader(this.__gl);
+    this.textureLoader.startGarbageCollector();
     this.snapToPixel = snapToPixel ?? this.snapToPixel;
     this.smoothing = antialiasing ?? this.smoothing;
     this.transparency = enableTransparency ?? this.transparency;
