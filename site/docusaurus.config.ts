@@ -190,6 +190,18 @@ const config: Config = {
           }
         ]
       }
+    ],
+    [
+      '@docusaurus/plugin-client-redirects',
+      {
+        redirects: [
+          // /docs/oldDoc -> /docs/newDoc
+          {
+            from: '/docs/webgl',
+            to: '/docs/performance',
+          },
+        ],
+      },
     ]
   ],
 
