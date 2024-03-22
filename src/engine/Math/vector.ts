@@ -357,8 +357,7 @@ export class Vector implements Clonable<Vector> {
   }
 
   /**
-   * Rotates the current vector around a point by a certain number of
-   * degrees in radians
+   * Rotates the current vector around a point by a certain angle in radians.
    */
   public rotate(angle: number, anchor?: Vector): Vector {
     if (!anchor) {
