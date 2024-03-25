@@ -323,7 +323,7 @@ export class Camera implements CanUpdate, CanInitialize {
    */
   public drawPos: Vector = this.pos.clone();
 
-  private _oldPos = this.pos.clone();
+  public oldPos = this.pos.clone();
 
   /**
    * Get or set the camera's velocity
@@ -641,12 +641,14 @@ export class Camera implements CanUpdate, CanInitialize {
       // Setup the first frame viewport
       this.updateViewport();
 
+      this.onInitialize(engine);
+
+      // Update tx after init
       // It's important to update the camera after strategies
       // This prevents jitter
       this.updateTransform(this.pos);
-      this.pos.clone(this._oldPos);
+      this.pos.clone(this.oldPos);
 
-      this.onInitialize(engine);
       this.events.emit('initialize', new InitializeEvent(engine, this));
       this._isInitialized = true;
     }
@@ -705,7 +707,7 @@ export class Camera implements CanUpdate, CanInitialize {
   public update(engine: Engine, delta: number) {
     this._initialize(engine);
     this._preupdate(engine, delta);
-    this.pos.clone(this._oldPos);
+    this.pos.clone(this.oldPos);
 
     // Update placements based on linear algebra
     this.pos = this.pos.add(this.vel.scale(delta / 1000));
@@ -792,7 +794,7 @@ export class Camera implements CanUpdate, CanInitialize {
     if (this._engine.fixedUpdateFps) {
       const blend = this._engine.currentFrameLagMs / (1000 / this._engine.fixedUpdateFps);
       const interpolatedPos = this.pos.scale(blend).add(
-        this._oldPos.scale(1.0 - blend)
+        this.oldPos.scale(1.0 - blend)
       );
       interpolatedPos.clone(this.drawPos);
       this.updateTransform(interpolatedPos);

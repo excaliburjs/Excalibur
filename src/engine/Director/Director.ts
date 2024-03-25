@@ -180,6 +180,10 @@ export class Director<TKnownScenes extends string = any> {
         const deferredTransition = this._deferredTransition;
         this._deferredGoto = null;
         this._deferredTransition = null;
+        if (deferredTransition) {
+          const sceneSceneInstance = this.getSceneInstance(deferredScene);
+          sceneSceneInstance.add(deferredTransition);
+        }
         await this.swapScene(deferredScene);
         if (deferredTransition) {
           await this.playTransition(deferredTransition);
@@ -420,14 +424,22 @@ export class Director<TKnownScenes extends string = any> {
     await this.maybeLoadScene(destinationScene, hideLoader);
 
     // Give incoming transition a chance to grab info from previous
+    console.log("before previous deactivate", this._engine.stats.currFrame.id);
     await inTransition?.onPreviousSceneDeactivate(this.currentScene);
+    console.log("after previous deactivate", this._engine.stats.currFrame.id);
 
     // Swap to the new scene
+    if (inTransition) {
+      maybeDest.add(inTransition);
+    }
     await this.swapScene(destinationScene, sceneActivationData);
+    console.log("swap scene", this._engine.stats.currFrame.id);
+    this.clearTransition(outTransition);
     this._emitEvent('navigation', sourceScene, destinationScene);
 
     // Run the in transition on the new scene if present
     await this.playTransition(inTransition);
+    this.clearTransition(inTransition);
     this._emitEvent('navigationend', sourceScene, destinationScene);
 
     this._engine.input?.toggleEnabled(engineInputEnabled);
@@ -498,13 +510,14 @@ export class Director<TKnownScenes extends string = any> {
       currentScene.input?.toggleEnabled(!transition.blockInput);
       this._engine.input?.toggleEnabled(!transition.blockInput);
 
-      await this.currentTransition.play(this._engine);
+      await transition.play(this._engine, currentScene);
 
       currentScene.input?.toggleEnabled(sceneInputEnabled);
     }
-    this.currentTransition?.kill();
-    this.currentTransition?.reset();
-    this.currentTransition = null;
+  }
+
+  clearTransition(transition: Transition) {
+    transition?.kill();
   }
 
   /**
@@ -544,6 +557,7 @@ export class Director<TKnownScenes extends string = any> {
       engine.screen.setCurrentCamera(nextScene.camera);
 
       // initialize the current scene if has not been already
+      console.log('director init', engine.stats.currFrame.id);
       await this.currentScene._initialize(engine);
 
       const context = { engine, previousScene, nextScene, data };

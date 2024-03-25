@@ -7,11 +7,16 @@ scene1.add(new ex.Label({
   z: 99
 }))
 scene1.onInitialize = () => {
+  console.log("onInit", scene1.engine.stats.currFrame.id);
   scene1.camera.pos = ex.vec(200, 200);
   scene1.camera.zoom = 2;
 }
+
+scene1.onPreDraw = () => {}
+
 var scene2 = new ex.Scene();
 scene2.onInitialize = () => {
+  console.log("onInit", scene1.engine.stats.currFrame.id);
   scene2.camera.pos = ex.vec(200, 200);
   scene2.camera.zoom = 2;
 }
@@ -38,16 +43,16 @@ class MyCustomScene extends ex.Scene {
     });
   }
   onPreLoad(loader: ex.DefaultLoader): void {
-    const image1 = new ex.ImageSource('./spritefont.png?=1');
-    const image2 = new ex.ImageSource('./spritefont.png?=2');
-    const image3 = new ex.ImageSource('./spritefont.png?=3');
-    const image4 = new ex.ImageSource('./spritefont.png?=4');
-    const sword = new ex.ImageSource('https://cdn.rawgit.com/excaliburjs/Excalibur/7dd48128/assets/sword.png');
-    loader.addResource(image1);
-    loader.addResource(image2);
-    loader.addResource(image3);
-    loader.addResource(image4);
-    loader.addResource(sword);
+    // const image1 = new ex.ImageSource('./spritefont.png?=1');
+    // const image2 = new ex.ImageSource('./spritefont.png?=2');
+    // const image3 = new ex.ImageSource('./spritefont.png?=3');
+    // const image4 = new ex.ImageSource('./spritefont.png?=4');
+    // const sword = new ex.ImageSource('https://cdn.rawgit.com/excaliburjs/Excalibur/7dd48128/assets/sword.png');
+    // loader.addResource(image1);
+    // loader.addResource(image2);
+    // loader.addResource(image3);
+    // loader.addResource(image4);
+    // loader.addResource(sword);
   }
   onActivate(context: ex.SceneActivationContext<unknown>): void {
     console.log(context.data);
@@ -63,7 +68,7 @@ let scenes = {
   },
   scene2: {
     scene: scene2,
-    loader: MyLoader,
+    // loader: MyLoader,
     transitions: {
       out: new ex.FadeInOut({duration: 500, direction: 'out'}),
       in: new ex.CrossFade({duration: 2500, direction: 'in', blockInput: true})
@@ -76,6 +81,7 @@ var gameWithTransitions = new ex.Engine({
   width: 800,
   height: 600,
   displayMode: ex.DisplayMode.FitScreenAndFill,
+  fixedUpdateFps: 10,
   scenes
 });
 
@@ -96,21 +102,21 @@ scene1.add(actor);
 
 
 scene2.onPreLoad = (loader) => {
-  const image1 = new ex.ImageSource('./spritefont.png?=1');
-  const image2 = new ex.ImageSource('./spritefont.png?=2');
-  const image3 = new ex.ImageSource('./spritefont.png?=3');
-  const image4 = new ex.ImageSource('./spritefont.png?=4');
-  const sword = new ex.ImageSource('https://cdn.rawgit.com/excaliburjs/Excalibur/7dd48128/assets/sword.png');
-  loader.addResource(image1);
-  loader.addResource(image2);
-  loader.addResource(image3);
-  loader.addResource(image4);
-  loader.addResource(sword);
+  // const image1 = new ex.ImageSource('./spritefont.png?=1');
+  // const image2 = new ex.ImageSource('./spritefont.png?=2');
+  // const image3 = new ex.ImageSource('./spritefont.png?=3');
+  // const image4 = new ex.ImageSource('./spritefont.png?=4');
+  // const sword = new ex.ImageSource('https://cdn.rawgit.com/excaliburjs/Excalibur/7dd48128/assets/sword.png');
+  // loader.addResource(image1);
+  // loader.addResource(image2);
+  // loader.addResource(image3);
+  // loader.addResource(image4);
+  // loader.addResource(sword);
 }
 scene1.onActivate = () => {
   setTimeout(() => {
     gameWithTransitions.goto('scene2');
-  }, 1000);
+  }, 5000);
 }
 scene2.add(new ex.Actor({
   width: 100,

@@ -335,8 +335,13 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
 
         // This order is important! we want to be sure any custom init that add actors
         // fire before the actor init
+        console.log("_init", engine.stats.currFrame.id);
         await this.onInitialize(engine);
         this._initializeChildren();
+
+        // scene init often changes camera pos
+        this.camera.updateTransform(this.camera.pos);
+        this.camera.pos.clone(this.camera.oldPos);
 
         this._logger.debug('Scene.onInitialize', this, engine);
         this.events.emit('initialize', new InitializeEvent(engine, this));

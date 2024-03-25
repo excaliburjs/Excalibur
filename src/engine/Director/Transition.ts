@@ -196,8 +196,8 @@ export class Transition extends Entity {
   }
 
   play(engine: Engine, targetScene?: Scene) {
+    this.reset();
     if (this.started) {
-      this.reset();
       this._logger.warn(`Attempted to play a transition ${this.name} that is already playing, reset transition.`);
     }
 
