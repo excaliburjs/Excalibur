@@ -1,0 +1,27 @@
+# configuration for Semantic Pull Requests (https://github.com/probot/semantic-pull-requests)
+# See .gitub/CONTRIBUTING.md #### Commit messages for additional information
+
+# always validate the PR title, and ignore the commits
+titleOnly: true
+
+# allowed types
+types:
+  - fix
+  - feat
+  - test
+  - perf
+  - refactor
+  - docs
+  - chore
+
+# allowed scopes
+  scopes:
+    - actions
+    - collision
+    - drawing
+    - events
+    - input
+    - sound
+    - plugin-jasmine
+    - plugin-pack
+    - plugin-tiled
