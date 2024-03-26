@@ -16,6 +16,31 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added `useAnchor` parameter to `ex.GraphicsGroup` to allow users to opt out of anchor based positioning, if set to false all graphics members
+will be positioned with the top left of the graphic at the actor's position.
+  ```typescript
+  const graphicGroup = new ex.GraphicsGroup({
+    useAnchor: false,
+    members: [
+      {
+        graphic: heartImage.toSprite(),
+        offset: ex.vec(0, 0),
+      },
+      {
+        graphic: heartImage.toSprite(),
+        offset: ex.vec(0, 16),
+      },
+      {
+        graphic: heartImage.toSprite(),
+        offset: ex.vec(16, 16),
+      },
+      {
+        graphic: heartImage.toSprite(),
+        offset: ex.vec(16, 0),
+      },
+    ],
+  });
+  ```
 - Added simplified `ex.coroutine` overloads, you need not pass engine as long as you are in an Excalibur lifecycle
   ```typescript
   const result = ex.coroutine(function* () {...});
