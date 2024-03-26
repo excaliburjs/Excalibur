@@ -360,7 +360,7 @@ export class GraphicsComponent extends Component {
     const bounds = graphic.localBounds;
     const offsetX = -bounds.width *  anchor.x + offset.x;
     const offsetY = -bounds.height *  anchor.y + offset.y;
-    if (graphic instanceof GraphicsGroup) {
+    if (graphic instanceof GraphicsGroup && !graphic.useAnchor) {
       bb = graphic?.localBounds.combine(bb);
     } else {
       bb = graphic?.localBounds.translate(vec(offsetX, offsetY)).combine(bb);
