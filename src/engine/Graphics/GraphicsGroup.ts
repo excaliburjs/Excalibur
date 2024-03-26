@@ -109,7 +109,7 @@ export class GraphicsGroup extends Graphic implements HasTick {
 
   protected _preDraw(ex: ExcaliburGraphicsContext, x: number, y: number) {
     this._updateDimensions();
-    super._preDraw(ex, x, y);
+    super._preDraw(ex, this.useAnchor ? x : 0, this.useAnchor ? y : 0);
   }
 
   protected _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number) {
@@ -126,7 +126,7 @@ export class GraphicsGroup extends Graphic implements HasTick {
         continue;
       }
       ex.save();
-      ex.translate(this.useAnchor ? x : 0, this.useAnchor ? y : 0);
+      ex.translate(x, y);
       graphic.draw(ex, pos.x, pos.y);
       if (this.showDebug) {
         /* istanbul ignore next */
