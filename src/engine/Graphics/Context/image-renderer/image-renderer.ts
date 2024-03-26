@@ -37,6 +37,7 @@ export class ImageRenderer implements RendererPlugin {
   // Per flush vars
   private _imageCount: number = 0;
   private _textures: WebGLTexture[] = [];
+  private _images = new Set<HTMLImageSource>();
   private _vertexIndex: number = 0;
 
   constructor(options: ImageRendererOptions) {
@@ -119,6 +120,9 @@ export class ImageRenderer implements RendererPlugin {
   }
 
   private _addImageAsTexture(image: HTMLImageSource) {
+    if (this._images.has(image)) {
+      return;
+    }
     const maybeFiltering = image.getAttribute('filtering');
     let filtering: ImageFiltering = null;
     if (maybeFiltering === ImageFiltering.Blended ||
@@ -132,6 +136,7 @@ export class ImageRenderer implements RendererPlugin {
     image.removeAttribute('forceUpload');
     if (this._textures.indexOf(texture) === -1) {
       this._textures.push(texture);
+      this._images.add(image);
     }
   }
 
@@ -162,6 +167,16 @@ export class ImageRenderer implements RendererPlugin {
   }
 
 
+  private _view = [0, 0, 0, 0];
+  private _dest = [0, 0];
+  private _topLeft = vec(0, 0);
+  private _topRight = vec(0, 0);
+  private _bottomLeft = vec(0, 0);
+  private _bottomRight = vec(0, 0);
+  private _txTopLeft = vec(0, 0);
+  private _txTopRight = vec(0, 0);
+  private _txBottomLeft = vec(0, 0);
+  private _txBottomRight = vec(0, 0);
   draw(image: HTMLImageSource,
     sx: number,
     sy: number,
@@ -180,73 +195,85 @@ export class ImageRenderer implements RendererPlugin {
     this._imageCount++;
     // This creates and uploads the texture if not already done
     this._addImageAsTexture(image);
+    const maybeImageWidth = image?.width;
+    const maybeImageHeight = image?.height;
 
-    let width = image?.width || swidth || 0;
-    let height = image?.height || sheight || 0;
-    let view = [0, 0, swidth ?? image?.width ?? 0, sheight ?? image?.height ?? 0];
-    let dest = [sx ?? 1, sy ?? 1];
+    let width = maybeImageWidth || swidth || 0;
+    let height = maybeImageHeight || sheight || 0;
+    this._view[2] = swidth ?? maybeImageWidth ?? 0;
+    this._view[3] = sheight ?? maybeImageHeight ?? 0;
+    this._dest[0] = sx ?? 1;
+    this._dest[1] = sy ?? 1;
+    // let view = [0, 0, swidth ?? image?.width ?? 0, sheight ?? image?.height ?? 0];
+    // let dest = [sx ?? 1, sy ?? 1];
     // If destination is specified, update view and dest
     if (dx !== undefined && dy !== undefined && dwidth !== undefined && dheight !== undefined) {
-      view = [sx ?? 1, sy ?? 1, swidth ?? image?.width ?? 0, sheight ?? image?.height ?? 0];
-      dest = [dx, dy];
+      this._view[0] = sx ?? 1;
+      this._view[1] = sy ?? 1;
+      this._view[2] = swidth ?? maybeImageWidth ?? 0;
+      this._view[3] = sheight ?? maybeImageHeight ?? 0;
+      this._dest[0] = dx;
+      this._dest[1] = dy;
+      // view = [sx ?? 1, sy ?? 1, swidth ?? image?.width ?? 0, sheight ?? image?.height ?? 0];
+      // dest = [dx, dy];
       width = dwidth;
       height = dheight;
     }
 
-    sx = view[0];
-    sy = view[1];
-    const sw = view[2];
-    const sh = view[3];
+    sx = this._view[0];
+    sy = this._view[1];
+    const sw = this._view[2];
+    const sh = this._view[3];
 
     // transform based on current context
     const transform = this._context.getTransform();
     const opacity = this._context.opacity;
     const snapToPixel = this._context.snapToPixel;
 
-    let topLeft = vec(dest[0], dest[1]);
-    let topRight = vec(dest[0] + width, dest[1]);
-    let bottomLeft = vec(dest[0], dest[1] + height);
-    let bottomRight = vec(dest[0] + width, dest[1] + height);
+    this._topLeft.setTo(this._dest[0], this._dest[1]);
+    this._topRight.setTo(this._dest[0] + width, this._dest[1]);
+    this._bottomLeft.setTo(this._dest[0], this._dest[1] + height);
+    this._bottomRight.setTo(this._dest[0] + width, this._dest[1] + height);
 
-    topLeft = transform.multiply(topLeft);
-    topRight = transform.multiply(topRight);
-    bottomLeft = transform.multiply(bottomLeft);
-    bottomRight = transform.multiply(bottomRight);
+    transform.multiply(this._topLeft, this._txTopLeft);
+    transform.multiply(this._topRight, this._txTopRight);
+    transform.multiply(this._bottomLeft, this._txBottomLeft);
+    transform.multiply(this._bottomRight, this._txBottomRight);
 
     if (snapToPixel) {
-      topLeft.x = ~~(topLeft.x + sign(topLeft.x) * pixelSnapEpsilon);
-      topLeft.y = ~~(topLeft.y + sign(topLeft.y) * pixelSnapEpsilon);
+      this._txTopLeft.x = ~~(this._txTopLeft.x + sign(this._txTopLeft.x) * pixelSnapEpsilon);
+      this._txTopLeft.y = ~~(this._txTopLeft.y + sign(this._txTopLeft.y) * pixelSnapEpsilon);
 
-      topRight.x = ~~(topRight.x + sign(topRight.x) * pixelSnapEpsilon);
-      topRight.y = ~~(topRight.y + sign(topRight.y) * pixelSnapEpsilon);
+      this._txTopRight.x = ~~(this._txTopRight.x + sign(this._txTopRight.x) * pixelSnapEpsilon);
+      this._txTopRight.y = ~~(this._txTopRight.y + sign(this._txTopRight.y) * pixelSnapEpsilon);
 
-      bottomLeft.x = ~~(bottomLeft.x + sign(bottomLeft.x) * pixelSnapEpsilon);
-      bottomLeft.y = ~~(bottomLeft.y + sign(bottomLeft.y) * pixelSnapEpsilon);
+      this._txBottomLeft.x = ~~(this._txBottomLeft.x + sign(this._txBottomLeft.x) * pixelSnapEpsilon);
+      this._txBottomLeft.y = ~~(this._txBottomLeft.y + sign(this._txBottomLeft.y) * pixelSnapEpsilon);
 
-      bottomRight.x = ~~(bottomRight.x + sign(bottomRight.x) * pixelSnapEpsilon);
-      bottomRight.y = ~~(bottomRight.y + sign(bottomRight.y) * pixelSnapEpsilon);
+      this._txBottomRight.x = ~~(this._txBottomRight.x + sign(this._txBottomRight.x) * pixelSnapEpsilon);
+      this._txBottomRight.y = ~~(this._txBottomRight.y + sign(this._txBottomRight.y) * pixelSnapEpsilon);
     }
 
     const tint = this._context.tint;
 
     const textureId = this._getTextureIdForImage(image);
-    const imageWidth = image.width || width;
-    const imageHeight = image.height || height;
+    const imageWidth = maybeImageWidth || width;
+    const imageHeight = maybeImageHeight || height;
 
     const uvx0 = (sx + this.uvPadding) / imageWidth;
     const uvy0 = (sy + this.uvPadding) / imageHeight;
     const uvx1 = (sx + sw - this.uvPadding) / imageWidth;
     const uvy1 = (sy + sh - this.uvPadding) / imageHeight;
 
-    const txWidth = image.width;
-    const txHeight = image.height;
+    const txWidth = maybeImageWidth;
+    const txHeight = maybeImageHeight;
 
     // update data
     const vertexBuffer = this._layout.vertexBuffer.bufferData;
 
     // (0, 0) - 0
-    vertexBuffer[this._vertexIndex++] = topLeft.x;
-    vertexBuffer[this._vertexIndex++] = topLeft.y;
+    vertexBuffer[this._vertexIndex++] = this._txTopLeft.x;
+    vertexBuffer[this._vertexIndex++] = this._txTopLeft.y;
     vertexBuffer[this._vertexIndex++] = opacity;
     vertexBuffer[this._vertexIndex++] = txWidth;
     vertexBuffer[this._vertexIndex++] = txHeight;
@@ -259,8 +286,8 @@ export class ImageRenderer implements RendererPlugin {
     vertexBuffer[this._vertexIndex++] = tint.a;
 
     // (0, 1) - 1
-    vertexBuffer[this._vertexIndex++] = bottomLeft.x;
-    vertexBuffer[this._vertexIndex++] = bottomLeft.y;
+    vertexBuffer[this._vertexIndex++] = this._txBottomLeft.x;
+    vertexBuffer[this._vertexIndex++] = this._txBottomLeft.y;
     vertexBuffer[this._vertexIndex++] = opacity;
     vertexBuffer[this._vertexIndex++] = txWidth;
     vertexBuffer[this._vertexIndex++] = txHeight;
@@ -273,8 +300,8 @@ export class ImageRenderer implements RendererPlugin {
     vertexBuffer[this._vertexIndex++] = tint.a;
 
     // (1, 0) - 2
-    vertexBuffer[this._vertexIndex++] = topRight.x;
-    vertexBuffer[this._vertexIndex++] = topRight.y;
+    vertexBuffer[this._vertexIndex++] = this._txTopRight.x;
+    vertexBuffer[this._vertexIndex++] = this._txTopRight.y;
     vertexBuffer[this._vertexIndex++] = opacity;
     vertexBuffer[this._vertexIndex++] = txWidth;
     vertexBuffer[this._vertexIndex++] = txHeight;
@@ -287,8 +314,8 @@ export class ImageRenderer implements RendererPlugin {
     vertexBuffer[this._vertexIndex++] = tint.a;
 
     // (1, 1) - 3
-    vertexBuffer[this._vertexIndex++] = bottomRight.x;
-    vertexBuffer[this._vertexIndex++] = bottomRight.y;
+    vertexBuffer[this._vertexIndex++] = this._txBottomRight.x;
+    vertexBuffer[this._vertexIndex++] = this._txBottomRight.y;
     vertexBuffer[this._vertexIndex++] = opacity;
     vertexBuffer[this._vertexIndex++] = txWidth;
     vertexBuffer[this._vertexIndex++] = txHeight;
@@ -340,5 +367,6 @@ export class ImageRenderer implements RendererPlugin {
     this._imageCount = 0;
     this._vertexIndex = 0;
     this._textures.length = 0;
+    this._images.clear();
   }
 }
