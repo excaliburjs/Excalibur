@@ -5,6 +5,9 @@ var game = new ex.Engine({
   height: 1000,
   pixelArt: true
 });
+game.toggleDebug();
+game.debug.graphics.showBounds = true;
+game.debug.transform.showPosition = true;
 
 var heartImage = new ex.ImageSource('./heart.png');
 
@@ -20,6 +23,7 @@ class MyActor2 extends ex.Actor {
     this.graphics.add(
       "interactive",
       new ex.GraphicsGroup({
+        useAnchor: false,
         members: [
           {
             graphic: heartImage.toSprite(),
