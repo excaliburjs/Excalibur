@@ -40,6 +40,7 @@ export * from './PostProcessor/ColorBlindnessPostProcessor';
 
 export * from './Context/texture-loader';
 export * from './Filtering';
+export * from './Wrapping';
 
 
 // Rendering

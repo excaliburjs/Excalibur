@@ -4,7 +4,8 @@ import { ExcaliburGraphicsContextWebGL } from './ExcaliburGraphicsContextWebGL';
 import { Shader } from './shader';
 import { Logger } from '../../Util/Log';
 import { ImageSource } from '../ImageSource';
-import { ImageFiltering } from '../Filtering';
+import { ImageFiltering, parseImageFiltering } from '../Filtering';
+import { parseImageWrapping } from '../Wrapping';
 
 export interface MaterialOptions {
   /**
@@ -192,14 +193,18 @@ export class Material {
   private _loadImageSource(image: ImageSource) {
     const imageElement = image.image;
     const maybeFiltering = imageElement.getAttribute('filtering');
-    let filtering: ImageFiltering = null;
-    if (maybeFiltering === ImageFiltering.Blended ||
-        maybeFiltering === ImageFiltering.Pixel) {
-      filtering = maybeFiltering;
-    }
+    const filtering = maybeFiltering ? parseImageFiltering(imageElement.getAttribute('filtering')) : null;
+    const wrapX = parseImageWrapping(imageElement.getAttribute('wrapping-x'));
+    const wrapY = parseImageWrapping(imageElement.getAttribute('wrapping-y'));
 
     const force = imageElement.getAttribute('forceUpload') === 'true' ? true : false;
-    const texture = this._graphicsContext.textureLoader.load(imageElement, filtering, force);
+    const texture = this._graphicsContext.textureLoader.load(
+      imageElement,
+      {
+        filtering,
+        wrapping: { x: wrapX, y: wrapY }
+      },
+      force);
     // remove force attribute after upload
     imageElement.removeAttribute('forceUpload');
     if (!this._textures.has(image)) {

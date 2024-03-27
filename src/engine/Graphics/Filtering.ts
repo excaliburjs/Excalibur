@@ -16,3 +16,14 @@ export enum ImageFiltering {
    */
   Blended = 'Blended'
 }
+
+/**
+ *
+ */
+export function parseImageFiltering(val: string) {
+  switch (val) {
+    case ImageFiltering.Pixel: return ImageFiltering.Pixel;
+    case ImageFiltering.Blended: return ImageFiltering.Blended;
+    default: return ImageFiltering.Blended;
+  }
+}
