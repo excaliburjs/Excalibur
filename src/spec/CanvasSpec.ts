@@ -136,6 +136,6 @@ describe('A Canvas Graphic', () => {
     expect(sut.width).toBe(50);
     expect(sut.height).toBe(50);
     await expectAsync(engine.canvas).toEqualImage('src/spec/images/GraphicsCanvasSpec/centered.png');
-
+    engine.dispose();
   });
 });

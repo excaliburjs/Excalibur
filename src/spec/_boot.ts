@@ -32,5 +32,43 @@ const MemoryReporter = {
   }
 };
 
+const EngineReporter = {
+  currentEngines: ex.Engine.InstanceCount,
+  leaks: [],
+  specDone: function(result) {
+    if (this.currentEngines < ex.Engine.InstanceCount) {
+      // const message = `Spec ${result.fullName} Engine increased: ${ex.Engine.InstanceCount}`;
+      // console.log(message);
+      this.leaks.push(result.fullName);
+    }
+    this.currentEngines = ex.Engine.InstanceCount;
+  },
+
+  jasmineDone: function(result) {
+    let leakString = '============   Engine leaks ==================\n';
+    for (const leak of this.leaks){
+      leakString += leak + '\n';
+    }
+    console.log(leakString); // eslint-disable-line
+  }
+};
+
+const TimeoutSpecReporter = {
+  specs: {},
+  specStarted: function(result) {
+    this.specs[result.fullName] = Date.now();
+    setTimeout(() => {
+      if (this.specs[result.fullName]) {
+        console.log('Possible timeout:' + result.fullName); // eslint-disable-line
+      }
+    }, 5000);
+  },
+  specDone: function(result) {
+    delete this.specs[result.fullName];
+  }
+};
+
 // jasmine.getEnv().addReporter(MemoryReporter);
+jasmine.getEnv().addReporter(TimeoutSpecReporter);
+jasmine.getEnv().addReporter(EngineReporter);
 

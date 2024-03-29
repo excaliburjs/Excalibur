@@ -37,13 +37,15 @@ describe('A FontSource', () => {
 
   it('will use options from FontSource', async () => {
     const fontSource = new ex.FontSource('src/spec/fonts/Gorgeous Pixel.ttf', 'Gorgeous Pixel', {
-      size: 50
+      size: 50,
+      color: ex.Color.Red
     });
 
     await fontSource.load();
     const font = fontSource.toFont();
 
     expect(font.size).toBe(50);
+    expect(font.color.toString()).toBe(ex.Color.Red.toString());
   });
 
   it('will override options when converting to a Font', async () => {
@@ -54,11 +56,13 @@ describe('A FontSource', () => {
 
     await fontSource.load();
     const font = fontSource.toFont({
-      size: 100
+      size: 100,
+      color: ex.Color.Red
     });
 
     expect(font.size).toBe(100);
     expect(font.opacity).toBe(0.5);
+    expect(font.color.toString()).toBe(ex.Color.Red.toString());
   });
 
   it('will resolve the font if already loaded', async () => {

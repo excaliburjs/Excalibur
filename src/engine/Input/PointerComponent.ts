@@ -1,4 +1,11 @@
 import { Component } from '../EntityComponentSystem/Component';
+import { BoundingBox } from '../excalibur';
+
+export interface PointerComponentOptions {
+  useColliderShape?: boolean;
+  useGraphicsBounds?: boolean;
+  localBounds?: BoundingBox;
+}
 
 /**
  * Add this component to optionally configure how the pointer
@@ -21,4 +28,16 @@ export class PointerComponent extends Component {
    * bounds around the graphic to trigger pointer events. Default is `true`.
    */
   public useGraphicsBounds = true;
+
+  /**
+   * Optionally use other bounds for pointer testing
+   */
+  public localBounds?: BoundingBox;
+
+  constructor(options?: PointerComponentOptions) {
+    super();
+    this.useColliderShape = options?.useColliderShape ?? this.useColliderShape;
+    this.useGraphicsBounds = options?.useGraphicsBounds ?? this.useGraphicsBounds;
+    this.localBounds = options?.localBounds;
+  }
 }

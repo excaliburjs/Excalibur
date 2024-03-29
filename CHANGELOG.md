@@ -16,6 +16,45 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added pointer event support to `ex.TileMap`'s and individual `ex.Tile`'s
+- Added pointer event support to `ex.IsometricMap`'s and individual `ex.IsometricTile`'s
+- Added `useAnchor` parameter to `ex.GraphicsGroup` to allow users to opt out of anchor based positioning, if set to false all graphics members
+will be positioned with the top left of the graphic at the actor's position.
+  ```typescript
+  const graphicGroup = new ex.GraphicsGroup({
+    useAnchor: false,
+    members: [
+      {
+        graphic: heartImage.toSprite(),
+        offset: ex.vec(0, 0),
+      },
+      {
+        graphic: heartImage.toSprite(),
+        offset: ex.vec(0, 16),
+      },
+      {
+        graphic: heartImage.toSprite(),
+        offset: ex.vec(16, 16),
+      },
+      {
+        graphic: heartImage.toSprite(),
+        offset: ex.vec(16, 0),
+      },
+    ],
+  });
+  ```
+- Added simplified `ex.coroutine` overloads, you need not pass engine as long as you are in an Excalibur lifecycle
+  ```typescript
+  const result = ex.coroutine(function* () {...});
+  ```
+- Added way to bind 'this' to `ex.coroutine` overloads, you need not pass engine as long as you are in an Excalibur lifecycle
+  ```typescript
+  const result = ex.coroutine({myThis: 'cool'}, function* () {...});
+  ```
+- Added optional `ex.coroutine` timing parameter to schedule when they are updated
+  ```typescript
+  const result = ex.coroutine(engine, function * () {...}, { timing: 'postupdate' })
+  ```
 - Added `GraphicsComponent.bounds` which will report the world bounds of the graphic if applicable!
 - Added `ex.Vector.EQUALS_EPSILON` to configure the `ex.Vector.equals(v)` threshold
 - Added way to add custom WebGL context lost/recovered handlers for your game
@@ -28,6 +67,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where `ex.TileMap` culling did not work properly when using fixed updates lower than refresh rate
+- Fixed incomplete types for font options in `ex.FontSource().toFont(options)`
+- Fixed issue with `ex.Loader` start button position when using CSS transforms
+- Fixed issue where adding scenes with the same name did not work when it was previously removed
 - Fixed issue when WebGL context lost occurs where there was no friendly output to the user
 - Fixed issue where HiDPI scaling could accidentally scale past the 4k mobile limit, if the context would scale too large it will now attempt to recover by backing off.
 - Fixed issue where logo was sometimes not loaded during `ex.Loader`

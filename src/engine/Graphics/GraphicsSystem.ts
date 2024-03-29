@@ -232,7 +232,12 @@ export class GraphicsSystem extends System {
                 g = member.graphic;
                 pos = member.offset;
               }
-              g?.localBounds.translate(offset.add(pos)).draw(this._graphicsContext, this._engine.debug.graphics.boundsColor);
+
+              if (graphic.useAnchor) {
+                g?.localBounds.translate(offset.add(pos)).draw(this._graphicsContext, this._engine.debug.graphics.boundsColor);
+              } else {
+                g?.localBounds.translate(pos).draw(this._graphicsContext, this._engine.debug.graphics.boundsColor);
+              }
             }
           } else {
             /* istanbul ignore next */

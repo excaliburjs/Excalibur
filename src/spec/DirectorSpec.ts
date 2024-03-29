@@ -25,6 +25,7 @@ describe('A Director', () => {
     expect(sut.getSceneInstance('scene2')).not.toBe(null);
     expect(sut.getSceneInstance('scene3')).not.toBe(null);
     expect(sut.getSceneInstance('scene4')).not.toBe(null);
+    engine.dispose();
   });
 
   it('can be constructed with a varied loaders', () => {
@@ -42,6 +43,7 @@ describe('A Director', () => {
     expect(sut.getSceneInstance('scene2')).not.toBe(null);
     expect(sut.getSceneInstance('scene3')).not.toBe(null);
     expect(sut.getSceneInstance('scene4')).not.toBe(null);
+    engine.dispose();
   });
 
   it('can configure start, non deferred', async () => {
@@ -92,6 +94,7 @@ describe('A Director', () => {
     expect(sut.currentTransition).toBe(fadeIn);
     expect(sut.currentSceneName).toBe('scene1');
     expect(sut.currentScene).toBe(scene1);
+    engine.dispose();
   });
 
   it('will draw a start scene transition', async () => {
@@ -131,6 +134,7 @@ describe('A Director', () => {
     expect(sut.currentScene).toBe(scene1);
 
     await expectAsync(engine.canvas).toEqualImage('/src/spec/images/DirectorSpec/fadein.png');
+    engine.dispose();
   });
 
   it('will run the loader cycle on a scene only once', async () => {
@@ -152,6 +156,7 @@ describe('A Director', () => {
     await sut.maybeLoadScene('scene1');
 
     expect(loaderSpy).toHaveBeenCalledTimes(1);
+    engine.dispose();
   });
 
   it('can remove a scene', () => {
@@ -177,6 +182,7 @@ describe('A Director', () => {
     sut.remove('scene4');
     expect(sut.getSceneDefinition('scene4')).toBe(undefined);
     expect(sut.getSceneInstance('scene4')).toBe(undefined);
+    engine.dispose();
   });
 
   it('cant remove an active scene', () => {
@@ -192,6 +198,31 @@ describe('A Director', () => {
 
     expect(() => sut.remove('root')).toThrowError('Cannot remove a currently active scene: root');
     expect(() => sut.remove(sut.rootScene)).toThrowError('Cannot remove a currently active scene: root');
+    engine.dispose();
+  });
+
+  it('can add a scene that was already deleted', async () => {
+    const engine = TestUtils.engine();
+    const clock = engine.clock as ex.TestClock;
+    clock.start();
+    const scene1 = new ex.Scene();
+    const scene2 = new ex.Scene();
+    const sut = new ex.Director(engine, {
+      scene1,
+      scene2
+    });
+    sut.configureStart('scene1');
+    sut.onInitialize();
+    await sut.goto('scene2');
+    expect(sut.currentScene).toBe(scene2);
+    sut.remove('scene1');
+
+    const newScene = new ex.Scene();
+    sut.add('scene1', newScene);
+
+    await sut.goto('scene1');
+    expect(sut.currentScene).toBe(newScene);
+    engine.dispose();
   });
 
   it('can goto a scene', async () => {
@@ -220,5 +251,6 @@ describe('A Director', () => {
     await sut.goto('scene4');
     expect(sut.currentSceneName).toBe('scene4');
     expect(sut.currentScene).toBeInstanceOf(MyScene);
+    engine.dispose();
   });
 });

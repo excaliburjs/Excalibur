@@ -33,6 +33,7 @@ describe('Collision Shape', () => {
 
     afterEach(() => {
       engine.stop();
+      engine.dispose();
       engine = null;
     });
 
@@ -442,6 +443,7 @@ describe('Collision Shape', () => {
 
     afterEach(() => {
       engine.stop();
+      engine.dispose();
       engine = null;
     });
 
@@ -830,6 +832,7 @@ describe('Collision Shape', () => {
 
     afterEach(() => {
       engine.stop();
+      engine.dispose();
       engine = null;
     });
 

@@ -149,41 +149,15 @@ await game.start();
 
 ## SpriteFont
 
-Sometimes you want to use a custom font based on a sprite sheet of character glyphs
+Sometimes you want to use a custom font based on your [spritesheet](#spritesheet) of character glyphs
+
+Example `sprite-font.png` file:
 
 ![Custom pixel art glyphs](debug-font.png)
 
 ```typescript
-const image = new ex.ImageSource('./path/to/sprite-font.png')
+const spriteFontImage = new ex.ImageSource('./path/to/sprite-font.png')
 
-const spriteSheet = SpriteSheet.fromImageSource({
-  image: image,
-  grid: {
-    rows: 3,
-    columns: 16,
-    spriteWidth: 16,
-    spriteHeight: 16,
-  },
-})
-
-const spriteFont = new SpriteFont({
-  alphabet: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ,!\'&."?-()+ ',
-  caseInsensitive: true,
-  spriteSheet: this._spriteSheet,
-  spacing: -6,
-})
-
-const text = new ex.Text({
-  text: 'some text with a sprite font!',
-  font: spriteFont,
-})
-```
-
-#### SpriteFont
-
-Sometimes you want to use text of your own creation from a [spritesheet](#spritesheet),
-
-```typescript
 const spriteFontSheet = ex.SpriteSheet.fromImageSource({
   image: spriteFontImage,
   grid: {
@@ -193,14 +167,12 @@ const spriteFontSheet = ex.SpriteSheet.fromImageSource({
     spriteHeight: 16
   }
 });
-
 const spriteFont = new ex.SpriteFont({
     alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
     caseInsensitive: true,
     spriteSheet: spriteFontSheet
   });
 });
-
 const text = new ex.Text({
   text: 'This is sprite font text!!',
   font: spriteFont

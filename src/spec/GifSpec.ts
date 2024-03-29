@@ -17,6 +17,7 @@ describe('A Gif', () => {
   });
   afterEach(() => {
     engine.stop();
+    engine.dispose();
     engine = null;
   });
 
