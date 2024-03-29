@@ -153,6 +153,16 @@ export class PointerSystem extends System {
     for (const entity of entities) {
       transform = entity.get(TransformComponent);
       pointer = entity.get(PointerComponent) ?? new PointerComponent;
+      // If pointer bounds defined
+      if (pointer.localBounds) {
+        const pointerBounds = pointer.localBounds.transform(transform.get().matrix);
+        for (const [pointerId, pos] of receiver.currentFramePointerCoords.entries()) {
+          if (pointerBounds.contains(transform.coordPlane === CoordPlane.World ? pos.worldPos : pos.screenPos)) {
+            this.addPointerToEntity(entity, pointerId);
+          }
+        }
+      }
+
       // Check collider contains pointer
       collider = entity.get(ColliderComponent);
       if (collider && (pointer.useColliderShape || this.overrideUseColliderShape)) {

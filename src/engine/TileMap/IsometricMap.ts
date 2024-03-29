@@ -6,15 +6,28 @@ import { CollisionType } from '../Collision/CollisionType';
 import { CompositeCollider } from '../Collision/Colliders/CompositeCollider';
 import { vec, Vector } from '../Math/vector';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
-import { Entity } from '../EntityComponentSystem/Entity';
+import { Entity, EntityEvents } from '../EntityComponentSystem/Entity';
 import { DebugGraphicsComponent, ExcaliburGraphicsContext, Graphic, GraphicsComponent } from '../Graphics';
 import { IsometricEntityComponent } from './IsometricEntityComponent';
 import { DebugConfig } from '../Debug';
+import { PointerComponent } from '../Input/PointerComponent';
+import { PointerEvent } from '../Input/PointerEvent';
+import { EventEmitter } from '../EventEmitter';
+
+export type IsometricTilePointerEvents = {
+  pointerup: PointerEvent;
+  pointerdown: PointerEvent;
+  pointermove: PointerEvent;
+  pointercancel: PointerEvent;
+}
+
 export class IsometricTile extends Entity {
   /**
    * Indicates whether this tile is solid
    */
   public solid: boolean = false;
+
+  public events = new EventEmitter<EntityEvents & IsometricTilePointerEvents>();
 
   private _gfx: GraphicsComponent;
   private _tileBounds = new BoundingBox();
@@ -295,6 +308,8 @@ export class IsometricMap extends Entity {
    */
   public collider: ColliderComponent;
 
+  public pointer: PointerComponent;
+
   private _composite: CompositeCollider;
 
   constructor(options: IsometricMapOptions) {
@@ -304,6 +319,7 @@ export class IsometricMap extends Entity {
         type: CollisionType.Fixed
       }),
       new ColliderComponent(),
+      new PointerComponent(),
       new DebugGraphicsComponent((ctx, debugFlags) => this.debug(ctx, debugFlags), false)
     ], options.name);
     const { pos, tileWidth, tileHeight, columns: width, rows: height, renderFromTopOfGraphic, graphicsOffset, elevation } = options;
@@ -318,6 +334,7 @@ export class IsometricMap extends Entity {
       this.collider.set(this._composite = new CompositeCollider([]));
     }
 
+    this.pointer = this.get(PointerComponent);
 
     this.renderFromTopOfGraphic = renderFromTopOfGraphic ?? this.renderFromTopOfGraphic;
     this.graphicsOffset = graphicsOffset ?? this.graphicsOffset;
@@ -338,6 +355,28 @@ export class IsometricMap extends Entity {
         this.addChild(tile);
       }
     }
+
+    this.pointer.localBounds = BoundingBox.fromDimension(
+      tileWidth * width * this.transform.scale.x,
+      tileHeight * height * this.transform.scale.y,
+      vec(.5, 0)
+    );
+
+    this._setupPointerToTile();
+  }
+
+  private _forwardPointerEventToTile = (eventType: string) => (evt: PointerEvent) => {
+    const tile = this.getTileByPoint(evt.worldPos);
+    if (tile) {
+      tile.events.emit(eventType, evt);
+    }
+  };
+
+  private _setupPointerToTile() {
+    this.events.on('pointerup', this._forwardPointerEventToTile('pointerup'));
+    this.events.on('pointerdown', this._forwardPointerEventToTile('pointerdown'));
+    this.events.on('pointermove', this._forwardPointerEventToTile('pointermove'));
+    this.events.on('pointercancel', this._forwardPointerEventToTile('pointercancel'));
   }
 
   public update(): void {
@@ -386,6 +425,7 @@ export class IsometricMap extends Entity {
    * @param worldCoordinate
    */
   public worldToTile(worldCoordinate: Vector): Vector {
+    // TODO I don't think this handles parent transform see TileMap
     worldCoordinate = worldCoordinate.sub(this.transform.globalPos);
 
     const halfTileWidth = this.tileWidth / 2;
