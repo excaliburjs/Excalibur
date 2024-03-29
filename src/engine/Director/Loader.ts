@@ -335,12 +335,12 @@ export class Loader extends DefaultLoader {
   private _positionPlayButton() {
     if (this.engine) {
       const {
+        x: left,
+        y: top,
         width: screenWidth,
         height: screenHeight
       } = this.engine.canvas.getBoundingClientRect();
       if (this._playButtonRootElement) {
-        const left = this.engine.canvas.offsetLeft;
-        const top = this.engine.canvas.offsetTop;
         const buttonWidth = this._playButton.clientWidth;
         const buttonHeight = this._playButton.clientHeight;
         if (this.playButtonPosition) {

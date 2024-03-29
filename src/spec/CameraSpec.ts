@@ -42,6 +42,8 @@ describe('A camera', () => {
   });
 
   it('should be center screen by default (when loading not complete)', () => {
+    engine.dispose();
+    engine = null;
     engine = TestUtils.engine({
       viewport: {width: 100, height: 100},
       resolution: {width: 1000, height: 1200 }
@@ -60,6 +62,8 @@ describe('A camera', () => {
   });
 
   it('should run strategies on initialize for the first frame', () => {
+    engine.dispose();
+    engine = null;
     engine = TestUtils.engine({
       viewport: {width: 100, height: 100},
       resolution: {width: 1000, height: 1200 }
@@ -74,6 +78,8 @@ describe('A camera', () => {
   });
 
   it('should update viewport on initialize for the first frame', () => {
+    engine.dispose();
+    engine = null;
     engine = TestUtils.engine({
       viewport: {width: 100, height: 100},
       resolution: {width: 1000, height: 1200 }
@@ -89,6 +95,8 @@ describe('A camera', () => {
   });
 
   it('should be center screen by default (when loading complete)', () => {
+    engine.dispose();
+    engine = null;
     engine = TestUtils.engine({
       viewport: {width: 100, height: 100},
       resolution: {width: 1000, height: 1200 }

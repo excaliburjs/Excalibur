@@ -21,6 +21,7 @@ describe('A Trigger', () => {
 
   afterEach(() => {
     engine.stop();
+    engine.dispose();
     engine = null;
   });
 

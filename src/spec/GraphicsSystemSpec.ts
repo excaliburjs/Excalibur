@@ -22,6 +22,12 @@ describe('A Graphics ECS System', () => {
     entities[2].get(TransformComponent).z = 1;
   });
 
+  afterEach(() => {
+    engine.stop();
+    engine.dispose();
+    engine = null;
+  });
+
   it('exists', () => {
     expect(ex.GraphicsSystem).toBeDefined();
   });
@@ -133,6 +139,7 @@ describe('A Graphics ECS System', () => {
     graphicsSystem.update(30);
 
     expect(game.graphicsContext.translate).toHaveBeenCalledWith(24, 24);
+    game.dispose();
   });
 
   it('will interpolate child body graphics when fixed update is enabled', async () => {
@@ -171,6 +178,7 @@ describe('A Graphics ECS System', () => {
 
     expect(translateSpy.calls.argsFor(0)).toEqual([10, 10]);
     expect(translateSpy.calls.argsFor(1)).toEqual([45, 45]); // 45 because the parent offsets by (-10, -10)
+    game.dispose();
   });
 
   it('will not interpolate body graphics if disabled', async () => {
@@ -203,6 +211,7 @@ describe('A Graphics ECS System', () => {
     graphicsSystem.update(30);
 
     expect(game.graphicsContext.translate).toHaveBeenCalledWith(100, 100);
+    game.dispose();
   });
 
   it('will multiply the opacity set on the context', async () => {

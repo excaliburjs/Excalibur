@@ -365,6 +365,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
 
     return value;
   }
+  static InstanceCount = 0;
 
   /**
    * Anything run under scope can use `useEngine()` to inject the current engine
@@ -896,7 +897,7 @@ O|===|* >________________>\n\
         this._logger.warn(
           `Excalibur could not load webgl for some reason (${(e as Error).message}) and loaded a Canvas 2D fallback. ` +
           `Some features of Excalibur will not work in this mode. \n\n` +
-          'Read more about this issue at https://excaliburjs.com/docs/webgl'
+          'Read more about this issue at https://excaliburjs.com/docs/performance'
         );
         // fallback to canvas in case of failure
         useCanvasGraphicsContext = true;
@@ -969,6 +970,7 @@ O|===|* >________________>\n\
     this._initialize(options);
 
     (window as any).___EXCALIBUR_DEVTOOL = this;
+    Engine.InstanceCount++;
   }
 
   private _handleWebGLContextLost = (e: Event) => {
@@ -1131,7 +1133,12 @@ O|===|* >________________>\n\
       this.screen.dispose();
       this.graphicsContext.dispose();
       this.graphicsContext = null;
+      Engine.InstanceCount--;
     }
+  }
+
+  public isDisposed() {
+    return this._disposed;
   }
 
   /**

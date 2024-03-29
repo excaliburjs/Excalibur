@@ -7,6 +7,13 @@ import { Logger } from '../Util/Log';
 
 export interface GraphicsGroupingOptions {
   members: (GraphicsGrouping | Graphic)[];
+  /**
+   * Default true, GraphicsGroup will use the anchor to position all the graphics based on their combined bounds
+   *
+   * Setting to false will ignore anchoring and position the top left of all graphics at the actor's position,
+   * positioning graphics in the group is done with the `offset` property.
+   */
+  useAnchor?: boolean;
 }
 
 export interface GraphicsGrouping {
@@ -24,11 +31,13 @@ export interface GraphicsGrouping {
 
 export class GraphicsGroup extends Graphic implements HasTick {
   private _logger = Logger.getInstance();
+  public useAnchor: boolean = true;
   public members: (GraphicsGrouping | Graphic)[] = [];
 
   constructor(options: GraphicsGroupingOptions & GraphicOptions) {
     super(options);
     this.members = options.members;
+    this.useAnchor = options.useAnchor ?? this.useAnchor;
     this._updateDimensions();
   }
 
@@ -100,7 +109,7 @@ export class GraphicsGroup extends Graphic implements HasTick {
 
   protected _preDraw(ex: ExcaliburGraphicsContext, x: number, y: number) {
     this._updateDimensions();
-    super._preDraw(ex, x, y);
+    super._preDraw(ex, this.useAnchor ? x : 0, this.useAnchor ? y : 0);
   }
 
   protected _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number) {

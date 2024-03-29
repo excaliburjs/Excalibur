@@ -70,5 +70,6 @@ describe('An InputMapper', () => {
     engine.input.keyboard.triggerEvent('up', ex.Keys.Space);
     clock.step();
     expect(keyReleasedSpy).toHaveBeenCalled();
+    engine.dispose();
   });
 });

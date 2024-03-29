@@ -15,6 +15,12 @@ describe('A label', () => {
     });
   });
 
+  afterEach(() => {
+    engine.stop();
+    engine.dispose();
+    engine = null;
+  });
+
   it('exists', () => {
     expect(ex.Label).toBeDefined();
   });

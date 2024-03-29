@@ -5,6 +5,10 @@
 [![npm version](https://img.shields.io/npm/v/excalibur.svg)](https://www.npmjs.com/package/excalibur)
 [![npm downloads](https://img.shields.io/npm/dt/excalibur.svg)](https://www.npmjs.com/package/excalibur)
 [![NuGet version](https://img.shields.io/nuget/v/Excalibur.svg)](https://www.nuget.org/packages/Excalibur/)
+[![Discord][discord-badge]][discord-url]
+
+[discord-badge]: https://img.shields.io/discord/1195771303215513671?logo=discord&logoColor=white&label=Discord&color=blue
+[discord-url]: https://discord.gg/W6zUd4tTY3
 
 ![Sweep Stacks](assets/homepage-xp.png)
 

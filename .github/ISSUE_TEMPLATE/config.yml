@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Excalibur Discord Link
+    url: https://discord.gg/W6zUd4tTY3
+    about: Join the Excalibur Discord and come chat about making video games!

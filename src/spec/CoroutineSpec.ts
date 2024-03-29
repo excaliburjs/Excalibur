@@ -164,6 +164,7 @@ describe('A Coroutine', () => {
       await expectAsync(postdraw).toBeResolved();
       await expectAsync(postframe).toBeResolved();
     });
+    engine.dispose();
   });
 
 
@@ -184,6 +185,7 @@ describe('A Coroutine', () => {
       clock.step(100);
       await expectAsync(result).toBeResolved();
     });
+    engine.dispose();
   });
 
   it('can wait for a promise', async () => {
@@ -207,6 +209,7 @@ describe('A Coroutine', () => {
       clock.step(100);
       await expectAsync(result).toBeResolved();
     });
+    engine.dispose();
   });
 
   it('can throw error', async () => {

@@ -76,6 +76,7 @@ describe('Feature Flags', () => {
     expect(() => {
       ex.Flags.disable('some-flag');
     }).toThrow();
+    engine.dispose();
   });
 
 });

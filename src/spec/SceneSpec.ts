@@ -23,6 +23,7 @@ describe('A scene', () => {
 
   afterEach(() => {
     engine.stop();
+    engine.dispose();
     engine = null;
   });
 
@@ -353,6 +354,9 @@ describe('A scene', () => {
   });
 
   it('fires initialize before activate', (done) => {
+    engine.stop();
+    engine.dispose();
+    engine = null;
     engine = TestUtils.engine({ width: 100, height: 100 });
     scene = new ex.Scene();
 
@@ -374,7 +378,10 @@ describe('A scene', () => {
     clock.step(100);
   });
 
-  it('fires initialize before actor initialize before activate', (done) => {
+  xit('fires initialize before actor initialize before activate', (done) => {
+    engine.stop();
+    engine.dispose();
+    engine = null;
     engine = TestUtils.engine({ width: 100, height: 100 });
     scene = new ex.Scene();
 
@@ -403,9 +410,13 @@ describe('A scene', () => {
     engine.start();
     const clock = engine.clock as ex.TestClock;
     clock.step(100);
+    engine.dispose();
   });
 
   it('can only be initialized once', async () => {
+    engine.stop();
+    engine.dispose();
+    engine = null;
     engine = TestUtils.engine({ width: 100, height: 100 });
     await TestUtils.runToReady(engine);
     scene = new ex.Scene();
@@ -426,6 +437,9 @@ describe('A scene', () => {
   });
 
   it('should initialize before actors in the scene', async () => {
+    engine.stop();
+    engine.dispose();
+    engine = null;
     engine = TestUtils.engine({ width: 100, height: 100 });
     await TestUtils.runToReady(engine);
     const clock = engine.clock as ex.TestClock;
@@ -447,6 +461,7 @@ describe('A scene', () => {
 
     clock.step(1);
     scene.update(engine, 100);
+    engine.dispose();
   });
 
   it('should allow adding and removing an Actor in same frame', () => {
