@@ -44,5 +44,6 @@ export class MotionSystem extends System {
       // Update transform and motion based on Euler linear algebra
       EulerIntegrator.integrate(transform, motion, totalAcc, elapsedMs);
     }
+    this._physicsConfigDirty = false;
   }
 }
