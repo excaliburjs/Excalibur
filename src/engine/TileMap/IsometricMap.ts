@@ -6,18 +6,28 @@ import { CollisionType } from '../Collision/CollisionType';
 import { CompositeCollider } from '../Collision/Colliders/CompositeCollider';
 import { vec, Vector } from '../Math/vector';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
-import { Entity } from '../EntityComponentSystem/Entity';
+import { Entity, EntityEvents } from '../EntityComponentSystem/Entity';
 import { DebugGraphicsComponent, ExcaliburGraphicsContext, Graphic, GraphicsComponent } from '../Graphics';
 import { IsometricEntityComponent } from './IsometricEntityComponent';
 import { DebugConfig } from '../Debug';
 import { PointerComponent } from '../Input/PointerComponent';
 import { PointerEvent } from '../Input/PointerEvent';
+import { EventEmitter } from '../EventEmitter';
+
+export type IsometricTilePointerEvents = {
+  pointerup: PointerEvent;
+  pointerdown: PointerEvent;
+  pointermove: PointerEvent;
+  pointercancel: PointerEvent;
+}
 
 export class IsometricTile extends Entity {
   /**
    * Indicates whether this tile is solid
    */
   public solid: boolean = false;
+
+  public events = new EventEmitter<EntityEvents & IsometricTilePointerEvents>();
 
   private _gfx: GraphicsComponent;
   private _tileBounds = new BoundingBox();
@@ -298,6 +308,8 @@ export class IsometricMap extends Entity {
    */
   public collider: ColliderComponent;
 
+  public pointer: PointerComponent;
+
   private _composite: CompositeCollider;
 
   constructor(options: IsometricMapOptions) {
@@ -322,6 +334,7 @@ export class IsometricMap extends Entity {
       this.collider.set(this._composite = new CompositeCollider([]));
     }
 
+    this.pointer = this.get(PointerComponent);
 
     this.renderFromTopOfGraphic = renderFromTopOfGraphic ?? this.renderFromTopOfGraphic;
     this.graphicsOffset = graphicsOffset ?? this.graphicsOffset;
@@ -343,6 +356,12 @@ export class IsometricMap extends Entity {
       }
     }
 
+    this.pointer.localBounds = BoundingBox.fromDimension(
+      tileWidth * width * this.transform.scale.x,
+      tileHeight * height * this.transform.scale.y,
+      vec(.5, 0)
+    );
+
     this._setupPointerToTile();
   }
 
@@ -357,18 +376,7 @@ export class IsometricMap extends Entity {
     this.events.on('pointerup', this._forwardPointerEventToTile('pointerup'));
     this.events.on('pointerdown', this._forwardPointerEventToTile('pointerdown'));
     this.events.on('pointermove', this._forwardPointerEventToTile('pointermove'));
-    this.events.on('pointerwheel', this._forwardPointerEventToTile('pointerwheel'));
     this.events.on('pointercancel', this._forwardPointerEventToTile('pointercancel'));
-
-    // TODO do pointer enter,leave,drag even work like this? since we are forwarding events I don't think so
-    this.events.on('pointerenter', this._forwardPointerEventToTile('pointerenter'));
-    this.events.on('pointerleave', this._forwardPointerEventToTile('pointerleave'));
-
-    this.events.on('pointerdragstart', this._forwardPointerEventToTile('pointerdragstart'));
-    this.events.on('pointerdragend', this._forwardPointerEventToTile('pointerdragend'));
-    this.events.on('pointerdragenter', this._forwardPointerEventToTile('pointerdragenter'));
-    this.events.on('pointerdragleave', this._forwardPointerEventToTile('pointerdragleave'));
-    this.events.on('pointerdragmove', this._forwardPointerEventToTile('pointerdragmove'));
   }
 
   public update(): void {

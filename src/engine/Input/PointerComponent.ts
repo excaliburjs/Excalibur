@@ -35,7 +35,7 @@ export class PointerComponent extends Component {
   public localBounds?: BoundingBox;
 
   constructor(options?: PointerComponentOptions) {
-    super()
+    super();
     this.useColliderShape = options?.useColliderShape ?? this.useColliderShape;
     this.useGraphicsBounds = options?.useGraphicsBounds ?? this.useGraphicsBounds;
     this.localBounds = options?.localBounds;

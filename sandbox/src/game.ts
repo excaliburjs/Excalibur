@@ -462,6 +462,13 @@ tileMap.tiles.forEach(function(cell: ex.Tile) {
   cell.solid = true;
   cell.addGraphic(spriteTiles.sprites[0]);
 });
+
+for (const tile of tileMap.tiles) {
+  tile.on('pointerdown', (evt: ex.PointerEvent) => {
+    console.log(tile.x, tile.y);
+  });
+}
+
 game.add(tileMap);
 
 // Create spriteFont

@@ -66,16 +66,8 @@ export interface TileMapOptions {
 export type TilePointerEvents = {
   pointerup: PointerEvent;
   pointerdown: PointerEvent;
-  pointerenter: PointerEvent;
-  pointerleave: PointerEvent;
   pointermove: PointerEvent;
   pointercancel: PointerEvent;
-  pointerwheel: WheelEvent;
-  pointerdragstart: PointerEvent;
-  pointerdragend: PointerEvent;
-  pointerdragenter: PointerEvent;
-  pointerdragleave: PointerEvent;
-  pointerdragmove: PointerEvent;
 }
 
 export type TileMapEvents = EntityEvents & TilePointerEvents & {
@@ -92,16 +84,8 @@ export const TileMapEvents = {
   PostDraw: 'postdraw',
   PointerUp: 'pointerup',
   PointerDown: 'pointerdown',
-  PointerEnter: 'pointerenter',
-  PointerLeave: 'pointerleave',
   PointerMove: 'pointermove',
-  PointerCancel: 'pointercancel',
-  Wheel: 'pointerwheel',
-  PointerDrag: 'pointerdragstart',
-  PointerDragEnd: 'pointerdragend',
-  PointerDragEnter: 'pointerdragenter',
-  PointerDragLeave: 'pointerdragleave',
-  PointerDragMove: 'pointerdragmove'
+  PointerCancel: 'pointercancel'
 };
 
 /**
@@ -328,18 +312,7 @@ export class TileMap extends Entity {
     this.events.on('pointerup', this._forwardPointerEventToTile('pointerup'));
     this.events.on('pointerdown', this._forwardPointerEventToTile('pointerdown'));
     this.events.on('pointermove', this._forwardPointerEventToTile('pointermove'));
-    this.events.on('pointerwheel', this._forwardPointerEventToTile('pointerwheel'));
     this.events.on('pointercancel', this._forwardPointerEventToTile('pointercancel'));
-
-    // TODO do pointer enter,leave,drag even work like this? since we are forwarding events I don't think so
-    this.events.on('pointerenter', this._forwardPointerEventToTile('pointerenter'));
-    this.events.on('pointerleave', this._forwardPointerEventToTile('pointerleave'));
-
-    this.events.on('pointerdragstart', this._forwardPointerEventToTile('pointerdragstart'));
-    this.events.on('pointerdragend', this._forwardPointerEventToTile('pointerdragend'));
-    this.events.on('pointerdragenter', this._forwardPointerEventToTile('pointerdragenter'));
-    this.events.on('pointerdragleave', this._forwardPointerEventToTile('pointerdragleave'));
-    this.events.on('pointerdragmove', this._forwardPointerEventToTile('pointerdragmove'));
   }
 
   private _originalOffsets = new WeakMap<Collider, Vector>();
@@ -935,5 +908,38 @@ export class Tile {
       this._recalculate();
     }
     return new Vector(this._pos.x + this._width / 2, this._pos.y + this._height / 2);
+  }
+
+  public emit<TEventName extends EventKey<TilePointerEvents>>
+  (eventName: TEventName, event: TilePointerEvents[TEventName]): void;
+  public emit(eventName: string, event?: any): void;
+  public emit<TEventName extends EventKey<TilePointerEvents> | string>(eventName: TEventName, event?: any): void {
+    this.events.emit(eventName, event);
+  }
+
+  public on<TEventName extends EventKey<TilePointerEvents>>
+  (eventName: TEventName, handler: Handler<TilePointerEvents[TEventName]>): Subscription;
+  public on(eventName: string, handler: Handler<unknown>): Subscription;
+  public on<TEventName extends EventKey<TilePointerEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+    return this.events.on(eventName, handler);
+  }
+
+  public once<TEventName extends EventKey<TilePointerEvents>>
+  (eventName: TEventName, handler: Handler<TilePointerEvents[TEventName]>): Subscription;
+  public once(eventName: string, handler: Handler<unknown>): Subscription;
+  public once<TEventName extends EventKey<TilePointerEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+    return this.events.once(eventName, handler);
+  }
+
+  public off<TEventName extends EventKey<TilePointerEvents>>
+  (eventName: TEventName, handler: Handler<TilePointerEvents[TEventName]>): void;
+  public off(eventName: string, handler: Handler<unknown>): void;
+  public off(eventName: string): void;
+  public off<TEventName extends EventKey<TilePointerEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
+    if (handler) {
+      this.events.off(eventName, handler);
+    } else {
+      this.events.off(eventName);
+    }
   }
 }
