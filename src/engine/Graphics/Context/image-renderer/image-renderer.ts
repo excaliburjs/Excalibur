@@ -204,8 +204,6 @@ export class ImageRenderer implements RendererPlugin {
     this._view[3] = sheight ?? maybeImageHeight ?? 0;
     this._dest[0] = sx ?? 1;
     this._dest[1] = sy ?? 1;
-    // let view = [0, 0, swidth ?? image?.width ?? 0, sheight ?? image?.height ?? 0];
-    // let dest = [sx ?? 1, sy ?? 1];
     // If destination is specified, update view and dest
     if (dx !== undefined && dy !== undefined && dwidth !== undefined && dheight !== undefined) {
       this._view[0] = sx ?? 1;
@@ -214,8 +212,6 @@ export class ImageRenderer implements RendererPlugin {
       this._view[3] = sheight ?? maybeImageHeight ?? 0;
       this._dest[0] = dx;
       this._dest[1] = dy;
-      // view = [sx ?? 1, sy ?? 1, swidth ?? image?.width ?? 0, sheight ?? image?.height ?? 0];
-      // dest = [dx, dy];
       width = dwidth;
       height = dheight;
     }
