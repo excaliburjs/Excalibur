@@ -232,8 +232,9 @@ export class Color {
    */
   public toHex() {
     let hexRepresentation = '#' + this._componentToHex(this.r) + this._componentToHex(this.g) + this._componentToHex(this.b);
-    if (this.a != 1)
+    if (this.a !== 1) {
       hexRepresentation += this._componentToHex(this.a * 255);
+    }
     return hexRepresentation;
   }
 
