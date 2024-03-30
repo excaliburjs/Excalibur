@@ -1,5 +1,4 @@
 import { sign } from '../../../Math/util';
-import { vec } from '../../../Math/vector';
 import { ImageFiltering } from '../../Filtering';
 import { GraphicsDiagnostics } from '../../GraphicsDiagnostics';
 import { HTMLImageSource } from '../ExcaliburGraphicsContext';
@@ -166,17 +165,30 @@ export class ImageRenderer implements RendererPlugin {
     return false;
   }
 
+  private _imageToWidth = new Map<HTMLImageSource, number>();
+  private _getImageWidth(image: HTMLImageSource) {
+    let maybeWidth = this._imageToWidth.get(image);
+    if (maybeWidth === undefined) {
+      maybeWidth = image.width;
+      this._imageToWidth.set(image, maybeWidth);
+    }
+    return maybeWidth;
+  }
+
+  private _imageToHeight = new Map<HTMLImageSource, number>();
+  private _getImageHeight(image: HTMLImageSource) {
+    let maybeHeight = this._imageToHeight.get(image);
+    if (maybeHeight === undefined) {
+      maybeHeight = image.height;
+      this._imageToHeight.set(image, maybeHeight);
+    }
+    return maybeHeight;
+  }
+
 
   private _view = [0, 0, 0, 0];
   private _dest = [0, 0];
-  private _topLeft = vec(0, 0);
-  private _topRight = vec(0, 0);
-  private _bottomLeft = vec(0, 0);
-  private _bottomRight = vec(0, 0);
-  private _txTopLeft = vec(0, 0);
-  private _txTopRight = vec(0, 0);
-  private _txBottomLeft = vec(0, 0);
-  private _txBottomRight = vec(0, 0);
+  private _quad = [0, 0, 0, 0, 0, 0, 0, 0];
   draw(image: HTMLImageSource,
     sx: number,
     sy: number,
@@ -195,8 +207,8 @@ export class ImageRenderer implements RendererPlugin {
     this._imageCount++;
     // This creates and uploads the texture if not already done
     this._addImageAsTexture(image);
-    const maybeImageWidth = image?.width;
-    const maybeImageHeight = image?.height;
+    const maybeImageWidth = this._getImageWidth(image);
+    const maybeImageHeight = this._getImageHeight(image);
 
     let width = maybeImageWidth || swidth || 0;
     let height = maybeImageHeight || sheight || 0;
@@ -226,28 +238,36 @@ export class ImageRenderer implements RendererPlugin {
     const opacity = this._context.opacity;
     const snapToPixel = this._context.snapToPixel;
 
-    this._topLeft.setTo(this._dest[0], this._dest[1]);
-    this._topRight.setTo(this._dest[0] + width, this._dest[1]);
-    this._bottomLeft.setTo(this._dest[0], this._dest[1] + height);
-    this._bottomRight.setTo(this._dest[0] + width, this._dest[1] + height);
+    // top left
+    this._quad[0] = this._dest[0];
+    this._quad[1] = this._dest[1];
 
-    transform.multiply(this._topLeft, this._txTopLeft);
-    transform.multiply(this._topRight, this._txTopRight);
-    transform.multiply(this._bottomLeft, this._txBottomLeft);
-    transform.multiply(this._bottomRight, this._txBottomRight);
+    // top right
+    this._quad[2] = this._dest[0] + width;
+    this._quad[3] = this._dest[1];
+
+    // bottom left
+    this._quad[4] = this._dest[0];
+    this._quad[5] = this._dest[1] + height;
+
+    // bottom right
+    this._quad[6] = this._dest[0] + width;
+    this._quad[7] = this._dest[1] + height;
+
+    transform.multiplyQuadInPlace(this._quad);
 
     if (snapToPixel) {
-      this._txTopLeft.x = ~~(this._txTopLeft.x + sign(this._txTopLeft.x) * pixelSnapEpsilon);
-      this._txTopLeft.y = ~~(this._txTopLeft.y + sign(this._txTopLeft.y) * pixelSnapEpsilon);
+      this._quad[0] = ~~(this._quad[0] + sign(this._quad[0]) * pixelSnapEpsilon);
+      this._quad[1] = ~~(this._quad[1] + sign(this._quad[1]) * pixelSnapEpsilon);
 
-      this._txTopRight.x = ~~(this._txTopRight.x + sign(this._txTopRight.x) * pixelSnapEpsilon);
-      this._txTopRight.y = ~~(this._txTopRight.y + sign(this._txTopRight.y) * pixelSnapEpsilon);
+      this._quad[2] = ~~(this._quad[2] + sign(this._quad[2]) * pixelSnapEpsilon);
+      this._quad[3] = ~~(this._quad[3] + sign(this._quad[3]) * pixelSnapEpsilon);
 
-      this._txBottomLeft.x = ~~(this._txBottomLeft.x + sign(this._txBottomLeft.x) * pixelSnapEpsilon);
-      this._txBottomLeft.y = ~~(this._txBottomLeft.y + sign(this._txBottomLeft.y) * pixelSnapEpsilon);
+      this._quad[4] = ~~(this._quad[4] + sign(this._quad[4]) * pixelSnapEpsilon);
+      this._quad[5] = ~~(this._quad[5] + sign(this._quad[5]) * pixelSnapEpsilon);
 
-      this._txBottomRight.x = ~~(this._txBottomRight.x + sign(this._txBottomRight.x) * pixelSnapEpsilon);
-      this._txBottomRight.y = ~~(this._txBottomRight.y + sign(this._txBottomRight.y) * pixelSnapEpsilon);
+      this._quad[6] = ~~(this._quad[6] + sign(this._quad[6]) * pixelSnapEpsilon);
+      this._quad[7] = ~~(this._quad[7] + sign(this._quad[7]) * pixelSnapEpsilon);
     }
 
     const tint = this._context.tint;
@@ -268,8 +288,8 @@ export class ImageRenderer implements RendererPlugin {
     const vertexBuffer = this._layout.vertexBuffer.bufferData;
 
     // (0, 0) - 0
-    vertexBuffer[this._vertexIndex++] = this._txTopLeft.x;
-    vertexBuffer[this._vertexIndex++] = this._txTopLeft.y;
+    vertexBuffer[this._vertexIndex++] = this._quad[0];
+    vertexBuffer[this._vertexIndex++] = this._quad[1];
     vertexBuffer[this._vertexIndex++] = opacity;
     vertexBuffer[this._vertexIndex++] = txWidth;
     vertexBuffer[this._vertexIndex++] = txHeight;
@@ -282,8 +302,8 @@ export class ImageRenderer implements RendererPlugin {
     vertexBuffer[this._vertexIndex++] = tint.a;
 
     // (0, 1) - 1
-    vertexBuffer[this._vertexIndex++] = this._txBottomLeft.x;
-    vertexBuffer[this._vertexIndex++] = this._txBottomLeft.y;
+    vertexBuffer[this._vertexIndex++] = this._quad[4];
+    vertexBuffer[this._vertexIndex++] = this._quad[5];
     vertexBuffer[this._vertexIndex++] = opacity;
     vertexBuffer[this._vertexIndex++] = txWidth;
     vertexBuffer[this._vertexIndex++] = txHeight;
@@ -296,8 +316,8 @@ export class ImageRenderer implements RendererPlugin {
     vertexBuffer[this._vertexIndex++] = tint.a;
 
     // (1, 0) - 2
-    vertexBuffer[this._vertexIndex++] = this._txTopRight.x;
-    vertexBuffer[this._vertexIndex++] = this._txTopRight.y;
+    vertexBuffer[this._vertexIndex++] = this._quad[2];
+    vertexBuffer[this._vertexIndex++] = this._quad[3];
     vertexBuffer[this._vertexIndex++] = opacity;
     vertexBuffer[this._vertexIndex++] = txWidth;
     vertexBuffer[this._vertexIndex++] = txHeight;
@@ -310,8 +330,8 @@ export class ImageRenderer implements RendererPlugin {
     vertexBuffer[this._vertexIndex++] = tint.a;
 
     // (1, 1) - 3
-    vertexBuffer[this._vertexIndex++] = this._txBottomRight.x;
-    vertexBuffer[this._vertexIndex++] = this._txBottomRight.y;
+    vertexBuffer[this._vertexIndex++] = this._quad[6];
+    vertexBuffer[this._vertexIndex++] = this._quad[7];
     vertexBuffer[this._vertexIndex++] = opacity;
     vertexBuffer[this._vertexIndex++] = txWidth;
     vertexBuffer[this._vertexIndex++] = txHeight;
@@ -364,5 +384,7 @@ export class ImageRenderer implements RendererPlugin {
     this._vertexIndex = 0;
     this._textures.length = 0;
     this._images.clear();
+    this._imageToWidth.clear();
+    this._imageToHeight.clear();
   }
 }
