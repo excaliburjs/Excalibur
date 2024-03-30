@@ -47,6 +47,8 @@ export class VertexLayout {
   private _layout: VertexAttributeDefinition[] = [];
   private _attributes: [name: string, numberOfComponents: number][] = [];
   private _vertexBuffer: VertexBuffer;
+  private _vao: WebGLVertexArrayObject;
+
   public get vertexBuffer() {
     return this._vertexBuffer;
   }
@@ -156,7 +158,23 @@ export class VertexLayout {
     }
 
     this._initialized = true;
-    // TODO Use VAO here instead
+
+    // create VAO
+    const gl = this._gl;
+    this._vao = gl.createVertexArray();
+    gl.bindVertexArray(this._vao);
+    this._vertexBuffer.bind();
+
+    let offset = 0;
+    for (const vert of this._layout) {
+      if (vert.location !== -1) { // skip unused attributes
+        gl.vertexAttribPointer(vert.location, vert.size, vert.glType, vert.normalized, this.totalVertexSizeBytes, offset);
+        gl.enableVertexAttribArray(vert.location);
+      }
+      offset += getGlTypeSizeBytes(gl, vert.glType) * vert.size;
+    }
+    gl.bindVertexArray(null);
+    this._vertexBuffer.unbind();
   }
 
   /**
@@ -176,14 +194,6 @@ export class VertexLayout {
     if (uploadBuffer) {
       this._vertexBuffer.upload(count);
     }
-    let offset = 0;
-    // TODO switch to VAOs if the extension is
-    for (const vert of this._layout) {
-      if (vert.location !== -1) { // skip unused attributes
-        gl.vertexAttribPointer(vert.location, vert.size, vert.glType, vert.normalized, this.totalVertexSizeBytes, offset);
-        gl.enableVertexAttribArray(vert.location);
-      }
-      offset += getGlTypeSizeBytes(gl, vert.glType) * vert.size;
-    }
+    gl.bindVertexArray(this._vao);
   }
 }
