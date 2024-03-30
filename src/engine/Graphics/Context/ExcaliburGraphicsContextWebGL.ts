@@ -107,7 +107,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       instance.args = undefined;
       return instance;
     }, 4000);
-  private _drawCalls: DrawCall[] = [];
+
+  private _drawCallIndex = 0;
+  private _drawCalls: DrawCall[] = (new Array(4000)).fill(null);
 
   // Main render target
   private _renderTarget: RenderTarget;
@@ -409,7 +411,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
         drawCall.state.tint = this._state.current.tint;
         drawCall.state.material = this._state.current.material;
         drawCall.args = args;
-        this._drawCalls.push(drawCall);
+        this._drawCalls[this._drawCallIndex++] = drawCall;
       } else {
         // Set the current renderer if not defined
         if (!this._currentRenderer) {
@@ -636,15 +638,27 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     currentTarget.use();
 
     if (this.useDrawSorting) {
+      // null out unused draw calls
+      for (let i = this._drawCallIndex; i < this._drawCalls.length; i++) {
+        this._drawCalls[i] = null;
+      }
       // sort draw calls
       // Find the original order of the first instance of the draw call
       const originalSort = new Map<string, number>();
       for (const [name] of this._renderers) {
-        const firstIndex = this._drawCalls.findIndex(dc => dc.renderer === name);
+        let firstIndex = 0;
+        for (firstIndex = 0; firstIndex < this._drawCallIndex; firstIndex++) {
+          if (this._drawCalls[firstIndex].renderer === name) {
+            break;
+          }
+        }
         originalSort.set(name, firstIndex);
       }
 
       this._drawCalls.sort((a, b) => {
+        if (a === null || b === null) {
+          return 0;
+        }
         const zIndex = a.z - b.z;
         const originalSortOrder = originalSort.get(a.renderer) - originalSort.get(b.renderer);
         const priority = a.priority - b.priority;
@@ -660,10 +674,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       const oldTransform = this._transform.current;
       const oldState = this._state.current;
 
-      if (this._drawCalls.length) {
+      if (this._drawCalls.length && this._drawCallIndex) {
         let currentRendererName = this._drawCalls[0].renderer;
         let currentRenderer = this._renderers.get(currentRendererName);
-        for (let i = 0; i < this._drawCalls.length; i++) {
+        for (let i = 0; i < this._drawCallIndex; i++) {
           // hydrate the state for renderers
           this._transform.current = this._drawCalls[i].transform;
           this._state.current = this._drawCalls[i].state;
@@ -694,7 +708,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
       // reclaim draw calls
       this._drawCallPool.done();
-      this._drawCalls.length = 0;
+      this._drawCallIndex = 0;
     } else {
       // This is the final flush at the moment to draw any leftover pending draw
       for (const renderer of this._renderers.values()) {
