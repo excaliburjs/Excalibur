@@ -386,7 +386,7 @@ export class ImageRenderer implements RendererPlugin {
     this._imageCount = 0;
     this._vertexIndex = 0;
     this._textures.length = 0;
-    this._textureIndex = 0
+    this._textureIndex = 0;
     this._textureToIndex.clear();
     this._images.clear();
     this._imageToWidth.clear();

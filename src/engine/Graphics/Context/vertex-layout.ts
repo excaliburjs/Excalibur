@@ -157,7 +157,6 @@ export class VertexLayout {
       +` (${this._vertexBuffer.bufferData.length})`);
     }
 
-    this._initialized = true;
 
     // create VAO
     const gl = this._gl;
@@ -175,6 +174,8 @@ export class VertexLayout {
     }
     gl.bindVertexArray(null);
     this._vertexBuffer.unbind();
+
+    this._initialized = true;
   }
 
   /**

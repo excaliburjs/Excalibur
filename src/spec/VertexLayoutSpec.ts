@@ -211,6 +211,15 @@ describe('A VertexLayout', () => {
   });
 
   it('will calculate vertex size and webgl vbo correctly', () => {
+    spyOn(gl, 'createVertexArray').and.callThrough();
+    const createVertexArray = gl.createVertexArray as jasmine.Spy;
+    spyOn(gl, 'bindVertexArray').and.callThrough();
+    const bindVertexArray = gl.bindVertexArray as jasmine.Spy;
+    spyOn(gl, 'vertexAttribPointer').and.callThrough();
+    const vertexAttribPointerSpy = gl.vertexAttribPointer as jasmine.Spy;
+    spyOn(gl, 'enableVertexAttribArray').and.callThrough();
+    const enableVertexAttribArraySpy = gl.enableVertexAttribArray as jasmine.Spy;
+
     const shader = new ex.Shader({
       gl,
       vertexSource: `
@@ -245,16 +254,13 @@ describe('A VertexLayout', () => {
       ]
     });
     expect(sut.totalVertexSizeBytes).withContext('pos is 2x4 + uv is 2x4').toBe(16);
-    spyOn(gl, 'vertexAttribPointer').and.callThrough();
-    const vertexAttribPointerSpy = gl.vertexAttribPointer as jasmine.Spy;
-    spyOn(gl, 'enableVertexAttribArray').and.callThrough();
-    const enableVertexAttribArraySpy = gl.enableVertexAttribArray as jasmine.Spy;
 
-    shader.use();
-    sut.use();
+    sut.initialize();
 
     const pos = shader.attributes.a_position;
     const uv = shader.attributes.a_uv;
+    expect(createVertexArray).toHaveBeenCalledTimes(1);
+    expect(bindVertexArray).toHaveBeenCalledTimes(2);
     expect(vertexAttribPointerSpy.calls.argsFor(0)).toEqual([
       pos.location,
       2,
