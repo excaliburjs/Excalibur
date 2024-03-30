@@ -447,6 +447,26 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._postProcessTargets[1].setResolution(gl.canvas.width, gl.canvas.height);
   }
 
+  private _imageToWidth = new Map<HTMLImageSource, number>();
+  private _getImageWidth(image: HTMLImageSource) {
+    let maybeWidth = this._imageToWidth.get(image);
+    if (maybeWidth === undefined) {
+      maybeWidth = image.width;
+      this._imageToWidth.set(image, maybeWidth);
+    }
+    return maybeWidth;
+  }
+
+  private _imageToHeight = new Map<HTMLImageSource, number>();
+  private _getImageHeight(image: HTMLImageSource) {
+    let maybeHeight = this._imageToHeight.get(image);
+    if (maybeHeight === undefined) {
+      maybeHeight = image.height;
+      this._imageToHeight.set(image, maybeHeight);
+    }
+    return maybeHeight;
+  }
+
   drawImage(image: HTMLImageSource, x: number, y: number): void;
   drawImage(image: HTMLImageSource, x: number, y: number, width: number, height: number): void;
   drawImage(
@@ -475,7 +495,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       return; // zero dimension dest exit early
     } else if (dwidth === 0 || dheight === 0) {
       return; // zero dimension dest exit early
-    } else if (image.width === 0 || image.height === 0) {
+    } else if (this._getImageWidth(image) === 0 || this._getImageHeight(image) === 0) {
       return; // zero dimension source exit early
     }
 
@@ -709,6 +729,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       // reclaim draw calls
       this._drawCallPool.done();
       this._drawCallIndex = 0;
+      this._imageToHeight.clear();
+      this._imageToWidth.clear();
     } else {
       // This is the final flush at the moment to draw any leftover pending draw
       for (const renderer of this._renderers.values()) {
