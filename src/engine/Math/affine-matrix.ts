@@ -410,18 +410,11 @@ export class AffineMatrix {
   }
 
   /**
-   * Creates a new Matrix with the same data as the current 4x4
+   * Creates a new Matrix with the same data as the current [[AffineMatrix]]
    */
   public clone(dest?: AffineMatrix): AffineMatrix {
     const mat = dest || new AffineMatrix();
-    mat.data[0] = this.data[0];
-    mat.data[1] = this.data[1];
-
-    mat.data[2] = this.data[2];
-    mat.data[3] = this.data[3];
-
-    mat.data[4] = this.data[4];
-    mat.data[5] = this.data[5];
+    mat.data.set(this.data);
     return mat;
   }
 
