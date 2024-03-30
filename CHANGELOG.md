@@ -92,6 +92,7 @@ will be positioned with the top left of the graphic at the actor's position.
 
 ### Changed
 
+- Significant 2x performance improvement to image drawing in Excalibur
 - Simplified `ex.Loader` viewport/resolution internal configuration
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
