@@ -231,7 +231,10 @@ export class Color {
    * Return Hex representation of a color.
    */
   public toHex() {
-    return '#' + this._componentToHex(this.r) + this._componentToHex(this.g) + this._componentToHex(this.b);
+    let hexRepresentation = '#' + this._componentToHex(this.r) + this._componentToHex(this.g) + this._componentToHex(this.b);
+    if (this.a != 1)
+      hexRepresentation += this._componentToHex(this.a * 255);
+    return hexRepresentation;
   }
 
   /**
