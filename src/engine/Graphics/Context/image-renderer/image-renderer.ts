@@ -36,6 +36,8 @@ export class ImageRenderer implements RendererPlugin {
   // Per flush vars
   private _imageCount: number = 0;
   private _textures: WebGLTexture[] = [];
+  private _textureIndex = 0;
+  private _textureToIndex = new Map<WebGLTexture, number>();
   private _images = new Set<HTMLImageSource>();
   private _vertexIndex: number = 0;
 
@@ -135,6 +137,7 @@ export class ImageRenderer implements RendererPlugin {
     image.removeAttribute('forceUpload');
     if (this._textures.indexOf(texture) === -1) {
       this._textures.push(texture);
+      this._textureToIndex.set(texture, this._textureIndex++);
       this._images.add(image);
     }
   }
@@ -150,7 +153,7 @@ export class ImageRenderer implements RendererPlugin {
   private _getTextureIdForImage(image: HTMLImageSource) {
     if (image) {
       const maybeTexture = this._context.textureLoader.get(image);
-      return this._textures.indexOf(maybeTexture);
+      return this._textureToIndex.get(maybeTexture) ?? -1; //this._textures.indexOf(maybeTexture);
     }
     return -1;
   }
@@ -383,6 +386,8 @@ export class ImageRenderer implements RendererPlugin {
     this._imageCount = 0;
     this._vertexIndex = 0;
     this._textures.length = 0;
+    this._textureIndex = 0
+    this._textureToIndex.clear();
     this._images.clear();
     this._imageToWidth.clear();
     this._imageToHeight.clear();
