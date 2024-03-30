@@ -263,6 +263,33 @@ export class AffineMatrix {
     }
   }
 
+  /**
+   * Packed array of length 8, that contains 4 vertices, with 2 components each
+   * So: [x0, y0, x1, y1, x2, y2, x3, y3]
+   * @param quad
+   */
+  multiplyQuadInPlace(quad: number[]) {
+    const resultTopLeftX = quad[0] * this.data[0] + quad[1] * this.data[2] + this.data[4];
+    const resultTopLeftY = quad[0] * this.data[1] + quad[1] * this.data[3] + this.data[5];
+    quad[0] = resultTopLeftX;
+    quad[1] = resultTopLeftY;
+
+    const resultTopRightX = quad[2] * this.data[0] + quad[3] * this.data[2] + this.data[4];
+    const resultTopRightY = quad[2] * this.data[1] + quad[3] * this.data[3] + this.data[5];
+    quad[2] = resultTopRightX;
+    quad[3] = resultTopRightY;
+
+    const resultBottomLeftX = quad[4] * this.data[0] + quad[5] * this.data[2] + this.data[4];
+    const resultBottomLeftY = quad[4] * this.data[1] + quad[5] * this.data[3] + this.data[5];
+    quad[4] = resultBottomLeftX;
+    quad[5] = resultBottomLeftY;
+
+    const resultBottomRightX = quad[6] * this.data[0] + quad[7] * this.data[2] + this.data[4];
+    const resultBottomRightY = quad[6] * this.data[1] + quad[7] * this.data[3] + this.data[5];
+    quad[6] = resultBottomRightX;
+    quad[7] = resultBottomRightY;
+  }
+
   to4x4() {
     const mat = new Matrix();
     mat.data[0] = this.data[0];
@@ -383,18 +410,11 @@ export class AffineMatrix {
   }
 
   /**
-   * Creates a new Matrix with the same data as the current 4x4
+   * Creates a new Matrix with the same data as the current [[AffineMatrix]]
    */
   public clone(dest?: AffineMatrix): AffineMatrix {
     const mat = dest || new AffineMatrix();
-    mat.data[0] = this.data[0];
-    mat.data[1] = this.data[1];
-
-    mat.data[2] = this.data[2];
-    mat.data[3] = this.data[3];
-
-    mat.data[4] = this.data[4];
-    mat.data[5] = this.data[5];
+    mat.data.set(this.data);
     return mat;
   }
 
