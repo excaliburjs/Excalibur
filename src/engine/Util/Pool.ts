@@ -48,7 +48,6 @@ export class Pool<Type> {
 
   /**
    * Retrieve a value from the pool, will allocate a new instance if necessary or recycle from the pool
-   * @param args
    */
   get(): Type {
     if (this.index === this.maxObjects) {
