@@ -85,6 +85,7 @@ will be positioned with the top left of the graphic at the actor's position.
 - Fixed issue where Firefox on Linux would throw an error when using custom Materials due to unused attributes caused by glsl compiler optimization. 
 - Fixed issue where start transition did not work properly if deferred
 - Fixed issue where transitions did not cover the whole screen if camera was zoomed
+- Fixed issue where `Color.toHex()` produced invalid strings if the channel values are negative or fractional, or if the alpha channel was different than 1
 
 ### Updates
 
