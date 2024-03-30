@@ -16,6 +16,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added pointer event support to `ex.TileMap`'s and individual `ex.Tile`'s
+- Added pointer event support to `ex.IsometricMap`'s and individual `ex.IsometricTile`'s
 - Added `useAnchor` parameter to `ex.GraphicsGroup` to allow users to opt out of anchor based positioning, if set to false all graphics members
 will be positioned with the top left of the graphic at the actor's position.
   ```typescript
