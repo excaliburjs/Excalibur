@@ -266,7 +266,7 @@ export class AffineMatrix {
   /**
    * Packed array of length 8, that contains 4 vertices, with 2 components each
    * So: [x0, y0, x1, y1, x2, y2, x3, y3]
-   * @param quad 
+   * @param quad
    */
   multiplyQuadInPlace(quad: number[]) {
     const resultTopLeftX = quad[0] * this.data[0] + quad[1] * this.data[2] + this.data[4];
