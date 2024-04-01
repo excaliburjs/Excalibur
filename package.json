@@ -62,9 +62,9 @@
     "release": "cross-env release=true npm run all"
   },
   "devDependencies": {
-    "@babel/core": "7.24.0",
-    "@babel/preset-env": "7.24.0",
-    "@babel/preset-typescript": "7.23.3",
+    "@babel/core": "7.24.3",
+    "@babel/preset-env": "7.24.3",
+    "@babel/preset-typescript": "7.24.1",
     "@fortawesome/fontawesome-free": "6.5.1",
     "@octokit/rest": "19.0.13",
     "@storybook/addon-actions": "7.5.2",
