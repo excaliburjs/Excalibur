@@ -79,10 +79,16 @@ Adding an `import "regenerator-runtime/runtime";` in your entry file is needed t
 
 :::
 
-Using npm to install Parcel, Excalibur, and TypeScript:
+Using npm to install Parcel:
 
     ```bash
-    npm install parcel-bundler excalibur typescript
+    npm install parcel-bundler --save-dev
+    ```
+
+Using npm to install Excalibur and TypeScript:
+
+    ```bash
+    npm install excalibur typescript
     ```
 
 Configure your tsconfig.json:
@@ -109,7 +115,7 @@ Include the **TypeScript** file in your html:
 <html>
   <head></head>
   <body>
-    <script src="./src/index.ts" />
+    <script src="./src/index.ts"></script>
   </body>
 </html>
 ```
