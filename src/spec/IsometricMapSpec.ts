@@ -46,6 +46,7 @@ describe('A IsometricMap', () => {
     clock.step(100);
 
     await expectAsync(engine.canvas).toEqualImage('src/spec/images/IsometricMapSpec/map.png');
+    engine.dispose();
   });
 
   it('can be drawn from the top', async () => {
@@ -72,6 +73,7 @@ describe('A IsometricMap', () => {
     clock.step(100);
 
     await expectAsync(engine.canvas).toEqualImage('src/spec/images/IsometricMapSpec/cube-map-top.png');
+    engine.dispose();
   });
 
   it('can be drawn from the bottom', async () => {
@@ -97,6 +99,7 @@ describe('A IsometricMap', () => {
     clock.step(100);
 
     await expectAsync(engine.canvas).toEqualImage('src/spec/images/IsometricMapSpec/cube-map-bottom.png');
+    engine.dispose();
   });
 
   it('can be debug drawn', async () => {
@@ -128,6 +131,7 @@ describe('A IsometricMap', () => {
     clock.step(100);
 
     await expectAsync(engine.canvas).toEqualImage('src/spec/images/IsometricMapSpec/cube-map-debug.png');
+    engine.dispose();
   });
 
   it('can find a tile coordinate from a world position', async () => {
@@ -156,6 +160,7 @@ describe('A IsometricMap', () => {
 
     const bottomLeft = sut.worldToTile(ex.vec(0, 15 * 8));
     expect(bottomLeft).toBeVector(ex.vec(0, 14));
+    engine.dispose();
   });
 
   it('can find a top left world coordinate from a tile coordinate', async () => {
@@ -181,6 +186,7 @@ describe('A IsometricMap', () => {
     expect(sut.tiles[sut.tiles.length-1].pos).toBeVector(ex.vec(250, 234));
 
     expect(sut.tileToWorld(ex.vec(0, 14))).toBeVector(ex.vec(26, 122));
+    engine.dispose();
   });
 
   it('can find the center of an isometric tile', () => {
@@ -293,6 +299,41 @@ describe('A IsometricMap', () => {
 
     expect(sut.getTileByPoint(ex.vec(250, 234)).x).toBe(14);
     expect(sut.getTileByPoint(ex.vec(250, 234)).y).toBe(14);
+  });
+
+  it('can respond to pointer events', async () => {
+    const engine = TestUtils.engine({width: 100, height: 100});
+    await TestUtils.runToReady(engine);
+    const sut = new ex.IsometricMap({
+      pos: ex.vec(100, 100),
+      tileWidth: 64,
+      tileHeight: 48,
+      rows: 20,
+      columns: 20
+    });
+    engine.add(sut);
+
+    const tile = sut.getTile(0, 0);
+
+    const pointerdown = jasmine.createSpy('pointerdown');
+    const pointerup = jasmine.createSpy('pointerup');
+    const pointermove = jasmine.createSpy('pointermove');
+    const pointercancel = jasmine.createSpy('pointercancel');
+    tile.on('pointerdown', pointerdown);
+    tile.on('pointerup', pointerup);
+    tile.on('pointermove', pointermove);
+    tile.on('pointercancel', pointercancel);
+
+    engine.input.pointers.triggerEvent('down', ex.vec(110, 110));
+    engine.input.pointers.triggerEvent('up', ex.vec(110, 110));
+    engine.input.pointers.triggerEvent('move', ex.vec(110, 110));
+    engine.input.pointers.triggerEvent('cancel', ex.vec(110, 110));
+    expect(pointerdown).toHaveBeenCalledTimes(1);
+    expect(pointerup).toHaveBeenCalledTimes(1);
+    expect(pointermove).toHaveBeenCalledTimes(1);
+    expect(pointercancel).toHaveBeenCalledTimes(1);
+
+    engine.dispose();
   });
 
 });

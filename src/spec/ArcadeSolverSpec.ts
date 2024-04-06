@@ -89,6 +89,8 @@ describe('An ArcadeSolver', () => {
 
     // give player right velocity
     ex.Physics.acc = ex.Vector.Zero;
+
+    game.dispose();
   });
 
   it('should cancel collision contacts where there is no more overlap', () => {
@@ -319,5 +321,7 @@ describe('An ArcadeSolver', () => {
     for (let i = 0; i < 40; i++) {
       clock.step(16);
     }
+
+    game.dispose();
   });
 });

@@ -10,7 +10,9 @@ describe('A loader', () => {
   });
 
   afterEach(() => {
+    engine.stop();
     engine.dispose();
+    engine = null;
   });
 
   it('exists', () => {
@@ -220,7 +222,9 @@ describe('A loader', () => {
   }
 
   it('does not propagate the start button click to pointers', async () => {
-    const engine = new ex.Engine({ width: 1000, height: 1000 });
+    engine.dispose();
+    engine = null;
+    engine = new ex.Engine({ width: 1000, height: 1000 });
     (ex.WebAudio as any)._UNLOCKED = true;
     const clock = engine.clock = engine.clock.toTestClock();
     const pointerHandler = jasmine.createSpy('pointerHandler');
@@ -242,7 +246,9 @@ describe('A loader', () => {
   });
 
   it('updates the play button position on resize', () => {
-    const engine = new ex.Engine({width: 1000, height: 1000});
+    engine.dispose();
+    engine = null;
+    engine = new ex.Engine({ width: 1000, height: 1000 });
     const loader = new ex.Loader([, , , ,]);
     loader.onInitialize(engine);
     loader.markResourceComplete();
@@ -259,7 +265,7 @@ describe('A loader', () => {
       loader.playButtonRootElement.style.left,
       loader.playButtonRootElement.style.top];
 
-    engine.screen.viewport = {width: 100, height: 100};
+    engine.screen.viewport = { width: 100, height: 100 };
 
     engine.browser.window.nativeComponent.dispatchEvent(new Event('resize'));
 
@@ -331,6 +337,7 @@ describe('A loader', () => {
 
     const ready = TestUtils.runToReady(game, loader).then(() => {
       expect(logger.error).not.toHaveBeenCalled();
+      game.dispose();
       done();
     })
       .catch(() => {

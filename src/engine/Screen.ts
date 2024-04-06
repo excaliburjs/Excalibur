@@ -758,7 +758,7 @@ export class Screen {
       Vector.Half)
       .scale(vec(1/this._camera.zoom, 1/this._camera.zoom))
       .rotate(this._camera.rotation)
-      .translate(this._camera.pos);
+      .translate(this._camera.drawPos);
     return bounds;
   }
 

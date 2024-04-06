@@ -70,7 +70,7 @@ export class FontSource implements Loadable<FontFace> {
    * Build a font from this FontSource.
    * @param options {FontOptions} Override the font options
    */
-  toFont(options?: FontOptions): Font {
+  toFont(options?: FontOptions & GraphicOptions & RasterOptions): Font {
     return new Font({ family: this.family, ...this._options, ...options });
   }
 }

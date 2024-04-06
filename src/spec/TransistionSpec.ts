@@ -82,6 +82,7 @@ describe('A Transition', () => {
     // Start and end should only be called once
     expect(onStartSpy).toHaveBeenCalledTimes(1);
     expect(onEndSpy).toHaveBeenCalledTimes(1);
+    engine.dispose();
   });
 
   it('can be reset()', () => {
@@ -126,5 +127,6 @@ describe('A Transition', () => {
     expect(sut.complete).toBe(false);
     expect(sut.started).toBe(false);
     expect(sut.onReset).toHaveBeenCalledTimes(1);
+    engine.dispose();
   });
 });

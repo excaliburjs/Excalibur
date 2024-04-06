@@ -62,6 +62,7 @@ module.exports = (config) => {
       require('karma-chrome-launcher'),
       require('karma-coverage-istanbul-reporter'),
       require('karma-spec-reporter'),
+      require('karma-jasmine-order-reporter'),
       seedReporter,
       timingReporter
     ],
@@ -152,7 +153,7 @@ module.exports = (config) => {
     // i. e.
         stats: 'normal'
     },
-    reporters: ['progress', /*'spec'*/, 'coverage-istanbul','jasmine-seed', 'jasmine-slow'],
+    reporters: ['jasmine-order', 'progress', /*'spec'*/, 'coverage-istanbul','jasmine-seed', 'jasmine-slow'],
     coverageReporter: {
       reporters: [
           { type: 'html', dir: 'coverage/' }, 

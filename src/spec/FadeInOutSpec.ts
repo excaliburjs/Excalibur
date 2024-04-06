@@ -45,7 +45,7 @@ describe('A FadeInOut transition', () => {
     engine.addScene('newScene', { scene, transitions: { in: sut } });
 
     const goto = engine.goto('newScene');
-    await TestUtils.flushMicrotasks(clock, 13);
+    await TestUtils.flushMicrotasks(clock, 15);
     clock.step(500);
     await Promise.resolve();
     expect(onDeactivateSpy).toHaveBeenCalledTimes(1);
@@ -80,5 +80,6 @@ describe('A FadeInOut transition', () => {
     clock.step(900);
     await Promise.resolve();
     await expectAsync(engine.canvas).toEqualImage('/src/spec/images/FadeInOutSpec/fadeout.png');
+    engine.dispose();
   });
 });

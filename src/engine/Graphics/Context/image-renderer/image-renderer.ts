@@ -1,5 +1,4 @@
 import { sign } from '../../../Math/util';
-import { vec } from '../../../Math/vector';
 import { parseImageFiltering } from '../../Filtering';
 import { GraphicsDiagnostics } from '../../GraphicsDiagnostics';
 import { parseImageWrapping } from '../../Wrapping';
@@ -38,6 +37,9 @@ export class ImageRenderer implements RendererPlugin {
   // Per flush vars
   private _imageCount: number = 0;
   private _textures: WebGLTexture[] = [];
+  private _textureIndex = 0;
+  private _textureToIndex = new Map<WebGLTexture, number>();
+  private _images = new Set<HTMLImageSource>();
   private _vertexIndex: number = 0;
 
   constructor(options: ImageRendererOptions) {
@@ -120,6 +122,9 @@ export class ImageRenderer implements RendererPlugin {
   }
 
   private _addImageAsTexture(image: HTMLImageSource) {
+    if (this._images.has(image)) {
+      return;
+    }
     const maybeFiltering = image.getAttribute('filtering');
     const filtering = maybeFiltering ? parseImageFiltering(image.getAttribute('filtering')) : null;
     const wrapX = parseImageWrapping(image.getAttribute('wrapping-x'));
@@ -137,6 +142,8 @@ export class ImageRenderer implements RendererPlugin {
     image.removeAttribute('forceUpload');
     if (this._textures.indexOf(texture) === -1) {
       this._textures.push(texture);
+      this._textureToIndex.set(texture, this._textureIndex++);
+      this._images.add(image);
     }
   }
 
@@ -151,7 +158,7 @@ export class ImageRenderer implements RendererPlugin {
   private _getTextureIdForImage(image: HTMLImageSource) {
     if (image) {
       const maybeTexture = this._context.textureLoader.get(image);
-      return this._textures.indexOf(maybeTexture);
+      return this._textureToIndex.get(maybeTexture) ?? -1; //this._textures.indexOf(maybeTexture);
     }
     return -1;
   }
@@ -166,7 +173,30 @@ export class ImageRenderer implements RendererPlugin {
     return false;
   }
 
+  private _imageToWidth = new Map<HTMLImageSource, number>();
+  private _getImageWidth(image: HTMLImageSource) {
+    let maybeWidth = this._imageToWidth.get(image);
+    if (maybeWidth === undefined) {
+      maybeWidth = image.width;
+      this._imageToWidth.set(image, maybeWidth);
+    }
+    return maybeWidth;
+  }
 
+  private _imageToHeight = new Map<HTMLImageSource, number>();
+  private _getImageHeight(image: HTMLImageSource) {
+    let maybeHeight = this._imageToHeight.get(image);
+    if (maybeHeight === undefined) {
+      maybeHeight = image.height;
+      this._imageToHeight.set(image, maybeHeight);
+    }
+    return maybeHeight;
+  }
+
+
+  private _view = [0, 0, 0, 0];
+  private _dest = [0, 0];
+  private _quad = [0, 0, 0, 0, 0, 0, 0, 0];
   draw(image: HTMLImageSource,
     sx: number,
     sy: number,
@@ -185,73 +215,89 @@ export class ImageRenderer implements RendererPlugin {
     this._imageCount++;
     // This creates and uploads the texture if not already done
     this._addImageAsTexture(image);
+    const maybeImageWidth = this._getImageWidth(image);
+    const maybeImageHeight = this._getImageHeight(image);
 
-    let width = image?.width || swidth || 0;
-    let height = image?.height || sheight || 0;
-    let view = [0, 0, swidth ?? image?.width ?? 0, sheight ?? image?.height ?? 0];
-    let dest = [sx ?? 1, sy ?? 1];
+    let width = maybeImageWidth || swidth || 0;
+    let height = maybeImageHeight || sheight || 0;
+    this._view[2] = swidth ?? maybeImageWidth ?? 0;
+    this._view[3] = sheight ?? maybeImageHeight ?? 0;
+    this._dest[0] = sx ?? 1;
+    this._dest[1] = sy ?? 1;
     // If destination is specified, update view and dest
     if (dx !== undefined && dy !== undefined && dwidth !== undefined && dheight !== undefined) {
-      view = [sx ?? 1, sy ?? 1, swidth ?? image?.width ?? 0, sheight ?? image?.height ?? 0];
-      dest = [dx, dy];
+      this._view[0] = sx ?? 1;
+      this._view[1] = sy ?? 1;
+      this._view[2] = swidth ?? maybeImageWidth ?? 0;
+      this._view[3] = sheight ?? maybeImageHeight ?? 0;
+      this._dest[0] = dx;
+      this._dest[1] = dy;
       width = dwidth;
       height = dheight;
     }
 
-    sx = view[0];
-    sy = view[1];
-    const sw = view[2];
-    const sh = view[3];
+    sx = this._view[0];
+    sy = this._view[1];
+    const sw = this._view[2];
+    const sh = this._view[3];
 
     // transform based on current context
     const transform = this._context.getTransform();
     const opacity = this._context.opacity;
     const snapToPixel = this._context.snapToPixel;
 
-    let topLeft = vec(dest[0], dest[1]);
-    let topRight = vec(dest[0] + width, dest[1]);
-    let bottomLeft = vec(dest[0], dest[1] + height);
-    let bottomRight = vec(dest[0] + width, dest[1] + height);
+    // top left
+    this._quad[0] = this._dest[0];
+    this._quad[1] = this._dest[1];
 
-    topLeft = transform.multiply(topLeft);
-    topRight = transform.multiply(topRight);
-    bottomLeft = transform.multiply(bottomLeft);
-    bottomRight = transform.multiply(bottomRight);
+    // top right
+    this._quad[2] = this._dest[0] + width;
+    this._quad[3] = this._dest[1];
+
+    // bottom left
+    this._quad[4] = this._dest[0];
+    this._quad[5] = this._dest[1] + height;
+
+    // bottom right
+    this._quad[6] = this._dest[0] + width;
+    this._quad[7] = this._dest[1] + height;
+
+    transform.multiplyQuadInPlace(this._quad);
 
     if (snapToPixel) {
-      topLeft.x = ~~(topLeft.x + sign(topLeft.x) * pixelSnapEpsilon);
-      topLeft.y = ~~(topLeft.y + sign(topLeft.y) * pixelSnapEpsilon);
+      this._quad[0] = ~~(this._quad[0] + sign(this._quad[0]) * pixelSnapEpsilon);
+      this._quad[1] = ~~(this._quad[1] + sign(this._quad[1]) * pixelSnapEpsilon);
 
-      topRight.x = ~~(topRight.x + sign(topRight.x) * pixelSnapEpsilon);
-      topRight.y = ~~(topRight.y + sign(topRight.y) * pixelSnapEpsilon);
+      this._quad[2] = ~~(this._quad[2] + sign(this._quad[2]) * pixelSnapEpsilon);
+      this._quad[3] = ~~(this._quad[3] + sign(this._quad[3]) * pixelSnapEpsilon);
 
-      bottomLeft.x = ~~(bottomLeft.x + sign(bottomLeft.x) * pixelSnapEpsilon);
-      bottomLeft.y = ~~(bottomLeft.y + sign(bottomLeft.y) * pixelSnapEpsilon);
+      this._quad[4] = ~~(this._quad[4] + sign(this._quad[4]) * pixelSnapEpsilon);
+      this._quad[5] = ~~(this._quad[5] + sign(this._quad[5]) * pixelSnapEpsilon);
 
-      bottomRight.x = ~~(bottomRight.x + sign(bottomRight.x) * pixelSnapEpsilon);
-      bottomRight.y = ~~(bottomRight.y + sign(bottomRight.y) * pixelSnapEpsilon);
+      this._quad[6] = ~~(this._quad[6] + sign(this._quad[6]) * pixelSnapEpsilon);
+      this._quad[7] = ~~(this._quad[7] + sign(this._quad[7]) * pixelSnapEpsilon);
     }
 
     const tint = this._context.tint;
 
     const textureId = this._getTextureIdForImage(image);
-    const imageWidth = image.width || width;
-    const imageHeight = image.height || height;
+    const imageWidth = maybeImageWidth || width;
+    const imageHeight = maybeImageHeight || height;
 
     const uvx0 = (sx + this.uvPadding) / imageWidth;
     const uvy0 = (sy + this.uvPadding) / imageHeight;
     const uvx1 = (sx + sw - this.uvPadding) / imageWidth;
     const uvy1 = (sy + sh - this.uvPadding) / imageHeight;
 
-    const txWidth = image.width;
-    const txHeight = image.height;
+    const txWidth = maybeImageWidth;
+    const txHeight = maybeImageHeight;
 
     // update data
     const vertexBuffer = this._layout.vertexBuffer.bufferData;
 
     // (0, 0) - 0
-    vertexBuffer[this._vertexIndex++] = topLeft.x;
-    vertexBuffer[this._vertexIndex++] = topLeft.y;
+    vertexBuffer[this._vertexIndex++] = this._quad[0];
+    vertexBuffer[this._vertexIndex++] = this._quad[1];
     vertexBuffer[this._vertexIndex++] = opacity;
     vertexBuffer[this._vertexIndex++] = txWidth;
     vertexBuffer[this._vertexIndex++] = txHeight;
@@ -264,8 +310,8 @@ export class ImageRenderer implements RendererPlugin {
     vertexBuffer[this._vertexIndex++] = tint.a;
 
     // (0, 1) - 1
-    vertexBuffer[this._vertexIndex++] = bottomLeft.x;
-    vertexBuffer[this._vertexIndex++] = bottomLeft.y;
+    vertexBuffer[this._vertexIndex++] = this._quad[4];
+    vertexBuffer[this._vertexIndex++] = this._quad[5];
     vertexBuffer[this._vertexIndex++] = opacity;
     vertexBuffer[this._vertexIndex++] = txWidth;
     vertexBuffer[this._vertexIndex++] = txHeight;
@@ -278,8 +324,8 @@ export class ImageRenderer implements RendererPlugin {
     vertexBuffer[this._vertexIndex++] = tint.a;
 
     // (1, 0) - 2
-    vertexBuffer[this._vertexIndex++] = topRight.x;
-    vertexBuffer[this._vertexIndex++] = topRight.y;
+    vertexBuffer[this._vertexIndex++] = this._quad[2];
+    vertexBuffer[this._vertexIndex++] = this._quad[3];
     vertexBuffer[this._vertexIndex++] = opacity;
     vertexBuffer[this._vertexIndex++] = txWidth;
     vertexBuffer[this._vertexIndex++] = txHeight;
@@ -292,8 +338,8 @@ export class ImageRenderer implements RendererPlugin {
     vertexBuffer[this._vertexIndex++] = tint.a;
 
     // (1, 1) - 3
-    vertexBuffer[this._vertexIndex++] = bottomRight.x;
-    vertexBuffer[this._vertexIndex++] = bottomRight.y;
+    vertexBuffer[this._vertexIndex++] = this._quad[6];
+    vertexBuffer[this._vertexIndex++] = this._quad[7];
     vertexBuffer[this._vertexIndex++] = opacity;
     vertexBuffer[this._vertexIndex++] = txWidth;
     vertexBuffer[this._vertexIndex++] = txHeight;
@@ -345,5 +391,10 @@ export class ImageRenderer implements RendererPlugin {
     this._imageCount = 0;
     this._vertexIndex = 0;
     this._textures.length = 0;
+    this._textureIndex = 0;
+    this._textureToIndex.clear();
+    this._images.clear();
+    this._imageToWidth.clear();
+    this._imageToHeight.clear();
   }
 }

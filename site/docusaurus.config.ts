@@ -52,7 +52,7 @@ const config: Config = {
           sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          editUrl: 'https://github.com/excaliburjs/Excalibur/tree/main/site/docs/',
+          editUrl: 'https://github.com/excaliburjs/Excalibur/tree/main/site/',
           rehypePlugins: [[rehypeRaw, rehypeRawOptions]],
           remarkPlugins: [
             [
@@ -190,6 +190,18 @@ const config: Config = {
           }
         ]
       }
+    ],
+    [
+      '@docusaurus/plugin-client-redirects',
+      {
+        redirects: [
+          // /docs/oldDoc -> /docs/newDoc
+          {
+            from: '/docs/webgl',
+            to: '/docs/performance',
+          },
+        ],
+      },
     ]
   ],
 

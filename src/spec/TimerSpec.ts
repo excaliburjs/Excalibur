@@ -23,6 +23,12 @@ describe('A Timer', () => {
     await TestUtils.runToReady(engine);
   });
 
+  afterEach(() => {
+    engine.stop();
+    engine.dispose();
+    engine = null;
+  });
+
   it('has a unique id', () => {
     const newtimer = new ex.Timer({
       interval: 500,

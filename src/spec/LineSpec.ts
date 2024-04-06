@@ -120,5 +120,6 @@ describe('A Line', () => {
 
     await expectAsync(game.canvas).toEqualImage('src/spec/images/LineSpec/line.png');
 
+    game.dispose();
   });
 });

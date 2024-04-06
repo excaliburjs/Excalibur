@@ -21,6 +21,12 @@ describe('The OffscreenSystem', () => {
     entities[2].get(TransformComponent).z = 1;
   });
 
+  afterEach(() => {
+    engine.stop();
+    engine.dispose();
+    engine = null;
+  });
+
   it('exists', () => {
     expect(ex.OffscreenSystem).toBeDefined();
   });

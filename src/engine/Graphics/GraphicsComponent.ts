@@ -8,6 +8,7 @@ import { Material } from './Context/material';
 import { Logger } from '../Util/Log';
 import { WatchVector } from '../Math/watch-vector';
 import { TransformComponent } from '../EntityComponentSystem';
+import { GraphicsGroup } from '../Graphics/GraphicsGroup';
 
 /**
  * Type guard for checking if a Graphic HasTick (used for graphics that change over time like animations)
@@ -359,7 +360,11 @@ export class GraphicsComponent extends Component {
     const bounds = graphic.localBounds;
     const offsetX = -bounds.width *  anchor.x + offset.x;
     const offsetY = -bounds.height *  anchor.y + offset.y;
-    bb = graphic?.localBounds.translate(vec(offsetX, offsetY)).combine(bb);
+    if (graphic instanceof GraphicsGroup && !graphic.useAnchor) {
+      bb = graphic?.localBounds.combine(bb);
+    } else {
+      bb = graphic?.localBounds.translate(vec(offsetX, offsetY)).combine(bb);
+    }
     this._localBounds = bb;
   }
 

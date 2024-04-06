@@ -29,6 +29,7 @@ describe('The engine', () => {
 
   afterEach(() => {
     engine.stop();
+    engine.dispose();
     engine = null;
   });
 
