@@ -90,7 +90,7 @@ export class TextureLoader {
     gl.bindTexture(gl.TEXTURE_2D, tex);
 
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-    const { x: xWrap, y: yWrap} = wrapping ?? TextureLoader.wrapping;
+    const { x: xWrap, y: yWrap} = (wrapping ?? TextureLoader.wrapping);
     switch (xWrap) {
       case ImageWrapping.Clamp:
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);

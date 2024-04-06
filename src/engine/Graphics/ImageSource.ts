@@ -21,6 +21,12 @@ export interface ImageWrapConfiguration {
   y: ImageWrapping;
 }
 
+export const ImageSourceAttributeConstants = {
+  Filtering: 'filtering',
+  WrappingX: 'wrapping-x',
+  WrappingY: 'wrapping-y'
+} as const;
+
 export class ImageSource implements Loadable<HTMLImageElement> {
   private _logger = Logger.getInstance();
   private _resource: Resource<Blob>;
@@ -111,17 +117,17 @@ export class ImageSource implements Loadable<HTMLImageElement> {
     imageSource.data.setAttribute('data-original-src', 'image-element');
 
     if (options?.filtering) {
-      imageSource.data.setAttribute('filtering', options?.filtering);
+      imageSource.data.setAttribute(ImageSourceAttributeConstants.Filtering, options?.filtering);
     } else {
-      imageSource.data.setAttribute('filtering', ImageFiltering.Blended);
+      imageSource.data.setAttribute(ImageSourceAttributeConstants.Filtering, ImageFiltering.Blended);
     }
 
     if (options?.wrapping) {
-      imageSource.data.setAttribute('wrapping-x', options?.wrapping.x);
-      imageSource.data.setAttribute('wrapping-y', options?.wrapping.y);
+      imageSource.data.setAttribute(ImageSourceAttributeConstants.WrappingX, options?.wrapping.x);
+      imageSource.data.setAttribute(ImageSourceAttributeConstants.WrappingY, options?.wrapping.y);
     } else {
-      imageSource.data.setAttribute('wrapping-x', ImageWrapping.Clamp);
-      imageSource.data.setAttribute('wrapping-y', ImageWrapping.Clamp);
+      imageSource.data.setAttribute(ImageSourceAttributeConstants.WrappingX, ImageWrapping.Clamp);
+      imageSource.data.setAttribute(ImageSourceAttributeConstants.WrappingY, ImageWrapping.Clamp);
     }
 
     TextureLoader.checkImageSizeSupportedAndLog(image);
@@ -182,9 +188,9 @@ export class ImageSource implements Loadable<HTMLImageElement> {
       throw `Error loading ImageSource from path '${this.path}' with error [${error.message}]`;
     }
     // Do a bad thing to pass the filtering as an attribute
-    this.data.setAttribute('filtering', this.filtering);
-    this.data.setAttribute('wrapping-x', this.wrapping?.x);
-    this.data.setAttribute('wrapping-y', this.wrapping?.y);
+    this.data.setAttribute(ImageSourceAttributeConstants.Filtering, this.filtering);
+    this.data.setAttribute(ImageSourceAttributeConstants.WrappingX, this.wrapping?.x ?? ImageWrapping.Clamp);
+    this.data.setAttribute(ImageSourceAttributeConstants.WrappingY, this.wrapping?.y ?? ImageWrapping.Clamp);
 
     // todo emit complete
     this._readyFuture.resolve(this.data);

@@ -1,6 +1,7 @@
 import { sign } from '../../../Math/util';
 import { parseImageFiltering } from '../../Filtering';
 import { GraphicsDiagnostics } from '../../GraphicsDiagnostics';
+import { ImageSourceAttributeConstants } from '../../ImageSource';
 import { parseImageWrapping } from '../../Wrapping';
 import { HTMLImageSource } from '../ExcaliburGraphicsContext';
 import { ExcaliburGraphicsContextWebGL, pixelSnapEpsilon } from '../ExcaliburGraphicsContextWebGL';
@@ -125,10 +126,10 @@ export class ImageRenderer implements RendererPlugin {
     if (this._images.has(image)) {
       return;
     }
-    const maybeFiltering = image.getAttribute('filtering');
-    const filtering = maybeFiltering ? parseImageFiltering(image.getAttribute('filtering')) : null;
-    const wrapX = parseImageWrapping(image.getAttribute('wrapping-x'));
-    const wrapY = parseImageWrapping(image.getAttribute('wrapping-y'));
+    const maybeFiltering = image.getAttribute(ImageSourceAttributeConstants.Filtering);
+    const filtering = maybeFiltering ? parseImageFiltering(maybeFiltering) : null;
+    const wrapX = parseImageWrapping(image.getAttribute(ImageSourceAttributeConstants.WrappingX));
+    const wrapY = parseImageWrapping(image.getAttribute(ImageSourceAttributeConstants.WrappingY));
 
     const force = image.getAttribute('forceUpload') === 'true' ? true : false;
     const texture = this._context.textureLoader.load(

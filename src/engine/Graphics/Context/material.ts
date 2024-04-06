@@ -3,7 +3,7 @@ import { ExcaliburGraphicsContext } from './ExcaliburGraphicsContext';
 import { ExcaliburGraphicsContextWebGL } from './ExcaliburGraphicsContextWebGL';
 import { Shader } from './shader';
 import { Logger } from '../../Util/Log';
-import { ImageSource } from '../ImageSource';
+import { ImageSource, ImageSourceAttributeConstants } from '../ImageSource';
 import { ImageFiltering, parseImageFiltering } from '../Filtering';
 import { parseImageWrapping } from '../Wrapping';
 
@@ -192,10 +192,10 @@ export class Material {
 
   private _loadImageSource(image: ImageSource) {
     const imageElement = image.image;
-    const maybeFiltering = imageElement.getAttribute('filtering');
-    const filtering = maybeFiltering ? parseImageFiltering(imageElement.getAttribute('filtering')) : null;
-    const wrapX = parseImageWrapping(imageElement.getAttribute('wrapping-x'));
-    const wrapY = parseImageWrapping(imageElement.getAttribute('wrapping-y'));
+    const maybeFiltering = imageElement.getAttribute(ImageSourceAttributeConstants.Filtering);
+    const filtering = maybeFiltering ? parseImageFiltering(maybeFiltering) : null;
+    const wrapX = parseImageWrapping(imageElement.getAttribute(ImageSourceAttributeConstants.WrappingX));
+    const wrapY = parseImageWrapping(imageElement.getAttribute(ImageSourceAttributeConstants.WrappingY));
 
     const force = imageElement.getAttribute('forceUpload') === 'true' ? true : false;
     const texture = this._graphicsContext.textureLoader.load(
