@@ -77,9 +77,9 @@ export class ImageSource implements Loadable<HTMLImageElement> {
   public readonly path: string;
 
   /**
-   *
-   * @param path
-   * @param options
+   * The path to the image, can also be a data url like 'data:image/'
+   * @param path {string} Path to the image resource relative from the HTML document hosting the game, or absolute
+   * @param options 
    */
   constructor(path: string, options?: ImageSourceOptions);
   /**
