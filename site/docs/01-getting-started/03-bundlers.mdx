@@ -79,10 +79,16 @@ Adding an `import "regenerator-runtime/runtime";` in your entry file is needed t
 
 :::
 
-Using npm to install Parcel, Excalibur, and TypeScript:
+Using npm to install Parcel:
 
     ```bash
-    npm install parcel-bundler excalibur typescript
+    npm install parcel-bundler --save-dev
+    ```
+
+Using npm to install Excalibur and TypeScript:
+
+    ```bash
+    npm install excalibur typescript
     ```
 
 Configure your tsconfig.json:
@@ -90,6 +96,22 @@ Configure your tsconfig.json:
     ```bash
     tsc --init
     ```
+
+The suggested file structure is as follows:
+
+```
+/project_folder
+    /node_modules
+        ...
+
+    /src
+        index.html
+        index.ts
+    
+    package-lock.json
+    package.json
+    tsconfig.json
+```
 
 Create your game script:
 
@@ -109,7 +131,7 @@ Include the **TypeScript** file in your html:
 <html>
   <head></head>
   <body>
-    <script src="./src/index.ts" />
+    <script src="./index.ts"></script>
   </body>
 </html>
 ```
@@ -117,7 +139,7 @@ Include the **TypeScript** file in your html:
 Build and run with Parcel!
 
     ```bash
-    parcel index.html --no-autoinstall
+    npx parcel src/index.html --no-autoinstall
     ```
 
 ### Webpack
