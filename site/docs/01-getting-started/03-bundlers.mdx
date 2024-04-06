@@ -105,9 +105,9 @@ The suggested file structure is as follows:
         ...
 
     /src
+        index.html
         index.ts
-
-    index.html
+    
     package-lock.json
     package.json
     tsconfig.json
@@ -131,7 +131,7 @@ Include the **TypeScript** file in your html:
 <html>
   <head></head>
   <body>
-    <script src="./src/index.ts"></script>
+    <script src="./index.ts"></script>
   </body>
 </html>
 ```
@@ -139,7 +139,7 @@ Include the **TypeScript** file in your html:
 Build and run with Parcel!
 
     ```bash
-    npx parcel index.html --no-autoinstall
+    npx parcel src/index.html --no-autoinstall
     ```
 
 ### Webpack
