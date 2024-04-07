@@ -139,6 +139,109 @@ describe('A ImageSource', () => {
       }, false);
   });
 
+  it('can load images with an image wrap repeat', async () => {
+    const canvas = document.createElement('canvas');
+    const webgl = new ex.ExcaliburGraphicsContextWebGL({
+      canvasElement: canvas
+    });
+    const imageRenderer = new ImageRenderer({pixelArtSampler: false, uvPadding: 0});
+    imageRenderer.initialize(webgl.__gl, webgl);
+    spyOn(webgl.textureLoader, 'load').and.callThrough();
+
+    const spriteFontImage = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png',{
+      filtering: ex.ImageFiltering.Pixel,
+      wrapping: ex.ImageWrapping.Repeat
+    });
+    const whenLoaded = jasmine.createSpy('whenLoaded');
+    const image = await spriteFontImage.load();
+    await spriteFontImage.ready.then(whenLoaded);
+
+    imageRenderer.draw(image, 0, 0);
+
+    expect(image.src).not.toBeNull();
+    expect(whenLoaded).toHaveBeenCalledTimes(1);
+    expect(webgl.textureLoader.load).toHaveBeenCalledWith(
+      image,
+      {
+        filtering: ex.ImageFiltering.Pixel,
+        wrapping: {
+          x: ex.ImageWrapping.Repeat,
+          y: ex.ImageWrapping.Repeat
+        }
+      }, false);
+  });
+
+  it('can load images with an image wrap repeat', async () => {
+    const canvas = document.createElement('canvas');
+    const webgl = new ex.ExcaliburGraphicsContextWebGL({
+      canvasElement: canvas
+    });
+    const imageRenderer = new ImageRenderer({pixelArtSampler: false, uvPadding: 0});
+    imageRenderer.initialize(webgl.__gl, webgl);
+    spyOn(webgl.textureLoader, 'load').and.callThrough();
+
+    const spriteFontImage = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png',{
+      filtering: ex.ImageFiltering.Pixel,
+      wrapping: ex.ImageWrapping.Mirror
+    });
+    const whenLoaded = jasmine.createSpy('whenLoaded');
+    const image = await spriteFontImage.load();
+    await spriteFontImage.ready.then(whenLoaded);
+
+    imageRenderer.draw(image, 0, 0);
+
+    expect(image.src).not.toBeNull();
+    expect(whenLoaded).toHaveBeenCalledTimes(1);
+    expect(webgl.textureLoader.load).toHaveBeenCalledWith(
+      image,
+      {
+        filtering: ex.ImageFiltering.Pixel,
+        wrapping: {
+          x: ex.ImageWrapping.Mirror,
+          y: ex.ImageWrapping.Mirror
+        }
+      }, false);
+  });
+
+  it('can load images with an image wrap mixed', async () => {
+    const canvas = document.createElement('canvas');
+    const webgl = new ex.ExcaliburGraphicsContextWebGL({
+      canvasElement: canvas
+    });
+    const imageRenderer = new ImageRenderer({pixelArtSampler: false, uvPadding: 0});
+    imageRenderer.initialize(webgl.__gl, webgl);
+    spyOn(webgl.textureLoader, 'load').and.callThrough();
+    const texParameteri = spyOn(webgl.__gl, 'texParameteri').and.callThrough();
+    const gl = webgl.__gl;
+
+    const spriteFontImage = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png',{
+      filtering: ex.ImageFiltering.Pixel,
+      wrapping: {
+        x: ex.ImageWrapping.Mirror,
+        y: ex.ImageWrapping.Clamp
+      }
+    });
+    const whenLoaded = jasmine.createSpy('whenLoaded');
+    const image = await spriteFontImage.load();
+    await spriteFontImage.ready.then(whenLoaded);
+
+    imageRenderer.draw(image, 0, 0);
+
+    expect(image.src).not.toBeNull();
+    expect(whenLoaded).toHaveBeenCalledTimes(1);
+    expect(texParameteri.calls.argsFor(0)).toEqual([gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.MIRRORED_REPEAT]);
+    expect(texParameteri.calls.argsFor(1)).toEqual([gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]);
+    expect(webgl.textureLoader.load).toHaveBeenCalledWith(
+      image,
+      {
+        filtering: ex.ImageFiltering.Pixel,
+        wrapping: {
+          x: ex.ImageWrapping.Mirror,
+          y: ex.ImageWrapping.Clamp
+        }
+      }, false);
+  });
+
   it('can convert to a Sprite', async () => {
     const spriteFontImage = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
     const sprite = spriteFontImage.toSprite();
