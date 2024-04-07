@@ -36,6 +36,7 @@
     "@docusaurus/module-type-aliases": "3.0.0",
     "@docusaurus/tsconfig": "^3.0.0",
     "@types/react": "^18.2.29",
+    "css-has-pseudo": "^6.0.3",
     "micromark-extension-mdxjs": "^3.0.0",
     "patch-package": "^8.0.0",
     "ts-loader": "^9.5.1",

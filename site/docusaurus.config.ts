@@ -173,7 +173,11 @@ const config: Config = {
               })
             ]
           };
-        }
+        },
+        configurePostCss(postcssOptions) {
+          postcssOptions.plugins.push(require('css-has-pseudo'));
+          return postcssOptions;
+        },
       };
     },
     [
