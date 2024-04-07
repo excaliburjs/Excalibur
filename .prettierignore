@@ -6,6 +6,5 @@ build
 coverage
 node_cache
 /site
-/sandbox
 *.md
 *.mdx
