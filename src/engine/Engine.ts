@@ -53,6 +53,7 @@ import { InputHost } from './Input/InputHost';
 import { DefaultPhysicsConfig, DeprecatedStaticToConfig, PhysicsConfig } from './Collision/PhysicsConfig';
 import { DeepRequired } from './Util/Required';
 import { Context, createContext, useContext } from './Context';
+import { GarbageCollectionOptions, GarbageCollector } from './GarbageCollector';
 
 export type EngineEvents = {
   fallbackgraphicscontext: ExcaliburGraphicsContext2DCanvas,
@@ -143,7 +144,20 @@ export interface EngineOptions<TKnownScenes extends string = any> {
    * It is recommended you stick to `true` or `false` unless you understand what you're doing and need to control rendering to
    * a high degree.
    */
-  antialiasing?: boolean | AntialiasOptions
+  antialiasing?: boolean | AntialiasOptions;
+
+  /**
+   * Optionally specify excalibur garbage collection, by default false
+   *
+   * * `true` - garbage collection defaults are enabled
+   *
+   * * `false` - garbage collection is completely disabled (not recommended)
+   *
+   * * [[GarbageCollectionOptions]] Optionally deeply configure garbage collection settings, **WARNING** thar be dragons here.
+   * It is recommended you stick to `true` or `false` unless you understand what you're doing, it is possible to get into a downward
+   * spiral if collection timings are set too low where you are stuck in repeated collection.
+   */
+  garbageCollection?: boolean | GarbageCollectionOptions;
 
   /**
    * Quick convenience property to configure Excalibur to use special settings for "pretty" anti-aliased pixel art
@@ -372,6 +386,8 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
    * @param cb
    */
   scope = <TReturn>(cb: () => TReturn) => Engine.Context.scope(this, cb);
+
+  private _gc: GarbageCollector;
 
   /**
    * Current Excalibur version string
@@ -800,6 +816,9 @@ O|===|* >________________>\n\
 
     this._logger.debug('Building engine...');
 
+    this._gc = new GarbageCollector({nowFn: Date.now});
+
+
     this.canvasElementId = options.canvasElementId;
 
     if (options.canvasElementId) {
@@ -890,6 +909,7 @@ O|===|* >________________>\n\
           backgroundColor: options.backgroundColor,
           snapToPixel: options.snapToPixel,
           useDrawSorting: options.useDrawSorting,
+          gc: this._gc,
           handleContextLost: options.handleContextLost ?? this._handleWebGLContextLost,
           handleContextRestored: options.handleContextRestored
         });
@@ -1663,6 +1683,7 @@ O|===|* >________________>\n\
       this._logger.debug('Starting game clock...');
       this.browser.resume();
       this.clock.start();
+      this._gc.start();
       this._logger.debug('Game clock started');
 
       await this.load(loader ?? new Loader());
@@ -1737,6 +1758,7 @@ O|===|* >________________>\n\
       this.emit('stop', new GameStopEvent(this));
       this.browser.pause();
       this.clock.stop();
+      this._gc.stop();
       this._logger.debug('Game stopped');
     }
   }
