@@ -34,6 +34,7 @@ import { AffineMatrix } from '../../Math/affine-matrix';
 import { Material, MaterialOptions } from './material';
 import { MaterialRenderer } from './material-renderer/material-renderer';
 import { Shader, ShaderOptions } from './shader';
+import { GarbageCollector } from '../../GarbageCollector';
 
 export const pixelSnapEpsilon = 0.0001;
 
@@ -88,6 +89,7 @@ export interface WebGLGraphicsContextInfo {
 
 export interface ExcaliburGraphicsContextWebGLOptions extends ExcaliburGraphicsContextOptions {
   context?: WebGL2RenderingContext,
+  gc?: GarbageCollector,
   handleContextLost?: (e: Event) => void,
   handleContextRestored?: (e: Event) => void
 }
@@ -228,6 +230,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       snapToPixel,
       backgroundColor,
       useDrawSorting,
+      gc,
       handleContextLost,
       handleContextRestored
     } = options;
@@ -258,7 +261,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       this._isContextLost = false;
     });
 
-    this.textureLoader = new TextureLoader(this.__gl);
+    this.textureLoader = new TextureLoader(this.__gl, gc);
     this.snapToPixel = snapToPixel ?? this.snapToPixel;
     this.smoothing = antialiasing ?? this.smoothing;
     this.transparency = enableTransparency ?? this.transparency;

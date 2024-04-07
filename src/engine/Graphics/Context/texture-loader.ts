@@ -1,3 +1,4 @@
+import { GarbageCollector } from '../../GarbageCollector';
 import { Logger } from '../../Util/Log';
 import { ImageFiltering } from '../Filtering';
 import { ImageSourceOptions, ImageWrapConfiguration } from '../ImageSource';
@@ -10,9 +11,11 @@ import { HTMLImageSource } from './ExcaliburGraphicsContext';
 export class TextureLoader {
   private static _LOGGER = Logger.getInstance();
 
-  constructor(gl: WebGL2RenderingContext) {
+  constructor(gl: WebGL2RenderingContext, private _gc?: GarbageCollector) {
     this._gl = gl;
     TextureLoader._MAX_TEXTURE_SIZE = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+    // TODO timeout configurable
+    _gc?.registerCollector('texture', 60_000, this._collect);
   }
 
   public dispose() {
@@ -78,6 +81,7 @@ export class TextureLoader {
         gl.bindTexture(gl.TEXTURE_2D, tex);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
       }
+      this._gc?.touch(image);
       return tex;
     }
 
@@ -142,6 +146,7 @@ export class TextureLoader {
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 
     this._textureMap.set(image, tex);
+    this._gc?.addCollectableResource('texture', image);
     return tex;
   }
 
@@ -152,10 +157,12 @@ export class TextureLoader {
       return null;
     }
 
-    let tex: WebGLTexture = null;
     if (this.has(image)) {
-      tex = this.get(image);
-      gl.deleteTexture(tex);
+      const tex = this.get(image);
+      if (tex) {
+        this._textureMap.delete(image);
+        gl.deleteTexture(tex);
+      }
     }
   }
 
@@ -183,4 +190,17 @@ export class TextureLoader {
     }
     return true;
   }
+
+  /**
+   * Looks for textures that haven't been drawn in a while
+   */
+  private _collect = (image: HTMLImageSource) => {
+    if (this._gl) {
+      const name = image.dataset.originalSrc ?? image.constructor.name;
+      TextureLoader._LOGGER.debug(`WebGL Texture for ${name} collected`);
+      this.delete(image);
+      return true;
+    }
+    return false;
+  };
 }
