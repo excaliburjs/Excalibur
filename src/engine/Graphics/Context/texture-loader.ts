@@ -1,5 +1,7 @@
 import { Logger } from '../../Util/Log';
 import { ImageFiltering } from '../Filtering';
+import { ImageSourceOptions, ImageWrapConfiguration } from '../ImageSource';
+import { ImageWrapping } from '../Wrapping';
 import { HTMLImageSource } from './ExcaliburGraphicsContext';
 
 /**
@@ -25,6 +27,7 @@ export class TextureLoader {
    * Sets the default filtering for the Excalibur texture loader, default [[ImageFiltering.Blended]]
    */
   public static filtering: ImageFiltering = ImageFiltering.Blended;
+  public static wrapping: ImageWrapConfiguration = {x: ImageWrapping.Clamp, y: ImageWrapping.Clamp};
 
   private _gl: WebGL2RenderingContext;
 
@@ -51,15 +54,17 @@ export class TextureLoader {
   /**
    * Loads a graphic into webgl and returns it's texture info, a webgl context must be previously registered
    * @param image Source graphic
-   * @param filtering {ImageFiltering} The ImageFiltering mode to apply to the loaded texture
+   * @param options {ImageSourceOptions} Optionally configure the ImageFiltering and ImageWrapping mode to apply to the loaded texture
    * @param forceUpdate Optionally force a texture to be reloaded, useful if the source graphic has changed
    */
-  public load(image: HTMLImageSource, filtering?: ImageFiltering, forceUpdate = false): WebGLTexture {
+  public load(image: HTMLImageSource, options?: ImageSourceOptions, forceUpdate = false): WebGLTexture {
     // Ignore loading if webgl is not registered
     const gl = this._gl;
     if (!gl) {
       return null;
     }
+
+    const { filtering, wrapping } = {...options};
 
     let tex: WebGLTexture = null;
     // If reuse the texture if it's from the same source
@@ -85,9 +90,48 @@ export class TextureLoader {
     gl.bindTexture(gl.TEXTURE_2D, tex);
 
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-    // TODO make configurable
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    let wrappingConfig: ImageWrapConfiguration;
+    if (wrapping) {
+      if (typeof wrapping === 'string') {
+        wrappingConfig = {
+          x: wrapping,
+          y: wrapping
+        };
+      } else {
+        wrappingConfig = {
+          x: wrapping.x,
+          y: wrapping.y
+        };
+      }
+    }
+    const { x: xWrap, y: yWrap} = (wrappingConfig ?? TextureLoader.wrapping);
+    switch (xWrap) {
+      case ImageWrapping.Clamp:
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        break;
+      case ImageWrapping.Repeat:
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+        break;
+      case ImageWrapping.Mirror:
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.MIRRORED_REPEAT);
+        break;
+      default:
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    }
+    switch (yWrap) {
+      case ImageWrapping.Clamp:
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        break;
+      case ImageWrapping.Repeat:
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+        break;
+      case ImageWrapping.Mirror:
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.MIRRORED_REPEAT);
+        break;
+      default:
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    }
 
     // NEAREST for pixel art, LINEAR for hi-res
     const filterMode = filtering ?? TextureLoader.filtering;

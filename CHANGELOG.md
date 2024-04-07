@@ -16,6 +16,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added ability to configure image wrapping on `ex.ImageSource` with the new `ex.ImageWrapping.Clamp` (default), `ex.ImageWrapping.Repeat`, and `ex.ImageWrapping.Mirror`.
+  ```typescript
+  const image = new ex.ImageSource('path/to/image.png', {
+    filtering: ex.ImageFiltering.Pixel,
+    wrapping: {
+      x: ex.ImageWrapping.Repeat,
+      y: ex.ImageWrapping.Repeat,
+    }
+  });
+  ```
 - Added pointer event support to `ex.TileMap`'s and individual `ex.Tile`'s
 - Added pointer event support to `ex.IsometricMap`'s and individual `ex.IsometricTile`'s
 - Added `useAnchor` parameter to `ex.GraphicsGroup` to allow users to opt out of anchor based positioning, if set to false all graphics members

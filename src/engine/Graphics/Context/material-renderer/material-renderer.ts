@@ -1,6 +1,8 @@
 import { vec } from '../../../Math/vector';
-import { ImageFiltering } from '../../Filtering';
+import { parseImageFiltering } from '../../Filtering';
 import { GraphicsDiagnostics } from '../../GraphicsDiagnostics';
+import { ImageSourceAttributeConstants } from '../../ImageSource';
+import { parseImageWrapping } from '../../Wrapping';
 import { HTMLImageSource } from '../ExcaliburGraphicsContext';
 import { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
 import { QuadIndexBuffer } from '../quad-index-buffer';
@@ -204,15 +206,19 @@ export class MaterialRenderer implements RendererPlugin {
   }
 
   private _addImageAsTexture(image: HTMLImageSource) {
-    const maybeFiltering = image.getAttribute('filtering');
-    let filtering: ImageFiltering = null;
-    if (maybeFiltering === ImageFiltering.Blended ||
-        maybeFiltering === ImageFiltering.Pixel) {
-      filtering = maybeFiltering;
-    }
+    const maybeFiltering = image.getAttribute(ImageSourceAttributeConstants.Filtering);
+    const filtering = maybeFiltering ? parseImageFiltering(maybeFiltering) : null;
+    const wrapX = parseImageWrapping(image.getAttribute(ImageSourceAttributeConstants.WrappingX));
+    const wrapY = parseImageWrapping(image.getAttribute(ImageSourceAttributeConstants.WrappingY));
 
     const force = image.getAttribute('forceUpload') === 'true' ? true : false;
-    const texture = this._context.textureLoader.load(image, filtering, force);
+    const texture = this._context.textureLoader.load(
+      image,
+      {
+        filtering,
+        wrapping: { x: wrapX, y: wrapY }
+      },
+      force);
     // remove force attribute after upload
     image.removeAttribute('forceUpload');
     if (this._textures.indexOf(texture) === -1) {
@@ -228,5 +234,4 @@ export class MaterialRenderer implements RendererPlugin {
   flush(): void {
     // flush does not do anything, material renderer renders immediately per draw
   }
-
 }
