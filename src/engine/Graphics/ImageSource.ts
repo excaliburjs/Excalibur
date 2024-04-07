@@ -9,10 +9,7 @@ import { ImageWrapping } from './Wrapping';
 
 export interface ImageSourceOptions {
   filtering?: ImageFiltering;
-  wrapping?: {
-    x: ImageWrapping,
-    y: ImageWrapping
-  };
+  wrapping?: ImageWrapConfiguration | ImageWrapping;
   bustCache?: boolean;
 }
 
@@ -92,7 +89,7 @@ export class ImageSource implements Loadable<HTMLImageElement> {
   constructor(path: string, bustCacheOrOptions: boolean | ImageSourceOptions, filtering?: ImageFiltering) {
     this.path = path;
     let bustCache = false;
-    let wrapping: ImageWrapConfiguration;
+    let wrapping: ImageWrapConfiguration | ImageWrapping;
     if (typeof bustCacheOrOptions === 'boolean') {
       bustCache = bustCacheOrOptions;
     } else {
@@ -100,7 +97,14 @@ export class ImageSource implements Loadable<HTMLImageElement> {
     }
     this._resource = new Resource(path, 'blob', bustCache);
     this.filtering = filtering ?? this.filtering;
-    this.wrapping = wrapping ?? this.wrapping;
+    if (typeof wrapping === 'string') {
+      this.wrapping = {
+        x: wrapping,
+        y: wrapping
+      };
+    } else {
+      this.wrapping = wrapping ?? this.wrapping;
+    }
     if (path.endsWith('.svg') || path.endsWith('.gif')) {
       this._logger.warn(`Image type is not fully supported, you may have mixed results ${path}. Fully supported: jpg, bmp, and png`);
     }
@@ -123,8 +127,20 @@ export class ImageSource implements Loadable<HTMLImageElement> {
     }
 
     if (options?.wrapping) {
-      imageSource.data.setAttribute(ImageSourceAttributeConstants.WrappingX, options?.wrapping.x);
-      imageSource.data.setAttribute(ImageSourceAttributeConstants.WrappingY, options?.wrapping.y);
+      let wrapping: ImageWrapConfiguration;
+      if (typeof options.wrapping === 'string') {
+        wrapping = {
+          x: options.wrapping,
+          y: options.wrapping
+        };
+      } else {
+        wrapping = {
+          x: options.wrapping.x,
+          y: options.wrapping.y
+        };
+      }
+      imageSource.data.setAttribute(ImageSourceAttributeConstants.WrappingX, wrapping.x);
+      imageSource.data.setAttribute(ImageSourceAttributeConstants.WrappingY, wrapping.y);
     } else {
       imageSource.data.setAttribute(ImageSourceAttributeConstants.WrappingX, ImageWrapping.Clamp);
       imageSource.data.setAttribute(ImageSourceAttributeConstants.WrappingY, ImageWrapping.Clamp);
