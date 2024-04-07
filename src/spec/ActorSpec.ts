@@ -224,6 +224,25 @@ describe('A game actor', () => {
     expect(actor.pos.y).toBe(20);
   });
 
+  it('should have an old global position after an update', () => {
+    const parent = new ex.Actor({ pos: ex.vec(10, 10) });
+    const child = new ex.Actor({ name: 'child', pos: ex.vec(10, 10) });
+    scene.add(parent);
+    parent.addChild(child);
+
+    parent.vel = ex.vec(10, 10);
+
+    expect(child.globalPos.x).toBe(20);
+    expect(child.globalPos.y).toBe(20);
+
+    motionSystem.update(1000);
+
+    expect(child.oldGlobalPos.x).toBe(20);
+    expect(child.oldGlobalPos.y).toBe(20);
+    expect(child.globalPos.x).toBe(30);
+    expect(child.globalPos.y).toBe(30);
+  });
+
   it('actors should generate pair hashes in the correct order', () => {
     const id1 = ex.createId('collider', 20);
     const id2 = ex.createId('collider', 40);

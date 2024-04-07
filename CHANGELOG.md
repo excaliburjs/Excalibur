@@ -11,11 +11,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
--
+- `actor.getGlobalPos()` - use `Actor.globalPos` instead
 
 ### Added
 
--
+- `actor.oldGlobalPos` returns the globalPosition from the previous frame
 
 ### Fixed
 
@@ -41,7 +41,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
--
+- `
 
 ### Added
 

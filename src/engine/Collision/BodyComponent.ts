@@ -249,7 +249,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   }
 
   /**
-   * @deprecated Use globalP0s
+   * @deprecated Use globalPos
    */
   public get center() {
     return this.globalPos;
@@ -284,11 +284,20 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     this.transform.globalPos = val;
   }
 
+  private _oldGlobalPos: Vector = Vector.Zero;
+
   /**
    * The position of the actor last frame (x, y) in pixels
    */
   public get oldPos(): Vector {
     return this.oldTransform.pos;
+  }
+
+  /**
+   * The global position of the actor last frame (x, y) in pixels
+   */
+  public get oldGlobalPos(): Vector {
+    return this._oldGlobalPos;
   }
 
   /**
@@ -470,6 +479,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     this.oldTransform.parent = tx.parent; // also grab parent
     this.oldVel.setTo(this.vel.x, this.vel.y);
     this.oldAcc.setTo(this.acc.x, this.acc.y);
+    this.oldGlobalPos.setTo(this.globalPos.x, this.globalPos.y);
   }
 
   public clone(): BodyComponent {

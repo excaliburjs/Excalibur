@@ -294,6 +294,13 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   }
 
   /**
+   * Gets the global position vector of the actor from the last frame
+   */
+  public get oldGlobalPos(): Vector {
+    return this.body.oldGlobalPos;
+  }
+
+  /**
    * Sets the position vector of the actor in the last frame
    */
   public set oldPos(thePos: Vector) {
@@ -843,8 +850,16 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   /**
    * Gets an actor's world position taking into account parent relationships, scaling, rotation, and translation
    * @returns Position in world coordinates
+   * @deprecated Use [[globalPos]] instead
    */
   public getGlobalPos(): Vector {
+    return this.get(TransformComponent).globalPos;
+  }
+
+  /**
+   * The actor's world position taking into account parent relationships, scaling, rotation, and translation
+   */
+  public get globalPos(): Vector {
     return this.get(TransformComponent).globalPos;
   }
 
