@@ -389,6 +389,17 @@ export class Vector implements Clonable<Vector> {
     }
     return `(${this.x}, ${this.y})`;
   }
+
+  public getHashCode(): number {
+    let hash = 0;
+    let values = [this._x, this._y];
+    for (let i = 0, len = values.length; i < len; i++) {
+      let chr = values[i];
+      hash = (hash << 5) - hash + chr;
+      hash |= 0; // Convert to 32bit integer
+    }
+    return hash;
+  }
 }
 
 /**

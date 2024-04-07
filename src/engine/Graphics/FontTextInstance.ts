@@ -4,6 +4,7 @@ import { line } from '../Util/DrawUtil';
 import { ExcaliburGraphicsContextWebGL } from './Context/ExcaliburGraphicsContextWebGL';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { Font } from './Font';
+import { addHash, getStringHashCode } from '../Util/Hash';
 
 export class FontTextInstance {
   public canvas: HTMLCanvasElement;
@@ -11,7 +12,7 @@ export class FontTextInstance {
   private _textFragments: { x: number; y: number; canvas: HTMLCanvasElement }[] = [];
   public dimensions: BoundingBox;
   public disposed: boolean = false;
-  private _lastHashCode: string;
+  private _lastHashCode: number;
 
   constructor(public readonly font: Font, public readonly text: string, public readonly color: Color, public readonly maxWidth?: number) {
     this.canvas = document.createElement('canvas');
@@ -68,23 +69,10 @@ export class FontTextInstance {
     bitmap.canvas.height = (textBounds.height + this.font.padding * 2) * 2 * this.font.quality * lineHeightRatio;
   }
 
-  public static getHashCode(font: Font, text: string, color?: Color) {
-    const hash =
-      text +
-      '__hashcode__' +
-      font.fontString +
-      font.showDebug +
-      font.textAlign +
-      font.baseAlign +
-      font.direction +
-      font.lineHeight +
-      JSON.stringify(font.shadow) +
-      (font.padding.toString() +
-        font.smoothing.toString() +
-        font.lineWidth.toString() +
-        font.lineDash.toString() +
-        font.strokeColor?.toString() +
-        (color ? color.toString() : font.color.toString()));
+  public static getHashCode(font: Font, text: string, color?: Color): number {
+    let hash = getStringHashCode(text);
+    hash = addHash(hash, font.getHashCode());
+    hash = addHash(hash, color?.getHashCode());
     return hash;
   }
 

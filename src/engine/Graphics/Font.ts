@@ -1,13 +1,13 @@
-import { Vector } from '../Math/vector';
 import { BoundingBox } from '../Collision/Index';
 import { Color } from '../Color';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
-import { BaseAlign, Direction, FontOptions, FontStyle, FontUnit, TextAlign, FontRenderer } from './FontCommon';
+import { BaseAlign, Direction, FontOptions, FontStyle, FontUnit, TextAlign, FontRenderer, FontShadow } from './FontCommon';
 import { Graphic, GraphicOptions } from './Graphic';
 import { RasterOptions } from './Raster';
 import { ImageFiltering } from './Filtering';
 import { FontTextInstance } from './FontTextInstance';
 import { FontCache } from './FontCache';
+import { addHash, getStringHashCode } from '../Util/Hash';
 /**
  * Represents a system or web font in Excalibur
  *
@@ -104,7 +104,7 @@ export class Font extends Graphic implements FontRenderer {
    */
   public lineHeight: number | undefined = undefined;
   public size: number = 10;
-  public shadow: { blur?: number; offset?: Vector; color?: Color } = null;
+  public shadow: FontShadow | null = null;
 
   public get fontString() {
     return `${this.style} ${this.bold ? 'bold' : ''} ${this.size}${this.unit} ${this.family}`;
@@ -171,5 +171,37 @@ export class Font extends Graphic implements FontRenderer {
     textInstance.render(ex, x, y, maxWidth);
 
     this._postDraw(ex);
+  }
+
+  getHashCode(): number {
+    let hash = 0;
+    for (let prop in this) {
+      if (this.hasOwnProperty(prop)) {
+        const propValue = this[prop];
+        if (typeof propValue === 'string') {
+          hash = addHash(hash, getStringHashCode(propValue));
+        }
+        if (typeof propValue === 'number') {
+          hash = addHash(hash, propValue);
+        }
+        if (Array.isArray(propValue)) {
+          for (let i = 0; i < propValue.length; i++) {
+            hash = addHash(hash, propValue[i]);
+          }
+        }
+
+        if (propValue instanceof Color) {
+          hash = addHash(hash, propValue.getHashCode());
+        }
+
+        if (prop === 'shadow' && propValue) {
+          const shadow = propValue as FontShadow;
+          hash = addHash(hash, shadow.blur);
+          hash = addHash(hash, shadow.color?.getHashCode());
+          hash = addHash(hash, shadow.offset?.getHashCode());
+        }
+      }
+    }
+    return hash;
   }
 }

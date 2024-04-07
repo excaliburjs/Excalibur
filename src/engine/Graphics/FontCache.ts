@@ -8,8 +8,8 @@ export class FontCache {
   public static FONT_TIMEOUT = 500;
   private static _LOGGER = Logger.getInstance();
   private static _TEXT_USAGE = new Map<FontTextInstance, number>();
-  private static _TEXT_CACHE = new Map<string, FontTextInstance>();
-  private static _MEASURE_CACHE = new Map<string, BoundingBox>();
+  private static _TEXT_CACHE = new Map<number, FontTextInstance>();
+  private static _MEASURE_CACHE = new Map<number, BoundingBox>();
 
   static measureText(text: string, font: Font, maxWidth?: number) {
     const hash = FontTextInstance.getHashCode(font, text);
@@ -28,7 +28,7 @@ export class FontCache {
     if (!textInstance) {
       textInstance = new FontTextInstance(font, text, color);
       FontCache._TEXT_CACHE.set(hash, textInstance);
-      FontCache._LOGGER.debug('Font text instance cache miss');
+      FontCache._LOGGER.debug(`Font text instance cache miss [${text}], hash [${hash}]`);
     }
 
     // Cache the bitmap for certain amount of time
@@ -39,11 +39,11 @@ export class FontCache {
 
   static checkAndClearCache() {
     const deferred: FontTextInstance[] = [];
-    const currentHashCodes = new Set<string>();
+    const currentHashCodes = new Set<number>();
     for (const [textInstance, time] of FontCache._TEXT_USAGE.entries()) {
       // if bitmap hasn't been used in 100 ms clear it
       if (time + FontCache.FONT_TIMEOUT < performance.now()) {
-        FontCache._LOGGER.debug(`Text cache entry timed out ${textInstance.text}`);
+        FontCache._LOGGER.debug(`Text cache entry timed out [${textInstance.text}], hash [${textInstance.getHashCode(false)}]`);
         deferred.push(textInstance);
         textInstance.dispose();
       } else {
@@ -63,7 +63,7 @@ export class FontCache {
     }
 
     // Regenerated measurement cache
-    const newTextMeasurementCache = new Map<string, BoundingBox>();
+    const newTextMeasurementCache = new Map<number, BoundingBox>();
     for (const current of currentHashCodes) {
       if (FontCache._MEASURE_CACHE.has(current)) {
         newTextMeasurementCache.set(current, FontCache._MEASURE_CACHE.get(current));

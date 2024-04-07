@@ -270,6 +270,17 @@ export class Color {
     return new Color(this.r, this.g, this.b, this.a);
   }
 
+  public getHashCode(): number {
+    let hash = 0;
+    let values = [this.r, this.g, this.b, this.a];
+    for (let i = 0, len = values.length; i < len; i++) {
+      let chr = values[i];
+      hash = (hash << 5) - hash + chr;
+      hash |= 0; // Convert to 32bit integer
+    }
+    return hash;
+  }
+
   /**
    * Black (#000000)
    */
