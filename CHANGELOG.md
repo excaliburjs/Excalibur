@@ -7,7 +7,36 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
-=======
+-
+
+### Deprecated
+
+-
+
+### Added
+
+-
+
+### Fixed
+
+-
+
+### Updates
+
+-
+
+### Changed
+
+- 
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [v0.29.2]
+
+### Breaking Changes
+
 -
 
 ### Deprecated
@@ -105,10 +134,6 @@ will be positioned with the top left of the graphic at the actor's position.
 
 - Significant 2x performance improvement to image drawing in Excalibur
 - Simplified `ex.Loader` viewport/resolution internal configuration
-
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
 ## [v0.29.0]
 
