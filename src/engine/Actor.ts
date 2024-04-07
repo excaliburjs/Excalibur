@@ -842,8 +842,16 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   /**
    * Gets this actor's rotation taking into account any parent relationships
    * @returns Rotation angle in radians
+   * @deprecated Use [[globalRotation]] instead
    */
   public getGlobalRotation(): number {
+    return this.get(TransformComponent).globalRotation;
+  }
+
+  /**
+   * The actor's rotation (in radians) taking into account any parent relationships
+   */
+  public get globalRotation(): number {
     return this.get(TransformComponent).globalRotation;
   }
 
@@ -865,10 +873,19 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
 
   /**
    * Gets the global scale of the Actor
+   * @deprecated Use [[globalScale]] instead
    */
   public getGlobalScale(): Vector {
     return this.get(TransformComponent).globalScale;
   }
+
+  /**
+   * The global scale of the Actor
+   */
+  public get globalScale(): Vector {
+    return this.get(TransformComponent).globalScale;
+  }
+
 
   // #region Collision
 

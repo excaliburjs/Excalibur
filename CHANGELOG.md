@@ -11,7 +11,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
-- `actor.getGlobalPos()` - use `Actor.globalPos` instead
+- `actor.getGlobalPos()` - use `actor.globalPos` instead
+- `actor.getGlobalRotation()` - use `actor.globalRotation` instead
+- `actor.getGlobalScale()` - use `actor.globalScale` instead
 
 ### Added
 
