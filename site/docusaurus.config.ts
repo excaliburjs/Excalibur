@@ -311,7 +311,11 @@ const config: Config = {
        */
       playgroundPosition: 'bottom'
     }
-  } as ClassicPresetThemeConfig
+  } as ClassicPresetThemeConfig,
+
+  clientModules: [
+    './src/polyfills/css-has.js'
+  ]
 };
 
 export default config;
