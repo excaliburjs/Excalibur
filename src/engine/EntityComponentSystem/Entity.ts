@@ -181,9 +181,10 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    * Adds a tag to an entity
    * @param tag
    */
-  public addTag(tag: string) {
+  public addTag(tag: string): Entity<TKnownComponents> {
     this._tags.add(tag);
     this.tagAdded$.notifyAll(tag);
+    return this;
   }
 
   /**
@@ -192,9 +193,10 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    * Removals are deferred until the end of update
    * @param tag
    */
-  public removeTag(tag: string) {
+  public removeTag(tag: string): Entity<TKnownComponents> {
     this._tags.delete(tag);
     this.tagRemoved$.notifyAll(tag);
+    return this;
   }
 
   /**

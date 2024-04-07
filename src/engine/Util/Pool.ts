@@ -7,8 +7,8 @@ export class Pool<Type> {
   private _logger = Logger.getInstance();
 
   constructor(
-    public builder: (...args: any[]) => Type,
-    public recycler: (instance: Type, ...args: any[]) => Type,
+    public builder: () => Type,
+    public recycler: (instance: Type) => Type,
     public maxObjects: number = 100
   ) {}
 
@@ -48,9 +48,8 @@ export class Pool<Type> {
 
   /**
    * Retrieve a value from the pool, will allocate a new instance if necessary or recycle from the pool
-   * @param args
    */
-  get(...args: any[]): Type {
+  get(): Type {
     if (this.index === this.maxObjects) {
       if (!this.disableWarnings) {
         this._logger.warn('Max pooled objects reached, possible memory leak? Doubling');
@@ -60,11 +59,11 @@ export class Pool<Type> {
 
     if (this.objects[this.index]) {
       // Pool has an available object already constructed
-      return this.recycler(this.objects[this.index++], ...args);
+      return this.recycler(this.objects[this.index++]);
     } else {
       // New allocation
       this.totalAllocations++;
-      const object = (this.objects[this.index++] = this.builder(...args));
+      const object = (this.objects[this.index++] = this.builder());
       return object;
     }
   }
@@ -84,7 +83,7 @@ export class Pool<Type> {
     for (const object of objects) {
       const poolIndex = this.objects.indexOf(object);
       // Build a new object to take the pool place
-      this.objects[poolIndex] = (this as any).builder(); // TODO problematic 0-arg only support
+      this.objects[poolIndex] = (this as any).builder();
       this.totalAllocations++;
     }
     return objects;

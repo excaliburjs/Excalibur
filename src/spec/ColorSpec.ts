@@ -108,6 +108,17 @@ describe('A color', () => {
     expect(color.a).toBe(31 / 255);
   });
 
+  it('generate valid hex representation', () => {
+    color = ex.Color.White;
+    expect(color.toHex()).toBe('#ffffff');
+    color = ex.Color.Green;
+    expect(color.toHex()).toBe('#00ff00');
+    color = ex.Color.fromRGB(17,17,17,0.1);
+    expect(color.toHex()).toBe('#1111111a');
+    color = ex.Color.fromRGB(16.9, 16.9, 16.9);
+    expect(color.toHex()).toBe('#111111');
+  });
+
   it('can be darkened', () => {
     color = ex.Color.White.clone();
     color = color.darken();

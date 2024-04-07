@@ -40,7 +40,7 @@ export class FontTextInstance {
     const metrics = this.ctx.measureText(maxWidthLine);
     let textHeight = Math.abs(metrics.actualBoundingBoxAscent) + Math.abs(metrics.actualBoundingBoxDescent);
 
-    // TODO lineheight makes the text bounds wonky
+    // TODO line height makes the text bounds wonky
     const lineAdjustedHeight = textHeight * lines.length;
     textHeight = lineAdjustedHeight;
     const bottomBounds = lineAdjustedHeight - Math.abs(metrics.actualBoundingBoxAscent);
@@ -209,7 +209,7 @@ export class FontTextInstance {
 
       if (ex instanceof ExcaliburGraphicsContextWebGL) {
         for (const frag of this._textFragments) {
-          ex.textureLoader.load(frag.canvas, this.font.filtering, true);
+          ex.textureLoader.load(frag.canvas, { filtering: this.font.filtering }, true);
         }
       }
       this._lastHashCode = hashCode;

@@ -917,7 +917,7 @@ O|===|* >________________>\n\
         this._logger.warn(
           `Excalibur could not load webgl for some reason (${(e as Error).message}) and loaded a Canvas 2D fallback. ` +
           `Some features of Excalibur will not work in this mode. \n\n` +
-          'Read more about this issue at https://excaliburjs.com/docs/webgl'
+          'Read more about this issue at https://excaliburjs.com/docs/performance'
         );
         // fallback to canvas in case of failure
         useCanvasGraphicsContext = true;

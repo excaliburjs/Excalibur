@@ -71,7 +71,11 @@ export class VertexBuffer {
   bind() {
     const gl = this._gl;
     gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+  }
 
+  unbind() {
+    const gl = this._gl;
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
   }
 
   /**

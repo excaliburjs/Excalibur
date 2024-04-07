@@ -18,6 +18,8 @@ import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
 import { CoordPlane } from '../Math/coord-plane';
 import { DebugConfig } from '../Debug';
 import { clamp } from '../Math/util';
+import { PointerComponent } from '../Input/PointerComponent';
+import { PointerEvent } from '../Input/PointerEvent';
 
 export interface TileMapOptions {
   /**
@@ -61,18 +63,29 @@ export interface TileMapOptions {
   meshingLookBehind?: number;
 }
 
-export type TileMapEvents = EntityEvents & {
+export type TilePointerEvents = {
+  pointerup: PointerEvent;
+  pointerdown: PointerEvent;
+  pointermove: PointerEvent;
+  pointercancel: PointerEvent;
+}
+
+export type TileMapEvents = EntityEvents & TilePointerEvents & {
   preupdate: PreUpdateEvent<TileMap>;
   postupdate: PostUpdateEvent<TileMap>;
   predraw: PreDrawEvent;
-  postdraw: PostDrawEvent
+  postdraw: PostDrawEvent;
 }
 
 export const TileMapEvents = {
   PreUpdate: 'preupdate',
   PostUpdate: 'postupdate',
   PreDraw: 'predraw',
-  PostDraw: 'postdraw'
+  PostDraw: 'postdraw',
+  PointerUp: 'pointerup',
+  PointerDown: 'pointerdown',
+  PointerMove: 'pointermove',
+  PointerCancel: 'pointercancel'
 };
 
 /**
@@ -111,6 +124,7 @@ export class TileMap extends Entity {
     }
   }
 
+  public pointer: PointerComponent;
   public transform: TransformComponent;
   private _motion: MotionComponent;
   private _graphics: GraphicsComponent;
@@ -232,6 +246,8 @@ export class TileMap extends Entity {
     );
     this.addComponent(new DebugGraphicsComponent((ctx, debugFlags) => this.debug(ctx, debugFlags), false));
     this.addComponent(new ColliderComponent());
+    this.addComponent(new PointerComponent);
+    this.pointer = this.get(PointerComponent);
     this._graphics = this.get(GraphicsComponent);
     this.transform = this.get(TransformComponent);
     this._motion = this.get(MotionComponent);
@@ -270,6 +286,8 @@ export class TileMap extends Entity {
       currentCol = [];
     }
 
+    this._setupPointerToTile();
+
     this._graphics.localBounds = new BoundingBox({
       left: 0,
       top: 0,
@@ -283,6 +301,19 @@ export class TileMap extends Entity {
     this._engine = engine;
   }
 
+  private _forwardPointerEventToTile = (eventType: string) => (evt: PointerEvent) => {
+    const tile = this.getTileByPoint(evt.worldPos);
+    if (tile) {
+      tile.events.emit(eventType, evt);
+    }
+  };
+
+  private _setupPointerToTile() {
+    this.events.on('pointerup', this._forwardPointerEventToTile('pointerup'));
+    this.events.on('pointerdown', this._forwardPointerEventToTile('pointerdown'));
+    this.events.on('pointermove', this._forwardPointerEventToTile('pointermove'));
+    this.events.on('pointercancel', this._forwardPointerEventToTile('pointercancel'));
+  }
 
   private _originalOffsets = new WeakMap<Collider, Vector>();
   private _getOrSetColliderOriginalOffset(collider: Collider): Vector {
@@ -657,11 +688,13 @@ export interface TileOptions {
  * of the sprites in the array so the last one will be drawn on top. You can
  * use transparency to create layers this way.
  */
-export class Tile extends Entity {
+export class Tile {
   private _bounds: BoundingBox;
   private _geometry: BoundingBox;
   private _pos: Vector;
   private _posDirty = false;
+
+  public events = new EventEmitter<TilePointerEvents>();
 
   /**
    * Return the world position of the top left corner of the tile
@@ -820,7 +853,6 @@ export class Tile extends Entity {
   public data = new Map<string, any>();
 
   constructor(options: TileOptions) {
-    super();
     this.x = options.x;
     this.y = options.y;
     this.map = options.map;
@@ -876,5 +908,38 @@ export class Tile extends Entity {
       this._recalculate();
     }
     return new Vector(this._pos.x + this._width / 2, this._pos.y + this._height / 2);
+  }
+
+  public emit<TEventName extends EventKey<TilePointerEvents>>
+  (eventName: TEventName, event: TilePointerEvents[TEventName]): void;
+  public emit(eventName: string, event?: any): void;
+  public emit<TEventName extends EventKey<TilePointerEvents> | string>(eventName: TEventName, event?: any): void {
+    this.events.emit(eventName, event);
+  }
+
+  public on<TEventName extends EventKey<TilePointerEvents>>
+  (eventName: TEventName, handler: Handler<TilePointerEvents[TEventName]>): Subscription;
+  public on(eventName: string, handler: Handler<unknown>): Subscription;
+  public on<TEventName extends EventKey<TilePointerEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+    return this.events.on(eventName, handler);
+  }
+
+  public once<TEventName extends EventKey<TilePointerEvents>>
+  (eventName: TEventName, handler: Handler<TilePointerEvents[TEventName]>): Subscription;
+  public once(eventName: string, handler: Handler<unknown>): Subscription;
+  public once<TEventName extends EventKey<TilePointerEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+    return this.events.once(eventName, handler);
+  }
+
+  public off<TEventName extends EventKey<TilePointerEvents>>
+  (eventName: TEventName, handler: Handler<TilePointerEvents[TEventName]>): void;
+  public off(eventName: string, handler: Handler<unknown>): void;
+  public off(eventName: string): void;
+  public off<TEventName extends EventKey<TilePointerEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
+    if (handler) {
+      this.events.off(eventName, handler);
+    } else {
+      this.events.off(eventName);
+    }
   }
 }

@@ -16,6 +16,43 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added ability to configure image wrapping on `ex.ImageSource` with the new `ex.ImageWrapping.Clamp` (default), `ex.ImageWrapping.Repeat`, and `ex.ImageWrapping.Mirror`.
+  ```typescript
+  const image = new ex.ImageSource('path/to/image.png', {
+    filtering: ex.ImageFiltering.Pixel,
+    wrapping: {
+      x: ex.ImageWrapping.Repeat,
+      y: ex.ImageWrapping.Repeat,
+    }
+  });
+  ```
+- Added pointer event support to `ex.TileMap`'s and individual `ex.Tile`'s
+- Added pointer event support to `ex.IsometricMap`'s and individual `ex.IsometricTile`'s
+- Added `useAnchor` parameter to `ex.GraphicsGroup` to allow users to opt out of anchor based positioning, if set to false all graphics members
+will be positioned with the top left of the graphic at the actor's position.
+  ```typescript
+  const graphicGroup = new ex.GraphicsGroup({
+    useAnchor: false,
+    members: [
+      {
+        graphic: heartImage.toSprite(),
+        offset: ex.vec(0, 0),
+      },
+      {
+        graphic: heartImage.toSprite(),
+        offset: ex.vec(0, 16),
+      },
+      {
+        graphic: heartImage.toSprite(),
+        offset: ex.vec(16, 16),
+      },
+      {
+        graphic: heartImage.toSprite(),
+        offset: ex.vec(16, 0),
+      },
+    ],
+  });
+  ```
 - Added simplified `ex.coroutine` overloads, you need not pass engine as long as you are in an Excalibur lifecycle
   ```typescript
   const result = ex.coroutine(function* () {...});
@@ -58,6 +95,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed issue where Firefox on Linux would throw an error when using custom Materials due to unused attributes caused by glsl compiler optimization. 
 - Fixed issue where start transition did not work properly if deferred
 - Fixed issue where transitions did not cover the whole screen if camera was zoomed
+- Fixed issue where `Color.toHex()` produced invalid strings if the channel values are negative or fractional, or if the alpha channel was different than 1
 
 ### Updates
 
@@ -65,6 +103,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Significant 2x performance improvement to image drawing in Excalibur
 - Simplified `ex.Loader` viewport/resolution internal configuration
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
