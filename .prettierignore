@@ -1,3 +1,7 @@
 karma.conf.js
 package.json
 package-lock.json
+node_modules
+build
+coverage
+node_cache
