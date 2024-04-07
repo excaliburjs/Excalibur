@@ -43,7 +43,7 @@
     "core:bundle": "webpack --progress --config webpack.config.js --mode production",
     "core:bundle:esm": "webpack --progress --config webpack.config.js --mode production --env output=esm",
     "core:watch": "npm run core:bundle -- --watch",
-    "format": "prettier --check \"src/**/*.{ts,js}\"",
+    "format": "prettier . --check",
     "format:fix": "npm run format -- --write",
     "lint": "npm run eslint && npm run eslint:spec",
     "lint:fix": "npm run eslint -- --fix && npm run eslint:spec -- --fix",
@@ -61,7 +61,8 @@
     "test:watch": "karma start --auto-watch --single-run=false",
     "coveralls": "echo 'Temporarily Remove Coveralls Due To Outage'",
     "apidocs": "node scripts/apidocs.js",
-    "release": "cross-env release=true npm run all"
+    "release": "cross-env release=true npm run all",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@babel/core": "7.24.3",
@@ -91,6 +92,7 @@
     "eslint-plugin-jsdoc": "48.2.2",
     "eslint-plugin-storybook": "0.8.0",
     "excalibur-jasmine": "0.3.4",
+    "husky": "9.0.11",
     "istanbul": "0.4.5",
     "istanbul-instrumenter-loader": "3.0.1",
     "jasmine": "5.1.0",
@@ -105,6 +107,7 @@
     "karma-spec-reporter": "0.0.36",
     "karma-summary-reporter": "3.1.1",
     "karma-webpack": "5.0.1",
+    "lint-staged": "15.2.2",
     "prettier": "3.2.5",
     "puppeteer": "15.5.0",
     "raw-loader": "4.0.2",
@@ -127,6 +130,10 @@
   },
   "dependencies": {
     "core-js": "3.36.1"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,html,json,md,yml,yaml}": "prettier --write",
+    "*.{js,jsx,ts,tsx,html}": "eslint --fix"
   },
   "overrides": {
     "typedoc": {
