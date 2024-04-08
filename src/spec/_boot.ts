@@ -4,6 +4,9 @@ ex.Flags.enable('suppress-obsolete-message');
 const testsContext = require.context('.', true, /Spec$/);
 testsContext.keys().forEach(testsContext);
 
+// ensure consistent toEqualImage() resolution when running on hidpi displays
+window.devicePixelRatio = 1;
+
 const MemoryReporter = {
   previousMemory: (window.performance as any).memory,
   largeMemory: [],
