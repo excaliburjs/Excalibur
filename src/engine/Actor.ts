@@ -182,7 +182,7 @@ export type ActorEvents = EntityEvents & {
   exitviewport: ExitViewPortEvent;
   actionstart: ActionStartEvent;
   actioncomplete: ActionCompleteEvent;
-}
+};
 
 export const ActorEvents = {
   CollisionStart: 'collisionstart',
@@ -563,7 +563,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     this.z = z ?? 0;
     this.transform.coordPlane = coordPlane ?? CoordPlane.World;
 
-    this.pointer = new PointerComponent;
+    this.pointer = new PointerComponent();
     this.addComponent(this.pointer);
 
     this.graphics = new GraphicsComponent({
@@ -573,16 +573,16 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     });
     this.addComponent(this.graphics);
 
-    this.motion = new MotionComponent;
+    this.motion = new MotionComponent();
     this.addComponent(this.motion);
     this.vel = vel ?? Vector.Zero;
     this.acc = acc ?? Vector.Zero;
     this.angularVelocity = angularVelocity ?? 0;
 
-    this.actions = new ActionsComponent;
+    this.actions = new ActionsComponent();
     this.addComponent(this.actions);
 
-    this.body = new BodyComponent;
+    this.body = new BodyComponent();
     this.addComponent(this.body);
     this.body.collisionType = collisionType ?? CollisionType.Passive;
     if (collisionGroup) {
@@ -638,13 +638,13 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     clone.processComponentRemoval();
 
     // Clone builtins, order is important, same as ctor
-    clone.addComponent(clone.transform = this.transform.clone() as TransformComponent, true);
-    clone.addComponent(clone.pointer = this.pointer.clone() as PointerComponent, true);
-    clone.addComponent(clone.graphics = this.graphics.clone() as GraphicsComponent, true);
-    clone.addComponent(clone.motion = this.motion.clone() as MotionComponent, true);
-    clone.addComponent(clone.actions = this.actions.clone() as ActionsComponent, true);
-    clone.addComponent(clone.body = this.body.clone() as BodyComponent, true);
-    clone.addComponent(clone.collider = this.collider.clone() as ColliderComponent, true);
+    clone.addComponent((clone.transform = this.transform.clone() as TransformComponent), true);
+    clone.addComponent((clone.pointer = this.pointer.clone() as PointerComponent), true);
+    clone.addComponent((clone.graphics = this.graphics.clone() as GraphicsComponent), true);
+    clone.addComponent((clone.motion = this.motion.clone() as MotionComponent), true);
+    clone.addComponent((clone.actions = this.actions.clone() as ActionsComponent), true);
+    clone.addComponent((clone.body = this.body.clone() as BodyComponent), true);
+    clone.addComponent((clone.collider = this.collider.clone() as ColliderComponent), true);
 
     const builtInComponents: Component[] = [
       this.transform,
@@ -794,7 +794,6 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     return this.get(TransformComponent).z;
   }
 
-
   /**
    * Sets the z-index of an actor and updates it in the drawing list for the scene.
    * The z-index determines the relative order an actor is drawn in.
@@ -812,16 +811,15 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     const globalPos = this.getGlobalPos();
     return new Vector(
       globalPos.x + this.width / 2 - this.anchor.x * this.width,
-      globalPos.y + this.height / 2 - this.anchor.y * this.height);
+      globalPos.y + this.height / 2 - this.anchor.y * this.height
+    );
   }
 
   /**
    * Get the local center point of an actor
    */
   public get localCenter(): Vector {
-    return new Vector(
-      this.pos.x + this.width / 2 - this.anchor.x * this.width,
-      this.pos.y + this.height / 2 - this.anchor.y * this.height);
+    return new Vector(this.pos.x + this.width / 2 - this.anchor.x * this.width, this.pos.y + this.height / 2 - this.anchor.y * this.height);
   }
 
   public get width() {

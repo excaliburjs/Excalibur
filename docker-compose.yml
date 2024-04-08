@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     working_dir: /opt/app
-    container_name: "dev"
+    container_name: 'dev'
     volumes:
-      - "./:/opt/app"
+      - './:/opt/app'
       - /opt/app/node_modules

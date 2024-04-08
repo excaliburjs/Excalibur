@@ -29,7 +29,7 @@ export interface LabelOptions {
   /**
    * Specify a custom font
    */
-  font?: Font
+  font?: Font;
 }
 
 /**
@@ -99,7 +99,7 @@ export class Label extends Actor {
    */
   constructor(options?: LabelOptions & ActorArgs) {
     super(options);
-    const {text, pos, x, y, spriteFont, font, color} = { text: '', ...options };
+    const { text, pos, x, y, spriteFont, font, color } = { text: '', ...options };
 
     this.pos = pos ?? (x && y ? vec(x, y) : this.pos);
     this.text = text ?? this.text;

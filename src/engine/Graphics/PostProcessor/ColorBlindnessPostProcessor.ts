@@ -48,7 +48,6 @@ export class ColorBlindnessPostProcessor implements PostProcessor {
   set simulate(value: boolean) {
     this._simulate = value;
     if (this._shader) {
-
       const shader = this._shader.getShader();
       shader.use();
       shader.setUniformBoolean('u_simulate', value);

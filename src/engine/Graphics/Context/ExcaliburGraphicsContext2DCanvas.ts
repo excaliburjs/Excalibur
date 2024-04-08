@@ -139,9 +139,11 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
 
   constructor(options: ExcaliburGraphicsContext2DOptions) {
     const { canvasElement, context, enableTransparency, snapToPixel, antialiasing: smoothing, backgroundColor } = options;
-    this.__ctx = context ?? canvasElement.getContext('2d', {
-      alpha: enableTransparency ?? true
-    });
+    this.__ctx =
+      context ??
+      canvasElement.getContext('2d', {
+        alpha: enableTransparency ?? true
+      });
     if (!this.__ctx) {
       throw new Error('Cannot build new ExcaliburGraphicsContext2D for some reason!');
     }
@@ -217,13 +219,10 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     this.__ctx.beginPath();
     this.__ctx.strokeStyle = color.toString();
     this.__ctx.moveTo(
-      this.snapToPixel ? ~~ (start.x + pixelSnapEpsilon) : start.x,
+      this.snapToPixel ? ~~(start.x + pixelSnapEpsilon) : start.x,
       this.snapToPixel ? ~~(start.y + pixelSnapEpsilon) : start.y
     );
-    this.__ctx.lineTo(
-      this.snapToPixel ? ~~ (end.x + pixelSnapEpsilon) : end.x,
-      this.snapToPixel ? ~~(end.y + pixelSnapEpsilon) : end.y
-    );
+    this.__ctx.lineTo(this.snapToPixel ? ~~(end.x + pixelSnapEpsilon) : end.x, this.snapToPixel ? ~~(end.y + pixelSnapEpsilon) : end.y);
     this.__ctx.lineWidth = thickness;
     this.__ctx.stroke();
     this.__ctx.closePath();
@@ -254,7 +253,10 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     this.__ctx.fillStyle = color.toString();
     this.__ctx.arc(
       this.snapToPixel ? ~~(pos.x + pixelSnapEpsilon) : pos.x,
-      this.snapToPixel ? ~~(pos.y + pixelSnapEpsilon) : pos.y, radius, 0, Math.PI * 2
+      this.snapToPixel ? ~~(pos.y + pixelSnapEpsilon) : pos.y,
+      radius,
+      0,
+      Math.PI * 2
     );
     this.__ctx.fill();
     if (stroke) {

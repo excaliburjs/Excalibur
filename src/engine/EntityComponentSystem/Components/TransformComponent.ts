@@ -6,7 +6,6 @@ import { Entity } from '../Entity';
 import { Observable } from '../../Util/Observable';
 import { Logger } from '../../Util/Log';
 
-
 export class TransformComponent extends Component {
   private _logger = Logger.getInstance();
   private _parentComponent: TransformComponent | null = null;
@@ -26,8 +25,8 @@ export class TransformComponent extends Component {
     for (const child of owner.children) {
       this._addChildTransform(child);
     }
-    owner.childrenAdded$.subscribe(child => this._addChildTransform(child));
-    owner.childrenRemoved$.subscribe(child => {
+    owner.childrenAdded$.subscribe((child) => this._addChildTransform(child));
+    owner.childrenRemoved$.subscribe((child) => {
       const childTxComponent = child.get(TransformComponent);
       if (childTxComponent) {
         childTxComponent._transform.parent = null;
@@ -78,7 +77,8 @@ export class TransformComponent extends Component {
       this._coordPlane = value;
     } else {
       this._logger.warn(
-        `Cannot set coordinate plane on child entity ${this.owner?.name}, children inherit their coordinate plane from their parents.`);
+        `Cannot set coordinate plane on child entity ${this.owner?.name}, children inherit their coordinate plane from their parents.`
+      );
     }
   }
 

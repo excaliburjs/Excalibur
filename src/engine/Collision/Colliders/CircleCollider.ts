@@ -134,7 +134,8 @@ export class CircleCollider extends Collider {
           } satisfies RayCastHit;
         }
         return null;
-      } else { // two point
+      } else {
+        // two point
         const toi1 = -dir.dot(orig.sub(c)) + discriminant;
         const toi2 = -dir.dot(orig.sub(c)) - discriminant;
 
@@ -149,7 +150,7 @@ export class CircleCollider extends Collider {
 
         const minToi = Math.min(...positiveToi);
         if (minToi <= max) {
-          const point =  ray.getPoint(minToi);
+          const point = ray.getPoint(minToi);
           return {
             point,
             normal: point.sub(c).normalize(),
@@ -213,13 +214,16 @@ export class CircleCollider extends Collider {
     const tx = this._transform;
     const scale = tx?.globalScale ?? Vector.One;
     const rotation = tx?.globalRotation ?? 0;
-    const pos = (tx?.globalPos ?? Vector.Zero);
+    const pos = tx?.globalPos ?? Vector.Zero;
     return new BoundingBox(
       this.offset.x - this._naturalRadius,
       this.offset.y - this._naturalRadius,
       this.offset.x + this._naturalRadius,
       this.offset.y + this._naturalRadius
-    ).rotate(rotation).scale(scale).translate(pos);
+    )
+      .rotate(rotation)
+      .scale(scale)
+      .translate(pos);
   }
 
   /**
@@ -275,12 +279,12 @@ export class CircleCollider extends Collider {
     const tx = this._transform;
     const scale = tx?.globalScale ?? Vector.One;
     const rotation = tx?.globalRotation ?? 0;
-    const pos = (tx?.globalPos ?? Vector.Zero);
+    const pos = tx?.globalPos ?? Vector.Zero;
     ex.save();
     ex.translate(pos.x, pos.y);
     ex.rotate(rotation);
     ex.scale(scale.x, scale.y);
-    ex.drawCircle((this.offset ?? Vector.Zero), this._naturalRadius, Color.Transparent, color, lineWidth);
+    ex.drawCircle(this.offset ?? Vector.Zero, this._naturalRadius, Color.Transparent, color, lineWidth);
     ex.restore();
   }
 }

@@ -12,7 +12,7 @@ describe('A scaled and rotated actor', () => {
     jasmine.addMatchers(ExcaliburMatchers);
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
 
-    actor = new ex.ScreenElement({x: 50, y:50, width: 100, height: 50});
+    actor = new ex.ScreenElement({ x: 50, y: 50, width: 100, height: 50 });
     actor.color = ex.Color.Blue;
     actor.body.collisionType = ex.CollisionType.Active;
     engine = TestUtils.engine({ width: 800, height: 600 });
@@ -46,10 +46,12 @@ describe('A scaled and rotated actor', () => {
 
       clock.step(1);
 
-      expectAsync(engine.canvas).toEqualImage('src/spec/images/ScaleSpec/scale.png').then(() => {
-        done();
-        engine.dispose();
-      });
+      expectAsync(engine.canvas)
+        .toEqualImage('src/spec/images/ScaleSpec/scale.png')
+        .then(() => {
+          done();
+          engine.dispose();
+        });
     });
   });
 });

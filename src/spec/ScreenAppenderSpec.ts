@@ -12,14 +12,14 @@ describe('A ScreenAppender', () => {
   });
 
   it('can be constructed', () => {
-    const engine = TestUtils.engine({width: 100, height: 100});
-    const sut = new ex.ScreenAppender({engine});
+    const engine = TestUtils.engine({ width: 100, height: 100 });
+    const sut = new ex.ScreenAppender({ engine });
     expect(sut).toBeDefined();
     engine.dispose();
   });
 
   it('can be configured to log', async () => {
-    const engine = TestUtils.engine({width: 100, height: 100});
+    const engine = TestUtils.engine({ width: 100, height: 100 });
     const sut = new ex.ScreenAppender({
       engine,
       color: ex.Color.Yellow,

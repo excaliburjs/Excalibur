@@ -6,11 +6,11 @@ ex.Physics.acc.setTo(0, 500);
 
 var historicFrameStats = new Array(10);
 
-var updateStat = function(id, stat) {
+var updateStat = function (id, stat) {
   document.getElementById(id).innerHTML = stat;
 };
 
-var avg = function<T>(arr: Array<T>, prop: string) {
+var avg = function <T>(arr: Array<T>, prop: string) {
   var sum = 0;
   var i = 0;
 
@@ -62,10 +62,10 @@ game.on('postframe', (ev: ex.PostFrameEvent) => {
   updateStat('debug-frame-narrowphase', ev.stats.physics.narrowphase);
 });
 
-game.add(new ex.ScreenElement({width: 50, height: 50}));
+game.add(new ex.ScreenElement({ width: 50, height: 50 }));
 
 function spawnBox() {
-  var box = new ex.Actor({x: 250, y: 50, width: 50, height: 50, color: ex.Color.Red});
+  var box = new ex.Actor({ x: 250, y: 50, width: 50, height: 50, color: ex.Color.Red });
   box.body.collisionType = ex.CollisionType.Active;
   box.collider.useBoxCollider(50, 50);
   game.add(box);
@@ -73,7 +73,7 @@ function spawnBox() {
 
 spawnBox();
 
-var floor = new ex.Actor({x: 250, y: 500, width: 500, height: 10, color: ex.Color.Green});
+var floor = new ex.Actor({ x: 250, y: 500, width: 500, height: 10, color: ex.Color.Green });
 floor.body.collisionType = ex.CollisionType.Fixed;
 floor.collider.useBoxCollider(50, 50);
 game.add(floor);

@@ -239,15 +239,15 @@ export type ScreenEvents = {
   /**
    * Fires when the screen resizes, useful if you have logic that needs to be aware of resolution/viewport constraints
    */
-  'resize': ScreenResizeEvent;
+  resize: ScreenResizeEvent;
   /**
    * Fires when the pixel ratio changes, useful to know if you've moved to a hidpi screen or back
    */
-  'pixelratio': PixelRatioChangeEvent;
+  pixelratio: PixelRatioChangeEvent;
   /**
    * Fires when the browser fullscreen api is successfully engaged or disengaged
    */
-  'fullscreen': FullScreenChangeEvent;
+  fullscreen: FullScreenChangeEvent;
 };
 
 export const ScreenEvents = {
@@ -501,8 +501,6 @@ export class Screen {
     }
   }
 
-
-
   public applyResolutionAndViewport() {
     if (this.graphicsContext instanceof ExcaliburGraphicsContextWebGL) {
       const scaledResolutionSupported = this.graphicsContext.checkIfResolutionSupported({
@@ -512,16 +510,17 @@ export class Screen {
       if (!scaledResolutionSupported) {
         this._logger.warnOnce(
           `The currently configured resolution (${this.resolution.width}x${this.resolution.height}) and pixel ratio (${this.pixelRatio})` +
-          ' are too large for the platform WebGL implementation, this may work but cause WebGL rendering to behave oddly.' +
-          ' Try reducing the resolution or disabling Hi DPI scaling to avoid this' +
-          ' (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).');
+            ' are too large for the platform WebGL implementation, this may work but cause WebGL rendering to behave oddly.' +
+            ' Try reducing the resolution or disabling Hi DPI scaling to avoid this' +
+            ' (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).'
+        );
 
         // Attempt to recover if the user hasn't configured a specific ratio for up scaling
         if (!this.pixelRatioOverride) {
-          let currentPixelRatio = Math.max(1, this.pixelRatio - .5);
+          let currentPixelRatio = Math.max(1, this.pixelRatio - 0.5);
           let newResolutionSupported = false;
           while (currentPixelRatio > 1 && !newResolutionSupported) {
-            currentPixelRatio = Math.max(1, currentPixelRatio - .5);
+            currentPixelRatio = Math.max(1, currentPixelRatio - 0.5);
             const width = this._resolution.width * currentPixelRatio;
             const height = this._resolution.height * currentPixelRatio;
             newResolutionSupported = this.graphicsContext.checkIfResolutionSupported({ width, height });
@@ -529,9 +528,10 @@ export class Screen {
           this.pixelRatioOverride = currentPixelRatio;
           this._logger.warnOnce(
             'Scaled resolution too big attempted recovery!' +
-            ` Pixel ratio was automatically reduced to (${this.pixelRatio}) to avoid 4k texture limit.` +
-            ' Setting `ex.Engine({pixelRatio: ...}) will override any automatic recalculation, do so at your own risk.` ' +
-            ' (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).');
+              ` Pixel ratio was automatically reduced to (${this.pixelRatio}) to avoid 4k texture limit.` +
+              ' Setting `ex.Engine({pixelRatio: ...}) will override any automatic recalculation, do so at your own risk.` ' +
+              ' (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).'
+          );
         }
       }
     }
@@ -752,11 +752,8 @@ export class Screen {
    * World bounds are in world coordinates, useful for culling objects offscreen that are in world space
    */
   public getWorldBounds(): BoundingBox {
-    const bounds = BoundingBox.fromDimension(
-      this.resolution.width,
-      this.resolution.height,
-      Vector.Half)
-      .scale(vec(1/this._camera.zoom, 1/this._camera.zoom))
+    const bounds = BoundingBox.fromDimension(this.resolution.width, this.resolution.height, Vector.Half)
+      .scale(vec(1 / this._camera.zoom, 1 / this._camera.zoom))
       .rotate(this._camera.rotation)
       .translate(this._camera.drawPos);
     return bounds;
@@ -768,10 +765,7 @@ export class Screen {
    * Screen bounds are in screen coordinates, useful for culling objects offscreen that are in screen space
    */
   public getScreenBounds(): BoundingBox {
-    const bounds = BoundingBox.fromDimension(
-      this.resolution.width,
-      this.resolution.height,
-      Vector.Zero, Vector.Zero);
+    const bounds = BoundingBox.fromDimension(this.resolution.width, this.resolution.height, Vector.Zero, Vector.Zero);
     return bounds;
   }
 
@@ -901,20 +895,16 @@ export class Screen {
     } satisfies ScreenResizeEvent);
   }
 
-
-
   private _computeFitContainerAndFill() {
     this.canvas.style.width = '100%';
     this.canvas.style.height = '100%';
 
-    this._computeFitAndFill(
-      this.canvas.offsetWidth,
-      this.canvas.offsetHeight, {
-        width: 100,
-        widthUnit: 'percent',
-        height: 100,
-        heightUnit: 'percent'
-      });
+    this._computeFitAndFill(this.canvas.offsetWidth, this.canvas.offsetHeight, {
+      width: 100,
+      widthUnit: 'percent',
+      height: 100,
+      heightUnit: 'percent'
+    });
     this.events.emit('resize', {
       resolution: this.resolution,
       viewport: this.viewport
@@ -930,8 +920,8 @@ export class Screen {
     if (vw / vh <= this._contentResolution.width / this._contentResolution.height) {
       // compute new resolution to match the original aspect ratio
       this.resolution = {
-        width:  vw * this._contentResolution.width / vw,
-        height: vw * this._contentResolution.width / vw * vh / vw
+        width: (vw * this._contentResolution.width) / vw,
+        height: (((vw * this._contentResolution.width) / vw) * vh) / vw
       };
       const clip = (this.resolution.height - this._contentResolution.height) / 2;
       this._contentArea = new BoundingBox({
@@ -948,8 +938,8 @@ export class Screen {
       });
     } else {
       this.resolution = {
-        width: vh *  this._contentResolution.height / vh * vw / vh,
-        height: vh *  this._contentResolution.height / vh
+        width: (((vh * this._contentResolution.height) / vh) * vw) / vh,
+        height: (vh * this._contentResolution.height) / vh
       };
       const clip = (this.resolution.width - this._contentResolution.width) / 2;
       this._contentArea = new BoundingBox({
@@ -1038,7 +1028,7 @@ export class Screen {
     const bounds = BoundingBox.fromDimension(this.viewport.width, this.viewport.height, Vector.Zero);
     // return safe area
     if (this.viewport.width > vw) {
-      const clip = (this.viewport.width - vw)/this.viewport.width * this.resolution.width;
+      const clip = ((this.viewport.width - vw) / this.viewport.width) * this.resolution.width;
       bounds.top = 0;
       bounds.left = clip / 2;
       bounds.right = this.resolution.width - clip / 2;
@@ -1046,7 +1036,7 @@ export class Screen {
     }
 
     if (this.viewport.height > vh) {
-      const clip = (this.viewport.height - vh)/this.viewport.height * this.resolution.height;
+      const clip = ((this.viewport.height - vh) / this.viewport.height) * this.resolution.height;
       bounds.top = clip / 2;
       bounds.left = 0;
       bounds.bottom = this.resolution.height - clip / 2;
@@ -1125,8 +1115,8 @@ export class Screen {
       document.body.style.margin = '0px';
       document.body.style.overflow = 'hidden';
       this.resolution = {
-        width: (<Window> parent).innerWidth,
-        height: (<Window> parent).innerHeight
+        width: (<Window>parent).innerWidth,
+        height: (<Window>parent).innerHeight
       };
 
       this.viewport = this.resolution;
@@ -1146,7 +1136,7 @@ export class Screen {
       this._computeFitScreenAndFill();
     }
 
-    if (this.displayMode === DisplayMode.FitContainerAndFill){
+    if (this.displayMode === DisplayMode.FitContainerAndFill) {
       this._computeFitContainerAndFill();
     }
 
@@ -1154,7 +1144,7 @@ export class Screen {
       this._computeFitScreenAndZoom();
     }
 
-    if (this.displayMode === DisplayMode.FitContainerAndZoom){
+    if (this.displayMode === DisplayMode.FitContainerAndZoom) {
       this._computeFitContainerAndZoom();
     }
   }

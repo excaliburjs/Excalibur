@@ -45,17 +45,17 @@ export class PreLoadEvent {
 }
 
 export type SceneEvents = {
-  initialize: InitializeEvent<Scene>,
-  activate: ActivateEvent,
-  deactivate: DeactivateEvent,
-  preupdate: PreUpdateEvent,
-  postupdate: PostUpdateEvent,
-  predraw: PreDrawEvent,
-  postdraw: PostDrawEvent,
-  predebugdraw: PreDebugDrawEvent,
-  postdebugdraw: PostDebugDrawEvent
-  preload: PreLoadEvent
-}
+  initialize: InitializeEvent<Scene>;
+  activate: ActivateEvent;
+  deactivate: DeactivateEvent;
+  preupdate: PreUpdateEvent;
+  postupdate: PostUpdateEvent;
+  predraw: PreDrawEvent;
+  postdraw: PostDrawEvent;
+  predebugdraw: PreDebugDrawEvent;
+  postdebugdraw: PostDebugDrawEvent;
+  preload: PreLoadEvent;
+};
 
 export const SceneEvents = {
   Initialize: 'initialize',
@@ -85,8 +85,7 @@ export function isSceneConstructor(x: any): x is SceneConstructor {
  *
  * Typical usages of a scene include: levels, menus, loading screens, etc.
  */
-export class Scene<TActivationData = unknown>
-implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate, CanDraw {
+export class Scene<TActivationData = unknown> implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate, CanDraw {
   private _logger: Logger = Logger.getInstance();
   public events = new EventEmitter<SceneEvents>();
 
@@ -308,7 +307,6 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
   public get isInitialized(): boolean {
     return this._isInitialized;
   }
-
 
   /**
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
@@ -543,8 +541,6 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
       return;
     }
   }
-
-
 
   /**
    * Removes a [[Timer]] from it's current scene

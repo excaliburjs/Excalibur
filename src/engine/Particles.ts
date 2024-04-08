@@ -112,7 +112,7 @@ export class ParticleImpl extends Entity {
       this.velocity = (velocity || this.velocity).rotate(this.emitter.transform.globalRotation);
     } else {
       this.velocity = velocity || this.velocity;
-      this.position = (position || this.position);
+      this.position = position || this.position;
     }
     this.acceleration = acceleration || this.acceleration;
     this._rRate = (this.endColor.r - this.beginColor.r) / this.life;

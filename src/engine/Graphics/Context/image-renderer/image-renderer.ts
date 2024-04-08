@@ -138,7 +138,8 @@ export class ImageRenderer implements RendererPlugin {
         filtering,
         wrapping: { x: wrapX, y: wrapY }
       },
-      force);
+      force
+    );
     // remove force attribute after upload
     image.removeAttribute('forceUpload');
     if (this._textures.indexOf(texture) === -1) {
@@ -194,11 +195,11 @@ export class ImageRenderer implements RendererPlugin {
     return maybeHeight;
   }
 
-
   private _view = [0, 0, 0, 0];
   private _dest = [0, 0];
   private _quad = [0, 0, 0, 0, 0, 0, 0, 0];
-  draw(image: HTMLImageSource,
+  draw(
+    image: HTMLImageSource,
     sx: number,
     sy: number,
     swidth?: number,
@@ -206,8 +207,8 @@ export class ImageRenderer implements RendererPlugin {
     dx?: number,
     dy?: number,
     dwidth?: number,
-    dheight?: number): void {
-
+    dheight?: number
+  ): void {
     // Force a render if the batch is full
     if (this._isFull()) {
       this.flush();

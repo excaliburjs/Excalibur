@@ -40,7 +40,7 @@ describe('A IsometricMap', () => {
       rows: 15
     });
 
-    sut.tiles.forEach(tile => tile.addGraphic(sprite));
+    sut.tiles.forEach((tile) => tile.addGraphic(sprite));
 
     engine.add(sut);
     clock.step(100);
@@ -67,7 +67,7 @@ describe('A IsometricMap', () => {
       rows: 15
     });
 
-    sut.tiles.forEach(tile => tile.addGraphic(sprite));
+    sut.tiles.forEach((tile) => tile.addGraphic(sprite));
 
     engine.add(sut);
     clock.step(100);
@@ -93,7 +93,7 @@ describe('A IsometricMap', () => {
       rows: 15
     });
 
-    sut.tiles.forEach(tile => tile.addGraphic(sprite));
+    sut.tiles.forEach((tile) => tile.addGraphic(sprite));
 
     engine.add(sut);
     clock.step(100);
@@ -125,7 +125,7 @@ describe('A IsometricMap', () => {
       rows: 15
     });
 
-    sut.tiles.forEach(tile => tile.addGraphic(sprite));
+    sut.tiles.forEach((tile) => tile.addGraphic(sprite));
 
     engine.add(sut);
     clock.step(100);
@@ -183,7 +183,7 @@ describe('A IsometricMap', () => {
     expect(sut.tileToWorld(ex.vec(14, 0))).toBeVector(ex.vec(474, 122));
 
     expect(sut.tileToWorld(ex.vec(14, 14))).toBeVector(ex.vec(250, 234));
-    expect(sut.tiles[sut.tiles.length-1].pos).toBeVector(ex.vec(250, 234));
+    expect(sut.tiles[sut.tiles.length - 1].pos).toBeVector(ex.vec(250, 234));
 
     expect(sut.tileToWorld(ex.vec(0, 14))).toBeVector(ex.vec(26, 122));
     engine.dispose();
@@ -302,7 +302,7 @@ describe('A IsometricMap', () => {
   });
 
   it('can respond to pointer events', async () => {
-    const engine = TestUtils.engine({width: 100, height: 100});
+    const engine = TestUtils.engine({ width: 100, height: 100 });
     await TestUtils.runToReady(engine);
     const sut = new ex.IsometricMap({
       pos: ex.vec(100, 100),
@@ -335,5 +335,4 @@ describe('A IsometricMap', () => {
 
     engine.dispose();
   });
-
 });

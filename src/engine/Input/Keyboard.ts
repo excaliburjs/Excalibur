@@ -191,14 +191,14 @@ export class KeyEvent extends Events.GameEvent<any> {
 }
 
 export interface KeyboardInitOptions {
-  global?: GlobalEventHandlers,
-  grabWindowFocus?: boolean
+  global?: GlobalEventHandlers;
+  grabWindowFocus?: boolean;
 }
 
 export type KeyEvents = {
-  press: KeyEvent,
-  hold: KeyEvent,
-  release: KeyEvent
+  press: KeyEvent;
+  hold: KeyEvent;
+  release: KeyEvent;
 };
 
 export const KeyEvents = {
@@ -294,7 +294,7 @@ export class Keyboard {
       this.events.emit('up', keyEvent);
       this.events.emit('release', keyEvent);
     }
-    this._keysUp = Array.from((new Set(this._keys.concat(this._keysUp))));
+    this._keysUp = Array.from(new Set(this._keys.concat(this._keysUp)));
     this._keys.length = 0;
   };
 
@@ -390,16 +390,20 @@ export class Keyboard {
    */
   public triggerEvent(type: 'down' | 'up', key: Keys, character?: string) {
     if (type === 'down') {
-      this._handleKeyDown(new KeyboardEvent('keydown', {
-        code: key,
-        key: character ?? null
-      }));
+      this._handleKeyDown(
+        new KeyboardEvent('keydown', {
+          code: key,
+          key: character ?? null
+        })
+      );
     }
     if (type === 'up') {
-      this._handleKeyUp(new KeyboardEvent('keyup', {
-        code: key,
-        key: character ?? null
-      }));
+      this._handleKeyUp(
+        new KeyboardEvent('keyup', {
+          code: key,
+          key: character ?? null
+        })
+      );
     }
   }
 }

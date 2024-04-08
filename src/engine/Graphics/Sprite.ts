@@ -107,8 +107,8 @@ export class Sprite extends Graphic {
     } else {
       this._logger.warnOnce(
         `ImageSource ${this.image.path}` +
-        ` is not yet loaded and won't be drawn. Please call .load() or include in a Loader.\n\n` +
-        `Read https://excaliburjs.com/docs/imagesource for more information.`
+          ` is not yet loaded and won't be drawn. Please call .load() or include in a Loader.\n\n` +
+          `Read https://excaliburjs.com/docs/imagesource for more information.`
       );
     }
   }

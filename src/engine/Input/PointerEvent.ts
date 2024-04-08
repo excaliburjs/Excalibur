@@ -27,5 +27,6 @@ export class PointerEvent {
     public button: PointerButton,
     public pointerType: PointerType,
     public coordinates: GlobalCoordinates,
-    public nativeEvent: Event) { };
+    public nativeEvent: Event
+  ) {}
 }

@@ -248,10 +248,10 @@ describe('A TransformComponent', () => {
   });
 
   it('can be parented/unparented as a TransformComponent', () => {
-    const child1 = new ex.Entity([new TransformComponent]);
-    const child2 = new ex.Entity([new TransformComponent]);
-    const parent = new ex.Entity([new TransformComponent]);
-    const grandParent = new ex.Entity([new TransformComponent]);
+    const child1 = new ex.Entity([new TransformComponent()]);
+    const child2 = new ex.Entity([new TransformComponent()]);
+    const parent = new ex.Entity([new TransformComponent()]);
+    const grandParent = new ex.Entity([new TransformComponent()]);
 
     parent.addChild(child1);
     parent.addChild(child2);
@@ -270,10 +270,10 @@ describe('A TransformComponent', () => {
   it('children inherit the top most parent coordinate plane', () => {
     const logger = ex.Logger.getInstance();
     spyOn(logger, 'warn');
-    const child1 = new ex.Entity([new TransformComponent]);
-    const child2 = new ex.Entity([new TransformComponent], 'child2');
-    const parent = new ex.Entity([new TransformComponent]);
-    const grandParent = new ex.Entity([new TransformComponent]);
+    const child1 = new ex.Entity([new TransformComponent()]);
+    const child2 = new ex.Entity([new TransformComponent()], 'child2');
+    const parent = new ex.Entity([new TransformComponent()]);
+    const grandParent = new ex.Entity([new TransformComponent()]);
 
     parent.addChild(child1);
     parent.addChild(child2);
@@ -299,13 +299,14 @@ describe('A TransformComponent', () => {
     child2.get(TransformComponent).coordPlane = ex.CoordPlane.World;
     expect(child2.get(TransformComponent).coordPlane).toBe(ex.CoordPlane.Screen);
     expect(logger.warn).toHaveBeenCalledWith(
-      'Cannot set coordinate plane on child entity child2, children inherit their coordinate plane from their parents.');
+      'Cannot set coordinate plane on child entity child2, children inherit their coordinate plane from their parents.'
+    );
   });
 
   it('can be cloned', () => {
     const transform = new TransformComponent();
     const owner = new ex.Entity([transform]);
-    transform.pos = ex.vec(1,2);
+    transform.pos = ex.vec(1, 2);
     transform.rotation = 3;
     transform.scale = ex.vec(3, 4);
     transform.z = 5;

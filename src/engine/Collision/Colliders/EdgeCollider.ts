@@ -286,5 +286,4 @@ export class EdgeCollider extends Collider {
     ex.drawCircle(begin, 2, color);
     ex.drawCircle(end, 2, color);
   }
-
 }

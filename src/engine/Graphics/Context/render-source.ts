@@ -1,7 +1,5 @@
 export class RenderSource {
-  constructor(
-    private _gl: WebGLRenderingContext,
-    private _texture: WebGLTexture) {}
+  constructor(private _gl: WebGLRenderingContext, private _texture: WebGLTexture) {}
 
   public use() {
     const gl = this._gl;

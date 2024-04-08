@@ -5,16 +5,15 @@ var game = new ex.Engine({
   width: 600,
   height: 400,
   displayMode: ex.DisplayMode.FitScreenAndFill,
-  pixelArt: true,
+  pixelArt: true
   // antialiasing: false
 });
-
 
 var tex = new ex.ImageSource('https://cdn.rawgit.com/excaliburjs/Excalibur/7dd48128/assets/sword.png');
 
 var loader = new ex.Loader([tex]);
 
-var actor = new ex.Actor({x: 100, y: 100, width: 50, height: 50});
+var actor = new ex.Actor({ x: 100, y: 100, width: 50, height: 50 });
 actor.onInitialize = () => {
   var sprite = new ex.Sprite({
     image: tex,
@@ -30,4 +29,4 @@ game.start(loader);
 
 game.currentScene.camera.pos = actor.pos;
 game.currentScene.camera.zoom = 7;
-actor.angularVelocity = .1;
+actor.angularVelocity = 0.1;

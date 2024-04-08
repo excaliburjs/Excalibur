@@ -6,11 +6,7 @@ export class Pool<Type> {
   public disableWarnings = false;
   private _logger = Logger.getInstance();
 
-  constructor(
-    public builder: () => Type,
-    public recycler: (instance: Type) => Type,
-    public maxObjects: number = 100
-  ) {}
+  constructor(public builder: () => Type, public recycler: (instance: Type) => Type, public maxObjects: number = 100) {}
 
   dispose() {
     this.objects.length = 0;

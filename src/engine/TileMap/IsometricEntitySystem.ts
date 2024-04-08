@@ -3,7 +3,6 @@ import { TransformComponent } from '../EntityComponentSystem/Components/Transfor
 import { IsometricEntityComponent } from './IsometricEntityComponent';
 import { Query, SystemPriority, World } from '../EntityComponentSystem';
 
-
 export class IsometricEntitySystem extends System {
   public readonly systemType = SystemType.Update;
   priority: number = SystemPriority.Lower;

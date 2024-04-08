@@ -1,4 +1,3 @@
-
 /**
  * Future is a wrapper around a native browser Promise to allow resolving/rejecting at any time
  */

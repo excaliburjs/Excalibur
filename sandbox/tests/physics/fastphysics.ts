@@ -1,6 +1,6 @@
 /// <reference path='../../lib/excalibur.d.ts' />
 
-ex.Physics.useRealisticPhysics()
+ex.Physics.useRealisticPhysics();
 var game = new ex.Engine({
   width: 600,
   height: 400
@@ -19,7 +19,7 @@ var rocketTex = new ex.ImageSource('missile.png');
 var loader = new ex.Loader([rocketTex]);
 
 function spawnRocket(direction) {
-  var rocket = new ex.Actor({x: 300, y: 200, radius: 48, height: 16});
+  var rocket = new ex.Actor({ x: 300, y: 200, radius: 48, height: 16 });
   rocket.body.canSleep = true;
 
   rocket.on('preupdate', () => {
@@ -56,23 +56,23 @@ function spawnRocket(direction) {
   game.add(rocket);
 }
 
-var ground = new ex.Actor({x: 0, y: 400, width: 5, height: 5, color: ex.Color.Black.clone()});
+var ground = new ex.Actor({ x: 0, y: 400, width: 5, height: 5, color: ex.Color.Black.clone() });
 ground.body.collisionType = ex.CollisionType.Fixed;
 ground.collider.useEdgeCollider(new ex.Vector(0, 0), new ex.Vector(600, 0));
 // ground.collider.useBoxCollider(600, 30, ex.Vector.Zero);
 game.add(ground);
 
-var rightWall = new ex.Actor({x: 600, y: 200, width: 10, height: 400, color: ex.Color.Black.clone()});
+var rightWall = new ex.Actor({ x: 600, y: 200, width: 10, height: 400, color: ex.Color.Black.clone() });
 rightWall.body.collisionType = ex.CollisionType.Fixed;
 rightWall.collider.useBoxCollider(10, 400);
 game.add(rightWall);
 
-var leftWall = new ex.Actor({x: 0, y: 200, width: 10, height: 400, color: ex.Color.Black.clone()});
+var leftWall = new ex.Actor({ x: 0, y: 200, width: 10, height: 400, color: ex.Color.Black.clone() });
 leftWall.body.collisionType = ex.CollisionType.Fixed;
 leftWall.collider.useBoxCollider(10, 400);
 game.add(leftWall);
 
-var ceiling = new ex.Actor({x: 300, y: 10, width: 600, height: 10, color: ex.Color.Blue.clone()});
+var ceiling = new ex.Actor({ x: 300, y: 10, width: 600, height: 10, color: ex.Color.Blue.clone() });
 ceiling.body.collisionType = ex.CollisionType.Fixed;
 ceiling.collider.useBoxCollider(600, 10); // optional
 game.add(ceiling);

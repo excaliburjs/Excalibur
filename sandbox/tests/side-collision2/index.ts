@@ -1,4 +1,3 @@
-
 var game = new ex.Engine({
   width: 400,
   height: 400,
@@ -23,7 +22,7 @@ class Player3 extends ex.Actor {
 
   onInitialize() {
     // onPostCollision is an event, not a lifecycle meaning it can be subscribed to by other things
-    this.on("postcollision", (evt) => this.onPostCollision(evt));
+    this.on('postcollision', (evt) => this.onPostCollision(evt));
   }
 
   onPostCollision(evt) {

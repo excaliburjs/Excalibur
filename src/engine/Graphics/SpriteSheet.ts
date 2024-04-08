@@ -11,13 +11,13 @@ export interface SpriteSheetSpacingDimensions {
    * The starting point to offset and start slicing the sprite sheet from the top left of the image.
    * Default is (0, 0)
    */
-  originOffset?: { x?: number, y?: number };
+  originOffset?: { x?: number; y?: number };
 
   /**
    * The margin between sprites.
    * Default is (0, 0)
    */
-  margin?: {x?: number, y?: number};
+  margin?: { x?: number; y?: number };
 }
 
 /**
@@ -143,13 +143,13 @@ export class SpriteSheet {
    * @param options
    */
   public static fromImageSourceWithSourceViews(options: SpriteSheetSparseOptions): SpriteSheet {
-    const sprites: Sprite[] = options.sourceViews.map(sourceView => {
+    const sprites: Sprite[] = options.sourceViews.map((sourceView) => {
       return new Sprite({
         image: options.image,
         sourceView
       });
     });
-    return new SpriteSheet({sprites});
+    return new SpriteSheet({ sprites });
   }
 
   /**
@@ -190,8 +190,8 @@ export class SpriteSheet {
       grid: { rows, columns: cols, spriteWidth, spriteHeight },
       spacing: { originOffset, margin }
     } = options;
-    const offsetDefaults = { x: 0, y: 0, ...originOffset};
-    const marginDefaults = { x: 0, y: 0, ...margin};
+    const offsetDefaults = { x: 0, y: 0, ...originOffset };
+    const marginDefaults = { x: 0, y: 0, ...margin };
     for (let x = 0; x < cols; x++) {
       for (let y = 0; y < rows; y++) {
         sprites[x + y * cols] = new Sprite({
@@ -215,7 +215,7 @@ export class SpriteSheet {
 
   public clone(): SpriteSheet {
     return new SpriteSheet({
-      sprites: this.sprites.map(sprite => sprite.clone()),
+      sprites: this.sprites.map((sprite) => sprite.clone()),
       rows: this.rows,
       columns: this.columns
     });

@@ -16,20 +16,20 @@ export class Debug {
   }
 
   static drawPoint(point: Vector, options?: PointGraphicsOptions) {
-    Debug.draw(ctx => {
+    Debug.draw((ctx) => {
       ctx.debug.drawPoint(point, options);
     });
   }
 
   static drawLine(start: Vector, end: Vector, options?: LineGraphicsOptions) {
-    Debug.draw(ctx => {
+    Debug.draw((ctx) => {
       ctx.debug.drawLine(start, end, options);
     });
   }
 
   static drawLines(points: Vector[], options?: LineGraphicsOptions) {
     if (points.length > 1) {
-      Debug.draw(ctx => {
+      Debug.draw((ctx) => {
         for (let i = 0; i < points.length - 1; i++) {
           ctx.debug.drawLine(points[i], points[i + 1], options);
         }
@@ -38,14 +38,14 @@ export class Debug {
   }
 
   static drawText(text: string, pos: Vector) {
-    Debug.draw(ctx => {
+    Debug.draw((ctx) => {
       ctx.debug.drawText(text, pos);
     });
   }
 
   static drawPolygon(points: Vector[], options?: { color?: Color }) {
     if (points.length > 1) {
-      Debug.draw(ctx => {
+      Debug.draw((ctx) => {
         const firstPoint = points[0];
         const polygon = [...points, firstPoint];
         for (let i = 0; i < polygon.length - 1; i++) {
@@ -55,29 +55,33 @@ export class Debug {
     }
   }
 
-  static drawCircle(center: Vector, radius: number, options?: {
-    color?: Color,
-    strokeColor?: Color,
-    width?: number
-  }) {
-    const { color, strokeColor, width} = {
+  static drawCircle(
+    center: Vector,
+    radius: number,
+    options?: {
+      color?: Color;
+      strokeColor?: Color;
+      width?: number;
+    }
+  ) {
+    const { color, strokeColor, width } = {
       color: Color.Black,
       strokeColor: undefined,
       width: undefined,
       ...options
     };
-    Debug.draw(ctx => {
+    Debug.draw((ctx) => {
       ctx.drawCircle(center, radius, color, strokeColor, width);
     });
   }
 
   static drawBounds(boundingBox: BoundingBox, options?: { color?: Color }): void {
-    Debug.draw(ctx => {
+    Debug.draw((ctx) => {
       ctx.debug.drawRect(boundingBox.left, boundingBox.top, boundingBox.width, boundingBox.height, options);
     });
   }
 
-  static drawRay(ray: Ray, options?: { distance?: number, color?: Color }) {
+  static drawRay(ray: Ray, options?: { distance?: number; color?: Color }) {
     const { distance, color } = {
       color: Color.Blue,
       distance: 10,

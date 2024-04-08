@@ -239,7 +239,6 @@ describe('Sound resource', () => {
 
   it('should stop all currently playing tracks', (done) => {
     sut.load().then(() => {
-
       sut.once('playbackstart', () => {
         expect(sut.isPlaying()).toBe(true, 'track should be playing');
 
@@ -259,7 +258,7 @@ describe('Sound resource', () => {
     sut.play();
     await delay(1000);
     // appveyor is a little fast for some reason
-    expect(sut.getPlaybackPosition()).toBeGreaterThanOrEqual(.98);
+    expect(sut.getPlaybackPosition()).toBeGreaterThanOrEqual(0.98);
   });
 
   it('should variable playback rate of the audio track', async () => {
@@ -379,7 +378,6 @@ describe('Sound resource', () => {
     expect(sut.getTotalPlaybackDuration()).toBeCloseTo(13.01, 1);
   });
 
-
   it('can set/get the playback rate', async () => {
     sut = new ex.Sound('src/spec/images/SoundSpec/preview.ogg');
     expect(sut.playbackRate).toBe(1.0);
@@ -451,7 +449,6 @@ describe('Sound resource', () => {
       sut.load().then(() => {
         engine.pauseAudioWhenHidden = true;
         sut.wireEngine(engine);
-
 
         sut.once('playbackstart', () => {
           expect(sut.isPlaying()).withContext('should be playing').toBe(true);

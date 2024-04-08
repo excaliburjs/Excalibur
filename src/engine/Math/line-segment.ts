@@ -5,7 +5,6 @@ import { Vector } from './vector';
  */
 
 export class LineSegment {
-
   /**
    * @param begin  The starting point of the line segment
    * @param end  The ending point of the line segment
@@ -34,7 +33,7 @@ export class LineSegment {
     if (this._normal) {
       return this._normal;
     }
-    return this._normal = this.end.sub(this.begin).normal();
+    return (this._normal = this.end.sub(this.begin).normal());
   }
 
   private _dir: Vector;
@@ -42,7 +41,7 @@ export class LineSegment {
     if (this._dir) {
       return this._dir;
     }
-    return this._dir = this.end.sub(this.begin);
+    return (this._dir = this.end.sub(this.begin));
   }
 
   public getPoints(): Vector[] {
@@ -60,7 +59,7 @@ export class LineSegment {
     const begin = this.begin;
     const end = this.end;
     const distance = begin.distance(end);
-    return this._slope = end.sub(begin).scale(1 / distance);
+    return (this._slope = end.sub(begin).scale(1 / distance));
   }
 
   /**
@@ -83,7 +82,7 @@ export class LineSegment {
     const begin = this.begin;
     const end = this.end;
     const distance = begin.distance(end);
-    return this._length = distance;
+    return (this._length = distance);
   }
 
   /**

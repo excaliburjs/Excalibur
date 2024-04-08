@@ -124,8 +124,8 @@ export class EntityManager {
     return this._entityIndex[id];
   }
 
-  public getByName(name: string): Entity[]{
-    return this.entities.filter(e => e.name === name);
+  public getByName(name: string): Entity[] {
+    return this.entities.filter((e) => e.name === name);
   }
 
   public clear(): void {

@@ -9,7 +9,7 @@ export class Vector implements Clonable<Vector> {
   /**
    * Get or set the vector equals epsilon, by default 0.001 meaning vectors within that tolerance on x or y will be considered equal.
    */
-  public static EQUALS_EPSILON = .001;
+  public static EQUALS_EPSILON = 0.001;
   /**
    * A (0, 0) vector
    */

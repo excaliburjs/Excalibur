@@ -10,7 +10,6 @@ import { RendererPlugin } from '../renderer';
 import { VertexBuffer } from '../vertex-buffer';
 import { VertexLayout } from '../vertex-layout';
 
-
 export class MaterialRenderer implements RendererPlugin {
   public readonly type: string = 'ex.material';
   public priority: number = 0;
@@ -56,7 +55,8 @@ export class MaterialRenderer implements RendererPlugin {
     this._gl = null;
   }
 
-  draw(image: HTMLImageSource,
+  draw(
+    image: HTMLImageSource,
     sx: number,
     sy: number,
     swidth?: number,
@@ -64,7 +64,8 @@ export class MaterialRenderer implements RendererPlugin {
     dx?: number,
     dy?: number,
     dwidth?: number,
-    dheight?: number): void {
+    dheight?: number
+  ): void {
     const gl = this._gl;
 
     // Extract context info
@@ -107,8 +108,8 @@ export class MaterialRenderer implements RendererPlugin {
     const imageWidth = image.width || width;
     const imageHeight = image.height || height;
 
-    const uvx0 = (sx) / imageWidth;
-    const uvy0 = (sy) / imageHeight;
+    const uvx0 = sx / imageWidth;
+    const uvy0 = sy / imageHeight;
     const uvx1 = (sx + sw - 0.01) / imageWidth;
     const uvy1 = (sy + sh - 0.01) / imageHeight;
 
@@ -218,7 +219,8 @@ export class MaterialRenderer implements RendererPlugin {
         filtering,
         wrapping: { x: wrapX, y: wrapY }
       },
-      force);
+      force
+    );
     // remove force attribute after upload
     image.removeAttribute('forceUpload');
     if (this._textures.indexOf(texture) === -1) {

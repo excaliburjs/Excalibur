@@ -34,7 +34,7 @@ module.exports = function (wallaby) {
       mode: 'none',
       devtool: 'source-map',
       optimization: {
-        providedExports: true,
+        providedExports: true
       },
       resolve: {
         extensions: ['.ts', '.js'],

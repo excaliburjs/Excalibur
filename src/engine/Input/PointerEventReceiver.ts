@@ -14,18 +14,17 @@ import { PointerType } from './PointerType';
 import { isCrossOriginIframe } from '../Util/IFrame';
 import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
 
-
 export type NativePointerEvent = globalThis.PointerEvent;
 export type NativeMouseEvent = globalThis.MouseEvent;
 export type NativeTouchEvent = globalThis.TouchEvent;
 export type NativeWheelEvent = globalThis.WheelEvent;
 
 export type PointerEvents = {
-  move: PointerEvent,
-  down: PointerEvent,
-  up: PointerEvent,
-  wheel: WheelEvent
-}
+  move: PointerEvent;
+  down: PointerEvent;
+  up: PointerEvent;
+  wheel: WheelEvent;
+};
 
 export const PointerEvents = {
   Move: 'move',
@@ -360,7 +359,7 @@ export class PointerEventReceiver {
     const currentPointerIds = Array.from(this._activeNativePointerIdsToNormalized.keys()).sort((a, b) => a - b);
 
     // The index into sorted ids will be the new id, will always have an id
-    const id = currentPointerIds.findIndex(p => p === nativePointerId);
+    const id = currentPointerIds.findIndex((p) => p === nativePointerId);
 
     // Save the mapping so we can reverse it later
     this._activeNativePointerIdsToNormalized.set(nativePointerId, id);
@@ -457,7 +456,7 @@ export class PointerEventReceiver {
 
     const deltaX = ev.deltaX || ev.wheelDeltaX * ScrollWheelNormalizationFactor || 0;
     const deltaY =
-        ev.deltaY || ev.wheelDeltaY * ScrollWheelNormalizationFactor || ev.wheelDelta * ScrollWheelNormalizationFactor || ev.detail || 0;
+      ev.deltaY || ev.wheelDeltaY * ScrollWheelNormalizationFactor || ev.wheelDelta * ScrollWheelNormalizationFactor || ev.detail || 0;
     const deltaZ = ev.deltaZ || 0;
     let deltaMode = WheelDeltaMode.Pixel;
 
@@ -484,17 +483,21 @@ export class PointerEventReceiver {
     const page = this.engine.screen.worldToPageCoordinates(pos);
     // Send an event to the event receiver
     if (window.PointerEvent) {
-      this._handle(new window.PointerEvent('pointer' + type, {
-        pointerId: 0,
-        clientX: page.x,
-        clientY: page.y
-      }));
+      this._handle(
+        new window.PointerEvent('pointer' + type, {
+          pointerId: 0,
+          clientX: page.x,
+          clientY: page.y
+        })
+      );
     } else {
       // Safari hack
-      this._handle(new window.MouseEvent('mouse' + type, {
-        clientX: page.x,
-        clientY: page.y
-      }));
+      this._handle(
+        new window.MouseEvent('mouse' + type, {
+          clientX: page.x,
+          clientY: page.y
+        })
+      );
     }
 
     // Force update pointer system

@@ -10,7 +10,7 @@ class Player4 extends ex.Actor {
 
   constructor() {
     super({
-      name: "player",
+      name: 'player',
       x: 200,
       y: 200,
       width: 40,
@@ -19,7 +19,7 @@ class Player4 extends ex.Actor {
       collisionType: ex.CollisionType.Active
     });
 
-    this.on("precollision", (ev) => this.onPreCollision(ev));
+    this.on('precollision', (ev) => this.onPreCollision(ev));
   }
 
   onPreCollision(ev) {

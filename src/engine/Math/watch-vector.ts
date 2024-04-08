@@ -8,7 +8,7 @@ export class WatchVector extends Vector {
     super(original.x, original.y);
   }
   public get x() {
-    return this._x = this.original.x;
+    return (this._x = this.original.x);
   }
 
   public set x(newX: number) {
@@ -17,7 +17,7 @@ export class WatchVector extends Vector {
   }
 
   public get y() {
-    return this._y = this.original.y;
+    return (this._y = this.original.y);
   }
 
   public set y(newY: number) {

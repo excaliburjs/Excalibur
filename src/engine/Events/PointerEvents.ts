@@ -2,12 +2,8 @@ import { GlobalCoordinates } from '../Math/global-coordinates';
 import { WheelDeltaMode } from '../Input/WheelDeltaMode';
 import { ExEvent } from './ExEvent';
 
-
 export abstract class PointerEvent extends ExEvent<'down' | 'up' | 'move' | 'cancel'> {
-  constructor(
-    public pointerId: number,
-    public coordinates: GlobalCoordinates,
-    public nativeEvent: Event) {
+  constructor(public pointerId: number, public coordinates: GlobalCoordinates, public nativeEvent: Event) {
     super();
   }
 }

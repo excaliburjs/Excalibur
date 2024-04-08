@@ -58,7 +58,7 @@ describe('A Toaster', () => {
 
     expect(toastContainer.textContent).toContain('Dismiss');
 
-    document.dispatchEvent(new KeyboardEvent('keydown', {'key': 'Escape'}));
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
 
     expect(toastContainer.textContent).not.toContain('Dismiss');
 
@@ -85,5 +85,4 @@ describe('A Toaster', () => {
 
     sut.dispose();
   });
-
 });

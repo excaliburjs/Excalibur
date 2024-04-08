@@ -1,4 +1,3 @@
-
 import screenVertex from './screen-vertex.glsl';
 import screenFragment from './screen-fragment.glsl';
 import { Shader } from '../shader';
@@ -28,13 +27,9 @@ export class ScreenPassPainter {
       type: 'static',
       // clip space quad + uv since we don't need a camera
       data: new Float32Array([
-        -1, -1,          0, 0,
-        -1, 1,           0, 1,
-        1, -1,           1, 0,
+        -1, -1, 0, 0, -1, 1, 0, 1, 1, -1, 1, 0,
 
-        1, -1,            1, 0,
-        -1, 1,           0, 1,
-        1, 1,            1, 1
+        1, -1, 1, 0, -1, 1, 0, 1, 1, 1, 1, 1
       ])
     });
     this._layout = new VertexLayout({

@@ -12,8 +12,8 @@ export class ActionsSystem extends System {
     super();
     this.query = this.world.query([ActionsComponent]);
 
-    this.query.entityAdded$.subscribe(e => this._actions.push(e.get(ActionsComponent)));
-    this.query.entityRemoved$.subscribe(e => {
+    this.query.entityAdded$.subscribe((e) => this._actions.push(e.get(ActionsComponent)));
+    this.query.entityRemoved$.subscribe((e) => {
       const action = e.get(ActionsComponent);
       const index = this._actions.indexOf(action);
       if (index > -1) {

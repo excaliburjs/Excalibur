@@ -3,12 +3,12 @@ import { Logger } from '../Util/Log';
 import { EventEmitter } from '../EventEmitter';
 
 export type ResourceEvents = {
-  complete: any,
-  load: ProgressEvent<XMLHttpRequestEventTarget>,
-  loadstart: ProgressEvent<XMLHttpRequestEventTarget>,
-  progress: ProgressEvent<XMLHttpRequestEventTarget>,
-  error: ProgressEvent<XMLHttpRequestEventTarget>
-}
+  complete: any;
+  load: ProgressEvent<XMLHttpRequestEventTarget>;
+  loadstart: ProgressEvent<XMLHttpRequestEventTarget>;
+  progress: ProgressEvent<XMLHttpRequestEventTarget>;
+  error: ProgressEvent<XMLHttpRequestEventTarget>;
+};
 
 export const ResourceEvents = {
   Complete: 'complete',
@@ -45,7 +45,6 @@ export class Resource<T> implements Loadable<T> {
   public isLoaded(): boolean {
     return this.data !== null;
   }
-
 
   private _cacheBust(uri: string): string {
     const query: RegExp = /\?\w*=\w*/;

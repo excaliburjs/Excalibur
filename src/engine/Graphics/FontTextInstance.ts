@@ -59,7 +59,7 @@ export class FontTextInstance {
   private _setDimension(textBounds: BoundingBox, bitmap: CanvasRenderingContext2D) {
     let lineHeightRatio = 1;
     if (this.font.lineHeight) {
-      lineHeightRatio = (this.font.lineHeight/this.font.size);
+      lineHeightRatio = this.font.lineHeight / this.font.size;
     }
     // Changing the width and height clears the context properties
     // We double the bitmap width to account for all possible alignment

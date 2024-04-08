@@ -26,7 +26,7 @@ export class RealisticSolver implements CollisionSolver {
     this.preSolve(contacts);
 
     // Remove any canceled contacts
-    contacts = contacts.filter(c => !c.isCanceled());
+    contacts = contacts.filter((c) => !c.isCanceled());
 
     // Solve velocity first
     this.solveVelocity(contacts);
@@ -41,7 +41,7 @@ export class RealisticSolver implements CollisionSolver {
   }
 
   preSolve(contacts: CollisionContact[]) {
-    const epsilon = .0001;
+    const epsilon = 0.0001;
     for (const contact of contacts) {
       if (Math.abs(contact.mtv.x) < epsilon && Math.abs(contact.mtv.y) < epsilon) {
         // Cancel near 0 mtv collisions
@@ -52,7 +52,8 @@ export class RealisticSolver implements CollisionSolver {
       const side = Side.fromDirection(contact.mtv);
       contact.colliderA.events.emit(
         'precollision',
-        new PreCollisionEvent(contact.colliderA, contact.colliderB, side, contact.mtv, contact));
+        new PreCollisionEvent(contact.colliderA, contact.colliderB, side, contact.mtv, contact)
+      );
       contact.colliderA.events.emit(
         'beforecollisionresolve',
         new CollisionPreSolveEvent(contact.colliderA, contact.colliderB, side, contact.mtv, contact) as any
@@ -128,7 +129,8 @@ export class RealisticSolver implements CollisionSolver {
           const restitution = bodyA.bounciness > bodyB.bounciness ? bodyA.bounciness : bodyB.bounciness;
           const relativeVelocity = contact.normal.dot(contactPoints[pointIndex].getRelativeVelocity());
           contactPoints[pointIndex].originalVelocityAndRestitution = 0;
-          if (relativeVelocity < -0.1) { // TODO what's a good threshold here?
+          if (relativeVelocity < -0.1) {
+            // TODO what's a good threshold here?
             contactPoints[pointIndex].originalVelocityAndRestitution = -restitution * relativeVelocity;
           }
           pointIndex++;

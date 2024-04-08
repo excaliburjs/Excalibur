@@ -202,15 +202,15 @@ describe('DebugSystem', () => {
 
     const entity = new ex.Entity([
       new ex.TransformComponent(),
-      new ex.DebugGraphicsComponent(ctx => {
+      new ex.DebugGraphicsComponent((ctx) => {
         ctx.drawCircle(ex.vec(250, 250), 100, ex.Color.Blue);
-      })]);
+      })
+    ]);
     debugSystem.query.checkAndAdd(entity);
     debugSystem.update();
 
     engine.graphicsContext.flush();
-    await expectAsync(engine.canvas)
-      .toEqualImage('src/spec/images/DebugSystemSpec/debug-draw-component.png');
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/DebugSystemSpec/debug-draw-component.png');
   });
 
   it('can debug draw a tilemap', async () => {

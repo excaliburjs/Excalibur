@@ -117,7 +117,7 @@ function runBoundingBoxTests(creationType: string, createBoundingBox: Function) 
     });
 
     it('can overlap with other bounding boxes', () => {
-      const b1 = new ex.BoundingBox({left: 100, right: 110, top: 100, bottom: 110});
+      const b1 = new ex.BoundingBox({ left: 100, right: 110, top: 100, bottom: 110 });
       const b2 = new ex.BoundingBox(2, 0, 20, 10);
       const b3 = new ex.BoundingBox(12, 0, 28, 10);
       expect(b2.overlaps(b3)).toBe(true);
@@ -147,10 +147,9 @@ function runBoundingBoxTests(creationType: string, createBoundingBox: Function) 
       expect(bb1.overlaps(bbMid)).toBe(true);
       expect(bbMid.overlaps(bb1)).toBe(true);
 
-      const bb3 = new ex.BoundingBox({left: -1, top: 0, bottom: 0, right: -1});
+      const bb3 = new ex.BoundingBox({ left: -1, top: 0, bottom: 0, right: -1 });
       expect(bb3.overlaps(bb1)).toBe(false);
       expect(bb1.overlaps(bb3)).toBe(false);
-
     });
 
     it('can overlap with a margin for floating point rounding to consider no longer overlap', () => {
@@ -163,7 +162,7 @@ function runBoundingBoxTests(creationType: string, createBoundingBox: Function) 
 
       // bb2 is very technically overlapping, but very slightly and we want to consider it not really overlapping
       const bb2 = new ex.BoundingBox({
-        left: 100  - 0.00001,
+        left: 100 - 0.00001,
         right: 200 - 0.00001,
         top: 0,
         bottom: 100

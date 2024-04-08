@@ -1,26 +1,30 @@
 /// <reference path='../../lib/excalibur.d.ts' />
 var scene1 = new ex.Scene();
-scene1.add(new ex.Label({
-  pos: ex.vec(100, 100),
-  color: ex.Color.Green,
-  text: 'Scene 1',
-  z: 99
-}))
+scene1.add(
+  new ex.Label({
+    pos: ex.vec(100, 100),
+    color: ex.Color.Green,
+    text: 'Scene 1',
+    z: 99
+  })
+);
 scene1.onInitialize = () => {
   scene1.camera.pos = ex.vec(200, 200);
   scene1.camera.zoom = 2;
-}
+};
 var scene2 = new ex.Scene();
 scene2.onInitialize = () => {
   scene2.camera.pos = ex.vec(200, 200);
   scene2.camera.zoom = 2;
-}
-scene2.add(new ex.Label({
-  pos: ex.vec(100, 100),
-  color: ex.Color.Violet,
-  text: 'Scene 2',
-  z: 99
-}))
+};
+scene2.add(
+  new ex.Label({
+    pos: ex.vec(100, 100),
+    color: ex.Color.Violet,
+    text: 'Scene 2',
+    z: 99
+  })
+);
 
 class MyLoader extends ex.DefaultLoader {
   onDraw(ctx: CanvasRenderingContext2D): void {
@@ -30,7 +34,7 @@ class MyLoader extends ex.DefaultLoader {
 }
 
 class MyCustomScene extends ex.Scene {
-  onTransition(direction: "in" | "out") {
+  onTransition(direction: 'in' | 'out') {
     return new ex.FadeInOut({
       direction,
       color: ex.Color.Violet,
@@ -58,15 +62,15 @@ let scenes = {
   scene1: {
     scene: scene1,
     transitions: {
-      in: new ex.FadeInOut({duration: 500, direction: 'in'})
+      in: new ex.FadeInOut({ duration: 500, direction: 'in' })
     }
   },
   scene2: {
     scene: scene2,
     loader: MyLoader,
     transitions: {
-      out: new ex.FadeInOut({duration: 500, direction: 'out'}),
-      in: new ex.CrossFade({duration: 2500, direction: 'in', blockInput: true})
+      out: new ex.FadeInOut({ duration: 500, direction: 'out' }),
+      in: new ex.CrossFade({ duration: 2500, direction: 'in', blockInput: true })
     }
   },
   scene3: MyCustomScene
@@ -79,21 +83,21 @@ var gameWithTransitions = new ex.Engine({
   scenes
 });
 
-
 var actor = new ex.Actor({
   width: 100,
   height: 100,
   pos: ex.vec(100, 100),
   color: ex.Color.Red
-})
-actor.addChild(new ex.Actor({
-  width: 100,
-  height: 100,
-  pos: ex.vec(100, 100),
-  color: ex.Color.Black
-}));
+});
+actor.addChild(
+  new ex.Actor({
+    width: 100,
+    height: 100,
+    pos: ex.vec(100, 100),
+    color: ex.Color.Black
+  })
+);
 scene1.add(actor);
-
 
 scene2.onPreLoad = (loader) => {
   const image1 = new ex.ImageSource('./spritefont.png?=1');
@@ -106,18 +110,20 @@ scene2.onPreLoad = (loader) => {
   loader.addResource(image3);
   loader.addResource(image4);
   loader.addResource(sword);
-}
+};
 scene1.onActivate = () => {
   setTimeout(() => {
     gameWithTransitions.goto('scene2');
   }, 1000);
-}
-scene2.add(new ex.Actor({
-  width: 100,
-  height: 100,
-  pos: ex.vec(400, 400),
-  color: ex.Color.Blue
-}));
+};
+scene2.add(
+  new ex.Actor({
+    width: 100,
+    height: 100,
+    pos: ex.vec(400, 400),
+    color: ex.Color.Blue
+  })
+);
 
 var boot = new ex.Loader() as ex.Loader;
 const image1 = new ex.ImageSource('./spritefont.png?=1');
@@ -130,7 +136,7 @@ boot.addResource(image2);
 boot.addResource(image3);
 boot.addResource(image4);
 boot.addResource(sword);
-gameWithTransitions.input.keyboard.on('press', evt => {
+gameWithTransitions.input.keyboard.on('press', (evt) => {
   gameWithTransitions.goto('scene3', {
     sceneActivationData: { data: 1 }
   });
@@ -147,7 +153,6 @@ var startTransition = new ex.FadeInOut({
 //   console.log(game.currentScene.entities);
 //   console.log('killed!');
 // })
-gameWithTransitions.start('scene1',
-{
+gameWithTransitions.start('scene1', {
   inTransition: startTransition
 });

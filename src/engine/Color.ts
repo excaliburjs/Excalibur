@@ -1,4 +1,3 @@
-
 /**
  * Provides standard colors (e.g. [[Color.Black]])
  * but you can also create custom colors using RGB, HSL, or Hex. Also provides
@@ -418,7 +417,7 @@ export class Color {
  * http://axonflux.com/handy-rgb-to-hsl-and-rgb-to-hsv-color-model-c
  */
 class HSLColor {
-  constructor(public h: number, public s: number, public l: number, public a: number) { }
+  constructor(public h: number, public s: number, public l: number, public a: number) {}
 
   public static hue2rgb(p: number, q: number, t: number): number {
     if (t < 0) {

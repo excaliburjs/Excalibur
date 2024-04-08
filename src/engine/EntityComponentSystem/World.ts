@@ -26,8 +26,7 @@ export class World {
    * Query the ECS world for entities that match your components
    * @param requiredTypes
    */
-  query<TKnownComponentCtors extends ComponentCtor<Component>>(
-    requiredTypes: TKnownComponentCtors[]): Query<TKnownComponentCtors> {
+  query<TKnownComponentCtors extends ComponentCtor<Component>>(requiredTypes: TKnownComponentCtors[]): Query<TKnownComponentCtors> {
     return this.queryManager.createQuery(requiredTypes);
   }
 

@@ -2,7 +2,6 @@ import { Matrix } from './matrix';
 import { canonicalizeAngle, sign } from './util';
 import { vec, Vector } from './vector';
 
-
 export class AffineMatrix {
   /**
    * |         |         |          |
@@ -245,15 +244,14 @@ export class AffineMatrix {
       const b23 = other.data[5];
       //  const b33 = 1;
 
+      result.data[0] = a11 * b11 + a12 * b21; // + a13 * b31; // zero
+      result.data[1] = a21 * b11 + a22 * b21; // + a23 * b31; // zero
 
-      result.data[0] = a11 * b11 + a12 * b21;// + a13 * b31; // zero
-      result.data[1] = a21 * b11 + a22 * b21;// + a23 * b31; // zero
+      result.data[2] = a11 * b12 + a12 * b22; // + a13 * b32; // zero
+      result.data[3] = a21 * b12 + a22 * b22; // + a23 * b32; // zero
 
-      result.data[2] = a11 * b12 + a12 * b22;// + a13 * b32; // zero
-      result.data[3] = a21 * b12 + a22 * b22;// + a23 * b32; // zero
-
-      result.data[4] = a11 * b13 + a12 * b23 + a13;// * b33; // one
-      result.data[5] = a21 * b13 + a22 * b23 + a23;// * b33; // one
+      result.data[4] = a11 * b13 + a12 * b23 + a13; // * b33; // one
+      result.data[5] = a21 * b13 + a22 * b23 + a23; // * b33; // one
 
       const s = this.getScale();
       result._scaleSignX = sign(s.x) * sign(result._scaleSignX);
@@ -382,14 +380,7 @@ export class AffineMatrix {
   }
 
   public isIdentity(): boolean {
-    return (
-      this.data[0] === 1 &&
-      this.data[1] === 0 &&
-      this.data[2] === 0 &&
-      this.data[3] === 1 &&
-      this.data[4] === 0 &&
-      this.data[5] === 0
-    );
+    return this.data[0] === 1 && this.data[1] === 0 && this.data[2] === 0 && this.data[3] === 1 && this.data[4] === 0 && this.data[5] === 0;
   }
 
   /**
@@ -425,5 +416,4 @@ export class AffineMatrix {
 [0 0 1]
 `;
   }
-
 }

@@ -9,7 +9,6 @@ declare global {
   }
 }
 
-
 export interface RenderTargetOptions {
   gl: WebGL2RenderingContext;
   width: number;
@@ -80,7 +79,8 @@ export class RenderTarget {
         Math.min(this.samples, gl.getParameter(gl.MAX_SAMPLES)),
         this.bufferFormat,
         this.width,
-        this.height);
+        this.height
+      );
     }
   }
 
@@ -114,7 +114,8 @@ export class RenderTarget {
         Math.min(this.samples, gl.getParameter(gl.MAX_SAMPLES)),
         this.bufferFormat,
         this.width,
-        this.height);
+        this.height
+      );
       gl.bindFramebuffer(gl.FRAMEBUFFER, this._renderFrameBuffer);
       gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.RENDERBUFFER, this._renderBuffer);
     }
@@ -132,7 +133,6 @@ export class RenderTarget {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
 
     // attach the texture as the first color attachment
     const attachmentPoint = gl.COLOR_ATTACHMENT0;
@@ -161,18 +161,12 @@ export class RenderTarget {
       gl.bindFramebuffer(gl.READ_FRAMEBUFFER, this.renderFrameBuffer);
       gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
       gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 1.0, 1.0]);
-      gl.blitFramebuffer(
-        0, 0, this.width, this.height,
-        0, 0, this.width, this.height,
-        gl.COLOR_BUFFER_BIT, gl.LINEAR);
+      gl.blitFramebuffer(0, 0, this.width, this.height, 0, 0, this.width, this.height, gl.COLOR_BUFFER_BIT, gl.LINEAR);
     } else {
       gl.bindFramebuffer(gl.READ_FRAMEBUFFER, this.frameBuffer);
       gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
       gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 1.0, 1.0]);
-      gl.blitFramebuffer(
-        0, 0, this.width, this.height,
-        0, 0, this.width, this.height,
-        gl.COLOR_BUFFER_BIT, gl.LINEAR);
+      gl.blitFramebuffer(0, 0, this.width, this.height, 0, 0, this.width, this.height, gl.COLOR_BUFFER_BIT, gl.LINEAR);
     }
   }
 
@@ -182,10 +176,7 @@ export class RenderTarget {
       gl.bindFramebuffer(gl.READ_FRAMEBUFFER, this.renderFrameBuffer);
       gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, this.frameBuffer);
       gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 1.0, 1.0]);
-      gl.blitFramebuffer(
-        0, 0, this.width, this.height,
-        0, 0, this.width, this.height,
-        gl.COLOR_BUFFER_BIT, gl.LINEAR);
+      gl.blitFramebuffer(0, 0, this.width, this.height, 0, 0, this.width, this.height, gl.COLOR_BUFFER_BIT, gl.LINEAR);
     }
   }
 

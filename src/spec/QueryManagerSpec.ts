@@ -17,11 +17,11 @@ describe('A QueryManager', () => {
   it('can create queries for entities', () => {
     const world = new ex.World(null);
     const entity1 = new ex.Entity();
-    entity1.addComponent(new FakeComponentA);
-    entity1.addComponent(new FakeComponentB);
+    entity1.addComponent(new FakeComponentA());
+    entity1.addComponent(new FakeComponentB());
 
     const entity2 = new ex.Entity();
-    entity2.addComponent(new FakeComponentA);
+    entity2.addComponent(new FakeComponentA());
 
     world.entityManager.addEntity(entity1);
     world.entityManager.addEntity(entity2);
@@ -35,11 +35,8 @@ describe('A QueryManager', () => {
     expect(queryAB.getEntities()).toEqual([entity1], 'Only entity1 has both A+B');
 
     // Queries update if component change
-    entity2.addComponent(new FakeComponentB);
-    expect(queryAB.getEntities()).toEqual(
-      [entity1, entity2],
-      'Now both entities have A+B'
-    );
+    entity2.addComponent(new FakeComponentB());
+    expect(queryAB.getEntities()).toEqual([entity1, entity2], 'Now both entities have A+B');
 
     // Queries update if components change
     entity2.removeComponent(FakeComponentB, true);
@@ -55,12 +52,12 @@ describe('A QueryManager', () => {
   it('can add entities to queries', () => {
     const world = new ex.World(null);
     const entity1 = new ex.Entity();
-    entity1.addComponent(new FakeComponentA);
-    entity1.addComponent(new FakeComponentB);
+    entity1.addComponent(new FakeComponentA());
+    entity1.addComponent(new FakeComponentB());
 
     const entity2 = new ex.Entity();
-    entity2.addComponent(new FakeComponentA);
-    entity2.addComponent(new FakeComponentB);
+    entity2.addComponent(new FakeComponentA());
+    entity2.addComponent(new FakeComponentB());
 
     const queryAB = world.query([FakeComponentA, FakeComponentB]);
     expect(queryAB.getEntities()).toEqual([]);
@@ -95,12 +92,12 @@ describe('A QueryManager', () => {
   it('can remove entities from queries', () => {
     const world = new ex.World(null);
     const entity1 = new ex.Entity();
-    entity1.addComponent(new FakeComponentA);
-    entity1.addComponent(new FakeComponentB);
+    entity1.addComponent(new FakeComponentA());
+    entity1.addComponent(new FakeComponentB());
 
     const entity2 = new ex.Entity();
-    entity2.addComponent(new FakeComponentA);
-    entity2.addComponent(new FakeComponentB);
+    entity2.addComponent(new FakeComponentA());
+    entity2.addComponent(new FakeComponentB());
 
     const queryAB = world.query([FakeComponentA, FakeComponentB]);
     world.queryManager.addEntity(entity1);
@@ -139,12 +136,12 @@ describe('A QueryManager', () => {
   it('can update queries when a component is removed', () => {
     const world = new ex.World(null);
     const entity1 = new ex.Entity();
-    entity1.addComponent(new FakeComponentA);
-    entity1.addComponent(new FakeComponentB);
+    entity1.addComponent(new FakeComponentA());
+    entity1.addComponent(new FakeComponentB());
 
     const entity2 = new ex.Entity();
-    entity2.addComponent(new FakeComponentA);
-    entity2.addComponent(new FakeComponentB);
+    entity2.addComponent(new FakeComponentA());
+    entity2.addComponent(new FakeComponentB());
 
     const queryAB = world.query([FakeComponentA, FakeComponentB]);
     world.queryManager.addEntity(entity1);
@@ -181,16 +178,16 @@ describe('A QueryManager', () => {
     expect(queryAB.getEntities()).toEqual([entity2]);
   });
 
-  it('removing components unrelated to the query doesn\'t remove the entity', () => {
+  it("removing components unrelated to the query doesn't remove the entity", () => {
     const world = new ex.World(null);
     const entity1 = new ex.Entity();
-    entity1.addComponent(new FakeComponentA);
-    entity1.addComponent(new FakeComponentB);
-    entity1.addComponent(new FakeComponentC);
+    entity1.addComponent(new FakeComponentA());
+    entity1.addComponent(new FakeComponentB());
+    entity1.addComponent(new FakeComponentC());
 
     const entity2 = new ex.Entity();
-    entity2.addComponent(new FakeComponentA);
-    entity2.addComponent(new FakeComponentB);
+    entity2.addComponent(new FakeComponentA());
+    entity2.addComponent(new FakeComponentB());
 
     const queryAB = world.query([FakeComponentA, FakeComponentB]);
     world.queryManager.addEntity(entity1);
@@ -210,9 +207,9 @@ describe('A QueryManager', () => {
     const entity = new ex.Entity();
     world.add(entity);
 
-    const componentA = new FakeComponentA;
+    const componentA = new FakeComponentA();
     const query = world.query([FakeComponentA]);
-    query.entityAdded$.subscribe(e => {
+    query.entityAdded$.subscribe((e) => {
       expect(e).toBe(entity);
       expect(e.get(FakeComponentA)).toBe(componentA);
       done();
@@ -225,11 +222,11 @@ describe('A QueryManager', () => {
     const world = new ex.World(null);
     const entity = new ex.Entity();
     world.add(entity);
-    const componentA = new FakeComponentA;
+    const componentA = new FakeComponentA();
     entity.addComponent(componentA);
 
     const query = world.query([FakeComponentA]);
-    query.entityRemoved$.subscribe(e => {
+    query.entityRemoved$.subscribe((e) => {
       expect(e).toBe(entity);
       expect(e.get(FakeComponentA)).toBe(componentA);
       done();

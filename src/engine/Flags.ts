@@ -1,4 +1,3 @@
-
 /**
  * Flags is a feature flag implementation for Excalibur. They can only be operated **before [[Engine]] construction**
  * after which they are frozen and are read-only.
@@ -8,7 +7,6 @@
 export class Flags {
   private static _FROZEN = false;
   private static _FLAGS: Record<string, boolean> = {};
-
 
   /**
    * Force excalibur to load the Canvas 2D graphics context fallback

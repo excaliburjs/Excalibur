@@ -10,7 +10,7 @@ import { vec, Vector } from '../Math/vector';
 import { toDegrees } from '../Math/util';
 import { BodyComponent } from '../Collision/BodyComponent';
 import { CollisionSystem } from '../Collision/CollisionSystem';
-import { CompositeCollider  } from '../Collision/Colliders/CompositeCollider';
+import { CompositeCollider } from '../Collision/Colliders/CompositeCollider';
 import { GraphicsComponent } from '../Graphics/GraphicsComponent';
 import { Particle } from '../Particles';
 import { DebugGraphicsComponent } from '../Graphics/DebugGraphicsComponent';
@@ -189,7 +189,7 @@ export class DebugSystem extends System {
         }
 
         if (bodySettings.showAll || bodySettings.showSleeping) {
-          this._graphicsContext.debug.drawText(`sleeping(${body.canSleep ? body.sleeping: 'cant sleep'})`, cursor);
+          this._graphicsContext.debug.drawText(`sleeping(${body.canSleep ? body.sleeping : 'cant sleep'})`, cursor);
           cursor = cursor.add(lineHeight);
         }
       }

@@ -1,14 +1,6 @@
 import { ColliderComponent } from '../Collision/ColliderComponent';
 import { Engine } from '../Engine';
-import {
-  System,
-  TransformComponent,
-  SystemType,
-  Entity,
-  World,
-  Query,
-  SystemPriority
-} from '../EntityComponentSystem';
+import { System, TransformComponent, SystemType, Entity, World, Query, SystemPriority } from '../EntityComponentSystem';
 import { GraphicsComponent } from '../Graphics/GraphicsComponent';
 import { Scene } from '../Scene';
 import { PointerComponent } from './PointerComponent';
@@ -35,7 +27,7 @@ export class PointerSystem extends System {
   constructor(public world: World) {
     super();
     this.query = this.world.query([TransformComponent, PointerComponent]);
-    this.query.entityAdded$.subscribe(e => {
+    this.query.entityAdded$.subscribe((e) => {
       const tx = e.get(TransformComponent);
       this._sortedTransforms.push(tx);
       this._sortedEntities.push(tx.owner);
@@ -43,7 +35,7 @@ export class PointerSystem extends System {
       this._zHasChanged = true;
     });
 
-    this.query.entityRemoved$.subscribe(e => {
+    this.query.entityRemoved$.subscribe((e) => {
       const tx = e.get(TransformComponent);
       tx.zIndexChanged$.unsubscribe(this._zIndexUpdate);
       const index = this._sortedTransforms.indexOf(tx);
@@ -88,31 +80,25 @@ export class PointerSystem extends System {
       this._sortedTransforms.sort((a, b) => {
         return b.z - a.z;
       });
-      this._sortedEntities = this._sortedTransforms.map(t => t.owner);
+      this._sortedEntities = this._sortedTransforms.map((t) => t.owner);
       this._zHasChanged = false;
     }
   }
 
-
-
   public entityCurrentlyUnderPointer(entity: Entity, pointerId: number) {
-    return this.currentFrameEntityToPointers.has(entity.id) &&
-           this.currentFrameEntityToPointers.get(entity.id).includes(pointerId);
+    return this.currentFrameEntityToPointers.has(entity.id) && this.currentFrameEntityToPointers.get(entity.id).includes(pointerId);
   }
 
   public entityWasUnderPointer(entity: Entity, pointerId: number) {
-    return this.lastFrameEntityToPointers.has(entity.id) &&
-           this.lastFrameEntityToPointers.get(entity.id).includes(pointerId);
+    return this.lastFrameEntityToPointers.has(entity.id) && this.lastFrameEntityToPointers.get(entity.id).includes(pointerId);
   }
 
   public entered(entity: Entity, pointerId: number) {
-    return this.entityCurrentlyUnderPointer(entity, pointerId) &&
-           !this.lastFrameEntityToPointers.has(entity.id);
+    return this.entityCurrentlyUnderPointer(entity, pointerId) && !this.lastFrameEntityToPointers.has(entity.id);
   }
 
   public left(entity: Entity, pointerId: number) {
-    return !this.currentFrameEntityToPointers.has(entity.id) &&
-            this.entityWasUnderPointer(entity, pointerId);
+    return !this.currentFrameEntityToPointers.has(entity.id) && this.entityWasUnderPointer(entity, pointerId);
   }
 
   public addPointerToEntity(entity: Entity, pointerId: number) {
@@ -132,11 +118,11 @@ export class PointerSystem extends System {
     this._dispatchEvents(this._sortedEntities);
 
     // Clear last frame's events
-    this._receivers.forEach(r => r.update());
+    this._receivers.forEach((r) => r.update());
     this.lastFrameEntityToPointers.clear();
     this.lastFrameEntityToPointers = new Map<number, number[]>(this.currentFrameEntityToPointers);
     this.currentFrameEntityToPointers.clear();
-    this._receivers.forEach(r => r.clear());
+    this._receivers.forEach((r) => r.clear());
   }
 
   private _processPointerToEntity(entities: Entity[]) {
@@ -152,7 +138,7 @@ export class PointerSystem extends System {
     // Pre-process find entities under pointers
     for (const entity of entities) {
       transform = entity.get(TransformComponent);
-      pointer = entity.get(PointerComponent) ?? new PointerComponent;
+      pointer = entity.get(PointerComponent) ?? new PointerComponent();
       // If pointer bounds defined
       if (pointer.localBounds) {
         const pointerBounds = pointer.localBounds.transform(transform.get().matrix);
@@ -252,11 +238,14 @@ export class PointerSystem extends System {
         }
         break;
       }
-      if (event.active && entity.active &&
-          // leave can happen on move
-          (this.left(entity, event.pointerId) ||
+      if (
+        event.active &&
+        entity.active &&
+        // leave can happen on move
+        (this.left(entity, event.pointerId) ||
           // or leave can happen on pointer up
-          (this.entityCurrentlyUnderPointer(entity, event.pointerId) && event.type === 'up'))) {
+          (this.entityCurrentlyUnderPointer(entity, event.pointerId) && event.type === 'up'))
+      ) {
         entity.events.emit('pointerleave', event as any);
         if (receiver.isDragging(event.pointerId)) {
           entity.events.emit('pointerdragleave', event as any);
@@ -270,7 +259,7 @@ export class PointerSystem extends System {
     const receiver = this._engineReceiver;
     // cancel
     for (const event of receiver.currentFrameCancel) {
-      if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, event.pointerId)){
+      if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, event.pointerId)) {
         entity.events.emit('pointercancel', event as any);
       }
     }
@@ -291,7 +280,7 @@ export class PointerSystem extends System {
     const lastFrameEntities = new Set(this.lastFrameEntityToPointers.keys());
     const currentFrameEntities = new Set(this.currentFrameEntityToPointers.keys());
     // Filter preserves z order
-    const entitiesWithEvents = entities.filter(e => lastFrameEntities.has(e.id) || currentFrameEntities.has(e.id));
+    const entitiesWithEvents = entities.filter((e) => lastFrameEntities.has(e.id) || currentFrameEntities.has(e.id));
     let lastMovePerPointer: Map<number, PointerEvent>;
     let lastUpPerPointer: Map<number, PointerEvent>;
     let lastDownPerPointer: Map<number, PointerEvent>;
@@ -303,11 +292,7 @@ export class PointerSystem extends System {
 
       lastMovePerPointer = this._processMoveAndEmit(entity);
 
-      const lastUpDownMoveEvents = [
-        ...lastMovePerPointer.values(),
-        ...lastDownPerPointer.values(),
-        ...lastUpPerPointer.values()
-      ];
+      const lastUpDownMoveEvents = [...lastMovePerPointer.values(), ...lastDownPerPointer.values(), ...lastUpPerPointer.values()];
       this._processEnterLeaveAndEmit(entity, lastUpDownMoveEvents);
 
       this._processCancelAndEmit(entity);

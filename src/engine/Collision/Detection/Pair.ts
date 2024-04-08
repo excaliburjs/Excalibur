@@ -28,9 +28,7 @@ export class Pair {
     }
 
     // Colliders with the same owner do not collide (composite colliders)
-    if (colliderA.owner &&
-        colliderB.owner &&
-        colliderA.owner.id === colliderB.owner.id) {
+    if (colliderA.owner && colliderB.owner && colliderA.owner.id === colliderB.owner.id) {
       return false;
     }
 

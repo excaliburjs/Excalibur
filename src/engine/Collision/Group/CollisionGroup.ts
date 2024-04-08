@@ -97,7 +97,7 @@ export class CollisionGroup {
   public canCollide(other: CollisionGroup): boolean {
     const overlap1 = this.category & other.mask;
     const overlap2 = this.mask & other.category;
-    return (overlap1 !== 0) && (overlap2 !== 0);
+    return overlap1 !== 0 && overlap2 !== 0;
   }
 
   /**
@@ -136,7 +136,7 @@ export class CollisionGroup {
   public toString() {
     return `
 category: ${this.category.toString(2).padStart(32, '0')}
-mask:     ${(this.mask>>>0).toString(2).padStart(32, '0')}
+mask:     ${(this.mask >>> 0).toString(2).padStart(32, '0')}
     `;
   }
 }

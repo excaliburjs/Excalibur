@@ -26,7 +26,6 @@ export class RectangleRenderer implements RendererPlugin {
   private _rectangleCount: number = 0;
   private _vertexIndex: number = 0;
 
-
   initialize(gl: WebGL2RenderingContext, context: ExcaliburGraphicsContextWebGL): void {
     this._gl = gl;
     this._context = context;
@@ -89,7 +88,6 @@ export class RectangleRenderer implements RendererPlugin {
   }
 
   drawLine(start: Vector, end: Vector, color: Color, thickness: number = 1) {
-
     if (this._isFull()) {
       this.flush();
     }
@@ -223,7 +221,8 @@ export class RectangleRenderer implements RendererPlugin {
     height: number,
     color: Color,
     stroke: Color = Color.Transparent,
-    strokeThickness: number = 0): void {
+    strokeThickness: number = 0
+  ): void {
     if (this._isFull()) {
       this.flush();
     }
@@ -333,7 +332,6 @@ export class RectangleRenderer implements RendererPlugin {
     vertexBuffer[this._vertexIndex++] = stroke.b / 255;
     vertexBuffer[this._vertexIndex++] = stroke.a;
     vertexBuffer[this._vertexIndex++] = strokeThickness;
-
   }
 
   hasPendingDraws(): boolean {
@@ -369,5 +367,4 @@ export class RectangleRenderer implements RendererPlugin {
     this._rectangleCount = 0;
     this._vertexIndex = 0;
   }
-
 }

@@ -19,7 +19,6 @@ export class OffscreenSystem extends System {
   private _worldBounds: BoundingBox;
   query: Query<typeof TransformComponent | typeof GraphicsComponent>;
 
-
   constructor(public world: World) {
     super();
     this.query = this.world.query([TransformComponent, GraphicsComponent]);
@@ -78,5 +77,4 @@ export class OffscreenSystem extends System {
       return false;
     }
   }
-
 }

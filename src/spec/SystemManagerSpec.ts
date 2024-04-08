@@ -12,7 +12,8 @@ class FakeSystem extends ex.System {
     public priority: number,
     public name: string,
     public types: ex.ComponentCtor[],
-    public systemType: ex.SystemType) {
+    public systemType: ex.SystemType
+  ) {
     super();
     this.query = this.world.query(types);
   }
@@ -91,15 +92,15 @@ describe('A SystemManager', () => {
     sm.addSystem(system);
 
     const e1 = new ex.Entity();
-    e1.addComponent(new FakeComponentA);
-    e1.addComponent(new FakeComponentC);
+    e1.addComponent(new FakeComponentA());
+    e1.addComponent(new FakeComponentC());
 
     const e2 = new ex.Entity();
-    e2.addComponent(new FakeComponentB);
+    e2.addComponent(new FakeComponentB());
 
     const e3 = new ex.Entity();
-    e3.addComponent(new FakeComponentC);
-    e3.addComponent(new FakeComponentA);
+    e3.addComponent(new FakeComponentC());
+    e3.addComponent(new FakeComponentA());
 
     em.addEntity(e1);
     em.addEntity(e2);

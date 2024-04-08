@@ -5,7 +5,7 @@ var game = new ex.Engine({
   height: 400,
   pointerScope: ex.PointerScope.Canvas
 });
-var actor = new ex.Actor({x: 100, y: 100, width: 50, height: 50, color: ex.Color.Red});
+var actor = new ex.Actor({ x: 100, y: 100, width: 50, height: 50, color: ex.Color.Red });
 
 game.add(actor);
 

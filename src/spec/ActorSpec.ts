@@ -19,7 +19,7 @@ describe('A game actor', () => {
 
   beforeEach(async () => {
     engine = TestUtils.engine({ width: 100, height: 100 });
-    actor = new ex.Actor({name: 'Default'});
+    actor = new ex.Actor({ name: 'Default' });
     actor.body.collisionType = ex.CollisionType.Active;
     scene = new ex.Scene();
     const physicsWorld = new PhysicsWorld(engine.physics);
@@ -32,7 +32,6 @@ describe('A game actor', () => {
 
     spyOn(scene, 'draw').and.callThrough();
     spyOn(scene, 'debugDraw').and.callThrough();
-
 
     await engine.start();
     const clock = engine.clock as ex.TestClock;
@@ -146,10 +145,10 @@ describe('A game actor', () => {
   });
 
   it('should have constructor anchor set on graphics component', () => {
-    const actor = new ex.Actor({anchor: ex.vec(.7, .7)});
+    const actor = new ex.Actor({ anchor: ex.vec(0.7, 0.7) });
 
-    expect(actor.anchor).toBeVector(ex.vec(.7, .7));
-    expect(actor.graphics.anchor).toBeVector(ex.vec(.7, .7));
+    expect(actor.anchor).toBeVector(ex.vec(0.7, 0.7));
+    expect(actor.graphics.anchor).toBeVector(ex.vec(0.7, 0.7));
 
     actor.anchor = ex.vec(0, 0);
     expect(actor.graphics.anchor).toBeVector(ex.vec(0, 0));
@@ -602,7 +601,7 @@ describe('A game actor', () => {
     expect(grandChildActor.getGlobalPos().y).toBe(75);
   });
 
-  it('can find its global coordinates if it doesn\'t have a parent', () => {
+  it("can find its global coordinates if it doesn't have a parent", () => {
     expect(actor.pos.x).toBe(0);
     expect(actor.pos.y).toBe(0);
 
@@ -620,7 +619,7 @@ describe('A game actor', () => {
     const logger = ex.Logger.getInstance();
     spyOn(logger, 'warn');
     // attempt removing before adding
-    new ex.Actor({name: 'not-in-scene'}).kill();
+    new ex.Actor({ name: 'not-in-scene' }).kill();
     expect(logger.warn).toHaveBeenCalledWith('Cannot kill actor named "not-in-scene", it was never added to the Scene');
 
     // remove actor in a scene
@@ -679,7 +678,7 @@ describe('A game actor', () => {
 
   it('is drawn on opacity 0', () => {
     scene.clear(false);
-    const invisibleActor = new ex.Actor({name: 'Invisible', pos: ex.vec(50, 50), width: 100, height: 100});
+    const invisibleActor = new ex.Actor({ name: 'Invisible', pos: ex.vec(50, 50), width: 100, height: 100 });
     invisibleActor.graphics.onPostDraw = jasmine.createSpy('draw');
     invisibleActor.graphics.opacity = 0;
     scene.add(invisibleActor);
@@ -827,7 +826,7 @@ describe('A game actor', () => {
       flipHorizontal: false
     });
     const animation = new ex.Animation({
-      frames: [{graphic: sprite }, {graphic: sprite }],
+      frames: [{ graphic: sprite }, { graphic: sprite }],
       frameDuration: 200,
       strategy: ex.AnimationStrategy.Loop,
       rotation: Math.PI,
@@ -996,8 +995,8 @@ describe('A game actor', () => {
   });
 
   it('draws visible child actors', () => {
-    const parentActor = new ex.Actor({name: 'Parent'});
-    const childActor = new ex.Actor({name: 'Child'});
+    const parentActor = new ex.Actor({ name: 'Parent' });
+    const childActor = new ex.Actor({ name: 'Child' });
     scene.add(parentActor);
     parentActor.addChild(childActor);
 
@@ -1388,7 +1387,6 @@ describe('A game actor', () => {
       expect(actor._preupdate).toHaveBeenCalledTimes(2);
       expect(actor.onPreUpdate).toHaveBeenCalledTimes(2);
     });
-
 
     it('can have onPreKill overridden safely', () => {
       engine.add(actor);

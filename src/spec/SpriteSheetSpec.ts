@@ -38,8 +38,8 @@ describe('A SpriteSheet for Graphics', () => {
     const ss = ex.SpriteSheet.fromImageSourceWithSourceViews({
       image,
       sourceViews: [
-        {x: 0, y: 0, width: 20, height: 30},
-        {x: 20, y: 0, width: 40, height: 50}
+        { x: 0, y: 0, width: 20, height: 30 },
+        { x: 20, y: 0, width: 40, height: 50 }
       ]
     });
 
@@ -155,7 +155,7 @@ describe('A SpriteSheet for Graphics', () => {
       flipVertical: true,
       width: 200,
       height: 201,
-      opacity: .5,
+      opacity: 0.5,
       scale: ex.vec(2, 2),
       origin: ex.vec(0, 1),
       tint: ex.Color.Red,
@@ -170,7 +170,7 @@ describe('A SpriteSheet for Graphics', () => {
     expect(sprite.flipVertical).toBe(true);
     expect(sprite.width).toBe(400);
     expect(sprite.height).toBe(402);
-    expect(sprite.opacity).toBe(.5);
+    expect(sprite.opacity).toBe(0.5);
     expect(sprite.scale).toBeVector(ex.vec(2, 2));
     expect(sprite.origin).toBeVector(ex.vec(0, 1));
     expect(sprite.origin).toBeVector(ex.vec(0, 1));
@@ -191,10 +191,9 @@ describe('A SpriteSheet for Graphics', () => {
     const clone = ss.clone();
 
     expect(ss).not.toBe(clone);
-    expect(ss.getSprite(0, 0)).not.toBe(clone.getSprite(0,0));
+    expect(ss.getSprite(0, 0)).not.toBe(clone.getSprite(0, 0));
     expect(ss.sprites.length).toBe(clone.sprites.length);
     expect(ss.rows).toBe(clone.rows);
     expect(ss.columns).toBe(clone.columns);
-
   });
 });

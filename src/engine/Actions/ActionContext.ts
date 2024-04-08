@@ -67,7 +67,7 @@ export class ActionContext {
    * @param duration  The time it should take the actor to move to the new location in milliseconds
    * @param easingFcn Use [[EasingFunction]] or a custom function to use to calculate position, Default is [[EasingFunctions.Linear]]
    */
-  public easeTo(pos: Vector, duration: number, easingFcn?: EasingFunction): ActionContext
+  public easeTo(pos: Vector, duration: number, easingFcn?: EasingFunction): ActionContext;
   /**
    * This method will move an actor to the specified `x` and `y` position over the
    * specified duration using a given [[EasingFunctions]] and return back the actor. This
@@ -77,7 +77,7 @@ export class ActionContext {
    * @param duration  The time it should take the actor to move to the new location in milliseconds
    * @param easingFcn Use [[EasingFunction]] or a custom function to use to calculate position, Default is [[EasingFunctions.Linear]]
    */
-  public easeTo(x: number, y: number, duration: number, easingFcn?: EasingFunction): ActionContext
+  public easeTo(x: number, y: number, duration: number, easingFcn?: EasingFunction): ActionContext;
   public easeTo(...args: any[]): ActionContext {
     let x = 0;
     let y = 0;
@@ -242,11 +242,12 @@ export class ActionContext {
    * @param speedY  The speed of scaling specified in magnitude increase per second on Y axis
    */
   public scaleTo(sizeX: number, sizeY: number, speedX: number, speedY: number): ActionContext;
-  public scaleTo(sizeXOrVector: number | Vector,
+  public scaleTo(
+    sizeXOrVector: number | Vector,
     sizeYOrSpeed: number | Vector,
     speedXOrUndefined?: number | undefined,
-    speedYOrUndefined?: number | undefined): ActionContext {
-
+    speedYOrUndefined?: number | undefined
+  ): ActionContext {
     let sizeX = 1;
     let sizeY = 1;
     let speedX = 0;

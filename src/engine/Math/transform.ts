@@ -139,8 +139,8 @@ export class Transform {
 
   get globalScale() {
     return new VectorView({
-      getX: () => this.parent ? this.matrix.getScaleX() : this.scale.x,
-      getY: () => this.parent ? this.matrix.getScaleY() : this.scale.y,
+      getX: () => (this.parent ? this.matrix.getScaleX() : this.scale.x),
+      getY: () => (this.parent ? this.matrix.getScaleY() : this.scale.y),
       setX: (x) => {
         if (this.parent) {
           const globalScaleX = this.parent.globalScale.x;
@@ -186,18 +186,14 @@ export class Transform {
   }
 
   private _calculateMatrix(): AffineMatrix {
-    const matrix = AffineMatrix.identity()
-      .translate(this.pos.x, this.pos.y)
-      .rotate(this.rotation)
-      .scale(this.scale.x, this.scale.y);
+    const matrix = AffineMatrix.identity().translate(this.pos.x, this.pos.y).rotate(this.rotation).scale(this.scale.x, this.scale.y);
     return matrix;
   }
-
 
   public flagDirty() {
     this._isDirty = true;
     this._isInverseDirty = true;
-    for (let i = 0; i < this._children.length; i ++) {
+    for (let i = 0; i < this._children.length; i++) {
       this._children[i].flagDirty();
     }
   }

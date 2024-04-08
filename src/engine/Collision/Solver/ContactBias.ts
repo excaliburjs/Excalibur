@@ -1,4 +1,3 @@
-
 /**
  * Tells the Arcade collision solver to prefer certain contacts over others
  */
@@ -20,22 +19,22 @@ export interface ContactBias {
  * Vertical First contact solve bias Used by the [[ArcadeSolver]] to sort contacts
  */
 export const VerticalFirst: ContactBias = {
-  'vertical': 1,
-  'horizontal': 2
+  vertical: 1,
+  horizontal: 2
 } as const;
 
 /**
  * Horizontal First contact solve bias Used by the [[ArcadeSolver]] to sort contacts
  */
 export const HorizontalFirst: ContactBias = {
-  'horizontal': 1,
-  'vertical': 2
+  horizontal: 1,
+  vertical: 2
 } as const;
 
 /**
  * None value, [[ArcadeSolver]] sorts contacts using distance by default
  */
 export const None: ContactBias = {
-  'horizontal': 0,
-  'vertical': 0
+  horizontal: 0,
+  vertical: 0
 } as const;

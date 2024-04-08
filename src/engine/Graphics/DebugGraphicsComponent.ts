@@ -2,7 +2,6 @@ import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { DebugConfig } from '../Debug';
 import { Component } from '../EntityComponentSystem/Component';
 
-
 /**
  * Provide arbitrary drawing for the purposes of debugging your game
  *
@@ -10,9 +9,7 @@ import { Component } from '../EntityComponentSystem/Component';
  *
  */
 export class DebugGraphicsComponent extends Component {
-  constructor(
-    public draw: (ctx: ExcaliburGraphicsContext, debugFlags: DebugConfig) => void,
-    public useTransform = true) {
+  constructor(public draw: (ctx: ExcaliburGraphicsContext, debugFlags: DebugConfig) => void, public useTransform = true) {
     super();
   }
 }

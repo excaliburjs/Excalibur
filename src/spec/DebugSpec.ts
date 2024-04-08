@@ -27,7 +27,7 @@ describe('Debug draw static', () => {
     });
     context.clear();
 
-    ex.Debug.drawPoint(ex.vec(5, 5), {size: 5, color: ex.Color.ExcaliburBlue});
+    ex.Debug.drawPoint(ex.vec(5, 5), { size: 5, color: ex.Color.ExcaliburBlue });
 
     ex.Debug.flush(context);
     context.flush();
@@ -46,7 +46,7 @@ describe('Debug draw static', () => {
     });
     context.clear();
 
-    ex.Debug.drawLine(ex.vec(0, 0), ex.vec(10, 10), {color: ex.Color.ExcaliburBlue});
+    ex.Debug.drawLine(ex.vec(0, 0), ex.vec(10, 10), { color: ex.Color.ExcaliburBlue });
 
     ex.Debug.flush(context);
     context.flush();
@@ -65,7 +65,7 @@ describe('Debug draw static', () => {
     });
     context.clear();
 
-    ex.Debug.drawLines([ex.vec(0, 0), ex.vec(10, 10), ex.vec(10, 0), ex.vec(0, 10)], {color: ex.Color.ExcaliburBlue});
+    ex.Debug.drawLines([ex.vec(0, 0), ex.vec(10, 10), ex.vec(10, 0), ex.vec(0, 10)], { color: ex.Color.ExcaliburBlue });
 
     ex.Debug.flush(context);
     context.flush();
@@ -102,7 +102,7 @@ describe('Debug draw static', () => {
     });
     context.clear();
 
-    ex.Debug.drawPolygon([ex.vec(2, 2), ex.vec(8, 2), ex.vec(8, 8), ex.vec(2, 8)], {color: ex.Color.ExcaliburBlue});
+    ex.Debug.drawPolygon([ex.vec(2, 2), ex.vec(8, 2), ex.vec(8, 8), ex.vec(2, 8)], { color: ex.Color.ExcaliburBlue });
 
     ex.Debug.flush(context);
     context.flush();
@@ -121,7 +121,7 @@ describe('Debug draw static', () => {
     });
     context.clear();
 
-    ex.Debug.drawCircle(ex.vec(5, 5), 5, {color: ex.Color.Transparent, strokeColor: ex.Color.ExcaliburBlue, width: 1});
+    ex.Debug.drawCircle(ex.vec(5, 5), 5, { color: ex.Color.Transparent, strokeColor: ex.Color.ExcaliburBlue, width: 1 });
 
     ex.Debug.flush(context);
     context.flush();

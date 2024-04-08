@@ -26,14 +26,22 @@ describe('A RealisticSolver', () => {
     const block = new ex.Actor({
       x: 40,
       y: 0,
-      width: 40 + .00005,
+      width: 40 + 0.00005,
       height: 40,
       collisionType: ex.CollisionType.Fixed,
       color: ex.Color.Green
     });
 
     const contact = new ex.CollisionContact(
-      player.collider.get(), block.collider.get(), ex.Vector.Down, ex.Vector.Down, ex.Vector.Up.perpendicular(), [], [], null);
+      player.collider.get(),
+      block.collider.get(),
+      ex.Vector.Down,
+      ex.Vector.Down,
+      ex.Vector.Up.perpendicular(),
+      [],
+      [],
+      null
+    );
 
     contact.mtv = ex.vec(-0, 0);
 
@@ -41,5 +49,4 @@ describe('A RealisticSolver', () => {
     // Considers infinitesimally overlapping to no longer be overlapping and thus cancels the contact
     expect(contact.isCanceled()).toBe(true);
   });
-
 });

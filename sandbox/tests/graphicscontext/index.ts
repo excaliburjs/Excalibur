@@ -22,7 +22,7 @@ var rect = new ex.Rectangle({
 sut.beginDrawLifecycle();
 sut.clear();
 
-sut.save()
+sut.save();
 sut.drawImage(rect._bitmap, 20, 20);
 sut.restore();
 

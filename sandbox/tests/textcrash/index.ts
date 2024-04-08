@@ -1,4 +1,3 @@
-
 class GameScene extends ex.Scene {
   private tilemap!: ex.TileMap;
   private font!: ex.Font;
@@ -9,20 +8,20 @@ class GameScene extends ex.Scene {
       rows: 24,
       columns: 16,
       tileWidth: 32,
-      tileHeight: 32,
+      tileHeight: 32
     });
     engine.add(this.tilemap);
     this.font = new ex.Font();
     // this.font.showDebug = true;
 
     this.tilemap.tiles.forEach((tile) => {
-      tile.data.set("id", 0);
+      tile.data.set('id', 0);
     });
 
-    engine.input.pointers.primary.on("down", (event: ex.PointerEvent): void => {
+    engine.input.pointers.primary.on('down', (event: ex.PointerEvent): void => {
       this.tilemap.tiles.forEach((tile) => {
-        const id = tile.data.get("id")!;
-        tile.data.set("id", id + 1);
+        const id = tile.data.get('id')!;
+        tile.data.set('id', id + 1);
       });
 
       this.updateTilemap();
@@ -31,11 +30,11 @@ class GameScene extends ex.Scene {
 
   updateTilemap(): void {
     this.tilemap.tiles.forEach((tile) => {
-      const id = tile.data.get("id")!;
+      const id = tile.data.get('id')!;
 
       const text = new ex.Text({
         text: `${id}`,
-        color: ex.Color.White,
+        color: ex.Color.White
         // font: this.font
       });
       tile.clearGraphics();
@@ -45,8 +44,8 @@ class GameScene extends ex.Scene {
 }
 
 var game = new ex.Engine({
-  width: 1080/2,
-  height: 1920/2,
+  width: 1080 / 2,
+  height: 1920 / 2,
   displayMode: ex.DisplayMode.FitScreen
 });
 game.addScene('scene', new GameScene());
