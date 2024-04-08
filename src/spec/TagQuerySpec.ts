@@ -68,7 +68,7 @@ describe('A tag query', () => {
     entity1.addTag('A');
     entity1.addTag('B');
 
-    queryAB.entityAdded$.subscribe(e => {
+    queryAB.entityAdded$.subscribe((e) => {
       expect(e).toBe(entity1);
       done();
     });
@@ -83,12 +83,11 @@ describe('A tag query', () => {
     entity1.addTag('B');
     queryAB.checkAndAdd(entity1);
 
-    queryAB.entityRemoved$.subscribe(e => {
+    queryAB.entityRemoved$.subscribe((e) => {
       expect(e).toBe(entity1);
       done();
     });
 
     queryAB.removeEntity(entity1);
   });
-
 });

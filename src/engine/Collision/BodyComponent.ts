@@ -17,7 +17,7 @@ export interface BodyComponentOptions {
   type?: CollisionType;
   group?: CollisionGroup;
   useGravity?: boolean;
-  config?: Pick<PhysicsConfig, 'bodies'>['bodies']
+  config?: Pick<PhysicsConfig, 'bodies'>['bodies'];
 }
 
 export enum DegreeOfFreedom {
@@ -88,7 +88,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
       ...config
     };
     this.canSleep = this._bodyConfig.canSleepByDefault;
-    this.sleepMotion =  this._bodyConfig.sleepEpsilon * 5;
+    this.sleepMotion = this._bodyConfig.sleepEpsilon * 5;
     this.wakeThreshold = this._bodyConfig.wakeThreshold;
   }
   /**
@@ -138,7 +138,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   /**
    * Can this body sleep, by default bodies do not sleep
    */
-  public canSleep: boolean;;
+  public canSleep: boolean;
 
   private _sleeping = false;
   /**
@@ -201,7 +201,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
       });
       const maybeCollider = collider.get();
       if (maybeCollider) {
-        return this._cachedInertia = maybeCollider.getInertia(this.mass);
+        return (this._cachedInertia = maybeCollider.getInertia(this.mass));
       }
     }
     return 0;
@@ -215,7 +215,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     if (this._cachedInverseInertia) {
       return this._cachedInverseInertia;
     }
-    return this._cachedInverseInertia = this.collisionType === CollisionType.Fixed ? 0 : 1 / this.inertia;
+    return (this._cachedInverseInertia = this.collisionType === CollisionType.Fixed ? 0 : 1 / this.inertia);
   }
 
   /**
@@ -260,7 +260,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   }
 
   public get motion(): MotionComponent {
-    return  this.owner?.get(MotionComponent);
+    return this.owner?.get(MotionComponent);
   }
 
   public get pos(): Vector {

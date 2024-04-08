@@ -16,7 +16,6 @@ import { EventEmitter } from '../EventEmitter';
 import { Actor } from '../Actor';
 
 export class ColliderComponent extends Component {
-
   public events = new EventEmitter();
   /**
    * Observable that notifies when a collider is added to the body
@@ -179,7 +178,8 @@ export class ColliderComponent extends Component {
           postcollision.other.owner,
           postcollision.side,
           postcollision.intersection,
-          postcollision.contact)
+          postcollision.contact
+        )
       );
       if (entity instanceof Actor) {
         entity.onPostCollisionResolve(postcollision.target, postcollision.other, postcollision.side, postcollision.contact);
@@ -215,7 +215,7 @@ export class ColliderComponent extends Component {
    */
   useBoxCollider(width: number, height: number, anchor: Vector = Vector.Half, center: Vector = Vector.Zero): PolygonCollider {
     const collider = Shape.Box(width, height, anchor, center);
-    return (this.set(collider));
+    return this.set(collider);
   }
 
   /**
@@ -229,7 +229,7 @@ export class ColliderComponent extends Component {
    */
   usePolygonCollider(points: Vector[], center: Vector = Vector.Zero): PolygonCollider {
     const poly = Shape.Polygon(points, center);
-    return (this.set(poly));
+    return this.set(poly);
   }
 
   /**
@@ -239,7 +239,7 @@ export class ColliderComponent extends Component {
    */
   useCircleCollider(radius: number, center: Vector = Vector.Zero): CircleCollider {
     const collider = Shape.Circle(radius, center);
-    return (this.set(collider));
+    return this.set(collider);
   }
 
   /**
@@ -250,7 +250,7 @@ export class ColliderComponent extends Component {
    */
   useEdgeCollider(begin: Vector, end: Vector): EdgeCollider {
     const collider = Shape.Edge(begin, end);
-    return (this.set(collider));
+    return this.set(collider);
   }
 
   /**
@@ -258,6 +258,6 @@ export class ColliderComponent extends Component {
    * @param colliders
    */
   useCompositeCollider(colliders: Collider[]): CompositeCollider {
-    return (this.set(new CompositeCollider(colliders)));
+    return this.set(new CompositeCollider(colliders));
   }
 }

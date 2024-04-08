@@ -6,7 +6,7 @@ var game = new ex.Engine({
 
 ex.Physics.collisionResolutionStrategy = ex.SolverStrategy.Arcade;
 
-var activeBlock = new ex.Actor({x: 200, y: 200, width: 50, height: 50, color: ex.Color.Red.clone()});
+var activeBlock = new ex.Actor({ x: 200, y: 200, width: 50, height: 50, color: ex.Color.Red.clone() });
 activeBlock.body.collisionType = ex.CollisionType.Active;
 activeBlock.vel.x = 100;
 game.add(activeBlock);
@@ -19,7 +19,7 @@ activeBlock.on('postcollision', () => {
   console.error('Active block should not fire post collision');
 });
 
-var passiveBlock = new ex.Actor({x: 400, y: 200, width: 50, height: 50, color: ex.Color.DarkGray.clone()});
+var passiveBlock = new ex.Actor({ x: 400, y: 200, width: 50, height: 50, color: ex.Color.DarkGray.clone() });
 passiveBlock.body.collisionType = ex.CollisionType.Passive;
 passiveBlock.vel.x = -100;
 game.add(passiveBlock);

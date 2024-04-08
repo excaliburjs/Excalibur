@@ -86,10 +86,10 @@ describe('A Graphics Animation', () => {
     const anim = ex.Animation.fromSpriteSheetCoordinates({
       spriteSheet: ss,
       frameCoordinates: [
-        {x: 0, y: 0, duration: 100, options: { flipHorizontal: true }},
-        {x: 1, y: 0, duration: 100, options: { flipVertical: true }},
-        {x: 2, y: 0, duration: 100},
-        {x: 3, y: 0, duration: 100}
+        { x: 0, y: 0, duration: 100, options: { flipHorizontal: true } },
+        { x: 1, y: 0, duration: 100, options: { flipVertical: true } },
+        { x: 2, y: 0, duration: 100 },
+        { x: 3, y: 0, duration: 100 }
       ],
       strategy: ex.AnimationStrategy.Freeze
     });
@@ -520,7 +520,6 @@ describe('A Graphics Animation', () => {
   });
 
   it('calculate automatically the frame duration based on the animation total duration', () => {
-
     const rect = new ex.Rectangle({
       width: 100,
       height: 100,
@@ -551,7 +550,6 @@ describe('A Graphics Animation', () => {
   });
 
   it('has a current time left in a frame', () => {
-
     const rect = new ex.Rectangle({
       width: 100,
       height: 100,
@@ -585,7 +583,6 @@ describe('A Graphics Animation', () => {
   });
 
   it('reset will reset time in frame', () => {
-
     const rect = new ex.Rectangle({
       width: 100,
       height: 100,

@@ -24,7 +24,6 @@ export class Gif implements Loadable<ImageSource[]> {
    */
   public height: number;
 
-
   private _stream: Stream = null;
   private _gif: ParseGif = null;
   private _textures: ImageSource[] = [];
@@ -38,7 +37,11 @@ export class Gif implements Loadable<ImageSource[]> {
    * @param color      Optionally set the color to treat as transparent the gif, by default [[Color.Magenta]]
    * @param bustCache  Optionally load texture with cache busting
    */
-  constructor(public path: string, public color: Color = Color.Magenta, bustCache = false) {
+  constructor(
+    public path: string,
+    public color: Color = Color.Magenta,
+    bustCache = false
+  ) {
     this._resource = new Resource(path, 'arraybuffer', bustCache);
     this._transparentColor = color;
   }
@@ -62,11 +65,11 @@ export class Gif implements Loadable<ImageSource[]> {
     const arraybuffer = await this._resource.load();
     this._stream = new Stream(arraybuffer);
     this._gif = new ParseGif(this._stream, this._transparentColor);
-    const images = this._gif.images.map(i => new ImageSource(i.src, false));
+    const images = this._gif.images.map((i) => new ImageSource(i.src, false));
 
     // Load all textures
-    await Promise.all(images.map(t => t.load()));
-    return this.data = this._textures = images;
+    await Promise.all(images.map((t) => t.load()));
+    return (this.data = this._textures = images);
   }
 
   public isLoaded() {

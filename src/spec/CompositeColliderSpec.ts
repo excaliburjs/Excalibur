@@ -30,10 +30,7 @@ describe('A CompositeCollider', () => {
     const collisionstart = jasmine.createSpy('event');
     const collisionend = jasmine.createSpy('event');
 
-    const compCollider = new ex.CompositeCollider([
-      circle,
-      box
-    ]);
+    const compCollider = new ex.CompositeCollider([circle, box]);
 
     compCollider.events.on('precollision', precollision);
     compCollider.events.on('postcollision', postcollision);
@@ -153,12 +150,11 @@ describe('A CompositeCollider', () => {
     const contactBoxCircle = compCollider.collide(circle);
     // Composite collisions have a special id that appends the "parent" id to the id to accurately track start/end
     expect(contactBoxCircle[0].id).toBe(
-      ex.Pair.calculatePairHash(compCollider.getColliders()[1].id, circle.id) +
-      '|' +
-      ex.Pair.calculatePairHash(compCollider.id, circle.id));
+      ex.Pair.calculatePairHash(compCollider.getColliders()[1].id, circle.id) + '|' + ex.Pair.calculatePairHash(compCollider.id, circle.id)
+    );
   });
 
-  it('creates contacts that have the don\'t have composite collider id when in separate mode', () => {
+  it("creates contacts that have the don't have composite collider id when in separate mode", () => {
     const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
     compCollider.compositeStrategy = 'separate';
 
@@ -171,8 +167,9 @@ describe('A CompositeCollider', () => {
     // Composite collisions have a special id that appends the "parent" id to the id to accurately track start/end
     expect(contactBoxCircle[0].id).toBe(
       ex.Pair.calculatePairHash(compCollider.getColliders()[1].id, circle.id) +
-      '|' +
-      ex.Pair.calculatePairHash(compCollider.getColliders()[1].id, circle.id));
+        '|' +
+        ex.Pair.calculatePairHash(compCollider.getColliders()[1].id, circle.id)
+    );
   });
 
   it('can collide with other composite colliders', () => {
@@ -320,8 +317,8 @@ describe('A CompositeCollider', () => {
 
   it('has the correct bounds when offset', () => {
     const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
-    expect(compCollider.bounds).toEqual(new ex.BoundingBox({left: -100, right: 100, top: -50, bottom: 50}));
+    expect(compCollider.bounds).toEqual(new ex.BoundingBox({ left: -100, right: 100, top: -50, bottom: 50 }));
     compCollider.offset = ex.vec(50, 100);
-    expect(compCollider.bounds).toEqual(new ex.BoundingBox({left: -50, right: 150, top: 50, bottom: 150}));
+    expect(compCollider.bounds).toEqual(new ex.BoundingBox({ left: -50, right: 150, top: 50, bottom: 150 }));
   });
 });

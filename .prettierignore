@@ -1,3 +1,10 @@
-karma.conf.js
+karma.conf.*
 package.json
 package-lock.json
+node_modules
+build
+coverage
+node_cache
+/site
+*.md
+*.mdx

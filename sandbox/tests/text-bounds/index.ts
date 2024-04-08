@@ -3,7 +3,6 @@ var canvasTxt = window.canvasTxt.default;
 // or npm install canvas-txt --save
 // import canvasTxt from 'canvas-txt'
 
-
 var textGraphic = new ex.Canvas({
   width: 200,
   height: 200,
@@ -14,7 +13,7 @@ var textGraphic = new ex.Canvas({
     canvasTxt.fontSize = 20;
     canvasTxt.align = 'left';
     // canvasTxt.debug = true //shows debug info
-    canvasTxt.justify = false
+    canvasTxt.justify = false;
     canvasTxt.drawText(ctx, txt, 0, 0, 200, 200);
     ctx.restore();
   }

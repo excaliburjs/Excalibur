@@ -213,10 +213,10 @@ export class BoundingBox {
     const bottom = Math.max(xa2, xb2) + Math.max(ya2, yb2) + matrixPos.y;
 
     return new BoundingBox({
-      left,//: topLeft.x,
-      top,//: topLeft.y,
-      right,//: bottomRight.x,
-      bottom//: bottomRight.y
+      left, //: topLeft.x,
+      top, //: topLeft.y,
+      right, //: bottomRight.x,
+      bottom //: bottomRight.y
     });
   }
 
@@ -229,7 +229,6 @@ export class BoundingBox {
     return 2 * (wx + wy);
   }
 
-
   // Cache bounding box point returns
   private _points: Vector[] = [];
   private _left?: number;
@@ -241,11 +240,7 @@ export class BoundingBox {
    * Returns the world space points that make up the corners of the bounding box as a polygon
    */
   public getPoints(): Vector[] {
-    if (this._left !== this.left ||
-        this._right !== this.right ||
-        this._top !== this.top ||
-        this._bottom !== this.bottom
-    ) {
+    if (this._left !== this.left || this._right !== this.right || this._top !== this.top || this._bottom !== this.bottom) {
       this._points.length = 0;
       this._points.push(new Vector(this.left, this.top));
       this._points.push(new Vector(this.right, this.top));
@@ -356,15 +351,14 @@ export class BoundingBox {
    */
   public overlaps(other: BoundingBox, epsilon?: number): boolean {
     const e = epsilon || 0;
-    if (other.hasZeroDimensions()){
+    if (other.hasZeroDimensions()) {
       return this.contains(other);
     }
     if (this.hasZeroDimensions()) {
       return other.contains(this);
     }
     const totalBoundingBox = this.combine(other);
-    return totalBoundingBox.width + e < other.width + this.width &&
-           totalBoundingBox.height + e < other.height + this.height;
+    return totalBoundingBox.width + e < other.width + this.width && totalBoundingBox.height + e < other.height + this.height;
   }
 
   /**

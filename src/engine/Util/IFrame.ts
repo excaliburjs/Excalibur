@@ -1,5 +1,3 @@
-
-
 /**
  * Checks if excalibur is in a x-origin iframe
  */

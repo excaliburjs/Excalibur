@@ -57,8 +57,7 @@ describe('A Director', () => {
     });
     sut.onInitialize();
 
-
-    const fadeIn = new ex.FadeInOut({ direction: 'in', duration: 1000});
+    const fadeIn = new ex.FadeInOut({ direction: 'in', duration: 1000 });
     const loader = new ex.DefaultLoader();
     sut.configureStart('scene1', {
       inTransition: fadeIn,
@@ -81,7 +80,7 @@ describe('A Director', () => {
       scene1,
       scene2
     });
-    const fadeIn = new ex.FadeInOut({ direction: 'in', duration: 1000});
+    const fadeIn = new ex.FadeInOut({ direction: 'in', duration: 1000 });
     const loader = new ex.DefaultLoader();
     sut.configureStart('scene1', {
       inTransition: fadeIn,
@@ -111,7 +110,7 @@ describe('A Director', () => {
     });
     sut.rootScene._initialize(engine);
     engine.rootScene._initialize(engine);
-    const fadeIn = new ex.FadeInOut({ direction: 'in', duration: 1000});
+    const fadeIn = new ex.FadeInOut({ direction: 'in', duration: 1000 });
     engine.screen.setCurrentCamera(engine.currentScene.camera);
     fadeIn._initialize(engine);
     const loader = new ex.DefaultLoader();

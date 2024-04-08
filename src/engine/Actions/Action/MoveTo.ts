@@ -16,7 +16,12 @@ export class MoveTo implements Action {
   private _distance: number;
   private _started = false;
   private _stopped = false;
-  constructor(public entity: Entity, destx: number, desty: number, speed: number) {
+  constructor(
+    public entity: Entity,
+    destx: number,
+    desty: number,
+    speed: number
+  ) {
     this._tx = entity.get(TransformComponent);
     this._motion = entity.get(MotionComponent);
     this._end = new Vector(destx, desty);

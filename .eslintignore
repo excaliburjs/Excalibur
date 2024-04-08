@@ -1,7 +1,13 @@
-site/
-scripts/apidocs.js
-scripts/release.js
-karma.conf.js
+/site
+/sandbox
+/scripts
+karma.conf.*
 webpack.config.js
 webpack.config.prod.js
+wallaby.js
 version.js
+node_modules
+build
+coverage
+node_cache
+*.d.ts

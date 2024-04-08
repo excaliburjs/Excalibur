@@ -13,16 +13,18 @@ var tilemap = new ex.TileMap({
 });
 
 // Sets properties and graphic to each tile
-tilemap.tiles.forEach(tile => {
+tilemap.tiles.forEach((tile) => {
   if (tile.x === 1) {
     // Graphic symbolizing a path
     // tile.addGraphic(tilesheet.getSprite(4, 1));
     // This works right but copies bounds of the tile
     tile.solid = true;
-    tile.addCollider(new ex.EdgeCollider({
-      begin: new ex.Vector(0, 0),
-      end: new ex.Vector(0, 32)
-    }));
+    tile.addCollider(
+      new ex.EdgeCollider({
+        begin: new ex.Vector(0, 0),
+        end: new ex.Vector(0, 32)
+      })
+    );
   } else {
     // Random graphic with no colliders
     // tile.addGraphic(tilesheet.getSprite(Math.floor(Math.random() * 10), Math.floor(Math.random() * 10)));
@@ -36,7 +38,7 @@ var edge = new ex.Actor({
   collisionType: ex.CollisionType.Fixed
 });
 
-edge.collider.useEdgeCollider(ex.vec(0, 0), ex.vec(0, 100),);
+edge.collider.useEdgeCollider(ex.vec(0, 0), ex.vec(0, 100));
 game.add(edge);
 
 var player = new ex.Actor({
@@ -51,20 +53,20 @@ player.onPostUpdate = () => {
   player.vel.setTo(0, 0);
   const speed = 64;
   if (game.input.keyboard.isHeld(ex.Keys.Right)) {
-     player.vel.x = speed;
+    player.vel.x = speed;
   }
   if (game.input.keyboard.isHeld(ex.Keys.Left)) {
-     player.vel.x = -speed;
+    player.vel.x = -speed;
   }
   if (game.input.keyboard.isHeld(ex.Keys.Up)) {
-     player.vel.y = -speed;
+    player.vel.y = -speed;
   }
   if (game.input.keyboard.isHeld(ex.Keys.Down)) {
-     player.vel.y = speed;
+    player.vel.y = speed;
   }
-}
+};
 game.add(player);
 
-game.currentScene.camera.strategy.elasticToActor(player, .8, .9);
+game.currentScene.camera.strategy.elasticToActor(player, 0.8, 0.9);
 game.currentScene.camera.zoom = 3;
 game.start();

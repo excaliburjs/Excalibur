@@ -1,4 +1,3 @@
-
 var engine = new ex.Engine({
   width: 600,
   height: 400

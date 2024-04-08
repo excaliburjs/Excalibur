@@ -1,4 +1,3 @@
-
 export abstract class ExEvent<TName extends string> {
   abstract readonly type: TName;
 

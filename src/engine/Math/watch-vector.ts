@@ -4,11 +4,14 @@ import { Vector } from './vector';
  * Wraps a vector and watches for changes in the x/y, modifies the original vector.
  */
 export class WatchVector extends Vector {
-  constructor(public original: Vector, public change: (x: number, y: number) => any) {
+  constructor(
+    public original: Vector,
+    public change: (x: number, y: number) => any
+  ) {
     super(original.x, original.y);
   }
   public get x() {
-    return this._x = this.original.x;
+    return (this._x = this.original.x);
   }
 
   public set x(newX: number) {
@@ -17,7 +20,7 @@ export class WatchVector extends Vector {
   }
 
   public get y() {
-    return this._y = this.original.y;
+    return (this._y = this.original.y);
   }
 
   public set y(newY: number) {

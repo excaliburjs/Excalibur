@@ -72,7 +72,6 @@ export class LineRenderer implements RendererPlugin {
     const finalStart = transform.multiply(start);
     const finalEnd = transform.multiply(end);
 
-
     const vertexBuffer = this._vertexBuffer.bufferData;
     // Start
     vertexBuffer[this._vertexIndex++] = finalStart.x;

@@ -26,7 +26,7 @@ describe('A label', () => {
   });
 
   it('can be constructed', () => {
-    const sut = new ex.Label({text: 'some text'});
+    const sut = new ex.Label({ text: 'some text' });
     expect(sut).not.toBeNull();
   });
 

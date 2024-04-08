@@ -1,6 +1,5 @@
 import { WheelDeltaMode } from './WheelDeltaMode';
 
-
 export class WheelEvent {
   public active = true;
   public cancel() {
@@ -19,5 +18,5 @@ export class WheelEvent {
     public deltaZ: number,
     public deltaMode: WheelDeltaMode,
     public ev: Event
-  ) { }
+  ) {}
 }

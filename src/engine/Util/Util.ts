@@ -81,7 +81,7 @@ export function delay(milliseconds: number, clock?: Clock): Promise<void> {
  * @param object
  * @param keys
  */
-export function omit<TObject extends Object, Keys extends (keyof TObject)>(object: TObject, keys: Keys[]) {
+export function omit<TObject extends Object, Keys extends keyof TObject>(object: TObject, keys: Keys[]) {
   const newObj: Omit<TObject, Keys> = {} as any;
   for (const key in object) {
     if (!keys.includes(key as any)) {

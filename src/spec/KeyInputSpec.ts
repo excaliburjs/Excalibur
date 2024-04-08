@@ -9,7 +9,7 @@ describe('A keyboard', () => {
   beforeEach(() => {
     mockWindow = <any>mocker.window();
     keyboard = new ex.Keyboard();
-    keyboard.init({global: mockWindow});
+    keyboard.init({ global: mockWindow });
   });
 
   it('should exist', () => {

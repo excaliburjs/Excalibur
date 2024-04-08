@@ -34,13 +34,13 @@ export class GraphicsSystem extends System {
   constructor(public world: World) {
     super();
     this.query = this.world.query([TransformComponent, GraphicsComponent]);
-    this.query.entityAdded$.subscribe(e => {
+    this.query.entityAdded$.subscribe((e) => {
       const tx = e.get(TransformComponent);
       this._sortedTransforms.push(tx);
       tx.zIndexChanged$.subscribe(this._zIndexUpdate);
       this._zHasChanged = true;
     });
-    this.query.entityRemoved$.subscribe(e => {
+    this.query.entityRemoved$.subscribe((e) => {
       const tx = e.get(TransformComponent);
       tx.zIndexChanged$.unsubscribe(this._zIndexUpdate);
       const index = this._sortedTransforms.indexOf(tx);
@@ -142,7 +142,7 @@ export class GraphicsSystem extends System {
 
       // TODO remove this hack on the particle redo
       // Remove this line after removing the wallaby import
-      const particleOpacity = (entity instanceof Particle) ? entity.opacity : 1;
+      const particleOpacity = entity instanceof Particle ? entity.opacity : 1;
       this._graphicsContext.opacity *= graphics.opacity * particleOpacity;
 
       // Draw the graphics component
@@ -209,10 +209,7 @@ export class GraphicsSystem extends System {
           graphic.flipVertical = flipVertical ? !oldFlipVertical : oldFlipVertical;
         }
 
-        graphic?.draw(
-          this._graphicsContext,
-          offsetX,
-          offsetY);
+        graphic?.draw(this._graphicsContext, offsetX, offsetY);
 
         if (flipHorizontal || flipVertical) {
           graphic.flipHorizontal = oldFlipHorizontal;
@@ -260,9 +257,7 @@ export class GraphicsSystem extends System {
       const optionalBody = ancestor?.get(BodyComponent);
       let tx = transform.get();
       if (optionalBody) {
-        if (this._engine.fixedUpdateFps &&
-          optionalBody.__oldTransformCaptured &&
-          optionalBody.enableFixedUpdateInterpolate) {
+        if (this._engine.fixedUpdateFps && optionalBody.__oldTransformCaptured && optionalBody.enableFixedUpdateInterpolate) {
           // Interpolate graphics if needed
           const blend = this._engine.currentFrameLagMs / (1000 / this._engine.fixedUpdateFps);
           tx = blendTransform(optionalBody.oldTransform, transform.get(), blend, this._targetInterpolationTransform);

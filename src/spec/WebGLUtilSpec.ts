@@ -1,7 +1,6 @@
 import * as ex from '@excalibur';
 
 describe('WebGL Util', () => {
-
   it('can return the size of a gl type in bytes', () => {
     const canvas = document.createElement('canvas');
     const context = new ex.ExcaliburGraphicsContextWebGL({

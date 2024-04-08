@@ -131,7 +131,7 @@ export const TopLeft: StoryObj = {
   })
 };
 
-export const topRight: StoryObj = {
+export const TopRight: StoryObj = {
   render: withEngine(async (game) => {
     const heartTx = new ImageSource(heartBitmap);
     const ldr = new Loader([heartTx]);

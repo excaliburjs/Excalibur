@@ -12,12 +12,11 @@ describe('An ArcadeSolver', () => {
     expect(ex.ArcadeSolver).toBeDefined();
   });
 
-  it('should only solve position for overlapping contacts', ()=> {
+  it('should only solve position for overlapping contacts', () => {
+    const wall1 = new ex.Actor({ x: 0, y: 0, width: 100, height: 100, collisionType: ex.CollisionType.Fixed });
+    const wall2 = new ex.Actor({ x: 100, y: 0, width: 100, height: 100, collisionType: ex.CollisionType.Fixed });
 
-    const wall1 = new ex.Actor({x: 0, y: 0, width: 100, height: 100, collisionType: ex.CollisionType.Fixed});
-    const wall2 = new ex.Actor({x: 100, y: 0, width: 100, height: 100, collisionType: ex.CollisionType.Fixed});
-
-    const player = new ex.Actor({x: 50, y: 99, width: 100, height: 100, collisionType: ex.CollisionType.Active});
+    const player = new ex.Actor({ x: 50, y: 99, width: 100, height: 100, collisionType: ex.CollisionType.Active });
 
     const pair1 = new ex.Pair(player.collider.get(), wall1.collider.get());
     const pair2 = new ex.Pair(player.collider.get(), wall2.collider.get());
@@ -77,7 +76,7 @@ describe('An ArcadeSolver', () => {
     game.add(player);
 
     // run simulation and ensure now left/right contacts are generated
-    player.on('postcollision', evt => {
+    player.on('postcollision', (evt) => {
       expect(evt.side).not.toBe(ex.Side.Left);
       expect(evt.side).not.toBe(ex.Side.Right);
       expect(evt.side).toBe(ex.Side.Bottom);
@@ -117,19 +116,34 @@ describe('An ArcadeSolver', () => {
 
     // 1 pixel overlap
     const contact = new ex.CollisionContact(
-      player.collider.get(), block.collider.get(), ex.Vector.Down, ex.Vector.Down, ex.Vector.Down.perpendicular(), [], [], null);
+      player.collider.get(),
+      block.collider.get(),
+      ex.Vector.Down,
+      ex.Vector.Down,
+      ex.Vector.Down.perpendicular(),
+      [],
+      [],
+      null
+    );
     arcadeSolver.solvePosition(contact);
     expect(player.pos).toBeVector(ex.vec(0, -1));
 
     // No more overlap
     const contact2 = new ex.CollisionContact(
-      player.collider.get(), block.collider.get(), ex.Vector.Down, ex.Vector.Down, ex.Vector.Down.perpendicular(), [], [], null);
+      player.collider.get(),
+      block.collider.get(),
+      ex.Vector.Down,
+      ex.Vector.Down,
+      ex.Vector.Down.perpendicular(),
+      [],
+      [],
+      null
+    );
     arcadeSolver.solvePosition(contact2);
     expect(contact2.isCanceled()).toBeTrue();
   });
 
   it('should NOT cancel collisions where the bodies are moving away from the contact', () => {
-
     const arcadeSolver = new ex.ArcadeSolver(DefaultPhysicsConfig.arcade);
 
     const player = new ex.Actor({
@@ -153,7 +167,15 @@ describe('An ArcadeSolver', () => {
 
     // Player moving away from contact
     const contact = new ex.CollisionContact(
-      player.collider.get(), block.collider.get(), ex.Vector.Down, ex.Vector.Down, ex.Vector.Up.perpendicular(), [], [], null);
+      player.collider.get(),
+      block.collider.get(),
+      ex.Vector.Down,
+      ex.Vector.Down,
+      ex.Vector.Up.perpendicular(),
+      [],
+      [],
+      null
+    );
     arcadeSolver.solveVelocity(contact);
     expect(contact.isCanceled()).toBeFalse();
     expect(player.vel).toBeVector(ex.vec(0, -10)); // Velocity is not adjusted
@@ -161,7 +183,15 @@ describe('An ArcadeSolver', () => {
     // Player moving towards contact
     player.vel = player.vel.negate();
     const contact2 = new ex.CollisionContact(
-      player.collider.get(), block.collider.get(), ex.Vector.Down, ex.Vector.Down, ex.Vector.Down.perpendicular(), [], [], null);
+      player.collider.get(),
+      block.collider.get(),
+      ex.Vector.Down,
+      ex.Vector.Down,
+      ex.Vector.Down.perpendicular(),
+      [],
+      [],
+      null
+    );
 
     arcadeSolver.solveVelocity(contact2);
     expect(contact2.isCanceled()).toBeFalse();
@@ -192,7 +222,7 @@ describe('An ArcadeSolver', () => {
     const contact = new ex.CollisionContact(
       player.collider.get(),
       block.collider.get(),
-      ex.Vector.Down.scale(.00009),
+      ex.Vector.Down.scale(0.00009),
       ex.Vector.Down,
       ex.Vector.Up.perpendicular(),
       [],
@@ -220,14 +250,22 @@ describe('An ArcadeSolver', () => {
     const block = new ex.Actor({
       x: 40,
       y: 0,
-      width: 40 + .00005,
+      width: 40 + 0.00005,
       height: 40,
       collisionType: ex.CollisionType.Fixed,
       color: ex.Color.Green
     });
 
     const contact = new ex.CollisionContact(
-      player.collider.get(), block.collider.get(), ex.Vector.Down, ex.Vector.Down, ex.Vector.Up.perpendicular(), [], [], null);
+      player.collider.get(),
+      block.collider.get(),
+      ex.Vector.Down,
+      ex.Vector.Down,
+      ex.Vector.Up.perpendicular(),
+      [],
+      [],
+      null
+    );
 
     arcadeSolver.solvePosition(contact);
     // Considers infinitesimally overlapping to no longer be overlapping and thus cancels the contact
@@ -249,14 +287,22 @@ describe('An ArcadeSolver', () => {
     const block = new ex.Actor({
       x: 40,
       y: 0,
-      width: 40 + .00005,
+      width: 40 + 0.00005,
       height: 40,
       collisionType: ex.CollisionType.Fixed,
       color: ex.Color.Green
     });
 
     const contact = new ex.CollisionContact(
-      player.collider.get(), block.collider.get(), ex.Vector.Down, ex.Vector.Down, ex.Vector.Up.perpendicular(), [], [], null);
+      player.collider.get(),
+      block.collider.get(),
+      ex.Vector.Down,
+      ex.Vector.Down,
+      ex.Vector.Up.perpendicular(),
+      [],
+      [],
+      null
+    );
 
     contact.mtv = ex.vec(-0, 0);
 
@@ -283,7 +329,7 @@ describe('An ArcadeSolver', () => {
     // big tiles so distance heuristic doesn't work
     const lastPos = ex.vec(0, 0);
     for (let x = 0; x < 10; x++) {
-      const width = (x % 2 === 1 ? 16 : 200);
+      const width = x % 2 === 1 ? 16 : 200;
       game.add(
         new ex.Actor({
           name: 'floor-tile',
@@ -312,7 +358,7 @@ describe('An ArcadeSolver', () => {
     game.add(player);
 
     // run simulation and ensure now left/right contacts are generated
-    player.on('postcollision', evt => {
+    player.on('postcollision', (evt) => {
       expect(evt.side).not.toBe(ex.Side.Left);
       expect(evt.side).not.toBe(ex.Side.Right);
       expect(evt.side).toBe(ex.Side.Bottom);

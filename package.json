@@ -26,8 +26,8 @@
     "simple"
   ],
   "scripts": {
-    "all": "npm run lint && npm run core && npm run build:esm && npm run test && npm run legacy-visual",
-    "all:ci": "npm run lint && npm run core && npm run build:esm && npm run test:ci && npm run legacy-visual",
+    "all": "npm run format && npm run lint && npm run core && npm run build:esm && npm run test && npm run legacy-visual",
+    "all:ci": "npm run format && npm run lint && npm run core && npm run build:esm && npm run test:ci && npm run legacy-visual",
     "clean": "rimraf .tsbuildinfo ./build/dist ./build ./src/spec/*.js ./src/spec/*.map",
     "linux:ci": "npm run clean && npm run all:ci && npm run coveralls && npm run apidocs",
     "appveyor": "npm run all:ci && npm run nuget 0.0.1",
@@ -43,11 +43,11 @@
     "core:bundle": "webpack --progress --config webpack.config.js --mode production",
     "core:bundle:esm": "webpack --progress --config webpack.config.js --mode production --env output=esm",
     "core:watch": "npm run core:bundle -- --watch",
-    "lint": "npm run eslint && npm run eslint:spec",
-    "lint:fix": "npm run eslint -- --fix && npm run eslint:spec -- --fix",
-    "eslint": "eslint \"src/engine/**/*.ts\"",
-    "eslint:sandbox": "eslint \"sandbox/**/*.ts\"",
-    "eslint:spec": "eslint \"src/spec/**/*.ts\"",
+    "format": "prettier . --check",
+    "format:fix": "npm run format -- --write",
+    "lint": "npm run eslint",
+    "lint:fix": "npm run eslint -- --fix",
+    "eslint": "eslint .",
     "visual": "storybook dev",
     "build-storybook": "storybook build -o build-storybook",
     "sandbox:copy": "copyfiles -u 2 \"./build/dist/**/*.*\" \"./build/dist/*.*\" ./sandbox/lib/",
@@ -59,7 +59,8 @@
     "test:watch": "karma start --auto-watch --single-run=false",
     "coveralls": "echo 'Temporarily Remove Coveralls Due To Outage'",
     "apidocs": "node scripts/apidocs.js",
-    "release": "cross-env release=true npm run all"
+    "release": "cross-env release=true npm run all",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@babel/core": "7.24.3",
@@ -89,6 +90,7 @@
     "eslint-plugin-jsdoc": "48.2.2",
     "eslint-plugin-storybook": "0.8.0",
     "excalibur-jasmine": "0.3.4",
+    "husky": "9.0.11",
     "istanbul": "0.4.5",
     "istanbul-instrumenter-loader": "3.0.1",
     "jasmine": "5.1.0",
@@ -103,6 +105,8 @@
     "karma-spec-reporter": "0.0.36",
     "karma-summary-reporter": "3.1.1",
     "karma-webpack": "5.0.1",
+    "lint-staged": "15.2.2",
+    "prettier": "3.2.5",
     "puppeteer": "15.5.0",
     "raw-loader": "4.0.2",
     "react": "18.2.0",
@@ -124,6 +128,10 @@
   },
   "dependencies": {
     "core-js": "3.36.1"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,html,json,md,yml,yaml}": "prettier --write",
+    "*.{js,jsx,ts,tsx,html}": "eslint --fix"
   },
   "overrides": {
     "typedoc": {

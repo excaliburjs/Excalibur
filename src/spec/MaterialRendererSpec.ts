@@ -96,13 +96,11 @@ describe('A Material', () => {
     graphicsContext.restore();
 
     expect(graphicsContext.material).toBe(null);
-    await expectAsync(canvas)
-      .toEqualImage('src/spec/images/MaterialRendererSpec/material.png');
+    await expectAsync(canvas).toEqualImage('src/spec/images/MaterialRendererSpec/material.png');
     graphicsContext.dispose();
   });
 
   it('can draw the screen texture', async () => {
-
     const canvas = document.createElement('canvas');
     canvas.width = 100;
     canvas.height = 100;
@@ -141,13 +139,11 @@ describe('A Material', () => {
     context.restore();
 
     expect(context.material).toBe(null);
-    await expectAsync(canvas)
-      .toEqualImage('src/spec/images/MaterialRendererSpec/multiply-comp.png');
+    await expectAsync(canvas).toEqualImage('src/spec/images/MaterialRendererSpec/multiply-comp.png');
     context.dispose();
   });
 
   it('can update uniforms with the .update()', async () => {
-
     const canvas = document.createElement('canvas');
     canvas.width = 100;
     canvas.height = 100;
@@ -182,7 +178,7 @@ describe('A Material', () => {
     context.clear();
     context.save();
     context.material = material;
-    material.update(shader => {
+    material.update((shader) => {
       shader.setUniformFloatColor('customcolor', ex.Color.Red);
     });
     context.drawImage(tex.image, 0, 0);
@@ -190,8 +186,7 @@ describe('A Material', () => {
     context.restore();
 
     expect(context.material).toBe(null);
-    await expectAsync(canvas)
-      .toEqualImage('src/spec/images/MaterialRendererSpec/update-uniform.png');
+    await expectAsync(canvas).toEqualImage('src/spec/images/MaterialRendererSpec/update-uniform.png');
   });
 
   it('can be created with a custom fragment shader with the graphics component', async () => {
@@ -223,8 +218,6 @@ describe('A Material', () => {
       }`
     });
 
-
-
     const tex = new ex.ImageSource('src/spec/images/MaterialRendererSpec/sword.png');
 
     const loader = new ex.Loader([tex]);
@@ -246,8 +239,7 @@ describe('A Material', () => {
     graphicsContext.flush();
 
     expect(graphicsContext.material).toBe(null);
-    await expectAsync(engine.canvas)
-      .toEqualImage('src/spec/images/MaterialRendererSpec/material-component.png');
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/MaterialRendererSpec/material-component.png');
     engine.dispose();
   });
 
@@ -285,8 +277,6 @@ describe('A Material', () => {
       }`
     });
 
-
-
     const tex = new ex.ImageSource('src/spec/images/MaterialRendererSpec/sword.png');
 
     const loader = new ex.Loader([tex]);
@@ -318,12 +308,10 @@ describe('A Material', () => {
     graphicsContext.flush();
 
     expect(graphicsContext.material).toBe(null);
-    await expectAsync(engine.canvas)
-      .toEqualImage('src/spec/images/MaterialRendererSpec/multi-mat.png');
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/MaterialRendererSpec/multi-mat.png');
 
     engine.dispose();
   });
-
 
   it('will allow addition images', async () => {
     const canvas = document.createElement('canvas');
@@ -374,8 +362,7 @@ describe('A Material', () => {
     graphicsContext.restore();
 
     expect(graphicsContext.material).toBe(null);
-    await expectAsync(canvas)
-      .toEqualImage('src/spec/images/MaterialRendererSpec/additional.png');
+    await expectAsync(canvas).toEqualImage('src/spec/images/MaterialRendererSpec/additional.png');
   });
 
   it('will log a warning if you exceed you texture slots', () => {
@@ -452,6 +439,7 @@ describe('A Material', () => {
 
     expect(material).toBeDefined();
     expect(logger.warn).toHaveBeenCalledWith(
-      'Max number texture slots 30 have been reached for material "test", no more textures will be uploaded due to hardware constraints.');
+      'Max number texture slots 30 have been reached for material "test", no more textures will be uploaded due to hardware constraints.'
+    );
   });
 });

@@ -11,14 +11,14 @@ import { Logger } from '../../Util/Log';
 import { EventEmitter, EventKey, Handler, Subscription } from '../../EventEmitter';
 
 export type SoundEvents = {
-  volumechange: NativeSoundEvent,
-  processed: NativeSoundProcessedEvent,
-  pause: NativeSoundEvent,
-  stop: NativeSoundEvent,
-  playbackend: NativeSoundEvent,
-  resume: NativeSoundEvent,
-  playbackstart: NativeSoundEvent
-}
+  volumechange: NativeSoundEvent;
+  processed: NativeSoundProcessedEvent;
+  pause: NativeSoundEvent;
+  stop: NativeSoundEvent;
+  playbackend: NativeSoundEvent;
+  resume: NativeSoundEvent;
+  playbackstart: NativeSoundEvent;
+};
 
 export const SoundEvents = {
   VolumeChange: 'volumechange',
@@ -86,7 +86,7 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
    *
    * If you have a 10 second clip, seek to 5 seconds, then set the duration to 2, it will play the clip from 5-7 seconds.
    */
-  public set duration(duration: number | undefined){
+  public set duration(duration: number | undefined) {
     this._duration = duration;
   }
 
@@ -104,7 +104,6 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
   public set path(val: string) {
     this._resource.path = val;
   }
-
 
   /**
    * Should excalibur add a cache busting querystring? By default false.
@@ -165,7 +164,7 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
     const audiobuffer = await this.decodeAudio(arraybuffer.slice(0));
     this._duration = this._duration ?? audiobuffer?.duration ?? undefined;
     this.events.emit('processed', new NativeSoundProcessedEvent(this, audiobuffer));
-    return this.data = audiobuffer;
+    return (this.data = audiobuffer);
   }
 
   public async decodeAudio(data: ArrayBuffer): Promise<AudioBuffer> {
@@ -226,11 +225,11 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
   }
 
   public isPaused(): boolean {
-    return this._tracks.some(t => t.isPaused());
+    return this._tracks.some((t) => t.isPaused());
   }
 
   public isStopped(): boolean {
-    return this._tracks.some(t => t.isStopped());
+    return this._tracks.some((t) => t.isStopped());
   }
 
   /**
@@ -295,7 +294,7 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
 
   public set playbackRate(playbackRate: number) {
     this._playbackRate = playbackRate;
-    this._tracks.forEach(t => {
+    this._tracks.forEach((t) => {
       t.playbackRate = this._playbackRate;
     });
   }
@@ -310,8 +309,10 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
 
   public getTotalPlaybackDuration() {
     if (!this.isLoaded()) {
-      this.logger.warnOnce(`Sound from ${this.path} is not loaded, cannot return total playback duration.` +
-      `Did you forget to add Sound to a loader? https://excaliburjs.com/docs/loaders/`);
+      this.logger.warnOnce(
+        `Sound from ${this.path} is not loaded, cannot return total playback duration.` +
+          `Did you forget to add Sound to a loader? https://excaliburjs.com/docs/loaders/`
+      );
       return 0;
     }
     return this.data.duration;
@@ -330,8 +331,6 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
     return 0;
   }
 
-
-
   /**
    * Get Id of provided AudioInstance in current trackList
    * @param track [[Audio]] which Id is to be given
@@ -345,10 +344,12 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
       const resumed: Promise<boolean>[] = [];
       // ensure we resume *current* tracks (if paused)
       for (const track of this._tracks) {
-        resumed.push(track.play().then(() => {
-          this._tracks.splice(this.getTrackId(track), 1);
-          return true;
-        }));
+        resumed.push(
+          track.play().then(() => {
+            this._tracks.splice(this.getTrackId(track), 1);
+            return true;
+          })
+        );
       }
 
       this.events.emit('resume', new NativeSoundEvent(this));

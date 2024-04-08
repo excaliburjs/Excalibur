@@ -42,7 +42,6 @@ export * from './Context/texture-loader';
 export * from './Filtering';
 export * from './Wrapping';
 
-
 // Rendering
 export * from './Context/shader';
 export * from './Context/vertex-buffer';

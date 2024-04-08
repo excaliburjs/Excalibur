@@ -121,7 +121,8 @@ export function coroutine(...args: any[]): Promise<void> {
   } catch (_) {
     throw Error(
       'Cannot run coroutine without engine parameter outside of an excalibur lifecycle method.\n' +
-      'Pass an engine parameter to ex.coroutine(engine, function * {...})');
+        'Pass an engine parameter to ex.coroutine(engine, function * {...})'
+    );
   }
   const generatorFcn = coroutineGenerator.bind(thisArg);
   return new Promise<void>((resolve, reject) => {
@@ -138,7 +139,7 @@ export function coroutine(...args: any[]): Promise<void> {
             // schedule next loop
             engine.clock.schedule(loop, 0, schedule);
           });
-        } else if (value === undefined || value === (void 0)) {
+        } else if (value === undefined || value === void 0) {
           // schedule next frame
           engine.clock.schedule(loop, 0, schedule);
         } else {
@@ -149,6 +150,6 @@ export function coroutine(...args: any[]): Promise<void> {
         reject(e);
       }
     };
-    loop(engine.clock.elapsed());// run first frame immediately
+    loop(engine.clock.elapsed()); // run first frame immediately
   });
 }

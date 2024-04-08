@@ -7,9 +7,9 @@ import { Actor, ActorEvents } from './Actor';
 import { EventEmitter } from './EventEmitter';
 
 export type TriggerEvents = ActorEvents & {
-  exit: ExitTriggerEvent,
-  enter: EnterTriggerEvent
-}
+  exit: ExitTriggerEvent;
+  enter: EnterTriggerEvent;
+};
 
 export const TriggerEvents = {
   ExitTrigger: 'exit',

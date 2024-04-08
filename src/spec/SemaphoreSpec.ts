@@ -35,7 +35,6 @@ describe('A Semaphore', () => {
     expect(semaphore.waiting).toBe(7);
   });
 
-
   it('can block async calls', (done) => {
     const mockFuture1 = new ex.Future<void>();
     const mockMethod1 = () => {
@@ -51,28 +50,31 @@ describe('A Semaphore', () => {
     const spy1 = jasmine.createSpy();
     const spy2 = jasmine.createSpy();
 
-    semaphore.enter().then(() => {
-      expect(semaphore.count).toBe(0);
-      expect(semaphore.waiting).toBe(0);
-      mockMethod1().then(() => {
-        spy1();
-        semaphore.exit();
-      });
-      const final = semaphore.enter().then(() => {
-        mockMethod2().then(() => {
-          spy2();
+    semaphore
+      .enter()
+      .then(() => {
+        expect(semaphore.count).toBe(0);
+        expect(semaphore.waiting).toBe(0);
+        mockMethod1().then(() => {
+          spy1();
           semaphore.exit();
         });
+        const final = semaphore.enter().then(() => {
+          mockMethod2().then(() => {
+            spy2();
+            semaphore.exit();
+          });
+        });
+        expect(semaphore.count).toBe(0);
+        expect(semaphore.waiting).toBe(1);
+        return final;
+      })
+      .finally(() => {
+        expect(spy1).toHaveBeenCalled();
+        expect(spy2).toHaveBeenCalled();
+        expect(spy1).toHaveBeenCalledBefore(spy2);
+        done();
       });
-      expect(semaphore.count).toBe(0);
-      expect(semaphore.waiting).toBe(1);
-      return final;
-    }).finally(() => {
-      expect(spy1).toHaveBeenCalled();
-      expect(spy2).toHaveBeenCalled();
-      expect(spy1).toHaveBeenCalledBefore(spy2);
-      done();
-    });
 
     expect(spy1).not.toHaveBeenCalled();
     expect(spy2).not.toHaveBeenCalled();
@@ -80,5 +82,4 @@ describe('A Semaphore', () => {
     mockFuture1.resolve();
     mockFuture2.resolve();
   });
-
 });

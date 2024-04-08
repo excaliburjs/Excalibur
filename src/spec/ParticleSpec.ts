@@ -21,7 +21,6 @@ describe('A particle', () => {
     await TestUtils.runToReady(engine);
     const clock = engine.clock as ex.TestClock;
     clock.step(1);
-
   });
   afterEach(() => {
     engine.stop();
@@ -176,7 +175,6 @@ describe('A particle', () => {
     engine.currentScene.draw(engine.graphicsContext, 100);
     engine.graphicsContext.flush();
     await expectAsync(engine.canvas).toEqualImage('src/spec/images/ParticleSpec/parented.png');
-
   });
 
   it('can set the particle transform to local making particles children of the emitter', () => {

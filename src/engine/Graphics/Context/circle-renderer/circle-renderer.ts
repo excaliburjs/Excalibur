@@ -216,5 +216,4 @@ export class CircleRenderer implements RendererPlugin {
     this._circleCount = 0;
     this._vertexIndex = 0;
   }
-
 }

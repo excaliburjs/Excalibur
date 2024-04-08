@@ -45,6 +45,6 @@ describe('DebugText', () => {
 
     ctx.flush();
 
-    await expectAsync(canvasElement).toEqualImage('src/spec/images/DebugTextSpec/draw-webgl.png', .94);
+    await expectAsync(canvasElement).toEqualImage('src/spec/images/DebugTextSpec/draw-webgl.png', 0.94);
   });
 });

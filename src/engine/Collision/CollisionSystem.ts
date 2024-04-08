@@ -30,20 +30,23 @@ export class CollisionSystem extends System {
   private _currentFrameContacts = new Map<string, CollisionContact>();
   private get _processor(): DynamicTreeCollisionProcessor {
     return this._physics.collisionProcessor;
-  };
+  }
 
   private _trackCollider: (c: Collider) => void;
   private _untrackCollider: (c: Collider) => void;
 
-  constructor(world: World, private _physics: PhysicsWorld) {
+  constructor(
+    world: World,
+    private _physics: PhysicsWorld
+  ) {
     super();
     this._arcadeSolver = new ArcadeSolver(_physics.config.arcade);
     this._realisticSolver = new RealisticSolver(_physics.config.realistic);
-    this._physics.$configUpdate.subscribe(() => this._configDirty = true);
+    this._physics.$configUpdate.subscribe(() => (this._configDirty = true));
     this._trackCollider = (c: Collider) => this._processor.track(c);
     this._untrackCollider = (c: Collider) => this._processor.untrack(c);
     this.query = world.query([TransformComponent, MotionComponent, ColliderComponent]);
-    this.query.entityAdded$.subscribe(e => {
+    this.query.entityAdded$.subscribe((e) => {
       const colliderComponent = e.get(ColliderComponent);
       colliderComponent.$colliderAdded.subscribe(this._trackCollider);
       colliderComponent.$colliderRemoved.subscribe(this._untrackCollider);
@@ -52,7 +55,7 @@ export class CollisionSystem extends System {
         this._processor.track(collider);
       }
     });
-    this.query.entityRemoved$.subscribe(e => {
+    this.query.entityRemoved$.subscribe((e) => {
       const colliderComponent = e.get(ColliderComponent);
       const collider = colliderComponent.get();
       if (colliderComponent && collider) {

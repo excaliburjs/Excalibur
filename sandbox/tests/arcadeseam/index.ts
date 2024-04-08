@@ -19,7 +19,7 @@ game.toggleDebug();
 var lastWidth = 200;
 var lastPos = ex.vec(0, 0);
 for (let x = 0; x < 10; x++) {
-  const width = (x % 2 === 1 ? 16 : 200);
+  const width = x % 2 === 1 ? 16 : 200;
   game.add(
     new ex.Actor({
       name: 'floor-tile',
@@ -46,22 +46,21 @@ var player = new ex.Actor({
 player.onPostUpdate = () => {
   const speed = 164;
   if (game.input.keyboard.isHeld(ex.Keys.Right)) {
-     player.vel.x = speed;
+    player.vel.x = speed;
   }
   if (game.input.keyboard.isHeld(ex.Keys.Left)) {
-     player.vel.x = -speed;
+    player.vel.x = -speed;
   }
   if (game.input.keyboard.isHeld(ex.Keys.Up)) {
-     player.vel.y = -speed;
+    player.vel.y = -speed;
   }
   if (game.input.keyboard.isHeld(ex.Keys.Down)) {
-     player.vel.y = speed;
+    player.vel.y = speed;
   }
-}
+};
 game.add(player);
 
-
-game.currentScene.camera.strategy.elasticToActor(player, .8, .9);
+game.currentScene.camera.strategy.elasticToActor(player, 0.8, 0.9);
 game.currentScene.camera.zoom = 2;
 
 game.start();

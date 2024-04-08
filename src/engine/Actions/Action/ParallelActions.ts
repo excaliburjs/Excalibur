@@ -1,7 +1,6 @@
 import { Entity } from '../../EntityComponentSystem';
 import { Action } from '../Action';
 
-
 /**
  * Action that can run multiple [[Action]]s or [[ActionSequence]]s at the same time
  */
@@ -18,12 +17,12 @@ export class ParallelActions implements Action {
     }
   }
   isComplete(entity: Entity): boolean {
-    return this._actions.every(a => a.isComplete(entity));
+    return this._actions.every((a) => a.isComplete(entity));
   }
   reset(): void {
-    this._actions.forEach(a => a.reset());
+    this._actions.forEach((a) => a.reset());
   }
   stop(): void {
-    this._actions.forEach(a => a.stop());
+    this._actions.forEach((a) => a.stop());
   }
 }

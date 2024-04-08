@@ -112,7 +112,10 @@ export class LockCameraToActorStrategy implements CameraStrategy<Actor> {
  * Lock a camera to a specific axis around an actor.
  */
 export class LockCameraToActorAxisStrategy implements CameraStrategy<Actor> {
-  constructor(public target: Actor, public axis: Axis) {}
+  constructor(
+    public target: Actor,
+    public axis: Axis
+  ) {}
   public action = (target: Actor, cam: Camera, _eng: Engine, _delta: number) => {
     const center = target.center;
     const currentFocus = cam.getFocus();
@@ -136,7 +139,11 @@ export class ElasticToActorStrategy implements CameraStrategy<Actor> {
    * @param cameraElasticity [0 - 1.0] The higher the elasticity the more force that will drive the camera towards the target
    * @param cameraFriction [0 - 1.0] The higher the friction the more that the camera will resist motion towards the target
    */
-  constructor(public target: Actor, public cameraElasticity: number, public cameraFriction: number) {}
+  constructor(
+    public target: Actor,
+    public cameraElasticity: number,
+    public cameraFriction: number
+  ) {}
   public action = (target: Actor, cam: Camera, _eng: Engine, _delta: number) => {
     const position = target.center;
     let focus = cam.getFocus();
@@ -167,7 +174,10 @@ export class RadiusAroundActorStrategy implements CameraStrategy<Actor> {
    * @param target Target actor to follow when it is "radius" pixels away
    * @param radius Number of pixels away before the camera will follow
    */
-  constructor(public target: Actor, public radius: number) {}
+  constructor(
+    public target: Actor,
+    public radius: number
+  ) {}
   public action = (target: Actor, cam: Camera, _eng: Engine, _delta: number) => {
     const position = target.center;
     const focus = cam.getFocus();
@@ -230,11 +240,10 @@ export class LimitCameraBoundsStrategy implements CameraStrategy<BoundingBox> {
 }
 
 export type CameraEvents = {
-  preupdate: PreUpdateEvent<Camera>,
-  postupdate: PostUpdateEvent<Camera>,
-  initialize: InitializeEvent<Camera>,
-
-}
+  preupdate: PreUpdateEvent<Camera>;
+  postupdate: PostUpdateEvent<Camera>;
+  initialize: InitializeEvent<Camera>;
+};
 
 export const CameraEvents = {
   Initialize: 'initialize',
@@ -254,7 +263,6 @@ export class Camera implements CanUpdate, CanInitialize {
   public events = new EventEmitter<CameraEvents>();
   public transform: AffineMatrix = AffineMatrix.identity();
   public inverse: AffineMatrix = AffineMatrix.identity();
-
 
   protected _follow: Actor;
 
@@ -791,9 +799,7 @@ export class Camera implements CanUpdate, CanInitialize {
     // must happen on the draw, because more draws are potentially happening than updates
     if (this._engine.fixedUpdateFps) {
       const blend = this._engine.currentFrameLagMs / (1000 / this._engine.fixedUpdateFps);
-      const interpolatedPos = this.pos.scale(blend).add(
-        this._oldPos.scale(1.0 - blend)
-      );
+      const interpolatedPos = this.pos.scale(blend).add(this._oldPos.scale(1.0 - blend));
       interpolatedPos.clone(this.drawPos);
       this.updateTransform(interpolatedPos);
     }

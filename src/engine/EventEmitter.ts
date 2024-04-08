@@ -49,10 +49,10 @@ export class EventEmitter<TEventMap extends EventMap = any> {
   off(eventName: string): void;
   off<TEventName extends EventKey<TEventMap> | string>(eventName: TEventName, handler?: Handler<TEventMap[TEventName]>): void {
     if (handler) {
-      const newListeners = this._listeners[eventName]?.filter(h => h !== handler);
+      const newListeners = this._listeners[eventName]?.filter((h) => h !== handler);
       this._listeners[eventName] = newListeners;
 
-      const newOnceListeners = this._listenersOnce[eventName]?.filter(h => h !== handler);
+      const newOnceListeners = this._listenersOnce[eventName]?.filter((h) => h !== handler);
       this._listenersOnce[eventName] = newOnceListeners;
     } else {
       delete this._listeners[eventName];

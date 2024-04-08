@@ -39,14 +39,11 @@ const createHandler = <T>(path: string[] = [], change: (type: T) => any, typeTyp
       return true;
     }
     if (typeof (target as any)[key] === 'object' && (target as any)[key] != null) {
-      return new Proxy(
-        (target as any)[key],
-        createHandler<any>([...path, key as string], change, typeType)
-      );
+      return new Proxy((target as any)[key], createHandler<any>([...path, key as string], change, typeType));
     }
     return (target as any)[key];
   },
-  set: (target: T, key: string, value: any) =>  {
+  set: (target: T, key: string, value: any) => {
     if (typeof key === 'string') {
       if (key[0] !== '_') {
         change(typeType);

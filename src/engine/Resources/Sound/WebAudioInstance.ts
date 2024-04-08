@@ -19,67 +19,69 @@ export class WebAudioInstance implements Audio {
   private _volumeNode = this._audioContext.createGain();
 
   private _playingFuture = new Future<boolean>();
-  private _stateMachine = StateMachine.create({
-    start: 'STOPPED',
-    states: {
-      PLAYING: {
-        onEnter: ({data}: {from: string, data: SoundState}) => {
-
-          // Buffer nodes are single use
-          this._createNewBufferSource();
-          this._handleEnd();
-          if (this.loop) {
-            // when looping don't set a duration
-            this._instance.start(0, data.pausedAt * this._playbackRate);
-          } else {
-            this._instance.start(0, data.pausedAt * this._playbackRate, this.duration);
-          }
-          data.startedAt = (this._audioContext.currentTime - data.pausedAt);
-          data.pausedAt = 0;
+  private _stateMachine = StateMachine.create(
+    {
+      start: 'STOPPED',
+      states: {
+        PLAYING: {
+          onEnter: ({ data }: { from: string; data: SoundState }) => {
+            // Buffer nodes are single use
+            this._createNewBufferSource();
+            this._handleEnd();
+            if (this.loop) {
+              // when looping don't set a duration
+              this._instance.start(0, data.pausedAt * this._playbackRate);
+            } else {
+              this._instance.start(0, data.pausedAt * this._playbackRate, this.duration);
+            }
+            data.startedAt = this._audioContext.currentTime - data.pausedAt;
+            data.pausedAt = 0;
+          },
+          onState: () => this._playStarted(),
+          onExit: ({ to }) => {
+            // If you've exited early only resolve if explicitly STOPPED
+            if (to === 'STOPPED') {
+              this._playingFuture.resolve(true);
+            }
+            // Whenever you're not playing... you stop!
+            this._instance.onended = null; // disconnect the wired on-end handler
+            this._instance.disconnect();
+            this._instance.stop(0);
+            this._instance = null;
+          },
+          transitions: ['STOPPED', 'PAUSED', 'SEEK']
         },
-        onState: () => this._playStarted(),
-        onExit: ({to}) => {
-          // If you've exited early only resolve if explicitly STOPPED
-          if (to === 'STOPPED') {
+        SEEK: {
+          onEnter: ({ eventData: position, data }: { eventData?: number; data: SoundState }) => {
+            data.pausedAt = (position ?? 0) / this._playbackRate;
+            data.startedAt = 0;
+          },
+          transitions: ['*']
+        },
+        STOPPED: {
+          onEnter: ({ data }: { from: string; data: SoundState }) => {
+            data.pausedAt = 0;
+            data.startedAt = 0;
             this._playingFuture.resolve(true);
-          }
-          // Whenever you're not playing... you stop!
-          this._instance.onended = null; // disconnect the wired on-end handler
-          this._instance.disconnect();
-          this._instance.stop(0);
-          this._instance = null;
+          },
+          transitions: ['PLAYING', 'PAUSED', 'SEEK']
         },
-        transitions: ['STOPPED', 'PAUSED', 'SEEK']
-      },
-      SEEK: {
-        onEnter: ({ eventData: position, data }: {eventData?: number, data: SoundState}) => {
-          data.pausedAt = (position ?? 0) / this._playbackRate;
-          data.startedAt = 0;
-        },
-        transitions: ['*']
-      },
-      STOPPED: {
-        onEnter: ({data}: {from: string, data: SoundState}) => {
-          data.pausedAt = 0;
-          data.startedAt = 0;
-          this._playingFuture.resolve(true);
-        },
-        transitions: ['PLAYING', 'PAUSED', 'SEEK']
-      },
-      PAUSED: {
-        onEnter: ({data}: {data: SoundState}) => {
-          // Playback rate will be a scale factor of how fast/slow the audio is being played
-          // default is 1.0
-          // we need to invert it to get the time scale
-          data.pausedAt = (this._audioContext.currentTime - data.startedAt);
-        },
-        transitions: ['PLAYING', 'STOPPED', 'SEEK']
+        PAUSED: {
+          onEnter: ({ data }: { data: SoundState }) => {
+            // Playback rate will be a scale factor of how fast/slow the audio is being played
+            // default is 1.0
+            // we need to invert it to get the time scale
+            data.pausedAt = this._audioContext.currentTime - data.startedAt;
+          },
+          transitions: ['PLAYING', 'STOPPED', 'SEEK']
+        }
       }
-    }
-  }, {
-    startedAt: 0,
-    pausedAt: 0
-  } as SoundState);
+    },
+    {
+      startedAt: 0,
+      pausedAt: 0
+    } as SoundState
+  );
 
   private _createNewBufferSource() {
     this._instance = this._audioContext.createBufferSource();
@@ -196,7 +198,7 @@ export class WebAudioInstance implements Audio {
   }
 
   public getPlaybackPosition() {
-    const {pausedAt, startedAt} =  this._stateMachine.data;
+    const { pausedAt, startedAt } = this._stateMachine.data;
     if (pausedAt) {
       return pausedAt * this._playbackRate;
     }

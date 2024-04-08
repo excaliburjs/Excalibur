@@ -2,7 +2,7 @@ export interface VertexBufferOptions {
   /**
    * WebGL2RenderingContext this layout will be attached to, these cannot be reused across contexts.
    */
-  gl: WebGL2RenderingContext,
+  gl: WebGL2RenderingContext;
   /**
    * Size in number of floats, so [4.2, 4.0, 2.1] is size = 3
    *
@@ -19,7 +19,7 @@ export interface VertexBufferOptions {
   /**
    * Optionally pass pre-seeded data, size parameter is ignored
    */
-  data?: Float32Array
+  data?: Float32Array;
 }
 
 /**

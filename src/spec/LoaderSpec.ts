@@ -102,11 +102,12 @@ describe('A loader', () => {
       loader.showPlayButton();
 
       loader.onDraw(loader.canvas.ctx);
-      ensureImagesLoaded(loader.canvas.ctx.canvas, 'src/spec/images/LoaderSpec/playbuttonshown-noprogressbar.png')
-        .then(([canvas, image]) => {
+      ensureImagesLoaded(loader.canvas.ctx.canvas, 'src/spec/images/LoaderSpec/playbuttonshown-noprogressbar.png').then(
+        ([canvas, image]) => {
           expect(canvas).toEqualImage(image);
           done();
-        });
+        }
+      );
     };
   });
 
@@ -226,7 +227,7 @@ describe('A loader', () => {
     engine = null;
     engine = new ex.Engine({ width: 1000, height: 1000 });
     (ex.WebAudio as any)._UNLOCKED = true;
-    const clock = engine.clock = engine.clock.toTestClock();
+    const clock = (engine.clock = engine.clock.toTestClock());
     const pointerHandler = jasmine.createSpy('pointerHandler');
     engine.input.pointers.primary.on('up', pointerHandler);
     const loader = new ex.Loader([new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png')]);
@@ -261,17 +262,13 @@ describe('A loader', () => {
 
     engine.browser.window.nativeComponent.dispatchEvent(new Event('resize'));
 
-    const oldPos = [
-      loader.playButtonRootElement.style.left,
-      loader.playButtonRootElement.style.top];
+    const oldPos = [loader.playButtonRootElement.style.left, loader.playButtonRootElement.style.top];
 
     engine.screen.viewport = { width: 100, height: 100 };
 
     engine.browser.window.nativeComponent.dispatchEvent(new Event('resize'));
 
-    const newPos = [
-      loader.playButtonRootElement.style.left,
-      loader.playButtonRootElement.style.top];
+    const newPos = [loader.playButtonRootElement.style.left, loader.playButtonRootElement.style.top];
 
     expect(oldPos).not.toEqual(newPos);
   });
@@ -327,7 +324,7 @@ describe('A loader', () => {
     for (let i = 0; i < 800; i++) {
       srcs.push(generateRandomImage());
     }
-    const images = srcs.map(src => new ex.ImageSource(src));
+    const images = srcs.map((src) => new ex.ImageSource(src));
     images.forEach((image) => {
       image.ready.then(() => {
         testClock.step(1);
@@ -335,11 +332,12 @@ describe('A loader', () => {
     });
     loader.addResources(images);
 
-    const ready = TestUtils.runToReady(game, loader).then(() => {
-      expect(logger.error).not.toHaveBeenCalled();
-      game.dispose();
-      done();
-    })
+    const ready = TestUtils.runToReady(game, loader)
+      .then(() => {
+        expect(logger.error).not.toHaveBeenCalled();
+        game.dispose();
+        done();
+      })
       .catch(() => {
         fail();
       });

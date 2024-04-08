@@ -7,17 +7,17 @@ describe('A DynamicTree Broadphase', () => {
   let actorC: ex.Actor;
 
   beforeEach(() => {
-    actorA = new ex.Actor({x: 0, y: 0, width: 20, height: 20});
+    actorA = new ex.Actor({ x: 0, y: 0, width: 20, height: 20 });
     actorA.collider.useCircleCollider(10);
     actorA.body.collisionType = ex.CollisionType.Active;
     actorA.collider.update();
 
-    actorB = new ex.Actor({x: 20, y: 0, width: 20, height: 20});
+    actorB = new ex.Actor({ x: 20, y: 0, width: 20, height: 20 });
     actorB.collider.useCircleCollider(10);
     actorB.body.collisionType = ex.CollisionType.Active;
     actorB.collider.update();
 
-    actorC = new ex.Actor({x: 1000, y: 0, width: 20, height: 20});
+    actorC = new ex.Actor({ x: 1000, y: 0, width: 20, height: 20 });
     actorC.collider.useCircleCollider(10);
     actorC.body.collisionType = ex.CollisionType.Active;
     actorC.collider.update();
@@ -48,11 +48,8 @@ describe('A DynamicTree Broadphase', () => {
   it('should not find pairs for a composite collider', () => {
     const circle = ex.Shape.Circle(50);
     const box = ex.Shape.Box(200, 10);
-    const compCollider = new ex.CompositeCollider([
-      circle,
-      box
-    ]);
-    const actor = new ex.Actor({collider: compCollider});
+    const compCollider = new ex.CompositeCollider([circle, box]);
+    const actor = new ex.Actor({ collider: compCollider });
     const dt = new ex.DynamicTreeCollisionProcessor(DefaultPhysicsConfig);
     dt.track(compCollider);
 
@@ -63,11 +60,8 @@ describe('A DynamicTree Broadphase', () => {
   it('should not find pairs for a composite collider when moving fast', () => {
     const circle = ex.Shape.Circle(50);
     const box = ex.Shape.Box(200, 10);
-    const compCollider = new ex.CompositeCollider([
-      circle,
-      box
-    ]);
-    const actor = new ex.Actor({collider: compCollider, collisionType: ex.CollisionType.Active});
+    const compCollider = new ex.CompositeCollider([circle, box]);
+    const actor = new ex.Actor({ collider: compCollider, collisionType: ex.CollisionType.Active });
     actor.body.vel = ex.vec(2000, 0); // extra fast to trigger the fast object detection
     const dt = new ex.DynamicTreeCollisionProcessor(DefaultPhysicsConfig);
     dt.track(compCollider);

@@ -10,7 +10,7 @@ import { ActionQueue } from './ActionQueue';
 import { RotationType } from './RotationType';
 import { Action } from './Action';
 
-export interface ActionContextMethods extends Pick<ActionContext, keyof ActionContext> { };
+export interface ActionContextMethods extends Pick<ActionContext, keyof ActionContext> {}
 
 export class ActionsComponent extends Component implements ActionContextMethods {
   dependencies = [TransformComponent, MotionComponent];
@@ -181,7 +181,8 @@ export class ActionsComponent extends Component implements ActionContextMethods 
     sizeXOrVector: number | Vector,
     sizeYOrSpeed: number | Vector,
     speedXOrUndefined?: number,
-    speedYOrUndefined?: number): ActionContext {
+    speedYOrUndefined?: number
+  ): ActionContext {
     return this._getCtx().scaleTo.apply(this._ctx, [sizeXOrVector, sizeYOrSpeed, speedXOrUndefined, speedYOrUndefined] as any);
   }
 

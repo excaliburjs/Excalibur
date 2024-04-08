@@ -54,5 +54,4 @@ describe('A QuadIndexBuffer', () => {
     const sut = new ex.QuadIndexBuffer(gl, 16384, true);
     expect(logger.warn).toHaveBeenCalledWith('Total quads exceeds hardware index buffer limit (uint16), max(16383) requested quads(16384)');
   });
-
 });

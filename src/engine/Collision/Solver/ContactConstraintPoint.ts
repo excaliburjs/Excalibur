@@ -6,7 +6,11 @@ import { CollisionContact } from '../Detection/CollisionContact';
  * Holds information about contact points, meant to be reused over multiple frames of contact
  */
 export class ContactConstraintPoint {
-  constructor(public point: Vector, public local: Vector, public contact: CollisionContact) {
+  constructor(
+    public point: Vector,
+    public local: Vector,
+    public contact: CollisionContact
+  ) {
     this.update();
   }
 

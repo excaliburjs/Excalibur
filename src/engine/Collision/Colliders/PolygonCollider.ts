@@ -89,7 +89,8 @@ export class PolygonCollider extends Collider {
       if (!options.suppressConvexWarning) {
         this._logger.warn(
           'Excalibur only supports convex polygon colliders and will not behave properly.' +
-          'Call PolygonCollider.triangulate() to build a new collider composed of smaller convex triangles');
+            'Call PolygonCollider.triangulate() to build a new collider composed of smaller convex triangles'
+        );
       }
     }
 
@@ -160,7 +161,7 @@ export class PolygonCollider extends Collider {
     }
     polygons.push([this.points[0], this.points[1], this.points[2]]);
 
-    return new CompositeCollider(polygons.map(points => Shape.Polygon(points)));
+    return new CompositeCollider(polygons.map((points) => Shape.Polygon(points)));
   }
 
   /**
@@ -213,7 +214,7 @@ export class PolygonCollider extends Collider {
       return true;
     }
 
-    const convexVertices = vertices.map((_,i) => isConvex(i));
+    const convexVertices = vertices.map((_, i) => isConvex(i));
 
     /**
      * Quick test for point in triangle
@@ -250,7 +251,6 @@ export class PolygonCollider extends Collider {
     function findEarTip() {
       for (let i = 0; i < vertexCount; i++) {
         if (convexVertices[i]) {
-
           const prev = getPrevIndex(i);
           const next = getNextIndex(i);
 
@@ -325,8 +325,7 @@ export class PolygonCollider extends Collider {
     triangles.push([vertices[0], vertices[1], vertices[2]]);
 
     // FIXME: there is a colinear triangle that sneaks in here sometimes
-    return new CompositeCollider(
-      triangles.map(points => Shape.Polygon(points, Vector.Zero, true)));
+    return new CompositeCollider(triangles.map((points) => Shape.Polygon(points, Vector.Zero, true)));
   }
 
   /**
@@ -640,13 +639,11 @@ export class PolygonCollider extends Collider {
     for (let i = 0; i < points.length; i++) {
       const iplusone = (i + 1) % points.length;
       const crossTerm = points[iplusone].cross(points[i]);
-      numerator +=
-        crossTerm *
-        (points[i].dot(points[i]) + points[i].dot(points[iplusone]) + points[iplusone].dot(points[iplusone]));
+      numerator += crossTerm * (points[i].dot(points[i]) + points[i].dot(points[iplusone]) + points[iplusone].dot(points[iplusone]));
       denominator += crossTerm;
     }
     this._cachedMass = mass;
-    return this._cachedInertia = (mass / 6) * (numerator / denominator);
+    return (this._cachedInertia = (mass / 6) * (numerator / denominator));
   }
 
   /**
@@ -701,7 +698,7 @@ export class PolygonCollider extends Collider {
     return new Projection(min, max);
   }
 
-  public debug(ex: ExcaliburGraphicsContext, color: Color, options?: { lineWidth: number, pointSize: number }) {
+  public debug(ex: ExcaliburGraphicsContext, color: Color, options?: { lineWidth: number; pointSize: number }) {
     const points = this.getTransformedPoints();
     Debug.drawPolygon(points, { color });
   }

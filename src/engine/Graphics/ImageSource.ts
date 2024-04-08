@@ -93,7 +93,7 @@ export class ImageSource implements Loadable<HTMLImageElement> {
     if (typeof bustCacheOrOptions === 'boolean') {
       bustCache = bustCacheOrOptions;
     } else {
-      ({ filtering, wrapping, bustCache } = {...bustCacheOrOptions});
+      ({ filtering, wrapping, bustCache } = { ...bustCacheOrOptions });
     }
     this._resource = new Resource(path, 'blob', bustCache);
     this.filtering = filtering ?? this.filtering;

@@ -1,4 +1,3 @@
-
 /**
  * Represents an audio control implementation
  */

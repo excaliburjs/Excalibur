@@ -2,11 +2,11 @@ import { GamepadConnectEvent, GamepadDisconnectEvent, GamepadButtonEvent, Gamepa
 import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
 
 export type GamepadEvents = {
-  connect: GamepadConnectEvent,
-  disconnect: GamepadDisconnectEvent,
-  button: GamepadButtonEvent,
-  axis: GamepadAxisEvent
-}
+  connect: GamepadConnectEvent;
+  disconnect: GamepadDisconnectEvent;
+  button: GamepadButtonEvent;
+  axis: GamepadAxisEvent;
+};
 
 export const GamepadEvents = {
   GamepadConnect: 'connect',
@@ -277,7 +277,6 @@ export class Gamepads {
       clonedPad.updateAxes(i, pad.axes[i]);
     }
 
-
     return clonedPad;
   }
 }
@@ -372,7 +371,7 @@ export class Gamepad {
     if (value === 0 && this._buttons[buttonIndex]) {
       this._buttonsUp[buttonIndex] = 1;
 
-    // button was just pressed
+      // button was just pressed
     } else {
       this._buttonsDown[buttonIndex] = value;
     }

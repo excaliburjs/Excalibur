@@ -79,7 +79,7 @@ describe('A scene', () => {
     scene.clear();
 
     expect(scene.entities.length).withContext('deferred entity removal means entities cleared at end of update').toBe(3);
-    expect(scene.timers.length).withContext('timers don\'t have deferred removal').toBe(0);
+    expect(scene.timers.length).withContext("timers don't have deferred removal").toBe(0);
 
     scene.update(engine, 100);
     expect(scene.entities.length).toBe(0);
@@ -87,7 +87,7 @@ describe('A scene', () => {
   });
 
   it('cannot have the same TileMap added to it more than once', () => {
-    const tileMap = new ex.TileMap({ pos: ex.vec(1, 1), tileWidth: 1, tileHeight: 1, columns: 1, rows: 1});
+    const tileMap = new ex.TileMap({ pos: ex.vec(1, 1), tileWidth: 1, tileHeight: 1, columns: 1, rows: 1 });
     scene.add(tileMap);
     expect(scene.tileMaps.length).toBe(1);
     scene.add(tileMap);
@@ -338,7 +338,7 @@ describe('A scene', () => {
 
     await engine.goToScene('sceneA');
 
-    await engine.goToScene('sceneB', { sceneActivationData: { foo: 'bar' }});
+    await engine.goToScene('sceneB', { sceneActivationData: { foo: 'bar' } });
 
     expect(sceneA.onDeactivate).toHaveBeenCalledWith({
       engine,
@@ -349,7 +349,7 @@ describe('A scene', () => {
       engine,
       previousScene: sceneA,
       nextScene: sceneB,
-      data: { foo: 'bar'}
+      data: { foo: 'bar' }
     });
   });
 
@@ -564,14 +564,15 @@ describe('A scene', () => {
 
     expect(entityAdded).toHaveBeenCalledTimes(1);
     expect(entityRemoved).toHaveBeenCalledTimes(1);
-
   });
 
   it('can transfer timers', () => {
     const scene1 = new ex.Scene();
     const scene2 = new ex.Scene();
     const timer = new ex.Timer({
-      fcn: () => { /* pass */ },
+      fcn: () => {
+        /* pass */
+      },
       interval: 100
     });
 
@@ -716,7 +717,7 @@ describe('A scene', () => {
 
   it('will update TileMaps that were added in a Timer callback', () => {
     let updated = false;
-    const tilemap = new ex.TileMap({ pos: ex.vec(0, 0), tileWidth: 1, tileHeight: 1, columns: 1, rows: 1});
+    const tilemap = new ex.TileMap({ pos: ex.vec(0, 0), tileWidth: 1, tileHeight: 1, columns: 1, rows: 1 });
     tilemap._initialize(scene.engine);
     tilemap.on('postupdate', () => {
       updated = true;

@@ -11,7 +11,6 @@ describe('A body component', () => {
   });
 
   it('can set the mass and cache their values', () => {
-
     const actor = new ex.Actor({
       x: 0,
       y: 0,
@@ -23,7 +22,7 @@ describe('A body component', () => {
 
     expect(actor.body.mass).toBe(100);
     expect(actor.body.inertia).toBeCloseTo(1666.6, 0);
-    expect(actor.body.inverseInertia).toBeCloseTo(.0006, 0);
+    expect(actor.body.inverseInertia).toBeCloseTo(0.0006, 0);
 
     expect((actor.body as any)._cachedInertia).toBeCloseTo(1666.6, 0);
     expect((actor.body as any)._cachedInverseInertia).toBeCloseTo(0.0006, 0);
@@ -58,7 +57,7 @@ describe('A body component', () => {
     body.mass = 100;
     body.canSleep = true;
     body.bounciness = 1;
-    body.friction = .5;
+    body.friction = 0.5;
     body.useGravity = false;
     body.limitDegreeOfFreedom.push(ex.DegreeOfFreedom.Rotation);
     body.vel = ex.vec(1, 2);
@@ -96,5 +95,4 @@ describe('A body component', () => {
     // Should have a new owner
     expect(sut.owner).toBe(clone);
   });
-
 });

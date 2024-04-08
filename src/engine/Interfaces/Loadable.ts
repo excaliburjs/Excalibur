@@ -13,7 +13,6 @@ export interface Loadable<T> {
    */
   load(): Promise<T>;
 
-
   /**
    * Returns true if the loadable is loaded
    */

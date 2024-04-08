@@ -30,14 +30,16 @@ export interface AntialiasOptions {
    *
    * Default true, with max samples that the platform supports
    */
-  multiSampleAntialiasing?: boolean | {
-    /**
-     * Optionally specify number of samples (will be clamped to the max the platform supports)
-     *
-     * Default most platforms are 16 samples
-     */
-    samples: number;
-  };
+  multiSampleAntialiasing?:
+    | boolean
+    | {
+        /**
+         * Optionally specify number of samples (will be clamped to the max the platform supports)
+         *
+         * Default most platforms are 16 samples
+         */
+        samples: number;
+      };
   /**
    * Sets the default image filtering for excalibur
    *
@@ -92,13 +94,15 @@ export interface ExcaliburGraphicsContextOptions {
    *
    * By default enabled
    */
-  multiSampleAntialiasing?: boolean | {
-    /**
-     * Specify number of samples to use during the multi sample anti-alias, if not specified the max will be used.
-     * Limited by the hardware (usually 16)
-     */
-    samples: number
-  },
+  multiSampleAntialiasing?:
+    | boolean
+    | {
+        /**
+         * Specify number of samples to use during the multi sample anti-alias, if not specified the max will be used.
+         * Limited by the hardware (usually 16)
+         */
+        samples: number;
+      };
   /**
    * UV padding in pixels to use in the internal image rendering
    *

@@ -41,8 +41,8 @@ describe('Excalibur Math', () => {
   });
 
   it('can get the fractional portion of a number', () => {
-    expect(ex.frac(42.123)).toBeCloseTo(.123);
-    expect(ex.frac(-42.123)).toBeCloseTo(-.123);
+    expect(ex.frac(42.123)).toBeCloseTo(0.123);
+    expect(ex.frac(-42.123)).toBeCloseTo(-0.123);
   });
 
   it('can return the sign of a number', () => {

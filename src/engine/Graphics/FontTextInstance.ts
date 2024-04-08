@@ -13,7 +13,12 @@ export class FontTextInstance {
   public disposed: boolean = false;
   private _lastHashCode: string;
 
-  constructor(public readonly font: Font, public readonly text: string, public readonly color: Color, public readonly maxWidth?: number) {
+  constructor(
+    public readonly font: Font,
+    public readonly text: string,
+    public readonly color: Color,
+    public readonly maxWidth?: number
+  ) {
     this.canvas = document.createElement('canvas');
     this.ctx = this.canvas.getContext('2d');
     this.dimensions = this.measureText(text);
@@ -59,7 +64,7 @@ export class FontTextInstance {
   private _setDimension(textBounds: BoundingBox, bitmap: CanvasRenderingContext2D) {
     let lineHeightRatio = 1;
     if (this.font.lineHeight) {
-      lineHeightRatio = (this.font.lineHeight/this.font.size);
+      lineHeightRatio = this.font.lineHeight / this.font.size;
     }
     // Changing the width and height clears the context properties
     // We double the bitmap width to account for all possible alignment

@@ -76,7 +76,6 @@ export function getGLTypeFromSource(gl: WebGLRenderingContext, source: string, v
   }
 }
 
-
 /**
  * Based on the type return the number of attribute components
  *

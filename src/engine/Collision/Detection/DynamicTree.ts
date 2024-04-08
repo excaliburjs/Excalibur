@@ -48,7 +48,8 @@ export class DynamicTree<T extends ColliderProxy<Entity>> {
   public nodes: { [key: number]: TreeNode<T> };
   constructor(
     private _config: Required<Pick<PhysicsConfig, 'dynamicTree'>['dynamicTree']>,
-    public worldBounds: BoundingBox = new BoundingBox(-Number.MAX_VALUE, -Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE)) {
+    public worldBounds: BoundingBox = new BoundingBox(-Number.MAX_VALUE, -Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE)
+  ) {
     this.root = null;
     this.nodes = {};
   }

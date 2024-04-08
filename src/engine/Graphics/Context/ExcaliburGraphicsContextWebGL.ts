@@ -87,9 +87,9 @@ export interface WebGLGraphicsContextInfo {
 }
 
 export interface ExcaliburGraphicsContextWebGLOptions extends ExcaliburGraphicsContextOptions {
-  context?: WebGL2RenderingContext,
-  handleContextLost?: (e: Event) => void,
-  handleContextRestored?: (e: Event) => void
+  context?: WebGL2RenderingContext;
+  handleContextLost?: (e: Event) => void;
+  handleContextRestored?: (e: Event) => void;
 }
 
 export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
@@ -106,10 +106,12 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       instance.renderer = undefined;
       instance.args = undefined;
       return instance;
-    }, 4000);
+    },
+    4000
+  );
 
   private _drawCallIndex = 0;
-  private _drawCalls: DrawCall[] = (new Array(4000)).fill(null);
+  private _drawCalls: DrawCall[] = new Array(4000).fill(null);
 
   // Main render target
   private _renderTarget: RenderTarget;
@@ -143,7 +145,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
    */
   public readonly smoothing: boolean = false;
 
-
   /**
    * Whether the pixel art sampler is enabled for smooth sub pixel anti-aliasing
    */
@@ -153,7 +154,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
    * UV padding in pixels to use in internal image rendering to prevent texture bleed
    *
    */
-  public uvPadding = .01;
+  public uvPadding = 0.01;
 
   public backgroundColor: Color = Color.ExcaliburBlue;
 
@@ -231,13 +232,15 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       handleContextLost,
       handleContextRestored
     } = options;
-    this.__gl = context ?? canvasElement.getContext('webgl2', {
-      antialias: antialiasing ?? this.smoothing,
-      premultipliedAlpha: false,
-      alpha: enableTransparency ?? this.transparency,
-      depth: false,
-      powerPreference: powerPreference ?? 'high-performance'
-    });
+    this.__gl =
+      context ??
+      canvasElement.getContext('webgl2', {
+        antialias: antialiasing ?? this.smoothing,
+        premultipliedAlpha: false,
+        alpha: enableTransparency ?? this.transparency,
+        depth: false,
+        powerPreference: powerPreference ?? 'high-performance'
+      });
     if (!this.__gl) {
       throw Error('Failed to retrieve webgl context from browser');
     }
@@ -307,16 +310,17 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
     // Setup builtin renderers
-    this.register(new ImageRenderer({
-      uvPadding: this.uvPadding,
-      pixelArtSampler: this.pixelArtSampler
-    }));
+    this.register(
+      new ImageRenderer({
+        uvPadding: this.uvPadding,
+        pixelArtSampler: this.pixelArtSampler
+      })
+    );
     this.register(new MaterialRenderer());
     this.register(new RectangleRenderer());
     this.register(new CircleRenderer());
     this.register(new PointRenderer());
     this.register(new LineRenderer());
-
 
     this.materialScreenTexture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, this.materialScreenTexture);
@@ -391,7 +395,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     if (!this._isDrawLifecycle) {
       this._logger.warnOnce(
         `Attempting to draw outside the the drawing lifecycle (preDraw/postDraw) is not supported and is a source of bugs/errors.\n` +
-        `If you want to do custom drawing, use Actor.graphics, or any onPreDraw or onPostDraw handler.`);
+          `If you want to do custom drawing, use Actor.graphics, or any onPreDraw or onPostDraw handler.`
+      );
     }
     if (this._isContextLost) {
       this._logger.errorOnce(`Unable to draw ${rendererName}, the webgl context is lost`);
@@ -588,13 +593,13 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       const uniforms = shader.getUniforms();
       this._totalPostProcessorTime += delta;
 
-      if (uniforms.find(u => u.name ==='u_time_ms')) {
+      if (uniforms.find((u) => u.name === 'u_time_ms')) {
         shader.setUniformFloat('u_time_ms', this._totalPostProcessorTime);
       }
-      if (uniforms.find(u => u.name ==='u_elapsed_ms')) {
+      if (uniforms.find((u) => u.name === 'u_elapsed_ms')) {
         shader.setUniformFloat('u_elapsed_ms', delta);
       }
-      if (uniforms.find(u => u.name ==='u_resolution')) {
+      if (uniforms.find((u) => u.name === 'u_resolution')) {
         shader.setUniformFloatVector('u_resolution', vec(this.width, this.height));
       }
 
@@ -618,7 +623,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
    * @returns Material
    */
   public createMaterial(options: Omit<MaterialOptions, 'graphicsContext'>): Material {
-    const material = new Material({...options, graphicsContext: this});
+    const material = new Material({ ...options, graphicsContext: this });
     return material;
   }
 
@@ -682,8 +687,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
         const zIndex = a.z - b.z;
         const originalSortOrder = originalSort.get(a.renderer) - originalSort.get(b.renderer);
         const priority = a.priority - b.priority;
-        if (zIndex === 0) { // sort by z first
-          if (priority === 0) { // sort by priority
+        if (zIndex === 0) {
+          // sort by z first
+          if (priority === 0) {
+            // sort by priority
             return originalSortOrder; // use the original order to inform draw call packing to maximally preserve painter order
           }
           return priority;

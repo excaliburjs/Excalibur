@@ -1,4 +1,3 @@
-
 var engine = new ex.Engine({
   width: 400,
   height: 400,
@@ -29,9 +28,9 @@ engine.currentScene.onPreDraw = (ctx: ex.ExcaliburGraphicsContext) => {
   const yellow = ex.Color.fromHex('#FDCF45');
 
   const bb = engine.screen.contentArea.clone();
-  bb.top++
-  bb.left++
-  bb.bottom--
+  bb.top++;
+  bb.left++;
+  bb.bottom--;
   bb.right--;
   bb.draw(ctx, ex.Color.Yellow);
 
@@ -40,12 +39,12 @@ engine.currentScene.onPreDraw = (ctx: ex.ExcaliburGraphicsContext) => {
   ctx.drawCircle(ex.vec(bb.left + 6, bb.bottom - 6), 10, yellow);
   ctx.drawCircle(ex.vec(bb.right - 6, bb.bottom - 6), 10, red);
   ctx.restore();
-}
+};
 
 engine.add(bounds);
 engine.add(box);
 
-bounds.on("preupdate", () => {
+bounds.on('preupdate', () => {
   // const topLeft = engine.screen.screenToWorldCoordinates(ex.vec(engine.screen.contentArea.left, engine.screen.contentArea.top));
   // const bottomRight = engine.screen.screenToWorldCoordinates(ex.vec(engine.screen.contentArea.right, engine.screen.contentArea.bottom));
   // bounds.pos = topLeft;
@@ -54,16 +53,15 @@ bounds.on("preupdate", () => {
   // bounds.graphics.recalculateBounds();
 });
 
-box.on("preupdate", () => {
+box.on('preupdate', () => {
   // box.pos.x = 0;//engine.screen.contentArea.left + 50;
   // box.pos.y = 0;//engine.screen.contentArea.top + 50;
-
   // console.log(box.pos);
 });
 
 engine.onPostUpdate = () => {
   //  engine.currentScene.camera.pos = engine.screen.center;
-}
+};
 
 engine.start().then(() => {
   console.log(engine.currentScene.camera.pos);

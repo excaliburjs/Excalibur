@@ -8,7 +8,10 @@ import { ScreenShader } from './ScreenShader';
 export class ColorBlindnessPostProcessor implements PostProcessor {
   private _shader: ScreenShader;
   private _simulate = false;
-  constructor(private _colorBlindnessMode: ColorBlindnessMode, simulate = false) {
+  constructor(
+    private _colorBlindnessMode: ColorBlindnessMode,
+    simulate = false
+  ) {
     this._simulate = simulate;
   }
 
@@ -48,7 +51,6 @@ export class ColorBlindnessPostProcessor implements PostProcessor {
   set simulate(value: boolean) {
     this._simulate = value;
     if (this._shader) {
-
       const shader = this._shader.getShader();
       shader.use();
       shader.setUniformBoolean('u_simulate', value);
