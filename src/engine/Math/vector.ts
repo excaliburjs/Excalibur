@@ -1,5 +1,5 @@
 import { Clonable } from '../Interfaces/Clonable';
-import { clamp } from './util';
+import { canonicalizeAngle, clamp } from './util';
 
 /**
  * A 2D vector on a plane.
@@ -353,7 +353,7 @@ export class Vector implements Clonable<Vector> {
    * Returns the angle of this vector.
    */
   public toAngle(): number {
-    return Math.atan2(this.y, this.x);
+    return canonicalizeAngle(Math.atan2(this.y, this.x));
   }
 
   /**
