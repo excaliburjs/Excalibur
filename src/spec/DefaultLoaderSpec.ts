@@ -3,7 +3,6 @@ import { TestUtils } from './util/TestUtils';
 import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 
 describe('A DefaultLoader', () => {
-
   let engine: ex.Engine;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
@@ -37,7 +36,7 @@ describe('A DefaultLoader', () => {
 
   it('can draw', async () => {
     const sut = new ex.DefaultLoader({
-      loadables: [ , , , ]
+      loadables: [, , ,]
     });
     sut.onInitialize(engine);
     sut.markResourceComplete();
@@ -51,7 +50,7 @@ describe('A DefaultLoader', () => {
     const img1 = new ex.ImageSource('src/spec/images/DefaultLoaderSpec/loading.png');
     const img2 = new ex.ImageSource('src/spec/images/DefaultLoaderSpec/loading.png');
     const sut = new ex.DefaultLoader({
-      loadables: [ img1, img2 ]
+      loadables: [img1, img2]
     });
     sut.onInitialize(engine);
 

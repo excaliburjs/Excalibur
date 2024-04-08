@@ -56,30 +56,17 @@ export { events as Events };
 import * as input from './Input/Index';
 export { input as Input };
 
-export {
-  WheelEvent
-} from './Input/WheelEvent';
+export { WheelEvent } from './Input/WheelEvent';
 
-export {
-  PointerEvent
-} from './Input/PointerEvent';
+export { PointerEvent } from './Input/PointerEvent';
 
-export {
-  WheelDeltaMode
-} from './Input/WheelDeltaMode';
+export { WheelDeltaMode } from './Input/WheelDeltaMode';
 
-export {
-  PointerButton
-} from './Input/PointerButton';
+export { PointerButton } from './Input/PointerButton';
 
-export {
-  NativePointerButton
-} from './Input/NativePointerButton';
+export { NativePointerButton } from './Input/NativePointerButton';
 
-export {
-  CapturePointerConfig
-} from './Input/CapturePointerConfig';
-
+export { CapturePointerConfig } from './Input/CapturePointerConfig';
 
 export {
   NativePointerEvent,
@@ -108,12 +95,7 @@ export {
   GamepadConfiguration
 } from './Input/Gamepad';
 
-export {
-  Keys,
-  KeyEvent,
-  KeyboardInitOptions,
-  Keyboard
-} from './Input/Keyboard';
+export { Keys, KeyEvent, KeyboardInitOptions, Keyboard } from './Input/Keyboard';
 export * from './Input/InputHost';
 export * from './Input/InputMapper';
 

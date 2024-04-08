@@ -13,7 +13,6 @@ export interface InputsOptions {
  * you need to allow multiple input sources to control a specific action.
  */
 export class InputMapper {
-
   private _handlers = new Map<any, any>();
   constructor(public inputs: InputsOptions) {}
 
@@ -51,7 +50,8 @@ export class InputMapper {
    */
   on<TInputHandlerData>(
     inputHandler: (inputs: InputsOptions) => TInputHandlerData | false,
-    commandHandler: (data: TInputHandlerData) => any) {
+    commandHandler: (data: TInputHandlerData) => any
+  ) {
     this._handlers.set(inputHandler, commandHandler);
   }
 }

@@ -76,11 +76,13 @@ describe('The engine', () => {
       loader.areResourcesLoaded().then(() => {
         testClock.run(2, 100); // 200 ms delay in loader
         expect(document.getElementById('excalibur-play')).withContext('Play button should exist in the document').toBeDefined();
-        setTimeout(() => { // needed for the delay to work
+        setTimeout(() => {
+          // needed for the delay to work
           testClock.run(1, 100);
           engine.graphicsContext.flush();
           expectAsync(engine.canvas)
-            .toEqualImage('src/spec/images/EngineSpec/engine-load-complete.png').then(() => {
+            .toEqualImage('src/spec/images/EngineSpec/engine-load-complete.png')
+            .then(() => {
               done();
             });
         });
@@ -105,7 +107,6 @@ describe('The engine', () => {
     engine.dispose();
     engine = null;
     engine = TestUtils.engine();
-
 
     await engine.load(new FailedLoader());
 
@@ -203,9 +204,12 @@ describe('The engine', () => {
   it('can flag on to the canvas fallback', async () => {
     engine.dispose();
     engine = null;
-    engine = TestUtils.engine({
-      suppressPlayButton: false
-    }, ['use-canvas-context']);
+    engine = TestUtils.engine(
+      {
+        suppressPlayButton: false
+      },
+      ['use-canvas-context']
+    );
     await TestUtils.runToReady(engine);
 
     expect(engine.graphicsContext).toBeInstanceOf(ex.ExcaliburGraphicsContext2DCanvas);
@@ -273,7 +277,8 @@ describe('The engine', () => {
       testClock.step(1);
       engine.graphicsContext.flush();
       expectAsync(engine.canvas)
-        .toEqualImage('src/spec/images/EngineSpec/engine-suppress-play.png').then(() => {
+        .toEqualImage('src/spec/images/EngineSpec/engine-suppress-play.png')
+        .then(() => {
           done();
         });
     });
@@ -282,7 +287,7 @@ describe('The engine', () => {
   it('can set snapToPixel', () => {
     engine.dispose();
     engine = null;
-    engine = TestUtils.engine({width: 100, height: 100});
+    engine = TestUtils.engine({ width: 100, height: 100 });
     expect(engine.snapToPixel).toBeFalse();
 
     engine.snapToPixel = true;
@@ -294,7 +299,7 @@ describe('The engine', () => {
   it('can set pixelRatio', () => {
     engine.dispose();
     engine = null;
-    engine = TestUtils.engine({width: 100, height: 100, pixelRatio: 5, suppressHiDPIScaling: false});
+    engine = TestUtils.engine({ width: 100, height: 100, pixelRatio: 5, suppressHiDPIScaling: false });
     expect(engine.pixelRatio).toBe(5);
     expect(engine.screen.pixelRatio).toBe(5);
     expect(engine.screen.scaledWidth).toBe(500);
@@ -304,12 +309,12 @@ describe('The engine', () => {
   it('can use draw sorting', () => {
     engine.dispose();
     engine = null;
-    engine = TestUtils.engine({width: 100, height: 100, useDrawSorting: false}, []);
+    engine = TestUtils.engine({ width: 100, height: 100, useDrawSorting: false }, []);
     expect(engine.graphicsContext.useDrawSorting).toBe(false);
 
     engine.dispose();
     engine = null;
-    engine = TestUtils.engine({width: 100, height: 100, useDrawSorting: true}, []);
+    engine = TestUtils.engine({ width: 100, height: 100, useDrawSorting: true }, []);
     expect(engine.graphicsContext.useDrawSorting).toBe(true);
   });
 
@@ -699,7 +704,6 @@ describe('The engine', () => {
     spyOn(scene1, 'onInitialize').and.callThrough();
     spyOn(scene2, 'onInitialize').and.callThrough();
 
-
     await engine.goToScene('scene1');
 
     await TestUtils.runToReady(engine);
@@ -711,25 +715,28 @@ describe('The engine', () => {
   });
 
   it('can screen shot the game (in WebGL)', (done) => {
-
     const engine = TestUtils.engine({}, []);
     const clock = engine.clock as ex.TestClock;
 
-    engine.add(new ex.Actor({
-      x: 50,
-      y: 50,
-      width: 100,
-      height: 100,
-      color: ex.Color.Red
-    }));
+    engine.add(
+      new ex.Actor({
+        x: 50,
+        y: 50,
+        width: 100,
+        height: 100,
+        color: ex.Color.Red
+      })
+    );
     TestUtils.runToReady(engine).then(() => {
       clock.step(1);
 
       engine.screenshot().then((image) => {
-        expectAsync(image).toEqualImage(flushWebGLCanvasTo2D(engine.canvas)).then(() => {
-          done();
-          engine.dispose();
-        });
+        expectAsync(image)
+          .toEqualImage(flushWebGLCanvasTo2D(engine.canvas))
+          .then(() => {
+            done();
+            engine.dispose();
+          });
       });
       clock.step(1);
       clock.step(1);
@@ -738,19 +745,20 @@ describe('The engine', () => {
   });
 
   it('can screen shot the game HiDPI (in WebGL)', async () => {
-
     const engine = TestUtils.engine({}, []);
     const clock = engine.clock as ex.TestClock;
     (engine.screen as any)._pixelRatioOverride = 2;
     engine.screen.applyResolutionAndViewport();
 
-    engine.add(new ex.Actor({
-      x: 50,
-      y: 50,
-      width: 100,
-      height: 100,
-      color: ex.Color.Red
-    }));
+    engine.add(
+      new ex.Actor({
+        x: 50,
+        y: 50,
+        width: 100,
+        height: 100,
+        color: ex.Color.Red
+      })
+    );
     await TestUtils.runToReady(engine);
 
     clock.step(1);
@@ -772,14 +780,17 @@ describe('The engine', () => {
   });
 
   it('can screen shot and match the anti-aliasing with a half pixel when pixelRatio != 1.0', async () => {
-    const engine = TestUtils.engine({
-      width: 200,
-      height: 200,
-      pixelRatio: 1.2,
-      suppressHiDPIScaling: false,
-      antialiasing: false,
-      snapToPixel: false
-    }, []);
+    const engine = TestUtils.engine(
+      {
+        width: 200,
+        height: 200,
+        pixelRatio: 1.2,
+        suppressHiDPIScaling: false,
+        antialiasing: false,
+        snapToPixel: false
+      },
+      []
+    );
     const clock = engine.clock as ex.TestClock;
     const img = new ex.ImageSource('src/spec/images/EngineSpec/sprite.png');
     await img.load();
@@ -834,7 +845,6 @@ describe('The engine', () => {
     await playerImage.load();
     await backgroundImage.load();
 
-
     const tilemap = new ex.TileMap({
       tileWidth: 16,
       tileHeight: 16,
@@ -842,19 +852,19 @@ describe('The engine', () => {
       columns: 20,
       pos: ex.vec(0, 0)
     });
-    tilemap.tiles.forEach(t => {
+    tilemap.tiles.forEach((t) => {
       t.addGraphic(backgroundSpriteSheet.getSprite(6, 0));
     });
 
     const player = new ex.Actor({
       anchor: ex.vec(0, 0),
-      pos: ex.vec(16 * 8 + .9, 16 * 8 + .9)
+      pos: ex.vec(16 * 8 + 0.9, 16 * 8 + 0.9)
     });
     player.graphics.use(playerSpriteSheet.getSprite(0, 0));
 
     engine.add(tilemap);
     engine.add(player);
-    engine.currentScene.camera.pos = player.pos.add(ex.vec(.05, .05));
+    engine.currentScene.camera.pos = player.pos.add(ex.vec(0.05, 0.05));
 
     clock.step();
 
@@ -902,7 +912,6 @@ describe('The engine', () => {
     await playerImage.load();
     await backgroundImage.load();
 
-
     const tilemap = new ex.TileMap({
       tileWidth: 16,
       tileHeight: 16,
@@ -910,7 +919,7 @@ describe('The engine', () => {
       columns: 20,
       pos: ex.vec(0, 0)
     });
-    tilemap.tiles.forEach(t => {
+    tilemap.tiles.forEach((t) => {
       t.addGraphic(backgroundSpriteSheet.getSprite(6, 0));
     });
 

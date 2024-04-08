@@ -5,9 +5,9 @@ import { Keyboard } from './Keyboard';
 import { PointerEventReceiver } from './PointerEventReceiver';
 
 export interface InputHostOptions {
-  pointerTarget: Document | HTMLCanvasElement
-  grabWindowFocus: boolean,
-  engine: Engine
+  pointerTarget: Document | HTMLCanvasElement;
+  grabWindowFocus: boolean;
+  engine: Engine;
 }
 
 export class InputHost {
@@ -24,8 +24,8 @@ export class InputHost {
     this.pointers = new PointerEventReceiver(pointerTarget, engine);
     this.gamepads = new Gamepads();
 
-    this.keyboard.init({grabWindowFocus});
-    this.pointers.init({grabWindowFocus});
+    this.keyboard.init({ grabWindowFocus });
+    this.pointers.init({ grabWindowFocus });
     this.gamepads.init();
     this.inputMapper = new InputMapper({
       keyboard: this.keyboard,

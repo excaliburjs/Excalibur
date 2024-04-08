@@ -3,7 +3,7 @@ import { Entity } from './Entity';
 /**
  * Component Constructor Types
  */
-export declare type ComponentCtor<TComponent extends Component = Component> = new (...args:any[]) => TComponent;
+export declare type ComponentCtor<TComponent extends Component = Component> = new (...args: any[]) => TComponent;
 
 /**
  *

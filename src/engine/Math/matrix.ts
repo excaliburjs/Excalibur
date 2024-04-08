@@ -98,7 +98,7 @@ export class Matrix {
   }
 
   public static fromFloat32Array(data: Float32Array) {
-    const matrix =  new Matrix();
+    const matrix = new Matrix();
     matrix.data = data;
     return matrix;
   }
@@ -290,7 +290,6 @@ export class Matrix {
       return result;
     }
   }
-
 
   /**
    * Applies translation to the current matrix mutating it

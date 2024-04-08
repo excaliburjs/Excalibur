@@ -1,55 +1,54 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
+  <head>
     <style type="text/css">
-        html {
-            background-color: #345;
-        }
+      html {
+        background-color: #345;
+      }
 
-        #game {
-            margin: auto;
-            display: block;
-        }
+      #game {
+        margin: auto;
+        display: block;
+      }
 
-        #fullscreen {
-          position: fixed;
-          right: 20px;
-          top: 20px;
-          color: white;
-          background-color: green;
-          padding: 10px;
-          border: none;
-          border-radius: 2px;
-          z-index: 2;
-        }
-        canvas{ 
-            position: fixed; 
-            top:50%; 
-            left:50%; 
-            transform: translate(-50% , -50%); 
-        }
+      #fullscreen {
+        position: fixed;
+        right: 20px;
+        top: 20px;
+        color: white;
+        background-color: green;
+        padding: 10px;
+        border: none;
+        border-radius: 2px;
+        z-index: 2;
+      }
+      canvas {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
 
-        #page {
-          position: fixed;
-          width: 5px;
-          height: 5px;
-          background-color: green;
-        }
+      #page {
+        position: fixed;
+        width: 5px;
+        height: 5px;
+        background-color: green;
+      }
     </style>
 
     <link rel="icon" type="image/x-icon" href="../images/favicon.png" />
-</head>
-<body>
+  </head>
+  <body>
     <button id="fullscreen">Go Fullscreen</button>
     <div id="page"></div>
     <div id="container" class="container">
-        <div style="position: absolute; left: 10px; top: 10px; z-index: 99; color: white;">stuff</div>
-        <canvas id="game"></canvas>
+      <div style="position: absolute; left: 10px; top: 10px; z-index: 99; color: white">stuff</div>
+      <canvas id="game"></canvas>
     </div>
     <script type="text/javascript" src="../stats/stats.js"></script>
     <script type="text/javascript" src="../lib/excalibur.js"></script>
     <script type="text/javascript" src="../excalibur-dev-tools/dev-tools.js"></script>
     <script type="text/javascript" src="../src/game.js"></script>
-</body>
-
+  </body>
 </html>

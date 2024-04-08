@@ -69,7 +69,6 @@ export abstract class Graphic {
    */
   public showDebug: boolean = false;
 
-
   private _flipHorizontal = false;
   /**
    * Gets or sets the flipHorizontal, which will flip the graphic horizontally (across the y axis)
@@ -166,7 +165,7 @@ export abstract class Graphic {
       rotation: this.rotation,
       opacity: this.opacity,
       scale: this.scale ? this.scale.clone() : null,
-      tint: this.tint ? this.tint.clone(): null
+      tint: this.tint ? this.tint.clone() : null
     };
   }
 

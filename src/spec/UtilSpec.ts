@@ -2,9 +2,8 @@ import * as ex from '@excalibur';
 import { watchDeep } from '../engine/Util/Watch';
 
 describe('Utility functions', () => {
-
   it('can watch deep', () => {
-    const deepObject =  {
+    const deepObject = {
       top: {
         oneLevel: {
           twoLevel: {

@@ -1,7 +1,5 @@
-
 import { VertexLayout } from '../Context/vertex-layout';
 import { Shader } from '../Context/shader';
-
 
 /**
  * PostProcessors can be used to apply a shader to the entire screen. It is recommended

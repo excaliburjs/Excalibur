@@ -2,20 +2,19 @@ import * as ex from '@excalibur';
 import { ExcaliburMatchers } from 'excalibur-jasmine';
 
 describe('A QuadTree', () => {
-
   it('exists', () => {
     expect(ex.QuadTree).toBeDefined();
   });
 
   it('can add things to track', () => {
-    const sut = new ex.QuadTree<{ id: number, bounds: ex.BoundingBox }>(
+    const sut = new ex.QuadTree<{ id: number; bounds: ex.BoundingBox }>(
       new ex.BoundingBox({
         left: 0,
         top: 0,
         bottom: 100,
         right: 100
-      }));
-
+      })
+    );
 
     const bb1 = ex.BoundingBox.fromDimension(10, 10, ex.Vector.Zero, ex.vec(0, 0));
     const bb2 = ex.BoundingBox.fromDimension(10, 10, ex.Vector.Zero, ex.vec(90, 90));
@@ -31,16 +30,17 @@ describe('A QuadTree', () => {
   });
 
   it('can remove things', () => {
-    const sut = new ex.QuadTree<{ id: number, bounds: ex.BoundingBox }>(
+    const sut = new ex.QuadTree<{ id: number; bounds: ex.BoundingBox }>(
       new ex.BoundingBox({
         left: 0,
         top: 0,
         bottom: 100,
         right: 100
-      }), {
+      }),
+      {
         capacity: 1
-      });
-
+      }
+    );
 
     const bb1 = ex.BoundingBox.fromDimension(10, 10, ex.Vector.Zero, ex.vec(0, 0));
     const bb2 = ex.BoundingBox.fromDimension(10, 10, ex.Vector.Zero, ex.vec(90, 90));
@@ -70,14 +70,14 @@ describe('A QuadTree', () => {
   });
 
   it('can be cleared', () => {
-    const sut = new ex.QuadTree<{ id: number, bounds: ex.BoundingBox }>(
+    const sut = new ex.QuadTree<{ id: number; bounds: ex.BoundingBox }>(
       new ex.BoundingBox({
         left: 0,
         top: 0,
         bottom: 100,
         right: 100
-      }));
-
+      })
+    );
 
     const bb1 = ex.BoundingBox.fromDimension(10, 10, ex.Vector.Zero, ex.vec(0, 0));
     const bb2 = ex.BoundingBox.fromDimension(10, 10, ex.Vector.Zero, ex.vec(90, 90));
@@ -99,16 +99,17 @@ describe('A QuadTree', () => {
   });
 
   it('can be queried', () => {
-    const sut = new ex.QuadTree<{ id: number, bounds: ex.BoundingBox }>(
+    const sut = new ex.QuadTree<{ id: number; bounds: ex.BoundingBox }>(
       new ex.BoundingBox({
         left: 0,
         top: 0,
         bottom: 100,
         right: 100
-      }), {
+      }),
+      {
         capacity: 1
-      });
-
+      }
+    );
 
     const bb1 = ex.BoundingBox.fromDimension(10, 10, ex.Vector.Zero, ex.vec(0, 0));
     const bb2 = ex.BoundingBox.fromDimension(10, 10, ex.Vector.Zero, ex.vec(90, 90));
@@ -135,20 +136,22 @@ describe('A QuadTree', () => {
   });
 
   it('will respect max depth', () => {
-    const sut = new ex.QuadTree<{ id: number, bounds: ex.BoundingBox }>(
+    const sut = new ex.QuadTree<{ id: number; bounds: ex.BoundingBox }>(
       new ex.BoundingBox({
         left: 0,
         top: 0,
         bottom: 100,
         right: 100
-      }), {
+      }),
+      {
         capacity: 1,
         maxDepth: 10
-      });
+      }
+    );
 
     let id = 0;
     for (let i = 0; i < 15; i++) {
-      sut.insert({id: id++, bounds: ex.BoundingBox.fromDimension(10, 10, ex.Vector.Zero, ex.Vector.Zero)});
+      sut.insert({ id: id++, bounds: ex.BoundingBox.fromDimension(10, 10, ex.Vector.Zero, ex.Vector.Zero) });
     }
 
     const items = sut.getAllItems();

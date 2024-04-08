@@ -13,7 +13,7 @@ describe('The engine', () => {
     scene = new ex.Scene();
     engine.add('test', scene);
     engine.goToScene('test');
-    actor = new ex.Actor({x: 0, y: 0, width: 10, height: 10, color: ex.Color.Red});
+    actor = new ex.Actor({ x: 0, y: 0, width: 10, height: 10, color: ex.Color.Red });
     scene.add(actor);
     clock = engine.clock as ex.TestClock;
     await TestUtils.runToReady(engine);

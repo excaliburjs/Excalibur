@@ -9,7 +9,10 @@ import { Collider } from '../Colliders/Collider';
  */
 export class Pair {
   public id: string = null;
-  constructor(public colliderA: Collider, public colliderB: Collider) {
+  constructor(
+    public colliderA: Collider,
+    public colliderB: Collider
+  ) {
     this.id = Pair.calculatePairHash(colliderA.id, colliderB.id);
   }
 
@@ -28,9 +31,7 @@ export class Pair {
     }
 
     // Colliders with the same owner do not collide (composite colliders)
-    if (colliderA.owner &&
-        colliderB.owner &&
-        colliderA.owner.id === colliderB.owner.id) {
+    if (colliderA.owner && colliderB.owner && colliderA.owner.id === colliderB.owner.id) {
       return false;
     }
 

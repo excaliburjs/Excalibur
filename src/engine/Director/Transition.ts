@@ -204,7 +204,7 @@ export class Transition extends Entity {
     const currentScene = targetScene ?? engine.currentScene;
     currentScene.add(this);
     const self = this;
-    return coroutine(engine, function * () {
+    return coroutine(engine, function* () {
       while (!self.complete) {
         const elapsed = yield; // per frame
         self.updateTransition(engine, elapsed);

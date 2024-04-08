@@ -1,4 +1,3 @@
-
 var game = new ex.Engine({
   width: 400,
   height: 400
@@ -8,10 +7,10 @@ var actor = new ex.Actor({
   anchor: ex.vec(0.5, 0.5),
   pos: game.screen.center,
   color: ex.Color.Red,
-  radius: 5,
+  radius: 5
 });
 
-actor.actions.repeatForever(ctx => {
+actor.actions.repeatForever((ctx) => {
   ctx.moveBy(ex.vec(100, 100), 100);
   ctx.moveBy(ex.vec(-100, -100), 100);
 });

@@ -1,16 +1,15 @@
-
 export interface State {
   name?: string;
   transitions: string[];
-  onEnter?: (context: {from: string, eventData?: any, data: any}) => boolean | void;
+  onEnter?: (context: { from: string; eventData?: any; data: any }) => boolean | void;
   onState?: () => any;
-  onExit?: (context: {to: string, data: any}) => boolean | void;
+  onExit?: (context: { to: string; data: any }) => boolean | void;
   onUpdate?: (data: any, elapsedMs: number) => any;
 }
 
 export interface StateMachineDescription {
-  start: string,
-  states: { [name: string]: State }
+  start: string;
+  states: { [name: string]: State };
 }
 
 export type PossibleStates<TMachine> = TMachine extends StateMachineDescription ? Extract<keyof TMachine['states'], string> : never;
@@ -33,7 +32,9 @@ export class StateMachine<TPossibleStates extends string, TData> {
   public data: TData;
 
   static create<TMachine extends StateMachineDescription, TData>(
-    machineDescription: TMachine, data?: TData): StateMachine<PossibleStates<TMachine>, TData> {
+    machineDescription: TMachine,
+    data?: TData
+  ): StateMachine<PossibleStates<TMachine>, TData> {
     const machine = new StateMachine<PossibleStates<TMachine>, TData>();
     machine.data = data;
     for (const stateName in machineDescription.states) {
@@ -68,14 +69,14 @@ export class StateMachine<TPossibleStates extends string, TData> {
     if (this.currentState.transitions.includes(stateName) || this.currentState.transitions.includes('*')) {
       const potentialNewState = this.states.get(stateName);
       if (this.currentState.onExit) {
-        const canExit = this.currentState?.onExit({to: potentialNewState.name, data: this.data});
+        const canExit = this.currentState?.onExit({ to: potentialNewState.name, data: this.data });
         if (canExit === false) {
           return false;
         }
       }
 
       if (potentialNewState?.onEnter) {
-        const canEnter = potentialNewState?.onEnter({from: this.currentState.name, eventData, data: this.data});
+        const canEnter = potentialNewState?.onEnter({ from: this.currentState.name, eventData, data: this.data });
         if (canEnter === false) {
           return false;
         }
@@ -97,10 +98,13 @@ export class StateMachine<TPossibleStates extends string, TData> {
   }
 
   save(saveKey: string) {
-    localStorage.setItem(saveKey, JSON.stringify({
-      currentState: this.currentState.name,
-      data: this.data
-    }));
+    localStorage.setItem(
+      saveKey,
+      JSON.stringify({
+        currentState: this.currentState.name,
+        data: this.data
+      })
+    );
   }
 
   restore(saveKey: string) {
@@ -109,4 +113,3 @@ export class StateMachine<TPossibleStates extends string, TData> {
     this.data = state.data;
   }
 }
-

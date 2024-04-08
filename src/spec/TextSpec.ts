@@ -2,7 +2,6 @@ import * as ex from '@excalibur';
 import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 import { delay } from '../engine/Util/Util';
 
-
 /**
  *
  */
@@ -118,7 +117,7 @@ describe('A Text Graphic', () => {
   });
 
   it('correctly calculates size based on scale', () => {
-    const sut = new ex.Text({text: 'some text'});
+    const sut = new ex.Text({ text: 'some text' });
     const currentBounds = sut.localBounds;
     sut.scale = ex.vec(2, 2);
     expect(sut.width).toBe(currentBounds.width * 2);
@@ -154,7 +153,6 @@ describe('A Text Graphic', () => {
       await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsTextSpec/text-linux.png');
     });
   });
-
 
   it('can draw multiple lines of text (font)', async () => {
     const sut = new ex.Text({
@@ -314,7 +312,6 @@ describe('A Text Graphic', () => {
       await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsTextSpec/rotated-linux.png');
     });
   });
-
 
   it('can rotate text around the left', async () => {
     const sut = new ex.Text({
@@ -544,7 +541,6 @@ describe('A Text Graphic', () => {
     expect(ex.FontCache.cacheSize).toBe(2);
     ex.FontCache.clearCache();
     expect(ex.FontCache.cacheSize).toBe(0);
-
   });
 
   it('will collect text bitmap garbage', async () => {
@@ -726,96 +722,97 @@ describe('A Text Graphic', () => {
 
   it('can draw large pieces of text', async () => {
     const sut = new ex.Text({
-      text: 'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n',
+      text:
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+        'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+        'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n',
       font: new ex.Font({
         family: 'Open Sans',
         size: 18,
@@ -846,9 +843,11 @@ describe('A Text Graphic', () => {
     expect(() => {
       const text: ex.Text[] = [];
       for (let i = 0; i < 1000; i++) {
-        text.push(new ex.Text({
-          text: 'text that is long' + i
-        }));
+        text.push(
+          new ex.Text({
+            text: 'text that is long' + i
+          })
+        );
       }
     }).not.toThrow();
   });
@@ -1001,16 +1000,18 @@ describe('A Text Graphic', () => {
     sut.draw(ctx, 0, 0);
     const warnSpy = logger.warnOnce as jasmine.Spy;
     expect(warnSpy.calls.argsFor(0)).toEqual([
-      'SpriteFont - Cannot find letter \'~\' in configured alphabet \'0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- \'.']);
+      "SpriteFont - Cannot find letter '~' in configured alphabet '0123456789abcdefghijklmnopqrstuvwxyz,!'&.\"?- '."
+    ]);
     expect(warnSpy.calls.argsFor(1)).toEqual([
-      'There maybe be more issues in the SpriteFont configuration. No additional warnings will be logged.']);
+      'There maybe be more issues in the SpriteFont configuration. No additional warnings will be logged.'
+    ]);
     warnSpy.calls.reset();
     sut.text = '?';
     sut.draw(ctx, 0, 0);
-    expect(warnSpy.calls.argsFor(0)).toEqual([
-      'SpriteFont - Cannot find sprite for \'?\' at index \'42\' in configured SpriteSheet']);
+    expect(warnSpy.calls.argsFor(0)).toEqual(["SpriteFont - Cannot find sprite for '?' at index '42' in configured SpriteSheet"]);
     expect(warnSpy.calls.argsFor(1)).toEqual([
-      'There maybe be more issues in the SpriteFont configuration. No additional warnings will be logged.']);
+      'There maybe be more issues in the SpriteFont configuration. No additional warnings will be logged.'
+    ]);
   });
 
   it('can do some simple shadowing', async () => {

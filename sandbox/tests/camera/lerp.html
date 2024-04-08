@@ -1,15 +1,20 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns="http://www.w3.org/1999/xhtml">
-<head>
+  <head>
     <title>Camera Lerp Test</title>
     <style type="text/css">
-      #lerp-true { display: none; }
-      #lerp-true { color: green; }
-      #lerp-false { color: red; }
+      #lerp-true {
+        display: none;
+      }
+      #lerp-true {
+        color: green;
+      }
+      #lerp-false {
+        color: red;
+      }
     </style>
-</head>
-<body>
-    
+  </head>
+  <body>
     <div>
       <button id="move-ease-in-out-quad">Move camera with EaseInOutQuad</button>
       <button id="move-ease-in-quad">Move camera with EaseInQuad</button>
@@ -26,8 +31,7 @@
       <p>Easing: <span id="lerp-true">TRUE</span> <span id="lerp-false">FALSE</span></p>
     </div>
 
-
     <script src="../../lib/excalibur.js"></script>
     <script src="lerp.js"></script>
-</body>
+  </body>
 </html>

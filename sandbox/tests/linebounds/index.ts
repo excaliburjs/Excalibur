@@ -1,12 +1,12 @@
 var game = new ex.Engine({
   width: 1200,
   height: 400,
-  canvasElementId: "game",
+  canvasElementId: 'game',
   pixelRatio: 1
 });
 
 game.debug.entity.showName = true;
-game.toggleDebug()
+game.toggleDebug();
 
 var actor = new ex.Actor({
   pos: new ex.Vector(100, 100),
@@ -31,18 +31,16 @@ class Beam extends ex.Actor {
     // longLine.height = 26;
     console.log(longLine.width, longLine.height);
     console.log(this.graphics.localBounds);
-    
+
     this.graphics.use(longLine);
   }
 
-  onPreUpdate() {
-    
-  }
+  onPreUpdate() {}
 }
 
 var shortBeam = new Beam(
   {
-    name: "shortBeam",
+    name: 'shortBeam',
     pos: new ex.Vector(200, 200)
   },
   100
@@ -50,7 +48,7 @@ var shortBeam = new Beam(
 
 var longBeam = new Beam(
   {
-    name: "longBeam",
+    name: 'longBeam',
     pos: new ex.Vector(200, 300)
   },
   1001

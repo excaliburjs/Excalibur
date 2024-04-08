@@ -16,12 +16,12 @@ var tilemap = new ex.TileMap({
   rows: 4,
   columns: 4
 });
-tilemap.tiles.forEach(t => {
+tilemap.tiles.forEach((t) => {
   t.addGraphic(graphic);
 });
 tilemap.addComponent(new ex.ParallaxComponent(ex.vec(0.5, 0.5)));
 
-game.input.keyboard.on("press", event => {
+game.input.keyboard.on('press', (event) => {
   if (event.key === ex.Keys.ArrowUp) {
     game.currentScene.camera.pos.y -= 10;
   }
@@ -30,12 +30,14 @@ game.input.keyboard.on("press", event => {
   }
 });
 
-game.add(new ex.Actor({
-  width: 100,
-  height: 100,
-  color: ex.Color.Red,
-  z: 10
-}));
+game.add(
+  new ex.Actor({
+    width: 100,
+    height: 100,
+    color: ex.Color.Red,
+    z: 10
+  })
+);
 
 game.add(tilemap);
 

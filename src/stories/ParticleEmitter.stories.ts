@@ -7,63 +7,68 @@ export default {
 } as Meta;
 
 export const Main: StoryObj = {
-  render: withEngine(async (game, {
-    width,
-    height,
-    emitterType,
-    radius,
-    minVel,
-    maxVel,
-    minAngle,
-    maxAngle,
-    isEmitting,
-    emitRate,
-    opacity,
-    fadeFlag,
-    particleLife,
-    minSize,
-    maxSize,
-    startSize,
-    endSize,
-    accelX,
-    accelY,
-    beginColor,
-    endColor
-  }) => {
-    // Default Scenario
-    game.backgroundColor = Color.Black;
+  render: withEngine(
+    async (
+      game,
+      {
+        width,
+        height,
+        emitterType,
+        radius,
+        minVel,
+        maxVel,
+        minAngle,
+        maxAngle,
+        isEmitting,
+        emitRate,
+        opacity,
+        fadeFlag,
+        particleLife,
+        minSize,
+        maxSize,
+        startSize,
+        endSize,
+        accelX,
+        accelY,
+        beginColor,
+        endColor
+      }
+    ) => {
+      // Default Scenario
+      game.backgroundColor = Color.Black;
 
-    // Particle Emitter
-    const emitter = new ParticleEmitter({
-      x: game.currentScene.camera.x,
-      y: game.currentScene.camera.y,
-      width,
-      height,
-      emitterType,
-      radius,
-      minVel,
-      maxVel,
-      minAngle,
-      maxAngle,
-      isEmitting,
-      emitRate,
-      opacity,
-      fadeFlag,
-      particleLife,
-      minSize,
-      maxSize,
-      startSize,
-      endSize,
-      acceleration: new Vector(accelX, accelY),
-      beginColor: Color.fromRGBString(beginColor),
-      endColor: Color.fromRGBString(endColor),
-      focusAccel: 800
-    });
+      // Particle Emitter
+      const emitter = new ParticleEmitter({
+        x: game.currentScene.camera.x,
+        y: game.currentScene.camera.y,
+        width,
+        height,
+        emitterType,
+        radius,
+        minVel,
+        maxVel,
+        minAngle,
+        maxAngle,
+        isEmitting,
+        emitRate,
+        opacity,
+        fadeFlag,
+        particleLife,
+        minSize,
+        maxSize,
+        startSize,
+        endSize,
+        acceleration: new Vector(accelX, accelY),
+        beginColor: Color.fromRGBString(beginColor),
+        endColor: Color.fromRGBString(endColor),
+        focusAccel: 800
+      });
 
-    game.add(emitter);
+      game.add(emitter);
 
-    await game.start();
-  }),
+      await game.start();
+    }
+  ),
   argTypes: {
     width: { control: { type: 'number', range: true, min: 0, max: 100, step: 1 } },
     height: { control: { type: 'number', range: true, min: 0, max: 100, step: 1 } },

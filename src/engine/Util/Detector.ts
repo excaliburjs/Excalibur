@@ -140,13 +140,13 @@ export class Detector {
   // critical browser features required for ex to run
   private _criticalTests: CriticalTests = {
     // Test canvas/2d context support
-    canvasSupport: function() {
+    canvasSupport: function () {
       const elem = document.createElement('canvas');
       return !!(elem.getContext && elem.getContext('2d'));
     },
 
     // Test array buffer support ex uses for downloading binary data
-    arrayBufferSupport: function() {
+    arrayBufferSupport: function () {
       const xhr = new XMLHttpRequest();
       xhr.open('GET', '/');
       try {
@@ -158,18 +158,18 @@ export class Detector {
     },
 
     // Test data urls ex uses for sprites
-    dataUrlSupport: function() {
+    dataUrlSupport: function () {
       const canvas = document.createElement('canvas');
       return canvas.toDataURL('image/png').indexOf('data:image/png') === 0;
     },
 
     // Test object url support for loading
-    objectUrlSupport: function() {
+    objectUrlSupport: function () {
       return 'URL' in window && 'revokeObjectURL' in URL && 'createObjectURL' in URL;
     },
 
     // RGBA support for colors
-    rgbaSupport: function() {
+    rgbaSupport: function () {
       const style = document.createElement('a').style;
       style.cssText = 'background-color:rgba(150,255,150,.5)';
       return ('' + style.backgroundColor).indexOf('rgba') > -1;
@@ -178,7 +178,7 @@ export class Detector {
 
   // warnings excalibur performance will be degraded
   private _warningTest: WarningTests = {
-    webAudioSupport: function() {
+    webAudioSupport: function () {
       return !!(
         (<any>window).AudioContext ||
         (<any>window).webkitAudioContext ||
@@ -187,7 +187,7 @@ export class Detector {
         (<any>window).oAudioContext
       );
     },
-    webglSupport: function() {
+    webglSupport: function () {
       const elem = document.createElement('canvas');
       return !!(elem.getContext && elem.getContext('webgl'));
     }

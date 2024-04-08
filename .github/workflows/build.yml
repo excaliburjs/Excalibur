@@ -5,14 +5,14 @@ name: CI
 
 env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  COVERALLS_REPO_TOKEN: "${{ secrets.COVERALLS_REPO_TOKEN }}"
-  COVERALLS_GIT_BRANCH: "${{ github.ref }}"
+  COVERALLS_REPO_TOKEN: '${{ secrets.COVERALLS_REPO_TOKEN }}'
+  COVERALLS_GIT_BRANCH: '${{ github.ref }}'
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [main]
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_call:
 
 jobs:
@@ -20,55 +20,54 @@ jobs:
     runs-on: [ubuntu-latest]
 
     steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: true
-        fetch-depth: 100
-    - uses: actions/setup-node@v4
-      with:
-        node-version-file: '.nvmrc'
-        registry-url: 'https://registry.npmjs.org'
-        cache: npm
-    - run: npm ci
-    - run: npm run linux:ci
-    - name: Coveralls 
-      uses: coverallsapp/github-action@v2.2.3
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 100
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          registry-url: 'https://registry.npmjs.org'
+          cache: npm
+      - run: npm ci
+      - run: npm run linux:ci
+      - name: Coveralls
+        uses: coverallsapp/github-action@v2.2.3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
   typedoc:
     runs-on: [ubuntu-latest]
     env:
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
-      
+
     steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: true
-        fetch-depth: 100
-    - uses: actions/setup-node@v4
-      with:
-        node-version-file: '.nvmrc'
-        cache: npm
-        registry-url: 'https://registry.npmjs.org'
-    - run: npm ci --ignore-scripts
-    - run: npm run apidocs
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 100
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm ci --ignore-scripts
+      - run: npm run apidocs
 
   examples:
     runs-on: [ubuntu-latest]
     env:
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
-      
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: true
-        fetch-depth: 100
-    - uses: actions/setup-node@v4
-      with:
-        node-version-file: '.nvmrc'
-        cache: npm
-        registry-url: 'https://registry.npmjs.org'
-    - run: npm ci --ignore-scripts
-    - run: npm run build-storybook
 
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 100
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm ci --ignore-scripts
+      - run: npm run build-storybook

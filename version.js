@@ -20,11 +20,11 @@ function getAlphaVersion() {
   }
 }
 
-function getReleaseVersion() { 
+function getReleaseVersion() {
   return package.version;
 }
 
 module.exports = {
   getAlphaVersion: getAlphaVersion,
   getReleaseVersion: getReleaseVersion
-}
+};

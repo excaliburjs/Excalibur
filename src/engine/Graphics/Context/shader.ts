@@ -6,38 +6,39 @@ import { getAttributeComponentSize, getAttributePointerType } from './webgl-util
  * List of the possible glsl uniform types
  */
 export type UniformTypeNames =
-  'uniform1f' |
-  'uniform1i' |
-  'uniform2f' |
-  'uniform2i' |
-  'uniform3f' |
-  'uniform3i' |
-  'uniform4f' |
-  'uniform4i' |
-  'uniform1fv' |
-  'uniform1iv' |
-  'uniform2fv' |
-  'uniform2iv' |
-  'uniform3fv' |
-  'uniform3iv' |
-  'uniform4fv' |
-  'uniform4iv' |
-  'uniformMatrix2fv' |
-  'uniformMatrix3fv' |
-  'uniformMatrix4fv';
+  | 'uniform1f'
+  | 'uniform1i'
+  | 'uniform2f'
+  | 'uniform2i'
+  | 'uniform3f'
+  | 'uniform3i'
+  | 'uniform4f'
+  | 'uniform4i'
+  | 'uniform1fv'
+  | 'uniform1iv'
+  | 'uniform2fv'
+  | 'uniform2iv'
+  | 'uniform3fv'
+  | 'uniform3iv'
+  | 'uniform4fv'
+  | 'uniform4iv'
+  | 'uniformMatrix2fv'
+  | 'uniformMatrix3fv'
+  | 'uniformMatrix4fv';
 
-type RemoveFirstFromTuple<T extends any[]> =
-  T['length'] extends 0 ? undefined :
-    (((...b: T) => void) extends (a: any, ...b: infer I) => void ? I : [])
+type RemoveFirstFromTuple<T extends any[]> = T['length'] extends 0
+  ? undefined
+  : ((...b: T) => void) extends (a: any, ...b: infer I) => void
+    ? I
+    : [];
 
-type UniformParameters<TUniformType extends UniformTypeNames> = RemoveFirstFromTuple<Parameters<WebGLRenderingContext[TUniformType]>>
+type UniformParameters<TUniformType extends UniformTypeNames> = RemoveFirstFromTuple<Parameters<WebGLRenderingContext[TUniformType]>>;
 
 export interface UniformDefinition {
   name: string;
   glType: number;
   location: WebGLUniformLocation;
 }
-
 
 export interface VertexAttributeDefinition {
   /**
@@ -383,8 +384,10 @@ export class Shader {
       throw Error(`Must compile shader before setting a uniform ${uniformType}:${name}`);
     }
     if (!this.isCurrentlyBound()) {
-      throw Error('Currently accessed shader instance is not the current active shader in WebGL,' +
-      ' must call `shader.use()` before setting uniforms');
+      throw Error(
+        'Currently accessed shader instance is not the current active shader in WebGL,' +
+          ' must call `shader.use()` before setting uniforms'
+      );
     }
     const gl = this._gl;
     const location = gl.getUniformLocation(this.program, name);
@@ -392,8 +395,10 @@ export class Shader {
       const args = [location, ...value];
       this._gl[uniformType].apply(this._gl, args);
     } else {
-      throw Error(`Uniform ${uniformType}:${name} doesn\'t exist or is not used in the shader source code,`+
-      ' unused uniforms are optimized away by most browsers');
+      throw Error(
+        `Uniform ${uniformType}:${name} doesn\'t exist or is not used in the shader source code,` +
+          ' unused uniforms are optimized away by most browsers'
+      );
     }
   }
 
@@ -409,14 +414,17 @@ export class Shader {
   trySetUniform<TUniformType extends UniformTypeNames>(
     uniformType: TUniformType,
     name: string,
-    ...value: UniformParameters<TUniformType>): boolean {
+    ...value: UniformParameters<TUniformType>
+  ): boolean {
     if (!this._compiled) {
       this._logger.warn(`Must compile shader before setting a uniform ${uniformType}:${name}`);
       return false;
     }
     if (!this.isCurrentlyBound()) {
-      this._logger.warn('Currently accessed shader instance is not the current active shader in WebGL,' +
-      ' must call `shader.use()` before setting uniforms');
+      this._logger.warn(
+        'Currently accessed shader instance is not the current active shader in WebGL,' +
+          ' must call `shader.use()` before setting uniforms'
+      );
       return false;
     }
     const gl = this._gl;
@@ -476,9 +484,12 @@ export class Shader {
     const lines = source.split('\n');
     const errorLineStart = errorInfo.search(/\d:\d/);
     const errorLineEnd = errorInfo.indexOf(' ', errorLineStart);
-    const [_, error2] = errorInfo.slice(errorLineStart, errorLineEnd).split(':').map(v => Number(v));
+    const [_, error2] = errorInfo
+      .slice(errorLineStart, errorLineEnd)
+      .split(':')
+      .map((v) => Number(v));
     for (let i = 0; i < lines.length; i++) {
-      lines[i] = `${i+1}: ${lines[i]}${error2 === (i+1)? ' <----- ERROR!' : ''}`;
+      lines[i] = `${i + 1}: ${lines[i]}${error2 === i + 1 ? ' <----- ERROR!' : ''}`;
     }
 
     return '\n\nSource:\n' + lines.join('\n');

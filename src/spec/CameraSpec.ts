@@ -45,11 +45,11 @@ describe('A camera', () => {
     engine.dispose();
     engine = null;
     engine = TestUtils.engine({
-      viewport: {width: 100, height: 100},
-      resolution: {width: 1000, height: 1200 }
+      viewport: { width: 100, height: 100 },
+      resolution: { width: 1000, height: 1200 }
     });
     engine.screen.pushResolutionAndViewport();
-    engine.screen.resolution = {width: 100, height: 1000};
+    engine.screen.resolution = { width: 100, height: 1000 };
     spyOnProperty(engine, 'loadingComplete', 'get').and.returnValue(false);
     spyOn(engine.screen, 'peekResolution').and.callThrough();
 
@@ -65,8 +65,8 @@ describe('A camera', () => {
     engine.dispose();
     engine = null;
     engine = TestUtils.engine({
-      viewport: {width: 100, height: 100},
-      resolution: {width: 1000, height: 1200 }
+      viewport: { width: 100, height: 100 },
+      resolution: { width: 1000, height: 1200 }
     });
 
     const sut = new ex.Camera();
@@ -81,8 +81,8 @@ describe('A camera', () => {
     engine.dispose();
     engine = null;
     engine = TestUtils.engine({
-      viewport: {width: 100, height: 100},
-      resolution: {width: 1000, height: 1200 }
+      viewport: { width: 100, height: 100 },
+      resolution: { width: 1000, height: 1200 }
     });
 
     const sut = new ex.Camera();
@@ -98,8 +98,8 @@ describe('A camera', () => {
     engine.dispose();
     engine = null;
     engine = TestUtils.engine({
-      viewport: {width: 100, height: 100},
-      resolution: {width: 1000, height: 1200 }
+      viewport: { width: 100, height: 100 },
+      resolution: { width: 1000, height: 1200 }
     });
 
     spyOnProperty(engine, 'loadingComplete', 'get').and.returnValue(true);
@@ -275,7 +275,7 @@ describe('A camera', () => {
   it('can use built-in locked camera x axis strategy', () => {
     engine.currentScene.camera = new ex.Camera();
     engine.currentScene.camera.pos = ex.Vector.Zero;
-    const actor = new ex.Actor({x: 0, y: 0});
+    const actor = new ex.Actor({ x: 0, y: 0 });
 
     engine.currentScene.camera.strategy.lockToActorAxis(actor, ex.Axis.X);
 
@@ -292,7 +292,7 @@ describe('A camera', () => {
   it('can use built-in locked camera y axis strategy', () => {
     engine.currentScene.camera = new ex.Camera();
     engine.currentScene.camera.pos = ex.Vector.Zero;
-    const actor = new ex.Actor({x: 0, y: 0});
+    const actor = new ex.Actor({ x: 0, y: 0 });
 
     engine.currentScene.camera.strategy.lockToActorAxis(actor, ex.Axis.Y);
 
@@ -309,7 +309,7 @@ describe('A camera', () => {
   it('can use built-in radius around actor strategy', () => {
     engine.currentScene.camera = new ex.Camera();
     engine.currentScene.camera.pos = ex.Vector.Zero;
-    const actor = new ex.Actor({x: 0, y: 0});
+    const actor = new ex.Actor({ x: 0, y: 0 });
 
     engine.currentScene.camera.strategy.radiusAroundActor(actor, 15);
 

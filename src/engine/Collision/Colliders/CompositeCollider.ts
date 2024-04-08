@@ -56,7 +56,7 @@ export class CompositeCollider extends Collider {
     let colliders: Collider[];
     if (collider instanceof CompositeCollider) {
       colliders = collider.getColliders();
-      colliders.forEach(c => c.offset.addEqual(collider.offset));
+      colliders.forEach((c) => c.offset.addEqual(collider.offset));
     } else {
       colliders = [collider];
     }
@@ -267,7 +267,7 @@ export class CompositeCollider extends Collider {
     }
   }
 
-  public debug(ex: ExcaliburGraphicsContext, color: Color,  options?: { lineWidth: number, pointSize: number }) {
+  public debug(ex: ExcaliburGraphicsContext, color: Color, options?: { lineWidth: number; pointSize: number }) {
     const colliders = this.getColliders();
     ex.save();
     ex.translate(this.offset.x, this.offset.y);

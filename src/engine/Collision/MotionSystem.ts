@@ -12,9 +12,12 @@ export class MotionSystem extends System {
   public priority = SystemPriority.Higher;
   private _physicsConfigDirty = false;
   query: Query<typeof TransformComponent | typeof MotionComponent>;
-  constructor(public world: World, public physics: PhysicsWorld) {
+  constructor(
+    public world: World,
+    public physics: PhysicsWorld
+  ) {
     super();
-    physics.$configUpdate.subscribe(() => this._physicsConfigDirty = true);
+    physics.$configUpdate.subscribe(() => (this._physicsConfigDirty = true));
     this.query = this.world.query([TransformComponent, MotionComponent]);
   }
 

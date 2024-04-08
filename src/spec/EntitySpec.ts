@@ -12,7 +12,7 @@ describe('An entity', () => {
   });
 
   it('can be constructed with a list of components', () => {
-    const e = new ex.Entity([new FakeComponentA, new FakeComponentB, new FakeComponentC]);
+    const e = new ex.Entity([new FakeComponentA(), new FakeComponentB(), new FakeComponentC()]);
 
     expect(e.has(FakeComponentA)).toBe(true);
     expect(e.has(FakeComponentB)).toBe(true);
@@ -20,11 +20,11 @@ describe('An entity', () => {
   });
 
   it('can override existing components', () => {
-    const original = new FakeComponentA;
+    const original = new FakeComponentA();
     const e = new ex.Entity([original]);
 
     spyOn(e, 'removeComponent');
-    const newComponent = new FakeComponentA;
+    const newComponent = new FakeComponentA();
     e.addComponent(newComponent, true);
     expect(e.removeComponent).toHaveBeenCalledWith(FakeComponentA, true);
   });
@@ -63,14 +63,14 @@ describe('An entity', () => {
 
   it('can have types by component', () => {
     const entity = new ex.Entity();
-    const typeA = new FakeComponentA;
-    const typeB = new FakeComponentB;
+    const typeA = new FakeComponentA();
+    const typeB = new FakeComponentB();
     expect(entity.types).toEqual([]);
 
     entity.addComponent(typeA);
     expect(entity.types).toEqual([FakeComponentA]);
     entity.addComponent(typeB);
-    expect(entity.types).toEqual([ FakeComponentA, FakeComponentB]);
+    expect(entity.types).toEqual([FakeComponentA, FakeComponentB]);
     entity.removeComponent(FakeComponentA, true);
     expect(entity.types).toEqual([FakeComponentB]);
     entity.removeComponent(FakeComponentB, true);
@@ -79,9 +79,9 @@ describe('An entity', () => {
 
   it('can get a list of components', () => {
     const entity = new ex.Entity();
-    const typeA = new FakeComponentA;
-    const typeB = new FakeComponentB;
-    const typeC = new FakeComponentC;
+    const typeA = new FakeComponentA();
+    const typeB = new FakeComponentB();
+    const typeC = new FakeComponentC();
 
     expect(entity.getComponents()).toEqual([]);
 
@@ -93,7 +93,7 @@ describe('An entity', () => {
   it('can have type from tag components', () => {
     const entity = new ex.Entity();
     // const isOffscreen = new TagComponent('offscreen');
-    const nonTag = new FakeComponentA;
+    const nonTag = new FakeComponentA();
 
     expect(entity.types).toEqual([]);
     entity.addTag('offscreen');
@@ -120,7 +120,7 @@ describe('An entity', () => {
 
   it('can be observed for added changes', (done) => {
     const entity = new ex.Entity();
-    const typeA = new FakeComponentA;
+    const typeA = new FakeComponentA();
     entity.componentAdded$.register({
       notify: (change) => {
         expect(change.owner).toBe(entity);
@@ -133,7 +133,7 @@ describe('An entity', () => {
 
   it('can be observed for removed changes', (done) => {
     const entity = new ex.Entity();
-    const typeA = new FakeComponentA;
+    const typeA = new FakeComponentA();
 
     entity.addComponent(typeA);
     entity.componentRemoved$.register({
@@ -149,11 +149,11 @@ describe('An entity', () => {
 
   it('can be cloned', () => {
     const entity = new ex.Entity();
-    const typeA = new FakeComponentA;
-    const typeB = new FakeComponentB;
+    const typeA = new FakeComponentA();
+    const typeB = new FakeComponentB();
     entity.addComponent(typeA);
     entity.addComponent(typeB);
-    entity.addChild(new ex.Entity([new FakeComponentZ]));
+    entity.addChild(new ex.Entity([new FakeComponentZ()]));
 
     const clone = entity.clone();
     expect(clone).not.toBe(entity);
@@ -168,8 +168,8 @@ describe('An entity', () => {
 
   it('can be initialized with a template', () => {
     const entity = new ex.Entity();
-    const template = new ex.Entity([new FakeComponentA, new FakeComponentB]).addChild(
-      new ex.Entity([new FakeComponentC, new FakeComponentD]).addChild(new ex.Entity([new FakeComponentZ]))
+    const template = new ex.Entity([new FakeComponentA(), new FakeComponentB()]).addChild(
+      new ex.Entity([new FakeComponentC(), new FakeComponentD()]).addChild(new ex.Entity([new FakeComponentZ()]))
     );
 
     expect(entity.getComponents()).toEqual([]);
@@ -181,8 +181,8 @@ describe('An entity', () => {
 
   it('can be checked if it has a component', () => {
     const entity = new ex.Entity();
-    const typeA = new FakeComponentA;
-    const typeB = new FakeComponentB;
+    const typeA = new FakeComponentA();
+    const typeB = new FakeComponentB();
     entity.addComponent(typeA);
     entity.addComponent(typeB);
 
@@ -282,7 +282,7 @@ describe('An entity', () => {
     expect(child.parent).toBe(null);
   });
 
-  it('can\'t have a cycle', () => {
+  it("can't have a cycle", () => {
     const parent = new ex.Entity();
     const child = new ex.Entity();
 
@@ -293,7 +293,7 @@ describe('An entity', () => {
     }).toThrowError('Cycle detected, cannot add entity');
   });
 
-  it('can\'t parent if already parented', () => {
+  it("can't parent if already parented", () => {
     const parent = new ex.Entity();
     const child = new ex.Entity();
     const otherParent = new ex.Entity();
@@ -310,7 +310,7 @@ describe('An entity', () => {
     e.componentAdded$.register({
       notify: addedSpy
     });
-    const component = new FakeComponentA;
+    const component = new FakeComponentA();
     e.addComponent(component);
     expect(addedSpy).toHaveBeenCalledTimes(1);
   });
@@ -321,7 +321,7 @@ describe('An entity', () => {
     e.componentRemoved$.register({
       notify: removedSpy
     });
-    const component = new FakeComponentA;
+    const component = new FakeComponentA();
     e.addComponent(component);
     e.removeComponent(FakeComponentA);
     e.processComponentRemoval();
@@ -486,7 +486,7 @@ describe('An entity', () => {
 
   it('will return subclass instances of types', () => {
     class MyBody extends ex.BodyComponent {}
-    const body = new MyBody;
+    const body = new MyBody();
     const sut = new ex.Entity([body]);
 
     expect(sut.get(MyBody)).toBe(body);
@@ -494,7 +494,7 @@ describe('An entity', () => {
 
     sut.removeComponent(body, true);
 
-    const superBody = new ex.BodyComponent;
+    const superBody = new ex.BodyComponent();
     sut.addComponent(superBody);
     expect(sut.get(MyBody)).toBe(undefined);
     expect(sut.get(ex.BodyComponent)).toBe(superBody);

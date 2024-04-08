@@ -39,8 +39,7 @@ export class Fade implements Action {
     }
 
     if (this._speed > 0) {
-      this._graphics.opacity += (this._multiplier *
-        (Math.abs(this._graphics.opacity - this._endOpacity) * delta)) / this._speed;
+      this._graphics.opacity += (this._multiplier * (Math.abs(this._graphics.opacity - this._endOpacity) * delta)) / this._speed;
     }
 
     this._speed -= delta;

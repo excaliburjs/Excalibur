@@ -27,7 +27,7 @@ function start() {
   });
 
   // Draw gamepad
-  var gamepad = new ex.Actor({width: padSprite.width, height: padSprite.height});
+  var gamepad = new ex.Actor({ width: padSprite.width, height: padSprite.height });
   gamepad.anchor.setTo(0, 0);
   gamepad.graphics.add(padSprite);
   game.add(gamepad);
@@ -56,13 +56,13 @@ function start() {
   var buttonDef;
   for (var b = 0; b < buttonDefs.length; b++) {
     buttonDef = buttonDefs[b];
-    buttons[b] = new CircleActor({x: buttonDef[1], y: buttonDef[2], width: 10, height: 10, color: new ex.Color(0, 0, 0, 0.7)});
+    buttons[b] = new CircleActor({ x: buttonDef[1], y: buttonDef[2], width: 10, height: 10, color: new ex.Color(0, 0, 0, 0.7) });
     game.add(buttons[b]);
   }
 
   // Sticks
-  var leftStick = new CircleActor({x: 330, y: 272, width: 25, height: 25, color: ex.Color.fromRGB(95, 164, 22, 0.6)});
-  var rightStick = new CircleActor({x: 470, y: 272, width: 25, height: 25, color: ex.Color.fromRGB(164, 45, 22, 0.6)});
+  var leftStick = new CircleActor({ x: 330, y: 272, width: 25, height: 25, color: ex.Color.fromRGB(95, 164, 22, 0.6) });
+  var rightStick = new CircleActor({ x: 470, y: 272, width: 25, height: 25, color: ex.Color.fromRGB(164, 45, 22, 0.6) });
 
   game.add(leftStick);
   game.add(rightStick);
@@ -91,12 +91,10 @@ function start() {
 
         const actor = buttons[btn];
         if (pad1.wasButtonPressed(btnIndex, 0.1) || pad1.wasButtonReleased(btnIndex)) {
-          actor.actions.clearActions()
-          actor.actions
-            .scaleTo(ex.Vector.One.scale(1.25), ex.Vector.One.scale(5))
-            .scaleTo(ex.Vector.One.scale(1), ex.Vector.One.scale(5))
+          actor.actions.clearActions();
+          actor.actions.scaleTo(ex.Vector.One.scale(1.25), ex.Vector.One.scale(5)).scaleTo(ex.Vector.One.scale(1), ex.Vector.One.scale(5));
         }
-        
+
         if (pad1.isButtonPressed(btnIndex, 0.1)) {
           actor.color = new ex.Color(255, 0, 0, 0.8);
           actor.value = pad1.getButton(btnIndex);
@@ -119,14 +117,16 @@ class CircleActor extends ex.Actor {
     this._text.text = this._value.toString();
   }
   private _text = new ex.Text({
-    text: this.value.toString(),
+    text: this.value.toString()
   });
   constructor(args: ex.ActorArgs) {
     super(args);
-    this.graphics.add(new ex.Circle({
-      radius: this.width,
-      color: this.color
-    }));
+    this.graphics.add(
+      new ex.Circle({
+        radius: this.width,
+        color: this.color
+      })
+    );
     this.graphics.add(this._text);
     this._text.color = this.color;
   }

@@ -32,7 +32,6 @@ export enum SystemType {
  * ```
  */
 export abstract class System {
-
   /**
    * Determine whether the system is called in the [[SystemType.Update]] or the [[SystemType.Draw]] phase. Update is first, then Draw.
    */

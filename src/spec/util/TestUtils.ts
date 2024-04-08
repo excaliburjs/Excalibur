@@ -5,8 +5,7 @@ export namespace TestUtils {
    * Builds an engine with testing switches on
    * @param options
    */
-  export function engine(options: ex.EngineOptions = {}, flags: string[] = [
-    'suppress-obsolete-message']): ex.Engine {
+  export function engine(options: ex.EngineOptions = {}, flags: string[] = ['suppress-obsolete-message']): ex.Engine {
     options = {
       width: 500,
       height: 500,
@@ -23,7 +22,7 @@ export namespace TestUtils {
     ex.Debug.clear();
     ex.Flags._reset();
     ex.Flags.enable('suppress-obsolete-message');
-    flags.forEach(f => ex.Flags.enable(f));
+    flags.forEach((f) => ex.Flags.enable(f));
     const game = new ex.Engine(options);
 
     // keeps the pointer based tests consistent
@@ -64,7 +63,7 @@ export namespace TestUtils {
    *
    */
   export async function flushMicrotasks(clock: ex.TestClock, times: number) {
-    for ( let i = 0; i < times; i++) {
+    for (let i = 0; i < times; i++) {
       clock.step(0);
       await Promise.resolve();
     }

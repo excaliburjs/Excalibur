@@ -19,12 +19,12 @@ export interface DefaultLoaderOptions {
 
 export type LoaderEvents = {
   // Add event types here
-  beforeload: void,
-  afterload: void,
-  useraction: void,
-  loadresourcestart: Loadable<any>,
-  loadresourceend: Loadable<any>,
-}
+  beforeload: void;
+  afterload: void;
+  useraction: void;
+  loadresourcestart: Loadable<any>;
+  loadresourceend: Loadable<any>;
+};
 
 export const LoaderEvents = {
   // Add event types here
@@ -59,7 +59,6 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
   private _numLoaded: number = 0;
   public engine: Engine;
 
-
   /**
    * @param options Optionally provide the list of resources you want to load at constructor time
    */
@@ -87,7 +86,6 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
    *
    */
   public async onUserAction(): Promise<void> {
-
     return await Promise.resolve();
   }
 
@@ -173,7 +171,7 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
     ctx.strokeStyle = 'white';
     ctx.lineWidth = 10;
     ctx.lineCap = 'round';
-    ctx.arc(0, 0, 40, speed, speed + (Math.PI * 3 / 2));
+    ctx.arc(0, 0, 40, speed, speed + (Math.PI * 3) / 2);
     ctx.stroke();
 
     ctx.fillStyle = 'white';
@@ -185,7 +183,6 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
     ctx.fillText(text, -width / 2, height / 2); // center
     ctx.restore();
   }
-
 
   private _loadingFuture = new Future<void>();
   public areResourcesLoaded() {

@@ -46,10 +46,10 @@ export class QuadIndexBuffer {
       // TODO Should we error if this happens?? maybe not might crash mid game
       if (numberOfQuads > maxUint16Index) {
         this._logger.warn(
-          `Total quads exceeds hardware index buffer limit (uint16), max(${maxUint16Index}) requested quads(${numberOfQuads})`);
+          `Total quads exceeds hardware index buffer limit (uint16), max(${maxUint16Index}) requested quads(${numberOfQuads})`
+        );
       }
     }
-
 
     let currentQuad = 0;
     for (let i = 0; i < totalVertices; i += 6) {

@@ -1,26 +1,18 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sound</title>
-</head>
-<body>
-  <label for="loop">Loop</label>
-  <input id="loop" type="checkbox">
-  <label for="playback-rate">Set playback rate</label>
-  <input
-    id="playback-rate"
-    class="playback-rate-control"
-    type="range"
-    min="0.25"
-    max="3"
-    step="0.05"
-    value="1"
-  />
-  <span id="playback-rate-value">1.0</span>
-  <script src="../../lib/excalibur.js"></script>
-  <script src="sound.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sound</title>
+  </head>
+  <body>
+    <label for="loop">Loop</label>
+    <input id="loop" type="checkbox" />
+    <label for="playback-rate">Set playback rate</label>
+    <input id="playback-rate" class="playback-rate-control" type="range" min="0.25" max="3" step="0.05" value="1" />
+    <span id="playback-rate-value">1.0</span>
+    <script src="../../lib/excalibur.js"></script>
+    <script src="sound.js"></script>
+  </body>
 </html>

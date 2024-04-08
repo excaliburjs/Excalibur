@@ -1,16 +1,13 @@
 /// <reference path="../../lib/excalibur.d.ts" />
 
-
 /**
  * Managed game class
  */
 class Game extends ex.Engine {
-
   constructor() {
     super({
       displayMode: ex.DisplayMode.FillScreen,
-      enableCanvasTransparency: true,
-
+      enableCanvasTransparency: true
     });
   }
 
@@ -22,13 +19,11 @@ class Game extends ex.Engine {
       strokeColor: ex.Color.DarkGray,
       lineWidth: 10,
       // padding: 20,
-      smoothing: true,
-
+      smoothing: true
     });
     actor.graphics.add(circle);
     scene.add(actor);
     this.add('levelOne', scene);
-
 
     // Automatically load all default resources
     const loader = new ex.Loader();
@@ -50,4 +45,3 @@ var game3 = new Game();
 game3.start().then(() => {
   game3.goToScene('levelOne');
 });
-

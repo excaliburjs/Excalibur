@@ -58,7 +58,6 @@ describe('Vectors', () => {
   });
 
   it('will return toAngle between 0 and 2PI', () => {
-
     const zero = ex.vec(1, 0);
     expect(zero.toAngle()).toBeCloseTo(0);
 
@@ -69,23 +68,22 @@ describe('Vectors', () => {
     expect(ninety.toAngle()).toBeCloseTo(Math.PI / 2);
 
     const oneThirtyFive = ex.vec(-1, 1);
-    expect(oneThirtyFive.toAngle()).toBeCloseTo(Math.PI * 3 / 4);
+    expect(oneThirtyFive.toAngle()).toBeCloseTo((Math.PI * 3) / 4);
 
     const oneEighty = ex.vec(-1, 0);
     expect(oneEighty.toAngle()).toBeCloseTo(Math.PI);
 
     const twoTwentyFive = ex.vec(-1, -1);
-    expect(twoTwentyFive.toAngle()).toBeCloseTo(Math.PI * 5 / 4);
+    expect(twoTwentyFive.toAngle()).toBeCloseTo((Math.PI * 5) / 4);
 
     const twoSeventy = ex.vec(0, -1);
-    expect(twoSeventy.toAngle()).toBeCloseTo(Math.PI * 3 / 2);
+    expect(twoSeventy.toAngle()).toBeCloseTo((Math.PI * 3) / 2);
 
     const threeFifteen = ex.vec(1, -1);
-    expect(threeFifteen.toAngle()).toBeCloseTo(Math.PI * 7 / 4);
+    expect(threeFifteen.toAngle()).toBeCloseTo((Math.PI * 7) / 4);
 
     const threeSixty = ex.vec(1, -0.0001);
     expect(threeSixty.toAngle()).toBeCloseTo(Math.PI * 2);
-
   });
 
   it('can calculate distance to origin', () => {

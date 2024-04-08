@@ -1,4 +1,4 @@
-import { Entity} from '../../EntityComponentSystem/Entity';
+import { Entity } from '../../EntityComponentSystem/Entity';
 import { TransformComponent } from '../../EntityComponentSystem/Components/TransformComponent';
 import { MotionComponent } from '../../EntityComponentSystem/Components/MotionComponent';
 import { vec, Vector } from '../../Math/vector';

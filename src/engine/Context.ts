@@ -8,7 +8,6 @@ export interface Context<TValue> {
   value: TValue;
 }
 
-
 /**
  * Creates a injectable context that can be retrieved later with `useContext(context)`
  *

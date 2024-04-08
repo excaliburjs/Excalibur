@@ -69,7 +69,6 @@ describe('Collision Shape', () => {
     });
 
     it('has a radius based on scale', () => {
-
       const sut = circle.clone();
       expect(sut.radius).toBe(10);
 
@@ -106,12 +105,14 @@ describe('Collision Shape', () => {
       expect(sut.bounds.top).toBeCloseTo(expected.top);
       expect(sut.bounds.bottom).toBeCloseTo(expected.bottom);
 
-      expect(sut.localBounds).toEqual(new ex.BoundingBox({
-        left: 90,
-        top: -10,
-        bottom: 10,
-        right: 110
-      }));
+      expect(sut.localBounds).toEqual(
+        new ex.BoundingBox({
+          left: 90,
+          top: -10,
+          bottom: 10,
+          right: 110
+        })
+      );
     });
 
     it('calculates correct center when transformed', () => {
@@ -179,7 +180,7 @@ describe('Collision Shape', () => {
       expect(point.y).toBe(0);
     });
 
-    it('doesn\'t have axes', () => {
+    it("doesn't have axes", () => {
       // technically circles have infinite axes
       expect(circle.axes).toEqual([]);
     });
@@ -956,10 +957,9 @@ describe('Collision Shape', () => {
       expect(edge.bounds.bottom).toBe(30);
     });
 
-
     it('can be rotated', () => {
       const transform = new ex.Transform();
-      transform.rotation = Math.PI/2;
+      transform.rotation = Math.PI / 2;
       const edge = new ex.EdgeCollider({
         begin: ex.vec(0, 0),
         end: ex.vec(0, 10),
@@ -1051,9 +1051,7 @@ describe('Collision Shape', () => {
       const edge = ex.Shape.Edge(ex.vec(-100, 30), ex.vec(100, 30));
       const circle = ex.Shape.Circle(30);
       const contact = circle.collide(edge)[0];
-      expect(contact.normal)
-        .withContext('Circle/Edge normals point away from circle')
-        .toBeVector(ex.Vector.Down);
+      expect(contact.normal).withContext('Circle/Edge normals point away from circle').toBeVector(ex.Vector.Down);
       expect(contact.points[0]).toBeVector(ex.vec(0, 30));
       expect(contact.info.collider).toBe(circle);
       expect(contact.info.point).toBeVector(ex.vec(0, 30));
@@ -1066,9 +1064,7 @@ describe('Collision Shape', () => {
       const edge = ex.Shape.Edge(ex.vec(30, 0), ex.vec(100, 0));
       const circle = ex.Shape.Circle(30);
       const contact = circle.collide(edge)[0];
-      expect(contact.normal)
-        .withContext('Circle/Edge normals point away from circle')
-        .toBeVector(ex.Vector.Right);
+      expect(contact.normal).withContext('Circle/Edge normals point away from circle').toBeVector(ex.Vector.Right);
       expect(contact.points[0]).toBeVector(ex.vec(30, 0));
       expect(contact.info.collider).toBe(circle);
       expect(contact.info.point).toBeVector(ex.vec(30, 0));
@@ -1081,9 +1077,7 @@ describe('Collision Shape', () => {
       const edge = ex.Shape.Edge(ex.vec(-100, 0), ex.vec(-30, 0));
       const circle = ex.Shape.Circle(30);
       const contact = circle.collide(edge)[0];
-      expect(contact.normal)
-        .withContext('Circle/Edge normals point away from circle')
-        .toBeVector(ex.Vector.Left);
+      expect(contact.normal).withContext('Circle/Edge normals point away from circle').toBeVector(ex.Vector.Left);
       expect(contact.points[0]).toBeVector(ex.vec(-30, 0));
       expect(contact.info.collider).toBe(circle);
       expect(contact.info.point).toBeVector(ex.vec(-30, 0));
@@ -1096,9 +1090,7 @@ describe('Collision Shape', () => {
       const edge = ex.Shape.Edge(ex.vec(-100, -30), ex.vec(100, -30));
       const circle = ex.Shape.Circle(30);
       const contact = circle.collide(edge)[0];
-      expect(contact.normal)
-        .withContext('Circle/Edge normals point away from circle')
-        .toBeVector(ex.Vector.Up);
+      expect(contact.normal).withContext('Circle/Edge normals point away from circle').toBeVector(ex.Vector.Up);
       expect(contact.points[0]).toBeVector(ex.vec(0, -30));
       expect(contact.info.collider).toBe(circle);
       expect(contact.info.point).toBeVector(ex.vec(0, -30));
@@ -1111,9 +1103,7 @@ describe('Collision Shape', () => {
       const edge = ex.Shape.Edge(ex.vec(-100, 10), ex.vec(100, 10));
       const rect = ex.Shape.Box(40, 20, ex.Vector.Half);
       const contact = rect.collide(edge)[0];
-      expect(contact.normal)
-        .withContext('Rect/Edge normal point away from edge')
-        .toBeVector(ex.Vector.Down);
+      expect(contact.normal).withContext('Rect/Edge normal point away from edge').toBeVector(ex.Vector.Down);
       expect(contact.points[0]).toBeVector(ex.vec(20, 10));
       expect(contact.points[1]).toBeVector(ex.vec(-20, 10));
 
@@ -1125,9 +1115,7 @@ describe('Collision Shape', () => {
       const edge = ex.Shape.Edge(ex.vec(10, 10), ex.vec(100, 10));
       const rect = ex.Shape.Box(40, 20, ex.Vector.Half);
       const contact = rect.collide(edge)[0];
-      expect(contact.normal)
-        .withContext('Rect/Edge normal point away from edge')
-        .toBeVector(ex.Vector.Down);
+      expect(contact.normal).withContext('Rect/Edge normal point away from edge').toBeVector(ex.Vector.Down);
       expect(contact.points[0]).toBeVector(ex.vec(20, 10));
       expect(contact.points[1]).toBeVector(ex.vec(10, 10));
 
@@ -1139,9 +1127,7 @@ describe('Collision Shape', () => {
       const edge = ex.Shape.Edge(ex.vec(-100, 10), ex.vec(0, 10));
       const rect = ex.Shape.Box(40, 20, ex.Vector.Half);
       const contact = rect.collide(edge)[0];
-      expect(contact.normal)
-        .withContext('Rect/Edge normal point away from edge')
-        .toBeVector(ex.Vector.Down);
+      expect(contact.normal).withContext('Rect/Edge normal point away from edge').toBeVector(ex.Vector.Down);
       expect(contact.points[0]).toBeVector(ex.vec(-20, 10));
       expect(contact.points[1]).toBeVector(ex.vec(0, 10));
 
@@ -1168,7 +1154,8 @@ describe('Collision Shape', () => {
       spyOn(logger, 'warn');
       const sut = ex.Shape.Capsule(100, 100);
       expect(logger.warn).toHaveBeenCalledWith(
-        'A capsule collider with equal width and height is a circle, consider using a ex.Shape.Circle or ex.CircleCollider');
+        'A capsule collider with equal width and height is a circle, consider using a ex.Shape.Circle or ex.CircleCollider'
+      );
     });
 
     it('can be defined with an offset horizontally', () => {

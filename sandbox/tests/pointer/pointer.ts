@@ -2,7 +2,7 @@
 
 class Player extends ex.Actor {
   constructor(color: ex.Color, size = 100) {
-    super({x: 300, y: 200, width: size, height: size, color});
+    super({ x: 300, y: 200, width: size, height: size, color });
   }
 }
 
@@ -18,41 +18,40 @@ class Game2 extends ex.Engine {
     screenElement.pointer.useColliderShape = true;
     screenElement.pointer.useGraphicsBounds = true;
     screenElement.on('pointerdown', () => {
-      console.log('screen element down')
+      console.log('screen element down');
     });
     screenElement.on('pointerup', () => {
-      console.log('screen element up')
+      console.log('screen element up');
     });
     this.add(screenElement);
-
 
     const player1 = new Player(ex.Color.Green);
     this.add(player1);
     player1.z = 10;
-    player1.on("pointerdown", (e) => {
-      console.log("green");
+    player1.on('pointerdown', (e) => {
+      console.log('green');
     });
 
     const player2 = new Player(ex.Color.Blue);
     this.add(player2);
     player2.rotation = 0.3;
     player2.z = 5;
-    player2.on("pointerdown", (e) => {
-      console.log("blue");
+    player2.on('pointerdown', (e) => {
+      console.log('blue');
     });
 
     const player3 = new Player(ex.Color.Rose);
     this.add(player3);
     player3.rotation = 0.6;
     player3.z = 1;
-    player3.on("pointerdown", (e) => {
-      console.log("rose");
+    player3.on('pointerdown', (e) => {
+      console.log('rose');
     });
 
     const player4 = new Player(ex.Color.Black, 20);
     this.add(player4);
     player4.z = 11;
-    player4.on('pointerdown', e => {
+    player4.on('pointerdown', (e) => {
       console.log('black');
       console.log('event canceled');
       e.cancel();

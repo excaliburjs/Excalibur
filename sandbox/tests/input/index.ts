@@ -1,7 +1,7 @@
 ﻿/// <reference path='../../lib/excalibur.d.ts' />
 
 var game = new ex.Engine({ width: 500, height: 500, canvasElementId: 'game' });
-var box = new ex.Actor({x: 250, y: 250, width: 100, height: 100, color: ex.Color.Red});
+var box = new ex.Actor({ x: 250, y: 250, width: 100, height: 100, color: ex.Color.Red });
 
 // Enable Gamepad support
 game.input.gamepads.enabled = true;

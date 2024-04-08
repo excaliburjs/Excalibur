@@ -4,15 +4,11 @@ import { GraphicOptions, RasterOptions } from '../Graphics';
 import { Loadable } from '../Interfaces/Loadable';
 import { Resource } from './Resource';
 
-
-export interface FontSourceOptions
-  extends Omit<FontOptions, 'family'>,
-  GraphicOptions,
-  RasterOptions {
+export interface FontSourceOptions extends Omit<FontOptions, 'family'>, GraphicOptions, RasterOptions {
   /**
    * Whether or not to cache-bust requests
    */
-  bustCache?: boolean
+  bustCache?: boolean;
 }
 
 export class FontSource implements Loadable<FontFace> {
@@ -21,7 +17,6 @@ export class FontSource implements Loadable<FontFace> {
   private _options: FontSourceOptions;
 
   data!: FontFace;
-
 
   constructor(
     /**
@@ -55,9 +50,7 @@ export class FontSource implements Loadable<FontFace> {
       await this.data.load();
       this._isLoaded = true;
     } catch (error) {
-      throw `Error loading FontSource from path '${this.path}' with error [${
-        (error as Error).message
-      }]`;
+      throw `Error loading FontSource from path '${this.path}' with error [${(error as Error).message}]`;
     }
     return this.data;
   }

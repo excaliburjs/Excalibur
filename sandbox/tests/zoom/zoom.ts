@@ -11,9 +11,9 @@ var raptorTex = new ex.ImageSource('raptor.png');
 var raptorSheet = ex.SpriteSheet.fromImageSource({
   image: raptorTex,
   grid: {
-    columns: 8, 
-    rows:1, 
-    spriteWidth: 64, 
+    columns: 8,
+    rows: 1,
+    spriteWidth: 64,
     spriteHeight: 64
   }
 });
@@ -23,10 +23,10 @@ raptorAnim.scale.setTo(2, 2);
 game.showDebug(true);
 
 var target = new ex.Actor({
-  x: game.halfDrawWidth, 
-  y: game.halfDrawHeight, 
-  width: 64 * 2, 
-  height: 64 * 2, 
+  x: game.halfDrawWidth,
+  y: game.halfDrawHeight,
+  width: 64 * 2,
+  height: 64 * 2
 });
 target.graphics.add(raptorAnim);
 

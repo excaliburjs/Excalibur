@@ -131,9 +131,7 @@ describe('A AffineMatrix', () => {
   });
 
   it('can find the affine inverse', () => {
-    const mat = ex.AffineMatrix.identity()
-      .translate(100, -200)
-      .scale(2, 4);
+    const mat = ex.AffineMatrix.identity().translate(100, -200).scale(2, 4);
     const inv = mat.inverse();
     expect(mat.multiply(inv).isIdentity()).toBeTrue();
     expect(inv.multiply(mat).isIdentity()).toBeTrue();
@@ -141,17 +139,14 @@ describe('A AffineMatrix', () => {
 
   it('can find the affine inverse and store it into a target', () => {
     const target = ex.AffineMatrix.identity();
-    const mat = ex.AffineMatrix.identity()
-      .translate(100, -200)
-      .scale(2, 4);
+    const mat = ex.AffineMatrix.identity().translate(100, -200).scale(2, 4);
 
     spyOn(ex.AffineMatrix, 'identity');
     const inv = mat.inverse(target);
     expect(mat.multiply(inv).isIdentity()).toBeTrue();
     expect(inv.multiply(mat).isIdentity()).toBeTrue();
     expect(target).toBe(inv);
-    expect(ex.AffineMatrix.identity).withContext('using a target doesnt create a new mat')
-      .not.toHaveBeenCalledWith();
+    expect(ex.AffineMatrix.identity).withContext('using a target doesnt create a new mat').not.toHaveBeenCalledWith();
   });
 
   it('can clone into a target matrix', () => {
@@ -160,11 +155,7 @@ describe('A AffineMatrix', () => {
 
     source.clone(destination);
 
-    expect(destination.data).toEqual(new Float64Array([
-      5, 0,
-      0, 5,
-      0, 0
-    ]));
+    expect(destination.data).toEqual(new Float64Array([5, 0, 0, 5, 0, 0]));
   });
 
   it('can set position', () => {
@@ -175,7 +166,7 @@ describe('A AffineMatrix', () => {
   });
 
   it('can convert to a 4x4 matrix', () => {
-    const mat = ex.AffineMatrix.identity().translate(1,2).rotate(Math.PI).scale(3, 4);
+    const mat = ex.AffineMatrix.identity().translate(1, 2).rotate(Math.PI).scale(3, 4);
     expect(mat.getPosition()).toBeVector(ex.vec(1, 2));
     expect(mat.getRotation()).toBe(Math.PI);
     expect(mat.getScale()).toBeVector(ex.vec(3, 4));
@@ -187,9 +178,7 @@ describe('A AffineMatrix', () => {
   });
 
   it('can reset to identity', () => {
-    const mat = ex.AffineMatrix.identity()
-      .translate(100, -200)
-      .scale(2, 4);
+    const mat = ex.AffineMatrix.identity().translate(100, -200).scale(2, 4);
 
     mat.reset();
     expect(mat.isIdentity()).toBe(true);

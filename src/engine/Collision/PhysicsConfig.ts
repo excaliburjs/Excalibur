@@ -4,7 +4,6 @@ import { SolverStrategy } from './SolverStrategy';
 import { Physics } from './Physics';
 import { ContactSolveBias } from './Solver/ContactBias';
 
-
 export interface PhysicsConfig {
   /**
    * Excalibur physics simulation is enabled
@@ -46,14 +45,13 @@ export interface PhysicsConfig {
      *
      * Default is 'together' if unset
      */
-    compositeStrategy?: 'separate' | 'together'
-  }
+    compositeStrategy?: 'separate' | 'together';
+  };
 
   /**
    * Configure excalibur continuous collision (WIP)
    */
   continuous?: {
-
     /**
      * Enable fast moving body checking, this enables checking for collision pairs via raycast for fast moving objects to prevent
      * bodies from tunneling through one another.
@@ -77,7 +75,7 @@ export interface PhysicsConfig {
      * Default 0.1
      */
     surfaceEpsilon?: number;
-  }
+  };
 
   /**
    * Configure body defaults
@@ -117,7 +115,7 @@ export interface PhysicsConfig {
      * Default false
      */
     canSleepByDefault?: boolean;
-  }
+  };
 
   /**
    * Configure the dynamic tree spatial data structure for locating pairs and raycasts
@@ -136,7 +134,7 @@ export interface PhysicsConfig {
      * Default 2
      */
     velocityMultiplier?: number;
-  }
+  };
 
   /**
    * Configure the [[ArcadeSolver]]
@@ -153,7 +151,7 @@ export interface PhysicsConfig {
      * * By default [[ContactSolveBias.None]] which sorts by distance
      */
     contactSolveBias?: ContactSolveBias;
-  }
+  };
 
   /**
    * Configure the [[RealisticSolver]]
@@ -195,7 +193,7 @@ export interface PhysicsConfig {
      * Default true
      */
     warmStart?: boolean;
-  }
+  };
 }
 
 export const DefaultPhysicsConfig: DeepRequired<PhysicsConfig> = {
