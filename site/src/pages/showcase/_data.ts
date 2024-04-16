@@ -1,3 +1,4 @@
+import sumMonstersImage from './images/sum-monsters.png'
 import beachBreachImage from './images/beachbreach.png'
 import meerkatticaImage from './images/meerkattica.png'
 import showMustGoOnImage from './images/show.png'
@@ -14,6 +15,14 @@ import retroSkiImage from './images/retroski.png'
 import excalifarm from './images/excalifarm.png'
 
 export default [
+  {
+    title: 'Sum Monsters',
+    image: sumMonstersImage,
+    description:
+      'Play the mathimagical game where you arrange monsters to complete the dungeon’s sum-mons. May Trix the Witch is doing all she can to bring the dungeon to order!',
+    url: 'https://excaliburjs.com/ludum-55/',
+    source: 'https://github.com/excaliburjs/ludum-55',
+  },
   {
     title: 'Excali-Farm',
     image: excalifarm,
