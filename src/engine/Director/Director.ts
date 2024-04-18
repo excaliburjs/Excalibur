@@ -280,7 +280,7 @@ export class Director<TKnownScenes extends string = any> {
   }
 
   getSceneName(scene: Scene) {
-    for (const [name, sceneInstance] of this._sceneToInstance) {
+    for (const [name, sceneInstance] of Object.entries(this.scenes)) {
       if (scene === sceneInstance) {
         return name;
       }
