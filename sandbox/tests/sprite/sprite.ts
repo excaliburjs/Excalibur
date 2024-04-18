@@ -28,8 +28,9 @@ var sprite = new ex.Sprite({
     height: 1000
   }
 });
-var actor = new ex.Actor({ 
-  x: 0, y: 0, 
+var actor = new ex.Actor({
+  x: 0,
+  y: 0,
   anchor: ex.vec(0, 0),
   coordPlane: ex.CoordPlane.Screen,
   z: -10
@@ -38,8 +39,8 @@ actor.onInitialize = () => {
   actor.graphics.add(sprite);
 };
 actor.onPostUpdate = (engine, delta) => {
-  sprite.sourceView.x += .05 * delta;
-}
+  sprite.sourceView.x += 0.05 * delta;
+};
 game.add(actor);
 game.start(loader);
 
