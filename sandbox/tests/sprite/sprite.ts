@@ -9,24 +9,38 @@ var game = new ex.Engine({
   // antialiasing: false
 });
 
-var tex = new ex.ImageSource('https://cdn.rawgit.com/excaliburjs/Excalibur/7dd48128/assets/sword.png');
+var tex = new ex.ImageSource('https://cdn.rawgit.com/excaliburjs/Excalibur/7dd48128/assets/sword.png', {
+  wrapping: ex.ImageWrapping.Repeat
+});
 
 var loader = new ex.Loader([tex]);
 
-var actor = new ex.Actor({ x: 100, y: 100, width: 50, height: 50 });
+var sprite = new ex.Sprite({
+  image: tex,
+  sourceView: {
+    x: 0,
+    y: 0,
+    width: 500,
+    height: 500
+  },
+  destSize: {
+    width: 1000,
+    height: 1000
+  }
+});
+var actor = new ex.Actor({ 
+  x: 0, y: 0, 
+  anchor: ex.vec(0, 0),
+  coordPlane: ex.CoordPlane.Screen,
+  z: -10
+});
 actor.onInitialize = () => {
-  var sprite = new ex.Sprite({
-    image: tex,
-    destSize: {
-      width: 100,
-      height: 100
-    }
-  });
   actor.graphics.add(sprite);
 };
+actor.onPostUpdate = (engine, delta) => {
+  sprite.sourceView.x += .05 * delta;
+}
 game.add(actor);
 game.start(loader);
 
 game.currentScene.camera.pos = actor.pos;
-game.currentScene.camera.zoom = 7;
-actor.angularVelocity = 0.1;
