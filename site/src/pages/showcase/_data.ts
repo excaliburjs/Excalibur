@@ -20,8 +20,8 @@ export default [
     image: sumMonstersImage,
     description:
       'Play the mathimagical game where you arrange monsters to complete the dungeon’s sum-mons. May Trix the Witch is doing all she can to bring the dungeon to order!',
-    url: 'https://excaliburjs.com/ludum-55/',
-    source: 'https://github.com/excaliburjs/ludum-55',
+    url: 'https://excaliburjs.com/sum-monsters/',
+    source: 'https://github.com/excaliburjs/sum-monsters',
   },
   {
     title: 'Excali-Farm',
