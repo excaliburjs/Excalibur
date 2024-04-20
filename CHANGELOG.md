@@ -19,7 +19,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
--
+- improve types to disallow invalid combo of collider/width/height/radius in actor args
+- only add default color graphic for the respective collider used
 
 ### Updates
 
