@@ -259,6 +259,15 @@ const config: Config = {
           title: 'Community',
           items: [
             {
+              label: 'Mastodon',
+              href: 'https://mastodon.gamedev.place/@excaliburjs',
+              rel: 'me'
+            },
+            {
+              label: 'Threads',
+              href: 'https://www.threads.net/@excalibur.js'
+            },
+            {
               label: 'Twitter',
               href: 'https://twitter.com/excaliburjs'
             },
@@ -269,8 +278,7 @@ const config: Config = {
             {
               label: 'Discussions',
               href: 'https://github.com/excaliburjs/Excalibur/discussions'
-            },
-            
+            }
           ]
         },
         {
