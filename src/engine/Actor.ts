@@ -884,7 +884,6 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     return this.get(TransformComponent).globalScale;
   }
 
-
   // #region Collision
 
   /**
