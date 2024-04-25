@@ -123,7 +123,7 @@ class SearchSystem extends ex.System {
 }
 
 const scene = new ex.Scene();
-scene.world.add(new SearchSystem(scene.world));
+scene.world.add(SearchSystem);
 
 // Actors come with batteries included built in features
 const actor = new ex.Actor({
