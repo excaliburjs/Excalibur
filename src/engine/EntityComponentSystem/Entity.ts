@@ -67,7 +67,7 @@ export const EntityEvents = {
 
 export interface EntityOptions<TComponents extends Component> {
   name?: string;
-  components: TComponents[];
+  components?: TComponents[];
 }
 
 /**
@@ -122,7 +122,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
       nameToAdd = name;
     } else if (componentsOrOptions && typeof componentsOrOptions === 'object') {
       const { components, name } = componentsOrOptions;
-      componentsToAdd = components;
+      componentsToAdd = components ?? [];
       nameToAdd = name;
     }
     if (nameToAdd) {
