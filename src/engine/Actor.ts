@@ -294,6 +294,13 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   }
 
   /**
+   * Gets the global position vector of the actor from the last frame
+   */
+  public get oldGlobalPos(): Vector {
+    return this.body.oldGlobalPos;
+  }
+
+  /**
    * Sets the position vector of the actor in the last frame
    */
   public set oldPos(thePos: Vector) {
@@ -833,25 +840,50 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   /**
    * Gets this actor's rotation taking into account any parent relationships
    * @returns Rotation angle in radians
+   * @deprecated Use [[globalRotation]] instead
    */
   public getGlobalRotation(): number {
     return this.get(TransformComponent).globalRotation;
   }
 
   /**
+   * The actor's rotation (in radians) taking into account any parent relationships
+   */
+  public get globalRotation(): number {
+    return this.get(TransformComponent).globalRotation;
+  }
+
+  /**
    * Gets an actor's world position taking into account parent relationships, scaling, rotation, and translation
    * @returns Position in world coordinates
+   * @deprecated Use [[globalPos]] instead
    */
   public getGlobalPos(): Vector {
     return this.get(TransformComponent).globalPos;
   }
 
   /**
+   * The actor's world position taking into account parent relationships, scaling, rotation, and translation
+   */
+  public get globalPos(): Vector {
+    return this.get(TransformComponent).globalPos;
+  }
+
+  /**
    * Gets the global scale of the Actor
+   * @deprecated Use [[globalScale]] instead
    */
   public getGlobalScale(): Vector {
     return this.get(TransformComponent).globalScale;
   }
+
+  /**
+   * The global scale of the Actor
+   */
+  public get globalScale(): Vector {
+    return this.get(TransformComponent).globalScale;
+  }
+
 
   // #region Collision
 
