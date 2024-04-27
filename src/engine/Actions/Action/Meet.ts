@@ -2,9 +2,10 @@ import { MotionComponent } from '../../EntityComponentSystem/Components/MotionCo
 import { TransformComponent } from '../../EntityComponentSystem/Components/TransformComponent';
 import { Entity } from '../../EntityComponentSystem/Entity';
 import { Vector, vec } from '../../Math/vector';
-import { Action } from '../Action';
+import { Action, nextActionId } from '../Action';
 
 export class Meet implements Action {
+  id = nextActionId();
   private _tx: TransformComponent;
   private _motion: MotionComponent;
   private _meetTx: TransformComponent;

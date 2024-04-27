@@ -1,5 +1,5 @@
 import { Entity } from '../../EntityComponentSystem';
-import { Action } from '../Action';
+import { Action, nextActionId } from '../Action';
 import { ActionContext } from '../ActionContext';
 import { ActionQueue } from '../ActionQueue';
 
@@ -8,6 +8,7 @@ import { ActionQueue } from '../ActionQueue';
  * [[ParallelActions]] to run multiple sequences in parallel.
  */
 export class ActionSequence implements Action {
+  id = nextActionId();
   private _actionQueue: ActionQueue;
   private _stopped: boolean = false;
   private _sequenceContext: ActionContext;

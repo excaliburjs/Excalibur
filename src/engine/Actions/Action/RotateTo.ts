@@ -1,4 +1,4 @@
-import { Action } from '../Action';
+import { Action, nextActionId } from '../Action';
 import { RotationType } from '../RotationType';
 import { TransformComponent } from '../../EntityComponentSystem/Components/TransformComponent';
 import { MotionComponent } from '../../EntityComponentSystem/Components/MotionComponent';
@@ -6,6 +6,7 @@ import { Entity } from '../../EntityComponentSystem/Entity';
 import { TwoPI } from '../../Math/util';
 
 export class RotateTo implements Action {
+  id = nextActionId();
   private _tx: TransformComponent;
   private _motion: MotionComponent;
   public x: number;

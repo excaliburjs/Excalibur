@@ -1,8 +1,9 @@
 import { Entity } from '../../EntityComponentSystem/Entity';
-import { Action } from '../Action';
+import { Action, nextActionId } from '../Action';
 import { ActionsComponent } from '../ActionsComponent';
 
 export class Die implements Action {
+  id = nextActionId();
   private _entity: Entity;
   private _stopped = false;
 
