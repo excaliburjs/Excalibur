@@ -279,13 +279,35 @@ export class Director<TKnownScenes extends string = any> {
     return undefined;
   }
 
-  getSceneName(scene: Scene) {
-    for (const [name, sceneInstance] of this._sceneToInstance) {
-      if (scene === sceneInstance) {
-        return name;
+  /**
+   * Returns the name of the registered scene, null if none can be found
+   * @param scene
+   */
+  getSceneName(scene: Scene): string | null {
+    for (const [name, maybeScene] of Object.entries(this.scenes)) {
+      if (maybeScene instanceof Scene) {
+        if (scene === maybeScene) {
+          return name;
+        }
+      } else if (!isSceneConstructor(maybeScene)) {
+        if (scene === maybeScene.scene) {
+          return name;
+        }
       }
     }
-    return 'unknown scene name';
+
+    for (const [name, maybeScene] of Object.entries(this.scenes)) {
+      if (isSceneConstructor(maybeScene)) {
+        if (scene.constructor === maybeScene) {
+          return name;
+        }
+      } else if (!(maybeScene instanceof Scene)) {
+        if (scene.constructor === maybeScene.scene) {
+          return name;
+        }
+      }
+    }
+    return null;
   }
 
   /**
