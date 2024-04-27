@@ -7,7 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
--
+- `ex.Action` now requires a unique `id` property
 
 ### Deprecated
 
@@ -18,6 +18,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - `actor.oldGlobalPos` returns the globalPosition from the previous frame
+- Built in actions now have a unique `id` property
 
 ### Fixed
 
