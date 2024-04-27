@@ -1261,6 +1261,22 @@ describe('Action', () => {
       expect(spy).toHaveBeenCalledWith(jasmine.objectContaining({ target: actor, action: jasmine.any(ex.MoveTo) }));
     });
 
+    it('emits actioncomplete with an action with ids', () => {
+      const spy = jasmine.createSpy();
+      // actor.actions.moveTo(20, 0, 20);
+      const moveTo = new ex.MoveTo(actor, 20, 0, 20);
+      const moveTo2 = new ex.MoveTo(actor, 20, 0, 20);
+      actor.actions.runAction(moveTo);
+      actor.on('actioncomplete', spy);
+      for (let i = 0; i < 10; i++) {
+        scene.update(engine, 200);
+      }
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(jasmine.objectContaining({ target: actor, action: moveTo }));
+      expect(moveTo.id).not.toEqual(moveTo2.id);
+      expect(moveTo2.id).toEqual(moveTo.id + 1);
+    });
+
     it('emits actionstart and actioncomplete events for each action in a repeat', () => {
       const startSpy = jasmine.createSpy();
       const completeSpy = jasmine.createSpy();

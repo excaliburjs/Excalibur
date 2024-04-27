@@ -3,9 +3,10 @@ import { TransformComponent } from '../../EntityComponentSystem/Components/Trans
 import { Entity } from '../../EntityComponentSystem/Entity';
 import { Vector, vec } from '../../Math/vector';
 import { Logger } from '../../Util/Log';
-import { Action } from '../Action';
+import { Action, nextActionId } from '../Action';
 
 export class MoveBy implements Action {
+  id = nextActionId();
   private _tx: TransformComponent;
   private _motion: MotionComponent;
   private _entity: Entity;

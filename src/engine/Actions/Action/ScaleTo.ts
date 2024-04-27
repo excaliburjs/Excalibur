@@ -1,10 +1,11 @@
 import { vec } from '../../Math/vector';
 import { MotionComponent } from '../../EntityComponentSystem/Components/MotionComponent';
 import { TransformComponent } from '../../EntityComponentSystem/Components/TransformComponent';
-import { Action } from '../Action';
+import { Action, nextActionId } from '../Action';
 import { Entity } from '../../EntityComponentSystem/Entity';
 
 export class ScaleTo implements Action {
+  id = nextActionId();
   private _tx: TransformComponent;
   private _motion: MotionComponent;
   public x: number;
