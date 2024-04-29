@@ -12,9 +12,3 @@ interface WheelEvent {
   readonly wheelDeltaY: number;
   readonly wheelDelta: number;
 }
-
-declare const process: {
-  env: {
-    __EX_VERSION: string;
-  };
-};

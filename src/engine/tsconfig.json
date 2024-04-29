@@ -19,6 +19,7 @@
     "allowUnreachableCode": false,
     "downlevelIteration": true,
     "lib": ["dom", "dom.iterable", "es5", "es2018"],
-    "types": []
-  }
+    "types": ["node"]
+  },
+  "include": ["./**/*.ts"]
 }

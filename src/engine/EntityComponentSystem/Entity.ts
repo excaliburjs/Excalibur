@@ -9,6 +9,7 @@ import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
 import { Scene } from '../Scene';
 import { removeItemFromArray } from '../Util/Util';
 import { MaybeKnownComponent } from './Types';
+import { Logger } from '../Util/Log';
 
 /**
  * Interface holding an entity component pair
@@ -133,7 +134,14 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
         this.addComponent(component);
       }
     }
-    // this.addComponent(this.tagsComponent);
+
+    if (process.env.NODE_ENV === 'development') {
+      setTimeout(() => {
+        if (!this.scene && !this.isInitialized) {
+          Logger.getInstance().warn(`Entity "${this.name || this.id}" was not added to a scene.`);
+        }
+      }, 5000);
+    }
   }
 
   /**
