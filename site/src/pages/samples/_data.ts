@@ -7,8 +7,16 @@ import sampleMatterjs from './images/matterjs.gif'
 import sampleTiled from './images/tiled.gif'
 import sampleGrid from './images/grid.gif'
 import sampleTactics from './images/tinytactics-small.gif'
+import sampleHtml from './images/html.gif'
 
 export default [
+  {
+    title: 'UI with HTML/CSS/JS',
+    image: sampleHtml,
+    description: 'Example of how to build vanilla html/css/js UIs with Excalibur code. The main gist is to put an HTML layer above the canvas layer and use that for UI.',
+    url: 'https://excaliburjs.com/sample-html',
+    source: 'https://github.com/excaliburjs/sample-html',
+  },
   {
     title: 'Tiny Tactics',
     image: sampleTactics,
