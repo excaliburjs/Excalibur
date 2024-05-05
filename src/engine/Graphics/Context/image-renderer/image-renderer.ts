@@ -222,6 +222,8 @@ export class ImageRenderer implements RendererPlugin {
 
     let width = maybeImageWidth || swidth || 0;
     let height = maybeImageHeight || sheight || 0;
+    this._view[0] = 0;
+    this._view[1] = 0;
     this._view[2] = swidth ?? maybeImageWidth ?? 0;
     this._view[3] = sheight ?? maybeImageHeight ?? 0;
     this._dest[0] = sx ?? 1;
