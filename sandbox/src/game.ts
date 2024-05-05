@@ -156,6 +156,7 @@ var boot = new ex.Loader();
 //   fullscreenAfterLoad: true,
 //   fullscreenContainer: document.getElementById('container')
 // });
+// boot.suppressPlayButton = true;
 boot.addResource(heartImageSource);
 boot.addResource(heartTex);
 boot.addResource(imageRun);
