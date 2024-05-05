@@ -19,7 +19,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
--
+- Fixed issue where `ex.Loader.suppressPlayButton = true` did not work. Only using the `ex.Engine({suppressPlayButton: true})` worked
 
 ### Updates
 
