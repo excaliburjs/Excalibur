@@ -8,8 +8,16 @@ import sampleTiled from './images/tiled.gif'
 import sampleGrid from './images/grid.gif'
 import sampleTactics from './images/tinytactics-small.gif'
 import sampleHtml from './images/html.gif'
+import samplePathfinding from './images/pathfinding.gif'
 
 export default [
+  {
+    title: 'Pathfinding',
+    image: samplePathfinding,
+    description: 'Sample using the pathfinding plugin with A* and Dijkstra!',
+    url: 'https://excaliburjs.com/sample-pathfinding',
+    source: 'https://github.com/excaliburjs/sample-pathfinding',
+  },
   {
     title: 'UI with HTML/CSS/JS',
     image: sampleHtml,
