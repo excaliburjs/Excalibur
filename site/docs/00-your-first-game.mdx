@@ -113,7 +113,7 @@ Open a browser and view the blank blue screen of goodness.
 
 ## Creating the paddle with an Actor
 
-Game elements that have a position and are drawn to the screen are called an [Actor][/docs/actor]. Actors are the primary way to draw things to the screen.
+Game elements that have a position and are drawn to the screen are called an [Actor](/docs/actors). Actors are the primary way to draw things to the screen.
 
 Think of actors like you would the actors in a play. If you change scenes different actors might be on stage.
 
@@ -131,7 +131,7 @@ declare const game: ex.Engine;
 // ---cut---
 // Create an actor with x position of 150px,
 // y position of 40px from the bottom of the screen,
-// width of 200px, height and a height of 20px
+// width of 200px and a height of 20px
 const paddle = new Actor({
   x: 150,
   y: game.drawHeight - 40,
