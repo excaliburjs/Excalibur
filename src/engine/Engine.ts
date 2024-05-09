@@ -506,6 +506,20 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   }
 
   /**
+   * Returns center pos of the engine's visible drawing surface in pixels including zoom and device pixel ratio.
+   */
+  public get centerDrawPos(): Vector {
+    return new Vector(this.screen.halfDrawWidth, this.screen.halfDrawHeight);
+  }
+
+  /**
+   * Returns center pos of the game canvas in pixels
+   */
+  public get centerCanvasPos(): Vector {
+    return new Vector(this.screen.halfCanvasWidth, this.screen.halfCanvasHeight);
+  }
+
+  /**
    * Returns whether excalibur detects the current screen to be HiDPI
    */
   public get isHiDpi(): boolean {
