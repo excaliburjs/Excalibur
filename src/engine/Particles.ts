@@ -12,9 +12,8 @@ import { Graphic } from './Graphics';
 import { EmitterType } from './EmitterType';
 import type { ParticleEmitter } from './ParticleEmitter';
 
-
 const isEmitterConfig = (emitterOrConfig: ParticleEmitter | ParticleArgs): emitterOrConfig is ParticleArgs => {
-  return emitterOrConfig && !(emitterOrConfig.constructor);
+  return emitterOrConfig && !emitterOrConfig.constructor;
 };
 
 /**
