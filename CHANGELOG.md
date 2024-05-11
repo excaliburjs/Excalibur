@@ -26,6 +26,10 @@ Actor with the new `ySort` configuration in the constructor, or added as a compo
 
   ```ts
   new ex.Actor({
+    ySort: true,
+    
+    // or
+
     ySort: {
       offset: 0, // optionally apply an offset to the resulting z-index
       order: 1 // 1 will add the pos.y to the z-index, -1 will subtract it
