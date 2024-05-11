@@ -21,6 +21,25 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Built in actions now have a unique `id` property
 - create development builds of excalibur that bundlers can use in dev mode
 - show warning in development when Entity hasn't been added to a scene after a few seconds
+- YSortComponent that adjusts z-index based on its global Y position. This can be used on an
+Actor with the new `ySort` configuration in the constructor, or added as a component to an Entity.
+
+  ```ts
+  new ex.Actor({
+    ySort: {
+      offset: 0, // optionally apply an offset to the resulting z-index
+      order: 1 // 1 will add the pos.y to the z-index, -1 will subtract it
+    }
+  });
+
+  // or
+  entity.addComponent(
+    new ex.YSortComponent({
+      offset: 0,
+      order: 1
+    })
+  );
+```
 
 ### Fixed
 

@@ -12,3 +12,4 @@ export * from './Priority';
 
 export * from './Components/TransformComponent';
 export * from './Components/MotionComponent';
+export * from './Components/YSortComponent';

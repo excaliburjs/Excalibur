@@ -1,4 +1,4 @@
-import { Entity, Query, SystemPriority, World } from '../EntityComponentSystem';
+import { Entity, Query, SystemPriority, World, YSortComponent } from '../EntityComponentSystem';
 import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { System, SystemType } from '../EntityComponentSystem/System';
@@ -24,10 +24,13 @@ export class MotionSystem extends System {
   update(elapsedMs: number): void {
     let transform: TransformComponent;
     let motion: MotionComponent;
+    let ySort: YSortComponent;
+
     const entities = this.query.entities;
     for (let i = 0; i < entities.length; i++) {
       transform = entities[i].get(TransformComponent);
       motion = entities[i].get(MotionComponent);
+      ySort = entities[i].get(YSortComponent);
 
       const optionalBody = entities[i].get(BodyComponent);
       if (this._physicsConfigDirty && optionalBody) {
@@ -51,6 +54,11 @@ export class MotionSystem extends System {
 
       // Update transform and motion based on Euler linear algebra
       EulerIntegrator.integrate(transform, motion, totalAcc, elapsedMs);
+
+      // Update z index based on y position
+      if (ySort) {
+        ySort.updateZ();
+      }
     }
     this._physicsConfigDirty = false;
   }
