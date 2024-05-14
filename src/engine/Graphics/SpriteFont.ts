@@ -99,7 +99,7 @@ export class SpriteFont extends Graphic implements FontRenderer {
       width += sprite.width + this.spacing;
       height = Math.max(height, sprite.height);
     }
-    return BoundingBox.fromDimension(width, height * lines.length, Vector.Zero);
+    return BoundingBox.fromDimension(width * this.scale.x, height * lines.length * this.scale.y, Vector.Zero);
   }
 
   protected _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number, maxWidth?: number): void {
