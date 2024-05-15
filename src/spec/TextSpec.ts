@@ -921,6 +921,45 @@ describe('A Text Graphic', () => {
       await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsTextSpec/spritefont-text.png');
     });
 
+    it('can scale a spritefont', async () => {
+      const spriteFontImage = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+
+      await spriteFontImage.load();
+
+      const spriteFontSheet = ex.SpriteSheet.fromImageSource({
+        image: spriteFontImage,
+        grid: {
+          rows: 3,
+          columns: 16,
+          spriteWidth: 16,
+          spriteHeight: 16
+        }
+      });
+
+      const spriteFont = new ex.SpriteFont({
+        alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
+        caseInsensitive: true,
+        spacing: -5,
+        spriteSheet: spriteFontSheet,
+        scale: ex.vec(3, 3)
+      });
+
+      const sut = new ex.Text({
+        text: 'Some Sprite Text!?',
+        font: spriteFont
+      });
+
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 200;
+      canvasElement.height = 100;
+      const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+
+      ctx.clear();
+      sut.draw(ctx, 0, 50);
+      expect(spriteFont.measureText('some test')).toEqual(ex.BoundingBox.fromDimension((16 - 5) * 9 * 3, 16 * 3, ex.vec(0, 0)));
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsTextSpec/spritefont-scaled.png');
+    });
+
     it('can have a custom lineHeight', async () => {
       const spriteFontImage = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
 
