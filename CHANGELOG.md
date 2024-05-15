@@ -7,7 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
-- `ex.Action` now requires a unique `id` property
+- 
 
 ### Deprecated
 
@@ -18,9 +18,35 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - `actor.oldGlobalPos` returns the globalPosition from the previous frame
-- Built in actions now have a unique `id` property
 - create development builds of excalibur that bundlers can use in dev mode
 - show warning in development when Entity hasn't been added to a scene after a few seconds
+
+### Fixed
+
+- Fixed issue where `ex.SpriteFont` did not respect scale when measuring text
+
+### Updates
+
+-
+
+### Changed
+
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [v0.29.3]
+
+### Breaking Changes
+
+- `ex.Action` now requires a unique `id` property
+
+### Deprecated
+
+### Added
+
+- Built in actions now have a unique `id` property
 
 ### Fixed
 
@@ -33,11 +59,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
-- `ex.Vector.toAngle()` now returns angles from [0 - 2 PI)
-
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+- `ex.Vector.toAngle()` now returns angles from `[0 - 2 PI)`
 
 ## [v0.29.2]
 
