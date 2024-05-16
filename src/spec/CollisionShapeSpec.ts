@@ -573,6 +573,40 @@ describe('Collision Shape', () => {
       expect(contact.normal.y).toBeCloseTo(0, 0.01);
     });
 
+    it('can collide when the transform changes the winding', () => {
+      const polyA = new ex.PolygonCollider({
+        offset: ex.Vector.Zero.clone(),
+        // specified relative to the position
+        points: [new ex.Vector(-10, -10), new ex.Vector(10, -10), new ex.Vector(10, 10), new ex.Vector(-10, 10)]
+      });
+
+      const polyB = new ex.PolygonCollider({
+        offset: new ex.Vector(10, 0),
+        points: [new ex.Vector(-10, -10), new ex.Vector(10, -10), new ex.Vector(10, 10), new ex.Vector(-10, 10)]
+      });
+
+      const transform = new ex.Transform();
+      transform.scale = ex.vec(-1, 1);
+
+      polyA.update(transform);
+
+      const directionOfBodyB = polyB.center.sub(polyA.center);
+
+      const contact = polyA.collide(polyB)[0];
+
+      // there should be a collision
+      expect(contact).not.toBe(null);
+
+      // normal and mtv should point away from bodyA
+      expect(directionOfBodyB.dot(contact.mtv)).toBeGreaterThan(0);
+      expect(directionOfBodyB.dot(contact.normal)).toBeGreaterThan(0);
+
+      expect(contact.mtv.x).toBeCloseTo(10, 0.01);
+      expect(contact.normal.x).toBeCloseTo(1, 0.01);
+      expect(contact.mtv.y).toBeCloseTo(0, 0.01);
+      expect(contact.normal.y).toBeCloseTo(0, 0.01);
+    });
+
     it('can collide with the middle of an edge', () => {
       const actor = new ex.Actor({ x: 5, y: -6, width: 20, height: 20 });
       actor.rotation = Math.PI / 4;
