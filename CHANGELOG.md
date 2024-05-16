@@ -24,6 +24,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 - Fixed issue where `ex.SpriteFont` did not respect scale when measuring text
+- Fixed issue where negative transforms would cause collision issues because polygon winding would change.
 
 ### Updates
 
