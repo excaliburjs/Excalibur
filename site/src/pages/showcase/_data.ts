@@ -13,8 +13,17 @@ import superMetronomeImage from './images/super-metronome-hero.png'
 import nightBikeImage from './images/nightbike.png'
 import retroSkiImage from './images/retroski.png'
 import excalifarm from './images/excalifarm.png'
+import badRefImage from './images/bad-ref.png'
 
 export default [
+  {
+    title: 'Bad Ref',
+    image: badRefImage,
+    description:
+      'GMTK Game Jam 2023 entry. Play as a referee that was paid off to help Team Blue win the game.',
+    url: 'https://bluelemming.itch.io/bad-ref',
+    source: 'https://github.com/mattjennings/bad-ref-gmtk23',
+  },
   {
     title: 'Sum Monsters',
     image: sumMonstersImage,
