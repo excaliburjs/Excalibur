@@ -372,9 +372,11 @@ export class PolygonCollider extends Collider {
     for (let i = 0; i < len; i++) {
       this._transformedPoints[i] = this._globalMatrix.multiply(points[i].clone());
     }
-    // TODO possible optimization here only check if the transform has a potentially problematic value?
     // it is possible for the transform to change the winding, scale (-1, 1) for example
-    this._checkAndUpdateWinding(this._transformedPoints);
+    const scale = this._globalMatrix.getScale();
+    if (scale.x < 0 || scale.y < 0) {
+      this._checkAndUpdateWinding(this._transformedPoints);
+    }
   }
 
   /**

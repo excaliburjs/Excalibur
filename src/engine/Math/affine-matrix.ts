@@ -151,6 +151,8 @@ export class AffineMatrix {
 
     this._scale[0] = x;
     this._scale[1] = y;
+    this._scaleSignX = sign(x);
+    this._scaleSignY = sign(y);
     return this;
   }
 
@@ -406,6 +408,8 @@ export class AffineMatrix {
   public clone(dest?: AffineMatrix): AffineMatrix {
     const mat = dest || new AffineMatrix();
     mat.data.set(this.data);
+    mat._scaleSignX = this._scaleSignX;
+    mat._scaleSignY = this._scaleSignY;
     return mat;
   }
 
