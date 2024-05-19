@@ -1,7 +1,7 @@
 ---
 slug: Pathfinding Algorithms Part 1
 title: Pathfinding Part 1 with Dijkstra's Algorithm
-authors: [jyoung]
+authors: [justin]
 tags: [dijkstra pathfinding graph]
 ---
 
