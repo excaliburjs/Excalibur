@@ -15,11 +15,21 @@ describe('A Graphics ECS System', () => {
     entities = [
       new ex.Entity().addComponent(new ex.TransformComponent()).addComponent(new ex.GraphicsComponent()),
       new ex.Entity().addComponent(new ex.TransformComponent()).addComponent(new ex.GraphicsComponent()),
+      new ex.Entity().addComponent(new ex.TransformComponent()).addComponent(new ex.GraphicsComponent()),
+
+      // parent
+      new ex.Entity().addComponent(new ex.TransformComponent()).addComponent(new ex.GraphicsComponent()),
+
+      // child of ^
       new ex.Entity().addComponent(new ex.TransformComponent()).addComponent(new ex.GraphicsComponent())
     ];
-    entities[0].get(TransformComponent).z = 10;
-    entities[1].get(TransformComponent).z = 5;
-    entities[2].get(TransformComponent).z = 1;
+    entities[0].get(TransformComponent).z = 100;
+    entities[1].get(TransformComponent).z = 50;
+    entities[2].get(TransformComponent).z = 10;
+
+    entities[3].get(TransformComponent).z = 5;
+    entities[3].addChild(entities[4]);
+    entities[4].get(TransformComponent).z = -1;
   });
 
   afterEach(() => {
@@ -32,7 +42,7 @@ describe('A Graphics ECS System', () => {
     expect(ex.GraphicsSystem).toBeDefined();
   });
 
-  it('sorts entities by transform.z', () => {
+  it('sorts entities by transform.globalZ', () => {
     const world = engine.currentScene.world;
     const sut = new ex.GraphicsSystem(world);
     engine.currentScene._initialize(engine);
