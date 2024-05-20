@@ -21,10 +21,22 @@ function isCoroutineGenerator(x: any): x is CoroutineGenerator {
 
 export interface CoroutineOptions {
   timing?: ScheduledCallbackTiming;
+  autostart?: boolean;
+}
+
+type Thenable = PromiseLike<void>['then'];
+
+export interface CoroutineInstance extends PromiseLike<void> {
+  done: Promise<void>;
+  generator: Generator<number | Promise<any> | undefined, void, number>;
+  start: () => CoroutineInstance;
+  cancel: () => void;
+  then: Thenable;
+  [Symbol.iterator]: () => Generator<number | Promise<any> | undefined, void, number>;
 }
 
 /**
- * Excalibur coroutine helper, returns a promise when complete. Coroutines run before frame update.
+ * Excalibur coroutine helper, returns a [[CoroutineInstance]] which is promise-like when complete. Coroutines run before frame update by default.
  *
  * Each coroutine yield is 1 excalibur frame. Coroutines get passed the elapsed time our of yield. Coroutines
  * run internally on the excalibur clock.
@@ -36,7 +48,12 @@ export interface CoroutineOptions {
  * @param coroutineGenerator coroutine generator function
  * @param {CoroutineOptions} options optionally schedule coroutine pre/post update
  */
-export function coroutine(thisArg: any, engine: Engine, coroutineGenerator: CoroutineGenerator, options?: CoroutineOptions): Promise<void>;
+export function coroutine(
+  thisArg: any,
+  engine: Engine,
+  coroutineGenerator: CoroutineGenerator,
+  options?: CoroutineOptions
+): CoroutineInstance;
 /**
  * Excalibur coroutine helper, returns a promise when complete. Coroutines run before frame update.
  *
@@ -49,7 +66,7 @@ export function coroutine(thisArg: any, engine: Engine, coroutineGenerator: Coro
  * @param coroutineGenerator coroutine generator function
  * @param {CoroutineOptions} options optionally schedule coroutine pre/post update
  */
-export function coroutine(engine: Engine, coroutineGenerator: CoroutineGenerator, options?: CoroutineOptions): Promise<void>;
+export function coroutine(engine: Engine, coroutineGenerator: CoroutineGenerator, options?: CoroutineOptions): CoroutineInstance;
 /**
  * Excalibur coroutine helper, returns a promise when complete. Coroutines run before frame update.
  *
@@ -61,7 +78,7 @@ export function coroutine(engine: Engine, coroutineGenerator: CoroutineGenerator
  * @param coroutineGenerator coroutine generator function
  * @param {CoroutineOptions} options optionally schedule coroutine pre/post update
  */
-export function coroutine(coroutineGenerator: CoroutineGenerator, options?: CoroutineOptions): Promise<void>;
+export function coroutine(coroutineGenerator: CoroutineGenerator, options?: CoroutineOptions): CoroutineInstance;
 /**
  * Excalibur coroutine helper, returns a promise when complete. Coroutines run before frame update.
  *
@@ -74,31 +91,31 @@ export function coroutine(coroutineGenerator: CoroutineGenerator, options?: Coro
  * @param coroutineGenerator coroutine generator function
  * @param {CoroutineOptions} options optionally schedule coroutine pre/post update
  */
-export function coroutine(thisArg: any, coroutineGenerator: CoroutineGenerator, options?: CoroutineOptions): Promise<void>;
+export function coroutine(thisArg: any, coroutineGenerator: CoroutineGenerator, options?: CoroutineOptions): CoroutineInstance;
 /**
  *
  */
-export function coroutine(...args: any[]): Promise<void> {
+export function coroutine(...args: any[]): CoroutineInstance {
   let coroutineGenerator: CoroutineGenerator;
   let thisArg: any;
   let options: CoroutineOptions | undefined;
   let passedEngine: Engine | undefined;
 
-  // coroutine(coroutineGenerator: CoroutineGenerator, options?: CoroutineOptions): Promise<void>;
+  // coroutine(coroutineGenerator: CoroutineGenerator, options?: CoroutineOptions): CoroutineInstance;
   if (isCoroutineGenerator(args[0])) {
     thisArg = globalThis;
     coroutineGenerator = args[0];
     options = args[1];
   }
 
-  // coroutine(thisArg: any, coroutineGenerator: CoroutineGenerator, options?: CoroutineOptions): Promise<void>;
+  // coroutine(thisArg: any, coroutineGenerator: CoroutineGenerator, options?: CoroutineOptions): CoroutineInstance;
   if (isCoroutineGenerator(args[1])) {
     thisArg = args[0];
     coroutineGenerator = args[1];
     options = args[2];
   }
 
-  // coroutine(thisArg: any, engine: Engine, coroutineGenerator: CoroutineGenerator, options?: CoroutineOptions): Promise<void>;
+  // coroutine(thisArg: any, engine: Engine, coroutineGenerator: CoroutineGenerator, options?: CoroutineOptions): CoroutineInstance;
   if (args[1] instanceof Engine) {
     thisArg = args[0];
     passedEngine = args[1];
@@ -106,7 +123,7 @@ export function coroutine(...args: any[]): Promise<void> {
     options = args[3];
   }
 
-  // coroutine(engine: Engine, coroutineGenerator: CoroutineGenerator, options?: CoroutineOptions): Promise<void>;
+  // coroutine(engine: Engine, coroutineGenerator: CoroutineGenerator, options?: CoroutineOptions): CoroutineInstance;
   if (args[0] instanceof Engine) {
     thisArg = globalThis;
     passedEngine = args[0];
@@ -115,6 +132,7 @@ export function coroutine(...args: any[]): Promise<void> {
   }
 
   const schedule = options?.timing;
+  const autostart = options?.autostart ?? true;
   let engine: Engine;
   try {
     engine = passedEngine ?? Engine.useEngine();
@@ -124,13 +142,17 @@ export function coroutine(...args: any[]): Promise<void> {
         'Pass an engine parameter to ex.coroutine(engine, function * {...})'
     );
   }
+
+  let started = false;
+  let cancelled = false;
   const generatorFcn = coroutineGenerator.bind(thisArg);
-  return new Promise<void>((resolve, reject) => {
-    const generator = generatorFcn();
-    const loop = (elapsedMs: number) => {
+  const generator = generatorFcn();
+  let loop: (elapsedMs: number) => void;
+  const complete = new Promise<void>((resolve, reject) => {
+    loop = (elapsedMs: number) => {
       try {
         const { done, value } = generator.next(elapsedMs);
-        if (done) {
+        if (done || cancelled) {
           resolve();
         }
 
@@ -150,6 +172,36 @@ export function coroutine(...args: any[]): Promise<void> {
         reject(e);
       }
     };
-    loop(engine.clock.elapsed()); // run first frame immediately
+    if (autostart) {
+      started = true;
+      loop(engine.clock.elapsed()); // run first frame immediately
+    }
   });
+
+  const co: CoroutineInstance = {
+    cancel: () => {
+      cancelled = true;
+    },
+    start: () => {
+      if (!started) {
+        started = true;
+        loop(engine.clock.elapsed());
+      } else {
+        // TODO warn that a coroutine was attempted to be restarted
+      }
+      return co;
+    },
+    generator,
+    done: complete,
+    then: (onfulfilled, onrejected) => {
+      return complete.then(onfulfilled, onrejected);
+    },
+    [Symbol.iterator]: () => {
+      // TODO warn if a coroutine is already running
+      // TODO warn if a coroutine is cancelled
+      return generator;
+    }
+  };
+
+  return co;
 }

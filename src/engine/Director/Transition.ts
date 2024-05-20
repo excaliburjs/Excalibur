@@ -61,6 +61,7 @@ export class Transition extends Entity {
 
   // State needs to be reset between uses
   public started = false;
+  private _cancelled = false;
   private _currentDistance: number = 0;
   private _currentProgress: number = 0;
 
@@ -128,6 +129,7 @@ export class Transition extends Entity {
     } else {
       this._currentProgress = clamp(this.easing(this._currentDistance, 1, 0, 1), 0, 1);
     }
+    this._execute();
   }
 
   /**
@@ -184,6 +186,7 @@ export class Transition extends Entity {
    */
   reset() {
     this.started = false;
+    this._cancelled = false;
     this._completeFuture = new Future<void>();
     this.done = this._completeFuture.promise;
     this._currentDistance = 0;
@@ -195,6 +198,10 @@ export class Transition extends Entity {
     this.onReset();
   }
 
+  cancel() {
+    this._cancelled = true;
+  }
+
   play(engine: Engine, targetScene?: Scene) {
     if (this.started) {
       this.reset();
@@ -204,19 +211,22 @@ export class Transition extends Entity {
     const currentScene = targetScene ?? engine.currentScene;
     currentScene.add(this);
     const self = this;
-    return coroutine(engine, function* () {
-      while (!self.complete) {
-        const elapsed = yield; // per frame
-        self.updateTransition(engine, elapsed);
-        self.execute();
-      }
-    });
+    return coroutine(
+      engine,
+      function* () {
+        while (!self.complete && !self._cancelled) {
+          const elapsed = yield; // per frame
+          self.updateTransition(engine, elapsed);
+        }
+      },
+      { autostart: false }
+    );
   }
 
   /**
-   * execute() is called by the engine every frame to update the Transition lifecycle onStart/onUpdate/onEnd
+   * _execute() is called by the engine every frame to update the Transition lifecycle onStart/onUpdate/onEnd
    */
-  execute() {
+  private _execute() {
     if (!this.isInitialized) {
       return;
     }
