@@ -9,7 +9,7 @@ One of the most common problems that need solved in game development is navigati
 sometimes, I need just to understand if that path is clear between one tile and another. Sometimes you can have a graph node tree, and
 need to understand the cheapest decision. These are the kinds of challenges where one could use a pathfinding algorithm to solve.
 
-![alt text](./img/image-1.png)
+![Image of pathfinding demo](./img/image-1.png)
 
 [Link to Pathfinding Demo](https://excaliburjs.com/sample-pathfinding/)
 
@@ -19,7 +19,7 @@ Quick research on pathfinding gives a plethora of resources discussing it. Pathf
 'network'. That network can be tiles on a game level, it could be roads across the country, it could be aisles and desks in an office,
 etc etc.
 
-Pathfinding is also a algorithm tool to calculate the shortest path through a graph network. A graph network is a series of nodes and
+Pathfinding is also an algorithm tool to calculate the shortest path through a graph network. A graph network is a series of nodes and
 edges to form a chart. For more information on this: [click here](https://www.google.com/search?q=Graph%20Thoery)
 
 For the sake of clarity, there are two algorithms we specifically dig into with this demonstration: Dijkstra's Algorithm and A\*.
@@ -31,13 +31,13 @@ We study A\* more in Part 2
 
 ### Dijkstra's Algorithm
 
-Dijkstra's Algorithm is an algorithm for finding the shortest path through a graph that presents weighting (distances) between
+Dijkstra's Algorithm is a formula for finding the shortest path through a graph that presents weighting (distances) between
 different nodes. The algorithm essentially dictates a starting node, then it systematically calculates the distance to all other nodes
 in the graph, thus, giving one the ability to find the shortest path.
 
 ![Graph Network](./img/image-2.png)
 
-Edsger Dijkstra, in Amsterdam, was sipping coffee at a cafe in Amserdam in 1956, and was working through a mental exercise regarding
+Edsger Dijkstra, was sipping coffee at a cafe in Amtserdam in 1956, and was working through a mental exercise regarding
 how to get from Roggerdam to Groningen. Over the course of 20 minutes, he figured out the algorithm. In 1959, it was formally
 published.
 
@@ -53,13 +53,13 @@ nodes, and one for visited nodes.
 Let's declare A our starting node and update our results object with this current information. Since we are starting at node A, we then
 review A's connected neighbors, in this example its nodes B and C.
 
-![alt text](./img/image-3.png)
+![starting chart](./img/image-3.png)
 
 Knowing that B is distance 10 from A, and that C is distance 5 from A, we can update our results chart with the current information.
 
 With that update, we can move node A from unvisited to visited list, and we have this new state.
 
-![alt text](./img/image-4.png)
+![Visiting A](./img/image-4.png)
 
 Now the algorithm can start to be recursive. We identify the node with the smallest distance to A of our unvisited nodes. In this
 instance, that is node C.
@@ -70,7 +70,7 @@ D has a distance of 15 from C, and we'll add that to the 5 from A to C.
 
 We continue to repeat this algorithm until we have visited all nodes.
 
-    Quick iteration:
+From here we will quickly loop through the rest of the table.
 
 This is when we visit node C:
 
@@ -78,7 +78,7 @@ This is when we visit node C:
 
 Node B is closer to Source than node D, so we visit it next.
 
-![alt text](./img/image-6.png)
+![Visiting B](./img/image-6.png)
 
 Unvisited neighbors of B are E and F. E is closes to A, so we visit it next.
 
@@ -86,7 +86,7 @@ D is E's unvisited neighbor, but its distance via E is longer than what's alread
 
 D is the only unvisited neighbor, and we hit a dead end on this branch, so D gets visited, but with no updates to the results table
 
-![alt text](./img/image-7.png)
+![Visiting D](./img/image-7.png)
 
 So since we are looping through all unvisited Nodes, F is the final unvisited node, and its a neighbor of B. We can now visit F through
 B, and we do not have any results table updates with this visit, as F has no unvisited neighbors.
