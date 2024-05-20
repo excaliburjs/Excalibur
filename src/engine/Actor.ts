@@ -46,7 +46,7 @@ import { Raster } from './Graphics/Raster';
 import { Text } from './Graphics/Text';
 import { CoordPlane } from './Math/coord-plane';
 import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
-import { Component } from './EntityComponentSystem';
+import { Component, YSortComponent, YSortOptions } from './EntityComponentSystem';
 
 /**
  * Type guard for checking if something is an Actor
@@ -138,6 +138,10 @@ export interface ActorArgs {
    * Optionally set the anchor for graphics in the actor
    */
   offset?: Vector;
+  /**
+   * Optionally set the ySort options for the actor
+   */
+  ySort?: true | YSortOptions;
   /**
    * Optionally set the collision type
    */
@@ -271,6 +275,12 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * [[ActionContext|Action context]] of the actor.
    */
   public actions: ActionsComponent;
+
+  /**
+   * Access to the Actor's built in [[YSortComponent]] if `ySort` was configured
+   * in the constructor
+   */
+  public ySort: YSortComponent;
 
   /**
    * Gets the position vector of the actor in pixels
@@ -554,7 +564,8 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
       anchor,
       offset,
       collisionType,
-      collisionGroup
+      collisionGroup,
+      ySort
     } = {
       ...config
     };
@@ -632,6 +643,11 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
           })
         );
       }
+    }
+
+    if (ySort) {
+      this.ySort = new YSortComponent(typeof ySort === 'object' ? ySort : {});
+      this.addComponent(this.ySort);
     }
   }
 
