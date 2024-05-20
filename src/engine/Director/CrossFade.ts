@@ -27,14 +27,18 @@ export class CrossFade extends Transition {
     // Firefox is particularly slow
     // needed in case the image isn't ready yet
     await this.image.decode();
+    this.screenCover = ImageSource.fromHtmlImageElement(this.image).toSprite();
+    this.graphics.use(this.screenCover);
   }
 
   override onInitialize(engine: Engine): void {
     this.engine = engine;
     this.transform.pos = engine.screen.unsafeArea.topLeft;
-    this.screenCover = ImageSource.fromHtmlImageElement(this.image).toSprite();
-    this.graphics.add(this.screenCover);
     this.transform.scale = vec(1 / engine.screen.pixelRatio, 1 / engine.screen.pixelRatio);
+    engine.screen.events.on('resize', () => {
+      this.transform.pos = engine.screen.unsafeArea.topLeft;
+      this.transform.scale = vec(1 / engine.screen.pixelRatio, 1 / engine.screen.pixelRatio);
+    });
     this.graphics.opacity = this.progress;
   }
 

@@ -2,6 +2,7 @@ import { Engine } from '../Engine';
 import { Color } from '../Color';
 import { Rectangle } from '../Graphics';
 import { Transition, TransitionOptions } from './Transition';
+import { Screen } from '../excalibur';
 
 export interface FadeOptions {
   duration?: number;
@@ -22,13 +23,19 @@ export class FadeInOut extends Transition {
 
   public onInitialize(engine: Engine): void {
     this.transform.pos = engine.screen.unsafeArea.topLeft;
-    this.screenCover = new Rectangle({
-      width: engine.screen.resolution.width,
-      height: engine.screen.resolution.height,
-      color: this.color
-    });
+    this._generateScreenCover(engine.screen);
+    engine.screen.events.on('resize', () => this._generateScreenCover(engine.screen));
     this.graphics.add(this.screenCover);
     this.graphics.opacity = this.progress;
+  }
+
+  private _generateScreenCover(screen: Screen) {
+    return (this.screenCover = new Rectangle({
+      // depending on pixel density you need to add a little extra
+      width: screen.resolution.width + 1,
+      height: screen.resolution.height + 1,
+      color: this.color
+    }));
   }
 
   override onReset() {
