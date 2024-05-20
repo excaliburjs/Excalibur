@@ -884,6 +884,13 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     return this.get(TransformComponent).globalScale;
   }
 
+  /**
+   * The global z-index of the actor
+   */
+  public get globalZ(): number {
+    return this.get(TransformComponent).globalZ;
+  }
+
   // #region Collision
 
   /**

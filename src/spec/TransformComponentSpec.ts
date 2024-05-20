@@ -146,6 +146,26 @@ describe('A TransformComponent', () => {
     expect(childTx.rotation).toBeCloseTo(Math.PI); // Math.PI + Math.PI = 2PI = 0 global
   });
 
+  it('can have parent/child relationships with z', () => {
+    const parent = new ex.Entity([new ex.TransformComponent()]);
+    const child = new ex.Entity([new ex.TransformComponent()]);
+    parent.addChild(child);
+
+    const parentTx = parent.get(ex.TransformComponent);
+    const childTx = child.get(ex.TransformComponent);
+
+    // Changing a parent z influences the child global z
+    parentTx.z = 100;
+    expect(childTx.z).toBe(0);
+    expect(childTx.globalZ).toBe(100);
+
+    // Changing a child global z affects childs local and not parent z
+    parentTx.z = 100;
+    childTx.globalZ = 50;
+    expect(parentTx.z).toBe(100);
+    expect(childTx.z).toBe(-50);
+  });
+
   it('can retrieve the global transform', () => {
     const parent = new ex.Entity([new ex.TransformComponent()]);
     const child = new ex.Entity([new ex.TransformComponent()]);

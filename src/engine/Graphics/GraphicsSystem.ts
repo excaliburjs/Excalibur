@@ -65,7 +65,7 @@ export class GraphicsSystem extends System {
     this._graphicsContext = this._engine.graphicsContext;
     if (this._zHasChanged) {
       this._sortedTransforms.sort((a, b) => {
-        return a.z - b.z;
+        return a.globalZ - b.globalZ;
       });
       this._zHasChanged = false;
     }
@@ -265,7 +265,7 @@ export class GraphicsSystem extends System {
       }
 
       if (transform) {
-        this._graphicsContext.z = transform.z;
+        this._graphicsContext.z = transform.globalZ;
         this._graphicsContext.translate(tx.pos.x, tx.pos.y);
         this._graphicsContext.scale(tx.scale.x, tx.scale.y);
         this._graphicsContext.rotate(tx.rotation);

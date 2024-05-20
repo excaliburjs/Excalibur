@@ -42,12 +42,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Breaking Changes
 
 - `ex.Action` now requires a unique `id` property
+- Z-indexes are now relative to the parent's Z-index. You can get the global Z-index with the `globalZ` property on the Actor or TransformComponent.
 
 ### Deprecated
 
 ### Added
 
 - Built in actions now have a unique `id` property
+- `globalZ` property to Actor and TransformComponent
 
 ### Fixed
 
