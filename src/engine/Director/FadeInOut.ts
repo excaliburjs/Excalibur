@@ -25,17 +25,17 @@ export class FadeInOut extends Transition {
     this.transform.pos = engine.screen.unsafeArea.topLeft;
     this._generateScreenCover(engine.screen);
     engine.screen.events.on('resize', () => this._generateScreenCover(engine.screen));
-    this.graphics.add(this.screenCover);
-    this.graphics.opacity = this.progress;
   }
 
   private _generateScreenCover(screen: Screen) {
-    return (this.screenCover = new Rectangle({
+    this.screenCover = new Rectangle({
       // depending on pixel density you need to add a little extra
       width: screen.resolution.width + 1,
       height: screen.resolution.height + 1,
       color: this.color
-    }));
+    });
+    this.graphics.use(this.screenCover);
+    this.graphics.opacity = this.progress;
   }
 
   override onReset() {
