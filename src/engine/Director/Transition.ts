@@ -7,7 +7,7 @@ import { CoordPlane } from '../Math/coord-plane';
 import { Vector } from '../Math/vector';
 import { clamp } from '../Math/util';
 import { EasingFunction, EasingFunctions } from '../Util/EasingFunctions';
-import { coroutine } from '../Util/Coroutine';
+import { CoroutineInstance, coroutine } from '../Util/Coroutine';
 import { Logger } from '../Util/Log';
 
 export interface TransitionOptions {
@@ -202,16 +202,20 @@ export class Transition extends Entity {
     this._cancelled = true;
   }
 
-  play(engine: Engine, targetScene?: Scene) {
+  private _currentCoroutine: CoroutineInstance;
+  play(engine: Engine, targetScene?: Scene): CoroutineInstance {
     if (this.started) {
       this.reset();
+      if (this._currentCoroutine) {
+        this._currentCoroutine.cancel();
+      }
       this._logger.warn(`Attempted to play a transition ${this.name} that is already playing, reset transition.`);
     }
 
     const currentScene = targetScene ?? engine.currentScene;
     currentScene.add(this);
     const self = this;
-    return coroutine(
+    return (this._currentCoroutine = coroutine(
       engine,
       function* () {
         while (!self.complete && !self._cancelled) {
@@ -220,7 +224,7 @@ export class Transition extends Entity {
         }
       },
       { autostart: false }
-    );
+    ));
   }
 
   /**

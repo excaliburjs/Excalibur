@@ -6,6 +6,7 @@ import { Loader } from './Loader';
 import { Logger } from '../Util/Log';
 import { ActivateEvent, DeactivateEvent } from '../Events';
 import { EventEmitter } from '../EventEmitter';
+import { CoroutineInstance, coroutine } from '../Util/Coroutine';
 
 export interface DirectorNavigationEvent {
   sourceName: string;
@@ -436,25 +437,28 @@ export class Director<TKnownScenes extends string = any> {
 
     this._emitEvent('navigationstart', sourceScene, destinationScene);
 
-    // Run the out transition on the current scene if present
-    await this.playTransition(outTransition);
+    const self = this;
+    return coroutine(this._engine, function* () {
+      // Run the out transition on the current scene if present
+      yield* self.playTransition(outTransition);
 
-    // Run the loader if present
-    await this.maybeLoadScene(destinationScene, hideLoader);
+      // Run the loader if present
+      yield self.maybeLoadScene(destinationScene, hideLoader);
 
-    // Give incoming transition a chance to grab info from previous
-    await inTransition?.onPreviousSceneDeactivate(this.currentScene);
+      // Give incoming transition a chance to grab info from previous
+      yield inTransition?.onPreviousSceneDeactivate(self.currentScene);
+      // Swap to the new scene
+      yield self.swapScene(destinationScene, sceneActivationData);
 
-    // Swap to the new scene
-    await this.swapScene(destinationScene, sceneActivationData);
-    this._emitEvent('navigation', sourceScene, destinationScene);
+      self._emitEvent('navigation', sourceScene, destinationScene);
 
-    // Run the in transition on the new scene if present
-    await this.playTransition(inTransition);
-    this._emitEvent('navigationend', sourceScene, destinationScene);
+      // Run the in transition on the new scene if present
+      yield* self.playTransition(inTransition);
+      self._emitEvent('navigationend', sourceScene, destinationScene);
 
-    this._engine.input?.toggleEnabled(engineInputEnabled);
-    this._isTransitioning = false;
+      self._engine.input?.toggleEnabled(engineInputEnabled);
+      self._isTransitioning = false;
+    });
   }
 
   /**
@@ -503,31 +507,41 @@ export class Director<TKnownScenes extends string = any> {
     }
   }
 
+  private _transitionCoroutine: CoroutineInstance | undefined;
   /**
    * Plays a transition in the current scene
    * @param transition
    */
-  async playTransition(transition: Transition) {
-    if (!this.isInitialized) {
-      this._deferredTransition = transition;
-      return;
+  playTransition(transition: Transition): CoroutineInstance {
+    const self = this;
+    if (this._transitionCoroutine) {
+      this._transitionCoroutine.cancel();
+      this._transitionCoroutine = undefined;
     }
+    return (this._transitionCoroutine = coroutine(this._engine, function* () {
+      if (!self.isInitialized) {
+        self._deferredTransition = transition;
+        return;
+      }
 
-    if (transition) {
-      this.currentTransition = transition;
-      const currentScene = this._engine.currentScene;
-      const sceneInputEnabled = currentScene.input?.enabled ?? true;
+      if (transition) {
+        if (self.currentTransition) {
+          self.currentTransition.kill();
+          self.currentTransition.reset();
+          self.currentTransition = null;
+        }
+        self.currentTransition = transition;
+        const currentScene = self._engine.currentScene;
+        const sceneInputEnabled = currentScene.input?.enabled ?? true;
 
-      currentScene.input?.toggleEnabled(!transition.blockInput);
-      this._engine.input?.toggleEnabled(!transition.blockInput);
+        currentScene.input?.toggleEnabled(!transition.blockInput);
+        self._engine.input?.toggleEnabled(!transition.blockInput);
 
-      await this.currentTransition.play(this._engine);
+        yield* self.currentTransition.play(self._engine);
 
-      currentScene.input?.toggleEnabled(sceneInputEnabled);
-    }
-    this.currentTransition?.kill();
-    this.currentTransition?.reset();
-    this.currentTransition = null;
+        currentScene.input?.toggleEnabled(sceneInputEnabled);
+      }
+    }));
   }
 
   /**
