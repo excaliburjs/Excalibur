@@ -1,6 +1,9 @@
+import { createContext, useContext } from '../Context';
 import { Engine } from '../Engine';
 import { ScheduledCallbackTiming } from './Clock';
 export type CoroutineGenerator = () => Generator<number | Promise<any> | undefined, void, number>;
+
+const InsideCoroutineContext = createContext<boolean>();
 
 const generatorFunctionDeclaration = /^\s*(?:function)?\*/;
 /**
@@ -131,8 +134,9 @@ export function coroutine(...args: any[]): CoroutineInstance {
     options = args[2];
   }
 
+  const inside = useContext(InsideCoroutineContext);
   const schedule = options?.timing;
-  const autostart = options?.autostart ?? true;
+  const autostart = inside ? false : options?.autostart ?? true;
   let engine: Engine;
   try {
     engine = passedEngine ?? Engine.useEngine();
@@ -151,9 +155,10 @@ export function coroutine(...args: any[]): CoroutineInstance {
   const complete = new Promise<void>((resolve, reject) => {
     loop = (elapsedMs: number) => {
       try {
-        const { done, value } = generator.next(elapsedMs);
+        const { done, value } = InsideCoroutineContext.scope(true, () => generator.next(elapsedMs));
         if (done || cancelled) {
           resolve();
+          return;
         }
 
         if (value instanceof Promise) {
@@ -170,6 +175,7 @@ export function coroutine(...args: any[]): CoroutineInstance {
         }
       } catch (e) {
         reject(e);
+        return;
       }
     };
     if (autostart) {

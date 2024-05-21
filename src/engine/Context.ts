@@ -24,8 +24,11 @@ export interface Context<TValue> {
 export function createContext<TValue>() {
   const ctx: Context<TValue> = {
     scope: (value, cb) => {
+      const old = ctx.value;
       ctx.value = value;
-      return cb();
+      const val = cb();
+      ctx.value = old;
+      return val;
     },
     value: undefined
   };
