@@ -79,6 +79,7 @@ let scenes = {
 var gameWithTransitions = new ex.Engine({
   width: 800,
   height: 600,
+  fixedUpdateFps: 10,
   displayMode: ex.DisplayMode.FitScreenAndFill,
   scenes
 });
