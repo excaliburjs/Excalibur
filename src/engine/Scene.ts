@@ -370,9 +370,14 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
    * @internal
    */
   public async _deactivate(context: SceneActivationContext<never>) {
-    this._logger.debug('Scene.onDeactivate', this);
-    this.input.toggleEnabled(false);
-    await this.onDeactivate(context);
+    try {
+      this._logger.debug('Scene.onDeactivate', this);
+      this.input.toggleEnabled(false);
+      await this.onDeactivate(context);
+    } catch (e) {
+      this._logger.error(`Error during scene deactivation for scene ${this.engine?.director?.getSceneName(this)}!`);
+      throw e;
+    }
   }
 
   /**
