@@ -131,6 +131,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
   readonly colliderToProxy: Map<Collider, HashColliderProxy>;
 
   private _pairs = new Set<string>();
+  private _nonPairs = new Set<string>();
 
   private _hashGridCellPool = new Pool<HashGridCell>(
     () => new HashGridCell(),
@@ -254,11 +255,11 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     }
   }
 
-  private _pairExists(colliderA: Collider, colliderB: Collider) {
-    // if the collision pair has been calculated already short circuit
-    const hash = Pair.calculatePairHash(colliderA.id, colliderB.id);
-    return this._pairs.has(hash);
-  }
+  // private _pairExists(colliderA: Collider, colliderB: Collider) {
+  //   // if the collision pair has been calculated already short circuit
+  //   const hash = Pair.calculatePairHash(colliderA.id, colliderB.id);
+  //   return this._pairs.has(hash);
+  // }
 
   private _canCollide(colliderA: HashColliderProxy, colliderB: HashColliderProxy) {
     // Prevent self collision
@@ -302,6 +303,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
   broadphase(targets: Collider[], delta: number): Pair[] {
     const pairs: Pair[] = [];
     this._pairs.clear();
+    this._nonPairs.clear();
     for (const collider of targets) {
       const proxy = this.colliderToProxy.get(collider);
       if (!proxy) {
@@ -315,13 +317,19 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
       // maybe if this list was flatter eliminating the double loop
       for (const cell of proxy.cells) {
         for (const other of cell.colliders) {
-          if (!this._pairExists(collider, other.collider) && this._canCollide(proxy, other)) {
+          const id = Pair.calculatePairHash(collider.id, other.collider.id);
+          if (this._nonPairs.has(id)) {
+            continue;
+          }
+          if (!this._pairs.has(id) && this._canCollide(proxy, other)) {
             const pair = this._pairPool.get();
             pair.colliderA = collider;
             pair.colliderB = other.collider;
-            pair.id = Pair.calculatePairHash(collider.id, other.collider.id);
-            this._pairs.add(pair.id);
+            pair.id = id;
+            this._pairs.add(id);
             pairs.push(pair);
+          } else {
+            this._nonPairs.add(id);
           }
         }
       }
