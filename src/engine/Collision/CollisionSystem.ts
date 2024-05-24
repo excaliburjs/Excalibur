@@ -15,8 +15,8 @@ import { Engine } from '../Engine';
 import { ExcaliburGraphicsContext } from '../Graphics/Context/ExcaliburGraphicsContext';
 import { Scene } from '../Scene';
 import { Side } from '../Collision/Side';
-import { DynamicTreeCollisionProcessor } from './Detection/DynamicTreeCollisionProcessor';
 import { PhysicsWorld } from './PhysicsWorld';
+import { CollisionProcessor } from './Detection/CollisionProcessor';
 export class CollisionSystem extends System {
   public systemType = SystemType.Update;
   public priority = SystemPriority.Higher;
@@ -28,7 +28,7 @@ export class CollisionSystem extends System {
   private _arcadeSolver: ArcadeSolver;
   private _lastFrameContacts = new Map<string, CollisionContact>();
   private _currentFrameContacts = new Map<string, CollisionContact>();
-  private get _processor(): DynamicTreeCollisionProcessor {
+  private get _processor(): CollisionProcessor {
     return this._physics.collisionProcessor;
   }
 
@@ -80,6 +80,8 @@ export class CollisionSystem extends System {
       const collider = colliderComp?.get();
       if (colliderComp && colliderComp.owner?.active && collider) {
         colliderComp.update();
+
+        // Flatten composite colliders
         if (collider instanceof CompositeCollider) {
           const compositeColliders = collider.getColliders();
           if (!collider.compositeStrategy) {
@@ -95,7 +97,7 @@ export class CollisionSystem extends System {
     // Update the spatial partitioning data structures
     // TODO if collider invalid it will break the processor
     // TODO rename "update" to something more specific
-    this._processor.update(colliders);
+    this._processor.update(colliders, elapsedMs);
 
     // Run broadphase on all colliders and locates potential collisions
     const pairs = this._processor.broadphase(colliders, elapsedMs);
@@ -153,7 +155,7 @@ export class CollisionSystem extends System {
   }
 
   debug(ex: ExcaliburGraphicsContext) {
-    this._processor.debug(ex);
+    this._processor.debug(ex, 0);
   }
 
   public runContactStartEnd() {

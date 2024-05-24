@@ -1,7 +1,7 @@
 import { Ray } from '../Math/ray';
 import { DeepRequired } from '../Util/Required';
 import { Observable } from '../Util/Observable';
-import { DynamicTreeCollisionProcessor, RayCastHit, RayCastOptions } from './Index';
+import { CollisionProcessor, DynamicTreeCollisionProcessor, RayCastHit, RayCastOptions, SparseHashGridCollisionProcessor } from './Index';
 import { BodyComponent } from './BodyComponent';
 import { PhysicsConfig } from './PhysicsConfig';
 import { watchDeep } from '../Util/Watch';
@@ -11,6 +11,7 @@ export class PhysicsWorld {
 
   private _configDirty = false;
   private _config: DeepRequired<PhysicsConfig>;
+  private _useSparseHashGrid = true;
   get config(): DeepRequired<PhysicsConfig> {
     return watchDeep(this._config, (change) => {
       this.$configUpdate.notifyAll(change);
@@ -21,16 +22,20 @@ export class PhysicsWorld {
     this.$configUpdate.notifyAll(newConfig);
   }
 
-  private _collisionProcessor: DynamicTreeCollisionProcessor;
+  private _collisionProcessor: CollisionProcessor;
   /**
    * Spatial data structure for locating potential collision pairs and ray casts
    */
-  public get collisionProcessor(): DynamicTreeCollisionProcessor {
+  public get collisionProcessor(): CollisionProcessor {
     if (this._configDirty) {
       this._configDirty = false;
       // preserve tracked colliders if config updates
       const colliders = this._collisionProcessor.getColliders();
-      this._collisionProcessor = new DynamicTreeCollisionProcessor(this._config);
+      if (this._useSparseHashGrid) {
+        this._collisionProcessor = new SparseHashGridCollisionProcessor();
+      } else {
+        this._collisionProcessor = new DynamicTreeCollisionProcessor(this._config);
+      }
       for (const collider of colliders) {
         this._collisionProcessor.track(collider);
       }
@@ -43,7 +48,11 @@ export class PhysicsWorld {
       this._configDirty = true;
       BodyComponent.updateDefaultPhysicsConfig(config.bodies);
     });
-    this._collisionProcessor = new DynamicTreeCollisionProcessor(this.config);
+    if (this._useSparseHashGrid) {
+      this._collisionProcessor = new SparseHashGridCollisionProcessor();
+    } else {
+      this._collisionProcessor = new DynamicTreeCollisionProcessor(this._config);
+    }
   }
 
   /**
