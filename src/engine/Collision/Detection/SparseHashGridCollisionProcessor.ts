@@ -16,7 +16,7 @@ import { RayCastHit } from './RayCastHit';
 import { RayCastOptions } from './RayCastOptions';
 
 export class HashGridCell {
-  colliders = new Set<Collider>();
+  colliders = new Set<HashColliderProxy>();
   key: string;
   x: number;
   y: number;
@@ -95,7 +95,7 @@ export class HashColliderProxy {
    */
   clear(): void {
     for (const cell of this.cells) {
-      cell.colliders.delete(this.collider);
+      cell.colliders.delete(this);
       if (cell.colliders.size === 0) {
         // TODO reclaim cell in pool
       }
@@ -107,12 +107,21 @@ export class HashColliderProxy {
    */
   update(): void {
     const bounds = this.collider.bounds;
+
+    // const oldLeftX = this.leftX;
+    // const oldRightX = this.rightX;
+    // const oldBottomY = this.bottomY;
+    // const oldTopY = this.topY;
+
     this.leftX = Math.floor(bounds.left / this.gridSize);
     this.rightX = Math.floor(bounds.right / this.gridSize);
     this.bottomY = Math.floor(bounds.bottom / this.gridSize);
     this.topY = Math.floor(bounds.top / this.gridSize);
     this.body = this.owner?.get(BodyComponent);
     this.collisionType = this.body.collisionType ?? CollisionType.PreventCollision;
+
+    // TODO only update cells that have changed
+    // cases up/down/left/right
   }
 }
 
@@ -144,7 +153,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
   );
 
   constructor() {
-    this.gridSize = 50; // TODO configurable grid size
+    this.gridSize = 35; // TODO configurable grid size
     this.sparseHashGrid = new Map<string, HashGridCell>();
     this.colliderToProxy = new Map<Collider, HashColliderProxy>();
 
@@ -167,7 +176,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
         // Hash collider into appropriate cell
         const cell = this.sparseHashGrid.get(key);
         if (cell) {
-          results = results.concat(Array.from(cell.colliders));
+          results = results.concat(Array.from(cell.colliders).map((c) => c.collider));
         }
       }
     }
@@ -191,8 +200,18 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
       cell.configure(x, y);
       this.sparseHashGrid.set(cell.key, cell);
     }
-    cell.colliders.add(proxy.collider);
+    cell.colliders.add(proxy);
     proxy.cells.add(cell);
+  }
+
+  private _remove(x: number, y: number, proxy: HashColliderProxy) {
+    const key = HashGridCell.calculateHashKey(x, y);
+    // Hash collider into appropriate cell
+    const cell = this.sparseHashGrid.get(key);
+    if (cell) {
+      cell.colliders.delete(proxy);
+      proxy.cells.delete(cell);
+    }
   }
 
   track(target: Collider) {
@@ -241,6 +260,45 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     return this._pairs.has(hash);
   }
 
+  private _canCollide(colliderA: HashColliderProxy, colliderB: HashColliderProxy) {
+    // Prevent self collision
+    if (colliderA.collider.id === colliderB.collider.id) {
+      return false;
+    }
+
+    // Colliders with the same owner do not collide (composite colliders)
+    if (colliderA.owner && colliderB.owner && colliderA.owner.id === colliderB.owner.id) {
+      return false;
+    }
+
+    // if the pair has a member with zero dimension don't collide
+    if (colliderA.collider.localBounds.hasZeroDimensions() || colliderB.collider.localBounds.hasZeroDimensions()) {
+      return false;
+    }
+
+    // If both are in the same collision group short circuit
+    if (!colliderA.body.group.canCollide(colliderB.body.group)) {
+      return false;
+    }
+
+    // if both are fixed short circuit
+    if (colliderA.collisionType === CollisionType.Fixed && colliderB.collisionType === CollisionType.Fixed) {
+      return false;
+    }
+
+    // if the either is prevent collision short circuit
+    if (colliderA.collisionType === CollisionType.PreventCollision || colliderB.collisionType === CollisionType.PreventCollision) {
+      return false;
+    }
+
+    // if either is dead short circuit
+    if (!colliderA.owner.active || !colliderB.owner.active) {
+      return false;
+    }
+
+    return true;
+  }
+
   broadphase(targets: Collider[], delta: number): Pair[] {
     const pairs: Pair[] = [];
     this._pairs.clear();
@@ -252,19 +310,23 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
       if (!proxy.owner.active || proxy.collisionType === CollisionType.PreventCollision) {
         continue;
       }
+      // how do we speed up broadphase, is there a more efficient
+      // way to explore for pairs?
+      // maybe if this list was flatter eliminating the double loop
       for (const cell of proxy.cells) {
         for (const other of cell.colliders) {
-          if (!this._pairExists(collider, other) && Pair.canCollide(collider, other)) {
+          if (!this._pairExists(collider, other.collider) && this._canCollide(proxy, other)) {
             const pair = this._pairPool.get();
             pair.colliderA = collider;
-            pair.colliderB = other;
-            pair.id = Pair.calculatePairHash(collider.id, other.id);
+            pair.colliderB = other.collider;
+            pair.id = Pair.calculatePairHash(collider.id, other.collider.id);
             this._pairs.add(pair.id);
             pairs.push(pair);
           }
         }
       }
     }
+    // console.log("pairs:", pairs.length);
     return pairs;
   }
   narrowphase(pairs: Pair[], stats?: FrameStats): CollisionContact[] {
@@ -282,6 +344,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     if (stats) {
       stats.physics.collisions += contacts.length;
     }
+    // console.log("contacts:", contacts.length);
     return contacts;
   }
 
@@ -296,7 +359,13 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
         continue;
       }
       if (proxy.hasChanged()) {
-        proxy.clear();
+        // proxy.clear();
+        // TODO slightly wasteful only remove from changed
+        for (let x = proxy.leftX; x <= proxy.rightX; x++) {
+          for (let y = proxy.topY; y <= proxy.bottomY; y++) {
+            this._remove(x, y, proxy);
+          }
+        }
         proxy.update();
         for (let x = proxy.leftX; x <= proxy.rightX; x++) {
           for (let y = proxy.topY; y <= proxy.bottomY; y++) {
