@@ -22,9 +22,6 @@ export class Pair {
    * @param colliderB
    */
   public static canCollide(colliderA: Collider, colliderB: Collider) {
-    const bodyA = colliderA?.owner?.get(BodyComponent);
-    const bodyB = colliderB?.owner?.get(BodyComponent);
-
     // Prevent self collision
     if (colliderA.id === colliderB.id) {
       return false;
@@ -39,6 +36,9 @@ export class Pair {
     if (colliderA.localBounds.hasZeroDimensions() || colliderB.localBounds.hasZeroDimensions()) {
       return false;
     }
+
+    const bodyA = colliderA?.owner?.get(BodyComponent);
+    const bodyB = colliderB?.owner?.get(BodyComponent);
 
     // Body's needed for collision in the current state
     // TODO can we collide without a body?
