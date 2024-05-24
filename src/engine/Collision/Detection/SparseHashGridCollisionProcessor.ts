@@ -33,6 +33,7 @@ export class HashGridCell {
 }
 
 export class HashColliderProxy {
+  id: number = -1;
   owner: Entity;
   body: BodyComponent;
   collisionType: CollisionType;
@@ -255,12 +256,6 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     }
   }
 
-  // private _pairExists(colliderA: Collider, colliderB: Collider) {
-  //   // if the collision pair has been calculated already short circuit
-  //   const hash = Pair.calculatePairHash(colliderA.id, colliderB.id);
-  //   return this._pairs.has(hash);
-  // }
-
   private _canCollide(colliderA: HashColliderProxy, colliderB: HashColliderProxy) {
     // Prevent self collision
     if (colliderA.collider.id === colliderB.collider.id) {
@@ -304,26 +299,25 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     const pairs: Pair[] = [];
     this._pairs.clear();
     this._nonPairs.clear();
-    for (const collider of targets) {
-      const proxy = this.colliderToProxy.get(collider);
-      if (!proxy) {
-        continue;
-      }
+
+    let proxyId = 0;
+    for (const proxy of this.colliderToProxy.values()) {
+      proxy.id = proxyId++; // track proxies we've already processed
       if (!proxy.owner.active || proxy.collisionType === CollisionType.PreventCollision) {
         continue;
       }
-      // how do we speed up broadphase, is there a more efficient
-      // way to explore for pairs?
-      // maybe if this list was flatter eliminating the double loop
       for (const cell of proxy.cells) {
         for (const other of cell.colliders) {
-          const id = Pair.calculatePairHash(collider.id, other.collider.id);
-          if (this._nonPairs.has(id)) {
+          if (other.id <= proxy.id) {
             continue;
+          }
+          const id = Pair.calculatePairHash(proxy.collider.id, other.collider.id);
+          if (this._nonPairs.has(id)) {
+            continue; // Is there a way we can re-use the non-pair cache
           }
           if (!this._pairs.has(id) && this._canCollide(proxy, other)) {
             const pair = this._pairPool.get();
-            pair.colliderA = collider;
+            pair.colliderA = proxy.collider;
             pair.colliderB = other.collider;
             pair.id = id;
             this._pairs.add(id);
