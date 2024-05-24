@@ -138,8 +138,8 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     const bottomY = Math.floor(bounds.bottom / this.gridSize);
     const topY = Math.floor(bounds.top / this.gridSize);
     let results: Collider[] = [];
-    for (let x = leftX; x < rightX; x++) {
-      for (let y = topY; y < bottomY; y++) {
+    for (let x = leftX; x <= rightX; x++) {
+      for (let y = topY; y <= bottomY; y++) {
         const key = HashGridCell.calculateHashKey(x, y);
         // Hash collider into appropriate cell
         const cell = this.sparseHashGrid.get(key);
