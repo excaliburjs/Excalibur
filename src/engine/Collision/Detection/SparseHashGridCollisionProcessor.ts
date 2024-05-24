@@ -1,7 +1,9 @@
 import { FrameStats } from '../../Debug/DebugConfig';
 import { Entity } from '../../EntityComponentSystem';
 import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
+import { createId } from '../../Id';
 import { Ray } from '../../Math/ray';
+import { Pool } from '../../Util/Pool';
 import { BodyComponent } from '../BodyComponent';
 import { BoundingBox } from '../BoundingBox';
 import { Collider } from '../Colliders/Collider';
@@ -16,11 +18,12 @@ import { RayCastOptions } from './RayCastOptions';
 export class HashGridCell {
   colliders = new Set<Collider>();
   key: string;
-  constructor(
-    public x: number,
-    public y: number,
-    public grid: SparseHashGridCollisionProcessor
-  ) {
+  x: number;
+  y: number;
+
+  configure(x: number, y: number) {
+    this.x = x;
+    this.y = y;
     this.key = HashGridCell.calculateHashKey(x, y);
   }
 
@@ -120,6 +123,26 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
 
   private _pairs = new Set<string>();
 
+  private _hashGridCellPool = new Pool<HashGridCell>(
+    () => new HashGridCell(),
+    (instance) => {
+      instance.configure(0, 0);
+      instance.colliders.clear();
+      return instance;
+    },
+    1000
+  );
+
+  public _pairPool = new Pool<Pair>(
+    () => new Pair({ id: createId('collider', 0) } as Collider, { id: createId('collider', 0) } as Collider),
+    (instance) => {
+      instance.colliderA = null;
+      instance.colliderB = null;
+      return instance;
+    },
+    200
+  );
+
   constructor() {
     this.gridSize = 100; // TODO configurable grid size
     this.sparseHashGrid = new Map<string, HashGridCell>();
@@ -163,8 +186,9 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     // Hash collider into appropriate cell
     let cell = this.sparseHashGrid.get(key);
     if (!cell) {
-      // TODO pool cells
-      cell = new HashGridCell(x, y, this);
+      // TODO no reclaim on the grid cell pool
+      cell = this._hashGridCellPool.get();
+      cell.configure(x, y);
       this.sparseHashGrid.set(cell.key, cell);
     }
     cell.colliders.add(proxy.collider);
@@ -185,6 +209,9 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
       const proxy = new HashColliderProxy(target, this.gridSize);
       this.colliderToProxy.set(target, proxy);
 
+      if (proxy.collisionType === CollisionType.PreventCollision) {
+        continue;
+      }
       for (let x = proxy.leftX; x <= proxy.rightX; x++) {
         for (let y = proxy.topY; y <= proxy.bottomY; y++) {
           this._insert(x, y, proxy);
@@ -228,8 +255,10 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
       for (const cell of proxy.cells) {
         for (const other of cell.colliders) {
           if (!this._pairExists(collider, other) && Pair.canCollide(collider, other)) {
-            // TODO pair pool
-            const pair = new Pair(collider, other);
+            const pair = this._pairPool.get();
+            pair.colliderA = collider;
+            pair.colliderB = other;
+            pair.id = Pair.calculatePairHash(collider.id, other.id);
             this._pairs.add(pair.id);
             pairs.push(pair);
           }
@@ -249,6 +278,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
         }
       }
     }
+    this._pairPool.done();
     if (stats) {
       stats.physics.collisions += contacts.length;
     }
