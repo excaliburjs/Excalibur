@@ -1,7 +1,10 @@
+import { FrameStats } from '../../Debug/DebugConfig';
 import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
 import { Ray } from '../../Math/ray';
+import { BodyComponent } from '../BodyComponent';
 import { BoundingBox } from '../BoundingBox';
 import { Collider } from '../Colliders/Collider';
+import { CollisionType } from '../CollisionType';
 import { CollisionContact } from './CollisionContact';
 import { CollisionProcessor } from './CollisionProcessor';
 import { Pair } from './Pair';
@@ -97,11 +100,16 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
   readonly gridSize: number;
   readonly sparseHashGrid: Map<string, HashGridCell>;
   readonly colliderToProxy: Map<Collider, HashColliderProxy>;
+
+  private _pairs = new Set<string>();
+
   constructor(options: { gridSize: number }) {
     const { gridSize } = options;
     this.gridSize = gridSize;
     this.sparseHashGrid = new Map<string, HashGridCell>();
     this.colliderToProxy = new Map<Collider, HashColliderProxy>();
+
+    // TODO dynamic grid size potentially larger than the largest collider
   }
 
   query(bounds: BoundingBox): Collider[] {
@@ -158,12 +166,55 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     proxy.clear();
     this.colliderToProxy.delete(target);
   }
+
+  private _pairExists(colliderA: Collider, colliderB: Collider) {
+    // if the collision pair has been calculated already short circuit
+    const hash = Pair.calculatePairHash(colliderA.id, colliderB.id);
+    return this._pairs.has(hash);
+  }
+
   broadphase(targets: Collider[], delta: number): Pair[] {
-    throw new Error('Method not implemented.');
+    const pairs: Pair[] = [];
+    this._pairs.clear();
+    let body: BodyComponent;
+    for (const collider of targets) {
+      body = collider.owner?.get(BodyComponent);
+      if (!collider.owner?.active || body.collisionType === CollisionType.PreventCollision) {
+        continue;
+      }
+      const proxy = this.colliderToProxy.get(collider);
+      for (const cell of proxy.cells) {
+        for (const other of cell.colliders) {
+          if (!this._pairExists(collider, other) && Pair.canCollide(collider, other)) {
+            const pair = new Pair(collider, other);
+            this._pairs.add(pair.id);
+            pairs.push(pair);
+          }
+        }
+      }
+    }
+    return pairs;
   }
-  narrowphase(pairs: Pair[]): CollisionContact[] {
-    throw new Error('Method not implemented.');
+  narrowphase(pairs: Pair[], stats?: FrameStats): CollisionContact[] {
+    let contacts: CollisionContact[] = [];
+    for (let i = 0; i < pairs.length; i++) {
+      const newContacts = pairs[i].collide();
+      contacts = contacts.concat(newContacts);
+      if (stats && newContacts.length > 0) {
+        for (const c of newContacts) {
+          stats.physics.contacts.set(c.id, c);
+        }
+      }
+    }
+    if (stats) {
+      stats.physics.collisions += contacts.length;
+    }
+    return contacts;
   }
+
+  /**
+   * Perform data structure maintenance
+   */
   update(targets: Collider[], delta: number): number {
     let updated = 0;
     for (const target of targets) {
@@ -181,7 +232,8 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     }
     return updated;
   }
+
   debug(ex: ExcaliburGraphicsContext, delta: number): void {
-    throw new Error('Method not implemented.');
+    // TODO
   }
 }
