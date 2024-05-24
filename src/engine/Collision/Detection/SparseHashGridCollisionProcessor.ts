@@ -263,8 +263,8 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     for (const target of targets) {
       const proxy = this.colliderToProxy.get(target);
       if (!proxy) {
-continue;
-}
+        continue;
+      }
       if (proxy.hasChanged()) {
         proxy.clear();
         proxy.update();
