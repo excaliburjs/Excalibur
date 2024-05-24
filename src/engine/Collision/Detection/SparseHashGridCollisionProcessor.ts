@@ -144,7 +144,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
   );
 
   constructor() {
-    this.gridSize = 100; // TODO configurable grid size
+    this.gridSize = 50; // TODO configurable grid size
     this.sparseHashGrid = new Map<string, HashGridCell>();
     this.colliderToProxy = new Map<Collider, HashColliderProxy>();
 
