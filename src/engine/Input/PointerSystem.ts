@@ -136,7 +136,8 @@ export class PointerSystem extends System {
     // doesn't seem to cause issues tho for perf
 
     // Pre-process find entities under pointers
-    for (const entity of entities) {
+    for (let entityIndex = 0; entityIndex < entities.length; entityIndex++) {
+      const entity = entities[entityIndex];
       transform = entity.get(TransformComponent);
       pointer = entity.get(PointerComponent) ?? new PointerComponent();
       // If pointer bounds defined
