@@ -73,9 +73,11 @@ export class CollisionSystem extends System {
       return;
     }
 
+    // TODO do we need to do this every frame?
     // Collect up all the colliders and update them
     let colliders: Collider[] = [];
-    for (const entity of this.query.entities) {
+    for (let entityIndex = 0; entityIndex < this.query.entities.length; entityIndex++) {
+      const entity = this.query.entities[entityIndex];
       const colliderComp = entity.get(ColliderComponent);
       const collider = colliderComp?.get();
       if (colliderComp && colliderComp.owner?.active && collider) {
