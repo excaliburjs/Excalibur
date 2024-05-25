@@ -2,7 +2,7 @@
 slug: Pathfinding Algorithms Part 2
 title: Pathfinding Part 2 with A*
 authors: [justin]
-tags: [a* a-star pathfinding graph excaliburjs foss]
+tags: [a* a-star pathfinding graph]
 ---
 
 <img src="./images/image-1.png" alt="demo banner" style="width:600px;height:450px;"/>
