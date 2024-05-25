@@ -16,7 +16,7 @@ import { RayCastHit } from './RayCastHit';
 import { RayCastOptions } from './RayCastOptions';
 
 export class HashGridCell {
-  colliders = new Set<HashColliderProxy>();
+  colliders: HashColliderProxy[] = []; // TODO would a linked list be faster?
   key: string;
   x: number;
   y: number;
@@ -92,14 +92,27 @@ export class HashColliderProxy {
   }
 
   /**
+   * New minus old coordinate
+   */
+  changedBounds(): [left: number, right: number, bottom: number, top: number] {
+    const bounds = this.collider.bounds;
+    const leftX = Math.floor(bounds.left / this.gridSize);
+    const rightX = Math.floor(bounds.right / this.gridSize);
+    const bottomY = Math.floor(bounds.bottom / this.gridSize);
+    const topY = Math.floor(bounds.top / this.gridSize);
+    return [leftX - this.leftX, rightX - this.rightX, bottomY - this.bottomY, topY - this.topY];
+  }
+
+  /**
    * Clears all collider references
    */
   clear(): void {
     for (const cell of this.cells) {
-      cell.colliders.delete(this);
-      if (cell.colliders.size === 0) {
-        // TODO reclaim cell in pool
+      const index = cell.colliders.indexOf(this);
+      if (index > -1) {
+        cell.colliders.splice(index, 1);
       }
+      // TODO reclaim cell in pool if empty?
     }
   }
 
@@ -138,7 +151,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     () => new HashGridCell(),
     (instance) => {
       instance.configure(0, 0);
-      instance.colliders.clear();
+      instance.colliders.length = 0;
       return instance;
     },
     1000
@@ -202,7 +215,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
       cell.configure(x, y);
       this.sparseHashGrid.set(cell.key, cell);
     }
-    cell.colliders.add(proxy);
+    cell.colliders.push(proxy);
     proxy.cells.add(cell);
   }
 
@@ -211,7 +224,10 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     // Hash collider into appropriate cell
     const cell = this.sparseHashGrid.get(key);
     if (cell) {
-      cell.colliders.delete(proxy);
+      const index = cell.colliders.indexOf(proxy);
+      if (index > -1) {
+        cell.colliders.splice(index, 1);
+      }
       proxy.cells.delete(cell);
     }
   }
@@ -306,9 +322,14 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
       if (!proxy.owner.active || proxy.collisionType === CollisionType.PreventCollision) {
         continue;
       }
+      // for every cell proxy collider is member of
       for (const cell of proxy.cells) {
-        for (const other of cell.colliders) {
+        // TODO Can we skip any cells or make this iteration faster?
+        // maybe a linked list here
+        for (let otherIndex = 0; otherIndex < cell.colliders.length; otherIndex++) {
+          const other = cell.colliders[otherIndex];
           if (other.id <= proxy.id) {
+            // skip duplicates already processed
             continue;
           }
           const id = Pair.calculatePairHash(proxy.collider.id, other.collider.id);
@@ -347,7 +368,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
       stats.physics.collisions += contacts.length;
     }
     // console.log("contacts:", contacts.length);
-    return contacts;
+    return contacts; // TODO maybe we can re-use contacts as likely pairs next frame
   }
 
   /**
@@ -361,7 +382,6 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
         continue;
       }
       if (proxy.hasChanged()) {
-        // proxy.clear();
         // TODO slightly wasteful only remove from changed
         for (let x = proxy.leftX; x <= proxy.rightX; x++) {
           for (let y = proxy.topY; y <= proxy.bottomY; y++) {
