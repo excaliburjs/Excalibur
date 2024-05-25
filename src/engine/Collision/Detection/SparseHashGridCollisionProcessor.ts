@@ -56,7 +56,7 @@ export class HashColliderProxy {
   /**
    * References to the hash cell the collider is a current member of
    */
-  cells = new Set<HashGridCell>();
+  cells: HashGridCell[] = [];
   /**
    * Grid size in pixels
    */
@@ -216,7 +216,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
       this.sparseHashGrid.set(cell.key, cell);
     }
     cell.colliders.push(proxy);
-    proxy.cells.add(cell);
+    proxy.cells.push(cell); // TODO dupes, doesn't seem to be a problem
   }
 
   private _remove(x: number, y: number, proxy: HashColliderProxy) {
@@ -224,11 +224,14 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     // Hash collider into appropriate cell
     const cell = this.sparseHashGrid.get(key);
     if (cell) {
-      const index = cell.colliders.indexOf(proxy);
-      if (index > -1) {
-        cell.colliders.splice(index, 1);
+      const colliderIndex = cell.colliders.indexOf(proxy);
+      if (colliderIndex > -1) {
+        cell.colliders.splice(colliderIndex, 1);
       }
-      proxy.cells.delete(cell);
+      const cellIndex = proxy.cells.indexOf(cell);
+      if (cellIndex > -1) {
+        proxy.cells.splice(cellIndex, 1);
+      }
     }
   }
 
@@ -323,7 +326,8 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
         continue;
       }
       // for every cell proxy collider is member of
-      for (const cell of proxy.cells) {
+      for (let cellIndex = 0; cellIndex < proxy.cells.length; cellIndex++) {
+        const cell = proxy.cells[cellIndex];
         // TODO Can we skip any cells or make this iteration faster?
         // maybe a linked list here
         for (let otherIndex = 0; otherIndex < cell.colliders.length; otherIndex++) {
