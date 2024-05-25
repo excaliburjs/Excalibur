@@ -5,7 +5,7 @@ authors: [justin]
 tags: [a* a-star pathfinding graph]
 ---
 
-<img src="./images/image-1.png" alt="demo banner" style="width:600px;height:450px;"/>
+<img src="./images/image-1.png" alt="demo banner" style={{width: '600px', height: '450px'}}/>
 
 This is a continuation of our discussion on pathfinding. In the first part of our discussion, we investigated Dijkstra's algorithm.
 This time, we are digging into A\* pathfinding.
@@ -32,7 +32,7 @@ A star is an algorithm for finding the shortest path through a graph that presen
 algorithm requires a starting node, and an ending node, and the algorithm uses a few metrics for each node to systematically find the
 shortest path. The properties of each node are fCost, gCost, and hCost. We will cover those in a bit.
 
-<img src="./images/image-10.png" alt="A star visualization" style="width:400px;height:400px;"/>
+<img src="./images/image-10.png" alt="A star visualization" style={{width: '400px', height: '400px'}}/>
 
 ## Quick History
 
@@ -104,7 +104,7 @@ This series continues to iterate while neighbors are being added to the open nod
 
 Let's start with this example graph network.
 
-<img src="./images/image-17.png" alt="starting grid" style="width:400px;height:400px;"/>
+<img src="./images/image-17.png" alt="starting grid" style={{width: '400px', height: '400px'}}/>
 
 We will manage our walkthrough with two different lists, open nodes and checked nodes. Black tiles above represent nodes that are not
 traversable. Let's define our start and stop nodes as indicated by the green S node and the blue E node.
@@ -137,7 +137,7 @@ Knowing both now, we can determine the fCost of that node or tile, by adding the
 
 We can repeat this process for each tile in the graph.
 
-<img src="./images/image-18.png" alt="costed grid" style="width:400px;height:400px;"/>
+<img src="./images/image-18.png" alt="costed grid" style={{width: '400px', height: '400px'}}/>
 
 Why am I using floating point values here? There's a reason, if I simply use integers, then the distances wouldn't have enough
 resolution in digits, creating a little more unoptimized iterations, as the number of cells with equal f Costs would increase, here the
@@ -155,7 +155,7 @@ The next step is to select the lowest fCost, and since the starting node is the 
 would have selected randomly from the lowest value fCosts in the open node list. Now we look at all the neighbors. I will designate the
 pale yellow as our 'open node' list. We will use different colors for 'checked'.
 
-<img src="./images/image-19.png" alt="first neighbors" style="width:400px;height:400px;"/>
+<img src="./images/image-19.png" alt="first neighbors" style={{width: '400px', height: '400px'}}/>
 
 None are in the checked list, so we add them all to the opennodes list, and assign the current node as each nodes parent. To note, if a
 node is not traversable (black) then it gets ignored at this point, and not added to the list.
@@ -167,38 +167,38 @@ the end node, it will have a parent, that parent will have a parent... and so on
 Let's walk through the example. Let's pick a tile with lowest f cost. As we select new 'current' nodes, we move that node to our
 checked list so it no longer is in the open node pool.
 
-<img src="./images/image-20.png" alt="picking lowest fcost" style="width:400px;height:400px;"/>
+<img src="./images/image-20.png" alt="picking lowest fcost" style={{width: '400px', height: '400px'}}/>
 
 The lowest cost is 5.02, and grab its neighbors. Along the way we are assigning parent nodes, and adding the new neighbors to the
 openNodes list.
 
-<img src="./images/image-21.png" alt="next group fcost" style="width:400px;height:400px;"/>
+<img src="./images/image-21.png" alt="next group fcost" style={{width: '400px', height: '400px'}}/>
 
 ...but we keep selecting lowest cost node ( f cost of 5.06 is now the lowest to this point), we add neighers to opennodes, assign them
 parent nodes...
 
-<img src="./images/image-22.png" alt="and next" style="width:400px;height:400px;"/>
+<img src="./images/image-22.png" alt="and next" style={{width: '400px', height: '400px'}}/>
 
 .. the next iteration, the fCost of 5.24 is now lowest, so it gets 'checked', and we grab its neighbors, assign parents..
 
-<img src="./images/image-23.png" alt="first duplicate fcost" style="width:400px;height:400px;"/>
+<img src="./images/image-23.png" alt="first duplicate fcost" style={{width: '400px', height: '400px'}}/>
 
 .. the next iteration, there are two nodes of 5.4 cost, so let's see how this CAN play out, and the algorithm starts to make sense at
 this point.
 
 Let's pick the high road...
 
-<img src="./images/image-24.png" alt="high road" style="width:400px;height:400px;"/>
+<img src="./images/image-24.png" alt="high road" style={{width: '400px', height: '400px'}}/>
 
 The new neighbors are assigned parents, and are added to the overall list of open nodes to assess. Which is the new lowest fCost now?
 5.4 is still the lowest fCost.
 
-<img src="./images/image-25.png" alt="correction" style="width:400px;height:400px;"/>
+<img src="./images/image-25.png" alt="correction" style={{width: '400px', height: '400px'}}/>
 
 Yes, the algorithm went back to the other path and found a better next 'current' node in the list of open nodes. The process is almost
 complete. The next lowest fCost is 5.47, and there is more than one node with that value, so for the sake of being a completionist...
 
-<img src="./images/image-26.png" alt="completionist trophy" style="width:400px;height:400px;"/>
+<img src="./images/image-26.png" alt="completionist trophy"  style={{width: '400px', height: '400px'}}/>
 
 Still the lowest fCost is 5.47, so we select the next node, grab neighbors, assign parents... one thing I did differently on this table
 is showing the fCost of the ending node, which up till now wasn't necessary, but showing it here lets one understand how the overall
@@ -206,7 +206,7 @@ algorithm loops, because the end node HAS to be selected as the next lowest cost
 beginning of the iteration, not in the neighbor eveluation. So in this next loop, i don't make it yellow, but the end node is now been
 placed AS A NEIGHBOR into the list of open nodes for evaluation.
 
-<img src="./images/image-27.png" alt="finishing up" style="width:400px;height:400px;"/>
+<img src="./images/image-27.png" alt="finishing up" style={{width: '400px', height: '400px'}}/>
 
 We now have our path, because the next iteration, the first thing we'll do is pick the lowest node fCost (5.0) and make it the current
 tile, and then test if it is the end node, which is true now.
@@ -215,7 +215,7 @@ We can return its path walking back all the parent node properties and see how w
 
 ## The test
 
-<img src="./images/image-28.png" alt="demo introduction" style="width:400px;height:300px;"/>
+<img src="./images/image-28.png" alt="demo introduction"  style={{width: '400px', height: '300px'}}/>
 
 
 [Link to Demo](https://excaliburjs.com/sample-pathfinding/)
@@ -233,7 +233,7 @@ please note, diagonal traversal is slightly more expensive than straight up/down
 
 Small Plug...
 
-<img src="./images/image.png" alt="ExcaliburJS" style="width:600px;height:360px;"/>
+<img src="./images/image.png" alt="ExcaliburJS"  style={{width: '600px', height: '360px'}}/>
 
 [ExcaliburJS](https://excaliburjs.com/) is a friendly, TypeScript 2D game engine that can produce games for the web. It is free and
 open source (FOSS), well documented, and has a growing, healthy community of gamedevs working with it and supporting each other. There
