@@ -65,15 +65,22 @@ export class EventEmitter<TEventMap extends EventMap = any> {
     if (this._paused) {
       return;
     }
-    this._listeners[eventName]?.forEach((fn) => fn(event));
+    const listeners = this._listeners[eventName];
+    if (listeners) {
+      for (let i = 0; i < listeners.length; i++) {
+        listeners[i](event);
+      }
+    }
     const onces = this._listenersOnce[eventName];
     this._listenersOnce[eventName] = [];
     if (onces) {
-      onces.forEach((fn) => fn(event));
+      for (let i = 0; i < onces.length; i++) {
+        onces[i](event);
+      }
     }
-    this._pipes.forEach((pipe) => {
-      pipe.emit(eventName, event);
-    });
+    for (let i = 0; i < this._pipes.length; i++) {
+      this._pipes[i].emit(eventName, event);
+    }
   }
 
   pipe(emitter: EventEmitter<any>): Subscription {
