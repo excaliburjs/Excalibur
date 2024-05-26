@@ -3,12 +3,14 @@ import { Entity } from '../../EntityComponentSystem';
 import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
 import { createId } from '../../Id';
 import { Ray } from '../../Math/ray';
+import { vec } from '../../Math/vector';
 import { Pool } from '../../Util/Pool';
 import { BodyComponent } from '../BodyComponent';
 import { BoundingBox } from '../BoundingBox';
 import { Collider } from '../Colliders/Collider';
 import { CompositeCollider } from '../Colliders/CompositeCollider';
 import { CollisionType } from '../CollisionType';
+import { CollisionGroup } from '../Group/CollisionGroup';
 import { CollisionContact } from './CollisionContact';
 import { CollisionProcessor } from './CollisionProcessor';
 import { Pair } from './Pair';
@@ -144,6 +146,8 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
   readonly sparseHashGrid: Map<string, HashGridCell>;
   readonly colliderToProxy: Map<Collider, HashColliderProxy>;
 
+  public bounds = new BoundingBox();
+
   private _pairs = new Set<string>();
   private _nonPairs = new Set<string>();
 
@@ -200,9 +204,110 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
   }
 
   rayCast(ray: Ray, options?: RayCastOptions): RayCastHit[] {
-    // TODO Bresenham incremental raycast
-    // https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
-    return [];
+    // DDA raycast algo
+    const results: RayCastHit[] = [];
+    const maxDistance = options?.maxDistance ?? Infinity;
+    const collisionGroup = options?.collisionGroup;
+    const collisionMask = !collisionGroup ? options?.collisionMask ?? CollisionGroup.All.category : collisionGroup.category;
+    const searchAllColliders = options?.searchAllColliders ?? false;
+
+    const unitRay = ray.dir.normalize();
+
+    const dydx = unitRay.y / unitRay.x;
+    const dxdy = unitRay.x / unitRay.y;
+
+    const unitStepX = Math.sqrt(1 + dydx * dydx) * this.gridSize;
+    const unitStepY = Math.sqrt(1 + dxdy * dxdy) * this.gridSize;
+
+    const startXCoord = ray.pos.x / this.gridSize;
+    const startYCoord = ray.pos.y / this.gridSize;
+
+    const stepDir = vec(1, 1);
+
+    let currentXCoord = ~~startXCoord;
+    let currentYCoord = ~~startYCoord;
+    let currentRayLengthX = 0;
+    let currentRayLengthY = 0;
+
+    // TODO walk the ray
+    // TODO check colliders in cell
+    if (unitRay.x < 0) {
+      stepDir.x = -1;
+      currentRayLengthX = (startXCoord - currentXCoord) * unitStepX;
+    } else {
+      stepDir.x = 1;
+      currentRayLengthX = (currentXCoord + 1 - startXCoord) * unitStepX;
+    }
+
+    if (unitRay.y < 0) {
+      stepDir.y = -1;
+      currentRayLengthY = (startYCoord - currentYCoord) * unitStepY;
+    } else {
+      stepDir.y = 1;
+      currentRayLengthY = (currentYCoord + 1 - startYCoord) * unitStepY;
+    }
+
+    const collidersVisited = new Set<number>();
+
+    let done = false;
+    let maxIterations = 800;
+    while (!done && maxIterations > 0) {
+      maxIterations--; // safety exit
+
+      // Test colliders at cell
+      const key = HashGridCell.calculateHashKey(currentXCoord, currentYCoord);
+      // TODO exit if exhausted max hash grid coordinate, bounds of the sparse grid?
+      const cell = this.sparseHashGrid.get(key);
+      if (cell) {
+        for (let colliderIndex = 0; colliderIndex < cell.colliders.length; colliderIndex++) {
+          const collider = cell.colliders[colliderIndex];
+          if (!collidersVisited.has(collider.collider.id.value)) {
+            collidersVisited.add(collider.collider.id.value);
+
+            if (options?.ignoreCollisionGroupAll && collider.body.group === CollisionGroup.All) {
+              continue;
+            }
+
+            const canCollide = (collisionMask & collider.body.group.category) !== 0;
+
+            // Early exit if not the right group
+            if (collider.body.group && !canCollide) {
+              continue;
+            }
+
+            const hit = collider.collider.rayCast(ray, maxDistance);
+
+            if (hit) {
+              if (options?.filter) {
+                if (options.filter(hit)) {
+                  results.push(hit);
+                  if (!searchAllColliders) {
+                    done = true;
+                    break;
+                  }
+                }
+              } else {
+                results.push(hit);
+                if (!searchAllColliders) {
+                  done = true;
+                  break;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      if (currentRayLengthX < currentRayLengthY) {
+        currentXCoord += stepDir.x;
+        currentRayLengthX += unitStepX;
+      } else {
+        currentYCoord += stepDir.y;
+        currentRayLengthY += unitStepY;
+      }
+    }
+
+    return results;
   }
 
   private _insert(x: number, y: number, proxy: HashColliderProxy) {
