@@ -45,6 +45,7 @@ describe('A CollisionContact', () => {
 
   it('can resolve in the Box system', () => {
     actorB.pos = ex.vec(19, actorB.pos.y);
+    actorB.collider.update();
     const cc = new ex.CollisionContact(
       colliderA,
       colliderB,
