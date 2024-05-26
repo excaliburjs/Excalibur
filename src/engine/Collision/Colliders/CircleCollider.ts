@@ -222,12 +222,7 @@ export class CircleCollider extends Collider {
    */
   public get localBounds(): BoundingBox {
     if (this._localBoundsDirty) {
-      this._localBounds = new BoundingBox(
-        this.offset.x - this._naturalRadius,
-        this.offset.y - this._naturalRadius,
-        this.offset.x + this._naturalRadius,
-        this.offset.y + this._naturalRadius
-      );
+      this._localBounds = new BoundingBox(-this._naturalRadius, -this._naturalRadius, +this._naturalRadius, +this._naturalRadius);
       this._localBoundsDirty = false;
     }
     return this._localBounds;
