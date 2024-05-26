@@ -437,9 +437,9 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
         // maybe a linked list here
         for (let otherIndex = 0; otherIndex < cell.colliders.length; otherIndex++) {
           const other = cell.colliders[otherIndex];
-          if (other.id <= proxy.id) {
-            // skip duplicates already processed
-            // continue; // TODO this seems flawed breaking tests?
+          if (other.id === proxy.id) {
+            // skip duplicates
+            continue;
           }
           const id = Pair.calculatePairHash(proxy.collider.id, other.collider.id);
           if (this._nonPairs.has(id)) {
