@@ -439,7 +439,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
           const other = cell.colliders[otherIndex];
           if (other.id <= proxy.id) {
             // skip duplicates already processed
-            continue;
+            // continue; // TODO this seems flawed breaking tests?
           }
           const id = Pair.calculatePairHash(proxy.collider.id, other.collider.id);
           if (this._nonPairs.has(id)) {
