@@ -24,8 +24,7 @@ edges to form a chart. For more information on this: [click here](https://www.go
 
 For the sake of clarity, there are two algorithms we specifically dig into with this demonstration: Dijkstra's Algorithm and A\*.
 
-COMING SOON
-We study A\* more in Part 2
+We study A\* more in [Part 2](https://excaliburjs.com/blog/Pathfinding%20Algorithms%20Part%202)
 
 ## Quick History
 
