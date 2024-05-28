@@ -12,14 +12,14 @@ game.debug.collider.showGeometry = true;
 game.debug.motion.showAll = true;
 game.debug.collider.showBounds = true;
 ex.Physics.acc.setTo(0, 300);
-//ex.Physics.dynamicTreeVelocityMultiplyer = 1;
+//ex.Physics.dynamicTreeVelocityMultiplayer = 1;
 game.currentScene.camera.zoom = 0.5;
 game.toggleDebug();
 var rocketTex = new ex.ImageSource('missile.png');
 var loader = new ex.Loader([rocketTex]);
 
 function spawnRocket(direction) {
-  var rocket = new ex.Actor({ x: 300, y: 200, radius: 48, height: 16 });
+  var rocket = new ex.Actor({ x: 300, y: 200, radius: 48 });
   rocket.body.canSleep = true;
 
   rocket.on('preupdate', () => {

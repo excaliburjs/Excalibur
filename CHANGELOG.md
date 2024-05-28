@@ -23,6 +23,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- improve types to disallow invalid combo of collider/width/height/radius in actor args
+- only add default color graphic for the respective collider used
 - Fixed issue where `ex.SpriteFont` did not respect scale when measuring text
 - Fixed issue where negative transforms would cause collision issues because polygon winding would change.
 - Fixed issue where removing and re-adding an actor would cause subsequent children added not to function properly with regards to their parent/child transforms
