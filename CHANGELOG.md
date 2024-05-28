@@ -26,6 +26,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed issue where `ex.SpriteFont` did not respect scale when measuring text
 - Fixed issue where negative transforms would cause collision issues because polygon winding would change.
 - Fixed issue where removing and re-adding an actor would cause subsequent children added not to function properly with regards to their parent/child transforms
+- Fixed issue where `ex.GraphicsSystem` would crash if a parent entity did not have a `ex.TransformComponent`
 
 ### Updates
 

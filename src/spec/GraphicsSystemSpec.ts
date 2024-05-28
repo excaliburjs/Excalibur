@@ -396,4 +396,25 @@ describe('A Graphics ECS System', () => {
     engine.graphicsContext.flush();
     await expectAsync(engine.canvas).toEqualImage('src/spec/images/GraphicsSystemSpec/sword-flip-both-offset.png');
   });
+
+  it('can add graphics+transform to a parent without a transform', () => {
+    const world = engine.currentScene.world;
+    const sut = new ex.GraphicsSystem(world);
+    engine.currentScene.camera.update(engine, 1);
+    engine.currentScene._initialize(engine);
+    engine.screen.setCurrentCamera(engine.currentScene.camera);
+    sut.initialize(world, engine.currentScene);
+    sut.preupdate();
+
+    const parent = new ex.Entity();
+    const child = new ex.Entity();
+    child.addComponent(new ex.TransformComponent());
+    child.addComponent(new ex.GraphicsComponent());
+    parent.addChild(child);
+
+    sut.query.checkAndAdd(parent);
+    sut.query.checkAndAdd(child);
+
+    expect(() => sut.update(1)).not.toThrow();
+  });
 });
