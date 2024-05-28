@@ -1,5 +1,5 @@
 import { Entity } from '../../EntityComponentSystem/Entity';
-import { Action } from '../Action';
+import { Action, nextActionId } from '../Action';
 import { ActionContext } from '../ActionContext';
 import { ActionQueue } from '../ActionQueue';
 
@@ -10,6 +10,7 @@ import { ActionQueue } from '../ActionQueue';
  *
  */
 export class RepeatForever implements Action {
+  id = nextActionId();
   private _actionQueue: ActionQueue;
   private _stopped: boolean = false;
   private _repeatContext: ActionContext;

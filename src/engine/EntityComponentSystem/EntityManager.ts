@@ -8,6 +8,8 @@ import { Scene } from '../Scene';
 export class EntityManager {
   public entities: Entity[] = [];
   public _entityIndex: { [entityId: string]: Entity } = {};
+  private _childAddedHandlerMap = new Map<Entity, (entity: Entity) => void>();
+  private _childRemovedHandlerMap = new Map<Entity, (entity: Entity) => void>();
 
   constructor(private _world: World) {}
 
@@ -33,6 +35,14 @@ export class EntityManager {
     }
   }
 
+  private _createChildAddedHandler = () => (e: Entity) => {
+    this.addEntity(e);
+  };
+
+  private _createChildRemovedHandler = () => (e: Entity) => {
+    this.removeEntity(e, false);
+  };
+
   /**
    * Adds an entity to be tracked by the EntityManager
    * @param entity
@@ -50,16 +60,12 @@ export class EntityManager {
         c.scene = entity.scene;
         this.addEntity(c);
       });
-      entity.childrenAdded$.register({
-        notify: (e) => {
-          this.addEntity(e);
-        }
-      });
-      entity.childrenRemoved$.register({
-        notify: (e) => {
-          this.removeEntity(e, false);
-        }
-      });
+      const childAdded = this._createChildAddedHandler();
+      this._childAddedHandlerMap.set(entity, childAdded);
+      const childRemoved = this._createChildRemovedHandler();
+      this._childRemovedHandlerMap.set(entity, childRemoved);
+      entity.childrenAdded$.subscribe(childAdded);
+      entity.childrenRemoved$.subscribe(childRemoved);
     }
   }
 
@@ -93,8 +99,14 @@ export class EntityManager {
         c.scene = null;
         this.removeEntity(c, deferred);
       });
-      entity.childrenAdded$.clear();
-      entity.childrenRemoved$.clear();
+      const childAddedHandler = this._childAddedHandlerMap.get(entity);
+      if (childAddedHandler) {
+        entity.childrenAdded$.unsubscribe(childAddedHandler);
+      }
+      const childRemovedHandler = this._childRemovedHandlerMap.get(entity);
+      if (childRemovedHandler) {
+        entity.childrenRemoved$.unsubscribe(childRemovedHandler);
+      }
 
       // stats
       if (this._world?.scene?.engine) {

@@ -1,9 +1,10 @@
 import { Entity } from '../../EntityComponentSystem/Entity';
 import { GraphicsComponent } from '../../Graphics/GraphicsComponent';
 import { Logger } from '../../Util/Log';
-import { Action } from '../Action';
+import { Action, nextActionId } from '../Action';
 
 export class Fade implements Action {
+  id = nextActionId();
   private _graphics: GraphicsComponent;
   public x: number;
   public y: number;

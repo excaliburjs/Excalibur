@@ -7,28 +7,33 @@ const TerserPlugin = require('terser-webpack-plugin');
 const now = new Date();
 const dt = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
 
-const umdOutput = {
-  path: path.resolve(__dirname, 'build/dist'),
-  filename: '[name].js',
-  library: {
-    name: 'ex',
-    type: 'umd'
-  }
-};
-
-const esmOutput = {
-  path: path.resolve(__dirname, 'build/esm'),
-  filename: '[name].js',
-  library: {
-    type: 'module'
-  }
-};
-
+/**
+ * @returns {import('webpack').Configuration}
+ */
 module.exports = (env, argv) => {
+  const { mode } = argv;
   const version = process.env.release ? versioner.getReleaseVersion() : versioner.getAlphaVersion();
   console.log('[version]:', version);
+
+  const umdOutput = {
+    path: path.resolve(__dirname, 'build/dist'),
+    filename: mode === 'development' ? '[name].development.js' : '[name].js',
+    library: {
+      name: 'ex',
+      type: 'umd'
+    }
+  };
+
+  const esmOutput = {
+    path: path.resolve(__dirname, 'build/esm'),
+    filename: mode === 'development' ? '[name].development.js' : '[name].js',
+    library: {
+      type: 'module'
+    }
+  };
+
   return {
-    mode: 'production',
+    mode,
     devtool: 'source-map',
     entry: {
       excalibur: './index.ts',
@@ -87,10 +92,12 @@ module.exports = (env, argv) => {
         }
       ]
     },
+
     plugins: [
       new CopyWebpackPlugin({ patterns: ['excalibur.d.ts'] }),
       new webpack.DefinePlugin({
-        'process.env.__EX_VERSION': JSON.stringify(version)
+        'process.env.__EX_VERSION': JSON.stringify(version),
+        'process.env.NODE_ENV': JSON.stringify(mode)
       }),
       new webpack.BannerPlugin(
         `${pkg.name} - ${version} - ${dt}

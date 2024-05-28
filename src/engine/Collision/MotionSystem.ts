@@ -1,4 +1,4 @@
-import { Query, SystemPriority, World } from '../EntityComponentSystem';
+import { Entity, Query, SystemPriority, World } from '../EntityComponentSystem';
 import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { System, SystemType } from '../EntityComponentSystem/System';
@@ -42,11 +42,24 @@ export class MotionSystem extends System {
       if (optionalBody?.collisionType === CollisionType.Active && optionalBody?.useGravity) {
         totalAcc.addEqual(this.physics.config.gravity);
       }
-      optionalBody?.captureOldTransform();
+
+      // capture old transform of this entity and all of its children so that
+      // any transform properties that derived from their parents are properly captured
+      if (!entities[i].parent) {
+        this.captureOldTransformWithChildren(entities[i]);
+      }
 
       // Update transform and motion based on Euler linear algebra
       EulerIntegrator.integrate(transform, motion, totalAcc, elapsedMs);
     }
     this._physicsConfigDirty = false;
+  }
+
+  captureOldTransformWithChildren(entity: Entity) {
+    entity.get(BodyComponent)?.captureOldTransform();
+
+    for (const child of entity.children) {
+      this.captureOldTransformWithChildren(child);
+    }
   }
 }

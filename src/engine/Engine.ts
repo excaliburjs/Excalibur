@@ -1795,7 +1795,7 @@ O|===|* >________________>\n\
         this._hideLoader = hideLoader;
 
         if (loader instanceof Loader) {
-          loader.suppressPlayButton = this._suppressPlayButton;
+          loader.suppressPlayButton = loader.suppressPlayButton || this._suppressPlayButton;
         }
         this._loader.onInitialize(this);
 

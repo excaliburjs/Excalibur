@@ -7,20 +7,28 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
--
+- 
 
 ### Deprecated
 
--
+- `actor.getGlobalPos()` - use `actor.globalPos` instead
+- `actor.getGlobalRotation()` - use `actor.globalRotation` instead
+- `actor.getGlobalScale()` - use `actor.globalScale` instead
 
 ### Added
 
--
+- `actor.oldGlobalPos` returns the globalPosition from the previous frame
+- create development builds of excalibur that bundlers can use in dev mode
+- show warning in development when Entity hasn't been added to a scene after a few seconds
 
 ### Fixed
 
 - improve types to disallow invalid combo of collider/width/height/radius in actor args
 - only add default color graphic for the respective collider used
+- Fixed issue where `ex.SpriteFont` did not respect scale when measuring text
+- Fixed issue where negative transforms would cause collision issues because polygon winding would change.
+- Fixed issue where removing and re-adding an actor would cause subsequent children added not to function properly with regards to their parent/child transforms
+- Fixed issue where `ex.GraphicsSystem` would crash if a parent entity did not have a `ex.TransformComponent`
 
 ### Updates
 
@@ -28,11 +36,37 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
-- `ex.Vector.toAngle()` now returns angles from [0 - 2 PI)
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [v0.29.3]
+
+### Breaking Changes
+
+- `ex.Action` now requires a unique `id` property
+- Z-indexes are now relative to the parent's Z-index. You can get the global Z-index with the `globalZ` property on the Actor or TransformComponent.
+
+### Deprecated
+
+### Added
+
+- Built in actions now have a unique `id` property
+- `globalZ` property to Actor and TransformComponent
+
+### Fixed
+
+- Fixed animation glitch caused by uninitialized state in `ImageRenderer`
+- Fixed issue where `ex.Loader.suppressPlayButton = true` did not work. Only using the `ex.Engine({suppressPlayButton: true})` worked
+
+### Updates
+
+-
+
+### Changed
+
+- `ex.Vector.toAngle()` now returns angles from `[0 - 2 PI)`
 
 ## [v0.29.2]
 
@@ -42,7 +76,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
--
+- `
 
 ### Added
 

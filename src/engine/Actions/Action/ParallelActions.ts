@@ -1,10 +1,11 @@
 import { Entity } from '../../EntityComponentSystem';
-import { Action } from '../Action';
+import { Action, nextActionId } from '../Action';
 
 /**
  * Action that can run multiple [[Action]]s or [[ActionSequence]]s at the same time
  */
 export class ParallelActions implements Action {
+  id = nextActionId();
   private _actions: Action[];
 
   constructor(parallelActions: Action[]) {

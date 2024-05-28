@@ -1053,5 +1053,60 @@ describe('The ExcaliburGraphicsContext', () => {
       }).not.toThrow();
       sut.dispose();
     });
+
+    it('can handle rendering rasters in succession', async () => {
+      // arrange
+      const image = new ex.ImageSource('src/spec/images/ExcaliburGraphicsContextSpec/test.png');
+      await image.load();
+      const spriteSheet = ex.SpriteSheet.fromImageSource({
+        image: image,
+        grid: {
+          rows: 1,
+          columns: 4,
+          spriteWidth: 100,
+          spriteHeight: 100
+        }
+      });
+
+      const down = ex.Animation.fromSpriteSheet(spriteSheet, [0, 1, 2, 3], 500);
+      const polygon = new ex.Polygon({
+        points: [ex.vec(50, 0), ex.vec(150, 0), ex.vec(200, 86), ex.vec(150, 172), ex.vec(50, 172), ex.vec(0, 86)],
+        color: ex.Color.fromRGB(0, 255, 0)
+      });
+      const rect = new ex.Rectangle({ width: 100, height: 100, color: ex.Color.fromRGB(255, 0, 0) });
+      const circle = new ex.Circle({ radius: 50, color: ex.Color.fromRGB(0, 0, 255) });
+
+      const canvasElement = testCanvasElement;
+      canvasElement.width = 500;
+      canvasElement.height = 400;
+      const sut = new ex.ExcaliburGraphicsContextWebGL({
+        canvasElement: canvasElement,
+        context: testContext,
+        enableTransparency: false,
+        snapToPixel: true,
+        backgroundColor: ex.Color.White
+      });
+
+      // act
+
+      sut.clear();
+
+      down.draw(sut, 100, 100);
+      polygon.draw(sut, 350, 100);
+      rect.draw(sut, 300, 300);
+      circle.draw(sut, 400, 300);
+
+      down.tick(500, 1);
+      down.draw(sut, 100, 100);
+      polygon.draw(sut, 350, 100);
+      rect.draw(sut, 300, 300);
+      circle.draw(sut, 400, 300);
+
+      sut.flush();
+
+      // assert
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/rasters.png');
+      sut.dispose();
+    });
   });
 });

@@ -65,7 +65,7 @@ export class GraphicsSystem extends System {
     this._graphicsContext = this._engine.graphicsContext;
     if (this._zHasChanged) {
       this._sortedTransforms.sort((a, b) => {
-        return a.z - b.z;
+        return a.globalZ - b.globalZ;
       });
       this._zHasChanged = false;
     }
@@ -255,17 +255,16 @@ export class GraphicsSystem extends System {
     for (const ancestor of ancestors) {
       const transform = ancestor?.get(TransformComponent);
       const optionalBody = ancestor?.get(BodyComponent);
-      let tx = transform.get();
-      if (optionalBody) {
-        if (this._engine.fixedUpdateFps && optionalBody.__oldTransformCaptured && optionalBody.enableFixedUpdateInterpolate) {
-          // Interpolate graphics if needed
-          const blend = this._engine.currentFrameLagMs / (1000 / this._engine.fixedUpdateFps);
-          tx = blendTransform(optionalBody.oldTransform, transform.get(), blend, this._targetInterpolationTransform);
-        }
-      }
-
       if (transform) {
-        this._graphicsContext.z = transform.z;
+        let tx = transform.get();
+        if (optionalBody) {
+          if (this._engine.fixedUpdateFps && optionalBody.__oldTransformCaptured && optionalBody.enableFixedUpdateInterpolate) {
+            // Interpolate graphics if needed
+            const blend = this._engine.currentFrameLagMs / (1000 / this._engine.fixedUpdateFps);
+            tx = blendTransform(optionalBody.oldTransform, transform.get(), blend, this._targetInterpolationTransform);
+          }
+        }
+        this._graphicsContext.z = transform.globalZ;
         this._graphicsContext.translate(tx.pos.x, tx.pos.y);
         this._graphicsContext.scale(tx.scale.x, tx.scale.y);
         this._graphicsContext.rotate(tx.rotation);

@@ -15,11 +15,21 @@ describe('A Graphics ECS System', () => {
     entities = [
       new ex.Entity().addComponent(new ex.TransformComponent()).addComponent(new ex.GraphicsComponent()),
       new ex.Entity().addComponent(new ex.TransformComponent()).addComponent(new ex.GraphicsComponent()),
+      new ex.Entity().addComponent(new ex.TransformComponent()).addComponent(new ex.GraphicsComponent()),
+
+      // parent
+      new ex.Entity().addComponent(new ex.TransformComponent()).addComponent(new ex.GraphicsComponent()),
+
+      // child of ^
       new ex.Entity().addComponent(new ex.TransformComponent()).addComponent(new ex.GraphicsComponent())
     ];
-    entities[0].get(TransformComponent).z = 10;
-    entities[1].get(TransformComponent).z = 5;
-    entities[2].get(TransformComponent).z = 1;
+    entities[0].get(TransformComponent).z = 100;
+    entities[1].get(TransformComponent).z = 50;
+    entities[2].get(TransformComponent).z = 10;
+
+    entities[3].get(TransformComponent).z = 5;
+    entities[3].addChild(entities[4]);
+    entities[4].get(TransformComponent).z = -1;
   });
 
   afterEach(() => {
@@ -32,7 +42,7 @@ describe('A Graphics ECS System', () => {
     expect(ex.GraphicsSystem).toBeDefined();
   });
 
-  it('sorts entities by transform.z', () => {
+  it('sorts entities by transform.globalZ', () => {
     const world = engine.currentScene.world;
     const sut = new ex.GraphicsSystem(world);
     engine.currentScene._initialize(engine);
@@ -385,5 +395,26 @@ describe('A Graphics ECS System', () => {
 
     engine.graphicsContext.flush();
     await expectAsync(engine.canvas).toEqualImage('src/spec/images/GraphicsSystemSpec/sword-flip-both-offset.png');
+  });
+
+  it('can add graphics+transform to a parent without a transform', () => {
+    const world = engine.currentScene.world;
+    const sut = new ex.GraphicsSystem(world);
+    engine.currentScene.camera.update(engine, 1);
+    engine.currentScene._initialize(engine);
+    engine.screen.setCurrentCamera(engine.currentScene.camera);
+    sut.initialize(world, engine.currentScene);
+    sut.preupdate();
+
+    const parent = new ex.Entity();
+    const child = new ex.Entity();
+    child.addComponent(new ex.TransformComponent());
+    child.addComponent(new ex.GraphicsComponent());
+    parent.addChild(child);
+
+    sut.query.checkAndAdd(parent);
+    sut.query.checkAndAdd(child);
+
+    expect(() => sut.update(1)).not.toThrow();
   });
 });

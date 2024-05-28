@@ -1,7 +1,8 @@
-import { Action } from '../Action';
+import { Action, nextActionId } from '../Action';
 
 export class CallMethod implements Action {
-  private _method: () => any = null;
+  id = nextActionId();
+  private _method: () => any;
   private _hasBeenCalled: boolean = false;
   constructor(method: () => any) {
     this._method = method;

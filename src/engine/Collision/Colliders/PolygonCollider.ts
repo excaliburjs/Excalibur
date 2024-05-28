@@ -58,6 +58,7 @@ export class PolygonCollider extends Collider {
    */
   public set points(points: Vector[]) {
     this._points = points;
+    this._checkAndUpdateWinding(this._points);
     this.flagDirty();
   }
 
@@ -80,10 +81,6 @@ export class PolygonCollider extends Collider {
     this.offset = options.offset ?? Vector.Zero;
     this._globalMatrix.translate(this.offset.x, this.offset.y);
     this.points = options.points ?? [];
-    const counterClockwise = this._isCounterClockwiseWinding(this.points);
-    if (!counterClockwise) {
-      this.points.reverse();
-    }
 
     if (!this.isConvex()) {
       if (!options.suppressConvexWarning) {
@@ -96,6 +93,13 @@ export class PolygonCollider extends Collider {
 
     // calculate initial transformation
     this._calculateTransformation();
+  }
+
+  private _checkAndUpdateWinding(points: Vector[]) {
+    const counterClockwise = this._isCounterClockwiseWinding(points);
+    if (!counterClockwise) {
+      points.reverse();
+    }
   }
 
   private _isCounterClockwiseWinding(points: Vector[]): boolean {
@@ -367,6 +371,11 @@ export class PolygonCollider extends Collider {
     this._transformedPoints.length = 0; // clear out old transform
     for (let i = 0; i < len; i++) {
       this._transformedPoints[i] = this._globalMatrix.multiply(points[i].clone());
+    }
+    // it is possible for the transform to change the winding, scale (-1, 1) for example
+    const scale = this._globalMatrix.getScale();
+    if (scale.x < 0 || scale.y < 0) {
+      this._checkAndUpdateWinding(this._transformedPoints);
     }
   }
 

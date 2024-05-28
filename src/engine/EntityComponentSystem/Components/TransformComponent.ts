@@ -43,22 +43,29 @@ export class TransformComponent extends Component {
    * Observable that emits when the z index changes on this component
    */
   public zIndexChanged$ = new Observable<number>();
-  private _z = 0;
 
   /**
    * The z-index ordering of the entity, a higher values are drawn on top of lower values.
    * For example z=99 would be drawn on top of z=0.
    */
   public get z(): number {
-    return this._z;
+    return this._transform.z;
   }
 
   public set z(val: number) {
-    const oldz = this._z;
-    this._z = val;
+    const oldz = this._transform.z;
+    this._transform.z = val;
     if (oldz !== val) {
       this.zIndexChanged$.notifyAll(val);
     }
+  }
+
+  public get globalZ() {
+    return this._transform.globalZ;
+  }
+
+  public set globalZ(z: number) {
+    this._transform.globalZ = z;
   }
 
   private _coordPlane = CoordPlane.World;
@@ -135,7 +142,6 @@ export class TransformComponent extends Component {
   clone(): TransformComponent {
     const component = new TransformComponent();
     component._transform = this._transform.clone();
-    component._z = this._z;
     return component;
   }
 }

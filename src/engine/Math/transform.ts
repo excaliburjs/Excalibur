@@ -160,6 +160,32 @@ export class Transform {
     });
   }
 
+  private _z: number = 0;
+
+  set z(z: number) {
+    this._z = z;
+    this.flagDirty();
+  }
+
+  get z() {
+    return this._z;
+  }
+
+  set globalZ(z: number) {
+    if (this.parent) {
+      this.z = z - this.parent.globalZ;
+    } else {
+      this.z = z;
+    }
+  }
+
+  get globalZ() {
+    if (this.parent) {
+      return this.z + this.parent.globalZ;
+    }
+    return this.z;
+  }
+
   private _isDirty = false;
   private _isInverseDirty = false;
   private _matrix = AffineMatrix.identity();
@@ -223,6 +249,7 @@ export class Transform {
   public clone(dest?: Transform) {
     const target = dest ?? new Transform();
     this._pos.clone(target._pos);
+    target._z = this._z;
     target._rotation = this._rotation;
     this._scale.clone(target._scale);
     target.flagDirty();
