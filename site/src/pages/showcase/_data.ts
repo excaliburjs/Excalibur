@@ -14,8 +14,16 @@ import nightBikeImage from './images/nightbike.png'
 import retroSkiImage from './images/retroski.png'
 import excalifarm from './images/excalifarm.png'
 import badRefImage from './images/bad-ref.png'
+import owlielowisNightmareImage from './images/owlielowis-nightmare.png'
 
 export default [
+  {
+    title: 'OwlieLowi\'s Nightmare',
+    image: owlielowisNightmareImage,
+    description: 'Simple arcade game with endless loop made as gift for VTuber. Collect items with different mechanics and collect more points.',
+    url: 'https://owlielowi.korekuta.ru',
+    source: 'https://github.com/AymanDev/OwlieLowi-s-Nightmare',
+  },
   {
     title: 'Bad Ref',
     image: badRefImage,
