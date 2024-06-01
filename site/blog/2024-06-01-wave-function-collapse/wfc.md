@@ -122,7 +122,7 @@ We can proceed to follow this pattern for each of the tiles, outlining for each 
 The process purely starts out with an empty grid... or you actually can predetermine some portions of the grid for the algorithm to
 build around... but for this explanation, empty:
 
-<img src={img4.png} alt="drawing" style={{width: '250px', height: '250px'}}/>
+<img src={img4} alt="drawing" style={{width: '250px', height: '250px'}}/>
 
 Given that none of the tiles have been selected yet, we can describe the entropy of each tile as essentially Infinite, or more
 accurate, <i>N</i> number of available tiles to choose from. i.e. , if there are 5 types of available tiles, then the highest entropy
