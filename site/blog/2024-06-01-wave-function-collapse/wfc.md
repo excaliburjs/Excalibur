@@ -229,8 +229,7 @@ First, it uses WFC to generate the terrain, only using the three tiles of grass,
 Second, it finds spots to draw two buildings. The rules around this is to not collide the two buildings, and also not have the
 buildings overrun the edges of the map. I use WFC to generate random building patterns using a number of tiles.
 
-Finally, and this has nothing to do with WFC, I use a pathfinding algorithm I wrote to find a path between the two doors of the houses,
-and draw a road between them... I did that for my own amusement.
+Finally, and this has nothing to do with WFC, I use a pathfinding algorithm I wrote to find a path between the two doors of the houses,and draw a road between them... I did that for my own amusement.
 
 Pressing the spacebar in the demo, or a mouse tap, attempts to regenerate another drawing. Now, not every generation is
 perfect, but this seems to have a >90% success rate, and for the purposes of this article, I can accept that. I intentionally did not
