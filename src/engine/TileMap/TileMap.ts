@@ -201,6 +201,14 @@ export class TileMap extends Entity {
     this._motion.vel = val;
   }
 
+  public get width(): number {
+    return this.tileWidth * this.columns;
+  }
+
+  public get height(): number {
+    return this.tileHeight * this.rows;
+  }
+
   public emit<TEventName extends EventKey<TileMapEvents>>(eventName: TEventName, event: TileMapEvents[TEventName]): void;
   public emit(eventName: string, event?: any): void;
   public emit<TEventName extends EventKey<TileMapEvents> | string>(eventName: TEventName, event?: any): void {
