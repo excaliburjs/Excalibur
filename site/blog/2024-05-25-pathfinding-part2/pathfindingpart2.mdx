@@ -147,7 +147,7 @@ We can repeat this equation for the hCost, but it is with respect to the end nod
 hCost = Math.sqrt(Math.pow((4-0), 2) + Math.pow((5-0)), 2));
 ```
 
-This yeilds a hCost of ~6.40.
+This yields a hCost of ~6.40.
 
 Knowing both now, we can determine the fCost of that node or tile, by adding the two together, making the fCost 7.82... with rounding.
 
@@ -219,7 +219,7 @@ complete. The next lowest fCost is 5.47, and there is more than one node with th
 Still the lowest fCost is 5.47, so we select the next node, grab neighbors, assign parents... one thing I did differently on this table
 is showing the fCost of the ending node, which up till now wasn't necessary, but showing it here lets one understand how the overall
 algorithm loops, because the end node HAS to be selected as the next lowest cost node, because the check for end node is at the
-beginning of the iteration, not in the neighbor eveluation. So in this next loop, i don't make it yellow, but the end node is now been
+beginning of the iteration, not in the neighbor eveluation. So in this next loop, I don't make it yellow, but the end node is now been
 placed AS A NEIGHBOR into the list of open nodes for evaluation.
 
 <img src={img27} alt="finishing up" style={{width: '400px', height: '400px'}}/>
