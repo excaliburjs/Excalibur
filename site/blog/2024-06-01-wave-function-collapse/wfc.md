@@ -256,7 +256,7 @@ We also discussed the concept of Entropy, and how it applies to the algorithm ov
 be collapsed. Collapsing a tile is simply the process of picking from of available tiles that a specific tile CAN be by means of the
 rules provided.
 
-In my experience, and I've done a few WFC projects, the rules provides the constraints of the algorithm, and ultimately, it is where I
+In my experience, and I've done a few WFC projects, the rules provide the constraints of the algorithm.  Ultimately, it is where I
 always spend the most time tweaking and adjusting the project. Too tight of rules, and you'll need to be VERY good at managing
 collisions. However, too few rules, and you're output maybe a very noisy mess.
 
