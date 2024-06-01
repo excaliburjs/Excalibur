@@ -232,7 +232,7 @@ buildings overrun the edges of the map. I use WFC to generate random building pa
 Finally, and this has nothing to do with WFC, I use a pathfinding algorithm I wrote to find a path between the two doors of the houses,
 and draw a road between them... I did that for my own amusement.
 
-Pressing the spacebar in the demo, or a mouse tap, attempts to regenerate another drawing. Now, such in life, not every generation is
+Pressing the spacebar in the demo, or a mouse tap, attempts to regenerate another drawing. Now, not every generation is
 perfect, but this seems to have a >90% success rate, and for the purposes of this article, I can accept that. I intentionally did not
 put in a layer of complexity for managing collisions, as I wanted to demonstrate what CAN happen using this method, and how one needs
 to account for that in their output validation.
