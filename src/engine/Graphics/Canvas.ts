@@ -22,7 +22,7 @@ export class Canvas extends Raster {
     return this._ctx;
   }
 
-  constructor(private _options: GraphicOptions & RasterOptions & CanvasOptions) {
+  constructor(private _options: GraphicOptions & RasterOptions & CanvasOptions = {}) {
     super(_options);
   }
 
