@@ -122,7 +122,7 @@ We can proceed to follow this pattern for each of the tiles, outlining for each 
 The process purely starts out with an empty grid... or you actually can predetermine some portions of the grid for the algorithm to
 build around... but for this explanation, empty:
 
-<img src={img4.png} alt="drawing" style={{width: '250px', height: '250px'}}/>
+<img src={img4} alt="drawing" style={{width: '250px', height: '250px'}}/>
 
 Given that none of the tiles have been selected yet, we can describe the entropy of each tile as essentially Infinite, or more
 accurate, <i>N</i> number of available tiles to choose from. i.e. , if there are 5 types of available tiles, then the highest entropy
@@ -229,10 +229,9 @@ First, it uses WFC to generate the terrain, only using the three tiles of grass,
 Second, it finds spots to draw two buildings. The rules around this is to not collide the two buildings, and also not have the
 buildings overrun the edges of the map. I use WFC to generate random building patterns using a number of tiles.
 
-Finally, and this has nothing to do with WFC, I use a pathfinding algorithm I wrote to find a path between the two doors of the houses,
-and draw a road between them... I did that for my own amusement.
+Finally, and this has nothing to do with WFC, I use a pathfinding algorithm I wrote to find a path between the two doors of the houses,and draw a road between them... I did that for my own amusement.
 
-Pressing the spacebar in the demo, or a mouse tap, attempts to regenerate another drawing. Now, such in life, not every generation is
+Pressing the spacebar in the demo, or a mouse tap, attempts to regenerate another drawing. Now, not every generation is
 perfect, but this seems to have a >90% success rate, and for the purposes of this article, I can accept that. I intentionally did not
 put in a layer of complexity for managing collisions, as I wanted to demonstrate what CAN happen using this method, and how one needs
 to account for that in their output validation.
@@ -256,7 +255,7 @@ We also discussed the concept of Entropy, and how it applies to the algorithm ov
 be collapsed. Collapsing a tile is simply the process of picking from of available tiles that a specific tile CAN be by means of the
 rules provided.
 
-In my experience, and I've done a few WFC projects, the rules provides the constraints of the algorithm, and ultimately, it is where I
+In my experience, and I've done a few WFC projects, the rules provide the constraints of the algorithm.  Ultimately, it is where I
 always spend the most time tweaking and adjusting the project. Too tight of rules, and you'll need to be VERY good at managing
 collisions. However, too few rules, and you're output maybe a very noisy mess.
 
