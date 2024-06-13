@@ -3,6 +3,12 @@ import { Color } from '../Color';
 import { Vector } from '../Math/vector';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 
+export interface FontShadow { 
+  blur?: number;
+  offset?: Vector;
+  color?: Color;
+}
+
 /**
  * Enum representing the different font size units
  * https://developer.mozilla.org/en-US/docs/Web/CSS/font-size
@@ -159,11 +165,7 @@ export interface FontOptions {
   /**
    * Optionally specify a text shadow, by default none is specified
    */
-  shadow?: {
-    blur?: number;
-    offset?: Vector;
-    color?: Color;
-  };
+  shadow?: FontShadow;
 }
 
 /**
