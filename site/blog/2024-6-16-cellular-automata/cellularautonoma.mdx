@@ -71,12 +71,91 @@ enemies.
 
 ## The Algorithm
 
-For explaining the CA algorithm, we will start with a grid of tiles that are randomly filled with ones and zeroes.
+For explaining the CA algorithm, we will demonstrate code snippets that demonstrate TypeScript and using Excalibur.js, but this can be done in any languages and framework of your choice.
 
-The algorithm will have us walk through the grid tile by tile and we will either leave the one or zero in place, or we will flip that value to the opposite, meaning a zero will become a one, and vice versa. The results of this assessment needs to be kept in a new or
-cloned array, as to not overwrite the starting array's values as you iterate over the tiles.
+### Initialization
 
-The rules around flipping the values in each cell will depend on each implementation of the CA algorithm. These can be variable rules, each implementation can be unique in that instance. This gives you some agency and control over how you want your simulation to run.
+We start with a grid of tiles that are randomly filled with ones and zeroes.
+
+```ts
+const tiles:number[]=new Array(49);
+
+//Utilizing PerlinNoise plug-in for Excalibur
+generator = new PerlinGenerator({
+    seed: Date.now(), // random seed
+    octaves: 2, 
+    frequency: 24, 
+    amplitude: 0.91, 
+    persistance: 0.95, 
+  });
+
+// This uses the TileMap object from Excalibur
+export const tmap = new TileMap({
+  tileWidth: 16,
+  tileHeight: 16,
+  columns: 36,
+  rows: 36,
+});
+
+// Using the Perlin Noise Field, fill the Tilemap and tiles array with data
+let tileIndex = 0;
+for (const tile of tmap.tiles) {
+  const noise = generator.noise(tile.x / tmap.columns, tile.y / tmap.rows);
+  if (noise > 0.5) {
+    tiles[tileIndex] = 1;
+    tile.addGraphic(bluey);
+  } else {
+    tiles[tileIndex] = 0;
+    tile.addGraphic(whitey);
+  }
+  tileIndex++;
+}
+```
+
+The algorithm will have us walk through the grid tile by tile and we will either leave the one or zero in place, or we will flip that value to the opposite, meaning a zero will become a one, and vice versa. The results of this assessment needs to be kept in a new or cloned array, as to not overwrite the starting array's values as you iterate over the tiles.
+
+### The Rules
+
+The rules around flipping the values in each cell will depend on each implementation of the CA algorithm. These can be variable rules, each implementation can be unique in that instance. This gives you some agency and control over how you want your simulation to run.  I've tailored this function with the flexibility to pass in the rules on each iteration.  The rules are regarding how to handle out of bounds indexes, and what cutoff points are being used.
+```ts
+
+// Defining our CA function, passing in the grid, dimensions, and rules for OOB indexes and cutoff points
+export function applyCellularAutomataRules(
+  map: number[],
+  width: number,
+  height: number,
+  oob: string | undefined,
+  cutoff0: number | undefined,
+  cutoff1: number | undefined
+): number[] {
+  const newMap = new Array(width * height).fill(0);
+
+  let zeroLimit = 4;
+  if (cutoff0) zeroLimit = cutoff0 + 1; //this creates the less than effect
+  let oneLimit = 5;
+  if (cutoff1) oneLimit = cutoff1;  // this creates the greater than or equalto
+
+  for (let i = 0; i < height * width; i++) {
+    for (let x = 0; x < width; x++) {
+      const wallCount = countAdjacentWalls(map, width, height, i, oob); //counts walls in neighbors
+      if (map[i] === 1) {
+        if (wallCount < zeroLimit) {
+          newMap[i] = 0; // Change to floor if there are less than cuttoff0 adjacent walls
+        } else {
+          newMap[i] = 1; // Remain wall
+        }
+      } else {
+        if (wallCount >= oneLimit) {
+          newMap[i] = 1; // Change to wall if there are cutoff1 or more adjacent walls
+        } else {
+          newMap[i] = 0; // Remain floor
+        }
+      }
+    }
+  }
+  return newMap;
+}
+```
 
 To note, this approach to the CA algorithm is for the sake of THIS article. Other approaches can be implemented. Let's define our rules for the scope of this article.
 
@@ -84,17 +163,85 @@ To note, this approach to the CA algorithm is for the sake of THIS article. Othe
 - If the starting value for a tile is a one, then to flip it to a zero, the neighbors must have three or fewer ones surrounding the starting tile.
 - For tiles on the edges of the grid, which will not have 8 neighbors, out of bound regions will be treated as ones or 'walls'
 
+```ts
+tiles = applyCellularAutomataRules(tiles, 7, 7, 'walls', 3, 5);
+```
+
 With these rules in place, which can be modified and tailored to your liking, we can use them to determine the next interation of the grid by going tile by tile and setting the new grid's values based on each tile's neighbors.
 
-For the rule on out of bound neighbors, you can use a variety of different rules to your liking. You can treat them as constants, like in this instance, we treat them as walls. You can have them be treated as floors, which will change how your simulation runs, producing
-a more 'open' result. You can also have the out of bound tiles mirror the value of the starting value, i.e. if your starting tile on the edge is a one, then out of bound tiles are all ones, and vice versa.
+### Counting Walls
 
-So starting at the first tile of the grid, you will look at the eight neighbors of the tile, in this instance, five of them are out of bound indexes. You add all the walls up in the neighbors,since the starting value is a zero, if the value is greater or equal to five,
-in the new grid/array, you will place a one in index zero for the new grid. This is how you flip the values. If, for instance, there would be less than five walls for the neighbors of this index, the value would have remained zero. You repeat this process for each
+For the rule on out of bound neighbors, you can use a variety of different rules to your liking. You can treat them as constants, like in this instance, we treat them as walls. You can have them be treated as floors, which will change how your simulation runs, producing a more 'open' result. You can also have the out of bound tiles mirror the value of the starting value, i.e. if your starting tile on the edge is a one, then out of bound tiles are all ones, and vice versa.
+
+```ts
+// This function takes in the grid and dims, which index is being inspected, and the rules on OOB tiles
+function countAdjacentWalls(map: number[], width: number, height: number, index: number, oob: string | undefined): number {
+  let count = 0;
+
+  const y = Math.floor(index / width);
+  const x = index % width;
+
+  for (let i = -1; i <= 1; i++) {
+    for (let j = -1; j <= 1; j++) {
+      if (i === 0 && j === 0) continue;
+      
+      const newY = y + i;
+      const newX = x + j;
+
+      if (newY >= 0 && newY < height && newX >= 0 && newX < width) {
+        const adjacentIndex = newY * width + newX;
+        if (map[adjacentIndex] === 1) count++;
+      } else {
+        switch (oob) {
+          // The 4 types of rules provided are for constant values, floor and wall, random
+          // , and mirror
+          case "floor":
+            break;
+          case "wall":
+            count++;
+            break;
+          case "random":
+            let coinflip = Math.random();
+            if (coinflip > 0.5) count++;
+            break;
+          case "mirror":
+            if (map[index]==1) count++;
+            break;
+          default:
+            count++; // Perceive out of bounds as wall
+            break;
+        }
+      }
+    }
+  }
+  return count;
+}
+```
+
+So starting at the first tile of the grid, you will look at the eight neighbors of the tile, in this instance, five of them are out of bound indexes. You add all the walls up in the neighbors,since the starting value is a zero, if the value is greater or equal to five, in the new grid/array, you will place a one in index zero for the new grid. This is how you flip the values. If, for instance, there would be less than five walls for the neighbors of this index, the value would have remained zero. You repeat this process for each
 tile in the grid/array.
 
-At the end, when you have completely iterated over each tile, you will have a new grid of tiles that are now set to zeroes or ones, based on that starting array. You can use this new grid as a completed result, or you can re-run the same simulation using this new
-grid as your 'new' starting array of data.
+### Redraw your tiles 
+
+At the end, when you have completely iterated over each tile, you will have a new grid of tiles that are now set to zeroes or ones, based on that starting array. You can use this new grid as a completed result, or you can re-run the same simulation using this new grid as your 'new' starting array of data.
+
+```ts
+// function that clears out the existing Tilemap and redraws it based on the new returned tile array
+function redrawTilemap(map: number[], tilemap: TileMap, game: Engine) {
+  game.remove(game.currentScene.tileMaps[0]);
+  let tileIndex = 0;
+  for (const tile of tilemap.tiles) {
+    const value = map[tileIndex];
+    if (value == 1) {
+      tile.addGraphic(bluey);
+    } else {
+      tile.addGraphic(whitey);
+    }
+    tileIndex++;
+  }
+  game.add(tilemap);
+}
+```
 
 ## Walkthrough of the Algorithm
 
