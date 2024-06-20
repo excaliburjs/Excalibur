@@ -29,7 +29,10 @@ import img19 from './images/image-19.png';
 
 <img src={img18} alt="TitleImage" style={{width: '480px'}}/>
 
-In my last article, we studied the [Wave Function Collapse](../2024-06-01-wave-function-collapse/wfc.md)Algorithm. Staying within that topical thread of procedural algorithms which can be leveraged in game development, let's turn our focus to Cellular Automata.
+I love procedural generation.  As a hobbyist game developer, it is the concept and technique that I keep reaching for in my games.  
+This article is about Cellular Automata, which follows suit of my previous articles regarding other procedural generation strategies for game development.  
+In my last article, we studied the [Wave Function Collapse](../2024-06-01-wave-function-collapse/wfc.md)Algorithm. 
+Staying within that topical thread of procedural algorithms which can be leveraged in game development, let's turn our focus to Cellular Automata.
 
 ## What is Cellular Automata
 
@@ -50,6 +53,7 @@ units (cells), and calculating their behavior based on the influence of each cel
 ### The Game of Life
 
 <img src={img15} alt="game of life" style={{width: '480px', height: '250px'}}/>
+
 
 In the 1970's, James Conway famously created a simulation called the [Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life). This very simple simulation, which had only four rules, created
 a very dynamic and varied group of results that bounced between appearing random and controlled order. The rules determined each cell's future state as classified as dying due to underpopulation or overpopulation, creating a new living unit due to reproduction, or just
@@ -142,13 +146,33 @@ We will follow this process for each index with the given rules below:
 
 Let's speed this process along a bit.
 
-<img src={img7} alt="next step" style={{width: '250px'}}/> Finishing the first row.
-<img src={img8} alt="next step 1" style={{width: '250px'}}/> Generating the 2nd row.
-<img src={img9} alt="next step 2" style={{width: '250px'}}/> Generating the 3rd row.
-<img src={img10} alt="next step 3" style={{width: '250px'}}/> Generating the 4th row.
-<img src={img11} alt="next step 4" style={{width: '250px'}}/> Generating the 5th row.
-<img src={img12} alt="next step 5" style={{width: '250px'}}/> Generating the 6th row.
-<img src={img13} alt="next step 6" style={{width: '250px'}}/> Generating the Final row.
+<img src={img7} alt="next step" style={{width: '250px'}}/> 
+
+Finishing the first row.
+
+<img src={img8} alt="next step 1" style={{width: '250px'}}/>
+
+Generating the 2nd row.
+
+<img src={img9} alt="next step 2" style={{width: '250px'}}/> 
+
+Generating the 3rd row.
+
+<img src={img10} alt="next step 3" style={{width: '250px'}}/> 
+
+Generating the 4th row.
+
+<img src={img11} alt="next step 4" style={{width: '250px'}}/> 
+
+Generating the 5th row.
+
+<img src={img12} alt="next step 5" style={{width: '250px'}}/> 
+
+Generating the 6th row.
+
+<img src={img13} alt="next step 6" style={{width: '250px'}}/> 
+
+Generating the Final row.
 
 Now we have a completed array of new values. The thing about the CA algorithm that is favorable is that you can reuse the algorithm again on the new set of values to generate deeper levels of generation on the initial data set.
 
