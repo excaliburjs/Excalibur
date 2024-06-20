@@ -80,6 +80,10 @@ We start with a grid of tiles that are randomly filled with ones and zeroes.
 ```ts
 const tiles:number[]=new Array(49);
 
+// define the blue and white tiles for the TileMap
+export const blueTile = new Rectangle({ width: 16, height: 16, color: Color.fromRGB(0, 0, 255, 1) });
+export const whiteTile = new Rectangle({ width: 16, height: 16, color: Color.fromRGB(255, 255, 255, 1) });
+
 //Utilizing PerlinNoise plug-in for Excalibur
 generator = new PerlinGenerator({
     seed: Date.now(), // random seed
@@ -93,8 +97,8 @@ generator = new PerlinGenerator({
 export const tmap = new TileMap({
   tileWidth: 16,
   tileHeight: 16,
-  columns: 36,
-  rows: 36,
+  columns: 7,
+  rows: 7,
 });
 
 // Using the Perlin Noise Field, fill the Tilemap and tiles array with data
@@ -103,10 +107,10 @@ for (const tile of tmap.tiles) {
   const noise = generator.noise(tile.x / tmap.columns, tile.y / tmap.rows);
   if (noise > 0.5) {
     tiles[tileIndex] = 1;
-    tile.addGraphic(bluey);
+    tile.addGraphic(blueTile);
   } else {
     tiles[tileIndex] = 0;
-    tile.addGraphic(whitey);
+    tile.addGraphic(whiteTile);
   }
   tileIndex++;
 }
@@ -233,9 +237,9 @@ function redrawTilemap(map: number[], tilemap: TileMap, game: Engine) {
   for (const tile of tilemap.tiles) {
     const value = map[tileIndex];
     if (value == 1) {
-      tile.addGraphic(bluey);
+      tile.addGraphic(blueTile);
     } else {
-      tile.addGraphic(whitey);
+      tile.addGraphic(whiteTile);
     }
     tileIndex++;
   }
