@@ -194,9 +194,9 @@ export class Transform {
   public get matrix() {
     if (this._isDirty) {
       if (this.parent === null) {
-        this._matrix = this._calculateMatrix();
+        this._calculateMatrix().clone(this._matrix);
       } else {
-        this._matrix = this.parent.matrix.multiply(this._calculateMatrix());
+        this.parent.matrix.multiply(this._calculateMatrix()).clone(this._matrix);
       }
       this._isDirty = false;
     }
@@ -205,15 +205,26 @@ export class Transform {
 
   public get inverse() {
     if (this._isInverseDirty) {
-      this._inverse = this.matrix.inverse();
+      this.matrix.inverse(this._inverse);
       this._isInverseDirty = false;
     }
     return this._inverse;
   }
 
+  private _scratch = AffineMatrix.identity();
   private _calculateMatrix(): AffineMatrix {
-    const matrix = AffineMatrix.identity().translate(this.pos.x, this.pos.y).rotate(this.rotation).scale(this.scale.x, this.scale.y);
-    return matrix;
+    this._scratch.reset();
+
+    this._scratch.data[0] = this._scale.x * Math.cos(this._rotation);
+    this._scratch.data[1] = this._scale.y * Math.sin(this._rotation);
+    this._scratch.data[2] = -this.scale.x * Math.sin(this._rotation);
+    this._scratch.data[3] = this.scale.y * Math.cos(this._rotation);
+    this._scratch.data[4] = this._pos.x;
+    this._scratch.data[5] = this._pos.y;
+
+    // TODO produce this matrix from scratch instead of doing this
+    // const matrix = this._scratch.translate(this.pos.x, this.pos.y).rotate(this.rotation).scale(this.scale.x, this.scale.y);
+    return this._scratch;
   }
 
   public flagDirty() {
