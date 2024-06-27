@@ -6,6 +6,7 @@ import { createId } from '../../Id';
 import { Ray } from '../../Math/ray';
 import { vec } from '../../Math/vector';
 import { Pool } from '../../Util/Pool';
+import { RentalPool } from '../../Util/RentalPool';
 import { BodyComponent } from '../BodyComponent';
 import { BoundingBox } from '../BoundingBox';
 import { Collider } from '../Colliders/Collider';
@@ -18,8 +19,11 @@ import { Pair } from './Pair';
 import { RayCastHit } from './RayCastHit';
 import { RayCastOptions } from './RayCastOptions';
 
+/**
+ * Stores references to collider proxies that intersect with the grid cell
+ */
 export class HashGridCell {
-  colliders: HashColliderProxy[] = []; // TODO would a linked list be faster?
+  colliders: HashColliderProxy[] = [];
   key: string;
   x: number;
   y: number;
@@ -35,6 +39,9 @@ export class HashGridCell {
   }
 }
 
+/**
+ * Proxy type to stash collision info
+ */
 export class HashColliderProxy {
   id: number = -1;
   owner: Entity;
@@ -152,15 +159,15 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
   private _pairs = new Set<string>();
   private _nonPairs = new Set<string>();
 
-  // private _hashGridCellPool = new Pool<HashGridCell>(
-  //   () => new HashGridCell(),
-  //   (instance) => {
-  //     instance.configure(0, 0);
-  //     instance.colliders.length = 0;
-  //     return instance;
-  //   },
-  //   1000
-  // );
+  private _hashGridCellPool = new RentalPool<HashGridCell>(
+    () => new HashGridCell(),
+    (instance) => {
+      instance.configure(0, 0);
+      instance.colliders.length = 0;
+      return instance;
+    },
+    1000
+  );
 
   public _pairPool = new Pool<Pair>(
     () => new Pair({ id: createId('collider', 0) } as Collider, { id: createId('collider', 0) } as Collider),
@@ -190,14 +197,16 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     const rightX = Math.floor(bounds.right / this.gridSize);
     const bottomY = Math.floor(bounds.bottom / this.gridSize);
     const topY = Math.floor(bounds.top / this.gridSize);
-    let results: Collider[] = [];
+    const results: Collider[] = [];
     for (let x = leftX; x <= rightX; x++) {
       for (let y = topY; y <= bottomY; y++) {
         const key = HashGridCell.calculateHashKey(x, y);
         // Hash collider into appropriate cell
         const cell = this.sparseHashGrid.get(key);
         if (cell) {
-          results = results.concat(Array.from(cell.colliders).map((c) => c.collider));
+          for (let i = 0; i < cell.colliders.length; i++) {
+            results.push(cell.colliders[i].collider);
+          }
         }
       }
     }
@@ -315,9 +324,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     // Hash collider into appropriate cell
     let cell = this.sparseHashGrid.get(key);
     if (!cell) {
-      // TODO no reclaim on the grid cell pool
-      // TODO use rental pool
-      cell = new HashGridCell(); // this._hashGridCellPool.get();
+      cell = this._hashGridCellPool.rent();
       cell.configure(x, y);
       this.sparseHashGrid.set(cell.key, cell);
     }
@@ -339,7 +346,8 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
         proxy.cells.splice(cellIndex, 1);
       }
       if (cell.colliders.length === 0) {
-        this.sparseHashGrid.delete(key); // TODO Rental pool
+        this._hashGridCellPool.return(cell);
+        this.sparseHashGrid.delete(key);
       }
     }
   }
