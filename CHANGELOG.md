@@ -20,6 +20,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `actor.oldGlobalPos` returns the globalPosition from the previous frame
 - create development builds of excalibur that bundlers can use in dev mode
 - show warning in development when Entity hasn't been added to a scene after a few seconds
+- New `RentalPool` type for sparse object pooling
 
 ### Fixed
 
@@ -32,7 +33,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Updates
 
--
+- Perf improvements: Hot path allocations
+  * Reduce State/Transform stack hot path allocations in graphics context
+  * Reduce Transform allocations
+  * Reduce AffineMatrix allocations
 
 ### Changed
 

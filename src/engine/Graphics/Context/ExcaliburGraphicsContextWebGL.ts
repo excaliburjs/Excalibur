@@ -439,7 +439,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   }
 
   public resetTransform(): void {
-    this._transform.current = AffineMatrix.identity();
+    this._transform.reset();
   }
 
   public updateViewport(resolution: Resolution): void {
