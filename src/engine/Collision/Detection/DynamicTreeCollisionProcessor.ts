@@ -30,7 +30,9 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
   private _colliders: Collider[] = [];
 
   constructor(private _config: DeepRequired<PhysicsConfig>) {
-    this._dynamicCollisionTree = new DynamicTree<Collider>(_config.dynamicTree);
+    if (_config.spatialPartition.type === 'dynamic-tree') {
+      this._dynamicCollisionTree = new DynamicTree<Collider>(_config.spatialPartition);
+    }
   }
 
   public getColliders(): readonly Collider[] {

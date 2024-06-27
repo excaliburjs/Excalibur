@@ -171,12 +171,13 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     200
   );
 
-  constructor() {
-    this.gridSize = 35; // TODO configurable grid size
+  constructor(options: { size: number }) {
+    this.gridSize = options.size;
     this.sparseHashGrid = new Map<string, HashGridCell>();
     this.colliderToProxy = new Map<Collider, HashColliderProxy>();
 
     // TODO dynamic grid size potentially larger than the largest collider
+    // TODO Re-hash the objects if the median proves to be different
   }
 
   getColliders(): readonly Collider[] {

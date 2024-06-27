@@ -5,7 +5,7 @@ import { Id } from '../../Id';
 import { Entity } from '../../EntityComponentSystem/Entity';
 import { BodyComponent } from '../BodyComponent';
 import { Color, ExcaliburGraphicsContext } from '../..';
-import { PhysicsConfig } from '../PhysicsConfig';
+import { DynamicTreeConfig } from '../PhysicsConfig';
 
 /**
  * Dynamic Tree Node used for tracking bounds within the tree
@@ -47,7 +47,7 @@ export class DynamicTree<T extends ColliderProxy<Entity>> {
   public root: TreeNode<T>;
   public nodes: { [key: number]: TreeNode<T> };
   constructor(
-    private _config: Required<Pick<PhysicsConfig, 'dynamicTree'>['dynamicTree']>,
+    private _config: Required<DynamicTreeConfig>,
     public worldBounds: BoundingBox = new BoundingBox(-Number.MAX_VALUE, -Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE)
   ) {
     this.root = null;

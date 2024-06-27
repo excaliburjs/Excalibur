@@ -11,7 +11,6 @@ export class PhysicsWorld {
 
   private _configDirty = false;
   private _config: DeepRequired<PhysicsConfig>;
-  private _useSparseHashGrid = true;
   get config(): DeepRequired<PhysicsConfig> {
     return watchDeep(this._config, (change) => {
       this.$configUpdate.notifyAll(change);
@@ -31,8 +30,8 @@ export class PhysicsWorld {
       this._configDirty = false;
       // preserve tracked colliders if config updates
       const colliders = this._collisionProcessor.getColliders();
-      if (this._useSparseHashGrid) {
-        this._collisionProcessor = new SparseHashGridCollisionProcessor();
+      if (this._config.spatialPartition.type === 'sparse-hash-grid') {
+        this._collisionProcessor = new SparseHashGridCollisionProcessor(this._config.spatialPartition);
       } else {
         this._collisionProcessor = new DynamicTreeCollisionProcessor(this._config);
       }
@@ -48,8 +47,8 @@ export class PhysicsWorld {
       this._configDirty = true;
       BodyComponent.updateDefaultPhysicsConfig(config.bodies);
     });
-    if (this._useSparseHashGrid) {
-      this._collisionProcessor = new SparseHashGridCollisionProcessor();
+    if (this._config.spatialPartition.type === 'sparse-hash-grid') {
+      this._collisionProcessor = new SparseHashGridCollisionProcessor(this._config.spatialPartition);
     } else {
       this._collisionProcessor = new DynamicTreeCollisionProcessor(this._config);
     }
