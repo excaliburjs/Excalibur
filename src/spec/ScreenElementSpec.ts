@@ -67,8 +67,6 @@ describe('A ScreenElement', () => {
 
   it('can be constructed with a non-default collider', () => {
     const sut = new ScreenElement({
-      width: 100,
-      height: 100,
       collisionType: ex.CollisionType.Active,
       collider: ex.Shape.Circle(50)
     });

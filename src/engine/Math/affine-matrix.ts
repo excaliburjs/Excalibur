@@ -407,7 +407,12 @@ export class AffineMatrix {
    */
   public clone(dest?: AffineMatrix): AffineMatrix {
     const mat = dest || new AffineMatrix();
-    mat.data.set(this.data);
+    mat.data[0] = this.data[0];
+    mat.data[1] = this.data[1];
+    mat.data[2] = this.data[2];
+    mat.data[3] = this.data[3];
+    mat.data[4] = this.data[4];
+    mat.data[5] = this.data[5];
     mat._scaleSignX = this._scaleSignX;
     mat._scaleSignY = this._scaleSignY;
     return mat;

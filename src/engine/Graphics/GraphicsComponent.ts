@@ -112,33 +112,29 @@ export class GraphicsComponent extends Component {
    */
   public opacity: number = 1;
 
-  private _offset: Vector = Vector.Zero;
+  private _offset: Vector = new WatchVector(Vector.Zero, () => this.recalculateBounds());
 
   /**
    * Offset to apply to graphics by default
    */
   public get offset(): Vector {
-    return new WatchVector(this._offset, () => {
-      this.recalculateBounds();
-    });
+    return this._offset;
   }
   public set offset(value: Vector) {
-    this._offset = value;
+    this._offset = new WatchVector(value, () => this.recalculateBounds());
     this.recalculateBounds();
   }
 
-  private _anchor: Vector = Vector.Half;
+  private _anchor: Vector = new WatchVector(Vector.Half, () => this.recalculateBounds());
 
   /**
    * Anchor to apply to graphics by default
    */
   public get anchor(): Vector {
-    return new WatchVector(this._anchor, () => {
-      this.recalculateBounds();
-    });
+    return this._anchor;
   }
   public set anchor(value: Vector) {
-    this._anchor = value;
+    this._anchor = new WatchVector(value, () => this.recalculateBounds());
     this.recalculateBounds();
   }
 

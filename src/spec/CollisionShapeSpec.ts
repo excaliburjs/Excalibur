@@ -596,7 +596,7 @@ describe('Collision Shape', () => {
       const contact = polyA.collide(polyB)[0];
 
       // there should be a collision
-      expect(contact).not.toBe(null);
+      expect(contact).withContext('There should be a collision').not.toBeFalsy();
 
       // normal and mtv should point away from bodyA
       expect(directionOfBodyB.dot(contact.mtv)).toBeGreaterThan(0);
