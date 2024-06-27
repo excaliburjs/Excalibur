@@ -59,7 +59,7 @@ export function isActor(x: any): x is Actor {
 /**
  * Actor constructor options
  */
-export interface ActorArgs {
+export type ActorArgs = ColliderArgs & {
   /**
    * Optionally set the name of the actor, default is 'anonymous'
    */
@@ -80,18 +80,6 @@ export interface ActorArgs {
    * Optionally set the coordinate plane of the actor, default is [[CoordPlane.World]] meaning actor is subject to camera positioning
    */
   coordPlane?: CoordPlane;
-  /**
-   * Optionally set the width of a box collider for the actor
-   */
-  width?: number;
-  /**
-   * Optionally set the height of a box collider for the actor
-   */
-  height?: number;
-  /**
-   * Optionally set the radius of the circle collider for the actor
-   */
-  radius?: number;
   /**
    * Optionally set the velocity of the actor in pixels/sec
    */
@@ -142,15 +130,50 @@ export interface ActorArgs {
    * Optionally set the collision type
    */
   collisionType?: CollisionType;
-  /**
-   * Optionally supply a collider for an actor, if supplied ignores any supplied width/height
-   */
-  collider?: Collider;
+
   /**
    * Optionally supply a [[CollisionGroup]]
    */
   collisionGroup?: CollisionGroup;
-}
+};
+
+type ColliderArgs =
+  | // custom collider
+  {
+      /**
+       * Optionally supply a collider for an actor, if supplied ignores any supplied width/height
+       */
+      collider?: Collider;
+
+      width?: undefined;
+      height?: undefined;
+      radius?: undefined;
+    }
+  // box collider
+  | {
+      /**
+       * Optionally set the width of a box collider for the actor
+       */
+      width?: number;
+      /**
+       * Optionally set the height of a box collider for the actor
+       */
+      height?: number;
+
+      collider?: undefined;
+      radius?: undefined;
+    }
+  // circle collider
+  | {
+      /**
+       * Optionally set the radius of the circle collider for the actor
+       */
+      radius?: number;
+
+      collider?: undefined;
+      width?: undefined;
+      height?: undefined;
+    };
 
 export type ActorEvents = EntityEvents & {
   collisionstart: CollisionStartEvent;
@@ -596,35 +619,18 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
       this.body.group = collisionGroup;
     }
 
+    if (color) {
+      this.color = color;
+    }
+
     if (collider) {
       this.collider = new ColliderComponent(collider);
       this.addComponent(this.collider);
     } else if (radius) {
       this.collider = new ColliderComponent(Shape.Circle(radius));
       this.addComponent(this.collider);
-    } else {
-      if (width > 0 && height > 0) {
-        this.collider = new ColliderComponent(Shape.Box(width, height, this.anchor));
-        this.addComponent(this.collider);
-      } else {
-        this.collider = new ColliderComponent();
-        this.addComponent(this.collider); // no collider
-      }
-    }
 
-    this.graphics.visible = visible ?? true;
-
-    if (color) {
-      this.color = color;
-      if (width && height) {
-        this.graphics.add(
-          new Rectangle({
-            color: color,
-            width,
-            height
-          })
-        );
-      } else if (radius) {
+      if (color) {
         this.graphics.add(
           new Circle({
             color: color,
@@ -632,7 +638,27 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
           })
         );
       }
+    } else {
+      if (width > 0 && height > 0) {
+        this.collider = new ColliderComponent(Shape.Box(width, height, this.anchor));
+        this.addComponent(this.collider);
+
+        if (color && width && height) {
+          this.graphics.add(
+            new Rectangle({
+              color: color,
+              width,
+              height
+            })
+          );
+        }
+      } else {
+        this.collider = new ColliderComponent();
+        this.addComponent(this.collider); // no collider
+      }
     }
+
+    this.graphics.visible = visible ?? true;
   }
 
   public clone(): Actor {

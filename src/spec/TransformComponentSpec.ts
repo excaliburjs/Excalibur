@@ -287,6 +287,26 @@ describe('A TransformComponent', () => {
     expect(child2.get(TransformComponent).get().parent).toBe(null);
   });
 
+  it('can be parented to a previously deleted entity with transform component', () => {
+    const entityManager = new ex.EntityManager(new ex.World(null));
+
+    const child1 = new ex.Entity([new TransformComponent()]);
+    const child2 = new ex.Entity([new TransformComponent()]);
+    const parent = new ex.Entity([new TransformComponent()]);
+
+    parent.get(TransformComponent).pos = ex.vec(100, 500);
+    parent.addChild(child1);
+
+    entityManager.addEntity(parent);
+    entityManager.removeEntity(parent, false);
+
+    entityManager.addEntity(parent);
+    parent.addChild(child2);
+
+    expect(child1.get(TransformComponent).globalPos).toBeVector(ex.vec(100, 500));
+    expect(child2.get(TransformComponent).globalPos).toBeVector(ex.vec(100, 500));
+  });
+
   it('children inherit the top most parent coordinate plane', () => {
     const logger = ex.Logger.getInstance();
     spyOn(logger, 'warn');
