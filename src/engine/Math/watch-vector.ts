@@ -15,8 +15,10 @@ export class WatchVector extends Vector {
   }
 
   public set x(newX: number) {
-    this.change(newX, this._y);
-    this._x = this.original.x = newX;
+    if (newX !== this._x) {
+      this.change(newX, this._y);
+      this._x = this.original.x = newX;
+    }
   }
 
   public get y() {
@@ -24,7 +26,9 @@ export class WatchVector extends Vector {
   }
 
   public set y(newY: number) {
-    this.change(this._x, newY);
-    this._y = this.original.y = newY;
+    if (newY !== this._y) {
+      this.change(this._x, newY);
+      this._y = this.original.y = newY;
+    }
   }
 }
