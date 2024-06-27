@@ -508,6 +508,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
           }
         }
         proxy.update();
+        // TODO slightly wasteful only add new
         for (let x = proxy.leftX; x <= proxy.rightX; x++) {
           for (let y = proxy.topY; y <= proxy.bottomY; y++) {
             this._insert(x, y, proxy);
