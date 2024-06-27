@@ -1,3 +1,4 @@
+import { Color } from '../../Color';
 import { FrameStats } from '../../Debug/DebugConfig';
 import { Entity } from '../../EntityComponentSystem';
 import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
@@ -151,15 +152,15 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
   private _pairs = new Set<string>();
   private _nonPairs = new Set<string>();
 
-  private _hashGridCellPool = new Pool<HashGridCell>(
-    () => new HashGridCell(),
-    (instance) => {
-      instance.configure(0, 0);
-      instance.colliders.length = 0;
-      return instance;
-    },
-    1000
-  );
+  // private _hashGridCellPool = new Pool<HashGridCell>(
+  //   () => new HashGridCell(),
+  //   (instance) => {
+  //     instance.configure(0, 0);
+  //     instance.colliders.length = 0;
+  //     return instance;
+  //   },
+  //   1000
+  // );
 
   public _pairPool = new Pool<Pair>(
     () => new Pair({ id: createId('collider', 0) } as Collider, { id: createId('collider', 0) } as Collider),
@@ -230,8 +231,6 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     let currentRayLengthX = 0;
     let currentRayLengthY = 0;
 
-    // TODO walk the ray
-    // TODO check colliders in cell
     if (unitRay.x < 0) {
       stepDir.x = -1;
       currentRayLengthX = (startXCoord - currentXCoord) * unitStepX;
@@ -317,7 +316,8 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     let cell = this.sparseHashGrid.get(key);
     if (!cell) {
       // TODO no reclaim on the grid cell pool
-      cell = this._hashGridCellPool.get();
+      // TODO use rental pool
+      cell = new HashGridCell(); // this._hashGridCellPool.get();
       cell.configure(x, y);
       this.sparseHashGrid.set(cell.key, cell);
     }
@@ -337,6 +337,9 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
       const cellIndex = proxy.cells.indexOf(cell);
       if (cellIndex > -1) {
         proxy.cells.splice(cellIndex, 1);
+      }
+      if (cell.colliders.length === 0) {
+        this.sparseHashGrid.delete(key); // TODO Rental pool
       }
     }
   }
@@ -459,7 +462,6 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
         }
       }
     }
-    // console.log("pairs:", pairs.length);
     return pairs;
   }
   narrowphase(pairs: Pair[], stats?: FrameStats): CollisionContact[] {
@@ -477,7 +479,6 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     if (stats) {
       stats.physics.collisions += contacts.length;
     }
-    // console.log("contacts:", contacts.length);
     return contacts; // TODO maybe we can re-use contacts as likely pairs next frame
   }
 
@@ -511,6 +512,10 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
   }
 
   debug(ex: ExcaliburGraphicsContext, delta: number): void {
-    // TODO
+    const transparent = Color.Transparent;
+    const color = Color.White;
+    for (const cell of this.sparseHashGrid.values()) {
+      ex.drawRectangle(vec(cell.x * this.gridSize, cell.y * this.gridSize), this.gridSize, this.gridSize, transparent, color, 2);
+    }
   }
 }
