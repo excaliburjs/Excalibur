@@ -47,6 +47,7 @@ export class HashColliderProxy {
   owner: Entity;
   body: BodyComponent;
   collisionType: CollisionType;
+  hasZeroBounds = false;
   /**
    * left bounds x hash coordinate
    */
@@ -77,6 +78,7 @@ export class HashColliderProxy {
   ) {
     this.gridSize = gridSize;
     const bounds = collider.bounds;
+    this.hasZeroBounds = bounds.hasZeroDimensions();
     this.leftX = Math.floor(bounds.left / this.gridSize);
     this.rightX = Math.floor(bounds.right / this.gridSize);
     this.bottomY = Math.floor(bounds.bottom / this.gridSize);
@@ -132,11 +134,6 @@ export class HashColliderProxy {
   update(): void {
     const bounds = this.collider.bounds;
 
-    // const oldLeftX = this.leftX;
-    // const oldRightX = this.rightX;
-    // const oldBottomY = this.bottomY;
-    // const oldTopY = this.topY;
-
     this.leftX = Math.floor(bounds.left / this.gridSize);
     this.rightX = Math.floor(bounds.right / this.gridSize);
     this.bottomY = Math.floor(bounds.bottom / this.gridSize);
@@ -144,8 +141,7 @@ export class HashColliderProxy {
     this.body = this.owner?.get(BodyComponent);
     this.collisionType = this.body.collisionType ?? CollisionType.PreventCollision;
 
-    // TODO only update cells that have changed
-    // cases up/down/left/right
+    this.hasZeroBounds = this.collider.localBounds.hasZeroDimensions();
   }
 }
 
@@ -404,7 +400,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     }
 
     // if the pair has a member with zero dimension don't collide
-    if (colliderA.collider.localBounds.hasZeroDimensions() || colliderB.collider.localBounds.hasZeroDimensions()) {
+    if (colliderA.hasZeroBounds || colliderB.hasZeroBounds) {
       return false;
     }
 
