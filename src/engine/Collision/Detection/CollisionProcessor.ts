@@ -6,6 +6,8 @@ import { RayCastOptions } from './RayCastOptions';
 import { Ray } from '../../Math/ray';
 import { RayCastHit } from './RayCastHit';
 import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
+import { BoundingBox } from '../BoundingBox';
+import { Vector } from '../../Math/vector';
 
 /**
  * Definition for collision processor
@@ -17,6 +19,18 @@ export interface CollisionProcessor {
    *
    */
   rayCast(ray: Ray, options?: RayCastOptions): RayCastHit[];
+
+  /**
+   * Query the collision processor for colliders that contain the point
+   * @param point
+   */
+  query(point: Vector): Collider[];
+
+  /**
+   * Query the collision processor for colliders that overlap with the bounds
+   * @param bounds
+   */
+  query(bounds: BoundingBox): Collider[];
 
   /**
    * Get all tracked colliders

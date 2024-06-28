@@ -17,6 +17,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- You can now query for colliders on the physics world
+  ```typescript
+    const scene = ...;
+    const colliders = scene.physics.query(ex.BoundingBox.fromDimensions(...));
+  ```
 - `actor.oldGlobalPos` returns the globalPosition from the previous frame
 - create development builds of excalibur that bundlers can use in dev mode
 - show warning in development when Entity hasn't been added to a scene after a few seconds

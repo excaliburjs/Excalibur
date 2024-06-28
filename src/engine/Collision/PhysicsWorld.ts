@@ -1,10 +1,19 @@
 import { Ray } from '../Math/ray';
 import { DeepRequired } from '../Util/Required';
 import { Observable } from '../Util/Observable';
-import { CollisionProcessor, DynamicTreeCollisionProcessor, RayCastHit, RayCastOptions, SparseHashGridCollisionProcessor } from './Index';
+import {
+  BoundingBox,
+  Collider,
+  CollisionProcessor,
+  DynamicTreeCollisionProcessor,
+  RayCastHit,
+  RayCastOptions,
+  SparseHashGridCollisionProcessor
+} from './Index';
 import { BodyComponent } from './BodyComponent';
 import { PhysicsConfig } from './PhysicsConfig';
 import { watchDeep } from '../Util/Watch';
+import { Vector } from '../Math/vector';
 
 export class PhysicsWorld {
   $configUpdate = new Observable<DeepRequired<PhysicsConfig>>();
@@ -61,5 +70,16 @@ export class PhysicsWorld {
    */
   public rayCast(ray: Ray, options?: RayCastOptions): RayCastHit[] {
     return this.collisionProcessor.rayCast(ray, options);
+  }
+
+  /**
+   * Query for colliders in the scene's physics world
+   * @param point
+   */
+  public query(point: Vector): Collider[];
+  public query(bounds: BoundingBox): Collider[];
+  public query(pointOrBounds: Vector | BoundingBox): Collider[] {
+    // FIXME workaround TS: https://github.com/microsoft/TypeScript/issues/14107
+    return this._collisionProcessor.query(pointOrBounds as any);
   }
 }

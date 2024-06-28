@@ -3,7 +3,7 @@ import { Entity } from '../../EntityComponentSystem';
 import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
 import { createId } from '../../Id';
 import { Ray } from '../../Math/ray';
-import { vec } from '../../Math/vector';
+import { Vector, vec } from '../../Math/vector';
 import { Pool } from '../../Util/Pool';
 import { BodyComponent } from '../BodyComponent';
 import { BoundingBox } from '../BoundingBox';
@@ -115,8 +115,11 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     return Array.from(this.hashGrid.objectToProxy.keys());
   }
 
-  query(bounds: BoundingBox): Collider[] {
-    return this.hashGrid.query(bounds);
+  query(point: Vector): Collider[];
+  query(bound: BoundingBox): Collider[];
+  query(boundsOrPoint: Vector | BoundingBox): Collider[] {
+    // FIXME workaround TS: https://github.com/microsoft/TypeScript/issues/14107
+    return this.hashGrid.query(boundsOrPoint as any);
   }
 
   rayCast(ray: Ray, options?: RayCastOptions): RayCastHit[] {
