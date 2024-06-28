@@ -1,4 +1,3 @@
-import { Color } from '../../Color';
 import { FrameStats } from '../../Debug/DebugConfig';
 import { Entity } from '../../EntityComponentSystem';
 import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
@@ -6,7 +5,6 @@ import { createId } from '../../Id';
 import { Ray } from '../../Math/ray';
 import { vec } from '../../Math/vector';
 import { Pool } from '../../Util/Pool';
-import { RentalPool } from '../../Util/RentalPool';
 import { BodyComponent } from '../BodyComponent';
 import { BoundingBox } from '../BoundingBox';
 import { Collider } from '../Colliders/Collider';
@@ -18,31 +16,12 @@ import { CollisionProcessor } from './CollisionProcessor';
 import { Pair } from './Pair';
 import { RayCastHit } from './RayCastHit';
 import { RayCastOptions } from './RayCastOptions';
-
-/**
- * Stores references to collider proxies that intersect with the grid cell
- */
-export class HashGridCell {
-  colliders: HashColliderProxy[] = [];
-  key: string;
-  x: number;
-  y: number;
-
-  configure(x: number, y: number) {
-    this.x = x;
-    this.y = y;
-    this.key = HashGridCell.calculateHashKey(x, y);
-  }
-
-  static calculateHashKey(x: number, y: number) {
-    return `${x}+${y}`;
-  }
-}
+import { HashGridCell, HashGridProxy, SparseHashGrid } from './SparseHashGrid';
 
 /**
  * Proxy type to stash collision info
  */
-export class HashColliderProxy {
+export class HashColliderProxy extends HashGridProxy<Collider> {
   id: number = -1;
   owner: Entity;
   body: BodyComponent;
@@ -67,7 +46,7 @@ export class HashColliderProxy {
   /**
    * References to the hash cell the collider is a current member of
    */
-  cells: HashGridCell[] = [];
+  cells: HashGridCell<Collider, HashColliderProxy>[] = [];
   /**
    * Grid size in pixels
    */
@@ -76,6 +55,7 @@ export class HashColliderProxy {
     public collider: Collider,
     gridSize: number
   ) {
+    super(collider, gridSize);
     this.gridSize = gridSize;
     const bounds = collider.bounds;
     this.hasZeroBounds = bounds.hasZeroDimensions();
@@ -89,46 +69,12 @@ export class HashColliderProxy {
   }
 
   /**
-   * Has the hashed bounds changed
-   */
-  hasChanged(): boolean {
-    const bounds = this.collider.bounds;
-    const leftX = Math.floor(bounds.left / this.gridSize);
-    const rightX = Math.floor(bounds.right / this.gridSize);
-    const bottomY = Math.floor(bounds.bottom / this.gridSize);
-    const topY = Math.floor(bounds.top / this.gridSize);
-    if (this.leftX !== leftX || this.rightX !== rightX || this.bottomY !== bottomY || this.topY !== topY) {
-      return true;
-    }
-    return false;
-  }
-
-  /**
-   * Clears all collider references
-   */
-  clear(): void {
-    for (const cell of this.cells) {
-      const index = cell.colliders.indexOf(this);
-      if (index > -1) {
-        cell.colliders.splice(index, 1);
-      }
-      // TODO reclaim cell in pool if empty?
-    }
-  }
-
-  /**
    * Updates the hashed bounds coordinates
    */
   update(): void {
-    const bounds = this.collider.bounds;
-
-    this.leftX = Math.floor(bounds.left / this.gridSize);
-    this.rightX = Math.floor(bounds.right / this.gridSize);
-    this.bottomY = Math.floor(bounds.bottom / this.gridSize);
-    this.topY = Math.floor(bounds.top / this.gridSize);
+    super.update();
     this.body = this.owner?.get(BodyComponent);
     this.collisionType = this.body.collisionType ?? CollisionType.PreventCollision;
-
     this.hasZeroBounds = this.collider.localBounds.hasZeroDimensions();
   }
 }
@@ -139,23 +85,10 @@ export class HashColliderProxy {
  */
 export class SparseHashGridCollisionProcessor implements CollisionProcessor {
   readonly gridSize: number;
-  readonly sparseHashGrid: Map<string, HashGridCell>;
-  readonly colliderToProxy: Map<Collider, HashColliderProxy>;
-
-  public bounds = new BoundingBox();
+  readonly hashGrid: SparseHashGrid<Collider, HashColliderProxy>;
 
   private _pairs = new Set<string>();
   private _nonPairs = new Set<string>();
-
-  private _hashGridCellPool = new RentalPool<HashGridCell>(
-    () => new HashGridCell(),
-    (instance) => {
-      instance.configure(0, 0);
-      instance.colliders.length = 0;
-      return instance;
-    },
-    1000
-  );
 
   public _pairPool = new Pool<Pair>(
     () => new Pair({ id: createId('collider', 0) } as Collider, { id: createId('collider', 0) } as Collider),
@@ -169,39 +102,21 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
 
   constructor(options: { size: number }) {
     this.gridSize = options.size;
-    this.sparseHashGrid = new Map<string, HashGridCell>();
-    this.colliderToProxy = new Map<Collider, HashColliderProxy>();
+    this.hashGrid = new SparseHashGrid<Collider, HashColliderProxy>({
+      size: this.gridSize,
+      proxyFactory: (collider, size) => new HashColliderProxy(collider, size)
+    });
 
     // TODO dynamic grid size potentially larger than the largest collider
     // TODO Re-hash the objects if the median proves to be different
   }
 
   getColliders(): readonly Collider[] {
-    return Array.from(this.colliderToProxy.keys());
+    return Array.from(this.hashGrid.objectToProxy.keys());
   }
 
   query(bounds: BoundingBox): Collider[] {
-    const leftX = Math.floor(bounds.left / this.gridSize);
-    const rightX = Math.floor(bounds.right / this.gridSize);
-    const bottomY = Math.floor(bounds.bottom / this.gridSize);
-    const topY = Math.floor(bounds.top / this.gridSize);
-    const results = new Set<Collider>();
-    for (let x = leftX; x <= rightX; x++) {
-      for (let y = topY; y <= bottomY; y++) {
-        const key = HashGridCell.calculateHashKey(x, y);
-        // Hash collider into appropriate cell
-        const cell = this.sparseHashGrid.get(key);
-        if (cell) {
-          for (let i = 0; i < cell.colliders.length; i++) {
-            if (cell.colliders[i].collider.bounds.intersect(bounds)) {
-              results.add(cell.colliders[i].collider);
-            }
-          }
-        }
-      }
-    }
-
-    return Array.from(results);
+    return this.hashGrid.query(bounds);
   }
 
   rayCast(ray: Ray, options?: RayCastOptions): RayCastHit[] {
@@ -253,15 +168,15 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     while (!done && maxIterations > 0) {
       maxIterations--; // safety exit
       // exit if exhausted max hash grid coordinate, bounds of the sparse grid
-      if (!this.bounds.contains(vec(currentXCoord * this.gridSize, currentYCoord * this.gridSize))) {
+      if (!this.hashGrid.bounds.contains(vec(currentXCoord * this.gridSize, currentYCoord * this.gridSize))) {
         break;
       }
       // Test colliders at cell
       const key = HashGridCell.calculateHashKey(currentXCoord, currentYCoord);
-      const cell = this.sparseHashGrid.get(key);
+      const cell = this.hashGrid.sparseHashGrid.get(key);
       if (cell) {
-        for (let colliderIndex = 0; colliderIndex < cell.colliders.length; colliderIndex++) {
-          const collider = cell.colliders[colliderIndex];
+        for (let colliderIndex = 0; colliderIndex < cell.proxies.length; colliderIndex++) {
+          const collider = cell.proxies[colliderIndex];
           if (!collidersVisited.has(collider.collider.id.value)) {
             collidersVisited.add(collider.collider.id.value);
 
@@ -311,40 +226,6 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     return results;
   }
 
-  private _insert(x: number, y: number, proxy: HashColliderProxy): void {
-    const key = HashGridCell.calculateHashKey(x, y);
-    // Hash collider into appropriate cell
-    let cell = this.sparseHashGrid.get(key);
-    if (!cell) {
-      cell = this._hashGridCellPool.rent();
-      cell.configure(x, y);
-      this.sparseHashGrid.set(cell.key, cell);
-    }
-    cell.colliders.push(proxy);
-    proxy.cells.push(cell); // TODO dupes, doesn't seem to be a problem
-    this.bounds.combine(proxy.collider.bounds, this.bounds);
-  }
-
-  private _remove(x: number, y: number, proxy: HashColliderProxy): void {
-    const key = HashGridCell.calculateHashKey(x, y);
-    // Hash collider into appropriate cell
-    const cell = this.sparseHashGrid.get(key);
-    if (cell) {
-      const colliderIndex = cell.colliders.indexOf(proxy);
-      if (colliderIndex > -1) {
-        cell.colliders.splice(colliderIndex, 1);
-      }
-      const cellIndex = proxy.cells.indexOf(cell);
-      if (cellIndex > -1) {
-        proxy.cells.splice(cellIndex, 1);
-      }
-      if (cell.colliders.length === 0) {
-        this._hashGridCellPool.return(cell);
-        this.sparseHashGrid.delete(key);
-      }
-    }
-  }
-
   /**
    * Adds the collider to the internal data structure for collision tracking
    * @param target
@@ -360,17 +241,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     }
 
     for (const target of colliders) {
-      const proxy = new HashColliderProxy(target, this.gridSize);
-      this.colliderToProxy.set(target, proxy);
-
-      if (proxy.collisionType === CollisionType.PreventCollision) {
-        continue;
-      }
-      for (let x = proxy.leftX; x <= proxy.rightX; x++) {
-        for (let y = proxy.topY; y <= proxy.bottomY; y++) {
-          this._insert(x, y, proxy);
-        }
-      }
+      this.hashGrid.track(target);
     }
   }
 
@@ -385,11 +256,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     }
 
     for (const target of colliders) {
-      const proxy = this.colliderToProxy.get(target);
-      if (proxy) {
-        proxy.clear();
-        this.colliderToProxy.delete(target);
-      }
+      this.hashGrid.untrack(target);
     }
   }
 
@@ -443,7 +310,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     this._nonPairs.clear();
 
     let proxyId = 0;
-    for (const proxy of this.colliderToProxy.values()) {
+    for (const proxy of this.hashGrid.objectToProxy.values()) {
       proxy.id = proxyId++; // track proxies we've already processed
       if (!proxy.owner.active || proxy.collisionType === CollisionType.PreventCollision) {
         continue;
@@ -453,8 +320,8 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
         const cell = proxy.cells[cellIndex];
         // TODO Can we skip any cells or make this iteration faster?
         // maybe a linked list here
-        for (let otherIndex = 0; otherIndex < cell.colliders.length; otherIndex++) {
-          const other = cell.colliders[otherIndex];
+        for (let otherIndex = 0; otherIndex < cell.proxies.length; otherIndex++) {
+          const other = cell.proxies[otherIndex];
           if (other.id === proxy.id) {
             // skip duplicates
             continue;
@@ -508,31 +375,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
    *
    */
   update(targets: Collider[], delta: number): number {
-    let updated = 0;
-    this.bounds.reset();
-    for (const target of targets) {
-      const proxy = this.colliderToProxy.get(target);
-      if (!proxy) {
-        continue;
-      }
-      if (proxy.hasChanged()) {
-        // TODO slightly wasteful only remove from changed
-        for (let x = proxy.leftX; x <= proxy.rightX; x++) {
-          for (let y = proxy.topY; y <= proxy.bottomY; y++) {
-            this._remove(x, y, proxy);
-          }
-        }
-        proxy.update();
-        // TODO slightly wasteful only add new
-        for (let x = proxy.leftX; x <= proxy.rightX; x++) {
-          for (let y = proxy.topY; y <= proxy.bottomY; y++) {
-            this._insert(x, y, proxy);
-          }
-        }
-        updated++;
-      }
-    }
-    return updated;
+    return this.hashGrid.update(targets, delta);
   }
 
   /**
@@ -541,10 +384,6 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
    * @param delta
    */
   debug(ex: ExcaliburGraphicsContext, delta: number): void {
-    const transparent = Color.Transparent;
-    const color = Color.White;
-    for (const cell of this.sparseHashGrid.values()) {
-      ex.drawRectangle(vec(cell.x * this.gridSize, cell.y * this.gridSize), this.gridSize, this.gridSize, transparent, color, 2);
-    }
+    this.hashGrid.debug(ex, delta);
   }
 }
