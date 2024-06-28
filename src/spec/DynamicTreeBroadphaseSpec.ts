@@ -34,7 +34,16 @@ describe('A DynamicTree Broadphase', () => {
   });
 
   it('can find collision pairs for actors that are potentially colliding', () => {
-    const dt = new ex.DynamicTreeCollisionProcessor(DefaultPhysicsConfig);
+    const dt = new ex.DynamicTreeCollisionProcessor({
+      ...DefaultPhysicsConfig,
+      ...{
+        spatialPartition: {
+          type: 'dynamic-tree',
+          boundsPadding: 5,
+          velocityMultiplier: 2
+        }
+      }
+    });
     dt.track(actorA.collider.get());
     dt.track(actorB.collider.get());
     dt.track(actorC.collider.get());
@@ -50,7 +59,16 @@ describe('A DynamicTree Broadphase', () => {
     const box = ex.Shape.Box(200, 10);
     const compCollider = new ex.CompositeCollider([circle, box]);
     const actor = new ex.Actor({ collider: compCollider });
-    const dt = new ex.DynamicTreeCollisionProcessor(DefaultPhysicsConfig);
+    const dt = new ex.DynamicTreeCollisionProcessor({
+      ...DefaultPhysicsConfig,
+      ...{
+        spatialPartition: {
+          type: 'dynamic-tree',
+          boundsPadding: 5,
+          velocityMultiplier: 2
+        }
+      }
+    });
     dt.track(compCollider);
 
     const pairs = dt.broadphase([circle, box], 100);
@@ -63,7 +81,16 @@ describe('A DynamicTree Broadphase', () => {
     const compCollider = new ex.CompositeCollider([circle, box]);
     const actor = new ex.Actor({ collider: compCollider, collisionType: ex.CollisionType.Active });
     actor.body.vel = ex.vec(2000, 0); // extra fast to trigger the fast object detection
-    const dt = new ex.DynamicTreeCollisionProcessor(DefaultPhysicsConfig);
+    const dt = new ex.DynamicTreeCollisionProcessor({
+      ...DefaultPhysicsConfig,
+      ...{
+        spatialPartition: {
+          type: 'dynamic-tree',
+          boundsPadding: 5,
+          velocityMultiplier: 2
+        }
+      }
+    });
     dt.track(compCollider);
 
     const pairs = dt.broadphase([circle, box], 100);

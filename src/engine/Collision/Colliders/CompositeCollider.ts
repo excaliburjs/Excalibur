@@ -17,7 +17,16 @@ import { DefaultPhysicsConfig } from '../PhysicsConfig';
 
 export class CompositeCollider extends Collider {
   private _transform: Transform;
-  private _collisionProcessor = new DynamicTreeCollisionProcessor(DefaultPhysicsConfig);
+  private _collisionProcessor = new DynamicTreeCollisionProcessor({
+    ...DefaultPhysicsConfig,
+    ...{
+      spatialPartition: {
+        type: 'dynamic-tree',
+        boundsPadding: 5,
+        velocityMultiplier: 2
+      }
+    }
+  });
   private _dynamicAABBTree = new DynamicTree({
     type: 'dynamic-tree',
     boundsPadding: 5,
