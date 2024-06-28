@@ -47,8 +47,23 @@ export class BoundingBox {
   /**
    * Returns a new instance of [[BoundingBox]] that is a copy of the current instance
    */
-  public clone(): BoundingBox {
-    return new BoundingBox(this.left, this.top, this.right, this.bottom);
+  public clone(dest?: BoundingBox): BoundingBox {
+    const result = dest || new BoundingBox(0, 0, 0, 0);
+    result.left = this.left;
+    result.right = this.right;
+    result.top = this.top;
+    result.bottom = this.bottom;
+    return result;
+  }
+
+  /**
+   * Resets the bounds to a zero width/height box
+   */
+  public reset(): void {
+    this.left = 0;
+    this.top = 0;
+    this.bottom = 0;
+    this.right = 0;
   }
 
   /**
@@ -326,13 +341,16 @@ export class BoundingBox {
    * Combines this bounding box and another together returning a new bounding box
    * @param other  The bounding box to combine
    */
-  public combine(other: BoundingBox): BoundingBox {
-    const compositeBB = new BoundingBox(
-      Math.min(this.left, other.left),
-      Math.min(this.top, other.top),
-      Math.max(this.right, other.right),
-      Math.max(this.bottom, other.bottom)
-    );
+  public combine(other: BoundingBox, dest?: BoundingBox): BoundingBox {
+    const compositeBB = dest || new BoundingBox(0, 0, 0, 0);
+    const left = Math.min(this.left, other.left);
+    const top = Math.min(this.top, other.top);
+    const right = Math.max(this.right, other.right);
+    const bottom = Math.max(this.bottom, other.bottom);
+    compositeBB.left = left;
+    compositeBB.top = top;
+    compositeBB.right = right;
+    compositeBB.bottom = bottom;
     return compositeBB;
   }
 

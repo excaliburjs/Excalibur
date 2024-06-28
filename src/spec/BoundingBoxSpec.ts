@@ -313,7 +313,7 @@ function runBoundingBoxTests(creationType: string, createBoundingBox: Function) 
       expect(bb.rayCast(ray)).toBe(true);
     });
 
-    it('ray cast in the correct direction but that are not long enough dont hit', () => {
+    it("ray cast in the correct direction but that are not long enough don't hit", () => {
       const bb = new ex.BoundingBox(0, 0, 10, 10);
 
       const ray = new ex.Ray(new ex.Vector(-10, 5), ex.Vector.Right);
