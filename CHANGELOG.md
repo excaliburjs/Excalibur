@@ -26,7 +26,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - create development builds of excalibur that bundlers can use in dev mode
 - show warning in development when Entity hasn't been added to a scene after a few seconds
 - New `RentalPool` type for sparse object pooling
-- New `ex.SpareHashGridCollisionProcessor` which is a simpler (and faster) implementation for broadphase pair generation. This works by bucketing colliders into uniform sized square buckets and using that to generate pairs.
+- New `ex.SparseHashGridCollisionProcessor` which is a simpler (and faster) implementation for broadphase pair generation. This works by bucketing colliders into uniform sized square buckets and using that to generate pairs.
 
 ### Fixed
 
@@ -39,6 +39,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Updates
 
+- Perf improvements to PointerSystem by using new spatial hash grid data structure
 - Perf improvements: Hot path allocations
   * Reduce State/Transform stack hot path allocations in graphics context
   * Reduce Transform allocations
