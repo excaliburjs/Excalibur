@@ -45,14 +45,19 @@ export class CircleCollider extends Collider {
   }
 
   private _naturalRadius: number;
+
+  private _radius: number | undefined;
   /**
    * Get the radius of the circle
    */
   public get radius(): number {
+    if (this._radius) {
+      return this._radius;
+    }
     const tx = this._transform;
     const scale = tx?.globalScale ?? Vector.One;
     // This is a trade off, the alternative is retooling circles to support ellipse collisions
-    return this._naturalRadius * Math.min(scale.x, scale.y);
+    return (this._radius = this._naturalRadius * Math.min(scale.x, scale.y));
   }
 
   /**
@@ -64,6 +69,7 @@ export class CircleCollider extends Collider {
     // This is a trade off, the alternative is retooling circles to support ellipse collisions
     this._naturalRadius = val / Math.min(scale.x, scale.y);
     this._localBoundsDirty = true;
+    this._radius = val;
   }
 
   private _transform: Transform;
@@ -249,6 +255,7 @@ export class CircleCollider extends Collider {
     const globalMat = transform.matrix ?? this._globalMatrix;
     globalMat.clone(this._globalMatrix);
     this._globalMatrix.translate(this.offset.x, this.offset.y);
+    this._radius = undefined;
   }
 
   /**
