@@ -217,46 +217,24 @@ export class SparseHashGrid<TObject extends { bounds: BoundingBox }, TProxy exte
   }
 
   track(target: TObject): void {
-    const objects = [target];
-    // if (target instanceof CompositeCollider) {
-    //   const compColliders = target.getColliders();
-    //   for (const c of compColliders) {
-    //     c.owner = target.owner;
-    //   }
-    //   colliders = compColliders;
-    // }
-
-    for (const target of objects) {
-      const proxy = this._buildProxy(target);
-      this.objectToProxy.set(target, proxy);
-
-      // if (proxy.collisionType === CollisionType.PreventCollision) {
-      //   continue;
-      // }
-      for (let x = proxy.leftX; x <= proxy.rightX; x++) {
-        for (let y = proxy.topY; y <= proxy.bottomY; y++) {
-          this._insert(x, y, proxy);
-        }
+    const proxy = this._buildProxy(target);
+    this.objectToProxy.set(target, proxy);
+    for (let x = proxy.leftX; x <= proxy.rightX; x++) {
+      for (let y = proxy.topY; y <= proxy.bottomY; y++) {
+        this._insert(x, y, proxy);
       }
     }
   }
 
   untrack(target: TObject): void {
-    const objects = [target];
-    // if (target instanceof CompositeCollider) {
-    //   colliders = target.getColliders();
-    // }
-
-    for (const target of objects) {
-      const proxy = this.objectToProxy.get(target);
-      if (proxy) {
-        proxy.clear();
-        this.objectToProxy.delete(target);
-      }
+    const proxy = this.objectToProxy.get(target);
+    if (proxy) {
+      proxy.clear();
+      this.objectToProxy.delete(target);
     }
   }
 
-  update(targets: TObject[], delta: number): number {
+  update(targets: TObject[]): number {
     let updated = 0;
     this.bounds.reset();
     for (const target of targets) {

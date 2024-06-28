@@ -375,7 +375,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
    *
    */
   update(targets: Collider[], delta: number): number {
-    return this.hashGrid.update(targets, delta);
+    return this.hashGrid.update(targets);
   }
 
   /**
