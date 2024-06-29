@@ -162,7 +162,7 @@ export class SparseHashGrid<TObject extends { bounds: BoundingBox }, TProxy exte
       }
     } else {
       const point = boundsOrPoint;
-      const key = HashGridCell.calculateHashKey(point.x / this.gridSize, point.y / this.gridSize);
+      const key = HashGridCell.calculateHashKey(Math.floor(point.x / this.gridSize), Math.floor(point.y / this.gridSize));
       // Hash points into appropriate cell
       const cell = this.sparseHashGrid.get(key);
       if (cell) {

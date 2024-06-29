@@ -154,16 +154,13 @@ export class PointerSystem extends System {
     let pointer: PointerComponent;
     const receiver = this._engineReceiver;
 
-    // TODO probably a spatial partition optimization here to quickly query bounds for pointer
-    // doesn't seem to cause issues tho for perf
-
     // Pre-process find entities under pointers
     for (let entityIndex = 0; entityIndex < entities.length; entityIndex++) {
       const entity = entities[entityIndex];
       transform = entity.get(TransformComponent);
-      pointer = entity.get(PointerComponent) ?? new PointerComponent();
+      pointer = entity.get(PointerComponent);
       // If pointer bounds defined
-      if (pointer.localBounds) {
+      if (pointer && pointer.localBounds) {
         const pointerBounds = pointer.localBounds.transform(transform.get().matrix);
         for (const [pointerId, pos] of receiver.currentFramePointerCoords.entries()) {
           if (pointerBounds.contains(transform.coordPlane === CoordPlane.World ? pos.worldPos : pos.screenPos)) {
@@ -172,7 +169,6 @@ export class PointerSystem extends System {
         }
       }
     }
-
     for (const [pointerId, pos] of receiver.currentFramePointerCoords.entries()) {
       const colliders = this._scene.physics.query(pos.worldPos);
       for (let i = 0; i < colliders.length; i++) {
