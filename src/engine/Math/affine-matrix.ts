@@ -332,14 +332,22 @@ export class AffineMatrix {
 
   public getScaleX(): number {
     // absolute scale of the matrix (we lose sign so need to add it back)
-    const xscale = vec(this.data[0], this.data[2]).distance();
-    return this._scaleSignX * xscale;
+    const xScaleSq = this.data[0] * this.data[0] + this.data[2] * this.data[2];
+    if (xScaleSq === 1.0) {
+      // usually there isn't scale so we can avoid a sqrt
+      return this._scaleSignX;
+    }
+    return this._scaleSignX * Math.sqrt(xScaleSq);
   }
 
   public getScaleY(): number {
     // absolute scale of the matrix (we lose sign so need to add it back)
-    const yscale = vec(this.data[1], this.data[3]).distance();
-    return this._scaleSignY * yscale;
+    const yScaleSq = this.data[1] * this.data[1] + this.data[3] * this.data[3];
+    if (yScaleSq === 1.0) {
+      // usually there isn't scale so we can avoid a sqrt
+      return this._scaleSignY;
+    }
+    return this._scaleSignY * Math.sqrt(yScaleSq);
   }
 
   /**
