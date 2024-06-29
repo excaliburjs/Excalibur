@@ -173,7 +173,7 @@ export class AffineMatrix {
     // We don't actually use the 3rd or 4th dimension
 
     const det = this.determinant();
-    const inverseDet = 1 / det; // TODO zero check
+    const inverseDet = 1 / det; // TODO zero check, or throw custom error for degenerate matrix
     const a = this.data[0];
     const b = this.data[2];
     const c = this.data[1];
