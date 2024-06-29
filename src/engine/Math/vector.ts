@@ -265,8 +265,13 @@ export class Vector implements Clonable<Vector> {
    * Subtracts a vector from another, if you subtract vector `B.sub(A)` the resulting vector points from A -> B
    * @param v The vector to subtract
    */
-  public sub(v: Vector): Vector {
-    return new Vector(this.x - v.x, this.y - v.y);
+  public sub(v: Vector, dest?: Vector): Vector {
+    const result = dest || new Vector(0, 0);
+    const x = this.x - v.x;
+    const y = this.y - v.y;
+    result.x = x;
+    result.y = y;
+    return result;
   }
 
   /**
