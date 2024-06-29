@@ -468,7 +468,7 @@ export class TileMap extends Entity {
    * For example, if I want the tile in fifth column (x), and second row (y):
    * `getTile(4, 1)` 0 based, so 0 is the first in row/column
    */
-  public getTile(x: number, y: number): Tile {
+  public getTile(x: number, y: number): Tile | null {
     if (x < 0 || y < 0 || x >= this.columns || y >= this.rows) {
       return null;
     }
