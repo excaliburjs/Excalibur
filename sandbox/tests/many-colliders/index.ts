@@ -3,7 +3,7 @@ var game = new ex.Engine({
   height: 600,
   physics: {
     solver: ex.SolverStrategy.Realistic,
-    spatialPartition: ex.SpatialPartitionStrategy.DynamicTree,
+    spatialPartition: ex.SpatialPartitionStrategy.SparseHashGrid,
     realistic: {
       positionIterations: 10
     }
