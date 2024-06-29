@@ -205,8 +205,13 @@ export class Transform {
 
   private _scratch = AffineMatrix.identity();
   private _calculateMatrix(): AffineMatrix {
-    this._scratch.reset();
-    this._scratch.translate(this.pos.x, this.pos.y).rotate(this.rotation).scale(this.scale.x, this.scale.y);
+    this._scratch.data[0] = Math.cos(this._rotation);
+    this._scratch.data[1] = Math.sin(this._rotation);
+    this._scratch.data[2] = -Math.sin(this._rotation);
+    this._scratch.data[3] = Math.cos(this.rotation);
+    this._scratch.data[4] = this._pos.x;
+    this._scratch.data[5] = this._pos.y;
+    this._scratch.scale(this._scale.x, this._scale.y);
     return this._scratch;
   }
 
