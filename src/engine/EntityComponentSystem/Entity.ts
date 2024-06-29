@@ -108,6 +108,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    * Use addComponent/removeComponent otherwise the ECS will not be notified of changes.
    */
   public readonly components = new Map<Function, Component>();
+  public componentValues: Component[] = [];
   private _componentsToRemove: ComponentCtor[] = [];
 
   private _instanceOfComponentCacheDirty = true;
@@ -259,7 +260,8 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
       return this._instanceOfComponentCache.get(type) as MaybeKnownComponent<TComponent, TKnownComponents>;
     }
 
-    for (const instance of this.components.values()) {
+    for (let compIndex = 0; compIndex < this.componentValues.length; compIndex++) {
+      const instance = this.componentValues[compIndex];
       if (instance instanceof type) {
         this._instanceOfComponentCache.set(type, instance);
         return instance as MaybeKnownComponent<TComponent, TKnownComponents>;
@@ -429,6 +431,8 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
 
     component.owner = this;
     this.components.set(component.constructor, component);
+    this.componentValues.push(component);
+    this._instanceOfComponentCache.set(component.constructor, component);
     if (component.onAdd) {
       component.onAdd(this);
     }
@@ -462,6 +466,10 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
         componentToRemove.owner = undefined;
         if (componentToRemove.onRemove) {
           componentToRemove.onRemove(this);
+        }
+        const componentIndex = this.componentValues.indexOf(componentToRemove);
+        if (componentIndex > -1) {
+          this.componentValues.splice(componentIndex, 1);
         }
       }
       this.components.delete(type); // remove after the notify to preserve typing

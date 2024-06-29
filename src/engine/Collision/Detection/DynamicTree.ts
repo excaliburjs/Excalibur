@@ -5,7 +5,7 @@ import { Id } from '../../Id';
 import { Entity } from '../../EntityComponentSystem/Entity';
 import { BodyComponent } from '../BodyComponent';
 import { Color, ExcaliburGraphicsContext } from '../..';
-import { PhysicsConfig } from '../PhysicsConfig';
+import { DynamicTreeConfig } from '../PhysicsConfig';
 
 /**
  * Dynamic Tree Node used for tracking bounds within the tree
@@ -43,11 +43,11 @@ export interface ColliderProxy<T> {
  * Internally the bounding boxes are organized as a balanced binary tree of bounding boxes, where the leaf nodes are tracked bodies.
  * Every non-leaf node is a bounding box that contains child bounding boxes.
  */
-export class DynamicTree<T extends ColliderProxy<Entity>> {
-  public root: TreeNode<T>;
-  public nodes: { [key: number]: TreeNode<T> };
+export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
+  public root: TreeNode<TProxy>;
+  public nodes: { [key: number]: TreeNode<TProxy> };
   constructor(
-    private _config: Required<Pick<PhysicsConfig, 'dynamicTree'>['dynamicTree']>,
+    private _config: Required<DynamicTreeConfig>,
     public worldBounds: BoundingBox = new BoundingBox(-Number.MAX_VALUE, -Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE)
   ) {
     this.root = null;
@@ -57,7 +57,7 @@ export class DynamicTree<T extends ColliderProxy<Entity>> {
   /**
    * Inserts a node into the dynamic tree
    */
-  private _insert(leaf: TreeNode<T>): void {
+  private _insert(leaf: TreeNode<TProxy>): void {
     // If there are no nodes in the tree, make this the root leaf
     if (this.root === null) {
       this.root = leaf;
@@ -169,7 +169,7 @@ export class DynamicTree<T extends ColliderProxy<Entity>> {
   /**
    * Removes a node from the dynamic tree
    */
-  private _remove(leaf: TreeNode<T>) {
+  private _remove(leaf: TreeNode<TProxy>) {
     if (leaf === this.root) {
       this.root = null;
       return;
@@ -177,7 +177,7 @@ export class DynamicTree<T extends ColliderProxy<Entity>> {
 
     const parent = leaf.parent;
     const grandParent = parent.parent;
-    let sibling: TreeNode<T>;
+    let sibling: TreeNode<TProxy>;
     if (parent.left === leaf) {
       sibling = parent.right;
     } else {
@@ -209,8 +209,8 @@ export class DynamicTree<T extends ColliderProxy<Entity>> {
   /**
    * Tracks a body in the dynamic tree
    */
-  public trackCollider(collider: T) {
-    const node = new TreeNode<T>();
+  public trackCollider(collider: TProxy) {
+    const node = new TreeNode<TProxy>();
     node.data = collider;
     node.bounds = collider.bounds;
     node.bounds.left -= 2;
@@ -224,7 +224,7 @@ export class DynamicTree<T extends ColliderProxy<Entity>> {
   /**
    * Updates the dynamic tree given the current bounds of each body being tracked
    */
-  public updateCollider(collider: T) {
+  public updateCollider(collider: TProxy) {
     const node = this.nodes[collider.id.value];
     if (!node) {
       return false;
@@ -279,7 +279,7 @@ export class DynamicTree<T extends ColliderProxy<Entity>> {
   /**
    * Untracks a body from the dynamic tree
    */
-  public untrackCollider(collider: T) {
+  public untrackCollider(collider: TProxy) {
     const node = this.nodes[collider.id.value];
     if (!node) {
       return;
@@ -292,7 +292,7 @@ export class DynamicTree<T extends ColliderProxy<Entity>> {
   /**
    * Balances the tree about a node
    */
-  private _balance(node: TreeNode<T>) {
+  private _balance(node: TreeNode<TProxy>) {
     if (node === null) {
       throw new Error('Cannot balance at null node');
     }
@@ -423,9 +423,9 @@ export class DynamicTree<T extends ColliderProxy<Entity>> {
    * that you are complete with your query and you do not want to continue. Returning false will continue searching
    * the tree until all possible colliders have been returned.
    */
-  public query(collider: T, callback: (other: T) => boolean): void {
+  public query(collider: TProxy, callback: (other: TProxy) => boolean): void {
     const bounds = collider.bounds;
-    const helper = (currentNode: TreeNode<T>): boolean => {
+    const helper = (currentNode: TreeNode<TProxy>): boolean => {
       if (currentNode && currentNode.bounds.overlaps(bounds)) {
         if (currentNode.isLeaf() && currentNode.data !== collider) {
           if (callback.call(collider, currentNode.data)) {
@@ -448,8 +448,8 @@ export class DynamicTree<T extends ColliderProxy<Entity>> {
    * callback indicates that your are complete with your query and do not want to continue. Return false will continue searching
    * the tree until all possible bodies that would intersect with the ray have been returned.
    */
-  public rayCastQuery(ray: Ray, max: number = Infinity, callback: (other: T) => boolean): void {
-    const helper = (currentNode: TreeNode<T>): boolean => {
+  public rayCastQuery(ray: Ray, max: number = Infinity, callback: (other: TProxy) => boolean): void {
+    const helper = (currentNode: TreeNode<TProxy>): boolean => {
       if (currentNode && currentNode.bounds.rayCast(ray, max)) {
         if (currentNode.isLeaf()) {
           if (callback.call(ray, currentNode.data)) {
@@ -466,8 +466,8 @@ export class DynamicTree<T extends ColliderProxy<Entity>> {
     helper(this.root);
   }
 
-  public getNodes(): TreeNode<T>[] {
-    const helper = (currentNode: TreeNode<T>): TreeNode<T>[] => {
+  public getNodes(): TreeNode<TProxy>[] {
+    const helper = (currentNode: TreeNode<TProxy>): TreeNode<TProxy>[] => {
       if (currentNode) {
         return [currentNode].concat(helper(currentNode.left), helper(currentNode.right));
       } else {
@@ -479,7 +479,7 @@ export class DynamicTree<T extends ColliderProxy<Entity>> {
 
   public debug(ex: ExcaliburGraphicsContext) {
     // draw all the nodes in the Dynamic Tree
-    const helper = (currentNode: TreeNode<T>) => {
+    const helper = (currentNode: TreeNode<TProxy>) => {
       if (currentNode) {
         if (currentNode.isLeaf()) {
           currentNode.bounds.draw(ex, Color.Green);

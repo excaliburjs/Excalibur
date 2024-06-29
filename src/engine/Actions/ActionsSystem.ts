@@ -22,8 +22,9 @@ export class ActionsSystem extends System {
     });
   }
   update(delta: number): void {
-    for (const actions of this._actions) {
-      actions.update(delta);
+    for (let i = 0; i < this._actions.length; i++) {
+      const action = this._actions[i];
+      action.update(delta);
     }
   }
 }

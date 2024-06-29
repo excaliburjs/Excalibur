@@ -1,8 +1,6 @@
 import * as ex from '@excalibur';
-import { DefaultPhysicsConfig } from '../engine/Collision/PhysicsConfig';
-import { TestUtils } from './util/TestUtils';
 
-describe('A DynamicTree Broadphase', () => {
+describe('A Sparse Hash Grid Broadphase', () => {
   let actorA: ex.Actor;
   let actorB: ex.Actor;
   let actorC: ex.Actor;
@@ -25,26 +23,17 @@ describe('A DynamicTree Broadphase', () => {
   });
 
   it('exists', () => {
-    expect(ex.DynamicTreeCollisionProcessor).toBeDefined();
+    expect(ex.SparseHashGridCollisionProcessor).toBeDefined();
   });
 
   it('can be constructed', () => {
-    const dt = new ex.DynamicTreeCollisionProcessor(DefaultPhysicsConfig);
+    const dt = new ex.SparseHashGridCollisionProcessor({ size: 50 });
 
     expect(dt).not.toBe(null);
   });
 
   it('can find collision pairs for actors that are potentially colliding', () => {
-    const dt = new ex.DynamicTreeCollisionProcessor({
-      ...DefaultPhysicsConfig,
-      ...{
-        spatialPartition: {
-          type: 'dynamic-tree',
-          boundsPadding: 5,
-          velocityMultiplier: 2
-        }
-      }
-    });
+    const dt = new ex.SparseHashGridCollisionProcessor({ size: 50 });
     dt.track(actorA.collider.get());
     dt.track(actorB.collider.get());
     dt.track(actorC.collider.get());
@@ -60,16 +49,7 @@ describe('A DynamicTree Broadphase', () => {
     const box = ex.Shape.Box(200, 10);
     const compCollider = new ex.CompositeCollider([circle, box]);
     const actor = new ex.Actor({ collider: compCollider });
-    const dt = new ex.DynamicTreeCollisionProcessor({
-      ...DefaultPhysicsConfig,
-      ...{
-        spatialPartition: {
-          type: 'dynamic-tree',
-          boundsPadding: 5,
-          velocityMultiplier: 2
-        }
-      }
-    });
+    const dt = new ex.SparseHashGridCollisionProcessor({ size: 50 });
     dt.track(compCollider);
 
     const pairs = dt.broadphase([circle, box], 100);
@@ -82,33 +62,26 @@ describe('A DynamicTree Broadphase', () => {
     const compCollider = new ex.CompositeCollider([circle, box]);
     const actor = new ex.Actor({ collider: compCollider, collisionType: ex.CollisionType.Active });
     actor.body.vel = ex.vec(2000, 0); // extra fast to trigger the fast object detection
-    const dt = new ex.DynamicTreeCollisionProcessor({
-      ...DefaultPhysicsConfig,
-      ...{
-        spatialPartition: {
-          type: 'dynamic-tree',
-          boundsPadding: 5,
-          velocityMultiplier: 2
-        }
-      }
-    });
+    const dt = new ex.SparseHashGridCollisionProcessor({ size: 50 });
     dt.track(compCollider);
 
     const pairs = dt.broadphase([circle, box], 100);
     expect(pairs).toEqual([]);
   });
 
+  it('should allow for bespoke collider queries', () => {
+    const dt = new ex.SparseHashGridCollisionProcessor({ size: 50 });
+    dt.track(actorA.collider.get());
+    dt.track(actorB.collider.get());
+    dt.track(actorC.collider.get());
+
+    const colliders = dt.query(actorA.collider.bounds);
+
+    expect(colliders.length).toBe(1);
+  });
+
   it('can rayCast with default options, only 1 hit is returned, searches all groups', () => {
-    const sut = new ex.DynamicTreeCollisionProcessor({
-      ...DefaultPhysicsConfig,
-      ...{
-        spatialPartition: {
-          type: 'dynamic-tree',
-          boundsPadding: 5,
-          velocityMultiplier: 2
-        }
-      }
-    });
+    const sut = new ex.SparseHashGridCollisionProcessor({ size: 50 });
     const actor1 = new ex.Actor({ x: 100, y: 0, width: 50, height: 50 });
     sut.track(actor1.collider.get());
     const actor2 = new ex.Actor({ x: 200, y: 0, width: 50, height: 50 });
@@ -125,16 +98,7 @@ describe('A DynamicTree Broadphase', () => {
   });
 
   it('can rayCast with searchAllColliders on, all hits is returned, searches all groups', () => {
-    const sut = new ex.DynamicTreeCollisionProcessor({
-      ...DefaultPhysicsConfig,
-      ...{
-        spatialPartition: {
-          type: 'dynamic-tree',
-          boundsPadding: 5,
-          velocityMultiplier: 2
-        }
-      }
-    });
+    const sut = new ex.SparseHashGridCollisionProcessor({ size: 50 });
     const actor1 = new ex.Actor({ x: 100, y: 0, width: 50, height: 50 });
     sut.track(actor1.collider.get());
     const actor2 = new ex.Actor({ x: 200, y: 0, width: 50, height: 50 });
@@ -159,16 +123,7 @@ describe('A DynamicTree Broadphase', () => {
 
   it('can rayCast with searchAllColliders on & collision group on, only specified group is returned', () => {
     ex.CollisionGroupManager.reset();
-    const sut = new ex.DynamicTreeCollisionProcessor({
-      ...DefaultPhysicsConfig,
-      ...{
-        spatialPartition: {
-          type: 'dynamic-tree',
-          boundsPadding: 5,
-          velocityMultiplier: 2
-        }
-      }
-    });
+    const sut = new ex.SparseHashGridCollisionProcessor({ size: 50 });
     const collisionGroup1 = ex.CollisionGroupManager.create('somegroup1');
     const collisionGroup2 = ex.CollisionGroupManager.create('somegroup2');
     const actor1 = new ex.Actor({ x: 100, y: 0, width: 50, height: 50, collisionGroup: collisionGroup1 });
@@ -191,16 +146,7 @@ describe('A DynamicTree Broadphase', () => {
 
   it('can rayCast with searchAllColliders on with actors that have collision groups are searched', () => {
     ex.CollisionGroupManager.reset();
-    const sut = new ex.DynamicTreeCollisionProcessor({
-      ...DefaultPhysicsConfig,
-      ...{
-        spatialPartition: {
-          type: 'dynamic-tree',
-          boundsPadding: 5,
-          velocityMultiplier: 2
-        }
-      }
-    });
+    const sut = new ex.SparseHashGridCollisionProcessor({ size: 50 });
     const collisionGroup1 = ex.CollisionGroupManager.create('somegroup1');
     const collisionGroup2 = ex.CollisionGroupManager.create('somegroup2');
     const actor1 = new ex.Actor({ x: 100, y: 0, width: 50, height: 50, collisionGroup: collisionGroup1 });
@@ -226,16 +172,7 @@ describe('A DynamicTree Broadphase', () => {
   });
 
   it('can rayCast with searchAllColliders on and max distance set, returns 1 hit', () => {
-    const sut = new ex.DynamicTreeCollisionProcessor({
-      ...DefaultPhysicsConfig,
-      ...{
-        spatialPartition: {
-          type: 'dynamic-tree',
-          boundsPadding: 5,
-          velocityMultiplier: 2
-        }
-      }
-    });
+    const sut = new ex.SparseHashGridCollisionProcessor({ size: 50 });
     const actor1 = new ex.Actor({ x: 100, y: 0, width: 50, height: 50 });
     sut.track(actor1.collider.get());
     const actor2 = new ex.Actor({ x: 200, y: 0, width: 50, height: 50 });
@@ -255,16 +192,7 @@ describe('A DynamicTree Broadphase', () => {
   });
 
   it('can rayCast with ignoreCollisionGroupAll, returns 1 hit', () => {
-    const sut = new ex.DynamicTreeCollisionProcessor({
-      ...DefaultPhysicsConfig,
-      ...{
-        spatialPartition: {
-          type: 'dynamic-tree',
-          boundsPadding: 5,
-          velocityMultiplier: 2
-        }
-      }
-    });
+    const sut = new ex.SparseHashGridCollisionProcessor({ size: 50 });
     const actor1 = new ex.Actor({ x: 100, y: 0, width: 50, height: 50 });
     sut.track(actor1.collider.get());
     const actor2 = new ex.Actor({ x: 200, y: 0, width: 50, height: 50 });
@@ -287,16 +215,7 @@ describe('A DynamicTree Broadphase', () => {
   });
 
   it('can rayCast with filter, returns 1 hit', () => {
-    const sut = new ex.DynamicTreeCollisionProcessor({
-      ...DefaultPhysicsConfig,
-      ...{
-        spatialPartition: {
-          type: 'dynamic-tree',
-          boundsPadding: 5,
-          velocityMultiplier: 2
-        }
-      }
-    });
+    const sut = new ex.SparseHashGridCollisionProcessor({ size: 50 });
     const actor1 = new ex.Actor({ x: 100, y: 0, width: 50, height: 50 });
     sut.track(actor1.collider.get());
     const actor2 = new ex.Actor({ x: 200, y: 0, width: 50, height: 50 });
@@ -320,16 +239,7 @@ describe('A DynamicTree Broadphase', () => {
   });
 
   it('can rayCast with filter and search all colliders false, returns 1 hit', () => {
-    const sut = new ex.DynamicTreeCollisionProcessor({
-      ...DefaultPhysicsConfig,
-      ...{
-        spatialPartition: {
-          type: 'dynamic-tree',
-          boundsPadding: 5,
-          velocityMultiplier: 2
-        }
-      }
-    });
+    const sut = new ex.SparseHashGridCollisionProcessor({ size: 50 });
     const actor1 = new ex.Actor({ x: 100, y: 0, width: 50, height: 50 });
     sut.track(actor1.collider.get());
     const actor2 = new ex.Actor({ x: 200, y: 0, width: 50, height: 50 });

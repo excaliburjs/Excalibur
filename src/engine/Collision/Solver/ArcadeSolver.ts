@@ -71,7 +71,8 @@ export class ArcadeSolver implements CollisionSolver {
 
   public preSolve(contacts: CollisionContact[]) {
     const epsilon = 0.0001;
-    for (const contact of contacts) {
+    for (let i = 0; i < contacts.length; i++) {
+      const contact = contacts[i];
       if (Math.abs(contact.mtv.x) < epsilon && Math.abs(contact.mtv.y) < epsilon) {
         // Cancel near 0 mtv collisions
         contact.cancel();
@@ -95,7 +96,8 @@ export class ArcadeSolver implements CollisionSolver {
   }
 
   public postSolve(contacts: CollisionContact[]) {
-    for (const contact of contacts) {
+    for (let i = 0; i < contacts.length; i++) {
+      const contact = contacts[i];
       if (contact.isCanceled()) {
         continue;
       }

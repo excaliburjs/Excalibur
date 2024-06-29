@@ -4,6 +4,33 @@ import { SolverStrategy } from './SolverStrategy';
 import { Physics } from './Physics';
 import { ContactSolveBias } from './Solver/ContactBias';
 
+export interface DynamicTreeConfig {
+  type: 'dynamic-tree';
+  /**
+   * Pad collider BoundingBox by a constant amount for purposes of potential pairs
+   *
+   * Default 5 pixels
+   */
+  boundsPadding?: number;
+
+  /**
+   * Factor to add to the collider BoundingBox, bounding box (dimensions += vel * dynamicTreeVelocityMultiplier);
+   *
+   * Default 2
+   */
+  velocityMultiplier?: number;
+}
+
+export interface SparseHashGridConfig {
+  type: 'sparse-hash-grid';
+  /**
+   * Size of the grid cells, default is 100x100 pixels.
+   *
+   * A good size means that your average collider in your game would fit inside the cell size by size dimension.
+   */
+  size: number;
+}
+
 export interface PhysicsConfig {
   /**
    * Excalibur physics simulation is enabled
@@ -118,23 +145,9 @@ export interface PhysicsConfig {
   };
 
   /**
-   * Configure the dynamic tree spatial data structure for locating pairs and raycasts
+   * Configure the spatial data structure for locating pairs and raycasts
    */
-  dynamicTree?: {
-    /**
-     * Pad collider BoundingBox by a constant amount for purposes of potential pairs
-     *
-     * Default 5 pixels
-     */
-    boundsPadding?: number;
-
-    /**
-     * Factor to add to the collider BoundingBox, bounding box (dimensions += vel * dynamicTreeVelocityMultiplier);
-     *
-     * Default 2
-     */
-    velocityMultiplier?: number;
-  };
+  spatialPartition?: DynamicTreeConfig | SparseHashGridConfig;
 
   /**
    * Configure the [[ArcadeSolver]]
@@ -215,10 +228,15 @@ export const DefaultPhysicsConfig: DeepRequired<PhysicsConfig> = {
     sleepBias: 0.9,
     defaultMass: 10
   },
-  dynamicTree: {
-    boundsPadding: 5,
-    velocityMultiplier: 2
+  spatialPartition: {
+    type: 'sparse-hash-grid',
+    size: 100
   },
+  // {
+  //   type: 'dynamic-tree',
+  //   boundsPadding: 5,
+  //   velocityMultiplier: 2
+  // },
   arcade: {
     contactSolveBias: ContactSolveBias.None
   },
@@ -254,9 +272,12 @@ export function DeprecatedStaticToConfig(): DeepRequired<PhysicsConfig> {
       sleepBias: Physics.sleepBias,
       defaultMass: Physics.defaultMass
     },
-    dynamicTree: {
-      boundsPadding: Physics.boundsPadding,
-      velocityMultiplier: Physics.dynamicTreeVelocityMultiplier
+    spatialPartition: {
+      type: 'sparse-hash-grid',
+      size: 100
+      // type: 'dynamic-tree',
+      // boundsPadding: Physics.boundsPadding,
+      // velocityMultiplier: Physics.dynamicTreeVelocityMultiplier
     },
     arcade: {
       contactSolveBias: ContactSolveBias.None

@@ -33,9 +33,6 @@ module.exports = function (wallaby) {
     postprocessor: wallaby.postprocessors.webpack({
       mode: 'none',
       devtool: 'source-map',
-      optimization: {
-        providedExports: true
-      },
       resolve: {
         extensions: ['.ts', '.js'],
         alias: {

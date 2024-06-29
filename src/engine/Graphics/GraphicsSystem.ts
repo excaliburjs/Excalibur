@@ -82,7 +82,8 @@ export class GraphicsSystem extends System {
     if (this._camera) {
       this._camera.draw(this._graphicsContext);
     }
-    for (const transform of this._sortedTransforms) {
+    for (let transformIndex = 0; transformIndex < this._sortedTransforms.length; transformIndex++) {
+      const transform = this._sortedTransforms[transformIndex];
       const entity = transform.owner as Entity;
 
       // If the entity is offscreen skip

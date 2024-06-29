@@ -19,7 +19,8 @@ export class EntityManager {
    * @param elapsed
    */
   public updateEntities(scene: Scene, elapsed: number) {
-    for (const entity of this.entities) {
+    for (let entityIndex = 0; entityIndex < this.entities.length; entityIndex++) {
+      const entity = this.entities[entityIndex];
       entity.update(scene.engine, elapsed);
       if (!entity.active) {
         this.removeEntity(entity);
@@ -28,7 +29,8 @@ export class EntityManager {
   }
 
   public findEntitiesForRemoval() {
-    for (const entity of this.entities) {
+    for (let entityIndex = 0; entityIndex < this.entities.length; entityIndex++) {
+      const entity = this.entities[entityIndex];
       if (!entity.active) {
         this.removeEntity(entity);
       }
@@ -117,7 +119,8 @@ export class EntityManager {
 
   private _entitiesToRemove: Entity[] = [];
   public processEntityRemovals(): void {
-    for (const entity of this._entitiesToRemove) {
+    for (let entityIndex = 0; entityIndex < this._entitiesToRemove.length; entityIndex++) {
+      const entity = this._entitiesToRemove[entityIndex];
       if (entity.active) {
         continue;
       }
@@ -127,7 +130,8 @@ export class EntityManager {
   }
 
   public processComponentRemovals(): void {
-    for (const entity of this.entities) {
+    for (let entityIndex = 0; entityIndex < this.entities.length; entityIndex++) {
+      const entity = this.entities[entityIndex];
       entity.processComponentRemoval();
     }
   }

@@ -1,4 +1,3 @@
-import { ColliderComponent } from '../Collision/ColliderComponent';
 import { Engine } from '../Engine';
 import { System, TransformComponent, SystemType, Entity, World, Query, SystemPriority } from '../EntityComponentSystem';
 import { GraphicsComponent } from '../Graphics/GraphicsComponent';
@@ -7,6 +6,7 @@ import { PointerComponent } from './PointerComponent';
 import { PointerEventReceiver } from './PointerEventReceiver';
 import { PointerEvent } from './PointerEvent';
 import { CoordPlane } from '../Math/coord-plane';
+import { SparseHashGrid } from '../Collision/Detection/SparseHashGrid';
 
 /**
  * The PointerSystem is responsible for dispatching pointer events to entities
@@ -22,13 +22,25 @@ export class PointerSystem extends System {
   private _engine: Engine;
   private _receivers: PointerEventReceiver[];
   private _engineReceiver: PointerEventReceiver;
+  private _graphicsHashGrid = new SparseHashGrid<GraphicsComponent>({ size: 100 });
+  private _graphics: GraphicsComponent[] = [];
+  private _entityToPointer = new Map<Entity, PointerComponent>();
+
   query: Query<typeof TransformComponent | typeof PointerComponent>;
 
   constructor(public world: World) {
     super();
     this.query = this.world.query([TransformComponent, PointerComponent]);
+
     this.query.entityAdded$.subscribe((e) => {
       const tx = e.get(TransformComponent);
+      const pointer = e.get(PointerComponent);
+      this._entityToPointer.set(e, pointer);
+      const maybeGfx = e.get(GraphicsComponent);
+      if (maybeGfx) {
+        this._graphics.push(maybeGfx);
+        this._graphicsHashGrid.track(maybeGfx);
+      }
       this._sortedTransforms.push(tx);
       this._sortedEntities.push(tx.owner);
       tx.zIndexChanged$.subscribe(this._zIndexUpdate);
@@ -37,6 +49,15 @@ export class PointerSystem extends System {
 
     this.query.entityRemoved$.subscribe((e) => {
       const tx = e.get(TransformComponent);
+      this._entityToPointer.delete(e);
+      const maybeGfx = e.get(GraphicsComponent);
+      if (maybeGfx) {
+        const index = this._graphics.indexOf(maybeGfx);
+        if (index > -1) {
+          this._graphics.splice(index, 1);
+        }
+        this._graphicsHashGrid.untrack(maybeGfx);
+      }
       tx.zIndexChanged$.unsubscribe(this._zIndexUpdate);
       const index = this._sortedTransforms.indexOf(tx);
       if (index > -1) {
@@ -111,6 +132,9 @@ export class PointerSystem extends System {
   }
 
   public update(): void {
+    // Update graphics
+    this._graphicsHashGrid.update(this._graphics);
+
     // Locate all the pointer/entity mappings
     this._processPointerToEntity(this._sortedEntities);
 
@@ -127,20 +151,16 @@ export class PointerSystem extends System {
 
   private _processPointerToEntity(entities: Entity[]) {
     let transform: TransformComponent;
-    let collider: ColliderComponent;
-    let graphics: GraphicsComponent;
     let pointer: PointerComponent;
     const receiver = this._engineReceiver;
 
-    // TODO probably a spatial partition optimization here to quickly query bounds for pointer
-    // doesn't seem to cause issues tho for perf
-
     // Pre-process find entities under pointers
-    for (const entity of entities) {
+    for (let entityIndex = 0; entityIndex < entities.length; entityIndex++) {
+      const entity = entities[entityIndex];
       transform = entity.get(TransformComponent);
-      pointer = entity.get(PointerComponent) ?? new PointerComponent();
+      pointer = entity.get(PointerComponent);
       // If pointer bounds defined
-      if (pointer.localBounds) {
+      if (pointer && pointer.localBounds) {
         const pointerBounds = pointer.localBounds.transform(transform.get().matrix);
         for (const [pointerId, pos] of receiver.currentFramePointerCoords.entries()) {
           if (pointerBounds.contains(transform.coordPlane === CoordPlane.World ? pos.worldPos : pos.screenPos)) {
@@ -148,29 +168,23 @@ export class PointerSystem extends System {
           }
         }
       }
-
-      // Check collider contains pointer
-      collider = entity.get(ColliderComponent);
-      if (collider && (pointer.useColliderShape || this.overrideUseColliderShape)) {
-        collider.update();
-        const geom = collider.get();
-        if (geom) {
-          for (const [pointerId, pos] of receiver.currentFramePointerCoords.entries()) {
-            if (geom.contains(transform.coordPlane === CoordPlane.World ? pos.worldPos : pos.screenPos)) {
-              this.addPointerToEntity(entity, pointerId);
-            }
-          }
+    }
+    for (const [pointerId, pos] of receiver.currentFramePointerCoords.entries()) {
+      const colliders = this._scene.physics.query(pos.worldPos);
+      for (let i = 0; i < colliders.length; i++) {
+        const collider = colliders[i];
+        const maybePointer = this._entityToPointer.get(collider.owner);
+        if (maybePointer && (pointer.useColliderShape || this.overrideUseColliderShape)) {
+          this.addPointerToEntity(collider.owner, pointerId);
         }
       }
 
-      // Check graphics contains pointer
-      graphics = entity.get(GraphicsComponent);
-      if (graphics && (pointer.useGraphicsBounds || this.overrideUseGraphicsBounds)) {
-        const graphicBounds = graphics.localBounds.transform(transform.get().matrix);
-        for (const [pointerId, pos] of receiver.currentFramePointerCoords.entries()) {
-          if (graphicBounds.contains(transform.coordPlane === CoordPlane.World ? pos.worldPos : pos.screenPos)) {
-            this.addPointerToEntity(entity, pointerId);
-          }
+      const graphics = this._graphicsHashGrid.query(pos.worldPos);
+      for (let i = 0; i < graphics.length; i++) {
+        const graphic = graphics[i];
+        const maybePointer = this._entityToPointer.get(graphic.owner);
+        if ((maybePointer && pointer.useGraphicsBounds) || this.overrideUseGraphicsBounds) {
+          this.addPointerToEntity(graphic.owner, pointerId);
         }
       }
     }
