@@ -355,12 +355,13 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
    * @param stats
    */
   narrowphase(pairs: Pair[], stats?: FrameStats): CollisionContact[] {
-    let contacts: CollisionContact[] = [];
+    const contacts: CollisionContact[] = [];
     for (let i = 0; i < pairs.length; i++) {
       const newContacts = pairs[i].collide();
-      contacts = contacts.concat(newContacts);
-      if (stats && newContacts.length > 0) {
-        for (const c of newContacts) {
+      for (let j = 0; j < newContacts.length; j++) {
+        const c = newContacts[j];
+        contacts.push(c);
+        if (stats) {
           stats.physics.contacts.set(c.id, c);
         }
       }
