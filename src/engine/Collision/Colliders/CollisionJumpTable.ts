@@ -7,6 +7,10 @@ import { LineSegment } from '../../Math/line-segment';
 import { Vector } from '../../Math/vector';
 import { TransformComponent } from '../../EntityComponentSystem';
 import { Pair } from '../Detection/Pair';
+import { AffineMatrix } from '../../Math/affine-matrix';
+const ScratchZero = Vector.Zero; // TODO constant vector
+const ScratchNormal = Vector.Zero; // TODO constant vector
+const ScratchMatrix = AffineMatrix.identity();
 
 export const CollisionJumpTable = {
   CollideCircleCircle(circleA: CircleCollider, circleB: CircleCollider): CollisionContact[] {
@@ -47,8 +51,8 @@ export const CollisionJumpTable = {
     }
 
     // make sure that the minAxis is pointing away from circle
-    const samedir = minAxis.dot(polygon.center.sub(circle.center));
-    minAxis = samedir < 0 ? minAxis.negate() : minAxis;
+    const sameDir = minAxis.dot(polygon.center.sub(circle.center));
+    minAxis = sameDir < 0 ? minAxis.negate() : minAxis;
 
     const point = circle.getFurthestPoint(minAxis);
     const xf = circle.owner?.get(TransformComponent) ?? new TransformComponent();
@@ -217,6 +221,7 @@ export const CollisionJumpTable = {
     // https://gamedev.stackexchange.com/questions/111390/multiple-contacts-for-sat-collision-detection
     // do a SAT test to find a min axis if it exists
     const separationA = SeparatingAxis.findPolygonPolygonSeparation(polyA, polyB);
+
     // If there is no overlap from boxA's perspective we can end early
     if (separationA.separation > 0) {
       return [];
@@ -233,18 +238,35 @@ export const CollisionJumpTable = {
 
     // The incident side is the most opposite from the axes of collision on the other collider
     const other = separation.collider === polyA ? polyB : polyA;
-    const incident = other.findSide(separation.axis.negate()) as LineSegment;
+    const main = separation.collider === polyA ? polyA : polyB;
+
+    const toIncidentFrame = other.transform.inverse.multiply(main.transform.matrix, ScratchMatrix);
+    const toIncidentFrameRotation = toIncidentFrame.getRotation();
+    const referenceEdgeNormal = main.normals[separation.sideId].rotate(toIncidentFrameRotation, ScratchZero, ScratchNormal);
+    let minEdge = Number.MAX_VALUE;
+    let incidentEdgeIndex = 0;
+    for (let i = 0; i < other.normals.length; i++) {
+      const value = referenceEdgeNormal.dot(other.normals[i]);
+      if (value < minEdge) {
+        minEdge = value;
+        incidentEdgeIndex = i;
+      }
+    }
+    const incident = new LineSegment(
+      other.transform.apply(other.points[incidentEdgeIndex]),
+      other.transform.apply(other.points[(incidentEdgeIndex + 1) % other.points.length])
+    );
 
     // Clip incident side by the perpendicular lines at each end of the reference side
     // https://en.wikipedia.org/wiki/Sutherland%E2%80%93Hodgman_algorithm
     const reference = separation.side;
-    const refDir = reference.dir().normalize();
+    const refDir = separation.axis.perpendicular().negate();
 
     // Find our contact points by clipping the incident by the collision side
-    const clipRight = incident.clip(refDir.negate(), -refDir.dot(reference.begin));
+    const clipRight = incident.clip(refDir.negate(), -refDir.dot(reference.begin), false);
     let clipLeft: LineSegment | null = null;
     if (clipRight) {
-      clipLeft = clipRight.clip(refDir, refDir.dot(reference.end));
+      clipLeft = clipRight.clip(refDir, refDir.dot(reference.end), false);
     }
 
     // If there is no left there is no collision
