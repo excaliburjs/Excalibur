@@ -51,6 +51,11 @@ export class PolygonCollider extends Collider {
   }
 
   private _points: Vector[];
+  private _normals: Vector[];
+
+  public get normals(): readonly Vector[] {
+    return this._normals;
+  }
 
   /**
    * Points in the polygon in order around the perimeter in local coordinates. These are relative from the body transform position.
@@ -59,6 +64,11 @@ export class PolygonCollider extends Collider {
   public set points(points: Vector[]) {
     this._points = points;
     this._checkAndUpdateWinding(this._points);
+    const normals: Vector[] = [];
+    for (let i = 0; i < this._points.length; i++) {
+      normals.push(this._points[(i + 1) % this._points.length].sub(this._points[i]).normal());
+    }
+    this._normals = normals;
     this.flagDirty();
   }
 
@@ -71,6 +81,9 @@ export class PolygonCollider extends Collider {
   }
 
   private _transform: Transform;
+  public get transform() {
+    return this._transform || new Transform();
+  }
 
   private _transformedPoints: Vector[] = [];
   private _sides: LineSegment[] = [];
