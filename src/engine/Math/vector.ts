@@ -359,7 +359,8 @@ export class Vector implements Clonable<Vector> {
   /**
    * Rotates the current vector around a point by a certain angle in radians.
    */
-  public rotate(angle: number, anchor?: Vector): Vector {
+  public rotate(angle: number, anchor?: Vector, dest?: Vector): Vector {
+    const result = dest || new Vector(0, 0);
     if (!anchor) {
       anchor = new Vector(0, 0);
     }
@@ -367,7 +368,9 @@ export class Vector implements Clonable<Vector> {
     const cosAngle = Math.cos(angle);
     const x = cosAngle * (this.x - anchor.x) - sinAngle * (this.y - anchor.y) + anchor.x;
     const y = sinAngle * (this.x - anchor.x) + cosAngle * (this.y - anchor.y) + anchor.y;
-    return new Vector(x, y);
+    result.x = x;
+    result.y = y;
+    return result;
   }
 
   /**
