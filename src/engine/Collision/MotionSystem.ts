@@ -58,8 +58,8 @@ export class MotionSystem extends System {
   captureOldTransformWithChildren(entity: Entity) {
     entity.get(BodyComponent)?.captureOldTransform();
 
-    for (const child of entity.children) {
-      this.captureOldTransformWithChildren(child);
+    for (let i = 0; i < entity.children.length; i++) {
+      this.captureOldTransformWithChildren(entity.children[i]);
     }
   }
 }
