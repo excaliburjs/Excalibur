@@ -17,6 +17,7 @@ import { Scene } from '../Scene';
 import { Side } from '../Collision/Side';
 import { PhysicsWorld } from './PhysicsWorld';
 import { CollisionProcessor } from './Detection/CollisionProcessor';
+import { SeparatingAxis } from './Colliders/SeparatingAxis';
 export class CollisionSystem extends System {
   public systemType = SystemType.Update;
   public priority = SystemPriority.Higher;
@@ -145,6 +146,8 @@ export class CollisionSystem extends System {
         collider.processColliderRemoval();
       }
     }
+
+    SeparatingAxis.SeparationPool.done();
   }
 
   getSolver(): CollisionSolver {
