@@ -53,6 +53,7 @@ import { InputHost } from './Input/InputHost';
 import { DefaultPhysicsConfig, DeprecatedStaticToConfig, PhysicsConfig } from './Collision/PhysicsConfig';
 import { DeepRequired } from './Util/Required';
 import { Context, createContext, useContext } from './Context';
+import { mergeDeep } from './Util/Util';
 
 export type EngineEvents = {
   fallbackgraphicscontext: ExcaliburGraphicsContext2DCanvas;
@@ -952,9 +953,9 @@ O|===|* >________________>\n\
     } else {
       this.physics = {
         ...DefaultPhysicsConfig,
-        ...DeprecatedStaticToConfig(),
-        ...(options.physics as DeepRequired<PhysicsConfig>)
+        ...DeprecatedStaticToConfig()
       };
+      mergeDeep(this.physics, options.physics);
     }
 
     this.debug = new DebugConfig(this);

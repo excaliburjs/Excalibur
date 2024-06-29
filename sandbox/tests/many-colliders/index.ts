@@ -1,8 +1,14 @@
 var game = new ex.Engine({
   width: 800,
-  height: 600
+  height: 600,
+  physics: {
+    solver: ex.SolverStrategy.Realistic,
+    spatialPartition: ex.SpatialPartitionStrategy.DynamicTree,
+    realistic: {
+      positionIterations: 10
+    }
+  }
 });
-ex.Physics.useRealisticPhysics();
 
 var random = new ex.Random(1337);
 for (let i = 0; i < 500; i++) {

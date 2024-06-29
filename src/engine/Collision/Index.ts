@@ -27,6 +27,7 @@ export * from './Detection/DynamicTree';
 export * from './Detection/DynamicTreeCollisionProcessor';
 export * from './Detection/SparseHashGridCollisionProcessor';
 export * from './Detection/SparseHashGrid';
+export * from './Detection/SpatialPartitionStrategy';
 export * from './Detection/QuadTree';
 
 export * from './Solver/ArcadeSolver';
