@@ -252,29 +252,33 @@ export const CollisionJumpTable = {
         incidentEdgeIndex = i;
       }
     }
-    const incident = new LineSegment(
-      other.transform.apply(other.points[incidentEdgeIndex]),
-      other.transform.apply(other.points[(incidentEdgeIndex + 1) % other.points.length])
-    );
 
     // Clip incident side by the perpendicular lines at each end of the reference side
     // https://en.wikipedia.org/wiki/Sutherland%E2%80%93Hodgman_algorithm
-    const reference = separation.side;
-    const refDir = separation.axis.perpendicular().negate();
+    const referenceLocal = separation.localSide.transform(toIncidentFrame);
+    const refLocalDir = separation.localAxis.perpendicular().negate().rotate(toIncidentFrameRotation);
 
-    // Find our contact points by clipping the incident by the collision side
-    const clipRight = incident.clip(refDir.negate(), -refDir.dot(reference.begin), false);
-    let clipLeft: LineSegment | null = null;
-    if (clipRight) {
-      clipLeft = clipRight.clip(refDir, refDir.dot(reference.end), false);
+    const incidentLocal = new LineSegment(other.points[incidentEdgeIndex], other.points[(incidentEdgeIndex + 1) % other.points.length]);
+
+    const clipRightLocal = incidentLocal.clip(refLocalDir.negate(), -refLocalDir.dot(referenceLocal.begin), false);
+
+    let clipLeftLocal: LineSegment | null = null;
+    if (clipRightLocal) {
+      clipLeftLocal = clipRightLocal.clip(refLocalDir, refLocalDir.dot(referenceLocal.end), false);
     }
 
-    // If there is no left there is no collision
-    if (clipLeft) {
-      // We only want clip points below the reference edge, discard the others
-      const points = clipLeft.getPoints().filter((p) => {
-        return reference.below(p);
-      });
+    if (clipLeftLocal) {
+      const localPoints: Vector[] = [];
+      const points: Vector[] = [];
+      const clipPoints = clipLeftLocal.getPoints();
+
+      for (let i = 0; i < clipPoints.length; i++) {
+        const p = clipPoints[i];
+        if (referenceLocal.below(p)) {
+          localPoints.push(p);
+          points.push(other.transform.apply(p));
+        }
+      }
 
       let normal = separation.axis;
       let tangent = normal.perpendicular();
@@ -282,16 +286,6 @@ export const CollisionJumpTable = {
       if (polyB.center.sub(polyA.center).dot(normal) < 0) {
         normal = normal.negate();
         tangent = normal.perpendicular();
-      }
-      // Points are clipped from incident which is the other collider
-      // Store those as locals
-      let localPoints: Vector[] = [];
-      if (separation.collider === polyA) {
-        const xf = polyB.owner?.get(TransformComponent) ?? new TransformComponent();
-        localPoints = points.map((p) => xf.applyInverse(p));
-      } else {
-        const xf = polyA.owner?.get(TransformComponent) ?? new TransformComponent();
-        localPoints = points.map((p) => xf.applyInverse(p));
       }
       return [new CollisionContact(polyA, polyB, normal.scale(-separation.separation), normal, tangent, points, localPoints, separation)];
     }

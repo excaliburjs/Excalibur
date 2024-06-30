@@ -23,9 +23,9 @@ export class LineSegment {
   }
 
   transform(matrix: AffineMatrix, dest?: LineSegment): LineSegment {
-    const result = dest || new LineSegment(this.begin, this.end);
-    matrix.multiply(result.begin, result.begin);
-    matrix.multiply(result.end, result.end);
+    const result = dest || new LineSegment(Vector.Zero, Vector.Zero);
+    result.begin = matrix.multiply(this.begin, result.begin);
+    result.end = matrix.multiply(this.end, result.end);
     return result;
   }
 
@@ -89,18 +89,14 @@ export class LineSegment {
     return end.sub(begin);
   }
 
-  private _length: number;
   /**
    * Returns the length of the line segment in pixels
    */
   public getLength(): number {
-    if (this._length) {
-      return this._length;
-    }
     const begin = this.begin;
     const end = this.end;
     const distance = begin.distance(end);
-    return (this._length = distance);
+    return distance;
   }
 
   /**

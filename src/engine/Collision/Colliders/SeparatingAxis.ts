@@ -26,6 +26,11 @@ export class SeparationInfo {
   axis: Vector = vec(0, 0);
 
   /**
+   * Local axis of separation from the collider's perspective
+   */
+  localAxis?: Vector = vec(0, 0);
+
+  /**
    * Side of separation (reference) from the collider's perspective
    */
 
@@ -86,37 +91,39 @@ export class SeparatingAxis {
       // For every point in polyB
       // We want to see how much overlap there is on the axis provided by the normal
       // We want to find the minimum overlap among all points
-      let furthestPointDistance = Number.MAX_VALUE;
-      let furthestLocalPoint: Vector;
+      let smallestPointDistance = Number.MAX_VALUE;
+      let smallestLocalPoint: Vector;
       for (let pointsBIndex = 0; pointsBIndex < pointsB.length; pointsBIndex++) {
         const distance = normal.dot(pointsB[pointsBIndex].sub(point, SeparatingAxis._SCRATCH_SUB_POINT));
-        if (distance < furthestPointDistance) {
-          furthestPointDistance = distance;
-          furthestLocalPoint = pointsB[pointsBIndex];
+        if (distance < smallestPointDistance) {
+          smallestPointDistance = distance;
+          smallestLocalPoint = pointsB[pointsBIndex];
         }
       }
 
       // We take the maximum overlap as the separation between the
       // A negative separation means there were no gaps between the two shapes
-      if (furthestPointDistance > bestSeparation) {
-        bestSeparation = furthestPointDistance;
+      if (smallestPointDistance > bestSeparation) {
+        bestSeparation = smallestPointDistance;
         bestSideIndex = pointsAIndex;
-        localPoint = furthestLocalPoint;
+        localPoint = smallestLocalPoint;
       }
     }
 
     // TODO can we avoid applying world space transforms?
+    const bestSide2 = (bestSideIndex + 1) % pointsA.length;
     const separationInfo = SeparatingAxis.SeparationPool.get();
     separationInfo.collider = polyA;
     separationInfo.separation = bestSeparation;
+    normalsA[bestSideIndex].clone(separationInfo.localAxis);
     normalsA[bestSideIndex].rotate(polyA.transform.rotation, SeparatingAxis._ZERO, separationInfo.axis);
     polyA.transform.matrix.multiply(pointsA[bestSideIndex], separationInfo.side.begin);
-    polyA.transform.matrix.multiply(pointsA[(bestSideIndex + 1) % pointsA.length], separationInfo.side.end);
-    separationInfo.sideId = bestSideIndex;
+    polyA.transform.matrix.multiply(pointsA[bestSide2], separationInfo.side.end);
     polyB.transform.matrix.multiply(localPoint, separationInfo.point);
-    separationInfo.localPoint = localPoint;
+    separationInfo.sideId = bestSideIndex;
+    localPoint.clone(separationInfo.localPoint);
     pointsA[bestSideIndex].clone(separationInfo.localSide.begin);
-    pointsA[(bestSideIndex + 1) % pointsA.length].clone(separationInfo.localSide.end);
+    pointsA[bestSide2].clone(separationInfo.localSide.end);
     return separationInfo;
   }
 
