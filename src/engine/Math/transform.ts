@@ -274,6 +274,20 @@ export class Transform {
     return target;
   }
 
+  /**
+   * Clones but keeps the same parent reference
+   */
+  public cloneWithParent(dest?: Transform): Transform {
+    const target = dest ?? new Transform();
+    this._pos.clone(target._pos);
+    target._z = this._z;
+    target._rotation = this._rotation;
+    this._scale.clone(target._scale);
+    target.parent = this.parent;
+    target.flagDirty();
+    return target;
+  }
+
   public toString(): string {
     return this.matrix.toString();
   }

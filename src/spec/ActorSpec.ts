@@ -919,7 +919,7 @@ describe('A game actor', () => {
   it('can recursively check containment', () => {
     const parent = new ex.Actor({ x: 0, y: 0, width: 100, height: 100 });
     const child = new ex.Actor({ x: 100, y: 100, width: 100, height: 100 });
-    const child2 = new ex.Actor({ x: 100, y: 100, width: 100, height: 100 });
+    const grandChild = new ex.Actor({ x: 100, y: 100, width: 100, height: 100 });
     parent.addChild(child);
 
     expect(parent.contains(150, 150)).toBeFalsy();
@@ -927,7 +927,7 @@ describe('A game actor', () => {
     expect(parent.contains(150, 150, true)).toBeTruthy();
     expect(parent.contains(200, 200, true)).toBeFalsy();
 
-    child.addChild(child2);
+    child.addChild(grandChild);
     expect(parent.contains(250, 250, true)).toBeTruthy();
   });
 

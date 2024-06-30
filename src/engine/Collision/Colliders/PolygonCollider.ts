@@ -362,10 +362,7 @@ export class PolygonCollider extends Collider {
    * Returns the world position of the collider, which is the current body transform plus any defined offset
    */
   public get worldPos(): Vector {
-    if (this._transform) {
-      return this._transform.pos.add(this.offset);
-    }
-    return this.offset;
+    return this._transform.pos;
   }
 
   /**
@@ -499,7 +496,7 @@ export class PolygonCollider extends Collider {
   public update(transform: Transform): void {
     if (transform) {
       // This change means an update must be performed in order for geometry to update
-      transform.clone(this._transform);
+      transform.cloneWithParent(this._transform);
       this._transformedPointsDirty = true;
       this._sidesDirty = true;
       if (this.offset.x !== 0 || this.offset.y !== 0) {
