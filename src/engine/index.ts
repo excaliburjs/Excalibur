@@ -12,7 +12,7 @@ export * from './Flags';
 export * from './Id';
 export * from './Engine';
 export * from './Screen';
-export { Actor, ActorArgs } from './Actor';
+export * from './Actor';
 export * from './Math/Index';
 export * from './Camera';
 export * from './Configurable';
