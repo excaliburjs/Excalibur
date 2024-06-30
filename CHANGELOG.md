@@ -36,9 +36,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed issue where negative transforms would cause collision issues because polygon winding would change.
 - Fixed issue where removing and re-adding an actor would cause subsequent children added not to function properly with regards to their parent/child transforms
 - Fixed issue where `ex.GraphicsSystem` would crash if a parent entity did not have a `ex.TransformComponent`
+- Fixed a bug in the new physics config merging, and re-arranged to better match the existing pattern
 
 ### Updates
 
+- Perf improvements to collision narrowphase and solver steps
+  * Working in the local polygon space as much as possible speeds things up
+  * Add another pair filtering condition on the `SparseHashGridCollisionProcessor` which reduces pairs passed to narrowphase
+  * Switching to c-style loops where possible
+  * Caching get component calls
+  * Removing allocations where it makes sense
+- Perf Side.fromDirection(direction: Vector): Side - thanks @ikudrickiy!
 - Perf improvements to PointerSystem by using new spatial hash grid data structure
 - Perf improvements: Hot path allocations
   * Reduce State/Transform stack hot path allocations in graphics context
