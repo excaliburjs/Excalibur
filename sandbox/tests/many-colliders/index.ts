@@ -6,6 +6,9 @@ var game = new ex.Engine({
     spatialPartition: ex.SpatialPartitionStrategy.SparseHashGrid,
     realistic: {
       positionIterations: 10
+    },
+    sparseHashGrid: {
+      size: 30
     }
   }
 });
