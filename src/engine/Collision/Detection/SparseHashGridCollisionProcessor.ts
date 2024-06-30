@@ -334,7 +334,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
           if (this._nonPairs.has(id)) {
             continue; // Is there a way we can re-use the non-pair cache
           }
-          if (!this._pairs.has(id) && this._canCollide(proxy, other)) {
+          if (!this._pairs.has(id) && this._canCollide(proxy, other) && proxy.object.bounds.overlaps(other.object.bounds)) {
             const pair = this._pairPool.get();
             pair.colliderA = proxy.collider;
             pair.colliderB = other.collider;
