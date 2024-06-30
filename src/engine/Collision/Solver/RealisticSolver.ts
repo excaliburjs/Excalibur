@@ -42,7 +42,8 @@ export class RealisticSolver implements CollisionSolver {
 
   preSolve(contacts: CollisionContact[]) {
     const epsilon = 0.0001;
-    for (const contact of contacts) {
+    for (let i = 0; i < contacts.length; i++) {
+      const contact = contacts[i];
       if (Math.abs(contact.mtv.x) < epsilon && Math.abs(contact.mtv.y) < epsilon) {
         // Cancel near 0 mtv collisions
         contact.cancel();
@@ -73,7 +74,8 @@ export class RealisticSolver implements CollisionSolver {
 
     // Keep track of contacts that done
     const finishedContactIds = Array.from(this.idToContactConstraint.keys());
-    for (const contact of contacts) {
+    for (let i = 0; i < contacts.length; i++) {
+      const contact = contacts[i];
       // Remove all current contacts that are not done
       const index = finishedContactIds.indexOf(contact.id);
       if (index > -1) {
@@ -149,7 +151,8 @@ export class RealisticSolver implements CollisionSolver {
     if (this.config.warmStart) {
       this.warmStart(contacts);
     } else {
-      for (const contact of contacts) {
+      for (let i = 0; i < contacts.length; i++) {
+        const contact = contacts[i];
         const contactPoints = this.getContactConstraints(contact.id);
         for (const point of contactPoints) {
           point.normalImpulse = 0;
@@ -160,7 +163,8 @@ export class RealisticSolver implements CollisionSolver {
   }
 
   postSolve(contacts: CollisionContact[]) {
-    for (const contact of contacts) {
+    for (let i = 0; i < contacts.length; i++) {
+      const contact = contacts[i];
       const bodyA = contact.colliderA.owner.get(BodyComponent);
       const bodyB = contact.colliderB.owner.get(BodyComponent);
 
@@ -197,7 +201,8 @@ export class RealisticSolver implements CollisionSolver {
 
     // Store contacts
     this.lastFrameContacts.clear();
-    for (const c of contacts) {
+    for (let i = 0; i < contacts.length; i++) {
+      const c = contacts[i];
       this.lastFrameContacts.set(c.id, c);
     }
   }
@@ -207,7 +212,8 @@ export class RealisticSolver implements CollisionSolver {
    * @param contacts
    */
   warmStart(contacts: CollisionContact[]) {
-    for (const contact of contacts) {
+    for (let i = 0; i < contacts.length; i++) {
+      const contact = contacts[i];
       const bodyA = contact.colliderA.owner?.get(BodyComponent);
       const bodyB = contact.colliderB.owner?.get(BodyComponent);
       if (bodyA && bodyB) {
@@ -235,7 +241,8 @@ export class RealisticSolver implements CollisionSolver {
    */
   solvePosition(contacts: CollisionContact[]) {
     for (let i = 0; i < this.config.positionIterations; i++) {
-      for (const contact of contacts) {
+      for (let i = 0; i < contacts.length; i++) {
+        const contact = contacts[i];
         const bodyA = contact.colliderA.owner?.get(BodyComponent);
         const bodyB = contact.colliderB.owner?.get(BodyComponent);
 
@@ -299,7 +306,8 @@ export class RealisticSolver implements CollisionSolver {
 
   solveVelocity(contacts: CollisionContact[]) {
     for (let i = 0; i < this.config.velocityIterations; i++) {
-      for (const contact of contacts) {
+      for (let i = 0; i < contacts.length; i++) {
+        const contact = contacts[i];
         const bodyA = contact.colliderA.owner?.get(BodyComponent);
         const bodyB = contact.colliderB.owner?.get(BodyComponent);
 
