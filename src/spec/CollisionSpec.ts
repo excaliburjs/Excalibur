@@ -9,7 +9,13 @@ describe('A Collision', () => {
   let clock: ex.TestClock = null;
 
   beforeEach(async () => {
-    engine = TestUtils.engine({ width: 600, height: 400 });
+    engine = TestUtils.engine({
+      width: 600,
+      height: 400,
+      physics: {
+        solver: ex.SolverStrategy.Arcade
+      }
+    });
     clock = engine.clock = engine.clock.toTestClock();
 
     actor1 = new ex.Actor({ x: 0, y: 0, width: 10, height: 10 });
@@ -51,14 +57,7 @@ describe('A Collision', () => {
 
   it('order of actors collision should not matter when an Active and Active Collision', () => {
     const collisionTree = new ex.DynamicTreeCollisionProcessor({
-      ...DefaultPhysicsConfig,
-      ...{
-        spatialPartition: {
-          type: 'dynamic-tree',
-          boundsPadding: 5,
-          velocityMultiplier: 2
-        }
-      }
+      ...DefaultPhysicsConfig
     });
 
     actor1.body.collisionType = ex.CollisionType.Active;
@@ -77,14 +76,7 @@ describe('A Collision', () => {
 
   it('order of actors collision should not matter when an Active and Passive Collision', () => {
     const collisionTree = new ex.DynamicTreeCollisionProcessor({
-      ...DefaultPhysicsConfig,
-      ...{
-        spatialPartition: {
-          type: 'dynamic-tree',
-          boundsPadding: 5,
-          velocityMultiplier: 2
-        }
-      }
+      ...DefaultPhysicsConfig
     });
 
     actor1.body.collisionType = ex.CollisionType.Active;

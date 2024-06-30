@@ -281,14 +281,7 @@ describe('A CompositeCollider', () => {
     const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
 
     const dynamicTreeProcessor = new ex.DynamicTreeCollisionProcessor({
-      ...DefaultPhysicsConfig,
-      ...{
-        spatialPartition: {
-          type: 'dynamic-tree',
-          boundsPadding: 5,
-          velocityMultiplier: 2
-        }
-      }
+      ...DefaultPhysicsConfig
     });
     dynamicTreeProcessor.track(compCollider);
 
@@ -301,14 +294,7 @@ describe('A CompositeCollider', () => {
     const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
 
     const dynamicTreeProcessor = new ex.DynamicTreeCollisionProcessor({
-      ...DefaultPhysicsConfig,
-      ...{
-        spatialPartition: {
-          type: 'dynamic-tree',
-          boundsPadding: 5,
-          velocityMultiplier: 2
-        }
-      }
+      ...DefaultPhysicsConfig
     });
     dynamicTreeProcessor.track(compCollider);
 
