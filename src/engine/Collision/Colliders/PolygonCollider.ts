@@ -6,12 +6,11 @@ import { CircleCollider } from './CircleCollider';
 import { CollisionContact } from '../Detection/CollisionContact';
 import { Projection } from '../../Math/projection';
 import { LineSegment } from '../../Math/line-segment';
-import { Vector } from '../../Math/vector';
-import { AffineMatrix } from '../../Math/affine-matrix';
+import { Vector, vec } from '../../Math/vector';
 import { Ray } from '../../Math/ray';
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
 import { Collider } from './Collider';
-import { BodyComponent, Debug, ExcaliburGraphicsContext, Logger } from '../..';
+import { BodyComponent, Debug, ExcaliburGraphicsContext, Logger, sign } from '../..';
 import { CompositeCollider } from './CompositeCollider';
 import { Shape } from './Shape';
 import { Transform } from '../../Math/transform';
@@ -64,12 +63,16 @@ export class PolygonCollider extends Collider {
   public set points(points: Vector[]) {
     this._points = points;
     this._checkAndUpdateWinding(this._points);
+    this._calculateNormals();
+    this.flagDirty();
+  }
+
+  private _calculateNormals() {
     const normals: Vector[] = [];
     for (let i = 0; i < this._points.length; i++) {
       normals.push(this._points[(i + 1) % this._points.length].sub(this._points[i]).normal());
     }
     this._normals = normals;
-    this.flagDirty();
   }
 
   /**
@@ -80,9 +83,9 @@ export class PolygonCollider extends Collider {
     return this._points;
   }
 
-  private _transform: Transform;
+  private _transform: Transform = new Transform();
   public get transform() {
-    return this._transform || new Transform();
+    return this._transform;
   }
 
   private _transformedPoints: Vector[] = [];
@@ -92,7 +95,8 @@ export class PolygonCollider extends Collider {
   constructor(options: PolygonColliderOptions) {
     super();
     this.offset = options.offset ?? Vector.Zero;
-    this._globalMatrix.translate(this.offset.x, this.offset.y);
+    this._transform.pos.x += this.offset.x;
+    this._transform.pos.y += this.offset.y;
     this.points = options.points ?? [];
 
     if (!this.isConvex()) {
@@ -114,8 +118,7 @@ export class PolygonCollider extends Collider {
       points.reverse();
     }
   }
-
-  private _isCounterClockwiseWinding(points: Vector[]): boolean {
+  public _isCounterClockwiseWinding(points: Vector[]): boolean {
     // https://stackoverflow.com/a/1165943
     let sum = 0;
     for (let i = 0; i < points.length; i++) {
@@ -372,8 +375,6 @@ export class PolygonCollider extends Collider {
     return this.bounds.center;
   }
 
-  private _globalMatrix: AffineMatrix = AffineMatrix.identity();
-
   private _transformedPointsDirty = true;
   /**
    * Calculates the underlying transformation from the body relative space to world space
@@ -383,12 +384,7 @@ export class PolygonCollider extends Collider {
     const len = points.length;
     this._transformedPoints.length = 0; // clear out old transform
     for (let i = 0; i < len; i++) {
-      this._transformedPoints[i] = this._globalMatrix.multiply(points[i].clone());
-    }
-    // it is possible for the transform to change the winding, scale (-1, 1) for example
-    const scale = this._globalMatrix.getScale();
-    if (scale.x < 0 || scale.y < 0) {
-      this._checkAndUpdateWinding(this._transformedPoints);
+      this._transformedPoints[i] = this._transform.apply(points[i].clone());
     }
   }
 
@@ -502,13 +498,22 @@ export class PolygonCollider extends Collider {
    */
   public update(transform: Transform): void {
     if (transform) {
-      this._transform = transform;
+      // This change means an update must be performed in order for geometry to update
+      transform.clone(this._transform);
       this._transformedPointsDirty = true;
       this._sidesDirty = true;
-      // This change means an update must be performed in order for geometry to update
-      const globalMat = transform.matrix ?? this._globalMatrix;
-      globalMat.clone(this._globalMatrix);
-      this._globalMatrix.translate(this.offset.x, this.offset.y);
+      if (this.offset.x !== 0 || this.offset.y !== 0) {
+        this._transform.pos.x += this.offset.x;
+        this._transform.pos.y += this.offset.y;
+      }
+
+      if (this._transform.isMirrored()) {
+        // negative transforms really mess with things in collision local space
+        // flatten out the negatives by applying to geometry
+        this.points = this.points.map((p) => vec(p.x * sign(this._transform.scale.x), p.y * sign(this._transform.scale.y)));
+        this._transform.scale.x = Math.abs(this._transform.scale.x);
+        this._transform.scale.y = Math.abs(this._transform.scale.y);
+      }
     }
   }
 
@@ -628,7 +633,7 @@ export class PolygonCollider extends Collider {
    * Get the axis aligned bounding box for the polygon collider in world coordinates
    */
   public get bounds(): BoundingBox {
-    return this.localBounds.transform(this._globalMatrix);
+    return this.localBounds.transform(this._transform.matrix);
   }
 
   private _localBoundsDirty = true;
