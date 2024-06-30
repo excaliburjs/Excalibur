@@ -255,26 +255,24 @@ export const CollisionJumpTable = {
 
     // Clip incident side by the perpendicular lines at each end of the reference side
     // https://en.wikipedia.org/wiki/Sutherland%E2%80%93Hodgman_algorithm
-    const referenceLocal = separation.localSide.transform(toIncidentFrame);
-    const refLocalDir = separation.localAxis.perpendicular().negate().rotate(toIncidentFrameRotation);
+    const referenceSide = separation.localSide.transform(toIncidentFrame);
+    const referenceDirection = separation.localAxis.perpendicular().negate().rotate(toIncidentFrameRotation);
 
-    const incidentLocal = new LineSegment(other.points[incidentEdgeIndex], other.points[(incidentEdgeIndex + 1) % other.points.length]);
-
-    const clipRightLocal = incidentLocal.clip(refLocalDir.negate(), -refLocalDir.dot(referenceLocal.begin), false);
-
-    let clipLeftLocal: LineSegment | null = null;
-    if (clipRightLocal) {
-      clipLeftLocal = clipRightLocal.clip(refLocalDir, refLocalDir.dot(referenceLocal.end), false);
+    const incidentSide = new LineSegment(other.points[incidentEdgeIndex], other.points[(incidentEdgeIndex + 1) % other.points.length]);
+    const clipRight = incidentSide.clip(referenceDirection.negate(), -referenceDirection.dot(referenceSide.begin), false);
+    let clipLeft: LineSegment | null = null;
+    if (clipRight) {
+      clipLeft = clipRight.clip(referenceDirection, referenceDirection.dot(referenceSide.end), false);
     }
 
-    if (clipLeftLocal) {
+    if (clipLeft) {
       const localPoints: Vector[] = [];
       const points: Vector[] = [];
-      const clipPoints = clipLeftLocal.getPoints();
+      const clipPoints = clipLeft.getPoints();
 
       for (let i = 0; i < clipPoints.length; i++) {
         const p = clipPoints[i];
-        if (referenceLocal.below(p)) {
+        if (referenceSide.below(p)) {
           localPoints.push(p);
           points.push(other.transform.apply(p));
         }

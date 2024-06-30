@@ -106,6 +106,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
       size: this.gridSize,
       proxyFactory: (collider, size) => new HashColliderProxy(collider, size)
     });
+    this._pairPool.disableWarnings = true;
 
     // TODO dynamic grid size potentially larger than the largest collider
     // TODO Re-hash the objects if the median proves to be different

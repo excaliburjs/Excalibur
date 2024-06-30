@@ -126,43 +126,6 @@ export class SeparatingAxis {
     pointsA[bestSide2].clone(separationInfo.localSide.end);
     return separationInfo;
   }
-
-  static findPolygonPolygonSeparationOld(polyA: PolygonCollider, polyB: PolygonCollider): SeparationInfo {
-    let bestSeparation = -Number.MAX_VALUE;
-    let bestSide: LineSegment | null = null;
-    let bestAxis: Vector | null = null;
-    let bestSideIndex: number = -1;
-    let bestOtherPoint: Vector | null = null;
-    const sides = polyA.getSides();
-    const localSides = polyA.getLocalSides();
-    for (let i = 0; i < sides.length; i++) {
-      const side = sides[i];
-      const axis = side.normal();
-      const vertB = polyB.getFurthestPoint(axis.negate());
-      // Separation on side i's axis
-      // We are looking for the largest separation between poly A's sides
-      const vertSeparation = side.distanceToPoint(vertB, true);
-      if (vertSeparation > bestSeparation) {
-        bestSeparation = vertSeparation;
-        bestSide = side;
-        bestAxis = axis;
-        bestSideIndex = i;
-        bestOtherPoint = vertB;
-      }
-    }
-
-    return {
-      collider: polyA,
-      separation: bestAxis ? bestSeparation : 99,
-      axis: bestAxis as Vector,
-      side: bestSide,
-      localSide: localSides[bestSideIndex],
-      sideId: bestSideIndex,
-      point: bestOtherPoint as Vector,
-      localPoint: bestAxis ? polyB.getFurthestLocalPoint(bestAxis!.negate()) : null
-    };
-  }
-
   static findCirclePolygonSeparation(circle: CircleCollider, polygon: PolygonCollider): Vector | null {
     const axes = polygon.axes;
     const pc = polygon.center;
@@ -194,3 +157,5 @@ export class SeparatingAxis {
     return minAxis.normalize().scale(minOverlap);
   }
 }
+
+SeparatingAxis.SeparationPool.disableWarnings = true;
