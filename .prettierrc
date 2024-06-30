@@ -4,5 +4,5 @@
   "singleQuote": true,
   "tabWidth": 2,
   "trailingComma": "none",
-  "eol": "auto"
+  "endOfLine": "auto"
 }
