@@ -57,6 +57,9 @@ export class CollisionContact {
    */
   info: SeparationInfo;
 
+  bodyA: BodyComponent | null = null;
+  bodyB: BodyComponent | null = null;
+
   constructor(
     colliderA: Collider,
     colliderB: Collider,
@@ -82,14 +85,20 @@ export class CollisionContact {
       const colliderBId = colliderB.composite?.compositeStrategy === 'separate' ? colliderB.id : colliderB.composite?.id ?? colliderB.id;
       this.id += '|' + Pair.calculatePairHash(colliderAId, colliderBId);
     }
+    if (this.colliderA.owner) {
+      this.bodyA = this.colliderA.owner.get(BodyComponent);
+    }
+    if (this.colliderB.owner) {
+      this.bodyB = this.colliderB.owner.get(BodyComponent);
+    }
   }
 
   /**
    * Match contact awake state, except if body's are Fixed
    */
   public matchAwake(): void {
-    const bodyA = this.colliderA.owner.get(BodyComponent);
-    const bodyB = this.colliderB.owner.get(BodyComponent);
+    const bodyA = this.bodyA;
+    const bodyB = this.bodyB;
     if (bodyA && bodyB) {
       if (bodyA.sleeping !== bodyB.sleeping) {
         if (bodyA.sleeping && bodyA.collisionType !== CollisionType.Fixed && bodyB.sleepMotion >= bodyA.wakeThreshold) {

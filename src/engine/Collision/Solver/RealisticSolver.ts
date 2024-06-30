@@ -5,7 +5,7 @@ import { CollisionType } from '../CollisionType';
 import { ContactConstraintPoint } from './ContactConstraintPoint';
 import { Side } from '../Side';
 import { CollisionSolver } from './Solver';
-import { BodyComponent, DegreeOfFreedom } from '../BodyComponent';
+import { DegreeOfFreedom } from '../BodyComponent';
 import { CollisionJumpTable } from '../Colliders/CollisionJumpTable';
 import { DeepRequired } from '../../Util/Required';
 import { PhysicsConfig } from '../PhysicsConfig';
@@ -84,10 +84,11 @@ export class RealisticSolver implements CollisionSolver {
       const contactPoints = this.idToContactConstraint.get(contact.id) ?? [];
 
       let pointIndex = 0;
-      const bodyA = contact.colliderA.owner.get(BodyComponent);
-      const bodyB = contact.colliderB.owner.get(BodyComponent);
+      const bodyA = contact.bodyA;
+      const bodyB = contact.bodyB;
       if (bodyA && bodyB) {
-        for (const point of contact.points) {
+        for (let j = 0; j < contact.points.length; j++) {
+          const point = contact.points[j];
           const normal = contact.normal;
           const tangent = contact.tangent;
 
@@ -165,8 +166,8 @@ export class RealisticSolver implements CollisionSolver {
   postSolve(contacts: CollisionContact[]) {
     for (let i = 0; i < contacts.length; i++) {
       const contact = contacts[i];
-      const bodyA = contact.colliderA.owner.get(BodyComponent);
-      const bodyB = contact.colliderB.owner.get(BodyComponent);
+      const bodyA = contact.bodyA;
+      const bodyB = contact.bodyB;
 
       if (bodyA && bodyB) {
         // Skip post solve for active+passive collisions
@@ -214,8 +215,8 @@ export class RealisticSolver implements CollisionSolver {
   warmStart(contacts: CollisionContact[]) {
     for (let i = 0; i < contacts.length; i++) {
       const contact = contacts[i];
-      const bodyA = contact.colliderA.owner?.get(BodyComponent);
-      const bodyB = contact.colliderB.owner?.get(BodyComponent);
+      const bodyA = contact.bodyA;
+      const bodyB = contact.bodyB;
       if (bodyA && bodyB) {
         const contactPoints = this.idToContactConstraint.get(contact.id) ?? [];
         for (const point of contactPoints) {
@@ -243,8 +244,8 @@ export class RealisticSolver implements CollisionSolver {
     for (let i = 0; i < this.config.positionIterations; i++) {
       for (let i = 0; i < contacts.length; i++) {
         const contact = contacts[i];
-        const bodyA = contact.colliderA.owner?.get(BodyComponent);
-        const bodyB = contact.colliderB.owner?.get(BodyComponent);
+        const bodyA = contact.bodyA;
+        const bodyB = contact.bodyB;
 
         if (bodyA && bodyB) {
           // Skip solving active+passive
@@ -308,8 +309,8 @@ export class RealisticSolver implements CollisionSolver {
     for (let i = 0; i < this.config.velocityIterations; i++) {
       for (let i = 0; i < contacts.length; i++) {
         const contact = contacts[i];
-        const bodyA = contact.colliderA.owner?.get(BodyComponent);
-        const bodyB = contact.colliderB.owner?.get(BodyComponent);
+        const bodyA = contact.bodyA;
+        const bodyB = contact.bodyB;
 
         if (bodyA && bodyB) {
           // Skip solving active+passive

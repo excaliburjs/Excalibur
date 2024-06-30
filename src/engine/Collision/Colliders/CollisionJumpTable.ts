@@ -292,9 +292,9 @@ export const CollisionJumpTable = {
 
   FindContactSeparation(contact: CollisionContact, localPoint: Vector) {
     const shapeA = contact.colliderA;
-    const txA = contact.colliderA.owner?.get(TransformComponent) ?? new TransformComponent();
+    const txA = contact.bodyA?.transform ?? new TransformComponent();
     const shapeB = contact.colliderB;
-    const txB = contact.colliderB.owner?.get(TransformComponent) ?? new TransformComponent();
+    const txB = contact.bodyB?.transform ?? new TransformComponent();
 
     // both are circles
     if (shapeA instanceof CircleCollider && shapeB instanceof CircleCollider) {
