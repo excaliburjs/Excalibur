@@ -33,20 +33,21 @@ export module Side {
   }
 
   /**
-   * Given a vector, return the Side most in that direction (via dot product)
+   * Given a vector, return the Side most in that direction
    */
   export function fromDirection(direction: Vector): Side {
-    const directions = [Vector.Left, Vector.Right, Vector.Up, Vector.Down];
-    const directionEnum = [Side.Left, Side.Right, Side.Top, Side.Bottom];
-
-    let max = -Number.MAX_VALUE;
-    let maxIndex = -1;
-    for (let i = 0; i < directions.length; i++) {
-      if (directions[i].dot(direction) > max) {
-        max = directions[i].dot(direction);
-        maxIndex = i;
+    if (Math.abs(direction.x) >= Math.abs(direction.y)) {
+      if (direction.x <= 0) {
+        return Side.Left;
       }
+
+      return Side.Right;
     }
-    return directionEnum[maxIndex];
+
+    if (direction.y <= 0) {
+      return Side.Top;
+    }
+
+    return Side.Bottom;
   }
 }

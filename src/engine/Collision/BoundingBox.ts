@@ -274,45 +274,45 @@ export class BoundingBox {
    */
   public rayCast(ray: Ray, farClipDistance = Infinity): boolean {
     // algorithm from https://tavianator.com/fast-branchless-raybounding-box-intersections/
-    let tmin = -Infinity;
-    let tmax = +Infinity;
+    let tMin = -Infinity;
+    let tMax = +Infinity;
 
-    const xinv = ray.dir.x === 0 ? Number.MAX_VALUE : 1 / ray.dir.x;
-    const yinv = ray.dir.y === 0 ? Number.MAX_VALUE : 1 / ray.dir.y;
+    const xInv = ray.dir.x === 0 ? Number.MAX_VALUE : 1 / ray.dir.x;
+    const yInv = ray.dir.y === 0 ? Number.MAX_VALUE : 1 / ray.dir.y;
 
-    const tx1 = (this.left - ray.pos.x) * xinv;
-    const tx2 = (this.right - ray.pos.x) * xinv;
-    tmin = Math.min(tx1, tx2);
-    tmax = Math.max(tx1, tx2);
+    const tx1 = (this.left - ray.pos.x) * xInv;
+    const tx2 = (this.right - ray.pos.x) * xInv;
+    tMin = Math.min(tx1, tx2);
+    tMax = Math.max(tx1, tx2);
 
-    const ty1 = (this.top - ray.pos.y) * yinv;
-    const ty2 = (this.bottom - ray.pos.y) * yinv;
-    tmin = Math.max(tmin, Math.min(ty1, ty2));
-    tmax = Math.min(tmax, Math.max(ty1, ty2));
+    const ty1 = (this.top - ray.pos.y) * yInv;
+    const ty2 = (this.bottom - ray.pos.y) * yInv;
+    tMin = Math.max(tMin, Math.min(ty1, ty2));
+    tMax = Math.min(tMax, Math.max(ty1, ty2));
 
-    return tmax >= Math.max(0, tmin) && tmin < farClipDistance;
+    return tMax >= Math.max(0, tMin) && tMin < farClipDistance;
   }
 
   public rayCastTime(ray: Ray, farClipDistance = Infinity): number {
     // algorithm from https://tavianator.com/fast-branchless-raybounding-box-intersections/
-    let tmin = -Infinity;
-    let tmax = +Infinity;
+    let tMin = -Infinity;
+    let tMax = +Infinity;
 
-    const xinv = ray.dir.x === 0 ? Number.MAX_VALUE : 1 / ray.dir.x;
-    const yinv = ray.dir.y === 0 ? Number.MAX_VALUE : 1 / ray.dir.y;
+    const xInv = ray.dir.x === 0 ? Number.MAX_VALUE : 1 / ray.dir.x;
+    const yInv = ray.dir.y === 0 ? Number.MAX_VALUE : 1 / ray.dir.y;
 
-    const tx1 = (this.left - ray.pos.x) * xinv;
-    const tx2 = (this.right - ray.pos.x) * xinv;
-    tmin = Math.min(tx1, tx2);
-    tmax = Math.max(tx1, tx2);
+    const tx1 = (this.left - ray.pos.x) * xInv;
+    const tx2 = (this.right - ray.pos.x) * xInv;
+    tMin = Math.min(tx1, tx2);
+    tMax = Math.max(tx1, tx2);
 
-    const ty1 = (this.top - ray.pos.y) * yinv;
-    const ty2 = (this.bottom - ray.pos.y) * yinv;
-    tmin = Math.max(tmin, Math.min(ty1, ty2));
-    tmax = Math.min(tmax, Math.max(ty1, ty2));
+    const ty1 = (this.top - ray.pos.y) * yInv;
+    const ty2 = (this.bottom - ray.pos.y) * yInv;
+    tMin = Math.max(tMin, Math.min(ty1, ty2));
+    tMax = Math.min(tMax, Math.max(ty1, ty2));
 
-    if (tmax >= Math.max(0, tmin) && tmin < farClipDistance) {
-      return tmin;
+    if (tMax >= Math.max(0, tMin) && tMin < farClipDistance) {
+      return tMin;
     }
     return -1;
   }

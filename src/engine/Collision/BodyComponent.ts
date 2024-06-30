@@ -1,4 +1,4 @@
-import { Vector } from '../Math/vector';
+import { vec, Vector } from '../Math/vector';
 import { CollisionType } from './CollisionType';
 import { Clonable } from '../Interfaces/Clonable';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
@@ -12,6 +12,7 @@ import { Transform } from '../Math/transform';
 import { EventEmitter } from '../EventEmitter';
 import { DefaultPhysicsConfig, PhysicsConfig } from './PhysicsConfig';
 import { DeepRequired } from '../Util/Required';
+import { Entity } from '../EntityComponentSystem';
 
 export interface BodyComponentOptions {
   type?: CollisionType;
@@ -255,12 +256,12 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     return this.globalPos;
   }
 
-  public get transform(): TransformComponent {
-    return this.owner?.get(TransformComponent);
-  }
+  public transform: TransformComponent;
+  public motion: MotionComponent;
 
-  public get motion(): MotionComponent {
-    return this.owner?.get(MotionComponent);
+  override onAdd(owner: Entity<any>): void {
+    this.transform = this.owner?.get(TransformComponent);
+    this.motion = this.owner?.get(MotionComponent);
   }
 
   public get pos(): Vector {
@@ -405,6 +406,8 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     this.motion.angularVelocity = value;
   }
 
+  private _impulseScratch = vec(0, 0);
+  private _distanceFromCenterScratch = vec(0, 0);
   /**
    * Apply a specific impulse to the body
    * @param point
@@ -415,18 +418,18 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
       return; // only active objects participate in the simulation
     }
 
-    const finalImpulse = impulse.scale(this.inverseMass);
-    if (this.limitDegreeOfFreedom.includes(DegreeOfFreedom.X)) {
+    const finalImpulse = impulse.scale(this.inverseMass, this._impulseScratch);
+    if (this.limitDegreeOfFreedom.indexOf(DegreeOfFreedom.X) > -1) {
       finalImpulse.x = 0;
     }
-    if (this.limitDegreeOfFreedom.includes(DegreeOfFreedom.Y)) {
+    if (this.limitDegreeOfFreedom.indexOf(DegreeOfFreedom.Y) > -1) {
       finalImpulse.y = 0;
     }
 
     this.vel.addEqual(finalImpulse);
 
     if (!this.limitDegreeOfFreedom.includes(DegreeOfFreedom.Rotation)) {
-      const distanceFromCenter = point.sub(this.globalPos);
+      const distanceFromCenter = point.sub(this.globalPos, this._distanceFromCenterScratch);
       this.angularVelocity += this.inverseInertia * distanceFromCenter.cross(impulse);
     }
   }

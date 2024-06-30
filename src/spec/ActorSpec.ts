@@ -18,7 +18,14 @@ describe('A game actor', () => {
   });
 
   beforeEach(async () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({
+      width: 100,
+      height: 100,
+      physics: {
+        solver: ex.SolverStrategy.Arcade,
+        gravity: ex.vec(0, 0)
+      }
+    });
     actor = new ex.Actor({ name: 'Default' });
     actor.body.collisionType = ex.CollisionType.Active;
     scene = new ex.Scene();
@@ -38,14 +45,12 @@ describe('A game actor', () => {
     clock.step(1);
     collisionSystem.initialize(scene.world, scene);
     scene.world.systemManager.get(ex.PointerSystem).initialize(scene.world, scene);
-
-    ex.Physics.useArcadePhysics();
-    ex.Physics.acc.setTo(0, 0);
   });
 
   afterEach(() => {
     engine.stop();
     engine.dispose();
+    actor = null;
     engine = null;
   });
 
@@ -919,7 +924,7 @@ describe('A game actor', () => {
   it('can recursively check containment', () => {
     const parent = new ex.Actor({ x: 0, y: 0, width: 100, height: 100 });
     const child = new ex.Actor({ x: 100, y: 100, width: 100, height: 100 });
-    const child2 = new ex.Actor({ x: 100, y: 100, width: 100, height: 100 });
+    const grandChild = new ex.Actor({ x: 100, y: 100, width: 100, height: 100 });
     parent.addChild(child);
 
     expect(parent.contains(150, 150)).toBeFalsy();
@@ -927,7 +932,7 @@ describe('A game actor', () => {
     expect(parent.contains(150, 150, true)).toBeTruthy();
     expect(parent.contains(200, 200, true)).toBeFalsy();
 
-    child.addChild(child2);
+    child.addChild(grandChild);
     expect(parent.contains(250, 250, true)).toBeTruthy();
   });
 

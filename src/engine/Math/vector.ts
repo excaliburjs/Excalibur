@@ -265,8 +265,13 @@ export class Vector implements Clonable<Vector> {
    * Subtracts a vector from another, if you subtract vector `B.sub(A)` the resulting vector points from A -> B
    * @param v The vector to subtract
    */
-  public sub(v: Vector): Vector {
-    return new Vector(this.x - v.x, this.y - v.y);
+  public sub(v: Vector, dest?: Vector): Vector {
+    const result = dest || new Vector(0, 0);
+    const x = this.x - v.x;
+    const y = this.y - v.y;
+    result.x = x;
+    result.y = y;
+    return result;
   }
 
   /**
@@ -359,7 +364,8 @@ export class Vector implements Clonable<Vector> {
   /**
    * Rotates the current vector around a point by a certain angle in radians.
    */
-  public rotate(angle: number, anchor?: Vector): Vector {
+  public rotate(angle: number, anchor?: Vector, dest?: Vector): Vector {
+    const result = dest || new Vector(0, 0);
     if (!anchor) {
       anchor = new Vector(0, 0);
     }
@@ -367,7 +373,9 @@ export class Vector implements Clonable<Vector> {
     const cosAngle = Math.cos(angle);
     const x = cosAngle * (this.x - anchor.x) - sinAngle * (this.y - anchor.y) + anchor.x;
     const y = sinAngle * (this.x - anchor.x) + cosAngle * (this.y - anchor.y) + anchor.y;
-    return new Vector(x, y);
+    result.x = x;
+    result.y = y;
+    return result;
   }
 
   /**

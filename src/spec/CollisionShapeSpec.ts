@@ -562,7 +562,7 @@ describe('Collision Shape', () => {
       const contact = polyA.collide(polyB)[0];
 
       // there should be a collision
-      expect(contact).not.toBe(null);
+      expect(contact).withContext('there should be a collision').not.toBeFalsy();
 
       // normal and mtv should point away from bodyA
       expect(directionOfBodyB.dot(contact.mtv)).toBeGreaterThan(0);
@@ -574,7 +574,7 @@ describe('Collision Shape', () => {
       expect(contact.normal.y).toBeCloseTo(0, 0.01);
     });
 
-    it('can collide when the transform changes the winding', () => {
+    it('can collide when the transform changes the winding (mirrored)', () => {
       const polyA = new ex.PolygonCollider({
         offset: ex.Vector.Zero.clone(),
         // specified relative to the position
@@ -586,10 +586,9 @@ describe('Collision Shape', () => {
         points: [new ex.Vector(-10, -10), new ex.Vector(10, -10), new ex.Vector(10, 10), new ex.Vector(-10, 10)]
       });
 
-      const transform = new ex.Transform();
-      transform.scale = ex.vec(-1, 1);
-
-      polyA.update(transform);
+      const mirrorTransform = new ex.Transform();
+      mirrorTransform.scale = ex.vec(-1, 1);
+      polyA.update(mirrorTransform);
 
       const directionOfBodyB = polyB.center.sub(polyA.center);
 

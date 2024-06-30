@@ -11,7 +11,7 @@ describe('A Sparse Hash Grid Broadphase', () => {
     actorA.body.collisionType = ex.CollisionType.Active;
     actorA.collider.update();
 
-    actorB = new ex.Actor({ x: 20, y: 0, width: 20, height: 20 });
+    actorB = new ex.Actor({ x: 10, y: 0, width: 20, height: 20 });
     actorB.collider.useCircleCollider(10);
     actorB.body.collisionType = ex.CollisionType.Active;
     actorB.collider.update();
@@ -77,7 +77,7 @@ describe('A Sparse Hash Grid Broadphase', () => {
 
     const colliders = dt.query(actorA.collider.bounds);
 
-    expect(colliders.length).toBe(1);
+    expect(colliders.length).toBe(2);
   });
 
   it('can rayCast with default options, only 1 hit is returned, searches all groups', () => {

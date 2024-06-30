@@ -14,6 +14,7 @@ import { BodyComponent } from './BodyComponent';
 import { PhysicsConfig } from './PhysicsConfig';
 import { watchDeep } from '../Util/Watch';
 import { Vector } from '../Math/vector';
+import { SpatialPartitionStrategy } from './Detection/SpatialPartitionStrategy';
 
 export class PhysicsWorld {
   $configUpdate = new Observable<DeepRequired<PhysicsConfig>>();
@@ -39,8 +40,8 @@ export class PhysicsWorld {
       this._configDirty = false;
       // preserve tracked colliders if config updates
       const colliders = this._collisionProcessor.getColliders();
-      if (this._config.spatialPartition.type === 'sparse-hash-grid') {
-        this._collisionProcessor = new SparseHashGridCollisionProcessor(this._config.spatialPartition);
+      if (this._config.spatialPartition === SpatialPartitionStrategy.SparseHashGrid) {
+        this._collisionProcessor = new SparseHashGridCollisionProcessor(this._config.sparseHashGrid);
       } else {
         this._collisionProcessor = new DynamicTreeCollisionProcessor(this._config);
       }
@@ -56,8 +57,8 @@ export class PhysicsWorld {
       this._configDirty = true;
       BodyComponent.updateDefaultPhysicsConfig(config.bodies);
     });
-    if (this._config.spatialPartition.type === 'sparse-hash-grid') {
-      this._collisionProcessor = new SparseHashGridCollisionProcessor(this._config.spatialPartition);
+    if (this._config.spatialPartition === SpatialPartitionStrategy.SparseHashGrid) {
+      this._collisionProcessor = new SparseHashGridCollisionProcessor(this._config.sparseHashGrid);
     } else {
       this._collisionProcessor = new DynamicTreeCollisionProcessor(this._config);
     }

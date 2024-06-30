@@ -3,9 +3,9 @@ import { DeepRequired } from '../Util/Required';
 import { SolverStrategy } from './SolverStrategy';
 import { Physics } from './Physics';
 import { ContactSolveBias } from './Solver/ContactBias';
+import { SpatialPartitionStrategy } from './Detection/SpatialPartitionStrategy';
 
 export interface DynamicTreeConfig {
-  type: 'dynamic-tree';
   /**
    * Pad collider BoundingBox by a constant amount for purposes of potential pairs
    *
@@ -22,7 +22,6 @@ export interface DynamicTreeConfig {
 }
 
 export interface SparseHashGridConfig {
-  type: 'sparse-hash-grid';
   /**
    * Size of the grid cells, default is 100x100 pixels.
    *
@@ -147,7 +146,9 @@ export interface PhysicsConfig {
   /**
    * Configure the spatial data structure for locating pairs and raycasts
    */
-  spatialPartition?: DynamicTreeConfig | SparseHashGridConfig;
+  spatialPartition?: SpatialPartitionStrategy;
+  sparseHashGrid?: SparseHashGridConfig;
+  dynamicTree?: DynamicTreeConfig;
 
   /**
    * Configure the [[ArcadeSolver]]
@@ -228,15 +229,14 @@ export const DefaultPhysicsConfig: DeepRequired<PhysicsConfig> = {
     sleepBias: 0.9,
     defaultMass: 10
   },
-  spatialPartition: {
-    type: 'sparse-hash-grid',
+  spatialPartition: SpatialPartitionStrategy.SparseHashGrid,
+  sparseHashGrid: {
     size: 100
   },
-  // {
-  //   type: 'dynamic-tree',
-  //   boundsPadding: 5,
-  //   velocityMultiplier: 2
-  // },
+  dynamicTree: {
+    boundsPadding: 5,
+    velocityMultiplier: 2
+  },
   arcade: {
     contactSolveBias: ContactSolveBias.None
   },
@@ -272,12 +272,13 @@ export function DeprecatedStaticToConfig(): DeepRequired<PhysicsConfig> {
       sleepBias: Physics.sleepBias,
       defaultMass: Physics.defaultMass
     },
-    spatialPartition: {
-      type: 'sparse-hash-grid',
+    spatialPartition: SpatialPartitionStrategy.SparseHashGrid,
+    sparseHashGrid: {
       size: 100
-      // type: 'dynamic-tree',
-      // boundsPadding: Physics.boundsPadding,
-      // velocityMultiplier: Physics.dynamicTreeVelocityMultiplier
+    },
+    dynamicTree: {
+      boundsPadding: Physics.boundsPadding,
+      velocityMultiplier: Physics.dynamicTreeVelocityMultiplier
     },
     arcade: {
       contactSolveBias: ContactSolveBias.None

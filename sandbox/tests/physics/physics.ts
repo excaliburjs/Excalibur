@@ -3,7 +3,15 @@
 var game = new ex.Engine({
   width: 600,
   height: 400,
-  fixedUpdateFps: 60
+  fixedUpdateFps: 60,
+  physics: {
+    solver: ex.SolverStrategy.Realistic,
+    spatialPartition: ex.SpatialPartitionStrategy.SparseHashGrid,
+    bodies: {
+      canSleepByDefault: true
+    },
+    gravity: ex.vec(0, 100)
+  }
 });
 game.backgroundColor = ex.Color.Black;
 
@@ -14,10 +22,6 @@ game.debug.collider.showGeometry = true;
 game.debug.collider.showBounds = true;
 game.debug.motion.showAll = true;
 game.debug.body.showMotion = true;
-
-ex.Physics.collisionResolutionStrategy = ex.SolverStrategy.Realistic;
-ex.Physics.bodiesCanSleepByDefault = true;
-ex.Physics.gravity = ex.vec(0, 100);
 
 var globalRotation = 0;
 function spawnBlock(x: number, y: number) {

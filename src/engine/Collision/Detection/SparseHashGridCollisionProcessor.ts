@@ -106,6 +106,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
       size: this.gridSize,
       proxyFactory: (collider, size) => new HashColliderProxy(collider, size)
     });
+    this._pairPool.disableWarnings = true;
 
     // TODO dynamic grid size potentially larger than the largest collider
     // TODO Re-hash the objects if the median proves to be different
@@ -333,7 +334,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
           if (this._nonPairs.has(id)) {
             continue; // Is there a way we can re-use the non-pair cache
           }
-          if (!this._pairs.has(id) && this._canCollide(proxy, other)) {
+          if (!this._pairs.has(id) && this._canCollide(proxy, other) && proxy.object.bounds.overlaps(other.object.bounds)) {
             const pair = this._pairPool.get();
             pair.colliderA = proxy.collider;
             pair.colliderB = other.collider;
@@ -355,12 +356,13 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
    * @param stats
    */
   narrowphase(pairs: Pair[], stats?: FrameStats): CollisionContact[] {
-    let contacts: CollisionContact[] = [];
+    const contacts: CollisionContact[] = [];
     for (let i = 0; i < pairs.length; i++) {
       const newContacts = pairs[i].collide();
-      contacts = contacts.concat(newContacts);
-      if (stats && newContacts.length > 0) {
-        for (const c of newContacts) {
+      for (let j = 0; j < newContacts.length; j++) {
+        const c = newContacts[j];
+        contacts.push(c);
+        if (stats) {
           stats.physics.contacts.set(c.id, c);
         }
       }
@@ -374,8 +376,6 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
 
   /**
    * Perform data structure maintenance, returns number of colliders updated
-   *
-   *
    */
   update(targets: Collider[], delta: number): number {
     return this.hashGrid.update(targets);

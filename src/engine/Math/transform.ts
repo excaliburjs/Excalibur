@@ -1,5 +1,5 @@
 import { AffineMatrix } from './affine-matrix';
-import { canonicalizeAngle } from './util';
+import { canonicalizeAngle, sign } from './util';
 import { vec, Vector } from './vector';
 import { VectorView } from './vector-view';
 import { WatchVector } from './watch-vector';
@@ -183,7 +183,13 @@ export class Transform {
   private _matrix = AffineMatrix.identity();
   private _inverse = AffineMatrix.identity();
 
-  public get matrix() {
+  /**
+   * Calculates and returns the matrix representation of this transform
+   *
+   * Avoid mutating the matrix to update the transform, it is not the source of truth.
+   * Update the transform pos, rotation, scale.
+   */
+  public get matrix(): AffineMatrix {
     if (this._isDirty) {
       if (this.parent === null) {
         this._calculateMatrix().clone(this._matrix);
@@ -195,7 +201,10 @@ export class Transform {
     return this._matrix;
   }
 
-  public get inverse() {
+  /**
+   * Calculates and returns the inverse matrix representation of this transform
+   */
+  public get inverse(): AffineMatrix {
     if (this._isInverseDirty) {
       this.matrix.inverse(this._inverse);
       this._isInverseDirty = false;
@@ -241,11 +250,21 @@ export class Transform {
   }
 
   /**
+   * Returns true if the transform has a negative x scale or y scale, but not both
+   */
+  public isMirrored(): boolean {
+    const signBitX = sign(this.scale.x) >>> 31;
+    const signBitY = sign(this.scale.y) >>> 31;
+    const mirrored = signBitX ^ signBitY;
+    return !!mirrored;
+  }
+
+  /**
    * Clones the current transform
    * **Warning does not clone the parent**
    * @param dest
    */
-  public clone(dest?: Transform) {
+  public clone(dest?: Transform): Transform {
     const target = dest ?? new Transform();
     this._pos.clone(target._pos);
     target._z = this._z;
@@ -253,5 +272,23 @@ export class Transform {
     this._scale.clone(target._scale);
     target.flagDirty();
     return target;
+  }
+
+  /**
+   * Clones but keeps the same parent reference
+   */
+  public cloneWithParent(dest?: Transform): Transform {
+    const target = dest ?? new Transform();
+    this._pos.clone(target._pos);
+    target._z = this._z;
+    target._rotation = this._rotation;
+    this._scale.clone(target._scale);
+    target.parent = this.parent;
+    target.flagDirty();
+    return target;
+  }
+
+  public toString(): string {
+    return this.matrix.toString();
   }
 }
