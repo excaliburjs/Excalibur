@@ -18,7 +18,14 @@ describe('A game actor', () => {
   });
 
   beforeEach(async () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({
+      width: 100,
+      height: 100,
+      physics: {
+        solver: ex.SolverStrategy.Arcade,
+        gravity: ex.vec(0, 0)
+      }
+    });
     actor = new ex.Actor({ name: 'Default' });
     actor.body.collisionType = ex.CollisionType.Active;
     scene = new ex.Scene();
@@ -38,14 +45,12 @@ describe('A game actor', () => {
     clock.step(1);
     collisionSystem.initialize(scene.world, scene);
     scene.world.systemManager.get(ex.PointerSystem).initialize(scene.world, scene);
-
-    ex.Physics.useArcadePhysics();
-    ex.Physics.acc.setTo(0, 0);
   });
 
   afterEach(() => {
     engine.stop();
     engine.dispose();
+    actor = null;
     engine = null;
   });
 

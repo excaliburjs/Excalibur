@@ -146,7 +146,9 @@ export class CollisionSystem extends System {
         collider.processColliderRemoval();
       }
     }
+  }
 
+  postupdate(): void {
     SeparatingAxis.SeparationPool.done();
   }
 
