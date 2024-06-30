@@ -3,6 +3,13 @@
 ###############################################################################
 * text=auto
 
+*.ts text
+*.js text
+*.yml text
+*.html text
+*.json text
+.prettierrc text
+
 ###############################################################################
 # Set default behavior for command prompt diff.
 #
