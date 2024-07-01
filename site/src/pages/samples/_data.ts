@@ -9,8 +9,16 @@ import sampleGrid from './images/grid.gif'
 import sampleTactics from './images/tinytactics-small.gif'
 import sampleHtml from './images/html.gif'
 import samplePathfinding from './images/pathfinding.gif'
+import sampleJellyJumper from './images/jelly-jumper.gif'
 
 export default [
+  {
+    title: 'Jelly Jumper',
+    image: sampleJellyJumper,
+    description: 'High fidelity sample of a platforming game with jump physics inspired by Super Mario World!',
+    url: 'https://excaliburjs.com/sample-jelly-jumper',
+    source: 'https://github.com/excaliburjs/sample-jelly-jumper',
+  },
   {
     title: 'Pathfinding',
     image: samplePathfinding,
