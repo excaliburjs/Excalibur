@@ -144,7 +144,7 @@
     "webpack-cli": "5.1.4"
   },
   "dependencies": {
-    "core-js": "3.36.1"
+    "core-js": "3.37.1"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,html,json,md,yml,yaml}": "prettier --write",
