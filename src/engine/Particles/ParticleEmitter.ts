@@ -151,8 +151,8 @@ export class ParticleEmitter extends Actor {
       opacity: this.particle.opacity,
       beginColor: this.particle.beginColor,
       endColor: this.particle.endColor,
-      pos: new Vector(ranX, ranY),
-      vel: new Vector(dx, dy),
+      pos: vec(ranX, ranY),
+      vel: vec(dx, dy),
       acc: this.particle.acc,
       angularVelocity: this.particle.angularVelocity,
       startSize: this.particle.startSize,
@@ -166,7 +166,7 @@ export class ParticleEmitter extends Actor {
       p.transform.rotation = randomInRange(0, Math.PI * 2, this.random);
     }
     if (this.focus) {
-      p.focus = this.focus.add(new Vector(this.pos.x, this.pos.y));
+      p.focus = this.focus.add(vec(this.pos.x, this.pos.y));
       p.focusAccel = this.focusAccel;
     }
     return p;
