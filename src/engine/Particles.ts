@@ -111,6 +111,7 @@ export class Particle extends Entity {
     }
     if (this.graphic) {
       this.graphics.use(this.graphic);
+      this.graphics.onPostDraw = undefined;
     } else {
       this.graphics.localBounds = BoundingBox.fromDimension(this.size, this.size, Vector.Half);
       this.graphics.onPostDraw = (ctx) => {
