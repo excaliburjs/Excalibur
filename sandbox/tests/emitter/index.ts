@@ -18,26 +18,28 @@ actor.actions.repeatForever((ctx) => {
 var emitter = new ex.ParticleEmitter({
   width: 10,
   height: 10,
-  emitterType: ex.EmitterType.Rectangle,
-  particleTransform: ex.ParticleTransform.Global,
   radius: 5,
-  minVel: 100,
-  maxVel: 200,
-  minAngle: 5.1,
-  maxAngle: 6.2,
+  emitterType: ex.EmitterType.Rectangle,
   emitRate: 300,
-  opacity: 0.5,
-  fadeFlag: true,
-  particleLife: 1000,
-  maxSize: 10,
-  minSize: 1,
-  startSize: 5,
-  endSize: 100,
-  acceleration: ex.vec(10, 80),
-  beginColor: ex.Color.Chartreuse,
-  endColor: ex.Color.Magenta
+  isEmitting: true,
+  particle: {
+    transform: ex.ParticleTransform.Global,
+    opacity: 0.5,
+    life: 1000,
+    acc: ex.vec(10, 80),
+    beginColor: ex.Color.Chartreuse,
+    endColor: ex.Color.Magenta,
+    startSize: 5,
+    endSize: 100,
+    minVel: 100,
+    maxVel: 200,
+    minAngle: 5.1,
+    maxAngle: 6.2,
+    fade: true,
+    maxSize: 10,
+    minSize: 1
+  }
 });
-emitter.isEmitting = true;
 
 game.start();
 game.add(actor);

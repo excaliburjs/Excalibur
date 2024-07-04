@@ -1,14 +1,18 @@
 import { Engine } from './Engine';
 import { Actor } from './Actor';
-import { Color } from './Color';
 import { Vector, vec } from './Math/vector';
-import * as Util from './Util/Util';
 import { Random } from './Math/Random';
 import { CollisionType } from './Collision/CollisionType';
 import { randomInRange } from './Math/util';
-import { Graphic } from './Graphics';
 import { EmitterType } from './EmitterType';
-import { Particle, ParticleTransform, ParticleEmitterArgs } from './Particles';
+import { Particle, ParticleTransform, ParticleEmitterArgs, ParticleConfig } from './Particles';
+import { RentalPool } from './Util/RentalPool';
+
+export const ParticlePool = new RentalPool(
+  () => new Particle({}),
+  (p) => p,
+  2000
+);
 
 /**
  * Using a particle emitter is a great way to create interesting effects
@@ -29,10 +33,6 @@ export class ParticleEmitter extends Actor {
    * Gets or sets the isEmitting flag
    */
   public isEmitting: boolean = true;
-  /**
-   * Gets or sets the backing particle collection
-   */
-  public particles: Particle[] = [];
 
   /**
    * Gets or sets the backing deadParticle collection
@@ -40,52 +40,9 @@ export class ParticleEmitter extends Actor {
   public deadParticles: Particle[] = [];
 
   /**
-   * Gets or sets the minimum particle velocity
-   */
-  public minVel: number = 0;
-  /**
-   * Gets or sets the maximum particle velocity
-   */
-  public maxVel: number = 0;
-
-  /**
-   * Gets or sets the acceleration vector for all particles
-   */
-  public acceleration: Vector = new Vector(0, 0);
-
-  /**
-   * Gets or sets the minimum angle in radians
-   */
-  public minAngle: number = 0;
-  /**
-   * Gets or sets the maximum angle in radians
-   */
-  public maxAngle: number = 0;
-
-  /**
    * Gets or sets the emission rate for particles (particles/sec)
    */
   public emitRate: number = 1; //particles/sec
-  /**
-   * Gets or sets the life of each particle in milliseconds
-   */
-  public particleLife: number = 2000;
-  /**
-   * Gets the opacity of each particle from 0 to 1.0
-   */
-  public get opacity(): number {
-    return this.graphics.opacity;
-  }
-  /**
-   * Gets the opacity of each particle from 0 to 1.0
-   */
-  public set opacity(opacity: number) {
-    this.graphics.opacity = opacity;
-  }
-  /**
-   * Gets or sets the fade flag which causes particles to gradually fade out over the course of their life.
-   */
-  public fadeFlag: boolean = false;
 
   /**
    * Gets or sets the optional focus where all particles should accelerate towards
@@ -95,46 +52,6 @@ export class ParticleEmitter extends Actor {
    * Gets or sets the acceleration for focusing particles if a focus has been specified
    */
   public focusAccel: number = null;
-  /**
-   * Gets or sets the optional starting size for the particles
-   */
-  public startSize: number = null;
-  /**
-   * Gets or sets the optional ending size for the particles
-   */
-  public endSize: number = null;
-
-  /**
-   * Gets or sets the minimum size of all particles
-   */
-  public minSize: number = 5;
-  /**
-   * Gets or sets the maximum size of all particles
-   */
-  public maxSize: number = 5;
-
-  /**
-   * Gets or sets the beginning color of all particles
-   */
-  public beginColor: Color = Color.White;
-  /**
-   * Gets or sets the ending color of all particles
-   */
-  public endColor: Color = Color.White;
-
-  private _sprite: Graphic = null;
-  /**
-   * Gets or sets the sprite that a particle should use
-   */
-  public get particleSprite(): Graphic {
-    return this._sprite;
-  }
-
-  public set particleSprite(val: Graphic) {
-    if (val) {
-      this._sprite = val;
-    }
-  }
 
   /**
    * Gets or sets the emitter type for the particle emitter
@@ -147,23 +64,20 @@ export class ParticleEmitter extends Actor {
   public radius: number = 0;
 
   /**
-   * Gets or sets the particle rotational speed velocity
-   */
-  public particleRotationalVelocity: number = 0;
-
-  /**
    * Indicates whether particles should start with a random rotation
    */
   public randomRotation: boolean = false;
 
-  /**
-   * Gets or sets the emitted particle transform style, [[ParticleTransform.Global]] is the default and emits particles as if
-   * they were world space objects, useful for most effects.
-   *
-   * If set to [[ParticleTransform.Local]] particles are children of the emitter and move relative to the emitter
-   * as they would in a parent/child actor relationship.
-   */
-  public particleTransform: ParticleTransform = ParticleTransform.Global;
+  public particle: ParticleConfig = {
+    /**
+     * Gets or sets the life of each particle in milliseconds
+     */
+    life: 2000,
+    transform: ParticleTransform.Global,
+    graphic: null,
+    opacity: 1,
+    angularVelocity: 0
+  };
 
   /**
    * @param config particle emitter options bag
@@ -171,64 +85,19 @@ export class ParticleEmitter extends Actor {
   constructor(config: ParticleEmitterArgs) {
     super({ width: config.width ?? 0, height: config.height ?? 0 });
 
-    const {
-      x,
-      y,
-      z,
-      pos,
-      isEmitting,
-      minVel,
-      maxVel,
-      acceleration,
-      minAngle,
-      maxAngle,
-      emitRate,
-      particleLife,
-      opacity,
-      fadeFlag,
-      focus,
-      focusAccel,
-      startSize,
-      endSize,
-      minSize,
-      maxSize,
-      beginColor,
-      endColor,
-      particleSprite,
-      emitterType,
-      radius,
-      particleRotationalVelocity,
-      particleTransform,
-      randomRotation,
-      random
-    } = { ...config };
+    const { particle, x, y, z, pos, isEmitting, emitRate, focus, focusAccel, emitterType, radius, randomRotation, random } = { ...config };
+
+    this.particle = { ...this.particle, ...particle };
 
     this.pos = pos ?? vec(x ?? 0, y ?? 0);
     this.z = z ?? 0;
     this.isEmitting = isEmitting ?? this.isEmitting;
-    this.minVel = minVel ?? this.minVel;
-    this.maxVel = maxVel ?? this.maxVel;
-    this.acceleration = acceleration ?? this.acceleration;
-    this.minAngle = minAngle ?? this.minAngle;
-    this.maxAngle = maxAngle ?? this.maxAngle;
     this.emitRate = emitRate ?? this.emitRate;
-    this.particleLife = particleLife ?? this.particleLife;
-    this.opacity = opacity ?? this.opacity;
-    this.fadeFlag = fadeFlag ?? this.fadeFlag;
     this.focus = focus ?? this.focus;
     this.focusAccel = focusAccel ?? this.focusAccel;
-    this.startSize = startSize ?? this.startSize;
-    this.endSize = endSize ?? this.endSize;
-    this.minSize = minSize ?? this.minSize;
-    this.maxSize = maxSize ?? this.maxSize;
-    this.beginColor = beginColor ?? this.beginColor;
-    this.endColor = endColor ?? this.endColor;
-    this.particleSprite = particleSprite ?? this.particleSprite;
     this.emitterType = emitterType ?? this.emitterType;
     this.radius = radius ?? this.radius;
-    this.particleRotationalVelocity = particleRotationalVelocity ?? this.particleRotationalVelocity;
     this.randomRotation = randomRotation ?? this.randomRotation;
-    this.particleTransform = particleTransform ?? this.particleTransform;
 
     this.body.collisionType = CollisionType.PreventCollision;
 
@@ -246,9 +115,8 @@ export class ParticleEmitter extends Actor {
   public emitParticles(particleCount: number) {
     for (let i = 0; i < particleCount; i++) {
       const p = this._createParticle();
-      this.particles.push(p);
       if (this?.scene?.world) {
-        if (this.particleTransform === ParticleTransform.Global) {
+        if (this.particle.transform === ParticleTransform.Global) {
           this.scene.world.add(p);
         } else {
           this.addChild(p);
@@ -257,19 +125,14 @@ export class ParticleEmitter extends Actor {
     }
   }
 
-  public clearParticles() {
-    this.particles.length = 0;
-  }
-
   // Creates a new particle given the constraints of the emitter
   private _createParticle(): Particle {
-    // todo implement emitter constraints;
     let ranX = 0;
     let ranY = 0;
 
-    const angle = randomInRange(this.minAngle, this.maxAngle, this.random);
-    const vel = randomInRange(this.minVel, this.maxVel, this.random);
-    const size = this.startSize || randomInRange(this.minSize, this.maxSize, this.random);
+    const angle = randomInRange(this.particle.minAngle, this.particle.maxAngle, this.random);
+    const vel = randomInRange(this.particle.minVel, this.particle.maxVel, this.random);
+    const size = this.particle.startSize || randomInRange(this.particle.minSize, this.particle.maxSize, this.random);
     const dx = vel * Math.cos(angle);
     const dy = vel * Math.sin(angle);
 
@@ -282,24 +145,25 @@ export class ParticleEmitter extends Actor {
       ranY = radius * Math.sin(angle);
     }
 
-    const p = new Particle(
-      this,
-      this.particleLife,
-      this.opacity,
-      this.beginColor,
-      this.endColor,
-      new Vector(ranX, ranY),
-      new Vector(dx, dy),
-      this.acceleration,
-      this.startSize,
-      this.endSize,
-      this.particleSprite
-    );
-    p.fadeFlag = this.fadeFlag;
-    p.particleSize = size;
-    p.particleRotationalVelocity = this.particleRotationalVelocity;
+    const p = ParticlePool.rent();
+    p.configure({
+      life: this.particle.life,
+      opacity: this.particle.opacity,
+      beginColor: this.particle.beginColor,
+      endColor: this.particle.endColor,
+      pos: new Vector(ranX, ranY),
+      vel: new Vector(dx, dy),
+      acc: this.particle.acc,
+      angularVelocity: this.particle.angularVelocity,
+      startSize: this.particle.startSize,
+      endSize: this.particle.endSize,
+      size: size,
+      graphic: this.particle.graphic,
+      fade: this.particle.fade
+    });
+    p.registerEmitter(this);
     if (this.randomRotation) {
-      p.currentRotation = randomInRange(0, Math.PI * 2, this.random);
+      p.transform.rotation = randomInRange(0, Math.PI * 2, this.random);
     }
     if (this.focus) {
       p.focus = this.focus.add(new Vector(this.pos.x, this.pos.y));
@@ -321,9 +185,9 @@ export class ParticleEmitter extends Actor {
 
     // deferred removal
     for (let i = 0; i < this.deadParticles.length; i++) {
-      Util.removeItemFromArray(this.deadParticles[i], this.particles);
       if (this?.scene?.world) {
         this.scene.world.remove(this.deadParticles[i], false);
+        ParticlePool.return(this.deadParticles[i]);
       }
     }
     this.deadParticles.length = 0;
