@@ -85,22 +85,22 @@ export class GraphicsComponent extends Component {
   /**
    * Draws after the entity transform has been applied, but before graphics component graphics have been drawn
    */
-  public onPreDraw: (ctx: ExcaliburGraphicsContext, elapsedMilliseconds: number) => void;
+  public onPreDraw?: (ctx: ExcaliburGraphicsContext, elapsedMilliseconds: number) => void;
 
   /**
    * Draws after the entity transform has been applied, and after graphics component graphics has been drawn
    */
-  public onPostDraw: (ctx: ExcaliburGraphicsContext, elapsedMilliseconds: number) => void;
+  public onPostDraw?: (ctx: ExcaliburGraphicsContext, elapsedMilliseconds: number) => void;
 
   /**
    * Draws before the entity transform has been applied before any any graphics component drawing
    */
-  public onPreTransformDraw: (ctx: ExcaliburGraphicsContext, elapsedMilliseconds: number) => void;
+  public onPreTransformDraw?: (ctx: ExcaliburGraphicsContext, elapsedMilliseconds: number) => void;
 
   /**
    * Draws after the entity transform has been applied, and after all graphics component drawing
    */
-  public onPostTransformDraw: (ctx: ExcaliburGraphicsContext, elapsedMilliseconds: number) => void;
+  public onPostTransformDraw?: (ctx: ExcaliburGraphicsContext, elapsedMilliseconds: number) => void;
 
   /**
    * Sets or gets wether any drawing should be visible in this component
