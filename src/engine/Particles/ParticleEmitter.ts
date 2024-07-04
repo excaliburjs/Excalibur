@@ -1,12 +1,12 @@
-import { Engine } from './Engine';
-import { Actor } from './Actor';
-import { Vector, vec } from './Math/vector';
-import { Random } from './Math/Random';
-import { CollisionType } from './Collision/CollisionType';
-import { randomInRange } from './Math/util';
-import { EmitterType } from './EmitterType';
+import { Engine } from '../Engine';
+import { Actor } from '../Actor';
+import { Vector, vec } from '../Math/vector';
+import { Random } from '../Math/Random';
+import { CollisionType } from '../Collision/CollisionType';
+import { randomInRange } from '../Math/util';
+import { EmitterType } from '../EmitterType';
 import { Particle, ParticleTransform, ParticleEmitterArgs, ParticleConfig } from './Particles';
-import { RentalPool } from './Util/RentalPool';
+import { RentalPool } from '../Util/RentalPool';
 
 export const ParticlePool = new RentalPool(
   () => new Particle({}),
@@ -47,11 +47,11 @@ export class ParticleEmitter extends Actor {
   /**
    * Gets or sets the optional focus where all particles should accelerate towards
    */
-  public focus: Vector = null;
+  public focus?: Vector;
   /**
-   * Gets or sets the acceleration for focusing particles if a focus has been specified
+   * Gets or sets the optional acceleration for focusing particles if a focus has been specified
    */
-  public focusAccel: number = null;
+  public focusAccel?: number;
 
   /**
    * Gets or sets the emitter type for the particle emitter
@@ -74,7 +74,7 @@ export class ParticleEmitter extends Actor {
      */
     life: 2000,
     transform: ParticleTransform.Global,
-    graphic: null,
+    graphic: undefined,
     opacity: 1,
     angularVelocity: 0
   };
@@ -130,9 +130,9 @@ export class ParticleEmitter extends Actor {
     let ranX = 0;
     let ranY = 0;
 
-    const angle = randomInRange(this.particle.minAngle, this.particle.maxAngle, this.random);
-    const vel = randomInRange(this.particle.minVel, this.particle.maxVel, this.random);
-    const size = this.particle.startSize || randomInRange(this.particle.minSize, this.particle.maxSize, this.random);
+    const angle = randomInRange(this.particle.minAngle || 0, this.particle.maxAngle || Math.PI * 2, this.random);
+    const vel = randomInRange(this.particle.minVel || 0, this.particle.maxVel || 0, this.random);
+    const size = this.particle.startSize || randomInRange(this.particle.minSize || 5, this.particle.maxSize || 5, this.random);
     const dx = vel * Math.cos(angle);
     const dy = vel * Math.sin(angle);
 

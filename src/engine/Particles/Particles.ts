@@ -1,16 +1,16 @@
-import { Engine } from './Engine';
-import { Color } from './Color';
-import { Vector, vec } from './Math/vector';
-import { Random } from './Math/Random';
-import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
-import { GraphicsComponent } from './Graphics/GraphicsComponent';
-import { Entity } from './EntityComponentSystem/Entity';
-import { BoundingBox } from './Collision/BoundingBox';
-import { clamp } from './Math/util';
-import { Graphic } from './Graphics';
-import { EmitterType } from './EmitterType';
-import { MotionComponent } from './EntityComponentSystem';
-import { EulerIntegrator } from './Collision/Integrator';
+import { Engine } from '../Engine';
+import { Color } from '../Color';
+import { Vector, vec } from '../Math/vector';
+import { Random } from '../Math/Random';
+import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
+import { GraphicsComponent } from '../Graphics/GraphicsComponent';
+import { Entity } from '../EntityComponentSystem/Entity';
+import { BoundingBox } from '../Collision/BoundingBox';
+import { clamp } from '../Math/util';
+import { Graphic } from '../Graphics';
+import { EmitterType } from '../EmitterType';
+import { MotionComponent } from '../EntityComponentSystem';
+import { EulerIntegrator } from '../Collision/Integrator';
 import type { ParticleEmitter } from './ParticleEmitter';
 
 /**
@@ -24,13 +24,13 @@ export class Particle extends Entity {
     life: 300,
     fade: false,
     size: 5,
-    graphic: null,
+    graphic: undefined,
     startSize: undefined,
     endSize: undefined
   };
 
-  public focus: Vector = null;
-  public focusAccel: number = 0;
+  public focus?: Vector;
+  public focusAccel?: number;
   public beginColor: Color = Color.White;
   public endColor: Color = Color.White;
 
@@ -46,10 +46,10 @@ export class Particle extends Entity {
   private _currentColor: Color = Color.White;
 
   public size: number = 5;
-  public graphic: Graphic = null;
+  public graphic?: Graphic;
 
-  public startSize: number;
-  public endSize: number;
+  public startSize?: number;
+  public endSize?: number;
   public sizeRate: number = 0;
 
   public visible = true;
@@ -68,7 +68,7 @@ export class Particle extends Entity {
     this.configure(options);
   }
 
-  private _emitter: ParticleEmitter;
+  private _emitter?: ParticleEmitter;
   registerEmitter(emitter: ParticleEmitter) {
     this._emitter = emitter;
     if (this.particleTransform === ParticleTransform.Global) {
@@ -139,7 +139,7 @@ export class Particle extends Entity {
       this.graphics.opacity = clamp(this._aRate * this.life, 0.0001, 1);
     }
 
-    if (this.startSize > 0 && this.endSize > 0) {
+    if (this.startSize && this.endSize && this.startSize > 0 && this.endSize > 0) {
       this.size = clamp(this.sizeRate * delta + this.size, Math.min(this.startSize, this.endSize), Math.max(this.startSize, this.endSize));
     }
 
@@ -153,7 +153,7 @@ export class Particle extends Entity {
       accel = this.focus
         .sub(this.transform.pos)
         .normalize()
-        .scale(this.focusAccel)
+        .scale(this.focusAccel || 0)
         .scale(delta / 1000);
     }
     // Update transform and motion based on Euler linear algebra
