@@ -18,6 +18,17 @@ import type { ParticleEmitter } from './ParticleEmitter';
  * Particle is used in a [[ParticleEmitter]]
  */
 export class Particle extends Entity {
+  public static DefaultConfig: ParticleConfig = {
+    beginColor: Color.White,
+    endColor: Color.White,
+    life: 300,
+    fade: false,
+    size: 5,
+    graphic: null,
+    startSize: undefined,
+    endSize: undefined
+  };
+
   public focus: Vector = null;
   public focusAccel: number = 0;
   public beginColor: Color = Color.White;
@@ -70,6 +81,7 @@ export class Particle extends Entity {
   configure(options: ParticleConfig) {
     this.particleTransform = options.transform ?? this.particleTransform;
     this.life = options.life ?? this.life;
+    this.fade = options.fade ?? this.fade;
     this.size = options.size ?? this.size;
     this.endColor = options.endColor ?? this.endColor.clone();
     this.beginColor = options.beginColor ?? this.beginColor.clone();
@@ -103,9 +115,7 @@ export class Particle extends Entity {
       this.graphics.localBounds = BoundingBox.fromDimension(this.size, this.size, Vector.Half);
       this.graphics.onPostDraw = (ctx) => {
         ctx.save();
-        const tmpColor = this._currentColor.clone();
-        tmpColor.a = 1;
-        ctx.debug.drawPoint(vec(0, 0), { color: tmpColor, size: this.size });
+        ctx.debug.drawPoint(vec(0, 0), { color: this._currentColor, size: this.size });
         ctx.restore();
       };
     }
@@ -135,7 +145,7 @@ export class Particle extends Entity {
     this._currentColor.r = clamp(this._currentColor.r + this._rRate * delta, 0, 255);
     this._currentColor.g = clamp(this._currentColor.g + this._gRate * delta, 0, 255);
     this._currentColor.b = clamp(this._currentColor.b + this._bRate * delta, 0, 255);
-    this._currentColor.a = clamp(this.graphics.opacity, 0.0001, 1);
+    this._currentColor.a = this.graphics.opacity;
 
     let accel = this.motion.acc;
     if (this.focus) {
