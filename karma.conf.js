@@ -70,7 +70,8 @@ module.exports = (config) => {
       // Excalibur logs / console logs suppressed when captureConsole = false;
       captureConsole: false,
       jasmine: {
-        random: true,
+        random: true, 
+        seed: 98733,// 53435 // 98733
         timeoutInterval: 70000 // needs to be bigger than no-activity
       }
     },
