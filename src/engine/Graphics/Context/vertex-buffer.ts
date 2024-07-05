@@ -49,13 +49,13 @@ export class VertexBuffer {
   constructor(options: VertexBufferOptions) {
     const { gl, size, type, data } = options;
     this._gl = gl;
-    this.buffer = this._gl.createBuffer();
+    this.buffer = this._gl.createBuffer()!;
     if (!data && !size) {
       throw Error('Must either provide data or a size to the VertexBuffer');
     }
 
     if (!data) {
-      this.bufferData = new Float32Array(size);
+      this.bufferData = new Float32Array(size!);
     } else {
       this.bufferData = data;
     }
@@ -95,6 +95,6 @@ export class VertexBuffer {
   dispose() {
     const gl = this._gl;
     gl.deleteBuffer(this.buffer);
-    this._gl = null;
+    this._gl = null as any;
   }
 }

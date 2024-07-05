@@ -186,7 +186,7 @@ export class Animation extends Graphic implements HasTick {
 
   public override get width(): number {
     const maybeFrame = this.currentFrame;
-    if (maybeFrame) {
+    if (maybeFrame && maybeFrame.graphic) {
       return Math.abs(maybeFrame.graphic.width * this.scale.x);
     }
     return 0;
@@ -194,7 +194,7 @@ export class Animation extends Graphic implements HasTick {
 
   public override get height(): number {
     const maybeFrame = this.currentFrame;
-    if (maybeFrame) {
+    if (maybeFrame && maybeFrame.graphic) {
       return Math.abs(maybeFrame.graphic.height * this.scale.y);
     }
     return 0;
@@ -512,7 +512,7 @@ export class Animation extends Graphic implements HasTick {
   }
 
   protected _drawImage(ctx: ExcaliburGraphicsContext, x: number, y: number) {
-    if (this.currentFrame) {
+    if (this.currentFrame && this.currentFrame.graphic) {
       this.currentFrame.graphic.draw(ctx, x, y);
     }
   }

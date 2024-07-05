@@ -27,8 +27,8 @@ export const ImageSourceAttributeConstants = {
 export class ImageSource implements Loadable<HTMLImageElement> {
   private _logger = Logger.getInstance();
   private _resource: Resource<Blob>;
-  public filtering: ImageFiltering;
-  public wrapping: ImageWrapConfiguration;
+  public filtering?: ImageFiltering;
+  public wrapping?: ImageWrapConfiguration;
 
   /**
    * The original size of the source image in pixels
@@ -44,7 +44,7 @@ export class ImageSource implements Loadable<HTMLImageElement> {
     return this.image.naturalHeight;
   }
 
-  private _src: string;
+  private _src?: string;
   /**
    * Returns true if the Texture is completely loaded and is ready
    * to be drawn.
@@ -86,10 +86,10 @@ export class ImageSource implements Loadable<HTMLImageElement> {
    * @param filtering {ImageFiltering} Optionally override the image filtering set by [[EngineOptions.antialiasing]]
    */
   constructor(path: string, bustCache: boolean, filtering?: ImageFiltering);
-  constructor(path: string, bustCacheOrOptions: boolean | ImageSourceOptions, filtering?: ImageFiltering) {
+  constructor(path: string, bustCacheOrOptions: boolean | ImageSourceOptions | undefined, filtering?: ImageFiltering) {
     this.path = path;
-    let bustCache = false;
-    let wrapping: ImageWrapConfiguration | ImageWrapping;
+    let bustCache: boolean | undefined = false;
+    let wrapping: ImageWrapConfiguration | ImageWrapping | undefined;
     if (typeof bustCacheOrOptions === 'boolean') {
       bustCache = bustCacheOrOptions;
     } else {
@@ -200,11 +200,11 @@ export class ImageSource implements Loadable<HTMLImageElement> {
 
       // emit warning if potentially too big
       TextureLoader.checkImageSizeSupportedAndLog(this.data);
-    } catch (error) {
+    } catch (error: any) {
       throw `Error loading ImageSource from path '${this.path}' with error [${error.message}]`;
     }
     // Do a bad thing to pass the filtering as an attribute
-    this.data.setAttribute(ImageSourceAttributeConstants.Filtering, this.filtering);
+    this.data.setAttribute(ImageSourceAttributeConstants.Filtering, this.filtering as any); // TODO fix type
     this.data.setAttribute(ImageSourceAttributeConstants.WrappingX, this.wrapping?.x ?? ImageWrapping.Clamp);
     this.data.setAttribute(ImageSourceAttributeConstants.WrappingY, this.wrapping?.y ?? ImageWrapping.Clamp);
 

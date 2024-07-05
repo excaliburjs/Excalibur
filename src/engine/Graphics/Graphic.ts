@@ -57,7 +57,7 @@ export abstract class Graphic {
   readonly id = Graphic._ID++;
 
   public transform: AffineMatrix = AffineMatrix.identity();
-  public tint: Color = null;
+  public tint?: Color;
 
   private _transformStale = true;
   public isStale() {
@@ -128,18 +128,20 @@ export abstract class Graphic {
     this._transformStale = true;
   }
 
-  private _origin: Vector | null = null;
+  private _origin?: Vector;
   /**
    * Gets or sets the origin of the graphic, if not set the center of the graphic is the origin
    */
-  public get origin(): Vector | null {
+  public get origin(): Vector | undefined {
     return this._origin;
   }
 
-  public set origin(value: Vector | null) {
-    this._origin = watch(value, () => {
-      this._transformStale = true;
-    });
+  public set origin(value: Vector | undefined) {
+    if (value) {
+      this._origin = watch(value, () => {
+        this._transformStale = true;
+      });
+    }
     this._transformStale = true;
   }
 
@@ -159,13 +161,13 @@ export abstract class Graphic {
     return {
       width: this.width / this.scale.x,
       height: this.height / this.scale.y,
-      origin: this.origin ? this.origin.clone() : null,
+      origin: this.origin ? this.origin.clone() : undefined,
       flipHorizontal: this.flipHorizontal,
       flipVertical: this.flipVertical,
       rotation: this.rotation,
       opacity: this.opacity,
-      scale: this.scale ? this.scale.clone() : null,
-      tint: this.tint ? this.tint.clone() : null
+      scale: this.scale ? this.scale.clone() : undefined,
+      tint: this.tint ? this.tint.clone() : undefined
     };
   }
 

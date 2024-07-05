@@ -17,12 +17,12 @@ export class CircleRenderer implements RendererPlugin {
 
   private _maxCircles: number = 10922; // max(uint16) / 6 verts
 
-  private _shader: Shader;
-  private _context: ExcaliburGraphicsContextWebGL;
-  private _gl: WebGLRenderingContext;
-  private _buffer: VertexBuffer;
-  private _layout: VertexLayout;
-  private _quads: QuadIndexBuffer;
+  private _shader!: Shader;
+  private _context!: ExcaliburGraphicsContextWebGL;
+  private _gl!: WebGLRenderingContext;
+  private _buffer!: VertexBuffer;
+  private _layout!: VertexLayout;
+  private _quads!: QuadIndexBuffer;
 
   private _circleCount: number = 0;
   private _vertexIndex: number = 0;
@@ -68,8 +68,8 @@ export class CircleRenderer implements RendererPlugin {
     this._buffer.dispose();
     this._quads.dispose();
     this._shader.dispose();
-    this._context = null;
-    this._gl = null;
+    this._context = null as any;
+    this._gl = null as any;
   }
 
   private _isFull() {

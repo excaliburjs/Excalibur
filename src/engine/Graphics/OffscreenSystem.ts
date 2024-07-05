@@ -14,9 +14,9 @@ import { Query, SystemPriority, World } from '../EntityComponentSystem';
 export class OffscreenSystem extends System {
   public systemType = SystemType.Draw;
   priority: number = SystemPriority.Higher;
-  private _camera: Camera;
-  private _screen: Screen;
-  private _worldBounds: BoundingBox;
+  private _camera!: Camera;
+  private _screen!: Screen;
+  private _worldBounds!: BoundingBox;
   query: Query<typeof TransformComponent | typeof GraphicsComponent>;
 
   constructor(public world: World) {
@@ -33,14 +33,14 @@ export class OffscreenSystem extends System {
     this._worldBounds = this._screen.getWorldBounds();
     let transform: TransformComponent;
     let graphics: GraphicsComponent;
-    let maybeParallax: ParallaxComponent;
+    let maybeParallax: ParallaxComponent | undefined;
 
     for (const entity of this.query.entities) {
       graphics = entity.get(GraphicsComponent);
       transform = entity.get(TransformComponent);
       maybeParallax = entity.get(ParallaxComponent);
 
-      let parallaxOffset: Vector;
+      let parallaxOffset: Vector | undefined;
       if (maybeParallax) {
         // We use the Tiled formula
         // https://doc.mapeditor.org/en/latest/manual/layers/#parallax-scrolling-factor
@@ -63,7 +63,7 @@ export class OffscreenSystem extends System {
     }
   }
 
-  private _isOffscreen(transform: TransformComponent, graphics: GraphicsComponent, parallaxOffset: Vector) {
+  private _isOffscreen(transform: TransformComponent, graphics: GraphicsComponent, parallaxOffset: Vector | undefined) {
     if (transform.coordPlane === CoordPlane.World) {
       let bounds = graphics.localBounds;
       if (parallaxOffset) {

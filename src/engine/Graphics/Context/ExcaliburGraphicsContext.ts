@@ -130,8 +130,8 @@ export interface ExcaliburGraphicsContextOptions {
 export interface ExcaliburGraphicsContextState {
   opacity: number;
   z: number;
-  tint: Color;
-  material: Material;
+  tint: Color | null | undefined;
+  material: Material | null | undefined;
 }
 export interface LineGraphicsOptions {
   color?: Color;
@@ -223,7 +223,7 @@ export interface ExcaliburGraphicsContext {
   /**
    * Sets the tint color to be multiplied by any images drawn, default is black 0xFFFFFFFF
    */
-  tint: Color;
+  tint: Color | null | undefined;
 
   /**
    * Resets the current transform to the identity matrix
@@ -368,7 +368,7 @@ export interface ExcaliburGraphicsContext {
    * This allows customs shaders to be used but draw calls are no longer batched by default.
    * @param material
    */
-  material: Material;
+  material: Material | null | undefined;
 
   /**
    * Creates and initializes the material which compiles the internal shader

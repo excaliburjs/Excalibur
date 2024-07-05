@@ -6,8 +6,8 @@ import { Material } from './material';
 export class ContextState implements ExcaliburGraphicsContextState {
   opacity: number = 1;
   z: number = 0;
-  tint: Color = Color.White;
-  material: Material = null;
+  tint: Color | null | undefined = Color.White;
+  material: Material | null | undefined = null;
 }
 
 export class StateStack {
@@ -28,7 +28,7 @@ export class StateStack {
   private _cloneState(dest: ContextState) {
     dest.opacity = this.current.opacity;
     dest.z = this.current.z;
-    dest.tint = this.current.tint.clone(); // TODO remove color alloc
+    dest.tint = this.current.tint?.clone(); // TODO remove color alloc
     dest.material = this.current.material; // TODO is this going to cause problems when cloning
     return dest;
   }
@@ -40,6 +40,6 @@ export class StateStack {
 
   public restore(): void {
     this._pool.return(this.current);
-    this.current = this._states.pop();
+    this.current = this._states.pop()!;
   }
 }

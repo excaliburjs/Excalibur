@@ -20,7 +20,11 @@ export class FontTextInstance {
     public readonly maxWidth?: number
   ) {
     this.canvas = document.createElement('canvas');
-    this.ctx = this.canvas.getContext('2d');
+    const ctx = this.canvas.getContext('2d');
+    if (!ctx) {
+      throw new Error('Unable to create FontTextInstance, internal canvas failed to create');
+    }
+    this.ctx = ctx;
     this.dimensions = this.measureText(text);
     this._setDimension(this.dimensions, this.ctx);
     this._lastHashCode = this.getHashCode();
@@ -102,7 +106,7 @@ export class FontTextInstance {
     ctx.imageSmoothingEnabled = this.font.smoothing;
     ctx.lineWidth = this.font.lineWidth;
     ctx.setLineDash(this.font.lineDash ?? ctx.getLineDash());
-    ctx.strokeStyle = this.font.strokeColor?.toString();
+    ctx.strokeStyle = this.font.strokeColor?.toString() ?? '';
     ctx.fillStyle = this.color.toString();
   }
 
@@ -116,10 +120,16 @@ export class FontTextInstance {
     ctx.direction = this.font.direction;
 
     if (this.font.shadow) {
-      ctx.shadowColor = this.font.shadow.color.toString();
-      ctx.shadowBlur = this.font.shadow.blur;
-      ctx.shadowOffsetX = this.font.shadow.offset.x;
-      ctx.shadowOffsetY = this.font.shadow.offset.y;
+      if (this.font.shadow.color) {
+        ctx.shadowColor = this.font.shadow.color.toString();
+      }
+      if (this.font.shadow.blur) {
+        ctx.shadowBlur = this.font.shadow.blur;
+      }
+      if (this.font.shadow.offset) {
+        ctx.shadowOffsetX = this.font.shadow.offset.x;
+        ctx.shadowOffsetY = this.font.shadow.offset.y;
+      }
     }
   }
 
@@ -164,6 +174,9 @@ export class FontTextInstance {
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          throw new Error('Unable to split internal FontTextInstance bitmap, failed to create internal canvas');
+        }
 
         // draw current slice to new bitmap in < 4k chunks
         ctx.drawImage(bitmap.canvas, currentX, currentY, width, height, 0, 0, width, height);
@@ -181,7 +194,7 @@ export class FontTextInstance {
     this._dirty = true;
   }
   private _dirty = true;
-  private _ex: ExcaliburGraphicsContext;
+  private _ex?: ExcaliburGraphicsContext;
   public render(ex: ExcaliburGraphicsContext, x: number, y: number, maxWidth?: number) {
     if (this.disposed) {
       throw Error('Accessing disposed text instance! ' + this.text);
@@ -239,9 +252,9 @@ export class FontTextInstance {
 
   dispose() {
     this.disposed = true;
-    this.dimensions = undefined;
-    this.canvas = undefined;
-    this.ctx = undefined;
+    this.dimensions = undefined as any;
+    this.canvas = undefined as any;
+    this.ctx = undefined as any;
     if (this._ex instanceof ExcaliburGraphicsContextWebGL) {
       for (const frag of this._textFragments) {
         this._ex.textureLoader.delete(frag.canvas);
@@ -255,11 +268,11 @@ export class FontTextInstance {
    * @param text
    * @param maxWidth
    */
-  private _cachedText: string;
-  private _cachedLines: string[];
-  private _cachedRenderWidth: number;
-  private _getLinesFromText(text: string, maxWidth?: number) {
-    if (this._cachedText === text && this._cachedRenderWidth === maxWidth) {
+  private _cachedText?: string;
+  private _cachedLines?: string[];
+  private _cachedRenderWidth?: number;
+  private _getLinesFromText(text: string, maxWidth?: number): string[] {
+    if (this._cachedText === text && this._cachedRenderWidth === maxWidth && this._cachedLines?.length) {
       return this._cachedLines;
     }
 

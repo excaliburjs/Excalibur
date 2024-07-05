@@ -6,7 +6,7 @@ import { VertexLayout } from '../Context/vertex-layout';
 import { ScreenShader } from './ScreenShader';
 
 export class ColorBlindnessPostProcessor implements PostProcessor {
-  private _shader: ScreenShader;
+  private _shader!: ScreenShader;
   private _simulate = false;
   constructor(
     private _colorBlindnessMode: ColorBlindnessMode,

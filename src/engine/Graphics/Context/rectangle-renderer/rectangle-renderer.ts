@@ -17,12 +17,12 @@ export class RectangleRenderer implements RendererPlugin {
 
   private _maxRectangles: number = 10922; // max(uint16) / 6 verts
 
-  private _shader: Shader;
-  private _gl: WebGLRenderingContext;
-  private _context: ExcaliburGraphicsContextWebGL;
-  private _buffer: VertexBuffer;
-  private _layout: VertexLayout;
-  private _quads: QuadIndexBuffer;
+  private _shader!: Shader;
+  private _gl!: WebGLRenderingContext;
+  private _context!: ExcaliburGraphicsContextWebGL;
+  private _buffer!: VertexBuffer;
+  private _layout!: VertexLayout;
+  private _quads!: QuadIndexBuffer;
   private _rectangleCount: number = 0;
   private _vertexIndex: number = 0;
 
@@ -68,8 +68,8 @@ export class RectangleRenderer implements RendererPlugin {
     this._buffer.dispose();
     this._quads.dispose();
     this._shader.dispose();
-    this._context = null;
-    this._gl = null;
+    this._context = null as any;
+    this._gl = null as any;
   }
 
   private _isFull() {
@@ -81,9 +81,9 @@ export class RectangleRenderer implements RendererPlugin {
 
   draw(...args: any[]): void {
     if (args[0] instanceof Vector && args[1] instanceof Vector) {
-      this.drawLine.apply(this, args);
+      this.drawLine.apply(this, args as any);
     } else {
-      this.drawRectangle.apply(this, args);
+      this.drawRectangle.apply(this, args as any);
     }
   }
 
@@ -106,7 +106,7 @@ export class RectangleRenderer implements RendererPlugin {
     /**
      *    +---------------------^----------------------+
      *    |                     | (normal)             |
-     *   (startx, starty)------------------>(endx, endy)
+     *   (startX, startY)------------------>(endX, endY)
      *    |                                            |
      *    + -------------------------------------------+
      */
