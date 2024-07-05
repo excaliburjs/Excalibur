@@ -20,7 +20,7 @@ export class TextureLoader {
       this.delete(image);
     }
     this._textureMap.clear();
-    this._gl = null;
+    this._gl = null as any;
   }
 
   /**
@@ -40,7 +40,7 @@ export class TextureLoader {
    * @param image
    */
   public get(image: HTMLImageSource): WebGLTexture {
-    return this._textureMap.get(image);
+    return this._textureMap.get(image)!;
   }
 
   /**
@@ -48,7 +48,7 @@ export class TextureLoader {
    * @param image
    */
   public has(image: HTMLImageSource): boolean {
-    return this._textureMap.has(image);
+    return this._textureMap.has(image)!;
   }
 
   /**
@@ -57,7 +57,7 @@ export class TextureLoader {
    * @param options {ImageSourceOptions} Optionally configure the ImageFiltering and ImageWrapping mode to apply to the loaded texture
    * @param forceUpdate Optionally force a texture to be reloaded, useful if the source graphic has changed
    */
-  public load(image: HTMLImageSource, options?: ImageSourceOptions, forceUpdate = false): WebGLTexture {
+  public load(image: HTMLImageSource, options?: ImageSourceOptions, forceUpdate = false): WebGLTexture | null {
     // Ignore loading if webgl is not registered
     const gl = this._gl;
     if (!gl) {
@@ -66,7 +66,7 @@ export class TextureLoader {
 
     const { filtering, wrapping } = { ...options };
 
-    let tex: WebGLTexture = null;
+    let tex: WebGLTexture | null = null;
     // If reuse the texture if it's from the same source
     if (this.has(image)) {
       tex = this.get(image);
@@ -91,7 +91,7 @@ export class TextureLoader {
 
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 
-    let wrappingConfig: ImageWrapConfiguration;
+    let wrappingConfig: ImageWrapConfiguration | undefined;
     if (wrapping) {
       if (typeof wrapping === 'string') {
         wrappingConfig = {
@@ -141,7 +141,7 @@ export class TextureLoader {
 
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 
-    this._textureMap.set(image, tex);
+    this._textureMap.set(image, tex as any);
     return tex;
   }
 
@@ -149,10 +149,10 @@ export class TextureLoader {
     // Ignore loading if webgl is not registered
     const gl = this._gl;
     if (!gl) {
-      return null;
+      return;
     }
 
-    let tex: WebGLTexture = null;
+    let tex: WebGLTexture | null = null;
     if (this.has(image)) {
       tex = this.get(image);
       gl.deleteTexture(tex);

@@ -22,9 +22,10 @@ export class GraphicsSystem extends System {
   public readonly systemType = SystemType.Draw;
   public priority = SystemPriority.Average;
   private _token = 0;
-  private _graphicsContext: ExcaliburGraphicsContext;
-  private _camera: Camera;
-  private _engine: Engine;
+  // Set in the initialize
+  private _graphicsContext!: ExcaliburGraphicsContext;
+  private _camera!: Camera;
+  private _engine!: Engine;
   private _sortedTransforms: TransformComponent[] = [];
   query: Query<typeof TransformComponent | typeof GraphicsComponent>;
   public get sortedTransforms() {

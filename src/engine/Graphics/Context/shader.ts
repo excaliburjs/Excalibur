@@ -27,7 +27,7 @@ export type UniformTypeNames =
   | 'uniformMatrix4fv';
 
 type RemoveFirstFromTuple<T extends any[]> = T['length'] extends 0
-  ? undefined
+  ? []
   : ((...b: T) => void) extends (a: any, ...b: infer I) => void
     ? I
     : [];
@@ -88,10 +88,10 @@ export interface ShaderOptions {
 }
 
 export class Shader {
-  private static _ACTIVE_SHADER_INSTANCE: Shader = null;
+  private static _ACTIVE_SHADER_INSTANCE: Shader | null = null;
   private _logger = Logger.getInstance();
   private _gl: WebGL2RenderingContext;
-  public program: WebGLProgram;
+  public program!: WebGLProgram;
   public uniforms: { [variableName: string]: UniformDefinition } = {};
   public attributes: { [variableName: string]: VertexAttributeDefinition } = {};
   private _compiled = false;
@@ -106,7 +106,7 @@ export class Shader {
    * Create a shader program in excalibur
    * @param options specify shader vertex and fragment source
    */
-  constructor(options?: ShaderOptions) {
+  constructor(options: ShaderOptions) {
     const { gl, vertexSource, fragmentSource } = options;
     this._gl = gl;
     this.vertexSource = vertexSource;
@@ -116,7 +116,7 @@ export class Shader {
   dispose() {
     const gl = this._gl;
     gl.deleteProgram(this.program);
-    this._gl = null;
+    this._gl = null as any;
   }
 
   /**
@@ -159,8 +159,8 @@ export class Shader {
     const uniformCount = gl.getProgramParameter(this.program, gl.ACTIVE_UNIFORMS);
     const uniforms: UniformDefinition[] = [];
     for (let i = 0; i < uniformCount; i++) {
-      const uniform = gl.getActiveUniform(this.program, i);
-      const uniformLocation = gl.getUniformLocation(this.program, uniform.name);
+      const uniform = gl.getActiveUniform(this.program, i)!;
+      const uniformLocation = gl.getUniformLocation(this.program, uniform.name)!;
       uniforms.push({
         name: uniform.name,
         glType: uniform.type,
@@ -175,7 +175,7 @@ export class Shader {
     const attributeCount = gl.getProgramParameter(this.program, gl.ACTIVE_ATTRIBUTES);
     const attributes: VertexAttributeDefinition[] = [];
     for (let i = 0; i < attributeCount; i++) {
-      const attribute = gl.getActiveAttrib(this.program, i);
+      const attribute = gl.getActiveAttrib(this.program, i)!;
       const attributeLocation = gl.getAttribLocation(this.program, attribute.name);
       attributes.push({
         name: attribute.name,
@@ -393,7 +393,7 @@ export class Shader {
     const location = gl.getUniformLocation(this.program, name);
     if (location) {
       const args = [location, ...value];
-      this._gl[uniformType].apply(this._gl, args);
+      (this._gl as any)[uniformType].apply(this._gl, args);
     } else {
       throw Error(
         `Uniform ${uniformType}:${name} doesn\'t exist or is not used in the shader source code,` +
@@ -431,7 +431,7 @@ export class Shader {
     const location = gl.getUniformLocation(this.program, name);
     if (location) {
       const args = [location, ...value];
-      this._gl[uniformType].apply(this._gl, args);
+      (this._gl as any)[uniformType].apply(this._gl, args);
     } else {
       return false;
     }
@@ -472,7 +472,7 @@ export class Shader {
     const success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
     if (!success) {
       const errorInfo = gl.getShaderInfoLog(shader);
-      throw Error(`Could not compile ${typeName} shader:\n\n${errorInfo}${this._processSourceForError(source, errorInfo)}`);
+      throw Error(`Could not compile ${typeName} shader:\n\n${errorInfo}${this._processSourceForError(source, errorInfo!)}`);
     }
     return shader;
   }

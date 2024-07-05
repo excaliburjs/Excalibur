@@ -84,20 +84,20 @@ export class RenderTarget {
     }
   }
 
-  private _renderBuffer: WebGLRenderbuffer;
+  private _renderBuffer!: WebGLRenderbuffer;
   public get renderBuffer() {
     return this._renderBuffer;
   }
-  private _renderFrameBuffer: WebGLFramebuffer;
+  private _renderFrameBuffer!: WebGLFramebuffer;
   public get renderFrameBuffer() {
     return this._renderFrameBuffer;
   }
 
-  private _frameBuffer: WebGLFramebuffer;
+  private _frameBuffer!: WebGLFramebuffer;
   public get frameBuffer() {
     return this._frameBuffer;
   }
-  private _frameTexture: WebGLTexture;
+  private _frameTexture!: WebGLTexture;
   public get frameTexture() {
     return this._frameTexture;
   }
@@ -106,8 +106,8 @@ export class RenderTarget {
     if (this.antialias) {
       const gl = this._gl;
       // Render buffers can be used as an input to a shader
-      this._renderBuffer = gl.createRenderbuffer();
-      this._renderFrameBuffer = gl.createFramebuffer();
+      this._renderBuffer = gl.createRenderbuffer()!;
+      this._renderFrameBuffer = gl.createFramebuffer()!;
       gl.bindRenderbuffer(gl.RENDERBUFFER, this._renderBuffer);
       gl.renderbufferStorageMultisample(
         gl.RENDERBUFFER,
@@ -124,7 +124,7 @@ export class RenderTarget {
   private _setupFramebuffer() {
     // Allocates frame buffer
     const gl = this._gl;
-    this._frameTexture = gl.createTexture();
+    this._frameTexture = gl.createTexture()!;
     gl.bindTexture(gl.TEXTURE_2D, this._frameTexture);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
 
@@ -138,7 +138,7 @@ export class RenderTarget {
     const attachmentPoint = gl.COLOR_ATTACHMENT0;
 
     // After this bind all draw calls will draw to this framebuffer texture
-    this._frameBuffer = gl.createFramebuffer();
+    this._frameBuffer = gl.createFramebuffer()!;
     gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, attachmentPoint, gl.TEXTURE_2D, this._frameTexture, 0);
 

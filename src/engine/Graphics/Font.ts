@@ -70,7 +70,7 @@ export class Font extends Graphic implements FontRenderer {
             offset: this.shadow.offset,
             color: this.shadow.color
           }
-        : null
+        : undefined
     });
   }
 
@@ -90,7 +90,7 @@ export class Font extends Graphic implements FontRenderer {
   public lineWidth = 1;
   public lineDash: number[] = [];
   public color: Color = Color.Black;
-  public strokeColor: Color;
+  public strokeColor?: Color;
 
   public family: string = 'sans-serif';
   public style: FontStyle = FontStyle.Normal;
@@ -104,7 +104,7 @@ export class Font extends Graphic implements FontRenderer {
    */
   public lineHeight: number | undefined = undefined;
   public size: number = 10;
-  public shadow: { blur?: number; offset?: Vector; color?: Color } = null;
+  public shadow?: { blur?: number; offset?: Vector; color?: Color };
 
   public get fontString() {
     return `${this.style} ${this.bold ? 'bold' : ''} ${this.size}${this.unit} ${this.family}`;

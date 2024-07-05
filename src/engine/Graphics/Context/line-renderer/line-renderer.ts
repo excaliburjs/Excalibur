@@ -15,12 +15,12 @@ export interface LineOptions {
 export class LineRenderer implements RendererPlugin {
   public readonly type = 'ex.line';
   public priority: number = 0;
-  private _context: ExcaliburGraphicsContextWebGL;
-  private _gl: WebGL2RenderingContext;
-  private _shader: Shader;
+  private _context!: ExcaliburGraphicsContextWebGL;
+  private _gl!: WebGL2RenderingContext;
+  private _shader!: Shader;
   private _maxLines: number = 10922;
-  private _vertexBuffer: VertexBuffer;
-  private _layout: VertexLayout;
+  private _vertexBuffer!: VertexBuffer;
+  private _layout!: VertexLayout;
   private _vertexIndex = 0;
   private _lineCount = 0;
   initialize(gl: WebGL2RenderingContext, context: ExcaliburGraphicsContextWebGL): void {
@@ -56,8 +56,8 @@ export class LineRenderer implements RendererPlugin {
   public dispose() {
     this._vertexBuffer.dispose();
     this._shader.dispose();
-    this._context = null;
-    this._gl = null;
+    this._context = null as any;
+    this._gl = null as any;
   }
 
   draw(start: Vector, end: Vector, color: Color): void {

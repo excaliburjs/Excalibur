@@ -20,7 +20,7 @@ export class QuadIndexBuffer {
   /**
    * Depending on the browser this is either gl.UNSIGNED_SHORT or gl.UNSIGNED_INT
    */
-  public bufferGlType: number;
+  public bufferGlType!: number;
 
   /**
    * @param gl WebGL2RenderingContext this layout will be attached to, these cannot be reused across contexts.
@@ -29,7 +29,7 @@ export class QuadIndexBuffer {
    */
   constructor(gl: WebGL2RenderingContext, numberOfQuads: number, useUint16?: boolean) {
     this._gl = gl;
-    this.buffer = gl.createBuffer();
+    this.buffer = gl.createBuffer()!;
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.buffer);
 
     const totalVertices = numberOfQuads * 6;
@@ -90,6 +90,6 @@ export class QuadIndexBuffer {
   public dispose() {
     const gl = this._gl;
     gl.deleteBuffer(this.buffer);
-    this._gl = null;
+    this._gl = null as any;
   }
 }

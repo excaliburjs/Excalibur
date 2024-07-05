@@ -106,7 +106,7 @@ export interface MaterialImageOptions {
 export class Material {
   private _logger = Logger.getInstance();
   private _name: string;
-  private _shader: Shader;
+  private _shader!: Shader;
   private _color: Color = Color.Transparent;
   private _initialized = false;
   private _fragmentSource: string;
@@ -114,8 +114,8 @@ export class Material {
 
   private _images = new Map<string, ImageSource>();
   private _textures = new Map<ImageSource, WebGLTexture>();
-  private _maxTextureSlots: number;
-  private _graphicsContext: ExcaliburGraphicsContextWebGL;
+  private _maxTextureSlots!: number;
+  private _graphicsContext!: ExcaliburGraphicsContextWebGL;
 
   constructor(options: MaterialOptions) {
     const { color, name, vertexSource, fragmentSource, graphicsContext, images } = options;
@@ -187,16 +187,16 @@ export class Material {
 
   removeImageSource(textureName: string) {
     const image = this._images.get(textureName);
-    this._graphicsContext.textureLoader.delete(image.image);
+    this._graphicsContext.textureLoader.delete(image!.image);
     this._images.delete(textureName);
   }
 
   private _loadImageSource(image: ImageSource) {
     const imageElement = image.image;
     const maybeFiltering = imageElement.getAttribute(ImageSourceAttributeConstants.Filtering);
-    const filtering = maybeFiltering ? parseImageFiltering(maybeFiltering) : null;
-    const wrapX = parseImageWrapping(imageElement.getAttribute(ImageSourceAttributeConstants.WrappingX));
-    const wrapY = parseImageWrapping(imageElement.getAttribute(ImageSourceAttributeConstants.WrappingY));
+    const filtering = maybeFiltering ? parseImageFiltering(maybeFiltering) : undefined;
+    const wrapX = parseImageWrapping(imageElement.getAttribute(ImageSourceAttributeConstants.WrappingX) as any);
+    const wrapY = parseImageWrapping(imageElement.getAttribute(ImageSourceAttributeConstants.WrappingY) as any);
 
     const force = imageElement.getAttribute('forceUpload') === 'true' ? true : false;
     const texture = this._graphicsContext.textureLoader.load(
@@ -210,7 +210,7 @@ export class Material {
     // remove force attribute after upload
     imageElement.removeAttribute('forceUpload');
     if (!this._textures.has(image)) {
-      this._textures.set(image, texture);
+      this._textures.set(image, texture!);
     }
 
     return texture;

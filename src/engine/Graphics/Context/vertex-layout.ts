@@ -46,7 +46,7 @@ export class VertexLayout {
   private _layout: VertexAttributeDefinition[] = [];
   private _attributes: [name: string, numberOfComponents: number][] = [];
   private _vertexBuffer: VertexBuffer;
-  private _vao: WebGLVertexArrayObject;
+  private _vao!: WebGLVertexArrayObject;
 
   public get vertexBuffer() {
     return this._vertexBuffer;
@@ -61,8 +61,8 @@ export class VertexLayout {
     this._gl = gl;
     this._vertexBuffer = vertexBuffer;
     this._attributes = attributes;
-    this._shader = shader;
-    this._suppressWarnings = suppressWarnings;
+    this._shader = shader!;
+    this._suppressWarnings = suppressWarnings!;
     if (shader) {
       this.initialize();
     }
@@ -166,7 +166,7 @@ export class VertexLayout {
 
     // create VAO
     const gl = this._gl;
-    this._vao = gl.createVertexArray();
+    this._vao = gl.createVertexArray()!;
     gl.bindVertexArray(this._vao);
     this._vertexBuffer.bind();
 
