@@ -264,8 +264,8 @@ export class GraphicsComponent extends Component {
     }
 
     if (!graphicToSet) {
-throw new Error('Need to provide a graphic or valid graphic string');
-}
+      throw new Error('Need to provide a graphic or valid graphic string');
+    }
     this._graphics[name] = this.copyGraphics ? graphicToSet.clone() : graphicToSet;
     this._options[name] = this.copyGraphics ? { ...optionsToSet } : optionsToSet;
     if (name === 'default') {

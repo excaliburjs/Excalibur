@@ -71,8 +71,8 @@ export class MaterialRenderer implements RendererPlugin {
     // Extract context info
     const material = this._context.material;
     if (!material) {
-return;
-}
+      return;
+    }
 
     const transform = this._context.getTransform();
     const opacity = this._context.opacity;

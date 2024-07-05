@@ -324,8 +324,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
     this.materialScreenTexture = gl.createTexture();
     if (!this.materialScreenTexture) {
-throw new Error('');
-}
+      throw new Error('');
+    }
     gl.bindTexture(gl.TEXTURE_2D, this.materialScreenTexture);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);

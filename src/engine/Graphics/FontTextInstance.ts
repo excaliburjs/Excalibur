@@ -175,8 +175,8 @@ export class FontTextInstance {
         canvas.height = height;
         const ctx = canvas.getContext('2d');
         if (!ctx) {
-throw new Error('Unable to split internal FontTextInstance bitmap, failed to create internal canvas');
-}
+          throw new Error('Unable to split internal FontTextInstance bitmap, failed to create internal canvas');
+        }
 
         // draw current slice to new bitmap in < 4k chunks
         ctx.drawImage(bitmap.canvas, currentX, currentY, width, height, 0, 0, width, height);
