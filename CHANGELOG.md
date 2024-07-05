@@ -65,7 +65,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - Applied increased TS strictness for the Graphics API subtree
-
+- Applied increased TS strictness for the TileMap API subtree
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->

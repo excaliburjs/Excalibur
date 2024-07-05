@@ -312,7 +312,7 @@ export class IsometricMap extends Entity {
 
   public pointer: PointerComponent;
 
-  private _composite: CompositeCollider;
+  private _composite!: CompositeCollider;
 
   constructor(options: IsometricMapOptions) {
     super(
@@ -378,10 +378,10 @@ export class IsometricMap extends Entity {
   };
 
   private _setupPointerToTile() {
-    this.events.on('pointerup', this._forwardPointerEventToTile('pointerup'));
-    this.events.on('pointerdown', this._forwardPointerEventToTile('pointerdown'));
-    this.events.on('pointermove', this._forwardPointerEventToTile('pointermove'));
-    this.events.on('pointercancel', this._forwardPointerEventToTile('pointercancel'));
+    this.events.on('pointerup', this._forwardPointerEventToTile('pointerup') as any);
+    this.events.on('pointerdown', this._forwardPointerEventToTile('pointerdown') as any);
+    this.events.on('pointermove', this._forwardPointerEventToTile('pointermove') as any);
+    this.events.on('pointercancel', this._forwardPointerEventToTile('pointercancel') as any);
   }
 
   public update(): void {
@@ -403,7 +403,7 @@ export class IsometricMap extends Entity {
       this._originalOffsets.set(collider, originalOffset);
       return originalOffset;
     } else {
-      return this._originalOffsets.get(collider);
+      return this._originalOffsets.get(collider) ?? Vector.Zero;
     }
   }
   public updateColliders() {

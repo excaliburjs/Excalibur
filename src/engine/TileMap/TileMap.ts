@@ -97,7 +97,7 @@ export const TileMapEvents = {
 export class TileMap extends Entity {
   public events = new EventEmitter<TileMapEvents>();
   private _token = 0;
-  private _engine: Engine;
+  private _engine!: Engine;
 
   public logger: Logger = Logger.getInstance();
   public readonly tiles: Tile[] = [];
@@ -162,7 +162,7 @@ export class TileMap extends Entity {
     }
   }
 
-  private _oldRotation: number;
+  private _oldRotation: number = 0;
   public get rotation(): number {
     return this.transform?.rotation ?? 0;
   }
@@ -237,7 +237,7 @@ export class TileMap extends Entity {
   public off(eventName: string, handler: Handler<unknown>): void;
   public off(eventName: string): void;
   public off<TEventName extends EventKey<TileMapEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
-    this.events.off(eventName, handler);
+    this.events.off(eventName, handler as any);
   }
 
   /**
@@ -336,7 +336,7 @@ export class TileMap extends Entity {
       this._originalOffsets.set(collider, originalOffset);
       return originalOffset;
     } else {
-      return this._originalOffsets.get(collider);
+      return this._originalOffsets.get(collider) ?? Vector.Zero;
     }
   }
 
@@ -348,7 +348,7 @@ export class TileMap extends Entity {
     this._composite.clearColliders();
     const colliders: BoundingBox[] = [];
     this._composite = this.collider.useCompositeCollider([]);
-    let current: BoundingBox;
+    let current: BoundingBox | null = null;
 
     /**
      * Returns wether or not the 2 boxes share an edge and are the same height
@@ -535,7 +535,7 @@ export class TileMap extends Entity {
     const tiles: Tile[] = [];
     for (let x = tileStartX; x <= tileEndX; x++) {
       for (let y = tileStartY; y <= tileEndY; y++) {
-        tiles.push(this.getTile(x, y));
+        tiles.push(this.getTile(x, y)!);
       }
     }
     return tiles;
@@ -684,9 +684,9 @@ export interface TileOptions {
  * use transparency to create layers this way.
  */
 export class Tile {
-  private _bounds: BoundingBox;
-  private _geometry: BoundingBox;
-  private _pos: Vector;
+  private _bounds!: BoundingBox;
+  private _geometry!: BoundingBox;
+  private _pos!: Vector;
   private _posDirty = false;
 
   public events = new EventEmitter<TilePointerEvents>();
