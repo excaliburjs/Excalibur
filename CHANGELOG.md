@@ -30,6 +30,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed invalid graphics types around `ex.Graphic.tint`
 - improve types to disallow invalid combo of collider/width/height/radius in actor args
 - only add default color graphic for the respective collider used
 - Fixed issue where `ex.SpriteFont` did not respect scale when measuring text
@@ -62,6 +63,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * `PointerSystem` entity iteration
 
 ### Changed
+
+- Applied increased TS strictness for the Graphics API subtree
 
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
