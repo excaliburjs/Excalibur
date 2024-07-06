@@ -30,6 +30,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where not all physical keys from the spec were present in `ex.Keys` including the reported `ex.Keys.Tab`
 - Fixed invalid graphics types around `ex.Graphic.tint`
 - improve types to disallow invalid combo of collider/width/height/radius in actor args
 - only add default color graphic for the respective collider used
