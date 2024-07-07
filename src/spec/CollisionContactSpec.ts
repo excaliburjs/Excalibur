@@ -3,6 +3,7 @@ import { TransformComponent } from '@excalibur';
 import { EulerIntegrator } from '../engine/Collision/Integrator';
 import { MotionComponent } from '../engine/EntityComponentSystem/Components/MotionComponent';
 import { DefaultPhysicsConfig } from '../engine/Collision/PhysicsConfig';
+import { ExcaliburMatchers } from 'excalibur-jasmine';
 
 describe('A CollisionContact', () => {
   let actorA: ex.Actor;
@@ -12,6 +13,7 @@ describe('A CollisionContact', () => {
   let colliderB: ex.Collider;
 
   beforeEach(() => {
+    jasmine.addMatchers(ExcaliburMatchers);
     actorA = new ex.Actor({ x: 0, y: 0, width: 20, height: 20 });
     actorA.collider.useCircleCollider(10);
     actorA.body.collisionType = ex.CollisionType.Active;
@@ -325,5 +327,26 @@ describe('A CollisionContact', () => {
 
     expect(emittedA).toBe(true);
     expect(emittedB).toBe(true);
+  });
+
+  fit('biases to colliderB', () => {
+    const cc = new ex.CollisionContact(
+      colliderA,
+      colliderB,
+      ex.Vector.Right,
+      ex.Vector.Right,
+      ex.Vector.Right.perpendicular(),
+      [new ex.Vector(10, 0)],
+      [new ex.Vector(10, 0)],
+      null
+    );
+
+    cc.bias(colliderB);
+
+    expect(cc.colliderA).toBe(colliderB);
+    expect(cc.colliderB).toBe(colliderA);
+    expect(cc.mtv).toBeVector(ex.Vector.Left);
+    expect(cc.normal).toBeVector(ex.Vector.Left);
+    expect(cc.tangent).toBeVector(ex.Vector.Left.perpendicular());
   });
 });
