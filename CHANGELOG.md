@@ -27,6 +27,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - show warning in development when Entity hasn't been added to a scene after a few seconds
 - New `RentalPool` type for sparse object pooling
 - New `ex.SparseHashGridCollisionProcessor` which is a simpler (and faster) implementation for broadphase pair generation. This works by bucketing colliders into uniform sized square buckets and using that to generate pairs.
+- CollisionContact can be biased toward a collider by using `contact.bias(collider)`. This adjusts the contact so that the given collider is colliderA, and is helpful if you 
+are doing mtv adjustments during precollision.
 
 ### Fixed
 
