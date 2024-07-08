@@ -8,6 +8,9 @@ import { EmitterType } from '../EmitterType';
 import { Particle, ParticleTransform, ParticleEmitterArgs, ParticleConfig } from './Particles';
 import { RentalPool } from '../Util/RentalPool';
 
+/**
+ * Used internally by Excalibur to manage all particles in the engine
+ */
 export const ParticlePool = new RentalPool(
   () => new Particle({}),
   (p) => p,
@@ -45,15 +48,6 @@ export class ParticleEmitter extends Actor {
   public emitRate: number = 1; //particles/sec
 
   /**
-   * Gets or sets the optional focus where all particles should accelerate towards
-   */
-  public focus?: Vector;
-  /**
-   * Gets or sets the optional acceleration for focusing particles if a focus has been specified
-   */
-  public focusAccel?: number;
-
-  /**
    * Gets or sets the emitter type for the particle emitter
    */
   public emitterType: EmitterType = EmitterType.Rectangle;
@@ -63,11 +57,6 @@ export class ParticleEmitter extends Actor {
    */
   public radius: number = 0;
 
-  /**
-   * Indicates whether particles should start with a random rotation
-   */
-  public randomRotation: boolean = false;
-
   public particle: ParticleConfig = {
     /**
      * Gets or sets the life of each particle in milliseconds
@@ -76,7 +65,10 @@ export class ParticleEmitter extends Actor {
     transform: ParticleTransform.Global,
     graphic: undefined,
     opacity: 1,
-    angularVelocity: 0
+    angularVelocity: 0,
+    focus: undefined,
+    focusAccel: undefined,
+    randomRotation: false
   };
 
   /**
@@ -85,7 +77,7 @@ export class ParticleEmitter extends Actor {
   constructor(config: ParticleEmitterArgs) {
     super({ width: config.width ?? 0, height: config.height ?? 0 });
 
-    const { particle, x, y, z, pos, isEmitting, emitRate, focus, focusAccel, emitterType, radius, randomRotation, random } = { ...config };
+    const { particle, x, y, z, pos, isEmitting, emitRate, emitterType, radius, randomRotation, random } = { ...config };
 
     this.particle = { ...this.particle, ...particle };
 
@@ -93,11 +85,8 @@ export class ParticleEmitter extends Actor {
     this.z = z ?? 0;
     this.isEmitting = isEmitting ?? this.isEmitting;
     this.emitRate = emitRate ?? this.emitRate;
-    this.focus = focus ?? this.focus;
-    this.focusAccel = focusAccel ?? this.focusAccel;
     this.emitterType = emitterType ?? this.emitterType;
     this.radius = radius ?? this.radius;
-    this.randomRotation = randomRotation ?? this.randomRotation;
 
     this.body.collisionType = CollisionType.PreventCollision;
 
@@ -162,12 +151,12 @@ export class ParticleEmitter extends Actor {
       fade: this.particle.fade
     });
     p.registerEmitter(this);
-    if (this.randomRotation) {
+    if (this.particle.randomRotation) {
       p.transform.rotation = randomInRange(0, Math.PI * 2, this.random);
     }
-    if (this.focus) {
-      p.focus = this.focus.add(vec(this.pos.x, this.pos.y));
-      p.focusAccel = this.focusAccel;
+    if (this.particle.focus) {
+      p.focus = this.particle.focus.add(vec(this.pos.x, this.pos.y));
+      p.focusAccel = this.particle.focusAccel;
     }
     return p;
   }

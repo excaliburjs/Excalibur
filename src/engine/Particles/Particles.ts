@@ -170,31 +170,103 @@ export interface ParticleConfig {
    * as they would in a parent/child actor relationship.
    */
   transform?: ParticleTransform;
+  /**
+   * Starting position of the particle
+   */
   pos?: Vector;
+  /**
+   * Starting velocity of the particle
+   */
   vel?: Vector;
+  /**
+   * Starting acceleration of the particle
+   */
   acc?: Vector;
+  /**
+   * Starting angular velocity of the particle
+   */
   angularVelocity?: number;
+  /**
+   * Starting rotation of the particle
+   */
   rotation?: number;
+  /**
+   * Size of the particle in pixels
+   */
   size?: number;
+  /**
+   * Optionally set a graphic
+   */
   graphic?: Graphic;
+  /**
+   * Totally life of the particle in milliseconds
+   */
   life?: number;
+  /**
+   * Starting opacity of the particle
+   */
   opacity?: number;
+  /**
+   * Should the particle fade out to fully transparent over their life
+   */
   fade?: boolean;
 
+  /**
+   * Ending color of the particle over its life
+   */
   endColor?: Color;
+  /**
+   * Beginning color of the particle over its life
+   */
   beginColor?: Color;
 
+  /**
+   * Set the start size when you want to change particle size over their life
+   */
   startSize?: number;
+  /**
+   * Set the end size when you want to change particle size over their life
+   */
   endSize?: number;
 
+  /**
+   * Smallest possible starting size of the particle
+   */
   minSize?: number;
-  maxSize?: number; // how does this work with start/end size
-
-  minVel?: number;
+  /**
+   * Largest possible starting size of the particle
+   */
+  maxSize?: number;
+  /**
+   * Minimum magnitude of the particle starting vel
+   */
+  minVel?: number; // TODO Change to speed!
+  /**
+   * Maximum magnitude of the particle starting vel
+   */
   maxVel?: number;
-
+  /**
+   * Minimum angle to use for the particles starting rotation
+   */
   minAngle?: number;
+  /**
+   * Maximum angle to use for the particles starting rotation
+   */
   maxAngle?: number;
+
+  /**
+   * Gets or sets the optional focus where all particles should accelerate towards
+   */
+  focus?: Vector;
+  /**
+   * Gets or sets the optional acceleration for focusing particles if a focus has been specified
+   */
+  focusAccel?: number;
+
+  /**
+   * Indicates whether particles should start with a random rotation
+   */
+  randomRotation?: boolean;
 }
 
 export enum ParticleTransform {
