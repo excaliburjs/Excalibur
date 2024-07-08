@@ -329,7 +329,7 @@ describe('A CollisionContact', () => {
     expect(emittedB).toBe(true);
   });
 
-  fit('biases to colliderB', () => {
+  it('biases to colliderB', () => {
     const cc = new ex.CollisionContact(
       colliderA,
       colliderB,
