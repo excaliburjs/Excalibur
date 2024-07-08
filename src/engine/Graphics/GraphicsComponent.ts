@@ -57,7 +57,7 @@ export interface GraphicsComponentOptions {
   /**
    * List of graphics and optionally the options per graphic
    */
-  graphics?: { [graphicName: string]: Graphic | { graphic: Graphic; options: GraphicsShowOptions } };
+  graphics?: { [graphicName: string]: Graphic | { graphic: Graphic; options?: GraphicsShowOptions | undefined } };
 
   /**
    * Optional offset in absolute pixels to shift all graphics in this component from each graphic's anchor (default is top left corner)
@@ -78,7 +78,7 @@ export class GraphicsComponent extends Component {
 
   private _current: string = 'default';
   private _graphics: Record<string, Graphic> = {};
-  private _options: Record<string, GraphicsShowOptions> = {};
+  private _options: Record<string, GraphicsShowOptions | undefined> = {};
 
   public material: Material | null = null;
 
@@ -177,7 +177,7 @@ export class GraphicsComponent extends Component {
       onPostTransformDraw
     } = options;
 
-    for (const [key, graphicOrOptions] of Object.entries(graphics)) {
+    for (const [key, graphicOrOptions] of Object.entries(graphics as GraphicsComponentOptions)) {
       if (graphicOrOptions instanceof Graphic) {
         this._graphics[key] = graphicOrOptions;
       } else {
@@ -239,7 +239,7 @@ export class GraphicsComponent extends Component {
   /**
    * Returns all graphics options associated with this component
    */
-  public get options(): { [graphicName: string]: GraphicsShowOptions } {
+  public get options(): { [graphicName: string]: GraphicsShowOptions | undefined } {
     return this._options;
   }
 
@@ -251,7 +251,7 @@ export class GraphicsComponent extends Component {
   public add(name: string, graphic: Graphic, options?: GraphicsShowOptions): Graphic;
   public add(nameOrGraphic: string | Graphic, graphicOrOptions?: Graphic | GraphicsShowOptions, options?: GraphicsShowOptions): Graphic {
     let name = 'default';
-    let graphicToSet: Graphic = null;
+    let graphicToSet: Graphic | null = null;
     let optionsToSet: GraphicsShowOptions | undefined = undefined;
     if (typeof nameOrGraphic === 'string' && graphicOrOptions instanceof Graphic) {
       name = nameOrGraphic;
@@ -263,6 +263,9 @@ export class GraphicsComponent extends Component {
       optionsToSet = graphicOrOptions;
     }
 
+    if (!graphicToSet) {
+      throw new Error('Need to provide a graphic or valid graphic string');
+    }
     this._graphics[name] = this.copyGraphics ? graphicToSet.clone() : graphicToSet;
     this._options[name] = this.copyGraphics ? { ...optionsToSet } : optionsToSet;
     if (name === 'default') {
@@ -330,7 +333,7 @@ export class GraphicsComponent extends Component {
     this._current = 'ex.none';
   }
 
-  private _localBounds: BoundingBox = null;
+  private _localBounds?: BoundingBox;
   public set localBounds(bounds: BoundingBox) {
     this._localBounds = bounds;
   }
@@ -371,7 +374,7 @@ export class GraphicsComponent extends Component {
     if (!this._localBounds || this._localBounds.hasZeroDimensions()) {
       this.recalculateBounds();
     }
-    return this._localBounds;
+    return this._localBounds as BoundingBox; // recalc guarantees type
   }
 
   /**

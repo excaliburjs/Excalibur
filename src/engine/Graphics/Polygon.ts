@@ -12,7 +12,7 @@ export interface PolygonOptions {
  * Polygons default to [[ImageFiltering.Blended]]
  */
 export class Polygon extends Raster {
-  private _points: Vector[];
+  private _points: Vector[] = [];
   public get points(): Vector[] {
     return this._points;
   }

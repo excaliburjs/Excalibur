@@ -27,9 +27,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - show warning in development when Entity hasn't been added to a scene after a few seconds
 - New `RentalPool` type for sparse object pooling
 - New `ex.SparseHashGridCollisionProcessor` which is a simpler (and faster) implementation for broadphase pair generation. This works by bucketing colliders into uniform sized square buckets and using that to generate pairs.
+- CollisionContact can be biased toward a collider by using `contact.bias(collider)`. This adjusts the contact so that the given collider is colliderA, and is helpful if you 
+are doing mtv adjustments during precollision.
 
 ### Fixed
 
+- Fixed issue where not all physical keys from the spec were present in `ex.Keys` including the reported `ex.Keys.Tab`
+- Fixed invalid graphics types around `ex.Graphic.tint`
 - improve types to disallow invalid combo of collider/width/height/radius in actor args
 - only add default color graphic for the respective collider used
 - Fixed issue where `ex.SpriteFont` did not respect scale when measuring text
@@ -63,6 +67,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Applied increased TS strictness for the Graphics API subtree
+- Applied increased TS strictness for the TileMap API subtree
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->

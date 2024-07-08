@@ -6,7 +6,6 @@ import { Graphic, GraphicOptions } from './Graphic';
 import { Sprite } from './Sprite';
 import { SpriteSheet } from './SpriteSheet';
 import { BoundingBox } from '../Collision/BoundingBox';
-import { Color } from '../Color';
 
 export interface SpriteFontOptions {
   /**
@@ -41,7 +40,7 @@ export class SpriteFont extends Graphic implements FontRenderer {
   public alphabet: string = '';
   public spriteSheet: SpriteSheet;
 
-  public shadow: { offset: Vector } = null;
+  public shadow?: { offset: Vector } = undefined;
   public caseInsensitive = false;
   public spacing: number = 0;
   public lineHeight: number | undefined = undefined;
@@ -119,7 +118,7 @@ export class SpriteFont extends Graphic implements FontRenderer {
     }
   }
 
-  render(ex: ExcaliburGraphicsContext, text: string, _color: Color, x: number, y: number, maxWidth?: number) {
+  render(ex: ExcaliburGraphicsContext, text: string, _color: any, x: number, y: number, maxWidth?: number) {
     // SpriteFont doesn't support _color, yet...
     this._text = text;
     const bounds = this.measureText(text, maxWidth);
@@ -152,11 +151,11 @@ export class SpriteFont extends Graphic implements FontRenderer {
    * @param text
    * @param maxWidth
    */
-  private _cachedText: string;
-  private _cachedLines: string[];
-  private _cachedRenderWidth: number;
+  private _cachedText?: string;
+  private _cachedLines?: string[];
+  private _cachedRenderWidth?: number;
   private _getLinesFromText(text: string, maxWidth?: number) {
-    if (this._cachedText === text && this._cachedRenderWidth === maxWidth) {
+    if (this._cachedText === text && this._cachedRenderWidth === maxWidth && this._cachedLines?.length) {
       return this._cachedLines;
     }
 

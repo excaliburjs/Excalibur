@@ -18,7 +18,7 @@ export class TransformStack {
 
   public restore(): void {
     this._pool.return(this._currentTransform);
-    this._currentTransform = this._transforms.pop();
+    this._currentTransform = this._transforms.pop()!;
   }
 
   public translate(x: number, y: number): AffineMatrix {

@@ -5,52 +5,16 @@ import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
 
 /**
  * Enum representing physical input key codes
+ *
+ * Spec: https://w3c.github.io/uievents-code/#key-alphanumeric-section
  */
 export enum Keys {
-  // NUMPAD
-  Num0 = 'Numpad0',
-  Num1 = 'Numpad1',
-  Num2 = 'Numpad2',
-  Num3 = 'Numpad3',
-  Num4 = 'Numpad4',
-  Num5 = 'Numpad5',
-  Num6 = 'Numpad6',
-  Num7 = 'Numpad7',
-  Num8 = 'Numpad8',
-  Num9 = 'Numpad9',
-  NumAdd = 'NumpadAdd',
-  NumSubtract = 'NumpadSubtract',
-  NumMultiply = 'NumpadMultiply',
-  NumDivide = 'NumpadDivide',
-  // NumComma = 'NumpadComma', // not x-browser
-  NumDecimal = 'NumpadDecimal',
-  Numpad0 = 'Numpad0',
-  Numpad1 = 'Numpad1',
-  Numpad2 = 'Numpad2',
-  Numpad3 = 'Numpad3',
-  Numpad4 = 'Numpad4',
-  Numpad5 = 'Numpad5',
-  Numpad6 = 'Numpad6',
-  Numpad7 = 'Numpad7',
-  Numpad8 = 'Numpad8',
-  Numpad9 = 'Numpad9',
-  NumpadAdd = 'NumpadAdd',
-  NumpadSubtract = 'NumpadSubtract',
-  NumpadMultiply = 'NumpadMultiply',
-  NumpadDivide = 'NumpadDivide',
-  // NumpadComma = 'NumpadComma', // not x-browser
-  NumpadDecimal = 'NumpadDecimal',
-
-  // MODIFIERS
-  NumLock = 'NumLock',
-  ShiftLeft = 'ShiftLeft',
-  ShiftRight = 'ShiftRight',
-  AltLeft = 'AltLeft',
-  AltRight = 'AltRight',
-  ControlLeft = 'ControlLeft',
-  ControlRight = 'ControlRight',
-  MetaLeft = 'MetaLeft',
-  MetaRight = 'MetaRight',
+  // Writing System Keys https://w3c.github.io/uievents-code/#key-alphanumeric-writing-system
+  Backquote = 'Backquote',
+  Backslash = 'Backslash',
+  BracketLeft = 'BracketLeft',
+  BracketRight = 'BracketRight',
+  Comma = 'Comma',
 
   // NUMBERS
   Key0 = 'Digit0',
@@ -74,19 +38,11 @@ export enum Keys {
   Digit8 = 'Digit8',
   Digit9 = 'Digit9',
 
-  // FUNCTION KEYS
-  F1 = 'F1',
-  F2 = 'F2',
-  F3 = 'F3',
-  F4 = 'F4',
-  F5 = 'F5',
-  F6 = 'F6',
-  F7 = 'F7',
-  F8 = 'F8',
-  F9 = 'F9',
-  F10 = 'F10',
-  F11 = 'F11',
-  F12 = 'F12',
+  Equal = 'Equal',
+
+  IntlBackslash = 'IntlBackslash',
+  IntlRo = 'IntlRo',
+  IntlYen = 'IntlYen',
 
   // LETTERS
   A = 'KeyA',
@@ -143,37 +99,125 @@ export enum Keys {
   KeyZ = 'KeyZ',
 
   // SYMBOLS
-  Semicolon = 'Semicolon',
-  Quote = 'Quote',
-  Comma = 'Comma',
   Minus = 'Minus',
   Period = 'Period',
+  Quote = 'Quote',
+  Semicolon = 'Semicolon',
   Slash = 'Slash',
-  Equal = 'Equal',
-  BracketLeft = 'BracketLeft',
-  Backslash = 'Backslash',
-  BracketRight = 'BracketRight',
-  Backquote = 'Backquote',
 
-  // DIRECTIONS
+  // Functional keys https://w3c.github.io/uievents-code/#key-alphanumeric-functional
+  AltLeft = 'AltLeft',
+  AltRight = 'AltRight',
+  Alt = 'Alt',
+  AltGraph = 'AltGraph',
+  Backspace = 'Backspace',
+  CapsLock = 'CapsLock',
+  ContextMenu = 'ContextMenu',
+  ControlLeft = 'ControlLeft',
+  ControlRight = 'ControlRight',
+  Enter = 'Enter',
+  MetaLeft = 'MetaLeft',
+  MetaRight = 'MetaRight',
+  ShiftLeft = 'ShiftLeft',
+  ShiftRight = 'ShiftRight',
+  Space = 'Space',
+  Tab = 'Tab',
+
+  Convert = 'Convert',
+  KanaMode = 'KanaMode',
+  NonConvert = 'NonConvert',
+
+  // Control Pad https://w3c.github.io/uievents-code/#key-controlpad-section
+  Delete = 'Delete',
+  End = 'End',
+  Help = 'Help',
+  Home = 'Home',
+  Insert = 'Insert',
+  PageDown = 'PageDown',
+  PageUp = 'PageUp',
+
+  // Arrow Pad https://w3c.github.io/uievents-code/#key-arrowpad-section
   Up = 'ArrowUp',
   Down = 'ArrowDown',
   Left = 'ArrowLeft',
   Right = 'ArrowRight',
+
   ArrowUp = 'ArrowUp',
   ArrowDown = 'ArrowDown',
   ArrowLeft = 'ArrowLeft',
   ArrowRight = 'ArrowRight',
 
-  // OTHER
-  Space = 'Space',
-  Backspace = 'Backspace',
-  Delete = 'Delete',
+  // Numpad Section https://w3c.github.io/uievents-code/#key-numpad-section
+  NumLock = 'NumLock',
+  Numpad0 = 'Numpad0',
+  Numpad1 = 'Numpad1',
+  Numpad2 = 'Numpad2',
+  Numpad3 = 'Numpad3',
+  Numpad4 = 'Numpad4',
+  Numpad5 = 'Numpad5',
+  Numpad6 = 'Numpad6',
+  Numpad7 = 'Numpad7',
+  Numpad8 = 'Numpad8',
+  Numpad9 = 'Numpad9',
+  Num0 = 'Numpad0',
+  Num1 = 'Numpad1',
+  Num2 = 'Numpad2',
+  Num3 = 'Numpad3',
+  Num4 = 'Numpad4',
+  Num5 = 'Numpad5',
+  Num6 = 'Numpad6',
+  Num7 = 'Numpad7',
+  Num8 = 'Numpad8',
+  Num9 = 'Numpad9',
+
+  NumAdd = 'NumpadAdd',
+  NumpadAdd = 'NumpadAdd',
+
+  NumDecimal = 'NumpadDecimal',
+  NumpadDecimal = 'NumpadDecimal',
+
+  NumDivide = 'NumpadDivide',
+  NumpadDivide = 'NumpadDivide',
+
+  NumEnter = 'NumpadEnter',
+  NumpadEnter = 'NumpadEnter',
+
+  NumMultiply = 'NumpadMultiply',
+  NumpadMultiply = 'NumpadMultiply',
+
+  NumSubtract = 'NumpadSubtract',
+  NumpadSubtract = 'NumpadSubtract',
+  // NumComma = 'NumpadComma', // not x-browser
+  // NumpadComma = 'NumpadComma', // not x-browser
+
+  // Function section https://w3c.github.io/uievents-code/#key-function-section
   Esc = 'Escape',
   Escape = 'Escape',
-  Enter = 'Enter',
-  NumpadEnter = 'NumpadEnter',
-  ContextMenu = 'ContextMenu'
+  F1 = 'F1',
+  F2 = 'F2',
+  F3 = 'F3',
+  F4 = 'F4',
+  F5 = 'F5',
+  F6 = 'F6',
+  F7 = 'F7',
+  F8 = 'F8',
+  F9 = 'F9',
+  F10 = 'F10',
+  F11 = 'F11',
+  F12 = 'F12',
+  F13 = 'F13',
+  F14 = 'F14',
+  F15 = 'F15',
+  F16 = 'F16',
+  F17 = 'F17',
+  F18 = 'F18',
+  F19 = 'F19',
+  F20 = 'F20',
+  PrintScreen = 'PrintScreen',
+  ScrollLock = 'ScrollLock',
+  Pause = 'Pause',
+
+  Unidentified = 'Unidentified'
 }
 
 /**

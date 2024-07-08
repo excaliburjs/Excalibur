@@ -118,4 +118,28 @@ export class CollisionContact {
   public cancel(): void {
     this._canceled = true;
   }
+
+  /**
+   * Biases the contact so that the given collider is colliderA
+   */
+  public bias(collider: Collider) {
+    if (collider !== this.colliderA && collider !== this.colliderB) {
+      throw new Error('Collider must be either colliderA or colliderB from this contact');
+    }
+
+    if (collider === this.colliderA) {
+      return this;
+    }
+
+    const colliderA = this.colliderA;
+    const colliderB = this.colliderB;
+
+    this.colliderB = colliderA;
+    this.colliderA = colliderB;
+    this.mtv = this.mtv.negate();
+    this.normal = this.normal.negate();
+    this.tangent = this.tangent.negate();
+
+    return this;
+  }
 }

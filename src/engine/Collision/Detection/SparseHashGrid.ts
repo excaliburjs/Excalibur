@@ -236,7 +236,9 @@ export class SparseHashGrid<TObject extends { bounds: BoundingBox }, TProxy exte
 
   update(targets: TObject[]): number {
     let updated = 0;
-    this.bounds.reset();
+    // FIXME resetting bounds is wrong, if nothing has updated then
+    // the bounds stay 0
+    // this.bounds.reset();
     for (const target of targets) {
       const proxy = this.objectToProxy.get(target);
       if (!proxy) {

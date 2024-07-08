@@ -63,7 +63,7 @@ export class Text extends Graphic {
     this._calculateDimension();
   }
 
-  private _font: Font | SpriteFont;
+  private _font!: Font | SpriteFont;
   public get font(): Font | SpriteFont {
     return this._font;
   }
