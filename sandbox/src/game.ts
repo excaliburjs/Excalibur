@@ -916,6 +916,7 @@ game.add(player);
 // sprite.anchor = new ex.Vector(0.5, 0.5);
 var emitter = new ex.ParticleEmitter({
   isEmitting: false,
+  emitRate: 494,
   pos: new ex.Vector(100, 300),
   width: 2,
   height: 2,
@@ -933,10 +934,9 @@ var emitter = new ex.ParticleEmitter({
     endColor: ex.Color.Yellow,
     graphic: blockSprite,
     angularVelocity: Math.PI / 10,
-    acc: new ex.Vector(0, 460)
-  },
-  emitRate: 494,
-  randomRotation: true
+    acc: new ex.Vector(0, 460),
+    randomRotation: true
+  }
 });
 game.add(emitter);
 

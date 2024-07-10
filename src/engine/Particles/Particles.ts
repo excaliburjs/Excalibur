@@ -296,6 +296,5 @@ export interface ParticleEmitterArgs {
   focusAccel?: number;
   emitterType?: EmitterType;
   radius?: number;
-  randomRotation?: boolean;
   random?: Random;
 }
