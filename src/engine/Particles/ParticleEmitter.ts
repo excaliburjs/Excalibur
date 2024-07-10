@@ -1,6 +1,6 @@
 import { Engine } from '../Engine';
 import { Actor } from '../Actor';
-import { Vector, vec } from '../Math/vector';
+import { vec } from '../Math/vector';
 import { Random } from '../Math/Random';
 import { CollisionType } from '../Collision/CollisionType';
 import { randomInRange } from '../Math/util';
@@ -77,7 +77,7 @@ export class ParticleEmitter extends Actor {
   constructor(config: ParticleEmitterArgs) {
     super({ width: config.width ?? 0, height: config.height ?? 0 });
 
-    const { particle, x, y, z, pos, isEmitting, emitRate, emitterType, radius, randomRotation, random } = { ...config };
+    const { particle, x, y, z, pos, isEmitting, emitRate, emitterType, radius, random } = { ...config };
 
     this.particle = { ...this.particle, ...particle };
 
