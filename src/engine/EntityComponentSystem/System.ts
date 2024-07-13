@@ -22,10 +22,10 @@ export enum SystemType {
  * For example:
  *
  * ```typescript
- * class MySystem extends System<ComponentA | ComponentB> {
+ * class MySystem extends System {
  *   public readonly types = ['a', 'b'] as const;
  *   public readonly systemType = SystemType.Update;
- *   public update(entities: Entity<ComponentA | ComponentB>) {
+ *   public update(elapsedMs) {
  *      ...
  *   }
  * }
@@ -52,7 +52,6 @@ export abstract class System {
 
   /**
    * Update all entities that match this system's types
-   * @param entities Entities to update that match this system's types
    * @param elapsedMs Time in milliseconds
    */
   abstract update(elapsedMs: number): void;
