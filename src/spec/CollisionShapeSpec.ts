@@ -846,6 +846,18 @@ describe('Collision Shape', () => {
       expect(line.getEdge().dot(ex.Vector.Right)).toBeGreaterThan(0, 'Line from polygon to polygon should be away from polygon');
     });
 
+    it('can calculate the distance to angled edge on polygon', () => {
+      const box = ex.Shape.Box(40, 40, ex.Vector.Zero);
+
+      // triangle, angled edge facing box
+      const poly = ex.Shape.Polygon([new ex.Vector(0, 0), new ex.Vector(0, 40), new ex.Vector(-40, 40)], ex.vec(90, 0));
+
+      const line = box.getClosestLineBetween(poly);
+
+      expect(line.getLength()).toBe(10);
+      expect(line.getEdge().dot(ex.Vector.Right)).toBeGreaterThan(0, 'Line from polygon to polygon should be away from polygon');
+    });
+
     it('can calculate the distance to another edge', () => {
       const poly = ex.Shape.Box(40, 40, ex.Vector.Half, new ex.Vector(100, 100));
 
