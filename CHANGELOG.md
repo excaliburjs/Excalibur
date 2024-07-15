@@ -79,6 +79,9 @@ are doing mtv adjustments during precollision.
 
 ### Updates
 
+- Perf improvements to `ex.ParticleEmitter` 
+  * Use the same integrator as the MotionSystem in the tight loop
+  * Leverage object pools to increase performance and reduce allocations
 - Perf improvements to collision narrowphase and solver steps
   * Working in the local polygon space as much as possible speeds things up
   * Add another pair filtering condition on the `SparseHashGridCollisionProcessor` which reduces pairs passed to narrowphase
