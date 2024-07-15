@@ -7,7 +7,42 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
-- 
+- `ex.Particle` and `ex.ParticleEmitter` now have an API that looks like modern Excalibur APIs
+  * `particleSprite` is renamed to `graphic`
+  * `particleRotationalVelocity` is renamed to `angularVelocity`
+  * `fadeFlag` is renamed to `fade`
+  * `acceleration` is renamed to `acc`
+  * `particleLife` is renamed to `life`
+  * `ParticleEmitter` now takes a separate `particle: ParticleConfig` parameter to disambiguate between particles parameters and emitter ones
+    ```typescript
+    const emitter =  new ex.ParticleEmitter({
+        width: 10,
+        height: 10,
+        radius: 5,
+        emitterType: ex.EmitterType.Rectangle,
+        emitRate: 300,
+        isEmitting: true,
+        particle: {
+          transform: ex.ParticleTransform.Global,
+          opacity: 0.5,
+          life: 1000,
+          acc: ex.vec(10, 80),
+          beginColor: ex.Color.Chartreuse,
+          endColor: ex.Color.Magenta,
+          startSize: 5,
+          endSize: 100,
+          minVel: 100,
+          maxVel: 200,
+          minAngle: 5.1,
+          maxAngle: 6.2,
+          fade: true,
+          maxSize: 10,
+          graphic: swordImg.toSprite(),
+          randomRotation: true,
+          minSize: 1
+        }
+      });
+    ```
 
 ### Deprecated
 
