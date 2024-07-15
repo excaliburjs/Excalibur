@@ -4,127 +4,88 @@ import { Ray } from '../../Math/ray';
 import { PolygonCollider } from './PolygonCollider';
 import { EdgeCollider } from './EdgeCollider';
 import { CircleCollider } from './CircleCollider';
+import { clamp } from '../../Math/util';
 
 /**
- * Finds the closes line between 2 line segments, were the magnitude of u, v are the lengths of each segment
- * L1 = P(s) = p0 + s * u, where s is time and p0 is the start of the line
- * L2 = Q(t) = q0 + t * v, where t is time and q0 is the start of the line
- * @param p0 Point where L1 begins
- * @param u Direction and length of L1
- * @param q0 Point were L2 begins
- * @param v Direction and length of L2
+ * Finds the closest line segment between two given line segments.
  */
-export function ClosestLine(p0: Vector, u: Vector, q0: Vector, v: Vector) {
-  // Distance between 2 lines http://geomalgorithms.com/a07-_distance.html
+function ClosestLine(line1: LineSegment, line2: LineSegment) {
+  // https://math.stackexchange.com/questions/1993953/closest-points-between-2-lines-in-2d
+  const EPSILON = 1e-9;
 
-  // w(s, t) = P(s) - Q(t)
-  // The w(s, t) that has the minimum distance we will say is w(sClosest, tClosest) = wClosest
-  //
-  // wClosest is the vector that is uniquely perpendicular to the 2 line directions u & v.
-  // wClosest = w0 + sClosest * u - tClosest * v, where w0 is p0 - q0
-  //
-  // The closest point between 2 lines then satisfies this pair of equations
-  // 1: u * wClosest = 0
-  // 2: v * wClosest = 0
-  //
-  // Substituting wClosest into the equations we get
-  //
-  // 1: (u * u) * sClosest - (u * v) tClosest = -u * w0
-  // 2: (v * u) * sClosest - (v * v) tClosest = -v * w0
+  const line1Dir = line1.dir();
+  const line2Dir = line2.dir();
 
-  // simplify w0
-  const w0 = p0.sub(q0);
+  const d1Squared = line1Dir.dot(line1Dir);
+  const d2Squared = line2Dir.dot(line2Dir);
 
-  // simplify (u * u);
-  const a = u.dot(u);
-  // simplify (u * v);
-  const b = u.dot(v);
-  // simplify (v * v)
-  const c = v.dot(v);
-  // simplify (u * w0)
-  const d = u.dot(w0);
-  // simplify (v * w0)
-  const e = v.dot(w0);
-
-  // denominator ac - b^2
-  const denom = a * c - b * b;
-  let sDenom = denom;
-  let tDenom = denom;
-  // if denom is 0 they are parallel, use any point from either as the start in this case p0
-  if (denom === 0 || denom <= 0.01) {
-    const tClosestParallel = d / b;
-    return new LineSegment(p0, q0.add(v.scale(tClosestParallel)));
+  if (d1Squared < EPSILON && d2Squared < EPSILON) {
+    return new LineSegment(line1.begin, line2.begin);
   }
 
-  // Solve for sClosest for infinite line
-  let sClosest = b * e - c * d; // / denom;
-
-  // Solve for tClosest for infinite line
-  let tClosest = a * e - b * d; // / denom;
-
-  // Solve for segments candidate edges, if sClosest and tClosest are outside their segments
-  if (sClosest < 0) {
-    sClosest = 0;
-    tClosest = e;
-    tDenom = c;
-  } else if (sClosest > sDenom) {
-    sClosest = sDenom;
-    tClosest = e + b;
-    tDenom = c;
+  if (d1Squared < EPSILON) {
+    const t = clamp(line2Dir.dot(line1.begin.sub(line2.begin)) / d2Squared, 0, 1);
+    const closestPoint = line2.begin.add(line2Dir.scale(t));
+    return new LineSegment(line1.begin, closestPoint);
   }
 
-  if (tClosest < 0) {
-    tClosest = 0;
-    if (-d < 0) {
-      sClosest = 0;
-    } else if (-d > a) {
-      sClosest = sDenom;
-    } else {
-      sClosest = -d;
-      sDenom = a;
-    }
-  } else if (tClosest > tDenom) {
-    tClosest = tDenom;
-    if (-d + b < 0) {
-      sClosest = 0;
-    } else if (-d + b > a) {
-      sClosest = sDenom;
-    } else {
-      sClosest = -d + b;
-      sDenom = a;
-    }
+  if (d2Squared < EPSILON) {
+    const t = clamp(line1Dir.dot(line2.begin.sub(line1.begin)) / d1Squared, 0, 1);
+    const closestPoint = line1.begin.add(line1Dir.scale(t));
+    return new LineSegment(closestPoint, line2.begin);
   }
-  sClosest = Math.abs(sClosest) < 0.001 ? 0 : sClosest / sDenom;
-  tClosest = Math.abs(tClosest) < 0.001 ? 0 : tClosest / tDenom;
 
-  return new LineSegment(p0.add(u.scale(sClosest)), q0.add(v.scale(tClosest)));
+  const r = line1.begin.sub(line2.begin);
+  const a = d1Squared;
+  const e = d2Squared;
+  const f = line2Dir.dot(r);
+
+  const denom = a * e - Math.pow(line1Dir.dot(line2Dir), 2);
+
+  let s = 0;
+  let t = 0;
+
+  if (Math.abs(denom) > EPSILON) {
+    s = clamp((line1Dir.dot(line2Dir) * f - e * line1Dir.dot(r)) / denom, 0, 1);
+  } else {
+    // lines are parallel
+    s = clamp(line1Dir.dot(r) / a, 0, 1);
+  }
+
+  if (Math.abs(e) > EPSILON) {
+    t = clamp((line1Dir.dot(line2Dir) * s + f) / e, 0, 1);
+  } else {
+    // line2 is a degenerate point
+    t = 0;
+  }
+
+  const closestPointOnLine1 = line1.begin.add(line1Dir.scale(s));
+  const closestPointOnLine2 = line2.begin.add(line2Dir.scale(t));
+
+  return new LineSegment(closestPointOnLine1, closestPointOnLine2);
 }
 
 export const ClosestLineJumpTable = {
   PolygonPolygonClosestLine(polygonA: PolygonCollider, polygonB: PolygonCollider) {
-    // Find the 2 closest faces on each polygon
-    const otherWorldPos = polygonB.worldPos;
-    const otherDirection = otherWorldPos.sub(polygonA.worldPos);
-    const thisDirection = otherDirection.negate();
+    const aSides = polygonA.getSides();
+    const bSides = polygonB.getSides();
 
-    const rayTowardsOther = new Ray(polygonA.worldPos, otherDirection);
-    const rayTowardsThis = new Ray(otherWorldPos, thisDirection);
+    let minDistance = Number.MAX_VALUE;
+    let closestLine: LineSegment | null = null;
 
-    const thisPoint = polygonA.rayCast(rayTowardsOther).point.add(rayTowardsOther.dir.scale(0.1));
-    const otherPoint = polygonB.rayCast(rayTowardsThis).point.add(rayTowardsThis.dir.scale(0.1));
+    for (let i = 0; i < aSides.length; i++) {
+      for (let j = 0; j < bSides.length; j++) {
+        const line = ClosestLine(aSides[i], bSides[j]);
+        const distance = line.getLength();
 
-    const thisFace = polygonA.getClosestFace(thisPoint);
-    const otherFace = polygonB.getClosestFace(otherPoint);
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestLine = line;
+        }
+      }
+    }
 
-    // L1 = P(s) = p0 + s * u, where s is time and p0 is the start of the line
-    const p0 = thisFace.face.begin;
-    const u = thisFace.face.getEdge();
-
-    // L2 = Q(t) = q0 + t * v, where t is time and q0 is the start of the line
-    const q0 = otherFace.face.begin;
-    const v = otherFace.face.getEdge();
-
-    return ClosestLine(p0, u, q0, v);
+    return closestLine;
   },
 
   PolygonEdgeClosestLine(polygon: PolygonCollider, edge: EdgeCollider) {
@@ -139,17 +100,11 @@ export const ClosestLineJumpTable = {
     const thisFace = polygon.getClosestFace(thisPoint);
 
     // L1 = P(s) = p0 + s * u, where s is time and p0 is the start of the line
-    const p0 = thisFace.face.begin;
-    const u = thisFace.face.getEdge();
 
     // L2 = Q(t) = q0 + t * v, where t is time and q0 is the start of the line
     const edgeLine = edge.asLine();
-    const edgeStart = edgeLine.begin;
-    const edgeVector = edgeLine.getEdge();
-    const q0 = edgeStart;
-    const v = edgeVector;
 
-    return ClosestLine(p0, u, q0, v);
+    return ClosestLine(thisFace.face, edgeLine);
   },
 
   PolygonCircleClosestLine(polygon: PolygonCollider, circle: CircleCollider) {
@@ -235,18 +190,10 @@ export const ClosestLineJumpTable = {
   EdgeEdgeClosestLine(edgeA: EdgeCollider, edgeB: EdgeCollider) {
     // L1 = P(s) = p0 + s * u, where s is time and p0 is the start of the line
     const edgeLineA = edgeA.asLine();
-    const edgeStartA = edgeLineA.begin;
-    const edgeVectorA = edgeLineA.getEdge();
-    const p0 = edgeStartA;
-    const u = edgeVectorA;
 
     // L2 = Q(t) = q0 + t * v, where t is time and q0 is the start of the line
     const edgeLineB = edgeB.asLine();
-    const edgeStartB = edgeLineB.begin;
-    const edgeVectorB = edgeLineB.getEdge();
-    const q0 = edgeStartB;
-    const v = edgeVectorB;
 
-    return ClosestLine(p0, u, q0, v);
+    return ClosestLine(edgeLineA, edgeLineB);
   }
 };
