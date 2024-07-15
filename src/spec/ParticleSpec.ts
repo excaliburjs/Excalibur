@@ -50,14 +50,12 @@ describe('A particle', () => {
         beginColor: ex.Color.Red.clone(),
         endColor: ex.Color.Blue.clone(),
         graphic: null,
-        angularVelocity: 3
+        angularVelocity: 3,
+        randomRotation: false
       },
-      focus: null,
-      focusAccel: null,
       emitRate: 3,
       emitterType: ex.EmitterType.Circle,
       radius: 20,
-      randomRotation: false,
       random: new ex.Random(1337)
     });
 
@@ -75,8 +73,8 @@ describe('A particle', () => {
     expect(emitter.particle.life).toBe(4);
     expect(emitter.particle.opacity).toBe(0.5);
     expect(emitter.particle.fade).toBe(false);
-    expect(emitter.focus).toBe(undefined);
-    expect(emitter.focusAccel).toBe(undefined);
+    expect(emitter.particle.focus).toBe(undefined);
+    expect(emitter.particle.focusAccel).toBe(undefined);
     expect(emitter.particle.startSize).toBe(1);
     expect(emitter.particle.endSize).toBe(10);
     expect(emitter.particle.minSize).toBe(1);
@@ -87,7 +85,7 @@ describe('A particle', () => {
     expect(emitter.emitterType).toBe(ex.EmitterType.Circle);
     expect(emitter.radius).toBe(20);
     expect(emitter.particle.angularVelocity).toBe(3);
-    expect(emitter.randomRotation).toBe(false);
+    expect(emitter.particle.randomRotation).toBe(false);
     expect(emitter.random.seed).toBe(1337);
   });
 
