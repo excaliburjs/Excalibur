@@ -915,33 +915,29 @@ game.add(player);
 // Add particle emitter
 // sprite.anchor = new ex.Vector(0.5, 0.5);
 var emitter = new ex.ParticleEmitter({
+  isEmitting: false,
+  emitRate: 494,
   pos: new ex.Vector(100, 300),
   width: 2,
   height: 2,
-  minVel: 417,
-  maxVel: 589,
-  minAngle: Math.PI,
-  maxAngle: Math.PI * 2,
-  isEmitting: false,
-  emitRate: 494,
-  opacity: 0.84,
-  fadeFlag: true,
-  particleLife: 2465,
-  maxSize: 20.5,
-  minSize: 10,
-  acceleration: new ex.Vector(0, 460),
-  beginColor: ex.Color.Red,
-  endColor: ex.Color.Yellow,
-  particleSprite: blockSprite,
-  particleRotationalVelocity: Math.PI / 10,
-  randomRotation: true
+  particle: {
+    minVel: 417,
+    maxVel: 589,
+    minAngle: Math.PI,
+    maxAngle: Math.PI * 2,
+    opacity: 0.84,
+    fade: true,
+    life: 2465,
+    maxSize: 20.5,
+    minSize: 10,
+    beginColor: ex.Color.Red,
+    endColor: ex.Color.Yellow,
+    graphic: blockSprite,
+    angularVelocity: Math.PI / 10,
+    acc: new ex.Vector(0, 460),
+    randomRotation: true
+  }
 });
-const original = (ex.ParticleEmitter.prototype as any)._createParticle;
-(ex.ParticleEmitter.prototype as any)._createParticle = function () {
-  const particle = original.call(this);
-  particle.graphics.onPostDraw = () => {};
-  return particle;
-};
 game.add(emitter);
 
 var exploding = false;

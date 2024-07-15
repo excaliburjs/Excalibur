@@ -12,7 +12,7 @@ import { BodyComponent } from '../Collision/BodyComponent';
 import { CollisionSystem } from '../Collision/CollisionSystem';
 import { CompositeCollider } from '../Collision/Colliders/CompositeCollider';
 import { GraphicsComponent } from '../Graphics/GraphicsComponent';
-import { Particle } from '../Particles';
+import { Particle } from '../Particles/Particles';
 import { DebugGraphicsComponent } from '../Graphics/DebugGraphicsComponent';
 import { CoordPlane } from '../Math/coord-plane';
 import { Debug } from '../Graphics/Debug';

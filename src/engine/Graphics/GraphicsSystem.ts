@@ -8,7 +8,6 @@ import { Camera } from '../Camera';
 import { Query, System, SystemPriority, SystemType, World } from '../EntityComponentSystem';
 import { Engine } from '../Engine';
 import { GraphicsGroup } from './GraphicsGroup';
-import { Particle } from '../Particles'; // this import seems to bomb wallaby
 import { ParallaxComponent } from './ParallaxComponent';
 import { CoordPlane } from '../Math/coord-plane';
 import { BodyComponent } from '../Collision/BodyComponent';
@@ -142,10 +141,7 @@ export class GraphicsSystem extends System {
       }
       entity.events.emit('predraw', new PreDrawEvent(this._graphicsContext, delta, entity));
 
-      // TODO remove this hack on the particle redo
-      // Remove this line after removing the wallaby import
-      const particleOpacity = entity instanceof Particle ? entity.opacity : 1;
-      this._graphicsContext.opacity *= graphics.opacity * particleOpacity;
+      this._graphicsContext.opacity *= graphics.opacity;
 
       // Draw the graphics component
       this._drawGraphicsComponent(graphics, transform);
