@@ -1,7 +1,10 @@
 var game = new ex.Engine({
   width: 400,
-  height: 400
+  height: 400,
+  displayMode: ex.DisplayMode.FitScreenAndFill
 });
+
+var swordImg = new ex.ImageSource('https://cdn.rawgit.com/excaliburjs/Excalibur/7dd48128/assets/sword.png');
 
 var actor = new ex.Actor({
   anchor: ex.vec(0.5, 0.5),
@@ -37,11 +40,13 @@ var emitter = new ex.ParticleEmitter({
     maxAngle: 6.2,
     fade: true,
     maxSize: 10,
+    graphic: swordImg.toSprite(),
+    randomRotation: true,
     minSize: 1
   }
 });
 
-game.start();
+game.start(new ex.Loader([swordImg]));
 game.add(actor);
 
 actor.angularVelocity = 2;
