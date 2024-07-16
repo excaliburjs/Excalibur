@@ -52,4 +52,10 @@ export class InputHost {
       this.gamepads.update();
     }
   }
+
+  clear() {
+    this.keyboard.clear();
+    this.pointers.clear();
+    // this.gamepads.clear();
+  }
 }
