@@ -67,6 +67,7 @@ are doing mtv adjustments during precollision.
 
 ### Fixed
 
+- Fixed issue where `ex.Scene` scoped input events would preserve state and get stuck causing issues when switching back to the original scene.
 - Fixed issue where not all physical keys from the spec were present in `ex.Keys` including the reported `ex.Keys.Tab`
 - Fixed invalid graphics types around `ex.Graphic.tint`
 - improve types to disallow invalid combo of collider/width/height/radius in actor args
