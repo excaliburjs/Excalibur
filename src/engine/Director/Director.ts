@@ -555,6 +555,7 @@ export class Director<TKnownScenes extends string = any> {
         const context = { engine, previousScene, nextScene };
         await this.currentScene._deactivate(context);
         this.currentScene.events.emit('deactivate', new DeactivateEvent(context, this.currentScene));
+        this.currentScene.input.clear();
       }
 
       // wait for the scene to be loaded if needed

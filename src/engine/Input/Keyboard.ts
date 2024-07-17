@@ -346,6 +346,12 @@ export class Keyboard {
     this._keys.length = 0;
   };
 
+  public clear() {
+    this._keysDown.length = 0;
+    this._keysUp.length = 0;
+    this._keys.length = 0;
+  }
+
   private _handleKeyDown = (ev: KeyboardEvent) => {
     if (!this._enabled) {
       return;
