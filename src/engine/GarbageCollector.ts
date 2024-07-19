@@ -50,7 +50,7 @@ export class GarbageCollector {
     }
   }
 
-  public collect = (deadline?: IdleDeadline) => {
+  public collectStaleResources = (deadline?: IdleDeadline) => {
     if (!this._running) {
       return;
     }
