@@ -10,6 +10,36 @@ section: Graphics
 
 The default implementation in Excalibur uses WebGL, however Excalibur can fallback to the 2D Canvas implementation if WebGL isn't supported or there isn't browser hardware acceleration. [Read more](#performance)
 
+```mermaid mermaid
+sequenceDiagram
+    participant Entity
+    participant Engine
+    participant ExcaliburGraphicsContext
+    participant RenderPlugin
+    loop Current Frame Draws
+    Entity ->> ExcaliburGraphicsContext: draw(renderer, ...params)
+    ExcaliburGraphicsContext ->> Draw Call Pool: 
+    Draw Call Pool ->> ExcaliburGraphicsContext: Batch Call
+    Note right of Draw Call Pool: Captures current state/transform/renderer
+    end
+    Engine ->> ExcaliburGraphicsContext: End of Frame flush() 
+    Note right of ExcaliburGraphicsContext: Sort Draw Calls By Z
+    loop flush() Every Draw Call
+        ExcaliburGraphicsContext ->> RenderPlugin: Renderer.draw(params)
+        Note right of RenderPlugin: Build up buffers for GPU
+        alt Renderer Switch/Batch Full
+            RenderPlugin ->> RenderTarget: flush() Batch Draw
+        end
+        loop Every Post Process
+            RenderTarget ->> RenderTarget: Post Process 
+        end
+        RenderTarget ->> Screen: blit()
+    end
+
+
+
+```
+
 ### Canvas support
 
 If you have need to switch to 2D canvas based rendering turn on the flag before engine construction.

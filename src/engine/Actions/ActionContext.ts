@@ -25,9 +25,9 @@ import { Action } from './Action';
 
 /**
  * The fluent Action API allows you to perform "actions" on
- * [[Actor|Actors]] such as following, moving, rotating, and
+ * {@apilink Actor | `actors`} such as following, moving, rotating, and
  * more. You can implement your own actions by implementing
- * the [[Action]] interface.
+ * the {@apilink Action} interface.
  */
 export class ActionContext {
   private _entity: Entity;

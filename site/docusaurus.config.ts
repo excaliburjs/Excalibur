@@ -1,4 +1,5 @@
 import { Config } from '@docusaurus/types';
+import type * as Preset from '@docusaurus/preset-classic';
 import { Options as ClassicPresetOptions, ThemeConfig as ClassicPresetThemeConfig } from '@docusaurus/preset-classic';
 import { ReflectionKind } from 'typedoc';
 import path from 'path';
@@ -6,6 +7,7 @@ import webpack, { web } from 'webpack';
 import { themes } from 'prism-react-renderer';
 import typedocSymbolLinks from 'remark-typedoc-symbol-links';
 import rehypeRaw from 'rehype-raw';
+
 
 const lightCodeTheme = themes.github;
 const darkCodeTheme = themes.dracula;
@@ -16,6 +18,10 @@ const rehypeRawOptions = {
 };
 
 const config: Config = {
+  themes: ['@docusaurus/theme-mermaid'],
+  markdown: {
+    mermaid: true,
+  },
   title: 'Excalibur.js',
   tagline: 'Your friendly TypeScript 2D game engine for the web.',
   favicon: 'img/favicon.ico',
@@ -49,11 +55,10 @@ const config: Config = {
   presets: [
     [
       'classic',
-      /** @type {import('@docusaurus/preset-classic').Options} */
       {
         docs: {
           sidebarCollapsed: false,
-          sidebarPath: require.resolve('./sidebars.js'),
+          sidebarPath: './sidebars.ts',
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl: 'https://github.com/excaliburjs/Excalibur/tree/main/site/',
@@ -81,24 +86,24 @@ const config: Config = {
           
         },
         theme: {
-          customCss: require.resolve('./src/css/custom.css')
+          customCss: './src/css/custom.css'
         }
-      } as ClassicPresetOptions
+      } satisfies Preset.Options,
     ],
     [
       'docusaurus-preset-shiki-twoslash',
       {
         themes: ['github-light', 'github-dark'],
-        ignoreCodeblocksWithCodefenceMeta: ['live']
+        ignoreCodeblocksWithCodefenceMeta: ['live', 'mermaid']
       }
     ]
   ],
 
   plugins: [
-    async function excaliburPlugin(context) {
+    async function excaliburStackblitzPlugin(context) {
       return {
-        name: 'excalibur-plugin',
-        configureWebpack() {
+        name: 'excalibur-stackblitz-plugin',
+        configureWebpack(): webpack.Configuration {
           return {
             devServer: {
               client: {
@@ -109,18 +114,9 @@ const config: Config = {
                 }
               }
             }
-          };
+          } as webpack.Configuration; // Force dev server config
         },
         configureAdditionalWebpack(): webpack.Configuration {
-          // const isCssLoader = (rule: webpack.RuleSetRule) => rule.test && rule.test.toString().includes('.css$');
-          // const postCssLoader = config.module.rules.find(isCssLoader) as webpack.RuleSetRule | undefined;
-
-          // if (postCssLoader) {
-          //   // Exclude engine CSS files from postcss because they will be inlined
-          //   // during engine build
-          //   postCssLoader.exclude = [postCssLoader.exclude, path.resolve(__dirname, '../src/engine')];
-          // }
-
           return {
             name: 'excalibur',
             devtool: false,

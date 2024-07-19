@@ -4,6 +4,7 @@ slug: /engine
 section: Fundamentals
 ---
 
+
 Excalibur uses the HTML5 Canvas API for drawing your game to the screen.
 The canvas is available to all `draw` functions for raw manipulation,
 but Excalibur is meant to simplify or completely remove the need to use
@@ -58,6 +59,24 @@ scene. Only one [[Scene]] can be active at a time. The engine does not update/dr
 scene, which means any actors will not be updated/drawn if they are part of a deactivated scene.
 
 ![Engine Lifecycle](EngineLifecycle.png)
+
+```mermaid mermaid
+sequenceDiagram
+  Engine ->>+ Clock: start()
+  Clock ->> Clock: tick()
+  Clock --)- Engine: mainloop()
+  Engine ->> Loader: Load()
+  Loader --) Engine: Ready
+  loop Every tick Engine.mainloop()
+      opt Not Ready
+          Loader ->> Loader: Update()
+          Loader ->> Loader: Draw()
+      end
+      Engine ->> Current Scene: Update
+      Current Scene ->> ECS World: Update Systems
+  end
+
+```
 
 **Scene Graph**
 

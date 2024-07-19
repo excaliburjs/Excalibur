@@ -79,6 +79,74 @@ An actor has a basic lifecycle that dictates how it is initialized, updated, and
 
 ![Actor Lifecycle](ActorLifecycle.png)
 
+```mermaid mermaid
+---
+title: Entity/Actor
+---
+classDiagram
+    class Component {
+        +owner: Entity
+    }
+
+    class Entity {
+        +components: components[]
+        +get(type: Component)
+    }
+
+    class Actor {
+        +transform: TransformComponent
+        +motion: MotionComponent
+        +body: BodyComponent
+        +collider: ColliderComponent
+        +graphics: GraphicsComponent
+    }
+    Component <|-- TransformComponent
+    Component <|-- MotionComponent
+    Component <|-- BodyComponent
+    Component <|-- ColliderComponent
+    Component <|-- GraphicsComponent
+
+    Entity <|-- Actor : Is A
+    Entity --* Component: Has Many
+    Actor --* TransformComponent
+    Actor --* MotionComponent
+    Actor --* BodyComponent
+    Actor --* GraphicsComponent
+
+    class TransformComponent {
+        +pos: Vector
+        +rotation: number
+        +scale: Vector
+        +z: number
+    }
+
+    class MotionComponent {
+        +vel: Vector
+        +acc: Vector
+        +angularVelocity: number
+    }
+
+    class BodyComponent {
+        +mass: number
+        +inertia: number
+        +motion: number
+        +friction: number
+        +bounciness: number
+        +collisionType: CollisionType
+        +group: CollisionGroup
+        +applyImpulse(vec: Vector)
+    }
+    class GraphicsComponent {
+        +current: Graphic
+        +opacity: number
+        +use(graphic: Graphic)
+    }
+    class ColliderComponent {
+        +set(collider: Collider)
+        +get(): Collider
+    }
+```
+
 ## Updating actors
 
 In most games, things are happening on screen: the background is parallax-ing, your hero responds to input, and enemies shoot bullets. In Excalibur, the logic that updates game state is run during the [update loop](/docs/engine#engine-lifecycle). Actors are a way to encapsulate that logic, such as a `Player`, `Enemy`, and `MenuButton`. Actors are designed to be pretty much anything!
