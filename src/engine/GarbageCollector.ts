@@ -1,5 +1,3 @@
-import { Engine } from './';
-
 export interface GarbageCollectionOptions {
   /**
    * Textures that aren't drawn after a certain number of milliseconds are unloaded from the GPU
@@ -24,10 +22,6 @@ export const DefaultGarbageCollectionOptions: GarbageCollectionOptions = {
   // TODO future work to integrate the font and text configuration, refactor existing collection mechanism
   // fontCollectInterval: 60_000,
   // textMeasurementCollectInterval: 60_000,
-};
-
-export const useGarbageCollectionConfig: () => GarbageCollectionOptions = () => {
-  return Engine.useEngine().garbageCollectorConfig;
 };
 
 export interface GarbageCollectorOptions {

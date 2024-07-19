@@ -833,6 +833,7 @@ O|===|* >________________>\n\
         ...options.garbageCollection
       };
     }
+    this._garbageCollector = new GarbageCollector({ getTimestamp: Date.now });
 
     this.canvasElementId = options.canvasElementId;
 
@@ -869,143 +870,141 @@ O|===|* >________________>\n\
 
     this._originalDisplayMode = displayMode;
 
-    this.scope(() => {
-      this._garbageCollector = new GarbageCollector({ getTimestamp: Date.now });
+    let pixelArtSampler: boolean;
+    let uvPadding: number;
+    let nativeContextAntialiasing: boolean;
+    let canvasImageRendering: 'pixelated' | 'auto';
+    let filtering: ImageFiltering;
+    let multiSampleAntialiasing: boolean | { samples: number };
+    if (typeof options.antialiasing === 'object') {
+      ({ pixelArtSampler, nativeContextAntialiasing, multiSampleAntialiasing, filtering, canvasImageRendering } = {
+        ...(options.pixelArt ? DefaultPixelArtOptions : DefaultAntialiasOptions),
+        ...options.antialiasing
+      });
+    } else {
+      pixelArtSampler = !!options.pixelArt;
+      nativeContextAntialiasing = false;
+      multiSampleAntialiasing = options.antialiasing;
+      canvasImageRendering = options.antialiasing ? 'auto' : 'pixelated';
+      filtering = options.antialiasing ? ImageFiltering.Blended : ImageFiltering.Pixel;
+    }
 
-      let pixelArtSampler: boolean;
-      let uvPadding: number;
-      let nativeContextAntialiasing: boolean;
-      let canvasImageRendering: 'pixelated' | 'auto';
-      let filtering: ImageFiltering;
-      let multiSampleAntialiasing: boolean | { samples: number };
-      if (typeof options.antialiasing === 'object') {
-        ({ pixelArtSampler, nativeContextAntialiasing, multiSampleAntialiasing, filtering, canvasImageRendering } = {
-          ...(options.pixelArt ? DefaultPixelArtOptions : DefaultAntialiasOptions),
-          ...options.antialiasing
-        });
-      } else {
-        pixelArtSampler = !!options.pixelArt;
-        nativeContextAntialiasing = false;
-        multiSampleAntialiasing = options.antialiasing;
-        canvasImageRendering = options.antialiasing ? 'auto' : 'pixelated';
-        filtering = options.antialiasing ? ImageFiltering.Blended : ImageFiltering.Pixel;
-      }
+    if (nativeContextAntialiasing && multiSampleAntialiasing) {
+      this._logger.warnOnce(
+        `Cannot use antialias setting nativeContextAntialiasing and multiSampleAntialiasing` +
+          ` at the same time, they are incompatible settings. If you aren\'t sure use multiSampleAntialiasing`
+      );
+    }
 
-      if (nativeContextAntialiasing && multiSampleAntialiasing) {
-        this._logger.warnOnce(
-          `Cannot use antialias setting nativeContextAntialiasing and multiSampleAntialiasing` +
-            ` at the same time, they are incompatible settings. If you aren\'t sure use multiSampleAntialiasing`
-        );
-      }
+    if (options.pixelArt) {
+      uvPadding = 0.25;
+    }
 
-      if (options.pixelArt) {
-        uvPadding = 0.25;
-      }
+    if (!options.antialiasing || filtering === ImageFiltering.Pixel) {
+      uvPadding = 0;
+    }
 
-      if (!options.antialiasing || filtering === ImageFiltering.Pixel) {
-        uvPadding = 0;
-      }
+    // Override with any user option, if non default to .25 for pixel art, 0.01 for everything else
+    uvPadding = options.uvPadding ?? uvPadding ?? 0.01;
 
-      // Override with any user option, if non default to .25 for pixel art, 0.01 for everything else
-      uvPadding = options.uvPadding ?? uvPadding ?? 0.01;
-
-      // Canvas 2D fallback can be flagged on
-      let useCanvasGraphicsContext = Flags.isEnabled('use-canvas-context');
-      if (!useCanvasGraphicsContext) {
-        // Attempt webgl first
-        try {
-          this.graphicsContext = new ExcaliburGraphicsContextWebGL({
-            canvasElement: this.canvas,
-            enableTransparency: this.enableCanvasTransparency,
-            pixelArtSampler: pixelArtSampler,
-            antialiasing: nativeContextAntialiasing,
-            multiSampleAntialiasing: multiSampleAntialiasing,
-            uvPadding: uvPadding,
-            powerPreference: options.powerPreference,
-            backgroundColor: options.backgroundColor,
-            snapToPixel: options.snapToPixel,
-            useDrawSorting: options.useDrawSorting,
-            garbageCollector: this._garbageCollector,
-            handleContextLost: options.handleContextLost ?? this._handleWebGLContextLost,
-            handleContextRestored: options.handleContextRestored
-          });
-        } catch (e) {
-          this._logger.warn(
-            `Excalibur could not load webgl for some reason (${(e as Error).message}) and loaded a Canvas 2D fallback. ` +
-              `Some features of Excalibur will not work in this mode. \n\n` +
-              'Read more about this issue at https://excaliburjs.com/docs/performance'
-          );
-          // fallback to canvas in case of failure
-          useCanvasGraphicsContext = true;
-        }
-      }
-
-      if (useCanvasGraphicsContext) {
-        this.graphicsContext = new ExcaliburGraphicsContext2DCanvas({
+    // Canvas 2D fallback can be flagged on
+    let useCanvasGraphicsContext = Flags.isEnabled('use-canvas-context');
+    if (!useCanvasGraphicsContext) {
+      // Attempt webgl first
+      try {
+        this.graphicsContext = new ExcaliburGraphicsContextWebGL({
           canvasElement: this.canvas,
           enableTransparency: this.enableCanvasTransparency,
+          pixelArtSampler: pixelArtSampler,
           antialiasing: nativeContextAntialiasing,
+          multiSampleAntialiasing: multiSampleAntialiasing,
+          uvPadding: uvPadding,
+          powerPreference: options.powerPreference,
           backgroundColor: options.backgroundColor,
           snapToPixel: options.snapToPixel,
-          useDrawSorting: options.useDrawSorting
+          useDrawSorting: options.useDrawSorting,
+          garbageCollector: {
+            garbageCollector: this._garbageCollector,
+            collectionInterval: this.garbageCollectorConfig.textureCollectInterval
+          },
+          handleContextLost: options.handleContextLost ?? this._handleWebGLContextLost,
+          handleContextRestored: options.handleContextRestored
         });
+      } catch (e) {
+        this._logger.warn(
+          `Excalibur could not load webgl for some reason (${(e as Error).message}) and loaded a Canvas 2D fallback. ` +
+            `Some features of Excalibur will not work in this mode. \n\n` +
+            'Read more about this issue at https://excaliburjs.com/docs/performance'
+        );
+        // fallback to canvas in case of failure
+        useCanvasGraphicsContext = true;
       }
+    }
 
-      this.screen = new Screen({
-        canvas: this.canvas,
-        context: this.graphicsContext,
+    if (useCanvasGraphicsContext) {
+      this.graphicsContext = new ExcaliburGraphicsContext2DCanvas({
+        canvasElement: this.canvas,
+        enableTransparency: this.enableCanvasTransparency,
         antialiasing: nativeContextAntialiasing,
-        canvasImageRendering: canvasImageRendering,
-        browser: this.browser,
-        viewport:
-          options.viewport ?? (options.width && options.height ? { width: options.width, height: options.height } : Resolution.SVGA),
-        resolution: options.resolution,
-        displayMode,
-        pixelRatio: options.suppressHiDPIScaling ? 1 : options.pixelRatio ?? null
+        backgroundColor: options.backgroundColor,
+        snapToPixel: options.snapToPixel,
+        useDrawSorting: options.useDrawSorting
       });
+    }
 
-      // TODO REMOVE STATIC!!!
-      // Set default filtering based on antialiasing
-      TextureLoader.filtering = filtering;
-
-      if (options.backgroundColor) {
-        this.backgroundColor = options.backgroundColor.clone();
-      }
-
-      this.maxFps = options.maxFps ?? this.maxFps;
-      this.fixedUpdateFps = options.fixedUpdateFps ?? this.fixedUpdateFps;
-
-      this.clock = new StandardClock({
-        maxFps: this.maxFps,
-        tick: this._mainloop.bind(this),
-        onFatalException: (e) => this.onFatalException(e)
-      });
-
-      this.enableCanvasTransparency = options.enableCanvasTransparency;
-
-      if (typeof options.physics === 'boolean') {
-        this.physics = {
-          ...DefaultPhysicsConfig,
-          ...DeprecatedStaticToConfig(),
-          enabled: options.physics
-        };
-      } else {
-        this.physics = {
-          ...DefaultPhysicsConfig,
-          ...DeprecatedStaticToConfig()
-        };
-        mergeDeep(this.physics, options.physics);
-      }
-
-      this.debug = new DebugConfig(this);
-
-      this.director = new Director(this, options.scenes);
-
-      this._initialize(options);
-
-      (window as any).___EXCALIBUR_DEVTOOL = this;
-      Engine.InstanceCount++;
+    this.screen = new Screen({
+      canvas: this.canvas,
+      context: this.graphicsContext,
+      antialiasing: nativeContextAntialiasing,
+      canvasImageRendering: canvasImageRendering,
+      browser: this.browser,
+      viewport: options.viewport ?? (options.width && options.height ? { width: options.width, height: options.height } : Resolution.SVGA),
+      resolution: options.resolution,
+      displayMode,
+      pixelRatio: options.suppressHiDPIScaling ? 1 : options.pixelRatio ?? null
     });
+
+    // TODO REMOVE STATIC!!!
+    // Set default filtering based on antialiasing
+    TextureLoader.filtering = filtering;
+
+    if (options.backgroundColor) {
+      this.backgroundColor = options.backgroundColor.clone();
+    }
+
+    this.maxFps = options.maxFps ?? this.maxFps;
+    this.fixedUpdateFps = options.fixedUpdateFps ?? this.fixedUpdateFps;
+
+    this.clock = new StandardClock({
+      maxFps: this.maxFps,
+      tick: this._mainloop.bind(this),
+      onFatalException: (e) => this.onFatalException(e)
+    });
+
+    this.enableCanvasTransparency = options.enableCanvasTransparency;
+
+    if (typeof options.physics === 'boolean') {
+      this.physics = {
+        ...DefaultPhysicsConfig,
+        ...DeprecatedStaticToConfig(),
+        enabled: options.physics
+      };
+    } else {
+      this.physics = {
+        ...DefaultPhysicsConfig,
+        ...DeprecatedStaticToConfig()
+      };
+      mergeDeep(this.physics, options.physics);
+    }
+
+    this.debug = new DebugConfig(this);
+
+    this.director = new Director(this, options.scenes);
+
+    this._initialize(options);
+
+    (window as any).___EXCALIBUR_DEVTOOL = this;
+    Engine.InstanceCount++;
   }
 
   private _handleWebGLContextLost = (e: Event) => {

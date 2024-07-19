@@ -3,9 +3,7 @@ var game = new ex.Engine({
   width: 1400,
   height: 1400,
   pixelRatio: 4,
-  garbageCollection: {
-    textureCollectInterval: 1_000
-  }
+  garbageCollection: true
 });
 
 var actor = new ex.Actor({

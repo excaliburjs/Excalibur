@@ -89,7 +89,7 @@ export interface WebGLGraphicsContextInfo {
 
 export interface ExcaliburGraphicsContextWebGLOptions extends ExcaliburGraphicsContextOptions {
   context?: WebGL2RenderingContext;
-  garbageCollector?: GarbageCollector;
+  garbageCollector?: { garbageCollector: GarbageCollector; collectionInterval: number };
   handleContextLost?: (e: Event) => void;
   handleContextRestored?: (e: Event) => void;
 }
