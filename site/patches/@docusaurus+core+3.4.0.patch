@@ -1,0 +1,32 @@
+diff --git a/node_modules/@docusaurus/core/lib/webpack/configure.js b/node_modules/@docusaurus/core/lib/webpack/configure.js
+index 58558b6..48d9cd6 100644
+--- a/node_modules/@docusaurus/core/lib/webpack/configure.js
++++ b/node_modules/@docusaurus/core/lib/webpack/configure.js
+@@ -77,12 +77,17 @@ function executePluginsConfigurePostCss({ plugins, config, }) {
+ function executePluginsConfigureWebpack({ plugins, config, isServer, jsLoader, }) {
+     // Step1 - Configure Webpack
+     let resultConfig = config;
++    const additionalPluginConfigs = [];
+     plugins.forEach((plugin) => {
+-        const { configureWebpack } = plugin;
++        const { configureWebpack, configureAdditionalWebpack } = plugin;
+         if (configureWebpack) {
+             resultConfig = applyConfigureWebpack(configureWebpack.bind(plugin), // The plugin lifecycle may reference `this`.
+             resultConfig, isServer, jsLoader, plugin.content);
+         }
++        if (configureAdditionalWebpack) {
++          additionalPluginConfigs.push(applyConfigureWebpack(configureAdditionalWebpack.bind(plugin),
++            {}, false, jsLoader, plugin.content));
++        }
+     });
+     // Step2 - For client code, configure PostCSS
+     // The order matters! We want to configure PostCSS on loaders
+@@ -92,7 +97,7 @@ function executePluginsConfigureWebpack({ plugins, config, isServer, jsLoader, }
+     if (!isServer) {
+         resultConfig = executePluginsConfigurePostCss({
+             plugins,
+-            config: resultConfig,
++            config: [resultConfig, ...additionalPluginConfigs],
+         });
+     }
+     return resultConfig;
