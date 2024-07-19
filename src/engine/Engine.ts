@@ -816,7 +816,7 @@ O|===|* >________________>\n\
 
     this._logger.debug('Building engine...');
 
-    this._garbageCollector = new GarbageCollector({nowFn: Date.now});
+    this._garbageCollector = new GarbageCollector({getTimestamp: Date.now});
 
 
     this.canvasElementId = options.canvasElementId;

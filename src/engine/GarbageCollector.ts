@@ -36,7 +36,7 @@ export class GarbageCollector {
    * @param resource
    */
   addCollectableResource(type: string, resource: any) {
-    this._collectionMap.set(resource, [type, this.options.nowFn()]);
+    this._collectionMap.set(resource, [type, this.options.getTimestamp()]);
   }
 
   /**
@@ -46,7 +46,7 @@ export class GarbageCollector {
   touch(resource: any) {
     const collectionData = this._collectionMap.get(resource);
     if (collectionData) {
-      this._collectionMap.set(resource, [collectionData[0], this.options.nowFn()]);
+      this._collectionMap.set(resource, [collectionData[0], this.options.getTimestamp()]);
     }
   }
 
@@ -55,7 +55,7 @@ export class GarbageCollector {
       return;
     }
     for (const [type, [collector, timeoutInterval]] of this._collectors.entries()) {
-      const now = this.options.nowFn();
+      const now = this.options.getTimestamp();
       for (const [resource, [resourceType, time]] of this._collectionMap.entries()) {
         if (type !== resourceType || (time + timeoutInterval >= now)) {
           continue;
@@ -68,12 +68,12 @@ export class GarbageCollector {
       }
     }
 
-    this._collectHandle = requestIdleCallback(this.collect);
+    this._collectHandle = requestIdleCallback(this.collectStaleResources);
   };
 
   start() {
     this._running = true;
-    this.collect();
+    this.collectStaleResources();
   }
 
   stop() {

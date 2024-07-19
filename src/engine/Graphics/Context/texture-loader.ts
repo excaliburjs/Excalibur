@@ -159,9 +159,9 @@ export class TextureLoader {
 
     if (this.has(image)) {
       const texture = this.get(image);
-      if (tex) {
+      if (texture) {
         this._textureMap.delete(image);
-        gl.deleteTexture(tex);
+        gl.deleteTexture(texture);
       }
     }
   }
