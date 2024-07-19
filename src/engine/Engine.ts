@@ -923,10 +923,12 @@ O|===|* >________________>\n\
           backgroundColor: options.backgroundColor,
           snapToPixel: options.snapToPixel,
           useDrawSorting: options.useDrawSorting,
-          garbageCollector: {
-            garbageCollector: this._garbageCollector,
-            collectionInterval: this.garbageCollectorConfig.textureCollectInterval
-          },
+          garbageCollector: this.garbageCollectorConfig
+            ? {
+                garbageCollector: this._garbageCollector,
+                collectionInterval: this.garbageCollectorConfig.textureCollectInterval
+              }
+            : null,
           handleContextLost: options.handleContextLost ?? this._handleWebGLContextLost,
           handleContextRestored: options.handleContextRestored
         });

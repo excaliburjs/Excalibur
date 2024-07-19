@@ -3,7 +3,7 @@ var game = new ex.Engine({
   width: 1400,
   height: 1400,
   pixelRatio: 4,
-  garbageCollection: true
+  garbageCollection: false
 });
 
 var actor = new ex.Actor({
