@@ -54,8 +54,6 @@ export class GarbageCollector {
     if (!this._running) {
       return;
     }
-
-
     for (const [type, [collector, timeoutInterval]] of this._collectors.entries()) {
       const now = this.options.nowFn();
       for (const [resource, [resourceType, time]] of this._collectionMap.entries()) {
