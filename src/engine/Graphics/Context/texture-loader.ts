@@ -1,4 +1,4 @@
-import { GarbageCollector } from '../../GarbageCollector';
+import { GarbageCollector, useGarbageCollectionConfig } from '../../GarbageCollector';
 import { Logger } from '../../Util/Log';
 import { ImageFiltering } from '../Filtering';
 import { ImageSourceOptions, ImageWrapConfiguration } from '../ImageSource';
@@ -17,8 +17,11 @@ export class TextureLoader {
   ) {
     this._gl = gl;
     TextureLoader._MAX_TEXTURE_SIZE = gl.getParameter(gl.MAX_TEXTURE_SIZE);
-    // TODO timeout configurable
-    _garbageCollector?.registerCollector('texture', 60_000, this._collect);
+    const garbageCollectionConfig = useGarbageCollectionConfig();
+    if (garbageCollectionConfig) {
+      TextureLoader._LOGGER.debug('Texture collection interval:', garbageCollectionConfig.textureCollectInterval);
+      _garbageCollector?.registerCollector('texture', garbageCollectionConfig.textureCollectInterval, this._collect);
+    }
   }
 
   public dispose() {

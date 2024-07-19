@@ -1,8 +1,34 @@
+import { Engine } from './';
+
 export interface GarbageCollectionOptions {
-  textureCollectInterval: number; // default 60_000 ms
-  fontCollectInterval: number; // default 60_000 ms
-  textMeasurementCollectInterval: number; // default 60_000 ms
+  /**
+   * Textures that aren't drawn after a certain number of milliseconds are unloaded from the GPU
+   * Default 60_000 ms
+   */
+  textureCollectInterval?: number; // default 60_000 ms
+  // TODO future work to integrate the font and text configuration, refactor existing collection mechanism
+  // /**
+  //  * Font pre-renders that aren't drawn after a certain number of milliseconds are unloaded from the GPU
+  //  * Default 60_000 ms
+  //  */
+  // fontCollectInterval: number; // default 60_000 ms
+  // /**
+  //  * Text measurements that aren't used after a certain number of milliseconds are unloaded from the GPU
+  //  * Default 60_000 ms
+  //  */
+  // textMeasurementCollectInterval: number; // default 60_000 ms
 }
+
+export const DefaultGarbageCollectionOptions: GarbageCollectionOptions = {
+  textureCollectInterval: 60_000
+  // TODO future work to integrate the font and text configuration, refactor existing collection mechanism
+  // fontCollectInterval: 60_000,
+  // textMeasurementCollectInterval: 60_000,
+};
+
+export const useGarbageCollectionConfig: () => GarbageCollectionOptions = () => {
+  return Engine.useEngine().garbageCollectorConfig;
+};
 
 export interface GarbageCollectorOptions {
   /**
@@ -49,6 +75,9 @@ export class GarbageCollector {
     }
   }
 
+  /**
+   * Runs the collection loop to cleanup any stale resources given the registered collect handlers
+   */
   public collectStaleResources = (deadline?: IdleDeadline) => {
     if (!this._running) {
       return;
@@ -70,11 +99,17 @@ export class GarbageCollector {
     this._collectHandle = requestIdleCallback(this.collectStaleResources);
   };
 
+  /**
+   * Starts the garbage collection loop
+   */
   start() {
     this._running = true;
     this.collectStaleResources();
   }
 
+  /**
+   * Stops the garbage collection loop
+   */
   stop() {
     this._running = false;
     cancelIdleCallback(this._collectHandle);

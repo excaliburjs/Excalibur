@@ -2,7 +2,9 @@ var game = new ex.Engine({
   width: 1400,
   height: 1400,
   pixelRatio: 4,
-  garbageCollection: false
+  garbageCollection: {
+    textureCollectInterval: 1_000
+  }
 });
 
 ex.Logger.getInstance().defaultLevel = ex.LogLevel.Debug;
