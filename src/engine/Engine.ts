@@ -1163,6 +1163,7 @@ O|===|* >________________>\n\
     if (!this._disposed) {
       this._disposed = true;
       this.stop();
+      this._garbageCollector.forceCollectAll();
       this.input.toggleEnabled(false);
       this.canvas.parentNode.removeChild(this.canvas);
       this.canvas = null;

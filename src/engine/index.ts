@@ -11,6 +11,7 @@ polyfill();
 export * from './Flags';
 export * from './Id';
 export * from './Engine';
+export * from './GarbageCollector';
 export * from './Screen';
 export * from './Actor';
 export * from './Math/Index';

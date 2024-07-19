@@ -94,6 +94,21 @@ export class GarbageCollector {
   };
 
   /**
+   * Force collect all resources, useful for shutting down a game
+   * or if you know that you will not use anything you've allocated before now
+   */
+  public forceCollectAll() {
+    for (const [_, [collector]] of this._collectors.entries()) {
+      for (const [resource] of this._collectionMap.entries()) {
+        const collected = collector(resource);
+        if (collected) {
+          this._collectionMap.delete(resource);
+        }
+      }
+    }
+  }
+
+  /**
    * Starts the garbage collection loop
    */
   start() {
