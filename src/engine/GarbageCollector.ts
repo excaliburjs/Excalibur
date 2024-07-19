@@ -60,7 +60,7 @@ export class GarbageCollector {
         if (type !== resourceType || (time + timeoutInterval >= now)) {
           continue;
         }
-        
+
         const collected = collector(resource);
         if (collected) {
           this._collectionMap.delete(resource);
