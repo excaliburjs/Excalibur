@@ -60,6 +60,43 @@ index 46a4930..a4a898e 100644
          isServer: true,
          jsLoader: props.siteConfig.webpack?.jsLoader,
      });
+diff --git a/node_modules/@docusaurus/core/lib/commands/start/webpack.js b/node_modules/@docusaurus/core/lib/commands/start/webpack.js
+index 4e357f7..722ecb1 100644
+--- a/node_modules/@docusaurus/core/lib/commands/start/webpack.js
++++ b/node_modules/@docusaurus/core/lib/commands/start/webpack.js
+@@ -99,26 +99,26 @@ async function createDevServerConfig({ cliOptions, props, host, port, }) {
+ }
+ async function getStartClientConfig({ props, minify, poll, }) {
+     const { plugins, siteConfig } = props;
+-    let { clientConfig: config } = await (0, client_1.createStartClientConfig)({
++    let { clientConfig: tmpConfig } = await (0, client_1.createStartClientConfig)({
+         props,
+         minify,
+         poll,
+     });
+-    config = (0, configure_1.executePluginsConfigureWebpack)({
++    let [config, additionalPluginConfigs] = (0, configure_1.executePluginsConfigureWebpack)({
+         plugins,
+-        config,
++        config: tmpConfig,
+         isServer: false,
+         jsLoader: siteConfig.webpack?.jsLoader,
+     });
+-    return config;
++    return [config, additionalPluginConfigs];
+ }
+ async function createWebpackDevServer({ props, cliOptions, openUrlContext, }) {
+-    const config = await getStartClientConfig({
++    const [config, additionalPluginConfigs] = await getStartClientConfig({
+         props,
+         minify: cliOptions.minify ?? true,
+         poll: cliOptions.poll,
+     });
+-    const compiler = (0, webpack_1.default)(config);
++    const compiler = (0, webpack_1.default)([config, ...additionalPluginConfigs]);
+     registerWebpackE2ETestHook(compiler);
+     const defaultDevServerConfig = await createDevServerConfig({
+         cliOptions,
 diff --git a/node_modules/@docusaurus/core/lib/webpack/configure.js b/node_modules/@docusaurus/core/lib/webpack/configure.js
 index 58558b6..c9baa77 100644
 --- a/node_modules/@docusaurus/core/lib/webpack/configure.js
