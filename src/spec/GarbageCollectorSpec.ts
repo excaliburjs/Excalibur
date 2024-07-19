@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 
-fdescribe('A garbage collector', () => {
+describe('A garbage collector', () => {
   let requestIdleCallback: jasmine.Spy<(typeof window)['requestIdleCallback']>;
   let cancelIdleCallback: jasmine.Spy<(typeof window)['cancelIdleCallback']>;
 
