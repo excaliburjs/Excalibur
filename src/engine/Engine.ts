@@ -53,6 +53,7 @@ import { InputHost } from './Input/InputHost';
 import { DefaultPhysicsConfig, DeprecatedStaticToConfig, PhysicsConfig } from './Collision/PhysicsConfig';
 import { DeepRequired } from './Util/Required';
 import { Context, createContext, useContext } from './Context';
+import { DefaultGarbageCollectionOptions, GarbageCollectionOptions, GarbageCollector } from './GarbageCollector';
 import { mergeDeep } from './Util/Util';
 
 export type EngineEvents = {
@@ -143,6 +144,19 @@ export interface EngineOptions<TKnownScenes extends string = any> {
    * a high degree.
    */
   antialiasing?: boolean | AntialiasOptions;
+
+  /**
+   * Optionally specify excalibur garbage collection, by default false
+   *
+   * * `true` - garbage collection defaults are enabled (default)
+   *
+   * * `false` - garbage collection is completely disabled (not recommended)
+   *
+   * * [[GarbageCollectionOptions]] Optionally deeply configure garbage collection settings, **WARNING** thar be dragons here.
+   * It is recommended you stick to `true` or `false` unless you understand what you're doing, it is possible to get into a downward
+   * spiral if collection timings are set too low where you are stuck in repeated collection.
+   */
+  garbageCollection?: boolean | GarbageCollectionOptions;
 
   /**
    * Quick convenience property to configure Excalibur to use special settings for "pretty" anti-aliased pixel art
@@ -371,6 +385,10 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
    * @param cb
    */
   scope = <TReturn>(cb: () => TReturn) => Engine.Context.scope(this, cb);
+
+  private _garbageCollector: GarbageCollector;
+
+  public readonly garbageCollectorConfig: GarbageCollectionOptions | null;
 
   /**
    * Current Excalibur version string
@@ -695,6 +713,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
     snapToPixel: false,
     antialiasing: true,
     pixelArt: false,
+    garbageCollection: true,
     powerPreference: 'high-performance',
     pointerScope: PointerScope.Canvas,
     suppressConsoleBootMessage: null,
@@ -799,6 +818,22 @@ O|===|* >________________>\n\
     }
 
     this._logger.debug('Building engine...');
+    if (options.garbageCollection === true) {
+      this.garbageCollectorConfig = {
+        ...DefaultGarbageCollectionOptions
+      };
+    } else if (options.garbageCollection === false) {
+      this._logger.warn(
+        'WebGL Garbage Collection Disabled!!! If you leak any images over time your game will crash when GPU memory is exhausted'
+      );
+      this.garbageCollectorConfig = null;
+    } else {
+      this.garbageCollectorConfig = {
+        ...DefaultGarbageCollectionOptions,
+        ...options.garbageCollection
+      };
+    }
+    this._garbageCollector = new GarbageCollector({ getTimestamp: Date.now });
 
     this.canvasElementId = options.canvasElementId;
 
@@ -829,6 +864,9 @@ O|===|* >________________>\n\
       this._logger.debug('Engine viewport is fit');
       displayMode = DisplayMode.FitScreen;
     }
+
+    this.grabWindowFocus = options.grabWindowFocus;
+    this.pointerScope = options.pointerScope;
 
     this._originalDisplayMode = displayMode;
 
@@ -885,6 +923,12 @@ O|===|* >________________>\n\
           backgroundColor: options.backgroundColor,
           snapToPixel: options.snapToPixel,
           useDrawSorting: options.useDrawSorting,
+          garbageCollector: this.garbageCollectorConfig
+            ? {
+                garbageCollector: this._garbageCollector,
+                collectionInterval: this.garbageCollectorConfig.textureCollectInterval
+              }
+            : null,
           handleContextLost: options.handleContextLost ?? this._handleWebGLContextLost,
           handleContextRestored: options.handleContextRestored
         });
@@ -929,9 +973,6 @@ O|===|* >________________>\n\
     if (options.backgroundColor) {
       this.backgroundColor = options.backgroundColor.clone();
     }
-
-    this.grabWindowFocus = options.grabWindowFocus;
-    this.pointerScope = options.pointerScope;
 
     this.maxFps = options.maxFps ?? this.maxFps;
     this.fixedUpdateFps = options.fixedUpdateFps ?? this.fixedUpdateFps;
@@ -1122,6 +1163,7 @@ O|===|* >________________>\n\
     if (!this._disposed) {
       this._disposed = true;
       this.stop();
+      this._garbageCollector.forceCollectAll();
       this.input.toggleEnabled(false);
       this.canvas.parentNode.removeChild(this.canvas);
       this.canvas = null;
@@ -1656,6 +1698,9 @@ O|===|* >________________>\n\
       this._logger.debug('Starting game clock...');
       this.browser.resume();
       this.clock.start();
+      if (this.garbageCollectorConfig) {
+        this._garbageCollector.start();
+      }
       this._logger.debug('Game clock started');
 
       await this.load(loader ?? new Loader());
@@ -1730,6 +1775,7 @@ O|===|* >________________>\n\
       this.emit('stop', new GameStopEvent(this));
       this.browser.pause();
       this.clock.stop();
+      this._garbageCollector.stop();
       this._logger.debug('Game stopped');
     }
   }

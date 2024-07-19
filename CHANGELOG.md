@@ -53,6 +53,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Excalibur will now clean up WebGL textures that have not been drawn in a while, which improves stability for long game sessions
+  * If a graphic is drawn again it will be reloaded into the GPU seamlessly
 - You can now query for colliders on the physics world
   ```typescript
     const scene = ...;
