@@ -40,7 +40,11 @@ export class Query<TKnownComponentCtors extends ComponentCtor<Component> = never
     // TODO what happens if a user defines the same type name as a built in type
     // ! TODO this could be dangerous depending on the bundler's settings for names
     // Maybe some kind of hash function is better here?
-    return requiredComponents.slice().map(c => c.name).sort().join('-');
+    return requiredComponents
+      .slice()
+      .map((c) => c.name)
+      .sort()
+      .join('-');
   }
 
   /**

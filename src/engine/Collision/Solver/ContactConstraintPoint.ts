@@ -1,12 +1,15 @@
 import { Vector } from '../../Math/vector';
-import { BodyComponent } from '../BodyComponent';
 import { CollisionContact } from '../Detection/CollisionContact';
 
 /**
  * Holds information about contact points, meant to be reused over multiple frames of contact
  */
 export class ContactConstraintPoint {
-  constructor(public point: Vector, public local: Vector, public contact: CollisionContact) {
+  constructor(
+    public point: Vector,
+    public local: Vector,
+    public contact: CollisionContact
+  ) {
     this.update();
   }
 
@@ -14,8 +17,8 @@ export class ContactConstraintPoint {
    * Updates the contact information
    */
   update() {
-    const bodyA = this.contact.colliderA.owner?.get(BodyComponent);
-    const bodyB = this.contact.colliderB.owner?.get(BodyComponent);
+    const bodyA = this.contact.bodyA;
+    const bodyB = this.contact.bodyB;
 
     if (bodyA && bodyB) {
       const normal = this.contact.normal;
@@ -50,8 +53,8 @@ export class ContactConstraintPoint {
    * Returns the relative velocity between bodyA and bodyB
    */
   public getRelativeVelocity() {
-    const bodyA = this.contact.colliderA.owner?.get(BodyComponent);
-    const bodyB = this.contact.colliderB.owner?.get(BodyComponent);
+    const bodyA = this.contact.bodyA;
+    const bodyB = this.contact.bodyB;
     if (bodyA && bodyB) {
       // Relative velocity in linear terms
       // Angular to linear velocity formula -> omega = velocity/radius so omega x radius = velocity

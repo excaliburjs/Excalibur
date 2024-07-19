@@ -1,14 +1,29 @@
 {
   "name": "excalibur",
   "sideEffects": false,
-  "version": "0.29.1",
+  "version": "0.29.3",
   "exNextVersion": "0.30.0",
   "description": "Excalibur.js is a simple JavaScript game engine with TypeScript bindings for making 2D games in HTML5 Canvas. Our mission is to make web game development as simple as possible.",
   "author": "https://github.com/excaliburjs/Excalibur/graphs/contributors",
   "homepage": "https://github.com/excaliburjs/Excalibur",
   "main": "build/dist/excalibur.min.js",
   "typings": "build/dist/excalibur.d.ts",
-  "module": "build/esm/excalibur.js",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./build/dist/excalibur.d.ts",
+      "development": {
+        "import": "./build/esm/excalibur.development.js",
+        "require": "./build/dist/excalibur.development.js"
+      },
+      "production": {
+        "import": "./build/esm/excalibur.js",
+        "require": "./build/dist/excalibur.js"
+      },
+      "import": "./build/esm/excalibur.js",
+      "require": "./build/dist/excalibur.js"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/excaliburjs/Excalibur.git"
@@ -26,8 +41,8 @@
     "simple"
   ],
   "scripts": {
-    "all": "npm run lint && npm run core && npm run build:esm && npm run test && npm run legacy-visual",
-    "all:ci": "npm run lint && npm run core && npm run build:esm && npm run test:ci && npm run legacy-visual",
+    "all": "npm run format && npm run lint && npm run core && npm run build:esm && npm run test && npm run legacy-visual",
+    "all:ci": "npm run format && npm run lint && npm run core && npm run build:esm && npm run test:ci && npm run legacy-visual",
     "clean": "rimraf .tsbuildinfo ./build/dist ./build ./src/spec/*.js ./src/spec/*.map",
     "linux:ci": "npm run clean && npm run all:ci && npm run coveralls && npm run apidocs",
     "appveyor": "npm run all:ci && npm run nuget 0.0.1",
@@ -36,18 +51,20 @@
     "start": "npm run core:watch",
     "start:esm": "npm run core:bundle:esm -- --watch",
     "build": "npm run core",
-    "build:esm": "npm run core:bundle:esm",
-    "core": "npm run core:tsc && npm run core:copy && npm run core:bundle",
-    "core:tsc": "tsc --project src/engine/tsconfig.json --incremental true --tsBuildInfoFile .tsbuildinfo && node ./scripts/excalibur-version.js",
+    "build:esm": "npm run core:bundle:esm && npm run core:bundle:esm:development",
+    "core": "npm run core:tsc && npm run core:copy && npm run core:bundle && npm run core:bundle:development",
+    "core:tsc": "tsc --project src/engine/tsconfig.json --incremental true --tsBuildInfoFile .tsbuildinfo --emitDeclarationOnly && node ./scripts/excalibur-version.js",
     "core:copy": "copyfiles -u 2 ./src/engine/**/*.png ./src/engine/**/*.css ./src/engine/**/*.glsl ./build/dist/",
     "core:bundle": "webpack --progress --config webpack.config.js --mode production",
+    "core:bundle:development": "webpack --progress --config webpack.config.js --mode development",
     "core:bundle:esm": "webpack --progress --config webpack.config.js --mode production --env output=esm",
+    "core:bundle:esm:development": "webpack --progress --config webpack.config.js --mode development --env output=esm",
     "core:watch": "npm run core:bundle -- --watch",
-    "lint": "npm run eslint && npm run eslint:spec",
-    "lint:fix": "npm run eslint -- --fix && npm run eslint:spec -- --fix",
-    "eslint": "eslint \"src/engine/**/*.ts\"",
-    "eslint:sandbox": "eslint \"sandbox/**/*.ts\"",
-    "eslint:spec": "eslint \"src/spec/**/*.ts\"",
+    "format": "prettier . --check",
+    "format:fix": "npm run format -- --write",
+    "lint": "npm run eslint",
+    "lint:fix": "npm run eslint -- --fix",
+    "eslint": "eslint .",
     "visual": "storybook dev",
     "build-storybook": "storybook build -o build-storybook",
     "sandbox:copy": "copyfiles -u 2 \"./build/dist/**/*.*\" \"./build/dist/*.*\" ./sandbox/lib/",
@@ -59,21 +76,22 @@
     "test:watch": "karma start --auto-watch --single-run=false",
     "coveralls": "echo 'Temporarily Remove Coveralls Due To Outage'",
     "apidocs": "node scripts/apidocs.js",
-    "release": "cross-env release=true npm run all"
+    "release": "cross-env release=true npm run all",
+    "prepare": "husky"
   },
   "devDependencies": {
-    "@babel/core": "7.24.3",
-    "@babel/preset-env": "7.24.3",
-    "@babel/preset-typescript": "7.24.1",
-    "@fortawesome/fontawesome-free": "6.5.1",
-    "@octokit/rest": "20.1.0",
-    "@storybook/addon-actions": "7.6.17",
-    "@storybook/addon-essentials": "7.6.17",
-    "@storybook/addon-links": "7.6.17",
-    "@storybook/html": "7.6.17",
-    "@storybook/html-webpack5": "7.6.17",
+    "@babel/core": "7.24.7",
+    "@babel/preset-env": "7.24.7",
+    "@babel/preset-typescript": "7.24.7",
+    "@fortawesome/fontawesome-free": "6.5.2",
+    "@octokit/rest": "20.1.1",
+    "@storybook/addon-actions": "7.6.20",
+    "@storybook/addon-essentials": "7.6.20",
+    "@storybook/addon-links": "7.6.20",
+    "@storybook/html": "7.6.20",
+    "@storybook/html-webpack5": "7.6.20",
     "@types/jasmine": "5.1.4",
-    "@types/node": "20.12.3",
+    "@types/node": "20.14.9",
     "@types/react-color": "3.0.12",
     "@types/webpack-env": "1.18.4",
     "@typescript-eslint/eslint-plugin": "7.5.0",
@@ -83,12 +101,13 @@
     "copyfiles": "2.4.1",
     "coveralls": "3.1.1",
     "cross-env": "7.0.3",
-    "css-loader": "6.10.0",
+    "css-loader": "6.11.0",
     "eslint": "8.57.0",
     "eslint-config-prettier": "9.1.0",
-    "eslint-plugin-jsdoc": "48.2.2",
+    "eslint-plugin-jsdoc": "48.5.0",
     "eslint-plugin-storybook": "0.8.0",
     "excalibur-jasmine": "0.3.4",
+    "husky": "9.0.11",
     "istanbul": "0.4.5",
     "istanbul-instrumenter-loader": "3.0.1",
     "jasmine": "5.1.0",
@@ -103,6 +122,8 @@
     "karma-spec-reporter": "0.0.36",
     "karma-summary-reporter": "3.1.1",
     "karma-webpack": "5.0.1",
+    "lint-staged": "15.2.2",
+    "prettier": "3.2.5",
     "puppeteer": "15.5.0",
     "raw-loader": "4.0.2",
     "react": "18.2.0",
@@ -110,9 +131,9 @@
     "replace-in-file": "7.1.0",
     "rimraf": "5.0.5",
     "semver": "7.6.0",
-    "serve": "14.2.1",
+    "serve": "14.2.3",
     "source-map-support": "0.5.21",
-    "storybook": "7.6.17",
+    "storybook": "7.6.20",
     "sync-request": "6.1.0",
     "terser-webpack-plugin": "5.3.10",
     "ts-loader": "9.5.1",
@@ -123,7 +144,11 @@
     "webpack-cli": "5.1.4"
   },
   "dependencies": {
-    "core-js": "3.36.1"
+    "core-js": "3.37.1"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,html,json,md,yml,yaml}": "prettier --write",
+    "*.{js,jsx,ts,tsx,html}": "eslint --fix"
   },
   "overrides": {
     "typedoc": {

@@ -11,10 +11,10 @@ export class FontCache {
   private static _TEXT_CACHE = new Map<string, FontTextInstance>();
   private static _MEASURE_CACHE = new Map<string, BoundingBox>();
 
-  static measureText(text: string, font: Font, maxWidth?: number) {
+  static measureText(text: string, font: Font, maxWidth?: number): BoundingBox {
     const hash = FontTextInstance.getHashCode(font, text);
     if (FontCache._MEASURE_CACHE.has(hash)) {
-      return FontCache._MEASURE_CACHE.get(hash);
+      return FontCache._MEASURE_CACHE.get(hash)!;
     }
     FontCache._LOGGER.debug('Font text measurement cache miss');
     const measurement = font.measureTextWithoutCache(text, maxWidth);
@@ -22,7 +22,7 @@ export class FontCache {
     return measurement;
   }
 
-  static getTextInstance(text: string, font: Font, color: Color) {
+  static getTextInstance(text: string, font: Font, color: Color): FontTextInstance {
     const hash = FontTextInstance.getHashCode(font, text, color);
     let textInstance = FontCache._TEXT_CACHE.get(hash);
     if (!textInstance) {
@@ -66,7 +66,7 @@ export class FontCache {
     const newTextMeasurementCache = new Map<string, BoundingBox>();
     for (const current of currentHashCodes) {
       if (FontCache._MEASURE_CACHE.has(current)) {
-        newTextMeasurementCache.set(current, FontCache._MEASURE_CACHE.get(current));
+        newTextMeasurementCache.set(current, FontCache._MEASURE_CACHE.get(current)!);
       }
     }
     this._MEASURE_CACHE.clear();

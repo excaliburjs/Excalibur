@@ -7,30 +7,30 @@ var spriteSheet = ex.SpriteSheet.fromImageSource({
     rows: 3,
     columns: 16,
     spriteWidth: 16,
-    spriteHeight: 16,
-  },
+    spriteHeight: 16
+  }
 });
 
 var spriteFont = new ex.SpriteFont({
   alphabet: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ,!\'&."?-:% ',
   caseInsensitive: true,
   spriteSheet: spriteSheet,
-  spacing: -8,
+  spacing: -8
 });
 
 class DebugInfo extends ex.ScreenElement {
   private readonly text = new ex.Text({
     font: new ex.Font({
-      family: "Gorgeous Pixel",
+      family: 'Gorgeous Pixel',
       filtering: ex.ImageFiltering.Pixel,
       smoothing: false,
-      size: 8 * SCALE, // trying sizes 5-20 does not fix the issue.
+      size: 8 * SCALE // trying sizes 5-20 does not fix the issue.
     }),
-    text: "",
+    text: ''
   });
 
   private readonly spriteFontText = new ex.Text({
-    text: "",
+    text: '',
     font: spriteFont
   });
 
@@ -59,9 +59,10 @@ class Game4 extends ex.Engine {
     super({
       width: 450,
       height: 450,
-      resolution: { // removing upscaling does not fix the issue
+      resolution: {
+        // removing upscaling does not fix the issue
         height: 150 * SCALE,
-        width: 150 * SCALE,
+        width: 150 * SCALE
       },
       antialiasing: false,
       suppressHiDPIScaling: true,
@@ -70,13 +71,13 @@ class Game4 extends ex.Engine {
   }
 
   initialize() {
-    this.currentScene.add(new DebugInfo({ x: -4, y: 0 * SCALE}));
+    this.currentScene.add(new DebugInfo({ x: -4, y: 0 * SCALE }));
   }
 }
 
 var game4 = new Game4();
 // game4.toggleDebug();
-var loader = new ex.Loader()
+var loader = new ex.Loader();
 
 loader.addResource(image);
 loader.addResource(spriteFontImage);

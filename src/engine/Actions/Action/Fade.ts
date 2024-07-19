@@ -1,9 +1,10 @@
 import { Entity } from '../../EntityComponentSystem/Entity';
 import { GraphicsComponent } from '../../Graphics/GraphicsComponent';
 import { Logger } from '../../Util/Log';
-import { Action } from '../Action';
+import { Action, nextActionId } from '../Action';
 
 export class Fade implements Action {
+  id = nextActionId();
   private _graphics: GraphicsComponent;
   public x: number;
   public y: number;
@@ -39,8 +40,7 @@ export class Fade implements Action {
     }
 
     if (this._speed > 0) {
-      this._graphics.opacity += (this._multiplier *
-        (Math.abs(this._graphics.opacity - this._endOpacity) * delta)) / this._speed;
+      this._graphics.opacity += (this._multiplier * (Math.abs(this._graphics.opacity - this._endOpacity) * delta)) / this._speed;
     }
 
     this._speed -= delta;

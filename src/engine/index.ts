@@ -12,7 +12,7 @@ export * from './Flags';
 export * from './Id';
 export * from './Engine';
 export * from './Screen';
-export { Actor, ActorArgs } from './Actor';
+export * from './Actor';
 export * from './Math/Index';
 export * from './Camera';
 export * from './Configurable';
@@ -23,7 +23,9 @@ export * from './Events/MediaEvents';
 export * from './Events';
 export * from './Label';
 export { FontStyle, FontUnit, TextAlign, BaseAlign } from './Graphics/FontCommon';
-export { Particle, ParticleTransform, ParticleEmitter, ParticleArgs, ParticleEmitterArgs, EmitterType } from './Particles';
+export * from './EmitterType';
+export { Particle, ParticleTransform, ParticleConfig as ParticleArgs, ParticleEmitterArgs } from './Particles/Particles';
+export * from './Particles/ParticleEmitter';
 export * from './Collision/Physics';
 export * from './Scene';
 
@@ -56,30 +58,17 @@ export { events as Events };
 import * as input from './Input/Index';
 export { input as Input };
 
-export {
-  WheelEvent
-} from './Input/WheelEvent';
+export { WheelEvent } from './Input/WheelEvent';
 
-export {
-  PointerEvent
-} from './Input/PointerEvent';
+export { PointerEvent } from './Input/PointerEvent';
 
-export {
-  WheelDeltaMode
-} from './Input/WheelDeltaMode';
+export { WheelDeltaMode } from './Input/WheelDeltaMode';
 
-export {
-  PointerButton
-} from './Input/PointerButton';
+export { PointerButton } from './Input/PointerButton';
 
-export {
-  NativePointerButton
-} from './Input/NativePointerButton';
+export { NativePointerButton } from './Input/NativePointerButton';
 
-export {
-  CapturePointerConfig
-} from './Input/CapturePointerConfig';
-
+export { CapturePointerConfig } from './Input/CapturePointerConfig';
 
 export {
   NativePointerEvent,
@@ -108,12 +97,7 @@ export {
   GamepadConfiguration
 } from './Input/Gamepad';
 
-export {
-  Keys,
-  KeyEvent,
-  KeyboardInitOptions,
-  Keyboard
-} from './Input/Keyboard';
+export { Keys, KeyEvent, KeyboardInitOptions, Keyboard } from './Input/Keyboard';
 export * from './Input/InputHost';
 export * from './Input/InputMapper';
 

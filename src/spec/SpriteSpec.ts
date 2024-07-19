@@ -206,8 +206,7 @@ describe('A Sprite Graphic', () => {
     ctx.flush();
     expect(sut.width).toBe(128);
     expect(sut.height).toBe(128);
-    await expectAsync(canvasElement)
-      .toEqualImage('src/spec/images/GraphicsSpriteSpec/change-size-and-scale.png');
+    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsSpriteSpec/change-size-and-scale.png');
   });
 
   it('can specify a source view of an image by default is same dimension as the source', async () => {
@@ -327,7 +326,7 @@ describe('A Sprite Graphic', () => {
 
     expect(logger.warnOnce).toHaveBeenCalledWith(
       `ImageSource path/to/non/existing/image is not yet loaded and won't be drawn. Please call .load() or include in a Loader.\n\n` +
-      'Read https://excaliburjs.com/docs/imagesource for more information.'
+        'Read https://excaliburjs.com/docs/imagesource for more information.'
     );
   });
 });

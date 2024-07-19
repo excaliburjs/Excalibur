@@ -1,7 +1,7 @@
 /// <reference path="../../lib/excalibur.d.ts" />
 
 // identity tagged template literal lights up glsl-literal vscode plugin
-var glsl = x => x[0];
+var glsl = (x) => x[0];
 
 var game = new ex.Engine({
   canvasElementId: 'game',
@@ -57,7 +57,7 @@ void main() {
   float factor = smoothstep(0.5, 0.7, mat.a);
   fragColor = mix(fragColor, mat, factor);
 }
-`
+`;
 
 var fragmentSource = glsl`#version 300 es
 precision mediump float;
@@ -101,25 +101,23 @@ void main() {
   
    fragColor = color * u_color;
 }
-`
+`;
 
 var swirlMaterial = game.graphicsContext.createMaterial({
   name: 'swirl',
   fragmentSource
 });
 
-
-
 var click = ex.vec(0, 0);
 
-game.input.pointers.primary.on('down', evt => {
+game.input.pointers.primary.on('down', (evt) => {
   click = evt.worldPos; // might need to change if you have a camera
 });
 
 var outlineMaterial = game.graphicsContext.createMaterial({
   name: 'outline',
   fragmentSource: outline
-})
+});
 
 var actor = new ex.Actor({ x: 100, y: 100, width: 50, height: 50 });
 actor.onInitialize = () => {
@@ -140,17 +138,16 @@ heartActor.onInitialize = () => {
   sprite.scale = ex.vec(4, 4);
   heartActor.graphics.add(sprite);
   heartActor.graphics.material = outlineMaterial;
-}
+};
 
 game.add(heartActor);
 
-game.input.pointers.primary.on('move', evt => {
+game.input.pointers.primary.on('move', (evt) => {
   heartActor.pos = evt.worldPos;
-  swirlMaterial.update(shader => {
+  swirlMaterial.update((shader) => {
     shader.trySetUniformFloatVector('iMouse', evt.worldPos);
   });
 });
-
 
 var backgroundActor = new ex.ScreenElement({ x: 0, y: 0, width: 512, height: 512, z: -1 });
 
@@ -158,7 +155,6 @@ backgroundActor.onInitialize = () => {
   backgroundActor.graphics.add(background.toSprite());
   backgroundActor.graphics.material = swirlMaterial;
 };
-
 
 // material without graphic!?
 var waterFrag = glsl`#version 300 es
@@ -275,17 +271,17 @@ loader.addResource(noise);
 var waterMaterial = game.graphicsContext.createMaterial({
   name: 'water',
   fragmentSource: waterFrag,
-  color: ex.Color.fromRGB(55, 0, 200, .6),
+  color: ex.Color.fromRGB(55, 0, 200, 0.6),
   images: {
     u_noise: noise
   }
 });
 var reflection = new ex.Actor({
   x: 0,
-  y: game.screen.resolution.height/2,
+  y: game.screen.resolution.height / 2,
   anchor: ex.vec(0, 0),
   width: 512,
-  height: game.screen.resolution.height/2,
+  height: game.screen.resolution.height / 2,
   coordPlane: ex.CoordPlane.Screen,
   color: ex.Color.Red
 });
@@ -296,7 +292,6 @@ reflection.z = 99;
 game.add(actor);
 game.add(backgroundActor);
 game.add(reflection);
-
 
 game.start(loader).then(async () => {
   // const image = await game.screenshot(true);

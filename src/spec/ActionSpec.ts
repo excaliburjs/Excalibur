@@ -33,44 +33,41 @@ describe('Action', () => {
 
   describe('parallel actions', () => {
     it('can run actions in parallel', () => {
-      const parallel = new ex.ParallelActions([
-        new ex.MoveTo(actor, 100, 0, 100),
-        new ex.RotateTo(actor, Math.PI/2, Math.PI/2)
-      ]);
+      const parallel = new ex.ParallelActions([new ex.MoveTo(actor, 100, 0, 100), new ex.RotateTo(actor, Math.PI / 2, Math.PI / 2)]);
 
       actor.actions.runAction(parallel);
 
       scene.update(engine, 1000);
       expect(actor.pos).toBeVector(ex.vec(100, 0));
-      expect(actor.rotation).toBe(Math.PI/2);
+      expect(actor.rotation).toBe(Math.PI / 2);
     });
 
     it('can run sequences in parallel', () => {
       const parallel = new ex.ParallelActions([
-        new ex.ActionSequence(actor, ctx => ctx.moveTo(ex.vec(100, 0), 100)),
-        new ex.ActionSequence(actor, ctx => ctx.rotateTo(Math.PI/2, Math.PI/2))
+        new ex.ActionSequence(actor, (ctx) => ctx.moveTo(ex.vec(100, 0), 100)),
+        new ex.ActionSequence(actor, (ctx) => ctx.rotateTo(Math.PI / 2, Math.PI / 2))
       ]);
 
       actor.actions.runAction(parallel);
 
       scene.update(engine, 1000);
       expect(actor.pos).toBeVector(ex.vec(100, 0));
-      expect(actor.rotation).toBe(Math.PI/2);
+      expect(actor.rotation).toBe(Math.PI / 2);
     });
 
     it('can repeat sequences in parallel', () => {
       const parallel = new ex.ParallelActions([
-        new ex.ActionSequence(actor, ctx => ctx.moveTo(ex.vec(100, 0), 100).moveTo(ex.vec(0, 0), 100)),
-        new ex.ActionSequence(actor, ctx => ctx.rotateTo(Math.PI/2, Math.PI/2).rotateTo(0, Math.PI/2))
+        new ex.ActionSequence(actor, (ctx) => ctx.moveTo(ex.vec(100, 0), 100).moveTo(ex.vec(0, 0), 100)),
+        new ex.ActionSequence(actor, (ctx) => ctx.rotateTo(Math.PI / 2, Math.PI / 2).rotateTo(0, Math.PI / 2))
       ]);
 
-      actor.actions.repeatForever(ctx => {
+      actor.actions.repeatForever((ctx) => {
         ctx.runAction(parallel);
       });
 
       scene.update(engine, 1000);
       expect(actor.pos).toBeVector(ex.vec(100, 0));
-      expect(actor.rotation).toBe(Math.PI/2);
+      expect(actor.rotation).toBe(Math.PI / 2);
 
       scene.update(engine, 0);
       scene.update(engine, 1000);
@@ -80,7 +77,7 @@ describe('Action', () => {
       scene.update(engine, 0);
       scene.update(engine, 1000);
       expect(actor.pos).toBeVector(ex.vec(100, 0));
-      expect(actor.rotation).toBe(Math.PI/2);
+      expect(actor.rotation).toBe(Math.PI / 2);
     });
   });
 
@@ -182,7 +179,6 @@ describe('Action', () => {
     });
 
     it('can be reset', () => {
-
       const blink = new ex.Blink(actor, 200, 200);
       blink.update(200);
       blink.update(200);
@@ -450,7 +446,6 @@ describe('Action', () => {
   });
 
   describe('easeBy', () => {
-
     it('can be reset', () => {
       const easeTo = new ex.EaseBy(actor, 100, 0, 100, ex.EasingFunctions.EaseInOutCubic);
       easeTo.update(1000);
@@ -881,7 +876,6 @@ describe('Action', () => {
   });
 
   describe('rotateBy', () => {
-
     it('can be reset', () => {
       const rotateBy = new ex.RotateBy(actor, Math.PI / 2, Math.PI / 2);
       actor.actions.runAction(rotateBy);
@@ -1165,7 +1159,7 @@ describe('Action', () => {
 
   describe('meet', () => {
     it('can be reset', () => {
-      const target = new ex.Actor({x: 100, y: 0});
+      const target = new ex.Actor({ x: 100, y: 0 });
       const meet = new ex.Meet(actor, target, 100);
       actor.actions.runAction(meet);
 
@@ -1201,7 +1195,6 @@ describe('Action', () => {
   });
 
   describe('fade', () => {
-
     it('can be reset', () => {
       const fade = new ex.Fade(actor, 0, 1000);
       fade.update(1000);
@@ -1266,6 +1259,22 @@ describe('Action', () => {
       }
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith(jasmine.objectContaining({ target: actor, action: jasmine.any(ex.MoveTo) }));
+    });
+
+    it('emits actioncomplete with an action with ids', () => {
+      const spy = jasmine.createSpy();
+      // actor.actions.moveTo(20, 0, 20);
+      const moveTo = new ex.MoveTo(actor, 20, 0, 20);
+      const moveTo2 = new ex.MoveTo(actor, 20, 0, 20);
+      actor.actions.runAction(moveTo);
+      actor.on('actioncomplete', spy);
+      for (let i = 0; i < 10; i++) {
+        scene.update(engine, 200);
+      }
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(jasmine.objectContaining({ target: actor, action: moveTo }));
+      expect(moveTo.id).not.toEqual(moveTo2.id);
+      expect(moveTo2.id).toEqual(moveTo.id + 1);
     });
 
     it('emits actionstart and actioncomplete events for each action in a repeat', () => {

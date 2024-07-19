@@ -7,12 +7,148 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
-=======
+- `ex.Particle` and `ex.ParticleEmitter` now have an API that looks like modern Excalibur APIs
+  * `particleSprite` is renamed to `graphic`
+  * `particleRotationalVelocity` is renamed to `angularVelocity`
+  * `fadeFlag` is renamed to `fade`
+  * `acceleration` is renamed to `acc`
+  * `particleLife` is renamed to `life`
+  * `ParticleEmitter` now takes a separate `particle: ParticleConfig` parameter to disambiguate between particles parameters and emitter ones
+    ```typescript
+    const emitter =  new ex.ParticleEmitter({
+        width: 10,
+        height: 10,
+        radius: 5,
+        emitterType: ex.EmitterType.Rectangle,
+        emitRate: 300,
+        isEmitting: true,
+        particle: {
+          transform: ex.ParticleTransform.Global,
+          opacity: 0.5,
+          life: 1000,
+          acc: ex.vec(10, 80),
+          beginColor: ex.Color.Chartreuse,
+          endColor: ex.Color.Magenta,
+          startSize: 5,
+          endSize: 100,
+          minVel: 100,
+          maxVel: 200,
+          minAngle: 5.1,
+          maxAngle: 6.2,
+          fade: true,
+          maxSize: 10,
+          graphic: swordImg.toSprite(),
+          randomRotation: true,
+          minSize: 1
+        }
+      });
+    ```
+
+### Deprecated
+
+- `actor.getGlobalPos()` - use `actor.globalPos` instead
+- `actor.getGlobalRotation()` - use `actor.globalRotation` instead
+- `actor.getGlobalScale()` - use `actor.globalScale` instead
+
+### Added
+
+- You can now query for colliders on the physics world
+  ```typescript
+    const scene = ...;
+    const colliders = scene.physics.query(ex.BoundingBox.fromDimensions(...));
+  ```
+- `actor.oldGlobalPos` returns the globalPosition from the previous frame
+- create development builds of excalibur that bundlers can use in dev mode
+- show warning in development when Entity hasn't been added to a scene after a few seconds
+- New `RentalPool` type for sparse object pooling
+- New `ex.SparseHashGridCollisionProcessor` which is a simpler (and faster) implementation for broadphase pair generation. This works by bucketing colliders into uniform sized square buckets and using that to generate pairs.
+- CollisionContact can be biased toward a collider by using `contact.bias(collider)`. This adjusts the contact so that the given collider is colliderA, and is helpful if you 
+are doing mtv adjustments during precollision.
+
+### Fixed
+
+- Fixed issue where `ex.Scene` scoped input events would preserve state and get stuck causing issues when switching back to the original scene.
+- Fixed issue where not all physical keys from the spec were present in `ex.Keys` including the reported `ex.Keys.Tab`
+- Fixed invalid graphics types around `ex.Graphic.tint`
+- improve types to disallow invalid combo of collider/width/height/radius in actor args
+- only add default color graphic for the respective collider used
+- Fixed issue where `ex.SpriteFont` did not respect scale when measuring text
+- Fixed issue where negative transforms would cause collision issues because polygon winding would change.
+- Fixed issue where removing and re-adding an actor would cause subsequent children added not to function properly with regards to their parent/child transforms
+- Fixed issue where `ex.GraphicsSystem` would crash if a parent entity did not have a `ex.TransformComponent`
+- Fixed a bug in the new physics config merging, and re-arranged to better match the existing pattern
+
+### Updates
+
+- Perf improvements to `ex.ParticleEmitter` 
+  * Use the same integrator as the MotionSystem in the tight loop
+  * Leverage object pools to increase performance and reduce allocations
+- Perf improvements to collision narrowphase and solver steps
+  * Working in the local polygon space as much as possible speeds things up
+  * Add another pair filtering condition on the `SparseHashGridCollisionProcessor` which reduces pairs passed to narrowphase
+  * Switching to c-style loops where possible
+  * Caching get component calls
+  * Removing allocations where it makes sense
+- Perf Side.fromDirection(direction: Vector): Side - thanks @ikudrickiy!
+- Perf improvements to PointerSystem by using new spatial hash grid data structure
+- Perf improvements: Hot path allocations
+  * Reduce State/Transform stack hot path allocations in graphics context
+  * Reduce Transform allocations
+  * Reduce AffineMatrix allocations
+
+- Perf improvements to `CircleCollider` bounds calculations
+- Switch from iterators to c-style loops which bring more speed
+  * `Entity` component iteration
+  * `EntityManager` iteration
+  * `EventEmitter`s
+  * `GraphicsSystem` entity iteration
+  * `PointerSystem` entity iteration
+
+### Changed
+
+- Applied increased TS strictness for the Graphics API subtree
+- Applied increased TS strictness for the TileMap API subtree
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [v0.29.3]
+
+### Breaking Changes
+
+- `ex.Action` now requires a unique `id` property
+- Z-indexes are now relative to the parent's Z-index. You can get the global Z-index with the `globalZ` property on the Actor or TransformComponent.
+
+### Deprecated
+
+### Added
+
+- Built in actions now have a unique `id` property
+- `globalZ` property to Actor and TransformComponent
+
+### Fixed
+
+- Fixed animation glitch caused by uninitialized state in `ImageRenderer`
+- Fixed issue where `ex.Loader.suppressPlayButton = true` did not work. Only using the `ex.Engine({suppressPlayButton: true})` worked
+
+### Updates
+
+-
+
+### Changed
+
+- `ex.Vector.toAngle()` now returns angles from `[0 - 2 PI)`
+
+## [v0.29.2]
+
+### Breaking Changes
+
 -
 
 ### Deprecated
 
--
+- `
 
 ### Added
 
@@ -105,10 +241,6 @@ will be positioned with the top left of the graphic at the actor's position.
 
 - Significant 2x performance improvement to image drawing in Excalibur
 - Simplified `ex.Loader` viewport/resolution internal configuration
-
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
 ## [v0.29.0]
 

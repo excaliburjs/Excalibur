@@ -17,15 +17,14 @@ export class RectangleRenderer implements RendererPlugin {
 
   private _maxRectangles: number = 10922; // max(uint16) / 6 verts
 
-  private _shader: Shader;
-  private _gl: WebGLRenderingContext;
-  private _context: ExcaliburGraphicsContextWebGL;
-  private _buffer: VertexBuffer;
-  private _layout: VertexLayout;
-  private _quads: QuadIndexBuffer;
+  private _shader!: Shader;
+  private _gl!: WebGLRenderingContext;
+  private _context!: ExcaliburGraphicsContextWebGL;
+  private _buffer!: VertexBuffer;
+  private _layout!: VertexLayout;
+  private _quads!: QuadIndexBuffer;
   private _rectangleCount: number = 0;
   private _vertexIndex: number = 0;
-
 
   initialize(gl: WebGL2RenderingContext, context: ExcaliburGraphicsContextWebGL): void {
     this._gl = gl;
@@ -69,8 +68,8 @@ export class RectangleRenderer implements RendererPlugin {
     this._buffer.dispose();
     this._quads.dispose();
     this._shader.dispose();
-    this._context = null;
-    this._gl = null;
+    this._context = null as any;
+    this._gl = null as any;
   }
 
   private _isFull() {
@@ -82,14 +81,13 @@ export class RectangleRenderer implements RendererPlugin {
 
   draw(...args: any[]): void {
     if (args[0] instanceof Vector && args[1] instanceof Vector) {
-      this.drawLine.apply(this, args);
+      this.drawLine.apply(this, args as any);
     } else {
-      this.drawRectangle.apply(this, args);
+      this.drawRectangle.apply(this, args as any);
     }
   }
 
   drawLine(start: Vector, end: Vector, color: Color, thickness: number = 1) {
-
     if (this._isFull()) {
       this.flush();
     }
@@ -108,7 +106,7 @@ export class RectangleRenderer implements RendererPlugin {
     /**
      *    +---------------------^----------------------+
      *    |                     | (normal)             |
-     *   (startx, starty)------------------>(endx, endy)
+     *   (startX, startY)------------------>(endX, endY)
      *    |                                            |
      *    + -------------------------------------------+
      */
@@ -223,7 +221,8 @@ export class RectangleRenderer implements RendererPlugin {
     height: number,
     color: Color,
     stroke: Color = Color.Transparent,
-    strokeThickness: number = 0): void {
+    strokeThickness: number = 0
+  ): void {
     if (this._isFull()) {
       this.flush();
     }
@@ -333,7 +332,6 @@ export class RectangleRenderer implements RendererPlugin {
     vertexBuffer[this._vertexIndex++] = stroke.b / 255;
     vertexBuffer[this._vertexIndex++] = stroke.a;
     vertexBuffer[this._vertexIndex++] = strokeThickness;
-
   }
 
   hasPendingDraws(): boolean {
@@ -369,5 +367,4 @@ export class RectangleRenderer implements RendererPlugin {
     this._rectangleCount = 0;
     this._vertexIndex = 0;
   }
-
 }

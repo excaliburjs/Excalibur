@@ -53,10 +53,7 @@ describe('A Collision Pair', () => {
     const actor1 = new ex.Actor();
     const collider1 = ex.Shape.Circle(50);
     const collider2 = ex.Shape.Box(100, 100);
-    actor1.collider.useCompositeCollider([
-      collider1,
-      collider2
-    ]);
+    actor1.collider.useCompositeCollider([collider1, collider2]);
 
     const sut = ex.Pair.canCollide(collider1, collider2);
 

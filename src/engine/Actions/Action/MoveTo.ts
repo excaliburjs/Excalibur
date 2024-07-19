@@ -2,9 +2,10 @@ import { MotionComponent } from '../../EntityComponentSystem/Components/MotionCo
 import { TransformComponent } from '../../EntityComponentSystem/Components/TransformComponent';
 import { Entity } from '../../EntityComponentSystem/Entity';
 import { Vector, vec } from '../../Math/vector';
-import { Action } from '../Action';
+import { Action, nextActionId } from '../Action';
 
 export class MoveTo implements Action {
+  id = nextActionId();
   private _tx: TransformComponent;
   private _motion: MotionComponent;
   public x: number;
@@ -16,7 +17,12 @@ export class MoveTo implements Action {
   private _distance: number;
   private _started = false;
   private _stopped = false;
-  constructor(public entity: Entity, destx: number, desty: number, speed: number) {
+  constructor(
+    public entity: Entity,
+    destx: number,
+    desty: number,
+    speed: number
+  ) {
     this._tx = entity.get(TransformComponent);
     this._motion = entity.get(MotionComponent);
     this._end = new Vector(destx, desty);

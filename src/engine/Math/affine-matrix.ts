@@ -2,7 +2,6 @@ import { Matrix } from './matrix';
 import { canonicalizeAngle, sign } from './util';
 import { vec, Vector } from './vector';
 
-
 export class AffineMatrix {
   /**
    * |         |         |          |
@@ -152,6 +151,8 @@ export class AffineMatrix {
 
     this._scale[0] = x;
     this._scale[1] = y;
+    this._scaleSignX = sign(x);
+    this._scaleSignY = sign(y);
     return this;
   }
 
@@ -172,7 +173,7 @@ export class AffineMatrix {
     // We don't actually use the 3rd or 4th dimension
 
     const det = this.determinant();
-    const inverseDet = 1 / det; // TODO zero check
+    const inverseDet = 1 / det; // TODO zero check, or throw custom error for degenerate matrix
     const a = this.data[0];
     const b = this.data[2];
     const c = this.data[1];
@@ -245,15 +246,14 @@ export class AffineMatrix {
       const b23 = other.data[5];
       //  const b33 = 1;
 
+      result.data[0] = a11 * b11 + a12 * b21; // + a13 * b31; // zero
+      result.data[1] = a21 * b11 + a22 * b21; // + a23 * b31; // zero
 
-      result.data[0] = a11 * b11 + a12 * b21;// + a13 * b31; // zero
-      result.data[1] = a21 * b11 + a22 * b21;// + a23 * b31; // zero
+      result.data[2] = a11 * b12 + a12 * b22; // + a13 * b32; // zero
+      result.data[3] = a21 * b12 + a22 * b22; // + a23 * b32; // zero
 
-      result.data[2] = a11 * b12 + a12 * b22;// + a13 * b32; // zero
-      result.data[3] = a21 * b12 + a22 * b22;// + a23 * b32; // zero
-
-      result.data[4] = a11 * b13 + a12 * b23 + a13;// * b33; // one
-      result.data[5] = a21 * b13 + a22 * b23 + a23;// * b33; // one
+      result.data[4] = a11 * b13 + a12 * b23 + a13; // * b33; // one
+      result.data[5] = a21 * b13 + a22 * b23 + a23; // * b33; // one
 
       const s = this.getScale();
       result._scaleSignX = sign(s.x) * sign(result._scaleSignX);
@@ -332,14 +332,22 @@ export class AffineMatrix {
 
   public getScaleX(): number {
     // absolute scale of the matrix (we lose sign so need to add it back)
-    const xscale = vec(this.data[0], this.data[2]).distance();
-    return this._scaleSignX * xscale;
+    const xScaleSq = this.data[0] * this.data[0] + this.data[2] * this.data[2];
+    if (xScaleSq === 1.0) {
+      // usually there isn't scale so we can avoid a sqrt
+      return this._scaleSignX;
+    }
+    return this._scaleSignX * Math.sqrt(xScaleSq);
   }
 
   public getScaleY(): number {
     // absolute scale of the matrix (we lose sign so need to add it back)
-    const yscale = vec(this.data[1], this.data[3]).distance();
-    return this._scaleSignY * yscale;
+    const yScaleSq = this.data[1] * this.data[1] + this.data[3] * this.data[3];
+    if (yScaleSq === 1.0) {
+      // usually there isn't scale so we can avoid a sqrt
+      return this._scaleSignY;
+    }
+    return this._scaleSignY * Math.sqrt(yScaleSq);
   }
 
   /**
@@ -382,14 +390,7 @@ export class AffineMatrix {
   }
 
   public isIdentity(): boolean {
-    return (
-      this.data[0] === 1 &&
-      this.data[1] === 0 &&
-      this.data[2] === 0 &&
-      this.data[3] === 1 &&
-      this.data[4] === 0 &&
-      this.data[5] === 0
-    );
+    return this.data[0] === 1 && this.data[1] === 0 && this.data[2] === 0 && this.data[3] === 1 && this.data[4] === 0 && this.data[5] === 0;
   }
 
   /**
@@ -414,7 +415,14 @@ export class AffineMatrix {
    */
   public clone(dest?: AffineMatrix): AffineMatrix {
     const mat = dest || new AffineMatrix();
-    mat.data.set(this.data);
+    mat.data[0] = this.data[0];
+    mat.data[1] = this.data[1];
+    mat.data[2] = this.data[2];
+    mat.data[3] = this.data[3];
+    mat.data[4] = this.data[4];
+    mat.data[5] = this.data[5];
+    mat._scaleSignX = this._scaleSignX;
+    mat._scaleSignY = this._scaleSignY;
     return mat;
   }
 
@@ -425,5 +433,4 @@ export class AffineMatrix {
 [0 0 1]
 `;
   }
-
 }

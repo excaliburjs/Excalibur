@@ -1,11 +1,24 @@
 import * as ex from '@excalibur';
-import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
+import { ExcaliburAsyncMatchers, ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
 import { TestUtils } from './util/TestUtils';
 
 describe('A loader', () => {
   let engine: ex.Engine;
+
+  const reset = () => {
+    engine.stop();
+    engine.dispose();
+    engine = null;
+    (<any>window).devicePixelRatio = 1;
+    const playButton = document.getElementById('excalibur-play');
+    if (playButton) {
+      const body = playButton.parentNode.parentNode;
+      body.removeChild(playButton.parentNode);
+    }
+  };
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
+    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
     engine = TestUtils.engine();
   });
 
@@ -102,11 +115,12 @@ describe('A loader', () => {
       loader.showPlayButton();
 
       loader.onDraw(loader.canvas.ctx);
-      ensureImagesLoaded(loader.canvas.ctx.canvas, 'src/spec/images/LoaderSpec/playbuttonshown-noprogressbar.png')
-        .then(([canvas, image]) => {
+      ensureImagesLoaded(loader.canvas.ctx.canvas, 'src/spec/images/LoaderSpec/playbuttonshown-noprogressbar.png').then(
+        ([canvas, image]) => {
           expect(canvas).toEqualImage(image);
           done();
-        });
+        }
+      );
     };
   });
 
@@ -226,7 +240,7 @@ describe('A loader', () => {
     engine = null;
     engine = new ex.Engine({ width: 1000, height: 1000 });
     (ex.WebAudio as any)._UNLOCKED = true;
-    const clock = engine.clock = engine.clock.toTestClock();
+    const clock = (engine.clock = engine.clock.toTestClock());
     const pointerHandler = jasmine.createSpy('pointerHandler');
     engine.input.pointers.primary.on('up', pointerHandler);
     const loader = new ex.Loader([new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png')]);
@@ -261,17 +275,13 @@ describe('A loader', () => {
 
     engine.browser.window.nativeComponent.dispatchEvent(new Event('resize'));
 
-    const oldPos = [
-      loader.playButtonRootElement.style.left,
-      loader.playButtonRootElement.style.top];
+    const oldPos = [loader.playButtonRootElement.style.left, loader.playButtonRootElement.style.top];
 
     engine.screen.viewport = { width: 100, height: 100 };
 
     engine.browser.window.nativeComponent.dispatchEvent(new Event('resize'));
 
-    const newPos = [
-      loader.playButtonRootElement.style.left,
-      loader.playButtonRootElement.style.top];
+    const newPos = [loader.playButtonRootElement.style.left, loader.playButtonRootElement.style.top];
 
     expect(oldPos).not.toEqual(newPos);
   });
@@ -327,7 +337,7 @@ describe('A loader', () => {
     for (let i = 0; i < 800; i++) {
       srcs.push(generateRandomImage());
     }
-    const images = srcs.map(src => new ex.ImageSource(src));
+    const images = srcs.map((src) => new ex.ImageSource(src));
     images.forEach((image) => {
       image.ready.then(() => {
         testClock.step(1);
@@ -335,13 +345,42 @@ describe('A loader', () => {
     });
     loader.addResources(images);
 
-    const ready = TestUtils.runToReady(game, loader).then(() => {
-      expect(logger.error).not.toHaveBeenCalled();
-      game.dispose();
-      done();
-    })
+    const ready = TestUtils.runToReady(game, loader)
+      .then(() => {
+        expect(logger.error).not.toHaveBeenCalled();
+        game.dispose();
+        done();
+      })
       .catch(() => {
         fail();
       });
+  });
+
+  it('should not show the play button when suppressPlayButton is turned on', (done) => {
+    reset();
+    engine = TestUtils.engine({ suppressPlayButton: false });
+    engine.currentScene.add(
+      new ex.Actor({
+        pos: new ex.Vector(250, 250),
+        width: 20,
+        height: 20,
+        color: ex.Color.Red
+      })
+    );
+
+    const testClock = engine.clock as ex.TestClock;
+    const loader = new ex.Loader([new ex.ImageSource('src/spec/images/SpriteSpec/icon.png')]);
+    loader.suppressPlayButton = true;
+
+    TestUtils.runToReady(engine, loader).then(() => {
+      // With suppress play there is another 500 ms delay in engine load()
+      testClock.step(1);
+      engine.graphicsContext.flush();
+      expectAsync(engine.canvas)
+        .toEqualImage('src/spec/images/EngineSpec/engine-suppress-play.png')
+        .then(() => {
+          done();
+        });
+    });
   });
 });

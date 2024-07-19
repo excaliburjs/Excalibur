@@ -21,12 +21,8 @@ export function blendTransform(oldTx: Transform, newTx: Transform, blend: number
   let interpolatedScale = newTx.scale;
   let interpolatedRotation = newTx.rotation;
 
-  interpolatedPos = newTx.pos.scale(blend).add(
-    oldTx.pos.scale(1.0 - blend)
-  );
-  interpolatedScale = newTx.scale.scale(blend).add(
-    oldTx.scale.scale(1.0 - blend)
-  );
+  interpolatedPos = newTx.pos.scale(blend).add(oldTx.pos.scale(1.0 - blend));
+  interpolatedScale = newTx.scale.scale(blend).add(oldTx.scale.scale(1.0 - blend));
   // Rotational lerp https://stackoverflow.com/a/30129248
   const cosine = (1.0 - blend) * Math.cos(oldTx.rotation) + blend * Math.cos(newTx.rotation);
   const sine = (1.0 - blend) * Math.sin(oldTx.rotation) + blend * Math.sin(newTx.rotation);
@@ -45,12 +41,8 @@ export function blendGlobalTransform(oldTx: Transform, newTx: Transform, blend: 
   let interpolatedScale = newTx.globalScale;
   let interpolatedRotation = newTx.globalRotation;
 
-  interpolatedPos = newTx.globalPos.scale(blend).add(
-    oldTx.globalPos.scale(1.0 - blend)
-  );
-  interpolatedScale = newTx.globalScale.scale(blend).add(
-    oldTx.globalScale.scale(1.0 - blend)
-  );
+  interpolatedPos = newTx.globalPos.scale(blend).add(oldTx.globalPos.scale(1.0 - blend));
+  interpolatedScale = newTx.globalScale.scale(blend).add(oldTx.globalScale.scale(1.0 - blend));
   // Rotational lerp https://stackoverflow.com/a/30129248
   const cosine = (1.0 - blend) * Math.cos(oldTx.globalRotation) + blend * Math.cos(newTx.globalRotation);
   const sine = (1.0 - blend) * Math.sin(oldTx.globalRotation) + blend * Math.sin(newTx.globalRotation);

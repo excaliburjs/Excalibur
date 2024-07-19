@@ -42,6 +42,10 @@ const config: Config = {
     locales: ['en']
   },
 
+  scripts: [
+    {src: 'https://plausible.io/js/script.js', defer: true, 'data-domain': 'excaliburjs.com'}
+  ],
+
   presets: [
     [
       'classic',
@@ -70,7 +74,11 @@ const config: Config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl: 'https://github.com/excaliburjs/Excalibur/tree/main/site/blog/',
-          rehypePlugins: [[rehypeRaw, rehypeRawOptions]]
+          rehypePlugins: [[rehypeRaw, rehypeRawOptions]],
+          postsPerPage: 'ALL',
+          blogSidebarTitle: 'All posts',
+          blogSidebarCount: 'ALL',
+          
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css')
@@ -259,6 +267,15 @@ const config: Config = {
           title: 'Community',
           items: [
             {
+              label: 'Mastodon',
+              href: 'https://mastodon.gamedev.place/@excaliburjs',
+              rel: 'me'
+            },
+            {
+              label: 'Threads',
+              href: 'https://www.threads.net/@excalibur.js'
+            },
+            {
               label: 'Twitter',
               href: 'https://twitter.com/excaliburjs'
             },
@@ -269,8 +286,7 @@ const config: Config = {
             {
               label: 'Discussions',
               href: 'https://github.com/excaliburjs/Excalibur/discussions'
-            },
-            
+            }
           ]
         },
         {

@@ -8,7 +8,6 @@ import { Camera } from '../Camera';
 import { Query, System, SystemPriority, SystemType, World } from '../EntityComponentSystem';
 import { Engine } from '../Engine';
 import { GraphicsGroup } from './GraphicsGroup';
-import { Particle } from '../Particles'; // this import seems to bomb wallaby
 import { ParallaxComponent } from './ParallaxComponent';
 import { CoordPlane } from '../Math/coord-plane';
 import { BodyComponent } from '../Collision/BodyComponent';
@@ -22,9 +21,10 @@ export class GraphicsSystem extends System {
   public readonly systemType = SystemType.Draw;
   public priority = SystemPriority.Average;
   private _token = 0;
-  private _graphicsContext: ExcaliburGraphicsContext;
-  private _camera: Camera;
-  private _engine: Engine;
+  // Set in the initialize
+  private _graphicsContext!: ExcaliburGraphicsContext;
+  private _camera!: Camera;
+  private _engine!: Engine;
   private _sortedTransforms: TransformComponent[] = [];
   query: Query<typeof TransformComponent | typeof GraphicsComponent>;
   public get sortedTransforms() {
@@ -34,13 +34,13 @@ export class GraphicsSystem extends System {
   constructor(public world: World) {
     super();
     this.query = this.world.query([TransformComponent, GraphicsComponent]);
-    this.query.entityAdded$.subscribe(e => {
+    this.query.entityAdded$.subscribe((e) => {
       const tx = e.get(TransformComponent);
       this._sortedTransforms.push(tx);
       tx.zIndexChanged$.subscribe(this._zIndexUpdate);
       this._zHasChanged = true;
     });
-    this.query.entityRemoved$.subscribe(e => {
+    this.query.entityRemoved$.subscribe((e) => {
       const tx = e.get(TransformComponent);
       tx.zIndexChanged$.unsubscribe(this._zIndexUpdate);
       const index = this._sortedTransforms.indexOf(tx);
@@ -65,7 +65,7 @@ export class GraphicsSystem extends System {
     this._graphicsContext = this._engine.graphicsContext;
     if (this._zHasChanged) {
       this._sortedTransforms.sort((a, b) => {
-        return a.z - b.z;
+        return a.globalZ - b.globalZ;
       });
       this._zHasChanged = false;
     }
@@ -82,7 +82,8 @@ export class GraphicsSystem extends System {
     if (this._camera) {
       this._camera.draw(this._graphicsContext);
     }
-    for (const transform of this._sortedTransforms) {
+    for (let transformIndex = 0; transformIndex < this._sortedTransforms.length; transformIndex++) {
+      const transform = this._sortedTransforms[transformIndex];
       const entity = transform.owner as Entity;
 
       // If the entity is offscreen skip
@@ -140,10 +141,7 @@ export class GraphicsSystem extends System {
       }
       entity.events.emit('predraw', new PreDrawEvent(this._graphicsContext, delta, entity));
 
-      // TODO remove this hack on the particle redo
-      // Remove this line after removing the wallaby import
-      const particleOpacity = (entity instanceof Particle) ? entity.opacity : 1;
-      this._graphicsContext.opacity *= graphics.opacity * particleOpacity;
+      this._graphicsContext.opacity *= graphics.opacity;
 
       // Draw the graphics component
       this._drawGraphicsComponent(graphics, transform);
@@ -209,10 +207,7 @@ export class GraphicsSystem extends System {
           graphic.flipVertical = flipVertical ? !oldFlipVertical : oldFlipVertical;
         }
 
-        graphic?.draw(
-          this._graphicsContext,
-          offsetX,
-          offsetY);
+        graphic?.draw(this._graphicsContext, offsetX, offsetY);
 
         if (flipHorizontal || flipVertical) {
           graphic.flipHorizontal = oldFlipHorizontal;
@@ -258,19 +253,16 @@ export class GraphicsSystem extends System {
     for (const ancestor of ancestors) {
       const transform = ancestor?.get(TransformComponent);
       const optionalBody = ancestor?.get(BodyComponent);
-      let tx = transform.get();
-      if (optionalBody) {
-        if (this._engine.fixedUpdateFps &&
-          optionalBody.__oldTransformCaptured &&
-          optionalBody.enableFixedUpdateInterpolate) {
-          // Interpolate graphics if needed
-          const blend = this._engine.currentFrameLagMs / (1000 / this._engine.fixedUpdateFps);
-          tx = blendTransform(optionalBody.oldTransform, transform.get(), blend, this._targetInterpolationTransform);
-        }
-      }
-
       if (transform) {
-        this._graphicsContext.z = transform.z;
+        let tx = transform.get();
+        if (optionalBody) {
+          if (this._engine.fixedUpdateFps && optionalBody.__oldTransformCaptured && optionalBody.enableFixedUpdateInterpolate) {
+            // Interpolate graphics if needed
+            const blend = this._engine.currentFrameLagMs / (1000 / this._engine.fixedUpdateFps);
+            tx = blendTransform(optionalBody.oldTransform, transform.get(), blend, this._targetInterpolationTransform);
+          }
+        }
+        this._graphicsContext.z = transform.globalZ;
         this._graphicsContext.translate(tx.pos.x, tx.pos.y);
         this._graphicsContext.scale(tx.scale.x, tx.scale.y);
         this._graphicsContext.rotate(tx.rotation);

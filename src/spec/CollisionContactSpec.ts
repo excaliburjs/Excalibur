@@ -3,6 +3,7 @@ import { TransformComponent } from '@excalibur';
 import { EulerIntegrator } from '../engine/Collision/Integrator';
 import { MotionComponent } from '../engine/EntityComponentSystem/Components/MotionComponent';
 import { DefaultPhysicsConfig } from '../engine/Collision/PhysicsConfig';
+import { ExcaliburMatchers } from 'excalibur-jasmine';
 
 describe('A CollisionContact', () => {
   let actorA: ex.Actor;
@@ -11,21 +12,19 @@ describe('A CollisionContact', () => {
   let colliderA: ex.Collider;
   let colliderB: ex.Collider;
 
-
   beforeEach(() => {
-    actorA = new ex.Actor({x: 0, y: 0, width: 20, height: 20});
+    jasmine.addMatchers(ExcaliburMatchers);
+    actorA = new ex.Actor({ x: 0, y: 0, width: 20, height: 20 });
     actorA.collider.useCircleCollider(10);
     actorA.body.collisionType = ex.CollisionType.Active;
 
-    actorB = new ex.Actor({x: 20, y: 0, width: 20, height: 20});
+    actorB = new ex.Actor({ x: 20, y: 0, width: 20, height: 20 });
     actorB.collider.useCircleCollider(10);
-
 
     actorB.body.collisionType = ex.CollisionType.Active;
 
     colliderA = actorA.collider.get();
     colliderB = actorB.collider.get();
-
   });
 
   it('exists', () => {
@@ -48,6 +47,7 @@ describe('A CollisionContact', () => {
 
   it('can resolve in the Box system', () => {
     actorB.pos = ex.vec(19, actorB.pos.y);
+    actorB.collider.update();
     const cc = new ex.CollisionContact(
       colliderA,
       colliderB,
@@ -70,7 +70,6 @@ describe('A CollisionContact', () => {
   });
 
   it('emits a collision event on both actors in the Arcade solver', () => {
-
     const actorAPreCollide = jasmine.createSpy('precollision A');
     const actorBPreCollide = jasmine.createSpy('precollision B');
     actorA.on('precollision', actorAPreCollide);
@@ -121,14 +120,13 @@ describe('A CollisionContact', () => {
       null
     );
     // slop is normally 1 pixel, we are testing at a pixel scale here
-    const solver = new ex.RealisticSolver({...DefaultPhysicsConfig.realistic, slop: 0});
+    const solver = new ex.RealisticSolver({ ...DefaultPhysicsConfig.realistic, slop: 0 });
     // Realistic solver converges over time
     for (let i = 0; i < 4; i++) {
       solver.solve([cc]);
       // Realistic solver uses velocity impulses to correct overlap
       EulerIntegrator.integrate(actorA.get(TransformComponent), actorA.get(MotionComponent), ex.Vector.Zero, 1000);
       EulerIntegrator.integrate(actorB.get(TransformComponent), actorB.get(MotionComponent), ex.Vector.Zero, 1000);
-
     }
 
     expect(actorA.pos.x).toBeCloseTo(-0.5, 1);
@@ -167,7 +165,7 @@ describe('A CollisionContact', () => {
       null
     );
     // slop is normally 1 pixel, we are testing at a pixel scale here
-    const solver = new ex.RealisticSolver({ ...DefaultPhysicsConfig.realistic, slop: 0});
+    const solver = new ex.RealisticSolver({ ...DefaultPhysicsConfig.realistic, slop: 0 });
 
     solver.solve([cc]);
     // Realistic solver uses velocity impulses to correct overlap
@@ -324,11 +322,31 @@ describe('A CollisionContact', () => {
       null
     );
 
-
     const solver = new ex.RealisticSolver(DefaultPhysicsConfig.realistic);
     solver.solve([cc]);
 
     expect(emittedA).toBe(true);
     expect(emittedB).toBe(true);
+  });
+
+  it('biases to colliderB', () => {
+    const cc = new ex.CollisionContact(
+      colliderA,
+      colliderB,
+      ex.Vector.Right,
+      ex.Vector.Right,
+      ex.Vector.Right.perpendicular(),
+      [new ex.Vector(10, 0)],
+      [new ex.Vector(10, 0)],
+      null
+    );
+
+    cc.bias(colliderB);
+
+    expect(cc.colliderA).toBe(colliderB);
+    expect(cc.colliderB).toBe(colliderA);
+    expect(cc.mtv).toBeVector(ex.Vector.Left);
+    expect(cc.normal).toBeVector(ex.Vector.Left);
+    expect(cc.tangent).toBeVector(ex.Vector.Left.perpendicular());
   });
 });

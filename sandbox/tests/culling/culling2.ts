@@ -15,10 +15,10 @@ var game = new ex.Engine({
 // );
 // game.add(background);
 
-let person = new ex.Actor({x: 275, y: 250, width: 15, height: 15, color: ex.Color.White});
+let person = new ex.Actor({ x: 275, y: 250, width: 15, height: 15, color: ex.Color.White });
 game.add(person);
 
-let soontobeoffscreen = new ex.Actor({x: 375, y: 250, width: 15, height: 15, color: ex.Color.White});
+let soontobeoffscreen = new ex.Actor({ x: 375, y: 250, width: 15, height: 15, color: ex.Color.White });
 game.add(soontobeoffscreen);
 soontobeoffscreen.on('exitviewport', () => {
   console.log('offscreen');

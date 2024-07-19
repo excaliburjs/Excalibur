@@ -2,7 +2,6 @@ import * as ex from '@excalibur';
 import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 import { TestUtils } from './util/TestUtils';
 
-
 describe('A Parallax Component', () => {
   beforeAll(() => {
     jasmine.addMatchers(ExcaliburMatchers);
@@ -13,7 +12,7 @@ describe('A Parallax Component', () => {
   });
 
   it('can be added to an actor', () => {
-    const actor = new ex.Actor({x: 100, y: 100});
+    const actor = new ex.Actor({ x: 100, y: 100 });
     actor.addComponent(new ex.ParallaxComponent(ex.vec(0.5, 0.5)));
 
     const comp = actor.get(ex.ParallaxComponent);
@@ -22,14 +21,14 @@ describe('A Parallax Component', () => {
   });
 
   it('will apply a parallax effect to the graphics', async () => {
-    const game = TestUtils.engine({width: 500, height: 500}, ['use-canvas-context']);
+    const game = TestUtils.engine({ width: 500, height: 500 }, ['use-canvas-context']);
     await TestUtils.runToReady(game);
     game.currentScene.camera.pos = ex.vec(0, 0);
     game.currentScene.camera.drawPos = ex.vec(0, 0);
 
     const clock = game.clock as ex.TestClock;
 
-    const actor = new ex.Actor({x: 0, y: 0, width: 120, height: 120, color: ex.Color.Green});
+    const actor = new ex.Actor({ x: 0, y: 0, width: 120, height: 120, color: ex.Color.Green });
     actor.addComponent(new ex.ParallaxComponent(ex.vec(0.5, 0.5)));
     game.add(actor);
 
@@ -57,7 +56,7 @@ describe('A Parallax Component', () => {
   });
 
   it('works with TileMaps correctly', async () => {
-    const game = TestUtils.engine({width: 500, height: 500});
+    const game = TestUtils.engine({ width: 500, height: 500 });
     await TestUtils.runToReady(game);
     const clock = game.clock as ex.TestClock;
 
@@ -73,7 +72,7 @@ describe('A Parallax Component', () => {
       rows: 4,
       columns: 4
     });
-    tilemap.tiles.forEach(t => {
+    tilemap.tiles.forEach((t) => {
       t.addGraphic(graphic);
     });
     tilemap.addComponent(new ex.ParallaxComponent(ex.vec(0.5, 0.5)));

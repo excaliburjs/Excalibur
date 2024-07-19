@@ -10,17 +10,16 @@ import { RendererPlugin } from '../renderer';
 import { VertexBuffer } from '../vertex-buffer';
 import { VertexLayout } from '../vertex-layout';
 
-
 export class MaterialRenderer implements RendererPlugin {
   public readonly type: string = 'ex.material';
   public priority: number = 0;
   // private _maxTextures = 8;
-  private _context: ExcaliburGraphicsContextWebGL;
-  private _gl: WebGL2RenderingContext;
+  private _context!: ExcaliburGraphicsContextWebGL;
+  private _gl!: WebGL2RenderingContext;
   private _textures: WebGLTexture[] = [];
   private _quads: any;
-  private _buffer: VertexBuffer;
-  private _layout: VertexLayout;
+  private _buffer!: VertexBuffer;
+  private _layout!: VertexLayout;
   initialize(gl: WebGL2RenderingContext, context: ExcaliburGraphicsContextWebGL): void {
     this._gl = gl;
     this._context = context;
@@ -52,11 +51,12 @@ export class MaterialRenderer implements RendererPlugin {
     this._buffer.dispose();
     this._quads.dispose();
     this._textures.length = 0;
-    this._context = null;
-    this._gl = null;
+    this._context = null as any;
+    this._gl = null as any;
   }
 
-  draw(image: HTMLImageSource,
+  draw(
+    image: HTMLImageSource,
     sx: number,
     sy: number,
     swidth?: number,
@@ -64,17 +64,21 @@ export class MaterialRenderer implements RendererPlugin {
     dx?: number,
     dy?: number,
     dwidth?: number,
-    dheight?: number): void {
+    dheight?: number
+  ): void {
     const gl = this._gl;
 
     // Extract context info
     const material = this._context.material;
+    if (!material) {
+      return;
+    }
 
     const transform = this._context.getTransform();
     const opacity = this._context.opacity;
 
     // material shader
-    const shader = material.getShader();
+    const shader = material.getShader()!;
 
     // construct geometry, or hold on to it in the material?
     // geometry primitive for drawing rectangles?
@@ -107,8 +111,8 @@ export class MaterialRenderer implements RendererPlugin {
     const imageWidth = image.width || width;
     const imageHeight = image.height || height;
 
-    const uvx0 = (sx) / imageWidth;
-    const uvy0 = (sy) / imageHeight;
+    const uvx0 = sx / imageWidth;
+    const uvy0 = sy / imageHeight;
     const uvx1 = (sx + sw - 0.01) / imageWidth;
     const uvy1 = (sy + sh - 0.01) / imageHeight;
 
@@ -157,7 +161,7 @@ export class MaterialRenderer implements RendererPlugin {
     // apply material
     material.use();
 
-    this._layout.shader = shader;
+    this._layout.shader = shader!;
     // apply layout and geometry
     this._layout.use(true);
 
@@ -207,9 +211,9 @@ export class MaterialRenderer implements RendererPlugin {
 
   private _addImageAsTexture(image: HTMLImageSource) {
     const maybeFiltering = image.getAttribute(ImageSourceAttributeConstants.Filtering);
-    const filtering = maybeFiltering ? parseImageFiltering(maybeFiltering) : null;
-    const wrapX = parseImageWrapping(image.getAttribute(ImageSourceAttributeConstants.WrappingX));
-    const wrapY = parseImageWrapping(image.getAttribute(ImageSourceAttributeConstants.WrappingY));
+    const filtering = maybeFiltering ? parseImageFiltering(maybeFiltering) : undefined;
+    const wrapX = parseImageWrapping(image.getAttribute(ImageSourceAttributeConstants.WrappingX) as any);
+    const wrapY = parseImageWrapping(image.getAttribute(ImageSourceAttributeConstants.WrappingY) as any);
 
     const force = image.getAttribute('forceUpload') === 'true' ? true : false;
     const texture = this._context.textureLoader.load(
@@ -218,7 +222,8 @@ export class MaterialRenderer implements RendererPlugin {
         filtering,
         wrapping: { x: wrapX, y: wrapY }
       },
-      force);
+      force
+    )!;
     // remove force attribute after upload
     image.removeAttribute('forceUpload');
     if (this._textures.indexOf(texture) === -1) {

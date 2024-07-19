@@ -78,7 +78,7 @@ describe('A Shader', () => {
     });
     expect(() => {
       sut.compile();
-    }).toThrowMatching((e:Error) => {
+    }).toThrowMatching((e: Error) => {
       return e.message.includes('vertex');
     });
   });
@@ -99,7 +99,7 @@ describe('A Shader', () => {
     });
     expect(() => {
       sut.compile();
-    }).toThrowMatching((e:Error) => {
+    }).toThrowMatching((e: Error) => {
       return e.message.includes('fragment');
     });
   });
@@ -127,8 +127,9 @@ describe('A Shader', () => {
 
     expect(() => {
       sut.setUniform('uniform1i', 'u_int', 10);
-    }).toThrowError('Currently accessed shader instance is not the current active shader in WebGL,'
-    +' must call `shader.use()` before setting uniforms');
+    }).toThrowError(
+      'Currently accessed shader instance is not the current active shader in WebGL,' + ' must call `shader.use()` before setting uniforms'
+    );
 
     sut.use();
 
@@ -181,13 +182,17 @@ describe('A Shader', () => {
 
     expect(() => {
       sut.setUniformFloat('u_doesntexist', 42);
-    }).toThrowError('Uniform uniform1f:u_doesntexist doesn\'t exist or is not used in the shader source code,'
-    +' unused uniforms are optimized away by most browsers');
+    }).toThrowError(
+      "Uniform uniform1f:u_doesntexist doesn't exist or is not used in the shader source code," +
+        ' unused uniforms are optimized away by most browsers'
+    );
 
     expect(() => {
       sut.setUniformInt('u_unused', 42);
-    }).toThrowError('Uniform uniform1i:u_unused doesn\'t exist or is not used in the shader source code,'
-    +' unused uniforms are optimized away by most browsers');
+    }).toThrowError(
+      "Uniform uniform1i:u_unused doesn't exist or is not used in the shader source code," +
+        ' unused uniforms are optimized away by most browsers'
+    );
   });
 
   it('can try set uniforms', () => {
@@ -222,9 +227,7 @@ describe('A Shader', () => {
     const loggerSpy = spyOn(logger, 'warn');
 
     sut.trySetUniformInt('u_int', 0);
-    expect(loggerSpy.calls.argsFor(0)).toEqual([
-      'Must compile shader before setting a uniform uniform1i:u_int'
-    ]);
+    expect(loggerSpy.calls.argsFor(0)).toEqual(['Must compile shader before setting a uniform uniform1i:u_int']);
 
     sut.compile();
 
@@ -246,13 +249,17 @@ describe('A Shader', () => {
 
     expect(() => {
       sut.trySetUniformFloat('u_doesntexist', 42);
-    }).not.toThrowError('Uniform uniform1f:u_doesntexist doesn\'t exist or is not used in the shader source code,'
-    +' unused uniforms are optimized away by most browsers');
+    }).not.toThrowError(
+      "Uniform uniform1f:u_doesntexist doesn't exist or is not used in the shader source code," +
+        ' unused uniforms are optimized away by most browsers'
+    );
 
     expect(() => {
       sut.trySetUniformInt('u_unused', 42);
-    }).not.toThrowError('Uniform uniform1i:u_unused doesn\'t exist or is not used in the shader source code,'
-    +' unused uniforms are optimized away by most browsers');
+    }).not.toThrowError(
+      "Uniform uniform1i:u_unused doesn't exist or is not used in the shader source code," +
+        ' unused uniforms are optimized away by most browsers'
+    );
   });
 
   it('can have textures set', () => {

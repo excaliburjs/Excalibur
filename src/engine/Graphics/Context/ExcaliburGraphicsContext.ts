@@ -30,14 +30,16 @@ export interface AntialiasOptions {
    *
    * Default true, with max samples that the platform supports
    */
-  multiSampleAntialiasing?: boolean | {
-    /**
-     * Optionally specify number of samples (will be clamped to the max the platform supports)
-     *
-     * Default most platforms are 16 samples
-     */
-    samples: number;
-  };
+  multiSampleAntialiasing?:
+    | boolean
+    | {
+        /**
+         * Optionally specify number of samples (will be clamped to the max the platform supports)
+         *
+         * Default most platforms are 16 samples
+         */
+        samples: number;
+      };
   /**
    * Sets the default image filtering for excalibur
    *
@@ -92,13 +94,15 @@ export interface ExcaliburGraphicsContextOptions {
    *
    * By default enabled
    */
-  multiSampleAntialiasing?: boolean | {
-    /**
-     * Specify number of samples to use during the multi sample anti-alias, if not specified the max will be used.
-     * Limited by the hardware (usually 16)
-     */
-    samples: number
-  },
+  multiSampleAntialiasing?:
+    | boolean
+    | {
+        /**
+         * Specify number of samples to use during the multi sample anti-alias, if not specified the max will be used.
+         * Limited by the hardware (usually 16)
+         */
+        samples: number;
+      };
   /**
    * UV padding in pixels to use in the internal image rendering
    *
@@ -126,8 +130,8 @@ export interface ExcaliburGraphicsContextOptions {
 export interface ExcaliburGraphicsContextState {
   opacity: number;
   z: number;
-  tint: Color;
-  material: Material;
+  tint: Color | null | undefined;
+  material: Material | null | undefined;
 }
 export interface LineGraphicsOptions {
   color?: Color;
@@ -219,7 +223,7 @@ export interface ExcaliburGraphicsContext {
   /**
    * Sets the tint color to be multiplied by any images drawn, default is black 0xFFFFFFFF
    */
-  tint: Color;
+  tint: Color | null | undefined;
 
   /**
    * Resets the current transform to the identity matrix
@@ -364,7 +368,7 @@ export interface ExcaliburGraphicsContext {
    * This allows customs shaders to be used but draw calls are no longer batched by default.
    * @param material
    */
-  material: Material;
+  material: Material | null | undefined;
 
   /**
    * Creates and initializes the material which compiles the internal shader

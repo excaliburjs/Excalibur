@@ -44,7 +44,8 @@ module.exports = (config) => {
       },
       plugins: [
         new webpack.DefinePlugin({
-          'process.env.__EX_VERSION': '\'test-runner\''
+          'process.env.__EX_VERSION': '\'test-runner\'',
+          'process.env.NODE_ENV': JSON.stringify('production')
         }),
       ],
       module: {

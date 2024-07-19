@@ -1,4 +1,3 @@
-
 var game = new ex.Engine({
   width: 400,
   height: 400,
@@ -19,17 +18,15 @@ class Player2 extends ex.Actor {
       collisionType: ex.CollisionType.Active,
       color: ex.Color.Red
     });
-
-
   }
 
   onInitialize() {
     // onPostCollision is an event, not a lifecycle meaning it can be subscribed to by other things
-    this.on("postcollision", (evt) => this.onPostCollision(evt));
+    this.on('postcollision', (evt) => this.onPostCollision(evt));
   }
 
   onPostCollision(evt) {
-    if (evt.side === "Left" || evt.side === "Right") {
+    if (evt.side === 'Left' || evt.side === 'Right') {
       console.error(evt.side);
     }
 

@@ -68,14 +68,15 @@ export type TilePointerEvents = {
   pointerdown: PointerEvent;
   pointermove: PointerEvent;
   pointercancel: PointerEvent;
-}
+};
 
-export type TileMapEvents = EntityEvents & TilePointerEvents & {
-  preupdate: PreUpdateEvent<TileMap>;
-  postupdate: PostUpdateEvent<TileMap>;
-  predraw: PreDrawEvent;
-  postdraw: PostDrawEvent;
-}
+export type TileMapEvents = EntityEvents &
+  TilePointerEvents & {
+    preupdate: PreUpdateEvent<TileMap>;
+    postupdate: PostUpdateEvent<TileMap>;
+    predraw: PreDrawEvent;
+    postdraw: PostDrawEvent;
+  };
 
 export const TileMapEvents = {
   PreUpdate: 'preupdate',
@@ -96,7 +97,7 @@ export const TileMapEvents = {
 export class TileMap extends Entity {
   public events = new EventEmitter<TileMapEvents>();
   private _token = 0;
-  private _engine: Engine;
+  private _engine!: Engine;
 
   public logger: Logger = Logger.getInstance();
   public readonly tiles: Tile[] = [];
@@ -161,7 +162,7 @@ export class TileMap extends Entity {
     }
   }
 
-  private _oldRotation: number;
+  private _oldRotation: number = 0;
   public get rotation(): number {
     return this.transform?.rotation ?? 0;
   }
@@ -200,6 +201,20 @@ export class TileMap extends Entity {
     this._motion.vel = val;
   }
 
+  /**
+   * Width of the whole tile map in pixels
+   */
+  public get width(): number {
+    return this.tileWidth * this.columns * this.scale.x;
+  }
+
+  /**
+   * Height of the whole tilemap in pixels
+   */
+  public get height(): number {
+    return this.tileHeight * this.rows * this.scale.y;
+  }
+
   public emit<TEventName extends EventKey<TileMapEvents>>(eventName: TEventName, event: TileMapEvents[TEventName]): void;
   public emit(eventName: string, event?: any): void;
   public emit<TEventName extends EventKey<TileMapEvents> | string>(eventName: TEventName, event?: any): void {
@@ -222,9 +237,8 @@ export class TileMap extends Entity {
   public off(eventName: string, handler: Handler<unknown>): void;
   public off(eventName: string): void;
   public off<TEventName extends EventKey<TileMapEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
-    this.events.off(eventName, handler);
+    this.events.off(eventName, handler as any);
   }
-
 
   /**
    * @param options
@@ -246,7 +260,7 @@ export class TileMap extends Entity {
     );
     this.addComponent(new DebugGraphicsComponent((ctx, debugFlags) => this.debug(ctx, debugFlags), false));
     this.addComponent(new ColliderComponent());
-    this.addComponent(new PointerComponent);
+    this.addComponent(new PointerComponent());
     this.pointer = this.get(PointerComponent);
     this._graphics = this.get(GraphicsComponent);
     this.transform = this.get(TransformComponent);
@@ -322,10 +336,9 @@ export class TileMap extends Entity {
       this._originalOffsets.set(collider, originalOffset);
       return originalOffset;
     } else {
-      return this._originalOffsets.get(collider);
+      return this._originalOffsets.get(collider) ?? Vector.Zero;
     }
   }
-
 
   /**
    * Tiles colliders based on the solid tiles in the tilemap.
@@ -335,7 +348,7 @@ export class TileMap extends Entity {
     this._composite.clearColliders();
     const colliders: BoundingBox[] = [];
     this._composite = this.collider.useCompositeCollider([]);
-    let current: BoundingBox;
+    let current: BoundingBox | null = null;
 
     /**
      * Returns wether or not the 2 boxes share an edge and are the same height
@@ -346,10 +359,12 @@ export class TileMap extends Entity {
     const shareEdges = (prev: BoundingBox, next: BoundingBox) => {
       if (prev && next) {
         // same top/bottom
-        return prev.top === next.top &&
-        prev.bottom === next.bottom &&
-        // Shared right/left edge
-        prev.right === next.left;
+        return (
+          prev.top === next.top &&
+          prev.bottom === next.bottom &&
+          // Shared right/left edge
+          prev.right === next.left
+        );
       }
       return false;
     };
@@ -453,7 +468,7 @@ export class TileMap extends Entity {
    * For example, if I want the tile in fifth column (x), and second row (y):
    * `getTile(4, 1)` 0 based, so 0 is the first in row/column
    */
-  public getTile(x: number, y: number): Tile {
+  public getTile(x: number, y: number): Tile | null {
     if (x < 0 || y < 0 || x >= this.columns || y >= this.rows) {
       return null;
     }
@@ -464,7 +479,7 @@ export class TileMap extends Entity {
    * returns `null` if no Tile was found.
    */
   public getTileByPoint(point: Vector): Tile | null {
-    const {x, y} = this._getTileCoordinates(point);
+    const { x, y } = this._getTileCoordinates(point);
     const tile = this.getTile(x, y);
     if (x >= 0 && y >= 0 && x < this.columns && y < this.rows && tile) {
       return tile;
@@ -472,13 +487,13 @@ export class TileMap extends Entity {
     return null;
   }
 
-  private _getTileCoordinates(point: Vector): {x: number, y: number} {
+  private _getTileCoordinates(point: Vector): { x: number; y: number } {
     // Convert to Tile Space point
     point = this.transform.applyInverse(point);
 
     const x = Math.floor(point.x / this.tileWidth);
     const y = Math.floor(point.y / this.tileHeight);
-    return {x, y};
+    return { x, y };
   }
 
   public getRows(): readonly Tile[][] {
@@ -506,35 +521,21 @@ export class TileMap extends Entity {
       worldBounds = worldBounds.translate(pos);
     }
 
-    const bounds = this.transform.coordPlane === CoordPlane.Screen ?
-      this._engine.screen.getScreenBounds() :
-      worldBounds;
+    const bounds = this.transform.coordPlane === CoordPlane.Screen ? this._engine.screen.getScreenBounds() : worldBounds;
     const topLeft = this._getTileCoordinates(bounds.topLeft);
     const topRight = this._getTileCoordinates(bounds.topRight);
     const bottomRight = this._getTileCoordinates(bounds.bottomRight);
     const bottomLeft = this._getTileCoordinates(bounds.bottomLeft);
 
-    const tileStartX = Math.min(
-      clamp(topLeft.x, 0, this.columns - 1),
-      clamp(topRight.x, 0, this.columns - 1)
-    );
-    const tileStartY = Math.min(
-      clamp(topLeft.y, 0, this.rows - 1),
-      clamp(topRight.y, 0, this.rows - 1)
-    );
-    const tileEndX = Math.max(
-      clamp(bottomRight.x, 0, this.columns - 1),
-      clamp(bottomLeft.x, 0, this.columns - 1)
-    );
-    const tileEndY = Math.max(
-      clamp(bottomRight.y, 0, this.rows - 1),
-      clamp(bottomLeft.y, 0, this.rows - 1)
-    );
+    const tileStartX = Math.min(clamp(topLeft.x, 0, this.columns - 1), clamp(topRight.x, 0, this.columns - 1));
+    const tileStartY = Math.min(clamp(topLeft.y, 0, this.rows - 1), clamp(topRight.y, 0, this.rows - 1));
+    const tileEndX = Math.max(clamp(bottomRight.x, 0, this.columns - 1), clamp(bottomLeft.x, 0, this.columns - 1));
+    const tileEndY = Math.max(clamp(bottomRight.y, 0, this.rows - 1), clamp(bottomLeft.y, 0, this.rows - 1));
 
     const tiles: Tile[] = [];
     for (let x = tileStartX; x <= tileEndX; x++) {
       for (let y = tileStartY; y <= tileEndY; y++) {
-        tiles.push(this.getTile(x, y));
+        tiles.push(this.getTile(x, y)!);
       }
     }
     return tiles;
@@ -544,9 +545,7 @@ export class TileMap extends Entity {
     this._initialize(engine);
     this.onPreUpdate(engine, delta);
     this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
-    if (!this._oldPos.equals(this.pos) ||
-      this._oldRotation !== this.rotation ||
-      !this._oldScale.equals(this.scale)) {
+    if (!this._oldPos.equals(this.pos) || this._oldRotation !== this.rotation || !this._oldScale.equals(this.scale)) {
       this.flagCollidersDirty();
       this.flagTilesDirty();
     }
@@ -593,7 +592,7 @@ export class TileMap extends Entity {
           if (hasGraphicsTick(graphic)) {
             graphic?.tick(delta, this._token);
           }
-          const offsetY = this.renderFromTopOfGraphic ? 0 : (graphic.height - this.tileHeight);
+          const offsetY = this.renderFromTopOfGraphic ? 0 : graphic.height - this.tileHeight;
           graphic.draw(ctx, tile.x * this.tileWidth + offset.x, tile.y * this.tileHeight - offsetY + offset.y);
         }
       }
@@ -611,11 +610,7 @@ export class TileMap extends Entity {
       solidBoundsColor: colliderBoundsColor,
       showColliderGeometry
     } = debugFlags.tilemap;
-    const {
-      geometryColor,
-      geometryLineWidth,
-      geometryPointSize
-    } = debugFlags.collider;
+    const { geometryColor, geometryLineWidth, geometryPointSize } = debugFlags.collider;
     const width = this.tileWidth * this.columns * this.scale.x;
     const height = this.tileHeight * this.rows * this.scale.y;
     const pos = this.pos;
@@ -689,9 +684,9 @@ export interface TileOptions {
  * use transparency to create layers this way.
  */
 export class Tile {
-  private _bounds: BoundingBox;
-  private _geometry: BoundingBox;
-  private _pos: Vector;
+  private _bounds!: BoundingBox;
+  private _geometry!: BoundingBox;
+  private _pos!: Vector;
   private _posDirty = false;
 
   public events = new EventEmitter<TilePointerEvents>();
@@ -864,7 +859,7 @@ export class Tile {
   }
 
   public flagDirty() {
-    return this._posDirty = true;
+    return (this._posDirty = true);
   }
 
   private _recalculate() {
@@ -874,10 +869,7 @@ export class Tile {
     this._width = this.map.tileWidth * this.map.scale.x;
     this._height = this.map.tileHeight * this.map.scale.y;
 
-    this._pos = this.map.pos.add(
-      vec(
-        this.x * this._width,
-        this.y * this._height));
+    this._pos = this.map.pos.add(vec(this.x * this._width, this.y * this._height));
     this._bounds = new BoundingBox(this._pos.x, this._pos.y, this._pos.x + this._width, this._pos.y + this._height);
 
     if (this.map.rotation) {
@@ -910,29 +902,31 @@ export class Tile {
     return new Vector(this._pos.x + this._width / 2, this._pos.y + this._height / 2);
   }
 
-  public emit<TEventName extends EventKey<TilePointerEvents>>
-  (eventName: TEventName, event: TilePointerEvents[TEventName]): void;
+  public emit<TEventName extends EventKey<TilePointerEvents>>(eventName: TEventName, event: TilePointerEvents[TEventName]): void;
   public emit(eventName: string, event?: any): void;
   public emit<TEventName extends EventKey<TilePointerEvents> | string>(eventName: TEventName, event?: any): void {
     this.events.emit(eventName, event);
   }
 
-  public on<TEventName extends EventKey<TilePointerEvents>>
-  (eventName: TEventName, handler: Handler<TilePointerEvents[TEventName]>): Subscription;
+  public on<TEventName extends EventKey<TilePointerEvents>>(
+    eventName: TEventName,
+    handler: Handler<TilePointerEvents[TEventName]>
+  ): Subscription;
   public on(eventName: string, handler: Handler<unknown>): Subscription;
   public on<TEventName extends EventKey<TilePointerEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
     return this.events.on(eventName, handler);
   }
 
-  public once<TEventName extends EventKey<TilePointerEvents>>
-  (eventName: TEventName, handler: Handler<TilePointerEvents[TEventName]>): Subscription;
+  public once<TEventName extends EventKey<TilePointerEvents>>(
+    eventName: TEventName,
+    handler: Handler<TilePointerEvents[TEventName]>
+  ): Subscription;
   public once(eventName: string, handler: Handler<unknown>): Subscription;
   public once<TEventName extends EventKey<TilePointerEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
     return this.events.once(eventName, handler);
   }
 
-  public off<TEventName extends EventKey<TilePointerEvents>>
-  (eventName: TEventName, handler: Handler<TilePointerEvents[TEventName]>): void;
+  public off<TEventName extends EventKey<TilePointerEvents>>(eventName: TEventName, handler: Handler<TilePointerEvents[TEventName]>): void;
   public off(eventName: string, handler: Handler<unknown>): void;
   public off(eventName: string): void;
   public off<TEventName extends EventKey<TilePointerEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {

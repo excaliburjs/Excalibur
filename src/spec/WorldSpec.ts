@@ -1,8 +1,7 @@
 import * as ex from '@excalibur';
 import { SystemType } from '@excalibur';
 
-class FakeComponent extends ex.Component {
-}
+class FakeComponent extends ex.Component {}
 class FakeSystem extends ex.System {
   public systemType = ex.SystemType.Update;
   query: ex.Query<typeof FakeComponent>;
@@ -80,10 +79,14 @@ describe('A World', () => {
   });
 
   it('can update', () => {
-    const scene = new ex.Scene;
+    const scene = new ex.Scene();
     const world = new ex.World(scene);
-    world.entityManager = jasmine.createSpyObj('EntityManager',
-      ['processEntityRemovals', 'findEntitiesForRemoval', 'processComponentRemovals', 'updateEntities']);
+    world.entityManager = jasmine.createSpyObj('EntityManager', [
+      'processEntityRemovals',
+      'findEntitiesForRemoval',
+      'processComponentRemovals',
+      'updateEntities'
+    ]);
     world.systemManager = jasmine.createSpyObj('SystemManager', ['updateSystems']);
 
     world.update(SystemType.Update, 100);

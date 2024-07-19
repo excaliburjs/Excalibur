@@ -43,7 +43,6 @@ export {
   CapturePointerConfig
 } from './CapturePointerConfig';
 
-
 export {
   /**
    * @deprecated ex.Input.NativePointerEvent import site will be removed in v0.29.0, use ex.NativePointerEvent

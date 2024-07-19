@@ -96,7 +96,7 @@ export class Loader extends DefaultLoader {
     fullscreenAfterLoad: false,
     fullscreenContainer: undefined
   };
-  private _originalOptions: LoaderOptions = {loadables:[]};
+  private _originalOptions: LoaderOptions = { loadables: [] };
   public events = new EventEmitter();
   public screen: Screen;
   private _playButtonShown: boolean = false;
@@ -209,9 +209,11 @@ export class Loader extends DefaultLoader {
    */
   constructor(loadables?: Loadable<any>[]);
   constructor(loadablesOrOptions?: Loadable<any>[] | LoaderOptions) {
-    const options = Array.isArray(loadablesOrOptions) ? {
-      loadables: loadablesOrOptions
-    } : loadablesOrOptions;
+    const options = Array.isArray(loadablesOrOptions)
+      ? {
+          loadables: loadablesOrOptions
+        }
+      : loadablesOrOptions;
     super(options);
     this._originalOptions = { ...Loader._DEFAULT_LOADER_OPTIONS, ...options };
   }
@@ -241,7 +243,7 @@ export class Loader extends DefaultLoader {
           this._positionPlayButton();
         } catch {
           // swallow if can't position
-        };
+        }
       };
       if (this.engine?.browser) {
         this.engine.browser.window.on('resize', resizeHandler);
@@ -254,8 +256,8 @@ export class Loader extends DefaultLoader {
         }
       });
       this._positionPlayButton();
-      const playButtonClicked = new Promise<void>(resolve => {
-        const startButtonHandler =  (e: Event) => {
+      const playButtonClicked = new Promise<void>((resolve) => {
+        const startButtonHandler = (e: Event) => {
           // We want to stop propagation to keep bubbling to the engine pointer handlers
           e.stopPropagation();
           // Hide Button after click
@@ -334,12 +336,7 @@ export class Loader extends DefaultLoader {
 
   private _positionPlayButton() {
     if (this.engine) {
-      const {
-        x: left,
-        y: top,
-        width: screenWidth,
-        height: screenHeight
-      } = this.engine.canvas.getBoundingClientRect();
+      const { x: left, y: top, width: screenWidth, height: screenHeight } = this.engine.canvas.getBoundingClientRect();
       if (this._playButtonRootElement) {
         const buttonWidth = this._playButton.clientWidth;
         const buttonHeight = this._playButton.clientHeight;

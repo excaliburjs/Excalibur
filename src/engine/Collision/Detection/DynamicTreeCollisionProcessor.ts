@@ -16,40 +16,9 @@ import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphi
 import { RayCastHit } from './RayCastHit';
 import { DeepRequired } from '../../Util/Required';
 import { PhysicsConfig } from '../PhysicsConfig';
-
-export interface RayCastOptions {
-  /**
-   * Optionally specify the maximum distance in pixels to ray cast, default is Infinity
-   */
-  maxDistance?: number;
-  /**
-   * Optionally specify a collision group to target in the ray cast, default is All.
-   */
-  collisionGroup?: CollisionGroup;
-  /**
-   * Optionally specify a collision mask to target multiple collision categories
-   */
-  collisionMask?: number;
-  /**
-   * Optionally specify to search for all colliders that intersect the ray cast, not just the first which is the default
-   */
-  searchAllColliders?: boolean;
-  /**
-   * Optionally ignore things with CollisionGroup.All and only test against things with an explicit group
-   *
-   * Default false
-   */
-  ignoreCollisionGroupAll?: boolean;
-
-  /**
-   * Optionally provide a any filter function to filter on arbitrary qualities of a ray cast hit
-   *
-   * Filters run after any collision mask/collision group filtering, it is the last decision
-   *
-   * Returning true means you want to include the collider in your results, false means exclude it
-   */
-  filter?: (hit: RayCastHit) => boolean;
-}
+import { RayCastOptions } from './RayCastOptions';
+import { BoundingBox } from '../BoundingBox';
+import { createId } from '../../Id';
 
 /**
  * Responsible for performing the collision broadphase (locating potential collisions) and
@@ -68,6 +37,38 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
 
   public getColliders(): readonly Collider[] {
     return this._colliders;
+  }
+
+  public query(point: Vector): Collider[];
+  public query(bounds: BoundingBox): Collider[];
+  public query(pointOrBounds: Vector | BoundingBox): Collider[] {
+    const results: Collider[] = [];
+    if (pointOrBounds instanceof BoundingBox) {
+      this._dynamicCollisionTree.query(
+        {
+          id: createId('collider', -1),
+          owner: null,
+          bounds: pointOrBounds
+        } as Collider,
+        (other) => {
+          results.push(other);
+          return false;
+        }
+      );
+    } else {
+      this._dynamicCollisionTree.query(
+        {
+          id: createId('collider', -1),
+          owner: null,
+          bounds: new BoundingBox(pointOrBounds.x, pointOrBounds.y, pointOrBounds.x, pointOrBounds.y)
+        } as Collider,
+        (other) => {
+          results.push(other);
+          return false;
+        }
+      );
+    }
+    return results;
   }
 
   public rayCast(ray: Ray, options?: RayCastOptions): RayCastHit[] {

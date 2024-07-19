@@ -1,6 +1,7 @@
-import { Action } from '../Action';
+import { Action, nextActionId } from '../Action';
 
 export class Delay implements Action {
+  id = nextActionId();
   private _elapsedTime: number = 0;
   private _delay: number;
   private _started: boolean = false;

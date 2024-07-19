@@ -51,7 +51,7 @@ export const withEngine = (storyFn: (game: Engine, args?: Record<string, any>) =
       ...options
     });
 
-    Logger.getInstance().info('Press \'d\' for debug mode');
+    Logger.getInstance().info("Press 'd' for debug mode");
 
     game.input.keyboard.on('down', (keyDown?: KeyEvent) => {
       if (keyDown.key === Keys.D) {

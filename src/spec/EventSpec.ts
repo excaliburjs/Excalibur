@@ -16,7 +16,7 @@ describe('An Event Dispatcher', () => {
 
   it('can publish events', () => {
     let eventFired = false;
-    pubsub.on('event', function() {
+    pubsub.on('event', function () {
       eventFired = true;
     });
     pubsub.emit('event', null);
@@ -28,7 +28,7 @@ describe('An Event Dispatcher', () => {
     const target = new ex.Actor();
 
     pubsub = new ex.EventDispatcher();
-    pubsub.on('event', function() {
+    pubsub.on('event', function () {
       targetContext = this;
     });
     pubsub.emit('event', null);
@@ -37,7 +37,7 @@ describe('An Event Dispatcher', () => {
 
   it('has an emit alias for publish', () => {
     let eventFired = false;
-    pubsub.on('event', function() {
+    pubsub.on('event', function () {
       eventFired = true;
     });
     pubsub.emit('event', null);

@@ -3,7 +3,32 @@ import { DeepRequired } from '../Util/Required';
 import { SolverStrategy } from './SolverStrategy';
 import { Physics } from './Physics';
 import { ContactSolveBias } from './Solver/ContactBias';
+import { SpatialPartitionStrategy } from './Detection/SpatialPartitionStrategy';
 
+export interface DynamicTreeConfig {
+  /**
+   * Pad collider BoundingBox by a constant amount for purposes of potential pairs
+   *
+   * Default 5 pixels
+   */
+  boundsPadding?: number;
+
+  /**
+   * Factor to add to the collider BoundingBox, bounding box (dimensions += vel * dynamicTreeVelocityMultiplier);
+   *
+   * Default 2
+   */
+  velocityMultiplier?: number;
+}
+
+export interface SparseHashGridConfig {
+  /**
+   * Size of the grid cells, default is 100x100 pixels.
+   *
+   * A good size means that your average collider in your game would fit inside the cell size by size dimension.
+   */
+  size: number;
+}
 
 export interface PhysicsConfig {
   /**
@@ -46,14 +71,13 @@ export interface PhysicsConfig {
      *
      * Default is 'together' if unset
      */
-    compositeStrategy?: 'separate' | 'together'
-  }
+    compositeStrategy?: 'separate' | 'together';
+  };
 
   /**
    * Configure excalibur continuous collision (WIP)
    */
   continuous?: {
-
     /**
      * Enable fast moving body checking, this enables checking for collision pairs via raycast for fast moving objects to prevent
      * bodies from tunneling through one another.
@@ -77,7 +101,7 @@ export interface PhysicsConfig {
      * Default 0.1
      */
     surfaceEpsilon?: number;
-  }
+  };
 
   /**
    * Configure body defaults
@@ -117,26 +141,14 @@ export interface PhysicsConfig {
      * Default false
      */
     canSleepByDefault?: boolean;
-  }
+  };
 
   /**
-   * Configure the dynamic tree spatial data structure for locating pairs and raycasts
+   * Configure the spatial data structure for locating pairs and raycasts
    */
-  dynamicTree?: {
-    /**
-     * Pad collider BoundingBox by a constant amount for purposes of potential pairs
-     *
-     * Default 5 pixels
-     */
-    boundsPadding?: number;
-
-    /**
-     * Factor to add to the collider BoundingBox, bounding box (dimensions += vel * dynamicTreeVelocityMultiplier);
-     *
-     * Default 2
-     */
-    velocityMultiplier?: number;
-  }
+  spatialPartition?: SpatialPartitionStrategy;
+  sparseHashGrid?: SparseHashGridConfig;
+  dynamicTree?: DynamicTreeConfig;
 
   /**
    * Configure the [[ArcadeSolver]]
@@ -153,7 +165,7 @@ export interface PhysicsConfig {
      * * By default [[ContactSolveBias.None]] which sorts by distance
      */
     contactSolveBias?: ContactSolveBias;
-  }
+  };
 
   /**
    * Configure the [[RealisticSolver]]
@@ -195,7 +207,7 @@ export interface PhysicsConfig {
      * Default true
      */
     warmStart?: boolean;
-  }
+  };
 }
 
 export const DefaultPhysicsConfig: DeepRequired<PhysicsConfig> = {
@@ -216,6 +228,10 @@ export const DefaultPhysicsConfig: DeepRequired<PhysicsConfig> = {
     wakeThreshold: 0.07 * 3,
     sleepBias: 0.9,
     defaultMass: 10
+  },
+  spatialPartition: SpatialPartitionStrategy.SparseHashGrid,
+  sparseHashGrid: {
+    size: 100
   },
   dynamicTree: {
     boundsPadding: 5,
@@ -255,6 +271,10 @@ export function DeprecatedStaticToConfig(): DeepRequired<PhysicsConfig> {
       wakeThreshold: Physics.wakeThreshold,
       sleepBias: Physics.sleepBias,
       defaultMass: Physics.defaultMass
+    },
+    spatialPartition: SpatialPartitionStrategy.SparseHashGrid,
+    sparseHashGrid: {
+      size: 100
     },
     dynamicTree: {
       boundsPadding: Physics.boundsPadding,

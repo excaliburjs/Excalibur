@@ -76,11 +76,9 @@ describe('A FontSource', () => {
     expect(font).toBe(alreadyLoadedFont);
   });
 
-  it('will return error if font doesn\'t exist', async () => {
+  it("will return error if font doesn't exist", async () => {
     const fontSource = new ex.FontSource('42.ttf', '42');
 
-    await expectAsync(fontSource.load()).toBeRejectedWith(
-      'Error loading FontSource from path \'42.ttf\' with error [Not Found]'
-    );
+    await expectAsync(fontSource.load()).toBeRejectedWith("Error loading FontSource from path '42.ttf' with error [Not Found]");
   });
 });

@@ -2,7 +2,6 @@ import { Vector } from '../../Math/vector';
 import { Collider } from '../Colliders/Collider';
 import { BodyComponent } from '../BodyComponent';
 
-
 export interface RayCastHit {
   /**
    * The distance along the ray cast in pixels that a hit was detected

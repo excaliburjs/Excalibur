@@ -18,7 +18,7 @@ export class CrossFade extends Transition {
   image: HTMLImageElement;
   screenCover: Sprite;
   constructor(options: TransitionOptions & CrossFadeOptions) {
-    super({direction: 'in', ...options}); // default the correct direction
+    super({ direction: 'in', ...options }); // default the correct direction
     this.name = `CrossFade#${this.id}`;
   }
 

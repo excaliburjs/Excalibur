@@ -33,7 +33,9 @@ describe('Clocks', () => {
 
     it('can be converted to a standard clock', () => {
       const testClock = new ex.TestClock({
-        tick: () => { /* nothing */ },
+        tick: () => {
+          /* nothing */
+        },
         defaultUpdateMs: 1000
       });
 
@@ -46,7 +48,9 @@ describe('Clocks', () => {
       spyOn(logger, 'warn');
 
       const testClock = new ex.TestClock({
-        tick: () => { /* nothing */ },
+        tick: () => {
+          /* nothing */
+        },
         defaultUpdateMs: 1000
       });
 
@@ -57,7 +61,9 @@ describe('Clocks', () => {
 
     it('works with delay()', (done) => {
       const testClock = new ex.TestClock({
-        tick: () => { /* nothing */ },
+        tick: () => {
+          /* nothing */
+        },
         defaultUpdateMs: 1000
       });
       testClock.start();
@@ -71,7 +77,9 @@ describe('Clocks', () => {
 
     it('can schedule a callbacks to fire', async () => {
       const testClock = new ex.TestClock({
-        tick: () => { /* nothing */ },
+        tick: () => {
+          /* nothing */
+        },
         defaultUpdateMs: 1000
       });
       testClock.start();
@@ -154,7 +162,9 @@ describe('Clocks', () => {
 
     it('can return the elapsed time', () => {
       const clock = new ex.StandardClock({
-        tick: () => { /* nothing */ }
+        tick: () => {
+          /* nothing */
+        }
       });
       (clock as any).update(100);
       expect(clock.elapsed()).toBe(100);
@@ -162,7 +172,9 @@ describe('Clocks', () => {
 
     it('can be converted to a test clock', () => {
       const clock = new ex.StandardClock({
-        tick: () => { /* nothing */ }
+        tick: () => {
+          /* nothing */
+        }
       });
 
       const test = clock.toTestClock();

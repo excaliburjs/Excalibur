@@ -62,7 +62,7 @@ var game = new ex.Engine({
     canvasImageRendering: 'auto',
     nativeContextAntialiasing: false,
     filtering: ex.ImageFiltering.Pixel,
-    multiSampleAntialiasing: true,
+    multiSampleAntialiasing: true
   },
   uvPadding: 0,
   physics: {
@@ -102,9 +102,9 @@ game.currentScene.onPreDraw = (ctx: ex.ExcaliburGraphicsContext) => {
   const yellow = ex.Color.fromHex('#FDCF45');
 
   const bb = game.screen.contentArea.clone();
-  bb.top++
-  bb.left++
-  bb.bottom--
+  bb.top++;
+  bb.left++;
+  bb.bottom--;
   bb.right--;
   bb.draw(ctx, ex.Color.Yellow);
 
@@ -113,14 +113,13 @@ game.currentScene.onPreDraw = (ctx: ex.ExcaliburGraphicsContext) => {
   ctx.drawCircle(ex.vec(bb.left + 6, bb.bottom - 6), 10, yellow);
   ctx.drawCircle(ex.vec(bb.right - 6, bb.bottom - 6), 10, red);
   ctx.restore();
-}
+};
 
 game.on('fallbackgraphicscontext', (ctx) => {
   console.log('fallback triggered', ctx);
 });
 //@ts-ignore For some reason ts doesn't like the /// slash import
 // const devtool = new ex.DevTools.DevTool(game);
-
 
 // var colorblind = new ex.ColorBlindnessPostProcessor(ex.ColorBlindnessMode.Deuteranope);
 // game.graphicsContext.addPostProcessor(colorblind);
@@ -133,7 +132,6 @@ fullscreenButton.addEventListener('click', () => {
   }
 });
 game.showDebug(true);
-
 
 var heartTex = new ex.ImageSource('../images/heart.png');
 var heartImageSource = new ex.ImageSource('../images/heart.png');
@@ -158,6 +156,7 @@ var boot = new ex.Loader();
 //   fullscreenAfterLoad: true,
 //   fullscreenContainer: document.getElementById('container')
 // });
+// boot.suppressPlayButton = true;
 boot.addResource(heartImageSource);
 boot.addResource(heartTex);
 boot.addResource(imageRun);
@@ -170,8 +169,6 @@ boot.addResource(jump);
 
 // Set background color
 game.backgroundColor = new ex.Color(114, 213, 224);
-
-
 
 // Add some UI
 //var heart = new ex.ScreenElement(0, 0, 20, 20);
@@ -238,23 +235,21 @@ var cardSpriteSheet = ex.SpriteSheet.fromImageSource({
   },
   spacing: {
     originOffset: { x: 11, y: 2 },
-    margin: { x: 23, y: 5}
+    margin: { x: 23, y: 5 }
   }
 });
 
-cardSpriteSheet.sprites.forEach(s => s.scale = ex.vec(2, 2));
+cardSpriteSheet.sprites.forEach((s) => (s.scale = ex.vec(2, 2)));
 
 var cardAnimation = ex.Animation.fromSpriteSheet(cardSpriteSheet, ex.range(0, 14 * 4), 200);
 
 var multiCardSheet = ex.SpriteSheet.fromImageSourceWithSourceViews({
   image: cards,
-  sourceViews: [
-    { x: 11, y: 2, width: 42*2 + 23, height: 60*2 + 5 }
-  ]
+  sourceViews: [{ x: 11, y: 2, width: 42 * 2 + 23, height: 60 * 2 + 5 }]
 });
 
 var multiCardActor = new ex.Actor({
-  pos: ex.vec(400, 100),
+  pos: ex.vec(400, 100)
 });
 
 multiCardActor.graphics.use(multiCardSheet.sprites[0]);
@@ -269,7 +264,7 @@ for (var i = 0; i < 100; i++) {
     z: -10
   });
   clouds.graphics.use(cloudSprite);
-  var parallax = new ex.ParallaxComponent(ex.vec(rand.floating(.5, .9), .5));
+  var parallax = new ex.ParallaxComponent(ex.vec(rand.floating(0.5, 0.9), 0.5));
   clouds.addComponent(parallax);
 
   clouds.vel.x = -10;
@@ -366,12 +361,11 @@ heart.graphics.add(group);
 heart.pos = ex.vec(10, 10);
 game.add(heart);
 
-var label = new ex.Label({text: 'Test Label', x: 200, y: 200});
+var label = new ex.Label({ text: 'Test Label', x: 200, y: 200 });
 game.add(label);
 
-var testSpriteLabel = new ex.Label({text: 'Test Sprite Label', x: 200, y: 100, spriteFont: spriteFont});
+var testSpriteLabel = new ex.Label({ text: 'Test Sprite Label', x: 200, y: 100, spriteFont: spriteFont });
 game.add(testSpriteLabel);
-
 
 var pointer = new ex.Actor({
   width: 25,
@@ -385,7 +379,7 @@ var otherPointer = new ex.ScreenElement({
   color: ex.Color.Blue
 });
 var pagePointer = document.getElementById('page') as HTMLDivElement;
-otherPointer.anchor.setTo(.5, .5);
+otherPointer.anchor.setTo(0.5, 0.5);
 game.add(otherPointer);
 // game.input.pointers.primary.on('move', (ev) => {
 //    pointer.pos = ev.worldPos;
@@ -397,9 +391,9 @@ game.add(otherPointer);
 
 game.input.pointers.primary.on('wheel', (ev) => {
   pointer.pos.setTo(ev.x, ev.y);
-  game.currentScene.camera.zoom += (ev.deltaY / 1000);
-  game.currentScene.camera.zoom = ex.clamp(game.currentScene.camera.zoom, .05, 100);
-})
+  game.currentScene.camera.zoom += ev.deltaY / 1000;
+  game.currentScene.camera.zoom = ex.clamp(game.currentScene.camera.zoom, 0.05, 100);
+});
 // Turn on debug diagnostics
 game.showDebug(false);
 var blockSprite = new ex.Sprite({
@@ -435,18 +429,18 @@ var spriteSheetJump = ex.SpriteSheet.fromImageSource({
 });
 var tileBlockWidth = 64,
   tileBlockHeight = 48,
-  spriteTiles = new ex.SpriteSheet({sprites: [ex.Sprite.from(imageBlocks)] });
+  spriteTiles = new ex.SpriteSheet({ sprites: [ex.Sprite.from(imageBlocks)] });
 
 var blockGroup = ex.CollisionGroupManager.create('ground');
 // create a collision map
 // var tileMap = new ex.TileMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500);
 var tileMap = new ex.TileMap({
-  name: 'tilemap', 
+  name: 'tilemap',
   pos: ex.vec(-300, 300),
   tileWidth: tileBlockWidth,
   tileHeight: tileBlockHeight,
   rows: 4,
-  columns: 500 
+  columns: 500
 });
 tileMap.get(ex.BodyComponent).group = blockGroup;
 // tileMap.get(ex.TransformComponent).coordPlane = ex.CoordPlane.Screen;
@@ -459,7 +453,7 @@ var blocks = ex.Sprite.from(imageBlocks);
 //     { graphic: flipped, duration: 200 }
 //   ]
 // })
-tileMap.tiles.forEach(function(cell: ex.Tile) {
+tileMap.tiles.forEach(function (cell: ex.Tile) {
   cell.solid = true;
   cell.addGraphic(spriteTiles.sprites[0]);
 });
@@ -526,35 +520,37 @@ for (var i = 0; i < 36; i++) {
   game.add(block);
 }
 
-var platform = new ex.Actor({x: 400, y: 300, width: 200, height: 50, color: new ex.Color(0, 200, 0)});
+var platform = new ex.Actor({ x: 400, y: 300, width: 200, height: 50, color: new ex.Color(0, 200, 0) });
 platform.graphics.add(new ex.Rectangle({ color: new ex.Color(0, 200, 0), width: 200, height: 50 }));
 platform.body.collisionType = ex.CollisionType.Fixed;
 platform.body.group = blockGroup;
-platform.actions.repeatForever(ctx => ctx.moveTo(200, 300, 100).moveTo(600, 300, 100).moveTo(400, 300, 100));
+platform.actions.repeatForever((ctx) => ctx.moveTo(200, 300, 100).moveTo(600, 300, 100).moveTo(400, 300, 100));
 game.add(platform);
 
-var platform2 = new ex.Actor({x: 800, y: 300, width: 200, height: 20, color: new ex.Color(0, 0, 140)});
+var platform2 = new ex.Actor({ x: 800, y: 300, width: 200, height: 20, color: new ex.Color(0, 0, 140) });
 platform2.graphics.add(new ex.Rectangle({ color: new ex.Color(0, 0, 140), width: 200, height: 20 }));
 platform2.body.collisionType = ex.CollisionType.Fixed;
 platform2.body.group = blockGroup;
-platform2.actions.repeatForever(ctx => ctx.moveTo(2000, 300, 100).moveTo(2000, 100, 100).moveTo(800, 100, 100).moveTo(800, 300, 100));
+platform2.actions.repeatForever((ctx) => ctx.moveTo(2000, 300, 100).moveTo(2000, 100, 100).moveTo(800, 100, 100).moveTo(800, 300, 100));
 game.add(platform2);
 
-var platform3 = new ex.Actor({x: -200, y: 400, width: 200, height: 20, color: new ex.Color(50, 0, 100)});
+var platform3 = new ex.Actor({ x: -200, y: 400, width: 200, height: 20, color: new ex.Color(50, 0, 100) });
 platform3.graphics.add(new ex.Rectangle({ color: new ex.Color(50, 0, 100), width: 200, height: 20 }));
 platform3.body.collisionType = ex.CollisionType.Fixed;
 platform3.body.group = blockGroup;
-platform3.actions.repeatForever(ctx => ctx.moveTo(-200, 800, 300).moveTo(-200, 400, 50).delay(3000).moveTo(-200, 300, 800).moveTo(-200, 400, 800));
+platform3.actions.repeatForever((ctx) =>
+  ctx.moveTo(-200, 800, 300).moveTo(-200, 400, 50).delay(3000).moveTo(-200, 300, 800).moveTo(-200, 400, 800)
+);
 game.add(platform3);
 
-var platform4 = new ex.Actor({x: 75, y: 300, width: 100, height: 50, color: ex.Color.Azure});
+var platform4 = new ex.Actor({ x: 75, y: 300, width: 100, height: 50, color: ex.Color.Azure });
 platform4.graphics.add(new ex.Rectangle({ color: ex.Color.Azure, width: 100, height: 50 }));
 platform4.body.collisionType = ex.CollisionType.Fixed;
 platform4.body.group = blockGroup;
 game.add(platform4);
 
 // Test follow api
-var follower = new ex.Actor({x: 50, y: 100, width: 20, height: 20, color: ex.Color.Black});
+var follower = new ex.Actor({ x: 50, y: 100, width: 20, height: 20, color: ex.Color.Black });
 follower.graphics.add(new ex.Rectangle({ color: ex.Color.Black, width: 20, height: 20 }));
 follower.body.collisionType = ex.CollisionType.PreventCollision;
 game.add(follower);
@@ -573,7 +569,7 @@ player.onPostUpdate = (engine) => {
     searchAllColliders: false
   });
   // console.log(hits);
-}
+};
 // player.graphics.onPostDraw = (ctx) => {
 //   ctx.drawLine(ex.Vector.Zero, ex.Vector.Down.scale(100), ex.Color.Red, 2);
 // }
@@ -586,12 +582,12 @@ follower.actions
     console.log('Player met!!');
   });
 
-player.onCollisionStart = (_a,_b,_c, contact) => {
+player.onCollisionStart = (_a, _b, _c, contact) => {
   console.log('start', contact);
-}
-player.onCollisionEnd = (_a,_b) => {
+};
+player.onCollisionEnd = (_a, _b) => {
   console.log('end');
-}
+};
 
 // follow player
 
@@ -611,14 +607,13 @@ var healthbar = new ex.Actor({
   y: -70,
   width: 140,
   height: 5,
-  color: new ex.Color(0, 255, 0)});
+  color: new ex.Color(0, 255, 0)
+});
 player.addChild(healthbar);
 player.onPostUpdate = () => {
-  ex.Debug.drawLine(
-    player.pos,
-    player.pos.add(ex.Vector.Down.scale(100)), {
-      color: ex.Color.Red
-    });
+  ex.Debug.drawLine(player.pos, player.pos.add(ex.Vector.Down.scale(100)), {
+    color: ex.Color.Red
+  });
   ex.Debug.drawPoint(player.pos, {
     size: 1,
     color: ex.Color.Violet
@@ -629,7 +624,7 @@ player.onPostUpdate = () => {
     width: 1
   });
   ex.Debug.drawBounds(player.collider.bounds, { color: ex.Color.Yellow });
-}
+};
 // player.onPostDraw = (ctx: CanvasRenderingContext2D) => {
 //   ctx.fillStyle = 'red';
 //   ctx.fillRect(0, 0, 100, 100);
@@ -644,10 +639,10 @@ class OtherActor extends ex.Actor {
     super(args);
   }
   onCollisionStart(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
-    console.log('other collision start')
+    console.log('other collision start');
   }
   onCollisionEnd(self: ex.Collider, other: ex.Collider): void {
-    console.log('other collision end')
+    console.log('other collision end');
   }
 }
 
@@ -678,10 +673,10 @@ var playerText = new ex.Text({
 
 var group = new ex.GraphicsGroup({
   members: [
-    { graphic: healthbar2, offset: ex.vec(0, -70)},
-    { graphic: playerText, offset: ex.vec(0, -70)}
+    { graphic: healthbar2, offset: ex.vec(0, -70) },
+    { graphic: playerText, offset: ex.vec(0, -70) }
   ]
-})
+});
 healthbar.graphics.use(group);
 
 // var backgroundLayer = player.graphics.layers.create({
@@ -701,12 +696,7 @@ var right = left.clone(); // spriteSheetRun.getAnimationBetween(game, 1, 11, 50)
 right.flipHorizontal = true;
 var idle = ex.Animation.fromSpriteSheet(spriteSheetRun, [0], 200); // spriteSheetRun.getAnimationByIndices(game, [0], 200);
 //idle.anchor.setTo(.5, .5);
-var jumpLeft = ex.Animation.fromSpriteSheet(
-  spriteSheetJump,
-  ex.range(0, 10).reverse(),
-  100,
-  ex.AnimationStrategy.Freeze
-); // spriteSheetJump.getAnimationBetween(game, 0, 11, 100);
+var jumpLeft = ex.Animation.fromSpriteSheet(spriteSheetJump, ex.range(0, 10).reverse(), 100, ex.AnimationStrategy.Freeze); // spriteSheetJump.getAnimationBetween(game, 0, 11, 100);
 var jumpRight = ex.Animation.fromSpriteSheet(spriteSheetJump, ex.range(11, 21), 100, ex.AnimationStrategy.Freeze); // spriteSheetJump.getAnimationBetween(game, 11, 22, 100);
 // left.loop = true;
 // right.loop = true;
@@ -799,7 +789,7 @@ player.on('pointerwheel', () => {
 
 var newScene = new ex.Scene();
 newScene.backgroundColor = ex.Color.Yellow;
-newScene.add(new ex.Label({text: 'MAH LABEL!', x: 200, y: 100}));
+newScene.add(new ex.Label({ text: 'MAH LABEL!', x: 200, y: 100 }));
 newScene.on('activate', (evt?: ex.ActivateEvent) => {
   console.log('activate newScene');
 });
@@ -813,7 +803,7 @@ game.addScene('label', newScene);
 
 game.input.keyboard.on('down', (keyDown?: ex.KeyEvent) => {
   if (keyDown.key === ex.Keys.F) {
-    var a = new ex.Actor({x: player.pos.x + 10, y: player.pos.y - 50, width: 10, height: 10, color: new ex.Color(222, 222, 222)});
+    var a = new ex.Actor({ x: player.pos.x + 10, y: player.pos.y - 50, width: 10, height: 10, color: new ex.Color(222, 222, 222) });
     a.vel.x = 200 * direction;
     a.vel.y = 0;
     a.body.collisionType = ex.CollisionType.Active;
@@ -896,7 +886,7 @@ player.on('initialize', (evt?: ex.InitializeEvent) => {
 
 game.input.keyboard.on('down', (keyDown?: ex.KeyEvent) => {
   if (keyDown.key === ex.Keys.B) {
-    var block = new ex.Actor({x: currentX, y: 350, width: 44, height: 50, color: color});
+    var block = new ex.Actor({ x: currentX, y: 350, width: 44, height: 50, color: color });
     currentX += 46;
     block.graphics.add(blockAnimation);
     game.add(block);
@@ -925,33 +915,29 @@ game.add(player);
 // Add particle emitter
 // sprite.anchor = new ex.Vector(0.5, 0.5);
 var emitter = new ex.ParticleEmitter({
+  isEmitting: false,
+  emitRate: 494,
   pos: new ex.Vector(100, 300),
   width: 2,
   height: 2,
-  minVel: 417,
-  maxVel: 589,
-  minAngle: Math.PI,
-  maxAngle: Math.PI * 2,
-  isEmitting: false,
-  emitRate: 494,
-  opacity: 0.84,
-  fadeFlag: true,
-  particleLife: 2465,
-  maxSize: 20.5,
-  minSize: 10,
-  acceleration: new ex.Vector(0, 460),
-  beginColor: ex.Color.Red,
-  endColor: ex.Color.Yellow,
-  particleSprite: blockSprite,
-  particleRotationalVelocity: Math.PI / 10,
-  randomRotation: true
+  particle: {
+    minVel: 417,
+    maxVel: 589,
+    minAngle: Math.PI,
+    maxAngle: Math.PI * 2,
+    opacity: 0.84,
+    fade: true,
+    life: 2465,
+    maxSize: 20.5,
+    minSize: 10,
+    beginColor: ex.Color.Red,
+    endColor: ex.Color.Yellow,
+    graphic: blockSprite,
+    angularVelocity: Math.PI / 10,
+    acc: new ex.Vector(0, 460),
+    randomRotation: true
+  }
 });
-const original = (ex.ParticleEmitter.prototype as any)._createParticle;
-(ex.ParticleEmitter.prototype as any)._createParticle = function () {
-  const particle = original.call(this);
-  particle.graphics.onPostDraw = () => {};
-  return particle;
-}
 game.add(emitter);
 
 var exploding = false;

@@ -1,8 +1,9 @@
 import { GraphicsComponent } from '../../Graphics/GraphicsComponent';
 import { Entity } from '../../EntityComponentSystem/Entity';
-import { Action } from '../Action';
+import { Action, nextActionId } from '../Action';
 
 export class Blink implements Action {
+  id = nextActionId();
   private _graphics: GraphicsComponent;
   private _timeVisible: number = 0;
   private _timeNotVisible: number = 0;

@@ -29,7 +29,10 @@ export class MediaEvent extends GameEvent<Sound> {
     // stubbed
   }
 
-  constructor(public target: Sound, protected _name: string = 'MediaEvent') {
+  constructor(
+    public target: Sound,
+    protected _name: string = 'MediaEvent'
+  ) {
     super();
   }
 
@@ -66,7 +69,10 @@ export class MediaEvent extends GameEvent<Sound> {
 }
 
 export class NativeSoundEvent extends MediaEvent {
-  constructor(target: Sound, public track?: WebAudioInstance) {
+  constructor(
+    target: Sound,
+    public track?: WebAudioInstance
+  ) {
     super(target, 'NativeSoundEvent');
   }
 }
@@ -74,7 +80,10 @@ export class NativeSoundEvent extends MediaEvent {
 export class NativeSoundProcessedEvent extends MediaEvent {
   public data: string | AudioBuffer;
 
-  constructor(target: Sound, private _processedData: string | AudioBuffer) {
+  constructor(
+    target: Sound,
+    private _processedData: string | AudioBuffer
+  ) {
     super(target, 'NativeSoundProcessedEvent');
 
     this.data = this._processedData;

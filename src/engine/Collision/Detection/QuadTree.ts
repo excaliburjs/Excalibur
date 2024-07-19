@@ -33,8 +33,11 @@ export class QuadTree<TItem extends QuadTreeItem> {
   public bottomLeft: QuadTree<TItem> | null = null;
   public bottomRight: QuadTree<TItem> | null = null;
 
-  constructor(public bounds: BoundingBox, public options?: QuadTreeOptions) {
-    this.options = {...this._defaultOptions, ...options};
+  constructor(
+    public bounds: BoundingBox,
+    public options?: QuadTreeOptions
+  ) {
+    this.options = { ...this._defaultOptions, ...options };
     this.halfWidth = bounds.width / 2;
     this.halfHeight = bounds.height / 2;
   }
@@ -55,27 +58,36 @@ export class QuadTree<TItem extends QuadTreeItem> {
         top: this.bounds.top,
         right: this.bounds.left + this.halfWidth,
         bottom: this.bounds.top + this.halfHeight
-      }), newLevelOptions);
+      }),
+      newLevelOptions
+    );
     this.topRight = new QuadTree<TItem>(
       new BoundingBox({
         left: this.bounds.left + this.halfWidth,
         top: this.bounds.top,
         right: this.bounds.right,
         bottom: this.bounds.top + this.halfHeight
-      }), newLevelOptions);
-    this.bottomLeft = new QuadTree<TItem>(new BoundingBox({
-      left: this.bounds.left,
-      top: this.bounds.top + this.halfHeight,
-      right: this.bounds.left + this.halfWidth,
-      bottom: this.bounds.bottom
-    }), newLevelOptions);
+      }),
+      newLevelOptions
+    );
+    this.bottomLeft = new QuadTree<TItem>(
+      new BoundingBox({
+        left: this.bounds.left,
+        top: this.bounds.top + this.halfHeight,
+        right: this.bounds.left + this.halfWidth,
+        bottom: this.bounds.bottom
+      }),
+      newLevelOptions
+    );
     this.bottomRight = new QuadTree<TItem>(
       new BoundingBox({
         left: this.bounds.left + this.halfWidth,
         top: this.bounds.top + this.halfHeight,
         right: this.bounds.right,
         bottom: this.bounds.bottom
-      }), newLevelOptions);
+      }),
+      newLevelOptions
+    );
   }
 
   private _insertIntoSubNodes(item: TItem) {
@@ -106,7 +118,6 @@ export class QuadTree<TItem extends QuadTreeItem> {
       this._insertIntoSubNodes(item);
       return;
     }
-
 
     // leaf case
     this.items.push(item);
@@ -165,7 +176,6 @@ export class QuadTree<TItem extends QuadTreeItem> {
    * @returns items
    */
   query(boundingBox: BoundingBox): TItem[] {
-
     let results = this.items;
 
     if (this._isDivided) {
@@ -222,11 +232,9 @@ export class QuadTree<TItem extends QuadTreeItem> {
       return 0;
     }
 
-    return 1 + Math.max(
-      this.topLeft.getTreeDepth(),
-      this.topRight.getTreeDepth(),
-      this.bottomLeft.getTreeDepth(),
-      this.bottomRight.getTreeDepth()
+    return (
+      1 +
+      Math.max(this.topLeft.getTreeDepth(), this.topRight.getTreeDepth(), this.bottomLeft.getTreeDepth(), this.bottomRight.getTreeDepth())
     );
   }
 

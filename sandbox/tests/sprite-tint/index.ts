@@ -1,4 +1,3 @@
-
 var game = new ex.Engine({
   width: 800,
   height: 600
@@ -8,7 +7,7 @@ var tex = new ex.ImageSource('https://cdn.rawgit.com/excaliburjs/Excalibur/7dd48
 
 var loader = new ex.Loader([tex]);
 
-var actor = new ex.Actor({x: game.halfDrawWidth, y: game.halfDrawHeight, width: 50, height: 50});
+var actor = new ex.Actor({ x: game.halfDrawWidth, y: game.halfDrawHeight, width: 50, height: 50 });
 game.add(actor);
 
 var sprite: ex.Sprite;
@@ -23,7 +22,7 @@ actor.onInitialize = () => {
   });
   actor.graphics.add(sprite);
   shadow = actor.graphics.add(
-    "shadow",
+    'shadow',
     new ex.Sprite({
       image: sprite.image,
       origin: ex.vec(1, 1),
@@ -34,52 +33,23 @@ actor.onInitialize = () => {
       },
       tint: ex.Color.fromRGB(0, 0, 0), // Semi-transparent black for shadow
       opacity: 0.5,
-      scale: ex.vec(1.2, 1), // Stretched horizontally and squashed vertically to look like a shadow
+      scale: ex.vec(1.2, 1) // Stretched horizontally and squashed vertically to look like a shadow
     })
   );
 
   const group = new ex.GraphicsGroup({
-    members: [
-      {graphic: shadow, offset: ex.vec(10, 10)},
-      sprite
-    ]
-  })
+    members: [{ graphic: shadow, offset: ex.vec(10, 10) }, sprite]
+  });
 
   actor.graphics.use(group);
 };
 
-
-
 let currentHue = 0;
 let currentColor = ex.Color.fromHSL(currentHue, 0.6, 0.6);
 actor.onPostUpdate = () => {
-  currentHue = (currentHue + .02) % 1;
+  currentHue = (currentHue + 0.02) % 1;
   currentColor = ex.Color.fromHSL(currentHue, 0.6, 0.6);
   sprite.tint = currentColor;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+};
 
 game.start(loader);
-

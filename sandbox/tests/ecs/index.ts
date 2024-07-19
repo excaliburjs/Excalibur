@@ -8,21 +8,20 @@ class Game5 {
 
   constructor() {
     this.player.addComponent(new ex.TransformComponent());
-    this.player.addComponent(new ex.GraphicsComponent({
-      current: 'triangle',
-      graphics: {
-        triangle: new ex.Polygon({
-          points: [
-            ex.vec(-64, -64),
-            ex.vec(64, 0),
-            ex.vec(-64, 64),
-          ],
-          color: ex.Color.Red,
-          strokeColor: ex.Color.Black,
-          padding: 2
-        }),
-      }
-    }), true); // Force replacement
+    this.player.addComponent(
+      new ex.GraphicsComponent({
+        current: 'triangle',
+        graphics: {
+          triangle: new ex.Polygon({
+            points: [ex.vec(-64, -64), ex.vec(64, 0), ex.vec(-64, 64)],
+            color: ex.Color.Red,
+            strokeColor: ex.Color.Black,
+            padding: 2
+          })
+        }
+      }),
+      true
+    ); // Force replacement
   }
 
   public async start() {

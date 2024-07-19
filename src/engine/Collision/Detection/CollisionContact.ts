@@ -57,6 +57,9 @@ export class CollisionContact {
    */
   info: SeparationInfo;
 
+  bodyA: BodyComponent | null = null;
+  bodyB: BodyComponent | null = null;
+
   constructor(
     colliderA: Collider,
     colliderB: Collider,
@@ -82,14 +85,20 @@ export class CollisionContact {
       const colliderBId = colliderB.composite?.compositeStrategy === 'separate' ? colliderB.id : colliderB.composite?.id ?? colliderB.id;
       this.id += '|' + Pair.calculatePairHash(colliderAId, colliderBId);
     }
+    if (this.colliderA.owner) {
+      this.bodyA = this.colliderA.owner.get(BodyComponent);
+    }
+    if (this.colliderB.owner) {
+      this.bodyB = this.colliderB.owner.get(BodyComponent);
+    }
   }
 
   /**
    * Match contact awake state, except if body's are Fixed
    */
   public matchAwake(): void {
-    const bodyA = this.colliderA.owner.get(BodyComponent);
-    const bodyB = this.colliderB.owner.get(BodyComponent);
+    const bodyA = this.bodyA;
+    const bodyB = this.bodyB;
     if (bodyA && bodyB) {
       if (bodyA.sleeping !== bodyB.sleeping) {
         if (bodyA.sleeping && bodyA.collisionType !== CollisionType.Fixed && bodyB.sleepMotion >= bodyA.wakeThreshold) {
@@ -108,5 +117,29 @@ export class CollisionContact {
 
   public cancel(): void {
     this._canceled = true;
+  }
+
+  /**
+   * Biases the contact so that the given collider is colliderA
+   */
+  public bias(collider: Collider) {
+    if (collider !== this.colliderA && collider !== this.colliderB) {
+      throw new Error('Collider must be either colliderA or colliderB from this contact');
+    }
+
+    if (collider === this.colliderA) {
+      return this;
+    }
+
+    const colliderA = this.colliderA;
+    const colliderB = this.colliderB;
+
+    this.colliderB = colliderA;
+    this.colliderA = colliderB;
+    this.mtv = this.mtv.negate();
+    this.normal = this.normal.negate();
+    this.tangent = this.tangent.negate();
+
+    return this;
   }
 }

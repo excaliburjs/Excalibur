@@ -17,8 +17,13 @@ import { DefaultPhysicsConfig } from '../PhysicsConfig';
 
 export class CompositeCollider extends Collider {
   private _transform: Transform;
-  private _collisionProcessor = new DynamicTreeCollisionProcessor(DefaultPhysicsConfig);
-  private _dynamicAABBTree = new DynamicTree(DefaultPhysicsConfig.dynamicTree);
+  private _collisionProcessor = new DynamicTreeCollisionProcessor({
+    ...DefaultPhysicsConfig
+  });
+  private _dynamicAABBTree = new DynamicTree({
+    boundsPadding: 5,
+    velocityMultiplier: 2
+  });
   private _colliders: Collider[] = [];
 
   private _compositeStrategy?: 'separate' | 'together';
@@ -56,7 +61,7 @@ export class CompositeCollider extends Collider {
     let colliders: Collider[];
     if (collider instanceof CompositeCollider) {
       colliders = collider.getColliders();
-      colliders.forEach(c => c.offset.addEqual(collider.offset));
+      colliders.forEach((c) => c.offset.addEqual(collider.offset));
     } else {
       colliders = [collider];
     }
@@ -267,7 +272,7 @@ export class CompositeCollider extends Collider {
     }
   }
 
-  public debug(ex: ExcaliburGraphicsContext, color: Color,  options?: { lineWidth: number, pointSize: number }) {
+  public debug(ex: ExcaliburGraphicsContext, color: Color, options?: { lineWidth: number; pointSize: number }) {
     const colliders = this.getColliders();
     ex.save();
     ex.translate(this.offset.x, this.offset.y);

@@ -26,7 +26,7 @@ export class FpsSampler {
   constructor(options: FpsSamplerOptions) {
     this._fps = options.initialFps;
     this._samplePeriod = options.samplePeriod ?? this._samplePeriod;
-    this._currentFrameTime = 1000/options.initialFps;
+    this._currentFrameTime = 1000 / options.initialFps;
     this._nowFn = options.nowFn;
     this._previousSampleTime = this._nowFn();
   }

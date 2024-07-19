@@ -25,7 +25,7 @@ export function sign(val: number): number {
     return 0;
   }
   return val < 0 ? -1 : 1;
-};
+}
 
 /**
  * Clamps a value between a min and max inclusive
@@ -33,7 +33,6 @@ export function sign(val: number): number {
 export function clamp(val: number, min: number, max: number) {
   return Math.min(Math.max(min, val), max);
 }
-
 
 /**
  * Convert an angle to be the equivalent in the range [0, 2PI]

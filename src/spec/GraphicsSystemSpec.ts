@@ -15,11 +15,21 @@ describe('A Graphics ECS System', () => {
     entities = [
       new ex.Entity().addComponent(new ex.TransformComponent()).addComponent(new ex.GraphicsComponent()),
       new ex.Entity().addComponent(new ex.TransformComponent()).addComponent(new ex.GraphicsComponent()),
+      new ex.Entity().addComponent(new ex.TransformComponent()).addComponent(new ex.GraphicsComponent()),
+
+      // parent
+      new ex.Entity().addComponent(new ex.TransformComponent()).addComponent(new ex.GraphicsComponent()),
+
+      // child of ^
       new ex.Entity().addComponent(new ex.TransformComponent()).addComponent(new ex.GraphicsComponent())
     ];
-    entities[0].get(TransformComponent).z = 10;
-    entities[1].get(TransformComponent).z = 5;
-    entities[2].get(TransformComponent).z = 1;
+    entities[0].get(TransformComponent).z = 100;
+    entities[1].get(TransformComponent).z = 50;
+    entities[2].get(TransformComponent).z = 10;
+
+    entities[3].get(TransformComponent).z = 5;
+    entities[3].addChild(entities[4]);
+    entities[4].get(TransformComponent).z = -1;
   });
 
   afterEach(() => {
@@ -32,15 +42,15 @@ describe('A Graphics ECS System', () => {
     expect(ex.GraphicsSystem).toBeDefined();
   });
 
-  it('sorts entities by transform.z', () => {
+  it('sorts entities by transform.globalZ', () => {
     const world = engine.currentScene.world;
     const sut = new ex.GraphicsSystem(world);
     engine.currentScene._initialize(engine);
     sut.initialize(world, engine.currentScene);
     const es = [...entities];
-    es.forEach(e => sut.query.entityAdded$.notifyAll(e));
+    es.forEach((e) => sut.query.entityAdded$.notifyAll(e));
     sut.preupdate();
-    expect(sut.sortedTransforms.map(t => t.owner)).toEqual(entities.reverse());
+    expect(sut.sortedTransforms.map((t) => t.owner)).toEqual(entities.reverse());
   });
 
   it('draws entities with transform and graphics components', async () => {
@@ -93,8 +103,8 @@ describe('A Graphics ECS System', () => {
 
     entities.push(offscreen);
     engine.graphicsContext.clear();
-    entities.forEach(e => offscreenSystem.query.checkAndAdd(e));
-    entities.forEach(e => sut.query.checkAndAdd(e));
+    entities.forEach((e) => offscreenSystem.query.checkAndAdd(e));
+    entities.forEach((e) => sut.query.checkAndAdd(e));
 
     offscreenSystem.update();
 
@@ -173,7 +183,7 @@ describe('A Graphics ECS System', () => {
     graphicsSystem.preupdate();
     graphicsSystem.query.checkAndAdd(actor);
 
-    game.currentFrameLagMs = (1000 / 30) / 2; // current lag in a 30 fps frame
+    game.currentFrameLagMs = 1000 / 30 / 2; // current lag in a 30 fps frame
     graphicsSystem.update(16);
 
     expect(translateSpy.calls.argsFor(0)).toEqual([10, 10]);
@@ -224,9 +234,7 @@ describe('A Graphics ECS System', () => {
     offscreenSystem.initialize(world, engine.currentScene);
     sut.initialize(world, engine.currentScene);
 
-
-
-    engine.graphicsContext.opacity = .5;
+    engine.graphicsContext.opacity = 0.5;
 
     const actor = new ex.Actor({
       x: 10,
@@ -235,7 +243,7 @@ describe('A Graphics ECS System', () => {
       width: 10,
       color: ex.Color.Red
     });
-    actor.graphics.opacity = .5;
+    actor.graphics.opacity = 0.5;
 
     sut.query.checkAndAdd(actor);
 
@@ -247,8 +255,7 @@ describe('A Graphics ECS System', () => {
     sut.update(1);
 
     engine.graphicsContext.flush();
-    await expectAsync(engine.canvas)
-      .toEqualImage('src/spec/images/GraphicsSystemSpec/graphics-context-opacity.png');
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GraphicsSystemSpec/graphics-context-opacity.png');
   });
 
   it('can flip graphics horizontally', async () => {
@@ -282,8 +289,7 @@ describe('A Graphics ECS System', () => {
     sut.update(1);
 
     engine.graphicsContext.flush();
-    await expectAsync(engine.canvas)
-      .toEqualImage('src/spec/images/GraphicsSystemSpec/sword-flip-horizontal.png');
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GraphicsSystemSpec/sword-flip-horizontal.png');
   });
 
   it('can flip graphics vertically', async () => {
@@ -317,8 +323,7 @@ describe('A Graphics ECS System', () => {
     sut.update(1);
 
     engine.graphicsContext.flush();
-    await expectAsync(engine.canvas)
-      .toEqualImage('src/spec/images/GraphicsSystemSpec/sword-flip-vertical.png');
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GraphicsSystemSpec/sword-flip-vertical.png');
   });
 
   it('can flip graphics both horizontally and vertically', async () => {
@@ -353,8 +358,7 @@ describe('A Graphics ECS System', () => {
     sut.update(1);
 
     engine.graphicsContext.flush();
-    await expectAsync(engine.canvas)
-      .toEqualImage('src/spec/images/GraphicsSystemSpec/sword-flip-both.png');
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GraphicsSystemSpec/sword-flip-both.png');
   });
 
   it('can flip graphics both horizontally and vertically with an offset', async () => {
@@ -390,7 +394,27 @@ describe('A Graphics ECS System', () => {
     sut.update(1);
 
     engine.graphicsContext.flush();
-    await expectAsync(engine.canvas)
-      .toEqualImage('src/spec/images/GraphicsSystemSpec/sword-flip-both-offset.png');
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GraphicsSystemSpec/sword-flip-both-offset.png');
+  });
+
+  it('can add graphics+transform to a parent without a transform', () => {
+    const world = engine.currentScene.world;
+    const sut = new ex.GraphicsSystem(world);
+    engine.currentScene.camera.update(engine, 1);
+    engine.currentScene._initialize(engine);
+    engine.screen.setCurrentCamera(engine.currentScene.camera);
+    sut.initialize(world, engine.currentScene);
+    sut.preupdate();
+
+    const parent = new ex.Entity();
+    const child = new ex.Entity();
+    child.addComponent(new ex.TransformComponent());
+    child.addComponent(new ex.GraphicsComponent());
+    parent.addChild(child);
+
+    sut.query.checkAndAdd(parent);
+    sut.query.checkAndAdd(child);
+
+    expect(() => sut.update(1)).not.toThrow();
   });
 });

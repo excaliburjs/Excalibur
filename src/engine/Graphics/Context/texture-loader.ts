@@ -11,7 +11,10 @@ import { HTMLImageSource } from './ExcaliburGraphicsContext';
 export class TextureLoader {
   private static _LOGGER = Logger.getInstance();
 
-  constructor(gl: WebGL2RenderingContext, private _garbageCollector?: GarbageCollector) {
+  constructor(
+    gl: WebGL2RenderingContext,
+    private _garbageCollector?: GarbageCollector
+  ) {
     this._gl = gl;
     TextureLoader._MAX_TEXTURE_SIZE = gl.getParameter(gl.MAX_TEXTURE_SIZE);
     // TODO timeout configurable
@@ -23,14 +26,14 @@ export class TextureLoader {
       this.delete(image);
     }
     this._textureMap.clear();
-    this._gl = null;
+    this._gl = null as any;
   }
 
   /**
    * Sets the default filtering for the Excalibur texture loader, default [[ImageFiltering.Blended]]
    */
   public static filtering: ImageFiltering = ImageFiltering.Blended;
-  public static wrapping: ImageWrapConfiguration = {x: ImageWrapping.Clamp, y: ImageWrapping.Clamp};
+  public static wrapping: ImageWrapConfiguration = { x: ImageWrapping.Clamp, y: ImageWrapping.Clamp };
 
   private _gl: WebGL2RenderingContext;
 
@@ -43,7 +46,7 @@ export class TextureLoader {
    * @param image
    */
   public get(image: HTMLImageSource): WebGLTexture {
-    return this._textureMap.get(image);
+    return this._textureMap.get(image)!;
   }
 
   /**
@@ -51,7 +54,7 @@ export class TextureLoader {
    * @param image
    */
   public has(image: HTMLImageSource): boolean {
-    return this._textureMap.has(image);
+    return this._textureMap.has(image)!;
   }
 
   /**
@@ -60,16 +63,16 @@ export class TextureLoader {
    * @param options {ImageSourceOptions} Optionally configure the ImageFiltering and ImageWrapping mode to apply to the loaded texture
    * @param forceUpdate Optionally force a texture to be reloaded, useful if the source graphic has changed
    */
-  public load(image: HTMLImageSource, options?: ImageSourceOptions, forceUpdate = false): WebGLTexture {
+  public load(image: HTMLImageSource, options?: ImageSourceOptions, forceUpdate = false): WebGLTexture | null {
     // Ignore loading if webgl is not registered
     const gl = this._gl;
     if (!gl) {
       return null;
     }
 
-    const { filtering, wrapping } = {...options};
+    const { filtering, wrapping } = { ...options };
 
-    let tex: WebGLTexture = null;
+    let tex: WebGLTexture | null = null;
     // If reuse the texture if it's from the same source
     if (this.has(image)) {
       tex = this.get(image);
@@ -95,7 +98,7 @@ export class TextureLoader {
 
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 
-    let wrappingConfig: ImageWrapConfiguration;
+    let wrappingConfig: ImageWrapConfiguration | undefined;
     if (wrapping) {
       if (typeof wrapping === 'string') {
         wrappingConfig = {
@@ -109,7 +112,7 @@ export class TextureLoader {
         };
       }
     }
-    const { x: xWrap, y: yWrap} = (wrappingConfig ?? TextureLoader.wrapping);
+    const { x: xWrap, y: yWrap } = wrappingConfig ?? TextureLoader.wrapping;
     switch (xWrap) {
       case ImageWrapping.Clamp:
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -154,7 +157,7 @@ export class TextureLoader {
     // Ignore loading if webgl is not registered
     const gl = this._gl;
     if (!gl) {
-      return null;
+      return;
     }
 
     if (this.has(image)) {
@@ -175,18 +178,20 @@ export class TextureLoader {
     const originalSrc = image.dataset.originalSrc ?? 'internal canvas bitmap';
     if (image.width > TextureLoader._MAX_TEXTURE_SIZE || image.height > TextureLoader._MAX_TEXTURE_SIZE) {
       TextureLoader._LOGGER.error(
-        `The image [${originalSrc}] provided to Excalibur is too large for the device's maximum texture size of `+
-        `(${TextureLoader._MAX_TEXTURE_SIZE}x${TextureLoader._MAX_TEXTURE_SIZE}) please resize to an image `
-        +`for excalibur to render properly.\n\nImages will likely render as black rectangles.\n\n`+
-        `Read more here: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#understand_system_limits`);
+        `The image [${originalSrc}] provided to Excalibur is too large for the device's maximum texture size of ` +
+          `(${TextureLoader._MAX_TEXTURE_SIZE}x${TextureLoader._MAX_TEXTURE_SIZE}) please resize to an image ` +
+          `for excalibur to render properly.\n\nImages will likely render as black rectangles.\n\n` +
+          `Read more here: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#understand_system_limits`
+      );
       return false;
     } else if (image.width > 4096 || image.height > 4096) {
       // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#understand_system_limits
       TextureLoader._LOGGER.warn(
-        `The image [${originalSrc}] provided to excalibur is too large may not work on all mobile devices, `+
-        `it is recommended you resize images to a maximum (4096x4096).\n\n` +
-        `Images will likely render as black rectangles on some mobile platforms.\n\n` +
-        `Read more here: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#understand_system_limits`);
+        `The image [${originalSrc}] provided to excalibur is too large may not work on all mobile devices, ` +
+          `it is recommended you resize images to a maximum (4096x4096).\n\n` +
+          `Images will likely render as black rectangles on some mobile platforms.\n\n` +
+          `Read more here: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#understand_system_limits`
+      );
     }
     return true;
   }

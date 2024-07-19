@@ -31,7 +31,6 @@ describe('A ScreenElement', () => {
     await TestUtils.runToReady(engine);
 
     clock = engine.clock as ex.TestClock;
-
   });
 
   afterEach(() => {
@@ -50,14 +49,13 @@ describe('A ScreenElement', () => {
   });
 
   it('can be constructed with a non-default anchor', () => {
-
     const sut = new ScreenElement({
       width: 100,
       height: 100,
-      anchor: ex.vec(.5, .5)
+      anchor: ex.vec(0.5, 0.5)
     });
 
-    expect(sut.anchor).toBeVector(ex.vec(.5, .5));
+    expect(sut.anchor).toBeVector(ex.vec(0.5, 0.5));
     expect(sut.collider.get()).toBeInstanceOf(ex.PolygonCollider);
     expect(sut.collider.get().bounds.width).toBe(100);
     expect(sut.collider.get().bounds.height).toBe(100);
@@ -68,10 +66,7 @@ describe('A ScreenElement', () => {
   });
 
   it('can be constructed with a non-default collider', () => {
-
     const sut = new ScreenElement({
-      width: 100,
-      height: 100,
       collisionType: ex.CollisionType.Active,
       collider: ex.Shape.Circle(50)
     });
@@ -115,7 +110,6 @@ describe('A ScreenElement', () => {
 
     expect(screenElement.graphics.onPostDraw).not.toHaveBeenCalled();
   });
-
 
   it('contains in screen space or world space', () => {
     screenElement = new ex.ScreenElement({

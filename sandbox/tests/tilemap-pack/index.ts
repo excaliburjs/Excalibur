@@ -54,22 +54,22 @@ game.input.pointers.primary.on('down', (evt: ex.PointerEvent) => {
 
 let currentPointer!: ex.Vector;
 game.input.pointers.primary.on('down', (moveEvent) => {
-      if (moveEvent.button === ex.PointerButton.Right) {
-        currentPointer = moveEvent.worldPos;
-        game.currentScene.camera.move(currentPointer, 300, ex.EasingFunctions.EaseInOutCubic);
-      }
+  if (moveEvent.button === ex.PointerButton.Right) {
+    currentPointer = moveEvent.worldPos;
+    game.currentScene.camera.move(currentPointer, 300, ex.EasingFunctions.EaseInOutCubic);
+  }
 });
 
 document.oncontextmenu = () => false;
 
 game.input.pointers.primary.on('wheel', (wheelEvent) => {
-   // wheel up
-   game.currentScene.camera.pos = currentPointer;
-   if (wheelEvent.deltaY < 0) {
-       game.currentScene.camera.zoom *= 1.2;
-   } else {
-       game.currentScene.camera.zoom /= 1.2;
-   }
+  // wheel up
+  game.currentScene.camera.pos = currentPointer;
+  if (wheelEvent.deltaY < 0) {
+    game.currentScene.camera.zoom *= 1.2;
+  } else {
+    game.currentScene.camera.zoom /= 1.2;
+  }
 });
 
 game.start().then(() => {

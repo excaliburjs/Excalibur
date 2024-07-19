@@ -54,21 +54,22 @@ import { DefaultPhysicsConfig, DeprecatedStaticToConfig, PhysicsConfig } from '.
 import { DeepRequired } from './Util/Required';
 import { Context, createContext, useContext } from './Context';
 import { GarbageCollectionOptions, GarbageCollector } from './GarbageCollector';
+import { mergeDeep } from './Util/Util';
 
 export type EngineEvents = {
-  fallbackgraphicscontext: ExcaliburGraphicsContext2DCanvas,
-  initialize: InitializeEvent<Engine>,
-  visible: VisibleEvent,
-  hidden: HiddenEvent,
-  start: GameStartEvent,
-  stop: GameStopEvent,
-  preupdate: PreUpdateEvent<Engine>,
-  postupdate: PostUpdateEvent<Engine>,
-  preframe: PreFrameEvent,
-  postframe: PostFrameEvent,
-  predraw: PreDrawEvent,
-  postdraw: PostDrawEvent,
-}
+  fallbackgraphicscontext: ExcaliburGraphicsContext2DCanvas;
+  initialize: InitializeEvent<Engine>;
+  visible: VisibleEvent;
+  hidden: HiddenEvent;
+  start: GameStartEvent;
+  stop: GameStopEvent;
+  preupdate: PreUpdateEvent<Engine>;
+  postupdate: PostUpdateEvent<Engine>;
+  preframe: PreFrameEvent;
+  postframe: PostFrameEvent;
+  predraw: PreDrawEvent;
+  postdraw: PostDrawEvent;
+};
 
 export const EngineEvents = {
   FallbackGraphicsContext: 'fallbackgraphicscontext',
@@ -84,8 +85,6 @@ export const EngineEvents = {
   PreDraw: 'predraw',
   PostDraw: 'postdraw'
 } as const;
-
-
 
 /**
  * Enum representing the different mousewheel event bubble prevention
@@ -341,8 +340,8 @@ export interface EngineOptions<TKnownScenes extends string = any> {
      * In this example of the default if excalibur is running at 20fps or less for 100 frames it will trigger the fallback to the 2D
      * Canvas renderer.
      */
-    threshold?: { numberOfFrames: number, fps: number };
-  },
+    threshold?: { numberOfFrames: number; fps: number };
+  };
 
   /**
    * Optionally configure the physics simulation in excalibur
@@ -351,14 +350,14 @@ export interface EngineOptions<TKnownScenes extends string = any> {
    *
    * Default is configured to use [[SolverStrategy.Arcade]] physics simulation
    */
-  physics?: boolean | PhysicsConfig
+  physics?: boolean | PhysicsConfig;
 
   /**
    * Optionally specify scenes with their transitions and loaders to excalibur's scene [[Director]]
    *
    * Scene transitions can can overridden dynamically by the `Scene` or by the call to `.goToScene`
    */
-  scenes?: SceneMap<TKnownScenes>
+  scenes?: SceneMap<TKnownScenes>;
 }
 
 /**
@@ -566,7 +565,6 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
     return this.director.currentScene;
   }
 
-
   /**
    * The current [[Scene]] being drawn and updated on screen
    */
@@ -586,7 +584,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
    */
   public get scenes(): { [key: string]: Scene | SceneConstructor | SceneWithOptions } {
     return this.director.scenes;
-  };
+  }
 
   /**
    * Indicates whether the engine is set to fullscreen or not
@@ -638,11 +636,11 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
    */
   public get snapToPixel(): boolean {
     return this.graphicsContext.snapToPixel;
-  };
+  }
 
   public set snapToPixel(shouldSnapToPixel: boolean) {
     this.graphicsContext.snapToPixel = shouldSnapToPixel;
-  };
+  }
 
   /**
    * The action to take when a fatal exception is thrown
@@ -794,10 +792,12 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
         'background: #176BAA; color: white; border-radius: 5px; padding: 15px; font-size: 1.5em; line-height: 80px;'
       );
       // eslint-disable-next-line no-console
-      console.log('\n\
+      console.log(
+        '\n\
       /| ________________\n\
 O|===|* >________________>\n\
-      \\|');
+      \\|'
+      );
       // eslint-disable-next-line no-console
       console.log('Visit', 'http://excaliburjs.com', 'for more information');
     }
@@ -816,8 +816,7 @@ O|===|* >________________>\n\
 
     this._logger.debug('Building engine...');
 
-    this._garbageCollector = new GarbageCollector({getTimestamp: Date.now});
-
+    this._garbageCollector = new GarbageCollector({ getTimestamp: Date.now });
 
     this.canvasElementId = options.canvasElementId;
 
@@ -825,7 +824,7 @@ O|===|* >________________>\n\
       this._logger.debug('Using Canvas element specified: ' + options.canvasElementId);
 
       //test for existence of element
-      if (document.getElementById(options.canvasElementId) === null)  {
+      if (document.getElementById(options.canvasElementId) === null) {
         throw new Error('Cannot find existing element in the DOM, please ensure element is created prior to engine creation.');
       }
 
@@ -858,17 +857,10 @@ O|===|* >________________>\n\
     let filtering: ImageFiltering;
     let multiSampleAntialiasing: boolean | { samples: number };
     if (typeof options.antialiasing === 'object') {
-      ({
-        pixelArtSampler,
-        nativeContextAntialiasing,
-        multiSampleAntialiasing,
-        filtering,
-        canvasImageRendering
-      } = {
+      ({ pixelArtSampler, nativeContextAntialiasing, multiSampleAntialiasing, filtering, canvasImageRendering } = {
         ...(options.pixelArt ? DefaultPixelArtOptions : DefaultAntialiasOptions),
         ...options.antialiasing
       });
-
     } else {
       pixelArtSampler = !!options.pixelArt;
       nativeContextAntialiasing = false;
@@ -878,12 +870,14 @@ O|===|* >________________>\n\
     }
 
     if (nativeContextAntialiasing && multiSampleAntialiasing) {
-      this._logger.warnOnce(`Cannot use antialias setting nativeContextAntialiasing and multiSampleAntialiasing` +
-      ` at the same time, they are incompatible settings. If you aren\'t sure use multiSampleAntialiasing`);
+      this._logger.warnOnce(
+        `Cannot use antialias setting nativeContextAntialiasing and multiSampleAntialiasing` +
+          ` at the same time, they are incompatible settings. If you aren\'t sure use multiSampleAntialiasing`
+      );
     }
 
     if (options.pixelArt) {
-      uvPadding = .25;
+      uvPadding = 0.25;
     }
 
     if (!options.antialiasing || filtering === ImageFiltering.Pixel) {
@@ -916,8 +910,8 @@ O|===|* >________________>\n\
       } catch (e) {
         this._logger.warn(
           `Excalibur could not load webgl for some reason (${(e as Error).message}) and loaded a Canvas 2D fallback. ` +
-          `Some features of Excalibur will not work in this mode. \n\n` +
-          'Read more about this issue at https://excaliburjs.com/docs/performance'
+            `Some features of Excalibur will not work in this mode. \n\n` +
+            'Read more about this issue at https://excaliburjs.com/docs/performance'
         );
         // fallback to canvas in case of failure
         useCanvasGraphicsContext = true;
@@ -944,7 +938,7 @@ O|===|* >________________>\n\
       viewport: options.viewport ?? (options.width && options.height ? { width: options.width, height: options.height } : Resolution.SVGA),
       resolution: options.resolution,
       displayMode,
-      pixelRatio: options.suppressHiDPIScaling ? 1 : (options.pixelRatio ?? null)
+      pixelRatio: options.suppressHiDPIScaling ? 1 : options.pixelRatio ?? null
     });
 
     // TODO REMOVE STATIC!!!
@@ -978,9 +972,9 @@ O|===|* >________________>\n\
     } else {
       this.physics = {
         ...DefaultPhysicsConfig,
-        ...DeprecatedStaticToConfig(),
-        ...options.physics as DeepRequired<PhysicsConfig>
+        ...DeprecatedStaticToConfig()
       };
+      mergeDeep(this.physics, options.physics);
     }
 
     this.debug = new DebugConfig(this);
@@ -1064,22 +1058,22 @@ O|===|* >________________>\n\
           this._performanceThresholdTriggered = true;
           this._logger.warn(
             `Switching to browser 2D Canvas fallback due to performance. Some features of Excalibur will not work in this mode.\n` +
-            'this might mean your browser doesn\'t have webgl enabled or hardware acceleration is unavailable.\n\n' +
-            'If in Chrome:\n' +
-            '  * Visit Settings > Advanced > System, and ensure "Use Hardware Acceleration" is checked.\n'+
-            '  * Visit chrome://flags/#ignore-gpu-blocklist and ensure "Override software rendering list" is "enabled"\n' +
-            'If in Firefox, visit about:config\n' +
-            '  * Ensure webgl.disabled = false\n' +
-            '  * Ensure webgl.force-enabled = true\n' +
-            '  * Ensure layers.acceleration.force-enabled = true\n\n' +
-            'Read more about this issue at https://excaliburjs.com/docs/performance'
+              "this might mean your browser doesn't have webgl enabled or hardware acceleration is unavailable.\n\n" +
+              'If in Chrome:\n' +
+              '  * Visit Settings > Advanced > System, and ensure "Use Hardware Acceleration" is checked.\n' +
+              '  * Visit chrome://flags/#ignore-gpu-blocklist and ensure "Override software rendering list" is "enabled"\n' +
+              'If in Firefox, visit about:config\n' +
+              '  * Ensure webgl.disabled = false\n' +
+              '  * Ensure webgl.force-enabled = true\n' +
+              '  * Ensure layers.acceleration.force-enabled = true\n\n' +
+              'Read more about this issue at https://excaliburjs.com/docs/performance'
           );
 
           if (showPlayerMessage) {
             this._toaster.toast(
-              'Excalibur is encountering performance issues. '+
-              'It\'s possible that your browser doesn\'t have hardware acceleration enabled. ' +
-              'Visit [LINK] for more information and potential solutions.',
+              'Excalibur is encountering performance issues. ' +
+                "It's possible that your browser doesn't have hardware acceleration enabled. " +
+                'Visit [LINK] for more information and potential solutions.',
               'https://excaliburjs.com/docs/performance'
             );
           }
@@ -1126,7 +1120,7 @@ O|===|* >________________>\n\
       viewport: options.viewport ?? (options.width && options.height ? { width: options.width, height: options.height } : Resolution.SVGA),
       resolution: options.resolution,
       displayMode,
-      pixelRatio: options.suppressHiDPIScaling ? 1 : (options.pixelRatio ?? null)
+      pixelRatio: options.suppressHiDPIScaling ? 1 : options.pixelRatio ?? null
     });
     this.screen.setCurrentCamera(this.currentScene.camera);
 
@@ -1642,8 +1636,6 @@ O|===|* >________________>\n\
     return this._isReadyFuture.promise;
   }
 
-
-
   /**
    * Starts the internal game loop for Excalibur after loading
    * any provided assets.
@@ -1770,8 +1762,7 @@ O|===|* >________________>\n\
     return this.clock.isRunning();
   }
 
-
-  private _screenShotRequests: { preserveHiDPIResolution: boolean, resolve: (image: HTMLImageElement) => void }[] = [];
+  private _screenShotRequests: { preserveHiDPIResolution: boolean; resolve: (image: HTMLImageElement) => void }[] = [];
   /**
    * Takes a screen shot of the current viewport and returns it as an
    * HTML Image Element.
@@ -1779,7 +1770,7 @@ O|===|* >________________>\n\
    */
   public screenshot(preserveHiDPIResolution = false): Promise<HTMLImageElement> {
     const screenShotPromise = new Promise<HTMLImageElement>((resolve) => {
-      this._screenShotRequests.push({preserveHiDPIResolution, resolve});
+      this._screenShotRequests.push({ preserveHiDPIResolution, resolve });
     });
     return screenShotPromise;
   }
@@ -1826,7 +1817,7 @@ O|===|* >________________>\n\
         this._hideLoader = hideLoader;
 
         if (loader instanceof Loader) {
-          loader.suppressPlayButton = this._suppressPlayButton;
+          loader.suppressPlayButton = loader.suppressPlayButton || this._suppressPlayButton;
         }
         this._loader.onInitialize(this);
 

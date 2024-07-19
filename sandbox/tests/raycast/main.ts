@@ -1,4 +1,3 @@
-
 var game = new ex.Engine({
   width: 600,
   height: 400,
@@ -28,11 +27,11 @@ player.onPostUpdate = (engine) => {
   player.vel = ex.Vector.Zero;
   const keyboard = engine.input.keyboard;
   if (keyboard.isHeld(ex.Keys.ArrowLeft)) {
-    playerDir = playerDir.rotate(-rotationAmount)
+    playerDir = playerDir.rotate(-rotationAmount);
     player.rotation -= rotationAmount;
   }
-  if (keyboard.isHeld(ex.Keys.ArrowRight)){
-    playerDir = playerDir.rotate(+rotationAmount)
+  if (keyboard.isHeld(ex.Keys.ArrowRight)) {
+    playerDir = playerDir.rotate(+rotationAmount);
     player.rotation += rotationAmount;
   }
   if (keyboard.isHeld(ex.Keys.ArrowUp)) {
@@ -40,24 +39,24 @@ player.onPostUpdate = (engine) => {
   }
 
   // raycast
-  var hits = engine.currentScene.physics.rayCast(
-    new ex.Ray(player.pos, playerDir),
-    {
-      maxDistance: playerSightDistance,
-      // collisionMask: notPlayers,
-      collisionGroup: notPlayers2,
-      searchAllColliders: false
-    });
+  var hits = engine.currentScene.physics.rayCast(new ex.Ray(player.pos, playerDir), {
+    maxDistance: playerSightDistance,
+    // collisionMask: notPlayers,
+    collisionGroup: notPlayers2,
+    searchAllColliders: false
+  });
 
   for (let hit of hits) {
     const hitActor = hit.collider.owner as ex.Actor;
-    hitActor.graphics.use(new ex.Rectangle({
-      color: ex.Color.Violet,
-      width: 20,
-      height: 20
-    }));
+    hitActor.graphics.use(
+      new ex.Rectangle({
+        color: ex.Color.Violet,
+        width: 20,
+        height: 20
+      })
+    );
   }
-}
+};
 player.graphics.onPostDraw = (ctx) => {
   ctx.drawLine(ex.Vector.Zero, ex.Vector.Right.scale(playerSightDistance), ex.Color.Red, 2);
 };

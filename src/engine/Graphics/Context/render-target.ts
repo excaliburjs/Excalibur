@@ -9,7 +9,6 @@ declare global {
   }
 }
 
-
 export interface RenderTargetOptions {
   gl: WebGL2RenderingContext;
   width: number;
@@ -80,24 +79,25 @@ export class RenderTarget {
         Math.min(this.samples, gl.getParameter(gl.MAX_SAMPLES)),
         this.bufferFormat,
         this.width,
-        this.height);
+        this.height
+      );
     }
   }
 
-  private _renderBuffer: WebGLRenderbuffer;
+  private _renderBuffer!: WebGLRenderbuffer;
   public get renderBuffer() {
     return this._renderBuffer;
   }
-  private _renderFrameBuffer: WebGLFramebuffer;
+  private _renderFrameBuffer!: WebGLFramebuffer;
   public get renderFrameBuffer() {
     return this._renderFrameBuffer;
   }
 
-  private _frameBuffer: WebGLFramebuffer;
+  private _frameBuffer!: WebGLFramebuffer;
   public get frameBuffer() {
     return this._frameBuffer;
   }
-  private _frameTexture: WebGLTexture;
+  private _frameTexture!: WebGLTexture;
   public get frameTexture() {
     return this._frameTexture;
   }
@@ -106,15 +106,16 @@ export class RenderTarget {
     if (this.antialias) {
       const gl = this._gl;
       // Render buffers can be used as an input to a shader
-      this._renderBuffer = gl.createRenderbuffer();
-      this._renderFrameBuffer = gl.createFramebuffer();
+      this._renderBuffer = gl.createRenderbuffer()!;
+      this._renderFrameBuffer = gl.createFramebuffer()!;
       gl.bindRenderbuffer(gl.RENDERBUFFER, this._renderBuffer);
       gl.renderbufferStorageMultisample(
         gl.RENDERBUFFER,
         Math.min(this.samples, gl.getParameter(gl.MAX_SAMPLES)),
         this.bufferFormat,
         this.width,
-        this.height);
+        this.height
+      );
       gl.bindFramebuffer(gl.FRAMEBUFFER, this._renderFrameBuffer);
       gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.RENDERBUFFER, this._renderBuffer);
     }
@@ -123,7 +124,7 @@ export class RenderTarget {
   private _setupFramebuffer() {
     // Allocates frame buffer
     const gl = this._gl;
-    this._frameTexture = gl.createTexture();
+    this._frameTexture = gl.createTexture()!;
     gl.bindTexture(gl.TEXTURE_2D, this._frameTexture);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
 
@@ -133,12 +134,11 @@ export class RenderTarget {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
-
     // attach the texture as the first color attachment
     const attachmentPoint = gl.COLOR_ATTACHMENT0;
 
     // After this bind all draw calls will draw to this framebuffer texture
-    this._frameBuffer = gl.createFramebuffer();
+    this._frameBuffer = gl.createFramebuffer()!;
     gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, attachmentPoint, gl.TEXTURE_2D, this._frameTexture, 0);
 
@@ -161,18 +161,12 @@ export class RenderTarget {
       gl.bindFramebuffer(gl.READ_FRAMEBUFFER, this.renderFrameBuffer);
       gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
       gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 1.0, 1.0]);
-      gl.blitFramebuffer(
-        0, 0, this.width, this.height,
-        0, 0, this.width, this.height,
-        gl.COLOR_BUFFER_BIT, gl.LINEAR);
+      gl.blitFramebuffer(0, 0, this.width, this.height, 0, 0, this.width, this.height, gl.COLOR_BUFFER_BIT, gl.LINEAR);
     } else {
       gl.bindFramebuffer(gl.READ_FRAMEBUFFER, this.frameBuffer);
       gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
       gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 1.0, 1.0]);
-      gl.blitFramebuffer(
-        0, 0, this.width, this.height,
-        0, 0, this.width, this.height,
-        gl.COLOR_BUFFER_BIT, gl.LINEAR);
+      gl.blitFramebuffer(0, 0, this.width, this.height, 0, 0, this.width, this.height, gl.COLOR_BUFFER_BIT, gl.LINEAR);
     }
   }
 
@@ -182,10 +176,7 @@ export class RenderTarget {
       gl.bindFramebuffer(gl.READ_FRAMEBUFFER, this.renderFrameBuffer);
       gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, this.frameBuffer);
       gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 1.0, 1.0]);
-      gl.blitFramebuffer(
-        0, 0, this.width, this.height,
-        0, 0, this.width, this.height,
-        gl.COLOR_BUFFER_BIT, gl.LINEAR);
+      gl.blitFramebuffer(0, 0, this.width, this.height, 0, 0, this.width, this.height, gl.COLOR_BUFFER_BIT, gl.LINEAR);
     }
   }
 

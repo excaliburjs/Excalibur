@@ -59,7 +59,7 @@ export function isActor(x: any): x is Actor {
 /**
  * Actor constructor options
  */
-export interface ActorArgs {
+export type ActorArgs = ColliderArgs & {
   /**
    * Optionally set the name of the actor, default is 'anonymous'
    */
@@ -80,18 +80,6 @@ export interface ActorArgs {
    * Optionally set the coordinate plane of the actor, default is [[CoordPlane.World]] meaning actor is subject to camera positioning
    */
   coordPlane?: CoordPlane;
-  /**
-   * Optionally set the width of a box collider for the actor
-   */
-  width?: number;
-  /**
-   * Optionally set the height of a box collider for the actor
-   */
-  height?: number;
-  /**
-   * Optionally set the radius of the circle collider for the actor
-   */
-  radius?: number;
   /**
    * Optionally set the velocity of the actor in pixels/sec
    */
@@ -142,15 +130,50 @@ export interface ActorArgs {
    * Optionally set the collision type
    */
   collisionType?: CollisionType;
-  /**
-   * Optionally supply a collider for an actor, if supplied ignores any supplied width/height
-   */
-  collider?: Collider;
+
   /**
    * Optionally supply a [[CollisionGroup]]
    */
   collisionGroup?: CollisionGroup;
-}
+};
+
+type ColliderArgs =
+  | // custom collider
+  {
+      /**
+       * Optionally supply a collider for an actor, if supplied ignores any supplied width/height
+       */
+      collider?: Collider;
+
+      width?: undefined;
+      height?: undefined;
+      radius?: undefined;
+    }
+  // box collider
+  | {
+      /**
+       * Optionally set the width of a box collider for the actor
+       */
+      width?: number;
+      /**
+       * Optionally set the height of a box collider for the actor
+       */
+      height?: number;
+
+      collider?: undefined;
+      radius?: undefined;
+    }
+  // circle collider
+  | {
+      /**
+       * Optionally set the radius of the circle collider for the actor
+       */
+      radius?: number;
+
+      collider?: undefined;
+      width?: undefined;
+      height?: undefined;
+    };
 
 export type ActorEvents = EntityEvents & {
   collisionstart: CollisionStartEvent;
@@ -182,7 +205,7 @@ export type ActorEvents = EntityEvents & {
   exitviewport: ExitViewPortEvent;
   actionstart: ActionStartEvent;
   actioncomplete: ActionCompleteEvent;
-}
+};
 
 export const ActorEvents = {
   CollisionStart: 'collisionstart',
@@ -291,6 +314,13 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    */
   public get oldPos(): Vector {
     return this.body.oldPos;
+  }
+
+  /**
+   * Gets the global position vector of the actor from the last frame
+   */
+  public get oldGlobalPos(): Vector {
+    return this.body.oldGlobalPos;
   }
 
   /**
@@ -563,7 +593,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     this.z = z ?? 0;
     this.transform.coordPlane = coordPlane ?? CoordPlane.World;
 
-    this.pointer = new PointerComponent;
+    this.pointer = new PointerComponent();
     this.addComponent(this.pointer);
 
     this.graphics = new GraphicsComponent({
@@ -573,20 +603,24 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     });
     this.addComponent(this.graphics);
 
-    this.motion = new MotionComponent;
+    this.motion = new MotionComponent();
     this.addComponent(this.motion);
     this.vel = vel ?? Vector.Zero;
     this.acc = acc ?? Vector.Zero;
     this.angularVelocity = angularVelocity ?? 0;
 
-    this.actions = new ActionsComponent;
+    this.actions = new ActionsComponent();
     this.addComponent(this.actions);
 
-    this.body = new BodyComponent;
+    this.body = new BodyComponent();
     this.addComponent(this.body);
     this.body.collisionType = collisionType ?? CollisionType.Passive;
     if (collisionGroup) {
       this.body.group = collisionGroup;
+    }
+
+    if (color) {
+      this.color = color;
     }
 
     if (collider) {
@@ -595,29 +629,8 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     } else if (radius) {
       this.collider = new ColliderComponent(Shape.Circle(radius));
       this.addComponent(this.collider);
-    } else {
-      if (width > 0 && height > 0) {
-        this.collider = new ColliderComponent(Shape.Box(width, height, this.anchor));
-        this.addComponent(this.collider);
-      } else {
-        this.collider = new ColliderComponent();
-        this.addComponent(this.collider); // no collider
-      }
-    }
 
-    this.graphics.visible = visible ?? true;
-
-    if (color) {
-      this.color = color;
-      if (width && height) {
-        this.graphics.add(
-          new Rectangle({
-            color: color,
-            width,
-            height
-          })
-        );
-      } else if (radius) {
+      if (color) {
         this.graphics.add(
           new Circle({
             color: color,
@@ -625,7 +638,27 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
           })
         );
       }
+    } else {
+      if (width > 0 && height > 0) {
+        this.collider = new ColliderComponent(Shape.Box(width, height, this.anchor));
+        this.addComponent(this.collider);
+
+        if (color && width && height) {
+          this.graphics.add(
+            new Rectangle({
+              color: color,
+              width,
+              height
+            })
+          );
+        }
+      } else {
+        this.collider = new ColliderComponent();
+        this.addComponent(this.collider); // no collider
+      }
     }
+
+    this.graphics.visible = visible ?? true;
   }
 
   public clone(): Actor {
@@ -638,13 +671,13 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     clone.processComponentRemoval();
 
     // Clone builtins, order is important, same as ctor
-    clone.addComponent(clone.transform = this.transform.clone() as TransformComponent, true);
-    clone.addComponent(clone.pointer = this.pointer.clone() as PointerComponent, true);
-    clone.addComponent(clone.graphics = this.graphics.clone() as GraphicsComponent, true);
-    clone.addComponent(clone.motion = this.motion.clone() as MotionComponent, true);
-    clone.addComponent(clone.actions = this.actions.clone() as ActionsComponent, true);
-    clone.addComponent(clone.body = this.body.clone() as BodyComponent, true);
-    clone.addComponent(clone.collider = this.collider.clone() as ColliderComponent, true);
+    clone.addComponent((clone.transform = this.transform.clone() as TransformComponent), true);
+    clone.addComponent((clone.pointer = this.pointer.clone() as PointerComponent), true);
+    clone.addComponent((clone.graphics = this.graphics.clone() as GraphicsComponent), true);
+    clone.addComponent((clone.motion = this.motion.clone() as MotionComponent), true);
+    clone.addComponent((clone.actions = this.actions.clone() as ActionsComponent), true);
+    clone.addComponent((clone.body = this.body.clone() as BodyComponent), true);
+    clone.addComponent((clone.collider = this.collider.clone() as ColliderComponent), true);
 
     const builtInComponents: Component[] = [
       this.transform,
@@ -794,7 +827,6 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     return this.get(TransformComponent).z;
   }
 
-
   /**
    * Sets the z-index of an actor and updates it in the drawing list for the scene.
    * The z-index determines the relative order an actor is drawn in.
@@ -812,16 +844,15 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     const globalPos = this.getGlobalPos();
     return new Vector(
       globalPos.x + this.width / 2 - this.anchor.x * this.width,
-      globalPos.y + this.height / 2 - this.anchor.y * this.height);
+      globalPos.y + this.height / 2 - this.anchor.y * this.height
+    );
   }
 
   /**
    * Get the local center point of an actor
    */
   public get localCenter(): Vector {
-    return new Vector(
-      this.pos.x + this.width / 2 - this.anchor.x * this.width,
-      this.pos.y + this.height / 2 - this.anchor.y * this.height);
+    return new Vector(this.pos.x + this.width / 2 - this.anchor.x * this.width, this.pos.y + this.height / 2 - this.anchor.y * this.height);
   }
 
   public get width() {
@@ -835,24 +866,55 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   /**
    * Gets this actor's rotation taking into account any parent relationships
    * @returns Rotation angle in radians
+   * @deprecated Use [[globalRotation]] instead
    */
   public getGlobalRotation(): number {
     return this.get(TransformComponent).globalRotation;
   }
 
   /**
+   * The actor's rotation (in radians) taking into account any parent relationships
+   */
+  public get globalRotation(): number {
+    return this.get(TransformComponent).globalRotation;
+  }
+
+  /**
    * Gets an actor's world position taking into account parent relationships, scaling, rotation, and translation
    * @returns Position in world coordinates
+   * @deprecated Use [[globalPos]] instead
    */
   public getGlobalPos(): Vector {
     return this.get(TransformComponent).globalPos;
   }
 
   /**
+   * The actor's world position taking into account parent relationships, scaling, rotation, and translation
+   */
+  public get globalPos(): Vector {
+    return this.get(TransformComponent).globalPos;
+  }
+
+  /**
    * Gets the global scale of the Actor
+   * @deprecated Use [[globalScale]] instead
    */
   public getGlobalScale(): Vector {
     return this.get(TransformComponent).globalScale;
+  }
+
+  /**
+   * The global scale of the Actor
+   */
+  public get globalScale(): Vector {
+    return this.get(TransformComponent).globalScale;
+  }
+
+  /**
+   * The global z-index of the actor
+   */
+  public get globalZ(): number {
+    return this.get(TransformComponent).globalZ;
   }
 
   // #region Collision

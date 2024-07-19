@@ -27,7 +27,7 @@ export function isAttributeInSource(source: string, variable: string) {
   const attributeRegexTemplate = `(?<type>[a-z0-9]+)\\s+${variable};`;
   const regex = new RegExp(attributeRegexTemplate, 'g');
   const matches = regex.exec(source);
-  return matches?.length > 0;
+  return matches?.length! > 0;
 }
 
 /**
@@ -75,7 +75,6 @@ export function getGLTypeFromSource(gl: WebGLRenderingContext, source: string, v
       return gl.FLOAT;
   }
 }
-
 
 /**
  * Based on the type return the number of attribute components

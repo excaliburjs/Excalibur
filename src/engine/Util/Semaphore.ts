@@ -28,7 +28,7 @@ class AsyncWaitQueue<T> {
  */
 export class Semaphore {
   private _waitQueue = new AsyncWaitQueue();
-  constructor(private _count: number) { }
+  constructor(private _count: number) {}
 
   public get count() {
     return this._count;

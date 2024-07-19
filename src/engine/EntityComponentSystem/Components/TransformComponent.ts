@@ -6,7 +6,6 @@ import { Entity } from '../Entity';
 import { Observable } from '../../Util/Observable';
 import { Logger } from '../../Util/Log';
 
-
 export class TransformComponent extends Component {
   private _logger = Logger.getInstance();
   private _parentComponent: TransformComponent | null = null;
@@ -26,8 +25,8 @@ export class TransformComponent extends Component {
     for (const child of owner.children) {
       this._addChildTransform(child);
     }
-    owner.childrenAdded$.subscribe(child => this._addChildTransform(child));
-    owner.childrenRemoved$.subscribe(child => {
+    owner.childrenAdded$.subscribe((child) => this._addChildTransform(child));
+    owner.childrenRemoved$.subscribe((child) => {
       const childTxComponent = child.get(TransformComponent);
       if (childTxComponent) {
         childTxComponent._transform.parent = null;
@@ -44,22 +43,29 @@ export class TransformComponent extends Component {
    * Observable that emits when the z index changes on this component
    */
   public zIndexChanged$ = new Observable<number>();
-  private _z = 0;
 
   /**
    * The z-index ordering of the entity, a higher values are drawn on top of lower values.
    * For example z=99 would be drawn on top of z=0.
    */
   public get z(): number {
-    return this._z;
+    return this._transform.z;
   }
 
   public set z(val: number) {
-    const oldz = this._z;
-    this._z = val;
+    const oldz = this._transform.z;
+    this._transform.z = val;
     if (oldz !== val) {
       this.zIndexChanged$.notifyAll(val);
     }
+  }
+
+  public get globalZ() {
+    return this._transform.globalZ;
+  }
+
+  public set globalZ(z: number) {
+    this._transform.globalZ = z;
   }
 
   private _coordPlane = CoordPlane.World;
@@ -78,7 +84,8 @@ export class TransformComponent extends Component {
       this._coordPlane = value;
     } else {
       this._logger.warn(
-        `Cannot set coordinate plane on child entity ${this.owner?.name}, children inherit their coordinate plane from their parents.`);
+        `Cannot set coordinate plane on child entity ${this.owner?.name}, children inherit their coordinate plane from their parents.`
+      );
     }
   }
 
@@ -135,7 +142,6 @@ export class TransformComponent extends Component {
   clone(): TransformComponent {
     const component = new TransformComponent();
     component._transform = this._transform.clone();
-    component._z = this._z;
     return component;
   }
 }

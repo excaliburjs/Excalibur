@@ -12,12 +12,12 @@ import { GraphicsDiagnostics } from '../../GraphicsDiagnostics';
 export class PointRenderer implements RendererPlugin {
   public readonly type = 'ex.point';
   public priority: number = 0;
-  private _shader: Shader;
+  private _shader!: Shader;
   private _maxPoints: number = 10922;
-  private _buffer: VertexBuffer;
-  private _layout: VertexLayout;
-  private _gl: WebGLRenderingContext;
-  private _context: ExcaliburGraphicsContextWebGL;
+  private _buffer!: VertexBuffer;
+  private _layout!: VertexLayout;
+  private _gl!: WebGLRenderingContext;
+  private _context!: ExcaliburGraphicsContextWebGL;
   private _pointCount: number = 0;
   private _vertexIndex: number = 0;
   initialize(gl: WebGL2RenderingContext, context: ExcaliburGraphicsContextWebGL): void {
@@ -52,8 +52,8 @@ export class PointRenderer implements RendererPlugin {
   public dispose() {
     this._buffer.dispose();
     this._shader.dispose();
-    this._context = null;
-    this._gl = null;
+    this._context = null as any;
+    this._gl = null as any;
   }
 
   draw(point: Vector, color: Color, size: number): void {

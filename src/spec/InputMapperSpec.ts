@@ -16,10 +16,10 @@ describe('An InputMapper', () => {
       gamepads: {} as any
     });
 
-    sut.on(({keyboard}) => {
+    sut.on(({ keyboard }) => {
       return keyboard.isHeld(ex.Keys.Enter);
     }, command);
-    sut.on(({keyboard}) => {
+    sut.on(({ keyboard }) => {
       return keyboard.isHeld(ex.Keys.ArrowRight);
     }, command);
 
@@ -38,10 +38,10 @@ describe('An InputMapper', () => {
       gamepads: {} as any
     });
 
-    sut.on(({keyboard}) => {
+    sut.on(({ keyboard }) => {
       return keyboard.isHeld(ex.Keys.Enter);
     }, command);
-    sut.on(({keyboard}) => {
+    sut.on(({ keyboard }) => {
       return keyboard.isHeld(ex.Keys.ArrowRight);
     }, command);
 
@@ -51,7 +51,6 @@ describe('An InputMapper', () => {
   });
 
   it('can fire wasPressed events when used in a engine', async () => {
-
     const engine = TestUtils.engine({ width: 100, height: 100 });
     await TestUtils.runToReady(engine);
     const clock = engine.clock as ex.TestClock;
@@ -61,8 +60,8 @@ describe('An InputMapper', () => {
     const sut = engine.inputMapper;
     const keyPressedSpy = jasmine.createSpy('keyPressed');
     const keyReleasedSpy = jasmine.createSpy('keyReleased');
-    sut.on(({keyboard}) => keyboard.wasPressed(ex.Keys.Space), keyPressedSpy);
-    sut.on(({keyboard}) => keyboard.wasReleased(ex.Keys.Space), keyReleasedSpy);
+    sut.on(({ keyboard }) => keyboard.wasPressed(ex.Keys.Space), keyPressedSpy);
+    sut.on(({ keyboard }) => keyboard.wasReleased(ex.Keys.Space), keyReleasedSpy);
 
     clock.step();
     expect(keyPressedSpy).toHaveBeenCalled();

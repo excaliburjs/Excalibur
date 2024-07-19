@@ -50,7 +50,10 @@ export class BrowserComponent<T extends NativeEventable> {
 export class BrowserEvents {
   private _windowComponent: BrowserComponent<Window>;
   private _documentComponent: BrowserComponent<Document>;
-  constructor(private _windowGlobal: Window, private _documentGlobal: Document) {
+  constructor(
+    private _windowGlobal: Window,
+    private _documentGlobal: Document
+  ) {
     this._windowComponent = new BrowserComponent(this._windowGlobal);
     this._documentComponent = new BrowserComponent(this._documentGlobal);
   }

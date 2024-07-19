@@ -2,9 +2,10 @@ import { Vector } from '../../Math/vector';
 import { Entity } from '../../EntityComponentSystem/Entity';
 import { MotionComponent } from '../../EntityComponentSystem/Components/MotionComponent';
 import { TransformComponent } from '../../EntityComponentSystem/Components/TransformComponent';
-import { Action } from '../Action';
+import { Action, nextActionId } from '../Action';
 
 export class ScaleBy implements Action {
+  id = nextActionId();
   private _tx: TransformComponent;
   private _motion: MotionComponent;
   public x: number;
@@ -51,8 +52,8 @@ export class ScaleBy implements Action {
   public isComplete(): boolean {
     return (
       this._stopped ||
-      (Math.abs(this._tx.scale.x - this._startScale.x) >= (this._distanceX - 0.01) &&
-        Math.abs(this._tx.scale.y - this._startScale.y) >= (this._distanceY - 0.01))
+      (Math.abs(this._tx.scale.x - this._startScale.x) >= this._distanceX - 0.01 &&
+        Math.abs(this._tx.scale.y - this._startScale.y) >= this._distanceY - 0.01)
     );
   }
 

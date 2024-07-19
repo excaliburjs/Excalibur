@@ -118,7 +118,7 @@ export interface FromSpriteSheetOptions {
    * You may optionally specify a duration for the frame in milliseconds as well, this will override
    * the default duration.
    */
-  frameCoordinates: {x: number, y: number, duration?: number, options?: GetSpriteOptions}[];
+  frameCoordinates: { x: number; y: number; duration?: number; options?: GetSpriteOptions }[];
   /**
    * Optionally specify a default duration for frames in milliseconds
    */
@@ -132,7 +132,7 @@ export interface FromSpriteSheetOptions {
   /**
    * Optionally specify the animation strategy for this animation, by default animations loop [[AnimationStrategy.Loop]]
    */
-  strategy?: AnimationStrategy
+  strategy?: AnimationStrategy;
   /**
    * Optionally specify the animation should be reversed
    */
@@ -186,7 +186,7 @@ export class Animation extends Graphic implements HasTick {
 
   public override get width(): number {
     const maybeFrame = this.currentFrame;
-    if (maybeFrame) {
+    if (maybeFrame && maybeFrame.graphic) {
       return Math.abs(maybeFrame.graphic.width * this.scale.x);
     }
     return 0;
@@ -194,12 +194,11 @@ export class Animation extends Graphic implements HasTick {
 
   public override get height(): number {
     const maybeFrame = this.currentFrame;
-    if (maybeFrame) {
+    if (maybeFrame && maybeFrame.graphic) {
       return Math.abs(maybeFrame.graphic.height * this.scale.y);
     }
     return 0;
   }
-
 
   /**
    * Create an Animation from a [[SpriteSheet]], a list of indices into the sprite sheet, a duration per frame
@@ -266,7 +265,7 @@ export class Animation extends Graphic implements HasTick {
     const defaultDuration = durationPerFrameMs ?? 100;
     const frames: Frame[] = [];
     for (const coord of frameCoordinates) {
-      const {x, y, duration, options } = coord;
+      const { x, y, duration, options } = coord;
       const sprite = spriteSheet.getSprite(x, y, options);
       if (sprite) {
         frames.push({
@@ -360,7 +359,7 @@ export class Animation extends Graphic implements HasTick {
   public get direction(): AnimationDirection {
     // Keep logically consistent with ping-pong direction
     // If ping-pong is forward = 1 and reversed is true then we are logically reversed
-    const reversed = (this._reversed && this._pingPongDirection === 1) ? true : false;
+    const reversed = this._reversed && this._pingPongDirection === 1 ? true : false;
     return reversed ? AnimationDirection.Backward : AnimationDirection.Forward;
   }
 
@@ -389,7 +388,7 @@ export class Animation extends Graphic implements HasTick {
     this._timeLeftInFrame = this.frameDuration;
     const maybeFrame = this.frames[this._currentFrame];
     if (maybeFrame) {
-      this._timeLeftInFrame = (maybeFrame?.duration || this.frameDuration);
+      this._timeLeftInFrame = maybeFrame?.duration || this.frameDuration;
     }
   }
 
@@ -432,7 +431,7 @@ export class Animation extends Graphic implements HasTick {
     const maybeFrame = this.frames[this._currentFrame];
     if (maybeFrame && !this._done) {
       this._timeLeftInFrame = duration ?? (maybeFrame?.duration || this.frameDuration);
-      this.events.emit('frame', {...maybeFrame, frameIndex: this.currentFrameIndex });
+      this.events.emit('frame', { ...maybeFrame, frameIndex: this.currentFrameIndex });
     }
   }
 
@@ -503,7 +502,7 @@ export class Animation extends Graphic implements HasTick {
     // if it's the first frame emit frame event
     if (this._firstTick) {
       this._firstTick = false;
-      this.events.emit('frame', {...this.currentFrame, frameIndex: this.currentFrameIndex });
+      this.events.emit('frame', { ...this.currentFrame, frameIndex: this.currentFrameIndex });
     }
 
     this._timeLeftInFrame -= elapsedMilliseconds * this._speed;
@@ -513,7 +512,7 @@ export class Animation extends Graphic implements HasTick {
   }
 
   protected _drawImage(ctx: ExcaliburGraphicsContext, x: number, y: number) {
-    if (this.currentFrame) {
+    if (this.currentFrame && this.currentFrame.graphic) {
       this.currentFrame.graphic.draw(ctx, x, y);
     }
   }

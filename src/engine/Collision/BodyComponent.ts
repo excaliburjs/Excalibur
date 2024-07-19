@@ -1,4 +1,4 @@
-import { Vector } from '../Math/vector';
+import { vec, Vector } from '../Math/vector';
 import { CollisionType } from './CollisionType';
 import { Clonable } from '../Interfaces/Clonable';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
@@ -12,12 +12,13 @@ import { Transform } from '../Math/transform';
 import { EventEmitter } from '../EventEmitter';
 import { DefaultPhysicsConfig, PhysicsConfig } from './PhysicsConfig';
 import { DeepRequired } from '../Util/Required';
+import { Entity } from '../EntityComponentSystem';
 
 export interface BodyComponentOptions {
   type?: CollisionType;
   group?: CollisionGroup;
   useGravity?: boolean;
-  config?: Pick<PhysicsConfig, 'bodies'>['bodies']
+  config?: Pick<PhysicsConfig, 'bodies'>['bodies'];
 }
 
 export enum DegreeOfFreedom {
@@ -88,7 +89,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
       ...config
     };
     this.canSleep = this._bodyConfig.canSleepByDefault;
-    this.sleepMotion =  this._bodyConfig.sleepEpsilon * 5;
+    this.sleepMotion = this._bodyConfig.sleepEpsilon * 5;
     this.wakeThreshold = this._bodyConfig.wakeThreshold;
   }
   /**
@@ -138,7 +139,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   /**
    * Can this body sleep, by default bodies do not sleep
    */
-  public canSleep: boolean;;
+  public canSleep: boolean;
 
   private _sleeping = false;
   /**
@@ -201,7 +202,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
       });
       const maybeCollider = collider.get();
       if (maybeCollider) {
-        return this._cachedInertia = maybeCollider.getInertia(this.mass);
+        return (this._cachedInertia = maybeCollider.getInertia(this.mass));
       }
     }
     return 0;
@@ -215,7 +216,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     if (this._cachedInverseInertia) {
       return this._cachedInverseInertia;
     }
-    return this._cachedInverseInertia = this.collisionType === CollisionType.Fixed ? 0 : 1 / this.inertia;
+    return (this._cachedInverseInertia = this.collisionType === CollisionType.Fixed ? 0 : 1 / this.inertia);
   }
 
   /**
@@ -249,18 +250,18 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   }
 
   /**
-   * @deprecated Use globalP0s
+   * @deprecated Use globalPos
    */
   public get center() {
     return this.globalPos;
   }
 
-  public get transform(): TransformComponent {
-    return this.owner?.get(TransformComponent);
-  }
+  public transform: TransformComponent;
+  public motion: MotionComponent;
 
-  public get motion(): MotionComponent {
-    return  this.owner?.get(MotionComponent);
+  override onAdd(owner: Entity<any>): void {
+    this.transform = this.owner?.get(TransformComponent);
+    this.motion = this.owner?.get(MotionComponent);
   }
 
   public get pos(): Vector {
@@ -284,11 +285,20 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     this.transform.globalPos = val;
   }
 
+  private _oldGlobalPos: Vector = Vector.Zero;
+
   /**
    * The position of the actor last frame (x, y) in pixels
    */
   public get oldPos(): Vector {
     return this.oldTransform.pos;
+  }
+
+  /**
+   * The global position of the actor last frame (x, y) in pixels
+   */
+  public get oldGlobalPos(): Vector {
+    return this._oldGlobalPos;
   }
 
   /**
@@ -396,6 +406,8 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     this.motion.angularVelocity = value;
   }
 
+  private _impulseScratch = vec(0, 0);
+  private _distanceFromCenterScratch = vec(0, 0);
   /**
    * Apply a specific impulse to the body
    * @param point
@@ -406,18 +418,18 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
       return; // only active objects participate in the simulation
     }
 
-    const finalImpulse = impulse.scale(this.inverseMass);
-    if (this.limitDegreeOfFreedom.includes(DegreeOfFreedom.X)) {
+    const finalImpulse = impulse.scale(this.inverseMass, this._impulseScratch);
+    if (this.limitDegreeOfFreedom.indexOf(DegreeOfFreedom.X) > -1) {
       finalImpulse.x = 0;
     }
-    if (this.limitDegreeOfFreedom.includes(DegreeOfFreedom.Y)) {
+    if (this.limitDegreeOfFreedom.indexOf(DegreeOfFreedom.Y) > -1) {
       finalImpulse.y = 0;
     }
 
     this.vel.addEqual(finalImpulse);
 
     if (!this.limitDegreeOfFreedom.includes(DegreeOfFreedom.Rotation)) {
-      const distanceFromCenter = point.sub(this.globalPos);
+      const distanceFromCenter = point.sub(this.globalPos, this._distanceFromCenterScratch);
       this.angularVelocity += this.inverseInertia * distanceFromCenter.cross(impulse);
     }
   }
@@ -470,6 +482,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     this.oldTransform.parent = tx.parent; // also grab parent
     this.oldVel.setTo(this.vel.x, this.vel.y);
     this.oldAcc.setTo(this.acc.x, this.acc.y);
+    this.oldGlobalPos.setTo(this.globalPos.x, this.globalPos.y);
   }
 
   public clone(): BodyComponent {

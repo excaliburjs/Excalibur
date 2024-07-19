@@ -1,5 +1,3 @@
-
-
 var game = new ex.Engine({
   width: 800,
   height: 600,
@@ -17,7 +15,6 @@ var actor = new ex.Actor({
 actor.graphics.use(image.toSprite());
 // game.add(actor);
 
-
 class MyActor extends ex.Actor {
   constructor() {
     super({
@@ -30,12 +27,12 @@ class MyActor extends ex.Actor {
   }
 
   async takeDamage(): Promise<void> {
-    const knockBackSequence = new ex.ActionSequence(this, ctx => {
-      ctx.moveBy(ex.vec(100, 0), 500)
-      ctx.moveBy(ex.vec(-100, 0), 500)
+    const knockBackSequence = new ex.ActionSequence(this, (ctx) => {
+      ctx.moveBy(ex.vec(100, 0), 500);
+      ctx.moveBy(ex.vec(-100, 0), 500);
     });
-    
-    const fadeSequence = new ex.ActionSequence(this, ctx => {
+
+    const fadeSequence = new ex.ActionSequence(this, (ctx) => {
       ctx.delay(100);
       ctx.fade(0, 1000);
     });
@@ -48,8 +45,7 @@ var myActor = new MyActor();
 game.add(myActor);
 myActor.takeDamage();
 
-
-var sequence1 = new ex.ActionSequence(actor, ctx => {
+var sequence1 = new ex.ActionSequence(actor, (ctx) => {
   ctx.easeBy(ex.vec(200, 0), 1000, ex.EasingFunctions.EaseInOutCubic);
   ctx.delay(500);
   ctx.easeBy(ex.vec(0, 200), 1000, ex.EasingFunctions.EaseInOutCubic);
@@ -60,7 +56,7 @@ var sequence1 = new ex.ActionSequence(actor, ctx => {
   ctx.delay(500);
 });
 
-var sequence2 = new ex.ActionSequence(actor, ctx => {
+var sequence2 = new ex.ActionSequence(actor, (ctx) => {
   ctx.rotateBy(Math.PI, Math.PI, ex.RotationType.Clockwise);
   ctx.delay(500);
   ctx.rotateBy(Math.PI, Math.PI, ex.RotationType.CounterClockwise);
@@ -71,14 +67,14 @@ var sequence2 = new ex.ActionSequence(actor, ctx => {
   ctx.delay(500);
 });
 
-var sequence3 = new ex.ActionSequence(actor, ctx => {
+var sequence3 = new ex.ActionSequence(actor, (ctx) => {
   ctx.scaleBy(ex.vec(2, 2), 1);
   ctx.delay(1000);
   ctx.scaleBy(ex.vec(-2, -2), 1);
   ctx.delay(1000);
 });
 
-var sequence4 = new ex.ActionSequence(actor, ctx => {
+var sequence4 = new ex.ActionSequence(actor, (ctx) => {
   ctx.fade(0, 2000);
   ctx.delay(1000);
   ctx.fade(1, 2000);
@@ -89,8 +85,7 @@ var blink = new ex.Blink(actor, 200, 200, 2);
 
 var spawn = new ex.ParallelActions([sequence1, sequence2, sequence3, sequence4, blink]);
 
-actor.actions.repeatForever(ctx => ctx.runAction(spawn));
+actor.actions.repeatForever((ctx) => ctx.runAction(spawn));
 game.currentScene.camera.pos = ex.Vector.Zero;
-
 
 game.start(loader);

@@ -294,7 +294,7 @@ export class DebugConfig {
     showGeometry: true,
     geometryColor: Color.Green,
     geometryLineWidth: 1,
-    geometryPointSize: .5
+    geometryPointSize: 0.5
   };
 
   /**
@@ -356,7 +356,7 @@ export class DebugConfig {
 
     showGrid: false,
     gridColor: Color.Red,
-    gridWidth: .5,
+    gridWidth: 0.5,
     showSolidBounds: false,
     solidBoundsColor: Color.fromHex('#8080807F'), // grayish
     showColliderGeometry: true

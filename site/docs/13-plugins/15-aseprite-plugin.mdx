@@ -4,13 +4,13 @@ slug: /aseprite-plugin
 section: Plugins
 ---
 
-[This extension](https://github.com/excaliburjs/excalibur-aseprite) adds support for [Aseprite](https://www.aseprite.org/) SpriteSheets and Animations exported to json.
+[This extension](https://github.com/excaliburjs/excalibur-aseprite) adds support for [Aseprite](https://www.aseprite.org/) SpriteSheets and Animations exported to json AND the `.aseprite` native format.
 
 ```
 > npm install @excaliburjs/plugin-aseprite
 ```
 
-1. Export using the [aseprite cli](https://www.aseprite.org/docs/cli/) or through the UI
+1. Optionally export JSON using the [aseprite cli](https://www.aseprite.org/docs/cli/) or through the UI
 
 ![Export as JSON in Aseprite](https://github.com/excaliburjs/excalibur-aseprite/raw/main/export.gif)
 
@@ -32,7 +32,9 @@ const game = new Engine({
   displayMode: DisplayMode.FitScreen,
 })
 
-const asepriteSpriteSheet = new AsepriteResource('./beetle.json')
+const asepriteSpriteSheet = new AsepriteResource('./beetle.aseprite')
+// or json
+// const asepriteSpriteSheet = new AsepriteResource('./beetle.json')
 
 const loader = new Loader([asepriteSpriteSheet])
 game.start(loader).then(() => {

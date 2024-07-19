@@ -83,7 +83,6 @@ export class Logger {
     }
   }
 
-
   private _logOnceSet = new Set<any>();
   private _logOnce(level: LogLevel, args: any[]): void {
     const serialized = level + args.join('+');
@@ -263,7 +262,6 @@ export interface ScreenAppenderOptions {
  * On-screen (canvas) appender
  */
 export class ScreenAppender implements Appender {
-
   private _messages: string[] = [];
   public canvas: HTMLCanvasElement;
   private _ctx: CanvasRenderingContext2D;

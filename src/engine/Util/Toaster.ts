@@ -47,7 +47,7 @@ export class Toaster {
     const toast = document.createElement('div');
     toast.className = 'ex-toast-message';
 
-    const messageFragments: HTMLElement[] = message.split('[LINK]').map(message => this._createFragment(message));
+    const messageFragments: HTMLElement[] = message.split('[LINK]').map((message) => this._createFragment(message));
 
     if (linkTarget) {
       const link = document.createElement('a');
@@ -62,7 +62,7 @@ export class Toaster {
 
     // Assembly message
     const finalMessage = document.createElement('div');
-    messageFragments.forEach(message => {
+    messageFragments.forEach((message) => {
       finalMessage.appendChild(message);
     });
     toast.appendChild(finalMessage);

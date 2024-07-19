@@ -57,7 +57,7 @@ export interface GraphicsComponentOptions {
   /**
    * List of graphics and optionally the options per graphic
    */
-  graphics?: { [graphicName: string]: Graphic | { graphic: Graphic, options: GraphicsShowOptions } };
+  graphics?: { [graphicName: string]: Graphic | { graphic: Graphic; options?: GraphicsShowOptions | undefined } };
 
   /**
    * Optional offset in absolute pixels to shift all graphics in this component from each graphic's anchor (default is top left corner)
@@ -78,29 +78,29 @@ export class GraphicsComponent extends Component {
 
   private _current: string = 'default';
   private _graphics: Record<string, Graphic> = {};
-  private _options: Record<string, GraphicsShowOptions> = {};
+  private _options: Record<string, GraphicsShowOptions | undefined> = {};
 
   public material: Material | null = null;
 
   /**
    * Draws after the entity transform has been applied, but before graphics component graphics have been drawn
    */
-  public onPreDraw: (ctx: ExcaliburGraphicsContext, elapsedMilliseconds: number) => void;
+  public onPreDraw?: (ctx: ExcaliburGraphicsContext, elapsedMilliseconds: number) => void;
 
   /**
    * Draws after the entity transform has been applied, and after graphics component graphics has been drawn
    */
-  public onPostDraw: (ctx: ExcaliburGraphicsContext, elapsedMilliseconds: number) => void;
+  public onPostDraw?: (ctx: ExcaliburGraphicsContext, elapsedMilliseconds: number) => void;
 
   /**
    * Draws before the entity transform has been applied before any any graphics component drawing
    */
-  public onPreTransformDraw: (ctx: ExcaliburGraphicsContext, elapsedMilliseconds: number) => void;
+  public onPreTransformDraw?: (ctx: ExcaliburGraphicsContext, elapsedMilliseconds: number) => void;
 
   /**
    * Draws after the entity transform has been applied, and after all graphics component drawing
    */
-  public onPostTransformDraw: (ctx: ExcaliburGraphicsContext, elapsedMilliseconds: number) => void;
+  public onPostTransformDraw?: (ctx: ExcaliburGraphicsContext, elapsedMilliseconds: number) => void;
 
   /**
    * Sets or gets wether any drawing should be visible in this component
@@ -112,34 +112,29 @@ export class GraphicsComponent extends Component {
    */
   public opacity: number = 1;
 
-
-  private _offset: Vector = Vector.Zero;
+  private _offset: Vector = new WatchVector(Vector.Zero, () => this.recalculateBounds());
 
   /**
    * Offset to apply to graphics by default
    */
   public get offset(): Vector {
-    return new WatchVector(this._offset, () => {
-      this.recalculateBounds();
-    });
+    return this._offset;
   }
   public set offset(value: Vector) {
-    this._offset = value;
+    this._offset = new WatchVector(value, () => this.recalculateBounds());
     this.recalculateBounds();
   }
 
-  private _anchor: Vector = Vector.Half;
+  private _anchor: Vector = new WatchVector(Vector.Half, () => this.recalculateBounds());
 
   /**
    * Anchor to apply to graphics by default
    */
   public get anchor(): Vector {
-    return new WatchVector(this._anchor, () => {
-      this.recalculateBounds();
-    });
+    return this._anchor;
   }
   public set anchor(value: Vector) {
-    this._anchor = value;
+    this._anchor = new WatchVector(value, () => this.recalculateBounds());
     this.recalculateBounds();
   }
 
@@ -182,7 +177,7 @@ export class GraphicsComponent extends Component {
       onPostTransformDraw
     } = options;
 
-    for (const [key, graphicOrOptions] of Object.entries(graphics)) {
+    for (const [key, graphicOrOptions] of Object.entries(graphics as GraphicsComponentOptions)) {
       if (graphicOrOptions instanceof Graphic) {
         this._graphics[key] = graphicOrOptions;
       } else {
@@ -244,7 +239,7 @@ export class GraphicsComponent extends Component {
   /**
    * Returns all graphics options associated with this component
    */
-  public get options(): { [graphicName: string]: GraphicsShowOptions } {
+  public get options(): { [graphicName: string]: GraphicsShowOptions | undefined } {
     return this._options;
   }
 
@@ -256,7 +251,7 @@ export class GraphicsComponent extends Component {
   public add(name: string, graphic: Graphic, options?: GraphicsShowOptions): Graphic;
   public add(nameOrGraphic: string | Graphic, graphicOrOptions?: Graphic | GraphicsShowOptions, options?: GraphicsShowOptions): Graphic {
     let name = 'default';
-    let graphicToSet: Graphic = null;
+    let graphicToSet: Graphic | null = null;
     let optionsToSet: GraphicsShowOptions | undefined = undefined;
     if (typeof nameOrGraphic === 'string' && graphicOrOptions instanceof Graphic) {
       name = nameOrGraphic;
@@ -268,8 +263,11 @@ export class GraphicsComponent extends Component {
       optionsToSet = graphicOrOptions;
     }
 
+    if (!graphicToSet) {
+      throw new Error('Need to provide a graphic or valid graphic string');
+    }
     this._graphics[name] = this.copyGraphics ? graphicToSet.clone() : graphicToSet;
-    this._options[name] = this.copyGraphics ? {...optionsToSet} : optionsToSet;
+    this._options[name] = this.copyGraphics ? { ...optionsToSet } : optionsToSet;
     if (name === 'default') {
       this.use('default');
     }
@@ -320,7 +318,8 @@ export class GraphicsComponent extends Component {
       this._options[this._current] = options;
       if (!(this._current in this._graphics)) {
         this._logger.warn(
-          `Graphic ${this._current} is not registered with the graphics component owned by ${this.owner?.name}. Nothing will be drawn.`);
+          `Graphic ${this._current} is not registered with the graphics component owned by ${this.owner?.name}. Nothing will be drawn.`
+        );
       }
     }
     this.recalculateBounds();
@@ -334,7 +333,7 @@ export class GraphicsComponent extends Component {
     this._current = 'ex.none';
   }
 
-  private _localBounds: BoundingBox = null;
+  private _localBounds?: BoundingBox;
   public set localBounds(bounds: BoundingBox) {
     this._localBounds = bounds;
   }
@@ -358,8 +357,8 @@ export class GraphicsComponent extends Component {
       offset = options.offset;
     }
     const bounds = graphic.localBounds;
-    const offsetX = -bounds.width *  anchor.x + offset.x;
-    const offsetY = -bounds.height *  anchor.y + offset.y;
+    const offsetX = -bounds.width * anchor.x + offset.x;
+    const offsetY = -bounds.height * anchor.y + offset.y;
     if (graphic instanceof GraphicsGroup && !graphic.useAnchor) {
       bb = graphic?.localBounds.combine(bb);
     } else {
@@ -375,7 +374,7 @@ export class GraphicsComponent extends Component {
     if (!this._localBounds || this._localBounds.hasZeroDimensions()) {
       this.recalculateBounds();
     }
-    return this._localBounds;
+    return this._localBounds as BoundingBox; // recalc guarantees type
   }
 
   /**
@@ -404,11 +403,10 @@ export class GraphicsComponent extends Component {
     }
   }
 
-
   public clone(): GraphicsComponent {
     const graphics = new GraphicsComponent();
     graphics._graphics = { ...this._graphics };
-    graphics._options = {... this._options};
+    graphics._options = { ...this._options };
     graphics.offset = this.offset.clone();
     graphics.opacity = this.opacity;
     graphics.anchor = this.anchor.clone();

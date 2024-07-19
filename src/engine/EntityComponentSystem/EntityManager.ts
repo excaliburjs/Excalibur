@@ -8,6 +8,8 @@ import { Scene } from '../Scene';
 export class EntityManager {
   public entities: Entity[] = [];
   public _entityIndex: { [entityId: string]: Entity } = {};
+  private _childAddedHandlerMap = new Map<Entity, (entity: Entity) => void>();
+  private _childRemovedHandlerMap = new Map<Entity, (entity: Entity) => void>();
 
   constructor(private _world: World) {}
 
@@ -17,7 +19,8 @@ export class EntityManager {
    * @param elapsed
    */
   public updateEntities(scene: Scene, elapsed: number) {
-    for (const entity of this.entities) {
+    for (let entityIndex = 0; entityIndex < this.entities.length; entityIndex++) {
+      const entity = this.entities[entityIndex];
       entity.update(scene.engine, elapsed);
       if (!entity.active) {
         this.removeEntity(entity);
@@ -26,12 +29,21 @@ export class EntityManager {
   }
 
   public findEntitiesForRemoval() {
-    for (const entity of this.entities) {
+    for (let entityIndex = 0; entityIndex < this.entities.length; entityIndex++) {
+      const entity = this.entities[entityIndex];
       if (!entity.active) {
         this.removeEntity(entity);
       }
     }
   }
+
+  private _createChildAddedHandler = () => (e: Entity) => {
+    this.addEntity(e);
+  };
+
+  private _createChildRemovedHandler = () => (e: Entity) => {
+    this.removeEntity(e, false);
+  };
 
   /**
    * Adds an entity to be tracked by the EntityManager
@@ -50,16 +62,12 @@ export class EntityManager {
         c.scene = entity.scene;
         this.addEntity(c);
       });
-      entity.childrenAdded$.register({
-        notify: (e) => {
-          this.addEntity(e);
-        }
-      });
-      entity.childrenRemoved$.register({
-        notify: (e) => {
-          this.removeEntity(e, false);
-        }
-      });
+      const childAdded = this._createChildAddedHandler();
+      this._childAddedHandlerMap.set(entity, childAdded);
+      const childRemoved = this._createChildRemovedHandler();
+      this._childRemovedHandlerMap.set(entity, childRemoved);
+      entity.childrenAdded$.subscribe(childAdded);
+      entity.childrenRemoved$.subscribe(childRemoved);
     }
   }
 
@@ -93,8 +101,14 @@ export class EntityManager {
         c.scene = null;
         this.removeEntity(c, deferred);
       });
-      entity.childrenAdded$.clear();
-      entity.childrenRemoved$.clear();
+      const childAddedHandler = this._childAddedHandlerMap.get(entity);
+      if (childAddedHandler) {
+        entity.childrenAdded$.unsubscribe(childAddedHandler);
+      }
+      const childRemovedHandler = this._childRemovedHandlerMap.get(entity);
+      if (childRemovedHandler) {
+        entity.childrenRemoved$.unsubscribe(childRemovedHandler);
+      }
 
       // stats
       if (this._world?.scene?.engine) {
@@ -105,7 +119,8 @@ export class EntityManager {
 
   private _entitiesToRemove: Entity[] = [];
   public processEntityRemovals(): void {
-    for (const entity of this._entitiesToRemove) {
+    for (let entityIndex = 0; entityIndex < this._entitiesToRemove.length; entityIndex++) {
+      const entity = this._entitiesToRemove[entityIndex];
       if (entity.active) {
         continue;
       }
@@ -115,7 +130,8 @@ export class EntityManager {
   }
 
   public processComponentRemovals(): void {
-    for (const entity of this.entities) {
+    for (let entityIndex = 0; entityIndex < this.entities.length; entityIndex++) {
+      const entity = this.entities[entityIndex];
       entity.processComponentRemoval();
     }
   }
@@ -124,8 +140,8 @@ export class EntityManager {
     return this._entityIndex[id];
   }
 
-  public getByName(name: string): Entity[]{
-    return this.entities.filter(e => e.name === name);
+  public getByName(name: string): Entity[] {
+    return this.entities.filter((e) => e.name === name);
   }
 
   public clear(): void {

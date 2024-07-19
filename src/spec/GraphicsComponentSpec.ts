@@ -37,11 +37,15 @@ describe('A Graphics ECS Component', () => {
     });
     graphics.anchor = ex.vec(0, 0);
     graphics.offset = ex.vec(1, 1);
-    graphics.opacity = .2;
+    graphics.opacity = 0.2;
     graphics.visible = false;
     graphics.copyGraphics = true;
-    graphics.onPreDraw = () => { /* do nothing */ };
-    graphics.onPostDraw = () => { /* do nothing */};
+    graphics.onPreDraw = () => {
+      /* do nothing */
+    };
+    graphics.onPostDraw = () => {
+      /* do nothing */
+    };
     graphics.use(rect);
 
     const clone = owner.clone();
@@ -271,7 +275,6 @@ describe('A Graphics ECS Component', () => {
     expect(animation.tick).toHaveBeenCalledWith(123, 4);
   });
 
-
   it('correctly calculates graphics bounds (rasters)', () => {
     const sut = new ex.GraphicsComponent();
     const rec2 = new ex.Rectangle({
@@ -281,12 +284,14 @@ describe('A Graphics ECS Component', () => {
     rec2.scale = ex.vec(2, 2);
     sut.add(rec2);
 
-    expect(sut.localBounds).toEqual(new ex.BoundingBox({
-      left: -200,
-      right: 200,
-      top: -10,
-      bottom: 10
-    }));
+    expect(sut.localBounds).toEqual(
+      new ex.BoundingBox({
+        left: -200,
+        right: 200,
+        top: -10,
+        bottom: 10
+      })
+    );
   });
 
   it('correctly calculates graphics world bounds (rasters)', () => {
@@ -302,12 +307,14 @@ describe('A Graphics ECS Component', () => {
 
     const entity = new ex.Entity([tx, sut]);
 
-    expect(sut.bounds).toEqual(new ex.BoundingBox({
-      left: 300,
-      right: 700,
-      top: 890,
-      bottom: 910
-    }));
+    expect(sut.bounds).toEqual(
+      new ex.BoundingBox({
+        left: 300,
+        right: 700,
+        top: 890,
+        bottom: 910
+      })
+    );
   });
 
   it('correctly calculates graphics bounds (rasters + offset)', () => {
@@ -317,14 +324,16 @@ describe('A Graphics ECS Component', () => {
       height: 10
     });
     rec2.scale = ex.vec(2, 2); // width 400, height 20
-    sut.use(rec2, { offset: ex.vec(100, 0)}); // offset 100 to the right
+    sut.use(rec2, { offset: ex.vec(100, 0) }); // offset 100 to the right
 
-    expect(sut.localBounds).toEqual(new ex.BoundingBox({
-      left: -100,
-      right: 300,
-      top: -10,
-      bottom: 10
-    }));
+    expect(sut.localBounds).toEqual(
+      new ex.BoundingBox({
+        left: -100,
+        right: 300,
+        top: -10,
+        bottom: 10
+      })
+    );
   });
 
   it('correctly calculates graphics bounds (rasters + anchor)', () => {
@@ -334,14 +343,16 @@ describe('A Graphics ECS Component', () => {
       height: 10
     });
     rec2.scale = ex.vec(2, 2); // width 400, height 20
-    sut.use(rec2, { anchor: ex.vec(1, 1)}); // anchor at the bottom right
+    sut.use(rec2, { anchor: ex.vec(1, 1) }); // anchor at the bottom right
 
-    expect(sut.localBounds).toEqual(new ex.BoundingBox({
-      left: -400,
-      right: 0,
-      top: -20,
-      bottom: 0
-    }));
+    expect(sut.localBounds).toEqual(
+      new ex.BoundingBox({
+        left: -400,
+        right: 0,
+        top: -20,
+        bottom: 0
+      })
+    );
   });
 
   it('correctly calculates graphics bounds (sprite)', () => {
@@ -363,12 +374,14 @@ describe('A Graphics ECS Component', () => {
     sprite.scale = ex.vec(4, 4);
     sut.add(sprite);
 
-    expect(sut.localBounds).toEqual(new ex.BoundingBox({
-      left: -200,
-      right: 200,
-      top: -200,
-      bottom: 200
-    }));
+    expect(sut.localBounds).toEqual(
+      new ex.BoundingBox({
+        left: -200,
+        right: 200,
+        top: -200,
+        bottom: 200
+      })
+    );
   });
 
   it('correctly calculates graphics bounds (animation)', () => {
@@ -388,11 +401,13 @@ describe('A Graphics ECS Component', () => {
     anim.scale = ex.vec(4, 4);
     sut.add(anim);
 
-    expect(sut.localBounds).toEqual(new ex.BoundingBox({
-      left: -20,
-      right: 20,
-      top: -20,
-      bottom: 20
-    }));
+    expect(sut.localBounds).toEqual(
+      new ex.BoundingBox({
+        left: -20,
+        right: 20,
+        top: -20,
+        bottom: 20
+      })
+    );
   });
 });

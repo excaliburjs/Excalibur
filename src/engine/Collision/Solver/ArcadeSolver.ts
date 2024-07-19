@@ -26,7 +26,7 @@ export class ArcadeSolver implements CollisionSolver {
     this.preSolve(contacts);
 
     // Remove any canceled contacts
-    contacts = contacts.filter(c => !c.isCanceled());
+    contacts = contacts.filter((c) => !c.isCanceled());
 
     // Locate collision bias order
     let bias: ContactBias;
@@ -52,7 +52,7 @@ export class ArcadeSolver implements CollisionSolver {
       const bDir = this.directionMap.get(b.id);
       const aDist = this.distanceMap.get(a.id);
       const bDist = this.distanceMap.get(b.id);
-      return (bias[aDir] - bias[bDir]) || (aDist - bDist);
+      return bias[aDir] - bias[bDir] || aDist - bDist;
     });
 
     for (const contact of contacts) {
@@ -70,8 +70,9 @@ export class ArcadeSolver implements CollisionSolver {
   }
 
   public preSolve(contacts: CollisionContact[]) {
-    const epsilon = .0001;
-    for (const contact of contacts) {
+    const epsilon = 0.0001;
+    for (let i = 0; i < contacts.length; i++) {
+      const contact = contacts[i];
       if (Math.abs(contact.mtv.x) < epsilon && Math.abs(contact.mtv.y) < epsilon) {
         // Cancel near 0 mtv collisions
         contact.cancel();
@@ -86,9 +87,7 @@ export class ArcadeSolver implements CollisionSolver {
       this.directionMap.set(contact.id, side === Side.Left || side === Side.Right ? 'horizontal' : 'vertical');
 
       // Publish collision events on both participants
-      contact.colliderA.events.emit(
-        'precollision',
-        new PreCollisionEvent(contact.colliderA, contact.colliderB, side, mtv, contact));
+      contact.colliderA.events.emit('precollision', new PreCollisionEvent(contact.colliderA, contact.colliderB, side, mtv, contact));
       contact.colliderB.events.emit(
         'precollision',
         new PreCollisionEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), mtv.negate(), contact)
@@ -97,7 +96,8 @@ export class ArcadeSolver implements CollisionSolver {
   }
 
   public postSolve(contacts: CollisionContact[]) {
-    for (const contact of contacts) {
+    for (let i = 0; i < contacts.length; i++) {
+      const contact = contacts[i];
       if (contact.isCanceled()) {
         continue;
       }
@@ -114,9 +114,7 @@ export class ArcadeSolver implements CollisionSolver {
       const side = Side.fromDirection(contact.mtv);
       const mtv = contact.mtv.negate();
       // Publish collision events on both participants
-      contact.colliderA.events.emit(
-        'postcollision',
-        new PostCollisionEvent(contact.colliderA, contact.colliderB, side, mtv, contact));
+      contact.colliderA.events.emit('postcollision', new PostCollisionEvent(contact.colliderA, contact.colliderB, side, mtv, contact));
       contact.colliderB.events.emit(
         'postcollision',
         new PostCollisionEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), mtv.negate(), contact)
@@ -125,7 +123,7 @@ export class ArcadeSolver implements CollisionSolver {
   }
 
   public solvePosition(contact: CollisionContact) {
-    const epsilon = .0001;
+    const epsilon = 0.0001;
     // if bounds no longer intersect skip to the next
     // this removes jitter from overlapping/stacked solid tiles or a wall of solid tiles
     if (!contact.colliderA.bounds.overlaps(contact.colliderB.bounds, epsilon)) {
@@ -170,7 +168,6 @@ export class ArcadeSolver implements CollisionSolver {
     }
   }
 
-
   public solveVelocity(contact: CollisionContact) {
     if (contact.isCanceled()) {
       return;
@@ -182,7 +179,6 @@ export class ArcadeSolver implements CollisionSolver {
     const bodyB = colliderB.owner?.get(BodyComponent);
 
     if (bodyA && bodyB) {
-
       if (bodyA.collisionType === CollisionType.Passive || bodyB.collisionType === CollisionType.Passive) {
         return;
       }
