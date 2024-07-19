@@ -34,8 +34,9 @@ for (let i = 0; i < 4; i++) {
 actor.onInitialize = () => {
   ex.coroutine(function* () {
     let index = 0;
+    actor.graphics.use(rectangles[index]);
     while (true) {
-      yield 60_000;
+      yield 2_000;
       actor.graphics.use(rectangles[index++ % rectangles.length]);
     }
   });
