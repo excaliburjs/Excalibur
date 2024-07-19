@@ -57,11 +57,13 @@ export class GarbageCollector {
     for (const [type, [collector, timeoutInterval]] of this._collectors.entries()) {
       const now = this.options.nowFn();
       for (const [resource, [resourceType, time]] of this._collectionMap.entries()) {
-        if (type === resourceType && (time + timeoutInterval < now)) {
-          const collected = collector(resource);
-          if (collected) {
-            this._collectionMap.delete(resource);
-          }
+        if (type !== resourceType || (time + timeoutInterval >= now)) {
+          continue;
+        }
+        
+        const collected = collector(resource);
+        if (collected) {
+          this._collectionMap.delete(resource);
         }
       }
     }
