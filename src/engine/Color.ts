@@ -340,6 +340,13 @@ export class Color {
   }
 
   /**
+   * Pink (#FFC0CB)
+   */
+  public static get Pink(): Color {
+    return Color.fromHex('#FFC0CB');
+  }
+
+  /**
    * Magenta (#FF00FF)
    */
   public static get Magenta(): Color {
@@ -351,6 +358,13 @@ export class Color {
    */
   public static get Violet(): Color {
     return Color.fromHex('#7F00FF');
+  }
+
+  /**
+   * Purple (#800080)
+   */
+  public static get Purple(): Color {
+    return Color.fromHex('#800080');
   }
 
   /**
@@ -382,6 +396,13 @@ export class Color {
   }
 
   /**
+   * Teal (#008080)
+   */
+  public static get Teal(): Color {
+    return Color.fromHex('#008080');
+  }
+
+  /**
    * Green (#00FF00)
    */
   public static get Green(): Color {
@@ -407,6 +428,13 @@ export class Color {
    */
   public static get ExcaliburBlue(): Color {
     return Color.fromHex('#176BAA');
+  }
+
+  /**
+   * Brown (#964B00)
+   */
+  public static get Brown(): Color {
+    return Color.fromHex('#964B00');
   }
 }
 
