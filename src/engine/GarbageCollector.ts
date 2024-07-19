@@ -11,13 +11,12 @@ export interface GarbageCollectorOptions {
   getTimestamp: () => number;
 }
 
-
 export class GarbageCollector {
   private _collectHandle: number;
   private _running = false;
   private _collectionMap = new Map<any, [type: string, time: number]>();
   private _collectors = new Map<string, [(resource: any) => boolean, interval: number]>();
-  
+
   constructor(public options: GarbageCollectorOptions) {}
 
   /**
@@ -57,7 +56,7 @@ export class GarbageCollector {
     for (const [type, [collector, timeoutInterval]] of this._collectors.entries()) {
       const now = this.options.getTimestamp();
       for (const [resource, [resourceType, time]] of this._collectionMap.entries()) {
-        if (type !== resourceType || (time + timeoutInterval >= now)) {
+        if (type !== resourceType || time + timeoutInterval >= now) {
           continue;
         }
 
