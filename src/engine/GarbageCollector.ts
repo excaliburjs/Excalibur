@@ -8,7 +8,7 @@ export interface GarbageCollectorOptions {
   /**
    * Returns a timestamp in milliseconds representing now
    */
-  nowFn: () => number;
+  getTimestamp: () => number;
 }
 
 

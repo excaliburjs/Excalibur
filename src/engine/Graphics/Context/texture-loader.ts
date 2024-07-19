@@ -11,11 +11,11 @@ import { HTMLImageSource } from './ExcaliburGraphicsContext';
 export class TextureLoader {
   private static _LOGGER = Logger.getInstance();
 
-  constructor(gl: WebGL2RenderingContext, private _gc?: GarbageCollector) {
+  constructor(gl: WebGL2RenderingContext, private _garbageCollector?: GarbageCollector) {
     this._gl = gl;
     TextureLoader._MAX_TEXTURE_SIZE = gl.getParameter(gl.MAX_TEXTURE_SIZE);
     // TODO timeout configurable
-    _gc?.registerCollector('texture', 60_000, this._collect);
+    _garbageCollector?.registerCollector('texture', 60_000, this._collect);
   }
 
   public dispose() {
@@ -81,7 +81,7 @@ export class TextureLoader {
         gl.bindTexture(gl.TEXTURE_2D, tex);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
       }
-      this._gc?.touch(image);
+      this._garbageCollector?.touch(image);
       return tex;
     }
 
@@ -146,7 +146,7 @@ export class TextureLoader {
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 
     this._textureMap.set(image, tex);
-    this._gc?.addCollectableResource('texture', image);
+    this._garbageCollector?.addCollectableResource('texture', image);
     return tex;
   }
 

@@ -89,7 +89,7 @@ export interface WebGLGraphicsContextInfo {
 
 export interface ExcaliburGraphicsContextWebGLOptions extends ExcaliburGraphicsContextOptions {
   context?: WebGL2RenderingContext,
-  gc?: GarbageCollector,
+  garbageCollector?: GarbageCollector,
   handleContextLost?: (e: Event) => void,
   handleContextRestored?: (e: Event) => void
 }
@@ -230,7 +230,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       snapToPixel,
       backgroundColor,
       useDrawSorting,
-      gc,
+      garbageCollector,
       handleContextLost,
       handleContextRestored
     } = options;
@@ -261,7 +261,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       this._isContextLost = false;
     });
 
-    this.textureLoader = new TextureLoader(this.__gl, gc);
+    this.textureLoader = new TextureLoader(this.__gl, garbageCollector);
     this.snapToPixel = snapToPixel ?? this.snapToPixel;
     this.smoothing = antialiasing ?? this.smoothing;
     this.transparency = enableTransparency ?? this.transparency;

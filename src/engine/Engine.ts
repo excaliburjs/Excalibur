@@ -387,7 +387,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
    */
   scope = <TReturn>(cb: () => TReturn) => Engine.Context.scope(this, cb);
 
-  private _gc: GarbageCollector;
+  private _garbageCollector: GarbageCollector;
 
   /**
    * Current Excalibur version string
@@ -816,7 +816,7 @@ O|===|* >________________>\n\
 
     this._logger.debug('Building engine...');
 
-    this._gc = new GarbageCollector({nowFn: Date.now});
+    this._garbageCollector = new GarbageCollector({nowFn: Date.now});
 
 
     this.canvasElementId = options.canvasElementId;
@@ -909,7 +909,7 @@ O|===|* >________________>\n\
           backgroundColor: options.backgroundColor,
           snapToPixel: options.snapToPixel,
           useDrawSorting: options.useDrawSorting,
-          gc: this._gc,
+          garbageCollector: this._garbageCollector,
           handleContextLost: options.handleContextLost ?? this._handleWebGLContextLost,
           handleContextRestored: options.handleContextRestored
         });
@@ -1683,7 +1683,7 @@ O|===|* >________________>\n\
       this._logger.debug('Starting game clock...');
       this.browser.resume();
       this.clock.start();
-      this._gc.start();
+      this._garbageCollector.start();
       this._logger.debug('Game clock started');
 
       await this.load(loader ?? new Loader());
@@ -1758,7 +1758,7 @@ O|===|* >________________>\n\
       this.emit('stop', new GameStopEvent(this));
       this.browser.pause();
       this.clock.stop();
-      this._gc.stop();
+      this._garbageCollector.stop();
       this._logger.debug('Game stopped');
     }
   }
