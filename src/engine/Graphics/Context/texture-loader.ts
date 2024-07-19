@@ -21,7 +21,7 @@ export class TextureLoader {
     this._gl = gl;
     TextureLoader._MAX_TEXTURE_SIZE = gl.getParameter(gl.MAX_TEXTURE_SIZE);
     if (_garbageCollector) {
-      TextureLoader._LOGGER.debug('Texture collection interval:', this._garbageCollector.collectionInterval);
+      TextureLoader._LOGGER.debug('WebGL Texture collection interval:', this._garbageCollector.collectionInterval);
       this._garbageCollector.garbageCollector?.registerCollector('texture', this._garbageCollector.collectionInterval, this._collect);
     }
   }
