@@ -1,3 +1,4 @@
+ex.Logger.getInstance().defaultLevel = ex.LogLevel.Debug;
 var game = new ex.Engine({
   width: 1400,
   height: 1400,
@@ -6,8 +7,6 @@ var game = new ex.Engine({
     textureCollectInterval: 1_000
   }
 });
-
-ex.Logger.getInstance().defaultLevel = ex.LogLevel.Debug;
 
 var actor = new ex.Actor({
   anchor: ex.vec(0.5, 0.5),
