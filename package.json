@@ -143,9 +143,6 @@
     "webpack": "5.91.0",
     "webpack-cli": "5.1.4"
   },
-  "dependencies": {
-    "core-js": "3.37.1"
-  },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,html,json,md,yml,yaml}": "prettier --write",
     "*.{js,jsx,ts,tsx,html}": "eslint --fix"

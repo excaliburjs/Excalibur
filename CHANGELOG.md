@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- Remove core-js dependency, it is no longer necessary in modern browsers. Technically a breaking change for older browsers
 - `ex.Particle` and `ex.ParticleEmitter` now have an API that looks like modern Excalibur APIs
   * `particleSprite` is renamed to `graphic`
   * `particleRotationalVelocity` is renamed to `angularVelocity`
