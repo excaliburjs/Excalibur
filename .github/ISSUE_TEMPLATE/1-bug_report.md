@@ -10,7 +10,7 @@ Hi, this is the Excalibur development team. Please take a moment to read the ins
 Please ask any questions you have in Discussions: https://github.com/excaliburjs/Excalibur/discussions
 
 Please wait to file a Github issue until after you've read through and understand the contributing guidelines. If you're not sure if you should submit an issue, ask your question in the forum linked above.
-https://github.com/excaliburjs/Excalibur/blob/main/.github/CONTRIBUTING.md#reporting-bugs
+https://github.com/excaliburjs/Excalibur/blob/main/CONTRIBUTING.md#reporting-bugs
 -->
 
 <!-- Please follow the format below to make it easier for us to help you -->
