@@ -47,6 +47,25 @@ the engine it will follow this lifecycle:
 
 ![Scene Lifecycle](SceneLifecycle.png)
 
+```mermaid mermaid
+sequenceDiagram
+    loop Every tick Engine.mainloop()
+        
+        alt Update
+            Current Scene ->> ECS World: Update Systems
+        else Draw
+            Current Scene ->> ECS World: Draw Systems
+        end
+
+        ECS World ->> System: Update
+        System ->> ECS World: Entity Query
+        ECS World --) System: Query Changed
+        loop Entity Query 
+           System ->> System: Update
+        end
+    end
+```
+
 For more complex games, you might want more control over a scene in which
 case you can extend [[Scene]]. This is useful for menus, custom loaders,
 and levels.
