@@ -186,6 +186,10 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
 
   private _loadingFuture = new Future<void>();
   public areResourcesLoaded() {
+    if (this._resources.length === 0) {
+      // special case no resources mean loaded;
+      return Promise.resolve();
+    }
     return this._loadingFuture.promise;
   }
 

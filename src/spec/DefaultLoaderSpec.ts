@@ -25,6 +25,12 @@ describe('A DefaultLoader', () => {
     expect(sut).toBeDefined();
   });
 
+  it('is loaded when no resources', async () => {
+    const loader = new ex.DefaultLoader();
+    expect(loader.isLoaded()).toBe(true);
+    await expectAsync(loader.areResourcesLoaded()).toBeResolved();
+  });
+
   it('can be constructed with non-defaults', () => {
     const sut = new ex.DefaultLoader({
       loadables: [new ex.ImageSource('./some/image.png')]
