@@ -110,13 +110,13 @@ describe('A particle', () => {
         beginColor: ex.Color.Red.clone(),
         endColor: ex.Color.Blue.clone(),
         graphic: null,
-        angularVelocity: 3
+        angularVelocity: 3,
+        randomRotation: false
       },
       focus: null,
       focusAccel: null,
       emitterType: ex.EmitterType.Circle,
       radius: 20,
-      randomRotation: false,
       random: new ex.Random(1337)
     });
     engine.backgroundColor = ex.Color.Transparent;
@@ -152,13 +152,13 @@ describe('A particle', () => {
         beginColor: ex.Color.Red.clone(),
         endColor: ex.Color.Blue.clone(),
         graphic: null,
-        angularVelocity: 3
+        angularVelocity: 3,
+        randomRotation: false
       },
       focus: null,
       focusAccel: null,
       emitterType: ex.EmitterType.Circle,
       radius: 20,
-      randomRotation: false,
       random: new ex.Random(1337)
     });
 
@@ -198,7 +198,8 @@ describe('A particle', () => {
         beginColor: ex.Color.Red.clone(),
         endColor: ex.Color.Blue.clone(),
         graphic: null,
-        angularVelocity: 3
+        angularVelocity: 3,
+        randomRotation: false
       },
       pos: new ex.Vector(0, 0),
       width: 20,
@@ -209,7 +210,6 @@ describe('A particle', () => {
       focusAccel: null,
       emitterType: ex.EmitterType.Circle,
       radius: 20,
-      randomRotation: false,
       random: new ex.Random(1337)
     });
     engine.add(emitter);
@@ -235,7 +235,8 @@ describe('A particle', () => {
         beginColor: ex.Color.Red.clone(),
         endColor: ex.Color.Blue.clone(),
         graphic: null,
-        angularVelocity: 3
+        angularVelocity: 3,
+        randomRotation: false
       },
       pos: new ex.Vector(0, 0),
       width: 20,
@@ -246,7 +247,6 @@ describe('A particle', () => {
       focusAccel: null,
       emitterType: ex.EmitterType.Circle,
       radius: 20,
-      randomRotation: false,
       random: new ex.Random(1337)
     });
     engine.add(emitter);
