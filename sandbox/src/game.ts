@@ -64,6 +64,7 @@ var game = new ex.Engine({
     filtering: ex.ImageFiltering.Pixel,
     multiSampleAntialiasing: true
   },
+  garbageCollection: true,
   uvPadding: 0,
   physics: {
     colliders: {
