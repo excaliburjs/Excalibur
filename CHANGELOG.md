@@ -70,6 +70,7 @@ are doing mtv adjustments during precollision.
 
 ### Fixed
 
+- Fixed issue where you were required to provide a transition if you provided a loader in the `ex.Engine.start('scene', { loader })`
 - Fixed issue where `ex.Scene.onPreLoad(loader: ex.DefaultLoader)` would lock up the engine if there was an empty loader
 - Fixed issue where `ex.Scene` scoped input events would preserve state and get stuck causing issues when switching back to the original scene.
 - Fixed issue where not all physical keys from the spec were present in `ex.Keys` including the reported `ex.Keys.Tab`

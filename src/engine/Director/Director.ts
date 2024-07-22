@@ -58,9 +58,9 @@ export type SceneMap<TKnownScenes extends string = any> = Record<TKnownScenes, S
 
 export interface StartOptions {
   /**
-   * First transition from the game start screen
+   * Optionally provide first transition from the game start screen
    */
-  inTransition: Transition;
+  inTransition?: Transition;
   /**
    * Optionally provide a main loader to run before the game starts
    */
@@ -215,7 +215,7 @@ export class Director<TKnownScenes extends string = any> {
 
     let maybeStartTransition: Transition;
 
-    if (options) {
+    if (options?.inTransition) {
       const { inTransition } = options;
       maybeStartTransition = inTransition;
     }
