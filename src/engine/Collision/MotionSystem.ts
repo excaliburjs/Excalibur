@@ -21,10 +21,15 @@ export class MotionSystem extends System {
     this.query = this.world.query([TransformComponent, MotionComponent]);
   }
 
-  update(elapsedMs: number): void {
+  update(elapsedMs: number, substep: number = 1): void {
     let transform: TransformComponent;
     let motion: MotionComponent;
     const entities = this.query.entities;
+    // TODO sub step early exit when configured
+    if (substep === 1) {
+      return;
+    }
+
     for (let i = 0; i < entities.length; i++) {
       transform = entities[i].get(TransformComponent);
       motion = entities[i].get(MotionComponent);
@@ -50,7 +55,7 @@ export class MotionSystem extends System {
       }
 
       // Update transform and motion based on Euler linear algebra
-      EulerIntegrator.integrate(transform, motion, totalAcc, elapsedMs);
+      EulerIntegrator.integrate(transform, motion, totalAcc, elapsedMs / substep);
     }
     this._physicsConfigDirty = false;
   }
