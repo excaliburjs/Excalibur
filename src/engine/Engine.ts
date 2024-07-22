@@ -146,7 +146,7 @@ export interface EngineOptions<TKnownScenes extends string = any> {
   antialiasing?: boolean | AntialiasOptions;
 
   /**
-   * Optionally specify excalibur garbage collection, by default false
+   * Optionally specify excalibur garbage collection, by default true.
    *
    * * `true` - garbage collection defaults are enabled (default)
    *
