@@ -21,14 +21,11 @@ export class MotionSystem extends System {
     this.query = this.world.query([TransformComponent, MotionComponent]);
   }
 
-  update(elapsedMs: number, substep: number = 1): void {
+  update(elapsedMs: number): void {
     let transform: TransformComponent;
     let motion: MotionComponent;
     const entities = this.query.entities;
-    // TODO sub step early exit when configured
-    if (substep === 1) {
-      return;
-    }
+    const substep = this.physics.config.substep;
 
     for (let i = 0; i < entities.length; i++) {
       transform = entities[i].get(TransformComponent);

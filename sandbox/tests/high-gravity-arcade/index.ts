@@ -261,6 +261,7 @@ var game = new ex.Engine({
   displayMode: ex.DisplayMode.Fixed,
   antialiasing: false,
   physics: {
+    substep: 4,
     arcade: {
       contactSolveBias: ex.ContactSolveBias.VerticalFirst
     },

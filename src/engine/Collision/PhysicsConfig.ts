@@ -56,6 +56,13 @@ export interface PhysicsConfig {
   solver?: SolverStrategy;
 
   /**
+   * Configure physics sub-stepping, this can increase simulation fidelity by doing smaller physics steps
+   *
+   * Default is 2 step
+   */
+  substep?: number;
+
+  /**
    * Configure colliders
    */
   colliders?: {
@@ -214,6 +221,7 @@ export const DefaultPhysicsConfig: DeepRequired<PhysicsConfig> = {
   enabled: true,
   gravity: vec(0, 0),
   solver: SolverStrategy.Arcade,
+  substep: 2,
   colliders: {
     compositeStrategy: 'together'
   },
@@ -257,6 +265,7 @@ export function DeprecatedStaticToConfig(): DeepRequired<PhysicsConfig> {
     enabled: Physics.enabled,
     gravity: Physics.gravity,
     solver: Physics.collisionResolutionStrategy,
+    substep: 2,
     continuous: {
       checkForFastBodies: Physics.checkForFastBodies,
       disableMinimumSpeedForFastBody: Physics.disableMinimumSpeedForFastBody,

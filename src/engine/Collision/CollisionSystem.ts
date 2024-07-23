@@ -101,9 +101,6 @@ export class CollisionSystem extends System {
       }
     }
 
-    const substep = 5;
-    this._motionSystem.update(elapsedMs, substep);
-
     // Update the spatial partitioning data structures
     // TODO if collider invalid it will break the processor
     // TODO rename "update" to something more specific
@@ -120,10 +117,11 @@ export class CollisionSystem extends System {
     const solver: CollisionSolver = this.getSolver();
 
     // Solve, this resolves the position/velocity so entities aren't overlapping
-    // TODO sub step
+    const substep = this._physics.config.substep;
     for (let step = 0; step < substep; step++) {
-      if (step !== 0) {
-        this._motionSystem.update(elapsedMs, substep);
+      if (step > 0) {
+        // first step is run by the MotionSystem when configured, so skip
+        this._motionSystem.update(elapsedMs);
       }
       // Re-use pairs from previous collision
       if (contacts.length) {
