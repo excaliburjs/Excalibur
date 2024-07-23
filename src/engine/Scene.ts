@@ -8,9 +8,7 @@ import {
   PreDrawEvent,
   PostDrawEvent,
   PreDebugDrawEvent,
-  PostDebugDrawEvent,
-  AddEvent,
-  RemoveEvent
+  PostDebugDrawEvent
 } from './Events';
 import { Logger } from './Util/Log';
 import { Timer } from './Timer';
@@ -542,10 +540,6 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
       }
       return;
     }
-
-    if (entity instanceof Actor) {
-      this.emit('add', new AddEvent(this.engine, entity));
-    }
   }
 
   /**
@@ -619,17 +613,9 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
       scene = entity.scene;
       entity.scene.removeTimer(entity);
     }
-    if (entity instanceof Actor && entity.scene && entity.scene !== this) {
-      scene = entity.scene;
-      entity.scene.remove(entity);
-      scene.emit('remove', new RemoveEvent(scene.engine, entity));
-    }
-    scene?.emit('entityremoved', { target: entity } as any);
 
+    scene?.emit('entityremoved', { target: entity } as any);
     this.add(entity);
-    if (entity instanceof Actor) {
-      this.emit('add', new AddEvent(this.engine, entity));
-    }
   }
 
   /**
@@ -667,11 +653,6 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
     }
     if (entity instanceof Timer) {
       this.removeTimer(entity);
-    }
-
-    if (entity instanceof Actor) {
-      entity.onRemove(this.engine);
-      this.emit('remove', new RemoveEvent(this.engine, entity));
     }
   }
 

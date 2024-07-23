@@ -32,6 +32,13 @@ export function has_add(a: any): a is _add {
   return !!a.onAdd;
 }
 
+/**
+ *
+ */
+export function has_remove(a: any): a is _remove {
+  return !!a.onRemove;
+}
+
 export interface OnInitialize {
   onInitialize(engine: Engine): void;
 }

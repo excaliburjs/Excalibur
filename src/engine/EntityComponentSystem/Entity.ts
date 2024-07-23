@@ -168,7 +168,6 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
   public kill() {
     if (this.active) {
       this.active = false;
-      this._isAdded = false;
       this.unparent();
     }
     this.emit('kill', new KillEvent(this));
@@ -563,7 +562,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    * @internal
    */
   public _remove(engine: Engine) {
-    if (this.isAdded) {
+    if (this.isAdded && !this.active) {
       this.onRemove(engine);
       this.events.emit('remove', new RemoveEvent(engine, this));
       this._isAdded = false;
@@ -655,6 +654,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
       child.update(engine, delta);
     }
     this._postupdate(engine, delta);
+    this._remove(engine);
   }
 
   public emit<TEventName extends EventKey<EntityEvents>>(eventName: TEventName, event: EntityEvents[TEventName]): void;
