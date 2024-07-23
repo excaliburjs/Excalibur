@@ -58,7 +58,7 @@ export interface PhysicsConfig {
   /**
    * Configure physics sub-stepping, this can increase simulation fidelity by doing smaller physics steps
    *
-   * Default is 2 step
+   * Default is 1 step
    */
   substep?: number;
 
