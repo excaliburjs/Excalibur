@@ -14,6 +14,7 @@ export * from './Colliders/EdgeCollider';
 export * from './Colliders/PolygonCollider';
 export * from './Colliders/CollisionJumpTable';
 export * from './Colliders/ClosestLineJumpTable';
+export * from './Colliders/SeparatingAxis';
 
 export * from './Group/CollisionGroup';
 export * from './Group/CollisionGroupManager';

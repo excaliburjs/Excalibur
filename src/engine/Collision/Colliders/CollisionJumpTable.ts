@@ -277,7 +277,6 @@ export const CollisionJumpTable = {
           points.push(other.transform.apply(p));
         }
       }
-
       let normal = separation.axis;
       let tangent = normal.perpendicular();
       // Point Contact A -> B

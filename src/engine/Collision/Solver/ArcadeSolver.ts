@@ -81,7 +81,7 @@ export class ArcadeSolver implements CollisionSolver {
       const side = Side.fromDirection(contact.mtv);
       const mtv = contact.mtv.negate();
 
-      const distance = contact.colliderA.worldPos.squareDistance(contact.colliderB.worldPos);
+      const distance = Math.abs(contact.info.separation);
       this.distanceMap.set(contact.id, distance);
 
       this.directionMap.set(contact.id, side === Side.Left || side === Side.Right ? 'horizontal' : 'vertical');
