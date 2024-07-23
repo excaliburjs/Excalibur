@@ -619,8 +619,17 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
       scene = entity.scene;
       entity.scene.removeTimer(entity);
     }
+    if (entity instanceof Actor && entity.scene && entity.scene !== this) {
+      scene = entity.scene;
+      entity.scene.remove(entity);
+      scene.emit('remove', new RemoveEvent(scene.engine, entity));
+    }
     scene?.emit('entityremoved', { target: entity } as any);
+
     this.add(entity);
+    if (entity instanceof Actor) {
+      this.emit('add', new AddEvent(this.engine, entity));
+    }
   }
 
   /**
