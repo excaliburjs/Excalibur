@@ -9,7 +9,7 @@ import { Side } from './Collision/Side';
 import { CollisionContact } from './Collision/Detection/CollisionContact';
 import { Collider } from './Collision/Colliders/Collider';
 import { Entity } from './EntityComponentSystem/Entity';
-import { OnInitialize, OnPreUpdate, OnPostUpdate, SceneActivationContext } from './Interfaces/LifecycleEvents';
+import { OnInitialize, OnPreUpdate, OnPostUpdate, SceneActivationContext, OnAdd, OnRemove } from './Interfaces/LifecycleEvents';
 import { BodyComponent } from './Collision/BodyComponent';
 import { ExcaliburGraphicsContext } from './Graphics';
 import { Axes, Buttons, Gamepad } from './Input/Gamepad';
@@ -84,7 +84,10 @@ export enum EventTypes {
   PointerDragMove = 'pointerdragmove',
 
   ActionStart = 'actionstart',
-  ActionComplete = 'actioncomplete'
+  ActionComplete = 'actioncomplete',
+
+  Add = 'add',
+  Remove = 'remove'
 }
 
 /* istanbul ignore next */
@@ -158,6 +161,9 @@ export type pointerdragend = 'pointerdragend';
 export type pointerdragenter = 'pointerdragenter';
 export type pointerdragleave = 'pointerdragleave';
 export type pointerdragmove = 'pointerdragmove';
+
+export type add = 'add';
+export type remove = 'remove';
 
 /**
  * Base event type in Excalibur that all other event types derive from. Not all event types are thrown on all Excalibur game objects,
@@ -702,6 +708,30 @@ export class ActionCompleteEvent extends GameEvent<Entity> {
   constructor(
     public action: Action,
     public target: Entity
+  ) {
+    super();
+  }
+}
+
+/**
+ * Event thrown on an [[Actor]] when an Actor added to scene.
+ */
+export class AddEvent<T extends OnAdd> extends GameEvent<T> {
+  constructor(
+    public engine: Engine,
+    public target: T
+  ) {
+    super();
+  }
+}
+
+/**
+ * Event thrown on an [[Actor]] when an Actor removed from scene.
+ */
+export class RemoveEvent<T extends OnRemove> extends GameEvent<T> {
+  constructor(
+    public engine: Engine,
+    public target: T
   ) {
     super();
   }

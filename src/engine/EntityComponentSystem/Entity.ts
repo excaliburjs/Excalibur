@@ -1,9 +1,9 @@
 import { Component, ComponentCtor, isComponentCtor } from './Component';
 
 import { Observable, Message } from '../Util/Observable';
-import { OnInitialize, OnPreUpdate, OnPostUpdate } from '../Interfaces/LifecycleEvents';
+import { OnInitialize, OnPreUpdate, OnPostUpdate, OnAdd, OnRemove } from '../Interfaces/LifecycleEvents';
 import { Engine } from '../Engine';
-import { InitializeEvent, PreUpdateEvent, PostUpdateEvent } from '../Events';
+import { InitializeEvent, PreUpdateEvent, PostUpdateEvent, AddEvent, RemoveEvent } from '../Events';
 import { KillEvent } from '../Events';
 import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
 import { Scene } from '../Scene';
@@ -82,7 +82,7 @@ export interface EntityOptions<TComponents extends Component> {
  * entity.components.b; // Type ComponentB
  * ```
  */
-export class Entity<TKnownComponents extends Component = any> implements OnInitialize, OnPreUpdate, OnPostUpdate {
+export class Entity<TKnownComponents extends Component = any> implements OnInitialize, OnPreUpdate, OnPostUpdate, OnAdd, OnRemove {
   private static _ID = 0;
   /**
    * The unique identifier for the entity
@@ -531,6 +531,28 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
   }
 
   /**
+   * Adds this Actor, meant to be called by the Scene when Actor is added.
+   *
+   * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
+   * @internal
+   */
+  public _add(engine: Engine) {
+    this.onAdd(engine);
+    this.events.emit('add', new AddEvent(engine, this));
+  }
+
+  /**
+   * Removes Actor, meant to be called by the Scene when Actor is added.
+   *
+   * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
+   * @internal
+   */
+  public _remove(engine: Engine) {
+    this.onRemove(engine);
+    this.events.emit('remove', new RemoveEvent(engine, this));
+  }
+
+  /**
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * Internal _preupdate handler for [[onPreUpdate]] lifecycle event
@@ -559,6 +581,26 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    * Synonymous with the event handler `.on('initialize', (evt) => {...})`
    */
   public onInitialize(engine: Engine): void {
+    // Override me
+  }
+
+  /**
+   * `onAdd` is called when Actor is added to scene. This method is meant to be
+   * overridden.
+   *
+   * Synonymous with the event handler `.on('add', (evt) => {...})`
+   */
+  public onAdd(engine: Engine): void {
+    // Override me
+  }
+
+  /**
+   * `onRemove` is called when Actor is added to scene. This method is meant to be
+   * overridden.
+   *
+   * Synonymous with the event handler `.on('remove', (evt) => {...})`
+   */
+  public onRemove(engine: Engine): void {
     // Override me
   }
 

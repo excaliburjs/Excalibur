@@ -7,6 +7,14 @@ import { ExcaliburGraphicsContext } from '../Graphics';
 export interface _initialize {
   _initialize(engine: Engine): void;
 }
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export interface _add {
+  onAdd(scene: Scene): void;
+}
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export interface _remove {
+  onRemove(engine: Engine): void;
+}
 
 /**
  * Type guard checking for internal initialize method
@@ -15,6 +23,13 @@ export interface _initialize {
  */
 export function has_initialize(a: any): a is _initialize {
   return !!a._initialize;
+}
+
+/**
+ *
+ */
+export function has_add(a: any): a is _add {
+  return !!a.onAdd;
 }
 
 export interface OnInitialize {
@@ -86,6 +101,44 @@ export interface CanInitialize {
   on(eventName: Events.initialize, handler: (event: Events.InitializeEvent<any>) => void): void;
   once(eventName: Events.initialize, handler: (event: Events.InitializeEvent<any>) => void): void;
   off(eventName: Events.initialize, handler?: (event: Events.InitializeEvent<any>) => void): void;
+}
+
+export interface OnAdd {
+  onAdd(engine: Engine): void;
+}
+
+/**
+ *
+ */
+export function hasOnAdd(a: any): a is OnAdd {
+  return !!a.onAdd;
+}
+
+export interface CanAdd {
+  onAdd(engine: Engine): void;
+
+  on(eventName: Events.add, handler: (event: Events.AddEvent<any>) => void): void;
+  once(eventName: Events.add, handler: (event: Events.AddEvent<any>) => void): void;
+  off(eventName: Events.add, handler?: (event: Events.AddEvent<any>) => void): void;
+}
+
+export interface OnRemove {
+  onRemove(engine: Engine): void;
+}
+
+/**
+ *
+ */
+export function hasOnRemove(a: any): a is OnRemove {
+  return !!a.onRemove;
+}
+
+export interface CanRemove {
+  onRemove(engine: Engine): void;
+
+  on(eventName: Events.remove, handler: (event: Events.RemoveEvent<any>) => void): void;
+  once(eventName: Events.remove, handler: (event: Events.RemoveEvent<any>) => void): void;
+  off(eventName: Events.remove, handler?: (event: Events.RemoveEvent<any>) => void): void;
 }
 
 export interface SceneActivationContext<TData = undefined> {
