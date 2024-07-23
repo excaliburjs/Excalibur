@@ -457,7 +457,7 @@ export class HiddenEvent extends GameEvent<Engine> {
 }
 
 /**
- * Event thrown on an [[Actor|actor]] when a collision will occur this frame if it resolves
+ * Event thrown on an {@apilink Actor | `actor`} when a collision will occur this frame if it resolves
  */
 export class PreCollisionEvent<T extends BodyComponent | Collider | Entity = Actor> extends GameEvent<T> {
   /**
@@ -479,7 +479,7 @@ export class PreCollisionEvent<T extends BodyComponent | Collider | Entity = Act
 }
 
 /**
- * Event thrown on an [[Actor|actor]] when a collision has been resolved (body reacted) this frame
+ * Event thrown on an {@apilink Actor | `actor`} when a collision has been resolved (body reacted) this frame
  */
 export class PostCollisionEvent<T extends Collider | Entity = Actor> extends GameEvent<T> {
   /**
@@ -547,7 +547,7 @@ export class CollisionPostSolveEvent<T> {
 }
 
 /**
- * Event thrown the first time an [[Actor|actor]] collides with another, after an actor is in contact normal collision events are fired.
+ * Event thrown the first time an {@apilink Actor | `actor`} collides with another, after an actor is in contact normal collision events are fired.
  */
 export class CollisionStartEvent<T extends BodyComponent | Collider | Entity = Actor> extends GameEvent<T> {
   /**
@@ -577,7 +577,7 @@ export class CollisionStartEvent<T extends BodyComponent | Collider | Entity = A
 }
 
 /**
- * Event thrown when the [[Actor|actor]] is no longer colliding with another
+ * Event thrown when the {@apilink Actor | `actor`} is no longer colliding with another
  */
 export class CollisionEndEvent<T extends BodyComponent | Collider | Entity = Actor> extends GameEvent<T> {
   /**

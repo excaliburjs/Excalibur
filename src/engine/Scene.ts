@@ -79,7 +79,7 @@ export function isSceneConstructor(x: any): x is SceneConstructor {
 }
 
 /**
- * [[Actor|Actors]] are composed together into groupings called Scenes in
+ * {@apilink Actor | `Actors`} are composed together into groupings called Scenes in
  * Excalibur. The metaphor models the same idea behind real world
  * actors in a scene. Only actors in scenes will be updated and drawn.
  *

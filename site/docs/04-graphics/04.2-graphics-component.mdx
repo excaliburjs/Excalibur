@@ -10,13 +10,13 @@ The `ex.GraphicsComponent` allows users to manage graphics with Actors and Entit
 
 ## How to use the Graphics Component
 
-1. Graphics using [[ImageSource|images]] (and any [[Resource]]) must be [loaded](assets) before use
-2. Graphics like [[Sprite|Sprites]] are like a window into an [[ImageSource|image]]
+1. Graphics using {@apilink ImageSource | `images`} (and any [[Resource]]) must be [loaded](assets) before use
+2. Graphics like {@apilink Sprite | `Sprites`} are like a window into an {@apilink ImageSource | `image`}
 3. Graphics like [[Canvas]] produce internal bitmap's which are large in memory and should be used sparingly or cached
 4. Graphics can be added to the [[GraphicsComponent]] on an [[Actor]] or [[Entity]]
 5. Direct access to the [[ExcaliburGraphicsContext]]
 
-For most games, you will be using the graphics component off of [[Actor|Actors]] or plain [[Entity|Entities]].
+For most games, you will be using the graphics component off of {@apilink Actor | `Actors`} or plain {@apilink Entity | `Entities`}.
 
 ```typescript
 const image = new ex.ImageSource('./path/to/my/image.png')
@@ -90,7 +90,7 @@ Sometimes you want to draw multiple pieces of graphics at once! There are two re
 
 #### GraphicsGroup
 
-[[GraphicsGroup|Graphics groups]] allow you to compose multiple graphics together into 1. This can be useful if you have multi layered or complex graphics requirements. One limitation however is you can only influence the relative offset from you Actor.
+{@apilink GraphicsGroup | `Graphics groups`} allow you to compose multiple graphics together into 1. This can be useful if you have multi layered or complex graphics requirements. One limitation however is you can only influence the relative offset from you Actor.
 
 ```typescript
 const healthBarActor = new ex.Actor({...})

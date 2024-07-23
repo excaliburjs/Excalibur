@@ -14,7 +14,7 @@ that your game can subscribe to and handle.
 
 ## The Primary Pointer
 
-There is always at least one [[PointerAbstraction|Pointer]] available ([[Input.PointerEventReceiver.primary|engine.input.pointers.primary]]) and
+There is always at least one {@apilink PointerAbstraction | `Pointer`} available ([[Input.PointerEventReceiver.primary|engine.input.pointers.primary]]) and
 you can request multiple pointers to support multi-touch scenarios.
 
 ```ts twoslash
@@ -171,7 +171,7 @@ However, `PointerScope.Document` will handle all pointer events in the browser w
 
 ## Handling Pointer Events on Actors
 
-[[Actor|Actors]] can handle pointer events targeted to them. By default, the collision geometry is used to test whether the pointer is
+{@apilink Actor | `Actors`} can handle pointer events targeted to them. By default, the collision geometry is used to test whether the pointer is
 in or out of the actor. 
 
 In the example below the actor has default box geometry of 100x100:

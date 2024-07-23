@@ -10,9 +10,9 @@ Excalibur supports building tile based games, often referred to as "TileMaps." E
 
 ## Tilemap
 
-[[TileMap|Tilemaps]] consist of a uniform grid of cells that can be solid or not. Each cell can have it's own graphics.
+{@apilink TileMap | `Tilemaps`} consist of a uniform grid of cells that can be solid or not. Each cell can have it's own graphics.
 
-Tile maps are made up of [[Tile|Tiles]] which can draw [[Graphic|Graphics]]. Tile
+Tile maps are made up of {@apilink Tile | `Tiles`} which can draw {@apilink Graphic | `Graphics`}. Tile
 maps support multiple layers of Graphics and work well for building tile-based games such as RPGs,
 adventure games, strategy games, and others. Tiles can be [[Tile.solid|solid]] so
 that Actors can't pass through them.
@@ -62,7 +62,7 @@ for (let tile of tilemap.tiles) {
 Excalibur has a Tiled map plugin https://github.com/excaliburjs/excalibur-tiled/ for loading `.tmx` maps.
 
 We recommend using the [Tiled map editor](http://www.mapeditor.org/) to build your maps
-and export them to JSON. You can then load them using a [[Resource|Generic Resource]]
+and export them to JSON. You can then load them using a {@apilink Resource | `Generic Resource`}
 and process them to create your levels. A [[TileMap]] can then be used as part of a
 level or map class that adds enemies and builds game objects from the Tiled map.
 

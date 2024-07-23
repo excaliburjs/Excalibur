@@ -54,7 +54,7 @@ Excalibur can automatically generate a `<canvas>` element for you or you can pro
 ## The main loop
 
 The Excalibur engine uses a simple main loop. The engine updates and renders
-the "scene graph" which is the [[Scene|scenes]] and the tree of [[Actor|actors]] within that
+the "scene graph" which is the {@apilink Scene | `scenes`} and the tree of {@apilink Actor | `actors`} within that
 scene. Only one [[Scene]] can be active at a time. The engine does not update/draw any other
 scene, which means any actors will not be updated/drawn if they are part of a deactivated scene.
 
@@ -185,7 +185,7 @@ actor.assign({
 
 ## Extending the engine
 
-For complex games, this is recommended for [[Actor|actors]] and [[Scene|scenes]], especially.
+For complex games, this is recommended for {@apilink Actor | `actors`} and {@apilink Scene | `scenes`}, especially.
 You can customize the options or provide more for your game by extending [[Engine]].
 
 ```ts

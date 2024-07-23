@@ -28,7 +28,7 @@ export enum Integrator {
 export class Physics {
   /**
    * Global acceleration that is applied to all vanilla actors that have a [[CollisionType.Active|active]] collision type.
-   * Global acceleration won't effect [[Label|labels]], [[ScreenElement|ui actors]], or [[Trigger|triggers]] in Excalibur.
+   * Global acceleration won't effect {@apilink Label | `labels`}, {@apilink ScreenElement | `ui actors`}, or {@apilink Trigger | `triggers`} in Excalibur.
    *
    * This is a great way to globally simulate effects like gravity.
    * @deprecated Use engine args to configure Physics `new ex.Engine({physics: {...}})`, will be removed in v0.30

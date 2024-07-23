@@ -140,7 +140,7 @@ export interface FromSpriteSheetOptions {
 }
 
 /**
- * Create an Animation given a list of [[Frame|frames]] in [[AnimationOptions]]
+ * Create an Animation given a list of {@apilink Frame | `frames`} in [[AnimationOptions]]
  *
  * To create an Animation from a [[SpriteSheet]], use [[Animation.fromSpriteSheet]]
  */

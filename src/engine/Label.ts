@@ -80,7 +80,7 @@ export class Label extends Actor {
 
   private _spriteFont: SpriteFont;
   /**
-   * The [[SpriteFont]] to use, if any. Overrides [[Font|font]] if present.
+   * The [[SpriteFont]] to use, if any. Overrides {@apilink Font | `font`} if present.
    */
   public get spriteFont(): SpriteFont {
     return this._spriteFont;

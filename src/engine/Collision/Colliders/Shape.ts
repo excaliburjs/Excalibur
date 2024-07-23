@@ -25,7 +25,7 @@ export class Shape {
   }
 
   /**
-   * Creates a new [[PolygonCollider|arbitrary polygon]] collider
+   * Creates a new {@apilink PolygonCollider | `arbitrary polygon`} collider
    *
    * PolygonColliders are useful for creating convex polygon shapes
    * @param points Points specified in counter clockwise
@@ -40,7 +40,7 @@ export class Shape {
   }
 
   /**
-   * Creates a new [[CircleCollider|circle]] collider
+   * Creates a new {@apilink CircleCollider | `circle`} collider
    *
    * Circle colliders are useful for balls, or to make collisions more forgiving on sharp edges
    * @param radius Radius of the circle collider
@@ -54,7 +54,7 @@ export class Shape {
   }
 
   /**
-   * Creates a new [[EdgeCollider|edge]] collider
+   * Creates a new {@apilink EdgeCollider | `edge`} collider
    *
    * Edge colliders are useful for  floors, walls, and other barriers
    * @param begin Beginning of the edge in local coordinates to the collider

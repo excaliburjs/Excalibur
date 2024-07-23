@@ -291,7 +291,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * Useful for quickly scripting actor behavior, like moving to a place, patrolling back and forth, blinking, etc.
    *
    *  Access to the Actor's built in [[ActionsComponent]] which forwards to the
-   * [[ActionContext|Action context]] of the actor.
+   * {@apilink ActionContext | `Action context`} of the actor.
    */
   public actions: ActionsComponent;
 

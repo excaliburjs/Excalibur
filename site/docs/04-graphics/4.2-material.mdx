@@ -68,11 +68,11 @@ Check out [this great post](https://www.realtimerendering.com/blog/gpus-prefer-p
 
 :::
 
-Once a [[Material|material]] is created it can be added/removed from the [[Actor|actor's]] [[GraphicsComponent|graphics component]] by accessing the [[GraphicsComponent.material]] property.
+Once a {@apilink Material | `material`} is created it can be added/removed from the [[Actor|actor's]] {@apilink GraphicsComponent | `graphics component`} by accessing the [[GraphicsComponent.material]] property.
 
 ## Passing parameters to Materials
 
-To pass data to [[Material|materials]] we use a concept called "uniforms", you can think of these as global variables that are the same for each pixel during a draw.
+To pass data to {@apilink Material | `materials`} we use a concept called "uniforms", you can think of these as global variables that are the same for each pixel during a draw.
 
 To update a materials uniform we recommend using [[Material.update]], this will automatically set up the shader context for you so it is ready for you to use. You get passed the excalibur [[Shader]] instance and you can set uniforms from there! There are a number of `trySet*` prefixed methods we recommend you use, these methods will attempt to set a uniform if it exists.
 
@@ -164,7 +164,7 @@ Materials come with a lot of built in uniforms you can use!
 
 ## Outline Material Example
 
-One common use case for materials is to apply an effect to your [[Actor|actors]], a not uncommon ask is to create an outline. This can be useful for selections, attacks, etc.
+One common use case for materials is to apply an effect to your {@apilink Actor | `actors`}, a not uncommon ask is to create an outline. This can be useful for selections, attacks, etc.
 
 Here is the shader code for a rainbow outline. Change `outlineColorHSL` to a constant if you don't want a rainbow effect 🌈
 
