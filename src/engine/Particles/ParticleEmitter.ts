@@ -9,21 +9,18 @@ import { Particle, ParticleTransform, ParticleEmitterArgs, ParticleConfig } from
 import { RentalPool } from '../Util/RentalPool';
 
 /**
- * Used internally by Excalibur to manage all particles in the engine
- */
-export const ParticlePool = new RentalPool(
-  () => new Particle({}),
-  (p) => p,
-  2000
-);
-
-/**
  * Using a particle emitter is a great way to create interesting effects
  * in your game, like smoke, fire, water, explosions, etc. `ParticleEmitter`
  * extend [[Actor]] allowing you to use all of the features that come with.
  */
 export class ParticleEmitter extends Actor {
   private _particlesToEmit: number = 0;
+
+  private _particlePool = new RentalPool(
+    () => new Particle({}),
+    (p) => p,
+    500
+  );
 
   public numParticles: number = 0;
 
@@ -134,7 +131,7 @@ export class ParticleEmitter extends Actor {
       ranY = radius * Math.sin(angle);
     }
 
-    const p = ParticlePool.rent();
+    const p = this._particlePool.rent();
     p.configure({
       life: this.particle.life,
       opacity: this.particle.opacity,
@@ -176,7 +173,7 @@ export class ParticleEmitter extends Actor {
     for (let i = 0; i < this.deadParticles.length; i++) {
       if (this?.scene?.world) {
         this.scene.world.remove(this.deadParticles[i], false);
-        ParticlePool.return(this.deadParticles[i]);
+        this._particlePool.return(this.deadParticles[i]);
       }
     }
     this.deadParticles.length = 0;

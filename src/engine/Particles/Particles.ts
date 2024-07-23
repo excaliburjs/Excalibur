@@ -60,8 +60,10 @@ export class Particle extends Entity {
   public graphics: GraphicsComponent;
   public particleTransform = ParticleTransform.Global;
 
+  public name = `Particle#${this.id}`;
+
   constructor(options: ParticleConfig) {
-    super();
+    super({ silenceWarnings: true });
     this.addComponent((this.transform = new TransformComponent()));
     this.addComponent((this.motion = new MotionComponent()));
     this.addComponent((this.graphics = new GraphicsComponent()));
