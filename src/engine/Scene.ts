@@ -670,6 +670,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
     }
 
     if (entity instanceof Actor) {
+      entity.onRemove(this.engine);
       this.emit('remove', new RemoveEvent(this.engine, entity));
     }
   }

@@ -54,12 +54,18 @@ export function isRemovedComponent(x: Message<EntityComponent>): x is RemovedCom
  */
 export type EntityEvents = {
   initialize: InitializeEvent;
+  //@ts-ignore
+  add: AddEvent;
+  //@ts-ignore
+  remove: RemoveEvent;
   preupdate: PreUpdateEvent;
   postupdate: PostUpdateEvent;
   kill: KillEvent;
 };
 
 export const EntityEvents = {
+  Add: 'add',
+  Remove: 'remove',
   Initialize: 'initialize',
   PreUpdate: 'preupdate',
   PostUpdate: 'postupdate',
@@ -162,6 +168,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
   public kill() {
     if (this.active) {
       this.active = false;
+      this._isAdded = false;
       this.unparent();
     }
     this.emit('kill', new KillEvent(this));
@@ -508,12 +515,17 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
   }
 
   private _isInitialized = false;
+  private _isAdded = false;
 
   /**
    * Gets whether the actor is Initialized
    */
   public get isInitialized(): boolean {
     return this._isInitialized;
+  }
+
+  public get isAdded(): boolean {
+    return this._isAdded;
   }
 
   /**
@@ -537,8 +549,11 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    * @internal
    */
   public _add(engine: Engine) {
-    this.onAdd(engine);
-    this.events.emit('add', new AddEvent(engine, this));
+    if (!this.isAdded && this.active) {
+      this.onAdd(engine);
+      this.events.emit('add', new AddEvent(engine, this));
+      this._isAdded = true;
+    }
   }
 
   /**
@@ -548,8 +563,11 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    * @internal
    */
   public _remove(engine: Engine) {
-    this.onRemove(engine);
-    this.events.emit('remove', new RemoveEvent(engine, this));
+    if (this.isAdded) {
+      this.onRemove(engine);
+      this.events.emit('remove', new RemoveEvent(engine, this));
+      this._isAdded = false;
+    }
   }
 
   /**
@@ -631,6 +649,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    */
   public update(engine: Engine, delta: number): void {
     this._initialize(engine);
+    this._add(engine);
     this._preupdate(engine, delta);
     for (const child of this.children) {
       child.update(engine, delta);
