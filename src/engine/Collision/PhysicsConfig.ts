@@ -221,7 +221,7 @@ export const DefaultPhysicsConfig: DeepRequired<PhysicsConfig> = {
   enabled: true,
   gravity: vec(0, 0),
   solver: SolverStrategy.Arcade,
-  substep: 2,
+  substep: 1,
   colliders: {
     compositeStrategy: 'together'
   },
@@ -265,7 +265,7 @@ export function DeprecatedStaticToConfig(): DeepRequired<PhysicsConfig> {
     enabled: Physics.enabled,
     gravity: Physics.gravity,
     solver: Physics.collisionResolutionStrategy,
-    substep: 2,
+    substep: 1,
     continuous: {
       checkForFastBodies: Physics.checkForFastBodies,
       disableMinimumSpeedForFastBody: Physics.disableMinimumSpeedForFastBody,
