@@ -181,6 +181,25 @@ describe('Collision Shape', () => {
       expect(point.y).toBe(0);
     });
 
+    it('can be raycast at a tangent', () => {
+      const circle = new ex.CircleCollider({
+        offset: ex.vec(10, -5),
+        radius: 5
+      });
+      const ray = new ex.Ray(new ex.Vector(0, 0), ex.Vector.Right.clone());
+      const ray2 = new ex.Ray(new ex.Vector(5, 0), ex.Vector.Up.clone());
+
+      const hit = circle.rayCast(ray);
+
+      expect(hit.point.x).toBe(10);
+      expect(hit.point.y).toBe(0);
+
+      const hit2 = circle.rayCast(ray2);
+
+      expect(hit2.point.x).toBe(5);
+      expect(hit2.point.y).toBe(-5);
+    });
+
     it("doesn't have axes", () => {
       // technically circles have infinite axes
       expect(circle.axes).toEqual([]);
