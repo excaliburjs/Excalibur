@@ -203,14 +203,12 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
                   results.push(hit);
                   if (!searchAllColliders) {
                     done = true;
-                    break;
                   }
                 }
               } else {
                 results.push(hit);
                 if (!searchAllColliders) {
                   done = true;
-                  break;
                 }
               }
             }
@@ -227,6 +225,11 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
       }
     }
 
+    // Sort by distance
+    results.sort((hit1, hit2) => hit1.distance - hit2.distance);
+    if (!searchAllColliders && results.length) {
+      return [results[0]];
+    }
     return results;
   }
 

@@ -70,6 +70,7 @@ are doing mtv adjustments during precollision.
 
 ### Fixed
 
+- Fixed issue where rayCasts would return inconsistent orderings with the `ex.SparseHashGridCollisionProcessor` strategy
 - Fixed issue where CircleCollider tangent raycast did not work correctly
 - Fixed issue where you were required to provide a transition if you provided a loader in the `ex.Engine.start('scene', { loader })`
 - Fixed issue where `ex.Scene.onPreLoad(loader: ex.DefaultLoader)` would lock up the engine if there was an empty loader
