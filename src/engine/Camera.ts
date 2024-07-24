@@ -461,7 +461,7 @@ export class Camera implements CanUpdate, CanInitialize {
    * This moves the camera focal point to the specified position using specified easing function. Cannot move when following an Actor.
    * @param pos The target position to move to
    * @param duration The duration in milliseconds the move should last
-   * @param [easingFn] An optional easing function ({@apilink ex.EasingFunctions.EaseInOutCubic} by default)
+   * @param [easingFn] An optional easing function ({@apilink EasingFunctions.EaseInOutCubic} by default)
    * @returns A {@apilink Promise} that resolves when movement is finished, including if it's interrupted.
    *          The {@apilink Promise} value is the {@apilink Vector} of the target position. It will be rejected if a move cannot be made.
    */
