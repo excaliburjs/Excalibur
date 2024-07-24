@@ -16,7 +16,7 @@ export interface ContactBias {
 }
 
 /**
- * Vertical First contact solve bias Used by the [[ArcadeSolver]] to sort contacts
+ * Vertical First contact solve bias Used by the {@apilink ArcadeSolver} to sort contacts
  */
 export const VerticalFirst: ContactBias = {
   vertical: 1,
@@ -24,7 +24,7 @@ export const VerticalFirst: ContactBias = {
 } as const;
 
 /**
- * Horizontal First contact solve bias Used by the [[ArcadeSolver]] to sort contacts
+ * Horizontal First contact solve bias Used by the {@apilink ArcadeSolver} to sort contacts
  */
 export const HorizontalFirst: ContactBias = {
   horizontal: 1,
@@ -32,7 +32,7 @@ export const HorizontalFirst: ContactBias = {
 } as const;
 
 /**
- * None value, [[ArcadeSolver]] sorts contacts using distance by default
+ * None value, {@apilink ArcadeSolver} sorts contacts using distance by default
  */
 export const None: ContactBias = {
   horizontal: 0,

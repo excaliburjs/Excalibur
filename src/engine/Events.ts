@@ -379,7 +379,7 @@ export class PostFrameEvent extends GameEvent<Engine> {
 }
 
 /**
- * Event received when a gamepad is connected to Excalibur. [[Gamepads]] receives this event.
+ * Event received when a gamepad is connected to Excalibur. {@apilink Gamepads} receives this event.
  */
 export class GamepadConnectEvent extends GameEvent<Gamepad> {
   constructor(
@@ -392,7 +392,7 @@ export class GamepadConnectEvent extends GameEvent<Gamepad> {
 }
 
 /**
- * Event received when a gamepad is disconnected from Excalibur. [[Gamepads]] receives this event.
+ * Event received when a gamepad is disconnected from Excalibur. {@apilink Gamepads} receives this event.
  */
 export class GamepadDisconnectEvent extends GameEvent<Gamepad> {
   constructor(
@@ -405,7 +405,7 @@ export class GamepadDisconnectEvent extends GameEvent<Gamepad> {
 }
 
 /**
- * Gamepad button event. See [[Gamepads]] for information on responding to controller input. [[Gamepad]] instances receive this event;
+ * Gamepad button event. See {@apilink Gamepads} for information on responding to controller input. {@apilink Gamepad} instances receive this event;
  */
 export class GamepadButtonEvent extends GameEvent<Gamepad> {
   /**
@@ -422,7 +422,7 @@ export class GamepadButtonEvent extends GameEvent<Gamepad> {
 }
 
 /**
- * Gamepad axis event. See [[Gamepads]] for information on responding to controller input. [[Gamepad]] instances receive this event;
+ * Gamepad axis event. See {@apilink Gamepads} for information on responding to controller input. {@apilink Gamepad} instances receive this event;
  */
 export class GamepadAxisEvent extends GameEvent<Gamepad> {
   /**
@@ -439,7 +439,7 @@ export class GamepadAxisEvent extends GameEvent<Gamepad> {
 }
 
 /**
- * Event received by the [[Engine]] when the browser window is visible on a screen.
+ * Event received by the {@apilink Engine} when the browser window is visible on a screen.
  */
 export class VisibleEvent extends GameEvent<Engine> {
   constructor(public target: Engine) {
@@ -448,7 +448,7 @@ export class VisibleEvent extends GameEvent<Engine> {
 }
 
 /**
- * Event received by the [[Engine]] when the browser window is hidden from all screens.
+ * Event received by the {@apilink Engine} when the browser window is hidden from all screens.
  */
 export class HiddenEvent extends GameEvent<Engine> {
   constructor(public target: Engine) {
@@ -603,7 +603,7 @@ export class CollisionEndEvent<T extends BodyComponent | Collider | Entity = Act
 }
 
 /**
- * Event thrown on an [[Actor]], [[Scene]], and [[Engine]] only once before the first update call
+ * Event thrown on an {@apilink Actor}, {@apilink Scene}, and {@apilink Engine} only once before the first update call
  */
 export class InitializeEvent<T extends OnInitialize = Entity> extends GameEvent<T> {
   /**
@@ -618,7 +618,7 @@ export class InitializeEvent<T extends OnInitialize = Entity> extends GameEvent<
 }
 
 /**
- * Event thrown on a [[Scene]] on activation
+ * Event thrown on a {@apilink Scene} on activation
  */
 export class ActivateEvent<TData = undefined> extends GameEvent<Scene> {
   /**
@@ -633,7 +633,7 @@ export class ActivateEvent<TData = undefined> extends GameEvent<Scene> {
 }
 
 /**
- * Event thrown on a [[Scene]] on deactivation
+ * Event thrown on a {@apilink Scene} on deactivation
  */
 export class DeactivateEvent extends GameEvent<Scene> {
   /**
@@ -648,7 +648,7 @@ export class DeactivateEvent extends GameEvent<Scene> {
 }
 
 /**
- * Event thrown on an [[Actor]] when the graphics bounds completely leaves the screen.
+ * Event thrown on an {@apilink Actor} when the graphics bounds completely leaves the screen.
  */
 export class ExitViewPortEvent extends GameEvent<Entity> {
   constructor(public target: Entity) {
@@ -657,7 +657,7 @@ export class ExitViewPortEvent extends GameEvent<Entity> {
 }
 
 /**
- * Event thrown on an [[Actor]] when any part of the graphics bounds are on screen.
+ * Event thrown on an {@apilink Actor} when any part of the graphics bounds are on screen.
  */
 export class EnterViewPortEvent extends GameEvent<Entity> {
   constructor(public target: Entity) {
@@ -684,7 +684,7 @@ export class ExitTriggerEvent extends GameEvent<Actor> {
 }
 
 /**
- * Event thrown on an [[Actor]] when an action starts.
+ * Event thrown on an {@apilink Actor} when an action starts.
  */
 export class ActionStartEvent extends GameEvent<Entity> {
   constructor(
@@ -696,7 +696,7 @@ export class ActionStartEvent extends GameEvent<Entity> {
 }
 
 /**
- * Event thrown on an [[Actor]] when an action completes.
+ * Event thrown on an {@apilink Actor} when an action completes.
  */
 export class ActionCompleteEvent extends GameEvent<Entity> {
   constructor(

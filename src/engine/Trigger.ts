@@ -53,7 +53,7 @@ const triggerDefaults: Partial<TriggerOptions> = {
 /**
  * Triggers are a method of firing arbitrary code on collision. These are useful
  * as 'buttons', 'switches', or to trigger effects in a game. By default triggers
- * are invisible, and can only be seen when [[Trigger.visible]] is set to `true`.
+ * are invisible, and can only be seen when {@apilink Trigger.visible} is set to `true`.
  */
 export class Trigger extends Actor {
   public events = new EventEmitter<TriggerEvents & ActorEvents>();

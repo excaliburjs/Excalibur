@@ -4,7 +4,7 @@ import { SolverStrategy } from './SolverStrategy';
 /**
  * Possible broadphase collision pair identification strategies
  *
- * The default strategy is [[BroadphaseStrategy.DynamicAABBTree]] which uses a binary tree of axis-aligned bounding boxes to identify
+ * The default strategy is {@apilink BroadphaseStrategy.DynamicAABBTree} which uses a binary tree of axis-aligned bounding boxes to identify
  * potential collision pairs which is O(nlog(n)) faster.
  * @deprecated Unused in Excalibur, will be removed in v0.30
  */
@@ -21,13 +21,13 @@ export enum Integrator {
 }
 
 /**
- * The [[Physics]] object is the global configuration object for all Excalibur physics.
+ * The {@apilink Physics} object is the global configuration object for all Excalibur physics.
  * @deprecated Use engine args to configure Physics `new ex.Engine({physics: {...}})`, will be removed in v0.30
  */
 /* istanbul ignore next */
 export class Physics {
   /**
-   * Global acceleration that is applied to all vanilla actors that have a [[CollisionType.Active|active]] collision type.
+   * Global acceleration that is applied to all vanilla actors that have a {@apilink CollisionType.Active | `active`} collision type.
    * Global acceleration won't effect {@apilink Label | `labels`}, {@apilink ScreenElement | `ui actors`}, or {@apilink Trigger | `triggers`} in Excalibur.
    *
    * This is a great way to globally simulate effects like gravity.
@@ -53,7 +53,7 @@ export class Physics {
   /**
    * Gets or sets the broadphase pair identification strategy.
    *
-   * The default strategy is [[BroadphaseStrategy.DynamicAABBTree]] which uses a binary tree of axis-aligned bounding boxes to identify
+   * The default strategy is {@apilink BroadphaseStrategy.DynamicAABBTree} which uses a binary tree of axis-aligned bounding boxes to identify
    * potential collision pairs which is O(nlog(n)) faster.
    * @deprecated Use engine args to configure Physics `new ex.Engine({physics: {...}})`, will be removed in v0.30
    */
@@ -62,9 +62,9 @@ export class Physics {
   /**
    * Gets or sets the global collision resolution strategy (narrowphase).
    *
-   * The default is [[SolverStrategy.Arcade]] which performs simple axis aligned arcade style physics.
+   * The default is {@apilink SolverStrategy.Arcade} which performs simple axis aligned arcade style physics.
    *
-   * More advanced rigid body physics are enabled by setting [[SolverStrategy.Realistic]] which allows for complicated
+   * More advanced rigid body physics are enabled by setting {@apilink SolverStrategy.Realistic} which allows for complicated
    * simulated physical interactions.
    * @deprecated Use engine args to configure Physics `new ex.Engine({physics: {...}})`, will be removed in v0.30
    */

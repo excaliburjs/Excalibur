@@ -1,7 +1,7 @@
 /**
- * Provides standard colors (e.g. [[Color.Black]])
+ * Provides standard colors (e.g. {@apilink Color.Black})
  * but you can also create custom colors using RGB, HSL, or Hex. Also provides
- * useful color operations like [[Color.lighten]], [[Color.darken]], and more.
+ * useful color operations like {@apilink Color.lighten}, {@apilink Color.darken}, and more.
  */
 export class Color {
   /**

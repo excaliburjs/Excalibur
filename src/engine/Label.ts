@@ -23,7 +23,7 @@ export interface LabelOptions {
   y?: number;
   pos?: Vector;
   /**
-   * Optionally specify a sprite font, will take precedence over any other [[Font]]
+   * Optionally specify a sprite font, will take precedence over any other {@apilink Font}
    */
   spriteFont?: SpriteFont;
   /**
@@ -80,7 +80,7 @@ export class Label extends Actor {
 
   private _spriteFont: SpriteFont;
   /**
-   * The [[SpriteFont]] to use, if any. Overrides {@apilink Font | `font`} if present.
+   * The {@apilink SpriteFont} to use, if any. Overrides {@apilink Font | `font`} if present.
    */
   public get spriteFont(): SpriteFont {
     return this._spriteFont;

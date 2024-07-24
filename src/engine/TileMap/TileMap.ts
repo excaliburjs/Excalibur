@@ -457,13 +457,13 @@ export class TileMap extends Entity {
   }
 
   /**
-   * Returns the [[Tile]] by index (row major order)
+   * Returns the {@apilink Tile} by index (row major order)
    */
   public getTileByIndex(index: number): Tile {
     return this.tiles[index];
   }
   /**
-   * Returns the [[Tile]] by its x and y integer coordinates
+   * Returns the {@apilink Tile} by its x and y integer coordinates
    *
    * For example, if I want the tile in fifth column (x), and second row (y):
    * `getTile(4, 1)` 0 based, so 0 is the first in row/column
@@ -475,7 +475,7 @@ export class TileMap extends Entity {
     return this.tiles[x + y * this.columns];
   }
   /**
-   * Returns the [[Tile]] by testing a point in world coordinates,
+   * Returns the {@apilink Tile} by testing a point in world coordinates,
    * returns `null` if no Tile was found.
    */
   public getTileByPoint(point: Vector): Tile | null {
@@ -565,7 +565,7 @@ export class TileMap extends Entity {
   }
 
   /**
-   * Draws the tile map to the screen. Called by the [[Scene]].
+   * Draws the tile map to the screen. Called by the {@apilink Scene}.
    * @param ctx ExcaliburGraphicsContext
    * @param delta  The number of milliseconds since the last draw
    */
@@ -677,7 +677,7 @@ export interface TileOptions {
  * TileMap Tile
  *
  * A light-weight object that occupies a space in a collision map. Generally
- * created by a [[TileMap]].
+ * created by a {@apilink TileMap}.
  *
  * Tiles can draw multiple sprites. Note that the order of drawing is the order
  * of the sprites in the array so the last one will be drawn on top. You can
@@ -766,7 +766,7 @@ export class Tile {
   }
 
   /**
-   * Add another [[Graphic]] to this TileMap tile
+   * Add another {@apilink Graphic} to this TileMap tile
    * @param graphic
    */
   public addGraphic(graphic: Graphic, options?: { offset?: Vector }) {
@@ -779,7 +779,7 @@ export class Tile {
   }
 
   /**
-   * Remove an instance of a [[Graphic]] from this tile
+   * Remove an instance of a {@apilink Graphic} from this tile
    */
   public removeGraphic(graphic: Graphic) {
     const index = this._graphics.indexOf(graphic);
@@ -810,11 +810,11 @@ export class Tile {
   }
 
   /**
-   * Adds a custom collider to the [[Tile]] to use instead of it's bounds
+   * Adds a custom collider to the {@apilink Tile} to use instead of it's bounds
    *
-   * If no collider is set but [[Tile.solid]] is set, the tile bounds are used as a collider.
+   * If no collider is set but {@apilink Tile.solid} is set, the tile bounds are used as a collider.
    *
-   * **Note!** the [[Tile.solid]] must be set to true for it to act as a "fixed" collider
+   * **Note!** the {@apilink Tile.solid} must be set to true for it to act as a "fixed" collider
    * @param collider
    */
   public addCollider(collider: Collider) {
@@ -823,7 +823,7 @@ export class Tile {
   }
 
   /**
-   * Removes a collider from the [[Tile]]
+   * Removes a collider from the {@apilink Tile}
    * @param collider
    */
   public removeCollider(collider: Collider) {
@@ -835,7 +835,7 @@ export class Tile {
   }
 
   /**
-   * Clears all colliders from the [[Tile]]
+   * Clears all colliders from the {@apilink Tile}
    */
   public clearColliders() {
     this._colliders.length = 0;

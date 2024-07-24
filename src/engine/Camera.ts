@@ -42,7 +42,7 @@ export class StrategyContainer {
   constructor(public camera: Camera) {}
 
   /**
-   * Creates and adds the [[LockCameraToActorStrategy]] on the current camera.
+   * Creates and adds the {@apilink LockCameraToActorStrategy} on the current camera.
    * @param actor The actor to lock the camera to
    */
   public lockToActor(actor: Actor) {
@@ -50,7 +50,7 @@ export class StrategyContainer {
   }
 
   /**
-   * Creates and adds the [[LockCameraToActorAxisStrategy]] on the current camera
+   * Creates and adds the {@apilink LockCameraToActorAxisStrategy} on the current camera
    * @param actor The actor to lock the camera to
    * @param axis The axis to follow the actor on
    */
@@ -59,7 +59,7 @@ export class StrategyContainer {
   }
 
   /**
-   * Creates and adds the [[ElasticToActorStrategy]] on the current camera
+   * Creates and adds the {@apilink ElasticToActorStrategy} on the current camera
    * If cameraElasticity < cameraFriction < 1.0, the behavior will be a dampened spring that will slowly end at the target without bouncing
    * If cameraFriction < cameraElasticity < 1.0, the behavior will be an oscillating spring that will over
    * correct and bounce around the target
@@ -72,7 +72,7 @@ export class StrategyContainer {
   }
 
   /**
-   * Creates and adds the [[RadiusAroundActorStrategy]] on the current camera
+   * Creates and adds the {@apilink RadiusAroundActorStrategy} on the current camera
    * @param actor Target actor to follow when it is "radius" pixels away
    * @param radius Number of pixels away before the camera will follow
    */
@@ -81,7 +81,7 @@ export class StrategyContainer {
   }
 
   /**
-   * Creates and adds the [[LimitCameraBoundsStrategy]] on the current camera
+   * Creates and adds the {@apilink LimitCameraBoundsStrategy} on the current camera
    * @param box The bounding box to limit the camera to.
    */
   public limitCameraBounds(box: BoundingBox) {
@@ -197,7 +197,7 @@ export class RadiusAroundActorStrategy implements CameraStrategy<Actor> {
  */
 export class LimitCameraBoundsStrategy implements CameraStrategy<BoundingBox> {
   /**
-   * Useful for limiting the camera to a [[TileMap]]'s dimensions, or a specific area inside the map.
+   * Useful for limiting the camera to a {@apilink TileMap}'s dimensions, or a specific area inside the map.
    *
    * Note that this strategy does not perform any movement by itself.
    * It only sets the camera position to within the given bounds when the camera has gone beyond them.
@@ -254,7 +254,7 @@ export const CameraEvents = {
 /**
  * Cameras
  *
- * [[Camera]] is the base class for all Excalibur cameras. Cameras are used
+ * {@apilink Camera} is the base class for all Excalibur cameras. Cameras are used
  * to move around your game and set focus. They are used to determine
  * what is "off screen" and can be used to scale the game.
  *
@@ -382,7 +382,7 @@ export class Camera implements CanUpdate, CanInitialize {
   }
 
   /**
-   * Set the camera's x position (cannot be set when following an [[Actor]] or when moving)
+   * Set the camera's x position (cannot be set when following an {@apilink Actor} or when moving)
    */
   public set x(value: number) {
     if (!this._follow && !this._cameraMoving) {
@@ -398,7 +398,7 @@ export class Camera implements CanUpdate, CanInitialize {
   }
 
   /**
-   * Set the camera's y position (cannot be set when following an [[Actor]] or when moving)
+   * Set the camera's y position (cannot be set when following an {@apilink Actor} or when moving)
    */
   public set y(value: number) {
     if (!this._follow && !this._cameraMoving) {
@@ -461,9 +461,9 @@ export class Camera implements CanUpdate, CanInitialize {
    * This moves the camera focal point to the specified position using specified easing function. Cannot move when following an Actor.
    * @param pos The target position to move to
    * @param duration The duration in milliseconds the move should last
-   * @param [easingFn] An optional easing function ([[ex.EasingFunctions.EaseInOutCubic]] by default)
-   * @returns A [[Promise]] that resolves when movement is finished, including if it's interrupted.
-   *          The [[Promise]] value is the [[Vector]] of the target position. It will be rejected if a move cannot be made.
+   * @param [easingFn] An optional easing function ({@apilink ex.EasingFunctions.EaseInOutCubic} by default)
+   * @returns A {@apilink Promise} that resolves when movement is finished, including if it's interrupted.
+   *          The {@apilink Promise} value is the {@apilink Vector} of the target position. It will be rejected if a move cannot be made.
    */
   public move(pos: Vector, duration: number, easingFn: EasingFunction = EasingFunctions.EaseInOutCubic): Promise<Vector> {
     if (typeof easingFn !== 'function') {
@@ -547,7 +547,7 @@ export class Camera implements CanUpdate, CanInitialize {
 
   /**
    * Adds a new camera strategy to this camera
-   * @param cameraStrategy Instance of an [[CameraStrategy]]
+   * @param cameraStrategy Instance of an {@apilink CameraStrategy}
    */
   public addStrategy<T>(cameraStrategy: CameraStrategy<T>) {
     this._cameraStrategies.push(cameraStrategy);
@@ -555,7 +555,7 @@ export class Camera implements CanUpdate, CanInitialize {
 
   /**
    * Removes a camera strategy by reference
-   * @param cameraStrategy Instance of an [[CameraStrategy]]
+   * @param cameraStrategy Instance of an {@apilink CameraStrategy}
    */
   public removeStrategy<T>(cameraStrategy: CameraStrategy<T>) {
     removeItemFromArray(cameraStrategy, this._cameraStrategies);
@@ -571,7 +571,7 @@ export class Camera implements CanUpdate, CanInitialize {
   /**
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
-   * Internal _preupdate handler for [[onPreUpdate]] lifecycle event
+   * Internal _preupdate handler for {@apilink onPreUpdate} lifecycle event
    * @internal
    */
   public _preupdate(engine: Engine, delta: number): void {
@@ -591,7 +591,7 @@ export class Camera implements CanUpdate, CanInitialize {
   /**
    *  It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
-   * Internal _preupdate handler for [[onPostUpdate]] lifecycle event
+   * Internal _preupdate handler for {@apilink onPostUpdate} lifecycle event
    * @internal
    */
   public _postupdate(engine: Engine, delta: number): void {

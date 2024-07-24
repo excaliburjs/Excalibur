@@ -17,9 +17,9 @@ import { FontCache } from './FontCache';
  */
 export class Font extends Graphic implements FontRenderer {
   /**
-   * Set the font filtering mode, by default set to [[ImageFiltering.Blended]] regardless of the engine default smoothing
+   * Set the font filtering mode, by default set to {@apilink ImageFiltering.Blended} regardless of the engine default smoothing
    *
-   * If you have a pixel style font that may be a reason to switch this to [[ImageFiltering.Pixel]]
+   * If you have a pixel style font that may be a reason to switch this to {@apilink ImageFiltering.Pixel}
    */
   public filtering: ImageFiltering = ImageFiltering.Blended;
   constructor(options: FontOptions & GraphicOptions & RasterOptions = {}) {

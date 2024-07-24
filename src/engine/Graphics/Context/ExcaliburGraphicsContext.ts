@@ -43,7 +43,7 @@ export interface AntialiasOptions {
   /**
    * Sets the default image filtering for excalibur
    *
-   * Default [[ImageFiltering.Blended]]
+   * Default {@apilink ImageFiltering.Blended}
    */
   filtering?: ImageFiltering;
   /**
@@ -186,7 +186,7 @@ export interface ExcaliburGraphicsContext {
    * Excalibur will automatically sort draw calls by z and priority for maximal draw performance,
    * this can disrupt a specific desired painter order.
    *
-   * To force a specific draw call order, use [[ExcaliburGraphicsContext.z]]
+   * To force a specific draw call order, use {@apilink ExcaliburGraphicsContext.z}
    *
    * By default `useDrawSorting` is `true`, to opt out set this to `false`
    */
@@ -196,7 +196,7 @@ export interface ExcaliburGraphicsContext {
    * Set the current z context for the graphics context. Draw calls issued to the context will use this z
    * to inform their sort order.
    *
-   * Note it is important to all [[ExcaliburGraphicsContext.save]] and [[ExcaliburGraphicsContext.restore]] when modifying state.
+   * Note it is important to all {@apilink ExcaliburGraphicsContext.save} and {@apilink ExcaliburGraphicsContext.restore} when modifying state.
    */
   z: number;
 
@@ -211,12 +211,12 @@ export interface ExcaliburGraphicsContext {
   smoothing: boolean;
 
   /**
-   * Set the background color of the graphics context, default is [[Color.ExcaliburBlue]]
+   * Set the background color of the graphics context, default is {@apilink Color.ExcaliburBlue}
    */
   backgroundColor: Color;
 
   /**
-   * Sets the opacity of the current [[Graphic]] being drawn, default is 1
+   * Sets the opacity of the current {@apilink Graphic} being drawn, default is 1
    */
   opacity: number;
 

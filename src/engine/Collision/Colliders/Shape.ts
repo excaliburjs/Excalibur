@@ -11,7 +11,7 @@ import { Logger } from '../..';
  */
 export class Shape {
   /**
-   * Creates a box collider, under the hood defines a [[PolygonCollider]] collider
+   * Creates a box collider, under the hood defines a {@apilink PolygonCollider} collider
    * @param width Width of the box
    * @param height Height of the box
    * @param anchor Anchor of the box (default (.5, .5)) which positions the box relative to the center of the collider's position
@@ -68,7 +68,7 @@ export class Shape {
   }
 
   /**
-   * Creates a new capsule shaped [[CompositeCollider]] using 2 circles and a box
+   * Creates a new capsule shaped {@apilink CompositeCollider} using 2 circles and a box
    *
    * Capsule colliders are useful for platformers with incline or jagged floors to have a smooth
    * player experience.

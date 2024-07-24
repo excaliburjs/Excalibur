@@ -138,7 +138,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   }
 
   /**
-   * The [[TileMap]]s in the scene, if any
+   * The {@apilink TileMap}s in the scene, if any
    */
   public get tileMaps(): readonly TileMap[] {
     return this.world.entityManager.entities.filter((e: Entity<any>) => {
@@ -231,7 +231,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   }
 
   /**
-   * This is called before the first update of the [[Scene]]. Initializes scene members like the camera. This method is meant to be
+   * This is called before the first update of the {@apilink Scene}. Initializes scene members like the camera. This method is meant to be
    * overridden. This is where initialization of child actors should take place.
    */
   public onInitialize(engine: Engine): void {
@@ -302,7 +302,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   }
 
   /**
-   * Gets whether or not the [[Scene]] has been initialized
+   * Gets whether or not the {@apilink Scene} has been initialized
    */
   public get isInitialized(): boolean {
     return this._isInitialized;
@@ -378,7 +378,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   /**
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
-   * Internal _preupdate handler for [[onPreUpdate]] lifecycle event
+   * Internal _preupdate handler for {@apilink onPreUpdate} lifecycle event
    * @internal
    */
   public _preupdate(engine: Engine, delta: number): void {
@@ -389,7 +389,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   /**
    *  It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
-   * Internal _preupdate handler for [[onPostUpdate]] lifecycle event
+   * Internal _preupdate handler for {@apilink onPostUpdate} lifecycle event
    * @internal
    */
   public _postupdate(engine: Engine, delta: number): void {
@@ -400,7 +400,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   /**
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
-   * Internal _predraw handler for [[onPreDraw]] lifecycle event
+   * Internal _predraw handler for {@apilink onPreDraw} lifecycle event
    * @internal
    */
   public _predraw(ctx: ExcaliburGraphicsContext, delta: number): void {
@@ -411,7 +411,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   /**
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
-   * Internal _postdraw handler for [[onPostDraw]] lifecycle event
+   * Internal _postdraw handler for {@apilink onPostDraw} lifecycle event
    * @internal
    */
   public _postdraw(ctx: ExcaliburGraphicsContext, delta: number): void {
@@ -420,7 +420,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   }
 
   /**
-   * Updates all the actors and timers in the scene. Called by the [[Engine]].
+   * Updates all the actors and timers in the scene. Called by the {@apilink Engine}.
    * @param engine  Reference to the current Engine
    * @param delta   The number of milliseconds since the last update
    */
@@ -459,7 +459,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   }
 
   /**
-   * Draws all the actors in the Scene. Called by the [[Engine]].
+   * Draws all the actors in the Scene. Called by the {@apilink Engine}.
    * @param ctx    The current rendering context
    * @param delta  The number of milliseconds since the last draw
    */
@@ -479,7 +479,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   }
 
   /**
-   * Draws all the actors' debug information in the Scene. Called by the [[Engine]].
+   * Draws all the actors' debug information in the Scene. Called by the {@apilink Engine}.
    * @param ctx  The current rendering context
    */
   /* istanbul ignore next */
@@ -497,36 +497,36 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   }
 
   /**
-   * Adds a [[Timer]] to the current [[Scene]].
-   * @param timer  The timer to add to the current [[Scene]].
+   * Adds a {@apilink Timer} to the current {@apilink Scene}.
+   * @param timer  The timer to add to the current {@apilink Scene}.
    */
   public add(timer: Timer): void;
 
   /**
-   * Adds a [[TileMap]] to the [[Scene]], once this is done the [[TileMap]] will be drawn and updated.
+   * Adds a {@apilink TileMap} to the {@apilink Scene}, once this is done the {@apilink TileMap} will be drawn and updated.
    */
   public add(tileMap: TileMap): void;
 
   /**
-   * Adds a [[Trigger]] to the [[Scene]], once this is done the [[Trigger]] will listen for interactions with other actors.
+   * Adds a {@apilink Trigger} to the {@apilink Scene}, once this is done the {@apilink Trigger} will listen for interactions with other actors.
    * @param trigger
    */
   public add(trigger: Trigger): void;
 
   /**
-   * Adds an actor to the scene, once this is done the [[Actor]] will be drawn and updated.
+   * Adds an actor to the scene, once this is done the {@apilink Actor} will be drawn and updated.
    * @param actor  The actor to add to the current scene
    */
   public add(actor: Actor): void;
 
   /**
-   * Adds an [[Entity]] to the scene, once this is done the [[Actor]] will be drawn and updated.
+   * Adds an {@apilink Entity} to the scene, once this is done the {@apilink Actor} will be drawn and updated.
    * @param entity The entity to add to the current scene
    */
   public add(entity: Entity): void;
 
   /**
-   * Adds a [[ScreenElement]] to the scene.
+   * Adds a {@apilink ScreenElement} to the scene.
    * @param screenElement  The ScreenElement to add to the current scene
    */
   public add(screenElement: ScreenElement): void;
@@ -543,7 +543,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   }
 
   /**
-   * Removes a [[Timer]] from it's current scene
+   * Removes a {@apilink Timer} from it's current scene
    * and adds it to this scene.
    *
    * Useful if you want to have an object be present in only 1 scene at a time.
@@ -552,7 +552,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   public transfer(timer: Timer): void;
 
   /**
-   * Removes a [[TileMap]] from it's current scene
+   * Removes a {@apilink TileMap} from it's current scene
    * and adds it to this scene.
    *
    * Useful if you want to have an object be present in only 1 scene at a time.
@@ -561,7 +561,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   public transfer(tileMap: TileMap): void;
 
   /**
-   * Removes a [[Trigger]] from it's current scene
+   * Removes a {@apilink Trigger} from it's current scene
    * and adds it to this scene.
    *
    * Useful if you want to have an object be present in only 1 scene at a time.
@@ -570,7 +570,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   public transfer(trigger: Trigger): void;
 
   /**
-   * Removes an [[Actor]] from it's current scene
+   * Removes an {@apilink Actor} from it's current scene
    * and adds it to this scene.
    *
    * Useful if you want to have an object be present in only 1 scene at a time.
@@ -579,7 +579,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   public transfer(actor: Actor): void;
 
   /**
-   * Removes an [[Entity]] from it's current scene
+   * Removes an {@apilink Entity} from it's current scene
    * and adds it to this scene.
    *
    * Useful if you want to have an object be present in only 1 scene at a time.
@@ -588,7 +588,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   public transfer(entity: Entity): void;
 
   /**
-   * Removes a [[ScreenElement]] from it's current scene
+   * Removes a {@apilink ScreenElement} from it's current scene
    * and adds it to this scene.
    *
    * Useful if you want to have an object be present in only 1 scene at a time.
@@ -597,7 +597,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   public transfer(screenElement: ScreenElement): void;
 
   /**
-   * Removes an [[Entity]] (Actor, TileMap, Trigger, etc) or [[Timer]] from it's current scene
+   * Removes an {@apilink Entity} (Actor, TileMap, Trigger, etc) or {@apilink Timer} from it's current scene
    * and adds it to this scene.
    *
    * Useful if you want to have an object be present in only 1 scene at a time.
@@ -618,13 +618,13 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   }
 
   /**
-   * Removes a [[Timer]] from the current scene, it will no longer be updated.
+   * Removes a {@apilink Timer} from the current scene, it will no longer be updated.
    * @param timer  The timer to remove to the current scene.
    */
   public remove(timer: Timer): void;
 
   /**
-   * Removes a [[TileMap]] from the scene, it will no longer be drawn or updated.
+   * Removes a {@apilink TileMap} from the scene, it will no longer be drawn or updated.
    * @param tileMap {TileMap}
    */
   public remove(tileMap: TileMap): void;
@@ -638,7 +638,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   public remove(entity: Entity): void;
 
   /**
-   * Removes a [[ScreenElement]] to the scene, it will no longer be drawn or updated
+   * Removes a {@apilink ScreenElement} to the scene, it will no longer be drawn or updated
    * @param screenElement  The ScreenElement to remove from the current scene
    */
   public remove(screenElement: ScreenElement): void;
@@ -671,7 +671,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   }
 
   /**
-   * Adds a [[Timer]] to the scene
+   * Adds a {@apilink Timer} to the scene
    * @param timer  The timer to add
    */
   public addTimer(timer: Timer): Timer {
@@ -681,8 +681,8 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   }
 
   /**
-   * Removes a [[Timer]] from the scene.
-   * @warning Can be dangerous, use [[cancelTimer]] instead
+   * Removes a {@apilink Timer} from the scene.
+   * @warning Can be dangerous, use {@apilink cancelTimer} instead
    * @param timer  The timer to remove
    */
   public removeTimer(timer: Timer): Timer {
@@ -694,7 +694,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   }
 
   /**
-   * Cancels a [[Timer]], removing it from the scene nicely
+   * Cancels a {@apilink Timer}, removing it from the scene nicely
    * @param timer  The timer to cancel
    */
   public cancelTimer(timer: Timer): Timer {
@@ -703,7 +703,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   }
 
   /**
-   * Tests whether a [[Timer]] is active in the scene
+   * Tests whether a {@apilink Timer} is active in the scene
    */
   public isTimerActive(timer: Timer): boolean {
     return this._timers.indexOf(timer) > -1 && !timer.complete;

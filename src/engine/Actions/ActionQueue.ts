@@ -6,9 +6,9 @@ import { Action } from './Action';
  * Action Queues represent an ordered sequence of actions
  *
  * Action queues are part of the {@apilink ActionContext | `Action API`} and
- * store the list of actions to be executed for an [[Actor]].
+ * store the list of actions to be executed for an {@apilink Actor}.
  *
- * Actors implement [[Actor.actions]] which can be manipulated by
+ * Actors implement {@apilink Actor.actions} which can be manipulated by
  * advanced users to adjust the actions currently being executed in the
  * queue.
  */

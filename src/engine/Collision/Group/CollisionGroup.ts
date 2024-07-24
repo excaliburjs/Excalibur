@@ -1,7 +1,7 @@
 import { CollisionGroupManager } from './CollisionGroupManager';
 
 /**
- * CollisionGroups indicate like members that do not collide with each other. Use [[CollisionGroupManager]] to create [[CollisionGroup]]s
+ * CollisionGroups indicate like members that do not collide with each other. Use {@apilink CollisionGroupManager} to create {@apilink CollisionGroup}s
  *
  * For example:
  *
@@ -45,7 +45,7 @@ import { CollisionGroupManager } from './CollisionGroupManager';
  */
 export class CollisionGroup {
   /**
-   * The `All` [[CollisionGroup]] is a special group that collides with all other groups including itself,
+   * The `All` {@apilink CollisionGroup} is a special group that collides with all other groups including itself,
    * it is the default collision group on colliders.
    */
   public static All = new CollisionGroup('Collide with all groups', -1, -1);
@@ -55,7 +55,7 @@ export class CollisionGroup {
   private _mask: number;
 
   /**
-   * STOP!!** It is preferred that [[CollisionGroupManager.create]] is used to create collision groups
+   * STOP!!** It is preferred that {@apilink CollisionGroupManager.create} is used to create collision groups
    *  unless you know how to construct the proper bitmasks. See https://github.com/excaliburjs/Excalibur/issues/1091 for more info.
    * @param name Name of the collision group
    * @param category 32 bit category for the group, should be a unique power of 2. For example `0b001` or `0b010`

@@ -7,8 +7,8 @@ import { Loadable } from '../Interfaces/Index';
 import { ImageSource } from '../Graphics/ImageSource';
 import { range } from '../Math/util';
 /**
- * The [[Texture]] object allows games built in Excalibur to load image resources.
- * [[Texture]] is an [[Loadable]] which means it can be passed to a [[Loader]]
+ * The {@apilink Texture} object allows games built in Excalibur to load image resources.
+ * {@apilink Texture} is an {@apilink Loadable} which means it can be passed to a {@apilink Loader}
  * to pre-load before starting a level or game.
  */
 export class Gif implements Loadable<ImageSource[]> {
@@ -34,7 +34,7 @@ export class Gif implements Loadable<ImageSource[]> {
 
   /**
    * @param path       Path to the image resource
-   * @param color      Optionally set the color to treat as transparent the gif, by default [[Color.Magenta]]
+   * @param color      Optionally set the color to treat as transparent the gif, by default {@apilink Color.Magenta}
    * @param bustCache  Optionally load texture with cache busting
    */
   constructor(
