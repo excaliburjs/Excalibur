@@ -10,7 +10,7 @@ section: Physics
 
 ### Collision Start "collisionstart"
 
-The **collisionstart** event is fired when a {@apilink Body | `physics body`}, usually attached to an actor, first starts colliding with another {@apilink Body | `body`}, and will not fire again while in contact until the the pair separates and collides again.
+The **collisionstart** event is fired when a [[Body|physics body]], usually attached to an actor, first starts colliding with another [[Body|body]], and will not fire again while in contact until the the pair separates and collides again.
 
 Use cases for the **collisionstart** event may be detecting when an actor has touch a surface (like landing) or if a item has been touched and needs to be picked up.
 
@@ -22,7 +22,7 @@ actor.body.collider.on('collisionstart', () => {...})
 
 ### Collision End "collisionend"
 
-The **collisionend** event is fired when two {@apilink Body | `physics bodies`} are no longer in contact. This event will not fire again until another collision and separation.
+The **collisionend** event is fired when two [[Body|physics bodies]] are no longer in contact. This event will not fire again until another collision and separation.
 
 Use cases for the **collisionend** event might be to detect when an actor has left a surface (like jumping) or has left an area.
 

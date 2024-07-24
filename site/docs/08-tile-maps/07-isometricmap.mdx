@@ -31,9 +31,9 @@ game.currentScene.add(isoMap);
 
 ```
 
-The tilemap is composed of [[IsometricTile]]'s which are {@apilink Entity | `Entities`} with a [[IsometricEntityComponent]]. The [[IsometricEntityComponent]] can be applied to any entity that needs to be correctly sorted in the drawing order to preserve the isometric illusion, this is useful if you have players or game objects that move around the map.
+The tilemap is composed of [[IsometricTile]]'s which are [[Entity|Entities]] with a [[IsometricEntityComponent]]. The [[IsometricEntityComponent]] can be applied to any entity that needs to be correctly sorted in the drawing order to preserve the isometric illusion, this is useful if you have players or game objects that move around the map.
 
-The [[IsometricEntitySystem]] generates a new z-index based on the `elevation` and {@apilink y position | `TransformComponent`} of an entity with [[IsometricEntityComponent]].
+The [[IsometricEntitySystem]] generates a new z-index based on the `elevation` and [[y position|TransformComponent]] of an entity with [[IsometricEntityComponent]].
 
 ## Selecting an appropriate Tile Height
 

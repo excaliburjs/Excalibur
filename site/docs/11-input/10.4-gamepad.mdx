@@ -63,7 +63,7 @@ engine.input.gamepads.on('connect', (ce: ex.Input.GamepadConnectEvent) => {
 
 ### Responding to button input
 
-{@apilink Buttons | `Gamepad buttons`} typically have values between 0 and 1, however depending on
+[[Buttons|Gamepad buttons]] typically have values between 0 and 1, however depending on
 the sensitivity of the controller, even if a button is idle it could have a
 very tiny value. For this reason, you can pass in a threshold to several
 methods to customize how sensitive you want to be in detecting button presses.
@@ -94,7 +94,7 @@ engine.input.gamepads.at(0).on('button', function (ev) {
 
 ### Responding to axis input
 
-{@apilink Axes | `Gamepad axes`} typically have values between -1 and 1, but even idle
+[[Axes|Gamepad axes]] typically have values between -1 and 1, but even idle
 sticks can still propagate very small values depending on the quality and age
 of a controller. For this reason, you can set [[Gamepads.MinAxisMoveThreshold]]
 to set the (absolute) threshold after which Excalibur will start publishing `axis` events.
