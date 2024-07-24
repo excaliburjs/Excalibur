@@ -219,7 +219,7 @@ export class ColliderComponent extends Component {
   }
 
   /**
-   * Sets up a [[PolygonCollider|polygon]] collision geometry based on a list of of points relative
+   * Sets up a {@apilink PolygonCollider | `polygon`} collision geometry based on a list of of points relative
    *  to the anchor of the associated actor
    * of this physics body.
    *
@@ -233,7 +233,7 @@ export class ColliderComponent extends Component {
   }
 
   /**
-   * Sets up a [[Circle|circle collision geometry]] as the only collider with a specified radius in pixels.
+   * Sets up a {@apilink Circle | `circle collision geometry`} as the only collider with a specified radius in pixels.
    *
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
@@ -243,7 +243,7 @@ export class ColliderComponent extends Component {
   }
 
   /**
-   * Sets up an [[Edge|edge collision geometry]] with a start point and an end point relative to the anchor of the associated actor
+   * Sets up an {@apilink Edge | `edge collision geometry`} with a start point and an end point relative to the anchor of the associated actor
    * of this physics body.
    *
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
@@ -254,7 +254,7 @@ export class ColliderComponent extends Component {
   }
 
   /**
-   * Setups up a [[CompositeCollider]] which can define any arbitrary set of excalibur colliders
+   * Setups up a {@apilink CompositeCollider} which can define any arbitrary set of excalibur colliders
    * @param colliders
    */
   useCompositeCollider(colliders: Collider[]): CompositeCollider {

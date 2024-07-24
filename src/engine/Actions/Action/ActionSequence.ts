@@ -5,7 +5,7 @@ import { ActionQueue } from '../ActionQueue';
 
 /**
  * Action that can represent a sequence of actions, this can be useful in conjunction with
- * [[ParallelActions]] to run multiple sequences in parallel.
+ * {@apilink ParallelActions} to run multiple sequences in parallel.
  */
 export class ActionSequence implements Action {
   id = nextActionId();

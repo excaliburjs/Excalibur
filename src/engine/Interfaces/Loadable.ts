@@ -1,6 +1,6 @@
 /**
  * An interface describing loadable resources in Excalibur. Built-in loadable
- * resources include [[Texture]], [[Sound]], and a generic [[Resource]].
+ * resources include {@apilink Texture}, {@apilink Sound}, and a generic {@apilink Resource}.
  */
 export interface Loadable<T> {
   /**

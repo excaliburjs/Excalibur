@@ -11,7 +11,7 @@ export enum SystemType {
 }
 
 /**
- * An Excalibur [[System]] that updates entities of certain types.
+ * An Excalibur {@apilink System} that updates entities of certain types.
  * Systems are scene specific
  *
  *
@@ -33,7 +33,7 @@ export enum SystemType {
  */
 export abstract class System {
   /**
-   * Determine whether the system is called in the [[SystemType.Update]] or the [[SystemType.Draw]] phase. Update is first, then Draw.
+   * Determine whether the system is called in the {@apilink SystemType.Update} or the {@apilink SystemType.Draw} phase. Update is first, then Draw.
    */
   abstract readonly systemType: SystemType;
 

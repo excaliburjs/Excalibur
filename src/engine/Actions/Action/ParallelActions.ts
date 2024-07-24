@@ -2,7 +2,7 @@ import { Entity } from '../../EntityComponentSystem';
 import { Action, nextActionId } from '../Action';
 
 /**
- * Action that can run multiple [[Action]]s or [[ActionSequence]]s at the same time
+ * Action that can run multiple {@apilink Action}s or {@apilink ActionSequence}s at the same time
  */
 export class ParallelActions implements Action {
   id = nextActionId();

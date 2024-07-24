@@ -86,7 +86,7 @@ export class IsometricTile extends Entity {
   /**
    * Adds a collider to the IsometricTile
    *
-   * **Note!** the [[Tile.solid]] must be set to true for it to act as a "fixed" collider
+   * **Note!** the {@apilink Tile.solid} must be set to true for it to act as a "fixed" collider
    * @param collider
    */
   public addCollider(collider: Collider) {
@@ -123,7 +123,7 @@ export class IsometricTile extends Entity {
    */
   public readonly y: number;
   /**
-   * Reference to the [[IsometricMap]] this tile is part of
+   * Reference to the {@apilink IsometricMap} this tile is part of
    */
   public readonly map: IsometricMap;
 
@@ -131,14 +131,14 @@ export class IsometricTile extends Entity {
   private _isometricEntityComponent: IsometricEntityComponent;
 
   /**
-   * Returns the top left corner of the [[IsometricTile]] in world space
+   * Returns the top left corner of the {@apilink IsometricTile} in world space
    */
   public get pos(): Vector {
     return this.map.tileToWorld(vec(this.x, this.y));
   }
 
   /**
-   * Returns the center of the [[IsometricTile]]
+   * Returns the center of the {@apilink IsometricTile}
    */
   public get center(): Vector {
     return this.pos.add(vec(0, this.map.tileHeight / 2));
@@ -301,12 +301,12 @@ export class IsometricMap extends Entity {
   public graphicsOffset: Vector = vec(0, 0);
 
   /**
-   * Isometric map [[TransformComponent]]
+   * Isometric map {@apilink TransformComponent}
    */
   public transform: TransformComponent;
 
   /**
-   * Isometric map [[ColliderComponent]]
+   * Isometric map {@apilink ColliderComponent}
    */
   public collider: ColliderComponent;
 
@@ -457,7 +457,7 @@ export class IsometricMap extends Entity {
   }
 
   /**
-   * Returns the [[IsometricTile]] by its x and y coordinates
+   * Returns the {@apilink IsometricTile} by its x and y coordinates
    */
   public getTile(x: number, y: number): IsometricTile | null {
     if (x < 0 || y < 0 || x >= this.columns || y >= this.rows) {
@@ -467,7 +467,7 @@ export class IsometricMap extends Entity {
   }
 
   /**
-   * Returns the [[IsometricTile]] by testing a point in world coordinates,
+   * Returns the {@apilink IsometricTile} by testing a point in world coordinates,
    * returns `null` if no Tile was found.
    */
   public getTileByPoint(point: Vector): IsometricTile | null {

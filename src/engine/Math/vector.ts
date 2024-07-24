@@ -161,7 +161,7 @@ export class Vector implements Clonable<Vector> {
   }
 
   /**
-   * The distance to another vector. If no other Vector is specified, this will return the [[magnitude]].
+   * The distance to another vector. If no other Vector is specified, this will return the {@apilink magnitude}.
    * @param v  The other vector. Leave blank to use origin vector.
    */
   public distance(v?: Vector): number {

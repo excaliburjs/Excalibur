@@ -11,7 +11,7 @@ import { RentalPool } from '../Util/RentalPool';
 /**
  * Using a particle emitter is a great way to create interesting effects
  * in your game, like smoke, fire, water, explosions, etc. `ParticleEmitter`
- * extend [[Actor]] allowing you to use all of the features that come with.
+ * extend {@apilink Actor} allowing you to use all of the features that come with.
  */
 export class ParticleEmitter extends Actor {
   private _particlesToEmit: number = 0;
@@ -50,7 +50,7 @@ export class ParticleEmitter extends Actor {
   public emitterType: EmitterType = EmitterType.Rectangle;
 
   /**
-   * Gets or sets the emitter radius, only takes effect when the [[emitterType]] is [[EmitterType.Circle]]
+   * Gets or sets the emitter radius, only takes effect when the {@apilink emitterType} is {@apilink EmitterType.Circle}
    */
   public radius: number = 0;
 

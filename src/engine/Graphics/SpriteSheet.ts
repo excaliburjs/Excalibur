@@ -94,7 +94,7 @@ export class SpriteSheet {
   /**
    * Build a new sprite sheet from a list of sprites
    *
-   * Use [[SpriteSheet.fromImageSource]] to create a SpriteSheet from an [[ImageSource]] organized in a grid
+   * Use {@apilink SpriteSheet.fromImageSource} to create a SpriteSheet from an {@apilink ImageSource} organized in a grid
    * @param options
    */
   constructor(options: SpriteSheetOptions) {
@@ -105,7 +105,7 @@ export class SpriteSheet {
   }
 
   /**
-   * Find a sprite by their x/y integer coordinates in the SpriteSheet, for example `getSprite(0, 0)` is the [[Sprite]] in the top-left
+   * Find a sprite by their x/y integer coordinates in the SpriteSheet, for example `getSprite(0, 0)` is the {@apilink Sprite} in the top-left
    * and `getSprite(1, 0)` is the sprite one to the right.
    * @param x
    * @param y
@@ -139,7 +139,7 @@ export class SpriteSheet {
   }
 
   /**
-   * Create a sprite sheet from a sparse set of [[SourceView]] rectangles
+   * Create a sprite sheet from a sparse set of {@apilink SourceView} rectangles
    * @param options
    */
   public static fromImageSourceWithSourceViews(options: SpriteSheetSparseOptions): SpriteSheet {
@@ -153,7 +153,7 @@ export class SpriteSheet {
   }
 
   /**
-   * Create a SpriteSheet from an [[ImageSource]] organized in a grid
+   * Create a SpriteSheet from an {@apilink ImageSource} organized in a grid
    *
    * Example:
    * ```

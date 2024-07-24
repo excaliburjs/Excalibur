@@ -31,9 +31,9 @@ export const SoundEvents = {
 };
 
 /**
- * The [[Sound]] object allows games built in Excalibur to load audio
- * components, from soundtracks to sound effects. [[Sound]] is an [[Loadable]]
- * which means it can be passed to a [[Loader]] to pre-load before a game or level.
+ * The {@apilink Sound} object allows games built in Excalibur to load audio
+ * components, from soundtracks to sound effects. {@apilink Sound} is an {@apilink Loadable}
+ * which means it can be passed to a {@apilink Loader} to pre-load before a game or level.
  */
 export class Sound implements Audio, Loadable<AudioBuffer> {
   public events = new EventEmitter<SoundEvents>();
@@ -333,7 +333,7 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
 
   /**
    * Get Id of provided AudioInstance in current trackList
-   * @param track [[Audio]] which Id is to be given
+   * @param track {@apilink Audio} which Id is to be given
    */
   public getTrackId(track: Audio): number {
     return this._tracks.indexOf(track);

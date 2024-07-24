@@ -13,7 +13,7 @@ export function isScreenElement(actor: Actor) {
 }
 
 /**
- * Helper [[Actor]] primitive for drawing UI's, optimized for UI drawing. Does
+ * Helper {@apilink Actor} primitive for drawing UI's, optimized for UI drawing. Does
  * not participate in collisions. Drawn on top of all other actors.
  */
 export class ScreenElement extends Actor {

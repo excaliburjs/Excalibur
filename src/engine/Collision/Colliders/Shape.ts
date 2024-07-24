@@ -11,7 +11,7 @@ import { Logger } from '../..';
  */
 export class Shape {
   /**
-   * Creates a box collider, under the hood defines a [[PolygonCollider]] collider
+   * Creates a box collider, under the hood defines a {@apilink PolygonCollider} collider
    * @param width Width of the box
    * @param height Height of the box
    * @param anchor Anchor of the box (default (.5, .5)) which positions the box relative to the center of the collider's position
@@ -25,7 +25,7 @@ export class Shape {
   }
 
   /**
-   * Creates a new [[PolygonCollider|arbitrary polygon]] collider
+   * Creates a new {@apilink PolygonCollider | `arbitrary polygon`} collider
    *
    * PolygonColliders are useful for creating convex polygon shapes
    * @param points Points specified in counter clockwise
@@ -40,7 +40,7 @@ export class Shape {
   }
 
   /**
-   * Creates a new [[CircleCollider|circle]] collider
+   * Creates a new {@apilink CircleCollider | `circle`} collider
    *
    * Circle colliders are useful for balls, or to make collisions more forgiving on sharp edges
    * @param radius Radius of the circle collider
@@ -54,7 +54,7 @@ export class Shape {
   }
 
   /**
-   * Creates a new [[EdgeCollider|edge]] collider
+   * Creates a new {@apilink EdgeCollider | `edge`} collider
    *
    * Edge colliders are useful for  floors, walls, and other barriers
    * @param begin Beginning of the edge in local coordinates to the collider
@@ -68,7 +68,7 @@ export class Shape {
   }
 
   /**
-   * Creates a new capsule shaped [[CompositeCollider]] using 2 circles and a box
+   * Creates a new capsule shaped {@apilink CompositeCollider} using 2 circles and a box
    *
    * Capsule colliders are useful for platformers with incline or jagged floors to have a smooth
    * player experience.
