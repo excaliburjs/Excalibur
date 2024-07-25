@@ -340,4 +340,31 @@ describe('A Sparse Hash Grid Broadphase', () => {
     expect(hits[1].distance).toBe(175);
     expect(hits[1].point).toEqual(ex.vec(175, 0));
   });
+
+  it('calls filter in hit order', () => {
+    const sut = new ex.SparseHashGridCollisionProcessor({ size: 200 });
+    const actor3 = new ex.Actor({ x: 104, y: 0, width: 50, height: 50 });
+    sut.track(actor3.collider.get());
+    const actor2 = new ex.Actor({ x: 102, y: 0, radius: 25 });
+    sut.track(actor2.collider.get());
+    const actor1 = new ex.Actor({ x: 100, y: 0, radius: 25 });
+    sut.track(actor1.collider.get());
+
+    const ray = new ex.Ray(ex.vec(0, 0), ex.Vector.Right);
+    const filter = jasmine.createSpy('filter').and.callFake(() => true);
+    const hits = sut.rayCast(ray, {
+      searchAllColliders: true,
+      filter
+    });
+
+    expect(filter.calls.argsFor(0)).toEqual([
+      { point: ex.vec(75, 0), distance: 75, collider: actor1.collider.get(), body: actor1.body, normal: ex.vec(-1, 0) }
+    ]);
+    expect(filter.calls.argsFor(1)).toEqual([
+      { point: ex.vec(77, 0), distance: 77, collider: actor2.collider.get(), body: actor2.body, normal: ex.vec(-1, 0) }
+    ]);
+    expect(filter.calls.argsFor(2)).toEqual([
+      { point: ex.vec(79, 0), distance: 79, collider: actor3.collider.get(), body: actor3.body, normal: ex.vec(-1, -0) }
+    ]);
+  });
 });

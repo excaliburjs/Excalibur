@@ -179,6 +179,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
       const key = HashGridCell.calculateHashKey(currentXCoord, currentYCoord);
       const cell = this.hashGrid.sparseHashGrid.get(key);
       if (cell) {
+        const cellHits: RayCastHit[] = [];
         for (let colliderIndex = 0; colliderIndex < cell.proxies.length; colliderIndex++) {
           const collider = cell.proxies[colliderIndex];
           if (!collidersVisited.has(collider.collider.id.value)) {
@@ -197,20 +198,29 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
 
             const hit = collider.collider.rayCast(ray, maxDistance);
 
+            // Collect up all the colliders that hit inside a cell
+            // they can be in any order so we need to sort them next
             if (hit) {
-              if (options?.filter) {
-                if (options.filter(hit)) {
-                  results.push(hit);
-                  if (!searchAllColliders) {
-                    done = true;
-                  }
-                }
-              } else {
-                results.push(hit);
-                if (!searchAllColliders) {
-                  done = true;
-                }
+              cellHits.push(hit);
+            }
+          }
+        }
+        cellHits.sort((hit1, hit2) => hit1.distance - hit2.distance);
+        for (let i = 0; i < cellHits.length; i++) {
+          const hit = cellHits[i];
+          if (options?.filter) {
+            if (options.filter(hit)) {
+              results.push(hit);
+              if (!searchAllColliders) {
+                done = true;
+                break;
               }
+            }
+          } else {
+            results.push(hit);
+            if (!searchAllColliders) {
+              done = true;
+              break;
             }
           }
         }
