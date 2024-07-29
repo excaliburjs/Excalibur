@@ -7,7 +7,7 @@ import { watch } from '../Util/Watch';
 import { ImageFiltering } from './Filtering';
 import { omit } from '../Util/Util';
 
-export interface RasterOptions {
+export interface RasterOptions extends GraphicOptions {
   /**
    * Optionally specify a quality number, which is how much to scale the internal Raster. Default is 1.
    *
@@ -75,7 +75,7 @@ export abstract class Raster extends Graphic {
   protected _ctx: CanvasRenderingContext2D;
   private _dirty: boolean = true;
 
-  constructor(options?: GraphicOptions & RasterOptions) {
+  constructor(options?: RasterOptions) {
     super(omit({ ...options }, ['width', 'height'])); // rasters do some special sauce with width/height
     if (options) {
       this.quality = options.quality ?? this.quality;
