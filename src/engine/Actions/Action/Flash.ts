@@ -38,7 +38,7 @@ export class Flash implements Action {
             color = mix(textureColor, u_color, u_blend * textureColor.a);
             color.rgb = color.rgb * color.a;
         }`
-    }) as ex.Material;
+    }) as Material;
     this._total = duration;
   }
 
