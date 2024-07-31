@@ -1439,5 +1439,29 @@ describe('A game actor', () => {
       expect(actor._postkill).toHaveBeenCalledTimes(1);
       expect(actor.onPostKill).toHaveBeenCalledTimes(1);
     });
+
+    it('can run onAdd and onRemove', () => {
+      spyOn(actor, 'onAdd').and.callThrough();
+      spyOn(actor, 'onRemove').and.callThrough();
+
+      actor.onRemove = (engine: ex.Engine) => {
+        expect(engine).not.toBe(null);
+      };
+
+      actor.onAdd = (engine: ex.Engine) => {
+        expect(engine).not.toBe(null);
+      };
+
+      engine.remove(actor);
+      actor.update(engine, 100);
+      actor.update(engine, 100);
+      expect(actor.onAdd).toHaveBeenCalledTimes(0);
+      expect(actor.onRemove).toHaveBeenCalledTimes(1);
+      engine.add(actor);
+      actor.update(engine, 100);
+      actor.update(engine, 100);
+      expect(actor.onAdd).toHaveBeenCalledTimes(1);
+      expect(actor.onRemove).toHaveBeenCalledTimes(1);
+    });
   });
 });
