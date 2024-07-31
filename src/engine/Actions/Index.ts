@@ -22,6 +22,7 @@ export * from './Action/RotateTo';
 export * from './Action/ScaleBy';
 export * from './Action/ScaleTo';
 export * from './Action/Delay';
+export * from './Action/Flash';
 
 export * from './ActionsComponent';
 export * from './ActionsSystem';
