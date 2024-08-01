@@ -229,7 +229,7 @@ describe('A Coroutine', () => {
         const elapsed = yield ex.Util.delay(1000, clock);
         expect(elapsed).toBe(1);
         yield;
-        throw Error('error');
+        throw Error('error here');
       });
       // wait 200 ms
       clock.step(1000);
@@ -240,7 +240,7 @@ describe('A Coroutine', () => {
 
       // 1 more yield
       clock.step(100);
-      await expectAsync(result).toBeRejectedWithError('error');
+      await expectAsync(result).toBeRejectedWithError('error here');
       engine.dispose();
     });
   });
