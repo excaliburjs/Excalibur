@@ -14,7 +14,6 @@ import { Collider } from './Collider';
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
 import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
 import { Transform } from '../../Math/transform';
-import { AffineMatrix } from '../../Math/affine-matrix';
 import { BodyComponent } from '../Index';
 import { RayCastHit } from '../Detection/RayCastHit';
 import { approximatelyEqual } from '../../Math/util';
@@ -39,10 +38,13 @@ export class CircleCollider extends Collider {
    */
   public offset: Vector = Vector.Zero;
 
-  private _globalMatrix: AffineMatrix = AffineMatrix.identity();
+  private _transform: Transform = new Transform();
+  public get transform() {
+    return this._transform;
+  }
 
   public get worldPos(): Vector {
-    return this._globalMatrix.getPosition();
+    return this._transform.pos;
   }
 
   private _naturalRadius: number;
@@ -73,13 +75,12 @@ export class CircleCollider extends Collider {
     this._radius = val;
   }
 
-  private _transform: Transform;
-
   constructor(options: CircleColliderOptions) {
     super();
     this.offset = options.offset || Vector.Zero;
     this.radius = options.radius || 0;
-    this._globalMatrix.translate(this.offset.x, this.offset.y);
+    this._transform.pos.x += this.offset.x;
+    this._transform.pos.y += this.offset.y;
   }
 
   /**
@@ -96,7 +97,7 @@ export class CircleCollider extends Collider {
    * Get the center of the collider in world coordinates
    */
   public get center(): Vector {
-    return this._globalMatrix.getPosition();
+    return this._transform.pos;
   }
 
   /**
@@ -117,9 +118,9 @@ export class CircleCollider extends Collider {
    */
   public rayCast(ray: Ray, max: number = Infinity): RayCastHit | null {
     // https://en.wikipedia.org/wiki/Intersection_(geometry)#A_line_and_a_circle
-    const c = this.center; //?
-    const dir = ray.dir; //?
-    const orig = ray.pos; //?
+    const c = this.center;
+    const dir = ray.dir;
+    const orig = ray.pos;
 
     const u = c.sub(orig);
 
@@ -225,7 +226,7 @@ export class CircleCollider extends Collider {
    * Get the axis aligned bounding box for the circle collider in world coordinates
    */
   public get bounds(): BoundingBox {
-    return this.localBounds.transform(this._globalMatrix);
+    return this.localBounds.transform(this._transform.matrix);
   }
 
   private _localBoundsDirty = true;
@@ -258,10 +259,14 @@ export class CircleCollider extends Collider {
 
   /* istanbul ignore next */
   public update(transform: Transform): void {
-    this._transform = transform;
-    const globalMat = transform.matrix ?? this._globalMatrix;
-    globalMat.clone(this._globalMatrix);
-    this._globalMatrix.translate(this.offset.x, this.offset.y);
+    if (transform) {
+      // This change means an update must be performed in order for geometry to update
+      transform.cloneWithParent(this._transform);
+      if (this.offset.x !== 0 || this.offset.y !== 0) {
+        this._transform.pos.x += this.offset.x;
+        this._transform.pos.y += this.offset.y;
+      }
+    }
     this._radius = undefined;
   }
 

@@ -130,6 +130,7 @@ export class SeparatingAxis {
     const axes = polygon.axes;
     const pc = polygon.center;
     // Special SAT with circles
+    // TODO this is not accurate we should use faces
     const polyDir = pc.sub(circle.worldPos);
     const closestPointOnPoly = polygon.getFurthestPoint(polyDir.negate());
     axes.push(closestPointOnPoly.sub(circle.worldPos).normalize());
@@ -155,6 +156,111 @@ export class SeparatingAxis {
       return null;
     }
     return minAxis.normalize().scale(minOverlap);
+  }
+
+  static findCirclePolygonSeparation3(circle: CircleCollider, polygon: PolygonCollider) {
+    const toPolygonSpace = polygon.transform.inverse.multiply(circle.transform.matrix, SeparatingAxis._SCRATCH_MATRIX);
+    const points = polygon.points;
+
+    const center = toPolygonSpace.multiply(circle.center);
+    const radius = circle.radius;
+
+    const localPoints: Vector[] = [];
+    const localSides: number[] = [];
+    for (let pointsIndex = 0; pointsIndex < points.length; pointsIndex++) {
+      const pointA = points[pointsIndex];
+      const pointB = points[(pointsIndex + 1) % points.length];
+
+      const ab = pointB.sub(pointA);
+      const ac = center.sub(pointA);
+
+      // Quadratic formula to find roots which are the intersections
+      // https://stackoverflow.com/a/1084899/839595
+      const a = ab.dot(ab);
+      const b = 2 * ac.dot(ab);
+      const c = ac.dot(ac) - radius * radius;
+      const discriminant = b * b - 4 * a * c;
+      if (discriminant < 0) {
+        continue; // no real roots so no intersections
+      } else {
+        const sqrtDiscriminant = Math.sqrt(discriminant);
+
+        const t0 = (-b - sqrtDiscriminant) / (2 * a);
+        const t1 = (-b + sqrtDiscriminant) / (2 * a);
+
+        if (t0 > 0 && t0 < 1) {
+          // Impale, Poke
+          localPoints.push(ab.scale(t0));
+          localSides.push(pointsIndex);
+        }
+
+        if (t1 >= 0 && t1 <= 1) {
+          // ExitWound
+          localPoints.push(ab.scale(t1));
+          localSides.push(pointsIndex);
+        }
+      }
+    }
+
+    return {
+      localPoints,
+      localSides
+    };
+  }
+
+  static findCirclePolygonSeparation2(circle: CircleCollider, polygon: PolygonCollider) {
+    // https://www.youtube.com/watch?v=egmZJU-1zPU
+    let bestSeparation = Number.MAX_VALUE;
+    let bestSideIndex: number = -1;
+    let localPoint: Vector;
+
+    const toPolygonSpace = polygon.transform.inverse.multiply(circle.transform.matrix, SeparatingAxis._SCRATCH_MATRIX);
+    const points = polygon.points;
+
+    const center = toPolygonSpace.multiply(circle.center);
+    const radius = circle.radius;
+    const indices: number[] = [];
+    const separations: number[] = [];
+    const results: Vector[] = [];
+    for (let pointsIndex = 0; pointsIndex < points.length; pointsIndex++) {
+      let closestPoint: Vector;
+
+      const pointA = points[pointsIndex];
+      const pointB = points[(pointsIndex + 1) % points.length];
+
+      const ab = pointB.sub(pointA);
+      const ap = center.sub(pointA);
+      const projection = ap.dot(ab);
+      const abSquared = ab.squareDistance();
+      const d = projection / abSquared;
+
+      if (d < 0) {
+        closestPoint = pointA;
+      } else if (d >= 1) {
+        closestPoint = pointB;
+      } else {
+        closestPoint = ab.scale(projection / abSquared);
+      }
+
+      const circleDistance = closestPoint.distance(center);
+      if (circleDistance <= radius) {
+        indices.push(pointsIndex);
+        results.push(closestPoint);
+        const separation = radius - circleDistance;
+        separations.push(separation);
+        if (separation < bestSeparation) {
+          bestSeparation = separation;
+          bestSideIndex = pointsIndex;
+          localPoint = closestPoint;
+        }
+      }
+    }
+    return {
+      localPoint,
+      separation: bestSeparation,
+      sideIndex: bestSideIndex,
+      points: results
+    };
   }
 }
 

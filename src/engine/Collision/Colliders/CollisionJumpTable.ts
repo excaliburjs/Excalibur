@@ -50,6 +50,9 @@ export const CollisionJumpTable = {
       return [];
     }
 
+    // const { localPoints, localSides } = SeparatingAxis.findCirclePolygonSeparation3(circle, polygon);
+    // console.log(localPoints, localSides);
+
     // make sure that the minAxis is pointing away from circle
     const sameDir = minAxis.dot(polygon.center.sub(circle.center));
     minAxis = sameDir < 0 ? minAxis.negate() : minAxis;
