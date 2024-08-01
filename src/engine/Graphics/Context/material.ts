@@ -155,6 +155,14 @@ export class Material {
     this._initialized = true;
   }
 
+  get color(): Color {
+    return this._color;
+  }
+
+  set color(c: Color) {
+    this._color = c;
+  }
+
   get name() {
     return this._name ?? 'anonymous material';
   }
