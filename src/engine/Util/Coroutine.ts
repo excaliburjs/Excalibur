@@ -2,7 +2,7 @@ import { createContext, useContext } from '../Context';
 import { Engine } from '../Engine';
 import { ScheduledCallbackTiming } from './Clock';
 import { Logger } from './Log';
-export type CoroutineGenerator = () => Generator<number | Promise<any> | undefined, void, number>;
+export type CoroutineGenerator = () => Generator<any | number | Promise<any> | undefined, void, number>;
 
 const InsideCoroutineContext = createContext<boolean>();
 
@@ -31,12 +31,14 @@ export interface CoroutineOptions {
 type Thenable = PromiseLike<void>['then'];
 
 export interface CoroutineInstance extends PromiseLike<void> {
+  isRunning(): boolean;
+  isComplete(): boolean;
   done: Promise<void>;
-  generator: Generator<number | Promise<any> | undefined, void, number>;
+  generator: Generator<CoroutineInstance | number | Promise<any> | undefined, void, number>;
   start: () => CoroutineInstance;
   cancel: () => void;
   then: Thenable;
-  [Symbol.iterator]: () => Generator<number | Promise<any> | undefined, void, number>;
+  [Symbol.iterator]: () => Generator<CoroutineInstance | number | Promise<any> | undefined, void, number>;
 }
 
 /**
@@ -150,6 +152,7 @@ export function coroutine(...args: any[]): CoroutineInstance {
   }
 
   let started = false;
+  let completed = false;
   let cancelled = false;
   const generatorFcn = coroutineGenerator.bind(thisArg) as CoroutineGenerator;
   const generator = generatorFcn();
@@ -158,11 +161,15 @@ export function coroutine(...args: any[]): CoroutineInstance {
     loop = (elapsedMs: number) => {
       try {
         if (cancelled) {
+          completed = true;
           resolve();
+          return;
         }
         const { done, value } = InsideCoroutineContext.scope(true, () => generator.next(elapsedMs));
         if (done || cancelled) {
+          completed = true;
           resolve();
+          return;
         }
 
         if (value instanceof Promise) {
@@ -189,6 +196,12 @@ export function coroutine(...args: any[]): CoroutineInstance {
   });
 
   const co: CoroutineInstance = {
+    isRunning: () => {
+      return started && !cancelled && !completed;
+    },
+    isComplete: () => {
+      return completed;
+    },
     cancel: () => {
       cancelled = true;
     },
