@@ -27,6 +27,8 @@ export { FontStyle, FontUnit, TextAlign, BaseAlign } from './Graphics/FontCommon
 export * from './EmitterType';
 export { Particle, ParticleTransform, ParticleConfig as ParticleArgs, ParticleEmitterArgs } from './Particles/Particles';
 export * from './Particles/ParticleEmitter';
+export * from './Particles/GpuParticleState';
+export * from './Particles/GpuParticleEmitter';
 export * from './Collision/Physics';
 export * from './Scene';
 

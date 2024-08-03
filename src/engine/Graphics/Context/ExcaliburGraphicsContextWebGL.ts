@@ -35,6 +35,7 @@ import { Material, MaterialOptions } from './material';
 import { MaterialRenderer } from './material-renderer/material-renderer';
 import { Shader, ShaderOptions } from './shader';
 import { GarbageCollector } from '../../GarbageCollector';
+import { ParticleRenderer } from './particle-renderer/particle-renderer';
 
 export const pixelSnapEpsilon = 0.0001;
 
@@ -324,10 +325,11 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this.register(new CircleRenderer());
     this.register(new PointRenderer());
     this.register(new LineRenderer());
+    this.register(new ParticleRenderer());
 
     this.materialScreenTexture = gl.createTexture();
     if (!this.materialScreenTexture) {
-      throw new Error('');
+      throw new Error('Could not create screen texture!');
     }
     gl.bindTexture(gl.TEXTURE_2D, this.materialScreenTexture);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
