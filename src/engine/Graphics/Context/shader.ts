@@ -1,4 +1,4 @@
-import { Color, Logger, Vector } from '../..';
+import { AffineMatrix, Color, Logger, Vector } from '../..';
 import { Matrix } from '../../Math/matrix';
 import { getAttributeComponentSize, getAttributePointerType } from './webgl-util';
 
@@ -371,6 +371,30 @@ export class Shader {
    */
   setUniformMatrix(name: string, value: Matrix) {
     this.setUniform('uniformMatrix4fv', name, false, value.data);
+  }
+
+  setUniformAffineMatrix(name: string, value: AffineMatrix) {
+    this.setUniform('uniformMatrix4fv', name, false, [
+      value.data[0],
+      value.data[1],
+      0,
+      0,
+
+      value.data[2],
+      value.data[3],
+      0,
+      0,
+
+      0,
+      0,
+      1,
+      0,
+
+      value.data[4],
+      value.data[5],
+      0,
+      1
+    ]);
   }
 
   /**

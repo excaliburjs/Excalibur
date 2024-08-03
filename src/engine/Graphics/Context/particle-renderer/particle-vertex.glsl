@@ -22,6 +22,7 @@ uniform float deltaMs;
 uniform float maxLifeMs;
 uniform vec2 gravity;
 uniform mat4 u_matrix;
+uniform mat4 u_transform;
 
 // uniform sampler2D obstacle;
 
@@ -70,14 +71,14 @@ void main(){
     float r3 = rand2(vec2(uRandom, r1 * uRandom));
 
     finalVelocity = vec2(ran_range(r1,-200.,100.),ran_range(r2,0.,-300.));
-    finalPosition = vec2(100, 100);// vec2(ran_range(r2,0.,800.),800.);
+    finalPosition = vec2(0, 0);// vec2(ran_range(r2,0.,800.),800.);
     finalRotation = 3.14*2.*r3;
     finalAngularVelocity = 6.*r2-3.14;
     finalLifeMs = maxLifeMs*r3;
   }
 
   float perc = finalLifeMs/maxLifeMs;
-  vec2 transformedPos= (u_matrix * vec4(finalPosition,0.,1.)).xy;
+  vec2 transformedPos= (u_matrix * u_transform * vec4(finalPosition,0.,1.)).xy;
 
   gl_Position= vec4(transformedPos, 0., 1.);
   gl_PointSize=64.*perc;
