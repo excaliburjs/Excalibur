@@ -50,9 +50,7 @@ export class GpuParticleEmitter extends Entity {
     super({ name: `GpuParticleEmitter` });
     this.addComponent(this.transform);
     this.addComponent(this.graphics);
-    (this.graphics.onPostDraw as any) = (ctx: ExcaliburGraphicsContextWebGL, elapsedMilliseconds: number) => {
-      ctx.draw<ex.ParticleRenderer>('ex.particle', this.state, elapsedMilliseconds);
-    };
+    (this.graphics.onPostDraw as any) = this.draw.bind(this);
 
     const { particle, x, y, z, pos, isEmitting, emitRate, emitterType, radius, random } = { ...config };
 
