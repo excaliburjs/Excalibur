@@ -5,6 +5,10 @@ uniform sampler2D graphic;
 uniform bool useTexture;
 uniform float maxLifeMs;
 
+uniform vec4 beginColor;
+uniform vec4 endColor;
+uniform bool fade;
+
 in float finalRotation;
 in float finalLifeMs;
 out vec4 fragColor;
@@ -24,9 +28,10 @@ void main(){
     fragColor = color * alpha;
   } else {
     /** Draw circle */
-    float distanceFromPointCenter=distance(gl_PointCoord.xy,vec2(.5));
-    if(distanceFromPointCenter>.5)discard;
-    // TODO particle colors as uniforms
-    fragColor=vec4(.8,.9*alpha,.1,1.)*alpha;
+    float distanceFromPointCenter = distance(gl_PointCoord.xy, vec2(.5));
+    // TODO smooth edge instead of hard discard
+    if( distanceFromPointCenter > .5 ) discard;
+    vec4 color = mix(beginColor, endColor, 1.0 - alpha);
+    fragColor = color * (fade ? alpha : 1.0);
   }
 }

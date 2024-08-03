@@ -5,6 +5,7 @@ import particleVertexSource from './particle-vertex.glsl';
 import particleFragmentSource from './particle-fragment.glsl';
 import { GpuParticleState } from '../../../Particles/GpuParticleState';
 import { vec } from '../../../Math/vector';
+import { Color } from '../../../Color';
 
 export class ParticleRenderer implements RendererPlugin {
   public readonly type = 'ex.particle' as const;
@@ -44,7 +45,12 @@ export class ParticleRenderer implements RendererPlugin {
     this._shader.setUniformFloat('maxLifeMs', particleState.particle.life ?? 2000); // TODO configurable in particle state
     this._shader.setUniformFloat('uRandom', Math.random()); // TODO ex Random
     this._shader.setUniformFloat('deltaMs', elapsedMs);
-    this._shader.setUniformFloatVector('gravity', particleState.particle.acc ?? vec(0, 0)); // TODO configurable in particle state
+    this._shader.setUniformFloatVector('gravity', particleState.particle.acc ?? vec(0, 0));
+    this._shader.setUniformFloatColor('beginColor', particleState.particle.beginColor ?? Color.Transparent);
+    this._shader.setUniformFloatColor('endColor', particleState.particle.endColor ?? Color.Transparent);
+    this._shader.setUniformBoolean('fade', particleState.particle.fade ?? true);
+    this._shader.setUniformFloat('startSize', particleState.particle.startSize ?? 10);
+    this._shader.setUniformFloat('endSize', particleState.particle.endSize ?? 10);
 
     // Particle sprite
     // gl.activeTexture(gl.TEXTURE0);

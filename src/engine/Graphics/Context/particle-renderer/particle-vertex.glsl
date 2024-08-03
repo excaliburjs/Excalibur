@@ -23,6 +23,8 @@ uniform float maxLifeMs;
 uniform vec2 gravity;
 uniform mat4 u_matrix;
 uniform mat4 u_transform;
+uniform float startSize;
+uniform float endSize;
 
 // uniform sampler2D obstacle;
 
@@ -81,5 +83,5 @@ void main(){
   vec2 transformedPos= (u_matrix * u_transform * vec4(finalPosition,0.,1.)).xy;
 
   gl_Position= vec4(transformedPos, 0., 1.);
-  gl_PointSize=64.*perc;
+  gl_PointSize=mix(startSize, endSize, 1.0 - perc);
 }

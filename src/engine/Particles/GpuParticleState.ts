@@ -54,6 +54,7 @@ export class GpuParticleState {
           randomInRange(-100, 100, this._random), // velocity
           this._random.next() * TwoPI, // rotation
           this._random.next() * 2.5, // angular velocity
+          // TODO should this start at 0?
           this._random.next() * (this.particle.life ?? 2000) // life
         ],
         i
