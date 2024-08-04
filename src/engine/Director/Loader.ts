@@ -319,7 +319,6 @@ export class Loader extends DefaultLoader {
     await this.showPlayButton();
   }
 
-  private _configuredPixelRatio: number | null = null;
   public override async onBeforeLoad(): Promise<void> {
     const image = this._image;
     await this._imageLoaded.promise;
@@ -328,7 +327,6 @@ export class Loader extends DefaultLoader {
 
   // eslint-disable-next-line require-await
   public override async onAfterLoad(): Promise<void> {
-    this.screen.pixelRatioOverride = this._configuredPixelRatio;
     this.screen.popResolutionAndViewport();
     this.screen.applyResolutionAndViewport();
     this.dispose();

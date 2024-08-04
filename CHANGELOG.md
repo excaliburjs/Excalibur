@@ -75,6 +75,7 @@ are doing mtv adjustments during precollision.
 
 ### Fixed
 
+- Fixed issue where the boot `ex.Loader` was removing pixelRatio override
 - Fixed `ex.RasterOptions`, it now extends `ex.GraphicsOptions` which is the underlying truth
 - Fixed issue where rayCast `filter` would not be called in hit order
 - Fixed issue where rayCasts would return inconsistent orderings with the `ex.SparseHashGridCollisionProcessor` strategy
