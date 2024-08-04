@@ -1,5 +1,5 @@
 import { Vector, vec } from '../Math/vector';
-import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
+import { ExcaliburGraphicsContext, HTMLImageSource } from './Context/ExcaliburGraphicsContext';
 import { BoundingBox } from '../Collision/BoundingBox';
 import { Color } from '../Color';
 import { watch } from '../Util/Watch';
@@ -227,6 +227,21 @@ export abstract class Graphic {
    * @param y
    */
   protected abstract _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number): void;
+
+  public abstract getImageWithCoordinates(
+    x: number,
+    y: number
+  ): {
+    image: HTMLImageSource;
+    sx: number;
+    sy: number;
+    sw?: number;
+    sh?: number;
+    dx?: number;
+    dy?: number;
+    dw?: number;
+    dh?: number;
+  };
 
   /**
    * Apply affine transformations to the graphics context to manipulate the graphic before {@apilink Graphic._drawImage}

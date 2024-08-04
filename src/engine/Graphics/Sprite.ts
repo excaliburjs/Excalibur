@@ -113,6 +113,26 @@ export class Sprite extends Graphic {
     }
   }
 
+  public getImageWithCoordinates(
+    x: number,
+    y: number
+  ): { image: HTMLImageElement; sx: number; sy: number; sw?: number; sh?: number; dx?: number; dy?: number; dw?: number; dh?: number } {
+    if (this.image.isLoaded()) {
+      return {
+        image: this.image.image,
+        sx: this.sourceView.x,
+        sy: this.sourceView.y,
+        sw: this.sourceView.width,
+        sh: this.sourceView.height,
+        dx: x,
+        dy: y,
+        dw: this.destSize.width,
+        dh: this.destSize.height
+      };
+    }
+    throw Error('NOT LOADED');
+  }
+
   public clone(): Sprite {
     return new Sprite({
       image: this.image,

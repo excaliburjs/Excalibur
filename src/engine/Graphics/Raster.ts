@@ -1,5 +1,5 @@
 import { Graphic, GraphicOptions } from './Graphic';
-import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
+import { ExcaliburGraphicsContext, HTMLImageSource } from './Context/ExcaliburGraphicsContext';
 import { Color } from '../Color';
 import { Vector } from '../Math/vector';
 import { BoundingBox } from '../Collision/BoundingBox';
@@ -290,6 +290,16 @@ export abstract class Raster extends Graphic {
     }
     ex.scale(1 / this.quality, 1 / this.quality);
     ex.drawImage(this._bitmap, x, y);
+  }
+  public getImageWithCoordinates(
+    x: number,
+    y: number
+  ): { image: HTMLImageSource; sx: number; sy: number; sw?: number; sh?: number; dx?: number; dy?: number; dw?: number; dh?: number } {
+    return {
+      image: this._bitmap,
+      sx: x,
+      sy: y
+    };
   }
 
   /**

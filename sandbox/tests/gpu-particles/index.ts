@@ -20,10 +20,10 @@ var particles2 = new ex.GpuParticleEmitter({
   pos: ex.vec(700, 500),
   particle: {
     beginColor: ex.Color.Blue,
-    endColor: ex.Color.White,
+    endColor: ex.Color.Rose,
     fade: true,
-    startSize: 20,
-    endSize: 0
+    startSize: 50,
+    endSize: 20
   }
 });
 game.add(particles2);

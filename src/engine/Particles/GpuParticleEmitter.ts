@@ -69,6 +69,7 @@ export class GpuParticleEmitter extends Entity {
     this.particle = { ...this.particle, ...particle };
 
     this.state = new GpuParticleState(this, random ?? new Random(), this.particle);
+    // TODO figure out emit rate and how many particles should be active
   }
 
   public _initialize(engine: Engine): void {

@@ -52,10 +52,14 @@ export class ParticleRenderer implements RendererPlugin {
     this._shader.setUniformFloat('startSize', particleState.particle.startSize ?? 10);
     this._shader.setUniformFloat('endSize', particleState.particle.endSize ?? 10);
 
-    // Particle sprite
-    // gl.activeTexture(gl.TEXTURE0);
-    // gl.bindTexture(gl.TEXTURE_2D, spriteTex);
-    // gl.uniform1i(u_graphic, 0);
+    // Particle Graphic
+    if (particleState.particle.graphic) {
+      const graphic = particleState.particle.graphic;
+
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, graphic);
+      gl.uniform1i('u_graphic', 0);
+    }
 
     // Collision Mask
     // gl.activeTexture(gl.TEXTURE0 + 1);
