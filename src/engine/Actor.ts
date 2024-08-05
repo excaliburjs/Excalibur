@@ -135,6 +135,11 @@ export type ActorArgs = ColliderArgs & {
    * Optionally supply a {@apilink CollisionGroup}
    */
   collisionGroup?: CollisionGroup;
+
+  /**
+   * Optionally silence excalibur warning warnings
+   */
+  silenceWarnings?: boolean;
 };
 
 type ColliderArgs =
@@ -294,6 +299,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * {@apilink ActionContext | `Action context`} of the actor.
    */
   public actions: ActionsComponent;
+  private _silenceWarnings: boolean;
 
   /**
    * Gets the position vector of the actor in pixels
@@ -577,7 +583,8 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
       anchor,
       offset,
       collisionType,
-      collisionGroup
+      collisionGroup,
+      silenceWarnings
     } = {
       ...config
     };
@@ -592,6 +599,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     this.scale = scale ?? vec(1, 1);
     this.z = z ?? 0;
     this.transform.coordPlane = coordPlane ?? CoordPlane.World;
+    this._silenceWarnings = silenceWarnings ?? false;
 
     this.pointer = new PointerComponent();
     this.addComponent(this.pointer);
@@ -663,6 +671,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
 
   public clone(): Actor {
     const clone = new Actor({
+      silenceWarnings: this._silenceWarnings,
       color: this.color.clone(),
       anchor: this.anchor.clone(),
       offset: this.offset.clone()
