@@ -17,20 +17,20 @@ export class Gif implements Loadable<ImageSource[]> {
   /**
    * The width of the texture in pixels
    */
-  public width: number;
+  public width: number = 0;
 
   /**
    * The height of the texture in pixels
    */
-  public height: number;
+  public height: number = 0;
 
-  private _stream: Stream = null;
-  private _gif: ParseGif = null;
+  private _stream?: Stream;
+  private _gif?: ParseGif;
   private _textures: ImageSource[] = [];
-  private _animation: Animation = null;
-  private _transparentColor: Color = null;
+  private _animation?: Animation;
+  private _transparentColor: Color;
 
-  public data: ImageSource[];
+  public data: ImageSource[] = [];
 
   /**
    * @param path       Path to the image resource
@@ -80,33 +80,40 @@ export class Gif implements Loadable<ImageSource[]> {
    * Return a frame of the gif as a sprite by id
    * @param id
    */
-  public toSprite(id: number = 0): Sprite {
-    const sprite = this._textures[id].toSprite();
-    return sprite;
+  public toSprite(id: number = 0): Sprite | null {
+    const sprite = this._textures[id]?.toSprite();
+    return sprite ?? null;
   }
 
   /**
    * Return the gif as a spritesheet
    */
-  public toSpriteSheet(): SpriteSheet {
+  public toSpriteSheet(): SpriteSheet | null {
     const sprites: Sprite[] = this._textures.map((image) => {
       return image.toSprite();
     });
-    return new SpriteSheet({ sprites });
+    if (sprites.length) {
+      return new SpriteSheet({ sprites });
+    }
+
+    return null;
   }
 
   /**
    * Transform the GIF into an animation with duration per frame
    */
-  public toAnimation(durationPerFrameMs: number): Animation {
-    const spriteSheet: SpriteSheet = this.toSpriteSheet();
-    const length = spriteSheet.sprites.length;
-    this._animation = Animation.fromSpriteSheet(spriteSheet, range(0, length), durationPerFrameMs);
-    return this._animation;
+  public toAnimation(durationPerFrameMs: number): Animation | null {
+    const spriteSheet = this.toSpriteSheet();
+    const length = spriteSheet?.sprites.length;
+    if (length) {
+      this._animation = Animation.fromSpriteSheet(spriteSheet, range(0, length), durationPerFrameMs);
+      return this._animation;
+    }
+    return null;
   }
 
   public get readCheckBytes(): number[] {
-    return this._gif.checkBytes;
+    return this._gif?.checkBytes ?? [];
   }
 }
 
@@ -217,8 +224,8 @@ const lzwDecode = function (minCodeSize: number, data: any) {
     dict[eoiCode] = null;
   };
 
-  let code;
-  let last;
+  let code = 0;
+  let last = 0;
 
   while (true) {
     last = code;
@@ -256,9 +263,9 @@ const lzwDecode = function (minCodeSize: number, data: any) {
 
 // The actual parsing; returns an object with properties.
 export class ParseGif {
-  private _st: Stream = null;
+  private _st: Stream;
   private _handler: any = {};
-  private _transparentColor: Color = null;
+  private _transparentColor: Color;
   public frames: GifFrame[] = [];
   public images: HTMLImageElement[] = [];
   public globalColorTable: any[] = [];
@@ -445,15 +452,15 @@ export class ParseGif {
   };
 
   parseImg = (img: any) => {
-    const deinterlace = (pixels: any, width: any) => {
+    const deinterlace = (pixels: any, width: number) => {
       // Of course this defeats the purpose of interlacing. And it's *probably*
       // the least efficient way it's ever been implemented. But nevertheless...
 
-      const newPixels = new Array(pixels.length);
+      const newPixels: number[] = new Array(pixels.length);
       const rows = pixels.length / width;
-      const cpRow = (toRow: any, fromRow: any) => {
+      const cpRow = (toRow: number, fromRow: number) => {
         const fromPixels = pixels.slice(fromRow * width, (fromRow + 1) * width);
-        newPixels.splice.apply(newPixels, [toRow * width, width].concat(fromPixels));
+        newPixels.splice.apply(newPixels, [toRow * width, width].concat(fromPixels) as any);
       };
 
       const offsets = [0, 4, 2, 1];
@@ -536,12 +543,12 @@ export class ParseGif {
 
   arrayToImage = (frame: GifFrame) => {
     let count = 0;
-    const c = document.createElement('canvas');
+    const c = document.createElement('canvas')!;
     c.id = count.toString();
     c.width = frame.width;
     c.height = frame.height;
     count++;
-    const context = c.getContext('2d');
+    const context = c.getContext('2d')!;
     const pixSize = 1;
     let y = 0;
     let x = 0;
