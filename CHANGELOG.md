@@ -122,8 +122,10 @@ are doing mtv adjustments during precollision.
 
 ### Changed
 
-- Applied increased TS strictness for the Graphics API subtree
-- Applied increased TS strictness for the TileMap API subtree
+- Applied increased TS strictness:
+  * Resource API subtree
+  * Graphics API subtree
+  * TileMap API subtree
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
