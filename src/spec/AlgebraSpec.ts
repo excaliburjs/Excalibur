@@ -94,20 +94,20 @@ describe('Vectors', () => {
     expect(v2.distance()).toBe(20);
   });
 
-  it('can have a size', () => {
+  it('can have a magnitude', () => {
     const v = new ex.Vector(20, 0);
     const v2 = new ex.Vector(0, -20);
 
-    expect(v.size).toBe(20);
-    expect(v2.size).toBe(20);
+    expect(v.magnitude).toBe(20);
+    expect(v2.magnitude).toBe(20);
   });
 
-  it('can have size set', () => {
+  it('can have magnitude set', () => {
     const v = new ex.Vector(20, 0);
     const v2 = new ex.Vector(3, 4);
 
-    v.size = 10;
-    v2.size = 13;
+    v.magnitude = 10;
+    v2.magnitude = 13;
 
     expect(v.equals(new ex.Vector(10, 0))).toBeTruthy();
     expect(v2.equals(new ex.Vector(7.8, 10.4))).toBeTruthy();
@@ -296,7 +296,7 @@ describe('Vectors', () => {
     const after = sut.normalize();
     expect(before.x).toBeCloseTo(after.x, 4);
     expect(before.y).toBeCloseTo(after.y, 4);
-    expect(sut.size).toBe(5);
+    expect(sut.magnitude).toBe(5);
   });
 });
 

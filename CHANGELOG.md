@@ -47,6 +47,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
+- `Vector.size` is deprecated, use `Vector.magnitude` instead
 - `ScreenShader` v_texcoord is deprecated, use v_uv. This is changed to match the materials shader API
 - `actor.getGlobalPos()` - use `actor.globalPos` instead
 - `actor.getGlobalRotation()` - use `actor.globalRotation` instead

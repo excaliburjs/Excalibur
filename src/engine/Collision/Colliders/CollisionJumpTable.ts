@@ -61,7 +61,7 @@ export const CollisionJumpTable = {
 
     const info: SeparationInfo = {
       collider: circle,
-      separation: -minAxis.size,
+      separation: -minAxis.magnitude,
       axis: normal,
       point: point,
       localPoint: local,

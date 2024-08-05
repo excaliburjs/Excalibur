@@ -126,7 +126,7 @@ export class CircleCollider extends Collider {
     const u1 = dir.scale(u.dot(dir));
     const u2 = u.sub(u1);
 
-    const d = u2.size;
+    const d = u2.magnitude;
 
     if (d > this.radius) {
       return null;
