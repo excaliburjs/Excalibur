@@ -6,6 +6,10 @@ import particleFragmentSource from './particle-fragment.glsl';
 import { GpuParticleState } from '../../../Particles/GpuParticleState';
 import { vec } from '../../../Math/vector';
 import { Color } from '../../../Color';
+import { HTMLImageSource } from '../ExcaliburGraphicsContext';
+import { ImageSourceAttributeConstants } from '../../ImageSource';
+import { parseImageWrapping } from '../../Wrapping';
+import { parseImageFiltering } from '../../Filtering';
 
 export class ParticleRenderer implements RendererPlugin {
   public readonly type = 'ex.particle' as const;
@@ -34,6 +38,30 @@ export class ParticleRenderer implements RendererPlugin {
     this._shader.setUniformMatrix('u_matrix', this._context.ortho);
   }
 
+  private _getTexture(image: HTMLImageSource) {
+    // if (this._texture) {
+    //   return this._texture; // TODO invalidate if image changes
+    // }
+    // TODO DOM apis really sucks perf cache it?
+    const maybeFiltering = image.getAttribute(ImageSourceAttributeConstants.Filtering);
+    const filtering = maybeFiltering ? parseImageFiltering(maybeFiltering) : undefined;
+    const wrapX = parseImageWrapping(image.getAttribute(ImageSourceAttributeConstants.WrappingX) as any);
+    const wrapY = parseImageWrapping(image.getAttribute(ImageSourceAttributeConstants.WrappingY) as any);
+
+    const force = image.getAttribute('forceUpload') === 'true' ? true : false;
+    const texture = this._context.textureLoader.load(
+      image,
+      {
+        filtering,
+        wrapping: { x: wrapX, y: wrapY }
+      },
+      force
+    )!;
+    // remove force attribute after upload
+    image.removeAttribute('forceUpload');
+    return texture;
+  }
+
   draw(particleState: GpuParticleState, elapsedMs: number): void {
     const gl = this._gl;
 
@@ -52,13 +80,16 @@ export class ParticleRenderer implements RendererPlugin {
     this._shader.setUniformFloat('startSize', particleState.particle.startSize ?? 10);
     this._shader.setUniformFloat('endSize', particleState.particle.endSize ?? 10);
 
-    // Particle Graphic
+    // Particle Graphic (only Sprites right now)
     if (particleState.particle.graphic) {
       const graphic = particleState.particle.graphic;
 
+      const texture = this._getTexture(graphic.image.image);
+      // TODO need to hint the GC
+
       gl.activeTexture(gl.TEXTURE0);
-      gl.bindTexture(gl.TEXTURE_2D, graphic);
-      gl.uniform1i('u_graphic', 0);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      this._shader.setUniformInt('graphic', 0);
     }
 
     // Collision Mask

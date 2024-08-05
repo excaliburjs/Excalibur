@@ -5,6 +5,24 @@ import { Color } from '../Color';
 import { watch } from '../Util/Watch';
 import { AffineMatrix } from '../Math/affine-matrix';
 
+export interface GraphicImageWithCoordinatesOptions {
+  x?: number;
+  y?: number;
+  data?: Record<string, any>;
+}
+
+export interface GraphicImageWithCoordinates {
+  image: HTMLImageSource;
+  sx: number;
+  sy: number;
+  sw?: number;
+  sh?: number;
+  dx?: number;
+  dy?: number;
+  dw?: number;
+  dh?: number;
+}
+
 export interface GraphicOptions {
   /**
    * The width of the graphic
@@ -228,20 +246,11 @@ export abstract class Graphic {
    */
   protected abstract _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number): void;
 
-  public abstract getImageWithCoordinates(
-    x: number,
-    y: number
-  ): {
-    image: HTMLImageSource;
-    sx: number;
-    sy: number;
-    sw?: number;
-    sh?: number;
-    dx?: number;
-    dy?: number;
-    dw?: number;
-    dh?: number;
-  };
+  /**
+   * Returns the underlying image representation of the graphic and parameters to slice it for drawing
+   * @param options
+   */
+  // public abstract getImageWithCoordinates(options?: GraphicImageWithCoordinatesOptions): GraphicImageWithCoordinates;
 
   /**
    * Apply affine transformations to the graphics context to manipulate the graphic before {@apilink Graphic._drawImage}

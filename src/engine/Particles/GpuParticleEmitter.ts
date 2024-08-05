@@ -1,14 +1,24 @@
 import { TransformComponent } from '../EntityComponentSystem';
 import { Entity } from '../EntityComponentSystem/Entity';
-import { EmitterType, Engine, ExcaliburGraphicsContextWebGL, GpuParticleState, GraphicsComponent, Random, vec, Vector } from '../';
-import { ParticleConfig, ParticleEmitterArgs, ParticleTransform } from './Particles';
+import {
+  EmitterType,
+  Engine,
+  ExcaliburGraphicsContextWebGL,
+  GpuParticleConfig,
+  GpuParticleState,
+  GraphicsComponent,
+  Random,
+  vec,
+  Vector
+} from '../';
+import { ParticleEmitterArgs, ParticleTransform } from './Particles';
 
 export class GpuParticleEmitter extends Entity {
   // TODO new renderer plugin
   // TODO transform feedback
   // TODO random glsl
 
-  public particle: ParticleConfig = {
+  public particle: GpuParticleConfig = {
     /**
      * Gets or sets the life of each particle in milliseconds
      */
@@ -46,7 +56,7 @@ export class GpuParticleEmitter extends Entity {
     this.transform.z = z;
   }
 
-  constructor(config: ParticleEmitterArgs) {
+  constructor(config: ParticleEmitterArgs & { particle?: GpuParticleConfig }) {
     super({ name: `GpuParticleEmitter` });
     this.addComponent(this.transform);
     this.addComponent(this.graphics);

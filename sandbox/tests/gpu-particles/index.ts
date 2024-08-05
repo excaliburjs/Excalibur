@@ -4,6 +4,8 @@ var game = new ex.Engine({
   displayMode: ex.DisplayMode.FitScreen
 });
 
+var swordImg = new ex.ImageSource('https://cdn.rawgit.com/excaliburjs/Excalibur/7dd48128/assets/sword.png');
+
 var particles = new ex.GpuParticleEmitter({
   pos: ex.vec(300, 500),
   particle: {
@@ -11,7 +13,9 @@ var particles = new ex.GpuParticleEmitter({
     endColor: ex.Color.White,
     fade: true,
     startSize: 100,
-    endSize: 0
+    endSize: 0,
+    life: 15000,
+    graphic: swordImg.toSprite()
   }
 });
 game.add(particles);
@@ -28,4 +32,4 @@ var particles2 = new ex.GpuParticleEmitter({
 });
 game.add(particles2);
 
-game.start();
+game.start(new ex.Loader([swordImg]));

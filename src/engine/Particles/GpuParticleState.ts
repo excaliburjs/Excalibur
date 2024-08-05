@@ -3,6 +3,14 @@ import { ExcaliburGraphicsContextWebGL } from '../Graphics/Context/ExcaliburGrap
 import { GpuParticleEmitter } from './GpuParticleEmitter';
 import { ParticleConfig } from './Particles';
 import { Random } from '../Math/Random';
+import { Sprite } from '../Graphics/Sprite';
+
+export interface GpuParticleConfig extends ParticleConfig {
+  /**
+   * Only Sprite graphics are supported in GPU particles at the moment
+   */
+  graphic?: Sprite;
+}
 
 /**
  * Container for the GPU Particle State contains the internal state needed for the GPU
@@ -10,9 +18,9 @@ import { Random } from '../Math/Random';
  */
 export class GpuParticleState {
   emitter: GpuParticleEmitter;
-  numParticles: number = 100; // todo getter/setter to enforce max
+  numParticles: number = 1000; // todo getter/setter to enforce max
   maxParticles: number = 100_000;
-  particle: ParticleConfig;
+  particle: GpuParticleConfig;
 
   private _initialized: boolean = false;
   private _vaos: WebGLVertexArrayObject[] = [];
@@ -23,7 +31,7 @@ export class GpuParticleState {
   private _currentVao!: WebGLVertexArrayObject;
   private _currentBuffer!: WebGLBuffer;
 
-  constructor(emitter: GpuParticleEmitter, random: Random, options: ParticleConfig) {
+  constructor(emitter: GpuParticleEmitter, random: Random, options: GpuParticleConfig) {
     this.emitter = emitter;
     this.particle = options;
     this._random = random;
