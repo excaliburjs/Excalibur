@@ -15,11 +15,14 @@ declare const game: ex.Engine;
 
 Sometimes you need even more control about how your graphics render in your game! For example you might want a custom blend, a reflection effect, or a warping effect. With this api you can provide custom shaders to graphics.
 
+If you want to apply a shader to the whole screen check out [PostProcessors](/docs/postprocessors)
+
 :::warning
 
 Materials are only supported in WebGL mode, this is the default mode for Excalibur but if you switch or fallback to 2D Canvas materials will not have an effect.
 
 :::
+
 
 ## Creating Materials
 
