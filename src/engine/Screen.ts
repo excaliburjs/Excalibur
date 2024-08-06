@@ -359,6 +359,7 @@ export class Screen {
     this._listenForPixelRatio();
     this._devicePixelRatio = this._calculateDevicePixelRatio();
     this.applyResolutionAndViewport();
+
     this.events.emit('pixelratio', {
       pixelRatio: this.pixelRatio
     } satisfies PixelRatioChangeEvent);
@@ -372,6 +373,7 @@ export class Screen {
     this._logger.debug('View port resized');
     this._setResolutionAndViewportByDisplayMode(parent);
     this.applyResolutionAndViewport();
+
     // Emit resize event
     this.events.emit('resize', {
       resolution: this.resolution,
@@ -401,6 +403,18 @@ export class Screen {
     }
 
     return this._devicePixelRatio;
+  }
+
+  /**
+   * This calculates the ratio between excalibur pixels and the HTML pixels.
+   *
+   * This is useful for scaling HTML UI so that it matches your game.
+   */
+  public get worldToPagePixelRatio(): number {
+    const pageOrigin = this.worldToPageCoordinates(Vector.Zero);
+    const pageDistance = this.worldToPageCoordinates(vec(1, 0)).sub(pageOrigin);
+    const pixelConversion = pageDistance.x;
+    return pixelConversion;
   }
 
   /**
@@ -563,6 +577,8 @@ export class Screen {
     if (this.graphicsContext instanceof ExcaliburGraphicsContext2DCanvas) {
       this.graphicsContext.scale(this.pixelRatio, this.pixelRatio);
     }
+    // Add the excalibur world pixel to page pixel
+    document.documentElement.style.setProperty('--ex-pixel-ratio', this.worldToPagePixelRatio.toString());
   }
 
   public get antialiasing() {
