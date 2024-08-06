@@ -55,6 +55,19 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- New `ex.Screen.worldToPagePixelRatio` API that will return the ratio between excalibur pixels and the HTML pixels. 
+  * Additionally excalibur will now decorate the document root with this same value as a CSS variable `--ex-pixel-ratio`
+  * Useful for scaling HTML UIs to match your game
+    ```css
+    .ui-container {
+      pointer-events: none;
+      position: absolute;
+      transform-origin: 0 0;
+      transform: scale(
+        calc(var(--pixel-conversion)),
+        calc(var(--pixel-conversion)));
+    }
+    ```
 - New updates to `ex.coroutine(...)`
   * New `ex.CoroutineInstance` is returned (still awaitable)
   * Control coroutine autostart with `ex.coroutine(function*(){...}, {autostart: false})`

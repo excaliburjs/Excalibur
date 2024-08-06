@@ -7,7 +7,7 @@ import { Future } from './Future';
  */
 export function getPosition(el: HTMLElement): Vector {
   // do we need the scroll too? technically the offset method before did that
-  if (el) {
+  if (el && el.getBoundingClientRect) {
     const rect = el.getBoundingClientRect();
     return vec(rect.x + window.scrollX, rect.y + window.scrollY);
   }
