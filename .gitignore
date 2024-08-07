@@ -41,6 +41,7 @@ Thumbs.db
 
 # Build
 .vs/
+.idea/
 build/
 build-storybook/
 bld/
