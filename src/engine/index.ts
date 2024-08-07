@@ -47,6 +47,7 @@ export * from './EntityComponentSystem/index';
 export * from './Director/index';
 
 export * from './Color';
+export * from './Anchor';
 
 export * from './Graphics/index';
 
