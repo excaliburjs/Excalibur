@@ -16,7 +16,7 @@ var gif3: ex.Gif = new ex.Gif('./stoplight.gif');
 var loader = new ex.Loader([gif, gif2, gif3]);
 game.start(loader).then(() => {
   var stoplight = new ex.Actor({
-    x: game.currentScene.camera.x + 100,
+    x: game.currentScene.camera.x + 120,
     y: game.currentScene.camera.y,
     width: gif3.width,
     height: gif3.height
@@ -25,7 +25,7 @@ game.start(loader).then(() => {
   game.add(stoplight);
 
   var sword = new ex.Actor({
-    x: game.currentScene.camera.x - 100,
+    x: game.currentScene.camera.x - 120,
     y: game.currentScene.camera.y,
     width: gif2.width,
     height: gif2.height
@@ -35,7 +35,7 @@ game.start(loader).then(() => {
 
   var loading = new ex.Actor({
     x: game.currentScene.camera.x,
-    y: game.currentScene.camera.y + 100,
+    y: game.currentScene.camera.y,
     width: gif2.width,
     height: gif2.height
   });
