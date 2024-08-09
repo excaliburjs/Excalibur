@@ -5,7 +5,6 @@ import { SpriteSheet } from '../Graphics/SpriteSheet';
 import { Animation } from '../Graphics/Animation';
 import { Loadable } from '../Interfaces/Index';
 import { ImageSource } from '../Graphics/ImageSource';
-import { range } from '../Math/util';
 /**
  * The {@apilink Texture} object allows games built in Excalibur to load image resources.
  * {@apilink Texture} is an {@apilink Loadable} which means it can be passed to a {@apilink Loader}
@@ -26,10 +25,11 @@ export class Gif implements Loadable<ImageSource[]> {
 
   private _stream?: Stream;
   private _gif?: GifParser;
-  private _textures: ImageSource[] = [];
+  private _images: ImageSource[] = [];
   private _animation?: Animation;
 
   public data: ImageSource[] = [];
+  private _sprites: Sprite[] = [];
 
   /**
    * @param path       Path to the image resource
@@ -64,10 +64,13 @@ export class Gif implements Loadable<ImageSource[]> {
     this._stream = new Stream(arraybuffer);
     this._gif = new GifParser(this._stream);
     const images = this._gif.images.map((i) => new ImageSource(i.src, false));
-
     // Load all textures
     await Promise.all(images.map((t) => t.load()));
-    return (this.data = this._textures = images);
+    this.data = this._images = images;
+    this._sprites = this._images.map((image) => {
+      return image.toSprite();
+    });
+    return this.data;
   }
 
   public isLoaded() {
@@ -79,17 +82,14 @@ export class Gif implements Loadable<ImageSource[]> {
    * @param id
    */
   public toSprite(id: number = 0): Sprite | null {
-    const sprite = this._textures[id]?.toSprite();
-    return sprite ?? null;
+    return this._sprites[id] ?? null;
   }
 
   /**
    * Return the gif as a spritesheet
    */
   public toSpriteSheet(): SpriteSheet | null {
-    const sprites: Sprite[] = this._textures.map((image) => {
-      return image.toSprite();
-    });
+    const sprites: Sprite[] = this._sprites;
     if (sprites.length) {
       return new SpriteSheet({ sprites });
     }
@@ -100,11 +100,20 @@ export class Gif implements Loadable<ImageSource[]> {
   /**
    * Transform the GIF into an animation with duration per frame
    */
-  public toAnimation(durationPerFrameMs: number): Animation | null {
-    const spriteSheet = this.toSpriteSheet();
-    const length = spriteSheet?.sprites.length;
-    if (length) {
-      this._animation = Animation.fromSpriteSheet(spriteSheet, range(0, length), durationPerFrameMs);
+  public toAnimation(durationPerFrameMs?: number): Animation | null {
+    const images = this._gif?.images;
+    if (images?.length) {
+      const frames = images.map((image, index) => {
+        return {
+          graphic: this._sprites[index],
+          duration: this._gif?.frames[index].delayMs || undefined
+        };
+      });
+      this._animation = new Animation({
+        frames,
+        frameDuration: durationPerFrameMs
+      });
+
       return this._animation;
     }
     return null;
@@ -123,12 +132,15 @@ export interface GifFrame {
   width: number;
   height: number;
   lctFlag: boolean;
+  lctBytes: [number, number, number][];
   interlaced: boolean;
   sorted: boolean;
   reserved: boolean[];
   lctSize: number;
   lzwMinCodeSize: number;
   pixels: number[];
+  delayTime: number;
+  delayMs: number;
 }
 
 const bitsToNum = (ba: any) => {
@@ -291,7 +303,11 @@ interface GCExtBlock extends GifBlock {
   terminator: number;
 }
 
-// The actual parsing; returns an object with properties.
+/**
+ * GifParser for binary format
+ *
+ * Roughly based on the documentation https://giflib.sourceforge.net/whatsinagif/index.html
+ */
 export class GifParser {
   private _st: Stream;
   private _handler: any = {};
@@ -299,10 +315,7 @@ export class GifParser {
   public images: HTMLImageElement[] = [];
   private _currentFrameCanvas: HTMLCanvasElement;
   private _currentFrameContext: CanvasRenderingContext2D;
-  public globalColorTable: any[] = [];
-  public globalColorTableBytes: number[][] = [];
-  public localColorTable: any[] = [];
-  public localColorTableBytes: number[][] = [];
+  public globalColorTableBytes: [number, number, number][] = [];
   public checkBytes: number[] = [];
   private _gce?: GCExtBlock;
   private _hdr?: GifHeader;
@@ -375,7 +388,6 @@ export class GifParser {
     if (hdr.gctFlag) {
       // hdr.globalColorTable = this.parseColorTable(1 << (hdr.globalColorTableSize + 1));
       this.globalColorTableBytes = this.parseColorTableBytes(1 << (hdr.globalColorTableSize + 1));
-      this.globalColorTable = hdr.globalColorTable;
     }
     if (this._handler.hdr && this._handler.hdr(hdr)) {
       this.checkBytes.push(this._handler.hdr);
@@ -484,8 +496,8 @@ export class GifParser {
     }
   };
 
-  parseImg = (img: any) => {
-    const deinterlace = (pixels: any, width: number) => {
+  parseImg = (img: GifFrame) => {
+    const deinterlace = (pixels: number[], width: number) => {
       // Of course this defeats the purpose of interlacing. And it's *probably*
       // the least efficient way it's ever been implemented. But nevertheless...
 
@@ -516,9 +528,9 @@ export class GifParser {
     img.height = this._st.readUnsigned();
 
     const bits = byteToBitArr(this._st.readByte());
-    img.lctFlag = bits.shift();
-    img.interlaced = bits.shift();
-    img.sorted = bits.shift();
+    img.lctFlag = bits.shift()!;
+    img.interlaced = bits.shift()!;
+    img.sorted = bits.shift()!;
     img.reserved = bits.splice(0, 2);
     img.lctSize = bitsToNum(bits.splice(0, 3));
 
@@ -535,6 +547,10 @@ export class GifParser {
     if (img.interlaced) {
       // Move
       img.pixels = deinterlace(img.pixels, img.width);
+    }
+
+    if (this._gce?.delayTime) {
+      img.delayMs = this._gce.delayTime * 10;
     }
 
     this.frames.push(img);
@@ -557,7 +573,7 @@ export class GifParser {
         break;
       case ',':
         block.type = 'img';
-        this.parseImg(block);
+        this.parseImg(block as any);
         break;
       case ';':
         block.type = 'eof';
@@ -607,6 +623,8 @@ export class GifParser {
       const bg = colorTable[this._hdr.backgroundColorIndex];
       this._currentFrameContext.fillStyle = `rgb(${bg[0]}, ${bg[1]}, ${bg[2]})`;
       this._currentFrameContext.fillRect(0, 0, this._hdr.width, this._hdr.height);
+    } else {
+      this._currentFrameContext.clearRect(0, 0, this._currentFrameCanvas.width, this._currentFrameCanvas.height);
     }
 
     this._currentFrameContext.drawImage(canvas, frame.leftPos, frame.topPos, frame.width, frame.height);
