@@ -25,7 +25,7 @@ export class Gif implements Loadable<ImageSource[]> {
   public height: number = 0;
 
   private _stream?: Stream;
-  private _gif?: ParseGif;
+  private _gif?: GifParser;
   private _textures: ImageSource[] = [];
   private _animation?: Animation;
 
@@ -62,7 +62,7 @@ export class Gif implements Loadable<ImageSource[]> {
   public async load(): Promise<ImageSource[]> {
     const arraybuffer = await this._resource.load();
     this._stream = new Stream(arraybuffer);
-    this._gif = new ParseGif(this._stream);
+    this._gif = new GifParser(this._stream);
     const images = this._gif.images.map((i) => new ImageSource(i.src, false));
 
     // Load all textures
@@ -264,12 +264,26 @@ interface GifBlock {
   type: string;
 }
 
+interface GifHeader {
+  sig: string;
+  ver: string;
+  width: number;
+  height: number;
+  colorResolution: number;
+  globalColorTableSize: number;
+  gctFlag: boolean;
+  sortedFlag: boolean;
+  globalColorTable: [number, number, number][];
+  backgroundColorIndex: number;
+  pixelAspectRatio: number; // if not 0, aspectRatio = (pixelAspectRatio + 15) / 64
+}
+
 interface GCExtBlock extends GifBlock {
   type: 'ext';
   label: number;
   extType: string;
   reserved: boolean[];
-  disposalMethod: boolean;
+  disposalMethod: number;
   userInputFlag: boolean;
   transparentColorFlag: boolean;
   delayTime: number;
@@ -278,43 +292,29 @@ interface GCExtBlock extends GifBlock {
 }
 
 // The actual parsing; returns an object with properties.
-export class ParseGif {
+export class GifParser {
   private _st: Stream;
   private _handler: any = {};
   public frames: GifFrame[] = [];
   public images: HTMLImageElement[] = [];
+  private _currentFrameCanvas: HTMLCanvasElement;
+  private _currentFrameContext: CanvasRenderingContext2D;
   public globalColorTable: any[] = [];
   public globalColorTableBytes: number[][] = [];
   public localColorTable: any[] = [];
   public localColorTableBytes: number[][] = [];
   public checkBytes: number[] = [];
-  public gce?: GCExtBlock;
+  private _gce?: GCExtBlock;
+  private _hdr?: GifHeader;
 
   constructor(stream: Stream) {
     this._st = stream;
     this._handler = {};
+    this._currentFrameCanvas = document.createElement('canvas');
+    this._currentFrameContext = this._currentFrameCanvas.getContext('2d')!;
     this.parseHeader();
-    this.parseBlock();
+    this.parseBlocks();
   }
-
-  // LZW (GIF-specific)
-  parseColorTable = (entries: number) => {
-    // Each entry is 3 bytes, for RGB.
-    const colorTable: string[] = [];
-    for (let i = 0; i < entries; i++) {
-      const rgb: number[] = this._st.readBytes(3);
-      const rgba =
-        '#' +
-        rgb
-          .map((x: any) => {
-            const hex = x.toString(16);
-            return hex.length === 1 ? '0' + hex : hex;
-          })
-          .join('');
-      colorTable.push(rgba);
-    }
-    return colorTable;
-  };
 
   parseColorTableBytes = (entries: number) => {
     // Each entry is 3 bytes, for RGB.
@@ -337,18 +337,18 @@ export class ParseGif {
   };
 
   parseHeader = () => {
-    const hdr: any = {
-      sig: null,
-      ver: null,
-      width: null,
-      height: null,
-      colorRes: null,
-      globalColorTableSize: null,
-      gctFlag: null,
-      sorted: null,
+    const hdr: GifHeader = {
+      sig: '',
+      ver: '',
+      width: 0,
+      height: 0,
+      colorResolution: 0,
+      globalColorTableSize: 0,
+      gctFlag: false,
+      sortedFlag: false,
       globalColorTable: [],
-      bgColor: null,
-      pixelAspectRatio: null // if not 0, aspectRatio = (pixelAspectRatio + 15) / 64
+      backgroundColorIndex: 0,
+      pixelAspectRatio: 0 // if not 0, aspectRatio = (pixelAspectRatio + 15) / 64
     };
 
     hdr.sig = this._st.read(3);
@@ -360,13 +360,16 @@ export class ParseGif {
     hdr.width = this._st.readUnsigned();
     hdr.height = this._st.readUnsigned();
 
+    this._currentFrameCanvas.width = hdr.width;
+    this._currentFrameCanvas.height = hdr.height;
+
     const bits = byteToBitArr(this._st.readByte());
-    hdr.gctFlag = bits.shift();
-    hdr.colorRes = bitsToNum(bits.splice(0, 3));
-    hdr.sorted = bits.shift();
+    hdr.gctFlag = bits.shift()!;
+    hdr.colorResolution = bitsToNum(bits.splice(0, 3));
+    hdr.sortedFlag = bits.shift()!;
     hdr.globalColorTableSize = bitsToNum(bits.splice(0, 3));
 
-    hdr.bgColor = this._st.readByte();
+    hdr.backgroundColorIndex = this._st.readByte();
     hdr.pixelAspectRatio = this._st.readByte(); // if not 0, aspectRatio = (pixelAspectRatio + 15) / 64
 
     if (hdr.gctFlag) {
@@ -460,7 +463,7 @@ export class ParseGif {
     switch (block.label) {
       case 0xf9:
         block.extType = 'gce';
-        this.gce = parseGCExt(block);
+        this._gce = parseGCExt(block);
         break;
       case 0xfe:
         block.extType = 'com';
@@ -541,7 +544,7 @@ export class ParseGif {
     }
   };
 
-  public parseBlock = () => {
+  public parseBlocks = () => {
     const block: GifBlock = {
       sentinel: this._st.readByte(),
       type: ''
@@ -567,7 +570,7 @@ export class ParseGif {
     }
 
     if (block.type !== 'eof') {
-      this.parseBlock();
+      this.parseBlocks();
     }
   };
 
@@ -579,8 +582,8 @@ export class ParseGif {
     const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
 
     let transparentColorIndex = -1;
-    if (this.gce?.transparentColorFlag) {
-      transparentColorIndex = this.gce.transparentColorIndex;
+    if (this._gce?.transparentColorFlag) {
+      transparentColorIndex = this._gce.transparentColorIndex;
     }
 
     for (let pixel = 0; pixel < frame.pixels.length; pixel++) {
@@ -592,10 +595,24 @@ export class ParseGif {
         imageData.data.set([...color, 255], pixel * 4);
       }
     }
-
     context.putImageData(imageData, 0, 0);
+
+    // A value of 1 which tells the decoder to leave the image in place and draw the next image on top of it.
+    // A value of 2 would have meant that the canvas should be restored to the background color (as indicated by the logical screen descriptor).
+    // A value of 3 is defined to mean that the decoder should restore the canvas to its previous state before the current image was drawn.
+    // The behavior for values 4-7 are yet to be defined.
+    if (this._gce?.disposalMethod === 1 && this.images.length) {
+      this._currentFrameContext.drawImage(this.images.at(-1)!, 0, 0);
+    } else if (this._gce?.disposalMethod === 2 && this._hdr?.gctFlag) {
+      const bg = colorTable[this._hdr.backgroundColorIndex];
+      this._currentFrameContext.fillStyle = `rgb(${bg[0]}, ${bg[1]}, ${bg[2]})`;
+      this._currentFrameContext.fillRect(0, 0, this._hdr.width, this._hdr.height);
+    }
+
+    this._currentFrameContext.drawImage(canvas, frame.leftPos, frame.topPos, frame.width, frame.height);
+
     const img = new Image();
-    img.src = canvas.toDataURL();
+    img.src = this._currentFrameCanvas.toDataURL(); // default is png
     this.images.push(img);
   };
 }
