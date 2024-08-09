@@ -28,7 +28,6 @@ export class Gif implements Loadable<ImageSource[]> {
   private _gif?: ParseGif;
   private _textures: ImageSource[] = [];
   private _animation?: Animation;
-  private _transparentColor: Color;
 
   public data: ImageSource[] = [];
 
@@ -43,7 +42,6 @@ export class Gif implements Loadable<ImageSource[]> {
     bustCache = false
   ) {
     this._resource = new Resource(path, 'arraybuffer', bustCache);
-    this._transparentColor = color;
   }
 
   /**
@@ -64,7 +62,7 @@ export class Gif implements Loadable<ImageSource[]> {
   public async load(): Promise<ImageSource[]> {
     const arraybuffer = await this._resource.load();
     this._stream = new Stream(arraybuffer);
-    this._gif = new ParseGif(this._stream, this._transparentColor);
+    this._gif = new ParseGif(this._stream);
     const images = this._gif.images.map((i) => new ImageSource(i.src, false));
 
     // Load all textures
@@ -139,16 +137,16 @@ const bitsToNum = (ba: any) => {
   }, 0);
 };
 
-const byteToBitArr = (bite: any) => {
+const byteToBitArr = (bite: number) => {
   const a = [];
   for (let i = 7; i >= 0; i--) {
     a.push(!!(bite & (1 << i)));
   }
-  return a;
+  return a as [boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean];
 };
 
 export class Stream {
-  data: any = null;
+  data: Uint8Array;
   len: number = 0;
   position: number = 0;
 
@@ -261,28 +259,48 @@ const lzwDecode = function (minCodeSize: number, data: any) {
   return output;
 };
 
+interface GifBlock {
+  sentinel: number;
+  type: string;
+}
+
+interface GCExtBlock extends GifBlock {
+  type: 'ext';
+  label: number;
+  extType: string;
+  reserved: boolean[];
+  disposalMethod: boolean;
+  userInputFlag: boolean;
+  transparentColorFlag: boolean;
+  delayTime: number;
+  transparentColorIndex: number;
+  terminator: number;
+}
+
 // The actual parsing; returns an object with properties.
 export class ParseGif {
   private _st: Stream;
   private _handler: any = {};
-  private _transparentColor: Color;
   public frames: GifFrame[] = [];
   public images: HTMLImageElement[] = [];
   public globalColorTable: any[] = [];
+  public globalColorTableBytes: number[][] = [];
+  public localColorTable: any[] = [];
+  public localColorTableBytes: number[][] = [];
   public checkBytes: number[] = [];
+  public gce?: GCExtBlock;
 
-  constructor(stream: Stream, color: Color = Color.Magenta) {
+  constructor(stream: Stream) {
     this._st = stream;
     this._handler = {};
-    this._transparentColor = color;
     this.parseHeader();
     this.parseBlock();
   }
 
   // LZW (GIF-specific)
-  parseColorTable = (entries: any) => {
+  parseColorTable = (entries: number) => {
     // Each entry is 3 bytes, for RGB.
-    const ct = [];
+    const colorTable: string[] = [];
     for (let i = 0; i < entries; i++) {
       const rgb: number[] = this._st.readBytes(3);
       const rgba =
@@ -293,9 +311,19 @@ export class ParseGif {
             return hex.length === 1 ? '0' + hex : hex;
           })
           .join('');
-      ct.push(rgba);
+      colorTable.push(rgba);
     }
-    return ct;
+    return colorTable;
+  };
+
+  parseColorTableBytes = (entries: number) => {
+    // Each entry is 3 bytes, for RGB.
+    const colorTable: [number, number, number][] = [];
+    for (let i = 0; i < entries; i++) {
+      const rgb = this._st.readBytes(3) as [number, number, number];
+      colorTable.push(rgb);
+    }
+    return colorTable;
   };
 
   readSubBlocks = () => {
@@ -342,7 +370,8 @@ export class ParseGif {
     hdr.pixelAspectRatio = this._st.readByte(); // if not 0, aspectRatio = (pixelAspectRatio + 15) / 64
 
     if (hdr.gctFlag) {
-      hdr.globalColorTable = this.parseColorTable(1 << (hdr.globalColorTableSize + 1));
+      // hdr.globalColorTable = this.parseColorTable(1 << (hdr.globalColorTableSize + 1));
+      this.globalColorTableBytes = this.parseColorTableBytes(1 << (hdr.globalColorTableSize + 1));
       this.globalColorTable = hdr.globalColorTable;
     }
     if (this._handler.hdr && this._handler.hdr(hdr)) {
@@ -350,25 +379,26 @@ export class ParseGif {
     }
   };
 
-  parseExt = (block: any) => {
-    const parseGCExt = (block: any) => {
+  parseExt = (block: GCExtBlock) => {
+    const parseGCExt = (block: GCExtBlock) => {
       this.checkBytes.push(this._st.readByte()); // Always 4
 
       const bits = byteToBitArr(this._st.readByte());
       block.reserved = bits.splice(0, 3); // Reserved; should be 000.
       block.disposalMethod = bitsToNum(bits.splice(0, 3));
-      block.userInput = bits.shift();
-      block.transparencyGiven = bits.shift();
+      block.userInputFlag = bits.shift()!;
+      block.transparentColorFlag = bits.shift()!;
 
       block.delayTime = this._st.readUnsigned();
 
-      block.transparencyIndex = this._st.readByte();
+      block.transparentColorIndex = this._st.readByte();
 
-      block.terminator = this._st.readByte();
+      block.terminator = this._st.readByte(); // always 0
 
       if (this._handler.gce && this._handler.gce(block)) {
         this.checkBytes.push(this._handler.gce);
       }
+      return block;
     };
 
     const parseComExt = (block: any) => {
@@ -430,7 +460,7 @@ export class ParseGif {
     switch (block.label) {
       case 0xf9:
         block.extType = 'gce';
-        parseGCExt(block);
+        this.gce = parseGCExt(block);
         break;
       case 0xfe:
         block.extType = 'com';
@@ -490,7 +520,7 @@ export class ParseGif {
     img.lctSize = bitsToNum(bits.splice(0, 3));
 
     if (img.lctFlag) {
-      img.lct = this.parseColorTable(1 << (img.lctSize + 1));
+      img.lctBytes = this.parseColorTableBytes(1 << (img.lctSize + 1));
     }
 
     img.lzwMinCodeSize = this._st.readByte();
@@ -505,14 +535,14 @@ export class ParseGif {
     }
 
     this.frames.push(img);
-    this.arrayToImage(img);
+    this.arrayToImage(img, img.lctFlag ? img.lctBytes : this.globalColorTableBytes);
     if (this._handler.img && this._handler.img(img)) {
       this.checkBytes.push(this._handler);
     }
   };
 
   public parseBlock = () => {
-    const block = {
+    const block: GifBlock = {
       sentinel: this._st.readByte(),
       type: ''
     };
@@ -520,7 +550,7 @@ export class ParseGif {
     switch (blockChar) {
       case '!':
         block.type = 'ext';
-        this.parseExt(block);
+        this.parseExt(block as GCExtBlock);
         break;
       case ',':
         block.type = 'img';
@@ -541,33 +571,31 @@ export class ParseGif {
     }
   };
 
-  arrayToImage = (frame: GifFrame) => {
-    let count = 0;
-    const c = document.createElement('canvas')!;
-    c.id = count.toString();
-    c.width = frame.width;
-    c.height = frame.height;
-    count++;
-    const context = c.getContext('2d')!;
-    const pixSize = 1;
-    let y = 0;
-    let x = 0;
-    for (let i = 0; i < frame.pixels.length; i++) {
-      if (x % frame.width === 0) {
-        y++;
-        x = 0;
-      }
-      if (this.globalColorTable[frame.pixels[i]] === this._transparentColor.toHex()) {
-        context.fillStyle = `rgba(0, 0, 0, 0)`;
-      } else {
-        context.fillStyle = this.globalColorTable[frame.pixels[i]];
-      }
+  arrayToImage = (frame: GifFrame, colorTable: [number, number, number][]) => {
+    const canvas = document.createElement('canvas')!;
+    canvas.width = frame.width;
+    canvas.height = frame.height;
+    const context = canvas.getContext('2d')!;
+    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
 
-      context.fillRect(x, y, pixSize, pixSize);
-      x++;
+    let transparentColorIndex = -1;
+    if (this.gce?.transparentColorFlag) {
+      transparentColorIndex = this.gce.transparentColorIndex;
     }
+
+    for (let pixel = 0; pixel < frame.pixels.length; pixel++) {
+      const colorIndex = frame.pixels[pixel];
+      const color = colorTable[colorIndex];
+      if (colorIndex === transparentColorIndex) {
+        imageData.data.set([0, 0, 0, 0], pixel * 4);
+      } else {
+        imageData.data.set([...color, 255], pixel * 4);
+      }
+    }
+
+    context.putImageData(imageData, 0, 0);
     const img = new Image();
-    img.src = c.toDataURL();
+    img.src = canvas.toDataURL();
     this.images.push(img);
   };
 }
