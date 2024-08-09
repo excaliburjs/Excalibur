@@ -1,6 +1,5 @@
 import { Resource } from './Resource';
 import { Sprite } from '../Graphics/Sprite';
-import { Color } from '../Color';
 import { SpriteSheet } from '../Graphics/SpriteSheet';
 import { Animation } from '../Graphics/Animation';
 import { Loadable } from '../Interfaces/Index';
@@ -33,12 +32,10 @@ export class Gif implements Loadable<ImageSource[]> {
 
   /**
    * @param path       Path to the image resource
-   * @param color      Optionally set the color to treat as transparent the gif, by default {@apilink Color.Magenta}
    * @param bustCache  Optionally load texture with cache busting
    */
   constructor(
     public path: string,
-    public color: Color = Color.Magenta,
     bustCache = false
   ) {
     this._resource = new Resource(path, 'arraybuffer', bustCache);

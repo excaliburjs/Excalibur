@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- `ex.Gif` transparent color constructor arg is removed in favor of the built in Gif file mechanism
 - Remove core-js dependency, it is no longer necessary in modern browsers. Technically a breaking change for older browsers
 - `ex.Particle` and `ex.ParticleEmitter` now have an API that looks like modern Excalibur APIs
   * `particleSprite` is renamed to `graphic`
@@ -47,6 +48,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
+
 - `Vector.size` is deprecated, use `Vector.magnitude` instead
 - `ScreenShader` v_texcoord is deprecated, use v_uv. This is changed to match the materials shader API
 - `actor.getGlobalPos()` - use `actor.globalPos` instead
@@ -55,6 +57,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- `ex.Gif` can now handle default embedded GIF frame timings
 - New `ex.Screen.worldToPagePixelRatio` API that will return the ratio between excalibur pixels and the HTML pixels. 
   * Additionally excalibur will now decorate the document root with this same value as a CSS variable `--ex-pixel-ratio`
   * Useful for scaling HTML UIs to match your game
@@ -90,6 +93,7 @@ are doing mtv adjustments during precollision.
 
 ### Fixed
 
+- Fixed issue where `ex.Gif` was not parsing certain binary formats correctly
 - Fixed issue where the boot `ex.Loader` was removing pixelRatio override
 - Fixed `ex.RasterOptions`, it now extends `ex.GraphicsOptions` which is the underlying truth
 - Fixed issue where rayCast `filter` would not be called in hit order
