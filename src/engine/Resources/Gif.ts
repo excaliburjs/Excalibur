@@ -96,6 +96,7 @@ export class Gif implements Loadable<ImageSource[]> {
 
   /**
    * Transform the GIF into an animation with duration per frame
+   * @param durationPerFrameMs Optionally override duration per frame
    */
   public toAnimation(durationPerFrameMs?: number): Animation | null {
     const images = this._gif?.images;
