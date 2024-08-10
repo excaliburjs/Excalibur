@@ -6,6 +6,14 @@ section: Graphics
 
 [[PostProcessor|PostProcessors]] are a way to quickly modify every pixel on the screen with WebGL fragment shaders. This can be useful to give your game a certain aesthetic or effect.
 
+:::warning
+
+PostProcessors are only supported in WebGL mode, this is the default mode for Excalibur but if you switch or fallback to 2D Canvas materials will not have an effect.
+
+:::
+
+If you want to do per actor shaders check out [Materials](/docs/materials)
+
 ## Color Blindness
 
 Choosing colors that are friendly to players with color blindness is an important consideration when making a game.
@@ -66,7 +74,7 @@ Post processors can also be use to produce some interesting custom effects.
 There is a helper class [[ScreenShader]] to help build shaders for post processing. The only things that come predefined are the:
 
 1.  `v_texcoord` representing the current UV from [0, 1]
-2.  `u_texture` which is the texture representing the screen pixels
+2.  `u_image` which is the texture representing the screen pixels
 
 In this example we can make the entire game gray scale:
 

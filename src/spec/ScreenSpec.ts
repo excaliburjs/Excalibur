@@ -753,6 +753,54 @@ describe('A Screen', () => {
     expect(sut.worldToScreenCoordinates(ex.vec(600, 450))).toBeVector(ex.vec(800, 600));
   });
 
+  it('can calculate the excalibur worldToPagePixelRatio 2x', () => {
+    Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1600 });
+    Object.defineProperty(window, 'innerHeight', { writable: true, configurable: true, value: 1200 });
+    const sut = new ex.Screen({
+      canvas,
+      context,
+      browser,
+      displayMode: ex.DisplayMode.FitScreen,
+      viewport: { width: 800, height: 600 },
+      pixelRatio: 2
+    });
+
+    expect(sut.worldToPagePixelRatio).toBe(2);
+    expect(document.documentElement.style.getPropertyValue('--ex-pixel-ratio')).toBe('2');
+  });
+
+  it('can calculate the excalibur worldToPagePixelRatio .5x', () => {
+    Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 400 });
+    Object.defineProperty(window, 'innerHeight', { writable: true, configurable: true, value: 300 });
+    const sut = new ex.Screen({
+      canvas,
+      context,
+      browser,
+      displayMode: ex.DisplayMode.FitScreen,
+      viewport: { width: 800, height: 600 },
+      pixelRatio: 2
+    });
+
+    expect(sut.worldToPagePixelRatio).toBe(0.5);
+    expect(document.documentElement.style.getPropertyValue('--ex-pixel-ratio')).toBe('0.5');
+  });
+
+  it('can calculate the excalibur worldToPagePixelRatio 1.5x', () => {
+    Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1200 });
+    Object.defineProperty(window, 'innerHeight', { writable: true, configurable: true, value: 1000 });
+    const sut = new ex.Screen({
+      canvas,
+      context,
+      browser,
+      displayMode: ex.DisplayMode.FitScreen,
+      viewport: { width: 800, height: 600 },
+      pixelRatio: 2
+    });
+
+    expect(sut.worldToPagePixelRatio).toBe(1.5);
+    expect(document.documentElement.style.getPropertyValue('--ex-pixel-ratio')).toBe('1.5');
+  });
+
   it('can return world bounds', () => {
     const sut = new ex.Screen({
       canvas,

@@ -3,7 +3,7 @@
  */
 /* istanbul ignore next */
 export class AudioContextFactory {
-  private static _INSTANCE: AudioContext = null;
+  private static _INSTANCE?: AudioContext;
 
   public static create(): AudioContext {
     if (!this._INSTANCE) {
@@ -12,6 +12,6 @@ export class AudioContextFactory {
       }
     }
 
-    return this._INSTANCE;
+    return this._INSTANCE!;
   }
 }

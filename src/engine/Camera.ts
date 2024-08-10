@@ -183,7 +183,7 @@ export class RadiusAroundActorStrategy implements CameraStrategy<Actor> {
     const focus = cam.getFocus();
 
     const direction = position.sub(focus);
-    const distance = direction.size;
+    const distance = direction.magnitude;
     if (distance >= this.radius) {
       const offset = distance - this.radius;
       return focus.add(direction.normalize().scale(offset));

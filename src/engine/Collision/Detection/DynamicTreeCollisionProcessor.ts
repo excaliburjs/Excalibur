@@ -217,8 +217,8 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
 
         // Maximum travel distance next frame
         const updateDistance =
-          body.vel.size * seconds + // velocity term
-          body.acc.size * 0.5 * seconds * seconds; // acc term
+          body.vel.magnitude * seconds + // velocity term
+          body.acc.magnitude * 0.5 * seconds * seconds; // acc term
 
         // Find the minimum dimension
         const minDimension = Math.min(collider.bounds.height, collider.bounds.width);
@@ -245,7 +245,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
               const hit = other.rayCast(ray, updateDistance + this._config.continuous.surfaceEpsilon * 10);
               if (hit) {
                 const translate = hit.point.sub(origin);
-                if (translate.size < minTranslate.size) {
+                if (translate.magnitude < minTranslate.magnitude) {
                   minTranslate = translate;
                   minCollider = other;
                 }

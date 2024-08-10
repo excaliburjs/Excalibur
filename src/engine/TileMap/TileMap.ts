@@ -458,12 +458,16 @@ export class TileMap extends Entity {
 
   /**
    * Returns the {@apilink Tile} by index (row major order)
+   *
+   * Returns null if out of bounds
    */
-  public getTileByIndex(index: number): Tile {
-    return this.tiles[index];
+  public getTileByIndex(index: number): Tile | null {
+    return this.tiles[index] ?? null;
   }
   /**
    * Returns the {@apilink Tile} by its x and y integer coordinates
+   *
+   * Returns null if out of bounds
    *
    * For example, if I want the tile in fifth column (x), and second row (y):
    * `getTile(4, 1)` 0 based, so 0 is the first in row/column
