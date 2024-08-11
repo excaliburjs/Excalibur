@@ -10,6 +10,10 @@ export interface GpuParticleConfig extends ParticleConfig {
    * Only Sprite graphics are supported in GPU particles at the moment
    */
   graphic?: Sprite;
+  /**
+   * Set the maximum particles to use for this emitter
+   */
+  maxParticles?: number;
 }
 
 /**
@@ -19,7 +23,7 @@ export interface GpuParticleConfig extends ParticleConfig {
 export class GpuParticleState {
   emitter: GpuParticleEmitter;
   numParticles: number = 1000; // todo getter/setter to enforce max
-  maxParticles: number = 100_000;
+  static GPU_MAX_PARTICLES: number = 100_000;
   emitRate: number = 1;
   particle: GpuParticleConfig;
 
@@ -33,7 +37,7 @@ export class GpuParticleState {
   private _currentBuffer!: WebGLBuffer;
 
   private _numInputFloats = 2 + 2 + 1 + 1 + 1;
-  private _particleData = new Float32Array(this.maxParticles * this._numInputFloats);
+  private _particleData = new Float32Array(GpuParticleState.GPU_MAX_PARTICLES * this._numInputFloats);
   private _particleIndex = 0;
   private _uploadIndex: number = 0;
 
@@ -41,6 +45,7 @@ export class GpuParticleState {
     this.emitter = emitter;
     this.particle = options;
     this._random = random;
+    this.numParticles = options.maxParticles ?? this.numParticles;
   }
 
   public get isInitialized() {
@@ -52,7 +57,8 @@ export class GpuParticleState {
       return;
     }
 
-    const numParticles = this.maxParticles;
+    // TODO this is wasteful, also causes a problem when
+    const numParticles = GpuParticleState.GPU_MAX_PARTICLES; // % this.numParticles;
     const numInputFloats = this._numInputFloats;
     const particleData = this._particleData;
     const bytesPerFloat = 4;
@@ -159,7 +165,7 @@ export class GpuParticleState {
         i
       );
     }
-    this._particleIndex = endIndex % (this.maxParticles * this._numInputFloats);
+    this._particleIndex = endIndex % (this.numParticles * this._numInputFloats);
   }
 
   private _uploadEmitted(gl: WebGL2RenderingContext) {
@@ -167,18 +173,19 @@ export class GpuParticleState {
       // Bind one buffer to ARRAY_BUFFER and the other to TFB
       gl.bindBuffer(gl.ARRAY_BUFFER, this._buffers[(this._drawIndex + 1) % 2]);
       if (this._particleIndex > this._uploadIndex) {
-        // dst byte offset 4 bytes per float
         gl.bufferSubData(
           gl.ARRAY_BUFFER,
-          this._uploadIndex * 4,
+          this._uploadIndex * 4, // dst byte offset 4 bytes per float
           this._particleData,
           this._uploadIndex,
           this._particleIndex - this._uploadIndex
-        ); //, this._uploadIndex, this._particleIndex - this._uploadIndex);
-      } // TODO particle index has wrapped the buffer
+        );
+      }
+
+      // TODO ELSE particleIndex has wrapped the buffer
       gl.bindBuffer(gl.ARRAY_BUFFER, null);
     }
-    this._uploadIndex = this._particleIndex % (this.maxParticles * this._numInputFloats);
+    this._uploadIndex = this._particleIndex % (this.numParticles * this._numInputFloats);
   }
 
   draw(gl: WebGL2RenderingContext) {
