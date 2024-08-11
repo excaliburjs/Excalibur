@@ -56,7 +56,7 @@ export class GpuParticleEmitter extends Entity {
     this.transform.z = z;
   }
 
-  constructor(config: ParticleEmitterArgs & { particle?: GpuParticleConfig }) {
+  constructor(config: ParticleEmitterArgs & { maxParticles?: number; particle?: GpuParticleConfig }) {
     super({ name: `GpuParticleEmitter` });
     this.addComponent(this.transform);
     this.addComponent(this.graphics);
