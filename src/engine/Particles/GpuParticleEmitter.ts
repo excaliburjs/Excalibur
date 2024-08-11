@@ -88,6 +88,10 @@ export class GpuParticleEmitter extends Entity {
     this.state.initialize(context.__gl, context);
   }
 
+  public emitParticles(particleCount: number) {
+    this.state.emitParticles(particleCount);
+  }
+
   draw(ctx: ExcaliburGraphicsContextWebGL, elapsedMilliseconds: number) {
     ctx.draw<ex.ParticleRenderer>('ex.particle', this.state, elapsedMilliseconds);
   }

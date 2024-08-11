@@ -20,6 +20,7 @@ export class GpuParticleState {
   emitter: GpuParticleEmitter;
   numParticles: number = 1000; // todo getter/setter to enforce max
   maxParticles: number = 100_000;
+  emitRate: number = 1;
   particle: GpuParticleConfig;
 
   private _initialized: boolean = false;
@@ -30,6 +31,11 @@ export class GpuParticleState {
   private _drawIndex = 0;
   private _currentVao!: WebGLVertexArrayObject;
   private _currentBuffer!: WebGLBuffer;
+
+  private _numInputFloats = 2 + 2 + 1 + 1 + 1;
+  private _particleData = new Float32Array(this.maxParticles * this._numInputFloats);
+  private _particleIndex = 0;
+  private _uploadIndex: number = 0;
 
   constructor(emitter: GpuParticleEmitter, random: Random, options: GpuParticleConfig) {
     this.emitter = emitter;
@@ -46,28 +52,16 @@ export class GpuParticleState {
       return;
     }
 
-    const numParticles = 100_000;
-    const numInputFloats = 2 + 2 + 1 + 1 + 1;
-    const particleData = new Float32Array(numParticles * numInputFloats);
+    const numParticles = this.maxParticles;
+    const numInputFloats = this._numInputFloats;
+    const particleData = this._particleData;
     const bytesPerFloat = 4;
 
-    // TODO needs to be configurable from particle config
-    for (let i = 0; i < numParticles * numInputFloats; i += numInputFloats) {
-      particleData.set(
-        [
-          0, // TODO distribute randomly based on emitter params
-          0, // pos in world space
-          // Math.random()*2-1, Math.random()*2-1, // pos in clip space
-          randomInRange(-100, 100, this._random),
-          randomInRange(-100, 100, this._random), // velocity
-          this._random.next() * TwoPI, // rotation
-          this._random.next() * 2.5, // angular velocity
-          // TODO should this start at 0?
-          this._random.next() * (this.particle.life ?? 2000) // life
-        ],
-        i
-      );
-    }
+    // p/s
+    // ms/p
+    // const lifeSeconds = (this.particle.life ?? 2000) / 1000;
+
+    this.emitParticles(this.emitRate /* * 1 / (lifeSeconds)*/);
 
     const particleDataBuffer1 = gl.createBuffer()!;
     const vao1 = gl.createVertexArray()!;
@@ -147,8 +141,51 @@ export class GpuParticleState {
     this._initialized = true;
   }
 
+  emitParticles(particleCount: number) {
+    const startIndex = this._particleIndex;
+    const endIndex = particleCount * this._numInputFloats + startIndex;
+    for (let i = startIndex; i < endIndex; i += this._numInputFloats) {
+      this._particleData.set(
+        [
+          0, // TODO distribute randomly based on emitter params
+          0, // pos in world space
+          // Math.random()*2-1, Math.random()*2-1, // pos in clip space
+          randomInRange(-100, 100, this._random),
+          randomInRange(-100, 100, this._random), // velocity
+          this._random.next() * TwoPI, // rotation
+          this._random.next() * 2.5, // angular velocity
+          this.particle.life ?? 2000 // life
+        ],
+        i
+      );
+    }
+    this._particleIndex = endIndex % (this.maxParticles * this._numInputFloats);
+  }
+
+  private _uploadEmitted(gl: WebGL2RenderingContext) {
+    if (this._particleIndex !== this._uploadIndex) {
+      // Bind one buffer to ARRAY_BUFFER and the other to TFB
+      gl.bindBuffer(gl.ARRAY_BUFFER, this._buffers[(this._drawIndex + 1) % 2]);
+      if (this._particleIndex > this._uploadIndex) {
+        // dst byte offset 4 bytes per float
+        gl.bufferSubData(
+          gl.ARRAY_BUFFER,
+          this._uploadIndex * 4,
+          this._particleData,
+          this._uploadIndex,
+          this._particleIndex - this._uploadIndex
+        ); //, this._uploadIndex, this._particleIndex - this._uploadIndex);
+      } // TODO particle index has wrapped the buffer
+      gl.bindBuffer(gl.ARRAY_BUFFER, null);
+    }
+    this._uploadIndex = this._particleIndex % (this.maxParticles * this._numInputFloats);
+  }
+
   draw(gl: WebGL2RenderingContext) {
     if (this._initialized) {
+      // Emit
+      this._uploadEmitted(gl);
+
       // Bind one buffer to ARRAY_BUFFER and the other to TFB
       gl.bindVertexArray(this._currentVao);
       gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, this._currentBuffer);

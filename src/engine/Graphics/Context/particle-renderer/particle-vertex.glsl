@@ -25,6 +25,7 @@ uniform mat4 u_matrix;
 uniform mat4 u_transform;
 uniform float startSize;
 uniform float endSize;
+uniform bool isEmitting;
 
 // uniform sampler2D obstacle;
 
@@ -64,7 +65,7 @@ void main(){
     //   finalVelocity = newVelocity + gravity * seconds;
     //   finalPosition = position + newVelocity * seconds + gravity * .5 * seconds * seconds;
     // }
-  } else {
+  } else if (lifeMs < 0. && isEmitting) {
     // Reset particle!
     // Seed some randoms
     float s = float(gl_VertexID);
@@ -72,11 +73,12 @@ void main(){
     float r2 = rand2(vec2(r1, uRandom));
     float r3 = rand2(vec2(uRandom, r1 * uRandom));
 
+    // TODO use informs to set the initial state?
     finalVelocity = vec2(ran_range(r1,-200.,100.),ran_range(r2,0.,-300.));
     finalPosition = vec2(0, 0);// vec2(ran_range(r2,0.,800.),800.);
     finalRotation = 3.14*2.*r3;
     finalAngularVelocity = 6.*r2-3.14;
-    finalLifeMs = maxLifeMs*r3;
+    finalLifeMs = maxLifeMs*r3; // TODO should this be random
   }
 
   float perc = finalLifeMs/maxLifeMs;

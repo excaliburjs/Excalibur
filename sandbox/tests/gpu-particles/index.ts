@@ -18,6 +18,7 @@ var particles = new ex.GpuParticleEmitter({
     graphic: swordImg.toSprite()
   }
 });
+particles.isEmitting = true;
 game.add(particles);
 
 var particles2 = new ex.GpuParticleEmitter({
