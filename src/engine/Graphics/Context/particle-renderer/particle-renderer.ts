@@ -66,7 +66,7 @@ export class ParticleRenderer implements RendererPlugin {
     const gl = this._gl;
 
     this._shader.use();
-    this._shader.trySetUniformBoolean('isEmitting', particleState.emitter.isEmitting);
+    // this._shader.trySetUniformBoolean('isEmitting', particleState.emitter.isEmitting);
     this._shader.setUniformMatrix('u_matrix', this._context.ortho);
     const transform = this._context.getTransform();
     this._shader.setUniformAffineMatrix('u_transform', transform);

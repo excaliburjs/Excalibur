@@ -65,7 +65,9 @@ void main(){
     //   finalVelocity = newVelocity + gravity * seconds;
     //   finalPosition = position + newVelocity * seconds + gravity * .5 * seconds * seconds;
     // }
-  } else if (lifeMs < 0. && isEmitting) {
+  } 
+  // TODO GPU Controlled emission?
+  else if (lifeMs < 0. && isEmitting) {
     // Reset particle!
     // Seed some randoms
     float s = float(gl_VertexID);

@@ -92,7 +92,7 @@ export class GpuParticleEmitter extends Entity {
   public update(engine: Engine, delta: number): void {
     super.update(engine, delta);
 
-    if (true || this.isEmitting) {
+    if (this.isEmitting) {
       this._particlesToEmit += this.emitRate * (delta / 1000);
       if (this._particlesToEmit > 1.0) {
         this.emitParticles(Math.floor(this._particlesToEmit));
