@@ -88,6 +88,19 @@ export class GpuParticleEmitter extends Entity {
     this.state.initialize(context.__gl, context);
   }
 
+  private _particlesToEmit = 0;
+  public update(engine: Engine, delta: number): void {
+    super.update(engine, delta);
+
+    if (true || this.isEmitting) {
+      this._particlesToEmit += this.emitRate * (delta / 1000);
+      if (this._particlesToEmit > 1.0) {
+        this.emitParticles(Math.floor(this._particlesToEmit));
+        this._particlesToEmit = this._particlesToEmit - Math.floor(this._particlesToEmit);
+      }
+    }
+  }
+
   public emitParticles(particleCount: number) {
     this.state.emitParticles(particleCount);
   }
