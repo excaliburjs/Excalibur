@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- `ex.Vector.normalize()` return zero-vector (`(0,0)`) instead of `(0,1)` when normalizing a vector with a magnitude of 0
 - `ex.Gif` transparent color constructor arg is removed in favor of the built in Gif file mechanism
 - Remove core-js dependency, it is no longer necessary in modern browsers. Technically a breaking change for older browsers
 - `ex.Particle` and `ex.ParticleEmitter` now have an API that looks like modern Excalibur APIs
