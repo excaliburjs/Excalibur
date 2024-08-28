@@ -2,8 +2,8 @@
 /sandbox
 /scripts
 karma.conf.*
-webpack.config.js
-webpack.config.prod.js
+rspack.config.js
+rspack.config.prod.js
 wallaby.js
 version.js
 node_modules

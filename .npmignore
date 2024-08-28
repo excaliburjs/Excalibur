@@ -30,5 +30,5 @@ wallaby.js
 prettier.config.js
 renovate.json
 version.js
-webpack.config.js
-webpack.config.prod.js
+rspack.config.js
+rspack.config.prod.js

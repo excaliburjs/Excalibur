@@ -1,9 +1,7 @@
 const path = require('path');
-const webpack = require('webpack');
+const rspack = require('@rspack/core');
 const versioner = require('./version');
 const pkg = require('./package.json');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const TerserPlugin = require('terser-webpack-plugin');
 const now = new Date();
 const dt = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
 
@@ -43,7 +41,7 @@ module.exports = (env, argv) => {
     optimization: {
       minimize: true,
       minimizer: [
-        new TerserPlugin({
+        new rspack.SwcJsMinimizerRspackPlugin({
           include: /\.min\.js$/
         })
       ]
@@ -94,12 +92,12 @@ module.exports = (env, argv) => {
     },
 
     plugins: [
-      new CopyWebpackPlugin({ patterns: ['excalibur.d.ts'] }),
-      new webpack.DefinePlugin({
+      new rspack.CopyRspackPlugin({ patterns: ['excalibur.d.ts'] }),
+      new rspack.DefinePlugin({
         'process.env.__EX_VERSION': JSON.stringify(version),
         'process.env.NODE_ENV': JSON.stringify(mode)
       }),
-      new webpack.BannerPlugin(
+      new rspack.BannerPlugin(
         `${pkg.name} - ${version} - ${dt}
 ${pkg.homepage}
 Copyright (c) ${now.getFullYear()} Excalibur.js <${pkg.author}>
