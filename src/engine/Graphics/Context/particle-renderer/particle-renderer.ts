@@ -66,13 +66,12 @@ export class ParticleRenderer implements RendererPlugin {
     const gl = this._gl;
 
     this._shader.use();
-    // this._shader.trySetUniformBoolean('isEmitting', particleState.emitter.isEmitting);
     this._shader.setUniformMatrix('u_matrix', this._context.ortho);
     const transform = this._context.getTransform();
     this._shader.setUniformAffineMatrix('u_transform', transform);
     this._shader.setUniformBoolean('useTexture', particleState.particle.graphic ? true : false); // TODO configurable in particle state
     this._shader.setUniformFloat('maxLifeMs', particleState.particle.life ?? 2000); // TODO configurable in particle state
-    this._shader.setUniformFloat('uRandom', Math.random()); // TODO ex Random
+    // this._shader.setUniformFloat('uRandom', Math.random()); // TODO ex Random
     this._shader.setUniformFloat('deltaMs', elapsedMs);
     this._shader.setUniformFloatVector('gravity', particleState.particle.acc ?? vec(0, 0));
     this._shader.setUniformFloatColor('beginColor', particleState.particle.beginColor ?? Color.Transparent);

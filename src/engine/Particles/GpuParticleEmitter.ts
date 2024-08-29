@@ -39,6 +39,7 @@ export class GpuParticleEmitter extends Entity {
   public emitRate: number = 1;
   public emitterType: EmitterType = EmitterType.Rectangle;
   public radius: number = 0;
+  public maxParticles: number = 2000;
 
   public get pos() {
     return this.transform.pos;
@@ -62,7 +63,9 @@ export class GpuParticleEmitter extends Entity {
     this.addComponent(this.graphics);
     (this.graphics.onPostDraw as any) = this.draw.bind(this);
 
-    const { particle, x, y, z, pos, isEmitting, emitRate, emitterType, radius, random } = { ...config };
+    const { particle, maxParticles, x, y, z, pos, isEmitting, emitRate, emitterType, radius, random } = { ...config };
+
+    this.maxParticles = maxParticles ?? this.maxParticles;
 
     this.pos = pos ?? vec(x ?? 0, y ?? 0);
 

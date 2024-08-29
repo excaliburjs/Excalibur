@@ -15,7 +15,7 @@ out vec4 fragColor;
 
 void main(){
 
-  float alpha=finalLifeMs/maxLifeMs;
+  float alpha = finalLifeMs / maxLifeMs;
 
   /** Draw texture */
   if (useTexture) {
@@ -30,7 +30,7 @@ void main(){
     /** Draw circle */
     float distanceFromPointCenter = distance(gl_PointCoord.xy, vec2(.5));
     // TODO smooth edge instead of hard discard
-    if( distanceFromPointCenter > .5 ) discard;
+    if (distanceFromPointCenter > .5) discard;
     vec4 color = mix(beginColor, endColor, 1.0 - alpha);
     fragColor = color * (fade ? alpha : 1.0);
   }

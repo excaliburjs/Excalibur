@@ -21,9 +21,8 @@ export interface GpuParticleConfig extends ParticleConfig {
  * to render particles and maintain state.
  */
 export class GpuParticleState {
+  static readonly GPU_MAX_PARTICLES: number = 100_000;
   emitter: GpuParticleEmitter;
-  numParticles: number = 1000; // todo getter/setter to enforce max
-  static GPU_MAX_PARTICLES: number = 100_000;
   emitRate: number = 1;
   particle: GpuParticleConfig;
 
@@ -45,11 +44,14 @@ export class GpuParticleState {
     this.emitter = emitter;
     this.particle = options;
     this._random = random;
-    this.numParticles = options.maxParticles ?? this.numParticles;
   }
 
   public get isInitialized() {
     return this._initialized;
+  }
+
+  public get maxParticles(): number {
+    return this.emitter.maxParticles;
   }
 
   initialize(gl: WebGL2RenderingContext, context: ExcaliburGraphicsContextWebGL) {
@@ -57,17 +59,13 @@ export class GpuParticleState {
       return;
     }
 
-    // TODO this is wasteful, also causes a problem when
+    // TODO this is wasteful, also causes a problem when overflowing
     const numParticles = GpuParticleState.GPU_MAX_PARTICLES; // % this.numParticles;
     const numInputFloats = this._numInputFloats;
     const particleData = this._particleData;
     const bytesPerFloat = 4;
 
-    // p/s
-    // ms/p
-    // const lifeSeconds = (this.particle.life ?? 2000) / 1000;
-
-    this.emitParticles(this.emitRate /* * 1 / (lifeSeconds)*/);
+    this.emitParticles(this.emitRate);
 
     const particleDataBuffer1 = gl.createBuffer()!;
     const vao1 = gl.createVertexArray()!;
@@ -165,7 +163,7 @@ export class GpuParticleState {
         i
       );
     }
-    this._particleIndex = endIndex % (this.numParticles * this._numInputFloats);
+    this._particleIndex = endIndex % (this.maxParticles * this._numInputFloats);
   }
 
   private _uploadEmitted(gl: WebGL2RenderingContext) {
@@ -181,11 +179,11 @@ export class GpuParticleState {
           this._particleIndex - this._uploadIndex
         );
       }
-
       // TODO ELSE particleIndex has wrapped the buffer
+      // else { ... }
       gl.bindBuffer(gl.ARRAY_BUFFER, null);
     }
-    this._uploadIndex = this._particleIndex % (this.numParticles * this._numInputFloats);
+    this._uploadIndex = this._particleIndex % (this.maxParticles * this._numInputFloats);
   }
 
   draw(gl: WebGL2RenderingContext) {
@@ -199,7 +197,7 @@ export class GpuParticleState {
 
       // Perform transform feedback and the draw call
       gl.beginTransformFeedback(gl.POINTS);
-      gl.drawArrays(gl.POINTS, 0, this.numParticles);
+      gl.drawArrays(gl.POINTS, 0, this.maxParticles);
       gl.endTransformFeedback();
 
       // Clean up after ourselves to avoid errors.
