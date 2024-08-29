@@ -665,19 +665,19 @@ export class EnterViewPortEvent extends GameEvent<Entity> {
   }
 }
 
-export class EnterTriggerEvent extends GameEvent<Actor> {
+export class EnterTriggerEvent extends GameEvent<Trigger> {
   constructor(
     public target: Trigger,
-    public actor: Actor
+    public entity: Entity
   ) {
     super();
   }
 }
 
-export class ExitTriggerEvent extends GameEvent<Actor> {
+export class ExitTriggerEvent extends GameEvent<Trigger> {
   constructor(
     public target: Trigger,
-    public actor: Actor
+    public entity: Entity
   ) {
     super();
   }
