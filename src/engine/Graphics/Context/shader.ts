@@ -160,7 +160,7 @@ export class Shader {
     const uniforms: UniformDefinition[] = [];
     for (let i = 0; i < uniformCount; i++) {
       const uniform = gl.getActiveUniform(this.program, i)!;
-      const uniformLocation = gl.getUniformLocation(this.program, uniform.name)!;
+      const uniformLocation = this._getUniformLocationCached(uniform.name)!;
       uniforms.push({
         name: uniform.name,
         glType: uniform.type,
@@ -389,8 +389,7 @@ export class Shader {
           ' must call `shader.use()` before setting uniforms'
       );
     }
-    const gl = this._gl;
-    const location = gl.getUniformLocation(this.program, name);
+    const location = this._getUniformLocationCached(name);
     if (location) {
       const args = [location, ...value];
       (this._gl as any)[uniformType].apply(this._gl, args);
@@ -427,8 +426,7 @@ export class Shader {
       );
       return false;
     }
-    const gl = this._gl;
-    const location = gl.getUniformLocation(this.program, name);
+    const location = this._getUniformLocationCached(name);
     if (location) {
       const args = [location, ...value];
       (this._gl as any)[uniformType].apply(this._gl, args);
@@ -438,17 +436,35 @@ export class Shader {
     return true;
   }
 
+  private _uniformLocationMap = new Map<WebGLProgram, Record<string, WebGLUniformLocation>>();
+  private _getUniformLocationCached(name: string): WebGLUniformLocation | null {
+    if (!this._uniformLocationMap.has(this.program)) {
+      this._uniformLocationMap.set(this.program, {});
+    }
+
+    const maybeUniformMap = this._uniformLocationMap.get(this.program);
+    if (maybeUniformMap && !maybeUniformMap[name]) {
+      const gl = this._gl;
+      const location = gl.getUniformLocation(this.program, name);
+      if (location) {
+        this._uniformLocationMap.set(this.program, { ...maybeUniformMap, [name]: location });
+      }
+    }
+
+    const uniformMap = this._uniformLocationMap.get(this.program)!;
+
+    return uniformMap[name] ?? null;
+  }
+
   private _createProgram(gl: WebGLRenderingContext, vertexShader: WebGLShader, fragmentShader: WebGLShader): WebGLProgram {
     const program = gl.createProgram();
     if (program === null) {
       throw Error('Could not create graphics shader program');
     }
 
-    // attach the shaders.
     gl.attachShader(program, vertexShader);
     gl.attachShader(program, fragmentShader);
 
-    // link the program.
     gl.linkProgram(program);
 
     const success = gl.getProgramParameter(program, gl.LINK_STATUS);
