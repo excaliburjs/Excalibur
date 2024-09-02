@@ -128,7 +128,7 @@
     "raw-loader": "4.0.2",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "replace-in-file": "7.1.0",
+    "replace-in-file": "7.2.0",
     "rimraf": "5.0.10",
     "semver": "7.6.3",
     "serve": "14.2.3",
