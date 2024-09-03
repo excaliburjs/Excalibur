@@ -436,19 +436,17 @@ export class Shader {
     return true;
   }
 
-  private _uniformLocationMap = new Map<WebGLProgram, Record<string, WebGLUniformLocation>>();
+  private _uniformLocationMap = new Map<WebGLProgram, Record<string, WebGLUniformLocation | null>>();
   private _getUniformLocationCached(name: string): WebGLUniformLocation | null {
     if (!this._uniformLocationMap.has(this.program)) {
       this._uniformLocationMap.set(this.program, {});
     }
 
     const maybeUniformMap = this._uniformLocationMap.get(this.program);
-    if (maybeUniformMap && !maybeUniformMap[name]) {
+    if (maybeUniformMap && maybeUniformMap[name] === undefined) {
       const gl = this._gl;
       const location = gl.getUniformLocation(this.program, name);
-      if (location) {
-        this._uniformLocationMap.set(this.program, { ...maybeUniformMap, [name]: location });
-      }
+      this._uniformLocationMap.set(this.program, { ...maybeUniformMap, [name]: location ?? null });
     }
 
     const uniformMap = this._uniformLocationMap.get(this.program)!;
