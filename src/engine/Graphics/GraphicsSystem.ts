@@ -71,7 +71,7 @@ export class GraphicsSystem extends System {
     }
   }
 
-  public update(delta: number): void {
+  public update(elapsedMs: number): void {
     this._token++;
     let graphics: GraphicsComponent;
     FontCache.checkAndClearCache();
@@ -99,9 +99,9 @@ export class GraphicsSystem extends System {
 
       // Optionally run the onPreTransformDraw graphics lifecycle draw
       if (graphics.onPreTransformDraw) {
-        graphics.onPreTransformDraw(this._graphicsContext, delta);
+        graphics.onPreTransformDraw(this._graphicsContext, elapsedMs);
       }
-      entity.events.emit('pretransformdraw', new PreTransformDrawEvent(this._graphicsContext, delta, entity));
+      entity.events.emit('pretransformdraw', new PreTransformDrawEvent(this._graphicsContext, elapsedMs, entity));
 
       // This optionally sets our camera based on the entity coord plan (world vs. screen)
       if (transform.coordPlane === CoordPlane.Screen) {
@@ -114,7 +114,7 @@ export class GraphicsSystem extends System {
       }
 
       // Tick any graphics state (but only once) for animations and graphics groups
-      graphics.update(delta, this._token);
+      graphics.update(elapsedMs, this._token);
 
       // Apply parallax
       const parallax = entity.get(ParallaxComponent);
@@ -137,9 +137,9 @@ export class GraphicsSystem extends System {
 
       // Optionally run the onPreDraw graphics lifecycle draw
       if (graphics.onPreDraw) {
-        graphics.onPreDraw(this._graphicsContext, delta);
+        graphics.onPreDraw(this._graphicsContext, elapsedMs);
       }
-      entity.events.emit('predraw', new PreDrawEvent(this._graphicsContext, delta, entity));
+      entity.events.emit('predraw', new PreDrawEvent(this._graphicsContext, elapsedMs, entity));
 
       this._graphicsContext.opacity *= graphics.opacity;
 
@@ -148,9 +148,9 @@ export class GraphicsSystem extends System {
 
       // Optionally run the onPostDraw graphics lifecycle draw
       if (graphics.onPostDraw) {
-        graphics.onPostDraw(this._graphicsContext, delta);
+        graphics.onPostDraw(this._graphicsContext, elapsedMs);
       }
-      entity.events.emit('postdraw', new PostDrawEvent(this._graphicsContext, delta, entity));
+      entity.events.emit('postdraw', new PostDrawEvent(this._graphicsContext, elapsedMs, entity));
 
       this._graphicsContext.restore();
 
@@ -164,9 +164,9 @@ export class GraphicsSystem extends System {
 
       // Optionally run the onPreTransformDraw graphics lifecycle draw
       if (graphics.onPostTransformDraw) {
-        graphics.onPostTransformDraw(this._graphicsContext, delta);
+        graphics.onPostTransformDraw(this._graphicsContext, elapsedMs);
       }
-      entity.events.emit('posttransformdraw', new PostTransformDrawEvent(this._graphicsContext, delta, entity));
+      entity.events.emit('posttransformdraw', new PostTransformDrawEvent(this._graphicsContext, elapsedMs, entity));
     }
     this._graphicsContext.restore();
   }

@@ -17,7 +17,7 @@ class FakeSystem extends ex.System {
     super();
     this.query = this.world.query(types);
   }
-  update(delta: number): void {
+  update(elapsedMs: number): void {
     // fake
   }
 }

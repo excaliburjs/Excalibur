@@ -42,7 +42,7 @@ export class Flash implements Action {
     this._total = duration;
   }
 
-  public update(delta: number): void {
+  public update(elapsedMs: number): void {
     if (!this._started) {
       this._started = true;
       this._total = this._duration;
@@ -53,7 +53,7 @@ export class Flash implements Action {
       return;
     }
 
-    this._currentDuration -= delta;
+    this._currentDuration -= elapsedMs;
 
     if (this._graphics) {
       this._material?.update((shader: Shader) => {

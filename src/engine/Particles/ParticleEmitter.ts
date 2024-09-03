@@ -158,11 +158,11 @@ export class ParticleEmitter extends Actor {
     return p;
   }
 
-  public update(engine: Engine, delta: number) {
-    super.update(engine, delta);
+  public update(engine: Engine, elapsedMs: number) {
+    super.update(engine, elapsedMs);
 
     if (this.isEmitting) {
-      this._particlesToEmit += this.emitRate * (delta / 1000);
+      this._particlesToEmit += this.emitRate * (elapsedMs / 1000);
       if (this._particlesToEmit > 1.0) {
         this.emitParticles(Math.floor(this._particlesToEmit));
         this._particlesToEmit = this._particlesToEmit - Math.floor(this._particlesToEmit);

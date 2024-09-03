@@ -976,9 +976,9 @@ describe('The engine', () => {
       const clock = engine.clock as ex.TestClock;
       expect(engine.clock.isRunning()).toBe(true);
 
-      engine.onPostUpdate = (engine, delta) => {
+      engine.onPostUpdate = (engine, elapsedMs) => {
         expect(engine).not.toBe(null);
-        expect(delta).toBe(100);
+        expect(elapsedMs).toBe(100);
       };
 
       spyOn(engine, 'onPostUpdate').and.callThrough();
@@ -996,9 +996,9 @@ describe('The engine', () => {
       const clock = engine.clock as ex.TestClock;
       expect(engine.clock.isRunning()).toBe(true);
 
-      engine.onPreUpdate = (engine, delta) => {
+      engine.onPreUpdate = (engine, elapsedMs) => {
         expect(engine).not.toBe(null);
-        expect(delta).toBe(100);
+        expect(elapsedMs).toBe(100);
       };
 
       spyOn(engine, 'onPreUpdate').and.callThrough();
@@ -1017,9 +1017,9 @@ describe('The engine', () => {
       expect(engine.clock.isRunning()).toBe(true);
 
       engine.currentScene._initialize(engine);
-      engine.onPreDraw = (ctx, delta) => {
+      engine.onPreDraw = (ctx, elapsedMs) => {
         expect(<any>ctx).not.toBe(null);
-        expect(delta).toBe(100);
+        expect(elapsedMs).toBe(100);
       };
       spyOn(engine, 'onPreDraw').and.callThrough();
       spyOn(engine, '_predraw').and.callThrough();
@@ -1037,9 +1037,9 @@ describe('The engine', () => {
       expect(engine.clock.isRunning()).toBe(true);
 
       engine.currentScene._initialize(engine);
-      engine.onPostDraw = (ctx, delta) => {
+      engine.onPostDraw = (ctx, elapsedMs) => {
         expect(<any>ctx).not.toBe(null);
-        expect(delta).toBe(100);
+        expect(elapsedMs).toBe(100);
       };
 
       spyOn(engine, 'onPostDraw').and.callThrough();

@@ -25,7 +25,7 @@ export interface PostProcessor {
    * Use the onUpdate hook to update any uniforms in the postprocessors shader
    *
    * The shader has already been bound so there is no need to call shader.use();
-   * @param delta
+   * @param elapsedMs
    */
-  onUpdate?(delta: number): void;
+  onUpdate?(elapsedMs: number): void;
 }

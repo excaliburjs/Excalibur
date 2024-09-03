@@ -4,12 +4,12 @@ import { TestUtils } from './util/TestUtils';
 import { BodyComponent } from '@excalibur';
 import { ColliderComponent } from '../engine/Collision/ColliderComponent';
 
-const drawWithTransform = (ctx: ex.ExcaliburGraphicsContext, tm: ex.TileMap, delta: number = 1) => {
+const drawWithTransform = (ctx: ex.ExcaliburGraphicsContext, tm: ex.TileMap, elapsedMs: number = 1) => {
   ctx.save();
   ctx.translate(tm.pos.x, tm.pos.y);
   ctx.rotate(tm.rotation);
   ctx.scale(tm.scale.x, tm.scale.y);
-  tm.draw(ctx, delta);
+  tm.draw(ctx, elapsedMs);
   ctx.restore();
 };
 

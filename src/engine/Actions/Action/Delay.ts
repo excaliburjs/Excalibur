@@ -10,12 +10,12 @@ export class Delay implements Action {
     this._delay = delay;
   }
 
-  public update(delta: number): void {
+  public update(elapsedMs: number): void {
     if (!this._started) {
       this._started = true;
     }
 
-    this._elapsedTime += delta;
+    this._elapsedTime += elapsedMs;
   }
 
   isComplete(): boolean {

@@ -24,7 +24,7 @@ export interface FrameStatistics {
   /**
    * Gets the frame's delta (time since last frame scaled by {@apilink Engine.timescale}) (in ms)
    */
-  delta: number;
+  elapsedMs: number;
 
   /**
    * Gets the frame's frames-per-second (FPS)
@@ -380,7 +380,7 @@ export class DebugConfig {
  */
 export class FrameStats implements FrameStatistics {
   private _id: number = 0;
-  private _delta: number = 0;
+  private _elapsedMs: number = 0;
   private _fps: number = 0;
   private _actorStats: FrameActorStats = {
     alive: 0,
@@ -415,7 +415,7 @@ export class FrameStats implements FrameStatistics {
   public reset(otherStats?: FrameStatistics) {
     if (otherStats) {
       this.id = otherStats.id;
-      this.delta = otherStats.delta;
+      this.elapsedMs = otherStats.elapsedMs;
       this.fps = otherStats.fps;
       this.actors.alive = otherStats.actors.alive;
       this.actors.killed = otherStats.actors.killed;
@@ -426,7 +426,7 @@ export class FrameStats implements FrameStatistics {
       this.graphics.drawCalls = otherStats.graphics.drawCalls;
       this.graphics.drawnImages = otherStats.graphics.drawnImages;
     } else {
-      this.id = this.delta = this.fps = 0;
+      this.id = this.elapsedMs = this.fps = 0;
       this.actors.alive = this.actors.killed = this.actors.ui = 0;
       this.duration.update = this.duration.draw = 0;
       this._physicsStats.reset();
@@ -462,16 +462,16 @@ export class FrameStats implements FrameStatistics {
   /**
    * Gets the frame's delta (time since last frame)
    */
-  public get delta() {
-    return this._delta;
+  public get elapsedMs() {
+    return this._elapsedMs;
   }
 
   /**
    * Sets the frame's delta (time since last frame). Internal use only.
    * @internal
    */
-  public set delta(value: number) {
-    this._delta = value;
+  public set elapsedMs(value: number) {
+    this._elapsedMs = value;
   }
 
   /**

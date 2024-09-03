@@ -29,7 +29,7 @@ export class ScaleTo implements Action {
     this._speedY = speedY;
   }
 
-  public update(_delta: number): void {
+  public update(elapsedMs: number): void {
     if (!this._started) {
       this._started = true;
       this._startX = this._tx.scale.x;
