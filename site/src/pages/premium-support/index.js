@@ -19,7 +19,7 @@ const data = [
     title: 'Custom Development Project',
     link: 'https://savvycal.com/excalibur/custom-quote',
     description: 'Schedule a free 30 minute meeting to get a quote for your project. This work would involve a maintainer writing custom code for your game, either in Excalibur, building a new plugin, or directly in your code base.',
-    price: 'Starts at $2000'
+    price: 'Starts at $4000'
   }
 ]
 
