@@ -421,9 +421,9 @@ describe('A camera', () => {
     });
 
     it('can have onPostUpdate overridden safely', () => {
-      camera.onPostUpdate = (engine, delta) => {
+      camera.onPostUpdate = (engine, elapsedMs) => {
         expect(engine).not.toBe(null);
-        expect(delta).toBe(100);
+        expect(elapsedMs).toBe(100);
       };
 
       spyOn(camera, 'onPostUpdate').and.callThrough();
@@ -437,9 +437,9 @@ describe('A camera', () => {
     });
 
     it('can have onPreUpdate overridden safely', () => {
-      camera.onPreUpdate = (engine, delta) => {
+      camera.onPreUpdate = (engine, elapsedMs) => {
         expect(engine).not.toBe(null);
-        expect(delta).toBe(100);
+        expect(elapsedMs).toBe(100);
       };
 
       spyOn(camera, 'onPreUpdate').and.callThrough();

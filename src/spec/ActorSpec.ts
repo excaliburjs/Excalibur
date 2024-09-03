@@ -1383,9 +1383,9 @@ describe('A game actor', () => {
     });
 
     it('can have onPostUpdate overridden safely', () => {
-      actor.onPostUpdate = (engine, delta) => {
+      actor.onPostUpdate = (engine, elapsedMs) => {
         expect(engine).not.toBe(null);
-        expect(delta).toBe(100);
+        expect(elapsedMs).toBe(100);
       };
 
       spyOn(actor, 'onPostUpdate').and.callThrough();
@@ -1398,9 +1398,9 @@ describe('A game actor', () => {
     });
 
     it('can have onPreUpdate overridden safely', () => {
-      actor.onPreUpdate = (engine, delta) => {
+      actor.onPreUpdate = (engine, elapsedMs) => {
         expect(engine).not.toBe(null);
-        expect(delta).toBe(100);
+        expect(elapsedMs).toBe(100);
       };
 
       spyOn(actor, 'onPreUpdate').and.callThrough();

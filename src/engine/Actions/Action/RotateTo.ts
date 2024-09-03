@@ -31,7 +31,7 @@ export class RotateTo implements Action {
     this._rotationType = rotationType || RotationType.ShortestPath;
   }
 
-  public update(_delta: number): void {
+  public update(elapsedMs: number): void {
     if (!this._started) {
       this._started = true;
       this._start = this._tx.rotation;
@@ -85,7 +85,7 @@ export class RotateTo implements Action {
     }
 
     this._motion.angularVelocity = this._direction * this._speed;
-    this._currentNonCannonAngle += this._direction * this._speed * (_delta / 1000);
+    this._currentNonCannonAngle += this._direction * this._speed * (elapsedMs / 1000);
 
     if (this.isComplete()) {
       this._tx.rotation = this._end;

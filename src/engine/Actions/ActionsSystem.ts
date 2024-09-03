@@ -21,10 +21,10 @@ export class ActionsSystem extends System {
       }
     });
   }
-  update(delta: number): void {
+  update(elapsedMs: number): void {
     for (let i = 0; i < this._actions.length; i++) {
       const action = this._actions[i];
-      action.update(delta);
+      action.update(elapsedMs);
     }
   }
 }

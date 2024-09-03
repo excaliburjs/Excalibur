@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- `PreDrawEvent`, `PostDrawEvent`, `PreTransformDrawEvent`, `PostTransformDrawEvent`, `PreUpdateEvent`, `PostUpdateEvent` now use `elapsedMs` instead of `delta` for the elapsed milliseconds between the last frame.460696
 - `Trigger` API has been slightly changed:
   - `action` now returns the triggering entity: `(entity: Entity) => void`
   - `target` now works in conjunction with `filter` instead of overwriting it.
@@ -119,6 +120,7 @@ are doing mtv adjustments during precollision.
 
 ### Updates
 
+- Non-breaking parameters that reference `delta` to `elapsedMs` to better communicate intent and units
 - Perf improvements to `ex.ParticleEmitter` 
   * Use the same integrator as the MotionSystem in the tight loop
   * Leverage object pools to increase performance and reduce allocations

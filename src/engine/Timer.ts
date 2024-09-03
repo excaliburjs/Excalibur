@@ -119,12 +119,12 @@ export class Timer {
   }
   /**
    * Updates the timer after a certain number of milliseconds have elapsed. This is used internally by the engine.
-   * @param delta  Number of elapsed milliseconds since the last update.
+   * @param elapsedMs  Number of elapsed milliseconds since the last update.
    */
-  public update(delta: number) {
+  public update(elapsedMs: number) {
     if (this._running) {
-      this._totalTimeAlive += delta;
-      this._elapsedTime += delta;
+      this._totalTimeAlive += elapsedMs;
+      this._elapsedTime += elapsedMs;
 
       if (this.maxNumberOfRepeats > -1 && this._numberOfTicks >= this.maxNumberOfRepeats) {
         this._complete = true;

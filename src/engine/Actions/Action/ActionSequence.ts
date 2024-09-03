@@ -20,8 +20,8 @@ export class ActionSequence implements Action {
     this._sequenceBuilder(this._sequenceContext);
   }
 
-  public update(delta: number): void {
-    this._actionQueue.update(delta);
+  public update(elapsedMs: number): void {
+    this._actionQueue.update(elapsedMs);
   }
 
   public isComplete(): boolean {

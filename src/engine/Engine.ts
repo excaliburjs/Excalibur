@@ -1513,12 +1513,12 @@ O|===|* >________________>\n\
 
   /**
    * Updates the entire state of the game
-   * @param delta  Number of milliseconds elapsed since the last update.
+   * @param elapsedMs  Number of milliseconds elapsed since the last update.
    */
-  private _update(delta: number) {
+  private _update(elapsedMs: number) {
     if (this._isLoading) {
       // suspend updates until loading is finished
-      this._loader?.onUpdate(this, delta);
+      this._loader?.onUpdate(this, elapsedMs);
       // Update input listeners
       this.input.update();
       return;
@@ -1526,17 +1526,17 @@ O|===|* >________________>\n\
 
     // Publish preupdate events
     this.clock.__runScheduledCbs('preupdate');
-    this._preupdate(delta);
+    this._preupdate(elapsedMs);
 
     // process engine level events
-    this.currentScene.update(this, delta);
+    this.currentScene.update(this, elapsedMs);
 
     // Update graphics postprocessors
-    this.graphicsContext.updatePostProcessors(delta);
+    this.graphicsContext.updatePostProcessors(elapsedMs);
 
     // Publish update event
     this.clock.__runScheduledCbs('postupdate');
-    this._postupdate(delta);
+    this._postupdate(elapsedMs);
 
     // Update input listeners
     this.input.update();
@@ -1545,36 +1545,36 @@ O|===|* >________________>\n\
   /**
    * @internal
    */
-  public _preupdate(delta: number) {
-    this.emit('preupdate', new PreUpdateEvent(this, delta, this));
-    this.onPreUpdate(this, delta);
+  public _preupdate(elapsedMs: number) {
+    this.emit('preupdate', new PreUpdateEvent(this, elapsedMs, this));
+    this.onPreUpdate(this, elapsedMs);
   }
 
-  public onPreUpdate(engine: Engine, delta: number) {
+  public onPreUpdate(engine: Engine, elapsedMs: number) {
     // Override me
   }
 
   /**
    * @internal
    */
-  public _postupdate(delta: number) {
-    this.emit('postupdate', new PostUpdateEvent(this, delta, this));
-    this.onPostUpdate(this, delta);
+  public _postupdate(elapsedMs: number) {
+    this.emit('postupdate', new PostUpdateEvent(this, elapsedMs, this));
+    this.onPostUpdate(this, elapsedMs);
   }
 
-  public onPostUpdate(engine: Engine, delta: number) {
+  public onPostUpdate(engine: Engine, elapsedMs: number) {
     // Override me
   }
 
   /**
    * Draws the entire game
-   * @param delta  Number of milliseconds elapsed since the last draw.
+   * @param elapsedMs  Number of milliseconds elapsed since the last draw.
    */
-  private _draw(delta: number) {
+  private _draw(elapsedMs: number) {
     this.graphicsContext.beginDrawLifecycle();
     this.graphicsContext.clear();
     this.clock.__runScheduledCbs('predraw');
-    this._predraw(this.graphicsContext, delta);
+    this._predraw(this.graphicsContext, elapsedMs);
 
     // Drawing nothing else while loading
     if (this._isLoading) {
@@ -1590,10 +1590,10 @@ O|===|* >________________>\n\
     // Use scene background color if present, fallback to engine
     this.graphicsContext.backgroundColor = this.currentScene.backgroundColor ?? this.backgroundColor;
 
-    this.currentScene.draw(this.graphicsContext, delta);
+    this.currentScene.draw(this.graphicsContext, elapsedMs);
 
     this.clock.__runScheduledCbs('postdraw');
-    this._postdraw(this.graphicsContext, delta);
+    this._postdraw(this.graphicsContext, elapsedMs);
 
     // Flush any pending drawings
     this.graphicsContext.flush();
@@ -1605,24 +1605,24 @@ O|===|* >________________>\n\
   /**
    * @internal
    */
-  public _predraw(ctx: ExcaliburGraphicsContext, delta: number) {
-    this.emit('predraw', new PreDrawEvent(ctx, delta, this));
-    this.onPreDraw(ctx, delta);
+  public _predraw(ctx: ExcaliburGraphicsContext, elapsedMs: number) {
+    this.emit('predraw', new PreDrawEvent(ctx, elapsedMs, this));
+    this.onPreDraw(ctx, elapsedMs);
   }
 
-  public onPreDraw(ctx: ExcaliburGraphicsContext, delta: number) {
+  public onPreDraw(ctx: ExcaliburGraphicsContext, elapsedMs: number) {
     // Override me
   }
 
   /**
    * @internal
    */
-  public _postdraw(ctx: ExcaliburGraphicsContext, delta: number) {
-    this.emit('postdraw', new PostDrawEvent(ctx, delta, this));
-    this.onPostDraw(ctx, delta);
+  public _postdraw(ctx: ExcaliburGraphicsContext, elapsedMs: number) {
+    this.emit('postdraw', new PostDrawEvent(ctx, elapsedMs, this));
+    this.onPostDraw(ctx, elapsedMs);
   }
 
-  public onPostDraw(ctx: ExcaliburGraphicsContext, delta: number) {
+  public onPostDraw(ctx: ExcaliburGraphicsContext, elapsedMs: number) {
     // Override me
   }
 
@@ -1728,31 +1728,31 @@ O|===|* >________________>\n\
   private _mainloop(elapsed: number) {
     this.scope(() => {
       this.emit('preframe', new PreFrameEvent(this, this.stats.prevFrame));
-      const delta = elapsed * this.timescale;
-      this.currentFrameElapsedMs = delta;
+      const elapsedMs = elapsed * this.timescale;
+      this.currentFrameElapsedMs = elapsedMs;
 
       // reset frame stats (reuse existing instances)
       const frameId = this.stats.prevFrame.id + 1;
       this.stats.currFrame.reset();
       this.stats.currFrame.id = frameId;
-      this.stats.currFrame.delta = delta;
+      this.stats.currFrame.elapsedMs = elapsedMs;
       this.stats.currFrame.fps = this.clock.fpsSampler.fps;
       GraphicsDiagnostics.clear();
 
       const beforeUpdate = this.clock.now();
       const fixedTimestepMs = 1000 / this.fixedUpdateFps;
       if (this.fixedUpdateFps) {
-        this._lagMs += delta;
+        this._lagMs += elapsedMs;
         while (this._lagMs >= fixedTimestepMs) {
           this._update(fixedTimestepMs);
           this._lagMs -= fixedTimestepMs;
         }
       } else {
-        this._update(delta);
+        this._update(elapsedMs);
       }
       const afterUpdate = this.clock.now();
       this.currentFrameLagMs = this._lagMs;
-      this._draw(delta);
+      this._draw(elapsedMs);
       const afterDraw = this.clock.now();
 
       this.stats.currFrame.duration.update = afterUpdate - beforeUpdate;

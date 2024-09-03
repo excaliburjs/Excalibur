@@ -30,7 +30,7 @@ export function hasOnInitialize(a: any): a is OnInitialize {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export interface _preupdate {
-  _preupdate(engine: Engine, delta: number): void;
+  _preupdate(engine: Engine, elapsedMs: number): void;
 }
 
 /**
@@ -41,7 +41,7 @@ export function has_preupdate(a: any): a is _preupdate {
 }
 
 export interface OnPreUpdate {
-  onPreUpdate(engine: Engine, delta: number): void;
+  onPreUpdate(engine: Engine, elapsedMs: number): void;
 }
 
 /**
@@ -53,7 +53,7 @@ export function hasOnPreUpdate(a: any): a is OnPreUpdate {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export interface _postupdate {
-  _postupdate(engine: Engine, delta: number): void;
+  _postupdate(engine: Engine, elapsedMs: number): void;
 }
 
 /**
@@ -64,7 +64,7 @@ export function has_postupdate(a: any): a is _postupdate {
 }
 
 export interface OnPostUpdate {
-  onPostUpdate(engine: Engine, delta: number): void;
+  onPostUpdate(engine: Engine, elapsedMs: number): void;
 }
 
 /**
@@ -127,7 +127,7 @@ export interface CanUpdate {
   /**
    * Overridable implementation
    */
-  onPreUpdate(engine: Engine, delta: number): void;
+  onPreUpdate(engine: Engine, elapsedMs: number): void;
 
   /**
    * Event signature
@@ -139,7 +139,7 @@ export interface CanUpdate {
   /**
    * Overridable implementation
    */
-  onPostUpdate(engine: Engine, delta: number): void;
+  onPostUpdate(engine: Engine, elapsedMs: number): void;
 
   /**
    * Event signatures
@@ -153,7 +153,7 @@ export interface OnPreDraw {
   /**
    * Overridable implementation
    */
-  onPreDraw(ctx: ExcaliburGraphicsContext, delta: number): void;
+  onPreDraw(ctx: ExcaliburGraphicsContext, elapsedMs: number): void;
 
   /**
    * Event signatures
@@ -167,7 +167,7 @@ export interface OnPostDraw {
   /**
    * Overridable implementation
    */
-  onPostDraw(ctx: ExcaliburGraphicsContext, delta: number): void;
+  onPostDraw(ctx: ExcaliburGraphicsContext, elapsedMs: number): void;
 
   /**
    * Event signatures

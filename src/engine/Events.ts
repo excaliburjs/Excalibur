@@ -249,7 +249,7 @@ export class GameStopEvent extends GameEvent<Engine> {
 export class PreDrawEvent extends GameEvent<Entity | Scene | Engine | TileMap> {
   constructor(
     public ctx: ExcaliburGraphicsContext,
-    public delta: number,
+    public elapsedMs: number,
     public target: Entity | Scene | Engine | TileMap
   ) {
     super();
@@ -264,7 +264,7 @@ export class PreDrawEvent extends GameEvent<Entity | Scene | Engine | TileMap> {
 export class PostDrawEvent extends GameEvent<Entity | Scene | Engine | TileMap> {
   constructor(
     public ctx: ExcaliburGraphicsContext,
-    public delta: number,
+    public elapsedMs: number,
     public target: Entity | Scene | Engine | TileMap
   ) {
     super();
@@ -280,7 +280,7 @@ export class PostDrawEvent extends GameEvent<Entity | Scene | Engine | TileMap> 
 export class PreTransformDrawEvent extends GameEvent<Entity> {
   constructor(
     public ctx: ExcaliburGraphicsContext,
-    public delta: number,
+    public elapsedMs: number,
     public target: Entity
   ) {
     super();
@@ -295,7 +295,7 @@ export class PreTransformDrawEvent extends GameEvent<Entity> {
 export class PostTransformDrawEvent extends GameEvent<Entity> {
   constructor(
     public ctx: ExcaliburGraphicsContext,
-    public delta: number,
+    public elapsedMs: number,
     public target: Entity
   ) {
     super();
@@ -332,7 +332,7 @@ export class PostDebugDrawEvent extends GameEvent<Entity | Actor | Scene | Engin
 export class PreUpdateEvent<T extends OnPreUpdate = Entity> extends GameEvent<T> {
   constructor(
     public engine: Engine,
-    public delta: number,
+    public elapsedMs: number,
     public target: T
   ) {
     super();
@@ -345,7 +345,7 @@ export class PreUpdateEvent<T extends OnPreUpdate = Entity> extends GameEvent<T>
 export class PostUpdateEvent<T extends OnPostUpdate = Entity> extends GameEvent<T> {
   constructor(
     public engine: Engine,
-    public delta: number,
+    public elapsedMs: number,
     public target: T
   ) {
     super();

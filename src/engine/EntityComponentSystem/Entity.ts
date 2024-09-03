@@ -541,9 +541,9 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    * Internal _preupdate handler for {@apilink onPreUpdate} lifecycle event
    * @internal
    */
-  public _preupdate(engine: Engine, delta: number): void {
-    this.events.emit('preupdate', new PreUpdateEvent(engine, delta, this));
-    this.onPreUpdate(engine, delta);
+  public _preupdate(engine: Engine, elapsedMs: number): void {
+    this.events.emit('preupdate', new PreUpdateEvent(engine, elapsedMs, this));
+    this.onPreUpdate(engine, elapsedMs);
   }
 
   /**
@@ -552,9 +552,9 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    * Internal _preupdate handler for {@apilink onPostUpdate} lifecycle event
    * @internal
    */
-  public _postupdate(engine: Engine, delta: number): void {
-    this.events.emit('postupdate', new PostUpdateEvent(engine, delta, this));
-    this.onPostUpdate(engine, delta);
+  public _postupdate(engine: Engine, elapsedMs: number): void {
+    this.events.emit('postupdate', new PostUpdateEvent(engine, elapsedMs, this));
+    this.onPostUpdate(engine, elapsedMs);
   }
 
   /**
@@ -572,7 +572,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    *
    * `onPreUpdate` is called directly before an entity is updated.
    */
-  public onPreUpdate(engine: Engine, delta: number): void {
+  public onPreUpdate(engine: Engine, elapsedMs: number): void {
     // Override me
   }
 
@@ -581,7 +581,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    *
    * `onPostUpdate` is called directly after an entity is updated.
    */
-  public onPostUpdate(engine: Engine, delta: number): void {
+  public onPostUpdate(engine: Engine, elapsedMs: number): void {
     // Override me
   }
 
@@ -590,15 +590,15 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    * Entity update lifecycle, called internally
    * @internal
    * @param engine
-   * @param delta
+   * @param elapsedMs
    */
-  public update(engine: Engine, delta: number): void {
+  public update(engine: Engine, elapsedMs: number): void {
     this._initialize(engine);
-    this._preupdate(engine, delta);
+    this._preupdate(engine, elapsedMs);
     for (const child of this.children) {
-      child.update(engine, delta);
+      child.update(engine, elapsedMs);
     }
-    this._postupdate(engine, delta);
+    this._postupdate(engine, elapsedMs);
   }
 
   public emit<TEventName extends EventKey<EntityEvents>>(eventName: TEventName, event: EntityEvents[TEventName]): void;
