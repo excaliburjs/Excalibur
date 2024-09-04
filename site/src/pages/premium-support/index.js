@@ -50,7 +50,7 @@ export default function Support() {
   return (
     <Layout
       title='Premium Support'
-      description='Excalibur maintainers offer premium support'
+      description='Excalibur maintainers offer premium support through Caliburn Games LLC'
       >
       <main className={styles.main}>
         <div className="ui container">
