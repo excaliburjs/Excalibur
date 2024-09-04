@@ -58,7 +58,7 @@ export default function Support() {
 
           <hr></hr>
           <p>
-            The Excalibur core maintainers offer premium support.
+            The Excalibur core maintainers offer premium support through Caliburn Games LLC.
           </p>
 
           <p>
