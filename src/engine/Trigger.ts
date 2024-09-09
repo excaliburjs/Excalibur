@@ -2,7 +2,7 @@ import { Vector } from './Math/vector';
 import { ExitTriggerEvent, EnterTriggerEvent, CollisionEndEvent, CollisionStartEvent } from './Events';
 import { CollisionType } from './Collision/CollisionType';
 import { Entity } from './EntityComponentSystem';
-import { Actor, ActorEvents } from './Actor';
+import { Actor, ActorArgs, ActorEvents } from './Actor';
 import { EventEmitter } from './EventEmitter';
 
 export type TriggerEvents = ActorEvents & {
@@ -62,8 +62,8 @@ export class Trigger extends Actor {
   /**
    * @param options Trigger options
    */
-  constructor(options: Partial<TriggerOptions>) {
-    super({ x: options.pos?.x, y: options.pos?.y, width: options.width, height: options.height });
+  constructor(options: Partial<TriggerOptions> & ActorArgs) {
+    super({ ...options });
 
     this.filter = options.filter ?? (() => true);
     this.repeat = options.repeat ?? -1;
