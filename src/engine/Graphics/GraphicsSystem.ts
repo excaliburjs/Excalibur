@@ -141,7 +141,8 @@ export class GraphicsSystem extends System {
       }
       entity.events.emit('predraw', new PreDrawEvent(this._graphicsContext, elapsedMs, entity));
 
-      this._graphicsContext.opacity *= graphics.opacity;
+      // this._graphicsContext.opacity *= graphics.opacity;
+      this._applyOpacity(entity);
 
       // Draw the graphics component
       this._drawGraphicsComponent(graphics, transform);
@@ -267,6 +268,14 @@ export class GraphicsSystem extends System {
         this._graphicsContext.scale(tx.scale.x, tx.scale.y);
         this._graphicsContext.rotate(tx.rotation);
       }
+    }
+  }
+
+  private _applyOpacity(entity: Entity): void {
+    const ancestors = entity.getAncestors();
+    for (const ancestor of ancestors) {
+      const maybeGraphics = ancestor?.get(GraphicsComponent);
+      this._graphicsContext.opacity *= maybeGraphics?.opacity ?? 1;
     }
   }
 }
