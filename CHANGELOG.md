@@ -64,6 +64,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- `ex.Engine.timeScale` values of 0 are now supported
 - `ex.Trigger` now supports all valid actor constructor parameters from `ex.ActorArgs` in addition to `ex.TriggerOptions`
 - `ex.Gif` can now handle default embedded GIF frame timings
 - New `ex.Screen.worldToPagePixelRatio` API that will return the ratio between excalibur pixels and the HTML pixels. 
