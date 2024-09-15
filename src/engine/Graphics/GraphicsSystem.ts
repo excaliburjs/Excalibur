@@ -18,8 +18,9 @@ import { blendTransform } from './TransformInterpolation';
 import { Graphic } from './Graphic';
 
 export class GraphicsSystem extends System {
+  static priority = SystemPriority.Average;
+
   public readonly systemType = SystemType.Draw;
-  public priority = SystemPriority.Average;
   private _token = 0;
   // Set in the initialize
   private _graphicsContext!: ExcaliburGraphicsContext;

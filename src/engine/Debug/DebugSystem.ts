@@ -18,8 +18,9 @@ import { CoordPlane } from '../Math/coord-plane';
 import { Debug } from '../Graphics/Debug';
 
 export class DebugSystem extends System {
+  static priority = SystemPriority.Lowest;
+
   public readonly systemType = SystemType.Draw;
-  public priority = SystemPriority.Lowest;
   private _graphicsContext: ExcaliburGraphicsContext;
   private _collisionSystem: CollisionSystem;
   private _camera: Camera;
