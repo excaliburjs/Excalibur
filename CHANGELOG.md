@@ -103,6 +103,7 @@ are doing mtv adjustments during precollision.
 
 ### Fixed
 
+- Fixed issue where the `ex.Loader` would have a low res logo on small configured resolution sizes
 - Fixed issue where `ex.Gif` was not parsing certain binary formats correctly
 - Fixed issue where the boot `ex.Loader` was removing pixelRatio override
 - Fixed `ex.RasterOptions`, it now extends `ex.GraphicsOptions` which is the underlying truth

@@ -320,6 +320,9 @@ export class Loader extends DefaultLoader {
   }
 
   public override async onBeforeLoad(): Promise<void> {
+    this.screen.pushResolutionAndViewport();
+    this.screen.resolution = this.screen.viewport;
+    this.screen.applyResolutionAndViewport();
     const image = this._image;
     await this._imageLoaded.promise;
     await image?.decode(); // decode logo if it exists
