@@ -321,7 +321,7 @@ export class Loader extends DefaultLoader {
 
   public override async onBeforeLoad(): Promise<void> {
     this.screen.pushResolutionAndViewport();
-    this.screen.resolution = this.screen.viewport;
+    this.screen.resolution = { width: this.canvas.width, height: this.canvas.height };
     this.screen.applyResolutionAndViewport();
     const image = this._image;
     await this._imageLoaded.promise;
