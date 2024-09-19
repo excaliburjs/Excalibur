@@ -1441,9 +1441,6 @@ describe('A game actor', () => {
     });
 
     it('can run onAdd and onRemove', () => {
-      spyOn(actor, 'onAdd').and.callThrough();
-      spyOn(actor, 'onRemove').and.callThrough();
-
       actor.onRemove = (engine: ex.Engine) => {
         expect(engine).not.toBe(null);
       };
@@ -1452,15 +1449,17 @@ describe('A game actor', () => {
         expect(engine).not.toBe(null);
       };
 
+      spyOn(actor, 'onAdd').and.callThrough();
+      spyOn(actor, 'onRemove').and.callThrough();
+      engine.add(actor);
+      engine.currentScene.update(engine, 100);
       engine.remove(actor);
-      actor.update(engine, 100);
-      actor.update(engine, 100);
-      expect(actor.onAdd).toHaveBeenCalledTimes(0);
+      engine.currentScene.update(engine, 100);
+      expect(actor.onAdd).toHaveBeenCalledTimes(1);
       expect(actor.onRemove).toHaveBeenCalledTimes(1);
       engine.add(actor);
-      actor.update(engine, 100);
-      actor.update(engine, 100);
-      expect(actor.onAdd).toHaveBeenCalledTimes(1);
+      engine.currentScene.update(engine, 100);
+      expect(actor.onAdd).toHaveBeenCalledTimes(2);
       expect(actor.onRemove).toHaveBeenCalledTimes(1);
     });
   });
