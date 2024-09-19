@@ -42,7 +42,7 @@ export abstract class System {
    * For a system to execute before all other a lower priority value (-1 for example) must be set.
    * For a system to execute after all other a higher priority value (10 for example) must be set.
    */
-  public priority: number = SystemPriority.Average;
+  public static priority: number = SystemPriority.Average;
 
   /**
    * Optionally specify an initialize handler
