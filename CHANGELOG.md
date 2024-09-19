@@ -7,6 +7,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- `ex.Timer` now only takes the option bag constructor
+- `PreDrawEvent`, `PostDrawEvent`, `PreTransformDrawEvent`, `PostTransformDrawEvent`, `PreUpdateEvent`, `PostUpdateEvent` now use `elapsedMs` instead of `delta` for the elapsed milliseconds between the last frame.460696
+- `Trigger` API has been slightly changed:
+  - `action` now returns the triggering entity: `(entity: Entity) => void`
+  - `target` now works in conjunction with `filter` instead of overwriting it.
+  - `EnterTriggerEvent` and `ExitTriggerEvent` now contain a `entity: Entity` property instead of `actor: Actor`
+- `ex.Vector.normalize()` return zero-vector (`(0,0)`) instead of `(0,1)` when normalizing a vector with a magnitude of 0
+- `ex.Gif` transparent color constructor arg is removed in favor of the built in Gif file mechanism
 - Remove core-js dependency, it is no longer necessary in modern browsers. Technically a breaking change for older browsers
 - `ex.Particle` and `ex.ParticleEmitter` now have an API that looks like modern Excalibur APIs
   * `particleSprite` is renamed to `graphic`
@@ -47,12 +55,37 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
+
+- `Vector.size` is deprecated, use `Vector.magnitude` instead
+- `ScreenShader` v_texcoord is deprecated, use v_uv. This is changed to match the materials shader API
 - `actor.getGlobalPos()` - use `actor.globalPos` instead
 - `actor.getGlobalRotation()` - use `actor.globalRotation` instead
 - `actor.getGlobalScale()` - use `actor.globalScale` instead
 
 ### Added
 
+- Child `ex.Actor` inherits opacity of parents
+- `ex.Engine.timeScale` values of 0 are now supported
+- `ex.Trigger` now supports all valid actor constructor parameters from `ex.ActorArgs` in addition to `ex.TriggerOptions`
+- `ex.Gif` can now handle default embedded GIF frame timings
+- New `ex.Screen.worldToPagePixelRatio` API that will return the ratio between excalibur pixels and the HTML pixels. 
+  * Additionally excalibur will now decorate the document root with this same value as a CSS variable `--ex-pixel-ratio`
+  * Useful for scaling HTML UIs to match your game
+    ```css
+    .ui-container {
+      pointer-events: none;
+      position: absolute;
+      transform-origin: 0 0;
+      transform: scale(
+        calc(var(--pixel-conversion)),
+        calc(var(--pixel-conversion)));
+    }
+    ```
+- New updates to `ex.coroutine(...)`
+  * New `ex.CoroutineInstance` is returned (still awaitable)
+  * Control coroutine autostart with `ex.coroutine(function*(){...}, {autostart: false})`
+  * `.start()` and `.cancel()` coroutines
+  * Nested coroutines!
 - Excalibur will now clean up WebGL textures that have not been drawn in a while, which improves stability for long game sessions
   * If a graphic is drawn again it will be reloaded into the GPU seamlessly
 - You can now query for colliders on the physics world
@@ -70,6 +103,13 @@ are doing mtv adjustments during precollision.
 
 ### Fixed
 
+- Fixed issue where the `ex.Loader` would have a low res logo on small configured resolution sizes
+- Fixed issue where `ex.Gif` was not parsing certain binary formats correctly
+- Fixed issue where the boot `ex.Loader` was removing pixelRatio override
+- Fixed `ex.RasterOptions`, it now extends `ex.GraphicsOptions` which is the underlying truth
+- Fixed issue where rayCast `filter` would not be called in hit order
+- Fixed issue where rayCasts would return inconsistent orderings with the `ex.SparseHashGridCollisionProcessor` strategy
+- Fixed issue where CircleCollider tangent raycast did not work correctly
 - Fixed issue where you were required to provide a transition if you provided a loader in the `ex.Engine.start('scene', { loader })`
 - Fixed issue where `ex.Scene.onPreLoad(loader: ex.DefaultLoader)` would lock up the engine if there was an empty loader
 - Fixed issue where `ex.Scene` scoped input events would preserve state and get stuck causing issues when switching back to the original scene.
@@ -85,6 +125,7 @@ are doing mtv adjustments during precollision.
 
 ### Updates
 
+- Non-breaking parameters that reference `delta` to `elapsedMs` to better communicate intent and units
 - Perf improvements to `ex.ParticleEmitter` 
   * Use the same integrator as the MotionSystem in the tight loop
   * Leverage object pools to increase performance and reduce allocations
@@ -111,8 +152,10 @@ are doing mtv adjustments during precollision.
 
 ### Changed
 
-- Applied increased TS strictness for the Graphics API subtree
-- Applied increased TS strictness for the TileMap API subtree
+- Applied increased TS strictness:
+  * Resource API subtree
+  * Graphics API subtree
+  * TileMap API subtree
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->

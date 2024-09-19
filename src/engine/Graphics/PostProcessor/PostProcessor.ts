@@ -3,7 +3,7 @@ import { Shader } from '../Context/shader';
 
 /**
  * PostProcessors can be used to apply a shader to the entire screen. It is recommended
- * you use the [[ScreenShader]] to build your post processor shader.
+ * you use the {@apilink ScreenShader} to build your post processor shader.
  *
  * The screen texture comes through as this uniform
  *
@@ -15,7 +15,7 @@ import { Shader } from '../Context/shader';
  * `uniform float u_elapsed_ms` - the elapsed time from the last frame in milliseconds
  * `uniform vec2 u_resolution` - the resolution of the canvas (in pixels)
  *
- * Custom uniforms can be updated in the [[PostProcessor.onUpdate]]
+ * Custom uniforms can be updated in the {@apilink PostProcessor.onUpdate}
  */
 export interface PostProcessor {
   initialize(gl: WebGL2RenderingContext): void;
@@ -25,7 +25,7 @@ export interface PostProcessor {
    * Use the onUpdate hook to update any uniforms in the postprocessors shader
    *
    * The shader has already been bound so there is no need to call shader.use();
-   * @param delta
+   * @param elapsedMs
    */
-  onUpdate?(delta: number): void;
+  onUpdate?(elapsedMs: number): void;
 }

@@ -31,10 +31,10 @@ export interface VertexLayoutOptions {
 }
 
 /**
- * Helper around creating vertex attributes in a given [[VertexBuffer]], this is useful for describing
+ * Helper around creating vertex attributes in a given {@apilink VertexBuffer}, this is useful for describing
  * the memory layout for your vertices inside a particular buffer
  *
- * Note: This helper assumes interleaved attributes in one [[VertexBuffer]], not many.
+ * Note: This helper assumes interleaved attributes in one {@apilink VertexBuffer}, not many.
  *
  * Working with `gl.vertexAttribPointer` can be tricky, and this attempts to double check you
  */

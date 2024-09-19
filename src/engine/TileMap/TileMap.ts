@@ -255,7 +255,7 @@ export class TileMap extends Entity {
     );
     this.addComponent(
       new GraphicsComponent({
-        onPostDraw: (ctx, delta) => this.draw(ctx, delta)
+        onPostDraw: (ctx, elapsedMs) => this.draw(ctx, elapsedMs)
       })
     );
     this.addComponent(new DebugGraphicsComponent((ctx, debugFlags) => this.debug(ctx, debugFlags), false));
@@ -457,13 +457,17 @@ export class TileMap extends Entity {
   }
 
   /**
-   * Returns the [[Tile]] by index (row major order)
+   * Returns the {@apilink Tile} by index (row major order)
+   *
+   * Returns null if out of bounds
    */
-  public getTileByIndex(index: number): Tile {
-    return this.tiles[index];
+  public getTileByIndex(index: number): Tile | null {
+    return this.tiles[index] ?? null;
   }
   /**
-   * Returns the [[Tile]] by its x and y integer coordinates
+   * Returns the {@apilink Tile} by its x and y integer coordinates
+   *
+   * Returns null if out of bounds
    *
    * For example, if I want the tile in fifth column (x), and second row (y):
    * `getTile(4, 1)` 0 based, so 0 is the first in row/column
@@ -475,7 +479,7 @@ export class TileMap extends Entity {
     return this.tiles[x + y * this.columns];
   }
   /**
-   * Returns the [[Tile]] by testing a point in world coordinates,
+   * Returns the {@apilink Tile} by testing a point in world coordinates,
    * returns `null` if no Tile was found.
    */
   public getTileByPoint(point: Vector): Tile | null {
@@ -541,10 +545,10 @@ export class TileMap extends Entity {
     return tiles;
   }
 
-  public update(engine: Engine, delta: number) {
+  public update(engine: Engine, elapsedMs: number) {
     this._initialize(engine);
-    this.onPreUpdate(engine, delta);
-    this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
+    this.onPreUpdate(engine, elapsedMs);
+    this.emit('preupdate', new PreUpdateEvent(engine, elapsedMs, this));
     if (!this._oldPos.equals(this.pos) || this._oldRotation !== this.rotation || !this._oldScale.equals(this.scale)) {
       this.flagCollidersDirty();
       this.flagTilesDirty();
@@ -560,20 +564,20 @@ export class TileMap extends Entity {
     this._oldRotation = this.rotation;
     this.scale.clone(this._oldScale);
     this.transform.pos = this.pos;
-    this.onPostUpdate(engine, delta);
-    this.emit('postupdate', new PostUpdateEvent(engine, delta, this));
+    this.onPostUpdate(engine, elapsedMs);
+    this.emit('postupdate', new PostUpdateEvent(engine, elapsedMs, this));
   }
 
   /**
-   * Draws the tile map to the screen. Called by the [[Scene]].
+   * Draws the tile map to the screen. Called by the {@apilink Scene}.
    * @param ctx ExcaliburGraphicsContext
-   * @param delta  The number of milliseconds since the last draw
+   * @param elapsedMs  The number of milliseconds since the last draw
    */
-  public draw(ctx: ExcaliburGraphicsContext, delta: number): void {
+  public draw(ctx: ExcaliburGraphicsContext, elapsedMs: number): void {
     if (!this.isInitialized) {
       return;
     }
-    this.emit('predraw', new PreDrawEvent(ctx as any, delta, this)); // TODO fix event
+    this.emit('predraw', new PreDrawEvent(ctx as any, elapsedMs, this)); // TODO fix event
 
     let graphics: readonly Graphic[], graphicsIndex: number, graphicsLen: number;
 
@@ -590,14 +594,14 @@ export class TileMap extends Entity {
         const offset = offsets[graphicsIndex];
         if (graphic) {
           if (hasGraphicsTick(graphic)) {
-            graphic?.tick(delta, this._token);
+            graphic?.tick(elapsedMs, this._token);
           }
           const offsetY = this.renderFromTopOfGraphic ? 0 : graphic.height - this.tileHeight;
           graphic.draw(ctx, tile.x * this.tileWidth + offset.x, tile.y * this.tileHeight - offsetY + offset.y);
         }
       }
     }
-    this.emit('postdraw', new PostDrawEvent(ctx as any, delta, this));
+    this.emit('postdraw', new PostDrawEvent(ctx as any, elapsedMs, this));
   }
 
   public debug(gfx: ExcaliburGraphicsContext, debugFlags: DebugConfig) {
@@ -677,7 +681,7 @@ export interface TileOptions {
  * TileMap Tile
  *
  * A light-weight object that occupies a space in a collision map. Generally
- * created by a [[TileMap]].
+ * created by a {@apilink TileMap}.
  *
  * Tiles can draw multiple sprites. Note that the order of drawing is the order
  * of the sprites in the array so the last one will be drawn on top. You can
@@ -766,7 +770,7 @@ export class Tile {
   }
 
   /**
-   * Add another [[Graphic]] to this TileMap tile
+   * Add another {@apilink Graphic} to this TileMap tile
    * @param graphic
    */
   public addGraphic(graphic: Graphic, options?: { offset?: Vector }) {
@@ -779,7 +783,7 @@ export class Tile {
   }
 
   /**
-   * Remove an instance of a [[Graphic]] from this tile
+   * Remove an instance of a {@apilink Graphic} from this tile
    */
   public removeGraphic(graphic: Graphic) {
     const index = this._graphics.indexOf(graphic);
@@ -810,11 +814,11 @@ export class Tile {
   }
 
   /**
-   * Adds a custom collider to the [[Tile]] to use instead of it's bounds
+   * Adds a custom collider to the {@apilink Tile} to use instead of it's bounds
    *
-   * If no collider is set but [[Tile.solid]] is set, the tile bounds are used as a collider.
+   * If no collider is set but {@apilink Tile.solid} is set, the tile bounds are used as a collider.
    *
-   * **Note!** the [[Tile.solid]] must be set to true for it to act as a "fixed" collider
+   * **Note!** the {@apilink Tile.solid} must be set to true for it to act as a "fixed" collider
    * @param collider
    */
   public addCollider(collider: Collider) {
@@ -823,7 +827,7 @@ export class Tile {
   }
 
   /**
-   * Removes a collider from the [[Tile]]
+   * Removes a collider from the {@apilink Tile}
    * @param collider
    */
   public removeCollider(collider: Collider) {
@@ -835,7 +839,7 @@ export class Tile {
   }
 
   /**
-   * Clears all colliders from the [[Tile]]
+   * Clears all colliders from the {@apilink Tile}
    */
   public clearColliders() {
     this._colliders.length = 0;

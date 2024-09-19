@@ -7,7 +7,7 @@ import { watch } from '../Util/Watch';
 import { ImageFiltering } from './Filtering';
 import { omit } from '../Util/Util';
 
-export interface RasterOptions {
+export interface RasterOptions extends GraphicOptions {
   /**
    * Optionally specify a quality number, which is how much to scale the internal Raster. Default is 1.
    *
@@ -22,7 +22,7 @@ export interface RasterOptions {
   smoothing?: boolean;
 
   /**
-   * Optionally specify the color of the raster's bitmap context, by default [[Color.Black]]
+   * Optionally specify the color of the raster's bitmap context, by default {@apilink Color.Black}
    */
   color?: Color;
 
@@ -52,8 +52,8 @@ export interface RasterOptions {
   padding?: number;
 
   /**
-   * Optionally specify what image filtering mode should be used, [[ImageFiltering.Pixel]] for pixel art,
-   * [[ImageFiltering.Blended]] for hi-res art
+   * Optionally specify what image filtering mode should be used, {@apilink ImageFiltering.Pixel} for pixel art,
+   * {@apilink ImageFiltering.Blended} for hi-res art
    *
    * By default unset, rasters defer to the engine antialiasing setting
    */
@@ -62,9 +62,9 @@ export interface RasterOptions {
 
 /**
  * A Raster is a Graphic that needs to be first painted to a HTMLCanvasElement before it can be drawn to the
- * [[ExcaliburGraphicsContext]]. This is useful for generating custom images using the 2D canvas api.
+ * {@apilink ExcaliburGraphicsContext}. This is useful for generating custom images using the 2D canvas api.
  *
- * Implementors must implement the [[Raster.execute]] method to rasterize their drawing.
+ * Implementors must implement the {@apilink Raster.execute} method to rasterize their drawing.
  */
 export abstract class Raster extends Graphic {
   public filtering?: ImageFiltering;
@@ -75,7 +75,7 @@ export abstract class Raster extends Graphic {
   protected _ctx: CanvasRenderingContext2D;
   private _dirty: boolean = true;
 
-  constructor(options?: GraphicOptions & RasterOptions) {
+  constructor(options?: RasterOptions) {
     super(omit({ ...options }, ['width', 'height'])); // rasters do some special sauce with width/height
     if (options) {
       this.quality = options.quality ?? this.quality;
@@ -257,7 +257,7 @@ export abstract class Raster extends Graphic {
 
   /**
    * Rasterize the graphic to a bitmap making it usable as in excalibur. Rasterize is called automatically if
-   * the graphic is [[Raster.dirty]] on the next [[Graphic.draw]] call
+   * the graphic is {@apilink Raster.dirty} on the next {@apilink Graphic.draw} call
    */
   public rasterize(): void {
     this._dirty = false;
@@ -294,7 +294,7 @@ export abstract class Raster extends Graphic {
 
   /**
    * Executes drawing implementation of the graphic, this is where the specific drawing code for the graphic
-   * should be implemented. Once `rasterize()` the graphic can be drawn to the [[ExcaliburGraphicsContext]] via `draw(...)`
+   * should be implemented. Once `rasterize()` the graphic can be drawn to the {@apilink ExcaliburGraphicsContext} via `draw(...)`
    * @param ctx Canvas to draw the graphic to
    */
   abstract execute(ctx: CanvasRenderingContext2D): void;

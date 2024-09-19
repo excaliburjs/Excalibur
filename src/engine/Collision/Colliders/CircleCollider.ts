@@ -17,6 +17,7 @@ import { Transform } from '../../Math/transform';
 import { AffineMatrix } from '../../Math/affine-matrix';
 import { BodyComponent } from '../Index';
 import { RayCastHit } from '../Detection/RayCastHit';
+import { approximatelyEqual } from '../../Math/util';
 
 export interface CircleColliderOptions {
   /**
@@ -115,20 +116,24 @@ export class CircleCollider extends Collider {
    * @param ray
    */
   public rayCast(ray: Ray, max: number = Infinity): RayCastHit | null {
-    //https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
-    const c = this.center;
-    const dir = ray.dir;
-    const orig = ray.pos;
+    // https://en.wikipedia.org/wiki/Intersection_(geometry)#A_line_and_a_circle
+    const c = this.center; //?
+    const dir = ray.dir; //?
+    const orig = ray.pos; //?
 
-    const discriminant = Math.sqrt(Math.pow(dir.dot(orig.sub(c)), 2) - Math.pow(orig.sub(c).distance(), 2) + Math.pow(this.radius, 2));
+    const u = c.sub(orig);
 
-    if (discriminant < 0) {
-      // no intersection
+    const u1 = dir.scale(u.dot(dir));
+    const u2 = u.sub(u1);
+
+    const d = u2.magnitude;
+
+    if (d > this.radius) {
       return null;
     } else {
-      let toi = 0;
       // tangent case
-      if (discriminant === 0) {
+      let toi = 0;
+      if (approximatelyEqual(d, this.radius, 0.0001)) {
         toi = -dir.dot(orig.sub(c));
         if (toi > 0 && toi < max) {
           const point = ray.getPoint(toi);
@@ -143,6 +148,8 @@ export class CircleCollider extends Collider {
         return null;
       } else {
         // two point
+        const discriminant = Math.sqrt(Math.pow(dir.dot(orig.sub(c)), 2) - Math.pow(orig.sub(c).distance(), 2) + Math.pow(this.radius, 2));
+
         const toi1 = -dir.dot(orig.sub(c)) + discriminant;
         const toi2 = -dir.dot(orig.sub(c)) - discriminant;
 

@@ -20,39 +20,39 @@ export enum DisplayMode {
 
   /**
    * Fit the aspect ratio given by the game resolution within the container at all times will fill any gaps with canvas.
-   * The displayed area outside the aspect ratio is not guaranteed to be on the screen, only the [[Screen.contentArea]]
+   * The displayed area outside the aspect ratio is not guaranteed to be on the screen, only the {@apilink Screen.contentArea}
    * is guaranteed to be on screen.
    */
   FitContainerAndFill = 'FitContainerAndFill',
 
   /**
    * Fit the aspect ratio given by the game resolution the screen at all times will fill the screen.
-   * This displayed area outside the aspect ratio is not guaranteed to be on the screen, only the [[Screen.contentArea]]
+   * This displayed area outside the aspect ratio is not guaranteed to be on the screen, only the {@apilink Screen.contentArea}
    * is guaranteed to be on screen.
    */
   FitScreenAndFill = 'FitScreenAndFill',
 
   /**
    * Fit the viewport to the parent element maintaining aspect ratio given by the game resolution, but zooms in to avoid the black bars
-   * (letterbox) that would otherwise be present in [[FitContainer]].
+   * (letterbox) that would otherwise be present in {@apilink FitContainer}.
    *
    * **warning** This will clip some drawable area from the user because of the zoom,
-   * use [[Screen.contentArea]] to know the safe to draw area.
+   * use {@apilink Screen.contentArea} to know the safe to draw area.
    */
   FitContainerAndZoom = 'FitContainerAndZoom',
 
   /**
    * Fit the viewport to the device screen maintaining aspect ratio given by the game resolution, but zooms in to avoid the black bars
-   * (letterbox) that would otherwise be present in [[FitScreen]].
+   * (letterbox) that would otherwise be present in {@apilink FitScreen}.
    *
    * **warning** This will clip some drawable area from the user because of the zoom,
-   * use [[Screen.contentArea]] to know the safe to draw area.
+   * use {@apilink Screen.contentArea} to know the safe to draw area.
    */
   FitScreenAndZoom = 'FitScreenAndZoom',
 
   /**
    * Fit to screen using as much space as possible while maintaining aspect ratio and resolution.
-   * This is not the same as [[Screen.goFullScreen]] but behaves in a similar way maintaining aspect ratio.
+   * This is not the same as {@apilink Screen.goFullScreen} but behaves in a similar way maintaining aspect ratio.
    *
    * You may want to center your game here is an example
    * ```html
@@ -79,7 +79,7 @@ export enum DisplayMode {
 
   /**
    * Fill the entire screen's css width/height for the game resolution dynamically. This means the resolution of the game will
-   * change dynamically as the window is resized. This is not the same as [[Screen.goFullScreen]]
+   * change dynamically as the window is resized. This is not the same as {@apilink Screen.goFullScreen}
    */
   FillScreen = 'FillScreen',
 
@@ -184,8 +184,8 @@ export interface ScreenOptions {
   pixelRatio?: number;
   /**
    * Optionally specify the actual pixel resolution in width/height pixels (also known as logical resolution), by default the
-   * resolution will be the same as the viewport. Resolution will be overridden by [[DisplayMode.FillContainer]] and
-   * [[DisplayMode.FillScreen]].
+   * resolution will be the same as the viewport. Resolution will be overridden by {@apilink DisplayMode.FillContainer} and
+   * {@apilink DisplayMode.FillScreen}.
    */
   resolution?: Resolution;
   /**
@@ -262,7 +262,7 @@ export const ScreenEvents = {
 export class Screen {
   public graphicsContext: ExcaliburGraphicsContext;
   /**
-   * Listen to screen events [[ScreenEvents]]
+   * Listen to screen events {@apilink ScreenEvents}
    */
   public events = new EventEmitter<ScreenEvents>();
   private _canvas: HTMLCanvasElement;
@@ -359,6 +359,7 @@ export class Screen {
     this._listenForPixelRatio();
     this._devicePixelRatio = this._calculateDevicePixelRatio();
     this.applyResolutionAndViewport();
+
     this.events.emit('pixelratio', {
       pixelRatio: this.pixelRatio
     } satisfies PixelRatioChangeEvent);
@@ -372,6 +373,7 @@ export class Screen {
     this._logger.debug('View port resized');
     this._setResolutionAndViewportByDisplayMode(parent);
     this.applyResolutionAndViewport();
+
     // Emit resize event
     this.events.emit('resize', {
       resolution: this.resolution,
@@ -401,6 +403,22 @@ export class Screen {
     }
 
     return this._devicePixelRatio;
+  }
+
+  /**
+   * This calculates the ratio between excalibur pixels and the HTML pixels.
+   *
+   * This is useful for scaling HTML UI so that it matches your game.
+   */
+  public get worldToPagePixelRatio(): number {
+    if (this._canvas) {
+      const pageOrigin = this.worldToPageCoordinates(Vector.Zero);
+      const pageDistance = this.worldToPageCoordinates(vec(1, 0)).sub(pageOrigin);
+      const pixelConversion = pageDistance.x;
+      return pixelConversion;
+    } else {
+      return 1;
+    }
   }
 
   /**
@@ -563,6 +581,8 @@ export class Screen {
     if (this.graphicsContext instanceof ExcaliburGraphicsContext2DCanvas) {
       this.graphicsContext.scale(this.pixelRatio, this.pixelRatio);
     }
+    // Add the excalibur world pixel to page pixel
+    document.documentElement.style.setProperty('--ex-pixel-ratio', this.worldToPagePixelRatio.toString());
   }
 
   public get antialiasing() {
@@ -707,8 +727,8 @@ export class Screen {
   /**
    * Takes a coordinate in Excalibur screen space, and translates it to Excalibur world space.
    *
-   * World space is where [[Entity|entities]] in Excalibur live by default [[CoordPlane.World]]
-   * and extends infinitely out relative from the [[Camera]].
+   * World space is where {@apilink Entity | `entities`} in Excalibur live by default {@apilink CoordPlane.World}
+   * and extends infinitely out relative from the {@apilink Camera}.
    * @param point  Screen coordinate to convert
    */
   public screenToWorldCoordinates(point: Vector): Vector {
@@ -725,7 +745,7 @@ export class Screen {
   /**
    * Takes a coordinate in Excalibur world space, and translates it to Excalibur screen space.
    *
-   * Screen space is where [[ScreenElement|screen elements]] and [[Entity|entities]] with [[CoordPlane.Screen]] live.
+   * Screen space is where {@apilink ScreenElement | `screen elements`} and {@apilink Entity | `entities`} with {@apilink CoordPlane.Screen} live.
    * @param point  World coordinate to convert
    */
   public worldToScreenCoordinates(point: Vector): Vector {

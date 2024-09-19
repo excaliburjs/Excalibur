@@ -35,7 +35,7 @@ export class TextureLoader {
   }
 
   /**
-   * Sets the default filtering for the Excalibur texture loader, default [[ImageFiltering.Blended]]
+   * Sets the default filtering for the Excalibur texture loader, default {@apilink ImageFiltering.Blended}
    */
   public static filtering: ImageFiltering = ImageFiltering.Blended;
   public static wrapping: ImageWrapConfiguration = { x: ImageWrapping.Clamp, y: ImageWrapping.Clamp };

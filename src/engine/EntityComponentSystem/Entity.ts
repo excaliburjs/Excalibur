@@ -75,6 +75,7 @@ export const EntityEvents = {
 export interface EntityOptions<TComponents extends Component> {
   name?: string;
   components?: TComponents[];
+  silenceWarnings?: boolean;
 }
 
 /**
@@ -125,13 +126,15 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
   constructor(componentsOrOptions?: TKnownComponents[] | EntityOptions<TKnownComponents>, name?: string) {
     let componentsToAdd!: TKnownComponents[];
     let nameToAdd: string | undefined;
+    let silence = false;
     if (Array.isArray(componentsOrOptions)) {
       componentsToAdd = componentsOrOptions;
       nameToAdd = name;
     } else if (componentsOrOptions && typeof componentsOrOptions === 'object') {
-      const { components, name } = componentsOrOptions;
+      const { components, name, silenceWarnings } = componentsOrOptions;
       componentsToAdd = components ?? [];
       nameToAdd = name;
+      silence = !!silenceWarnings;
     }
     if (nameToAdd) {
       this.name = nameToAdd;
@@ -143,11 +146,13 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
     }
 
     if (process.env.NODE_ENV === 'development') {
-      setTimeout(() => {
-        if (!this.scene && !this.isInitialized) {
-          Logger.getInstance().warn(`Entity "${this.name || this.id}" was not added to a scene.`);
-        }
-      }, 5000);
+      if (!silence) {
+        setTimeout(() => {
+          if (!this.scene && !this.isInitialized) {
+            Logger.getInstance().warn(`Entity "${this.name || this.id}" was not added to a scene.`);
+          }
+        }, 5000);
+      }
     }
   }
 
@@ -178,7 +183,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
   }
 
   /**
-   * Specifically get the tags on the entity from [[TagsComponent]]
+   * Specifically get the tags on the entity from {@apilink TagsComponent}
    */
   public get tags(): Set<string> {
     return this._tags;
@@ -572,23 +577,23 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
   /**
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
-   * Internal _preupdate handler for [[onPreUpdate]] lifecycle event
+   * Internal _preupdate handler for {@apilink onPreUpdate} lifecycle event
    * @internal
    */
-  public _preupdate(engine: Engine, delta: number): void {
-    this.events.emit('preupdate', new PreUpdateEvent(engine, delta, this));
-    this.onPreUpdate(engine, delta);
+  public _preupdate(engine: Engine, elapsedMs: number): void {
+    this.events.emit('preupdate', new PreUpdateEvent(engine, elapsedMs, this));
+    this.onPreUpdate(engine, elapsedMs);
   }
 
   /**
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
-   * Internal _preupdate handler for [[onPostUpdate]] lifecycle event
+   * Internal _preupdate handler for {@apilink onPostUpdate} lifecycle event
    * @internal
    */
-  public _postupdate(engine: Engine, delta: number): void {
-    this.events.emit('postupdate', new PostUpdateEvent(engine, delta, this));
-    this.onPostUpdate(engine, delta);
+  public _postupdate(engine: Engine, elapsedMs: number): void {
+    this.events.emit('postupdate', new PostUpdateEvent(engine, elapsedMs, this));
+    this.onPostUpdate(engine, elapsedMs);
   }
 
   /**
@@ -626,7 +631,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    *
    * `onPreUpdate` is called directly before an entity is updated.
    */
-  public onPreUpdate(engine: Engine, delta: number): void {
+  public onPreUpdate(engine: Engine, elapsedMs: number): void {
     // Override me
   }
 
@@ -635,7 +640,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    *
    * `onPostUpdate` is called directly after an entity is updated.
    */
-  public onPostUpdate(engine: Engine, delta: number): void {
+  public onPostUpdate(engine: Engine, elapsedMs: number): void {
     // Override me
   }
 
@@ -644,16 +649,16 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    * Entity update lifecycle, called internally
    * @internal
    * @param engine
-   * @param delta
+   * @param elapsedMs
    */
-  public update(engine: Engine, delta: number): void {
+  public update(engine: Engine, elapsedMs: number): void {
     this._initialize(engine);
     this._add(engine);
-    this._preupdate(engine, delta);
+    this._preupdate(engine, elapsedMs);
     for (const child of this.children) {
-      child.update(engine, delta);
+      child.update(engine, elapsedMs);
     }
-    this._postupdate(engine, delta);
+    this._postupdate(engine, elapsedMs);
     this._remove(engine);
   }
 

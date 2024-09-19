@@ -173,8 +173,8 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
   /**
    * Detects potential collision pairs in a broadphase approach with the dynamic AABB tree strategy
    */
-  public broadphase(targets: Collider[], delta: number, stats?: FrameStats): Pair[] {
-    const seconds = delta / 1000;
+  public broadphase(targets: Collider[], elapsedMs: number, stats?: FrameStats): Pair[] {
+    const seconds = elapsedMs / 1000;
 
     // Retrieve the list of potential colliders, exclude killed, prevented, and self
     const potentialColliders = targets.filter((other) => {
@@ -217,8 +217,8 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
 
         // Maximum travel distance next frame
         const updateDistance =
-          body.vel.size * seconds + // velocity term
-          body.acc.size * 0.5 * seconds * seconds; // acc term
+          body.vel.magnitude * seconds + // velocity term
+          body.acc.magnitude * 0.5 * seconds * seconds; // acc term
 
         // Find the minimum dimension
         const minDimension = Math.min(collider.bounds.height, collider.bounds.width);
@@ -245,7 +245,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
               const hit = other.rayCast(ray, updateDistance + this._config.continuous.surfaceEpsilon * 10);
               if (hit) {
                 const translate = hit.point.sub(origin);
-                if (translate.size < minTranslate.size) {
+                if (translate.magnitude < minTranslate.magnitude) {
                   minTranslate = translate;
                   minCollider = other;
                 }

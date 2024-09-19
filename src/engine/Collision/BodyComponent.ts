@@ -101,7 +101,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   }
 
   /**
-   * Collision type for the rigidbody physics simulation, by default [[CollisionType.PreventCollision]]
+   * Collision type for the rigidbody physics simulation, by default {@apilink CollisionType.PreventCollision}
    */
   public collisionType: CollisionType = CollisionType.PreventCollision;
 
@@ -125,14 +125,14 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   }
 
   /**
-   * The inverse mass (1/mass) of the body. If [[CollisionType.Fixed]] this is 0, meaning "infinite" mass
+   * The inverse mass (1/mass) of the body. If {@apilink CollisionType.Fixed} this is 0, meaning "infinite" mass
    */
   public get inverseMass(): number {
     return this.collisionType === CollisionType.Fixed ? 0 : 1 / this.mass;
   }
 
   /**
-   * Amount of "motion" the body has before sleeping. If below [[Physics.sleepEpsilon]] it goes to "sleep"
+   * Amount of "motion" the body has before sleeping. If below {@apilink Physics.sleepEpsilon} it goes to "sleep"
    */
   public sleepMotion: number;
 
@@ -167,13 +167,13 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   }
 
   /**
-   * Update body's [[BodyComponent.sleepMotion]] for the purpose of sleeping
+   * Update body's {@apilink BodyComponent.sleepMotion} for the purpose of sleeping
    */
   public updateMotion() {
     if (this._sleeping) {
       this.setSleeping(true);
     }
-    const currentMotion = this.vel.size * this.vel.size + Math.abs(this.angularVelocity * this.angularVelocity);
+    const currentMotion = this.vel.magnitude * this.vel.magnitude + Math.abs(this.angularVelocity * this.angularVelocity);
     const bias = this._bodyConfig.sleepBias;
     this.sleepMotion = bias * this.sleepMotion + (1 - bias) * currentMotion;
     this.sleepMotion = clamp(this.sleepMotion, 0, 10 * this._bodyConfig.sleepEpsilon);
@@ -184,7 +184,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
 
   private _cachedInertia: number;
   /**
-   * Get the moment of inertia from the [[ColliderComponent]]
+   * Get the moment of inertia from the {@apilink ColliderComponent}
    */
   public get inertia() {
     if (this._cachedInertia) {
@@ -210,7 +210,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
 
   private _cachedInverseInertia: number;
   /**
-   * Get the inverse moment of inertial from the [[ColliderComponent]]. If [[CollisionType.Fixed]] this is 0, meaning "infinite" mass
+   * Get the inverse moment of inertial from the {@apilink ColliderComponent}. If {@apilink CollisionType.Fixed} this is 0, meaning "infinite" mass
    */
   public get inverseInertia() {
     if (this._cachedInverseInertia) {
@@ -226,12 +226,15 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   public bounciness: number = 0.2;
 
   /**
-   * The coefficient of friction on this actor
+   * The coefficient of friction on this actor.
+   *
+   * The {@apilink SolverStrategy.Arcade} does not support this property.
+   *
    */
   public friction: number = 0.99;
 
   /**
-   * Should use global gravity [[Physics.gravity]] in it's physics simulation, default is true
+   * Should use global gravity {@apilink Physics.gravity} in it's physics simulation, default is true
    */
   public useGravity: boolean = true;
 
@@ -274,7 +277,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
 
   /**
    * The (x, y) position of the actor this will be in the middle of the actor if the
-   * [[Actor.anchor]] is set to (0.5, 0.5) which is default.
+   * {@apilink Actor.anchor} is set to (0.5, 0.5) which is default.
    * If you want the (x, y) position to be the top left of the actor specify an anchor of (0, 0).
    */
   public get globalPos(): Vector {
@@ -330,7 +333,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   }
 
   /**
-   * Gets/sets the acceleration of the actor from the last frame. This does not include the global acc [[Physics.acc]].
+   * Gets/sets the acceleration of the actor from the last frame. This does not include the global acc {@apilink Physics.acc}.
    */
   public oldAcc: Vector = Vector.Zero;
 

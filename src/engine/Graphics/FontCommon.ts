@@ -116,7 +116,7 @@ export enum Direction {
  */
 export interface FontOptions {
   /**
-   * Optionally the size of the font in the specified [[FontUnit]] by default 10.
+   * Optionally the size of the font in the specified {@apilink FontUnit} by default 10.
    */
   size?: number;
   /**

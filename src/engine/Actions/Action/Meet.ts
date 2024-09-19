@@ -35,7 +35,7 @@ export class Meet implements Action {
     }
   }
 
-  public update(_delta: number): void {
+  public update(elapsedMs: number): void {
     if (!this._started) {
       this._started = true;
       this._distanceBetween = this._current.distance(this._end);

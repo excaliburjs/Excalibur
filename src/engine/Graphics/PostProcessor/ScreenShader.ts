@@ -1,3 +1,4 @@
+import { Logger } from '../../Util/Log';
 import { Shader } from '../Context/shader';
 import { VertexBuffer } from '../Context/vertex-buffer';
 import { VertexLayout } from '../Context/vertex-layout';
@@ -13,17 +14,27 @@ export class ScreenShader {
   private _buffer: VertexBuffer;
   private _layout: VertexLayout;
   constructor(gl: WebGL2RenderingContext, fragmentSource: string) {
+    if (process.env.NODE_ENV === 'development') {
+      if (fragmentSource.includes('v_texcoord')) {
+        Logger.getInstance().warn(
+          `ScreenShader: "v_texcoord" is deprecated in postprocessing fragment shaders will be removed in v1.0,` +
+            ` use "v_uv" instead. Source [${fragmentSource}]`
+        );
+      }
+    }
     this._shader = new Shader({
       gl,
       vertexSource: `#version 300 es
       in vec2 a_position;
-      in vec2 a_texcoord;
+      in vec2 a_uv;
       out vec2 v_texcoord;
+      out vec2 v_uv;
 
       void main() {
         gl_Position = vec4(a_position, 0.0, 1.0);
         // Pass the texcoord to the fragment shader.
-        v_texcoord = a_texcoord;
+        v_texcoord = a_uv;
+        v_uv = a_uv;
       }`,
       fragmentSource: fragmentSource
     });
@@ -45,7 +56,7 @@ export class ScreenShader {
       vertexBuffer: this._buffer,
       attributes: [
         ['a_position', 2],
-        ['a_texcoord', 2]
+        ['a_uv', 2]
       ]
     });
     this._buffer.upload();

@@ -4,11 +4,33 @@ import * as ex from './index';
 import { Random } from './Math/Random';
 
 export interface TimerOptions {
+  /**
+   * If true the timer repeats every interval infinitely
+   */
   repeats?: boolean;
+  /**
+   * If a number is specified then it will only repeat a number of times
+   */
   numberOfRepeats?: number;
+  /**
+   * @deprecated use action: () => void, will be removed in v1.0
+   */
   fcn?: () => void;
+  /**
+   * Action to perform every time the timer fires
+   */
+  action?: () => void;
+  /**
+   * Interval in milliseconds for the timer to fire
+   */
   interval: number;
+  /**
+   * Optionally specify a random range of milliseconds for the timer to fire
+   */
   randomRange?: [number, number];
+  /**
+   * Optionally provide a random instance to use for random behavior, otherwise a new random will be created seeded from the current time.
+   */
   random?: ex.Random;
 }
 
@@ -46,31 +68,13 @@ export class Timer {
 
   public scene: Scene = null;
 
-  /**
-   * @param options    Options - repeats, numberOfRepeats, fcn, interval
-   * @param repeats    Indicates whether this call back should be fired only once, or repeat after every interval as completed.
-   * @param numberOfRepeats Specifies a maximum number of times that this timer will execute.
-   * @param fcn        The callback to be fired after the interval is complete.
-   * @param randomRange Indicates a range to select a random number to be added onto the interval
-   */
-  constructor(options: TimerOptions);
-  constructor(
-    fcn: TimerOptions | (() => void),
-    interval?: number,
-    repeats?: boolean,
-    numberOfRepeats?: number,
-    randomRange?: [number, number],
-    random?: ex.Random
-  ) {
-    if (typeof fcn !== 'function') {
-      const options = fcn;
-      fcn = options.fcn;
-      interval = options.interval;
-      repeats = options.repeats;
-      numberOfRepeats = options.numberOfRepeats;
-      randomRange = options.randomRange;
-      random = options.random;
-    }
+  constructor(options: TimerOptions) {
+    const fcn = options.action ?? options.fcn;
+    const interval = options.interval;
+    const repeats = options.repeats;
+    const numberOfRepeats = options.numberOfRepeats;
+    const randomRange = options.randomRange;
+    const random = options.random;
 
     if (!!numberOfRepeats && numberOfRepeats >= 0) {
       this.maxNumberOfRepeats = numberOfRepeats;
@@ -103,28 +107,28 @@ export class Timer {
 
   /**
    * Adds a new callback to be fired after the interval is complete
-   * @param fcn The callback to be added to the callback list, to be fired after the interval is complete.
+   * @param action The callback to be added to the callback list, to be fired after the interval is complete.
    */
-  public on(fcn: () => void) {
-    this._callbacks.push(fcn);
+  public on(action: () => void) {
+    this._callbacks.push(action);
   }
 
   /**
    * Removes a callback from the callback list to be fired after the interval is complete.
-   * @param fcn The callback to be removed from the callback list, to be fired after the interval is complete.
+   * @param action The callback to be removed from the callback list, to be fired after the interval is complete.
    */
-  public off(fcn: () => void) {
-    const index = this._callbacks.indexOf(fcn);
+  public off(action: () => void) {
+    const index = this._callbacks.indexOf(action);
     this._callbacks.splice(index, 1);
   }
   /**
    * Updates the timer after a certain number of milliseconds have elapsed. This is used internally by the engine.
-   * @param delta  Number of elapsed milliseconds since the last update.
+   * @param elapsedMs  Number of elapsed milliseconds since the last update.
    */
-  public update(delta: number) {
+  public update(elapsedMs: number) {
     if (this._running) {
-      this._totalTimeAlive += delta;
-      this._elapsedTime += delta;
+      this._totalTimeAlive += elapsedMs;
+      this._elapsedTime += elapsedMs;
 
       if (this.maxNumberOfRepeats > -1 && this._numberOfTicks >= this.maxNumberOfRepeats) {
         this._complete = true;

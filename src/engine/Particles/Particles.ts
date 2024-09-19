@@ -15,7 +15,7 @@ import type { ParticleEmitter } from './ParticleEmitter';
 
 /**
 /**
- * Particle is used in a [[ParticleEmitter]]
+ * Particle is used in a {@apilink ParticleEmitter}
  */
 export class Particle extends Entity {
   public static DefaultConfig: ParticleConfig = {
@@ -60,8 +60,10 @@ export class Particle extends Entity {
   public graphics: GraphicsComponent;
   public particleTransform = ParticleTransform.Global;
 
+  public name = `Particle#${this.id}`;
+
   constructor(options: ParticleConfig) {
-    super();
+    super({ silenceWarnings: true });
     this.addComponent((this.transform = new TransformComponent()));
     this.addComponent((this.motion = new MotionComponent()));
     this.addComponent((this.graphics = new GraphicsComponent()));
@@ -128,8 +130,8 @@ export class Particle extends Entity {
     }
   }
 
-  public update(engine: Engine, delta: number) {
-    this.life = this.life - delta;
+  public update(engine: Engine, elapsedMs: number) {
+    this.life = this.life - elapsedMs;
 
     if (this.life < 0) {
       this.kill();
@@ -140,12 +142,16 @@ export class Particle extends Entity {
     }
 
     if (this.startSize && this.endSize && this.startSize > 0 && this.endSize > 0) {
-      this.size = clamp(this.sizeRate * delta + this.size, Math.min(this.startSize, this.endSize), Math.max(this.startSize, this.endSize));
+      this.size = clamp(
+        this.sizeRate * elapsedMs + this.size,
+        Math.min(this.startSize, this.endSize),
+        Math.max(this.startSize, this.endSize)
+      );
     }
 
-    this._currentColor.r = clamp(this._currentColor.r + this._rRate * delta, 0, 255);
-    this._currentColor.g = clamp(this._currentColor.g + this._gRate * delta, 0, 255);
-    this._currentColor.b = clamp(this._currentColor.b + this._bRate * delta, 0, 255);
+    this._currentColor.r = clamp(this._currentColor.r + this._rRate * elapsedMs, 0, 255);
+    this._currentColor.g = clamp(this._currentColor.g + this._gRate * elapsedMs, 0, 255);
+    this._currentColor.b = clamp(this._currentColor.b + this._bRate * elapsedMs, 0, 255);
     this._currentColor.a = this.graphics.opacity;
 
     let accel = this.motion.acc;
@@ -154,19 +160,19 @@ export class Particle extends Entity {
         .sub(this.transform.pos)
         .normalize()
         .scale(this.focusAccel || 0)
-        .scale(delta / 1000);
+        .scale(elapsedMs / 1000);
     }
     // Update transform and motion based on Euler linear algebra
-    EulerIntegrator.integrate(this.transform, this.motion, accel, delta);
+    EulerIntegrator.integrate(this.transform, this.motion, accel, elapsedMs);
   }
 }
 
 export interface ParticleConfig {
   /**
-   * Optionally set the emitted particle transform style, [[ParticleTransform.Global]] is the default and emits particles as if
+   * Optionally set the emitted particle transform style, {@apilink ParticleTransform.Global} is the default and emits particles as if
    * they were world space objects, useful for most effects.
    *
-   * If set to [[ParticleTransform.Local]] particles are children of the emitter and move relative to the emitter
+   * If set to {@apilink ParticleTransform.Local} particles are children of the emitter and move relative to the emitter
    * as they would in a parent/child actor relationship.
    */
   transform?: ParticleTransform;
@@ -271,12 +277,12 @@ export interface ParticleConfig {
 
 export enum ParticleTransform {
   /**
-   * [[ParticleTransform.Global]] is the default and emits particles as if
+   * {@apilink ParticleTransform.Global} is the default and emits particles as if
    * they were world space objects, useful for most effects.
    */
   Global = 'global',
   /**
-   * [[ParticleTransform.Local]] particles are children of the emitter and move relative to the emitter
+   * {@apilink ParticleTransform.Local} particles are children of the emitter and move relative to the emitter
    * as they would in a parent/child actor relationship.
    */
   Local = 'local'

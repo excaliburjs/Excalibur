@@ -15,7 +15,9 @@ export interface RayCastOptions {
    */
   collisionMask?: number;
   /**
-   * Optionally specify to search for all colliders that intersect the ray cast, not just the first which is the default
+   * Optionally search for all colliders that intersect the ray cast.
+   *
+   * Default false
    */
   searchAllColliders?: boolean;
   /**

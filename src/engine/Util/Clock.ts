@@ -86,7 +86,7 @@ export abstract class Clock {
   }
 
   /**
-   * Schedule a callback to fire given a timeout in milliseconds using the excalibur [[Clock]]
+   * Schedule a callback to fire given a timeout in milliseconds using the excalibur {@apilink Clock}
    *
    * This is useful to use over the built in browser `setTimeout` because callbacks will be tied to the
    * excalibur update clock, instead of browser time, this means that callbacks wont fire if the game is
@@ -179,7 +179,7 @@ export abstract class Clock {
 }
 
 /**
- * The [[StandardClock]] implements the requestAnimationFrame browser api to run the tick()
+ * The {@apilink StandardClock} implements the requestAnimationFrame browser api to run the tick()
  */
 export class StandardClock extends Clock {
   private _running = false;

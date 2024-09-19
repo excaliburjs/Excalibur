@@ -18,6 +18,8 @@ import { Side } from '../Collision/Side';
 import { PhysicsWorld } from './PhysicsWorld';
 import { CollisionProcessor } from './Detection/CollisionProcessor';
 import { SeparatingAxis } from './Colliders/SeparatingAxis';
+import { MotionSystem } from './MotionSystem';
+import { Pair } from './Detection/Pair';
 export class CollisionSystem extends System {
   public systemType = SystemType.Update;
   public priority = SystemPriority.Higher;
@@ -29,6 +31,7 @@ export class CollisionSystem extends System {
   private _arcadeSolver: ArcadeSolver;
   private _lastFrameContacts = new Map<string, CollisionContact>();
   private _currentFrameContacts = new Map<string, CollisionContact>();
+  private _motionSystem: MotionSystem;
   private get _processor(): CollisionProcessor {
     return this._physics.collisionProcessor;
   }
@@ -63,6 +66,7 @@ export class CollisionSystem extends System {
         this._processor.untrack(collider);
       }
     });
+    this._motionSystem = world.get(MotionSystem) as MotionSystem;
   }
 
   initialize(world: World, scene: Scene) {
@@ -103,30 +107,45 @@ export class CollisionSystem extends System {
     this._processor.update(colliders, elapsedMs);
 
     // Run broadphase on all colliders and locates potential collisions
-    const pairs = this._processor.broadphase(colliders, elapsedMs);
+    let pairs = this._processor.broadphase(colliders, elapsedMs);
 
     this._currentFrameContacts.clear();
 
     // Given possible pairs find actual contacts
-    let contacts = this._processor.narrowphase(pairs, this._engine?.debug?.stats?.currFrame);
+    let contacts: CollisionContact[] = []; // = this._processor.narrowphase(pairs, this._engine?.debug?.stats?.currFrame);
 
     const solver: CollisionSolver = this.getSolver();
 
     // Solve, this resolves the position/velocity so entities aren't overlapping
-    contacts = solver.solve(contacts);
-
-    // Record contacts for start/end
-    for (const contact of contacts) {
-      if (contact.isCanceled()) {
-        continue;
+    const substep = this._physics.config.substep;
+    for (let step = 0; step < substep; step++) {
+      if (step > 0) {
+        // first step is run by the MotionSystem when configured, so skip
+        this._motionSystem.update(elapsedMs);
       }
-      // Process composite ids, things with the same composite id are treated as the same collider for start/end
-      const index = contact.id.indexOf('|');
-      if (index > 0) {
-        const compositeId = contact.id.substring(index + 1);
-        this._currentFrameContacts.set(compositeId, contact);
-      } else {
-        this._currentFrameContacts.set(contact.id, contact);
+      // Re-use pairs from previous collision
+      if (contacts.length) {
+        pairs = contacts.map((c) => new Pair(c.colliderA, c.colliderB));
+      }
+
+      if (pairs.length) {
+        contacts = this._processor.narrowphase(pairs, this._engine?.debug?.stats?.currFrame);
+        contacts = solver.solve(contacts);
+
+        // Record contacts for start/end
+        for (const contact of contacts) {
+          if (contact.isCanceled()) {
+            continue;
+          }
+          // Process composite ids, things with the same composite id are treated as the same collider for start/end
+          const index = contact.id.indexOf('|');
+          if (index > 0) {
+            const compositeId = contact.id.substring(index + 1);
+            this._currentFrameContacts.set(compositeId, contact);
+          } else {
+            this._currentFrameContacts.set(contact.id, contact);
+          }
+        }
       }
     }
 

@@ -77,7 +77,7 @@ export type ActorArgs = ColliderArgs & {
    */
   pos?: Vector;
   /**
-   * Optionally set the coordinate plane of the actor, default is [[CoordPlane.World]] meaning actor is subject to camera positioning
+   * Optionally set the coordinate plane of the actor, default is {@apilink CoordPlane.World} meaning actor is subject to camera positioning
    */
   coordPlane?: CoordPlane;
   /**
@@ -132,9 +132,14 @@ export type ActorArgs = ColliderArgs & {
   collisionType?: CollisionType;
 
   /**
-   * Optionally supply a [[CollisionGroup]]
+   * Optionally supply a {@apilink CollisionGroup}
    */
   collisionGroup?: CollisionGroup;
+
+  /**
+   * Optionally silence excalibur warning warnings
+   */
+  silenceWarnings?: boolean;
 };
 
 type ColliderArgs =
@@ -243,7 +248,7 @@ export const ActorEvents = {
  * The most important primitive in Excalibur is an `Actor`. Anything that
  * can move on the screen, collide with another `Actor`, respond to events,
  * or interact with the current scene, must be an actor. An `Actor` **must**
- * be part of a [[Scene]] for it to be drawn to the screen.
+ * be part of a {@apilink Scene} for it to be drawn to the screen.
  */
 export class Actor extends Entity implements Eventable, PointerEvents, CanInitialize, CanUpdate, CanBeKilled {
   public events = new EventEmitter<ActorEvents>();
@@ -263,37 +268,38 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   public body: BodyComponent;
 
   /**
-   * Access the Actor's built in [[TransformComponent]]
+   * Access the Actor's built in {@apilink TransformComponent}
    */
   public transform: TransformComponent;
 
   /**
-   * Access the Actor's built in [[MotionComponent]]
+   * Access the Actor's built in {@apilink MotionComponent}
    */
   public motion: MotionComponent;
 
   /**
-   * Access to the Actor's built in [[GraphicsComponent]]
+   * Access to the Actor's built in {@apilink GraphicsComponent}
    */
   public graphics: GraphicsComponent;
 
   /**
-   * Access to the Actor's built in [[ColliderComponent]]
+   * Access to the Actor's built in {@apilink ColliderComponent}
    */
   public collider: ColliderComponent;
 
   /**
-   * Access to the Actor's built in [[PointerComponent]] config
+   * Access to the Actor's built in {@apilink PointerComponent} config
    */
   public pointer: PointerComponent;
 
   /**
    * Useful for quickly scripting actor behavior, like moving to a place, patrolling back and forth, blinking, etc.
    *
-   *  Access to the Actor's built in [[ActionsComponent]] which forwards to the
-   * [[ActionContext|Action context]] of the actor.
+   *  Access to the Actor's built in {@apilink ActionsComponent} which forwards to the
+   * {@apilink ActionContext | `Action context`} of the actor.
    */
   public actions: ActionsComponent;
+  private _silenceWarnings: boolean;
 
   /**
    * Gets the position vector of the actor in pixels
@@ -374,14 +380,14 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   }
 
   /**
-   * Sets the acceleration of the actor from the last frame. This does not include the global acc [[Physics.acc]].
+   * Sets the acceleration of the actor from the last frame. This does not include the global acc {@apilink Physics.acc}.
    */
   public set oldAcc(theAcc: Vector) {
     this.body.oldAcc.setTo(theAcc.x, theAcc.y);
   }
 
   /**
-   * Gets the acceleration of the actor from the last frame. This does not include the global acc [[Physics.acc]].
+   * Gets the acceleration of the actor from the last frame. This does not include the global acc {@apilink Physics.acc}.
    */
   public get oldAcc(): Vector {
     return this.body.oldAcc;
@@ -577,7 +583,8 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
       anchor,
       offset,
       collisionType,
-      collisionGroup
+      collisionGroup,
+      silenceWarnings
     } = {
       ...config
     };
@@ -592,6 +599,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     this.scale = scale ?? vec(1, 1);
     this.z = z ?? 0;
     this.transform.coordPlane = coordPlane ?? CoordPlane.World;
+    this._silenceWarnings = silenceWarnings ?? false;
 
     this.pointer = new PointerComponent();
     this.addComponent(this.pointer);
@@ -663,6 +671,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
 
   public clone(): Actor {
     const clone = new Actor({
+      silenceWarnings: this._silenceWarnings,
       color: this.color.clone(),
       anchor: this.anchor.clone(),
       offset: this.offset.clone()
@@ -753,7 +762,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   /**
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
-   * Internal _prekill handler for [[onPreKill]] lifecycle event
+   * Internal _prekill handler for {@apilink onPreKill} lifecycle event
    * @internal
    */
   public _prekill(scene: Scene) {
@@ -764,7 +773,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   /**
    * Safe to override onPreKill lifecycle event handler. Synonymous with `.on('prekill', (evt) =>{...})`
    *
-   * `onPreKill` is called directly before an actor is killed and removed from its current [[Scene]].
+   * `onPreKill` is called directly before an actor is killed and removed from its current {@apilink Scene}.
    */
   public onPreKill(scene: Scene) {
     // Override me
@@ -773,7 +782,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   /**
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
-   * Internal _prekill handler for [[onPostKill]] lifecycle event
+   * Internal _prekill handler for {@apilink onPostKill} lifecycle event
    * @internal
    */
   public _postkill(scene: Scene) {
@@ -784,7 +793,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   /**
    * Safe to override onPostKill lifecycle event handler. Synonymous with `.on('postkill', (evt) => {...})`
    *
-   * `onPostKill` is called directly after an actor is killed and remove from its current [[Scene]].
+   * `onPostKill` is called directly after an actor is killed and remove from its current {@apilink Scene}.
    */
   public onPostKill(scene: Scene) {
     // Override me
@@ -866,7 +875,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   /**
    * Gets this actor's rotation taking into account any parent relationships
    * @returns Rotation angle in radians
-   * @deprecated Use [[globalRotation]] instead
+   * @deprecated Use {@apilink globalRotation} instead
    */
   public getGlobalRotation(): number {
     return this.get(TransformComponent).globalRotation;
@@ -882,7 +891,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   /**
    * Gets an actor's world position taking into account parent relationships, scaling, rotation, and translation
    * @returns Position in world coordinates
-   * @deprecated Use [[globalPos]] instead
+   * @deprecated Use {@apilink globalPos} instead
    */
   public getGlobalPos(): Vector {
     return this.get(TransformComponent).globalPos;
@@ -897,7 +906,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
 
   /**
    * Gets the global scale of the Actor
-   * @deprecated Use [[globalScale]] instead
+   * @deprecated Use {@apilink globalScale} instead
    */
   public getGlobalScale(): Vector {
     return this.get(TransformComponent).globalScale;
@@ -971,13 +980,13 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * Called by the Engine, updates the state of the actor
    * @internal
    * @param engine The reference to the current game engine
-   * @param delta  The time elapsed since the last update in milliseconds
+   * @param elapsedMs  The time elapsed since the last update in milliseconds
    */
-  public update(engine: Engine, delta: number) {
+  public update(engine: Engine, elapsedMs: number) {
     this._initialize(engine);
     this._add(engine);
-    this._preupdate(engine, delta);
-    this._postupdate(engine, delta);
+    this._preupdate(engine, elapsedMs);
+    this._postupdate(engine, elapsedMs);
     this._remove(engine);
   }
 
@@ -986,7 +995,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    *
    * `onPreUpdate` is called directly before an actor is updated.
    */
-  public onPreUpdate(engine: Engine, delta: number): void {
+  public onPreUpdate(engine: Engine, elapsedMs: number): void {
     // Override me
   }
 
@@ -995,7 +1004,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    *
    * `onPostUpdate` is called directly after an actor is updated.
    */
-  public onPostUpdate(engine: Engine, delta: number): void {
+  public onPostUpdate(engine: Engine, elapsedMs: number): void {
     // Override me
   }
 
@@ -1047,23 +1056,23 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   /**
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
-   * Internal _preupdate handler for [[onPreUpdate]] lifecycle event
+   * Internal _preupdate handler for {@apilink onPreUpdate} lifecycle event
    * @internal
    */
-  public _preupdate(engine: Engine, delta: number): void {
-    this.events.emit('preupdate', new PreUpdateEvent(engine, delta, this));
-    this.onPreUpdate(engine, delta);
+  public _preupdate(engine: Engine, elapsedMs: number): void {
+    this.events.emit('preupdate', new PreUpdateEvent(engine, elapsedMs, this));
+    this.onPreUpdate(engine, elapsedMs);
   }
 
   /**
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
-   * Internal _preupdate handler for [[onPostUpdate]] lifecycle event
+   * Internal _preupdate handler for {@apilink onPostUpdate} lifecycle event
    * @internal
    */
-  public _postupdate(engine: Engine, delta: number): void {
-    this.events.emit('postupdate', new PostUpdateEvent(engine, delta, this));
-    this.onPostUpdate(engine, delta);
+  public _postupdate(engine: Engine, elapsedMs: number): void {
+    this.events.emit('postupdate', new PostUpdateEvent(engine, elapsedMs, this));
+    this.onPostUpdate(engine, elapsedMs);
   }
 
   // endregion

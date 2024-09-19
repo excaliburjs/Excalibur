@@ -9,21 +9,18 @@ import { Particle, ParticleTransform, ParticleEmitterArgs, ParticleConfig } from
 import { RentalPool } from '../Util/RentalPool';
 
 /**
- * Used internally by Excalibur to manage all particles in the engine
- */
-export const ParticlePool = new RentalPool(
-  () => new Particle({}),
-  (p) => p,
-  2000
-);
-
-/**
  * Using a particle emitter is a great way to create interesting effects
  * in your game, like smoke, fire, water, explosions, etc. `ParticleEmitter`
- * extend [[Actor]] allowing you to use all of the features that come with.
+ * extend {@apilink Actor} allowing you to use all of the features that come with.
  */
 export class ParticleEmitter extends Actor {
   private _particlesToEmit: number = 0;
+
+  private _particlePool = new RentalPool(
+    () => new Particle({}),
+    (p) => p,
+    500
+  );
 
   public numParticles: number = 0;
 
@@ -53,7 +50,7 @@ export class ParticleEmitter extends Actor {
   public emitterType: EmitterType = EmitterType.Rectangle;
 
   /**
-   * Gets or sets the emitter radius, only takes effect when the [[emitterType]] is [[EmitterType.Circle]]
+   * Gets or sets the emitter radius, only takes effect when the {@apilink emitterType} is {@apilink EmitterType.Circle}
    */
   public radius: number = 0;
 
@@ -134,7 +131,7 @@ export class ParticleEmitter extends Actor {
       ranY = radius * Math.sin(angle);
     }
 
-    const p = ParticlePool.rent();
+    const p = this._particlePool.rent();
     p.configure({
       life: this.particle.life,
       opacity: this.particle.opacity,
@@ -161,11 +158,11 @@ export class ParticleEmitter extends Actor {
     return p;
   }
 
-  public update(engine: Engine, delta: number) {
-    super.update(engine, delta);
+  public update(engine: Engine, elapsedMs: number) {
+    super.update(engine, elapsedMs);
 
     if (this.isEmitting) {
-      this._particlesToEmit += this.emitRate * (delta / 1000);
+      this._particlesToEmit += this.emitRate * (elapsedMs / 1000);
       if (this._particlesToEmit > 1.0) {
         this.emitParticles(Math.floor(this._particlesToEmit));
         this._particlesToEmit = this._particlesToEmit - Math.floor(this._particlesToEmit);
@@ -176,7 +173,7 @@ export class ParticleEmitter extends Actor {
     for (let i = 0; i < this.deadParticles.length; i++) {
       if (this?.scene?.world) {
         this.scene.world.remove(this.deadParticles[i], false);
-        ParticlePool.return(this.deadParticles[i]);
+        this._particlePool.return(this.deadParticles[i]);
       }
     }
     this.deadParticles.length = 0;

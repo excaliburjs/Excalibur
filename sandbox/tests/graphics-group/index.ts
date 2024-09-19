@@ -16,7 +16,7 @@ var loader = new ex.Loader([heartImage]);
 class MyActor2 extends ex.Actor {
   constructor() {
     super({
-      pos: ex.vec(200, 200)
+      pos: ex.vec(0, 0)
     });
   }
   onInitialize() {
@@ -24,6 +24,7 @@ class MyActor2 extends ex.Actor {
       'interactive',
       new ex.GraphicsGroup({
         useAnchor: false,
+        scale: ex.vec(4, 4),
         members: [
           {
             graphic: heartImage.toSprite(),
@@ -54,5 +55,5 @@ class MyActor2 extends ex.Actor {
 game.add(new MyActor2());
 
 game.start(loader);
-game.currentScene.camera.pos = ex.vec(200, 200);
-game.currentScene.camera.zoom = 3;
+// game.currentScene.camera.pos = ex.vec(200, 200);
+// game.currentScene.camera.zoom = 3;

@@ -111,14 +111,14 @@ export class Transition extends Entity {
    *
    * **WARNING BE SURE** to call `super.updateTransition()` if overriding in your own custom implementation
    * @param engine
-   * @param delta
+   * @param elapsedMs
    */
-  public updateTransition(engine: Engine, delta: number): void {
+  public updateTransition(engine: Engine, elapsedMs: number): void {
     if (this.complete) {
       return;
     }
 
-    this._currentDistance += clamp(delta / this.duration, 0, 1);
+    this._currentDistance += clamp(elapsedMs / this.duration, 0, 1);
     if (this._currentDistance >= 1) {
       this._currentDistance = 1;
     }

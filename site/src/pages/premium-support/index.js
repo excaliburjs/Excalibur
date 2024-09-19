@@ -19,7 +19,7 @@ const data = [
     title: 'Custom Development Project',
     link: 'https://savvycal.com/excalibur/custom-quote',
     description: 'Schedule a free 30 minute meeting to get a quote for your project. This work would involve a maintainer writing custom code for your game, either in Excalibur, building a new plugin, or directly in your code base.',
-    price: 'Starts at $2000'
+    price: 'Starts at $4000'
   }
 ]
 
@@ -50,7 +50,7 @@ export default function Support() {
   return (
     <Layout
       title='Premium Support'
-      description='Excalibur maintainers offer premium support'
+      description='Excalibur maintainers offer premium support through Caliburn Games LLC'
       >
       <main className={styles.main}>
         <div className="ui container">
@@ -58,7 +58,7 @@ export default function Support() {
 
           <hr></hr>
           <p>
-            The Excalibur core maintainers offer premium support.
+            The Excalibur core maintainers offer premium support through Caliburn Games LLC.
           </p>
 
           <p>

@@ -179,6 +179,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
       const key = HashGridCell.calculateHashKey(currentXCoord, currentYCoord);
       const cell = this.hashGrid.sparseHashGrid.get(key);
       if (cell) {
+        const cellHits: RayCastHit[] = [];
         for (let colliderIndex = 0; colliderIndex < cell.proxies.length; colliderIndex++) {
           const collider = cell.proxies[colliderIndex];
           if (!collidersVisited.has(collider.collider.id.value)) {
@@ -197,22 +198,29 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
 
             const hit = collider.collider.rayCast(ray, maxDistance);
 
+            // Collect up all the colliders that hit inside a cell
+            // they can be in any order so we need to sort them next
             if (hit) {
-              if (options?.filter) {
-                if (options.filter(hit)) {
-                  results.push(hit);
-                  if (!searchAllColliders) {
-                    done = true;
-                    break;
-                  }
-                }
-              } else {
-                results.push(hit);
-                if (!searchAllColliders) {
-                  done = true;
-                  break;
-                }
+              cellHits.push(hit);
+            }
+          }
+        }
+        cellHits.sort((hit1, hit2) => hit1.distance - hit2.distance);
+        for (let i = 0; i < cellHits.length; i++) {
+          const hit = cellHits[i];
+          if (options?.filter) {
+            if (options.filter(hit)) {
+              results.push(hit);
+              if (!searchAllColliders) {
+                done = true;
+                break;
               }
+            }
+          } else {
+            results.push(hit);
+            if (!searchAllColliders) {
+              done = true;
+              break;
             }
           }
         }
@@ -227,6 +235,11 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
       }
     }
 
+    // Sort by distance
+    results.sort((hit1, hit2) => hit1.distance - hit2.distance);
+    if (!searchAllColliders && results.length) {
+      return [results[0]];
+    }
     return results;
   }
 
@@ -306,9 +319,9 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
   /**
    * Runs the broadphase sweep over tracked colliders and returns possible collision pairs
    * @param targets
-   * @param delta
+   * @param elapsedMs
    */
-  broadphase(targets: Collider[], delta: number): Pair[] {
+  broadphase(targets: Collider[], elapsedMs: number): Pair[] {
     const pairs: Pair[] = [];
     this._pairs.clear();
     this._nonPairs.clear();
@@ -377,16 +390,16 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
   /**
    * Perform data structure maintenance, returns number of colliders updated
    */
-  update(targets: Collider[], delta: number): number {
+  update(targets: Collider[], elapsedMs: number): number {
     return this.hashGrid.update(targets);
   }
 
   /**
    * Draws the internal data structure
    * @param ex
-   * @param delta
+   * @param elapsedMs
    */
-  debug(ex: ExcaliburGraphicsContext, delta: number): void {
-    this.hashGrid.debug(ex, delta);
+  debug(ex: ExcaliburGraphicsContext, elapsedMs: number): void {
+    this.hashGrid.debug(ex, elapsedMs);
   }
 }

@@ -61,7 +61,7 @@ export const CollisionJumpTable = {
 
     const info: SeparationInfo = {
       collider: circle,
-      separation: -minAxis.size,
+      separation: -minAxis.magnitude,
       axis: normal,
       point: point,
       localPoint: local,
@@ -277,7 +277,6 @@ export const CollisionJumpTable = {
           points.push(other.transform.apply(p));
         }
       }
-
       let normal = separation.axis;
       let tangent = normal.perpendicular();
       // Point Contact A -> B

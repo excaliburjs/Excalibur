@@ -229,7 +229,7 @@ describe('A Coroutine', () => {
         const elapsed = yield ex.Util.delay(1000, clock);
         expect(elapsed).toBe(1);
         yield;
-        throw Error('error');
+        throw Error('error here');
       });
       // wait 200 ms
       clock.step(1000);
@@ -240,8 +240,139 @@ describe('A Coroutine', () => {
 
       // 1 more yield
       clock.step(100);
-      await expectAsync(result).toBeRejectedWithError('error');
+      await expectAsync(result).toBeRejectedWithError('error here');
       engine.dispose();
+    });
+  });
+
+  it('can stop coroutines', async () => {
+    const engine = TestUtils.engine({ width: 100, height: 100 });
+    await engine.scope(async () => {
+      const clock = engine.clock as ex.TestClock;
+      clock.start();
+      const result = ex.coroutine(function* () {
+        yield 100;
+        yield 100;
+        yield 100;
+        throw Error('should not error');
+      });
+
+      expect(result.isRunning()).toBe(true);
+      clock.step(100);
+      clock.step(100);
+      result.cancel();
+      expect(result.isRunning()).toBe(false);
+      clock.step(100);
+      expect(result.isRunning()).toBe(false);
+      engine.dispose();
+    });
+  });
+
+  it('can start coroutines', async () => {
+    const engine = TestUtils.engine({ width: 100, height: 100 });
+    const logger = ex.Logger.getInstance();
+    spyOn(logger, 'warn');
+    await engine.scope(async () => {
+      const clock = engine.clock as ex.TestClock;
+      clock.start();
+      const result = ex.coroutine(
+        function* () {
+          yield 100;
+          yield 100;
+          yield 100;
+        },
+        { autostart: false }
+      );
+
+      expect(result.isRunning()).toBe(false);
+      clock.step(100);
+      result.start();
+      result.start();
+      expect(logger.warn).toHaveBeenCalled();
+      clock.step(100);
+      clock.step(100);
+      expect(result.isRunning()).toBe(true);
+      clock.step(100);
+      expect(result.isRunning()).toBe(false);
+      expect(result.isComplete()).toBe(true);
+      engine.dispose();
+    });
+  });
+
+  it('can have nested coroutines', async () => {
+    const engine = TestUtils.engine({ width: 100, height: 100 });
+    await engine.scope(async () => {
+      const clock = engine.clock as ex.TestClock;
+      clock.start();
+      const result = ex.coroutine(function* () {
+        yield 100;
+        yield* ex.coroutine(function* () {
+          const elapsed = yield 99;
+          expect(elapsed).toBe(99);
+        });
+        yield 100;
+      });
+
+      clock.step(100);
+      clock.step(99);
+      clock.step(100);
+
+      expect(result.isRunning()).toBe(false);
+    });
+  });
+
+  it('can iterate over coroutines', async () => {
+    const engine = TestUtils.engine({ width: 100, height: 100 });
+    await engine.scope(async () => {
+      const clock = engine.clock as ex.TestClock;
+      clock.start();
+      const result = ex.coroutine(
+        function* () {
+          yield 100;
+          yield 200;
+          yield 300;
+          yield* ex.coroutine(function* () {
+            yield;
+            yield 400;
+          });
+        },
+        { autostart: false }
+      );
+
+      expect(result.generator.next().value).toBe(100);
+      expect(result.generator.next().value).toBe(200);
+      expect(result.generator.next().value).toBe(300);
+      expect(result.generator.next().value).toBe(400);
+
+      expect(result.isRunning()).toBe(false);
+    });
+  });
+
+  it('can iterate over coroutines', async () => {
+    const engine = TestUtils.engine({ width: 100, height: 100 });
+    await engine.scope(async () => {
+      const clock = engine.clock as ex.TestClock;
+      clock.start();
+      const result = ex.coroutine(
+        function* () {
+          yield 100;
+          yield 200;
+          yield 300;
+          yield* ex.coroutine(function* () {
+            yield;
+            yield 400;
+          });
+        },
+        { autostart: false }
+      );
+
+      let i = 0;
+      const results = [100, 200, 300, 400];
+      for (const val of result) {
+        expect(val).toBe(results[i++]);
+      }
+
+      expect(result.isRunning()).toBe(false);
     });
   });
 });

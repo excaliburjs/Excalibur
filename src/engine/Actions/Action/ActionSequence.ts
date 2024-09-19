@@ -5,7 +5,7 @@ import { ActionQueue } from '../ActionQueue';
 
 /**
  * Action that can represent a sequence of actions, this can be useful in conjunction with
- * [[ParallelActions]] to run multiple sequences in parallel.
+ * {@apilink ParallelActions} to run multiple sequences in parallel.
  */
 export class ActionSequence implements Action {
   id = nextActionId();
@@ -20,8 +20,8 @@ export class ActionSequence implements Action {
     this._sequenceBuilder(this._sequenceContext);
   }
 
-  public update(delta: number): void {
-    this._actionQueue.update(delta);
+  public update(elapsedMs: number): void {
+    this._actionQueue.update(elapsedMs);
   }
 
   public isComplete(): boolean {

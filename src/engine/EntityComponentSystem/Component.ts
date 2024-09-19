@@ -44,7 +44,7 @@ export abstract class Component {
   readonly dependencies?: ComponentCtor[];
 
   /**
-   * Current owning [[Entity]], if any, of this component. Null if not added to any [[Entity]]
+   * Current owning {@apilink Entity}, if any, of this component. Null if not added to any {@apilink Entity}
    */
   owner?: Entity = undefined;
 

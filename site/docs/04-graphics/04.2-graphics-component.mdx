@@ -92,6 +92,8 @@ Sometimes you want to draw multiple pieces of graphics at once! There are two re
 
 [[GraphicsGroup|Graphics groups]] allow you to compose multiple graphics together into 1. This can be useful if you have multi layered or complex graphics requirements. One limitation however is you can only influence the relative offset from you Actor.
 
+Read more about [graphic group nuances here](/docs/graphics-group).
+
 ```typescript
 const healthBarActor = new ex.Actor({...})
 
@@ -111,8 +113,8 @@ const healthBarText = new ex.Text({
 
 const group = new ex.GraphicsGroup({
   members: [
-    { graphic: healthbarRectangle, pos: ex.vec(0, -70)},
-    { graphic: healthBarText, pos: ex.vec(0, -70)}
+    { graphic: healthbarRectangle, offset: ex.vec(0, -70)},
+    { graphic: healthBarText, offset: ex.vec(0, -70)}
   ]
 });
 

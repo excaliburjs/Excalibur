@@ -31,14 +31,14 @@ export const SoundEvents = {
 };
 
 /**
- * The [[Sound]] object allows games built in Excalibur to load audio
- * components, from soundtracks to sound effects. [[Sound]] is an [[Loadable]]
- * which means it can be passed to a [[Loader]] to pre-load before a game or level.
+ * The {@apilink Sound} object allows games built in Excalibur to load audio
+ * components, from soundtracks to sound effects. {@apilink Sound} is an {@apilink Loadable}
+ * which means it can be passed to a {@apilink Loader} to pre-load before a game or level.
  */
 export class Sound implements Audio, Loadable<AudioBuffer> {
   public events = new EventEmitter<SoundEvents>();
   public logger: Logger = Logger.getInstance();
-  public data: AudioBuffer;
+  public data!: AudioBuffer;
   private _resource: Resource<ArrayBuffer>;
   /**
    * Indicates whether the clip should loop when complete
@@ -122,7 +122,7 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
   private _isStopped = false;
   // private _isPaused = false;
   private _tracks: Audio[] = [];
-  private _engine: Engine;
+  private _engine?: Engine;
   private _wasPlayingOnHidden: boolean = false;
   private _playbackRate = 1.0;
   private _audioContext = AudioContextFactory.create();
@@ -333,14 +333,14 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
 
   /**
    * Get Id of provided AudioInstance in current trackList
-   * @param track [[Audio]] which Id is to be given
+   * @param track {@apilink Audio} which Id is to be given
    */
   public getTrackId(track: Audio): number {
     return this._tracks.indexOf(track);
   }
 
   private async _resumePlayback(): Promise<boolean> {
-    if (this.isPaused) {
+    if (this.isPaused()) {
       const resumed: Promise<boolean>[] = [];
       // ensure we resume *current* tracks (if paused)
       for (const track of this._tracks) {
@@ -388,7 +388,7 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
 
     newTrack.loop = this.loop;
     newTrack.volume = this.volume;
-    newTrack.duration = this.duration;
+    newTrack.duration = this.duration ?? 0;
     newTrack.playbackRate = this._playbackRate;
 
     this._tracks.push(newTrack);
@@ -418,6 +418,6 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
   public off(eventName: string, handler: Handler<unknown>): void;
   public off(eventName: string): void;
   public off<TEventName extends EventKey<SoundEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
-    this.events.off(eventName, handler);
+    this.events.off(eventName, handler as any);
   }
 }

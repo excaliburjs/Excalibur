@@ -89,7 +89,7 @@ export interface AnimationOptions {
    */
   totalDuration?: number;
   /**
-   * Optionally specify the [[AnimationStrategy]] for the Animation
+   * Optionally specify the {@apilink AnimationStrategy} for the Animation
    */
   strategy?: AnimationStrategy;
 }
@@ -108,11 +108,11 @@ export const AnimationEvents = {
 
 export interface FromSpriteSheetOptions {
   /**
-   * [[SpriteSheet]] to source the animation frames from
+   * {@apilink SpriteSheet} to source the animation frames from
    */
   spriteSheet: SpriteSheet;
   /**
-   * The list of (x, y) positions of sprites in the [[SpriteSheet]] of each frame, for example (0, 0)
+   * The list of (x, y) positions of sprites in the {@apilink SpriteSheet} of each frame, for example (0, 0)
    * is the the top left sprite, (0, 1) is the sprite directly below that, and so on.
    *
    * You may optionally specify a duration for the frame in milliseconds as well, this will override
@@ -130,7 +130,7 @@ export interface FromSpriteSheetOptions {
    */
   speed?: number;
   /**
-   * Optionally specify the animation strategy for this animation, by default animations loop [[AnimationStrategy.Loop]]
+   * Optionally specify the animation strategy for this animation, by default animations loop {@apilink AnimationStrategy.Loop}
    */
   strategy?: AnimationStrategy;
   /**
@@ -140,9 +140,9 @@ export interface FromSpriteSheetOptions {
 }
 
 /**
- * Create an Animation given a list of [[Frame|frames]] in [[AnimationOptions]]
+ * Create an Animation given a list of {@apilink Frame | `frames`} in {@apilink AnimationOptions}
  *
- * To create an Animation from a [[SpriteSheet]], use [[Animation.fromSpriteSheet]]
+ * To create an Animation from a {@apilink SpriteSheet}, use {@apilink Animation.fromSpriteSheet}
  */
 export class Animation extends Graphic implements HasTick {
   private static _LOGGER = Logger.getInstance();
@@ -201,8 +201,8 @@ export class Animation extends Graphic implements HasTick {
   }
 
   /**
-   * Create an Animation from a [[SpriteSheet]], a list of indices into the sprite sheet, a duration per frame
-   * and optional [[AnimationStrategy]]
+   * Create an Animation from a {@apilink SpriteSheet}, a list of indices into the sprite sheet, a duration per frame
+   * and optional {@apilink AnimationStrategy}
    *
    * Example:
    * ```typescript
@@ -240,7 +240,7 @@ export class Animation extends Graphic implements HasTick {
   }
 
   /**
-   * Create an [[Animation]] from a [[SpriteSheet]] given a list of coordinates
+   * Create an {@apilink Animation} from a {@apilink SpriteSheet} given a list of coordinates
    *
    * Example:
    * ```typescript
@@ -310,8 +310,8 @@ export class Animation extends Graphic implements HasTick {
   /**
    * Returns the current Frame of the animation
    *
-   * Use [[Animation.currentFrameIndex]] to get the frame number and
-   * [[Animation.goToFrame]] to set the current frame index
+   * Use {@apilink Animation.currentFrameIndex} to get the frame number and
+   * {@apilink Animation.goToFrame} to set the current frame index
    */
   public get currentFrame(): Frame | null {
     if (this._currentFrame >= 0 && this._currentFrame < this.frames.length) {
@@ -323,7 +323,7 @@ export class Animation extends Graphic implements HasTick {
   /**
    * Returns the current frame index of the animation
    *
-   * Use [[Animation.currentFrame]] to grab the current [[Frame]] object
+   * Use {@apilink Animation.currentFrame} to grab the current {@apilink Frame} object
    */
   public get currentFrameIndex(): number {
     return this._currentFrame;

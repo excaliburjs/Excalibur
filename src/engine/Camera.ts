@@ -29,9 +29,9 @@ export interface CameraStrategy<T> {
    * @param target The target object to apply this camera strategy (if any)
    * @param camera The current camera implementation in excalibur running the game
    * @param engine The current engine running the game
-   * @param delta The elapsed time in milliseconds since the last frame
+   * @param elapsedMs The elapsed time in milliseconds since the last frame
    */
-  action: (target: T, camera: Camera, engine: Engine, delta: number) => Vector;
+  action: (target: T, camera: Camera, engine: Engine, elapsedMs: number) => Vector;
 }
 
 /**
@@ -42,7 +42,7 @@ export class StrategyContainer {
   constructor(public camera: Camera) {}
 
   /**
-   * Creates and adds the [[LockCameraToActorStrategy]] on the current camera.
+   * Creates and adds the {@apilink LockCameraToActorStrategy} on the current camera.
    * @param actor The actor to lock the camera to
    */
   public lockToActor(actor: Actor) {
@@ -50,7 +50,7 @@ export class StrategyContainer {
   }
 
   /**
-   * Creates and adds the [[LockCameraToActorAxisStrategy]] on the current camera
+   * Creates and adds the {@apilink LockCameraToActorAxisStrategy} on the current camera
    * @param actor The actor to lock the camera to
    * @param axis The axis to follow the actor on
    */
@@ -59,7 +59,7 @@ export class StrategyContainer {
   }
 
   /**
-   * Creates and adds the [[ElasticToActorStrategy]] on the current camera
+   * Creates and adds the {@apilink ElasticToActorStrategy} on the current camera
    * If cameraElasticity < cameraFriction < 1.0, the behavior will be a dampened spring that will slowly end at the target without bouncing
    * If cameraFriction < cameraElasticity < 1.0, the behavior will be an oscillating spring that will over
    * correct and bounce around the target
@@ -72,7 +72,7 @@ export class StrategyContainer {
   }
 
   /**
-   * Creates and adds the [[RadiusAroundActorStrategy]] on the current camera
+   * Creates and adds the {@apilink RadiusAroundActorStrategy} on the current camera
    * @param actor Target actor to follow when it is "radius" pixels away
    * @param radius Number of pixels away before the camera will follow
    */
@@ -81,7 +81,7 @@ export class StrategyContainer {
   }
 
   /**
-   * Creates and adds the [[LimitCameraBoundsStrategy]] on the current camera
+   * Creates and adds the {@apilink LimitCameraBoundsStrategy} on the current camera
    * @param box The bounding box to limit the camera to.
    */
   public limitCameraBounds(box: BoundingBox) {
@@ -102,7 +102,7 @@ export enum Axis {
  */
 export class LockCameraToActorStrategy implements CameraStrategy<Actor> {
   constructor(public target: Actor) {}
-  public action = (target: Actor, camera: Camera, engine: Engine, delta: number) => {
+  public action = (target: Actor, camera: Camera, engine: Engine, elapsedMs: number) => {
     const center = target.center;
     return center;
   };
@@ -116,7 +116,7 @@ export class LockCameraToActorAxisStrategy implements CameraStrategy<Actor> {
     public target: Actor,
     public axis: Axis
   ) {}
-  public action = (target: Actor, cam: Camera, _eng: Engine, _delta: number) => {
+  public action = (target: Actor, cam: Camera, _eng: Engine, elapsedMs: number) => {
     const center = target.center;
     const currentFocus = cam.getFocus();
     if (this.axis === Axis.X) {
@@ -144,7 +144,7 @@ export class ElasticToActorStrategy implements CameraStrategy<Actor> {
     public cameraElasticity: number,
     public cameraFriction: number
   ) {}
-  public action = (target: Actor, cam: Camera, _eng: Engine, _delta: number) => {
+  public action = (target: Actor, cam: Camera, _eng: Engine, elapsedMs: number) => {
     const position = target.center;
     let focus = cam.getFocus();
     let cameraVel = cam.vel.clone();
@@ -178,12 +178,12 @@ export class RadiusAroundActorStrategy implements CameraStrategy<Actor> {
     public target: Actor,
     public radius: number
   ) {}
-  public action = (target: Actor, cam: Camera, _eng: Engine, _delta: number) => {
+  public action = (target: Actor, cam: Camera, _eng: Engine, elapsedMs: number) => {
     const position = target.center;
     const focus = cam.getFocus();
 
     const direction = position.sub(focus);
-    const distance = direction.size;
+    const distance = direction.magnitude;
     if (distance >= this.radius) {
       const offset = distance - this.radius;
       return focus.add(direction.normalize().scale(offset));
@@ -197,7 +197,7 @@ export class RadiusAroundActorStrategy implements CameraStrategy<Actor> {
  */
 export class LimitCameraBoundsStrategy implements CameraStrategy<BoundingBox> {
   /**
-   * Useful for limiting the camera to a [[TileMap]]'s dimensions, or a specific area inside the map.
+   * Useful for limiting the camera to a {@apilink TileMap}'s dimensions, or a specific area inside the map.
    *
    * Note that this strategy does not perform any movement by itself.
    * It only sets the camera position to within the given bounds when the camera has gone beyond them.
@@ -211,7 +211,7 @@ export class LimitCameraBoundsStrategy implements CameraStrategy<BoundingBox> {
 
   constructor(public target: BoundingBox) {}
 
-  public action = (target: BoundingBox, cam: Camera, _eng: Engine, _delta: number) => {
+  public action = (target: BoundingBox, cam: Camera, _eng: Engine, elapsedMs: number) => {
     const focus = cam.getFocus();
 
     if (!this.boundSizeChecked) {
@@ -254,7 +254,7 @@ export const CameraEvents = {
 /**
  * Cameras
  *
- * [[Camera]] is the base class for all Excalibur cameras. Cameras are used
+ * {@apilink Camera} is the base class for all Excalibur cameras. Cameras are used
  * to move around your game and set focus. They are used to determine
  * what is "off screen" and can be used to scale the game.
  *
@@ -382,7 +382,7 @@ export class Camera implements CanUpdate, CanInitialize {
   }
 
   /**
-   * Set the camera's x position (cannot be set when following an [[Actor]] or when moving)
+   * Set the camera's x position (cannot be set when following an {@apilink Actor} or when moving)
    */
   public set x(value: number) {
     if (!this._follow && !this._cameraMoving) {
@@ -398,7 +398,7 @@ export class Camera implements CanUpdate, CanInitialize {
   }
 
   /**
-   * Set the camera's y position (cannot be set when following an [[Actor]] or when moving)
+   * Set the camera's y position (cannot be set when following an {@apilink Actor} or when moving)
    */
   public set y(value: number) {
     if (!this._follow && !this._cameraMoving) {
@@ -461,9 +461,9 @@ export class Camera implements CanUpdate, CanInitialize {
    * This moves the camera focal point to the specified position using specified easing function. Cannot move when following an Actor.
    * @param pos The target position to move to
    * @param duration The duration in milliseconds the move should last
-   * @param [easingFn] An optional easing function ([[ex.EasingFunctions.EaseInOutCubic]] by default)
-   * @returns A [[Promise]] that resolves when movement is finished, including if it's interrupted.
-   *          The [[Promise]] value is the [[Vector]] of the target position. It will be rejected if a move cannot be made.
+   * @param [easingFn] An optional easing function ({@apilink EasingFunctions.EaseInOutCubic} by default)
+   * @returns A {@apilink Promise} that resolves when movement is finished, including if it's interrupted.
+   *          The {@apilink Promise} value is the {@apilink Vector} of the target position. It will be rejected if a move cannot be made.
    */
   public move(pos: Vector, duration: number, easingFn: EasingFunction = EasingFunctions.EaseInOutCubic): Promise<Vector> {
     if (typeof easingFn !== 'function') {
@@ -547,7 +547,7 @@ export class Camera implements CanUpdate, CanInitialize {
 
   /**
    * Adds a new camera strategy to this camera
-   * @param cameraStrategy Instance of an [[CameraStrategy]]
+   * @param cameraStrategy Instance of an {@apilink CameraStrategy}
    */
   public addStrategy<T>(cameraStrategy: CameraStrategy<T>) {
     this._cameraStrategies.push(cameraStrategy);
@@ -555,7 +555,7 @@ export class Camera implements CanUpdate, CanInitialize {
 
   /**
    * Removes a camera strategy by reference
-   * @param cameraStrategy Instance of an [[CameraStrategy]]
+   * @param cameraStrategy Instance of an {@apilink CameraStrategy}
    */
   public removeStrategy<T>(cameraStrategy: CameraStrategy<T>) {
     removeItemFromArray(cameraStrategy, this._cameraStrategies);
@@ -571,12 +571,12 @@ export class Camera implements CanUpdate, CanInitialize {
   /**
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
-   * Internal _preupdate handler for [[onPreUpdate]] lifecycle event
+   * Internal _preupdate handler for {@apilink onPreUpdate} lifecycle event
    * @internal
    */
-  public _preupdate(engine: Engine, delta: number): void {
-    this.events.emit('preupdate', new PreUpdateEvent(engine, delta, this));
-    this.onPreUpdate(engine, delta);
+  public _preupdate(engine: Engine, elapsedMs: number): void {
+    this.events.emit('preupdate', new PreUpdateEvent(engine, elapsedMs, this));
+    this.onPreUpdate(engine, elapsedMs);
   }
 
   /**
@@ -584,19 +584,19 @@ export class Camera implements CanUpdate, CanInitialize {
    *
    * `onPreUpdate` is called directly before a scene is updated.
    */
-  public onPreUpdate(engine: Engine, delta: number): void {
+  public onPreUpdate(engine: Engine, elapsedMs: number): void {
     // Overridable
   }
 
   /**
    *  It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
-   * Internal _preupdate handler for [[onPostUpdate]] lifecycle event
+   * Internal _preupdate handler for {@apilink onPostUpdate} lifecycle event
    * @internal
    */
-  public _postupdate(engine: Engine, delta: number): void {
-    this.events.emit('postupdate', new PostUpdateEvent(engine, delta, this));
-    this.onPostUpdate(engine, delta);
+  public _postupdate(engine: Engine, elapsedMs: number): void {
+    this.events.emit('postupdate', new PostUpdateEvent(engine, elapsedMs, this));
+    this.onPostUpdate(engine, elapsedMs);
   }
 
   /**
@@ -604,7 +604,7 @@ export class Camera implements CanUpdate, CanInitialize {
    *
    * `onPostUpdate` is called directly after a scene is updated.
    */
-  public onPostUpdate(engine: Engine, delta: number): void {
+  public onPostUpdate(engine: Engine, elapsedMs: number): void {
     // Overridable
   }
 
@@ -694,9 +694,9 @@ export class Camera implements CanUpdate, CanInitialize {
     this.events.off(eventName, handler);
   }
 
-  public runStrategies(engine: Engine, delta: number) {
+  public runStrategies(engine: Engine, elapsedMs: number) {
     for (const s of this._cameraStrategies) {
-      this.pos = s.action.call(s, s.target, this, engine, delta);
+      this.pos = s.action.call(s, s.target, this, engine, elapsedMs);
     }
   }
 
@@ -710,19 +710,19 @@ export class Camera implements CanUpdate, CanInitialize {
     );
   }
 
-  public update(engine: Engine, delta: number) {
+  public update(engine: Engine, elapsedMs: number) {
     this._initialize(engine);
-    this._preupdate(engine, delta);
+    this._preupdate(engine, elapsedMs);
     this.pos.clone(this._oldPos);
 
     // Update placements based on linear algebra
-    this.pos = this.pos.add(this.vel.scale(delta / 1000));
-    this.zoom += (this.dz * delta) / 1000;
+    this.pos = this.pos.add(this.vel.scale(elapsedMs / 1000));
+    this.zoom += (this.dz * elapsedMs) / 1000;
 
-    this.vel = this.vel.add(this.acc.scale(delta / 1000));
-    this.dz += (this.az * delta) / 1000;
+    this.vel = this.vel.add(this.acc.scale(elapsedMs / 1000));
+    this.dz += (this.az * elapsedMs) / 1000;
 
-    this.rotation += (this.angularVelocity * delta) / 1000;
+    this.rotation += (this.angularVelocity * elapsedMs) / 1000;
 
     if (this._isZooming) {
       if (this._currentZoomTime < this._zoomDuration) {
@@ -730,7 +730,7 @@ export class Camera implements CanUpdate, CanInitialize {
         const newZoom = zoomEasing(this._currentZoomTime, this._zoomStart, this._zoomEnd, this._zoomDuration);
 
         this.zoom = newZoom;
-        this._currentZoomTime += delta;
+        this._currentZoomTime += elapsedMs;
       } else {
         this._isZooming = false;
         this.zoom = this._zoomEnd;
@@ -747,7 +747,7 @@ export class Camera implements CanUpdate, CanInitialize {
 
         this.pos = lerpPoint;
 
-        this._currentLerpTime += delta;
+        this._currentLerpTime += elapsedMs;
       } else {
         this.pos = this._lerpEnd;
         const end = this._lerpEnd.clone();
@@ -770,12 +770,12 @@ export class Camera implements CanUpdate, CanInitialize {
       this._xShake = 0;
       this._yShake = 0;
     } else {
-      this._elapsedShakeTime += delta;
+      this._elapsedShakeTime += elapsedMs;
       this._xShake = ((Math.random() * this._shakeMagnitudeX) | 0) + 1;
       this._yShake = ((Math.random() * this._shakeMagnitudeY) | 0) + 1;
     }
 
-    this.runStrategies(engine, delta);
+    this.runStrategies(engine, elapsedMs);
 
     this.updateViewport();
 
@@ -783,7 +783,7 @@ export class Camera implements CanUpdate, CanInitialize {
     // This prevents jitter
     this.updateTransform(this.pos);
 
-    this._postupdate(engine, delta);
+    this._postupdate(engine, elapsedMs);
   }
 
   private _snapPos = vec(0, 0);

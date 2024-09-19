@@ -1,11 +1,11 @@
 import { Entity } from '../EntityComponentSystem/Entity';
 
 /**
- * Used for implementing actions for the [[ActionContext|Action API]].
+ * Used for implementing actions for the {@apilink ActionContext | `Action API`}.
  */
 export interface Action {
   id: number;
-  update(delta: number): void;
+  update(elapsedMs: number): void;
   isComplete(entity: Entity): boolean;
   reset(): void;
   stop(): void;

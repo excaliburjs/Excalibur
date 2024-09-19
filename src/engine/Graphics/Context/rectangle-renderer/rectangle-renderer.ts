@@ -99,7 +99,7 @@ export class RectangleRenderer implements RendererPlugin {
     const snapToPixel = this._context.snapToPixel;
 
     const dir = end.sub(start);
-    const length = dir.size;
+    const length = dir.magnitude;
     const normal = dir.normalize().perpendicular();
     const halfThick = thickness / 2;
 

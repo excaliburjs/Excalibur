@@ -40,7 +40,7 @@ describe('A CollisionContact', () => {
       ex.Vector.Right.perpendicular(),
       [new ex.Vector(10, 0)],
       [new ex.Vector(10, 0)],
-      null
+      new ex.SeparationInfo()
     );
     expect(cc).not.toBe(null);
   });
@@ -56,7 +56,7 @@ describe('A CollisionContact', () => {
       ex.Vector.Right.perpendicular(),
       [new ex.Vector(10, 0)],
       [new ex.Vector(10, 0)],
-      null
+      new ex.SeparationInfo()
     );
 
     const solver = new ex.ArcadeSolver(DefaultPhysicsConfig.arcade);
@@ -85,7 +85,7 @@ describe('A CollisionContact', () => {
       ex.Vector.Right.perpendicular(),
       [new ex.Vector(10, 0)],
       [new ex.Vector(10, 0)],
-      null
+      new ex.SeparationInfo()
     );
 
     const solver = new ex.ArcadeSolver(DefaultPhysicsConfig.arcade);

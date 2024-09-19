@@ -2,7 +2,7 @@ import { GameEvent } from './Events';
 import { Eventable } from './Interfaces/Evented';
 
 /**
- * @deprecated Use [[EventEmitter]] will be removed in v0.29.0
+ * @deprecated Use {@apilink EventEmitter} will be removed in v0.29.0
  */
 export class EventDispatcher<T = any> implements Eventable {
   private _handlers: { [key: string]: { (event: GameEvent<T>): void }[] } = {};

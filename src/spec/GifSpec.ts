@@ -13,7 +13,7 @@ describe('A Gif', () => {
       height: 100
     });
 
-    gif = new ex.Gif('src/spec/images/GifSpec/sword.gif', ex.Color.Black.clone());
+    gif = new ex.Gif('src/spec/images/GifSpec/sword.gif');
   });
   afterEach(() => {
     engine.stop();
@@ -27,6 +27,43 @@ describe('A Gif', () => {
       expect(gif.readCheckBytes).toEqual([11, 3, 4, 11, 4]);
       done();
     });
+  });
+
+  it('should parse gifs that have lct & anim params', async () => {
+    const sut = new ex.Gif('src/spec/images/GifSpec/loading-screen.gif');
+    await sut.load();
+
+    const sprite = sut.toSprite(20);
+    expect(sut.isLoaded()).toBe(true);
+
+    sprite.draw(engine.graphicsContext, 0, 0);
+    engine.graphicsContext.flush();
+
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GifSpec/loading-frame-20.png');
+  });
+
+  it('should parse gifs that have animations with sub frames', async () => {
+    const sut = new ex.Gif('src/spec/images/GifSpec/stoplight.gif');
+    await sut.load();
+    expect(sut.isLoaded()).toBe(true);
+
+    const sprite2 = sut.toSprite(2);
+    sprite2.draw(engine.graphicsContext, 0, 0);
+    engine.graphicsContext.flush();
+
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GifSpec/stoplight-frame-3.png');
+
+    const sprite1 = sut.toSprite(1);
+    sprite1.draw(engine.graphicsContext, 0, 0);
+    engine.graphicsContext.flush();
+
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GifSpec/stoplight-frame-2.png');
+
+    const sprite0 = sut.toSprite(0);
+    sprite0.draw(engine.graphicsContext, 0, 0);
+    engine.graphicsContext.flush();
+
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GifSpec/stoplight-frame-1.png');
   });
 
   it('should load each frame', async () => {

@@ -1,9 +1,8 @@
-import { Engine } from './Engine';
 import { Vector } from './Math/vector';
 import { ExitTriggerEvent, EnterTriggerEvent, CollisionEndEvent, CollisionStartEvent } from './Events';
 import { CollisionType } from './Collision/CollisionType';
 import { Entity } from './EntityComponentSystem';
-import { Actor, ActorEvents } from './Actor';
+import { Actor, ActorArgs, ActorEvents } from './Actor';
 import { EventEmitter } from './EventEmitter';
 
 export type TriggerEvents = ActorEvents & {
@@ -29,106 +28,78 @@ export interface TriggerOptions {
   // whether the trigger is visible or not
   visible: boolean;
   // action to take when triggered
-  action: () => void;
-  // if specified the trigger will only fire on a specific actor and overrides any filter
+  action: (entity: Entity) => void;
+  // if specified the trigger will only fire on a specific entity and overrides any filter
   target: Entity;
-  // Returns true if the triggers should fire on the collided actor
-  filter: (actor: Entity) => boolean;
+  // Returns true if the triggers should fire on the collided entity
+  filter: (entity: Entity) => boolean;
   // -1 if it should repeat forever
   repeat: number;
 }
 
-const triggerDefaults: Partial<TriggerOptions> = {
-  pos: Vector.Zero,
-  width: 10,
-  height: 10,
-  visible: false,
-  action: () => {
-    return;
-  },
-  filter: () => true,
-  repeat: -1
-};
-
 /**
  * Triggers are a method of firing arbitrary code on collision. These are useful
  * as 'buttons', 'switches', or to trigger effects in a game. By default triggers
- * are invisible, and can only be seen when [[Trigger.visible]] is set to `true`.
+ * are invisible, and can only be seen when {@apilink Trigger.visible} is set to `true`.
  */
 export class Trigger extends Actor {
   public events = new EventEmitter<TriggerEvents & ActorEvents>();
-  private _target: Entity;
+  public target?: Entity;
   /**
    * Action to fire when triggered by collision
    */
-  public action: () => void = () => {
-    return;
-  };
+  public action: (entity: Entity) => void;
   /**
    * Filter to add additional granularity to action dispatch, if a filter is specified the action will only fire when
-   * filter return true for the collided actor.
+   * filter return true for the collided entity.
    */
-  public filter: (actor: Entity) => boolean = () => true;
+  public filter: (entity: Entity) => boolean;
   /**
    * Number of times to repeat before killing the trigger,
    */
-  public repeat: number = -1;
+  public repeat: number;
 
   /**
-   *
-   * @param opts Trigger options
+   * @param options Trigger options
    */
-  constructor(opts: Partial<TriggerOptions>) {
-    super({ x: opts.pos.x, y: opts.pos.y, width: opts.width, height: opts.height });
-    opts = {
-      ...triggerDefaults,
-      ...opts
-    };
+  constructor(options: Partial<TriggerOptions> & ActorArgs) {
+    super({ ...options });
 
-    this.filter = opts.filter || this.filter;
-    this.repeat = opts.repeat || this.repeat;
-    this.action = opts.action || this.action;
-    if (opts.target) {
-      this.target = opts.target;
-    }
+    this.filter = options.filter ?? (() => true);
+    this.repeat = options.repeat ?? -1;
+    this.action = options.action ?? (() => undefined);
+    this.target = options.target;
 
-    this.graphics.visible = opts.visible;
+    this.graphics.visible = options.visible ?? false;
     this.body.collisionType = CollisionType.Passive;
 
-    this.events.on('collisionstart', (evt: CollisionStartEvent<Actor>) => {
-      if (this.filter(evt.other)) {
-        this.events.emit('enter', new EnterTriggerEvent(this, evt.other));
-        this._dispatchAction();
-        // remove trigger if its done, -1 repeat forever
-        if (this.repeat === 0) {
-          this.kill();
-        }
+    this.events.on('collisionstart', ({ other: collider }: CollisionStartEvent<Entity>) => {
+      if (!this._matchesTarget(collider)) {
+        return;
+      }
+
+      this.events.emit('enter', new EnterTriggerEvent(this, collider));
+      this._dispatchAction(collider);
+      // remove trigger if its done, -1 repeat forever
+      if (this.repeat === 0) {
+        this.kill();
       }
     });
 
-    this.events.on('collisionend', (evt: CollisionEndEvent<Actor>) => {
-      if (this.filter(evt.other)) {
-        this.events.emit('exit', new ExitTriggerEvent(this, evt.other));
+    this.events.on('collisionend', ({ other: collider }: CollisionEndEvent<Entity>) => {
+      if (this._matchesTarget(collider)) {
+        this.events.emit('exit', new ExitTriggerEvent(this, collider));
       }
     });
   }
 
-  public set target(target: Entity) {
-    this._target = target;
-    this.filter = (actor: Entity) => actor === target;
+  private _matchesTarget(entity: Entity): boolean {
+    return this.filter(entity) && (this.target === undefined || this.target === entity);
   }
 
-  public get target() {
-    return this._target;
-  }
-
-  public _initialize(engine: Engine) {
-    super._initialize(engine);
-  }
-
-  private _dispatchAction() {
+  private _dispatchAction(target: Entity) {
     if (this.repeat !== 0) {
-      this.action.call(this);
+      this.action.call(this, target);
       this.repeat--;
     }
   }

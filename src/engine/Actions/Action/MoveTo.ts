@@ -29,7 +29,7 @@ export class MoveTo implements Action {
     this._speed = speed;
   }
 
-  public update(_delta: number): void {
+  public update(elapsedMs: number): void {
     if (!this._started) {
       this._started = true;
       this._start = new Vector(this._tx.pos.x, this._tx.pos.y);
