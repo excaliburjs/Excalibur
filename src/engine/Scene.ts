@@ -613,6 +613,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
       scene = entity.scene;
       entity.scene.removeTimer(entity);
     }
+
     scene?.emit('entityremoved', { target: entity } as any);
     this.add(entity);
   }

@@ -984,8 +984,10 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    */
   public update(engine: Engine, elapsedMs: number) {
     this._initialize(engine);
+    this._add(engine);
     this._preupdate(engine, elapsedMs);
     this._postupdate(engine, elapsedMs);
+    this._remove(engine);
   }
 
   /**

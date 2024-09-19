@@ -1,9 +1,9 @@
 import { Component, ComponentCtor, isComponentCtor } from './Component';
 
 import { Observable, Message } from '../Util/Observable';
-import { OnInitialize, OnPreUpdate, OnPostUpdate } from '../Interfaces/LifecycleEvents';
+import { OnInitialize, OnPreUpdate, OnPostUpdate, OnAdd, OnRemove } from '../Interfaces/LifecycleEvents';
 import { Engine } from '../Engine';
-import { InitializeEvent, PreUpdateEvent, PostUpdateEvent } from '../Events';
+import { InitializeEvent, PreUpdateEvent, PostUpdateEvent, AddEvent, RemoveEvent } from '../Events';
 import { KillEvent } from '../Events';
 import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
 import { Scene } from '../Scene';
@@ -54,12 +54,18 @@ export function isRemovedComponent(x: Message<EntityComponent>): x is RemovedCom
  */
 export type EntityEvents = {
   initialize: InitializeEvent;
+  //@ts-ignore
+  add: AddEvent;
+  //@ts-ignore
+  remove: RemoveEvent;
   preupdate: PreUpdateEvent;
   postupdate: PostUpdateEvent;
   kill: KillEvent;
 };
 
 export const EntityEvents = {
+  Add: 'add',
+  Remove: 'remove',
   Initialize: 'initialize',
   PreUpdate: 'preupdate',
   PostUpdate: 'postupdate',
@@ -83,7 +89,7 @@ export interface EntityOptions<TComponents extends Component> {
  * entity.components.b; // Type ComponentB
  * ```
  */
-export class Entity<TKnownComponents extends Component = any> implements OnInitialize, OnPreUpdate, OnPostUpdate {
+export class Entity<TKnownComponents extends Component = any> implements OnInitialize, OnPreUpdate, OnPostUpdate, OnAdd, OnRemove {
   private static _ID = 0;
   /**
    * The unique identifier for the entity
@@ -513,12 +519,17 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
   }
 
   private _isInitialized = false;
+  private _isAdded = false;
 
   /**
    * Gets whether the actor is Initialized
    */
   public get isInitialized(): boolean {
     return this._isInitialized;
+  }
+
+  public get isAdded(): boolean {
+    return this._isAdded;
   }
 
   /**
@@ -532,6 +543,34 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
       this.onInitialize(engine);
       this.events.emit('initialize', new InitializeEvent(engine, this));
       this._isInitialized = true;
+    }
+  }
+
+  /**
+   * Adds this Actor, meant to be called by the Scene when Actor is added.
+   *
+   * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
+   * @internal
+   */
+  public _add(engine: Engine) {
+    if (!this.isAdded && this.active) {
+      this.onAdd(engine);
+      this.events.emit('add', new AddEvent(engine, this));
+      this._isAdded = true;
+    }
+  }
+
+  /**
+   * Removes Actor, meant to be called by the Scene when Actor is added.
+   *
+   * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
+   * @internal
+   */
+  public _remove(engine: Engine) {
+    if (this.isAdded && !this.active) {
+      this.onRemove(engine);
+      this.events.emit('remove', new RemoveEvent(engine, this));
+      this._isAdded = false;
     }
   }
 
@@ -568,6 +607,26 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
   }
 
   /**
+   * `onAdd` is called when Actor is added to scene. This method is meant to be
+   * overridden.
+   *
+   * Synonymous with the event handler `.on('add', (evt) => {...})`
+   */
+  public onAdd(engine: Engine): void {
+    // Override me
+  }
+
+  /**
+   * `onRemove` is called when Actor is added to scene. This method is meant to be
+   * overridden.
+   *
+   * Synonymous with the event handler `.on('remove', (evt) => {...})`
+   */
+  public onRemove(engine: Engine): void {
+    // Override me
+  }
+
+  /**
    * Safe to override onPreUpdate lifecycle event handler. Synonymous with `.on('preupdate', (evt) =>{...})`
    *
    * `onPreUpdate` is called directly before an entity is updated.
@@ -594,11 +653,13 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    */
   public update(engine: Engine, elapsedMs: number): void {
     this._initialize(engine);
+    this._add(engine);
     this._preupdate(engine, elapsedMs);
     for (const child of this.children) {
       child.update(engine, elapsedMs);
     }
     this._postupdate(engine, elapsedMs);
+    this._remove(engine);
   }
 
   public emit<TEventName extends EventKey<EntityEvents>>(eventName: TEventName, event: EntityEvents[TEventName]): void;
