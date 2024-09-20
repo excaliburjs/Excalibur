@@ -71,11 +71,11 @@ export class Label extends Actor {
   }
 
   public get opacity(): number {
-    return this._text.opacity;
+    return this.graphics.opacity;
   }
 
   public set opacity(opacity: number) {
-    this._text.opacity = opacity;
+    this.graphics.opacity = opacity;
   }
 
   private _spriteFont: SpriteFont;

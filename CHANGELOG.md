@@ -104,6 +104,7 @@ are doing mtv adjustments during precollision.
 
 ### Fixed
 
+- Fixed issue where `ex.Label` where setting the opacity of caused a multiplicative opacity effect when actor opacity set
 - Fixed issue where the `ex.Loader` would have a low res logo on small configured resolution sizes
 - Fixed issue where `ex.Gif` was not parsing certain binary formats correctly
 - Fixed issue where the boot `ex.Loader` was removing pixelRatio override

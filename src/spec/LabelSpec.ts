@@ -87,4 +87,15 @@ describe('A label', () => {
     expect((sut as any)._spriteFont).toBe(spriteFont);
     // expect(sut.spriteFont).toBe(spriteFont);
   });
+
+  it('can have opacity set on the label and its the same as the graphics', () => {
+    const label = new ex.Label({
+      text: 'some text',
+      opacity: 0.75
+    });
+
+    expect(label.opacity).toEqual(label.graphics.opacity);
+    label.opacity = 0.25;
+    expect(label.opacity).toEqual(label.graphics.opacity);
+  });
 });
