@@ -22,6 +22,10 @@ There are a few things that Excalibur does that are good to know before you star
 5. Actor z-index's follow the browser way of doing things.
    * Things with larger positive numbers are on top of lower numbers.
 
-6. Excalibur handles offscreen draw culling for you! No need to manage that!
+6. Things are in "world" space unless specified with a `local` prefix or added as a child actor. World space is the pixel position where Entities and Actors live by default.
 
-7. Excalibur uses pre-multiplied alphas when drawing which is important to know if you use [Material](/docs/materials)
+7. Bounds are always an axis aligned bounding box, meaning a non-rotated box.
+
+8. Excalibur handles offscreen draw culling for you! No need to manage that!
+
+9. Excalibur uses pre-multiplied alphas when drawing which is important to know if you use [Material](/docs/materials)
