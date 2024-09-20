@@ -12,8 +12,9 @@ import { BoundingBox } from '../Collision/BoundingBox';
 import { Query, SystemPriority, World } from '../EntityComponentSystem';
 
 export class OffscreenSystem extends System {
+  static priority: number = SystemPriority.Higher;
+
   public systemType = SystemType.Draw;
-  priority: number = SystemPriority.Higher;
   private _camera!: Camera;
   private _screen!: Screen;
   private _worldBounds!: BoundingBox;

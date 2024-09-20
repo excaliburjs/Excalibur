@@ -3,8 +3,9 @@ import { System, SystemType } from '../EntityComponentSystem/System';
 import { ActionsComponent } from './ActionsComponent';
 
 export class ActionsSystem extends System {
+  static priority = SystemPriority.Higher;
+
   systemType = SystemType.Update;
-  priority = SystemPriority.Higher;
   private _actions: ActionsComponent[] = [];
   query: Query<typeof ActionsComponent>;
 
