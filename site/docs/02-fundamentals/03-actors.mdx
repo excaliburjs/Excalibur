@@ -72,6 +72,23 @@ class ShootemUpPlayer extends ex.Actor {
 
 Custom actors make it easy to hook into the actor lifecycle and encapsulate the actor's state better than a basic actor.
 
+
+## Child Actors
+
+Actors can be nested with within another, and all children have their transform (position, rotation, scale, z) relative to their parent. This is useful for a few a number of use cases.
+
+```typescript
+const parent = new ex.Actor({...});
+
+const child = new ex.Actor({...});
+
+actor.addChild(child);
+```
+
+1. Paper doll assemblies - Moving a parent body actor and having child actor arms, legs, head, etc. pieces move.
+2. Area Trigger Sensors - Adding invisible child actor to listen to collisions
+3. Temporary attachment - Attaching a player to a moving platform
+
 ## Actor lifecycle
 
 An actor has a basic lifecycle that dictates how it is initialized, updated, and drawn. Once an actor is part of a

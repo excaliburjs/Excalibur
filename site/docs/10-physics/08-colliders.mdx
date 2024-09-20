@@ -112,3 +112,27 @@ const player = new ex.Actor({
   collider: capsule
 });
 ```
+
+### Child Actor
+
+Another way of accomplishing complex collision logic is to add child actors with different colliders and handlers.
+
+This is can be useful for implementing area of effect collisions or sensors when objects get close to each other.
+
+For example:
+```typescript
+const player = new ex.Actor({...});
+
+const sensor = new ex.Actor({
+  radius: 100
+});
+
+player.addChild(sensor);
+
+sensor.on('collisionstart', (evt) => {
+  if (evt.other !== player) {
+    console.log('something is within 100 pixels of player');
+  }
+})
+
+````
