@@ -54,6 +54,17 @@ All [[Graphic|Graphics]] have a bunch of useful feature that work for ALL types 
 
   - Gets or sets the origin of the graphic, if not set the center of the graphic is the origin
 
+
+- `tint: Color`
+
+  - Applies a multiplicative tint to the pixels in the graphic. This is useful if you want to quickly tweak the color or a graphic without making new assets.
+
+:::note
+
+Multiplicative tint this means you cannot apply a `Color.White` tint to a graphic that will have an effect, under the hood the white color is represented as `(1, 1, 1)` and 1 multiplied against anything is itself.
+
+:::
+
 ### Raster Graphics
 
 Rasters are a type of `ex.Graphic` built by constructing a bitmap (using CanvasRenderingContext2D) in memory which is then sent to the drawing context. This allows the use of features available to developers in the 2D canvas to produce Graphics for Excalibur. It's important to share or limit the number of Raster graphics due to their memory footprint in the browser.
