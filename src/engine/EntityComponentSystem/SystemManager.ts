@@ -47,7 +47,7 @@ export class SystemManager {
     }
 
     this.systems.push(system);
-    this.systems.sort((a, b) => a.constructor.prototype.priority - b.constructor.prototype.priority);
+    this.systems.sort((a, b) => (a.constructor as typeof System).priority - (b.constructor as typeof System).priority);
     // If systems are added and the manager has already been init'd
     // then immediately init the system
     if (this.initialized && system.initialize) {
