@@ -227,15 +227,15 @@ export class Vector implements Clonable<Vector> {
   }
 
   /**
-   * Normalizes a vector to have a magnitude of 1.
+   * Normalizes a non-zero vector to have a magnitude of 1. Zero vectors return a new zero vector.
    */
   public normalize(): Vector {
-    const d = this.distance();
-    if (d > 0) {
-      return new Vector(this.x / d, this.y / d);
-    } else {
-      return new Vector(0, 1);
+    const distance = this.distance();
+    if (distance === 0) {
+      return Vector.Zero;
     }
+
+    return new Vector(this.x / distance, this.y / distance);
   }
 
   /**

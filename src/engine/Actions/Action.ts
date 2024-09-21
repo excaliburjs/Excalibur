@@ -5,7 +5,7 @@ import { Entity } from '../EntityComponentSystem/Entity';
  */
 export interface Action {
   id: number;
-  update(delta: number): void;
+  update(elapsedMs: number): void;
   isComplete(entity: Entity): boolean;
   reset(): void;
   stop(): void;

@@ -980,12 +980,14 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * Called by the Engine, updates the state of the actor
    * @internal
    * @param engine The reference to the current game engine
-   * @param delta  The time elapsed since the last update in milliseconds
+   * @param elapsedMs  The time elapsed since the last update in milliseconds
    */
-  public update(engine: Engine, delta: number) {
+  public update(engine: Engine, elapsedMs: number) {
     this._initialize(engine);
-    this._preupdate(engine, delta);
-    this._postupdate(engine, delta);
+    this._add(engine);
+    this._preupdate(engine, elapsedMs);
+    this._postupdate(engine, elapsedMs);
+    this._remove(engine);
   }
 
   /**
@@ -993,7 +995,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    *
    * `onPreUpdate` is called directly before an actor is updated.
    */
-  public onPreUpdate(engine: Engine, delta: number): void {
+  public onPreUpdate(engine: Engine, elapsedMs: number): void {
     // Override me
   }
 
@@ -1002,7 +1004,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    *
    * `onPostUpdate` is called directly after an actor is updated.
    */
-  public onPostUpdate(engine: Engine, delta: number): void {
+  public onPostUpdate(engine: Engine, elapsedMs: number): void {
     // Override me
   }
 
@@ -1057,9 +1059,9 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * Internal _preupdate handler for {@apilink onPreUpdate} lifecycle event
    * @internal
    */
-  public _preupdate(engine: Engine, delta: number): void {
-    this.events.emit('preupdate', new PreUpdateEvent(engine, delta, this));
-    this.onPreUpdate(engine, delta);
+  public _preupdate(engine: Engine, elapsedMs: number): void {
+    this.events.emit('preupdate', new PreUpdateEvent(engine, elapsedMs, this));
+    this.onPreUpdate(engine, elapsedMs);
   }
 
   /**
@@ -1068,9 +1070,9 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * Internal _preupdate handler for {@apilink onPostUpdate} lifecycle event
    * @internal
    */
-  public _postupdate(engine: Engine, delta: number): void {
-    this.events.emit('postupdate', new PostUpdateEvent(engine, delta, this));
-    this.onPostUpdate(engine, delta);
+  public _postupdate(engine: Engine, elapsedMs: number): void {
+    this.events.emit('postupdate', new PostUpdateEvent(engine, elapsedMs, this));
+    this.onPostUpdate(engine, elapsedMs);
   }
 
   // endregion

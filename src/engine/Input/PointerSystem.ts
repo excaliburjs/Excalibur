@@ -16,8 +16,9 @@ import { SparseHashGrid } from '../Collision/Detection/SparseHashGrid';
  * the {@apilink Collider}'s shape for pointer events.
  */
 export class PointerSystem extends System {
+  static priority = SystemPriority.Higher;
+
   public readonly systemType = SystemType.Update;
-  public priority = SystemPriority.Higher;
 
   private _engine: Engine;
   private _receivers: PointerEventReceiver[];

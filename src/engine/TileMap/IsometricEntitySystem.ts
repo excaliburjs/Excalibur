@@ -4,8 +4,9 @@ import { IsometricEntityComponent } from './IsometricEntityComponent';
 import { Query, SystemPriority, World } from '../EntityComponentSystem';
 
 export class IsometricEntitySystem extends System {
+  static priority: number = SystemPriority.Lower;
+
   public readonly systemType = SystemType.Update;
-  priority: number = SystemPriority.Lower;
   query: Query<typeof TransformComponent | typeof IsometricEntityComponent>;
   constructor(public world: World) {
     super();

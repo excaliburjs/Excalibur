@@ -7,6 +7,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- `System.priority` is refactored to be static.
+- `ex.Timer` now only takes the option bag constructor
+- `PreDrawEvent`, `PostDrawEvent`, `PreTransformDrawEvent`, `PostTransformDrawEvent`, `PreUpdateEvent`, `PostUpdateEvent` now use `elapsedMs` instead of `delta` for the elapsed milliseconds between the last frame.460696
+- `Trigger` API has been slightly changed:
+  - `action` now returns the triggering entity: `(entity: Entity) => void`
+  - `target` now works in conjunction with `filter` instead of overwriting it.
+  - `EnterTriggerEvent` and `ExitTriggerEvent` now contain a `entity: Entity` property instead of `actor: Actor`
+- `ex.Vector.normalize()` return zero-vector (`(0,0)`) instead of `(0,1)` when normalizing a vector with a magnitude of 0
 - `ex.Gif` transparent color constructor arg is removed in favor of the built in Gif file mechanism
 - Remove core-js dependency, it is no longer necessary in modern browsers. Technically a breaking change for older browsers
 - `ex.Particle` and `ex.ParticleEmitter` now have an API that looks like modern Excalibur APIs
@@ -57,6 +65,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Child `ex.Actor` inherits opacity of parents
+- `ex.Engine.timeScale` values of 0 are now supported
+- `ex.Trigger` now supports all valid actor constructor parameters from `ex.ActorArgs` in addition to `ex.TriggerOptions`
 - `ex.Gif` can now handle default embedded GIF frame timings
 - New `ex.Screen.worldToPagePixelRatio` API that will return the ratio between excalibur pixels and the HTML pixels. 
   * Additionally excalibur will now decorate the document root with this same value as a CSS variable `--ex-pixel-ratio`
@@ -93,6 +104,8 @@ are doing mtv adjustments during precollision.
 
 ### Fixed
 
+- Fixed issue where `ex.Label` where setting the opacity of caused a multiplicative opacity effect when actor opacity set
+- Fixed issue where the `ex.Loader` would have a low res logo on small configured resolution sizes
 - Fixed issue where `ex.Gif` was not parsing certain binary formats correctly
 - Fixed issue where the boot `ex.Loader` was removing pixelRatio override
 - Fixed `ex.RasterOptions`, it now extends `ex.GraphicsOptions` which is the underlying truth
@@ -114,6 +127,7 @@ are doing mtv adjustments during precollision.
 
 ### Updates
 
+- Non-breaking parameters that reference `delta` to `elapsedMs` to better communicate intent and units
 - Perf improvements to `ex.ParticleEmitter` 
   * Use the same integrator as the MotionSystem in the tight loop
   * Leverage object pools to increase performance and reduce allocations

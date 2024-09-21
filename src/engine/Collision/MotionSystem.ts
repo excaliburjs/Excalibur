@@ -8,8 +8,9 @@ import { EulerIntegrator } from './Integrator';
 import { PhysicsWorld } from './PhysicsWorld';
 
 export class MotionSystem extends System {
+  static priority = SystemPriority.Higher;
+
   public systemType = SystemType.Update;
-  public priority = SystemPriority.Higher;
   private _physicsConfigDirty = false;
   query: Query<typeof TransformComponent | typeof MotionComponent>;
   constructor(

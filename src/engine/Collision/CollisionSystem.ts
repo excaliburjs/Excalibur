@@ -21,8 +21,9 @@ import { SeparatingAxis } from './Colliders/SeparatingAxis';
 import { MotionSystem } from './MotionSystem';
 import { Pair } from './Detection/Pair';
 export class CollisionSystem extends System {
+  static priority = SystemPriority.Higher;
+
   public systemType = SystemType.Update;
-  public priority = SystemPriority.Higher;
   public query: Query<ComponentCtor<TransformComponent> | ComponentCtor<MotionComponent> | ComponentCtor<ColliderComponent>>;
 
   private _engine: Engine;

@@ -616,7 +616,7 @@ export class GifParser {
     // A value of 3 is defined to mean that the decoder should restore the canvas to its previous state before the current image was drawn.
     // The behavior for values 4-7 are yet to be defined.
     if (this._gce?.disposalMethod === 1 && this.images.length) {
-      this._currentFrameContext.drawImage(this.images.at(-1)!, 0, 0);
+      this._currentFrameContext.drawImage(this.images[this.images.length - 1]!, 0, 0);
     } else if (this._gce?.disposalMethod === 2 && this._hdr?.gctFlag) {
       const bg = colorTable[this._hdr.backgroundColorIndex];
       this._currentFrameContext.fillStyle = `rgb(${bg[0]}, ${bg[1]}, ${bg[2]})`;

@@ -226,7 +226,10 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   public bounciness: number = 0.2;
 
   /**
-   * The coefficient of friction on this actor
+   * The coefficient of friction on this actor.
+   *
+   * The {@apilink SolverStrategy.Arcade} does not support this property.
+   *
    */
   public friction: number = 0.99;
 

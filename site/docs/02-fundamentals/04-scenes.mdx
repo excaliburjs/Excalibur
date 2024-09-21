@@ -70,7 +70,7 @@ For more complex games, you might want more control over a scene in which
 case you can extend [[Scene]]. This is useful for menus, custom loaders,
 and levels.
 
-### Adding a scene
+### Adding a scene Dynamically
 
 Use [[Engine.add]] to add a new scene to the game. Each scene has a `string` key you can assign. You can then use
 [[Engine.goToScene]] to switch scenes which runs the scene lifecycle hooks.
@@ -81,6 +81,39 @@ class MainMenu extends ex.Scene {}
 game.add('mainmenu', new MainMenu());
 game.goToScene('mainmenu');
 ```
+
+## Static Scene Collection
+
+You may also add scenes up front as part of your [[Engine]] construction. In the `scenes:` map you can specify a Scene constructor, a Scene instance, or a Scene Custom Configuration.
+
+* Scene Constructors may extend `export class StartScreen extends ex.Scene`
+* Scene Custom Configurations, like the one named `sceneWithCustomTransitionAndLoader:` can also take a scene constructor or an instances
+
+One advantage of using Scene constructors is Excalibur will only construct your Scene when needed to present. This can save a lot of memory on the bigger games.
+
+```typescript
+const game = new Engine({
+  width: 800,
+  height: 600,
+  scenes: {
+    startScreen: StartScreen,
+    levelSelect: LevelSelect,
+    tutorial: Tutorial,
+    introLevel: new Level(Config.startingPuzzle),
+    endScreen: EndScreen,
+    sceneWithCustomTransitionAndLoader: {
+      scene: scene2,
+      loader: MyLoader,
+      transitions: {
+        out: new ex.FadeInOut({ duration: 500, direction: 'out' }),
+        in: new ex.CrossFade({ duration: 2500, direction: 'in', blockInput: true })
+      }
+    },
+  },
+});
+```
+
+
 
 ### Initialization
 

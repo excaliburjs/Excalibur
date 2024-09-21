@@ -50,7 +50,7 @@ export interface CollisionProcessor {
   /**
    * Detect potential collision pairs given a list of colliders
    */
-  broadphase(targets: Collider[], delta: number, stats?: FrameStats): Pair[];
+  broadphase(targets: Collider[], elapsedMs: number, stats?: FrameStats): Pair[];
 
   /**
    * Identify actual collisions from those pairs, and calculate collision impulse
@@ -60,10 +60,10 @@ export interface CollisionProcessor {
   /**
    * Update the internal structures to track colliders
    */
-  update(targets: Collider[], delta: number): number;
+  update(targets: Collider[], elapsedMs: number): number;
 
   /**
    * Draw any debug information
    */
-  debug(ex: ExcaliburGraphicsContext, delta: number): void;
+  debug(ex: ExcaliburGraphicsContext, elapsedMs: number): void;
 }

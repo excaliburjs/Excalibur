@@ -23,13 +23,13 @@ export class Repeat implements Action {
     this._repeat--; // current execution is the first repeat
   }
 
-  public update(delta: number): void {
+  public update(elapsedMs: number): void {
     if (this._actionQueue.isComplete()) {
       this._actionQueue.clearActions();
       this._repeatBuilder(this._repeatContext);
       this._repeat--;
     }
-    this._actionQueue.update(delta);
+    this._actionQueue.update(elapsedMs);
   }
 
   public isComplete(): boolean {

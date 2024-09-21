@@ -28,7 +28,7 @@ export class ScaleBy implements Action {
     this._speedX = this._speedY = speed;
   }
 
-  public update(_delta: number): void {
+  public update(elapsedMs: number): void {
     if (!this._started) {
       this._started = true;
       this._startScale = this._tx.scale.clone();

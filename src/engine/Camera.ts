@@ -29,9 +29,9 @@ export interface CameraStrategy<T> {
    * @param target The target object to apply this camera strategy (if any)
    * @param camera The current camera implementation in excalibur running the game
    * @param engine The current engine running the game
-   * @param delta The elapsed time in milliseconds since the last frame
+   * @param elapsedMs The elapsed time in milliseconds since the last frame
    */
-  action: (target: T, camera: Camera, engine: Engine, delta: number) => Vector;
+  action: (target: T, camera: Camera, engine: Engine, elapsedMs: number) => Vector;
 }
 
 /**
@@ -102,7 +102,7 @@ export enum Axis {
  */
 export class LockCameraToActorStrategy implements CameraStrategy<Actor> {
   constructor(public target: Actor) {}
-  public action = (target: Actor, camera: Camera, engine: Engine, delta: number) => {
+  public action = (target: Actor, camera: Camera, engine: Engine, elapsedMs: number) => {
     const center = target.center;
     return center;
   };
@@ -116,7 +116,7 @@ export class LockCameraToActorAxisStrategy implements CameraStrategy<Actor> {
     public target: Actor,
     public axis: Axis
   ) {}
-  public action = (target: Actor, cam: Camera, _eng: Engine, _delta: number) => {
+  public action = (target: Actor, cam: Camera, _eng: Engine, elapsedMs: number) => {
     const center = target.center;
     const currentFocus = cam.getFocus();
     if (this.axis === Axis.X) {
@@ -144,7 +144,7 @@ export class ElasticToActorStrategy implements CameraStrategy<Actor> {
     public cameraElasticity: number,
     public cameraFriction: number
   ) {}
-  public action = (target: Actor, cam: Camera, _eng: Engine, _delta: number) => {
+  public action = (target: Actor, cam: Camera, _eng: Engine, elapsedMs: number) => {
     const position = target.center;
     let focus = cam.getFocus();
     let cameraVel = cam.vel.clone();
@@ -178,7 +178,7 @@ export class RadiusAroundActorStrategy implements CameraStrategy<Actor> {
     public target: Actor,
     public radius: number
   ) {}
-  public action = (target: Actor, cam: Camera, _eng: Engine, _delta: number) => {
+  public action = (target: Actor, cam: Camera, _eng: Engine, elapsedMs: number) => {
     const position = target.center;
     const focus = cam.getFocus();
 
@@ -211,7 +211,7 @@ export class LimitCameraBoundsStrategy implements CameraStrategy<BoundingBox> {
 
   constructor(public target: BoundingBox) {}
 
-  public action = (target: BoundingBox, cam: Camera, _eng: Engine, _delta: number) => {
+  public action = (target: BoundingBox, cam: Camera, _eng: Engine, elapsedMs: number) => {
     const focus = cam.getFocus();
 
     if (!this.boundSizeChecked) {
@@ -574,9 +574,9 @@ export class Camera implements CanUpdate, CanInitialize {
    * Internal _preupdate handler for {@apilink onPreUpdate} lifecycle event
    * @internal
    */
-  public _preupdate(engine: Engine, delta: number): void {
-    this.events.emit('preupdate', new PreUpdateEvent(engine, delta, this));
-    this.onPreUpdate(engine, delta);
+  public _preupdate(engine: Engine, elapsedMs: number): void {
+    this.events.emit('preupdate', new PreUpdateEvent(engine, elapsedMs, this));
+    this.onPreUpdate(engine, elapsedMs);
   }
 
   /**
@@ -584,7 +584,7 @@ export class Camera implements CanUpdate, CanInitialize {
    *
    * `onPreUpdate` is called directly before a scene is updated.
    */
-  public onPreUpdate(engine: Engine, delta: number): void {
+  public onPreUpdate(engine: Engine, elapsedMs: number): void {
     // Overridable
   }
 
@@ -594,9 +594,9 @@ export class Camera implements CanUpdate, CanInitialize {
    * Internal _preupdate handler for {@apilink onPostUpdate} lifecycle event
    * @internal
    */
-  public _postupdate(engine: Engine, delta: number): void {
-    this.events.emit('postupdate', new PostUpdateEvent(engine, delta, this));
-    this.onPostUpdate(engine, delta);
+  public _postupdate(engine: Engine, elapsedMs: number): void {
+    this.events.emit('postupdate', new PostUpdateEvent(engine, elapsedMs, this));
+    this.onPostUpdate(engine, elapsedMs);
   }
 
   /**
@@ -604,7 +604,7 @@ export class Camera implements CanUpdate, CanInitialize {
    *
    * `onPostUpdate` is called directly after a scene is updated.
    */
-  public onPostUpdate(engine: Engine, delta: number): void {
+  public onPostUpdate(engine: Engine, elapsedMs: number): void {
     // Overridable
   }
 
@@ -694,9 +694,9 @@ export class Camera implements CanUpdate, CanInitialize {
     this.events.off(eventName, handler);
   }
 
-  public runStrategies(engine: Engine, delta: number) {
+  public runStrategies(engine: Engine, elapsedMs: number) {
     for (const s of this._cameraStrategies) {
-      this.pos = s.action.call(s, s.target, this, engine, delta);
+      this.pos = s.action.call(s, s.target, this, engine, elapsedMs);
     }
   }
 
@@ -710,19 +710,19 @@ export class Camera implements CanUpdate, CanInitialize {
     );
   }
 
-  public update(engine: Engine, delta: number) {
+  public update(engine: Engine, elapsedMs: number) {
     this._initialize(engine);
-    this._preupdate(engine, delta);
+    this._preupdate(engine, elapsedMs);
     this.pos.clone(this._oldPos);
 
     // Update placements based on linear algebra
-    this.pos = this.pos.add(this.vel.scale(delta / 1000));
-    this.zoom += (this.dz * delta) / 1000;
+    this.pos = this.pos.add(this.vel.scale(elapsedMs / 1000));
+    this.zoom += (this.dz * elapsedMs) / 1000;
 
-    this.vel = this.vel.add(this.acc.scale(delta / 1000));
-    this.dz += (this.az * delta) / 1000;
+    this.vel = this.vel.add(this.acc.scale(elapsedMs / 1000));
+    this.dz += (this.az * elapsedMs) / 1000;
 
-    this.rotation += (this.angularVelocity * delta) / 1000;
+    this.rotation += (this.angularVelocity * elapsedMs) / 1000;
 
     if (this._isZooming) {
       if (this._currentZoomTime < this._zoomDuration) {
@@ -730,7 +730,7 @@ export class Camera implements CanUpdate, CanInitialize {
         const newZoom = zoomEasing(this._currentZoomTime, this._zoomStart, this._zoomEnd, this._zoomDuration);
 
         this.zoom = newZoom;
-        this._currentZoomTime += delta;
+        this._currentZoomTime += elapsedMs;
       } else {
         this._isZooming = false;
         this.zoom = this._zoomEnd;
@@ -747,7 +747,7 @@ export class Camera implements CanUpdate, CanInitialize {
 
         this.pos = lerpPoint;
 
-        this._currentLerpTime += delta;
+        this._currentLerpTime += elapsedMs;
       } else {
         this.pos = this._lerpEnd;
         const end = this._lerpEnd.clone();
@@ -770,12 +770,12 @@ export class Camera implements CanUpdate, CanInitialize {
       this._xShake = 0;
       this._yShake = 0;
     } else {
-      this._elapsedShakeTime += delta;
+      this._elapsedShakeTime += elapsedMs;
       this._xShake = ((Math.random() * this._shakeMagnitudeX) | 0) + 1;
       this._yShake = ((Math.random() * this._shakeMagnitudeY) | 0) + 1;
     }
 
-    this.runStrategies(engine, delta);
+    this.runStrategies(engine, elapsedMs);
 
     this.updateViewport();
 
@@ -783,7 +783,7 @@ export class Camera implements CanUpdate, CanInitialize {
     // This prevents jitter
     this.updateTransform(this.pos);
 
-    this._postupdate(engine, delta);
+    this._postupdate(engine, elapsedMs);
   }
 
   private _snapPos = vec(0, 0);

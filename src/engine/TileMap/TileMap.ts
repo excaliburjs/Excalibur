@@ -255,7 +255,7 @@ export class TileMap extends Entity {
     );
     this.addComponent(
       new GraphicsComponent({
-        onPostDraw: (ctx, delta) => this.draw(ctx, delta)
+        onPostDraw: (ctx, elapsedMs) => this.draw(ctx, elapsedMs)
       })
     );
     this.addComponent(new DebugGraphicsComponent((ctx, debugFlags) => this.debug(ctx, debugFlags), false));
@@ -545,10 +545,10 @@ export class TileMap extends Entity {
     return tiles;
   }
 
-  public update(engine: Engine, delta: number) {
+  public update(engine: Engine, elapsedMs: number) {
     this._initialize(engine);
-    this.onPreUpdate(engine, delta);
-    this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
+    this.onPreUpdate(engine, elapsedMs);
+    this.emit('preupdate', new PreUpdateEvent(engine, elapsedMs, this));
     if (!this._oldPos.equals(this.pos) || this._oldRotation !== this.rotation || !this._oldScale.equals(this.scale)) {
       this.flagCollidersDirty();
       this.flagTilesDirty();
@@ -564,20 +564,20 @@ export class TileMap extends Entity {
     this._oldRotation = this.rotation;
     this.scale.clone(this._oldScale);
     this.transform.pos = this.pos;
-    this.onPostUpdate(engine, delta);
-    this.emit('postupdate', new PostUpdateEvent(engine, delta, this));
+    this.onPostUpdate(engine, elapsedMs);
+    this.emit('postupdate', new PostUpdateEvent(engine, elapsedMs, this));
   }
 
   /**
    * Draws the tile map to the screen. Called by the {@apilink Scene}.
    * @param ctx ExcaliburGraphicsContext
-   * @param delta  The number of milliseconds since the last draw
+   * @param elapsedMs  The number of milliseconds since the last draw
    */
-  public draw(ctx: ExcaliburGraphicsContext, delta: number): void {
+  public draw(ctx: ExcaliburGraphicsContext, elapsedMs: number): void {
     if (!this.isInitialized) {
       return;
     }
-    this.emit('predraw', new PreDrawEvent(ctx as any, delta, this)); // TODO fix event
+    this.emit('predraw', new PreDrawEvent(ctx as any, elapsedMs, this)); // TODO fix event
 
     let graphics: readonly Graphic[], graphicsIndex: number, graphicsLen: number;
 
@@ -594,14 +594,14 @@ export class TileMap extends Entity {
         const offset = offsets[graphicsIndex];
         if (graphic) {
           if (hasGraphicsTick(graphic)) {
-            graphic?.tick(delta, this._token);
+            graphic?.tick(elapsedMs, this._token);
           }
           const offsetY = this.renderFromTopOfGraphic ? 0 : graphic.height - this.tileHeight;
           graphic.draw(ctx, tile.x * this.tileWidth + offset.x, tile.y * this.tileHeight - offsetY + offset.y);
         }
       }
     }
-    this.emit('postdraw', new PostDrawEvent(ctx as any, delta, this));
+    this.emit('postdraw', new PostDrawEvent(ctx as any, elapsedMs, this));
   }
 
   public debug(gfx: ExcaliburGraphicsContext, debugFlags: DebugConfig) {

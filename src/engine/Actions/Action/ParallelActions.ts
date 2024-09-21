@@ -12,9 +12,9 @@ export class ParallelActions implements Action {
     this._actions = parallelActions;
   }
 
-  update(delta: number): void {
+  update(elapsedMs: number): void {
     for (let i = 0; i < this._actions.length; i++) {
-      this._actions[i].update(delta);
+      this._actions[i].update(elapsedMs);
     }
   }
   isComplete(entity: Entity): boolean {

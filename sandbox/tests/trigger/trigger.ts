@@ -17,12 +17,18 @@ var trigger = new ex.Trigger({
 });
 
 trigger.on('collisionstart', (evt: ex.EnterTriggerEvent) => {
-  evt.actor.color = ex.Color.Green;
+  if (evt.entity instanceof ex.Actor) {
+    evt.entity.color = ex.Color.Green;
+  }
+
   console.log(evt);
 });
 
 trigger.on('collisionend', (evt: ex.ExitTriggerEvent) => {
-  evt.actor.color = ex.Color.Red;
+  if (evt.entity instanceof ex.Actor) {
+    evt.entity.color = ex.Color.Red;
+  }
+
   console.log(evt);
 });
 

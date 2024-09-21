@@ -8,7 +8,7 @@ export class CallMethod implements Action {
     this._method = method;
   }
 
-  public update(_delta: number) {
+  public update(elapsedMs: number) {
     this._method();
     this._hasBeenCalled = true;
   }

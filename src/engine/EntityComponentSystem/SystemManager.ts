@@ -47,7 +47,7 @@ export class SystemManager {
     }
 
     this.systems.push(system);
-    this.systems.sort((a, b) => a.priority - b.priority);
+    this.systems.sort((a, b) => (a.constructor as typeof System).priority - (b.constructor as typeof System).priority);
     // If systems are added and the manager has already been init'd
     // then immediately init the system
     if (this.initialized && system.initialize) {
@@ -83,23 +83,23 @@ export class SystemManager {
    * Updates all systems
    * @param type whether this is an update or draw system
    * @param scene context reference
-   * @param delta time in milliseconds
+   * @param elapsedMs time in milliseconds
    */
-  public updateSystems(type: SystemType, scene: Scene, delta: number) {
+  public updateSystems(type: SystemType, scene: Scene, elapsedMs: number) {
     const systems = this.systems.filter((s) => s.systemType === type);
     for (const s of systems) {
       if (s.preupdate) {
-        s.preupdate(scene, delta);
+        s.preupdate(scene, elapsedMs);
       }
     }
 
     for (const s of systems) {
-      s.update(delta);
+      s.update(elapsedMs);
     }
 
     for (const s of systems) {
       if (s.postupdate) {
-        s.postupdate(scene, delta);
+        s.postupdate(scene, elapsedMs);
       }
     }
   }

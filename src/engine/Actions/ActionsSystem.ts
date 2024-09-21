@@ -3,8 +3,9 @@ import { System, SystemType } from '../EntityComponentSystem/System';
 import { ActionsComponent } from './ActionsComponent';
 
 export class ActionsSystem extends System {
+  static priority = SystemPriority.Higher;
+
   systemType = SystemType.Update;
-  priority = SystemPriority.Higher;
   private _actions: ActionsComponent[] = [];
   query: Query<typeof ActionsComponent>;
 
@@ -21,10 +22,10 @@ export class ActionsSystem extends System {
       }
     });
   }
-  update(delta: number): void {
+  update(elapsedMs: number): void {
     for (let i = 0; i < this._actions.length; i++) {
       const action = this._actions[i];
-      action.update(delta);
+      action.update(elapsedMs);
     }
   }
 }

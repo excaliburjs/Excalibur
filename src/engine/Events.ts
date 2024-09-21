@@ -9,7 +9,7 @@ import { Side } from './Collision/Side';
 import { CollisionContact } from './Collision/Detection/CollisionContact';
 import { Collider } from './Collision/Colliders/Collider';
 import { Entity } from './EntityComponentSystem/Entity';
-import { OnInitialize, OnPreUpdate, OnPostUpdate, SceneActivationContext } from './Interfaces/LifecycleEvents';
+import { OnInitialize, OnPreUpdate, OnPostUpdate, SceneActivationContext, OnAdd, OnRemove } from './Interfaces/LifecycleEvents';
 import { BodyComponent } from './Collision/BodyComponent';
 import { ExcaliburGraphicsContext } from './Graphics';
 import { Axes, Buttons, Gamepad } from './Input/Gamepad';
@@ -84,7 +84,10 @@ export enum EventTypes {
   PointerDragMove = 'pointerdragmove',
 
   ActionStart = 'actionstart',
-  ActionComplete = 'actioncomplete'
+  ActionComplete = 'actioncomplete',
+
+  Add = 'add',
+  Remove = 'remove'
 }
 
 /* istanbul ignore next */
@@ -158,6 +161,9 @@ export type pointerdragend = 'pointerdragend';
 export type pointerdragenter = 'pointerdragenter';
 export type pointerdragleave = 'pointerdragleave';
 export type pointerdragmove = 'pointerdragmove';
+
+export type add = 'add';
+export type remove = 'remove';
 
 /**
  * Base event type in Excalibur that all other event types derive from. Not all event types are thrown on all Excalibur game objects,
@@ -249,7 +255,7 @@ export class GameStopEvent extends GameEvent<Engine> {
 export class PreDrawEvent extends GameEvent<Entity | Scene | Engine | TileMap> {
   constructor(
     public ctx: ExcaliburGraphicsContext,
-    public delta: number,
+    public elapsedMs: number,
     public target: Entity | Scene | Engine | TileMap
   ) {
     super();
@@ -264,7 +270,7 @@ export class PreDrawEvent extends GameEvent<Entity | Scene | Engine | TileMap> {
 export class PostDrawEvent extends GameEvent<Entity | Scene | Engine | TileMap> {
   constructor(
     public ctx: ExcaliburGraphicsContext,
-    public delta: number,
+    public elapsedMs: number,
     public target: Entity | Scene | Engine | TileMap
   ) {
     super();
@@ -280,7 +286,7 @@ export class PostDrawEvent extends GameEvent<Entity | Scene | Engine | TileMap> 
 export class PreTransformDrawEvent extends GameEvent<Entity> {
   constructor(
     public ctx: ExcaliburGraphicsContext,
-    public delta: number,
+    public elapsedMs: number,
     public target: Entity
   ) {
     super();
@@ -295,7 +301,7 @@ export class PreTransformDrawEvent extends GameEvent<Entity> {
 export class PostTransformDrawEvent extends GameEvent<Entity> {
   constructor(
     public ctx: ExcaliburGraphicsContext,
-    public delta: number,
+    public elapsedMs: number,
     public target: Entity
   ) {
     super();
@@ -332,7 +338,7 @@ export class PostDebugDrawEvent extends GameEvent<Entity | Actor | Scene | Engin
 export class PreUpdateEvent<T extends OnPreUpdate = Entity> extends GameEvent<T> {
   constructor(
     public engine: Engine,
-    public delta: number,
+    public elapsedMs: number,
     public target: T
   ) {
     super();
@@ -345,7 +351,7 @@ export class PreUpdateEvent<T extends OnPreUpdate = Entity> extends GameEvent<T>
 export class PostUpdateEvent<T extends OnPostUpdate = Entity> extends GameEvent<T> {
   constructor(
     public engine: Engine,
-    public delta: number,
+    public elapsedMs: number,
     public target: T
   ) {
     super();
@@ -665,19 +671,19 @@ export class EnterViewPortEvent extends GameEvent<Entity> {
   }
 }
 
-export class EnterTriggerEvent extends GameEvent<Actor> {
+export class EnterTriggerEvent extends GameEvent<Trigger> {
   constructor(
     public target: Trigger,
-    public actor: Actor
+    public entity: Entity
   ) {
     super();
   }
 }
 
-export class ExitTriggerEvent extends GameEvent<Actor> {
+export class ExitTriggerEvent extends GameEvent<Trigger> {
   constructor(
     public target: Trigger,
-    public actor: Actor
+    public entity: Entity
   ) {
     super();
   }
@@ -702,6 +708,30 @@ export class ActionCompleteEvent extends GameEvent<Entity> {
   constructor(
     public action: Action,
     public target: Entity
+  ) {
+    super();
+  }
+}
+
+/**
+ * Event thrown on an [[Actor]] when an Actor added to scene.
+ */
+export class AddEvent<T extends OnAdd> extends GameEvent<T> {
+  constructor(
+    public engine: Engine,
+    public target: T
+  ) {
+    super();
+  }
+}
+
+/**
+ * Event thrown on an [[Actor]] when an Actor removed from scene.
+ */
+export class RemoveEvent<T extends OnRemove> extends GameEvent<T> {
+  constructor(
+    public engine: Engine,
+    public target: T
   ) {
     super();
   }

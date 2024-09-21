@@ -6,12 +6,16 @@ section: Physics
 
 import PhysicsExample from '!!raw-loader!./examples/physics.ts';
 
-Excalibur comes built in with two physics simulations.
+Excalibur comes built in with two physics simulations. 
 
 - "Arcade" style physics which is good for basic collision detection for non-rotated rectangular areas.
   - Example: platformers, tile based games, top down, etc
 - "Realistic" style physics which is good for rigid body games where realistic collisions are desired
   - Example: block stacking, angry bird's style games, etc
+
+**Limitations**
+
+> **_Note:_**  The `SolverStrategy.Arcade` does not support `body.friction`.
 
 ## Arcade
 
