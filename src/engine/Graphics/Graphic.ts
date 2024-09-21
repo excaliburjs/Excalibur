@@ -247,12 +247,6 @@ export abstract class Graphic {
   protected abstract _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number): void;
 
   /**
-   * Returns the underlying image representation of the graphic and parameters to slice it for drawing
-   * @param options
-   */
-  // public abstract getImageWithCoordinates(options?: GraphicImageWithCoordinatesOptions): GraphicImageWithCoordinates;
-
-  /**
    * Apply affine transformations to the graphics context to manipulate the graphic before {@apilink Graphic._drawImage}
    * @param ex
    * @param x

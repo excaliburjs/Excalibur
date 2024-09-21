@@ -172,22 +172,4 @@ export class Font extends Graphic implements FontRenderer {
 
     this._postDraw(ex);
   }
-
-  // public getImageWithCoordinates(options?: GraphicImageWithCoordinatesOptions): GraphicImageWithCoordinates {
-  //   // TODO this doesn't handle font fragments
-  //   if (options && options.data && options.data.text && options.data.colorOverride) {
-  //     const text: string = options.data.text;
-  //     const colorOverride: Color = options.data.colorOverride;
-  //     if (typeof text === 'string' && colorOverride instanceof Color) {
-  //       const textInstance = FontCache.getTextInstance(text, this, colorOverride);
-  //       return {
-  //         image: textInstance.canvas,
-  //         sx: options?.x ?? 0,
-  //         sy: options?.y ?? 0,
-  //       }
-  //     }
-  //   }
-
-  //   throw Error('Invalid Font.getImageWithCoordinates() call, options.data.text and options.data.color are required');
-  // }
 }

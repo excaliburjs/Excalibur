@@ -141,8 +141,4 @@ export class Text extends Graphic {
       }
     }
   }
-
-  // protected override getImageWithCoordinates(options?: GraphicImageWithCoordinatesOptions): GraphicImageWithCoordinates {
-  //   return this.font.getImageWithCoordinates(options);
-  // }
 }

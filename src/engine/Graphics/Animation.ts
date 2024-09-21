@@ -516,14 +516,4 @@ export class Animation extends Graphic implements HasTick {
       this.currentFrame.graphic.draw(ctx, x, y);
     }
   }
-
-  // getImageWithCoordinates(
-  //   x: number,
-  //   y: number
-  // ): { image: HTMLImageElement; sx: number; sy: number; sw?: number; sh?: number; dx?: number; dy?: number; dw?: number; dh?: number } {
-  //   if (this.currentFrame && this.currentFrame.graphic) {
-  //     this.currentFrame.graphic.getImageWithCoordinates(x, y);
-  //   }
-  //   throw new Error('WUT!');
-  // }
 }

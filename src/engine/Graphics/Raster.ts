@@ -291,13 +291,6 @@ export abstract class Raster extends Graphic {
     ex.scale(1 / this.quality, 1 / this.quality);
     ex.drawImage(this._bitmap, x, y);
   }
-  public getImageWithCoordinates(options?: GraphicImageWithCoordinatesOptions): GraphicImageWithCoordinates {
-    return {
-      image: this._bitmap,
-      sx: options?.x ?? 0,
-      sy: options?.y ?? 0
-    };
-  }
 
   /**
    * Executes drawing implementation of the graphic, this is where the specific drawing code for the graphic
