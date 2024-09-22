@@ -151,6 +151,17 @@ export class ImageSource implements Loadable<HTMLImageElement> {
     return imageSource;
   }
 
+  static fromCanvasElement(canvas: HTMLCanvasElement) {
+    return this;
+  }
+
+  /**
+   * Flag the image source dirty and tells excalibur to re-upload it to the gpu in the next draw
+   */
+  public flagDirty() {
+    this.data.setAttribute('forceUpload', 'true');
+  }
+
   /**
    * Should excalibur add a cache busting querystring? By default false.
    * Must be set before loading

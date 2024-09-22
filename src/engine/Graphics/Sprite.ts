@@ -1,5 +1,5 @@
 import { Graphic, GraphicOptions } from './Graphic';
-import { ImageSource } from './ImageSource';
+import { ImageSource, ImageWrapConfiguration } from './ImageSource';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { Logger } from '../Util/Log';
 
@@ -111,6 +111,40 @@ export class Sprite extends Graphic {
           `Read https://excaliburjs.com/docs/imagesource for more information.`
       );
     }
+  }
+
+  toWrappedSprite(options: ImageWrapConfiguration): Sprite {
+    // TODO generate a new backing image with the right image wrapping
+    // should be the width/height of the source view
+    const newImage = new ImageSource('', { wrapping: { ...options } });
+    this.image.ready.then(() => {
+      const bitmap = document.createElement('canvas')!;
+      bitmap.width = this.destSize.width;
+      bitmap.height = this.destSize.height;
+      const ctx = bitmap.getContext('2d')!;
+
+      ctx.drawImage(
+        this.image.data,
+        this.sourceView.x,
+        this.sourceView.y,
+        this.sourceView.width,
+        this.sourceView.height,
+        0,
+        0,
+        bitmap.width,
+        bitmap.height
+      );
+
+      newImage.data.src = bitmap.toDataURL();
+
+      newImage.flagDirty();
+    });
+
+    return new Sprite({
+      image: newImage,
+      width: this.sourceView.width,
+      height: this.sourceView.height
+    });
   }
 
   public clone(): Sprite {
