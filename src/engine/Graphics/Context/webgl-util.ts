@@ -171,7 +171,7 @@ export function getMaxShaderComplexity(gl: WebGL2RenderingContext, numIfs: numbe
 
     canCompile = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
     if (!canCompile) {
-      numIfs = numIfs / 2;
+      numIfs = (numIfs / 2) | 0;
     }
   } while (!canCompile);
   return numIfs;
