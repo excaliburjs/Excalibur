@@ -107,7 +107,7 @@
     "eslint-plugin-jsdoc": "48.11.0",
     "eslint-plugin-storybook": "0.8.0",
     "excalibur-jasmine": "0.3.4",
-    "husky": "9.1.5",
+    "husky": "9.1.6",
     "istanbul": "0.4.5",
     "istanbul-instrumenter-loader": "3.0.1",
     "jasmine": "5.2.0",
