@@ -40,15 +40,15 @@ type PlayerEvents = {
   healthdepleted: PlayerHealthDepletedEvent;
 }
 
-export const PlayerEvents = {
-  Healthdepleted: 'healthdepleted'
-} as const;
-
 export class PlayerHealthDepletedEvent extends ex.GameEvent<Player> {
   constructor(public target: Player) {
     super();
   }
 }
+
+export const PlayerEvents = {
+  Healthdepleted: 'healthdepleted'
+} as const;
 
 export class Player extends ex.Actor {
   public events = new ex.EventEmitter<ex.ActorEvents & PlayerEvents>();
@@ -62,11 +62,15 @@ export class Player extends ex.Actor {
 }
 ```
 
-- The `type` declaration holds the mapping of event name to event class.
-- A `class` representing the custom event which can extend [[Events.GameEvent|GameEvent]]
-- A `const` declaration to provide a public way to pass the event name without using strings _(optional)_
+There are three main parts to this example:
 
+1. The `type` declaration holds the mapping of event name to event class.
+1. A `class` representing the custom event which can extend [[Events.GameEvent|GameEvent]]
+1. A `const` declaration to provide a public way to pass the event name without using strings _(optional)_
+
+:::tip
 The third is optional but recommended to avoid "magic strings" especially for events used all over your codebase.
+:::
 
 Finally, you can expose an [[EventEmitter]] on your entity for other entities to subscribe/publish to. In this case, [[Actor.events]] is already provided by Excalibur, so you need to intersect your custom events with the existing events.
 
@@ -161,3 +165,7 @@ export class Player extends ex.Actor {
   }
 }
 ```
+
+:::note
+This example is intentionally only showing the `emit` method, but you can override all the methods in the same way.
+:::
