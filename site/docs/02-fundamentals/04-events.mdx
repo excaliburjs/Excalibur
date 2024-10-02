@@ -30,15 +30,8 @@ Excalibur also allows you to listen/send any event you want to as well, but you'
 
 ### Example: Health Depletion
 
-Here is an example of emitting a custom `healthdepleted` event that is strongly-typed. There are two main pieces of code to declare:
+Here is an example of emitting a custom `healthdepleted` event that is strongly-typed:
 
-- A `type` to hold the mapping of event name to event class
-- A `class` representing the custom event which can extend [[GameEvent]]
-- A `const` declaration to provide a public way to pass the event name without using strings _(optional)_
-
-The third is optional but recommended to avoid "magic strings" especially for events used all over your codebase.
-
-Finally, you can expose an [[EventEmitter]] on your entity for other entities to subscribe/publish to.
 
 ```ts twoslash
 // @include: ex
@@ -69,10 +62,19 @@ export class Player extends ex.Actor {
 }
 ```
 
+- The `type` declaration holds the mapping of event name to event class.
+- A `class` representing the custom event which can extend [[Events.GameEvent|GameEvent]]
+- A `const` declaration to provide a public way to pass the event name without using strings _(optional)_
+
+The third is optional but recommended to avoid "magic strings" especially for events used all over your codebase.
+
+Finally, you can expose an [[EventEmitter]] on your entity for other entities to subscribe/publish to. In this case, [[Actor.events]] is already provided by Excalibur, so you need to intersect your custom events with the existing events.
+
 If the provided event name doesn't match your custom event name, a compiler error is thrown:
 
 ```ts twoslash
 // @include: ex
+// @errors: 2345
 type PlayerEvents = {
   healthdepleted: PlayerHealthDepletedEvent;
 }
@@ -88,8 +90,16 @@ export class PlayerHealthDepletedEvent extends ex.GameEvent<Player> {
 }
 
 // ---cut---
+type StrictEventKey<TEventMap> = keyof TEventMap;
+class StrictEventEmitter<TEventMap extends ex.EventMap> extends ex.EventEmitter<TEventMap> {
+  emit<TEventName extends StrictEventKey<TEventMap>>(eventName: TEventName, event: TEventMap[TEventName]): void;
+  emit<TEventName extends StrictEventKey<TEventMap> | string>(eventName: TEventName, event?: TEventMap[TEventName]): void {
+    super.emit(eventName as any, event as any);
+  }
+}
+
 export class Player extends ex.Actor {
-  public events = new ex.EventEmitter<ex.ActorEvents & PlayerEvents>();
+  public events = new StrictEventEmitter<ex.ActorEvents & PlayerEvents>();
   private health: number = 100;
 
   public onPostUpdate() {
