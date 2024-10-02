@@ -17,23 +17,84 @@ Excalibur events are handled synchronously, which is great for debugging and red
 
 :::
 
-## Strongly Typed Events
+## Strongly-typed Events
 
-Excalibur has types on all it's event listeners, you can check these types with intellisense in vscode or by following the typescript definition.
+Excalibur has types on all it's event listeners, you can check these types with Intellisense in VS Code or by following the Typescript definition.
 
 ![event auto complete](events.png)
 
-Excalibur also allows you to listen/send any event you want to as well, but you'll need to provide your own types for that.
+## Pub/Sub or Signal-based Event Bus
 
-```typescript
+Excalibur also allows you to listen/send any event you want to as well, but you'll need to provide your own types for that. At its core, the [[EventEmitter]] is a pub/sub mechanism (also called "Signals" in other engines), which means you can create an emitter as a way to pass messages between entities, components, or systems. This is how much of Excalibur works internally.
 
-interface MyEvents {
-  coolevent: MyCoolEvent;
-  forsure: ForSureEvent;
+### Example: Health Depletion
+
+Here is an example of emitting a custom `healthdepleted` event that is strongly-typed. There are two main pieces of code to declare:
+
+- A `type` to hold the mapping of event name to event class
+- A `class` representing the custom event which can extend [[GameEvent]]
+- A `const` declaration to provide a public way to pass the event name without using strings _(optional)_
+
+The third is optional but recommended to avoid "magic strings" especially for events used all over your codebase.
+
+Finally, you can expose an [[EventEmitter]] on your entity for other entities to subscribe/publish to.
+
+```ts twoslash
+// @include: ex
+// ---cut---
+type PlayerEvents = {
+  healthdepleted: PlayerHealthDepletedEvent;
 }
 
-class MyActor extends Actor {
-  public events = new EventEmitter<ActorEvents & MyEvents>();
+export const PlayerEvents = {
+  Healthdepleted: 'healthdepleted'
+} as const;
+
+export class PlayerHealthDepletedEvent extends ex.GameEvent<Player> {
+  constructor(target: Player) {
+    super(target);
+  }
 }
 
+export class Player extends ex.Actor {
+  public events = new EventEmitter<ex.ActorEvents & PlayerEvents>();
+  private health: number = 100;
+
+  public onPostUpdate() {
+    if (this.health <= 0) {
+      this.events.emit(PlayerEvents.Healthdepleted, new PlayerHealthDepletedEvent(this));
+  }
+}
+```
+
+If the provided event name doesn't match your custom event name, a compiler error is thrown:
+
+```ts twoslash
+// @include: ex
+
+type PlayerEvents = {
+  healthdepleted: PlayerHealthDepletedEvent;
+}
+
+export const PlayerEvents = {
+  Healthdepleted: 'healthdepleted'
+} as const;
+
+export class PlayerHealthDepletedEvent extends ex.GameEvent<Player> {
+  constructor(target: Player) {
+    super(target);
+  }
+}
+
+// ---cut---
+export class Player extends ex.Actor {
+  public events = new EventEmitter<ex.ActorEvents & PlayerEvents>();
+  private health: number = 100;
+
+  public onPostUpdate() {
+    if (this.health <= 0) {
+      // There is a typo in the event name
+      this.events.emit("healthdpleted", new PlayerHealthDepletedEvent());
+  }
+}
 ```
