@@ -5,8 +5,9 @@ section: Fundamentals
 ---
 
 ```twoslash include ex
+// @module: esnext
+// @allowUmdGlobalAccess
 /// <reference path="../src/engine/excalibur.d.ts" />
-declare const engine: ex.Engine;
 ```
 
 Nearly everything in Excalibur has a way to listen to events! This is useful when you want to know exactly when things happen in Excalibur and respond to them with game logic. [[Actor|Actors]], [[Scene|Scenes]], [[Engine|Engines]], [[ActionsComponent|Actions]], [[Animation|Animations]], and various components have events you can hook into just look for the `.events` member!
@@ -51,18 +52,19 @@ export const PlayerEvents = {
 } as const;
 
 export class PlayerHealthDepletedEvent extends ex.GameEvent<Player> {
-  constructor(target: Player) {
-    super(target);
+  constructor(public target: Player) {
+    super();
   }
 }
 
 export class Player extends ex.Actor {
-  public events = new EventEmitter<ex.ActorEvents & PlayerEvents>();
+  public events = new ex.EventEmitter<ex.ActorEvents & PlayerEvents>();
   private health: number = 100;
 
   public onPostUpdate() {
     if (this.health <= 0) {
       this.events.emit(PlayerEvents.Healthdepleted, new PlayerHealthDepletedEvent(this));
+    }
   }
 }
 ```
@@ -71,7 +73,6 @@ If the provided event name doesn't match your custom event name, a compiler erro
 
 ```ts twoslash
 // @include: ex
-
 type PlayerEvents = {
   healthdepleted: PlayerHealthDepletedEvent;
 }
@@ -81,20 +82,21 @@ export const PlayerEvents = {
 } as const;
 
 export class PlayerHealthDepletedEvent extends ex.GameEvent<Player> {
-  constructor(target: Player) {
-    super(target);
+  constructor(public target: Player) {
+    super();
   }
 }
 
 // ---cut---
 export class Player extends ex.Actor {
-  public events = new EventEmitter<ex.ActorEvents & PlayerEvents>();
+  public events = new ex.EventEmitter<ex.ActorEvents & PlayerEvents>();
   private health: number = 100;
 
   public onPostUpdate() {
     if (this.health <= 0) {
       // There is a typo in the event name
-      this.events.emit("healthdpleted", new PlayerHealthDepletedEvent());
+      this.events.emit("healthdpleted", new PlayerHealthDepletedEvent(this));
+    }
   }
 }
 ```
