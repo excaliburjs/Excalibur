@@ -229,11 +229,7 @@ export class KeyEvent extends Events.GameEvent<any> {
    * @param value The key's typed value the browser detected
    * @param originalEvent The original keyboard event that Excalibur handled
    */
-  constructor(
-    public key: Keys,
-    public value?: string,
-    public originalEvent?: KeyboardEvent
-  ) {
+  constructor(public key: Keys, public value?: string, public originalEvent?: KeyboardEvent) {
     super();
   }
 }
@@ -417,6 +413,9 @@ export class Keyboard {
    * @param key Test whether a key was just pressed
    */
   public wasPressed(key: Keys): boolean {
+    if (!this._enabled) {
+      return false;
+    }
     return this._keysDown.indexOf(key) > -1;
   }
 
@@ -425,6 +424,9 @@ export class Keyboard {
    * @param key  Test whether a key is held down
    */
   public isHeld(key: Keys): boolean {
+    if (!this._enabled) {
+      return false;
+    }
     return this._keys.indexOf(key) > -1;
   }
 
@@ -433,6 +435,9 @@ export class Keyboard {
    * @param key  Test whether a key was just released
    */
   public wasReleased(key: Keys): boolean {
+    if (!this._enabled) {
+      return false;
+    }
     return this._keysUp.indexOf(key) > -1;
   }
 

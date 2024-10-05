@@ -75,10 +75,7 @@ export class PointerEventReceiver {
 
   private _enabled = true;
 
-  constructor(
-    public readonly target: GlobalEventHandlers & EventTarget,
-    public engine: Engine
-  ) {}
+  constructor(public readonly target: GlobalEventHandlers & EventTarget, public engine: Engine) {}
 
   public toggleEnabled(enabled: boolean) {
     this._enabled = enabled;
@@ -124,6 +121,9 @@ export class PointerEventReceiver {
    * @param pointerId
    */
   public isDown(pointerId: number) {
+    if (!this._enabled) {
+      return false;
+    }
     return this.currentFramePointerDown.get(pointerId) ?? false;
   }
 
@@ -132,6 +132,9 @@ export class PointerEventReceiver {
    * @param pointerId
    */
   public wasDown(pointerId: number) {
+    if (!this._enabled) {
+      return false;
+    }
     return this.lastFramePointerDown.get(pointerId) ?? false;
   }
 
@@ -139,6 +142,9 @@ export class PointerEventReceiver {
    * Whether the Pointer is currently dragging.
    */
   public isDragging(pointerId: number): boolean {
+    if (!this._enabled) {
+      return false;
+    }
     return this.isDown(pointerId);
   }
 
@@ -146,6 +152,9 @@ export class PointerEventReceiver {
    * Whether the Pointer just started dragging.
    */
   public isDragStart(pointerId: number): boolean {
+    if (!this._enabled) {
+      return false;
+    }
     return this.isDown(pointerId) && !this.wasDown(pointerId);
   }
 
@@ -153,6 +162,9 @@ export class PointerEventReceiver {
    * Whether the Pointer just ended dragging.
    */
   public isDragEnd(pointerId: number): boolean {
+    if (!this._enabled) {
+      return false;
+    }
     return !this.isDown(pointerId) && this.wasDown(pointerId);
   }
 
