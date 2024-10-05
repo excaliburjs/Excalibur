@@ -6,20 +6,18 @@ import { Action, nextActionId } from '../Action';
 export class Fade implements Action {
   id = nextActionId();
   private _graphics: GraphicsComponent;
-  public x: number;
-  public y: number;
 
   private _endOpacity: number;
-  private _speed: number;
-  private _originalSpeed: number;
+  private _remainingTime: number;
+  private _originalTime: number;
   private _multiplier: number = 1;
   private _started = false;
   private _stopped = false;
 
-  constructor(entity: Entity, endOpacity: number, speed: number) {
+  constructor(entity: Entity, endOpacity: number, time: number) {
     this._graphics = entity.get(GraphicsComponent);
     this._endOpacity = endOpacity;
-    this._speed = this._originalSpeed = speed;
+    this._remainingTime = this._originalTime = time;
   }
 
   public update(elapsedMs: number): void {
@@ -29,7 +27,7 @@ export class Fade implements Action {
 
     if (!this._started) {
       this._started = true;
-      this._speed = this._originalSpeed;
+      this._remainingTime = this._originalTime;
 
       // determine direction when we start
       if (this._endOpacity < this._graphics.opacity) {
@@ -39,11 +37,12 @@ export class Fade implements Action {
       }
     }
 
-    if (this._speed > 0) {
-      this._graphics.opacity += (this._multiplier * (Math.abs(this._graphics.opacity - this._endOpacity) * elapsedMs)) / this._speed;
+    if (this._remainingTime > 0) {
+      this._graphics.opacity +=
+        (this._multiplier * (Math.abs(this._graphics.opacity - this._endOpacity) * elapsedMs)) / this._remainingTime;
     }
 
-    this._speed -= elapsedMs;
+    this._remainingTime -= elapsedMs;
 
     if (this.isComplete()) {
       this._graphics.opacity = this._endOpacity;
@@ -53,7 +52,7 @@ export class Fade implements Action {
   }
 
   public isComplete(): boolean {
-    return this._stopped || Math.abs(this._graphics.opacity - this._endOpacity) < 0.05;
+    return this._stopped || this._remainingTime <= 0;
   }
 
   public stop(): void {
@@ -63,5 +62,6 @@ export class Fade implements Action {
   public reset(): void {
     this._started = false;
     this._stopped = false;
+    this._remainingTime = this._originalTime;
   }
 }

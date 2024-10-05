@@ -104,6 +104,7 @@ are doing mtv adjustments during precollision.
 
 ### Fixed
 
+- Fixed issue where `ex.Fade` sometimes would not complete depending on the elapsed time
 - Fixed issue where `ex.PolygonColliders` would get trapped in infinite loop for degenerate polygons (< 3 vertices)
 - Fixed issue where certain devices that support large numbers of texture slots exhaust the maximum number of if statements (complexity) in the shader.
 - Fixed issue where `ex.Label` where setting the opacity of caused a multiplicative opacity effect when actor opacity set
