@@ -329,7 +329,7 @@ describe('A Collision', () => {
     engine.add(passiveBlock);
 
     const collisionEnd = function (event: ex.GameEvent<unknown>) {
-      expect(event.target).toBe(activeBlock);
+      expect(event.self).toBe(activeBlock);
       done();
     };
 
@@ -352,7 +352,7 @@ describe('A Collision', () => {
     engine.add(passiveBlock);
 
     const collisionEnd = function (event: ex.GameEvent<unknown>) {
-      expect(event.target).toBe(activeBlock);
+      expect(event.self).toBe(activeBlock);
       done();
     };
 
