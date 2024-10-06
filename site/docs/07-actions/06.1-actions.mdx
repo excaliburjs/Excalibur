@@ -54,7 +54,7 @@ public Ship extends ex.Actor {
       new ex.Vector(75, 80)
     ];
     // spawn at start point
-    this.repeatForever(ctx => {
+    this.actions.repeatForever(ctx => {
       this.x = path[0].x;
       this.y = path[0].y;
       // create action queue
