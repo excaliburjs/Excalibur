@@ -498,14 +498,6 @@ export class PreCollisionEvent<T extends Collider = Collider> extends GameEvent<
     super();
     this.target = self;
   }
-
-  public get actor() {
-    return this.self;
-  }
-
-  public set actor(actor: T) {
-    this.self = actor;
-  }
 }
 
 /**
@@ -527,14 +519,6 @@ export class PostCollisionEvent<T extends Collider = Collider> extends GameEvent
   ) {
     super();
     this.target = self;
-  }
-
-  public get actor() {
-    return this.self;
-  }
-
-  public set actor(actor: T) {
-    this.self = actor;
   }
 }
 
@@ -596,14 +580,6 @@ export class CollisionStartEvent<T extends Collider = Collider> extends GameEven
     super();
     this.target = self;
   }
-
-  public get actor() {
-    return this.self;
-  }
-
-  public set actor(actor: T) {
-    this.self = actor;
-  }
 }
 
 /**
@@ -621,14 +597,6 @@ export class CollisionEndEvent<T extends Collider = Collider> extends GameEvent<
   ) {
     super();
     this.target = self;
-  }
-
-  public get actor() {
-    return this.self;
-  }
-
-  public set actor(actor: T) {
-    this.self = actor;
   }
 }
 
