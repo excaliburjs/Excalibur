@@ -257,7 +257,11 @@ export class GameStopEvent extends GameEvent<Engine> {
  *
  */
 export class PreDrawEvent extends GameEvent<Entity | Scene | Engine | TileMap> {
-  constructor(public ctx: ExcaliburGraphicsContext, public elapsedMs: number, public self: Entity | Scene | Engine | TileMap) {
+  constructor(
+    public ctx: ExcaliburGraphicsContext,
+    public elapsedMs: number,
+    public self: Entity | Scene | Engine | TileMap
+  ) {
     super();
     this.target = self;
   }
@@ -269,7 +273,11 @@ export class PreDrawEvent extends GameEvent<Entity | Scene | Engine | TileMap> {
  *
  */
 export class PostDrawEvent extends GameEvent<Entity | Scene | Engine | TileMap> {
-  constructor(public ctx: ExcaliburGraphicsContext, public elapsedMs: number, public self: Entity | Scene | Engine | TileMap) {
+  constructor(
+    public ctx: ExcaliburGraphicsContext,
+    public elapsedMs: number,
+    public self: Entity | Scene | Engine | TileMap
+  ) {
     super();
     this.target = self;
   }
@@ -282,7 +290,11 @@ export class PostDrawEvent extends GameEvent<Entity | Scene | Engine | TileMap> 
  *
  */
 export class PreTransformDrawEvent extends GameEvent<Entity> {
-  constructor(public ctx: ExcaliburGraphicsContext, public elapsedMs: number, public self: Entity) {
+  constructor(
+    public ctx: ExcaliburGraphicsContext,
+    public elapsedMs: number,
+    public self: Entity
+  ) {
     super();
     this.target = self;
   }
@@ -294,7 +306,11 @@ export class PreTransformDrawEvent extends GameEvent<Entity> {
  *
  */
 export class PostTransformDrawEvent extends GameEvent<Entity> {
-  constructor(public ctx: ExcaliburGraphicsContext, public elapsedMs: number, public self: Entity) {
+  constructor(
+    public ctx: ExcaliburGraphicsContext,
+    public elapsedMs: number,
+    public self: Entity
+  ) {
     super();
     this.target = self;
   }
@@ -304,7 +320,10 @@ export class PostTransformDrawEvent extends GameEvent<Entity> {
  * The 'predebugdraw' event is emitted on actors, scenes, and engine before debug drawing starts.
  */
 export class PreDebugDrawEvent extends GameEvent<Entity | Actor | Scene | Engine> {
-  constructor(public ctx: ExcaliburGraphicsContext, public self: Entity | Actor | Scene | Engine) {
+  constructor(
+    public ctx: ExcaliburGraphicsContext,
+    public self: Entity | Actor | Scene | Engine
+  ) {
     super();
     this.target = self;
   }
@@ -314,7 +333,10 @@ export class PreDebugDrawEvent extends GameEvent<Entity | Actor | Scene | Engine
  * The 'postdebugdraw' event is emitted on actors, scenes, and engine after debug drawing starts.
  */
 export class PostDebugDrawEvent extends GameEvent<Entity | Actor | Scene | Engine> {
-  constructor(public ctx: ExcaliburGraphicsContext, public self: Entity | Actor | Scene | Engine) {
+  constructor(
+    public ctx: ExcaliburGraphicsContext,
+    public self: Entity | Actor | Scene | Engine
+  ) {
     super();
     this.target = self;
   }
@@ -324,7 +346,11 @@ export class PostDebugDrawEvent extends GameEvent<Entity | Actor | Scene | Engin
  * The 'preupdate' event is emitted on actors, scenes, camera, and engine before the update starts.
  */
 export class PreUpdateEvent<T extends OnPreUpdate = Entity> extends GameEvent<T> {
-  constructor(public engine: Engine, public elapsedMs: number, public self: T) {
+  constructor(
+    public engine: Engine,
+    public elapsedMs: number,
+    public self: T
+  ) {
     super();
     this.target = self;
   }
@@ -334,7 +360,11 @@ export class PreUpdateEvent<T extends OnPreUpdate = Entity> extends GameEvent<T>
  * The 'postupdate' event is emitted on actors, scenes, camera, and engine after the update ends.
  */
 export class PostUpdateEvent<T extends OnPostUpdate = Entity> extends GameEvent<T> {
-  constructor(public engine: Engine, public elapsedMs: number, public self: T) {
+  constructor(
+    public engine: Engine,
+    public elapsedMs: number,
+    public self: T
+  ) {
     super();
     this.target = self;
   }
@@ -344,7 +374,10 @@ export class PostUpdateEvent<T extends OnPostUpdate = Entity> extends GameEvent<
  * The 'preframe' event is emitted on the engine, before the frame begins.
  */
 export class PreFrameEvent extends GameEvent<Engine> {
-  constructor(public engine: Engine, public prevStats: FrameStats) {
+  constructor(
+    public engine: Engine,
+    public prevStats: FrameStats
+  ) {
     super();
     this.target = engine;
   }
@@ -354,7 +387,10 @@ export class PreFrameEvent extends GameEvent<Engine> {
  * The 'postframe' event is emitted on the engine, after a frame ends.
  */
 export class PostFrameEvent extends GameEvent<Engine> {
-  constructor(public engine: Engine, public stats: FrameStats) {
+  constructor(
+    public engine: Engine,
+    public stats: FrameStats
+  ) {
     super();
     this.target = engine;
   }
@@ -364,7 +400,10 @@ export class PostFrameEvent extends GameEvent<Engine> {
  * Event received when a gamepad is connected to Excalibur. {@apilink Gamepads} receives this event.
  */
 export class GamepadConnectEvent extends GameEvent<Gamepad> {
-  constructor(public index: number, public gamepad: Gamepad) {
+  constructor(
+    public index: number,
+    public gamepad: Gamepad
+  ) {
     super();
     this.target = gamepad;
   }
@@ -374,7 +413,10 @@ export class GamepadConnectEvent extends GameEvent<Gamepad> {
  * Event received when a gamepad is disconnected from Excalibur. {@apilink Gamepads} receives this event.
  */
 export class GamepadDisconnectEvent extends GameEvent<Gamepad> {
-  constructor(public index: number, public gamepad: Gamepad) {
+  constructor(
+    public index: number,
+    public gamepad: Gamepad
+  ) {
     super();
     this.target = gamepad;
   }
@@ -388,7 +430,11 @@ export class GamepadButtonEvent extends GameEvent<Gamepad> {
    * @param button  The Gamepad button
    * @param value   A numeric value between 0 and 1
    */
-  constructor(public button: Buttons, public value: number, public self: Gamepad) {
+  constructor(
+    public button: Buttons,
+    public value: number,
+    public self: Gamepad
+  ) {
     super();
     this.target = self;
   }
@@ -402,7 +448,11 @@ export class GamepadAxisEvent extends GameEvent<Gamepad> {
    * @param axis  The Gamepad axis
    * @param value A numeric value between -1 and 1
    */
-  constructor(public axis: Axes, public value: number, public self: Gamepad) {
+  constructor(
+    public axis: Axes,
+    public value: number,
+    public self: Gamepad
+  ) {
     super();
     this.target = self;
   }
@@ -438,7 +488,13 @@ export class PreCollisionEvent<T extends Collider = Collider> extends GameEvent<
    * @param side          The side that will be collided with the current actor
    * @param intersection  Intersection vector
    */
-  constructor(public self: T, public other: T, public side: Side, public intersection: Vector, public contact: CollisionContact) {
+  constructor(
+    public self: T,
+    public other: T,
+    public side: Side,
+    public intersection: Vector,
+    public contact: CollisionContact
+  ) {
     super();
     this.target = self;
   }
@@ -462,7 +518,13 @@ export class PostCollisionEvent<T extends Collider = Collider> extends GameEvent
    * @param side          The side that did collide with the current actor
    * @param intersection  Intersection vector
    */
-  constructor(public self: T, public other: T, public side: Side, public intersection: Vector, public contact: CollisionContact) {
+  constructor(
+    public self: T,
+    public other: T,
+    public side: Side,
+    public intersection: Vector,
+    public contact: CollisionContact
+  ) {
     super();
     this.target = self;
   }
@@ -477,19 +539,41 @@ export class PostCollisionEvent<T extends Collider = Collider> extends GameEvent
 }
 
 export class ContactStartEvent<T extends Collider = Collider> {
-  constructor(public self: T, public other: T, public side: Side, public contact: CollisionContact) {}
+  constructor(
+    public self: T,
+    public other: T,
+    public side: Side,
+    public contact: CollisionContact
+  ) {}
 }
 
 export class ContactEndEvent<T extends Collider = Collider> {
-  constructor(public self: T, public other: T, public side: Side, public lastContact: CollisionContact) {}
+  constructor(
+    public self: T,
+    public other: T,
+    public side: Side,
+    public lastContact: CollisionContact
+  ) {}
 }
 
 export class CollisionPreSolveEvent<T extends Collider = Collider> {
-  constructor(public self: T, public other: T, public side: Side, public intersection: Vector, public contact: CollisionContact) {}
+  constructor(
+    public self: T,
+    public other: T,
+    public side: Side,
+    public intersection: Vector,
+    public contact: CollisionContact
+  ) {}
 }
 
 export class CollisionPostSolveEvent<T extends Collider = Collider> {
-  constructor(public self: T, public other: T, public side: Side, public intersection: Vector, public contact: CollisionContact) {}
+  constructor(
+    public self: T,
+    public other: T,
+    public side: Side,
+    public intersection: Vector,
+    public contact: CollisionContact
+  ) {}
 }
 
 /**
@@ -503,7 +587,12 @@ export class CollisionStartEvent<T extends Collider = Collider> extends GameEven
    * @param side
    * @param contact
    */
-  constructor(public self: T, public other: T, public side: Side, public contact: CollisionContact) {
+  constructor(
+    public self: T,
+    public other: T,
+    public side: Side,
+    public contact: CollisionContact
+  ) {
     super();
     this.target = self;
   }
@@ -524,7 +613,12 @@ export class CollisionEndEvent<T extends Collider = Collider> extends GameEvent<
   /**
    *
    */
-  constructor(public self: T, public other: T, public side: Side, public lastContact: CollisionContact) {
+  constructor(
+    public self: T,
+    public other: T,
+    public side: Side,
+    public lastContact: CollisionContact
+  ) {
     super();
     this.target = self;
   }
@@ -545,7 +639,10 @@ export class InitializeEvent<T extends OnInitialize = Entity> extends GameEvent<
   /**
    * @param engine  The reference to the current engine
    */
-  constructor(public engine: Engine, public self: T) {
+  constructor(
+    public engine: Engine,
+    public self: T
+  ) {
     super();
     this.target = self;
   }
@@ -558,7 +655,10 @@ export class ActivateEvent<TData = undefined> extends GameEvent<Scene> {
   /**
    * @param context  The context for the scene activation
    */
-  constructor(public context: SceneActivationContext<TData>, public self: Scene) {
+  constructor(
+    public context: SceneActivationContext<TData>,
+    public self: Scene
+  ) {
     super();
     this.target = self;
   }
@@ -571,7 +671,10 @@ export class DeactivateEvent extends GameEvent<Scene> {
   /**
    * @param context  The context for the scene deactivation
    */
-  constructor(public context: SceneActivationContext<never>, public self: Scene) {
+  constructor(
+    public context: SceneActivationContext<never>,
+    public self: Scene
+  ) {
     super();
     this.target = self;
   }
@@ -598,14 +701,20 @@ export class EnterViewPortEvent extends GameEvent<Entity> {
 }
 
 export class EnterTriggerEvent extends GameEvent<Trigger> {
-  constructor(public self: Trigger, public entity: Entity) {
+  constructor(
+    public self: Trigger,
+    public entity: Entity
+  ) {
     super();
     this.target = self;
   }
 }
 
 export class ExitTriggerEvent extends GameEvent<Trigger> {
-  constructor(public self: Trigger, public entity: Entity) {
+  constructor(
+    public self: Trigger,
+    public entity: Entity
+  ) {
     super();
     this.target = self;
   }
@@ -615,7 +724,10 @@ export class ExitTriggerEvent extends GameEvent<Trigger> {
  * Event thrown on an {@apilink Actor} when an action starts.
  */
 export class ActionStartEvent extends GameEvent<Entity> {
-  constructor(public action: Action, public self: Entity) {
+  constructor(
+    public action: Action,
+    public self: Entity
+  ) {
     super();
     this.target = self;
   }
@@ -625,7 +737,10 @@ export class ActionStartEvent extends GameEvent<Entity> {
  * Event thrown on an {@apilink Actor} when an action completes.
  */
 export class ActionCompleteEvent extends GameEvent<Entity> {
-  constructor(public action: Action, public self: Entity) {
+  constructor(
+    public action: Action,
+    public self: Entity
+  ) {
     super();
     this.target = self;
   }
@@ -635,7 +750,10 @@ export class ActionCompleteEvent extends GameEvent<Entity> {
  * Event thrown on an [[Actor]] when an Actor added to scene.
  */
 export class AddEvent<T extends OnAdd> extends GameEvent<T> {
-  constructor(public engine: Engine, public self: T) {
+  constructor(
+    public engine: Engine,
+    public self: T
+  ) {
     super();
     this.target = self;
   }
@@ -645,7 +763,10 @@ export class AddEvent<T extends OnAdd> extends GameEvent<T> {
  * Event thrown on an [[Actor]] when an Actor removed from scene.
  */
 export class RemoveEvent<T extends OnRemove> extends GameEvent<T> {
-  constructor(public engine: Engine, public self: T) {
+  constructor(
+    public engine: Engine,
+    public self: T
+  ) {
     super();
     this.target = self;
   }
