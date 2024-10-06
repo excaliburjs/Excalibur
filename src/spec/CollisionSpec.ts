@@ -41,7 +41,7 @@ describe('A Collision', () => {
     let actor1Collision = 0;
     let actor2Collision = 0;
     actor1.on('precollision', (e: ex.PreCollisionEvent) => {
-      e.other.kill();
+      e.other.owner.kill();
       actor1Collision++;
     });
 
@@ -148,7 +148,7 @@ describe('A Collision', () => {
     let actor1Collision = 0;
     let actor2Collision = 0;
     actor1.on('precollision', (e: ex.PreCollisionEvent) => {
-      e.other.kill();
+      e.other.owner.kill();
       actor1Collision++;
     });
 
@@ -329,7 +329,7 @@ describe('A Collision', () => {
     engine.add(passiveBlock);
 
     const collisionEnd = function (event: ex.GameEvent<unknown>) {
-      expect(event.self).toBe(activeBlock);
+      expect((event as any).self.owner).toBe(activeBlock);
       done();
     };
 
@@ -352,7 +352,7 @@ describe('A Collision', () => {
     engine.add(passiveBlock);
 
     const collisionEnd = function (event: ex.GameEvent<unknown>) {
-      expect(event.self).toBe(activeBlock);
+      expect((event as any).self.owner).toBe(activeBlock);
       done();
     };
 
