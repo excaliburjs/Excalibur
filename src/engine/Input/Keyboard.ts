@@ -229,7 +229,11 @@ export class KeyEvent extends Events.GameEvent<any> {
    * @param value The key's typed value the browser detected
    * @param originalEvent The original keyboard event that Excalibur handled
    */
-  constructor(public key: Keys, public value?: string, public originalEvent?: KeyboardEvent) {
+  constructor(
+    public key: Keys,
+    public value?: string,
+    public originalEvent?: KeyboardEvent
+  ) {
     super();
   }
 }

@@ -75,7 +75,10 @@ export class PointerEventReceiver {
 
   private _enabled = true;
 
-  constructor(public readonly target: GlobalEventHandlers & EventTarget, public engine: Engine) {}
+  constructor(
+    public readonly target: GlobalEventHandlers & EventTarget,
+    public engine: Engine
+  ) {}
 
   public toggleEnabled(enabled: boolean) {
     this._enabled = enabled;
