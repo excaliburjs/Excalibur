@@ -1,9 +1,27 @@
 import { Vector, vec } from '../Math/vector';
-import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
+import { ExcaliburGraphicsContext, HTMLImageSource } from './Context/ExcaliburGraphicsContext';
 import { BoundingBox } from '../Collision/BoundingBox';
 import { Color } from '../Color';
 import { watch } from '../Util/Watch';
 import { AffineMatrix } from '../Math/affine-matrix';
+
+export interface GraphicImageWithCoordinatesOptions {
+  x?: number;
+  y?: number;
+  data?: Record<string, any>;
+}
+
+export interface GraphicImageWithCoordinates {
+  image: HTMLImageSource;
+  sx: number;
+  sy: number;
+  sw?: number;
+  sh?: number;
+  dx?: number;
+  dy?: number;
+  dw?: number;
+  dh?: number;
+}
 
 export interface GraphicOptions {
   /**
