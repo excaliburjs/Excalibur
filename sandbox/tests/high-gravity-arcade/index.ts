@@ -40,16 +40,16 @@ class TouchingComponent extends ex.Component {
     this.origin = new ex.Vector(owner.pos.x, owner.pos.y);
     // collect up all of the collisionstart/end events for each frame
     owner.on('collisionstart', (ev) => {
-      if (ev.other.collider) {
+      if (ev.other) {
         // console.log(ev.contact.colliderA.worldPos, ev.contact.colliderB.worldPos)
-        if (ev.other.body?.collisionType === ex.CollisionType.Passive) {
-          this.passives.add(ev.other);
+        if (ev.other.owner.body?.collisionType === ex.CollisionType.Passive) {
+          this.passives.add(ev.other.owner);
         } else {
           const side = ev.side;
 
           this.contacts.set(ev.contact.id, {
             contact: ev.contact,
-            actor: ev.other,
+            actor: ev.other.owner,
             side
           });
           this.updateSides();
@@ -58,8 +58,8 @@ class TouchingComponent extends ex.Component {
     });
 
     owner.on('collisionend', (ev) => {
-      if (ev.other.body?.collisionType === ex.CollisionType.Passive) {
-        this.passives.delete(ev.other);
+      if (ev.other.owner.body?.collisionType === ex.CollisionType.Passive) {
+        this.passives.delete(ev.other.owner);
       } else {
         this.contacts.delete(ev.lastContact.id);
         this.updateSides();

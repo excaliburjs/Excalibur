@@ -73,22 +73,22 @@ export class Trigger extends Actor {
     this.graphics.visible = options.visible ?? false;
     this.body.collisionType = CollisionType.Passive;
 
-    this.events.on('collisionstart', ({ other: collider }: CollisionStartEvent<Entity>) => {
-      if (!this._matchesTarget(collider)) {
+    this.events.on('collisionstart', ({ other: collider }: CollisionStartEvent) => {
+      if (!this._matchesTarget(collider.owner)) {
         return;
       }
 
-      this.events.emit('enter', new EnterTriggerEvent(this, collider));
-      this._dispatchAction(collider);
+      this.events.emit('enter', new EnterTriggerEvent(this, collider.owner));
+      this._dispatchAction(collider.owner);
       // remove trigger if its done, -1 repeat forever
       if (this.repeat === 0) {
         this.kill();
       }
     });
 
-    this.events.on('collisionend', ({ other: collider }: CollisionEndEvent<Entity>) => {
-      if (this._matchesTarget(collider)) {
-        this.events.emit('exit', new ExitTriggerEvent(this, collider));
+    this.events.on('collisionend', ({ other: collider }: CollisionEndEvent) => {
+      if (this._matchesTarget(collider.owner)) {
+        this.events.emit('exit', new ExitTriggerEvent(this, collider.owner));
       }
     });
   }

@@ -19,7 +19,7 @@ ball.on('collisionstart', (evt: ex.CollisionStartEvent) => {
 
 ball.on('collisionend', (evt: ex.CollisionEndEvent) => {
   console.log('Ball was being touched on frame:', game.stats.currFrame.id);
-  evt.actor.vel = ex.vec(0, -speed);
+  evt.self.owner.vel = ex.vec(0, -speed);
 });
 ball.on('postupdate', function () {
   if (ball.pos.y < 0) {

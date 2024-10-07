@@ -7,6 +7,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- Collision events now only target `ex.Collider` types, this previously would sometimes emit an `ex.Entity` if you attached to the `ex.ColliderComponent`
+  * `ex.PreCollisionEvent`
+  * `ex.PostCollisionEvent`
+  * `ex.ContactStartEvent`
+  * `ex.ContactEndEvent`
+  * `ex.CollisionPreSolveEvent`
+  * `ex.CollisionPostSolveEvent`
+  * `ex.CollisionStartEvent`
+  * `ex.CollisionEndEvent`
 - `System.priority` is refactored to be static.
 - `ex.Timer` now only takes the option bag constructor
 - `PreDrawEvent`, `PostDrawEvent`, `PreTransformDrawEvent`, `PostTransformDrawEvent`, `PreUpdateEvent`, `PostUpdateEvent` now use `elapsedMs` instead of `delta` for the elapsed milliseconds between the last frame.460696
@@ -104,6 +113,7 @@ are doing mtv adjustments during precollision.
 
 ### Fixed
 
+- Fixed issue where Collision events ahd inconsistent targets, sometimes they were Colliders and sometimes they were Entities
 - Fixed issue where `ex.Fade` sometimes would not complete depending on the elapsed time
 - Fixed issue where `ex.PolygonColliders` would get trapped in infinite loop for degenerate polygons (< 3 vertices)
 - Fixed issue where certain devices that support large numbers of texture slots exhaust the maximum number of if statements (complexity) in the shader.
