@@ -105,8 +105,10 @@ export class ImageSource implements Loadable<HTMLImageElement> {
     } else {
       this.wrapping = wrapping ?? this.wrapping;
     }
-    if (path.endsWith('.svg') || path.endsWith('.gif')) {
-      this._logger.warn(`Image type is not fully supported, you may have mixed results ${path}. Fully supported: jpg, bmp, and png`);
+    if (path.endsWith('.gif')) {
+      this._logger.warn(
+        `Use the ex.Gif type to load gifs, you may have mixed results with ${path} in ex.ImageSource. Fully supported: svg, jpg, bmp, and png`
+      );
     }
   }
 
@@ -149,6 +151,10 @@ export class ImageSource implements Loadable<HTMLImageElement> {
     TextureLoader.checkImageSizeSupportedAndLog(image);
     imageSource._readyFuture.resolve(image);
     return imageSource;
+  }
+
+  static fromSvgElement(image: SVGElement, options?: ImageSourceOptions) {
+    // TODO implement
   }
 
   /**
