@@ -476,7 +476,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
    *
    * **WARN:** `fixedUpdateTimestep` takes precedence over `fixedUpdateFps` use whichever is most convenient.
    */
-  public fixedUpdateFps?: number;
+  public readonly fixedUpdateFps?: number;
 
   /**
    * Optionally configure a fixed update timestep in milliseconds, this can be desireable if you need the physics simulation to be very stable. When
@@ -491,7 +491,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
    *
    * **WARN:** `fixedUpdateTimestep` takes precedence over `fixedUpdateFps` use whichever is most convenient.
    */
-  public fixedUpdateTimestep?: number;
+  public readonly fixedUpdateTimestep?: number;
 
   /**
    * Direct access to the excalibur clock
@@ -1013,7 +1013,7 @@ O|===|* >________________>\n\
 
     this.fixedUpdateTimestep = options.fixedUpdateTimestep ?? this.fixedUpdateTimestep;
     this.fixedUpdateFps = options.fixedUpdateFps ?? this.fixedUpdateFps;
-    this.fixedUpdateTimestep = this.fixedUpdateFps || 1000 / this.fixedUpdateFps;
+    this.fixedUpdateTimestep = this.fixedUpdateTimestep || 1000 / this.fixedUpdateFps;
 
     this.clock = new StandardClock({
       maxFps: this.maxFps,
