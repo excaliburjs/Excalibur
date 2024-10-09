@@ -258,9 +258,9 @@ export class GraphicsSystem extends System {
       if (transform) {
         let tx = transform.get();
         if (optionalBody) {
-          if (this._engine.fixedUpdateFps && optionalBody.__oldTransformCaptured && optionalBody.enableFixedUpdateInterpolate) {
+          if (this._engine.fixedUpdateTimestep && optionalBody.__oldTransformCaptured && optionalBody.enableFixedUpdateInterpolate) {
             // Interpolate graphics if needed
-            const blend = this._engine.currentFrameLagMs / (1000 / this._engine.fixedUpdateFps);
+            const blend = this._engine.currentFrameLagMs / this._engine.fixedUpdateTimestep;
             tx = blendTransform(optionalBody.oldTransform, transform.get(), blend, this._targetInterpolationTransform);
           }
         }

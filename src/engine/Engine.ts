@@ -289,6 +289,21 @@ export interface EngineOptions<TKnownScenes extends string = any> {
   maxFps?: number;
 
   /**
+   * Optionally configure a fixed update timestep in milliseconds, this can be desireable if you need the physics simulation to be very stable. When
+   * set the update step and physics will use the same elapsed time for each tick even if the graphical framerate drops. In order for the
+   * simulation to be correct, excalibur will run multiple updates in a row (at the configured update elapsed) to catch up, for example
+   * there could be X updates and 1 draw each clock step.
+   *
+   * **NOTE:** This does come at a potential perf cost because each catch-up update will need to be run if the fixed rate is greater than
+   * the current instantaneous framerate, or perf gain if the fixed rate is less than the current framerate.
+   *
+   * By default is unset and updates will use the current instantaneous framerate with 1 update and 1 draw each clock step.
+   *
+   * **WARN:** `fixedUpdateTimestep` takes precedence over `fixedUpdateFps` use whichever is most convenient.
+   */
+  fixedUpdateTimestep?: number;
+
+  /**
    * Optionally configure a fixed update fps, this can be desireable if you need the physics simulation to be very stable. When set
    * the update step and physics will use the same elapsed time for each tick even if the graphical framerate drops. In order for the
    * simulation to be correct, excalibur will run multiple updates in a row (at the configured update elapsed) to catch up, for example
@@ -298,6 +313,8 @@ export interface EngineOptions<TKnownScenes extends string = any> {
    * the current instantaneous framerate, or perf gain if the fixed rate is less than the current framerate.
    *
    * By default is unset and updates will use the current instantaneous framerate with 1 update and 1 draw each clock step.
+   *
+   * **WARN:** `fixedUpdateTimestep` takes precedence over `fixedUpdateFps` use whichever is most convenient.
    */
   fixedUpdateFps?: number;
 
@@ -306,6 +323,7 @@ export interface EngineOptions<TKnownScenes extends string = any> {
    *
    * Excalibur will automatically sort draw calls by z and priority into renderer batches for maximal draw performance,
    * this can disrupt a specific desired painter order.
+   *
    */
   useDrawSorting?: boolean;
 
@@ -455,8 +473,25 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
    * the current instantaneous framerate, or perf gain if the fixed rate is less than the current framerate.
    *
    * By default is unset and updates will use the current instantaneous framerate with 1 update and 1 draw each clock step.
+   *
+   * **WARN:** `fixedUpdateTimestep` takes precedence over `fixedUpdateFps` use whichever is most convenient.
    */
-  public fixedUpdateFps?: number;
+  public readonly fixedUpdateFps?: number;
+
+  /**
+   * Optionally configure a fixed update timestep in milliseconds, this can be desireable if you need the physics simulation to be very stable. When
+   * set the update step and physics will use the same elapsed time for each tick even if the graphical framerate drops. In order for the
+   * simulation to be correct, excalibur will run multiple updates in a row (at the configured update elapsed) to catch up, for example
+   * there could be X updates and 1 draw each clock step.
+   *
+   * **NOTE:** This does come at a potential perf cost because each catch-up update will need to be run if the fixed rate is greater than
+   * the current instantaneous framerate, or perf gain if the fixed rate is less than the current framerate.
+   *
+   * By default is unset and updates will use the current instantaneous framerate with 1 update and 1 draw each clock step.
+   *
+   * **WARN:** `fixedUpdateTimestep` takes precedence over `fixedUpdateFps` use whichever is most convenient.
+   */
+  public readonly fixedUpdateTimestep?: number;
 
   /**
    * Direct access to the excalibur clock
@@ -975,7 +1010,10 @@ O|===|* >________________>\n\
     }
 
     this.maxFps = options.maxFps ?? this.maxFps;
+
+    this.fixedUpdateTimestep = options.fixedUpdateTimestep ?? this.fixedUpdateTimestep;
     this.fixedUpdateFps = options.fixedUpdateFps ?? this.fixedUpdateFps;
+    this.fixedUpdateTimestep = this.fixedUpdateTimestep || 1000 / this.fixedUpdateFps;
 
     this.clock = new StandardClock({
       maxFps: this.maxFps,
@@ -1740,8 +1778,8 @@ O|===|* >________________>\n\
       GraphicsDiagnostics.clear();
 
       const beforeUpdate = this.clock.now();
-      const fixedTimestepMs = 1000 / this.fixedUpdateFps;
-      if (this.fixedUpdateFps) {
+      const fixedTimestepMs = this.fixedUpdateTimestep;
+      if (this.fixedUpdateTimestep) {
         this._lagMs += elapsedMs;
         while (this._lagMs >= fixedTimestepMs) {
           this._update(fixedTimestepMs);
