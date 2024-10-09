@@ -104,6 +104,7 @@ are doing mtv adjustments during precollision.
 
 ### Fixed
 
+- Fixed issue where `blockInput: true` on scene transition only blocked input events, not accessors like `wasHeld(...)` etc.
 - Fixed issue where `ex.Fade` sometimes would not complete depending on the elapsed time
 - Fixed issue where `ex.PolygonColliders` would get trapped in infinite loop for degenerate polygons (< 3 vertices)
 - Fixed issue where certain devices that support large numbers of texture slots exhaust the maximum number of if statements (complexity) in the shader.
