@@ -123,6 +123,21 @@ The tile setting takes input slice and paints in across the entirety of the outp
 
 The tile fit setting takes the input slice and paints it across the entirety of the output dimensions in a repeating texture, but it 'resizes' the output tiling to create a 'best fit' of the texture, which is calculated to fit properly, but may have some squished and distorted texture.
 
+## Draw Center
+
+```ts
+destinationConfig: {
+    drawCenter: boolean;  //<------------ this property
+    ...
+  };
+```
+
+The boolean flag `drawCenter` under `destinationConfig` tells the module if the section 5, middle section should be drawn or not, if this is set to `false` then it gets skipped in its draw routine, and remains 'transparent' so that the NineSlice is more of a border or frame Graphic.
+
+![No Center](noCenter.png)
+
+Look, Ma! No Center!
+
 ## Changing the Graphic
 
 At this point, if you modify the graphic details, it is recommended to recreate a new instance of the graphic and update your Actor or Screen Element if it needs changed. The existing instance will not dynmically update itself.
