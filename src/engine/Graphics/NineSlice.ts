@@ -67,6 +67,7 @@ export class NineSlice extends Graphic {
 
   constructor(public config: NineSliceConfig) {
     super(config);
+
     if (!this.config.width) {
       this.config.width = 0;
     }
@@ -506,7 +507,7 @@ export class NineSlice extends Graphic {
    * Clones the 9 slice
    */
 
-  clone(): Graphic {
+  clone(): NineSlice {
     return new NineSlice(this.config);
   }
 
