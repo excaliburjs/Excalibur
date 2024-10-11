@@ -3,7 +3,7 @@ import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 
 const inputTile = new ex.ImageSource('src/spec/images/GraphicsNineSliceSpec/InputTile.png');
 
-fdescribe('A NineSlice', () => {
+describe('A NineSlice', () => {
   let canvasElement: HTMLCanvasElement;
 
   let ctx: ex.ExcaliburGraphicsContext;
