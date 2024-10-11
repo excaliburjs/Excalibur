@@ -34,7 +34,7 @@ export type NineSliceConfig = GraphicOptions & {
   source: ImageSource;
 
   /*
-  sourceConfig has all the parameters necessary to cut up the input text properly, width and height are the overal pixel dimensions of the texture and the margins define the overall cutting boundaries in pixels
+  sourceConfig has all the parameters necessary to cut up the input texture properly, width and height are the overall pixel dimensions of the texture and the margins define the overall cutting boundaries in pixels
   */
 
   sourceConfig: {
@@ -93,7 +93,7 @@ export class Player extends Actor {
 
 ## Stretch Options
 
-There are two parameters in the configuration that need to be set to dictate the behavior of the drawing desitnation graphic, `stretchH` and `stretchV`. The are of type `NineSliceStretch`. The `stretchH` parameter will dictate the behavior of tile slices 2,5, and 8, as these frames can stretch horizontally. The `stretchV` parameter dictates how tile slices 4,5,6 behave, as they can stretch vertically.
+There are two parameters in the configuration that need to be set to dictate the behavior of the drawing desitnation graphic, `stretchH` and `stretchV`. They are of type `NineSliceStretch`. The `stretchH` parameter will dictate the behavior of tile slices 2,5, and 8, as these frames can stretch horizontally. The `stretchV` parameter dictates how tile slices 4,5,6 behave, as they can stretch vertically.
 
 The class includes some exported enumerated options:
 
