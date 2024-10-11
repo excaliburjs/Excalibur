@@ -11,6 +11,8 @@ export enum NineSliceStretch {
 }
 
 export type NineSliceConfig = GraphicOptions & {
+  width: number;
+  height: number;
   /**
    *  Image source that's loaded from a Loader or individually
    *  */
@@ -67,14 +69,6 @@ export class NineSlice extends Graphic {
 
   constructor(public config: NineSliceConfig) {
     super(config);
-
-    if (!this.config.width) {
-      this.config.width = 0;
-    }
-    if (!this.config.height) {
-      this.config.height = 0;
-    }
-
     this.imgSource = config.source;
     this.sourceSprite = config.source.image;
 
@@ -111,7 +105,6 @@ export class NineSlice extends Graphic {
   /**
    *  Sets the target height of the 9 slice (pixels), and recalculates the 9 slice if desired (auto)
    */
-
   setTargetHeight(newHeight: number, auto: boolean = false) {
     this.config.height = newHeight;
     if (auto) {
@@ -227,7 +220,7 @@ export class NineSlice extends Graphic {
       this._drawTile(
         ex,
         this.canvasA,
-        //@ts-ignore
+
         new Vector(this.config.sourceConfig.leftMargin, this.config.sourceConfig.topMargin),
         this.config.destinationConfig.stretchH,
         this.config.destinationConfig.stretchV
@@ -237,9 +230,8 @@ export class NineSlice extends Graphic {
       this._drawTile(
         ex,
         this.canvasB,
-        //@ts-ignore
+
         new Vector(
-          //@ts-ignore
           this.config.width - this.config.sourceConfig.leftMargin - this.config.sourceConfig.rightMargin,
           this.config.sourceConfig.topMargin
         ),
@@ -254,11 +246,11 @@ export class NineSlice extends Graphic {
       this._drawTile(
         ex,
         this.canvasC,
-        //@ts-ignore
+
         new Vector(this.config.sourceConfig.rightMargin, this.config.sourceConfig.topMargin),
         this.config.destinationConfig.stretchH,
         this.config.destinationConfig.stretchV,
-        //@ts-ignore
+
         this.config.width - this.config.sourceConfig.rightMargin,
         0
       );
@@ -270,7 +262,7 @@ export class NineSlice extends Graphic {
         this.canvasD,
         new Vector(
           this.config.sourceConfig.leftMargin,
-          //@ts-ignore
+
           this.config.height - this.config.sourceConfig.bottomMargin - this.config.sourceConfig.topMargin
         ),
         this.config.destinationConfig.stretchH,
@@ -285,9 +277,8 @@ export class NineSlice extends Graphic {
           ex,
           this.canvasE,
           new Vector(
-            //@ts-ignore
             this.config.width - this.config.sourceConfig.leftMargin - this.config.sourceConfig.rightMargin,
-            //@ts-ignore
+
             this.config.height - this.config.sourceConfig.bottomMargin - this.config.sourceConfig.topMargin
           ),
           this.config.destinationConfig.stretchH,
@@ -303,12 +294,12 @@ export class NineSlice extends Graphic {
 
         new Vector(
           this.config.sourceConfig.rightMargin,
-          //@ts-ignore
+
           this.config.height - this.config.sourceConfig.bottomMargin - this.config.sourceConfig.topMargin
         ),
         this.config.destinationConfig.stretchH,
         this.config.destinationConfig.stretchV,
-        //@ts-ignore
+
         this.config.width - this.config.sourceConfig.rightMargin,
         this.config.sourceConfig.topMargin
       );
@@ -321,7 +312,7 @@ export class NineSlice extends Graphic {
         this.config.destinationConfig.stretchH,
         this.config.destinationConfig.stretchV,
         0,
-        //@ts-ignore
+
         this.config.height - this.config.sourceConfig.bottomMargin
       );
 
@@ -329,16 +320,15 @@ export class NineSlice extends Graphic {
       this._drawTile(
         ex,
         this.canvasH,
-        //@ts-ignore
+
         new Vector(
-          //@ts-ignore
           this.config.width - this.config.sourceConfig.leftMargin - this.config.sourceConfig.rightMargin,
           this.config.sourceConfig.bottomMargin
         ),
         this.config.destinationConfig.stretchH,
         this.config.destinationConfig.stretchV,
         this.config.sourceConfig.leftMargin,
-        //@ts-ignore
+
         this.config.height - this.config.sourceConfig.bottomMargin
       );
 
@@ -349,9 +339,9 @@ export class NineSlice extends Graphic {
         new Vector(this.config.sourceConfig.rightMargin, this.config.sourceConfig.bottomMargin),
         this.config.destinationConfig.stretchH,
         this.config.destinationConfig.stretchV,
-        //@ts-ignore
+
         this.config.width - this.config.sourceConfig.rightMargin,
-        //@ts-ignore
+
         this.config.height - this.config.sourceConfig.bottomMargin
       );
     } else {
@@ -372,7 +362,7 @@ export class NineSlice extends Graphic {
     Atx?.drawImage(this.sourceSprite, 0, 0, this.canvasA.width, this.canvasA.height, 0, 0, this.canvasA.width, this.canvasA.height);
 
     //top slice
-    //@ts-ignore
+
     this.canvasB.width = this.config.sourceConfig.width - this.config.sourceConfig.leftMargin - this.config.sourceConfig.rightMargin;
     this.canvasB.height = this.config.sourceConfig.topMargin;
 
@@ -443,7 +433,7 @@ export class NineSlice extends Graphic {
     const Ftx = this.canvasF.getContext('2d');
     Ftx?.drawImage(
       this.sourceSprite,
-      //@ts-ignore
+
       this.config.sourceConfig.width - this.config.sourceConfig.rightMargin,
       this.config.sourceConfig.topMargin,
       this.canvasF.width,

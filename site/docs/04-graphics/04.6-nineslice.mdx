@@ -23,6 +23,12 @@ Then based on your output parameters specified it will 'redraw' this texture to 
 ```typescript
 export type NineSliceConfig = GraphicOptions & {
   /*
+  overwrites the GraphicOptions width/height param, as it is required for this module
+  */
+  width: number;
+  height: number;
+
+  /*
   source is the loaded ImageSource, which you can load manually or through a loader  
   */
   source: ImageSource;
@@ -39,6 +45,7 @@ export type NineSliceConfig = GraphicOptions & {
     bottomMargin: number;
     rightMargin: number;
   };
+
   /*
   destination configuration specifies if you want center piece drawn, the '5' frame, and how you want the algorithm to manipulate the frame textures horizontally and vertically
   */
@@ -49,8 +56,6 @@ export type NineSliceConfig = GraphicOptions & {
   };
 };
 ```
-
-note: these properties are merged with GraphicsOptions, so it is strongly recommended to provide you're overall width and height properties in conjunction with what's listed here. They are optional properties on the Graphics Options, but there are implications if they are not specified.
 
 ## Usage
 
