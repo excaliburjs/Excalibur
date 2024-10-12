@@ -67,10 +67,10 @@ This is a Graphic object so it can be used on either an Actor or ScreenElement e
 
 ```ts
 export class Player extends Actor {
-  private mynineslice: NineSlice;
+  private myNineSlice: NineSlice;
   constructor() {
     super({ name: 'player', width: 300, height: 128, pos: new Vector(100, 100) });
-    const myninesliceconfig: NineSliceConfig = {
+    const myNineSliceConfig: NineSliceConfig = {
       width: 300,
       height: 128,
       source: Resources.myImage,
@@ -89,7 +89,7 @@ export class Player extends Actor {
       }
     };
 
-    this.mynineslice = new NineSlice(myninesliceconfig);
+    this.myNineSlice = new NineSlice(myNineSliceConfig);
     this.graphics.use(this.mynineslice);
   }
 }
