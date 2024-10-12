@@ -18,6 +18,10 @@ The nine slice Graphic will break that texture up into 9 seperate parts.
 
 Then based on your output parameters specified it will 'redraw' this texture to whatever specified output graphic you want.
 
+You can set parameters under `sourceConfig` properties to control the margins. This lets you dial in where the comde 'slices' your texture up. For example, with the example 64x64 sprite, we can set the top/bottom margins to 5 pixels, and the left/right margins to 6 pixels to get this slicing.
+
+![sliced ](sliced.png)
+
 ## Configuration
 
 ```typescript
