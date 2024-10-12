@@ -53,39 +53,40 @@ export type NineSliceConfig = GraphicOptions & {
 };
 
 export class NineSlice extends Graphic {
-  imgSource: ImageSource;
-  sourceSprite: HTMLImageElement;
-  canvasA: HTMLCanvasElement;
-  canvasB: HTMLCanvasElement;
-  canvasC: HTMLCanvasElement;
-  canvasD: HTMLCanvasElement;
-  canvasE: HTMLCanvasElement;
-  canvasF: HTMLCanvasElement;
-  canvasG: HTMLCanvasElement;
-  canvasH: HTMLCanvasElement;
-  canvasI: HTMLCanvasElement;
+  private _imgSource: ImageSource;
+  private _sourceSprite: HTMLImageElement;
+  private _canvasA: HTMLCanvasElement;
+  private _canvasB: HTMLCanvasElement;
+  private _canvasC: HTMLCanvasElement;
+  private _canvasD: HTMLCanvasElement;
+  private _canvasE: HTMLCanvasElement;
+  private _canvasF: HTMLCanvasElement;
+  private _canvasG: HTMLCanvasElement;
+  private _canvasH: HTMLCanvasElement;
+  private _canvasI: HTMLCanvasElement;
 
   private _logger = Logger.getInstance();
 
-  constructor(public config: NineSliceConfig) {
-    super(config);
-    this.imgSource = config.source;
-    this.sourceSprite = config.source.image;
+  constructor(private _config: NineSliceConfig) {
+    super(_config);
+    this._imgSource = _config.source;
+    this._sourceSprite = _config.source.image;
 
-    this.canvasA = document.createElement('canvas');
-    this.canvasB = document.createElement('canvas');
-    this.canvasC = document.createElement('canvas');
-    this.canvasD = document.createElement('canvas');
-    this.canvasE = document.createElement('canvas');
-    this.canvasF = document.createElement('canvas');
-    this.canvasG = document.createElement('canvas');
-    this.canvasH = document.createElement('canvas');
-    this.canvasI = document.createElement('canvas');
-    this.initialize();
+    this._canvasA = document.createElement('canvas');
+    this._canvasB = document.createElement('canvas');
+    this._canvasC = document.createElement('canvas');
+    this._canvasD = document.createElement('canvas');
+    this._canvasE = document.createElement('canvas');
+    this._canvasF = document.createElement('canvas');
+    this._canvasG = document.createElement('canvas');
+    this._canvasH = document.createElement('canvas');
+    this._canvasI = document.createElement('canvas');
 
-    if (!this.imgSource.isLoaded()) {
+    this._initialize();
+
+    if (!this._imgSource.isLoaded()) {
       this._logger.warnOnce(
-        `ImageSource ${this.imgSource.path}` +
+        `ImageSource ${this._imgSource.path}` +
           ` is not yet loaded and won't be drawn. Please call .load() or include in a Loader.\n\n` +
           `Read https://excaliburjs.com/docs/imagesource for more information.`
       );
@@ -96,9 +97,9 @@ export class NineSlice extends Graphic {
    *  Sets the target width of the 9 slice (pixels), and recalculates the 9 slice if desired (auto)
    */
   setTargetWidth(newWidth: number, auto: boolean = false) {
-    this.config.width = newWidth;
+    this._config.width = newWidth;
     if (auto) {
-      this.initialize();
+      this._initialize();
     }
   }
 
@@ -106,9 +107,9 @@ export class NineSlice extends Graphic {
    *  Sets the target height of the 9 slice (pixels), and recalculates the 9 slice if desired (auto)
    */
   setTargetHeight(newHeight: number, auto: boolean = false) {
-    this.config.height = newHeight;
+    this._config.height = newHeight;
     if (auto) {
-      this.initialize();
+      this._initialize();
     }
   }
 
@@ -116,12 +117,12 @@ export class NineSlice extends Graphic {
    *  Sets the 9 slice margins (pixels), and recalculates the 9 slice if desired (auto)
    */
   setMargins(left: number, top: number, right: number, bottom: number, auto: boolean = false) {
-    this.config.sourceConfig.leftMargin = left;
-    this.config.sourceConfig.topMargin = top;
-    this.config.sourceConfig.rightMargin = right;
-    this.config.sourceConfig.bottomMargin = bottom;
+    this._config.sourceConfig.leftMargin = left;
+    this._config.sourceConfig.topMargin = top;
+    this._config.sourceConfig.rightMargin = right;
+    this._config.sourceConfig.bottomMargin = bottom;
     if (auto) {
-      this.initialize();
+      this._initialize();
     }
   }
 
@@ -131,15 +132,15 @@ export class NineSlice extends Graphic {
    */
   setStretch(type: 'Horizontal' | 'Vertical' | 'Both', strategy: NineSliceStretch, auto: boolean = false) {
     if (type === 'Horizontal') {
-      this.config.destinationConfig.stretchH = strategy;
+      this._config.destinationConfig.stretchH = strategy;
     } else if (type === 'Vertical') {
-      this.config.destinationConfig.stretchV = strategy;
+      this._config.destinationConfig.stretchV = strategy;
     } else {
-      this.config.destinationConfig.stretchH = strategy;
-      this.config.destinationConfig.stretchV = strategy;
+      this._config.destinationConfig.stretchH = strategy;
+      this._config.destinationConfig.stretchV = strategy;
     }
     if (auto) {
-      this.initialize();
+      this._initialize();
     }
   }
 
@@ -147,7 +148,7 @@ export class NineSlice extends Graphic {
    *  Returns the config of the 9 slice
    */
   getConfig(): NineSliceConfig {
-    return this.config;
+    return this._config;
   }
 
   /**
@@ -158,7 +159,7 @@ export class NineSlice extends Graphic {
    *  hstrategy and vstrategy are the horizontal and vertical stretching strategies
    *  marginW and marginH are optional margins for the 9 slice for positioning
    */
-  _drawTile(
+  protected _drawTile(
     context: ExcaliburGraphicsContext,
     targetCanvas: HTMLCanvasElement,
     destinationSize: Vector,
@@ -180,7 +181,7 @@ export class NineSlice extends Graphic {
           numTilesX,
           targetCanvas.width,
           destinationSize.x,
-          this.config.destinationConfig.stretchH
+          this._config.destinationConfig.stretchH
         );
         tempSizeX = tempSize;
         tempPositionX = tempPosition;
@@ -190,7 +191,7 @@ export class NineSlice extends Graphic {
           numTilesY,
           targetCanvas.height,
           destinationSize.y,
-          this.config.destinationConfig.stretchV
+          this._config.destinationConfig.stretchV
         ));
         tempSizeY = tempSize;
         tempPositionY = tempPosition;
@@ -214,30 +215,30 @@ export class NineSlice extends Graphic {
    *  Draws the 9 slices to the canvas
    */
   protected _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number): void {
-    if (this.imgSource.isLoaded()) {
+    if (this._imgSource.isLoaded()) {
       //Top left, no strecthing
 
       this._drawTile(
         ex,
-        this.canvasA,
+        this._canvasA,
 
-        new Vector(this.config.sourceConfig.leftMargin, this.config.sourceConfig.topMargin),
-        this.config.destinationConfig.stretchH,
-        this.config.destinationConfig.stretchV
+        new Vector(this._config.sourceConfig.leftMargin, this._config.sourceConfig.topMargin),
+        this._config.destinationConfig.stretchH,
+        this._config.destinationConfig.stretchV
       );
 
       //Top, middle, horizontal stretching
       this._drawTile(
         ex,
-        this.canvasB,
+        this._canvasB,
 
         new Vector(
-          this.config.width - this.config.sourceConfig.leftMargin - this.config.sourceConfig.rightMargin,
-          this.config.sourceConfig.topMargin
+          this._config.width - this._config.sourceConfig.leftMargin - this._config.sourceConfig.rightMargin,
+          this._config.sourceConfig.topMargin
         ),
-        this.config.destinationConfig.stretchH,
-        this.config.destinationConfig.stretchV,
-        this.config.sourceConfig.leftMargin,
+        this._config.destinationConfig.stretchH,
+        this._config.destinationConfig.stretchV,
+        this._config.sourceConfig.leftMargin,
         0
       );
 
@@ -245,13 +246,13 @@ export class NineSlice extends Graphic {
 
       this._drawTile(
         ex,
-        this.canvasC,
+        this._canvasC,
 
-        new Vector(this.config.sourceConfig.rightMargin, this.config.sourceConfig.topMargin),
-        this.config.destinationConfig.stretchH,
-        this.config.destinationConfig.stretchV,
+        new Vector(this._config.sourceConfig.rightMargin, this._config.sourceConfig.topMargin),
+        this._config.destinationConfig.stretchH,
+        this._config.destinationConfig.stretchV,
 
-        this.config.width - this.config.sourceConfig.rightMargin,
+        this._config.width - this._config.sourceConfig.rightMargin,
         0
       );
 
@@ -259,237 +260,237 @@ export class NineSlice extends Graphic {
 
       this._drawTile(
         ex,
-        this.canvasD,
+        this._canvasD,
         new Vector(
-          this.config.sourceConfig.leftMargin,
+          this._config.sourceConfig.leftMargin,
 
-          this.config.height - this.config.sourceConfig.bottomMargin - this.config.sourceConfig.topMargin
+          this._config.height - this._config.sourceConfig.bottomMargin - this._config.sourceConfig.topMargin
         ),
-        this.config.destinationConfig.stretchH,
-        this.config.destinationConfig.stretchV,
+        this._config.destinationConfig.stretchH,
+        this._config.destinationConfig.stretchV,
         0,
-        this.config.sourceConfig.topMargin
+        this._config.sourceConfig.topMargin
       );
 
       // center, both strecthing
-      if (this.config.destinationConfig.drawCenter) {
+      if (this._config.destinationConfig.drawCenter) {
         this._drawTile(
           ex,
-          this.canvasE,
+          this._canvasE,
           new Vector(
-            this.config.width - this.config.sourceConfig.leftMargin - this.config.sourceConfig.rightMargin,
+            this._config.width - this._config.sourceConfig.leftMargin - this._config.sourceConfig.rightMargin,
 
-            this.config.height - this.config.sourceConfig.bottomMargin - this.config.sourceConfig.topMargin
+            this._config.height - this._config.sourceConfig.bottomMargin - this._config.sourceConfig.topMargin
           ),
-          this.config.destinationConfig.stretchH,
-          this.config.destinationConfig.stretchV,
-          this.config.sourceConfig.leftMargin,
-          this.config.sourceConfig.topMargin
+          this._config.destinationConfig.stretchH,
+          this._config.destinationConfig.stretchV,
+          this._config.sourceConfig.leftMargin,
+          this._config.sourceConfig.topMargin
         );
       }
       //middle, right, vertical strecthing
       this._drawTile(
         ex,
-        this.canvasF,
+        this._canvasF,
 
         new Vector(
-          this.config.sourceConfig.rightMargin,
+          this._config.sourceConfig.rightMargin,
 
-          this.config.height - this.config.sourceConfig.bottomMargin - this.config.sourceConfig.topMargin
+          this._config.height - this._config.sourceConfig.bottomMargin - this._config.sourceConfig.topMargin
         ),
-        this.config.destinationConfig.stretchH,
-        this.config.destinationConfig.stretchV,
+        this._config.destinationConfig.stretchH,
+        this._config.destinationConfig.stretchV,
 
-        this.config.width - this.config.sourceConfig.rightMargin,
-        this.config.sourceConfig.topMargin
+        this._config.width - this._config.sourceConfig.rightMargin,
+        this._config.sourceConfig.topMargin
       );
 
       //bottom left, no strecthing
       this._drawTile(
         ex,
-        this.canvasG,
-        new Vector(this.config.sourceConfig.leftMargin, this.config.sourceConfig.bottomMargin),
-        this.config.destinationConfig.stretchH,
-        this.config.destinationConfig.stretchV,
+        this._canvasG,
+        new Vector(this._config.sourceConfig.leftMargin, this._config.sourceConfig.bottomMargin),
+        this._config.destinationConfig.stretchH,
+        this._config.destinationConfig.stretchV,
         0,
 
-        this.config.height - this.config.sourceConfig.bottomMargin
+        this._config.height - this._config.sourceConfig.bottomMargin
       );
 
       //bottom middle, horizontal strecthing
       this._drawTile(
         ex,
-        this.canvasH,
+        this._canvasH,
 
         new Vector(
-          this.config.width - this.config.sourceConfig.leftMargin - this.config.sourceConfig.rightMargin,
-          this.config.sourceConfig.bottomMargin
+          this._config.width - this._config.sourceConfig.leftMargin - this._config.sourceConfig.rightMargin,
+          this._config.sourceConfig.bottomMargin
         ),
-        this.config.destinationConfig.stretchH,
-        this.config.destinationConfig.stretchV,
-        this.config.sourceConfig.leftMargin,
+        this._config.destinationConfig.stretchH,
+        this._config.destinationConfig.stretchV,
+        this._config.sourceConfig.leftMargin,
 
-        this.config.height - this.config.sourceConfig.bottomMargin
+        this._config.height - this._config.sourceConfig.bottomMargin
       );
 
       //bottom right, no strecthing
       this._drawTile(
         ex,
-        this.canvasI,
-        new Vector(this.config.sourceConfig.rightMargin, this.config.sourceConfig.bottomMargin),
-        this.config.destinationConfig.stretchH,
-        this.config.destinationConfig.stretchV,
+        this._canvasI,
+        new Vector(this._config.sourceConfig.rightMargin, this._config.sourceConfig.bottomMargin),
+        this._config.destinationConfig.stretchH,
+        this._config.destinationConfig.stretchV,
 
-        this.config.width - this.config.sourceConfig.rightMargin,
+        this._config.width - this._config.sourceConfig.rightMargin,
 
-        this.config.height - this.config.sourceConfig.bottomMargin
+        this._config.height - this._config.sourceConfig.bottomMargin
       );
     } else {
       this._logger.warnOnce(
-        `ImageSource ${this.imgSource.path}` +
+        `ImageSource ${this._imgSource.path}` +
           ` is not yet loaded and won't be drawn. Please call .load() or include in a Loader.\n\n` +
           `Read https://excaliburjs.com/docs/imagesource for more information.`
       );
     }
   }
 
-  initialize() {
+  protected _initialize() {
     //top left slice
-    this.canvasA.width = this.config.sourceConfig.leftMargin;
-    this.canvasA.height = this.config.sourceConfig.topMargin;
-    const Atx = this.canvasA.getContext('2d');
+    this._canvasA.width = this._config.sourceConfig.leftMargin;
+    this._canvasA.height = this._config.sourceConfig.topMargin;
+    const Atx = this._canvasA.getContext('2d');
 
-    Atx?.drawImage(this.sourceSprite, 0, 0, this.canvasA.width, this.canvasA.height, 0, 0, this.canvasA.width, this.canvasA.height);
+    Atx?.drawImage(this._sourceSprite, 0, 0, this._canvasA.width, this._canvasA.height, 0, 0, this._canvasA.width, this._canvasA.height);
 
     //top slice
 
-    this.canvasB.width = this.config.sourceConfig.width - this.config.sourceConfig.leftMargin - this.config.sourceConfig.rightMargin;
-    this.canvasB.height = this.config.sourceConfig.topMargin;
+    this._canvasB.width = this._config.sourceConfig.width - this._config.sourceConfig.leftMargin - this._config.sourceConfig.rightMargin;
+    this._canvasB.height = this._config.sourceConfig.topMargin;
 
-    const Btx = this.canvasB.getContext('2d');
+    const Btx = this._canvasB.getContext('2d');
     Btx?.drawImage(
-      this.sourceSprite,
-      this.config.sourceConfig.leftMargin,
+      this._sourceSprite,
+      this._config.sourceConfig.leftMargin,
       0,
-      this.canvasB.width,
-      this.canvasB.height,
+      this._canvasB.width,
+      this._canvasB.height,
       0,
       0,
-      this.canvasB.width,
-      this.canvasB.height
+      this._canvasB.width,
+      this._canvasB.height
     );
 
     //top right slice
-    this.canvasC.width = this.config.sourceConfig.rightMargin;
-    this.canvasC.height = this.config.sourceConfig.topMargin;
-    const Ctx = this.canvasC.getContext('2d');
+    this._canvasC.width = this._config.sourceConfig.rightMargin;
+    this._canvasC.height = this._config.sourceConfig.topMargin;
+    const Ctx = this._canvasC.getContext('2d');
     Ctx?.drawImage(
-      this.sourceSprite,
-      this.sourceSprite.width - this.config.sourceConfig.rightMargin,
+      this._sourceSprite,
+      this._sourceSprite.width - this._config.sourceConfig.rightMargin,
       0,
-      this.canvasC.width,
-      this.canvasC.height,
+      this._canvasC.width,
+      this._canvasC.height,
       0,
       0,
-      this.canvasC.width,
-      this.canvasC.height
+      this._canvasC.width,
+      this._canvasC.height
     );
 
     //middle left slice
-    this.canvasD.width = this.config.sourceConfig.leftMargin;
-    this.canvasD.height = this.config.sourceConfig.height - this.config.sourceConfig.topMargin - this.config.sourceConfig.bottomMargin;
-    const Dtx = this.canvasD.getContext('2d');
+    this._canvasD.width = this._config.sourceConfig.leftMargin;
+    this._canvasD.height = this._config.sourceConfig.height - this._config.sourceConfig.topMargin - this._config.sourceConfig.bottomMargin;
+    const Dtx = this._canvasD.getContext('2d');
     Dtx?.drawImage(
-      this.sourceSprite,
+      this._sourceSprite,
       0,
-      this.config.sourceConfig.topMargin,
-      this.canvasD.width,
-      this.canvasD.height,
+      this._config.sourceConfig.topMargin,
+      this._canvasD.width,
+      this._canvasD.height,
       0,
       0,
-      this.canvasD.width,
-      this.canvasD.height
+      this._canvasD.width,
+      this._canvasD.height
     );
 
     //middle slice
-    this.canvasE.width = this.config.sourceConfig.width - this.config.sourceConfig.leftMargin - this.config.sourceConfig.rightMargin;
-    this.canvasE.height = this.config.sourceConfig.height - this.config.sourceConfig.topMargin - this.config.sourceConfig.bottomMargin;
-    const Etx = this.canvasE.getContext('2d');
+    this._canvasE.width = this._config.sourceConfig.width - this._config.sourceConfig.leftMargin - this._config.sourceConfig.rightMargin;
+    this._canvasE.height = this._config.sourceConfig.height - this._config.sourceConfig.topMargin - this._config.sourceConfig.bottomMargin;
+    const Etx = this._canvasE.getContext('2d');
     Etx?.drawImage(
-      this.sourceSprite,
-      this.config.sourceConfig.leftMargin,
-      this.config.sourceConfig.topMargin,
-      this.canvasE.width,
-      this.canvasE.height,
+      this._sourceSprite,
+      this._config.sourceConfig.leftMargin,
+      this._config.sourceConfig.topMargin,
+      this._canvasE.width,
+      this._canvasE.height,
       0,
       0,
-      this.canvasE.width,
-      this.canvasE.height
+      this._canvasE.width,
+      this._canvasE.height
     );
 
     //middle right slice
-    this.canvasF.width = this.config.sourceConfig.rightMargin;
-    this.canvasF.height = this.config.sourceConfig.height - this.config.sourceConfig.topMargin - this.config.sourceConfig.bottomMargin;
-    const Ftx = this.canvasF.getContext('2d');
+    this._canvasF.width = this._config.sourceConfig.rightMargin;
+    this._canvasF.height = this._config.sourceConfig.height - this._config.sourceConfig.topMargin - this._config.sourceConfig.bottomMargin;
+    const Ftx = this._canvasF.getContext('2d');
     Ftx?.drawImage(
-      this.sourceSprite,
+      this._sourceSprite,
 
-      this.config.sourceConfig.width - this.config.sourceConfig.rightMargin,
-      this.config.sourceConfig.topMargin,
-      this.canvasF.width,
-      this.canvasF.height,
+      this._config.sourceConfig.width - this._config.sourceConfig.rightMargin,
+      this._config.sourceConfig.topMargin,
+      this._canvasF.width,
+      this._canvasF.height,
       0,
       0,
-      this.canvasF.width,
-      this.canvasF.height
+      this._canvasF.width,
+      this._canvasF.height
     );
 
     //bottom left slice
-    this.canvasG.width = this.config.sourceConfig.leftMargin;
-    this.canvasG.height = this.config.sourceConfig.bottomMargin;
-    const Gtx = this.canvasG.getContext('2d');
+    this._canvasG.width = this._config.sourceConfig.leftMargin;
+    this._canvasG.height = this._config.sourceConfig.bottomMargin;
+    const Gtx = this._canvasG.getContext('2d');
     Gtx?.drawImage(
-      this.sourceSprite,
+      this._sourceSprite,
       0,
-      this.config.sourceConfig.height - this.config.sourceConfig.bottomMargin,
-      this.canvasG.width,
-      this.canvasG.height,
+      this._config.sourceConfig.height - this._config.sourceConfig.bottomMargin,
+      this._canvasG.width,
+      this._canvasG.height,
       0,
       0,
-      this.canvasG.width,
-      this.canvasG.height
+      this._canvasG.width,
+      this._canvasG.height
     );
 
     //bottom slice
-    this.canvasH.width = this.config.sourceConfig.width - this.config.sourceConfig.leftMargin - this.config.sourceConfig.rightMargin;
-    this.canvasH.height = this.config.sourceConfig.bottomMargin;
-    const Htx = this.canvasH.getContext('2d');
+    this._canvasH.width = this._config.sourceConfig.width - this._config.sourceConfig.leftMargin - this._config.sourceConfig.rightMargin;
+    this._canvasH.height = this._config.sourceConfig.bottomMargin;
+    const Htx = this._canvasH.getContext('2d');
     Htx?.drawImage(
-      this.sourceSprite,
-      this.config.sourceConfig.leftMargin,
-      this.config.sourceConfig.height - this.config.sourceConfig.bottomMargin,
-      this.canvasH.width,
-      this.canvasH.height,
+      this._sourceSprite,
+      this._config.sourceConfig.leftMargin,
+      this._config.sourceConfig.height - this._config.sourceConfig.bottomMargin,
+      this._canvasH.width,
+      this._canvasH.height,
       0,
       0,
-      this.canvasH.width,
-      this.canvasH.height
+      this._canvasH.width,
+      this._canvasH.height
     );
 
     //bottom right slice
-    this.canvasI.width = this.config.sourceConfig.rightMargin;
-    this.canvasI.height = this.config.sourceConfig.bottomMargin;
-    const Itx = this.canvasI.getContext('2d');
+    this._canvasI.width = this._config.sourceConfig.rightMargin;
+    this._canvasI.height = this._config.sourceConfig.bottomMargin;
+    const Itx = this._canvasI.getContext('2d');
     Itx?.drawImage(
-      this.sourceSprite,
-      this.sourceSprite.width - this.config.sourceConfig.rightMargin,
-      this.config.sourceConfig.height - this.config.sourceConfig.bottomMargin,
-      this.canvasI.width,
-      this.canvasI.height,
+      this._sourceSprite,
+      this._sourceSprite.width - this._config.sourceConfig.rightMargin,
+      this._config.sourceConfig.height - this._config.sourceConfig.bottomMargin,
+      this._canvasI.width,
+      this._canvasI.height,
       0,
       0,
-      this.canvasI.width,
-      this.canvasI.height
+      this._canvasI.width,
+      this._canvasI.height
     );
   }
 
@@ -498,14 +499,14 @@ export class NineSlice extends Graphic {
    */
 
   clone(): NineSlice {
-    return new NineSlice(this.config);
+    return new NineSlice(this._config);
   }
 
   /**
    * Returns the number of tiles
    */
 
-  _getNumberOfTiles(tilesize: number, destinationSize: number, strategy: NineSliceStretch): number {
+  protected _getNumberOfTiles(tilesize: number, destinationSize: number, strategy: NineSliceStretch): number {
     switch (strategy) {
       case NineSliceStretch.Stretch:
         return 1;
@@ -519,7 +520,7 @@ export class NineSlice extends Graphic {
   /**
    * Returns the position and size of the tile
    */
-  _calculateParams(
+  protected _calculateParams(
     tilenum: number,
     numTiles: number,
     tilesize: number,
