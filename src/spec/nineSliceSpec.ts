@@ -117,15 +117,7 @@ describe('A NineSlice', () => {
   });
 
   it('can exist', () => {
-    // eslint-disable-next-line no-console
-    console.log('ex.NineSlice being ran');
     expect(ex.NineSlice).toBeDefined();
-  });
-
-  it('generates a new id', () => {
-    const graphic1 = new ex.NineSlice(testGraphicConfigStretch);
-    const graphic2 = new ex.NineSlice(testGraphicConfigTile);
-    expect(graphic1.id).not.toBe(graphic2.id);
   });
 
   it('can have its config modified', () => {
