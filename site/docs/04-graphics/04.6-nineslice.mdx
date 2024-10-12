@@ -6,7 +6,7 @@ section: Graphics
 
 ## Overview
 
-The NineSlice is a Graphic which uses a 2D technique allowing for reuse of an image at various sizes without needing to prepare multiple assets. It involves splitting the image into nine portions, so that when you re-size the Sprite, the different portions scale or tile (that is, repeat in a grid formation) in different ways to keep the Sprite in proportion. This is useful when creating patterns or Textures, such as walls or floors in a 2D environment.
+The NineSlice is a Graphic which uses a 2D technique allowing for reuse of an image at various sizes without needing to prepare multiple assets. The process includes taking an input sprite texture, and splitting it into 9 sections, which then can be repainted in a new sprite texture without scaling or distorting the texture. This is very useful in game development for UI panels or buttons or textured platforms.
 
 For example: let's say this is your source texture sprite.
 
