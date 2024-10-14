@@ -109,12 +109,37 @@ game.currentScene.onPreDraw = (ctx: ex.ExcaliburGraphicsContext) => {
   bb.right--;
   bb.draw(ctx, ex.Color.Yellow);
 
+  // (ctx as ex.ExcaliburGraphicsContextWebGL).draw('custom', 1, 2, 3, 'custom args');
+
   ctx.drawCircle(ex.vec(bb.left + 6, bb.top + 6), 10, green);
   ctx.drawCircle(ex.vec(bb.right - 6, bb.top + 6), 10, blue);
   ctx.drawCircle(ex.vec(bb.left + 6, bb.bottom - 6), 10, yellow);
   ctx.drawCircle(ex.vec(bb.right - 6, bb.bottom - 6), 10, red);
   ctx.restore();
 };
+
+class CustomRenderer implements ex.RendererPlugin {
+  type = 'custom';
+  priority = 99;
+  initialize(gl: WebGL2RenderingContext, context: ex.ExcaliburGraphicsContextWebGL): void {
+    console.log('custom init');
+  }
+  draw(...args: any[]): void {
+    console.log('custom draw', ...args);
+  }
+  hasPendingDraws(): boolean {
+    return false;
+  }
+  flush(): void {
+    // pass
+  }
+  dispose(): void {
+    // pass
+  }
+}
+const customRenderer = new CustomRenderer();
+
+(game.graphicsContext as ex.ExcaliburGraphicsContextWebGL).register(customRenderer);
 
 game.on('fallbackgraphicscontext', (ctx) => {
   console.log('fallback triggered', ctx);
