@@ -65,7 +65,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- Added inline SVG image support `ex.ImageSource.fromSvgString('<svg>...</svg')`, note images produced this way still must be loaded.
+- Added inline SVG image support `ex.ImageSource.fromSvgString('<svg>...</svg>')`, note images produced this way still must be loaded.
 - Added ability to optionally specify sprite options in the `.toSprite(options:? SpriteOptions)`
 - Child `ex.Actor` inherits opacity of parents
 - `ex.Engine.timeScale` values of 0 are now supported
