@@ -65,6 +65,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- The `ex.Engine` had a new `enableCanvasContextMenu` arg that can be used to enable the right click context menu, by default the context menu is disabled which is what most games seem to want.
 - Child `ex.Actor` inherits opacity of parents
 - `ex.Engine.timeScale` values of 0 are now supported
 - `ex.Trigger` now supports all valid actor constructor parameters from `ex.ActorArgs` in addition to `ex.TriggerOptions`

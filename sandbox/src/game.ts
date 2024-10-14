@@ -768,6 +768,9 @@ game.input.keyboard.on('up', (e?: ex.KeyEvent) => {
 
 player.on('pointerdown', (e?: ex.PointerEvent) => {
   // alert('Player clicked!');
+  if (e.button === ex.PointerButton.Right) {
+    console.log('right click');
+  }
 });
 player.on('pointerdown', () => {
   console.log('pointer down');

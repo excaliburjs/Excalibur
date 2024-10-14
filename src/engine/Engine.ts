@@ -221,6 +221,13 @@ export interface EngineOptions<TKnownScenes extends string = any> {
   canvasElement?: HTMLCanvasElement;
 
   /**
+   * Optionally enable the right click context menu on the canvas
+   *
+   * Default if unset is false
+   */
+  enableCanvasContextMenu?: boolean;
+
+  /**
    * Optionally snap graphics to nearest pixel, default is false
    */
   snapToPixel?: boolean;
@@ -745,6 +752,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
     },
     canvasElementId: '',
     canvasElement: undefined,
+    enableCanvasContextMenu: false,
     snapToPixel: false,
     antialiasing: true,
     pixelArt: false,
@@ -887,6 +895,12 @@ O|===|* >________________>\n\
     } else {
       this._logger.debug('Using generated canvas element');
       this.canvas = <HTMLCanvasElement>document.createElement('canvas');
+    }
+
+    if (this.canvas && !options.enableCanvasContextMenu) {
+      this.canvas.addEventListener('contextmenu', (evt) => {
+        evt.preventDefault();
+      });
     }
 
     let displayMode = options.displayMode ?? DisplayMode.Fixed;
