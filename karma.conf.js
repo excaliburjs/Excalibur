@@ -82,6 +82,7 @@ module.exports = (config) => {
             'src/spec/_boot.ts', 
             { pattern: 'src/spec/images/**/*.mp3', included: false, served: true },
             { pattern: 'src/spec/images/**/*.ogg', included: false, served: true },
+            { pattern: 'src/spec/images/**/*.svg', included: false, served: true },
             { pattern: 'src/spec/images/**/*.png', included: false, served: true },
             { pattern: 'src/spec/images/**/*.gif', included: false, served: true },
             { pattern: 'src/spec/images/**/*.txt', included: false, served: true },

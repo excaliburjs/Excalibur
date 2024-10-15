@@ -152,6 +152,7 @@ cards2.draw(game.graphicsContext, 0, 0);
 
 jump.volume = 0.3;
 
+var svgExternal = new ex.ImageSource('../images/arrows.svg');
 var svg = (tags: TemplateStringsArray) => tags[0];
 
 var svgImage = ex.ImageSource.fromSvgString(svg`
@@ -187,6 +188,7 @@ svgActor.graphics.add(
     }
   })
 );
+// svgActor.graphics.add(svgExternal.toSprite());
 game.add(svgActor);
 
 var boot = new ex.Loader();
@@ -195,6 +197,7 @@ var boot = new ex.Loader();
 //   fullscreenContainer: document.getElementById('container')
 // });
 // boot.suppressPlayButton = true;
+boot.addResource(svgExternal);
 boot.addResource(svgImage);
 boot.addResource(heartImageSource);
 boot.addResource(heartTex);
