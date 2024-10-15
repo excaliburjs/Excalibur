@@ -316,13 +316,27 @@ export class Camera implements CanUpdate, CanInitialize {
    * Get or set the camera's position
    */
   private _posChanged = false;
-  private _pos: Vector = watchAny(Vector.Zero, () => (this._posChanged = true));
+  private _checkChanged = (newVec: Vector) => {
+    const newX = newVec.x;
+    const newY = newVec.y;
+    const oldX = this._pos.x;
+    const oldY = this._pos.y;
+    return newX !== oldX || newY !== oldY;
+  };
+  private _pos: Vector = watchAny(Vector.Zero, (newVec) => (this._posChanged = this._checkChanged(newVec)));
   public get pos(): Vector {
     return this._pos;
   }
   public set pos(vec: Vector) {
-    this._pos = watchAny(vec, () => (this._posChanged = true));
-    this._posChanged = true;
+    this._posChanged = this._checkChanged(vec);
+    this._pos = watchAny(vec, (newVec) => (this._posChanged = this._checkChanged(newVec)));
+  }
+
+  /**
+   * Has the position changed since the last update
+   */
+  public get posChanged(): boolean {
+    return this._posChanged;
   }
   /**
    * Interpolated camera position if more draws are running than updates
@@ -714,6 +728,7 @@ export class Camera implements CanUpdate, CanInitialize {
     this._initialize(engine);
     this._preupdate(engine, elapsedMs);
     this.pos.clone(this._oldPos);
+    this._posChanged = false;
 
     // Update placements based on linear algebra
     this.pos = this.pos.add(this.vel.scale(elapsedMs / 1000));
@@ -782,7 +797,6 @@ export class Camera implements CanUpdate, CanInitialize {
     // It's important to update the camera after strategies
     // This prevents jitter
     this.updateTransform(this.pos);
-
     this._postupdate(engine, elapsedMs);
   }
 
