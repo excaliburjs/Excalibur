@@ -107,6 +107,7 @@ are doing mtv adjustments during precollision.
 
 ### Fixed
 
+- Fixed issue where `blockInput: true` on scene transition only blocked input events, not accessors like `wasHeld(...)` etc.
 - Fixed issue where users could not easily define a custom `RendererPlugin` because the type was not exposed
 - Fixed issue where `ex.Fade` sometimes would not complete depending on the elapsed time
 - Fixed issue where `ex.PolygonColliders` would get trapped in infinite loop for degenerate polygons (< 3 vertices)
