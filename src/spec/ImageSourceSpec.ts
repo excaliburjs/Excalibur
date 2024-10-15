@@ -15,9 +15,9 @@ describe('A ImageSource', () => {
     const logger = ex.Logger.getInstance();
     spyOn(logger, 'warn');
     const image1 = new ex.ImageSource('base/404/img.svg');
-    expect(logger.warn).toHaveBeenCalledTimes(1);
+    expect(logger.warn).toHaveBeenCalledTimes(0);
     const image2 = new ex.ImageSource('base/404/img.gif');
-    expect(logger.warn).toHaveBeenCalledTimes(2);
+    expect(logger.warn).toHaveBeenCalledTimes(1);
   });
 
   it('can load images', async () => {
@@ -28,6 +28,40 @@ describe('A ImageSource', () => {
 
     expect(image.src).not.toBeNull();
     expect(whenLoaded).toHaveBeenCalledTimes(1);
+  });
+
+  it('can load svg image strings', async () => {
+    const svgImage = ex.ImageSource.fromSvgString(`
+      <svg version="1.1"
+        id="svg2"
+        xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+        xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+        sodipodi:docname="resize-full.svg" inkscape:version="0.48.4 r9939"
+        xmlns="http://www.w3.org/2000/svg" 
+        width="800px" height="800px"
+        viewBox="0 0 1200 1200" enable-background="new 0 0 1200 1200" xml:space="preserve">
+    <path id="path18934" fill="#000000ff" inkscape:connector-curvature="0"  d="M670.312,0l177.246,177.295L606.348,418.506l175.146,175.146
+        l241.211-241.211L1200,529.688V0H670.312z M418.506,606.348L177.295,847.559L0,670.312V1200h529.688l-177.246-177.295
+        l241.211-241.211L418.506,606.348z"/>
+    </svg>
+    `);
+    const whenLoaded = jasmine.createSpy('whenLoaded');
+    await svgImage.load();
+    await svgImage.ready.then(whenLoaded);
+    expect(svgImage.image.src).not.toBeNull();
+    expect(whenLoaded).toHaveBeenCalledTimes(1);
+  });
+
+  it('can load svg images', async () => {
+    const svgImage = new ex.ImageSource('src/spec/images/GraphicsImageSourceSpec/arrows.svg');
+    const whenLoaded = jasmine.createSpy('whenLoaded');
+    await svgImage.load();
+    await svgImage.ready.then(whenLoaded);
+    expect(svgImage.image.src).not.toBeNull();
+    expect(whenLoaded).toHaveBeenCalledTimes(1);
+
+    expect(svgImage.width).toBe(800);
+    expect(svgImage.height).toBe(800);
   });
 
   it('will log a warning if images are too large for mobile', async () => {
@@ -267,6 +301,31 @@ describe('A ImageSource', () => {
     await spriteFontImage.ready;
     expect(sprite.width).toBe(image.width);
     expect(sprite.height).toBe(image.height);
+  });
+
+  it('can convert to a Sprite with options', async () => {
+    const spriteFontImage = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const sprite = spriteFontImage.toSprite({
+      sourceView: {
+        x: 16,
+        y: 16,
+        width: 16,
+        height: 16
+      },
+      destSize: {
+        width: 32,
+        height: 32
+      }
+    });
+
+    // Sprites have no width/height until the underlying image is loaded
+    expect(sprite.width).toBe(32);
+    expect(sprite.height).toBe(32);
+
+    const image = await spriteFontImage.load();
+    await spriteFontImage.ready;
+    expect(sprite.width).toBe(32);
+    expect(sprite.height).toBe(32);
   });
 
   it('can unload from memory', async () => {
