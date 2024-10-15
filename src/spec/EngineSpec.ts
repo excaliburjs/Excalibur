@@ -457,6 +457,31 @@ describe('The engine', () => {
     expect(fired).toHaveBeenCalled();
   });
 
+  it('should prevent the context menu from opening when enableCanvasContextMenu not set to true', () => {
+    const mockEvent = new Event('contextmenu', {
+      cancelable: true,
+      bubbles: true
+    });
+    const spyPreventDefault = spyOn(mockEvent, 'preventDefault');
+    engine.canvas.dispatchEvent(mockEvent);
+
+    expect(spyPreventDefault).toHaveBeenCalled();
+  });
+
+  it('should NOT prevent the context menu from opening when enableCanvasContextMenu set to true', () => {
+    engine.dispose();
+    engine = null;
+    engine = TestUtils.engine({ width: 100, height: 100, enableCanvasContextMenu: true });
+    const mockEvent = new Event('contextmenu', {
+      cancelable: true,
+      bubbles: true
+    });
+    const spyPreventDefault = spyOn(mockEvent, 'preventDefault');
+    engine.canvas.dispatchEvent(mockEvent);
+
+    expect(spyPreventDefault).not.toHaveBeenCalled();
+  });
+
   it('should tell engine is running', () => {
     const status = engine.isRunning();
     expect(status).toBe(true);
