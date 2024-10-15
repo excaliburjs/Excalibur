@@ -50,6 +50,15 @@ export class PointerAbstraction {
     this.events.off(eventName, handler);
   }
 
+  /**
+   * Called internally by excalibur when the Camera moves
+   * @internal
+   * @param pos
+   */
+  public _updateWorldPosition(pos: Vector) {
+    this.lastWorldPos = pos;
+  }
+
   private _onPointerMove = (ev: PointerEvent): void => {
     this.lastPagePos = new Vector(ev.pagePos.x, ev.pagePos.y);
     this.lastScreenPos = new Vector(ev.screenPos.x, ev.screenPos.y);

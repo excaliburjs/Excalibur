@@ -187,6 +187,7 @@ export class PointerEventReceiver {
    * Updates the current frame pointer info and emits raw pointer events
    *
    * This does not emit events to entities, see PointerSystem
+   * @internal
    */
   public update() {
     this.lastFramePointerDown = new Map(this.currentFramePointerDown);
@@ -221,6 +222,12 @@ export class PointerEventReceiver {
       this.emit('wheel', event);
       this.primary.emit('pointerwheel', event);
       this.primary.emit('wheel', event);
+    }
+
+    if (this.engine.currentScene.camera.posChanged) {
+      for (const pointer of this._pointers) {
+        pointer._updateWorldPosition(this.engine.currentScene.camera.pos);
+      }
     }
   }
 
