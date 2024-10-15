@@ -65,6 +65,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added inline SVG image support `ex.ImageSource.fromSvgString('<svg>...</svg>')`, note images produced this way still must be loaded.
+- Added ability to optionally specify sprite options in the `.toSprite(options:? SpriteOptions)`
+- The `ex.Engine` constructor had a new `enableCanvasContextMenu` arg that can be used to enable the right click context menu, by default the context menu is disabled which is what most games seem to want.
 - Child `ex.Actor` inherits opacity of parents
 - `ex.Engine.timeScale` values of 0 are now supported
 - `ex.Trigger` now supports all valid actor constructor parameters from `ex.ActorArgs` in addition to `ex.TriggerOptions`
@@ -105,6 +108,7 @@ are doing mtv adjustments during precollision.
 ### Fixed
 
 - Fixed issue where `blockInput: true` on scene transition only blocked input events, not accessors like `wasHeld(...)` etc.
+- Fixed issue where users could not easily define a custom `RendererPlugin` because the type was not exposed
 - Fixed issue where `ex.Fade` sometimes would not complete depending on the elapsed time
 - Fixed issue where `ex.PolygonColliders` would get trapped in infinite loop for degenerate polygons (< 3 vertices)
 - Fixed issue where certain devices that support large numbers of texture slots exhaust the maximum number of if statements (complexity) in the shader.

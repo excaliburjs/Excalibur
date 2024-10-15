@@ -109,12 +109,37 @@ game.currentScene.onPreDraw = (ctx: ex.ExcaliburGraphicsContext) => {
   bb.right--;
   bb.draw(ctx, ex.Color.Yellow);
 
+  // (ctx as ex.ExcaliburGraphicsContextWebGL).draw('custom', 1, 2, 3, 'custom args');
+
   ctx.drawCircle(ex.vec(bb.left + 6, bb.top + 6), 10, green);
   ctx.drawCircle(ex.vec(bb.right - 6, bb.top + 6), 10, blue);
   ctx.drawCircle(ex.vec(bb.left + 6, bb.bottom - 6), 10, yellow);
   ctx.drawCircle(ex.vec(bb.right - 6, bb.bottom - 6), 10, red);
   ctx.restore();
 };
+
+class CustomRenderer implements ex.RendererPlugin {
+  type = 'custom';
+  priority = 99;
+  initialize(gl: WebGL2RenderingContext, context: ex.ExcaliburGraphicsContextWebGL): void {
+    console.log('custom init');
+  }
+  draw(...args: any[]): void {
+    console.log('custom draw', ...args);
+  }
+  hasPendingDraws(): boolean {
+    return false;
+  }
+  flush(): void {
+    // pass
+  }
+  dispose(): void {
+    // pass
+  }
+}
+const customRenderer = new CustomRenderer();
+
+(game.graphicsContext as ex.ExcaliburGraphicsContextWebGL).register(customRenderer);
 
 game.on('fallbackgraphicscontext', (ctx) => {
   console.log('fallback triggered', ctx);
@@ -152,12 +177,53 @@ cards2.draw(game.graphicsContext, 0, 0);
 
 jump.volume = 0.3;
 
+var svgExternal = new ex.ImageSource('../images/arrows.svg');
+var svg = (tags: TemplateStringsArray) => tags[0];
+
+var svgImage = ex.ImageSource.fromSvgString(svg`
+  <svg version="1.1"
+       id="svg2"
+       xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+       xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+       sodipodi:docname="resize-full.svg" inkscape:version="0.48.4 r9939"
+       xmlns="http://www.w3.org/2000/svg" 
+       width="800px" height="800px"
+       viewBox="0 0 1200 1200" enable-background="new 0 0 1200 1200" xml:space="preserve">
+  <path id="path18934" fill="#000000ff" inkscape:connector-curvature="0"  d="M670.312,0l177.246,177.295L606.348,418.506l175.146,175.146
+      l241.211-241.211L1200,529.688V0H670.312z M418.506,606.348L177.295,847.559L0,670.312V1200h529.688l-177.246-177.295
+      l241.211-241.211L418.506,606.348z"/>
+  </svg>
+`);
+
+var svgActor = new ex.Actor({
+  name: 'svg',
+  pos: ex.vec(200, 200)
+});
+svgActor.graphics.add(
+  svgImage.toSprite({
+    destSize: {
+      width: 100,
+      height: 100
+    },
+    sourceView: {
+      x: 400,
+      y: 0,
+      width: 400,
+      height: 400
+    }
+  })
+);
+// svgActor.graphics.add(svgExternal.toSprite());
+game.add(svgActor);
+
 var boot = new ex.Loader();
 // var boot = new ex.Loader({
 //   fullscreenAfterLoad: true,
 //   fullscreenContainer: document.getElementById('container')
 // });
 // boot.suppressPlayButton = true;
+boot.addResource(svgExternal);
+boot.addResource(svgImage);
 boot.addResource(heartImageSource);
 boot.addResource(heartTex);
 boot.addResource(imageRun);
@@ -768,6 +834,9 @@ game.input.keyboard.on('up', (e?: ex.KeyEvent) => {
 
 player.on('pointerdown', (e?: ex.PointerEvent) => {
   // alert('Player clicked!');
+  if (e.button === ex.PointerButton.Right) {
+    console.log('right click');
+  }
 });
 player.on('pointerdown', () => {
   console.log('pointer down');
