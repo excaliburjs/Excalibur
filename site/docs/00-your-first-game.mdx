@@ -312,7 +312,7 @@ ball.on("collisionstart", function (ev) {
   if (bricks.indexOf(ev.other) > -1) {
     // kill removes an actor from the current scene
     // therefore it will no longer be drawn or updated
-    ev.other.kill();
+    ev.other.owner.kill();
   }
 
   // reverse course after any collision
