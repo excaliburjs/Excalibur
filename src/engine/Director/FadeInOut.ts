@@ -9,7 +9,7 @@ export interface FadeOptions {
 }
 
 export class FadeInOut extends Transition {
-  screenCover: Rectangle;
+  screenCover!: Rectangle;
   color: Color;
   constructor(options: FadeOptions & TransitionOptions) {
     super({

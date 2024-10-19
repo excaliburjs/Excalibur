@@ -65,6 +65,9 @@ export class OffscreenSystem extends System {
   }
 
   private _isOffscreen(transform: TransformComponent, graphics: GraphicsComponent, parallaxOffset: Vector | undefined) {
+    if (graphics.forceOnScreen) {
+      return false;
+    }
     if (transform.coordPlane === CoordPlane.World) {
       let bounds = graphics.localBounds;
       if (parallaxOffset) {

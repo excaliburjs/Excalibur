@@ -136,7 +136,7 @@ export class EntityManager {
     }
   }
 
-  public getById(id: number): Entity {
+  public getById(id: number): Entity | undefined {
     return this._entityIndex[id];
   }
 

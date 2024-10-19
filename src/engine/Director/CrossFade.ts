@@ -14,9 +14,9 @@ export interface CrossFadeOptions {
  * Note: CrossFade only works as an "in" transition
  */
 export class CrossFade extends Transition {
-  engine: Engine;
-  image: HTMLImageElement;
-  screenCover: Sprite;
+  engine!: Engine;
+  image!: HTMLImageElement;
+  screenCover!: Sprite;
   constructor(options: TransitionOptions & CrossFadeOptions) {
     super({ direction: 'in', ...options }); // default the correct direction
     this.name = `CrossFade#${this.id}`;

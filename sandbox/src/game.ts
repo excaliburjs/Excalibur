@@ -895,8 +895,18 @@ game.input.keyboard.on('down', (keyDown?: ex.KeyEvent) => {
     game.add(a);
   } else if (keyDown.key === ex.Keys.U) {
     game.goToScene('label', { destinationIn: new ex.Slide({ duration: 1000, slideDirection: 'up' }) });
+  } else if (keyDown.key === ex.Keys.D) {
+    game.goToScene('label', { destinationIn: new ex.Slide({ duration: 1000, slideDirection: 'down' }) });
+  } else if (keyDown.key === ex.Keys.L) {
+    game.goToScene('label', { destinationIn: new ex.Slide({ duration: 1000, slideDirection: 'left' }) });
+  } else if (keyDown.key === ex.Keys.R) {
+    game.goToScene('label', { destinationIn: new ex.Slide({ duration: 1000, slideDirection: 'right' }) });
   } else if (keyDown.key === ex.Keys.I) {
-    game.goToScene('root');
+    game.goToScene('root', {
+      destinationIn: new ex.CrossFade({
+        duration: 1000
+      })
+    });
   }
 });
 
