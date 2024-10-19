@@ -65,11 +65,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- Added new `ex.Slide` scene transition, which can slide a screen shot of the current screen: `up`, `down`, `left`, or `right`
+- Added new `ex.Slide` scene transition, which can slide a screen shot of the current screen: `up`, `down`, `left`, or `right`. Optionally you can add an `ex.EasingFunction`, by default `ex.EasingFunctions.Linear`
   ```typescript
-  game.goToScene('otherScene', { 
+  game.goToScene('otherScene', {
     destinationIn: new ex.Slide({
       duration: 1000,
+      easingFunction: ex.EasingFunctions.EaseInOutCubic,
       slideDirection: 'up'
     })
   });

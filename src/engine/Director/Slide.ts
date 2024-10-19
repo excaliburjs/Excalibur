@@ -4,8 +4,7 @@ import { Scene } from '../Scene';
 import { Transition, TransitionOptions } from './Transition';
 import { vec, Vector } from '../Math/vector';
 import { Camera } from '../Camera';
-import { lerp } from '../Math/util';
-import { EasingFunctions } from '../Util/EasingFunctions';
+import { EasingFunction, EasingFunctions } from '../Util/EasingFunctions';
 import { CoordPlane } from '../Math/coord-plane';
 
 export interface SlideOptions {
@@ -20,7 +19,7 @@ export interface SlideOptions {
   /**
    * Optionally select an easing function, by default linear (aka lerp)
    */
-  easingFunction?: EasingFunctions;
+  easingFunction?: EasingFunction;
 }
 
 /**
@@ -31,6 +30,8 @@ export interface SlideOptions {
 export class Slide extends Transition {
   private _image!: HTMLImageElement;
   private _screenCover!: Sprite;
+  private _easing = EasingFunctions.Linear;
+  private _vectorEasing: EasingFunction<Vector>;
   readonly slideDirection: 'up' | 'down' | 'left' | 'right';
   constructor(options: TransitionOptions & SlideOptions) {
     super({ direction: 'in', ...options }); // default the correct direction
@@ -38,6 +39,8 @@ export class Slide extends Transition {
     this.slideDirection = options.slideDirection;
     this.transform.coordPlane = CoordPlane.World;
     this.graphics.forceOnScreen = true;
+    this._easing = options.easingFunction ?? this._easing;
+    this._vectorEasing = EasingFunctions.CreateVectorEasingFunction(this._easing);
   }
 
   override async onPreviousSceneDeactivate(scene: Scene<unknown>) {
@@ -90,6 +93,7 @@ export class Slide extends Transition {
 
   override onUpdate(progress: number): void {
     // in-transitions count down from 1 -> 0, so our "end" is swapped
-    this._camera.pos = lerp(this._destinationCameraPosition, this._startCameraPosition, progress);
+    this._camera.pos = this._vectorEasing(progress, this._destinationCameraPosition, this._startCameraPosition, 1);
+    // this._camera.pos = lerp(this._destinationCameraPosition, this._startCameraPosition, progress);
   }
 }
