@@ -858,7 +858,7 @@ player.on('pointerwheel', () => {
 });
 
 var newScene = new ex.Scene();
-newScene.backgroundColor = ex.Color.Yellow;
+newScene.backgroundColor = ex.Color.ExcaliburBlue;
 newScene.add(new ex.Label({ text: 'MAH LABEL!', x: 200, y: 100 }));
 newScene.on('activate', (evt?: ex.ActivateEvent) => {
   console.log('activate newScene');
@@ -894,7 +894,7 @@ game.input.keyboard.on('down', (keyDown?: ex.KeyEvent) => {
     });
     game.add(a);
   } else if (keyDown.key === ex.Keys.U) {
-    game.goToScene('label');
+    game.goToScene('label', { destinationIn: new ex.Slide({ duration: 1000, slideDirection: 'up' }) });
   } else if (keyDown.key === ex.Keys.I) {
     game.goToScene('root');
   }

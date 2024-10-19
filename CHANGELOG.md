@@ -65,6 +65,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added new `ex.Slide` scene transition, which can slide a screen shot of the current screen: `up`, `down`, `left`, or `right`
+  ```typescript
+  game.goToScene('otherScene', { 
+    destinationIn: new ex.Slide({
+      duration: 1000,
+      slideDirection: 'up'
+    })
+  });
+  ```
 - Added inline SVG image support `ex.ImageSource.fromSvgString('<svg>...</svg>')`, note images produced this way still must be loaded.
 - Added ability to optionally specify sprite options in the `.toSprite(options:? SpriteOptions)`
 - The `ex.Engine` constructor had a new `enableCanvasContextMenu` arg that can be used to enable the right click context menu, by default the context menu is disabled which is what most games seem to want.
