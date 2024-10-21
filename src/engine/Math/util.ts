@@ -1,5 +1,4 @@
 import { Random } from './Random';
-import { Vector } from './vector';
 
 /**
  * Two PI constant
@@ -96,19 +95,4 @@ export function randomInRange(min: number, max: number, random: Random = new Ran
  */
 export function randomIntInRange(min: number, max: number, random: Random = new Random()): number {
   return random ? random.integer(min, max) : Math.round(randomInRange(min, max));
-}
-
-/**
- *
- */
-export function lerp(start: Vector, dest: Vector, time: number): Vector {
-  return start.add(dest.sub(start).scale(time));
-}
-
-// TODO I think this is wrong
-/**
- *
- */
-export function inverseLerp(start: Vector, dest: Vector, progress: number): number {
-  return (progress - start.magnitude) / dest.sub(start).magnitude;
 }

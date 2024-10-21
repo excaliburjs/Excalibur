@@ -65,6 +65,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added a method to force graphics on screen `ex.GraphicsComponent.forceOnScreen`
 - Added new `ex.Slide` scene transition, which can slide a screen shot of the current screen: `up`, `down`, `left`, or `right`. Optionally you can add an `ex.EasingFunction`, by default `ex.EasingFunctions.Linear`
   ```typescript
   game.goToScene('otherScene', {
@@ -117,6 +118,8 @@ are doing mtv adjustments during precollision.
 
 ### Fixed
 
+- Fixed issue where `ex.Engine.screenshot()` images may not yet be loaded in time for use in `ex.Transition`s
+- Fixed issue where there would be an incorrect background color for 1 frame when transitioning to a new scene
 - Fixed issue where `blockInput: true` on scene transition only blocked input events, not accessors like `wasHeld(...)` etc.
 - Fixed issue where users could not easily define a custom `RendererPlugin` because the type was not exposed
 - Fixed issue where `ex.Fade` sometimes would not complete depending on the elapsed time
