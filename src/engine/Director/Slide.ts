@@ -94,6 +94,5 @@ export class Slide extends Transition {
   override onUpdate(progress: number): void {
     // in-transitions count down from 1 -> 0, so our "end" is swapped
     this._camera.pos = this._vectorEasing(progress, this._destinationCameraPosition, this._startCameraPosition, 1);
-    // this._camera.pos = lerp(this._destinationCameraPosition, this._startCameraPosition, progress);
   }
 }
