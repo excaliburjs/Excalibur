@@ -410,7 +410,7 @@ export class Loader extends DefaultLoader {
       progressWidth > 10 ? progressWidth : 10,
       height,
       5,
-      undefined,
+      null,
       this.loadingBarColor
     );
     this.engine.setAntialiasing(oldAntialias);
