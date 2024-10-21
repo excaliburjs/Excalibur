@@ -176,6 +176,7 @@ are doing mtv adjustments during precollision.
 ### Changed
 
 - Applied increased TS strictness:
+  * Director API subtree
   * Resource API subtree
   * Graphics API subtree
   * TileMap API subtree
