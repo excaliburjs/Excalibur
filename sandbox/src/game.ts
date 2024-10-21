@@ -1102,6 +1102,11 @@ game.currentScene.camera.strategy.lockToActorAxis(player, ex.Axis.X);
 game.currentScene.camera.y = 200;
 
 // Run the mainloop
-game.start(boot).then(() => {
-  logger.info('All Resources have finished loading');
-});
+game
+  .start('root', {
+    inTransition: new ex.FadeInOut({ duration: 2000, direction: 'in', color: ex.Color.ExcaliburBlue }),
+    loader: boot
+  })
+  .then(() => {
+    logger.info('All Resources have finished loading');
+  });
