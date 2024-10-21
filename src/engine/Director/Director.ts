@@ -179,8 +179,10 @@ export class Director<TKnownScenes extends string = any> {
       this._initialized = true;
       if (this._deferredGoto) {
         const deferredScene = this._deferredGoto;
-        const deferredSceneInstance = this.getSceneInstance(deferredScene);
+        this._deferredGoto = undefined;
         const deferredTransition = this._deferredTransition;
+        this._deferredTransition = undefined;
+        const deferredSceneInstance = this.getSceneInstance(deferredScene);
         if (deferredSceneInstance && deferredTransition) {
           deferredTransition._addToTargetScene(this._engine, deferredSceneInstance);
         }
@@ -227,16 +229,13 @@ export class Director<TKnownScenes extends string = any> {
     // Fire and forget promise for the initial scene
     if (maybeStartTransition) {
       const startSceneInstance = this.getSceneInstance(this.startScene);
-      let playTransition: Promise<void> | undefined;
       if (startSceneInstance) {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        playTransition = this.playTransition(maybeStartTransition, startSceneInstance);
+        this.swapScene(this.startScene).then(() => {
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+          return this.playTransition(maybeStartTransition, startSceneInstance);
+        });
       }
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.swapScene(this.startScene).then(() => {
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        return playTransition;
-      });
     } else {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.swapScene(this.startScene);
