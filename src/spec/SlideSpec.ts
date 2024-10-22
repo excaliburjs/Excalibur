@@ -49,7 +49,6 @@ describe('A Slide transition', () => {
     await TestUtils.flushMicrotasks(clock, 15);
     await TestUtils.untilMacrotask(() => engine.currentSceneName !== 'root');
     clock.step(500);
-    await Promise.resolve();
     expect(onDeactivateSpy).toHaveBeenCalledTimes(1);
     await expectAsync(engine.canvas).toEqualImage('/src/spec/images/SlideSpec/slide-down.png');
     engine.stop();
@@ -89,7 +88,6 @@ describe('A Slide transition', () => {
     await TestUtils.flushMicrotasks(clock, 15);
     await TestUtils.untilMacrotask(() => engine.currentSceneName !== 'root');
     clock.step(500);
-    await Promise.resolve();
     expect(onDeactivateSpy).toHaveBeenCalledTimes(1);
     await expectAsync(engine.canvas).toEqualImage('/src/spec/images/SlideSpec/slide-right.png');
     engine.stop();
@@ -129,7 +127,6 @@ describe('A Slide transition', () => {
     await TestUtils.flushMicrotasks(clock, 15);
     await TestUtils.untilMacrotask(() => engine.currentSceneName !== 'root');
     clock.step(500);
-    await Promise.resolve();
     expect(onDeactivateSpy).toHaveBeenCalledTimes(1);
     await expectAsync(engine.canvas).toEqualImage('/src/spec/images/SlideSpec/slide-left.png');
     engine.stop();
@@ -169,7 +166,6 @@ describe('A Slide transition', () => {
     await TestUtils.flushMicrotasks(clock, 15);
     await TestUtils.untilMacrotask(() => engine.currentSceneName !== 'root');
     clock.step(500);
-    await Promise.resolve();
     expect(onDeactivateSpy).toHaveBeenCalledTimes(1);
     await expectAsync(engine.canvas).toEqualImage('/src/spec/images/SlideSpec/slide-up.png');
     engine.stop();
@@ -213,7 +209,6 @@ describe('A Slide transition', () => {
     await TestUtils.flushMicrotasks(clock, 15);
     await TestUtils.untilMacrotask(() => engine.currentSceneName !== 'root');
     clock.step(700);
-    await Promise.resolve();
     expect(onDeactivateSpy).toHaveBeenCalledTimes(1);
     await expectAsync(engine.canvas).toEqualImage('/src/spec/images/SlideSpec/slide-up-transition.png');
     engine.stop();

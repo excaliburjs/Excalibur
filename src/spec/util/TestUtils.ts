@@ -81,10 +81,14 @@ export namespace TestUtils {
   /**
    *
    */
-  export async function untilMacrotask(filter: () => boolean, max = 10) {
+  export async function untilMacrotask(filter: () => boolean, max = 20) {
     while (max > 0 && !filter()) {
       max--;
       await nextMacrotask();
+      await Promise.resolve();
+    }
+    if (max <= 0) {
+      throw new Error('Failed to wait for macrotask');
     }
   }
 

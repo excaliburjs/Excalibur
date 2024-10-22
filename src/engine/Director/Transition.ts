@@ -243,7 +243,9 @@ export class Transition extends Entity {
       this._logger.warn(`Attempted to play a transition ${this.name} that hasn't been added`);
     }
 
-    await this._co?.start();
+    if (this._co) {
+      await this._co.start();
+    }
   }
 
   /**
