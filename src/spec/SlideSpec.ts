@@ -29,9 +29,7 @@ describe('A Slide transition', () => {
       })
     );
 
-    const onDeactivateSpy = jasmine.createSpy('onDeactivate').and.callFake(async () => {
-      await Promise.resolve();
-    });
+    const onDeactivateSpy = jasmine.createSpy('onDeactivate');
 
     engine.director.getSceneInstance('root').onDeactivate = onDeactivateSpy;
 
@@ -49,7 +47,7 @@ describe('A Slide transition', () => {
 
     const goto = engine.goToScene('newScene');
     await TestUtils.flushMicrotasks(clock, 15);
-    await TestUtils.untilMacrotask(() => engine.currentSceneName !== 'root' && onDeactivateSpy.calls.all().length > 0);
+    await TestUtils.untilMacrotask(() => engine.currentSceneName !== 'root');
     clock.step(500);
     await Promise.resolve();
     expect(onDeactivateSpy).toHaveBeenCalledTimes(1);
@@ -70,9 +68,7 @@ describe('A Slide transition', () => {
       })
     );
 
-    const onDeactivateSpy = jasmine.createSpy('onDeactivate').and.callFake(async () => {
-      await Promise.resolve();
-    });
+    const onDeactivateSpy = jasmine.createSpy('onDeactivate');
 
     engine.director.getSceneInstance('root').onDeactivate = onDeactivateSpy;
 
@@ -90,7 +86,7 @@ describe('A Slide transition', () => {
 
     const goto = engine.goToScene('newScene');
     await TestUtils.flushMicrotasks(clock, 15);
-    await TestUtils.untilMacrotask(() => engine.currentSceneName !== 'root' && onDeactivateSpy.calls.all().length > 0);
+    await TestUtils.untilMacrotask(() => engine.currentSceneName !== 'root');
     clock.step(500);
     await Promise.resolve();
     expect(onDeactivateSpy).toHaveBeenCalledTimes(1);
@@ -111,9 +107,7 @@ describe('A Slide transition', () => {
       })
     );
 
-    const onDeactivateSpy = jasmine.createSpy('onDeactivate').and.callFake(async () => {
-      await Promise.resolve();
-    });
+    const onDeactivateSpy = jasmine.createSpy('onDeactivate');
 
     engine.director.getSceneInstance('root').onDeactivate = onDeactivateSpy;
 
@@ -131,7 +125,7 @@ describe('A Slide transition', () => {
 
     const goto = engine.goToScene('newScene');
     await TestUtils.flushMicrotasks(clock, 15);
-    await TestUtils.untilMacrotask(() => engine.currentSceneName !== 'root' && onDeactivateSpy.calls.all().length > 0);
+    await TestUtils.untilMacrotask(() => engine.currentSceneName !== 'root');
     clock.step(500);
     await Promise.resolve();
     expect(onDeactivateSpy).toHaveBeenCalledTimes(1);
@@ -152,9 +146,7 @@ describe('A Slide transition', () => {
       })
     );
 
-    const onDeactivateSpy = jasmine.createSpy('onDeactivate').and.callFake(async () => {
-      await Promise.resolve();
-    });
+    const onDeactivateSpy = jasmine.createSpy('onDeactivate');
 
     engine.director.getSceneInstance('root').onDeactivate = onDeactivateSpy;
 
@@ -172,7 +164,7 @@ describe('A Slide transition', () => {
 
     const goto = engine.goToScene('newScene');
     await TestUtils.flushMicrotasks(clock, 15);
-    await TestUtils.untilMacrotask(() => engine.currentSceneName !== 'root' && onDeactivateSpy.calls.all().length > 0);
+    await TestUtils.untilMacrotask(() => engine.currentSceneName !== 'root');
     clock.step(500);
     await Promise.resolve();
     expect(onDeactivateSpy).toHaveBeenCalledTimes(1);
@@ -193,9 +185,7 @@ describe('A Slide transition', () => {
       })
     );
 
-    const onDeactivateSpy = jasmine.createSpy('onDeactivate').and.callFake(async () => {
-      await Promise.resolve();
-    });
+    const onDeactivateSpy = jasmine.createSpy('onDeactivate');
 
     engine.director.getSceneInstance('root').onDeactivate = onDeactivateSpy;
 
@@ -217,7 +207,7 @@ describe('A Slide transition', () => {
 
     const goto = engine.goToScene('newScene');
     await TestUtils.flushMicrotasks(clock, 15);
-    await TestUtils.untilMacrotask(() => engine.currentSceneName !== 'root' && onDeactivateSpy.calls.all().length > 0);
+    await TestUtils.untilMacrotask(() => engine.currentSceneName !== 'root');
     clock.step(700);
     await Promise.resolve();
     expect(onDeactivateSpy).toHaveBeenCalledTimes(1);
