@@ -413,14 +413,11 @@ describe('A Collision', () => {
         solver: ex.SolverStrategy.Realistic
       }
     });
-    clock = engine.clock = engine.clock.toTestClock();
+    clock = engine.clock as ex.TestClock;
+    clock.start();
+    clock.step(1);
 
-    actor1 = new ex.Actor({ x: 0, y: 0, width: 10, height: 10 });
-    actor2 = new ex.Actor({ x: 5, y: 5, width: 10, height: 10 });
-    actor1.body.collisionType = ex.CollisionType.Active;
-    actor2.body.collisionType = ex.CollisionType.Active;
-
-    engine.start().then(() => {
+    TestUtils.runToReady(engine).then(() => {
       const activeBlock = new ex.Actor({ x: 200, y: 200, width: 50, height: 50, color: ex.Color.Red.clone() });
       activeBlock.body.collisionType = ex.CollisionType.Active;
       activeBlock.vel.x = 100;
@@ -431,13 +428,12 @@ describe('A Collision', () => {
       passiveBlock.vel.x = -100;
       engine.add(passiveBlock);
 
-      const collisionEnd = function (event: ex.GameEvent<unknown>) {
+      const collisionEnd = (event: ex.GameEvent<unknown>) => {
         expect(event.target).toBe(activeBlock);
         done();
       };
 
       activeBlock.on('collisionend', collisionEnd);
-
       clock.run(5, 1000);
     });
   });
