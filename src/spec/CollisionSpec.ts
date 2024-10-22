@@ -246,7 +246,7 @@ describe('A Collision', () => {
     });
   });
 
-  it('should emit a start collision once when objects start colliding', () => {
+  it('should emit a start collision once when objects start colliding', (done) => {
     engine.stop();
     engine.dispose();
     engine = TestUtils.engine({
@@ -285,10 +285,11 @@ describe('A Collision', () => {
       clock.run(5, 1000);
 
       expect(count).toBe(1);
+      done();
     });
   });
 
-  it('should emit a end collision once when objects stop colliding', () => {
+  it('should emit a end collision once when objects stop colliding', (done) => {
     engine.stop();
     engine.dispose();
     engine = TestUtils.engine({
@@ -327,6 +328,7 @@ describe('A Collision', () => {
       clock.run(5, 1000);
 
       expect(count).toBe(1);
+      done();
     });
   });
 
