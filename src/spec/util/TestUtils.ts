@@ -72,6 +72,25 @@ export namespace TestUtils {
   /**
    *
    */
+  export async function nextMacrotask() {
+    const future = new ex.Future<void>();
+    setTimeout(() => future.resolve());
+    await future.promise;
+  }
+
+  /**
+   *
+   */
+  export async function untilMacrotask(filter: () => boolean, max = 10) {
+    while (max > 0 && !filter()) {
+      max--;
+      await nextMacrotask();
+    }
+  }
+
+  /**
+   *
+   */
   export function flushWebGLCanvasTo2D(source: HTMLCanvasElement): HTMLCanvasElement {
     const canvas = document.createElement('canvas');
     canvas.width = source.width;

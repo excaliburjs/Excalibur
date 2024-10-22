@@ -207,7 +207,7 @@ export class Transition extends Entity {
     }
 
     if (currentScene.world.entityManager.getById(this.id)) {
-      this._logger.warn(`Attempted to add a transition ${this.name} already in scene.`);
+      return this._co!;
     }
     this._engine = engine;
     currentScene.add(this);
