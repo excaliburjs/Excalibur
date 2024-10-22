@@ -52,6 +52,7 @@ describe('A Slide transition', () => {
     await Promise.resolve();
     expect(onDeactivateSpy).toHaveBeenCalledTimes(1);
     await expectAsync(engine.canvas).toEqualImage('/src/spec/images/SlideSpec/slide-down.png');
+    engine.stop();
     engine.dispose();
   });
 
@@ -91,6 +92,7 @@ describe('A Slide transition', () => {
     await Promise.resolve();
     expect(onDeactivateSpy).toHaveBeenCalledTimes(1);
     await expectAsync(engine.canvas).toEqualImage('/src/spec/images/SlideSpec/slide-right.png');
+    engine.stop();
     engine.dispose();
   });
 
@@ -130,6 +132,7 @@ describe('A Slide transition', () => {
     await Promise.resolve();
     expect(onDeactivateSpy).toHaveBeenCalledTimes(1);
     await expectAsync(engine.canvas).toEqualImage('/src/spec/images/SlideSpec/slide-left.png');
+    engine.stop();
     engine.dispose();
   });
 
@@ -169,6 +172,7 @@ describe('A Slide transition', () => {
     await Promise.resolve();
     expect(onDeactivateSpy).toHaveBeenCalledTimes(1);
     await expectAsync(engine.canvas).toEqualImage('/src/spec/images/SlideSpec/slide-up.png');
+    engine.stop();
     engine.dispose();
   });
 
@@ -212,6 +216,7 @@ describe('A Slide transition', () => {
     await Promise.resolve();
     expect(onDeactivateSpy).toHaveBeenCalledTimes(1);
     await expectAsync(engine.canvas).toEqualImage('/src/spec/images/SlideSpec/slide-up-transition.png');
+    engine.stop();
     engine.dispose();
   });
 });
