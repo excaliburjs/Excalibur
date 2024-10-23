@@ -98,7 +98,7 @@ export class Loader extends DefaultLoader {
   };
   private _originalOptions: LoaderOptions = { loadables: [] };
   public events = new EventEmitter();
-  public screen: Screen;
+  public screen!: Screen;
   private _playButtonShown: boolean = false;
 
   // logo drawing stuff
@@ -111,17 +111,17 @@ export class Loader extends DefaultLoader {
    * Positions the top left corner of the logo image
    * If not set, the loader automatically positions the logo
    */
-  public logoPosition: Vector | null;
+  public logoPosition!: Vector | null;
   /**
    * Positions the top left corner of the play button.
    * If not set, the loader automatically positions the play button
    */
-  public playButtonPosition: Vector | null;
+  public playButtonPosition!: Vector | null;
   /**
    * Positions the top left corner of the loading bar
    * If not set, the loader automatically positions the loading bar
    */
-  public loadingBarPosition: Vector | null;
+  public loadingBarPosition!: Vector | null;
 
   /**
    * Gets or sets the color of the loading bar, default is {@apilink Color.White}
@@ -133,7 +133,7 @@ export class Loader extends DefaultLoader {
    */
   public backgroundColor: string = '#176BAA';
 
-  protected _imageElement: HTMLImageElement;
+  protected _imageElement!: HTMLImageElement;
   protected _imageLoaded: Future<void> = new Future();
   protected get _image() {
     if (!this._imageElement) {
@@ -152,9 +152,9 @@ export class Loader extends DefaultLoader {
   public get playButtonElement(): HTMLButtonElement | null {
     return this._playButtonElement;
   }
-  protected _playButtonRootElement: HTMLElement;
-  protected _playButtonElement: HTMLButtonElement;
-  protected _styleBlock: HTMLStyleElement;
+  protected _playButtonRootElement!: HTMLElement;
+  protected _playButtonElement!: HTMLButtonElement;
+  protected _styleBlock!: HTMLStyleElement;
   /** Loads the css from Loader.css */
   protected _playButtonStyles: string = loaderCss.toString();
   protected get _playButton() {
@@ -303,13 +303,13 @@ export class Loader extends DefaultLoader {
       this._playButtonRootElement.removeChild(this._playButtonElement);
       document.body.removeChild(this._playButtonRootElement);
       document.head.removeChild(this._styleBlock);
-      this._playButtonRootElement = null;
-      this._playButtonElement = null;
-      this._styleBlock = null;
+      this._playButtonRootElement = null as any;
+      this._playButtonElement = null as any;
+      this._styleBlock = null as any;
     }
   }
 
-  data: Loadable<any>[];
+  data!: Loadable<any>[];
 
   public override async onUserAction(): Promise<void> {
     // short delay in showing the button for aesthetics

@@ -14,9 +14,9 @@ export interface CrossFadeOptions {
  * Note: CrossFade only works as an "in" transition
  */
 export class CrossFade extends Transition {
-  engine: Engine;
-  image: HTMLImageElement;
-  screenCover: Sprite;
+  engine!: Engine;
+  image!: HTMLImageElement;
+  screenCover!: Sprite;
   constructor(options: TransitionOptions & CrossFadeOptions) {
     super({ direction: 'in', ...options }); // default the correct direction
     this.name = `CrossFade#${this.id}`;
@@ -34,6 +34,8 @@ export class CrossFade extends Transition {
     this.transform.pos = engine.screen.unsafeArea.topLeft;
     this.screenCover = ImageSource.fromHtmlImageElement(this.image).toSprite();
     this.graphics.add(this.screenCover);
+
+    // This is because we preserve hidpi res on the screen shot which COULD be bigger than the logical resolution
     this.transform.scale = vec(1 / engine.screen.pixelRatio, 1 / engine.screen.pixelRatio);
     this.graphics.opacity = this.progress;
   }

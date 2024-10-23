@@ -858,7 +858,7 @@ player.on('pointerwheel', () => {
 });
 
 var newScene = new ex.Scene();
-newScene.backgroundColor = ex.Color.Yellow;
+newScene.backgroundColor = ex.Color.ExcaliburBlue;
 newScene.add(new ex.Label({ text: 'MAH LABEL!', x: 200, y: 100 }));
 newScene.on('activate', (evt?: ex.ActivateEvent) => {
   console.log('activate newScene');
@@ -894,9 +894,43 @@ game.input.keyboard.on('down', (keyDown?: ex.KeyEvent) => {
     });
     game.add(a);
   } else if (keyDown.key === ex.Keys.U) {
-    game.goToScene('label');
+    game.goToScene('label', {
+      destinationIn: new ex.Slide({
+        duration: 1000,
+        easingFunction: ex.EasingFunctions.EaseInOutCubic,
+        slideDirection: 'up'
+      })
+    });
+  } else if (keyDown.key === ex.Keys.D) {
+    game.goToScene('label', {
+      destinationIn: new ex.Slide({
+        duration: 1000,
+        easingFunction: ex.EasingFunctions.EaseInOutCubic,
+        slideDirection: 'down'
+      })
+    });
+  } else if (keyDown.key === ex.Keys.L) {
+    game.goToScene('label', {
+      destinationIn: new ex.Slide({
+        duration: 1000,
+        easingFunction: ex.EasingFunctions.EaseInOutCubic,
+        slideDirection: 'left'
+      })
+    });
+  } else if (keyDown.key === ex.Keys.R) {
+    game.goToScene('label', {
+      destinationIn: new ex.Slide({
+        duration: 1000,
+        easingFunction: ex.EasingFunctions.EaseInOutCubic,
+        slideDirection: 'right'
+      })
+    });
   } else if (keyDown.key === ex.Keys.I) {
-    game.goToScene('root');
+    game.goToScene('root', {
+      destinationIn: new ex.CrossFade({
+        duration: 1000
+      })
+    });
   }
 });
 
@@ -1068,6 +1102,11 @@ game.currentScene.camera.strategy.lockToActorAxis(player, ex.Axis.X);
 game.currentScene.camera.y = 200;
 
 // Run the mainloop
-game.start(boot).then(() => {
-  logger.info('All Resources have finished loading');
-});
+game
+  .start('root', {
+    inTransition: new ex.FadeInOut({ duration: 2000, direction: 'in', color: ex.Color.ExcaliburBlue }),
+    loader: boot
+  })
+  .then(() => {
+    logger.info('All Resources have finished loading');
+  });
