@@ -7,6 +7,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- Collision events now only target `ex.Collider` types, this previously would sometimes emit an `ex.Entity` if you attached to the `ex.ColliderComponent`
+  * `ex.PreCollisionEvent`
+  * `ex.PostCollisionEvent`
+  * `ex.ContactStartEvent`
+  * `ex.ContactEndEvent`
+  * `ex.CollisionPreSolveEvent`
+  * `ex.CollisionPostSolveEvent`
+  * `ex.CollisionStartEvent`
+  * `ex.CollisionEndEvent`
 - `System.priority` is refactored to be static.
 - `ex.Timer` now only takes the option bag constructor
 - `PreDrawEvent`, `PostDrawEvent`, `PreTransformDrawEvent`, `PostTransformDrawEvent`, `PreUpdateEvent`, `PostUpdateEvent` now use `elapsedMs` instead of `delta` for the elapsed milliseconds between the last frame.460696
@@ -118,6 +127,7 @@ are doing mtv adjustments during precollision.
 
 ### Fixed
 
+- Fixed issue where Collision events ahd inconsistent targets, sometimes they were Colliders and sometimes they were Entities
 - Fixed issue where `ex.Engine.screenshot()` images may not yet be loaded in time for use in `ex.Transition`s
 - Fixed issue where there would be an incorrect background color for 1 frame when transitioning to a new scene
 - Fixed issue where `blockInput: true` on scene transition only blocked input events, not accessors like `wasHeld(...)` etc.

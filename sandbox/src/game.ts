@@ -664,7 +664,7 @@ player.on('collisionstart', () => {
 });
 
 player.on('collisionend', (e) => {
-  console.log('collision end', e.other.collider);
+  console.log('collision end', e.other);
 });
 
 // Health bar example
@@ -952,8 +952,8 @@ player.on('postcollision', (data: ex.PostCollisionEvent) => {
         game.input.keyboard.isHeld(ex.Keys.Down)
       )
     ) {
-      player.vel.x = data.other.vel.x;
-      player.vel.y = data.other.vel.y;
+      player.vel.x = data.other.owner.vel.x;
+      player.vel.y = data.other.owner.vel.y;
     }
 
     if (!data.other) {
@@ -964,7 +964,7 @@ player.on('postcollision', (data: ex.PostCollisionEvent) => {
 
   if (data.side === ex.Side.Top) {
     if (data.other) {
-      player.vel.y = data.other.vel.y - player.vel.y;
+      player.vel.y = data.other.owner.vel.y - player.vel.y;
     } else {
       player.vel.y = 0;
     }
