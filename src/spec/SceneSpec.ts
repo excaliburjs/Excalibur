@@ -358,16 +358,16 @@ describe('A scene', () => {
     engine.dispose();
     engine = null;
     engine = TestUtils.engine({ width: 100, height: 100 });
-    scene = new ex.Scene();
+    const scene = new ex.Scene();
 
     engine.removeScene('otherScene');
     engine.addScene('otherScene', scene);
 
     let initialized = false;
-    scene.on('initialize', (evt: ex.InitializeEvent) => {
+    scene.once('initialize', (evt: ex.InitializeEvent) => {
       initialized = true;
     });
-    scene.on('activate', (evt: ex.ActivateEvent) => {
+    scene.once('activate', (evt: ex.ActivateEvent) => {
       expect(initialized).toBe(true, 'Initialization should happen before activation');
       done();
     });
@@ -391,16 +391,16 @@ describe('A scene', () => {
     let sceneInitialized = false;
     const sceneActivated = false;
     let actorInitialized = false;
-    scene.on('initialize', (evt) => {
+    scene.once('initialize', (evt) => {
       sceneInitialized = true;
       expect(actorInitialized).toBe(true, 'Actor should be initialized before scene initialization');
     });
     const actor = new ex.Actor();
-    actor.on('initialize', (evt) => {
+    actor.once('initialize', (evt) => {
       actorInitialized = true;
     });
 
-    scene.on('activate', (evt) => {
+    scene.once('activate', (evt) => {
       expect(actorInitialized).toBe(true, 'Actor should be initialized before scene is activated');
       done();
     });

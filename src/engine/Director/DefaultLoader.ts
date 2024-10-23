@@ -44,7 +44,7 @@ export function isLoaderConstructor(x: any): x is LoaderConstructor {
 }
 
 export class DefaultLoader implements Loadable<Loadable<any>[]> {
-  public data: Loadable<any>[];
+  public data!: Loadable<any>[];
   public events = new EventEmitter<LoaderEvents>();
   public canvas: Canvas = new Canvas({
     filtering: ImageFiltering.Blended,
@@ -57,7 +57,7 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
     return this._resources;
   }
   private _numLoaded: number = 0;
-  public engine: Engine;
+  public engine!: Engine;
 
   /**
    * @param options Optionally provide the list of resources you want to load at constructor time
@@ -259,6 +259,6 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
   public off(eventName: string, handler: Handler<unknown>): void;
   public off(eventName: string): void;
   public off<TEventName extends EventKey<LoaderEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
-    this.events.off(eventName, handler);
+    (this.events as any).off(eventName, handler);
   }
 }

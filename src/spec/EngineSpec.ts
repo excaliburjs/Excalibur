@@ -755,9 +755,10 @@ describe('The engine', () => {
     TestUtils.runToReady(engine).then(() => {
       clock.step(1);
 
+      const canvas = flushWebGLCanvasTo2D(engine.canvas);
       engine.screenshot().then((image) => {
         expectAsync(image)
-          .toEqualImage(flushWebGLCanvasTo2D(engine.canvas))
+          .toEqualImage(canvas)
           .then(() => {
             done();
             engine.dispose();
@@ -789,6 +790,7 @@ describe('The engine', () => {
     clock.step(1);
     const screenShotPromise = engine.screenshot();
     clock.step(1);
+    const canvas = flushWebGLCanvasTo2D(engine.canvas);
     const hidpiImagePromise = engine.screenshot(true);
     clock.step(1);
 
@@ -800,7 +802,7 @@ describe('The engine', () => {
 
     expect(hidpiImage.width).toBe(1000);
     expect(hidpiImage.height).toBe(1000);
-    await expectAsync(hidpiImage).toEqualImage(flushWebGLCanvasTo2D(engine.canvas));
+    await expectAsync(hidpiImage).toEqualImage(canvas);
     engine.dispose();
   });
 

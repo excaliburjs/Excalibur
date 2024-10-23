@@ -111,8 +111,8 @@ export function roundRect(
   width: number,
   height: number,
   radius: number | BorderRadius = 5,
-  stroke: Color = Color.White,
-  fill: Color = null
+  stroke: Color | null = Color.White,
+  fill: Color | null = null
 ) {
   let br: BorderRadius;
 

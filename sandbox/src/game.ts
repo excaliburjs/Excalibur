@@ -177,12 +177,53 @@ cards2.draw(game.graphicsContext, 0, 0);
 
 jump.volume = 0.3;
 
+var svgExternal = new ex.ImageSource('../images/arrows.svg');
+var svg = (tags: TemplateStringsArray) => tags[0];
+
+var svgImage = ex.ImageSource.fromSvgString(svg`
+  <svg version="1.1"
+       id="svg2"
+       xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+       xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+       sodipodi:docname="resize-full.svg" inkscape:version="0.48.4 r9939"
+       xmlns="http://www.w3.org/2000/svg" 
+       width="800px" height="800px"
+       viewBox="0 0 1200 1200" enable-background="new 0 0 1200 1200" xml:space="preserve">
+  <path id="path18934" fill="#000000ff" inkscape:connector-curvature="0"  d="M670.312,0l177.246,177.295L606.348,418.506l175.146,175.146
+      l241.211-241.211L1200,529.688V0H670.312z M418.506,606.348L177.295,847.559L0,670.312V1200h529.688l-177.246-177.295
+      l241.211-241.211L418.506,606.348z"/>
+  </svg>
+`);
+
+var svgActor = new ex.Actor({
+  name: 'svg',
+  pos: ex.vec(200, 200)
+});
+svgActor.graphics.add(
+  svgImage.toSprite({
+    destSize: {
+      width: 100,
+      height: 100
+    },
+    sourceView: {
+      x: 400,
+      y: 0,
+      width: 400,
+      height: 400
+    }
+  })
+);
+// svgActor.graphics.add(svgExternal.toSprite());
+game.add(svgActor);
+
 var boot = new ex.Loader();
 // var boot = new ex.Loader({
 //   fullscreenAfterLoad: true,
 //   fullscreenContainer: document.getElementById('container')
 // });
 // boot.suppressPlayButton = true;
+boot.addResource(svgExternal);
+boot.addResource(svgImage);
 boot.addResource(heartImageSource);
 boot.addResource(heartTex);
 boot.addResource(imageRun);
@@ -817,7 +858,7 @@ player.on('pointerwheel', () => {
 });
 
 var newScene = new ex.Scene();
-newScene.backgroundColor = ex.Color.Yellow;
+newScene.backgroundColor = ex.Color.ExcaliburBlue;
 newScene.add(new ex.Label({ text: 'MAH LABEL!', x: 200, y: 100 }));
 newScene.on('activate', (evt?: ex.ActivateEvent) => {
   console.log('activate newScene');
@@ -853,9 +894,43 @@ game.input.keyboard.on('down', (keyDown?: ex.KeyEvent) => {
     });
     game.add(a);
   } else if (keyDown.key === ex.Keys.U) {
-    game.goToScene('label');
+    game.goToScene('label', {
+      destinationIn: new ex.Slide({
+        duration: 1000,
+        easingFunction: ex.EasingFunctions.EaseInOutCubic,
+        slideDirection: 'up'
+      })
+    });
+  } else if (keyDown.key === ex.Keys.D) {
+    game.goToScene('label', {
+      destinationIn: new ex.Slide({
+        duration: 1000,
+        easingFunction: ex.EasingFunctions.EaseInOutCubic,
+        slideDirection: 'down'
+      })
+    });
+  } else if (keyDown.key === ex.Keys.L) {
+    game.goToScene('label', {
+      destinationIn: new ex.Slide({
+        duration: 1000,
+        easingFunction: ex.EasingFunctions.EaseInOutCubic,
+        slideDirection: 'left'
+      })
+    });
+  } else if (keyDown.key === ex.Keys.R) {
+    game.goToScene('label', {
+      destinationIn: new ex.Slide({
+        duration: 1000,
+        easingFunction: ex.EasingFunctions.EaseInOutCubic,
+        slideDirection: 'right'
+      })
+    });
   } else if (keyDown.key === ex.Keys.I) {
-    game.goToScene('root');
+    game.goToScene('root', {
+      destinationIn: new ex.CrossFade({
+        duration: 1000
+      })
+    });
   }
 });
 
@@ -1027,6 +1102,11 @@ game.currentScene.camera.strategy.lockToActorAxis(player, ex.Axis.X);
 game.currentScene.camera.y = 200;
 
 // Run the mainloop
-game.start(boot).then(() => {
-  logger.info('All Resources have finished loading');
-});
+game
+  .start('root', {
+    inTransition: new ex.FadeInOut({ duration: 2000, direction: 'in', color: ex.Color.ExcaliburBlue }),
+    loader: boot
+  })
+  .then(() => {
+    logger.info('All Resources have finished loading');
+  });

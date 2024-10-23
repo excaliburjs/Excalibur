@@ -28,9 +28,10 @@ export class Sprite extends Graphic {
   public destSize: DestinationSize;
   private _dirty = true;
 
-  public static from(image: ImageSource): Sprite {
+  public static from(image: ImageSource, options?: Omit<GraphicOptions & SpriteOptions, 'image'>): Sprite {
     return new Sprite({
-      image: image
+      image,
+      ...options
     });
   }
 
