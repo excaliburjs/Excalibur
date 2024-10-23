@@ -17,8 +17,9 @@ describe('Collision Shape', () => {
     let actor: ex.Actor;
 
     beforeEach(async () => {
-      engine = TestUtils.engine();
-      engine.backgroundColor = ex.Color.Transparent;
+      engine = TestUtils.engine({
+        backgroundColor: ex.Color.ExcaliburBlue
+      });
       scene = new ex.Scene();
       engine.add('test', scene);
       await engine.goToScene('test');
@@ -452,8 +453,9 @@ describe('Collision Shape', () => {
     let engine: ex.Engine;
     let scene: ex.Scene;
     beforeEach(async () => {
-      engine = TestUtils.engine();
-      engine.backgroundColor = ex.Color.Transparent;
+      engine = TestUtils.engine({
+        backgroundColor: ex.Color.ExcaliburBlue
+      });
       scene = new ex.Scene();
       engine.addScene('test', scene);
       await engine.goToScene('test');
@@ -912,8 +914,9 @@ describe('Collision Shape', () => {
     });
 
     beforeEach(async () => {
-      engine = TestUtils.engine();
-      engine.backgroundColor = ex.Color.Transparent;
+      engine = TestUtils.engine({
+        backgroundColor: ex.Color.ExcaliburBlue
+      });
       scene = new ex.Scene();
       engine.addScene('test', scene);
       await engine.goToScene('test');

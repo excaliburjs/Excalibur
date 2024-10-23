@@ -43,13 +43,37 @@ const SlowSpecsReporter = function(baseReporterDecorator) {
       return b.time - a.time;
     })
     for (const spec of slowSpecs.slice(0, 20)) {
-      this.write(spec.message);
+      let color = '\u001b[32m'; // green
+      let timeSeconds = spec.time/1000;
+      if (timeSeconds >= 0.5) {
+        color = '\u001b[33m'; // yellow
+      } 
+      if (timeSeconds >= 1.0) {
+        color = '\u001b[31m'; // red
+      }
+      this.write(`${color}${(timeSeconds).toFixed(2)} Seconds:\u001b[0m ${spec.name}\n`);
     }
     slowSpecs.length = 0;
   };
 };
 const timingReporter = {
   'reporter:jasmine-slow': ['type', SlowSpecsReporter], // 1. 
+}
+
+const TimeoutSpecsReporter = function(baseReporterDecorator, logger, emitter) {
+  baseReporterDecorator(this);
+  const reporter = this;
+
+  emitter.on('browser_info', (browser, data) => {
+      if (!data || data.type !== 'Jasmine Timeout Reporter') {
+          return
+      }
+      reporter.write(`\n\u001b[31m${data.type.toUpperCase()}:\u001b[0m ${data.specName}\n`);
+  });
+}
+TimeoutSpecsReporter.$inject = ['baseReporterDecorator', 'logger', 'emitter'];
+const timeoutReporter = {
+  'reporter:jasmine-timeout': ['type', TimeoutSpecsReporter]
 }
 
 module.exports = (config) => {
@@ -64,7 +88,8 @@ module.exports = (config) => {
       require('karma-spec-reporter'),
       require('karma-jasmine-order-reporter'),
       seedReporter,
-      timingReporter
+      timingReporter,
+      timeoutReporter
     ],
     client: {
       // Excalibur logs / console logs suppressed when captureConsole = false;
@@ -155,7 +180,7 @@ module.exports = (config) => {
     // i. e.
         stats: 'normal'
     },
-    reporters: ['jasmine-order', 'progress', /*'spec'*/, 'coverage-istanbul','jasmine-seed', 'jasmine-slow'],
+    reporters: ['jasmine-order', 'progress', /*'spec'*/, 'coverage-istanbul','jasmine-seed', 'jasmine-slow', 'jasmine-timeout'],
     coverageReporter: {
       reporters: [
           { type: 'html', dir: 'coverage/' }, 
