@@ -84,6 +84,15 @@ export class Resource<T> implements Loadable<T> {
           return;
         }
 
+        if (request.response instanceof Blob && request.response.type === 'text/html') {
+          const errorText = `Expected blob (usually image) data from the server when loading ${this.path}, but got HTML content instead!
+
+Check your server configuration, for example Vite serves static files from the /public folder`;
+          this.events.emit('error', request.response);
+          reject(new Error(errorText));
+          return;
+        }
+
         this.data = request.response;
         this.events.emit('complete', this.data as any);
         this.logger.debug('Completed loading resource', this.path);
