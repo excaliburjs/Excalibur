@@ -128,6 +128,7 @@ are doing mtv adjustments during precollision.
 
 ### Fixed
 
+- Fixed issue where `cancel()`'d events still bubbled to the top level input handlers
 - Fixed issue where unexpected html HTML content from an image would silently hang the loader
 - Fixed issue where Collision events ahd inconsistent targets, sometimes they were Colliders and sometimes they were Entities
 - Fixed issue where `ex.Engine.screenshot()` images may not yet be loaded in time for use in `ex.Transition`s
