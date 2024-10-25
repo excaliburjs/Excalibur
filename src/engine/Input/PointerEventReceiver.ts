@@ -209,8 +209,8 @@ export class PointerEventReceiver {
 
     for (const event of this.currentFrameDown) {
       if (!event.active) {
-continue;
-}
+        continue;
+      }
       this.emit('down', event);
       const pointer = this.at(event.pointerId);
       pointer.emit('down', event);
@@ -219,8 +219,8 @@ continue;
 
     for (const event of this.currentFrameUp) {
       if (!event.active) {
-continue;
-}
+        continue;
+      }
       this.emit('up', event);
       const pointer = this.at(event.pointerId);
       pointer.emit('up', event);
@@ -228,8 +228,8 @@ continue;
 
     for (const event of this.currentFrameMove) {
       if (!event.active) {
-continue;
-}
+        continue;
+      }
       this.emit('move', event);
       const pointer = this.at(event.pointerId);
       pointer.emit('move', event);
@@ -237,8 +237,8 @@ continue;
 
     for (const event of this.currentFrameCancel) {
       if (!event.active) {
-continue;
-}
+        continue;
+      }
       this.emit('cancel', event);
       const pointer = this.at(event.pointerId);
       pointer.emit('cancel', event);
@@ -246,8 +246,8 @@ continue;
 
     for (const event of this.currentFrameWheel) {
       if (!event.active) {
-continue;
-}
+        continue;
+      }
       this.emit('pointerwheel', event);
       this.emit('wheel', event);
       this.primary.emit('pointerwheel', event);
