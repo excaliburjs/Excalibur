@@ -127,6 +127,7 @@ are doing mtv adjustments during precollision.
 
 ### Fixed
 
+- Fixed issue where unexpected html HTML content from an image would silently hang the loader
 - Fixed issue where Collision events ahd inconsistent targets, sometimes they were Colliders and sometimes they were Entities
 - Fixed issue where `ex.Engine.screenshot()` images may not yet be loaded in time for use in `ex.Transition`s
 - Fixed issue where there would be an incorrect background color for 1 frame when transitioning to a new scene
