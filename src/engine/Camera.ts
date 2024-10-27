@@ -312,24 +312,17 @@ export class Camera implements CanUpdate, CanInitialize {
     this._angularVelocity = value;
   }
 
+  private _posChanged = false;
+  private _pos: Vector = watchAny(Vector.Zero, () => (this._posChanged = true));
   /**
    * Get or set the camera's position
    */
-  private _posChanged = false;
-  private _checkChanged = (newVec: Vector) => {
-    const newX = newVec.x;
-    const newY = newVec.y;
-    const oldX = this._pos.x;
-    const oldY = this._pos.y;
-    return newX !== oldX || newY !== oldY;
-  };
-  private _pos: Vector = watchAny(Vector.Zero, (newVec) => (this._posChanged = this._checkChanged(newVec)));
   public get pos(): Vector {
     return this._pos;
   }
   public set pos(vec: Vector) {
-    this._posChanged = this._checkChanged(vec);
-    this._pos = watchAny(vec, (newVec) => (this._posChanged = this._checkChanged(newVec)));
+    this._pos = watchAny(vec, () => (this._posChanged = true));
+    this._posChanged = true;
   }
 
   /**
