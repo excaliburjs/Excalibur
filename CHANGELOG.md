@@ -75,6 +75,29 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added a new `ex.NineSlice` `Graphic` for creating arbitrarily resizable rectangular regions, useful for creating UI, backgrounds, and other resizable elements.
+  ```typescript
+  var nineSlice = new ex.NineSlice({
+    width: 300,
+    height: 100,
+    source: inputTile,
+    sourceConfig: {
+      width: 64,
+      height: 64,
+      topMargin: 5,
+      leftMargin: 7,
+      bottomMargin: 5,
+      rightMargin: 7
+    },
+    destinationConfig: {
+      drawCenter: true,
+      horizontalStretch: ex.NineSliceStretch.Stretch,
+      verticalStretch: ex.NineSliceStretch.Stretch
+    }
+  });
+
+  actor.graphics.add(nineSlice);
+  ```
 - Added a method to force graphics on screen `ex.GraphicsComponent.forceOnScreen`
 - Added new `ex.Slide` scene transition, which can slide a screen shot of the current screen: `up`, `down`, `left`, or `right`. Optionally you can add an `ex.EasingFunction`, by default `ex.EasingFunctions.Linear`
   ```typescript
