@@ -82,7 +82,7 @@ export type NineSliceConfig = GraphicOptions & {
 
 export class NineSlice extends Graphic {
   private _imgSource: ImageSource;
-  private _sourceSprite: HTMLImageElement;
+  private _sourceSprite?: HTMLImageElement;
   private _canvasA: HTMLCanvasElement;
   private _canvasB: HTMLCanvasElement;
   private _canvasC: HTMLCanvasElement;
@@ -95,10 +95,11 @@ export class NineSlice extends Graphic {
 
   private _logger = Logger.getInstance();
 
-  constructor(private _config: NineSliceConfig) {
-    super(_config);
-    this._imgSource = _config.source;
-    this._sourceSprite = _config.source.image;
+  private _config: NineSliceConfig;
+  constructor(config: NineSliceConfig) {
+    super(config);
+    this._config = config;
+    this._imgSource = config.source;
 
     this._canvasA = document.createElement('canvas');
     this._canvasB = document.createElement('canvas');
@@ -115,14 +116,6 @@ export class NineSlice extends Graphic {
     this._imgSource.ready.then(() => {
       this._initialize();
     });
-
-    if (!this._imgSource.isLoaded()) {
-      this._logger.warnOnce(
-        `ImageSource ${this._imgSource.path}` +
-          ` is not yet loaded and won't be drawn. Please call .load() or include in a Loader.\n\n` +
-          `Read https://excaliburjs.com/docs/imagesource for more information.`
-      );
-    }
   }
 
   /**
@@ -390,7 +383,7 @@ export class NineSlice extends Graphic {
       );
     } else {
       this._logger.warnOnce(
-        `ImageSource ${this._imgSource.path}` +
+        `NineSlice ImageSource ${this._imgSource.path}` +
           ` is not yet loaded and won't be drawn. Please call .load() or include in a Loader.\n\n` +
           `Read https://excaliburjs.com/docs/imagesource for more information.`
       );
@@ -401,6 +394,8 @@ export class NineSlice extends Graphic {
    * Slices the source sprite into the 9 slice canvases internally
    */
   protected _initialize() {
+    this._sourceSprite = this._imgSource.image;
+
     // top left slice
     this._canvasA.width = this._config.sourceConfig.leftMargin;
     this._canvasA.height = this._config.sourceConfig.topMargin;

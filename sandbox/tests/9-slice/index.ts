@@ -11,26 +11,25 @@ var actor = new ex.Actor({
   pos: ex.vec(200, 200)
 });
 game.add(actor);
-
-game.start(new ex.Loader([inputTile])).then(() => {
-  var nineSlice = new ex.NineSlice({
-    width: 300,
-    height: 100,
-    source: inputTile,
-    sourceConfig: {
-      width: 64,
-      height: 64,
-      topMargin: 5,
-      leftMargin: 7,
-      bottomMargin: 5,
-      rightMargin: 7
-    },
-    destinationConfig: {
-      drawCenter: true,
-      horizontalStretch: ex.NineSliceStretch.Stretch,
-      verticalStretch: ex.NineSliceStretch.Stretch
-    }
-  });
-
-  actor.graphics.add(nineSlice);
+var nineSlice = new ex.NineSlice({
+  width: 300,
+  height: 100,
+  source: inputTile,
+  sourceConfig: {
+    width: 64,
+    height: 64,
+    topMargin: 5,
+    leftMargin: 7,
+    bottomMargin: 5,
+    rightMargin: 7
+  },
+  destinationConfig: {
+    drawCenter: true,
+    horizontalStretch: ex.NineSliceStretch.Stretch,
+    verticalStretch: ex.NineSliceStretch.Stretch
+  }
 });
+
+actor.graphics.add(nineSlice);
+var loader = new ex.Loader([inputTile]);
+game.start(loader).then(() => {});
