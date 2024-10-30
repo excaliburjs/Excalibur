@@ -142,8 +142,10 @@ export class PointerSystem extends System {
     // Dispatch pointer events on entities
     this._dispatchEvents(this._sortedEntities);
 
-    // Clear last frame's events
+    // Dispatch pointer events on top level pointers
     this._receivers.forEach((r) => r.update());
+
+    // Clear last frame's events
     this.lastFrameEntityToPointers.clear();
     this.lastFrameEntityToPointers = new Map<number, number[]>(this.currentFrameEntityToPointers);
     this.currentFrameEntityToPointers.clear();

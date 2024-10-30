@@ -255,10 +255,8 @@ export class PointerEventReceiver {
       this.primary.emit('wheel', event);
     }
 
-    if (this.engine.currentScene.camera.posChanged) {
-      for (const pointer of this._pointers) {
-        pointer._updateWorldPosition(this.engine.currentScene.camera.pos);
-      }
+    for (const pointer of this._pointers) {
+      pointer._updateWorldPosition(this.engine);
     }
   }
 
