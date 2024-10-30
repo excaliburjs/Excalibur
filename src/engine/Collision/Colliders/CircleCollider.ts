@@ -117,9 +117,9 @@ export class CircleCollider extends Collider {
    */
   public rayCast(ray: Ray, max: number = Infinity): RayCastHit | null {
     // https://en.wikipedia.org/wiki/Intersection_(geometry)#A_line_and_a_circle
-    const c = this.center; //?
-    const dir = ray.dir; //?
-    const orig = ray.pos; //?
+    const c = this.center;
+    const dir = ray.dir;
+    const orig = ray.pos;
 
     const u = c.sub(orig);
 

@@ -221,6 +221,13 @@ export interface EngineOptions<TKnownScenes extends string = any> {
   canvasElement?: HTMLCanvasElement;
 
   /**
+   * Optionally enable the right click context menu on the canvas
+   *
+   * Default if unset is false
+   */
+  enableCanvasContextMenu?: boolean;
+
+  /**
    * Optionally snap graphics to nearest pixel, default is false
    */
   snapToPixel?: boolean;
@@ -745,6 +752,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
     },
     canvasElementId: '',
     canvasElement: undefined,
+    enableCanvasContextMenu: false,
     snapToPixel: false,
     antialiasing: true,
     pixelArt: false,
@@ -887,6 +895,12 @@ O|===|* >________________>\n\
     } else {
       this._logger.debug('Using generated canvas element');
       this.canvas = <HTMLCanvasElement>document.createElement('canvas');
+    }
+
+    if (this.canvas && !options.enableCanvasContextMenu) {
+      this.canvas.addEventListener('contextmenu', (evt) => {
+        evt.preventDefault();
+      });
     }
 
     let displayMode = options.displayMode ?? DisplayMode.Fixed;
@@ -1609,6 +1623,8 @@ O|===|* >________________>\n\
    * @param elapsedMs  Number of milliseconds elapsed since the last draw.
    */
   private _draw(elapsedMs: number) {
+    // Use scene background color if present, fallback to engine
+    this.graphicsContext.backgroundColor = this.currentScene.backgroundColor ?? this.backgroundColor;
     this.graphicsContext.beginDrawLifecycle();
     this.graphicsContext.clear();
     this.clock.__runScheduledCbs('predraw');
@@ -1624,9 +1640,6 @@ O|===|* >________________>\n\
       }
       return;
     }
-
-    // Use scene background color if present, fallback to engine
-    this.graphicsContext.backgroundColor = this.currentScene.backgroundColor ?? this.backgroundColor;
 
     this.currentScene.draw(this.graphicsContext, elapsedMs);
 
@@ -1855,8 +1868,10 @@ O|===|* >________________>\n\
 
       const result = new Image();
       const raw = screenshot.toDataURL('image/png');
+      result.onload = () => {
+        request.resolve(result);
+      };
       result.src = raw;
-      request.resolve(result);
     }
     // Reset state
     this._screenShotRequests.length = 0;
