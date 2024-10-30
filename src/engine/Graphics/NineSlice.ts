@@ -4,18 +4,37 @@ import { ImageSource } from './ImageSource';
 import { Logger } from '../Util/Log';
 import { Vector } from '../Math/vector';
 
+/**
+ * Nine slice stretch mode
+ */
 export enum NineSliceStretch {
-  Stretch,
-  Tile,
-  TileFit
+  /**
+   * Stretch the image across a dimension
+   */
+  Stretch = 'stretch',
+  /**
+   * Tile the image across a dimension
+   */
+  Tile = 'tile',
+  /**
+   * Tile the image across a dimension but only by whole image amounts
+   */
+  TileFit = 'tile-fit'
 }
 
 export type NineSliceConfig = GraphicOptions & {
+  /**
+   * Final width of the nine slice graphic
+   */
   width: number;
+  /**
+   * Final height of the nine slice graphic
+   */
   height: number;
   /**
    *  Image source that's loaded from a Loader or individually
-   *  */
+   *
+   */
   source: ImageSource;
 
   /**
@@ -46,9 +65,18 @@ export type NineSliceConfig = GraphicOptions & {
    *  and flag for drawing the center tile if desired
    */
   destinationConfig: {
+    /**
+     * Draw the center part of the nine slice, if false it's a completely transparent gap
+     */
     drawCenter: boolean;
-    stretchH: NineSliceStretch;
-    stretchV: NineSliceStretch;
+    /**
+     * Horizontal stretch configuration
+     */
+    horizontalStretch: NineSliceStretch;
+    /**
+     * Vertical stretch configuration
+     */
+    verticalStretch: NineSliceStretch;
   };
 };
 
@@ -84,6 +112,10 @@ export class NineSlice extends Graphic {
 
     this._initialize();
 
+    this._imgSource.ready.then(() => {
+      this._initialize();
+    });
+
     if (!this._imgSource.isLoaded()) {
       this._logger.warnOnce(
         `ImageSource ${this._imgSource.path}` +
@@ -94,7 +126,9 @@ export class NineSlice extends Graphic {
   }
 
   /**
-   *  Sets the target width of the 9 slice (pixels), and recalculates the 9 slice if desired (auto)
+   * Sets the target width of the 9 slice (pixels), and recalculates the 9 slice if desired (auto)
+   * @param newWidth
+   * @param auto
    */
   setTargetWidth(newWidth: number, auto: boolean = false) {
     this._config.width = newWidth;
@@ -104,7 +138,9 @@ export class NineSlice extends Graphic {
   }
 
   /**
-   *  Sets the target height of the 9 slice (pixels), and recalculates the 9 slice if desired (auto)
+   * Sets the target height of the 9 slice (pixels), and recalculates the 9 slice if desired (auto)
+   * @param newHeight
+   * @param auto
    */
   setTargetHeight(newHeight: number, auto: boolean = false) {
     this._config.height = newHeight;
@@ -130,14 +166,14 @@ export class NineSlice extends Graphic {
    *  Sets the stretching strategy for the 9 slice, and recalculates the 9 slice if desired (auto)
    *
    */
-  setStretch(type: 'Horizontal' | 'Vertical' | 'Both', strategy: NineSliceStretch, auto: boolean = false) {
-    if (type === 'Horizontal') {
-      this._config.destinationConfig.stretchH = strategy;
-    } else if (type === 'Vertical') {
-      this._config.destinationConfig.stretchV = strategy;
+  setStretch(type: 'horizontal' | 'vertical' | 'both', stretch: NineSliceStretch, auto: boolean = false) {
+    if (type === 'horizontal') {
+      this._config.destinationConfig.horizontalStretch = stretch;
+    } else if (type === 'vertical') {
+      this._config.destinationConfig.verticalStretch = stretch;
     } else {
-      this._config.destinationConfig.stretchH = strategy;
-      this._config.destinationConfig.stretchV = strategy;
+      this._config.destinationConfig.horizontalStretch = stretch;
+      this._config.destinationConfig.verticalStretch = stretch;
     }
     if (auto) {
       this._initialize();
@@ -152,27 +188,34 @@ export class NineSlice extends Graphic {
   }
 
   /**
-   *  Draws 1 of the 9 tiles based on parameters passed in
-   *  context is the ExcaliburGraphicsContext from the _drawImage function
-   *  destinationSize is the size of the destination image as a vector (width,height)
-   *  targetCanvas is the canvas to draw to
-   *  hstrategy and vstrategy are the horizontal and vertical stretching strategies
-   *  marginW and marginH are optional margins for the 9 slice for positioning
+   * Draws 1 of the 9 tiles based on parameters passed in
+   * context is the ExcaliburGraphicsContext from the _drawImage function
+   * destinationSize is the size of the destination image as a vector (width,height)
+   * targetCanvas is the canvas to draw to
+   * horizontalStretch and verticalStretch are the horizontal and vertical stretching strategies
+   * marginW and marginH are optional margins for the 9 slice for positioning
+   * @param context
+   * @param targetCanvas
+   * @param destinationSize
+   * @param horizontalStretch
+   * @param verticalStretch
+   * @param marginWidth
+   * @param marginHeight
    */
   protected _drawTile(
     context: ExcaliburGraphicsContext,
     targetCanvas: HTMLCanvasElement,
     destinationSize: Vector,
-    hstrategy: NineSliceStretch,
-    vstrategy: NineSliceStretch,
-    marginW?: number,
-    marginH?: number
+    horizontalStretch: NineSliceStretch,
+    verticalStretch: NineSliceStretch,
+    marginWidth?: number,
+    marginHeight?: number
   ) {
-    const tempMarginW = marginW || 0;
-    const tempMarginH = marginH || 0;
-    let tempSizeX, tempPositionX, tempSizeY, tempPositionY;
-    const numTilesX = this._getNumberOfTiles(targetCanvas.width, destinationSize.x, hstrategy);
-    const numTilesY = this._getNumberOfTiles(targetCanvas.height, destinationSize.y, vstrategy);
+    const tempMarginW = marginWidth || 0;
+    const tempMarginH = marginHeight || 0;
+    let tempSizeX: number, tempPositionX: number, tempSizeY: number, tempPositionY: number;
+    const numTilesX = this._getNumberOfTiles(targetCanvas.width, destinationSize.x, horizontalStretch);
+    const numTilesY = this._getNumberOfTiles(targetCanvas.height, destinationSize.y, verticalStretch);
 
     for (let i = 0; i < numTilesX; i++) {
       for (let j = 0; j < numTilesY; j++) {
@@ -181,7 +224,7 @@ export class NineSlice extends Graphic {
           numTilesX,
           targetCanvas.width,
           destinationSize.x,
-          this._config.destinationConfig.stretchH
+          this._config.destinationConfig.horizontalStretch
         );
         tempSizeX = tempSize;
         tempPositionX = tempPosition;
@@ -191,7 +234,7 @@ export class NineSlice extends Graphic {
           numTilesY,
           targetCanvas.height,
           destinationSize.y,
-          this._config.destinationConfig.stretchV
+          this._config.destinationConfig.verticalStretch
         ));
         tempSizeY = tempSize;
         tempPositionY = tempPosition;
@@ -216,18 +259,18 @@ export class NineSlice extends Graphic {
    */
   protected _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number): void {
     if (this._imgSource.isLoaded()) {
-      //Top left, no strecthing
+      // Top left, no stretching
 
       this._drawTile(
         ex,
         this._canvasA,
 
         new Vector(this._config.sourceConfig.leftMargin, this._config.sourceConfig.topMargin),
-        this._config.destinationConfig.stretchH,
-        this._config.destinationConfig.stretchV
+        this._config.destinationConfig.horizontalStretch,
+        this._config.destinationConfig.verticalStretch
       );
 
-      //Top, middle, horizontal stretching
+      // Top, middle, horizontal stretching
       this._drawTile(
         ex,
         this._canvasB,
@@ -236,27 +279,27 @@ export class NineSlice extends Graphic {
           this._config.width - this._config.sourceConfig.leftMargin - this._config.sourceConfig.rightMargin,
           this._config.sourceConfig.topMargin
         ),
-        this._config.destinationConfig.stretchH,
-        this._config.destinationConfig.stretchV,
+        this._config.destinationConfig.horizontalStretch,
+        this._config.destinationConfig.verticalStretch,
         this._config.sourceConfig.leftMargin,
         0
       );
 
-      //Top right, no strecthing
+      // Top right, no stretching
 
       this._drawTile(
         ex,
         this._canvasC,
 
         new Vector(this._config.sourceConfig.rightMargin, this._config.sourceConfig.topMargin),
-        this._config.destinationConfig.stretchH,
-        this._config.destinationConfig.stretchV,
+        this._config.destinationConfig.horizontalStretch,
+        this._config.destinationConfig.verticalStretch,
 
         this._config.width - this._config.sourceConfig.rightMargin,
         0
       );
 
-      // middle, left, vertical strecthing
+      // middle, left, vertical stretching
 
       this._drawTile(
         ex,
@@ -266,13 +309,13 @@ export class NineSlice extends Graphic {
 
           this._config.height - this._config.sourceConfig.bottomMargin - this._config.sourceConfig.topMargin
         ),
-        this._config.destinationConfig.stretchH,
-        this._config.destinationConfig.stretchV,
+        this._config.destinationConfig.horizontalStretch,
+        this._config.destinationConfig.verticalStretch,
         0,
         this._config.sourceConfig.topMargin
       );
 
-      // center, both strecthing
+      // center, both stretching
       if (this._config.destinationConfig.drawCenter) {
         this._drawTile(
           ex,
@@ -282,13 +325,13 @@ export class NineSlice extends Graphic {
 
             this._config.height - this._config.sourceConfig.bottomMargin - this._config.sourceConfig.topMargin
           ),
-          this._config.destinationConfig.stretchH,
-          this._config.destinationConfig.stretchV,
+          this._config.destinationConfig.horizontalStretch,
+          this._config.destinationConfig.verticalStretch,
           this._config.sourceConfig.leftMargin,
           this._config.sourceConfig.topMargin
         );
       }
-      //middle, right, vertical strecthing
+      // middle, right, vertical stretching
       this._drawTile(
         ex,
         this._canvasF,
@@ -298,26 +341,26 @@ export class NineSlice extends Graphic {
 
           this._config.height - this._config.sourceConfig.bottomMargin - this._config.sourceConfig.topMargin
         ),
-        this._config.destinationConfig.stretchH,
-        this._config.destinationConfig.stretchV,
+        this._config.destinationConfig.horizontalStretch,
+        this._config.destinationConfig.verticalStretch,
 
         this._config.width - this._config.sourceConfig.rightMargin,
         this._config.sourceConfig.topMargin
       );
 
-      //bottom left, no strecthing
+      // bottom left, no stretching
       this._drawTile(
         ex,
         this._canvasG,
         new Vector(this._config.sourceConfig.leftMargin, this._config.sourceConfig.bottomMargin),
-        this._config.destinationConfig.stretchH,
-        this._config.destinationConfig.stretchV,
+        this._config.destinationConfig.horizontalStretch,
+        this._config.destinationConfig.verticalStretch,
         0,
 
         this._config.height - this._config.sourceConfig.bottomMargin
       );
 
-      //bottom middle, horizontal strecthing
+      // bottom middle, horizontal stretching
       this._drawTile(
         ex,
         this._canvasH,
@@ -326,20 +369,20 @@ export class NineSlice extends Graphic {
           this._config.width - this._config.sourceConfig.leftMargin - this._config.sourceConfig.rightMargin,
           this._config.sourceConfig.bottomMargin
         ),
-        this._config.destinationConfig.stretchH,
-        this._config.destinationConfig.stretchV,
+        this._config.destinationConfig.horizontalStretch,
+        this._config.destinationConfig.verticalStretch,
         this._config.sourceConfig.leftMargin,
 
         this._config.height - this._config.sourceConfig.bottomMargin
       );
 
-      //bottom right, no strecthing
+      // bottom right, no stretching
       this._drawTile(
         ex,
         this._canvasI,
         new Vector(this._config.sourceConfig.rightMargin, this._config.sourceConfig.bottomMargin),
-        this._config.destinationConfig.stretchH,
-        this._config.destinationConfig.stretchV,
+        this._config.destinationConfig.horizontalStretch,
+        this._config.destinationConfig.verticalStretch,
 
         this._config.width - this._config.sourceConfig.rightMargin,
 
@@ -354,21 +397,24 @@ export class NineSlice extends Graphic {
     }
   }
 
+  /**
+   * Slices the source sprite into the 9 slice canvases internally
+   */
   protected _initialize() {
-    //top left slice
+    // top left slice
     this._canvasA.width = this._config.sourceConfig.leftMargin;
     this._canvasA.height = this._config.sourceConfig.topMargin;
-    const Atx = this._canvasA.getContext('2d');
+    const aCtx = this._canvasA.getContext('2d');
 
-    Atx?.drawImage(this._sourceSprite, 0, 0, this._canvasA.width, this._canvasA.height, 0, 0, this._canvasA.width, this._canvasA.height);
+    aCtx?.drawImage(this._sourceSprite, 0, 0, this._canvasA.width, this._canvasA.height, 0, 0, this._canvasA.width, this._canvasA.height);
 
-    //top slice
+    // top slice
 
     this._canvasB.width = this._config.sourceConfig.width - this._config.sourceConfig.leftMargin - this._config.sourceConfig.rightMargin;
     this._canvasB.height = this._config.sourceConfig.topMargin;
 
-    const Btx = this._canvasB.getContext('2d');
-    Btx?.drawImage(
+    const bCtx = this._canvasB.getContext('2d');
+    bCtx?.drawImage(
       this._sourceSprite,
       this._config.sourceConfig.leftMargin,
       0,
@@ -380,11 +426,11 @@ export class NineSlice extends Graphic {
       this._canvasB.height
     );
 
-    //top right slice
+    // top right slice
     this._canvasC.width = this._config.sourceConfig.rightMargin;
     this._canvasC.height = this._config.sourceConfig.topMargin;
-    const Ctx = this._canvasC.getContext('2d');
-    Ctx?.drawImage(
+    const cCtx = this._canvasC.getContext('2d');
+    cCtx?.drawImage(
       this._sourceSprite,
       this._sourceSprite.width - this._config.sourceConfig.rightMargin,
       0,
@@ -396,11 +442,11 @@ export class NineSlice extends Graphic {
       this._canvasC.height
     );
 
-    //middle left slice
+    // middle left slice
     this._canvasD.width = this._config.sourceConfig.leftMargin;
     this._canvasD.height = this._config.sourceConfig.height - this._config.sourceConfig.topMargin - this._config.sourceConfig.bottomMargin;
-    const Dtx = this._canvasD.getContext('2d');
-    Dtx?.drawImage(
+    const dCtx = this._canvasD.getContext('2d');
+    dCtx?.drawImage(
       this._sourceSprite,
       0,
       this._config.sourceConfig.topMargin,
@@ -412,11 +458,11 @@ export class NineSlice extends Graphic {
       this._canvasD.height
     );
 
-    //middle slice
+    // middle slice
     this._canvasE.width = this._config.sourceConfig.width - this._config.sourceConfig.leftMargin - this._config.sourceConfig.rightMargin;
     this._canvasE.height = this._config.sourceConfig.height - this._config.sourceConfig.topMargin - this._config.sourceConfig.bottomMargin;
-    const Etx = this._canvasE.getContext('2d');
-    Etx?.drawImage(
+    const eCtx = this._canvasE.getContext('2d');
+    eCtx?.drawImage(
       this._sourceSprite,
       this._config.sourceConfig.leftMargin,
       this._config.sourceConfig.topMargin,
@@ -428,11 +474,11 @@ export class NineSlice extends Graphic {
       this._canvasE.height
     );
 
-    //middle right slice
+    // middle right slice
     this._canvasF.width = this._config.sourceConfig.rightMargin;
     this._canvasF.height = this._config.sourceConfig.height - this._config.sourceConfig.topMargin - this._config.sourceConfig.bottomMargin;
-    const Ftx = this._canvasF.getContext('2d');
-    Ftx?.drawImage(
+    const fCtx = this._canvasF.getContext('2d');
+    fCtx?.drawImage(
       this._sourceSprite,
 
       this._config.sourceConfig.width - this._config.sourceConfig.rightMargin,
@@ -445,11 +491,11 @@ export class NineSlice extends Graphic {
       this._canvasF.height
     );
 
-    //bottom left slice
+    // bottom left slice
     this._canvasG.width = this._config.sourceConfig.leftMargin;
     this._canvasG.height = this._config.sourceConfig.bottomMargin;
-    const Gtx = this._canvasG.getContext('2d');
-    Gtx?.drawImage(
+    const gCtx = this._canvasG.getContext('2d');
+    gCtx?.drawImage(
       this._sourceSprite,
       0,
       this._config.sourceConfig.height - this._config.sourceConfig.bottomMargin,
@@ -461,11 +507,11 @@ export class NineSlice extends Graphic {
       this._canvasG.height
     );
 
-    //bottom slice
+    // bottom slice
     this._canvasH.width = this._config.sourceConfig.width - this._config.sourceConfig.leftMargin - this._config.sourceConfig.rightMargin;
     this._canvasH.height = this._config.sourceConfig.bottomMargin;
-    const Htx = this._canvasH.getContext('2d');
-    Htx?.drawImage(
+    const hCtx = this._canvasH.getContext('2d');
+    hCtx?.drawImage(
       this._sourceSprite,
       this._config.sourceConfig.leftMargin,
       this._config.sourceConfig.height - this._config.sourceConfig.bottomMargin,
@@ -477,11 +523,11 @@ export class NineSlice extends Graphic {
       this._canvasH.height
     );
 
-    //bottom right slice
+    // bottom right slice
     this._canvasI.width = this._config.sourceConfig.rightMargin;
     this._canvasI.height = this._config.sourceConfig.bottomMargin;
-    const Itx = this._canvasI.getContext('2d');
-    Itx?.drawImage(
+    const iCtx = this._canvasI.getContext('2d');
+    iCtx?.drawImage(
       this._sourceSprite,
       this._sourceSprite.width - this._config.sourceConfig.rightMargin,
       this._config.sourceConfig.height - this._config.sourceConfig.bottomMargin,
@@ -505,15 +551,14 @@ export class NineSlice extends Graphic {
   /**
    * Returns the number of tiles
    */
-
-  protected _getNumberOfTiles(tilesize: number, destinationSize: number, strategy: NineSliceStretch): number {
+  protected _getNumberOfTiles(tileSize: number, destinationSize: number, strategy: NineSliceStretch): number {
     switch (strategy) {
       case NineSliceStretch.Stretch:
         return 1;
       case NineSliceStretch.Tile:
-        return Math.ceil(destinationSize / tilesize);
+        return Math.ceil(destinationSize / tileSize);
       case NineSliceStretch.TileFit:
-        return Math.ceil(destinationSize / tilesize);
+        return Math.ceil(destinationSize / tileSize);
     }
   }
 
@@ -521,9 +566,9 @@ export class NineSlice extends Graphic {
    * Returns the position and size of the tile
    */
   protected _calculateParams(
-    tilenum: number,
+    tileNum: number,
     numTiles: number,
-    tilesize: number,
+    tileSize: number,
     destinationSize: number,
     strategy: NineSliceStretch
   ): { tempPosition: number; tempSize: number } {
@@ -535,22 +580,22 @@ export class NineSlice extends Graphic {
         };
       case NineSliceStretch.Tile:
         // if last tile, adjust size
-        if (tilenum === numTiles - 1) {
+        if (tileNum === numTiles - 1) {
           //last tile
           return {
-            tempPosition: tilenum * tilesize,
-            tempSize: tilesize - (numTiles * tilesize - destinationSize)
+            tempPosition: tileNum * tileSize,
+            tempSize: tileSize - (numTiles * tileSize - destinationSize)
           };
         } else {
           return {
-            tempPosition: tilenum * tilesize,
-            tempSize: tilesize
+            tempPosition: tileNum * tileSize,
+            tempSize: tileSize
           };
         }
 
       case NineSliceStretch.TileFit:
         const reducedTileSize = destinationSize / numTiles;
-        const position = tilenum * reducedTileSize;
+        const position = tileNum * reducedTileSize;
         return {
           tempPosition: position,
           tempSize: reducedTileSize

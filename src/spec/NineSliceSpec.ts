@@ -30,8 +30,8 @@ describe('A NineSlice', () => {
       },
       destinationConfig: {
         drawCenter: true,
-        stretchH: ex.NineSliceStretch.Stretch,
-        stretchV: ex.NineSliceStretch.Stretch
+        horizontalStretch: ex.NineSliceStretch.Stretch,
+        verticalStretch: ex.NineSliceStretch.Stretch
       }
     };
     testGraphicConfigStretch = {
@@ -48,8 +48,8 @@ describe('A NineSlice', () => {
       },
       destinationConfig: {
         drawCenter: true,
-        stretchH: ex.NineSliceStretch.Stretch,
-        stretchV: ex.NineSliceStretch.Stretch
+        horizontalStretch: ex.NineSliceStretch.Stretch,
+        verticalStretch: ex.NineSliceStretch.Stretch
       }
     };
     testGraphicConfigTile = {
@@ -66,8 +66,8 @@ describe('A NineSlice', () => {
       },
       destinationConfig: {
         drawCenter: true,
-        stretchH: ex.NineSliceStretch.Tile,
-        stretchV: ex.NineSliceStretch.Tile
+        horizontalStretch: ex.NineSliceStretch.Tile,
+        verticalStretch: ex.NineSliceStretch.Tile
       }
     };
     testGraphicConfigTileFit = {
@@ -84,8 +84,8 @@ describe('A NineSlice', () => {
       },
       destinationConfig: {
         drawCenter: true,
-        stretchH: ex.NineSliceStretch.TileFit,
-        stretchV: ex.NineSliceStretch.TileFit
+        horizontalStretch: ex.NineSliceStretch.TileFit,
+        verticalStretch: ex.NineSliceStretch.TileFit
       }
     };
     testGraphicConfigNoCenter = {
@@ -102,8 +102,8 @@ describe('A NineSlice', () => {
       },
       destinationConfig: {
         drawCenter: false,
-        stretchH: ex.NineSliceStretch.Stretch,
-        stretchV: ex.NineSliceStretch.Stretch
+        horizontalStretch: ex.NineSliceStretch.Stretch,
+        verticalStretch: ex.NineSliceStretch.Stretch
       }
     };
   });
@@ -135,8 +135,8 @@ describe('A NineSlice', () => {
       },
       destinationConfig: {
         drawCenter: true,
-        stretchH: ex.NineSliceStretch.Stretch,
-        stretchV: ex.NineSliceStretch.Stretch
+        horizontalStretch: ex.NineSliceStretch.Stretch,
+        verticalStretch: ex.NineSliceStretch.Stretch
       }
     };
 
@@ -153,10 +153,10 @@ describe('A NineSlice', () => {
     sut.setTargetHeight(256);
     expect(sut.getConfig().height).toBe(256);
 
-    sut.setStretch('Horizontal', ex.NineSliceStretch.Tile);
-    sut.setStretch('Vertical', ex.NineSliceStretch.TileFit);
-    expect(sut.getConfig().destinationConfig.stretchH).toBe(ex.NineSliceStretch.Tile);
-    expect(sut.getConfig().destinationConfig.stretchV).toBe(ex.NineSliceStretch.TileFit);
+    sut.setStretch('horizontal', ex.NineSliceStretch.Tile);
+    sut.setStretch('vertical', ex.NineSliceStretch.TileFit);
+    expect(sut.getConfig().destinationConfig.horizontalStretch).toBe(ex.NineSliceStretch.Tile);
+    expect(sut.getConfig().destinationConfig.verticalStretch).toBe(ex.NineSliceStretch.TileFit);
   });
 
   it('can clone the Graphic', () => {

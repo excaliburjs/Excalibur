@@ -12,7 +12,7 @@ For example: let's say this is your source texture sprite.
 
 ![Input Tile Image](InputTile.png)
 
-The nine slice Graphic will break that texture up into 9 seperate parts.
+The nine slice Graphic will break that texture up into 9 separate parts.
 
 ![sliced texture](9slice.png)
 
@@ -55,8 +55,8 @@ export type NineSliceConfig = GraphicOptions & {
   */
   destinationConfig: {
     drawCenter: boolean;
-    stretchH: NineSliceStretch; //exported enum
-    stretchV: NineSliceStretch; //exported enum
+    horizontalStretch: NineSliceStretch; //exported enum
+    verticalStretch: NineSliceStretch; //exported enum
   };
 };
 ```
@@ -84,20 +84,20 @@ export class Player extends Actor {
       },
       destinationConfig: {
         drawCenter: true,
-        stretchH: NineSliceStretch.TileFit,
-        stretchV: NineSliceStretch.TileFit
+        horizontalStretch: NineSliceStretch.TileFit,
+        verticalStretch: NineSliceStretch.TileFit
       }
     };
 
     this.myNineSlice = new NineSlice(myNineSliceConfig);
-    this.graphics.use(this.mynineslice);
+    this.graphics.use(this.myNineSlice);
   }
 }
 ```
 
 ## Stretch Options
 
-There are two parameters in the configuration that need to be set to dictate the behavior of the drawing desitnation graphic, `stretchH` and `stretchV`. They are of type `NineSliceStretch`. The `stretchH` parameter will dictate the behavior of tile slices 2,5, and 8, as these frames can stretch horizontally. The `stretchV` parameter dictates how tile slices 4,5,6 behave, as they can stretch vertically.
+There are two parameters in the configuration that need to be set to dictate the behavior of the drawing destination graphic, `horizontalStretch` and `verticalStretch`. They are of type `NineSliceStretch`. The `horizontalStretch` parameter will dictate the behavior of tile slices 2,5, and 8, as these frames can stretch horizontally. The `verticalStretch` parameter dictates how tile slices 4,5,6 behave, as they can stretch vertically.
 
 The class includes some exported enumerated options:
 
@@ -113,7 +113,7 @@ export enum NineSliceStretch {
 
 ![Stretched Texture](stretched.png)
 
-The stretch setting takes input slice and paints in across the entirety of the output dimensions, causing a stretching of the texture as its redrawn, but this is gauranteed to fit the designated area, just with some potential image distortion.
+The stretch setting takes input slice and paints in across the entirety of the output dimensions, causing a stretching of the texture as its redrawn, but this is guaranteed to fit the designated area, just with some potential image distortion.
 
 ### Tile
 
@@ -144,4 +144,4 @@ Look, Ma! No Center!
 
 ## Changing the Graphic
 
-At this point, if you modify the graphic details, it is recommended to recreate a new instance of the graphic and update your Actor or Screen Element if it needs changed. The existing instance will not dynmically update itself.
+At this point, if you modify the graphic details, it is recommended to recreate a new instance of the graphic and update your Actor or Screen Element if it needs changed. The existing instance will not dynamically update itself.
