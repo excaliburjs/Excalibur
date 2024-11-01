@@ -131,7 +131,7 @@
     "replace-in-file": "7.2.0",
     "rimraf": "5.0.10",
     "semver": "7.6.3",
-    "serve": "14.2.3",
+    "serve": "14.2.4",
     "source-map-support": "0.5.21",
     "storybook": "7.6.20",
     "sync-request": "6.1.0",
