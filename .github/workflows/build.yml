@@ -32,7 +32,7 @@ jobs:
       - run: npm ci
       - run: npm run linux:ci
       - name: Coveralls
-        uses: coverallsapp/github-action@v2.3.0
+        uses: coverallsapp/github-action@v2.3.4
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
