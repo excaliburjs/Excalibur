@@ -255,9 +255,10 @@ export class AffineMatrix {
       result.data[4] = a11 * b13 + a12 * b23 + a13; // * b33; // one
       result.data[5] = a21 * b13 + a22 * b23 + a23; // * b33; // one
 
-      const s = this.getScale();
-      result._scaleSignX = sign(s.x) * sign(result._scaleSignX);
-      result._scaleSignY = sign(s.y) * sign(result._scaleSignY);
+      const signX = this._scaleSignX;
+      const signY = this._scaleSignY;
+      result._scaleSignX = signX * sign(result._scaleSignX);
+      result._scaleSignY = signY * sign(result._scaleSignY);
 
       return result;
     }
