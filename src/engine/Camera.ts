@@ -313,7 +313,9 @@ export class Camera implements CanUpdate, CanInitialize {
   }
 
   private _posChanged = false;
-  private _pos: Vector = watchAny(Vector.Zero, () => (this._posChanged = true));
+  private _pos: Vector = watchAny(Vector.Zero, (change) => {
+    this._posChanged = change.x !== this._pos.x || change.y !== this._pos.y;
+  });
   /**
    * Get or set the camera's position
    */
@@ -321,14 +323,16 @@ export class Camera implements CanUpdate, CanInitialize {
     return this._pos;
   }
   public set pos(vec: Vector) {
-    this._pos = watchAny(vec, () => (this._posChanged = true));
-    this._posChanged = true;
+    this._posChanged = vec.x !== this._pos.x || vec.y !== this._pos.y;
+    this._pos = watchAny(vec, (change) => {
+      this._posChanged = change.x !== this._pos.x || change.y !== this._pos.y;
+    });
   }
 
   /**
    * Has the position changed since the last update
    */
-  public get posChanged(): boolean {
+  public hasChanged(): boolean {
     return this._posChanged;
   }
   /**
