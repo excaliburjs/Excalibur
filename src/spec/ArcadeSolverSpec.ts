@@ -40,10 +40,12 @@ describe('An ArcadeSolver', () => {
   });
 
   it('should not catch on a seam (left/right)', async () => {
-    ex.Physics.acc = new ex.Vector(0, 800);
     const game = TestUtils.engine({
       width: 1000,
-      height: 1000
+      height: 1000,
+      physics: {
+        gravity: new ex.Vector(0, 800)
+      }
     });
     const clock = game.clock as ex.TestClock;
     await TestUtils.runToReady(game);
@@ -85,9 +87,6 @@ describe('An ArcadeSolver', () => {
     for (let i = 0; i < 10; i++) {
       clock.step(16);
     }
-
-    // give player right velocity
-    ex.Physics.acc = ex.Vector.Zero;
 
     game.dispose();
   });

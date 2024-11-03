@@ -977,7 +977,6 @@ describe('A game actor', () => {
     const active = new ex.Actor({ x: 0, y: -50, width: 100, height: 100 });
     active.body.collisionType = ex.CollisionType.Active;
     active.vel.y = -100;
-    ex.Physics.acc.setTo(0, 0);
 
     const fixed = new ex.Actor({ x: -100, y: 50, width: 1000, height: 100 });
     fixed.body.collisionType = ex.CollisionType.Fixed;
@@ -997,7 +996,6 @@ describe('A game actor', () => {
       scene.update(engine, 1000);
     }
 
-    expect(ex.Physics.acc.y).toBe(0);
     expect(active.pos.x).toBeCloseTo(0, 0.0001);
     expect(active.pos.y).toBeCloseTo(-100 * iterations + -50 /* original y is -50 */, 0.0001);
 

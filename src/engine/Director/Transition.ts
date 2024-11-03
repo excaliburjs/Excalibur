@@ -7,7 +7,7 @@ import { CoordPlane } from '../Math/coord-plane';
 import { Vector } from '../Math/vector';
 import { clamp } from '../Math/util';
 import { EasingFunction, EasingFunctions } from '../Util/EasingFunctions';
-import { coroutine } from '../Util/Coroutine';
+import { coroutine, CoroutineInstance } from '../Util/Coroutine';
 import { Logger } from '../Util/Log';
 
 export interface TransitionOptions {
@@ -58,6 +58,8 @@ export class Transition extends Entity {
   readonly easing: EasingFunction;
   readonly direction: 'out' | 'in';
   private _completeFuture = new Future<void>();
+  protected _engine?: Engine;
+  private _co?: CoroutineInstance;
 
   // State needs to be reset between uses
   public started = false;
@@ -195,28 +197,62 @@ export class Transition extends Entity {
     this.onReset();
   }
 
-  play(engine: Engine, targetScene?: Scene) {
+  /**
+   * @internal
+   */
+  _addToTargetScene(engine: Engine, targetScene: Scene): CoroutineInstance {
+    const currentScene = targetScene;
+    if (this.started) {
+      this._logger.warn(`Attempted to add a transition ${this.name} that is already playing.`);
+    }
+
+    if (currentScene.world.entityManager.getById(this.id)) {
+      return this._co!;
+    }
+    this._engine = engine;
+    currentScene.add(this);
+    const self = this;
+    this._co = coroutine(
+      engine,
+      function* () {
+        while (!self.complete) {
+          const elapsed = yield; // per frame
+          self.updateTransition(self._engine!, elapsed);
+          self._execute();
+        }
+      },
+      {
+        autostart: false
+      }
+    );
+    return this._co;
+  }
+
+  /**
+   * Called internally by excalibur to swap scenes with transition
+   * @internal
+   */
+  async _play() {
     if (this.started) {
       this.reset();
       this._logger.warn(`Attempted to play a transition ${this.name} that is already playing, reset transition.`);
     }
 
-    const currentScene = targetScene ?? engine.currentScene;
-    currentScene.add(this);
-    const self = this;
-    return coroutine(engine, function* () {
-      while (!self.complete) {
-        const elapsed = yield; // per frame
-        self.updateTransition(engine, elapsed);
-        self.execute();
-      }
-    });
+    if (!this._engine || !this._co) {
+      this.reset();
+      this._logger.warn(`Attempted to play a transition ${this.name} that hasn't been added`);
+    }
+
+    if (this._co) {
+      await this._co.start();
+    }
   }
 
   /**
    * execute() is called by the engine every frame to update the Transition lifecycle onStart/onUpdate/onEnd
+   * @internal
    */
-  execute() {
+  _execute() {
     if (!this.isInitialized) {
       return;
     }

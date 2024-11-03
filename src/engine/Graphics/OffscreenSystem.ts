@@ -36,7 +36,8 @@ export class OffscreenSystem extends System {
     let graphics: GraphicsComponent;
     let maybeParallax: ParallaxComponent | undefined;
 
-    for (const entity of this.query.entities) {
+    for (let i = 0; i < this.query.entities.length; i++) {
+      const entity = this.query.entities[i];
       graphics = entity.get(GraphicsComponent);
       transform = entity.get(TransformComponent);
       maybeParallax = entity.get(ParallaxComponent);
@@ -65,6 +66,9 @@ export class OffscreenSystem extends System {
   }
 
   private _isOffscreen(transform: TransformComponent, graphics: GraphicsComponent, parallaxOffset: Vector | undefined) {
+    if (graphics.forceOnScreen) {
+      return false;
+    }
     if (transform.coordPlane === CoordPlane.World) {
       let bounds = graphics.localBounds;
       if (parallaxOffset) {

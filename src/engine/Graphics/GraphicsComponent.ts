@@ -108,6 +108,11 @@ export class GraphicsComponent extends Component {
   public visible: boolean = true;
 
   /**
+   * Optionally force the graphic onscreen, default false. Not recommend to use for perf reasons, only if you known what you're doing.
+   */
+  public forceOnScreen: boolean = false;
+
+  /**
    * Sets or gets wither all drawings should have an opacity applied
    */
   public opacity: number = 1;

@@ -265,8 +265,13 @@ export class Color {
   /**
    * Returns a clone of the current color.
    */
-  public clone(): Color {
-    return new Color(this.r, this.g, this.b, this.a);
+  public clone(dest?: Color): Color {
+    const result = dest || new Color(this.r, this.g, this.b, this.a);
+    result.r = this.r;
+    result.g = this.g;
+    result.b = this.b;
+    result.a = this.a;
+    return result;
   }
 
   /**

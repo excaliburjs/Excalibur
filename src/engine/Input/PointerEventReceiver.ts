@@ -124,6 +124,9 @@ export class PointerEventReceiver {
    * @param pointerId
    */
   public isDown(pointerId: number) {
+    if (!this._enabled) {
+      return false;
+    }
     return this.currentFramePointerDown.get(pointerId) ?? false;
   }
 
@@ -132,6 +135,9 @@ export class PointerEventReceiver {
    * @param pointerId
    */
   public wasDown(pointerId: number) {
+    if (!this._enabled) {
+      return false;
+    }
     return this.lastFramePointerDown.get(pointerId) ?? false;
   }
 
@@ -139,6 +145,9 @@ export class PointerEventReceiver {
    * Whether the Pointer is currently dragging.
    */
   public isDragging(pointerId: number): boolean {
+    if (!this._enabled) {
+      return false;
+    }
     return this.isDown(pointerId);
   }
 
@@ -146,6 +155,9 @@ export class PointerEventReceiver {
    * Whether the Pointer just started dragging.
    */
   public isDragStart(pointerId: number): boolean {
+    if (!this._enabled) {
+      return false;
+    }
     return this.isDown(pointerId) && !this.wasDown(pointerId);
   }
 
@@ -153,6 +165,9 @@ export class PointerEventReceiver {
    * Whether the Pointer just ended dragging.
    */
   public isDragEnd(pointerId: number): boolean {
+    if (!this._enabled) {
+      return false;
+    }
     return !this.isDown(pointerId) && this.wasDown(pointerId);
   }
 
@@ -193,6 +208,9 @@ export class PointerEventReceiver {
     this.lastFramePointerCoords = new Map(this.currentFramePointerCoords);
 
     for (const event of this.currentFrameDown) {
+      if (!event.active) {
+        continue;
+      }
       this.emit('down', event);
       const pointer = this.at(event.pointerId);
       pointer.emit('down', event);
@@ -200,24 +218,37 @@ export class PointerEventReceiver {
     }
 
     for (const event of this.currentFrameUp) {
+      if (!event.active) {
+        continue;
+      }
       this.emit('up', event);
       const pointer = this.at(event.pointerId);
       pointer.emit('up', event);
     }
 
     for (const event of this.currentFrameMove) {
+      if (!event.active) {
+        continue;
+      }
       this.emit('move', event);
       const pointer = this.at(event.pointerId);
       pointer.emit('move', event);
     }
 
     for (const event of this.currentFrameCancel) {
+      if (!event.active) {
+        continue;
+      }
       this.emit('cancel', event);
       const pointer = this.at(event.pointerId);
       pointer.emit('cancel', event);
     }
 
     for (const event of this.currentFrameWheel) {
+      if (!event.active) {
+        continue;
+      }
+      this.emit('pointerwheel', event);
       this.emit('wheel', event);
       this.primary.emit('pointerwheel', event);
       this.primary.emit('wheel', event);

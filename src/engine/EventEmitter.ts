@@ -14,6 +14,7 @@ export interface Subscription {
  */
 export class EventEmitter<TEventMap extends EventMap = any> {
   private _paused = false;
+  private _empty = true;
   private _listeners: Record<string, Handler<any>[]> = {};
   private _listenersOnce: Record<string, Handler<any>[]> = {};
   private _pipes: EventEmitter<any>[] = [];
@@ -22,11 +23,13 @@ export class EventEmitter<TEventMap extends EventMap = any> {
     this._listeners = {};
     this._listenersOnce = {};
     this._pipes.length = 0;
+    this._empty = true;
   }
 
   on<TEventName extends EventKey<TEventMap>>(eventName: TEventName, handler: Handler<TEventMap[TEventName]>): Subscription;
   on(eventName: string, handler: Handler<unknown>): Subscription;
   on<TEventName extends EventKey<TEventMap> | string>(eventName: TEventName, handler: Handler<TEventMap[TEventName]>): Subscription {
+    this._empty = false;
     this._listeners[eventName] = this._listeners[eventName] ?? [];
     this._listeners[eventName].push(handler);
     return {
@@ -37,6 +40,7 @@ export class EventEmitter<TEventMap extends EventMap = any> {
   once<TEventName extends EventKey<TEventMap>>(eventName: TEventName, handler: Handler<TEventMap[TEventName]>): Subscription;
   once(eventName: string, handler: Handler<unknown>): Subscription;
   once<TEventName extends EventKey<TEventMap> | string>(eventName: TEventName, handler: Handler<TEventMap[TEventName]>): Subscription {
+    this._empty = false;
     this._listenersOnce[eventName] = this._listenersOnce[eventName] ?? [];
     this._listenersOnce[eventName].push(handler);
     return {
@@ -62,6 +66,9 @@ export class EventEmitter<TEventMap extends EventMap = any> {
   emit<TEventName extends EventKey<TEventMap>>(eventName: TEventName, event: TEventMap[TEventName]): void;
   emit(eventName: string, event?: any): void;
   emit<TEventName extends EventKey<TEventMap> | string>(eventName: TEventName, event?: TEventMap[TEventName]): void {
+    if (this._empty) {
+      return;
+    }
     if (this._paused) {
       return;
     }
@@ -87,6 +94,7 @@ export class EventEmitter<TEventMap extends EventMap = any> {
     if (this === emitter) {
       throw Error('Cannot pipe to self');
     }
+    this._empty = false;
     this._pipes.push(emitter);
     return {
       close: () => {
