@@ -313,8 +313,8 @@ export class Camera implements CanUpdate, CanInitialize {
   }
 
   private _posChanged = false;
-  private _pos: Vector = new WatchVector(Vector.Zero, (x, y) => {
-    this._posChanged ||= x !== this._pos.x || y !== this._pos.y;
+  private _pos: Vector = new WatchVector(Vector.Zero, () => {
+    this._posChanged = true;
   });
   /**
    * Get or set the camera's position
@@ -323,9 +323,9 @@ export class Camera implements CanUpdate, CanInitialize {
     return this._pos;
   }
   public set pos(vec: Vector) {
-    this._posChanged ||= vec.x !== this._pos.x || vec.y !== this._pos.y;
-    this._pos = new WatchVector(vec, (x, y) => {
-      this._posChanged ||= x !== this._pos.x || y !== this._pos.y;
+    this._posChanged = true;
+    this._pos = new WatchVector(vec, () => {
+      this._posChanged = true;
     });
   }
 

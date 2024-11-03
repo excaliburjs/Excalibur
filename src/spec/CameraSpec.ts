@@ -325,7 +325,7 @@ describe('A camera', () => {
 
   it('can use built-in elastic around actor strategy', () => {
     engine.currentScene.camera = new ex.Camera();
-    engine.currentScene.camera.pos.setTo(0, 0);
+    engine.currentScene.camera.pos = ex.vec(0, 0);
     const actor = new ex.Actor();
 
     engine.currentScene.camera.strategy.elasticToActor(actor, 0.05, 0.1);
