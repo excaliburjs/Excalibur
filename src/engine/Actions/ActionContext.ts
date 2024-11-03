@@ -22,6 +22,8 @@ import { Meet } from './Action/Meet';
 import { Vector } from '../Math/vector';
 import { Entity } from '../EntityComponentSystem/Entity';
 import { Action } from './Action';
+import { Color } from '../Color';
+import { Flash } from './Action/Flash';
 
 /**
  * The fluent Action API allows you to perform "actions" on
@@ -327,10 +329,20 @@ export class ActionContext {
    * to the provided value by a specified time (in milliseconds). This method is
    * part of the actor 'Action' fluent API allowing action chaining.
    * @param opacity  The ending opacity
-   * @param time     The time it should take to fade the actor (in milliseconds)
+   * @param duration     The time it should take to fade the actor (in milliseconds)
    */
-  public fade(opacity: number, time: number): ActionContext {
-    this._queue.add(new Fade(this._entity, opacity, time));
+  public fade(opacity: number, duration: number): ActionContext {
+    this._queue.add(new Fade(this._entity, opacity, duration));
+    return this;
+  }
+
+  /**
+   * This will cause an actor to flash a specific color for a period of time
+   * @param color
+   * @param duration The duration in milliseconds
+   */
+  public flash(color: Color, duration: number = 1000) {
+    this._queue.add(new Flash(this._entity, color, duration));
     return this;
   }
 
@@ -338,10 +350,10 @@ export class ActionContext {
    * This method will delay the next action from executing for a certain
    * amount of time (in milliseconds). This method is part of the actor
    * 'Action' fluent API allowing action chaining.
-   * @param time  The amount of time to delay the next action in the queue from executing in milliseconds
+   * @param duration  The amount of time to delay the next action in the queue from executing in milliseconds
    */
-  public delay(time: number): ActionContext {
-    this._queue.add(new Delay(time));
+  public delay(duration: number): ActionContext {
+    this._queue.add(new Delay(duration));
     return this;
   }
 

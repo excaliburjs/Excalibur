@@ -9,6 +9,7 @@ import { EasingFunction } from '../Util/EasingFunctions';
 import { ActionQueue } from './ActionQueue';
 import { RotationType } from './RotationType';
 import { Action } from './Action';
+import { Color } from '../Color';
 
 export interface ActionContextMethods extends Pick<ActionContext, keyof ActionContext> {}
 
@@ -225,20 +226,29 @@ export class ActionsComponent extends Component implements ActionContextMethods 
    * to the provided value by a specified time (in milliseconds). This method is
    * part of the actor 'Action' fluent API allowing action chaining.
    * @param opacity  The ending opacity
-   * @param time     The time it should take to fade the actor (in milliseconds)
+   * @param duration     The time it should take to fade the actor (in milliseconds)
    */
-  public fade(opacity: number, time: number): ActionContext {
-    return this._getCtx().fade(opacity, time);
+  public fade(opacity: number, duration: number): ActionContext {
+    return this._getCtx().fade(opacity, duration);
+  }
+
+  /**
+   * This will cause an actor to flash a specific color for a period of time
+   * @param color
+   * @param duration The duration in milliseconds
+   */
+  public flash(color: Color, duration: number = 1000) {
+    return this._getCtx().flash(color, duration);
   }
 
   /**
    * This method will delay the next action from executing for a certain
    * amount of time (in milliseconds). This method is part of the actor
    * 'Action' fluent API allowing action chaining.
-   * @param time  The amount of time to delay the next action in the queue from executing in milliseconds
+   * @param duration  The amount of time to delay the next action in the queue from executing in milliseconds
    */
-  public delay(time: number): ActionContext {
-    return this._getCtx().delay(time);
+  public delay(duration: number): ActionContext {
+    return this._getCtx().delay(duration);
   }
 
   /**
