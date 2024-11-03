@@ -323,9 +323,9 @@ export class Camera implements CanUpdate, CanInitialize {
     return this._pos;
   }
   public set pos(vec: Vector) {
-    this._posChanged ||= vec.x !== this._pos.x || vec.y !== this._pos.y; //?
+    this._posChanged ||= vec.x !== this._pos.x || vec.y !== this._pos.y;
     this._pos = new WatchVector(vec, (x, y) => {
-      this._posChanged ||= x !== this._pos.x || y !== this._pos.y; //?
+      this._posChanged ||= x !== this._pos.x || y !== this._pos.y;
     });
   }
 

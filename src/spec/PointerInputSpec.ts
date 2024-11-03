@@ -307,9 +307,9 @@ describe('A pointer', () => {
     const actor1 = new ex.Actor({
       pos: ex.vec(50, 50),
       width: 100,
-      height: 100
+      height: 100,
+      coordPlane: ex.CoordPlane.Screen
     });
-    actor1.transform.coordPlane = ex.CoordPlane.Screen;
     actor1.on('pointerdown', clickSpy);
     engine.currentScene.camera.pos = ex.vec(1000, 1000);
     engine.currentScene.camera.draw(engine.graphicsContext);

@@ -737,11 +737,6 @@ export class Screen {
 
     // the only difference between screen & world is the camera transform
     if (this._camera) {
-      if (this._camera.hasChanged()) {
-        // if the camera has changed we want to force a transform update so pointers can be correctly calc'd
-        this._camera.updateTransform(this._camera.pos);
-      }
-
       return this._camera.inverse.multiply(point);
     }
     return point.sub(vec(this.resolution.width / 2, this.resolution.height / 2));
