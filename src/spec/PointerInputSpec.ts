@@ -229,6 +229,29 @@ describe('A pointer', () => {
     expect(spyTopLevelPointerWheel).not.toHaveBeenCalled();
   });
 
+  it('should update the pointer pos when the camera moves', () => {
+    const oldMargin = document.body.style.margin;
+    const oldPadding = document.body.style.padding;
+    document.body.style.margin = '0';
+    document.body.style.padding = '0';
+    executeMouseEvent('pointerdown', <any>document, null, 10, 10);
+    engine.currentScene.update(engine, 0);
+    expect(engine.input.pointers.primary.lastWorldPos).toEqual(ex.vec(10, 10));
+    expect(engine.input.pointers.primary.lastScreenPos).toEqual(ex.vec(10, 10));
+    expect(engine.input.pointers.primary.lastPagePos).toEqual(ex.vec(10, 10));
+
+    expect(engine.currentScene.camera.hasChanged()).toBe(false);
+    engine.currentScene.camera.pos = ex.vec(1000, 1000);
+    expect(engine.currentScene.camera.hasChanged()).toBe(true);
+    engine.currentScene.update(engine, 0);
+    expect(engine.input.pointers.primary.lastWorldPos).toEqual(ex.vec(760, 760));
+    expect(engine.input.pointers.primary.lastScreenPos).toEqual(ex.vec(10, 10));
+    expect(engine.input.pointers.primary.lastPagePos).toEqual(ex.vec(10, 10));
+
+    document.body.style.margin = oldMargin;
+    document.body.style.padding = oldPadding;
+  });
+
   it('should dispatch point events on screen elements', () => {
     const pointerDownSpy = jasmine.createSpy('pointerdown');
     const screenElement = new ex.ScreenElement({
@@ -307,9 +330,9 @@ describe('A pointer', () => {
     const actor1 = new ex.Actor({
       pos: ex.vec(50, 50),
       width: 100,
-      height: 100
+      height: 100,
+      coordPlane: ex.CoordPlane.Screen
     });
-    actor1.transform.coordPlane = ex.CoordPlane.Screen;
     actor1.on('pointerdown', clickSpy);
     engine.currentScene.camera.pos = ex.vec(1000, 1000);
     engine.currentScene.camera.draw(engine.graphicsContext);

@@ -95,6 +95,11 @@ export class PointerSystem extends System {
   };
 
   public preupdate(): void {
+    if (this._scene.camera.hasChanged()) {
+      // if the camera has changed we want to force a transform update so pointers can be correctly calc'd
+      this._scene.camera.updateTransform(this._scene.camera.pos);
+    }
+
     // event receiver might change per frame
     this._receivers = [this._engine.input.pointers, this._scene.input.pointers];
     this._engineReceiver = this._engine.input.pointers;
@@ -142,8 +147,10 @@ export class PointerSystem extends System {
     // Dispatch pointer events on entities
     this._dispatchEvents(this._sortedEntities);
 
-    // Clear last frame's events
+    // Dispatch pointer events on top level pointers
     this._receivers.forEach((r) => r.update());
+
+    // Clear last frame's events
     this.lastFrameEntityToPointers.clear();
     this.lastFrameEntityToPointers = new Map<number, number[]>(this.currentFrameEntityToPointers);
     this.currentFrameEntityToPointers.clear();

@@ -9,11 +9,11 @@ import { PreUpdateEvent, PostUpdateEvent, InitializeEvent } from './Events';
 import { BoundingBox } from './Collision/BoundingBox';
 import { Logger } from './Util/Log';
 import { ExcaliburGraphicsContext } from './Graphics/Context/ExcaliburGraphicsContext';
-import { watchAny } from './Util/Watch';
 import { AffineMatrix } from './Math/affine-matrix';
 import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
 import { pixelSnapEpsilon } from './Graphics';
 import { sign } from './Math/util';
+import { WatchVector } from './Math/watch-vector';
 
 /**
  * Interface that describes a custom camera strategy for tracking targets
@@ -312,17 +312,28 @@ export class Camera implements CanUpdate, CanInitialize {
     this._angularVelocity = value;
   }
 
+  private _posChanged = false;
+  private _pos: Vector = new WatchVector(Vector.Zero, () => {
+    this._posChanged = true;
+  });
   /**
    * Get or set the camera's position
    */
-  private _posChanged = false;
-  private _pos: Vector = watchAny(Vector.Zero, () => (this._posChanged = true));
   public get pos(): Vector {
     return this._pos;
   }
   public set pos(vec: Vector) {
-    this._pos = watchAny(vec, () => (this._posChanged = true));
     this._posChanged = true;
+    this._pos = new WatchVector(vec, () => {
+      this._posChanged = true;
+    });
+  }
+
+  /**
+   * Has the position changed since the last update
+   */
+  public hasChanged(): boolean {
+    return this._posChanged;
   }
   /**
    * Interpolated camera position if more draws are running than updates
@@ -782,8 +793,8 @@ export class Camera implements CanUpdate, CanInitialize {
     // It's important to update the camera after strategies
     // This prevents jitter
     this.updateTransform(this.pos);
-
     this._postupdate(engine, elapsedMs);
+    this._posChanged = false;
   }
 
   private _snapPos = vec(0, 0);
