@@ -324,6 +324,22 @@ describe('A pointer', () => {
   });
 
   describe('at the engine level', () => {
+    it('should update the pointer pos when the camera moves', () => {
+      executeMouseEvent('pointerdown', <any>document, null, 10, 10);
+      engine.currentScene.update(engine, 0);
+      expect(engine.input.pointers.primary.lastWorldPos).toEqual(ex.vec(2, 10));
+      expect(engine.input.pointers.primary.lastScreenPos).toEqual(ex.vec(2, 10));
+      expect(engine.input.pointers.primary.lastPagePos).toEqual(ex.vec(10, 10));
+
+      expect(engine.currentScene.camera.hasChanged()).toBe(false);
+      engine.currentScene.camera.pos = ex.vec(1000, 1000);
+      expect(engine.currentScene.camera.hasChanged()).toBe(true);
+      engine.currentScene.update(engine, 0);
+      expect(engine.input.pointers.primary.lastWorldPos).toEqual(ex.vec(752, 760));
+      expect(engine.input.pointers.primary.lastScreenPos).toEqual(ex.vec(2, 10));
+      expect(engine.input.pointers.primary.lastPagePos).toEqual(ex.vec(10, 10));
+    });
+
     it('should fire pointer up events', () => {
       const upHandler = jasmine.createSpy('upHandler');
       engine.input.pointers.on('up', upHandler);
