@@ -718,14 +718,15 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   }
 
   private _collectActorStats(engine: Engine) {
-    const screenElements = this.actors.filter((a) => a instanceof ScreenElement) as ScreenElement[];
-    for (const _ui of screenElements) {
-      engine.stats.currFrame.actors.ui++;
-    }
-
-    for (const actor of this.actors) {
+    const actors = this.actors;
+    for (let i = 0; i < actors.length; i++) {
+      const actor = actors[i];
+      if (actor instanceof ScreenElement) {
+        engine.stats.currFrame.actors.ui++;
+      }
       engine.stats.currFrame.actors.alive++;
-      for (const child of actor.children) {
+      for (let j = 0; j < actor.children.length; j++) {
+        const child = actor.children[j];
         if (isScreenElement(child as Actor)) {
           // TODO not true
           engine.stats.currFrame.actors.ui++;

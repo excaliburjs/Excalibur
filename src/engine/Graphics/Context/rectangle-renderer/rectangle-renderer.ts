@@ -87,6 +87,11 @@ export class RectangleRenderer implements RendererPlugin {
     }
   }
 
+  private _transparent = Color.Transparent;
+  private _scratch1 = vec(0, 0);
+  private _scratch2 = vec(0, 0);
+  private _scratch3 = vec(0, 0);
+  private _scratch4 = vec(0, 0);
   drawLine(start: Vector, end: Vector, color: Color, thickness: number = 1) {
     if (this._isFull()) {
       this.flush();
@@ -110,10 +115,10 @@ export class RectangleRenderer implements RendererPlugin {
      *    |                                            |
      *    + -------------------------------------------+
      */
-    const startTop = transform.multiply(normal.scale(halfThick).add(start));
-    const startBottom = transform.multiply(normal.scale(-halfThick).add(start));
-    const endTop = transform.multiply(normal.scale(halfThick).add(end));
-    const endBottom = transform.multiply(normal.scale(-halfThick).add(end));
+    const startTop = transform.multiply(normal.scale(halfThick, this._scratch1).add(start, this._scratch1), this._scratch1);
+    const startBottom = transform.multiply(normal.scale(-halfThick, this._scratch2).add(start, this._scratch2), this._scratch2);
+    const endTop = transform.multiply(normal.scale(halfThick, this._scratch3).add(end, this._scratch3), this._scratch3);
+    const endBottom = transform.multiply(normal.scale(-halfThick, this._scratch4).add(end, this._scratch4), this._scratch4);
 
     if (snapToPixel) {
       startTop.x = ~~(startTop.x + pixelSnapEpsilon);
@@ -135,7 +140,7 @@ export class RectangleRenderer implements RendererPlugin {
     const uvx1 = 1;
     const uvy1 = 1;
 
-    const stroke = Color.Transparent;
+    const stroke = this._transparent;
     const strokeThickness = 0;
     const width = 1;
 

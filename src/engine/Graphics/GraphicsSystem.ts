@@ -252,7 +252,8 @@ export class GraphicsSystem extends System {
    */
   private _applyTransform(entity: Entity): void {
     const ancestors = entity.getAncestors();
-    for (const ancestor of ancestors) {
+    for (let i = 0; i < ancestors.length; i++) {
+      const ancestor = ancestors[i];
       const transform = ancestor?.get(TransformComponent);
       const optionalBody = ancestor?.get(BodyComponent);
       if (transform) {
@@ -274,7 +275,8 @@ export class GraphicsSystem extends System {
 
   private _applyOpacity(entity: Entity): void {
     const ancestors = entity.getAncestors();
-    for (const ancestor of ancestors) {
+    for (let i = 0; i < ancestors.length; i++) {
+      const ancestor = ancestors[i];
       const maybeGraphics = ancestor?.get(GraphicsComponent);
       this._graphicsContext.opacity *= maybeGraphics?.opacity ?? 1;
     }

@@ -1,4 +1,4 @@
-import { Vector } from '../../../Math/vector';
+import { vec, Vector } from '../../../Math/vector';
 import { Color } from '../../../Color';
 import lineVertexSource from './line-vertex.glsl';
 import lineFragmentSource from './line-fragment.glsl';
@@ -60,6 +60,8 @@ export class LineRenderer implements RendererPlugin {
     this._gl = null as any;
   }
 
+  private _startScratch = vec(0, 0);
+  private _endScratch = vec(0, 0);
   draw(start: Vector, end: Vector, color: Color): void {
     // Force a render if the batch is full
     if (this._isFull()) {
@@ -69,8 +71,8 @@ export class LineRenderer implements RendererPlugin {
     this._lineCount++;
 
     const transform = this._context.getTransform();
-    const finalStart = transform.multiply(start);
-    const finalEnd = transform.multiply(end);
+    const finalStart = transform.multiply(start, this._startScratch);
+    const finalEnd = transform.multiply(end, this._endScratch);
 
     const vertexBuffer = this._vertexBuffer.bufferData;
     // Start

@@ -69,6 +69,11 @@ export class SeparatingAxis {
   private static _SCRATCH_NORMAL = vec(0, 0);
   private static _SCRATCH_MATRIX = AffineMatrix.identity();
   static findPolygonPolygonSeparation(polyA: PolygonCollider, polyB: PolygonCollider): SeparationInfo {
+    // if polyB has 0 scale we need to hop back to degenerate separation
+    if (polyB.transform.matrix.determinant() === 0) {
+      return SeparatingAxis.findPolygonPolygonSeparationDegenerate(polyA, polyB);
+    }
+
     // Multi contact from SAT
     // https://gamedev.stackexchange.com/questions/111390/multiple-contacts-for-sat-collision-detection
     // do a SAT test to find a min axis if it exists
@@ -115,6 +120,10 @@ export class SeparatingAxis {
     const separationInfo = SeparatingAxis.SeparationPool.get();
     separationInfo.collider = polyA;
     separationInfo.separation = bestSeparation;
+    if (bestSeparation > 0) {
+      // early out because if separation is > 0 then no local point
+      return separationInfo;
+    }
     normalsA[bestSideIndex].clone(separationInfo.localAxis);
     normalsA[bestSideIndex].rotate(polyA.transform.rotation, SeparatingAxis._ZERO, separationInfo.axis);
     polyA.transform.matrix.multiply(pointsA[bestSideIndex], separationInfo.side.begin);
@@ -155,6 +164,42 @@ export class SeparatingAxis {
       return null;
     }
     return minAxis.normalize().scale(minOverlap);
+  }
+
+  static findPolygonPolygonSeparationDegenerate(polyA: PolygonCollider, polyB: PolygonCollider): SeparationInfo {
+    let bestSeparation = -Number.MAX_VALUE;
+    let bestSide: LineSegment | null = null;
+    let bestAxis: Vector | null = null;
+    let bestSideIndex: number = -1;
+    let bestOtherPoint: Vector | null = null;
+    const sides = polyA.getSides();
+    const localSides = polyA.getLocalSides();
+    for (let i = 0; i < sides.length; i++) {
+      const side = sides[i];
+      const axis = side.normal();
+      const vertB = polyB.getFurthestPoint(axis.negate());
+      // Separation on side i's axis
+      // We are looking for the largest separation between poly A's sides
+      const vertSeparation = side.distanceToPoint(vertB, true);
+      if (vertSeparation > bestSeparation) {
+        bestSeparation = vertSeparation;
+        bestSide = side;
+        bestAxis = axis;
+        bestSideIndex = i;
+        bestOtherPoint = vertB;
+      }
+    }
+
+    return {
+      collider: polyA,
+      separation: bestAxis ? bestSeparation : 99,
+      axis: bestAxis as Vector,
+      side: bestSide,
+      localSide: localSides[bestSideIndex],
+      sideId: bestSideIndex,
+      point: bestOtherPoint as Vector,
+      localPoint: bestAxis ? polyB.getFurthestLocalPoint(bestAxis!.negate()) : null
+    };
   }
 }
 
