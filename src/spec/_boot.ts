@@ -59,9 +59,10 @@ const TimeoutSpecReporter = {
   specs: {},
   specStarted: function (result) {
     this.specs[result.fullName] = Date.now();
+    const karma = (window as any).__karma__;
     setTimeout(() => {
       if (this.specs[result.fullName]) {
-        console.log('Possible timeout:' + result.fullName); // eslint-disable-line
+        karma.info({ type: 'Jasmine Timeout Reporter', specName: result.fullName });
       }
     }, 5000);
   },

@@ -252,15 +252,16 @@ export class GraphicsSystem extends System {
    */
   private _applyTransform(entity: Entity): void {
     const ancestors = entity.getAncestors();
-    for (const ancestor of ancestors) {
+    for (let i = 0; i < ancestors.length; i++) {
+      const ancestor = ancestors[i];
       const transform = ancestor?.get(TransformComponent);
       const optionalBody = ancestor?.get(BodyComponent);
       if (transform) {
         let tx = transform.get();
         if (optionalBody) {
-          if (this._engine.fixedUpdateFps && optionalBody.__oldTransformCaptured && optionalBody.enableFixedUpdateInterpolate) {
+          if (this._engine.fixedUpdateTimestep && optionalBody.__oldTransformCaptured && optionalBody.enableFixedUpdateInterpolate) {
             // Interpolate graphics if needed
-            const blend = this._engine.currentFrameLagMs / (1000 / this._engine.fixedUpdateFps);
+            const blend = this._engine.currentFrameLagMs / this._engine.fixedUpdateTimestep;
             tx = blendTransform(optionalBody.oldTransform, transform.get(), blend, this._targetInterpolationTransform);
           }
         }
@@ -274,7 +275,8 @@ export class GraphicsSystem extends System {
 
   private _applyOpacity(entity: Entity): void {
     const ancestors = entity.getAncestors();
-    for (const ancestor of ancestors) {
+    for (let i = 0; i < ancestors.length; i++) {
+      const ancestor = ancestors[i];
       const maybeGraphics = ancestor?.get(GraphicsComponent);
       this._graphicsContext.opacity *= maybeGraphics?.opacity ?? 1;
     }

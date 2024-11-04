@@ -11,6 +11,7 @@ import { RendererPlugin } from '../renderer';
 import { Shader } from '../shader';
 import { VertexBuffer } from '../vertex-buffer';
 import { VertexLayout } from '../vertex-layout';
+import { getMaxShaderComplexity } from '../webgl-util';
 import frag from './image-renderer.frag.glsl';
 import vert from './image-renderer.vert.glsl';
 
@@ -54,7 +55,9 @@ export class ImageRenderer implements RendererPlugin {
     this._context = context;
     // Transform shader source
     // FIXME: PIXEL 6 complains `ERROR: Expression too complex.` if we use it's reported max texture units, 125 seems to work for now...
-    this._maxTextures = Math.min(gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS), 125);
+    const maxTexture = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
+    const maxComplexity = getMaxShaderComplexity(gl, maxTexture);
+    this._maxTextures = Math.min(maxTexture, maxComplexity);
     const transformedFrag = this._transformFragmentSource(frag, this._maxTextures);
     // Compile shader
     this._shader = new Shader({

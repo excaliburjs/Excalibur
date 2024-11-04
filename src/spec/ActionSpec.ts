@@ -1216,6 +1216,17 @@ describe('Action', () => {
       expect(actor.graphics.opacity).toBe(1);
     });
 
+    it('can go from 1 from 0 with large time steps', () => {
+      actor.graphics.opacity = 0;
+
+      actor.actions.fade(1, 200);
+      for (let i = 0; i < 10; i++) {
+        scene.update(engine, 115);
+      }
+
+      expect(actor.graphics.opacity).toBe(1);
+    });
+
     it('can go back and forth from 0 to 1 (#512)', () => {
       actor.graphics.opacity = 0;
 

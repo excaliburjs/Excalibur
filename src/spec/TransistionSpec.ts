@@ -55,27 +55,27 @@ describe('A Transition', () => {
     sut.onEnd = onEndSpy;
     sut._initialize(engine);
 
-    sut.execute();
+    sut._execute();
     expect(sut.started).toBe(true);
     expect(sut.progress).toBe(0);
     expect(sut.onStart).toHaveBeenCalledWith(0);
     expect(sut.onUpdate).toHaveBeenCalledWith(0);
 
     sut.updateTransition(engine, 16);
-    sut.execute();
+    sut._execute();
     expect(onUpdateSpy.calls.argsFor(1)).toEqual([16 / 3000]);
 
     sut.updateTransition(engine, 16);
-    sut.execute();
+    sut._execute();
     expect(onUpdateSpy.calls.argsFor(2)).toEqual([32 / 3000]);
 
     sut.updateTransition(engine, 3200 - 32);
-    sut.execute();
+    sut._execute();
     expect(onEndSpy).toHaveBeenCalledWith(1);
     expect(sut.complete).toBe(true);
 
     sut.updateTransition(engine, 4000);
-    sut.execute();
+    sut._execute();
 
     // Start and end should only be called once
     expect(onStartSpy).toHaveBeenCalledTimes(1);
@@ -94,27 +94,27 @@ describe('A Transition', () => {
     sut.onEnd = onEndSpy;
     sut._initialize(engine);
 
-    sut.execute();
+    sut._execute();
     expect(sut.started).toBe(true);
     expect(sut.progress).toBe(0);
     expect(sut.onStart).toHaveBeenCalledWith(0);
     expect(sut.onUpdate).toHaveBeenCalledWith(0);
 
     sut.updateTransition(engine, 16);
-    sut.execute();
+    sut._execute();
     expect(onUpdateSpy.calls.argsFor(1)).toEqual([16 / 3000]);
 
     sut.updateTransition(engine, 16);
-    sut.execute();
+    sut._execute();
     expect(onUpdateSpy.calls.argsFor(2)).toEqual([32 / 3000]);
 
     sut.updateTransition(engine, 3200 - 32);
-    sut.execute();
+    sut._execute();
     expect(onEndSpy).toHaveBeenCalledWith(1);
     expect(sut.complete).toBe(true);
 
     sut.updateTransition(engine, 4000);
-    sut.execute();
+    sut._execute();
 
     expect(sut.complete).toBe(true);
 

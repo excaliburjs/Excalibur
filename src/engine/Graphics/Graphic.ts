@@ -172,6 +172,13 @@ export abstract class Graphic {
       this.opacity = options.opacity ?? this.opacity;
       this.scale = options.scale ?? this.scale;
       this.tint = options.tint ?? this.tint;
+      if (options.width) {
+        this._width = options.width;
+      }
+
+      if (options.height) {
+        this._height = options.height;
+      }
     }
   }
 

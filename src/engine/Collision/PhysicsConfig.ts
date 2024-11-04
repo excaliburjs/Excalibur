@@ -263,7 +263,7 @@ export const DefaultPhysicsConfig: DeepRequired<PhysicsConfig> = {
 export function DeprecatedStaticToConfig(): DeepRequired<PhysicsConfig> {
   return {
     enabled: Physics.enabled,
-    gravity: Physics.gravity,
+    gravity: Physics.gravity.clone(),
     solver: Physics.collisionResolutionStrategy,
     substep: 1,
     continuous: {

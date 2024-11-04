@@ -170,6 +170,88 @@ describe('A pointer', () => {
     expect(actualOrder).toEqual(['actor4', 'actor3', 'actor2', 'actor1']);
   });
 
+  it('should not dispatch canceled events to the top level', () => {
+    const actor1 = new ex.Actor({ x: 50, y: 50, width: 100, height: 100 });
+
+    const spyActorDown = jasmine.createSpy('actorDown');
+    actor1.on('pointerdown', (e) => {
+      spyActorDown();
+      e.cancel();
+    });
+    const spyActorUp = jasmine.createSpy('actorUp');
+    actor1.on('pointerup', (e) => {
+      spyActorUp();
+      e.cancel();
+    });
+    const spyActorMove = jasmine.createSpy('actorMove');
+    actor1.on('pointermove', (e) => {
+      spyActorMove();
+      e.cancel();
+    });
+    const spyActorWheel = jasmine.createSpy('actorWheel');
+    actor1.on('pointerwheel', (e) => {
+      spyActorWheel();
+      e.cancel();
+    });
+    engine.add(actor1);
+
+    const spyTopLevelPointerDown = jasmine.createSpy('pointerdown');
+    engine.input.pointers.primary.on('down', spyTopLevelPointerDown);
+    engine.input.pointers.on('down', spyTopLevelPointerDown);
+    const spyTopLevelPointerUp = jasmine.createSpy('pointerup');
+    engine.input.pointers.primary.on('up', spyTopLevelPointerUp);
+    engine.input.pointers.on('up', spyTopLevelPointerUp);
+    const spyTopLevelPointerMove = jasmine.createSpy('pointermove');
+    engine.input.pointers.primary.on('move', spyTopLevelPointerMove);
+    engine.input.pointers.on('move', spyTopLevelPointerMove);
+    const spyTopLevelPointerWheel = jasmine.createSpy('pointerwheel');
+    engine.input.pointers.primary.on('wheel', spyTopLevelPointerWheel);
+    engine.input.pointers.on('wheel', spyTopLevelPointerWheel);
+
+    executeMouseEvent('pointerdown', <any>document, null, 50, 50);
+    executeMouseEvent('pointerup', <any>document, null, 50, 50);
+    executeMouseEvent('pointermove', <any>document, null, 50, 50);
+    executeMouseEvent('wheel', <any>document, null, 50, 50);
+
+    // process pointer events
+    engine.currentScene.update(engine, 0);
+
+    expect(spyActorDown).toHaveBeenCalledTimes(1);
+    expect(spyTopLevelPointerDown).not.toHaveBeenCalled();
+
+    expect(spyActorUp).toHaveBeenCalledTimes(1);
+    expect(spyTopLevelPointerUp).not.toHaveBeenCalled();
+
+    expect(spyActorMove).toHaveBeenCalledTimes(1);
+    expect(spyTopLevelPointerMove).not.toHaveBeenCalled();
+
+    expect(spyActorWheel).toHaveBeenCalledTimes(1);
+    expect(spyTopLevelPointerWheel).not.toHaveBeenCalled();
+  });
+
+  it('should update the pointer pos when the camera moves', () => {
+    const oldMargin = document.body.style.margin;
+    const oldPadding = document.body.style.padding;
+    document.body.style.margin = '0';
+    document.body.style.padding = '0';
+    executeMouseEvent('pointerdown', <any>document, null, 10, 10);
+    engine.currentScene.update(engine, 0);
+    expect(engine.input.pointers.primary.lastWorldPos).toEqual(ex.vec(10, 10));
+    expect(engine.input.pointers.primary.lastScreenPos).toEqual(ex.vec(10, 10));
+    expect(engine.input.pointers.primary.lastPagePos).toEqual(ex.vec(10, 10));
+
+    expect(engine.currentScene.camera.hasChanged()).toBe(false);
+    engine.currentScene.camera.pos = ex.vec(1000, 1000);
+    expect(engine.currentScene.camera.hasChanged()).toBe(true);
+    engine.currentScene.update(engine, 0);
+    expect(engine.input.pointers.primary.lastWorldPos).toEqual(ex.vec(760, 760));
+    expect(engine.input.pointers.primary.lastScreenPos).toEqual(ex.vec(10, 10));
+    expect(engine.input.pointers.primary.lastPagePos).toEqual(ex.vec(10, 10));
+
+    document.body.style.margin = oldMargin;
+    document.body.style.padding = oldPadding;
+  });
+
   it('should dispatch point events on screen elements', () => {
     const pointerDownSpy = jasmine.createSpy('pointerdown');
     const screenElement = new ex.ScreenElement({
@@ -248,9 +330,9 @@ describe('A pointer', () => {
     const actor1 = new ex.Actor({
       pos: ex.vec(50, 50),
       width: 100,
-      height: 100
+      height: 100,
+      coordPlane: ex.CoordPlane.Screen
     });
-    actor1.transform.coordPlane = ex.CoordPlane.Screen;
     actor1.on('pointerdown', clickSpy);
     engine.currentScene.camera.pos = ex.vec(1000, 1000);
     engine.currentScene.camera.draw(engine.graphicsContext);

@@ -70,7 +70,8 @@ export class DebugSystem extends System {
     const bodySettings = this._engine.debug.body;
 
     const cameraSettings = this._engine.debug.camera;
-    for (const entity of this.query.entities) {
+    for (let i = 0; i < this.query.entities.length; i++) {
+      const entity = this.query.entities[i];
       if (entity.hasTag('offscreen')) {
         // skip offscreen entities
         continue;

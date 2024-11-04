@@ -24,7 +24,13 @@ function isCoroutineGenerator(x: any): x is CoroutineGenerator {
 }
 
 export interface CoroutineOptions {
+  /**
+   * Coroutines run preframe in the clock by default.
+   */
   timing?: ScheduledCallbackTiming;
+  /**
+   * Coroutines auto start by default, set to false to require play();
+   */
   autostart?: boolean;
 }
 

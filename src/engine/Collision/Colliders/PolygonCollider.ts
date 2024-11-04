@@ -23,6 +23,7 @@ export interface PolygonColliderOptions {
   offset?: Vector;
   /**
    * Points in the polygon in order around the perimeter in local coordinates. These are relative from the body transform position.
+   * **Must be at least 3 points**
    */
   points: Vector[];
 
@@ -61,6 +62,9 @@ export class PolygonCollider extends Collider {
    * Excalibur stores these in counter-clockwise order
    */
   public set points(points: Vector[]) {
+    if (points.length < 3) {
+      throw new Error('PolygonCollider cannot be created with less that 3 points');
+    }
     this._points = points;
     this._checkAndUpdateWinding(this._points);
     this._calculateNormals();
@@ -97,7 +101,7 @@ export class PolygonCollider extends Collider {
     this.offset = options.offset ?? Vector.Zero;
     this._transform.pos.x += this.offset.x;
     this._transform.pos.y += this.offset.y;
-    this.points = options.points ?? [];
+    this.points = options.points;
 
     if (!this.isConvex()) {
       if (!options.suppressConvexWarning) {

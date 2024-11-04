@@ -7,6 +7,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- Removed legacy `ex.Configurable` function type used for doing dark magic to allow types to be configured by instances of that same type :boom:
+- Collision events now only target `ex.Collider` types, this previously would sometimes emit an `ex.Entity` if you attached to the `ex.ColliderComponent`
+  * `ex.PreCollisionEvent`
+  * `ex.PostCollisionEvent`
+  * `ex.ContactStartEvent`
+  * `ex.ContactEndEvent`
+  * `ex.CollisionPreSolveEvent`
+  * `ex.CollisionPostSolveEvent`
+  * `ex.CollisionStartEvent`
+  * `ex.CollisionEndEvent`
 - `System.priority` is refactored to be static.
 - `ex.Timer` now only takes the option bag constructor
 - `PreDrawEvent`, `PostDrawEvent`, `PreTransformDrawEvent`, `PostTransformDrawEvent`, `PreUpdateEvent`, `PostUpdateEvent` now use `elapsedMs` instead of `delta` for the elapsed milliseconds between the last frame.460696
@@ -65,6 +75,44 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added new `actor.actions.flash(...)` `Action` to flash a color for a period of time
+- Added a new `ex.NineSlice` `Graphic` for creating arbitrarily resizable rectangular regions, useful for creating UI, backgrounds, and other resizable elements.
+  ```typescript
+  var nineSlice = new ex.NineSlice({
+    width: 300,
+    height: 100,
+    source: inputTile,
+    sourceConfig: {
+      width: 64,
+      height: 64,
+      topMargin: 5,
+      leftMargin: 7,
+      bottomMargin: 5,
+      rightMargin: 7
+    },
+    destinationConfig: {
+      drawCenter: true,
+      horizontalStretch: ex.NineSliceStretch.Stretch,
+      verticalStretch: ex.NineSliceStretch.Stretch
+    }
+  });
+
+  actor.graphics.add(nineSlice);
+  ```
+- Added a method to force graphics on screen `ex.GraphicsComponent.forceOnScreen`
+- Added new `ex.Slide` scene transition, which can slide a screen shot of the current screen: `up`, `down`, `left`, or `right`. Optionally you can add an `ex.EasingFunction`, by default `ex.EasingFunctions.Linear`
+  ```typescript
+  game.goToScene('otherScene', {
+    destinationIn: new ex.Slide({
+      duration: 1000,
+      easingFunction: ex.EasingFunctions.EaseInOutCubic,
+      slideDirection: 'up'
+    })
+  });
+  ```
+- Added inline SVG image support `ex.ImageSource.fromSvgString('<svg>...</svg>')`, note images produced this way still must be loaded.
+- Added ability to optionally specify sprite options in the `.toSprite(options:? SpriteOptions)`
+- The `ex.Engine` constructor had a new `enableCanvasContextMenu` arg that can be used to enable the right click context menu, by default the context menu is disabled which is what most games seem to want.
 - Child `ex.Actor` inherits opacity of parents
 - `ex.Engine.timeScale` values of 0 are now supported
 - `ex.Trigger` now supports all valid actor constructor parameters from `ex.ActorArgs` in addition to `ex.TriggerOptions`
@@ -104,6 +152,17 @@ are doing mtv adjustments during precollision.
 
 ### Fixed
 
+- Fixed issue where the pointer `lastWorldPos` was not updated when the current `Camera` moved
+- Fixed issue where `cancel()`'d events still bubbled to the top level input handlers
+- Fixed issue where unexpected html HTML content from an image would silently hang the loader
+- Fixed issue where Collision events ahd inconsistent targets, sometimes they were Colliders and sometimes they were Entities
+- Fixed issue where `ex.Engine.screenshot()` images may not yet be loaded in time for use in `ex.Transition`s
+- Fixed issue where there would be an incorrect background color for 1 frame when transitioning to a new scene
+- Fixed issue where `blockInput: true` on scene transition only blocked input events, not accessors like `wasHeld(...)` etc.
+- Fixed issue where users could not easily define a custom `RendererPlugin` because the type was not exposed
+- Fixed issue where `ex.Fade` sometimes would not complete depending on the elapsed time
+- Fixed issue where `ex.PolygonColliders` would get trapped in infinite loop for degenerate polygons (< 3 vertices)
+- Fixed issue where certain devices that support large numbers of texture slots exhaust the maximum number of if statements (complexity) in the shader.
 - Fixed issue where `ex.Label` where setting the opacity of caused a multiplicative opacity effect when actor opacity set
 - Fixed issue where the `ex.Loader` would have a low res logo on small configured resolution sizes
 - Fixed issue where `ex.Gif` was not parsing certain binary formats correctly
@@ -155,6 +214,7 @@ are doing mtv adjustments during precollision.
 ### Changed
 
 - Applied increased TS strictness:
+  * Director API subtree
   * Resource API subtree
   * Graphics API subtree
   * TileMap API subtree

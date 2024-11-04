@@ -31,4 +31,9 @@ export class WatchVector extends Vector {
       this._y = this.original.y = newY;
     }
   }
+
+  override setTo(x: number, y: number): void {
+    this.x = x;
+    this.y = y;
+  }
 }

@@ -131,18 +131,9 @@ describe('A Director', () => {
     const clock = engine.clock as ex.TestClock;
     clock.start();
     const scene1 = new ex.Scene();
-    scene1._initialize(engine);
-    const scene2 = new ex.Scene();
-    scene2._initialize(engine);
-    const sut = new ex.Director(engine, {
-      scene1,
-      scene2
-    });
-    sut.rootScene._initialize(engine);
-    engine.rootScene._initialize(engine);
+    const sut = new ex.Director(engine, { scene1 });
+    engine.director = sut;
     const fadeIn = new ex.FadeInOut({ direction: 'in', duration: 1000 });
-    engine.screen.setCurrentCamera(engine.currentScene.camera);
-    fadeIn._initialize(engine);
     const loader = new ex.DefaultLoader();
     sut.configureStart('scene1', {
       inTransition: fadeIn,

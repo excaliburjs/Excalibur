@@ -16,7 +16,6 @@ export * from './Screen';
 export * from './Actor';
 export * from './Math/Index';
 export * from './Camera';
-export * from './Configurable';
 export * from './Debug/index';
 export * from './EventDispatcher';
 export * from './EventEmitter';

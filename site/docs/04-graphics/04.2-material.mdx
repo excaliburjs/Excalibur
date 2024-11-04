@@ -23,6 +23,44 @@ Materials are only supported in WebGL mode, this is the default mode for Excalib
 
 :::
 
+:::warning
+
+If you are using the `ex.Engine({pixelArt: true})` setting, you'll need to re-include the pixelArt sampler in your custom shader in order to preserve the pixel art effect.
+
+```glsl
+#version 300 es
+precision mediump float;
+
+in vec2 v_uv;
+out vec4 fragColor;
+uniform vec2 u_graphic_resolution;
+uniform sampler2D u_graphic;
+
+
+// Inigo Quilez pixel art filter https://jorenjoestar.github.io/post/pixel_art_filtering/
+vec2 uv_iq(in vec2 uv, in vec2 texture_size) {
+  vec2 pixel = uv * texture_size;
+  
+  vec2 seam=floor(pixel+.5);
+  vec2 dudv=fwidth(pixel);
+  pixel=seam+clamp((pixel-seam)/dudv,-.5,.5);
+  
+  return pixel/texture_size;
+}
+
+void main(void) {
+
+    // Use the new UV from uv_iq to sample your pixel art texture
+    vec2 newUv = uv_iq(v_uv, u_graphic_resolution);
+    vec4 sourceColor = texture(u_graphic, newUv);
+
+    fragColor = sourceColor;
+    fragColor.rgb = fragColor.rgb * fragColor.a; // premultiply alpha
+}
+```
+
+:::
+
 
 ## Creating Material Shaders
 
