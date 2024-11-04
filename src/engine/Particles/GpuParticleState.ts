@@ -191,11 +191,11 @@ export class GpuParticleState {
       // Emit
       this._uploadEmitted(gl);
 
-      // Bind one buffer to ARRAY_BUFFER and the other to TFB
+      // Bind one buffer to ARRAY_BUFFER and the other to transform feedback buffer
       gl.bindVertexArray(this._currentVao);
       gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, this._currentBuffer);
 
-      // Perform transform feedback and the draw call
+      // Perform transform feedback (run the simulation) and the draw call all at once
       gl.beginTransformFeedback(gl.POINTS);
       gl.drawArrays(gl.POINTS, 0, this.maxParticles);
       gl.endTransformFeedback();
