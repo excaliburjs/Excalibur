@@ -1,4 +1,4 @@
-import { Graphic, GraphicImageWithCoordinates, GraphicImageWithCoordinatesOptions, GraphicOptions } from './Graphic';
+import { Graphic, GraphicOptions } from './Graphic';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { Color } from '../Color';
 import { Vector } from '../Math/vector';
