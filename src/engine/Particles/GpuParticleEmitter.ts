@@ -14,8 +14,7 @@ import {
 import { ParticleEmitterArgs, ParticleTransform } from './Particles';
 
 export class GpuParticleEmitter extends Entity {
-  // TODO new renderer plugin
-  // TODO transform feedback
+  // TODO should be actor?
   // TODO random glsl
 
   public particle: GpuParticleConfig = {

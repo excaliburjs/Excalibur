@@ -160,7 +160,7 @@ export class GpuParticleState {
           this._random.next() * 2.5, // angular velocity
           this.particle.life ?? 2000 // life
         ],
-        i
+        i % this._particleData.length
       );
     }
     this._particleIndex = endIndex % (this.maxParticles * this._numInputFloats);
