@@ -296,11 +296,23 @@ export interface ParticleEmitterArgs {
   pos?: Vector;
   width?: number;
   height?: number;
+  /**
+   * Is emitting currently
+   */
   isEmitting?: boolean;
+  /**
+   * Particles per second
+   */
   emitRate?: number;
   focus?: Vector;
   focusAccel?: number;
+  /**
+   * Emitter shape
+   */
   emitterType?: EmitterType;
+  /**
+   * Radius of the emitter if the emitter type is EmitterType.Circle
+   */
   radius?: number;
   random?: Random;
 }

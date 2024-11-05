@@ -10,6 +10,8 @@ import { HTMLImageSource } from '../ExcaliburGraphicsContext';
 import { ImageSourceAttributeConstants } from '../../ImageSource';
 import { parseImageWrapping } from '../../Wrapping';
 import { parseImageFiltering } from '../../Filtering';
+import { AffineMatrix } from '../../../Math/affine-matrix';
+import { ParticleTransform } from '../../../Particles/Particles';
 
 export class ParticleRenderer implements RendererPlugin {
   public readonly type = 'ex.particle' as const;
@@ -67,7 +69,7 @@ export class ParticleRenderer implements RendererPlugin {
 
     this._shader.use();
     this._shader.setUniformMatrix('u_matrix', this._context.ortho);
-    const transform = this._context.getTransform();
+    const transform = particleState.particle.transform === ParticleTransform.Local ? this._context.getTransform() : AffineMatrix.identity();
     this._shader.setUniformAffineMatrix('u_transform', transform);
     this._shader.setUniformBoolean('useTexture', particleState.particle.graphic ? true : false); // TODO configurable in particle state
     this._shader.setUniformFloat('maxLifeMs', particleState.particle.life ?? 2000); // TODO configurable in particle state

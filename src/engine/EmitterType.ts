@@ -5,9 +5,9 @@ export enum EmitterType {
   /**
    * Constant for the circular emitter type
    */
-  Circle,
+  Circle = 'circle',
   /**
    * Constant for the rectangular emitter type
    */
-  Rectangle
+  Rectangle = 'rectangle'
 }

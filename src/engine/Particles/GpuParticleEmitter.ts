@@ -1,17 +1,9 @@
 import { TransformComponent } from '../EntityComponentSystem';
 import { Entity } from '../EntityComponentSystem/Entity';
-import {
-  EmitterType,
-  Engine,
-  ExcaliburGraphicsContextWebGL,
-  GpuParticleConfig,
-  GpuParticleState,
-  GraphicsComponent,
-  Random,
-  vec,
-  Vector
-} from '../';
+import { Engine, ExcaliburGraphicsContextWebGL, GraphicsComponent, MotionComponent, Random, vec, Vector } from '../';
+import { EmitterType } from '../EmitterType'; // TODO move this
 import { ParticleEmitterArgs, ParticleTransform } from './Particles';
+import { GpuParticleConfig, GpuParticleState } from './GpuParticleState';
 
 export class GpuParticleEmitter extends Entity {
   // TODO should be actor?
@@ -33,6 +25,7 @@ export class GpuParticleEmitter extends Entity {
 
   public transform = new TransformComponent();
   public graphics = new GraphicsComponent();
+  public motion = new MotionComponent();
   public state: GpuParticleState;
   public isEmitting: boolean = false;
   public emitRate: number = 1;
@@ -60,6 +53,7 @@ export class GpuParticleEmitter extends Entity {
     super({ name: `GpuParticleEmitter` });
     this.addComponent(this.transform);
     this.addComponent(this.graphics);
+    this.addComponent(this.motion);
     (this.graphics.onPostDraw as any) = this.draw.bind(this);
 
     const { particle, maxParticles, x, y, z, pos, isEmitting, emitRate, emitterType, radius, random } = { ...config };
@@ -81,7 +75,6 @@ export class GpuParticleEmitter extends Entity {
     this.particle = { ...this.particle, ...particle };
 
     this.state = new GpuParticleState(this, random ?? new Random(), this.particle);
-    // TODO figure out emit rate and how many particles should be active
   }
 
   public _initialize(engine: Engine): void {

@@ -1,7 +1,7 @@
-import { randomInRange, TwoPI } from '../Math/util';
+import { TwoPI } from '../Math/util';
 import { ExcaliburGraphicsContextWebGL } from '../Graphics/Context/ExcaliburGraphicsContextWebGL';
 import { GpuParticleEmitter } from './GpuParticleEmitter';
-import { ParticleConfig } from './Particles';
+import { ParticleConfig, ParticleTransform } from './Particles';
 import { Random } from '../Math/Random';
 import { Sprite } from '../Graphics/Sprite';
 
@@ -149,15 +149,27 @@ export class GpuParticleState {
     const startIndex = this._particleIndex;
     const endIndex = particleCount * this._numInputFloats + startIndex;
     for (let i = startIndex; i < endIndex; i += this._numInputFloats) {
+      // TODO missing props, or exclude them
+      // 1. opacity
+      // 2. focus
+      // 3. focusAccel
+      // 4. particle transform
+      // 5. emitter type
+      //    - radius
+      //    - width/height
+      // 6. size
+      // 7. color
+      // 8. accel
       this._particleData.set(
         [
-          0, // TODO distribute randomly based on emitter params
-          0, // pos in world space
-          // Math.random()*2-1, Math.random()*2-1, // pos in clip space
-          randomInRange(-100, 100, this._random),
-          randomInRange(-100, 100, this._random), // velocity
-          this._random.next() * TwoPI, // rotation
-          this._random.next() * 2.5, // angular velocity
+          this.particle.transform === ParticleTransform.Local ? 0 : this.emitter.transform.pos.x,
+          this.particle.transform === ParticleTransform.Local ? 0 : this.emitter.transform.pos.y, // pos in world space
+          this._random.floating(this.particle.minVel || 0, this.particle.maxVel || 0),
+          this._random.floating(this.particle.minVel || 0, this.particle.maxVel || 0), // velocity
+          this.particle.randomRotation
+            ? this._random.floating(this.particle.minAngle || 0, this.particle.maxAngle || TwoPI)
+            : this.particle.rotation || 0, // rotation
+          this.particle.angularVelocity || 0, // angular velocity
           this.particle.life ?? 2000 // life
         ],
         i % this._particleData.length
