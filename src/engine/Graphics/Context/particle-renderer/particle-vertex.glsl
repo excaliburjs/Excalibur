@@ -16,6 +16,9 @@ layout(location=2)in float rotation;
 layout(location=3)in float angularVelocity;
 layout(location=4)in float lifeMs;
 
+// TODO z index to handle buffer wrapping?
+
+// DO NOT RE-ORDER
 out vec2 finalPosition;
 out vec2 finalVelocity;
 out float finalRotation;
@@ -25,7 +28,8 @@ void main(){
   // Evolve particle
   float seconds = deltaMs / 1000.;
   // euler integration
-  // todo weird artifact of re-using the same buffer layout for update/draw
+  // Weird artifact of re-using the same buffer layout for update/draw
+  // we need differently named variables
   finalVelocity = velocity + gravity * seconds;
   finalPosition = position + velocity * seconds + gravity * .5 * seconds * seconds;
   finalRotation = rotation + angularVelocity * seconds;
@@ -45,6 +49,6 @@ void main(){
   float lifePercent = finalLifeMs / maxLifeMs;
   vec2 transformedPos = (u_matrix * u_transform * vec4(finalPosition,0.,1.)).xy;
 
-  gl_Position = vec4(transformedPos, 0., 1.);
+  gl_Position = vec4(transformedPos, 1.0 - lifePercent, 1.); // use life percent to sort z
   gl_PointSize = mix(startSize, endSize, 1.0 - lifePercent);
 }

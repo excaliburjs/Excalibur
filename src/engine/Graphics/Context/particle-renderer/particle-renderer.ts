@@ -3,7 +3,7 @@ import { RendererPlugin } from '../renderer';
 import { Shader } from '../shader';
 import particleVertexSource from './particle-vertex.glsl';
 import particleFragmentSource from './particle-fragment.glsl';
-import { GpuParticleState } from '../../../Particles/GpuParticleState';
+import { GpuParticleRenderer } from '../../../Particles/GpuParticleRenderer';
 import { vec } from '../../../Math/vector';
 import { Color } from '../../../Color';
 import { HTMLImageSource } from '../ExcaliburGraphicsContext';
@@ -64,27 +64,27 @@ export class ParticleRenderer implements RendererPlugin {
     return texture;
   }
 
-  draw(particleState: GpuParticleState, elapsedMs: number): void {
+  draw(renderer: GpuParticleRenderer, elapsedMs: number): void {
     const gl = this._gl;
 
     this._shader.use();
     this._shader.setUniformMatrix('u_matrix', this._context.ortho);
-    const transform = particleState.particle.transform === ParticleTransform.Local ? this._context.getTransform() : AffineMatrix.identity();
+    const transform = renderer.particle.transform === ParticleTransform.Local ? this._context.getTransform() : AffineMatrix.identity();
     this._shader.setUniformAffineMatrix('u_transform', transform);
-    this._shader.setUniformBoolean('fade', particleState.particle.fade ? true : false);
-    this._shader.setUniformBoolean('useTexture', particleState.particle.graphic ? true : false);
-    this._shader.setUniformFloat('maxLifeMs', particleState.particle.life ?? 2000);
+    this._shader.setUniformBoolean('fade', renderer.particle.fade ? true : false);
+    this._shader.setUniformBoolean('useTexture', renderer.particle.graphic ? true : false);
+    this._shader.setUniformFloat('maxLifeMs', renderer.particle.life ?? 2000);
     // this._shader.setUniformFloat('uRandom', Math.random()); // TODO ex Random
     this._shader.setUniformFloat('deltaMs', elapsedMs);
-    this._shader.setUniformFloatVector('gravity', particleState.particle.acc ?? vec(0, 0));
-    this._shader.setUniformFloatColor('beginColor', particleState.particle.beginColor ?? Color.Transparent);
-    this._shader.setUniformFloatColor('endColor', particleState.particle.endColor ?? Color.Transparent);
-    this._shader.setUniformFloat('startSize', particleState.particle.startSize ?? 10);
-    this._shader.setUniformFloat('endSize', particleState.particle.endSize ?? 10);
+    this._shader.setUniformFloatVector('gravity', renderer.particle.acc ?? vec(0, 0));
+    this._shader.setUniformFloatColor('beginColor', renderer.particle.beginColor ?? Color.Transparent);
+    this._shader.setUniformFloatColor('endColor', renderer.particle.endColor ?? Color.Transparent);
+    this._shader.setUniformFloat('startSize', renderer.particle.startSize ?? 10);
+    this._shader.setUniformFloat('endSize', renderer.particle.endSize ?? 10);
 
     // Particle Graphic (only Sprites right now)
-    if (particleState.particle.graphic) {
-      const graphic = particleState.particle.graphic;
+    if (renderer.particle.graphic) {
+      const graphic = renderer.particle.graphic;
 
       const texture = this._getTexture(graphic.image.image);
       // TODO need to hint the GC
@@ -99,7 +99,7 @@ export class ParticleRenderer implements RendererPlugin {
     // gl.bindTexture(gl.TEXTURE_2D, obstacleTex);
     // gl.uniform1i(u_obstacle, 1);
 
-    particleState.draw(gl);
+    renderer.draw(gl);
   }
   hasPendingDraws(): boolean {
     return false;

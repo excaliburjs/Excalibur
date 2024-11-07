@@ -1,4 +1,4 @@
 export * from './Particles';
 export * from './ParticleEmitter';
 export * from './GpuParticleEmitter';
-export * from './GpuParticleState';
+export * from './GpuParticleRenderer';

@@ -3,7 +3,7 @@ import { Entity } from '../EntityComponentSystem/Entity';
 import { clamp, Engine, ExcaliburGraphicsContextWebGL, GraphicsComponent, MotionComponent, Random, vec, Vector } from '../';
 import { EmitterType } from '../EmitterType'; // TODO move this
 import { ParticleEmitterArgs, ParticleTransform } from './Particles';
-import { GpuParticleConfig, GpuParticleState } from './GpuParticleState';
+import { GpuParticleConfig, GpuParticleRenderer } from './GpuParticleRenderer';
 
 export class GpuParticleEmitter extends Entity {
   // TODO should be actor? yes
@@ -26,7 +26,7 @@ export class GpuParticleEmitter extends Entity {
   public transform = new TransformComponent();
   public graphics = new GraphicsComponent();
   public motion = new MotionComponent();
-  public state: GpuParticleState;
+  public state: GpuParticleRenderer;
   public isEmitting: boolean = false;
   public emitRate: number = 1;
   public emitterType: EmitterType = EmitterType.Rectangle;
@@ -60,7 +60,7 @@ export class GpuParticleEmitter extends Entity {
 
     const { particle, maxParticles, x, y, z, pos, isEmitting, emitRate, emitterType, radius, random } = { ...config };
 
-    this.maxParticles = clamp(maxParticles ?? this.maxParticles, 0, GpuParticleState.GPU_MAX_PARTICLES);
+    this.maxParticles = clamp(maxParticles ?? this.maxParticles, 0, GpuParticleRenderer.GPU_MAX_PARTICLES);
 
     this.pos = pos ?? vec(x ?? 0, y ?? 0);
 
@@ -76,7 +76,7 @@ export class GpuParticleEmitter extends Entity {
 
     this.particle = { ...this.particle, ...particle };
 
-    this.state = new GpuParticleState(this, random ?? new Random(), this.particle);
+    this.state = new GpuParticleRenderer(this, random ?? new Random(), this.particle);
   }
 
   public _initialize(engine: Engine): void {

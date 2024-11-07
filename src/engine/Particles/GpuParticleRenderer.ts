@@ -21,7 +21,7 @@ export interface GpuParticleConfig extends ParticleConfig {
  * Container for the GPU Particle State contains the internal state needed for the GPU
  * to render particles and maintain state.
  */
-export class GpuParticleState {
+export class GpuParticleRenderer {
   static readonly GPU_MAX_PARTICLES: number = 100_000;
   emitter: GpuParticleEmitter;
   emitRate: number = 1;
