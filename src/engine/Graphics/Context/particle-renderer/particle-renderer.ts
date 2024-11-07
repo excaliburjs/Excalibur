@@ -71,14 +71,14 @@ export class ParticleRenderer implements RendererPlugin {
     this._shader.setUniformMatrix('u_matrix', this._context.ortho);
     const transform = particleState.particle.transform === ParticleTransform.Local ? this._context.getTransform() : AffineMatrix.identity();
     this._shader.setUniformAffineMatrix('u_transform', transform);
-    this._shader.setUniformBoolean('useTexture', particleState.particle.graphic ? true : false); // TODO configurable in particle state
-    this._shader.setUniformFloat('maxLifeMs', particleState.particle.life ?? 2000); // TODO configurable in particle state
+    this._shader.setUniformBoolean('fade', particleState.particle.fade ? true : false);
+    this._shader.setUniformBoolean('useTexture', particleState.particle.graphic ? true : false);
+    this._shader.setUniformFloat('maxLifeMs', particleState.particle.life ?? 2000);
     // this._shader.setUniformFloat('uRandom', Math.random()); // TODO ex Random
     this._shader.setUniformFloat('deltaMs', elapsedMs);
     this._shader.setUniformFloatVector('gravity', particleState.particle.acc ?? vec(0, 0));
     this._shader.setUniformFloatColor('beginColor', particleState.particle.beginColor ?? Color.Transparent);
     this._shader.setUniformFloatColor('endColor', particleState.particle.endColor ?? Color.Transparent);
-    this._shader.setUniformBoolean('fade', particleState.particle.fade ?? true);
     this._shader.setUniformFloat('startSize', particleState.particle.startSize ?? 10);
     this._shader.setUniformFloat('endSize', particleState.particle.endSize ?? 10);
 

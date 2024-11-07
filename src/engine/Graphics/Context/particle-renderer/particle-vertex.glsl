@@ -42,9 +42,9 @@ void main(){
   //   finalPosition = position + newVelocity * seconds + gravity * .5 * seconds * seconds;
   // }
 
-  float perc = finalLifeMs / maxLifeMs;
+  float lifePercent = finalLifeMs / maxLifeMs;
   vec2 transformedPos = (u_matrix * u_transform * vec4(finalPosition,0.,1.)).xy;
 
   gl_Position = vec4(transformedPos, 0., 1.);
-  gl_PointSize = mix(startSize, endSize, 1.0 - perc);
+  gl_PointSize = mix(startSize, endSize, 1.0 - lifePercent);
 }

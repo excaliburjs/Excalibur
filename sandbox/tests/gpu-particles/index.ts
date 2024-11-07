@@ -8,19 +8,19 @@ var swordImg = new ex.ImageSource('https://cdn.rawgit.com/excaliburjs/Excalibur/
 
 var particles = new ex.GpuParticleEmitter({
   pos: ex.vec(300, 500),
-  maxParticles: 100_000,
+  maxParticles: 10_000,
   emitRate: 500,
   particle: {
     beginColor: ex.Color.Orange,
-    endColor: ex.Color.White,
+    endColor: ex.Color.Purple,
     fade: true,
     startSize: 100,
-    endSize: 0,
-    life: 2000,
+    endSize: 10,
+    life: 5000,
     minVel: -100,
     maxVel: 100,
-    randomRotation: true
-    // graphic: swordImg.toSprite()
+    randomRotation: true,
+    graphic: swordImg.toSprite()
   }
 });
 

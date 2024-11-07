@@ -59,13 +59,10 @@ export class GpuParticleState {
       return;
     }
 
-    // TODO this is wasteful, also causes a problem when overflowing
-    const numParticles = GpuParticleState.GPU_MAX_PARTICLES; // % this.numParticles;
+    const numParticles = GpuParticleState.GPU_MAX_PARTICLES;
     const numInputFloats = this._numInputFloats;
     const particleData = this._particleData;
     const bytesPerFloat = 4;
-
-    this.emitParticles(this.emitRate);
 
     const particleDataBuffer1 = gl.createBuffer()!;
     const vao1 = gl.createVertexArray()!;
@@ -145,37 +142,84 @@ export class GpuParticleState {
     this._initialized = true;
   }
 
+  // private _lifeTracker = new Map<number, [life: number, endIndex: number]>();
+  // // TODO mem inefficient
+
+  // private _runs: [start: number, end: number][] = [];
+  // update(elapsedMs: number) {
+  //   const lifeTracker = new Map(this._lifeTracker);
+  //   this._runs.length = 0;
+
+  //   for(let [index, [life, count]] of lifeTracker) {
+  //     life -= elapsedMs;
+  //     if (life <= 0) {
+  //       this._lifeTracker.delete(index);
+  //     } else {
+  //       this._lifeTracker.set(index, [life, count]);
+  //     }
+  //   }
+  //   const kvs = Array.from(this._lifeTracker.entries());
+  //   kvs.sort((a, b) => a[0] - b[0]); // relies on index order
+  //   let runs = this._runs;
+  //   for (let i = 0; i < kvs.length; i++) {
+  //     let [currentBatchIndex, [_, end]] = kvs[i];
+  //     if (runs.length === 0) {
+  //       runs.push([currentBatchIndex, end]);
+  //     } else {
+  //       let currentRun = runs[runs.length - 1];
+  //       // current run matches up with the next batch merge
+  //       if (currentRun[1] === currentBatchIndex) {
+  //         currentRun[1] = end;
+  //       // start a new run otherwise
+  //       } else {
+  //         runs.push([currentBatchIndex, end]);
+  //       }
+  //     }
+  //   }
+  // }
+
   emitParticles(particleCount: number) {
     const startIndex = this._particleIndex;
+    const maxSize = this.maxParticles * this._numInputFloats;
     const endIndex = particleCount * this._numInputFloats + startIndex;
     for (let i = startIndex; i < endIndex; i += this._numInputFloats) {
-      // TODO missing props, or exclude them
+      // TODO missing props, or exclude them from public api for now
       // 1. opacity
-      // 2. focus
-      // 3. focusAccel
+      // 2. focus (uniform?)
+      // 3. focusAccel (uniform?)
       // 4. particle transform
-      // 5. emitter type
+      // 5. emitter type (uniform?)
       //    - radius
       //    - width/height
       // 6. size
       // 7. color
       // 8. accel
-      this._particleData.set(
-        [
-          this.particle.transform === ParticleTransform.Local ? 0 : this.emitter.transform.pos.x,
-          this.particle.transform === ParticleTransform.Local ? 0 : this.emitter.transform.pos.y, // pos in world space
-          this._random.floating(this.particle.minVel || 0, this.particle.maxVel || 0),
-          this._random.floating(this.particle.minVel || 0, this.particle.maxVel || 0), // velocity
-          this.particle.randomRotation
-            ? this._random.floating(this.particle.minAngle || 0, this.particle.maxAngle || TwoPI)
-            : this.particle.rotation || 0, // rotation
-          this.particle.angularVelocity || 0, // angular velocity
-          this.particle.life ?? 2000 // life
-        ],
-        i % this._particleData.length
-      );
+      const data = [
+        this.particle.transform === ParticleTransform.Local ? 0 : this.emitter.transform.pos.x,
+        this.particle.transform === ParticleTransform.Local ? 0 : this.emitter.transform.pos.y, // pos in world space
+        this._random.floating(this.particle.minVel || 0, this.particle.maxVel || 0),
+        this._random.floating(this.particle.minVel || 0, this.particle.maxVel || 0), // velocity
+        this.particle.randomRotation
+          ? this._random.floating(this.particle.minAngle || 0, this.particle.maxAngle || TwoPI)
+          : this.particle.rotation || 0, // rotation
+        this.particle.angularVelocity || 0, // angular velocity
+        this.particle.life ?? 2000 // life
+      ];
+
+      // ASSERT data needs to match input floats
+      if (data.length !== this._numInputFloats) {
+        throw new Error('Invalid particle attribute data');
+      }
+
+      if (i % this._numInputFloats) {
+        throw new Error('Invalid index');
+      }
+
+      this._particleData.set(data, i % this._particleData.length);
     }
-    this._particleIndex = endIndex % (this.maxParticles * this._numInputFloats);
+    this._particleIndex = endIndex % maxSize;
+    // // TODO track alive index an count of particles, tick down life to calculate minimum draw call
+    // this._lifeTracker.set(startIndex / this._numInputFloats, [this.particle.life ?? 2000, endIndex / this._numInputFloats]);
   }
 
   private _uploadEmitted(gl: WebGL2RenderingContext) {
@@ -209,6 +253,20 @@ export class GpuParticleState {
 
       // Perform transform feedback (run the simulation) and the draw call all at once
       gl.beginTransformFeedback(gl.POINTS);
+      // currently we simulate ALL particles alive or dead
+      // // TODO is there a way we can calculate the parts of the buffer that have alive particles
+      // // Happy path alive particles are in 1 contiguous chunk
+      // if (this._runs.length === 1) {
+      //   // console.log(Math.floor(this._runs[0][0] / this._numInputFloats), Math.floor(this._runs[0][1] / this._numInputFloats) - Math.floor(this._runs[0][0] / this._numInputFloats));
+      //   const count = this._runs[0][1]  - this._runs[0][0];
+      //   console.log(Math.floor(Math.max(this._runs[0][0] - count, 0) / this._numInputFloats), count);
+      //   gl.drawArrays(gl.POINTS, Math.floor(Math.max(this._runs[0][0] - count, 0) / this._numInputFloats), count);
+
+      //   // gl.drawArrays(gl.POINTS, 0, this.maxParticles);
+      // } else {
+      //   // TODO Sad path alive particles are in 2 split chunks
+      //   // console.log(this._runs);
+      // }
       gl.drawArrays(gl.POINTS, 0, this.maxParticles);
       gl.endTransformFeedback();
 
