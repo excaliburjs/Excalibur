@@ -4,6 +4,7 @@ import { GpuParticleEmitter } from './GpuParticleEmitter';
 import { ParticleConfig, ParticleTransform } from './Particles';
 import { Random } from '../Math/Random';
 import { Sprite } from '../Graphics/Sprite';
+import { EmitterType } from '../EmitterType';
 
 export interface GpuParticleConfig extends ParticleConfig {
   /**
@@ -36,13 +37,14 @@ export class GpuParticleState {
   private _currentBuffer!: WebGLBuffer;
 
   private _numInputFloats = 2 + 2 + 1 + 1 + 1;
-  private _particleData = new Float32Array(GpuParticleState.GPU_MAX_PARTICLES * this._numInputFloats);
+  private _particleData: Float32Array;
   private _particleIndex = 0;
   private _uploadIndex: number = 0;
 
   constructor(emitter: GpuParticleEmitter, random: Random, options: GpuParticleConfig) {
     this.emitter = emitter;
     this.particle = options;
+    this._particleData = new Float32Array(this.emitter.maxParticles * this._numInputFloats);
     this._random = random;
   }
 
@@ -59,7 +61,7 @@ export class GpuParticleState {
       return;
     }
 
-    const numParticles = GpuParticleState.GPU_MAX_PARTICLES;
+    const numParticles = this.emitter.maxParticles;
     const numInputFloats = this._numInputFloats;
     const particleData = this._particleData;
     const bytesPerFloat = 4;
@@ -193,10 +195,21 @@ export class GpuParticleState {
       //    - width/height
       // 6. size
       // 7. color
-      // 8. accel
+      const angle = this._random.floating(this.particle.minAngle || 0, this.particle.maxAngle || TwoPI);
+      let ranX: number = 0;
+      let ranY: number = 0;
+      if (this.emitter.emitterType === EmitterType.Rectangle) {
+        ranX = this._random.next() * (this.emitter.width * 2 - this.emitter.width);
+        ranY = this._random.next() * (this.emitter.height * 2 - this.emitter.height);
+      } else {
+        const radius = this._random.floating(0, this.emitter.radius);
+        ranX = radius * Math.cos(angle);
+        ranY = radius * Math.sin(angle);
+      }
+
       const data = [
-        this.particle.transform === ParticleTransform.Local ? 0 : this.emitter.transform.pos.x,
-        this.particle.transform === ParticleTransform.Local ? 0 : this.emitter.transform.pos.y, // pos in world space
+        this.particle.transform === ParticleTransform.Local ? ranX : this.emitter.transform.pos.x + ranX,
+        this.particle.transform === ParticleTransform.Local ? ranY : this.emitter.transform.pos.y + ranY, // pos in world space
         this._random.floating(this.particle.minVel || 0, this.particle.maxVel || 0),
         this._random.floating(this.particle.minVel || 0, this.particle.maxVel || 0), // velocity
         this.particle.randomRotation
@@ -274,7 +287,7 @@ export class GpuParticleState {
       gl.bindVertexArray(null);
       gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, null);
 
-      // flip flop buffers
+      // flip flop buffers, one will be draw the other simulation
       this._currentVao = this._vaos[this._drawIndex % 2];
       this._currentBuffer = this._buffers[(this._drawIndex + 1) % 2];
       this._drawIndex = (this._drawIndex + 1) % 2;
