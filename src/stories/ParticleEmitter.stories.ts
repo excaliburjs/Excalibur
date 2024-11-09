@@ -49,8 +49,8 @@ export const Main: StoryObj = {
         emitRate,
         focusAccel: 800,
         particle: {
-          minVel,
-          maxVel,
+          minSpeed: minVel,
+          maxSpeed: maxVel,
           minAngle,
           maxAngle,
           opacity,
