@@ -74,13 +74,22 @@ export class ParticleRenderer implements RendererPlugin {
     this._shader.setUniformBoolean('fade', renderer.particle.fade ? true : false);
     this._shader.setUniformBoolean('useTexture', renderer.particle.graphic ? true : false);
     this._shader.setUniformFloat('maxLifeMs', renderer.particle.life ?? 2000);
-    // this._shader.setUniformFloat('uRandom', Math.random()); // TODO ex Random
     this._shader.setUniformFloat('deltaMs', elapsedMs);
     this._shader.setUniformFloatVector('gravity', renderer.particle.acc ?? vec(0, 0));
     this._shader.setUniformFloatColor('beginColor', renderer.particle.beginColor ?? Color.Transparent);
     this._shader.setUniformFloatColor('endColor', renderer.particle.endColor ?? Color.Transparent);
     this._shader.setUniformFloat('startSize', renderer.particle.startSize ?? 10);
     this._shader.setUniformFloat('endSize', renderer.particle.endSize ?? 10);
+
+    if (renderer.particle.focus) {
+      this._shader.setUniformFloatVector(
+        'focus',
+        renderer.particle.transform === ParticleTransform.Local
+          ? renderer.particle.focus
+          : renderer.emitter.transform.pos.add(renderer.particle.focus)
+      );
+      this._shader.setUniformFloat('focusAccel', renderer.particle.focusAccel ?? 0);
+    }
 
     // Particle Graphic (only Sprites right now)
     if (renderer.particle.graphic) {

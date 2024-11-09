@@ -4,6 +4,8 @@ precision mediump float;
 uniform float deltaMs;
 uniform float maxLifeMs;
 uniform vec2 gravity;
+uniform vec2 focus;
+uniform float focusAccel;
 uniform mat4 u_matrix;
 uniform mat4 u_transform;
 uniform float startSize;
@@ -30,8 +32,9 @@ void main(){
   // euler integration
   // Weird artifact of re-using the same buffer layout for update/draw
   // we need differently named variables
-  finalVelocity = velocity + gravity * seconds;
-  finalPosition = position + velocity * seconds + gravity * .5 * seconds * seconds;
+  vec2 finalGravity = gravity + normalize(focus - position) * focusAccel;
+  finalVelocity = velocity + finalGravity * seconds;
+  finalPosition = position + velocity * seconds + finalGravity * .5 * seconds * seconds;
   finalRotation = rotation + angularVelocity * seconds;
   finalAngularVelocity = angularVelocity;
   finalLifeMs = clamp(lifeMs - deltaMs, 0., maxLifeMs);
