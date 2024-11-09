@@ -8,6 +8,7 @@ uniform float maxLifeMs;
 uniform vec4 beginColor;
 uniform vec4 endColor;
 uniform bool fade;
+uniform float startOpacity;
 
 in float finalRotation;
 in float finalLifeMs;
@@ -34,7 +35,7 @@ void main(){
     float dist = 1.0 - length(uv);
     float edge = fwidth(dot(uv, uv));
     float circle = smoothstep(-edge/2.0, edge/2.0, dist);
-    vec4 color = mix(beginColor, endColor, 1.0 - lifePct);
+    vec4 color = mix(beginColor, endColor, 1.0 - lifePct) * startOpacity;
     fragColor = color * (fade ? lifePct : 1.0) * circle;
   }
 }

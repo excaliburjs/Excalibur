@@ -11,9 +11,12 @@ var particles = new ex.GpuParticleEmitter({
   maxParticles: 10_000,
   emitRate: 1000,
   radius: 100,
-  emitterType: ex.EmitterType.Circle,
+  width: 200,
+  height: 100,
+  emitterType: ex.EmitterType.Rectangle,
   particle: {
     acc: ex.vec(0, -100),
+    opacity: 0.1,
     beginColor: ex.Color.Orange,
     endColor: ex.Color.Purple,
     fade: true,
@@ -25,18 +28,28 @@ var particles = new ex.GpuParticleEmitter({
     minVel: -100,
     maxVel: 100,
     angularVelocity: 2,
-    randomRotation: true
-    // graphic: swordImg.toSprite()
+    randomRotation: true,
+    transform: ex.ParticleTransform.Local,
+    graphic: swordImg.toSprite()
   }
 });
 
 game.input.pointers.primary.on('move', (evt) => {
-  particles.transform.pos.x = evt.worldPos.x;
-  particles.transform.pos.y = evt.worldPos.y;
+  particles.pos.x = evt.worldPos.x;
+  particles.pos.y = evt.worldPos.y;
 });
 
 particles.isEmitting = true;
 game.add(particles);
+
+game.add(
+  new ex.Actor({
+    width: 200,
+    height: 100,
+    color: ex.Color.Red,
+    pos: ex.vec(400, 400)
+  })
+);
 
 var particles2 = new ex.GpuParticleEmitter({
   pos: ex.vec(700, 500),

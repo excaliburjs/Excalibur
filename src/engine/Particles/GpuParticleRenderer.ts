@@ -4,7 +4,7 @@ import { GpuParticleEmitter } from './GpuParticleEmitter';
 import { ParticleConfig, ParticleTransform } from './Particles';
 import { Random } from '../Math/Random';
 import { Sprite } from '../Graphics/Sprite';
-import { EmitterType } from '../EmitterType';
+import { EmitterType } from './EmitterType';
 
 export interface GpuParticleConfig extends ParticleConfig {
   /**
@@ -145,7 +145,6 @@ export class GpuParticleRenderer {
   }
 
   // private _lifeTracker = new Map<number, [life: number, endIndex: number]>();
-  // // TODO mem inefficient
 
   // private _runs: [start: number, end: number][] = [];
   // update(elapsedMs: number) {
@@ -185,22 +184,13 @@ export class GpuParticleRenderer {
     const maxSize = this.maxParticles * this._numInputFloats;
     const endIndex = particleCount * this._numInputFloats + startIndex;
     for (let i = startIndex; i < endIndex; i += this._numInputFloats) {
-      // TODO missing props, or exclude them from public api for now
-      // 1. opacity
-      // 2. focus (uniform?)
-      // 3. focusAccel (uniform?)
-      // 4. particle transform
-      // 5. emitter type (uniform?)
-      //    - radius
-      //    - width/height
-      // 6. size
-      // 7. color
       const angle = this._random.floating(this.particle.minAngle || 0, this.particle.maxAngle || TwoPI);
       let ranX: number = 0;
       let ranY: number = 0;
       if (this.emitter.emitterType === EmitterType.Rectangle) {
-        ranX = this._random.next() * (this.emitter.width * 2 - this.emitter.width);
-        ranY = this._random.next() * (this.emitter.height * 2 - this.emitter.height);
+        // TODO does this actually work?
+        ranX = this._random.floating(-0.5, 0.5) * this.emitter.width;
+        ranY = this._random.floating(-0.5, 0.5) * this.emitter.height;
       } else {
         const radius = this._random.floating(0, this.emitter.radius);
         ranX = radius * Math.cos(angle);
@@ -231,7 +221,6 @@ export class GpuParticleRenderer {
       this._particleData.set(data, i % this._particleData.length);
     }
     this._particleIndex = endIndex % maxSize;
-    // // TODO track alive index an count of particles, tick down life to calculate minimum draw call
     // this._lifeTracker.set(startIndex / this._numInputFloats, [this.particle.life ?? 2000, endIndex / this._numInputFloats]);
   }
 
@@ -267,7 +256,6 @@ export class GpuParticleRenderer {
       // Perform transform feedback (run the simulation) and the draw call all at once
       gl.beginTransformFeedback(gl.POINTS);
       // currently we simulate ALL particles alive or dead
-      // // TODO is there a way we can calculate the parts of the buffer that have alive particles
       // // Happy path alive particles are in 1 contiguous chunk
       // if (this._runs.length === 1) {
       //   // console.log(Math.floor(this._runs[0][0] / this._numInputFloats), Math.floor(this._runs[0][1] / this._numInputFloats) - Math.floor(this._runs[0][0] / this._numInputFloats));
@@ -277,7 +265,6 @@ export class GpuParticleRenderer {
 
       //   // gl.drawArrays(gl.POINTS, 0, this.maxParticles);
       // } else {
-      //   // TODO Sad path alive particles are in 2 split chunks
       //   // console.log(this._runs);
       // }
       gl.drawArrays(gl.POINTS, 0, this.maxParticles);

@@ -78,16 +78,21 @@ export class ParticleRenderer implements RendererPlugin {
     this._shader.setUniformFloatVector('gravity', renderer.particle.acc ?? vec(0, 0));
     this._shader.setUniformFloatColor('beginColor', renderer.particle.beginColor ?? Color.Transparent);
     this._shader.setUniformFloatColor('endColor', renderer.particle.endColor ?? Color.Transparent);
-    this._shader.setUniformFloat('startSize', renderer.particle.startSize ?? 10);
-    this._shader.setUniformFloat('endSize', renderer.particle.endSize ?? 10);
+
+    let startSize = renderer.particle.startSize ?? 0;
+    let endSize = renderer.particle.endSize ?? 0;
+    const size = renderer.particle.size ?? 0;
+    if (size > 0) {
+      startSize = size;
+      endSize = size;
+    }
+
+    this._shader.setUniformFloat('startSize', startSize ?? 10);
+    this._shader.setUniformFloat('endSize', endSize ?? 10);
+    this._shader.setUniformFloat('startOpacity', renderer.particle.opacity ?? 1);
 
     if (renderer.particle.focus) {
-      this._shader.setUniformFloatVector(
-        'focus',
-        renderer.particle.transform === ParticleTransform.Local
-          ? renderer.particle.focus
-          : renderer.emitter.transform.pos.add(renderer.particle.focus)
-      );
+      this._shader.setUniformFloatVector('focus', renderer.particle.focus);
       this._shader.setUniformFloat('focusAccel', renderer.particle.focusAccel ?? 0);
     }
 

@@ -8,7 +8,7 @@ import { Entity } from '../EntityComponentSystem/Entity';
 import { BoundingBox } from '../Collision/BoundingBox';
 import { clamp } from '../Math/util';
 import { Graphic } from '../Graphics';
-import { EmitterType } from '../EmitterType';
+import { EmitterType } from './EmitterType';
 import { MotionComponent } from '../EntityComponentSystem';
 import { EulerIntegrator } from '../Collision/Integrator';
 import type { ParticleEmitter } from './ParticleEmitter';
@@ -262,6 +262,8 @@ export interface ParticleConfig {
 
   /**
    * Gets or sets the optional focus where all particles should accelerate towards
+   *
+   * If the particle transform is global the focus is in world space, otherwise it is relative to the emitter
    */
   focus?: Vector;
   /**

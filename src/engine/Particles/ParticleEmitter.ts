@@ -4,7 +4,7 @@ import { vec } from '../Math/vector';
 import { Random } from '../Math/Random';
 import { CollisionType } from '../Collision/CollisionType';
 import { randomInRange } from '../Math/util';
-import { EmitterType } from '../EmitterType';
+import { EmitterType } from './EmitterType';
 import { Particle, ParticleTransform, ParticleEmitterArgs, ParticleConfig } from './Particles';
 import { RentalPool } from '../Util/RentalPool';
 

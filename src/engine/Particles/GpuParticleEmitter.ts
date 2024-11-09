@@ -1,14 +1,9 @@
-import { TransformComponent } from '../EntityComponentSystem';
-import { Entity } from '../EntityComponentSystem/Entity';
-import { clamp, Engine, ExcaliburGraphicsContextWebGL, GraphicsComponent, MotionComponent, Random, vec, Vector } from '../';
-import { EmitterType } from '../EmitterType'; // TODO move this
+import { Actor, clamp, Engine, ExcaliburGraphicsContextWebGL, GraphicsComponent, Random, vec, Vector } from '../';
+import { EmitterType } from './EmitterType'; // TODO move this
 import { ParticleEmitterArgs, ParticleTransform } from './Particles';
 import { GpuParticleConfig, GpuParticleRenderer } from './GpuParticleRenderer';
 
-export class GpuParticleEmitter extends Entity {
-  // TODO should be actor? yes
-  // TODO random glsl
-
+export class GpuParticleEmitter extends Actor {
   public particle: GpuParticleConfig = {
     /**
      * Gets or sets the life of each particle in milliseconds
@@ -23,16 +18,12 @@ export class GpuParticleEmitter extends Entity {
     randomRotation: false
   };
 
-  public transform = new TransformComponent();
   public graphics = new GraphicsComponent();
-  public motion = new MotionComponent();
   public state: GpuParticleRenderer;
   public isEmitting: boolean = false;
   public emitRate: number = 1;
   public emitterType: EmitterType = EmitterType.Rectangle;
   public radius: number = 0;
-  public width: number = 0;
-  public height: number = 0;
   public readonly maxParticles: number = 2000;
 
   public get pos() {
@@ -52,10 +43,8 @@ export class GpuParticleEmitter extends Entity {
   }
 
   constructor(config: ParticleEmitterArgs & { maxParticles?: number; particle?: GpuParticleConfig }) {
-    super({ name: `GpuParticleEmitter` });
-    this.addComponent(this.transform);
-    this.addComponent(this.graphics);
-    this.addComponent(this.motion);
+    super({ name: `GpuParticleEmitter`, width: config.width, height: config.height }); // somewhat goofy way of doing width/height
+    this.addComponent(this.graphics, true);
     (this.graphics.onPostDraw as any) = this.draw.bind(this);
 
     const { particle, maxParticles, x, y, z, pos, isEmitting, emitRate, emitterType, radius, random } = { ...config };
