@@ -35,8 +35,8 @@ describe('A particle', () => {
       height: 30,
       isEmitting: true,
       particle: {
-        minVel: 40,
-        maxVel: 50,
+        minSpeed: 40,
+        maxSpeed: 50,
         acc: ex.Vector.Zero.clone(),
         minAngle: 0,
         maxAngle: Math.PI / 2,
@@ -64,8 +64,8 @@ describe('A particle', () => {
     expect(emitter.width).toBe(20);
     expect(emitter.height).toBe(30);
     expect(emitter.isEmitting).toBe(true);
-    expect(emitter.particle.minVel).toBe(40);
-    expect(emitter.particle.maxVel).toBe(50);
+    expect(emitter.particle.minSpeed).toBe(40);
+    expect(emitter.particle.maxSpeed).toBe(50);
     expect(emitter.acc.toString()).toBe(ex.Vector.Zero.clone().toString());
     expect(emitter.particle.minAngle).toBe(0);
     expect(emitter.particle.maxAngle).toBe(Math.PI / 2);
@@ -97,8 +97,8 @@ describe('A particle', () => {
       isEmitting: true,
       emitRate: 5,
       particle: {
-        minVel: 100,
-        maxVel: 200,
+        minSpeed: 100,
+        maxSpeed: 200,
         acc: ex.Vector.Zero.clone(),
         minAngle: 0,
         maxAngle: Math.PI / 2,
@@ -139,8 +139,8 @@ describe('A particle', () => {
       isEmitting: true,
       emitRate: 5,
       particle: {
-        minVel: 100,
-        maxVel: 200,
+        minSpeed: 100,
+        maxSpeed: 200,
         acc: ex.Vector.Zero.clone(),
         minAngle: 0,
         maxAngle: Math.PI / 2,
@@ -185,8 +185,8 @@ describe('A particle', () => {
     const emitter = new ex.ParticleEmitter({
       particle: {
         transform: ex.ParticleTransform.Local,
-        minVel: 100,
-        maxVel: 200,
+        minSpeed: 100,
+        maxSpeed: 200,
         acc: ex.Vector.Zero.clone(),
         minAngle: 0,
         maxAngle: Math.PI / 2,
@@ -222,8 +222,8 @@ describe('A particle', () => {
     const emitter = new ex.ParticleEmitter({
       particle: {
         transform: ex.ParticleTransform.Global,
-        minVel: 100,
-        maxVel: 200,
+        minSpeed: 100,
+        maxSpeed: 200,
         acc: ex.Vector.Zero.clone(),
         minAngle: 0,
         maxAngle: Math.PI / 2,
