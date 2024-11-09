@@ -25,11 +25,11 @@ var particles = new ex.GpuParticleEmitter({
     startSize: 100,
     endSize: 0,
     life: 3000,
-    minVel: -100,
-    maxVel: 100,
+    minSpeed: -100,
+    maxSpeed: 100,
     angularVelocity: 2,
     randomRotation: true,
-    transform: ex.ParticleTransform.Local,
+    transform: ex.ParticleTransform.Global,
     graphic: swordImg.toSprite()
   }
 });

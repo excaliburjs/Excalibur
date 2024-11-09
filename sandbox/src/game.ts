@@ -1025,8 +1025,8 @@ var emitter = new ex.ParticleEmitter({
   width: 2,
   height: 2,
   particle: {
-    minVel: 417,
-    maxVel: 589,
+    minSpeed: 417,
+    maxSpeed: 589,
     minAngle: Math.PI,
     maxAngle: Math.PI * 2,
     opacity: 0.84,
