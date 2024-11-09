@@ -188,7 +188,6 @@ export class GpuParticleRenderer {
       let ranX: number = 0;
       let ranY: number = 0;
       if (this.emitter.emitterType === EmitterType.Rectangle) {
-        // TODO does this actually work?
         ranX = this._random.floating(-0.5, 0.5) * this.emitter.width;
         ranY = this._random.floating(-0.5, 0.5) * this.emitter.height;
       } else {
@@ -200,8 +199,8 @@ export class GpuParticleRenderer {
       const data = [
         this.particle.transform === ParticleTransform.Local ? ranX : this.emitter.transform.pos.x + ranX,
         this.particle.transform === ParticleTransform.Local ? ranY : this.emitter.transform.pos.y + ranY, // pos in world space
-        this._random.floating(this.particle.minVel || 0, this.particle.maxVel || 0),
-        this._random.floating(this.particle.minVel || 0, this.particle.maxVel || 0), // velocity
+        this._random.floating(this.particle.minSpeed || 0, this.particle.maxSpeed || 0),
+        this._random.floating(this.particle.minSpeed || 0, this.particle.maxSpeed || 0), // velocity
         this.particle.randomRotation
           ? this._random.floating(this.particle.minAngle || 0, this.particle.maxAngle || TwoPI)
           : this.particle.rotation || 0, // rotation

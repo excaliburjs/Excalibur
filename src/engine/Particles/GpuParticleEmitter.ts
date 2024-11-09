@@ -1,5 +1,5 @@
 import { Actor, clamp, Engine, ExcaliburGraphicsContextWebGL, GraphicsComponent, Random, vec, Vector } from '../';
-import { EmitterType } from './EmitterType'; // TODO move this
+import { EmitterType } from './EmitterType';
 import { ParticleEmitterArgs, ParticleTransform } from './Particles';
 import { GpuParticleConfig, GpuParticleRenderer } from './GpuParticleRenderer';
 

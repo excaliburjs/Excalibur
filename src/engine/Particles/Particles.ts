@@ -15,7 +15,7 @@ import type { ParticleEmitter } from './ParticleEmitter';
 
 /**
 /**
- * Particle is used in a {@apilink ParticleEmitter}
+ * CPU Particle is used in a {@apilink ParticleEmitter}
  */
 export class Particle extends Entity {
   public static DefaultConfig: ParticleConfig = {
@@ -244,13 +244,13 @@ export interface ParticleConfig {
    */
   maxSize?: number;
   /**
-   * Minimum magnitude of the particle starting vel
+   * Minimum magnitude of the particle starting speed
    */
-  minVel?: number; // TODO Change to speed!
+  minSpeed?: number;
   /**
-   * Maximum magnitude of the particle starting vel
+   * Maximum magnitude of the particle starting speed
    */
-  maxVel?: number;
+  maxSpeed?: number;
   /**
    * Minimum angle to use for the particles starting rotation
    */
