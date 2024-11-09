@@ -41,10 +41,6 @@ export class ParticleRenderer implements RendererPlugin {
   }
 
   private _getTexture(image: HTMLImageSource) {
-    // if (this._texture) {
-    //   return this._texture; // TODO invalidate if image changes
-    // }
-    // TODO DOM apis really sucks perf cache it?
     const maybeFiltering = image.getAttribute(ImageSourceAttributeConstants.Filtering);
     const filtering = maybeFiltering ? parseImageFiltering(maybeFiltering) : undefined;
     const wrapX = parseImageWrapping(image.getAttribute(ImageSourceAttributeConstants.WrappingX) as any);
@@ -101,7 +97,6 @@ export class ParticleRenderer implements RendererPlugin {
       const graphic = renderer.particle.graphic;
 
       const texture = this._getTexture(graphic.image.image);
-      // TODO need to hint the GC
 
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, texture);
