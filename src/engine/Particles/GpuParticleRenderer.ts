@@ -216,7 +216,6 @@ export class GpuParticleRenderer {
           this._particleIndex - this._uploadIndex
         );
       } else {
-        // console.log("wrapped");
         // upload before the wrap
         gl.bufferSubData(
           gl.ARRAY_BUFFER,
@@ -239,7 +238,6 @@ export class GpuParticleRenderer {
       this._wrappedLife -= elapsedMs;
     } else {
       this._wrappedLife = 0;
-      // this._unwrappedParticles = 0;
       this._wrappedParticles = 0;
     }
     if (!this._emitted.length) {
@@ -267,20 +265,27 @@ export class GpuParticleRenderer {
       gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, this._currentBuffer);
 
       // Perform transform feedback (run the simulation) and the draw call all at once
-
       if (this._wrappedLife && this._emitted[0]) {
-        const midpoint = this._emitted[0][1] / this._numInputFloats; // - (this.emitRate * (this.particle.life ?? 2000) / 1000);
-        // console.log('wrap mode draw', midpoint);
-
+        const midpoint = this._emitted[0][1] / this._numInputFloats;
         // draw oldest first (maybe make configurable)
+        gl.bindBufferRange(
+          gl.TRANSFORM_FEEDBACK_BUFFER,
+          0,
+          this._currentBuffer,
+          this._emitted[0][1] * 4,
+          (this.maxParticles - midpoint) * this._numInputFloats * 4
+        );
         gl.beginTransformFeedback(gl.POINTS);
         gl.drawArrays(gl.POINTS, midpoint, this.maxParticles - midpoint);
+        gl.endTransformFeedback();
 
         // then draw newer particles
+        gl.bindBufferRange(gl.TRANSFORM_FEEDBACK_BUFFER, 0, this._currentBuffer, 0, this._emitted[0][1] * 4);
+        gl.beginTransformFeedback(gl.POINTS);
         gl.drawArrays(gl.POINTS, 0, midpoint);
         gl.endTransformFeedback();
       } else {
-        // console.log('normal mode draw');
+        gl.bindBufferRange(gl.TRANSFORM_FEEDBACK_BUFFER, 0, this._currentBuffer, 0, this._particleData.length * 4);
         gl.beginTransformFeedback(gl.POINTS);
         gl.drawArrays(gl.POINTS, 0, this.maxParticles);
         gl.endTransformFeedback();
