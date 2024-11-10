@@ -44,12 +44,14 @@ export class GpuParticleRenderer {
 
   private _wrappedLife = 0;
   private _wrappedParticles = 0;
+  private _particleLife = 0;
 
   constructor(emitter: GpuParticleEmitter, random: Random, options: GpuParticleConfig) {
     this.emitter = emitter;
     this.particle = options;
     this._particleData = new Float32Array(this.emitter.maxParticles * this._numInputFloats);
     this._random = random;
+    this._particleLife = this.particle.life ?? 2000;
   }
 
   public get isInitialized() {
@@ -177,7 +179,7 @@ export class GpuParticleRenderer {
           ? this._random.floating(this.particle.minAngle || 0, this.particle.maxAngle || TwoPI)
           : this.particle.rotation || 0, // rotation
         this.particle.angularVelocity || 0, // angular velocity
-        this.particle.life ?? 2000 // life
+        this._particleLife // life
       ];
 
       countParticle++;
@@ -186,20 +188,13 @@ export class GpuParticleRenderer {
 
     if (endIndex >= maxSize) {
       this._wrappedParticles += (endIndex - maxSize) / this._numInputFloats;
-      // this._unwrappedParticles = countParticle - this._wrappedParticles;
-      this._wrappedLife = this.particle.life ?? 2000;
-      // console.log('wrap in emit:', this._wrappedParticles);
-      // console.log('unwrap in emit:', this._unwrappedParticles);
+      this._wrappedLife = this._particleLife;
     } else if (this._wrappedLife > 0) {
       this._wrappedParticles += particleCount;
     }
 
-    // ASSERT
-    // if (countParticle > particleCount) {
-    //   throw new Error(`Bugged emit: ${countParticle} > ${particleCount}`);
-    // }
     this._particleIndex = endIndex % maxSize;
-    this._emitted.push([this.particle.life ?? 2000, startIndex]);
+    this._emitted.push([this._particleLife, startIndex]);
   }
 
   private _uploadEmitted(gl: WebGL2RenderingContext) {
@@ -234,7 +229,7 @@ export class GpuParticleRenderer {
           0,
           this._wrappedParticles * this._numInputFloats
         );
-        this._wrappedLife = this.particle.life ?? 2000;
+        this._wrappedLife = this._particleLife;
       }
       gl.bindBuffer(gl.ARRAY_BUFFER, null);
     }
@@ -242,6 +237,7 @@ export class GpuParticleRenderer {
   }
 
   update(elapsedMs: number) {
+    this._particleLife = this.particle.life ?? this._particleLife;
     if (this._wrappedLife > 0) {
       this._wrappedLife -= elapsedMs;
     } else {
