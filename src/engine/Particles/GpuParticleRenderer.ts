@@ -274,7 +274,7 @@ export class GpuParticleRenderer {
 
         // draw oldest first (maybe make configurable)
         gl.beginTransformFeedback(gl.POINTS);
-        gl.drawArrays(gl.POINTS, midpoint + 1, this.maxParticles - midpoint);
+        gl.drawArrays(gl.POINTS, midpoint, this.maxParticles - midpoint);
 
         // then draw newer particles
         gl.drawArrays(gl.POINTS, 0, midpoint);
