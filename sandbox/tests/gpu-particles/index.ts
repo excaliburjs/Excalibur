@@ -16,10 +16,10 @@ var particles = new ex.GpuParticleEmitter({
   emitterType: ex.EmitterType.Rectangle,
   particle: {
     acc: ex.vec(0, -100),
-    opacity: 0.1,
+    // opacity: 0.1,
     beginColor: ex.Color.Orange,
     endColor: ex.Color.Purple,
-    fade: true,
+    // fade: true,
     focus: ex.vec(0, -400),
     focusAccel: 1000,
     startSize: 100,
@@ -29,8 +29,8 @@ var particles = new ex.GpuParticleEmitter({
     maxSpeed: 100,
     angularVelocity: 2,
     randomRotation: true,
-    transform: ex.ParticleTransform.Global,
-    graphic: swordImg.toSprite()
+    transform: ex.ParticleTransform.Local
+    // graphic: swordImg.toSprite()
   }
 });
 
@@ -51,16 +51,16 @@ game.add(
   })
 );
 
-var particles2 = new ex.GpuParticleEmitter({
-  pos: ex.vec(700, 500),
-  particle: {
-    beginColor: ex.Color.Blue,
-    endColor: ex.Color.Rose,
-    fade: true,
-    startSize: 50,
-    endSize: 20
-  }
-});
-game.add(particles2);
+// var particles2 = new ex.GpuParticleEmitter({
+//   pos: ex.vec(700, 500),
+//   particle: {
+//     beginColor: ex.Color.Blue,
+//     endColor: ex.Color.Rose,
+//     fade: true,
+//     startSize: 50,
+//     endSize: 20
+//   }
+// });
+// game.add(particles2);
 
 game.start(new ex.Loader([swordImg]));
