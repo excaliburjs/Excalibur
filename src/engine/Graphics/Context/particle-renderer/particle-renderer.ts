@@ -108,6 +108,12 @@ export class ParticleRenderer implements RendererPlugin {
     // gl.bindTexture(gl.TEXTURE_2D, obstacleTex);
     // gl.uniform1i(u_obstacle, 1);
 
+    // Blending wont work because ex doesn't have a depth attachment
+    // gl.enable(gl.DEPTH_TEST);
+    // gl.enable(gl.BLEND);
+    // gl.blendEquation(gl.FUNC_ADD);
+    // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
     renderer.draw(gl);
   }
   hasPendingDraws(): boolean {

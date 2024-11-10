@@ -85,6 +85,7 @@ export class GpuParticleEmitter extends Actor {
         this._particlesToEmit = this._particlesToEmit - Math.floor(this._particlesToEmit);
       }
     }
+    this.state.update(elapsedMs);
   }
 
   public emitParticles(particleCount: number) {

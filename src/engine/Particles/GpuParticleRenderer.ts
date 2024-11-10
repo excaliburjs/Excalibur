@@ -41,6 +41,9 @@ export class GpuParticleRenderer {
   private _particleIndex = 0;
   private _uploadIndex: number = 0;
 
+  private _wrappedLife = 0;
+  private _wrappedParticles = 0;
+
   constructor(emitter: GpuParticleEmitter, random: Random, options: GpuParticleConfig) {
     this.emitter = emitter;
     this.particle = options;
@@ -144,45 +147,13 @@ export class GpuParticleRenderer {
     this._initialized = true;
   }
 
-  // private _lifeTracker = new Map<number, [life: number, endIndex: number]>();
-
-  // private _runs: [start: number, end: number][] = [];
-  // update(elapsedMs: number) {
-  //   const lifeTracker = new Map(this._lifeTracker);
-  //   this._runs.length = 0;
-
-  //   for(let [index, [life, count]] of lifeTracker) {
-  //     life -= elapsedMs;
-  //     if (life <= 0) {
-  //       this._lifeTracker.delete(index);
-  //     } else {
-  //       this._lifeTracker.set(index, [life, count]);
-  //     }
-  //   }
-  //   const kvs = Array.from(this._lifeTracker.entries());
-  //   kvs.sort((a, b) => a[0] - b[0]); // relies on index order
-  //   let runs = this._runs;
-  //   for (let i = 0; i < kvs.length; i++) {
-  //     let [currentBatchIndex, [_, end]] = kvs[i];
-  //     if (runs.length === 0) {
-  //       runs.push([currentBatchIndex, end]);
-  //     } else {
-  //       let currentRun = runs[runs.length - 1];
-  //       // current run matches up with the next batch merge
-  //       if (currentRun[1] === currentBatchIndex) {
-  //         currentRun[1] = end;
-  //       // start a new run otherwise
-  //       } else {
-  //         runs.push([currentBatchIndex, end]);
-  //       }
-  //     }
-  //   }
-  // }
-
+  private _emitted: [life: number, index: number][] = [];
   emitParticles(particleCount: number) {
     const startIndex = this._particleIndex;
     const maxSize = this.maxParticles * this._numInputFloats;
     const endIndex = particleCount * this._numInputFloats + startIndex;
+    let countParticle = 0;
+    // let overflow = false;
     for (let i = startIndex; i < endIndex; i += this._numInputFloats) {
       const angle = this._random.floating(this.particle.minAngle || 0, this.particle.maxAngle || TwoPI);
       let ranX: number = 0;
@@ -208,26 +179,35 @@ export class GpuParticleRenderer {
         this.particle.life ?? 2000 // life
       ];
 
-      // ASSERT data needs to match input floats
-      if (data.length !== this._numInputFloats) {
-        throw new Error('Invalid particle attribute data');
-      }
-
-      if (i % this._numInputFloats) {
-        throw new Error('Invalid index');
-      }
-
+      countParticle++;
       this._particleData.set(data, i % this._particleData.length);
     }
+
+    if (endIndex >= maxSize) {
+      this._wrappedParticles += (endIndex - maxSize) / this._numInputFloats;
+      // this._unwrappedParticles = countParticle - this._wrappedParticles;
+      this._wrappedLife = this.particle.life ?? 2000;
+      // console.log('wrap in emit:', this._wrappedParticles);
+      // console.log('unwrap in emit:', this._unwrappedParticles);
+    } else if (this._wrappedLife > 0) {
+      this._wrappedParticles += particleCount;
+    }
+
+    // ASSERT
+    // if (countParticle > particleCount) {
+    //   throw new Error(`Bugged emit: ${countParticle} > ${particleCount}`);
+    // }
     this._particleIndex = endIndex % maxSize;
-    // this._lifeTracker.set(startIndex / this._numInputFloats, [this.particle.life ?? 2000, endIndex / this._numInputFloats]);
+    this._emitted.push([this.particle.life ?? 2000, startIndex]);
   }
 
   private _uploadEmitted(gl: WebGL2RenderingContext) {
+    // upload index is the index of the previous upload
+    // particle index is the current index of modification
     if (this._particleIndex !== this._uploadIndex) {
       // Bind one buffer to ARRAY_BUFFER and the other to TFB
       gl.bindBuffer(gl.ARRAY_BUFFER, this._buffers[(this._drawIndex + 1) % 2]);
-      if (this._particleIndex > this._uploadIndex) {
+      if (this._particleIndex >= this._uploadIndex) {
         gl.bufferSubData(
           gl.ARRAY_BUFFER,
           this._uploadIndex * 4, // dst byte offset 4 bytes per float
@@ -235,12 +215,46 @@ export class GpuParticleRenderer {
           this._uploadIndex,
           this._particleIndex - this._uploadIndex
         );
+      } else {
+        // console.log("wrapped");
+        // upload before the wrap
+        gl.bufferSubData(
+          gl.ARRAY_BUFFER,
+          this._uploadIndex * 4,
+          this._particleData,
+          this._uploadIndex,
+          this._particleData.length - this._uploadIndex
+        );
+        // upload after the wrap
+        gl.bufferSubData(gl.ARRAY_BUFFER, 0, this._particleData, 0, this._wrappedParticles * this._numInputFloats);
+        this._wrappedLife = this.particle.life ?? 2000;
       }
-      // TODO ELSE particleIndex has wrapped the buffer
-      // else { ... }
       gl.bindBuffer(gl.ARRAY_BUFFER, null);
     }
     this._uploadIndex = this._particleIndex % (this.maxParticles * this._numInputFloats);
+  }
+
+  update(elapsedMs: number) {
+    if (this._wrappedLife > 0) {
+      this._wrappedLife -= elapsedMs;
+    } else {
+      this._wrappedLife = 0;
+      // this._unwrappedParticles = 0;
+      this._wrappedParticles = 0;
+    }
+    if (!this._emitted.length) {
+      return;
+    }
+    for (let i = this._emitted.length - 1; i >= 0; i--) {
+      const particle = this._emitted[i];
+      particle[0] -= elapsedMs;
+      const life = particle[0];
+      if (life <= 0) {
+        this._emitted.splice(i, 1);
+      }
+    }
+
+    this._emitted.sort((a, b) => a[0] - b[0]);
   }
 
   draw(gl: WebGL2RenderingContext) {
@@ -253,21 +267,24 @@ export class GpuParticleRenderer {
       gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, this._currentBuffer);
 
       // Perform transform feedback (run the simulation) and the draw call all at once
-      gl.beginTransformFeedback(gl.POINTS);
-      // currently we simulate ALL particles alive or dead
-      // // Happy path alive particles are in 1 contiguous chunk
-      // if (this._runs.length === 1) {
-      //   // console.log(Math.floor(this._runs[0][0] / this._numInputFloats), Math.floor(this._runs[0][1] / this._numInputFloats) - Math.floor(this._runs[0][0] / this._numInputFloats));
-      //   const count = this._runs[0][1]  - this._runs[0][0];
-      //   console.log(Math.floor(Math.max(this._runs[0][0] - count, 0) / this._numInputFloats), count);
-      //   gl.drawArrays(gl.POINTS, Math.floor(Math.max(this._runs[0][0] - count, 0) / this._numInputFloats), count);
 
-      //   // gl.drawArrays(gl.POINTS, 0, this.maxParticles);
-      // } else {
-      //   // console.log(this._runs);
-      // }
-      gl.drawArrays(gl.POINTS, 0, this.maxParticles);
-      gl.endTransformFeedback();
+      if (this._wrappedLife && this._emitted[0]) {
+        const midpoint = this._emitted[0][1] / this._numInputFloats; // - (this.emitRate * (this.particle.life ?? 2000) / 1000);
+        // console.log('wrap mode draw', midpoint);
+
+        // draw oldest first (maybe make configurable)
+        gl.beginTransformFeedback(gl.POINTS);
+        gl.drawArrays(gl.POINTS, midpoint + 1, this.maxParticles - midpoint);
+
+        // then draw newer particles
+        gl.drawArrays(gl.POINTS, 0, midpoint);
+        gl.endTransformFeedback();
+      } else {
+        // console.log('normal mode draw');
+        gl.beginTransformFeedback(gl.POINTS);
+        gl.drawArrays(gl.POINTS, 0, this.maxParticles);
+        gl.endTransformFeedback();
+      }
 
       // Clean up after ourselves to avoid errors.
       gl.bindVertexArray(null);
