@@ -5,6 +5,7 @@ import { ParticleConfig, ParticleTransform } from './Particles';
 import { Random } from '../Math/Random';
 import { Sprite } from '../Graphics/Sprite';
 import { EmitterType } from './EmitterType';
+import { assert } from '../Util/Assert';
 
 export interface GpuParticleConfig extends ParticleConfig {
   /**
@@ -225,7 +226,14 @@ export class GpuParticleRenderer {
           this._particleData.length - this._uploadIndex
         );
         // upload after the wrap
-        gl.bufferSubData(gl.ARRAY_BUFFER, 0, this._particleData, 0, this._wrappedParticles * this._numInputFloats);
+        // prettier-ignore
+        gl.bufferSubData(
+          gl.ARRAY_BUFFER,
+          0,
+          this._particleData,
+          0,
+          this._wrappedParticles * this._numInputFloats
+        );
         this._wrappedLife = this.particle.life ?? 2000;
       }
       gl.bindBuffer(gl.ARRAY_BUFFER, null);
@@ -265,9 +273,11 @@ export class GpuParticleRenderer {
       gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, this._currentBuffer);
 
       // Perform transform feedback (run the simulation) and the draw call all at once
-      if (this._wrappedLife && this._emitted[0]) {
+      if (this._wrappedLife && this._emitted[0] && this._emitted[0][1] > 0) {
         const midpoint = this._emitted[0][1] / this._numInputFloats;
         // draw oldest first (maybe make configurable)
+        assert(`midpoint greater than 0, actual: ${midpoint}`, () => midpoint > 0);
+        assert(`midpoint is less than max, actual: ${midpoint}`, () => midpoint < this.maxParticles);
         gl.bindBufferRange(
           gl.TRANSFORM_FEEDBACK_BUFFER,
           0,
