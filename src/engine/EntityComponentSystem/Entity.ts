@@ -118,9 +118,6 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
   public componentValues: Component[] = [];
   private _componentsToRemove: ComponentCtor[] = [];
 
-  private _instanceOfComponentCacheDirty = true;
-  private _instanceOfComponentCache = new Map<Function, Component>();
-
   constructor(options: EntityOptions<TKnownComponents>);
   constructor(components?: TKnownComponents[], name?: string);
   constructor(componentsOrOptions?: TKnownComponents[] | EntityOptions<TKnownComponents>, name?: string) {
@@ -259,31 +256,8 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
     return true;
   }
 
-  private _getCachedInstanceOfType<TComponent extends Component>(
-    type: ComponentCtor<TComponent>
-  ): MaybeKnownComponent<TComponent, TKnownComponents> | undefined {
-    if (this._instanceOfComponentCacheDirty) {
-      this._instanceOfComponentCacheDirty = false;
-      this._instanceOfComponentCache.clear();
-    }
-
-    if (this._instanceOfComponentCache.has(type)) {
-      return this._instanceOfComponentCache.get(type) as MaybeKnownComponent<TComponent, TKnownComponents>;
-    }
-
-    for (let compIndex = 0; compIndex < this.componentValues.length; compIndex++) {
-      const instance = this.componentValues[compIndex];
-      if (instance instanceof type) {
-        this._instanceOfComponentCache.set(type, instance);
-        return instance as MaybeKnownComponent<TComponent, TKnownComponents>;
-      }
-    }
-    return undefined;
-  }
-
   get<TComponent extends Component>(type: ComponentCtor<TComponent>): MaybeKnownComponent<TComponent, TKnownComponents> {
-    const maybeComponent = this._getCachedInstanceOfType(type);
-    return maybeComponent ?? (this.components.get(type) as MaybeKnownComponent<TComponent, TKnownComponents>);
+    return this.components.get(type) as MaybeKnownComponent<TComponent, TKnownComponents>;
   }
 
   private _parent: Entity | null = null;
@@ -415,13 +389,23 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
     return this;
   }
 
+  private _getClassHierarchyRoot(componentType: ComponentCtor): ComponentCtor {
+    let current = componentType;
+    let parent = Object.getPrototypeOf(current.prototype)?.constructor;
+
+    while (parent && parent !== Object && parent !== Component) {
+      current = parent;
+      parent = Object.getPrototypeOf(current.prototype)?.constructor;
+    }
+    return current;
+  }
+
   /**
    * Adds a component to the entity
    * @param component Component or Entity to add copy of components from
    * @param force Optionally overwrite any existing components of the same type
    */
   public addComponent<TComponent extends Component>(component: TComponent, force: boolean = false): Entity<TKnownComponents | TComponent> {
-    this._instanceOfComponentCacheDirty = true;
     // if component already exists, skip if not forced
     if (this.has(component.constructor as ComponentCtor)) {
       if (force) {
@@ -441,9 +425,10 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
     }
 
     component.owner = this;
+    const rootComponent = this._getClassHierarchyRoot(component.constructor as ComponentCtor);
+    this.components.set(rootComponent, component);
     this.components.set(component.constructor, component);
     this.componentValues.push(component);
-    this._instanceOfComponentCache.set(component.constructor, component);
     if (component.onAdd) {
       component.onAdd(this);
     }
@@ -483,8 +468,10 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
           this.componentValues.splice(componentIndex, 1);
         }
       }
+
+      const rootComponent = this._getClassHierarchyRoot(type);
+      this.components.delete(rootComponent);
       this.components.delete(type); // remove after the notify to preserve typing
-      this._instanceOfComponentCacheDirty = true;
     } else {
       this._componentsToRemove.push(type);
     }
