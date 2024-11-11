@@ -75,6 +75,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added new `ex.lerp(...)`, `ex.inverseLerp(...)`, and `ex.remap(...)` for numbers
+- Added new `ex.lerpVector(...)`,` ex.inverseLerpVector(...)`, and `ex.remapVector(...)` for `ex.Vector`
 - Added new `actor.actions.flash(...)` `Action` to flash a color for a period of time
 - Added a new `ex.NineSlice` `Graphic` for creating arbitrarily resizable rectangular regions, useful for creating UI, backgrounds, and other resizable elements.
   ```typescript

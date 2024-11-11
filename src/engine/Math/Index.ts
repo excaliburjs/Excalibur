@@ -10,3 +10,4 @@ export * from './line-segment';
 export * from './projection';
 export * from './ray';
 export * from './util';
+export * from './lerp';
