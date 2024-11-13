@@ -89,7 +89,7 @@ export class ImageRendererV2 implements RendererPlugin {
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
     // Setup memory layout
-    const components = 2 + 2 + 2 + 1 + 2 + 1 + 2 + 2 + 4;
+    const components = 2 + 2 + 2 + 1 + 2 + 2 + 1 + 2 + 2 + 4;
     this._transformData = new VertexBuffer({
       gl,
       size: components * this._maxImages, // components * images
@@ -107,7 +107,7 @@ export class ImageRendererV2 implements RendererPlugin {
     gl.enableVertexAttribArray(1);
 
     // Setup memory layout
-    const components = 2 + 2 + 2 + 1 + 2 + 1 + 2 + 2 + 4;
+    const components = 2 + 2 + 2 + 1 + 2 + 2 + 1 + 2 + 2 + 4;
     this._transformData.bind();
     this._transformData.upload(); //components * this._imageCount);
 
@@ -137,6 +137,10 @@ export class ImageRendererV2 implements RendererPlugin {
     gl.vertexAttribPointer(start++, 2, gl.FLOAT, false, totalSize, offset);
     offset += 2 * bytesPerFloat;
 
+    // a_size vec2 - 2
+    gl.vertexAttribPointer(start++, 2, gl.FLOAT, false, totalSize, offset);
+    offset += 2 * bytesPerFloat;
+
     // a_texture_index - 1
     gl.vertexAttribPointer(start++, 1, gl.FLOAT, false, totalSize, offset);
     offset += 1 * bytesPerFloat;
@@ -162,6 +166,7 @@ export class ImageRendererV2 implements RendererPlugin {
     gl.vertexAttribDivisor(8, 1);
     gl.vertexAttribDivisor(9, 1);
     gl.vertexAttribDivisor(10, 1);
+    gl.vertexAttribDivisor(11, 1);
 
     gl.enableVertexAttribArray(2);
     gl.enableVertexAttribArray(3);
@@ -172,6 +177,7 @@ export class ImageRendererV2 implements RendererPlugin {
     gl.enableVertexAttribArray(8);
     gl.enableVertexAttribArray(9);
     gl.enableVertexAttribArray(10);
+    gl.enableVertexAttribArray(11);
   }
 
   public dispose() {
@@ -351,6 +357,8 @@ export class ImageRendererV2 implements RendererPlugin {
     vertexBuffer[this._vertexIndex++] = opacity;
     vertexBuffer[this._vertexIndex++] = txWidth;
     vertexBuffer[this._vertexIndex++] = txHeight;
+    vertexBuffer[this._vertexIndex++] = sw;
+    vertexBuffer[this._vertexIndex++] = sh;
     vertexBuffer[this._vertexIndex++] = textureId;
     vertexBuffer[this._vertexIndex++] = uvx0;
     vertexBuffer[this._vertexIndex++] = uvy0;
