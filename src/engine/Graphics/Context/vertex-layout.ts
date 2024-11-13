@@ -17,11 +17,15 @@ export interface VertexLayoutOptions {
    */
   vertexBuffer: VertexBuffer;
   /**
+   * Starting index for the attribute pointer
+   */
+  attributePointerStartIndex?: number;
+  /**
    * Specify the attributes that will exist in the vertex buffer
    *
    * **Important** must specify them in the order that they will be in the vertex buffer!!
    */
-  attributes: [name: string, numberOfComponents: number][];
+  attributes: [name: string, numberOfComponents: number, type?: 'int' | 'matrix' | 'float'][];
   /**
    * Optionally suppress any warnings out of vertex layouts
    *
@@ -44,7 +48,7 @@ export class VertexLayout {
   private _suppressWarnings = false;
   private _shader: Shader;
   private _layout: VertexAttributeDefinition[] = [];
-  private _attributes: [name: string, numberOfComponents: number][] = [];
+  private _attributes: [name: string, numberOfComponents: number, type?: 'int' | 'matrix' | 'float'][] = [];
   private _vertexBuffer: VertexBuffer;
   private _vao!: WebGLVertexArrayObject;
 
@@ -52,7 +56,7 @@ export class VertexLayout {
     return this._vertexBuffer;
   }
 
-  public get attributes(): readonly [name: string, numberOfComponents: number][] {
+  public get attributes(): readonly [name: string, numberOfComponents: number, type?: 'int' | 'matrix' | 'float'][] {
     return this._attributes;
   }
 
@@ -172,9 +176,13 @@ export class VertexLayout {
 
     let offset = 0;
     for (const vert of this._layout) {
+      // skip unused attributes
       if (vert.location !== -1) {
-        // skip unused attributes
-        gl.vertexAttribPointer(vert.location, vert.size, vert.glType, vert.normalized, this.totalVertexSizeBytes, offset);
+        if (vert.glType === gl.INT) {
+          gl.vertexAttribIPointer(vert.location, vert.size, vert.glType, this.totalVertexSizeBytes, offset);
+        } else {
+          gl.vertexAttribPointer(vert.location, vert.size, vert.glType, vert.normalized, this.totalVertexSizeBytes, offset);
+        }
         gl.enableVertexAttribArray(vert.location);
       }
       offset += getGlTypeSizeBytes(gl, vert.glType) * vert.size;

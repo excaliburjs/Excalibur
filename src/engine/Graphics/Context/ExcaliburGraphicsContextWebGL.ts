@@ -35,6 +35,7 @@ import { Material, MaterialOptions } from './material';
 import { MaterialRenderer } from './material-renderer/material-renderer';
 import { Shader, ShaderOptions } from './shader';
 import { GarbageCollector } from '../../GarbageCollector';
+import { ImageRendererV2 } from './image-renderer-v2/image-renderer-v2';
 
 export const pixelSnapEpsilon = 0.0001;
 
@@ -324,6 +325,12 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this.register(new CircleRenderer());
     this.register(new PointRenderer());
     this.register(new LineRenderer());
+    this.register(
+      new ImageRendererV2({
+        uvPadding: this.uvPadding,
+        pixelArtSampler: this.pixelArtSampler
+      })
+    );
 
     this.materialScreenTexture = gl.createTexture();
     if (!this.materialScreenTexture) {
@@ -523,7 +530,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     if (this._state.current.material) {
       this.draw<MaterialRenderer>('ex.material', image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
     } else {
-      this.draw<ImageRenderer>('ex.image', image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
+      this.draw<ImageRendererV2>('ex.image-v2', image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
     }
   }
 
