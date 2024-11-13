@@ -9,8 +9,7 @@ uniform sampler2D u_textures[%%count%%];
 
 uniform bool u_pixelart;
 
-// Opacity
-flat in int v_texture_index;
+in float v_texture_index;
 
 in float v_opacity;
 

@@ -29,8 +29,7 @@ export class ImageRendererV2 implements RendererPlugin {
   public readonly uvPadding: number;
 
   // TODO this could be bigger probably
-  private _maxImages: number = 30_000; // max(uint16) / 6 verts
-  // private _maxImages: number = 10922; // max(uint16) / 6 verts
+  private _maxImages: number = 20_000; // max(uint16) / 6 verts
   private _maxTextures: number = 0;
 
   private _context!: ExcaliburGraphicsContextWebGL;
@@ -110,7 +109,7 @@ export class ImageRendererV2 implements RendererPlugin {
     // Setup memory layout
     const components = 2 + 2 + 2 + 1 + 2 + 1 + 2 + 2 + 4;
     this._transformData.bind();
-    this._transformData.upload(components * this._imageCount);
+    this._transformData.upload(); //components * this._imageCount);
 
     // attributes
     let offset = 0;
@@ -139,7 +138,7 @@ export class ImageRendererV2 implements RendererPlugin {
     offset += 2 * bytesPerFloat;
 
     // a_texture_index - 1
-    gl.vertexAttribIPointer(start++, 1, gl.INT, totalSize, offset);
+    gl.vertexAttribPointer(start++, 1, gl.FLOAT, false, totalSize, offset);
     offset += 1 * bytesPerFloat;
 
     // a_uv_min - 2
@@ -188,9 +187,9 @@ export class ImageRendererV2 implements RendererPlugin {
     let texturePickerBuilder = '';
     for (let i = 0; i < maxTextures; i++) {
       if (i === 0) {
-        texturePickerBuilder += `if (v_texture_index <= ${i}) {\n`;
+        texturePickerBuilder += `if (v_texture_index <= ${i}.5) {\n`;
       } else {
-        texturePickerBuilder += `   else if (v_texture_index <= ${i}) {\n`;
+        texturePickerBuilder += `   else if (v_texture_index <= ${i}.5) {\n`;
       }
       texturePickerBuilder += `      color = texture(u_textures[${i}], uv);\n`;
       texturePickerBuilder += `   }\n`;
@@ -343,7 +342,7 @@ export class ImageRendererV2 implements RendererPlugin {
 
     // update data
     const vertexBuffer = this._transformData.bufferData;
-    vertexBuffer[this._vertexIndex++] = transform.data[4] + this._dest[0];
+    vertexBuffer[this._vertexIndex++] = transform.data[4] + this._dest[0]; // TODO this is wrong
     vertexBuffer[this._vertexIndex++] = transform.data[5] + this._dest[1];
     vertexBuffer[this._vertexIndex++] = transform.data[2];
     vertexBuffer[this._vertexIndex++] = transform.data[3];
@@ -381,11 +380,11 @@ export class ImageRendererV2 implements RendererPlugin {
     // Update ortho matrix uniform
     this._shader.setUniformMatrix('u_matrix', this._context.ortho);
 
-    // Bind textures to
-    this._bindTextures(gl);
-
     // Turn on pixel art aa sampler
     this._shader.setUniformBoolean('u_pixelart', this.pixelArtSampler);
+
+    // Bind textures to
+    this._bindTextures(gl);
 
     // Bind the memory layout and upload data
     this._bindData(gl);

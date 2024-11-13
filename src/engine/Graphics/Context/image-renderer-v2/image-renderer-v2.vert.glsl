@@ -16,8 +16,8 @@ layout(location=6) in vec2 a_res;
 out vec2 v_res;
 
 // Texture number
-layout(location=7) in int a_texture_index;
-flat out int v_texture_index;
+layout(location=7) in float a_texture_index;
+out float v_texture_index;
 
 layout(location=8) in vec2 a_uv_min;
 out vec2 v_uv_min;
