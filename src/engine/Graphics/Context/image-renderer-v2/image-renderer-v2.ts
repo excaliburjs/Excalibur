@@ -90,7 +90,9 @@ export class ImageRendererV2 implements RendererPlugin {
     gl.bindBuffer(gl.ARRAY_BUFFER, this._meshBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, this._quadMesh, gl.STATIC_DRAW);
     gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 16, 0);
+    gl.enableVertexAttribArray(0);
     gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 16, 8);
+    gl.enableVertexAttribArray(1);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
     // Setup memory layout
@@ -111,42 +113,52 @@ export class ImageRendererV2 implements RendererPlugin {
 
     // a_position vec2 - 2
     gl.vertexAttribPointer(start++, 2, gl.FLOAT, false, totalSize, offset);
+    gl.enableVertexAttribArray(2);
     offset += 2 * bytesPerFloat;
 
     // a_scale vec2 - 2
     gl.vertexAttribPointer(start++, 2, gl.FLOAT, false, totalSize, offset);
+    gl.enableVertexAttribArray(3);
     offset += 2 * bytesPerFloat;
 
     // a_rotation vec2 - 2
     gl.vertexAttribPointer(start++, 2, gl.FLOAT, false, totalSize, offset);
+    gl.enableVertexAttribArray(4);
     offset += 2 * bytesPerFloat;
 
     // a_opacity float - 1
     gl.vertexAttribPointer(start++, 1, gl.FLOAT, false, totalSize, offset);
+    gl.enableVertexAttribArray(5);
     offset += 1 * bytesPerFloat;
 
     // a_res vec2 - 2
     gl.vertexAttribPointer(start++, 2, gl.FLOAT, false, totalSize, offset);
+    gl.enableVertexAttribArray(6);
     offset += 2 * bytesPerFloat;
 
     // a_size vec2 - 2
     gl.vertexAttribPointer(start++, 2, gl.FLOAT, false, totalSize, offset);
+    gl.enableVertexAttribArray(7);
     offset += 2 * bytesPerFloat;
 
     // a_texture_index - 1
     gl.vertexAttribPointer(start++, 1, gl.FLOAT, false, totalSize, offset);
+    gl.enableVertexAttribArray(8);
     offset += 1 * bytesPerFloat;
 
     // a_uv_min - 2
     gl.vertexAttribPointer(start++, 2, gl.FLOAT, false, totalSize, offset);
+    gl.enableVertexAttribArray(9);
     offset += 2 * bytesPerFloat;
 
     // a_uv_max - 2
     gl.vertexAttribPointer(start++, 2, gl.FLOAT, false, totalSize, offset);
+    gl.enableVertexAttribArray(10);
     offset += 2 * bytesPerFloat;
 
     // a_tint - 4
     gl.vertexAttribPointer(start++, 4, gl.FLOAT, false, totalSize, offset);
+    gl.enableVertexAttribArray(11);
     offset += 4 * bytesPerFloat;
 
     gl.vertexAttribDivisor(2, 1);
@@ -160,21 +172,7 @@ export class ImageRendererV2 implements RendererPlugin {
     gl.vertexAttribDivisor(10, 1);
     gl.vertexAttribDivisor(11, 1);
 
-    gl.enableVertexAttribArray(0);
-    gl.enableVertexAttribArray(1);
-    gl.enableVertexAttribArray(2);
-    gl.enableVertexAttribArray(3);
-    gl.enableVertexAttribArray(4);
-    gl.enableVertexAttribArray(5);
-    gl.enableVertexAttribArray(6);
-    gl.enableVertexAttribArray(7);
-    gl.enableVertexAttribArray(8);
-    gl.enableVertexAttribArray(9);
-    gl.enableVertexAttribArray(10);
-    gl.enableVertexAttribArray(11);
-
     gl.bindVertexArray(null);
-    this._transformData.unbind();
   }
 
   private _bindData(gl: WebGL2RenderingContext) {
@@ -190,7 +188,6 @@ export class ImageRendererV2 implements RendererPlugin {
     const components = 2 + 2 + 2 + 1 + 2 + 2 + 1 + 2 + 2 + 4;
     this._transformData.bind();
     this._transformData.upload(components * this._imageCount);
-    this._transformData.unbind();
 
     gl.bindVertexArray(this._vao);
 
