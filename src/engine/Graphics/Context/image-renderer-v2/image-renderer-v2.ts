@@ -46,6 +46,7 @@ export class ImageRendererV2 implements RendererPlugin {
   private _vertexIndex: number = 0;
   private _quadMesh!: Float32Array;
   private _meshBuffer!: WebGLBuffer;
+  private _vao!: WebGLVertexArrayObject;
 
   constructor(options: ImageRendererOptions) {
     this.pixelArtSampler = options.pixelArtSampler;
@@ -77,6 +78,8 @@ export class ImageRendererV2 implements RendererPlugin {
       [...Array(this._maxTextures)].map((_, i) => i)
     );
 
+    this._vao = gl.createVertexArray()!;
+    gl.bindVertexArray(this._vao);
     this._quadMesh = new Float32Array([
       // pos       uv
       0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0,
@@ -86,6 +89,8 @@ export class ImageRendererV2 implements RendererPlugin {
     this._meshBuffer = gl.createBuffer()!;
     gl.bindBuffer(gl.ARRAY_BUFFER, this._meshBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, this._quadMesh, gl.STATIC_DRAW);
+    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 16, 0);
+    gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 16, 8);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
     // Setup memory layout
@@ -95,21 +100,8 @@ export class ImageRendererV2 implements RendererPlugin {
       size: components * this._maxImages, // components * images
       type: 'dynamic'
     });
-  }
 
-  private _bindData(gl: WebGL2RenderingContext) {
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._meshBuffer);
-    // mesh pos
-    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 16, 0);
-    gl.enableVertexAttribArray(0);
-    // mesh uv
-    gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 16, 8);
-    gl.enableVertexAttribArray(1);
-
-    // Setup memory layout
-    const components = 2 + 2 + 2 + 1 + 2 + 2 + 1 + 2 + 2 + 4;
     this._transformData.bind();
-    this._transformData.upload(); //components * this._imageCount);
 
     // attributes
     let offset = 0;
@@ -168,6 +160,8 @@ export class ImageRendererV2 implements RendererPlugin {
     gl.vertexAttribDivisor(10, 1);
     gl.vertexAttribDivisor(11, 1);
 
+    gl.enableVertexAttribArray(0);
+    gl.enableVertexAttribArray(1);
     gl.enableVertexAttribArray(2);
     gl.enableVertexAttribArray(3);
     gl.enableVertexAttribArray(4);
@@ -178,6 +172,95 @@ export class ImageRendererV2 implements RendererPlugin {
     gl.enableVertexAttribArray(9);
     gl.enableVertexAttribArray(10);
     gl.enableVertexAttribArray(11);
+
+    gl.bindVertexArray(null);
+    this._transformData.unbind();
+  }
+
+  private _bindData(gl: WebGL2RenderingContext) {
+    // gl.bindBuffer(gl.ARRAY_BUFFER, this._meshBuffer);
+    // mesh pos
+    // gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 16, 0);
+    // gl.enableVertexAttribArray(0);
+    // mesh uv
+    // gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 16, 8);
+    // gl.enableVertexAttribArray(1);
+
+    // Setup memory layout
+    const components = 2 + 2 + 2 + 1 + 2 + 2 + 1 + 2 + 2 + 4;
+    this._transformData.bind();
+    this._transformData.upload(components * this._imageCount);
+    this._transformData.unbind();
+
+    gl.bindVertexArray(this._vao);
+
+    // // attributes
+    // let offset = 0;
+    // let start = 2;
+    // const bytesPerFloat = 4;
+    // const totalSize = components * 4;
+
+    // // a_position vec2 - 2
+    // gl.vertexAttribPointer(start++, 2, gl.FLOAT, false, totalSize, offset);
+    // offset += 2 * bytesPerFloat;
+
+    // // a_scale vec2 - 2
+    // gl.vertexAttribPointer(start++, 2, gl.FLOAT, false, totalSize, offset);
+    // offset += 2 * bytesPerFloat;
+
+    // // a_rotation vec2 - 2
+    // gl.vertexAttribPointer(start++, 2, gl.FLOAT, false, totalSize, offset);
+    // offset += 2 * bytesPerFloat;
+
+    // // a_opacity float - 1
+    // gl.vertexAttribPointer(start++, 1, gl.FLOAT, false, totalSize, offset);
+    // offset += 1 * bytesPerFloat;
+
+    // // a_res vec2 - 2
+    // gl.vertexAttribPointer(start++, 2, gl.FLOAT, false, totalSize, offset);
+    // offset += 2 * bytesPerFloat;
+
+    // // a_size vec2 - 2
+    // gl.vertexAttribPointer(start++, 2, gl.FLOAT, false, totalSize, offset);
+    // offset += 2 * bytesPerFloat;
+
+    // // a_texture_index - 1
+    // gl.vertexAttribPointer(start++, 1, gl.FLOAT, false, totalSize, offset);
+    // offset += 1 * bytesPerFloat;
+
+    // // a_uv_min - 2
+    // gl.vertexAttribPointer(start++, 2, gl.FLOAT, false, totalSize, offset);
+    // offset += 2 * bytesPerFloat;
+
+    // // a_uv_max - 2
+    // gl.vertexAttribPointer(start++, 2, gl.FLOAT, false, totalSize, offset);
+    // offset += 2 * bytesPerFloat;
+
+    // // a_tint - 4
+    // gl.vertexAttribPointer(start++, 4, gl.FLOAT, false, totalSize, offset);
+    // offset += 4 * bytesPerFloat;
+
+    // gl.vertexAttribDivisor(2, 1);
+    // gl.vertexAttribDivisor(3, 1);
+    // gl.vertexAttribDivisor(4, 1);
+    // gl.vertexAttribDivisor(5, 1);
+    // gl.vertexAttribDivisor(6, 1);
+    // gl.vertexAttribDivisor(7, 1);
+    // gl.vertexAttribDivisor(8, 1);
+    // gl.vertexAttribDivisor(9, 1);
+    // gl.vertexAttribDivisor(10, 1);
+    // gl.vertexAttribDivisor(11, 1);
+
+    // gl.enableVertexAttribArray(2);
+    // gl.enableVertexAttribArray(3);
+    // gl.enableVertexAttribArray(4);
+    // gl.enableVertexAttribArray(5);
+    // gl.enableVertexAttribArray(6);
+    // gl.enableVertexAttribArray(7);
+    // gl.enableVertexAttribArray(8);
+    // gl.enableVertexAttribArray(9);
+    // gl.enableVertexAttribArray(10);
+    // gl.enableVertexAttribArray(11);
   }
 
   public dispose() {
@@ -233,7 +316,8 @@ export class ImageRendererV2 implements RendererPlugin {
 
   private _bindTextures(gl: WebGLRenderingContext) {
     // Bind textures in the correct order
-    for (let i = 0; i < this._maxTextures; i++) {
+    const max = Math.min(this._textureIndex, this._maxTextures);
+    for (let i = 0; i < max; i++) {
       gl.activeTexture(gl.TEXTURE0 + i);
       gl.bindTexture(gl.TEXTURE_2D, this._textures[i] || this._textures[0]);
     }
@@ -385,6 +469,9 @@ export class ImageRendererV2 implements RendererPlugin {
     // Bind the shader
     this._shader.use();
 
+    // Bind the memory layout and upload data
+    this._bindData(gl);
+
     // Update ortho matrix uniform
     this._shader.setUniformMatrix('u_matrix', this._context.ortho);
 
@@ -394,15 +481,13 @@ export class ImageRendererV2 implements RendererPlugin {
     // Bind textures to
     this._bindTextures(gl);
 
-    // Bind the memory layout and upload data
-    this._bindData(gl);
-
     // Draw all the quads
     gl.drawArraysInstanced(gl.TRIANGLES, 0, 6, this._imageCount);
 
     GraphicsDiagnostics.DrawnImagesCount += this._imageCount;
     GraphicsDiagnostics.DrawCallCount++;
 
+    gl.bindVertexArray(null);
     // Reset
     this._imageCount = 0;
     this._vertexIndex = 0;
@@ -410,7 +495,7 @@ export class ImageRendererV2 implements RendererPlugin {
     this._textureIndex = 0;
     this._textureToIndex.clear();
     this._images.clear();
-    this._imageToWidth.clear();
-    this._imageToHeight.clear();
+    // this._imageToWidth.clear();
+    // this._imageToHeight.clear();
   }
 }
