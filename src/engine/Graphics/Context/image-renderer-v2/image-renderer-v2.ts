@@ -336,6 +336,7 @@ export class ImageRendererV2 implements RendererPlugin {
     const transform = this._context.getTransform();
     const opacity = this._context.opacity;
     // const snapToPixel = this._context.snapToPixel;
+    // TODO snap to pixel
 
     const tint = this._context.tint || this._defaultTint;
 
