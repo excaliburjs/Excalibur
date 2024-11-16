@@ -38,6 +38,7 @@ const config: Config = {
   projectName: 'Excalibur', // Usually your repo name.
 
   onBrokenLinks: 'warn',
+  onBrokenAnchors: 'warn',
   onBrokenMarkdownLinks: 'warn',
 
   // Even if you don't use internalization, you can use this field to set useful
