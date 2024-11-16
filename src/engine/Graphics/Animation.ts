@@ -251,8 +251,8 @@ export class Animation extends Graphic implements HasTick {
    *  frameCoordinates: [
    *    {x: 0, y: 5, duration: 100, options { flipHorizontal: true }},
    *    {x: 1, y: 5, duration: 200},
-   *    {x: 2, y: 5, duration: 100},
-   *    {x: 3, y: 5, duration: 500}
+   *    {x: 2, y: 5},
+   *    {x: 3, y: 5}
    *  ],
    *  strategy: AnimationStrategy.PingPong
    * });
