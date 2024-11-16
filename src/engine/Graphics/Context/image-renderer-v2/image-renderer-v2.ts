@@ -176,88 +176,12 @@ export class ImageRendererV2 implements RendererPlugin {
   }
 
   private _bindData(gl: WebGL2RenderingContext) {
-    // gl.bindBuffer(gl.ARRAY_BUFFER, this._meshBuffer);
-    // mesh pos
-    // gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 16, 0);
-    // gl.enableVertexAttribArray(0);
-    // mesh uv
-    // gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 16, 8);
-    // gl.enableVertexAttribArray(1);
-
     // Setup memory layout
     const components = 2 + 2 + 2 + 1 + 2 + 2 + 1 + 2 + 2 + 4;
     this._transformData.bind();
     this._transformData.upload(components * this._imageCount);
 
     gl.bindVertexArray(this._vao);
-
-    // // attributes
-    // let offset = 0;
-    // let start = 2;
-    // const bytesPerFloat = 4;
-    // const totalSize = components * 4;
-
-    // // a_position vec2 - 2
-    // gl.vertexAttribPointer(start++, 2, gl.FLOAT, false, totalSize, offset);
-    // offset += 2 * bytesPerFloat;
-
-    // // a_scale vec2 - 2
-    // gl.vertexAttribPointer(start++, 2, gl.FLOAT, false, totalSize, offset);
-    // offset += 2 * bytesPerFloat;
-
-    // // a_rotation vec2 - 2
-    // gl.vertexAttribPointer(start++, 2, gl.FLOAT, false, totalSize, offset);
-    // offset += 2 * bytesPerFloat;
-
-    // // a_opacity float - 1
-    // gl.vertexAttribPointer(start++, 1, gl.FLOAT, false, totalSize, offset);
-    // offset += 1 * bytesPerFloat;
-
-    // // a_res vec2 - 2
-    // gl.vertexAttribPointer(start++, 2, gl.FLOAT, false, totalSize, offset);
-    // offset += 2 * bytesPerFloat;
-
-    // // a_size vec2 - 2
-    // gl.vertexAttribPointer(start++, 2, gl.FLOAT, false, totalSize, offset);
-    // offset += 2 * bytesPerFloat;
-
-    // // a_texture_index - 1
-    // gl.vertexAttribPointer(start++, 1, gl.FLOAT, false, totalSize, offset);
-    // offset += 1 * bytesPerFloat;
-
-    // // a_uv_min - 2
-    // gl.vertexAttribPointer(start++, 2, gl.FLOAT, false, totalSize, offset);
-    // offset += 2 * bytesPerFloat;
-
-    // // a_uv_max - 2
-    // gl.vertexAttribPointer(start++, 2, gl.FLOAT, false, totalSize, offset);
-    // offset += 2 * bytesPerFloat;
-
-    // // a_tint - 4
-    // gl.vertexAttribPointer(start++, 4, gl.FLOAT, false, totalSize, offset);
-    // offset += 4 * bytesPerFloat;
-
-    // gl.vertexAttribDivisor(2, 1);
-    // gl.vertexAttribDivisor(3, 1);
-    // gl.vertexAttribDivisor(4, 1);
-    // gl.vertexAttribDivisor(5, 1);
-    // gl.vertexAttribDivisor(6, 1);
-    // gl.vertexAttribDivisor(7, 1);
-    // gl.vertexAttribDivisor(8, 1);
-    // gl.vertexAttribDivisor(9, 1);
-    // gl.vertexAttribDivisor(10, 1);
-    // gl.vertexAttribDivisor(11, 1);
-
-    // gl.enableVertexAttribArray(2);
-    // gl.enableVertexAttribArray(3);
-    // gl.enableVertexAttribArray(4);
-    // gl.enableVertexAttribArray(5);
-    // gl.enableVertexAttribArray(6);
-    // gl.enableVertexAttribArray(7);
-    // gl.enableVertexAttribArray(8);
-    // gl.enableVertexAttribArray(9);
-    // gl.enableVertexAttribArray(10);
-    // gl.enableVertexAttribArray(11);
   }
 
   public dispose() {
@@ -492,7 +416,7 @@ export class ImageRendererV2 implements RendererPlugin {
     this._textureIndex = 0;
     this._textureToIndex.clear();
     this._images.clear();
-    // this._imageToWidth.clear();
-    // this._imageToHeight.clear();
+    this._imageToWidth.clear();
+    this._imageToHeight.clear();
   }
 }
