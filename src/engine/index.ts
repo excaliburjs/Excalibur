@@ -14,7 +14,7 @@ export * from './Engine';
 export * from './GarbageCollector';
 export * from './Screen';
 export * from './Actor';
-export * from './Math/Index';
+export * from './Math/index';
 export * from './Camera';
 export * from './Debug/index';
 export * from './EventDispatcher';
