@@ -181,21 +181,21 @@ const config: Config = {
         }
       };
     },
-    // [
-    //   'docusaurus-plugin-typedoc-api',
-    //   {
-    //     projectRoot: typedocProjectRoot,
-    //     packages: [
-    //       {
-    //         path: '',
-    //         entry: 'index.ts',
-    //         typedocOptions: {
-    //           excludePrivate: true
-    //         }
-    //       }
-    //     ]
-    //   }
-    // ],
+    [
+      'docusaurus-plugin-typedoc-api',
+      {
+        projectRoot: typedocProjectRoot,
+        packages: [
+          {
+            path: '',
+            entry: 'index.ts',
+            typedocOptions: {
+              excludePrivate: true
+            }
+          }
+        ]
+      }
+    ],
     [
       '@docusaurus/plugin-client-redirects',
       {
