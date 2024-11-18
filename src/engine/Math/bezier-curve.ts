@@ -19,8 +19,8 @@ export class BezierCurve {
   private _arcLength: number;
   readonly quality: number = 4;
   constructor(options: BezierCurveOptions) {
-    if (options.controlPoints.length > 4) {
-      throw new Error('Only cubic and lower curves are supported');
+    if (options.controlPoints.length !== 4) {
+      throw new Error('Only cubic bezier curves are supported');
     }
     this._controlPoints = [...options.controlPoints];
     this.quality = options.quality ?? this.quality;
