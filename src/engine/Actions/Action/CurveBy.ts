@@ -45,8 +45,8 @@ export class CurveBy implements Action {
 
   update(elapsedMs: number): void {
     if (this.isComplete(this._entity)) {
-return;
-}
+      return;
+    }
     if (!this._started) {
       this._curve.setControlPoint(0, this._tx.globalPos);
       this._curve.setControlPoint(1, this._curve.controlPoints[1].add(this._tx.globalPos));

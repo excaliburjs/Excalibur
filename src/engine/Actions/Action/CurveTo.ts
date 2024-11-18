@@ -45,8 +45,8 @@ export class CurveTo implements Action {
 
   update(elapsedMs: number): void {
     if (this.isComplete(this._entity)) {
-return;
-}
+      return;
+    }
     if (!this._started) {
       this._curve.setControlPoint(0, this._tx.globalPos.clone());
       this._started = true;
