@@ -24,6 +24,8 @@ import { Entity } from '../EntityComponentSystem/Entity';
 import { Action } from './Action';
 import { Color } from '../Color';
 import { Flash } from './Action/Flash';
+import { CurveTo, CurveToOptions } from './Action/CurveTo';
+import { CurveBy, CurveByOptions } from './Action/CurveBy';
 
 /**
  * The fluent Action API allows you to perform "actions" on
@@ -58,6 +60,26 @@ export class ActionContext {
   public runAction(action: Action) {
     action.reset();
     this._queue.add(action);
+    return this;
+  }
+
+  /**
+   * Animates an actor with a specified bezier curve, overrides the first control point
+   * to be the actor's current position.
+   * @param options
+   */
+  public curveBy(options: CurveByOptions): ActionContext {
+    this._queue.add(new CurveBy(this._entity, options));
+    return this;
+  }
+
+  /**
+   * Animates an actor with a specified bezier curve, overrides the first control point
+   * to be the actor's current position.
+   * @param options
+   */
+  public curveTo(options: CurveToOptions): ActionContext {
+    this._queue.add(new CurveTo(this._entity, options));
     return this;
   }
 

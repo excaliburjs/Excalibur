@@ -75,6 +75,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added new `ex.BezierCurve` type for drawing cubic bezier curves
+- Added 2 new actions `actor.actions.curveTo(...)` and `actor.actions.curveBy(...)`
 - Added new `ex.lerp(...)`, `ex.inverseLerp(...)`, and `ex.remap(...)` for numbers
 - Added new `ex.lerpVector(...)`,` ex.inverseLerpVector(...)`, and `ex.remapVector(...)` for `ex.Vector`
 - Added new `actor.actions.flash(...)` `Action` to flash a color for a period of time
