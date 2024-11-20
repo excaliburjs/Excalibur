@@ -23,14 +23,18 @@ var actor = new ex.Actor({
 game.add(actor);
 
 actor.actions.repeatForever((ctx) => {
-  ctx.curveTo({ curve, durationMs: 6000 });
+  ctx.curveTo({
+    controlPoints: [ex.vec(100, -300), ex.vec(150, 800), ex.vec(500, 100)],
+    durationMs: 6000
+  });
   ctx.curveBy({
-    curve: new ex.BezierCurve({
-      controlPoints: [ex.vec(0, 0), ex.vec(100, 0), ex.vec(-100, 0), ex.vec(0, 300)]
-    }),
+    controlPoints: [ex.vec(100, 0), ex.vec(-100, 0), ex.vec(0, 300)],
     durationMs: 1000
   });
-  ctx.curveTo({ curve: reverseCurve, durationMs: 6000 });
+  ctx.curveTo({
+    controlPoints: [ex.vec(100, -300), ex.vec(150, 800), ex.vec(500, 100)].reverse() as any,
+    durationMs: 6000
+  });
 });
 
 var time = 0;
