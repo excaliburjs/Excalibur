@@ -32,7 +32,7 @@ actor.actions.repeatForever((ctx) => {
     durationMs: 1000
   });
   ctx.curveTo({
-    controlPoints: [ex.vec(100, -300), ex.vec(150, 800), ex.vec(500, 100)].reverse() as any,
+    controlPoints: [ex.vec(150, 800), ex.vec(100, -300), ex.vec(0, 700)],
     durationMs: 6000
   });
 });
