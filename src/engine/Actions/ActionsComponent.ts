@@ -10,6 +10,8 @@ import { ActionQueue } from './ActionQueue';
 import { RotationType } from './RotationType';
 import { Action } from './Action';
 import { Color } from '../Color';
+import { CurveToOptions } from './Action/CurveTo';
+import { CurveByOptions } from './Action/CurveBy';
 
 export interface ActionContextMethods extends Pick<ActionContext, keyof ActionContext> {}
 
@@ -63,6 +65,14 @@ export class ActionsComponent extends Component implements ActionContextMethods 
    */
   public clearActions(): void {
     this._ctx?.clearActions();
+  }
+
+  public curveBy(options: CurveByOptions): ActionContext {
+    return this._getCtx().curveBy.apply(this._ctx, [options]);
+  }
+
+  public curveTo(options: CurveToOptions): ActionContext {
+    return this._getCtx().curveTo.apply(this._ctx, [options]);
   }
 
   /**
