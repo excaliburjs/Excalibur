@@ -61,13 +61,13 @@ export class GraphicsGroup extends Graphic implements HasTick {
     let bb = new BoundingBox();
     for (const member of this.members) {
       if (member instanceof Graphic) {
-        bb = member.localBounds.combine(bb);
+        member.localBounds.combine(bb, bb);
       } else {
         const { graphic, offset: pos, useBounds } = member;
         const shouldUseBounds = useBounds === undefined ? true : useBounds;
         if (graphic) {
           if (shouldUseBounds) {
-            bb = graphic.localBounds.translate(pos).combine(bb);
+            graphic.localBounds.translate(pos).combine(bb, bb);
           }
         } else {
           this._logger.warnOnce(`Graphics group member has an null or undefined graphic, member definition: ${JSON.stringify(member)}.`);

@@ -121,7 +121,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `ex.Engine.timeScale` values of 0 are now supported
 - `ex.Trigger` now supports all valid actor constructor parameters from `ex.ActorArgs` in addition to `ex.TriggerOptions`
 - `ex.Gif` can now handle default embedded GIF frame timings
-- New `ex.Screen.worldToPagePixelRatio` API that will return the ratio between excalibur pixels and the HTML pixels. 
+- New `ex.Screen.worldToPagePixelRatio` API that will return the ratio between excalibur pixels and the HTML pixels.
   * Additionally excalibur will now decorate the document root with this same value as a CSS variable `--ex-pixel-ratio`
   * Useful for scaling HTML UIs to match your game
     ```css
@@ -151,7 +151,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - show warning in development when Entity hasn't been added to a scene after a few seconds
 - New `RentalPool` type for sparse object pooling
 - New `ex.SparseHashGridCollisionProcessor` which is a simpler (and faster) implementation for broadphase pair generation. This works by bucketing colliders into uniform sized square buckets and using that to generate pairs.
-- CollisionContact can be biased toward a collider by using `contact.bias(collider)`. This adjusts the contact so that the given collider is colliderA, and is helpful if you 
+- CollisionContact can be biased toward a collider by using `contact.bias(collider)`. This adjusts the contact so that the given collider is colliderA, and is helpful if you
 are doing mtv adjustments during precollision.
 
 ### Fixed
@@ -192,7 +192,7 @@ are doing mtv adjustments during precollision.
 
 - Perf improvement to retrieving components with `ex.Entity.get()` which widely improves engine performance
 - Non-breaking parameters that reference `delta` to `elapsedMs` to better communicate intent and units
-- Perf improvements to `ex.ParticleEmitter` 
+- Perf improvements to `ex.ParticleEmitter`
   * Use the same integrator as the MotionSystem in the tight loop
   * Leverage object pools to increase performance and reduce allocations
 - Perf improvements to collision narrowphase and solver steps
@@ -215,6 +215,7 @@ are doing mtv adjustments during precollision.
   * `EventEmitter`s
   * `GraphicsSystem` entity iteration
   * `PointerSystem` entity iteration
+- Perf improvements to `GraphicsGroup` by reducing per draw allocations in bounds calculations
 
 ### Changed
 
@@ -343,7 +344,7 @@ will be positioned with the top left of the graphic at the actor's position.
 - Fixed issue where `ex.ParticleEmitter` z-index did not propagate to particles
 - Fixed incongruent behavior as small scales when setting `transform.scale = v` and `transform.scale.setTo(x, y)`
 - Fixed `ex.coroutine` TypeScript type to include yielding `undefined`
-- Fixed issue where Firefox on Linux would throw an error when using custom Materials due to unused attributes caused by glsl compiler optimization. 
+- Fixed issue where Firefox on Linux would throw an error when using custom Materials due to unused attributes caused by glsl compiler optimization.
 - Fixed issue where start transition did not work properly if deferred
 - Fixed issue where transitions did not cover the whole screen if camera was zoomed
 - Fixed issue where `Color.toHex()` produced invalid strings if the channel values are negative or fractional, or if the alpha channel was different than 1
@@ -430,7 +431,7 @@ will be positioned with the top left of the graphic at the actor's position.
   override the options in the `FontSource`.
 
   ```typescript
-  const fontSource = new ex.FontSource('/my-font.ttf', 'My Font', { 
+  const fontSource = new ex.FontSource('/my-font.ttf', 'My Font', {
     filtering: ex.ImageFiltering.Pixel,
     size: 16, // set a default size
   })
@@ -605,7 +606,7 @@ will be positioned with the top left of the graphic at the actor's position.
           }
         },
       scene3: ex.Scene // Constructor only option!
-      } 
+      }
     })
 
     // Specify the boot loader & first scene transition from loader
@@ -716,7 +717,7 @@ will be positioned with the top left of the graphic at the actor's position.
 
 ### Added
 
-- 
+-
 
 ### Fixed
 
@@ -794,16 +795,16 @@ will be positioned with the top left of the graphic at the actor's position.
       super(args);
     }
     onPreCollisionResolve(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
-      
+
     }
     onPostCollisionResolve(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
-      
+
     }
     onCollisionStart(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
-      
+
     }
     onCollisionEnd(self: ex.Collider, other: ex.Collider): void {
-      
+
     }
   }
   ```
@@ -916,11 +917,11 @@ const hits = engine.currentScene.physics.rayCast(
 
 ### Updates
 
-- 
+-
 
 ### Changed
 
-- 
+-
 
 ## [v0.28.2]
 
@@ -998,7 +999,7 @@ const hits = engine.currentScene.physics.rayCast(
 - Added new `ex.Scene.transfer(actor)` method for transferring actors between scenes, useful if you want to only have an actor in 1 scene at a time.
 - Added new `ex.Material` to add custom shaders per `ex.Actor`!
   * This feature cant be applied using the `ex.Actor.graphics.material = material` property or by setting the material property on the `ex.ExcaliburGraphicsContext.material = material` with `.save()/.restore()`
-  * This feature opt out of batch rendering and issues a separate draw call 
+  * This feature opt out of batch rendering and issues a separate draw call
   * A custom vertex shader can be provided, otherwise a default will be provided
   * A number of default uniforms are available to shaders
     * Pre-built varyings:
@@ -1030,7 +1031,7 @@ const hits = engine.currentScene.physics.rayCast(
     }`
   });
   ```
-- Added updates to `ex.PostProcessor` 
+- Added updates to `ex.PostProcessor`
   * New optional `ex.PostProcessor.onUpdate` hook for updating custom uniforms
   * Added default uniforms that are automatically added
     * `uniform float u_time_ms` - total playback time in milliseconds
@@ -1108,7 +1109,7 @@ are returned
 - Added word-wrap support for `ex.Text` using the optional parameter `maxWidth`
 - Added the emitted particle transform style as part of `ex.ParticleEmitter({particleTransform: ex.ParticleTransform.Global})`, [[ParticleTransform.Global]] is the default and emits particles as if they were world space objects, useful for most effects. If set to [[ParticleTransform.Local]] particles are children of the emitter and move relative to the emitter as they would in a parent/child actor relationship.
 - Added `wasButtonReleased` and `wasButtonPressed` methods to [[ex.Input.Gamepad]]
-- Added `clone()` method to `ex.SpriteSheet` 
+- Added `clone()` method to `ex.SpriteSheet`
 
 ### Fixed
 
@@ -1160,7 +1161,7 @@ stored `ex.Graphics` causing them to be shared across clones.
 ### Breaking Changes
 
 - `ex.Engine.snapToPixel` now defaults to `false`, it was unexpected to have pixel snapping on by default it has now been switched.
-- The `ex.Physics.useRealisticPhysics()` physics solver has been updated to fix a bug in bounciness to be more physically accurate, this does change how physics behaves. Setting `ex.Body.bounciness = 0` will simulate the old behavior. 
+- The `ex.Physics.useRealisticPhysics()` physics solver has been updated to fix a bug in bounciness to be more physically accurate, this does change how physics behaves. Setting `ex.Body.bounciness = 0` will simulate the old behavior.
 - `ex.TransformComponent.posChanged$` has been removed, it incurs a steep performance cost
 - `ex.EventDispatcher` meta events 'subscribe' and 'unsubscribe' were unused and undocumented and have been removed
 - `ex.TileMap` tlies are now drawn from the lower left by default to match with `ex.IsometricMap` and Tiled, but can be configured with `renderFromTopOfGraphic` to restore the previous behavior.
@@ -1196,7 +1197,7 @@ stored `ex.Graphics` causing them to be shared across clones.
   semaphore.exit();
   ```
 - Added new `ex.WatchVector` type that can observe changes to x/y more efficiently than `ex.watch()`
-- Added performance improvements 
+- Added performance improvements
    * `ex.Vector.distance` improvement
    * `ex.BoundingBox.transform` improvement
 - Added ability to clone `ex.Vector.clone(destVector)` into a destination vector
@@ -1568,8 +1569,8 @@ stored `ex.Graphics` causing them to be shared across clones.
 - Added new `measureText` method to the `ex.SpriteFont` and `ex.Font` to return the bounds of any particular text
 - Added new `Clock` api to manage the core main loop. Clocks hide the implementation detail of how the mainloop runs, users just knows that it ticks somehow. Clocks additionally encapsulate any related browser timing, like `performance.now()`
   1. `StandardClock` encapsulates the existing `requestAnimationFrame` api logic
-  2. `TestClock` allows a user to manually step the mainloop, this can be useful for frame by frame debugging #1170 
-  3. The base abstract clock implements the specifics of elapsed time 
+  2. `TestClock` allows a user to manually step the mainloop, this can be useful for frame by frame debugging #1170
+  3. The base abstract clock implements the specifics of elapsed time
 
 - Added a new feature to Engine options to set a maximum fps `new ex.Engine({...options, maxFps: 30})`. This can be useful when needing to deliver a consistent experience across devices.
 - Pointers can now be configured to use the collider or the graphics bounds as the target for pointers with the `ex.PointerComponent`
@@ -1588,7 +1589,7 @@ stored `ex.Graphics` causing them to be shared across clones.
 - Fixed label initialization of fonts, passing a font in the constructor work
 - Fixed bug in sprite bounds calculations not taking scale into account
 - Fixed bug with pointer api where clicking on screen coordinate actors didn't work
-- Fixed [#1815] issue where Camera would jitter when using a strategies based off of actors in the previous frame. 
+- Fixed [#1815] issue where Camera would jitter when using a strategies based off of actors in the previous frame.
 - Fixed issue where TileMaps would sometimes have a geometry seam that may not fall on an actual screen pixel causing a visible gap between tiles and the background
   -- ![image](https://user-images.githubusercontent.com/612071/144700377-ac4585ba-3f4c-44b8-95db-ad36c5fc9a32.png)
 - Fixed unreleased issue where SpriteFonts log every frame they detect a misconfigured font.
@@ -1614,7 +1615,7 @@ stored `ex.Graphics` causing them to be shared across clones.
 ### Changed
 
 - Updated Graphics to improve general performance
-- Updated the webgl primitives to make building `ex.Shader`s, `ex.VertexBuffer`s, and `ex.VertexLayout`s much easier 
+- Updated the webgl primitives to make building `ex.Shader`s, `ex.VertexBuffer`s, and `ex.VertexLayout`s much easier
 - Broke up the internal monolithic shader into separate internal renderer plugins
 - Changed the debug system to separate displaying the debug position point (`game.debug.transform.showPosition = true`) and debug position label (`game.debug.transform.showPositionLabel = true`)
 - `ex.ColorBlindCorrector` is renamed to `ex.ColorBlindnessPostProcessor`, and `ex.ColorBlindness` is renamed to `ex.ColorBlindnessMode`
@@ -1622,7 +1623,7 @@ stored `ex.Graphics` causing them to be shared across clones.
       * `game.debug.colorBlindMode.correct(ex.ColorBlindnessMode.Deuteranope)`
       * `game.debug.colorBlindMode.simulate(ex.ColorBlindnessMode.Deuteranope)`
 - Excalibur now uses pre-multiplied alpha automatically, images will be unpacked into memory using `gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true)`
-- Excalibur FPS is now sampled over 100ms blocks, this gives a more usable fps in the stats. The sampler is available off of the engine clock `engine.clock.fpsSampler.fps` 
+- Excalibur FPS is now sampled over 100ms blocks, this gives a more usable fps in the stats. The sampler is available off of the engine clock `engine.clock.fpsSampler.fps`
 - Pointer Events:
   * Event types (up, down, move, etc) now all exist in 2 types `ex.Input.PointerEvent` and `ex.Input.WheelEvent`
   * The `stopPropagation()` method used to cancel further dispatches has been renamed to `cancel()` to match other events API.
@@ -1635,7 +1636,7 @@ stored `ex.Graphics` causing them to be shared across clones.
 
 - *Experimental:* Native ES module bundle distribution in package `esm/excalibur.js` entrypoint ([#2064](https://github.com/excaliburjs/Excalibur/pull/2064))
 - `withEngine` utils support an aditional options parameter to override the Engine default options.
-- Story to show a play / pause implementation. 
+- Story to show a play / pause implementation.
 - `ex.Animation` now support `totalDuration` that will calculate automatically each frame duration based on how many frames have.
 - `ex.Animation` now supports `.reverse()` to reverse the direction of play in an animation, use the `ex.Animation.direction` to inspect if the animation is playing in the `ex.AnimationDirection.Forward` direction or the `ex.AnimationDirection.Backward` direction.
 ### Changed
