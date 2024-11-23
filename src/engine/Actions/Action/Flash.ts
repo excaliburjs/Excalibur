@@ -3,7 +3,8 @@ import { Entity } from '../../EntityComponentSystem/Entity';
 import { Action, nextActionId } from '../Action';
 import { Actor } from '../../Actor';
 import { Material } from '../../Graphics/Context/material';
-import { Shader, Color } from '../../excalibur';
+import { Color } from '../../Color';
+import { Shader } from '../../Graphics/Context/shader';
 
 export class Flash implements Action {
   id = nextActionId();
