@@ -1105,9 +1105,19 @@ game.input.pointers.primary.on('down', (evt: ex.PointerEvent) => {
   }
 });
 
-tileMap.tiles[0].events.on('pointerdown', (evt) => {
-  console.log('tile clicked', evt);
-});
+for (let i = 0; i < tileMap.tiles.length; i++) {
+  tileMap.tiles[i].events.on('pointerdown', (evt) => {
+    console.log('tile clicked', tileMap.tiles[i]);
+  });
+
+  tileMap.tiles[i].events.on('pointerenter', (evt) => {
+    console.log('pointer entered tile', tileMap.tiles[i].x, tileMap.tiles[i].y);
+  });
+
+  tileMap.tiles[i].events.on('pointerleave', (evt) => {
+    console.log('pointer left tile', tileMap.tiles[i].x, tileMap.tiles[i].y);
+  });
+}
 
 game.input.keyboard.on('up', (evt?: ex.KeyEvent) => {
   if (evt.key == ex.Keys.F) {

@@ -20,6 +20,9 @@ import { DebugConfig } from '../Debug';
 import { clamp } from '../Math/util';
 import { PointerComponent } from '../Input/PointerComponent';
 import { PointerEvent } from '../Input/PointerEvent';
+import { PointerEventReceiver } from '../Input/PointerEventReceiver';
+import { HasNestedPointerEvents, PointerEventsToObjectDispatcher } from '../Input/PointerEventsToObjectDispatcher';
+import { GlobalCoordinates } from '../Math';
 
 export interface TileMapOptions {
   /**
@@ -68,6 +71,8 @@ export type TilePointerEvents = {
   pointerdown: PointerEvent;
   pointermove: PointerEvent;
   pointercancel: PointerEvent;
+  pointerenter: PointerEvent;
+  pointerleave: PointerEvent;
 };
 
 export type TileMapEvents = EntityEvents &
@@ -94,7 +99,7 @@ export const TileMapEvents = {
  *
  * TileMaps are useful for top down or side scrolling grid oriented games.
  */
-export class TileMap extends Entity {
+export class TileMap extends Entity implements HasNestedPointerEvents {
   public events = new EventEmitter<TileMapEvents>();
   private _token = 0;
   private _engine!: Engine;
@@ -113,6 +118,7 @@ export class TileMap extends Entity {
   public meshingLookBehind = 10;
 
   private _collidersDirty = true;
+  private _pointerEventDispatcher: PointerEventsToObjectDispatcher<{ events: EventEmitter }>;
   public flagCollidersDirty() {
     this._collidersDirty = true;
   }
@@ -277,6 +283,8 @@ export class TileMap extends Entity {
     this.rows = options.rows;
     this.columns = options.columns;
 
+    this._pointerEventDispatcher = new PointerEventsToObjectDispatcher();
+
     this.tiles = new Array<Tile>(this.rows * this.columns);
     this._rows = new Array(this.rows);
     this._cols = new Array(this.columns);
@@ -290,6 +298,14 @@ export class TileMap extends Entity {
         });
         tile.map = this;
         this.tiles[i + j * this.columns] = tile;
+        this._pointerEventDispatcher.addObject(
+          tile,
+          (vec: GlobalCoordinates) => {
+            // TODO handle geometry/graphics
+            return tile.bounds.contains(vec.worldPos);
+          },
+          () => true
+        );
         currentCol.push(tile);
         if (!this._rows[j]) {
           this._rows[j] = [];
@@ -299,8 +315,6 @@ export class TileMap extends Entity {
       this._cols[i] = currentCol;
       currentCol = [];
     }
-
-    this._setupPointerToTile();
 
     this._graphics.localBounds = new BoundingBox({
       left: 0,
@@ -313,20 +327,6 @@ export class TileMap extends Entity {
   public _initialize(engine: Engine) {
     super._initialize(engine);
     this._engine = engine;
-  }
-
-  private _forwardPointerEventToTile = (eventType: string) => (evt: PointerEvent) => {
-    const tile = this.getTileByPoint(evt.worldPos);
-    if (tile) {
-      tile.events.emit(eventType, evt);
-    }
-  };
-
-  private _setupPointerToTile() {
-    this.events.on('pointerup', this._forwardPointerEventToTile('pointerup'));
-    this.events.on('pointerdown', this._forwardPointerEventToTile('pointerdown'));
-    this.events.on('pointermove', this._forwardPointerEventToTile('pointermove'));
-    this.events.on('pointercancel', this._forwardPointerEventToTile('pointercancel'));
   }
 
   private _originalOffsets = new WeakMap<Collider, Vector>();
@@ -545,10 +545,26 @@ export class TileMap extends Entity {
     return tiles;
   }
 
+  /**
+   * @internal
+   */
+  public _processPointerToObject(receiver: PointerEventReceiver) {
+    this._pointerEventDispatcher.processPointerToObject(receiver, this.tiles);
+  }
+
+  /**
+   * @internal
+   */
+  public _dispatchPointerEvents(receiver: PointerEventReceiver) {
+    this._pointerEventDispatcher.dispatchEvents(receiver, this.tiles);
+  }
+
   public update(engine: Engine, elapsedMs: number) {
     this._initialize(engine);
     this.onPreUpdate(engine, elapsedMs);
     this.emit('preupdate', new PreUpdateEvent(engine, elapsedMs, this));
+
+    // Update colliders
     if (!this._oldPos.equals(this.pos) || this._oldRotation !== this.rotation || !this._oldScale.equals(this.scale)) {
       this.flagCollidersDirty();
       this.flagTilesDirty();
@@ -557,6 +573,9 @@ export class TileMap extends Entity {
       this._collidersDirty = false;
       this._updateColliders();
     }
+
+    // Clear last frame's events
+    this._pointerEventDispatcher.clear();
 
     this._token++;
 
