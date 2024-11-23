@@ -216,12 +216,15 @@ svgActor.graphics.add(
 // svgActor.graphics.add(svgExternal.toSprite());
 game.add(svgActor);
 
+var fontSource = new ex.FontSource('./html/Gorgeous Pixel.ttf', 'Gorgeous Pixel');
+
 var boot = new ex.Loader();
 // var boot = new ex.Loader({
 //   fullscreenAfterLoad: true,
 //   fullscreenContainer: document.getElementById('container')
 // });
 // boot.suppressPlayButton = true;
+boot.addResource(fontSource);
 boot.addResource(svgExternal);
 boot.addResource(svgImage);
 boot.addResource(heartImageSource);
@@ -621,6 +624,24 @@ var follower = new ex.Actor({ x: 50, y: 100, width: 20, height: 20, color: ex.Co
 follower.graphics.add(new ex.Rectangle({ color: ex.Color.Black, width: 20, height: 20 }));
 follower.body.collisionType = ex.CollisionType.PreventCollision;
 game.add(follower);
+
+var font2 = fontSource.toFont({
+  family: 'Gorgeous Pixel',
+  color: ex.Color.White,
+  size: 30,
+  shadow: {
+    blur: 15,
+    color: ex.Color.Black
+  }
+});
+
+game.add(
+  new ex.Label({
+    text: 'Hello this is a pixel font',
+    pos: ex.vec(200, 200),
+    font: font2
+  })
+);
 
 // Create the player
 var player = new ex.Actor({
