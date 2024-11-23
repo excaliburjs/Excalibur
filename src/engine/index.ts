@@ -53,11 +53,6 @@ export * from './Graphics/index';
 import * as events from './Events';
 export { events as Events };
 
-// ex.Input namespace
-// TODO deprecated import site remove in v0.29.0
-import * as input from './Input/Index';
-export { input as Input };
-
 export { WheelEvent } from './Input/WheelEvent';
 
 export { PointerEvent } from './Input/PointerEvent';
