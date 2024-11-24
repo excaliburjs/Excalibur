@@ -77,6 +77,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - Added `pointerenter` and `pointerleave` events to `ex.TileMap` tiles!
+- Added `pointerenter` and `pointerleave` events to `ex.IsometricMap` tiles!
 - Added new `ex.BezierCurve` type for drawing cubic bezier curves
 - Added 2 new actions `actor.actions.curveTo(...)` and `actor.actions.curveBy(...)`
 - Added new `ex.lerp(...)`, `ex.inverseLerp(...)`, and `ex.remap(...)` for numbers

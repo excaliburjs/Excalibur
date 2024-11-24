@@ -118,7 +118,7 @@ export class TileMap extends Entity implements HasNestedPointerEvents {
   public meshingLookBehind = 10;
 
   private _collidersDirty = true;
-  private _pointerEventDispatcher: PointerEventsToObjectDispatcher<{ events: EventEmitter }>;
+  private _pointerEventDispatcher: PointerEventsToObjectDispatcher<Tile>;
   public flagCollidersDirty() {
     this._collidersDirty = true;
   }
