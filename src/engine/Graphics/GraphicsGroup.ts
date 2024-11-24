@@ -58,7 +58,7 @@ export class GraphicsGroup extends Graphic implements HasTick {
   }
 
   public get localBounds(): BoundingBox {
-    let bb = new BoundingBox();
+    const bb = new BoundingBox();
     for (const member of this.members) {
       if (member instanceof Graphic) {
         member.localBounds.combine(bb, bb);
