@@ -27,13 +27,13 @@ It is recommended that keyboard actions that directly effect actors be queried, 
 class Player extends ex.Actor {
   public update(engine, delta) {
     if (
-      engine.input.keyboard.isHeld(ex.Input.Keys.W) ||
-      engine.input.keyboard.isHeld(ex.Input.Keys.Up)
+      engine.input.keyboard.isHeld(ex.Keys.W) ||
+      engine.input.keyboard.isHeld(ex.Keys.Up)
     ) {
       player._moveForward()
     }
 
-    if (engine.input.keyboard.wasPressed(ex.Input.Keys.Right)) {
+    if (engine.input.keyboard.wasPressed(ex.Keys.Right)) {
       player._fire()
     }
   }
