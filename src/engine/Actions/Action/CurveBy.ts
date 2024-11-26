@@ -4,7 +4,7 @@ import { Action, nextActionId } from '../Action';
 
 export interface CurveByOptions {
   /**
-   * Curve relative to the current actor position to move
+   * Bezier Curve relative to the current actor position to move
    */
   controlPoints: [control1: Vector, control2: Vector, end: Vector];
   /**
@@ -20,6 +20,13 @@ export interface CurveByOptions {
    */
   mode?: 'dynamic' | 'uniform';
 
+  /**
+   * Quality when sampling uniform points on the curve. Samples = 4 * quality;
+   *
+   * For bigger 'uniform' curves you may want to increase quality
+   *
+   * Default 4
+   */
   quality?: number;
 }
 

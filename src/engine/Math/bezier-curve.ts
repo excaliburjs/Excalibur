@@ -6,6 +6,13 @@ export interface BezierCurveOptions {
    * [start, control1, control2, end]
    */
   controlPoints: [start: Vector, control1: Vector, control2: Vector, end: Vector];
+  /**
+   * Quality when sampling uniform points on the curve. Samples = 4 * quality;
+   *
+   * For bigger 'uniform' curves you may want to increase quality
+   *
+   * Default 4
+   */
   quality?: number;
 }
 

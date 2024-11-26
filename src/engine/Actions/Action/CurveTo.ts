@@ -4,7 +4,7 @@ import { Action, nextActionId } from '../Action';
 
 export interface CurveToOptions {
   /**
-   * Curve in world coordinates to animate towards
+   * Bezier Curve in world coordinates to animate towards
    *
    * The start control point is assumed to be the actor's current position
    */
@@ -21,6 +21,13 @@ export interface CurveToOptions {
    * Default: 'dynamic'
    */
   mode?: 'dynamic' | 'uniform';
+  /**
+   * Quality when sampling uniform points on the curve. Samples = 4 * quality;
+   *
+   * For bigger 'uniform' curves you may want to increase quality
+   *
+   * Default 4
+   */
   quality?: number;
 }
 
@@ -79,6 +86,7 @@ export class CurveTo implements Action {
     this._stopped = false;
   }
   stop(): void {
+    this._stopped = true;
     this._currentMs = 0;
   }
 }
