@@ -6,8 +6,8 @@ export class Delay implements Action {
   private _delay: number;
   private _started: boolean = false;
   private _stopped = false;
-  constructor(delay: number) {
-    this._delay = delay;
+  constructor(durationMs: number) {
+    this._delay = durationMs;
   }
 
   public update(elapsedMs: number): void {

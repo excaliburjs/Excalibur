@@ -76,6 +76,24 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added new option bag style input to actions with durations in milliseconds instead of speed
+  ```typescript
+  player.actions.rotateTo({angleRadians: angle, durationMs: 1000, rotationType});
+  player.actions.moveTo({pos: ex.vec(100, 100), durationMs: 1000});
+  player.actions.scaleTo({scale: ex.vec(2, 2), durationMs: 1000});
+  player.actions.repeatForever(ctx => {
+    ctx.curveTo({
+      controlPoints: [cp1, cp2, dest],
+      durationMs: 5000,
+      mode: 'uniform'
+    });
+    ctx.curveTo({
+      controlPoints: [cp2, cp1, start1],
+      durationMs: 5000,
+      mode: 'uniform'
+    });
+  });
+  ```
 - Added `ex.lerpAngle(startAngleRadians: number, endAngleRadians: number, rotationType: RotationType, time: number): number` in order to lerp angles between each other
 - Added `pointerenter` and `pointerleave` events to `ex.TileMap` tiles!
 - Added `pointerenter` and `pointerleave` events to `ex.IsometricMap` tiles!

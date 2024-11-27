@@ -14,10 +14,10 @@ export class Fade implements Action {
   private _started = false;
   private _stopped = false;
 
-  constructor(entity: Entity, endOpacity: number, time: number) {
+  constructor(entity: Entity, endOpacity: number, durationMs: number) {
     this._graphics = entity.get(GraphicsComponent);
     this._endOpacity = endOpacity;
-    this._remainingTime = this._originalTime = time;
+    this._remainingTime = this._originalTime = durationMs;
   }
 
   public update(elapsedMs: number): void {

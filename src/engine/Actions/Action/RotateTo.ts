@@ -3,24 +3,107 @@ import { RotationType } from '../RotationType';
 import { TransformComponent } from '../../EntityComponentSystem/Components/TransformComponent';
 import { MotionComponent } from '../../EntityComponentSystem/Components/MotionComponent';
 import { Entity } from '../../EntityComponentSystem/Entity';
-import { TwoPI } from '../../Math/util';
+import { clamp, TwoPI } from '../../Math/util';
+import { lerpAngle, remap } from '../../Math';
+
+export interface RotateToOptions {
+  /**
+   * Absolute angle to rotate to in radians
+   */
+  angleRadians: number;
+  /**
+   * Duration to take in milliseconds
+   */
+  durationMs: number;
+  /**
+   * Optionally provide type of rotation, default is RotationType.ShortestPath
+   */
+  rotationType?: RotationType;
+}
+
+/**
+ *
+ */
+export function isRotateToOptions(x: any): x is RotateToOptions {
+  return typeof x.angleRadians === 'number' && typeof x.durationMs === 'number';
+}
+
+export class RotateToWithOptions implements Action {
+  id = nextActionId();
+  private _durationMs: number;
+  private _tx: TransformComponent;
+  private _started: boolean = false;
+  private _currentMs: number;
+  private _stopped: boolean = false;
+  private _motion: MotionComponent;
+  private _endAngle: number = 0;
+  private _startAngle: number = 0;
+  private _rotationType: RotationType;
+  constructor(
+    public entity: Entity,
+    options: RotateToOptions
+  ) {
+    this._endAngle = options.angleRadians;
+    this._tx = entity.get(TransformComponent);
+    this._motion = entity.get(MotionComponent);
+    if (!this._tx) {
+      throw new Error(`Entity ${entity.name} has no TransformComponent, can only RotateTo on Entities with TransformComponents.`);
+    }
+    this._durationMs = options.durationMs;
+    this._rotationType = options.rotationType ?? RotationType.ShortestPath;
+    this._currentMs = this._durationMs;
+  }
+  update(elapsedMs: number): void {
+    if (!this._started) {
+      this._startAngle = this._tx.rotation;
+      this._started = true;
+    }
+    this._currentMs -= elapsedMs;
+    const t = clamp(remap(0, this._durationMs, 0, 1, this._durationMs - this._currentMs), 0, 1);
+    const newAngle = lerpAngle(this._startAngle, this._endAngle, this._rotationType, t);
+    const currentAngle = this._tx.rotation;
+
+    const rx = (newAngle - currentAngle) / (elapsedMs / 1000);
+    this._motion.angularVelocity = rx;
+
+    if (this.isComplete(this.entity)) {
+      this._tx.rotation = this._endAngle;
+      this._motion.angularVelocity = 0;
+    }
+  }
+  public isComplete(entity: Entity): boolean {
+    return this._stopped || this._currentMs < 0;
+  }
+
+  public stop(): void {
+    this._motion.angularVelocity = 0;
+    this._stopped = true;
+    this._currentMs = 0;
+  }
+
+  public reset(): void {
+    this._currentMs = this._durationMs;
+    this._started = false;
+    this._stopped = false;
+  }
+}
 
 export class RotateTo implements Action {
   id = nextActionId();
   private _tx: TransformComponent;
   private _motion: MotionComponent;
-  public x: number;
-  public y: number;
-  private _start: number;
+  public x!: number;
+  public y!: number;
+  private _start!: number;
   private _end: number;
   private _speed: number;
   private _rotationType: RotationType;
-  private _direction: number;
-  private _distance: number;
-  private _shortDistance: number;
-  private _longDistance: number;
-  private _shortestPathIsPositive: boolean;
-  private _currentNonCannonAngle: number;
+  private _direction!: number;
+  private _distance!: number;
+  private _shortDistance!: number;
+  private _longDistance!: number;
+  private _shortestPathIsPositive!: boolean;
+  private _currentNonCannonAngle!: number;
   private _started = false;
   private _stopped = false;
   constructor(entity: Entity, angleRadians: number, speed: number, rotationType?: RotationType) {

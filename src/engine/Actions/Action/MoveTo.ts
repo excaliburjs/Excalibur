@@ -1,31 +1,108 @@
 import { MotionComponent } from '../../EntityComponentSystem/Components/MotionComponent';
 import { TransformComponent } from '../../EntityComponentSystem/Components/TransformComponent';
 import { Entity } from '../../EntityComponentSystem/Entity';
+import { clamp, remap } from '../../Math';
 import { Vector, vec } from '../../Math/vector';
+import { EasingFunction, EasingFunctions } from '../../Util/EasingFunctions';
 import { Action, nextActionId } from '../Action';
+
+export interface MoveToOptions {
+  pos: Vector;
+  durationMs: number;
+  easing?: EasingFunction;
+}
+
+/**
+ *
+ */
+export function isMoveToOptions(x: any): x is MoveToOptions {
+  return x.pos instanceof Vector && typeof x.durationMs === 'number';
+}
+
+export class MoveToWithOptions implements Action {
+  id = nextActionId();
+  private _end: Vector;
+  private _durationMs: number;
+  private _tx: TransformComponent;
+  private _started: boolean = false;
+  private _start!: Vector;
+  private _currentMs: number;
+  private _stopped: boolean = false;
+  private _motion: MotionComponent;
+  private _easing: EasingFunction = EasingFunctions.Linear;
+  constructor(
+    public entity: Entity,
+    options: MoveToOptions
+  ) {
+    this._end = options.pos;
+    this._easing = options.easing ?? this._easing;
+    this._tx = entity.get(TransformComponent);
+    this._motion = entity.get(MotionComponent);
+    if (!this._tx) {
+      throw new Error(`Entity ${entity.name} has no TransformComponent, can only moveTo on Entities with TransformComponents.`);
+    }
+    this._durationMs = options.durationMs;
+    this._currentMs = this._durationMs;
+  }
+  update(elapsedMs: number): void {
+    if (!this._started) {
+      this._start = this._tx.pos.clone();
+      this._started = true;
+    }
+    this._currentMs -= elapsedMs;
+    const t = clamp(remap(0, this._durationMs, 0, 1, this._durationMs - this._currentMs), 0, 1);
+    const currentPos = this._tx.pos;
+    const newPosX = this._easing(t, this._start.x, this._end.x, 1);
+    const newPosY = this._easing(t, this._start.y, this._end.y, 1);
+    const velX = (newPosX - currentPos.x) / (elapsedMs / 1000);
+    const velY = (newPosY - currentPos.y) / (elapsedMs / 1000);
+    this._motion.vel.x = velX;
+    this._motion.vel.y = velY;
+
+    if (this.isComplete(this.entity)) {
+      this._tx.pos = vec(this._end.x, this._end.y);
+      this._motion.vel = vec(0, 0);
+    }
+  }
+  public isComplete(entity: Entity): boolean {
+    return this._stopped || this._currentMs < 0;
+  }
+
+  public stop(): void {
+    this._motion.vel = vec(0, 0);
+    this._stopped = true;
+    this._currentMs = 0;
+  }
+
+  public reset(): void {
+    this._currentMs = this._durationMs;
+    this._started = false;
+    this._stopped = false;
+  }
+}
 
 export class MoveTo implements Action {
   id = nextActionId();
   private _tx: TransformComponent;
   private _motion: MotionComponent;
-  public x: number;
-  public y: number;
-  private _start: Vector;
+  public x!: number;
+  public y!: number;
+  private _start!: Vector;
   private _end: Vector;
-  private _dir: Vector;
+  private _dir!: Vector;
   private _speed: number;
-  private _distance: number;
+  private _distance!: number;
   private _started = false;
   private _stopped = false;
   constructor(
     public entity: Entity,
-    destx: number,
-    desty: number,
+    destX: number,
+    destY: number,
     speed: number
   ) {
     this._tx = entity.get(TransformComponent);
     this._motion = entity.get(MotionComponent);
-    this._end = new Vector(destx, desty);
+    this._end = new Vector(destX, destY);
     this._speed = speed;
   }
 

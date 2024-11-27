@@ -330,7 +330,7 @@ export class BoundingBox {
   public contains(bb: BoundingBox): boolean;
   public contains(val: any): boolean {
     if (val instanceof Vector) {
-      return this.left <= val.x && this.top <= val.y && this.bottom >= val.y && this.right >= val.x;
+      return this.left <= val.x && this.top <= val.y && val.y <= this.bottom && val.x <= this.right;
     } else if (val instanceof BoundingBox) {
       return this.left <= val.left && this.top <= val.top && val.bottom <= this.bottom && val.right <= this.right;
     }

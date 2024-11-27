@@ -4,6 +4,9 @@ import { Entity } from '../../EntityComponentSystem/Entity';
 import { vec, Vector } from '../../Math/vector';
 import { Action, nextActionId } from '../Action';
 
+/**
+ * @deprecated use moveBy({offset: Vector, durationMs: number, easing: EasingFunction})
+ */
 export class EaseBy implements Action {
   id = nextActionId();
   private _tx: TransformComponent;

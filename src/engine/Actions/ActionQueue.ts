@@ -57,6 +57,14 @@ export class ActionQueue {
     return this._actions.concat(this._completedActions);
   }
 
+  public getIncompleteActions(): Action[] {
+    return this._actions;
+  }
+
+  public getCurrentAction(): Action | null {
+    return this._currentAction;
+  }
+
   /**
    *
    * @returns `true` if there are more actions to process in the sequence

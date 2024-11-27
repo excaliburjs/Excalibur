@@ -17,9 +17,9 @@ export class Flash implements Action {
   private _total: number = 0;
   private _currentDuration: number = 0;
 
-  constructor(entity: Entity, color: Color, duration: number = 1000) {
+  constructor(entity: Entity, color: Color, durationMs: number = 1000) {
     this._graphics = entity.get(GraphicsComponent);
-    this._duration = duration;
+    this._duration = durationMs;
     this._entity = entity;
     this._material = entity.scene?.engine.graphicsContext.createMaterial({
       name: 'flash-material',
@@ -40,7 +40,7 @@ export class Flash implements Action {
             color.rgb = color.rgb * color.a;
         }`
     }) as Material;
-    this._total = duration;
+    this._total = durationMs;
   }
 
   public update(elapsedMs: number): void {
