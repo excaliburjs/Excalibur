@@ -884,6 +884,21 @@ describe('Action', () => {
       expect(actor.angularVelocity).toBe(0);
     });
 
+    it('(with options) can be rotated to an angle at a speed via ShortestPath (default)', () => {
+      expect(actor.rotation).toBe(0);
+
+      actor.actions.rotateTo({ angleRadians: Math.PI / 2, durationMs: 1000 });
+
+      scene.update(engine, 500);
+      expect(actor.rotation).toBe(Math.PI / 4);
+
+      scene.update(engine, 500);
+      expect(actor.rotation).toBe(Math.PI / 2);
+
+      scene.update(engine, 500);
+      expect(actor.angularVelocity).toBe(0);
+    });
+
     it('can be rotated to an angle at a speed via LongestPath', () => {
       expect(actor.rotation).toBe(0);
 
@@ -901,10 +916,43 @@ describe('Action', () => {
       expect(actor.angularVelocity).toBe(0);
     });
 
+    it('(with options) can be rotated to an angle at a speed via LongestPath', () => {
+      expect(actor.rotation).toBe(0);
+
+      actor.actions.rotateTo({ angleRadians: Math.PI / 2, durationMs: 3000, rotationType: ex.RotationType.LongestPath });
+
+      scene.update(engine, 1000);
+      //rotation is currently incremented by rx delta ,so will be negative while moving counterclockwise
+      expect(actor.rotation).toBe(ex.canonicalizeAngle((-1 * Math.PI) / 2));
+
+      scene.update(engine, 2000);
+      expect(actor.rotation).toBe(ex.canonicalizeAngle((-3 * Math.PI) / 2));
+
+      scene.update(engine, 500);
+      expect(actor.rotation).toBe(ex.canonicalizeAngle(Math.PI / 2));
+      expect(actor.angularVelocity).toBe(0);
+    });
+
     it('can be rotated to an angle at a speed via Clockwise', () => {
       expect(actor.rotation).toBe(0);
 
       actor.actions.rotateTo((3 * Math.PI) / 2, Math.PI / 2, ex.RotationType.Clockwise);
+
+      scene.update(engine, 2000);
+      expect(actor.rotation).toBe(Math.PI);
+
+      scene.update(engine, 1000);
+      expect(actor.rotation).toBe((3 * Math.PI) / 2);
+
+      scene.update(engine, 500);
+      expect(actor.rotation).toBe((3 * Math.PI) / 2);
+      expect(actor.angularVelocity).toBe(0);
+    });
+
+    it('(with options) can be rotated to an angle at a speed via Clockwise', () => {
+      expect(actor.rotation).toBe(0);
+
+      actor.actions.rotateTo({ angleRadians: (3 * Math.PI) / 2, durationMs: 3000, rotationType: ex.RotationType.Clockwise });
 
       scene.update(engine, 2000);
       expect(actor.rotation).toBe(Math.PI);
@@ -940,10 +988,47 @@ describe('Action', () => {
       expect(actor.angularVelocity).toBe(0);
     });
 
+    it('(with options) can be rotated to an angle at a speed via CounterClockwise', () => {
+      expect(actor.rotation).toBe(0);
+
+      actor.actions.rotateTo({ angleRadians: Math.PI / 2, durationMs: 3000, rotationType: ex.RotationType.CounterClockwise });
+      scene.update(engine, 2000);
+      expect(actor.rotation).toBe(ex.canonicalizeAngle(-Math.PI));
+
+      scene.update(engine, 1000);
+      expect(actor.rotation).toBe(ex.canonicalizeAngle((-3 * Math.PI) / 2));
+
+      scene.update(engine, 500);
+      expect(actor.rotation).toBe(ex.canonicalizeAngle(Math.PI / 2));
+      expect(actor.angularVelocity).toBe(0);
+
+      // rotating back to 0, starting at PI / 2
+      actor.actions.rotateTo(0, Math.PI / 2, ex.RotationType.CounterClockwise);
+      scene.update(engine, 1000);
+      expect(actor.rotation).toBe(ex.canonicalizeAngle(0));
+
+      scene.update(engine, 1);
+      expect(actor.angularVelocity).toBe(0);
+    });
+
     it('can be stopped', () => {
       expect(actor.rotation).toBe(0);
 
       actor.actions.rotateTo(Math.PI / 2, Math.PI / 2);
+
+      scene.update(engine, 500);
+      expect(actor.rotation).toBe(Math.PI / 4);
+
+      actor.actions.clearActions();
+
+      scene.update(engine, 500);
+      expect(actor.rotation).toBe(Math.PI / 4);
+    });
+
+    it('(with options) can be stopped', () => {
+      expect(actor.rotation).toBe(0);
+
+      actor.actions.rotateTo({ angleRadians: Math.PI / 2, durationMs: 1000 });
 
       scene.update(engine, 500);
       expect(actor.rotation).toBe(Math.PI / 4);
