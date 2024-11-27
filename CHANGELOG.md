@@ -67,7 +67,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
-
+- `easeTo(...)` and `easeBy(...)` actions marked deprecated, use `moveTo({easing: ...})` instead
 - `Vector.size` is deprecated, use `Vector.magnitude` instead
 - `ScreenShader` v_texcoord is deprecated, use v_uv. This is changed to match the materials shader API
 - `actor.getGlobalPos()` - use `actor.globalPos` instead
@@ -76,6 +76,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added `easing` option to `moveTo(...)`
 - Added new option bag style input to actions with durations in milliseconds instead of speed
   ```typescript
   player.actions.rotateTo({angleRadians: angle, durationMs: 1000, rotationType});
