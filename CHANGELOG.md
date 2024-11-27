@@ -76,6 +76,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added `ex.lerpAngle(startAngleRadians: number, endAngleRadians: number, rotationType: RotationType, time: number): number` in order to lerp angles between each other
 - Added `pointerenter` and `pointerleave` events to `ex.TileMap` tiles!
 - Added `pointerenter` and `pointerleave` events to `ex.IsometricMap` tiles!
 - Added new `ex.BezierCurve` type for drawing cubic bezier curves
