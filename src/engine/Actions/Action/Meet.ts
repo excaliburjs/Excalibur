@@ -10,13 +10,13 @@ export class Meet implements Action {
   private _motion: MotionComponent;
   private _meetTx: TransformComponent;
   private _meetMotion: MotionComponent;
-  public x: number;
-  public y: number;
+  public x!: number;
+  public y!: number;
   private _current: Vector;
   private _end: Vector;
-  private _dir: Vector;
+  private _dir!: Vector;
   private _speed: number;
-  private _distanceBetween: number;
+  private _distanceBetween!: number;
   private _started = false;
   private _stopped = false;
   private _speedWasSpecified = false;
@@ -73,6 +73,6 @@ export class Meet implements Action {
   public reset(): void {
     this._started = false;
     this._stopped = false;
-    this._distanceBetween = undefined;
+    this._distanceBetween = Infinity;
   }
 }

@@ -62,13 +62,13 @@ export class CurveTo implements Action {
       this._curve.setControlPoint(0, this._tx.globalPos.clone());
       this._started = true;
     }
+    this._currentMs -= elapsedMs;
     const t = clamp(remap(0, this._durationMs, 0, 1, this._durationMs - this._currentMs), 0, 1);
     if (this._mode === 'dynamic') {
       this._tx.pos = this._curve.getPoint(t);
     } else {
       this._tx.pos = this._curve.getUniformPoint(t);
     }
-    this._currentMs -= elapsedMs;
     if (this.isComplete(this._entity)) {
       if (this._mode === 'dynamic') {
         this._tx.pos = this._curve.getPoint(1);

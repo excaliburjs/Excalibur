@@ -35,7 +35,7 @@ export * from './Timer';
 export * from './Trigger';
 export * from './ScreenElement';
 
-export * from './Actions/Index';
+export * from './Actions/index';
 export * from './Collision/Index';
 
 export * from './Interfaces/Index';

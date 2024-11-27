@@ -23,7 +23,7 @@ export interface CurveByOptions {
   /**
    * Quality when sampling uniform points on the curve. Samples = 4 * quality;
    *
-   * For bigger 'uniform' curves you may want to increase quality
+   * For bigger 'uniform' curves you may want to increase quality to make the motion appear smooth
    *
    * Default 4
    */
@@ -64,13 +64,13 @@ export class CurveBy implements Action {
       this._curve.setControlPoint(3, this._curve.controlPoints[3].add(this._tx.globalPos));
       this._started = true;
     }
+    this._currentMs -= elapsedMs;
     const t = clamp(remap(0, this._durationMs, 0, 1, this._durationMs - this._currentMs), 0, 1);
     if (this._mode === 'dynamic') {
       this._tx.pos = this._curve.getPoint(t);
     } else {
       this._tx.pos = this._curve.getUniformPoint(t);
     }
-    this._currentMs -= elapsedMs;
     if (this.isComplete(this._entity)) {
       if (this._mode === 'dynamic') {
         this._tx.pos = this._curve.getPoint(1);
