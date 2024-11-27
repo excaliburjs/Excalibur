@@ -420,6 +420,17 @@ describe('Action', () => {
   });
 
   describe('moveTo', () => {
+    it('can be reset', () => {
+      const moveTo = new ex.MoveToWithOptions(actor, { pos: ex.vec(100, 0), durationMs: 500 });
+      actor.actions.runAction(moveTo);
+      scene.update(engine, 1000);
+      expect(moveTo.isComplete(actor)).toBeTrue();
+
+      moveTo.reset();
+      actor.pos = ex.vec(0, 0);
+      expect(moveTo.isComplete(actor)).toBeFalse();
+    });
+
     it('can be moved to a location at a speed (x,y) overload', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
