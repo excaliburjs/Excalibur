@@ -8,7 +8,7 @@ import { parseImageWrapping } from '../../Wrapping';
 // import { ImageSourceAttributeConstants } from '../../ImageSource';
 // import { parseImageWrapping } from '../../Wrapping';
 import { HTMLImageSource } from '../ExcaliburGraphicsContext';
-import { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
+import { ExcaliburGraphicsContextWebGL, pixelSnapEpsilon } from '../ExcaliburGraphicsContextWebGL';
 import { RendererPlugin } from '../renderer';
 import { Shader } from '../shader';
 import { VertexBuffer } from '../vertex-buffer';
@@ -344,8 +344,8 @@ export class ImageRendererV2 implements RendererPlugin {
     const opacity = this._context.opacity;
     const snapToPixel = this._context.snapToPixel;
     if (snapToPixel) {
-      this._dest[0] = ~~this._dest[0];
-      this._dest[1] = ~~this._dest[1];
+      this._dest[0] = ~~(this._dest[0] + pixelSnapEpsilon);
+      this._dest[1] = ~~(this._dest[1] + pixelSnapEpsilon);
     }
 
     const tint = this._context.tint || this._defaultTint;
