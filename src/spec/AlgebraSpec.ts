@@ -125,6 +125,56 @@ describe('Vectors', () => {
     expect(ex.Vector.distance(v1, v2)).toBe(20);
   });
 
+  fdescribe('angleBetween', () => {
+    type TestCaseParameters = {
+      description: string;
+      vector: ex.Vector;
+      angle: number;
+      rotationType: ex.RotationType;
+      expected: number;
+    };
+    const tc = (
+      description: string,
+      vector: ex.Vector,
+      angle: number,
+      rotationType: ex.RotationType,
+      expected: number
+    ): TestCaseParameters => ({
+      vector,
+      description,
+      angle,
+      rotationType,
+      expected
+    });
+    const description = (tc: TestCaseParameters) =>
+      `${tc.description}: ${tc.vector.toAngle()} -> ${tc.angle} ${tc.rotationType} expected: ${tc.expected}`;
+    const v1 = ex.vec(1, 1);
+    const v2 = ex.vec(-1, 1);
+    const v3 = ex.vec(-1, -1);
+    const v4 = ex.vec(1, -1);
+
+    const testCases: TestCaseParameters[] = [
+      tc('returns 0 when the new angle is the same as vectors angle', ex.Vector.Right, 0, ex.RotationType.Clockwise, 0),
+      tc('knows that 2*PI is same as 0', ex.Vector.Right, ex.TwoPI, ex.RotationType.Clockwise, 0),
+      tc('rotates from I to IV quadrant', v1, -Math.PI / 4, ex.RotationType.Clockwise, -Math.PI / 2),
+      tc('rotates from I to IV quadrant the shortest way', v1, -Math.PI / 4, ex.RotationType.ShortestPath, -Math.PI / 2),
+      tc('rotates from I to IV quadrant counterclockwise', v1, -Math.PI / 4, ex.RotationType.CounterClockwise, (3 * Math.PI) / 2),
+      tc('rotates from I to IV quadrant the longest way', v1, -Math.PI / 4, ex.RotationType.LongestPath, (3 * Math.PI) / 2),
+      tc('rotates from I to II quadrant', v1, (3 * Math.PI) / 4, ex.RotationType.Clockwise, (-3 * Math.PI) / 2),
+      tc('rotates from I to II quadrant the shortest way', v1, (3 * Math.PI) / 4, ex.RotationType.ShortestPath, Math.PI / 2),
+      tc('rotates from I to II quadrant counterclockwise', v1, (3 * Math.PI) / 4, ex.RotationType.CounterClockwise, Math.PI / 2),
+      tc('rotates from I to II quadrant the longest way', v1, (3 * Math.PI) / 4, ex.RotationType.LongestPath, (-3 * Math.PI) / 2)
+    ];
+
+    testCases.forEach((testCase) => {
+      it(description(testCase), () => {
+        const v = new ex.Vector(10, 0);
+        const result = v.angleBetween(testCase.angle, testCase.rotationType);
+        expect(ex.canonicalizeAngle(result)).toBeCloseTo(testCase.expected);
+      });
+    });
+  });
+
   it('can be normalized to a length of 1', () => {
     const v = new ex.Vector(10, 0);
 

@@ -1,5 +1,6 @@
 import { Clonable } from '../Interfaces/Clonable';
-import { canonicalizeAngle, clamp } from './util';
+import { RotationType } from './rotation-type';
+import { canonicalizeAngle, clamp, TwoPI } from './util';
 
 /**
  * A 2D vector on a plane.
@@ -372,10 +373,55 @@ export class Vector implements Clonable<Vector> {
   }
 
   /**
-   * Returns the angle of this vector.
+   * Returns the angle of this vector, in range [0, 2*PI)
    */
   public toAngle(): number {
     return canonicalizeAngle(Math.atan2(this.y, this.x));
+  }
+
+  /**
+   * Returns the difference in radians between the angle of this vector and given angle,
+   * using the given rotation type.
+   * @param angle to which the vector should be rotated, in radians
+   * @param rotationType what {@apilink RotationType} to use for the rotation
+   * @returns the angle by which the vector needs to be rotated to match the given angle
+   */
+  public angleBetween(angle: number, rotationType: RotationType): number {
+    const startAngleRadians = this.toAngle();
+    const shortestPathIsPositive = (startAngleRadians - angle + TwoPI) % TwoPI >= Math.PI;
+    const distance1 = Math.abs(angle - startAngleRadians);
+    const distance2 = TwoPI - distance1;
+    let shortDistance = 0;
+    let longDistance = 0;
+    if (distance1 > distance2) {
+      shortDistance = distance2;
+      longDistance = distance1;
+    } else {
+      shortDistance = distance1;
+      longDistance = distance2;
+    }
+    let distance = 0;
+    let direction = 1;
+
+    switch (rotationType) {
+      case RotationType.ShortestPath:
+        distance = shortDistance;
+        direction = shortestPathIsPositive ? 1 : -1;
+        break;
+      case RotationType.LongestPath:
+        distance = longDistance;
+        direction = shortestPathIsPositive ? -1 : 1;
+        break;
+      case RotationType.Clockwise:
+        direction = 1;
+        distance = shortestPathIsPositive ? shortDistance : longDistance;
+        break;
+      case RotationType.CounterClockwise:
+        direction = -1;
+        distance = shortestPathIsPositive ? longDistance : shortDistance;
+        break;
+    }
+    return (direction * distance) % TwoPI;
   }
 
   /**
