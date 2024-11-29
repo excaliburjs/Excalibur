@@ -342,8 +342,11 @@ export class ImageRendererV2 implements RendererPlugin {
     // transform based on current context
     const transform = this._context.getTransform();
     const opacity = this._context.opacity;
-    // const snapToPixel = this._context.snapToPixel;
-    // TODO snap to pixel
+    const snapToPixel = this._context.snapToPixel;
+    if (snapToPixel) {
+      this._dest[0] = ~~this._dest[0];
+      this._dest[1] = ~~this._dest[1];
+    }
 
     const tint = this._context.tint || this._defaultTint;
 
