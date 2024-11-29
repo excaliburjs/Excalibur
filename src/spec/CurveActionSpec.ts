@@ -26,7 +26,7 @@ describe('A actor can curve', () => {
     expect(ex.CurveTo).toBeDefined();
   });
 
-  it('an actor can curveTo ', async () => {
+  it('an actor can curveTo ', () => {
     const actor = new ex.Actor({
       pos: ex.vec(200, 202)
     });
@@ -44,7 +44,7 @@ describe('A actor can curve', () => {
     expect(actor.pos).toBeVector(ex.vec(100, 200));
   });
 
-  it('an actor can curveBy ', async () => {
+  it('an actor can curveBy ', () => {
     const actor = new ex.Actor({
       pos: ex.vec(200, 202)
     });
