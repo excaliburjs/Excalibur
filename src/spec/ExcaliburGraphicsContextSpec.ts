@@ -554,7 +554,7 @@ describe('The ExcaliburGraphicsContext', () => {
 
       const circleRenderer = sut.get('ex.circle');
       spyOn(circleRenderer, 'flush').and.callThrough();
-      const imageRenderer = sut.get('ex.image');
+      const imageRenderer = sut.get('ex.image-v2');
       spyOn(imageRenderer, 'flush').and.callThrough();
       const rectangleRenderer = sut.get('ex.rectangle');
       spyOn(rectangleRenderer, 'flush').and.callThrough();
@@ -610,7 +610,7 @@ describe('The ExcaliburGraphicsContext', () => {
 
       const circleRenderer = sut.get('ex.circle');
       spyOn(circleRenderer, 'flush').and.callThrough();
-      const imageRenderer = sut.get('ex.image');
+      const imageRenderer = sut.get('ex.image-v2');
       spyOn(imageRenderer, 'flush').and.callThrough();
       const rectangleRenderer = sut.get('ex.rectangle');
       spyOn(rectangleRenderer, 'flush').and.callThrough();
