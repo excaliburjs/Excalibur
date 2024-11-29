@@ -1,4 +1,4 @@
-import { RotationType } from '../Actions/RotationType';
+import { RotationType } from './rotation-type';
 import { TwoPI } from './util';
 import { Vector } from './vector';
 
