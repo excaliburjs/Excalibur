@@ -6,38 +6,39 @@ import { getAttributeComponentSize, getAttributePointerType } from './webgl-util
  * List of the possible glsl uniform types
  */
 export type UniformTypeNames =
-  'uniform1f' |
-  'uniform1i' |
-  'uniform2f' |
-  'uniform2i' |
-  'uniform3f' |
-  'uniform3i' |
-  'uniform4f' |
-  'uniform4i' |
-  'uniform1fv' |
-  'uniform1iv' |
-  'uniform2fv' |
-  'uniform2iv' |
-  'uniform3fv' |
-  'uniform3iv' |
-  'uniform4fv' |
-  'uniform4iv' |
-  'uniformMatrix2fv' |
-  'uniformMatrix3fv' |
-  'uniformMatrix4fv';
+  | 'uniform1f'
+  | 'uniform1i'
+  | 'uniform2f'
+  | 'uniform2i'
+  | 'uniform3f'
+  | 'uniform3i'
+  | 'uniform4f'
+  | 'uniform4i'
+  | 'uniform1fv'
+  | 'uniform1iv'
+  | 'uniform2fv'
+  | 'uniform2iv'
+  | 'uniform3fv'
+  | 'uniform3iv'
+  | 'uniform4fv'
+  | 'uniform4iv'
+  | 'uniformMatrix2fv'
+  | 'uniformMatrix3fv'
+  | 'uniformMatrix4fv';
 
-type RemoveFirstFromTuple<T extends any[]> =
-  T['length'] extends 0 ? undefined :
-    (((...b: T) => void) extends (a: any, ...b: infer I) => void ? I : [])
+type RemoveFirstFromTuple<T extends any[]> = T['length'] extends 0
+  ? []
+  : ((...b: T) => void) extends (a: any, ...b: infer I) => void
+    ? I
+    : [];
 
-type UniformParameters<TUniformType extends UniformTypeNames> = RemoveFirstFromTuple<Parameters<WebGLRenderingContext[TUniformType]>>
+type UniformParameters<TUniformType extends UniformTypeNames> = RemoveFirstFromTuple<Parameters<WebGLRenderingContext[TUniformType]>>;
 
 export interface UniformDefinition {
   name: string;
   glType: number;
   location: WebGLUniformLocation;
 }
-
 
 export interface VertexAttributeDefinition {
   /**
@@ -87,10 +88,10 @@ export interface ShaderOptions {
 }
 
 export class Shader {
-  private static _ACTIVE_SHADER_INSTANCE: Shader = null;
+  private static _ACTIVE_SHADER_INSTANCE: Shader | null = null;
   private _logger = Logger.getInstance();
   private _gl: WebGL2RenderingContext;
-  public program: WebGLProgram;
+  public program!: WebGLProgram;
   public uniforms: { [variableName: string]: UniformDefinition } = {};
   public attributes: { [variableName: string]: VertexAttributeDefinition } = {};
   private _compiled = false;
@@ -105,7 +106,7 @@ export class Shader {
    * Create a shader program in excalibur
    * @param options specify shader vertex and fragment source
    */
-  constructor(options?: ShaderOptions) {
+  constructor(options: ShaderOptions) {
     const { gl, vertexSource, fragmentSource } = options;
     this._gl = gl;
     this.vertexSource = vertexSource;
@@ -115,7 +116,7 @@ export class Shader {
   dispose() {
     const gl = this._gl;
     gl.deleteProgram(this.program);
-    this._gl = null;
+    this._gl = null as any;
   }
 
   /**
@@ -158,8 +159,8 @@ export class Shader {
     const uniformCount = gl.getProgramParameter(this.program, gl.ACTIVE_UNIFORMS);
     const uniforms: UniformDefinition[] = [];
     for (let i = 0; i < uniformCount; i++) {
-      const uniform = gl.getActiveUniform(this.program, i);
-      const uniformLocation = gl.getUniformLocation(this.program, uniform.name);
+      const uniform = gl.getActiveUniform(this.program, i)!;
+      const uniformLocation = gl.getUniformLocation(this.program, uniform.name)!;
       uniforms.push({
         name: uniform.name,
         glType: uniform.type,
@@ -174,7 +175,7 @@ export class Shader {
     const attributeCount = gl.getProgramParameter(this.program, gl.ACTIVE_ATTRIBUTES);
     const attributes: VertexAttributeDefinition[] = [];
     for (let i = 0; i < attributeCount; i++) {
-      const attribute = gl.getActiveAttrib(this.program, i);
+      const attribute = gl.getActiveAttrib(this.program, i)!;
       const attributeLocation = gl.getAttribLocation(this.program, attribute.name);
       attributes.push({
         name: attribute.name,
@@ -308,7 +309,7 @@ export class Shader {
   }
 
   /**
-   * Set a [[Vector]] uniform for the current shader
+   * Set a {@apilink Vector} uniform for the current shader
    *
    * **Important** Must call ex.Shader.use() before setting a uniform!
    * @param name
@@ -319,7 +320,7 @@ export class Shader {
   }
 
   /**
-   * Set a [[Vector]] uniform for the current shader, WILL NOT THROW on error.
+   * Set a {@apilink Vector} uniform for the current shader, WILL NOT THROW on error.
    *
    * **Important** Must call ex.Shader.use() before setting a uniform!
    * @param name
@@ -330,7 +331,7 @@ export class Shader {
   }
 
   /**
-   * Set a [[Color]] uniform for the current shader
+   * Set a {@apilink Color} uniform for the current shader
    *
    * **Important** Must call ex.Shader.use() before setting a uniform!
    * @param name
@@ -341,7 +342,7 @@ export class Shader {
   }
 
   /**
-   * Set a [[Color]] uniform for the current shader, WILL NOT THROW on error.
+   * Set a {@apilink Color} uniform for the current shader, WILL NOT THROW on error.
    *
    * **Important** Must call ex.Shader.use() before setting a uniform!
    * @param name
@@ -352,7 +353,7 @@ export class Shader {
   }
 
   /**
-   * Set an [[Matrix]] uniform for the current shader
+   * Set an {@apilink Matrix} uniform for the current shader
    *
    * **Important** Must call ex.Shader.use() before setting a uniform!
    * @param name
@@ -363,7 +364,7 @@ export class Shader {
   }
 
   /**
-   * Set an [[Matrix]] uniform for the current shader, WILL NOT THROW on error.
+   * Set an {@apilink Matrix} uniform for the current shader, WILL NOT THROW on error.
    *
    * **Important** Must call ex.Shader.use() before setting a uniform!
    * @param name
@@ -383,17 +384,21 @@ export class Shader {
       throw Error(`Must compile shader before setting a uniform ${uniformType}:${name}`);
     }
     if (!this.isCurrentlyBound()) {
-      throw Error('Currently accessed shader instance is not the current active shader in WebGL,' +
-      ' must call `shader.use()` before setting uniforms');
+      throw Error(
+        'Currently accessed shader instance is not the current active shader in WebGL,' +
+          ' must call `shader.use()` before setting uniforms'
+      );
     }
     const gl = this._gl;
     const location = gl.getUniformLocation(this.program, name);
     if (location) {
       const args = [location, ...value];
-      this._gl[uniformType].apply(this._gl, args);
+      (this._gl as any)[uniformType].apply(this._gl, args);
     } else {
-      throw Error(`Uniform ${uniformType}:${name} doesn\'t exist or is not used in the shader source code,`+
-      ' unused uniforms are optimized away by most browsers');
+      throw Error(
+        `Uniform ${uniformType}:${name} doesn\'t exist or is not used in the shader source code,` +
+          ' unused uniforms are optimized away by most browsers'
+      );
     }
   }
 
@@ -409,21 +414,24 @@ export class Shader {
   trySetUniform<TUniformType extends UniformTypeNames>(
     uniformType: TUniformType,
     name: string,
-    ...value: UniformParameters<TUniformType>): boolean {
+    ...value: UniformParameters<TUniformType>
+  ): boolean {
     if (!this._compiled) {
       this._logger.warn(`Must compile shader before setting a uniform ${uniformType}:${name}`);
       return false;
     }
     if (!this.isCurrentlyBound()) {
-      this._logger.warn('Currently accessed shader instance is not the current active shader in WebGL,' +
-      ' must call `shader.use()` before setting uniforms');
+      this._logger.warn(
+        'Currently accessed shader instance is not the current active shader in WebGL,' +
+          ' must call `shader.use()` before setting uniforms'
+      );
       return false;
     }
     const gl = this._gl;
     const location = gl.getUniformLocation(this.program, name);
     if (location) {
       const args = [location, ...value];
-      this._gl[uniformType].apply(this._gl, args);
+      (this._gl as any)[uniformType].apply(this._gl, args);
     } else {
       return false;
     }
@@ -464,7 +472,7 @@ export class Shader {
     const success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
     if (!success) {
       const errorInfo = gl.getShaderInfoLog(shader);
-      throw Error(`Could not compile ${typeName} shader:\n\n${errorInfo}${this._processSourceForError(source, errorInfo)}`);
+      throw Error(`Could not compile ${typeName} shader:\n\n${errorInfo}${this._processSourceForError(source, errorInfo!)}`);
     }
     return shader;
   }
@@ -476,9 +484,12 @@ export class Shader {
     const lines = source.split('\n');
     const errorLineStart = errorInfo.search(/\d:\d/);
     const errorLineEnd = errorInfo.indexOf(' ', errorLineStart);
-    const [_, error2] = errorInfo.slice(errorLineStart, errorLineEnd).split(':').map(v => Number(v));
+    const [_, error2] = errorInfo
+      .slice(errorLineStart, errorLineEnd)
+      .split(':')
+      .map((v) => Number(v));
     for (let i = 0; i < lines.length; i++) {
-      lines[i] = `${i+1}: ${lines[i]}${error2 === (i+1)? ' <----- ERROR!' : ''}`;
+      lines[i] = `${i + 1}: ${lines[i]}${error2 === i + 1 ? ' <----- ERROR!' : ''}`;
     }
 
     return '\n\nSource:\n' + lines.join('\n');

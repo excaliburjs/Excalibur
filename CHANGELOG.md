@@ -7,12 +7,288 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
-=======
+- `ex.Input.*` namespace removed and types promoted to `ex.*`
+- Removed legacy `ex.Configurable` function type used for doing dark magic to allow types to be configured by instances of that same type :boom:
+- Collision events now only target `ex.Collider` types, this previously would sometimes emit an `ex.Entity` if you attached to the `ex.ColliderComponent`
+  * `ex.PreCollisionEvent`
+  * `ex.PostCollisionEvent`
+  * `ex.ContactStartEvent`
+  * `ex.ContactEndEvent`
+  * `ex.CollisionPreSolveEvent`
+  * `ex.CollisionPostSolveEvent`
+  * `ex.CollisionStartEvent`
+  * `ex.CollisionEndEvent`
+- `System.priority` is refactored to be static.
+- `ex.Timer` now only takes the option bag constructor
+- `PreDrawEvent`, `PostDrawEvent`, `PreTransformDrawEvent`, `PostTransformDrawEvent`, `PreUpdateEvent`, `PostUpdateEvent` now use `elapsedMs` instead of `delta` for the elapsed milliseconds between the last frame.460696
+- `Trigger` API has been slightly changed:
+  - `action` now returns the triggering entity: `(entity: Entity) => void`
+  - `target` now works in conjunction with `filter` instead of overwriting it.
+  - `EnterTriggerEvent` and `ExitTriggerEvent` now contain a `entity: Entity` property instead of `actor: Actor`
+- `ex.Vector.normalize()` return zero-vector (`(0,0)`) instead of `(0,1)` when normalizing a vector with a magnitude of 0
+- `ex.Gif` transparent color constructor arg is removed in favor of the built in Gif file mechanism
+- Remove core-js dependency, it is no longer necessary in modern browsers. Technically a breaking change for older browsers
+- `ex.Particle` and `ex.ParticleEmitter` now have an API that looks like modern Excalibur APIs
+  * `particleSprite` is renamed to `graphic`
+  * `particleRotationalVelocity` is renamed to `angularVelocity`
+  * `fadeFlag` is renamed to `fade`
+  * `acceleration` is renamed to `acc`
+  * `particleLife` is renamed to `life`
+  * `ParticleEmitter` now takes a separate `particle: ParticleConfig` parameter to disambiguate between particles parameters and emitter ones
+    ```typescript
+    const emitter =  new ex.ParticleEmitter({
+        width: 10,
+        height: 10,
+        radius: 5,
+        emitterType: ex.EmitterType.Rectangle,
+        emitRate: 300,
+        isEmitting: true,
+        particle: {
+          transform: ex.ParticleTransform.Global,
+          opacity: 0.5,
+          life: 1000,
+          acc: ex.vec(10, 80),
+          beginColor: ex.Color.Chartreuse,
+          endColor: ex.Color.Magenta,
+          startSize: 5,
+          endSize: 100,
+          minVel: 100,
+          maxVel: 200,
+          minAngle: 5.1,
+          maxAngle: 6.2,
+          fade: true,
+          maxSize: 10,
+          graphic: swordImg.toSprite(),
+          randomRotation: true,
+          minSize: 1
+        }
+      });
+    ```
+
+### Deprecated
+
+- `easeTo(...)` and `easeBy(...)` actions marked deprecated, use `moveTo({easing: ...})` instead
+- `Vector.size` is deprecated, use `Vector.magnitude` instead
+- `ScreenShader` v_texcoord is deprecated, use v_uv. This is changed to match the materials shader API
+- `actor.getGlobalPos()` - use `actor.globalPos` instead
+- `actor.getGlobalRotation()` - use `actor.globalRotation` instead
+- `actor.getGlobalScale()` - use `actor.globalScale` instead
+
+### Added
+
+- Added `easing` option to `moveTo(...)`
+- Added new option bag style input to actions with durations in milliseconds instead of speed
+  ```typescript
+  player.actions.rotateTo({angleRadians: angle, durationMs: 1000, rotationType});
+  player.actions.moveTo({pos: ex.vec(100, 100), durationMs: 1000});
+  player.actions.scaleTo({scale: ex.vec(2, 2), durationMs: 1000});
+  player.actions.repeatForever(ctx => {
+    ctx.curveTo({
+      controlPoints: [cp1, cp2, dest],
+      durationMs: 5000,
+      mode: 'uniform'
+    });
+    ctx.curveTo({
+      controlPoints: [cp2, cp1, start1],
+      durationMs: 5000,
+      mode: 'uniform'
+    });
+  });
+  ```
+- Added `ex.lerpAngle(startAngleRadians: number, endAngleRadians: number, rotationType: RotationType, time: number): number` in order to lerp angles between each other
+- Added `pointerenter` and `pointerleave` events to `ex.TileMap` tiles!
+- Added `pointerenter` and `pointerleave` events to `ex.IsometricMap` tiles!
+- Added new `ex.BezierCurve` type for drawing cubic bezier curves
+- Added 2 new actions `actor.actions.curveTo(...)` and `actor.actions.curveBy(...)`
+- Added new `ex.lerp(...)`, `ex.inverseLerp(...)`, and `ex.remap(...)` for numbers
+- Added new `ex.lerpVector(...)`,` ex.inverseLerpVector(...)`, and `ex.remapVector(...)` for `ex.Vector`
+- Added new `actor.actions.flash(...)` `Action` to flash a color for a period of time
+- Added a new `ex.NineSlice` `Graphic` for creating arbitrarily resizable rectangular regions, useful for creating UI, backgrounds, and other resizable elements.
+  ```typescript
+  var nineSlice = new ex.NineSlice({
+    width: 300,
+    height: 100,
+    source: inputTile,
+    sourceConfig: {
+      width: 64,
+      height: 64,
+      topMargin: 5,
+      leftMargin: 7,
+      bottomMargin: 5,
+      rightMargin: 7
+    },
+    destinationConfig: {
+      drawCenter: true,
+      horizontalStretch: ex.NineSliceStretch.Stretch,
+      verticalStretch: ex.NineSliceStretch.Stretch
+    }
+  });
+
+  actor.graphics.add(nineSlice);
+  ```
+- Added a method to force graphics on screen `ex.GraphicsComponent.forceOnScreen`
+- Added new `ex.Slide` scene transition, which can slide a screen shot of the current screen: `up`, `down`, `left`, or `right`. Optionally you can add an `ex.EasingFunction`, by default `ex.EasingFunctions.Linear`
+  ```typescript
+  game.goToScene('otherScene', {
+    destinationIn: new ex.Slide({
+      duration: 1000,
+      easingFunction: ex.EasingFunctions.EaseInOutCubic,
+      slideDirection: 'up'
+    })
+  });
+  ```
+- Added inline SVG image support `ex.ImageSource.fromSvgString('<svg>...</svg>')`, note images produced this way still must be loaded.
+- Added ability to optionally specify sprite options in the `.toSprite(options:? SpriteOptions)`
+- The `ex.Engine` constructor had a new `enableCanvasContextMenu` arg that can be used to enable the right click context menu, by default the context menu is disabled which is what most games seem to want.
+- Child `ex.Actor` inherits opacity of parents
+- `ex.Engine.timeScale` values of 0 are now supported
+- `ex.Trigger` now supports all valid actor constructor parameters from `ex.ActorArgs` in addition to `ex.TriggerOptions`
+- `ex.Gif` can now handle default embedded GIF frame timings
+- New `ex.Screen.worldToPagePixelRatio` API that will return the ratio between excalibur pixels and the HTML pixels. 
+  * Additionally excalibur will now decorate the document root with this same value as a CSS variable `--ex-pixel-ratio`
+  * Useful for scaling HTML UIs to match your game
+    ```css
+    .ui-container {
+      pointer-events: none;
+      position: absolute;
+      transform-origin: 0 0;
+      transform: scale(
+        calc(var(--pixel-conversion)),
+        calc(var(--pixel-conversion)));
+    }
+    ```
+- New updates to `ex.coroutine(...)`
+  * New `ex.CoroutineInstance` is returned (still awaitable)
+  * Control coroutine autostart with `ex.coroutine(function*(){...}, {autostart: false})`
+  * `.start()` and `.cancel()` coroutines
+  * Nested coroutines!
+- Excalibur will now clean up WebGL textures that have not been drawn in a while, which improves stability for long game sessions
+  * If a graphic is drawn again it will be reloaded into the GPU seamlessly
+- You can now query for colliders on the physics world
+  ```typescript
+    const scene = ...;
+    const colliders = scene.physics.query(ex.BoundingBox.fromDimensions(...));
+  ```
+- `actor.oldGlobalPos` returns the globalPosition from the previous frame
+- create development builds of excalibur that bundlers can use in dev mode
+- show warning in development when Entity hasn't been added to a scene after a few seconds
+- New `RentalPool` type for sparse object pooling
+- New `ex.SparseHashGridCollisionProcessor` which is a simpler (and faster) implementation for broadphase pair generation. This works by bucketing colliders into uniform sized square buckets and using that to generate pairs.
+- CollisionContact can be biased toward a collider by using `contact.bias(collider)`. This adjusts the contact so that the given collider is colliderA, and is helpful if you 
+are doing mtv adjustments during precollision.
+
+### Fixed
+
+- Fixed issue where the pointer `lastWorldPos` was not updated when the current `Camera` moved
+- Fixed issue where `cancel()`'d events still bubbled to the top level input handlers
+- Fixed issue where unexpected html HTML content from an image would silently hang the loader
+- Fixed issue where Collision events ahd inconsistent targets, sometimes they were Colliders and sometimes they were Entities
+- Fixed issue where `ex.Engine.screenshot()` images may not yet be loaded in time for use in `ex.Transition`s
+- Fixed issue where there would be an incorrect background color for 1 frame when transitioning to a new scene
+- Fixed issue where `blockInput: true` on scene transition only blocked input events, not accessors like `wasHeld(...)` etc.
+- Fixed issue where users could not easily define a custom `RendererPlugin` because the type was not exposed
+- Fixed issue where `ex.Fade` sometimes would not complete depending on the elapsed time
+- Fixed issue where `ex.PolygonColliders` would get trapped in infinite loop for degenerate polygons (< 3 vertices)
+- Fixed issue where certain devices that support large numbers of texture slots exhaust the maximum number of if statements (complexity) in the shader.
+- Fixed issue where `ex.Label` where setting the opacity of caused a multiplicative opacity effect when actor opacity set
+- Fixed issue where the `ex.Loader` would have a low res logo on small configured resolution sizes
+- Fixed issue where `ex.Gif` was not parsing certain binary formats correctly
+- Fixed issue where the boot `ex.Loader` was removing pixelRatio override
+- Fixed `ex.RasterOptions`, it now extends `ex.GraphicsOptions` which is the underlying truth
+- Fixed issue where rayCast `filter` would not be called in hit order
+- Fixed issue where rayCasts would return inconsistent orderings with the `ex.SparseHashGridCollisionProcessor` strategy
+- Fixed issue where CircleCollider tangent raycast did not work correctly
+- Fixed issue where you were required to provide a transition if you provided a loader in the `ex.Engine.start('scene', { loader })`
+- Fixed issue where `ex.Scene.onPreLoad(loader: ex.DefaultLoader)` would lock up the engine if there was an empty loader
+- Fixed issue where `ex.Scene` scoped input events would preserve state and get stuck causing issues when switching back to the original scene.
+- Fixed issue where not all physical keys from the spec were present in `ex.Keys` including the reported `ex.Keys.Tab`
+- Fixed invalid graphics types around `ex.Graphic.tint`
+- improve types to disallow invalid combo of collider/width/height/radius in actor args
+- only add default color graphic for the respective collider used
+- Fixed issue where `ex.SpriteFont` did not respect scale when measuring text
+- Fixed issue where negative transforms would cause collision issues because polygon winding would change.
+- Fixed issue where removing and re-adding an actor would cause subsequent children added not to function properly with regards to their parent/child transforms
+- Fixed issue where `ex.GraphicsSystem` would crash if a parent entity did not have a `ex.TransformComponent`
+- Fixed a bug in the new physics config merging, and re-arranged to better match the existing pattern
+
+### Updates
+
+- Perf improvement to image rendering! with ImageRendererV2! Roughly doubles the performance of image rendering
+- Perf improvement to retrieving components with `ex.Entity.get()` which widely improves engine performance
+- Non-breaking parameters that reference `delta` to `elapsedMs` to better communicate intent and units
+- Perf improvements to `ex.ParticleEmitter` 
+  * Use the same integrator as the MotionSystem in the tight loop
+  * Leverage object pools to increase performance and reduce allocations
+- Perf improvements to collision narrowphase and solver steps
+  * Working in the local polygon space as much as possible speeds things up
+  * Add another pair filtering condition on the `SparseHashGridCollisionProcessor` which reduces pairs passed to narrowphase
+  * Switching to c-style loops where possible
+  * Caching get component calls
+  * Removing allocations where it makes sense
+- Perf Side.fromDirection(direction: Vector): Side - thanks @ikudrickiy!
+- Perf improvements to PointerSystem by using new spatial hash grid data structure
+- Perf improvements: Hot path allocations
+  * Reduce State/Transform stack hot path allocations in graphics context
+  * Reduce Transform allocations
+  * Reduce AffineMatrix allocations
+
+- Perf improvements to `CircleCollider` bounds calculations
+- Switch from iterators to c-style loops which bring more speed
+  * `Entity` component iteration
+  * `EntityManager` iteration
+  * `EventEmitter`s
+  * `GraphicsSystem` entity iteration
+  * `PointerSystem` entity iteration
+- Perf improvements to `GraphicsGroup` by reducing per draw allocations in bounds calculations
+
+### Changed
+
+- Applied increased TS strictness:
+  * Director API subtree
+  * Resource API subtree
+  * Graphics API subtree
+  * TileMap API subtree
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [v0.29.3]
+
+### Breaking Changes
+
+- `ex.Action` now requires a unique `id` property
+- Z-indexes are now relative to the parent's Z-index. You can get the global Z-index with the `globalZ` property on the Actor or TransformComponent.
+
+### Deprecated
+
+### Added
+
+- Built in actions now have a unique `id` property
+- `globalZ` property to Actor and TransformComponent
+
+### Fixed
+
+- Fixed animation glitch caused by uninitialized state in `ImageRenderer`
+- Fixed issue where `ex.Loader.suppressPlayButton = true` did not work. Only using the `ex.Engine({suppressPlayButton: true})` worked
+
+### Updates
+
+-
+
+### Changed
+
+- `ex.Vector.toAngle()` now returns angles from `[0 - 2 PI)`
+
+## [v0.29.2]
+
+### Breaking Changes
+
 -
 
 ### Deprecated
 
--
+- `
 
 ### Added
 
@@ -105,10 +381,6 @@ will be positioned with the top left of the graphic at the actor's position.
 
 - Significant 2x performance improvement to image drawing in Excalibur
 - Simplified `ex.Loader` viewport/resolution internal configuration
-
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
 ## [v0.29.0]
 

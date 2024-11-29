@@ -17,6 +17,7 @@ import { Transform } from '../../Math/transform';
 import { AffineMatrix } from '../../Math/affine-matrix';
 import { BodyComponent } from '../Index';
 import { RayCastHit } from '../Detection/RayCastHit';
+import { approximatelyEqual } from '../../Math/util';
 
 export interface CircleColliderOptions {
   /**
@@ -45,14 +46,19 @@ export class CircleCollider extends Collider {
   }
 
   private _naturalRadius: number;
+
+  private _radius: number | undefined;
   /**
    * Get the radius of the circle
    */
   public get radius(): number {
+    if (this._radius) {
+      return this._radius;
+    }
     const tx = this._transform;
     const scale = tx?.globalScale ?? Vector.One;
     // This is a trade off, the alternative is retooling circles to support ellipse collisions
-    return this._naturalRadius * Math.min(scale.x, scale.y);
+    return (this._radius = this._naturalRadius * Math.min(scale.x, scale.y));
   }
 
   /**
@@ -63,6 +69,8 @@ export class CircleCollider extends Collider {
     const scale = tx?.globalScale ?? Vector.One;
     // This is a trade off, the alternative is retooling circles to support ellipse collisions
     this._naturalRadius = val / Math.min(scale.x, scale.y);
+    this._localBoundsDirty = true;
+    this._radius = val;
   }
 
   private _transform: Transform;
@@ -108,20 +116,24 @@ export class CircleCollider extends Collider {
    * @param ray
    */
   public rayCast(ray: Ray, max: number = Infinity): RayCastHit | null {
-    //https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
+    // https://en.wikipedia.org/wiki/Intersection_(geometry)#A_line_and_a_circle
     const c = this.center;
     const dir = ray.dir;
     const orig = ray.pos;
 
-    const discriminant = Math.sqrt(Math.pow(dir.dot(orig.sub(c)), 2) - Math.pow(orig.sub(c).distance(), 2) + Math.pow(this.radius, 2));
+    const u = c.sub(orig);
 
-    if (discriminant < 0) {
-      // no intersection
+    const u1 = dir.scale(u.dot(dir));
+    const u2 = u.sub(u1);
+
+    const d = u2.magnitude;
+
+    if (d > this.radius) {
       return null;
     } else {
-      let toi = 0;
       // tangent case
-      if (discriminant === 0) {
+      let toi = 0;
+      if (approximatelyEqual(d, this.radius, 0.0001)) {
         toi = -dir.dot(orig.sub(c));
         if (toi > 0 && toi < max) {
           const point = ray.getPoint(toi);
@@ -134,7 +146,10 @@ export class CircleCollider extends Collider {
           } satisfies RayCastHit;
         }
         return null;
-      } else { // two point
+      } else {
+        // two point
+        const discriminant = Math.sqrt(Math.pow(dir.dot(orig.sub(c)), 2) - Math.pow(orig.sub(c).distance(), 2) + Math.pow(this.radius, 2));
+
         const toi1 = -dir.dot(orig.sub(c)) + discriminant;
         const toi2 = -dir.dot(orig.sub(c)) - discriminant;
 
@@ -149,7 +164,7 @@ export class CircleCollider extends Collider {
 
         const minToi = Math.min(...positiveToi);
         if (minToi <= max) {
-          const point =  ray.getPoint(minToi);
+          const point = ray.getPoint(minToi);
           return {
             point,
             normal: point.sub(c).normalize(),
@@ -210,28 +225,20 @@ export class CircleCollider extends Collider {
    * Get the axis aligned bounding box for the circle collider in world coordinates
    */
   public get bounds(): BoundingBox {
-    const tx = this._transform;
-    const scale = tx?.globalScale ?? Vector.One;
-    const rotation = tx?.globalRotation ?? 0;
-    const pos = (tx?.globalPos ?? Vector.Zero);
-    return new BoundingBox(
-      this.offset.x - this._naturalRadius,
-      this.offset.y - this._naturalRadius,
-      this.offset.x + this._naturalRadius,
-      this.offset.y + this._naturalRadius
-    ).rotate(rotation).scale(scale).translate(pos);
+    return this.localBounds.transform(this._globalMatrix);
   }
 
+  private _localBoundsDirty = true;
+  private _localBounds: BoundingBox;
   /**
    * Get the axis aligned bounding box for the circle collider in local coordinates
    */
   public get localBounds(): BoundingBox {
-    return new BoundingBox(
-      this.offset.x - this._naturalRadius,
-      this.offset.y - this._naturalRadius,
-      this.offset.x + this._naturalRadius,
-      this.offset.y + this._naturalRadius
-    );
+    if (this._localBoundsDirty) {
+      this._localBounds = new BoundingBox(-this._naturalRadius, -this._naturalRadius, +this._naturalRadius, +this._naturalRadius);
+      this._localBoundsDirty = false;
+    }
+    return this._localBounds;
   }
 
   /**
@@ -255,6 +262,7 @@ export class CircleCollider extends Collider {
     const globalMat = transform.matrix ?? this._globalMatrix;
     globalMat.clone(this._globalMatrix);
     this._globalMatrix.translate(this.offset.x, this.offset.y);
+    this._radius = undefined;
   }
 
   /**
@@ -275,12 +283,12 @@ export class CircleCollider extends Collider {
     const tx = this._transform;
     const scale = tx?.globalScale ?? Vector.One;
     const rotation = tx?.globalRotation ?? 0;
-    const pos = (tx?.globalPos ?? Vector.Zero);
+    const pos = tx?.globalPos ?? Vector.Zero;
     ex.save();
     ex.translate(pos.x, pos.y);
     ex.rotate(rotation);
     ex.scale(scale.x, scale.y);
-    ex.drawCircle((this.offset ?? Vector.Zero), this._naturalRadius, Color.Transparent, color, lineWidth);
+    ex.drawCircle(this.offset ?? Vector.Zero, this._naturalRadius, Color.Transparent, color, lineWidth);
     ex.restore();
   }
 }

@@ -1,19 +1,20 @@
-
 var paddle = new ex.Actor({
-  x: 150, y: 150,
-  width: 200, height: 200,
+  x: 150,
+  y: 150,
+  width: 200,
+  height: 200,
   color: ex.Color.Chartreuse
 });
 
 var paddle2 = new ex.Actor({
-  x: 170, y: 170,
-  width: 200, height: 200,
+  x: 170,
+  y: 170,
+  width: 200,
+  height: 200,
   color: ex.Color.White
 });
 
-
 class MyScene extends ex.Scene {
-
   public onPreDraw(ctx: ex.ExcaliburGraphicsContext) {
     ctx.save();
     ctx.opacity = 0.2;
@@ -23,7 +24,6 @@ class MyScene extends ex.Scene {
     this.engine.graphicsContext.restore();
   }
 }
-
 
 class CustomDraw extends ex.System {
   public readonly systemType = ex.SystemType.Draw;
@@ -44,14 +44,14 @@ class CustomDraw extends ex.System {
   public preupdate(): void {
     // Graphics context could be switched to fallback in a new frame
     if (this._engine == null) {
-      throw new Error("Uninitialized ObjectSystem");
+      throw new Error('Uninitialized ObjectSystem');
     }
     this._graphicsContext = this._engine.graphicsContext;
   }
 
-  public update( delta: number) {
+  public update(delta: number) {
     if (this._graphicsContext == null) {
-      throw new Error("Uninitialized ObjectSystem");
+      throw new Error('Uninitialized ObjectSystem');
     }
     const ctx = this._graphicsContext;
 
@@ -60,12 +60,11 @@ class CustomDraw extends ex.System {
     ctx.drawRectangle(ex.vec(0, 0), 100, 100, ex.Color.White);
     ctx.restore();
   }
-
 }
 
 var game = new ex.Engine({
   width: 800,
-  height: 600,
+  height: 600
 });
 
 var theScene = new MyScene();

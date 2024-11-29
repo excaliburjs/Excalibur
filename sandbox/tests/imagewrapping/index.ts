@@ -1,7 +1,7 @@
 /// <reference path="../../lib/excalibur.d.ts" />
 
 // identity tagged template literal lights up glsl-literal vscode plugin
-var glsl = x => x[0];
+var glsl = (x) => x[0];
 var game = new ex.Engine({
   canvasElementId: 'game',
   width: 800,
@@ -29,7 +29,7 @@ var fireShader = glsl`#version 300 es
     fragColor.a = color.r;
     fragColor.rgb = fragColor.rgb * fragColor.a;
   }
-`
+`;
 
 var noiseImage = new ex.ImageSource('./noise.png', {
   filtering: ex.ImageFiltering.Blended,
@@ -40,9 +40,9 @@ var material = game.graphicsContext.createMaterial({
   name: 'fire',
   fragmentSource: fireShader,
   images: {
-    'noise': noiseImage
+    noise: noiseImage
   }
-})
+});
 
 var actor = new ex.Actor({
   pos: ex.vec(0, 200),

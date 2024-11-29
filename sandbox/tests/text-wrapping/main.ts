@@ -16,16 +16,13 @@ var text = new ex.Text({
 });
 
 var textActor = new ex.Actor({
-  pos: game.screen.center,
+  pos: game.screen.center
 });
 textActor.graphics.use(text);
 game.currentScene.add(textActor);
 
-game.input.keyboard.on('release', ev => {
-  if (ev.key !== ex.Keys.ShiftLeft &&
-      ev.key !== ex.Keys.ShiftRight &&
-      ev.key !== ex.Keys.Enter &&
-      ev.key !== ex.Keys.Backspace) {
+game.input.keyboard.on('release', (ev) => {
+  if (ev.key !== ex.Keys.ShiftLeft && ev.key !== ex.Keys.ShiftRight && ev.key !== ex.Keys.Enter && ev.key !== ex.Keys.Backspace) {
     text.text += ev.value;
   }
   if (ev.key === ex.Keys.Enter) {

@@ -3,7 +3,10 @@
  */
 
 export class Projection {
-  constructor(public min: number, public max: number) {}
+  constructor(
+    public min: number,
+    public max: number
+  ) {}
   public overlaps(projection: Projection): boolean {
     return this.max > projection.min && projection.max > this.min;
   }

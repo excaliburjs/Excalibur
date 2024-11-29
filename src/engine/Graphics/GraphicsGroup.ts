@@ -10,7 +10,7 @@ export interface GraphicsGroupingOptions {
   /**
    * Default true, GraphicsGroup will use the anchor to position all the graphics based on their combined bounds
    *
-   * Setting to false will ignore anchoring and position the top left of all graphics at the actor's position,
+   * Setting to false will ignore anchoring from parent components and position the top left of all graphics at the actor's position,
    * positioning graphics in the group is done with the `offset` property.
    */
   useAnchor?: boolean;
@@ -23,8 +23,10 @@ export interface GraphicsGrouping {
    * Optionally disable this graphics bounds as part of group calculation, default true
    * if unspecified
    *
-   * You may want to do this if you're using text because their bounds will affect
-   * the centering of the whole group
+   * You may want disable this if you're using text because their bounds will affect
+   * the centering of the whole group.
+   *
+   * **WARNING** having inaccurate bounds can cause offscreen culling issues.
    */
   useBounds?: boolean;
 }
@@ -56,16 +58,16 @@ export class GraphicsGroup extends Graphic implements HasTick {
   }
 
   public get localBounds(): BoundingBox {
-    let bb = new BoundingBox();
+    const bb = new BoundingBox();
     for (const member of this.members) {
       if (member instanceof Graphic) {
-        bb = member.localBounds.combine(bb);
+        member.localBounds.combine(bb, bb);
       } else {
         const { graphic, offset: pos, useBounds } = member;
         const shouldUseBounds = useBounds === undefined ? true : useBounds;
         if (graphic) {
           if (shouldUseBounds) {
-            bb = graphic.localBounds.translate(pos).combine(bb);
+            graphic.localBounds.translate(pos).combine(bb, bb);
           }
         } else {
           this._logger.warnOnce(`Graphics group member has an null or undefined graphic, member definition: ${JSON.stringify(member)}.`);

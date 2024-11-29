@@ -27,7 +27,7 @@ var isoMap = new ex.IsometricMap({
   columns: 3,
   rows: 3
 });
-isoMap.tiles.forEach(t => t.addGraphic(isoSprite));
+isoMap.tiles.forEach((t) => t.addGraphic(isoSprite));
 game.currentScene.add(isoMap);
 
 var isoMap2 = new ex.IsometricMap({
@@ -38,22 +38,27 @@ var isoMap2 = new ex.IsometricMap({
   columns: 3,
   rows: 3
 });
-isoMap2.tiles.forEach(t => t.addGraphic(isoTileSprite));
+isoMap2.tiles.forEach((t) => t.addGraphic(isoTileSprite));
 game.currentScene.add(isoMap2);
 for (const tile of isoMap2.tiles) {
   tile.on('pointerdown', (evt: ex.PointerEvent) => {
-    console.log(tile.x, tile.y);
+    console.log('down', tile.x, tile.y);
+  });
+  tile.on('pointerenter', (evt: ex.PointerEvent) => {
+    console.log('enter', tile.x, tile.y);
+  });
+  tile.on('pointerleave', (evt: ex.PointerEvent) => {
+    console.log('leave', tile.x, tile.y);
   });
 }
 
 var tileCoord = ex.vec(0, 0);
-game.input.pointers.on('move', evt => {
+game.input.pointers.on('move', (evt) => {
   tileCoord = isoMap2.worldToTile(evt.worldPos);
 });
 
 game.currentScene.on('postdraw', () => {
   game.graphicsContext.debug.drawText(`Current Coord: ${ex.vec(~~tileCoord.x, ~~tileCoord.y).toString()}`, ex.vec(700, 40));
 });
-
 
 game.start(loader);

@@ -18,7 +18,6 @@ export interface ClockOptions {
   maxFps?: number;
 }
 
-
 /**
  * Abstract Clock is the base type of all Clocks
  *
@@ -31,7 +30,9 @@ export interface ClockOptions {
  */
 export abstract class Clock {
   protected tick: (elapsedMs: number) => any;
-  private _onFatalException: (e: unknown) => any = () => { /* default nothing */ };
+  private _onFatalException: (e: unknown) => any = () => {
+    /* default nothing */
+  };
   private _maxFps: number = Infinity;
   private _lastTime: number = 0;
   public fpsSampler: FpsSampler;
@@ -85,7 +86,7 @@ export abstract class Clock {
   }
 
   /**
-   * Schedule a callback to fire given a timeout in milliseconds using the excalibur [[Clock]]
+   * Schedule a callback to fire given a timeout in milliseconds using the excalibur {@apilink Clock}
    *
    * This is useful to use over the built in browser `setTimeout` because callbacks will be tied to the
    * excalibur update clock, instead of browser time, this means that callbacks wont fire if the game is
@@ -123,13 +124,13 @@ export abstract class Clock {
       let elapsed = now - this._lastTime || 1; // first frame
 
       // Constrain fps
-      const fpsInterval = (1000 / this._maxFps);
+      const fpsInterval = 1000 / this._maxFps;
 
       // only run frame if enough time has elapsed
       if (elapsed >= fpsInterval) {
         let leftover = 0;
         if (fpsInterval !== 0) {
-          leftover = (elapsed % fpsInterval);
+          leftover = elapsed % fpsInterval;
           elapsed = elapsed - leftover; // shift elapsed to be "in phase" with the current loop fps
         }
 
@@ -177,12 +178,10 @@ export abstract class Clock {
   public abstract stop(): void;
 }
 
-
 /**
- * The [[StandardClock]] implements the requestAnimationFrame browser api to run the tick()
+ * The {@apilink StandardClock} implements the requestAnimationFrame browser api to run the tick()
  */
 export class StandardClock extends Clock {
-
   private _running = false;
   private _requestId: number;
   constructor(options: ClockOptions) {

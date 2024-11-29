@@ -7,12 +7,12 @@ export interface PolygonOptions {
 }
 
 /**
- * A polygon [[Graphic]] for drawing arbitrary polygons to the [[ExcaliburGraphicsContext]]
+ * A polygon {@apilink Graphic} for drawing arbitrary polygons to the {@apilink ExcaliburGraphicsContext}
  *
- * Polygons default to [[ImageFiltering.Blended]]
+ * Polygons default to {@apilink ImageFiltering.Blended}
  */
 export class Polygon extends Raster {
-  private _points: Vector[];
+  private _points: Vector[] = [];
   public get points(): Vector[] {
     return this._points;
   }

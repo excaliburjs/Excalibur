@@ -2,8 +2,6 @@ import * as ex from '@excalibur';
 import { TextureLoader } from '@excalibur';
 import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 
-
-
 describe('The ExcaliburGraphicsContext', () => {
   describe('2D', () => {
     let testCanvasElement: HTMLCanvasElement;
@@ -326,7 +324,7 @@ describe('The ExcaliburGraphicsContext', () => {
       });
 
       context.clear();
-      rect.draw(context, .5, .5);//1 - 0.001, 1 - 0.001);
+      rect.draw(context, 0.5, 0.5); //1 - 0.001, 1 - 0.001);
       context.flush();
 
       await expectAsync(canvas).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/pixel-snap.png');
@@ -355,9 +353,7 @@ describe('The ExcaliburGraphicsContext', () => {
       rect.draw(context, 1 - 0.0001, 1 - 0.0001);
       context.flush();
 
-      await expectAsync(canvas).toEqualImage(
-        'src/spec/images/ExcaliburGraphicsContextSpec/pixel-snap-next.png'
-      );
+      await expectAsync(canvas).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/pixel-snap-next.png');
       context.dispose();
     });
 
@@ -378,9 +374,7 @@ describe('The ExcaliburGraphicsContext', () => {
       context.drawRectangle(ex.vec(1 - 0.0001, 1 - 0.0001), 2, 2, ex.Color.Red);
       context.flush();
 
-      await expectAsync(canvas).toEqualImage(
-        'src/spec/images/ExcaliburGraphicsContextSpec/pixel-snap-next.png'
-      );
+      await expectAsync(canvas).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/pixel-snap-next.png');
       context.dispose();
     });
 
@@ -401,9 +395,7 @@ describe('The ExcaliburGraphicsContext', () => {
       context.drawLine(ex.vec(1 - 0.0001, 2 - 0.0001), ex.vec(5, 2 - 0.0001), ex.Color.Red, 2);
       context.flush();
 
-      await expectAsync(canvas).toEqualImage(
-        'src/spec/images/ExcaliburGraphicsContextSpec/pixel-snap-line-next.png'
-      );
+      await expectAsync(canvas).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/pixel-snap-line-next.png');
       context.dispose();
     });
 
@@ -424,9 +416,7 @@ describe('The ExcaliburGraphicsContext', () => {
       context.drawCircle(ex.vec(5 - 0.0001, 5 - 0.0001), 3, ex.Color.Red);
       context.flush();
 
-      await expectAsync(canvas).toEqualImage(
-        'src/spec/images/ExcaliburGraphicsContextSpec/pixel-snap-circle-next.png'
-      );
+      await expectAsync(canvas).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/pixel-snap-circle-next.png');
       context.dispose();
     });
 
@@ -450,9 +440,7 @@ describe('The ExcaliburGraphicsContext', () => {
       });
       context.flush();
 
-      await expectAsync(canvas).toEqualImage(
-        'src/spec/images/ExcaliburGraphicsContextSpec/pixel-snap-point-next.png'
-      );
+      await expectAsync(canvas).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/pixel-snap-point-next.png');
       context.dispose();
     });
 
@@ -477,9 +465,7 @@ describe('The ExcaliburGraphicsContext', () => {
       sut.drawImage(rect._bitmap, 20, 20);
       sut.flush();
 
-      await expectAsync(canvasElement).toEqualImage(
-        'src/spec/images/ExcaliburGraphicsContextSpec/2d-drawgraphic.png'
-      );
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/2d-drawgraphic.png');
       sut.dispose();
     });
 
@@ -501,9 +487,7 @@ describe('The ExcaliburGraphicsContext', () => {
       });
       sut.flush();
 
-      await expectAsync(canvasElement).toEqualImage(
-        'src/spec/images/ExcaliburGraphicsContextSpec/webgl-drawpoint.png'
-      );
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/webgl-drawpoint.png');
       sut.dispose();
     });
 
@@ -524,8 +508,9 @@ describe('The ExcaliburGraphicsContext', () => {
 
       sut.drawCircle(ex.vec(0, 0), 10, ex.Color.Blue);
       expect(logger.warnOnce).toHaveBeenCalledWith(
-        `Attempting to draw outside the the drawing lifecycle (preDraw/postDraw) is not supported and is a source of bugs/errors.\n`+
-        `If you want to do custom drawing, use Actor.graphics, or any onPreDraw or onPostDraw handler.`);
+        `Attempting to draw outside the the drawing lifecycle (preDraw/postDraw) is not supported and is a source of bugs/errors.\n` +
+          `If you want to do custom drawing, use Actor.graphics, or any onPreDraw or onPostDraw handler.`
+      );
       sut.dispose();
     });
 
@@ -569,6 +554,63 @@ describe('The ExcaliburGraphicsContext', () => {
 
       const circleRenderer = sut.get('ex.circle');
       spyOn(circleRenderer, 'flush').and.callThrough();
+      const imageRenderer = sut.get('ex.image-v2');
+      spyOn(imageRenderer, 'flush').and.callThrough();
+      const rectangleRenderer = sut.get('ex.rectangle');
+      spyOn(rectangleRenderer, 'flush').and.callThrough();
+
+      sut.clear();
+
+      sut.useDrawSorting = false;
+
+      sut.drawLine(ex.vec(0, 0), ex.vec(100, 100), ex.Color.Red, 2);
+      expect(rectangleRenderer.flush).withContext('rectangle line render not flushed yet').not.toHaveBeenCalled();
+
+      sut.drawCircle(ex.Vector.Zero, 100, ex.Color.Red, ex.Color.Black, 2);
+      expect(circleRenderer.flush).withContext('circle is batched not flushed yet').not.toHaveBeenCalled();
+      expect(rectangleRenderer.flush).withContext('rectangle line render').toHaveBeenCalled();
+
+      sut.drawImage(tex.image, 0, 0, tex.width, tex.height, 20, 20);
+      expect(circleRenderer.flush).withContext('circle renderer switched, flush required').toHaveBeenCalled();
+      expect(imageRenderer.flush).withContext('image batched not yet flushed').not.toHaveBeenCalled();
+
+      sut.drawRectangle(ex.Vector.Zero, 50, 50, ex.Color.Blue, ex.Color.Green, 2);
+      expect(imageRenderer.flush).toHaveBeenCalled();
+
+      sut.flush();
+
+      // Rectangle renderer handles lines and rectangles why it's twice
+      expect(rectangleRenderer.flush).toHaveBeenCalledTimes(2);
+      expect(circleRenderer.flush).toHaveBeenCalledTimes(1);
+      expect(imageRenderer.flush).toHaveBeenCalledTimes(1);
+
+      await expectAsync(canvasElement).toEqualImage(
+        'src/spec/images/ExcaliburGraphicsContextSpec/painter-order-circle-image-rect.png',
+        0.97
+      );
+      sut.dispose();
+    });
+
+    it('(legacy image renderer) will preserve the painter order when switching renderer (no draw sorting)', async () => {
+      const canvasElement = testCanvasElement;
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      const sut = new ex.ExcaliburGraphicsContextWebGL({
+        canvasElement: canvasElement,
+        context: testContext,
+        enableTransparency: false,
+        antialiasing: false,
+        multiSampleAntialiasing: false,
+        backgroundColor: ex.Color.White,
+        snapToPixel: false
+      });
+      sut.imageRenderer = 'ex.image';
+
+      const tex = new ex.ImageSource('src/spec/images/ExcaliburGraphicsContextSpec/sword.png');
+      await tex.load();
+
+      const circleRenderer = sut.get('ex.circle');
+      spyOn(circleRenderer, 'flush').and.callThrough();
       const imageRenderer = sut.get('ex.image');
       spyOn(imageRenderer, 'flush').and.callThrough();
       const rectangleRenderer = sut.get('ex.rectangle');
@@ -601,7 +643,7 @@ describe('The ExcaliburGraphicsContext', () => {
 
       await expectAsync(canvasElement).toEqualImage(
         'src/spec/images/ExcaliburGraphicsContextSpec/painter-order-circle-image-rect.png',
-        .97
+        0.97
       );
       sut.dispose();
     });
@@ -619,6 +661,59 @@ describe('The ExcaliburGraphicsContext', () => {
         backgroundColor: ex.Color.White,
         snapToPixel: false
       });
+
+      const tex = new ex.ImageSource('src/spec/images/ExcaliburGraphicsContextSpec/sword.png');
+      await tex.load();
+
+      const circleRenderer = sut.get('ex.circle');
+      spyOn(circleRenderer, 'flush').and.callThrough();
+      const imageRenderer = sut.get('ex.image-v2');
+      spyOn(imageRenderer, 'flush').and.callThrough();
+      const rectangleRenderer = sut.get('ex.rectangle');
+      spyOn(rectangleRenderer, 'flush').and.callThrough();
+
+      sut.clear();
+      sut.useDrawSorting = true;
+
+      sut.drawLine(ex.vec(0, 0), ex.vec(100, 100), ex.Color.Red, 2);
+
+      sut.drawCircle(ex.Vector.Zero, 100, ex.Color.Red, ex.Color.Black, 2);
+
+      sut.drawImage(tex.image, 0, 0, tex.width, tex.height, 20, 20);
+
+      // With draw sorting on, the rectangle at z=0 is part of the draw line, so setting the z = 1 forces the desired effect
+      sut.save();
+      sut.z = 1;
+      sut.drawRectangle(ex.Vector.Zero, 50, 50, ex.Color.Blue, ex.Color.Green, 2);
+      sut.restore();
+
+      sut.flush();
+
+      // Rectangle renderer handles lines and rectangles why it's twice
+      expect(rectangleRenderer.flush).toHaveBeenCalledTimes(2);
+      expect(circleRenderer.flush).toHaveBeenCalledTimes(1);
+      expect(imageRenderer.flush).toHaveBeenCalledTimes(1);
+
+      await expectAsync(canvasElement).toEqualImage(
+        'src/spec/images/ExcaliburGraphicsContextSpec/painter-order-circle-image-rect.png',
+        0.97
+      );
+      sut.dispose();
+    });
+    it('(legacy image renderer) will preserve the painter order when switching renderer (draw sorting)', async () => {
+      const canvasElement = testCanvasElement;
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      const sut = new ex.ExcaliburGraphicsContextWebGL({
+        canvasElement: canvasElement,
+        context: testContext,
+        enableTransparency: false,
+        antialiasing: false,
+        multiSampleAntialiasing: false,
+        backgroundColor: ex.Color.White,
+        snapToPixel: false
+      });
+      sut.imageRenderer = 'ex.image';
 
       const tex = new ex.ImageSource('src/spec/images/ExcaliburGraphicsContextSpec/sword.png');
       await tex.load();
@@ -654,7 +749,7 @@ describe('The ExcaliburGraphicsContext', () => {
 
       await expectAsync(canvasElement).toEqualImage(
         'src/spec/images/ExcaliburGraphicsContextSpec/painter-order-circle-image-rect.png',
-        .97
+        0.97
       );
       sut.dispose();
     });
@@ -678,9 +773,7 @@ describe('The ExcaliburGraphicsContext', () => {
       });
       sut.flush();
 
-      await expectAsync(canvasElement).toEqualImage(
-        'src/spec/images/ExcaliburGraphicsContextSpec/webgl-drawline.png'
-      );
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/webgl-drawline.png');
       sut.dispose();
     });
 
@@ -722,9 +815,7 @@ describe('The ExcaliburGraphicsContext', () => {
       sut.drawRectangle(ex.vec(10, 10), 80, 80, ex.Color.Blue);
       sut.flush();
 
-      await expectAsync(canvasElement).toEqualImage(
-        'src/spec/images/ExcaliburGraphicsContextSpec/webgl-solid-rect.png'
-      );
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/webgl-solid-rect.png');
       sut.dispose();
     });
 
@@ -763,8 +854,7 @@ describe('The ExcaliburGraphicsContext', () => {
       sut.drawCircle(ex.vec(50, 50), 50, ex.Color.Blue);
       sut.flush();
 
-      await expectAsync(canvasElement).toEqualImage(
-        'src/spec/images/ExcaliburGraphicsContextSpec/webgl-circle-with-opacity.png');
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/webgl-circle-with-opacity.png');
       sut.dispose();
     });
 
@@ -1010,9 +1100,7 @@ describe('The ExcaliburGraphicsContext', () => {
       sut.restore();
       sut.flush();
 
-      await expectAsync(canvasElement).toEqualImage(
-        'src/spec/images/ExcaliburGraphicsContextSpec/webgl-transform.png'
-      );
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/webgl-transform.png');
       sut.dispose();
     });
 
@@ -1038,9 +1126,7 @@ describe('The ExcaliburGraphicsContext', () => {
       sut.drawImage(rect._bitmap, 1.9, 1.9);
       sut.flush();
 
-      await expectAsync(canvasElement).toEqualImage(
-        'src/spec/images/ExcaliburGraphicsContextSpec/2d-snap-to-pixel.png'
-      );
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/2d-snap-to-pixel.png');
       sut.dispose();
     });
 
@@ -1075,6 +1161,61 @@ describe('The ExcaliburGraphicsContext', () => {
         sut.drawImage(rect._bitmap, 0, 0, 10, 10, 0, 0, 0, 0);
         sut.flush();
       }).not.toThrow();
+      sut.dispose();
+    });
+
+    it('can handle rendering rasters in succession', async () => {
+      // arrange
+      const image = new ex.ImageSource('src/spec/images/ExcaliburGraphicsContextSpec/test.png');
+      await image.load();
+      const spriteSheet = ex.SpriteSheet.fromImageSource({
+        image: image,
+        grid: {
+          rows: 1,
+          columns: 4,
+          spriteWidth: 100,
+          spriteHeight: 100
+        }
+      });
+
+      const down = ex.Animation.fromSpriteSheet(spriteSheet, [0, 1, 2, 3], 500);
+      const polygon = new ex.Polygon({
+        points: [ex.vec(50, 0), ex.vec(150, 0), ex.vec(200, 86), ex.vec(150, 172), ex.vec(50, 172), ex.vec(0, 86)],
+        color: ex.Color.fromRGB(0, 255, 0)
+      });
+      const rect = new ex.Rectangle({ width: 100, height: 100, color: ex.Color.fromRGB(255, 0, 0) });
+      const circle = new ex.Circle({ radius: 50, color: ex.Color.fromRGB(0, 0, 255) });
+
+      const canvasElement = testCanvasElement;
+      canvasElement.width = 500;
+      canvasElement.height = 400;
+      const sut = new ex.ExcaliburGraphicsContextWebGL({
+        canvasElement: canvasElement,
+        context: testContext,
+        enableTransparency: false,
+        snapToPixel: true,
+        backgroundColor: ex.Color.White
+      });
+
+      // act
+
+      sut.clear();
+
+      down.draw(sut, 100, 100);
+      polygon.draw(sut, 350, 100);
+      rect.draw(sut, 300, 300);
+      circle.draw(sut, 400, 300);
+
+      down.tick(500, 1);
+      down.draw(sut, 100, 100);
+      polygon.draw(sut, 350, 100);
+      rect.draw(sut, 300, 300);
+      circle.draw(sut, 400, 300);
+
+      sut.flush();
+
+      // assert
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/rasters.png');
       sut.dispose();
     });
   });

@@ -18,8 +18,15 @@ describe('A game actor', () => {
   });
 
   beforeEach(async () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
-    actor = new ex.Actor({name: 'Default'});
+    engine = TestUtils.engine({
+      width: 100,
+      height: 100,
+      physics: {
+        solver: ex.SolverStrategy.Arcade,
+        gravity: ex.vec(0, 0)
+      }
+    });
+    actor = new ex.Actor({ name: 'Default' });
     actor.body.collisionType = ex.CollisionType.Active;
     scene = new ex.Scene();
     const physicsWorld = new PhysicsWorld(engine.physics);
@@ -33,20 +40,17 @@ describe('A game actor', () => {
     spyOn(scene, 'draw').and.callThrough();
     spyOn(scene, 'debugDraw').and.callThrough();
 
-
     await engine.start();
     const clock = engine.clock as ex.TestClock;
     clock.step(1);
     collisionSystem.initialize(scene.world, scene);
     scene.world.systemManager.get(ex.PointerSystem).initialize(scene.world, scene);
-
-    ex.Physics.useArcadePhysics();
-    ex.Physics.acc.setTo(0, 0);
   });
 
   afterEach(() => {
     engine.stop();
     engine.dispose();
+    actor = null;
     engine = null;
   });
 
@@ -146,10 +150,10 @@ describe('A game actor', () => {
   });
 
   it('should have constructor anchor set on graphics component', () => {
-    const actor = new ex.Actor({anchor: ex.vec(.7, .7)});
+    const actor = new ex.Actor({ anchor: ex.vec(0.7, 0.7) });
 
-    expect(actor.anchor).toBeVector(ex.vec(.7, .7));
-    expect(actor.graphics.anchor).toBeVector(ex.vec(.7, .7));
+    expect(actor.anchor).toBeVector(ex.vec(0.7, 0.7));
+    expect(actor.graphics.anchor).toBeVector(ex.vec(0.7, 0.7));
 
     actor.anchor = ex.vec(0, 0);
     expect(actor.graphics.anchor).toBeVector(ex.vec(0, 0));
@@ -222,6 +226,25 @@ describe('A game actor', () => {
     expect(actor.oldPos.y).toBe(10);
     expect(actor.pos.x).toBe(20);
     expect(actor.pos.y).toBe(20);
+  });
+
+  it('should have an old global position after an update', () => {
+    const parent = new ex.Actor({ pos: ex.vec(10, 10) });
+    const child = new ex.Actor({ name: 'child', pos: ex.vec(10, 10) });
+    scene.add(parent);
+    parent.addChild(child);
+
+    parent.vel = ex.vec(10, 10);
+
+    expect(child.globalPos.x).toBe(20);
+    expect(child.globalPos.y).toBe(20);
+
+    motionSystem.update(1000);
+
+    expect(child.oldGlobalPos.x).toBe(20);
+    expect(child.oldGlobalPos.y).toBe(20);
+    expect(child.globalPos.x).toBe(30);
+    expect(child.globalPos.y).toBe(30);
   });
 
   it('actors should generate pair hashes in the correct order', () => {
@@ -602,7 +625,7 @@ describe('A game actor', () => {
     expect(grandChildActor.getGlobalPos().y).toBe(75);
   });
 
-  it('can find its global coordinates if it doesn\'t have a parent', () => {
+  it("can find its global coordinates if it doesn't have a parent", () => {
     expect(actor.pos.x).toBe(0);
     expect(actor.pos.y).toBe(0);
 
@@ -620,7 +643,7 @@ describe('A game actor', () => {
     const logger = ex.Logger.getInstance();
     spyOn(logger, 'warn');
     // attempt removing before adding
-    new ex.Actor({name: 'not-in-scene'}).kill();
+    new ex.Actor({ name: 'not-in-scene' }).kill();
     expect(logger.warn).toHaveBeenCalledWith('Cannot kill actor named "not-in-scene", it was never added to the Scene');
 
     // remove actor in a scene
@@ -679,7 +702,7 @@ describe('A game actor', () => {
 
   it('is drawn on opacity 0', () => {
     scene.clear(false);
-    const invisibleActor = new ex.Actor({name: 'Invisible', pos: ex.vec(50, 50), width: 100, height: 100});
+    const invisibleActor = new ex.Actor({ name: 'Invisible', pos: ex.vec(50, 50), width: 100, height: 100 });
     invisibleActor.graphics.onPostDraw = jasmine.createSpy('draw');
     invisibleActor.graphics.opacity = 0;
     scene.add(invisibleActor);
@@ -827,7 +850,7 @@ describe('A game actor', () => {
       flipHorizontal: false
     });
     const animation = new ex.Animation({
-      frames: [{graphic: sprite }, {graphic: sprite }],
+      frames: [{ graphic: sprite }, { graphic: sprite }],
       frameDuration: 200,
       strategy: ex.AnimationStrategy.Loop,
       rotation: Math.PI,
@@ -901,7 +924,7 @@ describe('A game actor', () => {
   it('can recursively check containment', () => {
     const parent = new ex.Actor({ x: 0, y: 0, width: 100, height: 100 });
     const child = new ex.Actor({ x: 100, y: 100, width: 100, height: 100 });
-    const child2 = new ex.Actor({ x: 100, y: 100, width: 100, height: 100 });
+    const grandChild = new ex.Actor({ x: 100, y: 100, width: 100, height: 100 });
     parent.addChild(child);
 
     expect(parent.contains(150, 150)).toBeFalsy();
@@ -909,7 +932,7 @@ describe('A game actor', () => {
     expect(parent.contains(150, 150, true)).toBeTruthy();
     expect(parent.contains(200, 200, true)).toBeFalsy();
 
-    child.addChild(child2);
+    child.addChild(grandChild);
     expect(parent.contains(250, 250, true)).toBeTruthy();
   });
 
@@ -954,7 +977,6 @@ describe('A game actor', () => {
     const active = new ex.Actor({ x: 0, y: -50, width: 100, height: 100 });
     active.body.collisionType = ex.CollisionType.Active;
     active.vel.y = -100;
-    ex.Physics.acc.setTo(0, 0);
 
     const fixed = new ex.Actor({ x: -100, y: 50, width: 1000, height: 100 });
     fixed.body.collisionType = ex.CollisionType.Fixed;
@@ -974,7 +996,6 @@ describe('A game actor', () => {
       scene.update(engine, 1000);
     }
 
-    expect(ex.Physics.acc.y).toBe(0);
     expect(active.pos.x).toBeCloseTo(0, 0.0001);
     expect(active.pos.y).toBeCloseTo(-100 * iterations + -50 /* original y is -50 */, 0.0001);
 
@@ -996,8 +1017,8 @@ describe('A game actor', () => {
   });
 
   it('draws visible child actors', () => {
-    const parentActor = new ex.Actor({name: 'Parent'});
-    const childActor = new ex.Actor({name: 'Child'});
+    const parentActor = new ex.Actor({ name: 'Parent' });
+    const childActor = new ex.Actor({ name: 'Child' });
     scene.add(parentActor);
     parentActor.addChild(childActor);
 
@@ -1360,9 +1381,9 @@ describe('A game actor', () => {
     });
 
     it('can have onPostUpdate overridden safely', () => {
-      actor.onPostUpdate = (engine, delta) => {
+      actor.onPostUpdate = (engine, elapsedMs) => {
         expect(engine).not.toBe(null);
-        expect(delta).toBe(100);
+        expect(elapsedMs).toBe(100);
       };
 
       spyOn(actor, 'onPostUpdate').and.callThrough();
@@ -1375,9 +1396,9 @@ describe('A game actor', () => {
     });
 
     it('can have onPreUpdate overridden safely', () => {
-      actor.onPreUpdate = (engine, delta) => {
+      actor.onPreUpdate = (engine, elapsedMs) => {
         expect(engine).not.toBe(null);
-        expect(delta).toBe(100);
+        expect(elapsedMs).toBe(100);
       };
 
       spyOn(actor, 'onPreUpdate').and.callThrough();
@@ -1388,7 +1409,6 @@ describe('A game actor', () => {
       expect(actor._preupdate).toHaveBeenCalledTimes(2);
       expect(actor.onPreUpdate).toHaveBeenCalledTimes(2);
     });
-
 
     it('can have onPreKill overridden safely', () => {
       engine.add(actor);
@@ -1416,6 +1436,29 @@ describe('A game actor', () => {
       actor.kill();
       expect(actor._postkill).toHaveBeenCalledTimes(1);
       expect(actor.onPostKill).toHaveBeenCalledTimes(1);
+    });
+
+    it('can run onAdd and onRemove', () => {
+      actor.onRemove = (engine: ex.Engine) => {
+        expect(engine).not.toBe(null);
+      };
+
+      actor.onAdd = (engine: ex.Engine) => {
+        expect(engine).not.toBe(null);
+      };
+
+      spyOn(actor, 'onAdd').and.callThrough();
+      spyOn(actor, 'onRemove').and.callThrough();
+      engine.add(actor);
+      engine.currentScene.update(engine, 100);
+      engine.remove(actor);
+      engine.currentScene.update(engine, 100);
+      expect(actor.onAdd).toHaveBeenCalledTimes(1);
+      expect(actor.onRemove).toHaveBeenCalledTimes(1);
+      engine.add(actor);
+      engine.currentScene.update(engine, 100);
+      expect(actor.onAdd).toHaveBeenCalledTimes(2);
+      expect(actor.onRemove).toHaveBeenCalledTimes(1);
     });
   });
 });

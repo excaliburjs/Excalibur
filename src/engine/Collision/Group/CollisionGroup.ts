@@ -1,7 +1,7 @@
 import { CollisionGroupManager } from './CollisionGroupManager';
 
 /**
- * CollisionGroups indicate like members that do not collide with each other. Use [[CollisionGroupManager]] to create [[CollisionGroup]]s
+ * CollisionGroups indicate like members that do not collide with each other. Use {@apilink CollisionGroupManager} to create {@apilink CollisionGroup}s
  *
  * For example:
  *
@@ -45,7 +45,7 @@ import { CollisionGroupManager } from './CollisionGroupManager';
  */
 export class CollisionGroup {
   /**
-   * The `All` [[CollisionGroup]] is a special group that collides with all other groups including itself,
+   * The `All` {@apilink CollisionGroup} is a special group that collides with all other groups including itself,
    * it is the default collision group on colliders.
    */
   public static All = new CollisionGroup('Collide with all groups', -1, -1);
@@ -55,7 +55,7 @@ export class CollisionGroup {
   private _mask: number;
 
   /**
-   * STOP!!** It is preferred that [[CollisionGroupManager.create]] is used to create collision groups
+   * STOP!!** It is preferred that {@apilink CollisionGroupManager.create} is used to create collision groups
    *  unless you know how to construct the proper bitmasks. See https://github.com/excaliburjs/Excalibur/issues/1091 for more info.
    * @param name Name of the collision group
    * @param category 32 bit category for the group, should be a unique power of 2. For example `0b001` or `0b010`
@@ -97,7 +97,7 @@ export class CollisionGroup {
   public canCollide(other: CollisionGroup): boolean {
     const overlap1 = this.category & other.mask;
     const overlap2 = this.mask & other.category;
-    return (overlap1 !== 0) && (overlap2 !== 0);
+    return overlap1 !== 0 && overlap2 !== 0;
   }
 
   /**
@@ -136,7 +136,7 @@ export class CollisionGroup {
   public toString() {
     return `
 category: ${this.category.toString(2).padStart(32, '0')}
-mask:     ${(this.mask>>>0).toString(2).padStart(32, '0')}
+mask:     ${(this.mask >>> 0).toString(2).padStart(32, '0')}
     `;
   }
 }

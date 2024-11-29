@@ -17,9 +17,9 @@ import { FontCache } from './FontCache';
  */
 export class Font extends Graphic implements FontRenderer {
   /**
-   * Set the font filtering mode, by default set to [[ImageFiltering.Blended]] regardless of the engine default smoothing
+   * Set the font filtering mode, by default set to {@apilink ImageFiltering.Blended} regardless of the engine default smoothing
    *
-   * If you have a pixel style font that may be a reason to switch this to [[ImageFiltering.Pixel]]
+   * If you have a pixel style font that may be a reason to switch this to {@apilink ImageFiltering.Pixel}
    */
   public filtering: ImageFiltering = ImageFiltering.Blended;
   constructor(options: FontOptions & GraphicOptions & RasterOptions = {}) {
@@ -66,11 +66,11 @@ export class Font extends Graphic implements FontRenderer {
       direction: this.direction,
       shadow: this.shadow
         ? {
-          blur: this.shadow.blur,
-          offset: this.shadow.offset,
-          color: this.shadow.color
-        }
-        : null
+            blur: this.shadow.blur,
+            offset: this.shadow.offset,
+            color: this.shadow.color
+          }
+        : undefined
     });
   }
 
@@ -90,7 +90,7 @@ export class Font extends Graphic implements FontRenderer {
   public lineWidth = 1;
   public lineDash: number[] = [];
   public color: Color = Color.Black;
-  public strokeColor: Color;
+  public strokeColor?: Color;
 
   public family: string = 'sans-serif';
   public style: FontStyle = FontStyle.Normal;
@@ -104,7 +104,7 @@ export class Font extends Graphic implements FontRenderer {
    */
   public lineHeight: number | undefined = undefined;
   public size: number = 10;
-  public shadow: { blur?: number; offset?: Vector; color?: Color } = null;
+  public shadow?: { blur?: number; offset?: Vector; color?: Color };
 
   public get fontString() {
     return `${this.style} ${this.bold ? 'bold' : ''} ${this.size}${this.unit} ${this.family}`;

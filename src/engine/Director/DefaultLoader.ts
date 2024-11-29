@@ -19,12 +19,12 @@ export interface DefaultLoaderOptions {
 
 export type LoaderEvents = {
   // Add event types here
-  beforeload: void,
-  afterload: void,
-  useraction: void,
-  loadresourcestart: Loadable<any>,
-  loadresourceend: Loadable<any>,
-}
+  beforeload: void;
+  afterload: void;
+  useraction: void;
+  loadresourcestart: Loadable<any>;
+  loadresourceend: Loadable<any>;
+};
 
 export const LoaderEvents = {
   // Add event types here
@@ -44,7 +44,7 @@ export function isLoaderConstructor(x: any): x is LoaderConstructor {
 }
 
 export class DefaultLoader implements Loadable<Loadable<any>[]> {
-  public data: Loadable<any>[];
+  public data!: Loadable<any>[];
   public events = new EventEmitter<LoaderEvents>();
   public canvas: Canvas = new Canvas({
     filtering: ImageFiltering.Blended,
@@ -57,8 +57,7 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
     return this._resources;
   }
   private _numLoaded: number = 0;
-  public engine: Engine;
-
+  public engine!: Engine;
 
   /**
    * @param options Optionally provide the list of resources you want to load at constructor time
@@ -87,7 +86,6 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
    *
    */
   public async onUserAction(): Promise<void> {
-
     return await Promise.resolve();
   }
 
@@ -173,7 +171,7 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
     ctx.strokeStyle = 'white';
     ctx.lineWidth = 10;
     ctx.lineCap = 'round';
-    ctx.arc(0, 0, 40, speed, speed + (Math.PI * 3 / 2));
+    ctx.arc(0, 0, 40, speed, speed + (Math.PI * 3) / 2);
     ctx.stroke();
 
     ctx.fillStyle = 'white';
@@ -186,9 +184,12 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
     ctx.restore();
   }
 
-
   private _loadingFuture = new Future<void>();
   public areResourcesLoaded() {
+    if (this._resources.length === 0) {
+      // special case no resources mean loaded;
+      return Promise.resolve();
+    }
     return this._loadingFuture.promise;
   }
 
@@ -258,6 +259,6 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
   public off(eventName: string, handler: Handler<unknown>): void;
   public off(eventName: string): void;
   public off<TEventName extends EventKey<LoaderEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
-    this.events.off(eventName, handler);
+    (this.events as any).off(eventName, handler);
   }
 }

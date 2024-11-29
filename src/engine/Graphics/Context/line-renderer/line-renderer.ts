@@ -1,4 +1,4 @@
-import { Vector } from '../../../Math/vector';
+import { vec, Vector } from '../../../Math/vector';
 import { Color } from '../../../Color';
 import lineVertexSource from './line-vertex.glsl';
 import lineFragmentSource from './line-fragment.glsl';
@@ -15,12 +15,12 @@ export interface LineOptions {
 export class LineRenderer implements RendererPlugin {
   public readonly type = 'ex.line';
   public priority: number = 0;
-  private _context: ExcaliburGraphicsContextWebGL;
-  private _gl: WebGL2RenderingContext;
-  private _shader: Shader;
+  private _context!: ExcaliburGraphicsContextWebGL;
+  private _gl!: WebGL2RenderingContext;
+  private _shader!: Shader;
   private _maxLines: number = 10922;
-  private _vertexBuffer: VertexBuffer;
-  private _layout: VertexLayout;
+  private _vertexBuffer!: VertexBuffer;
+  private _layout!: VertexLayout;
   private _vertexIndex = 0;
   private _lineCount = 0;
   initialize(gl: WebGL2RenderingContext, context: ExcaliburGraphicsContextWebGL): void {
@@ -56,10 +56,12 @@ export class LineRenderer implements RendererPlugin {
   public dispose() {
     this._vertexBuffer.dispose();
     this._shader.dispose();
-    this._context = null;
-    this._gl = null;
+    this._context = null as any;
+    this._gl = null as any;
   }
 
+  private _startScratch = vec(0, 0);
+  private _endScratch = vec(0, 0);
   draw(start: Vector, end: Vector, color: Color): void {
     // Force a render if the batch is full
     if (this._isFull()) {
@@ -69,9 +71,8 @@ export class LineRenderer implements RendererPlugin {
     this._lineCount++;
 
     const transform = this._context.getTransform();
-    const finalStart = transform.multiply(start);
-    const finalEnd = transform.multiply(end);
-
+    const finalStart = transform.multiply(start, this._startScratch);
+    const finalEnd = transform.multiply(end, this._endScratch);
 
     const vertexBuffer = this._vertexBuffer.bufferData;
     // Start

@@ -3,7 +3,7 @@ import { Entity } from './Entity';
 /**
  * Component Constructor Types
  */
-export declare type ComponentCtor<TComponent extends Component = Component> = new (...args:any[]) => TComponent;
+export declare type ComponentCtor<TComponent extends Component = Component> = new (...args: any[]) => TComponent;
 
 /**
  *
@@ -44,7 +44,7 @@ export abstract class Component {
   readonly dependencies?: ComponentCtor[];
 
   /**
-   * Current owning [[Entity]], if any, of this component. Null if not added to any [[Entity]]
+   * Current owning {@apilink Entity}, if any, of this component. Null if not added to any {@apilink Entity}
    */
   owner?: Entity = undefined;
 

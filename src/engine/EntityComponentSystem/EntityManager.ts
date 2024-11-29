@@ -8,6 +8,8 @@ import { Scene } from '../Scene';
 export class EntityManager {
   public entities: Entity[] = [];
   public _entityIndex: { [entityId: string]: Entity } = {};
+  private _childAddedHandlerMap = new Map<Entity, (entity: Entity) => void>();
+  private _childRemovedHandlerMap = new Map<Entity, (entity: Entity) => void>();
 
   constructor(private _world: World) {}
 
@@ -17,28 +19,38 @@ export class EntityManager {
    * @param elapsed
    */
   public updateEntities(scene: Scene, elapsed: number) {
-    for (const entity of this.entities) {
+    for (let entityIndex = 0; entityIndex < this.entities.length; entityIndex++) {
+      const entity = this.entities[entityIndex];
       entity.update(scene.engine, elapsed);
-      if (!entity.active) {
+      if (!entity.isActive) {
         this.removeEntity(entity);
       }
     }
   }
 
   public findEntitiesForRemoval() {
-    for (const entity of this.entities) {
-      if (!entity.active) {
+    for (let entityIndex = 0; entityIndex < this.entities.length; entityIndex++) {
+      const entity = this.entities[entityIndex];
+      if (!entity.isActive) {
         this.removeEntity(entity);
       }
     }
   }
+
+  private _createChildAddedHandler = () => (e: Entity) => {
+    this.addEntity(e);
+  };
+
+  private _createChildRemovedHandler = () => (e: Entity) => {
+    this.removeEntity(e, false);
+  };
 
   /**
    * Adds an entity to be tracked by the EntityManager
    * @param entity
    */
   public addEntity(entity: Entity): void {
-    entity.active = true;
+    entity.isActive = true;
     entity.scene = this._world.scene;
     if (entity && !this._entityIndex[entity.id]) {
       this._entityIndex[entity.id] = entity;
@@ -50,16 +62,12 @@ export class EntityManager {
         c.scene = entity.scene;
         this.addEntity(c);
       });
-      entity.childrenAdded$.register({
-        notify: (e) => {
-          this.addEntity(e);
-        }
-      });
-      entity.childrenRemoved$.register({
-        notify: (e) => {
-          this.removeEntity(e, false);
-        }
-      });
+      const childAdded = this._createChildAddedHandler();
+      this._childAddedHandlerMap.set(entity, childAdded);
+      const childRemoved = this._createChildRemovedHandler();
+      this._childRemovedHandlerMap.set(entity, childRemoved);
+      entity.childrenAdded$.subscribe(childAdded);
+      entity.childrenRemoved$.subscribe(childRemoved);
     }
   }
 
@@ -73,8 +81,8 @@ export class EntityManager {
       id = idOrEntity;
     }
     const entity = this._entityIndex[id];
-    if (entity && entity.active) {
-      entity.active = false;
+    if (entity && entity.isActive) {
+      entity.isActive = false;
     }
 
     if (entity && deferred) {
@@ -93,8 +101,14 @@ export class EntityManager {
         c.scene = null;
         this.removeEntity(c, deferred);
       });
-      entity.childrenAdded$.clear();
-      entity.childrenRemoved$.clear();
+      const childAddedHandler = this._childAddedHandlerMap.get(entity);
+      if (childAddedHandler) {
+        entity.childrenAdded$.unsubscribe(childAddedHandler);
+      }
+      const childRemovedHandler = this._childRemovedHandlerMap.get(entity);
+      if (childRemovedHandler) {
+        entity.childrenRemoved$.unsubscribe(childRemovedHandler);
+      }
 
       // stats
       if (this._world?.scene?.engine) {
@@ -105,8 +119,9 @@ export class EntityManager {
 
   private _entitiesToRemove: Entity[] = [];
   public processEntityRemovals(): void {
-    for (const entity of this._entitiesToRemove) {
-      if (entity.active) {
+    for (let entityIndex = 0; entityIndex < this._entitiesToRemove.length; entityIndex++) {
+      const entity = this._entitiesToRemove[entityIndex];
+      if (entity.isActive) {
         continue;
       }
       this.removeEntity(entity, false);
@@ -115,17 +130,18 @@ export class EntityManager {
   }
 
   public processComponentRemovals(): void {
-    for (const entity of this.entities) {
+    for (let entityIndex = 0; entityIndex < this.entities.length; entityIndex++) {
+      const entity = this.entities[entityIndex];
       entity.processComponentRemoval();
     }
   }
 
-  public getById(id: number): Entity {
+  public getById(id: number): Entity | undefined {
     return this._entityIndex[id];
   }
 
-  public getByName(name: string): Entity[]{
-    return this.entities.filter(e => e.name === name);
+  public getByName(name: string): Entity[] {
+    return this.entities.filter((e) => e.name === name);
   }
 
   public clear(): void {

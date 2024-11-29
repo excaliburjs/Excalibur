@@ -64,4 +64,21 @@ describe('An EntityManager', () => {
     expect(entityManager.entities.length).toBe(0);
     expect((entityManager as any)._entitiesToRemove.length).toBe(0);
   });
+
+  it('should only remove the handlers that the manager added on removal', () => {
+    const entityManager = new ex.EntityManager(new ex.World(null));
+    const entity = new ex.Entity([new ex.TransformComponent()], 'some-e');
+    // Transform component listens to child add/remove
+    const entity2 = new ex.Entity();
+    entityManager.addEntity(entity);
+    entityManager.addEntity(entity2);
+
+    expect(entity.childrenAdded$.subscriptions.length).toBe(2);
+    expect(entity2.childrenAdded$.subscriptions.length).toBe(1);
+
+    entityManager.removeEntity(entity, false);
+    entityManager.removeEntity(entity2, false);
+    expect(entity.childrenAdded$.subscriptions.length).toBe(1);
+    expect(entity2.childrenAdded$.subscriptions.length).toBe(0);
+  });
 });

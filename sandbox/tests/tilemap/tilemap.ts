@@ -43,11 +43,11 @@ game.add(tm);
 game.input.pointers.primary.on('down', (evt: ex.PointerEvent) => {
   var tile = tm.getTileByPoint(evt.worldPos);
   if (tile) {
-      if (tile.getGraphics().length) {
-        tile.clearGraphics();
-      } else {
-        tile.addGraphic(tileSprite);
-      }
+    if (tile.getGraphics().length) {
+      tile.clearGraphics();
+    } else {
+      tile.addGraphic(tileSprite);
+    }
   }
 });
 

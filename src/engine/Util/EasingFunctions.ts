@@ -1,11 +1,11 @@
 ﻿import { Vector } from '../Math/vector';
 
 /**
- * A definition of an EasingFunction. See [[EasingFunctions]].
+ * A definition of an EasingFunction. See {@apilink EasingFunctions}.
  */
 // tslint:disable-next-line
-export interface EasingFunction {
-  (currentTime: number, startValue: number, endValue: number, duration: number): number;
+export interface EasingFunction<TValueToEase = number> {
+  (currentTime: number, startValue: TValueToEase, endValue: TValueToEase, duration: number): TValueToEase;
 }
 
 /**
@@ -49,7 +49,7 @@ export interface EasingFunction {
  * ```
  */
 export class EasingFunctions {
-  public static CreateReversibleEasingFunction(easing: EasingFunction) {
+  public static CreateReversibleEasingFunction(easing: EasingFunction): EasingFunction {
     return (time: number, start: number, end: number, duration: number) => {
       if (end < start) {
         return start - (easing(time, end, start, duration) - end);
@@ -59,7 +59,7 @@ export class EasingFunctions {
     };
   }
 
-  public static CreateVectorEasingFunction(easing: EasingFunction) {
+  public static CreateVectorEasingFunction(easing: EasingFunction<number>): EasingFunction<Vector> {
     return (time: number, start: Vector, end: Vector, duration: number) => {
       return new Vector(easing(time, start.x, end.x, duration), easing(time, start.y, end.y, duration));
     };

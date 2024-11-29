@@ -57,6 +57,35 @@ describe('Vectors', () => {
     expect(v.toAngle()).toBeCloseTo(target, 4);
   });
 
+  it('will return toAngle between 0 and 2PI', () => {
+    const zero = ex.vec(1, 0);
+    expect(zero.toAngle()).toBeCloseTo(0);
+
+    const fortyFive = ex.vec(1, 1);
+    expect(fortyFive.toAngle()).toBeCloseTo(Math.PI / 4);
+
+    const ninety = ex.vec(0, 1);
+    expect(ninety.toAngle()).toBeCloseTo(Math.PI / 2);
+
+    const oneThirtyFive = ex.vec(-1, 1);
+    expect(oneThirtyFive.toAngle()).toBeCloseTo((Math.PI * 3) / 4);
+
+    const oneEighty = ex.vec(-1, 0);
+    expect(oneEighty.toAngle()).toBeCloseTo(Math.PI);
+
+    const twoTwentyFive = ex.vec(-1, -1);
+    expect(twoTwentyFive.toAngle()).toBeCloseTo((Math.PI * 5) / 4);
+
+    const twoSeventy = ex.vec(0, -1);
+    expect(twoSeventy.toAngle()).toBeCloseTo((Math.PI * 3) / 2);
+
+    const threeFifteen = ex.vec(1, -1);
+    expect(threeFifteen.toAngle()).toBeCloseTo((Math.PI * 7) / 4);
+
+    const threeSixty = ex.vec(1, -0.0001);
+    expect(threeSixty.toAngle()).toBeCloseTo(Math.PI * 2);
+  });
+
   it('can calculate distance to origin', () => {
     const v = new ex.Vector(20, 0);
     const v2 = new ex.Vector(0, -20);
@@ -65,20 +94,20 @@ describe('Vectors', () => {
     expect(v2.distance()).toBe(20);
   });
 
-  it('can have a size', () => {
+  it('can have a magnitude', () => {
     const v = new ex.Vector(20, 0);
     const v2 = new ex.Vector(0, -20);
 
-    expect(v.size).toBe(20);
-    expect(v2.size).toBe(20);
+    expect(v.magnitude).toBe(20);
+    expect(v2.magnitude).toBe(20);
   });
 
-  it('can have size set', () => {
+  it('can have magnitude set', () => {
     const v = new ex.Vector(20, 0);
     const v2 = new ex.Vector(3, 4);
 
-    v.size = 10;
-    v2.size = 13;
+    v.magnitude = 10;
+    v2.magnitude = 13;
 
     expect(v.equals(new ex.Vector(10, 0))).toBeTruthy();
     expect(v2.equals(new ex.Vector(7.8, 10.4))).toBeTruthy();
@@ -267,7 +296,7 @@ describe('Vectors', () => {
     const after = sut.normalize();
     expect(before.x).toBeCloseTo(after.x, 4);
     expect(before.y).toBeCloseTo(after.y, 4);
-    expect(sut.size).toBe(5);
+    expect(sut.magnitude).toBe(5);
   });
 });
 

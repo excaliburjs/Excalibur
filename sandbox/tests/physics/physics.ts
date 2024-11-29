@@ -3,7 +3,15 @@
 var game = new ex.Engine({
   width: 600,
   height: 400,
-  fixedUpdateFps: 60
+  fixedUpdateFps: 60,
+  physics: {
+    solver: ex.SolverStrategy.Realistic,
+    spatialPartition: ex.SpatialPartitionStrategy.SparseHashGrid,
+    bodies: {
+      canSleepByDefault: true
+    },
+    gravity: ex.vec(0, 100)
+  }
 });
 game.backgroundColor = ex.Color.Black;
 
@@ -14,12 +22,6 @@ game.debug.collider.showGeometry = true;
 game.debug.collider.showBounds = true;
 game.debug.motion.showAll = true;
 game.debug.body.showMotion = true;
-
-ex.Physics.collisionResolutionStrategy = ex.SolverStrategy.Realistic;
-ex.Physics.bodiesCanSleepByDefault = true;
-ex.Physics.gravity = ex.vec(0, 100);
-
-
 
 var globalRotation = 0;
 function spawnBlock(x: number, y: number) {
@@ -57,7 +59,7 @@ function spawnBlock(x: number, y: number) {
 function spawnCircle(x: number, y: number) {
   var width = ex.randomInRange(20, 100);
   var color = new ex.Color(255, ex.randomIntInRange(0, 255), ex.randomIntInRange(0, 255));
-  var circle = new ex.Actor({x: x, y: y, radius: width / 2, color: color});
+  var circle = new ex.Actor({ x: x, y: y, radius: width / 2, color: color });
   // circle.rx = ex.Util.randomInRange(-0.5, 0.5);
   // circle.angularVelocity = 1;
   // circle.vel.setTo(0, 300);
@@ -79,16 +81,15 @@ function spawnCircle(x: number, y: number) {
 
 var edge = new ex.Actor({
   x: 200,
-  y:300,
+  y: 300,
   width: 5,
-  height: 5, 
+  height: 5,
   color: ex.Color.Blue.clone()
 });
 edge.body.collisionType = ex.CollisionType.Fixed;
 edge.collider.useEdgeCollider(new ex.Vector(0, 0), new ex.Vector(200, 0));
 // // edge.rx = .4;
 game.add(edge);
-
 
 // var solid = new ex.Actor(300, 380, 100, 100, ex.Color.Azure.clone());
 // solid.body.collisionType = ex.CollisionType.Fixed;
@@ -97,18 +98,18 @@ game.add(edge);
 
 // spawnBlock(300, 200).body.setSleeping(true);
 
-var ground = new ex.Actor({x: 300, y: 380, width: 600, height: 10, color: ex.Color.Azure.clone()});
+var ground = new ex.Actor({ x: 300, y: 380, width: 600, height: 10, color: ex.Color.Azure.clone() });
 ground.body.collisionType = ex.CollisionType.Fixed;
 ground.body.bounciness = 0.0;
 ground.collider.useBoxCollider(600, 10); // optional
 game.add(ground);
 
-var leftWall = new ex.Actor({x: 0, y: 300, width: 10, height: 400, color: ex.Color.Azure.clone()});
+var leftWall = new ex.Actor({ x: 0, y: 300, width: 10, height: 400, color: ex.Color.Azure.clone() });
 leftWall.body.collisionType = ex.CollisionType.Fixed;
 leftWall.collider.useBoxCollider(10, 400);
 game.add(leftWall);
 
-var rightWall = new ex.Actor({x: 600, y: 300, width: 10, height: 400, color: ex.Color.Azure.clone()});
+var rightWall = new ex.Actor({ x: 600, y: 300, width: 10, height: 400, color: ex.Color.Azure.clone() });
 rightWall.body.collisionType = ex.CollisionType.Fixed;
 rightWall.collider.useBoxCollider(10, 400);
 game.add(rightWall);

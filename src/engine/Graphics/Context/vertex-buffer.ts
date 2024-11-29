@@ -2,7 +2,7 @@ export interface VertexBufferOptions {
   /**
    * WebGL2RenderingContext this layout will be attached to, these cannot be reused across contexts.
    */
-  gl: WebGL2RenderingContext,
+  gl: WebGL2RenderingContext;
   /**
    * Size in number of floats, so [4.2, 4.0, 2.1] is size = 3
    *
@@ -19,7 +19,7 @@ export interface VertexBufferOptions {
   /**
    * Optionally pass pre-seeded data, size parameter is ignored
    */
-  data?: Float32Array
+  data?: Float32Array;
 }
 
 /**
@@ -49,13 +49,13 @@ export class VertexBuffer {
   constructor(options: VertexBufferOptions) {
     const { gl, size, type, data } = options;
     this._gl = gl;
-    this.buffer = this._gl.createBuffer();
+    this.buffer = this._gl.createBuffer()!;
     if (!data && !size) {
       throw Error('Must either provide data or a size to the VertexBuffer');
     }
 
     if (!data) {
-      this.bufferData = new Float32Array(size);
+      this.bufferData = new Float32Array(size!);
     } else {
       this.bufferData = data;
     }
@@ -95,6 +95,6 @@ export class VertexBuffer {
   dispose() {
     const gl = this._gl;
     gl.deleteBuffer(this.buffer);
-    this._gl = null;
+    this._gl = null as any;
   }
 }

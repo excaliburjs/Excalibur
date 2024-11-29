@@ -1,11 +1,12 @@
 import { Resource } from '../Resources/Resource';
-import { Sprite } from './Sprite';
+import { Sprite, SpriteOptions } from './Sprite';
 import { Loadable } from '../Interfaces/Index';
 import { Logger } from '../Util/Log';
 import { ImageFiltering } from './Filtering';
 import { Future } from '../Util/Future';
 import { TextureLoader } from '../Graphics/Context/texture-loader';
 import { ImageWrapping } from './Wrapping';
+import { GraphicOptions } from './Graphic';
 
 export interface ImageSourceOptions {
   filtering?: ImageFiltering;
@@ -27,8 +28,8 @@ export const ImageSourceAttributeConstants = {
 export class ImageSource implements Loadable<HTMLImageElement> {
   private _logger = Logger.getInstance();
   private _resource: Resource<Blob>;
-  public filtering: ImageFiltering;
-  public wrapping: ImageWrapConfiguration;
+  public filtering?: ImageFiltering;
+  public wrapping?: ImageWrapConfiguration;
 
   /**
    * The original size of the source image in pixels
@@ -44,7 +45,7 @@ export class ImageSource implements Loadable<HTMLImageElement> {
     return this.image.naturalHeight;
   }
 
-  private _src: string;
+  private _src?: string;
   /**
    * Returns true if the Texture is completely loaded and is ready
    * to be drawn.
@@ -75,27 +76,27 @@ export class ImageSource implements Loadable<HTMLImageElement> {
 
   /**
    * The path to the image, can also be a data url like 'data:image/'
-   * @param path {string} Path to the image resource relative from the HTML document hosting the game, or absolute
+   * @param pathOrBase64 {string} Path to the image resource relative from the HTML document hosting the game, or absolute
    * @param options
    */
-  constructor(path: string, options?: ImageSourceOptions);
+  constructor(pathOrBase64: string, options?: ImageSourceOptions);
   /**
    * The path to the image, can also be a data url like 'data:image/'
-   * @param path {string} Path to the image resource relative from the HTML document hosting the game, or absolute
+   * @param pathOrBase64 {string} Path to the image resource relative from the HTML document hosting the game, or absolute
    * @param bustCache {boolean} Should excalibur add a cache busting querystring?
-   * @param filtering {ImageFiltering} Optionally override the image filtering set by [[EngineOptions.antialiasing]]
+   * @param filtering {ImageFiltering} Optionally override the image filtering set by {@apilink EngineOptions.antialiasing}
    */
-  constructor(path: string, bustCache: boolean, filtering?: ImageFiltering);
-  constructor(path: string, bustCacheOrOptions: boolean | ImageSourceOptions, filtering?: ImageFiltering) {
-    this.path = path;
-    let bustCache = false;
-    let wrapping: ImageWrapConfiguration | ImageWrapping;
+  constructor(pathOrBase64: string, bustCache: boolean, filtering?: ImageFiltering);
+  constructor(pathOrBase64: string, bustCacheOrOptions: boolean | ImageSourceOptions | undefined, filtering?: ImageFiltering) {
+    this.path = pathOrBase64;
+    let bustCache: boolean | undefined = false;
+    let wrapping: ImageWrapConfiguration | ImageWrapping | undefined;
     if (typeof bustCacheOrOptions === 'boolean') {
       bustCache = bustCacheOrOptions;
     } else {
-      ({ filtering, wrapping, bustCache } = {...bustCacheOrOptions});
+      ({ filtering, wrapping, bustCache } = { ...bustCacheOrOptions });
     }
-    this._resource = new Resource(path, 'blob', bustCache);
+    this._resource = new Resource(pathOrBase64, 'blob', bustCache);
     this.filtering = filtering ?? this.filtering;
     if (typeof wrapping === 'string') {
       this.wrapping = {
@@ -105,8 +106,10 @@ export class ImageSource implements Loadable<HTMLImageElement> {
     } else {
       this.wrapping = wrapping ?? this.wrapping;
     }
-    if (path.endsWith('.svg') || path.endsWith('.gif')) {
-      this._logger.warn(`Image type is not fully supported, you may have mixed results ${path}. Fully supported: jpg, bmp, and png`);
+    if (pathOrBase64.endsWith('.gif')) {
+      this._logger.warn(
+        `Use the ex.Gif type to load gifs, you may have mixed results with ${pathOrBase64} in ex.ImageSource. Fully supported: svg, jpg, bmp, and png`
+      );
     }
   }
 
@@ -149,6 +152,12 @@ export class ImageSource implements Loadable<HTMLImageElement> {
     TextureLoader.checkImageSizeSupportedAndLog(image);
     imageSource._readyFuture.resolve(image);
     return imageSource;
+  }
+
+  static fromSvgString(svgSource: string, options?: ImageSourceOptions) {
+    const blob = new Blob([svgSource], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    return new ImageSource(url, options);
   }
 
   /**
@@ -200,11 +209,11 @@ export class ImageSource implements Loadable<HTMLImageElement> {
 
       // emit warning if potentially too big
       TextureLoader.checkImageSizeSupportedAndLog(this.data);
-    } catch (error) {
+    } catch (error: any) {
       throw `Error loading ImageSource from path '${this.path}' with error [${error.message}]`;
     }
     // Do a bad thing to pass the filtering as an attribute
-    this.data.setAttribute(ImageSourceAttributeConstants.Filtering, this.filtering);
+    this.data.setAttribute(ImageSourceAttributeConstants.Filtering, this.filtering as any); // TODO fix type
     this.data.setAttribute(ImageSourceAttributeConstants.WrappingX, this.wrapping?.x ?? ImageWrapping.Clamp);
     this.data.setAttribute(ImageSourceAttributeConstants.WrappingY, this.wrapping?.y ?? ImageWrapping.Clamp);
 
@@ -216,8 +225,8 @@ export class ImageSource implements Loadable<HTMLImageElement> {
   /**
    * Build a sprite from this ImageSource
    */
-  public toSprite(): Sprite {
-    return Sprite.from(this);
+  public toSprite(options?: Omit<GraphicOptions & SpriteOptions, 'image'>): Sprite {
+    return Sprite.from(this, options);
   }
 
   /**

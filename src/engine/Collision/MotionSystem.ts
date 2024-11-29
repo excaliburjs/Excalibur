@@ -1,4 +1,4 @@
-import { Query, SystemPriority, World } from '../EntityComponentSystem';
+import { Entity, Query, SystemPriority, World } from '../EntityComponentSystem';
 import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { System, SystemType } from '../EntityComponentSystem/System';
@@ -8,13 +8,17 @@ import { EulerIntegrator } from './Integrator';
 import { PhysicsWorld } from './PhysicsWorld';
 
 export class MotionSystem extends System {
+  static priority = SystemPriority.Higher;
+
   public systemType = SystemType.Update;
-  public priority = SystemPriority.Higher;
   private _physicsConfigDirty = false;
   query: Query<typeof TransformComponent | typeof MotionComponent>;
-  constructor(public world: World, public physics: PhysicsWorld) {
+  constructor(
+    public world: World,
+    public physics: PhysicsWorld
+  ) {
     super();
-    physics.$configUpdate.subscribe(() => this._physicsConfigDirty = true);
+    physics.$configUpdate.subscribe(() => (this._physicsConfigDirty = true));
     this.query = this.world.query([TransformComponent, MotionComponent]);
   }
 
@@ -22,6 +26,8 @@ export class MotionSystem extends System {
     let transform: TransformComponent;
     let motion: MotionComponent;
     const entities = this.query.entities;
+    const substep = this.physics.config.substep;
+
     for (let i = 0; i < entities.length; i++) {
       transform = entities[i].get(TransformComponent);
       motion = entities[i].get(MotionComponent);
@@ -31,7 +37,7 @@ export class MotionSystem extends System {
         optionalBody.updatePhysicsConfig(this.physics.config.bodies);
       }
 
-      if (optionalBody?.sleeping) {
+      if (optionalBody?.isSleeping) {
         continue;
       }
 
@@ -39,11 +45,24 @@ export class MotionSystem extends System {
       if (optionalBody?.collisionType === CollisionType.Active && optionalBody?.useGravity) {
         totalAcc.addEqual(this.physics.config.gravity);
       }
-      optionalBody?.captureOldTransform();
+
+      // capture old transform of this entity and all of its children so that
+      // any transform properties that derived from their parents are properly captured
+      if (!entities[i].parent) {
+        this.captureOldTransformWithChildren(entities[i]);
+      }
 
       // Update transform and motion based on Euler linear algebra
-      EulerIntegrator.integrate(transform, motion, totalAcc, elapsedMs);
+      EulerIntegrator.integrate(transform, motion, totalAcc, elapsedMs / substep);
     }
     this._physicsConfigDirty = false;
+  }
+
+  captureOldTransformWithChildren(entity: Entity) {
+    entity.get(BodyComponent)?.captureOldTransform();
+
+    for (let i = 0; i < entity.children.length; i++) {
+      this.captureOldTransformWithChildren(entity.children[i]);
+    }
   }
 }

@@ -3,12 +3,12 @@ import { Logger } from '../Util/Log';
 import { EventEmitter } from '../EventEmitter';
 
 export type ResourceEvents = {
-  complete: any,
-  load: ProgressEvent<XMLHttpRequestEventTarget>,
-  loadstart: ProgressEvent<XMLHttpRequestEventTarget>,
-  progress: ProgressEvent<XMLHttpRequestEventTarget>,
-  error: ProgressEvent<XMLHttpRequestEventTarget>
-}
+  complete: any;
+  load: ProgressEvent<XMLHttpRequestEventTarget>;
+  loadstart: ProgressEvent<XMLHttpRequestEventTarget>;
+  progress: ProgressEvent<XMLHttpRequestEventTarget>;
+  error: ProgressEvent<XMLHttpRequestEventTarget>;
+};
 
 export const ResourceEvents = {
   Complete: 'complete',
@@ -19,8 +19,8 @@ export const ResourceEvents = {
 };
 
 /**
- * The [[Resource]] type allows games built in Excalibur to load generic resources.
- * For any type of remote resource it is recommended to use [[Resource]] for preloading.
+ * The {@apilink Resource} type allows games built in Excalibur to load generic resources.
+ * For any type of remote resource it is recommended to use {@apilink Resource} for preloading.
  */
 export class Resource<T> implements Loadable<T> {
   public data: T = null;
@@ -45,7 +45,6 @@ export class Resource<T> implements Loadable<T> {
   public isLoaded(): boolean {
     return this.data !== null;
   }
-
 
   private _cacheBust(uri: string): string {
     const query: RegExp = /\?\w*=\w*/;
@@ -82,6 +81,15 @@ export class Resource<T> implements Loadable<T> {
           this.logger.error('Failed to load resource ', this.path, ' server responded with error code', request.status);
           this.events.emit('error', request.response);
           reject(new Error(request.statusText));
+          return;
+        }
+
+        if (request.response instanceof Blob && request.response.type === 'text/html') {
+          const errorText = `Expected blob (usually image) data from the server when loading ${this.path}, but got HTML content instead!
+
+Check your server configuration, for example Vite serves static files from the /public folder`;
+          this.events.emit('error', request.response);
+          reject(new Error(errorText));
           return;
         }
 

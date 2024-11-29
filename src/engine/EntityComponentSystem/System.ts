@@ -11,7 +11,7 @@ export enum SystemType {
 }
 
 /**
- * An Excalibur [[System]] that updates entities of certain types.
+ * An Excalibur {@apilink System} that updates entities of certain types.
  * Systems are scene specific
  *
  *
@@ -22,19 +22,18 @@ export enum SystemType {
  * For example:
  *
  * ```typescript
- * class MySystem extends System<ComponentA | ComponentB> {
+ * class MySystem extends System {
  *   public readonly types = ['a', 'b'] as const;
  *   public readonly systemType = SystemType.Update;
- *   public update(entities: Entity<ComponentA | ComponentB>) {
+ *   public update(elapsedMs) {
  *      ...
  *   }
  * }
  * ```
  */
 export abstract class System {
-
   /**
-   * Determine whether the system is called in the [[SystemType.Update]] or the [[SystemType.Draw]] phase. Update is first, then Draw.
+   * Determine whether the system is called in the {@apilink SystemType.Update} or the {@apilink SystemType.Draw} phase. Update is first, then Draw.
    */
   abstract readonly systemType: SystemType;
 
@@ -43,7 +42,7 @@ export abstract class System {
    * For a system to execute before all other a lower priority value (-1 for example) must be set.
    * For a system to execute after all other a higher priority value (10 for example) must be set.
    */
-  public priority: number = SystemPriority.Average;
+  public static priority: number = SystemPriority.Average;
 
   /**
    * Optionally specify an initialize handler
@@ -53,7 +52,6 @@ export abstract class System {
 
   /**
    * Update all entities that match this system's types
-   * @param entities Entities to update that match this system's types
    * @param elapsedMs Time in milliseconds
    */
   abstract update(elapsedMs: number): void;

@@ -28,5 +28,9 @@ export class GlobalCoordinates {
     return new GlobalCoordinates(worldPos, pagePos, screenPos);
   }
 
-  constructor(public worldPos: Vector, public pagePos: Vector, public screenPos: Vector) {}
+  constructor(
+    public worldPos: Vector,
+    public pagePos: Vector,
+    public screenPos: Vector
+  ) {}
 }

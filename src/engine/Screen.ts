@@ -20,39 +20,39 @@ export enum DisplayMode {
 
   /**
    * Fit the aspect ratio given by the game resolution within the container at all times will fill any gaps with canvas.
-   * The displayed area outside the aspect ratio is not guaranteed to be on the screen, only the [[Screen.contentArea]]
+   * The displayed area outside the aspect ratio is not guaranteed to be on the screen, only the {@apilink Screen.contentArea}
    * is guaranteed to be on screen.
    */
   FitContainerAndFill = 'FitContainerAndFill',
 
   /**
    * Fit the aspect ratio given by the game resolution the screen at all times will fill the screen.
-   * This displayed area outside the aspect ratio is not guaranteed to be on the screen, only the [[Screen.contentArea]]
+   * This displayed area outside the aspect ratio is not guaranteed to be on the screen, only the {@apilink Screen.contentArea}
    * is guaranteed to be on screen.
    */
   FitScreenAndFill = 'FitScreenAndFill',
 
   /**
    * Fit the viewport to the parent element maintaining aspect ratio given by the game resolution, but zooms in to avoid the black bars
-   * (letterbox) that would otherwise be present in [[FitContainer]].
+   * (letterbox) that would otherwise be present in {@apilink FitContainer}.
    *
    * **warning** This will clip some drawable area from the user because of the zoom,
-   * use [[Screen.contentArea]] to know the safe to draw area.
+   * use {@apilink Screen.contentArea} to know the safe to draw area.
    */
   FitContainerAndZoom = 'FitContainerAndZoom',
 
   /**
    * Fit the viewport to the device screen maintaining aspect ratio given by the game resolution, but zooms in to avoid the black bars
-   * (letterbox) that would otherwise be present in [[FitScreen]].
+   * (letterbox) that would otherwise be present in {@apilink FitScreen}.
    *
    * **warning** This will clip some drawable area from the user because of the zoom,
-   * use [[Screen.contentArea]] to know the safe to draw area.
+   * use {@apilink Screen.contentArea} to know the safe to draw area.
    */
   FitScreenAndZoom = 'FitScreenAndZoom',
 
   /**
    * Fit to screen using as much space as possible while maintaining aspect ratio and resolution.
-   * This is not the same as [[Screen.goFullScreen]] but behaves in a similar way maintaining aspect ratio.
+   * This is not the same as {@apilink Screen.goFullScreen} but behaves in a similar way maintaining aspect ratio.
    *
    * You may want to center your game here is an example
    * ```html
@@ -79,7 +79,7 @@ export enum DisplayMode {
 
   /**
    * Fill the entire screen's css width/height for the game resolution dynamically. This means the resolution of the game will
-   * change dynamically as the window is resized. This is not the same as [[Screen.goFullScreen]]
+   * change dynamically as the window is resized. This is not the same as {@apilink Screen.goFullScreen}
    */
   FillScreen = 'FillScreen',
 
@@ -184,8 +184,8 @@ export interface ScreenOptions {
   pixelRatio?: number;
   /**
    * Optionally specify the actual pixel resolution in width/height pixels (also known as logical resolution), by default the
-   * resolution will be the same as the viewport. Resolution will be overridden by [[DisplayMode.FillContainer]] and
-   * [[DisplayMode.FillScreen]].
+   * resolution will be the same as the viewport. Resolution will be overridden by {@apilink DisplayMode.FillContainer} and
+   * {@apilink DisplayMode.FillScreen}.
    */
   resolution?: Resolution;
   /**
@@ -239,15 +239,15 @@ export type ScreenEvents = {
   /**
    * Fires when the screen resizes, useful if you have logic that needs to be aware of resolution/viewport constraints
    */
-  'resize': ScreenResizeEvent;
+  resize: ScreenResizeEvent;
   /**
    * Fires when the pixel ratio changes, useful to know if you've moved to a hidpi screen or back
    */
-  'pixelratio': PixelRatioChangeEvent;
+  pixelratio: PixelRatioChangeEvent;
   /**
    * Fires when the browser fullscreen api is successfully engaged or disengaged
    */
-  'fullscreen': FullScreenChangeEvent;
+  fullscreen: FullScreenChangeEvent;
 };
 
 export const ScreenEvents = {
@@ -262,7 +262,7 @@ export const ScreenEvents = {
 export class Screen {
   public graphicsContext: ExcaliburGraphicsContext;
   /**
-   * Listen to screen events [[ScreenEvents]]
+   * Listen to screen events {@apilink ScreenEvents}
    */
   public events = new EventEmitter<ScreenEvents>();
   private _canvas: HTMLCanvasElement;
@@ -277,7 +277,7 @@ export class Screen {
   private _viewportStack: ViewportDimension[] = [];
   private _pixelRatioOverride: number | null = null;
   private _displayMode: DisplayMode;
-  private _isFullScreen = false;
+  private _isFullscreen = false;
   private _mediaQueryList: MediaQueryList;
   private _isDisposed = false;
   private _logger = Logger.getInstance();
@@ -344,8 +344,8 @@ export class Screen {
     if (this._isDisposed) {
       return;
     }
-    this._isFullScreen = !this._isFullScreen;
-    this._logger.debug('Fullscreen Change', this._isFullScreen);
+    this._isFullscreen = !this._isFullscreen;
+    this._logger.debug('Fullscreen Change', this._isFullscreen);
     this.events.emit('fullscreen', {
       fullscreen: this.isFullScreen
     } satisfies FullScreenChangeEvent);
@@ -359,6 +359,7 @@ export class Screen {
     this._listenForPixelRatio();
     this._devicePixelRatio = this._calculateDevicePixelRatio();
     this.applyResolutionAndViewport();
+
     this.events.emit('pixelratio', {
       pixelRatio: this.pixelRatio
     } satisfies PixelRatioChangeEvent);
@@ -372,6 +373,7 @@ export class Screen {
     this._logger.debug('View port resized');
     this._setResolutionAndViewportByDisplayMode(parent);
     this.applyResolutionAndViewport();
+
     // Emit resize event
     this.events.emit('resize', {
       resolution: this.resolution,
@@ -401,6 +403,22 @@ export class Screen {
     }
 
     return this._devicePixelRatio;
+  }
+
+  /**
+   * This calculates the ratio between excalibur pixels and the HTML pixels.
+   *
+   * This is useful for scaling HTML UI so that it matches your game.
+   */
+  public get worldToPagePixelRatio(): number {
+    if (this._canvas) {
+      const pageOrigin = this.worldToPageCoordinates(Vector.Zero);
+      const pageDistance = this.worldToPageCoordinates(vec(1, 0)).sub(pageOrigin);
+      const pixelConversion = pageDistance.x;
+      return pixelConversion;
+    } else {
+      return 1;
+    }
   }
 
   /**
@@ -501,8 +519,6 @@ export class Screen {
     }
   }
 
-
-
   public applyResolutionAndViewport() {
     if (this.graphicsContext instanceof ExcaliburGraphicsContextWebGL) {
       const scaledResolutionSupported = this.graphicsContext.checkIfResolutionSupported({
@@ -512,16 +528,17 @@ export class Screen {
       if (!scaledResolutionSupported) {
         this._logger.warnOnce(
           `The currently configured resolution (${this.resolution.width}x${this.resolution.height}) and pixel ratio (${this.pixelRatio})` +
-          ' are too large for the platform WebGL implementation, this may work but cause WebGL rendering to behave oddly.' +
-          ' Try reducing the resolution or disabling Hi DPI scaling to avoid this' +
-          ' (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).');
+            ' are too large for the platform WebGL implementation, this may work but cause WebGL rendering to behave oddly.' +
+            ' Try reducing the resolution or disabling Hi DPI scaling to avoid this' +
+            ' (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).'
+        );
 
         // Attempt to recover if the user hasn't configured a specific ratio for up scaling
         if (!this.pixelRatioOverride) {
-          let currentPixelRatio = Math.max(1, this.pixelRatio - .5);
+          let currentPixelRatio = Math.max(1, this.pixelRatio - 0.5);
           let newResolutionSupported = false;
           while (currentPixelRatio > 1 && !newResolutionSupported) {
-            currentPixelRatio = Math.max(1, currentPixelRatio - .5);
+            currentPixelRatio = Math.max(1, currentPixelRatio - 0.5);
             const width = this._resolution.width * currentPixelRatio;
             const height = this._resolution.height * currentPixelRatio;
             newResolutionSupported = this.graphicsContext.checkIfResolutionSupported({ width, height });
@@ -529,9 +546,10 @@ export class Screen {
           this.pixelRatioOverride = currentPixelRatio;
           this._logger.warnOnce(
             'Scaled resolution too big attempted recovery!' +
-            ` Pixel ratio was automatically reduced to (${this.pixelRatio}) to avoid 4k texture limit.` +
-            ' Setting `ex.Engine({pixelRatio: ...}) will override any automatic recalculation, do so at your own risk.` ' +
-            ' (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).');
+              ` Pixel ratio was automatically reduced to (${this.pixelRatio}) to avoid 4k texture limit.` +
+              ' Setting `ex.Engine({pixelRatio: ...}) will override any automatic recalculation, do so at your own risk.` ' +
+              ' (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).'
+          );
         }
       }
     }
@@ -563,6 +581,8 @@ export class Screen {
     if (this.graphicsContext instanceof ExcaliburGraphicsContext2DCanvas) {
       this.graphicsContext.scale(this.pixelRatio, this.pixelRatio);
     }
+    // Add the excalibur world pixel to page pixel
+    document.documentElement.style.setProperty('--ex-pixel-ratio', this.worldToPagePixelRatio.toString());
   }
 
   public get antialiasing() {
@@ -576,9 +596,17 @@ export class Screen {
 
   /**
    * Returns true if excalibur is fullscreen using the browser fullscreen api
+   * @deprecated use isFullscreen()
    */
   public get isFullScreen() {
-    return this._isFullScreen;
+    return this._isFullscreen;
+  }
+
+  /**
+   * Returns true if excalibur is fullscreen using the browser fullscreen api
+   */
+  public get isFullscreen() {
+    return this._isFullscreen;
   }
 
   /**
@@ -587,8 +615,20 @@ export class Screen {
    *
    * Optionally specify a target element id to go fullscreen, by default the game canvas is used
    * @param elementId
+   * @deprecated use enterFullscreen(...)
    */
   public goFullScreen(elementId?: string): Promise<void> {
+    return this.enterFullscreen(elementId);
+  }
+
+  /**
+   * Requests to enter fullscreen using the browser fullscreen api, requires user interaction to be successful.
+   * For example, wire this to a user click handler.
+   *
+   * Optionally specify a target element id to go fullscreen, by default the game canvas is used
+   * @param elementId
+   */
+  public enterFullscreen(elementId?: string): Promise<void> {
     if (elementId) {
       const maybeElement = document.getElementById(elementId);
       if (maybeElement) {
@@ -605,8 +645,13 @@ export class Screen {
 
   /**
    * Requests to exit fullscreen using the browser fullscreen api
+   * @deprecated use exitFullscreen()
    */
   public exitFullScreen(): Promise<void> {
+    return this.exitFullscreen();
+  }
+
+  public exitFullscreen(): Promise<void> {
     return document.exitFullscreen();
   }
 
@@ -630,7 +675,7 @@ export class Screen {
     let newX = point.x;
     let newY = point.y;
 
-    if (!this._isFullScreen) {
+    if (!this._isFullscreen) {
       newX -= getPosition(this._canvas).x;
       newY -= getPosition(this._canvas).y;
     }
@@ -639,7 +684,7 @@ export class Screen {
 
     // if fullscreen api on it centers with black bars
     // we need to adjust the screen to world coordinates in this case
-    if (this._isFullScreen) {
+    if (this._isFullscreen) {
       if (window.innerWidth / this.aspectRatio < window.innerHeight) {
         const screenHeight = window.innerWidth / this.aspectRatio;
         const screenMarginY = (window.innerHeight - screenHeight) / 2;
@@ -682,7 +727,7 @@ export class Screen {
     newX = (newX / this.resolution.width) * viewport.width;
     newY = (newY / this.resolution.height) * viewport.height;
 
-    if (this._isFullScreen) {
+    if (this._isFullscreen) {
       if (window.innerWidth / this.aspectRatio < window.innerHeight) {
         const screenHeight = window.innerWidth / this.aspectRatio;
         const screenMarginY = (window.innerHeight - screenHeight) / 2;
@@ -696,7 +741,7 @@ export class Screen {
       }
     }
 
-    if (!this._isFullScreen) {
+    if (!this._isFullscreen) {
       newX += getPosition(this._canvas).x;
       newY += getPosition(this._canvas).y;
     }
@@ -707,8 +752,8 @@ export class Screen {
   /**
    * Takes a coordinate in Excalibur screen space, and translates it to Excalibur world space.
    *
-   * World space is where [[Entity|entities]] in Excalibur live by default [[CoordPlane.World]]
-   * and extends infinitely out relative from the [[Camera]].
+   * World space is where {@apilink Entity | `entities`} in Excalibur live by default {@apilink CoordPlane.World}
+   * and extends infinitely out relative from the {@apilink Camera}.
    * @param point  Screen coordinate to convert
    */
   public screenToWorldCoordinates(point: Vector): Vector {
@@ -725,7 +770,7 @@ export class Screen {
   /**
    * Takes a coordinate in Excalibur world space, and translates it to Excalibur screen space.
    *
-   * Screen space is where [[ScreenElement|screen elements]] and [[Entity|entities]] with [[CoordPlane.Screen]] live.
+   * Screen space is where {@apilink ScreenElement | `screen elements`} and {@apilink Entity | `entities`} with {@apilink CoordPlane.Screen} live.
    * @param point  World coordinate to convert
    */
   public worldToScreenCoordinates(point: Vector): Vector {
@@ -752,11 +797,8 @@ export class Screen {
    * World bounds are in world coordinates, useful for culling objects offscreen that are in world space
    */
   public getWorldBounds(): BoundingBox {
-    const bounds = BoundingBox.fromDimension(
-      this.resolution.width,
-      this.resolution.height,
-      Vector.Half)
-      .scale(vec(1/this._camera.zoom, 1/this._camera.zoom))
+    const bounds = BoundingBox.fromDimension(this.resolution.width, this.resolution.height, Vector.Half)
+      .scale(vec(1 / this._camera.zoom, 1 / this._camera.zoom))
       .rotate(this._camera.rotation)
       .translate(this._camera.drawPos);
     return bounds;
@@ -768,10 +810,7 @@ export class Screen {
    * Screen bounds are in screen coordinates, useful for culling objects offscreen that are in screen space
    */
   public getScreenBounds(): BoundingBox {
-    const bounds = BoundingBox.fromDimension(
-      this.resolution.width,
-      this.resolution.height,
-      Vector.Zero, Vector.Zero);
+    const bounds = BoundingBox.fromDimension(this.resolution.width, this.resolution.height, Vector.Zero, Vector.Zero);
     return bounds;
   }
 
@@ -901,20 +940,16 @@ export class Screen {
     } satisfies ScreenResizeEvent);
   }
 
-
-
   private _computeFitContainerAndFill() {
     this.canvas.style.width = '100%';
     this.canvas.style.height = '100%';
 
-    this._computeFitAndFill(
-      this.canvas.offsetWidth,
-      this.canvas.offsetHeight, {
-        width: 100,
-        widthUnit: 'percent',
-        height: 100,
-        heightUnit: 'percent'
-      });
+    this._computeFitAndFill(this.canvas.offsetWidth, this.canvas.offsetHeight, {
+      width: 100,
+      widthUnit: 'percent',
+      height: 100,
+      heightUnit: 'percent'
+    });
     this.events.emit('resize', {
       resolution: this.resolution,
       viewport: this.viewport
@@ -930,8 +965,8 @@ export class Screen {
     if (vw / vh <= this._contentResolution.width / this._contentResolution.height) {
       // compute new resolution to match the original aspect ratio
       this.resolution = {
-        width:  vw * this._contentResolution.width / vw,
-        height: vw * this._contentResolution.width / vw * vh / vw
+        width: (vw * this._contentResolution.width) / vw,
+        height: (((vw * this._contentResolution.width) / vw) * vh) / vw
       };
       const clip = (this.resolution.height - this._contentResolution.height) / 2;
       this._contentArea = new BoundingBox({
@@ -948,8 +983,8 @@ export class Screen {
       });
     } else {
       this.resolution = {
-        width: vh *  this._contentResolution.height / vh * vw / vh,
-        height: vh *  this._contentResolution.height / vh
+        width: (((vh * this._contentResolution.height) / vh) * vw) / vh,
+        height: (vh * this._contentResolution.height) / vh
       };
       const clip = (this.resolution.width - this._contentResolution.width) / 2;
       this._contentArea = new BoundingBox({
@@ -1038,7 +1073,7 @@ export class Screen {
     const bounds = BoundingBox.fromDimension(this.viewport.width, this.viewport.height, Vector.Zero);
     // return safe area
     if (this.viewport.width > vw) {
-      const clip = (this.viewport.width - vw)/this.viewport.width * this.resolution.width;
+      const clip = ((this.viewport.width - vw) / this.viewport.width) * this.resolution.width;
       bounds.top = 0;
       bounds.left = clip / 2;
       bounds.right = this.resolution.width - clip / 2;
@@ -1046,7 +1081,7 @@ export class Screen {
     }
 
     if (this.viewport.height > vh) {
-      const clip = (this.viewport.height - vh)/this.viewport.height * this.resolution.height;
+      const clip = ((this.viewport.height - vh) / this.viewport.height) * this.resolution.height;
       bounds.top = clip / 2;
       bounds.left = 0;
       bounds.bottom = this.resolution.height - clip / 2;
@@ -1125,8 +1160,8 @@ export class Screen {
       document.body.style.margin = '0px';
       document.body.style.overflow = 'hidden';
       this.resolution = {
-        width: (<Window> parent).innerWidth,
-        height: (<Window> parent).innerHeight
+        width: (<Window>parent).innerWidth,
+        height: (<Window>parent).innerHeight
       };
 
       this.viewport = this.resolution;
@@ -1146,7 +1181,7 @@ export class Screen {
       this._computeFitScreenAndFill();
     }
 
-    if (this.displayMode === DisplayMode.FitContainerAndFill){
+    if (this.displayMode === DisplayMode.FitContainerAndFill) {
       this._computeFitContainerAndFill();
     }
 
@@ -1154,7 +1189,7 @@ export class Screen {
       this._computeFitScreenAndZoom();
     }
 
-    if (this.displayMode === DisplayMode.FitContainerAndZoom){
+    if (this.displayMode === DisplayMode.FitContainerAndZoom) {
       this._computeFitContainerAndZoom();
     }
   }

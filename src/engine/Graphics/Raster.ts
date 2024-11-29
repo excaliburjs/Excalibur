@@ -7,7 +7,7 @@ import { watch } from '../Util/Watch';
 import { ImageFiltering } from './Filtering';
 import { omit } from '../Util/Util';
 
-export interface RasterOptions {
+export interface RasterOptions extends GraphicOptions {
   /**
    * Optionally specify a quality number, which is how much to scale the internal Raster. Default is 1.
    *
@@ -22,7 +22,7 @@ export interface RasterOptions {
   smoothing?: boolean;
 
   /**
-   * Optionally specify the color of the raster's bitmap context, by default [[Color.Black]]
+   * Optionally specify the color of the raster's bitmap context, by default {@apilink Color.Black}
    */
   color?: Color;
 
@@ -52,8 +52,8 @@ export interface RasterOptions {
   padding?: number;
 
   /**
-   * Optionally specify what image filtering mode should be used, [[ImageFiltering.Pixel]] for pixel art,
-   * [[ImageFiltering.Blended]] for hi-res art
+   * Optionally specify what image filtering mode should be used, {@apilink ImageFiltering.Pixel} for pixel art,
+   * {@apilink ImageFiltering.Blended} for hi-res art
    *
    * By default unset, rasters defer to the engine antialiasing setting
    */
@@ -62,12 +62,12 @@ export interface RasterOptions {
 
 /**
  * A Raster is a Graphic that needs to be first painted to a HTMLCanvasElement before it can be drawn to the
- * [[ExcaliburGraphicsContext]]. This is useful for generating custom images using the 2D canvas api.
+ * {@apilink ExcaliburGraphicsContext}. This is useful for generating custom images using the 2D canvas api.
  *
- * Implementors must implement the [[Raster.execute]] method to rasterize their drawing.
+ * Implementors must implement the {@apilink Raster.execute} method to rasterize their drawing.
  */
 export abstract class Raster extends Graphic {
-  public filtering: ImageFiltering = null;
+  public filtering?: ImageFiltering;
   public lineCap: 'butt' | 'round' | 'square' = 'butt';
   public quality: number = 1;
 
@@ -75,8 +75,8 @@ export abstract class Raster extends Graphic {
   protected _ctx: CanvasRenderingContext2D;
   private _dirty: boolean = true;
 
-  constructor(options?: GraphicOptions & RasterOptions) {
-    super(omit(options, ['width', 'height'])); // rasters do some special sauce with width/height
+  constructor(options?: RasterOptions) {
+    super(omit({ ...options }, ['width', 'height'])); // rasters do some special sauce with width/height
     if (options) {
       this.quality = options.quality ?? this.quality;
       this.color = options.color ?? Color.Black;
@@ -105,8 +105,8 @@ export abstract class Raster extends Graphic {
 
   public cloneRasterOptions(): RasterOptions {
     return {
-      color: this.color ? this.color.clone() : null,
-      strokeColor: this.strokeColor ? this.strokeColor.clone() : null,
+      color: this.color ? this.color.clone() : undefined,
+      strokeColor: this.strokeColor ? this.strokeColor.clone() : undefined,
       smoothing: this.smoothing,
       lineWidth: this.lineWidth,
       lineDash: this.lineDash,
@@ -131,7 +131,7 @@ export abstract class Raster extends Graphic {
     this._dirty = true;
   }
 
-  private _originalWidth: number;
+  private _originalWidth?: number;
   /**
    * Gets or sets the current width of the Raster graphic. Setting the width will cause the raster
    * to be flagged dirty causing a re-raster on the next draw.
@@ -148,7 +148,7 @@ export abstract class Raster extends Graphic {
     this.flagDirty();
   }
 
-  private _originalHeight: number;
+  private _originalHeight?: number;
   /**
    * Gets or sets the current height of the Raster graphic. Setting the height will cause the raster
    * to be flagged dirty causing a re-raster on the next draw.
@@ -207,7 +207,7 @@ export abstract class Raster extends Graphic {
     this._color = watch(value, () => this.flagDirty());
   }
 
-  private _strokeColor: Color;
+  private _strokeColor: Color | undefined;
   /**
    * Gets or sets the strokeStyle of the Raster graphic. Setting the strokeStyle will cause the raster to be
    * flagged dirty causing a re-raster on the next draw.
@@ -215,9 +215,11 @@ export abstract class Raster extends Graphic {
   public get strokeColor() {
     return this._strokeColor;
   }
-  public set strokeColor(value) {
+  public set strokeColor(value: Color | undefined) {
     this.flagDirty();
-    this._strokeColor = watch(value, () => this.flagDirty());
+    if (value) {
+      this._strokeColor = watch(value, () => this.flagDirty());
+    }
   }
 
   private _lineWidth: number = 1;
@@ -255,7 +257,7 @@ export abstract class Raster extends Graphic {
 
   /**
    * Rasterize the graphic to a bitmap making it usable as in excalibur. Rasterize is called automatically if
-   * the graphic is [[Raster.dirty]] on the next [[Graphic.draw]] call
+   * the graphic is {@apilink Raster.dirty} on the next {@apilink Graphic.draw} call
    */
   public rasterize(): void {
     this._dirty = false;
@@ -270,7 +272,7 @@ export abstract class Raster extends Graphic {
     this._bitmap.width = this._getTotalWidth() * this.quality;
     this._bitmap.height = this._getTotalHeight() * this.quality;
     // Do a bad thing to pass the filtering as an attribute
-    this._bitmap.setAttribute('filtering', this.filtering);
+    this._bitmap.setAttribute('filtering', this.filtering as any);
     this._bitmap.setAttribute('forceUpload', 'true');
     ctx.scale(this.quality, this.quality);
     ctx.translate(this.padding, this.padding);
@@ -278,7 +280,7 @@ export abstract class Raster extends Graphic {
     ctx.lineWidth = this.lineWidth;
     ctx.setLineDash(this.lineDash ?? ctx.getLineDash());
     ctx.lineCap = this.lineCap;
-    ctx.strokeStyle = this.strokeColor?.toString();
+    ctx.strokeStyle = this.strokeColor?.toString() ?? '';
     ctx.fillStyle = this.color?.toString();
   }
 
@@ -292,7 +294,7 @@ export abstract class Raster extends Graphic {
 
   /**
    * Executes drawing implementation of the graphic, this is where the specific drawing code for the graphic
-   * should be implemented. Once `rasterize()` the graphic can be drawn to the [[ExcaliburGraphicsContext]] via `draw(...)`
+   * should be implemented. Once `rasterize()` the graphic can be drawn to the {@apilink ExcaliburGraphicsContext} via `draw(...)`
    * @param ctx Canvas to draw the graphic to
    */
   abstract execute(ctx: CanvasRenderingContext2D): void;

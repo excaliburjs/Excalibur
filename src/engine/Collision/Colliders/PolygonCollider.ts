@@ -6,12 +6,11 @@ import { CircleCollider } from './CircleCollider';
 import { CollisionContact } from '../Detection/CollisionContact';
 import { Projection } from '../../Math/projection';
 import { LineSegment } from '../../Math/line-segment';
-import { Vector } from '../../Math/vector';
-import { AffineMatrix } from '../../Math/affine-matrix';
+import { Vector, vec } from '../../Math/vector';
 import { Ray } from '../../Math/ray';
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
 import { Collider } from './Collider';
-import { BodyComponent, Debug, ExcaliburGraphicsContext, Logger } from '../..';
+import { BodyComponent, Debug, ExcaliburGraphicsContext, Logger, sign } from '../..';
 import { CompositeCollider } from './CompositeCollider';
 import { Shape } from './Shape';
 import { Transform } from '../../Math/transform';
@@ -24,6 +23,7 @@ export interface PolygonColliderOptions {
   offset?: Vector;
   /**
    * Points in the polygon in order around the perimeter in local coordinates. These are relative from the body transform position.
+   * **Must be at least 3 points**
    */
   points: Vector[];
 
@@ -51,14 +51,32 @@ export class PolygonCollider extends Collider {
   }
 
   private _points: Vector[];
+  private _normals: Vector[];
+
+  public get normals(): readonly Vector[] {
+    return this._normals;
+  }
 
   /**
    * Points in the polygon in order around the perimeter in local coordinates. These are relative from the body transform position.
    * Excalibur stores these in counter-clockwise order
    */
   public set points(points: Vector[]) {
+    if (points.length < 3) {
+      throw new Error('PolygonCollider cannot be created with less that 3 points');
+    }
     this._points = points;
+    this._checkAndUpdateWinding(this._points);
+    this._calculateNormals();
     this.flagDirty();
+  }
+
+  private _calculateNormals() {
+    const normals: Vector[] = [];
+    for (let i = 0; i < this._points.length; i++) {
+      normals.push(this._points[(i + 1) % this._points.length].sub(this._points[i]).normal());
+    }
+    this._normals = normals;
   }
 
   /**
@@ -69,7 +87,10 @@ export class PolygonCollider extends Collider {
     return this._points;
   }
 
-  private _transform: Transform;
+  private _transform: Transform = new Transform();
+  public get transform() {
+    return this._transform;
+  }
 
   private _transformedPoints: Vector[] = [];
   private _sides: LineSegment[] = [];
@@ -78,18 +99,16 @@ export class PolygonCollider extends Collider {
   constructor(options: PolygonColliderOptions) {
     super();
     this.offset = options.offset ?? Vector.Zero;
-    this._globalMatrix.translate(this.offset.x, this.offset.y);
-    this.points = options.points ?? [];
-    const counterClockwise = this._isCounterClockwiseWinding(this.points);
-    if (!counterClockwise) {
-      this.points.reverse();
-    }
+    this._transform.pos.x += this.offset.x;
+    this._transform.pos.y += this.offset.y;
+    this.points = options.points;
 
     if (!this.isConvex()) {
       if (!options.suppressConvexWarning) {
         this._logger.warn(
           'Excalibur only supports convex polygon colliders and will not behave properly.' +
-          'Call PolygonCollider.triangulate() to build a new collider composed of smaller convex triangles');
+            'Call PolygonCollider.triangulate() to build a new collider composed of smaller convex triangles'
+        );
       }
     }
 
@@ -97,7 +116,13 @@ export class PolygonCollider extends Collider {
     this._calculateTransformation();
   }
 
-  private _isCounterClockwiseWinding(points: Vector[]): boolean {
+  private _checkAndUpdateWinding(points: Vector[]) {
+    const counterClockwise = this._isCounterClockwiseWinding(points);
+    if (!counterClockwise) {
+      points.reverse();
+    }
+  }
+  public _isCounterClockwiseWinding(points: Vector[]): boolean {
     // https://stackoverflow.com/a/1165943
     let sum = 0;
     for (let i = 0; i < points.length; i++) {
@@ -108,7 +133,7 @@ export class PolygonCollider extends Collider {
 
   /**
    * Returns if the polygon collider is convex, Excalibur does not handle non-convex collision shapes.
-   * Call [[Polygon.triangulate]] to generate a [[CompositeCollider]] from this non-convex shape
+   * Call {@apilink Polygon.triangulate} to generate a {@apilink CompositeCollider} from this non-convex shape
    */
   public isConvex(): boolean {
     // From SO: https://stackoverflow.com/a/45372025
@@ -151,7 +176,7 @@ export class PolygonCollider extends Collider {
   }
 
   /**
-   * Tessellates the polygon into a triangle fan as a [[CompositeCollider]] of triangle polygons
+   * Tessellates the polygon into a triangle fan as a {@apilink CompositeCollider} of triangle polygons
    */
   public tessellate(): CompositeCollider {
     const polygons: Vector[][] = [];
@@ -160,12 +185,12 @@ export class PolygonCollider extends Collider {
     }
     polygons.push([this.points[0], this.points[1], this.points[2]]);
 
-    return new CompositeCollider(polygons.map(points => Shape.Polygon(points)));
+    return new CompositeCollider(polygons.map((points) => Shape.Polygon(points)));
   }
 
   /**
    * Triangulate the polygon collider using the "Ear Clipping" algorithm.
-   * Returns a new [[CompositeCollider]] made up of smaller triangles.
+   * Returns a new {@apilink CompositeCollider} made up of smaller triangles.
    */
   public triangulate(): CompositeCollider {
     // https://www.youtube.com/watch?v=hTJFcHutls8
@@ -213,7 +238,7 @@ export class PolygonCollider extends Collider {
       return true;
     }
 
-    const convexVertices = vertices.map((_,i) => isConvex(i));
+    const convexVertices = vertices.map((_, i) => isConvex(i));
 
     /**
      * Quick test for point in triangle
@@ -250,7 +275,6 @@ export class PolygonCollider extends Collider {
     function findEarTip() {
       for (let i = 0; i < vertexCount; i++) {
         if (convexVertices[i]) {
-
           const prev = getPrevIndex(i);
           const next = getNextIndex(i);
 
@@ -325,8 +349,7 @@ export class PolygonCollider extends Collider {
     triangles.push([vertices[0], vertices[1], vertices[2]]);
 
     // FIXME: there is a colinear triangle that sneaks in here sometimes
-    return new CompositeCollider(
-      triangles.map(points => Shape.Polygon(points, Vector.Zero, true)));
+    return new CompositeCollider(triangles.map((points) => Shape.Polygon(points, Vector.Zero, true)));
   }
 
   /**
@@ -343,10 +366,7 @@ export class PolygonCollider extends Collider {
    * Returns the world position of the collider, which is the current body transform plus any defined offset
    */
   public get worldPos(): Vector {
-    if (this._transform) {
-      return this._transform.pos.add(this.offset);
-    }
-    return this.offset;
+    return this._transform.pos;
   }
 
   /**
@@ -355,8 +375,6 @@ export class PolygonCollider extends Collider {
   public get center(): Vector {
     return this.bounds.center;
   }
-
-  private _globalMatrix: AffineMatrix = AffineMatrix.identity();
 
   private _transformedPointsDirty = true;
   /**
@@ -367,7 +385,7 @@ export class PolygonCollider extends Collider {
     const len = points.length;
     this._transformedPoints.length = 0; // clear out old transform
     for (let i = 0; i < len; i++) {
-      this._transformedPoints[i] = this._globalMatrix.multiply(points[i].clone());
+      this._transformedPoints[i] = this._transform.apply(points[i].clone());
     }
   }
 
@@ -481,13 +499,22 @@ export class PolygonCollider extends Collider {
    */
   public update(transform: Transform): void {
     if (transform) {
-      this._transform = transform;
+      // This change means an update must be performed in order for geometry to update
+      transform.cloneWithParent(this._transform);
       this._transformedPointsDirty = true;
       this._sidesDirty = true;
-      // This change means an update must be performed in order for geometry to update
-      const globalMat = transform.matrix ?? this._globalMatrix;
-      globalMat.clone(this._globalMatrix);
-      this._globalMatrix.translate(this.offset.x, this.offset.y);
+      if (this.offset.x !== 0 || this.offset.y !== 0) {
+        this._transform.pos.x += this.offset.x;
+        this._transform.pos.y += this.offset.y;
+      }
+
+      if (this._transform.isMirrored()) {
+        // negative transforms really mess with things in collision local space
+        // flatten out the negatives by applying to geometry
+        this.points = this.points.map((p) => vec(p.x * sign(this._transform.scale.x), p.y * sign(this._transform.scale.y)));
+        this._transform.scale.x = Math.abs(this._transform.scale.x);
+        this._transform.scale.y = Math.abs(this._transform.scale.y);
+      }
     }
   }
 
@@ -610,7 +637,7 @@ export class PolygonCollider extends Collider {
    * Get the axis aligned bounding box for the polygon collider in world coordinates
    */
   public get bounds(): BoundingBox {
-    return this.localBounds.transform(this._globalMatrix);
+    return this.localBounds.transform(this._transform.matrix);
   }
 
   private _localBoundsDirty = true;
@@ -643,13 +670,11 @@ export class PolygonCollider extends Collider {
     for (let i = 0; i < points.length; i++) {
       const iplusone = (i + 1) % points.length;
       const crossTerm = points[iplusone].cross(points[i]);
-      numerator +=
-        crossTerm *
-        (points[i].dot(points[i]) + points[i].dot(points[iplusone]) + points[iplusone].dot(points[iplusone]));
+      numerator += crossTerm * (points[i].dot(points[i]) + points[i].dot(points[iplusone]) + points[iplusone].dot(points[iplusone]));
       denominator += crossTerm;
     }
     this._cachedMass = mass;
-    return this._cachedInertia = (mass / 6) * (numerator / denominator);
+    return (this._cachedInertia = (mass / 6) * (numerator / denominator));
   }
 
   /**
@@ -704,7 +729,7 @@ export class PolygonCollider extends Collider {
     return new Projection(min, max);
   }
 
-  public debug(ex: ExcaliburGraphicsContext, color: Color, options?: { lineWidth: number, pointSize: number }) {
+  public debug(ex: ExcaliburGraphicsContext, color: Color, options?: { lineWidth: number; pointSize: number }) {
     const points = this.getTransformedPoints();
     Debug.drawPolygon(points, { color });
   }

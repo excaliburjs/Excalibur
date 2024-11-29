@@ -17,7 +17,7 @@ export type LineCapStyle = 'butt' | 'round' | 'square';
  * @param x2 The ending x coordinate
  * @param y2 The ending y coordinate
  * @param thickness The line thickness
- * @param cap The [[LineCapStyle]] (butt, round, or square)
+ * @param cap The {@apilink LineCapStyle} (butt, round, or square)
  */
 export function line(
   ctx: CanvasRenderingContext2D,
@@ -101,8 +101,8 @@ export interface BorderRadius {
  * @param width The width of the rectangle
  * @param height The height of the rectangle
  * @param radius The border radius of the rectangle
- * @param stroke The [[Color]] to stroke rectangle with
- * @param fill The [[Color]] to fill rectangle with
+ * @param stroke The {@apilink Color} to stroke rectangle with
+ * @param fill The {@apilink Color} to fill rectangle with
  */
 export function roundRect(
   ctx: CanvasRenderingContext2D,
@@ -111,8 +111,8 @@ export function roundRect(
   width: number,
   height: number,
   radius: number | BorderRadius = 5,
-  stroke: Color = Color.White,
-  fill: Color = null
+  stroke: Color | null = Color.White,
+  fill: Color | null = null
 ) {
   let br: BorderRadius;
 

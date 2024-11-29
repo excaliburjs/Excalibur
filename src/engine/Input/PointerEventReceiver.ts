@@ -14,18 +14,17 @@ import { PointerType } from './PointerType';
 import { isCrossOriginIframe } from '../Util/IFrame';
 import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
 
-
 export type NativePointerEvent = globalThis.PointerEvent;
 export type NativeMouseEvent = globalThis.MouseEvent;
 export type NativeTouchEvent = globalThis.TouchEvent;
 export type NativeWheelEvent = globalThis.WheelEvent;
 
 export type PointerEvents = {
-  move: PointerEvent,
-  down: PointerEvent,
-  up: PointerEvent,
-  wheel: WheelEvent
-}
+  move: PointerEvent;
+  down: PointerEvent;
+  up: PointerEvent;
+  wheel: WheelEvent;
+};
 
 export const PointerEvents = {
   Move: 'move',
@@ -76,7 +75,10 @@ export class PointerEventReceiver {
 
   private _enabled = true;
 
-  constructor(public readonly target: GlobalEventHandlers & EventTarget, public engine: Engine) {}
+  constructor(
+    public readonly target: GlobalEventHandlers & EventTarget,
+    public engine: Engine
+  ) {}
 
   public toggleEnabled(enabled: boolean) {
     this._enabled = enabled;
@@ -122,6 +124,9 @@ export class PointerEventReceiver {
    * @param pointerId
    */
   public isDown(pointerId: number) {
+    if (!this._enabled) {
+      return false;
+    }
     return this.currentFramePointerDown.get(pointerId) ?? false;
   }
 
@@ -130,6 +135,9 @@ export class PointerEventReceiver {
    * @param pointerId
    */
   public wasDown(pointerId: number) {
+    if (!this._enabled) {
+      return false;
+    }
     return this.lastFramePointerDown.get(pointerId) ?? false;
   }
 
@@ -137,6 +145,9 @@ export class PointerEventReceiver {
    * Whether the Pointer is currently dragging.
    */
   public isDragging(pointerId: number): boolean {
+    if (!this._enabled) {
+      return false;
+    }
     return this.isDown(pointerId);
   }
 
@@ -144,6 +155,9 @@ export class PointerEventReceiver {
    * Whether the Pointer just started dragging.
    */
   public isDragStart(pointerId: number): boolean {
+    if (!this._enabled) {
+      return false;
+    }
     return this.isDown(pointerId) && !this.wasDown(pointerId);
   }
 
@@ -151,6 +165,9 @@ export class PointerEventReceiver {
    * Whether the Pointer just ended dragging.
    */
   public isDragEnd(pointerId: number): boolean {
+    if (!this._enabled) {
+      return false;
+    }
     return !this.isDown(pointerId) && this.wasDown(pointerId);
   }
 
@@ -185,12 +202,16 @@ export class PointerEventReceiver {
    * Updates the current frame pointer info and emits raw pointer events
    *
    * This does not emit events to entities, see PointerSystem
+   * @internal
    */
   public update() {
     this.lastFramePointerDown = new Map(this.currentFramePointerDown);
     this.lastFramePointerCoords = new Map(this.currentFramePointerCoords);
 
     for (const event of this.currentFrameDown) {
+      if (!event.active) {
+        continue;
+      }
       this.emit('down', event);
       const pointer = this.at(event.pointerId);
       pointer.emit('down', event);
@@ -198,27 +219,46 @@ export class PointerEventReceiver {
     }
 
     for (const event of this.currentFrameUp) {
+      if (!event.active) {
+        continue;
+      }
       this.emit('up', event);
       const pointer = this.at(event.pointerId);
       pointer.emit('up', event);
     }
 
     for (const event of this.currentFrameMove) {
+      if (!event.active) {
+        continue;
+      }
       this.emit('move', event);
       const pointer = this.at(event.pointerId);
       pointer.emit('move', event);
     }
 
     for (const event of this.currentFrameCancel) {
+      if (!event.active) {
+        continue;
+      }
       this.emit('cancel', event);
       const pointer = this.at(event.pointerId);
       pointer.emit('cancel', event);
     }
 
     for (const event of this.currentFrameWheel) {
+      if (!event.active) {
+        continue;
+      }
+      this.emit('pointerwheel', event);
       this.emit('wheel', event);
       this.primary.emit('pointerwheel', event);
       this.primary.emit('wheel', event);
+    }
+
+    if (this.engine.currentScene.camera.hasChanged()) {
+      for (const pointer of this._pointers) {
+        pointer._updateWorldPosition(this.engine);
+      }
     }
   }
 
@@ -360,7 +400,7 @@ export class PointerEventReceiver {
     const currentPointerIds = Array.from(this._activeNativePointerIdsToNormalized.keys()).sort((a, b) => a - b);
 
     // The index into sorted ids will be the new id, will always have an id
-    const id = currentPointerIds.findIndex(p => p === nativePointerId);
+    const id = currentPointerIds.findIndex((p) => p === nativePointerId);
 
     // Save the mapping so we can reverse it later
     this._activeNativePointerIdsToNormalized.set(nativePointerId, id);
@@ -457,7 +497,7 @@ export class PointerEventReceiver {
 
     const deltaX = ev.deltaX || ev.wheelDeltaX * ScrollWheelNormalizationFactor || 0;
     const deltaY =
-        ev.deltaY || ev.wheelDeltaY * ScrollWheelNormalizationFactor || ev.wheelDelta * ScrollWheelNormalizationFactor || ev.detail || 0;
+      ev.deltaY || ev.wheelDeltaY * ScrollWheelNormalizationFactor || ev.wheelDelta * ScrollWheelNormalizationFactor || ev.detail || 0;
     const deltaZ = ev.deltaZ || 0;
     let deltaMode = WheelDeltaMode.Pixel;
 
@@ -484,17 +524,21 @@ export class PointerEventReceiver {
     const page = this.engine.screen.worldToPageCoordinates(pos);
     // Send an event to the event receiver
     if (window.PointerEvent) {
-      this._handle(new window.PointerEvent('pointer' + type, {
-        pointerId: 0,
-        clientX: page.x,
-        clientY: page.y
-      }));
+      this._handle(
+        new window.PointerEvent('pointer' + type, {
+          pointerId: 0,
+          clientX: page.x,
+          clientY: page.y
+        })
+      );
     } else {
       // Safari hack
-      this._handle(new window.MouseEvent('mouse' + type, {
-        clientX: page.x,
-        clientY: page.y
-      }));
+      this._handle(
+        new window.MouseEvent('mouse' + type, {
+          clientX: page.x,
+          clientY: page.y
+        })
+      );
     }
 
     // Force update pointer system

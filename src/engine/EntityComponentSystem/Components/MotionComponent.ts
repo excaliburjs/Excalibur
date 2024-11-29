@@ -34,7 +34,6 @@ export interface Motion {
 }
 
 export class MotionComponent extends Component {
-
   /**
    * The velocity of an entity in pixels per second
    */

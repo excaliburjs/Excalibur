@@ -1,7 +1,6 @@
 import { Observable } from '../Util/Observable';
 import { Entity } from './Entity';
 
-
 export class TagQuery<TKnownTags extends string = never> {
   public readonly id: string;
   public tags = new Set<TKnownTags>();

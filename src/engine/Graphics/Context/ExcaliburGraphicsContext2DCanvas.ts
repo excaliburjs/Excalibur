@@ -43,7 +43,7 @@ class ExcaliburGraphicsContext2DCanvasDebug implements DebugDraw {
   drawLine(start: Vector, end: Vector, lineOptions: LineGraphicsOptions = { color: Color.Black }): void {
     this._ex.__ctx.save();
     this._ex.__ctx.beginPath();
-    this._ex.__ctx.strokeStyle = lineOptions.color.toString();
+    this._ex.__ctx.strokeStyle = lineOptions.color?.toString() ?? '';
     this._ex.__ctx.moveTo(
       this._ex.snapToPixel ? ~~(start.x + pixelSnapEpsilon) : start.x,
       this._ex.snapToPixel ? ~~(start.y + pixelSnapEpsilon) : start.y
@@ -88,7 +88,7 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
    * Meant for internal use only. Access the internal context at your own risk and no guarantees this will exist in the future.
    * @internal
    */
-  public __ctx: CanvasRenderingContext2D;
+  public __ctx!: CanvasRenderingContext2D;
   public get width() {
     return this.__ctx.canvas.width;
   }
@@ -119,11 +119,11 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     this._state.current.opacity = value;
   }
 
-  public get tint(): Color {
+  public get tint(): Color | null | undefined {
     return this._state.current.tint;
   }
 
-  public set tint(color: Color) {
+  public set tint(color: Color | null | undefined) {
     this._state.current.tint = color;
   }
 
@@ -139,9 +139,11 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
 
   constructor(options: ExcaliburGraphicsContext2DOptions) {
     const { canvasElement, context, enableTransparency, snapToPixel, antialiasing: smoothing, backgroundColor } = options;
-    this.__ctx = context ?? canvasElement.getContext('2d', {
-      alpha: enableTransparency ?? true
-    });
+    this.__ctx =
+      context ??
+      (canvasElement.getContext('2d', {
+        alpha: enableTransparency ?? true
+      }) as CanvasRenderingContext2D);
     if (!this.__ctx) {
       throw new Error('Cannot build new ExcaliburGraphicsContext2D for some reason!');
     }
@@ -207,7 +209,7 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     const args = [image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight]
       .filter((a) => a !== undefined)
       .map((a) => (typeof a === 'number' && this.snapToPixel ? ~~a : a));
-    this.__ctx.drawImage.apply(this.__ctx, args);
+    this.__ctx.drawImage.apply(this.__ctx, args as any);
     GraphicsDiagnostics.DrawCallCount++;
     GraphicsDiagnostics.DrawnImagesCount = 1;
   }
@@ -217,13 +219,10 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     this.__ctx.beginPath();
     this.__ctx.strokeStyle = color.toString();
     this.__ctx.moveTo(
-      this.snapToPixel ? ~~ (start.x + pixelSnapEpsilon) : start.x,
+      this.snapToPixel ? ~~(start.x + pixelSnapEpsilon) : start.x,
       this.snapToPixel ? ~~(start.y + pixelSnapEpsilon) : start.y
     );
-    this.__ctx.lineTo(
-      this.snapToPixel ? ~~ (end.x + pixelSnapEpsilon) : end.x,
-      this.snapToPixel ? ~~(end.y + pixelSnapEpsilon) : end.y
-    );
+    this.__ctx.lineTo(this.snapToPixel ? ~~(end.x + pixelSnapEpsilon) : end.x, this.snapToPixel ? ~~(end.y + pixelSnapEpsilon) : end.y);
     this.__ctx.lineWidth = thickness;
     this.__ctx.stroke();
     this.__ctx.closePath();
@@ -254,7 +253,10 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     this.__ctx.fillStyle = color.toString();
     this.__ctx.arc(
       this.snapToPixel ? ~~(pos.x + pixelSnapEpsilon) : pos.x,
-      this.snapToPixel ? ~~(pos.y + pixelSnapEpsilon) : pos.y, radius, 0, Math.PI * 2
+      this.snapToPixel ? ~~(pos.y + pixelSnapEpsilon) : pos.y,
+      radius,
+      0,
+      Math.PI * 2
     );
     this.__ctx.fill();
     if (stroke) {
@@ -327,7 +329,7 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     // pass
   }
 
-  public updatePostProcessors(delta: number) {
+  public updatePostProcessors(elapsedMs: number) {
     // pass
   }
 
@@ -339,17 +341,17 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     // pass
   }
 
-  public set material(material: Material | null) {
+  public set material(material: Material | undefined | null) {
     this._state.current.material = material;
   }
 
-  public get material(): Material | null {
+  public get material(): Material | undefined | null {
     return this._state.current.material;
   }
 
   public createMaterial(options: Omit<MaterialOptions, 'graphicsContext'>): Material {
     // pass
-    return null;
+    return null as any;
   }
 
   clear(): void {
@@ -368,6 +370,6 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
   }
 
   dispose(): void {
-    this.__ctx = null;
+    this.__ctx = undefined as any;
   }
 }

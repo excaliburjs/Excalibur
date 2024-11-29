@@ -7,6 +7,14 @@ import { ExcaliburGraphicsContext } from '../Graphics';
 export interface _initialize {
   _initialize(engine: Engine): void;
 }
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export interface _add {
+  onAdd(scene: Scene): void;
+}
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export interface _remove {
+  onRemove(engine: Engine): void;
+}
 
 /**
  * Type guard checking for internal initialize method
@@ -15,6 +23,20 @@ export interface _initialize {
  */
 export function has_initialize(a: any): a is _initialize {
   return !!a._initialize;
+}
+
+/**
+ *
+ */
+export function has_add(a: any): a is _add {
+  return !!a.onAdd;
+}
+
+/**
+ *
+ */
+export function has_remove(a: any): a is _remove {
+  return !!a.onRemove;
 }
 
 export interface OnInitialize {
@@ -30,7 +52,7 @@ export function hasOnInitialize(a: any): a is OnInitialize {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export interface _preupdate {
-  _preupdate(engine: Engine, delta: number): void;
+  _preupdate(engine: Engine, elapsedMs: number): void;
 }
 
 /**
@@ -41,7 +63,7 @@ export function has_preupdate(a: any): a is _preupdate {
 }
 
 export interface OnPreUpdate {
-  onPreUpdate(engine: Engine, delta: number): void;
+  onPreUpdate(engine: Engine, elapsedMs: number): void;
 }
 
 /**
@@ -53,7 +75,7 @@ export function hasOnPreUpdate(a: any): a is OnPreUpdate {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export interface _postupdate {
-  _postupdate(engine: Engine, delta: number): void;
+  _postupdate(engine: Engine, elapsedMs: number): void;
 }
 
 /**
@@ -64,7 +86,7 @@ export function has_postupdate(a: any): a is _postupdate {
 }
 
 export interface OnPostUpdate {
-  onPostUpdate(engine: Engine, delta: number): void;
+  onPostUpdate(engine: Engine, elapsedMs: number): void;
 }
 
 /**
@@ -86,6 +108,44 @@ export interface CanInitialize {
   on(eventName: Events.initialize, handler: (event: Events.InitializeEvent<any>) => void): void;
   once(eventName: Events.initialize, handler: (event: Events.InitializeEvent<any>) => void): void;
   off(eventName: Events.initialize, handler?: (event: Events.InitializeEvent<any>) => void): void;
+}
+
+export interface OnAdd {
+  onAdd(engine: Engine): void;
+}
+
+/**
+ *
+ */
+export function hasOnAdd(a: any): a is OnAdd {
+  return !!a.onAdd;
+}
+
+export interface CanAdd {
+  onAdd(engine: Engine): void;
+
+  on(eventName: Events.add, handler: (event: Events.AddEvent<any>) => void): void;
+  once(eventName: Events.add, handler: (event: Events.AddEvent<any>) => void): void;
+  off(eventName: Events.add, handler?: (event: Events.AddEvent<any>) => void): void;
+}
+
+export interface OnRemove {
+  onRemove(engine: Engine): void;
+}
+
+/**
+ *
+ */
+export function hasOnRemove(a: any): a is OnRemove {
+  return !!a.onRemove;
+}
+
+export interface CanRemove {
+  onRemove(engine: Engine): void;
+
+  on(eventName: Events.remove, handler: (event: Events.RemoveEvent<any>) => void): void;
+  once(eventName: Events.remove, handler: (event: Events.RemoveEvent<any>) => void): void;
+  off(eventName: Events.remove, handler?: (event: Events.RemoveEvent<any>) => void): void;
 }
 
 export interface SceneActivationContext<TData = undefined> {
@@ -127,7 +187,7 @@ export interface CanUpdate {
   /**
    * Overridable implementation
    */
-  onPreUpdate(engine: Engine, delta: number): void;
+  onPreUpdate(engine: Engine, elapsedMs: number): void;
 
   /**
    * Event signature
@@ -139,7 +199,7 @@ export interface CanUpdate {
   /**
    * Overridable implementation
    */
-  onPostUpdate(engine: Engine, delta: number): void;
+  onPostUpdate(engine: Engine, elapsedMs: number): void;
 
   /**
    * Event signatures
@@ -153,7 +213,7 @@ export interface OnPreDraw {
   /**
    * Overridable implementation
    */
-  onPreDraw(ctx: ExcaliburGraphicsContext, delta: number): void;
+  onPreDraw(ctx: ExcaliburGraphicsContext, elapsedMs: number): void;
 
   /**
    * Event signatures
@@ -167,7 +227,7 @@ export interface OnPostDraw {
   /**
    * Overridable implementation
    */
-  onPostDraw(ctx: ExcaliburGraphicsContext, delta: number): void;
+  onPostDraw(ctx: ExcaliburGraphicsContext, elapsedMs: number): void;
 
   /**
    * Event signatures

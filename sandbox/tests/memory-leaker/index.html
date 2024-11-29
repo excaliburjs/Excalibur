@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Memory Leaker</title>
+  </head>
+  <body>
+    <p>This creates a new bitmap every 200 ms and uploads it to the gpu</p>
+    <p>You should see WebGL Texture cleanup messages in the console after the configured interval (1 minute)</p>
+    <script src="../../lib/excalibur.js"></script>
+    <script src="index.js"></script>
+  </body>
+</html>

@@ -25,7 +25,7 @@ export function sign(val: number): number {
     return 0;
   }
   return val < 0 ? -1 : 1;
-};
+}
 
 /**
  * Clamps a value between a min and max inclusive
@@ -34,6 +34,13 @@ export function clamp(val: number, min: number, max: number) {
   return Math.min(Math.max(min, val), max);
 }
 
+/**
+ * Approximately equals
+ */
+export function approximatelyEqual(val1: number, val2: number, tolerance: number) {
+  // https://dev.to/alldanielscott/how-to-compare-numbers-correctly-in-javascript-1l4i
+  return Math.abs(val1 - val2) < tolerance;
+}
 
 /**
  * Convert an angle to be the equivalent in the range [0, 2PI]

@@ -17,15 +17,14 @@ export class RectangleRenderer implements RendererPlugin {
 
   private _maxRectangles: number = 10922; // max(uint16) / 6 verts
 
-  private _shader: Shader;
-  private _gl: WebGLRenderingContext;
-  private _context: ExcaliburGraphicsContextWebGL;
-  private _buffer: VertexBuffer;
-  private _layout: VertexLayout;
-  private _quads: QuadIndexBuffer;
+  private _shader!: Shader;
+  private _gl!: WebGLRenderingContext;
+  private _context!: ExcaliburGraphicsContextWebGL;
+  private _buffer!: VertexBuffer;
+  private _layout!: VertexLayout;
+  private _quads!: QuadIndexBuffer;
   private _rectangleCount: number = 0;
   private _vertexIndex: number = 0;
-
 
   initialize(gl: WebGL2RenderingContext, context: ExcaliburGraphicsContextWebGL): void {
     this._gl = gl;
@@ -69,8 +68,8 @@ export class RectangleRenderer implements RendererPlugin {
     this._buffer.dispose();
     this._quads.dispose();
     this._shader.dispose();
-    this._context = null;
-    this._gl = null;
+    this._context = null as any;
+    this._gl = null as any;
   }
 
   private _isFull() {
@@ -82,14 +81,18 @@ export class RectangleRenderer implements RendererPlugin {
 
   draw(...args: any[]): void {
     if (args[0] instanceof Vector && args[1] instanceof Vector) {
-      this.drawLine.apply(this, args);
+      this.drawLine.apply(this, args as any);
     } else {
-      this.drawRectangle.apply(this, args);
+      this.drawRectangle.apply(this, args as any);
     }
   }
 
+  private _transparent = Color.Transparent;
+  private _scratch1 = vec(0, 0);
+  private _scratch2 = vec(0, 0);
+  private _scratch3 = vec(0, 0);
+  private _scratch4 = vec(0, 0);
   drawLine(start: Vector, end: Vector, color: Color, thickness: number = 1) {
-
     if (this._isFull()) {
       this.flush();
     }
@@ -101,21 +104,21 @@ export class RectangleRenderer implements RendererPlugin {
     const snapToPixel = this._context.snapToPixel;
 
     const dir = end.sub(start);
-    const length = dir.size;
+    const length = dir.magnitude;
     const normal = dir.normalize().perpendicular();
     const halfThick = thickness / 2;
 
     /**
      *    +---------------------^----------------------+
      *    |                     | (normal)             |
-     *   (startx, starty)------------------>(endx, endy)
+     *   (startX, startY)------------------>(endX, endY)
      *    |                                            |
      *    + -------------------------------------------+
      */
-    const startTop = transform.multiply(normal.scale(halfThick).add(start));
-    const startBottom = transform.multiply(normal.scale(-halfThick).add(start));
-    const endTop = transform.multiply(normal.scale(halfThick).add(end));
-    const endBottom = transform.multiply(normal.scale(-halfThick).add(end));
+    const startTop = transform.multiply(normal.scale(halfThick, this._scratch1).add(start, this._scratch1), this._scratch1);
+    const startBottom = transform.multiply(normal.scale(-halfThick, this._scratch2).add(start, this._scratch2), this._scratch2);
+    const endTop = transform.multiply(normal.scale(halfThick, this._scratch3).add(end, this._scratch3), this._scratch3);
+    const endBottom = transform.multiply(normal.scale(-halfThick, this._scratch4).add(end, this._scratch4), this._scratch4);
 
     if (snapToPixel) {
       startTop.x = ~~(startTop.x + pixelSnapEpsilon);
@@ -137,7 +140,7 @@ export class RectangleRenderer implements RendererPlugin {
     const uvx1 = 1;
     const uvy1 = 1;
 
-    const stroke = Color.Transparent;
+    const stroke = this._transparent;
     const strokeThickness = 0;
     const width = 1;
 
@@ -223,7 +226,8 @@ export class RectangleRenderer implements RendererPlugin {
     height: number,
     color: Color,
     stroke: Color = Color.Transparent,
-    strokeThickness: number = 0): void {
+    strokeThickness: number = 0
+  ): void {
     if (this._isFull()) {
       this.flush();
     }
@@ -333,7 +337,6 @@ export class RectangleRenderer implements RendererPlugin {
     vertexBuffer[this._vertexIndex++] = stroke.b / 255;
     vertexBuffer[this._vertexIndex++] = stroke.a;
     vertexBuffer[this._vertexIndex++] = strokeThickness;
-
   }
 
   hasPendingDraws(): boolean {
@@ -369,5 +372,4 @@ export class RectangleRenderer implements RendererPlugin {
     this._rectangleCount = 0;
     this._vertexIndex = 0;
   }
-
 }

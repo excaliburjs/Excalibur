@@ -2,9 +2,10 @@ import { MotionComponent } from '../../EntityComponentSystem/Components/MotionCo
 import { TransformComponent } from '../../EntityComponentSystem/Components/TransformComponent';
 import { Entity } from '../../EntityComponentSystem/Entity';
 import { vec, Vector } from '../../Math/vector';
-import { Action } from '../Action';
+import { Action, nextActionId } from '../Action';
 
 export class Follow implements Action {
+  id = nextActionId();
   private _tx: TransformComponent;
   private _motion: MotionComponent;
   private _followTx: TransformComponent;
@@ -32,7 +33,7 @@ export class Follow implements Action {
     this._speed = 0;
   }
 
-  public update(_delta: number): void {
+  public update(elapsedMs: number): void {
     if (!this._started) {
       this._started = true;
       this._distanceBetween = this._current.distance(this._end);

@@ -170,7 +170,6 @@ describe('A Screen', () => {
     expect(sut.viewport.heightUnit).toBe('percent');
     expect(sut.canvas.offsetWidth).toBe(1300);
     expect(sut.canvas.offsetHeight).toBe(1300);
-
   });
 
   it('can use the FitContainerAndFill display mode, screen aspectRatio < container aspect ratio', () => {
@@ -202,7 +201,6 @@ describe('A Screen', () => {
     expect(sut.viewport.heightUnit).toBe('percent');
     expect(sut.canvas.offsetWidth).toBe(1300);
     expect(sut.canvas.offsetHeight).toBe(800);
-
   });
 
   it('can use the FitScreenAndZoom display mode, screen aspect ratio < window aspect ratio', () => {
@@ -250,7 +248,6 @@ describe('A Screen', () => {
   });
 
   it('can use the FitContainerAndZoom display mode, screen aspect ratio < container aspect ratio', () => {
-
     const parentEl = document.createElement('div');
     document.body.removeChild(canvas);
     parentEl.appendChild(canvas);
@@ -277,7 +274,6 @@ describe('A Screen', () => {
   });
 
   it('can use the FitContainerAndZoom display mode, screen aspect ratio > container aspect ratio', () => {
-
     const parentEl = document.createElement('div');
     document.body.removeChild(canvas);
     parentEl.appendChild(canvas);
@@ -719,7 +715,7 @@ describe('A Screen', () => {
     sut.setCurrentCamera(camera);
 
     sut.applyResolutionAndViewport();
-    camera._initialize({screen: sut, clock: { elapsed: () => 16}} as ex.Engine);
+    camera._initialize({ screen: sut, clock: { elapsed: () => 16 } } as ex.Engine);
 
     // The camera is always center screen
     // The absence of a camera is treated like a camera at (0, 0) in world space
@@ -746,7 +742,7 @@ describe('A Screen', () => {
     sut.setCurrentCamera(camera);
 
     sut.applyResolutionAndViewport();
-    camera._initialize({screen: sut, clock: { elapsed: () => 16}} as ex.Engine);
+    camera._initialize({ screen: sut, clock: { elapsed: () => 16 } } as ex.Engine);
 
     // The camera is always center screen
     // The absence of a camera is treated like a camera at (0, 0) in world space
@@ -755,6 +751,54 @@ describe('A Screen', () => {
     expect(sut.worldToScreenCoordinates(ex.vec(600, 150))).toBeVector(ex.vec(800, 0));
     expect(sut.worldToScreenCoordinates(ex.vec(200, 450))).toBeVector(ex.vec(0, 600));
     expect(sut.worldToScreenCoordinates(ex.vec(600, 450))).toBeVector(ex.vec(800, 600));
+  });
+
+  it('can calculate the excalibur worldToPagePixelRatio 2x', () => {
+    Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1600 });
+    Object.defineProperty(window, 'innerHeight', { writable: true, configurable: true, value: 1200 });
+    const sut = new ex.Screen({
+      canvas,
+      context,
+      browser,
+      displayMode: ex.DisplayMode.FitScreen,
+      viewport: { width: 800, height: 600 },
+      pixelRatio: 2
+    });
+
+    expect(sut.worldToPagePixelRatio).toBe(2);
+    expect(document.documentElement.style.getPropertyValue('--ex-pixel-ratio')).toBe('2');
+  });
+
+  it('can calculate the excalibur worldToPagePixelRatio .5x', () => {
+    Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 400 });
+    Object.defineProperty(window, 'innerHeight', { writable: true, configurable: true, value: 300 });
+    const sut = new ex.Screen({
+      canvas,
+      context,
+      browser,
+      displayMode: ex.DisplayMode.FitScreen,
+      viewport: { width: 800, height: 600 },
+      pixelRatio: 2
+    });
+
+    expect(sut.worldToPagePixelRatio).toBe(0.5);
+    expect(document.documentElement.style.getPropertyValue('--ex-pixel-ratio')).toBe('0.5');
+  });
+
+  it('can calculate the excalibur worldToPagePixelRatio 1.5x', () => {
+    Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1200 });
+    Object.defineProperty(window, 'innerHeight', { writable: true, configurable: true, value: 1000 });
+    const sut = new ex.Screen({
+      canvas,
+      context,
+      browser,
+      displayMode: ex.DisplayMode.FitScreen,
+      viewport: { width: 800, height: 600 },
+      pixelRatio: 2
+    });
+
+    expect(sut.worldToPagePixelRatio).toBe(1.5);
+    expect(document.documentElement.style.getPropertyValue('--ex-pixel-ratio')).toBe('1.5');
   });
 
   it('can return world bounds', () => {
@@ -772,7 +816,7 @@ describe('A Screen', () => {
 
     sut.setCurrentCamera(camera);
     sut.applyResolutionAndViewport();
-    camera._initialize({screen: sut, clock: { elapsed: () => 16}} as ex.Engine);
+    camera._initialize({ screen: sut, clock: { elapsed: () => 16 } } as ex.Engine);
 
     const bounds = sut.getWorldBounds();
 
@@ -798,7 +842,7 @@ describe('A Screen', () => {
 
     sut.setCurrentCamera(camera);
     sut.applyResolutionAndViewport();
-    camera._initialize({screen: sut, clock: { elapsed: () => 16}} as ex.Engine);
+    camera._initialize({ screen: sut, clock: { elapsed: () => 16 } } as ex.Engine);
 
     const bounds = sut.getWorldBounds();
 
@@ -897,9 +941,9 @@ describe('A Screen', () => {
     expect(context.checkIfResolutionSupported).toHaveBeenCalled();
     expect(logger.warnOnce).toHaveBeenCalledOnceWith(
       `The currently configured resolution (${sut.resolution.width}x${sut.resolution.height}) and pixel ratio (${sut.pixelRatio})` +
-          ' are too large for the platform WebGL implementation, this may work but cause WebGL rendering to behave oddly.' +
-          ' Try reducing the resolution or disabling Hi DPI scaling to avoid this' +
-          ' (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).'
+        ' are too large for the platform WebGL implementation, this may work but cause WebGL rendering to behave oddly.' +
+        ' Try reducing the resolution or disabling Hi DPI scaling to avoid this' +
+        ' (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).'
     );
   });
 
@@ -932,15 +976,15 @@ describe('A Screen', () => {
     expect(context.checkIfResolutionSupported).toHaveBeenCalled();
     expect(warnOnce.calls.argsFor(0)).toEqual([
       `The currently configured resolution (${sut.resolution.width}x${sut.resolution.height}) and pixel ratio (3)` +
-          ' are too large for the platform WebGL implementation, this may work but cause WebGL rendering to behave oddly.' +
-          ' Try reducing the resolution or disabling Hi DPI scaling to avoid this' +
-          ' (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).'
+        ' are too large for the platform WebGL implementation, this may work but cause WebGL rendering to behave oddly.' +
+        ' Try reducing the resolution or disabling Hi DPI scaling to avoid this' +
+        ' (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).'
     ]);
     expect(warnOnce.calls.argsFor(1)).toEqual([
       'Scaled resolution too big attempted recovery!' +
-            ` Pixel ratio was automatically reduced to (2) to avoid 4k texture limit.` +
-            ' Setting `ex.Engine({pixelRatio: ...}) will override any automatic recalculation, do so at your own risk.` ' +
-            ' (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).'
+        ` Pixel ratio was automatically reduced to (2) to avoid 4k texture limit.` +
+        ' Setting `ex.Engine({pixelRatio: ...}) will override any automatic recalculation, do so at your own risk.` ' +
+        ' (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).'
     ]);
   });
 });

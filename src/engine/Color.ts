@@ -1,8 +1,7 @@
-
 /**
- * Provides standard colors (e.g. [[Color.Black]])
+ * Provides standard colors (e.g. {@apilink Color.Black})
  * but you can also create custom colors using RGB, HSL, or Hex. Also provides
- * useful color operations like [[Color.lighten]], [[Color.darken]], and more.
+ * useful color operations like {@apilink Color.lighten}, {@apilink Color.darken}, and more.
  */
 export class Color {
   /**
@@ -266,8 +265,13 @@ export class Color {
   /**
    * Returns a clone of the current color.
    */
-  public clone(): Color {
-    return new Color(this.r, this.g, this.b, this.a);
+  public clone(dest?: Color): Color {
+    const result = dest || new Color(this.r, this.g, this.b, this.a);
+    result.r = this.r;
+    result.g = this.g;
+    result.b = this.b;
+    result.a = this.a;
+    return result;
   }
 
   /**
@@ -341,6 +345,13 @@ export class Color {
   }
 
   /**
+   * Pink (#FFC0CB)
+   */
+  public static get Pink(): Color {
+    return Color.fromHex('#FFC0CB');
+  }
+
+  /**
    * Magenta (#FF00FF)
    */
   public static get Magenta(): Color {
@@ -352,6 +363,13 @@ export class Color {
    */
   public static get Violet(): Color {
     return Color.fromHex('#7F00FF');
+  }
+
+  /**
+   * Purple (#800080)
+   */
+  public static get Purple(): Color {
+    return Color.fromHex('#800080');
   }
 
   /**
@@ -383,6 +401,13 @@ export class Color {
   }
 
   /**
+   * Teal (#008080)
+   */
+  public static get Teal(): Color {
+    return Color.fromHex('#008080');
+  }
+
+  /**
    * Green (#00FF00)
    */
   public static get Green(): Color {
@@ -409,6 +434,13 @@ export class Color {
   public static get ExcaliburBlue(): Color {
     return Color.fromHex('#176BAA');
   }
+
+  /**
+   * Brown (#964B00)
+   */
+  public static get Brown(): Color {
+    return Color.fromHex('#964B00');
+  }
 }
 
 /**
@@ -418,7 +450,12 @@ export class Color {
  * http://axonflux.com/handy-rgb-to-hsl-and-rgb-to-hsv-color-model-c
  */
 class HSLColor {
-  constructor(public h: number, public s: number, public l: number, public a: number) { }
+  constructor(
+    public h: number,
+    public s: number,
+    public l: number,
+    public a: number
+  ) {}
 
   public static hue2rgb(p: number, q: number, t: number): number {
     if (t < 0) {

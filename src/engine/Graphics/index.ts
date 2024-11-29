@@ -25,6 +25,7 @@ export * from './Font';
 export * from './FontCache';
 export * from './SpriteFont';
 export * from './Canvas';
+export * from './NineSlice';
 
 export * from './Context/ExcaliburGraphicsContext';
 export * from './Context/ExcaliburGraphicsContext2DCanvas';
@@ -42,13 +43,13 @@ export * from './Context/texture-loader';
 export * from './Filtering';
 export * from './Wrapping';
 
-
 // Rendering
 export * from './Context/shader';
 export * from './Context/vertex-buffer';
 export * from './Context/vertex-layout';
 export * from './Context/quad-index-buffer';
 export * from './Context/material';
+export * from './Context/renderer';
 
 // Debug
 export * from './Debug';

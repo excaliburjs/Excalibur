@@ -9,7 +9,10 @@ import { Collider } from '../Colliders/Collider';
  */
 export class Pair {
   public id: string = null;
-  constructor(public colliderA: Collider, public colliderB: Collider) {
+  constructor(
+    public colliderA: Collider,
+    public colliderB: Collider
+  ) {
     this.id = Pair.calculatePairHash(colliderA.id, colliderB.id);
   }
 
@@ -19,18 +22,13 @@ export class Pair {
    * @param colliderB
    */
   public static canCollide(colliderA: Collider, colliderB: Collider) {
-    const bodyA = colliderA?.owner?.get(BodyComponent);
-    const bodyB = colliderB?.owner?.get(BodyComponent);
-
     // Prevent self collision
     if (colliderA.id === colliderB.id) {
       return false;
     }
 
     // Colliders with the same owner do not collide (composite colliders)
-    if (colliderA.owner &&
-        colliderB.owner &&
-        colliderA.owner.id === colliderB.owner.id) {
+    if (colliderA.owner && colliderB.owner && colliderA.owner.id === colliderB.owner.id) {
       return false;
     }
 
@@ -38,6 +36,9 @@ export class Pair {
     if (colliderA.localBounds.hasZeroDimensions() || colliderB.localBounds.hasZeroDimensions()) {
       return false;
     }
+
+    const bodyA = colliderA?.owner?.get(BodyComponent);
+    const bodyB = colliderB?.owner?.get(BodyComponent);
 
     // Body's needed for collision in the current state
     // TODO can we collide without a body?
@@ -61,7 +62,7 @@ export class Pair {
     }
 
     // if either is dead short circuit
-    if (!bodyA.active || !bodyB.active) {
+    if (!bodyA.isActive || !bodyB.isActive) {
       return false;
     }
 

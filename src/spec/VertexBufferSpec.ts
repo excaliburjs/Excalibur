@@ -16,7 +16,6 @@ describe('A VertexBuffer', () => {
     gl = _ctx.__gl;
   });
 
-
   it('exists', () => {
     expect(ex.VertexBuffer).toBeDefined();
   });

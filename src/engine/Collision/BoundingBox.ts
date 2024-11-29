@@ -45,10 +45,25 @@ export class BoundingBox {
   }
 
   /**
-   * Returns a new instance of [[BoundingBox]] that is a copy of the current instance
+   * Returns a new instance of {@apilink BoundingBox} that is a copy of the current instance
    */
-  public clone(): BoundingBox {
-    return new BoundingBox(this.left, this.top, this.right, this.bottom);
+  public clone(dest?: BoundingBox): BoundingBox {
+    const result = dest || new BoundingBox(0, 0, 0, 0);
+    result.left = this.left;
+    result.right = this.right;
+    result.top = this.top;
+    result.bottom = this.bottom;
+    return result;
+  }
+
+  /**
+   * Resets the bounds to a zero width/height box
+   */
+  public reset(): void {
+    this.left = 0;
+    this.top = 0;
+    this.bottom = 0;
+    this.right = 0;
   }
 
   /**
@@ -181,7 +196,7 @@ export class BoundingBox {
   }
 
   /**
-   * Transform the axis aligned bounding box by a [[Matrix]], producing a new axis aligned bounding box
+   * Transform the axis aligned bounding box by a {@apilink Matrix}, producing a new axis aligned bounding box
    * @param matrix
    */
   public transform(matrix: AffineMatrix) {
@@ -213,10 +228,10 @@ export class BoundingBox {
     const bottom = Math.max(xa2, xb2) + Math.max(ya2, yb2) + matrixPos.y;
 
     return new BoundingBox({
-      left,//: topLeft.x,
-      top,//: topLeft.y,
-      right,//: bottomRight.x,
-      bottom//: bottomRight.y
+      left, //: topLeft.x,
+      top, //: topLeft.y,
+      right, //: bottomRight.x,
+      bottom //: bottomRight.y
     });
   }
 
@@ -229,7 +244,6 @@ export class BoundingBox {
     return 2 * (wx + wy);
   }
 
-
   // Cache bounding box point returns
   private _points: Vector[] = [];
   private _left?: number;
@@ -241,11 +255,7 @@ export class BoundingBox {
    * Returns the world space points that make up the corners of the bounding box as a polygon
    */
   public getPoints(): Vector[] {
-    if (this._left !== this.left ||
-        this._right !== this.right ||
-        this._top !== this.top ||
-        this._bottom !== this.bottom
-    ) {
+    if (this._left !== this.left || this._right !== this.right || this._top !== this.top || this._bottom !== this.bottom) {
       this._points.length = 0;
       this._points.push(new Vector(this.left, this.top));
       this._points.push(new Vector(this.right, this.top));
@@ -264,45 +274,45 @@ export class BoundingBox {
    */
   public rayCast(ray: Ray, farClipDistance = Infinity): boolean {
     // algorithm from https://tavianator.com/fast-branchless-raybounding-box-intersections/
-    let tmin = -Infinity;
-    let tmax = +Infinity;
+    let tMin = -Infinity;
+    let tMax = +Infinity;
 
-    const xinv = ray.dir.x === 0 ? Number.MAX_VALUE : 1 / ray.dir.x;
-    const yinv = ray.dir.y === 0 ? Number.MAX_VALUE : 1 / ray.dir.y;
+    const xInv = ray.dir.x === 0 ? Number.MAX_VALUE : 1 / ray.dir.x;
+    const yInv = ray.dir.y === 0 ? Number.MAX_VALUE : 1 / ray.dir.y;
 
-    const tx1 = (this.left - ray.pos.x) * xinv;
-    const tx2 = (this.right - ray.pos.x) * xinv;
-    tmin = Math.min(tx1, tx2);
-    tmax = Math.max(tx1, tx2);
+    const tx1 = (this.left - ray.pos.x) * xInv;
+    const tx2 = (this.right - ray.pos.x) * xInv;
+    tMin = Math.min(tx1, tx2);
+    tMax = Math.max(tx1, tx2);
 
-    const ty1 = (this.top - ray.pos.y) * yinv;
-    const ty2 = (this.bottom - ray.pos.y) * yinv;
-    tmin = Math.max(tmin, Math.min(ty1, ty2));
-    tmax = Math.min(tmax, Math.max(ty1, ty2));
+    const ty1 = (this.top - ray.pos.y) * yInv;
+    const ty2 = (this.bottom - ray.pos.y) * yInv;
+    tMin = Math.max(tMin, Math.min(ty1, ty2));
+    tMax = Math.min(tMax, Math.max(ty1, ty2));
 
-    return tmax >= Math.max(0, tmin) && tmin < farClipDistance;
+    return tMax >= Math.max(0, tMin) && tMin < farClipDistance;
   }
 
   public rayCastTime(ray: Ray, farClipDistance = Infinity): number {
     // algorithm from https://tavianator.com/fast-branchless-raybounding-box-intersections/
-    let tmin = -Infinity;
-    let tmax = +Infinity;
+    let tMin = -Infinity;
+    let tMax = +Infinity;
 
-    const xinv = ray.dir.x === 0 ? Number.MAX_VALUE : 1 / ray.dir.x;
-    const yinv = ray.dir.y === 0 ? Number.MAX_VALUE : 1 / ray.dir.y;
+    const xInv = ray.dir.x === 0 ? Number.MAX_VALUE : 1 / ray.dir.x;
+    const yInv = ray.dir.y === 0 ? Number.MAX_VALUE : 1 / ray.dir.y;
 
-    const tx1 = (this.left - ray.pos.x) * xinv;
-    const tx2 = (this.right - ray.pos.x) * xinv;
-    tmin = Math.min(tx1, tx2);
-    tmax = Math.max(tx1, tx2);
+    const tx1 = (this.left - ray.pos.x) * xInv;
+    const tx2 = (this.right - ray.pos.x) * xInv;
+    tMin = Math.min(tx1, tx2);
+    tMax = Math.max(tx1, tx2);
 
-    const ty1 = (this.top - ray.pos.y) * yinv;
-    const ty2 = (this.bottom - ray.pos.y) * yinv;
-    tmin = Math.max(tmin, Math.min(ty1, ty2));
-    tmax = Math.min(tmax, Math.max(ty1, ty2));
+    const ty1 = (this.top - ray.pos.y) * yInv;
+    const ty2 = (this.bottom - ray.pos.y) * yInv;
+    tMin = Math.max(tMin, Math.min(ty1, ty2));
+    tMax = Math.min(tMax, Math.max(ty1, ty2));
 
-    if (tmax >= Math.max(0, tmin) && tmin < farClipDistance) {
-      return tmin;
+    if (tMax >= Math.max(0, tMin) && tMin < farClipDistance) {
+      return tMin;
     }
     return -1;
   }
@@ -320,12 +330,9 @@ export class BoundingBox {
   public contains(bb: BoundingBox): boolean;
   public contains(val: any): boolean {
     if (val instanceof Vector) {
-      return this.left <= val.x && this.top <= val.y && this.bottom >= val.y && this.right >= val.x;
+      return this.left <= val.x && this.top <= val.y && val.y <= this.bottom && val.x <= this.right;
     } else if (val instanceof BoundingBox) {
-      if (this.left <= val.left && this.top <= val.top && val.bottom <= this.bottom && val.right <= this.right) {
-        return true;
-      }
-      return false;
+      return this.left <= val.left && this.top <= val.top && val.bottom <= this.bottom && val.right <= this.right;
     }
     return false;
   }
@@ -334,13 +341,16 @@ export class BoundingBox {
    * Combines this bounding box and another together returning a new bounding box
    * @param other  The bounding box to combine
    */
-  public combine(other: BoundingBox): BoundingBox {
-    const compositeBB = new BoundingBox(
-      Math.min(this.left, other.left),
-      Math.min(this.top, other.top),
-      Math.max(this.right, other.right),
-      Math.max(this.bottom, other.bottom)
-    );
+  public combine(other: BoundingBox, dest?: BoundingBox): BoundingBox {
+    const compositeBB = dest || new BoundingBox(0, 0, 0, 0);
+    const left = Math.min(this.left, other.left);
+    const top = Math.min(this.top, other.top);
+    const right = Math.max(this.right, other.right);
+    const bottom = Math.max(this.bottom, other.bottom);
+    compositeBB.left = left;
+    compositeBB.top = top;
+    compositeBB.right = right;
+    compositeBB.bottom = bottom;
     return compositeBB;
   }
 
@@ -356,22 +366,21 @@ export class BoundingBox {
    */
   public overlaps(other: BoundingBox, epsilon?: number): boolean {
     const e = epsilon || 0;
-    if (other.hasZeroDimensions()){
+    if (other.hasZeroDimensions()) {
       return this.contains(other);
     }
     if (this.hasZeroDimensions()) {
       return other.contains(this);
     }
     const totalBoundingBox = this.combine(other);
-    return totalBoundingBox.width + e < other.width + this.width &&
-           totalBoundingBox.height + e < other.height + this.height;
+    return totalBoundingBox.width + e < other.width + this.width && totalBoundingBox.height + e < other.height + this.height;
   }
 
   /**
    * Test wether this bounding box intersects with another returning
    * the intersection vector that can be used to resolve the collision. If there
    * is no intersection null is returned.
-   * @param other  Other [[BoundingBox]] to test intersection with
+   * @param other  Other {@apilink BoundingBox} to test intersection with
    * @returns A Vector in the direction of the current BoundingBox, this <- other
    */
   public intersect(other: BoundingBox): Vector {

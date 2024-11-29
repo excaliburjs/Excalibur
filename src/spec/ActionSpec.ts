@@ -33,44 +33,41 @@ describe('Action', () => {
 
   describe('parallel actions', () => {
     it('can run actions in parallel', () => {
-      const parallel = new ex.ParallelActions([
-        new ex.MoveTo(actor, 100, 0, 100),
-        new ex.RotateTo(actor, Math.PI/2, Math.PI/2)
-      ]);
+      const parallel = new ex.ParallelActions([new ex.MoveTo(actor, 100, 0, 100), new ex.RotateTo(actor, Math.PI / 2, Math.PI / 2)]);
 
       actor.actions.runAction(parallel);
 
       scene.update(engine, 1000);
       expect(actor.pos).toBeVector(ex.vec(100, 0));
-      expect(actor.rotation).toBe(Math.PI/2);
+      expect(actor.rotation).toBe(Math.PI / 2);
     });
 
     it('can run sequences in parallel', () => {
       const parallel = new ex.ParallelActions([
-        new ex.ActionSequence(actor, ctx => ctx.moveTo(ex.vec(100, 0), 100)),
-        new ex.ActionSequence(actor, ctx => ctx.rotateTo(Math.PI/2, Math.PI/2))
+        new ex.ActionSequence(actor, (ctx) => ctx.moveTo(ex.vec(100, 0), 100)),
+        new ex.ActionSequence(actor, (ctx) => ctx.rotateTo(Math.PI / 2, Math.PI / 2))
       ]);
 
       actor.actions.runAction(parallel);
 
       scene.update(engine, 1000);
       expect(actor.pos).toBeVector(ex.vec(100, 0));
-      expect(actor.rotation).toBe(Math.PI/2);
+      expect(actor.rotation).toBe(Math.PI / 2);
     });
 
     it('can repeat sequences in parallel', () => {
       const parallel = new ex.ParallelActions([
-        new ex.ActionSequence(actor, ctx => ctx.moveTo(ex.vec(100, 0), 100).moveTo(ex.vec(0, 0), 100)),
-        new ex.ActionSequence(actor, ctx => ctx.rotateTo(Math.PI/2, Math.PI/2).rotateTo(0, Math.PI/2))
+        new ex.ActionSequence(actor, (ctx) => ctx.moveTo(ex.vec(100, 0), 100).moveTo(ex.vec(0, 0), 100)),
+        new ex.ActionSequence(actor, (ctx) => ctx.rotateTo(Math.PI / 2, Math.PI / 2).rotateTo(0, Math.PI / 2))
       ]);
 
-      actor.actions.repeatForever(ctx => {
+      actor.actions.repeatForever((ctx) => {
         ctx.runAction(parallel);
       });
 
       scene.update(engine, 1000);
       expect(actor.pos).toBeVector(ex.vec(100, 0));
-      expect(actor.rotation).toBe(Math.PI/2);
+      expect(actor.rotation).toBe(Math.PI / 2);
 
       scene.update(engine, 0);
       scene.update(engine, 1000);
@@ -80,7 +77,7 @@ describe('Action', () => {
       scene.update(engine, 0);
       scene.update(engine, 1000);
       expect(actor.pos).toBeVector(ex.vec(100, 0));
-      expect(actor.rotation).toBe(Math.PI/2);
+      expect(actor.rotation).toBe(Math.PI / 2);
     });
   });
 
@@ -182,7 +179,6 @@ describe('Action', () => {
     });
 
     it('can be reset', () => {
-
       const blink = new ex.Blink(actor, 200, 200);
       blink.update(200);
       blink.update(200);
@@ -334,11 +330,33 @@ describe('Action', () => {
       expect(moveBy.isComplete(actor)).toBeFalse();
     });
 
+    it('(with options) can be reset', () => {
+      const moveBy = new ex.MoveByWithOptions(actor, { offset: ex.vec(100, 0), durationMs: 100 });
+      actor.actions.runAction(moveBy);
+      scene.update(engine, 1000);
+      expect(moveBy.isComplete(actor)).toBeTrue();
+
+      moveBy.reset();
+      actor.pos = ex.vec(0, 0);
+      expect(moveBy.isComplete(actor)).toBeFalse();
+    });
+
     it('can be moved to a location by a certain time (x,y) overload', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
       actor.actions.moveBy(100, 0, 50);
+
+      scene.update(engine, 1000);
+      expect(actor.pos.x).toBe(50);
+      expect(actor.pos.y).toBe(0);
+    });
+
+    it('(with options) can be moved to a location by a certain time (x,y) overload', () => {
+      expect(actor.pos.x).toBe(0);
+      expect(actor.pos.y).toBe(0);
+
+      actor.actions.moveBy({ offset: ex.vec(100, 0), durationMs: 2000 });
 
       scene.update(engine, 1000);
       expect(actor.pos.x).toBe(50);
@@ -383,14 +401,55 @@ describe('Action', () => {
       expect(actor.pos.x).toBe(10);
       expect(actor.pos.y).toBe(0);
     });
+    it('(with options) can be stopped', () => {
+      expect(actor.pos.x).toBe(0);
+      expect(actor.pos.y).toBe(0);
+
+      actor.actions.moveBy({ offset: ex.vec(20, 0), durationMs: 1000 });
+      scene.update(engine, 500);
+
+      actor.actions.clearActions();
+      expect(actor.pos.x).toBe(10);
+      expect(actor.pos.y).toBe(0);
+
+      // Actor should not move after stop
+      scene.update(engine, 500);
+      expect(actor.pos.x).toBe(10);
+      expect(actor.pos.y).toBe(0);
+    });
   });
 
   describe('moveTo', () => {
+    it('can be reset', () => {
+      const moveTo = new ex.MoveToWithOptions(actor, { pos: ex.vec(100, 0), durationMs: 500 });
+      actor.actions.runAction(moveTo);
+      scene.update(engine, 1000);
+      expect(moveTo.isComplete(actor)).toBeTrue();
+
+      moveTo.reset();
+      actor.pos = ex.vec(0, 0);
+      expect(moveTo.isComplete(actor)).toBeFalse();
+    });
+
     it('can be moved to a location at a speed (x,y) overload', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
       actor.actions.moveTo(100, 0, 100);
+      scene.update(engine, 500);
+
+      expect(actor.pos.x).toBe(50);
+      expect(actor.pos.y).toBe(0);
+
+      scene.update(engine, 500);
+      expect(actor.pos.x).toBe(100);
+      expect(actor.pos.y).toBe(0);
+    });
+    it('(with options) can be moved to a location at a speed (x,y) overload', () => {
+      expect(actor.pos.x).toBe(0);
+      expect(actor.pos.y).toBe(0);
+
+      actor.actions.moveTo({ pos: ex.vec(100, 0), durationMs: 1000 });
       scene.update(engine, 500);
 
       expect(actor.pos.x).toBe(50);
@@ -447,10 +506,26 @@ describe('Action', () => {
       expect(actor.pos.x).toBe(5);
       expect(actor.pos.y).toBe(0);
     });
+
+    it('(with options) can be stopped', () => {
+      expect(actor.pos.x).toBe(0);
+      expect(actor.pos.y).toBe(0);
+
+      actor.actions.moveTo({ pos: ex.vec(20, 0), durationMs: 2000 });
+      scene.update(engine, 500);
+
+      actor.actions.clearActions();
+      expect(actor.pos.x).toBe(5);
+      expect(actor.pos.y).toBe(0);
+
+      // Actor should not move after stop
+      scene.update(engine, 500);
+      expect(actor.pos.x).toBe(5);
+      expect(actor.pos.y).toBe(0);
+    });
   });
 
   describe('easeBy', () => {
-
     it('can be reset', () => {
       const easeTo = new ex.EaseBy(actor, 100, 0, 100, ex.EasingFunctions.EaseInOutCubic);
       easeTo.update(1000);
@@ -809,6 +884,21 @@ describe('Action', () => {
       expect(actor.angularVelocity).toBe(0);
     });
 
+    it('(with options) can be rotated to an angle at a speed via ShortestPath (default)', () => {
+      expect(actor.rotation).toBe(0);
+
+      actor.actions.rotateTo({ angleRadians: Math.PI / 2, durationMs: 1000 });
+
+      scene.update(engine, 500);
+      expect(actor.rotation).toBe(Math.PI / 4);
+
+      scene.update(engine, 500);
+      expect(actor.rotation).toBe(Math.PI / 2);
+
+      scene.update(engine, 500);
+      expect(actor.angularVelocity).toBe(0);
+    });
+
     it('can be rotated to an angle at a speed via LongestPath', () => {
       expect(actor.rotation).toBe(0);
 
@@ -826,10 +916,43 @@ describe('Action', () => {
       expect(actor.angularVelocity).toBe(0);
     });
 
+    it('(with options) can be rotated to an angle at a speed via LongestPath', () => {
+      expect(actor.rotation).toBe(0);
+
+      actor.actions.rotateTo({ angleRadians: Math.PI / 2, durationMs: 3000, rotationType: ex.RotationType.LongestPath });
+
+      scene.update(engine, 1000);
+      //rotation is currently incremented by rx delta ,so will be negative while moving counterclockwise
+      expect(actor.rotation).toBe(ex.canonicalizeAngle((-1 * Math.PI) / 2));
+
+      scene.update(engine, 2000);
+      expect(actor.rotation).toBe(ex.canonicalizeAngle((-3 * Math.PI) / 2));
+
+      scene.update(engine, 500);
+      expect(actor.rotation).toBe(ex.canonicalizeAngle(Math.PI / 2));
+      expect(actor.angularVelocity).toBe(0);
+    });
+
     it('can be rotated to an angle at a speed via Clockwise', () => {
       expect(actor.rotation).toBe(0);
 
       actor.actions.rotateTo((3 * Math.PI) / 2, Math.PI / 2, ex.RotationType.Clockwise);
+
+      scene.update(engine, 2000);
+      expect(actor.rotation).toBe(Math.PI);
+
+      scene.update(engine, 1000);
+      expect(actor.rotation).toBe((3 * Math.PI) / 2);
+
+      scene.update(engine, 500);
+      expect(actor.rotation).toBe((3 * Math.PI) / 2);
+      expect(actor.angularVelocity).toBe(0);
+    });
+
+    it('(with options) can be rotated to an angle at a speed via Clockwise', () => {
+      expect(actor.rotation).toBe(0);
+
+      actor.actions.rotateTo({ angleRadians: (3 * Math.PI) / 2, durationMs: 3000, rotationType: ex.RotationType.Clockwise });
 
       scene.update(engine, 2000);
       expect(actor.rotation).toBe(Math.PI);
@@ -865,6 +988,29 @@ describe('Action', () => {
       expect(actor.angularVelocity).toBe(0);
     });
 
+    it('(with options) can be rotated to an angle at a speed via CounterClockwise', () => {
+      expect(actor.rotation).toBe(0);
+
+      actor.actions.rotateTo({ angleRadians: Math.PI / 2, durationMs: 3000, rotationType: ex.RotationType.CounterClockwise });
+      scene.update(engine, 2000);
+      expect(actor.rotation).toBe(ex.canonicalizeAngle(-Math.PI));
+
+      scene.update(engine, 1000);
+      expect(actor.rotation).toBe(ex.canonicalizeAngle((-3 * Math.PI) / 2));
+
+      scene.update(engine, 500);
+      expect(actor.rotation).toBe(ex.canonicalizeAngle(Math.PI / 2));
+      expect(actor.angularVelocity).toBe(0);
+
+      // rotating back to 0, starting at PI / 2
+      actor.actions.rotateTo(0, Math.PI / 2, ex.RotationType.CounterClockwise);
+      scene.update(engine, 1000);
+      expect(actor.rotation).toBe(ex.canonicalizeAngle(0));
+
+      scene.update(engine, 1);
+      expect(actor.angularVelocity).toBe(0);
+    });
+
     it('can be stopped', () => {
       expect(actor.rotation).toBe(0);
 
@@ -878,12 +1024,35 @@ describe('Action', () => {
       scene.update(engine, 500);
       expect(actor.rotation).toBe(Math.PI / 4);
     });
+
+    it('(with options) can be stopped', () => {
+      expect(actor.rotation).toBe(0);
+
+      actor.actions.rotateTo({ angleRadians: Math.PI / 2, durationMs: 1000 });
+
+      scene.update(engine, 500);
+      expect(actor.rotation).toBe(Math.PI / 4);
+
+      actor.actions.clearActions();
+
+      scene.update(engine, 500);
+      expect(actor.rotation).toBe(Math.PI / 4);
+    });
   });
 
   describe('rotateBy', () => {
-
     it('can be reset', () => {
       const rotateBy = new ex.RotateBy(actor, Math.PI / 2, Math.PI / 2);
+      actor.actions.runAction(rotateBy);
+      scene.update(engine, 1000);
+      expect(rotateBy.isComplete()).toBeTrue();
+
+      rotateBy.reset();
+      actor.rotation = 0;
+      expect(rotateBy.isComplete()).toBeFalse();
+    });
+    it('(with options) can be reset', () => {
+      const rotateBy = new ex.RotateByWithOptions(actor, { angleRadiansOffset: Math.PI / 2, durationMs: 500 });
       actor.actions.runAction(rotateBy);
       scene.update(engine, 1000);
       expect(rotateBy.isComplete()).toBeTrue();
@@ -907,10 +1076,40 @@ describe('Action', () => {
       expect(actor.angularVelocity).toBe(0);
     });
 
+    it('(with options) can be rotated to an angle by a certain time via ShortestPath (default)', () => {
+      expect(actor.rotation).toBe(0);
+
+      actor.actions.rotateBy({ angleRadiansOffset: Math.PI / 2, durationMs: 2000 });
+
+      scene.update(engine, 1000);
+      expect(actor.rotation).toBe(Math.PI / 4);
+
+      scene.update(engine, 1000);
+      expect(actor.rotation).toBe(Math.PI / 2);
+
+      scene.update(engine, 500);
+      expect(actor.angularVelocity).toBe(0);
+    });
+
     it('can be rotated to an angle by a certain time via LongestPath', () => {
       expect(actor.rotation).toBe(0);
 
       actor.actions.rotateBy(Math.PI / 2, Math.PI / 2, ex.RotationType.LongestPath);
+
+      scene.update(engine, 1000);
+      expect(actor.rotation).toBe(ex.canonicalizeAngle((-1 * Math.PI) / 2));
+
+      scene.update(engine, 2000);
+      expect(actor.rotation).toBe(ex.canonicalizeAngle((-3 * Math.PI) / 2));
+
+      scene.update(engine, 500);
+      expect(actor.rotation).toBe(Math.PI / 2);
+      expect(actor.angularVelocity).toBe(0);
+    });
+    it('(with options) can be rotated to an angle by a certain time via LongestPath', () => {
+      expect(actor.rotation).toBe(0);
+
+      actor.actions.rotateBy({ angleRadiansOffset: Math.PI / 2, durationMs: 3000, rotationType: ex.RotationType.LongestPath });
 
       scene.update(engine, 1000);
       expect(actor.rotation).toBe(ex.canonicalizeAngle((-1 * Math.PI) / 2));
@@ -939,10 +1138,42 @@ describe('Action', () => {
       expect(actor.angularVelocity).toBe(0);
     });
 
+    it('(with options) can be rotated to an angle by a certain time via Clockwise', () => {
+      expect(actor.rotation).toBe(0);
+
+      actor.actions.rotateBy({ angleRadiansOffset: Math.PI / 2, durationMs: 1000, rotationType: ex.RotationType.Clockwise });
+
+      scene.update(engine, 500);
+      expect(actor.rotation).toBe(Math.PI / 4);
+
+      scene.update(engine, 500);
+      expect(actor.rotation).toBe(Math.PI / 2);
+
+      scene.update(engine, 500);
+      expect(actor.rotation).toBe(Math.PI / 2);
+      expect(actor.angularVelocity).toBe(0);
+    });
+
     it('can be rotated to an angle by a certain time via CounterClockwise', () => {
       expect(actor.rotation).toBe(0);
 
       actor.actions.rotateBy(Math.PI / 2, Math.PI / 2, ex.RotationType.LongestPath);
+
+      scene.update(engine, 1000);
+      expect(actor.rotation).toBe(ex.canonicalizeAngle((-1 * Math.PI) / 2));
+
+      scene.update(engine, 2000);
+      expect(actor.rotation).toBe(ex.canonicalizeAngle((-3 * Math.PI) / 2));
+
+      scene.update(engine, 500);
+      expect(actor.rotation).toBe(Math.PI / 2);
+      expect(actor.angularVelocity).toBe(0);
+    });
+
+    it('(with options) can be rotated to an angle by a certain time via CounterClockwise', () => {
+      expect(actor.rotation).toBe(0);
+
+      actor.actions.rotateBy({ angleRadiansOffset: Math.PI / 2, durationMs: 3000, rotationType: ex.RotationType.LongestPath });
 
       scene.update(engine, 1000);
       expect(actor.rotation).toBe(ex.canonicalizeAngle((-1 * Math.PI) / 2));
@@ -967,11 +1198,34 @@ describe('Action', () => {
       scene.update(engine, 1000);
       expect(actor.rotation).toBe(Math.PI / 4);
     });
+
+    it('(with options) can be stopped', () => {
+      expect(actor.rotation).toBe(0);
+
+      actor.actions.rotateBy({ angleRadiansOffset: Math.PI / 2, durationMs: 2000 });
+
+      scene.update(engine, 1000);
+      actor.actions.clearActions();
+      expect(actor.rotation).toBe(Math.PI / 4);
+
+      scene.update(engine, 1000);
+      expect(actor.rotation).toBe(Math.PI / 4);
+    });
   });
 
   describe('scaleTo', () => {
     it('can be reset', () => {
       const scaleTo = new ex.ScaleTo(actor, 2, 2, 1, 1);
+      actor.actions.runAction(scaleTo);
+      scene.update(engine, 1000);
+      expect(scaleTo.isComplete()).toBeTrue();
+
+      scaleTo.reset();
+      actor.scale = ex.vec(1, 1);
+      expect(scaleTo.isComplete()).toBeFalse();
+    });
+    it('(with options) can be reset', () => {
+      const scaleTo = new ex.ScaleToWithOptions(actor, { scale: ex.vec(2, 2), durationMs: 500 });
       actor.actions.runAction(scaleTo);
       scene.update(engine, 1000);
       expect(scaleTo.isComplete()).toBeTrue();
@@ -997,6 +1251,25 @@ describe('Action', () => {
 
       expect(actor.scale.x).toBe(2);
       expect(actor.scale.y).toBe(2.5);
+    });
+
+    it('(with options) can be scaled at a speed (x,y) overload', () => {
+      expect(actor.scale.x).toBe(1);
+      expect(actor.scale.y).toBe(1);
+
+      actor.actions.scaleTo({ scale: ex.vec(2, 4), durationMs: 2000 });
+      scene.update(engine, 1000);
+
+      expect(actor.scale.x).toBe(1.5);
+      expect(actor.scale.y).toBe(2.5);
+      scene.update(engine, 1000);
+
+      expect(actor.scale.x).toBe(2);
+      expect(actor.scale.y).toBe(4);
+      scene.update(engine, 1000);
+
+      expect(actor.scale.x).toBe(2);
+      expect(actor.scale.y).toBe(4);
     });
 
     it('can be scaled at a speed vector overload', () => {
@@ -1078,12 +1351,37 @@ describe('Action', () => {
       actor.scale = ex.vec(1, 1);
       expect(scaleBy.isComplete()).toBeFalse();
     });
+    it('(with options) can be reset', () => {
+      const scaleBy = new ex.ScaleByWithOptions(actor, { scaleOffset: ex.vec(1, 1), durationMs: 500 });
+      actor.actions.runAction(scaleBy);
+      scene.update(engine, 1000);
+      expect(scaleBy.isComplete()).toBeTrue();
+
+      scaleBy.reset();
+      actor.scale = ex.vec(1, 1);
+      expect(scaleBy.isComplete()).toBeFalse();
+    });
 
     it('can be scaled by a certain time (x,y) overload', () => {
       expect(actor.scale.x).toBe(1);
       expect(actor.scale.y).toBe(1);
 
       actor.actions.scaleBy(4, 4, 4);
+
+      scene.update(engine, 500);
+      expect(actor.scale.x).toBe(3);
+      expect(actor.scale.y).toBe(3);
+
+      scene.update(engine, 500);
+      scene.update(engine, 1);
+      expect(actor.scale.x).toBe(5);
+      expect(actor.scale.y).toBe(5);
+    });
+    it('(with options) can be scaled by a certain time (x,y) overload', () => {
+      expect(actor.scale.x).toBe(1);
+      expect(actor.scale.y).toBe(1);
+
+      actor.actions.scaleBy({ scaleOffset: ex.vec(4, 4), durationMs: 1000 });
 
       scene.update(engine, 500);
       expect(actor.scale.x).toBe(3);
@@ -1143,6 +1441,23 @@ describe('Action', () => {
       expect(actor.scale.x).toBe(2.5);
       expect(actor.scale.y).toBe(2.5);
     });
+
+    it('(with options) can be stopped', () => {
+      expect(actor.scale.x).toBe(1);
+      expect(actor.scale.y).toBe(1);
+
+      actor.actions.scaleBy({ scaleOffset: ex.vec(4, 4), durationMs: 1250 });
+
+      scene.update(engine, 500);
+
+      actor.actions.clearActions();
+      expect(actor.scale.x).toBe(2.6);
+      expect(actor.scale.y).toBe(2.6);
+
+      scene.update(engine, 500);
+      expect(actor.scale.x).toBe(2.6);
+      expect(actor.scale.y).toBe(2.6);
+    });
   });
 
   describe('follow', () => {
@@ -1165,7 +1480,7 @@ describe('Action', () => {
 
   describe('meet', () => {
     it('can be reset', () => {
-      const target = new ex.Actor({x: 100, y: 0});
+      const target = new ex.Actor({ x: 100, y: 0 });
       const meet = new ex.Meet(actor, target, 100);
       actor.actions.runAction(meet);
 
@@ -1201,7 +1516,6 @@ describe('Action', () => {
   });
 
   describe('fade', () => {
-
     it('can be reset', () => {
       const fade = new ex.Fade(actor, 0, 1000);
       fade.update(1000);
@@ -1218,6 +1532,17 @@ describe('Action', () => {
       actor.actions.fade(1, 200);
       for (let i = 0; i < 10; i++) {
         scene.update(engine, 20);
+      }
+
+      expect(actor.graphics.opacity).toBe(1);
+    });
+
+    it('can go from 1 from 0 with large time steps', () => {
+      actor.graphics.opacity = 0;
+
+      actor.actions.fade(1, 200);
+      for (let i = 0; i < 10; i++) {
+        scene.update(engine, 115);
       }
 
       expect(actor.graphics.opacity).toBe(1);
@@ -1266,6 +1591,22 @@ describe('Action', () => {
       }
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith(jasmine.objectContaining({ target: actor, action: jasmine.any(ex.MoveTo) }));
+    });
+
+    it('emits actioncomplete with an action with ids', () => {
+      const spy = jasmine.createSpy();
+      // actor.actions.moveTo(20, 0, 20);
+      const moveTo = new ex.MoveTo(actor, 20, 0, 20);
+      const moveTo2 = new ex.MoveTo(actor, 20, 0, 20);
+      actor.actions.runAction(moveTo);
+      actor.on('actioncomplete', spy);
+      for (let i = 0; i < 10; i++) {
+        scene.update(engine, 200);
+      }
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(jasmine.objectContaining({ target: actor, action: moveTo }));
+      expect(moveTo.id).not.toEqual(moveTo2.id);
+      expect(moveTo2.id).toEqual(moveTo.id + 1);
     });
 
     it('emits actionstart and actioncomplete events for each action in a repeat', () => {

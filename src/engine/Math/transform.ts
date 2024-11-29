@@ -1,5 +1,5 @@
 import { AffineMatrix } from './affine-matrix';
-import { canonicalizeAngle } from './util';
+import { canonicalizeAngle, sign } from './util';
 import { vec, Vector } from './vector';
 import { VectorView } from './vector-view';
 import { WatchVector } from './watch-vector';
@@ -27,20 +27,15 @@ export class Transform {
   }
   private _children: Transform[] = [];
 
-  private _pos: Vector = vec(0, 0);
+  private _pos: Vector = new WatchVector(vec(0, 0), () => {
+    this.flagDirty();
+  });
   set pos(v: Vector) {
-    if (!v.equals(this._pos)) {
-      this._pos.x = v.x;
-      this._pos.y = v.y;
-      this.flagDirty();
-    }
+    this._pos.x = v.x;
+    this._pos.y = v.y;
   }
   get pos() {
-    return new WatchVector(this._pos, (x, y) => {
-      if (x !== this._pos.x || y !== this._pos.y) {
-        this.flagDirty();
-      }
-    });
+    return this._pos;
   }
 
   set globalPos(v: Vector) {
@@ -53,33 +48,34 @@ export class Transform {
       this.flagDirty();
     }
   }
-  get globalPos() {
-    return new VectorView({
-      getX: () => this.matrix.data[4],
-      getY: () => this.matrix.data[5],
-      setX: (x) => {
-        if (this.parent) {
-          const { x: newX } = this.parent.inverse.multiply(vec(x, this.pos.y));
-          this.pos.x = newX;
-        } else {
-          this.pos.x = x;
-        }
-        if (x !== this.matrix.data[4]) {
-          this.flagDirty();
-        }
-      },
-      setY: (y) => {
-        if (this.parent) {
-          const { y: newY } = this.parent.inverse.multiply(vec(this.pos.x, y));
-          this.pos.y = newY;
-        } else {
-          this.pos.y = y;
-        }
-        if (y !== this.matrix.data[5]) {
-          this.flagDirty();
-        }
+  private _globalPos = new VectorView({
+    getX: () => this.matrix.data[4],
+    getY: () => this.matrix.data[5],
+    setX: (x) => {
+      if (this.parent) {
+        const { x: newX } = this.parent.inverse.multiply(vec(x, this.pos.y));
+        this.pos.x = newX;
+      } else {
+        this.pos.x = x;
       }
-    });
+      if (x !== this.matrix.data[4]) {
+        this.flagDirty();
+      }
+    },
+    setY: (y) => {
+      if (this.parent) {
+        const { y: newY } = this.parent.inverse.multiply(vec(this.pos.x, y));
+        this.pos.y = newY;
+      } else {
+        this.pos.y = y;
+      }
+      if (y !== this.matrix.data[5]) {
+        this.flagDirty();
+      }
+    }
+  });
+  get globalPos() {
+    return this._globalPos;
   }
 
   private _rotation: number = 0;
@@ -113,20 +109,15 @@ export class Transform {
     return this.rotation;
   }
 
-  private _scale: Vector = vec(1, 1);
+  private _scale: Vector = new WatchVector(vec(1, 1), () => {
+    this.flagDirty();
+  });
   set scale(v: Vector) {
-    if (v.x !== this._scale.x || v.y !== this._scale.y) {
-      this._scale.x = v.x;
-      this._scale.y = v.y;
-      this.flagDirty();
-    }
+    this._scale.x = v.x;
+    this._scale.y = v.y;
   }
   get scale() {
-    return new WatchVector(this._scale, (x, y) => {
-      if (x !== this._scale.x || y !== this._scale.y) {
-        this.flagDirty();
-      }
-    });
+    return this._scale;
   }
 
   set globalScale(v: Vector) {
@@ -137,27 +128,54 @@ export class Transform {
     this.scale = v.scale(vec(1 / inverseScale.x, 1 / inverseScale.y));
   }
 
-  get globalScale() {
-    return new VectorView({
-      getX: () => this.parent ? this.matrix.getScaleX() : this.scale.x,
-      getY: () => this.parent ? this.matrix.getScaleY() : this.scale.y,
-      setX: (x) => {
-        if (this.parent) {
-          const globalScaleX = this.parent.globalScale.x;
-          this.scale.x = x / globalScaleX;
-        } else {
-          this.scale.x = x;
-        }
-      },
-      setY: (y) => {
-        if (this.parent) {
-          const globalScaleY = this.parent.globalScale.y;
-          this.scale.y = y / globalScaleY;
-        } else {
-          this.scale.y = y;
-        }
+  private _globalScale = new VectorView({
+    getX: () => (this.parent ? this.matrix.getScaleX() : this.scale.x),
+    getY: () => (this.parent ? this.matrix.getScaleY() : this.scale.y),
+    setX: (x) => {
+      if (this.parent) {
+        const globalScaleX = this.parent.globalScale.x;
+        this.scale.x = x / globalScaleX;
+      } else {
+        this.scale.x = x;
       }
-    });
+    },
+    setY: (y) => {
+      if (this.parent) {
+        const globalScaleY = this.parent.globalScale.y;
+        this.scale.y = y / globalScaleY;
+      } else {
+        this.scale.y = y;
+      }
+    }
+  });
+  get globalScale() {
+    return this._globalScale;
+  }
+
+  private _z: number = 0;
+
+  set z(z: number) {
+    this._z = z;
+    this.flagDirty();
+  }
+
+  get z() {
+    return this._z;
+  }
+
+  set globalZ(z: number) {
+    if (this.parent) {
+      this.z = z - this.parent.globalZ;
+    } else {
+      this.z = z;
+    }
+  }
+
+  get globalZ() {
+    if (this.parent) {
+      return this.z + this.parent.globalZ;
+    }
+    return this.z;
   }
 
   private _isDirty = false;
@@ -165,39 +183,51 @@ export class Transform {
   private _matrix = AffineMatrix.identity();
   private _inverse = AffineMatrix.identity();
 
-  public get matrix() {
+  /**
+   * Calculates and returns the matrix representation of this transform
+   *
+   * Avoid mutating the matrix to update the transform, it is not the source of truth.
+   * Update the transform pos, rotation, scale.
+   */
+  public get matrix(): AffineMatrix {
     if (this._isDirty) {
       if (this.parent === null) {
-        this._matrix = this._calculateMatrix();
+        this._calculateMatrix().clone(this._matrix);
       } else {
-        this._matrix = this.parent.matrix.multiply(this._calculateMatrix());
+        this.parent.matrix.multiply(this._calculateMatrix()).clone(this._matrix);
       }
       this._isDirty = false;
     }
     return this._matrix;
   }
 
-  public get inverse() {
+  /**
+   * Calculates and returns the inverse matrix representation of this transform
+   */
+  public get inverse(): AffineMatrix {
     if (this._isInverseDirty) {
-      this._inverse = this.matrix.inverse();
+      this.matrix.inverse(this._inverse);
       this._isInverseDirty = false;
     }
     return this._inverse;
   }
 
+  private _scratch = AffineMatrix.identity();
   private _calculateMatrix(): AffineMatrix {
-    const matrix = AffineMatrix.identity()
-      .translate(this.pos.x, this.pos.y)
-      .rotate(this.rotation)
-      .scale(this.scale.x, this.scale.y);
-    return matrix;
+    this._scratch.data[0] = Math.cos(this._rotation);
+    this._scratch.data[1] = Math.sin(this._rotation);
+    this._scratch.data[2] = -Math.sin(this._rotation);
+    this._scratch.data[3] = Math.cos(this.rotation);
+    this._scratch.data[4] = this._pos.x;
+    this._scratch.data[5] = this._pos.y;
+    this._scratch.scale(this._scale.x, this._scale.y);
+    return this._scratch;
   }
-
 
   public flagDirty() {
     this._isDirty = true;
     this._isInverseDirty = true;
-    for (let i = 0; i < this._children.length; i ++) {
+    for (let i = 0; i < this._children.length; i++) {
       this._children[i].flagDirty();
     }
   }
@@ -220,16 +250,45 @@ export class Transform {
   }
 
   /**
+   * Returns true if the transform has a negative x scale or y scale, but not both
+   */
+  public isMirrored(): boolean {
+    const signBitX = sign(this.scale.x) >>> 31;
+    const signBitY = sign(this.scale.y) >>> 31;
+    const mirrored = signBitX ^ signBitY;
+    return !!mirrored;
+  }
+
+  /**
    * Clones the current transform
    * **Warning does not clone the parent**
    * @param dest
    */
-  public clone(dest?: Transform) {
+  public clone(dest?: Transform): Transform {
     const target = dest ?? new Transform();
     this._pos.clone(target._pos);
+    target._z = this._z;
     target._rotation = this._rotation;
     this._scale.clone(target._scale);
     target.flagDirty();
     return target;
+  }
+
+  /**
+   * Clones but keeps the same parent reference
+   */
+  public cloneWithParent(dest?: Transform): Transform {
+    const target = dest ?? new Transform();
+    this._pos.clone(target._pos);
+    target._z = this._z;
+    target._rotation = this._rotation;
+    this._scale.clone(target._scale);
+    target.parent = this.parent;
+    target.flagDirty();
+    return target;
+  }
+
+  public toString(): string {
+    return this.matrix.toString();
   }
 }

@@ -5,6 +5,8 @@
  */
 export function getGlTypeSizeBytes(gl: WebGLRenderingContext, type: number): number {
   switch (type) {
+    case gl.INT:
+    case gl.UNSIGNED_INT:
     case gl.FLOAT:
       return 4;
     case gl.SHORT:
@@ -27,7 +29,7 @@ export function isAttributeInSource(source: string, variable: string) {
   const attributeRegexTemplate = `(?<type>[a-z0-9]+)\\s+${variable};`;
   const regex = new RegExp(attributeRegexTemplate, 'g');
   const matches = regex.exec(source);
-  return matches?.length > 0;
+  return matches?.length! > 0;
 }
 
 /**
@@ -75,7 +77,6 @@ export function getGLTypeFromSource(gl: WebGLRenderingContext, source: string, v
       return gl.FLOAT;
   }
 }
-
 
 /**
  * Based on the type return the number of attribute components
@@ -134,4 +135,46 @@ export function getAttributePointerType(gl: WebGLRenderingContext, type: number)
     default:
       return gl.FLOAT;
   }
+}
+
+/**
+ *
+ */
+export function getMaxShaderComplexity(gl: WebGL2RenderingContext, numIfs: number): number {
+  const assembleTestShader = (numIfs: number) => {
+    const testShader = `#version 300 es
+    precision mediump float;
+    out vec4 fragColor;
+    void main() {
+      float index = 1.01;
+      %%complexity%%
+    }`;
+    let testComplexity = '';
+    for (let i = 0; i < numIfs; i++) {
+      if (i === 0) {
+        testComplexity += `if (index <= ${i}.5) {\n`;
+      } else {
+        testComplexity += `   else if (index <= ${i}.5) {\n`;
+      }
+
+      testComplexity += `      fragColor = vec4(1.0);\n`;
+      testComplexity += `   }\n`;
+    }
+    return testShader.replace('%%complexity%%', testComplexity);
+  };
+
+  let canCompile = false;
+  do {
+    const test = assembleTestShader(numIfs);
+
+    const shader = gl.createShader(gl.FRAGMENT_SHADER)!;
+    gl.shaderSource(shader, test);
+    gl.compileShader(shader);
+
+    canCompile = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+    if (!canCompile) {
+      numIfs = (numIfs / 2) | 0;
+    }
+  } while (!canCompile);
+  return numIfs;
 }

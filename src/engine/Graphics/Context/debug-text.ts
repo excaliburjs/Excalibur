@@ -6,7 +6,7 @@ import { Vector } from '../../Math/vector';
 import debugFont from './debug-font.png';
 
 /**
- * Internal debugtext helper
+ * Internal debug text helper
  */
 export class DebugText {
   constructor() {
@@ -20,9 +20,9 @@ export class DebugText {
    */
   public readonly fontSheet = debugFont;
   public size: number = 16;
-  private _imageSource: ImageSource;
-  private _spriteSheet: SpriteSheet;
-  private _spriteFont: SpriteFont;
+  private _imageSource!: ImageSource;
+  private _spriteSheet!: SpriteSheet;
+  private _spriteFont!: SpriteFont;
   public load() {
     this._imageSource = new ImageSource(this.fontSheet);
     return this._imageSource.load().then(() => {

@@ -26,8 +26,7 @@ export class World {
    * Query the ECS world for entities that match your components
    * @param requiredTypes
    */
-  query<TKnownComponentCtors extends ComponentCtor<Component>>(
-    requiredTypes: TKnownComponentCtors[]): Query<TKnownComponentCtors> {
+  query<TKnownComponentCtors extends ComponentCtor<Component>>(requiredTypes: TKnownComponentCtors[]): Query<TKnownComponentCtors> {
     return this.queryManager.createQuery(requiredTypes);
   }
 
@@ -38,11 +37,11 @@ export class World {
   /**
    * Update systems by type and time elapsed in milliseconds
    */
-  update(type: SystemType, delta: number) {
+  update(type: SystemType, elapsedMs: number) {
     if (type === SystemType.Update) {
-      this.entityManager.updateEntities(this.scene, delta);
+      this.entityManager.updateEntities(this.scene, elapsedMs);
     }
-    this.systemManager.updateSystems(type, this.scene, delta);
+    this.systemManager.updateSystems(type, this.scene, elapsedMs);
     this.entityManager.findEntitiesForRemoval();
     this.entityManager.processComponentRemovals();
     this.entityManager.processEntityRemovals();

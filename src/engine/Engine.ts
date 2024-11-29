@@ -53,21 +53,23 @@ import { InputHost } from './Input/InputHost';
 import { DefaultPhysicsConfig, DeprecatedStaticToConfig, PhysicsConfig } from './Collision/PhysicsConfig';
 import { DeepRequired } from './Util/Required';
 import { Context, createContext, useContext } from './Context';
+import { DefaultGarbageCollectionOptions, GarbageCollectionOptions, GarbageCollector } from './GarbageCollector';
+import { mergeDeep } from './Util/Util';
 
 export type EngineEvents = {
-  fallbackgraphicscontext: ExcaliburGraphicsContext2DCanvas,
-  initialize: InitializeEvent<Engine>,
-  visible: VisibleEvent,
-  hidden: HiddenEvent,
-  start: GameStartEvent,
-  stop: GameStopEvent,
-  preupdate: PreUpdateEvent<Engine>,
-  postupdate: PostUpdateEvent<Engine>,
-  preframe: PreFrameEvent,
-  postframe: PostFrameEvent,
-  predraw: PreDrawEvent,
-  postdraw: PostDrawEvent,
-}
+  fallbackgraphicscontext: ExcaliburGraphicsContext2DCanvas;
+  initialize: InitializeEvent<Engine>;
+  visible: VisibleEvent;
+  hidden: HiddenEvent;
+  start: GameStartEvent;
+  stop: GameStopEvent;
+  preupdate: PreUpdateEvent<Engine>;
+  postupdate: PostUpdateEvent<Engine>;
+  preframe: PreFrameEvent;
+  postframe: PostFrameEvent;
+  predraw: PreDrawEvent;
+  postdraw: PostDrawEvent;
+};
 
 export const EngineEvents = {
   FallbackGraphicsContext: 'fallbackgraphicscontext',
@@ -83,8 +85,6 @@ export const EngineEvents = {
   PreDraw: 'predraw',
   PostDraw: 'postdraw'
 } as const;
-
-
 
 /**
  * Enum representing the different mousewheel event bubble prevention
@@ -120,13 +120,13 @@ export interface EngineOptions<TKnownScenes extends string = any> {
 
   /**
    * Optionally configure the width & height of the viewport in css pixels.
-   * Use `viewport` instead of [[EngineOptions.width]] and [[EngineOptions.height]], or vice versa.
+   * Use `viewport` instead of {@apilink EngineOptions.width} and {@apilink EngineOptions.height}, or vice versa.
    */
   viewport?: ViewportDimension;
 
   /**
    * Optionally specify the size the logical pixel resolution, if not specified it will be width x height.
-   * See [[Resolution]] for common presets.
+   * See {@apilink Resolution} for common presets.
    */
   resolution?: Resolution;
 
@@ -134,16 +134,29 @@ export interface EngineOptions<TKnownScenes extends string = any> {
    * Optionally specify antialiasing (smoothing), by default true (smooth pixels)
    *
    *  * `true` - useful for high resolution art work you would like smoothed, this also hints excalibur to load images
-   * with default blending [[ImageFiltering.Blended]]
+   * with default blending {@apilink ImageFiltering.Blended}
    *
    *  * `false` - useful for pixel art style art work you would like sharp, this also hints excalibur to load images
-   * with default blending [[ImageFiltering.Pixel]]
+   * with default blending {@apilink ImageFiltering.Pixel}
    *
-   * * [[AntialiasOptions]] Optionally deeply configure the different antialiasing settings, **WARNING** thar be dragons here.
+   * * {@apilink AntialiasOptions} Optionally deeply configure the different antialiasing settings, **WARNING** thar be dragons here.
    * It is recommended you stick to `true` or `false` unless you understand what you're doing and need to control rendering to
    * a high degree.
    */
-  antialiasing?: boolean | AntialiasOptions
+  antialiasing?: boolean | AntialiasOptions;
+
+  /**
+   * Optionally specify excalibur garbage collection, by default true.
+   *
+   * * `true` - garbage collection defaults are enabled (default)
+   *
+   * * `false` - garbage collection is completely disabled (not recommended)
+   *
+   * * {@apilink GarbageCollectionOptions} Optionally deeply configure garbage collection settings, **WARNING** thar be dragons here.
+   * It is recommended you stick to `true` or `false` unless you understand what you're doing, it is possible to get into a downward
+   * spiral if collection timings are set too low where you are stuck in repeated collection.
+   */
+  garbageCollection?: boolean | GarbageCollectionOptions;
 
   /**
    * Quick convenience property to configure Excalibur to use special settings for "pretty" anti-aliased pixel art
@@ -183,7 +196,7 @@ export interface EngineOptions<TKnownScenes extends string = any> {
 
   /**
    * Optionally upscale the number of pixels in the canvas. Normally only useful if you need a smoother look to your assets, especially
-   * [[Text]] or Pixel Art assets.
+   * {@apilink Text} or Pixel Art assets.
    *
    * **WARNING** It is recommended you try using `antialiasing: true` before adjusting pixel ratio. Pixel ratio will consume more memory
    * and on mobile may break if the internal size of the canvas exceeds 4k pixels in width or height.
@@ -208,13 +221,20 @@ export interface EngineOptions<TKnownScenes extends string = any> {
   canvasElement?: HTMLCanvasElement;
 
   /**
+   * Optionally enable the right click context menu on the canvas
+   *
+   * Default if unset is false
+   */
+  enableCanvasContextMenu?: boolean;
+
+  /**
    * Optionally snap graphics to nearest pixel, default is false
    */
   snapToPixel?: boolean;
 
   /**
-   * The [[DisplayMode]] of the game, by default [[DisplayMode.FitScreen]] with aspect ratio 4:3 (800x600).
-   * Depending on this value, [[width]] and [[height]] may be ignored.
+   * The {@apilink DisplayMode} of the game, by default {@apilink DisplayMode.FitScreen} with aspect ratio 4:3 (800x600).
+   * Depending on this value, {@apilink width} and {@apilink height} may be ignored.
    */
   displayMode?: DisplayMode;
 
@@ -276,7 +296,22 @@ export interface EngineOptions<TKnownScenes extends string = any> {
   maxFps?: number;
 
   /**
-   * Optionally configure a fixed update fps, this can be desireable if you need the physics simulation to be very stable. When set
+   * Optionally configure a fixed update timestep in milliseconds, this can be desirable if you need the physics simulation to be very stable. When
+   * set the update step and physics will use the same elapsed time for each tick even if the graphical framerate drops. In order for the
+   * simulation to be correct, excalibur will run multiple updates in a row (at the configured update elapsed) to catch up, for example
+   * there could be X updates and 1 draw each clock step.
+   *
+   * **NOTE:** This does come at a potential perf cost because each catch-up update will need to be run if the fixed rate is greater than
+   * the current instantaneous framerate, or perf gain if the fixed rate is less than the current framerate.
+   *
+   * By default is unset and updates will use the current instantaneous framerate with 1 update and 1 draw each clock step.
+   *
+   * **WARN:** `fixedUpdateTimestep` takes precedence over `fixedUpdateFps` use whichever is most convenient.
+   */
+  fixedUpdateTimestep?: number;
+
+  /**
+   * Optionally configure a fixed update fps, this can be desirable if you need the physics simulation to be very stable. When set
    * the update step and physics will use the same elapsed time for each tick even if the graphical framerate drops. In order for the
    * simulation to be correct, excalibur will run multiple updates in a row (at the configured update elapsed) to catch up, for example
    * there could be X updates and 1 draw each clock step.
@@ -285,6 +320,8 @@ export interface EngineOptions<TKnownScenes extends string = any> {
    * the current instantaneous framerate, or perf gain if the fixed rate is less than the current framerate.
    *
    * By default is unset and updates will use the current instantaneous framerate with 1 update and 1 draw each clock step.
+   *
+   * **WARN:** `fixedUpdateTimestep` takes precedence over `fixedUpdateFps` use whichever is most convenient.
    */
   fixedUpdateFps?: number;
 
@@ -293,6 +330,7 @@ export interface EngineOptions<TKnownScenes extends string = any> {
    *
    * Excalibur will automatically sort draw calls by z and priority into renderer batches for maximal draw performance,
    * this can disrupt a specific desired painter order.
+   *
    */
   useDrawSorting?: boolean;
 
@@ -327,30 +365,30 @@ export interface EngineOptions<TKnownScenes extends string = any> {
      * In this example of the default if excalibur is running at 20fps or less for 100 frames it will trigger the fallback to the 2D
      * Canvas renderer.
      */
-    threshold?: { numberOfFrames: number, fps: number };
-  },
+    threshold?: { numberOfFrames: number; fps: number };
+  };
 
   /**
    * Optionally configure the physics simulation in excalibur
    *
    * If false, Excalibur will not produce a physics simulation.
    *
-   * Default is configured to use [[SolverStrategy.Arcade]] physics simulation
+   * Default is configured to use {@apilink SolverStrategy.Arcade} physics simulation
    */
-  physics?: boolean | PhysicsConfig
+  physics?: boolean | PhysicsConfig;
 
   /**
-   * Optionally specify scenes with their transitions and loaders to excalibur's scene [[Director]]
+   * Optionally specify scenes with their transitions and loaders to excalibur's scene {@apilink Director}
    *
    * Scene transitions can can overridden dynamically by the `Scene` or by the call to `.goToScene`
    */
-  scenes?: SceneMap<TKnownScenes>
+  scenes?: SceneMap<TKnownScenes>;
 }
 
 /**
  * The Excalibur Engine
  *
- * The [[Engine]] is the main driver for a game. It is responsible for
+ * The {@apilink Engine} is the main driver for a game. It is responsible for
  * starting/stopping the game, maintaining state, transmitting events,
  * loading resources, and managing the scene.
  */
@@ -372,6 +410,10 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
    * @param cb
    */
   scope = <TReturn>(cb: () => TReturn) => Engine.Context.scope(this, cb);
+
+  private _garbageCollector: GarbageCollector;
+
+  public readonly garbageCollectorConfig: GarbageCollectionOptions | null;
 
   /**
    * Current Excalibur version string
@@ -429,7 +471,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   public maxFps: number = Number.POSITIVE_INFINITY;
 
   /**
-   * Optionally configure a fixed update fps, this can be desireable if you need the physics simulation to be very stable. When set
+   * Optionally configure a fixed update fps, this can be desirable if you need the physics simulation to be very stable. When set
    * the update step and physics will use the same elapsed time for each tick even if the graphical framerate drops. In order for the
    * simulation to be correct, excalibur will run multiple updates in a row (at the configured update elapsed) to catch up, for example
    * there could be X updates and 1 draw each clock step.
@@ -438,8 +480,25 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
    * the current instantaneous framerate, or perf gain if the fixed rate is less than the current framerate.
    *
    * By default is unset and updates will use the current instantaneous framerate with 1 update and 1 draw each clock step.
+   *
+   * **WARN:** `fixedUpdateTimestep` takes precedence over `fixedUpdateFps` use whichever is most convenient.
    */
-  public fixedUpdateFps?: number;
+  public readonly fixedUpdateFps?: number;
+
+  /**
+   * Optionally configure a fixed update timestep in milliseconds, this can be desirable if you need the physics simulation to be very stable. When
+   * set the update step and physics will use the same elapsed time for each tick even if the graphical framerate drops. In order for the
+   * simulation to be correct, excalibur will run multiple updates in a row (at the configured update elapsed) to catch up, for example
+   * there could be X updates and 1 draw each clock step.
+   *
+   * **NOTE:** This does come at a potential perf cost because each catch-up update will need to be run if the fixed rate is greater than
+   * the current instantaneous framerate, or perf gain if the fixed rate is less than the current framerate.
+   *
+   * By default is unset and updates will use the current instantaneous framerate with 1 update and 1 draw each clock step.
+   *
+   * **WARN:** `fixedUpdateTimestep` takes precedence over `fixedUpdateFps` use whichever is most convenient.
+   */
+  public readonly fixedUpdateTimestep?: number;
 
   /**
    * Direct access to the excalibur clock
@@ -537,29 +596,28 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   public debug: DebugConfig;
 
   /**
-   * Access [[stats]] that holds frame statistics.
+   * Access {@apilink stats} that holds frame statistics.
    */
   public get stats(): DebugStats {
     return this.debug.stats;
   }
 
   /**
-   * The current [[Scene]] being drawn and updated on screen
+   * The current {@apilink Scene} being drawn and updated on screen
    */
   public get currentScene(): Scene {
     return this.director.currentScene;
   }
 
-
   /**
-   * The current [[Scene]] being drawn and updated on screen
+   * The current {@apilink Scene} being drawn and updated on screen
    */
   public get currentSceneName(): string {
     return this.director.currentSceneName;
   }
 
   /**
-   * The default [[Scene]] of the game, use [[Engine.goToScene]] to transition to different scenes.
+   * The default {@apilink Scene} of the game, use {@apilink Engine.goToScene} to transition to different scenes.
    */
   public get rootScene(): Scene {
     return this.director.rootScene;
@@ -570,7 +628,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
    */
   public get scenes(): { [key: string]: Scene | SceneConstructor | SceneWithOptions } {
     return this.director.scenes;
-  };
+  }
 
   /**
    * Indicates whether the engine is set to fullscreen or not
@@ -580,7 +638,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   }
 
   /**
-   * Indicates the current [[DisplayMode]] of the engine.
+   * Indicates the current {@apilink DisplayMode} of the engine.
    */
   public get displayMode(): DisplayMode {
     return this.screen.displayMode;
@@ -622,11 +680,11 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
    */
   public get snapToPixel(): boolean {
     return this.graphicsContext.snapToPixel;
-  };
+  }
 
   public set snapToPixel(shouldSnapToPixel: boolean) {
     this.graphicsContext.snapToPixel = shouldSnapToPixel;
-  };
+  }
 
   /**
    * The action to take when a fatal exception is thrown
@@ -680,7 +738,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   }
 
   /**
-   * Default [[EngineOptions]]
+   * Default {@apilink EngineOptions}
    */
   private static _DEFAULT_ENGINE_OPTIONS: EngineOptions = {
     width: 0,
@@ -694,9 +752,11 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
     },
     canvasElementId: '',
     canvasElement: undefined,
+    enableCanvasContextMenu: false,
     snapToPixel: false,
     antialiasing: true,
     pixelArt: false,
+    garbageCollection: true,
     powerPreference: 'high-performance',
     pointerScope: PointerScope.Canvas,
     suppressConsoleBootMessage: null,
@@ -712,9 +772,9 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   public readonly _originalDisplayMode: DisplayMode;
 
   /**
-   * Creates a new game using the given [[EngineOptions]]. By default, if no options are provided,
+   * Creates a new game using the given {@apilink EngineOptions}. By default, if no options are provided,
    * the game will be rendered full screen (taking up all available browser window space).
-   * You can customize the game rendering through [[EngineOptions]].
+   * You can customize the game rendering through {@apilink EngineOptions}.
    *
    * Example:
    *
@@ -778,10 +838,12 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
         'background: #176BAA; color: white; border-radius: 5px; padding: 15px; font-size: 1.5em; line-height: 80px;'
       );
       // eslint-disable-next-line no-console
-      console.log('\n\
+      console.log(
+        '\n\
       /| ________________\n\
 O|===|* >________________>\n\
-      \\|');
+      \\|'
+      );
       // eslint-disable-next-line no-console
       console.log('Visit', 'http://excaliburjs.com', 'for more information');
     }
@@ -799,6 +861,22 @@ O|===|* >________________>\n\
     }
 
     this._logger.debug('Building engine...');
+    if (options.garbageCollection === true) {
+      this.garbageCollectorConfig = {
+        ...DefaultGarbageCollectionOptions
+      };
+    } else if (options.garbageCollection === false) {
+      this._logger.warn(
+        'WebGL Garbage Collection Disabled!!! If you leak any images over time your game will crash when GPU memory is exhausted'
+      );
+      this.garbageCollectorConfig = null;
+    } else {
+      this.garbageCollectorConfig = {
+        ...DefaultGarbageCollectionOptions,
+        ...options.garbageCollection
+      };
+    }
+    this._garbageCollector = new GarbageCollector({ getTimestamp: Date.now });
 
     this.canvasElementId = options.canvasElementId;
 
@@ -806,7 +884,7 @@ O|===|* >________________>\n\
       this._logger.debug('Using Canvas element specified: ' + options.canvasElementId);
 
       //test for existence of element
-      if (document.getElementById(options.canvasElementId) === null)  {
+      if (document.getElementById(options.canvasElementId) === null) {
         throw new Error('Cannot find existing element in the DOM, please ensure element is created prior to engine creation.');
       }
 
@@ -817,6 +895,12 @@ O|===|* >________________>\n\
     } else {
       this._logger.debug('Using generated canvas element');
       this.canvas = <HTMLCanvasElement>document.createElement('canvas');
+    }
+
+    if (this.canvas && !options.enableCanvasContextMenu) {
+      this.canvas.addEventListener('contextmenu', (evt) => {
+        evt.preventDefault();
+      });
     }
 
     let displayMode = options.displayMode ?? DisplayMode.Fixed;
@@ -830,6 +914,9 @@ O|===|* >________________>\n\
       displayMode = DisplayMode.FitScreen;
     }
 
+    this.grabWindowFocus = options.grabWindowFocus;
+    this.pointerScope = options.pointerScope;
+
     this._originalDisplayMode = displayMode;
 
     let pixelArtSampler: boolean;
@@ -839,17 +926,10 @@ O|===|* >________________>\n\
     let filtering: ImageFiltering;
     let multiSampleAntialiasing: boolean | { samples: number };
     if (typeof options.antialiasing === 'object') {
-      ({
-        pixelArtSampler,
-        nativeContextAntialiasing,
-        multiSampleAntialiasing,
-        filtering,
-        canvasImageRendering
-      } = {
+      ({ pixelArtSampler, nativeContextAntialiasing, multiSampleAntialiasing, filtering, canvasImageRendering } = {
         ...(options.pixelArt ? DefaultPixelArtOptions : DefaultAntialiasOptions),
         ...options.antialiasing
       });
-
     } else {
       pixelArtSampler = !!options.pixelArt;
       nativeContextAntialiasing = false;
@@ -859,12 +939,14 @@ O|===|* >________________>\n\
     }
 
     if (nativeContextAntialiasing && multiSampleAntialiasing) {
-      this._logger.warnOnce(`Cannot use antialias setting nativeContextAntialiasing and multiSampleAntialiasing` +
-      ` at the same time, they are incompatible settings. If you aren\'t sure use multiSampleAntialiasing`);
+      this._logger.warnOnce(
+        `Cannot use antialias setting nativeContextAntialiasing and multiSampleAntialiasing` +
+          ` at the same time, they are incompatible settings. If you aren\'t sure use multiSampleAntialiasing`
+      );
     }
 
     if (options.pixelArt) {
-      uvPadding = .25;
+      uvPadding = 0.25;
     }
 
     if (!options.antialiasing || filtering === ImageFiltering.Pixel) {
@@ -890,14 +972,20 @@ O|===|* >________________>\n\
           backgroundColor: options.backgroundColor,
           snapToPixel: options.snapToPixel,
           useDrawSorting: options.useDrawSorting,
+          garbageCollector: this.garbageCollectorConfig
+            ? {
+                garbageCollector: this._garbageCollector,
+                collectionInterval: this.garbageCollectorConfig.textureCollectInterval
+              }
+            : null,
           handleContextLost: options.handleContextLost ?? this._handleWebGLContextLost,
           handleContextRestored: options.handleContextRestored
         });
       } catch (e) {
         this._logger.warn(
           `Excalibur could not load webgl for some reason (${(e as Error).message}) and loaded a Canvas 2D fallback. ` +
-          `Some features of Excalibur will not work in this mode. \n\n` +
-          'Read more about this issue at https://excaliburjs.com/docs/performance'
+            `Some features of Excalibur will not work in this mode. \n\n` +
+            'Read more about this issue at https://excaliburjs.com/docs/performance'
         );
         // fallback to canvas in case of failure
         useCanvasGraphicsContext = true;
@@ -924,7 +1012,7 @@ O|===|* >________________>\n\
       viewport: options.viewport ?? (options.width && options.height ? { width: options.width, height: options.height } : Resolution.SVGA),
       resolution: options.resolution,
       displayMode,
-      pixelRatio: options.suppressHiDPIScaling ? 1 : (options.pixelRatio ?? null)
+      pixelRatio: options.suppressHiDPIScaling ? 1 : options.pixelRatio ?? null
     });
 
     // TODO REMOVE STATIC!!!
@@ -935,11 +1023,11 @@ O|===|* >________________>\n\
       this.backgroundColor = options.backgroundColor.clone();
     }
 
-    this.grabWindowFocus = options.grabWindowFocus;
-    this.pointerScope = options.pointerScope;
-
     this.maxFps = options.maxFps ?? this.maxFps;
+
+    this.fixedUpdateTimestep = options.fixedUpdateTimestep ?? this.fixedUpdateTimestep;
     this.fixedUpdateFps = options.fixedUpdateFps ?? this.fixedUpdateFps;
+    this.fixedUpdateTimestep = this.fixedUpdateTimestep || 1000 / this.fixedUpdateFps;
 
     this.clock = new StandardClock({
       maxFps: this.maxFps,
@@ -958,9 +1046,9 @@ O|===|* >________________>\n\
     } else {
       this.physics = {
         ...DefaultPhysicsConfig,
-        ...DeprecatedStaticToConfig(),
-        ...options.physics as DeepRequired<PhysicsConfig>
+        ...DeprecatedStaticToConfig()
       };
+      mergeDeep(this.physics, options.physics);
     }
 
     this.debug = new DebugConfig(this);
@@ -1044,22 +1132,22 @@ O|===|* >________________>\n\
           this._performanceThresholdTriggered = true;
           this._logger.warn(
             `Switching to browser 2D Canvas fallback due to performance. Some features of Excalibur will not work in this mode.\n` +
-            'this might mean your browser doesn\'t have webgl enabled or hardware acceleration is unavailable.\n\n' +
-            'If in Chrome:\n' +
-            '  * Visit Settings > Advanced > System, and ensure "Use Hardware Acceleration" is checked.\n'+
-            '  * Visit chrome://flags/#ignore-gpu-blocklist and ensure "Override software rendering list" is "enabled"\n' +
-            'If in Firefox, visit about:config\n' +
-            '  * Ensure webgl.disabled = false\n' +
-            '  * Ensure webgl.force-enabled = true\n' +
-            '  * Ensure layers.acceleration.force-enabled = true\n\n' +
-            'Read more about this issue at https://excaliburjs.com/docs/performance'
+              "this might mean your browser doesn't have webgl enabled or hardware acceleration is unavailable.\n\n" +
+              'If in Chrome:\n' +
+              '  * Visit Settings > Advanced > System, and ensure "Use Hardware Acceleration" is checked.\n' +
+              '  * Visit chrome://flags/#ignore-gpu-blocklist and ensure "Override software rendering list" is "enabled"\n' +
+              'If in Firefox, visit about:config\n' +
+              '  * Ensure webgl.disabled = false\n' +
+              '  * Ensure webgl.force-enabled = true\n' +
+              '  * Ensure layers.acceleration.force-enabled = true\n\n' +
+              'Read more about this issue at https://excaliburjs.com/docs/performance'
           );
 
           if (showPlayerMessage) {
             this._toaster.toast(
-              'Excalibur is encountering performance issues. '+
-              'It\'s possible that your browser doesn\'t have hardware acceleration enabled. ' +
-              'Visit [LINK] for more information and potential solutions.',
+              'Excalibur is encountering performance issues. ' +
+                "It's possible that your browser doesn't have hardware acceleration enabled. " +
+                'Visit [LINK] for more information and potential solutions.',
               'https://excaliburjs.com/docs/performance'
             );
           }
@@ -1106,7 +1194,7 @@ O|===|* >________________>\n\
       viewport: options.viewport ?? (options.width && options.height ? { width: options.width, height: options.height } : Resolution.SVGA),
       resolution: options.resolution,
       displayMode,
-      pixelRatio: options.suppressHiDPIScaling ? 1 : (options.pixelRatio ?? null)
+      pixelRatio: options.suppressHiDPIScaling ? 1 : options.pixelRatio ?? null
     });
     this.screen.setCurrentCamera(this.currentScene.camera);
 
@@ -1127,6 +1215,7 @@ O|===|* >________________>\n\
     if (!this._disposed) {
       this._disposed = true;
       this.stop();
+      this._garbageCollector.forceCollectAll();
       this.input.toggleEnabled(false);
       this.canvas.parentNode.removeChild(this.canvas);
       this.canvas = null;
@@ -1161,8 +1250,8 @@ O|===|* >________________>\n\
    * when using time-based movement.
    */
   public set timescale(value: number) {
-    if (value <= 0) {
-      Logger.getInstance().error('Cannot set engine.timescale to a value of 0 or less than 0.');
+    if (value < 0) {
+      Logger.getInstance().warnOnce('engine.timescale to a value less than 0 are ignored');
       return;
     }
 
@@ -1170,23 +1259,23 @@ O|===|* >________________>\n\
   }
 
   /**
-   * Adds a [[Timer]] to the [[currentScene]].
-   * @param timer  The timer to add to the [[currentScene]].
+   * Adds a {@apilink Timer} to the {@apilink currentScene}.
+   * @param timer  The timer to add to the {@apilink currentScene}.
    */
   public addTimer(timer: Timer): Timer {
     return this.currentScene.addTimer(timer);
   }
 
   /**
-   * Removes a [[Timer]] from the [[currentScene]].
-   * @param timer  The timer to remove to the [[currentScene]].
+   * Removes a {@apilink Timer} from the {@apilink currentScene}.
+   * @param timer  The timer to remove to the {@apilink currentScene}.
    */
   public removeTimer(timer: Timer): Timer {
     return this.currentScene.removeTimer(timer);
   }
 
   /**
-   * Adds a [[Scene]] to the engine, think of scenes in Excalibur as you
+   * Adds a {@apilink Scene} to the engine, think of scenes in Excalibur as you
    * would levels or menus.
    * @param key  The name of the scene, must be unique
    * @param scene The scene to add to the engine
@@ -1197,7 +1286,7 @@ O|===|* >________________>\n\
   }
 
   /**
-   * Removes a [[Scene]] instance from the engine
+   * Removes a {@apilink Scene} instance from the engine
    * @param scene  The scene to remove
    */
   public removeScene(scene: Scene | SceneConstructor): void;
@@ -1214,39 +1303,39 @@ O|===|* >________________>\n\
   }
 
   /**
-   * Adds a [[Scene]] to the engine, think of scenes in Excalibur as you
+   * Adds a {@apilink Scene} to the engine, think of scenes in Excalibur as you
    * would levels or menus.
    * @param sceneKey  The key of the scene, must be unique
    * @param scene     The scene to add to the engine
    */
   public add(sceneKey: string, scene: Scene | SceneConstructor | SceneWithOptions): void;
   /**
-   * Adds a [[Timer]] to the [[currentScene]].
-   * @param timer  The timer to add to the [[currentScene]].
+   * Adds a {@apilink Timer} to the {@apilink currentScene}.
+   * @param timer  The timer to add to the {@apilink currentScene}.
    */
   public add(timer: Timer): void;
   /**
-   * Adds a [[TileMap]] to the [[currentScene]], once this is done the TileMap
+   * Adds a {@apilink TileMap} to the {@apilink currentScene}, once this is done the TileMap
    * will be drawn and updated.
    */
   public add(tileMap: TileMap): void;
   /**
-   * Adds an actor to the [[currentScene]] of the game. This is synonymous
+   * Adds an actor to the {@apilink currentScene} of the game. This is synonymous
    * to calling `engine.currentScene.add(actor)`.
    *
    * Actors can only be drawn if they are a member of a scene, and only
-   * the [[currentScene]] may be drawn or updated.
-   * @param actor  The actor to add to the [[currentScene]]
+   * the {@apilink currentScene} may be drawn or updated.
+   * @param actor  The actor to add to the {@apilink currentScene}
    */
   public add(actor: Actor): void;
 
   public add(entity: Entity): void;
 
   /**
-   * Adds a [[ScreenElement]] to the [[currentScene]] of the game,
+   * Adds a {@apilink ScreenElement} to the {@apilink currentScene} of the game,
    * ScreenElements do not participate in collisions, instead the
    * remain in the same place on the screen.
-   * @param screenElement  The ScreenElement to add to the [[currentScene]]
+   * @param screenElement  The ScreenElement to add to the {@apilink currentScene}
    */
   public add(screenElement: ScreenElement): void;
   public add(entity: any): void {
@@ -1273,24 +1362,24 @@ O|===|* >________________>\n\
    */
   public remove(sceneKey: string): void;
   /**
-   * Removes a [[Timer]] from the [[currentScene]].
-   * @param timer  The timer to remove to the [[currentScene]].
+   * Removes a {@apilink Timer} from the {@apilink currentScene}.
+   * @param timer  The timer to remove to the {@apilink currentScene}.
    */
   public remove(timer: Timer): void;
   /**
-   * Removes a [[TileMap]] from the [[currentScene]], it will no longer be drawn or updated.
+   * Removes a {@apilink TileMap} from the {@apilink currentScene}, it will no longer be drawn or updated.
    */
   public remove(tileMap: TileMap): void;
   /**
-   * Removes an actor from the [[currentScene]] of the game. This is synonymous
+   * Removes an actor from the {@apilink currentScene} of the game. This is synonymous
    * to calling `engine.currentScene.removeChild(actor)`.
    * Actors that are removed from a scene will no longer be drawn or updated.
-   * @param actor  The actor to remove from the [[currentScene]].
+   * @param actor  The actor to remove from the {@apilink currentScene}.
    */
   public remove(actor: Actor): void;
   /**
-   * Removes a [[ScreenElement]] to the scene, it will no longer be drawn or updated
-   * @param screenElement  The ScreenElement to remove from the [[currentScene]]
+   * Removes a {@apilink ScreenElement} to the scene, it will no longer be drawn or updated
+   * @param screenElement  The ScreenElement to remove from the {@apilink currentScene}
    */
   public remove(screenElement: ScreenElement): void;
   public remove(entity: any): void {
@@ -1476,12 +1565,12 @@ O|===|* >________________>\n\
 
   /**
    * Updates the entire state of the game
-   * @param delta  Number of milliseconds elapsed since the last update.
+   * @param elapsedMs  Number of milliseconds elapsed since the last update.
    */
-  private _update(delta: number) {
+  private _update(elapsedMs: number) {
     if (this._isLoading) {
       // suspend updates until loading is finished
-      this._loader?.onUpdate(this, delta);
+      this._loader?.onUpdate(this, elapsedMs);
       // Update input listeners
       this.input.update();
       return;
@@ -1489,17 +1578,17 @@ O|===|* >________________>\n\
 
     // Publish preupdate events
     this.clock.__runScheduledCbs('preupdate');
-    this._preupdate(delta);
+    this._preupdate(elapsedMs);
 
     // process engine level events
-    this.currentScene.update(this, delta);
+    this.currentScene.update(this, elapsedMs);
 
     // Update graphics postprocessors
-    this.graphicsContext.updatePostProcessors(delta);
+    this.graphicsContext.updatePostProcessors(elapsedMs);
 
     // Publish update event
     this.clock.__runScheduledCbs('postupdate');
-    this._postupdate(delta);
+    this._postupdate(elapsedMs);
 
     // Update input listeners
     this.input.update();
@@ -1508,36 +1597,38 @@ O|===|* >________________>\n\
   /**
    * @internal
    */
-  public _preupdate(delta: number) {
-    this.emit('preupdate', new PreUpdateEvent(this, delta, this));
-    this.onPreUpdate(this, delta);
+  public _preupdate(elapsedMs: number) {
+    this.emit('preupdate', new PreUpdateEvent(this, elapsedMs, this));
+    this.onPreUpdate(this, elapsedMs);
   }
 
-  public onPreUpdate(engine: Engine, delta: number) {
+  public onPreUpdate(engine: Engine, elapsedMs: number) {
     // Override me
   }
 
   /**
    * @internal
    */
-  public _postupdate(delta: number) {
-    this.emit('postupdate', new PostUpdateEvent(this, delta, this));
-    this.onPostUpdate(this, delta);
+  public _postupdate(elapsedMs: number) {
+    this.emit('postupdate', new PostUpdateEvent(this, elapsedMs, this));
+    this.onPostUpdate(this, elapsedMs);
   }
 
-  public onPostUpdate(engine: Engine, delta: number) {
+  public onPostUpdate(engine: Engine, elapsedMs: number) {
     // Override me
   }
 
   /**
    * Draws the entire game
-   * @param delta  Number of milliseconds elapsed since the last draw.
+   * @param elapsedMs  Number of milliseconds elapsed since the last draw.
    */
-  private _draw(delta: number) {
+  private _draw(elapsedMs: number) {
+    // Use scene background color if present, fallback to engine
+    this.graphicsContext.backgroundColor = this.currentScene.backgroundColor ?? this.backgroundColor;
     this.graphicsContext.beginDrawLifecycle();
     this.graphicsContext.clear();
     this.clock.__runScheduledCbs('predraw');
-    this._predraw(this.graphicsContext, delta);
+    this._predraw(this.graphicsContext, elapsedMs);
 
     // Drawing nothing else while loading
     if (this._isLoading) {
@@ -1550,13 +1641,10 @@ O|===|* >________________>\n\
       return;
     }
 
-    // Use scene background color if present, fallback to engine
-    this.graphicsContext.backgroundColor = this.currentScene.backgroundColor ?? this.backgroundColor;
-
-    this.currentScene.draw(this.graphicsContext, delta);
+    this.currentScene.draw(this.graphicsContext, elapsedMs);
 
     this.clock.__runScheduledCbs('postdraw');
-    this._postdraw(this.graphicsContext, delta);
+    this._postdraw(this.graphicsContext, elapsedMs);
 
     // Flush any pending drawings
     this.graphicsContext.flush();
@@ -1568,24 +1656,24 @@ O|===|* >________________>\n\
   /**
    * @internal
    */
-  public _predraw(ctx: ExcaliburGraphicsContext, delta: number) {
-    this.emit('predraw', new PreDrawEvent(ctx, delta, this));
-    this.onPreDraw(ctx, delta);
+  public _predraw(ctx: ExcaliburGraphicsContext, elapsedMs: number) {
+    this.emit('predraw', new PreDrawEvent(ctx, elapsedMs, this));
+    this.onPreDraw(ctx, elapsedMs);
   }
 
-  public onPreDraw(ctx: ExcaliburGraphicsContext, delta: number) {
+  public onPreDraw(ctx: ExcaliburGraphicsContext, elapsedMs: number) {
     // Override me
   }
 
   /**
    * @internal
    */
-  public _postdraw(ctx: ExcaliburGraphicsContext, delta: number) {
-    this.emit('postdraw', new PostDrawEvent(ctx, delta, this));
-    this.onPostDraw(ctx, delta);
+  public _postdraw(ctx: ExcaliburGraphicsContext, elapsedMs: number) {
+    this.emit('postdraw', new PostDrawEvent(ctx, elapsedMs, this));
+    this.onPostDraw(ctx, elapsedMs);
   }
 
-  public onPostDraw(ctx: ExcaliburGraphicsContext, delta: number) {
+  public onPostDraw(ctx: ExcaliburGraphicsContext, elapsedMs: number) {
     // Override me
   }
 
@@ -1622,12 +1710,10 @@ O|===|* >________________>\n\
     return this._isReadyFuture.promise;
   }
 
-
-
   /**
    * Starts the internal game loop for Excalibur after loading
    * any provided assets.
-   * @param loader  Optional [[Loader]] to use to load resources. The default loader is [[Loader]],
+   * @param loader  Optional {@apilink Loader} to use to load resources. The default loader is {@apilink Loader},
    * override to provide your own custom loader.
    *
    * Note: start() only resolves AFTER the user has clicked the play button
@@ -1635,7 +1721,7 @@ O|===|* >________________>\n\
   public async start(loader?: DefaultLoader): Promise<void>;
   /**
    * Starts the internal game loop for Excalibur after configuring any routes, loaders, or transitions
-   * @param startOptions Optional [[StartOptions]] to configure the routes for scenes in Excalibur
+   * @param startOptions Optional {@apilink StartOptions} to configure the routes for scenes in Excalibur
    *
    * Note: start() only resolves AFTER the user has clicked the play button
    */
@@ -1663,6 +1749,9 @@ O|===|* >________________>\n\
       this._logger.debug('Starting game clock...');
       this.browser.resume();
       this.clock.start();
+      if (this.garbageCollectorConfig) {
+        this._garbageCollector.start();
+      }
       this._logger.debug('Game clock started');
 
       await this.load(loader ?? new Loader());
@@ -1690,31 +1779,31 @@ O|===|* >________________>\n\
   private _mainloop(elapsed: number) {
     this.scope(() => {
       this.emit('preframe', new PreFrameEvent(this, this.stats.prevFrame));
-      const delta = elapsed * this.timescale;
-      this.currentFrameElapsedMs = delta;
+      const elapsedMs = elapsed * this.timescale;
+      this.currentFrameElapsedMs = elapsedMs;
 
       // reset frame stats (reuse existing instances)
       const frameId = this.stats.prevFrame.id + 1;
       this.stats.currFrame.reset();
       this.stats.currFrame.id = frameId;
-      this.stats.currFrame.delta = delta;
+      this.stats.currFrame.elapsedMs = elapsedMs;
       this.stats.currFrame.fps = this.clock.fpsSampler.fps;
       GraphicsDiagnostics.clear();
 
       const beforeUpdate = this.clock.now();
-      const fixedTimestepMs = 1000 / this.fixedUpdateFps;
-      if (this.fixedUpdateFps) {
-        this._lagMs += delta;
+      const fixedTimestepMs = this.fixedUpdateTimestep;
+      if (this.fixedUpdateTimestep) {
+        this._lagMs += elapsedMs;
         while (this._lagMs >= fixedTimestepMs) {
           this._update(fixedTimestepMs);
           this._lagMs -= fixedTimestepMs;
         }
       } else {
-        this._update(delta);
+        this._update(elapsedMs);
       }
       const afterUpdate = this.clock.now();
       this.currentFrameLagMs = this._lagMs;
-      this._draw(delta);
+      this._draw(elapsedMs);
       const afterDraw = this.clock.now();
 
       this.stats.currFrame.duration.update = afterUpdate - beforeUpdate;
@@ -1737,6 +1826,7 @@ O|===|* >________________>\n\
       this.emit('stop', new GameStopEvent(this));
       this.browser.pause();
       this.clock.stop();
+      this._garbageCollector.stop();
       this._logger.debug('Game stopped');
     }
   }
@@ -1748,8 +1838,7 @@ O|===|* >________________>\n\
     return this.clock.isRunning();
   }
 
-
-  private _screenShotRequests: { preserveHiDPIResolution: boolean, resolve: (image: HTMLImageElement) => void }[] = [];
+  private _screenShotRequests: { preserveHiDPIResolution: boolean; resolve: (image: HTMLImageElement) => void }[] = [];
   /**
    * Takes a screen shot of the current viewport and returns it as an
    * HTML Image Element.
@@ -1757,7 +1846,7 @@ O|===|* >________________>\n\
    */
   public screenshot(preserveHiDPIResolution = false): Promise<HTMLImageElement> {
     const screenShotPromise = new Promise<HTMLImageElement>((resolve) => {
-      this._screenShotRequests.push({preserveHiDPIResolution, resolve});
+      this._screenShotRequests.push({ preserveHiDPIResolution, resolve });
     });
     return screenShotPromise;
   }
@@ -1779,8 +1868,10 @@ O|===|* >________________>\n\
 
       const result = new Image();
       const raw = screenshot.toDataURL('image/png');
+      result.onload = () => {
+        request.resolve(result);
+      };
       result.src = raw;
-      request.resolve(result);
     }
     // Reset state
     this._screenShotRequests.length = 0;
@@ -1790,7 +1881,7 @@ O|===|* >________________>\n\
    * Another option available to you to load resources into the game.
    * Immediately after calling this the game will pause and the loading screen
    * will appear.
-   * @param loader  Some [[Loadable]] such as a [[Loader]] collection, [[Sound]], or [[Texture]].
+   * @param loader  Some {@apilink Loadable} such as a {@apilink Loader} collection, {@apilink Sound}, or {@apilink Texture}.
    */
   public async load(loader: DefaultLoader, hideLoader = false): Promise<void> {
     await this.scope(async () => {
@@ -1804,7 +1895,7 @@ O|===|* >________________>\n\
         this._hideLoader = hideLoader;
 
         if (loader instanceof Loader) {
-          loader.suppressPlayButton = this._suppressPlayButton;
+          loader.suppressPlayButton = loader.suppressPlayButton || this._suppressPlayButton;
         }
         this._loader.onInitialize(this);
 

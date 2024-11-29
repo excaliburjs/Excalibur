@@ -3,66 +3,56 @@
     "browser": true,
     "node": true
   },
-  "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-    "project": [
-      "./src/**/tsconfig.json"
-    ],
-    "sourceType": "module"
-  },
-  "plugins": [
-    "@typescript-eslint",
-    "jsdoc"
-  ],
-  "extends": [
-    "plugin:jsdoc/recommended",
-    "prettier",
-    "plugin:storybook/recommended"
+  "plugins": ["@typescript-eslint", "jsdoc"],
+  "extends": ["plugin:jsdoc/recommended", "plugin:storybook/recommended", "prettier"],
+  "overrides": [
+    // javascript parser
+    {
+      "files": ["*.js", "*.jsx"],
+      // we can still use the typescript parser for javascript files
+      "parser": "@typescript-eslint/parser",
+      "parserOptions": {
+        "sourceType": "module",
+        "project": false
+      }
+    },
+    // typescript parser
+    {
+      "files": ["*.ts", "*.tsx"],
+      "parser": "@typescript-eslint/parser",
+      "parserOptions": {
+        "sourceType": "module",
+        "project": true
+      }
+    }
   ],
   "rules": {
     "@typescript-eslint/naming-convention": [
       "error",
       {
         "selector": "class",
-        "format": [
-          "PascalCase"
-        ]
+        "format": ["PascalCase"]
       },
       {
         "selector": "memberLike",
-        "modifiers": [
-          "private",
-          "static"
-        ],
-        "format": [
-          "UPPER_CASE"
-        ],
+        "modifiers": ["private", "static"],
+        "format": ["UPPER_CASE"],
         "leadingUnderscore": "require"
       },
       {
         "selector": "memberLike",
-        "modifiers": [
-          "private"
-        ],
-        "format": [
-          "camelCase"
-        ],
+        "modifiers": ["private"],
+        "format": ["camelCase"],
         "leadingUnderscore": "require"
       },
       {
         "selector": "interface",
-        "format": [
-          "PascalCase"
-        ],
+        "format": ["PascalCase"],
         "custom": {
           "regex": "^I[A-Z]",
           "match": false
         }
       }
-    ],
-    "@typescript-eslint/indent": [
-      "error",
-      2
     ],
     "@typescript-eslint/no-empty-function": "error",
     "curly": "error",
@@ -71,20 +61,7 @@
     "no-console": [
       "error",
       {
-        "allow": [
-          "debug",
-          "info",
-          "time",
-          "timeEnd",
-          "trace"
-        ]
-      }
-    ],
-    "quotes": [
-      "error",
-      "single",
-      {
-        "allowTemplateLiterals": true
+        "allow": ["debug", "info", "time", "timeEnd", "trace"]
       }
     ],
     "no-debugger": "error",
@@ -97,37 +74,15 @@
     "prefer-const": "error",
     "require-await": "warn",
     "radix": "error",
-    "max-len": [
-      "error",
-      {
-        "code": 140
-      }
-    ],
-    "semi": [
-      "error",
-      "always"
-    ],
-    "comma-dangle": [
-      "error",
-      "never"
-    ],
-    "no-trailing-spaces": "error",
-    "eqeqeq": [
-      "error",
-      "smart"
-    ],
+    "eqeqeq": ["error", "smart"],
     "no-irregular-whitespace": "error",
-    "brace-style": [
-      "error",
-      "1tbs"
-    ],
+    "brace-style": ["error", "1tbs"],
     "no-unused-expressions": [
       "error",
       {
         "allowTernary": true
       }
     ],
-    "keyword-spacing": "error",
     "jsdoc/require-param": 0,
     "jsdoc/require-param-description": 0,
     "jsdoc/require-param-type": 0,
@@ -138,16 +93,7 @@
     "jsdoc/check-tag-names": [
       "error",
       {
-        "definedTags": [
-          "hidden",
-          "internal",
-          "source",
-          "obsolete",
-          "warning",
-          "notimplemented",
-          "credit",
-          "typedoc"
-        ]
+        "definedTags": ["hidden", "internal", "source", "obsolete", "warning", "notimplemented", "credit", "typedoc"]
       }
     ]
   }

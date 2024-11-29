@@ -13,7 +13,7 @@ export function isScreenElement(actor: Actor) {
 }
 
 /**
- * Helper [[Actor]] primitive for drawing UI's, optimized for UI drawing. Does
+ * Helper {@apilink Actor} primitive for drawing UI's, optimized for UI drawing. Does
  * not participate in collisions. Drawn on top of all other actors.
  */
 export class ScreenElement extends Actor {
@@ -29,9 +29,7 @@ export class ScreenElement extends Actor {
     this.body.collisionType = config?.collisionType ?? CollisionType.PreventCollision;
     this.pointer.useGraphicsBounds = true;
     this.pointer.useColliderShape = false;
-    if (!config?.collider &&
-        config?.width > 0 &&
-        config?.height > 0) {
+    if (!config?.collider && config?.width > 0 && config?.height > 0) {
       this.collider.useBoxCollider(this.width, this.height, this.anchor);
     }
   }

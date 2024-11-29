@@ -146,6 +146,26 @@ describe('A TransformComponent', () => {
     expect(childTx.rotation).toBeCloseTo(Math.PI); // Math.PI + Math.PI = 2PI = 0 global
   });
 
+  it('can have parent/child relationships with z', () => {
+    const parent = new ex.Entity([new ex.TransformComponent()]);
+    const child = new ex.Entity([new ex.TransformComponent()]);
+    parent.addChild(child);
+
+    const parentTx = parent.get(ex.TransformComponent);
+    const childTx = child.get(ex.TransformComponent);
+
+    // Changing a parent z influences the child global z
+    parentTx.z = 100;
+    expect(childTx.z).toBe(0);
+    expect(childTx.globalZ).toBe(100);
+
+    // Changing a child global z affects childs local and not parent z
+    parentTx.z = 100;
+    childTx.globalZ = 50;
+    expect(parentTx.z).toBe(100);
+    expect(childTx.z).toBe(-50);
+  });
+
   it('can retrieve the global transform', () => {
     const parent = new ex.Entity([new ex.TransformComponent()]);
     const child = new ex.Entity([new ex.TransformComponent()]);
@@ -248,10 +268,10 @@ describe('A TransformComponent', () => {
   });
 
   it('can be parented/unparented as a TransformComponent', () => {
-    const child1 = new ex.Entity([new TransformComponent]);
-    const child2 = new ex.Entity([new TransformComponent]);
-    const parent = new ex.Entity([new TransformComponent]);
-    const grandParent = new ex.Entity([new TransformComponent]);
+    const child1 = new ex.Entity([new TransformComponent()]);
+    const child2 = new ex.Entity([new TransformComponent()]);
+    const parent = new ex.Entity([new TransformComponent()]);
+    const grandParent = new ex.Entity([new TransformComponent()]);
 
     parent.addChild(child1);
     parent.addChild(child2);
@@ -267,13 +287,33 @@ describe('A TransformComponent', () => {
     expect(child2.get(TransformComponent).get().parent).toBe(null);
   });
 
+  it('can be parented to a previously deleted entity with transform component', () => {
+    const entityManager = new ex.EntityManager(new ex.World(null));
+
+    const child1 = new ex.Entity([new TransformComponent()]);
+    const child2 = new ex.Entity([new TransformComponent()]);
+    const parent = new ex.Entity([new TransformComponent()]);
+
+    parent.get(TransformComponent).pos = ex.vec(100, 500);
+    parent.addChild(child1);
+
+    entityManager.addEntity(parent);
+    entityManager.removeEntity(parent, false);
+
+    entityManager.addEntity(parent);
+    parent.addChild(child2);
+
+    expect(child1.get(TransformComponent).globalPos).toBeVector(ex.vec(100, 500));
+    expect(child2.get(TransformComponent).globalPos).toBeVector(ex.vec(100, 500));
+  });
+
   it('children inherit the top most parent coordinate plane', () => {
     const logger = ex.Logger.getInstance();
     spyOn(logger, 'warn');
-    const child1 = new ex.Entity([new TransformComponent]);
-    const child2 = new ex.Entity([new TransformComponent], 'child2');
-    const parent = new ex.Entity([new TransformComponent]);
-    const grandParent = new ex.Entity([new TransformComponent]);
+    const child1 = new ex.Entity([new TransformComponent()]);
+    const child2 = new ex.Entity([new TransformComponent()], 'child2');
+    const parent = new ex.Entity([new TransformComponent()]);
+    const grandParent = new ex.Entity([new TransformComponent()]);
 
     parent.addChild(child1);
     parent.addChild(child2);
@@ -299,13 +339,14 @@ describe('A TransformComponent', () => {
     child2.get(TransformComponent).coordPlane = ex.CoordPlane.World;
     expect(child2.get(TransformComponent).coordPlane).toBe(ex.CoordPlane.Screen);
     expect(logger.warn).toHaveBeenCalledWith(
-      'Cannot set coordinate plane on child entity child2, children inherit their coordinate plane from their parents.');
+      'Cannot set coordinate plane on child entity child2, children inherit their coordinate plane from their parents.'
+    );
   });
 
   it('can be cloned', () => {
     const transform = new TransformComponent();
     const owner = new ex.Entity([transform]);
-    transform.pos = ex.vec(1,2);
+    transform.pos = ex.vec(1, 2);
     transform.rotation = 3;
     transform.scale = ex.vec(3, 4);
     transform.z = 5;

@@ -19,8 +19,8 @@ describe('A query', () => {
 
   it('can match with entities', () => {
     const queryAB = new ex.Query([FakeComponentA, FakeComponentB]);
-    const compA = new FakeComponentA;
-    const compB = new FakeComponentB;
+    const compA = new FakeComponentA();
+    const compB = new FakeComponentB();
     const entity1 = new ex.Entity();
     entity1.addComponent(compA);
     entity1.addComponent(compB);
@@ -34,8 +34,8 @@ describe('A query', () => {
 
   it('can only add entities that match', () => {
     const queryAB = new ex.Query([FakeComponentA, FakeComponentB]);
-    const compA = new FakeComponentA;
-    const compB = new FakeComponentB;
+    const compA = new FakeComponentA();
+    const compB = new FakeComponentB();
     const entity1 = new ex.Entity();
     entity1.addComponent(compA);
     entity1.addComponent(compB);
@@ -52,8 +52,8 @@ describe('A query', () => {
 
   it('can remove entities', () => {
     const queryAB = new ex.Query([FakeComponentA, FakeComponentB]);
-    const compA = new FakeComponentA;
-    const compB = new FakeComponentB;
+    const compA = new FakeComponentA();
+    const compB = new FakeComponentB();
     const entity1 = new ex.Entity();
     entity1.addComponent(compA);
     entity1.addComponent(compB);
@@ -73,13 +73,13 @@ describe('A query', () => {
 
   it('notifies observers of when something is added to the query', (done) => {
     const queryAB = new ex.Query([FakeComponentA, FakeComponentB]);
-    const compA = new FakeComponentA;
-    const compB = new FakeComponentB;
+    const compA = new FakeComponentA();
+    const compB = new FakeComponentB();
     const entity1 = new ex.Entity();
     entity1.addComponent(compA);
     entity1.addComponent(compB);
 
-    queryAB.entityAdded$.subscribe(e => {
+    queryAB.entityAdded$.subscribe((e) => {
       expect(e).toBe(entity1);
       done();
     });
@@ -89,19 +89,18 @@ describe('A query', () => {
 
   it('notifies observers of when something is added to the query', (done) => {
     const queryAB = new ex.Query([FakeComponentA, FakeComponentB]);
-    const compA = new FakeComponentA;
-    const compB = new FakeComponentB;
+    const compA = new FakeComponentA();
+    const compB = new FakeComponentB();
     const entity1 = new ex.Entity();
     entity1.addComponent(compA);
     entity1.addComponent(compB);
     queryAB.checkAndAdd(entity1);
 
-    queryAB.entityRemoved$.subscribe(e => {
+    queryAB.entityRemoved$.subscribe((e) => {
       expect(e).toBe(entity1);
       done();
     });
 
     queryAB.removeEntity(entity1);
   });
-
 });

@@ -12,11 +12,11 @@ export interface SpriteOptions {
    */
   image: ImageSource;
   /**
-   * By default the source is the entire dimension of the [[ImageSource]]
+   * By default the source is the entire dimension of the {@apilink ImageSource}
    */
   sourceView?: { x: number; y: number; width: number; height: number };
   /**
-   * By default the size of the final sprite is the size of the [[ImageSource]]
+   * By default the size of the final sprite is the size of the {@apilink ImageSource}
    */
   destSize?: { width: number; height: number };
 }
@@ -28,9 +28,10 @@ export class Sprite extends Graphic {
   public destSize: DestinationSize;
   private _dirty = true;
 
-  public static from(image: ImageSource): Sprite {
+  public static from(image: ImageSource, options?: Omit<GraphicOptions & SpriteOptions, 'image'>): Sprite {
     return new Sprite({
-      image: image
+      image,
+      ...options
     });
   }
 
@@ -107,8 +108,8 @@ export class Sprite extends Graphic {
     } else {
       this._logger.warnOnce(
         `ImageSource ${this.image.path}` +
-        ` is not yet loaded and won't be drawn. Please call .load() or include in a Loader.\n\n` +
-        `Read https://excaliburjs.com/docs/imagesource for more information.`
+          ` is not yet loaded and won't be drawn. Please call .load() or include in a Loader.\n\n` +
+          `Read https://excaliburjs.com/docs/imagesource for more information.`
       );
     }
   }

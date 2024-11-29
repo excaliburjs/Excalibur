@@ -17,8 +17,8 @@ export enum LogLevel {
 
 /**
  * Static singleton that represents the logging facility for Excalibur.
- * Excalibur comes built-in with a [[ConsoleAppender]] and [[ScreenAppender]].
- * Derive from [[Appender]] to create your own logging appenders.
+ * Excalibur comes built-in with a {@apilink ConsoleAppender} and {@apilink ScreenAppender}.
+ * Derive from {@apilink Appender} to create your own logging appenders.
  */
 export class Logger {
   private static _INSTANCE: Logger = null;
@@ -36,7 +36,7 @@ export class Logger {
 
   /**
    * Gets or sets the default logging level. Excalibur will only log
-   * messages if equal to or above this level. Default: [[LogLevel.Info]]
+   * messages if equal to or above this level. Default: {@apilink LogLevel.Info}
    */
   public defaultLevel: LogLevel = LogLevel.Info;
 
@@ -51,7 +51,7 @@ export class Logger {
   }
 
   /**
-   * Adds a new [[Appender]] to the list of appenders to write to
+   * Adds a new {@apilink Appender} to the list of appenders to write to
    */
   public addAppender(appender: Appender): void {
     this._appenders.push(appender);
@@ -83,7 +83,6 @@ export class Logger {
     }
   }
 
-
   private _logOnceSet = new Set<any>();
   private _logOnce(level: LogLevel, args: any[]): void {
     const serialized = level + args.join('+');
@@ -96,7 +95,7 @@ export class Logger {
   }
 
   /**
-   * Writes a log message at the [[LogLevel.Debug]] level
+   * Writes a log message at the {@apilink LogLevel.Debug} level
    * @param args  Accepts any number of arguments
    */
   public debug(...args: any[]): void {
@@ -104,7 +103,7 @@ export class Logger {
   }
 
   /**
-   * Writes a log message once at the [[LogLevel.Fatal]] level, if it sees the same args again it wont log
+   * Writes a log message once at the {@apilink LogLevel.Fatal} level, if it sees the same args again it wont log
    * @param args  Accepts any number of arguments
    */
   public debugOnce(...args: any[]): void {
@@ -112,7 +111,7 @@ export class Logger {
   }
 
   /**
-   * Writes a log message at the [[LogLevel.Info]] level
+   * Writes a log message at the {@apilink LogLevel.Info} level
    * @param args  Accepts any number of arguments
    */
   public info(...args: any[]): void {
@@ -120,7 +119,7 @@ export class Logger {
   }
 
   /**
-   * Writes a log message once at the [[LogLevel.Info]] level, if it sees the same args again it wont log
+   * Writes a log message once at the {@apilink LogLevel.Info} level, if it sees the same args again it wont log
    * @param args  Accepts any number of arguments
    */
   public infoOnce(...args: any[]): void {
@@ -128,7 +127,7 @@ export class Logger {
   }
 
   /**
-   * Writes a log message at the [[LogLevel.Warn]] level
+   * Writes a log message at the {@apilink LogLevel.Warn} level
    * @param args  Accepts any number of arguments
    */
   public warn(...args: any[]): void {
@@ -136,7 +135,7 @@ export class Logger {
   }
 
   /**
-   * Writes a log message once at the [[LogLevel.Warn]] level, if it sees the same args again it won't log
+   * Writes a log message once at the {@apilink LogLevel.Warn} level, if it sees the same args again it won't log
    * @param args  Accepts any number of arguments
    */
   public warnOnce(...args: any[]): void {
@@ -144,7 +143,7 @@ export class Logger {
   }
 
   /**
-   * Writes a log message at the [[LogLevel.Error]] level
+   * Writes a log message at the {@apilink LogLevel.Error} level
    * @param args  Accepts any number of arguments
    */
   public error(...args: any[]): void {
@@ -152,7 +151,7 @@ export class Logger {
   }
 
   /**
-   * Writes a log message once at the [[LogLevel.Error]] level, if it sees the same args again it won't log
+   * Writes a log message once at the {@apilink LogLevel.Error} level, if it sees the same args again it won't log
    * @param args  Accepts any number of arguments
    */
   public errorOnce(...args: any[]): void {
@@ -160,7 +159,7 @@ export class Logger {
   }
 
   /**
-   * Writes a log message at the [[LogLevel.Fatal]] level
+   * Writes a log message at the {@apilink LogLevel.Fatal} level
    * @param args  Accepts any number of arguments
    */
   public fatal(...args: any[]): void {
@@ -168,7 +167,7 @@ export class Logger {
   }
 
   /**
-   * Writes a log message once at the [[LogLevel.Fatal]] level, if it sees the same args again it won't log
+   * Writes a log message once at the {@apilink LogLevel.Fatal} level, if it sees the same args again it won't log
    * @param args  Accepts any number of arguments
    */
   public fatalOnce(...args: any[]): void {
@@ -181,7 +180,7 @@ export class Logger {
  */
 export interface Appender {
   /**
-   * Logs a message at the given [[LogLevel]]
+   * Logs a message at the given {@apilink LogLevel}
    * @param level  Level to log at
    * @param args   Arguments to log
    */
@@ -193,7 +192,7 @@ export interface Appender {
  */
 export class ConsoleAppender implements Appender {
   /**
-   * Logs a message at the given [[LogLevel]]
+   * Logs a message at the given {@apilink LogLevel}
    * @param level  Level to log at
    * @param args   Arguments to log
    */
@@ -263,7 +262,6 @@ export interface ScreenAppenderOptions {
  * On-screen (canvas) appender
  */
 export class ScreenAppender implements Appender {
-
   private _messages: string[] = [];
   public canvas: HTMLCanvasElement;
   private _ctx: CanvasRenderingContext2D;
@@ -296,7 +294,7 @@ export class ScreenAppender implements Appender {
   }
 
   /**
-   * Logs a message at the given [[LogLevel]]
+   * Logs a message at the given {@apilink LogLevel}
    * @param level  Level to log at
    * @param args   Arguments to log
    */

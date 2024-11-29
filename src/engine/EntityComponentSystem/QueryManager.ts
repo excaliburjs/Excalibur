@@ -21,7 +21,8 @@ export class QueryManager {
   constructor(private _world: World) {}
 
   public createQuery<TKnownComponentCtors extends ComponentCtor<Component>>(
-    requiredComponents: TKnownComponentCtors[]): Query<TKnownComponentCtors> {
+    requiredComponents: TKnownComponentCtors[]
+  ): Query<TKnownComponentCtors> {
     const id = Query.createId(requiredComponents);
     if (this._queries.has(id)) {
       // short circuit if query is already created
@@ -204,6 +205,4 @@ export class QueryManager {
       query.removeEntity(entity);
     }
   }
-
-
 }

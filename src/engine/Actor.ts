@@ -42,8 +42,6 @@ import { PointerEvent } from './Input/PointerEvent';
 import { WheelEvent } from './Input/WheelEvent';
 import { PointerComponent } from './Input/PointerComponent';
 import { ActionsComponent } from './Actions/ActionsComponent';
-import { Raster } from './Graphics/Raster';
-import { Text } from './Graphics/Text';
 import { CoordPlane } from './Math/coord-plane';
 import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
 import { Component } from './EntityComponentSystem';
@@ -59,7 +57,7 @@ export function isActor(x: any): x is Actor {
 /**
  * Actor constructor options
  */
-export interface ActorArgs {
+export type ActorArgs = ColliderArgs & {
   /**
    * Optionally set the name of the actor, default is 'anonymous'
    */
@@ -77,21 +75,9 @@ export interface ActorArgs {
    */
   pos?: Vector;
   /**
-   * Optionally set the coordinate plane of the actor, default is [[CoordPlane.World]] meaning actor is subject to camera positioning
+   * Optionally set the coordinate plane of the actor, default is {@apilink CoordPlane.World} meaning actor is subject to camera positioning
    */
   coordPlane?: CoordPlane;
-  /**
-   * Optionally set the width of a box collider for the actor
-   */
-  width?: number;
-  /**
-   * Optionally set the height of a box collider for the actor
-   */
-  height?: number;
-  /**
-   * Optionally set the radius of the circle collider for the actor
-   */
-  radius?: number;
   /**
    * Optionally set the velocity of the actor in pixels/sec
    */
@@ -142,15 +128,55 @@ export interface ActorArgs {
    * Optionally set the collision type
    */
   collisionType?: CollisionType;
+
   /**
-   * Optionally supply a collider for an actor, if supplied ignores any supplied width/height
-   */
-  collider?: Collider;
-  /**
-   * Optionally supply a [[CollisionGroup]]
+   * Optionally supply a {@apilink CollisionGroup}
    */
   collisionGroup?: CollisionGroup;
-}
+
+  /**
+   * Optionally silence excalibur warning warnings
+   */
+  silenceWarnings?: boolean;
+};
+
+type ColliderArgs =
+  | // custom collider
+  {
+      /**
+       * Optionally supply a collider for an actor, if supplied ignores any supplied width/height
+       */
+      collider?: Collider;
+
+      width?: undefined;
+      height?: undefined;
+      radius?: undefined;
+    }
+  // box collider
+  | {
+      /**
+       * Optionally set the width of a box collider for the actor
+       */
+      width?: number;
+      /**
+       * Optionally set the height of a box collider for the actor
+       */
+      height?: number;
+
+      collider?: undefined;
+      radius?: undefined;
+    }
+  // circle collider
+  | {
+      /**
+       * Optionally set the radius of the circle collider for the actor
+       */
+      radius?: number;
+
+      collider?: undefined;
+      width?: undefined;
+      height?: undefined;
+    };
 
 export type ActorEvents = EntityEvents & {
   collisionstart: CollisionStartEvent;
@@ -182,7 +208,7 @@ export type ActorEvents = EntityEvents & {
   exitviewport: ExitViewPortEvent;
   actionstart: ActionStartEvent;
   actioncomplete: ActionCompleteEvent;
-}
+};
 
 export const ActorEvents = {
   CollisionStart: 'collisionstart',
@@ -220,7 +246,7 @@ export const ActorEvents = {
  * The most important primitive in Excalibur is an `Actor`. Anything that
  * can move on the screen, collide with another `Actor`, respond to events,
  * or interact with the current scene, must be an actor. An `Actor` **must**
- * be part of a [[Scene]] for it to be drawn to the screen.
+ * be part of a {@apilink Scene} for it to be drawn to the screen.
  */
 export class Actor extends Entity implements Eventable, PointerEvents, CanInitialize, CanUpdate, CanBeKilled {
   public events = new EventEmitter<ActorEvents>();
@@ -240,37 +266,38 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   public body: BodyComponent;
 
   /**
-   * Access the Actor's built in [[TransformComponent]]
+   * Access the Actor's built in {@apilink TransformComponent}
    */
   public transform: TransformComponent;
 
   /**
-   * Access the Actor's built in [[MotionComponent]]
+   * Access the Actor's built in {@apilink MotionComponent}
    */
   public motion: MotionComponent;
 
   /**
-   * Access to the Actor's built in [[GraphicsComponent]]
+   * Access to the Actor's built in {@apilink GraphicsComponent}
    */
   public graphics: GraphicsComponent;
 
   /**
-   * Access to the Actor's built in [[ColliderComponent]]
+   * Access to the Actor's built in {@apilink ColliderComponent}
    */
   public collider: ColliderComponent;
 
   /**
-   * Access to the Actor's built in [[PointerComponent]] config
+   * Access to the Actor's built in {@apilink PointerComponent} config
    */
   public pointer: PointerComponent;
 
   /**
    * Useful for quickly scripting actor behavior, like moving to a place, patrolling back and forth, blinking, etc.
    *
-   *  Access to the Actor's built in [[ActionsComponent]] which forwards to the
-   * [[ActionContext|Action context]] of the actor.
+   *  Access to the Actor's built in {@apilink ActionsComponent} which forwards to the
+   * {@apilink ActionContext | `Action context`} of the actor.
    */
   public actions: ActionsComponent;
+  private _silenceWarnings: boolean;
 
   /**
    * Gets the position vector of the actor in pixels
@@ -291,6 +318,13 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    */
   public get oldPos(): Vector {
     return this.body.oldPos;
+  }
+
+  /**
+   * Gets the global position vector of the actor from the last frame
+   */
+  public get oldGlobalPos(): Vector {
+    return this.body.oldGlobalPos;
   }
 
   /**
@@ -344,14 +378,14 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   }
 
   /**
-   * Sets the acceleration of the actor from the last frame. This does not include the global acc [[Physics.acc]].
+   * Sets the acceleration of the actor from the last frame. This does not include the global acc {@apilink Physics.acc}.
    */
   public set oldAcc(theAcc: Vector) {
     this.body.oldAcc.setTo(theAcc.x, theAcc.y);
   }
 
   /**
-   * Gets the acceleration of the actor from the last frame. This does not include the global acc [[Physics.acc]].
+   * Gets the acceleration of the actor from the last frame. This does not include the global acc {@apilink Physics.acc}.
    */
   public get oldAcc(): Vector {
     return this.body.oldAcc;
@@ -505,16 +539,11 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * Sets the color of the actor's current graphic
    */
   public get color(): Color {
-    return this._color;
+    return this.graphics.color;
   }
   public set color(v: Color) {
-    this._color = v.clone();
-    const currentGraphic = this.graphics.current;
-    if (currentGraphic instanceof Raster || currentGraphic instanceof Text) {
-      currentGraphic.color = this._color;
-    }
+    this.graphics.color = v;
   }
-  private _color: Color;
 
   // #endregion
 
@@ -547,7 +576,8 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
       anchor,
       offset,
       collisionType,
-      collisionGroup
+      collisionGroup,
+      silenceWarnings
     } = {
       ...config
     };
@@ -562,8 +592,9 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     this.scale = scale ?? vec(1, 1);
     this.z = z ?? 0;
     this.transform.coordPlane = coordPlane ?? CoordPlane.World;
+    this._silenceWarnings = silenceWarnings ?? false;
 
-    this.pointer = new PointerComponent;
+    this.pointer = new PointerComponent();
     this.addComponent(this.pointer);
 
     this.graphics = new GraphicsComponent({
@@ -573,20 +604,24 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     });
     this.addComponent(this.graphics);
 
-    this.motion = new MotionComponent;
+    this.motion = new MotionComponent();
     this.addComponent(this.motion);
     this.vel = vel ?? Vector.Zero;
     this.acc = acc ?? Vector.Zero;
     this.angularVelocity = angularVelocity ?? 0;
 
-    this.actions = new ActionsComponent;
+    this.actions = new ActionsComponent();
     this.addComponent(this.actions);
 
-    this.body = new BodyComponent;
+    this.body = new BodyComponent();
     this.addComponent(this.body);
     this.body.collisionType = collisionType ?? CollisionType.Passive;
     if (collisionGroup) {
       this.body.group = collisionGroup;
+    }
+
+    if (color) {
+      this.color = color;
     }
 
     if (collider) {
@@ -595,29 +630,8 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     } else if (radius) {
       this.collider = new ColliderComponent(Shape.Circle(radius));
       this.addComponent(this.collider);
-    } else {
-      if (width > 0 && height > 0) {
-        this.collider = new ColliderComponent(Shape.Box(width, height, this.anchor));
-        this.addComponent(this.collider);
-      } else {
-        this.collider = new ColliderComponent();
-        this.addComponent(this.collider); // no collider
-      }
-    }
 
-    this.graphics.visible = visible ?? true;
-
-    if (color) {
-      this.color = color;
-      if (width && height) {
-        this.graphics.add(
-          new Rectangle({
-            color: color,
-            width,
-            height
-          })
-        );
-      } else if (radius) {
+      if (color) {
         this.graphics.add(
           new Circle({
             color: color,
@@ -625,11 +639,32 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
           })
         );
       }
+    } else {
+      if (width > 0 && height > 0) {
+        this.collider = new ColliderComponent(Shape.Box(width, height, this.anchor));
+        this.addComponent(this.collider);
+
+        if (color && width && height) {
+          this.graphics.add(
+            new Rectangle({
+              color: color,
+              width,
+              height
+            })
+          );
+        }
+      } else {
+        this.collider = new ColliderComponent();
+        this.addComponent(this.collider); // no collider
+      }
     }
+
+    this.graphics.isVisible = visible ?? true;
   }
 
   public clone(): Actor {
     const clone = new Actor({
+      silenceWarnings: this._silenceWarnings,
       color: this.color.clone(),
       anchor: this.anchor.clone(),
       offset: this.offset.clone()
@@ -638,13 +673,13 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     clone.processComponentRemoval();
 
     // Clone builtins, order is important, same as ctor
-    clone.addComponent(clone.transform = this.transform.clone() as TransformComponent, true);
-    clone.addComponent(clone.pointer = this.pointer.clone() as PointerComponent, true);
-    clone.addComponent(clone.graphics = this.graphics.clone() as GraphicsComponent, true);
-    clone.addComponent(clone.motion = this.motion.clone() as MotionComponent, true);
-    clone.addComponent(clone.actions = this.actions.clone() as ActionsComponent, true);
-    clone.addComponent(clone.body = this.body.clone() as BodyComponent, true);
-    clone.addComponent(clone.collider = this.collider.clone() as ColliderComponent, true);
+    clone.addComponent((clone.transform = this.transform.clone() as TransformComponent), true);
+    clone.addComponent((clone.pointer = this.pointer.clone() as PointerComponent), true);
+    clone.addComponent((clone.graphics = this.graphics.clone() as GraphicsComponent), true);
+    clone.addComponent((clone.motion = this.motion.clone() as MotionComponent), true);
+    clone.addComponent((clone.actions = this.actions.clone() as ActionsComponent), true);
+    clone.addComponent((clone.body = this.body.clone() as BodyComponent), true);
+    clone.addComponent((clone.collider = this.collider.clone() as ColliderComponent), true);
 
     const builtInComponents: Component[] = [
       this.transform,
@@ -720,7 +755,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   /**
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
-   * Internal _prekill handler for [[onPreKill]] lifecycle event
+   * Internal _prekill handler for {@apilink onPreKill} lifecycle event
    * @internal
    */
   public _prekill(scene: Scene) {
@@ -731,7 +766,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   /**
    * Safe to override onPreKill lifecycle event handler. Synonymous with `.on('prekill', (evt) =>{...})`
    *
-   * `onPreKill` is called directly before an actor is killed and removed from its current [[Scene]].
+   * `onPreKill` is called directly before an actor is killed and removed from its current {@apilink Scene}.
    */
   public onPreKill(scene: Scene) {
     // Override me
@@ -740,7 +775,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   /**
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
-   * Internal _prekill handler for [[onPostKill]] lifecycle event
+   * Internal _prekill handler for {@apilink onPostKill} lifecycle event
    * @internal
    */
   public _postkill(scene: Scene) {
@@ -751,7 +786,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   /**
    * Safe to override onPostKill lifecycle event handler. Synonymous with `.on('postkill', (evt) => {...})`
    *
-   * `onPostKill` is called directly after an actor is killed and remove from its current [[Scene]].
+   * `onPostKill` is called directly after an actor is killed and remove from its current {@apilink Scene}.
    */
   public onPostKill(scene: Scene) {
     // Override me
@@ -776,14 +811,14 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * If the current actor is killed, it will now not be killed.
    */
   public unkill() {
-    this.active = true;
+    this.isActive = true;
   }
 
   /**
    * Indicates wether the actor has been killed.
    */
   public isKilled(): boolean {
-    return !this.active;
+    return !this.isActive;
   }
 
   /**
@@ -793,7 +828,6 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   public get z(): number {
     return this.get(TransformComponent).z;
   }
-
 
   /**
    * Sets the z-index of an actor and updates it in the drawing list for the scene.
@@ -812,16 +846,15 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     const globalPos = this.getGlobalPos();
     return new Vector(
       globalPos.x + this.width / 2 - this.anchor.x * this.width,
-      globalPos.y + this.height / 2 - this.anchor.y * this.height);
+      globalPos.y + this.height / 2 - this.anchor.y * this.height
+    );
   }
 
   /**
    * Get the local center point of an actor
    */
   public get localCenter(): Vector {
-    return new Vector(
-      this.pos.x + this.width / 2 - this.anchor.x * this.width,
-      this.pos.y + this.height / 2 - this.anchor.y * this.height);
+    return new Vector(this.pos.x + this.width / 2 - this.anchor.x * this.width, this.pos.y + this.height / 2 - this.anchor.y * this.height);
   }
 
   public get width() {
@@ -835,24 +868,55 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   /**
    * Gets this actor's rotation taking into account any parent relationships
    * @returns Rotation angle in radians
+   * @deprecated Use {@apilink globalRotation} instead
    */
   public getGlobalRotation(): number {
     return this.get(TransformComponent).globalRotation;
   }
 
   /**
+   * The actor's rotation (in radians) taking into account any parent relationships
+   */
+  public get globalRotation(): number {
+    return this.get(TransformComponent).globalRotation;
+  }
+
+  /**
    * Gets an actor's world position taking into account parent relationships, scaling, rotation, and translation
    * @returns Position in world coordinates
+   * @deprecated Use {@apilink globalPos} instead
    */
   public getGlobalPos(): Vector {
     return this.get(TransformComponent).globalPos;
   }
 
   /**
+   * The actor's world position taking into account parent relationships, scaling, rotation, and translation
+   */
+  public get globalPos(): Vector {
+    return this.get(TransformComponent).globalPos;
+  }
+
+  /**
    * Gets the global scale of the Actor
+   * @deprecated Use {@apilink globalScale} instead
    */
   public getGlobalScale(): Vector {
     return this.get(TransformComponent).globalScale;
+  }
+
+  /**
+   * The global scale of the Actor
+   */
+  public get globalScale(): Vector {
+    return this.get(TransformComponent).globalScale;
+  }
+
+  /**
+   * The global z-index of the actor
+   */
+  public get globalZ(): number {
+    return this.get(TransformComponent).globalZ;
   }
 
   // #region Collision
@@ -909,12 +973,14 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * Called by the Engine, updates the state of the actor
    * @internal
    * @param engine The reference to the current game engine
-   * @param delta  The time elapsed since the last update in milliseconds
+   * @param elapsedMs  The time elapsed since the last update in milliseconds
    */
-  public update(engine: Engine, delta: number) {
+  public update(engine: Engine, elapsedMs: number) {
     this._initialize(engine);
-    this._preupdate(engine, delta);
-    this._postupdate(engine, delta);
+    this._add(engine);
+    this._preupdate(engine, elapsedMs);
+    this._postupdate(engine, elapsedMs);
+    this._remove(engine);
   }
 
   /**
@@ -922,7 +988,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    *
    * `onPreUpdate` is called directly before an actor is updated.
    */
-  public onPreUpdate(engine: Engine, delta: number): void {
+  public onPreUpdate(engine: Engine, elapsedMs: number): void {
     // Override me
   }
 
@@ -931,7 +997,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    *
    * `onPostUpdate` is called directly after an actor is updated.
    */
-  public onPostUpdate(engine: Engine, delta: number): void {
+  public onPostUpdate(engine: Engine, elapsedMs: number): void {
     // Override me
   }
 
@@ -983,23 +1049,23 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   /**
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
-   * Internal _preupdate handler for [[onPreUpdate]] lifecycle event
+   * Internal _preupdate handler for {@apilink onPreUpdate} lifecycle event
    * @internal
    */
-  public _preupdate(engine: Engine, delta: number): void {
-    this.events.emit('preupdate', new PreUpdateEvent(engine, delta, this));
-    this.onPreUpdate(engine, delta);
+  public _preupdate(engine: Engine, elapsedMs: number): void {
+    this.events.emit('preupdate', new PreUpdateEvent(engine, elapsedMs, this));
+    this.onPreUpdate(engine, elapsedMs);
   }
 
   /**
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
-   * Internal _preupdate handler for [[onPostUpdate]] lifecycle event
+   * Internal _preupdate handler for {@apilink onPostUpdate} lifecycle event
    * @internal
    */
-  public _postupdate(engine: Engine, delta: number): void {
-    this.events.emit('postupdate', new PostUpdateEvent(engine, delta, this));
-    this.onPostUpdate(engine, delta);
+  public _postupdate(engine: Engine, elapsedMs: number): void {
+    this.events.emit('postupdate', new PostUpdateEvent(engine, elapsedMs, this));
+    this.onPostUpdate(engine, elapsedMs);
   }
 
   // endregion

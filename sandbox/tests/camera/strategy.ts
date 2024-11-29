@@ -5,14 +5,14 @@ var game = new ex.Engine({
   height: 400,
   pointerScope: ex.PointerScope.Canvas
 });
-var actor = new ex.Actor({x: 100, y: 100, width: 50, height: 50, color: ex.Color.Red});
+var actor = new ex.Actor({ x: 100, y: 100, width: 50, height: 50, color: ex.Color.Red });
 
-actor.actions.repeatForever(ctx => ctx.moveTo(300, 300, 100).moveTo(100, 100, 100));
+actor.actions.repeatForever((ctx) => ctx.moveTo(300, 300, 100).moveTo(100, 100, 100));
 
 game.add(actor);
 
-var actor2 = new ex.Actor({x: 80, y: 80, width: 10, height: 10, color: ex.Color.Black});
-var actor3 = new ex.Actor({x: 320, y: 320, width: 10, height: 10, color: ex.Color.Black});
+var actor2 = new ex.Actor({ x: 80, y: 80, width: 10, height: 10, color: ex.Color.Black });
+var actor3 = new ex.Actor({ x: 320, y: 320, width: 10, height: 10, color: ex.Color.Black });
 game.add(actor2);
 game.add(actor3);
 

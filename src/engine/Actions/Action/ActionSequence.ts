@@ -1,13 +1,14 @@
 import { Entity } from '../../EntityComponentSystem';
-import { Action } from '../Action';
+import { Action, nextActionId } from '../Action';
 import { ActionContext } from '../ActionContext';
 import { ActionQueue } from '../ActionQueue';
 
 /**
  * Action that can represent a sequence of actions, this can be useful in conjunction with
- * [[ParallelActions]] to run multiple sequences in parallel.
+ * {@apilink ParallelActions} to run multiple sequences in parallel.
  */
 export class ActionSequence implements Action {
+  id = nextActionId();
   private _actionQueue: ActionQueue;
   private _stopped: boolean = false;
   private _sequenceContext: ActionContext;
@@ -19,8 +20,8 @@ export class ActionSequence implements Action {
     this._sequenceBuilder(this._sequenceContext);
   }
 
-  public update(delta: number): void {
-    this._actionQueue.update(delta);
+  public update(elapsedMs: number): void {
+    this._actionQueue.update(elapsedMs);
   }
 
   public isComplete(): boolean {

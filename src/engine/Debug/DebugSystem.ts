@@ -10,16 +10,17 @@ import { vec, Vector } from '../Math/vector';
 import { toDegrees } from '../Math/util';
 import { BodyComponent } from '../Collision/BodyComponent';
 import { CollisionSystem } from '../Collision/CollisionSystem';
-import { CompositeCollider  } from '../Collision/Colliders/CompositeCollider';
+import { CompositeCollider } from '../Collision/Colliders/CompositeCollider';
 import { GraphicsComponent } from '../Graphics/GraphicsComponent';
-import { Particle } from '../Particles';
+import { Particle } from '../Particles/Particles';
 import { DebugGraphicsComponent } from '../Graphics/DebugGraphicsComponent';
 import { CoordPlane } from '../Math/coord-plane';
 import { Debug } from '../Graphics/Debug';
 
 export class DebugSystem extends System {
+  static priority = SystemPriority.Lowest;
+
   public readonly systemType = SystemType.Draw;
-  public priority = SystemPriority.Lowest;
   private _graphicsContext: ExcaliburGraphicsContext;
   private _collisionSystem: CollisionSystem;
   private _camera: Camera;
@@ -69,7 +70,8 @@ export class DebugSystem extends System {
     const bodySettings = this._engine.debug.body;
 
     const cameraSettings = this._engine.debug.camera;
-    for (const entity of this.query.entities) {
+    for (let i = 0; i < this.query.entities.length; i++) {
+      const entity = this.query.entities[i];
       if (entity.hasTag('offscreen')) {
         // skip offscreen entities
         continue;
@@ -189,7 +191,7 @@ export class DebugSystem extends System {
         }
 
         if (bodySettings.showAll || bodySettings.showSleeping) {
-          this._graphicsContext.debug.drawText(`sleeping(${body.canSleep ? body.sleeping: 'cant sleep'})`, cursor);
+          this._graphicsContext.debug.drawText(`sleeping(${body.canSleep ? body.isSleeping : 'cant sleep'})`, cursor);
           cursor = cursor.add(lineHeight);
         }
       }

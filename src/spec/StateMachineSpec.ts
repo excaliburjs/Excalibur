@@ -6,7 +6,6 @@ describe('A StateMachine', () => {
   });
 
   it('can construct a state machine', () => {
-
     const machine = ex.StateMachine.create({
       start: 'STOPPED',
       states: {
@@ -30,7 +29,6 @@ describe('A StateMachine', () => {
 
   it('will throw on an invalid state machine', () => {
     expect(() => {
-
       const machine = ex.StateMachine.create({
         start: 'STOPPED',
         states: {
@@ -78,7 +76,6 @@ describe('A StateMachine', () => {
   });
 
   it('can prevent transition onEnter', () => {
-
     const enterSpy = jasmine.createSpy('enter').and.returnValue(false);
     const exitSpy = jasmine.createSpy('exit').and.returnValue(false);
     const machine = ex.StateMachine.create({
@@ -106,44 +103,50 @@ describe('A StateMachine', () => {
   it('can pass data to states', () => {
     const enterSpy = jasmine.createSpy('enter').and.returnValue(true);
     const exitSpy = jasmine.createSpy('exit').and.returnValue(true);
-    const machine = ex.StateMachine.create({
-      start: 'PING',
-      states: {
-        PING: {
-          transitions: ['PONG']
-        },
-        PONG: {
-          onEnter: enterSpy,
-          onExit: exitSpy,
-          transitions: ['PING']
+    const machine = ex.StateMachine.create(
+      {
+        start: 'PING',
+        states: {
+          PING: {
+            transitions: ['PONG']
+          },
+          PONG: {
+            onEnter: enterSpy,
+            onExit: exitSpy,
+            transitions: ['PING']
+          }
         }
+      },
+      {
+        data: 42
       }
-    }, {
-      data: 42
-    });
+    );
 
     machine.go('PONG');
-    expect(enterSpy).toHaveBeenCalledWith({from: 'PING', eventData: undefined, data: { data: 42 }});
+    expect(enterSpy).toHaveBeenCalledWith({ from: 'PING', eventData: undefined, data: { data: 42 } });
     machine.go('PING');
-    expect(exitSpy).toHaveBeenCalledWith({to: 'PING', data: { data: 42 }});
+    expect(exitSpy).toHaveBeenCalledWith({ to: 'PING', data: { data: 42 } });
   });
 
   it('can update the current state', () => {
     const updateSpy = jasmine.createSpy('update').and.returnValue(true);
-    const machine = ex.StateMachine.create({
-      start: 'PING',
-      states: {
-        PING: {
-          transitions: ['PONG']
-        },
-        PONG: {
-          onUpdate: updateSpy,
-          transitions: ['PING']
+    const machine = ex.StateMachine.create(
+      {
+        start: 'PING',
+        states: {
+          PING: {
+            transitions: ['PONG']
+          },
+          PONG: {
+            onUpdate: updateSpy,
+            transitions: ['PING']
+          }
         }
+      },
+      {
+        data: 42
       }
-    }, {
-      data: 42
-    });
+    );
 
     machine.go('PONG');
     machine.update(100);
@@ -151,25 +154,28 @@ describe('A StateMachine', () => {
   });
 
   it('can save a state machine to local storage and restore it with the correct state and data', () => {
-    const machine = ex.StateMachine.create({
-      start: 'PING',
-      states: {
-        PING: {
-          onEnter: ({data}) => {
-            data.data++;
+    const machine = ex.StateMachine.create(
+      {
+        start: 'PING',
+        states: {
+          PING: {
+            onEnter: ({ data }) => {
+              data.data++;
+            },
+            transitions: ['PONG']
           },
-          transitions: ['PONG']
-        },
-        PONG: {
-          onEnter: ({data}) => {
-            data.data++;
-          },
-          transitions: ['PING']
+          PONG: {
+            onEnter: ({ data }) => {
+              data.data++;
+            },
+            transitions: ['PING']
+          }
         }
+      },
+      {
+        data: 42
       }
-    }, {
-      data: 42
-    });
+    );
     machine.go('PONG');
     expect(machine.data.data).toBe(43);
     machine.go('PING');
@@ -179,29 +185,31 @@ describe('A StateMachine', () => {
 
     machine.save('my-machine-state');
 
-    const newMachine = ex.StateMachine.create({
-      start: 'PING',
-      states: {
-        PING: {
-          onEnter: ({data}) => {
-            data.data++;
+    const newMachine = ex.StateMachine.create(
+      {
+        start: 'PING',
+        states: {
+          PING: {
+            onEnter: ({ data }) => {
+              data.data++;
+            },
+            transitions: ['PONG']
           },
-          transitions: ['PONG']
-        },
-        PONG: {
-          onEnter: ({data}) => {
-            data.data++;
-          },
-          transitions: ['PING']
+          PONG: {
+            onEnter: ({ data }) => {
+              data.data++;
+            },
+            transitions: ['PING']
+          }
         }
+      },
+      {
+        data: 42
       }
-    }, {
-      data: 42
-    });
+    );
 
     newMachine.restore('my-machine-state');
     expect(newMachine.currentState.name).toBe('PONG');
     expect(newMachine.data.data).toBe(45);
   });
 });
-

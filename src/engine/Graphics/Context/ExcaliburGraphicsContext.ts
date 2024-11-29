@@ -30,18 +30,20 @@ export interface AntialiasOptions {
    *
    * Default true, with max samples that the platform supports
    */
-  multiSampleAntialiasing?: boolean | {
-    /**
-     * Optionally specify number of samples (will be clamped to the max the platform supports)
-     *
-     * Default most platforms are 16 samples
-     */
-    samples: number;
-  };
+  multiSampleAntialiasing?:
+    | boolean
+    | {
+        /**
+         * Optionally specify number of samples (will be clamped to the max the platform supports)
+         *
+         * Default most platforms are 16 samples
+         */
+        samples: number;
+      };
   /**
    * Sets the default image filtering for excalibur
    *
-   * Default [[ImageFiltering.Blended]]
+   * Default {@apilink ImageFiltering.Blended}
    */
   filtering?: ImageFiltering;
   /**
@@ -92,13 +94,15 @@ export interface ExcaliburGraphicsContextOptions {
    *
    * By default enabled
    */
-  multiSampleAntialiasing?: boolean | {
-    /**
-     * Specify number of samples to use during the multi sample anti-alias, if not specified the max will be used.
-     * Limited by the hardware (usually 16)
-     */
-    samples: number
-  },
+  multiSampleAntialiasing?:
+    | boolean
+    | {
+        /**
+         * Specify number of samples to use during the multi sample anti-alias, if not specified the max will be used.
+         * Limited by the hardware (usually 16)
+         */
+        samples: number;
+      };
   /**
    * UV padding in pixels to use in the internal image rendering
    *
@@ -126,8 +130,8 @@ export interface ExcaliburGraphicsContextOptions {
 export interface ExcaliburGraphicsContextState {
   opacity: number;
   z: number;
-  tint: Color;
-  material: Material;
+  tint: Color | null | undefined;
+  material: Material | null | undefined;
 }
 export interface LineGraphicsOptions {
   color?: Color;
@@ -182,7 +186,7 @@ export interface ExcaliburGraphicsContext {
    * Excalibur will automatically sort draw calls by z and priority for maximal draw performance,
    * this can disrupt a specific desired painter order.
    *
-   * To force a specific draw call order, use [[ExcaliburGraphicsContext.z]]
+   * To force a specific draw call order, use {@apilink ExcaliburGraphicsContext.z}
    *
    * By default `useDrawSorting` is `true`, to opt out set this to `false`
    */
@@ -192,7 +196,7 @@ export interface ExcaliburGraphicsContext {
    * Set the current z context for the graphics context. Draw calls issued to the context will use this z
    * to inform their sort order.
    *
-   * Note it is important to all [[ExcaliburGraphicsContext.save]] and [[ExcaliburGraphicsContext.restore]] when modifying state.
+   * Note it is important to all {@apilink ExcaliburGraphicsContext.save} and {@apilink ExcaliburGraphicsContext.restore} when modifying state.
    */
   z: number;
 
@@ -207,19 +211,19 @@ export interface ExcaliburGraphicsContext {
   smoothing: boolean;
 
   /**
-   * Set the background color of the graphics context, default is [[Color.ExcaliburBlue]]
+   * Set the background color of the graphics context, default is {@apilink Color.ExcaliburBlue}
    */
   backgroundColor: Color;
 
   /**
-   * Sets the opacity of the current [[Graphic]] being drawn, default is 1
+   * Sets the opacity of the current {@apilink Graphic} being drawn, default is 1
    */
   opacity: number;
 
   /**
    * Sets the tint color to be multiplied by any images drawn, default is black 0xFFFFFFFF
    */
-  tint: Color;
+  tint: Color | null | undefined;
 
   /**
    * Resets the current transform to the identity matrix
@@ -353,10 +357,10 @@ export interface ExcaliburGraphicsContext {
    * Updates all post processors in the graphics context
    *
    * Called internally by Excalibur
-   * @param delta
+   * @param elapsedMs
    * @internal
    */
-  updatePostProcessors(delta: number): void;
+  updatePostProcessors(elapsedMs: number): void;
 
   /**
    * Gets or sets the material to be used in the current context's drawings
@@ -364,7 +368,7 @@ export interface ExcaliburGraphicsContext {
    * This allows customs shaders to be used but draw calls are no longer batched by default.
    * @param material
    */
-  material: Material;
+  material: Material | null | undefined;
 
   /**
    * Creates and initializes the material which compiles the internal shader

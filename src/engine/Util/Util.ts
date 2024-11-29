@@ -7,7 +7,7 @@ import { Future } from './Future';
  */
 export function getPosition(el: HTMLElement): Vector {
   // do we need the scroll too? technically the offset method before did that
-  if (el) {
+  if (el && el.getBoundingClientRect) {
     const rect = el.getBoundingClientRect();
     return vec(rect.x + window.scrollX, rect.y + window.scrollY);
   }
@@ -81,7 +81,7 @@ export function delay(milliseconds: number, clock?: Clock): Promise<void> {
  * @param object
  * @param keys
  */
-export function omit<TObject extends Object, Keys extends (keyof TObject)>(object: TObject, keys: Keys[]) {
+export function omit<TObject extends Object, Keys extends keyof TObject>(object: TObject, keys: Keys[]) {
   const newObj: Omit<TObject, Keys> = {} as any;
   for (const key in object) {
     if (!keys.includes(key as any)) {
@@ -89,4 +89,39 @@ export function omit<TObject extends Object, Keys extends (keyof TObject)>(objec
     }
   }
   return newObj;
+}
+
+/**
+ * Simple object check.
+ * @param item
+ */
+export function isObject(item: any): item is object {
+  return item && typeof item === 'object' && !Array.isArray(item);
+}
+
+/**
+ * Deep merge two objects.
+ * @param target
+ * @param sources
+ */
+export function mergeDeep<T extends object>(target: T, ...sources: T[]) {
+  if (!sources.length) {
+    return target;
+  }
+  const source = sources.shift();
+
+  if (isObject(target) && isObject(source)) {
+    for (const key in source) {
+      if (isObject(source[key])) {
+        if (!target[key]) {
+          Object.assign(target, { [key]: {} });
+        }
+        mergeDeep(target[key] as any, source[key]);
+      } else {
+        Object.assign(target, { [key]: source[key] });
+      }
+    }
+  }
+
+  return mergeDeep(target, ...sources);
 }

@@ -11,13 +11,13 @@ export interface SpriteSheetSpacingDimensions {
    * The starting point to offset and start slicing the sprite sheet from the top left of the image.
    * Default is (0, 0)
    */
-  originOffset?: { x?: number, y?: number };
+  originOffset?: { x?: number; y?: number };
 
   /**
    * The margin between sprites.
    * Default is (0, 0)
    */
-  margin?: {x?: number, y?: number};
+  margin?: { x?: number; y?: number };
 }
 
 /**
@@ -94,7 +94,7 @@ export class SpriteSheet {
   /**
    * Build a new sprite sheet from a list of sprites
    *
-   * Use [[SpriteSheet.fromImageSource]] to create a SpriteSheet from an [[ImageSource]] organized in a grid
+   * Use {@apilink SpriteSheet.fromImageSource} to create a SpriteSheet from an {@apilink ImageSource} organized in a grid
    * @param options
    */
   constructor(options: SpriteSheetOptions) {
@@ -105,7 +105,7 @@ export class SpriteSheet {
   }
 
   /**
-   * Find a sprite by their x/y integer coordinates in the SpriteSheet, for example `getSprite(0, 0)` is the [[Sprite]] in the top-left
+   * Find a sprite by their x/y integer coordinates in the SpriteSheet, for example `getSprite(0, 0)` is the {@apilink Sprite} in the top-left
    * and `getSprite(1, 0)` is the sprite one to the right.
    * @param x
    * @param y
@@ -139,21 +139,21 @@ export class SpriteSheet {
   }
 
   /**
-   * Create a sprite sheet from a sparse set of [[SourceView]] rectangles
+   * Create a sprite sheet from a sparse set of {@apilink SourceView} rectangles
    * @param options
    */
   public static fromImageSourceWithSourceViews(options: SpriteSheetSparseOptions): SpriteSheet {
-    const sprites: Sprite[] = options.sourceViews.map(sourceView => {
+    const sprites: Sprite[] = options.sourceViews.map((sourceView) => {
       return new Sprite({
         image: options.image,
         sourceView
       });
     });
-    return new SpriteSheet({sprites});
+    return new SpriteSheet({ sprites });
   }
 
   /**
-   * Create a SpriteSheet from an [[ImageSource]] organized in a grid
+   * Create a SpriteSheet from an {@apilink ImageSource} organized in a grid
    *
    * Example:
    * ```
@@ -190,8 +190,8 @@ export class SpriteSheet {
       grid: { rows, columns: cols, spriteWidth, spriteHeight },
       spacing: { originOffset, margin }
     } = options;
-    const offsetDefaults = { x: 0, y: 0, ...originOffset};
-    const marginDefaults = { x: 0, y: 0, ...margin};
+    const offsetDefaults = { x: 0, y: 0, ...originOffset };
+    const marginDefaults = { x: 0, y: 0, ...margin };
     for (let x = 0; x < cols; x++) {
       for (let y = 0; y < rows; y++) {
         sprites[x + y * cols] = new Sprite({
@@ -215,7 +215,7 @@ export class SpriteSheet {
 
   public clone(): SpriteSheet {
     return new SpriteSheet({
-      sprites: this.sprites.map(sprite => sprite.clone()),
+      sprites: this.sprites.map((sprite) => sprite.clone()),
       rows: this.rows,
       columns: this.columns
     });

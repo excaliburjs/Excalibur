@@ -5,18 +5,53 @@ class FakeComponentA extends ex.Component {}
 class FakeComponentB extends ex.Component {}
 class FakeComponentC extends ex.Component {}
 
-class FakeSystem extends ex.System {
+class FakeSystemPriority1 extends ex.System {
+  static priority = 1;
   query: ex.Query<ex.ComponentCtor<ex.Component>>;
   constructor(
     public world: ex.World,
-    public priority: number,
     public name: string,
     public types: ex.ComponentCtor[],
-    public systemType: ex.SystemType) {
+    public systemType: ex.SystemType
+  ) {
     super();
     this.query = this.world.query(types);
   }
-  update(delta: number): void {
+  update(elapsedMs: number): void {
+    // fake
+  }
+}
+
+class FakeSystemPriority2 extends ex.System {
+  static priority = 2;
+  query: ex.Query<ex.ComponentCtor<ex.Component>>;
+  constructor(
+    public world: ex.World,
+    public name: string,
+    public types: ex.ComponentCtor[],
+    public systemType: ex.SystemType
+  ) {
+    super();
+    this.query = this.world.query(types);
+  }
+  update(elapsedMs: number): void {
+    // fake
+  }
+}
+
+class FakeSystemPriority3 extends ex.System {
+  static priority = 3;
+  query: ex.Query<ex.ComponentCtor<ex.Component>>;
+  constructor(
+    public world: ex.World,
+    public name: string,
+    public types: ex.ComponentCtor[],
+    public systemType: ex.SystemType
+  ) {
+    super();
+    this.query = this.world.query(types);
+  }
+  update(elapsedMs: number): void {
     // fake
   }
 }
@@ -35,11 +70,11 @@ describe('A SystemManager', () => {
     const sm = world.systemManager;
 
     // Lower priority
-    const s3 = new FakeSystem(world, 2, 'System3', [FakeComponentC], SystemType.Update);
+    const s3 = new FakeSystemPriority2(world, 'System3', [FakeComponentC], SystemType.Update);
     sm.addSystem(s3);
     // Systems of equal priority should preserve order
-    const s1 = new FakeSystem(world, 1, 'System1', [FakeComponentA], SystemType.Update);
-    const s2 = new FakeSystem(world, 1, 'System2', [FakeComponentC, FakeComponentB], SystemType.Update);
+    const s1 = new FakeSystemPriority1(world, 'System1', [FakeComponentA], SystemType.Update);
+    const s2 = new FakeSystemPriority1(world, 'System2', [FakeComponentC, FakeComponentB], SystemType.Update);
     sm.addSystem(s1);
     sm.addSystem(s2);
 
@@ -51,11 +86,11 @@ describe('A SystemManager', () => {
     const sm = world.systemManager;
 
     // Lower priority
-    const s3 = new FakeSystem(world, 2, 'System3', [FakeComponentC], SystemType.Update);
+    const s3 = new FakeSystemPriority2(world, 'System3', [FakeComponentC], SystemType.Update);
     sm.addSystem(s3);
     // Systems of equal priority should preserve order
-    const s1 = new FakeSystem(world, 1, 'System1', [FakeComponentA], SystemType.Update);
-    const s2 = new FakeSystem(world, 1, 'System2', [FakeComponentC, FakeComponentB], SystemType.Update);
+    const s1 = new FakeSystemPriority1(world, 'System1', [FakeComponentA], SystemType.Update);
+    const s2 = new FakeSystemPriority1(world, 'System2', [FakeComponentC, FakeComponentB], SystemType.Update);
     sm.addSystem(s1);
     sm.addSystem(s2);
 
@@ -68,7 +103,7 @@ describe('A SystemManager', () => {
   it('can update systems', () => {
     const world = new ex.World(null);
     const sm = world.systemManager;
-    const system = new FakeSystem(world, 2, 'System3', [FakeComponentC], SystemType.Update);
+    const system = new FakeSystemPriority2(world, 'System3', [FakeComponentC], SystemType.Update);
     system.preupdate = () => {}; // eslint-disable-line @typescript-eslint/no-empty-function
     system.postupdate = () => {}; // eslint-disable-line @typescript-eslint/no-empty-function
     spyOn(system, 'preupdate');
@@ -86,20 +121,20 @@ describe('A SystemManager', () => {
     const sm = world.systemManager;
     const qm = world.queryManager;
     const em = world.entityManager;
-    const system = new FakeSystem(world, 2, 'System3', [FakeComponentA, FakeComponentC], SystemType.Update);
+    const system = new FakeSystemPriority2(world, 'System3', [FakeComponentA, FakeComponentC], SystemType.Update);
     spyOn(system, 'update').and.callThrough();
     sm.addSystem(system);
 
     const e1 = new ex.Entity();
-    e1.addComponent(new FakeComponentA);
-    e1.addComponent(new FakeComponentC);
+    e1.addComponent(new FakeComponentA());
+    e1.addComponent(new FakeComponentC());
 
     const e2 = new ex.Entity();
-    e2.addComponent(new FakeComponentB);
+    e2.addComponent(new FakeComponentB());
 
     const e3 = new ex.Entity();
-    e3.addComponent(new FakeComponentC);
-    e3.addComponent(new FakeComponentA);
+    e3.addComponent(new FakeComponentC());
+    e3.addComponent(new FakeComponentA());
 
     em.addEntity(e1);
     em.addEntity(e2);
@@ -118,10 +153,10 @@ describe('A SystemManager', () => {
     const sm = world.systemManager;
     const qm = world.queryManager;
     const em = world.entityManager;
-    const system1 = new FakeSystem(world, 2, 'System1', [FakeComponentA, FakeComponentC], SystemType.Update);
+    const system1 = new FakeSystemPriority2(world, 'System1', [FakeComponentA, FakeComponentC], SystemType.Update);
     spyOn(system1, 'update').and.callThrough();
     sm.addSystem(system1);
-    const system2 = new FakeSystem(world, 2, 'System1', [FakeComponentA, FakeComponentC], SystemType.Draw);
+    const system2 = new FakeSystemPriority2(world, 'System1', [FakeComponentA, FakeComponentC], SystemType.Draw);
     spyOn(system2, 'update').and.callThrough();
     sm.addSystem(system2);
 
@@ -135,7 +170,7 @@ describe('A SystemManager', () => {
     const world = new ex.World(null);
     const sm = world.systemManager;
     expect(() => {
-      sm.addSystem(new FakeSystem(world, 0, 'ErrorSystem', [], SystemType.Update));
+      sm.addSystem(new FakeSystemPriority1(world, 'ErrorSystem', [], SystemType.Update));
     }).toThrow(new Error('Cannot create query without components'));
   });
 });

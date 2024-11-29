@@ -26,7 +26,7 @@ describe('A label', () => {
   });
 
   it('can be constructed', () => {
-    const sut = new ex.Label({text: 'some text'});
+    const sut = new ex.Label({ text: 'some text' });
     expect(sut).not.toBeNull();
   });
 
@@ -86,5 +86,16 @@ describe('A label', () => {
     expect(sut.text).toBe('some text');
     expect((sut as any)._spriteFont).toBe(spriteFont);
     // expect(sut.spriteFont).toBe(spriteFont);
+  });
+
+  it('can have opacity set on the label and its the same as the graphics', () => {
+    const label = new ex.Label({
+      text: 'some text',
+      opacity: 0.75
+    });
+
+    expect(label.opacity).toEqual(label.graphics.opacity);
+    label.opacity = 0.25;
+    expect(label.opacity).toEqual(label.graphics.opacity);
   });
 });

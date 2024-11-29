@@ -16,10 +16,9 @@ var spriteFontSheet = ex.SpriteSheet.fromImageSource({
     spriteHeight: 16,
     spriteWidth: 16
   }
-})
+});
 var label: ex.Label = null;
 var loader = new ex.Loader([spriteFontTex]);
-
 
 game.start(loader).then(() => {
   var spriteFont = new ex.SpriteFont({
@@ -29,8 +28,8 @@ game.start(loader).then(() => {
   });
 
   label = new ex.Label({
-    text: 'This is a sprite Font test', 
-    x: game.halfDrawWidth, 
+    text: 'This is a sprite Font test',
+    x: game.halfDrawWidth,
     y: game.halfDrawHeight,
     spriteFont: spriteFont
   });
@@ -40,47 +39,47 @@ game.start(loader).then(() => {
   game.add(label);
 });
 
-document.getElementById('lighten').addEventListener('click', function() {
+document.getElementById('lighten').addEventListener('click', function () {
   label.opacity -= 0.05;
 });
 
-document.getElementById('darken').addEventListener('click', function() {
+document.getElementById('darken').addEventListener('click', function () {
   label.opacity += 0.05;
 });
 
-document.getElementById('setcolor').addEventListener('click', function() {
+document.getElementById('setcolor').addEventListener('click', function () {
   var text = (<any>document.getElementById('color')).value;
   label.color = ex.Color.fromHex(text);
   label.opacity = label.color.a;
 });
 
-document.getElementById('text').addEventListener('keyup', function() {
+document.getElementById('text').addEventListener('keyup', function () {
   label.text = (<any>document.getElementById('text')).value;
 });
 
-document.getElementById('textalign').addEventListener('change', function(evt) {
+document.getElementById('textalign').addEventListener('change', function (evt) {
   label.font.textAlign = (<any>ex.TextAlign)[(<any>evt.currentTarget).value];
 });
 
-document.getElementById('basealign').addEventListener('change', function(evt) {
+document.getElementById('basealign').addEventListener('change', function (evt) {
   label.font.baseAlign = (<any>ex.BaseAlign)[(<any>evt.currentTarget).value];
 });
 
-document.getElementById('fontsize').addEventListener('change', function(evt) {
+document.getElementById('fontsize').addEventListener('change', function (evt) {
   label.font.size = (<any>evt.currentTarget).value;
 });
 
-document.getElementById('letterspacing').addEventListener('keyup', function(evt) {
+document.getElementById('letterspacing').addEventListener('keyup', function (evt) {
   label.spriteFont.spacing = parseFloat((<any>evt.currentTarget).value);
 });
 
-document.getElementById('textshadow').addEventListener('change', function(evt) {
+document.getElementById('textshadow').addEventListener('change', function (evt) {
   var text = (<any>document.getElementById('textshadowcolor')).value;
   var val = <boolean>(<any>evt.currentTarget).checked;
-  label.font.shadow = val ? { offset: ex.vec(5, 5), color: ex.Color.fromHex(text)} : undefined
+  label.font.shadow = val ? { offset: ex.vec(5, 5), color: ex.Color.fromHex(text) } : undefined;
 });
 
-document.getElementById('setshadowcolor').addEventListener('click', function() {
+document.getElementById('setshadowcolor').addEventListener('click', function () {
   var text = (<any>document.getElementById('textshadowcolor')).value;
-  label.font.shadow ={ offset: ex.vec(5, 5), color: ex.Color.fromHex(text)};
+  label.font.shadow = { offset: ex.vec(5, 5), color: ex.Color.fromHex(text) };
 });

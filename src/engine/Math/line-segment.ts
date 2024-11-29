@@ -1,3 +1,4 @@
+import { AffineMatrix } from './affine-matrix';
 import { Vector } from './vector';
 
 /**
@@ -5,12 +6,28 @@ import { Vector } from './vector';
  */
 
 export class LineSegment {
-
   /**
    * @param begin  The starting point of the line segment
    * @param end  The ending point of the line segment
    */
-  constructor(public readonly begin: Vector, public readonly end: Vector) {}
+  constructor(
+    public begin: Vector,
+    public end: Vector
+  ) {}
+
+  clone(dest?: LineSegment): LineSegment {
+    const result = dest || new LineSegment(this.begin.clone(), this.end.clone());
+    result.begin = this.begin.clone(result.begin);
+    result.end = this.end.clone(result.end);
+    return result;
+  }
+
+  transform(matrix: AffineMatrix, dest?: LineSegment): LineSegment {
+    const result = dest || new LineSegment(Vector.Zero, Vector.Zero);
+    result.begin = matrix.multiply(this.begin, result.begin);
+    result.end = matrix.multiply(this.end, result.end);
+    return result;
+  }
 
   /**
    * Gets the raw slope (m) of the line. Will return (+/-)Infinity for vertical lines.
@@ -34,7 +51,7 @@ export class LineSegment {
     if (this._normal) {
       return this._normal;
     }
-    return this._normal = this.end.sub(this.begin).normal();
+    return (this._normal = this.end.sub(this.begin).normal());
   }
 
   private _dir: Vector;
@@ -42,7 +59,7 @@ export class LineSegment {
     if (this._dir) {
       return this._dir;
     }
-    return this._dir = this.end.sub(this.begin);
+    return (this._dir = this.end.sub(this.begin));
   }
 
   public getPoints(): Vector[] {
@@ -60,7 +77,7 @@ export class LineSegment {
     const begin = this.begin;
     const end = this.end;
     const distance = begin.distance(end);
-    return this._slope = end.sub(begin).scale(1 / distance);
+    return (this._slope = end.sub(begin).scale(1 / distance));
   }
 
   /**
@@ -72,18 +89,14 @@ export class LineSegment {
     return end.sub(begin);
   }
 
-  private _length: number;
   /**
    * Returns the length of the line segment in pixels
    */
   public getLength(): number {
-    if (this._length) {
-      return this._length;
-    }
     const begin = this.begin;
     const end = this.end;
     const distance = begin.distance(end);
-    return this._length = distance;
+    return distance;
   }
 
   /**
@@ -114,9 +127,11 @@ export class LineSegment {
    * @param sideVector Vector that traces the line
    * @param length Length to clip along side
    */
-  public clip(sideVector: Vector, length: number): LineSegment {
+  public clip(sideVector: Vector, length: number, normalize = true): LineSegment {
     let dir = sideVector;
-    dir = dir.normalize();
+    if (normalize) {
+      dir = dir.normalize();
+    }
 
     const near = dir.dot(this.begin) - length;
     const far = dir.dot(this.end) - length;

@@ -1,14 +1,15 @@
 import { Component, ComponentCtor, isComponentCtor } from './Component';
 
 import { Observable, Message } from '../Util/Observable';
-import { OnInitialize, OnPreUpdate, OnPostUpdate } from '../Interfaces/LifecycleEvents';
+import { OnInitialize, OnPreUpdate, OnPostUpdate, OnAdd, OnRemove } from '../Interfaces/LifecycleEvents';
 import { Engine } from '../Engine';
-import { InitializeEvent, PreUpdateEvent, PostUpdateEvent } from '../Events';
+import { InitializeEvent, PreUpdateEvent, PostUpdateEvent, AddEvent, RemoveEvent } from '../Events';
 import { KillEvent } from '../Events';
 import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
 import { Scene } from '../Scene';
 import { removeItemFromArray } from '../Util/Util';
 import { MaybeKnownComponent } from './Types';
+import { Logger } from '../Util/Log';
 
 /**
  * Interface holding an entity component pair
@@ -23,7 +24,7 @@ export interface EntityComponent {
  */
 export class AddedComponent implements Message<EntityComponent> {
   readonly type: 'Component Added' = 'Component Added';
-  constructor(public data: EntityComponent) { }
+  constructor(public data: EntityComponent) {}
 }
 
 /**
@@ -38,7 +39,7 @@ export function isAddedComponent(x: Message<EntityComponent>): x is AddedCompone
  */
 export class RemovedComponent implements Message<EntityComponent> {
   readonly type: 'Component Removed' = 'Component Removed';
-  constructor(public data: EntityComponent) { }
+  constructor(public data: EntityComponent) {}
 }
 
 /**
@@ -52,13 +53,19 @@ export function isRemovedComponent(x: Message<EntityComponent>): x is RemovedCom
  * Built in events supported by all entities
  */
 export type EntityEvents = {
-  'initialize': InitializeEvent;
-  'preupdate': PreUpdateEvent;
-  'postupdate': PostUpdateEvent;
-  'kill': KillEvent
+  initialize: InitializeEvent;
+  //@ts-ignore
+  add: AddEvent;
+  //@ts-ignore
+  remove: RemoveEvent;
+  preupdate: PreUpdateEvent;
+  postupdate: PostUpdateEvent;
+  kill: KillEvent;
 };
 
 export const EntityEvents = {
+  Add: 'add',
+  Remove: 'remove',
   Initialize: 'initialize',
   PreUpdate: 'preupdate',
   PostUpdate: 'postupdate',
@@ -67,7 +74,8 @@ export const EntityEvents = {
 
 export interface EntityOptions<TComponents extends Component> {
   name?: string;
-  components: TComponents[];
+  components?: TComponents[];
+  silenceWarnings?: boolean;
 }
 
 /**
@@ -81,7 +89,7 @@ export interface EntityOptions<TComponents extends Component> {
  * entity.components.b; // Type ComponentB
  * ```
  */
-export class Entity<TKnownComponents extends Component = any> implements OnInitialize, OnPreUpdate, OnPostUpdate {
+export class Entity<TKnownComponents extends Component = any> implements OnInitialize, OnPreUpdate, OnPostUpdate, OnAdd, OnRemove {
   private static _ID = 0;
   /**
    * The unique identifier for the entity
@@ -95,10 +103,10 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    */
   public events = new EventEmitter<EntityEvents>();
   private _tags = new Set<string>();
-  public componentAdded$ = new Observable<Component>;
-  public componentRemoved$ = new Observable<Component>;
-  public tagAdded$ = new Observable<string>;
-  public tagRemoved$ = new Observable<string>;
+  public componentAdded$ = new Observable<Component>();
+  public componentRemoved$ = new Observable<Component>();
+  public tagAdded$ = new Observable<string>();
+  public tagRemoved$ = new Observable<string>();
   /**
    * Current components on the entity
    *
@@ -107,23 +115,23 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    * Use addComponent/removeComponent otherwise the ECS will not be notified of changes.
    */
   public readonly components = new Map<Function, Component>();
+  public componentValues: Component[] = [];
   private _componentsToRemove: ComponentCtor[] = [];
-
-  private _instanceOfComponentCacheDirty = true;
-  private _instanceOfComponentCache = new Map<Function, Component>();
 
   constructor(options: EntityOptions<TKnownComponents>);
   constructor(components?: TKnownComponents[], name?: string);
   constructor(componentsOrOptions?: TKnownComponents[] | EntityOptions<TKnownComponents>, name?: string) {
     let componentsToAdd!: TKnownComponents[];
     let nameToAdd: string | undefined;
+    let silence = false;
     if (Array.isArray(componentsOrOptions)) {
       componentsToAdd = componentsOrOptions;
       nameToAdd = name;
     } else if (componentsOrOptions && typeof componentsOrOptions === 'object') {
-      const { components, name } = componentsOrOptions;
-      componentsToAdd = components;
+      const { components, name, silenceWarnings } = componentsOrOptions;
+      componentsToAdd = components ?? [];
       nameToAdd = name;
+      silence = !!silenceWarnings;
     }
     if (nameToAdd) {
       this.name = nameToAdd;
@@ -133,7 +141,16 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
         this.addComponent(component);
       }
     }
-    // this.addComponent(this.tagsComponent);
+
+    if (process.env.NODE_ENV === 'development') {
+      if (!silence) {
+        setTimeout(() => {
+          if (!this.scene && !this.isInitialized) {
+            Logger.getInstance().warn(`Entity "${this.name || this.id}" was not added to a scene.`);
+          }
+        }, 5000);
+      }
+    }
   }
 
   /**
@@ -143,27 +160,43 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
 
   /**
    * Whether this entity is active, if set to false it will be reclaimed
+   * @deprecated use isActive
    */
-  public active: boolean = true;
+  public get active(): boolean {
+    return this.isActive;
+  }
+
+  /**
+   * Whether this entity is active, if set to false it will be reclaimed
+   * @deprecated use isActive
+   */
+  public set active(val: boolean) {
+    this.isActive = val;
+  }
+
+  /**
+   * Whether this entity is active, if set to false it will be reclaimed
+   */
+  public isActive: boolean = true;
 
   /**
    * Kill the entity, means it will no longer be updated. Kills are deferred to the end of the update.
    * If parented it will be removed from the parent when killed.
    */
   public kill() {
-    if (this.active) {
-      this.active = false;
+    if (this.isActive) {
+      this.isActive = false;
       this.unparent();
     }
     this.emit('kill', new KillEvent(this));
   }
 
   public isKilled() {
-    return !this.active;
+    return !this.isActive;
   }
 
   /**
-   * Specifically get the tags on the entity from [[TagsComponent]]
+   * Specifically get the tags on the entity from {@apilink TagsComponent}
    */
   public get tags(): Set<string> {
     return this._tags;
@@ -239,29 +272,8 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
     return true;
   }
 
-  private _getCachedInstanceOfType<TComponent extends Component>(
-    type: ComponentCtor<TComponent>): MaybeKnownComponent<TComponent, TKnownComponents> | undefined {
-    if (this._instanceOfComponentCacheDirty) {
-      this._instanceOfComponentCacheDirty = false;
-      this._instanceOfComponentCache.clear();
-    }
-
-    if (this._instanceOfComponentCache.has(type)) {
-      return this._instanceOfComponentCache.get(type) as MaybeKnownComponent<TComponent, TKnownComponents>;
-    }
-
-    for (const instance of this.components.values()) {
-      if (instance instanceof type) {
-        this._instanceOfComponentCache.set(type, instance);
-        return instance as MaybeKnownComponent<TComponent, TKnownComponents>;
-      }
-    }
-    return undefined;
-  }
-
   get<TComponent extends Component>(type: ComponentCtor<TComponent>): MaybeKnownComponent<TComponent, TKnownComponents> {
-    const maybeComponent = this._getCachedInstanceOfType(type);
-    return maybeComponent ?? this.components.get(type) as MaybeKnownComponent<TComponent, TKnownComponents>;
+    return this.components.get(type) as MaybeKnownComponent<TComponent, TKnownComponents>;
   }
 
   private _parent: Entity | null = null;
@@ -393,13 +405,23 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
     return this;
   }
 
+  private _getClassHierarchyRoot(componentType: ComponentCtor): ComponentCtor {
+    let current = componentType;
+    let parent = Object.getPrototypeOf(current.prototype)?.constructor;
+
+    while (parent && parent !== Object && parent !== Component) {
+      current = parent;
+      parent = Object.getPrototypeOf(current.prototype)?.constructor;
+    }
+    return current;
+  }
+
   /**
    * Adds a component to the entity
    * @param component Component or Entity to add copy of components from
    * @param force Optionally overwrite any existing components of the same type
    */
   public addComponent<TComponent extends Component>(component: TComponent, force: boolean = false): Entity<TKnownComponents | TComponent> {
-    this._instanceOfComponentCacheDirty = true;
     // if component already exists, skip if not forced
     if (this.has(component.constructor as ComponentCtor)) {
       if (force) {
@@ -419,7 +441,10 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
     }
 
     component.owner = this;
+    const rootComponent = this._getClassHierarchyRoot(component.constructor as ComponentCtor);
+    this.components.set(rootComponent, component);
     this.components.set(component.constructor, component);
+    this.componentValues.push(component);
     if (component.onAdd) {
       component.onAdd(this);
     }
@@ -436,8 +461,9 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    * @param force
    */
   public removeComponent<TComponent extends Component>(
-    typeOrInstance: ComponentCtor<TComponent> | TComponent, force = false): Entity<Exclude<TKnownComponents, TComponent>> {
-
+    typeOrInstance: ComponentCtor<TComponent> | TComponent,
+    force = false
+  ): Entity<Exclude<TKnownComponents, TComponent>> {
     let type: ComponentCtor<TComponent>;
     if (isComponentCtor(typeOrInstance)) {
       type = typeOrInstance;
@@ -453,9 +479,15 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
         if (componentToRemove.onRemove) {
           componentToRemove.onRemove(this);
         }
+        const componentIndex = this.componentValues.indexOf(componentToRemove);
+        if (componentIndex > -1) {
+          this.componentValues.splice(componentIndex, 1);
+        }
       }
+
+      const rootComponent = this._getClassHierarchyRoot(type);
+      this.components.delete(rootComponent);
       this.components.delete(type); // remove after the notify to preserve typing
-      this._instanceOfComponentCacheDirty = true;
     } else {
       this._componentsToRemove.push(type);
     }
@@ -490,12 +522,17 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
   }
 
   private _isInitialized = false;
+  private _isAdded = false;
 
   /**
    * Gets whether the actor is Initialized
    */
   public get isInitialized(): boolean {
     return this._isInitialized;
+  }
+
+  public get isAdded(): boolean {
+    return this._isAdded;
   }
 
   /**
@@ -513,25 +550,53 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
   }
 
   /**
-   * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
+   * Adds this Actor, meant to be called by the Scene when Actor is added.
    *
-   * Internal _preupdate handler for [[onPreUpdate]] lifecycle event
+   * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    * @internal
    */
-  public _preupdate(engine: Engine, delta: number): void {
-    this.events.emit('preupdate', new PreUpdateEvent(engine, delta, this));
-    this.onPreUpdate(engine, delta);
+  public _add(engine: Engine) {
+    if (!this.isAdded && this.isActive) {
+      this.onAdd(engine);
+      this.events.emit('add', new AddEvent(engine, this));
+      this._isAdded = true;
+    }
+  }
+
+  /**
+   * Removes Actor, meant to be called by the Scene when Actor is added.
+   *
+   * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
+   * @internal
+   */
+  public _remove(engine: Engine) {
+    if (this.isAdded && !this.isActive) {
+      this.onRemove(engine);
+      this.events.emit('remove', new RemoveEvent(engine, this));
+      this._isAdded = false;
+    }
   }
 
   /**
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
-   * Internal _preupdate handler for [[onPostUpdate]] lifecycle event
+   * Internal _preupdate handler for {@apilink onPreUpdate} lifecycle event
    * @internal
    */
-  public _postupdate(engine: Engine, delta: number): void {
-    this.events.emit('postupdate', new PostUpdateEvent(engine, delta, this));
-    this.onPostUpdate(engine, delta);
+  public _preupdate(engine: Engine, elapsedMs: number): void {
+    this.events.emit('preupdate', new PreUpdateEvent(engine, elapsedMs, this));
+    this.onPreUpdate(engine, elapsedMs);
+  }
+
+  /**
+   * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
+   *
+   * Internal _preupdate handler for {@apilink onPostUpdate} lifecycle event
+   * @internal
+   */
+  public _postupdate(engine: Engine, elapsedMs: number): void {
+    this.events.emit('postupdate', new PostUpdateEvent(engine, elapsedMs, this));
+    this.onPostUpdate(engine, elapsedMs);
   }
 
   /**
@@ -545,11 +610,31 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
   }
 
   /**
+   * `onAdd` is called when Actor is added to scene. This method is meant to be
+   * overridden.
+   *
+   * Synonymous with the event handler `.on('add', (evt) => {...})`
+   */
+  public onAdd(engine: Engine): void {
+    // Override me
+  }
+
+  /**
+   * `onRemove` is called when Actor is added to scene. This method is meant to be
+   * overridden.
+   *
+   * Synonymous with the event handler `.on('remove', (evt) => {...})`
+   */
+  public onRemove(engine: Engine): void {
+    // Override me
+  }
+
+  /**
    * Safe to override onPreUpdate lifecycle event handler. Synonymous with `.on('preupdate', (evt) =>{...})`
    *
    * `onPreUpdate` is called directly before an entity is updated.
    */
-  public onPreUpdate(engine: Engine, delta: number): void {
+  public onPreUpdate(engine: Engine, elapsedMs: number): void {
     // Override me
   }
 
@@ -558,7 +643,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    *
    * `onPostUpdate` is called directly after an entity is updated.
    */
-  public onPostUpdate(engine: Engine, delta: number): void {
+  public onPostUpdate(engine: Engine, elapsedMs: number): void {
     // Override me
   }
 
@@ -567,15 +652,17 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    * Entity update lifecycle, called internally
    * @internal
    * @param engine
-   * @param delta
+   * @param elapsedMs
    */
-  public update(engine: Engine, delta: number): void {
+  public update(engine: Engine, elapsedMs: number): void {
     this._initialize(engine);
-    this._preupdate(engine, delta);
+    this._add(engine);
+    this._preupdate(engine, elapsedMs);
     for (const child of this.children) {
-      child.update(engine, delta);
+      child.update(engine, elapsedMs);
     }
-    this._postupdate(engine, delta);
+    this._postupdate(engine, elapsedMs);
+    this._remove(engine);
   }
 
   public emit<TEventName extends EventKey<EntityEvents>>(eventName: TEventName, event: EntityEvents[TEventName]): void;

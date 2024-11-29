@@ -3,8 +3,9 @@ import { System, SystemType } from '../EntityComponentSystem/System';
 import { ActionsComponent } from './ActionsComponent';
 
 export class ActionsSystem extends System {
+  static priority = SystemPriority.Higher;
+
   systemType = SystemType.Update;
-  priority = SystemPriority.Higher;
   private _actions: ActionsComponent[] = [];
   query: Query<typeof ActionsComponent>;
 
@@ -12,8 +13,8 @@ export class ActionsSystem extends System {
     super();
     this.query = this.world.query([ActionsComponent]);
 
-    this.query.entityAdded$.subscribe(e => this._actions.push(e.get(ActionsComponent)));
-    this.query.entityRemoved$.subscribe(e => {
+    this.query.entityAdded$.subscribe((e) => this._actions.push(e.get(ActionsComponent)));
+    this.query.entityRemoved$.subscribe((e) => {
       const action = e.get(ActionsComponent);
       const index = this._actions.indexOf(action);
       if (index > -1) {
@@ -21,9 +22,10 @@ export class ActionsSystem extends System {
       }
     });
   }
-  update(delta: number): void {
-    for (const actions of this._actions) {
-      actions.update(delta);
+  update(elapsedMs: number): void {
+    for (let i = 0; i < this._actions.length; i++) {
+      const action = this._actions[i];
+      action.update(elapsedMs);
     }
   }
 }

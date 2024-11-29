@@ -57,8 +57,7 @@ describe('A Director', () => {
     });
     sut.onInitialize();
 
-
-    const fadeIn = new ex.FadeInOut({ direction: 'in', duration: 1000});
+    const fadeIn = new ex.FadeInOut({ direction: 'in', duration: 1000 });
     const loader = new ex.DefaultLoader();
     sut.configureStart('scene1', {
       inTransition: fadeIn,
@@ -81,7 +80,7 @@ describe('A Director', () => {
       scene1,
       scene2
     });
-    const fadeIn = new ex.FadeInOut({ direction: 'in', duration: 1000});
+    const fadeIn = new ex.FadeInOut({ direction: 'in', duration: 1000 });
     const loader = new ex.DefaultLoader();
     sut.configureStart('scene1', {
       inTransition: fadeIn,
@@ -97,7 +96,7 @@ describe('A Director', () => {
     engine.dispose();
   });
 
-  it('will draw a start scene transition', async () => {
+  it('can get a scene name', () => {
     const engine = TestUtils.engine();
     const clock = engine.clock as ex.TestClock;
     clock.start();
@@ -105,15 +104,36 @@ describe('A Director', () => {
     scene1._initialize(engine);
     const scene2 = new ex.Scene();
     scene2._initialize(engine);
+    const scene3 = new ex.Scene();
+    scene3._initialize(engine);
+
+    class SceneCtor1 extends ex.Scene {}
+    class SceneCtor2 extends ex.Scene {}
+
     const sut = new ex.Director(engine, {
       scene1,
-      scene2
+      scene2,
+      myScene: { scene: scene3 },
+      sceneWithCtor: { scene: SceneCtor1 },
+      ctor: SceneCtor2
     });
-    sut.rootScene._initialize(engine);
-    engine.rootScene._initialize(engine);
-    const fadeIn = new ex.FadeInOut({ direction: 'in', duration: 1000});
-    engine.screen.setCurrentCamera(engine.currentScene.camera);
-    fadeIn._initialize(engine);
+
+    expect(sut.getSceneName(scene1)).toBe('scene1');
+    expect(sut.getSceneName(scene2)).toBe('scene2');
+    expect(sut.getSceneName(scene3)).toBe('myScene');
+    expect(sut.getSceneName(new SceneCtor1())).toBe('sceneWithCtor');
+    expect(sut.getSceneName(new SceneCtor2())).toBe('ctor');
+    expect(sut.getSceneName(new ex.Scene())).toBe(null);
+  });
+
+  it('will draw a start scene transition', async () => {
+    const engine = TestUtils.engine();
+    const clock = engine.clock as ex.TestClock;
+    clock.start();
+    const scene1 = new ex.Scene();
+    const sut = new ex.Director(engine, { scene1 });
+    engine.director = sut;
+    const fadeIn = new ex.FadeInOut({ direction: 'in', duration: 1000 });
     const loader = new ex.DefaultLoader();
     sut.configureStart('scene1', {
       inTransition: fadeIn,

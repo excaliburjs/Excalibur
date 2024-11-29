@@ -98,7 +98,7 @@ export class Matrix {
   }
 
   public static fromFloat32Array(data: Float32Array) {
-    const matrix =  new Matrix();
+    const matrix = new Matrix();
     matrix.data = data;
     return matrix;
   }
@@ -291,7 +291,6 @@ export class Matrix {
     }
   }
 
-
   /**
    * Applies translation to the current matrix mutating it
    * @param x
@@ -416,13 +415,13 @@ export class Matrix {
 
   public getScaleX(): number {
     // absolute scale of the matrix (we lose sign so need to add it back)
-    const xscale = vec(this.data[0], this.data[4]).size;
+    const xscale = vec(this.data[0], this.data[4]).magnitude;
     return this._scaleSignX * xscale;
   }
 
   public getScaleY(): number {
     // absolute scale of the matrix (we lose sign so need to add it back)
-    const yscale = vec(this.data[1], this.data[5]).size;
+    const yscale = vec(this.data[1], this.data[5]).magnitude;
     return this._scaleSignY * yscale;
   }
 

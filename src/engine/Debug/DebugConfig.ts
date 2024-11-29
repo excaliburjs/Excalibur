@@ -22,9 +22,9 @@ export interface FrameStatistics {
   id: number;
 
   /**
-   * Gets the frame's delta (time since last frame scaled by [[Engine.timescale]]) (in ms)
+   * Gets the frame's delta (time since last frame scaled by {@apilink Engine.timescale}) (in ms)
    */
-  delta: number;
+  elapsedMs: number;
 
   /**
    * Gets the frame's frames-per-second (FPS)
@@ -149,7 +149,7 @@ export interface GraphicsStatistics {
 
 /**
  * Debug statistics and flags for Excalibur. If polling these values, it would be
- * best to do so on the `postupdate` event for [[Engine]], after all values have been
+ * best to do so on the `postupdate` event for {@apilink Engine}, after all values have been
  * updated during a frame.
  */
 export class DebugConfig {
@@ -162,7 +162,7 @@ export class DebugConfig {
   }
 
   /**
-   * Switch the current excalibur clock with the [[TestClock]] and return
+   * Switch the current excalibur clock with the {@apilink TestClock} and return
    * it in the same running state.
    *
    * This is useful when you need to debug frame by frame.
@@ -181,7 +181,7 @@ export class DebugConfig {
   }
 
   /**
-   * Switch the current excalibur clock with the [[StandardClock]] and
+   * Switch the current excalibur clock with the {@apilink StandardClock} and
    * return it in the same running state.
    *
    * This is useful when you need to switch back to normal mode after
@@ -205,20 +205,20 @@ export class DebugConfig {
    */
   public stats: DebugStats = {
     /**
-     * Current frame statistics. Engine reuses this instance, use [[FrameStats.clone]] to copy frame stats.
-     * Best accessed on [[postframe]] event. See [[FrameStats]]
+     * Current frame statistics. Engine reuses this instance, use {@apilink FrameStats.clone} to copy frame stats.
+     * Best accessed on {@apilink postframe} event. See {@apilink FrameStats}
      */
     currFrame: new FrameStats(),
 
     /**
-     * Previous frame statistics. Engine reuses this instance, use [[FrameStats.clone]] to copy frame stats.
-     * Best accessed on [[preframe]] event. Best inspected on engine event `preframe`. See [[FrameStats]]
+     * Previous frame statistics. Engine reuses this instance, use {@apilink FrameStats.clone} to copy frame stats.
+     * Best accessed on {@apilink preframe} event. Best inspected on engine event `preframe`. See {@apilink FrameStats}
      */
     prevFrame: new FrameStats()
   };
 
   /**
-   * Correct or simulate color blindness using [[ColorBlindnessPostProcessor]].
+   * Correct or simulate color blindness using {@apilink ColorBlindnessPostProcessor}.
    * @warning Will reduce FPS.
    */
   public colorBlindMode: ColorBlindFlags;
@@ -294,7 +294,7 @@ export class DebugConfig {
     showGeometry: true,
     geometryColor: Color.Green,
     geometryLineWidth: 1,
-    geometryPointSize: .5
+    geometryPointSize: 0.5
   };
 
   /**
@@ -356,7 +356,7 @@ export class DebugConfig {
 
     showGrid: false,
     gridColor: Color.Red,
-    gridWidth: .5,
+    gridWidth: 0.5,
     showSolidBounds: false,
     solidBoundsColor: Color.fromHex('#8080807F'), // grayish
     showColliderGeometry: true
@@ -375,12 +375,12 @@ export class DebugConfig {
 }
 
 /**
- * Implementation of a frame's stats. Meant to have values copied via [[FrameStats.reset]], avoid
+ * Implementation of a frame's stats. Meant to have values copied via {@apilink FrameStats.reset}, avoid
  * creating instances of this every frame.
  */
 export class FrameStats implements FrameStatistics {
   private _id: number = 0;
-  private _delta: number = 0;
+  private _elapsedMs: number = 0;
   private _fps: number = 0;
   private _actorStats: FrameActorStats = {
     alive: 0,
@@ -415,7 +415,7 @@ export class FrameStats implements FrameStatistics {
   public reset(otherStats?: FrameStatistics) {
     if (otherStats) {
       this.id = otherStats.id;
-      this.delta = otherStats.delta;
+      this.elapsedMs = otherStats.elapsedMs;
       this.fps = otherStats.fps;
       this.actors.alive = otherStats.actors.alive;
       this.actors.killed = otherStats.actors.killed;
@@ -426,7 +426,7 @@ export class FrameStats implements FrameStatistics {
       this.graphics.drawCalls = otherStats.graphics.drawCalls;
       this.graphics.drawnImages = otherStats.graphics.drawnImages;
     } else {
-      this.id = this.delta = this.fps = 0;
+      this.id = this.elapsedMs = this.fps = 0;
       this.actors.alive = this.actors.killed = this.actors.ui = 0;
       this.duration.update = this.duration.draw = 0;
       this._physicsStats.reset();
@@ -462,16 +462,16 @@ export class FrameStats implements FrameStatistics {
   /**
    * Gets the frame's delta (time since last frame)
    */
-  public get delta() {
-    return this._delta;
+  public get elapsedMs() {
+    return this._elapsedMs;
   }
 
   /**
    * Sets the frame's delta (time since last frame). Internal use only.
    * @internal
    */
-  public set delta(value: number) {
-    this._delta = value;
+  public set elapsedMs(value: number) {
+    this._elapsedMs = value;
   }
 
   /**

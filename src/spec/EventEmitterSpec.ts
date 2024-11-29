@@ -142,7 +142,7 @@ describe('An EventEmitter', () => {
 
   it('can unpipe from other emitters', () => {
     const pubSub = new ex.EventEmitter();
-    const newPubSub = new ex.EventEmitter<{someevent: number, otherevent: number}>();
+    const newPubSub = new ex.EventEmitter<{ someevent: number; otherevent: number }>();
     newPubSub.pipe(pubSub);
 
     const handler = jasmine.createSpy('handler');
@@ -162,7 +162,7 @@ describe('An EventEmitter', () => {
 
   it('can unpipe from other emitters via subscription.close()', () => {
     const pubSub = new ex.EventEmitter();
-    const newPubSub = new ex.EventEmitter<{someevent: number, otherevent: number}>();
+    const newPubSub = new ex.EventEmitter<{ someevent: number; otherevent: number }>();
     const sub = newPubSub.pipe(pubSub);
 
     const handler = jasmine.createSpy('handler');

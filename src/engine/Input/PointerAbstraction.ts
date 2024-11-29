@@ -2,6 +2,8 @@ import { Vector } from '../Math/vector';
 import { PointerEvent } from './PointerEvent';
 import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
 import { PointerEvents } from './PointerEventReceiver';
+import { GlobalCoordinates } from '../Math/global-coordinates';
+import { Engine } from '../Engine';
 
 export class PointerAbstraction {
   public events = new EventEmitter<PointerEvents>();
@@ -48,6 +50,17 @@ export class PointerAbstraction {
   public off(eventName: string): void;
   public off<TEventName extends EventKey<PointerEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
     this.events.off(eventName, handler);
+  }
+
+  /**
+   * Called internally by excalibur to keep pointers up to date
+   * @internal
+   * @param engine
+   */
+  public _updateWorldPosition(engine: Engine) {
+    const coord = GlobalCoordinates.fromPagePosition(this.lastPagePos, engine);
+    this.lastScreenPos = coord.screenPos;
+    this.lastWorldPos = coord.worldPos;
   }
 
   private _onPointerMove = (ev: PointerEvent): void => {

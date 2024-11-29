@@ -1,20 +1,21 @@
-import { Action } from '../Action';
+import { Action, nextActionId } from '../Action';
 
 export class Delay implements Action {
+  id = nextActionId();
   private _elapsedTime: number = 0;
   private _delay: number;
   private _started: boolean = false;
   private _stopped = false;
-  constructor(delay: number) {
-    this._delay = delay;
+  constructor(durationMs: number) {
+    this._delay = durationMs;
   }
 
-  public update(delta: number): void {
+  public update(elapsedMs: number): void {
     if (!this._started) {
       this._started = true;
     }
 
-    this._elapsedTime += delta;
+    this._elapsedTime += elapsedMs;
   }
 
   isComplete(): boolean {

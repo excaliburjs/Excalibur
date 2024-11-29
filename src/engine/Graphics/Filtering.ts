@@ -1,9 +1,7 @@
-
 /**
  * Describes the different image filtering modes
  */
 export enum ImageFiltering {
-
   /**
    * Pixel is useful when you do not want smoothing aka antialiasing applied to your graphics.
    *
@@ -20,10 +18,13 @@ export enum ImageFiltering {
 /**
  * Parse the image filtering attribute value, if it doesn't match returns null
  */
-export function parseImageFiltering(val: string): ImageFiltering | null {
+export function parseImageFiltering(val: string): ImageFiltering | undefined {
   switch (val) {
-    case ImageFiltering.Pixel: return ImageFiltering.Pixel;
-    case ImageFiltering.Blended: return ImageFiltering.Blended;
-    default: return null;
+    case ImageFiltering.Pixel:
+      return ImageFiltering.Pixel;
+    case ImageFiltering.Blended:
+      return ImageFiltering.Blended;
+    default:
+      return undefined;
   }
 }

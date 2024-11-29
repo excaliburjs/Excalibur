@@ -16,7 +16,6 @@ import { EventEmitter } from '../EventEmitter';
 import { Actor } from '../Actor';
 
 export class ColliderComponent extends Component {
-
   public events = new EventEmitter();
   /**
    * Observable that notifies when a collider is added to the body
@@ -37,7 +36,7 @@ export class ColliderComponent extends Component {
   /**
    * Get the current collider geometry
    */
-  public get() {
+  public get(): Collider | undefined {
     return this._collider;
   }
 
@@ -158,16 +157,10 @@ export class ColliderComponent extends Component {
       const precollision = evt as PreCollisionEvent<Collider>;
       entity.events.emit(
         'precollision',
-        new PreCollisionEvent(
-          precollision.target.owner,
-          precollision.other.owner,
-          precollision.side,
-          precollision.intersection,
-          precollision.contact
-        )
+        new PreCollisionEvent(precollision.self, precollision.other, precollision.side, precollision.intersection, precollision.contact)
       );
       if (entity instanceof Actor) {
-        entity.onPreCollisionResolve(precollision.target, precollision.other, precollision.side, precollision.contact);
+        entity.onPreCollisionResolve(precollision.self, precollision.other, precollision.side, precollision.contact);
       }
     });
     this.events.on('postcollision', (evt: any) => {
@@ -175,28 +168,29 @@ export class ColliderComponent extends Component {
       entity.events.emit(
         'postcollision',
         new PostCollisionEvent(
-          postcollision.target.owner,
-          postcollision.other.owner,
+          postcollision.self,
+          postcollision.other,
           postcollision.side,
           postcollision.intersection,
-          postcollision.contact)
+          postcollision.contact
+        )
       );
       if (entity instanceof Actor) {
-        entity.onPostCollisionResolve(postcollision.target, postcollision.other, postcollision.side, postcollision.contact);
+        entity.onPostCollisionResolve(postcollision.self, postcollision.other, postcollision.side, postcollision.contact);
       }
     });
     this.events.on('collisionstart', (evt: any) => {
       const start = evt as CollisionStartEvent<Collider>;
-      entity.events.emit('collisionstart', new CollisionStartEvent(start.target.owner, start.other.owner, start.side, start.contact));
+      entity.events.emit('collisionstart', new CollisionStartEvent(start.self, start.other, start.side, start.contact));
       if (entity instanceof Actor) {
-        entity.onCollisionStart(start.target, start.other, start.side, start.contact);
+        entity.onCollisionStart(start.self, start.other, start.side, start.contact);
       }
     });
     this.events.on('collisionend', (evt: any) => {
       const end = evt as CollisionEndEvent<Collider>;
-      entity.events.emit('collisionend', new CollisionEndEvent(end.target.owner, end.other.owner, end.side, end.lastContact));
+      entity.events.emit('collisionend', new CollisionEndEvent(end.self, end.other, end.side, end.lastContact));
       if (entity instanceof Actor) {
-        entity.onCollisionEnd(end.target, end.other, end.side, end.lastContact);
+        entity.onCollisionEnd(end.self, end.other, end.side, end.lastContact);
       }
     });
   }
@@ -215,11 +209,11 @@ export class ColliderComponent extends Component {
    */
   useBoxCollider(width: number, height: number, anchor: Vector = Vector.Half, center: Vector = Vector.Zero): PolygonCollider {
     const collider = Shape.Box(width, height, anchor, center);
-    return (this.set(collider));
+    return this.set(collider);
   }
 
   /**
-   * Sets up a [[PolygonCollider|polygon]] collision geometry based on a list of of points relative
+   * Sets up a {@apilink PolygonCollider | `polygon`} collision geometry based on a list of of points relative
    *  to the anchor of the associated actor
    * of this physics body.
    *
@@ -229,35 +223,35 @@ export class ColliderComponent extends Component {
    */
   usePolygonCollider(points: Vector[], center: Vector = Vector.Zero): PolygonCollider {
     const poly = Shape.Polygon(points, center);
-    return (this.set(poly));
+    return this.set(poly);
   }
 
   /**
-   * Sets up a [[Circle|circle collision geometry]] as the only collider with a specified radius in pixels.
+   * Sets up a {@apilink Circle | `circle collision geometry`} as the only collider with a specified radius in pixels.
    *
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
   useCircleCollider(radius: number, center: Vector = Vector.Zero): CircleCollider {
     const collider = Shape.Circle(radius, center);
-    return (this.set(collider));
+    return this.set(collider);
   }
 
   /**
-   * Sets up an [[Edge|edge collision geometry]] with a start point and an end point relative to the anchor of the associated actor
+   * Sets up an {@apilink Edge | `edge collision geometry`} with a start point and an end point relative to the anchor of the associated actor
    * of this physics body.
    *
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
   useEdgeCollider(begin: Vector, end: Vector): EdgeCollider {
     const collider = Shape.Edge(begin, end);
-    return (this.set(collider));
+    return this.set(collider);
   }
 
   /**
-   * Setups up a [[CompositeCollider]] which can define any arbitrary set of excalibur colliders
+   * Setups up a {@apilink CompositeCollider} which can define any arbitrary set of excalibur colliders
    * @param colliders
    */
   useCompositeCollider(colliders: Collider[]): CompositeCollider {
-    return (this.set(new CompositeCollider(colliders)));
+    return this.set(new CompositeCollider(colliders));
   }
 }

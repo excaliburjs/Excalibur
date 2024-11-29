@@ -10,6 +10,14 @@ You can instantiate the [[Random]] class with an optional seed number. You can
 reuse this seed anytime to get the exact sequence of random numbers back. If no
 seed is provided, it uses `Date.now()` ticks as the seed.
 
+:::warning
+
+Avoid creating multiple instances of `new ex.Random()`, if you create many in the same moment they will share the same `Date.now()` seed and will produce the same sequence of numbers.
+
+It is recommended to create 1 instance of your seeded random and share it across your game.
+
+:::
+
 ```ts
 const rand = new ex.Random(1234)
 

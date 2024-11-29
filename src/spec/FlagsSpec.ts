@@ -18,13 +18,7 @@ describe('Feature Flags', () => {
     ex.Flags.enable('some-flag-3');
     ex.Flags.disable('some-flag-4');
     ex.Flags.enable('some-flag-5');
-    expect(ex.Flags.show()).toEqual([
-      'some-flag-1',
-      'some-flag-2',
-      'some-flag-3',
-      'some-flag-4',
-      'some-flag-5'
-    ]);
+    expect(ex.Flags.show()).toEqual(['some-flag-1', 'some-flag-2', 'some-flag-3', 'some-flag-4', 'some-flag-5']);
   });
 
   it('should let you set flags', () => {
@@ -33,7 +27,7 @@ describe('Feature Flags', () => {
     expect(ex.Flags.isEnabled('some-flag')).toBeTrue();
   });
 
-  it('should let you disable flags',( ) => {
+  it('should let you disable flags', () => {
     ex.Flags.disable('some-other-flag');
 
     expect(ex.Flags.isEnabled('some-other-flag')).toBeFalse();
@@ -71,12 +65,11 @@ describe('Feature Flags', () => {
       ex.Flags.disable('some-flag');
     }).not.toThrow();
 
-    const engine = new ex.Engine({ suppressConsoleBootMessage: true});
+    const engine = new ex.Engine({ suppressConsoleBootMessage: true });
 
     expect(() => {
       ex.Flags.disable('some-flag');
     }).toThrow();
     engine.dispose();
   });
-
 });

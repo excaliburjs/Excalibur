@@ -3,7 +3,32 @@ import { DeepRequired } from '../Util/Required';
 import { SolverStrategy } from './SolverStrategy';
 import { Physics } from './Physics';
 import { ContactSolveBias } from './Solver/ContactBias';
+import { SpatialPartitionStrategy } from './Detection/SpatialPartitionStrategy';
 
+export interface DynamicTreeConfig {
+  /**
+   * Pad collider BoundingBox by a constant amount for purposes of potential pairs
+   *
+   * Default 5 pixels
+   */
+  boundsPadding?: number;
+
+  /**
+   * Factor to add to the collider BoundingBox, bounding box (dimensions += vel * dynamicTreeVelocityMultiplier);
+   *
+   * Default 2
+   */
+  velocityMultiplier?: number;
+}
+
+export interface SparseHashGridConfig {
+  /**
+   * Size of the grid cells, default is 100x100 pixels.
+   *
+   * A good size means that your average collider in your game would fit inside the cell size by size dimension.
+   */
+  size: number;
+}
 
 export interface PhysicsConfig {
   /**
@@ -11,24 +36,31 @@ export interface PhysicsConfig {
    */
   enabled?: boolean;
   /**
-   * Configure gravity that applies to all [[CollisionType.Active]] bodies.
+   * Configure gravity that applies to all {@apilink CollisionType.Active} bodies.
    *
    * This is acceleration in pixels/sec^2
    *
    * Default vec(0, 0)
    *
-   * [[BodyComponent.useGravity]] to opt out
+   * {@apilink BodyComponent.useGravity} to opt out
    */
   gravity?: Vector;
   /**
    * Configure the type of physics simulation you would like
    *
-   * * [[SolverStrategy.Arcade]] is suitable for games where you might be doing platforming or top down movement.
-   * * [[SolverStrategy.Realistic]] is where you need objects to bounce off each other and respond like real world objects.
+   * * {@apilink SolverStrategy.Arcade} is suitable for games where you might be doing platforming or top down movement.
+   * * {@apilink SolverStrategy.Realistic} is where you need objects to bounce off each other and respond like real world objects.
    *
    * Default is Arcade
    */
   solver?: SolverStrategy;
+
+  /**
+   * Configure physics sub-stepping, this can increase simulation fidelity by doing smaller physics steps
+   *
+   * Default is 1 step
+   */
+  substep?: number;
 
   /**
    * Configure colliders
@@ -38,7 +70,7 @@ export interface PhysicsConfig {
      * Treat composite collider's member colliders as either separate colliders for the purposes of onCollisionStart/onCollision
      * or as a single collider together.
      *
-     * This property can be overridden on individual [[CompositeColliders]].
+     * This property can be overridden on individual {@apilink CompositeColliders}.
      *
      * For composites without gaps or small groups of colliders, you probably want 'together'
      *
@@ -46,14 +78,13 @@ export interface PhysicsConfig {
      *
      * Default is 'together' if unset
      */
-    compositeStrategy?: 'separate' | 'together'
-  }
+    compositeStrategy?: 'separate' | 'together';
+  };
 
   /**
    * Configure excalibur continuous collision (WIP)
    */
   continuous?: {
-
     /**
      * Enable fast moving body checking, this enables checking for collision pairs via raycast for fast moving objects to prevent
      * bodies from tunneling through one another.
@@ -77,7 +108,7 @@ export interface PhysicsConfig {
      * Default 0.1
      */
     surfaceEpsilon?: number;
-  }
+  };
 
   /**
    * Configure body defaults
@@ -117,46 +148,34 @@ export interface PhysicsConfig {
      * Default false
      */
     canSleepByDefault?: boolean;
-  }
+  };
 
   /**
-   * Configure the dynamic tree spatial data structure for locating pairs and raycasts
+   * Configure the spatial data structure for locating pairs and raycasts
    */
-  dynamicTree?: {
-    /**
-     * Pad collider BoundingBox by a constant amount for purposes of potential pairs
-     *
-     * Default 5 pixels
-     */
-    boundsPadding?: number;
-
-    /**
-     * Factor to add to the collider BoundingBox, bounding box (dimensions += vel * dynamicTreeVelocityMultiplier);
-     *
-     * Default 2
-     */
-    velocityMultiplier?: number;
-  }
+  spatialPartition?: SpatialPartitionStrategy;
+  sparseHashGrid?: SparseHashGridConfig;
+  dynamicTree?: DynamicTreeConfig;
 
   /**
-   * Configure the [[ArcadeSolver]]
+   * Configure the {@apilink ArcadeSolver}
    */
   arcade?: {
     /**
-     * Hints the [[ArcadeSolver]] to preferentially solve certain contact directions first.
+     * Hints the {@apilink ArcadeSolver} to preferentially solve certain contact directions first.
      *
      * Options:
-     * * Solve [[ContactSolveBias.VerticalFirst]] which will do vertical contact resolution first (useful for platformers
+     * * Solve {@apilink ContactSolveBias.VerticalFirst} which will do vertical contact resolution first (useful for platformers
      * with up/down gravity)
-     * * Solve [[ContactSolveBias.HorizontalFirst]] which will do horizontal contact resolution first (useful for games with
+     * * Solve {@apilink ContactSolveBias.HorizontalFirst} which will do horizontal contact resolution first (useful for games with
      * left/right forces)
-     * * By default [[ContactSolveBias.None]] which sorts by distance
+     * * By default {@apilink ContactSolveBias.None} which sorts by distance
      */
     contactSolveBias?: ContactSolveBias;
-  }
+  };
 
   /**
-   * Configure the [[RealisticSolver]]
+   * Configure the {@apilink RealisticSolver}
    */
   realistic?: {
     /**
@@ -195,13 +214,14 @@ export interface PhysicsConfig {
      * Default true
      */
     warmStart?: boolean;
-  }
+  };
 }
 
 export const DefaultPhysicsConfig: DeepRequired<PhysicsConfig> = {
   enabled: true,
   gravity: vec(0, 0),
   solver: SolverStrategy.Arcade,
+  substep: 1,
   colliders: {
     compositeStrategy: 'together'
   },
@@ -216,6 +236,10 @@ export const DefaultPhysicsConfig: DeepRequired<PhysicsConfig> = {
     wakeThreshold: 0.07 * 3,
     sleepBias: 0.9,
     defaultMass: 10
+  },
+  spatialPartition: SpatialPartitionStrategy.SparseHashGrid,
+  sparseHashGrid: {
+    size: 100
   },
   dynamicTree: {
     boundsPadding: 5,
@@ -239,8 +263,9 @@ export const DefaultPhysicsConfig: DeepRequired<PhysicsConfig> = {
 export function DeprecatedStaticToConfig(): DeepRequired<PhysicsConfig> {
   return {
     enabled: Physics.enabled,
-    gravity: Physics.gravity,
+    gravity: Physics.gravity.clone(),
     solver: Physics.collisionResolutionStrategy,
+    substep: 1,
     continuous: {
       checkForFastBodies: Physics.checkForFastBodies,
       disableMinimumSpeedForFastBody: Physics.disableMinimumSpeedForFastBody,
@@ -255,6 +280,10 @@ export function DeprecatedStaticToConfig(): DeepRequired<PhysicsConfig> {
       wakeThreshold: Physics.wakeThreshold,
       sleepBias: Physics.sleepBias,
       defaultMass: Physics.defaultMass
+    },
+    spatialPartition: SpatialPartitionStrategy.SparseHashGrid,
+    sparseHashGrid: {
+      size: 100
     },
     dynamicTree: {
       boundsPadding: Physics.boundsPadding,

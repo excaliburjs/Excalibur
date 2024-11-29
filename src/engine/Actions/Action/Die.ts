@@ -1,8 +1,9 @@
 import { Entity } from '../../EntityComponentSystem/Entity';
-import { Action } from '../Action';
+import { Action, nextActionId } from '../Action';
 import { ActionsComponent } from '../ActionsComponent';
 
 export class Die implements Action {
+  id = nextActionId();
   private _entity: Entity;
   private _stopped = false;
 
@@ -10,7 +11,7 @@ export class Die implements Action {
     this._entity = entity;
   }
 
-  public update(_delta: number): void {
+  public update(elapsedMs: number): void {
     this._entity.get(ActionsComponent).clearActions();
     this._entity.kill();
     this._stopped = true;

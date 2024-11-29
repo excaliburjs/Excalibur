@@ -2,7 +2,7 @@ import { GameEvent } from './Events';
 import { Eventable } from './Interfaces/Evented';
 
 /**
- * @deprecated Use [[EventEmitter]] will be removed in v0.29.0
+ * @deprecated Use {@apilink EventEmitter} will be removed in v0.29.0
  */
 export class EventDispatcher<T = any> implements Eventable {
   private _handlers: { [key: string]: { (event: GameEvent<T>): void }[] } = {};
@@ -16,7 +16,7 @@ export class EventDispatcher<T = any> implements Eventable {
     this._wiredEventDispatchers = [];
   }
 
-  private _deferedHandlerRemovals: {name: string, handler?: (...args: any[]) => any }[] = [];
+  private _deferedHandlerRemovals: { name: string; handler?: (...args: any[]) => any }[] = [];
   private _processDeferredHandlerRemovals() {
     for (const eventHandler of this._deferedHandlerRemovals) {
       this._removeHandler(eventHandler.name, eventHandler.handler);
@@ -80,7 +80,7 @@ export class EventDispatcher<T = any> implements Eventable {
    * @param handler    Optionally the specific handler to unsubscribe
    */
   public off(eventName: string, handler?: (event: GameEvent<T>) => void) {
-    this._deferedHandlerRemovals.push({name: eventName, handler});
+    this._deferedHandlerRemovals.push({ name: eventName, handler });
   }
 
   private _removeHandler(eventName: string, handler?: (event: GameEvent<T>) => void) {

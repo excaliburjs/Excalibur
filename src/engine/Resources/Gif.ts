@@ -1,14 +1,12 @@
 import { Resource } from './Resource';
 import { Sprite } from '../Graphics/Sprite';
-import { Color } from '../Color';
 import { SpriteSheet } from '../Graphics/SpriteSheet';
 import { Animation } from '../Graphics/Animation';
 import { Loadable } from '../Interfaces/Index';
 import { ImageSource } from '../Graphics/ImageSource';
-import { range } from '../Math/util';
 /**
- * The [[Texture]] object allows games built in Excalibur to load image resources.
- * [[Texture]] is an [[Loadable]] which means it can be passed to a [[Loader]]
+ * The {@apilink Texture} object allows games built in Excalibur to load image resources.
+ * {@apilink Texture} is an {@apilink Loadable} which means it can be passed to a {@apilink Loader}
  * to pre-load before starting a level or game.
  */
 export class Gif implements Loadable<ImageSource[]> {
@@ -17,30 +15,30 @@ export class Gif implements Loadable<ImageSource[]> {
   /**
    * The width of the texture in pixels
    */
-  public width: number;
+  public width: number = 0;
 
   /**
    * The height of the texture in pixels
    */
-  public height: number;
+  public height: number = 0;
 
+  private _stream?: Stream;
+  private _gif?: GifParser;
+  private _images: ImageSource[] = [];
+  private _animation?: Animation;
 
-  private _stream: Stream = null;
-  private _gif: ParseGif = null;
-  private _textures: ImageSource[] = [];
-  private _animation: Animation = null;
-  private _transparentColor: Color = null;
-
-  public data: ImageSource[];
+  public data: ImageSource[] = [];
+  private _sprites: Sprite[] = [];
 
   /**
    * @param path       Path to the image resource
-   * @param color      Optionally set the color to treat as transparent the gif, by default [[Color.Magenta]]
    * @param bustCache  Optionally load texture with cache busting
    */
-  constructor(public path: string, public color: Color = Color.Magenta, bustCache = false) {
+  constructor(
+    public path: string,
+    bustCache = false
+  ) {
     this._resource = new Resource(path, 'arraybuffer', bustCache);
-    this._transparentColor = color;
   }
 
   /**
@@ -61,12 +59,15 @@ export class Gif implements Loadable<ImageSource[]> {
   public async load(): Promise<ImageSource[]> {
     const arraybuffer = await this._resource.load();
     this._stream = new Stream(arraybuffer);
-    this._gif = new ParseGif(this._stream, this._transparentColor);
-    const images = this._gif.images.map(i => new ImageSource(i.src, false));
-
+    this._gif = new GifParser(this._stream);
+    const images = this._gif.images.map((i) => new ImageSource(i.src, false));
     // Load all textures
-    await Promise.all(images.map(t => t.load()));
-    return this.data = this._textures = images;
+    await Promise.all(images.map((t) => t.load()));
+    this.data = this._images = images;
+    this._sprites = this._images.map((image) => {
+      return image.toSprite();
+    });
+    return this.data;
   }
 
   public isLoaded() {
@@ -77,33 +78,47 @@ export class Gif implements Loadable<ImageSource[]> {
    * Return a frame of the gif as a sprite by id
    * @param id
    */
-  public toSprite(id: number = 0): Sprite {
-    const sprite = this._textures[id].toSprite();
-    return sprite;
+  public toSprite(id: number = 0): Sprite | null {
+    return this._sprites[id] ?? null;
   }
 
   /**
    * Return the gif as a spritesheet
    */
-  public toSpriteSheet(): SpriteSheet {
-    const sprites: Sprite[] = this._textures.map((image) => {
-      return image.toSprite();
-    });
-    return new SpriteSheet({ sprites });
+  public toSpriteSheet(): SpriteSheet | null {
+    const sprites: Sprite[] = this._sprites;
+    if (sprites.length) {
+      return new SpriteSheet({ sprites });
+    }
+
+    return null;
   }
 
   /**
    * Transform the GIF into an animation with duration per frame
+   * @param durationPerFrameMs Optionally override duration per frame
    */
-  public toAnimation(durationPerFrameMs: number): Animation {
-    const spriteSheet: SpriteSheet = this.toSpriteSheet();
-    const length = spriteSheet.sprites.length;
-    this._animation = Animation.fromSpriteSheet(spriteSheet, range(0, length), durationPerFrameMs);
-    return this._animation;
+  public toAnimation(durationPerFrameMs?: number): Animation | null {
+    const images = this._gif?.images;
+    if (images?.length) {
+      const frames = images.map((image, index) => {
+        return {
+          graphic: this._sprites[index],
+          duration: this._gif?.frames[index].delayMs || undefined
+        };
+      });
+      this._animation = new Animation({
+        frames,
+        frameDuration: durationPerFrameMs
+      });
+
+      return this._animation;
+    }
+    return null;
   }
 
   public get readCheckBytes(): number[] {
-    return this._gif.checkBytes;
+    return this._gif?.checkBytes ?? [];
   }
 }
 
@@ -115,12 +130,15 @@ export interface GifFrame {
   width: number;
   height: number;
   lctFlag: boolean;
+  lctBytes: [number, number, number][];
   interlaced: boolean;
   sorted: boolean;
   reserved: boolean[];
   lctSize: number;
   lzwMinCodeSize: number;
   pixels: number[];
+  delayTime: number;
+  delayMs: number;
 }
 
 const bitsToNum = (ba: any) => {
@@ -129,16 +147,16 @@ const bitsToNum = (ba: any) => {
   }, 0);
 };
 
-const byteToBitArr = (bite: any) => {
+const byteToBitArr = (bite: number) => {
   const a = [];
   for (let i = 7; i >= 0; i--) {
     a.push(!!(bite & (1 << i)));
   }
-  return a;
+  return a as [boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean];
 };
 
 export class Stream {
-  data: any = null;
+  data: Uint8Array;
   len: number = 0;
   position: number = 0;
 
@@ -214,8 +232,8 @@ const lzwDecode = function (minCodeSize: number, data: any) {
     dict[eoiCode] = null;
   };
 
-  let code;
-  let last;
+  let code = 0;
+  let last = 0;
 
   while (true) {
     last = code;
@@ -251,41 +269,72 @@ const lzwDecode = function (minCodeSize: number, data: any) {
   return output;
 };
 
-// The actual parsing; returns an object with properties.
-export class ParseGif {
-  private _st: Stream = null;
+interface GifBlock {
+  sentinel: number;
+  type: string;
+}
+
+interface GifHeader {
+  sig: string;
+  ver: string;
+  width: number;
+  height: number;
+  colorResolution: number;
+  globalColorTableSize: number;
+  gctFlag: boolean;
+  sortedFlag: boolean;
+  globalColorTable: [number, number, number][];
+  backgroundColorIndex: number;
+  pixelAspectRatio: number; // if not 0, aspectRatio = (pixelAspectRatio + 15) / 64
+}
+
+interface GCExtBlock extends GifBlock {
+  type: 'ext';
+  label: number;
+  extType: string;
+  reserved: boolean[];
+  disposalMethod: number;
+  userInputFlag: boolean;
+  transparentColorFlag: boolean;
+  delayTime: number;
+  transparentColorIndex: number;
+  terminator: number;
+}
+
+/**
+ * GifParser for binary format
+ *
+ * Roughly based on the documentation https://giflib.sourceforge.net/whatsinagif/index.html
+ */
+export class GifParser {
+  private _st: Stream;
   private _handler: any = {};
-  private _transparentColor: Color = null;
   public frames: GifFrame[] = [];
   public images: HTMLImageElement[] = [];
-  public globalColorTable: any[] = [];
+  private _currentFrameCanvas: HTMLCanvasElement;
+  private _currentFrameContext: CanvasRenderingContext2D;
+  public globalColorTableBytes: [number, number, number][] = [];
   public checkBytes: number[] = [];
+  private _gce?: GCExtBlock;
+  private _hdr?: GifHeader;
 
-  constructor(stream: Stream, color: Color = Color.Magenta) {
+  constructor(stream: Stream) {
     this._st = stream;
     this._handler = {};
-    this._transparentColor = color;
+    this._currentFrameCanvas = document.createElement('canvas');
+    this._currentFrameContext = this._currentFrameCanvas.getContext('2d')!;
     this.parseHeader();
-    this.parseBlock();
+    this.parseBlocks();
   }
 
-  // LZW (GIF-specific)
-  parseColorTable = (entries: any) => {
+  parseColorTableBytes = (entries: number) => {
     // Each entry is 3 bytes, for RGB.
-    const ct = [];
+    const colorTable: [number, number, number][] = [];
     for (let i = 0; i < entries; i++) {
-      const rgb: number[] = this._st.readBytes(3);
-      const rgba =
-        '#' +
-        rgb
-          .map((x: any) => {
-            const hex = x.toString(16);
-            return hex.length === 1 ? '0' + hex : hex;
-          })
-          .join('');
-      ct.push(rgba);
+      const rgb = this._st.readBytes(3) as [number, number, number];
+      colorTable.push(rgb);
     }
-    return ct;
+    return colorTable;
   };
 
   readSubBlocks = () => {
@@ -299,18 +348,18 @@ export class ParseGif {
   };
 
   parseHeader = () => {
-    const hdr: any = {
-      sig: null,
-      ver: null,
-      width: null,
-      height: null,
-      colorRes: null,
-      globalColorTableSize: null,
-      gctFlag: null,
-      sorted: null,
+    const hdr: GifHeader = {
+      sig: '',
+      ver: '',
+      width: 0,
+      height: 0,
+      colorResolution: 0,
+      globalColorTableSize: 0,
+      gctFlag: false,
+      sortedFlag: false,
       globalColorTable: [],
-      bgColor: null,
-      pixelAspectRatio: null // if not 0, aspectRatio = (pixelAspectRatio + 15) / 64
+      backgroundColorIndex: 0,
+      pixelAspectRatio: 0 // if not 0, aspectRatio = (pixelAspectRatio + 15) / 64
     };
 
     hdr.sig = this._st.read(3);
@@ -322,43 +371,47 @@ export class ParseGif {
     hdr.width = this._st.readUnsigned();
     hdr.height = this._st.readUnsigned();
 
+    this._currentFrameCanvas.width = hdr.width;
+    this._currentFrameCanvas.height = hdr.height;
+
     const bits = byteToBitArr(this._st.readByte());
-    hdr.gctFlag = bits.shift();
-    hdr.colorRes = bitsToNum(bits.splice(0, 3));
-    hdr.sorted = bits.shift();
+    hdr.gctFlag = bits.shift()!;
+    hdr.colorResolution = bitsToNum(bits.splice(0, 3));
+    hdr.sortedFlag = bits.shift()!;
     hdr.globalColorTableSize = bitsToNum(bits.splice(0, 3));
 
-    hdr.bgColor = this._st.readByte();
+    hdr.backgroundColorIndex = this._st.readByte();
     hdr.pixelAspectRatio = this._st.readByte(); // if not 0, aspectRatio = (pixelAspectRatio + 15) / 64
 
     if (hdr.gctFlag) {
-      hdr.globalColorTable = this.parseColorTable(1 << (hdr.globalColorTableSize + 1));
-      this.globalColorTable = hdr.globalColorTable;
+      // hdr.globalColorTable = this.parseColorTable(1 << (hdr.globalColorTableSize + 1));
+      this.globalColorTableBytes = this.parseColorTableBytes(1 << (hdr.globalColorTableSize + 1));
     }
     if (this._handler.hdr && this._handler.hdr(hdr)) {
       this.checkBytes.push(this._handler.hdr);
     }
   };
 
-  parseExt = (block: any) => {
-    const parseGCExt = (block: any) => {
+  parseExt = (block: GCExtBlock) => {
+    const parseGCExt = (block: GCExtBlock) => {
       this.checkBytes.push(this._st.readByte()); // Always 4
 
       const bits = byteToBitArr(this._st.readByte());
       block.reserved = bits.splice(0, 3); // Reserved; should be 000.
       block.disposalMethod = bitsToNum(bits.splice(0, 3));
-      block.userInput = bits.shift();
-      block.transparencyGiven = bits.shift();
+      block.userInputFlag = bits.shift()!;
+      block.transparentColorFlag = bits.shift()!;
 
       block.delayTime = this._st.readUnsigned();
 
-      block.transparencyIndex = this._st.readByte();
+      block.transparentColorIndex = this._st.readByte();
 
-      block.terminator = this._st.readByte();
+      block.terminator = this._st.readByte(); // always 0
 
       if (this._handler.gce && this._handler.gce(block)) {
         this.checkBytes.push(this._handler.gce);
       }
+      return block;
     };
 
     const parseComExt = (block: any) => {
@@ -420,7 +473,7 @@ export class ParseGif {
     switch (block.label) {
       case 0xf9:
         block.extType = 'gce';
-        parseGCExt(block);
+        this._gce = parseGCExt(block);
         break;
       case 0xfe:
         block.extType = 'com';
@@ -441,16 +494,16 @@ export class ParseGif {
     }
   };
 
-  parseImg = (img: any) => {
-    const deinterlace = (pixels: any, width: any) => {
+  parseImg = (img: GifFrame) => {
+    const deinterlace = (pixels: number[], width: number) => {
       // Of course this defeats the purpose of interlacing. And it's *probably*
       // the least efficient way it's ever been implemented. But nevertheless...
 
-      const newPixels = new Array(pixels.length);
+      const newPixels: number[] = new Array(pixels.length);
       const rows = pixels.length / width;
-      const cpRow = (toRow: any, fromRow: any) => {
+      const cpRow = (toRow: number, fromRow: number) => {
         const fromPixels = pixels.slice(fromRow * width, (fromRow + 1) * width);
-        newPixels.splice.apply(newPixels, [toRow * width, width].concat(fromPixels));
+        newPixels.splice.apply(newPixels, [toRow * width, width].concat(fromPixels) as any);
       };
 
       const offsets = [0, 4, 2, 1];
@@ -473,14 +526,14 @@ export class ParseGif {
     img.height = this._st.readUnsigned();
 
     const bits = byteToBitArr(this._st.readByte());
-    img.lctFlag = bits.shift();
-    img.interlaced = bits.shift();
-    img.sorted = bits.shift();
+    img.lctFlag = bits.shift()!;
+    img.interlaced = bits.shift()!;
+    img.sorted = bits.shift()!;
     img.reserved = bits.splice(0, 2);
     img.lctSize = bitsToNum(bits.splice(0, 3));
 
     if (img.lctFlag) {
-      img.lct = this.parseColorTable(1 << (img.lctSize + 1));
+      img.lctBytes = this.parseColorTableBytes(1 << (img.lctSize + 1));
     }
 
     img.lzwMinCodeSize = this._st.readByte();
@@ -494,15 +547,19 @@ export class ParseGif {
       img.pixels = deinterlace(img.pixels, img.width);
     }
 
+    if (this._gce?.delayTime) {
+      img.delayMs = this._gce.delayTime * 10;
+    }
+
     this.frames.push(img);
-    this.arrayToImage(img);
+    this.arrayToImage(img, img.lctFlag ? img.lctBytes : this.globalColorTableBytes);
     if (this._handler.img && this._handler.img(img)) {
       this.checkBytes.push(this._handler);
     }
   };
 
-  public parseBlock = () => {
-    const block = {
+  public parseBlocks = () => {
+    const block: GifBlock = {
       sentinel: this._st.readByte(),
       type: ''
     };
@@ -510,11 +567,11 @@ export class ParseGif {
     switch (blockChar) {
       case '!':
         block.type = 'ext';
-        this.parseExt(block);
+        this.parseExt(block as GCExtBlock);
         break;
       case ',':
         block.type = 'img';
-        this.parseImg(block);
+        this.parseImg(block as any);
         break;
       case ';':
         block.type = 'eof';
@@ -527,37 +584,51 @@ export class ParseGif {
     }
 
     if (block.type !== 'eof') {
-      this.parseBlock();
+      this.parseBlocks();
     }
   };
 
-  arrayToImage = (frame: GifFrame) => {
-    let count = 0;
-    const c = document.createElement('canvas');
-    c.id = count.toString();
-    c.width = frame.width;
-    c.height = frame.height;
-    count++;
-    const context = c.getContext('2d');
-    const pixSize = 1;
-    let y = 0;
-    let x = 0;
-    for (let i = 0; i < frame.pixels.length; i++) {
-      if (x % frame.width === 0) {
-        y++;
-        x = 0;
-      }
-      if (this.globalColorTable[frame.pixels[i]] === this._transparentColor.toHex()) {
-        context.fillStyle = `rgba(0, 0, 0, 0)`;
-      } else {
-        context.fillStyle = this.globalColorTable[frame.pixels[i]];
-      }
+  arrayToImage = (frame: GifFrame, colorTable: [number, number, number][]) => {
+    const canvas = document.createElement('canvas')!;
+    canvas.width = frame.width;
+    canvas.height = frame.height;
+    const context = canvas.getContext('2d')!;
+    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
 
-      context.fillRect(x, y, pixSize, pixSize);
-      x++;
+    let transparentColorIndex = -1;
+    if (this._gce?.transparentColorFlag) {
+      transparentColorIndex = this._gce.transparentColorIndex;
     }
+
+    for (let pixel = 0; pixel < frame.pixels.length; pixel++) {
+      const colorIndex = frame.pixels[pixel];
+      const color = colorTable[colorIndex];
+      if (colorIndex === transparentColorIndex) {
+        imageData.data.set([0, 0, 0, 0], pixel * 4);
+      } else {
+        imageData.data.set([...color, 255], pixel * 4);
+      }
+    }
+    context.putImageData(imageData, 0, 0);
+
+    // A value of 1 which tells the decoder to leave the image in place and draw the next image on top of it.
+    // A value of 2 would have meant that the canvas should be restored to the background color (as indicated by the logical screen descriptor).
+    // A value of 3 is defined to mean that the decoder should restore the canvas to its previous state before the current image was drawn.
+    // The behavior for values 4-7 are yet to be defined.
+    if (this._gce?.disposalMethod === 1 && this.images.length) {
+      this._currentFrameContext.drawImage(this.images[this.images.length - 1]!, 0, 0);
+    } else if (this._gce?.disposalMethod === 2 && this._hdr?.gctFlag) {
+      const bg = colorTable[this._hdr.backgroundColorIndex];
+      this._currentFrameContext.fillStyle = `rgb(${bg[0]}, ${bg[1]}, ${bg[2]})`;
+      this._currentFrameContext.fillRect(0, 0, this._hdr.width, this._hdr.height);
+    } else {
+      this._currentFrameContext.clearRect(0, 0, this._currentFrameCanvas.width, this._currentFrameCanvas.height);
+    }
+
+    this._currentFrameContext.drawImage(canvas, frame.leftPos, frame.topPos, frame.width, frame.height);
+
     const img = new Image();
-    img.src = c.toDataURL();
+    img.src = this._currentFrameCanvas.toDataURL(); // default is png
     this.images.push(img);
   };
 }

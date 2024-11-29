@@ -14,6 +14,7 @@ export * from './Colliders/EdgeCollider';
 export * from './Colliders/PolygonCollider';
 export * from './Colliders/CollisionJumpTable';
 export * from './Colliders/ClosestLineJumpTable';
+export * from './Colliders/SeparatingAxis';
 
 export * from './Group/CollisionGroup';
 export * from './Group/CollisionGroupManager';
@@ -21,9 +22,13 @@ export * from './Group/CollisionGroupManager';
 export * from './Detection/Pair';
 export * from './Detection/CollisionContact';
 export * from './Detection/RayCastHit';
+export * from './Detection/RayCastOptions';
 export * from './Detection/CollisionProcessor';
 export * from './Detection/DynamicTree';
 export * from './Detection/DynamicTreeCollisionProcessor';
+export * from './Detection/SparseHashGridCollisionProcessor';
+export * from './Detection/SparseHashGrid';
+export * from './Detection/SpatialPartitionStrategy';
 export * from './Detection/QuadTree';
 
 export * from './Solver/ArcadeSolver';

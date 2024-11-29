@@ -4,12 +4,12 @@ import { TestUtils } from './util/TestUtils';
 import { BodyComponent } from '@excalibur';
 import { ColliderComponent } from '../engine/Collision/ColliderComponent';
 
-const drawWithTransform = (ctx: ex.ExcaliburGraphicsContext, tm: ex.TileMap, delta: number = 1) => {
+const drawWithTransform = (ctx: ex.ExcaliburGraphicsContext, tm: ex.TileMap, elapsedMs: number = 1) => {
   ctx.save();
   ctx.translate(tm.pos.x, tm.pos.y);
   ctx.rotate(tm.rotation);
   ctx.scale(tm.scale.x, tm.scale.y);
-  tm.draw(ctx, delta);
+  tm.draw(ctx, elapsedMs);
   ctx.restore();
 };
 
@@ -233,7 +233,7 @@ describe('A TileMap', () => {
       columns: 7
     });
     const spriteTiles = ex.SpriteSheet.fromImageSource({
-      image:texture,
+      image: texture,
       grid: {
         rows: 1,
         columns: 1,
@@ -316,7 +316,7 @@ describe('A TileMap', () => {
       columns: 20
     });
     const spriteTiles = ex.SpriteSheet.fromImageSource({
-      image:texture,
+      image: texture,
       grid: {
         rows: 1,
         columns: 1,
@@ -349,7 +349,7 @@ describe('A TileMap', () => {
     });
     tm.scale = ex.vec(2, 2);
     const spriteTiles = ex.SpriteSheet.fromImageSource({
-      image:texture,
+      image: texture,
       grid: {
         rows: 1,
         columns: 1,
@@ -479,7 +479,6 @@ describe('A TileMap', () => {
       columns: 20
     });
 
-
     const tile = sut.getTile(0, 0);
     tile.solid = true;
 
@@ -517,12 +516,14 @@ describe('A TileMap', () => {
     });
 
     const tile = sut.getTile(0, 0);
-    expect(tile.bounds).toEqual(new ex.BoundingBox({
-      left: 100,
-      top: 100,
-      right: 164,
-      bottom: 148
-    }));
+    expect(tile.bounds).toEqual(
+      new ex.BoundingBox({
+        left: 100,
+        top: 100,
+        right: 164,
+        bottom: 148
+      })
+    );
   });
 
   it('can get the center of a tile', () => {
@@ -539,7 +540,7 @@ describe('A TileMap', () => {
   });
 
   it('can respond to pointer events', async () => {
-    const engine = TestUtils.engine({width: 100, height: 100});
+    const engine = TestUtils.engine({ width: 100, height: 100 });
     await TestUtils.runToReady(engine);
     const sut = new ex.TileMap({
       pos: ex.vec(100, 100),

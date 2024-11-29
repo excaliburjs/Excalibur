@@ -11,14 +11,14 @@ import { Logger } from '../../Util/Log';
 import { EventEmitter, EventKey, Handler, Subscription } from '../../EventEmitter';
 
 export type SoundEvents = {
-  volumechange: NativeSoundEvent,
-  processed: NativeSoundProcessedEvent,
-  pause: NativeSoundEvent,
-  stop: NativeSoundEvent,
-  playbackend: NativeSoundEvent,
-  resume: NativeSoundEvent,
-  playbackstart: NativeSoundEvent
-}
+  volumechange: NativeSoundEvent;
+  processed: NativeSoundProcessedEvent;
+  pause: NativeSoundEvent;
+  stop: NativeSoundEvent;
+  playbackend: NativeSoundEvent;
+  resume: NativeSoundEvent;
+  playbackstart: NativeSoundEvent;
+};
 
 export const SoundEvents = {
   VolumeChange: 'volumechange',
@@ -31,14 +31,14 @@ export const SoundEvents = {
 };
 
 /**
- * The [[Sound]] object allows games built in Excalibur to load audio
- * components, from soundtracks to sound effects. [[Sound]] is an [[Loadable]]
- * which means it can be passed to a [[Loader]] to pre-load before a game or level.
+ * The {@apilink Sound} object allows games built in Excalibur to load audio
+ * components, from soundtracks to sound effects. {@apilink Sound} is an {@apilink Loadable}
+ * which means it can be passed to a {@apilink Loader} to pre-load before a game or level.
  */
 export class Sound implements Audio, Loadable<AudioBuffer> {
   public events = new EventEmitter<SoundEvents>();
   public logger: Logger = Logger.getInstance();
-  public data: AudioBuffer;
+  public data!: AudioBuffer;
   private _resource: Resource<ArrayBuffer>;
   /**
    * Indicates whether the clip should loop when complete
@@ -86,7 +86,7 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
    *
    * If you have a 10 second clip, seek to 5 seconds, then set the duration to 2, it will play the clip from 5-7 seconds.
    */
-  public set duration(duration: number | undefined){
+  public set duration(duration: number | undefined) {
     this._duration = duration;
   }
 
@@ -105,7 +105,6 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
     this._resource.path = val;
   }
 
-
   /**
    * Should excalibur add a cache busting querystring? By default false.
    * Must be set before loading
@@ -123,7 +122,7 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
   private _isStopped = false;
   // private _isPaused = false;
   private _tracks: Audio[] = [];
-  private _engine: Engine;
+  private _engine?: Engine;
   private _wasPlayingOnHidden: boolean = false;
   private _playbackRate = 1.0;
   private _audioContext = AudioContextFactory.create();
@@ -165,7 +164,7 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
     const audiobuffer = await this.decodeAudio(arraybuffer.slice(0));
     this._duration = this._duration ?? audiobuffer?.duration ?? undefined;
     this.events.emit('processed', new NativeSoundProcessedEvent(this, audiobuffer));
-    return this.data = audiobuffer;
+    return (this.data = audiobuffer);
   }
 
   public async decodeAudio(data: ArrayBuffer): Promise<AudioBuffer> {
@@ -226,11 +225,11 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
   }
 
   public isPaused(): boolean {
-    return this._tracks.some(t => t.isPaused());
+    return this._tracks.some((t) => t.isPaused());
   }
 
   public isStopped(): boolean {
-    return this._tracks.some(t => t.isStopped());
+    return this._tracks.some((t) => t.isStopped());
   }
 
   /**
@@ -295,7 +294,7 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
 
   public set playbackRate(playbackRate: number) {
     this._playbackRate = playbackRate;
-    this._tracks.forEach(t => {
+    this._tracks.forEach((t) => {
       t.playbackRate = this._playbackRate;
     });
   }
@@ -310,8 +309,10 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
 
   public getTotalPlaybackDuration() {
     if (!this.isLoaded()) {
-      this.logger.warnOnce(`Sound from ${this.path} is not loaded, cannot return total playback duration.` +
-      `Did you forget to add Sound to a loader? https://excaliburjs.com/docs/loaders/`);
+      this.logger.warnOnce(
+        `Sound from ${this.path} is not loaded, cannot return total playback duration.` +
+          `Did you forget to add Sound to a loader? https://excaliburjs.com/docs/loaders/`
+      );
       return 0;
     }
     return this.data.duration;
@@ -330,25 +331,25 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
     return 0;
   }
 
-
-
   /**
    * Get Id of provided AudioInstance in current trackList
-   * @param track [[Audio]] which Id is to be given
+   * @param track {@apilink Audio} which Id is to be given
    */
   public getTrackId(track: Audio): number {
     return this._tracks.indexOf(track);
   }
 
   private async _resumePlayback(): Promise<boolean> {
-    if (this.isPaused) {
+    if (this.isPaused()) {
       const resumed: Promise<boolean>[] = [];
       // ensure we resume *current* tracks (if paused)
       for (const track of this._tracks) {
-        resumed.push(track.play().then(() => {
-          this._tracks.splice(this.getTrackId(track), 1);
-          return true;
-        }));
+        resumed.push(
+          track.play().then(() => {
+            this._tracks.splice(this.getTrackId(track), 1);
+            return true;
+          })
+        );
       }
 
       this.events.emit('resume', new NativeSoundEvent(this));
@@ -387,7 +388,7 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
 
     newTrack.loop = this.loop;
     newTrack.volume = this.volume;
-    newTrack.duration = this.duration;
+    newTrack.duration = this.duration ?? 0;
     newTrack.playbackRate = this._playbackRate;
 
     this._tracks.push(newTrack);
@@ -417,6 +418,6 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
   public off(eventName: string, handler: Handler<unknown>): void;
   public off(eventName: string): void;
   public off<TEventName extends EventKey<SoundEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
-    this.events.off(eventName, handler);
+    this.events.off(eventName, handler as any);
   }
 }

@@ -45,19 +45,19 @@ export interface GraphicOptions {
 }
 
 /**
- * A Graphic is the base Excalibur primitive for something that can be drawn to the [[ExcaliburGraphicsContext]].
- * [[Sprite]], [[Animation]], [[GraphicsGroup]], [[Canvas]], [[Rectangle]], [[Circle]], and [[Polygon]] all derive from the
- * [[Graphic]] abstract class.
+ * A Graphic is the base Excalibur primitive for something that can be drawn to the {@apilink ExcaliburGraphicsContext}.
+ * {@apilink Sprite}, {@apilink Animation}, {@apilink GraphicsGroup}, {@apilink Canvas}, {@apilink Rectangle}, {@apilink Circle}, and {@apilink Polygon} all derive from the
+ * {@apilink Graphic} abstract class.
  *
- * Implementors of a Graphic must override the abstract [[Graphic._drawImage]] method to render an image to the graphics context. Graphic
- * handles all the position, rotation, and scale transformations in [[Graphic._preDraw]] and [[Graphic._postDraw]]
+ * Implementors of a Graphic must override the abstract {@apilink Graphic._drawImage} method to render an image to the graphics context. Graphic
+ * handles all the position, rotation, and scale transformations in {@apilink Graphic._preDraw} and {@apilink Graphic._postDraw}
  */
 export abstract class Graphic {
   private static _ID: number = 0;
   readonly id = Graphic._ID++;
 
   public transform: AffineMatrix = AffineMatrix.identity();
-  public tint: Color = null;
+  public tint?: Color;
 
   private _transformStale = true;
   public isStale() {
@@ -68,7 +68,6 @@ export abstract class Graphic {
    * Gets or sets wether to show debug information about the graphic
    */
   public showDebug: boolean = false;
-
 
   private _flipHorizontal = false;
   /**
@@ -129,18 +128,20 @@ export abstract class Graphic {
     this._transformStale = true;
   }
 
-  private _origin: Vector | null = null;
+  private _origin?: Vector;
   /**
    * Gets or sets the origin of the graphic, if not set the center of the graphic is the origin
    */
-  public get origin(): Vector | null {
+  public get origin(): Vector | undefined {
     return this._origin;
   }
 
-  public set origin(value: Vector | null) {
-    this._origin = watch(value, () => {
-      this._transformStale = true;
-    });
+  public set origin(value: Vector | undefined) {
+    if (value) {
+      this._origin = watch(value, () => {
+        this._transformStale = true;
+      });
+    }
     this._transformStale = true;
   }
 
@@ -153,6 +154,13 @@ export abstract class Graphic {
       this.opacity = options.opacity ?? this.opacity;
       this.scale = options.scale ?? this.scale;
       this.tint = options.tint ?? this.tint;
+      if (options.width) {
+        this._width = options.width;
+      }
+
+      if (options.height) {
+        this._height = options.height;
+      }
     }
   }
 
@@ -160,13 +168,13 @@ export abstract class Graphic {
     return {
       width: this.width / this.scale.x,
       height: this.height / this.scale.y,
-      origin: this.origin ? this.origin.clone() : null,
+      origin: this.origin ? this.origin.clone() : undefined,
       flipHorizontal: this.flipHorizontal,
       flipVertical: this.flipVertical,
       rotation: this.rotation,
       opacity: this.opacity,
-      scale: this.scale ? this.scale.clone() : null,
-      tint: this.tint ? this.tint.clone(): null
+      scale: this.scale ? this.scale.clone() : undefined,
+      tint: this.tint ? this.tint.clone() : undefined
     };
   }
 
@@ -219,8 +227,8 @@ export abstract class Graphic {
 
   /**
    * Meant to be overridden by the graphic implementation to draw the underlying image (HTMLCanvasElement or HTMLImageElement)
-   * to the graphics context without transform. Transformations like position, rotation, and scale are handled by [[Graphic._preDraw]]
-   * and [[Graphic._postDraw]]
+   * to the graphics context without transform. Transformations like position, rotation, and scale are handled by {@apilink Graphic._preDraw}
+   * and {@apilink Graphic._postDraw}
    * @param ex The excalibur graphics context
    * @param x
    * @param y
@@ -228,7 +236,7 @@ export abstract class Graphic {
   protected abstract _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number): void;
 
   /**
-   * Apply affine transformations to the graphics context to manipulate the graphic before [[Graphic._drawImage]]
+   * Apply affine transformations to the graphics context to manipulate the graphic before {@apilink Graphic._drawImage}
    * @param ex
    * @param x
    * @param y
@@ -275,7 +283,7 @@ export abstract class Graphic {
   }
 
   /**
-   * Apply any additional work after [[Graphic._drawImage]] and restore the context state.
+   * Apply any additional work after {@apilink Graphic._drawImage} and restore the context state.
    * @param ex
    */
   protected _postDraw(ex: ExcaliburGraphicsContext): void {

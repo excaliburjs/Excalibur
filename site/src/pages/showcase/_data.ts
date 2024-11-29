@@ -1,3 +1,4 @@
+import sumMonstersImage from './images/sum-monsters.png'
 import beachBreachImage from './images/beachbreach.png'
 import meerkatticaImage from './images/meerkattica.png'
 import showMustGoOnImage from './images/show.png'
@@ -12,8 +13,25 @@ import superMetronomeImage from './images/super-metronome-hero.png'
 import nightBikeImage from './images/nightbike.png'
 import retroSkiImage from './images/retroski.png'
 import excalifarm from './images/excalifarm.png'
+import badRefImage from './images/bad-ref.png'
 
 export default [
+  {
+    title: 'Bad Ref',
+    image: badRefImage,
+    description:
+      'GMTK Game Jam 2023 entry. Play as a referee that was paid off to help Team Blue win the game.',
+    url: 'https://bluelemming.itch.io/bad-ref',
+    source: 'https://github.com/mattjennings/bad-ref-gmtk23',
+  },
+  {
+    title: 'Sum Monsters',
+    image: sumMonstersImage,
+    description:
+      'Play the mathimagical game where you arrange monsters to complete the dungeon’s sum-mons. May Trix the Witch is doing all she can to bring the dungeon to order!',
+    url: 'https://excaliburjs.com/sum-monsters/',
+    source: 'https://github.com/excaliburjs/sum-monsters',
+  },
   {
     title: 'Excali-Farm',
     image: excalifarm,

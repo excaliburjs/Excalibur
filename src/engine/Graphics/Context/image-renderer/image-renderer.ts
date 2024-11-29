@@ -1,3 +1,4 @@
+import { Color } from '../../../Color';
 import { sign } from '../../../Math/util';
 import { parseImageFiltering } from '../../Filtering';
 import { GraphicsDiagnostics } from '../../GraphicsDiagnostics';
@@ -10,6 +11,7 @@ import { RendererPlugin } from '../renderer';
 import { Shader } from '../shader';
 import { VertexBuffer } from '../vertex-buffer';
 import { VertexLayout } from '../vertex-layout';
+import { getMaxShaderComplexity } from '../webgl-util';
 import frag from './image-renderer.frag.glsl';
 import vert from './image-renderer.vert.glsl';
 
@@ -28,12 +30,12 @@ export class ImageRenderer implements RendererPlugin {
   private _maxImages: number = 10922; // max(uint16) / 6 verts
   private _maxTextures: number = 0;
 
-  private _context: ExcaliburGraphicsContextWebGL;
-  private _gl: WebGLRenderingContext;
-  private _shader: Shader;
-  private _buffer: VertexBuffer;
-  private _layout: VertexLayout;
-  private _quads: QuadIndexBuffer;
+  private _context!: ExcaliburGraphicsContextWebGL;
+  private _gl!: WebGLRenderingContext;
+  private _shader!: Shader;
+  private _buffer!: VertexBuffer;
+  private _layout!: VertexLayout;
+  private _quads!: QuadIndexBuffer;
 
   // Per flush vars
   private _imageCount: number = 0;
@@ -53,7 +55,9 @@ export class ImageRenderer implements RendererPlugin {
     this._context = context;
     // Transform shader source
     // FIXME: PIXEL 6 complains `ERROR: Expression too complex.` if we use it's reported max texture units, 125 seems to work for now...
-    this._maxTextures = Math.min(gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS), 125);
+    const maxTexture = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
+    const maxComplexity = getMaxShaderComplexity(gl, maxTexture);
+    this._maxTextures = Math.min(maxTexture, maxComplexity);
     const transformedFrag = this._transformFragmentSource(frag, this._maxTextures);
     // Compile shader
     this._shader = new Shader({
@@ -101,8 +105,8 @@ export class ImageRenderer implements RendererPlugin {
     this._quads.dispose();
     this._shader.dispose();
     this._textures.length = 0;
-    this._context = null;
-    this._gl = null;
+    this._context = null as any;
+    this._gl = null as any;
   }
 
   private _transformFragmentSource(source: string, maxTextures: number): string {
@@ -127,9 +131,9 @@ export class ImageRenderer implements RendererPlugin {
       return;
     }
     const maybeFiltering = image.getAttribute(ImageSourceAttributeConstants.Filtering);
-    const filtering = maybeFiltering ? parseImageFiltering(maybeFiltering) : null;
-    const wrapX = parseImageWrapping(image.getAttribute(ImageSourceAttributeConstants.WrappingX));
-    const wrapY = parseImageWrapping(image.getAttribute(ImageSourceAttributeConstants.WrappingY));
+    const filtering = maybeFiltering ? parseImageFiltering(maybeFiltering) : undefined;
+    const wrapX = parseImageWrapping(image.getAttribute(ImageSourceAttributeConstants.WrappingX) as any);
+    const wrapY = parseImageWrapping(image.getAttribute(ImageSourceAttributeConstants.WrappingY) as any);
 
     const force = image.getAttribute('forceUpload') === 'true' ? true : false;
     const texture = this._context.textureLoader.load(
@@ -138,7 +142,8 @@ export class ImageRenderer implements RendererPlugin {
         filtering,
         wrapping: { x: wrapX, y: wrapY }
       },
-      force);
+      force
+    )!;
     // remove force attribute after upload
     image.removeAttribute('forceUpload');
     if (this._textures.indexOf(texture) === -1) {
@@ -194,11 +199,12 @@ export class ImageRenderer implements RendererPlugin {
     return maybeHeight;
   }
 
-
   private _view = [0, 0, 0, 0];
   private _dest = [0, 0];
   private _quad = [0, 0, 0, 0, 0, 0, 0, 0];
-  draw(image: HTMLImageSource,
+  private _defaultTint = Color.White;
+  draw(
+    image: HTMLImageSource,
     sx: number,
     sy: number,
     swidth?: number,
@@ -206,8 +212,8 @@ export class ImageRenderer implements RendererPlugin {
     dx?: number,
     dy?: number,
     dwidth?: number,
-    dheight?: number): void {
-
+    dheight?: number
+  ): void {
     // Force a render if the batch is full
     if (this._isFull()) {
       this.flush();
@@ -221,6 +227,8 @@ export class ImageRenderer implements RendererPlugin {
 
     let width = maybeImageWidth || swidth || 0;
     let height = maybeImageHeight || sheight || 0;
+    this._view[0] = 0;
+    this._view[1] = 0;
     this._view[2] = swidth ?? maybeImageWidth ?? 0;
     this._view[3] = sheight ?? maybeImageHeight ?? 0;
     this._dest[0] = sx ?? 1;
@@ -279,7 +287,7 @@ export class ImageRenderer implements RendererPlugin {
       this._quad[7] = ~~(this._quad[7] + sign(this._quad[7]) * pixelSnapEpsilon);
     }
 
-    const tint = this._context.tint;
+    const tint = this._context.tint || this._defaultTint;
 
     const textureId = this._getTextureIdForImage(image);
     const imageWidth = maybeImageWidth || width;

@@ -73,7 +73,5 @@ describe('A PostProcessor', () => {
     expect(setUniformFloatCalls.calls.argsFor(0)).toEqual(['u_time_ms', 10]);
     expect(setUniformFloatCalls.calls.argsFor(1)).toEqual(['u_elapsed_ms', 10]);
     expect(setUniformFloatVectorCalls.calls.argsFor(0)).toEqual(['u_resolution', ex.vec(100, 100)]);
-
   });
-
 });
