@@ -238,6 +238,7 @@ are doing mtv adjustments during precollision.
   * `EventEmitter`s
   * `GraphicsSystem` entity iteration
   * `PointerSystem` entity iteration
+- Perf improvements to `GraphicsGroup` by reducing per draw allocations in bounds calculations
 
 ### Changed
 
