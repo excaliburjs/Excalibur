@@ -431,7 +431,7 @@ heart.graphics.add(group);
 heart.pos = ex.vec(10, 10);
 game.add(heart);
 
-var label = new ex.Label({ text: 'Test Label', x: 200, y: 200 });
+var label = new ex.Label({ text: 'Test Label', maxWidth: 20, x: 200, y: 200 });
 game.add(label);
 
 var testSpriteLabel = new ex.Label({ text: 'Test Sprite Label', x: 200, y: 100, spriteFont: spriteFont });

@@ -15,6 +15,13 @@ export interface LabelOptions {
    * Specify the label text
    */
   text?: string;
+
+  /**
+   * Specify a max width for the text in pixels, if specified the text will wrap.
+   *
+   * **Not supported in SpriteFont**
+   */
+  maxWidth?: number;
   /**
    * Specify the color of the text (does not apply to SpriteFonts)
    */
@@ -39,6 +46,14 @@ export interface LabelOptions {
 export class Label extends Actor {
   private _font: Font = new Font();
   private _text: Text = new Text({ text: '', font: this._font });
+
+  public set maxWidth(width: number | undefined) {
+    this._text.maxWidth = width;
+  }
+
+  public get maxWidth(): number | undefined {
+    return this._text.maxWidth;
+  }
 
   public get font(): Font {
     return this._font;
@@ -99,11 +114,12 @@ export class Label extends Actor {
    */
   constructor(options?: LabelOptions & ActorArgs) {
     super(options);
-    const { text, pos, x, y, spriteFont, font, color } = { text: '', ...options };
+    const { text, pos, x, y, spriteFont, font, color, maxWidth } = { text: '', ...options };
 
     this.pos = pos ?? (x && y ? vec(x, y) : this.pos);
     this.text = text ?? this.text;
     this.font = font ?? this.font;
+    this.maxWidth = maxWidth ?? this.maxWidth;
     this.spriteFont = spriteFont ?? this.spriteFont;
     this._text.color = color ?? this.color;
     const gfx = this.get(GraphicsComponent);
