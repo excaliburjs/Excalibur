@@ -15,6 +15,7 @@ in float v_opacity;
 
 in vec4 v_tint;
 
+// texture resolution
 in vec2 v_res;
 
 in vec2 v_uv_min;

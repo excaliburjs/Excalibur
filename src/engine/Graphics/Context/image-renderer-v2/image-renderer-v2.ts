@@ -31,6 +31,7 @@ export class ImageRendererV2 implements RendererPlugin {
   // TODO this could be bigger probably
   private _maxImages: number = 20_000; // max(uint16) / 6 verts
   private _maxTextures: number = 0;
+  private _components = 2 + 2 + 2 + 2 + 1 + 2 + 2 + 1 + 2 + 2 + 4;
 
   private _context!: ExcaliburGraphicsContextWebGL;
   private _gl!: WebGL2RenderingContext;
@@ -96,7 +97,7 @@ export class ImageRendererV2 implements RendererPlugin {
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
     // Setup memory layout
-    const components = 2 + 2 + 2 + 1 + 2 + 2 + 1 + 2 + 2 + 4;
+    const components = this._components;
     this._transformData = new VertexBuffer({
       gl,
       size: components * this._maxImages, // components * images
@@ -111,54 +112,59 @@ export class ImageRendererV2 implements RendererPlugin {
     const bytesPerFloat = 4;
     const totalSize = components * 4;
 
-    // a_position vec2 - 2
+    // a_offset vec2 - 2
     gl.vertexAttribPointer(start++, 2, gl.FLOAT, false, totalSize, offset);
     gl.enableVertexAttribArray(2);
     offset += 2 * bytesPerFloat;
 
-    // a_scale vec2 - 2
+    // a_mat_column1 vec2 - 2
     gl.vertexAttribPointer(start++, 2, gl.FLOAT, false, totalSize, offset);
     gl.enableVertexAttribArray(3);
     offset += 2 * bytesPerFloat;
 
-    // a_rotation vec2 - 2
+    // a_mat_column2 vec2 - 2
     gl.vertexAttribPointer(start++, 2, gl.FLOAT, false, totalSize, offset);
     gl.enableVertexAttribArray(4);
     offset += 2 * bytesPerFloat;
 
+    // a_mat_column3 vec2 - 2
+    gl.vertexAttribPointer(start++, 2, gl.FLOAT, false, totalSize, offset);
+    gl.enableVertexAttribArray(5);
+    offset += 2 * bytesPerFloat;
+
     // a_opacity float - 1
     gl.vertexAttribPointer(start++, 1, gl.FLOAT, false, totalSize, offset);
-    gl.enableVertexAttribArray(5);
+    gl.enableVertexAttribArray(6);
     offset += 1 * bytesPerFloat;
 
     // a_res vec2 - 2
     gl.vertexAttribPointer(start++, 2, gl.FLOAT, false, totalSize, offset);
-    gl.enableVertexAttribArray(6);
+    gl.enableVertexAttribArray(7);
     offset += 2 * bytesPerFloat;
 
     // a_size vec2 - 2
     gl.vertexAttribPointer(start++, 2, gl.FLOAT, false, totalSize, offset);
-    gl.enableVertexAttribArray(7);
+    gl.enableVertexAttribArray(8);
     offset += 2 * bytesPerFloat;
 
     // a_texture_index - 1
     gl.vertexAttribPointer(start++, 1, gl.FLOAT, false, totalSize, offset);
-    gl.enableVertexAttribArray(8);
+    gl.enableVertexAttribArray(9);
     offset += 1 * bytesPerFloat;
 
     // a_uv_min - 2
     gl.vertexAttribPointer(start++, 2, gl.FLOAT, false, totalSize, offset);
-    gl.enableVertexAttribArray(9);
+    gl.enableVertexAttribArray(10);
     offset += 2 * bytesPerFloat;
 
     // a_uv_max - 2
     gl.vertexAttribPointer(start++, 2, gl.FLOAT, false, totalSize, offset);
-    gl.enableVertexAttribArray(10);
+    gl.enableVertexAttribArray(11);
     offset += 2 * bytesPerFloat;
 
     // a_tint - 4
     gl.vertexAttribPointer(start++, 4, gl.FLOAT, false, totalSize, offset);
-    gl.enableVertexAttribArray(11);
+    gl.enableVertexAttribArray(12);
     offset += 4 * bytesPerFloat;
 
     gl.vertexAttribDivisor(2, 1);
@@ -171,13 +177,14 @@ export class ImageRendererV2 implements RendererPlugin {
     gl.vertexAttribDivisor(9, 1);
     gl.vertexAttribDivisor(10, 1);
     gl.vertexAttribDivisor(11, 1);
+    gl.vertexAttribDivisor(12, 1);
 
     gl.bindVertexArray(null);
   }
 
   private _bindData(gl: WebGL2RenderingContext) {
     // Setup memory layout
-    const components = 2 + 2 + 2 + 1 + 2 + 2 + 1 + 2 + 2 + 4;
+    const components = this._components;
     this._transformData.bind();
     this._transformData.upload(components * this._imageCount);
 
@@ -354,17 +361,19 @@ export class ImageRendererV2 implements RendererPlugin {
 
     // update data
     const vertexBuffer = this._transformData.bufferData;
-    vertexBuffer[this._vertexIndex++] = transform.data[4] + this._dest[0]; // TODO this is wrong
-    vertexBuffer[this._vertexIndex++] = transform.data[5] + this._dest[1];
-    vertexBuffer[this._vertexIndex++] = transform.data[2];
-    vertexBuffer[this._vertexIndex++] = transform.data[3];
+    vertexBuffer[this._vertexIndex++] = this._dest[0];
+    vertexBuffer[this._vertexIndex++] = this._dest[1];
     vertexBuffer[this._vertexIndex++] = transform.data[0];
     vertexBuffer[this._vertexIndex++] = transform.data[1];
+    vertexBuffer[this._vertexIndex++] = transform.data[2];
+    vertexBuffer[this._vertexIndex++] = transform.data[3];
+    vertexBuffer[this._vertexIndex++] = transform.data[4];
+    vertexBuffer[this._vertexIndex++] = transform.data[5];
     vertexBuffer[this._vertexIndex++] = opacity;
+    vertexBuffer[this._vertexIndex++] = width;
+    vertexBuffer[this._vertexIndex++] = height;
     vertexBuffer[this._vertexIndex++] = txWidth;
     vertexBuffer[this._vertexIndex++] = txHeight;
-    vertexBuffer[this._vertexIndex++] = sw;
-    vertexBuffer[this._vertexIndex++] = sh;
     vertexBuffer[this._vertexIndex++] = textureId;
     vertexBuffer[this._vertexIndex++] = uvx0;
     vertexBuffer[this._vertexIndex++] = uvy0;
