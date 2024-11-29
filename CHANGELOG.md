@@ -73,6 +73,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `actor.getGlobalPos()` - use `actor.globalPos` instead
 - `actor.getGlobalRotation()` - use `actor.globalRotation` instead
 - `actor.getGlobalScale()` - use `actor.globalScale` instead
+- `Actions/RotationType` - use `Vector.RotationType` instead
 
 ### Added
 

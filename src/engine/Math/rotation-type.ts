@@ -1,6 +1,5 @@
 /**
  * An enum that describes the strategies that rotation actions can use
- * @deprecated use {@apilink Math.Vector.RotationType}
  */
 export enum RotationType {
   /**
