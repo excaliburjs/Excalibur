@@ -5,6 +5,8 @@
  */
 export function getGlTypeSizeBytes(gl: WebGLRenderingContext, type: number): number {
   switch (type) {
+    case gl.INT:
+    case gl.UNSIGNED_INT:
     case gl.FLOAT:
       return 4;
     case gl.SHORT:

@@ -213,6 +213,7 @@ are doing mtv adjustments during precollision.
 
 ### Updates
 
+- Perf improvement to image rendering! with ImageRendererV2! Roughly doubles the performance of image rendering
 - Perf improvement to retrieving components with `ex.Entity.get()` which widely improves engine performance
 - Non-breaking parameters that reference `delta` to `elapsedMs` to better communicate intent and units
 - Perf improvements to `ex.ParticleEmitter` 

@@ -554,6 +554,63 @@ describe('The ExcaliburGraphicsContext', () => {
 
       const circleRenderer = sut.get('ex.circle');
       spyOn(circleRenderer, 'flush').and.callThrough();
+      const imageRenderer = sut.get('ex.image-v2');
+      spyOn(imageRenderer, 'flush').and.callThrough();
+      const rectangleRenderer = sut.get('ex.rectangle');
+      spyOn(rectangleRenderer, 'flush').and.callThrough();
+
+      sut.clear();
+
+      sut.useDrawSorting = false;
+
+      sut.drawLine(ex.vec(0, 0), ex.vec(100, 100), ex.Color.Red, 2);
+      expect(rectangleRenderer.flush).withContext('rectangle line render not flushed yet').not.toHaveBeenCalled();
+
+      sut.drawCircle(ex.Vector.Zero, 100, ex.Color.Red, ex.Color.Black, 2);
+      expect(circleRenderer.flush).withContext('circle is batched not flushed yet').not.toHaveBeenCalled();
+      expect(rectangleRenderer.flush).withContext('rectangle line render').toHaveBeenCalled();
+
+      sut.drawImage(tex.image, 0, 0, tex.width, tex.height, 20, 20);
+      expect(circleRenderer.flush).withContext('circle renderer switched, flush required').toHaveBeenCalled();
+      expect(imageRenderer.flush).withContext('image batched not yet flushed').not.toHaveBeenCalled();
+
+      sut.drawRectangle(ex.Vector.Zero, 50, 50, ex.Color.Blue, ex.Color.Green, 2);
+      expect(imageRenderer.flush).toHaveBeenCalled();
+
+      sut.flush();
+
+      // Rectangle renderer handles lines and rectangles why it's twice
+      expect(rectangleRenderer.flush).toHaveBeenCalledTimes(2);
+      expect(circleRenderer.flush).toHaveBeenCalledTimes(1);
+      expect(imageRenderer.flush).toHaveBeenCalledTimes(1);
+
+      await expectAsync(canvasElement).toEqualImage(
+        'src/spec/images/ExcaliburGraphicsContextSpec/painter-order-circle-image-rect.png',
+        0.97
+      );
+      sut.dispose();
+    });
+
+    it('(legacy image renderer) will preserve the painter order when switching renderer (no draw sorting)', async () => {
+      const canvasElement = testCanvasElement;
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      const sut = new ex.ExcaliburGraphicsContextWebGL({
+        canvasElement: canvasElement,
+        context: testContext,
+        enableTransparency: false,
+        antialiasing: false,
+        multiSampleAntialiasing: false,
+        backgroundColor: ex.Color.White,
+        snapToPixel: false
+      });
+      sut.imageRenderer = 'ex.image';
+
+      const tex = new ex.ImageSource('src/spec/images/ExcaliburGraphicsContextSpec/sword.png');
+      await tex.load();
+
+      const circleRenderer = sut.get('ex.circle');
+      spyOn(circleRenderer, 'flush').and.callThrough();
       const imageRenderer = sut.get('ex.image');
       spyOn(imageRenderer, 'flush').and.callThrough();
       const rectangleRenderer = sut.get('ex.rectangle');
@@ -604,6 +661,59 @@ describe('The ExcaliburGraphicsContext', () => {
         backgroundColor: ex.Color.White,
         snapToPixel: false
       });
+
+      const tex = new ex.ImageSource('src/spec/images/ExcaliburGraphicsContextSpec/sword.png');
+      await tex.load();
+
+      const circleRenderer = sut.get('ex.circle');
+      spyOn(circleRenderer, 'flush').and.callThrough();
+      const imageRenderer = sut.get('ex.image-v2');
+      spyOn(imageRenderer, 'flush').and.callThrough();
+      const rectangleRenderer = sut.get('ex.rectangle');
+      spyOn(rectangleRenderer, 'flush').and.callThrough();
+
+      sut.clear();
+      sut.useDrawSorting = true;
+
+      sut.drawLine(ex.vec(0, 0), ex.vec(100, 100), ex.Color.Red, 2);
+
+      sut.drawCircle(ex.Vector.Zero, 100, ex.Color.Red, ex.Color.Black, 2);
+
+      sut.drawImage(tex.image, 0, 0, tex.width, tex.height, 20, 20);
+
+      // With draw sorting on, the rectangle at z=0 is part of the draw line, so setting the z = 1 forces the desired effect
+      sut.save();
+      sut.z = 1;
+      sut.drawRectangle(ex.Vector.Zero, 50, 50, ex.Color.Blue, ex.Color.Green, 2);
+      sut.restore();
+
+      sut.flush();
+
+      // Rectangle renderer handles lines and rectangles why it's twice
+      expect(rectangleRenderer.flush).toHaveBeenCalledTimes(2);
+      expect(circleRenderer.flush).toHaveBeenCalledTimes(1);
+      expect(imageRenderer.flush).toHaveBeenCalledTimes(1);
+
+      await expectAsync(canvasElement).toEqualImage(
+        'src/spec/images/ExcaliburGraphicsContextSpec/painter-order-circle-image-rect.png',
+        0.97
+      );
+      sut.dispose();
+    });
+    it('(legacy image renderer) will preserve the painter order when switching renderer (draw sorting)', async () => {
+      const canvasElement = testCanvasElement;
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      const sut = new ex.ExcaliburGraphicsContextWebGL({
+        canvasElement: canvasElement,
+        context: testContext,
+        enableTransparency: false,
+        antialiasing: false,
+        multiSampleAntialiasing: false,
+        backgroundColor: ex.Color.White,
+        snapToPixel: false
+      });
+      sut.imageRenderer = 'ex.image';
 
       const tex = new ex.ImageSource('src/spec/images/ExcaliburGraphicsContextSpec/sword.png');
       await tex.load();
