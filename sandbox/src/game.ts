@@ -51,7 +51,7 @@ var game = new ex.Engine({
   // pixelRatio: 1,
   // suppressPlayButton: true,
   pointerScope: ex.PointerScope.Canvas,
-  displayMode: ex.DisplayMode.Fixed,
+  displayMode: ex.DisplayMode.FitScreenAndFill,
   snapToPixel: false,
   // fixedUpdateFps: 30,
   pixelRatio: 2,
@@ -216,12 +216,15 @@ svgActor.graphics.add(
 // svgActor.graphics.add(svgExternal.toSprite());
 game.add(svgActor);
 
+var fontSource = new ex.FontSource('./html/Gorgeous Pixel.ttf', 'Gorgeous Pixel');
+
 var boot = new ex.Loader();
 // var boot = new ex.Loader({
 //   fullscreenAfterLoad: true,
 //   fullscreenContainer: document.getElementById('container')
 // });
 // boot.suppressPlayButton = true;
+boot.addResource(fontSource);
 boot.addResource(svgExternal);
 boot.addResource(svgImage);
 boot.addResource(heartImageSource);
@@ -428,7 +431,7 @@ heart.graphics.add(group);
 heart.pos = ex.vec(10, 10);
 game.add(heart);
 
-var label = new ex.Label({ text: 'Test Label', x: 200, y: 200 });
+var label = new ex.Label({ text: 'Test Label', maxWidth: 20, x: 200, y: 200 });
 game.add(label);
 
 var testSpriteLabel = new ex.Label({ text: 'Test Sprite Label', x: 200, y: 100, spriteFont: spriteFont });
@@ -621,6 +624,24 @@ var follower = new ex.Actor({ x: 50, y: 100, width: 20, height: 20, color: ex.Co
 follower.graphics.add(new ex.Rectangle({ color: ex.Color.Black, width: 20, height: 20 }));
 follower.body.collisionType = ex.CollisionType.PreventCollision;
 game.add(follower);
+
+var font2 = fontSource.toFont({
+  family: 'Gorgeous Pixel',
+  color: ex.Color.White,
+  size: 30,
+  shadow: {
+    blur: 15,
+    color: ex.Color.Black
+  }
+});
+
+game.add(
+  new ex.Label({
+    text: 'Hello this is a pixel font',
+    pos: ex.vec(200, 200),
+    font: font2
+  })
+);
 
 // Create the player
 var player = new ex.Actor({
@@ -1084,9 +1105,19 @@ game.input.pointers.primary.on('down', (evt: ex.PointerEvent) => {
   }
 });
 
-tileMap.tiles[0].events.on('pointerdown', (evt) => {
-  console.log('tile clicked', evt);
-});
+for (let i = 0; i < tileMap.tiles.length; i++) {
+  tileMap.tiles[i].events.on('pointerdown', (evt) => {
+    console.log('tile clicked', tileMap.tiles[i]);
+  });
+
+  tileMap.tiles[i].events.on('pointerenter', (evt) => {
+    console.log('pointer entered tile', tileMap.tiles[i].x, tileMap.tiles[i].y);
+  });
+
+  tileMap.tiles[i].events.on('pointerleave', (evt) => {
+    console.log('pointer left tile', tileMap.tiles[i].x, tileMap.tiles[i].y);
+  });
+}
 
 game.input.keyboard.on('up', (evt?: ex.KeyEvent) => {
   if (evt.key == ex.Keys.F) {

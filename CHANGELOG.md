@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- `ex.Input.*` namespace removed and types promoted to `ex.*`
 - Removed legacy `ex.Configurable` function type used for doing dark magic to allow types to be configured by instances of that same type :boom:
 - Collision events now only target `ex.Collider` types, this previously would sometimes emit an `ex.Entity` if you attached to the `ex.ColliderComponent`
   * `ex.PreCollisionEvent`
@@ -66,7 +67,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
-
+- `easeTo(...)` and `easeBy(...)` actions marked deprecated, use `moveTo({easing: ...})` instead
 - `Vector.size` is deprecated, use `Vector.magnitude` instead
 - `ScreenShader` v_texcoord is deprecated, use v_uv. This is changed to match the materials shader API
 - `actor.getGlobalPos()` - use `actor.globalPos` instead
@@ -75,6 +76,30 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added `easing` option to `moveTo(...)`
+- Added new option bag style input to actions with durations in milliseconds instead of speed
+  ```typescript
+  player.actions.rotateTo({angleRadians: angle, durationMs: 1000, rotationType});
+  player.actions.moveTo({pos: ex.vec(100, 100), durationMs: 1000});
+  player.actions.scaleTo({scale: ex.vec(2, 2), durationMs: 1000});
+  player.actions.repeatForever(ctx => {
+    ctx.curveTo({
+      controlPoints: [cp1, cp2, dest],
+      durationMs: 5000,
+      mode: 'uniform'
+    });
+    ctx.curveTo({
+      controlPoints: [cp2, cp1, start1],
+      durationMs: 5000,
+      mode: 'uniform'
+    });
+  });
+  ```
+- Added `ex.lerpAngle(startAngleRadians: number, endAngleRadians: number, rotationType: RotationType, time: number): number` in order to lerp angles between each other
+- Added `pointerenter` and `pointerleave` events to `ex.TileMap` tiles!
+- Added `pointerenter` and `pointerleave` events to `ex.IsometricMap` tiles!
+- Added new `ex.BezierCurve` type for drawing cubic bezier curves
+- Added 2 new actions `actor.actions.curveTo(...)` and `actor.actions.curveBy(...)`
 - Added new `ex.lerp(...)`, `ex.inverseLerp(...)`, and `ex.remap(...)` for numbers
 - Added new `ex.lerpVector(...)`,` ex.inverseLerpVector(...)`, and `ex.remapVector(...)` for `ex.Vector`
 - Added new `actor.actions.flash(...)` `Action` to flash a color for a period of time
@@ -213,6 +238,7 @@ are doing mtv adjustments during precollision.
   * `EventEmitter`s
   * `GraphicsSystem` entity iteration
   * `PointerSystem` entity iteration
+- Perf improvements to `GraphicsGroup` by reducing per draw allocations in bounds calculations
 
 ### Changed
 

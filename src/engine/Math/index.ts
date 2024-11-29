@@ -9,5 +9,6 @@ export * from './global-coordinates';
 export * from './line-segment';
 export * from './projection';
 export * from './ray';
-export * from './util';
 export * from './lerp';
+export * from './bezier-curve';
+export * from './util';

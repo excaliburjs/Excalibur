@@ -70,7 +70,7 @@ export class Trigger extends Actor {
     this.action = options.action ?? (() => undefined);
     this.target = options.target;
 
-    this.graphics.visible = options.visible ?? false;
+    this.graphics.isVisible = options.visible ?? false;
     this.body.collisionType = CollisionType.Passive;
 
     this.events.on('collisionstart', ({ other: collider }: CollisionStartEvent) => {

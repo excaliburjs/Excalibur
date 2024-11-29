@@ -144,16 +144,29 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   private _sleeping = false;
   /**
    * Whether this body is sleeping or not
+   * @deprecated use isSleeping
    */
   public get sleeping(): boolean {
+    return this.isSleeping;
+  }
+
+  /**
+   * Whether this body is sleeping or not
+   */
+  public get isSleeping(): boolean {
     return this._sleeping;
   }
 
   /**
    * Set the sleep state of the body
    * @param sleeping
+   * @deprecated use isSleeping
    */
   public setSleeping(sleeping: boolean) {
+    this.isSleeping = sleeping;
+  }
+
+  public set isSleeping(sleeping: boolean) {
     this._sleeping = sleeping;
     if (!sleeping) {
       // Give it a kick to keep it from falling asleep immediately
@@ -171,14 +184,14 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
    */
   public updateMotion() {
     if (this._sleeping) {
-      this.setSleeping(true);
+      this.isSleeping = true;
     }
     const currentMotion = this.vel.magnitude * this.vel.magnitude + Math.abs(this.angularVelocity * this.angularVelocity);
     const bias = this._bodyConfig.sleepBias;
     this.sleepMotion = bias * this.sleepMotion + (1 - bias) * currentMotion;
     this.sleepMotion = clamp(this.sleepMotion, 0, 10 * this._bodyConfig.sleepEpsilon);
     if (this.canSleep && this.sleepMotion < this._bodyConfig.sleepEpsilon) {
-      this.setSleeping(true);
+      this.isSleeping = true;
     }
   }
 
@@ -247,9 +260,17 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
 
   /**
    * Returns if the owner is active
+   * @deprecated use isActive
    */
   public get active() {
-    return !!this.owner?.active;
+    return !!this.owner?.isActive;
+  }
+
+  /**
+   * Returns if the owner is active
+   */
+  public get isActive() {
+    return !!this.owner?.isActive;
   }
 
   /**

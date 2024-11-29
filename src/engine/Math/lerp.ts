@@ -1,3 +1,5 @@
+import { RotationType } from '../Actions/RotationType';
+import { TwoPI } from './util';
 import { Vector } from './vector';
 
 /**
@@ -8,6 +10,51 @@ import { Vector } from './vector';
  */
 export function lerp(a: number, b: number, time: number): number {
   return (1 - time) * a + b * time;
+}
+
+/**
+ * Linear interpolation between angles in radians
+ * @param startAngleRadians
+ * @param endAngleRadians
+ * @param rotationType
+ * @param time
+ */
+export function lerpAngle(startAngleRadians: number, endAngleRadians: number, rotationType: RotationType, time: number): number {
+  const shortestPathIsPositive = (startAngleRadians - endAngleRadians + TwoPI) % TwoPI >= Math.PI;
+  const distance1 = Math.abs(endAngleRadians - startAngleRadians);
+  const distance2 = TwoPI - distance1;
+  let shortDistance = 0;
+  let longDistance = 0;
+  if (distance1 > distance2) {
+    shortDistance = distance2;
+    longDistance = distance1;
+  } else {
+    shortDistance = distance1;
+    longDistance = distance2;
+  }
+  let distance = 0;
+  let direction = 1;
+
+  switch (rotationType) {
+    case RotationType.ShortestPath:
+      distance = shortDistance;
+      direction = shortestPathIsPositive ? 1 : -1;
+      break;
+    case RotationType.LongestPath:
+      distance = longDistance;
+      direction = shortestPathIsPositive ? -1 : 1;
+      break;
+    case RotationType.Clockwise:
+      direction = 1;
+      distance = shortestPathIsPositive ? shortDistance : longDistance;
+      break;
+    case RotationType.CounterClockwise:
+      direction = -1;
+      distance = shortestPathIsPositive ? longDistance : shortDistance;
+      break;
+  }
+
+  return startAngleRadians + direction * (distance * time);
 }
 
 /**

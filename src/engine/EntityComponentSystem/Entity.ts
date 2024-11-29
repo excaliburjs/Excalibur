@@ -160,23 +160,39 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
 
   /**
    * Whether this entity is active, if set to false it will be reclaimed
+   * @deprecated use isActive
    */
-  public active: boolean = true;
+  public get active(): boolean {
+    return this.isActive;
+  }
+
+  /**
+   * Whether this entity is active, if set to false it will be reclaimed
+   * @deprecated use isActive
+   */
+  public set active(val: boolean) {
+    this.isActive = val;
+  }
+
+  /**
+   * Whether this entity is active, if set to false it will be reclaimed
+   */
+  public isActive: boolean = true;
 
   /**
    * Kill the entity, means it will no longer be updated. Kills are deferred to the end of the update.
    * If parented it will be removed from the parent when killed.
    */
   public kill() {
-    if (this.active) {
-      this.active = false;
+    if (this.isActive) {
+      this.isActive = false;
       this.unparent();
     }
     this.emit('kill', new KillEvent(this));
   }
 
   public isKilled() {
-    return !this.active;
+    return !this.isActive;
   }
 
   /**
@@ -540,7 +556,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    * @internal
    */
   public _add(engine: Engine) {
-    if (!this.isAdded && this.active) {
+    if (!this.isAdded && this.isActive) {
       this.onAdd(engine);
       this.events.emit('add', new AddEvent(engine, this));
       this._isAdded = true;
@@ -554,7 +570,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    * @internal
    */
   public _remove(engine: Engine) {
-    if (this.isAdded && !this.active) {
+    if (this.isAdded && !this.isActive) {
       this.onRemove(engine);
       this.events.emit('remove', new RemoveEvent(engine, this));
       this._isAdded = false;

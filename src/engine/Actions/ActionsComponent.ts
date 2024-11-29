@@ -10,6 +10,10 @@ import { ActionQueue } from './ActionQueue';
 import { RotationType } from './RotationType';
 import { Action } from './Action';
 import { Color } from '../Color';
+import { CurveToOptions } from './Action/CurveTo';
+import { CurveByOptions } from './Action/CurveBy';
+import { MoveToOptions } from './Action/MoveTo';
+import { MoveByOptions, RotateByOptions, RotateToOptions, ScaleByOptions, ScaleToOptions } from './index';
 
 export interface ActionContextMethods extends Pick<ActionContext, keyof ActionContext> {}
 
@@ -43,6 +47,10 @@ export class ActionsComponent extends Component implements ActionContextMethods 
     return this._ctx.getQueue();
   }
 
+  /**
+   * Runs a specific action in the action queue
+   * @param action
+   */
   public runAction(action: Action): ActionContext {
     if (!this._ctx) {
       throw new Error('Actions component not attached to an entity, cannot run action');
@@ -66,34 +74,75 @@ export class ActionsComponent extends Component implements ActionContextMethods 
   }
 
   /**
+   * Animates an actor with a specified bezier curve by an offset to the current position, the start point is assumed
+   * to be the actors current position
+   * @param options
+   */
+  public curveBy(options: CurveByOptions): ActionContext {
+    return this._getCtx().curveBy.apply(this._ctx, [options]);
+  }
+
+  /**
+   * Animates an actor with a specified bezier curve to an absolute world space coordinate, the start point is assumed
+   * to be the actors current position
+   * @param options
+   */
+  public curveTo(options: CurveToOptions): ActionContext {
+    return this._getCtx().curveTo.apply(this._ctx, [options]);
+  }
+
+  /**
    * This method will move an actor to the specified `x` and `y` position over the
    * specified duration using a given {@apilink EasingFunctions} and return back the actor. This
    * method is part of the actor 'Action' fluent API allowing action chaining.
    * @param pos       The x,y vector location to move the actor to
-   * @param duration  The time it should take the actor to move to the new location in milliseconds
+   * @param durationMs  The time it should take the actor to move to the new location in milliseconds
    * @param easingFcn Use {@apilink EasingFunctions} or a custom function to use to calculate position, Default is {@apilink EasingFunctions.Linear}
+   * @deprecated use new moveTo({pos: Vector, durationMs: number, easing: EasingFunction})
    */
-  public easeTo(pos: Vector, duration: number, easingFcn?: EasingFunction): ActionContext;
+  public easeTo(pos: Vector, durationMs: number, easingFcn?: EasingFunction): ActionContext;
   /**
    * This method will move an actor to the specified `x` and `y` position over the
    * specified duration using a given {@apilink EasingFunctions} and return back the actor. This
    * method is part of the actor 'Action' fluent API allowing action chaining.
    * @param x         The x location to move the actor to
    * @param y         The y location to move the actor to
-   * @param duration  The time it should take the actor to move to the new location in milliseconds
+   * @param durationMs  The time it should take the actor to move to the new location in milliseconds
    * @param easingFcn Use {@apilink EasingFunctions} or a custom function to use to calculate position, Default is {@apilink EasingFunctions.Linear}
+   * @deprecated use new moveTo({pos: Vector, durationMs: number, easing: EasingFunction})
    */
-  public easeTo(x: number, y: number, duration: number, easingFcn?: EasingFunction): ActionContext;
+  public easeTo(x: number, y: number, durationMs: number, easingFcn?: EasingFunction): ActionContext;
   public easeTo(...args: any[]): ActionContext {
     return this._getCtx().easeTo.apply(this._ctx, args as any);
   }
 
-  public easeBy(offset: Vector, duration: number, easingFcn?: EasingFunction): ActionContext;
-  public easeBy(offsetX: number, offsetY: number, duration: number, easingFcn?: EasingFunction): ActionContext;
+  /**
+   *
+   * @param offset
+   * @param durationMs
+   * @param easingFcn
+   * @deprecated use new moveBy({pos: Vector, durationMs: number, easing: EasingFunction})
+   */
+  public easeBy(offset: Vector, durationMs: number, easingFcn?: EasingFunction): ActionContext;
+  /**
+   *
+   * @param offsetX
+   * @param offsetY
+   * @param durationMs
+   * @param easingFcn
+   * @deprecated use new moveBy({pos: Vector, durationMs: number, easing: EasingFunction})
+   */
+  public easeBy(offsetX: number, offsetY: number, durationMs: number, easingFcn?: EasingFunction): ActionContext;
   public easeBy(...args: any[]): ActionContext {
     return this._getCtx().easeBy.apply(this._ctx, args as any);
   }
 
+  /**
+   * Moves an actor to a specified {@link Vector} in a given duration in milliseconds.
+   * You may optionally specify an {@link EasingFunction}
+   * @param options
+   */
+  public moveTo(options: MoveToOptions): ActionContext;
   /**
    * This method will move an actor to the specified x and y position at the
    * speed specified (in pixels per second) and return back the actor. This
@@ -111,10 +160,16 @@ export class ActionsComponent extends Component implements ActionContextMethods 
    * @param speed  The speed in pixels per second to move
    */
   public moveTo(x: number, y: number, speed: number): ActionContext;
-  public moveTo(xOrPos: number | Vector, yOrSpeed: number, speedOrUndefined?: number): ActionContext {
-    return this._getCtx().moveTo.apply(this._ctx, [xOrPos, yOrSpeed, speedOrUndefined] as any);
+  public moveTo(xOrPosOrOptions: number | Vector | MoveToOptions, yOrSpeed?: number, speedOrUndefined?: number): ActionContext {
+    return this._getCtx().moveTo.apply(this._ctx, [xOrPosOrOptions, yOrSpeed, speedOrUndefined] as any);
   }
 
+  /**
+   * Moves an actor by a specified offset {@link Vector} in a given duration in milliseconds.
+   * You may optionally specify an {@link EasingFunction}
+   * @param options
+   */
+  public moveBy(options: MoveByOptions): ActionContext;
   /**
    * This method will move an actor by the specified x offset and y offset from its current position, at a certain speed.
    * This method is part of the actor 'Action' fluent API allowing action chaining.
@@ -130,10 +185,20 @@ export class ActionsComponent extends Component implements ActionContextMethods 
    * @param speed  The speed in pixels per second the actor should move
    */
   public moveBy(xOffset: number, yOffset: number, speed: number): ActionContext;
-  public moveBy(xOffsetOrVector: number | Vector, yOffsetOrSpeed: number, speedOrUndefined?: number): ActionContext {
-    return this._getCtx().moveBy.apply(this._ctx, [xOffsetOrVector, yOffsetOrSpeed, speedOrUndefined] as any);
+  public moveBy(
+    xOffsetOrVectorOptions: number | Vector | MoveByOptions,
+    yOffsetOrSpeed?: number,
+    speedOrUndefined?: number
+  ): ActionContext {
+    return this._getCtx().moveBy.apply(this._ctx, [xOffsetOrVectorOptions, yOffsetOrSpeed, speedOrUndefined] as any);
   }
 
+  /**
+   * Rotates an actor to a specified angle over a duration in milliseconds,
+   * you make pick a rotation strategy {@link RotationType} to pick the direction
+   * @param options
+   */
+  public rotateTo(options: RotateToOptions): ActionContext;
   /**
    * This method will rotate an actor to the specified angle at the speed
    * specified (in radians per second) and return back the actor. This
@@ -142,10 +207,17 @@ export class ActionsComponent extends Component implements ActionContextMethods 
    * @param speed         The angular velocity of the rotation specified in radians per second
    * @param rotationType  The {@apilink RotationType} to use for this rotation
    */
-  public rotateTo(angleRadians: number, speed: number, rotationType?: RotationType): ActionContext {
-    return this._getCtx().rotateTo(angleRadians, speed, rotationType);
+  public rotateTo(angleRadians: number, speed: number, rotationType?: RotationType): ActionContext;
+  public rotateTo(angleRadians: number | RotateToOptions, speed?: number, rotationType?: RotationType): ActionContext {
+    return this._getCtx().rotateTo.apply(this._ctx, [angleRadians, speed, rotationType] as any);
   }
 
+  /**
+   * Rotates an actor by a specified offset angle over a duration in milliseconds,
+   * you make pick a rotation strategy {@link RotationType} to pick the direction
+   * @param options
+   */
+  public rotateBy(options: RotateByOptions): ActionContext;
   /**
    * This method will rotate an actor by the specified angle offset, from it's current rotation given a certain speed
    * in radians/sec and return back the actor. This method is part
@@ -154,10 +226,16 @@ export class ActionsComponent extends Component implements ActionContextMethods 
    * @param speed          The speed in radians/sec the actor should rotate at
    * @param rotationType  The {@apilink RotationType} to use for this rotation, default is shortest path
    */
-  public rotateBy(angleRadiansOffset: number, speed: number, rotationType?: RotationType): ActionContext {
-    return this._getCtx().rotateBy(angleRadiansOffset, speed, rotationType);
+  public rotateBy(angleRadiansOffset: number, speed: number, rotationType?: RotationType): ActionContext;
+  public rotateBy(angleRadiansOffsetOrOptions: number | RotateByOptions, speed?: number, rotationType?: RotationType): ActionContext {
+    return this._getCtx().rotateBy.apply(this._ctx, [angleRadiansOffsetOrOptions, speed, rotationType] as any);
   }
 
+  /**
+   * Scales an actor to a specified scale {@link Vector} over a duration
+   * @param options
+   */
+  public scaleTo(options: ScaleToOptions): ActionContext;
   /**
    * This method will scale an actor to the specified size at the speed
    * specified (in magnitude increase per second) and return back the
@@ -179,14 +257,19 @@ export class ActionsComponent extends Component implements ActionContextMethods 
    */
   public scaleTo(sizeX: number, sizeY: number, speedX: number, speedY: number): ActionContext;
   public scaleTo(
-    sizeXOrVector: number | Vector,
-    sizeYOrSpeed: number | Vector,
+    sizeXOrVectorOrOptions: number | Vector | ScaleToOptions,
+    sizeYOrSpeed?: number | Vector,
     speedXOrUndefined?: number,
     speedYOrUndefined?: number
   ): ActionContext {
-    return this._getCtx().scaleTo.apply(this._ctx, [sizeXOrVector, sizeYOrSpeed, speedXOrUndefined, speedYOrUndefined] as any);
+    return this._getCtx().scaleTo.apply(this._ctx, [sizeXOrVectorOrOptions, sizeYOrSpeed, speedXOrUndefined, speedYOrUndefined] as any);
   }
 
+  /**
+   * Scales an actor by a specified scale offset {@link Vector} over a duration in milliseconds
+   * @param options
+   */
+  public scaleBy(options: ScaleByOptions): ActionContext;
   /**
    * This method will scale an actor by an amount relative to the current scale at a certain speed in scale units/sec
    * and return back the actor. This method is part of the
@@ -204,8 +287,12 @@ export class ActionsComponent extends Component implements ActionContextMethods 
    * @param speed    The speed to scale at in scale units/sec
    */
   public scaleBy(sizeOffsetX: number, sizeOffsetY: number, speed: number): ActionContext;
-  public scaleBy(sizeOffsetXOrVector: number | Vector, sizeOffsetYOrSpeed: number, speed?: number): ActionContext {
-    return this._getCtx().scaleBy.apply(this._ctx, [sizeOffsetXOrVector, sizeOffsetYOrSpeed, speed] as any);
+  public scaleBy(
+    sizeOffsetXOrVectorOrOptions: number | Vector | ScaleByOptions,
+    sizeOffsetYOrSpeed?: number,
+    speed?: number
+  ): ActionContext {
+    return this._getCtx().scaleBy.apply(this._ctx, [sizeOffsetXOrVectorOrOptions, sizeOffsetYOrSpeed, speed] as any);
   }
 
   /**
@@ -226,29 +313,29 @@ export class ActionsComponent extends Component implements ActionContextMethods 
    * to the provided value by a specified time (in milliseconds). This method is
    * part of the actor 'Action' fluent API allowing action chaining.
    * @param opacity  The ending opacity
-   * @param duration     The time it should take to fade the actor (in milliseconds)
+   * @param durationMs     The time it should take to fade the actor (in milliseconds)
    */
-  public fade(opacity: number, duration: number): ActionContext {
-    return this._getCtx().fade(opacity, duration);
+  public fade(opacity: number, durationMs: number): ActionContext {
+    return this._getCtx().fade(opacity, durationMs);
   }
 
   /**
    * This will cause an actor to flash a specific color for a period of time
    * @param color
-   * @param duration The duration in milliseconds
+   * @param durationMs The duration in milliseconds
    */
-  public flash(color: Color, duration: number = 1000) {
-    return this._getCtx().flash(color, duration);
+  public flash(color: Color, durationMs: number = 1000) {
+    return this._getCtx().flash(color, durationMs);
   }
 
   /**
    * This method will delay the next action from executing for a certain
    * amount of time (in milliseconds). This method is part of the actor
    * 'Action' fluent API allowing action chaining.
-   * @param duration  The amount of time to delay the next action in the queue from executing in milliseconds
+   * @param durationMs  The amount of time to delay the next action in the queue from executing in milliseconds
    */
-  public delay(duration: number): ActionContext {
-    return this._getCtx().delay(duration);
+  public delay(durationMs: number): ActionContext {
+    return this._getCtx().delay(durationMs);
   }
 
   /**

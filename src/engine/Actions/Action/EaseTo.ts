@@ -4,6 +4,9 @@ import { MotionComponent } from '../../EntityComponentSystem/Components/MotionCo
 import { vec, Vector } from '../../Math/vector';
 import { Action, nextActionId } from '../Action';
 
+/**
+ * @deprecated use moveTo({pos: Vector, durationMs: number, easing: EasingFunction})
+ */
 export class EaseTo implements Action {
   id = nextActionId();
   private _tx: TransformComponent;

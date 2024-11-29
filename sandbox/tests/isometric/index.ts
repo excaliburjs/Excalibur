@@ -42,7 +42,13 @@ isoMap2.tiles.forEach((t) => t.addGraphic(isoTileSprite));
 game.currentScene.add(isoMap2);
 for (const tile of isoMap2.tiles) {
   tile.on('pointerdown', (evt: ex.PointerEvent) => {
-    console.log(tile.x, tile.y);
+    console.log('down', tile.x, tile.y);
+  });
+  tile.on('pointerenter', (evt: ex.PointerEvent) => {
+    console.log('enter', tile.x, tile.y);
+  });
+  tile.on('pointerleave', (evt: ex.PointerEvent) => {
+    console.log('leave', tile.x, tile.y);
   });
 }
 

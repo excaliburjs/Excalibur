@@ -14,7 +14,7 @@ interface SoundState {
  * @see https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API
  */
 export class WebAudioInstance implements Audio {
-  private _instance: AudioBufferSourceNode;
+  private _instance!: AudioBufferSourceNode;
   private _audioContext: AudioContext = AudioContextFactory.create();
   private _volumeNode = this._audioContext.createGain();
 
@@ -24,7 +24,7 @@ export class WebAudioInstance implements Audio {
       start: 'STOPPED',
       states: {
         PLAYING: {
-          onEnter: ({ data }: { from: string; data: SoundState }) => {
+          onEnter: ({ data }) => {
             // Buffer nodes are single use
             this._createNewBufferSource();
             this._handleEnd();
@@ -47,7 +47,7 @@ export class WebAudioInstance implements Audio {
             this._instance.onended = null; // disconnect the wired on-end handler
             this._instance.disconnect();
             this._instance.stop(0);
-            this._instance = null;
+            this._instance = null as any;
           },
           transitions: ['STOPPED', 'PAUSED', 'SEEK']
         },
@@ -59,7 +59,7 @@ export class WebAudioInstance implements Audio {
           transitions: ['*']
         },
         STOPPED: {
-          onEnter: ({ data }: { from: string; data: SoundState }) => {
+          onEnter: ({ data }) => {
             data.pausedAt = 0;
             data.startedAt = 0;
             this._playingFuture.resolve(true);
@@ -67,7 +67,7 @@ export class WebAudioInstance implements Audio {
           transitions: ['PLAYING', 'PAUSED', 'SEEK']
         },
         PAUSED: {
-          onEnter: ({ data }: { data: SoundState }) => {
+          onEnter: ({ data }) => {
             // Playback rate will be a scale factor of how fast/slow the audio is being played
             // default is 1.0
             // we need to invert it to get the time scale
@@ -80,7 +80,7 @@ export class WebAudioInstance implements Audio {
     {
       startedAt: 0,
       pausedAt: 0
-    } as SoundState
+    } satisfies SoundState
   );
 
   private _createNewBufferSource() {
