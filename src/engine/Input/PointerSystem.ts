@@ -47,7 +47,7 @@ export class PointerSystem extends System {
           }
           return false;
         },
-        () => e.active
+        () => e.isActive
       );
       this._entityToPointer.set(e, pointer);
       const maybeGfx = e.get(GraphicsComponent);

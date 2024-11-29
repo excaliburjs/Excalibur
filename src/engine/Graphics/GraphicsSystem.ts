@@ -94,7 +94,7 @@ export class GraphicsSystem extends System {
 
       graphics = entity.get(GraphicsComponent);
       // Exit if graphics set to not visible
-      if (!graphics.visible) {
+      if (!graphics.isVisible) {
         continue;
       }
 
@@ -174,7 +174,7 @@ export class GraphicsSystem extends System {
   }
 
   private _drawGraphicsComponent(graphicsComponent: GraphicsComponent, transformComponent: TransformComponent) {
-    if (graphicsComponent.visible) {
+    if (graphicsComponent.isVisible) {
       const flipHorizontal = graphicsComponent.flipHorizontal;
       const flipVertical = graphicsComponent.flipVertical;
 

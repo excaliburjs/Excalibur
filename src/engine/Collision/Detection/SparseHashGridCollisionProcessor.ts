@@ -309,7 +309,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     }
 
     // if either is dead short circuit
-    if (!colliderA.owner.active || !colliderB.owner.active) {
+    if (!colliderA.owner.isActive || !colliderB.owner.isActive) {
       return false;
     }
 
@@ -329,7 +329,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     let proxyId = 0;
     for (const proxy of this.hashGrid.objectToProxy.values()) {
       proxy.id = proxyId++; // track proxies we've already processed
-      if (!proxy.owner.active || proxy.collisionType === CollisionType.PreventCollision) {
+      if (!proxy.owner.isActive || proxy.collisionType === CollisionType.PreventCollision) {
         continue;
       }
       // for every cell proxy collider is member of
