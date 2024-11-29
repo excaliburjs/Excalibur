@@ -6,6 +6,9 @@ export type Handler<EventType> = (event: EventType) => void;
  * Interface that represents a handle to a subscription that can be closed
  */
 export interface Subscription {
+  /**
+   * Removes the associated event handler, synonymous with events.off(...);
+   */
   close(): void;
 }
 
@@ -19,6 +22,9 @@ export class EventEmitter<TEventMap extends EventMap = any> {
   private _listenersOnce: Record<string, Handler<any>[]> = {};
   private _pipes: EventEmitter<any>[] = [];
 
+  /**
+   * Removes all listeners and pipes
+   */
   clear() {
     this._listeners = {};
     this._listenersOnce = {};
@@ -90,6 +96,10 @@ export class EventEmitter<TEventMap extends EventMap = any> {
     }
   }
 
+  /**
+   * Replay events from this emitter to another
+   * @param emitter
+   */
   pipe(emitter: EventEmitter<any>): Subscription {
     if (this === emitter) {
       throw Error('Cannot pipe to self');
@@ -106,6 +116,10 @@ export class EventEmitter<TEventMap extends EventMap = any> {
     };
   }
 
+  /**
+   * Remove any piped emitters
+   * @param emitter
+   */
   unpipe(emitter: EventEmitter<any>): void {
     const i = this._pipes.indexOf(emitter);
     if (i > -1) {
@@ -113,10 +127,16 @@ export class EventEmitter<TEventMap extends EventMap = any> {
     }
   }
 
+  /**
+   * Paused event emitters do not emit events
+   */
   pause(): void {
     this._paused = true;
   }
 
+  /**
+   * Unpaused event emitter do emit events
+   */
   unpause(): void {
     this._paused = false;
   }
