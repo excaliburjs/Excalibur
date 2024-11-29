@@ -615,10 +615,10 @@ export class Screen {
    *
    * Optionally specify a target element id to go fullscreen, by default the game canvas is used
    * @param elementId
-   * @deprecated use enterFullScreen(...)
+   * @deprecated use enterFullscreen(...)
    */
   public goFullScreen(elementId?: string): Promise<void> {
-    return this.enterFullScreen(elementId);
+    return this.enterFullscreen(elementId);
   }
 
   /**
@@ -628,7 +628,7 @@ export class Screen {
    * Optionally specify a target element id to go fullscreen, by default the game canvas is used
    * @param elementId
    */
-  public enterFullScreen(elementId?: string): Promise<void> {
+  public enterFullscreen(elementId?: string): Promise<void> {
     if (elementId) {
       const maybeElement = document.getElementById(elementId);
       if (maybeElement) {
