@@ -36,6 +36,7 @@ import { MaterialRenderer } from './material-renderer/material-renderer';
 import { Shader, ShaderOptions } from './shader';
 import { GarbageCollector } from '../../GarbageCollector';
 import { ImageRendererV2 } from './image-renderer-v2/image-renderer-v2';
+import { Flags } from '../../Flags';
 
 export const pixelSnapEpsilon = 0.0001;
 
@@ -98,6 +99,7 @@ export interface ExcaliburGraphicsContextWebGLOptions extends ExcaliburGraphicsC
 export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   private _logger = Logger.getInstance();
   private _renderers: Map<string, RendererPlugin> = new Map<string, RendererPlugin>();
+  public imageRender: 'ex.image' | 'ex.image-v2' = Flags.isEnabled('use-legacy-image-renderer') ? 'ex.image' : 'ex.image-v2';
   private _isDrawLifecycle = false;
   public useDrawSorting = true;
 
@@ -534,7 +536,11 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     if (this._state.current.material) {
       this.draw<MaterialRenderer>('ex.material', image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
     } else {
-      this.draw<ImageRendererV2>('ex.image-v2', image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
+      if (this.imageRender === 'ex.image') {
+        this.draw<ImageRenderer>(this.imageRender, image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
+      } else {
+        this.draw<ImageRendererV2>(this.imageRender, image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
+      }
     }
   }
 
