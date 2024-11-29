@@ -73,7 +73,7 @@ export class Flash implements Action {
 
   public stop(): void {
     if (this._graphics) {
-      this._graphics.visible = true;
+      this._graphics.isVisible = true;
     }
     this._stopped = true;
   }

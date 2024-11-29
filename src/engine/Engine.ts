@@ -296,7 +296,7 @@ export interface EngineOptions<TKnownScenes extends string = any> {
   maxFps?: number;
 
   /**
-   * Optionally configure a fixed update timestep in milliseconds, this can be desireable if you need the physics simulation to be very stable. When
+   * Optionally configure a fixed update timestep in milliseconds, this can be desirable if you need the physics simulation to be very stable. When
    * set the update step and physics will use the same elapsed time for each tick even if the graphical framerate drops. In order for the
    * simulation to be correct, excalibur will run multiple updates in a row (at the configured update elapsed) to catch up, for example
    * there could be X updates and 1 draw each clock step.
@@ -311,7 +311,7 @@ export interface EngineOptions<TKnownScenes extends string = any> {
   fixedUpdateTimestep?: number;
 
   /**
-   * Optionally configure a fixed update fps, this can be desireable if you need the physics simulation to be very stable. When set
+   * Optionally configure a fixed update fps, this can be desirable if you need the physics simulation to be very stable. When set
    * the update step and physics will use the same elapsed time for each tick even if the graphical framerate drops. In order for the
    * simulation to be correct, excalibur will run multiple updates in a row (at the configured update elapsed) to catch up, for example
    * there could be X updates and 1 draw each clock step.
@@ -471,7 +471,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   public maxFps: number = Number.POSITIVE_INFINITY;
 
   /**
-   * Optionally configure a fixed update fps, this can be desireable if you need the physics simulation to be very stable. When set
+   * Optionally configure a fixed update fps, this can be desirable if you need the physics simulation to be very stable. When set
    * the update step and physics will use the same elapsed time for each tick even if the graphical framerate drops. In order for the
    * simulation to be correct, excalibur will run multiple updates in a row (at the configured update elapsed) to catch up, for example
    * there could be X updates and 1 draw each clock step.
@@ -486,7 +486,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   public readonly fixedUpdateFps?: number;
 
   /**
-   * Optionally configure a fixed update timestep in milliseconds, this can be desireable if you need the physics simulation to be very stable. When
+   * Optionally configure a fixed update timestep in milliseconds, this can be desirable if you need the physics simulation to be very stable. When
    * set the update step and physics will use the same elapsed time for each tick even if the graphical framerate drops. In order for the
    * simulation to be correct, excalibur will run multiple updates in a row (at the configured update elapsed) to catch up, for example
    * there could be X updates and 1 draw each clock step.

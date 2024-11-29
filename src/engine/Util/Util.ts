@@ -94,7 +94,6 @@ export function omit<TObject extends Object, Keys extends keyof TObject>(object:
 /**
  * Simple object check.
  * @param item
- * @returns {boolean}
  */
 export function isObject(item: any): item is object {
   return item && typeof item === 'object' && !Array.isArray(item);
@@ -103,7 +102,7 @@ export function isObject(item: any): item is object {
 /**
  * Deep merge two objects.
  * @param target
- * @param ...sources
+ * @param sources
  */
 export function mergeDeep<T extends object>(target: T, ...sources: T[]) {
   if (!sources.length) {

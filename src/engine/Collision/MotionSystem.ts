@@ -37,7 +37,7 @@ export class MotionSystem extends System {
         optionalBody.updatePhysicsConfig(this.physics.config.bodies);
       }
 
-      if (optionalBody?.sleeping) {
+      if (optionalBody?.isSleeping) {
         continue;
       }
 

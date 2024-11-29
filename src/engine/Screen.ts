@@ -277,7 +277,7 @@ export class Screen {
   private _viewportStack: ViewportDimension[] = [];
   private _pixelRatioOverride: number | null = null;
   private _displayMode: DisplayMode;
-  private _isFullScreen = false;
+  private _isFullscreen = false;
   private _mediaQueryList: MediaQueryList;
   private _isDisposed = false;
   private _logger = Logger.getInstance();
@@ -344,8 +344,8 @@ export class Screen {
     if (this._isDisposed) {
       return;
     }
-    this._isFullScreen = !this._isFullScreen;
-    this._logger.debug('Fullscreen Change', this._isFullScreen);
+    this._isFullscreen = !this._isFullscreen;
+    this._logger.debug('Fullscreen Change', this._isFullscreen);
     this.events.emit('fullscreen', {
       fullscreen: this.isFullScreen
     } satisfies FullScreenChangeEvent);
@@ -596,9 +596,17 @@ export class Screen {
 
   /**
    * Returns true if excalibur is fullscreen using the browser fullscreen api
+   * @deprecated use isFullscreen()
    */
   public get isFullScreen() {
-    return this._isFullScreen;
+    return this._isFullscreen;
+  }
+
+  /**
+   * Returns true if excalibur is fullscreen using the browser fullscreen api
+   */
+  public get isFullscreen() {
+    return this._isFullscreen;
   }
 
   /**
@@ -607,8 +615,20 @@ export class Screen {
    *
    * Optionally specify a target element id to go fullscreen, by default the game canvas is used
    * @param elementId
+   * @deprecated use enterFullscreen(...)
    */
   public goFullScreen(elementId?: string): Promise<void> {
+    return this.enterFullscreen(elementId);
+  }
+
+  /**
+   * Requests to enter fullscreen using the browser fullscreen api, requires user interaction to be successful.
+   * For example, wire this to a user click handler.
+   *
+   * Optionally specify a target element id to go fullscreen, by default the game canvas is used
+   * @param elementId
+   */
+  public enterFullscreen(elementId?: string): Promise<void> {
     if (elementId) {
       const maybeElement = document.getElementById(elementId);
       if (maybeElement) {
@@ -625,8 +645,13 @@ export class Screen {
 
   /**
    * Requests to exit fullscreen using the browser fullscreen api
+   * @deprecated use exitFullscreen()
    */
   public exitFullScreen(): Promise<void> {
+    return this.exitFullscreen();
+  }
+
+  public exitFullscreen(): Promise<void> {
     return document.exitFullscreen();
   }
 
@@ -650,7 +675,7 @@ export class Screen {
     let newX = point.x;
     let newY = point.y;
 
-    if (!this._isFullScreen) {
+    if (!this._isFullscreen) {
       newX -= getPosition(this._canvas).x;
       newY -= getPosition(this._canvas).y;
     }
@@ -659,7 +684,7 @@ export class Screen {
 
     // if fullscreen api on it centers with black bars
     // we need to adjust the screen to world coordinates in this case
-    if (this._isFullScreen) {
+    if (this._isFullscreen) {
       if (window.innerWidth / this.aspectRatio < window.innerHeight) {
         const screenHeight = window.innerWidth / this.aspectRatio;
         const screenMarginY = (window.innerHeight - screenHeight) / 2;
@@ -702,7 +727,7 @@ export class Screen {
     newX = (newX / this.resolution.width) * viewport.width;
     newY = (newY / this.resolution.height) * viewport.height;
 
-    if (this._isFullScreen) {
+    if (this._isFullscreen) {
       if (window.innerWidth / this.aspectRatio < window.innerHeight) {
         const screenHeight = window.innerWidth / this.aspectRatio;
         const screenMarginY = (window.innerHeight - screenHeight) / 2;
@@ -716,7 +741,7 @@ export class Screen {
       }
     }
 
-    if (!this._isFullScreen) {
+    if (!this._isFullscreen) {
       newX += getPosition(this._canvas).x;
       newY += getPosition(this._canvas).y;
     }

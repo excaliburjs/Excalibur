@@ -62,7 +62,7 @@ export class Pair {
     }
 
     // if either is dead short circuit
-    if (!bodyA.active || !bodyB.active) {
+    if (!bodyA.isActive || !bodyB.isActive) {
       return false;
     }
 

@@ -31,18 +31,18 @@ export class Blink implements Action {
 
     this._elapsedTime += elapsedMs;
     this._totalTime += elapsedMs;
-    if (this._graphics.visible && this._elapsedTime >= this._timeVisible) {
-      this._graphics.visible = false;
+    if (this._graphics.isVisible && this._elapsedTime >= this._timeVisible) {
+      this._graphics.isVisible = false;
       this._elapsedTime = 0;
     }
 
-    if (!this._graphics.visible && this._elapsedTime >= this._timeNotVisible) {
-      this._graphics.visible = true;
+    if (!this._graphics.isVisible && this._elapsedTime >= this._timeNotVisible) {
+      this._graphics.isVisible = true;
       this._elapsedTime = 0;
     }
 
     if (this.isComplete()) {
-      this._graphics.visible = true;
+      this._graphics.isVisible = true;
     }
   }
 
@@ -52,7 +52,7 @@ export class Blink implements Action {
 
   public stop(): void {
     if (this._graphics) {
-      this._graphics.visible = true;
+      this._graphics.isVisible = true;
     }
     this._stopped = true;
   }

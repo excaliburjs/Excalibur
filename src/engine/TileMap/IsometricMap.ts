@@ -44,7 +44,7 @@ export class IsometricTile extends Entity {
    */
   public addGraphic(graphic: Graphic, options?: { offset?: Vector }) {
     this._graphics.push(graphic);
-    this._gfx.visible = this.map.visible;
+    this._gfx.isVisible = this.map.isVisible;
     this._gfx.opacity = this.map.opacity;
     if (options?.offset) {
       this._gfx.offset = options.offset;
@@ -75,7 +75,7 @@ export class IsometricTile extends Entity {
 
   public clearGraphics() {
     this._graphics.length = 0;
-    this._gfx.visible = false;
+    this._gfx.isVisible = false;
     this._gfx.localBounds = this._recalculateBounds();
   }
 
@@ -186,7 +186,7 @@ export class IsometricTile extends Entity {
     this._isometricEntityComponent.elevation = map.elevation;
 
     this._gfx = this.get(GraphicsComponent);
-    this._gfx.visible = false; // start not visible
+    this._gfx.isVisible = false; // start not visible
     const totalWidth = this.map.tileWidth;
     const totalHeight = this.map.tileHeight;
 
@@ -288,8 +288,24 @@ export class IsometricMap extends Entity implements HasNestedPointerEvents {
 
   /**
    * Whether tiles should be visible
+   * @deprecated use isVisible
    */
-  public visible = true;
+  public get visible(): boolean {
+    return this.isVisible;
+  }
+
+  /**
+   * Whether tiles should be visible
+   * @deprecated use isVisible
+   */
+  public set visible(val: boolean) {
+    this.isVisible = val;
+  }
+
+  /**
+   * Whether tiles should be visible
+   */
+  public isVisible = true;
 
   /**
    * Opacity of tiles

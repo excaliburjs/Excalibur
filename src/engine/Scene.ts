@@ -646,7 +646,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   public remove(entity: any): void {
     if (entity instanceof Entity) {
       this.emit('entityremoved', { target: entity } as any);
-      if (entity.active) {
+      if (entity.isActive) {
         entity.kill();
       }
       this.world.remove(entity);

@@ -125,7 +125,7 @@ export class Particle extends Entity {
   }
 
   public override kill() {
-    if (this._emitter?.active) {
+    if (this._emitter?.isActive) {
       this._emitter.removeParticle(this);
     } else {
       super.kill();

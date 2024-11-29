@@ -55,7 +55,7 @@ export class PointerAbstraction {
   /**
    * Called internally by excalibur to keep pointers up to date
    * @internal
-   * @param pos
+   * @param engine
    */
   public _updateWorldPosition(engine: Engine) {
     const coord = GlobalCoordinates.fromPagePosition(this.lastPagePos, engine);

@@ -86,7 +86,7 @@ export class CollisionSystem extends System {
       const entity = this.query.entities[entityIndex];
       const colliderComp = entity.get(ColliderComponent);
       const collider = colliderComp?.get();
-      if (colliderComp && colliderComp.owner?.active && collider) {
+      if (colliderComp && colliderComp.owner?.isActive && collider) {
         colliderComp.update();
 
         // Flatten composite colliders

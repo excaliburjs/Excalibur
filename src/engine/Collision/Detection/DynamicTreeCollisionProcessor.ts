@@ -179,7 +179,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
     // Retrieve the list of potential colliders, exclude killed, prevented, and self
     const potentialColliders = targets.filter((other) => {
       const body = other.owner?.get(BodyComponent);
-      return other.owner?.active && body.collisionType !== CollisionType.PreventCollision;
+      return other.owner?.isActive && body.collisionType !== CollisionType.PreventCollision;
     });
 
     // clear old list of collision pairs
