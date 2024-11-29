@@ -529,7 +529,7 @@ export class PolygonCollider extends Collider {
 
     let intersectCount = 0;
     const sides = this.getLocalSides();
-    for (let sideIndex = 0; sides.length; sideIndex++) {
+    for (let sideIndex = 0; sideIndex < sides.length; sideIndex++) {
       const side = sides[sideIndex];
       if (testRay.intersect(side) >= 0) {
         intersectCount++;
