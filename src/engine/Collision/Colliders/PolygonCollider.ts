@@ -524,13 +524,17 @@ export class PolygonCollider extends Collider {
   public contains(point: Vector): boolean {
     // Always cast to the right, as long as we cast in a consistent fixed direction we
     // will be fine
-    const testRay = new Ray(point, new Vector(1, 0));
-    const intersectCount = this.getSides().reduce(function (accum, side) {
+    const localPoint = this._transform.applyInverse(point);
+    const testRay = new Ray(localPoint, new Vector(1, 0));
+
+    let intersectCount = 0;
+    const sides = this.getLocalSides();
+    for (let sideIndex = 0; sideIndex < sides.length; sideIndex++) {
+      const side = sides[sideIndex];
       if (testRay.intersect(side) >= 0) {
-        return accum + 1;
+        intersectCount++;
       }
-      return accum;
-    }, 0);
+    }
 
     if (intersectCount % 2 === 0) {
       return false;
