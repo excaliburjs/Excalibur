@@ -36,6 +36,8 @@ import { MaterialRenderer } from './material-renderer/material-renderer';
 import { Shader, ShaderOptions } from './shader';
 import { GarbageCollector } from '../../GarbageCollector';
 import { ParticleRenderer } from './particle-renderer/particle-renderer';
+import { ImageRendererV2 } from './image-renderer-v2/image-renderer-v2';
+import { Flags } from '../../Flags';
 
 export const pixelSnapEpsilon = 0.0001;
 
@@ -98,20 +100,11 @@ export interface ExcaliburGraphicsContextWebGLOptions extends ExcaliburGraphicsC
 export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   private _logger = Logger.getInstance();
   private _renderers: Map<string, RendererPlugin> = new Map<string, RendererPlugin>();
+  public imageRenderer: 'ex.image' | 'ex.image-v2' = Flags.isEnabled('use-legacy-image-renderer') ? 'ex.image' : 'ex.image-v2';
   private _isDrawLifecycle = false;
   public useDrawSorting = true;
 
-  private _drawCallPool = new Pool<DrawCall>(
-    () => new DrawCall(),
-    (instance) => {
-      instance.priority = 0;
-      instance.z = 0;
-      instance.renderer = undefined as any;
-      instance.args = undefined as any;
-      return instance;
-    },
-    4000
-  );
+  private _drawCallPool = new Pool<DrawCall>(() => new DrawCall(), undefined, 4000);
 
   private _drawCallIndex = 0;
   private _drawCalls: DrawCall[] = new Array(4000).fill(null);
@@ -312,7 +305,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.blendEquationSeparate(gl.FUNC_ADD, gl.FUNC_ADD);
     gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-
+    gl.depthMask(false);
     // Setup builtin renderers
     this.register(
       new ImageRenderer({
@@ -326,6 +319,12 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this.register(new PointRenderer());
     this.register(new LineRenderer());
     this.register(new ParticleRenderer());
+    this.register(
+      new ImageRendererV2({
+        uvPadding: this.uvPadding,
+        pixelArtSampler: this.pixelArtSampler
+      })
+    );
 
     this.materialScreenTexture = gl.createTexture();
     if (!this.materialScreenTexture) {
@@ -400,6 +399,11 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   }
 
   public draw<TRenderer extends RendererPlugin>(rendererName: TRenderer['type'], ...args: Parameters<TRenderer['draw']>) {
+    if (process.env.NODE_ENV === 'development') {
+      if (args.length > 9) {
+        throw new Error('Only 10 or less renderer arguments are supported!;');
+      }
+    }
     if (!this._isDrawLifecycle) {
       this._logger.warnOnce(
         `Attempting to draw outside the the drawing lifecycle (preDraw/postDraw) is not supported and is a source of bugs/errors.\n` +
@@ -423,7 +427,16 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
         drawCall.state.opacity = this._state.current.opacity;
         drawCall.state.tint = this._state.current.tint;
         drawCall.state.material = this._state.current.material;
-        drawCall.args = args;
+        drawCall.args[0] = args[0];
+        drawCall.args[1] = args[1];
+        drawCall.args[2] = args[2];
+        drawCall.args[3] = args[3];
+        drawCall.args[4] = args[4];
+        drawCall.args[5] = args[5];
+        drawCall.args[6] = args[6];
+        drawCall.args[7] = args[7];
+        drawCall.args[8] = args[8];
+        drawCall.args[9] = args[9];
         this._drawCalls[this._drawCallIndex++] = drawCall;
       } else {
         // Set the current renderer if not defined
@@ -437,7 +450,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
         }
 
         // If we are still using the same renderer we can add to the current batch
-        renderer.draw(...args);
+        renderer.draw(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9]);
 
         this._currentRenderer = renderer;
       }
@@ -525,7 +538,11 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     if (this._state.current.material) {
       this.draw<MaterialRenderer>('ex.material', image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
     } else {
-      this.draw<ImageRenderer>('ex.image', image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
+      if (this.imageRenderer === 'ex.image') {
+        this.draw<ImageRenderer>(this.imageRenderer, image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
+      } else {
+        this.draw<ImageRendererV2>(this.imageRenderer, image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
+      }
     }
   }
 

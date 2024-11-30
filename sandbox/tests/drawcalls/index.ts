@@ -12,7 +12,10 @@ var loader = new ex.Loader([tex]);
 
 var random = new ex.Random(1337);
 
-var items = [{ pos: ex.Vector.Zero, vel: ex.vec(random.integer(50, 100), random.integer(50, 100)) }];
+var items = [
+  { pos: ex.Vector.Zero, vel: ex.vec(random.integer(50, 100), random.integer(50, 100)) },
+  { pos: ex.Vector.Zero, vel: ex.vec(random.integer(50, 100), random.integer(50, 100)) }
+];
 var drawCalls$ = document.getElementById('draw-calls');
 var drawnItems$ = document.getElementById('drawn-items');
 var add$ = document.getElementById('add');
@@ -39,7 +42,7 @@ game.start(loader).then(() => {
         items[i].vel.y *= -1;
       }
     }
-    game.graphicsContext.drawCircle(ex.vec(200, 200), width / 4, ex.Color.Blue, ex.Color.Black, 2);
+    // game.graphicsContext.drawCircle(ex.vec(200, 200), width / 4, ex.Color.Blue, ex.Color.Black, 2);
   };
 
   game.onPostDraw = (_engine, deltaMs) => {

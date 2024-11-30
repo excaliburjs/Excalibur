@@ -1,0 +1,10 @@
+{
+  "name": "@excaliburjs/excalibur",
+  "version": "0.0.1",
+  "exports": {
+    ".": "./build/esm/excalibur.js"
+  },
+  "publish": {
+    "include": ["LICENSE.md", "README.md", "./build/esm/**/*.*"]
+  }
+}

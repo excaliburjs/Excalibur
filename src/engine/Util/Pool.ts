@@ -8,7 +8,7 @@ export class Pool<Type> {
 
   constructor(
     public builder: () => Type,
-    public recycler: (instance: Type) => Type,
+    public recycler?: (instance: Type) => Type,
     public maxObjects: number = 100
   ) {}
 
@@ -59,7 +59,10 @@ export class Pool<Type> {
 
     if (this.objects[this.index]) {
       // Pool has an available object already constructed
-      return this.recycler(this.objects[this.index++]);
+      if (this.recycler) {
+        return this.recycler(this.objects[this.index++]);
+      }
+      return this.objects[this.index++];
     } else {
       // New allocation
       this.totalAllocations++;

@@ -42,8 +42,6 @@ import { PointerEvent } from './Input/PointerEvent';
 import { WheelEvent } from './Input/WheelEvent';
 import { PointerComponent } from './Input/PointerComponent';
 import { ActionsComponent } from './Actions/ActionsComponent';
-import { Raster } from './Graphics/Raster';
-import { Text } from './Graphics/Text';
 import { CoordPlane } from './Math/coord-plane';
 import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
 import { Component } from './EntityComponentSystem';
@@ -541,16 +539,11 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * Sets the color of the actor's current graphic
    */
   public get color(): Color {
-    return this._color;
+    return this.graphics.color;
   }
   public set color(v: Color) {
-    this._color = v.clone();
-    const currentGraphic = this.graphics.current;
-    if (currentGraphic instanceof Raster || currentGraphic instanceof Text) {
-      currentGraphic.color = this._color;
-    }
+    this.graphics.color = v;
   }
-  private _color: Color;
 
   // #endregion
 
@@ -666,7 +659,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
       }
     }
 
-    this.graphics.visible = visible ?? true;
+    this.graphics.isVisible = visible ?? true;
   }
 
   public clone(): Actor {
@@ -818,14 +811,14 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * If the current actor is killed, it will now not be killed.
    */
   public unkill() {
-    this.active = true;
+    this.isActive = true;
   }
 
   /**
    * Indicates wether the actor has been killed.
    */
   public isKilled(): boolean {
-    return !this.active;
+    return !this.isActive;
   }
 
   /**

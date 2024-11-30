@@ -131,8 +131,8 @@ You can customize how pointer events are handled by setting the [[EngineOptions.
 /// <reference path="../src/engine/excalibur.d.ts" />
 // ---cut---
 const game = new ex.Engine({
-  pointerScope: ex.Input.PointerScope.C
-//                                     ^|
+  pointerScope: ex.PointerScope.C
+//                              ^|
 });
 ```
 
@@ -147,8 +147,8 @@ You also have the option to handle _all_ pointer events in the browser window by
 /// <reference path="../src/engine/excalibur.d.ts" />
 // ---cut---
 const game = new ex.Engine({
-  pointerScope: ex.Input.PointerScope.D
-//                                     ^|
+  pointerScope: ex.PointerScope.D
+//                              ^|
 });
 ```
 
@@ -241,15 +241,15 @@ Actors have the following **extra** events you can subscribe to:
 ## Checking the Pointer Type
 
 The primary pointer can be a mouse, stylus, or single finger touch event. You
-can inspect what type of pointer it is from the [[Input.PointerEvent|PointerEvent]] handled.
+can inspect what type of pointer it is from the [[PointerEvent|PointerEvent]] handled.
 
 ```ts twoslash
 // @include: ex
 // ---cut---
-engine.input.pointers.primary.on('down', function (pe: ex.Input.PointerEvent) {
-  if (pe.pointerType === ex.Input.PointerType.Mouse) {
+engine.input.pointers.primary.on('down', function (pe: ex.PointerEvent) {
+  if (pe.pointerType === ex.PointerType.Mouse) {
     ex.Logger.getInstance().info('Mouse event:', pe);
-  } else if (pe.pointerType === ex.Input.PointerType.Touch) {
+  } else if (pe.pointerType === ex.PointerType.Touch) {
     ex.Logger.getInstance().info('Touch event:', pe);
   }
 });
@@ -280,8 +280,8 @@ know that there are _n_ touches on the screen at once.
 // ---cut---
 function paint(color: ex.Color) {
   // create a handler for the event
-  return function (pe: ex.Input.PointerEvent) {
-    if (pe.pointerType === ex.Input.PointerType.Touch) {
+  return function (pe: ex.PointerEvent) {
+    if (pe.pointerType === ex.PointerType.Touch) {
       engine.graphicsContext.drawRectangle(pe.worldPos, 5, 5, color);
     }
   };

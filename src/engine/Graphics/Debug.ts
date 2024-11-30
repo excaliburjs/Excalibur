@@ -2,7 +2,7 @@ import { Vector } from '../Math/vector';
 import { ExcaliburGraphicsContext, LineGraphicsOptions, PointGraphicsOptions } from './Context/ExcaliburGraphicsContext';
 import { Color } from '../Color';
 import { Ray } from '../Math/ray';
-import { BoundingBox } from '../excalibur';
+import { BoundingBox } from '../Collision/BoundingBox';
 
 export class Debug {
   static _drawCalls: ((ctx: ExcaliburGraphicsContext) => void)[] = [];

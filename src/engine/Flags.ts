@@ -17,6 +17,13 @@ export class Flags {
   }
 
   /**
+   * Force excalibur to use the less optimized image renderer
+   */
+  public static useLegacyImageRenderer() {
+    Flags.enable('use-legacy-image-renderer');
+  }
+
+  /**
    * Freeze all flag modifications making them readonly
    */
   public static freeze() {

@@ -13,12 +13,16 @@ import { DebugConfig } from '../Debug';
 import { PointerComponent } from '../Input/PointerComponent';
 import { PointerEvent } from '../Input/PointerEvent';
 import { EventEmitter } from '../EventEmitter';
+import { HasNestedPointerEvents, PointerEventsToObjectDispatcher } from '../Input/PointerEventsToObjectDispatcher';
+import { PointerEventReceiver } from '../Input/PointerEventReceiver';
 
 export type IsometricTilePointerEvents = {
   pointerup: PointerEvent;
   pointerdown: PointerEvent;
   pointermove: PointerEvent;
   pointercancel: PointerEvent;
+  pointerenter: PointerEvent;
+  pointerleave: PointerEvent;
 };
 
 export class IsometricTile extends Entity {
@@ -40,7 +44,7 @@ export class IsometricTile extends Entity {
    */
   public addGraphic(graphic: Graphic, options?: { offset?: Vector }) {
     this._graphics.push(graphic);
-    this._gfx.visible = this.map.visible;
+    this._gfx.isVisible = this.map.isVisible;
     this._gfx.opacity = this.map.opacity;
     if (options?.offset) {
       this._gfx.offset = options.offset;
@@ -71,7 +75,7 @@ export class IsometricTile extends Entity {
 
   public clearGraphics() {
     this._graphics.length = 0;
-    this._gfx.visible = false;
+    this._gfx.isVisible = false;
     this._gfx.localBounds = this._recalculateBounds();
   }
 
@@ -182,7 +186,7 @@ export class IsometricTile extends Entity {
     this._isometricEntityComponent.elevation = map.elevation;
 
     this._gfx = this.get(GraphicsComponent);
-    this._gfx.visible = false; // start not visible
+    this._gfx.isVisible = false; // start not visible
     const totalWidth = this.map.tileWidth;
     const totalHeight = this.map.tileHeight;
 
@@ -258,7 +262,7 @@ export interface IsometricMapOptions {
  * Please refer to the docs https://excaliburjs.com for more details calculating what your tile width and height should be given
  * your art assets.
  */
-export class IsometricMap extends Entity {
+export class IsometricMap extends Entity implements HasNestedPointerEvents {
   public readonly elevation: number = 0;
 
   /**
@@ -284,8 +288,24 @@ export class IsometricMap extends Entity {
 
   /**
    * Whether tiles should be visible
+   * @deprecated use isVisible
    */
-  public visible = true;
+  public get visible(): boolean {
+    return this.isVisible;
+  }
+
+  /**
+   * Whether tiles should be visible
+   * @deprecated use isVisible
+   */
+  public set visible(val: boolean) {
+    this.isVisible = val;
+  }
+
+  /**
+   * Whether tiles should be visible
+   */
+  public isVisible = true;
 
   /**
    * Opacity of tiles
@@ -313,6 +333,7 @@ export class IsometricMap extends Entity {
   public pointer: PointerComponent;
 
   private _composite!: CompositeCollider;
+  private _pointerEventDispatcher: PointerEventsToObjectDispatcher<IsometricTile>;
 
   constructor(options: IsometricMapOptions) {
     super(
@@ -350,6 +371,8 @@ export class IsometricMap extends Entity {
     this.columns = width;
     this.rows = height;
 
+    this._pointerEventDispatcher = new PointerEventsToObjectDispatcher();
+
     this.tiles = new Array(width * height);
 
     // build up tile representation
@@ -358,6 +381,11 @@ export class IsometricMap extends Entity {
         const tile = new IsometricTile(x, y, this.graphicsOffset, this);
         this.tiles[x + y * width] = tile;
         this.addChild(tile);
+        this._pointerEventDispatcher.addObject(
+          tile,
+          (p) => this.getTileByPoint(p.worldPos) === tile,
+          () => true
+        );
       }
     }
 
@@ -366,22 +394,20 @@ export class IsometricMap extends Entity {
       tileHeight * height * this.transform.scale.y,
       vec(0.5, 0)
     );
-
-    this._setupPointerToTile();
   }
 
-  private _forwardPointerEventToTile = (eventType: string) => (evt: PointerEvent) => {
-    const tile = this.getTileByPoint(evt.worldPos);
-    if (tile) {
-      tile.events.emit(eventType, evt);
-    }
-  };
+  /**
+   * @internal
+   */
+  public _processPointerToObject(receiver: PointerEventReceiver) {
+    this._pointerEventDispatcher.processPointerToObject(receiver, this.tiles);
+  }
 
-  private _setupPointerToTile() {
-    this.events.on('pointerup', this._forwardPointerEventToTile('pointerup') as any);
-    this.events.on('pointerdown', this._forwardPointerEventToTile('pointerdown') as any);
-    this.events.on('pointermove', this._forwardPointerEventToTile('pointermove') as any);
-    this.events.on('pointercancel', this._forwardPointerEventToTile('pointercancel') as any);
+  /**
+   * @internal
+   */
+  public _dispatchPointerEvents(receiver: PointerEventReceiver) {
+    this._pointerEventDispatcher.dispatchEvents(receiver, this.tiles);
   }
 
   public update(): void {
@@ -389,6 +415,8 @@ export class IsometricMap extends Entity {
       this.updateColliders();
       this._collidersDirty = false;
     }
+
+    this._pointerEventDispatcher.clear();
   }
 
   private _collidersDirty = false;

@@ -73,6 +73,13 @@ export class HashGridProxy<T extends { bounds: BoundingBox }> {
   }
 
   /**
+   * Update bounds of the proxy
+   */
+  updateBounds(): void {
+    this.bounds = this.object.bounds;
+  }
+
+  /**
    * Updates the hashed bounds coordinates
    */
   update(): void {
@@ -153,6 +160,7 @@ export class SparseHashGrid<TObject extends { bounds: BoundingBox }, TProxy exte
           const cell = this.sparseHashGrid.get(key);
           if (cell) {
             for (let i = 0; i < cell.proxies.length; i++) {
+              cell.proxies[i].updateBounds();
               if (cell.proxies[i].bounds.intersect(bounds)) {
                 results.add(cell.proxies[i].object);
               }
@@ -167,6 +175,7 @@ export class SparseHashGrid<TObject extends { bounds: BoundingBox }, TProxy exte
       const cell = this.sparseHashGrid.get(key);
       if (cell) {
         for (let i = 0; i < cell.proxies.length; i++) {
+          cell.proxies[i].updateBounds();
           if (cell.proxies[i].bounds.contains(point)) {
             results.add(cell.proxies[i].object);
           }

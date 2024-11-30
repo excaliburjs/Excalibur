@@ -22,7 +22,7 @@ export class EntityManager {
     for (let entityIndex = 0; entityIndex < this.entities.length; entityIndex++) {
       const entity = this.entities[entityIndex];
       entity.update(scene.engine, elapsed);
-      if (!entity.active) {
+      if (!entity.isActive) {
         this.removeEntity(entity);
       }
     }
@@ -31,7 +31,7 @@ export class EntityManager {
   public findEntitiesForRemoval() {
     for (let entityIndex = 0; entityIndex < this.entities.length; entityIndex++) {
       const entity = this.entities[entityIndex];
-      if (!entity.active) {
+      if (!entity.isActive) {
         this.removeEntity(entity);
       }
     }
@@ -50,7 +50,7 @@ export class EntityManager {
    * @param entity
    */
   public addEntity(entity: Entity): void {
-    entity.active = true;
+    entity.isActive = true;
     entity.scene = this._world.scene;
     if (entity && !this._entityIndex[entity.id]) {
       this._entityIndex[entity.id] = entity;
@@ -81,8 +81,8 @@ export class EntityManager {
       id = idOrEntity;
     }
     const entity = this._entityIndex[id];
-    if (entity && entity.active) {
-      entity.active = false;
+    if (entity && entity.isActive) {
+      entity.isActive = false;
     }
 
     if (entity && deferred) {
@@ -121,7 +121,7 @@ export class EntityManager {
   public processEntityRemovals(): void {
     for (let entityIndex = 0; entityIndex < this._entitiesToRemove.length; entityIndex++) {
       const entity = this._entitiesToRemove[entityIndex];
-      if (entity.active) {
+      if (entity.isActive) {
         continue;
       }
       this.removeEntity(entity, false);

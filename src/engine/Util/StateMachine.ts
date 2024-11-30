@@ -1,37 +1,37 @@
-export interface State {
+export interface State<TData> {
   name?: string;
   transitions: string[];
-  onEnter?: (context: { from: string; eventData?: any; data: any }) => boolean | void;
+  onEnter?: (context: { from: string; eventData?: any; data: TData }) => boolean | void;
   onState?: () => any;
-  onExit?: (context: { to: string; data: any }) => boolean | void;
-  onUpdate?: (data: any, elapsedMs: number) => any;
+  onExit?: (context: { to: string; data: TData }) => boolean | void;
+  onUpdate?: (data: TData, elapsedMs: number) => any;
 }
 
-export interface StateMachineDescription {
+export interface StateMachineDescription<TData = any> {
   start: string;
-  states: { [name: string]: State };
+  states: { [name: string]: State<TData> };
 }
 
 export type PossibleStates<TMachine> = TMachine extends StateMachineDescription ? Extract<keyof TMachine['states'], string> : never;
 
-export interface StateMachineState {
-  data: any;
+export interface StateMachineState<TData> {
+  data: TData;
   currentState: string;
 }
 
 export class StateMachine<TPossibleStates extends string, TData> {
-  public startState: State;
-  private _currentState: State;
-  public get currentState(): State {
+  public startState: State<TData>;
+  private _currentState: State<TData>;
+  public get currentState(): State<TData> {
     return this._currentState;
   }
-  public set currentState(state: State) {
+  public set currentState(state: State<TData>) {
     this._currentState = state;
   }
-  public states = new Map<string, State>();
+  public states = new Map<string, State<TData>>();
   public data: TData;
 
-  static create<TMachine extends StateMachineDescription, TData>(
+  static create<TMachine extends StateMachineDescription<TData>, TData>(
     machineDescription: TMachine,
     data?: TData
   ): StateMachine<PossibleStates<TMachine>, TData> {
@@ -81,7 +81,6 @@ export class StateMachine<TPossibleStates extends string, TData> {
           return false;
         }
       }
-      // console.log(`${this.currentState.name} => ${potentialNewState.name} (${eventData})`);
       this.currentState = potentialNewState;
       if (this.currentState?.onState) {
         this.currentState.onState();
@@ -108,7 +107,7 @@ export class StateMachine<TPossibleStates extends string, TData> {
   }
 
   restore(saveKey: string) {
-    const state: StateMachineState = JSON.parse(localStorage.getItem(saveKey));
+    const state: StateMachineState<TData> = JSON.parse(localStorage.getItem(saveKey));
     this.currentState = this.states.get(state.currentState);
     this.data = state.data;
   }

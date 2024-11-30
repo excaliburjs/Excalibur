@@ -191,7 +191,7 @@ export class DebugSystem extends System {
         }
 
         if (bodySettings.showAll || bodySettings.showSleeping) {
-          this._graphicsContext.debug.drawText(`sleeping(${body.canSleep ? body.sleeping : 'cant sleep'})`, cursor);
+          this._graphicsContext.debug.drawText(`sleeping(${body.canSleep ? body.isSleeping : 'cant sleep'})`, cursor);
           cursor = cursor.add(lineHeight);
         }
       }

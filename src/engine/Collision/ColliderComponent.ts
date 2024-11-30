@@ -36,7 +36,7 @@ export class ColliderComponent extends Component {
   /**
    * Get the current collider geometry
    */
-  public get() {
+  public get(): Collider | undefined {
     return this._collider;
   }
 

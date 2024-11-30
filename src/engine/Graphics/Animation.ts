@@ -210,19 +210,19 @@ export class Animation extends Graphic implements HasTick {
    *
    * const anim = Animation.fromSpriteSheet(spriteSheet, range(0, 5), 200, AnimationStrategy.Loop);
    * ```
-   * @param spriteSheet
-   * @param frameIndices
-   * @param durationPerFrameMs
-   * @param strategy
+   * @param spriteSheet ex.SpriteSheet
+   * @param spriteSheetIndex 0 based index from left to right, top down (row major order) of the ex.SpriteSheet
+   * @param durationPerFrameMs duration per frame in milliseconds
+   * @param strategy Optional strategy, default AnimationStrategy.Loop
    */
   public static fromSpriteSheet(
     spriteSheet: SpriteSheet,
-    frameIndices: number[],
+    spriteSheetIndex: number[],
     durationPerFrameMs: number,
     strategy: AnimationStrategy = AnimationStrategy.Loop
   ): Animation {
     const maxIndex = spriteSheet.sprites.length - 1;
-    const invalidIndices = frameIndices.filter((index) => index < 0 || index > maxIndex);
+    const invalidIndices = spriteSheetIndex.filter((index) => index < 0 || index > maxIndex);
     if (invalidIndices.length) {
       Animation._LOGGER.warn(
         `Indices into SpriteSheet were provided that don\'t exist: ${invalidIndices.join(',')} no frame will be shown`
@@ -230,7 +230,7 @@ export class Animation extends Graphic implements HasTick {
     }
     return new Animation({
       frames: spriteSheet.sprites
-        .filter((_, index) => frameIndices.indexOf(index) > -1)
+        .filter((_, index) => spriteSheetIndex.indexOf(index) > -1)
         .map((f) => ({
           graphic: f,
           duration: durationPerFrameMs
@@ -251,8 +251,8 @@ export class Animation extends Graphic implements HasTick {
    *  frameCoordinates: [
    *    {x: 0, y: 5, duration: 100, options { flipHorizontal: true }},
    *    {x: 1, y: 5, duration: 200},
-   *    {x: 2, y: 5, duration: 100},
-   *    {x: 3, y: 5, duration: 500}
+   *    {x: 2, y: 5},
+   *    {x: 3, y: 5}
    *  ],
    *  strategy: AnimationStrategy.PingPong
    * });

@@ -14,7 +14,7 @@ export * from './Engine';
 export * from './GarbageCollector';
 export * from './Screen';
 export * from './Actor';
-export * from './Math/Index';
+export * from './Math/index';
 export * from './Camera';
 export * from './Debug/index';
 export * from './EventDispatcher';
@@ -33,7 +33,7 @@ export * from './Timer';
 export * from './Trigger';
 export * from './ScreenElement';
 
-export * from './Actions/Index';
+export * from './Actions/index';
 export * from './Collision/Index';
 
 export * from './Interfaces/Index';
@@ -50,11 +50,6 @@ export * from './Graphics/index';
 // ex.Events namespace
 import * as events from './Events';
 export { events as Events };
-
-// ex.Input namespace
-// TODO deprecated import site remove in v0.29.0
-import * as input from './Input/Index';
-export { input as Input };
 
 export { WheelEvent } from './Input/WheelEvent';
 
