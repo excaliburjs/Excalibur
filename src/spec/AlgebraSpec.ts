@@ -258,6 +258,12 @@ describe('Vectors', () => {
     expect(rotated.equals(new ex.Vector(-1, 0))).toBeTruthy();
   });
 
+  it('can be rotated by positive angle clockwise', () => {
+    const v = ex.Vector.Up;
+    const rotated = v.rotate(Math.PI / 2);
+    expect(rotated.equals(ex.Vector.Right)).toBeTruthy();
+  });
+
   it('can be rotated by an angle about a point', () => {
     const v = new ex.Vector(1, 0);
     const rotate = v.rotate(Math.PI, new ex.Vector(2, 0));
