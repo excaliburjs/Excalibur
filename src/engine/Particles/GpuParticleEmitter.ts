@@ -19,7 +19,7 @@ export class GpuParticleEmitter extends Actor {
   };
 
   public graphics = new GraphicsComponent();
-  public state: GpuParticleRenderer;
+  public renderer: GpuParticleRenderer;
   public isEmitting: boolean = false;
   public emitRate: number = 1;
   public emitterType: EmitterType = EmitterType.Rectangle;
@@ -65,13 +65,13 @@ export class GpuParticleEmitter extends Actor {
 
     this.particle = { ...this.particle, ...particle };
 
-    this.state = new GpuParticleRenderer(this, random ?? new Random(), this.particle);
+    this.renderer = new GpuParticleRenderer(this, random ?? new Random(), this.particle);
   }
 
   public _initialize(engine: Engine): void {
     super._initialize(engine);
     const context = engine.graphicsContext as ExcaliburGraphicsContextWebGL;
-    this.state.initialize(context.__gl, context);
+    this.renderer.initialize(context.__gl, context);
   }
 
   private _particlesToEmit = 0;
@@ -85,14 +85,14 @@ export class GpuParticleEmitter extends Actor {
         this._particlesToEmit = this._particlesToEmit - Math.floor(this._particlesToEmit);
       }
     }
-    this.state.update(elapsedMs);
+    this.renderer.update(elapsedMs);
   }
 
   public emitParticles(particleCount: number) {
-    this.state.emitParticles(particleCount);
+    this.renderer.emitParticles(particleCount);
   }
 
   draw(ctx: ExcaliburGraphicsContextWebGL, elapsedMilliseconds: number) {
-    ctx.draw<ex.ParticleRenderer>('ex.particle', this.state, elapsedMilliseconds);
+    ctx.draw<ex.ParticleRenderer>('ex.particle', this.renderer, elapsedMilliseconds);
   }
 }

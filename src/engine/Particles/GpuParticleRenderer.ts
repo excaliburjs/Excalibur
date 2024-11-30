@@ -156,7 +156,6 @@ export class GpuParticleRenderer {
     const maxSize = this.maxParticles * this._numInputFloats;
     const endIndex = particleCount * this._numInputFloats + startIndex;
     let countParticle = 0;
-    // let overflow = false;
     for (let i = startIndex; i < endIndex; i += this._numInputFloats) {
       const angle = this._random.floating(this.particle.minAngle || 0, this.particle.maxAngle || TwoPI);
       let ranX: number = 0;
@@ -213,6 +212,7 @@ export class GpuParticleRenderer {
         );
       } else {
         // upload before the wrap
+        // prettier-ignore
         gl.bufferSubData(
           gl.ARRAY_BUFFER,
           this._uploadIndex * 4,
@@ -220,15 +220,17 @@ export class GpuParticleRenderer {
           this._uploadIndex,
           this._particleData.length - this._uploadIndex
         );
-        // upload after the wrap
-        // prettier-ignore
-        gl.bufferSubData(
-          gl.ARRAY_BUFFER,
-          0,
-          this._particleData,
-          0,
-          this._wrappedParticles * this._numInputFloats
-        );
+        // upload after the wrap if there are any
+        if (this._wrappedParticles) {
+          // prettier-ignore
+          gl.bufferSubData(
+            gl.ARRAY_BUFFER,
+            0,
+            this._particleData,
+            0,
+            this._wrappedParticles * this._numInputFloats
+          );
+        }
         this._wrappedLife = this._particleLife;
       }
       gl.bindBuffer(gl.ARRAY_BUFFER, null);
