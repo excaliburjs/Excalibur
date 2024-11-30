@@ -25,6 +25,7 @@ export class GpuParticleEmitter extends Actor {
   public emitterType: EmitterType = EmitterType.Rectangle;
   public radius: number = 0;
   public readonly maxParticles: number = 2000;
+  random: Random;
 
   public get pos() {
     return this.transform.pos;
@@ -65,7 +66,9 @@ export class GpuParticleEmitter extends Actor {
 
     this.particle = { ...this.particle, ...particle };
 
-    this.renderer = new GpuParticleRenderer(this, random ?? new Random(), this.particle);
+    this.random = random ?? new Random();
+
+    this.renderer = new GpuParticleRenderer(this, this.random, this.particle);
   }
 
   public _initialize(engine: Engine): void {
