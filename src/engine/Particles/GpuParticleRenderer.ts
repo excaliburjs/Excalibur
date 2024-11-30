@@ -76,7 +76,7 @@ export class GpuParticleRenderer {
     const vao1 = gl.createVertexArray()!;
     gl.bindVertexArray(vao1);
     gl.bindBuffer(gl.ARRAY_BUFFER, particleDataBuffer1);
-    gl.bufferData(gl.ARRAY_BUFFER, numParticles * numInputFloats * bytesPerFloat, gl.DYNAMIC_COPY);
+    gl.bufferData(gl.ARRAY_BUFFER, numParticles * numInputFloats * bytesPerFloat, gl.DYNAMIC_DRAW);
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, particleData);
     let offset = 0;
     // position
@@ -112,7 +112,7 @@ export class GpuParticleRenderer {
     const vao2 = gl.createVertexArray()!;
     gl.bindVertexArray(vao2);
     gl.bindBuffer(gl.ARRAY_BUFFER, particleDataBuffer2);
-    gl.bufferData(gl.ARRAY_BUFFER, numParticles * numInputFloats * bytesPerFloat, gl.DYNAMIC_COPY);
+    gl.bufferData(gl.ARRAY_BUFFER, numParticles * numInputFloats * bytesPerFloat, gl.DYNAMIC_DRAW);
     offset = 0;
     // position
     gl.vertexAttribPointer(0, 2, gl.FLOAT, false, numInputFloats * bytesPerFloat, 0);
