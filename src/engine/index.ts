@@ -113,6 +113,7 @@ export * from './Util/StateMachine';
 export * from './Util/Future';
 export * from './Util/Semaphore';
 export * from './Util/Coroutine';
+export * from './Util/Assert';
 
 // ex.Deprecated
 // import * as deprecated from './Deprecated';
