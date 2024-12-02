@@ -76,6 +76,30 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added GPU particle implementation for MANY MANY particles in the simulation, similar to the existing CPU particle implementation. Note `maxParticles` is new for GPU particles.
+  ```typescript
+  var particles = new ex.GpuParticleEmitter({
+    pos: ex.vec(300, 500),
+    maxParticles: 10_000,
+    emitRate: 1000,
+    radius: 100,
+    emitterType: ex.EmitterType.Circle,
+    particle: {
+      beginColor: ex.Color.Orange,
+      endColor: ex.Color.Purple,
+      focus: ex.vec(0, -400),
+      focusAccel: 1000,
+      startSize: 100,
+      endSize: 0,
+      life: 3000,
+      minSpeed: -100,
+      maxSpeed: 100,
+      angularVelocity: 2,
+      randomRotation: true,
+      transform: ex.ParticleTransform.Local
+    }
+  });
+  ```
 - Added `easing` option to `moveTo(...)`
 - Added new option bag style input to actions with durations in milliseconds instead of speed
   ```typescript
