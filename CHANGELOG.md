@@ -34,6 +34,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * `fadeFlag` is renamed to `fade`
   * `acceleration` is renamed to `acc`
   * `particleLife` is renamed to `life`
+  * `minVel` is renamed to `minSpeed`
+  * `maxVel` is renamed to `maxSpeed`
   * `ParticleEmitter` now takes a separate `particle: ParticleConfig` parameter to disambiguate between particles parameters and emitter ones
     ```typescript
     const emitter =  new ex.ParticleEmitter({
@@ -100,6 +102,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
     }
   });
   ```
+- Added `ex.assert()` that can be used to throw in development builds
 - Added `easing` option to `moveTo(...)`
 - Added new option bag style input to actions with durations in milliseconds instead of speed
   ```typescript
