@@ -382,46 +382,39 @@ export class Vector implements Clonable<Vector> {
   /**
    * Returns the difference in radians between the angle of this vector and given angle,
    * using the given rotation type.
-   * @param angle to which the vector should be rotated, in radians
+   * @param angle in radians to which the vector has to be rotated, using {@apilink rotate} 
    * @param rotationType what {@apilink RotationType} to use for the rotation
    * @returns the angle by which the vector needs to be rotated to match the given angle
    */
   public angleBetween(angle: number, rotationType: RotationType): number {
     const startAngleRadians = this.toAngle();
-    const shortestPathIsPositive = (startAngleRadians - angle + TwoPI) % TwoPI >= Math.PI;
-    const distance1 = Math.abs(angle - startAngleRadians);
-    const distance2 = TwoPI - distance1;
-    let shortDistance = 0;
-    let longDistance = 0;
-    if (distance1 > distance2) {
-      shortDistance = distance2;
-      longDistance = distance1;
+    const endAngleRadians = canonicalizeAngle(angle);
+    let rotationClockwise = 0
+    let rotationAntiClockwise = 0
+    if (endAngleRadians > startAngleRadians) {
+      rotationClockwise = endAngleRadians - startAngleRadians;
     } else {
-      shortDistance = distance1;
-      longDistance = distance2;
+      rotationClockwise = ((TwoPI - startAngleRadians) + endAngleRadians) % TwoPI;
     }
-    let distance = 0;
-    let direction = 1;
-
+    rotationAntiClockwise = (rotationClockwise - TwoPI) % TwoPI;
     switch (rotationType) {
       case RotationType.ShortestPath:
-        distance = shortDistance;
-        direction = shortestPathIsPositive ? 1 : -1;
-        break;
+        if (Math.abs(rotationClockwise) < Math.abs(rotationAntiClockwise)) {
+          return rotationClockwise;
+        } else {
+          return rotationAntiClockwise;
+        }
       case RotationType.LongestPath:
-        distance = longDistance;
-        direction = shortestPathIsPositive ? -1 : 1;
-        break;
+        if (Math.abs(rotationClockwise) > Math.abs(rotationAntiClockwise)) {
+          return rotationClockwise;
+        } else {
+          return rotationAntiClockwise;
+        }
       case RotationType.Clockwise:
-        direction = 1;
-        distance = shortestPathIsPositive ? shortDistance : longDistance;
-        break;
+        return rotationClockwise;
       case RotationType.CounterClockwise:
-        direction = -1;
-        distance = shortestPathIsPositive ? longDistance : shortDistance;
-        break;
+        return rotationAntiClockwise;
     }
-    return (direction * distance) % TwoPI;
   }
 
   /**

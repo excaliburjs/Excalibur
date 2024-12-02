@@ -125,7 +125,7 @@ describe('Vectors', () => {
     expect(ex.Vector.distance(v1, v2)).toBe(20);
   });
 
-  fdescribe('angleBetween', () => {
+  describe('angleBetween', () => {
     type TestCaseParameters = {
       description: string;
       vector: ex.Vector;
@@ -147,7 +147,7 @@ describe('Vectors', () => {
       expected
     });
     const description = (tc: TestCaseParameters) =>
-      `${tc.description}: ${tc.vector.toAngle()} -> ${tc.angle} ${tc.rotationType} expected: ${tc.expected}`;
+      `${tc.description}: ${tc.vector.toAngle()} -> ${ex.canonicalizeAngle(tc.angle)} ${tc.rotationType} expected: ${tc.expected}`;
     const downRight = ex.vec(1, 1);
     const downLeft = ex.vec(-1, 1);
     const upLeft = ex.vec(-1, -1);
@@ -172,9 +172,8 @@ describe('Vectors', () => {
 
     testCases.forEach((testCase) => {
       it(description(testCase), () => {
-        const v = new ex.Vector(10, 0);
-        const result = v.angleBetween(testCase.angle, testCase.rotationType);
-        expect(ex.canonicalizeAngle(result)).toBeCloseTo(testCase.expected);
+        const result = testCase.vector.angleBetween(testCase.angle, testCase.rotationType);
+        expect(result).toBeCloseTo(testCase.expected);
       });
     });
   });
