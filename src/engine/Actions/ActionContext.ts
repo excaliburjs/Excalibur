@@ -1,5 +1,3 @@
-import { RotationType } from './RotationType';
-
 import { EasingFunction, EasingFunctions } from '../Util/EasingFunctions';
 import { ActionQueue } from './ActionQueue';
 import { Repeat } from './Action/Repeat';
@@ -19,7 +17,7 @@ import { Delay } from './Action/Delay';
 import { Die } from './Action/Die';
 import { Follow } from './Action/Follow';
 import { Meet } from './Action/Meet';
-import { Vector } from '../Math/vector';
+import { Vector, RotationType } from '../Math';
 import { Entity } from '../EntityComponentSystem/Entity';
 import { Action } from './Action';
 import { Color } from '../Color';
