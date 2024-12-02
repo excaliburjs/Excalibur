@@ -425,7 +425,8 @@ export class Vector implements Clonable<Vector> {
   }
 
   /**
-   * Rotates the current vector around a point by a certain angle in radians.
+   * Rotates the current vector around a point by a certain angle in radians. 
+   * Positive angle means rotation clockwise. 
    */
   public rotate(angle: number, anchor?: Vector, dest?: Vector): Vector {
     const result = dest || new Vector(0, 0);
