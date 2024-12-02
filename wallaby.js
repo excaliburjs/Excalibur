@@ -43,6 +43,11 @@ module.exports = function (wallaby) {
       plugins: [
         new webpack.DefinePlugin({
           'process.env.__EX_VERSION': "'test-runner'"
+        }),
+        new webpack.DefinePlugin({
+          'process.env': {
+            NODE_ENV: JSON.stringify('development')
+          }
         })
       ],
       module: {

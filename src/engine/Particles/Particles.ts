@@ -8,14 +8,14 @@ import { Entity } from '../EntityComponentSystem/Entity';
 import { BoundingBox } from '../Collision/BoundingBox';
 import { clamp } from '../Math/util';
 import { Graphic } from '../Graphics';
-import { EmitterType } from '../EmitterType';
+import { EmitterType } from './EmitterType';
 import { MotionComponent } from '../EntityComponentSystem';
 import { EulerIntegrator } from '../Collision/Integrator';
 import type { ParticleEmitter } from './ParticleEmitter';
 
 /**
 /**
- * Particle is used in a {@apilink ParticleEmitter}
+ * CPU Particle is used in a {@apilink ParticleEmitter}
  */
 export class Particle extends Entity {
   public static DefaultConfig: ParticleConfig = {
@@ -246,13 +246,13 @@ export interface ParticleConfig {
    */
   maxSize?: number;
   /**
-   * Minimum magnitude of the particle starting vel
+   * Minimum magnitude of the particle starting speed
    */
-  minVel?: number; // TODO Change to speed!
+  minSpeed?: number;
   /**
-   * Maximum magnitude of the particle starting vel
+   * Maximum magnitude of the particle starting speed
    */
-  maxVel?: number;
+  maxSpeed?: number;
   /**
    * Minimum angle to use for the particles starting rotation
    */
@@ -264,6 +264,8 @@ export interface ParticleConfig {
 
   /**
    * Gets or sets the optional focus where all particles should accelerate towards
+   *
+   * If the particle transform is global the focus is in world space, otherwise it is relative to the emitter
    */
   focus?: Vector;
   /**
@@ -298,11 +300,23 @@ export interface ParticleEmitterArgs {
   pos?: Vector;
   width?: number;
   height?: number;
+  /**
+   * Is emitting currently
+   */
   isEmitting?: boolean;
+  /**
+   * Particles per second
+   */
   emitRate?: number;
   focus?: Vector;
   focusAccel?: number;
+  /**
+   * Emitter shape
+   */
   emitterType?: EmitterType;
+  /**
+   * Radius of the emitter if the emitter type is EmitterType.Circle
+   */
   radius?: number;
   random?: Random;
 }

@@ -23,9 +23,7 @@ export * from './Events/MediaEvents';
 export * from './Events';
 export * from './Label';
 export { FontStyle, FontUnit, TextAlign, BaseAlign } from './Graphics/FontCommon';
-export * from './EmitterType';
-export { Particle, ParticleTransform, ParticleConfig as ParticleArgs, ParticleEmitterArgs } from './Particles/Particles';
-export * from './Particles/ParticleEmitter';
+export * from './Particles/index';
 export * from './Collision/Physics';
 export * from './Scene';
 
@@ -115,6 +113,7 @@ export * from './Util/StateMachine';
 export * from './Util/Future';
 export * from './Util/Semaphore';
 export * from './Util/Coroutine';
+export * from './Util/Assert';
 
 // ex.Deprecated
 // import * as deprecated from './Deprecated';

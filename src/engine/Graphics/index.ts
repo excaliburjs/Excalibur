@@ -31,6 +31,9 @@ export * from './Context/ExcaliburGraphicsContext';
 export * from './Context/ExcaliburGraphicsContext2DCanvas';
 export * from './Context/ExcaliburGraphicsContextWebGL';
 
+// TODO DELETEME
+export * from './Context/particle-renderer/particle-renderer';
+
 export * from './Context/debug-text';
 
 // Post Processor

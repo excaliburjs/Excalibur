@@ -2,7 +2,7 @@ import { ExcaliburMatchers, ExcaliburAsyncMatchers } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 
-describe('A particle', () => {
+describe('A GPU particle', () => {
   let engine: ex.Engine;
   let scene: ex.Scene;
   beforeEach(async () => {
@@ -29,7 +29,7 @@ describe('A particle', () => {
   });
 
   it('should have props set by the constructor', () => {
-    const emitter = new ex.ParticleEmitter({
+    const emitter = new ex.GpuParticleEmitter({
       pos: new ex.Vector(400, 100),
       width: 20,
       height: 30,
@@ -90,7 +90,7 @@ describe('A particle', () => {
   });
 
   it('should emit particles', async () => {
-    const emitter = new ex.ParticleEmitter({
+    const emitter = new ex.GpuParticleEmitter({
       pos: new ex.Vector(400, 100),
       width: 20,
       height: 30,
@@ -128,7 +128,64 @@ describe('A particle', () => {
     engine.currentScene.update(engine, 100);
     engine.currentScene.draw(engine.graphicsContext, 100);
     engine.graphicsContext.flush();
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/ParticleSpec/Particles.png');
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GpuParticlesSpec/particles.png');
+  });
+
+  it("should emit particles and wrap it's ring buffer", async () => {
+    const emitter = new ex.GpuParticleEmitter({
+      pos: new ex.Vector(400, 100),
+      width: 20,
+      height: 30,
+      isEmitting: true,
+      emitRate: 5,
+      maxParticles: 200,
+      particle: {
+        minSpeed: 100,
+        maxSpeed: 200,
+        acc: ex.Vector.Zero.clone(),
+        minAngle: 0,
+        maxAngle: Math.PI / 2,
+        life: 4000,
+        opacity: 0.5,
+        fade: false,
+        startSize: 30,
+        endSize: 40,
+        beginColor: ex.Color.Red.clone(),
+        endColor: ex.Color.Blue.clone(),
+        graphic: null,
+        angularVelocity: 3,
+        randomRotation: false
+      },
+      focus: null,
+      focusAccel: null,
+      emitterType: ex.EmitterType.Circle,
+      radius: 20,
+      random: new ex.Random(1337)
+    });
+    engine.backgroundColor = ex.Color.Transparent;
+    engine.add(emitter);
+
+    engine.currentScene.update(engine, 100);
+    emitter.emitParticles(50);
+    engine.currentScene.draw(engine.graphicsContext, 100);
+    engine.graphicsContext.flush();
+
+    engine.currentScene.update(engine, 100);
+    emitter.emitParticles(50);
+    engine.currentScene.draw(engine.graphicsContext, 100);
+    engine.graphicsContext.flush();
+
+    engine.currentScene.update(engine, 100);
+    emitter.emitParticles(50);
+    engine.currentScene.draw(engine.graphicsContext, 100);
+    engine.graphicsContext.flush();
+
+    engine.currentScene.update(engine, 100);
+    emitter.emitParticles(50);
+    engine.currentScene.draw(engine.graphicsContext, 100);
+    engine.graphicsContext.flush();
+
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GpuParticlesSpec/particles-wrapped.png');
   });
 
   it('can be parented', async () => {
@@ -182,7 +239,7 @@ describe('A particle', () => {
   });
 
   it('can set the particle transform to local making particles children of the emitter', () => {
-    const emitter = new ex.ParticleEmitter({
+    const emitter = new ex.GpuParticleEmitter({
       particle: {
         transform: ex.ParticleTransform.Local,
         minSpeed: 100,
@@ -214,12 +271,19 @@ describe('A particle', () => {
     });
     engine.add(emitter);
     emitter.emitParticles(20);
-    expect(emitter.children.length).toBe(20);
+    const particleData = (emitter.renderer as any)._particleData as Float32Array;
+    const stride = (emitter.renderer as any)._numInputFloats as number;
+    expect(particleData[0 * stride]).not.toBe(0);
+    expect(particleData[0 * stride + 1]).not.toBe(0);
+    expect(particleData[19 * stride]).not.toBe(0);
+    expect(particleData[19 * stride + 1]).not.toBe(0);
+    expect(particleData[20 * stride]).toBe(0);
+    expect(particleData[20 * stride + 1]).toBe(0);
     expect(engine.currentScene.actors.length).toBe(1);
   });
 
   it('can set the particle transform to global adding particles directly to the scene', () => {
-    const emitter = new ex.ParticleEmitter({
+    const emitter = new ex.GpuParticleEmitter({
       particle: {
         transform: ex.ParticleTransform.Global,
         minSpeed: 100,
@@ -238,7 +302,7 @@ describe('A particle', () => {
         angularVelocity: 3,
         randomRotation: false
       },
-      pos: new ex.Vector(0, 0),
+      pos: new ex.Vector(100, 100),
       width: 20,
       height: 30,
       isEmitting: true,
@@ -251,8 +315,14 @@ describe('A particle', () => {
     });
     engine.add(emitter);
     emitter.emitParticles(20);
-    expect(emitter.children.length).toBe(0);
+    const particleData = (emitter.renderer as any)._particleData as Float32Array;
+    const stride = (emitter.renderer as any)._numInputFloats as number;
+    expect(particleData[0 * stride]).toBeGreaterThan(80);
+    expect(particleData[0 * stride + 1]).toBeGreaterThan(80);
+    expect(particleData[19 * stride]).not.toBe(0);
+    expect(particleData[19 * stride + 1]).not.toBe(0);
+    expect(particleData[20 * stride]).toBe(0);
+    expect(particleData[20 * stride + 1]).toBe(0);
     expect(engine.currentScene.actors.length).toBe(1);
-    expect(engine.currentScene.world.entityManager.entities.length).toBe(21);
   });
 });
