@@ -49,9 +49,9 @@ Please read our [Contributing Guidelines](.github/CONTRIBUTING.md) and our [Code
 
 Prerequisites
 * Docker for Mac https://docs.docker.com/desktop/mac/install/
-* In the root, run `docker-compose build` (setup build environment and installs dependencies, only needed once)
-* To run tests in watch mode `docker-compose run --rm dev npm run test:watch`
-* To run a build `docker-compose run --rm dev npm run all`
+* In the root, run `docker compose build` (setup build environment and installs dependencies, only needed once)
+* To run tests in watch mode `docker compose run --rm dev npm run test:watch`
+* To run a build `docker compose run --rm dev npm run all`
 
 # Writing Documentation
 
