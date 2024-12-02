@@ -25,11 +25,11 @@
     "clsx": "^2.1.1",
     "docusaurus-plugin-typedoc-api": "4.4.0",
     "docusaurus-preset-shiki-twoslash": "^1.1.41",
-    "mermaid": "11.4.0",
+    "mermaid": "11.4.1",
     "prism-react-renderer": "^2.4.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-live": "4.1.7",
+    "react-live": "4.1.8",
     "rehype-raw": "^7.0.0",
     "remark-emoji": "5.0.1",
     "remark-typedoc-symbol-links": "^2.1.0"
@@ -43,7 +43,7 @@
     "micromark-extension-mdxjs": "^3.0.0",
     "patch-package": "^8.0.0",
     "ts-loader": "9.5.1",
-    "css-loader": "6.8.1",
+    "css-loader": "6.11.0",
     "typescript": "~5.2.2",
     "url-loader": "^4.1.1"
   },

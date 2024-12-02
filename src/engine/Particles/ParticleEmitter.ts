@@ -4,7 +4,7 @@ import { vec } from '../Math/vector';
 import { Random } from '../Math/Random';
 import { CollisionType } from '../Collision/CollisionType';
 import { randomInRange } from '../Math/util';
-import { EmitterType } from '../EmitterType';
+import { EmitterType } from './EmitterType';
 import { Particle, ParticleTransform, ParticleEmitterArgs, ParticleConfig } from './Particles';
 import { RentalPool } from '../Util/RentalPool';
 
@@ -12,6 +12,8 @@ import { RentalPool } from '../Util/RentalPool';
  * Using a particle emitter is a great way to create interesting effects
  * in your game, like smoke, fire, water, explosions, etc. `ParticleEmitter`
  * extend {@apilink Actor} allowing you to use all of the features that come with.
+ *
+ * These particles are simulated on the CPU in JavaScript
  */
 export class ParticleEmitter extends Actor {
   private _particlesToEmit: number = 0;
@@ -117,7 +119,7 @@ export class ParticleEmitter extends Actor {
     let ranY = 0;
 
     const angle = randomInRange(this.particle.minAngle || 0, this.particle.maxAngle || Math.PI * 2, this.random);
-    const vel = randomInRange(this.particle.minVel || 0, this.particle.maxVel || 0, this.random);
+    const vel = randomInRange(this.particle.minSpeed || 0, this.particle.maxSpeed || 0, this.random);
     const size = this.particle.startSize || randomInRange(this.particle.minSize || 5, this.particle.maxSize || 5, this.random);
     const dx = vel * Math.cos(angle);
     const dy = vel * Math.sin(angle);
