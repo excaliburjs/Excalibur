@@ -389,8 +389,8 @@ export class Vector implements Clonable<Vector> {
   public angleBetween(angle: number, rotationType: RotationType): number {
     const startAngleRadians = this.toAngle();
     const endAngleRadians = canonicalizeAngle(angle);
-    let rotationClockwise = 0
-    let rotationAntiClockwise = 0
+    let rotationClockwise = 0;
+    let rotationAntiClockwise = 0;
     if (endAngleRadians > startAngleRadians) {
       rotationClockwise = endAngleRadians - startAngleRadians;
     } else {
