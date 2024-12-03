@@ -78,6 +78,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Alias the `engine.screen.drawWidth/drawHeight` with `engine.screen.width/height`;
 - Added convenience types `ex.TiledSprite` and `ex.TiledAnimation` for Tiling Sprites and Animations
   ```typescript
   const tiledGroundSprite = new ex.TiledSprite({
@@ -98,6 +99,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
     wrapping: ex.ImageWrapping.Repeat
   });
   ```
+- Added new static builder for making images from canvases `ex.ImageSource.fromHtmlCanvasElement(image: HTMLCanvasElement, options?: ImageSourceOptions)`
 - Added GPU particle implementation for MANY MANY particles in the simulation, similar to the existing CPU particle implementation. Note `maxParticles` is new for GPU particles.
   ```typescript
   var particles = new ex.GpuParticleEmitter({

@@ -29,8 +29,16 @@ var desertImage = new ex.ImageSource('./desert.png');
 var loader = new ex.Loader([cards, groundImage, desertImage]);
 var groundSprite = groundImage.toSprite();
 
-var tiledGroundSprite = new ex.TiledSprite({
-  image: groundImage,
+// var tiledGroundSprite = new ex.TiledSprite({
+//   image: groundImage,
+//   width: game.screen.width,
+//   height: 200,
+//   wrapping: {
+//     x: ex.ImageWrapping.Repeat,
+//     y: ex.ImageWrapping.Clamp
+//   }
+// });
+var tiledGroundSprite = ex.TiledSprite.fromSprite(groundSprite, {
   width: game.screen.width,
   height: 200,
   wrapping: {

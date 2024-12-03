@@ -72,6 +72,15 @@ export class TiledAnimation extends Animation {
     }
   }
 
+  public static fromAnimation(animation: Animation, options?: Omit<TiledAnimationOptions, 'animation'>): TiledAnimation {
+    return new TiledAnimation({
+      width: animation.width,
+      height: animation.height,
+      ...options,
+      animation
+    });
+  }
+
   private _updateSourceView() {
     for (let i = 0; i < this.frames.length; i++) {
       const graphic = this.frames[i].graphic;

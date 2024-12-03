@@ -6,18 +6,24 @@ import { ImageWrapping } from './Wrapping';
 
 export interface TiledSpriteOptions {
   image: ImageSource;
+  /**
+   * Source view into the {@link ImageSource image}
+   */
   sourceView?: SourceView;
+  /**
+   * Optionally override {@link ImageFiltering filtering}
+   */
   filtering?: ImageFiltering;
   /**
-   * Default wrapping is Repeat for TiledSprite
+   * Optionally override {@link ImageWrapping wrapping} , default wrapping is Repeat for TiledSprite
    */
   wrapping?: ImageWrapConfiguration | ImageWrapping;
   /**
-   * Total width in pixels for the tiling to take place
+   * Total width in pixels for the tiling to take place over
    */
   width: number;
   /**
-   * Total height in pixels for the tiling to take place
+   * Total height in pixels for the tiling to take place over
    */
   height: number;
 }
@@ -39,6 +45,15 @@ export class TiledSprite extends Sprite {
     } else {
       this.image.ready.then(() => this._applyTiling());
     }
+  }
+
+  public static fromSprite(sprite: Sprite, options?: Omit<TiledSpriteOptions, 'image'>): TiledSprite {
+    return new TiledSprite({
+      width: sprite.width,
+      height: sprite.height,
+      ...options,
+      image: sprite.image
+    });
   }
 
   private _applyTiling() {
