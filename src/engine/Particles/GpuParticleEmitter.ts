@@ -1,5 +1,4 @@
-import { Actor, clamp, Engine, ExcaliburGraphicsContextWebGL, GraphicsComponent, Random, vec, Vector } from '../';
-import * as ex from '../';
+import { Actor, clamp, Engine, ExcaliburGraphicsContextWebGL, GraphicsComponent, Random, vec, Vector, ParticleRenderer } from '../';
 import { EmitterType } from './EmitterType';
 import { ParticleEmitterArgs, ParticleTransform } from './Particles';
 import { GpuParticleConfig, GpuParticleRenderer } from './GpuParticleRenderer';
@@ -97,6 +96,6 @@ export class GpuParticleEmitter extends Actor {
   }
 
   draw(ctx: ExcaliburGraphicsContextWebGL, elapsedMilliseconds: number) {
-    ctx.draw<ex.ParticleRenderer>('ex.particle', this.renderer, elapsedMilliseconds);
+    ctx.draw<ParticleRenderer>('ex.particle', this.renderer, elapsedMilliseconds);
   }
 }
