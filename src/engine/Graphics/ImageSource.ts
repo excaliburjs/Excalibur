@@ -154,6 +154,54 @@ export class ImageSource implements Loadable<HTMLImageElement> {
     return imageSource;
   }
 
+  static fromHtmlCanvasElement(image: HTMLCanvasElement, options?: ImageSourceOptions): ImageSource {
+    const imageSource = new ImageSource('');
+    imageSource._src = 'canvas-element-blob';
+    imageSource.data.setAttribute('data-original-src', 'canvas-element-blob');
+
+    if (options?.filtering) {
+      imageSource.data.setAttribute(ImageSourceAttributeConstants.Filtering, options?.filtering);
+    } else {
+      imageSource.data.setAttribute(ImageSourceAttributeConstants.Filtering, ImageFiltering.Blended);
+    }
+
+    if (options?.wrapping) {
+      let wrapping: ImageWrapConfiguration;
+      if (typeof options.wrapping === 'string') {
+        wrapping = {
+          x: options.wrapping,
+          y: options.wrapping
+        };
+      } else {
+        wrapping = {
+          x: options.wrapping.x,
+          y: options.wrapping.y
+        };
+      }
+      imageSource.data.setAttribute(ImageSourceAttributeConstants.WrappingX, wrapping.x);
+      imageSource.data.setAttribute(ImageSourceAttributeConstants.WrappingY, wrapping.y);
+    } else {
+      imageSource.data.setAttribute(ImageSourceAttributeConstants.WrappingX, ImageWrapping.Clamp);
+      imageSource.data.setAttribute(ImageSourceAttributeConstants.WrappingY, ImageWrapping.Clamp);
+    }
+
+    TextureLoader.checkImageSizeSupportedAndLog(image);
+
+    image.toBlob((blob) => {
+      // TODO throw? if blob null?
+      const url = URL.createObjectURL(blob!);
+      imageSource.image.onload = () => {
+        // no longer need to read the blob so it's revoked
+        URL.revokeObjectURL(url);
+        imageSource.data = imageSource.image;
+        imageSource._readyFuture.resolve(imageSource.image);
+      };
+      imageSource.image.src = url;
+    });
+
+    return imageSource;
+  }
+
   static fromSvgString(svgSource: string, options?: ImageSourceOptions) {
     const blob = new Blob([svgSource], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(blob);

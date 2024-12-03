@@ -855,6 +855,16 @@ export class Screen {
   }
 
   /**
+   * Returns the width of the engine's visible drawing surface in pixels including zoom and device pixel ratio.
+   */
+  public get width(): number {
+    if (this._camera) {
+      return this.resolution.width / this._camera.zoom;
+    }
+    return this.resolution.width;
+  }
+
+  /**
    * Returns half the width of the engine's visible drawing surface in pixels including zoom and device pixel ratio.
    */
   public get halfDrawWidth(): number {
@@ -865,6 +875,13 @@ export class Screen {
    * Returns the height of the engine's visible drawing surface in pixels including zoom and device pixel ratio.
    */
   public get drawHeight(): number {
+    if (this._camera) {
+      return this.resolution.height / this._camera.zoom;
+    }
+    return this.resolution.height;
+  }
+
+  public get height(): number {
     if (this._camera) {
       return this.resolution.height / this._camera.zoom;
     }

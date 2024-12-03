@@ -78,6 +78,26 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added convenience types `ex.TiledSprite` and `ex.TiledAnimation` for Tiling Sprites and Animations
+  ```typescript
+  const tiledGroundSprite = new ex.TiledSprite({
+    image: groundImage,
+    width: game.screen.width,
+    height: 200,
+    wrapping: {
+      x: ex.ImageWrapping.Repeat,
+      y: ex.ImageWrapping.Clamp
+    }
+  });
+
+  const tilingAnimation = new ex.TiledAnimation({
+    animation: cardAnimation,
+    sourceView: {x: 20, y: 20},
+    width: 200,
+    height: 200,
+    wrapping: ex.ImageWrapping.Repeat
+  });
+  ```
 - Added GPU particle implementation for MANY MANY particles in the simulation, similar to the existing CPU particle implementation. Note `maxParticles` is new for GPU particles.
   ```typescript
   var particles = new ex.GpuParticleEmitter({
