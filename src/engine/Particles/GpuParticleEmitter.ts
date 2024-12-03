@@ -1,4 +1,5 @@
 import { Actor, clamp, Engine, ExcaliburGraphicsContextWebGL, GraphicsComponent, Random, vec, Vector } from '../';
+import * as ex from '../';
 import { EmitterType } from './EmitterType';
 import { ParticleEmitterArgs, ParticleTransform } from './Particles';
 import { GpuParticleConfig, GpuParticleRenderer } from './GpuParticleRenderer';
