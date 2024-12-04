@@ -344,6 +344,11 @@ export class Animation extends Graphic implements HasTick {
   }
 
   private _reversed = false;
+
+  public get isReversed() {
+    return this._reversed;
+  }
+
   /**
    * Reverses the play direction of the Animation, this preserves the current frame
    */
