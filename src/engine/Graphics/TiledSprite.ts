@@ -47,7 +47,7 @@ export class TiledSprite extends Sprite {
     }
   }
 
-  public static fromSprite(sprite: Sprite, options?: Omit<TiledSpriteOptions, 'image' | 'width' | 'height'>): TiledSprite {
+  public static fromSprite(sprite: Sprite, options?: Partial<Omit<TiledSpriteOptions, 'image'>>): TiledSprite {
     return new TiledSprite({
       width: sprite.width,
       height: sprite.height,
