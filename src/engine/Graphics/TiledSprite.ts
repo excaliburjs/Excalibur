@@ -47,7 +47,7 @@ export class TiledSprite extends Sprite {
     }
   }
 
-  public static fromSprite(sprite: Sprite, options?: Omit<TiledSpriteOptions, 'image'>): TiledSprite {
+  public static fromSprite(sprite: Sprite, options?: Omit<TiledSpriteOptions, 'image' | 'width' | 'height'>): TiledSprite {
     return new TiledSprite({
       width: sprite.width,
       height: sprite.height,
@@ -71,7 +71,7 @@ export class TiledSprite extends Sprite {
         this.sourceView.width, this.sourceView.height);
 
     // prettier-ignore
-    const imgSource = ImageSource.fromHtmlCanvasElement(spriteCanvas, {
+    const tiledImageSource = ImageSource.fromHtmlCanvasElement(spriteCanvas, {
         wrapping: wrapping ?? ImageWrapping.Repeat,
         filtering
       });
@@ -85,7 +85,8 @@ export class TiledSprite extends Sprite {
     }
     this.sourceView.x = 0;
     this.sourceView.y = 0;
-    this.image = imgSource;
-    this._ready.resolve();
+    this.image = tiledImageSource;
+    // this._ready.resolve();
+    this.image.ready.then(() => this._ready.resolve());
   }
 }

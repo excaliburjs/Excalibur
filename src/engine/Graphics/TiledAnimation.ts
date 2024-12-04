@@ -6,6 +6,7 @@ import { Animation, AnimationOptions } from './Animation';
 import { GraphicOptions } from './Graphic';
 import { TiledSprite } from './TiledSprite';
 import { watch } from '../Util/Watch';
+import { Future } from '../Util/Future';
 
 export interface TiledAnimationOptions {
   /**
@@ -35,6 +36,8 @@ export interface TiledAnimationOptions {
 }
 
 export class TiledAnimation extends Animation {
+  private _ready = new Future<void>();
+  public ready = this._ready.promise;
   private _tiledWidth: number = 0;
   private _tiledHeight: number = 0;
   private _sourceView: Partial<SourceView> = {};
@@ -51,6 +54,7 @@ export class TiledAnimation extends Animation {
     this._tiledWidth = options.width;
     this._tiledHeight = options.height;
 
+    const promises: Promise<void>[] = [];
     for (let i = 0; i < this.frames.length; i++) {
       const graphic = this.frames[i].graphic;
       if (graphic && graphic instanceof Sprite) {
@@ -68,8 +72,10 @@ export class TiledAnimation extends Animation {
         tiledSprite.ready.then(() => {
           tiledSprite.sourceView = { ...tiledSprite.sourceView, ...this._sourceView };
         });
+        promises.push(tiledSprite.ready);
       }
     }
+    Promise.allSettled(promises).then(() => this._ready.resolve());
   }
 
   public static fromAnimation(animation: Animation, options?: Omit<TiledAnimationOptions, 'animation'>): TiledAnimation {
