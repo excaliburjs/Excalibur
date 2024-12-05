@@ -6,16 +6,16 @@ export class Delay implements Action {
   private _delay: number;
   private _started: boolean = false;
   private _stopped = false;
-  constructor(durationMs: number) {
-    this._delay = durationMs;
+  constructor(duration: number) {
+    this._delay = duration;
   }
 
-  public update(elapsedMs: number): void {
+  public update(elapsed: number): void {
     if (!this._started) {
       this._started = true;
     }
 
-    this._elapsedTime += elapsedMs;
+    this._elapsedTime += elapsed;
   }
 
   isComplete(): boolean {

@@ -12,8 +12,8 @@ export class EulerIntegrator {
   private static _VEL_ACC = new Vector(0, 0);
   private static _SCALE_FACTOR = new Vector(0, 0);
 
-  static integrate(transform: TransformComponent, motion: MotionComponent, totalAcc: Vector, elapsedMs: number): void {
-    const seconds = elapsedMs / 1000;
+  static integrate(transform: TransformComponent, motion: MotionComponent, totalAcc: Vector, elapsed: number): void {
+    const seconds = elapsed / 1000;
     // This code looks a little wild, but it's to avoid creating any new Vector instances
     // integration is done in a tight loop so this is key to avoid GC'ing
     motion.vel.addEqual(totalAcc.scale(seconds, EulerIntegrator._ACC));

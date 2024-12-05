@@ -12,7 +12,7 @@ export interface CurveToOptions {
   /**
    * Total duration for the action to run
    */
-  durationMs: number;
+  duration: number;
   /**
    * Dynamic mode will speed up/slow down depending on the curve
    *
@@ -52,17 +52,17 @@ export class CurveTo implements Action {
       controlPoints: [vec(0, 0), ...options.controlPoints],
       quality: options.quality
     });
-    this._durationMs = options.durationMs;
+    this._durationMs = options.duration;
     this._mode = options.mode ?? this._mode;
     this._currentMs = this._durationMs;
   }
 
-  update(elapsedMs: number): void {
+  update(elapsed: number): void {
     if (!this._started) {
       this._curve.setControlPoint(0, this._tx.globalPos.clone());
       this._started = true;
     }
-    this._currentMs -= elapsedMs;
+    this._currentMs -= elapsed;
     const t = clamp(remap(0, this._durationMs, 0, 1, this._durationMs - this._currentMs), 0, 1);
     if (this._mode === 'dynamic') {
       this._tx.pos = this._curve.getPoint(t);

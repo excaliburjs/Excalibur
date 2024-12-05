@@ -7,7 +7,7 @@ export interface ClockOptions {
   /**
    * Define the function you'd like the clock to tick when it is started
    */
-  tick: (elapsedMs: number) => any;
+  tick: (elapsed: number) => any;
   /**
    * Optionally define the fatal exception handler, used if an error is thrown in tick
    */
@@ -29,7 +29,7 @@ export interface ClockOptions {
  * method is unique to your clock implementation.
  */
 export abstract class Clock {
-  protected tick: (elapsedMs: number) => any;
+  protected tick: (elapsed: number) => any;
   private _onFatalException: (e: unknown) => any = () => {
     /* default nothing */
   };
@@ -38,7 +38,7 @@ export abstract class Clock {
   public fpsSampler: FpsSampler;
   private _options: ClockOptions;
   private _elapsed: number = 1;
-  private _scheduledCbs: [cb: (elapsedMs: number) => any, scheduledTime: number, timing: ScheduledCallbackTiming][] = [];
+  private _scheduledCbs: [cb: (elapsed: number) => any, scheduledTime: number, timing: ScheduledCallbackTiming][] = [];
   private _totalElapsed: number = 0;
   constructor(options: ClockOptions) {
     this._options = options;
@@ -95,7 +95,7 @@ export abstract class Clock {
    * @param timeoutMs Optionally specify a timeout in milliseconds from now, default is 0ms which means the next possible tick
    * @param timing Optionally specify a timeout in milliseconds from now, default is 0ms which means the next possible tick
    */
-  public schedule(cb: (elapsedMs: number) => any, timeoutMs: number = 0, timing: ScheduledCallbackTiming = 'preframe') {
+  public schedule(cb: (elapsed: number) => any, timeoutMs: number = 0, timing: ScheduledCallbackTiming = 'preframe') {
     // Scheduled based on internal elapsed time
     const scheduledTime = this._totalElapsed + timeoutMs;
     this._scheduledCbs.push([cb, scheduledTime, timing]);

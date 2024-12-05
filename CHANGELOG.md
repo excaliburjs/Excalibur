@@ -133,18 +133,18 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Added `easing` option to `moveTo(...)`
 - Added new option bag style input to actions with durations in milliseconds instead of speed
   ```typescript
-  player.actions.rotateTo({angleRadians: angle, durationMs: 1000, rotationType});
-  player.actions.moveTo({pos: ex.vec(100, 100), durationMs: 1000});
-  player.actions.scaleTo({scale: ex.vec(2, 2), durationMs: 1000});
+  player.actions.rotateTo({angleRadians: angle, duration: 1000, rotationType});
+  player.actions.moveTo({pos: ex.vec(100, 100), duration: 1000});
+  player.actions.scaleTo({scale: ex.vec(2, 2), duration: 1000});
   player.actions.repeatForever(ctx => {
     ctx.curveTo({
       controlPoints: [cp1, cp2, dest],
-      durationMs: 5000,
+      duration: 5000,
       mode: 'uniform'
     });
     ctx.curveTo({
       controlPoints: [cp2, cp1, start1],
-      durationMs: 5000,
+      duration: 5000,
       mode: 'uniform'
     });
   });
@@ -267,6 +267,7 @@ are doing mtv adjustments during precollision.
 
 ### Updates
 
+- Remove units by default from parameters
 - Perf improve PolygonCollider.contains(...) perf by keeping geometry tests in local space.
 - Perf improvement to image rendering! with ImageRendererV2! Roughly doubles the performance of image rendering
 - Perf improvement to retrieving components with `ex.Entity.get()` which widely improves engine performance

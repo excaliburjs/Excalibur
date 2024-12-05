@@ -37,11 +37,11 @@ export class World {
   /**
    * Update systems by type and time elapsed in milliseconds
    */
-  update(type: SystemType, elapsedMs: number) {
+  update(type: SystemType, elapsed: number) {
     if (type === SystemType.Update) {
-      this.entityManager.updateEntities(this.scene, elapsedMs);
+      this.entityManager.updateEntities(this.scene, elapsed);
     }
-    this.systemManager.updateSystems(type, this.scene, elapsedMs);
+    this.systemManager.updateSystems(type, this.scene, elapsed);
     this.entityManager.findEntitiesForRemoval();
     this.entityManager.processComponentRemovals();
     this.entityManager.processEntityRemovals();

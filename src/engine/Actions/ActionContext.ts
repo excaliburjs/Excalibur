@@ -46,8 +46,8 @@ export class ActionContext {
     return this._queue;
   }
 
-  public update(elapsedMs: number) {
-    this._queue.update(elapsedMs);
+  public update(elapsed: number) {
+    this._queue.update(elapsed);
   }
 
   /**
@@ -88,22 +88,22 @@ export class ActionContext {
    * specified duration using a given {@apilink EasingFunctions} and return back the actor. This
    * method is part of the actor 'Action' fluent API allowing action chaining.
    * @param pos       The x,y vector location to move the actor to
-   * @param durationMs  The time it should take the actor to move to the new location in milliseconds
+   * @param duration  The time it should take the actor to move to the new location in milliseconds
    * @param easingFcn Use {@apilink EasingFunction} or a custom function to use to calculate position, Default is {@apilink EasingFunctions.Linear}
-   * @deprecated use new moveTo({pos: Vector, durationMs: number, easing: EasingFunction})
+   * @deprecated use new moveTo({pos: Vector, duration: number, easing: EasingFunction})
    */
-  public easeTo(pos: Vector, durationMs: number, easingFcn?: EasingFunction): ActionContext;
+  public easeTo(pos: Vector, duration: number, easingFcn?: EasingFunction): ActionContext;
   /**
    * This method will move an actor to the specified `x` and `y` position over the
    * specified duration using a given {@apilink EasingFunctions} and return back the actor. This
    * method is part of the actor 'Action' fluent API allowing action chaining.
    * @param x         The x location to move the actor to
    * @param y         The y location to move the actor to
-   * @param durationMs  The time it should take the actor to move to the new location in milliseconds
+   * @param duration  The time it should take the actor to move to the new location in milliseconds
    * @param easingFcn Use {@apilink EasingFunction} or a custom function to use to calculate position, Default is {@apilink EasingFunctions.Linear}
-   * @deprecated use new moveTo({pos: Vector, durationMs: number, easing: EasingFunction})
+   * @deprecated use new moveTo({pos: Vector, duration: number, easing: EasingFunction})
    */
-  public easeTo(x: number, y: number, durationMs: number, easingFcn?: EasingFunction): ActionContext;
+  public easeTo(x: number, y: number, duration: number, easingFcn?: EasingFunction): ActionContext;
   public easeTo(...args: any[]): ActionContext {
     let x = 0;
     let y = 0;
@@ -129,20 +129,20 @@ export class ActionContext {
    * This method will move an actor by a specified vector offset relative to the current position given
    * a duration and a {@apilink EasingFunction}. This method is part of the actor 'Action' fluent API allowing action chaining.
    * @param offset Vector offset relative to the current position
-   * @param durationMs The duration in milliseconds
+   * @param duration The duration in milliseconds
    * @param easingFcn Use {@apilink EasingFunction} or a custom function to use to calculate position, Default is {@apilink EasingFunctions.Linear}
-   * @deprecated use new moveBy({offset: Vector, durationMs: number, easing: EasingFunction})
+   * @deprecated use new moveBy({offset: Vector, duration: number, easing: EasingFunction})
    */
-  public easeBy(offset: Vector, durationMs: number, easingFcn?: EasingFunction): ActionContext;
+  public easeBy(offset: Vector, duration: number, easingFcn?: EasingFunction): ActionContext;
   /**
    * This method will move an actor by a specified x and y offset relative to the current position given
    * a duration and a {@apilink EasingFunction}. This method is part of the actor 'Action' fluent API allowing action chaining.
    * @param offset Vector offset relative to the current position
-   * @param durationMs The duration in milliseconds
+   * @param duration The duration in milliseconds
    * @param easingFcn Use {@apilink EasingFunction} or a custom function to use to calculate position, Default is {@apilink EasingFunctions.Linear}
-   * @deprecated use new moveBy({offset: Vector, durationMs: number, easing: EasingFunction})
+   * @deprecated use new moveBy({offset: Vector, duration: number, easing: EasingFunction})
    */
-  public easeBy(offsetX: number, offsetY: number, durationMs: number, easingFcn?: EasingFunction): ActionContext;
+  public easeBy(offsetX: number, offsetY: number, duration: number, easingFcn?: EasingFunction): ActionContext;
   public easeBy(...args: any[]): ActionContext {
     let offsetX = 0;
     let offsetY = 0;
@@ -256,11 +256,11 @@ export class ActionContext {
    * This method will rotate an actor to the specified angle at the speed
    * specified (in radians per second) and return back the actor. This
    * method is part of the actor 'Action' fluent API allowing action chaining.
-   * @param angleRadians  The angle to rotate to in radians
+   * @param angle  The angle to rotate to in radians
    * @param speed         The angular velocity of the rotation specified in radians per second
    * @param rotationType  The {@apilink RotationType} to use for this rotation
    */
-  public rotateTo(angleRadians: number, speed: number, rotationType?: RotationType): ActionContext;
+  public rotateTo(angle: number, speed: number, rotationType?: RotationType): ActionContext;
   public rotateTo(angleRadiansOrOptions: number | RotateToOptions, speed?: number, rotationType?: RotationType): ActionContext {
     if (typeof angleRadiansOrOptions === 'number' && typeof speed === 'number') {
       this._queue.add(new RotateTo(this._entity, angleRadiansOrOptions, speed, rotationType));
@@ -422,20 +422,20 @@ export class ActionContext {
    * to the provided value by a specified time (in milliseconds). This method is
    * part of the actor 'Action' fluent API allowing action chaining.
    * @param opacity  The ending opacity
-   * @param durationMs     The time it should take to fade the actor (in milliseconds)
+   * @param duration     The time it should take to fade the actor (in milliseconds)
    */
-  public fade(opacity: number, durationMs: number): ActionContext {
-    this._queue.add(new Fade(this._entity, opacity, durationMs));
+  public fade(opacity: number, duration: number): ActionContext {
+    this._queue.add(new Fade(this._entity, opacity, duration));
     return this;
   }
 
   /**
    * This will cause an actor to flash a specific color for a period of time
    * @param color
-   * @param durationMs The duration in milliseconds
+   * @param duration The duration in milliseconds
    */
-  public flash(color: Color, durationMs: number = 1000) {
-    this._queue.add(new Flash(this._entity, color, durationMs));
+  public flash(color: Color, duration: number = 1000) {
+    this._queue.add(new Flash(this._entity, color, duration));
     return this;
   }
 
@@ -443,10 +443,10 @@ export class ActionContext {
    * This method will delay the next action from executing for a certain
    * amount of time (in milliseconds). This method is part of the actor
    * 'Action' fluent API allowing action chaining.
-   * @param durationMs  The amount of time to delay the next action in the queue from executing in milliseconds
+   * @param duration  The amount of time to delay the next action in the queue from executing in milliseconds
    */
-  public delay(durationMs: number): ActionContext {
-    this._queue.add(new Delay(durationMs));
+  public delay(duration: number): ActionContext {
+    this._queue.add(new Delay(duration));
     return this;
   }
 

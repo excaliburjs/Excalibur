@@ -147,12 +147,12 @@ actor.onPostUpdate = () => {
 actor.actions.repeatForever((ctx) => {
   ctx.curveTo({
     controlPoints: [cp1, cp2, dest],
-    durationMs: 5000,
+    duration: 5000,
     mode: 'uniform'
   });
   ctx.curveTo({
     controlPoints: [cp2, cp1, start1],
-    durationMs: 5000,
+    duration: 5000,
     mode: 'uniform'
   });
 });

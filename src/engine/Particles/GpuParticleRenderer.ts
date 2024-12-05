@@ -238,10 +238,10 @@ export class GpuParticleRenderer {
     this._uploadIndex = this._particleIndex % (this.maxParticles * this._numInputFloats);
   }
 
-  update(elapsedMs: number) {
+  update(elapsed: number) {
     this._particleLife = this.particle.life ?? this._particleLife;
     if (this._wrappedLife > 0) {
-      this._wrappedLife -= elapsedMs;
+      this._wrappedLife -= elapsed;
     } else {
       this._wrappedLife = 0;
       this._wrappedParticles = 0;
@@ -251,7 +251,7 @@ export class GpuParticleRenderer {
     }
     for (let i = this._emitted.length - 1; i >= 0; i--) {
       const particle = this._emitted[i];
-      particle[0] -= elapsedMs;
+      particle[0] -= elapsed;
       const life = particle[0];
       if (life <= 0) {
         this._emitted.splice(i, 1);

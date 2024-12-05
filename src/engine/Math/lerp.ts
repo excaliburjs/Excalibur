@@ -14,14 +14,14 @@ export function lerp(a: number, b: number, time: number): number {
 
 /**
  * Linear interpolation between angles in radians
- * @param startAngleRadians
- * @param endAngleRadians
+ * @param startAngle
+ * @param endAngle
  * @param rotationType
  * @param time
  */
-export function lerpAngle(startAngleRadians: number, endAngleRadians: number, rotationType: RotationType, time: number): number {
-  const shortestPathIsPositive = (startAngleRadians - endAngleRadians + TwoPI) % TwoPI >= Math.PI;
-  const distance1 = Math.abs(endAngleRadians - startAngleRadians);
+export function lerpAngle(startAngle: number, endAngle: number, rotationType: RotationType, time: number): number {
+  const shortestPathIsPositive = (startAngle - endAngle + TwoPI) % TwoPI >= Math.PI;
+  const distance1 = Math.abs(endAngle - startAngle);
   const distance2 = TwoPI - distance1;
   let shortDistance = 0;
   let longDistance = 0;
@@ -54,7 +54,7 @@ export function lerpAngle(startAngleRadians: number, endAngleRadians: number, ro
       break;
   }
 
-  return startAngleRadians + direction * (distance * time);
+  return startAngle + direction * (distance * time);
 }
 
 /**

@@ -78,24 +78,24 @@ export class GpuParticleEmitter extends Actor {
   }
 
   private _particlesToEmit = 0;
-  public update(engine: Engine, elapsedMs: number): void {
-    super.update(engine, elapsedMs);
+  public update(engine: Engine, elapsed: number): void {
+    super.update(engine, elapsed);
 
     if (this.isEmitting) {
-      this._particlesToEmit += this.emitRate * (elapsedMs / 1000);
+      this._particlesToEmit += this.emitRate * (elapsed / 1000);
       if (this._particlesToEmit > 1.0) {
         this.emitParticles(Math.floor(this._particlesToEmit));
         this._particlesToEmit = this._particlesToEmit - Math.floor(this._particlesToEmit);
       }
     }
-    this.renderer.update(elapsedMs);
+    this.renderer.update(elapsed);
   }
 
   public emitParticles(particleCount: number) {
     this.renderer.emitParticles(particleCount);
   }
 
-  draw(ctx: ExcaliburGraphicsContextWebGL, elapsedMilliseconds: number) {
-    ctx.draw<ex.ParticleRenderer>('ex.particle', this.renderer, elapsedMilliseconds);
+  draw(ctx: ExcaliburGraphicsContextWebGL, elapsed: number) {
+    ctx.draw<ex.ParticleRenderer>('ex.particle', this.renderer, elapsed);
   }
 }

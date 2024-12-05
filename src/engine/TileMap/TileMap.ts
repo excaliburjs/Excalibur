@@ -261,7 +261,7 @@ export class TileMap extends Entity implements HasNestedPointerEvents {
     );
     this.addComponent(
       new GraphicsComponent({
-        onPostDraw: (ctx, elapsedMs) => this.draw(ctx, elapsedMs)
+        onPostDraw: (ctx, elapsed) => this.draw(ctx, elapsed)
       })
     );
     this.addComponent(new DebugGraphicsComponent((ctx, debugFlags) => this.debug(ctx, debugFlags), false));
@@ -559,10 +559,10 @@ export class TileMap extends Entity implements HasNestedPointerEvents {
     this._pointerEventDispatcher.dispatchEvents(receiver, this.tiles);
   }
 
-  public update(engine: Engine, elapsedMs: number) {
+  public update(engine: Engine, elapsed: number) {
     this._initialize(engine);
-    this.onPreUpdate(engine, elapsedMs);
-    this.emit('preupdate', new PreUpdateEvent(engine, elapsedMs, this));
+    this.onPreUpdate(engine, elapsed);
+    this.emit('preupdate', new PreUpdateEvent(engine, elapsed, this));
 
     // Update colliders
     if (!this._oldPos.equals(this.pos) || this._oldRotation !== this.rotation || !this._oldScale.equals(this.scale)) {
@@ -583,20 +583,20 @@ export class TileMap extends Entity implements HasNestedPointerEvents {
     this._oldRotation = this.rotation;
     this.scale.clone(this._oldScale);
     this.transform.pos = this.pos;
-    this.onPostUpdate(engine, elapsedMs);
-    this.emit('postupdate', new PostUpdateEvent(engine, elapsedMs, this));
+    this.onPostUpdate(engine, elapsed);
+    this.emit('postupdate', new PostUpdateEvent(engine, elapsed, this));
   }
 
   /**
    * Draws the tile map to the screen. Called by the {@apilink Scene}.
    * @param ctx ExcaliburGraphicsContext
-   * @param elapsedMs  The number of milliseconds since the last draw
+   * @param elapsed  The number of milliseconds since the last draw
    */
-  public draw(ctx: ExcaliburGraphicsContext, elapsedMs: number): void {
+  public draw(ctx: ExcaliburGraphicsContext, elapsed: number): void {
     if (!this.isInitialized) {
       return;
     }
-    this.emit('predraw', new PreDrawEvent(ctx as any, elapsedMs, this)); // TODO fix event
+    this.emit('predraw', new PreDrawEvent(ctx as any, elapsed, this)); // TODO fix event
 
     let graphics: readonly Graphic[], graphicsIndex: number, graphicsLen: number;
 
@@ -613,14 +613,14 @@ export class TileMap extends Entity implements HasNestedPointerEvents {
         const offset = offsets[graphicsIndex];
         if (graphic) {
           if (hasGraphicsTick(graphic)) {
-            graphic?.tick(elapsedMs, this._token);
+            graphic?.tick(elapsed, this._token);
           }
           const offsetY = this.renderFromTopOfGraphic ? 0 : graphic.height - this.tileHeight;
           graphic.draw(ctx, tile.x * this.tileWidth + offset.x, tile.y * this.tileHeight - offsetY + offset.y);
         }
       }
     }
-    this.emit('postdraw', new PostDrawEvent(ctx as any, elapsedMs, this));
+    this.emit('postdraw', new PostDrawEvent(ctx as any, elapsed, this));
   }
 
   public debug(gfx: ExcaliburGraphicsContext, debugFlags: DebugConfig) {

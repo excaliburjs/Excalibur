@@ -81,7 +81,7 @@ export class GraphicsGroup extends Graphic implements HasTick {
     return graphic instanceof Animation || graphic instanceof GraphicsGroup;
   }
 
-  public tick(elapsedMilliseconds: number, idempotencyToken?: number) {
+  public tick(elapsed: number, idempotencyToken?: number) {
     for (const member of this.members) {
       let graphic: Graphic;
       if (member instanceof Graphic) {
@@ -90,7 +90,7 @@ export class GraphicsGroup extends Graphic implements HasTick {
         graphic = member.graphic;
       }
       if (this._isAnimationOrGroup(graphic)) {
-        graphic.tick(elapsedMilliseconds, idempotencyToken);
+        graphic.tick(elapsed, idempotencyToken);
       }
     }
   }

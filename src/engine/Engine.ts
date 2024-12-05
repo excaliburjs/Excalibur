@@ -1426,7 +1426,7 @@ O|===|* >________________>\n\
    */
   public async goToScene<TData = undefined>(destinationScene: WithRoot<TKnownScenes>, options?: GoToOptions<TData>): Promise<void> {
     await this.scope(async () => {
-      await this.director.goto(destinationScene, options);
+      await this.director.goToScene(destinationScene, options);
     });
   }
 
@@ -1507,12 +1507,12 @@ O|===|* >________________>\n\
 
   /**
    * Updates the entire state of the game
-   * @param elapsedMs  Number of milliseconds elapsed since the last update.
+   * @param elapsed  Number of milliseconds elapsed since the last update.
    */
-  private _update(elapsedMs: number) {
+  private _update(elapsed: number) {
     if (this._isLoading) {
       // suspend updates until loading is finished
-      this._loader?.onUpdate(this, elapsedMs);
+      this._loader?.onUpdate(this, elapsed);
       // Update input listeners
       this.input.update();
       return;
@@ -1520,17 +1520,17 @@ O|===|* >________________>\n\
 
     // Publish preupdate events
     this.clock.__runScheduledCbs('preupdate');
-    this._preupdate(elapsedMs);
+    this._preupdate(elapsed);
 
     // process engine level events
-    this.currentScene.update(this, elapsedMs);
+    this.currentScene.update(this, elapsed);
 
     // Update graphics postprocessors
-    this.graphicsContext.updatePostProcessors(elapsedMs);
+    this.graphicsContext.updatePostProcessors(elapsed);
 
     // Publish update event
     this.clock.__runScheduledCbs('postupdate');
-    this._postupdate(elapsedMs);
+    this._postupdate(elapsed);
 
     // Update input listeners
     this.input.update();
@@ -1539,38 +1539,48 @@ O|===|* >________________>\n\
   /**
    * @internal
    */
-  public _preupdate(elapsedMs: number) {
-    this.emit('preupdate', new PreUpdateEvent(this, elapsedMs, this));
-    this.onPreUpdate(this, elapsedMs);
+  public _preupdate(elapsed: number) {
+    this.emit('preupdate', new PreUpdateEvent(this, elapsed, this));
+    this.onPreUpdate(this, elapsed);
   }
 
-  public onPreUpdate(engine: Engine, elapsedMs: number) {
+  /**
+   * Safe to override method
+   * @param engine The reference to the current game engine
+   * @param elapsed  The time elapsed since the last update in milliseconds
+   */
+  public onPreUpdate(engine: Engine, elapsed: number) {
     // Override me
   }
 
   /**
    * @internal
    */
-  public _postupdate(elapsedMs: number) {
-    this.emit('postupdate', new PostUpdateEvent(this, elapsedMs, this));
-    this.onPostUpdate(this, elapsedMs);
+  public _postupdate(elapsed: number) {
+    this.emit('postupdate', new PostUpdateEvent(this, elapsed, this));
+    this.onPostUpdate(this, elapsed);
   }
 
-  public onPostUpdate(engine: Engine, elapsedMs: number) {
+  /**
+   * Safe to override method
+   * @param engine The reference to the current game engine
+   * @param elapsed  The time elapsed since the last update in milliseconds
+   */
+  public onPostUpdate(engine: Engine, elapsed: number) {
     // Override me
   }
 
   /**
    * Draws the entire game
-   * @param elapsedMs  Number of milliseconds elapsed since the last draw.
+   * @param elapsed  Number of milliseconds elapsed since the last draw.
    */
-  private _draw(elapsedMs: number) {
+  private _draw(elapsed: number) {
     // Use scene background color if present, fallback to engine
     this.graphicsContext.backgroundColor = this.currentScene.backgroundColor ?? this.backgroundColor;
     this.graphicsContext.beginDrawLifecycle();
     this.graphicsContext.clear();
     this.clock.__runScheduledCbs('predraw');
-    this._predraw(this.graphicsContext, elapsedMs);
+    this._predraw(this.graphicsContext, elapsed);
 
     // Drawing nothing else while loading
     if (this._isLoading) {
@@ -1583,10 +1593,10 @@ O|===|* >________________>\n\
       return;
     }
 
-    this.currentScene.draw(this.graphicsContext, elapsedMs);
+    this.currentScene.draw(this.graphicsContext, elapsed);
 
     this.clock.__runScheduledCbs('postdraw');
-    this._postdraw(this.graphicsContext, elapsedMs);
+    this._postdraw(this.graphicsContext, elapsed);
 
     // Flush any pending drawings
     this.graphicsContext.flush();
@@ -1598,24 +1608,34 @@ O|===|* >________________>\n\
   /**
    * @internal
    */
-  public _predraw(ctx: ExcaliburGraphicsContext, elapsedMs: number) {
-    this.emit('predraw', new PreDrawEvent(ctx, elapsedMs, this));
-    this.onPreDraw(ctx, elapsedMs);
+  public _predraw(ctx: ExcaliburGraphicsContext, elapsed: number) {
+    this.emit('predraw', new PreDrawEvent(ctx, elapsed, this));
+    this.onPreDraw(ctx, elapsed);
   }
 
-  public onPreDraw(ctx: ExcaliburGraphicsContext, elapsedMs: number) {
+  /**
+   * Safe to override method to hook into pre draw
+   * @param ctx {@link ExcaliburGraphicsContext} for drawing
+   * @param elapsed  Number of milliseconds elapsed since the last draw.
+   */
+  public onPreDraw(ctx: ExcaliburGraphicsContext, elapsed: number) {
     // Override me
   }
 
   /**
    * @internal
    */
-  public _postdraw(ctx: ExcaliburGraphicsContext, elapsedMs: number) {
-    this.emit('postdraw', new PostDrawEvent(ctx, elapsedMs, this));
-    this.onPostDraw(ctx, elapsedMs);
+  public _postdraw(ctx: ExcaliburGraphicsContext, elapsed: number) {
+    this.emit('postdraw', new PostDrawEvent(ctx, elapsed, this));
+    this.onPostDraw(ctx, elapsed);
   }
 
-  public onPostDraw(ctx: ExcaliburGraphicsContext, elapsedMs: number) {
+  /**
+   * Safe to override method to hook into pre draw
+   * @param ctx {@link ExcaliburGraphicsContext} for drawing
+   * @param elapsed  Number of milliseconds elapsed since the last draw.
+   */
+  public onPostDraw(ctx: ExcaliburGraphicsContext, elapsed: number) {
     // Override me
   }
 

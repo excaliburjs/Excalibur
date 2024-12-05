@@ -83,23 +83,23 @@ export class SystemManager {
    * Updates all systems
    * @param type whether this is an update or draw system
    * @param scene context reference
-   * @param elapsedMs time in milliseconds
+   * @param elapsed time in milliseconds
    */
-  public updateSystems(type: SystemType, scene: Scene, elapsedMs: number) {
+  public updateSystems(type: SystemType, scene: Scene, elapsed: number) {
     const systems = this.systems.filter((s) => s.systemType === type);
     for (const s of systems) {
       if (s.preupdate) {
-        s.preupdate(scene, elapsedMs);
+        s.preupdate(scene, elapsed);
       }
     }
 
     for (const s of systems) {
-      s.update(elapsedMs);
+      s.update(elapsed);
     }
 
     for (const s of systems) {
       if (s.postupdate) {
-        s.postupdate(scene, elapsedMs);
+        s.postupdate(scene, elapsed);
       }
     }
   }

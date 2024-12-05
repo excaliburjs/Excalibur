@@ -296,7 +296,7 @@ export class DebugSystem extends System {
     this._graphicsContext.flush();
   }
 
-  postupdate(engine: Scene<unknown>, elapsedMs: number): void {
+  postupdate(engine: Scene<unknown>, elapsed: number): void {
     if (this._engine.isDebug) {
       this._graphicsContext.save();
       if (this._camera) {

@@ -5,7 +5,7 @@ import { vec, Vector } from '../../Math/vector';
 import { Action, nextActionId } from '../Action';
 
 /**
- * @deprecated use moveTo({pos: Vector, durationMs: number, easing: EasingFunction})
+ * @deprecated use moveTo({pos: Vector, duration: number, easing: EasingFunction})
  */
 export class EaseTo implements Action {
   id = nextActionId();
@@ -34,14 +34,14 @@ export class EaseTo implements Action {
     this._currentLerpTime = 0;
   }
 
-  public update(elapsedMs: number): void {
+  public update(elapsed: number): void {
     if (!this._initialized) {
       this._initialize();
       this._initialized = true;
     }
 
     // Need to update lerp time first, otherwise the first update will always be zero
-    this._currentLerpTime += elapsedMs;
+    this._currentLerpTime += elapsed;
     let newX = this._tx.pos.x;
     let newY = this._tx.pos.y;
     if (this._currentLerpTime < this._lerpDuration) {
@@ -61,7 +61,7 @@ export class EaseTo implements Action {
         newY = this.easingFcn(this._currentLerpTime, this._lerpStart.y, this._lerpEnd.y, this._lerpDuration);
       }
       // Given the lerp position figure out the velocity in pixels per second
-      this._motion.vel = vec((newX - this._tx.pos.x) / (elapsedMs / 1000), (newY - this._tx.pos.y) / (elapsedMs / 1000));
+      this._motion.vel = vec((newX - this._tx.pos.x) / (elapsed / 1000), (newY - this._tx.pos.y) / (elapsed / 1000));
     } else {
       this._tx.pos = vec(this._lerpEnd.x, this._lerpEnd.y);
       this._motion.vel = Vector.Zero;

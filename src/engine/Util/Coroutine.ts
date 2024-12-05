@@ -162,16 +162,16 @@ export function coroutine(...args: any[]): CoroutineInstance {
   let cancelled = false;
   const generatorFcn = coroutineGenerator.bind(thisArg) as CoroutineGenerator;
   const generator = generatorFcn();
-  let loop: (elapsedMs: number) => void;
+  let loop: (elapsed: number) => void;
   const complete = new Promise<void>((resolve, reject) => {
-    loop = (elapsedMs: number) => {
+    loop = (elapsed: number) => {
       try {
         if (cancelled) {
           completed = true;
           resolve();
           return;
         }
-        const { done, value } = InsideCoroutineContext.scope(true, () => generator.next(elapsedMs));
+        const { done, value } = InsideCoroutineContext.scope(true, () => generator.next(elapsed));
         if (done || cancelled) {
           completed = true;
           resolve();

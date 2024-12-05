@@ -19,7 +19,7 @@ export class Blink implements Action {
     this._duration = (timeVisible + timeNotVisible) * numBlinks;
   }
 
-  public update(elapsedMs: number): void {
+  public update(elapsed: number): void {
     if (!this._started) {
       this._started = true;
       this._elapsedTime = 0;
@@ -29,8 +29,8 @@ export class Blink implements Action {
       return;
     }
 
-    this._elapsedTime += elapsedMs;
-    this._totalTime += elapsedMs;
+    this._elapsedTime += elapsed;
+    this._totalTime += elapsed;
     if (this._graphics.isVisible && this._elapsedTime >= this._timeVisible) {
       this._graphics.isVisible = false;
       this._elapsedTime = 0;

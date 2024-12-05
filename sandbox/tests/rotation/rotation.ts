@@ -85,7 +85,7 @@ engine.input.pointers.primary.on('down', (e: ex.PointerEvent) => {
     var vector = new ex.Vector(e.worldPos.x - player.pos.x, e.worldPos.y - player.pos.y);
     var angle = vector.toAngle();
 
-    player.actions.rotateTo({ angleRadians: angle, durationMs: 1000, rotationType });
+    player.actions.rotateTo({ angle: angle, duration: 1000, rotationType });
     //console.log('rotating from ' + player.rotation + ' to ' + angle);
   }
 });

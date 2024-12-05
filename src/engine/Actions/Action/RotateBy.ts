@@ -14,7 +14,7 @@ export interface RotateByOptions {
   /**
    * Duration to take in milliseconds
    */
-  durationMs: number;
+  duration: number;
   /**
    * Optionally provide type of rotation, default is RotationType.ShortestPath
    */
@@ -25,7 +25,7 @@ export interface RotateByOptions {
  *
  */
 export function isRotateByOptions(x: any): x is RotateByOptions {
-  return typeof x.angleRadiansOffset === 'number' && typeof x.durationMs === 'number';
+  return typeof x.angleRadiansOffset === 'number' && typeof x.duration === 'number';
 }
 
 export class RotateByWithOptions implements Action {
@@ -50,22 +50,22 @@ export class RotateByWithOptions implements Action {
     if (!this._tx) {
       throw new Error(`Entity ${entity.name} has no TransformComponent, can only RotateBy on Entities with TransformComponents.`);
     }
-    this._durationMs = options.durationMs;
+    this._durationMs = options.duration;
     this._rotationType = options.rotationType ?? RotationType.ShortestPath;
     this._currentMs = this._durationMs;
   }
-  update(elapsedMs: number): void {
+  update(elapsed: number): void {
     if (!this._started) {
       this._startAngle = this._tx.rotation;
       this._endAngle = canonicalizeAngle(this._startAngle + this._offset);
       this._started = true;
     }
-    this._currentMs -= elapsedMs;
+    this._currentMs -= elapsed;
     const t = clamp(remap(0, this._durationMs, 0, 1, this._durationMs - this._currentMs), 0, 1);
     const newAngle = lerpAngle(this._startAngle, this._endAngle, this._rotationType, t);
     const currentAngle = this._tx.rotation;
 
-    const rx = (newAngle - currentAngle) / (elapsedMs / 1000);
+    const rx = (newAngle - currentAngle) / (elapsed / 1000);
     this._motion.angularVelocity = rx;
 
     if (this.isComplete()) {
@@ -118,7 +118,7 @@ export class RotateBy implements Action {
     this._rotationType = rotationType || RotationType.ShortestPath;
   }
 
-  public update(elapsedMs: number): void {
+  public update(elapsed: number): void {
     if (!this._started) {
       this._started = true;
       this._start = this._tx.rotation;
@@ -174,7 +174,7 @@ export class RotateBy implements Action {
     }
 
     this._motion.angularVelocity = this._direction * this._speed;
-    this._currentNonCannonAngle += this._direction * this._speed * (elapsedMs / 1000);
+    this._currentNonCannonAngle += this._direction * this._speed * (elapsed / 1000);
 
     if (this.isComplete()) {
       this._tx.rotation = this._end;

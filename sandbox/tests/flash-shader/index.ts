@@ -14,7 +14,7 @@ actor.graphics.use(tex.toSprite());
 
 game.add(actor);
 
-var flash = (actor: ex.Actor, color: ex.Color, durationMs: number) => {
+var flash = (actor: ex.Actor, color: ex.Color, duration: number) => {
   const material = game.graphicsContext.createMaterial({
     name: 'flash-material',
     color,
@@ -41,8 +41,8 @@ var flash = (actor: ex.Actor, color: ex.Color, durationMs: number) => {
   actor.graphics.material = material;
   ex.coroutine(
     function* () {
-      const total = durationMs;
-      let currentDuration = durationMs;
+      const total = duration;
+      let currentDuration = duration;
       while (currentDuration > 0) {
         const elapsed = yield;
         currentDuration -= elapsed;

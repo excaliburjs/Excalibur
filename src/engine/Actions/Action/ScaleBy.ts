@@ -13,14 +13,14 @@ export interface ScaleByOptions {
   /**
    * Duration to take in milliseconds
    */
-  durationMs: number;
+  duration: number;
 }
 
 /**
  *
  */
 export function isScaleByOptions(x: any): x is ScaleByOptions {
-  return typeof x.scaleOffset === 'object' && typeof x.durationMs === 'number';
+  return typeof x.scaleOffset === 'object' && typeof x.duration === 'number';
 }
 
 export class ScaleByWithOptions implements Action {
@@ -44,20 +44,20 @@ export class ScaleByWithOptions implements Action {
     if (!this._tx) {
       throw new Error(`Entity ${entity.name} has no TransformComponent, can only ScaleBy on Entities with TransformComponents.`);
     }
-    this._durationMs = options.durationMs;
+    this._durationMs = options.duration;
     this._currentMs = this._durationMs;
   }
-  update(elapsedMs: number): void {
+  update(elapsed: number): void {
     if (!this._started) {
       this._startScale = this._tx.scale;
       this._endScale = this._startScale.add(this._scaleOffset);
       this._started = true;
     }
-    this._currentMs -= elapsedMs;
+    this._currentMs -= elapsed;
     const t = clamp(remap(0, this._durationMs, 0, 1, this._durationMs - this._currentMs), 0, 1);
     const newScale = lerpVector(this._startScale, this._endScale, t);
     const currentScale = this._tx.scale;
-    const sx = newScale.sub(currentScale).scale(1 / (elapsedMs / 1000));
+    const sx = newScale.sub(currentScale).scale(1 / (elapsed / 1000));
     this._motion.scaleFactor = sx;
 
     if (this.isComplete()) {
@@ -106,7 +106,7 @@ export class ScaleBy implements Action {
     this._speedX = this._speedY = speed;
   }
 
-  public update(elapsedMs: number): void {
+  public update(elapsed: number): void {
     if (!this._started) {
       this._started = true;
       this._startScale = this._tx.scale.clone();

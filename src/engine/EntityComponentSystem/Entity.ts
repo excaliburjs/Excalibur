@@ -583,9 +583,9 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    * Internal _preupdate handler for {@apilink onPreUpdate} lifecycle event
    * @internal
    */
-  public _preupdate(engine: Engine, elapsedMs: number): void {
-    this.events.emit('preupdate', new PreUpdateEvent(engine, elapsedMs, this));
-    this.onPreUpdate(engine, elapsedMs);
+  public _preupdate(engine: Engine, elapsed: number): void {
+    this.events.emit('preupdate', new PreUpdateEvent(engine, elapsed, this));
+    this.onPreUpdate(engine, elapsed);
   }
 
   /**
@@ -594,9 +594,9 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    * Internal _preupdate handler for {@apilink onPostUpdate} lifecycle event
    * @internal
    */
-  public _postupdate(engine: Engine, elapsedMs: number): void {
-    this.events.emit('postupdate', new PostUpdateEvent(engine, elapsedMs, this));
-    this.onPostUpdate(engine, elapsedMs);
+  public _postupdate(engine: Engine, elapsed: number): void {
+    this.events.emit('postupdate', new PostUpdateEvent(engine, elapsed, this));
+    this.onPostUpdate(engine, elapsed);
   }
 
   /**
@@ -634,7 +634,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    *
    * `onPreUpdate` is called directly before an entity is updated.
    */
-  public onPreUpdate(engine: Engine, elapsedMs: number): void {
+  public onPreUpdate(engine: Engine, elapsed: number): void {
     // Override me
   }
 
@@ -643,7 +643,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    *
    * `onPostUpdate` is called directly after an entity is updated.
    */
-  public onPostUpdate(engine: Engine, elapsedMs: number): void {
+  public onPostUpdate(engine: Engine, elapsed: number): void {
     // Override me
   }
 
@@ -652,16 +652,16 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    * Entity update lifecycle, called internally
    * @internal
    * @param engine
-   * @param elapsedMs
+   * @param elapsed
    */
-  public update(engine: Engine, elapsedMs: number): void {
+  public update(engine: Engine, elapsed: number): void {
     this._initialize(engine);
     this._add(engine);
-    this._preupdate(engine, elapsedMs);
+    this._preupdate(engine, elapsed);
     for (const child of this.children) {
-      child.update(engine, elapsedMs);
+      child.update(engine, elapsed);
     }
-    this._postupdate(engine, elapsedMs);
+    this._postupdate(engine, elapsed);
     this._remove(engine);
   }
 
