@@ -497,10 +497,10 @@ export class Animation extends Graphic implements HasTick {
 
   /**
    * Called internally by Excalibur to update the state of the animation potential update the current frame
-   * @param elapsedMilliseconds Milliseconds elapsed
+   * @param elapsed Milliseconds elapsed
    * @param idempotencyToken Prevents double ticking in a frame by passing a unique token to the frame
    */
-  public tick(elapsedMilliseconds: number, idempotencyToken: number = 0): void {
+  public tick(elapsed: number, idempotencyToken: number = 0): void {
     if (this._idempotencyToken === idempotencyToken) {
       return;
     }
@@ -515,7 +515,7 @@ export class Animation extends Graphic implements HasTick {
       this.events.emit('frame', { ...this.currentFrame, frameIndex: this.currentFrameIndex });
     }
 
-    this._timeLeftInFrame -= elapsedMilliseconds * this._speed;
+    this._timeLeftInFrame -= elapsed * this._speed;
     if (this._timeLeftInFrame <= 0) {
       this.goToFrame(this._nextFrame());
     }
