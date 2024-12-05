@@ -82,7 +82,7 @@ export const PlayButton: StoryObj = {
       const heartTx = new ImageSource(heartTexture);
       const loader = new Loader([heartTx]);
       await game.start(loader);
-      game.setAntialiasing(false);
+      game.screen.antialiasing = false;
       game.currentScene.camera.pos.setTo(game.halfDrawWidth, game.halfDrawHeight);
       game.currentScene.camera.zoom = 4;
       const heart = new Actor({
