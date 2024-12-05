@@ -1423,43 +1423,6 @@ O|===|* >________________>\n\
    * ```
    * @param destinationScene
    * @param options
-   * @deprecated use goToScene, it now behaves the same as goto
-   */
-  public async goto(destinationScene: WithRoot<TKnownScenes>, options?: GoToOptions) {
-    await this.scope(async () => {
-      await this.director.goto(destinationScene, options);
-    });
-  }
-
-  /**
-   * Changes the current scene with optionally supplied:
-   * * Activation data
-   * * Transitions
-   * * Loaders
-   *
-   * Example:
-   * ```typescript
-   * game.goToScene('myScene', {
-   *   sceneActivationData: {any: 'thing at all'},
-   *   destinationIn: new FadeInOut({duration: 1000, direction: 'in'}),
-   *   sourceOut: new FadeInOut({duration: 1000, direction: 'out'}),
-   *   loader: MyLoader
-   * });
-   * ```
-   *
-   * Scenes are defined in the Engine constructor
-   * ```typescript
-   * const engine = new ex.Engine({
-      scenes: {...}
-    });
-   * ```
-   * Or by adding dynamically
-   *
-   * ```typescript
-   * engine.addScene('myScene', new ex.Scene());
-   * ```
-   * @param destinationScene
-   * @param options
    */
   public async goToScene<TData = undefined>(destinationScene: WithRoot<TKnownScenes>, options?: GoToOptions<TData>): Promise<void> {
     await this.scope(async () => {

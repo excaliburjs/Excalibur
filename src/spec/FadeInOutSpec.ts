@@ -48,7 +48,7 @@ describe('A FadeInOut transition', () => {
     );
     engine.addScene('newScene', { scene, transitions: { in: sut } });
 
-    const goto = engine.goto('newScene');
+    const goto = engine.goToScene('newScene');
     await TestUtils.flushMicrotasks(clock, 15);
     clock.step(500);
     await Promise.resolve();
