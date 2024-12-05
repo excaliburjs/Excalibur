@@ -70,7 +70,7 @@ engineWithInput.input.pointers.on('down', () => {
 
 engineWithInput.input.keyboard.on('press', (e) => {
   if (e.key === ex.Keys.Space) {
-    engineWithInput.currentSceneName === 'scene1' ? engineWithInput.goto('scene2') : engineWithInput.goto('scene1');
+    engineWithInput.currentSceneName === 'scene1' ? engineWithInput.goToScene('scene2') : engineWithInput.goToScene('scene1');
   }
 });
 
