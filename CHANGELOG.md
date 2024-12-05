@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- `ex.EventDispatcher` removed, use `ex.EventEmitter` instead.
 - `ex.Engine.getAntialiasing()` and `ex.Engine.setAntialiasing(bool)` have been removed, use the engine constructor parameter to configure `new ex.Engine({antialiasing: true})` or set on the screen `engine.screen.antialiasing = true`
 - `ex.Physics.*` configuration statics removed, use the engine constructor parameter to configure `new ex.Engine({physics: ...})`
 - `ex.Input.*` namespace removed and types promoted to `ex.*`

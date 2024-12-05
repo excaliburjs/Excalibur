@@ -17,7 +17,6 @@ export * from './Actor';
 export * from './Math/index';
 export * from './Camera';
 export * from './Debug/index';
-export * from './EventDispatcher';
 export * from './EventEmitter';
 export * from './Events/MediaEvents';
 export * from './Events';
