@@ -336,16 +336,6 @@ export class GraphicsComponent extends Component {
   }
 
   /**
-   * Shows a graphic, will be removed
-   * @param nameOrGraphic
-   * @param options
-   * @deprecated will be removed in v0.30.0, use `graphics.use(...)`
-   */
-  public show<T extends Graphic = Graphic>(nameOrGraphic: string | T, options?: GraphicsShowOptions): T {
-    return this.use(nameOrGraphic, options);
-  }
-
-  /**
    * Use a graphic only, will set the default graphic. Returns the new {@apilink Graphic}
    *
    * Optionally override the stored options
