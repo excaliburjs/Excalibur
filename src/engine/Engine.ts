@@ -1166,7 +1166,7 @@ O|===|* >________________>\n\
     this.canvas.parentNode.replaceChild(newCanvas, this.canvas);
     this.canvas = newCanvas;
 
-    const options = { ...this._originalOptions, antialiasing: this.getAntialiasing() };
+    const options = { ...this._originalOptions, antialiasing: this.screen.antialiasing };
     const displayMode = this._originalDisplayMode;
 
     // New graphics context
@@ -1524,25 +1524,6 @@ O|===|* >________________>\n\
 
   public onInitialize(engine: Engine) {
     // Override me
-  }
-
-  /**
-   * If supported by the browser, this will set the antialiasing flag on the
-   * canvas. Set this to `false` if you want a 'jagged' pixel art look to your
-   * image resources.
-   * @param isSmooth  Set smoothing to true or false
-   * @deprecated Set in engine constructor, will be removed in v0.30
-   */
-  public setAntialiasing(isSmooth: boolean) {
-    this.screen.antialiasing = isSmooth;
-  }
-
-  /**
-   * Return the current smoothing status of the canvas
-   * @deprecated Set in engine constructor, will be removed in v0.30
-   */
-  public getAntialiasing(): boolean {
-    return this.screen.antialiasing;
   }
 
   /**

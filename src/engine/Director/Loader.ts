@@ -376,8 +376,8 @@ export class Loader extends DefaultLoader {
     }
 
     const imageHeight = Math.floor(width * (this.logoHeight / this.logoWidth)); // OG height/width factor
-    const oldAntialias = this.engine.getAntialiasing();
-    this.engine.setAntialiasing(true);
+    const oldAntialias = this.engine.screen.antialiasing;
+    this.engine.screen.antialiasing = true;
     if (!this.logoPosition) {
       ctx.drawImage(this._image, 0, 0, this.logoWidth, this.logoHeight, logoX, logoY - imageHeight - 20, width, imageHeight);
     } else {
@@ -386,7 +386,7 @@ export class Loader extends DefaultLoader {
 
     // loading box
     if (!this.suppressPlayButton && this._playButtonShown) {
-      this.engine.setAntialiasing(oldAntialias);
+      this.engine.screen.antialiasing = oldAntialias;
       return;
     }
 
@@ -413,6 +413,6 @@ export class Loader extends DefaultLoader {
       null,
       this.loadingBarColor
     );
-    this.engine.setAntialiasing(oldAntialias);
+    this.engine.screen.antialiasing = oldAntialias;
   }
 }

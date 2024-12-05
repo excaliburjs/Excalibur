@@ -16,7 +16,7 @@ describe('A scaled and rotated actor', () => {
     actor.color = ex.Color.Blue;
     actor.body.collisionType = ex.CollisionType.Active;
     engine = TestUtils.engine({ width: 800, height: 600 });
-    engine.setAntialiasing(false);
+    engine.screen.antialiasing = false;
 
     spyOn(engine.rootScene, 'draw').and.callThrough();
   });

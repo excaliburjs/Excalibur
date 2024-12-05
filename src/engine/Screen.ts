@@ -585,10 +585,18 @@ export class Screen {
     document.documentElement.style.setProperty('--ex-pixel-ratio', this.worldToPagePixelRatio.toString());
   }
 
+  /**
+   * Get or set screen antialiasing,
+   *
+   * If true smoothing is applied
+   */
   public get antialiasing() {
     return this._antialiasing;
   }
 
+  /**
+   * Get or set screen antialiasing
+   */
   public set antialiasing(isSmooth: boolean) {
     this._antialiasing = isSmooth;
     this.graphicsContext.smoothing = this._antialiasing;
