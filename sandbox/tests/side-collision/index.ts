@@ -2,10 +2,11 @@ var game = new ex.Engine({
   width: 400,
   height: 400,
   fixedUpdateFps: 10,
-  displayMode: ex.DisplayMode.FitScreenAndFill
+  displayMode: ex.DisplayMode.FitScreenAndFill,
+  physics: {
+    gravity: ex.vec(0, 800)
+  }
 });
-
-ex.Physics.acc = new ex.Vector(0, 800);
 
 class Player2 extends ex.Actor {
   onGround = false;

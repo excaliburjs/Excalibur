@@ -50,7 +50,7 @@ import { Toaster } from './Util/Toaster';
 import { InputMapper } from './Input/InputMapper';
 import { GoToOptions, SceneMap, Director, StartOptions, SceneWithOptions, WithRoot } from './Director/Director';
 import { InputHost } from './Input/InputHost';
-import { DefaultPhysicsConfig, DeprecatedStaticToConfig, PhysicsConfig } from './Collision/PhysicsConfig';
+import { DefaultPhysicsConfig, PhysicsConfig } from './Collision/PhysicsConfig';
 import { DeepRequired } from './Util/Required';
 import { Context, createContext, useContext } from './Context';
 import { DefaultGarbageCollectionOptions, GarbageCollectionOptions, GarbageCollector } from './GarbageCollector';
@@ -1040,13 +1040,11 @@ O|===|* >________________>\n\
     if (typeof options.physics === 'boolean') {
       this.physics = {
         ...DefaultPhysicsConfig,
-        ...DeprecatedStaticToConfig(),
         enabled: options.physics
       };
     } else {
       this.physics = {
-        ...DefaultPhysicsConfig,
-        ...DeprecatedStaticToConfig()
+        ...DefaultPhysicsConfig
       };
       mergeDeep(this.physics, options.physics);
     }

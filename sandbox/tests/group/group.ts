@@ -7,9 +7,15 @@
   var maxVel = 200;
   var numActors = 300;
   var blockTexture = new ex.ImageSource('block.png');
-  var engine = new ex.Engine({ width: width, height: height, canvasElementId: 'game' });
+  var engine = new ex.Engine({
+    width: width,
+    height: height,
+    canvasElementId: 'game',
+    physics: {
+      solver: ex.SolverStrategy.Realistic
+    }
+  });
   //engine.showDebug(true);
-  ex.Physics.useRealisticPhysics();
   var blockGroup = ex.CollisionGroupManager.create('blocks');
   var blockSprite2 = blockTexture.toSprite();
   blockSprite2.scale.setTo(0.2, 0.2);

@@ -1,8 +1,13 @@
 /// <reference path='../../lib/excalibur.d.ts' />
 
-var game = new ex.Engine({ width: 500, height: 500 });
-ex.Physics.useRealisticPhysics();
-ex.Physics.acc.setTo(0, 500);
+var game = new ex.Engine({
+  width: 500,
+  height: 500,
+  physics: {
+    solver: ex.SolverStrategy.Realistic,
+    gravity: ex.vec(0, 500)
+  }
+});
 
 var historicFrameStats = new Array(10);
 

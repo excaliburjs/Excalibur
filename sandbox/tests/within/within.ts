@@ -1,11 +1,13 @@
 /// <reference path="../../lib/excalibur.d.ts" />
 
 (function () {
-  ex.Physics.acc = new ex.Vector(0, 200);
-  ex.Physics.collisionResolutionStrategy = ex.SolverStrategy.Realistic;
   var game = new ex.Engine({
     width: 600,
-    height: 400
+    height: 400,
+    physics: {
+      solver: ex.SolverStrategy.Realistic,
+      gravity: ex.vec(0, 200)
+    }
   });
   game.showDebug(true);
 

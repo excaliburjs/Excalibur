@@ -24,7 +24,6 @@ export * from './Events';
 export * from './Label';
 export { FontStyle, FontUnit, TextAlign, BaseAlign } from './Graphics/FontCommon';
 export * from './Particles/index';
-export * from './Collision/Physics';
 export * from './Scene';
 
 export * from './TileMap/index';

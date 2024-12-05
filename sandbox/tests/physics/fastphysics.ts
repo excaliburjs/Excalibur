@@ -1,9 +1,12 @@
 /// <reference path='../../lib/excalibur.d.ts' />
 
-ex.Physics.useRealisticPhysics();
 var game = new ex.Engine({
   width: 600,
-  height: 400
+  height: 400,
+  physics: {
+    solver: ex.SolverStrategy.Realistic,
+    gravity: ex.vec(0, 300)
+  }
 });
 
 game.debug.physics.showBroadphaseSpacePartitionDebug = false;
@@ -11,8 +14,6 @@ game.debug.physics.showCollisionContacts = true;
 game.debug.collider.showGeometry = true;
 game.debug.motion.showAll = true;
 game.debug.collider.showBounds = true;
-ex.Physics.acc.setTo(0, 300);
-//ex.Physics.dynamicTreeVelocityMultiplayer = 1;
 game.currentScene.camera.zoom = 0.5;
 game.toggleDebug();
 var rocketTex = new ex.ImageSource('missile.png');

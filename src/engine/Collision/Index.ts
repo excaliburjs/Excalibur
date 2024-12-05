@@ -42,5 +42,4 @@ export * from './MotionSystem';
 
 export * from './PhysicsWorld';
 export * from './PhysicsConfig';
-export * from './Physics';
 export * from './Side';

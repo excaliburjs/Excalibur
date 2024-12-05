@@ -1,10 +1,11 @@
 /// <reference path='../../lib/excalibur.d.ts' />
 var game = new ex.Engine({
   width: 600,
-  height: 400
+  height: 400,
+  physics: {
+    solver: ex.SolverStrategy.Arcade
+  }
 });
-
-ex.Physics.collisionResolutionStrategy = ex.SolverStrategy.Arcade;
 
 var activeBlock = new ex.Actor({ x: 200, y: 200, width: 50, height: 50, color: ex.Color.Red.clone() });
 activeBlock.body.collisionType = ex.CollisionType.Active;
