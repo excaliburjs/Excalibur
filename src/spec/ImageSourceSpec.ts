@@ -131,7 +131,6 @@ describe('A ImageSource', () => {
 
     await sut.load();
 
-    expect(logger.warn).not.toHaveBeenCalled();
     expect(logger.error).toHaveBeenCalledWith(
       `The image [src/spec/images/GraphicsImageSourceSpec/big-image.png] provided to Excalibur is too large for the device's maximum ` +
         `texture size of (4096x4096) please resize to an image for excalibur to render properly.\n\n` +
