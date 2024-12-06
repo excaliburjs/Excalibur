@@ -7,31 +7,27 @@ var game = new ex.Engine({
 var swordImg = new ex.ImageSource('https://cdn.rawgit.com/excaliburjs/Excalibur/7dd48128/assets/sword.png');
 
 var particles = new ex.GpuParticleEmitter({
-  pos: ex.vec(300, 500),
-  maxParticles: 10_000,
-  emitRate: 1000,
-  radius: 100,
-  width: 200,
-  height: 100,
-  emitterType: ex.EmitterType.Rectangle,
+  pos: ex.vec(500, 500),
+  z: 1,
+  emitterType: ex.EmitterType.Circle,
+  maxParticles: 1000,
   particle: {
-    acc: ex.vec(0, -100),
-    // opacity: 0.1,
-    beginColor: ex.Color.Orange,
-    endColor: ex.Color.Purple,
-    // fade: true,
-    focus: ex.vec(0, -400),
-    focusAccel: 1000,
-    startSize: 100,
-    endSize: 0,
-    life: 3000,
-    minSpeed: -100,
-    maxSpeed: 100,
-    angularVelocity: 2,
-    randomRotation: true,
-    transform: ex.ParticleTransform.Local
-    // graphic: swordImg.toSprite()
-  }
+    minSpeed: 1,
+    maxSpeed: 10,
+    minAngle: 3.4,
+    maxAngle: 6,
+    opacity: 0.7,
+    life: 2000,
+    maxSize: 5,
+    minSize: 5,
+    startSize: 5,
+    endSize: 1,
+    beginColor: ex.Color.fromRGB(23, 106, 170, 0.1),
+    endColor: ex.Color.Transparent
+  },
+  radius: 1,
+  emitRate: 1,
+  isEmitting: true
 });
 
 game.input.pointers.primary.on('move', (evt) => {
@@ -44,7 +40,7 @@ game.add(particles);
 
 game.add(
   new ex.Actor({
-    width: 200,
+    width: 100,
     height: 100,
     color: ex.Color.Red,
     pos: ex.vec(400, 400)

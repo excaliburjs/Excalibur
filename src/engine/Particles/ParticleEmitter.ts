@@ -103,6 +103,10 @@ export class ParticleEmitter extends Actor {
    * @param particleCount  Number of particles to emit right now
    */
   public emitParticles(particleCount: number) {
+    if (particleCount <= 0) {
+      return;
+    }
+    particleCount = particleCount | 0; // coerce to int
     for (let i = 0; i < particleCount; i++) {
       const p = this._createParticle();
       if (this?.scene?.world) {

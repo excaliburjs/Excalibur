@@ -92,7 +92,10 @@ export class GpuParticleEmitter extends Actor {
   }
 
   public emitParticles(particleCount: number) {
-    this.renderer.emitParticles(particleCount);
+    if (particleCount <= 0) {
+      return;
+    }
+    this.renderer.emitParticles(particleCount | 0); // coerce to integer
   }
 
   public clearParticles() {

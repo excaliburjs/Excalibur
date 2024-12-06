@@ -51,7 +51,7 @@ void main(){
 
   float lifePercent = finalLifeMs / maxLifeMs;
   vec2 transformedPos = (u_matrix * u_transform * vec4(finalPosition,0.,1.)).xy;
-
+  float scale = sqrt(u_transform[0][0] * u_transform[0][0] + u_transform[1][1] * u_transform[1][1]);
   gl_Position = vec4(transformedPos, 1.0 - lifePercent, 1.); // use life percent to sort z
-  gl_PointSize = mix(startSize, endSize, 1.0 - lifePercent);
+  gl_PointSize = mix(startSize, endSize, 1.0 - lifePercent) * scale;
 }
