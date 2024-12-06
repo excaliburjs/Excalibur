@@ -150,6 +150,12 @@ export class GpuParticleRenderer {
     this._initialized = true;
   }
 
+  private _clearRequested = false;
+  clearParticles() {
+    this._particleData.fill(0);
+    this._clearRequested = true;
+  }
+
   private _emitted: [life: number, index: number][] = [];
   emitParticles(particleCount: number) {
     const startIndex = this._particleIndex;
@@ -264,7 +270,14 @@ export class GpuParticleRenderer {
   draw(gl: WebGL2RenderingContext) {
     if (this._initialized) {
       // Emit
-      this._uploadEmitted(gl);
+      if (this._clearRequested) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._buffers[(this._drawIndex + 1) % 2]);
+        gl.bufferSubData(gl.ARRAY_BUFFER, 0, this._particleData);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        this._clearRequested = false;
+      } else {
+        this._uploadEmitted(gl);
+      }
 
       // Bind one buffer to ARRAY_BUFFER and the other to transform feedback buffer
       gl.bindVertexArray(this._currentVao);

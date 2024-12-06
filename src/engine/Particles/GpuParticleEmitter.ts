@@ -95,6 +95,10 @@ export class GpuParticleEmitter extends Actor {
     this.renderer.emitParticles(particleCount);
   }
 
+  public clearParticles() {
+    this.renderer.clearParticles();
+  }
+
   draw(ctx: ExcaliburGraphicsContextWebGL, elapsed: number) {
     ctx.draw<ParticleRenderer>('ex.particle', this.renderer, elapsed);
   }

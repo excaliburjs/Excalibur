@@ -233,6 +233,7 @@ are doing mtv adjustments during precollision.
 
 ### Fixed
 
+- Fixed issue where `ex.ParticleEmitter.clearParticles()` did not work
 - Fixed issue where the pointer `lastWorldPos` was not updated when the current `Camera` moved
 - Fixed issue where `cancel()`'d events still bubbled to the top level input handlers
 - Fixed issue where unexpected html HTML content from an image would silently hang the loader

@@ -131,6 +131,49 @@ describe('A particle', () => {
     await expectAsync(engine.canvas).toEqualImage('src/spec/images/ParticleSpec/Particles.png');
   });
 
+  it('should clear particles', async () => {
+    const emitter = new ex.ParticleEmitter({
+      pos: new ex.Vector(400, 100),
+      width: 20,
+      height: 30,
+      isEmitting: true,
+      emitRate: 5,
+      particle: {
+        minSpeed: 100,
+        maxSpeed: 200,
+        acc: ex.Vector.Zero.clone(),
+        minAngle: 0,
+        maxAngle: Math.PI / 2,
+        life: 4000,
+        opacity: 0.5,
+        fade: false,
+        startSize: 30,
+        endSize: 40,
+        beginColor: ex.Color.Red.clone(),
+        endColor: ex.Color.Blue.clone(),
+        graphic: null,
+        angularVelocity: 3,
+        randomRotation: false
+      },
+      focus: null,
+      focusAccel: null,
+      emitterType: ex.EmitterType.Circle,
+      radius: 20,
+      random: new ex.Random(1337)
+    });
+    engine.backgroundColor = ex.Color.Transparent;
+    engine.add(emitter);
+    emitter.emitParticles(10);
+    emitter.clearParticles();
+
+    engine.currentScene.update(engine, 100);
+    engine.currentScene.update(engine, 100);
+    engine.currentScene.update(engine, 100);
+    engine.currentScene.draw(engine.graphicsContext, 100);
+    engine.graphicsContext.flush();
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/ParticleSpec/clear.png');
+  });
+
   it('can be parented', async () => {
     const emitter = new ex.ParticleEmitter({
       pos: new ex.Vector(0, 0),

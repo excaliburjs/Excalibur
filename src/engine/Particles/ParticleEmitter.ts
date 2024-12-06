@@ -96,6 +96,8 @@ export class ParticleEmitter extends Actor {
     this.deadParticles.push(particle);
   }
 
+  private _activeParticles: Particle[] = [];
+
   /**
    * Causes the emitter to emit particles
    * @param particleCount  Number of particles to emit right now
@@ -110,6 +112,13 @@ export class ParticleEmitter extends Actor {
           this.addChild(p);
         }
       }
+      this._activeParticles.push(p);
+    }
+  }
+
+  public clearParticles() {
+    for (let i = 0; i < this._activeParticles.length; i++) {
+      this.removeParticle(this._activeParticles[i]);
     }
   }
 
@@ -176,6 +185,10 @@ export class ParticleEmitter extends Actor {
       if (this?.scene?.world) {
         this.scene.world.remove(this.deadParticles[i], false);
         this._particlePool.return(this.deadParticles[i]);
+      }
+      const index = this._activeParticles.indexOf(this.deadParticles[i]);
+      if (index > -1) {
+        this._activeParticles.splice(index, 1);
       }
     }
     this.deadParticles.length = 0;
