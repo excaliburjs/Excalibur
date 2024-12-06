@@ -75,7 +75,7 @@ export class TiledAnimation extends Animation {
         promises.push(tiledSprite.ready);
       }
     }
-    Promise.allSettled(promises).then(() => this._ready.resolve());
+    Promise.all(promises).then(() => this._ready.resolve());
   }
 
   public static fromAnimation(animation: Animation, options?: Omit<TiledAnimationOptions, 'animation'>): TiledAnimation {

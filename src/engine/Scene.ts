@@ -38,7 +38,7 @@ import { DefaultLoader } from './Director/DefaultLoader';
 import { Transition } from './Director';
 import { InputHost } from './Input/InputHost';
 import { PointerScope } from './Input/PointerScope';
-import { DefaultPhysicsConfig } from './Collision/PhysicsConfig';
+import { getDefaultPhysicsConfig } from './Collision/PhysicsConfig';
 
 export class PreLoadEvent {
   loader: DefaultLoader;
@@ -110,7 +110,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
    *
    * Can be used to perform scene ray casts, track colliders, broadphase, and narrowphase.
    */
-  public physics = new PhysicsWorld(DefaultPhysicsConfig);
+  public physics = new PhysicsWorld(getDefaultPhysicsConfig());
 
   /**
    * The actors in the current scene

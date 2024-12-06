@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-import { DefaultPhysicsConfig } from '../engine/Collision/PhysicsConfig';
+import { getDefaultPhysicsConfig } from '../engine/Collision/PhysicsConfig';
 import { TestUtils } from './util/TestUtils';
 
 describe('A DynamicTree Broadphase', () => {
@@ -29,14 +29,14 @@ describe('A DynamicTree Broadphase', () => {
   });
 
   it('can be constructed', () => {
-    const dt = new ex.DynamicTreeCollisionProcessor(DefaultPhysicsConfig);
+    const dt = new ex.DynamicTreeCollisionProcessor(getDefaultPhysicsConfig());
 
     expect(dt).not.toBe(null);
   });
 
   it('can find collision pairs for actors that are potentially colliding', () => {
     const dt = new ex.DynamicTreeCollisionProcessor({
-      ...DefaultPhysicsConfig
+      ...getDefaultPhysicsConfig()
     });
     dt.track(actorA.collider.get());
     dt.track(actorB.collider.get());
@@ -54,7 +54,7 @@ describe('A DynamicTree Broadphase', () => {
     const compCollider = new ex.CompositeCollider([circle, box]);
     const actor = new ex.Actor({ collider: compCollider });
     const dt = new ex.DynamicTreeCollisionProcessor({
-      ...DefaultPhysicsConfig
+      ...getDefaultPhysicsConfig()
     });
     dt.track(compCollider);
 
@@ -69,7 +69,7 @@ describe('A DynamicTree Broadphase', () => {
     const actor = new ex.Actor({ collider: compCollider, collisionType: ex.CollisionType.Active });
     actor.body.vel = ex.vec(2000, 0); // extra fast to trigger the fast object detection
     const dt = new ex.DynamicTreeCollisionProcessor({
-      ...DefaultPhysicsConfig
+      ...getDefaultPhysicsConfig()
     });
     dt.track(compCollider);
 
@@ -79,7 +79,7 @@ describe('A DynamicTree Broadphase', () => {
 
   it('can rayCast with default options, only 1 hit is returned, searches all groups', () => {
     const sut = new ex.DynamicTreeCollisionProcessor({
-      ...DefaultPhysicsConfig
+      ...getDefaultPhysicsConfig()
     });
     const actor1 = new ex.Actor({ x: 100, y: 0, width: 50, height: 50 });
     sut.track(actor1.collider.get());
@@ -98,7 +98,7 @@ describe('A DynamicTree Broadphase', () => {
 
   it('can rayCast with searchAllColliders on, all hits is returned, searches all groups', () => {
     const sut = new ex.DynamicTreeCollisionProcessor({
-      ...DefaultPhysicsConfig
+      ...getDefaultPhysicsConfig()
     });
     const actor1 = new ex.Actor({ x: 100, y: 0, width: 50, height: 50 });
     sut.track(actor1.collider.get());
@@ -125,7 +125,7 @@ describe('A DynamicTree Broadphase', () => {
   it('can rayCast with searchAllColliders on & collision group on, only specified group is returned', () => {
     ex.CollisionGroupManager.reset();
     const sut = new ex.DynamicTreeCollisionProcessor({
-      ...DefaultPhysicsConfig
+      ...getDefaultPhysicsConfig()
     });
     const collisionGroup1 = ex.CollisionGroupManager.create('somegroup1');
     const collisionGroup2 = ex.CollisionGroupManager.create('somegroup2');
@@ -150,7 +150,7 @@ describe('A DynamicTree Broadphase', () => {
   it('can rayCast with searchAllColliders on with actors that have collision groups are searched', () => {
     ex.CollisionGroupManager.reset();
     const sut = new ex.DynamicTreeCollisionProcessor({
-      ...DefaultPhysicsConfig
+      ...getDefaultPhysicsConfig()
     });
     const collisionGroup1 = ex.CollisionGroupManager.create('somegroup1');
     const collisionGroup2 = ex.CollisionGroupManager.create('somegroup2');
@@ -178,7 +178,7 @@ describe('A DynamicTree Broadphase', () => {
 
   it('can rayCast with searchAllColliders on and max distance set, returns 1 hit', () => {
     const sut = new ex.DynamicTreeCollisionProcessor({
-      ...DefaultPhysicsConfig
+      ...getDefaultPhysicsConfig()
     });
     const actor1 = new ex.Actor({ x: 100, y: 0, width: 50, height: 50 });
     sut.track(actor1.collider.get());
@@ -200,7 +200,7 @@ describe('A DynamicTree Broadphase', () => {
 
   it('can rayCast with ignoreCollisionGroupAll, returns 1 hit', () => {
     const sut = new ex.DynamicTreeCollisionProcessor({
-      ...DefaultPhysicsConfig
+      ...getDefaultPhysicsConfig()
     });
     const actor1 = new ex.Actor({ x: 100, y: 0, width: 50, height: 50 });
     sut.track(actor1.collider.get());
@@ -225,7 +225,7 @@ describe('A DynamicTree Broadphase', () => {
 
   it('can rayCast with filter, returns 1 hit', () => {
     const sut = new ex.DynamicTreeCollisionProcessor({
-      ...DefaultPhysicsConfig
+      ...getDefaultPhysicsConfig()
     });
     const actor1 = new ex.Actor({ x: 100, y: 0, width: 50, height: 50 });
     sut.track(actor1.collider.get());
@@ -251,7 +251,7 @@ describe('A DynamicTree Broadphase', () => {
 
   it('can rayCast with filter and search all colliders false, returns 1 hit', () => {
     const sut = new ex.DynamicTreeCollisionProcessor({
-      ...DefaultPhysicsConfig
+      ...getDefaultPhysicsConfig()
     });
     const actor1 = new ex.Actor({ x: 100, y: 0, width: 50, height: 50 });
     sut.track(actor1.collider.get());

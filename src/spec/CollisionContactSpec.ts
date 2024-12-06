@@ -2,7 +2,7 @@ import * as ex from '@excalibur';
 import { TransformComponent } from '@excalibur';
 import { EulerIntegrator } from '../engine/Collision/Integrator';
 import { MotionComponent } from '../engine/EntityComponentSystem/Components/MotionComponent';
-import { DefaultPhysicsConfig } from '../engine/Collision/PhysicsConfig';
+import { getDefaultPhysicsConfig } from '../engine/Collision/PhysicsConfig';
 import { ExcaliburMatchers } from 'excalibur-jasmine';
 
 describe('A CollisionContact', () => {
@@ -59,7 +59,7 @@ describe('A CollisionContact', () => {
       new ex.SeparationInfo()
     );
 
-    const solver = new ex.ArcadeSolver(DefaultPhysicsConfig.arcade);
+    const solver = new ex.ArcadeSolver(getDefaultPhysicsConfig().arcade);
     solver.solve([cc]);
 
     expect(actorA.pos.x).toBe(-0.5);
@@ -88,7 +88,7 @@ describe('A CollisionContact', () => {
       new ex.SeparationInfo()
     );
 
-    const solver = new ex.ArcadeSolver(DefaultPhysicsConfig.arcade);
+    const solver = new ex.ArcadeSolver(getDefaultPhysicsConfig().arcade);
     solver.solve([cc]);
 
     expect(actorAPreCollide).toHaveBeenCalledTimes(1);
@@ -120,7 +120,7 @@ describe('A CollisionContact', () => {
       null
     );
     // slop is normally 1 pixel, we are testing at a pixel scale here
-    const solver = new ex.RealisticSolver({ ...DefaultPhysicsConfig.realistic, slop: 0 });
+    const solver = new ex.RealisticSolver({ ...getDefaultPhysicsConfig().realistic, slop: 0 });
     // Realistic solver converges over time
     for (let i = 0; i < 4; i++) {
       solver.solve([cc]);
@@ -165,7 +165,7 @@ describe('A CollisionContact', () => {
       null
     );
     // slop is normally 1 pixel, we are testing at a pixel scale here
-    const solver = new ex.RealisticSolver({ ...DefaultPhysicsConfig.realistic, slop: 0 });
+    const solver = new ex.RealisticSolver({ ...getDefaultPhysicsConfig().realistic, slop: 0 });
 
     solver.solve([cc]);
     // Realistic solver uses velocity impulses to correct overlap
@@ -209,7 +209,7 @@ describe('A CollisionContact', () => {
       [new ex.Vector(10, 0), new ex.Vector(10, 10)],
       null
     );
-    const solver = new ex.RealisticSolver(DefaultPhysicsConfig.realistic);
+    const solver = new ex.RealisticSolver({ ...getDefaultPhysicsConfig().realistic });
     solver.solve([cc]);
     // Realistic solver uses velocity impulses to correct overlap
     EulerIntegrator.integrate(actorA.get(TransformComponent), actorA.get(MotionComponent), ex.Vector.Zero, 30);
@@ -247,7 +247,7 @@ describe('A CollisionContact', () => {
       null
     );
     const solver = new ex.RealisticSolver({
-      ...DefaultPhysicsConfig.realistic,
+      ...getDefaultPhysicsConfig().realistic,
       slop: 0
     });
     solver.solve([cc]);
@@ -288,7 +288,7 @@ describe('A CollisionContact', () => {
 
     // slop is normally 1 pixel, we are testing at a pixel scale here
     const solver = new ex.RealisticSolver({
-      ...DefaultPhysicsConfig.realistic,
+      ...getDefaultPhysicsConfig().realistic,
       slop: 0
     });
     solver.solve([cc]);
@@ -325,7 +325,7 @@ describe('A CollisionContact', () => {
       null
     );
 
-    const solver = new ex.RealisticSolver(DefaultPhysicsConfig.realistic);
+    const solver = new ex.RealisticSolver({ ...getDefaultPhysicsConfig().realistic });
     solver.solve([cc]);
 
     expect(emittedA).toBe(true);

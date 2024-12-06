@@ -216,9 +216,9 @@ export interface PhysicsConfig {
   };
 }
 
-export const DefaultPhysicsConfig: DeepRequired<PhysicsConfig> = {
+export const getDefaultPhysicsConfig: () => DeepRequired<PhysicsConfig> = () => ({
   enabled: true,
-  gravity: vec(0, 0),
+  gravity: vec(0, 0).clone(),
   solver: SolverStrategy.Arcade,
   substep: 1,
   colliders: {
@@ -254,4 +254,4 @@ export const DefaultPhysicsConfig: DeepRequired<PhysicsConfig> = {
     steeringFactor: 0.2,
     warmStart: true
   }
-};
+});

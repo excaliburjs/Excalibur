@@ -1,6 +1,6 @@
 import { ExcaliburMatchers } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
-import { DefaultPhysicsConfig } from '../engine/Collision/PhysicsConfig';
+import { getDefaultPhysicsConfig } from '../engine/Collision/PhysicsConfig';
 
 describe('A RealisticSolver', () => {
   beforeAll(() => {
@@ -12,7 +12,7 @@ describe('A RealisticSolver', () => {
   });
 
   it('should cancel zero overlap collisions during presolve', () => {
-    const realisticSolver = new ex.RealisticSolver(DefaultPhysicsConfig.realistic);
+    const realisticSolver = new ex.RealisticSolver(getDefaultPhysicsConfig().realistic);
 
     const player = new ex.Actor({
       x: 0,
