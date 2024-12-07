@@ -10,7 +10,6 @@ import { HTMLImageSource } from '../ExcaliburGraphicsContext';
 import { ImageSourceAttributeConstants } from '../../ImageSource';
 import { parseImageWrapping } from '../../Wrapping';
 import { parseImageFiltering } from '../../Filtering';
-import { AffineMatrix } from '../../../Math/affine-matrix';
 import { ParticleTransform } from '../../../Particles/Particles';
 
 export class ParticleRenderer implements RendererPlugin {
@@ -65,7 +64,10 @@ export class ParticleRenderer implements RendererPlugin {
 
     this._shader.use();
     this._shader.setUniformMatrix('u_matrix', this._context.ortho);
-    const transform = renderer.particle.transform === ParticleTransform.Local ? this._context.getTransform() : AffineMatrix.identity();
+    const transform =
+      renderer.particle.transform === ParticleTransform.Local
+        ? this._context.getTransform()
+        : this._context.getTransform().multiply(renderer.emitter.transform.get().inverse);
     this._shader.setUniformAffineMatrix('u_transform', transform);
     this._shader.setUniformBoolean('fade', renderer.particle.fade ? true : false);
     this._shader.setUniformBoolean('useTexture', renderer.particle.graphic ? true : false);
@@ -107,12 +109,6 @@ export class ParticleRenderer implements RendererPlugin {
     // gl.activeTexture(gl.TEXTURE0 + 1);
     // gl.bindTexture(gl.TEXTURE_2D, obstacleTex);
     // gl.uniform1i(u_obstacle, 1);
-
-    // Blending wont work because ex doesn't have a depth attachment
-    // gl.enable(gl.DEPTH_TEST);
-    // gl.enable(gl.BLEND);
-    // gl.blendEquation(gl.FUNC_ADD);
-    // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
     renderer.draw(gl);
   }

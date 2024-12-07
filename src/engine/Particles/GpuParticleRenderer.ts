@@ -1,4 +1,4 @@
-import { TwoPI } from '../Math/util';
+import { randomInRange, TwoPI } from '../Math/util';
 import { ExcaliburGraphicsContextWebGL } from '../Graphics/Context/ExcaliburGraphicsContextWebGL';
 import { GpuParticleEmitter } from './GpuParticleEmitter';
 import { ParticleConfig, ParticleTransform } from './Particles';
@@ -6,6 +6,7 @@ import { Random } from '../Math/Random';
 import { Sprite } from '../Graphics/Sprite';
 import { EmitterType } from './EmitterType';
 import { assert } from '../Util/Assert';
+import { vec } from '../Math/vector';
 
 export interface GpuParticleConfig extends ParticleConfig {
   /**
@@ -164,6 +165,10 @@ export class GpuParticleRenderer {
     let countParticle = 0;
     for (let i = startIndex; i < endIndex; i += this._numInputFloats) {
       const angle = this._random.floating(this.particle.minAngle || 0, this.particle.maxAngle || TwoPI);
+      const speedX = this._random.floating(this.particle.minSpeed || 0, this.particle.maxSpeed || 0);
+      const speedY = this._random.floating(this.particle.minSpeed || 0, this.particle.maxSpeed || 0);
+      const dx = speedX * Math.cos(angle);
+      const dy = speedY * Math.sin(angle);
       let ranX: number = 0;
       let ranY: number = 0;
       if (this.emitter.emitterType === EmitterType.Rectangle) {
@@ -174,15 +179,13 @@ export class GpuParticleRenderer {
         ranX = radius * Math.cos(angle);
         ranY = radius * Math.sin(angle);
       }
-
+      const tx = this.emitter.transform.apply(vec(ranX, ranY));
       const data = [
-        this.particle.transform === ParticleTransform.Local ? ranX : this.emitter.transform.pos.x + ranX,
-        this.particle.transform === ParticleTransform.Local ? ranY : this.emitter.transform.pos.y + ranY, // pos in world space
-        this._random.floating(this.particle.minSpeed || 0, this.particle.maxSpeed || 0),
-        this._random.floating(this.particle.minSpeed || 0, this.particle.maxSpeed || 0), // velocity
-        this.particle.randomRotation
-          ? this._random.floating(this.particle.minAngle || 0, this.particle.maxAngle || TwoPI)
-          : this.particle.rotation || 0, // rotation
+        this.particle.transform === ParticleTransform.Local ? ranX : tx.x,
+        this.particle.transform === ParticleTransform.Local ? ranY : tx.y, // pos in world space
+        dx,
+        dy, // velocity
+        this.particle.randomRotation ? randomInRange(0, TwoPI, this._random) : this.particle.rotation || 0, // rotation
         this.particle.angularVelocity || 0, // angular velocity
         this._particleLife // life
       ];

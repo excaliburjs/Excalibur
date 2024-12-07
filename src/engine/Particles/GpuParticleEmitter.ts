@@ -1,7 +1,14 @@
-import { Actor, clamp, Engine, ExcaliburGraphicsContextWebGL, GraphicsComponent, ParticleRenderer, Random, vec, Vector } from '../';
+import { Engine } from '../Engine';
+import { Actor } from '../Actor';
 import { EmitterType } from './EmitterType';
 import { ParticleEmitterArgs, ParticleTransform } from './Particles';
 import { GpuParticleConfig, GpuParticleRenderer } from './GpuParticleRenderer';
+import { GraphicsComponent } from '../Graphics/GraphicsComponent';
+import { Random } from '../Math/Random';
+import { vec, Vector } from '../Math/vector';
+import { clamp } from '../Math';
+import { ExcaliburGraphicsContextWebGL } from '../Graphics/Context/ExcaliburGraphicsContextWebGL';
+import { ParticleRenderer } from '../Graphics/Context/particle-renderer/particle-renderer';
 
 export class GpuParticleEmitter extends Actor {
   public particle: GpuParticleConfig = {
