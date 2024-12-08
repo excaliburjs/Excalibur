@@ -8,7 +8,7 @@ import { Action, nextActionId } from '../Action';
 
 export interface MoveToOptions {
   pos: Vector;
-  durationMs: number;
+  duration: number;
   easing?: EasingFunction;
 }
 
@@ -16,7 +16,7 @@ export interface MoveToOptions {
  *
  */
 export function isMoveToOptions(x: any): x is MoveToOptions {
-  return x.pos instanceof Vector && typeof x.durationMs === 'number';
+  return x.pos instanceof Vector && typeof x.duration === 'number';
 }
 
 export class MoveToWithOptions implements Action {
@@ -41,21 +41,21 @@ export class MoveToWithOptions implements Action {
     if (!this._tx) {
       throw new Error(`Entity ${entity.name} has no TransformComponent, can only moveTo on Entities with TransformComponents.`);
     }
-    this._durationMs = options.durationMs;
+    this._durationMs = options.duration;
     this._currentMs = this._durationMs;
   }
-  update(elapsedMs: number): void {
+  update(elapsed: number): void {
     if (!this._started) {
       this._start = this._tx.pos.clone();
       this._started = true;
     }
-    this._currentMs -= elapsedMs;
+    this._currentMs -= elapsed;
     const t = clamp(remap(0, this._durationMs, 0, 1, this._durationMs - this._currentMs), 0, 1);
     const currentPos = this._tx.pos;
     const newPosX = this._easing(t, this._start.x, this._end.x, 1);
     const newPosY = this._easing(t, this._start.y, this._end.y, 1);
-    const velX = (newPosX - currentPos.x) / (elapsedMs / 1000);
-    const velY = (newPosY - currentPos.y) / (elapsedMs / 1000);
+    const velX = (newPosX - currentPos.x) / (elapsed / 1000);
+    const velY = (newPosY - currentPos.y) / (elapsed / 1000);
     this._motion.vel.x = velX;
     this._motion.vel.y = velY;
 
@@ -106,7 +106,7 @@ export class MoveTo implements Action {
     this._speed = speed;
   }
 
-  public update(elapsedMs: number): void {
+  public update(elapsed: number): void {
     if (!this._started) {
       this._started = true;
       this._start = new Vector(this._tx.pos.x, this._tx.pos.y);

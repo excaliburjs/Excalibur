@@ -23,9 +23,14 @@ export enum SystemType {
  *
  * ```typescript
  * class MySystem extends System {
- *   public readonly types = ['a', 'b'] as const;
+ *   static priority = SystemPriority.Lowest;
  *   public readonly systemType = SystemType.Update;
- *   public update(elapsedMs) {
+ *   public query: Query<typeof TransformComponent>;
+ *   constructor(public world: World) {
+ *   super();
+ *      this.query = this.world.query([TransformComponent]);
+ *   }
+ *   public update(elapsed: number) {
  *      ...
  *   }
  * }
@@ -52,21 +57,21 @@ export abstract class System {
 
   /**
    * Update all entities that match this system's types
-   * @param elapsedMs Time in milliseconds
+   * @param elapsed Time in milliseconds
    */
-  abstract update(elapsedMs: number): void;
+  abstract update(elapsed: number): void;
 
   /**
    * Optionally run a preupdate before the system processes matching entities
    * @param scene
-   * @param elapsedMs Time in milliseconds since the last frame
+   * @param elapsed Time in milliseconds since the last frame
    */
-  preupdate?(scene: Scene, elapsedMs: number): void;
+  preupdate?(scene: Scene, elapsed: number): void;
 
   /**
    * Optionally run a postupdate after the system processes matching entities
    * @param scene
-   * @param elapsedMs Time in milliseconds since the last frame
+   * @param elapsed Time in milliseconds since the last frame
    */
-  postupdate?(scene: Scene, elapsedMs: number): void;
+  postupdate?(scene: Scene, elapsed: number): void;
 }

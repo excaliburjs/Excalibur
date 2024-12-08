@@ -62,15 +62,15 @@ export class AffineMatrix {
   }
 
   /**
-   * Creates a brand new rotation matrix with the specified angle
-   * @param angleRadians
+   * Creates a brand new rotation matrix with the specified angle in radians
+   * @param angle
    */
-  public static rotation(angleRadians: number): AffineMatrix {
+  public static rotation(angle: number): AffineMatrix {
     const mat = AffineMatrix.identity();
-    mat.data[0] = Math.cos(angleRadians);
-    mat.data[1] = Math.sin(angleRadians);
-    mat.data[2] = -Math.sin(angleRadians);
-    mat.data[3] = Math.cos(angleRadians);
+    mat.data[0] = Math.cos(angle);
+    mat.data[1] = Math.sin(angle);
+    mat.data[2] = -Math.sin(angle);
+    mat.data[3] = Math.cos(angle);
     return mat;
   }
 

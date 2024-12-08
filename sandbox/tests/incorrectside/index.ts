@@ -1,9 +1,10 @@
 var engine = new ex.Engine({
   width: 400,
-  height: 400
+  height: 400,
+  physics: {
+    gravity: ex.vec(0, 800)
+  }
 });
-
-ex.Physics.gravity = ex.vec(0, 800);
 
 class Player4 extends ex.Actor {
   collisions = [];

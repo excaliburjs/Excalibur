@@ -74,7 +74,7 @@ export class CollisionSystem extends System {
     this._engine = scene.engine;
   }
 
-  update(elapsedMs: number): void {
+  update(elapsed: number): void {
     if (!this._physics.config.enabled) {
       return;
     }
@@ -105,10 +105,10 @@ export class CollisionSystem extends System {
     // Update the spatial partitioning data structures
     // TODO if collider invalid it will break the processor
     // TODO rename "update" to something more specific
-    this._processor.update(colliders, elapsedMs);
+    this._processor.update(colliders, elapsed);
 
     // Run broadphase on all colliders and locates potential collisions
-    let pairs = this._processor.broadphase(colliders, elapsedMs);
+    let pairs = this._processor.broadphase(colliders, elapsed);
 
     this._currentFrameContacts.clear();
 
@@ -122,7 +122,7 @@ export class CollisionSystem extends System {
     for (let step = 0; step < substep; step++) {
       if (step > 0) {
         // first step is run by the MotionSystem when configured, so skip
-        this._motionSystem.update(elapsedMs);
+        this._motionSystem.update(elapsed);
       }
       // Re-use pairs from previous collision
       if (contacts.length) {

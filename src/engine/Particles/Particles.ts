@@ -132,8 +132,8 @@ export class Particle extends Entity {
     }
   }
 
-  public update(engine: Engine, elapsedMs: number) {
-    this.life = this.life - elapsedMs;
+  public update(engine: Engine, elapsed: number) {
+    this.life = this.life - elapsed;
 
     if (this.life < 0) {
       this.kill();
@@ -145,15 +145,15 @@ export class Particle extends Entity {
 
     if (this.startSize && this.endSize && this.startSize > 0 && this.endSize > 0) {
       this.size = clamp(
-        this.sizeRate * elapsedMs + this.size,
+        this.sizeRate * elapsed + this.size,
         Math.min(this.startSize, this.endSize),
         Math.max(this.startSize, this.endSize)
       );
     }
 
-    this._currentColor.r = clamp(this._currentColor.r + this._rRate * elapsedMs, 0, 255);
-    this._currentColor.g = clamp(this._currentColor.g + this._gRate * elapsedMs, 0, 255);
-    this._currentColor.b = clamp(this._currentColor.b + this._bRate * elapsedMs, 0, 255);
+    this._currentColor.r = clamp(this._currentColor.r + this._rRate * elapsed, 0, 255);
+    this._currentColor.g = clamp(this._currentColor.g + this._gRate * elapsed, 0, 255);
+    this._currentColor.b = clamp(this._currentColor.b + this._bRate * elapsed, 0, 255);
     this._currentColor.a = this.graphics.opacity;
 
     let accel = this.motion.acc;
@@ -162,10 +162,10 @@ export class Particle extends Entity {
         .sub(this.transform.pos)
         .normalize()
         .scale(this.focusAccel || 0)
-        .scale(elapsedMs / 1000);
+        .scale(elapsed / 1000);
     }
     // Update transform and motion based on Euler linear algebra
-    EulerIntegrator.integrate(this.transform, this.motion, accel, elapsedMs);
+    EulerIntegrator.integrate(this.transform, this.motion, accel, elapsed);
   }
 }
 

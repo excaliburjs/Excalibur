@@ -173,8 +173,8 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
   /**
    * Detects potential collision pairs in a broadphase approach with the dynamic AABB tree strategy
    */
-  public broadphase(targets: Collider[], elapsedMs: number, stats?: FrameStats): Pair[] {
-    const seconds = elapsedMs / 1000;
+  public broadphase(targets: Collider[], elapsed: number, stats?: FrameStats): Pair[] {
+    const seconds = elapsed / 1000;
 
     // Retrieve the list of potential colliders, exclude killed, prevented, and self
     const potentialColliders = targets.filter((other) => {

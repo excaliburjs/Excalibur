@@ -1,12 +1,14 @@
 var game = new ex.Engine({
   width: 800,
-  height: 600
+  height: 600,
+  physics: {
+    solver: ex.SolverStrategy.Realistic,
+    gravity: ex.vec(0, 100)
+  }
 });
 game.toggleDebug();
 game.debug.transform.showPosition = true;
 game.debug.transform.positionColor = ex.Color.Black;
-ex.Physics.useRealisticPhysics();
-ex.Physics.gravity = ex.vec(0, 100);
 
 // star points
 var star: ex.Vector[] = [];

@@ -1,6 +1,10 @@
 var game = new ex.Engine({
   width: 800,
-  height: 600
+  height: 600,
+  physics: {
+    solver: ex.SolverStrategy.Realistic,
+    gravity: ex.vec(0, 60)
+  }
 });
 
 game.start();
@@ -23,9 +27,6 @@ paddle2.on('collisionstart', (ev) => {
   console.log(ev);
 });
 game.add(paddle2);
-
-ex.Physics.useRealisticPhysics();
-ex.Physics.gravity = ex.vec(0, 60);
 
 const wall = new ex.Actor({
   x: 100,

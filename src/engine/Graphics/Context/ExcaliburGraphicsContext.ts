@@ -357,10 +357,10 @@ export interface ExcaliburGraphicsContext {
    * Updates all post processors in the graphics context
    *
    * Called internally by Excalibur
-   * @param elapsedMs
+   * @param elapsed
    * @internal
    */
-  updatePostProcessors(elapsedMs: number): void;
+  updatePostProcessors(elapsed: number): void;
 
   /**
    * Gets or sets the material to be used in the current context's drawings

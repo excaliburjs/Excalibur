@@ -38,7 +38,7 @@ import { DefaultLoader } from './Director/DefaultLoader';
 import { Transition } from './Director';
 import { InputHost } from './Input/InputHost';
 import { PointerScope } from './Input/PointerScope';
-import { DefaultPhysicsConfig } from './Collision/PhysicsConfig';
+import { getDefaultPhysicsConfig } from './Collision/PhysicsConfig';
 
 export class PreLoadEvent {
   loader: DefaultLoader;
@@ -110,7 +110,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
    *
    * Can be used to perform scene ray casts, track colliders, broadphase, and narrowphase.
    */
-  public physics = new PhysicsWorld(DefaultPhysicsConfig);
+  public physics = new PhysicsWorld(getDefaultPhysicsConfig());
 
   /**
    * The actors in the current scene
@@ -258,8 +258,10 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
    * Safe to override onPreUpdate lifecycle event handler. Synonymous with `.on('preupdate', (evt) =>{...})`
    *
    * `onPreUpdate` is called directly before a scene is updated.
+   * @param engine reference to the engine
+   * @param elapsed  Number of milliseconds elapsed since the last draw.
    */
-  public onPreUpdate(engine: Engine, elapsedMs: number): void {
+  public onPreUpdate(engine: Engine, elapsed: number): void {
     // will be overridden
   }
 
@@ -267,8 +269,10 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
    * Safe to override onPostUpdate lifecycle event handler. Synonymous with `.on('preupdate', (evt) =>{...})`
    *
    * `onPostUpdate` is called directly after a scene is updated.
+   * @param engine reference to the engine
+   * @param elapsed  Number of milliseconds elapsed since the last draw.
    */
-  public onPostUpdate(engine: Engine, elapsedMs: number): void {
+  public onPostUpdate(engine: Engine, elapsed: number): void {
     // will be overridden
   }
 
@@ -278,7 +282,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
    * `onPreDraw` is called directly before a scene is drawn.
    *
    */
-  public onPreDraw(ctx: ExcaliburGraphicsContext, elapsedMs: number): void {
+  public onPreDraw(ctx: ExcaliburGraphicsContext, elapsed: number): void {
     // will be overridden
   }
 
@@ -288,7 +292,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
    * `onPostDraw` is called directly after a scene is drawn.
    *
    */
-  public onPostDraw(ctx: ExcaliburGraphicsContext, elapsedMs: number): void {
+  public onPostDraw(ctx: ExcaliburGraphicsContext, elapsed: number): void {
     // will be overridden
   }
 
@@ -381,9 +385,9 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
    * Internal _preupdate handler for {@apilink onPreUpdate} lifecycle event
    * @internal
    */
-  public _preupdate(engine: Engine, elapsedMs: number): void {
-    this.emit('preupdate', new PreUpdateEvent(engine, elapsedMs, this));
-    this.onPreUpdate(engine, elapsedMs);
+  public _preupdate(engine: Engine, elapsed: number): void {
+    this.emit('preupdate', new PreUpdateEvent(engine, elapsed, this));
+    this.onPreUpdate(engine, elapsed);
   }
 
   /**
@@ -392,9 +396,9 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
    * Internal _preupdate handler for {@apilink onPostUpdate} lifecycle event
    * @internal
    */
-  public _postupdate(engine: Engine, elapsedMs: number): void {
-    this.emit('postupdate', new PostUpdateEvent(engine, elapsedMs, this));
-    this.onPostUpdate(engine, elapsedMs);
+  public _postupdate(engine: Engine, elapsed: number): void {
+    this.emit('postupdate', new PostUpdateEvent(engine, elapsed, this));
+    this.onPostUpdate(engine, elapsed);
   }
 
   /**
@@ -403,9 +407,9 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
    * Internal _predraw handler for {@apilink onPreDraw} lifecycle event
    * @internal
    */
-  public _predraw(ctx: ExcaliburGraphicsContext, elapsedMs: number): void {
-    this.emit('predraw', new PreDrawEvent(ctx, elapsedMs, this));
-    this.onPreDraw(ctx, elapsedMs);
+  public _predraw(ctx: ExcaliburGraphicsContext, elapsed: number): void {
+    this.emit('predraw', new PreDrawEvent(ctx, elapsed, this));
+    this.onPreDraw(ctx, elapsed);
   }
 
   /**
@@ -414,22 +418,22 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
    * Internal _postdraw handler for {@apilink onPostDraw} lifecycle event
    * @internal
    */
-  public _postdraw(ctx: ExcaliburGraphicsContext, elapsedMs: number): void {
-    this.emit('postdraw', new PostDrawEvent(ctx, elapsedMs, this));
-    this.onPostDraw(ctx, elapsedMs);
+  public _postdraw(ctx: ExcaliburGraphicsContext, elapsed: number): void {
+    this.emit('postdraw', new PostDrawEvent(ctx, elapsed, this));
+    this.onPostDraw(ctx, elapsed);
   }
 
   /**
    * Updates all the actors and timers in the scene. Called by the {@apilink Engine}.
    * @param engine  Reference to the current Engine
-   * @param elapsedMs   The number of milliseconds since the last update
+   * @param elapsed   The number of milliseconds since the last update
    */
-  public update(engine: Engine, elapsedMs: number) {
+  public update(engine: Engine, elapsed: number) {
     if (!this.isInitialized) {
       this._logger.warnOnce(`Scene update called before initialize for scene ${engine.director?.getSceneName(this)}!`);
       return;
     }
-    this._preupdate(engine, elapsedMs);
+    this._preupdate(engine, elapsed);
 
     // TODO differed entity removal for timers
     let i: number, len: number;
@@ -441,19 +445,19 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
 
     // Cycle through timers updating timers
     for (const timer of this._timers) {
-      timer.update(elapsedMs);
+      timer.update(elapsed);
     }
 
-    this.world.update(SystemType.Update, elapsedMs);
+    this.world.update(SystemType.Update, elapsed);
 
     // Camera last keeps renders smooth that are based on entity/actor
     if (this.camera) {
-      this.camera.update(engine, elapsedMs);
+      this.camera.update(engine, elapsed);
     }
 
     this._collectActorStats(engine);
 
-    this._postupdate(engine, elapsedMs);
+    this._postupdate(engine, elapsed);
 
     this.input.update();
   }
@@ -461,21 +465,21 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   /**
    * Draws all the actors in the Scene. Called by the {@apilink Engine}.
    * @param ctx    The current rendering context
-   * @param elapsedMs  The number of milliseconds since the last draw
+   * @param elapsed  The number of milliseconds since the last draw
    */
-  public draw(ctx: ExcaliburGraphicsContext, elapsedMs: number) {
+  public draw(ctx: ExcaliburGraphicsContext, elapsed: number) {
     if (!this.isInitialized) {
       this._logger.warnOnce(`Scene draw called before initialize!`);
       return;
     }
-    this._predraw(ctx, elapsedMs);
+    this._predraw(ctx, elapsed);
 
-    this.world.update(SystemType.Draw, elapsedMs);
+    this.world.update(SystemType.Draw, elapsed);
 
     if (this.engine?.isDebug) {
       this.debugDraw(ctx);
     }
-    this._postdraw(ctx, elapsedMs);
+    this._postdraw(ctx, elapsed);
   }
 
   /**

@@ -7,6 +7,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- `ex.Engine.goto(...)` removed, use `ex.Engine.goToScene(...)`
+- `ex.GraphicsComponent.show(...)` removed, use `ex.GraphicsComponent.use(...)`
+- `ex.EventDispatcher` removed, use `ex.EventEmitter` instead.
+- `ex.Engine.getAntialiasing()` and `ex.Engine.setAntialiasing(bool)` have been removed, use the engine constructor parameter to configure `new ex.Engine({antialiasing: true})` or set on the screen `engine.screen.antialiasing = true`
+- `ex.Physics.*` configuration statics removed, use the engine constructor parameter to configure `new ex.Engine({physics: ...})`
 - `ex.Input.*` namespace removed and types promoted to `ex.*`
 - Removed legacy `ex.Configurable` function type used for doing dark magic to allow types to be configured by instances of that same type :boom:
 - Collision events now only target `ex.Collider` types, this previously would sometimes emit an `ex.Entity` if you attached to the `ex.ColliderComponent`
@@ -78,6 +83,28 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Alias the `engine.screen.drawWidth/drawHeight` with `engine.screen.width/height`;
+- Added convenience types `ex.TiledSprite` and `ex.TiledAnimation` for Tiling Sprites and Animations
+  ```typescript
+  const tiledGroundSprite = new ex.TiledSprite({
+    image: groundImage,
+    width: game.screen.width,
+    height: 200,
+    wrapping: {
+      x: ex.ImageWrapping.Repeat,
+      y: ex.ImageWrapping.Clamp
+    }
+  });
+
+  const tilingAnimation = new ex.TiledAnimation({
+    animation: cardAnimation,
+    sourceView: {x: 20, y: 20},
+    width: 200,
+    height: 200,
+    wrapping: ex.ImageWrapping.Repeat
+  });
+  ```
+- Added new static builder for making images from canvases `ex.ImageSource.fromHtmlCanvasElement(image: HTMLCanvasElement, options?: ImageSourceOptions)`
 - Added GPU particle implementation for MANY MANY particles in the simulation, similar to the existing CPU particle implementation. Note `maxParticles` is new for GPU particles.
   ```typescript
   var particles = new ex.GpuParticleEmitter({
@@ -106,18 +133,18 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Added `easing` option to `moveTo(...)`
 - Added new option bag style input to actions with durations in milliseconds instead of speed
   ```typescript
-  player.actions.rotateTo({angleRadians: angle, durationMs: 1000, rotationType});
-  player.actions.moveTo({pos: ex.vec(100, 100), durationMs: 1000});
-  player.actions.scaleTo({scale: ex.vec(2, 2), durationMs: 1000});
+  player.actions.rotateTo({angleRadians: angle, duration: 1000, rotationType});
+  player.actions.moveTo({pos: ex.vec(100, 100), duration: 1000});
+  player.actions.scaleTo({scale: ex.vec(2, 2), duration: 1000});
   player.actions.repeatForever(ctx => {
     ctx.curveTo({
       controlPoints: [cp1, cp2, dest],
-      durationMs: 5000,
+      duration: 5000,
       mode: 'uniform'
     });
     ctx.curveTo({
       controlPoints: [cp2, cp1, start1],
-      durationMs: 5000,
+      duration: 5000,
       mode: 'uniform'
     });
   });
@@ -213,6 +240,7 @@ are doing mtv adjustments during precollision.
 
 ### Fixed
 
+- Fixed issue where `ex.ParticleEmitter.clearParticles()` did not work
 - Fixed issue where the pointer `lastWorldPos` was not updated when the current `Camera` moved
 - Fixed issue where `cancel()`'d events still bubbled to the top level input handlers
 - Fixed issue where unexpected html HTML content from an image would silently hang the loader
@@ -249,6 +277,7 @@ are doing mtv adjustments during precollision.
 
 ### Updates
 
+- Remove units by default from parameters
 - Perf improve PolygonCollider.contains(...) perf by keeping geometry tests in local space.
 - Perf improvement to image rendering! with ImageRendererV2! Roughly doubles the performance of image rendering
 - Perf improvement to retrieving components with `ex.Entity.get()` which widely improves engine performance

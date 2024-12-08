@@ -23,6 +23,8 @@ export interface FrameStatistics {
 
   /**
    * Gets the frame's delta (time since last frame scaled by {@apilink Engine.timescale}) (in ms)
+   *
+   * Excalibur extension depends on this
    */
   elapsedMs: number;
 

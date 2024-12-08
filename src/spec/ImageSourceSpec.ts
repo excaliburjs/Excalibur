@@ -1,7 +1,29 @@
 import * as ex from '@excalibur';
 import { ImageRenderer } from '../engine/Graphics/Context/image-renderer/image-renderer';
+import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 
 describe('A ImageSource', () => {
+  let canvasElement: HTMLCanvasElement;
+  let ctx: ex.ExcaliburGraphicsContext;
+  beforeAll(() => {
+    jasmine.addMatchers(ExcaliburMatchers);
+    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
+  });
+
+  beforeEach(() => {
+    ex.TextureLoader.filtering = ex.ImageFiltering.Pixel;
+    canvasElement = document.createElement('canvas');
+    canvasElement.width = 100;
+    canvasElement.height = 100;
+    ctx = new ex.ExcaliburGraphicsContextWebGL({
+      canvasElement,
+      uvPadding: 0.01,
+      antialiasing: false,
+      snapToPixel: false,
+      pixelArtSampler: false
+    });
+  });
+
   it('exists', () => {
     expect(ex.ImageSource).toBeDefined();
   });
@@ -109,7 +131,6 @@ describe('A ImageSource', () => {
 
     await sut.load();
 
-    expect(logger.warn).not.toHaveBeenCalled();
     expect(logger.error).toHaveBeenCalledWith(
       `The image [src/spec/images/GraphicsImageSourceSpec/big-image.png] provided to Excalibur is too large for the device's maximum ` +
         `texture size of (4096x4096) please resize to an image for excalibur to render properly.\n\n` +
@@ -362,5 +383,62 @@ describe('A ImageSource', () => {
     const spriteFontImage = new ex.ImageSource('42.png');
 
     await expectAsync(spriteFontImage.load()).toBeRejectedWith("Error loading ImageSource from path '42.png' with error [Not Found]");
+  });
+
+  it('can be built from canvas elements', async () => {
+    const sutCanvas = document.createElement('canvas')!;
+    sutCanvas.width = 100;
+    sutCanvas.height = 100;
+    const sutCtx = sutCanvas.getContext('2d')!;
+    sutCtx.fillStyle = ex.Color.Black.toRGBA();
+    sutCtx.fillRect(20, 20, 50, 50);
+
+    const img = ex.ImageSource.fromHtmlCanvasElement(sutCanvas);
+    const sprite = img.toSprite();
+    await img.ready;
+
+    ctx.clear();
+    sprite.draw(ctx, 0, 0);
+    ctx.flush();
+
+    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsImageSourceSpec/canvas-image.png');
+  });
+
+  it('can be built from canvas elements with wrapping/filtering specified', async () => {
+    const sutCanvas = document.createElement('canvas')!;
+    sutCanvas.width = 100;
+    sutCanvas.height = 100;
+    const sutCtx = sutCanvas.getContext('2d')!;
+    sutCtx.fillStyle = ex.Color.Black.toRGBA();
+    sutCtx.fillRect(20, 20, 50, 50);
+
+    const img = ex.ImageSource.fromHtmlCanvasElement(sutCanvas, {
+      wrapping: ex.ImageWrapping.Repeat,
+      filtering: ex.ImageFiltering.Pixel
+    });
+    const sprite = img.toSprite();
+    await img.ready;
+
+    expect(img.image.getAttribute(ex.ImageSourceAttributeConstants.Filtering)).toBe(ex.ImageFiltering.Pixel);
+    expect(img.image.getAttribute(ex.ImageSourceAttributeConstants.WrappingX)).toBe(ex.ImageWrapping.Repeat);
+    expect(img.image.getAttribute(ex.ImageSourceAttributeConstants.WrappingY)).toBe(ex.ImageWrapping.Repeat);
+
+    const img2 = ex.ImageSource.fromHtmlCanvasElement(sutCanvas, {
+      wrapping: {
+        x: ex.ImageWrapping.Repeat,
+        y: ex.ImageWrapping.Clamp
+      },
+      filtering: ex.ImageFiltering.Blended
+    });
+
+    expect(img2.image.getAttribute(ex.ImageSourceAttributeConstants.Filtering)).toBe(ex.ImageFiltering.Blended);
+    expect(img2.image.getAttribute(ex.ImageSourceAttributeConstants.WrappingX)).toBe(ex.ImageWrapping.Repeat);
+    expect(img2.image.getAttribute(ex.ImageSourceAttributeConstants.WrappingY)).toBe(ex.ImageWrapping.Clamp);
+
+    ctx.clear();
+    sprite.draw(ctx, 0, 0);
+    ctx.flush();
+
+    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsImageSourceSpec/canvas-image.png');
   });
 });

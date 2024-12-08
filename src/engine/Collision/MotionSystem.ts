@@ -22,7 +22,7 @@ export class MotionSystem extends System {
     this.query = this.world.query([TransformComponent, MotionComponent]);
   }
 
-  update(elapsedMs: number): void {
+  update(elapsed: number): void {
     let transform: TransformComponent;
     let motion: MotionComponent;
     const entities = this.query.entities;
@@ -53,7 +53,7 @@ export class MotionSystem extends System {
       }
 
       // Update transform and motion based on Euler linear algebra
-      EulerIntegrator.integrate(transform, motion, totalAcc, elapsedMs / substep);
+      EulerIntegrator.integrate(transform, motion, totalAcc, elapsed / substep);
     }
     this._physicsConfigDirty = false;
   }

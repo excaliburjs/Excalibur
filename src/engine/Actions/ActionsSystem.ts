@@ -22,10 +22,10 @@ export class ActionsSystem extends System {
       }
     });
   }
-  update(elapsedMs: number): void {
+  update(elapsed: number): void {
     for (let i = 0; i < this._actions.length; i++) {
       const action = this._actions[i];
-      action.update(elapsedMs);
+      action.update(elapsed);
     }
   }
 }

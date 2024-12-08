@@ -973,13 +973,13 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * Called by the Engine, updates the state of the actor
    * @internal
    * @param engine The reference to the current game engine
-   * @param elapsedMs  The time elapsed since the last update in milliseconds
+   * @param elapsed  The time elapsed since the last update in milliseconds
    */
-  public update(engine: Engine, elapsedMs: number) {
+  public update(engine: Engine, elapsed: number) {
     this._initialize(engine);
     this._add(engine);
-    this._preupdate(engine, elapsedMs);
-    this._postupdate(engine, elapsedMs);
+    this._preupdate(engine, elapsed);
+    this._postupdate(engine, elapsed);
     this._remove(engine);
   }
 
@@ -987,8 +987,10 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * Safe to override onPreUpdate lifecycle event handler. Synonymous with `.on('preupdate', (evt) =>{...})`
    *
    * `onPreUpdate` is called directly before an actor is updated.
+   * @param engine The reference to the current game engine
+   * @param elapsed  The time elapsed since the last update in milliseconds
    */
-  public onPreUpdate(engine: Engine, elapsedMs: number): void {
+  public onPreUpdate(engine: Engine, elapsed: number): void {
     // Override me
   }
 
@@ -996,8 +998,10 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * Safe to override onPostUpdate lifecycle event handler. Synonymous with `.on('postupdate', (evt) =>{...})`
    *
    * `onPostUpdate` is called directly after an actor is updated.
+   * @param engine The reference to the current game engine
+   * @param elapsed  The time elapsed since the last update in milliseconds
    */
-  public onPostUpdate(engine: Engine, elapsedMs: number): void {
+  public onPostUpdate(engine: Engine, elapsed: number): void {
     // Override me
   }
 
@@ -1050,22 +1054,26 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * Internal _preupdate handler for {@apilink onPreUpdate} lifecycle event
+   * @param engine The reference to the current game engine
+   * @param elapsed  The time elapsed since the last update in milliseconds
    * @internal
    */
-  public _preupdate(engine: Engine, elapsedMs: number): void {
-    this.events.emit('preupdate', new PreUpdateEvent(engine, elapsedMs, this));
-    this.onPreUpdate(engine, elapsedMs);
+  public _preupdate(engine: Engine, elapsed: number): void {
+    this.events.emit('preupdate', new PreUpdateEvent(engine, elapsed, this));
+    this.onPreUpdate(engine, elapsed);
   }
 
   /**
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * Internal _preupdate handler for {@apilink onPostUpdate} lifecycle event
+   * @param engine The reference to the current game engine
+   * @param elapsed  The time elapsed since the last update in milliseconds
    * @internal
    */
-  public _postupdate(engine: Engine, elapsedMs: number): void {
-    this.events.emit('postupdate', new PostUpdateEvent(engine, elapsedMs, this));
-    this.onPostUpdate(engine, elapsedMs);
+  public _postupdate(engine: Engine, elapsed: number): void {
+    this.events.emit('postupdate', new PostUpdateEvent(engine, elapsed, this));
+    this.onPostUpdate(engine, elapsed);
   }
 
   // endregion

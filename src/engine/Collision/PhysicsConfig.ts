@@ -1,7 +1,6 @@
 import { Vector, vec } from '../Math/vector';
 import { DeepRequired } from '../Util/Required';
 import { SolverStrategy } from './SolverStrategy';
-import { Physics } from './Physics';
 import { ContactSolveBias } from './Solver/ContactBias';
 import { SpatialPartitionStrategy } from './Detection/SpatialPartitionStrategy';
 
@@ -217,9 +216,9 @@ export interface PhysicsConfig {
   };
 }
 
-export const DefaultPhysicsConfig: DeepRequired<PhysicsConfig> = {
+export const getDefaultPhysicsConfig: () => DeepRequired<PhysicsConfig> = () => ({
   enabled: true,
-  gravity: vec(0, 0),
+  gravity: vec(0, 0).clone(),
   solver: SolverStrategy.Arcade,
   substep: 1,
   colliders: {
@@ -255,49 +254,4 @@ export const DefaultPhysicsConfig: DeepRequired<PhysicsConfig> = {
     steeringFactor: 0.2,
     warmStart: true
   }
-};
-
-/**
- * @deprecated will be removed in v0.30
- */
-export function DeprecatedStaticToConfig(): DeepRequired<PhysicsConfig> {
-  return {
-    enabled: Physics.enabled,
-    gravity: Physics.gravity.clone(),
-    solver: Physics.collisionResolutionStrategy,
-    substep: 1,
-    continuous: {
-      checkForFastBodies: Physics.checkForFastBodies,
-      disableMinimumSpeedForFastBody: Physics.disableMinimumSpeedForFastBody,
-      surfaceEpsilon: Physics.surfaceEpsilon
-    },
-    colliders: {
-      compositeStrategy: 'together'
-    },
-    bodies: {
-      canSleepByDefault: Physics.bodiesCanSleepByDefault,
-      sleepEpsilon: Physics.sleepEpsilon,
-      wakeThreshold: Physics.wakeThreshold,
-      sleepBias: Physics.sleepBias,
-      defaultMass: Physics.defaultMass
-    },
-    spatialPartition: SpatialPartitionStrategy.SparseHashGrid,
-    sparseHashGrid: {
-      size: 100
-    },
-    dynamicTree: {
-      boundsPadding: Physics.boundsPadding,
-      velocityMultiplier: Physics.dynamicTreeVelocityMultiplier
-    },
-    arcade: {
-      contactSolveBias: ContactSolveBias.None
-    },
-    realistic: {
-      positionIterations: Physics.positionIterations,
-      velocityIterations: Physics.velocityIterations,
-      slop: Physics.slop,
-      steeringFactor: Physics.steeringFactor,
-      warmStart: Physics.warmStart
-    }
-  };
-}
+});

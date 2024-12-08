@@ -407,7 +407,7 @@ export class Director<TKnownScenes extends string = any> {
    * @param destinationScene
    * @param options
    */
-  async goto(destinationScene: TKnownScenes | string, options?: GoToOptions) {
+  async goToScene(destinationScene: TKnownScenes | string, options?: GoToOptions) {
     const maybeDest = this.getSceneInstance(destinationScene);
     if (!maybeDest) {
       this._logger.warn(`Scene ${destinationScene} does not exist! Check the name, are you sure you added it?`);

@@ -35,7 +35,9 @@ void main(){
     float dist = 1.0 - length(uv);
     float edge = fwidth(dot(uv, uv));
     float circle = smoothstep(-edge/2.0, edge/2.0, dist);
-    vec4 color = mix(beginColor, endColor, 1.0 - lifePct) * startOpacity;
-    fragColor = color * (fade ? lifePct : 1.0) * circle;
+    vec3 color = mix(beginColor.rgb, endColor.rgb, 1.0 - lifePct);
+    fragColor.rgb = color;
+    fragColor.a = startOpacity * circle * (fade ? lifePct : 1.0);// * mix(beginColor.a, endColor.a, 1.0 - lifePct);
+    fragColor.rgb *= fragColor.a;
   }
 }

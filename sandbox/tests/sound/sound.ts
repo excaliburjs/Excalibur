@@ -1,7 +1,7 @@
-ex.Physics.enabled = false;
 var game = new ex.Engine({
   width: 600,
-  height: 400
+  height: 400,
+  physics: false
 });
 
 var sound = new ex.Sound('./loop.mp3');

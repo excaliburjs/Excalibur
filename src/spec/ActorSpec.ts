@@ -937,10 +937,10 @@ describe('A game actor', () => {
   });
 
   it('with an active collision type can be placed on a fixed type', async () => {
-    ex.Physics.useArcadePhysics();
     const scene = new ex.Scene();
     engine.add('somescene', scene);
     await engine.goToScene('somescene');
+    engine.currentScene.physics.config.solver = ex.SolverStrategy.Arcade;
 
     const active = new ex.Actor({ x: 0, y: -50, width: 100, height: 100 });
     active.body.collisionType = ex.CollisionType.Active;

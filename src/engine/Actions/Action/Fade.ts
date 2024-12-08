@@ -14,13 +14,13 @@ export class Fade implements Action {
   private _started = false;
   private _stopped = false;
 
-  constructor(entity: Entity, endOpacity: number, durationMs: number) {
+  constructor(entity: Entity, endOpacity: number, duration: number) {
     this._graphics = entity.get(GraphicsComponent);
     this._endOpacity = endOpacity;
-    this._remainingTime = this._originalTime = durationMs;
+    this._remainingTime = this._originalTime = duration;
   }
 
-  public update(elapsedMs: number): void {
+  public update(elapsed: number): void {
     if (!this._graphics) {
       return;
     }
@@ -38,11 +38,10 @@ export class Fade implements Action {
     }
 
     if (this._remainingTime > 0) {
-      this._graphics.opacity +=
-        (this._multiplier * (Math.abs(this._graphics.opacity - this._endOpacity) * elapsedMs)) / this._remainingTime;
+      this._graphics.opacity += (this._multiplier * (Math.abs(this._graphics.opacity - this._endOpacity) * elapsed)) / this._remainingTime;
     }
 
-    this._remainingTime -= elapsedMs;
+    this._remainingTime -= elapsed;
 
     if (this.isComplete()) {
       this._graphics.opacity = this._endOpacity;

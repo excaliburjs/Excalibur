@@ -52,7 +52,7 @@ export function hasOnInitialize(a: any): a is OnInitialize {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export interface _preupdate {
-  _preupdate(engine: Engine, elapsedMs: number): void;
+  _preupdate(engine: Engine, elapsed: number): void;
 }
 
 /**
@@ -63,7 +63,7 @@ export function has_preupdate(a: any): a is _preupdate {
 }
 
 export interface OnPreUpdate {
-  onPreUpdate(engine: Engine, elapsedMs: number): void;
+  onPreUpdate(engine: Engine, elapsed: number): void;
 }
 
 /**
@@ -75,7 +75,7 @@ export function hasOnPreUpdate(a: any): a is OnPreUpdate {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export interface _postupdate {
-  _postupdate(engine: Engine, elapsedMs: number): void;
+  _postupdate(engine: Engine, elapsed: number): void;
 }
 
 /**
@@ -86,7 +86,7 @@ export function has_postupdate(a: any): a is _postupdate {
 }
 
 export interface OnPostUpdate {
-  onPostUpdate(engine: Engine, elapsedMs: number): void;
+  onPostUpdate(engine: Engine, elapsed: number): void;
 }
 
 /**
@@ -187,7 +187,7 @@ export interface CanUpdate {
   /**
    * Overridable implementation
    */
-  onPreUpdate(engine: Engine, elapsedMs: number): void;
+  onPreUpdate(engine: Engine, elapsed: number): void;
 
   /**
    * Event signature
@@ -199,7 +199,7 @@ export interface CanUpdate {
   /**
    * Overridable implementation
    */
-  onPostUpdate(engine: Engine, elapsedMs: number): void;
+  onPostUpdate(engine: Engine, elapsed: number): void;
 
   /**
    * Event signatures
@@ -213,7 +213,7 @@ export interface OnPreDraw {
   /**
    * Overridable implementation
    */
-  onPreDraw(ctx: ExcaliburGraphicsContext, elapsedMs: number): void;
+  onPreDraw(ctx: ExcaliburGraphicsContext, elapsed: number): void;
 
   /**
    * Event signatures
@@ -227,7 +227,7 @@ export interface OnPostDraw {
   /**
    * Overridable implementation
    */
-  onPostDraw(ctx: ExcaliburGraphicsContext, elapsedMs: number): void;
+  onPostDraw(ctx: ExcaliburGraphicsContext, elapsed: number): void;
 
   /**
    * Event signatures

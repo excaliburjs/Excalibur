@@ -185,15 +185,15 @@ export class Matrix {
   }
 
   /**
-   * Creates a brand new rotation matrix with the specified angle
-   * @param angleRadians
+   * Creates a brand new rotation matrix with the specified angle in radians
+   * @param angle
    */
-  public static rotation(angleRadians: number): Matrix {
+  public static rotation(angle: number): Matrix {
     const mat = Matrix.identity();
-    mat.data[0] = Math.cos(angleRadians);
-    mat.data[4] = -Math.sin(angleRadians);
-    mat.data[1] = Math.sin(angleRadians);
-    mat.data[5] = Math.cos(angleRadians);
+    mat.data[0] = Math.cos(angle);
+    mat.data[4] = -Math.sin(angle);
+    mat.data[1] = Math.sin(angle);
+    mat.data[5] = Math.cos(angle);
     return mat;
   }
 

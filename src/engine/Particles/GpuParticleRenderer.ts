@@ -1,4 +1,4 @@
-import { TwoPI } from '../Math/util';
+import { randomInRange, TwoPI } from '../Math/util';
 import { ExcaliburGraphicsContextWebGL } from '../Graphics/Context/ExcaliburGraphicsContextWebGL';
 import { GpuParticleEmitter } from './GpuParticleEmitter';
 import { ParticleConfig, ParticleTransform } from './Particles';
@@ -6,6 +6,7 @@ import { Random } from '../Math/Random';
 import { Sprite } from '../Graphics/Sprite';
 import { EmitterType } from './EmitterType';
 import { assert } from '../Util/Assert';
+import { vec } from '../Math/vector';
 
 export interface GpuParticleConfig extends ParticleConfig {
   /**
@@ -150,6 +151,12 @@ export class GpuParticleRenderer {
     this._initialized = true;
   }
 
+  private _clearRequested = false;
+  clearParticles() {
+    this._particleData.fill(0);
+    this._clearRequested = true;
+  }
+
   private _emitted: [life: number, index: number][] = [];
   emitParticles(particleCount: number) {
     const startIndex = this._particleIndex;
@@ -158,6 +165,10 @@ export class GpuParticleRenderer {
     let countParticle = 0;
     for (let i = startIndex; i < endIndex; i += this._numInputFloats) {
       const angle = this._random.floating(this.particle.minAngle || 0, this.particle.maxAngle || TwoPI);
+      const speedX = this._random.floating(this.particle.minSpeed || 0, this.particle.maxSpeed || 0);
+      const speedY = this._random.floating(this.particle.minSpeed || 0, this.particle.maxSpeed || 0);
+      const dx = speedX * Math.cos(angle);
+      const dy = speedY * Math.sin(angle);
       let ranX: number = 0;
       let ranY: number = 0;
       if (this.emitter.emitterType === EmitterType.Rectangle) {
@@ -168,15 +179,13 @@ export class GpuParticleRenderer {
         ranX = radius * Math.cos(angle);
         ranY = radius * Math.sin(angle);
       }
-
+      const tx = this.emitter.transform.apply(vec(ranX, ranY));
       const data = [
-        this.particle.transform === ParticleTransform.Local ? ranX : this.emitter.transform.pos.x + ranX,
-        this.particle.transform === ParticleTransform.Local ? ranY : this.emitter.transform.pos.y + ranY, // pos in world space
-        this._random.floating(this.particle.minSpeed || 0, this.particle.maxSpeed || 0),
-        this._random.floating(this.particle.minSpeed || 0, this.particle.maxSpeed || 0), // velocity
-        this.particle.randomRotation
-          ? this._random.floating(this.particle.minAngle || 0, this.particle.maxAngle || TwoPI)
-          : this.particle.rotation || 0, // rotation
+        this.particle.transform === ParticleTransform.Local ? ranX : tx.x,
+        this.particle.transform === ParticleTransform.Local ? ranY : tx.y, // pos in world space
+        dx,
+        dy, // velocity
+        this.particle.randomRotation ? randomInRange(0, TwoPI, this._random) : this.particle.rotation || 0, // rotation
         this.particle.angularVelocity || 0, // angular velocity
         this._particleLife // life
       ];
@@ -238,10 +247,10 @@ export class GpuParticleRenderer {
     this._uploadIndex = this._particleIndex % (this.maxParticles * this._numInputFloats);
   }
 
-  update(elapsedMs: number) {
+  update(elapsed: number) {
     this._particleLife = this.particle.life ?? this._particleLife;
     if (this._wrappedLife > 0) {
-      this._wrappedLife -= elapsedMs;
+      this._wrappedLife -= elapsed;
     } else {
       this._wrappedLife = 0;
       this._wrappedParticles = 0;
@@ -251,7 +260,7 @@ export class GpuParticleRenderer {
     }
     for (let i = this._emitted.length - 1; i >= 0; i--) {
       const particle = this._emitted[i];
-      particle[0] -= elapsedMs;
+      particle[0] -= elapsed;
       const life = particle[0];
       if (life <= 0) {
         this._emitted.splice(i, 1);
@@ -264,7 +273,14 @@ export class GpuParticleRenderer {
   draw(gl: WebGL2RenderingContext) {
     if (this._initialized) {
       // Emit
-      this._uploadEmitted(gl);
+      if (this._clearRequested) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._buffers[(this._drawIndex + 1) % 2]);
+        gl.bufferSubData(gl.ARRAY_BUFFER, 0, this._particleData);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        this._clearRequested = false;
+      } else {
+        this._uploadEmitted(gl);
+      }
 
       // Bind one buffer to ARRAY_BUFFER and the other to transform feedback buffer
       gl.bindVertexArray(this._currentVao);

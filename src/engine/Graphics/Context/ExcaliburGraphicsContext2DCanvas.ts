@@ -329,7 +329,7 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     // pass
   }
 
-  public updatePostProcessors(elapsedMs: number) {
+  public updatePostProcessors(elapsed: number) {
     // pass
   }
 

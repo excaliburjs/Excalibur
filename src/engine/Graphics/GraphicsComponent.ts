@@ -93,22 +93,22 @@ export class GraphicsComponent extends Component {
   /**
    * Draws after the entity transform has been applied, but before graphics component graphics have been drawn
    */
-  public onPreDraw?: (ctx: ExcaliburGraphicsContext, elapsedMilliseconds: number) => void;
+  public onPreDraw?: (ctx: ExcaliburGraphicsContext, elapsed: number) => void;
 
   /**
    * Draws after the entity transform has been applied, and after graphics component graphics has been drawn
    */
-  public onPostDraw?: (ctx: ExcaliburGraphicsContext, elapsedMilliseconds: number) => void;
+  public onPostDraw?: (ctx: ExcaliburGraphicsContext, elapsed: number) => void;
 
   /**
    * Draws before the entity transform has been applied before any any graphics component drawing
    */
-  public onPreTransformDraw?: (ctx: ExcaliburGraphicsContext, elapsedMilliseconds: number) => void;
+  public onPreTransformDraw?: (ctx: ExcaliburGraphicsContext, elapsed: number) => void;
 
   /**
    * Draws after the entity transform has been applied, and after all graphics component drawing
    */
-  public onPostTransformDraw?: (ctx: ExcaliburGraphicsContext, elapsedMilliseconds: number) => void;
+  public onPostTransformDraw?: (ctx: ExcaliburGraphicsContext, elapsed: number) => void;
   private _color?: Color;
 
   /**
@@ -333,16 +333,6 @@ export class GraphicsComponent extends Component {
       this._current = 'default';
       this.recalculateBounds();
     }
-  }
-
-  /**
-   * Shows a graphic, will be removed
-   * @param nameOrGraphic
-   * @param options
-   * @deprecated will be removed in v0.30.0, use `graphics.use(...)`
-   */
-  public show<T extends Graphic = Graphic>(nameOrGraphic: string | T, options?: GraphicsShowOptions): T {
-    return this.use(nameOrGraphic, options);
   }
 
   /**

@@ -1,9 +1,11 @@
 /// <reference path='../../lib/excalibur.d.ts' />
 
-ex.Physics.useRealisticPhysics();
 var game = new ex.Engine({
   width: 600,
-  height: 400
+  height: 400,
+  physics: {
+    solver: ex.SolverStrategy.Realistic
+  }
 });
 
 game.showDebug(true);

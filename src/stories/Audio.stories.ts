@@ -46,7 +46,7 @@ export const PlayingASound: StoryObj = {
 
     startOrPauseBtn.graphics.add('play', playSprite);
     startOrPauseBtn.graphics.add('pause', pauseSprite);
-    startOrPauseBtn.graphics.show('play');
+    startOrPauseBtn.graphics.use('play');
 
     startOrPauseBtn.on('pointerup', (evt) => {
       if (!guitarLoopSound.isPlaying()) {
@@ -57,7 +57,7 @@ export const PlayingASound: StoryObj = {
 
       evt.cancel();
     });
-    stopBtn.graphics.show(stopSprite);
+    stopBtn.graphics.use(stopSprite);
 
     const playheadStartPos = playTimeline.collider.bounds.left;
     const playheadEndPos = playTimeline.collider.bounds.right;
@@ -73,14 +73,14 @@ export const PlayingASound: StoryObj = {
         elapsedTime = 0;
         playHead.actions.easeTo(playheadEndPos, playHead.pos.y, guitarLoopSound.duration * 1000, EasingFunctions.Linear);
       }
-      startOrPauseBtn.graphics.show('pause');
+      startOrPauseBtn.graphics.use('pause');
       action('playbackstart')(e);
     });
 
     guitarLoopSound.on('pause', (e) => {
       elapsedTime = Date.now() - startTime + elapsedTime;
       playHead.actions.clearActions();
-      startOrPauseBtn.graphics.show('play');
+      startOrPauseBtn.graphics.use('play');
       action('pause')(e, elapsedTime);
     });
 
@@ -89,14 +89,14 @@ export const PlayingASound: StoryObj = {
       if (guitarLoopSound.duration > 0) {
         playHead.actions.easeTo(playheadEndPos, playHead.pos.y, guitarLoopSound.duration * 1000 - elapsedTime, EasingFunctions.Linear);
       }
-      startOrPauseBtn.graphics.show('pause');
+      startOrPauseBtn.graphics.use('pause');
       action('resume')(e);
     });
 
     guitarLoopSound.on('playbackend', (e) => {
       playHead.actions.clearActions();
       playHead.pos.setTo(playheadStartPos, playHead.pos.y);
-      startOrPauseBtn.graphics.show('play');
+      startOrPauseBtn.graphics.use('play');
       action('playbackend')(e);
     });
 

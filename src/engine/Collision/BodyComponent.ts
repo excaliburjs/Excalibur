@@ -10,7 +10,7 @@ import { clamp } from '../Math/util';
 import { ColliderComponent } from './ColliderComponent';
 import { Transform } from '../Math/transform';
 import { EventEmitter } from '../EventEmitter';
-import { DefaultPhysicsConfig, PhysicsConfig } from './PhysicsConfig';
+import { getDefaultPhysicsConfig, PhysicsConfig } from './PhysicsConfig';
 import { DeepRequired } from '../Util/Required';
 import { Entity } from '../EntityComponentSystem';
 
@@ -52,7 +52,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
 
   private _bodyConfig: DeepRequired<Pick<PhysicsConfig, 'bodies'>['bodies']>;
   private static _DEFAULT_CONFIG: DeepRequired<Pick<PhysicsConfig, 'bodies'>['bodies']> = {
-    ...DefaultPhysicsConfig.bodies
+    ...getDefaultPhysicsConfig().bodies
   };
   public wakeThreshold: number;
 
@@ -63,12 +63,12 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
       this.group = options.group ?? this.group;
       this.useGravity = options.useGravity ?? this.useGravity;
       this._bodyConfig = {
-        ...DefaultPhysicsConfig.bodies,
+        ...getDefaultPhysicsConfig().bodies,
         ...options.config
       };
     } else {
       this._bodyConfig = {
-        ...DefaultPhysicsConfig.bodies
+        ...getDefaultPhysicsConfig().bodies
       };
     }
     this.updatePhysicsConfig(this._bodyConfig);
@@ -85,7 +85,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
    */
   public updatePhysicsConfig(config: DeepRequired<Pick<PhysicsConfig, 'bodies'>['bodies']>) {
     this._bodyConfig = {
-      ...DefaultPhysicsConfig.bodies,
+      ...getDefaultPhysicsConfig().bodies,
       ...config
     };
     this.canSleep = this._bodyConfig.canSleepByDefault;

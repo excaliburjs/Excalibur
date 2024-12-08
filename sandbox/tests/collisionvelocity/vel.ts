@@ -4,14 +4,16 @@ var engine = new ex.Engine({
   canvasElementId: 'game',
   width: 800,
   height: 300,
-  pointerScope: ex.PointerScope.Canvas
+  pointerScope: ex.PointerScope.Canvas,
+  physics: {
+    gravity: ex.vec(0, 200)
+  }
 });
 engine.showDebug(true);
 engine.debug.body.showAll = true;
 engine.debug.collider.showGeometry = true;
 engine.debug.physics.showCollisionContacts = true;
 engine.debug.physics.showCollisionNormals = true;
-ex.Physics.acc.setTo(0, 200);
 
 var floor = new ex.Actor({
   x: engine.halfDrawWidth,

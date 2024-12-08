@@ -14,7 +14,7 @@ class Cross extends Actor {
     super({ x, y, width: 40, height: 40 });
     this.graphics.onPreDraw = (ctx) => {
       ctx.save();
-      // onPreDraw doesnt factor anchor anymore
+      // onPreDraw doesn't factor anchor anymore
       ctx.translate(-20, -20);
       ctx.debug.drawLine(vec(this.width / 2, 0), vec(this.width / 2, this.height), { color: Color.Black });
       ctx.debug.drawLine(vec(0, this.height / 2), vec(this.width, this.height / 2), { color: Color.Black });
@@ -51,7 +51,7 @@ export const Centered: StoryObj = {
     const ldr = new Loader([heartTx]);
 
     game.backgroundColor = Color.White;
-    game.setAntialiasing(false);
+    game.screen.antialiasing = false;
 
     // center anchored actors
     const cc = new Cross(0, 0);
@@ -83,7 +83,7 @@ export const TopLeft: StoryObj = {
     const ldr = new Loader([heartTx]);
 
     game.backgroundColor = Color.White;
-    game.setAntialiasing(false);
+    game.screen.antialiasing = false;
 
     // top left anchored actors
     const tlc = new Cross(-100, -100);
@@ -137,7 +137,7 @@ export const TopRight: StoryObj = {
     const ldr = new Loader([heartTx]);
 
     game.backgroundColor = Color.White;
-    game.setAntialiasing(false);
+    game.screen.antialiasing = false;
 
     // top right anchored actors
     const trc = new Cross(100, -100);
@@ -168,7 +168,7 @@ export const BottomLeft: StoryObj = {
     const ldr = new Loader([heartTx]);
 
     game.backgroundColor = Color.White;
-    game.setAntialiasing(false);
+    game.screen.antialiasing = false;
 
     // bottom left anchored actors
     const blc = new Cross(-100, 100);
@@ -200,7 +200,7 @@ export const BottomRight: StoryObj = {
     const ldr = new Loader([heartTx]);
 
     game.backgroundColor = Color.White;
-    game.setAntialiasing(false);
+    game.screen.antialiasing = false;
 
     const brc = new Cross(100, 100);
     const bra1 = new Actor({ x: 100, y: 100, width: 15, height: 15, color: Color.Red, anchor: new Vector(1, 1) });

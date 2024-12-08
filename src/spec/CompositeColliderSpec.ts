@@ -1,7 +1,7 @@
 import * as ex from '@excalibur';
 import { BoundingBox, GameEvent, LineSegment, Projection, Ray, vec, Vector } from '@excalibur';
 import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
-import { DefaultPhysicsConfig } from '../engine/Collision/PhysicsConfig';
+import { getDefaultPhysicsConfig } from '../engine/Collision/PhysicsConfig';
 describe('A CompositeCollider', () => {
   beforeAll(() => {
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
@@ -281,7 +281,7 @@ describe('A CompositeCollider', () => {
     const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
 
     const dynamicTreeProcessor = new ex.DynamicTreeCollisionProcessor({
-      ...DefaultPhysicsConfig
+      ...getDefaultPhysicsConfig()
     });
     dynamicTreeProcessor.track(compCollider);
 
@@ -294,7 +294,7 @@ describe('A CompositeCollider', () => {
     const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
 
     const dynamicTreeProcessor = new ex.DynamicTreeCollisionProcessor({
-      ...DefaultPhysicsConfig
+      ...getDefaultPhysicsConfig()
     });
     dynamicTreeProcessor.track(compCollider);
 

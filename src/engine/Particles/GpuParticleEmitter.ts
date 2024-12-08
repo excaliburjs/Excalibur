@@ -1,7 +1,14 @@
-import { Actor, clamp, Engine, ExcaliburGraphicsContextWebGL, GraphicsComponent, Random, vec, Vector, ParticleRenderer } from '../';
+import { Engine } from '../Engine';
+import { Actor } from '../Actor';
 import { EmitterType } from './EmitterType';
 import { ParticleEmitterArgs, ParticleTransform } from './Particles';
 import { GpuParticleConfig, GpuParticleRenderer } from './GpuParticleRenderer';
+import { GraphicsComponent } from '../Graphics/GraphicsComponent';
+import { Random } from '../Math/Random';
+import { vec, Vector } from '../Math/vector';
+import { clamp } from '../Math';
+import { ExcaliburGraphicsContextWebGL } from '../Graphics/Context/ExcaliburGraphicsContextWebGL';
+import { ParticleRenderer } from '../Graphics/Context/particle-renderer/particle-renderer';
 
 export class GpuParticleEmitter extends Actor {
   public particle: GpuParticleConfig = {
@@ -78,24 +85,31 @@ export class GpuParticleEmitter extends Actor {
   }
 
   private _particlesToEmit = 0;
-  public update(engine: Engine, elapsedMs: number): void {
-    super.update(engine, elapsedMs);
+  public update(engine: Engine, elapsed: number): void {
+    super.update(engine, elapsed);
 
     if (this.isEmitting) {
-      this._particlesToEmit += this.emitRate * (elapsedMs / 1000);
+      this._particlesToEmit += this.emitRate * (elapsed / 1000);
       if (this._particlesToEmit > 1.0) {
         this.emitParticles(Math.floor(this._particlesToEmit));
         this._particlesToEmit = this._particlesToEmit - Math.floor(this._particlesToEmit);
       }
     }
-    this.renderer.update(elapsedMs);
+    this.renderer.update(elapsed);
   }
 
   public emitParticles(particleCount: number) {
-    this.renderer.emitParticles(particleCount);
+    if (particleCount <= 0) {
+      return;
+    }
+    this.renderer.emitParticles(particleCount | 0); // coerce to integer
   }
 
-  draw(ctx: ExcaliburGraphicsContextWebGL, elapsedMilliseconds: number) {
-    ctx.draw<ParticleRenderer>('ex.particle', this.renderer, elapsedMilliseconds);
+  public clearParticles() {
+    this.renderer.clearParticles();
+  }
+
+  draw(ctx: ExcaliburGraphicsContextWebGL, elapsed: number) {
+    ctx.draw<ParticleRenderer>('ex.particle', this.renderer, elapsed);
   }
 }

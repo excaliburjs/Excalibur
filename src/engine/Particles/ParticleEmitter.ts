@@ -96,11 +96,17 @@ export class ParticleEmitter extends Actor {
     this.deadParticles.push(particle);
   }
 
+  private _activeParticles: Particle[] = [];
+
   /**
    * Causes the emitter to emit particles
    * @param particleCount  Number of particles to emit right now
    */
   public emitParticles(particleCount: number) {
+    if (particleCount <= 0) {
+      return;
+    }
+    particleCount = particleCount | 0; // coerce to int
     for (let i = 0; i < particleCount; i++) {
       const p = this._createParticle();
       if (this?.scene?.world) {
@@ -110,6 +116,13 @@ export class ParticleEmitter extends Actor {
           this.addChild(p);
         }
       }
+      this._activeParticles.push(p);
+    }
+  }
+
+  public clearParticles() {
+    for (let i = 0; i < this._activeParticles.length; i++) {
+      this.removeParticle(this._activeParticles[i]);
     }
   }
 
@@ -160,11 +173,11 @@ export class ParticleEmitter extends Actor {
     return p;
   }
 
-  public update(engine: Engine, elapsedMs: number) {
-    super.update(engine, elapsedMs);
+  public update(engine: Engine, elapsed: number) {
+    super.update(engine, elapsed);
 
     if (this.isEmitting) {
-      this._particlesToEmit += this.emitRate * (elapsedMs / 1000);
+      this._particlesToEmit += this.emitRate * (elapsed / 1000);
       if (this._particlesToEmit > 1.0) {
         this.emitParticles(Math.floor(this._particlesToEmit));
         this._particlesToEmit = this._particlesToEmit - Math.floor(this._particlesToEmit);
@@ -176,6 +189,10 @@ export class ParticleEmitter extends Actor {
       if (this?.scene?.world) {
         this.scene.world.remove(this.deadParticles[i], false);
         this._particlePool.return(this.deadParticles[i]);
+      }
+      const index = this._activeParticles.indexOf(this.deadParticles[i]);
+      if (index > -1) {
+        this._activeParticles.splice(index, 1);
       }
     }
     this.deadParticles.length = 0;

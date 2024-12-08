@@ -585,10 +585,18 @@ export class Screen {
     document.documentElement.style.setProperty('--ex-pixel-ratio', this.worldToPagePixelRatio.toString());
   }
 
+  /**
+   * Get or set screen antialiasing,
+   *
+   * If true smoothing is applied
+   */
   public get antialiasing() {
     return this._antialiasing;
   }
 
+  /**
+   * Get or set screen antialiasing
+   */
   public set antialiasing(isSmooth: boolean) {
     this._antialiasing = isSmooth;
     this.graphicsContext.smoothing = this._antialiasing;
@@ -855,6 +863,16 @@ export class Screen {
   }
 
   /**
+   * Returns the width of the engine's visible drawing surface in pixels including zoom and device pixel ratio.
+   */
+  public get width(): number {
+    if (this._camera) {
+      return this.resolution.width / this._camera.zoom;
+    }
+    return this.resolution.width;
+  }
+
+  /**
    * Returns half the width of the engine's visible drawing surface in pixels including zoom and device pixel ratio.
    */
   public get halfDrawWidth(): number {
@@ -865,6 +883,13 @@ export class Screen {
    * Returns the height of the engine's visible drawing surface in pixels including zoom and device pixel ratio.
    */
   public get drawHeight(): number {
+    if (this._camera) {
+      return this.resolution.height / this._camera.zoom;
+    }
+    return this.resolution.height;
+  }
+
+  public get height(): number {
     if (this._camera) {
       return this.resolution.height / this._camera.zoom;
     }

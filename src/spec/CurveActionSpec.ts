@@ -35,7 +35,7 @@ describe('A actor can curve', () => {
 
     actor.actions.curveTo({
       controlPoints: [ex.vec(100, 100), ex.vec(0, 0), ex.vec(100, 200)],
-      durationMs: 1000
+      duration: 1000
     });
 
     clock.step(0);
@@ -53,7 +53,7 @@ describe('A actor can curve', () => {
 
     actor.actions.curveBy({
       controlPoints: [ex.vec(0, 100), ex.vec(0, 100), ex.vec(100, 200)],
-      durationMs: 1000
+      duration: 1000
     });
 
     clock.step(0);
@@ -71,7 +71,7 @@ describe('A actor can curve', () => {
 
     actor.actions.curveBy({
       controlPoints: [ex.vec(0, 100), ex.vec(0, 100), ex.vec(100, 200)],
-      durationMs: 1000
+      duration: 1000
     });
 
     clock.step(0);
@@ -90,7 +90,7 @@ describe('A actor can curve', () => {
 
     actor.actions.curveTo({
       controlPoints: [ex.vec(0, 100), ex.vec(0, 100), ex.vec(100, 200)],
-      durationMs: 1000
+      duration: 1000
     });
 
     clock.step(0);

@@ -113,7 +113,7 @@ scene2.onPreLoad = (loader) => {
 };
 scene1.onActivate = () => {
   setTimeout(() => {
-    gameWithTransitions.goto('scene2');
+    gameWithTransitions.goToScene('scene2');
   }, 1000);
 };
 scene2.add(
@@ -137,12 +137,12 @@ boot.addResource(image3);
 boot.addResource(image4);
 boot.addResource(sword);
 gameWithTransitions.input.keyboard.on('press', (evt) => {
-  gameWithTransitions.goto('scene3', {
+  gameWithTransitions.goToScene('scene3', {
     sceneActivationData: { data: 1 }
   });
 });
 gameWithTransitions.input.pointers.primary.on('down', () => {
-  gameWithTransitions.goto('scene1');
+  gameWithTransitions.goToScene('scene1');
 });
 var startTransition = new ex.FadeInOut({
   duration: 3500,

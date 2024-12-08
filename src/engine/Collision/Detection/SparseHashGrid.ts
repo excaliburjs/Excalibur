@@ -273,7 +273,7 @@ export class SparseHashGrid<TObject extends { bounds: BoundingBox }, TProxy exte
     return updated;
   }
 
-  debug(ex: ExcaliburGraphicsContext, elapsedMs: number): void {
+  debug(ex: ExcaliburGraphicsContext, elapsed: number): void {
     const transparent = Color.Transparent;
     const color = Color.White;
     for (const cell of this.sparseHashGrid.values()) {

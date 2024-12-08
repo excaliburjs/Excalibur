@@ -3,9 +3,9 @@
 var game = new ex.Engine({
   width: 600,
   height: 400,
-  canvasElementId: 'game'
+  canvasElementId: 'game',
+  antialiasing: false
 });
-game.setAntialiasing(false);
 
 var raptorTex = new ex.ImageSource('raptor.png');
 var raptorSheet = ex.SpriteSheet.fromImageSource({

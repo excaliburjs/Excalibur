@@ -331,7 +331,7 @@ describe('Action', () => {
     });
 
     it('(with options) can be reset', () => {
-      const moveBy = new ex.MoveByWithOptions(actor, { offset: ex.vec(100, 0), durationMs: 100 });
+      const moveBy = new ex.MoveByWithOptions(actor, { offset: ex.vec(100, 0), duration: 100 });
       actor.actions.runAction(moveBy);
       scene.update(engine, 1000);
       expect(moveBy.isComplete(actor)).toBeTrue();
@@ -356,7 +356,7 @@ describe('Action', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
-      actor.actions.moveBy({ offset: ex.vec(100, 0), durationMs: 2000 });
+      actor.actions.moveBy({ offset: ex.vec(100, 0), duration: 2000 });
 
       scene.update(engine, 1000);
       expect(actor.pos.x).toBe(50);
@@ -405,7 +405,7 @@ describe('Action', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
-      actor.actions.moveBy({ offset: ex.vec(20, 0), durationMs: 1000 });
+      actor.actions.moveBy({ offset: ex.vec(20, 0), duration: 1000 });
       scene.update(engine, 500);
 
       actor.actions.clearActions();
@@ -421,7 +421,7 @@ describe('Action', () => {
 
   describe('moveTo', () => {
     it('can be reset', () => {
-      const moveTo = new ex.MoveToWithOptions(actor, { pos: ex.vec(100, 0), durationMs: 500 });
+      const moveTo = new ex.MoveToWithOptions(actor, { pos: ex.vec(100, 0), duration: 500 });
       actor.actions.runAction(moveTo);
       scene.update(engine, 1000);
       expect(moveTo.isComplete(actor)).toBeTrue();
@@ -449,7 +449,7 @@ describe('Action', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
-      actor.actions.moveTo({ pos: ex.vec(100, 0), durationMs: 1000 });
+      actor.actions.moveTo({ pos: ex.vec(100, 0), duration: 1000 });
       scene.update(engine, 500);
 
       expect(actor.pos.x).toBe(50);
@@ -511,7 +511,7 @@ describe('Action', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
-      actor.actions.moveTo({ pos: ex.vec(20, 0), durationMs: 2000 });
+      actor.actions.moveTo({ pos: ex.vec(20, 0), duration: 2000 });
       scene.update(engine, 500);
 
       actor.actions.clearActions();
@@ -887,7 +887,7 @@ describe('Action', () => {
     it('(with options) can be rotated to an angle at a speed via ShortestPath (default)', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.actions.rotateTo({ angleRadians: Math.PI / 2, durationMs: 1000 });
+      actor.actions.rotateTo({ angle: Math.PI / 2, duration: 1000 });
 
       scene.update(engine, 500);
       expect(actor.rotation).toBe(Math.PI / 4);
@@ -919,7 +919,7 @@ describe('Action', () => {
     it('(with options) can be rotated to an angle at a speed via LongestPath', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.actions.rotateTo({ angleRadians: Math.PI / 2, durationMs: 3000, rotationType: ex.RotationType.LongestPath });
+      actor.actions.rotateTo({ angle: Math.PI / 2, duration: 3000, rotationType: ex.RotationType.LongestPath });
 
       scene.update(engine, 1000);
       //rotation is currently incremented by rx delta ,so will be negative while moving counterclockwise
@@ -952,7 +952,7 @@ describe('Action', () => {
     it('(with options) can be rotated to an angle at a speed via Clockwise', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.actions.rotateTo({ angleRadians: (3 * Math.PI) / 2, durationMs: 3000, rotationType: ex.RotationType.Clockwise });
+      actor.actions.rotateTo({ angle: (3 * Math.PI) / 2, duration: 3000, rotationType: ex.RotationType.Clockwise });
 
       scene.update(engine, 2000);
       expect(actor.rotation).toBe(Math.PI);
@@ -991,7 +991,7 @@ describe('Action', () => {
     it('(with options) can be rotated to an angle at a speed via CounterClockwise', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.actions.rotateTo({ angleRadians: Math.PI / 2, durationMs: 3000, rotationType: ex.RotationType.CounterClockwise });
+      actor.actions.rotateTo({ angle: Math.PI / 2, duration: 3000, rotationType: ex.RotationType.CounterClockwise });
       scene.update(engine, 2000);
       expect(actor.rotation).toBe(ex.canonicalizeAngle(-Math.PI));
 
@@ -1028,7 +1028,7 @@ describe('Action', () => {
     it('(with options) can be stopped', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.actions.rotateTo({ angleRadians: Math.PI / 2, durationMs: 1000 });
+      actor.actions.rotateTo({ angle: Math.PI / 2, duration: 1000 });
 
       scene.update(engine, 500);
       expect(actor.rotation).toBe(Math.PI / 4);
@@ -1052,7 +1052,7 @@ describe('Action', () => {
       expect(rotateBy.isComplete()).toBeFalse();
     });
     it('(with options) can be reset', () => {
-      const rotateBy = new ex.RotateByWithOptions(actor, { angleRadiansOffset: Math.PI / 2, durationMs: 500 });
+      const rotateBy = new ex.RotateByWithOptions(actor, { angleRadiansOffset: Math.PI / 2, duration: 500 });
       actor.actions.runAction(rotateBy);
       scene.update(engine, 1000);
       expect(rotateBy.isComplete()).toBeTrue();
@@ -1079,7 +1079,7 @@ describe('Action', () => {
     it('(with options) can be rotated to an angle by a certain time via ShortestPath (default)', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.actions.rotateBy({ angleRadiansOffset: Math.PI / 2, durationMs: 2000 });
+      actor.actions.rotateBy({ angleRadiansOffset: Math.PI / 2, duration: 2000 });
 
       scene.update(engine, 1000);
       expect(actor.rotation).toBe(Math.PI / 4);
@@ -1109,7 +1109,7 @@ describe('Action', () => {
     it('(with options) can be rotated to an angle by a certain time via LongestPath', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.actions.rotateBy({ angleRadiansOffset: Math.PI / 2, durationMs: 3000, rotationType: ex.RotationType.LongestPath });
+      actor.actions.rotateBy({ angleRadiansOffset: Math.PI / 2, duration: 3000, rotationType: ex.RotationType.LongestPath });
 
       scene.update(engine, 1000);
       expect(actor.rotation).toBe(ex.canonicalizeAngle((-1 * Math.PI) / 2));
@@ -1141,7 +1141,7 @@ describe('Action', () => {
     it('(with options) can be rotated to an angle by a certain time via Clockwise', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.actions.rotateBy({ angleRadiansOffset: Math.PI / 2, durationMs: 1000, rotationType: ex.RotationType.Clockwise });
+      actor.actions.rotateBy({ angleRadiansOffset: Math.PI / 2, duration: 1000, rotationType: ex.RotationType.Clockwise });
 
       scene.update(engine, 500);
       expect(actor.rotation).toBe(Math.PI / 4);
@@ -1173,7 +1173,7 @@ describe('Action', () => {
     it('(with options) can be rotated to an angle by a certain time via CounterClockwise', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.actions.rotateBy({ angleRadiansOffset: Math.PI / 2, durationMs: 3000, rotationType: ex.RotationType.LongestPath });
+      actor.actions.rotateBy({ angleRadiansOffset: Math.PI / 2, duration: 3000, rotationType: ex.RotationType.LongestPath });
 
       scene.update(engine, 1000);
       expect(actor.rotation).toBe(ex.canonicalizeAngle((-1 * Math.PI) / 2));
@@ -1202,7 +1202,7 @@ describe('Action', () => {
     it('(with options) can be stopped', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.actions.rotateBy({ angleRadiansOffset: Math.PI / 2, durationMs: 2000 });
+      actor.actions.rotateBy({ angleRadiansOffset: Math.PI / 2, duration: 2000 });
 
       scene.update(engine, 1000);
       actor.actions.clearActions();
@@ -1225,7 +1225,7 @@ describe('Action', () => {
       expect(scaleTo.isComplete()).toBeFalse();
     });
     it('(with options) can be reset', () => {
-      const scaleTo = new ex.ScaleToWithOptions(actor, { scale: ex.vec(2, 2), durationMs: 500 });
+      const scaleTo = new ex.ScaleToWithOptions(actor, { scale: ex.vec(2, 2), duration: 500 });
       actor.actions.runAction(scaleTo);
       scene.update(engine, 1000);
       expect(scaleTo.isComplete()).toBeTrue();
@@ -1257,7 +1257,7 @@ describe('Action', () => {
       expect(actor.scale.x).toBe(1);
       expect(actor.scale.y).toBe(1);
 
-      actor.actions.scaleTo({ scale: ex.vec(2, 4), durationMs: 2000 });
+      actor.actions.scaleTo({ scale: ex.vec(2, 4), duration: 2000 });
       scene.update(engine, 1000);
 
       expect(actor.scale.x).toBe(1.5);
@@ -1352,7 +1352,7 @@ describe('Action', () => {
       expect(scaleBy.isComplete()).toBeFalse();
     });
     it('(with options) can be reset', () => {
-      const scaleBy = new ex.ScaleByWithOptions(actor, { scaleOffset: ex.vec(1, 1), durationMs: 500 });
+      const scaleBy = new ex.ScaleByWithOptions(actor, { scaleOffset: ex.vec(1, 1), duration: 500 });
       actor.actions.runAction(scaleBy);
       scene.update(engine, 1000);
       expect(scaleBy.isComplete()).toBeTrue();
@@ -1381,7 +1381,7 @@ describe('Action', () => {
       expect(actor.scale.x).toBe(1);
       expect(actor.scale.y).toBe(1);
 
-      actor.actions.scaleBy({ scaleOffset: ex.vec(4, 4), durationMs: 1000 });
+      actor.actions.scaleBy({ scaleOffset: ex.vec(4, 4), duration: 1000 });
 
       scene.update(engine, 500);
       expect(actor.scale.x).toBe(3);
@@ -1446,7 +1446,7 @@ describe('Action', () => {
       expect(actor.scale.x).toBe(1);
       expect(actor.scale.y).toBe(1);
 
-      actor.actions.scaleBy({ scaleOffset: ex.vec(4, 4), durationMs: 1250 });
+      actor.actions.scaleBy({ scaleOffset: ex.vec(4, 4), duration: 1250 });
 
       scene.update(engine, 500);
 

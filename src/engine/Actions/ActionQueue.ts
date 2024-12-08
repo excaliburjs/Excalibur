@@ -95,16 +95,16 @@ export class ActionQueue {
 
   /**
    * Update the queue which updates actions and handles completing actions
-   * @param elapsedMs
+   * @param elapsed
    */
-  public update(elapsedMs: number) {
+  public update(elapsed: number) {
     if (this._actions.length > 0) {
       if (this._currentAction !== this._actions[0]) {
         this._currentAction = this._actions[0];
         this._entity.emit('actionstart', new ActionStartEvent(this._currentAction, this._entity));
       }
 
-      this._currentAction.update(elapsedMs);
+      this._currentAction.update(elapsed);
 
       if (this._currentAction.isComplete(this._entity)) {
         this._entity.emit('actioncomplete', new ActionCompleteEvent(this._currentAction, this._entity));

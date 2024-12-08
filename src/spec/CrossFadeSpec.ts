@@ -69,7 +69,7 @@ describe('A CrossFade transition', () => {
     );
     engine.addScene('newScene', { scene, transitions: { in: sut } });
 
-    const goto = engine.goto('newScene', { destinationIn: sut });
+    const goto = engine.goToScene('newScene', { destinationIn: sut });
     clock.step(1);
     await nextMicroTask();
     clock.step(1);

@@ -50,7 +50,7 @@ import { Toaster } from './Util/Toaster';
 import { InputMapper } from './Input/InputMapper';
 import { GoToOptions, SceneMap, Director, StartOptions, SceneWithOptions, WithRoot } from './Director/Director';
 import { InputHost } from './Input/InputHost';
-import { DefaultPhysicsConfig, DeprecatedStaticToConfig, PhysicsConfig } from './Collision/PhysicsConfig';
+import { getDefaultPhysicsConfig, PhysicsConfig } from './Collision/PhysicsConfig';
 import { DeepRequired } from './Util/Required';
 import { Context, createContext, useContext } from './Context';
 import { DefaultGarbageCollectionOptions, GarbageCollectionOptions, GarbageCollector } from './GarbageCollector';
@@ -1039,14 +1039,12 @@ O|===|* >________________>\n\
 
     if (typeof options.physics === 'boolean') {
       this.physics = {
-        ...DefaultPhysicsConfig,
-        ...DeprecatedStaticToConfig(),
+        ...getDefaultPhysicsConfig(),
         enabled: options.physics
       };
     } else {
       this.physics = {
-        ...DefaultPhysicsConfig,
-        ...DeprecatedStaticToConfig()
+        ...getDefaultPhysicsConfig()
       };
       mergeDeep(this.physics, options.physics);
     }
@@ -1168,7 +1166,7 @@ O|===|* >________________>\n\
     this.canvas.parentNode.replaceChild(newCanvas, this.canvas);
     this.canvas = newCanvas;
 
-    const options = { ...this._originalOptions, antialiasing: this.getAntialiasing() };
+    const options = { ...this._originalOptions, antialiasing: this.screen.antialiasing };
     const displayMode = this._originalDisplayMode;
 
     // New graphics context
@@ -1425,47 +1423,10 @@ O|===|* >________________>\n\
    * ```
    * @param destinationScene
    * @param options
-   * @deprecated use goToScene, it now behaves the same as goto
-   */
-  public async goto(destinationScene: WithRoot<TKnownScenes>, options?: GoToOptions) {
-    await this.scope(async () => {
-      await this.director.goto(destinationScene, options);
-    });
-  }
-
-  /**
-   * Changes the current scene with optionally supplied:
-   * * Activation data
-   * * Transitions
-   * * Loaders
-   *
-   * Example:
-   * ```typescript
-   * game.goToScene('myScene', {
-   *   sceneActivationData: {any: 'thing at all'},
-   *   destinationIn: new FadeInOut({duration: 1000, direction: 'in'}),
-   *   sourceOut: new FadeInOut({duration: 1000, direction: 'out'}),
-   *   loader: MyLoader
-   * });
-   * ```
-   *
-   * Scenes are defined in the Engine constructor
-   * ```typescript
-   * const engine = new ex.Engine({
-      scenes: {...}
-    });
-   * ```
-   * Or by adding dynamically
-   *
-   * ```typescript
-   * engine.addScene('myScene', new ex.Scene());
-   * ```
-   * @param destinationScene
-   * @param options
    */
   public async goToScene<TData = undefined>(destinationScene: WithRoot<TKnownScenes>, options?: GoToOptions<TData>): Promise<void> {
     await this.scope(async () => {
-      await this.director.goto(destinationScene, options);
+      await this.director.goToScene(destinationScene, options);
     });
   }
 
@@ -1529,25 +1490,6 @@ O|===|* >________________>\n\
   }
 
   /**
-   * If supported by the browser, this will set the antialiasing flag on the
-   * canvas. Set this to `false` if you want a 'jagged' pixel art look to your
-   * image resources.
-   * @param isSmooth  Set smoothing to true or false
-   * @deprecated Set in engine constructor, will be removed in v0.30
-   */
-  public setAntialiasing(isSmooth: boolean) {
-    this.screen.antialiasing = isSmooth;
-  }
-
-  /**
-   * Return the current smoothing status of the canvas
-   * @deprecated Set in engine constructor, will be removed in v0.30
-   */
-  public getAntialiasing(): boolean {
-    return this.screen.antialiasing;
-  }
-
-  /**
    * Gets whether the actor is Initialized
    */
   public get isInitialized(): boolean {
@@ -1565,12 +1507,12 @@ O|===|* >________________>\n\
 
   /**
    * Updates the entire state of the game
-   * @param elapsedMs  Number of milliseconds elapsed since the last update.
+   * @param elapsed  Number of milliseconds elapsed since the last update.
    */
-  private _update(elapsedMs: number) {
+  private _update(elapsed: number) {
     if (this._isLoading) {
       // suspend updates until loading is finished
-      this._loader?.onUpdate(this, elapsedMs);
+      this._loader?.onUpdate(this, elapsed);
       // Update input listeners
       this.input.update();
       return;
@@ -1578,17 +1520,17 @@ O|===|* >________________>\n\
 
     // Publish preupdate events
     this.clock.__runScheduledCbs('preupdate');
-    this._preupdate(elapsedMs);
+    this._preupdate(elapsed);
 
     // process engine level events
-    this.currentScene.update(this, elapsedMs);
+    this.currentScene.update(this, elapsed);
 
     // Update graphics postprocessors
-    this.graphicsContext.updatePostProcessors(elapsedMs);
+    this.graphicsContext.updatePostProcessors(elapsed);
 
     // Publish update event
     this.clock.__runScheduledCbs('postupdate');
-    this._postupdate(elapsedMs);
+    this._postupdate(elapsed);
 
     // Update input listeners
     this.input.update();
@@ -1597,38 +1539,48 @@ O|===|* >________________>\n\
   /**
    * @internal
    */
-  public _preupdate(elapsedMs: number) {
-    this.emit('preupdate', new PreUpdateEvent(this, elapsedMs, this));
-    this.onPreUpdate(this, elapsedMs);
+  public _preupdate(elapsed: number) {
+    this.emit('preupdate', new PreUpdateEvent(this, elapsed, this));
+    this.onPreUpdate(this, elapsed);
   }
 
-  public onPreUpdate(engine: Engine, elapsedMs: number) {
+  /**
+   * Safe to override method
+   * @param engine The reference to the current game engine
+   * @param elapsed  The time elapsed since the last update in milliseconds
+   */
+  public onPreUpdate(engine: Engine, elapsed: number) {
     // Override me
   }
 
   /**
    * @internal
    */
-  public _postupdate(elapsedMs: number) {
-    this.emit('postupdate', new PostUpdateEvent(this, elapsedMs, this));
-    this.onPostUpdate(this, elapsedMs);
+  public _postupdate(elapsed: number) {
+    this.emit('postupdate', new PostUpdateEvent(this, elapsed, this));
+    this.onPostUpdate(this, elapsed);
   }
 
-  public onPostUpdate(engine: Engine, elapsedMs: number) {
+  /**
+   * Safe to override method
+   * @param engine The reference to the current game engine
+   * @param elapsed  The time elapsed since the last update in milliseconds
+   */
+  public onPostUpdate(engine: Engine, elapsed: number) {
     // Override me
   }
 
   /**
    * Draws the entire game
-   * @param elapsedMs  Number of milliseconds elapsed since the last draw.
+   * @param elapsed  Number of milliseconds elapsed since the last draw.
    */
-  private _draw(elapsedMs: number) {
+  private _draw(elapsed: number) {
     // Use scene background color if present, fallback to engine
     this.graphicsContext.backgroundColor = this.currentScene.backgroundColor ?? this.backgroundColor;
     this.graphicsContext.beginDrawLifecycle();
     this.graphicsContext.clear();
     this.clock.__runScheduledCbs('predraw');
-    this._predraw(this.graphicsContext, elapsedMs);
+    this._predraw(this.graphicsContext, elapsed);
 
     // Drawing nothing else while loading
     if (this._isLoading) {
@@ -1641,10 +1593,10 @@ O|===|* >________________>\n\
       return;
     }
 
-    this.currentScene.draw(this.graphicsContext, elapsedMs);
+    this.currentScene.draw(this.graphicsContext, elapsed);
 
     this.clock.__runScheduledCbs('postdraw');
-    this._postdraw(this.graphicsContext, elapsedMs);
+    this._postdraw(this.graphicsContext, elapsed);
 
     // Flush any pending drawings
     this.graphicsContext.flush();
@@ -1656,24 +1608,34 @@ O|===|* >________________>\n\
   /**
    * @internal
    */
-  public _predraw(ctx: ExcaliburGraphicsContext, elapsedMs: number) {
-    this.emit('predraw', new PreDrawEvent(ctx, elapsedMs, this));
-    this.onPreDraw(ctx, elapsedMs);
+  public _predraw(ctx: ExcaliburGraphicsContext, elapsed: number) {
+    this.emit('predraw', new PreDrawEvent(ctx, elapsed, this));
+    this.onPreDraw(ctx, elapsed);
   }
 
-  public onPreDraw(ctx: ExcaliburGraphicsContext, elapsedMs: number) {
+  /**
+   * Safe to override method to hook into pre draw
+   * @param ctx {@link ExcaliburGraphicsContext} for drawing
+   * @param elapsed  Number of milliseconds elapsed since the last draw.
+   */
+  public onPreDraw(ctx: ExcaliburGraphicsContext, elapsed: number) {
     // Override me
   }
 
   /**
    * @internal
    */
-  public _postdraw(ctx: ExcaliburGraphicsContext, elapsedMs: number) {
-    this.emit('postdraw', new PostDrawEvent(ctx, elapsedMs, this));
-    this.onPostDraw(ctx, elapsedMs);
+  public _postdraw(ctx: ExcaliburGraphicsContext, elapsed: number) {
+    this.emit('postdraw', new PostDrawEvent(ctx, elapsed, this));
+    this.onPostDraw(ctx, elapsed);
   }
 
-  public onPostDraw(ctx: ExcaliburGraphicsContext, elapsedMs: number) {
+  /**
+   * Safe to override method to hook into pre draw
+   * @param ctx {@link ExcaliburGraphicsContext} for drawing
+   * @param elapsed  Number of milliseconds elapsed since the last draw.
+   */
+  public onPostDraw(ctx: ExcaliburGraphicsContext, elapsed: number) {
     // Override me
   }
 

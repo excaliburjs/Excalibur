@@ -26,6 +26,8 @@ export * from './FontCache';
 export * from './SpriteFont';
 export * from './Canvas';
 export * from './NineSlice';
+export * from './TiledSprite';
+export * from './TiledAnimation';
 
 export * from './Context/ExcaliburGraphicsContext';
 export * from './Context/ExcaliburGraphicsContext2DCanvas';

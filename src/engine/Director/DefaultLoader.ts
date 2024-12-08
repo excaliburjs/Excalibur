@@ -149,10 +149,10 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
   /**
    * Optionally override the onUpdate
    * @param engine
-   * @param elapsedMilliseconds
+   * @param elapsed
    */
-  onUpdate(engine: Engine, elapsedMilliseconds: number): void {
-    this._totalTimeMs += elapsedMilliseconds;
+  onUpdate(engine: Engine, elapsed: number): void {
+    this._totalTimeMs += elapsed;
     // override me
   }
 

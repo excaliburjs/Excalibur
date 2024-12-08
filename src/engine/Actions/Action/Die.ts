@@ -11,7 +11,7 @@ export class Die implements Action {
     this._entity = entity;
   }
 
-  public update(elapsedMs: number): void {
+  public update(elapsed: number): void {
     this._entity.get(ActionsComponent).clearActions();
     this._entity.kill();
     this._stopped = true;

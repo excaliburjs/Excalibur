@@ -4,7 +4,7 @@ export interface State<TData> {
   onEnter?: (context: { from: string; eventData?: any; data: TData }) => boolean | void;
   onState?: () => any;
   onExit?: (context: { to: string; data: TData }) => boolean | void;
-  onUpdate?: (data: TData, elapsedMs: number) => any;
+  onUpdate?: (data: TData, elapsed: number) => any;
 }
 
 export interface StateMachineDescription<TData = any> {
@@ -90,9 +90,9 @@ export class StateMachine<TPossibleStates extends string, TData> {
     return false;
   }
 
-  update(elapsedMs: number) {
+  update(elapsed: number) {
     if (this.currentState.onUpdate) {
-      this.currentState.onUpdate(this.data, elapsedMs);
+      this.currentState.onUpdate(this.data, elapsed);
     }
   }
 

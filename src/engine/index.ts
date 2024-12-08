@@ -17,14 +17,12 @@ export * from './Actor';
 export * from './Math/index';
 export * from './Camera';
 export * from './Debug/index';
-export * from './EventDispatcher';
 export * from './EventEmitter';
 export * from './Events/MediaEvents';
 export * from './Events';
 export * from './Label';
 export { FontStyle, FontUnit, TextAlign, BaseAlign } from './Graphics/FontCommon';
 export * from './Particles/index';
-export * from './Collision/Physics';
 export * from './Scene';
 
 export * from './TileMap/index';

@@ -20,7 +20,7 @@ export const UsingActions: StoryObj = {
 
     await game.start(loader);
 
-    game.setAntialiasing(false);
+    game.screen.antialiasing = false;
 
     // Zoom in a bit
     game.currentScene.camera.pos.setTo(game.halfDrawWidth, game.halfDrawHeight);
@@ -53,7 +53,7 @@ export const Fade: StoryObj = {
 
     await game.start(loader);
 
-    game.setAntialiasing(false);
+    game.screen.antialiasing = false;
 
     // Zoom in a bit
     game.currentScene.camera.pos.setTo(game.halfDrawWidth, game.halfDrawHeight);
@@ -99,7 +99,7 @@ export const RotateTo: StoryObj = {
 
     await game.start(loader);
 
-    game.setAntialiasing(false);
+    game.screen.antialiasing = false;
 
     // Zoom in a bit
     game.currentScene.camera.pos.setTo(game.halfDrawWidth, game.halfDrawHeight);
@@ -156,7 +156,7 @@ export const RotateBy: StoryObj = {
 
     await game.start(loader);
 
-    game.setAntialiasing(false);
+    game.screen.antialiasing = false;
 
     // Zoom in a bit
     game.currentScene.camera.pos.setTo(game.halfDrawWidth, game.halfDrawHeight);
@@ -212,7 +212,7 @@ export const Move: StoryObj = {
 
     await game.start(loader);
 
-    game.setAntialiasing(false);
+    game.screen.antialiasing = false;
 
     // Zoom in a bit
     game.currentScene.camera.pos.setTo(game.halfDrawWidth, game.halfDrawHeight);
@@ -264,7 +264,7 @@ export const Ease: StoryObj = {
 
     await game.start(loader);
 
-    game.setAntialiasing(false);
+    game.screen.antialiasing = false;
 
     // Zoom in a bit
     game.currentScene.camera.pos.setTo(game.halfDrawWidth, game.halfDrawHeight);
@@ -316,7 +316,7 @@ export const Scale: StoryObj = {
 
     await game.start(loader);
 
-    game.setAntialiasing(false);
+    game.screen.antialiasing = false;
 
     // Zoom in a bit
     game.currentScene.camera.pos.setTo(game.halfDrawWidth, game.halfDrawHeight);

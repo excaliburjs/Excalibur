@@ -13,14 +13,14 @@ export interface ScaleToOptions {
   /**
    * Duration to take in milliseconds
    */
-  durationMs: number;
+  duration: number;
 }
 
 /**
  *
  */
 export function isScaleToOptions(x: any): x is ScaleToOptions {
-  return typeof x.scale === 'object' && typeof x.durationMs === 'number';
+  return typeof x.scale === 'object' && typeof x.duration === 'number';
 }
 
 export class ScaleToWithOptions implements Action {
@@ -43,20 +43,20 @@ export class ScaleToWithOptions implements Action {
     if (!this._tx) {
       throw new Error(`Entity ${entity.name} has no TransformComponent, can only ScaleTo on Entities with TransformComponents.`);
     }
-    this._durationMs = options.durationMs;
+    this._durationMs = options.duration;
     this._currentMs = this._durationMs;
   }
-  update(elapsedMs: number): void {
+  update(elapsed: number): void {
     if (!this._started) {
       this._startScale = this._tx.scale;
       this._started = true;
     }
-    this._currentMs -= elapsedMs;
+    this._currentMs -= elapsed;
     const t = clamp(remap(0, this._durationMs, 0, 1, this._durationMs - this._currentMs), 0, 1);
     const newScale = lerpVector(this._startScale, this._endScale, t);
     const currentScale = this._tx.scale;
 
-    const sx = newScale.sub(currentScale).scale(1 / (elapsedMs / 1000));
+    const sx = newScale.sub(currentScale).scale(1 / (elapsed / 1000));
     this._motion.scaleFactor = sx;
 
     if (this.isComplete()) {
@@ -106,7 +106,7 @@ export class ScaleTo implements Action {
     this._speedY = speedY;
   }
 
-  public update(elapsedMs: number): void {
+  public update(elapsed: number): void {
     if (!this._started) {
       this._started = true;
       this._startX = this._tx.scale.x;

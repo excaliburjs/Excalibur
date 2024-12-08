@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
-import { DefaultPhysicsConfig } from '../engine/Collision/PhysicsConfig';
+import { getDefaultPhysicsConfig } from '../engine/Collision/PhysicsConfig';
 
 describe('A Collision', () => {
   let actor1: ex.Actor = null;
@@ -56,7 +56,7 @@ describe('A Collision', () => {
 
   it('order of actors collision should not matter when an Active and Active Collision', () => {
     const collisionTree = new ex.DynamicTreeCollisionProcessor({
-      ...DefaultPhysicsConfig
+      ...getDefaultPhysicsConfig()
     });
 
     actor1.body.collisionType = ex.CollisionType.Active;
@@ -75,7 +75,7 @@ describe('A Collision', () => {
 
   it('order of actors collision should not matter when an Active and Passive Collision', () => {
     const collisionTree = new ex.DynamicTreeCollisionProcessor({
-      ...DefaultPhysicsConfig
+      ...getDefaultPhysicsConfig()
     });
 
     actor1.body.collisionType = ex.CollisionType.Active;
