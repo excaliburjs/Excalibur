@@ -382,7 +382,7 @@ export class Vector implements Clonable<Vector> {
   /**
    * Returns the difference in radians between the angle of this vector and given angle,
    * using the given rotation type.
-   * @param angle in radians to which the vector has to be rotated, using {@apilink rotate} 
+   * @param angle in radians to which the vector has to be rotated, using {@apilink rotate}
    * @param rotationType what {@apilink RotationType} to use for the rotation
    * @returns the angle by which the vector needs to be rotated to match the given angle
    */
@@ -394,7 +394,7 @@ export class Vector implements Clonable<Vector> {
     if (endAngleRadians > startAngleRadians) {
       rotationClockwise = endAngleRadians - startAngleRadians;
     } else {
-      rotationClockwise = ((TwoPI - startAngleRadians) + endAngleRadians) % TwoPI;
+      rotationClockwise = (TwoPI - startAngleRadians + endAngleRadians) % TwoPI;
     }
     rotationAntiClockwise = (rotationClockwise - TwoPI) % TwoPI;
     switch (rotationType) {
@@ -418,8 +418,8 @@ export class Vector implements Clonable<Vector> {
   }
 
   /**
-   * Rotates the current vector around a point by a certain angle in radians. 
-   * Positive angle means rotation clockwise. 
+   * Rotates the current vector around a point by a certain angle in radians.
+   * Positive angle means rotation clockwise.
    */
   public rotate(angle: number, anchor?: Vector, dest?: Vector): Vector {
     const result = dest || new Vector(0, 0);
