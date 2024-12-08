@@ -22,6 +22,13 @@ var cardSpriteSheet = ex.SpriteSheet.fromImageSource({
 });
 
 cardSpriteSheet.sprites.forEach((s) => (s.scale = ex.vec(2, 2)));
+
+var tilingCard = cardSpriteSheet.getTiledSprite(0, 0, {
+  width: 300,
+  height: 300,
+  scale: ex.vec(2, 2)
+});
+
 var cardAnimation = ex.Animation.fromSpriteSheet(cardSpriteSheet, ex.range(0, 14 * 4), 200);
 
 var groundImage = new ex.ImageSource('./ground.png');
@@ -47,9 +54,17 @@ var tiledGroundSprite = ex.TiledSprite.fromSprite(groundSprite, {
   }
 });
 
+var tiledCardFromCtor = new ex.TiledSprite({
+  image: cards,
+  sourceView: { x: 11, y: 2, width: 42, height: 60 },
+  scale: ex.vec(0.5, 0.5),
+  width: 200,
+  height: 200
+});
+
 var tilingAnimation = new ex.TiledAnimation({
   animation: cardAnimation,
-  sourceView: { x: 20, y: 20 },
+  // sourceView: { x: 20, y: 20 },
   width: 200,
   height: 200,
   wrapping: ex.ImageWrapping.Repeat
@@ -58,6 +73,18 @@ var tilingAnimation = new ex.TiledAnimation({
 // tilingAnimation.sourceView = {x: 0, y: 0};
 
 game.start(loader).then(() => {
+  var otherCardActor = new ex.Actor({
+    pos: ex.vec(200, 200)
+  });
+  otherCardActor.graphics.use(tilingCard);
+  game.add(otherCardActor);
+
+  var otherOtherCardActor = new ex.Actor({
+    pos: ex.vec(600, 200)
+  });
+  otherOtherCardActor.graphics.use(tiledCardFromCtor);
+  game.add(otherOtherCardActor);
+
   var cardActor = new ex.Actor({
     pos: ex.vec(400, 400)
   });

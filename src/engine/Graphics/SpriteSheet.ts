@@ -1,6 +1,7 @@
 import { ImageSource } from './ImageSource';
 import { SourceView, Sprite } from './Sprite';
 import { GraphicOptions } from './Graphic';
+import { TiledSprite, TiledSpriteOptions } from './TiledSprite';
 
 /**
  * Specify sprite sheet spacing options, useful if your sprites are not tightly packed
@@ -112,10 +113,10 @@ export class SpriteSheet {
    */
   public getSprite(x: number, y: number, options?: GetSpriteOptions): Sprite {
     if (x >= this.columns || x < 0) {
-      throw Error(`No sprite exists in the SpriteSheet at (${x}, ${y}), x: ${x} should be between 0 and ${this.columns - 1}`);
+      throw Error(`No sprite exists in the SpriteSheet at (${x}, ${y}), x: ${x} should be between 0 and ${this.columns - 1} columns`);
     }
     if (y >= this.rows || y < 0) {
-      throw Error(`No sprite exists in the SpriteSheet at (${x}, ${y}), y: ${y} should be between 0 and ${this.rows - 1}`);
+      throw Error(`No sprite exists in the SpriteSheet at (${x}, ${y}), y: ${y} should be between 0 and ${this.rows - 1} rows`);
     }
     const spriteIndex = x + y * this.columns;
     const sprite = this.sprites[spriteIndex];
@@ -135,7 +136,43 @@ export class SpriteSheet {
       }
       return sprite;
     }
-    throw Error(`Invalid sprite coordinates (${x}, ${y}`);
+    throw Error(`Invalid sprite coordinates (${x}, ${y})`);
+  }
+
+  /**
+   * Find a sprite by their x/y integer coordinates in the SpriteSheet and configures tiling to repeat by default,
+   * for example `getTiledSprite(0, 0)` is the {@apilink TiledSprite} in the top-left
+   * and `getTiledSprite(1, 0)` is the sprite one to the right.
+   *
+   * Example:
+   *
+   * ```typescript
+   * spriteSheet.getTiledSprite(1, 0, {
+   * width: game.screen.width,
+   * height: 200,
+   * wrapping: {
+   * x: ex.ImageWrapping.Repeat,
+   * y: ex.ImageWrapping.Clamp
+   * }
+   * });
+   * ```
+   * @param x
+   * @param y
+   * @param options
+   */
+  public getTiledSprite(x: number, y: number, options?: Partial<Omit<TiledSpriteOptions & GraphicOptions, 'image'>>): TiledSprite {
+    if (x >= this.columns || x < 0) {
+      throw Error(`No sprite exists in the SpriteSheet at (${x}, ${y}), x: ${x} should be between 0 and ${this.columns - 1} columns`);
+    }
+    if (y >= this.rows || y < 0) {
+      throw Error(`No sprite exists in the SpriteSheet at (${x}, ${y}), y: ${y} should be between 0 and ${this.rows - 1} rows`);
+    }
+    const spriteIndex = x + y * this.columns;
+    const sprite = this.sprites[spriteIndex];
+    if (sprite) {
+      return TiledSprite.fromSprite(sprite, options);
+    }
+    throw Error(`Invalid sprite coordinates (${x}, ${y})`);
   }
 
   /**

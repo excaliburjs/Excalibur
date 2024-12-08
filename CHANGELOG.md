@@ -83,6 +83,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added `ex.SpriteSheet.getTiledSprite(...)` to help pulling tiling sprites out of a sprite sheet
 - Alias the `engine.screen.drawWidth/drawHeight` with `engine.screen.width/height`;
 - Added convenience types `ex.TiledSprite` and `ex.TiledAnimation` for Tiling Sprites and Animations
   ```typescript

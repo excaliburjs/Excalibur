@@ -1,5 +1,6 @@
 import { Future } from '../Util/Future';
 import { ImageFiltering } from './Filtering';
+import { GraphicOptions } from './Graphic';
 import { ImageSource, ImageWrapConfiguration } from './ImageSource';
 import { SourceView, Sprite } from './Sprite';
 import { ImageWrapping } from './Wrapping';
@@ -31,12 +32,19 @@ export interface TiledSpriteOptions {
 export class TiledSprite extends Sprite {
   private _ready = new Future<void>();
   public ready = this._ready.promise;
-  private _options: TiledSpriteOptions;
-  constructor(options: TiledSpriteOptions) {
+  private _options: TiledSpriteOptions & GraphicOptions;
+  constructor(options: TiledSpriteOptions & GraphicOptions) {
     super({
       image: options.image,
       sourceView: options.sourceView,
-      destSize: { width: options.width, height: options.height }
+      destSize: { width: options.width, height: options.height },
+      flipHorizontal: options.flipHorizontal,
+      flipVertical: options.flipVertical,
+      rotation: options.rotation,
+      scale: options.scale,
+      opacity: options.opacity,
+      tint: options.tint,
+      origin: options.origin
     });
     this._options = options;
 
@@ -47,8 +55,9 @@ export class TiledSprite extends Sprite {
     }
   }
 
-  public static fromSprite(sprite: Sprite, options?: Partial<Omit<TiledSpriteOptions, 'image'>>): TiledSprite {
+  public static fromSprite(sprite: Sprite, options?: Partial<Omit<TiledSpriteOptions & GraphicOptions, 'image'>>): TiledSprite {
     return new TiledSprite({
+      sourceView: { ...sprite.sourceView },
       width: sprite.width,
       height: sprite.height,
       ...options,

@@ -91,4 +91,35 @@ describe('A TiledSprite', () => {
 
     await expectAsync(canvasElement).toEqualImage('src/spec/images/TiledSpriteSpec/tiled.png');
   });
+
+  it('can grab a tiled sprite from a sprite sheet', async () => {
+    const cardsImage = new ex.ImageSource('src/spec/images/TiledAnimationSpec/kenny-cards.png');
+    await cardsImage.load();
+    const cardSpriteSheet = ex.SpriteSheet.fromImageSource({
+      image: cardsImage,
+      grid: {
+        rows: 4,
+        columns: 14,
+        spriteWidth: 42,
+        spriteHeight: 60
+      },
+      spacing: {
+        originOffset: { x: 11, y: 2 },
+        margin: { x: 23, y: 5 }
+      }
+    });
+
+    const sut = cardSpriteSheet.getTiledSprite(0, 0, {
+      width: 300,
+      height: 300,
+      scale: ex.vec(2, 2)
+    });
+    await sut.ready;
+
+    ctx.clear();
+    sut.draw(ctx, 0, 0);
+    ctx.flush();
+
+    await expectAsync(canvasElement).toEqualImage('src/spec/images/TiledSpriteSpec/from-spritesheet.png');
+  });
 });
