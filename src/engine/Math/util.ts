@@ -43,12 +43,12 @@ export function approximatelyEqual(val1: number, val2: number, tolerance: number
 }
 
 /**
- * Convert an angle to be the equivalent in the range [0, 2PI]
+ * Convert an angle to be the equivalent in the range [0, 2PI)
  */
 export function canonicalizeAngle(angle: number): number {
   let tmpAngle = angle;
-  if (angle > TwoPI) {
-    while (tmpAngle > TwoPI) {
+  if (angle >= TwoPI) {
+    while (tmpAngle >= TwoPI) {
       tmpAngle -= TwoPI;
     }
   }

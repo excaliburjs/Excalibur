@@ -1,5 +1,6 @@
 import { Clonable } from '../Interfaces/Clonable';
-import { canonicalizeAngle, clamp } from './util';
+import { RotationType } from './rotation-type';
+import { canonicalizeAngle, clamp, TwoPI } from './util';
 
 /**
  * A 2D vector on a plane.
@@ -372,14 +373,53 @@ export class Vector implements Clonable<Vector> {
   }
 
   /**
-   * Returns the angle of this vector.
+   * Returns the angle of this vector, in range [0, 2*PI)
    */
   public toAngle(): number {
     return canonicalizeAngle(Math.atan2(this.y, this.x));
   }
 
   /**
+   * Returns the difference in radians between the angle of this vector and given angle,
+   * using the given rotation type.
+   * @param angle in radians to which the vector has to be rotated, using {@apilink rotate}
+   * @param rotationType what {@apilink RotationType} to use for the rotation
+   * @returns the angle by which the vector needs to be rotated to match the given angle
+   */
+  public angleBetween(angle: number, rotationType: RotationType): number {
+    const startAngleRadians = this.toAngle();
+    const endAngleRadians = canonicalizeAngle(angle);
+    let rotationClockwise = 0;
+    let rotationAntiClockwise = 0;
+    if (endAngleRadians > startAngleRadians) {
+      rotationClockwise = endAngleRadians - startAngleRadians;
+    } else {
+      rotationClockwise = (TwoPI - startAngleRadians + endAngleRadians) % TwoPI;
+    }
+    rotationAntiClockwise = (rotationClockwise - TwoPI) % TwoPI;
+    switch (rotationType) {
+      case RotationType.ShortestPath:
+        if (Math.abs(rotationClockwise) < Math.abs(rotationAntiClockwise)) {
+          return rotationClockwise;
+        } else {
+          return rotationAntiClockwise;
+        }
+      case RotationType.LongestPath:
+        if (Math.abs(rotationClockwise) > Math.abs(rotationAntiClockwise)) {
+          return rotationClockwise;
+        } else {
+          return rotationAntiClockwise;
+        }
+      case RotationType.Clockwise:
+        return rotationClockwise;
+      case RotationType.CounterClockwise:
+        return rotationAntiClockwise;
+    }
+  }
+
+  /**
    * Rotates the current vector around a point by a certain angle in radians.
+   * Positive angle means rotation clockwise.
    */
   public rotate(angle: number, anchor?: Vector, dest?: Vector): Vector {
     const result = dest || new Vector(0, 0);

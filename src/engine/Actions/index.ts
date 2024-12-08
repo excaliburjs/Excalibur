@@ -1,7 +1,6 @@
 export * from './ActionContext';
 export * from './ActionQueue';
 export * from './Actionable';
-export * from './RotationType';
 
 export * from './Action';
 export * from './Action/ActionSequence';

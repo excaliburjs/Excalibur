@@ -1,5 +1,5 @@
 import { Action, nextActionId } from '../Action';
-import { RotationType } from '../RotationType';
+import { RotationType } from '../../Math';
 import { TransformComponent } from '../../EntityComponentSystem/Components/TransformComponent';
 import { MotionComponent } from '../../EntityComponentSystem/Components/MotionComponent';
 import { Entity } from '../../EntityComponentSystem/Entity';
