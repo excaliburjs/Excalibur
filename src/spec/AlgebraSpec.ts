@@ -125,6 +125,59 @@ describe('Vectors', () => {
     expect(ex.Vector.distance(v1, v2)).toBe(20);
   });
 
+  describe('angleBetween', () => {
+    type TestCaseParameters = {
+      description: string;
+      vector: ex.Vector;
+      angle: number;
+      rotationType: ex.RotationType;
+      expected: number;
+    };
+    const tc = (
+      description: string,
+      vector: ex.Vector,
+      angle: number,
+      rotationType: ex.RotationType,
+      expected: number
+    ): TestCaseParameters => ({
+      vector,
+      description,
+      angle,
+      rotationType,
+      expected
+    });
+    const description = (tc: TestCaseParameters) =>
+      `${tc.description}: ${tc.vector.toAngle()} -> ${ex.canonicalizeAngle(tc.angle)} ${tc.rotationType} expected: ${tc.expected}`;
+    const downRight = ex.vec(1, 1);
+    const downLeft = ex.vec(-1, 1);
+    const upLeft = ex.vec(-1, -1);
+    const upRight = ex.vec(1, -1);
+    const downRightAngle = downRight.toAngle();
+    const downLeftAngle = downLeft.toAngle();
+    const upLeftAngle = upLeft.toAngle();
+    const upRightAngle = upRight.toAngle();
+
+    const testCases: TestCaseParameters[] = [
+      tc('returns 0 when the new angle is the same as vectors angle', ex.Vector.Right, 0, ex.RotationType.Clockwise, 0),
+      tc('knows that 2*PI is same as 0', ex.Vector.Right, ex.TwoPI, ex.RotationType.Clockwise, 0),
+      tc('rotates from I to IV quadrant', upRight, downRightAngle, ex.RotationType.Clockwise, Math.PI / 2),
+      tc('rotates from I to IV quadrant the shortest way', upRight, downRightAngle, ex.RotationType.ShortestPath, Math.PI / 2),
+      tc('rotates from I to IV quadrant counterclockwise', upRight, downRightAngle, ex.RotationType.CounterClockwise, -(3 * Math.PI) / 2),
+      tc('rotates from I to IV quadrant the longest way', upRight, downRightAngle, ex.RotationType.LongestPath, -(3 * Math.PI) / 2),
+      tc('rotates from I to II quadrant', upRight, upLeftAngle, ex.RotationType.Clockwise, (3 * Math.PI) / 2),
+      tc('rotates from I to II quadrant the shortest way', upRight, upLeftAngle, ex.RotationType.ShortestPath, -Math.PI / 2),
+      tc('rotates from I to II quadrant counterclockwise', upRight, upLeftAngle, ex.RotationType.CounterClockwise, -Math.PI / 2),
+      tc('rotates from I to II quadrant the longest way', upRight, upLeftAngle, ex.RotationType.LongestPath, (3 * Math.PI) / 2)
+    ];
+
+    testCases.forEach((testCase) => {
+      it(description(testCase), () => {
+        const result = testCase.vector.angleBetween(testCase.angle, testCase.rotationType);
+        expect(result).toBeCloseTo(testCase.expected);
+      });
+    });
+  });
+
   it('can be normalized to a length of 1', () => {
     const v = new ex.Vector(10, 0);
 
@@ -206,6 +259,12 @@ describe('Vectors', () => {
     const v = new ex.Vector(1, 0);
     const rotated = v.rotate(Math.PI);
     expect(rotated.equals(new ex.Vector(-1, 0))).toBeTruthy();
+  });
+
+  it('can be rotated by positive angle clockwise', () => {
+    const v = ex.Vector.Up;
+    const rotated = v.rotate(Math.PI / 2);
+    expect(rotated.equals(ex.Vector.Right)).toBeTruthy();
   });
 
   it('can be rotated by an angle about a point', () => {

@@ -231,6 +231,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - New `ex.SparseHashGridCollisionProcessor` which is a simpler (and faster) implementation for broadphase pair generation. This works by bucketing colliders into uniform sized square buckets and using that to generate pairs.
 - CollisionContact can be biased toward a collider by using `contact.bias(collider)`. This adjusts the contact so that the given collider is colliderA, and is helpful if you 
 are doing mtv adjustments during precollision.
+- `angleBetween` medhod added to Vector class, to find the angle for which a vector needs to be rotated to match some given angle:
+  ```typescript
+    const point = vec(100, 100)
+    const destinationDirection = Math.PI / 4
+    const angleToRotate = point.angleBetween(destinationDirection, RotationType.ShortestPath)
+    expect(point.rotate(angleToRotate).toAngle()).toEqual(destinationDirection)
+  ```
 
 ### Fixed
 
@@ -266,6 +273,8 @@ are doing mtv adjustments during precollision.
 - Fixed issue where removing and re-adding an actor would cause subsequent children added not to function properly with regards to their parent/child transforms
 - Fixed issue where `ex.GraphicsSystem` would crash if a parent entity did not have a `ex.TransformComponent`
 - Fixed a bug in the new physics config merging, and re-arranged to better match the existing pattern
+- Fixed a bug in `canonicalizeAngle`, don't allow the result to be 2PI, now it will be in semi-open range [0..2PI)
+- Removed circular dependency between `Actions` and `Math` packages by moving `RotationType` into `Math` package. 
 
 ### Updates
 

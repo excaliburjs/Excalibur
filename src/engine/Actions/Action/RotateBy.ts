@@ -1,10 +1,9 @@
 import { Action, nextActionId } from '../Action';
-import { RotationType } from '../RotationType';
 import { TransformComponent } from '../../EntityComponentSystem/Components/TransformComponent';
 import { MotionComponent } from '../../EntityComponentSystem/Components/MotionComponent';
 import { Entity } from '../../EntityComponentSystem/Entity';
 import { canonicalizeAngle, clamp, TwoPI } from '../../Math/util';
-import { lerpAngle, remap } from '../../Math';
+import { lerpAngle, remap, RotationType } from '../../Math';
 
 export interface RotateByOptions {
   /**
