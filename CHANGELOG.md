@@ -7,6 +7,36 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+-
+
+### Deprecated
+
+-
+
+### Added
+
+-
+
+### Fixed
+
+-
+
+### Updates
+
+-
+
+### Changed
+
+-
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [v0.30.0]
+
+### Breaking Changes
+
 - `ex.Engine.goto(...)` removed, use `ex.Engine.goToScene(...)`
 - `ex.GraphicsComponent.show(...)` removed, use `ex.GraphicsComponent.use(...)`
 - `ex.EventDispatcher` removed, use `ex.EventEmitter` instead.
@@ -315,10 +345,6 @@ are doing mtv adjustments during precollision.
   * Resource API subtree
   * Graphics API subtree
   * TileMap API subtree
-
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
 ## [v0.29.3]
 
