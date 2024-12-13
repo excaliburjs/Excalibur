@@ -1,0 +1,90 @@
+---
+title: Step 5 - Plumbing the Pipes
+slug: /step-5-plumbing-pipes
+section: Tutorial
+---
+
+# Step 5 - Plumbing the Pipes
+
+Now we want to make those classic "mario" style pipe obstacles you see in Flappy Bird.
+
+First let's create a new `pipe.ts` file, pipes can either be on top of the screen or the bottom so we adjust our anchor accordingly.
+
+Notice that the `Pipe` will be moving to the left 200 pixels per second relative to our `Bird`.
+
+Then once offscreen we clean up after ourselves and remove the pipe with `.kill()`
+
+```typescript
+// pipe.ts
+import * as ex from 'excalibur';
+
+export class Pipe extends ex.Actor {
+    constructor(pos: ex.Vector, public type: 'top' | 'bottom') {
+        super({
+            pos,
+            width: 32,
+            height: 1000,
+            anchor: type === 'bottom' ?
+                ex.vec(0, 0) : // bottom anchor from top left
+                ex.vec(0, 1), // top anchor from the bottom left
+            color: ex.Color.Green,
+            vel: ex.vec(-200, 0),
+            z: -1 // position the pipe under everything
+        })
+
+        this.on('exitviewport', () => this.kill());
+    }
+}
+```
+
+To make the `Bird` "collide" with our pipes we need to adjust our `onCollisionStart` to account for `Pipe`.
+
+```typescript
+// bird.ts
+import * as ex from 'excalibur';
+import { Ground } from './ground';
+import { Pipe } from './pipe';
+
+export class Bird extends ex.Actor {
+    
+    ...
+
+    override onCollisionStart(_self: ex.Collider, other: ex.Collider): void {
+        if (other.owner instanceof Ground ||
+            other.owner instanceof Pipe
+        ) {
+            this.stop();
+        }
+    }
+
+    ...
+
+}
+```
+
+Let's add the `Pipe` into the default scene to test it out.
+
+```typescript
+// main.ts
+import * as ex from 'excalibur';
+import { Bird } from './bird';
+import { Ground } from './ground';
+import { Pipe } from './pipe';
+
+const game = new ex.Engine({...});
+
+const bird = new Bird();
+game.add(bird);
+
+// drawHeight is the height of the visible drawing surface in game pixels
+const ground = new Ground(ex.vec(0, engine.screen.drawHeight - 64));
+game.add(ground);
+
+const topPipe = new Pipe(ex.vec(game.screen.drawWidth, 150), 'top');
+game.add(topPipe);
+
+const bottomPipe = new Pipe(ex.vec(game.screen.drawWidth, 300), 'bottom');
+game.add(bottomPipe);
+
+game.start();
+```

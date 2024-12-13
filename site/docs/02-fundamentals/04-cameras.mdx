@@ -17,6 +17,13 @@ If a camera is following an [Actor](/docs/actors), it will ensure the actor is a
 center of the screen. You can use [[Camera.x]] and [[Camera.y]] instead if you wish to
 offset the focal point.
 
+### Camera zooming
+
+To adjust the zoom for your game, use [[Camera.zoom]] which will scale the
+game accordingly. You can pass a duration to transition between zoom levels.
+
+This can be useful as a way to scale up your game.
+
 ### Camera strategies
 
 Cameras can implement a number of strategies to track, follow, or exhibit custom behavior in relation to a target. A common reason to use a
@@ -110,7 +117,4 @@ const easinQuad = ex.EasingFunctions.EaseInQuad;
 
 ```
 
-### Camera zooming
 
-To adjust the zoom for your game, use [[Camera.zoom]] which will scale the
-game accordingly. You can pass a duration to transition between zoom levels.

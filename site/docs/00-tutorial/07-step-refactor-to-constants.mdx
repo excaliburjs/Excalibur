@@ -1,0 +1,30 @@
+---
+title: Step 7 - Refactor to Config Constants
+slug: /step-7-refactor-to-constants
+section: Tutorial
+---
+
+# Step 7 - Refactor to Config Constants
+
+Using magic numbers in your code can start to get tricky as your code base grows. We recommend creating a `config.ts` file to hold these numbers with names that mean something to you and your game.
+
+We go through and move all our numbers into this file. 
+
+```typescript
+// config.ts
+import * as ex from 'excalibur';
+
+export const Config = {
+    BirdStartPos: ex.vec(200, 300),
+    BirdAcceleration: 1200,
+    BirdJumpVelocity: -800,
+    BirdMinVelocity: -500,
+    BirdMaxVelocity: 500, 
+    PipeSpeed: 200,
+    PipeInterval: 1500,
+    PipeGap: 150
+} as const;
+
+```
+
+You might have noticed an `as const`. This tells TypeScript that this `Config` object will never change at runtime and you can count on the keys being there which is useful for configuration.

@@ -1,0 +1,112 @@
+---
+title: Step 10 - Game Over
+slug: /step-10-game-over
+section: Tutorial
+---
+
+# Step 10 - Game Over
+
+For our game, when the bird collides with the ground, pipe, or goes offscreen we want to trigger a game over. To accomplish this we'll setup a `start()`, `stop()` and `reset()` on the various components of our game so that we can "freeze" things in place on a game over.
+
+We implement a `showStartInstructions()` method that shows our start game label and starts the game as soon as a pointer is tapped.
+
+We'll show the start instructions at the beginning and on a game over.
+
+
+```typescript
+// level.ts
+export class Level extends ex.Scene {
+    ...
+
+    startGameLabel = new ex.Label({
+        text: 'Tap to Start',
+        x: 200,
+        y: 200,
+        z: 2,
+        font: new ex.Font({
+            size: 30,
+            color: ex.Color.White,
+            textAlign: ex.TextAlign.Center
+        })
+    });
+
+    override onInitialize(engine: ex.Engine): void {
+        ...
+        this.showStartInstructions();
+    }
+
+    showStartInstructions() {
+        this.startGameLabel.graphics.visible = true;
+        this.engine.input.pointers.once('down', () => {
+            this.reset();
+
+            this.startGameLabel.graphics.visible = false;
+            this.bird.start();
+            this.pipeFactory.start();
+            this.ground.start();
+        });
+    }
+
+    reset() {
+        this.bird.reset();
+        this.pipeFactory.reset();
+        this.score = 0;
+        this.scoreLabel.text = `Score: ${this.score}`;
+    }
+
+    triggerGameOver() {
+        this.pipeFactory.stop();
+        this.bird.stop();
+        this.ground.stop();
+        this.showStartInstructions();
+    }
+}
+```
+
+In our `Bird` we want to trigger this game over when it leaves the screen and when it collides with a `Pipe` or the `Ground`
+
+```typescript
+// bird.ts
+export class Bird extends ex.Actor {
+    playing = false;
+    ...
+
+    override onInitialize(): void {
+        ...
+        this.on('exitviewport', () => {
+            this.level.triggerGameOver();
+        });
+    }
+
+    override onPostUpdate(engine: ex.Engine): void {
+        if (!this.playing) return;
+        ...
+    }
+
+    start() {
+        this.playing = true;
+        this.pos = Config.BirdStartPos; // starting position
+        this.acc = ex.vec(0, Config.BirdAcceleration); // pixels per second per second
+    }
+
+    reset() {
+        this.pos = Config.BirdStartPos; // starting position
+        this.stop();
+    }
+
+    stop() {
+        this.playing = false;
+        this.vel = ex.vec(0, 0);
+        this.acc = ex.vec(0, 0);
+    }
+
+    override onCollisionStart(_self: ex.Collider, other: ex.Collider): void {
+        if (other.owner instanceof Pipe ||
+            other.owner instanceof Ground
+        ) {
+            this.level.triggerGameOver();
+        }
+    }
+}
+
+```

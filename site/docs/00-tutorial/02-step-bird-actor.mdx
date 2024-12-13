@@ -1,0 +1,51 @@
+---
+title: Step 2 - Adding a Bird Actor
+slug: /step-2-bird-actor
+section: Tutorial
+---
+
+# Step 2 - Adding a Bird Actor
+
+Next let's making our first Actor for the Bird and `.add()` it to the default Excalibur Scene which can be accessed off the `Engine`. 
+
+`Actor` **must** be added to the scene to be drawn.
+
+First create a new file `bird.ts`
+
+1. We can give it a position x,y in pixels
+2. We can give it a color yellow
+
+```typescript
+// bird.ts
+
+import * as ex from "excalibur";
+
+export class Bird extends ex.Actor {
+    constructor() {
+        super({
+            pos: ex.vec(200, 300),
+            width: 16, // for now we'll use a box so we can see the rotation
+            height: 16, // later we'll use a circle collider
+            color: ex.Color.Yellow
+        })
+    }
+}
+```
+
+Then we add it to our default scene.
+
+```typescript
+// main.ts 
+import * as ex from 'excalibur';
+
+import { Bird } from './bird';
+
+const game = new ex.Engine({...});
+
+const bird = new Bird();
+game.add(bird); // adds the Bird Actor to the default scene
+
+game.start();
+```
+
+Currently it doesn't do much for now but don't worry we'll get to it.

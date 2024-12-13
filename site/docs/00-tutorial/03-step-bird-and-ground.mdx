@@ -1,0 +1,89 @@
+---
+title: Step 3 - The Bird and the Grounds
+slug: /step-3-bird-and-ground
+section: Tutorial
+---
+
+# Step 3 - The Bird and the Ground
+
+Let's create some ground for the `Bird` to collide with, make a new `ground.ts` file.
+
+We can use the `anchor` property to tell Excalibur how to align the default graphics and collider `(0, 0)` means top left, by default graphics and collider are centered around the position `pos`.
+
+```typescript
+// ground.ts
+import * as ex from "excalibur";
+
+export class Ground extends ex.Actor {
+    constructor(pos: ex.Vector) {
+        super({
+            pos,
+            anchor: ex.vec(0, 0),
+            height: 64,
+            width: 400,
+            color: ex.Color.fromHex('#bd9853'),
+            z: 1 // position the ground above everything
+        })
+    }
+}
+```
+
+
+We can make our `Bird` move by giving it some acceleration in `onInitialize`, it is generally recommended to initialize state in `onInitialize`. It makes testing easier and defers initialization until excalibur primitives are available. `onInitialize` is called once before the first update of the `Actor`.
+
+*BTW n Excalibur the positive y axis points down!*
+
+```typescript
+// bird.ts
+import * as ex from 'excalibur';
+
+export class Bird extends ex.Actor {
+    ...
+    override onInitialize(): void {
+        this.acc = ex.vec(0, 1200); // pixels per second per second
+    }
+}
+```
+
+Now we want to collide with the `Ground`.
+
+```typescript
+// bird.ts
+import * as ex from 'excalibur';
+import { Ground } from './ground';
+
+export class Bird extends ex.Actor {
+    ...
+
+    override onCollisionStart(_self: ex.Collider, other: ex.Collider): void {
+        if (other.owner instanceof Ground) {
+            this.stop();
+        }
+    }
+
+    stop() {
+        this.vel = ex.vec(0, 0);
+        this.acc = ex.vec(0, 0)
+    }
+}
+```
+
+Let's put our `Bird` and `Ground` together in the default `Scene`
+
+```typescript
+// main.ts
+import * as ex from 'excalibur';
+import { Bird } from './bird';
+import { Ground } from './ground';
+
+const game = new ex.Engine({...});
+
+const bird = new Bird();
+game.add(bird);
+
+// drawHeight is the height of the visible drawing surface in game pixels
+const ground = new Ground(ex.vec(0, game.screen.drawHeight - 64));
+game.add(ground);
+
+game.start();
+```

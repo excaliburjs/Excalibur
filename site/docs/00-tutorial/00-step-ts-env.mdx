@@ -1,0 +1,64 @@
+---
+title: Step 0 - Setting up Your TypeScript Environment
+slug: /step-0-ts-environment
+section: Tutorial
+---
+
+# Step 0 - Setting up Your TypeScript Environment
+
+:::info
+*You can skip this step if you have a preferred environment setup*
+
+Excalibur has a number of templates for various development environments, pick your favorite 💖
+* [Vanilla JS](https://github.com/excaliburjs/template-vanilla-js)
+* [Parcel](https://github.com/excaliburjs/template-ts-parcel-v2)
+* [Webpack](https://github.com/excaliburjs/template-ts-webpack)
+* Etc.
+:::
+
+Setup your npm project with `npm init`, it will ask you for a series of questions and at the end you'll have a `package.json` file that describes how to run your project and it's dependencies
+
+There are many ways to convert TypeScript into JavaScript so that it can be run by your browser. [Vite](https://vitejs.dev/) is a popular choice because of it's ease of use and smart defaults out of the box. So called a "zero-config" bundler, however you can provide a configuration if you need to.
+
+
+Download `vite` and `typescript` via npm as dev dependencies, these are dependencies that are only needed at development time.
+
+```sh
+npm install vite typescript --save-exact --save-dev
+```
+
+Download `excalibur` via npm as a normal dependency
+
+```sh
+npm install excalibur --save-exact
+```
+
+In your `package.json` file modify your `scripts:` section to add a few scripts.
+
+```json
+"scripts": {
+    "start": "vite",
+    "build": "tsc && vite build",
+    "serve": "vite preview"
+},
+```
+
+* `npm run start` will start your app in dev mode and start a dev server you can browse to
+* `npm run build` will first run the TypeScript compiler `tsc` to type check, then run `vite`'s build to produce output HTML/JS/CSS for production.
+* `npm run serve` will just serve a dev server, good for checking production builds.
+
+Create an `index.html` and a `main.ts`, with `vite` you can directly include a reference to your TypeScript files, normally you cannot do this without a bundler like `vite`.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Excalibird</title>
+  </head>
+  <body>
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>
+```

@@ -1,0 +1,34 @@
+---
+title: Step 11 - Images and Graphics
+slug: /step-11-images-and-graphics
+section: Tutorial
+---
+
+
+# Step 11 - Images and Graphics
+
+It would be nice to have some graphics for our `Bird` actor, we can load images to use in in actors using the `ex.ImageSource` and a `ex.Loader`. The loader will show a loading bar while our images and other resources are loading. Generally we do this in a new `resources.ts` file.
+
+1. We export the Resources `as const` so you get strong typing for each key of the dictionary, `as const` tells typescript that the keys wont change at runtime
+2. Another useful convention that we use is defining the loader next to the Resources and exporting to be used in `main.ts`
+3. Note: in vite to serve static files we use the `public` folder
+
+
+```typescript
+// resources.ts
+export const Resources = {
+    // Relative to /public in vite
+    BirdImage: new ex.ImageSource('./images/bird.png')
+} as const;
+```
+
+Now we can load this before starting the game
+
+```typescript
+// main.ts
+...
+const loader = new ex.Loader(Object.values(Resources));
+game.start(loader).then(() => {
+  game.goToScene('Level');
+});
+```

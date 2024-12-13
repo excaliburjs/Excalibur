@@ -256,13 +256,18 @@ const config: Config = {
           items: [
             {
               label: 'Tutorial',
-              to: '/docs/getting-started'
+              to: '/docs/excalibird-flappy-bird'
             }
           ]
         },
         {
           title: 'Community',
           items: [
+            {
+              label: 'BlueSky',
+              href: 'https://bsky.app/profile/excaliburjs.bsky.social',
+              rel: 'me'
+            },
             {
               label: 'Mastodon',
               href: 'https://mastodon.gamedev.place/@excaliburjs',
