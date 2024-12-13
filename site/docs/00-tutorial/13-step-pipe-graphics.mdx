@@ -1,0 +1,56 @@
+---
+title: Step 13 - Pipe Graphics
+slug: /step-13-pipe-graphics
+section: Tutorial
+---
+
+import Pipe from '!!url-loader!./images/pipe.png';
+
+# Step 13 - Pipe Graphics
+
+We also created a pipe especially for this sample, feel free to use and remix.
+
+<img src={Pipe} width="300px" style={{imageRendering: 'pixelated', border: 'solid'}} alt="pixel art pipe graphic"></img>
+
+We can take advantage of `ex.ImageWrapping.Clamp` to stretch the bottom pixel of the pipe so it can be as long as we want.
+
+```typescript
+// resources.ts
+export const Resources = {
+    // Relative to /public in vite
+    ...
+    PipeImage: new ex.ImageSource('./images/pipe.png', {
+        wrapping: ex.ImageWrapping.Clamp
+    }),
+    ...
+} as const;
+```
+
+In our `pipe.ts` we can add our pipe graphic and stretch it by changing the `sourceView` and `destSize`. 
+
+The `sourceView` is the "window" into the original image, and since we are specifying a view larger than the original image, that `ex.ImageWrap.Clamp` will stretch the board pixel to accommodate. 
+
+Changing the `destSize` changes the size of the final rendered sprite, in this case we want the same height.
+
+```typescript
+// pipe.ts
+export class Pipe extends ex.Actor {
+    ...
+
+    override onInitialize(): void {
+        const pipeEnd = Resources.PipeImage.toSprite();
+        // Stretch the pipe sprite
+        // by default ImageSource use clamp which re-uses the border pixels 
+        // when sourceView is larger than the original image
+        pipeEnd.sourceView.height = 1000;
+        // 
+        pipeEnd.destSize.height = 1000;
+
+        // Flip the pipe sprite
+        if (this.type === 'top') {
+            pipeEnd.flipVertical = true;
+        }
+        this.graphics.use(pipeEnd);
+    }
+}
+```

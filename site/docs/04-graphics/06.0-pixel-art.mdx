@@ -30,6 +30,15 @@ const game = new ex.Engine({
 });
 ```
 
+:::note
+
+If you have very low resolutions less than 500x500, you might want to consider artificially scaling the graphics by setting `pixelRatio: 2` or `pixelRatio: 3` this increases the internal resolution (effectively up-scaling) giving Excalibur more pixels to work with and smooth. This produces more pleasing results when simulating a very low res game
+
+Another strategy might be using the `game.currentScene.zoom` to zoom into your pixel art
+
+:::
+
+
 This will set a few presets in excalibur, this above setting is equivalent to the following
 
 ```typescript 
@@ -51,8 +60,3 @@ This is great article explaining the approach
 Here is a shader toy demonstrating
 * Shader Toy showing https://www.shadertoy.com/view/mdSXWy
 
-:::note
-
-If you have very low resolutions less than 500x500, you might want to consider artificially scaling the graphics by setting `pixelRatio: 2` or `pixelRatio: 3` this increases the internal resolution (effectively up-scaling) giving Excalibur more pixels to work with and smooth. This produces more pleasing results when simulating a very low res game
-
-:::

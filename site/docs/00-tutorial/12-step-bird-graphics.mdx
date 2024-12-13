@@ -1,0 +1,61 @@
+---
+title: Step 12 - Bird Graphics
+slug: /step-12-bird-graphics
+section: Tutorial
+---
+
+import Bird from '!!url-loader!./images/bird.png';
+
+# Step 12 - Bird Graphics
+
+We have a lovely Excalibur themed bird we created especially for this sample, feel free to use and remix. You'll notice that we have a sprite sheet for various frames.
+
+<img src={Bird} width="600px" style={{imageRendering: 'pixelated', border: 'solid'}} alt="pixel art bird graphic"></img>
+
+To slice this up into animations we can use `ex.SpriteSheet` and `ex.Animation`. Animations can have a particular `ex.AnimationStrategy`
+* Freeze - stops on the last frame
+* Loop - starts from the beginning again after the last frame
+* PingPong - plays to the last frame, then in reverse, and so on
+* End - after the last frame nothing is drawn
+
+```typescript
+
+// Slice up image into a sprite sheet
+const spriteSheet = ex.SpriteSheet.fromImageSource({
+    image: Resources.BirdImage,
+    grid: {
+        rows: 1,
+        columns: 4,
+        spriteWidth: 32,
+        spriteHeight: 32,
+    }
+});
+
+// Animation to play going up on tap
+this.upAnimation = ex.Animation.fromSpriteSheet(
+    spriteSheet,
+    [2, 1, 0], // 3rd frame, then 2nd, then first
+    150, // 150ms for each frame
+    ex.AnimationStrategy.Freeze);
+
+// Animation to play going down
+this.downAnimation = ex.Animation.fromSpriteSheet(
+    spriteSheet,
+    [0, 1, 2],
+    150,
+    ex.AnimationStrategy.Freeze);
+
+// Register animations by name
+this.graphics.add('down', this.downAnimation);
+this.graphics.add('up', this.upAnimation);
+```
+
+You can also pull single frames out of a `SpriteSheet` as a `Sprite`
+
+```typescript
+this.startSprite = spriteSheet.getSprite(1, 0);
+...
+this.graphics.add('start', this.startSprite);
+
+this.graphics.use('start');
+```

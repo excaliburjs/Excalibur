@@ -1,0 +1,86 @@
+---
+title: Step 14 - Ground Graphics
+slug: /step-14-ground-graphics
+section: Tutorial
+---
+
+
+import Ground from '!!url-loader!./images/ground.png';
+
+# Step 14 - Ground Graphics
+
+Finally the ground graphics, feel free to use and remix.
+
+<img src={Ground} width="200px" style={{imageRendering: 'pixelated', border: 'solid'}} alt="pixel art pipe graphic"></img>
+
+We want the ground to tile and repeat horizontally we can take advantage of the `ex.ImageWrapping.Repeat` to accomplish this
+
+```typescript
+// resources.ts
+export const Resources = {
+    // Relative to /public in vite
+    GroundImage: new ex.ImageSource('./images/ground.png', {
+        wrapping: ex.ImageWrapping.Repeat
+    })
+} as const;
+```
+
+When the `ex.ImageWrapping.Repeat` mode is set, specifying a bigger `sourceView` than the original image has a tiling effect, the original image gets repeated over and over.
+
+```typescript
+// ground.ts
+    onInitialize(engine: ex.Engine): void {
+        this.groundSprite.sourceView.width = engine.screen.drawWidth;
+        this.groundSprite.destSize.width = engine.screen.drawWidth;
+        this.graphics.use(this.groundSprite);
+    }
+```
+
+To make the ground appear scroll to the left, we can do a nifty trick to move the `sourceView.x` by the speed of our `Pipe`
+
+```typescript
+    onPostUpdate(_engine: ex.Engine, elapsedMs: number): void {
+        if (!this.moving) return;
+        this.groundSprite.sourceView.x += Config.PipeSpeed * (elapsedMs / 1000);
+        this.groundSprite.sourceView.x = this.groundSprite.sourceView.x % Resources.GroundImage.width;
+    }
+```
+
+Putting it all together
+
+```typescript
+// ground.ts
+export class Ground extends ex.Actor {
+    groundSprite = Resources.GroundImage.toSprite();
+    moving = false;
+    constructor(pos: ex.Vector) {
+        super({
+            pos,
+            anchor: ex.vec(0, 0),
+            height: 64,
+            width: 400,
+            z: 1
+        })
+    }
+
+    onInitialize(engine: ex.Engine): void {
+        this.groundSprite.sourceView.width = engine.screen.drawWidth;
+        this.groundSprite.destSize.width = engine.screen.drawWidth;
+        this.graphics.use(this.groundSprite);
+    }
+
+    onPostUpdate(_engine: ex.Engine, elapsedMs: number): void {
+        if (!this.moving) return;
+        this.groundSprite.sourceView.x += Config.PipeSpeed * (elapsedMs / 1000);
+        this.groundSprite.sourceView.x = this.groundSprite.sourceView.x % Resources.GroundImage.width;
+    }
+
+    start() {
+        this.moving = true;
+    }
+
+    stop() {
+        this.moving = false;
+    }
+}
+```

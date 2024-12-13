@@ -1,0 +1,113 @@
+---
+title: Step 15 - Sounds and Music
+slug: /step-15-sound-and-music
+section: Tutorial
+---
+
+import Flap from '!!url-loader!./sounds/flap.wav';
+import Fail from '!!url-loader!./sounds/fail.wav';
+import Score from '!!url-loader!./sounds/score.wav';
+import BackgroundMusic from '!!url-loader!./sounds/two_left_socks.ogg';
+
+# Step 15 - Flappy Sounds and Music
+
+Finally to really add depth to a game let's add some sound! `ex.Sound` needs to be loaded much like `ex.ImageSource`.
+
+Excalibur supports any audio your browser supports, you can specify an ordered list of files to fallback to if a browser doesn't support.
+
+```typescript
+export const Resources = {
+    // Relative to /public in vite
+    ...
+    // Sounds
+    FlapSound: new ex.Sound('./sounds/flap.wav'),
+    FailSound: new ex.Sound('./sounds/fail.wav'),
+    ScoreSound: new ex.Sound('./sounds/score.wav'),
+
+    // Music
+    BackgroundMusic: new ex.Sound('./sounds/two_left_socks.ogg')
+} as const;
+```
+<figure>
+  <figcaption>Listen to the flap.wav:</figcaption>
+  <audio controls src={Flap}></audio>
+  <a href={Flap}> Download audio </a>
+</figure>
+<figure>
+  <figcaption>Listen to the fail.wav:</figcaption>
+  <audio controls src={Fail}></audio>
+  <a href={Fail}> Download audio </a>
+</figure>
+<figure>
+  <figcaption>Listen to the score.wav:</figcaption>
+  <audio controls src={Score}></audio>
+  <a href={Score}> Download audio </a>
+</figure>
+<figure>
+  <figcaption>Listen to the background music:</figcaption>
+  <audio controls src={BackgroundMusic}></audio>
+  <a href={BackgroundMusic}> Download audio </a>
+</figure>
+
+
+You can leverage the scene lifecycle in `level.ts` with `onActivate()` to start some looping background music.
+
+```typescript
+// level.ts
+export class Level extends ex.Scene {
+    ...
+    override onActivate(): void {
+        Resources.BackgroundMusic.loop = true;
+        Resources.BackgroundMusic.play();
+    }
+    ...
+}
+```
+
+We also want a "flap" sound effect every time the bird flaps it's wings.
+
+```typescript
+// bird.ts
+export class Bird extends ex.Actor {
+    ...
+    override onPostUpdate(engine: ex.Engine): void {
+        if (!this.playing) return;
+
+        // if the space bar or the first pointer was down
+        if (!this.jumping && this.isInputActive(engine)) {
+            ...
+            // play sound effect
+            Resources.FlapSound.play();
+        }
+    }
+}
+
+```
+
+The user needs some rewarding sound when they score points, let's add that to our score trigger.
+
+```typescript
+// score-trigger.ts
+
+export class ScoreTrigger extends ex.Actor {
+    ...
+    override onCollisionStart(): void {
+        ...
+        Resources.ScoreSound.play();
+    }
+}
+
+```
+
+Finally we need a game over sound effect!
+
+```typescript
+// level.ts
+export class Level extends ex.Scene {
+    ...
+    triggerGameOver() {
+        ...
+        Resources.FailSound.play();
+    }
+}
+```

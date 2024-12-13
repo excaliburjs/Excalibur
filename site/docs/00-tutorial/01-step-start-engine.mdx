@@ -1,0 +1,73 @@
+---
+title: Step 1 - Start Your Engines
+slug: /step-1-engine
+section: Tutorial
+---
+
+# Step 1 - Start Your Engines
+
+First in `main.ts` we can import all of Excalibur as `ex`, **this makes it clear in this example what types are coming from Excalibur.**
+
+```typescript
+// main.ts
+import * as ex from 'excalibur'
+```
+
+You can certainly import individual types like this if you prefer, but for this tutorial we'll be doing the "barrel" `import * as ex`.
+
+```typescript
+import { Engine } from 'excalibur'
+```
+
+We can start by creating our `ex.Engine`, which will be the container for our game and drives the whole thing.
+
+1. We can configure the width and height in pixels
+2. We can configure the background color `#54C0CA`
+3. There are different `ex.DisplayMode`'s, If you want to fit the width and height to the screen and keep aspect ratio, use `ex.DisplayMode.FitScreen`
+4. If you want to avoid the letter boxing you can use `ex.DisplayMode.FitScreenAndFill`, only the configured width and height are safe to draw in but outside of that is not guaranteed.
+5. In this sample we are using pixel art, so setting `pixelArt: true` will provide the best defaults for that.
+6. `pixelRatio: 2` will "scale up` the canvas to give us more crisp look at lower resolutions.
+7. Call `.start()` to start the game
+
+```typescript
+// main.ts
+import * as ex from 'excalibur';
+
+const game = new ex.Engine({
+  width: 400,
+  height: 500,
+  backgroundColor: ex.Color.fromHex("#54C0CA"),
+  pixelArt: true,
+  pixelRatio: 2,
+  displayMode: ex.DisplayMode.FitScreen
+});
+
+game.start();
+```
+
+At this point the screen will just be a solid color we picked as our `backgroundColor`.
+
+We can add some css to our game to center it on the screen
+
+```css
+html,
+body {
+    background-color: black;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+```
+
+Then include this in your `index.html` in the `<head>` section
+
+```html
+<link rel="stylesheet" href="./src/style.css">
+```
+

@@ -1,6 +1,7 @@
 {
-  "label": "Getting Started",
+  "label": "Install",
   "position": 2,
+  "collapsed": true,
   "link": {
     "type": "generated-index",
     "description": "5 minutes to learn the most important Excalibur.js concepts."
