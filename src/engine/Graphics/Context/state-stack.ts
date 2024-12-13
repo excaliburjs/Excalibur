@@ -28,9 +28,7 @@ export class StateStack {
   private _cloneState(dest: ContextState) {
     dest.opacity = this.current.opacity;
     dest.z = this.current.z;
-    if (dest.tint) {
-      this.current.tint?.clone(dest.tint);
-    }
+    dest.tint = this.current.tint?.clone();
     dest.material = this.current.material; // TODO is this going to cause problems when cloning
     return dest;
   }
