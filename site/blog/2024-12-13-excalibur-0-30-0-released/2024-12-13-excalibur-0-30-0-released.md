@@ -128,6 +128,10 @@ https://github.com/excaliburjs/sample-jelly-jumper
 
 This is a sample clone of the popular mobile game flappy bird.
 
+https://github.com/excaliburjs/sample-excalibird/
+
+![excalibird gameplay](./excalibird.gif)
+
 ### Path finding
 
 Sample using the pathfinding plugin with A* and Dijkstra!
