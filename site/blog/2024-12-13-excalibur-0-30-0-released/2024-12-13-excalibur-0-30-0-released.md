@@ -187,6 +187,36 @@ Check out the [full release notes](https://github.com/excaliburjs/Excalibur/rele
 
 ### ImageSource from SVG and Canvas
 
+You can now source images from SVG literal strings, SVG files, and HTML Canvas elements! This increases the flexibility of images that you can use to make your games. Plus SVG and Canvas rock 🤘
+
+```typescript
+const svgExternal = new ex.ImageSource('../images/arrows.svg');
+const svg = (tags: TemplateStringsArray) => tags[0];
+
+const svgImage = ex.ImageSource.fromSvgString(svg`
+  <svg version="1.1"
+       id="svg2"
+       xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+       xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+       sodipodi:docname="resize-full.svg" inkscape:version="0.48.4 r9939"
+       xmlns="http://www.w3.org/2000/svg" 
+       width="800px" height="800px"
+       viewBox="0 0 1200 1200" enable-background="new 0 0 1200 1200" xml:space="preserve">
+  <path id="path18934" fill="#000000ff" inkscape:connector-curvature="0"  d="M670.312,0l177.246,177.295L606.348,418.506l175.146,175.146
+      l241.211-241.211L1200,529.688V0H670.312z M418.506,606.348L177.295,847.559L0,670.312V1200h529.688l-177.246-177.295
+      l241.211-241.211L418.506,606.348z"/>
+  </svg>
+`);
+
+const myCanvas = document.createElement('canvas')!;
+myCanvas.width = 100;
+myCanvas.height = 100;
+const ctx = myCanvas.getContext('2d')!;
+ctx.fillStyle = ex.Color.Black.toRGBA();
+ctx.fillRect(20, 20, 50, 50);
+
+const canvasImage = ex.ImageSource.fromHtmlCanvasElement(myCanvas);
+```
 
 ### GPU Particles
 
@@ -400,7 +430,9 @@ Excalibur now watches for textures that have not been drawn in 60 seconds and un
 
 ## Caliburn Games
 
-The Excalibur.js contributors are offering consulting services! You can hire us to do game dev, custom dev, or support! If you're interested check out our current list of products https://caliburn.games/products/ 
+The Excalibur.js contributors are offering consulting services! You can hire us to do game dev, custom dev, or support! If you're interested check out our current list of products https://caliburn.games/products/
+
+Caliburn Games' goal is to build friendly games in TypeScript and support the Excalibur.js community and open source project.
 
 ## The Glorious Future
 
