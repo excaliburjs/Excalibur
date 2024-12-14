@@ -104,7 +104,7 @@ onPreUpdate(engine: ex.Engine, elapsedMs: number): void {
 }
 ```
 
-![static debug draw api](./debug-draw.gif)
+![static debug draw api](./debug-draw2.gif)
 
 ## New Samples
 
@@ -177,7 +177,7 @@ This release really had a strong focus on improving performance across the board
 
 We also have a new [Excalibur Bunnymark](https://github.com/excaliburjs/excalibur-bunnymark) that stresses the renderer, I can get to 100k at 30fps on my Surface Pro Laptop! 
 
-![bunnymark](./bunnymark.gif)
+![bunnymark](./bunnymark2.gif)
 
 ## New Features
 
