@@ -306,7 +306,7 @@ actor.actions.repeatForever((ctx) => {
 
 ```
 
-
+![bezier curve actions](./bezier.gif)
 
 ### Flash Action
 
