@@ -19,7 +19,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
--
+- Fixed CollidePolygonPolygon crash with some defense against invalid separation
 
 ### Updates
 

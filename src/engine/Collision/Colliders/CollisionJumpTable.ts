@@ -253,6 +253,10 @@ export const CollisionJumpTable = {
       }
     }
 
+    if (!separation.localSide || !separation.localAxis || !separation.axis) {
+      return [];
+    }
+
     // Clip incident side by the perpendicular lines at each end of the reference side
     // https://en.wikipedia.org/wiki/Sutherland%E2%80%93Hodgman_algorithm
     const referenceSide = separation.localSide.transform(toIncidentFrame);
