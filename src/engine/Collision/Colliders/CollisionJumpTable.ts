@@ -253,6 +253,7 @@ export const CollisionJumpTable = {
       }
     }
 
+    // FIXME temporary to prevent a crash, invalid separation
     if (!separation.localSide || !separation.localAxis || !separation.axis) {
       return [];
     }
