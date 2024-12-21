@@ -11,12 +11,13 @@ layout(location=5) in vec2 a_mat_column3;
 layout(location=6) in float a_opacity;
 out float v_opacity;
 
-// Texture resolution (could be bigger than a_siz)
+// Texture resolution (could be bigger than a_size)
 layout(location=7) in vec2 a_res;
 out vec2 v_res;
 
 // Final size of graphic
 layout(location=8) in vec2 a_size;
+out vec2 v_size;
 
 layout(location=9) in lowp float a_texture_index;
 out lowp float v_texture_index;
@@ -48,6 +49,7 @@ void main(){
   v_uv_min = a_uv_min;
   v_uv_max = a_uv_max;
   v_res = a_res;
+  v_size = a_size;
   v_texture_index = a_texture_index;
   v_tint = a_tint;
 }

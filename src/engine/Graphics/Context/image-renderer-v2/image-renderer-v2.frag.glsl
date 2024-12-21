@@ -18,6 +18,8 @@ in vec4 v_tint;
 // texture resolution
 in vec2 v_res;
 
+in vec2 v_size;
+
 in vec2 v_uv_min;
 in vec2 v_uv_max;
 
@@ -53,12 +55,12 @@ void main(){
   // that do not apply to a particular sprite.
 
   vec4 color=vec4(1.,0,0,1.);
+  vec2 remapped_uv = v_texcoord;
+  remapped_uv.x = remap(0.,1., v_uv_min.x, v_uv_max.x, v_texcoord.x);
+  remapped_uv.y = remap(0.,1., v_uv_min.y, v_uv_max.y, v_texcoord.y);
+  vec2 uv = u_pixelart ? uv_iq(remapped_uv, v_size) : remapped_uv;
 
   // GLSL is templated out to pick the right texture and set the vec4 color
-  vec2 uv = u_pixelart ? uv_iq(v_texcoord, v_res) : v_texcoord;
-  uv.x = remap(0.,1., v_uv_min.x, v_uv_max.x, uv.x);
-  uv.y = remap(0.,1., v_uv_min.y, v_uv_max.y, uv.y);
-
   %%texture_picker%%
 
   color.rgb = color.rgb * v_opacity;
