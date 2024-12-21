@@ -902,13 +902,6 @@ describe('The engine', () => {
   it('can do subpixel AA on pixel art', async () => {
     const engine = TestUtils.engine({
       pixelArt: true,
-      antialiasing: {
-        nativeContextAntialiasing: false,
-        multiSampleAntialiasing: true,
-        pixelArtSampler: true,
-        canvasImageRendering: 'auto',
-        filtering: ex.ImageFiltering.Blended
-      },
       width: 256,
       height: 256,
       suppressHiDPIScaling: false,
