@@ -1,4 +1,5 @@
 import { Scene } from '../Scene';
+import { Logger } from '../Util/Log';
 import { Component, ComponentCtor } from './Component';
 import { Entity } from './Entity';
 import { EntityManager } from './EntityManager';
@@ -12,6 +13,7 @@ import { TagQuery } from './TagQuery';
  * The World is a self-contained entity component system for a particular context.
  */
 export class World {
+  private _logger = Logger.getInstance();
   public queryManager: QueryManager = new QueryManager(this);
   public entityManager: EntityManager = new EntityManager(this);
   public systemManager: SystemManager = new SystemManager(this);
@@ -61,11 +63,19 @@ export class World {
   add(entityOrSystem: Entity | System | SystemCtor<System>): void {
     if (entityOrSystem instanceof Entity) {
       this.entityManager.addEntity(entityOrSystem);
+      return;
     }
 
     if (entityOrSystem instanceof System || isSystemConstructor(entityOrSystem)) {
       this.systemManager.addSystem(entityOrSystem);
+      return;
     }
+
+    this._logger.warn(
+      `Could not add entity/system ${(entityOrSystem as any).constructor.name} to Excalibur!\n\n` +
+        `If this looks like an Excalibur type, this can be caused by 2 versions of excalibur being included on the page.\n\n` +
+        `Check your bundler settings to make sure this is not the case! Excalibur has ESM & UMD bundles be sure one 1 is loaded.`
+    );
   }
 
   /**
@@ -88,11 +98,19 @@ export class World {
   remove(entityOrSystem: Entity | System, deferred = true): void {
     if (entityOrSystem instanceof Entity) {
       this.entityManager.removeEntity(entityOrSystem, deferred);
+      return;
     }
 
     if (entityOrSystem instanceof System) {
       this.systemManager.removeSystem(entityOrSystem);
+      return;
     }
+
+    this._logger.warn(
+      `Could not remove entity/system ${(entityOrSystem as any).constructor.name} to Excalibur!\n\n` +
+        `If this looks like an Excalibur type, this can be caused by 2 versions of excalibur being included on the page.\n\n` +
+        `Check your bundler settings to make sure this is not the case! Excalibur has ESM & UMD bundles be sure one 1 is loaded.`
+    );
   }
 
   get entities() {
