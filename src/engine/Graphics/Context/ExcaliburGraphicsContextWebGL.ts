@@ -100,6 +100,7 @@ export interface ExcaliburGraphicsContextWebGLOptions extends ExcaliburGraphicsC
 export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   private _logger = Logger.getInstance();
   private _renderers: Map<string, RendererPlugin> = new Map<string, RendererPlugin>();
+  private _lazyRenderersFactory: Map<string, () => RendererPlugin> = new Map<string, () => RendererPlugin>();
   public imageRenderer: 'ex.image' | 'ex.image-v2' = Flags.isEnabled('use-legacy-image-renderer') ? 'ex.image' : 'ex.image-v2';
   private _isDrawLifecycle = false;
   public useDrawSorting = true;
@@ -307,18 +308,20 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.depthMask(false);
     // Setup builtin renderers
-    this.register(
-      new ImageRenderer({
-        uvPadding: this.uvPadding,
-        pixelArtSampler: this.pixelArtSampler
-      })
+    this.lazyRegister(
+      'ex.image',
+      () =>
+        new ImageRenderer({
+          uvPadding: this.uvPadding,
+          pixelArtSampler: this.pixelArtSampler
+        })
     );
     this.register(new MaterialRenderer());
-    this.register(new RectangleRenderer());
-    this.register(new CircleRenderer());
-    this.register(new PointRenderer());
-    this.register(new LineRenderer());
-    this.register(new ParticleRenderer());
+    this.lazyRegister('ex.rectangle', () => new RectangleRenderer());
+    this.lazyRegister('ex.circle', () => new CircleRenderer());
+    this.lazyRegister('ex.point', () => new PointRenderer());
+    this.lazyRegister('ex.line', () => new LineRenderer());
+    this.lazyRegister<ParticleRenderer>('ex.particle', () => new ParticleRenderer());
     this.register(
       new ImageRendererV2({
         uvPadding: this.uvPadding,
@@ -377,8 +380,21 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     renderer.initialize(this.__gl, this);
   }
 
+  public lazyRegister<TRenderer extends RendererPlugin>(type: TRenderer['type'], renderer: () => TRenderer) {
+    this._lazyRenderersFactory.set(type, renderer);
+  }
+
   public get(rendererName: string): RendererPlugin | undefined {
-    return this._renderers.get(rendererName);
+    let maybeRenderer = this._renderers.get(rendererName);
+    if (!maybeRenderer) {
+      const lazyFactory = this._lazyRenderersFactory.get(rendererName);
+      if (lazyFactory) {
+        this._logger.debug('lazy init renderer:', rendererName);
+        maybeRenderer = lazyFactory();
+        this.register(maybeRenderer);
+      }
+    }
+    return maybeRenderer;
   }
 
   private _currentRenderer: RendererPlugin | undefined;
@@ -415,7 +431,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       return;
     }
 
-    const renderer = this._renderers.get(rendererName);
+    const renderer = this.get(rendererName);
     if (renderer) {
       if (this.useDrawSorting) {
         const drawCall = this._drawCallPool.get();
@@ -728,7 +744,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
       if (this._drawCalls.length && this._drawCallIndex) {
         let currentRendererName = this._drawCalls[0].renderer;
-        let currentRenderer = this._renderers.get(currentRendererName);
+        let currentRenderer = this.get(currentRendererName);
         for (let i = 0; i < this._drawCallIndex; i++) {
           // hydrate the state for renderers
           this._transform.current = this._drawCalls[i].transform;
@@ -738,7 +754,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
             // switching graphics renderer means we must flush the previous
             currentRenderer!.flush();
             currentRendererName = this._drawCalls[i].renderer;
-            currentRenderer = this._renderers.get(currentRendererName);
+            currentRenderer = this.get(currentRendererName);
           }
 
           // ! hack to grab screen texture before materials run because they might want it
