@@ -15,11 +15,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
--
+- New PostProcessor.onDraw() hook to handle uploading textures
 
 ### Fixed
 
 - Fixed CollidePolygonPolygon crash with some defense against invalid separation
+- Fixed issue with PostProcessor where it would not run correctly if no actors present
 
 ### Updates
 

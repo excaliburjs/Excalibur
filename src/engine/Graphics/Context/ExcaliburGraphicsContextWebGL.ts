@@ -776,8 +776,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
     // post process step
     if (this._postprocessors.length > 0) {
-      const source = currentTarget.toRenderSource();
-      source.use();
+      currentTarget.toRenderSource().use();
     }
 
     // flip flop render targets for post processing
