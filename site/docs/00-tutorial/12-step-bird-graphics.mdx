@@ -19,43 +19,71 @@ To slice this up into animations we can use `ex.SpriteSheet` and `ex.Animation`.
 * End - after the last frame nothing is drawn
 
 ```typescript
+// bird.ts
+...
+export class Bird extends ex.Actor {
+  ...
+  upAnimation!: ex.Animation;
+  downAnimation!: ex.Animation;
 
-// Slice up image into a sprite sheet
-const spriteSheet = ex.SpriteSheet.fromImageSource({
-    image: Resources.BirdImage,
-    grid: {
-        rows: 1,
-        columns: 4,
-        spriteWidth: 32,
-        spriteHeight: 32,
-    }
-});
+  ...
+  override onInitialize(): void {
+    // Slice up image into a sprite sheet
+    const spriteSheet = ex.SpriteSheet.fromImageSource({
+        image: Resources.BirdImage,
+        grid: {
+            rows: 1,
+            columns: 4,
+            spriteWidth: 32,
+            spriteHeight: 32,
+        }
+    });
 
-// Animation to play going up on tap
-this.upAnimation = ex.Animation.fromSpriteSheet(
-    spriteSheet,
-    [2, 1, 0], // 3rd frame, then 2nd, then first
-    150, // 150ms for each frame
-    ex.AnimationStrategy.Freeze);
+    // Animation to play going up on tap
+    this.upAnimation = ex.Animation.fromSpriteSheet(
+        spriteSheet,
+        [2, 1, 0], // 3rd frame, then 2nd, then first
+        150, // 150ms for each frame
+        ex.AnimationStrategy.Freeze);
 
-// Animation to play going down
-this.downAnimation = ex.Animation.fromSpriteSheet(
-    spriteSheet,
-    [0, 1, 2],
-    150,
-    ex.AnimationStrategy.Freeze);
+    // Animation to play going down
+    this.downAnimation = ex.Animation.fromSpriteSheet(
+        spriteSheet,
+        [0, 1, 2],
+        150,
+        ex.AnimationStrategy.Freeze);
 
-// Register animations by name
-this.graphics.add('down', this.downAnimation);
-this.graphics.add('up', this.upAnimation);
+    // Register animations by name
+    this.graphics.add('down', this.downAnimation);
+    this.graphics.add('up', this.upAnimation);
+    ...
+    
+    this.on('exitviewport', () => {
+        this.level.triggerGameOver();
+    });
+  }
+  ...
+}
 ```
 
 You can also pull single frames out of a `SpriteSheet` as a `Sprite`
 
 ```typescript
-this.startSprite = spriteSheet.getSprite(1, 0);
-...
-this.graphics.add('start', this.startSprite);
+// bird.ts
 
-this.graphics.use('start');
+export class Bird extends ex.Actor {
+  ...
+  startSprite!: ex.Sprite;
+  ...
+  override onInitialize(): void {
+    ...
+    this.startSprite = spriteSheet.getSprite(1, 0);
+    ...
+    this.graphics.add('start', this.startSprite);
+
+    this.graphics.use('start');
+    ...
+  }
+}
+...
 ```
