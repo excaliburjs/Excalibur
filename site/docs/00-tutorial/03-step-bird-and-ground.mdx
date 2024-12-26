@@ -15,6 +15,7 @@ We can use the `anchor` property to tell Excalibur how to align the default grap
 import * as ex from "excalibur";
 
 export class Ground extends ex.Actor {
+    moving = false;
     constructor(pos: ex.Vector) {
         super({
             pos,
@@ -24,6 +25,14 @@ export class Ground extends ex.Actor {
             color: ex.Color.fromHex('#bd9853'),
             z: 1 // position the ground above everything
         })
+    }
+    
+    start() {
+        this.moving = true;
+    }
+
+    stop() {
+        this.moving = false;
     }
 }
 ```

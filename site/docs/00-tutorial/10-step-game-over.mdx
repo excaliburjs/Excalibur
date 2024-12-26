@@ -11,8 +11,7 @@ For our game, when the bird collides with the ground, pipe, or goes offscreen we
 We implement a `showStartInstructions()` method that shows our start game label and starts the game as soon as a pointer is tapped.
 
 We'll show the start instructions at the beginning and on a game over.
-
-
+(Remember to remove or comment out the line `this.pipeFactory.start();` so that the `PipeFactory` does not start before displaying the start instructions)
 ```typescript
 // level.ts
 export class Level extends ex.Scene {
@@ -32,15 +31,16 @@ export class Level extends ex.Scene {
 
     override onInitialize(engine: ex.Engine): void {
         ...
+        //this.pipeFactory.start();
         this.showStartInstructions();
     }
 
     showStartInstructions() {
-        this.startGameLabel.graphics.visible = true;
+        this.startGameLabel.graphics.isVisible = true;
         this.engine.input.pointers.once('down', () => {
             this.reset();
 
-            this.startGameLabel.graphics.visible = false;
+            this.startGameLabel.graphics.isVisible = false;
             this.bird.start();
             this.pipeFactory.start();
             this.ground.start();

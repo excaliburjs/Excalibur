@@ -28,11 +28,11 @@ export class Level extends ex.Scene {
         this.ground = new Ground(ex.vec(0, engine.screen.drawHeight - 64))
         this.add(this.ground);
 
-        const topPipe = new Pipe(ex.vec(this.level.engine.screen.drawWidth, 150), 'top');
-        game.add(topPipe);
+        const topPipe = new Pipe(ex.vec(engine.screen.drawWidth, 150), 'top');
+        this.add(topPipe);
 
-        const bottomPipe = new Pipe(ex.vec(this.level.engine.screen.drawWidth, 300), 'bottom');
-        game.add(bottomPipe);
+        const bottomPipe = new Pipe(ex.vec(engine.screen.drawWidth, 300), 'bottom');
+        this.add(bottomPipe);
     }
 }
 ```
@@ -48,7 +48,7 @@ const game = new ex.Engine({
   ...
   scenes: { Level: Level }
 });
-...
+
 game.start().then(() => {
   game.goToScene('Level');
 });
