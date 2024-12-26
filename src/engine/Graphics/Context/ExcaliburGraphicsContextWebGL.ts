@@ -308,19 +308,17 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.depthMask(false);
     // Setup builtin renderers
-    this.lazyRegister(
-      'ex.image',
-      () =>
-        new ImageRenderer({
-          uvPadding: this.uvPadding,
-          pixelArtSampler: this.pixelArtSampler
-        })
+    this.register(
+      new ImageRenderer({
+        uvPadding: this.uvPadding,
+        pixelArtSampler: this.pixelArtSampler
+      })
     );
     this.register(new MaterialRenderer());
-    this.lazyRegister('ex.rectangle', () => new RectangleRenderer());
-    this.lazyRegister('ex.circle', () => new CircleRenderer());
-    this.lazyRegister('ex.point', () => new PointRenderer());
-    this.lazyRegister('ex.line', () => new LineRenderer());
+    this.register(new RectangleRenderer());
+    this.register(new CircleRenderer());
+    this.register(new PointRenderer());
+    this.register(new LineRenderer());
     this.lazyRegister<ParticleRenderer>('ex.particle', () => new ParticleRenderer());
     this.register(
       new ImageRendererV2({
