@@ -294,7 +294,7 @@ export const CollisionJumpTable = {
     return [];
   },
 
-  FindContactSeparation(contact: CollisionContact, localPoint: Vector) {
+  FindContactSeparation(contact: CollisionContact, localPoint: Vector): number {
     const shapeA = contact.colliderA;
     const txA = contact.bodyA?.transform ?? new TransformComponent();
     const shapeB = contact.colliderB;
@@ -314,10 +314,16 @@ export const CollisionJumpTable = {
         let side: LineSegment;
         let worldPoint: Vector;
         if (contact.info.collider === shapeA) {
-          side = new LineSegment(txA.apply(contact.info.localSide.begin), txA.apply(contact.info.localSide.end));
+          side = new LineSegment(
+            txA.apply(contact.info.localSide.begin).add(shapeA.offset),
+            txA.apply(contact.info.localSide.end).add(shapeA.offset)
+          );
           worldPoint = txB.apply(localPoint);
         } else {
-          side = new LineSegment(txB.apply(contact.info.localSide.begin), txB.apply(contact.info.localSide.end));
+          side = new LineSegment(
+            txB.apply(contact.info.localSide.begin).add(shapeB.offset),
+            txB.apply(contact.info.localSide.end).add(shapeB.offset)
+          );
           worldPoint = txA.apply(localPoint);
         }
 
