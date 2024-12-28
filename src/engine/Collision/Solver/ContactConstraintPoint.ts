@@ -18,14 +18,16 @@ export class ContactConstraintPoint {
    */
   update() {
     const bodyA = this.contact.bodyA;
+    const colliderA = this.contact.colliderA;
     const bodyB = this.contact.bodyB;
+    const colliderB = this.contact.colliderB;
 
     if (bodyA && bodyB) {
       const normal = this.contact.normal;
       const tangent = this.contact.tangent;
 
-      this.aToContact = this.point.sub(bodyA.globalPos);
-      this.bToContact = this.point.sub(bodyB.globalPos);
+      this.aToContact = this.point.sub(colliderA.center);
+      this.bToContact = this.point.sub(colliderB.center);
 
       const aToContactNormal = this.aToContact.cross(normal);
       const bToContactNormal = this.bToContact.cross(normal);

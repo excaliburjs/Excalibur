@@ -318,13 +318,13 @@ export const CollisionJumpTable = {
             txA.apply(contact.info.localSide.begin).add(shapeA.offset),
             txA.apply(contact.info.localSide.end).add(shapeA.offset)
           );
-          worldPoint = txB.apply(localPoint);
+          worldPoint = txB.apply(localPoint).add(shapeB.offset);
         } else {
           side = new LineSegment(
             txB.apply(contact.info.localSide.begin).add(shapeB.offset),
             txB.apply(contact.info.localSide.end).add(shapeB.offset)
           );
-          worldPoint = txA.apply(localPoint);
+          worldPoint = txA.apply(localPoint).add(shapeA.offset);
         }
 
         return side.distanceToPoint(worldPoint, true);

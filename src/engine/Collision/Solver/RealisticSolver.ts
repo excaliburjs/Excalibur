@@ -85,15 +85,17 @@ export class RealisticSolver implements CollisionSolver {
 
       let pointIndex = 0;
       const bodyA = contact.bodyA;
+      const colliderA = contact.colliderA;
       const bodyB = contact.bodyB;
+      const colliderB = contact.colliderB;
       if (bodyA && bodyB) {
         for (let j = 0; j < contact.points.length; j++) {
           const point = contact.points[j];
           const normal = contact.normal;
           const tangent = contact.tangent;
 
-          const aToContact = point.sub(bodyA.globalPos);
-          const bToContact = point.sub(bodyB.globalPos);
+          const aToContact = point.sub(colliderA.center);
+          const bToContact = point.sub(colliderB.center);
 
           const aToContactNormal = aToContact.cross(normal);
           const bToContactNormal = bToContact.cross(normal);
