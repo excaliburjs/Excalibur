@@ -177,6 +177,7 @@ export interface PhysicsConfig {
    * Configure the {@apilink RealisticSolver}
    */
   realistic?: {
+    contactSolveBias?: ContactSolveBias;
     /**
      * Number of position iterations (overlap) to run in the solver
      *
@@ -248,6 +249,7 @@ export const getDefaultPhysicsConfig: () => DeepRequired<PhysicsConfig> = () => 
     contactSolveBias: ContactSolveBias.None
   },
   realistic: {
+    contactSolveBias: ContactSolveBias.None,
     positionIterations: 3,
     velocityIterations: 8,
     slop: 1,

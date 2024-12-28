@@ -16,9 +16,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - New PostProcessor.onDraw() hook to handle uploading textures
+- Adds contact solve bias to RealisticSolver, this allows customization on which direction contacts are solved first. By default there is no bias set to 'none'.
 
 ### Fixed
 
+- Fixed issue where Realistic solver would not sort contacts by distance causing some artifacts on seams
 - Fixed issue with CompositeCollider where large TileMaps would sometimes causes odd collision behavior in the Realistic Solver when the body & collider components are far apart in a TileMap.
 - Fixed crash on Xiaomi Redmi Phones by lazy loading the GPU particle renderer, GPU particles still do not work on these phones
 - Add warning if World.add() falls through! This is caused by multiple versions of Excalibur usually

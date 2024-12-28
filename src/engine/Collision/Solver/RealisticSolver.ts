@@ -9,8 +9,12 @@ import { DegreeOfFreedom } from '../BodyComponent';
 import { CollisionJumpTable } from '../Colliders/CollisionJumpTable';
 import { DeepRequired } from '../../Util/Required';
 import { PhysicsConfig } from '../PhysicsConfig';
+import { ContactBias, ContactSolveBias, HorizontalFirst, None, VerticalFirst } from './ContactBias';
 
 export class RealisticSolver implements CollisionSolver {
+  directionMap = new Map<string, 'horizontal' | 'vertical'>();
+  distanceMap = new Map<string, number>();
+
   constructor(public config: DeepRequired<Pick<PhysicsConfig, 'realistic'>['realistic']>) {}
   lastFrameContacts: Map<string, CollisionContact> = new Map();
 
@@ -27,6 +31,32 @@ export class RealisticSolver implements CollisionSolver {
 
     // Remove any canceled contacts
     contacts = contacts.filter((c) => !c.isCanceled());
+    // Locate collision bias order
+    let bias: ContactBias;
+    switch (this.config.contactSolveBias) {
+      case ContactSolveBias.HorizontalFirst: {
+        bias = HorizontalFirst;
+        break;
+      }
+      case ContactSolveBias.VerticalFirst: {
+        bias = VerticalFirst;
+        break;
+      }
+      default: {
+        bias = None;
+      }
+    }
+
+    // Sort by bias (None, VerticalFirst, HorizontalFirst) to avoid artifacts with seams
+    // Sort contacts by distance to avoid artifacts with seams
+    // It's important to solve in a specific order
+    contacts.sort((a, b) => {
+      const aDir = this.directionMap.get(a.id);
+      const bDir = this.directionMap.get(b.id);
+      const aDist = this.distanceMap.get(a.id);
+      const bDist = this.distanceMap.get(b.id);
+      return bias[aDir] - bias[bDir] || aDist - bDist;
+    });
 
     // Solve velocity first
     this.solveVelocity(contacts);
@@ -51,6 +81,11 @@ export class RealisticSolver implements CollisionSolver {
       }
       // Publish collision events on both participants
       const side = Side.fromDirection(contact.mtv);
+      const distance = Math.abs(contact?.info?.separation || 0);
+
+      this.distanceMap.set(contact.id, distance);
+      this.directionMap.set(contact.id, side === Side.Left || side === Side.Right ? 'horizontal' : 'vertical');
+
       contact.colliderA.events.emit(
         'precollision',
         new PreCollisionEvent(contact.colliderA, contact.colliderB, side, contact.mtv, contact)
