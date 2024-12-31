@@ -145,7 +145,6 @@ export class Gamepads {
     this.init();
 
     const gamepads = this._navigator.getGamepads();
-
     for (let i = 0; i < gamepads.length; i++) {
       if (!gamepads[i]) {
         const gamepad = this.at(i);
@@ -181,7 +180,7 @@ export class Gamepads {
       const gamepad = gamepads[i];
       // gamepads are a list that might be null
       if (gamepad) {
-        for (let buttonIndex = 0; i < gamepad.buttons.length; i++) {
+        for (let buttonIndex = 0; buttonIndex < gamepad.buttons.length; buttonIndex++) {
           const button = gamepad.buttons[buttonIndex];
           const value = button?.value;
           if (value !== this._oldPads[i]?.getButton(buttonIndex)) {
@@ -194,7 +193,7 @@ export class Gamepads {
           }
         }
 
-        for (let axesIndex = 0; i < gamepad.axes.length; i++) {
+        for (let axesIndex = 0; axesIndex < gamepad.axes.length; axesIndex++) {
           const axis = gamepad.axes[axesIndex];
           if (axis !== this._oldPads[i]?.getAxes(axesIndex)) {
             this.at(i).updateAxes(axesIndex, axis);
