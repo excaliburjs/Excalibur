@@ -18,7 +18,9 @@ function start() {
   });
 
   // Log when pads disconnect and connect
-  game.input.gamepads.on('connect', (evet: ex.GamepadConnectEvent) => {
+  game.input.gamepads.on('connect', (evt: ex.GamepadConnectEvent) => {
+    evt.gamepad.on('button', console.log);
+    evt.gamepad.on('axis', console.log);
     console.log('Gamepad connect');
   });
 
@@ -49,7 +51,9 @@ function start() {
     [ex.Buttons.DpadUp, 255, 166],
     [ex.Buttons.DpadDown, 255, 222],
     [ex.Buttons.DpadLeft, 227, 193],
-    [ex.Buttons.DpadRight, 284, 193]
+    [ex.Buttons.DpadRight, 284, 193],
+    [17, 420, 228],
+    [16, 388, 228]
   ];
   var buttons: { [key: number]: CircleActor } = {};
 
@@ -92,14 +96,16 @@ function start() {
         const actor = buttons[btn];
         if (pad1.wasButtonPressed(btnIndex, 0.1) || pad1.wasButtonReleased(btnIndex)) {
           actor.actions.clearActions();
-          actor.actions.scaleTo(ex.Vector.One.scale(1.25), ex.Vector.One.scale(5)).scaleTo(ex.Vector.One.scale(1), ex.Vector.One.scale(5));
+          actor.actions.scaleTo({ scale: ex.vec(1.25, 1.25), duration: 500 }).scaleTo({ scale: ex.vec(1, 1), duration: 500 });
         }
 
-        if (pad1.isButtonPressed(btnIndex, 0.1)) {
-          actor.color = new ex.Color(255, 0, 0, 0.8);
+        if (pad1.isButtonHeld(btnIndex, 0.1)) {
+          actor.color.r = 255;
+          actor.color.a = 0.8;
           actor.value = pad1.getButton(btnIndex);
         } else {
-          actor.color = new ex.Color(0, 0, 0, 0.7);
+          actor.color.r = 0;
+          actor.color.a = 0.7;
           actor.value = 0;
         }
       }
@@ -109,6 +115,7 @@ function start() {
 
 class CircleActor extends ex.Actor {
   private _value = 0;
+  private _circle: ex.Circle;
   public get value(): number {
     return this._value;
   }
@@ -121,13 +128,18 @@ class CircleActor extends ex.Actor {
   });
   constructor(args: ex.ActorArgs) {
     super(args);
+    this._circle = new ex.Circle({
+      radius: this.width,
+      color: this.color
+    });
     this.graphics.add(
-      new ex.Circle({
-        radius: this.width,
-        color: this.color
+      new ex.GraphicsGroup({
+        members: [this._circle, this._text]
       })
     );
-    this.graphics.add(this._text);
+  }
+  onPostUpdate(engine: ex.Engine, elapsed: number): void {
+    this._circle.color = this.color;
     this._text.color = this.color;
   }
 }

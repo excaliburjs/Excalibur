@@ -20,6 +20,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where non-standard gamepad buttons would not be emitted by Excalibur
 - Fixed issue where Realistic solver would not sort contacts by distance causing some artifacts on seams
 - Fixed issue with CompositeCollider where large TileMaps would sometimes causes odd collision behavior in the Realistic Solver when the body & collider components are far apart in a TileMap.
 - Fixed crash on Xiaomi Redmi Phones by lazy loading the GPU particle renderer, GPU particles still do not work on these phones

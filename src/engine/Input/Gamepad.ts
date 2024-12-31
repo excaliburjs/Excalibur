@@ -145,7 +145,6 @@ export class Gamepads {
     this.init();
 
     const gamepads = this._navigator.getGamepads();
-
     for (let i = 0; i < gamepads.length; i++) {
       if (!gamepads[i]) {
         const gamepad = this.at(i);
@@ -177,37 +176,31 @@ export class Gamepads {
       this.at(i).navigatorGamepad = gamepads[i];
 
       // Buttons
-      let b: string, bi: number, a: string, ai: number, value: number;
 
-      for (b in Buttons) {
-        bi = <any>Buttons[b];
-        if (typeof bi === 'number') {
-          if (gamepads[i].buttons[bi]) {
-            value = gamepads[i].buttons[bi].value;
-            if (value !== this._oldPads[i].getButton(bi)) {
-              if (gamepads[i].buttons[bi].pressed) {
-                this.at(i).updateButton(bi, value);
-                this.at(i).events.emit('button', new GamepadButtonEvent(bi, value, this.at(i)));
-              } else {
-                this.at(i).updateButton(bi, 0);
-              }
+      const gamepad = gamepads[i];
+      // gamepads are a list that might be null
+      if (gamepad) {
+        for (let buttonIndex = 0; buttonIndex < gamepad.buttons.length; buttonIndex++) {
+          const button = gamepad.buttons[buttonIndex];
+          const value = button?.value;
+          if (value !== this._oldPads[i]?.getButton(buttonIndex)) {
+            if (button?.pressed) {
+              this.at(i).updateButton(buttonIndex, value);
+              this.at(i).events.emit('button', new GamepadButtonEvent(buttonIndex, value, this.at(i)));
+            } else {
+              this.at(i).updateButton(buttonIndex, 0);
             }
           }
         }
-      }
 
-      // Axes
-      for (a in Axes) {
-        ai = <any>Axes[a];
-        if (typeof ai === 'number') {
-          value = gamepads[i].axes[ai];
-          if (value !== this._oldPads[i].getAxes(ai)) {
-            this.at(i).updateAxes(ai, value);
-            this.at(i).events.emit('axis', new GamepadAxisEvent(ai, value, this.at(i)));
+        for (let axesIndex = 0; axesIndex < gamepad.axes.length; axesIndex++) {
+          const axis = gamepad.axes[axesIndex];
+          if (axis !== this._oldPads[i]?.getAxes(axesIndex)) {
+            this.at(i).updateAxes(axesIndex, axis);
+            this.at(i).events.emit('axis', new GamepadAxisEvent(axesIndex, axis, this.at(i)));
           }
         }
       }
-
       this._oldPads[i] = this._clonePad(gamepads[i]);
     }
   }
@@ -315,7 +308,7 @@ export class Gamepad {
    * @param button     The button to query
    * @param threshold  The threshold over which the button is considered to be pressed
    */
-  public isButtonPressed(button: Buttons, threshold: number = 1) {
+  public isButtonPressed(button: Buttons | number, threshold: number = 1) {
     return this._buttons[button] >= threshold;
   }
 
@@ -324,7 +317,7 @@ export class Gamepad {
    * @param button     The button to query
    * @param threshold  The threshold over which the button is considered to be pressed
    */
-  public isButtonHeld(button: Buttons, threshold: number = 1) {
+  public isButtonHeld(button: Buttons | number, threshold: number = 1) {
     return this._buttons[button] >= threshold;
   }
 
@@ -333,7 +326,7 @@ export class Gamepad {
    * @param button Test whether a button was just pressed
    * @param threshold  The threshold over which the button is considered to be pressed
    */
-  public wasButtonPressed(button: Buttons, threshold: number = 1) {
+  public wasButtonPressed(button: Buttons | number, threshold: number = 1) {
     return this._buttonsDown[button] >= threshold;
   }
 
@@ -341,14 +334,14 @@ export class Gamepad {
    * Tests if a certain button was just released this frame. This is cleared at the end of the update frame.
    * @param button  Test whether a button was just released
    */
-  public wasButtonReleased(button: Buttons) {
+  public wasButtonReleased(button: Buttons | number) {
     return Boolean(this._buttonsUp[button]);
   }
 
   /**
    * Gets the given button value between 0 and 1
    */
-  public getButton(button: Buttons) {
+  public getButton(button: Buttons | number) {
     return this._buttons[button];
   }
 
@@ -356,7 +349,7 @@ export class Gamepad {
    * Gets the given axis value between -1 and 1. Values below
    * {@apilink MinAxisMoveThreshold} are considered 0.
    */
-  public getAxes(axes: Axes) {
+  public getAxes(axes: Axes | number) {
     const value = this._axes[axes];
 
     if (Math.abs(value) < Gamepads.MinAxisMoveThreshold) {
@@ -413,6 +406,10 @@ export class Gamepad {
  * Gamepad Buttons enumeration
  */
 export enum Buttons {
+  /**
+   * Any button that isn't explicity known by excalibur
+   */
+  Unknown = -1,
   /**
    * Face 1 button (e.g. A)
    */
@@ -476,7 +473,16 @@ export enum Buttons {
   /**
    * D-pad right
    */
-  DpadRight = 15
+  DpadRight = 15,
+  /**
+   * Center button (e.g. the Nintendo Home Button)
+   */
+  CenterButton = 16,
+  /**
+   * Misc button 1 (e.g. Xbox Series X share button, PS5 microphone button, Nintendo Switch Pro capture button, Amazon Luna microphone button)
+   * defacto standard not listed on the w3c spec for a standard gamepad https://w3c.github.io/gamepad/#dfn-standard-gamepad
+   */
+  MiscButton1 = 17
 }
 
 /**
@@ -505,7 +511,7 @@ export enum Axes {
  * @internal
  */
 export interface NavigatorGamepads {
-  getGamepads(): NavigatorGamepad[];
+  getGamepads(): (NavigatorGamepad | undefined)[];
 }
 
 /**
