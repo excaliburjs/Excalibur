@@ -41,11 +41,11 @@ export default [
     source: 'https://github.com/mahbarahona/tiles',
   },
   {
-    title: 'Retro Ski',
+    title: 'RetroSki',
     image: retroSkiImage,
     description:
-      'Put your skis and let\'s race some randomly generated alpine ski tracks with your friends.',
-    url: 'https://une-entreprise.ch/retroski/',
+      'Retroski is a small game development project designed for peaceful mountain rides and friendly competition. Challenge your friends on randomly generated 2D alpine ski tracks!',
+    url: 'https://retro-ski.ch',
     source: 'https://github.com/mathieuher/RetroSki',
   },
   {
