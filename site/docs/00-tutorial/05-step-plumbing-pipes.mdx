@@ -39,6 +39,8 @@ export class Pipe extends ex.Actor {
 
 To make the `Bird` "collide" with our pipes we need to adjust our `onCollisionStart` to account for `Pipe`.
 
+We'll use the `stop()` method we created in step 3 to stop our bird from moving when we collide.
+
 ```typescript
 // bird.ts
 import * as ex from 'excalibur';
