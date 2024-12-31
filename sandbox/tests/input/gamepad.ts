@@ -95,7 +95,7 @@ function start() {
           actor.actions.scaleTo(ex.Vector.One.scale(1.25), ex.Vector.One.scale(5)).scaleTo(ex.Vector.One.scale(1), ex.Vector.One.scale(5));
         }
 
-        if (pad1.isButtonPressed(btnIndex, 0.1)) {
+        if (pad1.isButtonHeld(btnIndex, 0.1)) {
           actor.color = new ex.Color(255, 0, 0, 0.8);
           actor.value = pad1.getButton(btnIndex);
         } else {
@@ -109,6 +109,7 @@ function start() {
 
 class CircleActor extends ex.Actor {
   private _value = 0;
+  private _circle: ex.Circle;
   public get value(): number {
     return this._value;
   }
@@ -121,13 +122,16 @@ class CircleActor extends ex.Actor {
   });
   constructor(args: ex.ActorArgs) {
     super(args);
+    this._circle = new ex.Circle({
+      radius: this.width,
+      color: this.color
+    });
     this.graphics.add(
-      new ex.Circle({
-        radius: this.width,
-        color: this.color
+      new ex.GraphicsGroup({
+        members: [this._circle, this._text]
       })
     );
-    this.graphics.add(this._text);
+    // this.graphics.add(this._text);
     this._text.color = this.color;
   }
 }
