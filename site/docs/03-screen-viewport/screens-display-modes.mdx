@@ -39,7 +39,7 @@ const game = new ex.Engine({
 
 [[DisplayMode.FitScreen]] Fit to screen using as much space as possible while maintaining aspect ratio and resolution.
 
-This is not the same as [[Screen.goFullScreen]], which uses the fullscreen api, but behaves in a similar way maintaining aspect ratio.
+This is not the same as [[Screen.enterFullscreen]], which uses the fullscreen api, but behaves in a similar way maintaining aspect ratio.
 
 You may want to center your game and fit to the screen here is an example:
 
@@ -75,7 +75,7 @@ Click and drag right corner to resize!
 
 ### Fill Screen Display Mode
 
-[[DisplayMode.FillScreen]] Fill the entire screen's css width/height for the game resolution dynamically. This means the resolution of the game will change dynamically as the window is resized. This is not the same as [[Screen.goFullScreen]]
+[[DisplayMode.FillScreen]] Fill the entire screen's css width/height for the game resolution dynamically. This means the resolution of the game will change dynamically as the window is resized. This is not the same as [[Screen.enterFullscreen]]
 
 ```ts twoslash {1}
 // @include: ex
@@ -141,7 +141,7 @@ Click and drag right corner to resize!
 
 ### Fill Container Display Mode
 
-[[DisplayMode.FillContainer]] will fill the entire screen's css width/height for the game resolution dynamically. This means the resolution of the game will change dynamically as the window is resized. This is not the same as [[Screen.goFullScreen]]
+[[DisplayMode.FillContainer]] will fill the entire screen's css width/height for the game resolution dynamically. This means the resolution of the game will change dynamically as the window is resized. This is not the same as [[Screen.enterFullscreen]]
 
 ```css
 .container {
@@ -206,6 +206,11 @@ Click and drag right corner to resize!
 Click and drag right corner to resize!
 
 ## Fullscreen API
+:::warning
+
+Currently Apple does not support fullscreen API on iPhones, it does however work on later model iPads.
+
+:::
 
 The screen abstraction now supports the [browser fullscreen api](https://developer.mozilla.org/en-US/docs/Web/API/Fullscreen_API). This will cause the game to be displayed fullscreen until the user exits (usually with the escape key or by gesturing to the exit button at the top of the browser window).
 
@@ -225,17 +230,17 @@ This requires an explicit user gesture due to browser security, so wiring it int
 
 ```typescript
 document.getElementById('go-fullscreen')!.addEventListener('click', () => {
-    game.screen.goFullScreen();
+    game.screen.enterFullscreen();
 });
 ```
 
 
 ```typescript
-await game.screen.goFullScreen();
+await game.screen.enterFullscreen();
 
-await game.screen.exitFullScreen();
+await game.screen.exitFullscreen();
 ```
 
-By default `goFullScreen()` will use the canvas element as the root of full screen mode. If your game uses [HTML based UI](/docs/ui#html-based-ui), the HTML UI will not be included because it is not a child of the canvas element.
+By default `enterFullscreen()` will use the canvas element as the root of full screen mode. If your game uses [HTML based UI](/docs/ui#html-based-ui), the HTML UI will not be included because it is not a child of the canvas element.
 
-To include both the HTML based game UI as well as the game canvas, pass an id of an element that is the parent of both the canvas and UI. For example `goFullScreen('root')`
+To include both the HTML based game UI as well as the game canvas, pass an id of an element that is the parent of both the canvas and UI. For example `enterFullscreen('root')`

@@ -52,7 +52,7 @@ export enum DisplayMode {
 
   /**
    * Fit to screen using as much space as possible while maintaining aspect ratio and resolution.
-   * This is not the same as {@apilink Screen.goFullScreen} but behaves in a similar way maintaining aspect ratio.
+   * This is not the same as {@apilink Screen.enterFullscreen} but behaves in a similar way maintaining aspect ratio.
    *
    * You may want to center your game here is an example
    * ```html
@@ -79,7 +79,7 @@ export enum DisplayMode {
 
   /**
    * Fill the entire screen's css width/height for the game resolution dynamically. This means the resolution of the game will
-   * change dynamically as the window is resized. This is not the same as {@apilink Screen.goFullScreen}
+   * change dynamically as the window is resized. This is not the same as {@apilink Screen.enterFullscreen}
    */
   FillScreen = 'FillScreen',
 
@@ -347,7 +347,7 @@ export class Screen {
     this._isFullscreen = !this._isFullscreen;
     this._logger.debug('Fullscreen Change', this._isFullscreen);
     this.events.emit('fullscreen', {
-      fullscreen: this.isFullScreen
+      fullscreen: this.isFullscreen
     } satisfies FullScreenChangeEvent);
   };
 
@@ -639,16 +639,26 @@ export class Screen {
   public enterFullscreen(elementId?: string): Promise<void> {
     if (elementId) {
       const maybeElement = document.getElementById(elementId);
-      if (maybeElement) {
+      // workaround for safari partial support
+      if (maybeElement?.requestFullscreen || (maybeElement as any)?.webkitRequestFullscreen) {
         if (!maybeElement.getAttribute('ex-fullscreen-listener')) {
           maybeElement.setAttribute('ex-fullscreen-listener', 'true');
           maybeElement.addEventListener('fullscreenchange', this._fullscreenChangeHandler);
         }
-        const fullscreenPromise = maybeElement.requestFullscreen();
-        return fullscreenPromise;
+        if (maybeElement.requestFullscreen) {
+          return maybeElement.requestFullscreen() ?? Promise.resolve();
+        } else if ((maybeElement as any).webkitRequestFullscreen) {
+          return (maybeElement as any).webkitRequestFullscreen() ?? Promise.resolve();
+        }
       }
     }
-    return this._canvas.requestFullscreen();
+    if (this._canvas?.requestFullscreen) {
+      return this._canvas?.requestFullscreen() ?? Promise.resolve();
+    } else if ((this._canvas as any).webkitRequestFullscreen) {
+      return (this._canvas as any).webkitRequestFullscreen() ?? Promise.resolve();
+    }
+    this._logger.warnOnce('Could not go fullscreen, is this an iPhone? Currently Apple does not support fullscreen on iPhones');
+    return Promise.resolve();
   }
 
   /**

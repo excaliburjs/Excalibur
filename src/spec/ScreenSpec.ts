@@ -439,7 +439,7 @@ describe('A Screen', () => {
       viewport: { width: 800, height: 600 }
     });
 
-    sut.goFullScreen();
+    sut.enterFullscreen();
 
     expect(mockCanvas.requestFullscreen).toHaveBeenCalled();
   });
@@ -461,7 +461,7 @@ describe('A Screen', () => {
     const fakeElement = jasmine.createSpyObj('element', ['requestFullscreen', 'getAttribute', 'setAttribute', 'addEventListener']);
     spyOn(document, 'getElementById').and.returnValue(fakeElement);
 
-    sut.goFullScreen('some-id');
+    sut.enterFullscreen('some-id');
 
     expect(document.getElementById).toHaveBeenCalledWith('some-id');
     expect(fakeElement.getAttribute).toHaveBeenCalledWith('ex-fullscreen-listener');

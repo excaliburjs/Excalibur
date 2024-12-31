@@ -151,10 +151,10 @@ game.on('fallbackgraphicscontext', (ctx) => {
 // game.graphicsContext.addPostProcessor(colorblind);
 
 fullscreenButton.addEventListener('click', () => {
-  if (game.screen.isFullScreen) {
-    game.screen.exitFullScreen();
+  if (game.screen.isFullscreen) {
+    game.screen.exitFullscreen();
   } else {
-    game.screen.goFullScreen('container');
+    game.screen.enterFullscreen('container');
   }
 });
 game.showDebug(true);

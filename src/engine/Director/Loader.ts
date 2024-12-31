@@ -272,7 +272,7 @@ export class Loader extends DefaultLoader {
               if (this._originalOptions.fullscreenContainer instanceof HTMLElement) {
                 this._originalOptions.fullscreenContainer.requestFullscreen();
               } else {
-                this.engine.screen.goFullScreen(this._originalOptions.fullscreenContainer);
+                this.engine.screen.enterFullscreen(this._originalOptions.fullscreenContainer);
               }
             } catch (error) {
               this._logger.error('could not go fullscreen', error);
