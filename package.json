@@ -123,7 +123,7 @@
     "karma-summary-reporter": "3.1.1",
     "karma-webpack": "5.0.1",
     "lint-staged": "15.2.10",
-    "prettier": "3.2.5",
+    "prettier": "3.4.2",
     "puppeteer": "15.5.0",
     "raw-loader": "4.0.2",
     "react": "18.3.1",
