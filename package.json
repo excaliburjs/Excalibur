@@ -137,7 +137,7 @@
     "sync-request": "6.1.0",
     "terser-webpack-plugin": "5.3.10",
     "ts-loader": "9.5.1",
-    "typedoc": "0.25.13",
+    "typedoc": "0.27.6",
     "typescript": "5.6.3",
     "url-loader": "4.1.1",
     "webpack": "5.96.1",
