@@ -284,7 +284,9 @@ export class Loader extends DefaultLoader {
         this._playButton.addEventListener('click', startButtonHandler);
         this._playButton.addEventListener('touchend', startButtonHandler);
         this._playButton.addEventListener('pointerup', startButtonHandler);
-        this.engine.input.gamepads.once('button', () => startButtonHandler(new Event('button')));
+        if (this.engine) {
+          this.engine.input.gamepads.once('button', () => startButtonHandler(new Event('button')));
+        }
       });
 
       return await playButtonClicked;
