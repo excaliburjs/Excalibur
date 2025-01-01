@@ -427,12 +427,27 @@ export class GamepadDisconnectEvent extends GameEvent<Gamepad> {
  */
 export class GamepadButtonEvent extends GameEvent<Gamepad> {
   /**
-   * @param button  The Gamepad button
+   * @param button  The Gamepad {@apilink Buttons} if not known by excalibur {@apilink Buttons.Unknown} is returned, use index to disambiguate.
+   * @param index   The canonical index of the gamepad button from the system
    * @param value   A numeric value between 0 and 1
+   * @param self    Reference to the gamepad
    */
   constructor(
+    /**
+     * The Gamepad {@apilink Buttons} if not known by excalibur {@apilink Buttons.Unknown} is returned, use index to disambiguate.
+     */
     public button: Buttons,
+    /**
+     * The canonical index of the gamepad button from the system
+     */
+    public index: number,
+    /**
+     * A numeric value between 0 and 1
+     */
     public value: number,
+    /**
+     * Reference to the gamepad
+     */
     public self: Gamepad
   ) {
     super();
@@ -447,10 +462,20 @@ export class GamepadAxisEvent extends GameEvent<Gamepad> {
   /**
    * @param axis  The Gamepad axis
    * @param value A numeric value between -1 and 1
+   * @param self Reference to the gamepad
    */
   constructor(
+    /**
+     * The Gamepad {@apilink Axis}
+     */
     public axis: Axes,
+    /**
+     * A numeric value between -1 and 1, 0 is the neutral axis position.
+     */
     public value: number,
+    /**
+     * Reference to the gamepad
+     */
     public self: Gamepad
   ) {
     super();

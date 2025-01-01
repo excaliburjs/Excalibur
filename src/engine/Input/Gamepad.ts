@@ -121,6 +121,7 @@ export class Gamepads {
   public once<TEventName extends EventKey<GamepadEvents>>(eventName: TEventName, handler: Handler<GamepadEvents[TEventName]>): Subscription;
   public once(eventName: string, handler: Handler<unknown>): Subscription;
   public once<TEventName extends EventKey<GamepadEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+    this._enableAndUpdate(); // implicitly enable
     return this.events.once(eventName, handler);
   }
 
@@ -151,12 +152,15 @@ export class Gamepads {
         // If was connected, but now isn't emit the disconnect event
         if (gamepad.connected) {
           this.events.emit('disconnect', new GamepadDisconnectEvent(i, gamepad));
+          gamepad.events.unpipe(this.events);
         }
         // Reset connection status
         gamepad.connected = false;
         continue;
       } else {
+        const gamepad = this.at(i);
         if (!this.at(i).connected && this._isGamepadValid(gamepads[i])) {
+          gamepad.events.pipe(this.events);
           this.events.emit('connect', new GamepadConnectEvent(i, this.at(i)));
         }
         // Set connection status
@@ -186,7 +190,14 @@ export class Gamepads {
           if (value !== this._oldPads[i]?.getButton(buttonIndex)) {
             if (button?.pressed) {
               this.at(i).updateButton(buttonIndex, value);
-              this.at(i).events.emit('button', new GamepadButtonEvent(buttonIndex, value, this.at(i)));
+              // Fallback to unknown if not mapped
+              // prettier-ignore
+              this.at(i).events.emit('button', new GamepadButtonEvent(
+                buttonIndex in Buttons ? buttonIndex as Buttons : Buttons.Unknown,
+                buttonIndex,
+                value,
+                this.at(i))
+              );
             } else {
               this.at(i).updateButton(buttonIndex, 0);
             }

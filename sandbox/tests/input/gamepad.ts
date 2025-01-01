@@ -24,7 +24,7 @@ function start() {
     console.log('Gamepad connect');
   });
 
-  game.input.gamepads.on('disconnect', (evet: ex.GamepadDisconnectEvent) => {
+  game.input.gamepads.on('disconnect', (evt: ex.GamepadDisconnectEvent) => {
     console.log('Gamepad disconnect');
   });
 
