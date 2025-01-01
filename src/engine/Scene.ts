@@ -536,14 +536,14 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   public add(screenElement: ScreenElement): void;
   public add(entity: any): void {
     this.emit('entityadded', { target: entity } as any);
-    this.world.add(entity);
-    entity.scene = this;
     if (entity instanceof Timer) {
       if (!Util.contains(this._timers, entity)) {
         this.addTimer(entity);
       }
       return;
     }
+    this.world.add(entity);
+    entity.scene = this;
   }
 
   /**
@@ -648,8 +648,8 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
    */
   public remove(screenElement: ScreenElement): void;
   public remove(entity: any): void {
+    this.emit('entityremoved', { target: entity } as any);
     if (entity instanceof Entity) {
-      this.emit('entityremoved', { target: entity } as any);
       if (entity.isActive) {
         entity.kill();
       }

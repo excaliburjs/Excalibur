@@ -20,6 +20,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed false positive warning when adding timers 
 - Fixed issue where gamepad buttons wouldn't progress the default loader play button
 - Add defense around middling Safari fullscreen support and update documentation
 - Fixed issue where non-standard gamepad buttons would not be emitted by Excalibur

@@ -93,6 +93,19 @@ describe('A Timer', () => {
     expect(sut.timeElapsedTowardNextAction).toBe(0);
   });
 
+  it('does not warn when added to a scene', () => {
+    const warnSpy = spyOn(ex.Logger.getInstance(), 'warn');
+    const timerSpy = jasmine.createSpy('timer');
+    const sut = new ex.Timer({
+      interval: 42,
+      fcn: timerSpy
+    });
+
+    scene.add(sut);
+
+    expect(warnSpy).not.toHaveBeenCalled();
+  });
+
   it('can be stopped and started', () => {
     const timerSpy = jasmine.createSpy('timer');
     const sut = new ex.Timer({
