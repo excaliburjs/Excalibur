@@ -104,7 +104,7 @@ import { PipeFactory } from './pipe-factory';
 export class Level extends ex.Scene {
     random = new ex.Random();
     pipeFactory = new PipeFactory(this, this.random, Config.PipeInterval);
-    bird = new Bird(this);
+    bird = new Bird();
     ground!: Ground;
 
     onInitialize(engine: ex.Engine): void {

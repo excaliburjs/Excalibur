@@ -63,12 +63,13 @@ export class Level extends ex.Scene {
 }
 ```
 
-In our `Bird` we want to trigger this game over when it leaves the screen and when it collides with a `Pipe` or the `Ground`
+In our `Bird` we want to trigger this game over when it leaves the screen and when it collides with a `Pipe` or the `Ground`, so we'll pass in the instance of the `Level` so we can call it's `triggerGameOver()`.
 
 ```typescript
 // bird.ts
 export class Bird extends ex.Actor {
     playing = false;
+    constructor(private level: Level) { ... }
     ...
 
     override onInitialize(): void {
