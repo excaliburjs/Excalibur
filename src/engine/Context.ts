@@ -5,6 +5,8 @@ export interface Context<TValue> {
    * @param cb
    */
   scope: <TReturn>(value: TValue, cb: () => TReturn) => TReturn;
+
+  asyncScope: <TReturn>(value: TValue, cb: () => PromiseLike<TReturn>) => PromiseLike<TReturn>;
   value: TValue;
 }
 
@@ -26,8 +28,21 @@ export function createContext<TValue>() {
     scope: (value, cb) => {
       const old = ctx.value;
       ctx.value = value;
+
       try {
         return cb();
+      } catch (e) {
+        throw e;
+      } finally {
+        ctx.value = old;
+      }
+    },
+    asyncScope: async (value, cb) => {
+      const old = ctx.value;
+      ctx.value = value;
+
+      try {
+        return await cb();
       } catch (e) {
         throw e;
       } finally {

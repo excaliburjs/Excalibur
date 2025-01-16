@@ -235,3 +235,47 @@ export function coroutine(...args: any[]): CoroutineInstance {
 
   return co;
 }
+
+/**
+ *
+ */
+function all(...coroutines: CoroutineGenerator[]): CoroutineInstance {
+  return coroutine(function* () {
+    const coros = coroutines.map((c) => (typeof c === 'function' ? c() : c)).reverse();
+    while (true) {
+      const elapsed = yield;
+      let coroIndex = coros.length;
+      while (coroIndex--) {
+        if (coros[coroIndex].next(elapsed).done) {
+          coros.splice(coroIndex, 1);
+        }
+        if (coros.length === 0) {
+          return;
+        }
+      }
+    }
+  });
+}
+
+/**
+ *
+ */
+function first(...coroutines: CoroutineGenerator[]): CoroutineInstance {
+  return coroutine(function* () {
+    const coros = coroutines.map((c) => (typeof c === 'function' ? c() : c)).reverse();
+    while (true) {
+      const elapsed = yield;
+      let coroIndex = coros.length;
+      while (coroIndex--) {
+        if (coros[coroIndex].next(elapsed).done) {
+          coros.splice(coroIndex, 1);
+          coros.forEach((c) => c.return());
+          return;
+        }
+      }
+    }
+  });
+}
+
+coroutine.all = all;
+coroutine.first = first;

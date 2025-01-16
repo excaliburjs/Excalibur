@@ -177,22 +177,24 @@ export class Director<TKnownScenes extends string = any> {
   async onInitialize() {
     if (!this._initialized) {
       this._initialized = true;
-      if (this._deferredGoto) {
-        const deferredScene = this._deferredGoto;
-        this._deferredGoto = undefined;
-        const deferredTransition = this._deferredTransition;
-        this._deferredTransition = undefined;
-        const deferredSceneInstance = this.getSceneInstance(deferredScene);
-        if (deferredSceneInstance && deferredTransition) {
-          deferredTransition._addToTargetScene(this._engine, deferredSceneInstance);
+      await this._engine.scope(async () => {
+        if (this._deferredGoto) {
+          const deferredScene = this._deferredGoto;
+          this._deferredGoto = undefined;
+          const deferredTransition = this._deferredTransition;
+          this._deferredTransition = undefined;
+          const deferredSceneInstance = this.getSceneInstance(deferredScene);
+          if (deferredSceneInstance && deferredTransition) {
+            deferredTransition._addToTargetScene(this._engine, deferredSceneInstance);
+          }
+          await this.swapScene(deferredScene);
+          if (deferredSceneInstance && deferredTransition) {
+            await this.playTransition(deferredTransition, deferredSceneInstance);
+          }
+        } else {
+          await this.swapScene('root');
         }
-        await this.swapScene(deferredScene);
-        if (deferredSceneInstance && deferredTransition) {
-          await this.playTransition(deferredTransition, deferredSceneInstance);
-        }
-      } else {
-        await this.swapScene('root');
-      }
+      });
     }
   }
 

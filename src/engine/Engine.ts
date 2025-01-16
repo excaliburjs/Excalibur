@@ -410,6 +410,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
    * @param cb
    */
   scope = <TReturn>(cb: () => TReturn) => Engine.Context.scope(this, cb);
+  asyncScope = <TReturn>(cb: () => PromiseLike<TReturn>) => Engine.Context.asyncScope(this, cb);
 
   private _garbageCollector: GarbageCollector;
 
