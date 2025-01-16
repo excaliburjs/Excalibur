@@ -10,43 +10,77 @@ var actor = new ex.Actor({
   height: 100,
   color: ex.Color.Red
 });
+function* fadeBy(actor: ex.Actor, fadeChange: number, durationSeconds: number) {
+  let duration = durationSeconds * 1000; // milliseconds
+  let fadeChangeRate = fadeChange / duration;
+  let targetOpacity = actor.graphics.opacity + fadeChange;
+  while (duration > 0) {
+    const elapsed = yield;
+    duration -= elapsed;
+    actor.graphics.opacity += fadeChangeRate * elapsed;
+  }
+  actor.graphics.opacity = targetOpacity;
+}
+function* moveBy(actor: ex.Actor, change: ex.Vector, durationSeconds: number) {
+  let duration = durationSeconds * 1000; // milliseconds
+  let rateOfChange = change.scale(1 / duration);
+  let dest = actor.pos.add(change);
+  while (duration > 0) {
+    const elapsed = yield 1;
+    duration -= elapsed;
+    actor.pos.addEqual(rateOfChange.scale(elapsed));
+  }
+  actor.pos = dest;
+}
 
-var fadeBy = (actor: ex.Actor, fadeChange: number, durationSeconds: number) => {
-  // coroutines start automatically
-  return ex.coroutine(function* () {
-    let duration = durationSeconds * 1000; // milliseconds
-    let fadeChangeRate = fadeChange / duration;
-    let targetOpacity = actor.graphics.opacity + fadeChange;
-    while (duration > 0) {
-      const elapsed = yield;
-      duration -= elapsed;
-      actor.graphics.opacity += fadeChangeRate * elapsed;
-    }
-    actor.graphics.opacity = targetOpacity;
-  });
-};
+//var fadeBy = (actor: ex.Actor, fadeChange: number, durationSeconds: number) => {
+//  // coroutines start automatically
+//  return ex.coroutine(function*() {
+//    let duration = durationSeconds * 1000; // milliseconds
+//    let fadeChangeRate = fadeChange / duration;
+//    let targetOpacity = actor.graphics.opacity + fadeChange;
+//    while (duration > 0) {
+//      const elapsed = yield;
+//      duration -= elapsed;
+//      actor.graphics.opacity += fadeChangeRate * elapsed;
+//    }
+//    actor.graphics.opacity = targetOpacity;
+//  });
+//};
+//
+//var moveByVec = (actor: ex.Actor, change: ex.Vector, durationSeconds: number) => {
+//  // coroutines start automatically
+//  return ex.coroutine(function*() {
+//    let duration = durationSeconds * 1000; // milliseconds
+//    let rateOfChange = change.scale(1 / duration);
+//    let dest = actor.pos.add(change);
+//    while (duration > 0) {
+//      const elapsed = yield;
+//      duration -= elapsed;
+//      actor.pos.addEqual(rateOfChange.scale(elapsed));
+//    }
+//    actor.pos = dest;
+//  });
+//};
 
-var moveByVec = (actor: ex.Actor, change: ex.Vector, durationSeconds: number) => {
-  // coroutines start automatically
-  return ex.coroutine(function* () {
-    let duration = durationSeconds * 1000; // milliseconds
-    let rateOfChange = change.scale(1 / duration);
-    let dest = actor.pos.add(change);
-    while (duration > 0) {
-      const elapsed = yield;
-      duration -= elapsed;
-      actor.pos.addEqual(rateOfChange.scale(elapsed));
-    }
-    actor.pos = dest;
-  });
-};
+//actor.onInitialize = async () => {
+//  await moveByVec(actor, ex.vec(100, -100), 0.5);
+//  await moveByVec(actor, ex.vec(-100, -100), 0.5);
+//  await moveByVec(actor, ex.vec(-100, 100), 0.5);
+//  await moveByVec(actor, ex.vec(100, 100), 0.5);
+//  await fadeBy(actor, -1.0, 2);
+//};
 
-actor.onInitialize = async () => {
-  await moveByVec(actor, ex.vec(100, -100), 0.5);
-  await moveByVec(actor, ex.vec(-100, -100), 0.5);
-  await moveByVec(actor, ex.vec(-100, 100), 0.5);
-  await moveByVec(actor, ex.vec(100, 100), 0.5);
-  await fadeBy(actor, -1.0, 2);
+actor.onInitialize = () => {
+  ex.coroutine.all(
+    function* () {
+      yield* moveBy(actor, ex.vec(100, -100), 0.5) as any;
+      yield* moveBy(actor, ex.vec(-100, -100), 0.5) as any;
+      yield* moveBy(actor, ex.vec(-100, 100), 0.5) as any;
+      yield* moveBy(actor, ex.vec(100, 100), 0.5) as any;
+    },
+    fadeBy(actor, -1, 2) as any
+  );
 };
 
 game.currentScene.add(actor);
