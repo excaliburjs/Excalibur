@@ -679,7 +679,9 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     clone.addComponent((clone.motion = this.motion.clone() as MotionComponent), true);
     clone.addComponent((clone.actions = this.actions.clone() as ActionsComponent), true);
     clone.addComponent((clone.body = this.body.clone() as BodyComponent), true);
-    clone.addComponent((clone.collider = this.collider.clone() as ColliderComponent), true);
+    if (this.collider.get()) {
+      clone.addComponent((clone.collider = this.collider.clone() as ColliderComponent), true);
+    }
 
     const builtInComponents: Component[] = [
       this.transform,
