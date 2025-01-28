@@ -16,10 +16,10 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
-    "@docusaurus/core": "3.5.2",
-    "@docusaurus/plugin-client-redirects": "3.5.2",
-    "@docusaurus/preset-classic": "3.5.2",
-    "@docusaurus/theme-mermaid": "3.5.2",
+    "@docusaurus/core": "3.7.0",
+    "@docusaurus/plugin-client-redirects": "3.7.0",
+    "@docusaurus/preset-classic": "3.7.0",
+    "@docusaurus/theme-mermaid": "3.7.0",
     "@mdx-js/react": "3.1.0",
     "@stackblitz/sdk": "^1.11.0",
     "clsx": "^2.1.1",
@@ -37,7 +37,7 @@
   "devDependencies": {
     "@babel/plugin-proposal-decorators": "^7.24.7",
     "@babel/plugin-syntax-decorators": "^7.24.7",
-    "@docusaurus/module-type-aliases": "3.4.0",
+    "@docusaurus/module-type-aliases": "3.7.0",
     "@docusaurus/tsconfig": "^3.4.0",
     "@types/react": "^18.3.3",
     "micromark-extension-mdxjs": "^3.0.0",
