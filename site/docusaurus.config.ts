@@ -265,7 +265,7 @@ const config: Config = {
           items: [
             {
               label: 'BlueSky',
-              href: 'https://bsky.app/profile/excaliburjs.bsky.social',
+              href: 'https://bsky.app/profile/excaliburjs.com',
               rel: 'me'
             },
             {
