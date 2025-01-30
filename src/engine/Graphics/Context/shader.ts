@@ -1,5 +1,6 @@
 import { AffineMatrix, Color, Logger, Vector } from '../..';
 import { Matrix } from '../../Math/matrix';
+import { UniformBuffer } from './uniform-buffer';
 import { getAttributeComponentSize, getAttributePointerType } from './webgl-util';
 
 /**
@@ -88,6 +89,8 @@ export interface ShaderOptions {
 
   onPreLink?: (program: WebGLProgram) => void;
   onPostCompile?: (shader: Shader) => void;
+  onUpdate?: (elapsed: number) => void;
+  onDraw?: (elapsed: number) => void;
 }
 
 export class Shader {
@@ -102,6 +105,8 @@ export class Shader {
   public readonly fragmentSource: string;
   private _onPreLink?: (program: WebGLProgram) => void;
   private _onPostCompile?: (shader: Shader) => void;
+  private _onUpdate?: (elapsed: number) => void;
+  private _onDraw?: (elapsed: number) => void;
 
   public get compiled() {
     return this._compiled;
@@ -112,12 +117,14 @@ export class Shader {
    * @param options specify shader vertex and fragment source
    */
   constructor(options: ShaderOptions) {
-    const { gl, vertexSource, fragmentSource, onPreLink, onPostCompile } = options;
+    const { gl, vertexSource, fragmentSource, onPreLink, onPostCompile, onUpdate, onDraw } = options;
     this._gl = gl;
     this.vertexSource = vertexSource;
     this.fragmentSource = fragmentSource;
     this._onPreLink = onPreLink;
     this._onPostCompile = onPostCompile;
+    this._onUpdate = onUpdate;
+    this._onDraw = onDraw;
   }
 
   dispose() {
@@ -207,6 +214,43 @@ export class Shader {
     const gl = this._gl;
     gl.activeTexture(gl.TEXTURE0 + slotNumber);
     gl.bindTexture(gl.TEXTURE_2D, texture);
+  }
+
+  /**
+   * Set a unifrom buffer in the shader
+   *
+   * Note: binding point needs to be unique across your shader
+   * @param name
+   * @param buffer
+   * @param [bindingPoint]
+   */
+  setUniformBuffer(name: string, buffer: UniformBuffer, bindingPoint: number = 0) {
+    const gl = this._gl;
+    const index = gl.getUniformBlockIndex(this.program, name);
+    gl.uniformBlockBinding(this.program, index, bindingPoint);
+    gl.bindBufferBase(gl.UNIFORM_BUFFER, bindingPoint, buffer.buffer);
+  }
+
+  trySetUniformBuffer(name: string, buffer: UniformBuffer, bindingPoint: number = 0): boolean {
+    if (!this._compiled) {
+      this._logger.warn(`Must compile shader before setting a uniform block ${name} at binding point ${bindingPoint}`);
+      return false;
+    }
+    if (!this.isCurrentlyBound()) {
+      this._logger.warn(
+        'Currently accessed shader instance is not the current active shader in WebGL,' +
+          ' must call `shader.use()` before setting uniforms'
+      );
+      return false;
+    }
+    const gl = this._gl;
+    const index = gl.getUniformBlockIndex(this.program, name);
+    if (index) {
+      gl.uniformBlockBinding(this.program, index, bindingPoint);
+      gl.bindBufferBase(gl.UNIFORM_BUFFER, bindingPoint, buffer.buffer);
+      return true;
+    }
+    return false;
   }
 
   /**
