@@ -69,19 +69,23 @@ export class ArcadeSolver implements CollisionSolver {
     return contacts;
   }
 
+  private _compositeContactsIds = new Set<string>();
   public preSolve(contacts: CollisionContact[]) {
     // TODO keep track of composite contacts and remove dupes in the same direction
-    const contactsSet = new Set<string>();
     const epsilon = 0.0001;
     for (let i = 0; i < contacts.length; i++) {
       const contact = contacts[i];
 
-      // Cancel dup contacts (composite)
-      if (contactsSet.has(contact.id)) {
-        contact.cancel();
-        continue;
+      // Cancel dup composite together stratey contacts
+      const index = contact.id.indexOf('|');
+      if (index > 0) {
+        const compositeId = contact.id.substring(index + 1);
+        if (this._compositeContactsIds.has(compositeId)) {
+          contact.cancel();
+          continue;
+        }
+        this._compositeContactsIds.add(compositeId);
       }
-      contactsSet.add(contact.id);
 
       // Cancel near 0 mtv collisions
       if (Math.abs(contact.mtv.x) < epsilon && Math.abs(contact.mtv.y) < epsilon) {
@@ -105,6 +109,7 @@ export class ArcadeSolver implements CollisionSolver {
         new PreCollisionEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), mtv.negate(), contact)
       );
     }
+    this._compositeContactsIds.clear();
   }
 
   public postSolve(contacts: CollisionContact[]) {

@@ -80,7 +80,7 @@ export class CollisionContact {
     this.info = info;
     this.id = Pair.calculatePairHash(colliderA.id, colliderB.id);
     if (colliderA.composite || colliderB.composite) {
-      // Add on the parent composite pair for start/end contact if 'together
+      // Add on the parent composite pair for start/end contact if 'together'
       const colliderAId = colliderA.composite?.compositeStrategy === 'separate' ? colliderA.id : colliderA.composite?.id ?? colliderA.id;
       const colliderBId = colliderB.composite?.compositeStrategy === 'separate' ? colliderB.id : colliderB.composite?.id ?? colliderB.id;
       this.id += '|' + Pair.calculatePairHash(colliderAId, colliderBId);
