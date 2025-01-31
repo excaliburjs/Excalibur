@@ -9,23 +9,153 @@ import { getAttributeComponentSize, getAttributePointerType } from './webgl-util
 export type UniformTypeNames =
   | 'uniform1f'
   | 'uniform1i'
+  | 'uniform1ui'
   | 'uniform2f'
   | 'uniform2i'
+  | 'uniform2ui'
   | 'uniform3f'
   | 'uniform3i'
+  | 'uniform3ui'
   | 'uniform4f'
   | 'uniform4i'
+  | 'uniform4ui'
   | 'uniform1fv'
   | 'uniform1iv'
+  | 'uniform1uiv'
   | 'uniform2fv'
   | 'uniform2iv'
+  | 'uniform2uiv'
   | 'uniform3fv'
   | 'uniform3iv'
+  | 'uniform3uiv'
   | 'uniform4fv'
   | 'uniform4iv'
+  | 'uniform4uiv'
   | 'uniformMatrix2fv'
+  | 'uniformMatrix2x3fv'
+  | 'uniformMatrix2x4fv'
   | 'uniformMatrix3fv'
-  | 'uniformMatrix4fv';
+  | 'uniformMatrix3x2fv'
+  | 'uniformMatrix3x4fv'
+  | 'uniformMatrix4fv'
+  | 'uniformMatrix4x2fv'
+  | 'uniformMatrix4x3fv';
+
+/**
+ *
+ */
+export function glTypeToUniformTypeName(gl: WebGL2RenderingContext, glType: number): UniformTypeNames {
+  switch (glType) {
+    case gl.FLOAT: {
+      return 'uniform1f';
+    }
+    case gl.FLOAT_VEC2: {
+      return 'uniform2f';
+    }
+    case gl.FLOAT_VEC3: {
+      return 'uniform3f';
+    }
+    case gl.FLOAT_VEC4: {
+      return 'uniform4f';
+    }
+    case gl.INT: {
+      return 'uniform1i';
+    }
+    case gl.INT_VEC2: {
+      return 'uniform2i';
+    }
+    case gl.INT_VEC3: {
+      return 'uniform3i';
+    }
+    case gl.INT_VEC4: {
+      return 'uniform4i';
+    }
+    case gl.BOOL: {
+      return 'uniform1i';
+    }
+    case gl.BOOL_VEC2: {
+      return 'uniform2i';
+    }
+    case gl.BOOL_VEC3: {
+      return 'uniform3i';
+    }
+    case gl.BOOL_VEC4: {
+      return 'uniform4i';
+    }
+    case gl.FLOAT_MAT2: {
+      return 'uniform1f';
+    }
+    case gl.FLOAT_MAT3: {
+      return 'uniform1f';
+    }
+    case gl.FLOAT_MAT4: {
+      return 'uniform1f';
+    }
+    case gl.SAMPLER_2D: {
+      return 'uniform1f';
+    }
+    case gl.SAMPLER_CUBE: {
+      return 'uniform1f';
+    }
+    case gl.UNSIGNED_INT: {
+      return 'uniform1ui';
+    }
+    case gl.UNSIGNED_INT_VEC2: {
+      return 'uniform2ui';
+    }
+    case gl.UNSIGNED_INT_VEC3: {
+      return 'uniform3ui';
+    }
+    case gl.UNSIGNED_INT_VEC4: {
+      return 'uniform4ui';
+    }
+    case gl.FLOAT_MAT2x3: {
+      return 'uniformMatrix2x3fv';
+    }
+    case gl.FLOAT_MAT2x4: {
+      return 'uniformMatrix2x4fv';
+    }
+    case gl.FLOAT_MAT3x2: {
+      return 'uniformMatrix3x2fv';
+    }
+    case gl.FLOAT_MAT3x4: {
+      return 'uniformMatrix3x4fv';
+    }
+    case gl.FLOAT_MAT4x2: {
+      return 'uniformMatrix4x2fv';
+    }
+    case gl.FLOAT_MAT4x3: {
+      return 'uniformMatrix4x3fv';
+    }
+    case gl.SAMPLER_2D_ARRAY: {
+      return 'uniform1fv';
+    }
+    case gl.SAMPLER_2D_ARRAY_SHADOW: {
+      return 'uniform1f';
+    }
+    case gl.SAMPLER_CUBE_SHADOW: {
+      return 'uniform1f';
+    }
+    case gl.INT_SAMPLER_2D: {
+      return 'uniform1f';
+    }
+    case gl.INT_SAMPLER_3D: {
+      return 'uniform1f';
+    }
+    case gl.INT_SAMPLER_CUBE: {
+      return 'uniform1f';
+    }
+    case gl.INT_SAMPLER_2D_ARRAY: {
+      return 'uniform1f';
+    }
+    case gl.UNSIGNED_INT_SAMPLER_2D: {
+      return 'uniform1ui';
+    }
+    default: {
+      throw new Error(`Unknown uniform type: ${glType}`);
+    }
+  }
+}
 
 type RemoveFirstFromTuple<T extends any[]> = T['length'] extends 0
   ? []
@@ -33,7 +163,7 @@ type RemoveFirstFromTuple<T extends any[]> = T['length'] extends 0
     ? I
     : [];
 
-type UniformParameters<TUniformType extends UniformTypeNames> = RemoveFirstFromTuple<Parameters<WebGLRenderingContext[TUniformType]>>;
+type UniformParameters<TUniformType extends UniformTypeNames> = RemoveFirstFromTuple<Parameters<WebGL2RenderingContext[TUniformType]>>;
 
 export interface UniformDefinition {
   name: string;
@@ -87,6 +217,11 @@ export interface ShaderOptions {
    */
   fragmentSource: string;
 
+  /**
+   * Set initial uniforms
+   */
+  uniforms?: Record<string, number | Float32Array>;
+
   onPreLink?: (program: WebGLProgram) => void;
   onPostCompile?: (shader: Shader) => void;
   onUpdate?: (elapsed: number) => void;
@@ -98,15 +233,18 @@ export class Shader {
   private _logger = Logger.getInstance();
   private _gl: WebGL2RenderingContext;
   public program!: WebGLProgram;
-  public uniforms: { [variableName: string]: UniformDefinition } = {};
+  private _uniforms: { [variableName: string]: UniformDefinition } = {};
   public attributes: { [variableName: string]: VertexAttributeDefinition } = {};
+  private _uniformBuffers: { [blockName: string]: UniformBuffer } = {};
   private _compiled = false;
   public readonly vertexSource: string;
   public readonly fragmentSource: string;
   private _onPreLink?: (program: WebGLProgram) => void;
   private _onPostCompile?: (shader: Shader) => void;
-  private _onUpdate?: (elapsed: number) => void;
-  private _onDraw?: (elapsed: number) => void;
+  _onUpdate?: (elapsed: number) => void;
+  _onDraw?: (elapsed: number) => void;
+
+  uniforms: Record<string, number | Float32Array> = {};
 
   public get compiled() {
     return this._compiled;
@@ -117,10 +255,11 @@ export class Shader {
    * @param options specify shader vertex and fragment source
    */
   constructor(options: ShaderOptions) {
-    const { gl, vertexSource, fragmentSource, onPreLink, onPostCompile, onUpdate, onDraw } = options;
+    const { gl, vertexSource, fragmentSource, onPreLink, onPostCompile, onUpdate, onDraw, uniforms } = options;
     this._gl = gl;
     this.vertexSource = vertexSource;
     this.fragmentSource = fragmentSource;
+    this.uniforms = uniforms ?? this.uniforms;
     this._onPreLink = onPreLink;
     this._onPostCompile = onPostCompile;
     this._onUpdate = onUpdate;
@@ -161,13 +300,37 @@ export class Shader {
     }
     const uniforms = this.getUniforms();
     for (const uniform of uniforms) {
-      this.uniforms[uniform.name] = uniform;
+      this._uniforms[uniform.name] = uniform;
     }
 
     this._compiled = true;
     if (this._onPostCompile) {
       this._onPostCompile(this);
     }
+
+    // set initial uniforms (if any)
+    const entries = Object.entries(this.uniforms);
+    if (entries.length) {
+      this.use();
+      const uniforms = this.getUniforms();
+      for (const [key, value] of entries) {
+        if (value instanceof Float32Array) {
+          this.setUniformBufferFloat32Array(key, value);
+        } else {
+          const uniform = uniforms.find((u) => u.name === key);
+          if (uniform) {
+            const typeName = glTypeToUniformTypeName(gl, uniform.glType) as UniformTypeNames;
+            this.trySetUniform(typeName as any, key, value); // TODO for some reason this is confusing ts??
+          } else {
+            this._logger.warnOnce(
+              `Could not locate uniform named ${key},` +
+                ` this can happen if the uniform is unused in the shader code some GPUs will remove this as an optimization.`
+            );
+          }
+        }
+      }
+    }
+
     return this.program;
   }
 
@@ -227,8 +390,33 @@ export class Shader {
   setUniformBuffer(name: string, buffer: UniformBuffer, bindingPoint: number = 0) {
     const gl = this._gl;
     const index = gl.getUniformBlockIndex(this.program, name);
+    if (index === gl.INVALID_INDEX) {
+      this._logger.warnOnce(`Invalid block name ${name}`);
+    }
     gl.uniformBlockBinding(this.program, index, bindingPoint);
     gl.bindBufferBase(gl.UNIFORM_BUFFER, bindingPoint, buffer.buffer);
+  }
+
+  setUniformBufferFloat32Array(name: string, data: Float32Array, bindingPoint: number = 0) {
+    const gl = this._gl;
+    const index = gl.getUniformBlockIndex(this.program, name);
+    if (index === gl.INVALID_INDEX) {
+      this._logger.warnOnce(`Invalid block name ${name}`);
+    }
+    let uniformBuffer: UniformBuffer;
+    if (this._uniformBuffers[name]) {
+      uniformBuffer = this._uniformBuffers[name];
+      uniformBuffer.bufferData.set(data);
+      uniformBuffer.upload();
+    } else {
+      uniformBuffer = new UniformBuffer({
+        gl,
+        data
+      });
+      this._uniformBuffers[name] = uniformBuffer;
+    }
+    gl.uniformBlockBinding(this.program, index, bindingPoint);
+    gl.bindBufferBase(gl.UNIFORM_BUFFER, bindingPoint, uniformBuffer.buffer);
   }
 
   trySetUniformBuffer(name: string, buffer: UniformBuffer, bindingPoint: number = 0): boolean {
