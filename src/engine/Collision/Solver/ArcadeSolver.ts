@@ -71,12 +71,11 @@ export class ArcadeSolver implements CollisionSolver {
 
   private _compositeContactsIds = new Set<string>();
   public preSolve(contacts: CollisionContact[]) {
-    // TODO keep track of composite contacts and remove dupes in the same direction
     const epsilon = 0.0001;
     for (let i = 0; i < contacts.length; i++) {
       const contact = contacts[i];
 
-      // Cancel dup composite together stratey contacts
+      // Cancel dup composite together strategy contacts
       const index = contact.id.indexOf('|');
       if (index > 0) {
         const compositeId = contact.id.substring(index + 1);
