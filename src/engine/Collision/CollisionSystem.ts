@@ -113,7 +113,7 @@ export class CollisionSystem extends System {
     this._currentFrameContacts.clear();
 
     // Given possible pairs find actual contacts
-    let contacts: CollisionContact[] = []; // = this._processor.narrowphase(pairs, this._engine?.debug?.stats?.currFrame);
+    let contacts: CollisionContact[] = [];
 
     const solver: CollisionSolver = this.getSolver();
 
