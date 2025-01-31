@@ -7,6 +7,8 @@ import { BodyComponent } from '../BodyComponent';
 import { ContactBias, ContactSolveBias, HorizontalFirst, None, VerticalFirst } from './ContactBias';
 import { PhysicsConfig } from '../PhysicsConfig';
 import { DeepRequired } from '../../Util/Required';
+import { CompositeCollider } from '../Index';
+import { Vector } from '../../Math';
 
 /**
  * ArcadeSolver is the default in Excalibur. It solves collisions so that there is no overlap between contacts,
@@ -70,14 +72,26 @@ export class ArcadeSolver implements CollisionSolver {
   }
 
   public preSolve(contacts: CollisionContact[]) {
+    // TODO keep track of composite contacts and remove dupes in the same direction
+    const contactsSet = new Set<string>();
     const epsilon = 0.0001;
     for (let i = 0; i < contacts.length; i++) {
       const contact = contacts[i];
-      if (Math.abs(contact.mtv.x) < epsilon && Math.abs(contact.mtv.y) < epsilon) {
-        // Cancel near 0 mtv collisions
+
+      // Cancel dup contacts (composite)
+      if (contactsSet.has(contact.id)) {
         contact.cancel();
         continue;
       }
+      contactsSet.add(contact.id);
+
+      // Cancel near 0 mtv collisions
+      if (Math.abs(contact.mtv.x) < epsilon && Math.abs(contact.mtv.y) < epsilon) {
+        contact.cancel();
+        continue;
+      }
+
+      // Record distance/direction for sorting
       const side = Side.fromDirection(contact.mtv);
       const mtv = contact.mtv.negate();
 
