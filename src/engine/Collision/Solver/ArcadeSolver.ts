@@ -7,8 +7,6 @@ import { BodyComponent } from '../BodyComponent';
 import { ContactBias, ContactSolveBias, HorizontalFirst, None, VerticalFirst } from './ContactBias';
 import { PhysicsConfig } from '../PhysicsConfig';
 import { DeepRequired } from '../../Util/Required';
-import { CompositeCollider } from '../Index';
-import { Vector } from '../../Math';
 
 /**
  * ArcadeSolver is the default in Excalibur. It solves collisions so that there is no overlap between contacts,
