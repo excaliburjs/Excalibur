@@ -93,7 +93,7 @@
     "@types/jasmine": "5.1.5",
     "@types/node": "22.10.3",
     "@types/react-color": "3.0.13",
-    "@types/webpack-env": "1.18.5",
+    "@types/webpack-env": "1.18.8",
     "@typescript-eslint/eslint-plugin": "7.18.0",
     "@typescript-eslint/parser": "7.18.0",
     "babel-loader": "9.2.1",
