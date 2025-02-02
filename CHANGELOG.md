@@ -20,6 +20,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where the ActorArgs type hint would not error when providing a color causing confusion when it didn't produce a default graphic.
 - Fixed false positive warning when adding timers 
 - Fixed issue where gamepad buttons wouldn't progress the default loader play button
 - Add defense around middling Safari fullscreen support and update documentation
