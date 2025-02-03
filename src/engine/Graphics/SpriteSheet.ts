@@ -2,6 +2,7 @@ import { ImageSource } from './ImageSource';
 import { SourceView, Sprite } from './Sprite';
 import { GraphicOptions } from './Graphic';
 import { TiledSprite, TiledSpriteOptions } from './TiledSprite';
+import { Vector } from '../Math/vector';
 
 /**
  * Specify sprite sheet spacing options, useful if your sprites are not tightly packed
@@ -12,13 +13,13 @@ export interface SpriteSheetSpacingDimensions {
    * The starting point to offset and start slicing the sprite sheet from the top left of the image.
    * Default is (0, 0)
    */
-  originOffset?: { x?: number; y?: number };
+  originOffset?: { x?: number; y?: number } | Vector;
 
   /**
    * The margin between sprites.
    * Default is (0, 0)
    */
-  margin?: { x?: number; y?: number };
+  margin?: { x?: number; y?: number } | Vector;
 }
 
 /**
@@ -227,8 +228,27 @@ export class SpriteSheet {
       grid: { rows, columns: cols, spriteWidth, spriteHeight },
       spacing: { originOffset, margin }
     } = options;
-    const offsetDefaults = { x: 0, y: 0, ...originOffset };
-    const marginDefaults = { x: 0, y: 0, ...margin };
+    let newmargin: { x: number; y: number } | undefined;
+    let neworiginOffset: { x: number; y: number } | undefined;
+
+    if (originOffset instanceof Vector) {
+      neworiginOffset = { x: originOffset.x, y: originOffset.y };
+    } else {
+      if (originOffset) {
+        neworiginOffset = { x: originOffset.x as number, y: originOffset.y as number };
+      }
+    }
+
+    if (margin instanceof Vector) {
+      newmargin = { x: margin.x, y: margin.y };
+    } else {
+      if (margin) {
+        newmargin = { x: margin.x as number, y: margin.y as number };
+      }
+    }
+
+    const offsetDefaults = { x: 0, y: 0, ...neworiginOffset };
+    const marginDefaults = { x: 0, y: 0, ...newmargin };
     for (let x = 0; x < cols; x++) {
       for (let y = 0; y < rows; y++) {
         sprites[x + y * cols] = new Sprite({
