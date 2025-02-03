@@ -8,7 +8,7 @@
   },
   "packageRules": [
     {
-      "matchPackageNames": ["typedoc"],
+      "matchPackageNames": ["typedoc", "@docusaurus/"],
       "automerge": false
     }
   ]

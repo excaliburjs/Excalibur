@@ -145,12 +145,15 @@ type ColliderArgs =
   {
       /**
        * Optionally supply a collider for an actor, if supplied ignores any supplied width/height
+       *
+       * No default graphigc is created in this case
        */
       collider?: Collider;
 
       width?: undefined;
       height?: undefined;
       radius?: undefined;
+      color?: undefined;
     }
   // box collider
   | {
@@ -163,6 +166,11 @@ type ColliderArgs =
        */
       height?: number;
 
+      /**
+       * Optionally set the color of a rectangle graphic for the actor
+       */
+      color?: Color;
+
       collider?: undefined;
       radius?: undefined;
     }
@@ -172,6 +180,11 @@ type ColliderArgs =
        * Optionally set the radius of the circle collider for the actor
        */
       radius?: number;
+
+      /**
+       * Optionally set the color on a circle graphic for the actor
+       */
+      color?: Color;
 
       collider?: undefined;
       width?: undefined;
