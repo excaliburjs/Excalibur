@@ -20,21 +20,21 @@ export const TriggerEvents = {
  */
 export interface TriggerOptions {
   // position of the trigger
-  pos: Vector;
+  pos?: Vector;
   // width of the trigger
-  width: number;
+  width?: number;
   // height of the trigger
-  height: number;
+  height?: number;
   // whether the trigger is visible or not
-  visible: boolean;
+  visible?: boolean;
   // action to take when triggered
-  action: (entity: Entity) => void;
+  action?: (entity: Entity) => void;
   // if specified the trigger will only fire on a specific entity and overrides any filter
-  target: Entity;
+  target?: Entity;
   // Returns true if the triggers should fire on the collided entity
-  filter: (entity: Entity) => boolean;
+  filter?: (entity: Entity) => boolean;
   // -1 if it should repeat forever
-  repeat: number;
+  repeat?: number;
 }
 
 /**
@@ -62,7 +62,7 @@ export class Trigger extends Actor {
   /**
    * @param options Trigger options
    */
-  constructor(options: Partial<TriggerOptions> & ActorArgs) {
+  constructor(options: TriggerOptions & ActorArgs) {
     super({ ...options });
 
     this.filter = options.filter ?? (() => true);
