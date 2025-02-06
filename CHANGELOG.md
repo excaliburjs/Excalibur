@@ -15,12 +15,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added new `transitionstart` and `transitionend` events to `ex.Scenes`
+- Pipe `navigation*` events to `ex.Engine`
 - Added ability to use `ex.Vector` to specify offset and margin in `SpriteSheet.fromImageSource({..})`
 - New PostProcessor.onDraw() hook to handle uploading textures
 - Adds contact solve bias to RealisticSolver, this allows customization on which direction contacts are solved first. By default there is no bias set to 'none'.
 
 ### Fixed
 
+- Fixed `onTransition` on the initial scene transition
+- Fixed `ex.TriggerOptions` type to all optional parameters
 - Fixed issue where the ActorArgs type hint would not error when providing a color causing confusion when it didn't produce a default graphic.
 - Fixed false positive warning when adding timers 
 - Fixed issue where gamepad buttons wouldn't progress the default loader play button

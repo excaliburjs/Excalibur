@@ -24,7 +24,7 @@ export const DirectorEvents = {
   NavigationStart: 'navigationstart',
   Navigation: 'navigation',
   NavigationEnd: 'navigationend'
-};
+} as const;
 
 export interface SceneWithOptions {
   /**
@@ -233,6 +233,7 @@ export class Director<TKnownScenes extends string = any> {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         maybeStartTransition._addToTargetScene(this._engine, startSceneInstance);
         this.swapScene(this.startScene).then(() => {
+          startSceneInstance.onTransition('in');
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           return this.playTransition(maybeStartTransition, startSceneInstance);
         });
@@ -541,8 +542,10 @@ export class Director<TKnownScenes extends string = any> {
       targetScene.input?.toggleEnabled(!transition.blockInput);
       this._engine.input?.toggleEnabled(!transition.blockInput);
 
+      targetScene.events.emit('transitionstart', transition);
       this.currentTransition._addToTargetScene(this._engine, targetScene);
       await this.currentTransition._play();
+      targetScene.events.emit('transitionend', transition);
 
       targetScene.input?.toggleEnabled(sceneInputEnabled);
     }

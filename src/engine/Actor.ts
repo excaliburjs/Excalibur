@@ -253,7 +253,7 @@ export const ActorEvents = {
   ExitViewPort: 'exitviewport',
   ActionStart: 'actionstart',
   ActionComplete: 'actioncomplete'
-};
+} as const;
 
 /**
  * The most important primitive in Excalibur is an `Actor`. Anything that

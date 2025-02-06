@@ -48,7 +48,7 @@ import { ImageFiltering } from './Graphics/Filtering';
 import { GraphicsDiagnostics } from './Graphics/GraphicsDiagnostics';
 import { Toaster } from './Util/Toaster';
 import { InputMapper } from './Input/InputMapper';
-import { GoToOptions, SceneMap, Director, StartOptions, SceneWithOptions, WithRoot } from './Director/Director';
+import { GoToOptions, SceneMap, Director, StartOptions, SceneWithOptions, WithRoot, DirectorEvents } from './Director/Director';
 import { InputHost } from './Input/InputHost';
 import { getDefaultPhysicsConfig, PhysicsConfig } from './Collision/PhysicsConfig';
 import { DeepRequired } from './Util/Required';
@@ -56,7 +56,7 @@ import { Context, createContext, useContext } from './Context';
 import { DefaultGarbageCollectionOptions, GarbageCollectionOptions, GarbageCollector } from './GarbageCollector';
 import { mergeDeep } from './Util/Util';
 
-export type EngineEvents = {
+export type EngineEvents = DirectorEvents & {
   fallbackgraphicscontext: ExcaliburGraphicsContext2DCanvas;
   initialize: InitializeEvent<Engine>;
   visible: VisibleEvent;
@@ -83,7 +83,8 @@ export const EngineEvents = {
   PreFrame: 'preframe',
   PostFrame: 'postframe',
   PreDraw: 'predraw',
-  PostDraw: 'postdraw'
+  PostDraw: 'postdraw',
+  ...DirectorEvents
 } as const;
 
 /**
@@ -1052,6 +1053,7 @@ O|===|* >________________>\n\
     this.debug = new DebugConfig(this);
 
     this.director = new Director(this, options.scenes);
+    this.director.events.pipe(this.events);
 
     this._initialize(options);
 
