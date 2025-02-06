@@ -233,6 +233,7 @@ export class Director<TKnownScenes extends string = any> {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         maybeStartTransition._addToTargetScene(this._engine, startSceneInstance);
         this.swapScene(this.startScene).then(() => {
+          startSceneInstance.onTransition('in');
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           return this.playTransition(maybeStartTransition, startSceneInstance);
         });

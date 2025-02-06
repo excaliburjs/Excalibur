@@ -23,6 +23,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed `onTransition` on the initial scene transition
 - Fixed `ex.TriggerOptions` type to all optional parameters
 - Fixed issue where the ActorArgs type hint would not error when providing a color causing confusion when it didn't produce a default graphic.
 - Fixed false positive warning when adding timers 

@@ -86,6 +86,10 @@ var game = new ex.Engine({
   }
 });
 
+game.currentScene.onTransition = () => {
+  console.log('initial scene transition');
+};
+
 game.on('navigation', (evt) => {
   console.log('navigation', evt);
 });
