@@ -1,7 +1,7 @@
 import { Color } from '../../Color';
 import { ExcaliburGraphicsContext } from './ExcaliburGraphicsContext';
 import { ExcaliburGraphicsContextWebGL } from './ExcaliburGraphicsContextWebGL';
-import { Shader } from './shader';
+import { Shader, UniformDictionary } from './shader';
 import { Logger } from '../../Util/Log';
 import { ImageSource, ImageSourceAttributeConstants } from '../ImageSource';
 import { ImageFiltering, parseImageFiltering } from '../Filtering';
@@ -79,7 +79,7 @@ export interface MaterialOptions {
   /**
    * Optionally set starting uniforms on a shader
    */
-  uniforms?: Record<string, number | Float32Array>;
+  uniforms?: UniformDictionary;
 }
 
 const defaultVertexSource = `#version 300 es
@@ -121,7 +121,7 @@ export class Material {
   private _textures = new Map<ImageSource, WebGLTexture>();
   private _maxTextureSlots!: number;
   private _graphicsContext!: ExcaliburGraphicsContextWebGL;
-  private _uniforms: Record<string, number | Float32Array> = {};
+  private _uniforms: UniformDictionary = {};
 
   constructor(options: MaterialOptions) {
     const { color, name, vertexSource, fragmentSource, graphicsContext, images, uniforms } = options;
@@ -161,6 +161,10 @@ export class Material {
     });
     this._shader.compile();
     this._initialized = true;
+  }
+
+  public get uniforms(): UniformDictionary {
+    return this._shader.uniforms;
   }
 
   get color(): Color {

@@ -47,23 +47,12 @@ var material = game.graphicsContext.createMaterial({
         color.rgb = color.rgb * color.a;
     }`,
   uniforms: {
+    // prettier-ignore
     Lighting: new Float32Array([
-      0.5,
-      0.5,
-      0.1,
-      0.1, // light 1 pos
-      0,
-      1,
-      0,
-      1, // light 1 color
-      1,
-      1,
-      0.1,
-      0.1, // light2 pos
-      0,
-      0,
-      1,
-      1 // light 2 color
+      0.5, 0.5, 0.1, 0.1, // light 1 pos
+      0, 1, 0, 1, // light 1 color
+      1, 1, 0.1, 0.1, // light2 pos
+      0, 0, 1, 1 // light 2 color
     ])
   }
 }) as ex.Material;
@@ -81,12 +70,40 @@ ex.coroutine(
       const x2 = Math.cos(-time);
       const y2 = Math.sin(-time);
 
-      material.update((shader: ex.Shader) => {
-        shader.setUniformBufferFloat32Array(
-          'Lighting',
-          new Float32Array([0.2 * x1 + 0.2, 0.2 * y1 + 0.2, 0.1, 0, 0, 1, 0, 1, 0.5 * x2 + 0.5, 0.5 * y2 + 0.5, 0.1, 0, 0, 0, 1, 1])
-        );
-      });
+      material.uniforms.Lighting = new Float32Array([
+        0.2 * x1 + 0.2,
+        0.2 * y1 + 0.2,
+        0.1,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0.5 * x2 + 0.5,
+        0.5 * y2 + 0.5,
+        0.1,
+        0,
+        0,
+        0,
+        1,
+        1
+      ]);
+
+      material.getShader()._flagDirty();
+
+      //material.update((shader: ex.Shader) => {
+      //  shader.setUniformBuffer(
+      //    'Lighting',
+      //    // prettier-ignore
+      //    new Float32Array([
+      //      0.2 * x1 + 0.2, 0.2 * y1 + 0.2, 0.1, 0,
+      //      0, 1, 0, 1,
+      //      0.5 * x2 + 0.5, 0.5 * y2 + 0.5, 0.1, 0,
+      //      0, 0, 1, 1
+      //    ])
+      //  );
+      //});
+      //
     }
   }.bind(this)
 );
