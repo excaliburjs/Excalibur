@@ -85,15 +85,39 @@ var game = new ex.Engine({
     threshold: { fps: 20, numberOfFrames: 100 }
   }
 });
+
+game.on('navigation', (evt) => {
+  console.log('navigation', evt);
+});
+
+game.on('navigationstart', (evt) => {
+  console.log('navigationstart', evt);
+});
+
+game.on('navigationend', (evt) => {
+  console.log('navigationend', evt);
+});
+
 game.screen.events.on('fullscreen', (evt) => {
   console.log('fullscreen', evt);
 });
+
 game.screen.events.on('resize', (evt) => {
   console.log('resize', evt);
 });
+
 game.screen.events.on('pixelratio', (evt) => {
   console.log('pixelratio', evt);
 });
+
+game.currentScene.on('transitionstart', (evt) => {
+  console.log('transitionstart', evt);
+});
+
+game.currentScene.on('transitionend', (evt) => {
+  console.log('transitionend', evt);
+});
+
 game.currentScene.onPreDraw = (ctx: ex.ExcaliburGraphicsContext) => {
   ctx.save();
   ctx.z = 99;
@@ -879,6 +903,15 @@ player.on('pointerwheel', () => {
 });
 
 var newScene = new ex.Scene();
+
+newScene.on('transitionstart', (evt) => {
+  console.log('transitionstart', evt);
+});
+
+newScene.on('transitionend', (evt) => {
+  console.log('transitionend', evt);
+});
+
 newScene.backgroundColor = ex.Color.ExcaliburBlue;
 newScene.add(new ex.Label({ text: 'MAH LABEL!', x: 200, y: 100 }));
 newScene.on('activate', (evt?: ex.ActivateEvent) => {

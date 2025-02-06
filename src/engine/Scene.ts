@@ -55,6 +55,8 @@ export type SceneEvents = {
   predebugdraw: PreDebugDrawEvent;
   postdebugdraw: PostDebugDrawEvent;
   preload: PreLoadEvent;
+  transitionstart: Transition;
+  transitionend: Transition;
 };
 
 export const SceneEvents = {
@@ -67,8 +69,10 @@ export const SceneEvents = {
   PostDraw: 'postdraw',
   PreDebugDraw: 'predebugdraw',
   PostDebugDraw: 'postdebugdraw',
-  PreLoad: 'preload'
-};
+  PreLoad: 'preload',
+  TransitionStart: 'transitionstart',
+  TransitionEnd: 'transitionend'
+} as const;
 
 export type SceneConstructor = new (...args: any[]) => Scene;
 /**
