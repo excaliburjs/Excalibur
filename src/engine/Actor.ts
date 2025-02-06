@@ -600,22 +600,9 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     this.offset = offset ?? Vector.Zero;
     this.transform = new TransformComponent();
     this.addComponent(this.transform);
-
     this.pos = pos ?? vec(x ?? 0, y ?? 0);
-    if (this.pos && isNaN(this.pos.x) && isNaN(this.pos.y)) {
-      this.logger.warnOnce(`Actor with name: ${this.name} was constructed with a NaN pos! This can cause a lot of unexpected bugs!`);
-    }
-
     this.rotation = rotation ?? 0;
-    if (isNaN(this.rotation)) {
-      this.logger.warnOnce(`Actor with name: ${this.name} was constructed with a NaN rotation! This can cause a lot of unexpected bugs!`);
-    }
-
     this.scale = scale ?? vec(1, 1);
-    if (this.scale && isNaN(this.scale.x) && isNaN(this.scale.y)) {
-      this.logger.warnOnce(`Actor with name: ${this.name} was constructed with a NaN scale! This can cause a lot of unexpected bugs!`);
-    }
-
     this.z = z ?? 0;
     this.transform.coordPlane = coordPlane ?? CoordPlane.World;
     this._silenceWarnings = silenceWarnings ?? false;
