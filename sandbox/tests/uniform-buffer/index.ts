@@ -70,26 +70,15 @@ ex.coroutine(
       const x2 = Math.cos(-time);
       const y2 = Math.sin(-time);
 
+      // prettier-ignore
       material.uniforms.Lighting = new Float32Array([
-        0.2 * x1 + 0.2,
-        0.2 * y1 + 0.2,
-        0.1,
-        0,
-        0,
-        1,
-        0,
-        1,
-        0.5 * x2 + 0.5,
-        0.5 * y2 + 0.5,
-        0.1,
-        0,
-        0,
-        0,
-        1,
-        1
+        0.2 * x1 + 0.2, 0.2 * y1 + 0.2, 0.1, 0,
+        0, 1, 0, 1,
+        0.5 * x2 + 0.5, 0.5 * y2 + 0.5, 0.1, 0,
+        0, 0, 1, 1
       ]);
 
-      material.getShader()._flagDirty();
+      //material.getShader()._flagDirty();
 
       //material.update((shader: ex.Shader) => {
       //  shader.setUniformBuffer(

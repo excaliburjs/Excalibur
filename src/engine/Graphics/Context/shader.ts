@@ -1,5 +1,6 @@
 import { AffineMatrix, Color, Logger, Vector } from '../..';
 import { Matrix } from '../../Math/matrix';
+import { watch } from '../../Util/Watch';
 import { UniformBuffer } from './uniform-buffer';
 import { getAttributeComponentSize, getAttributePointerType } from './webgl-util';
 
@@ -254,7 +255,7 @@ export class Shader {
     this._dirty = true;
   }
 
-  uniforms: UniformDictionary = {};
+  uniforms: UniformDictionary = watch({}, () => this._flagDirty());
 
   public get compiled() {
     return this._compiled;
@@ -269,7 +270,7 @@ export class Shader {
     this._gl = gl;
     this.vertexSource = vertexSource;
     this.fragmentSource = fragmentSource;
-    this.uniforms = uniforms ?? this.uniforms;
+    this.uniforms = watch(uniforms ?? this.uniforms, () => this._flagDirty());
     this._onPreLink = onPreLink;
     this._onPostCompile = onPostCompile;
     this._onUpdate = onUpdate;
