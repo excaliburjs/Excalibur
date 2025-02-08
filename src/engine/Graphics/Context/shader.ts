@@ -247,12 +247,21 @@ export class Shader {
 
   private _dirty: boolean = true;
 
-  public _flagDirty() {
+  /**
+   * Flags uniforms need to be re-uploaded on the next call to .use()
+   */
+  public flagUniformsDirty() {
     this._dirty = true;
   }
 
-  uniforms: UniformDictionary = watch({}, () => this._flagDirty());
+  /**
+   * Set uniforms key value pairs
+   */
+  uniforms: UniformDictionary = watch({}, () => this.flagUniformsDirty());
 
+  /**
+   * Returns whether the shader is compiled
+   */
   public get compiled() {
     return this._compiled;
   }
@@ -266,11 +275,14 @@ export class Shader {
     this._gl = gl;
     this.vertexSource = vertexSource;
     this.fragmentSource = fragmentSource;
-    this.uniforms = watch(uniforms ?? this.uniforms, () => this._flagDirty());
+    this.uniforms = watch(uniforms ?? this.uniforms, () => this.flagUniformsDirty());
     this._onPreLink = onPreLink;
     this._onPostCompile = onPostCompile;
   }
 
+  /**
+   * Deletes the webgl program from the gpu
+   */
   dispose() {
     const gl = this._gl;
     gl.deleteProgram(this.program);
@@ -299,7 +311,7 @@ export class Shader {
     const entries = Object.entries(this.uniforms);
     if (entries.length) {
       this.use();
-      const uniforms = this.getUniforms();
+      const uniforms = this.getUniformDefinitions();
       for (const [key, value] of entries) {
         if (value instanceof Float32Array) {
           this.setUniformBuffer(key, value);
@@ -319,7 +331,7 @@ export class Shader {
           const uniform = uniforms.find((u) => u.name === key);
           if (uniform) {
             const typeName = glTypeToUniformTypeName(gl, uniform.glType) as UniformTypeNames;
-            this.trySetUniform(typeName as any, key, value); // TODO for some reason this is confusing ts??
+            this.trySetUniform(typeName as any, key, value);
           } else {
             this._logger.warnOnce(
               `Could not locate uniform named ${key},` +
@@ -340,11 +352,11 @@ export class Shader {
     const fragmentShader = this._compileShader(gl, this.fragmentSource, gl.FRAGMENT_SHADER);
     this.program = this._createProgram(gl, vertexShader, fragmentShader);
 
-    const attributes = this.getAttributes();
+    const attributes = this.getAttributeDefinitions();
     for (const attribute of attributes) {
       this.attributes[attribute.name] = attribute;
     }
-    const uniforms = this.getUniforms();
+    const uniforms = this.getUniformDefinitions();
     for (const uniform of uniforms) {
       this._uniforms[uniform.name] = uniform;
     }
@@ -360,7 +372,10 @@ export class Shader {
     return this.program;
   }
 
-  getUniforms(): UniformDefinition[] {
+  /**
+   * Get's the uniform definitons
+   */
+  getUniformDefinitions(): UniformDefinition[] {
     const gl = this._gl;
     const uniformCount = gl.getProgramParameter(this.program, gl.ACTIVE_UNIFORMS);
     const uniforms: UniformDefinition[] = [];
@@ -376,7 +391,7 @@ export class Shader {
     return uniforms;
   }
 
-  getAttributes(): VertexAttributeDefinition[] {
+  getAttributeDefinitions(): VertexAttributeDefinition[] {
     const gl = this._gl;
     const attributeCount = gl.getProgramParameter(this.program, gl.ACTIVE_ATTRIBUTES);
     const attributes: VertexAttributeDefinition[] = [];
@@ -399,7 +414,7 @@ export class Shader {
    * @param slotNumber
    * @param texture
    */
-  setTexture(slotNumber: number, texture: WebGLTexture) {
+  setTexture(slotNumber: number, texture: WebGLTexture): void {
     const gl = this._gl;
     gl.activeTexture(gl.TEXTURE0 + slotNumber);
     gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -411,7 +426,7 @@ export class Shader {
    * @param data Float32Array
    * @param [bindingPoint]
    */
-  setUniformBuffer(name: string, data: Float32Array, bindingPoint: number = 0) {
+  setUniformBuffer(name: string, data: Float32Array, bindingPoint: number = 0): void {
     const gl = this._gl;
     const index = gl.getUniformBlockIndex(this.program, name);
     if (index === gl.INVALID_INDEX) {
@@ -433,7 +448,7 @@ export class Shader {
     gl.bindBufferBase(gl.UNIFORM_BUFFER, bindingPoint, uniformBuffer.buffer);
   }
 
-  trySetUniformBuffer(name: string, buffer: UniformBuffer, bindingPoint: number = 0): boolean {
+  trySetUniformBuffer(name: string, data: Float32Array, bindingPoint: number = 0): boolean {
     if (!this._compiled) {
       this._logger.warn(`Must compile shader before setting a uniform block ${name} at binding point ${bindingPoint}`);
       return false;
@@ -448,8 +463,7 @@ export class Shader {
     const gl = this._gl;
     const index = gl.getUniformBlockIndex(this.program, name);
     if (index) {
-      gl.uniformBlockBinding(this.program, index, bindingPoint);
-      gl.bindBufferBase(gl.UNIFORM_BUFFER, bindingPoint, buffer.buffer);
+      this.setUniformBuffer(name, data, bindingPoint);
       return true;
     }
     return false;
@@ -462,7 +476,7 @@ export class Shader {
    * @param name
    * @param value
    */
-  setUniformInt(name: string, value: number) {
+  setUniformInt(name: string, value: number): void {
     this.setUniform('uniform1i', name, ~~value);
   }
 
@@ -484,7 +498,7 @@ export class Shader {
    * @param name
    * @param value
    */
-  setUniformIntArray(name: string, value: number[]) {
+  setUniformIntArray(name: string, value: number[]): void {
     this.setUniform('uniform1iv', name, value);
   }
 
@@ -506,7 +520,7 @@ export class Shader {
    * @param name
    * @param value
    */
-  setUniformBoolean(name: string, value: boolean) {
+  setUniformBoolean(name: string, value: boolean): void {
     this.setUniform('uniform1i', name, value ? 1 : 0);
   }
 
@@ -528,7 +542,7 @@ export class Shader {
    * @param name
    * @param value
    */
-  setUniformFloat(name: string, value: number) {
+  setUniformFloat(name: string, value: number): void {
     this.setUniform('uniform1f', name, value);
   }
 
@@ -550,7 +564,7 @@ export class Shader {
    * @param name
    * @param value
    */
-  setUniformFloatArray(name: string, value: number[]) {
+  setUniformFloatArray(name: string, value: number[]): void {
     this.setUniform('uniform1fv', name, value);
   }
   /**
@@ -571,7 +585,7 @@ export class Shader {
    * @param name
    * @param value
    */
-  setUniformFloatVector(name: string, value: Vector) {
+  setUniformFloatVector(name: string, value: Vector): void {
     this.setUniform('uniform2f', name, value.x, value.y);
   }
 
@@ -593,7 +607,7 @@ export class Shader {
    * @param name
    * @param value
    */
-  setUniformFloatColor(name: string, value: Color) {
+  setUniformFloatColor(name: string, value: Color): void {
     this.setUniform('uniform4f', name, value.r / 255, value.g / 255, value.b / 255, value.a);
   }
 
@@ -615,31 +629,17 @@ export class Shader {
    * @param name
    * @param value
    */
-  setUniformMatrix(name: string, value: Matrix) {
+  setUniformMatrix(name: string, value: Matrix): void {
     this.setUniform('uniformMatrix4fv', name, false, value.data);
   }
 
-  setUniformAffineMatrix(name: string, value: AffineMatrix) {
+  setUniformAffineMatrix(name: string, value: AffineMatrix): void {
+    // prettier-ignore
     this.setUniform('uniformMatrix4fv', name, false, [
-      value.data[0],
-      value.data[1],
-      0,
-      0,
-
-      value.data[2],
-      value.data[3],
-      0,
-      0,
-
-      0,
-      0,
-      1,
-      0,
-
-      value.data[4],
-      value.data[5],
-      0,
-      1
+      value.data[0], value.data[1], 0, 0,
+      value.data[2], value.data[3], 0, 0,
+      0, 0, 1, 0,
+      value.data[4], value.data[5], 0, 1
     ]);
   }
 
@@ -659,7 +659,11 @@ export class Shader {
    *
    * For example setUniform('uniformMatrix2fv', 'u_my2x2_mat`, ...);
    */
-  setUniform<TUniformType extends UniformTypeNames>(uniformType: TUniformType, name: string, ...value: UniformParameters<TUniformType>) {
+  setUniform<TUniformType extends UniformTypeNames>(
+    uniformType: TUniformType,
+    name: string,
+    ...value: UniformParameters<TUniformType>
+  ): void {
     if (!this._compiled) {
       throw Error(`Must compile shader before setting a uniform ${uniformType}:${name}`);
     }
