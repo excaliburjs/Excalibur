@@ -229,8 +229,6 @@ export interface ShaderOptions {
 
   onPreLink?: (program: WebGLProgram) => void;
   onPostCompile?: (shader: Shader) => void;
-  onUpdate?: (elapsed: number) => void;
-  onDraw?: (elapsed: number) => void;
 }
 
 export class Shader {
@@ -246,8 +244,6 @@ export class Shader {
   public readonly fragmentSource: string;
   private _onPreLink?: (program: WebGLProgram) => void;
   private _onPostCompile?: (shader: Shader) => void;
-  _onUpdate?: (elapsed: number) => void;
-  _onDraw?: (elapsed: number) => void;
 
   private _dirty: boolean = true;
 
@@ -266,15 +262,13 @@ export class Shader {
    * @param options specify shader vertex and fragment source
    */
   constructor(options: ShaderOptions) {
-    const { gl, vertexSource, fragmentSource, onPreLink, onPostCompile, onUpdate, onDraw, uniforms } = options;
+    const { gl, vertexSource, fragmentSource, onPreLink, onPostCompile, uniforms } = options;
     this._gl = gl;
     this.vertexSource = vertexSource;
     this.fragmentSource = fragmentSource;
     this.uniforms = watch(uniforms ?? this.uniforms, () => this._flagDirty());
     this._onPreLink = onPreLink;
     this._onPostCompile = onPostCompile;
-    this._onUpdate = onUpdate;
-    this._onDraw = onDraw;
   }
 
   dispose() {
