@@ -1,4 +1,4 @@
-import { AffineMatrix, Color, Logger, Vector } from '../..';
+import { AffineMatrix, Color, ImageSource, Logger, Vector } from '../..';
 import { Matrix } from '../../Math/matrix';
 import { watch } from '../../Util/Watch';
 import { UniformBuffer } from './uniform-buffer';
@@ -213,10 +213,17 @@ export interface ShaderOptions {
    * WebGL2RenderingContext this layout will be attached to, these cannot be reused across webgl contexts.
    */
   gl: WebGL2RenderingContext;
+
+  /**
+   * Optionally provide a name for the shader (useful for debugging purposes)
+   */
+  name?: string;
+
   /**
    * Vertex shader source code in glsl #version 300 es
    */
   vertexSource: string;
+
   /**
    * Fragment shader source code in glsl #version 300 es
    */
@@ -227,7 +234,18 @@ export interface ShaderOptions {
    */
   uniforms?: UniformDictionary;
 
+  /**
+   * Set initial images as uniform sampler2D
+   */
+  images?: Record<string, ImageSource>;
+
+  /**
+   * Callback to fire directly before linking the program
+   */
   onPreLink?: (program: WebGLProgram) => void;
+  /**
+   * Callback to fire directly after the progam has finished compiling
+   */
   onPostCompile?: (shader: Shader) => void;
 }
 
@@ -239,25 +257,36 @@ export class Shader {
   private _uniforms: { [variableName: string]: UniformDefinition } = {};
   public attributes: { [variableName: string]: VertexAttributeDefinition } = {};
   private _uniformBuffers: { [blockName: string]: UniformBuffer } = {};
+  private _images: { [imageName: string]: ImageSource } = {};
   private _compiled = false;
   public readonly vertexSource: string;
   public readonly fragmentSource: string;
   private _onPreLink?: (program: WebGLProgram) => void;
   private _onPostCompile?: (shader: Shader) => void;
 
-  private _dirty: boolean = true;
+  private _dirtyUniforms: boolean = true;
+  private _dirtyImages: boolean = true;
 
   /**
    * Flags uniforms need to be re-uploaded on the next call to .use()
    */
-  public flagUniformsDirty() {
-    this._dirty = true;
+  public flagUniformsDirty(): void {
+    this._dirtyUniforms = true;
   }
 
   /**
    * Set uniforms key value pairs
    */
   uniforms: UniformDictionary = watch({}, () => this.flagUniformsDirty());
+
+  flagImagesDirty(): void {
+    this._dirtyImages = true;
+  }
+
+  /**
+   * Set images to load into the shader as a sampler2d
+   */
+  images: Record<string, ImageSource> = watch({}, () => this.flagImagesDirty());
 
   /**
    * Returns whether the shader is compiled
@@ -296,9 +325,14 @@ export class Shader {
     const gl = this._gl;
     gl.useProgram(this.program);
     Shader._ACTIVE_SHADER_INSTANCE = this;
-    if (this._dirty) {
-      this._dirty = false;
+    if (this._dirtyUniforms) {
+      this._dirtyUniforms = false;
       this._setUniforms();
+    }
+
+    if (this._dirtyImages) {
+      this._dirtyImages = false;
+      this._setImages();
     }
   }
 
@@ -340,6 +374,51 @@ export class Shader {
           }
         }
       }
+    }
+  }
+
+  //private _loadImageSource(image: ImageSource) {
+  //  const imageElement = image.image;
+  //  const maybeFiltering = imageElement.getAttribute(ImageSourceAttributeConstants.Filtering);
+  //  const filtering = maybeFiltering ? parseImageFiltering(maybeFiltering) : undefined;
+  //  const wrapX = parseImageWrapping(imageElement.getAttribute(ImageSourceAttributeConstants.WrappingX) as any);
+  //  const wrapY = parseImageWrapping(imageElement.getAttribute(ImageSourceAttributeConstants.WrappingY) as any);
+  //
+  //  const force = imageElement.getAttribute('forceUpload') === 'true' ? true : false;
+  //  const texture = this._graphicsContext.textureLoader.load(
+  //    imageElement,
+  //    {
+  //      filtering,
+  //      wrapping: { x: wrapX, y: wrapY }
+  //    },
+  //    force
+  //  );
+  //  // remove force attribute after upload
+  //  imageElement.removeAttribute('forceUpload');
+  //  if (!this._textures.has(image)) {
+  //    this._textures.set(image, texture!);
+  //  }
+  //
+  //  return texture;
+  //}
+
+  _uploadImages(gl: WebGL2RenderingContext, startingTextureSlot: number = 2) {
+    let textureSlot = startingTextureSlot;
+    for (const [textureName, image] of Object.entries(this._images)) {
+      if (!image.isLoaded()) {
+        this._logger.warnOnce(
+          `Image named ${textureName} in not loaded, nothing will be uploaded to the shader.` +
+            ` Did you forget to add this to a loader? https://excaliburjs.com/docs/loaders/`
+        );
+        continue;
+      } // skip unloaded images, maybe warn
+      const texture = this._loadImageSource(image);
+
+      gl.activeTexture(gl.TEXTURE0 + textureSlot);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      this.trySetUniformInt(textureName, textureSlot);
+
+      textureSlot++;
     }
   }
 
