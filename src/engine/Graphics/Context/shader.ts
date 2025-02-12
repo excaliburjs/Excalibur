@@ -1,30 +1,166 @@
 import { AffineMatrix, Color, Logger, Vector } from '../..';
 import { Matrix } from '../../Math/matrix';
+import { watch } from '../../Util/Watch';
+import { UniformBuffer } from './uniform-buffer';
 import { getAttributeComponentSize, getAttributePointerType } from './webgl-util';
 
-/**
+export type UniformDictionary = Record<
+  string,
+  number | boolean | Vector | Color | AffineMatrix | Float32Array | [uniformData: Float32Array, bindingPoint: number]
+>;
+/*
  * List of the possible glsl uniform types
  */
 export type UniformTypeNames =
   | 'uniform1f'
   | 'uniform1i'
+  | 'uniform1ui'
   | 'uniform2f'
   | 'uniform2i'
+  | 'uniform2ui'
   | 'uniform3f'
   | 'uniform3i'
+  | 'uniform3ui'
   | 'uniform4f'
   | 'uniform4i'
+  | 'uniform4ui'
   | 'uniform1fv'
   | 'uniform1iv'
+  | 'uniform1uiv'
   | 'uniform2fv'
   | 'uniform2iv'
+  | 'uniform2uiv'
   | 'uniform3fv'
   | 'uniform3iv'
+  | 'uniform3uiv'
   | 'uniform4fv'
   | 'uniform4iv'
+  | 'uniform4uiv'
   | 'uniformMatrix2fv'
+  | 'uniformMatrix2x3fv'
+  | 'uniformMatrix2x4fv'
   | 'uniformMatrix3fv'
-  | 'uniformMatrix4fv';
+  | 'uniformMatrix3x2fv'
+  | 'uniformMatrix3x4fv'
+  | 'uniformMatrix4fv'
+  | 'uniformMatrix4x2fv'
+  | 'uniformMatrix4x3fv';
+
+/**
+ *
+ */
+export function glTypeToUniformTypeName(gl: WebGL2RenderingContext, glType: number): UniformTypeNames {
+  switch (glType) {
+    case gl.FLOAT: {
+      return 'uniform1f';
+    }
+    case gl.FLOAT_VEC2: {
+      return 'uniform2f';
+    }
+    case gl.FLOAT_VEC3: {
+      return 'uniform3f';
+    }
+    case gl.FLOAT_VEC4: {
+      return 'uniform4f';
+    }
+    case gl.INT: {
+      return 'uniform1i';
+    }
+    case gl.INT_VEC2: {
+      return 'uniform2i';
+    }
+    case gl.INT_VEC3: {
+      return 'uniform3i';
+    }
+    case gl.INT_VEC4: {
+      return 'uniform4i';
+    }
+    case gl.BOOL: {
+      return 'uniform1i';
+    }
+    case gl.BOOL_VEC2: {
+      return 'uniform2i';
+    }
+    case gl.BOOL_VEC3: {
+      return 'uniform3i';
+    }
+    case gl.BOOL_VEC4: {
+      return 'uniform4i';
+    }
+    case gl.FLOAT_MAT2: {
+      return 'uniform1f';
+    }
+    case gl.FLOAT_MAT3: {
+      return 'uniform1f';
+    }
+    case gl.FLOAT_MAT4: {
+      return 'uniform1f';
+    }
+    case gl.SAMPLER_2D: {
+      return 'uniform1f';
+    }
+    case gl.SAMPLER_CUBE: {
+      return 'uniform1f';
+    }
+    case gl.UNSIGNED_INT: {
+      return 'uniform1ui';
+    }
+    case gl.UNSIGNED_INT_VEC2: {
+      return 'uniform2ui';
+    }
+    case gl.UNSIGNED_INT_VEC3: {
+      return 'uniform3ui';
+    }
+    case gl.UNSIGNED_INT_VEC4: {
+      return 'uniform4ui';
+    }
+    case gl.FLOAT_MAT2x3: {
+      return 'uniformMatrix2x3fv';
+    }
+    case gl.FLOAT_MAT2x4: {
+      return 'uniformMatrix2x4fv';
+    }
+    case gl.FLOAT_MAT3x2: {
+      return 'uniformMatrix3x2fv';
+    }
+    case gl.FLOAT_MAT3x4: {
+      return 'uniformMatrix3x4fv';
+    }
+    case gl.FLOAT_MAT4x2: {
+      return 'uniformMatrix4x2fv';
+    }
+    case gl.FLOAT_MAT4x3: {
+      return 'uniformMatrix4x3fv';
+    }
+    case gl.SAMPLER_2D_ARRAY: {
+      return 'uniform1fv';
+    }
+    case gl.SAMPLER_2D_ARRAY_SHADOW: {
+      return 'uniform1f';
+    }
+    case gl.SAMPLER_CUBE_SHADOW: {
+      return 'uniform1f';
+    }
+    case gl.INT_SAMPLER_2D: {
+      return 'uniform1f';
+    }
+    case gl.INT_SAMPLER_3D: {
+      return 'uniform1f';
+    }
+    case gl.INT_SAMPLER_CUBE: {
+      return 'uniform1f';
+    }
+    case gl.INT_SAMPLER_2D_ARRAY: {
+      return 'uniform1f';
+    }
+    case gl.UNSIGNED_INT_SAMPLER_2D: {
+      return 'uniform1ui';
+    }
+    default: {
+      throw new Error(`Unknown uniform type: ${glType}`);
+    }
+  }
+}
 
 type RemoveFirstFromTuple<T extends any[]> = T['length'] extends 0
   ? []
@@ -32,7 +168,7 @@ type RemoveFirstFromTuple<T extends any[]> = T['length'] extends 0
     ? I
     : [];
 
-type UniformParameters<TUniformType extends UniformTypeNames> = RemoveFirstFromTuple<Parameters<WebGLRenderingContext[TUniformType]>>;
+type UniformParameters<TUniformType extends UniformTypeNames> = RemoveFirstFromTuple<Parameters<WebGL2RenderingContext[TUniformType]>>;
 
 export interface UniformDefinition {
   name: string;
@@ -86,6 +222,11 @@ export interface ShaderOptions {
    */
   fragmentSource: string;
 
+  /**
+   * Set initial uniforms
+   */
+  uniforms?: UniformDictionary;
+
   onPreLink?: (program: WebGLProgram) => void;
   onPostCompile?: (shader: Shader) => void;
 }
@@ -95,14 +236,32 @@ export class Shader {
   private _logger = Logger.getInstance();
   private _gl: WebGL2RenderingContext;
   public program!: WebGLProgram;
-  public uniforms: { [variableName: string]: UniformDefinition } = {};
+  private _uniforms: { [variableName: string]: UniformDefinition } = {};
   public attributes: { [variableName: string]: VertexAttributeDefinition } = {};
+  private _uniformBuffers: { [blockName: string]: UniformBuffer } = {};
   private _compiled = false;
   public readonly vertexSource: string;
   public readonly fragmentSource: string;
   private _onPreLink?: (program: WebGLProgram) => void;
   private _onPostCompile?: (shader: Shader) => void;
 
+  private _dirty: boolean = true;
+
+  /**
+   * Flags uniforms need to be re-uploaded on the next call to .use()
+   */
+  public flagUniformsDirty() {
+    this._dirty = true;
+  }
+
+  /**
+   * Set uniforms key value pairs
+   */
+  uniforms: UniformDictionary = watch({}, () => this.flagUniformsDirty());
+
+  /**
+   * Returns whether the shader is compiled
+   */
   public get compiled() {
     return this._compiled;
   }
@@ -112,14 +271,18 @@ export class Shader {
    * @param options specify shader vertex and fragment source
    */
   constructor(options: ShaderOptions) {
-    const { gl, vertexSource, fragmentSource, onPreLink, onPostCompile } = options;
+    const { gl, vertexSource, fragmentSource, onPreLink, onPostCompile, uniforms } = options;
     this._gl = gl;
     this.vertexSource = vertexSource;
     this.fragmentSource = fragmentSource;
+    this.uniforms = watch(uniforms ?? this.uniforms, () => this.flagUniformsDirty());
     this._onPreLink = onPreLink;
     this._onPostCompile = onPostCompile;
   }
 
+  /**
+   * Deletes the webgl program from the gpu
+   */
   dispose() {
     const gl = this._gl;
     gl.deleteProgram(this.program);
@@ -133,10 +296,51 @@ export class Shader {
     const gl = this._gl;
     gl.useProgram(this.program);
     Shader._ACTIVE_SHADER_INSTANCE = this;
+    if (this._dirty) {
+      this._dirty = false;
+      this._setUniforms();
+    }
   }
 
   isCurrentlyBound() {
     return Shader._ACTIVE_SHADER_INSTANCE === this;
+  }
+
+  private _setUniforms() {
+    const gl = this._gl;
+    const entries = Object.entries(this.uniforms);
+    if (entries.length) {
+      this.use();
+      const uniforms = this.getUniformDefinitions();
+      for (const [key, value] of entries) {
+        if (value instanceof Float32Array) {
+          this.setUniformBuffer(key, value);
+        } else if (Array.isArray(value) && value[0] instanceof Float32Array && typeof value[1] === 'number') {
+          this.setUniformBuffer(key, value[0], value[1]);
+        } else if (typeof value === 'number') {
+          this.trySetUniformFloat(key, value);
+        } else if (typeof value === 'boolean') {
+          this.trySetUniformBoolean(key, value);
+        } else if (value instanceof Vector) {
+          this.trySetUniformFloatVector(key, value);
+        } else if (value instanceof Color) {
+          this.trySetUniformFloatColor(key, value);
+        } else if (value instanceof AffineMatrix) {
+          this.setUniformAffineMatrix(key, value);
+        } else {
+          const uniform = uniforms.find((u) => u.name === key);
+          if (uniform) {
+            const typeName = glTypeToUniformTypeName(gl, uniform.glType) as UniformTypeNames;
+            this.trySetUniform(typeName as any, key, value);
+          } else {
+            this._logger.warnOnce(
+              `Could not locate uniform named ${key},` +
+                ` this can happen if the uniform is unused in the shader code some GPUs will remove this as an optimization.`
+            );
+          }
+        }
+      }
+    }
   }
 
   /**
@@ -148,23 +352,30 @@ export class Shader {
     const fragmentShader = this._compileShader(gl, this.fragmentSource, gl.FRAGMENT_SHADER);
     this.program = this._createProgram(gl, vertexShader, fragmentShader);
 
-    const attributes = this.getAttributes();
+    const attributes = this.getAttributeDefinitions();
     for (const attribute of attributes) {
       this.attributes[attribute.name] = attribute;
     }
-    const uniforms = this.getUniforms();
+    const uniforms = this.getUniformDefinitions();
     for (const uniform of uniforms) {
-      this.uniforms[uniform.name] = uniform;
+      this._uniforms[uniform.name] = uniform;
     }
 
     this._compiled = true;
     if (this._onPostCompile) {
       this._onPostCompile(this);
     }
+
+    // set initial uniforms (if any)
+    this._setUniforms();
+
     return this.program;
   }
 
-  getUniforms(): UniformDefinition[] {
+  /**
+   * Get's the uniform definitons
+   */
+  getUniformDefinitions(): UniformDefinition[] {
     const gl = this._gl;
     const uniformCount = gl.getProgramParameter(this.program, gl.ACTIVE_UNIFORMS);
     const uniforms: UniformDefinition[] = [];
@@ -180,7 +391,7 @@ export class Shader {
     return uniforms;
   }
 
-  getAttributes(): VertexAttributeDefinition[] {
+  getAttributeDefinitions(): VertexAttributeDefinition[] {
     const gl = this._gl;
     const attributeCount = gl.getProgramParameter(this.program, gl.ACTIVE_ATTRIBUTES);
     const attributes: VertexAttributeDefinition[] = [];
@@ -203,10 +414,59 @@ export class Shader {
    * @param slotNumber
    * @param texture
    */
-  setTexture(slotNumber: number, texture: WebGLTexture) {
+  setTexture(slotNumber: number, texture: WebGLTexture): void {
     const gl = this._gl;
     gl.activeTexture(gl.TEXTURE0 + slotNumber);
     gl.bindTexture(gl.TEXTURE_2D, texture);
+  }
+
+  /**
+   * Set a uniform buffer block with a Float32Array
+   * @param name The of the binding block
+   * @param data Float32Array
+   * @param [bindingPoint]
+   */
+  setUniformBuffer(name: string, data: Float32Array, bindingPoint: number = 0): void {
+    const gl = this._gl;
+    const index = gl.getUniformBlockIndex(this.program, name);
+    if (index === gl.INVALID_INDEX) {
+      this._logger.warnOnce(`Invalid block name ${name}`);
+    }
+    let uniformBuffer: UniformBuffer;
+    if (this._uniformBuffers[name]) {
+      uniformBuffer = this._uniformBuffers[name];
+      uniformBuffer.bufferData.set(data);
+      uniformBuffer.upload();
+    } else {
+      uniformBuffer = new UniformBuffer({
+        gl,
+        data
+      });
+      this._uniformBuffers[name] = uniformBuffer;
+    }
+    gl.uniformBlockBinding(this.program, index, bindingPoint);
+    gl.bindBufferBase(gl.UNIFORM_BUFFER, bindingPoint, uniformBuffer.buffer);
+  }
+
+  trySetUniformBuffer(name: string, data: Float32Array, bindingPoint: number = 0): boolean {
+    if (!this._compiled) {
+      this._logger.warn(`Must compile shader before setting a uniform block ${name} at binding point ${bindingPoint}`);
+      return false;
+    }
+    if (!this.isCurrentlyBound()) {
+      this._logger.warn(
+        'Currently accessed shader instance is not the current active shader in WebGL,' +
+          ' must call `shader.use()` before setting uniforms'
+      );
+      return false;
+    }
+    const gl = this._gl;
+    const index = gl.getUniformBlockIndex(this.program, name);
+    if (index) {
+      this.setUniformBuffer(name, data, bindingPoint);
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -216,7 +476,7 @@ export class Shader {
    * @param name
    * @param value
    */
-  setUniformInt(name: string, value: number) {
+  setUniformInt(name: string, value: number): void {
     this.setUniform('uniform1i', name, ~~value);
   }
 
@@ -238,7 +498,7 @@ export class Shader {
    * @param name
    * @param value
    */
-  setUniformIntArray(name: string, value: number[]) {
+  setUniformIntArray(name: string, value: number[]): void {
     this.setUniform('uniform1iv', name, value);
   }
 
@@ -260,7 +520,7 @@ export class Shader {
    * @param name
    * @param value
    */
-  setUniformBoolean(name: string, value: boolean) {
+  setUniformBoolean(name: string, value: boolean): void {
     this.setUniform('uniform1i', name, value ? 1 : 0);
   }
 
@@ -282,7 +542,7 @@ export class Shader {
    * @param name
    * @param value
    */
-  setUniformFloat(name: string, value: number) {
+  setUniformFloat(name: string, value: number): void {
     this.setUniform('uniform1f', name, value);
   }
 
@@ -304,7 +564,7 @@ export class Shader {
    * @param name
    * @param value
    */
-  setUniformFloatArray(name: string, value: number[]) {
+  setUniformFloatArray(name: string, value: number[]): void {
     this.setUniform('uniform1fv', name, value);
   }
   /**
@@ -325,7 +585,7 @@ export class Shader {
    * @param name
    * @param value
    */
-  setUniformFloatVector(name: string, value: Vector) {
+  setUniformFloatVector(name: string, value: Vector): void {
     this.setUniform('uniform2f', name, value.x, value.y);
   }
 
@@ -347,7 +607,7 @@ export class Shader {
    * @param name
    * @param value
    */
-  setUniformFloatColor(name: string, value: Color) {
+  setUniformFloatColor(name: string, value: Color): void {
     this.setUniform('uniform4f', name, value.r / 255, value.g / 255, value.b / 255, value.a);
   }
 
@@ -369,31 +629,17 @@ export class Shader {
    * @param name
    * @param value
    */
-  setUniformMatrix(name: string, value: Matrix) {
+  setUniformMatrix(name: string, value: Matrix): void {
     this.setUniform('uniformMatrix4fv', name, false, value.data);
   }
 
-  setUniformAffineMatrix(name: string, value: AffineMatrix) {
+  setUniformAffineMatrix(name: string, value: AffineMatrix): void {
+    // prettier-ignore
     this.setUniform('uniformMatrix4fv', name, false, [
-      value.data[0],
-      value.data[1],
-      0,
-      0,
-
-      value.data[2],
-      value.data[3],
-      0,
-      0,
-
-      0,
-      0,
-      1,
-      0,
-
-      value.data[4],
-      value.data[5],
-      0,
-      1
+      value.data[0], value.data[1], 0, 0,
+      value.data[2], value.data[3], 0, 0,
+      0, 0, 1, 0,
+      value.data[4], value.data[5], 0, 1
     ]);
   }
 
@@ -413,7 +659,11 @@ export class Shader {
    *
    * For example setUniform('uniformMatrix2fv', 'u_my2x2_mat`, ...);
    */
-  setUniform<TUniformType extends UniformTypeNames>(uniformType: TUniformType, name: string, ...value: UniformParameters<TUniformType>) {
+  setUniform<TUniformType extends UniformTypeNames>(
+    uniformType: TUniformType,
+    name: string,
+    ...value: UniformParameters<TUniformType>
+  ): void {
     if (!this._compiled) {
       throw Error(`Must compile shader before setting a uniform ${uniformType}:${name}`);
     }

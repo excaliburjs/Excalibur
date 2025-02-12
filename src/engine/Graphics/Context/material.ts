@@ -1,7 +1,7 @@
 import { Color } from '../../Color';
 import { ExcaliburGraphicsContext } from './ExcaliburGraphicsContext';
 import { ExcaliburGraphicsContextWebGL } from './ExcaliburGraphicsContextWebGL';
-import { Shader } from './shader';
+import { Shader, UniformDictionary } from './shader';
 import { Logger } from '../../Util/Log';
 import { ImageSource, ImageSourceAttributeConstants } from '../ImageSource';
 import { ImageFiltering, parseImageFiltering } from '../Filtering';
@@ -75,6 +75,11 @@ export interface MaterialOptions {
    * Specify a dictionary of uniform sampler names to ImageSource
    */
   images?: Record<string, ImageSource>;
+
+  /**
+   * Optionally set starting uniforms on a shader
+   */
+  uniforms?: UniformDictionary;
 }
 
 const defaultVertexSource = `#version 300 es
@@ -116,13 +121,15 @@ export class Material {
   private _textures = new Map<ImageSource, WebGLTexture>();
   private _maxTextureSlots!: number;
   private _graphicsContext!: ExcaliburGraphicsContextWebGL;
+  private _uniforms: UniformDictionary = {};
 
   constructor(options: MaterialOptions) {
-    const { color, name, vertexSource, fragmentSource, graphicsContext, images } = options;
+    const { color, name, vertexSource, fragmentSource, graphicsContext, images, uniforms } = options;
     this._name = name ?? 'anonymous material';
     this._vertexSource = vertexSource ?? defaultVertexSource;
     this._fragmentSource = fragmentSource;
     this._color = color ?? this._color;
+    this._uniforms = uniforms ?? this._uniforms;
     if (!graphicsContext) {
       throw Error(`Material ${name} must be provided an excalibur webgl graphics context`);
     }
@@ -149,10 +156,15 @@ export class Material {
     this._maxTextureSlots = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS) - 2;
     this._shader = graphicsContextWebGL.createShader({
       vertexSource: this._vertexSource,
-      fragmentSource: this._fragmentSource
+      fragmentSource: this._fragmentSource,
+      uniforms: this._uniforms
     });
     this._shader.compile();
     this._initialized = true;
+  }
+
+  public get uniforms(): UniformDictionary {
+    return this._shader.uniforms;
   }
 
   get color(): Color {
