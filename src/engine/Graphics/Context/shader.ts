@@ -1,4 +1,16 @@
-import { AffineMatrix, Color, ImageSource, Logger, Vector } from '../..';
+import {
+  AffineMatrix,
+  Color,
+  ExcaliburGraphicsContext,
+  ExcaliburGraphicsContextWebGL,
+  ImageSource,
+  ImageSourceAttributeConstants,
+  Logger,
+  parseImageFiltering,
+  parseImageWrapping,
+  TextureLoader,
+  Vector
+} from '../..';
 import { Matrix } from '../../Math/matrix';
 import { watch } from '../../Util/Watch';
 import { UniformBuffer } from './uniform-buffer';
@@ -210,9 +222,9 @@ export interface VertexAttributeDefinition {
 
 export interface ShaderOptions {
   /**
-   * WebGL2RenderingContext this layout will be attached to, these cannot be reused across webgl contexts.
+   * ExcaliburGraphicsContextWebGL this layout will be attached to, these cannot be reused across webgl contexts.
    */
-  gl: WebGL2RenderingContext;
+  graphicsContext: ExcaliburGraphicsContext;
 
   /**
    * Optionally provide a name for the shader (useful for debugging purposes)
@@ -240,6 +252,11 @@ export interface ShaderOptions {
   images?: Record<string, ImageSource>;
 
   /**
+   * Optionally set the starting texture slot, default 0
+   */
+  startingTextureSlot?: number;
+
+  /**
    * Callback to fire directly before linking the program
    */
   onPreLink?: (program: WebGLProgram) => void;
@@ -250,22 +267,32 @@ export interface ShaderOptions {
 }
 
 export class Shader {
-  private static _ACTIVE_SHADER_INSTANCE: Shader | null = null;
-  private _logger = Logger.getInstance();
-  private _gl: WebGL2RenderingContext;
-  public program!: WebGLProgram;
-  private _uniforms: { [variableName: string]: UniformDefinition } = {};
-  public attributes: { [variableName: string]: VertexAttributeDefinition } = {};
-  private _uniformBuffers: { [blockName: string]: UniformBuffer } = {};
-  private _images: { [imageName: string]: ImageSource } = {};
-  private _compiled = false;
+  public readonly name: string;
   public readonly vertexSource: string;
   public readonly fragmentSource: string;
+
+  private static _ACTIVE_SHADER_INSTANCE: Shader | null = null;
+
+  private _logger = Logger.getInstance();
+
+  private _gl: WebGL2RenderingContext;
+  private _textureLoader: TextureLoader;
+  private _textures = new Map<ImageSource, WebGLTexture>();
+
+  public program!: WebGLProgram;
+  public attributes: { [variableName: string]: VertexAttributeDefinition } = {};
+
+  private _uniforms: { [variableName: string]: UniformDefinition } = {};
+  private _uniformBuffers: { [blockName: string]: UniformBuffer } = {};
+  private _images = new Map<string, ImageSource>();
+  private _compiled = false;
   private _onPreLink?: (program: WebGLProgram) => void;
   private _onPostCompile?: (shader: Shader) => void;
 
   private _dirtyUniforms: boolean = true;
   private _dirtyImages: boolean = true;
+  private _maxTextureSlots: number;
+  private _startingTextureSlot = 0;
 
   /**
    * Flags uniforms need to be re-uploaded on the next call to .use()
@@ -300,11 +327,20 @@ export class Shader {
    * @param options specify shader vertex and fragment source
    */
   constructor(options: ShaderOptions) {
-    const { gl, vertexSource, fragmentSource, onPreLink, onPostCompile, uniforms } = options;
-    this._gl = gl;
+    const { name, graphicsContext, vertexSource, fragmentSource, onPreLink, onPostCompile, uniforms, images, startingTextureSlot } =
+      options;
+    this.name = name ?? 'anonymous shader';
+    if (!(graphicsContext instanceof ExcaliburGraphicsContextWebGL)) {
+      throw new Error(`ExcaliburGraphicsContext provided to a shader ${this.name} must be WebGL`);
+    }
+    this._gl = graphicsContext.__gl;
+    this._startingTextureSlot = startingTextureSlot ?? this._startingTextureSlot;
+    this._maxTextureSlots = this._gl.getParameter(this._gl.MAX_TEXTURE_IMAGE_UNITS) - this._startingTextureSlot;
     this.vertexSource = vertexSource;
     this.fragmentSource = fragmentSource;
     this.uniforms = watch(uniforms ?? this.uniforms, () => this.flagUniformsDirty());
+    this.images = watch(images ?? this.images, () => this.flagImagesDirty());
+    this._textureLoader = graphicsContext.textureLoader;
     this._onPreLink = onPreLink;
     this._onPostCompile = onPostCompile;
   }
@@ -326,14 +362,19 @@ export class Shader {
     gl.useProgram(this.program);
     Shader._ACTIVE_SHADER_INSTANCE = this;
     if (this._dirtyUniforms) {
-      this._dirtyUniforms = false;
       this._setUniforms();
+      this._dirtyUniforms = false;
     }
 
     if (this._dirtyImages) {
-      this._dirtyImages = false;
       this._setImages();
+      this._dirtyImages = false;
     }
+  }
+
+  unuse() {
+    const gl = this._gl;
+    gl.useProgram(null);
   }
 
   isCurrentlyBound() {
@@ -344,7 +385,6 @@ export class Shader {
     const gl = this._gl;
     const entries = Object.entries(this.uniforms);
     if (entries.length) {
-      this.use();
       const uniforms = this.getUniformDefinitions();
       for (const [key, value] of entries) {
         if (value instanceof Float32Array) {
@@ -377,33 +417,35 @@ export class Shader {
     }
   }
 
-  //private _loadImageSource(image: ImageSource) {
-  //  const imageElement = image.image;
-  //  const maybeFiltering = imageElement.getAttribute(ImageSourceAttributeConstants.Filtering);
-  //  const filtering = maybeFiltering ? parseImageFiltering(maybeFiltering) : undefined;
-  //  const wrapX = parseImageWrapping(imageElement.getAttribute(ImageSourceAttributeConstants.WrappingX) as any);
-  //  const wrapY = parseImageWrapping(imageElement.getAttribute(ImageSourceAttributeConstants.WrappingY) as any);
-  //
-  //  const force = imageElement.getAttribute('forceUpload') === 'true' ? true : false;
-  //  const texture = this._graphicsContext.textureLoader.load(
-  //    imageElement,
-  //    {
-  //      filtering,
-  //      wrapping: { x: wrapX, y: wrapY }
-  //    },
-  //    force
-  //  );
-  //  // remove force attribute after upload
-  //  imageElement.removeAttribute('forceUpload');
-  //  if (!this._textures.has(image)) {
-  //    this._textures.set(image, texture!);
-  //  }
-  //
-  //  return texture;
-  //}
+  private _loadImageSource(image: ImageSource): WebGLTexture | null {
+    const imageElement = image.image;
+    const maybeFiltering = imageElement.getAttribute(ImageSourceAttributeConstants.Filtering);
+    const filtering = maybeFiltering ? parseImageFiltering(maybeFiltering) : undefined;
+    const wrapX = parseImageWrapping(imageElement.getAttribute(ImageSourceAttributeConstants.WrappingX) as any);
+    const wrapY = parseImageWrapping(imageElement.getAttribute(ImageSourceAttributeConstants.WrappingY) as any);
 
-  _uploadImages(gl: WebGL2RenderingContext, startingTextureSlot: number = 2) {
-    let textureSlot = startingTextureSlot;
+    const force = imageElement.getAttribute('forceUpload') === 'true' ? true : false;
+    const texture = this._textureLoader.load(
+      imageElement,
+      {
+        filtering,
+        wrapping: { x: wrapX, y: wrapY }
+      },
+      force
+    );
+    // remove force attribute after upload
+    imageElement.removeAttribute('forceUpload');
+    if (!this._textures.has(image)) {
+      this._textures.set(image, texture!);
+    }
+
+    return texture;
+  }
+
+  _setImages() {
+    const gl = this._gl;
+    // first 2 textures slots are usually taken by 1 default graphic 2 screen texture
+    let textureSlot = this._startingTextureSlot;
     for (const [textureName, image] of Object.entries(this._images)) {
       if (!image.isLoaded()) {
         this._logger.warnOnce(
@@ -486,6 +528,24 @@ export class Shader {
       });
     }
     return attributes;
+  }
+
+  addImageSource(samplerName: string, image: ImageSource) {
+    if (this._images.size < this._maxTextureSlots) {
+      this._images.set(samplerName, image);
+      this.flagImagesDirty();
+    } else {
+      this._logger.warn(
+        `Max number texture slots ${this._maxTextureSlots} have been reached for material "${this.name}", ` +
+          `no more textures will be uploaded due to hardware constraints.`
+      );
+    }
+  }
+
+  removeImageSource(samplerName: string) {
+    const image = this._images.get(samplerName);
+    this._textureLoader.delete(image!.image);
+    this._images.delete(samplerName);
   }
 
   /**

@@ -72,8 +72,8 @@ void main()
 class CRTPostProcessors implements ex.PostProcessor {
   private _shader: ex.ScreenShader;
   constructor() {}
-  initialize(gl: WebGL2RenderingContext): void {
-    this._shader = new ex.ScreenShader(gl, crtFragmentSource);
+  initialize(graphicsContext: ex.ExcaliburGraphicsContextWebGL): void {
+    this._shader = new ex.ScreenShader(graphicsContext, crtFragmentSource);
   }
   getShader(): ex.Shader {
     return this._shader.getShader();
@@ -90,9 +90,9 @@ class CRTPostProcessors implements ex.PostProcessor {
 
 class GrayScalePostProcessor implements ex.PostProcessor {
   private _shader: ex.ScreenShader;
-  initialize(gl: WebGL2RenderingContext): void {
+  initialize(graphicsContext: ex.ExcaliburGraphicsContextWebGL): void {
     this._shader = new ex.ScreenShader(
-      gl,
+      graphicsContext,
       `#version 300 es
     precision mediump float;
     // our texture

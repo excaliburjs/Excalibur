@@ -31,7 +31,7 @@ export class RectangleRenderer implements RendererPlugin {
     this._context = context;
     // https://stackoverflow.com/questions/59197671/glsl-rounded-rectangle-with-variable-border
     this._shader = new Shader({
-      gl,
+      graphicsContext: context,
       fragmentSource: frag,
       vertexSource: vert
     });

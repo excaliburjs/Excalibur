@@ -1,5 +1,6 @@
 import { VertexLayout } from '../Context/vertex-layout';
 import { Shader } from '../Context/shader';
+import { ExcaliburGraphicsContextWebGL } from '../Context/ExcaliburGraphicsContextWebGL';
 
 /**
  * PostProcessors can be used to apply a shader to the entire screen. It is recommended
@@ -18,7 +19,7 @@ import { Shader } from '../Context/shader';
  * Custom uniforms can be updated in the {@apilink PostProcessor.onUpdate}
  */
 export interface PostProcessor {
-  initialize(gl: WebGL2RenderingContext): void;
+  initialize(graphicsContext: ExcaliburGraphicsContextWebGL): void;
   getShader(): Shader;
   getLayout(): VertexLayout;
   /**
