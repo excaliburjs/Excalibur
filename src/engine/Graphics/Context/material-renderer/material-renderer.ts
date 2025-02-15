@@ -192,9 +192,11 @@ export class MaterialRenderer implements RendererPlugin {
     shader.trySetUniformInt('u_graphic', 0);
 
     // bind the screen texture
-    gl.activeTexture(gl.TEXTURE0 + 1);
-    gl.bindTexture(gl.TEXTURE_2D, this._context.materialScreenTexture);
-    shader.trySetUniformInt('u_screen_texture', 1);
+    if (material.isUsingScreenTexture) {
+      gl.activeTexture(gl.TEXTURE0 + 1);
+      gl.bindTexture(gl.TEXTURE_2D, this._context.materialScreenTexture);
+      shader.trySetUniformInt('u_screen_texture', 1);
+    }
 
     // bind quad index buffer
     this._quads.bind();

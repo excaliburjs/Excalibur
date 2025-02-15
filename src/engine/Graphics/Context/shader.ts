@@ -441,21 +441,25 @@ export class Shader {
     return texture;
   }
 
-  _setImages() {
+  _setImages(suppressWarning = false) {
     const gl = this._gl;
     // first 2 textures slots are usually taken by 1 default graphic 2 screen texture
     let textureSlot = this._startingTextureSlot;
     for (const [textureName, image] of Object.entries(this.images)) {
       if (!image.isLoaded()) {
-        this._logger.warnOnce(
-          `Image named ${textureName} in not loaded, nothing will be uploaded to the shader.` +
-            ` Did you forget to add this to a loader? https://excaliburjs.com/docs/loaders/`
-        );
+        if (!suppressWarning) {
+          this._logger.warnOnce(
+            `Image named ${textureName} in not loaded, nothing will be uploaded to the shader.` +
+              ` Did you forget to add this to a loader? https://excaliburjs.com/docs/loaders/`
+          );
+        }
         continue;
       } // skip unloaded images, maybe warn
       const texture = this._loadImageSource(image);
       if (!texture) {
-        this._logger.warnOnce(`Image ${textureName} (${image.image.src}) could not be loaded for some reason in shader ${this.name}`);
+        if (!suppressWarning) {
+          this._logger.warnOnce(`Image ${textureName} (${image.image.src}) could not be loaded for some reason in shader ${this.name}`);
+        }
       }
       gl.activeTexture(gl.TEXTURE0 + textureSlot);
       gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -491,13 +495,14 @@ export class Shader {
       this._onPostCompile(this);
     }
 
-    // set initial uniforms (if any)
     gl.useProgram(this.program);
+    Shader._ACTIVE_SHADER_INSTANCE = this;
     if (this._dirtyUniforms) {
       this._setUniforms();
       this._dirtyUniforms = false;
     }
-    this._setImages();
+
+    this._setImages(true);
     this.unuse();
 
     return this.program;
