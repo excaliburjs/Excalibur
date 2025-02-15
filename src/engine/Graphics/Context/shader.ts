@@ -284,13 +284,11 @@ export class Shader {
 
   private _uniforms: { [variableName: string]: UniformDefinition } = {};
   private _uniformBuffers: { [blockName: string]: UniformBuffer } = {};
-  private _images = new Map<string, ImageSource>();
   private _compiled = false;
   private _onPreLink?: (program: WebGLProgram) => void;
   private _onPostCompile?: (shader: Shader) => void;
 
   private _dirtyUniforms: boolean = true;
-  private _dirtyImages: boolean = true;
   private _maxTextureSlots: number;
   private _startingTextureSlot = 0;
 
@@ -306,14 +304,10 @@ export class Shader {
    */
   uniforms: UniformDictionary = watch({}, () => this.flagUniformsDirty());
 
-  flagImagesDirty(): void {
-    this._dirtyImages = true;
-  }
-
   /**
    * Set images to load into the shader as a sampler2d
    */
-  images: Record<string, ImageSource> = watch({}, () => this.flagImagesDirty());
+  images: Record<string, ImageSource> = {};
 
   /**
    * Returns whether the shader is compiled
@@ -339,7 +333,7 @@ export class Shader {
     this.vertexSource = vertexSource;
     this.fragmentSource = fragmentSource;
     this.uniforms = watch(uniforms ?? this.uniforms, () => this.flagUniformsDirty());
-    this.images = watch(images ?? this.images, () => this.flagImagesDirty());
+    this.images = images ?? this.images;
     this._textureLoader = graphicsContext.textureLoader;
     this._onPreLink = onPreLink;
     this._onPostCompile = onPostCompile;
@@ -366,10 +360,7 @@ export class Shader {
       this._dirtyUniforms = false;
     }
 
-    if (this._dirtyImages) {
-      this._setImages();
-      this._dirtyImages = false;
-    }
+    this._setImages();
   }
 
   unuse() {
@@ -446,7 +437,7 @@ export class Shader {
     const gl = this._gl;
     // first 2 textures slots are usually taken by 1 default graphic 2 screen texture
     let textureSlot = this._startingTextureSlot;
-    for (const [textureName, image] of Object.entries(this._images)) {
+    for (const [textureName, image] of Object.entries(this.images)) {
       if (!image.isLoaded()) {
         this._logger.warnOnce(
           `Image named ${textureName} in not loaded, nothing will be uploaded to the shader.` +
@@ -455,7 +446,9 @@ export class Shader {
         continue;
       } // skip unloaded images, maybe warn
       const texture = this._loadImageSource(image);
-
+      if (!texture) {
+        this._logger.warnOnce(`Image ${textureName} (${image.image.src}) could not be loaded for some reason in shader ${this.name}`);
+      }
       gl.activeTexture(gl.TEXTURE0 + textureSlot);
       gl.bindTexture(gl.TEXTURE_2D, texture);
       this.trySetUniformInt(textureName, textureSlot);
@@ -468,6 +461,9 @@ export class Shader {
    * Compile the current shader against a webgl context
    */
   compile(): WebGLProgram {
+    if (this._compiled) {
+      return this.program;
+    }
     const gl = this._gl;
     const vertexShader = this._compileShader(gl, this.vertexSource, gl.VERTEX_SHADER);
     const fragmentShader = this._compileShader(gl, this.fragmentSource, gl.FRAGMENT_SHADER);
@@ -488,7 +484,7 @@ export class Shader {
     }
 
     // set initial uniforms (if any)
-    this._setUniforms();
+    this.use();
 
     return this.program;
   }
@@ -531,9 +527,9 @@ export class Shader {
   }
 
   addImageSource(samplerName: string, image: ImageSource) {
-    if (this._images.size < this._maxTextureSlots) {
-      this._images.set(samplerName, image);
-      this.flagImagesDirty();
+    const keys = Object.keys(this.images);
+    if (keys.length < this._maxTextureSlots) {
+      this.images[samplerName] = image;
     } else {
       this._logger.warn(
         `Max number texture slots ${this._maxTextureSlots} have been reached for material "${this.name}", ` +
@@ -543,9 +539,11 @@ export class Shader {
   }
 
   removeImageSource(samplerName: string) {
-    const image = this._images.get(samplerName);
-    this._textureLoader.delete(image!.image);
-    this._images.delete(samplerName);
+    const image = this.images[samplerName];
+    if (image) {
+      this._textureLoader.delete(image.image);
+      delete this.images[samplerName];
+    }
   }
 
   /**

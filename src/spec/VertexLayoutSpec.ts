@@ -3,17 +3,18 @@ import { ExcaliburMatchers } from 'excalibur-jasmine';
 
 describe('A VertexLayout', () => {
   let gl: WebGL2RenderingContext;
+  let graphicsContext: ex.ExcaliburGraphicsContextWebGL;
   beforeAll(() => {
     jasmine.addMatchers(ExcaliburMatchers);
   });
 
   beforeEach(() => {
     const canvas = document.createElement('canvas');
-    const _ctx = new ex.ExcaliburGraphicsContextWebGL({
+    graphicsContext = new ex.ExcaliburGraphicsContextWebGL({
       canvasElement: canvas
     });
 
-    gl = _ctx.__gl;
+    gl = graphicsContext.__gl;
   });
 
   it('exists', () => {
@@ -22,7 +23,7 @@ describe('A VertexLayout', () => {
 
   it('can be constructed', () => {
     const shader = new ex.Shader({
-      gl,
+      graphicsContext,
       vertexSource: `
       // nonsense shader for testing
       void main() {
@@ -52,7 +53,7 @@ describe('A VertexLayout', () => {
 
   it('requires a shader to use', () => {
     const shader = new ex.Shader({
-      gl,
+      graphicsContext,
       vertexSource: `
       attribute vec2 a_position;
       // nonsense shader for testing
@@ -81,7 +82,7 @@ describe('A VertexLayout', () => {
 
   it('requires a shader to be bound to use', () => {
     const shader = new ex.Shader({
-      gl,
+      graphicsContext,
       vertexSource: `
       attribute vec2 a_position;
       // nonsense shader for testing
@@ -112,7 +113,7 @@ describe('A VertexLayout', () => {
 
   it('requires a compiled shader', () => {
     const shader = new ex.Shader({
-      gl,
+      graphicsContext,
       vertexSource: `
       attribute vec2 a_position;
       // nonsense shader for testing
@@ -141,7 +142,7 @@ describe('A VertexLayout', () => {
 
   it('will throw on invalid attribute name', () => {
     const shader = new ex.Shader({
-      gl,
+      graphicsContext,
       vertexSource: `
       attribute vec2 a_position;
       // nonsense shader for testing
@@ -171,7 +172,7 @@ describe('A VertexLayout', () => {
 
   it('will throw on invalid attribute size', () => {
     const shader = new ex.Shader({
-      gl,
+      graphicsContext,
       vertexSource: `
       attribute vec2 a_position;
       // nonsense shader for testing
@@ -210,7 +211,7 @@ describe('A VertexLayout', () => {
     const enableVertexAttribArraySpy = gl.enableVertexAttribArray as jasmine.Spy;
 
     const shader = new ex.Shader({
-      gl,
+      graphicsContext,
       vertexSource: `
       attribute vec2 a_position;
       attribute vec2 a_uv;
@@ -261,7 +262,7 @@ describe('A VertexLayout', () => {
 
   it('can have multiple layouts per shader', () => {
     const shader = new ex.Shader({
-      gl,
+      graphicsContext,
       vertexSource: `
       attribute vec2 a_position;
       attribute vec2 a_uv;

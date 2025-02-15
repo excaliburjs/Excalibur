@@ -127,6 +127,7 @@ export class Material {
     this._fragmentSource = fragmentSource;
     this._color = color ?? this._color;
     this._uniforms = uniforms ?? this._uniforms;
+    this._images = images ?? this._images;
 
     if (!graphicsContext) {
       throw Error(`Material ${name} must be provided an excalibur webgl graphics context`);
@@ -137,8 +138,6 @@ export class Material {
     } else {
       this._logger.warn(`Material ${name} was created in 2D Canvas mode, currently only WebGL is supported`);
     }
-
-    this._images = images ?? {};
   }
 
   private _initialize(graphicsContextWebGL: ExcaliburGraphicsContextWebGL) {
@@ -153,14 +152,18 @@ export class Material {
       uniforms: this._uniforms,
       images: this._images,
       // max texture slots - 2 for the graphic texture and screen texture
+      // TODO detect screen tex so we can reclaim a texture slot
       startingTextureSlot: 2
     });
-    this._shader.compile();
     this._initialized = true;
   }
 
   public get uniforms(): UniformDictionary {
     return this._shader.uniforms;
+  }
+
+  public get images(): Record<string, ImageSource> {
+    return this._shader.images;
   }
 
   get color(): Color {
