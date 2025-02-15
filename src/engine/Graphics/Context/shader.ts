@@ -267,7 +267,7 @@ export interface ShaderOptions {
 }
 
 export class Shader {
-  public readonly name: string;
+  public readonly name: string = 'anonymous shader';
   public readonly vertexSource: string;
   public readonly fragmentSource: string;
 
@@ -323,7 +323,7 @@ export class Shader {
   constructor(options: ShaderOptions) {
     const { name, graphicsContext, vertexSource, fragmentSource, onPreLink, onPostCompile, uniforms, images, startingTextureSlot } =
       options;
-    this.name = name ?? 'anonymous shader';
+    this.name = name ?? this.name;
     if (!(graphicsContext instanceof ExcaliburGraphicsContextWebGL)) {
       throw new Error(`ExcaliburGraphicsContext provided to a shader ${this.name} must be WebGL`);
     }
@@ -334,6 +334,13 @@ export class Shader {
     this.fragmentSource = fragmentSource;
     this.uniforms = watch(uniforms ?? this.uniforms, () => this.flagUniformsDirty());
     this.images = images ?? this.images;
+    const keys = Object.keys(this.images);
+    if (keys.length >= this._maxTextureSlots) {
+      this._logger.warn(
+        `Max number texture slots ${this._maxTextureSlots} have been reached for material "${this.name}", ` +
+          `no more textures will be uploaded due to hardware constraints.`
+      );
+    }
     this._textureLoader = graphicsContext.textureLoader;
     this._onPreLink = onPreLink;
     this._onPostCompile = onPostCompile;
@@ -365,6 +372,7 @@ export class Shader {
 
   unuse() {
     const gl = this._gl;
+    Shader._ACTIVE_SHADER_INSTANCE = null;
     gl.useProgram(null);
   }
 
@@ -484,7 +492,13 @@ export class Shader {
     }
 
     // set initial uniforms (if any)
-    this.use();
+    gl.useProgram(this.program);
+    if (this._dirtyUniforms) {
+      this._setUniforms();
+      this._dirtyUniforms = false;
+    }
+    this._setImages();
+    this.unuse();
 
     return this.program;
   }

@@ -151,9 +151,10 @@ export class Material {
       fragmentSource: this._fragmentSource,
       uniforms: this._uniforms,
       images: this._images,
-      // max texture slots - 2 for the graphic texture and screen texture
-      // TODO detect screen tex so we can reclaim a texture slot
-      startingTextureSlot: 2
+      // max texture slots
+      // - 2 for the graphic texture and screen texture
+      // - 1 if just graphic
+      startingTextureSlot: this.isUsingScreenTexture ? 2 : 1
     });
     this._initialized = true;
   }
@@ -175,7 +176,7 @@ export class Material {
   }
 
   get name() {
-    return this._name ?? 'anonymous material';
+    return this._name;
   }
 
   get isUsingScreenTexture() {

@@ -668,8 +668,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   }
 
   public createShader(options: Omit<ShaderOptions, 'graphicsContext'>): Shader {
-    const { vertexSource, fragmentSource, uniforms, images, startingTextureSlot } = options;
+    const { name, vertexSource, fragmentSource, uniforms, images, startingTextureSlot } = options;
     const shader = new Shader({
+      name,
       graphicsContext: this,
       vertexSource,
       fragmentSource,
