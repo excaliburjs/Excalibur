@@ -156,16 +156,25 @@ export class MaterialRenderer implements RendererPlugin {
     vertexBuffer[vertexIndex++] = screenUVY1;
 
     // This creates and uploads the texture if not already done
-    const texture = this._addImageAsTexture(image);
+    let texture = this._addImageAsTexture(image);
 
     // TODO Run pipeline on texture instead?
+
     // 1. Input texture
     // 2. Bind framebuffer
     // 3. Run pipeline
+    // 4. Should pipelines be part of images more generally?
+    if (material.pipeline) {
+      // TODO provide unifiorms
+      texture = material.pipeline.draw(texture);
+      // FIXME I think the final draw needs to have the render buffer rebound because
+      // We probably should NOT run this inside the redererer pass...
+    }
 
     // apply material
     material.use();
 
+    // Currently we still need a shader provided
     this._layout.shader = shader!;
     // apply layout and geometry
     this._layout.use(true);
@@ -208,7 +217,9 @@ export class MaterialRenderer implements RendererPlugin {
     this._quads.bind();
 
     // Draw a single quad
+    this._context._msaaTarget.use();
     gl.drawElements(gl.TRIANGLES, 6, this._quads.bufferGlType, 0);
+    this._context._msaaTarget.disable();
 
     // 1 redirect to the framebuffer
     // 2 execute the pipeline,

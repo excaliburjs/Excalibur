@@ -40,6 +40,14 @@ export class Framebuffer {
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
   }
 
+  copyInto(texture: WebGLTexture) {
+    const gl = this.graphicsContext.__gl;
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.copyTexImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 0, 0, this.width, this.height, 0);
+  }
+
   resize(width: number, height: number): void {
     const gl = this.graphicsContext.__gl;
     this.width = width;

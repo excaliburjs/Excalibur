@@ -1,3 +1,4 @@
+import { GraphicsDiagnostics } from '../GraphicsDiagnostics';
 import { ExcaliburGraphicsContextWebGL } from './ExcaliburGraphicsContextWebGL';
 import { Framebuffer } from './framebuffer';
 import { Shader } from './shader';
@@ -21,15 +22,15 @@ export class QuadRenderer {
   private _graphicsContext: ExcaliburGraphicsContextWebGL;
   private _vertexSource = `#version 300 es
 in vec2 a_position;
-in vec2 a_texcoord;
 
-out vec2 v_texcoord;
+in vec2 a_uv;
+out vec2 v_uv;
 
 void main() {
   gl_Position = vec4(a_position, 0.0, 1.0);
 
   // Pass the texcoord to the fragment shader.
-  v_texcoord = a_texcoord;
+  v_uv = a_uv;
 }`;
 
   constructor(options: QuadRendererOptions) {
@@ -65,7 +66,7 @@ void main() {
       vertexBuffer: this._buffer,
       attributes: [
         ['a_position', 2],
-        ['a_texcoord', 2]
+        ['a_uv', 2]
       ]
     });
 
@@ -80,10 +81,17 @@ void main() {
     for (let i = 0; i < inputTextures.length; i++) {
       gl.activeTexture(gl.TEXTURE0 + i);
       gl.bindTexture(gl.TEXTURE_2D, inputTextures[i]);
+      this.shader.trySetUniformInt('u_graphic', i);
     }
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, output.framebuffer);
+    gl.viewport(0, 0, output.width, output.height);
+
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+
+    GraphicsDiagnostics.DrawCallCount++;
   }
 }

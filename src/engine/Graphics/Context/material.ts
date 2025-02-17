@@ -6,6 +6,7 @@ import { Logger } from '../../Util/Log';
 import { ImageSource, ImageSourceAttributeConstants } from '../ImageSource';
 import { ImageFiltering, parseImageFiltering } from '../Filtering';
 import { parseImageWrapping } from '../Wrapping';
+import { ShaderPipeline } from './shader-pipeline';
 
 export interface MaterialOptions {
   /**
@@ -116,6 +117,7 @@ export class Material {
   private _textures = new Map<ImageSource, WebGLTexture>();
   private _maxTextureSlots!: number;
   private _graphicsContext!: ExcaliburGraphicsContextWebGL;
+  public pipeline?: ShaderPipeline;
 
   constructor(options: MaterialOptions) {
     const { color, name, vertexSource, fragmentSource, graphicsContext, images } = options;

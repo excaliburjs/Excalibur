@@ -12,6 +12,7 @@ export interface ImageSourceOptions {
   filtering?: ImageFiltering;
   wrapping?: ImageWrapConfiguration | ImageWrapping;
   bustCache?: boolean;
+  // TODO shader pipeline?
 }
 
 export interface ImageWrapConfiguration {

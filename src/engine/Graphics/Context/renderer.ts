@@ -1,4 +1,5 @@
 import { ExcaliburGraphicsContextWebGL } from './ExcaliburGraphicsContextWebGL';
+import { RenderTarget } from './render-target';
 
 /**
  * Interface that defines an Excalibur Renderer that can be called with .draw() in the {@apilink ExcaliburGraphicsContext}
@@ -37,7 +38,7 @@ export interface RendererPlugin {
   /**
    * Flush any pending graphics draws to the screen
    */
-  flush(): void;
+  flush(renderTarget?: RenderTarget): void;
 
   /**
    * Clear out any allocated memory
