@@ -158,6 +158,11 @@ export class MaterialRenderer implements RendererPlugin {
     // This creates and uploads the texture if not already done
     const texture = this._addImageAsTexture(image);
 
+    // TODO Run pipeline on texture instead?
+    // 1. Input texture
+    // 2. Bind framebuffer
+    // 3. Run pipeline
+
     // apply material
     material.use();
 
@@ -204,6 +209,10 @@ export class MaterialRenderer implements RendererPlugin {
 
     // Draw a single quad
     gl.drawElements(gl.TRIANGLES, 6, this._quads.bufferGlType, 0);
+
+    // 1 redirect to the framebuffer
+    // 2 execute the pipeline,
+    // 3 call the final quad renderer to output image in the right spot
 
     GraphicsDiagnostics.DrawnImagesCount++;
     GraphicsDiagnostics.DrawCallCount++;
