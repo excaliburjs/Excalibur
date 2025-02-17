@@ -55,6 +55,9 @@ export * from './Context/vertex-layout';
 export * from './Context/quad-index-buffer';
 export * from './Context/material';
 export * from './Context/renderer';
+export * from './Context/shader-pipeline';
+export * from './Context/quad-renderer';
+export * from './Context/framebuffer';
 
 // Debug
 export * from './Debug';

@@ -114,7 +114,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   private _renderTarget!: RenderTarget;
 
   // Quad boundary MSAA
-  private _msaaTarget!: RenderTarget;
+  public _msaaTarget!: RenderTarget; // FIXEME
 
   // Postprocessing is a tuple with 2 render targets, these are flip-flopped during the postprocessing process
   private _postProcessTargets: RenderTarget[] = [];
@@ -750,7 +750,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
           if (this._drawCalls[i].renderer !== currentRendererName) {
             // switching graphics renderer means we must flush the previous
-            currentRenderer!.flush();
+            currentRenderer!.flush(currentTarget);
             currentRendererName = this._drawCalls[i].renderer;
             currentRenderer = this.get(currentRendererName);
           }
@@ -764,7 +764,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
           currentRenderer!.draw(...this._drawCalls[i].args);
         }
         if (currentRenderer!.hasPendingDraws()) {
-          currentRenderer!.flush();
+          currentRenderer!.flush(currentTarget);
         }
       }
 
@@ -781,7 +781,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       // This is the final flush at the moment to draw any leftover pending draw
       for (const renderer of this._renderers.values()) {
         if (renderer.hasPendingDraws()) {
-          renderer.flush();
+          renderer.flush(currentTarget);
         }
       }
     }
