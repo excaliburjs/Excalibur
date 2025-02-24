@@ -122,6 +122,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   private _screenRenderer!: ScreenPassPainter;
 
   private _postprocessors: PostProcessor[] = [];
+
   /**
    * Meant for internal use only. Access the internal context at your own risk and no guarantees this will exist in the future.
    * @internal
@@ -339,7 +340,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
     gl.bindTexture(gl.TEXTURE_2D, null);
 
-    this._screenRenderer = new ScreenPassPainter(gl);
+    this._screenRenderer = new ScreenPassPainter(this);
 
     this._renderTarget = new RenderTarget({
       gl,
@@ -610,7 +611,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   public addPostProcessor(postprocessor: PostProcessor) {
     this._postprocessors.push(postprocessor);
-    postprocessor.initialize(this.__gl);
+    postprocessor.initialize(this);
   }
 
   public removePostProcessor(postprocessor: PostProcessor) {
@@ -629,7 +630,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     for (const postprocessor of this._postprocessors) {
       const shader = postprocessor.getShader();
       shader.use();
-      const uniforms = shader.getUniforms();
+      const uniforms = shader.getUniformDefinitions();
       this._totalPostProcessorTime += elapsed;
 
       if (uniforms.find((u) => u.name === 'u_time_ms')) {
@@ -666,13 +667,16 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     return material;
   }
 
-  public createShader(options: Omit<ShaderOptions, 'gl'>): Shader {
-    const gl = this.__gl;
-    const { vertexSource, fragmentSource } = options;
+  public createShader(options: Omit<ShaderOptions, 'graphicsContext'>): Shader {
+    const { name, vertexSource, fragmentSource, uniforms, images, startingTextureSlot } = options;
     const shader = new Shader({
-      gl,
+      name,
+      graphicsContext: this,
       vertexSource,
-      fragmentSource
+      fragmentSource,
+      uniforms,
+      images,
+      startingTextureSlot
     });
     shader.compile();
     return shader;

@@ -31,7 +31,7 @@ export class CircleRenderer implements RendererPlugin {
     this._gl = gl;
     this._context = context;
     this._shader = new Shader({
-      gl,
+      graphicsContext: context,
       fragmentSource: frag,
       vertexSource: vert
     });

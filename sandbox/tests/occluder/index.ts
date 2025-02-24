@@ -44,8 +44,8 @@ class LightingPostProcessor implements ex.PostProcessor {
     console.log(this.texture);
   }
 
-  initialize(gl: WebGL2RenderingContext): void {
-    this._shader = new ex.ScreenShader(gl, shader);
+  initialize(graphicsContext: ex.ExcaliburGraphicsContextWebGL): void {
+    this._shader = new ex.ScreenShader(graphicsContext, shader);
   }
   getLayout(): ex.VertexLayout {
     return this._shader.getLayout();

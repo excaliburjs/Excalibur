@@ -4,6 +4,7 @@ import { ColorBlindnessMode } from './ColorBlindnessMode';
 import { Shader } from '../Context/shader';
 import { VertexLayout } from '../Context/vertex-layout';
 import { ScreenShader } from './ScreenShader';
+import { ExcaliburGraphicsContextWebGL } from '../Context/ExcaliburGraphicsContextWebGL';
 
 export class ColorBlindnessPostProcessor implements PostProcessor {
   private _shader!: ScreenShader;
@@ -15,8 +16,8 @@ export class ColorBlindnessPostProcessor implements PostProcessor {
     this._simulate = simulate;
   }
 
-  initialize(gl: WebGL2RenderingContext): void {
-    this._shader = new ScreenShader(gl, colorBlindCorrectSource);
+  initialize(graphicsContext: ExcaliburGraphicsContextWebGL): void {
+    this._shader = new ScreenShader(graphicsContext, colorBlindCorrectSource);
     this.simulate = this._simulate;
     this.colorBlindnessMode = this._colorBlindnessMode;
   }

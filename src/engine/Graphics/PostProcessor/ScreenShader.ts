@@ -1,4 +1,5 @@
 import { Logger } from '../../Util/Log';
+import { ExcaliburGraphicsContextWebGL } from '../Context/ExcaliburGraphicsContextWebGL';
 import { Shader } from '../Context/shader';
 import { VertexBuffer } from '../Context/vertex-buffer';
 import { VertexLayout } from '../Context/vertex-layout';
@@ -13,7 +14,7 @@ export class ScreenShader {
   private _shader: Shader;
   private _buffer: VertexBuffer;
   private _layout: VertexLayout;
-  constructor(gl: WebGL2RenderingContext, fragmentSource: string) {
+  constructor(context: ExcaliburGraphicsContextWebGL, fragmentSource: string) {
     if (process.env.NODE_ENV === 'development') {
       if (fragmentSource.includes('v_texcoord')) {
         Logger.getInstance().warn(
@@ -22,8 +23,9 @@ export class ScreenShader {
         );
       }
     }
+    const gl = context.__gl;
     this._shader = new Shader({
-      gl,
+      graphicsContext: context,
       vertexSource: `#version 300 es
       in vec2 a_position;
       in vec2 a_uv;

@@ -17,8 +17,8 @@ void main() {
 
 class MockPostProcessor implements ex.PostProcessor {
   private _shader: ex.ScreenShader;
-  initialize(gl: WebGL2RenderingContext): void {
-    this._shader = new ex.ScreenShader(gl, source);
+  initialize(graphicsContext: ex.ExcaliburGraphicsContextWebGL): void {
+    this._shader = new ex.ScreenShader(graphicsContext, source);
   }
   getShader(): ex.Shader {
     return this._shader.getShader();

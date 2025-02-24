@@ -3,16 +3,17 @@ import { ExcaliburMatchers } from 'excalibur-jasmine';
 
 describe('A Shader', () => {
   let gl: WebGL2RenderingContext;
+  let graphicsContext: ex.ExcaliburGraphicsContextWebGL;
   beforeAll(() => {
     jasmine.addMatchers(ExcaliburMatchers);
   });
 
   beforeEach(() => {
     const canvas = document.createElement('canvas');
-    const _ctx = new ex.ExcaliburGraphicsContextWebGL({
+    graphicsContext = new ex.ExcaliburGraphicsContextWebGL({
       canvasElement: canvas
     });
-    gl = _ctx.__gl;
+    gl = graphicsContext.__gl;
   });
 
   it('exists', () => {
@@ -21,7 +22,7 @@ describe('A Shader', () => {
 
   it('can be constructed & compiled with shader source', () => {
     const sut = new ex.Shader({
-      gl,
+      graphicsContext,
       vertexSource: `
       attribute vec4 a_position;
       attribute vec3 a_otherposition;
@@ -41,30 +42,33 @@ describe('A Shader', () => {
     expect(sut.compiled).toBe(false);
     sut.compile();
     expect(sut.compiled).toBe(true);
-    expect(sut.attributes.a_position).toEqual({
+    expect(sut.attributes.a_position).withContext('a_position').toEqual({
       name: 'a_position',
       glType: gl.FLOAT,
       size: 4,
       normalized: false,
       location: sut.attributes.a_position.location
     });
-    expect(sut.attributes.a_otherposition).toEqual({
+
+    expect(sut.attributes.a_otherposition).withContext('a_otherposition').toEqual({
       name: 'a_otherposition',
       glType: gl.FLOAT,
       size: 3,
       normalized: false,
       location: sut.attributes.a_otherposition.location
     });
-    expect(sut.uniforms.u_bool).toEqual({
+
+    const u_bool = sut.getUniformDefinitions()[0];
+    expect(u_bool).withContext('u_bool').toEqual({
       name: 'u_bool',
       glType: gl.BOOL,
-      location: sut.uniforms.u_bool.location
+      location: u_bool.location
     });
   });
 
   it('can fail compiling vertex', () => {
     const sut = new ex.Shader({
-      gl,
+      graphicsContext,
       vertexSource: `
       uniform int u_int;
       // nonsense shader for testing
@@ -85,7 +89,7 @@ describe('A Shader', () => {
 
   it('can fail compiling fragment', () => {
     const sut = new ex.Shader({
-      gl,
+      graphicsContext,
       vertexSource: `
       uniform int u_int;
       // nonsense shader for testing
@@ -106,7 +110,7 @@ describe('A Shader', () => {
 
   it('must be compiled and shader.use() to set uniforms', () => {
     const sut = new ex.Shader({
-      gl,
+      graphicsContext,
       vertexSource: `
       uniform int u_int;
       // nonsense shader for testing
@@ -140,7 +144,7 @@ describe('A Shader', () => {
 
   it('can set uniforms', () => {
     const sut = new ex.Shader({
-      gl,
+      graphicsContext,
       vertexSource: `
       attribute vec4 a_position;
       attribute vec3 a_otherposition;
@@ -197,7 +201,7 @@ describe('A Shader', () => {
 
   it('can try set uniforms', () => {
     const sut = new ex.Shader({
-      gl,
+      graphicsContext,
       vertexSource: `
       attribute vec4 a_position;
       attribute vec3 a_otherposition;
@@ -264,7 +268,7 @@ describe('A Shader', () => {
 
   it('can have textures set', () => {
     const sut = new ex.Shader({
-      gl,
+      graphicsContext,
       vertexSource: `
       uniform int u_int;
       // nonsense shader for testing

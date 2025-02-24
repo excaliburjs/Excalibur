@@ -24,7 +24,7 @@ export class PointRenderer implements RendererPlugin {
     this._gl = gl;
     this._context = context;
     this._shader = new Shader({
-      gl,
+      graphicsContext: context,
       vertexSource: pointVertexSource,
       fragmentSource: pointFragmentSource
     });

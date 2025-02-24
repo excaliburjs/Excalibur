@@ -23,7 +23,7 @@ export class ParticleRenderer implements RendererPlugin {
     this._gl = gl;
     this._context = context;
     this._shader = new Shader({
-      gl,
+      graphicsContext: context,
       vertexSource: particleVertexSource,
       fragmentSource: particleFragmentSource,
       onPreLink: (program) => {

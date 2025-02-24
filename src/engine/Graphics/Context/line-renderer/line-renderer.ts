@@ -27,7 +27,7 @@ export class LineRenderer implements RendererPlugin {
     this._gl = gl;
     this._context = context;
     this._shader = new Shader({
-      gl,
+      graphicsContext: context,
       vertexSource: lineVertexSource,
       fragmentSource: lineFragmentSource
     });

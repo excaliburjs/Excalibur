@@ -108,6 +108,10 @@ export class GarbageCollector {
     }
   }
 
+  running(): boolean {
+    return this._running;
+  }
+
   /**
    * Starts the garbage collection loop
    */

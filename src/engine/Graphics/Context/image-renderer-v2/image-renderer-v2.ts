@@ -64,7 +64,7 @@ export class ImageRendererV2 implements RendererPlugin {
     const transformedFrag = this._transformFragmentSource(frag, this._maxTextures);
     // Compile shader
     this._shader = new Shader({
-      gl,
+      graphicsContext: context,
       fragmentSource: transformedFrag,
       vertexSource: vert
     });
