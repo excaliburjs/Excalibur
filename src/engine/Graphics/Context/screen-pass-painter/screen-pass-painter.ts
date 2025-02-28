@@ -51,6 +51,7 @@ export class ScreenPassPainter {
     postprocessor.getLayout().use();
     gl.activeTexture(gl.TEXTURE0);
     shader.trySetUniformInt('u_image', 0);
+    shader.trySetUniformInt('u_graphic', 0);
     if (postprocessor.onDraw) {
       postprocessor.onDraw();
     }

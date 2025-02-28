@@ -77,16 +77,23 @@ actor.graphics.material = game.graphicsContext.createMaterial({
   fragmentSource: noop
 }) as ex.Material;
 
-actor.graphics.material.pipeline = new ex.ShaderPipeline({
-  graphicsContext: game.graphicsContext,
-  cache: false,
-  shaders: [
-    noop,
-    blue,
-    green
-    //red
-  ]
-});
+//actor.graphics.material.pipeline = new ex.ShaderPipeline({
+//	graphicsContext: game.graphicsContext,
+//	cache: true,
+//	shaders: [
+//		noop,
+//		blue,
+//		green
+//		//red
+//	]
+//});
+//
+
+//var mat = new ex.Material({
+//	graphicsContext: game.graphicsContext,
+//	shaders: []
+//});
+//
 
 game.add(actor);
 game.start(loader);

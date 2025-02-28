@@ -49,6 +49,7 @@ export * from './Filtering';
 export * from './Wrapping';
 
 // Rendering
+export * from './Context/glsl';
 export * from './Context/shader';
 export * from './Context/vertex-buffer';
 export * from './Context/vertex-layout';
@@ -58,6 +59,7 @@ export * from './Context/renderer';
 export * from './Context/shader-pipeline';
 export * from './Context/quad-renderer';
 export * from './Context/framebuffer';
+export * from './Context/fragment';
 
 // Debug
 export * from './Debug';

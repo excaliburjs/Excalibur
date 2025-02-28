@@ -13,5 +13,5 @@ export class DrawCall {
     tint: Color.White,
     material: null
   };
-  public args: any[] = new Array(10);
+  public args: any[] = new Array(15);
 }

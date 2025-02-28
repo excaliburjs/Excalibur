@@ -10,9 +10,10 @@ export class Framebuffer {
   graphicsContext: ExcaliburGraphicsContextWebGL;
   width: number;
   height: number;
-  texture: WebGLTexture;
   framebuffer: WebGLFramebuffer;
   texelSize: [texelWidth: number, texelHeight: number];
+
+  private _texture: WebGLTexture;
   constructor(options: FramebufferOptions) {
     const { graphicsContext, width, height } = options;
 
@@ -24,7 +25,7 @@ export class Framebuffer {
     const gl = graphicsContext.__gl;
 
     const texture = gl.createTexture();
-    this.texture = texture!;
+    this._texture = texture!;
     gl.bindTexture(gl.TEXTURE_2D, texture);
 
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
@@ -40,12 +41,17 @@ export class Framebuffer {
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
   }
 
-  copyInto(texture: WebGLTexture) {
-    const gl = this.graphicsContext.__gl;
+  get texture(): WebGLTexture {
+    return this._texture;
+  }
 
+  copyToTexture(texture: WebGLTexture) {
+    const gl = this.graphicsContext.__gl;
     gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.copyTexImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 0, 0, this.width, this.height, 0);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
   }
 
   resize(width: number, height: number): void {
@@ -56,5 +62,35 @@ export class Framebuffer {
     // update backing texture size
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+  }
+
+  blitToScreen() {
+    const gl = this.graphicsContext.__gl;
+    // set to size of canvas's drawingBuffer
+    gl.bindFramebuffer(gl.READ_FRAMEBUFFER, this.framebuffer);
+    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
+    gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 1.0, 1.0]);
+    gl.blitFramebuffer(0, 0, this.width, this.height, 0, 0, this.width, this.height, gl.COLOR_BUFFER_BIT, gl.LINEAR);
+  }
+
+  /**
+   * Binds the framebuffer and redirects drawing,
+   * **WARNING* you should use graphicsContext.pushFramebuffer(...) unless you know what you're doing**
+   */
+  bind(): void {
+    const gl = this.graphicsContext.__gl;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
+    gl.viewport(0, 0, this.width, this.height);
+  }
+
+  /**
+   * Unbinds the framebuffer and returns drawing to the screen
+   * **WARNING you shoud use graphicsContext.popFramebuffer() unless you know what you're doing**
+   *
+   */
+  unbind(): void {
+    const gl = this.graphicsContext.__gl;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
   }
 }

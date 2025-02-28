@@ -16,7 +16,6 @@ import { StateStack } from './state-stack';
 import { Logger } from '../../Util/Log';
 import { DebugText } from './debug-text';
 import { Resolution } from '../../Screen';
-import { RenderTarget } from './render-target';
 import { PostProcessor } from '../PostProcessor/PostProcessor';
 import { TextureLoader } from './texture-loader';
 import { RendererPlugin } from './renderer';
@@ -38,6 +37,8 @@ import { GarbageCollector } from '../../GarbageCollector';
 import { ParticleRenderer } from './particle-renderer/particle-renderer';
 import { ImageRendererV2 } from './image-renderer-v2/image-renderer-v2';
 import { Flags } from '../../Flags';
+import { Framebuffer } from './framebuffer';
+import { MultisampleFramebuffer } from './multisample-framebuffer';
 
 export const pixelSnapEpsilon = 0.0001;
 
@@ -110,15 +111,11 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   private _drawCallIndex = 0;
   private _drawCalls: DrawCall[] = new Array(4000).fill(null);
 
-  // Main render target
-  private _renderTarget!: RenderTarget;
+  private _framebuffer!: Framebuffer;
+  private _msaaFramebuffer!: MultisampleFramebuffer;
+  private _postProcessFramebuffers!: [Framebuffer, Framebuffer];
 
-  // Quad boundary MSAA
-  public _msaaTarget!: RenderTarget; // FIXEME
-
-  // Postprocessing is a tuple with 2 render targets, these are flip-flopped during the postprocessing process
-  private _postProcessTargets: RenderTarget[] = [];
-
+  // TODO replace with quad renderer?
   private _screenRenderer!: ScreenPassPainter;
 
   private _postprocessors: PostProcessor[] = [];
@@ -158,6 +155,30 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   public textureLoader: TextureLoader;
 
   public materialScreenTexture!: WebGLTexture | null;
+
+  private _currentFramebuffer!: Framebuffer;
+  private _framebuffers: Framebuffer[] = [this._currentFramebuffer];
+
+  public getFramebuffer(): Framebuffer {
+    return this._currentFramebuffer;
+  }
+
+  public pushFramebuffer(framebuffer: Framebuffer): void {
+    this._framebuffers.push(framebuffer);
+    this._currentFramebuffer = framebuffer;
+    this._currentFramebuffer.bind();
+  }
+
+  public popFramebuffer(): void {
+    if (this._framebuffers.length <= 1) {
+      throw new Error(
+        'Invalid framebuffer state, must maintain the default Excalibur. This is a bug in YOUR CODE, each pushFramebuffer() must have a corresponding popFramebuffer() call'
+      );
+    }
+    this._framebuffers.pop();
+    this._currentFramebuffer = this._framebuffers[this._framebuffers.length - 1];
+    this._currentFramebuffer.bind();
+  }
 
   public get z(): number {
     return this._state.current.z;
@@ -341,36 +362,35 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
     this._screenRenderer = new ScreenPassPainter(gl);
 
-    this._renderTarget = new RenderTarget({
-      gl,
-      transparency: this.transparency,
-      width: gl.canvas.width,
-      height: gl.canvas.height
-    });
-
-    this._postProcessTargets = [
-      new RenderTarget({
-        gl,
-        transparency: this.transparency,
+    this._postProcessFramebuffers = [
+      new Framebuffer({
+        graphicsContext: this,
         width: gl.canvas.width,
         height: gl.canvas.height
       }),
-      new RenderTarget({
-        gl,
-        transparency: this.transparency,
+      new Framebuffer({
+        graphicsContext: this,
         width: gl.canvas.width,
         height: gl.canvas.height
       })
     ];
 
-    this._msaaTarget = new RenderTarget({
-      gl,
+    this._framebuffer = new Framebuffer({
+      graphicsContext: this,
+      width: gl.canvas.width,
+      height: gl.canvas.height
+    });
+
+    this._msaaFramebuffer = new MultisampleFramebuffer({
+      graphicsContext: this,
       transparency: this.transparency,
       width: gl.canvas.width,
       height: gl.canvas.height,
-      antialias: this.multiSampleAntialiasing,
       samples: this.samples
     });
+
+    this._currentFramebuffer = this.multiSampleAntialiasing ? this._msaaFramebuffer : this._framebuffer;
+    this._framebuffers = [this._currentFramebuffer];
   }
 
   public register<T extends RendererPlugin>(renderer: T) {
@@ -414,7 +434,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   public draw<TRenderer extends RendererPlugin>(rendererName: TRenderer['type'], ...args: Parameters<TRenderer['draw']>) {
     if (process.env.NODE_ENV === 'development') {
-      if (args.length > 9) {
+      if (args.length > 15) {
         throw new Error('Only 10 or less renderer arguments are supported!;');
       }
     }
@@ -451,6 +471,11 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
         drawCall.args[7] = args[7];
         drawCall.args[8] = args[8];
         drawCall.args[9] = args[9];
+        drawCall.args[10] = args[10];
+        drawCall.args[11] = args[11];
+        drawCall.args[12] = args[12];
+        drawCall.args[13] = args[13];
+        drawCall.args[14] = args[14];
         this._drawCalls[this._drawCallIndex++] = drawCall;
       } else {
         // Set the current renderer if not defined
@@ -464,7 +489,24 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
         }
 
         // If we are still using the same renderer we can add to the current batch
-        renderer.draw(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9]);
+        // prettier-ignore
+        renderer.draw(
+          args[0],
+          args[1],
+          args[2],
+          args[3],
+          args[4],
+          args[5],
+          args[6],
+          args[7],
+          args[8],
+          args[9],
+          args[10],
+          args[11],
+          args[12],
+          args[13],
+          args[14],
+        );
 
         this._currentRenderer = renderer;
       }
@@ -481,10 +523,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     const gl = this.__gl;
     this._ortho = this._ortho = Matrix.ortho(0, resolution.width, resolution.height, 0, 400, -400);
 
-    this._renderTarget.setResolution(gl.canvas.width, gl.canvas.height);
-    this._msaaTarget.setResolution(gl.canvas.width, gl.canvas.height);
-    this._postProcessTargets[0].setResolution(gl.canvas.width, gl.canvas.height);
-    this._postProcessTargets[1].setResolution(gl.canvas.width, gl.canvas.height);
+    this._framebuffer.resize(gl.canvas.width, gl.canvas.height);
+    this._msaaFramebuffer.resize(gl.canvas.width, gl.canvas.height);
+    this._postProcessFramebuffers[0].resize(gl.canvas.width, gl.canvas.height);
+    this._postProcessFramebuffers[1].resize(gl.canvas.width, gl.canvas.height);
   }
 
   private _imageToWidth = new Map<HTMLImageSource, number>();
@@ -680,8 +722,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   clear() {
     const gl = this.__gl;
-    const currentTarget = this.multiSampleAntialiasing ? this._msaaTarget : this._renderTarget;
-    currentTarget.use();
+    //const currentTarget = this.multiSampleAntialiasing ? this._msaaTarget : this._renderTarget;
+    //currentTarget.use();
+    this.getFramebuffer().bind();
     gl.clearColor(this.backgroundColor.r / 255, this.backgroundColor.g / 255, this.backgroundColor.b / 255, this.backgroundColor.a);
     // Clear the context with the newly set color. This is
     // the function call that actually does the drawing.
@@ -697,9 +740,17 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       return;
     }
 
+    if (this._framebuffers.length < 1) {
+      throw new Error(
+        'Invalid framebuffer state, must maintain the default Excalibur. This is a bug in YOUR CODE, each pushFramebuffer() must have a corresponding popFramebuffer() call'
+      );
+    }
+
+    const gl = this.__gl;
+
     // render target captures all draws and redirects to the render target
-    let currentTarget = this.multiSampleAntialiasing ? this._msaaTarget : this._renderTarget;
-    currentTarget.use();
+    let currentTarget = this.getFramebuffer();
+    currentTarget.bind();
 
     if (this.useDrawSorting) {
       // null out unused draw calls
@@ -750,21 +801,21 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
           if (this._drawCalls[i].renderer !== currentRendererName) {
             // switching graphics renderer means we must flush the previous
-            currentRenderer!.flush(currentTarget);
+            currentRenderer!.flush();
             currentRendererName = this._drawCalls[i].renderer;
             currentRenderer = this.get(currentRendererName);
           }
 
           // ! hack to grab screen texture before materials run because they might want it
           if (currentRenderer instanceof MaterialRenderer && this.material?.isUsingScreenTexture) {
-            currentTarget.copyToTexture(this.materialScreenTexture!);
-            currentTarget.use();
+            this.getFramebuffer().copyToTexture(this.materialScreenTexture!);
+            this.getFramebuffer().bind();
           }
           // If we are still using the same renderer we can add to the current batch
           currentRenderer!.draw(...this._drawCalls[i].args);
         }
         if (currentRenderer!.hasPendingDraws()) {
-          currentRenderer!.flush(currentTarget);
+          currentRenderer!.flush();
         }
       }
 
@@ -781,24 +832,30 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       // This is the final flush at the moment to draw any leftover pending draw
       for (const renderer of this._renderers.values()) {
         if (renderer.hasPendingDraws()) {
-          renderer.flush(currentTarget);
+          renderer.flush();
         }
       }
     }
-
-    currentTarget.disable();
+    currentTarget.unbind();
 
     // post process step
+    let currentPostProcessTexture: WebGLTexture | null = null;
     if (this._postprocessors.length > 0) {
-      currentTarget.toRenderSource().use();
+      currentPostProcessTexture = currentTarget.texture;
     }
 
     // flip flop render targets for post processing
     for (let i = 0; i < this._postprocessors.length; i++) {
-      currentTarget = this._postProcessTargets[i % 2];
-      this._postProcessTargets[i % 2].use();
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, currentPostProcessTexture);
+
+      currentTarget = this._postProcessFramebuffers[i % 2];
+      this.pushFramebuffer(currentTarget);
+      // TODO replace with quad renderer?
       this._screenRenderer.renderWithPostProcessor(this._postprocessors[i]);
-      this._postProcessTargets[i % 2].toRenderSource().use();
+      this.popFramebuffer();
+
+      currentPostProcessTexture = currentTarget.texture;
     }
 
     // Final blit to the screen

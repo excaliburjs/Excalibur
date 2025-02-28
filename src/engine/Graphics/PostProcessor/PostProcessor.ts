@@ -18,6 +18,7 @@ import { Shader } from '../Context/shader';
  * Custom uniforms can be updated in the {@apilink PostProcessor.onUpdate}
  */
 export interface PostProcessor {
+  // TODO move this to graphics context
   initialize(gl: WebGL2RenderingContext): void;
   getShader(): Shader;
   getLayout(): VertexLayout;

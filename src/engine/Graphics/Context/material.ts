@@ -4,21 +4,22 @@ import { ExcaliburGraphicsContextWebGL } from './ExcaliburGraphicsContextWebGL';
 import { Shader } from './shader';
 import { Logger } from '../../Util/Log';
 import { ImageSource, ImageSourceAttributeConstants } from '../ImageSource';
-import { ImageFiltering, parseImageFiltering } from '../Filtering';
+import { parseImageFiltering } from '../Filtering';
 import { parseImageWrapping } from '../Wrapping';
 import { ShaderPipeline } from './shader-pipeline';
+import { Fragment } from './fragment';
+
+export type ShaderTypes = string | string[] | Fragment | Fragment[];
 
 export interface MaterialOptions {
   /**
    * Name the material for debugging
    */
   name?: string;
-
   /**
    * Excalibur graphics context to create the material (only WebGL is supported at the moment)
    */
-  graphicsContext?: ExcaliburGraphicsContext;
-
+  graphicsContext: ExcaliburGraphicsContext;
   /**
    * Optionally specify a vertex shader
    *
@@ -43,7 +44,6 @@ export interface MaterialOptions {
    * ```
    */
   vertexSource?: string;
-
   /**
    * Add custom fragment shader
    *
@@ -61,15 +61,31 @@ export interface MaterialOptions {
    * * `uniform vec2 u_size;` - The current size of the graphic
    * * `uniform vec4 u_color` - The current color of the material
    * * `uniform float u_opacity` - The current opacity of the graphics context
-   *
    */
   fragmentSource: string;
-
+  /**
+   * Add custom fragment shader or list of fragments
+   *
+   * *Note: Excalibur image alpha's are pre-multiplied
+   *
+   * Pre-built varyings:
+   *
+   * * `in vec2 v_uv` - UV coordinate
+   * * `in vec2 v_screenuv` - UV coordinate
+   *
+   * Pre-built uniforms:
+   *
+   * * `uniform sampler2D u_graphic` - The current graphic displayed by the GraphicsComponent
+   * * `uniform vec2 u_resolution` - The current resolution of the screen
+   * * `uniform vec2 u_size;` - The current size of the graphic
+   * * `uniform vec4 u_color` - The current color of the material
+   * * `uniform float u_opacity` - The current opacity of the graphics context
+   */
+  shaders?: string | string[] | Fragment | Fragment[];
   /**
    * Add custom color, by default ex.Color.Transparent
    */
   color?: Color;
-
   /**
    * Add additional images to the material, you are limited by the GPU's maximum texture slots
    *
@@ -77,64 +93,71 @@ export interface MaterialOptions {
    */
   images?: Record<string, ImageSource>;
 }
-
 const defaultVertexSource = `#version 300 es
 in vec2 a_position;
-
 in vec2 a_uv;
 out vec2 v_uv;
-
 in vec2 a_screenuv;
 out vec2 v_screenuv;
-
 uniform mat4 u_matrix;
 uniform mat4 u_transform;
-
 void main() {
   // Set the vertex position using the ortho & transform matrix
   gl_Position = u_matrix * u_transform * vec4(a_position, 0.0, 1.0);
-
   // Pass through the UV coord to the fragment shader
   v_uv = a_uv;
   v_screenuv = a_screenuv;
 }
 `;
-
-export interface MaterialImageOptions {
-  filtering?: ImageFiltering;
-}
-
 export class Material {
   private _logger = Logger.getInstance();
   private _name: string;
+
   private _shader!: Shader;
+  private _shaderPipeline?: ShaderPipeline;
+
   private _color: Color = Color.Transparent;
   private _initialized = false;
-  private _fragmentSource: string;
   private _vertexSource: string;
-
   private _images = new Map<string, ImageSource>();
   private _textures = new Map<ImageSource, WebGLTexture>();
   private _maxTextureSlots!: number;
   private _graphicsContext!: ExcaliburGraphicsContextWebGL;
-  public pipeline?: ShaderPipeline;
-
   constructor(options: MaterialOptions) {
-    const { color, name, vertexSource, fragmentSource, graphicsContext, images } = options;
+    const { color, name, vertexSource, fragmentSource, shaders, graphicsContext, images } = options;
+
     this._name = name ?? 'anonymous material';
     this._vertexSource = vertexSource ?? defaultVertexSource;
-    this._fragmentSource = fragmentSource;
     this._color = color ?? this._color;
+
     if (!graphicsContext) {
       throw Error(`Material ${name} must be provided an excalibur webgl graphics context`);
     }
+
+    if (!fragmentSource && !shaders) {
+      throw Error(`Material ${name} must have either have a fragmentSource or shaders provided`);
+    }
+
     if (graphicsContext instanceof ExcaliburGraphicsContextWebGL) {
+      // TODO simplify
       this._graphicsContext = graphicsContext;
-      this._initialize(graphicsContext);
+      if (!fragmentSource) {
+        // If Array > 1 then make a shader pipeline
+        if (Array.isArray(shaders)) {
+          if (shaders.length > 1) {
+            this._createShaderPipelineInstance(graphicsContext, shaders);
+          } else {
+            this._createShaderInstance(graphicsContext, shaders[0]);
+          }
+        } else if (shaders) {
+          this._createShaderInstance(graphicsContext, shaders instanceof Fragment ? shaders.getSource() : shaders);
+        }
+      } else {
+        this._createShaderInstance(graphicsContext, fragmentSource);
+      }
     } else {
       this._logger.warn(`Material ${name} was created in 2D Canvas mode, currently only WebGL is supported`);
     }
-
     if (images) {
       for (const key in images) {
         this.addImageSource(key, images[key]);
@@ -142,7 +165,19 @@ export class Material {
     }
   }
 
-  private _initialize(graphicsContextWebGL: ExcaliburGraphicsContextWebGL) {
+  private _createShaderPipelineInstance(graphicsContextWebGL: ExcaliburGraphicsContextWebGL, shaders: string[] | Fragment[]) {
+    if (this._initialized) {
+      return;
+    }
+    this._shaderPipeline = new ShaderPipeline({
+      graphicsContext: graphicsContextWebGL,
+      shaders: shaders.map((f) => (f instanceof Fragment ? f.getSource() : f))
+    });
+
+    this._initialized = true;
+  }
+
+  private _createShaderInstance(graphicsContextWebGL: ExcaliburGraphicsContextWebGL, shader: string | Fragment) {
     if (this._initialized) {
       return;
     }
@@ -151,7 +186,7 @@ export class Material {
     this._maxTextureSlots = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS) - 2;
     this._shader = graphicsContextWebGL.createShader({
       vertexSource: this._vertexSource,
-      fragmentSource: this._fragmentSource
+      fragmentSource: shader instanceof Fragment ? shader.getSource() : shader
     });
     this._shader.compile();
     this._initialized = true;
@@ -170,18 +205,24 @@ export class Material {
   }
 
   get isUsingScreenTexture() {
-    return this._fragmentSource.includes('u_screen_texture');
+    if (this._shader) {
+      return this._shader.fragmentSource.includes('u_screen_texture');
+    }
+
+    // FIXME shader pipeline screen texture and default uniforms???
+    return false;
   }
 
   update(callback: (shader: Shader) => any) {
+    // FIXME shader pipeline
     if (this._shader) {
       this._shader.use();
       callback(this._shader);
     }
   }
 
-  getShader(): Shader | null {
-    return this._shader;
+  getShader(): Shader | ShaderPipeline | null {
+    return (this._shader ? this._shader : this._shaderPipeline) ?? null;
   }
 
   addImageSource(textureUniformName: string, image: ImageSource) {
@@ -207,7 +248,6 @@ export class Material {
     const filtering = maybeFiltering ? parseImageFiltering(maybeFiltering) : undefined;
     const wrapX = parseImageWrapping(imageElement.getAttribute(ImageSourceAttributeConstants.WrappingX) as any);
     const wrapY = parseImageWrapping(imageElement.getAttribute(ImageSourceAttributeConstants.WrappingY) as any);
-
     const force = imageElement.getAttribute('forceUpload') === 'true' ? true : false;
     const texture = this._graphicsContext.textureLoader.load(
       imageElement,
@@ -222,7 +262,6 @@ export class Material {
     if (!this._textures.has(image)) {
       this._textures.set(image, texture!);
     }
-
     return texture;
   }
 
@@ -237,23 +276,10 @@ export class Material {
         continue;
       } // skip unloaded images, maybe warn
       const texture = this._loadImageSource(image);
-
       gl.activeTexture(gl.TEXTURE0 + textureSlot);
       gl.bindTexture(gl.TEXTURE_2D, texture);
       this._shader.trySetUniformInt(textureName, textureSlot);
-
       textureSlot++;
-    }
-  }
-
-  use() {
-    if (this._initialized) {
-      // bind the shader
-      this._shader.use();
-      // Apply standard uniforms
-      this._shader.trySetUniformFloatColor('u_color', this._color);
-    } else {
-      throw Error(`Material ${this.name} not yet initialized, use the ExcaliburGraphicsContext.createMaterial() to work around this.`);
     }
   }
 }

@@ -5,54 +5,25 @@ import { ImageSourceAttributeConstants } from '../../ImageSource';
 import { parseImageWrapping } from '../../Wrapping';
 import { HTMLImageSource } from '../ExcaliburGraphicsContext';
 import { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
-import { QuadIndexBuffer } from '../quad-index-buffer';
+import { QuadRenderer } from '../quad-renderer';
 import { RendererPlugin } from '../renderer';
-import { VertexBuffer } from '../vertex-buffer';
-import { VertexLayout } from '../vertex-layout';
+import { ShaderPipeline } from '../shader-pipeline';
 
 export class MaterialRenderer implements RendererPlugin {
   public readonly type: string = 'ex.material';
   public priority: number = 0;
-  // private _maxTextures = 8;
+
   private _context!: ExcaliburGraphicsContextWebGL;
-  private _gl!: WebGL2RenderingContext;
   private _textures: WebGLTexture[] = [];
-  private _quads: any;
-  private _buffer!: VertexBuffer;
-  private _layout!: VertexLayout;
+  private _quadRenderer!: QuadRenderer;
   initialize(gl: WebGL2RenderingContext, context: ExcaliburGraphicsContextWebGL): void {
-    this._gl = gl;
     this._context = context;
-
-    // Setup memory layout
-    this._buffer = new VertexBuffer({
-      gl,
-      size: 6 * 4, // 6 components * 4 verts
-      type: 'dynamic'
-    });
-
-    // Setup a vertex layout/buffer to the material
-    this._layout = new VertexLayout({
-      gl,
-      vertexBuffer: this._buffer,
-      attributes: [
-        ['a_position', 2],
-        ['a_uv', 2],
-        ['a_screenuv', 2]
-      ],
-      suppressWarnings: true
-    });
-
-    // Setup index buffer
-    this._quads = new QuadIndexBuffer(gl, 1, true);
+    this._quadRenderer = new QuadRenderer({ graphicsContext: context });
   }
 
   public dispose() {
-    this._buffer.dispose();
-    this._quads.dispose();
     this._textures.length = 0;
     this._context = null as any;
-    this._gl = null as any;
   }
 
   draw(
@@ -66,8 +37,6 @@ export class MaterialRenderer implements RendererPlugin {
     dwidth?: number,
     dheight?: number
   ): void {
-    const gl = this._gl;
-
     // Extract context info
     const material = this._context.material;
     if (!material) {
@@ -83,8 +52,8 @@ export class MaterialRenderer implements RendererPlugin {
     // construct geometry, or hold on to it in the material?
     // geometry primitive for drawing rectangles?
     // update data
-    const vertexBuffer = this._layout.vertexBuffer.bufferData;
-    let vertexIndex = 0;
+    //const vertexBuffer = this._layout.vertexBuffer.bufferData;
+    //let vertexIndex = 0;
 
     let width = image?.width || swidth || 0;
     let height = image?.height || sheight || 0;
@@ -104,8 +73,8 @@ export class MaterialRenderer implements RendererPlugin {
     const sh = view[3];
 
     const topLeft = vec(dest[0], dest[1]);
-    const topRight = vec(dest[0] + width, dest[1]);
-    const bottomLeft = vec(dest[0], dest[1] + height);
+    //const topRight = vec(dest[0] + width, dest[1]);
+    //const bottomLeft = vec(dest[0], dest[1] + height);
     const bottomRight = vec(dest[0] + width, dest[1] + height);
 
     const imageWidth = image.width || width;
@@ -123,61 +92,53 @@ export class MaterialRenderer implements RendererPlugin {
     const screenUVX1 = bottomRightScreen.x / this._context.width;
     const screenUVY1 = bottomRightScreen.y / this._context.height;
 
-    // (0, 0) - 0
-    vertexBuffer[vertexIndex++] = topLeft.x;
-    vertexBuffer[vertexIndex++] = topLeft.y;
-    vertexBuffer[vertexIndex++] = uvx0;
-    vertexBuffer[vertexIndex++] = uvy0;
-    vertexBuffer[vertexIndex++] = screenUVX0;
-    vertexBuffer[vertexIndex++] = screenUVY0;
+    //// (0, 0) - 0
+    //vertexBuffer[vertexIndex++] = topLeft.x;
+    //vertexBuffer[vertexIndex++] = topLeft.y;
+    //vertexBuffer[vertexIndex++] = uvx0;
+    //vertexBuffer[vertexIndex++] = uvy0;
+    //vertexBuffer[vertexIndex++] = screenUVX0;
+    //vertexBuffer[vertexIndex++] = screenUVY0;
+    //
+    //// (0, 1) - 1
+    //vertexBuffer[vertexIndex++] = bottomLeft.x;
+    //vertexBuffer[vertexIndex++] = bottomLeft.y;
+    //vertexBuffer[vertexIndex++] = uvx0;
+    //vertexBuffer[vertexIndex++] = uvy1;
+    //vertexBuffer[vertexIndex++] = screenUVX0;
+    //vertexBuffer[vertexIndex++] = screenUVY1;
+    //
+    //// (1, 0) - 2
+    //vertexBuffer[vertexIndex++] = topRight.x;
+    //vertexBuffer[vertexIndex++] = topRight.y;
+    //vertexBuffer[vertexIndex++] = uvx1;
+    //vertexBuffer[vertexIndex++] = uvy0;
+    //vertexBuffer[vertexIndex++] = screenUVX1;
+    //vertexBuffer[vertexIndex++] = screenUVY0;
+    //
+    //// (1, 1) - 3
+    //vertexBuffer[vertexIndex++] = bottomRight.x;
+    //vertexBuffer[vertexIndex++] = bottomRight.y;
+    //vertexBuffer[vertexIndex++] = uvx1;
+    //vertexBuffer[vertexIndex++] = uvy1;
+    //vertexBuffer[vertexIndex++] = screenUVX1;
+    //vertexBuffer[vertexIndex++] = screenUVY1;
 
-    // (0, 1) - 1
-    vertexBuffer[vertexIndex++] = bottomLeft.x;
-    vertexBuffer[vertexIndex++] = bottomLeft.y;
-    vertexBuffer[vertexIndex++] = uvx0;
-    vertexBuffer[vertexIndex++] = uvy1;
-    vertexBuffer[vertexIndex++] = screenUVX0;
-    vertexBuffer[vertexIndex++] = screenUVY1;
-
-    // (1, 0) - 2
-    vertexBuffer[vertexIndex++] = topRight.x;
-    vertexBuffer[vertexIndex++] = topRight.y;
-    vertexBuffer[vertexIndex++] = uvx1;
-    vertexBuffer[vertexIndex++] = uvy0;
-    vertexBuffer[vertexIndex++] = screenUVX1;
-    vertexBuffer[vertexIndex++] = screenUVY0;
-
-    // (1, 1) - 3
-    vertexBuffer[vertexIndex++] = bottomRight.x;
-    vertexBuffer[vertexIndex++] = bottomRight.y;
-    vertexBuffer[vertexIndex++] = uvx1;
-    vertexBuffer[vertexIndex++] = uvy1;
-    vertexBuffer[vertexIndex++] = screenUVX1;
-    vertexBuffer[vertexIndex++] = screenUVY1;
+    this._quadRenderer.setPostion(topLeft, bottomRight);
+    this._quadRenderer.setUV(vec(uvx0, uvy0), vec(uvx1, uvy1));
+    this._quadRenderer.setScreenUV(vec(screenUVX0, screenUVY0), vec(screenUVX1, screenUVY1));
 
     // This creates and uploads the texture if not already done
     let texture = this._addImageAsTexture(image);
-
-    // TODO Run pipeline on texture instead?
-
-    // 1. Input texture
-    // 2. Bind framebuffer
-    // 3. Run pipeline
-    // 4. Should pipelines be part of images more generally?
-    if (material.pipeline) {
-      // TODO provide unifiorms
-      texture = material.pipeline.draw(texture);
-      // FIXME I think the final draw needs to have the render buffer rebound because
-      // We probably should NOT run this inside the redererer pass...
+    // Run pipeline if exists
+    if (shader instanceof ShaderPipeline) {
+      // TODO uniforms
+      texture = shader.draw(texture);
+    } else {
+      this._quadRenderer.setShader(shader);
     }
 
-    // apply material
-    material.use();
-
-    // Currently we still need a shader provided
-    this._layout.shader = shader!;
-    // apply layout and geometry
-    this._layout.use(true);
+    shader.trySetUniformFloatColor('u_color', material.color);
 
     // apply time in ms since the page (performance.now())
     shader.trySetUniformFloat('u_time_ms', performance.now());
@@ -201,29 +162,22 @@ export class MaterialRenderer implements RendererPlugin {
     shader.trySetUniformMatrix('u_transform', transform.to4x4());
 
     // bind graphic image texture 'uniform sampler2D u_graphic;'
-    gl.activeTexture(gl.TEXTURE0 + 0);
-    gl.bindTexture(gl.TEXTURE_2D, texture);
+    //gl.activeTexture(gl.TEXTURE0 + 0);
+    //gl.bindTexture(gl.TEXTURE_2D, texture);
     shader.trySetUniformInt('u_graphic', 0);
 
     // bind the screen texture
-    gl.activeTexture(gl.TEXTURE0 + 1);
-    gl.bindTexture(gl.TEXTURE_2D, this._context.materialScreenTexture);
+    //gl.activeTexture(gl.TEXTURE0 + 1);
+    //gl.bindTexture(gl.TEXTURE_2D, this._context.materialScreenTexture);
     shader.trySetUniformInt('u_screen_texture', 1);
 
-    // bind any additional textures in the material
-    material.uploadAndBind(gl);
-
-    // bind quad index buffer
-    this._quads.bind();
-
     // Draw a single quad
-    this._context._msaaTarget.use();
-    gl.drawElements(gl.TRIANGLES, 6, this._quads.bufferGlType, 0);
-    this._context._msaaTarget.disable();
-
-    // 1 redirect to the framebuffer
-    // 2 execute the pipeline,
-    // 3 call the final quad renderer to output image in the right spot
+    // Does doing a quad renderer accidentally make this batchable? maybe but for another day
+    const texturesToDraw = [texture];
+    if (this._context.materialScreenTexture) {
+      texturesToDraw.push(this._context.materialScreenTexture);
+    }
+    this._quadRenderer.draw(texturesToDraw, this._context.getFramebuffer());
 
     GraphicsDiagnostics.DrawnImagesCount++;
     GraphicsDiagnostics.DrawCallCount++;

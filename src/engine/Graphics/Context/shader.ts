@@ -26,13 +26,15 @@ export type UniformTypeNames =
   | 'uniformMatrix3fv'
   | 'uniformMatrix4fv';
 
-type RemoveFirstFromTuple<T extends any[]> = T['length'] extends 0
+export type RemoveFirstFromTuple<T extends any[]> = T['length'] extends 0
   ? []
   : ((...b: T) => void) extends (a: any, ...b: infer I) => void
     ? I
     : [];
 
-type UniformParameters<TUniformType extends UniformTypeNames> = RemoveFirstFromTuple<Parameters<WebGLRenderingContext[TUniformType]>>;
+export type UniformParameters<TUniformType extends UniformTypeNames> = RemoveFirstFromTuple<
+  Parameters<WebGLRenderingContext[TUniformType]>
+>;
 
 export interface UniformDefinition {
   name: string;
