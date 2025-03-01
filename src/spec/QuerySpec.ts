@@ -50,6 +50,24 @@ describe('A query', () => {
     expect(queryAB.getEntities()).toEqual([entity1]);
   });
 
+  it('does not add entity with exclusions', () => {
+    const queryAB = new ex.Query([FakeComponentA], [FakeComponentB]);
+    const compA = new FakeComponentA();
+    const compB = new FakeComponentB();
+    const entity1 = new ex.Entity();
+    entity1.addComponent(compA);
+
+    const entity2 = new ex.Entity();
+    entity2.addComponent(compA);
+    entity2.addComponent(compB);
+
+    queryAB.checkAndAdd(entity1);
+    expect(queryAB.getEntities()).toEqual([entity1]);
+
+    queryAB.checkAndAdd(entity2);
+    expect(queryAB.getEntities()).toEqual([entity1]);
+  });
+
   it('can remove entities', () => {
     const queryAB = new ex.Query([FakeComponentA, FakeComponentB]);
     const compA = new FakeComponentA();

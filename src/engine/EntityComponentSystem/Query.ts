@@ -25,7 +25,10 @@ export class Query<TKnownComponentCtors extends ComponentCtor<Component> = never
    */
   public entityRemoved$ = new Observable<Entity<ComponentInstance<TKnownComponentCtors>>>();
 
-  constructor(public readonly requiredComponents: TKnownComponentCtors[]) {
+  constructor(
+    public readonly requiredComponents: TKnownComponentCtors[],
+    public readonly excludedComponents: ComponentCtor<Component>[] = []
+  ) {
     if (requiredComponents.length === 0) {
       throw new Error('Cannot create query without components');
     }
@@ -52,7 +55,11 @@ export class Query<TKnownComponentCtors extends ComponentCtor<Component> = never
    * @param entity
    */
   checkAndAdd(entity: Entity) {
-    if (!this.entities.includes(entity) && entity.hasAll(Array.from(this.components))) {
+    if (
+      !this.entities.includes(entity) &&
+      entity.hasAll(Array.from(this.components)) &&
+      !this.excludedComponents.some((c) => entity.has(c))
+    ) {
       this.entities.push(entity);
       this.entityAdded$.notifyAll(entity);
       return true;
