@@ -83,6 +83,13 @@
         "allowTernary": true
       }
     ],
+    "no-restricted-syntax": [
+      "error",
+      {
+        "message": "Do not commit tests with 'fit'",
+        "selector": "CallExpression[callee.name='fit']"
+      }
+    ],
     "jsdoc/require-param": 0,
     "jsdoc/require-param-description": 0,
     "jsdoc/require-param-type": 0,
