@@ -85,7 +85,7 @@
     "@babel/preset-env": "7.26.9",
     "@babel/preset-typescript": "7.26.0",
     "@fortawesome/fontawesome-free": "6.7.2",
-    "@octokit/rest": "21.0.2",
+    "@octokit/rest": "21.1.1",
     "@storybook/addon-actions": "7.6.20",
     "@storybook/addon-essentials": "7.6.20",
     "@storybook/addon-links": "7.6.20",
