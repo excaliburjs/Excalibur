@@ -46,16 +46,16 @@ export class Query<
 > {
   public readonly id: string;
 
-  public entities: Entity<ComponentInstance<TAllComponentCtors>>[] = [];
+  public entities: QueryEntity<TAllComponentCtors, TAnyComponentCtors>[] = [];
 
   /**
    * This fires right after the component is added
    */
-  public entityAdded$ = new Observable<Entity<ComponentInstance<TAllComponentCtors>>>();
+  public entityAdded$ = new Observable<QueryEntity<TAllComponentCtors, TAnyComponentCtors>>();
   /**
    * This fires right before the component is actually removed from the entity, it will still be available for cleanup purposes
    */
-  public entityRemoved$ = new Observable<Entity<ComponentInstance<TAllComponentCtors>>>();
+  public entityRemoved$ = new Observable<QueryEntity<TAllComponentCtors, TAnyComponentCtors>>();
 
   public readonly filter = {
     components: {
