@@ -124,7 +124,7 @@
     "karma-spec-reporter": "0.0.36",
     "karma-summary-reporter": "3.1.1",
     "karma-webpack": "5.0.1",
-    "lint-staged": "15.3.0",
+    "lint-staged": "15.4.3",
     "prettier": "3.2.5",
     "puppeteer": "15.5.0",
     "raw-loader": "4.0.2",
