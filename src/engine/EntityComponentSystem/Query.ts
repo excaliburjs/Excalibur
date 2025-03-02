@@ -9,14 +9,6 @@ export type ComponentInstance<T> = T extends ComponentCtor<infer R> ? R : never;
  */
 export type DistributeEntity<T> = T extends infer U extends Component ? Entity<U> : never;
 
-export interface QueryEvents<
-  TKnownComponentCtors extends ComponentCtor<Component> = never,
-  TAnyComponentCtors extends ComponentCtor<Component> = never
-> {
-  add: QueryEntity<TKnownComponentCtors, TAnyComponentCtors>;
-  remove: QueryEntity<TKnownComponentCtors, TAnyComponentCtors>;
-}
-
 export interface QueryParams<
   TKnownComponentCtors extends ComponentCtor<Component> = never,
   TAnyComponentCtors extends ComponentCtor<Component> = never
