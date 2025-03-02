@@ -87,7 +87,7 @@
       "error",
       {
         "message": "Do not commit tests with 'fit'",
-        "selector": "CallExpression[callee.name='fit']"
+        "selector": "CallExpression[callee.name='fit'] > Identifier"
       }
     ],
     "jsdoc/require-param": 0,
