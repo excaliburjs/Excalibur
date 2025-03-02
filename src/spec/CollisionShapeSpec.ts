@@ -840,7 +840,6 @@ describe('Collision Shape', () => {
     it('can be drawn with actor', async () => {
       const polygonActor = new ex.Actor({
         pos: new ex.Vector(150, 100),
-        color: ex.Color.Blue,
         collider: ex.Shape.Polygon([new ex.Vector(0, -100), new ex.Vector(-100, 50), new ex.Vector(100, 50)])
       });
 
@@ -1077,7 +1076,6 @@ describe('Collision Shape', () => {
     it('can be drawn with actor', async () => {
       const edgeActor = new ex.Actor({
         pos: new ex.Vector(150, 100),
-        color: ex.Color.Blue,
         collider: ex.Shape.Edge(ex.Vector.Zero, new ex.Vector(300, 300))
       });
 
