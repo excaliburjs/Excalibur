@@ -1,11 +1,8 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
-import { ExcaliburAsyncMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A Director', () => {
-  beforeAll(() => {
-    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
-  });
   it('exists', () => {
     expect(ex.Director).toBeDefined();
   });
@@ -153,7 +150,7 @@ describe('A Director', () => {
     expect(sut.currentSceneName).toBe('scene1');
     expect(sut.currentScene).toBe(scene1);
 
-    await expectAsync(engine.canvas).toEqualImage('/src/spec/images/DirectorSpec/fadein.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/DirectorSpec/fadein.png');
     engine.dispose();
   });
 
@@ -162,7 +159,7 @@ describe('A Director', () => {
     const clock = engine.clock as ex.TestClock;
     clock.start();
     const scene1 = new ex.Scene();
-    const loaderSpy = jasmine.createSpy('loader');
+    const loaderSpy = vi.fn();
     scene1.onPreLoad = loaderSpy;
     const scene2 = new ex.Scene();
     const sut = new ex.Director(engine, {
