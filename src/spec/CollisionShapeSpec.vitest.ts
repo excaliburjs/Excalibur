@@ -1,14 +1,9 @@
 import * as ex from '@excalibur';
 import { CollisionJumpTable } from '@excalibur';
-import { ExcaliburMatchers, ensureImagesLoaded, ExcaliburAsyncMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 import { TestUtils } from './util/TestUtils';
 
 describe('Collision Shape', () => {
-  beforeAll(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
-    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
-  });
-
   describe('a Circle', () => {
     let engine: ex.Engine;
     let scene: ex.Scene;
@@ -83,7 +78,7 @@ describe('Collision Shape', () => {
       sut.radius = 20;
       actor.transform.scale = ex.vec(1, 3);
       sut.update(actor.transform.get());
-      expect(sut.radius).withContext('Uneven scale take the smallest').toBe(10);
+      expect(sut.radius, 'Uneven scale take the smallest').toBe(10);
     });
 
     it('calculates correct bounds when transformed', () => {
@@ -170,7 +165,7 @@ describe('Collision Shape', () => {
       expect(pointTangent.y).toBe(10);
 
       expect(pointNoHit).toBe(null);
-      expect(pointTooFar).toBe(null, 'The circle should be too far away for a hit');
+      expect(pointTooFar, 'The circle should be too far away for a hit').toBe(null);
     });
 
     it('can be raycast against only positive time of impact (toi)', () => {
@@ -387,7 +382,7 @@ describe('Collision Shape', () => {
 
       ctx.flush();
 
-      await expectAsync(canvasElement).toEqualImage('src/spec/images/CollisionShapeSpec/circle-debug.png');
+      await expect(canvasElement).toEqualImage('src/spec/images/CollisionShapeSpec/circle-debug.png');
     });
 
     it('can be drawn with actor when in constructor', async () => {
@@ -400,7 +395,7 @@ describe('Collision Shape', () => {
       scene.draw(engine.graphicsContext, 100);
       engine.graphicsContext.flush();
 
-      await expectAsync(engine.canvas).toEqualImage('src/spec/images/CollisionShapeSpec/circle.png');
+      await expect(engine.canvas).toEqualImage('src/spec/images/CollisionShapeSpec/circle.png');
     });
 
     it('can calculate the distance to another circle', () => {
@@ -417,7 +412,7 @@ describe('Collision Shape', () => {
       const line = circle.getClosestLineBetween(circle2);
 
       expect(line.getLength()).toBe(40);
-      expect(line.getEdge().dot(ex.Vector.Right)).toBeGreaterThan(0, 'Line from circle to other circle should be away from this');
+      expect(line.getEdge().dot(ex.Vector.Right), 'Line from circle to other circle should be away from this').toBeGreaterThan(0);
     });
 
     it('can calculate the distance to another polygon', () => {
@@ -431,7 +426,7 @@ describe('Collision Shape', () => {
       const line = circle.getClosestLineBetween(box);
 
       expect(line.getLength()).toBe(70);
-      expect(line.getEdge().dot(ex.Vector.Right)).toBeGreaterThan(0, 'Line from circle to polygon should be away from polygon');
+      expect(line.getEdge().dot(ex.Vector.Right), 'Line from circle to polygon should be away from polygon').toBeGreaterThan(0);
     });
 
     it('can calculate the distance to another edge', () => {
@@ -445,7 +440,7 @@ describe('Collision Shape', () => {
       const line = circle.getClosestLineBetween(edge);
 
       expect(line.getLength()).toBe(70);
-      expect(line.getEdge().dot(ex.Vector.Right)).toBeGreaterThan(0, 'Line from circle to edge should be away from circle');
+      expect(line.getEdge().dot(ex.Vector.Right), 'Line from circle to edge should be away from circle').toBeGreaterThan(0);
     });
   });
 
@@ -521,13 +516,13 @@ describe('Collision Shape', () => {
       const convex = new ex.PolygonCollider({
         points: [ex.vec(0, 0), ex.vec(10, 10), ex.vec(10, 0)]
       });
-      expect(convex.isConvex()).withContext('Triangles are always convex').toBe(true);
+      expect(convex.isConvex(), 'Triangles are always convex').toBe(true);
 
       const concave = new ex.PolygonCollider({
         points: [ex.vec(0, 0), ex.vec(5, 5), ex.vec(0, 10), ex.vec(10, 10), ex.vec(10, 0)]
       });
 
-      expect(concave.isConvex()).withContext('Should be concave').toBe(false);
+      expect(concave.isConvex(), 'Should be concave').toBe(false);
     });
 
     it('can triangulate', () => {
@@ -543,7 +538,7 @@ describe('Collision Shape', () => {
       expect(colliders[1].points).toEqual([ex.vec(0, 10), ex.vec(5, 5), ex.vec(10, 0)]);
       expect(colliders[2].points).toEqual([ex.vec(10, 0), ex.vec(10, 10), ex.vec(0, 10)]);
 
-      expect(concave.isConvex()).withContext('Should be concave').toBe(false);
+      expect(concave.isConvex(), 'Should be concave').toBe(false);
     });
 
     it('can tesselate', () => {
@@ -592,7 +587,7 @@ describe('Collision Shape', () => {
       const contact = polyA.collide(polyB)[0];
 
       // there should be a collision
-      expect(contact).withContext('there should be a collision').not.toBeFalsy();
+      expect(contact, 'there should be a collision').not.toBeFalsy();
 
       // normal and mtv should point away from bodyA
       expect(directionOfBodyB.dot(contact.mtv)).toBeGreaterThan(0);
@@ -625,7 +620,7 @@ describe('Collision Shape', () => {
       const contact = polyA.collide(polyB)[0];
 
       // there should be a collision
-      expect(contact).withContext('There should be a collision').not.toBeFalsy();
+      expect(contact, 'There should be a collision').not.toBeFalsy();
 
       // normal and mtv should point away from bodyA
       expect(directionOfBodyB.dot(contact.mtv)).toBeGreaterThan(0);
@@ -813,12 +808,12 @@ describe('Collision Shape', () => {
       expect(point.x).toBeCloseTo(-5, 0.001);
       expect(point.y).toBeCloseTo(0, 0.001);
       expect(hit.normal.x).toBe(-1);
-      expect(hit.normal.y).toBe(0);
+      expect(hit.normal.y).toBe(-0); // should this be 0?
       expect(hit.collider).toBe(polyA);
       expect(hit.body).toBe(actor.body);
       expect(hit.distance).toBe(95);
       expect(noHit).toBe(null);
-      expect(tooFar).toBe(null, 'The polygon should be too far away for a hit');
+      expect(tooFar, 'The polygon should be too far away for a hit').toBe(null);
     });
 
     it('can be debug drawn', async () => {
@@ -834,13 +829,12 @@ describe('Collision Shape', () => {
       engine.graphicsContext.restore();
       engine.graphicsContext.flush();
 
-      await expectAsync(engine.canvas).toEqualImage('src/spec/images/CollisionShapeSpec/triangle.png');
+      await expect(engine.canvas).toEqualImage('src/spec/images/CollisionShapeSpec/triangle.png');
     });
 
     it('can be drawn with actor', async () => {
       const polygonActor = new ex.Actor({
         pos: new ex.Vector(150, 100),
-        color: ex.Color.Blue,
         collider: ex.Shape.Polygon([new ex.Vector(0, -100), new ex.Vector(-100, 50), new ex.Vector(100, 50)])
       });
 
@@ -848,7 +842,7 @@ describe('Collision Shape', () => {
       scene.draw(engine.graphicsContext, 100);
       engine.graphicsContext.flush();
 
-      await expectAsync(engine.canvas).toEqualImage('src/spec/images/CollisionShapeSpec/triangle.png');
+      await expect(engine.canvas).toEqualImage('src/spec/images/CollisionShapeSpec/triangle.png');
     });
 
     it('can calculate the distance to another circle', () => {
@@ -862,7 +856,7 @@ describe('Collision Shape', () => {
       const line = poly.getClosestLineBetween(circle);
 
       expect(line.getLength()).toBe(50);
-      expect(line.getEdge().dot(ex.Vector.Right)).toBeGreaterThan(0, 'Line from polygon to other circle should be away from this');
+      expect(line.getEdge().dot(ex.Vector.Right), 'Line from polygon to other circle should be away from this').toBeGreaterThan(0);
     });
 
     it('can calculate the distance to another polygon', () => {
@@ -873,7 +867,7 @@ describe('Collision Shape', () => {
       const line = poly.getClosestLineBetween(box);
 
       expect(line.getLength()).toBe(80);
-      expect(line.getEdge().dot(ex.Vector.Right)).toBeGreaterThan(0, 'Line from polygon to polygon should be away from polygon');
+      expect(line.getEdge().dot(ex.Vector.Right), 'Line from polygon to polygon should be away from polygon').toBeGreaterThan(0);
     });
 
     it('can calculate the distance to angled edge on polygon', () => {
@@ -885,7 +879,7 @@ describe('Collision Shape', () => {
       const line = box.getClosestLineBetween(poly);
 
       expect(line.getLength()).toBe(10);
-      expect(line.getEdge().dot(ex.Vector.Right)).toBeGreaterThan(0, 'Line from polygon to polygon should be away from polygon');
+      expect(line.getEdge().dot(ex.Vector.Right), 'Line from polygon to polygon should be away from polygon').toBeGreaterThan(0);
     });
 
     it('can calculate the distance to another edge', () => {
@@ -896,7 +890,7 @@ describe('Collision Shape', () => {
       const line = poly.getClosestLineBetween(edge);
 
       expect(line.getLength()).toBe(80);
-      expect(line.getEdge().dot(ex.Vector.Right)).toBeGreaterThan(0, 'Line from circle to edge should be away from circle');
+      expect(line.getEdge().dot(ex.Vector.Right), 'Line from circle to edge should be away from circle').toBeGreaterThan(0);
     });
   });
 
@@ -987,7 +981,7 @@ describe('Collision Shape', () => {
       expect(rightTan.x).toBeCloseTo(10, 0.001);
       expect(rightTan.y).toBeCloseTo(0, 0.001);
 
-      expect(tooFar).toBe(null, 'Ray should be too far for a hit');
+      expect(tooFar, 'Ray should be too far for a hit').toBe(null);
     });
 
     it('has 4 axes', () => {
@@ -1071,13 +1065,12 @@ describe('Collision Shape', () => {
       engine.graphicsContext.restore();
       engine.graphicsContext.flush();
 
-      await expectAsync(engine.canvas).toEqualImage('src/spec/images/CollisionShapeSpec/edge.png');
+      await expect(engine.canvas).toEqualImage('src/spec/images/CollisionShapeSpec/edge.png');
     });
 
     it('can be drawn with actor', async () => {
       const edgeActor = new ex.Actor({
         pos: new ex.Vector(150, 100),
-        color: ex.Color.Blue,
         collider: ex.Shape.Edge(ex.Vector.Zero, new ex.Vector(300, 300))
       });
 
@@ -1085,7 +1078,7 @@ describe('Collision Shape', () => {
       scene.draw(engine.graphicsContext, 100);
       engine.graphicsContext.flush();
 
-      await expectAsync(engine.canvas).toEqualImage('src/spec/images/CollisionShapeSpec/edge.png');
+      await expect(engine.canvas).toEqualImage('src/spec/images/CollisionShapeSpec/edge.png');
     });
 
     it('can calculate the distance to another circle', () => {
@@ -1099,7 +1092,7 @@ describe('Collision Shape', () => {
       const line = edge.getClosestLineBetween(circle);
 
       expect(line.getLength()).toBe(70);
-      expect(line.getEdge().dot(ex.Vector.Right)).toBeGreaterThan(0, 'Line from polygon to other circle should be away from this');
+      expect(line.getEdge().dot(ex.Vector.Right), 'Line from polygon to other circle should be away from this').toBeGreaterThan(0);
     });
 
     it('can calculate the distance to another polygon', () => {
@@ -1110,7 +1103,7 @@ describe('Collision Shape', () => {
       const line = edge.getClosestLineBetween(box);
 
       expect(line.getLength()).toBe(100);
-      expect(line.getEdge().dot(ex.Vector.Right)).toBeGreaterThan(0, 'Line from polygon to polygon should be away from polygon');
+      expect(line.getEdge().dot(ex.Vector.Right), 'Line from polygon to polygon should be away from polygon').toBeGreaterThan(0);
     });
 
     it('can calculate the distance to another edge', () => {
@@ -1121,27 +1114,27 @@ describe('Collision Shape', () => {
       const line = edge.getClosestLineBetween(edge2);
 
       expect(line.getLength()).toBe(100);
-      expect(line.getEdge().dot(ex.Vector.Right)).toBeGreaterThan(0, 'Line from circle to edge should be away from circle');
+      expect(line.getEdge().dot(ex.Vector.Right), 'Line from circle to edge should be away from circle').toBeGreaterThan(0);
     });
 
     it('can collide with a circle center edge', () => {
       const edge = ex.Shape.Edge(ex.vec(-100, 30), ex.vec(100, 30));
       const circle = ex.Shape.Circle(30);
       const contact = circle.collide(edge)[0];
-      expect(contact.normal).withContext('Circle/Edge normals point away from circle').toBeVector(ex.Vector.Down);
+      expect(contact.normal, 'Circle/Edge normals point away from circle').toBeVector(ex.Vector.Down);
       expect(contact.points[0]).toBeVector(ex.vec(0, 30));
       expect(contact.info.collider).toBe(circle);
       expect(contact.info.point).toBeVector(ex.vec(0, 30));
 
       const separation = CollisionJumpTable.FindContactSeparation(contact, ex.vec(0, 40));
-      expect(separation).withContext('Negative separation means overlap').toBe(-10);
+      expect(separation, 'Negative separation means overlap').toBe(-10);
     });
 
     it('can collide with a circle, left edge', () => {
       const edge = ex.Shape.Edge(ex.vec(30, 0), ex.vec(100, 0));
       const circle = ex.Shape.Circle(30);
       const contact = circle.collide(edge)[0];
-      expect(contact.normal).withContext('Circle/Edge normals point away from circle').toBeVector(ex.Vector.Right);
+      expect(contact.normal, 'Circle/Edge normals point away from circle').toBeVector(ex.Vector.Right);
       expect(contact.points[0]).toBeVector(ex.vec(30, 0));
       expect(contact.info.collider).toBe(circle);
       expect(contact.info.point).toBeVector(ex.vec(30, 0));
@@ -1154,7 +1147,7 @@ describe('Collision Shape', () => {
       const edge = ex.Shape.Edge(ex.vec(-100, 0), ex.vec(-30, 0));
       const circle = ex.Shape.Circle(30);
       const contact = circle.collide(edge)[0];
-      expect(contact.normal).withContext('Circle/Edge normals point away from circle').toBeVector(ex.Vector.Left);
+      expect(contact.normal, 'Circle/Edge normals point away from circle').toBeVector(ex.Vector.Left);
       expect(contact.points[0]).toBeVector(ex.vec(-30, 0));
       expect(contact.info.collider).toBe(circle);
       expect(contact.info.point).toBeVector(ex.vec(-30, 0));
@@ -1167,7 +1160,7 @@ describe('Collision Shape', () => {
       const edge = ex.Shape.Edge(ex.vec(-100, -30), ex.vec(100, -30));
       const circle = ex.Shape.Circle(30);
       const contact = circle.collide(edge)[0];
-      expect(contact.normal).withContext('Circle/Edge normals point away from circle').toBeVector(ex.Vector.Up);
+      expect(contact.normal, 'Circle/Edge normals point away from circle').toBeVector(ex.Vector.Up);
       expect(contact.points[0]).toBeVector(ex.vec(0, -30));
       expect(contact.info.collider).toBe(circle);
       expect(contact.info.point).toBeVector(ex.vec(0, -30));
@@ -1180,7 +1173,7 @@ describe('Collision Shape', () => {
       const edge = ex.Shape.Edge(ex.vec(-100, 10), ex.vec(100, 10));
       const rect = ex.Shape.Box(40, 20, ex.Vector.Half);
       const contact = rect.collide(edge)[0];
-      expect(contact.normal).withContext('Rect/Edge normal point away from edge').toBeVector(ex.Vector.Down);
+      expect(contact.normal, 'Rect/Edge normal point away from edge').toBeVector(ex.Vector.Down);
       expect(contact.points[0]).toBeVector(ex.vec(20, 10));
       expect(contact.points[1]).toBeVector(ex.vec(-20, 10));
 
@@ -1192,7 +1185,7 @@ describe('Collision Shape', () => {
       const edge = ex.Shape.Edge(ex.vec(10, 10), ex.vec(100, 10));
       const rect = ex.Shape.Box(40, 20, ex.Vector.Half);
       const contact = rect.collide(edge)[0];
-      expect(contact.normal).withContext('Rect/Edge normal point away from edge').toBeVector(ex.Vector.Down);
+      expect(contact.normal, 'Rect/Edge normal point away from edge').toBeVector(ex.Vector.Down);
       expect(contact.points[0]).toBeVector(ex.vec(20, 10));
       expect(contact.points[1]).toBeVector(ex.vec(10, 10));
 
@@ -1204,7 +1197,7 @@ describe('Collision Shape', () => {
       const edge = ex.Shape.Edge(ex.vec(-100, 10), ex.vec(0, 10));
       const rect = ex.Shape.Box(40, 20, ex.Vector.Half);
       const contact = rect.collide(edge)[0];
-      expect(contact.normal).withContext('Rect/Edge normal point away from edge').toBeVector(ex.Vector.Down);
+      expect(contact.normal, 'Rect/Edge normal point away from edge').toBeVector(ex.Vector.Down);
       expect(contact.points[0]).toBeVector(ex.vec(-20, 10));
       expect(contact.points[1]).toBeVector(ex.vec(0, 10));
 
@@ -1228,7 +1221,7 @@ describe('Collision Shape', () => {
 
     it('will warn if should use a circle', () => {
       const logger = ex.Logger.getInstance();
-      spyOn(logger, 'warn');
+      vi.spyOn(logger, 'warn');
       const sut = ex.Shape.Capsule(100, 100);
       expect(logger.warn).toHaveBeenCalledWith(
         'A capsule collider with equal width and height is a circle, consider using a ex.Shape.Circle or ex.CircleCollider'
