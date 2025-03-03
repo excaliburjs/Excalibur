@@ -1,14 +1,15 @@
 import * as ex from '@excalibur';
+import { describe, beforeEach, it, expect, type MockInstance } from 'vitest';
 
 describe('Logger', () => {
   let logger: ex.Logger;
 
   describe('ConsoleAppender', () => {
     let appender: ex.Appender;
-    let spiedAppender: jasmine.Spy;
-    let spiedConsoleLog: jasmine.Spy;
-    let spiedConsoleWarn: jasmine.Spy;
-    let spiedConsoleError: jasmine.Spy;
+    let spiedAppender: MockInstance;
+    let spiedConsoleLog: MockInstance;
+    let spiedConsoleWarn: MockInstance;
+    let spiedConsoleError: MockInstance;
 
     beforeEach(() => {
       appender = new ex.ConsoleAppender();
@@ -16,14 +17,13 @@ describe('Logger', () => {
       logger = ex.Logger.getInstance();
       logger.clearAppenders();
       logger.addAppender(appender);
-      spiedAppender = spyOn(appender, 'log');
-      spiedAppender.and.callThrough();
+      spiedAppender = vi.spyOn(appender, 'log');
 
       logger.defaultLevel = ex.LogLevel.Debug;
 
-      spiedConsoleLog = spyOn(console, 'log');
-      spiedConsoleWarn = spyOn(console, 'warn');
-      spiedConsoleError = spyOn(console, 'error');
+      spiedConsoleLog = vi.spyOn(console, 'log');
+      spiedConsoleWarn = vi.spyOn(console, 'warn');
+      spiedConsoleError = vi.spyOn(console, 'error');
     });
 
     afterEach(() => {
