@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-
+import { describe, beforeEach, it, expect } from 'vitest';
 class FakeEvent {}
 
 describe('An EventEmitter', () => {
@@ -15,7 +15,7 @@ describe('An EventEmitter', () => {
   it('can listen to events "on" multiple times', () => {
     const emitter = new ex.EventEmitter<{ someevent: FakeEvent }>();
     const evt = new FakeEvent();
-    const handler = jasmine.createSpy('handler');
+    const handler = vi.fn();
     emitter.on('someevent', handler);
 
     emitter.emit('someevent', evt);
@@ -28,7 +28,7 @@ describe('An EventEmitter', () => {
 
   it('can listen to events "once" then unsubscribe', () => {
     const emitter = new ex.EventEmitter();
-    const handler = jasmine.createSpy('handler');
+    const handler = vi.fn();
     emitter.once('someotherevent', handler);
 
     emitter.emit('someotherevent');
@@ -41,7 +41,7 @@ describe('An EventEmitter', () => {
 
   it('can be closed when using "on"', () => {
     const emitter = new ex.EventEmitter();
-    const handler = jasmine.createSpy('handler');
+    const handler = vi.fn();
 
     const sub = emitter.on('myevent', handler);
 
@@ -54,7 +54,7 @@ describe('An EventEmitter', () => {
 
   it('can be closed when using "once"', () => {
     const emitter = new ex.EventEmitter();
-    const handler = jasmine.createSpy('handler');
+    const handler = vi.fn();
 
     const sub = emitter.on('myevent', handler);
     sub.close();
@@ -67,7 +67,7 @@ describe('An EventEmitter', () => {
 
   it('can be switched off by name and handler', () => {
     const emitter = new ex.EventEmitter();
-    const handler = jasmine.createSpy('handler');
+    const handler = vi.fn();
 
     emitter.on('myevent2', handler);
     emitter.on('myevent1', handler);
@@ -85,7 +85,7 @@ describe('An EventEmitter', () => {
 
   it('can be switched off by name and handler for multiple installs', () => {
     const emitter = new ex.EventEmitter();
-    const handler = jasmine.createSpy('handler');
+    const handler = vi.fn();
 
     emitter.on('myevent2', handler);
     emitter.on('myevent2', handler);
@@ -99,7 +99,7 @@ describe('An EventEmitter', () => {
 
   it('can be switched off by name and handler for multiple installs in once', () => {
     const emitter = new ex.EventEmitter();
-    const handler = jasmine.createSpy('handler');
+    const handler = vi.fn();
 
     emitter.once('myevent2', handler);
     emitter.once('myevent2', handler);
@@ -113,7 +113,7 @@ describe('An EventEmitter', () => {
 
   it('can be switched off by name and handler for "once"', () => {
     const emitter = new ex.EventEmitter();
-    const handler = jasmine.createSpy('handler');
+    const handler = vi.fn();
 
     emitter.on('onetime', handler);
 
@@ -130,7 +130,7 @@ describe('An EventEmitter', () => {
     // Pipe actor events into scene
     const pipeSub = actorEmitter.pipe(sceneEmitter);
 
-    const handler = jasmine.createSpy('handler');
+    const handler = vi.fn();
 
     sceneEmitter.on('myactorevent', handler);
     actorEmitter.emit('myactorevent');
@@ -145,14 +145,14 @@ describe('An EventEmitter', () => {
     const newPubSub = new ex.EventEmitter<{ someevent: number; otherevent: number }>();
     newPubSub.pipe(pubSub);
 
-    const handler = jasmine.createSpy('handler');
+    const handler = vi.fn();
     pubSub.on('someevent', handler);
 
     newPubSub.emit('someevent');
 
     expect(handler).toHaveBeenCalledTimes(1);
 
-    const otherHandler = jasmine.createSpy('otherHandler');
+    const otherHandler = vi.fn();
     pubSub.on('otherevent', otherHandler);
     newPubSub.unpipe(pubSub);
     newPubSub.emit('otherevent');
@@ -165,14 +165,14 @@ describe('An EventEmitter', () => {
     const newPubSub = new ex.EventEmitter<{ someevent: number; otherevent: number }>();
     const sub = newPubSub.pipe(pubSub);
 
-    const handler = jasmine.createSpy('handler');
+    const handler = vi.fn();
     pubSub.on('someevent', handler);
 
     newPubSub.emit('someevent');
 
     expect(handler).toHaveBeenCalledTimes(1);
 
-    const otherHandler = jasmine.createSpy('otherHandler');
+    const otherHandler = vi.fn();
     pubSub.on('otherevent', otherHandler);
 
     sub.close();
@@ -191,7 +191,7 @@ describe('An EventEmitter', () => {
   it('can listen to a handler only once', () => {
     const pubsub = new ex.EventEmitter();
 
-    const handler = jasmine.createSpy('onlyonce');
+    const handler = vi.fn();
 
     pubsub.once('onlyonce', handler);
 
@@ -203,9 +203,9 @@ describe('An EventEmitter', () => {
   });
 
   it('will handle remove invalid handler', () => {
-    const eventSpy1 = jasmine.createSpy('handler');
-    const eventSpy2 = jasmine.createSpy('handler');
-    const eventSpy3 = jasmine.createSpy('handler');
+    const eventSpy1 = vi.fn();
+    const eventSpy2 = vi.fn();
+    const eventSpy3 = vi.fn();
     const emitter = new ex.EventEmitter();
     emitter.on('foo', () => eventSpy1());
     emitter.on('foo', () => eventSpy2());
@@ -221,9 +221,9 @@ describe('An EventEmitter', () => {
   });
 
   it('once will remove the handler correctly', () => {
-    const eventSpy1 = jasmine.createSpy('handler');
-    const eventSpy2 = jasmine.createSpy('handler');
-    const eventSpy3 = jasmine.createSpy('handler');
+    const eventSpy1 = vi.fn();
+    const eventSpy2 = vi.fn();
+    const eventSpy3 = vi.fn();
     const emitter = new ex.EventEmitter();
     emitter.once('foo', () => eventSpy1());
     emitter.on('foo', () => eventSpy2());
