@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
-import { ExcaliburMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('Action', () => {
   let actor: ex.Actor;
@@ -9,7 +9,6 @@ describe('Action', () => {
   let scene: ex.Scene;
 
   beforeEach(async () => {
-    jasmine.addMatchers(ExcaliburMatchers);
     engine = TestUtils.engine({ width: 100, height: 100 });
 
     actor = new ex.Actor();
@@ -21,7 +20,7 @@ describe('Action', () => {
     const clock = engine.clock as ex.TestClock;
     clock.step(100);
 
-    spyOn(scene, 'draw').and.callThrough();
+    vi.spyOn(scene, 'draw');
     engine.stop();
   });
 
@@ -106,11 +105,11 @@ describe('Action', () => {
       expect(actor.pos).toBeVector(ex.vec(0, 0));
 
       scene.update(engine, 0);
-      expect(sequence.isComplete()).toBeTrue();
+      expect(sequence.isComplete()).toBe(true);
 
       // Can re-run a sequence
       actor.actions.runAction(sequence);
-      expect(sequence.isComplete()).toBeFalse();
+      expect(sequence.isComplete()).toBe(false);
     });
 
     it('can be stopped', () => {
@@ -162,7 +161,7 @@ describe('Action', () => {
       expect(actor2.pos).toBeVector(ex.vec(0, 0));
 
       scene.update(engine, 0);
-      expect(clonedSequence.isComplete()).toBeTrue();
+      expect(clonedSequence.isComplete()).toBe(true);
     });
   });
 
@@ -182,10 +181,10 @@ describe('Action', () => {
       const blink = new ex.Blink(actor, 200, 200);
       blink.update(200);
       blink.update(200);
-      expect(blink.isComplete()).toBeTrue();
+      expect(blink.isComplete()).toBe(true);
 
       blink.reset();
-      expect(blink.isComplete()).toBeFalse();
+      expect(blink.isComplete()).toBe(false);
     });
 
     it('can blink at a frequency forever', () => {
@@ -222,7 +221,7 @@ describe('Action', () => {
       const color = ex.Color.Azure;
       const sut = new ex.Actor({ color });
 
-      expect(sut.color).not.toBe(color, 'Color is not expected to be same instance');
+      expect(sut.color, 'Color is not expected to be same instance').not.toBe(color);
     });
 
     it('is cloned from property setter', () => {
@@ -231,7 +230,7 @@ describe('Action', () => {
 
       sut.color = color;
 
-      expect(sut.color).not.toBe(color, 'Color is not expected to be same instance');
+      expect(sut.color, 'Color is not expected to be same instance').not.toBe(color);
     });
   });
 
@@ -241,7 +240,7 @@ describe('Action', () => {
       expect(scene.actors.length).toBe(1);
       actor.actions.die();
       scene.update(engine, 100);
-      expect(actor.active).toBeFalse();
+      expect(actor.active).toBe(false);
       expect(scene.actors.length).toBe(0);
     });
 
@@ -285,10 +284,10 @@ describe('Action', () => {
       const delay = new ex.Delay(1000);
 
       delay.update(1000);
-      expect(delay.isComplete()).toBeTrue();
+      expect(delay.isComplete()).toBe(true);
 
       delay.reset();
-      expect(delay.isComplete()).toBeFalse();
+      expect(delay.isComplete()).toBe(false);
     });
 
     it('can be stopped', () => {
@@ -304,18 +303,19 @@ describe('Action', () => {
       expect(actor.pos.x).toBe(0);
     });
 
-    it('can be a promise', (done) => {
-      const spy = jasmine.createSpy();
-      actor.actions.delay(1000);
-      actor.actions.callMethod(spy);
-      actor.actions.toPromise().then(() => {
-        expect(spy).toHaveBeenCalled();
-        done();
-      });
-      scene.update(engine, 1000);
-      scene.update(engine, 0);
-      scene.update(engine, 0);
-    });
+    it('can be a promise', () =>
+      new Promise<void>((done) => {
+        const spy = vi.fn();
+        actor.actions.delay(1000);
+        actor.actions.callMethod(spy);
+        actor.actions.toPromise().then(() => {
+          expect(spy).toHaveBeenCalled();
+          done();
+        });
+        scene.update(engine, 1000);
+        scene.update(engine, 0);
+        scene.update(engine, 0);
+      }));
   });
 
   describe('moveBy', () => {
@@ -323,22 +323,22 @@ describe('Action', () => {
       const moveBy = new ex.MoveBy(actor, 100, 0, 100);
       actor.actions.runAction(moveBy);
       scene.update(engine, 1000);
-      expect(moveBy.isComplete(actor)).toBeTrue();
+      expect(moveBy.isComplete(actor)).toBe(true);
 
       moveBy.reset();
       actor.pos = ex.vec(0, 0);
-      expect(moveBy.isComplete(actor)).toBeFalse();
+      expect(moveBy.isComplete(actor)).toBe(false);
     });
 
     it('(with options) can be reset', () => {
       const moveBy = new ex.MoveByWithOptions(actor, { offset: ex.vec(100, 0), duration: 100 });
       actor.actions.runAction(moveBy);
       scene.update(engine, 1000);
-      expect(moveBy.isComplete(actor)).toBeTrue();
+      expect(moveBy.isComplete(actor)).toBe(true);
 
       moveBy.reset();
       actor.pos = ex.vec(0, 0);
-      expect(moveBy.isComplete(actor)).toBeFalse();
+      expect(moveBy.isComplete(actor)).toBe(false);
     });
 
     it('can be moved to a location by a certain time (x,y) overload', () => {
@@ -424,11 +424,11 @@ describe('Action', () => {
       const moveTo = new ex.MoveToWithOptions(actor, { pos: ex.vec(100, 0), duration: 500 });
       actor.actions.runAction(moveTo);
       scene.update(engine, 1000);
-      expect(moveTo.isComplete(actor)).toBeTrue();
+      expect(moveTo.isComplete(actor)).toBe(true);
 
       moveTo.reset();
       actor.pos = ex.vec(0, 0);
-      expect(moveTo.isComplete(actor)).toBeFalse();
+      expect(moveTo.isComplete(actor)).toBe(false);
     });
 
     it('can be moved to a location at a speed (x,y) overload', () => {
@@ -529,11 +529,11 @@ describe('Action', () => {
     it('can be reset', () => {
       const easeTo = new ex.EaseBy(actor, 100, 0, 100, ex.EasingFunctions.EaseInOutCubic);
       easeTo.update(1000);
-      expect(easeTo.isComplete()).toBeTrue();
+      expect(easeTo.isComplete()).toBe(true);
 
       easeTo.reset();
       actor.pos = ex.vec(0, 0);
-      expect(easeTo.isComplete()).toBeFalse();
+      expect(easeTo.isComplete()).toBe(false);
     });
     it('can be eased to a location given an easing function (x,y) overload', () => {
       actor.pos = ex.vec(100, 100);
@@ -596,11 +596,11 @@ describe('Action', () => {
     it('can be reset', () => {
       const easeTo = new ex.EaseTo(actor, 100, 0, 100, ex.EasingFunctions.EaseInOutCubic);
       easeTo.update(1000);
-      expect(easeTo.isComplete()).toBeTrue();
+      expect(easeTo.isComplete()).toBe(true);
 
       easeTo.reset();
       actor.pos = ex.vec(0, 0);
-      expect(easeTo.isComplete()).toBeFalse();
+      expect(easeTo.isComplete()).toBe(false);
     });
     it('can be eased to a location given an easing function (x,y) overload', () => {
       expect(actor.pos).toBeVector(ex.vec(0, 0));
@@ -676,7 +676,7 @@ describe('Action', () => {
 
   describe('repeat', () => {
     it('can repeat X times', () => {
-      const repeatCallback = jasmine.createSpy('repeat');
+      const repeatCallback = vi.fn();
       actor.actions.repeat((ctx) => {
         ctx.callMethod(repeatCallback);
       }, 11);
@@ -688,7 +688,7 @@ describe('Action', () => {
     });
 
     it('recalls the builder every repeat', () => {
-      const repeatCallback = jasmine.createSpy('repeat');
+      const repeatCallback = vi.fn();
       actor.actions.repeat((ctx) => {
         ctx.delay(200);
         repeatCallback();
@@ -702,7 +702,7 @@ describe('Action', () => {
     });
 
     it('can repeat moveBy X times', () => {
-      const repeatCallback = jasmine.createSpy('repeat');
+      const repeatCallback = vi.fn();
       actor.actions.repeat((ctx) => {
         ctx.moveBy(10, 0, 10); // move 10 pixels right at 10 px/sec
         ctx.callMethod(repeatCallback);
@@ -719,7 +719,7 @@ describe('Action', () => {
     });
 
     it('can repeat 1 time', () => {
-      const repeatCallback = jasmine.createSpy('repeat');
+      const repeatCallback = vi.fn();
       actor.actions.repeat((ctx) => {
         ctx.callMethod(repeatCallback);
       }, 1);
@@ -835,7 +835,7 @@ describe('Action', () => {
     });
 
     it('recalls the builder every repeat', () => {
-      const repeatCallback = jasmine.createSpy('repeat');
+      const repeatCallback = vi.fn();
       actor.actions.repeatForever((ctx) => {
         ctx.delay(200);
         repeatCallback();
@@ -1045,21 +1045,21 @@ describe('Action', () => {
       const rotateBy = new ex.RotateBy(actor, Math.PI / 2, Math.PI / 2);
       actor.actions.runAction(rotateBy);
       scene.update(engine, 1000);
-      expect(rotateBy.isComplete()).toBeTrue();
+      expect(rotateBy.isComplete()).toBe(true);
 
       rotateBy.reset();
       actor.rotation = 0;
-      expect(rotateBy.isComplete()).toBeFalse();
+      expect(rotateBy.isComplete()).toBe(false);
     });
     it('(with options) can be reset', () => {
       const rotateBy = new ex.RotateByWithOptions(actor, { angleRadiansOffset: Math.PI / 2, duration: 500 });
       actor.actions.runAction(rotateBy);
       scene.update(engine, 1000);
-      expect(rotateBy.isComplete()).toBeTrue();
+      expect(rotateBy.isComplete()).toBe(true);
 
       rotateBy.reset();
       actor.rotation = 0;
-      expect(rotateBy.isComplete()).toBeFalse();
+      expect(rotateBy.isComplete()).toBe(false);
     });
     it('can be rotated to an angle by a certain time via ShortestPath (default)', () => {
       expect(actor.rotation).toBe(0);
@@ -1218,21 +1218,21 @@ describe('Action', () => {
       const scaleTo = new ex.ScaleTo(actor, 2, 2, 1, 1);
       actor.actions.runAction(scaleTo);
       scene.update(engine, 1000);
-      expect(scaleTo.isComplete()).toBeTrue();
+      expect(scaleTo.isComplete()).toBe(true);
 
       scaleTo.reset();
       actor.scale = ex.vec(1, 1);
-      expect(scaleTo.isComplete()).toBeFalse();
+      expect(scaleTo.isComplete()).toBe(false);
     });
     it('(with options) can be reset', () => {
       const scaleTo = new ex.ScaleToWithOptions(actor, { scale: ex.vec(2, 2), duration: 500 });
       actor.actions.runAction(scaleTo);
       scene.update(engine, 1000);
-      expect(scaleTo.isComplete()).toBeTrue();
+      expect(scaleTo.isComplete()).toBe(true);
 
       scaleTo.reset();
       actor.scale = ex.vec(1, 1);
-      expect(scaleTo.isComplete()).toBeFalse();
+      expect(scaleTo.isComplete()).toBe(false);
     });
     it('can be scaled at a speed (x,y) overload', () => {
       expect(actor.scale.x).toBe(1);
@@ -1331,12 +1331,12 @@ describe('Action', () => {
 
       const scaleTo = new ex.ScaleTo(actor, 2, 1, 1, 1);
       actor.actions.runAction(scaleTo);
-      expect(scaleTo.isComplete()).toBeFalse();
+      expect(scaleTo.isComplete()).toBe(false);
 
       scene.update(engine, 1000);
       expect(actor.scale.x).toBe(2);
       expect(actor.scale.y).toBe(1);
-      expect(scaleTo.isComplete()).toBeTrue();
+      expect(scaleTo.isComplete()).toBe(true);
     });
   });
 
@@ -1345,21 +1345,21 @@ describe('Action', () => {
       const scaleBy = new ex.ScaleBy(actor, 1, 1, 1);
       actor.actions.runAction(scaleBy);
       scene.update(engine, 1000);
-      expect(scaleBy.isComplete()).toBeTrue();
+      expect(scaleBy.isComplete()).toBe(true);
 
       scaleBy.reset();
       actor.scale = ex.vec(1, 1);
-      expect(scaleBy.isComplete()).toBeFalse();
+      expect(scaleBy.isComplete()).toBe(false);
     });
     it('(with options) can be reset', () => {
       const scaleBy = new ex.ScaleByWithOptions(actor, { scaleOffset: ex.vec(1, 1), duration: 500 });
       actor.actions.runAction(scaleBy);
       scene.update(engine, 1000);
-      expect(scaleBy.isComplete()).toBeTrue();
+      expect(scaleBy.isComplete()).toBe(true);
 
       scaleBy.reset();
       actor.scale = ex.vec(1, 1);
-      expect(scaleBy.isComplete()).toBeFalse();
+      expect(scaleBy.isComplete()).toBe(false);
     });
 
     it('can be scaled by a certain time (x,y) overload', () => {
@@ -1486,11 +1486,11 @@ describe('Action', () => {
 
       scene.update(engine, 1000);
       scene.update(engine, 1000);
-      expect(meet.isComplete()).toBeTrue();
+      expect(meet.isComplete()).toBe(true);
 
       meet.reset();
       actor.pos = ex.vec(0, 0);
-      expect(meet.isComplete()).toBeFalse();
+      expect(meet.isComplete()).toBe(false);
     });
 
     it('can meet another actor', () => {
@@ -1519,11 +1519,11 @@ describe('Action', () => {
     it('can be reset', () => {
       const fade = new ex.Fade(actor, 0, 1000);
       fade.update(1000);
-      expect(fade.isComplete()).toBeTrue();
+      expect(fade.isComplete()).toBe(true);
 
       fade.reset();
       actor.graphics.opacity = 1;
-      expect(fade.isComplete()).toBeFalse();
+      expect(fade.isComplete()).toBe(false);
     });
 
     it('can go from 1 from 0', () => {
@@ -1573,28 +1573,28 @@ describe('Action', () => {
 
   describe('events', () => {
     it('emits actionstart event', () => {
-      const spy = jasmine.createSpy();
+      const spy = vi.fn();
       actor.actions.moveTo(20, 0, 20);
       actor.on('actionstart', spy);
       scene.update(engine, 500);
       scene.update(engine, 500);
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(jasmine.objectContaining({ target: actor, action: jasmine.any(ex.MoveTo) }));
+      expect(spy).toHaveBeenCalledWith(expect.objectContaining({ target: actor, action: expect.any(ex.MoveTo) }));
     });
 
     it('emits actioncomplete event', () => {
-      const spy = jasmine.createSpy();
+      const spy = vi.fn();
       actor.actions.moveTo(20, 0, 20);
       actor.on('actioncomplete', spy);
       for (let i = 0; i < 10; i++) {
         scene.update(engine, 200);
       }
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(jasmine.objectContaining({ target: actor, action: jasmine.any(ex.MoveTo) }));
+      expect(spy).toHaveBeenCalledWith(expect.objectContaining({ target: actor, action: expect.any(ex.MoveTo) }));
     });
 
     it('emits actioncomplete with an action with ids', () => {
-      const spy = jasmine.createSpy();
+      const spy = vi.fn();
       // actor.actions.moveTo(20, 0, 20);
       const moveTo = new ex.MoveTo(actor, 20, 0, 20);
       const moveTo2 = new ex.MoveTo(actor, 20, 0, 20);
@@ -1604,14 +1604,14 @@ describe('Action', () => {
         scene.update(engine, 200);
       }
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(jasmine.objectContaining({ target: actor, action: moveTo }));
+      expect(spy).toHaveBeenCalledWith(expect.objectContaining({ target: actor, action: moveTo }));
       expect(moveTo.id).not.toEqual(moveTo2.id);
       expect(moveTo2.id).toEqual(moveTo.id + 1);
     });
 
     it('emits actionstart and actioncomplete events for each action in a repeat', () => {
-      const startSpy = jasmine.createSpy();
-      const completeSpy = jasmine.createSpy();
+      const startSpy = vi.fn();
+      const completeSpy = vi.fn();
       actor.actions.repeat((ctx) => ctx.moveTo(20, 0, 20).moveTo(0, 0, 20), 1);
       actor.on('actionstart', startSpy);
       actor.on('actioncomplete', completeSpy);
@@ -1620,17 +1620,17 @@ describe('Action', () => {
         scene.update(engine, 500);
       }
 
-      const startCalls = startSpy.calls.all();
+      const startCalls = startSpy.mock.calls;
       expect(startSpy).toHaveBeenCalledTimes(3);
-      expect(startCalls[0].args[0]).toEqual(jasmine.objectContaining({ target: actor, action: jasmine.any(ex.Repeat) }));
-      expect(startCalls[1].args[0]).toEqual(jasmine.objectContaining({ target: actor, action: jasmine.any(ex.MoveTo) }));
-      expect(startCalls[2].args[0]).toEqual(jasmine.objectContaining({ target: actor, action: jasmine.any(ex.MoveTo) }));
+      expect(startCalls[0][0]).toEqual(expect.objectContaining({ target: actor, action: expect.any(ex.Repeat) }));
+      expect(startCalls[1][0]).toEqual(expect.objectContaining({ target: actor, action: expect.any(ex.MoveTo) }));
+      expect(startCalls[2][0]).toEqual(expect.objectContaining({ target: actor, action: expect.any(ex.MoveTo) }));
 
-      const completeCalls = completeSpy.calls.all();
+      const completeCalls = completeSpy.mock.calls;
       expect(completeSpy).toHaveBeenCalledTimes(3);
-      expect(completeCalls[0].args[0]).toEqual(jasmine.objectContaining({ target: actor, action: jasmine.any(ex.MoveTo) }));
-      expect(completeCalls[1].args[0]).toEqual(jasmine.objectContaining({ target: actor, action: jasmine.any(ex.MoveTo) }));
-      expect(completeCalls[2].args[0]).toEqual(jasmine.objectContaining({ target: actor, action: jasmine.any(ex.Repeat) }));
+      expect(completeCalls[0][0]).toEqual(expect.objectContaining({ target: actor, action: expect.any(ex.MoveTo) }));
+      expect(completeCalls[1][0]).toEqual(expect.objectContaining({ target: actor, action: expect.any(ex.MoveTo) }));
+      expect(completeCalls[2][0]).toEqual(expect.objectContaining({ target: actor, action: expect.any(ex.Repeat) }));
     });
   });
 });
