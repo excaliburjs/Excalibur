@@ -1,4 +1,5 @@
 import * as ex from '@excalibur';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A color', () => {
   let color;
@@ -122,29 +123,29 @@ describe('A color', () => {
   it('can be darkened', () => {
     color = ex.Color.White.clone();
     color = color.darken();
-    expect(color.r).toBe(229.5, 'r');
-    expect(color.g).toBe(229.5, 'g');
-    expect(color.b).toBe(229.5, 'b');
+    expect(color.r, 'r').toBe(229.5);
+    expect(color.g, 'g').toBe(229.5);
+    expect(color.b, 'b').toBe(229.5);
   });
 
   it('can be lightened', () => {
     color = ex.Color.Black.clone();
     color = color.lighten();
-    expect(color.r).toBe(25.5, 'r');
-    expect(color.g).toBe(25.5, 'g');
-    expect(color.b).toBe(25.5, 'b');
+    expect(color.r, 'r').toBe(25.5);
+    expect(color.g, 'g').toBe(25.5);
+    expect(color.b, 'b').toBe(25.5);
 
     color = ex.Color.White.clone();
     color = color.lighten();
-    expect(color.r).toBe(255, 'r');
-    expect(color.g).toBe(255, 'g');
-    expect(color.b).toBe(255, 'b');
+    expect(color.r, 'r').toBe(255);
+    expect(color.g, 'g').toBe(255);
+    expect(color.b, 'b').toBe(255);
   });
 
   it('can be averaged', () => {
     color = ex.Color.White.average(ex.Color.Black);
-    expect(color.r).toBe(255 / 2, 'r');
-    expect(color.g).toBe(255 / 2, 'g');
-    expect(color.b).toBe(255 / 2, 'b');
+    expect(color.r, 'r').toBe(255 / 2);
+    expect(color.g, 'g').toBe(255 / 2);
+    expect(color.b, 'b').toBe(255 / 2);
   });
 });
