@@ -1,5 +1,6 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A Coroutine', () => {
   it('exists', () => {
@@ -19,7 +20,7 @@ describe('A Coroutine', () => {
       });
       clock.step(100);
       clock.step(100);
-      await expectAsync(result).toBeResolved();
+      await expect(result).resolves.toBeUndefined();
       engine.dispose();
     });
   });
@@ -54,7 +55,7 @@ describe('A Coroutine', () => {
       });
       clock.step(100);
       clock.step(100);
-      await expectAsync(result).toBeResolved();
+      await expect(result).resolves.toBeUndefined();
       engine.dispose();
     });
   });
@@ -73,7 +74,7 @@ describe('A Coroutine', () => {
       });
       clock.step(100);
       clock.step(100);
-      await expectAsync(result).toBeResolved();
+      await expect(result).resolves.toBeUndefined();
       engine.dispose();
     });
   });
@@ -91,7 +92,7 @@ describe('A Coroutine', () => {
       });
       clock.step(100);
       clock.step(100);
-      await expectAsync(result).toBeResolved();
+      await expect(result).resolves.toBeUndefined();
       engine.dispose();
     });
   });
@@ -102,7 +103,7 @@ describe('A Coroutine', () => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
 
-      const calls = jasmine.createSpy('calls');
+      const calls = vi.fn();
 
       const preframe = ex.coroutine(
         function* () {
@@ -166,13 +167,13 @@ describe('A Coroutine', () => {
 
       clock.step(100);
       clock.step(100);
-      expect(calls.calls.allArgs()).toEqual([['preframe'], ['preupdate'], ['postupdate'], ['predraw'], ['postdraw'], ['postframe']]);
-      await expectAsync(preframe).toBeResolved();
-      await expectAsync(preupdate).toBeResolved();
-      await expectAsync(postupdate).toBeResolved();
-      await expectAsync(predraw).toBeResolved();
-      await expectAsync(postdraw).toBeResolved();
-      await expectAsync(postframe).toBeResolved();
+      expect(calls.mock.calls).toEqual([['preframe'], ['preupdate'], ['postupdate'], ['predraw'], ['postdraw'], ['postframe']]);
+      await expect(preframe).resolves.toBeUndefined();
+      await expect(preupdate).resolves.toBeUndefined();
+      await expect(postupdate).resolves.toBeUndefined();
+      await expect(predraw).resolves.toBeUndefined();
+      await expect(postdraw).resolves.toBeUndefined();
+      await expect(postframe).resolves.toBeUndefined();
     });
     engine.dispose();
   });
@@ -191,7 +192,7 @@ describe('A Coroutine', () => {
       clock.step(200);
       // 1 more yield
       clock.step(100);
-      await expectAsync(result).toBeResolved();
+      await expect(result).resolves.toBeUndefined();
     });
     engine.dispose();
   });
@@ -215,7 +216,7 @@ describe('A Coroutine', () => {
 
       // 1 more yield
       clock.step(100);
-      await expectAsync(result).toBeResolved();
+      await expect(result).resolves.toBeUndefined();
     });
     engine.dispose();
   });
@@ -240,7 +241,7 @@ describe('A Coroutine', () => {
 
       // 1 more yield
       clock.step(100);
-      await expectAsync(result).toBeRejectedWithError('error here');
+      await expect(result).rejects.toThrowError('error here');
       engine.dispose();
     });
   });
@@ -271,7 +272,7 @@ describe('A Coroutine', () => {
   it('can start coroutines', async () => {
     const engine = TestUtils.engine({ width: 100, height: 100 });
     const logger = ex.Logger.getInstance();
-    spyOn(logger, 'warn');
+    vi.spyOn(logger, 'warn');
     await engine.scope(async () => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
