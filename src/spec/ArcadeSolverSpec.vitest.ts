@@ -1,13 +1,9 @@
 import * as ex from '@excalibur';
-import { ExcaliburMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 import { TestUtils } from './util/TestUtils';
 import { getDefaultPhysicsConfig } from '../engine/Collision/PhysicsConfig';
 
 describe('An ArcadeSolver', () => {
-  beforeAll(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
-  });
-
   it('should exist', () => {
     expect(ex.ArcadeSolver).toBeDefined();
   });
@@ -139,7 +135,7 @@ describe('An ArcadeSolver', () => {
       null
     );
     arcadeSolver.solvePosition(contact2);
-    expect(contact2.isCanceled()).toBeTrue();
+    expect(contact2.isCanceled()).toBe(true);
   });
 
   it('should NOT cancel collisions where the bodies are moving away from the contact', () => {
@@ -176,7 +172,7 @@ describe('An ArcadeSolver', () => {
       null
     );
     arcadeSolver.solveVelocity(contact);
-    expect(contact.isCanceled()).toBeFalse();
+    expect(contact.isCanceled()).toBe(false);
     expect(player.vel).toBeVector(ex.vec(0, -10)); // Velocity is not adjusted
 
     // Player moving towards contact
@@ -193,7 +189,7 @@ describe('An ArcadeSolver', () => {
     );
 
     arcadeSolver.solveVelocity(contact2);
-    expect(contact2.isCanceled()).toBeFalse();
+    expect(contact2.isCanceled()).toBe(false);
     expect(player.vel).toBeVector(ex.Vector.Zero); // Velocity is adjusted
   });
 
