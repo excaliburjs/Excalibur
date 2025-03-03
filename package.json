@@ -73,7 +73,7 @@
     "sandbox": "serve ./sandbox -l 3001 -n",
     "legacy-visual": "npm run sandbox:copy && npm run sandbox:build",
     "test": "karma start && npm run test:vitest",
-    "test:ci": "karma start --browsers=ChromeHeadless_with_audio",
+    "test:ci": "karma start --browsers=ChromeHeadless_with_audio && npm run test:vitest",
     "test:watch": "karma start --auto-watch --single-run=false",
     "test:vitest": "vitest",
     "test:chromium": "vitest --browser chromium",
