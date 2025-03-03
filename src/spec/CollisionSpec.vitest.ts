@@ -1,6 +1,7 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { getDefaultPhysicsConfig } from '../engine/Collision/PhysicsConfig';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A Collision', () => {
   let actor1: ex.Actor = null;
@@ -195,142 +196,145 @@ describe('A Collision', () => {
     expect(touching).toBe(true);
   });
 
-  it('should not collide when active and passive', (done) => {
-    engine.stop();
-    engine.dispose();
-    engine = TestUtils.engine({
-      width: 600,
-      height: 400,
-      physics: {
-        solver: ex.SolverStrategy.Realistic
-      }
-    });
-    clock = engine.clock = engine.clock.toTestClock();
+  it('should not collide when active and passive', () =>
+    new Promise<void>((done) => {
+      engine.stop();
+      engine.dispose();
+      engine = TestUtils.engine({
+        width: 600,
+        height: 400,
+        physics: {
+          solver: ex.SolverStrategy.Realistic
+        }
+      });
+      clock = engine.clock = engine.clock.toTestClock();
 
-    actor1 = new ex.Actor({ x: 0, y: 0, width: 10, height: 10 });
-    actor2 = new ex.Actor({ x: 5, y: 5, width: 10, height: 10 });
-    actor1.body.collisionType = ex.CollisionType.Active;
-    actor2.body.collisionType = ex.CollisionType.Active;
+      actor1 = new ex.Actor({ x: 0, y: 0, width: 10, height: 10 });
+      actor2 = new ex.Actor({ x: 5, y: 5, width: 10, height: 10 });
+      actor1.body.collisionType = ex.CollisionType.Active;
+      actor2.body.collisionType = ex.CollisionType.Active;
 
-    engine.start().then(() => {
-      engine.add(actor1);
-      engine.add(actor2);
+      engine.start().then(() => {
+        engine.add(actor1);
+        engine.add(actor2);
 
-      const activeBlock = new ex.Actor({ x: 200, y: 200, width: 50, height: 50, color: ex.Color.Red.clone() });
-      activeBlock.body.collisionType = ex.CollisionType.Active;
-      activeBlock.vel.x = 100;
-      engine.add(activeBlock);
+        const activeBlock = new ex.Actor({ x: 200, y: 200, width: 50, height: 50, color: ex.Color.Red.clone() });
+        activeBlock.body.collisionType = ex.CollisionType.Active;
+        activeBlock.vel.x = 100;
+        engine.add(activeBlock);
 
-      const passiveBlock = new ex.Actor({ x: 400, y: 200, width: 50, height: 50, color: ex.Color.DarkGray.clone() });
-      passiveBlock.body.collisionType = ex.CollisionType.Passive;
-      passiveBlock.vel.x = -100;
-      engine.add(passiveBlock);
+        const passiveBlock = new ex.Actor({ x: 400, y: 200, width: 50, height: 50, color: ex.Color.DarkGray.clone() });
+        passiveBlock.body.collisionType = ex.CollisionType.Passive;
+        passiveBlock.vel.x = -100;
+        engine.add(passiveBlock);
 
-      const collisionHandler = (ev: ex.PreCollisionEvent) => {
-        const timer = new ex.Timer({
-          interval: 30,
-          fcn: () => {
-            expect(activeBlock.vel.x).toBeGreaterThan(0);
-            expect(passiveBlock.vel.x).toBeLessThan(0);
-            done();
-          },
-          repeats: false
-        });
-        timer.start();
-        engine.add(timer);
-      };
+        const collisionHandler = (ev: ex.PreCollisionEvent) => {
+          const timer = new ex.Timer({
+            interval: 30,
+            fcn: () => {
+              expect(activeBlock.vel.x).toBeGreaterThan(0);
+              expect(passiveBlock.vel.x).toBeLessThan(0);
+              done();
+            },
+            repeats: false
+          });
+          timer.start();
+          engine.add(timer);
+        };
 
-      activeBlock.once('precollision', collisionHandler);
+        activeBlock.once('precollision', collisionHandler);
 
-      clock.run(5, 1000);
-    });
-  });
+        clock.run(5, 1000);
+      });
+    }));
 
-  it('should emit a start collision once when objects start colliding', (done) => {
-    engine.stop();
-    engine.dispose();
-    engine = TestUtils.engine({
-      width: 600,
-      height: 400,
-      physics: {
-        solver: ex.SolverStrategy.Realistic
-      }
-    });
-    clock = engine.clock = engine.clock.toTestClock();
+  it('should emit a start collision once when objects start colliding', () =>
+    new Promise<void>((done) => {
+      engine.stop();
+      engine.dispose();
+      engine = TestUtils.engine({
+        width: 600,
+        height: 400,
+        physics: {
+          solver: ex.SolverStrategy.Realistic
+        }
+      });
+      clock = engine.clock = engine.clock.toTestClock();
 
-    actor1 = new ex.Actor({ x: 0, y: 0, width: 10, height: 10 });
-    actor2 = new ex.Actor({ x: 5, y: 5, width: 10, height: 10 });
-    actor1.body.collisionType = ex.CollisionType.Active;
-    actor2.body.collisionType = ex.CollisionType.Active;
+      actor1 = new ex.Actor({ x: 0, y: 0, width: 10, height: 10 });
+      actor2 = new ex.Actor({ x: 5, y: 5, width: 10, height: 10 });
+      actor1.body.collisionType = ex.CollisionType.Active;
+      actor2.body.collisionType = ex.CollisionType.Active;
 
-    engine.start().then(() => {
-      const activeBlock = new ex.Actor({ x: 200, y: 200, width: 50, height: 50, color: ex.Color.Red.clone() });
-      activeBlock.body.collisionType = ex.CollisionType.Active;
-      activeBlock.vel.x = 100;
-      engine.add(activeBlock);
+      engine.start().then(() => {
+        const activeBlock = new ex.Actor({ x: 200, y: 200, width: 50, height: 50, color: ex.Color.Red.clone() });
+        activeBlock.body.collisionType = ex.CollisionType.Active;
+        activeBlock.vel.x = 100;
+        engine.add(activeBlock);
 
-      const passiveBlock = new ex.Actor({ x: 400, y: 200, width: 50, height: 50, color: ex.Color.DarkGray.clone() });
-      passiveBlock.body.collisionType = ex.CollisionType.Passive;
-      passiveBlock.vel.x = -100;
-      engine.add(passiveBlock);
+        const passiveBlock = new ex.Actor({ x: 400, y: 200, width: 50, height: 50, color: ex.Color.DarkGray.clone() });
+        passiveBlock.body.collisionType = ex.CollisionType.Passive;
+        passiveBlock.vel.x = -100;
+        engine.add(passiveBlock);
 
-      let count = 0;
+        let count = 0;
 
-      const collisionStart = () => {
-        count++;
-      };
+        const collisionStart = () => {
+          count++;
+        };
 
-      activeBlock.on('collisionstart', collisionStart);
+        activeBlock.on('collisionstart', collisionStart);
 
-      clock.run(5, 1000);
+        clock.run(5, 1000);
 
-      expect(count).toBe(1);
-      done();
-    });
-  });
+        expect(count).toBe(1);
+        done();
+      });
+    }));
 
-  it('should emit a end collision once when objects stop colliding', (done) => {
-    engine.stop();
-    engine.dispose();
-    engine = TestUtils.engine({
-      width: 600,
-      height: 400,
-      physics: {
-        solver: ex.SolverStrategy.Realistic
-      }
-    });
-    clock = engine.clock = engine.clock.toTestClock();
+  it('should emit a end collision once when objects stop colliding', () =>
+    new Promise<void>((done) => {
+      engine.stop();
+      engine.dispose();
+      engine = TestUtils.engine({
+        width: 600,
+        height: 400,
+        physics: {
+          solver: ex.SolverStrategy.Realistic
+        }
+      });
+      clock = engine.clock = engine.clock.toTestClock();
 
-    actor1 = new ex.Actor({ x: 0, y: 0, width: 10, height: 10 });
-    actor2 = new ex.Actor({ x: 5, y: 5, width: 10, height: 10 });
-    actor1.body.collisionType = ex.CollisionType.Active;
-    actor2.body.collisionType = ex.CollisionType.Active;
+      actor1 = new ex.Actor({ x: 0, y: 0, width: 10, height: 10 });
+      actor2 = new ex.Actor({ x: 5, y: 5, width: 10, height: 10 });
+      actor1.body.collisionType = ex.CollisionType.Active;
+      actor2.body.collisionType = ex.CollisionType.Active;
 
-    engine.start().then(() => {
-      const activeBlock = new ex.Actor({ x: 200, y: 200, width: 50, height: 50, color: ex.Color.Red.clone() });
-      activeBlock.body.collisionType = ex.CollisionType.Active;
-      activeBlock.vel.x = 100;
-      engine.add(activeBlock);
+      engine.start().then(() => {
+        const activeBlock = new ex.Actor({ x: 200, y: 200, width: 50, height: 50, color: ex.Color.Red.clone() });
+        activeBlock.body.collisionType = ex.CollisionType.Active;
+        activeBlock.vel.x = 100;
+        engine.add(activeBlock);
 
-      const passiveBlock = new ex.Actor({ x: 400, y: 200, width: 50, height: 50, color: ex.Color.DarkGray.clone() });
-      passiveBlock.body.collisionType = ex.CollisionType.Passive;
-      passiveBlock.vel.x = -100;
-      engine.add(passiveBlock);
+        const passiveBlock = new ex.Actor({ x: 400, y: 200, width: 50, height: 50, color: ex.Color.DarkGray.clone() });
+        passiveBlock.body.collisionType = ex.CollisionType.Passive;
+        passiveBlock.vel.x = -100;
+        engine.add(passiveBlock);
 
-      let count = 0;
+        let count = 0;
 
-      const collisionEnd = () => {
-        count++;
-      };
+        const collisionEnd = () => {
+          count++;
+        };
 
-      activeBlock.on('collisionend', collisionEnd);
+        activeBlock.on('collisionend', collisionEnd);
 
-      clock.run(5, 1000);
+        clock.run(5, 1000);
 
-      expect(count).toBe(1);
-      done();
-    });
-  });
+        expect(count).toBe(1);
+        done();
+      });
+    }));
 
   it('should cancel out velocity when objects collide', () => {
     engine.currentScene.clear();
@@ -364,79 +368,81 @@ describe('A Collision', () => {
     expect(activeBlock.vel.x).toBe(-100);
   });
 
-  it('should have the actor as the handler context for collisionstart', (done) => {
-    engine.stop();
-    engine.dispose();
-    engine = TestUtils.engine({
-      width: 600,
-      height: 400,
-      physics: {
-        solver: ex.SolverStrategy.Realistic
-      }
-    });
-    clock = engine.clock = engine.clock.toTestClock();
+  it('should have the actor as the handler context for collisionstart', () =>
+    new Promise<void>((done) => {
+      engine.stop();
+      engine.dispose();
+      engine = TestUtils.engine({
+        width: 600,
+        height: 400,
+        physics: {
+          solver: ex.SolverStrategy.Realistic
+        }
+      });
+      clock = engine.clock = engine.clock.toTestClock();
 
-    actor1 = new ex.Actor({ x: 0, y: 0, width: 10, height: 10 });
-    actor2 = new ex.Actor({ x: 5, y: 5, width: 10, height: 10 });
-    actor1.body.collisionType = ex.CollisionType.Active;
-    actor2.body.collisionType = ex.CollisionType.Active;
+      actor1 = new ex.Actor({ x: 0, y: 0, width: 10, height: 10 });
+      actor2 = new ex.Actor({ x: 5, y: 5, width: 10, height: 10 });
+      actor1.body.collisionType = ex.CollisionType.Active;
+      actor2.body.collisionType = ex.CollisionType.Active;
 
-    engine.start().then(() => {
-      const activeBlock = new ex.Actor({ x: 200, y: 200, width: 50, height: 50, color: ex.Color.Red.clone() });
-      activeBlock.body.collisionType = ex.CollisionType.Active;
-      activeBlock.vel.x = 100;
-      engine.add(activeBlock);
+      engine.start().then(() => {
+        const activeBlock = new ex.Actor({ x: 200, y: 200, width: 50, height: 50, color: ex.Color.Red.clone() });
+        activeBlock.body.collisionType = ex.CollisionType.Active;
+        activeBlock.vel.x = 100;
+        engine.add(activeBlock);
 
-      const passiveBlock = new ex.Actor({ x: 400, y: 200, width: 50, height: 50, color: ex.Color.DarkGray.clone() });
-      passiveBlock.body.collisionType = ex.CollisionType.Passive;
-      passiveBlock.vel.x = -100;
-      engine.add(passiveBlock);
+        const passiveBlock = new ex.Actor({ x: 400, y: 200, width: 50, height: 50, color: ex.Color.DarkGray.clone() });
+        passiveBlock.body.collisionType = ex.CollisionType.Passive;
+        passiveBlock.vel.x = -100;
+        engine.add(passiveBlock);
 
-      const collisionEnd = function (event: ex.GameEvent<unknown>) {
-        expect((event as any).self.owner).toBe(activeBlock);
-        done();
-      };
+        const collisionEnd = function (event: ex.GameEvent<unknown>) {
+          expect((event as any).self.owner).toBe(activeBlock);
+          done();
+        };
 
-      activeBlock.on('collisionstart', collisionEnd);
+        activeBlock.on('collisionstart', collisionEnd);
 
-      clock.run(5, 1000);
-    });
-  });
+        clock.run(5, 1000);
+      });
+    }));
 
-  it('should have the actor as the handler context for collisionend', (done) => {
-    engine.stop();
-    engine.dispose();
-    engine = TestUtils.engine({
-      width: 600,
-      height: 400,
-      physics: {
-        solver: ex.SolverStrategy.Realistic
-      }
-    });
-    clock = engine.clock as ex.TestClock;
-    clock.start();
-    clock.step(1);
+  it('should have the actor as the handler context for collisionend', () =>
+    new Promise<void>((done) => {
+      engine.stop();
+      engine.dispose();
+      engine = TestUtils.engine({
+        width: 600,
+        height: 400,
+        physics: {
+          solver: ex.SolverStrategy.Realistic
+        }
+      });
+      clock = engine.clock as ex.TestClock;
+      clock.start();
+      clock.step(1);
 
-    TestUtils.runToReady(engine).then(() => {
-      const activeBlock = new ex.Actor({ x: 200, y: 200, width: 50, height: 50, color: ex.Color.Red.clone() });
-      activeBlock.body.collisionType = ex.CollisionType.Active;
-      activeBlock.vel.x = 100;
-      engine.add(activeBlock);
+      TestUtils.runToReady(engine).then(() => {
+        const activeBlock = new ex.Actor({ x: 200, y: 200, width: 50, height: 50, color: ex.Color.Red.clone() });
+        activeBlock.body.collisionType = ex.CollisionType.Active;
+        activeBlock.vel.x = 100;
+        engine.add(activeBlock);
 
-      const passiveBlock = new ex.Actor({ x: 400, y: 200, width: 50, height: 50, color: ex.Color.DarkGray.clone() });
-      passiveBlock.body.collisionType = ex.CollisionType.Passive;
-      passiveBlock.vel.x = -100;
-      engine.add(passiveBlock);
+        const passiveBlock = new ex.Actor({ x: 400, y: 200, width: 50, height: 50, color: ex.Color.DarkGray.clone() });
+        passiveBlock.body.collisionType = ex.CollisionType.Passive;
+        passiveBlock.vel.x = -100;
+        engine.add(passiveBlock);
 
-      const collisionEnd = function (event: ex.GameEvent<unknown>) {
-        expect((event as any).self.owner).toBe(activeBlock);
-        done();
-      };
+        const collisionEnd = function (event: ex.GameEvent<unknown>) {
+          expect((event as any).self.owner).toBe(activeBlock);
+          done();
+        };
 
-      activeBlock.on('collisionend', collisionEnd);
-      clock.run(5, 1000);
-    });
-  });
+        activeBlock.on('collisionend', collisionEnd);
+        clock.run(5, 1000);
+      });
+    }));
 
   it('should not fire onCollisionStart if the collision has been canceled', () => {
     const block1 = new ex.Actor({ x: 200, y: 200, width: 50, height: 50, color: ex.Color.Red.clone() });
@@ -448,11 +454,11 @@ describe('A Collision', () => {
     block2.body.collisionType = ex.CollisionType.Fixed;
     block2.vel.x = -100;
 
-    block1.onCollisionStart = jasmine.createSpy('onCollisionStart');
+    block1.onCollisionStart = vi.fn();
     block2.onPreCollisionResolve = (self, other, side, contact) => {
       contact.cancel();
     };
-    spyOn(block2, 'onPreCollisionResolve').and.callThrough();
+    vi.spyOn(block2, 'onPreCollisionResolve');
 
     engine.add(block1);
     engine.add(block2);
@@ -490,8 +496,8 @@ describe('A Collision', () => {
     });
     engine.add(fixedBlock);
 
-    const collisionStart = jasmine.createSpy('collisionstart');
-    const collisionEnd = jasmine.createSpy('collisionend');
+    const collisionStart = vi.fn();
+    const collisionEnd = vi.fn();
 
     activeBlock.on('collisionstart', collisionStart);
     activeBlock.on('collisionend', collisionEnd);
