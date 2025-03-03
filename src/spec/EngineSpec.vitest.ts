@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
-import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 /**
  *
@@ -30,9 +30,6 @@ describe('The engine', () => {
   };
 
   beforeEach(async () => {
-    jasmine.addMatchers(ExcaliburMatchers);
-    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
-
     engine = TestUtils.engine();
     scene = new ex.Scene();
     engine.add('default', scene);
@@ -47,7 +44,7 @@ describe('The engine', () => {
   });
 
   it('should not throw if no loader provided', async () => {
-    const exceptionSpy = jasmine.createSpy('exception');
+    const exceptionSpy = vi.fn();
     const boot = async () => {
       const engine = TestUtils.engine();
       await TestUtils.runToReady(engine);
@@ -62,33 +59,35 @@ describe('The engine', () => {
 
     expect(exceptionSpy).not.toHaveBeenCalled();
   });
-  xit('should show the play button by default', (done) => {
-    reset();
-    engine = TestUtils.engine({
-      suppressPlayButton: false
-    });
-    (<any>engine)._suppressPlayButton = false;
-    const imageSource = new ex.ImageSource('src/spec/images/SpriteSpec/icon.png');
 
-    const loader = new ex.Loader([imageSource]);
-    const testClock = engine.clock as ex.TestClock;
-    engine.start(loader).then(() => {
-      loader.areResourcesLoaded().then(() => {
-        testClock.run(2, 100); // 200 ms delay in loader
-        expect(document.getElementById('excalibur-play')).withContext('Play button should exist in the document').toBeDefined();
-        setTimeout(() => {
-          // needed for the delay to work
-          testClock.run(1, 100);
-          engine.graphicsContext.flush();
-          expectAsync(engine.canvas)
-            .toEqualImage('src/spec/images/EngineSpec/engine-load-complete.png')
-            .then(() => {
-              done();
-            });
+  it.skip('should show the play button by default', () =>
+    new Promise<void>((done) => {
+      reset();
+      engine = TestUtils.engine({
+        suppressPlayButton: false
+      });
+      (<any>engine)._suppressPlayButton = false;
+      const imageSource = new ex.ImageSource('/src/spec/images/SpriteSpec/icon.png');
+
+      const loader = new ex.Loader([imageSource]);
+      const testClock = engine.clock as ex.TestClock;
+      engine.start(loader).then(() => {
+        loader.areResourcesLoaded().then(() => {
+          testClock.run(2, 100); // 200 ms delay in loader
+          expect(document.getElementById('excalibur-play'), 'Play button should exist in the document').toBeDefined();
+          setTimeout(() => {
+            // needed for the delay to work
+            testClock.run(1, 100);
+            engine.graphicsContext.flush();
+            expect(engine.canvas)
+              .toEqualImage('/src/spec/images/EngineSpec/engine-load-complete.png')
+              .then(() => {
+                done();
+              });
+          });
         });
       });
-    });
-  });
+    }));
 
   it('should log if loading fails', async () => {
     class FailedLoader extends ex.DefaultLoader {
@@ -102,7 +101,7 @@ describe('The engine', () => {
       }
     }
     const logger = ex.Logger.getInstance();
-    spyOn(logger, 'error');
+    vi.spyOn(logger, 'error');
 
     engine.dispose();
     engine = null;
@@ -122,9 +121,9 @@ describe('The engine', () => {
 
     const originalScreen = engine.screen;
     const originalPointers = engine.input.pointers;
-    spyOn(engine.screen, 'dispose').and.callThrough();
-    spyOn(engine.input.pointers, 'detach').and.callThrough();
-    spyOn(engine.input.pointers, 'recreate').and.callThrough();
+    vi.spyOn(engine.screen, 'dispose');
+    vi.spyOn(engine.input.pointers, 'detach');
+    vi.spyOn(engine.input.pointers, 'recreate');
 
     engine.useCanvas2DFallback();
 
@@ -145,7 +144,7 @@ describe('The engine', () => {
       }
     });
     await TestUtils.runToReady(engine);
-    spyOn(engine, 'useCanvas2DFallback');
+    vi.spyOn(engine, 'useCanvas2DFallback');
 
     const clock = engine.clock as ex.TestClock;
     clock.fpsSampler = new ex.FpsSampler({
@@ -170,8 +169,8 @@ describe('The engine', () => {
 
     await TestUtils.runToReady(engine);
 
-    spyOn(engine as any, '_update');
-    spyOn(engine as any, '_draw');
+    vi.spyOn(engine as any, '_update');
+    vi.spyOn(engine as any, '_draw');
 
     clock.step(101);
 
@@ -190,8 +189,8 @@ describe('The engine', () => {
 
     await TestUtils.runToReady(engine);
 
-    spyOn(engine as any, '_update');
-    spyOn(engine as any, '_draw');
+    vi.spyOn(engine as any, '_update');
+    vi.spyOn(engine as any, '_draw');
 
     clock.step(16);
     clock.step(16);
@@ -255,45 +254,46 @@ describe('The engine', () => {
     expect(ex.TextureLoader.filtering).toBe(ex.ImageFiltering.Pixel);
   });
 
-  it('should not show the play button when suppressPlayButton is turned on', (done) => {
-    reset();
-    engine = TestUtils.engine({
-      suppressPlayButton: true
-    });
-    engine.currentScene.add(
-      new ex.Actor({
-        pos: new ex.Vector(250, 250),
-        width: 20,
-        height: 20,
-        color: ex.Color.Red
-      })
-    );
+  it('should not show the play button when suppressPlayButton is turned on', () =>
+    new Promise<void>((done) => {
+      reset();
+      engine = TestUtils.engine({
+        suppressPlayButton: true
+      });
+      engine.currentScene.add(
+        new ex.Actor({
+          pos: new ex.Vector(250, 250),
+          width: 20,
+          height: 20,
+          color: ex.Color.Red
+        })
+      );
 
-    const testClock = engine.clock as ex.TestClock;
-    const loader = new ex.Loader([new ex.ImageSource('src/spec/images/SpriteSpec/icon.png')]);
+      const testClock = engine.clock as ex.TestClock;
+      const loader = new ex.Loader([new ex.ImageSource('/src/spec/images/SpriteSpec/icon.png')]);
 
-    TestUtils.runToReady(engine, loader).then(() => {
-      // With suppress play there is another 500 ms delay in engine load()
-      testClock.step(1);
-      engine.graphicsContext.flush();
-      expectAsync(engine.canvas)
-        .toEqualImage('src/spec/images/EngineSpec/engine-suppress-play.png')
-        .then(() => {
-          done();
-        });
-    });
-  });
+      TestUtils.runToReady(engine, loader).then(() => {
+        // With suppress play there is another 500 ms delay in engine load()
+        testClock.step(1);
+        engine.graphicsContext.flush();
+        expect(engine.canvas)
+          .toEqualImage('/src/spec/images/EngineSpec/engine-suppress-play.png')
+          .then(() => {
+            done();
+          });
+      });
+    }));
 
   it('can set snapToPixel', () => {
     engine.dispose();
     engine = null;
     engine = TestUtils.engine({ width: 100, height: 100 });
-    expect(engine.snapToPixel).toBeFalse();
+    expect(engine.snapToPixel).toBe(false);
 
     engine.snapToPixel = true;
 
-    expect(engine.snapToPixel).toBeTrue();
-    expect(engine.graphicsContext.snapToPixel).toBeTrue();
+    expect(engine.snapToPixel).toBe(true);
+    expect(engine.graphicsContext.snapToPixel).toBe(true);
   });
 
   it('can set pixelRatio', () => {
@@ -319,7 +319,7 @@ describe('The engine', () => {
   });
 
   it('should emit a preframe event', () => {
-    const fired = jasmine.createSpy('fired');
+    const fired = vi.fn();
     engine.on('preframe', fired);
     expect(fired).not.toHaveBeenCalled();
     const clock = engine.clock as ex.TestClock;
@@ -329,7 +329,7 @@ describe('The engine', () => {
   });
 
   it('should emit a postframe event', () => {
-    const fired = jasmine.createSpy('fired');
+    const fired = vi.fn();
     engine.on('postframe', fired);
 
     expect(fired).not.toHaveBeenCalled();
@@ -340,7 +340,7 @@ describe('The engine', () => {
   });
 
   it('should emit a preupdate event', () => {
-    const fired = jasmine.createSpy('fired');
+    const fired = vi.fn();
     engine.on('preupdate', fired);
     expect(fired).not.toHaveBeenCalled();
     const clock = engine.clock as ex.TestClock;
@@ -350,7 +350,7 @@ describe('The engine', () => {
   });
 
   it('should emit a postupdate event', () => {
-    const fired = jasmine.createSpy('fired');
+    const fired = vi.fn();
     engine.on('postupdate', fired);
 
     expect(fired).not.toHaveBeenCalled();
@@ -361,46 +361,48 @@ describe('The engine', () => {
   });
 
   it('will update keyboard & gamepad events after postupdate', () => {
-    const postupdate = jasmine.createSpy('postupdate');
-    spyOn(engine.input.keyboard, 'update').and.callThrough();
-    spyOn(engine.input.gamepads, 'update').and.callThrough();
+    const postupdate = vi.fn();
+    const keyboardUpdate = vi.spyOn(engine.input.keyboard, 'update');
+    const gamepadUpdate = vi.spyOn(engine.input.gamepads, 'update');
     engine.on('postupdate', postupdate);
 
     const clock = engine.clock as ex.TestClock;
 
     clock.step(1);
 
-    expect(postupdate).toHaveBeenCalledBefore(engine.input.keyboard.update);
-    expect(postupdate).toHaveBeenCalledBefore(engine.input.gamepads.update);
+    expect(postupdate).toHaveBeenCalledBefore(keyboardUpdate);
+    expect(postupdate).toHaveBeenCalledBefore(gamepadUpdate);
   });
 
-  it('will fire wasPressed in onPostUpdate handler', (done) => {
-    engine.input.keyboard.triggerEvent('down', ex.Keys.Enter);
-    engine.on('postupdate', () => {
-      if (engine.input.keyboard.wasPressed(ex.Keys.Enter)) {
-        done();
-      }
-    });
+  it('will fire wasPressed in onPostUpdate handler', () =>
+    new Promise<void>((done) => {
+      engine.input.keyboard.triggerEvent('down', ex.Keys.Enter);
+      engine.on('postupdate', () => {
+        if (engine.input.keyboard.wasPressed(ex.Keys.Enter)) {
+          done();
+        }
+      });
 
-    const clock = engine.clock as ex.TestClock;
-    clock.step(1);
-  });
+      const clock = engine.clock as ex.TestClock;
+      clock.step(1);
+    }));
 
-  it('will fire wasReleased in onPostUpdate handler', (done) => {
-    engine.input.keyboard.triggerEvent('up', ex.Keys.Enter);
-    engine.on('postupdate', () => {
-      if (engine.input.keyboard.wasReleased(ex.Keys.Enter)) {
-        done();
-      }
-    });
+  it('will fire wasReleased in onPostUpdate handler', () =>
+    new Promise<void>((done) => {
+      engine.input.keyboard.triggerEvent('up', ex.Keys.Enter);
+      engine.on('postupdate', () => {
+        if (engine.input.keyboard.wasReleased(ex.Keys.Enter)) {
+          done();
+        }
+      });
 
-    const clock = engine.clock as ex.TestClock;
-    clock.step(1);
-  });
+      const clock = engine.clock as ex.TestClock;
+      clock.step(1);
+    }));
 
   it('will fire isHeld in onPostUpdate handler', () => {
     engine.input.keyboard.triggerEvent('down', ex.Keys.Enter);
-    const held = jasmine.createSpy('held');
+    const held = vi.fn();
     engine.on('postupdate', () => {
       if (engine.input.keyboard.isHeld(ex.Keys.Enter)) {
         held();
@@ -416,7 +418,7 @@ describe('The engine', () => {
   });
 
   it('should emit a predraw event', () => {
-    const fired = jasmine.createSpy('fired');
+    const fired = vi.fn();
     engine.on('predraw', fired);
 
     expect(fired).not.toHaveBeenCalled();
@@ -427,7 +429,7 @@ describe('The engine', () => {
   });
 
   it('should emit a postdraw event', () => {
-    const fired = jasmine.createSpy('fired');
+    const fired = vi.fn();
     engine.on('postdraw', fired);
 
     expect(fired).not.toHaveBeenCalled();
@@ -438,20 +440,20 @@ describe('The engine', () => {
   });
 
   it('should emit a visible event', () => {
-    const fired = jasmine.createSpy('fired');
+    const fired = vi.fn();
     engine.on('visible', fired);
 
-    spyOnProperty(window.document, 'visibilityState').and.returnValue('visible');
+    vi.spyOn(window.document, 'visibilityState', 'get').mockReturnValue('visible');
     window.document.dispatchEvent(new CustomEvent('visibilitychange'));
 
     expect(fired).toHaveBeenCalled();
   });
 
   it('should emit a hidden event', () => {
-    const fired = jasmine.createSpy('fired');
+    const fired = vi.fn();
     engine.on('hidden', fired);
 
-    spyOnProperty(window.document, 'visibilityState').and.returnValue('hidden');
+    vi.spyOn(window.document, 'visibilityState', 'get').mockReturnValue('hidden');
     window.document.dispatchEvent(new CustomEvent('visibilitychange'));
 
     expect(fired).toHaveBeenCalled();
@@ -462,7 +464,7 @@ describe('The engine', () => {
       cancelable: true,
       bubbles: true
     });
-    const spyPreventDefault = spyOn(mockEvent, 'preventDefault');
+    const spyPreventDefault = vi.spyOn(mockEvent, 'preventDefault');
     engine.canvas.dispatchEvent(mockEvent);
 
     expect(spyPreventDefault).toHaveBeenCalled();
@@ -476,7 +478,7 @@ describe('The engine', () => {
       cancelable: true,
       bubbles: true
     });
-    const spyPreventDefault = spyOn(mockEvent, 'preventDefault');
+    const spyPreventDefault = vi.spyOn(mockEvent, 'preventDefault');
     engine.canvas.dispatchEvent(mockEvent);
 
     expect(spyPreventDefault).not.toHaveBeenCalled();
@@ -575,79 +577,82 @@ describe('The engine', () => {
     game.dispose();
   });
 
-  it('should detect hidpi when the device pixel ratio is greater than 1', (done) => {
-    // Arrange
-    const oldWidth = 100;
-    const oldHeight = 100;
+  it('should detect hidpi when the device pixel ratio is greater than 1', () =>
+    new Promise<void>((done) => {
+      // Arrange
+      const oldWidth = 100;
+      const oldHeight = 100;
 
-    (<any>window).devicePixelRatio = 2;
-    const newWidth = oldWidth * (<any>window).devicePixelRatio;
-    const newHeight = oldHeight * (<any>window).devicePixelRatio;
+      (<any>window).devicePixelRatio = 2;
+      const newWidth = oldWidth * (<any>window).devicePixelRatio;
+      const newHeight = oldHeight * (<any>window).devicePixelRatio;
 
-    engine.dispose();
-    engine = null;
-    engine = TestUtils.engine({
-      width: 100,
-      height: 100,
-      suppressHiDPIScaling: false
-    });
-    // Act
-    engine.start().then(() => {
-      // Assert
-      expect(engine.isHiDpi).toBe(true);
+      engine.dispose();
+      engine = null;
+      engine = TestUtils.engine({
+        width: 100,
+        height: 100,
+        suppressHiDPIScaling: false
+      });
+      // Act
+      engine.start().then(() => {
+        // Assert
+        expect(engine.isHiDpi).toBe(true);
+        (<any>window).devicePixelRatio = 1;
+
+        done();
+      });
+    }));
+
+  it('should not detect hidpi with a device pixel ratio equal to 1', () =>
+    new Promise<void>((done) => {
+      // Arrange
+      const oldWidth = 100;
+      const oldHeight = 100;
+
       (<any>window).devicePixelRatio = 1;
+      const newWidth = oldWidth * (<any>window).devicePixelRatio;
+      const newHeight = oldHeight * (<any>window).devicePixelRatio;
 
-      done();
-    });
-  });
+      // Act
+      engine.dispose();
+      engine = null;
+      engine = TestUtils.engine({
+        width: 100,
+        height: 100,
+        suppressHiDPIScaling: false
+      });
 
-  it('should not detect hidpi with a device pixel ratio equal to 1', (done) => {
-    // Arrange
-    const oldWidth = 100;
-    const oldHeight = 100;
+      engine.start().then(() => {
+        // Assert
+        expect(engine.isHiDpi).toBe(false);
+        done();
+      });
+    }));
 
-    (<any>window).devicePixelRatio = 1;
-    const newWidth = oldWidth * (<any>window).devicePixelRatio;
-    const newHeight = oldHeight * (<any>window).devicePixelRatio;
+  it('should respect a hidpi suppression flag even if the pixel ratio is greater than 1', () =>
+    new Promise<void>((done) => {
+      // Arrange
+      (<any>window).devicePixelRatio = 2;
 
-    // Act
-    engine.dispose();
-    engine = null;
-    engine = TestUtils.engine({
-      width: 100,
-      height: 100,
-      suppressHiDPIScaling: false
-    });
+      // Act
+      engine.dispose();
+      engine = null;
+      engine = TestUtils.engine({
+        width: 100,
+        height: 100,
+        suppressHiDPIScaling: true
+      });
 
-    engine.start().then(() => {
-      // Assert
-      expect(engine.isHiDpi).toBe(false);
-      done();
-    });
-  });
-
-  it('should respect a hidpi suppression flag even if the pixel ratio is greater than 1', (done) => {
-    // Arrange
-    (<any>window).devicePixelRatio = 2;
-
-    // Act
-    engine.dispose();
-    engine = null;
-    engine = TestUtils.engine({
-      width: 100,
-      height: 100,
-      suppressHiDPIScaling: true
-    });
-
-    engine.start().then(() => {
-      // Assert
-      expect(engine.isHiDpi).toBe(false);
-      expect(engine.drawWidth).toBe(100);
-      expect(engine.drawHeight).toBe(100);
-      (<any>window).devicePixelRatio = 1;
-      done();
-    });
-  });
+      engine.start().then(() => {
+        // Assert
+        expect(engine.isHiDpi).toBe(false);
+        expect(engine.drawWidth).toBe(100);
+        expect(engine.drawHeight).toBe(100);
+        (<any>window).devicePixelRatio = 1;
+        done();
+      });
+    }));
 
   it('should accept custom enableCanvasTransparency false', () => {
     const game = new ex.Engine({
@@ -671,7 +676,7 @@ describe('The engine', () => {
   });
 
   it('will warn if scenes are being overwritten', () => {
-    spyOn(ex.Logger.getInstance(), 'warn');
+    vi.spyOn(ex.Logger.getInstance(), 'warn');
     const scene = new ex.Scene();
     engine.addScene('dup', scene);
     engine.addScene('dup', scene);
@@ -707,7 +712,7 @@ describe('The engine', () => {
   });
 
   it('will log an error if the scene does not exist', async () => {
-    spyOn(ex.Logger.getInstance(), 'warn');
+    vi.spyOn(ex.Logger.getInstance(), 'warn');
     await engine.goToScene('madeUp');
     expect(ex.Logger.getInstance().warn).toHaveBeenCalledWith('Scene madeUp does not exist! Check the name, are you sure you added it?');
   });
@@ -726,8 +731,8 @@ describe('The engine', () => {
       engine.add(new ex.Actor());
     };
 
-    spyOn(scene1, 'onInitialize').and.callThrough();
-    spyOn(scene2, 'onInitialize').and.callThrough();
+    vi.spyOn(scene1, 'onInitialize');
+    vi.spyOn(scene2, 'onInitialize');
 
     await engine.goToScene('scene1');
 
@@ -739,36 +744,37 @@ describe('The engine', () => {
     engine.dispose();
   });
 
-  it('can screen shot the game (in WebGL)', (done) => {
-    const engine = TestUtils.engine({}, []);
-    const clock = engine.clock as ex.TestClock;
+  it('can screen shot the game (in WebGL)', () =>
+    new Promise<void>((done) => {
+      const engine = TestUtils.engine({}, []);
+      const clock = engine.clock as ex.TestClock;
 
-    engine.add(
-      new ex.Actor({
-        x: 50,
-        y: 50,
-        width: 100,
-        height: 100,
-        color: ex.Color.Red
-      })
-    );
-    TestUtils.runToReady(engine).then(() => {
-      clock.step(1);
+      engine.add(
+        new ex.Actor({
+          x: 50,
+          y: 50,
+          width: 100,
+          height: 100,
+          color: ex.Color.Red
+        })
+      );
+      TestUtils.runToReady(engine).then(() => {
+        clock.step(1);
 
-      const canvas = flushWebGLCanvasTo2D(engine.canvas);
-      engine.screenshot().then((image) => {
-        expectAsync(image)
-          .toEqualImage(canvas)
-          .then(() => {
-            done();
-            engine.dispose();
-          });
+        const canvas = flushWebGLCanvasTo2D(engine.canvas);
+        engine.screenshot().then((image) => {
+          expect(image)
+            .toEqualImage(canvas)
+            .then(() => {
+              done();
+              engine.dispose();
+            });
+        });
+        clock.step(1);
+        clock.step(1);
+        clock.step(1);
       });
-      clock.step(1);
-      clock.step(1);
-      clock.step(1);
-    });
-  });
+    }));
 
   it('can screen shot the game HiDPI (in WebGL)', async () => {
     const engine = TestUtils.engine({}, []);
@@ -802,7 +808,7 @@ describe('The engine', () => {
 
     expect(hidpiImage.width).toBe(1000);
     expect(hidpiImage.height).toBe(1000);
-    await expectAsync(hidpiImage).toEqualImage(canvas);
+    await expect(hidpiImage).toEqualImage(canvas);
     engine.dispose();
   });
 
@@ -819,7 +825,7 @@ describe('The engine', () => {
       []
     );
     const clock = engine.clock as ex.TestClock;
-    const img = new ex.ImageSource('src/spec/images/EngineSpec/sprite.png');
+    const img = new ex.ImageSource('/src/spec/images/EngineSpec/sprite.png');
     await img.load();
     const actor = new ex.Actor({
       x: 40.5,
@@ -836,7 +842,7 @@ describe('The engine', () => {
 
     const image = await screenShotPromise;
 
-    await expectAsync(image).toEqualImage('src/spec/images/EngineSpec/screenshot.png', 1.0);
+    await expect(image).toEqualImage('/src/spec/images/EngineSpec/screenshot.png', 1.0);
     engine.dispose();
   });
 
@@ -849,7 +855,7 @@ describe('The engine', () => {
     });
     const clock = engine.clock as ex.TestClock;
     await TestUtils.runToReady(engine);
-    const playerImage = new ex.ImageSource('src/spec/images/EngineSpec/hero.png');
+    const playerImage = new ex.ImageSource('/src/spec/images/EngineSpec/hero.png');
     const playerSpriteSheet = ex.SpriteSheet.fromImageSource({
       image: playerImage,
       grid: {
@@ -859,7 +865,7 @@ describe('The engine', () => {
         columns: 8
       }
     });
-    const backgroundImage = new ex.ImageSource('src/spec/images/EngineSpec/tileset.png');
+    const backgroundImage = new ex.ImageSource('/src/spec/images/EngineSpec/tileset.png');
     const backgroundSpriteSheet = ex.SpriteSheet.fromImageSource({
       image: backgroundImage,
       grid: {
@@ -895,7 +901,7 @@ describe('The engine', () => {
 
     clock.step();
 
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/EngineSpec/snaptopixel.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/EngineSpec/snaptopixel.png');
     engine.dispose();
   });
 
@@ -909,7 +915,7 @@ describe('The engine', () => {
     });
     const clock = engine.clock as ex.TestClock;
     await TestUtils.runToReady(engine);
-    const playerImage = new ex.ImageSource('src/spec/images/EngineSpec/hero.png');
+    const playerImage = new ex.ImageSource('/src/spec/images/EngineSpec/hero.png');
     const playerSpriteSheet = ex.SpriteSheet.fromImageSource({
       image: playerImage,
       grid: {
@@ -919,7 +925,7 @@ describe('The engine', () => {
         columns: 8
       }
     });
-    const backgroundImage = new ex.ImageSource('src/spec/images/EngineSpec/tileset.png');
+    const backgroundImage = new ex.ImageSource('/src/spec/images/EngineSpec/tileset.png');
     const backgroundSpriteSheet = ex.SpriteSheet.fromImageSource({
       image: backgroundImage,
       grid: {
@@ -954,7 +960,7 @@ describe('The engine', () => {
     engine.currentScene.camera.pos = player.pos;
 
     clock.step();
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/EngineSpec/pixelart.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/EngineSpec/pixelart.png');
     engine.dispose();
   });
 
@@ -981,7 +987,7 @@ describe('The engine', () => {
         initCalled = true;
       });
 
-      spyOn(engine, 'onInitialize').and.callThrough();
+      vi.spyOn(engine, 'onInitialize');
 
       await TestUtils.runToReady(engine);
       const clock = engine.clock as ex.TestClock;
@@ -1001,8 +1007,8 @@ describe('The engine', () => {
         expect(elapsedMs).toBe(100);
       };
 
-      spyOn(engine, 'onPostUpdate').and.callThrough();
-      spyOn(engine, '_postupdate').and.callThrough();
+      vi.spyOn(engine, 'onPostUpdate');
+      vi.spyOn(engine, '_postupdate');
 
       clock.step(100);
       clock.step(100);
@@ -1021,8 +1027,8 @@ describe('The engine', () => {
         expect(elapsedMs).toBe(100);
       };
 
-      spyOn(engine, 'onPreUpdate').and.callThrough();
-      spyOn(engine, '_preupdate').and.callThrough();
+      vi.spyOn(engine, 'onPreUpdate');
+      vi.spyOn(engine, '_preupdate');
 
       clock.step(100);
       clock.step(100);
@@ -1041,8 +1047,8 @@ describe('The engine', () => {
         expect(<any>ctx).not.toBe(null);
         expect(elapsedMs).toBe(100);
       };
-      spyOn(engine, 'onPreDraw').and.callThrough();
-      spyOn(engine, '_predraw').and.callThrough();
+      vi.spyOn(engine, 'onPreDraw');
+      vi.spyOn(engine, '_predraw');
 
       clock.step(100);
       clock.step(100);
@@ -1062,8 +1068,8 @@ describe('The engine', () => {
         expect(elapsedMs).toBe(100);
       };
 
-      spyOn(engine, 'onPostDraw').and.callThrough();
-      spyOn(engine, '_postdraw').and.callThrough();
+      vi.spyOn(engine, 'onPostDraw');
+      vi.spyOn(engine, '_postdraw');
 
       clock.step(100);
       clock.step(100);
