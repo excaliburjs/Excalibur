@@ -1,6 +1,7 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A gamepad', () => {
   let engine: ex.Engine;
@@ -13,9 +14,7 @@ describe('A gamepad', () => {
 
     nav = mock.navigator();
 
-    spyOn(navigator, 'getGamepads').and.callFake(function (): any[] {
-      return nav.getGamepads();
-    });
+    vi.spyOn(navigator, 'getGamepads').mockImplementation(() => nav.getGamepads());
   });
 
   afterEach(() => {

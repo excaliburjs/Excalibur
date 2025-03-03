@@ -1,16 +1,17 @@
 import * as ex from '@excalibur';
+import { describe, beforeEach, it, expect, type MockInstance } from 'vitest';
 
 describe('A garbage collector', () => {
-  let requestIdleCallback: jasmine.Spy<(typeof window)['requestIdleCallback']>;
-  let cancelIdleCallback: jasmine.Spy<(typeof window)['cancelIdleCallback']>;
+  let requestIdleCallback: MockInstance<typeof window.requestIdleCallback>;
+  let cancelIdleCallback: MockInstance<typeof window.cancelIdleCallback>;
 
   it('exists', () => {
     expect(ex.GarbageCollector).toBeDefined();
   });
 
   beforeEach(() => {
-    requestIdleCallback = spyOn(window, 'requestIdleCallback');
-    cancelIdleCallback = spyOn(window, 'cancelIdleCallback');
+    requestIdleCallback = vi.spyOn(window, 'requestIdleCallback');
+    cancelIdleCallback = vi.spyOn(window, 'cancelIdleCallback');
   });
 
   it('can be started', () => {
@@ -36,7 +37,7 @@ describe('A garbage collector', () => {
     const getTimestamp = () => currentTime;
     const sut = new ex.GarbageCollector({ getTimestamp });
 
-    const collect = jasmine.createSpy('collect').and.returnValue(true);
+    const collect = vi.fn(() => true);
 
     sut.start();
     sut.registerCollector('test', 100, collect);
@@ -56,7 +57,7 @@ describe('A garbage collector', () => {
     const getTimestamp = () => currentTime;
     const sut = new ex.GarbageCollector({ getTimestamp });
 
-    const collect = jasmine.createSpy('collect').and.returnValue(true);
+    const collect = vi.fn(() => true);
 
     sut.start();
     sut.registerCollector('test', 100, collect);
@@ -81,7 +82,7 @@ describe('A garbage collector', () => {
     const getTimestamp = () => currentTime;
     const sut = new ex.GarbageCollector({ getTimestamp });
 
-    const collect = jasmine.createSpy('collect').and.returnValue(true);
+    const collect = vi.fn(() => true);
 
     sut.start();
     sut.registerCollector('test', 100, collect);
@@ -93,7 +94,7 @@ describe('A garbage collector', () => {
 
     sut.forceCollectAll();
 
-    expect(collect.calls.argsFor(0)).toEqual([resource]);
-    expect(collect.calls.argsFor(1)).toEqual([resource2]);
+    expect(collect.mock.calls[0]).toEqual([resource]);
+    expect(collect.mock.calls[1]).toEqual([resource2]);
   });
 });
