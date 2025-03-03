@@ -1,4 +1,6 @@
 import * as ex from '@excalibur';
+import { describe, beforeEach, it, expect } from 'vitest';
+
 describe('A ColliderComponent', () => {
   it('exists', () => {
     expect(ex.ColliderComponent).toBeDefined();
@@ -21,12 +23,12 @@ describe('A ColliderComponent', () => {
     const collider = new ex.ColliderComponent(ex.Shape.Circle(50));
     const owner = new ex.Entity([collider]);
 
-    const originalCollisionHandler = jasmine.createSpy();
+    const originalCollisionHandler = vi.fn();
     owner.on('collisionstart', originalCollisionHandler);
 
     const clone = owner.clone();
 
-    const cloneCollisionHandler = jasmine.createSpy();
+    const cloneCollisionHandler = vi.fn();
     clone.on('collisionstart', cloneCollisionHandler);
 
     const sut = clone.get(ex.ColliderComponent);
@@ -62,20 +64,20 @@ describe('A ColliderComponent', () => {
 
   it('wires up collision events to the owner onAdd', () => {
     const comp = new ex.ColliderComponent(ex.Shape.Circle(50));
-    spyOn(comp.events, 'on');
+    vi.spyOn(comp.events, 'on');
 
     const e = new ex.Entity();
     e.addComponent(comp);
 
-    expect(comp.events.on).toHaveBeenCalledWith('precollision', jasmine.anything());
-    expect(comp.events.on).toHaveBeenCalledWith('postcollision', jasmine.anything());
-    expect(comp.events.on).toHaveBeenCalledWith('collisionstart', jasmine.anything());
-    expect(comp.events.on).toHaveBeenCalledWith('collisionend', jasmine.anything());
+    expect(comp.events.on).toHaveBeenCalledWith('precollision', expect.anything());
+    expect(comp.events.on).toHaveBeenCalledWith('postcollision', expect.anything());
+    expect(comp.events.on).toHaveBeenCalledWith('collisionstart', expect.anything());
+    expect(comp.events.on).toHaveBeenCalledWith('collisionend', expect.anything());
   });
 
   it('clears out collision events on the owner onRemove', () => {
     const comp = new ex.ColliderComponent(ex.Shape.Circle(50));
-    spyOn(comp.events, 'clear');
+    vi.spyOn(comp.events, 'clear');
 
     const e = new ex.Entity();
     e.addComponent(comp);
@@ -87,8 +89,8 @@ describe('A ColliderComponent', () => {
   it('clear a collider', () => {
     const collider = ex.Shape.Circle(50);
     const comp = new ex.ColliderComponent(collider);
-    spyOn(collider.events, 'unpipe');
-    spyOn(comp.$colliderRemoved, 'notifyAll');
+    vi.spyOn(collider.events, 'unpipe');
+    vi.spyOn(comp.$colliderRemoved, 'notifyAll');
     const e = new ex.Entity();
     e.addComponent(comp);
     expect(collider.owner).not.toBeNull();
