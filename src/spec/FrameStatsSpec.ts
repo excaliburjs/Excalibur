@@ -1,7 +1,7 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
-import { TestClock } from '@excalibur';
+import type { TestClock } from '@excalibur';
 
 describe('The engine', () => {
   let engine: ex.Engine;

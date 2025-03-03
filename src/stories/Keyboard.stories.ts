@@ -1,5 +1,6 @@
-import { Meta, StoryObj } from '@storybook/html';
-import { Label, Color, Keys } from '../engine';
+import type { Meta, StoryObj } from '@storybook/html';
+import type { Keys } from '../engine';
+import { Label, Color } from '../engine';
 import { withEngine } from './utils';
 
 export default {

@@ -1,7 +1,7 @@
 import * as ex from '@excalibur';
 import { Color } from '@excalibur';
 import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
-import { RasterOptions } from '../engine/Graphics';
+import type { RasterOptions } from '../engine/Graphics';
 
 class TestRaster extends ex.Raster {
   constructor(options?: RasterOptions) {

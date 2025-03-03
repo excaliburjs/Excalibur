@@ -1,4 +1,4 @@
-import { Meta, StoryObj } from '@storybook/html';
+import type { Meta, StoryObj } from '@storybook/html';
 import { Loader, Color, Actor, Vector, vec, toRadians } from '../engine';
 import { ImageSource, Canvas } from '../engine/Graphics';
 import { withEngine } from './utils';
