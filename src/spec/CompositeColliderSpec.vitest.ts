@@ -1,12 +1,9 @@
 import * as ex from '@excalibur';
 import { BoundingBox, GameEvent, LineSegment, Projection, Ray, vec, Vector } from '@excalibur';
-import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 import { getDefaultPhysicsConfig } from '../engine/Collision/PhysicsConfig';
+
 describe('A CompositeCollider', () => {
-  beforeAll(() => {
-    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
-    jasmine.addMatchers(ExcaliburMatchers);
-  });
   it('exists', () => {
     expect(ex.CompositeCollider).toBeDefined();
   });
@@ -25,10 +22,10 @@ describe('A CompositeCollider', () => {
   it('can forward events from the individual colliders', () => {
     const circle = ex.Shape.Circle(50);
     const box = ex.Shape.Box(200, 10);
-    const precollision = jasmine.createSpy('event');
-    const postcollision = jasmine.createSpy('event');
-    const collisionstart = jasmine.createSpy('event');
-    const collisionend = jasmine.createSpy('event');
+    const precollision = vi.fn();
+    const postcollision = vi.fn();
+    const collisionstart = vi.fn();
+    const collisionend = vi.fn();
 
     const compCollider = new ex.CompositeCollider([circle, box]);
 
@@ -54,10 +51,10 @@ describe('A CompositeCollider', () => {
     const down = compCollider.getFurthestPoint(Vector.Down);
     const left = compCollider.getFurthestPoint(Vector.Left);
     const right = compCollider.getFurthestPoint(Vector.Right);
-    expect(up).withContext('Top of the circle is (0, -50)').toBeVector(vec(0, -50));
-    expect(down).withContext('Bottom of the circle is (0, 50)').toBeVector(vec(0, 50));
-    expect(left).withContext('Upper Left of the box is (-100, -5)').toBeVector(vec(-100, -5));
-    expect(right).withContext('Upper Right of the box is (-5, 100)').toBeVector(vec(100, -5));
+    expect(up, 'Top of the circle is (0, -50)').toBeVector(vec(0, -50));
+    expect(down, 'Bottom of the circle is (0, 50)').toBeVector(vec(0, 50));
+    expect(left, 'Upper Left of the box is (-100, -5)').toBeVector(vec(-100, -5));
+    expect(right, 'Upper Right of the box is (-5, 100)').toBeVector(vec(100, -5));
   });
 
   it('sums the inertia of the shapes', () => {
@@ -130,13 +127,13 @@ describe('A CompositeCollider', () => {
 
     const contactBoxCircle = compCollider.collide(circle);
     expect(contactBoxCircle.length).toBe(1);
-    expect(contactBoxCircle[0].points[0]).withContext('Right edge of the box in comp').toEqual(vec(99, 0));
+    expect(contactBoxCircle[0].points[0], 'Right edge of the box in comp').toEqual(vec(99, 0));
 
     xf.pos = vec(0, -100);
     circle.update(xf);
     const contactCircleCircle = compCollider.collide(circle);
     expect(contactCircleCircle.length).toBe(1);
-    expect(contactCircleCircle[0].points[0]).withContext('Top of the circle in comp').toEqual(vec(0, -50));
+    expect(contactCircleCircle[0].points[0], 'Top of the circle in comp').toEqual(vec(0, -50));
   });
 
   it('creates contacts that have the composite collider id', () => {
@@ -183,9 +180,7 @@ describe('A CompositeCollider', () => {
 
     const contacts = compCollider1.collide(compCollider2);
     expect(contacts.length).toBe(1);
-    expect(contacts[0].points)
-      .withContext('Right edge of comp1 poly')
-      .toEqual([vec(100, 5), vec(100, -5)]);
+    expect(contacts[0].points, 'Right edge of comp1 poly').toEqual([vec(100, 5), vec(100, -5)]);
   });
 
   it('returns empty on no contacts', () => {
@@ -274,7 +269,7 @@ describe('A CompositeCollider', () => {
 
     ctx.flush();
 
-    await expectAsync(canvasElement).toEqualImage('src/spec/images/CompositeColliderSpec/composite.png');
+    await expect(canvasElement).toEqualImage('src/spec/images/CompositeColliderSpec/composite.png');
   });
 
   it('is separated into a series of colliders in the dynamic tree', () => {
