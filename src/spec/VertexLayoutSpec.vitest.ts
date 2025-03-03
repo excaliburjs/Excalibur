@@ -1,12 +1,9 @@
 import * as ex from '@excalibur';
-import { ExcaliburMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A VertexLayout', () => {
   let gl: WebGL2RenderingContext;
   let graphicsContext: ex.ExcaliburGraphicsContextWebGL;
-  beforeAll(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
-  });
 
   beforeEach(() => {
     const canvas = document.createElement('canvas');
@@ -167,7 +164,7 @@ describe('A VertexLayout', () => {
         vertexBuffer,
         attributes: [['a_invalid', 2]]
       });
-    }).toThrowMatching((e: Error) => e.message.includes('attribute named: a_invalid size 2 not found'));
+    }).toThrowError(/(attribute named: a_invalid size 2 not found)/);
   });
 
   it('will throw on invalid attribute size', () => {
@@ -197,18 +194,14 @@ describe('A VertexLayout', () => {
         vertexBuffer,
         attributes: [['a_position', 4]]
       });
-    }).toThrowMatching((e: Error) => e.message.includes('VertexLayout size definition for attribute: [a_position, 4]'));
+    }).toThrowError(new RegExp('VertexLayout size definition for attribute: \\[a_position, 4\\]'));
   });
 
   it('will calculate vertex size and webgl vbo correctly', () => {
-    spyOn(gl, 'createVertexArray').and.callThrough();
-    const createVertexArray = gl.createVertexArray as jasmine.Spy;
-    spyOn(gl, 'bindVertexArray').and.callThrough();
-    const bindVertexArray = gl.bindVertexArray as jasmine.Spy;
-    spyOn(gl, 'vertexAttribPointer').and.callThrough();
-    const vertexAttribPointerSpy = gl.vertexAttribPointer as jasmine.Spy;
-    spyOn(gl, 'enableVertexAttribArray').and.callThrough();
-    const enableVertexAttribArraySpy = gl.enableVertexAttribArray as jasmine.Spy;
+    const createVertexArray = vi.spyOn(gl, 'createVertexArray');
+    const bindVertexArray = vi.spyOn(gl, 'bindVertexArray');
+    const vertexAttribPointerSpy = vi.spyOn(gl, 'vertexAttribPointer');
+    const enableVertexAttribArraySpy = vi.spyOn(gl, 'enableVertexAttribArray');
 
     const shader = new ex.Shader({
       graphicsContext,
@@ -243,7 +236,8 @@ describe('A VertexLayout', () => {
         ['a_uv', 2]
       ]
     });
-    expect(sut.totalVertexSizeBytes).withContext('pos is 2x4 + uv is 2x4').toBe(16);
+
+    expect(sut.totalVertexSizeBytes, 'pos is 2x4 + uv is 2x4').toBe(16);
 
     sut.initialize();
 
@@ -251,10 +245,10 @@ describe('A VertexLayout', () => {
     const uv = shader.attributes.a_uv;
     expect(createVertexArray).toHaveBeenCalledTimes(1);
     expect(bindVertexArray).toHaveBeenCalledTimes(2);
-    expect(vertexAttribPointerSpy.calls.argsFor(0)).toEqual([pos.location, 2, gl.FLOAT, false, 16, 0]);
-    expect(enableVertexAttribArraySpy.calls.argsFor(0)).toEqual([pos.location]);
-    expect(vertexAttribPointerSpy.calls.argsFor(1)).toEqual([uv.location, 2, gl.FLOAT, false, 16, 8]);
-    expect(enableVertexAttribArraySpy.calls.argsFor(1)).toEqual([uv.location]);
+    expect(vertexAttribPointerSpy.mock.calls[0]).toEqual([pos.location, 2, gl.FLOAT, false, 16, 0]);
+    expect(enableVertexAttribArraySpy.mock.calls[0]).toEqual([pos.location]);
+    expect(vertexAttribPointerSpy.mock.calls[1]).toEqual([uv.location, 2, gl.FLOAT, false, 16, 8]);
+    expect(enableVertexAttribArraySpy.mock.calls[1]).toEqual([uv.location]);
 
     expect(gl.vertexAttribPointer).toHaveBeenCalledTimes(2);
     expect(gl.enableVertexAttribArray).toHaveBeenCalledTimes(2);
