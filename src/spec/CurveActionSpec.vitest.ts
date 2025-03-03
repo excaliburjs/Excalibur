@@ -1,12 +1,8 @@
 import * as ex from '@excalibur';
-import { ExcaliburMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 import { TestUtils } from './util/TestUtils';
 
 describe('A actor can curve', () => {
-  beforeAll(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
-  });
-
   let engine: ex.Engine;
   let clock: ex.TestClock;
   beforeEach(async () => {
