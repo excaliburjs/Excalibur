@@ -39,17 +39,8 @@ export default defineConfig({
       isolate: true,
       headless: process.env.CI === 'true' || process.env.HEADLESS === 'true',
       // https://vitest.dev/guide/browser/playwright
-      instances: [
-        {
-          browser: 'chromium',
-          // @ts-ignore - not typed? playwright launch options
-          launch: {
-            devtools: true
-          }
-        },
-        { browser: 'firefox' },
-        { browser: 'webkit' }
-      ]
+      // run `vitest --browser <name>` to run tests in a specific browser
+      instances: [{ browser: 'chromium' }, { browser: 'firefox' }, { browser: 'webkit' }]
     }
   }
 });
