@@ -1,6 +1,6 @@
-import { Vector } from '../../Math/vector';
-import { Collider } from '../Colliders/Collider';
-import { BodyComponent } from '../BodyComponent';
+import type { Vector } from '../../Math/vector';
+import type { Collider } from '../Colliders/Collider';
+import type { BodyComponent } from '../BodyComponent';
 
 export interface RayCastHit {
   /**

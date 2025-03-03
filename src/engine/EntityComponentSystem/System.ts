@@ -1,6 +1,6 @@
-import { Scene } from '../Scene';
+import type { Scene } from '../Scene';
 import { SystemPriority } from './Priority';
-import { World } from './World';
+import type { World } from './World';
 
 /**
  * Enum that determines whether to run the system in the update or draw phase

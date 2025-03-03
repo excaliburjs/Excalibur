@@ -1,6 +1,8 @@
 import { ImageFiltering } from './Filtering';
-import { Vector, vec } from '../Math/vector';
-import { Raster, RasterOptions } from './Raster';
+import type { Vector } from '../Math/vector';
+import { vec } from '../Math/vector';
+import type { RasterOptions } from './Raster';
+import { Raster } from './Raster';
 
 export interface PolygonOptions {
   points: Vector[];

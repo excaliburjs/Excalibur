@@ -1,28 +1,32 @@
 import { BoundingBox } from '../Collision/BoundingBox';
-import { Engine } from '../Engine';
+import type { Engine } from '../Engine';
 import { Vector, vec } from '../Math/vector';
 import { Logger } from '../Util/Log';
-import { Entity, EntityEvents } from '../EntityComponentSystem/Entity';
+import type { EntityEvents } from '../EntityComponentSystem/Entity';
+import { Entity } from '../EntityComponentSystem/Entity';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { BodyComponent } from '../Collision/BodyComponent';
 import { CollisionType } from '../Collision/CollisionType';
 import { Shape } from '../Collision/Colliders/Shape';
-import { ExcaliburGraphicsContext, Graphic, GraphicsComponent, hasGraphicsTick, ParallaxComponent } from '../Graphics';
+import type { ExcaliburGraphicsContext, Graphic } from '../Graphics';
+import { GraphicsComponent, hasGraphicsTick, ParallaxComponent } from '../Graphics';
 import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
 import { ColliderComponent } from '../Collision/ColliderComponent';
-import { CompositeCollider } from '../Collision/Colliders/CompositeCollider';
+import type { CompositeCollider } from '../Collision/Colliders/CompositeCollider';
 import { DebugGraphicsComponent } from '../Graphics/DebugGraphicsComponent';
-import { Collider } from '../Collision/Colliders/Collider';
+import type { Collider } from '../Collision/Colliders/Collider';
 import { PostDrawEvent, PostUpdateEvent, PreDrawEvent, PreUpdateEvent } from '../Events';
-import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
+import type { EventKey, Handler, Subscription } from '../EventEmitter';
+import { EventEmitter } from '../EventEmitter';
 import { CoordPlane } from '../Math/coord-plane';
-import { DebugConfig } from '../Debug';
+import type { DebugConfig } from '../Debug';
 import { clamp } from '../Math/util';
 import { PointerComponent } from '../Input/PointerComponent';
-import { PointerEvent } from '../Input/PointerEvent';
-import { PointerEventReceiver } from '../Input/PointerEventReceiver';
-import { HasNestedPointerEvents, PointerEventsToObjectDispatcher } from '../Input/PointerEventsToObjectDispatcher';
-import { GlobalCoordinates } from '../Math';
+import type { PointerEvent } from '../Input/PointerEvent';
+import type { PointerEventReceiver } from '../Input/PointerEventReceiver';
+import type { HasNestedPointerEvents } from '../Input/PointerEventsToObjectDispatcher';
+import { PointerEventsToObjectDispatcher } from '../Input/PointerEventsToObjectDispatcher';
+import type { GlobalCoordinates } from '../Math';
 
 export interface TileMapOptions {
   /**

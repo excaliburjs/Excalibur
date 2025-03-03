@@ -1,7 +1,7 @@
 import { BoundingBox } from '../Collision/BoundingBox';
 import { Color } from '../Color';
-import { Vector } from '../Math/vector';
-import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
+import type { Vector } from '../Math/vector';
+import type { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { Graphic } from './Graphic';
 
 export interface LineOptions {

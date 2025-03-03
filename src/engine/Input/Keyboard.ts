@@ -1,7 +1,8 @@
 import { Logger } from '../Util/Log';
 import * as Events from '../Events';
 import { isCrossOriginIframe } from '../Util/IFrame';
-import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
+import type { EventKey, Handler, Subscription } from '../EventEmitter';
+import { EventEmitter } from '../EventEmitter';
 
 /**
  * Enum representing physical input key codes

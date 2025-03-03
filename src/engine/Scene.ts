@@ -1,8 +1,7 @@
 import { isScreenElement, ScreenElement } from './ScreenElement';
+import type { ActivateEvent, DeactivateEvent } from './Events';
 import {
   InitializeEvent,
-  ActivateEvent,
-  DeactivateEvent,
   PreUpdateEvent,
   PostUpdateEvent,
   PreDrawEvent,
@@ -12,11 +11,11 @@ import {
 } from './Events';
 import { Logger } from './Util/Log';
 import { Timer } from './Timer';
-import { Engine } from './Engine';
+import type { Engine } from './Engine';
 import { TileMap } from './TileMap';
 import { Camera } from './Camera';
 import { Actor } from './Actor';
-import { CanInitialize, CanActivate, CanDeactivate, CanUpdate, CanDraw, SceneActivationContext } from './Interfaces/LifecycleEvents';
+import type { CanInitialize, CanActivate, CanDeactivate, CanUpdate, CanDraw, SceneActivationContext } from './Interfaces/LifecycleEvents';
 import * as Util from './Util/Util';
 import { Trigger } from './Trigger';
 import { SystemType } from './EntityComponentSystem/System';
@@ -30,12 +29,13 @@ import { PointerSystem } from './Input/PointerSystem';
 import { ActionsSystem } from './Actions/ActionsSystem';
 import { IsometricEntitySystem } from './TileMap/IsometricEntitySystem';
 import { OffscreenSystem } from './Graphics/OffscreenSystem';
-import { ExcaliburGraphicsContext } from './Graphics';
+import type { ExcaliburGraphicsContext } from './Graphics';
 import { PhysicsWorld } from './Collision/PhysicsWorld';
-import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
-import { Color } from './Color';
-import { DefaultLoader } from './Director/DefaultLoader';
-import { Transition } from './Director';
+import type { EventKey, Handler, Subscription } from './EventEmitter';
+import { EventEmitter } from './EventEmitter';
+import type { Color } from './Color';
+import type { DefaultLoader } from './Director/DefaultLoader';
+import type { Transition } from './Director';
 import { InputHost } from './Input/InputHost';
 import { PointerScope } from './Input/PointerScope';
 import { getDefaultPhysicsConfig } from './Collision/PhysicsConfig';

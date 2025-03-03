@@ -1,4 +1,4 @@
-import {
+import type {
   ExcaliburGraphicsContext,
   LineGraphicsOptions,
   RectGraphicsOptions,
@@ -10,16 +10,17 @@ import {
 
 import { Matrix } from '../../Math/matrix';
 import { TransformStack } from './transform-stack';
-import { Vector, vec } from '../../Math/vector';
+import type { Vector } from '../../Math/vector';
+import { vec } from '../../Math/vector';
 import { Color } from '../../Color';
 import { StateStack } from './state-stack';
 import { Logger } from '../../Util/Log';
 import { DebugText } from './debug-text';
-import { Resolution } from '../../Screen';
+import type { Resolution } from '../../Screen';
 import { RenderTarget } from './render-target';
-import { PostProcessor } from '../PostProcessor/PostProcessor';
+import type { PostProcessor } from '../PostProcessor/PostProcessor';
 import { TextureLoader } from './texture-loader';
-import { RendererPlugin } from './renderer';
+import type { RendererPlugin } from './renderer';
 
 // renderers
 import { LineRenderer } from './line-renderer/line-renderer';
@@ -30,11 +31,13 @@ import { RectangleRenderer } from './rectangle-renderer/rectangle-renderer';
 import { CircleRenderer } from './circle-renderer/circle-renderer';
 import { Pool } from '../../Util/Pool';
 import { DrawCall } from './draw-call';
-import { AffineMatrix } from '../../Math/affine-matrix';
-import { Material, MaterialOptions } from './material';
+import type { AffineMatrix } from '../../Math/affine-matrix';
+import type { MaterialOptions } from './material';
+import { Material } from './material';
 import { MaterialRenderer } from './material-renderer/material-renderer';
-import { Shader, ShaderOptions } from './shader';
-import { GarbageCollector } from '../../GarbageCollector';
+import type { ShaderOptions } from './shader';
+import { Shader } from './shader';
+import type { GarbageCollector } from '../../GarbageCollector';
 import { ParticleRenderer } from './particle-renderer/particle-renderer';
 import { ImageRendererV2 } from './image-renderer-v2/image-renderer-v2';
 import { Flags } from '../../Flags';

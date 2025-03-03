@@ -1,4 +1,4 @@
-import {
+import type {
   ExcaliburGraphicsContext,
   LineGraphicsOptions,
   PointGraphicsOptions,
@@ -6,15 +6,15 @@ import {
   DebugDraw,
   HTMLImageSource
 } from './ExcaliburGraphicsContext';
-import { Vector } from '../../Math/vector';
+import type { Vector } from '../../Math/vector';
 import { Color } from '../../Color';
 import { StateStack } from './state-stack';
 import { GraphicsDiagnostics } from '../GraphicsDiagnostics';
 import { DebugText } from './debug-text';
-import { Resolution } from '../../Screen';
-import { PostProcessor } from '../PostProcessor/PostProcessor';
-import { AffineMatrix } from '../../Math/affine-matrix';
-import { Material, MaterialOptions } from './material';
+import type { Resolution } from '../../Screen';
+import type { PostProcessor } from '../PostProcessor/PostProcessor';
+import type { AffineMatrix } from '../../Math/affine-matrix';
+import type { Material, MaterialOptions } from './material';
 
 const pixelSnapEpsilon = 0.0001;
 

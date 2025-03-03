@@ -1,5 +1,5 @@
-import { LineSegment } from './line-segment';
-import { Vector } from './vector';
+import type { LineSegment } from './line-segment';
+import type { Vector } from './vector';
 
 /**
  * A 2D ray that can be cast into the scene to do collision detection

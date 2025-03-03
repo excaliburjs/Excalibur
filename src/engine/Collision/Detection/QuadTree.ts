@@ -1,5 +1,5 @@
 import { Color } from '../../Color';
-import { ExcaliburGraphicsContext } from '../../Graphics';
+import type { ExcaliburGraphicsContext } from '../../Graphics';
 import { BoundingBox } from '../BoundingBox';
 
 export interface QuadTreeItem {

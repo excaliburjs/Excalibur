@@ -1,6 +1,6 @@
-import { Entity } from './Entity';
+import type { Entity } from './Entity';
 import { Observable } from '../Util/Observable';
-import { Component, ComponentCtor } from '../EntityComponentSystem/Component';
+import type { Component, ComponentCtor } from '../EntityComponentSystem/Component';
 
 export type ComponentInstance<T> = T extends ComponentCtor<infer R> ? R : never;
 

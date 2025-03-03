@@ -1,4 +1,5 @@
-import { Query, SystemPriority, World } from '../EntityComponentSystem';
+import type { Query, World } from '../EntityComponentSystem';
+import { SystemPriority } from '../EntityComponentSystem';
 import { System, SystemType } from '../EntityComponentSystem/System';
 import { ActionsComponent } from './ActionsComponent';
 

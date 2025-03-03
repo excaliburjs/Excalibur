@@ -1,15 +1,16 @@
 import { Color } from '../Color';
-import { Loadable } from '../Interfaces/Loadable';
+import type { Loadable } from '../Interfaces/Loadable';
 import * as DrawUtil from '../Util/DrawUtil';
 
 import logoImg from './Loader.logo.png';
 import loaderCss from './Loader.css';
-import { Vector } from '../Math/vector';
+import type { Vector } from '../Math/vector';
 import { delay } from '../Util/Util';
 import { EventEmitter } from '../EventEmitter';
-import { DefaultLoader, DefaultLoaderOptions } from './DefaultLoader';
-import { Engine } from '../Engine';
-import { Screen } from '../Screen';
+import type { DefaultLoaderOptions } from './DefaultLoader';
+import { DefaultLoader } from './DefaultLoader';
+import type { Engine } from '../Engine';
+import type { Screen } from '../Screen';
 import { Logger } from '../Util/Log';
 import { Future } from '../Util/Future';
 

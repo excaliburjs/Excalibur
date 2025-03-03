@@ -1,7 +1,8 @@
-import { Action, nextActionId } from '../Action';
+import type { Action } from '../Action';
+import { nextActionId } from '../Action';
 import { TransformComponent } from '../../EntityComponentSystem/Components/TransformComponent';
 import { MotionComponent } from '../../EntityComponentSystem/Components/MotionComponent';
-import { Entity } from '../../EntityComponentSystem/Entity';
+import type { Entity } from '../../EntityComponentSystem/Entity';
 import { canonicalizeAngle, clamp, TwoPI } from '../../Math/util';
 import { lerpAngle, remap, RotationType } from '../../Math';
 

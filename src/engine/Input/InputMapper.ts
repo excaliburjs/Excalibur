@@ -1,6 +1,6 @@
-import { Gamepads } from './Gamepad';
-import { Keyboard } from './Keyboard';
-import { PointerEventReceiver } from './PointerEventReceiver';
+import type { Gamepads } from './Gamepad';
+import type { Keyboard } from './Keyboard';
+import type { PointerEventReceiver } from './PointerEventReceiver';
 
 export interface InputsOptions {
   keyboard: Keyboard;

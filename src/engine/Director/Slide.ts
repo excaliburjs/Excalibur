@@ -1,10 +1,14 @@
-import { ImageSource, Sprite } from '../Graphics';
-import { Engine } from '../Engine';
-import { Scene } from '../Scene';
-import { Transition, TransitionOptions } from './Transition';
-import { vec, Vector } from '../Math/vector';
-import { Camera } from '../Camera';
-import { EasingFunction, EasingFunctions } from '../Util/EasingFunctions';
+import type { Sprite } from '../Graphics';
+import { ImageSource } from '../Graphics';
+import type { Engine } from '../Engine';
+import type { Scene } from '../Scene';
+import type { TransitionOptions } from './Transition';
+import { Transition } from './Transition';
+import type { Vector } from '../Math/vector';
+import { vec } from '../Math/vector';
+import type { Camera } from '../Camera';
+import type { EasingFunction } from '../Util/EasingFunctions';
+import { EasingFunctions } from '../Util/EasingFunctions';
 import { CoordPlane } from '../Math/coord-plane';
 
 export interface SlideOptions {
