@@ -1,5 +1,6 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('An InputMapper', () => {
   it('exists', () => {
@@ -7,9 +8,10 @@ describe('An InputMapper', () => {
   });
 
   it('can listen to events and map to the command', () => {
-    const command = jasmine.createSpy('command');
-    const keyboard = jasmine.createSpyObj<ex.Keyboard>('keyboard', ['isHeld']);
-    keyboard.isHeld.and.returnValue(true);
+    const command = vi.fn();
+    const keyboard = {
+      isHeld: vi.fn(() => true)
+    };
     const sut = new ex.InputMapper({
       keyboard: keyboard as unknown as ex.Keyboard,
       pointers: {} as any,
@@ -29,11 +31,12 @@ describe('An InputMapper', () => {
   });
 
   it('can listen to events and not map to the command', () => {
-    const command = jasmine.createSpy('command');
-    const keyboard = jasmine.createSpyObj<ex.Keyboard>('keyboard', ['isHeld']);
-    keyboard.isHeld.and.returnValue(false);
+    const command = vi.fn();
+    const keyboard = {
+      isHeld: vi.fn(() => false)
+    };
     const sut = new ex.InputMapper({
-      keyboard: keyboard,
+      keyboard: keyboard as any,
       pointers: {} as any,
       gamepads: {} as any
     });
@@ -58,8 +61,8 @@ describe('An InputMapper', () => {
     engine.input.keyboard.triggerEvent('down', ex.Keys.Space);
 
     const sut = engine.inputMapper;
-    const keyPressedSpy = jasmine.createSpy('keyPressed');
-    const keyReleasedSpy = jasmine.createSpy('keyReleased');
+    const keyPressedSpy = vi.fn();
+    const keyReleasedSpy = vi.fn();
     sut.on(({ keyboard }) => keyboard.wasPressed(ex.Keys.Space), keyPressedSpy);
     sut.on(({ keyboard }) => keyboard.wasReleased(ex.Keys.Space), keyReleasedSpy);
 
