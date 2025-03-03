@@ -38,6 +38,7 @@ export default defineConfig({
       provider: 'playwright',
       isolate: true,
       headless: process.env.CI === 'true' || process.env.HEADLESS === 'true',
+
       // https://vitest.dev/guide/browser/playwright
       instances: [
         {

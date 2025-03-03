@@ -1,13 +1,8 @@
 import * as ex from '@excalibur';
-import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 import { TestUtils } from './util/TestUtils';
+import { describe, it, expect } from 'vitest';
 
 describe('A Canvas Graphic', () => {
-  beforeAll(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
-    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
-  });
-
   it('exists', () => {
     expect(ex.Canvas).toBeDefined();
   });
@@ -53,7 +48,7 @@ describe('A Canvas Graphic', () => {
 
     sut.draw(ctx, 0, 0);
 
-    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsCanvasSpec/draw.png');
+    await expect(canvasElement).toEqualImage('src/spec/images/GraphicsCanvasSpec/draw.png');
   });
 
   it('can cache draws', () => {
@@ -67,7 +62,7 @@ describe('A Canvas Graphic', () => {
       }
     });
 
-    spyOn(sut, 'execute').and.callThrough();
+    vi.spyOn(sut, 'execute');
 
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
@@ -93,7 +88,7 @@ describe('A Canvas Graphic', () => {
       }
     });
 
-    spyOn(sut, 'execute').and.callThrough();
+    vi.spyOn(sut, 'execute');
 
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
@@ -135,7 +130,7 @@ describe('A Canvas Graphic', () => {
 
     expect(sut.width).toBe(50);
     expect(sut.height).toBe(50);
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GraphicsCanvasSpec/centered.png');
+    await expect(engine.canvas).toEqualImage('src/spec/images/GraphicsCanvasSpec/centered.png');
     engine.dispose();
   });
 });

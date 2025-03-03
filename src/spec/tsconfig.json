@@ -29,6 +29,6 @@
       "@excalibur": ["../engine/"]
     }
   },
-  "include": ["./**/*Spec.ts", "./**/*Spec.vitest.ts", "./__setup__/*"],
+  "include": ["./**/*Spec.ts", "./**/*Spec.vitest.ts", "./__setup__/**/*.ts"],
   "files": ["_boot.ts", "../engine/files.d.ts", "../engine/globals.d.ts"]
 }
