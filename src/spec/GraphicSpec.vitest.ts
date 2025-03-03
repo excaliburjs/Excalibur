@@ -1,6 +1,5 @@
 import * as ex from '@excalibur';
-import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
-
+import { describe, beforeEach, it, expect } from 'vitest';
 class TestGraphic extends ex.Graphic {
   constructor(options?: ex.GraphicOptions) {
     super(options ?? {});
@@ -47,9 +46,6 @@ describe('A Graphic', () => {
   let canvasElement: HTMLCanvasElement;
   let ctx: ex.ExcaliburGraphicsContext;
   beforeEach(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
-    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
-
     canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
@@ -108,7 +104,7 @@ describe('A Graphic', () => {
     ctx.clear();
     const sut = new TestGraphic();
     sut.draw(ctx, 25, 25);
-    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicSpec/base.png');
+    await expect(canvasElement).toEqualImage('/src/spec/images/GraphicSpec/base.png');
   });
 
   it('has local bounds based on the width/height', () => {
@@ -121,7 +117,7 @@ describe('A Graphic', () => {
     const sut = new TestGraphic();
     sut.rotation = Math.PI / 4;
     sut.draw(ctx, 25, 25);
-    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicSpec/rotated.png');
+    await expect(canvasElement).toEqualImage('/src/spec/images/GraphicSpec/rotated.png');
   });
 
   it('can flip a graphic implementation', async () => {
@@ -130,7 +126,7 @@ describe('A Graphic', () => {
     sut.flipHorizontal = true;
     sut.flipVertical = true;
     sut.draw(ctx, 25, 25);
-    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicSpec/flipped.png');
+    await expect(canvasElement).toEqualImage('/src/spec/images/GraphicSpec/flipped.png');
   });
 
   it('can scale a graphic implementation', async () => {
@@ -138,7 +134,7 @@ describe('A Graphic', () => {
     const sut = new TestGraphic();
     sut.scale = ex.vec(2, 2);
     sut.draw(ctx, 25, 25);
-    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicSpec/scaled.png');
+    await expect(canvasElement).toEqualImage('/src/spec/images/GraphicSpec/scaled.png');
   });
 
   it('can set opacity on a graphic implementation', async () => {
@@ -146,7 +142,7 @@ describe('A Graphic', () => {
     const sut = new TestGraphic();
     sut.opacity = 0.2;
     sut.draw(ctx, 25, 25);
-    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicSpec/opacity.png');
+    await expect(canvasElement).toEqualImage('/src/spec/images/GraphicSpec/opacity.png');
   });
 
   it('can show a debug rect', async () => {
@@ -154,6 +150,6 @@ describe('A Graphic', () => {
     const sut = new TestGraphic();
     sut.showDebug = true;
     sut.draw(ctx, 25, 25);
-    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicSpec/debug.png');
+    await expect(canvasElement).toEqualImage('/src/spec/images/GraphicSpec/debug.png');
   });
 });

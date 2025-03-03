@@ -1,16 +1,13 @@
 import * as ex from '@excalibur';
 import { TransformComponent } from '@excalibur';
-import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 import { GraphicsComponent } from '../engine/Graphics';
 import { TestUtils } from './util/TestUtils';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A Graphics ECS System', () => {
   let entities: ex.Entity[];
   let engine: ex.Engine;
   beforeEach(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
-    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
-
     engine = TestUtils.engine({ width: 100, height: 100 });
     entities = [
       new ex.Entity().addComponent(new ex.TransformComponent()).addComponent(new ex.GraphicsComponent()),
@@ -96,10 +93,10 @@ describe('A Graphics ECS System', () => {
     offscreen.get(TransformComponent).pos = ex.vec(112.5, 112.5);
     offscreen.get(GraphicsComponent).use(offscreenRect);
 
-    spyOn(rect, 'draw').and.callThrough();
-    spyOn(circle, 'draw').and.callThrough();
-    spyOn(rect2, 'draw').and.callThrough();
-    spyOn(offscreenRect, 'draw').and.callThrough();
+    vi.spyOn(rect, 'draw');
+    vi.spyOn(circle, 'draw');
+    vi.spyOn(rect2, 'draw');
+    vi.spyOn(offscreenRect, 'draw');
 
     entities.push(offscreen);
     engine.graphicsContext.clear();
@@ -117,7 +114,7 @@ describe('A Graphics ECS System', () => {
     expect(offscreenRect.draw).not.toHaveBeenCalled();
 
     engine.graphicsContext.flush();
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GraphicsSystemSpec/graphics-system.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/GraphicsSystemSpec/graphics-system.png');
   });
 
   it('will interpolate body graphics when fixed update is enabled', async () => {
@@ -136,9 +133,9 @@ describe('A Graphics ECS System', () => {
 
     actor.body.__oldTransformCaptured = true;
 
-    spyOn(game.graphicsContext, 'translate');
-    spyOn(game.graphicsContext, 'rotate');
-    spyOn(game.graphicsContext, 'scale');
+    vi.spyOn(game.graphicsContext, 'translate');
+    vi.spyOn(game.graphicsContext, 'rotate');
+    vi.spyOn(game.graphicsContext, 'scale');
 
     const graphicsSystem = new ex.GraphicsSystem(game.currentScene.world);
     graphicsSystem.initialize(game.currentScene.world, game.currentScene);
@@ -174,9 +171,9 @@ describe('A Graphics ECS System', () => {
 
     actor.body.__oldTransformCaptured = true;
 
-    const translateSpy = spyOn(game.graphicsContext, 'translate');
-    spyOn(game.graphicsContext, 'rotate');
-    spyOn(game.graphicsContext, 'scale');
+    const translateSpy = vi.spyOn(game.graphicsContext, 'translate');
+    vi.spyOn(game.graphicsContext, 'rotate');
+    vi.spyOn(game.graphicsContext, 'scale');
 
     const graphicsSystem = new ex.GraphicsSystem(game.currentScene.world);
     graphicsSystem.initialize(game.currentScene.world, game.currentScene);
@@ -186,8 +183,8 @@ describe('A Graphics ECS System', () => {
     game.currentFrameLagMs = 1000 / 30 / 2; // current lag in a 30 fps frame
     graphicsSystem.update(16);
 
-    expect(translateSpy.calls.argsFor(0)).toEqual([10, 10]);
-    expect(translateSpy.calls.argsFor(1)).toEqual([45, 45]); // 45 because the parent offsets by (-10, -10)
+    expect(translateSpy.mock.calls[0]).toEqual([10, 10]);
+    expect(translateSpy.mock.calls[1]).toEqual([45, 45]); // 45 because the parent offsets by (-10, -10)
     game.dispose();
   });
 
@@ -207,9 +204,9 @@ describe('A Graphics ECS System', () => {
 
     actor.body.__oldTransformCaptured = true;
 
-    spyOn(game.graphicsContext, 'translate');
-    spyOn(game.graphicsContext, 'rotate');
-    spyOn(game.graphicsContext, 'scale');
+    vi.spyOn(game.graphicsContext, 'translate');
+    vi.spyOn(game.graphicsContext, 'rotate');
+    vi.spyOn(game.graphicsContext, 'scale');
 
     const graphicsSystem = new ex.GraphicsSystem(game.currentScene.world);
     graphicsSystem.initialize(game.currentScene.world, game.currentScene);
@@ -255,7 +252,7 @@ describe('A Graphics ECS System', () => {
     sut.update(1);
 
     engine.graphicsContext.flush();
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GraphicsSystemSpec/graphics-context-opacity.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/GraphicsSystemSpec/graphics-context-opacity.png');
   });
 
   it('can flip graphics horizontally', async () => {
@@ -268,7 +265,7 @@ describe('A Graphics ECS System', () => {
     offscreenSystem.initialize(world, engine.currentScene);
     sut.initialize(world, engine.currentScene);
 
-    const sword = new ex.ImageSource('src/spec/images/GraphicsSystemSpec/sword.png');
+    const sword = new ex.ImageSource('/src/spec/images/GraphicsSystemSpec/sword.png');
     await sword.load();
 
     const actor = new ex.Actor({
@@ -289,7 +286,7 @@ describe('A Graphics ECS System', () => {
     sut.update(1);
 
     engine.graphicsContext.flush();
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GraphicsSystemSpec/sword-flip-horizontal.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/GraphicsSystemSpec/sword-flip-horizontal.png');
   });
 
   it('can flip graphics vertically', async () => {
@@ -302,7 +299,7 @@ describe('A Graphics ECS System', () => {
     offscreenSystem.initialize(world, engine.currentScene);
     sut.initialize(world, engine.currentScene);
 
-    const sword = new ex.ImageSource('src/spec/images/GraphicsSystemSpec/sword.png');
+    const sword = new ex.ImageSource('/src/spec/images/GraphicsSystemSpec/sword.png');
     await sword.load();
 
     const actor = new ex.Actor({
@@ -323,7 +320,7 @@ describe('A Graphics ECS System', () => {
     sut.update(1);
 
     engine.graphicsContext.flush();
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GraphicsSystemSpec/sword-flip-vertical.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/GraphicsSystemSpec/sword-flip-vertical.png');
   });
 
   it('can flip graphics both horizontally and vertically', async () => {
@@ -336,7 +333,7 @@ describe('A Graphics ECS System', () => {
     offscreenSystem.initialize(world, engine.currentScene);
     sut.initialize(world, engine.currentScene);
 
-    const sword = new ex.ImageSource('src/spec/images/GraphicsSystemSpec/sword.png');
+    const sword = new ex.ImageSource('/src/spec/images/GraphicsSystemSpec/sword.png');
     await sword.load();
 
     const actor = new ex.Actor({
@@ -358,7 +355,7 @@ describe('A Graphics ECS System', () => {
     sut.update(1);
 
     engine.graphicsContext.flush();
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GraphicsSystemSpec/sword-flip-both.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/GraphicsSystemSpec/sword-flip-both.png');
   });
 
   it('can flip graphics both horizontally and vertically with an offset', async () => {
@@ -371,7 +368,7 @@ describe('A Graphics ECS System', () => {
     offscreenSystem.initialize(world, engine.currentScene);
     sut.initialize(world, engine.currentScene);
 
-    const sword = new ex.ImageSource('src/spec/images/GraphicsSystemSpec/sword.png');
+    const sword = new ex.ImageSource('/src/spec/images/GraphicsSystemSpec/sword.png');
     await sword.load();
 
     const actor = new ex.Actor({
@@ -394,7 +391,7 @@ describe('A Graphics ECS System', () => {
     sut.update(1);
 
     engine.graphicsContext.flush();
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GraphicsSystemSpec/sword-flip-both-offset.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/GraphicsSystemSpec/sword-flip-both-offset.png');
   });
 
   it('can add graphics+transform to a parent without a transform', () => {

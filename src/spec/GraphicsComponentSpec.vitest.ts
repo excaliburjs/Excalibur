@@ -1,12 +1,7 @@
 import * as ex from '@excalibur';
-import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A Graphics ECS Component', () => {
-  beforeEach(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
-    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
-  });
-
   it('exists', () => {
     expect(ex.GraphicsComponent);
   });
@@ -171,7 +166,7 @@ describe('A Graphics ECS Component', () => {
     });
 
     const logger = ex.Logger.getInstance();
-    spyOn(logger, 'warn');
+    vi.spyOn(logger, 'warn');
 
     expect(sut.current).toBeUndefined();
     sut.use('some-gfx-2');
@@ -265,7 +260,7 @@ describe('A Graphics ECS Component', () => {
     const animation = new ex.Animation({
       frames: []
     });
-    spyOn(animation, 'tick');
+    vi.spyOn(animation, 'tick');
 
     const sut = new ex.GraphicsComponent();
     sut.add(animation);

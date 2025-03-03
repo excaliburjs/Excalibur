@@ -1,12 +1,7 @@
 import * as ex from '@excalibur';
-import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A Graphics Group', () => {
-  beforeEach(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
-    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
-  });
-
   it('exists', () => {
     expect(ex.GraphicsGroup).toBeDefined();
   });
@@ -44,7 +39,7 @@ describe('A Graphics Group', () => {
     ctx.clear();
     group.draw(ctx, 25, 25);
 
-    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsGroupSpec/graphics-group.png');
+    await expect(canvasElement).toEqualImage('/src/spec/images/GraphicsGroupSpec/graphics-group.png');
   });
 
   it('can be created and drawn without anchor', async () => {
@@ -81,7 +76,7 @@ describe('A Graphics Group', () => {
     ctx.clear();
     group.draw(ctx, 100, 100);
 
-    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsGroupSpec/graphics-group-without-anchor.png');
+    await expect(canvasElement).toEqualImage('/src/spec/images/GraphicsGroupSpec/graphics-group-without-anchor.png');
   });
 
   it('can be cloned', () => {
@@ -100,9 +95,7 @@ describe('A Graphics Group', () => {
     const animation = new ex.Animation({
       frames: []
     });
-    spyOn(animation, 'tick').and.callFake((elapsed, idempot) => {
-      // fake
-    });
+    vi.spyOn(animation, 'tick').mockImplementation(() => void 0);
 
     const group = new ex.GraphicsGroup({
       members: [{ offset: ex.vec(0, 0), graphic: animation }]
@@ -116,9 +109,7 @@ describe('A Graphics Group', () => {
     const animation = new ex.Animation({
       frames: []
     });
-    spyOn(animation, 'reset').and.callFake(() => {
-      // fake
-    });
+    vi.spyOn(animation, 'reset').mockImplementation(() => void 0);
 
     const group = new ex.GraphicsGroup({
       members: [{ offset: ex.vec(0, 0), graphic: animation }]
