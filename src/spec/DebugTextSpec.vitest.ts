@@ -1,11 +1,7 @@
 import * as ex from '@excalibur';
-import { ExcaliburAsyncMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('DebugText', () => {
-  beforeAll(() => {
-    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
-  });
-
   it('exists', () => {
     expect(ex.DebugText);
   });
@@ -26,7 +22,7 @@ describe('DebugText', () => {
 
     ctx.flush();
 
-    await expectAsync(canvasElement).toEqualImage('src/spec/images/DebugTextSpec/draw-canvas2d.png');
+    await expect(canvasElement).toEqualImage('/src/spec/images/DebugTextSpec/draw-canvas2d.png');
   });
 
   it('can write text (WebGL)', async () => {
@@ -45,6 +41,6 @@ describe('DebugText', () => {
 
     ctx.flush();
 
-    await expectAsync(canvasElement).toEqualImage('src/spec/images/DebugTextSpec/draw-webgl.png', 0.94);
+    await expect(canvasElement).toEqualImage('/src/spec/images/DebugTextSpec/draw-webgl.png', 0.94);
   });
 });
