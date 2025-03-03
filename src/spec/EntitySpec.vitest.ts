@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-
+import { describe, beforeEach, it, expect } from 'vitest';
 class FakeComponentA extends ex.Component {}
 class FakeComponentB extends ex.Component {}
 class FakeComponentC extends ex.Component {}
@@ -23,7 +23,7 @@ describe('An entity', () => {
     const original = new FakeComponentA();
     const e = new ex.Entity([original]);
 
-    spyOn(e, 'removeComponent');
+    vi.spyOn(e, 'removeComponent');
     const newComponent = new FakeComponentA();
     e.addComponent(newComponent, true);
     expect(e.removeComponent).toHaveBeenCalledWith(FakeComponentA, true);
@@ -101,7 +101,7 @@ describe('An entity', () => {
 
     expect(entity.types).toEqual([FakeComponentA]);
     expect(entity.tags).toEqual(new Set(['offscreen']));
-    expect(entity.hasTag('offscreen')).toBeTrue();
+    expect(entity.hasTag('offscreen')).toBe(true);
   });
 
   it('can add and remove tags', () => {
@@ -118,34 +118,36 @@ describe('An entity', () => {
     expect(entity.tags).toEqual(new Set(['someTag1']));
   });
 
-  it('can be observed for added changes', (done) => {
-    const entity = new ex.Entity();
-    const typeA = new FakeComponentA();
-    entity.componentAdded$.register({
-      notify: (change) => {
-        expect(change.owner).toBe(entity);
-        expect(change).toBe(typeA);
-        done();
-      }
-    });
-    entity.addComponent(typeA);
-  });
+  it('can be observed for added changes', () =>
+    new Promise<void>((done) => {
+      const entity = new ex.Entity();
+      const typeA = new FakeComponentA();
+      entity.componentAdded$.register({
+        notify: (change) => {
+          expect(change.owner).toBe(entity);
+          expect(change).toBe(typeA);
+          done();
+        }
+      });
+      entity.addComponent(typeA);
+    }));
 
-  it('can be observed for removed changes', (done) => {
-    const entity = new ex.Entity();
-    const typeA = new FakeComponentA();
+  it('can be observed for removed changes', () =>
+    new Promise<void>((done) => {
+      const entity = new ex.Entity();
+      const typeA = new FakeComponentA();
 
-    entity.addComponent(typeA);
-    entity.componentRemoved$.register({
-      notify: (change) => {
-        expect(change.owner).toBe(entity);
-        expect(change).toBe(typeA);
-        done();
-      }
-    });
-    entity.removeComponent(FakeComponentA);
-    entity.processComponentRemoval();
-  });
+      entity.addComponent(typeA);
+      entity.componentRemoved$.register({
+        notify: (change) => {
+          expect(change.owner).toBe(entity);
+          expect(change).toBe(typeA);
+          done();
+        }
+      });
+      entity.removeComponent(FakeComponentA);
+      entity.processComponentRemoval();
+    }));
 
   it('can be cloned', () => {
     const entity = new ex.Entity();
@@ -191,59 +193,65 @@ describe('An entity', () => {
     expect(entity.has(FakeComponentC)).toBe(false);
   });
 
-  it('has an overridable initialize lifecycle handler', (done) => {
-    const entity = new ex.Entity();
-    entity.onInitialize = () => {
-      done();
-    };
+  it('has an overridable initialize lifecycle handler', () =>
+    new Promise<void>((done) => {
+      const entity = new ex.Entity();
+      entity.onInitialize = () => {
+        done();
+      };
 
-    entity._initialize(null);
-  });
+      entity._initialize(null);
+    }));
 
-  it('has an event initialize handler', (done) => {
-    const entity = new ex.Entity();
-    entity.on('initialize', () => {
-      done();
-    });
+  it('has an event initialize handler', () =>
+    new Promise<void>((done) => {
+      const entity = new ex.Entity();
+      entity.on('initialize', () => {
+        done();
+      });
 
-    entity._initialize(null);
-  });
+      entity._initialize(null);
+    }));
 
-  it('has an overridable preupdate lifecycle handler', (done) => {
-    const entity = new ex.Entity();
-    entity.onPreUpdate = () => {
-      done();
-    };
+  it('has an overridable preupdate lifecycle handler', () =>
+    new Promise<void>((done) => {
+      const entity = new ex.Entity();
+      entity.onPreUpdate = () => {
+        done();
+      };
 
-    entity._preupdate(null, 1);
-  });
+      entity._preupdate(null, 1);
+    }));
 
-  it('has an event preupdate handler', (done) => {
-    const entity = new ex.Entity();
-    entity.on('preupdate', () => {
-      done();
-    });
+  it('has an event preupdate handler', () =>
+    new Promise<void>((done) => {
+      const entity = new ex.Entity();
+      entity.on('preupdate', () => {
+        done();
+      });
 
-    entity._preupdate(null, 1);
-  });
+      entity._preupdate(null, 1);
+    }));
 
-  it('has an overridable postupdate lifecycle handler', (done) => {
-    const entity = new ex.Entity();
-    entity.onPostUpdate = () => {
-      done();
-    };
+  it('has an overridable postupdate lifecycle handler', () =>
+    new Promise<void>((done) => {
+      const entity = new ex.Entity();
+      entity.onPostUpdate = () => {
+        done();
+      };
 
-    entity._postupdate(null, 1);
-  });
+      entity._postupdate(null, 1);
+    }));
 
-  it('has an event postupdate handler', (done) => {
-    const entity = new ex.Entity();
-    entity.on('postupdate', () => {
-      done();
-    });
+  it('has an event postupdate handler', () =>
+    new Promise<void>((done) => {
+      const entity = new ex.Entity();
+      entity.on('postupdate', () => {
+        done();
+      });
 
-    entity._postupdate(null, 1);
-  });
+      entity._postupdate(null, 1);
+    }));
 
   it('can be parented', () => {
     const parent = new ex.Entity();
@@ -306,7 +314,7 @@ describe('An entity', () => {
 
   it('can observe components added', () => {
     const e = new ex.Entity();
-    const addedSpy = jasmine.createSpy('addedSpy');
+    const addedSpy = vi.fn();
     e.componentAdded$.register({
       notify: addedSpy
     });
@@ -317,7 +325,7 @@ describe('An entity', () => {
 
   it('can observe components removed', () => {
     const e = new ex.Entity();
-    const removedSpy = jasmine.createSpy('removedSpy');
+    const removedSpy = vi.fn();
     e.componentRemoved$.register({
       notify: removedSpy
     });
