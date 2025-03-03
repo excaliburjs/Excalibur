@@ -1,4 +1,5 @@
 import * as ex from '@excalibur';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 class Dep extends ex.Component {}
 
@@ -9,8 +10,8 @@ class ComponentImplementation extends ex.Component {
     super();
   }
 
-  onAdd = jasmine.createSpy();
-  onRemove = jasmine.createSpy();
+  onAdd = vi.fn();
+  onRemove = vi.fn();
 }
 
 describe('A Component', () => {
