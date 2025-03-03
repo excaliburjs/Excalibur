@@ -1,3 +1,5 @@
+/// <reference types="@vitest/browser/providers/playwright" />
+
 import type { Plugin } from 'vitest/config';
 import { defineConfig } from 'vitest/config';
 import * as path from 'path';
