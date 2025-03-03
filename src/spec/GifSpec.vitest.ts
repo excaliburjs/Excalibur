@@ -1,19 +1,17 @@
-import { ExcaliburMatchers, ensureImagesLoaded, ExcaliburAsyncMatchers } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A Gif', () => {
   let engine: ex.Engine;
   let gif: ex.Gif;
   beforeEach(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
-    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
     engine = TestUtils.engine({
       width: 100,
       height: 100
     });
 
-    gif = new ex.Gif('src/spec/images/GifSpec/sword.gif');
+    gif = new ex.Gif('/src/spec/images/GifSpec/sword.gif');
   });
   afterEach(() => {
     engine.stop();
@@ -21,16 +19,17 @@ describe('A Gif', () => {
     engine = null;
   });
 
-  it('should parse gif files correctly', (done) => {
-    gif.load().then(() => {
-      expect(gif).not.toBeNull();
-      expect(gif.readCheckBytes).toEqual([11, 3, 4, 11, 4]);
-      done();
-    });
-  });
+  it('should parse gif files correctly', () =>
+    new Promise<void>((done) => {
+      gif.load().then(() => {
+        expect(gif).not.toBeNull();
+        expect(gif.readCheckBytes).toEqual([11, 3, 4, 11, 4]);
+        done();
+      });
+    }));
 
   it('should parse gifs that have lct & anim params', async () => {
-    const sut = new ex.Gif('src/spec/images/GifSpec/loading-screen.gif');
+    const sut = new ex.Gif('/src/spec/images/GifSpec/loading-screen.gif');
     await sut.load();
 
     const sprite = sut.toSprite(20);
@@ -39,11 +38,11 @@ describe('A Gif', () => {
     sprite.draw(engine.graphicsContext, 0, 0);
     engine.graphicsContext.flush();
 
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GifSpec/loading-frame-20.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/GifSpec/loading-frame-20.png');
   });
 
   it('should parse gifs that have animations with sub frames', async () => {
-    const sut = new ex.Gif('src/spec/images/GifSpec/stoplight.gif');
+    const sut = new ex.Gif('/src/spec/images/GifSpec/stoplight.gif');
     await sut.load();
     expect(sut.isLoaded()).toBe(true);
 
@@ -51,19 +50,19 @@ describe('A Gif', () => {
     sprite2.draw(engine.graphicsContext, 0, 0);
     engine.graphicsContext.flush();
 
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GifSpec/stoplight-frame-3.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/GifSpec/stoplight-frame-3.png');
 
     const sprite1 = sut.toSprite(1);
     sprite1.draw(engine.graphicsContext, 0, 0);
     engine.graphicsContext.flush();
 
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GifSpec/stoplight-frame-2.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/GifSpec/stoplight-frame-2.png');
 
     const sprite0 = sut.toSprite(0);
     sprite0.draw(engine.graphicsContext, 0, 0);
     engine.graphicsContext.flush();
 
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GifSpec/stoplight-frame-1.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/GifSpec/stoplight-frame-1.png');
   });
 
   it('should load each frame', async () => {
@@ -80,7 +79,7 @@ describe('A Gif', () => {
     sprite.draw(engine.graphicsContext, 0, 0);
     engine.graphicsContext.flush();
 
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GifSpec/frame1.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/GifSpec/frame1.png');
     engine.graphicsContext.backgroundColor = ex.Color.Transparent;
     engine.graphicsContext.clear();
 
@@ -89,7 +88,7 @@ describe('A Gif', () => {
     sprite.draw(engine.graphicsContext, 0, 0);
     engine.graphicsContext.flush();
 
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GifSpec/frame2.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/GifSpec/frame2.png');
   });
 
   it('should be read as a SpriteSheet', async () => {
@@ -100,7 +99,7 @@ describe('A Gif', () => {
     sprite.draw(engine.graphicsContext, 0, 0);
     engine.graphicsContext.flush();
 
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GifSpec/frame1.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/GifSpec/frame1.png');
   });
 
   it('should be read as an Animation', async () => {
@@ -115,6 +114,6 @@ describe('A Gif', () => {
     frame2.graphic.draw(engine.graphicsContext, 0, 0);
     engine.graphicsContext.flush();
 
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GifSpec/frame2.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/GifSpec/frame2.png');
   });
 });
