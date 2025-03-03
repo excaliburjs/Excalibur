@@ -1,4 +1,5 @@
 import * as ex from '@excalibur';
+import { it, describe, beforeEach, afterEach, expect } from 'vitest';
 
 describe('A webaudio instance', () => {
   let webaudio: ex.WebAudioInstance;
@@ -13,11 +14,12 @@ describe('A webaudio instance', () => {
   });
 
   beforeEach(() => {
-    ex.AudioContextFactory.create = <any>jasmine.createSpy('create');
-    mockGainNode = jasmine.createSpyObj('GainNode', ['connect']);
-
-    mockGainNode.gain = {
-      setTargetAtTime: jasmine.createSpy('setTargetAtTime')
+    vi.spyOn(ex.AudioContextFactory, 'create');
+    mockGainNode = {
+      connect: vi.fn(),
+      gain: {
+        setTargetAtTime: vi.fn()
+      }
     };
 
     mockBufferSource = {
@@ -41,13 +43,11 @@ describe('A webaudio instance', () => {
 
     mockAudioContext = {
       currentTime: 0,
-      createGain: jasmine.createSpy('createGain'),
-      createBufferSource: jasmine.createSpy('createBufferSource')
+      createGain: vi.fn(() => mockGainNode),
+      createBufferSource: vi.fn(() => mockBufferSource)
     };
-    mockAudioContext.createGain.and.returnValue(mockGainNode);
-    mockAudioContext.createBufferSource.and.returnValue(mockBufferSource);
 
-    (<any>ex.AudioContextFactory.create).and.returnValue(mockAudioContext);
+    ex.AudioContextFactory.create = vi.fn(() => mockAudioContext);
 
     webaudio = new ex.WebAudioInstance(RealAudioContext.createBuffer(1, 1, 22050));
   });

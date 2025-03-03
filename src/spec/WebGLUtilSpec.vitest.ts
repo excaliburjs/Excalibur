@@ -1,4 +1,5 @@
 import * as ex from '@excalibur';
+import { it, describe, beforeEach, afterEach, expect } from 'vitest';
 
 describe('WebGL Util', () => {
   it('can return the size of a gl type in bytes', () => {
