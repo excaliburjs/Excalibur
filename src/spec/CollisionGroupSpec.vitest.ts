@@ -1,3 +1,4 @@
+import { describe, beforeEach, it, expect } from 'vitest';
 import * as ex from '@excalibur';
 
 describe('A Collision Group', () => {
@@ -15,9 +16,9 @@ describe('A Collision Group', () => {
   });
 
   it('should not collide with itself', () => {
-    expect(groupA.canCollide(groupA)).toBe(false, 'Group groupA should not collide with itself');
-    expect(groupB.canCollide(groupB)).toBe(false, 'Group groupB should not collide with itself');
-    expect(groupC.canCollide(groupC)).toBe(false, 'Group groupC should not collide with itself');
+    expect(groupA.canCollide(groupA), 'Group groupA should not collide with itself').toBe(false);
+    expect(groupB.canCollide(groupB), 'Group groupB should not collide with itself').toBe(false);
+    expect(groupC.canCollide(groupC), 'Group groupC should not collide with itself').toBe(false);
   });
 
   it('should collide with other groups', () => {
@@ -61,10 +62,10 @@ describe('A Collision Group', () => {
   });
 
   it('should collide with the All collision group', () => {
-    expect(ex.CollisionGroup.All.canCollide(groupA)).toBe(true, 'All should collide with groupA');
-    expect(ex.CollisionGroup.All.canCollide(groupB)).toBe(true, 'All should collide with groupB');
-    expect(ex.CollisionGroup.All.canCollide(groupC)).toBe(true, 'All should collide with groupC');
-    expect(ex.CollisionGroup.All.canCollide(ex.CollisionGroup.All)).toBe(true, 'All collision group should collide with itself');
+    expect(ex.CollisionGroup.All.canCollide(groupA), 'All should collide with groupA').toBe(true);
+    expect(ex.CollisionGroup.All.canCollide(groupB), 'All should collide with groupB').toBe(true);
+    expect(ex.CollisionGroup.All.canCollide(groupC), 'All should collide with groupC').toBe(true);
+    expect(ex.CollisionGroup.All.canCollide(ex.CollisionGroup.All), 'All collision group should collide with itself').toBe(true);
   });
 
   it('should be accessible by name', () => {
