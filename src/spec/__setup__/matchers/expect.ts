@@ -128,13 +128,13 @@ const compareImageData = (actualData: ImageData, expectedData: ImageData, tolera
 };
 
 expect.extend({
-  // toEqualImage: (actual: ImageData, expected: ImageData, tolerance: number = 0.995) => {
-  //   return compareImageData(actual, expected, tolerance);
-  // },
   toEqualImage: async (actual: Visual, expected: Visual, tolerance: number = 0.995) => {
+    if (actual instanceof ImageData && expected instanceof ImageData) {
+      return compareImageData(actual, expected, tolerance);
+    }
+
     const actualData = await flushSourceToImageData(actual, img1Context);
     const expectedData = await flushSourceToImageData(expected, img2Context);
-    console.log(3);
     return compareImageData(actualData, expectedData, tolerance);
   },
 
@@ -171,6 +171,11 @@ expect.extend({
 });
 
 interface CustomMatchers<R = unknown> {
+  /**
+   * Compare two images for pixel equality
+   * @param expected - The expected image to compare against
+   * @param tolerance - The difference tolerance level. Default is 0.995
+   */
   toEqualImage(expected: Visual, tolerance?: number): Promise<R>;
   toBeVector(expected: ex.Vector, delta?: number): R;
   toHaveValues(expected: ex.ActorArgs): R;
