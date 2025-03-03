@@ -1,12 +1,7 @@
 import * as ex from '@excalibur';
-import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A Circle Graphic', () => {
-  beforeEach(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
-    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
-  });
-
   it('exists', () => {
     expect(ex.Circle).toBeDefined();
   });
@@ -53,7 +48,7 @@ describe('A Circle Graphic', () => {
     ctx.clear();
     sut.draw(ctx, 50, 50);
 
-    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsCircleSpec/circle.png');
+    await expect(canvasElement).toEqualImage('src/spec/images/GraphicsCircleSpec/circle.png');
   });
 
   it('can set a lineWidth', async () => {
@@ -72,7 +67,7 @@ describe('A Circle Graphic', () => {
     ctx.clear();
     sut.draw(ctx, 0, 0);
 
-    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsCircleSpec/line-width.png');
+    await expect(canvasElement).toEqualImage('src/spec/images/GraphicsCircleSpec/line-width.png');
   });
 
   it('can be cloned', () => {

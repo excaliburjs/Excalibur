@@ -1,4 +1,5 @@
 import * as ex from '@excalibur';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('Clocks', () => {
   describe('A TestClock', () => {
@@ -7,7 +8,7 @@ describe('Clocks', () => {
     });
 
     it('can manually tick', () => {
-      const tickSpy = jasmine.createSpy('tick');
+      const tickSpy = vi.fn();
       const testClock = new ex.TestClock({
         tick: tickSpy,
         defaultUpdateMs: 1000
@@ -45,7 +46,7 @@ describe('Clocks', () => {
 
     it('will log a warning if not started', () => {
       const logger = ex.Logger.getInstance();
-      spyOn(logger, 'warn');
+      vi.spyOn(logger, 'warn');
 
       const testClock = new ex.TestClock({
         tick: () => {
@@ -59,21 +60,22 @@ describe('Clocks', () => {
       expect(logger.warn).toHaveBeenCalledWith('The clock is not running, no step will be performed');
     });
 
-    it('works with delay()', (done) => {
-      const testClock = new ex.TestClock({
-        tick: () => {
-          /* nothing */
-        },
-        defaultUpdateMs: 1000
-      });
-      testClock.start();
-      ex.Util.delay(1000, testClock).then(() => {
-        done();
-      });
+    it('works with delay()', () =>
+      new Promise<void>((done) => {
+        const testClock = new ex.TestClock({
+          tick: () => {
+            /* nothing */
+          },
+          defaultUpdateMs: 1000
+        });
+        testClock.start();
+        ex.Util.delay(1000, testClock).then(() => {
+          done();
+        });
 
-      testClock.step(500);
-      testClock.step(500);
-    });
+        testClock.step(500);
+        testClock.step(500);
+      }));
 
     it('can schedule a callbacks to fire', async () => {
       const testClock = new ex.TestClock({
@@ -84,8 +86,8 @@ describe('Clocks', () => {
       });
       testClock.start();
 
-      const scheduledCb = jasmine.createSpy('scheduled');
-      const scheduledCb2 = jasmine.createSpy('scheduled2');
+      const scheduledCb = vi.fn();
+      const scheduledCb2 = vi.fn();
 
       testClock.schedule(scheduledCb, 1000);
       testClock.schedule(scheduledCb2, 1500);
@@ -106,7 +108,7 @@ describe('Clocks', () => {
     });
 
     it('can limit fps', () => {
-      const tickSpy = jasmine.createSpy('tick');
+      const tickSpy = vi.fn();
       const clock = new ex.TestClock({
         tick: tickSpy,
         maxFps: 15,
@@ -129,7 +131,7 @@ describe('Clocks', () => {
     });
 
     it('can tick', () => {
-      const tickSpy = jasmine.createSpy('tick');
+      const tickSpy = vi.fn();
       const clock = new ex.StandardClock({
         tick: tickSpy
       });
@@ -145,14 +147,14 @@ describe('Clocks', () => {
     });
 
     it('can handle exceptions and stop', () => {
-      const errorSpy = jasmine.createSpy('error');
+      const errorSpy = vi.fn();
       const clock = new ex.StandardClock({
         tick: () => {
           throw new Error('some error');
         },
         onFatalException: errorSpy
       });
-      spyOn(clock, 'stop');
+      vi.spyOn(clock, 'stop');
 
       clock.start();
 
