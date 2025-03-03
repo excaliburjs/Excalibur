@@ -1,4 +1,5 @@
 import * as ex from '@excalibur';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('An Easing Function', () => {
   it('can interpolate linearly', () => {

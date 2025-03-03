@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 import { getDefaultPhysicsConfig } from '../engine/Collision/PhysicsConfig';
-import { TestUtils } from './util/TestUtils';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A DynamicTree Broadphase', () => {
   let actorA: ex.Actor;
