@@ -2,6 +2,7 @@ import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
 import type { TestClock } from '@excalibur';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('The engine', () => {
   let engine: ex.Engine;
@@ -40,25 +41,25 @@ describe('The engine', () => {
 
   describe('after frame is ended', () => {
     it('should collect frame elapsedMs', () => {
-      expect(stats.elapsedMs).withContext('Frame stats elapsedMs should be ~16ms').toBeCloseTo(16.6, 0);
+      expect(stats.elapsedMs, 'Frame stats elapsedMs should be ~16ms').toBeCloseTo(16.6, 0);
     });
 
     it('should collect frame fps', () => {
-      expect(stats.fps).withContext('Frame stats fps should be ~60fps').toBeCloseTo(60);
+      expect(stats.fps, 'Frame stats fps should be ~60fps').toBeCloseTo(60);
     });
 
     it('should collect frame actor stats', () => {
-      expect(stats.actors.total).toBe(1, 'Frame actor total is wrong');
-      expect(stats.actors.alive).toBe(1, 'Frame actor alive is wrong');
-      expect(stats.actors.killed).toBe(0, 'Frame actor killed is wrong');
-      expect(stats.actors.remaining).toBe(1, 'Frame actor remaining is wrong');
-      expect(stats.actors.ui).toBe(0, 'Frame actor ui count is wrong');
+      expect(stats.actors.total, 'Frame actor total is wrong').toBe(1);
+      expect(stats.actors.alive, 'Frame actor alive is wrong').toBe(1);
+      expect(stats.actors.killed, 'Frame actor killed is wrong').toBe(0);
+      expect(stats.actors.remaining, 'Frame actor remaining is wrong').toBe(1);
+      expect(stats.actors.ui, 'Frame actor ui count is wrong').toBe(0);
     });
 
     it('should collect frame duration stats', () => {
-      expect(stats.duration.total).toBeCloseTo(0, 1, 'Frame duration total is wrong');
-      expect(stats.duration.draw).toBeCloseTo(0, 1, 'Frame duration draw is wrong');
-      expect(stats.duration.update).toBeCloseTo(0, 1, 'Frame duration update is wrong');
+      expect(stats.duration.total, 'Frame duration total is wrong').toBeCloseTo(0, 1);
+      expect(stats.duration.draw, 'Frame duration draw is wrong').toBeCloseTo(0, 1);
+      expect(stats.duration.update, 'Frame duration update is wrong').toBeCloseTo(0, 1);
     });
   });
 });

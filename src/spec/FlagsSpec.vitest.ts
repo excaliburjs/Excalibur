@@ -1,4 +1,5 @@
 import * as ex from '@excalibur';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('Feature Flags', () => {
   beforeEach(() => {
@@ -24,24 +25,24 @@ describe('Feature Flags', () => {
   it('should let you set flags', () => {
     ex.Flags.enable('some-flag');
 
-    expect(ex.Flags.isEnabled('some-flag')).toBeTrue();
+    expect(ex.Flags.isEnabled('some-flag')).toBe(true);
   });
 
   it('should let you disable flags', () => {
     ex.Flags.disable('some-other-flag');
 
-    expect(ex.Flags.isEnabled('some-other-flag')).toBeFalse();
+    expect(ex.Flags.isEnabled('some-other-flag')).toBe(false);
   });
 
   it('should let you toggle flags', () => {
     ex.Flags.enable('some-cool-flag');
-    expect(ex.Flags.isEnabled('some-cool-flag')).toBeTrue();
+    expect(ex.Flags.isEnabled('some-cool-flag')).toBe(true);
     ex.Flags.disable('some-cool-flag');
-    expect(ex.Flags.isEnabled('some-cool-flag')).toBeFalse();
+    expect(ex.Flags.isEnabled('some-cool-flag')).toBe(false);
   });
 
   it('should return false if the flag is unknown', () => {
-    expect(ex.Flags.isEnabled('some-random-flag')).toBeFalse();
+    expect(ex.Flags.isEnabled('some-random-flag')).toBe(false);
   });
 
   it('should not allow flags to be enabled after being frozen', () => {

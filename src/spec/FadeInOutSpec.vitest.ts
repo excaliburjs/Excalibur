@@ -1,11 +1,8 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
-import { ExcaliburAsyncMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A FadeInOut transition', () => {
-  beforeAll(() => {
-    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
-  });
   it('exists', () => {
     expect(ex.CrossFade).toBeDefined();
   });
@@ -30,9 +27,7 @@ describe('A FadeInOut transition', () => {
       })
     );
 
-    const onDeactivateSpy = jasmine.createSpy('onDeactivate').and.callFake(async () => {
-      await Promise.resolve();
-    });
+    const onDeactivateSpy = vi.fn(() => Promise.resolve());
 
     engine.director.getSceneInstance('root').onDeactivate = onDeactivateSpy;
 
@@ -53,7 +48,7 @@ describe('A FadeInOut transition', () => {
     clock.step(500);
     await Promise.resolve();
     expect(onDeactivateSpy).toHaveBeenCalledTimes(1);
-    await expectAsync(engine.canvas).toEqualImage('/src/spec/images/FadeInOutSpec/fadein.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/FadeInOutSpec/fadein.png');
     engine.dispose();
   });
 
@@ -86,7 +81,7 @@ describe('A FadeInOut transition', () => {
     await TestUtils.flushMicrotasks(clock, 3);
     clock.step(900);
     await Promise.resolve();
-    await expectAsync(engine.canvas).toEqualImage('/src/spec/images/FadeInOutSpec/fadeout.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/FadeInOutSpec/fadeout.png');
     engine.dispose();
   });
 });

@@ -1,4 +1,5 @@
 import * as ex from '@excalibur';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A FontSource', () => {
   it('exists', () => {
@@ -6,12 +7,12 @@ describe('A FontSource', () => {
   });
 
   it('can be constructed', () => {
-    const fontSource = new ex.FontSource('src/spec/fonts/Gorgeous Pixel.ttf', 'Gorgeous Pixel');
+    const fontSource = new ex.FontSource('/src/spec/fonts/Gorgeous Pixel.ttf', 'Gorgeous Pixel');
     expect(fontSource).toBeDefined();
   });
 
   it('can load fonts', async () => {
-    const fontSource = new ex.FontSource('src/spec/fonts/Gorgeous Pixel.ttf', 'Gorgeous Pixel');
+    const fontSource = new ex.FontSource('/src/spec/fonts/Gorgeous Pixel.ttf', 'Gorgeous Pixel');
 
     await fontSource.load();
 
@@ -19,15 +20,15 @@ describe('A FontSource', () => {
   });
 
   it('adds a FontFace to document.fonts', async () => {
-    const fontSource = new ex.FontSource('src/spec/fonts/Gorgeous Pixel.ttf', 'Gorgeous Pixel');
+    const fontSource = new ex.FontSource('/src/spec/fonts/Gorgeous Pixel.ttf', 'Gorgeous Pixel');
 
     await fontSource.load();
 
-    expect(document.fonts.has(fontSource.data)).toBeTrue();
+    expect(document.fonts.has(fontSource.data)).toBe(true);
   });
 
   it('can convert to a Font', async () => {
-    const fontSource = new ex.FontSource('src/spec/fonts/Gorgeous Pixel.ttf', 'Gorgeous Pixel');
+    const fontSource = new ex.FontSource('/src/spec/fonts/Gorgeous Pixel.ttf', 'Gorgeous Pixel');
 
     await fontSource.load();
     const font = fontSource.toFont();
@@ -36,7 +37,7 @@ describe('A FontSource', () => {
   });
 
   it('will use options from FontSource', async () => {
-    const fontSource = new ex.FontSource('src/spec/fonts/Gorgeous Pixel.ttf', 'Gorgeous Pixel', {
+    const fontSource = new ex.FontSource('/src/spec/fonts/Gorgeous Pixel.ttf', 'Gorgeous Pixel', {
       size: 50,
       color: ex.Color.Red
     });
@@ -49,7 +50,7 @@ describe('A FontSource', () => {
   });
 
   it('will override options when converting to a Font', async () => {
-    const fontSource = new ex.FontSource('src/spec/fonts/Gorgeous Pixel.ttf', 'Gorgeous Pixel', {
+    const fontSource = new ex.FontSource('/src/spec/fonts/Gorgeous Pixel.ttf', 'Gorgeous Pixel', {
       size: 50,
       opacity: 0.5
     });
@@ -66,7 +67,7 @@ describe('A FontSource', () => {
   });
 
   it('will resolve the font if already loaded', async () => {
-    const fontSource = new ex.FontSource('src/spec/fonts/Gorgeous Pixel.ttf', 'Gorgeous Pixel');
+    const fontSource = new ex.FontSource('/src/spec/fonts/Gorgeous Pixel.ttf', 'Gorgeous Pixel');
 
     const font = await fontSource.load();
 
@@ -77,8 +78,8 @@ describe('A FontSource', () => {
   });
 
   it("will return error if font doesn't exist", async () => {
-    const fontSource = new ex.FontSource('42.ttf', '42');
+    const fontSource = new ex.FontSource('/42.ttf', '42');
 
-    await expectAsync(fontSource.load()).toBeRejectedWith("Error loading FontSource from path '42.ttf' with error [Not Found]");
+    await expect(fontSource.load()).rejects.toThrowError("Error loading FontSource from path '/42.ttf' with error [Not Found]");
   });
 });
