@@ -1,13 +1,8 @@
 import * as ex from '@excalibur';
-import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 import { ExcaliburGraphicsContext2DCanvas } from '../engine/Graphics';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A Graphics Animation', () => {
-  beforeEach(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
-    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
-  });
-
   it('exists', () => {
     expect(ex.Animation).toBeDefined();
   });
@@ -199,12 +194,12 @@ describe('A Graphics Animation', () => {
       }
     });
     const logger = ex.Logger.getInstance();
-    spyOn(logger, 'warn');
+    vi.spyOn(logger, 'warn');
     const invalidIndices = [-1, -2, 101, 102];
     const anim = ex.Animation.fromSpriteSheet(ss, invalidIndices, 100, ex.AnimationStrategy.Freeze);
 
     expect(logger.warn).toHaveBeenCalledTimes(1);
-    expect(logger.warn).toHaveBeenCalledOnceWith(
+    expect(logger.warn).toHaveBeenCalledExactlyOnceWith(
       `Indices into SpriteSheet were provided that don\'t exist: ${invalidIndices.join(',')} no frame will be shown`
     );
     expect(anim.strategy).toBe(ex.AnimationStrategy.Freeze);
@@ -411,9 +406,9 @@ describe('A Graphics Animation', () => {
       ]
     });
 
-    const onFrame = jasmine.createSpy('onFrame');
-    const onEnd = jasmine.createSpy('onEnd');
-    const onLoop = jasmine.createSpy('onLoop');
+    const onFrame = vi.fn();
+    const onEnd = vi.fn();
+    const onLoop = vi.fn();
     anim.events.on('frame', onFrame);
     anim.events.on('end', onEnd);
     looper.events.on('loop', onLoop);
@@ -451,7 +446,7 @@ describe('A Graphics Animation', () => {
       ]
     });
 
-    const onFrame = jasmine.createSpy('onFrame');
+    const onFrame = vi.fn();
     anim.events.on('frame', onFrame);
     anim.tick(100, 0);
     anim.pause();
@@ -506,17 +501,17 @@ describe('A Graphics Animation', () => {
 
     ctx.clear();
     anim.draw(ctx, 0, 0);
-    await expectAsync(output).toEqualImage('src/spec/images/GraphicsAnimationSpec/frame-1.png');
+    await expect(output).toEqualImage('src/spec/images/GraphicsAnimationSpec/frame-1.png');
 
     ctx.clear();
     anim.tick(100, 0);
     anim.draw(ctx, 0, 0);
-    await expectAsync(output).toEqualImage('src/spec/images/GraphicsAnimationSpec/frame-2.png');
+    await expect(output).toEqualImage('src/spec/images/GraphicsAnimationSpec/frame-2.png');
 
     ctx.clear();
     anim.tick(100, 1);
     anim.draw(ctx, 0, 0);
-    await expectAsync(output).toEqualImage('src/spec/images/GraphicsAnimationSpec/frame-3.png');
+    await expect(output).toEqualImage('src/spec/images/GraphicsAnimationSpec/frame-3.png');
   });
 
   it('calculate automatically the frame duration based on the animation total duration', () => {
