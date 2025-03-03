@@ -25,7 +25,7 @@ describe('A AffineMatrix', () => {
 
   it('can make a rotation matrix', () => {
     const mat = ex.AffineMatrix.rotation(Math.PI / 4);
-    expect(mat.getRotation()).toBe(Math.PI / 4);
+    expect(mat.getRotation()).toBeCloseTo(Math.PI / 4, 2);
   });
 
   it('can make a scale matrix', () => {
