@@ -382,7 +382,7 @@ describe('Collision Shape', () => {
 
       ctx.flush();
 
-      await expect(canvasElement).toEqualImage('src/spec/images/CollisionShapeSpec/circle-debug.png');
+      await expect(canvasElement).toEqualImage('/src/spec/images/CollisionShapeSpec/circle-debug.png');
     });
 
     it('can be drawn with actor when in constructor', async () => {
@@ -395,7 +395,7 @@ describe('Collision Shape', () => {
       scene.draw(engine.graphicsContext, 100);
       engine.graphicsContext.flush();
 
-      await expect(engine.canvas).toEqualImage('src/spec/images/CollisionShapeSpec/circle.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/images/CollisionShapeSpec/circle.png');
     });
 
     it('can calculate the distance to another circle', () => {
@@ -829,7 +829,7 @@ describe('Collision Shape', () => {
       engine.graphicsContext.restore();
       engine.graphicsContext.flush();
 
-      await expect(engine.canvas).toEqualImage('src/spec/images/CollisionShapeSpec/triangle.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/images/CollisionShapeSpec/triangle.png');
     });
 
     it('can be drawn with actor', async () => {
@@ -842,7 +842,7 @@ describe('Collision Shape', () => {
       scene.draw(engine.graphicsContext, 100);
       engine.graphicsContext.flush();
 
-      await expect(engine.canvas).toEqualImage('src/spec/images/CollisionShapeSpec/triangle.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/images/CollisionShapeSpec/triangle.png');
     });
 
     it('can calculate the distance to another circle', () => {
@@ -1065,7 +1065,7 @@ describe('Collision Shape', () => {
       engine.graphicsContext.restore();
       engine.graphicsContext.flush();
 
-      await expect(engine.canvas).toEqualImage('src/spec/images/CollisionShapeSpec/edge.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/images/CollisionShapeSpec/edge.png');
     });
 
     it('can be drawn with actor', async () => {
@@ -1078,7 +1078,7 @@ describe('Collision Shape', () => {
       scene.draw(engine.graphicsContext, 100);
       engine.graphicsContext.flush();
 
-      await expect(engine.canvas).toEqualImage('src/spec/images/CollisionShapeSpec/edge.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/images/CollisionShapeSpec/edge.png');
     });
 
     it('can calculate the distance to another circle', () => {

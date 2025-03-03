@@ -48,7 +48,7 @@ describe('A Canvas Graphic', () => {
 
     sut.draw(ctx, 0, 0);
 
-    await expect(canvasElement).toEqualImage('src/spec/images/GraphicsCanvasSpec/draw.png');
+    await expect(canvasElement).toEqualImage('/src/spec/images/GraphicsCanvasSpec/draw.png');
   });
 
   it('can cache draws', () => {
@@ -130,7 +130,7 @@ describe('A Canvas Graphic', () => {
 
     expect(sut.width).toBe(50);
     expect(sut.height).toBe(50);
-    await expect(engine.canvas).toEqualImage('src/spec/images/GraphicsCanvasSpec/centered.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/GraphicsCanvasSpec/centered.png');
     engine.dispose();
   });
 });

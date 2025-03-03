@@ -28,7 +28,7 @@ describe('A ColorBlindCorrector', () => {
 
       engine.once('postframe', (ev: ex.PostDrawEvent) => {
         expect(engine.canvas)
-          .toEqualImage('src/spec/images/ColorBlindCorrectorSpec/normal.png')
+          .toEqualImage('/src/spec/images/ColorBlindCorrectorSpec/normal.png')
           .then(() => {
             done();
           });
@@ -44,7 +44,7 @@ describe('A ColorBlindCorrector', () => {
       engine.debug.colorBlindMode.correct(ex.ColorBlindnessMode.Deuteranope);
       engine.once('postframe', (ev: ex.PostDrawEvent) => {
         expect(engine.canvas)
-          .toEqualImage('src/spec/images/ColorBlindCorrectorSpec/deuteranope_correct.png')
+          .toEqualImage('/src/spec/images/ColorBlindCorrectorSpec/deuteranope_correct.png')
           .then(() => {
             done();
           });
@@ -60,7 +60,7 @@ describe('A ColorBlindCorrector', () => {
       engine.debug.colorBlindMode.simulate(ex.ColorBlindnessMode.Deuteranope);
       engine.once('postframe', (ev: ex.PostDrawEvent) => {
         expect(engine.canvas)
-          .toEqualImage('src/spec/images/ColorBlindCorrectorSpec/deuteranope_simulate.png')
+          .toEqualImage('/src/spec/images/ColorBlindCorrectorSpec/deuteranope_simulate.png')
           .then(() => {
             done();
           });
@@ -76,7 +76,7 @@ describe('A ColorBlindCorrector', () => {
       engine.debug.colorBlindMode.correct(ex.ColorBlindnessMode.Protanope);
       engine.once('postframe', (ev: ex.PostDrawEvent) => {
         expect(engine.canvas)
-          .toEqualImage('src/spec/images/ColorBlindCorrectorSpec/protanope_correct.png')
+          .toEqualImage('/src/spec/images/ColorBlindCorrectorSpec/protanope_correct.png')
           .then(() => {
             done();
           });
@@ -92,7 +92,7 @@ describe('A ColorBlindCorrector', () => {
       engine.debug.colorBlindMode.simulate(ex.ColorBlindnessMode.Protanope);
       engine.once('postframe', (ev: ex.PostDrawEvent) => {
         expect(engine.canvas)
-          .toEqualImage('src/spec/images/ColorBlindCorrectorSpec/protanope_simulate.png')
+          .toEqualImage('/src/spec/images/ColorBlindCorrectorSpec/protanope_simulate.png')
           .then(() => {
             done();
           });
@@ -108,7 +108,7 @@ describe('A ColorBlindCorrector', () => {
       engine.debug.colorBlindMode.correct(ex.ColorBlindnessMode.Tritanope);
       engine.once('postframe', (ev: ex.PostDrawEvent) => {
         expect(engine.canvas)
-          .toEqualImage('src/spec/images/ColorBlindCorrectorSpec/tritanope_correct.png')
+          .toEqualImage('/src/spec/images/ColorBlindCorrectorSpec/tritanope_correct.png')
           .then(() => {
             done();
           });
@@ -124,7 +124,7 @@ describe('A ColorBlindCorrector', () => {
       engine.debug.colorBlindMode.simulate(ex.ColorBlindnessMode.Tritanope);
       engine.once('postframe', (ev: ex.PostDrawEvent) => {
         expect(engine.canvas)
-          .toEqualImage('src/spec/images/ColorBlindCorrectorSpec/tritanope_simulate.png')
+          .toEqualImage('/src/spec/images/ColorBlindCorrectorSpec/tritanope_simulate.png')
           .then(() => {
             done();
           });

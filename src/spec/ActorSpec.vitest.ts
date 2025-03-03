@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 import { PhysicsWorld } from '../engine/Collision/PhysicsWorld';
 import { TestUtils } from './util/TestUtils';
 
@@ -11,11 +11,6 @@ describe('A game actor', () => {
   let motionSystem: ex.MotionSystem;
   let collisionSystem: ex.CollisionSystem;
   let actionSystem: ex.ActionsSystem;
-
-  beforeAll(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
-    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
-  });
 
   beforeEach(async () => {
     engine = TestUtils.engine({
@@ -37,8 +32,8 @@ describe('A game actor', () => {
     engine.addScene('test', scene);
     await engine.goToScene('test');
 
-    spyOn(scene, 'draw').and.callThrough();
-    spyOn(scene, 'debugDraw').and.callThrough();
+    vi.spyOn(scene, 'draw');
+    vi.spyOn(scene, 'debugDraw');
 
     await engine.start();
     const clock = engine.clock as ex.TestClock;
@@ -677,7 +672,7 @@ describe('A game actor', () => {
 
   it('can be removed from the scene', () => {
     const logger = ex.Logger.getInstance();
-    spyOn(logger, 'warn');
+    vi.spyOn(logger, 'warn');
     // attempt removing before adding
     new ex.Actor({ name: 'not-in-scene' }).kill();
     expect(logger.warn).toHaveBeenCalledWith('Cannot kill actor named "not-in-scene", it was never added to the Scene');
@@ -707,10 +702,10 @@ describe('A game actor', () => {
     await engine.goToScene('test');
     engine.screen.setCurrentCamera(engine.currentScene.camera);
 
-    spyOn(scene, 'draw').and.callThrough();
-    spyOn(scene, 'debugDraw').and.callThrough();
+    vi.spyOn(scene, 'draw');
+    vi.spyOn(scene, 'debugDraw');
 
-    actor.graphics.onPostDraw = jasmine.createSpy('draw');
+    actor.graphics.onPostDraw = vi.fn();
 
     scene.add(actor);
     actor.kill();
@@ -739,7 +734,7 @@ describe('A game actor', () => {
   it('is drawn on opacity 0', () => {
     scene.clear(false);
     const invisibleActor = new ex.Actor({ name: 'Invisible', pos: ex.vec(50, 50), width: 100, height: 100 });
-    invisibleActor.graphics.onPostDraw = jasmine.createSpy('draw');
+    invisibleActor.graphics.onPostDraw = vi.fn();
     invisibleActor.graphics.opacity = 0;
     scene.add(invisibleActor);
     scene.update(engine, 100);
@@ -780,14 +775,14 @@ describe('A game actor', () => {
     scene.draw(engine.graphicsContext, 100);
     engine.graphicsContext.flush();
 
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/ActorSpec/zindex-blue-top.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/ActorSpec/zindex-blue-top.png');
 
     green.z = 2;
     blue.z = 1;
     scene.draw(engine.graphicsContext, 100);
     engine.graphicsContext.flush();
 
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/ActorSpec/zindex-green-top.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/ActorSpec/zindex-green-top.png');
   });
 
   it('can have a graphic drawn at an opacity', async () => {
@@ -807,7 +802,8 @@ describe('A game actor', () => {
     const clock = engine.clock as ex.TestClock;
     clock.step(1);
 
-    const image = new ex.ImageSource('src/spec/images/SpriteSpec/icon.png');
+    const image = new ex.ImageSource('/src/spec/images/SpriteSpec/icon.png');
+
     await image.load();
     const sprite = new ex.Sprite({
       image,
@@ -832,11 +828,11 @@ describe('A game actor', () => {
     scene.draw(engine.graphicsContext, 100);
     engine.graphicsContext.flush();
 
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/SpriteSpec/opacity.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/SpriteSpec/opacity.png');
   });
 
   // it('will tick animations when drawing switched', async () => {
-  //   const texture = new ex.ImageSource('src/spec/images/SpriteSpec/icon.png');
+  //   const texture = new ex.ImageSource('/src/spec/images/SpriteSpec/icon.png');
   //   await texture.load();
   //   const sprite = new ex.Sprite({
   //     image: texture,
@@ -859,7 +855,7 @@ describe('A game actor', () => {
   //     height: 200
   //   });
 
-  //   spyOn(animation, 'tick').and.callThrough();
+  //   spyOn(animation, 'tick')
 
   //   const actor = new ex.Actor({
   //     pos: new ex.Vector(engine.halfCanvasWidth, engine.halfCanvasHeight),
@@ -874,7 +870,7 @@ describe('A game actor', () => {
 
   it('will tick animations on update', async () => {
     scene.clear();
-    const texture = new ex.ImageSource('src/spec/images/SpriteSpec/icon.png');
+    const texture = new ex.ImageSource('/src/spec/images/SpriteSpec/icon.png');
     await texture.load();
     const sprite = new ex.Sprite({
       image: texture,
@@ -897,7 +893,7 @@ describe('A game actor', () => {
       height: 200
     });
 
-    spyOn(animation, 'tick').and.callThrough();
+    vi.spyOn(animation, 'tick');
 
     const actor = new ex.Actor({
       name: 'Animation',
@@ -912,8 +908,8 @@ describe('A game actor', () => {
   });
 
   it('will receive predraw/postdraw', () => {
-    const predraw = jasmine.createSpy('predraw');
-    const postdraw = jasmine.createSpy('postdraw');
+    const predraw = vi.fn();
+    const postdraw = vi.fn();
 
     const actor = new ex.Actor({
       name: 'events',
@@ -929,8 +925,8 @@ describe('A game actor', () => {
     scene.add(actor);
     scene.draw(engine.graphicsContext, 100);
 
-    expect(predraw).toHaveBeenCalledOnceWith(new ex.PreDrawEvent(engine.graphicsContext, 100, actor));
-    expect(postdraw).toHaveBeenCalledOnceWith(new ex.PostDrawEvent(engine.graphicsContext, 100, actor));
+    expect(predraw).toHaveBeenCalledExactlyOnceWith(new ex.PreDrawEvent(engine.graphicsContext, 100, actor));
+    expect(postdraw).toHaveBeenCalledExactlyOnceWith(new ex.PostDrawEvent(engine.graphicsContext, 100, actor));
   });
 
   it('can detect containment off of child actors', () => {
@@ -942,19 +938,19 @@ describe('A game actor', () => {
     child.addChild(child2);
 
     // check reality
-    expect(parent.contains(550.01, 50.01)).withContext('(550.1, 50.1) is top-left of parent should be contained').toBeTruthy();
-    expect(parent.contains(650, 150)).withContext('(650, 150) is bottom-right of parent should be contained').toBeTruthy();
+    expect(parent.contains(550.01, 50.01), '(550.1, 50.1) is top-left of parent should be contained').toBeTruthy();
+    expect(parent.contains(650, 150), '(650, 150) is bottom-right of parent should be contained').toBeTruthy();
 
     // in world coordinates this should be false
-    expect(child.contains(50, 50)).withContext('(50, 50) world coords is outside child world pos').toBeFalsy();
+    expect(child.contains(50, 50), '(50, 50) world coords is outside child world pos').toBeFalsy();
 
     // in world coordinates this should be true
-    expect(child.contains(550.01, 50.01)).withContext('(550.1, 50.1) world should be top-left of of child').toBeTruthy();
-    expect(child.contains(650, 150)).withContext('(650, 150) world should be bottom-right of child').toBeTruthy();
+    expect(child.contains(550.01, 50.01), '(550.1, 50.1) world should be top-left of of child').toBeTruthy();
+    expect(child.contains(650, 150), '(650, 150) world should be bottom-right of child').toBeTruthy();
 
     // second order child shifted to the origin
-    expect(child2.contains(-49.99, -49.99)).withContext('(-50, -50) world should be top left of second order child').toBeTruthy();
-    expect(child2.contains(50, 50)).withContext('(50, 50) world should be bottom right of second order child').toBeTruthy();
+    expect(child2.contains(-49.99, -49.99), '(-50, -50) world should be top left of second order child').toBeTruthy();
+    expect(child2.contains(50, 50), '(50, 50) world should be bottom right of second order child').toBeTruthy();
   });
 
   it('can recursively check containment', () => {
@@ -1045,7 +1041,7 @@ describe('A game actor', () => {
     scene.add(parentActor);
     parentActor.addChild(childActor);
 
-    spyOn(childActor, 'update');
+    vi.spyOn(childActor, 'update');
 
     scene.update(engine, 100);
 
@@ -1058,7 +1054,7 @@ describe('A game actor', () => {
     scene.add(parentActor);
     parentActor.addChild(childActor);
 
-    childActor.graphics.onPostDraw = jasmine.createSpy('draw');
+    childActor.graphics.onPostDraw = vi.fn();
 
     childActor.graphics.visible = true;
     scene.draw(engine.graphicsContext, 100);
@@ -1071,7 +1067,7 @@ describe('A game actor', () => {
     scene.add(parentActor);
     parentActor.addChild(childActor);
 
-    childActor.graphics.onPostDraw = jasmine.createSpy('draw');
+    childActor.graphics.onPostDraw = vi.fn();
 
     childActor.graphics.visible = false;
     scene.draw(engine.graphicsContext, 100);
@@ -1101,38 +1097,40 @@ describe('A game actor', () => {
     expect(actor.isKilled()).toBeFalsy();
   });
 
-  it('fires initialize event when before the first update', (done) => {
-    const actor = new ex.Actor();
-    actor.on('initialize', () => {
-      expect(true).toBe(true);
-      done();
-    });
+  it('fires initialize event when before the first update', () =>
+    new Promise<void>((done) => {
+      const actor = new ex.Actor();
+      actor.on('initialize', () => {
+        expect(true).toBe(true);
+        done();
+      });
 
-    scene.add(actor);
-    scene.update(engine, 100);
-    scene.update(engine, 100);
-  });
+      scene.add(actor);
+      scene.update(engine, 100);
+      scene.update(engine, 100);
+    }));
 
-  it('fires preupdate event before update then postupdate', (done) => {
-    const actor = new ex.Actor();
-    let preupdateFired = false;
+  it('fires preupdate event before update then postupdate', () =>
+    new Promise<void>((done) => {
+      const actor = new ex.Actor();
+      let preupdateFired = false;
 
-    actor.on('preupdate', () => {
-      preupdateFired = true;
-    });
-    actor.on('postupdate', () => {
-      expect(preupdateFired).toBe(true);
-      done();
-    });
+      actor.on('preupdate', () => {
+        preupdateFired = true;
+      });
+      actor.on('postupdate', () => {
+        expect(preupdateFired).toBe(true);
+        done();
+      });
 
-    scene.add(actor);
-    scene.update(engine, 100);
-  });
+      scene.add(actor);
+      scene.update(engine, 100);
+    }));
 
   it('can only be initialized once', async () => {
     const actor = new ex.Actor();
 
-    const initializeSpy = jasmine.createSpy('initialize');
+    const initializeSpy = vi.fn();
 
     actor.on('initialize', initializeSpy);
     await actor._initialize(engine);
@@ -1162,7 +1160,7 @@ describe('A game actor', () => {
     await actor._initialize(engine);
     await actor._initialize(engine);
 
-    expect(initializeCount).withContext('All child actors should be initialized').toBe(3);
+    expect(initializeCount, 'All child actors should be initialized').toBe(3);
   });
 
   describe('should detect assigned events and', () => {
@@ -1173,7 +1171,7 @@ describe('A game actor', () => {
           /* doesn't matter; */
         }
       };
-      const moveSpy = spyOn(callables, 'move').and.callThrough();
+      const moveSpy = vi.spyOn(callables, 'move');
 
       actor.on('pointermove', callables.move);
       scene.add(actor);
@@ -1191,7 +1189,7 @@ describe('A game actor', () => {
           /* doesn't matter */
         }
       };
-      const enterSpy = spyOn(callables, 'enter').and.callThrough();
+      const enterSpy = vi.spyOn(callables, 'enter');
 
       actor.on('pointerenter', callables.enter);
       scene.add(actor);
@@ -1206,7 +1204,7 @@ describe('A game actor', () => {
     it('should capture pointer leave event', () => {
       const actor = new ex.Actor({ x: 0, y: 0, width: 20, height: 20 });
 
-      const leaveSpy = jasmine.createSpy('leave');
+      const leaveSpy = vi.fn();
       actor.on('pointerleave', leaveSpy);
       scene.add(actor);
 
@@ -1224,7 +1222,7 @@ describe('A game actor', () => {
           /* doesn't matter */
         }
       };
-      const dragStartSpy = spyOn(callables, 'dragStart').and.callThrough();
+      const dragStartSpy = vi.spyOn(callables, 'dragStart');
 
       actor.on('pointerdragstart', callables.dragStart);
       scene.add(actor);
@@ -1243,7 +1241,7 @@ describe('A game actor', () => {
           /* doesn't matter */
         }
       };
-      const dragEndSpy = spyOn(callables, 'dragEnd').and.callThrough();
+      const dragEndSpy = vi.spyOn(callables, 'dragEnd');
 
       actor.on('pointerdragend', callables.dragEnd);
       scene.add(actor);
@@ -1262,7 +1260,7 @@ describe('A game actor', () => {
           /* doesn't matter */
         }
       };
-      const dragMoveSpy = spyOn(callables, 'dragMove').and.callThrough();
+      const dragMoveSpy = vi.spyOn(callables, 'dragMove');
 
       actor.on('pointerdragmove', callables.dragMove);
       scene.add(actor);
@@ -1277,7 +1275,7 @@ describe('A game actor', () => {
 
     it('should capture pointer drag enter event', () => {
       const actor = new ex.Actor({ x: 0, y: 0, width: 20, height: 20 });
-      const dragEnterSpy = jasmine.createSpy('dragenter');
+      const dragEnterSpy = vi.fn();
 
       actor.on('pointerdragenter', dragEnterSpy);
       scene.add(actor);
@@ -1294,7 +1292,7 @@ describe('A game actor', () => {
 
     it('should capture pointer drag leave event', () => {
       const actor = new ex.Actor({ x: 0, y: 0, width: 20, height: 20 });
-      const dragLeaveSpy = jasmine.createSpy('dragLeave');
+      const dragLeaveSpy = vi.fn();
 
       actor.on('pointerdragleave', dragLeaveSpy);
       scene.add(actor);
@@ -1317,7 +1315,7 @@ describe('A game actor', () => {
           /* doesn't matter */
         }
       };
-      const bubblingSpy = spyOn(callables, 'pointerDown').and.callThrough();
+      const bubblingSpy = vi.spyOn(callables, 'pointerDown');
 
       actor.on('pointerdown', callables.pointerDown);
       child.on('pointerdown', callables.pointerDown);
@@ -1343,12 +1341,12 @@ describe('A game actor', () => {
 
       scene.update(engine, 100);
 
-      expect(numPointerUps).toBe(1, 'Pointer up should be triggered once');
+      expect(numPointerUps, 'Pointer up should be triggered once').toBe(1);
     });
   });
 
   it('when killed should not be killed again by the scene removing it', () => {
-    spyOn(actor, 'kill').and.callThrough();
+    vi.spyOn(actor, 'kill');
 
     scene.add(actor);
     actor.kill();
@@ -1376,13 +1374,13 @@ describe('A game actor', () => {
     scene.update(engine, 100);
     scene.draw(engine.graphicsContext, 100);
 
-    expect(actor.isOffScreen).withContext('Actor should be onscreen').toBe(false);
+    expect(actor.isOffScreen, 'Actor should be onscreen').toBe(false);
 
     actor.pos.x = 106;
     scene.update(engine, 100);
     scene.draw(engine.graphicsContext, 100);
 
-    expect(actor.isOffScreen).withContext('Actor should be offscreen').toBe(true);
+    expect(actor.isOffScreen, 'Actor should be offscreen').toBe(true);
   });
 
   describe('lifecycle overrides', () => {
@@ -1405,8 +1403,8 @@ describe('A game actor', () => {
         expect(engine).not.toBe(null);
       };
 
-      spyOn(actor, 'onInitialize').and.callThrough();
-      spyOn(actor, '_initialize').and.callThrough();
+      vi.spyOn(actor, 'onInitialize');
+      vi.spyOn(actor, '_initialize');
 
       actor.update(engine, 100);
       actor.update(engine, 100);
@@ -1422,8 +1420,8 @@ describe('A game actor', () => {
         expect(elapsedMs).toBe(100);
       };
 
-      spyOn(actor, 'onPostUpdate').and.callThrough();
-      spyOn(actor, '_postupdate').and.callThrough();
+      vi.spyOn(actor, 'onPostUpdate');
+      vi.spyOn(actor, '_postupdate');
 
       actor.update(engine, 100);
       actor.update(engine, 100);
@@ -1437,8 +1435,8 @@ describe('A game actor', () => {
         expect(elapsedMs).toBe(100);
       };
 
-      spyOn(actor, 'onPreUpdate').and.callThrough();
-      spyOn(actor, '_preupdate').and.callThrough();
+      vi.spyOn(actor, 'onPreUpdate');
+      vi.spyOn(actor, '_preupdate');
 
       actor.update(engine, 100);
       actor.update(engine, 100);
@@ -1452,8 +1450,8 @@ describe('A game actor', () => {
         expect(scene).not.toBe(null);
       };
 
-      spyOn(actor, '_prekill').and.callThrough();
-      spyOn(actor, 'onPreKill').and.callThrough();
+      vi.spyOn(actor, '_prekill');
+      vi.spyOn(actor, 'onPreKill');
 
       actor.kill();
       expect(actor._prekill).toHaveBeenCalledTimes(1);
@@ -1466,8 +1464,8 @@ describe('A game actor', () => {
         expect(scene).not.toBe(null);
       };
 
-      spyOn(actor, '_postkill').and.callThrough();
-      spyOn(actor, 'onPostKill').and.callThrough();
+      vi.spyOn(actor, '_postkill');
+      vi.spyOn(actor, 'onPostKill');
 
       actor.kill();
       expect(actor._postkill).toHaveBeenCalledTimes(1);
@@ -1483,8 +1481,8 @@ describe('A game actor', () => {
         expect(engine).not.toBe(null);
       };
 
-      spyOn(actor, 'onAdd').and.callThrough();
-      spyOn(actor, 'onRemove').and.callThrough();
+      vi.spyOn(actor, 'onAdd');
+      vi.spyOn(actor, 'onRemove');
       engine.add(actor);
       engine.currentScene.update(engine, 100);
       engine.remove(actor);

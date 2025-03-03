@@ -65,7 +65,7 @@ const flushSourceToImageData = async (source: Visual, context: CanvasRenderingCo
       img.onload = () => resolve();
     });
     // force path to be relative to vitest root server, not iframe
-    const baseImagePath = '/';
+    const baseImagePath = '';
     img.decoding = 'sync';
     if (source) {
       img.src = baseImagePath + source + '?_=' + Math.random();
@@ -134,6 +134,7 @@ expect.extend({
   toEqualImage: async (actual: Visual, expected: Visual, tolerance: number = 0.995) => {
     const actualData = await flushSourceToImageData(actual, img1Context);
     const expectedData = await flushSourceToImageData(expected, img2Context);
+    console.log(3);
     return compareImageData(actualData, expectedData, tolerance);
   },
 
