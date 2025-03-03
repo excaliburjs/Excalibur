@@ -1,12 +1,10 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
-import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A DefaultLoader', () => {
   let engine: ex.Engine;
   beforeEach(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
-    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
     engine = TestUtils.engine();
   });
 
@@ -28,7 +26,7 @@ describe('A DefaultLoader', () => {
   it('is loaded when no resources', async () => {
     const loader = new ex.DefaultLoader();
     expect(loader.isLoaded()).toBe(true);
-    await expectAsync(loader.areResourcesLoaded()).toBeResolved();
+    await expect(loader.areResourcesLoaded()).resolves.toBeUndefined();
   });
 
   it('can be constructed with non-defaults', () => {
@@ -49,22 +47,22 @@ describe('A DefaultLoader', () => {
     sut.onUpdate(engine, 100);
     sut.onDraw(sut.canvas.ctx);
     expect(sut.resources.length).toBe(3);
-    await expectAsync(sut.canvas.ctx).toEqualImage('src/spec/images/DefaultLoaderSpec/loading.png');
+    await expect(sut.canvas.ctx).toEqualImage('/src/spec/images/DefaultLoaderSpec/loading.png');
   });
 
   it('can load stuff', async () => {
-    const img1 = new ex.ImageSource('src/spec/images/DefaultLoaderSpec/loading.png');
-    const img2 = new ex.ImageSource('src/spec/images/DefaultLoaderSpec/loading.png');
+    const img1 = new ex.ImageSource('/src/spec/images/DefaultLoaderSpec/loading.png');
+    const img2 = new ex.ImageSource('/src/spec/images/DefaultLoaderSpec/loading.png');
     const sut = new ex.DefaultLoader({
       loadables: [img1, img2]
     });
     sut.onInitialize(engine);
 
-    const onBeforeLoadSpy = jasmine.createSpy('onBeforeLoad');
-    const onAfterLoadSpy = jasmine.createSpy('onBeforeLoad');
-    const onUserAction = jasmine.createSpy('onUserAction');
-    const resourceStartLoad = jasmine.createSpy('resourceStartLoad');
-    const resourceEndLoad = jasmine.createSpy('resourceStartLoad');
+    const onBeforeLoadSpy = vi.fn();
+    const onAfterLoadSpy = vi.fn();
+    const onUserAction = vi.fn();
+    const resourceStartLoad = vi.fn();
+    const resourceEndLoad = vi.fn();
     sut.on('loadresourcestart', resourceStartLoad);
     sut.on('loadresourceend', resourceEndLoad);
     sut.onBeforeLoad = onBeforeLoadSpy;
