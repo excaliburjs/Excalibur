@@ -46,9 +46,9 @@ export default defineConfig({
           launch: {
             devtools: true
           }
-        }
-        // { browser: 'firefox' },
-        // { browser: 'webkit' },
+        },
+        { browser: 'firefox' },
+        { browser: 'webkit' }
       ]
     }
   }
