@@ -1,5 +1,6 @@
 import * as ex from '@excalibur';
 import { SystemType } from '@excalibur';
+import { it, describe } from 'vitest';
 
 class FakeComponent extends ex.Component {}
 class FakeSystem extends ex.System {
@@ -15,6 +16,10 @@ class FakeSystem extends ex.System {
 }
 
 describe('A World', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('should exist', () => {
     expect(ex.World).toBeDefined();
   });
@@ -26,7 +31,7 @@ describe('A World', () => {
 
   it('can add entities', () => {
     const world = new ex.World(null);
-    world.entityManager = jasmine.createSpyObj('EntityManager', ['addEntity']);
+    vi.spyOn(world.entityManager, 'addEntity');
 
     const entity = new ex.Entity();
 
@@ -36,7 +41,7 @@ describe('A World', () => {
 
   it('can remove entities', () => {
     const world = new ex.World(null);
-    world.entityManager = jasmine.createSpyObj('EntityManager', ['addEntity', 'removeEntity']);
+    vi.spyOn(world.entityManager, 'removeEntity');
 
     const entity = new ex.Entity();
 
@@ -47,7 +52,7 @@ describe('A World', () => {
 
   it('can add systems', () => {
     const world = new ex.World(null);
-    world.systemManager = jasmine.createSpyObj('SystemManager', ['addSystem']);
+    vi.spyOn(world.systemManager, 'addSystem');
 
     const system = new FakeSystem(world);
 
@@ -57,7 +62,7 @@ describe('A World', () => {
 
   it('can remove systems', () => {
     const world = new ex.World(null);
-    world.systemManager = jasmine.createSpyObj('SystemManager', ['addSystem', 'removeSystem']);
+    vi.spyOn(world.systemManager, 'removeSystem');
 
     const system = new FakeSystem(world);
 
@@ -68,8 +73,8 @@ describe('A World', () => {
 
   it('can clear entities and systems', () => {
     const world = new ex.World(null);
-    world.entityManager = jasmine.createSpyObj('EntityManager', ['clear']);
-    world.systemManager = jasmine.createSpyObj('SystemManager', ['clear']);
+    vi.spyOn(world.systemManager, 'clear');
+    vi.spyOn(world.entityManager, 'clear');
 
     world.clearSystems();
     world.clearEntities();
@@ -81,13 +86,11 @@ describe('A World', () => {
   it('can update', () => {
     const scene = new ex.Scene();
     const world = new ex.World(scene);
-    world.entityManager = jasmine.createSpyObj('EntityManager', [
-      'processEntityRemovals',
-      'findEntitiesForRemoval',
-      'processComponentRemovals',
-      'updateEntities'
-    ]);
-    world.systemManager = jasmine.createSpyObj('SystemManager', ['updateSystems']);
+    vi.spyOn(world.systemManager, 'updateSystems');
+    vi.spyOn(world.entityManager, 'processComponentRemovals');
+    vi.spyOn(world.entityManager, 'processEntityRemovals');
+    vi.spyOn(world.entityManager, 'updateEntities');
+    vi.spyOn(world.systemManager, 'updateSystems');
 
     world.update(SystemType.Update, 100);
 

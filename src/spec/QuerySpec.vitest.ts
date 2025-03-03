@@ -71,36 +71,38 @@ describe('A query', () => {
     expect(queryAB.getEntities()).toEqual([]);
   });
 
-  it('notifies observers of when something is added to the query', (done) => {
-    const queryAB = new ex.Query([FakeComponentA, FakeComponentB]);
-    const compA = new FakeComponentA();
-    const compB = new FakeComponentB();
-    const entity1 = new ex.Entity();
-    entity1.addComponent(compA);
-    entity1.addComponent(compB);
+  it('notifies observers of when something is added to the query', () =>
+    new Promise<void>((done) => {
+      const queryAB = new ex.Query([FakeComponentA, FakeComponentB]);
+      const compA = new FakeComponentA();
+      const compB = new FakeComponentB();
+      const entity1 = new ex.Entity();
+      entity1.addComponent(compA);
+      entity1.addComponent(compB);
 
-    queryAB.entityAdded$.subscribe((e) => {
-      expect(e).toBe(entity1);
-      done();
-    });
+      queryAB.entityAdded$.subscribe((e) => {
+        expect(e).toBe(entity1);
+        done();
+      });
 
-    queryAB.checkAndAdd(entity1);
-  });
+      queryAB.checkAndAdd(entity1);
+    }));
 
-  it('notifies observers of when something is added to the query', (done) => {
-    const queryAB = new ex.Query([FakeComponentA, FakeComponentB]);
-    const compA = new FakeComponentA();
-    const compB = new FakeComponentB();
-    const entity1 = new ex.Entity();
-    entity1.addComponent(compA);
-    entity1.addComponent(compB);
-    queryAB.checkAndAdd(entity1);
+  it('notifies observers of when something is added to the query', () =>
+    new Promise<void>((done) => {
+      const queryAB = new ex.Query([FakeComponentA, FakeComponentB]);
+      const compA = new FakeComponentA();
+      const compB = new FakeComponentB();
+      const entity1 = new ex.Entity();
+      entity1.addComponent(compA);
+      entity1.addComponent(compB);
+      queryAB.checkAndAdd(entity1);
 
-    queryAB.entityRemoved$.subscribe((e) => {
-      expect(e).toBe(entity1);
-      done();
-    });
+      queryAB.entityRemoved$.subscribe((e) => {
+        expect(e).toBe(entity1);
+        done();
+      });
 
-    queryAB.removeEntity(entity1);
-  });
+      queryAB.removeEntity(entity1);
+    }));
 });
