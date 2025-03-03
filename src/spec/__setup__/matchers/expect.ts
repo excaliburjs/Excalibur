@@ -3,7 +3,7 @@
 import { convertSourceVisualToImageData, ImageVisual } from './convert';
 import pixelmatch from 'pixelmatch';
 
-import type * as ex from 'excalibur';
+import type * as ex from '@excalibur';
 import { expect } from 'vitest';
 
 // seems to not exist in pixelmatch?

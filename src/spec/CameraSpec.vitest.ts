@@ -1,6 +1,6 @@
-import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
+import { it, describe, beforeEach, afterEach, expect } from 'vitest';
 
 describe('A camera', () => {
   let Camera: ex.Camera;
@@ -9,7 +9,6 @@ describe('A camera', () => {
   let scene: ex.Scene;
 
   beforeEach(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
     actor = new ex.Actor({
       width: 10,
       height: 10
@@ -39,6 +38,7 @@ describe('A camera', () => {
     engine.stop();
     engine.dispose();
     engine = null;
+    vi.restoreAllMocks();
   });
 
   it('should be center screen by default (when loading not complete)', () => {
@@ -50,8 +50,8 @@ describe('A camera', () => {
     });
     engine.screen.pushResolutionAndViewport();
     engine.screen.resolution = { width: 100, height: 1000 };
-    spyOnProperty(engine, 'loadingComplete', 'get').and.returnValue(false);
-    spyOn(engine.screen, 'peekResolution').and.callThrough();
+    vi.spyOn(engine, 'loadingComplete', 'get').mockImplementation(() => false);
+    vi.spyOn(engine.screen, 'peekResolution');
 
     const sut = new ex.Camera();
     sut.zoom = 2; // zoom should not change the center position
@@ -71,7 +71,7 @@ describe('A camera', () => {
 
     const sut = new ex.Camera();
 
-    spyOn(sut, 'runStrategies').and.callThrough();
+    vi.spyOn(sut, 'runStrategies');
     sut._initialize(engine);
 
     expect(sut.runStrategies).toHaveBeenCalledTimes(1);
@@ -87,7 +87,7 @@ describe('A camera', () => {
 
     const sut = new ex.Camera();
     expect(sut.viewport).toEqual(new ex.BoundingBox());
-    spyOn(sut, 'updateViewport').and.callThrough();
+    vi.spyOn(sut, 'updateViewport');
     sut._initialize(engine);
 
     expect(sut.viewport).toEqual(ex.BoundingBox.fromDimension(1000, 1200, ex.Vector.Zero));
@@ -102,8 +102,8 @@ describe('A camera', () => {
       resolution: { width: 1000, height: 1200 }
     });
 
-    spyOnProperty(engine, 'loadingComplete', 'get').and.returnValue(true);
-    spyOn(engine.screen, 'peekResolution').and.callThrough();
+    vi.spyOn(engine, 'loadingComplete', 'get').mockImplementation(() => true);
+    vi.spyOn(engine.screen, 'peekResolution');
     const sut = new ex.Camera();
     sut.zoom = 2; // zoom should not change the center position
     sut._initialize(engine);
@@ -372,22 +372,23 @@ describe('A camera', () => {
     expect(engine.currentScene.camera.pos.y).toBe(750);
   });
 
-  it('can lerp over time', (done) => {
-    engine.currentScene.camera.move(new ex.Vector(100, 100), 1000, ex.EasingFunctions.EaseOutCubic).then(() => {
-      engine.currentScene.camera.move(new ex.Vector(200, 200), 1000, ex.EasingFunctions.Linear).then(() => {
-        expect(engine.currentScene.camera.pos.x).toBe(200);
-        expect(engine.currentScene.camera.pos.y).toBe(200);
-        done();
+  it('can lerp over time', () =>
+    new Promise<void>((done) => {
+      engine.currentScene.camera.move(new ex.Vector(100, 100), 1000, ex.EasingFunctions.EaseOutCubic).then(() => {
+        engine.currentScene.camera.move(new ex.Vector(200, 200), 1000, ex.EasingFunctions.Linear).then(() => {
+          expect(engine.currentScene.camera.pos.x).toBe(200);
+          expect(engine.currentScene.camera.pos.y).toBe(200);
+          done();
+        });
+        engine.currentScene.camera.update(engine, 999);
+        engine.currentScene.camera.update(engine, 1);
+        engine.currentScene.camera.update(engine, 1);
       });
+
       engine.currentScene.camera.update(engine, 999);
       engine.currentScene.camera.update(engine, 1);
       engine.currentScene.camera.update(engine, 1);
-    });
-
-    engine.currentScene.camera.update(engine, 999);
-    engine.currentScene.camera.update(engine, 1);
-    engine.currentScene.camera.update(engine, 1);
-  });
+    }));
 
   describe('lifecycle overrides', () => {
     let camera: ex.Camera;
@@ -412,7 +413,7 @@ describe('A camera', () => {
         initCalled = true;
       });
 
-      spyOn(camera, 'onInitialize').and.callThrough();
+      vi.spyOn(camera, 'onInitialize');
 
       camera.update(engine, 100);
 
@@ -426,8 +427,8 @@ describe('A camera', () => {
         expect(elapsedMs).toBe(100);
       };
 
-      spyOn(camera, 'onPostUpdate').and.callThrough();
-      spyOn(camera, '_postupdate').and.callThrough();
+      vi.spyOn(camera, 'onPostUpdate');
+      vi.spyOn(camera, '_postupdate');
 
       camera.update(engine, 100);
       camera.update(engine, 100);
@@ -442,8 +443,8 @@ describe('A camera', () => {
         expect(elapsedMs).toBe(100);
       };
 
-      spyOn(camera, 'onPreUpdate').and.callThrough();
-      spyOn(camera, '_preupdate').and.callThrough();
+      vi.spyOn(camera, 'onPreUpdate');
+      vi.spyOn(camera, '_preupdate');
 
       camera.update(engine, 100);
       camera.update(engine, 100);
