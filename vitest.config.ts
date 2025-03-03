@@ -17,7 +17,7 @@ export default defineConfig({
   },
   define: {
     'process.env.__EX_VERSION': JSON.stringify(version),
-    'process.env.NODE_ENV': JSON.stringify('production'),
+    'process.env.NODE_ENV': JSON.stringify('development'),
     __dirname: JSON.stringify(__dirname)
   },
   esbuild: {
@@ -38,7 +38,6 @@ export default defineConfig({
       provider: 'playwright',
       isolate: true,
       headless: process.env.CI === 'true' || process.env.HEADLESS === 'true',
-
       // https://vitest.dev/guide/browser/playwright
       instances: [
         {

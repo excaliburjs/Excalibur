@@ -1,4 +1,6 @@
 import * as ex from '@excalibur';
+import { describe, beforeEach, it, expect } from 'vitest';
+
 describe('An assert', () => {
   it('exists', () => {
     expect(ex.assert).toBeDefined();
@@ -9,7 +11,7 @@ describe('An assert', () => {
       ex.assert('throws', () => false);
     };
 
-    expect(action).toThrowError('throws');
+    expect(() => action()).toThrowError('throws');
   });
 
   it('will not throw in dev when expression is true', () => {
@@ -17,6 +19,6 @@ describe('An assert', () => {
       ex.assert('throws', () => true);
     };
 
-    expect(action).not.toThrowError('throws');
+    expect(() => action()).not.toThrowError('throws');
   });
 });

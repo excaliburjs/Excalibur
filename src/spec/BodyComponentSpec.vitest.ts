@@ -1,11 +1,8 @@
 import * as ex from '@excalibur';
 import { BodyComponent } from '@excalibur';
-import { ExcaliburMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A body component', () => {
-  beforeAll(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
-  });
   it('exists', () => {
     expect(ex.BodyComponent).toBeDefined();
   });

@@ -18,13 +18,14 @@ describe('The BrowserEvents facade', () => {
     expect(browser).toBeDefined();
   });
 
-  it('can register handlers on window', (done) => {
-    browser.window.on('someevent', () => {
-      done();
-    });
+  it('can register handlers on window', () =>
+    new Promise<void>((done) => {
+      browser.window.on('someevent', () => {
+        done();
+      });
 
-    window.dispatchEvent(new Event('someevent'));
-  });
+      window.dispatchEvent(new Event('someevent'));
+    }));
 
   it('can pause handlers on window', () => {
     browser.window.on('somewindowevent', () => {
@@ -35,13 +36,14 @@ describe('The BrowserEvents facade', () => {
     window.dispatchEvent(new Event('somewindowevent'));
   });
 
-  it('can register handlers on document', (done) => {
-    browser.document.on('someevent', () => {
-      done();
-    });
+  it('can register handlers on document', () =>
+    new Promise<void>((done) => {
+      browser.document.on('someevent', () => {
+        done();
+      });
 
-    document.dispatchEvent(new Event('someevent'));
-  });
+      document.dispatchEvent(new Event('someevent'));
+    }));
 
   it('can pause handlers on document', () => {
     browser.document.on('somedocumentevent', () => {
@@ -70,20 +72,21 @@ describe('The BrowserEvents facade', () => {
     document.dispatchEvent(new Event('somedocevent2'));
   });
 
-  it('can only have 1 handler per event name at a time', (done) => {
-    browser.window.on('couldfailevent', () => {
-      fail();
-    });
+  it('can only have 1 handler per event name at a time', () =>
+    new Promise<void>((done) => {
+      browser.window.on('couldfailevent', () => {
+        fail();
+      });
 
-    browser.window.on('couldfailevent', () => {
-      done();
-    });
+      browser.window.on('couldfailevent', () => {
+        done();
+      });
 
-    window.dispatchEvent(new Event('couldfailevent'));
-  });
+      window.dispatchEvent(new Event('couldfailevent'));
+    }));
 
   it('can resume handlers', () => {
-    const spy = jasmine.createSpy();
+    const spy = vi.fn();
     browser.document.on('somedocumentevent', spy);
 
     browser.pause();
