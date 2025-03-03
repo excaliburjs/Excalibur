@@ -1,11 +1,8 @@
-import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
+
 describe('A Line', () => {
-  beforeAll(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
-    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
-  });
   it('exists', () => {
     expect(ex.Line).toBeDefined();
   });
@@ -88,7 +85,7 @@ describe('A Line', () => {
     sut.draw(ctx, 0, 0);
     ctx.flush();
 
-    await expectAsync(canvasElement).toEqualImage('src/spec/images/LineSpec/line.png');
+    await expect(canvasElement).toEqualImage('/src/spec/images/LineSpec/line.png');
   });
 
   it('can draw a line when added to a graphics component', async () => {
@@ -118,7 +115,7 @@ describe('A Line', () => {
 
     testClock.step(16);
 
-    await expectAsync(game.canvas).toEqualImage('src/spec/images/LineSpec/line.png');
+    await expect(game.canvas).toEqualImage('/src/spec/images/LineSpec/line.png');
 
     game.dispose();
   });

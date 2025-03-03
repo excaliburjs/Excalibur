@@ -11,14 +11,6 @@ type PixelmatchOptions = any;
 
 export declare type ExcaliburVisual = string | HTMLImageElement | HTMLCanvasElement | CanvasRenderingContext2D;
 
-const ensureImagesLoaded = (...images: ExcaliburVisual[]): Promise<ImageData[]> => {
-  const results: Promise<ImageData>[] = [];
-  for (const image of images) {
-    results.push(convertSourceVisualToImageData(image));
-  }
-  return Promise.all(results);
-};
-
 const img1Canvas = document.createElement('canvas');
 const img1Context = img1Canvas.getContext('2d')!;
 
@@ -167,6 +159,31 @@ expect.extend({
       pass: passed,
       message: () => (passed ? 'Actor properties match' : message)
     };
+  },
+  toHaveLoadedImages: async (actual: HTMLCanvasElement, images: ExcaliburVisual[], tolerance: number = 0.995) => {
+    const results: Promise<ImageData>[] = [];
+    for (const image of images) {
+      results.push(convertSourceVisualToImageData(image));
+    }
+
+    const data = await Promise.all(results);
+
+    let pass = true;
+    let msg: string | undefined;
+
+    for (const imgData of data) {
+      const result = compareImageData(await flushSourceToImageData(actual, img1Context), imgData, tolerance);
+      if (!result.pass) {
+        pass = false;
+        msg = result.message();
+        break;
+      }
+    }
+
+    return {
+      pass,
+      message: () => msg
+    };
   }
 });
 
@@ -179,6 +196,7 @@ interface CustomMatchers<R = unknown> {
   toEqualImage(expected: Visual, tolerance?: number): Promise<R>;
   toBeVector(expected: ex.Vector, delta?: number): R;
   toHaveValues(expected: ex.ActorArgs): R;
+  toHaveLoadedImages(images: ExcaliburVisual[], tolerance?: number): Promise<R>;
 }
 
 declare module 'vitest' {

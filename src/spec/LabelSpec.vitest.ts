@@ -1,4 +1,4 @@
-import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 
@@ -8,7 +8,6 @@ describe('A label', () => {
   let scene: ex.Scene;
 
   beforeEach(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
     engine = TestUtils.engine({
       width: 500,
       height: 500
@@ -58,7 +57,7 @@ describe('A label', () => {
   });
 
   it('can be constructed with a spritefont', async () => {
-    const spriteFontImage = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const spriteFontImage = new ex.ImageSource('/src/spec/images/GraphicsTextSpec/spritefont.png');
 
     await spriteFontImage.load();
 
