@@ -1,12 +1,8 @@
 import * as ex from '@excalibur';
-import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 import { TestUtils } from './util/TestUtils';
 
 describe('A IsometricMap', () => {
-  beforeAll(() => {
-    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
-    jasmine.addMatchers(ExcaliburMatchers);
-  });
   it('exists', () => {
     expect(ex.IsometricMap).toBeDefined();
   });
@@ -27,7 +23,7 @@ describe('A IsometricMap', () => {
     const engine = TestUtils.engine({}, ['suppress-obsolete-message']);
     // engine.toggleDebug();
     const clock = engine.clock as ex.TestClock;
-    const image = new ex.ImageSource('src/spec/images/IsometricMapSpec/tile.png');
+    const image = new ex.ImageSource('/src/spec/images/IsometricMapSpec/tile.png');
     await image.load();
     const sprite = image.toSprite();
     await TestUtils.runToReady(engine);
@@ -45,7 +41,7 @@ describe('A IsometricMap', () => {
     engine.add(sut);
     clock.step(100);
 
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/IsometricMapSpec/map.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/IsometricMapSpec/map.png');
     engine.dispose();
   });
 
@@ -53,7 +49,7 @@ describe('A IsometricMap', () => {
     const engine = TestUtils.engine({}, ['suppress-obsolete-message']);
     // engine.toggleDebug();
     const clock = engine.clock as ex.TestClock;
-    const image = new ex.ImageSource('src/spec/images/IsometricMapSpec/cube.png');
+    const image = new ex.ImageSource('/src/spec/images/IsometricMapSpec/cube.png');
     await image.load();
     const sprite = image.toSprite();
     await TestUtils.runToReady(engine);
@@ -72,7 +68,7 @@ describe('A IsometricMap', () => {
     engine.add(sut);
     clock.step(100);
 
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/IsometricMapSpec/cube-map-top.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/IsometricMapSpec/cube-map-top.png');
     engine.dispose();
   });
 
@@ -80,7 +76,7 @@ describe('A IsometricMap', () => {
     const engine = TestUtils.engine({}, ['suppress-obsolete-message']);
     // engine.toggleDebug();
     const clock = engine.clock as ex.TestClock;
-    const image = new ex.ImageSource('src/spec/images/IsometricMapSpec/cube.png');
+    const image = new ex.ImageSource('/src/spec/images/IsometricMapSpec/cube.png');
     await image.load();
     const sprite = image.toSprite();
     await TestUtils.runToReady(engine);
@@ -98,7 +94,7 @@ describe('A IsometricMap', () => {
     engine.add(sut);
     clock.step(100);
 
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/IsometricMapSpec/cube-map-bottom.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/IsometricMapSpec/cube-map-bottom.png');
     engine.dispose();
   });
 
@@ -112,7 +108,7 @@ describe('A IsometricMap', () => {
     engine.debug.isometric.showGrid = true;
     engine.debug.isometric.showPosition = true;
     const clock = engine.clock as ex.TestClock;
-    const image = new ex.ImageSource('src/spec/images/IsometricMapSpec/cube.png');
+    const image = new ex.ImageSource('/src/spec/images/IsometricMapSpec/cube.png');
     await image.load();
     const sprite = image.toSprite();
     await TestUtils.runToReady(engine);
@@ -130,7 +126,7 @@ describe('A IsometricMap', () => {
     engine.add(sut);
     clock.step(100);
 
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/IsometricMapSpec/cube-map-debug.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/IsometricMapSpec/cube-map-debug.png');
     engine.dispose();
   });
 
@@ -245,7 +241,7 @@ describe('A IsometricMap', () => {
   });
 
   it('can update graphics', async () => {
-    const image = new ex.ImageSource('src/spec/images/IsometricMapSpec/cube.png');
+    const image = new ex.ImageSource('/src/spec/images/IsometricMapSpec/cube.png');
     await image.load();
     const sprite = image.toSprite();
 
@@ -315,10 +311,10 @@ describe('A IsometricMap', () => {
 
     const tile = sut.getTile(0, 0);
 
-    const pointerdown = jasmine.createSpy('pointerdown');
-    const pointerup = jasmine.createSpy('pointerup');
-    const pointermove = jasmine.createSpy('pointermove');
-    const pointercancel = jasmine.createSpy('pointercancel');
+    const pointerdown = vi.fn();
+    const pointerup = vi.fn();
+    const pointermove = vi.fn();
+    const pointercancel = vi.fn();
     tile.on('pointerdown', pointerdown);
     tile.on('pointerup', pointerup);
     tile.on('pointermove', pointermove);
