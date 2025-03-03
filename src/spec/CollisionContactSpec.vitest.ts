@@ -3,7 +3,7 @@ import { TransformComponent } from '@excalibur';
 import { EulerIntegrator } from '../engine/Collision/Integrator';
 import { MotionComponent } from '../engine/EntityComponentSystem/Components/MotionComponent';
 import { getDefaultPhysicsConfig } from '../engine/Collision/PhysicsConfig';
-import { ExcaliburMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A CollisionContact', () => {
   let actorA: ex.Actor;
@@ -13,7 +13,6 @@ describe('A CollisionContact', () => {
   let colliderB: ex.Collider;
 
   beforeEach(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
     actorA = new ex.Actor({ x: 0, y: 0, width: 20, height: 20 });
     actorA.collider.useCircleCollider(10);
     actorA.body.collisionType = ex.CollisionType.Active;
@@ -70,8 +69,8 @@ describe('A CollisionContact', () => {
   });
 
   it('emits a collision event on both actors in the Arcade solver', () => {
-    const actorAPreCollide = jasmine.createSpy('precollision A');
-    const actorBPreCollide = jasmine.createSpy('precollision B');
+    const actorAPreCollide = vi.fn();
+    const actorBPreCollide = vi.fn();
     actorA.on('precollision', actorAPreCollide);
 
     actorB.on('precollision', actorBPreCollide);
@@ -96,12 +95,12 @@ describe('A CollisionContact', () => {
   });
 
   it('can resolve in the Realistic solver', () => {
-    expect(actorA.pos.x).toBe(0, 'Actor A should be y=10');
-    expect(actorA.pos.y).toBe(0, 'Actor A should be y=0');
-    expect(actorB.pos.x).toBe(20, 'Actor B should be x=20');
-    expect(actorB.pos.y).toBe(0, 'Actor B should be y=0');
-    expect(actorA.vel.x).toBe(0, 'Actor A should not be moving in x');
-    expect(actorB.vel.x).toBe(0, 'Actor B should not be moving in x');
+    expect(actorA.pos.x, 'Actor A should be y=10').toBe(0);
+    expect(actorA.pos.y, 'Actor A should be y=0').toBe(0);
+    expect(actorB.pos.x, 'Actor B should be x=20').toBe(20);
+    expect(actorB.pos.y, 'Actor B should be y=0').toBe(0);
+    expect(actorA.vel.x, 'Actor A should not be moving in x').toBe(0);
+    expect(actorB.vel.x, 'Actor B should not be moving in x').toBe(0);
     actorA.vel.x = 10;
     actorB.vel.x = -10;
     actorB.pos.x = 19;
@@ -141,12 +140,12 @@ describe('A CollisionContact', () => {
   });
 
   it('can resolve perfectly elastic collisions in the Realistic solver', () => {
-    expect(actorA.pos.x).toBe(0, 'Actor A should be y=10');
-    expect(actorA.pos.y).toBe(0, 'Actor A should be y=0');
-    expect(actorB.pos.x).toBe(20, 'Actor B should be x=20');
-    expect(actorB.pos.y).toBe(0, 'Actor B should be y=0');
-    expect(actorA.vel.x).toBe(0, 'Actor A should not be moving in x');
-    expect(actorB.vel.x).toBe(0, 'Actor B should not be moving in x');
+    expect(actorA.pos.x, 'Actor A should be y=10').toBe(0);
+    expect(actorA.pos.y, 'Actor A should be y=0').toBe(0);
+    expect(actorB.pos.x, 'Actor B should be x=20').toBe(20);
+    expect(actorB.pos.y, 'Actor B should be y=0').toBe(0);
+    expect(actorA.vel.x, 'Actor A should not be moving in x').toBe(0);
+    expect(actorB.vel.x, 'Actor B should not be moving in x').toBe(0);
     actorA.vel.x = 10;
     actorB.vel.x = -10;
     actorB.pos.x = 19;
@@ -184,12 +183,12 @@ describe('A CollisionContact', () => {
   });
 
   it('can limit the rotation degree of freedom', () => {
-    expect(actorA.pos.x).toBe(0, 'Actor A should be y=10');
-    expect(actorA.pos.y).toBe(0, 'Actor A should be y=0');
-    expect(actorB.pos.x).toBe(20, 'Actor B should be x=20');
-    expect(actorB.pos.y).toBe(0, 'Actor B should be y=0');
-    expect(actorA.vel.x).toBe(0, 'Actor A should not be moving in x');
-    expect(actorB.vel.x).toBe(0, 'Actor B should not be moving in x');
+    expect(actorA.pos.x, 'Actor A should be y=10').toBe(0);
+    expect(actorA.pos.y, 'Actor A should be y=0').toBe(0);
+    expect(actorB.pos.x, 'Actor B should be x=20').toBe(20);
+    expect(actorB.pos.y, 'Actor B should be y=0').toBe(0);
+    expect(actorA.vel.x, 'Actor A should not be moving in x').toBe(0);
+    expect(actorB.vel.x, 'Actor B should not be moving in x').toBe(0);
     actorA.vel.x = 10;
     actorB.vel.x = -10;
     actorB.pos.x = 19;
@@ -221,12 +220,12 @@ describe('A CollisionContact', () => {
   });
 
   it('can limit the y degree of freedom', () => {
-    expect(actorA.pos.x).toBe(0, 'Actor A should be y=10');
-    expect(actorA.pos.y).toBe(0, 'Actor A should be y=0');
-    expect(actorB.pos.x).toBe(20, 'Actor B should be x=20');
-    expect(actorB.pos.y).toBe(0, 'Actor B should be y=0');
-    expect(actorA.vel.x).toBe(0, 'Actor A should not be moving in x');
-    expect(actorB.vel.x).toBe(0, 'Actor B should not be moving in x');
+    expect(actorA.pos.x, 'Actor A should be y=10').toBe(0);
+    expect(actorA.pos.y, 'Actor A should be y=0').toBe(0);
+    expect(actorB.pos.x, 'Actor B should be x=20').toBe(20);
+    expect(actorB.pos.y, 'Actor B should be y=0').toBe(0);
+    expect(actorA.vel.x, 'Actor A should not be moving in x').toBe(0);
+    expect(actorB.vel.x, 'Actor B should not be moving in x').toBe(0);
     actorA.vel.x = 10;
     actorB.vel.x = -10;
     actorB.pos.x = 19;
@@ -261,12 +260,12 @@ describe('A CollisionContact', () => {
   });
 
   it('can limit the x degree of freedom', () => {
-    expect(actorA.pos.x).toBe(0, 'Actor A should be y=10');
-    expect(actorA.pos.y).toBe(0, 'Actor A should be y=0');
-    expect(actorB.pos.x).toBe(20, 'Actor B should be x=20');
-    expect(actorB.pos.y).toBe(0, 'Actor B should be y=0');
-    expect(actorA.vel.x).toBe(0, 'Actor A should not be moving in x');
-    expect(actorB.vel.x).toBe(0, 'Actor B should not be moving in x');
+    expect(actorA.pos.x, 'Actor A should be y=10').toBe(0);
+    expect(actorA.pos.y, 'Actor A should be y=0').toBe(0);
+    expect(actorB.pos.x, 'Actor B should be x=20').toBe(20);
+    expect(actorB.pos.y, 'Actor B should be y=0').toBe(0);
+    expect(actorA.vel.x, 'Actor A should not be moving in x').toBe(0);
+    expect(actorB.vel.x, 'Actor B should not be moving in x').toBe(0);
     actorA.vel.x = 10;
     actorB.pos.x = 19;
     actorB.pos.y = 10;
