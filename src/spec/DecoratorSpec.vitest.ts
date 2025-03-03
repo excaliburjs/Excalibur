@@ -1,4 +1,5 @@
 import * as ex from '@excalibur';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 class TestObsolete {
   private _stuff = 'things';
@@ -40,7 +41,7 @@ describe('An @obsolete decorator', () => {
     ex.Flags.disable('suppress-obsolete-message');
     testObsolete = new TestObsolete();
     logger = ex.Logger.getInstance();
-    spyOn(logger, 'warn');
+    vi.spyOn(logger, 'warn');
   });
 
   afterEach(() => {
