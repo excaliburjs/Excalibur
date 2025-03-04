@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
-import { Mocks } from './util/Mocks';
 import { TestUtils } from './util/TestUtils';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('The engine', () => {
   let engine: ex.Engine;
@@ -40,7 +40,7 @@ describe('The engine', () => {
     // actor moves twice as fast
     clock.step(1000);
 
-    expect(actor.pos.x).toBe(10, 'actor did not move twice as fast');
+    expect(actor.pos.x, 'actor did not move twice as fast').toBe(10);
   });
 
   it('should run at 1/2 speed when timescale is 0.5', () => {
@@ -54,6 +54,6 @@ describe('The engine', () => {
     // actor moves twice as slow
     clock.step(2000);
 
-    expect(actor.pos.x).toBeCloseTo(5, 0.2, 'actor did not move twice as slow');
+    expect(actor.pos.x, 'actor did not move twice as slow').toBeCloseTo(5, 0.2);
   });
 });

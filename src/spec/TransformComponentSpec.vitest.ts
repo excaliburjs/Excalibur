@@ -1,13 +1,9 @@
 import * as ex from '@excalibur';
 import { TransformComponent } from '@excalibur';
-import { ExcaliburMatchers } from 'excalibur-jasmine';
 import { EulerIntegrator } from '../engine/Collision/Integrator';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A TransformComponent', () => {
-  beforeAll(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
-  });
-
   it('exists', () => {
     expect(ex.TransformComponent).toBeDefined();
   });
@@ -187,7 +183,7 @@ describe('A TransformComponent', () => {
 
   it('can observe a z index change', () => {
     const tx = new ex.TransformComponent();
-    const zSpy = jasmine.createSpy('zSpy');
+    const zSpy = vi.fn();
     tx.zIndexChanged$.subscribe(zSpy);
 
     tx.z = 19;
@@ -198,7 +194,7 @@ describe('A TransformComponent', () => {
 
   it('will only flag the transform dirty once during integration', () => {
     const transform = new ex.TransformComponent();
-    spyOn(transform.get(), 'flagDirty').and.callThrough();
+    vi.spyOn(transform.get(), 'flagDirty');
     const motion = new ex.MotionComponent();
 
     EulerIntegrator.integrate(transform, motion, ex.Vector.Zero, 16);
@@ -208,7 +204,7 @@ describe('A TransformComponent', () => {
 
   it('will only flag dirty if the pos coord is different', () => {
     const transform = new ex.TransformComponent();
-    spyOn(transform.get(), 'flagDirty').and.callThrough();
+    vi.spyOn(transform.get(), 'flagDirty');
 
     expect(transform.globalPos).toBeVector(ex.vec(0, 0));
     transform.pos.x = 0;
@@ -223,7 +219,7 @@ describe('A TransformComponent', () => {
 
   it('will only flag dirty if the rotation coord is different', () => {
     const transform = new ex.TransformComponent();
-    spyOn(transform.get(), 'flagDirty').and.callThrough();
+    vi.spyOn(transform.get(), 'flagDirty');
 
     expect(transform.globalRotation).toBe(0);
     transform.rotation = 0;
@@ -236,7 +232,7 @@ describe('A TransformComponent', () => {
 
   it('will only flag dirty if the scale coord is different', () => {
     const transform = new ex.TransformComponent();
-    spyOn(transform.get(), 'flagDirty').and.callThrough();
+    vi.spyOn(transform.get(), 'flagDirty');
 
     expect(transform.globalScale).toBeVector(ex.vec(1, 1));
     transform.scale.x = 1;
@@ -309,7 +305,7 @@ describe('A TransformComponent', () => {
 
   it('children inherit the top most parent coordinate plane', () => {
     const logger = ex.Logger.getInstance();
-    spyOn(logger, 'warn');
+    vi.spyOn(logger, 'warn');
     const child1 = new ex.Entity([new TransformComponent()]);
     const child2 = new ex.Entity([new TransformComponent()], 'child2');
     const parent = new ex.Entity([new TransformComponent()]);

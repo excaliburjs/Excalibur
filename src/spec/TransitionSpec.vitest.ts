@@ -1,5 +1,6 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A Transition', () => {
   it('exists', () => {
@@ -47,9 +48,9 @@ describe('A Transition', () => {
   it('can be started with execute()', () => {
     const engine = TestUtils.engine();
     const sut = new ex.Transition({ duration: 3000 });
-    const onUpdateSpy = jasmine.createSpy('onUpdate');
-    const onStartSpy = jasmine.createSpy('onStart');
-    const onEndSpy = jasmine.createSpy('onEnd');
+    const onUpdateSpy = vi.fn();
+    const onStartSpy = vi.fn();
+    const onEndSpy = vi.fn();
     sut.onUpdate = onUpdateSpy;
     sut.onStart = onStartSpy;
     sut.onEnd = onEndSpy;
@@ -63,11 +64,11 @@ describe('A Transition', () => {
 
     sut.updateTransition(engine, 16);
     sut._execute();
-    expect(onUpdateSpy.calls.argsFor(1)).toEqual([16 / 3000]);
+    expect(onUpdateSpy.mock.calls[1]).toEqual([16 / 3000]);
 
     sut.updateTransition(engine, 16);
     sut._execute();
-    expect(onUpdateSpy.calls.argsFor(2)).toEqual([32 / 3000]);
+    expect(onUpdateSpy.mock.calls[2]).toEqual([32 / 3000]);
 
     sut.updateTransition(engine, 3200 - 32);
     sut._execute();
@@ -86,9 +87,9 @@ describe('A Transition', () => {
   it('can be reset()', () => {
     const engine = TestUtils.engine();
     const sut = new ex.Transition({ duration: 3000 });
-    const onUpdateSpy = jasmine.createSpy('onUpdate');
-    const onStartSpy = jasmine.createSpy('onStart');
-    const onEndSpy = jasmine.createSpy('onEnd');
+    const onUpdateSpy = vi.fn();
+    const onStartSpy = vi.fn();
+    const onEndSpy = vi.fn();
     sut.onUpdate = onUpdateSpy;
     sut.onStart = onStartSpy;
     sut.onEnd = onEndSpy;
@@ -102,11 +103,11 @@ describe('A Transition', () => {
 
     sut.updateTransition(engine, 16);
     sut._execute();
-    expect(onUpdateSpy.calls.argsFor(1)).toEqual([16 / 3000]);
+    expect(onUpdateSpy.mock.calls[1]).toEqual([16 / 3000]);
 
     sut.updateTransition(engine, 16);
     sut._execute();
-    expect(onUpdateSpy.calls.argsFor(2)).toEqual([32 / 3000]);
+    expect(onUpdateSpy.mock.calls[2]).toEqual([32 / 3000]);
 
     sut.updateTransition(engine, 3200 - 32);
     sut._execute();
@@ -118,7 +119,7 @@ describe('A Transition', () => {
 
     expect(sut.complete).toBe(true);
 
-    sut.onReset = jasmine.createSpy('onReset');
+    sut.onReset = vi.fn();
     sut.reset();
 
     expect(sut.complete).toBe(false);
