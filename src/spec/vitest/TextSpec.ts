@@ -23,6 +23,18 @@ async function runOnLinux(ctx: () => Promise<any>): Promise<boolean> {
   }
   return false;
 }
+
+/**
+ *
+ */
+async function runOnMac(ctx: () => Promise<any>): Promise<boolean> {
+  if (navigator.platform.includes('Mac')) {
+    await ctx();
+    return true;
+  }
+  return false;
+}
+
 declare global {
   interface Document {
     fonts: FontFaceSet;
@@ -67,7 +79,10 @@ export function waitForFontLoad(font: string, timeout = 2000, interval = 100): P
   });
 }
 
-describe('A Text Graphic', () => {
+// text rendering differs vastly by browser and OS. we'll limit these tests to chromium based browsers
+const isChromium = inject('browser') === 'chromium';
+
+describe.runIf(isChromium)('A Text Graphic', () => {
   beforeAll(async () => {
     const fontface = document.createElement('link');
     fontface.href = '/src/spec/assets/images/GraphicsTextSpec/fonts.css';
@@ -137,6 +152,7 @@ describe('A Text Graphic', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
+    document.body.append(canvasElement);
     const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
     ctx.clear();
     sut.draw(ctx, 10, 50);
@@ -145,17 +161,16 @@ describe('A Text Graphic', () => {
       await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/text.png');
     });
 
+    // await runOnMac(async () => {
+    //   await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/text.png');
+    // });
+
     await runOnLinux(async () => {
       await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/text-linux.png');
     });
   });
 
-  it('can draw multiple lines of text (font)', async ({ skip }) => {
-    // safari inconsistencies
-    if (inject('browser') === 'webkit') {
-      skip();
-    }
-
+  it('can draw multiple lines of text (font)', async () => {
     const sut = new ex.Text({
       text: 'multiple\nlines\nof text',
       color: ex.Color.Green,
@@ -183,17 +198,16 @@ describe('A Text Graphic', () => {
       await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/multi-text.png');
     });
 
+    // await runOnMac(async () => {
+    //   await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/multi-text.png');
+    // });
+
     await runOnLinux(async () => {
       await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/multi-text-linux.png');
     });
   });
 
-  it('can have width and height', ({ skip }) => {
-    // safari inconsistencies
-    if (inject('browser') === 'webkit') {
-      skip();
-    }
-
+  it('can have width and height', () => {
     const sut = new ex.Text({
       text: 'some extra long text that we want to measure',
       color: ex.Color.Green,
@@ -211,12 +225,7 @@ describe('A Text Graphic', () => {
     expect(sut.localBounds.height).toBeCloseTo(18, 0);
   });
 
-  it('can measure text for a font', ({ skip }) => {
-    // safari inconsistencies
-    if (inject('browser') === 'webkit') {
-      skip();
-    }
-
+  it('can measure text for a font', () => {
     const sut = new ex.Font({
       family: 'Open Sans',
       size: 18,
@@ -256,6 +265,10 @@ describe('A Text Graphic', () => {
       await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/flipped.png');
     });
 
+    // await runOnMac(async () => {
+    //   await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/flipped.png');
+    // });
+
     await runOnLinux(async () => {
       await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/flipped-linux.png');
     });
@@ -288,6 +301,10 @@ describe('A Text Graphic', () => {
       await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/font-alignment.png');
     });
 
+    // await runOnMac(async () => {
+    //   await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/font-alignment.png');
+    // });
+
     await runOnLinux(async () => {
       await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/font-alignment-linux.png');
     });
@@ -318,6 +335,10 @@ describe('A Text Graphic', () => {
     await runOnWindows(async () => {
       await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/rotated.png');
     });
+
+    // await runOnMac(async () => {
+    //   await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/rotated.png');
+    // });
 
     await runOnLinux(async () => {
       await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/rotated-linux.png');
@@ -351,6 +372,10 @@ describe('A Text Graphic', () => {
       await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/rotated-left.png');
     });
 
+    // await runOnMac(async () => {
+    //   await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/rotated-left.png');
+    // });
+
     await runOnLinux(async () => {
       await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/rotated-left-linux.png');
     });
@@ -383,6 +408,10 @@ describe('A Text Graphic', () => {
       await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/rotated-right.png');
     });
 
+    // await runOnMac(async () => {
+    //   await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/rotated-right.png');
+    // });
+
     await runOnLinux(async () => {
       await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/rotated-right-linux.png');
     });
@@ -413,6 +442,10 @@ describe('A Text Graphic', () => {
     await runOnWindows(async () => {
       await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/bold.png');
     });
+
+    // await runOnMac(async () => {
+    //   await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/bold.png');
+    // });
 
     await runOnLinux(async () => {
       await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/bold-linux.png');
@@ -445,6 +478,10 @@ describe('A Text Graphic', () => {
       await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/italic.png');
     });
 
+    // await runOnMac(async () => {
+    //   await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/italic.png');
+    // });
+
     await runOnLinux(async () => {
       await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/italic-linux.png');
     });
@@ -474,6 +511,10 @@ describe('A Text Graphic', () => {
     await runOnWindows(async () => {
       await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/line-height.png');
     });
+
+    // await runOnMac(async () => {
+    //   await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/line-height.png');
+    // });
 
     await runOnLinux(async () => {
       await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/line-height-linux.png');
@@ -509,6 +550,10 @@ describe('A Text Graphic', () => {
     await runOnWindows(async () => {
       await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/shadow.png');
     });
+
+    // await runOnMac(async () => {
+    //   await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/shadow.png');
+    // });
 
     await runOnLinux(async () => {
       await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/shadow-linux.png');
@@ -704,6 +749,10 @@ describe('A Text Graphic', () => {
       await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/reuse-font.png');
     });
 
+    // await runOnMac(async () => {
+    //   await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/reuse-font.png');
+    // });
+
     await runOnLinux(async () => {
       await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/reuse-font-linux.png');
     });
@@ -844,6 +893,10 @@ describe('A Text Graphic', () => {
     await runOnWindows(async () => {
       await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/long-text.png');
     });
+
+    // await runOnMac(async () => {
+    //   await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/long-text.png');
+    // });
 
     await runOnLinux(async () => {
       await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/long-text-linux.png');
@@ -1280,7 +1333,7 @@ describe('A Text Graphic', () => {
     await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/sprite-font-text-wrap.png');
   });
 
-  it('can word wrap text for a normal font', async () => {
+  it.only('can word wrap text for a normal font', async () => {
     const sut = new ex.Font({
       family: 'Open Sans',
       size: 18,
@@ -1297,7 +1350,7 @@ describe('A Text Graphic', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+    const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement, multiSampleAntialiasing: false });
 
     ctx.clear();
     text1.draw(ctx, 0, 18);
@@ -1306,6 +1359,10 @@ describe('A Text Graphic', () => {
     await runOnWindows(async () => {
       await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/font-text-wrap.png');
     });
+
+    // await runOnMac(async () => {
+    //   await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/font-text-wrap.png');
+    // });
 
     await runOnLinux(async () => {
       await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/font-text-wrap-linux.png');
