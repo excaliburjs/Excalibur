@@ -48,9 +48,7 @@ describe('A CrossFade transition', () => {
       })
     );
 
-    const onDeactivateSpy = jasmine.createSpy('onDeactivate').and.callFake(async () => {
-      await Promise.resolve();
-    });
+    const onDeactivateSpy = vi.fn(() => Promise.resolve());
 
     engine.director.getSceneInstance('root').onDeactivate = onDeactivateSpy;
 

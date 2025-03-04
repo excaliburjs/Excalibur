@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
-import { Mocks } from './util/Mocks';
 import { TestUtils } from './util/TestUtils';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A Trigger', () => {
   let scene: ex.Scene;
@@ -29,7 +29,7 @@ describe('A Trigger', () => {
     expect(ex.Trigger).toBeDefined();
   });
 
-  xit('can be triggered once', () => {
+  it.skip('can be triggered once', () => {
     // Arrange
     const trigger = new ex.Trigger({
       pos: new ex.Vector(0, 100),
@@ -42,7 +42,7 @@ describe('A Trigger', () => {
     actor.vel.y = 10;
     engine.currentScene.add(trigger);
     engine.currentScene.add(actor);
-    spyOn(trigger, 'action');
+    vi.spyOn(trigger, 'action');
 
     // Act
     actor.vel = ex.vec(0, 10);
@@ -65,7 +65,7 @@ describe('A Trigger', () => {
     expect(trigger.isKilled()).toBe(true);
   });
 
-  xit('can be triggered multiple times', () => {
+  it.skip('can be triggered multiple times', () => {
     // Arrange
     const trigger = new ex.Trigger({
       pos: new ex.Vector(0, 100),
@@ -74,8 +74,8 @@ describe('A Trigger', () => {
       repeat: 3
     });
     trigger.collider.update();
-    const enterSpy = jasmine.createSpy('enter');
-    const exitSpy = jasmine.createSpy('exit');
+    const enterSpy = vi.fn();
+    const exitSpy = vi.fn();
     trigger.on('enter', enterSpy);
     trigger.on('exit', exitSpy);
 
@@ -84,7 +84,7 @@ describe('A Trigger', () => {
     actor.vel.y = 10;
     engine.currentScene.add(trigger);
     engine.currentScene.add(actor);
-    spyOn(trigger, 'action').and.callThrough();
+    vi.spyOn(trigger, 'action');
 
     // Act
     // Enter trigger first
@@ -127,7 +127,7 @@ describe('A Trigger', () => {
     expect(trigger.isKilled()).toBe(true);
   });
 
-  xit('fires an event when an actor enters the trigger once', () => {
+  it.skip('fires an event when an actor enters the trigger once', () => {
     // Arrange
     let fired = 0;
 
@@ -157,7 +157,7 @@ describe('A Trigger', () => {
     expect(fired).toBe(1);
   });
 
-  xit('fires an event when the actor exits the trigger', () => {
+  it.skip('fires an event when the actor exits the trigger', () => {
     // Arrange
     const trigger = new ex.Trigger({
       pos: new ex.Vector(0, 100),
@@ -173,8 +173,8 @@ describe('A Trigger', () => {
     engine.add(trigger);
     engine.add(actor);
 
-    const exitSpy = jasmine.createSpy('exit');
-    const collisionEnd = jasmine.createSpy('collisionend');
+    const exitSpy = vi.fn();
+    const collisionEnd = vi.fn();
     trigger.events.on('exit', exitSpy);
     trigger.events.on('collisionend', collisionEnd);
 
@@ -197,7 +197,7 @@ describe('A Trigger', () => {
 
     engine.add(trigger);
 
-    trigger.graphics.onPostDraw = jasmine.createSpy('draw');
+    trigger.graphics.onPostDraw = vi.fn();
 
     // Act
     clock.run(2, 1000);
@@ -217,7 +217,7 @@ describe('A Trigger', () => {
 
     engine.add(trigger);
 
-    trigger.graphics.onPostDraw = jasmine.createSpy('draw');
+    trigger.graphics.onPostDraw = vi.fn();
 
     // Act
     clock.run(2, 1000);
@@ -241,7 +241,7 @@ describe('A Trigger', () => {
 
     engine.add(trigger);
     engine.add(actor);
-    spyOn(trigger, 'action');
+    vi.spyOn(trigger, 'action');
 
     // Act
     clock.run(2, 1000);
@@ -250,7 +250,7 @@ describe('A Trigger', () => {
     expect(trigger.action).not.toHaveBeenCalled();
   });
 
-  xit('will not only trigger if the filter is true', () => {
+  it.skip('will not only trigger if the filter is true', () => {
     // Arrange
     const trigger = new ex.Trigger({
       pos: new ex.Vector(0, 100),
@@ -267,7 +267,7 @@ describe('A Trigger', () => {
 
     engine.add(trigger);
     engine.add(actor);
-    spyOn(trigger, 'action').and.callThrough();
+    vi.spyOn(trigger, 'action');
 
     // Act
     clock.run(2, 1000);
@@ -291,7 +291,7 @@ describe('A Trigger', () => {
 
     engine.add(trigger);
     engine.add(actor2);
-    spyOn(trigger, 'action');
+    vi.spyOn(trigger, 'action');
 
     // Act
     clock.run(2, 1000);

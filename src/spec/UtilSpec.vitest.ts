@@ -1,5 +1,6 @@
 import * as ex from '@excalibur';
 import { watchDeep } from '../engine/Util/Watch';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('Utility functions', () => {
   it('can watch deep', () => {
@@ -13,7 +14,7 @@ describe('Utility functions', () => {
       }
     };
 
-    const changed = jasmine.createSpy('changed');
+    const changed = vi.fn();
     const watched = watchDeep(deepObject, changed);
     watched.top.oneLevel.twoLevel.value = false;
 

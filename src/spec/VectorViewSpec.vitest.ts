@@ -1,11 +1,7 @@
 import * as ex from '@excalibur';
-import { ExcaliburMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A VectorView', () => {
-  beforeAll(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
-  });
-
   it('exists', () => {
     expect(ex.VectorView).toBeDefined();
   });

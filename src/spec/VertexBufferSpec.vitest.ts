@@ -1,11 +1,8 @@
 import * as ex from '@excalibur';
-import { ExcaliburMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A VertexBuffer', () => {
   let gl: WebGL2RenderingContext;
-  beforeAll(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
-  });
 
   beforeEach(() => {
     const canvas = document.createElement('canvas');
@@ -48,7 +45,7 @@ describe('A VertexBuffer', () => {
       gl,
       size: 42
     });
-    spyOn(gl, 'bindBuffer').and.callThrough();
+    vi.spyOn(gl, 'bindBuffer');
 
     sut.bind();
     expect(gl.bindBuffer).toHaveBeenCalledWith(gl.ARRAY_BUFFER, sut.buffer);
@@ -59,8 +56,8 @@ describe('A VertexBuffer', () => {
       gl,
       size: 42
     });
-    spyOn(gl, 'bindBuffer').and.callThrough();
-    spyOn(gl, 'bufferData').and.callThrough();
+    vi.spyOn(gl, 'bindBuffer');
+    vi.spyOn(gl, 'bufferData');
 
     sut.upload();
     expect(gl.bindBuffer).toHaveBeenCalledWith(gl.ARRAY_BUFFER, sut.buffer);
