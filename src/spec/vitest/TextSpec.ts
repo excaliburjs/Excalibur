@@ -1333,7 +1333,7 @@ describe.runIf(isChromium)('A Text Graphic', () => {
     await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/sprite-font-text-wrap.png');
   });
 
-  it.only('can word wrap text for a normal font', async () => {
+  it('can word wrap text for a normal font', async () => {
     const sut = new ex.Font({
       family: 'Open Sans',
       size: 18,
