@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-import { ExcaliburMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A QuadTree', () => {
   it('exists', () => {

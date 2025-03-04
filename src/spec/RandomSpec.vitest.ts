@@ -1,4 +1,5 @@
 import * as ex from '@excalibur';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A random number', () => {
   it('exists', () => {
@@ -60,7 +61,7 @@ describe('A random number', () => {
     for (let i = 0; i < 9000; i++) {
       const r = random1.next();
       const inrange = 0 <= r && r < 1.0;
-      expect(inrange).toBe(true, `Random ${r} not in range [0, 1). Seed [${random1.seed}] Iteration [${i}]`);
+      expect(inrange, `Random ${r} not in range [0, 1). Seed [${random1.seed}] Iteration [${i}]`).toBe(true);
     }
   });
 
@@ -69,7 +70,7 @@ describe('A random number', () => {
     for (let i = 0; i < 9000; i++) {
       const r = random1.floating(-88, 1900);
       const inrange = -88 <= r && r < 1900;
-      expect(inrange).toBe(true, `Random ${r} not in range [-88, 1900). Seed [${random1.seed}] Iteration [${i}]`);
+      expect(inrange, `Random ${r} not in range [-88, 1900). Seed [${random1.seed}] Iteration [${i}]`).toBe(true);
     }
   });
 
@@ -78,7 +79,7 @@ describe('A random number', () => {
     for (let i = 0; i < 9000; i++) {
       const r = random1.integer(-10, 10);
       const inrange = -10 <= r && r <= 10;
-      expect(inrange).toBe(true, `Random ${r} not in range [-10, 10]. Seed [${random1.seed}] Iteration [${i}]`);
+      expect(inrange, `Random ${r} not in range [-10, 10]. Seed [${random1.seed}] Iteration [${i}]`).toBe(true);
     }
   });
 
@@ -96,7 +97,7 @@ describe('A random number', () => {
       }
     }
     const ratio = truthCount / falseCount;
-    expect(ratio).toBeCloseTo(1.0, 0.1, `Bool did not appear to be 50/50 Ratio true/false [${ratio}]`);
+    expect(ratio, `Bool did not appear to be 50/50 Ratio true/false [${ratio}]`).toBeCloseTo(1.0, 0.1);
   });
 
   it('can pick an element out of an array', () => {
@@ -135,7 +136,7 @@ describe('A random number', () => {
     expect(four).toBeGreaterThan(0);
 
     const ratio = one / two / (three / four);
-    expect(ratio).toBeCloseTo(1.0, 0.1, 'Should pick elements equally');
+    expect(ratio, 'Should pick elements equally').toBeCloseTo(1.0, 0.1);
   });
 
   it('can pick a subset of an array', () => {
@@ -197,7 +198,7 @@ describe('A random number', () => {
     expect(countsSum).toEqual(numCounts);
 
     const ratio = counts.one.count / counts.two.count / (counts.three.count / counts.four.count);
-    expect(ratio).toBeCloseTo(1.0, 0.1, 'Should pick elements equally');
+    expect(ratio, 'Should pick elements equally').toBeCloseTo(1.0, 0.1);
   });
 
   it('can shuffle arrays', () => {
@@ -227,7 +228,7 @@ describe('A random number', () => {
         return acc + curr;
       }, 0) / 1000;
 
-    expect(average).toBeCloseTo(expectedValue, 0.01, 'Should pick elements equally');
+    expect(average, 'Should pick elements equally').toBeCloseTo(expectedValue, 0.01);
   });
 
   it('can do d4 dice rolls', () => {

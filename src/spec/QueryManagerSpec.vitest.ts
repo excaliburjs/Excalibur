@@ -1,4 +1,5 @@
 import * as ex from '@excalibur';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 class FakeComponentA extends ex.Component {}
 class FakeComponentB extends ex.Component {}
@@ -31,22 +32,22 @@ describe('A QueryManager', () => {
     // Query for all entities that have type A & B components
     const queryAB = world.query([FakeComponentA, FakeComponentB]);
 
-    expect(queryA.getEntities()).toEqual([entity1, entity2], 'Both entities have component A');
-    expect(queryAB.getEntities()).toEqual([entity1], 'Only entity1 has both A+B');
+    expect(queryA.getEntities(), 'Both entities have component A').toEqual([entity1, entity2]);
+    expect(queryAB.getEntities(), 'Only entity1 has both A+B').toEqual([entity1]);
 
     // Queries update if component change
     entity2.addComponent(new FakeComponentB());
-    expect(queryAB.getEntities()).toEqual([entity1, entity2], 'Now both entities have A+B');
+    expect(queryAB.getEntities(), 'Now both entities have A+B').toEqual([entity1, entity2]);
 
     // Queries update if components change
     entity2.removeComponent(FakeComponentB, true);
-    expect(queryAB.getEntities()).toEqual([entity1], 'Component force removed from entity, only entity1 A+B');
+    expect(queryAB.getEntities(), 'Component force removed from entity, only entity1 A+B').toEqual([entity1]);
 
     // Queries are deferred by default, so queries will update after removals
     entity1.removeComponent(FakeComponentB);
-    expect(queryAB.getEntities()).toEqual([entity1], 'Deferred removal, component is still part of entity1');
+    expect(queryAB.getEntities(), 'Deferred removal, component is still part of entity1').toEqual([entity1]);
     entity1.processComponentRemoval();
-    expect(queryAB.getEntities()).toEqual([], 'No entities should match');
+    expect(queryAB.getEntities(), 'No entities should match').toEqual([]);
   });
 
   it('can add entities to queries', () => {
@@ -202,37 +203,39 @@ describe('A QueryManager', () => {
     expect(queryAB.getEntities()).toEqual([entity1, entity2]);
   });
 
-  it('will be notified when entity components are added', (done) => {
-    const world = new ex.World(null);
-    const entity = new ex.Entity();
-    world.add(entity);
+  it('will be notified when entity components are added', () =>
+    new Promise<void>((done) => {
+      const world = new ex.World(null);
+      const entity = new ex.Entity();
+      world.add(entity);
 
-    const componentA = new FakeComponentA();
-    const query = world.query([FakeComponentA]);
-    query.entityAdded$.subscribe((e) => {
-      expect(e).toBe(entity);
-      expect(e.get(FakeComponentA)).toBe(componentA);
-      done();
-    });
+      const componentA = new FakeComponentA();
+      const query = world.query([FakeComponentA]);
+      query.entityAdded$.subscribe((e) => {
+        expect(e).toBe(entity);
+        expect(e.get(FakeComponentA)).toBe(componentA);
+        done();
+      });
 
-    entity.addComponent(componentA);
-  });
+      entity.addComponent(componentA);
+    }));
 
-  it('will be notified when entity components are removed', (done) => {
-    const world = new ex.World(null);
-    const entity = new ex.Entity();
-    world.add(entity);
-    const componentA = new FakeComponentA();
-    entity.addComponent(componentA);
+  it('will be notified when entity components are removed', () =>
+    new Promise<void>((done) => {
+      const world = new ex.World(null);
+      const entity = new ex.Entity();
+      world.add(entity);
+      const componentA = new FakeComponentA();
+      entity.addComponent(componentA);
 
-    const query = world.query([FakeComponentA]);
-    query.entityRemoved$.subscribe((e) => {
-      expect(e).toBe(entity);
-      expect(e.get(FakeComponentA)).toBe(componentA);
-      done();
-    });
+      const query = world.query([FakeComponentA]);
+      query.entityRemoved$.subscribe((e) => {
+        expect(e).toBe(entity);
+        expect(e.get(FakeComponentA)).toBe(componentA);
+        done();
+      });
 
-    entity.removeComponent(FakeComponentA);
-    entity.processComponentRemoval();
-  });
+      entity.removeComponent(FakeComponentA);
+      entity.processComponentRemoval();
+    }));
 });
