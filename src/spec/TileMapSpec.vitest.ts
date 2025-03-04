@@ -1,4 +1,4 @@
-import { ExcaliburMatchers, ensureImagesLoaded, ExcaliburAsyncMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { BodyComponent } from '@excalibur';
@@ -18,8 +18,6 @@ describe('A TileMap', () => {
   let scene: ex.Scene;
   let texture: ex.ImageSource;
   beforeEach(async () => {
-    jasmine.addMatchers(ExcaliburMatchers);
-    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
     engine = TestUtils.engine({
       width: 800,
       height: 200
@@ -28,7 +26,7 @@ describe('A TileMap', () => {
     engine.addScene('root', scene);
     await TestUtils.runToReady(engine);
     const clock = engine.clock as ex.TestClock;
-    texture = new ex.ImageSource('src/spec/images/TileMapSpec/Blocks.png');
+    texture = new ex.ImageSource('/src/spec/images/TileMapSpec/Blocks.png');
     await texture.load();
     clock.step(1);
   });
@@ -213,14 +211,14 @@ describe('A TileMap', () => {
     drawWithTransform(engine.graphicsContext, tm, 99);
     engine.graphicsContext.flush();
 
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/TileMapSpec/TileMapGraphicSquare.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/TileMapSpec/TileMapGraphicSquare.png');
 
     tm.update(engine, 99);
 
     drawWithTransform(engine.graphicsContext, tm, 99);
     engine.graphicsContext.flush();
 
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/TileMapSpec/TileMapGraphicCircle.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/TileMapSpec/TileMapGraphicCircle.png');
   });
 
   it('should draw the correct proportions', async () => {
@@ -250,7 +248,7 @@ describe('A TileMap', () => {
     drawWithTransform(engine.graphicsContext, tm, 100);
     engine.graphicsContext.flush();
 
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/TileMapSpec/TileMap.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/TileMapSpec/TileMap.png');
   });
 
   it('should draw from the bottom', async () => {
@@ -276,7 +274,7 @@ describe('A TileMap', () => {
     drawWithTransform(engine.graphicsContext, tm, 100);
     engine.graphicsContext.flush();
 
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/TileMapSpec/tilemap-from-bottom.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/TileMapSpec/tilemap-from-bottom.png');
   });
 
   it('should draw from the top', async () => {
@@ -303,7 +301,7 @@ describe('A TileMap', () => {
     drawWithTransform(engine.graphicsContext, tm, 100);
     engine.graphicsContext.flush();
 
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/TileMapSpec/tilemap-from-top.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/TileMapSpec/tilemap-from-top.png');
   });
 
   it('should handle offscreen culling correctly with negative coords', async () => {
@@ -335,7 +333,7 @@ describe('A TileMap', () => {
     drawWithTransform(engine.graphicsContext, tm, 100);
     engine.graphicsContext.flush();
 
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/TileMapSpec/TileMapCulling.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/TileMapSpec/TileMapCulling.png');
   });
 
   it('should handle offscreen culling correctly when scaled', async () => {
@@ -387,7 +385,7 @@ describe('A TileMap', () => {
       })
     );
 
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/TileMapSpec/tilemap-scaled.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/TileMapSpec/tilemap-scaled.png');
   });
 
   it('can return a tile by xy coord', () => {
@@ -443,7 +441,7 @@ describe('A TileMap', () => {
   });
 
   it('can add and remove graphics on a tile', async () => {
-    const image = new ex.ImageSource('src/spec/images/TileMapSpec/Blocks.png');
+    const image = new ex.ImageSource('/src/spec/images/TileMapSpec/Blocks.png');
     await image.load();
     const sprite = image.toSprite();
     const sut = new ex.TileMap({
@@ -553,10 +551,10 @@ describe('A TileMap', () => {
 
     const tile = sut.getTile(0, 0);
 
-    const pointerdown = jasmine.createSpy('pointerdown');
-    const pointerup = jasmine.createSpy('pointerup');
-    const pointermove = jasmine.createSpy('pointermove');
-    const pointercancel = jasmine.createSpy('pointercancel');
+    const pointerdown = vi.fn();
+    const pointerup = vi.fn();
+    const pointermove = vi.fn();
+    const pointercancel = vi.fn();
     tile.on('pointerdown', pointerdown);
     tile.on('pointerup', pointerup);
     tile.on('pointermove', pointermove);

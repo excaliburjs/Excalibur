@@ -1,13 +1,9 @@
 import * as ex from '@excalibur';
-import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A TiledSprite', () => {
   let canvasElement: HTMLCanvasElement;
   let ctx: ex.ExcaliburGraphicsContext;
-  beforeAll(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
-    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
-  });
 
   beforeEach(() => {
     ex.TextureLoader.filtering = ex.ImageFiltering.Pixel;
@@ -28,7 +24,7 @@ describe('A TiledSprite', () => {
   });
 
   it('can be created after load', async () => {
-    const image = new ex.ImageSource('src/spec/images/TiledSpriteSpec/ground.png');
+    const image = new ex.ImageSource('/src/spec/images/TiledSpriteSpec/ground.png');
 
     await image.load();
     const sut = new ex.TiledSprite({
@@ -46,11 +42,11 @@ describe('A TiledSprite', () => {
     sut.draw(ctx, 0, 20);
     ctx.flush();
 
-    await expectAsync(canvasElement).toEqualImage('src/spec/images/TiledSpriteSpec/tiled.png');
+    await expect(canvasElement).toEqualImage('/src/spec/images/TiledSpriteSpec/tiled.png');
   });
 
   it('can be created before load', async () => {
-    const image = new ex.ImageSource('src/spec/images/TiledSpriteSpec/ground.png');
+    const image = new ex.ImageSource('/src/spec/images/TiledSpriteSpec/ground.png');
 
     const sut = new ex.TiledSprite({
       image,
@@ -68,11 +64,11 @@ describe('A TiledSprite', () => {
     sut.draw(ctx, 0, 20);
     ctx.flush();
 
-    await expectAsync(canvasElement).toEqualImage('src/spec/images/TiledSpriteSpec/tiled.png');
+    await expect(canvasElement).toEqualImage('/src/spec/images/TiledSpriteSpec/tiled.png');
   });
 
   it('can be from a sprite', async () => {
-    const image = new ex.ImageSource('src/spec/images/TiledSpriteSpec/ground.png');
+    const image = new ex.ImageSource('/src/spec/images/TiledSpriteSpec/ground.png');
     const sourceSprite = image.toSprite();
     sourceSprite.width = 400;
     sourceSprite.height = 400;
@@ -89,11 +85,11 @@ describe('A TiledSprite', () => {
     sut.draw(ctx, 0, 20);
     ctx.flush();
 
-    await expectAsync(canvasElement).toEqualImage('src/spec/images/TiledSpriteSpec/tiled.png');
+    await expect(canvasElement).toEqualImage('/src/spec/images/TiledSpriteSpec/tiled.png');
   });
 
   it('can grab a tiled sprite from a sprite sheet', async () => {
-    const cardsImage = new ex.ImageSource('src/spec/images/TiledAnimationSpec/kenny-cards.png');
+    const cardsImage = new ex.ImageSource('/src/spec/images/TiledAnimationSpec/kenny-cards.png');
     await cardsImage.load();
     const cardSpriteSheet = ex.SpriteSheet.fromImageSource({
       image: cardsImage,
@@ -120,6 +116,6 @@ describe('A TiledSprite', () => {
     sut.draw(ctx, 0, 0);
     ctx.flush();
 
-    await expectAsync(canvasElement).toEqualImage('src/spec/images/TiledSpriteSpec/from-spritesheet.png');
+    await expect(canvasElement).toEqualImage('/src/spec/images/TiledSpriteSpec/from-spritesheet.png');
   });
 });

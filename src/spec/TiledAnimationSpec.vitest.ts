@@ -1,13 +1,9 @@
 import * as ex from '@excalibur';
-import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A TiledAnimation', () => {
   let canvasElement: HTMLCanvasElement;
   let ctx: ex.ExcaliburGraphicsContext;
-  beforeAll(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
-    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
-  });
 
   beforeEach(() => {
     ex.TextureLoader.filtering = ex.ImageFiltering.Pixel;
@@ -28,7 +24,7 @@ describe('A TiledAnimation', () => {
   });
 
   it('can be created', async () => {
-    const cardsImage = new ex.ImageSource('src/spec/images/TiledAnimationSpec/kenny-cards.png');
+    const cardsImage = new ex.ImageSource('/src/spec/images/TiledAnimationSpec/kenny-cards.png');
     await cardsImage.load();
     const cardSpriteSheet = ex.SpriteSheet.fromImageSource({
       image: cardsImage,
@@ -61,13 +57,13 @@ describe('A TiledAnimation', () => {
     sut.draw(ctx, 20, 20);
     ctx.flush();
 
-    await expectAsync(canvasElement).toEqualImage('src/spec/images/TiledAnimationSpec/tiled.png');
+    await expect(canvasElement).toEqualImage('/src/spec/images/TiledAnimationSpec/tiled.png');
 
     sut.tick(200);
     ctx.clear();
     sut.draw(ctx, 20, 20);
     ctx.flush();
 
-    await expectAsync(canvasElement).toEqualImage('src/spec/images/TiledAnimationSpec/tiled-2.png');
+    await expect(canvasElement).toEqualImage('/src/spec/images/TiledAnimationSpec/tiled-2.png');
   });
 });
