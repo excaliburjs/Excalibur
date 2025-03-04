@@ -32,7 +32,7 @@ export default defineConfig({
   },
   test: {
     globals: true,
-    setupFiles: ['./src/spec/__setup__/setup.ts'],
+    setupFiles: ['./src/spec/vitest/__setup__/setup.ts'],
     include: ['**/*.vitest.ts'],
 
     browser: {
