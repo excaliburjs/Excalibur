@@ -24,7 +24,7 @@
       "es2018"
     ],
     "baseUrl": ".",
-    "rootDir": "../../",
+    "rootDir": "../../../",
     "paths": {
       "@excalibur": ["../../engine/"]
     }
