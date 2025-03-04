@@ -1,11 +1,7 @@
 import * as ex from '@excalibur';
-import { ExcaliburMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A Matrix', () => {
-  beforeAll(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
-  });
-
   it('exists', () => {
     expect(ex.Matrix).toBeDefined();
   });
@@ -17,7 +13,7 @@ describe('A Matrix', () => {
 
   it('can make an identity matrix', () => {
     const identity = ex.Matrix.identity();
-    expect(identity.isIdentity()).toBeTrue();
+    expect(identity.isIdentity()).toBe(true);
   });
 
   it('can make a translation matrix', () => {
@@ -75,79 +71,79 @@ describe('A Matrix', () => {
   it('can set scale with rotation in the mix', () => {
     const mat = ex.Matrix.identity();
     mat.setScale(ex.vec(-1, -1));
-    expect(mat.getScaleX()).toBe(-1, 'getScaleX()');
-    expect(mat.getScaleY()).toBe(-1, 'getScaleY()');
+    expect(mat.getScaleX(), 'getScaleX()').toBe(-1);
+    expect(mat.getScaleY(), 'getScaleY()').toBe(-1);
     mat.setScale(ex.vec(-2, -5));
-    expect(mat.getScaleX()).toBe(-2, 'getScaleX()');
-    expect(mat.getScaleY()).toBe(-5, 'getScaleY()');
+    expect(mat.getScaleX(), 'getScaleX()').toBe(-2);
+    expect(mat.getScaleY(), 'getScaleY()').toBe(-5);
 
     mat.setScale(ex.vec(5, 11));
-    expect(mat.getScaleX()).toBe(5, 'getScaleX()');
-    expect(mat.getScaleY()).toBe(11, 'getScaleY()');
+    expect(mat.getScaleX(), 'getScaleX()').toBe(5);
+    expect(mat.getScaleY(), 'getScaleY()').toBe(11);
     expect(mat.data[0]).toBe(5);
     expect(mat.data[5]).toBe(11);
 
     mat.setScale(ex.vec(1, -1));
-    expect(mat.getScaleX()).toBe(1, 'getScaleX()');
-    expect(mat.getScaleY()).toBe(-1, 'getScaleY()');
+    expect(mat.getScaleX(), 'getScaleX()').toBe(1);
+    expect(mat.getScaleY(), 'getScaleY()').toBe(-1);
 
     mat.setRotation(Math.PI / 3);
-    expect(mat.getScaleX()).toBeCloseTo(1, 2, 'rotated PI/3 getScaleX()');
-    expect(mat.getScaleY()).toBeCloseTo(-1, 2, 'rotated PI/3 getScaleY()');
-    expect(mat.getRotation()).toBeCloseTo(Math.PI / 3, 2, 'rotated PI/3 getRotation()');
+    expect(mat.getScaleX(), 'rotated PI/3 getScaleX()').toBeCloseTo(1, 2);
+    expect(mat.getScaleY(), 'rotated PI/3 getScaleY()').toBeCloseTo(-1, 2);
+    expect(mat.getRotation(), 'rotated PI/3 getRotation()').toBeCloseTo(Math.PI / 3, 2);
 
     mat.setRotation(Math.PI);
-    expect(mat.getScaleX()).toBeCloseTo(1, 2, 'rotated PI getScaleX()');
-    expect(mat.getScaleY()).toBeCloseTo(-1, 2, 'rotated PI getScaleY()');
-    expect(mat.getRotation()).toBeCloseTo(Math.PI, 2, 'rotated PI getRotation()');
+    expect(mat.getScaleX(), 'rotated PI getScaleX()').toBeCloseTo(1, 2);
+    expect(mat.getScaleY(), 'rotated PI getScaleY()').toBeCloseTo(-1, 2);
+    expect(mat.getRotation(), 'rotated PI getRotation()').toBeCloseTo(Math.PI, 2);
 
     mat.setRotation(Math.PI * 2);
-    expect(mat.getScaleX()).toBeCloseTo(1, 2, 'rotated 2 PI getScaleX()');
-    expect(mat.getScaleY()).toBeCloseTo(-1, 2, 'rotated 2 PI getScaleY()');
-    expect(mat.getRotation()).toBeCloseTo(Math.PI * 2, 2, 'rotated 2 PI getRotation()');
+    expect(mat.getScaleX(), 'rotated 2 PI getScaleX()').toBeCloseTo(1, 2);
+    expect(mat.getScaleY(), 'rotated 2 PI getScaleY()').toBeCloseTo(-1, 2);
+    expect(mat.getRotation(), 'rotated 2 PI getRotation()').toBeCloseTo(Math.PI * 2, 2);
 
     mat.setRotation(Math.PI * 3);
-    expect(mat.getScaleX()).toBeCloseTo(1, 2, 'rotated 3 PI getScaleX()');
-    expect(mat.getScaleY()).toBeCloseTo(-1, 2, 'rotated 3 PI getScaleY()');
-    expect(mat.getRotation()).toBeCloseTo(Math.PI, 2, 'rotated 3 * PI getRotation()');
+    expect(mat.getScaleX(), 'rotated 3 PI getScaleX()').toBeCloseTo(1, 2);
+    expect(mat.getScaleY(), 'rotated 3 PI getScaleY()').toBeCloseTo(-1, 2);
+    expect(mat.getRotation(), 'rotated 3 * PI getRotation()').toBeCloseTo(Math.PI, 2);
   });
 
   it('can set the rotation', () => {
     const mat = ex.Matrix.identity();
     mat.setRotation(0);
-    expect(mat.getRotation()).toBeCloseTo(0, 2, 'rotation 0');
+    expect(mat.getRotation(), 'rotation 0').toBeCloseTo(0, 2);
 
     mat.setRotation(Math.PI / 3);
-    expect(mat.getRotation()).toBeCloseTo(Math.PI / 3, 2, 'rotation PI/3');
+    expect(mat.getRotation(), 'rotation PI/3').toBeCloseTo(Math.PI / 3, 2);
 
     mat.setRotation(Math.PI);
-    expect(mat.getRotation()).toBeCloseTo(Math.PI, 2, 'rotation PI');
+    expect(mat.getRotation(), 'rotation PI').toBeCloseTo(Math.PI, 2);
 
     mat.setRotation(Math.PI * 2);
-    expect(mat.getRotation()).toBeCloseTo(Math.PI * 2, 2, 'rotation 2 PI');
+    expect(mat.getRotation(), 'rotation 2 PI').toBeCloseTo(Math.PI * 2, 2);
 
     mat.setRotation(Math.PI * 3);
-    expect(mat.getRotation()).toBeCloseTo(Math.PI, 2, 'roation 3 PI');
+    expect(mat.getRotation(), 'roation 3 PI').toBeCloseTo(Math.PI, 2);
   });
 
   it('can find the affine inverse', () => {
     const mat = ex.Matrix.identity().translate(100, -200).scale(2, 4);
 
     const inv = mat.getAffineInverse();
-    expect(mat.multiply(inv).isIdentity()).toBeTrue();
-    expect(inv.multiply(mat).isIdentity()).toBeTrue();
+    expect(mat.multiply(inv).isIdentity()).toBe(true);
+    expect(inv.multiply(mat).isIdentity()).toBe(true);
   });
 
   it('can find the affine inverse and store it into a target', () => {
     const target = ex.Matrix.identity();
     const mat = ex.Matrix.identity().translate(100, -200).scale(2, 4);
 
-    spyOn(ex.Matrix, 'identity');
+    vi.spyOn(ex.Matrix, 'identity');
     const inv = mat.getAffineInverse(target);
-    expect(mat.multiply(inv).isIdentity()).toBeTrue();
-    expect(inv.multiply(mat).isIdentity()).toBeTrue();
+    expect(mat.multiply(inv).isIdentity()).toBe(true);
+    expect(inv.multiply(mat).isIdentity()).toBe(true);
     expect(target).toBe(inv);
-    expect(ex.Matrix.identity).withContext('using a target doesnt create a new mat').not.toHaveBeenCalledWith();
+    expect(ex.Matrix.identity, 'using a target doesnt create a new mat').not.toHaveBeenCalledWith();
   });
 
   it('can be created from a float32array', () => {

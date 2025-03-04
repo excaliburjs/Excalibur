@@ -1,11 +1,7 @@
 import * as ex from '@excalibur';
-import { ExcaliburMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A Motion Component', () => {
-  beforeAll(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
-  });
-
   it('can be cloned', () => {
     const motion = new ex.MotionComponent();
     const owner = new ex.Entity([motion]);

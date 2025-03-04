@@ -1,4 +1,5 @@
 import * as ex from '@excalibur';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('Excalibur Math', () => {
   it('can convert radians to degrees', () => {

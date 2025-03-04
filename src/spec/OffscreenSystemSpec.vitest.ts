@@ -1,15 +1,12 @@
 import * as ex from '@excalibur';
 import { GraphicsComponent, TransformComponent } from '@excalibur';
-import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 import { TestUtils } from './util/TestUtils';
 
 describe('The OffscreenSystem', () => {
   let entities: ex.Entity[];
   let engine: ex.Engine;
   beforeEach(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
-    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
-
     engine = TestUtils.engine({ width: 100, height: 100 });
     entities = [
       new ex.Entity().addComponent(new ex.TransformComponent()).addComponent(new ex.GraphicsComponent()),
@@ -49,8 +46,8 @@ describe('The OffscreenSystem', () => {
     offscreen.get(GraphicsComponent).use(rect);
     offscreen.get(TransformComponent).pos = ex.vec(112.5, 112.5);
 
-    const offscreenSpy = jasmine.createSpy('offscreenSpy');
-    const onscreenSpy = jasmine.createSpy('onscreenSpy');
+    const offscreenSpy = vi.fn();
+    const onscreenSpy = vi.fn();
 
     offscreen.events.on('enterviewport', onscreenSpy);
     offscreen.events.on('exitviewport', offscreenSpy);
@@ -60,9 +57,9 @@ describe('The OffscreenSystem', () => {
     sut.update();
     expect(offscreenSpy).toHaveBeenCalled();
     expect(onscreenSpy).not.toHaveBeenCalled();
-    expect(offscreen.hasTag('ex.offscreen')).toBeTrue();
-    offscreenSpy.calls.reset();
-    onscreenSpy.calls.reset();
+    expect(offscreen.hasTag('ex.offscreen')).toBe(true);
+    offscreenSpy.mockReset();
+    onscreenSpy.mockReset();
 
     // Should be onscreen
     offscreen.get(TransformComponent).pos = ex.vec(80, 80);
@@ -70,6 +67,6 @@ describe('The OffscreenSystem', () => {
     offscreen.processComponentRemoval();
     expect(offscreenSpy).not.toHaveBeenCalled();
     expect(onscreenSpy).toHaveBeenCalled();
-    expect(offscreen.hasTag('ex.offscreen')).toBeFalse();
+    expect(offscreen.hasTag('ex.offscreen')).toBe(false);
   });
 });
