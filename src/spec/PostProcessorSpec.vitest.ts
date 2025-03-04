@@ -1,4 +1,5 @@
 import * as ex from '@excalibur';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 const source = `#version 300 es
 precision mediump float;
@@ -26,7 +27,7 @@ class MockPostProcessor implements ex.PostProcessor {
   getLayout(): ex.VertexLayout {
     return this._shader.getLayout();
   }
-  onUpdate = jasmine.createSpy('update');
+  onUpdate = vi.fn();
 }
 
 describe('A PostProcessor', () => {
@@ -62,16 +63,16 @@ describe('A PostProcessor', () => {
 
     const shader = mock.getShader();
 
-    const setUniformFloatCalls = spyOn(shader, 'setUniformFloat');
-    const setUniformFloatVectorCalls = spyOn(shader, 'setUniformFloatVector');
+    const setUniformFloatCalls = vi.spyOn(shader, 'setUniformFloat');
+    const setUniformFloatVectorCalls = vi.spyOn(shader, 'setUniformFloatVector');
 
     context.updatePostProcessors(10);
 
     expect(shader.setUniformFloat).toHaveBeenCalledTimes(2);
     expect(shader.setUniformFloatVector).toHaveBeenCalledTimes(1);
 
-    expect(setUniformFloatCalls.calls.argsFor(0)).toEqual(['u_time_ms', 10]);
-    expect(setUniformFloatCalls.calls.argsFor(1)).toEqual(['u_elapsed_ms', 10]);
-    expect(setUniformFloatVectorCalls.calls.argsFor(0)).toEqual(['u_resolution', ex.vec(100, 100)]);
+    expect(setUniformFloatCalls.mock.calls[0]).toEqual(['u_time_ms', 10]);
+    expect(setUniformFloatCalls.mock.calls[1]).toEqual(['u_elapsed_ms', 10]);
+    expect(setUniformFloatVectorCalls.mock.calls[0]).toEqual(['u_resolution', ex.vec(100, 100)]);
   });
 });

@@ -1,13 +1,10 @@
 import * as ex from '@excalibur';
-import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A Polygon Graphic', () => {
   let canvasElement: HTMLCanvasElement;
   let ctx: ex.ExcaliburGraphicsContext;
   beforeEach(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
-    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
-
     canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
@@ -57,6 +54,6 @@ describe('A Polygon Graphic', () => {
 
     poly.draw(ctx, 0, 0);
 
-    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsPolygonSpec/poly.png');
+    await expect(canvasElement).toEqualImage('/src/spec/images/GraphicsPolygonSpec/poly.png', 0.993);
   });
 });

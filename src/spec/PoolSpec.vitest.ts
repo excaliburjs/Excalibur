@@ -1,4 +1,5 @@
 import * as ex from '@excalibur';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 class MockPoolable {
   constructor(public recycled: boolean = false) {}
@@ -29,7 +30,7 @@ describe('An object Pool', () => {
       10
     );
     const logger = ex.Logger.getInstance();
-    spyOn(logger, 'warn');
+    vi.spyOn(logger, 'warn');
     for (let i = 0; i < 10; i++) {
       const instance = pool.get();
     }
@@ -37,11 +38,11 @@ describe('An object Pool', () => {
     expect(pool.totalAllocations).toBe(10);
     expect(logger.warn).not.toHaveBeenCalled();
     pool.get();
-    expect(logger.warn).toHaveBeenCalledOnceWith('Max pooled objects reached, possible memory leak? Doubling');
+    expect(logger.warn).toHaveBeenCalledExactlyOnceWith('Max pooled objects reached, possible memory leak? Doubling');
   });
 
   it('can get instances and return them to get recycled', () => {
-    const recycler = jasmine.createSpy().and.callFake((m) => m.dispose());
+    const recycler = vi.fn((m) => m.dispose());
     const pool = new ex.Pool<MockPoolable>(() => new MockPoolable(), recycler, 10);
     const intances: MockPoolable[] = [];
     for (let i = 0; i < 10; i++) {
@@ -54,7 +55,7 @@ describe('An object Pool', () => {
     expect(pool.index).toBe(0);
     for (let i = 0; i < 10; i++) {
       const instance = pool.get();
-      expect(instance.recycled).toBeTrue();
+      expect(instance.recycled).toBe(true);
     }
 
     expect(recycler).toHaveBeenCalledTimes(10);
