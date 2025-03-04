@@ -195,7 +195,7 @@ describe.runIf(isChromium)('A Text Graphic', () => {
     expect(sut.localBounds.width).toBeCloseTo(69.8, -1);
     expect(sut.localBounds.height).toBeCloseTo(18 * 3, 0);
     await runOnWindows(async () => {
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/multi-text.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/multi-text-win.png');
     });
 
     // await runOnMac(async () => {
@@ -440,7 +440,7 @@ describe.runIf(isChromium)('A Text Graphic', () => {
     sut.draw(ctx, 10, 50);
 
     await runOnWindows(async () => {
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/bold.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/bold-win.png');
     });
 
     // await runOnMac(async () => {
@@ -509,7 +509,7 @@ describe.runIf(isChromium)('A Text Graphic', () => {
     sut.draw(ctx, 10, 10);
 
     await runOnWindows(async () => {
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/line-height.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/line-height-win.png');
     });
 
     // await runOnMac(async () => {
@@ -746,7 +746,7 @@ describe.runIf(isChromium)('A Text Graphic', () => {
     ctx.flush();
 
     await runOnWindows(async () => {
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/reuse-font.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/reuse-font-win.png');
     });
 
     // await runOnMac(async () => {
@@ -1357,7 +1357,7 @@ describe.runIf(isChromium)('A Text Graphic', () => {
     ctx.flush();
 
     await runOnWindows(async () => {
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/font-text-wrap.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/font-text-wrap-win.png');
     });
 
     // await runOnMac(async () => {
