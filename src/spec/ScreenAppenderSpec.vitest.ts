@@ -1,12 +1,8 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
-import { ExcaliburAsyncMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A ScreenAppender', () => {
-  beforeAll(() => {
-    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
-  });
-
   it('exists', () => {
     expect(ex.ScreenAppender).toBeDefined();
   });

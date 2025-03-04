@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-import { ExcaliburMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 import { Camera } from '@excalibur';
 
 describe('A Screen', () => {
@@ -8,7 +8,6 @@ describe('A Screen', () => {
   let browser: ex.BrowserEvents;
 
   beforeEach(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
     // It's important nothing else is hanging out in the dom
     Array.from(document.body.children).forEach((element) => {
       document.body.removeChild(element);
@@ -429,8 +428,12 @@ describe('A Screen', () => {
   });
 
   it('will go fullscreen with the canvas element by default', () => {
-    const mockCanvas = jasmine.createSpyObj('canvas', ['addEventListener', 'removeEventListener', 'requestFullscreen']);
-    mockCanvas.style = {};
+    const mockCanvas = {
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      requestFullscreen: vi.fn(),
+      style: {}
+    } as any;
     const sut = new ex.Screen({
       canvas: mockCanvas,
       context,
@@ -458,8 +461,14 @@ describe('A Screen', () => {
       viewport: { width: 800, height: 600 }
     });
 
-    const fakeElement = jasmine.createSpyObj('element', ['requestFullscreen', 'getAttribute', 'setAttribute', 'addEventListener']);
-    spyOn(document, 'getElementById').and.returnValue(fakeElement);
+    const fakeElement = {
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      requestFullscreen: vi.fn(),
+      getAttribute: vi.fn(),
+      setAttribute: vi.fn()
+    };
+    vi.spyOn(document, 'getElementById').mockImplementation(() => fakeElement as any);
 
     sut.enterFullscreen('some-id');
 
@@ -577,7 +586,7 @@ describe('A Screen', () => {
 
     sut.applyResolutionAndViewport();
 
-    expect(context.smoothing).toBeFalse();
+    expect(context.smoothing).toBe(false);
     expect(canvas.style.imageRendering).toBe('pixelated');
   });
 
@@ -615,7 +624,7 @@ describe('A Screen', () => {
 
     sut.applyResolutionAndViewport();
 
-    expect(context.smoothing).toBeFalse();
+    expect(context.smoothing).toBe(false);
     expect(canvasStub.style.imageRendering).toBe('crisp-edges');
   });
 
@@ -631,7 +640,7 @@ describe('A Screen', () => {
 
     sut.applyResolutionAndViewport();
 
-    expect(context.smoothing).toBeTrue();
+    expect(context.smoothing).toBe(true);
     expect(canvas.style.imageRendering).toBe('auto');
   });
 
@@ -914,7 +923,7 @@ describe('A Screen', () => {
 
   it('will warn if the resolution is too large', () => {
     const logger = ex.Logger.getInstance();
-    spyOn(logger, 'warnOnce');
+    vi.spyOn(logger, 'warnOnce');
 
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
@@ -935,11 +944,11 @@ describe('A Screen', () => {
       pixelRatio: 2
     });
 
-    spyOn(context, 'checkIfResolutionSupported').and.returnValue(false);
+    vi.spyOn(context, 'checkIfResolutionSupported').mockImplementation(() => false);
     sut.resolution = { width: 3000, height: 3000 };
     sut.applyResolutionAndViewport();
     expect(context.checkIfResolutionSupported).toHaveBeenCalled();
-    expect(logger.warnOnce).toHaveBeenCalledOnceWith(
+    expect(logger.warnOnce).toHaveBeenCalledExactlyOnceWith(
       `The currently configured resolution (${sut.resolution.width}x${sut.resolution.height}) and pixel ratio (${sut.pixelRatio})` +
         ' are too large for the platform WebGL implementation, this may work but cause WebGL rendering to behave oddly.' +
         ' Try reducing the resolution or disabling Hi DPI scaling to avoid this' +
@@ -949,7 +958,7 @@ describe('A Screen', () => {
 
   it('will warn if the resolution is too large and attempt to recover', () => {
     const logger = ex.Logger.getInstance();
-    const warnOnce = spyOn(logger, 'warnOnce');
+    const warnOnce = vi.spyOn(logger, 'warnOnce');
 
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
@@ -969,18 +978,18 @@ describe('A Screen', () => {
       viewport: { width: 800, height: 600 }
     });
 
-    spyOn(context, 'checkIfResolutionSupported').and.callThrough();
+    vi.spyOn(context, 'checkIfResolutionSupported');
     sut.resolution = { width: 2000, height: 2000 };
     (sut as any)._devicePixelRatio = 3;
     sut.applyResolutionAndViewport();
     expect(context.checkIfResolutionSupported).toHaveBeenCalled();
-    expect(warnOnce.calls.argsFor(0)).toEqual([
+    expect(warnOnce.mock.calls[0]).toEqual([
       `The currently configured resolution (${sut.resolution.width}x${sut.resolution.height}) and pixel ratio (3)` +
         ' are too large for the platform WebGL implementation, this may work but cause WebGL rendering to behave oddly.' +
         ' Try reducing the resolution or disabling Hi DPI scaling to avoid this' +
         ' (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).'
     ]);
-    expect(warnOnce.calls.argsFor(1)).toEqual([
+    expect(warnOnce.mock.calls[1]).toEqual([
       'Scaled resolution too big attempted recovery!' +
         ` Pixel ratio was automatically reduced to (2) to avoid 4k texture limit.` +
         ' Setting `ex.Engine({pixelRatio: ...}) will override any automatic recalculation, do so at your own risk.` ' +

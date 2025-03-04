@@ -1,4 +1,4 @@
-import { ExcaliburMatchers, ensureImagesLoaded, ExcaliburAsyncMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { ScreenElement } from '@excalibur';
@@ -8,11 +8,6 @@ describe('A ScreenElement', () => {
   let engine: ex.Engine;
   let scene: ex.Scene;
   let clock: ex.TestClock;
-
-  beforeAll(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
-    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
-  });
 
   beforeEach(async () => {
     screenElement = new ex.ScreenElement({
@@ -41,7 +36,7 @@ describe('A ScreenElement', () => {
 
   it('can be constructed with zero args without a warning', () => {
     const logger = ex.Logger.getInstance();
-    spyOn(logger, 'warn');
+    vi.spyOn(logger, 'warn');
 
     const sut = new ScreenElement();
 
@@ -93,7 +88,7 @@ describe('A ScreenElement', () => {
 
   it('is drawn when visible', () => {
     screenElement.graphics.visible = true;
-    screenElement.graphics.onPostDraw = jasmine.createSpy('draw');
+    screenElement.graphics.onPostDraw = vi.fn();
 
     scene.add(screenElement);
     scene.draw(engine.graphicsContext, 100);
@@ -103,7 +98,7 @@ describe('A ScreenElement', () => {
 
   it('is not drawn when not visible', () => {
     screenElement.graphics.visible = false;
-    screenElement.graphics.onPostDraw = jasmine.createSpy('draw');
+    screenElement.graphics.onPostDraw = vi.fn();
 
     scene.add(screenElement);
     scene.draw(engine.graphicsContext, 100);
@@ -128,7 +123,7 @@ describe('A ScreenElement', () => {
   it('is drawn on the top left with empty constructor', async () => {
     const game = TestUtils.engine({ width: 720, height: 480 });
     const clock = game.clock as ex.TestClock;
-    const bg = new ex.ImageSource('src/spec/images/ScreenElementSpec/emptyctor.png');
+    const bg = new ex.ImageSource('/src/spec/images/ScreenElementSpec/emptyctor.png');
     const loader = new ex.Loader([bg]);
     await TestUtils.runToReady(game, loader);
     const screenElement = new ex.ScreenElement();
@@ -136,7 +131,7 @@ describe('A ScreenElement', () => {
     game.add(screenElement);
     game.currentScene.draw(game.graphicsContext, 100);
     game.graphicsContext.flush();
-    await expectAsync(game.canvas).toEqualImage('src/spec/images/ScreenElementSpec/emptyctor.png');
+    await expect(game.canvas).toEqualImage('/src/spec/images/ScreenElementSpec/emptyctor.png');
     game.dispose();
   });
 });
