@@ -1,5 +1,6 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A Timer', () => {
   let timer;
@@ -65,7 +66,7 @@ describe('A Timer', () => {
   });
 
   it('can be paused and resumed', () => {
-    const timerSpy = jasmine.createSpy('timer');
+    const timerSpy = vi.fn();
     const sut = new ex.Timer({
       interval: 42,
       fcn: timerSpy
@@ -94,8 +95,8 @@ describe('A Timer', () => {
   });
 
   it('does not warn when added to a scene', () => {
-    const warnSpy = spyOn(ex.Logger.getInstance(), 'warn');
-    const timerSpy = jasmine.createSpy('timer');
+    const warnSpy = vi.spyOn(ex.Logger.getInstance(), 'warn');
+    const timerSpy = vi.fn();
     const sut = new ex.Timer({
       interval: 42,
       fcn: timerSpy
@@ -107,7 +108,7 @@ describe('A Timer', () => {
   });
 
   it('can be stopped and started', () => {
-    const timerSpy = jasmine.createSpy('timer');
+    const timerSpy = vi.fn();
     const sut = new ex.Timer({
       interval: 42,
       fcn: timerSpy
@@ -133,7 +134,7 @@ describe('A Timer', () => {
   });
 
   it('fires after a specific interval', () => {
-    const timerSpy = jasmine.createSpy('timer');
+    const timerSpy = vi.fn();
     const sut = new ex.Timer({
       interval: 500,
       fcn: timerSpy
@@ -146,7 +147,7 @@ describe('A Timer', () => {
   });
 
   it('can repeat itself indefinitely at a specified interval', () => {
-    const timerSpy = jasmine.createSpy('timer');
+    const timerSpy = vi.fn();
     timer = new ex.Timer({
       interval: 500,
       fcn: timerSpy,
@@ -162,7 +163,7 @@ describe('A Timer', () => {
   });
 
   it('can repeat itself a finite number of times', () => {
-    const timerSpy = jasmine.createSpy('timer');
+    const timerSpy = vi.fn();
     timer = new ex.Timer({
       interval: 500,
       fcn: timerSpy,
@@ -188,7 +189,7 @@ describe('A Timer', () => {
   });
 
   it('can be canceled', () => {
-    const timerSpy = jasmine.createSpy('timer');
+    const timerSpy = vi.fn();
     timer = new ex.Timer({
       interval: 500,
       fcn: timerSpy,
@@ -225,7 +226,7 @@ describe('A Timer', () => {
   });
 
   it('has no completed state when running forever', () => {
-    const timerSpy = jasmine.createSpy('timer');
+    const timerSpy = vi.fn();
     timer = new ex.Timer({
       interval: 500,
       fcn: timerSpy,
@@ -251,7 +252,7 @@ describe('A Timer', () => {
   });
 
   it('can be reset at the same interval', () => {
-    const timerSpy = jasmine.createSpy('timer');
+    const timerSpy = vi.fn();
     // non-repeating timer
     timer = new ex.Timer({
       interval: 500,
@@ -505,7 +506,7 @@ describe('A Timer', () => {
     });
     scene.add(timer);
     timer.start();
-    expect(timer.complete).toBeFalse();
+    expect(timer.complete).toBe(false);
     scene.update(engine, 100);
     expect(timer.interval).toBeGreaterThanOrEqual(100);
     expect(timer.interval).toBeLessThanOrEqual(300);
@@ -525,8 +526,9 @@ describe('A Timer', () => {
   });
 
   it('an Random instance can be passed, if specified', () => {
-    const randomMock = jasmine.createSpyObj('Random', ['integer']);
-    randomMock.integer.and.returnValue(11);
+    const randomMock = {
+      integer: vi.fn(() => 11)
+    } as any;
     const timer = new ex.Timer({ interval: 500, repeats: false, randomRange: [0, 100], random: randomMock });
     scene.add(timer);
     timer.start();
@@ -535,8 +537,14 @@ describe('A Timer', () => {
   });
 
   it('has a randomly set interval with repetition and Random instance passed', () => {
-    const randomMock = jasmine.createSpyObj('Random', ['integer']);
-    randomMock.integer.and.returnValues(11, 5, 2, 99);
+    const randomMock = {
+      integer: vi
+        .fn()
+        .mockImplementationOnce(() => 11)
+        .mockImplementationOnce(() => 5)
+        .mockImplementationOnce(() => 2)
+        .mockImplementationOnce(() => 99)
+    } as any;
     const timer = new ex.Timer({ interval: 500, repeats: true, randomRange: [0, 100], random: randomMock });
     scene.add(timer);
     timer.start();
@@ -550,8 +558,13 @@ describe('A Timer', () => {
   });
 
   it('is random after reset with Random instance passed and no repeats are added', () => {
-    const randomMock = jasmine.createSpyObj('Random', ['integer']);
-    randomMock.integer.and.returnValues(11, 5);
+    const randomMock = {
+      integer: vi
+        .fn()
+        .mockImplementationOnce(() => 11)
+        .mockImplementationOnce(() => 5)
+    } as any;
+
     const timer = new ex.Timer({ interval: 500, repeats: false, randomRange: [0, 100], random: randomMock });
     scene.add(timer);
     timer.start();
@@ -564,8 +577,13 @@ describe('A Timer', () => {
   });
 
   it('produces random intervals even with new interval passed during reset', () => {
-    const randomMock = jasmine.createSpyObj('Random', ['integer']);
-    randomMock.integer.and.returnValues(11, 1, 5);
+    const randomMock = {
+      integer: vi
+        .fn()
+        .mockImplementationOnce(() => 11)
+        .mockImplementationOnce(() => 11)
+        .mockImplementationOnce(() => 5)
+    } as any;
     const timer = new ex.Timer({ interval: 500, repeats: true, randomRange: [0, 100], random: randomMock });
     scene.add(timer);
     timer.start();
