@@ -1,12 +1,8 @@
 import * as ex from '@excalibur';
-import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 import { TestUtils } from './util/TestUtils';
 
 describe('A Parallax Component', () => {
-  beforeAll(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
-    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
-  });
   it('exists', () => {
     expect(ex.ParallaxComponent).toBeDefined();
   });
@@ -37,21 +33,21 @@ describe('A Parallax Component', () => {
     expect(game.currentScene.camera.pos).toBeVector(ex.vec(100, 100));
 
     clock.step(16);
-    await expectAsync(game.canvas).toEqualImage('src/spec/images/ParallaxSpec/parallax1.png');
-    expect(actor.hasTag('ex.offscreen')).toBeFalse();
+    await expect(game.canvas).toEqualImage('/src/spec/images/ParallaxSpec/parallax1.png');
+    expect(actor.hasTag('ex.offscreen')).toBe(false);
 
     game.currentScene.camera.pos = ex.vec(520, 520);
     game.currentScene.camera.drawPos = ex.vec(520, 520);
     clock.step();
     expect(game.currentScene.camera.pos).toBeVector(ex.vec(520, 520));
-    await expectAsync(game.canvas).toEqualImage('src/spec/images/ParallaxSpec/parallax2.png');
-    expect(actor.hasTag('ex.offscreen')).toBeFalse();
+    await expect(game.canvas).toEqualImage('/src/spec/images/ParallaxSpec/parallax2.png');
+    expect(actor.hasTag('ex.offscreen')).toBe(false);
 
     game.currentScene.camera.pos = ex.vec(620, 620);
     game.currentScene.camera.drawPos = ex.vec(620, 620);
     clock.step();
     expect(game.currentScene.camera.pos).toBeVector(ex.vec(620, 620));
-    expect(actor.hasTag('ex.offscreen')).toBeTrue();
+    expect(actor.hasTag('ex.offscreen')).toBe(true);
     game.dispose();
   });
 
@@ -82,14 +78,14 @@ describe('A Parallax Component', () => {
 
     clock.step(16);
 
-    await expectAsync(game.canvas).toEqualImage('src/spec/images/ParallaxSpec/tilemap.png');
+    await expect(game.canvas).toEqualImage('/src/spec/images/ParallaxSpec/tilemap.png');
 
     game.currentScene.camera.pos = ex.vec(250, -480);
 
     clock.step(16); // seems like there is an out of phase issue
     clock.step(16);
 
-    await expectAsync(game.canvas).toEqualImage('src/spec/images/ParallaxSpec/tilemap2.png');
+    await expect(game.canvas).toEqualImage('/src/spec/images/ParallaxSpec/tilemap2.png');
     game.dispose();
   });
 });

@@ -1,4 +1,4 @@
-import { ExcaliburMatchers, ExcaliburAsyncMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 
@@ -6,8 +6,6 @@ describe('A particle', () => {
   let engine: ex.Engine;
   let scene: ex.Scene;
   beforeEach(async () => {
-    jasmine.addMatchers(ExcaliburMatchers);
-    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
     engine = TestUtils.engine(
       {
         width: 800,
@@ -128,7 +126,7 @@ describe('A particle', () => {
     engine.currentScene.update(engine, 100);
     engine.currentScene.draw(engine.graphicsContext, 100);
     engine.graphicsContext.flush();
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/ParticleSpec/Particles.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/ParticleSpec/Particles.png');
   });
 
   it('should clear particles', async () => {
@@ -171,7 +169,7 @@ describe('A particle', () => {
     engine.currentScene.update(engine, 100);
     engine.currentScene.draw(engine.graphicsContext, 100);
     engine.graphicsContext.flush();
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/ParticleSpec/clear.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/ParticleSpec/clear.png');
   });
 
   it('can be parented', async () => {
@@ -221,7 +219,7 @@ describe('A particle', () => {
     engine.currentScene.update(engine, 100);
     engine.currentScene.draw(engine.graphicsContext, 100);
     engine.graphicsContext.flush();
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/ParticleSpec/parented.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/ParticleSpec/parented.png');
   });
 
   it('can set the particle transform to local making particles children of the emitter', () => {

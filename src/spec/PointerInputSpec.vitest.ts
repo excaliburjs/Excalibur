@@ -1,5 +1,6 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A pointer', () => {
   let engine: ex.Engine = null;
@@ -64,9 +65,9 @@ describe('A pointer', () => {
     // process pointer events
     engine.currentScene.update(engine, 0);
 
-    expect(eventLeftFired).toBe(true, 'left should fire');
-    expect(eventRightFired).toBe(true, 'right should fire');
-    expect(eventMiddleFired).toBe(true, 'middle should fire');
+    expect(eventLeftFired, 'left should fire').toBe(true);
+    expect(eventRightFired, 'right should fire').toBe(true);
+    expect(eventMiddleFired, 'middle should fire').toBe(true);
   });
 
   it('should fire pointerup events', () => {
@@ -92,9 +93,9 @@ describe('A pointer', () => {
     // process pointer events
     engine.currentScene.update(engine, 0);
 
-    expect(eventLeftFired).toBeTruthy('left should fire');
-    expect(eventRightFired).toBeTruthy('right should fire');
-    expect(eventMiddleFired).toBeTruthy('middle should fire');
+    expect(eventLeftFired, 'left should fire').toBeTruthy();
+    expect(eventRightFired, 'right should fire').toBeTruthy();
+    expect(eventMiddleFired, 'middle should fire').toBeTruthy();
   });
 
   it('should fire pointermove events', () => {
@@ -173,38 +174,38 @@ describe('A pointer', () => {
   it('should not dispatch canceled events to the top level', () => {
     const actor1 = new ex.Actor({ x: 50, y: 50, width: 100, height: 100 });
 
-    const spyActorDown = jasmine.createSpy('actorDown');
+    const spyActorDown = vi.fn();
     actor1.on('pointerdown', (e) => {
       spyActorDown();
       e.cancel();
     });
-    const spyActorUp = jasmine.createSpy('actorUp');
+    const spyActorUp = vi.fn();
     actor1.on('pointerup', (e) => {
       spyActorUp();
       e.cancel();
     });
-    const spyActorMove = jasmine.createSpy('actorMove');
+    const spyActorMove = vi.fn();
     actor1.on('pointermove', (e) => {
       spyActorMove();
       e.cancel();
     });
-    const spyActorWheel = jasmine.createSpy('actorWheel');
+    const spyActorWheel = vi.fn();
     actor1.on('pointerwheel', (e) => {
       spyActorWheel();
       e.cancel();
     });
     engine.add(actor1);
 
-    const spyTopLevelPointerDown = jasmine.createSpy('pointerdown');
+    const spyTopLevelPointerDown = vi.fn();
     engine.input.pointers.primary.on('down', spyTopLevelPointerDown);
     engine.input.pointers.on('down', spyTopLevelPointerDown);
-    const spyTopLevelPointerUp = jasmine.createSpy('pointerup');
+    const spyTopLevelPointerUp = vi.fn();
     engine.input.pointers.primary.on('up', spyTopLevelPointerUp);
     engine.input.pointers.on('up', spyTopLevelPointerUp);
-    const spyTopLevelPointerMove = jasmine.createSpy('pointermove');
+    const spyTopLevelPointerMove = vi.fn();
     engine.input.pointers.primary.on('move', spyTopLevelPointerMove);
     engine.input.pointers.on('move', spyTopLevelPointerMove);
-    const spyTopLevelPointerWheel = jasmine.createSpy('pointerwheel');
+    const spyTopLevelPointerWheel = vi.fn();
     engine.input.pointers.primary.on('wheel', spyTopLevelPointerWheel);
     engine.input.pointers.on('wheel', spyTopLevelPointerWheel);
 
@@ -253,7 +254,7 @@ describe('A pointer', () => {
   });
 
   it('should dispatch point events on screen elements', () => {
-    const pointerDownSpy = jasmine.createSpy('pointerdown');
+    const pointerDownSpy = vi.fn();
     const screenElement = new ex.ScreenElement({
       x: 50,
       y: 50,
@@ -275,7 +276,7 @@ describe('A pointer', () => {
 
     expect(pointerDownSpy).toHaveBeenCalledTimes(5);
 
-    pointerDownSpy.calls.reset();
+    pointerDownSpy.mockReset();
 
     executeMouseEvent('pointerdown', <any>document, null, 49, 49);
     executeMouseEvent('pointerdown', <any>document, null, 49, 151);
@@ -326,7 +327,7 @@ describe('A pointer', () => {
   });
 
   it('can click on screen locked actors', () => {
-    const clickSpy = jasmine.createSpy('down');
+    const clickSpy = vi.fn();
     const actor1 = new ex.Actor({
       pos: ex.vec(50, 50),
       width: 100,
@@ -348,7 +349,7 @@ describe('A pointer', () => {
 
   describe('at the engine level', () => {
     it('should fire pointer up events', () => {
-      const upHandler = jasmine.createSpy('upHandler');
+      const upHandler = vi.fn();
       engine.input.pointers.on('up', upHandler);
 
       executeMouseEvent('pointerup', <any>document, null, 50, 50);
@@ -360,7 +361,7 @@ describe('A pointer', () => {
     });
 
     it('should fire pointer down events', () => {
-      const downHandler = jasmine.createSpy('downHandler');
+      const downHandler = vi.fn();
       engine.input.pointers.on('down', downHandler);
 
       executeMouseEvent('pointerdown', <any>document, null, 50, 50);
@@ -372,7 +373,7 @@ describe('A pointer', () => {
     });
 
     it('should fire pointer move events', () => {
-      const moveHandler = jasmine.createSpy('moveHandler');
+      const moveHandler = vi.fn();
       engine.input.pointers.on('move', moveHandler);
 
       executeMouseEvent('pointermove', <any>document, null, 50, 50);
@@ -384,7 +385,7 @@ describe('A pointer', () => {
     });
 
     it('should fire wheel events', () => {
-      const wheelHandler = jasmine.createSpy('wheelHandler');
+      const wheelHandler = vi.fn();
       engine.input.pointers.on('wheel', wheelHandler);
 
       executeMouseEvent('wheel', <any>document, null, 50, 50);
