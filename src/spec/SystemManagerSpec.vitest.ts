@@ -1,5 +1,6 @@
 import * as ex from '@excalibur';
 import { SystemType } from '@excalibur';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 class FakeComponentA extends ex.Component {}
 class FakeComponentB extends ex.Component {}
@@ -106,9 +107,9 @@ describe('A SystemManager', () => {
     const system = new FakeSystemPriority2(world, 'System3', [FakeComponentC], SystemType.Update);
     system.preupdate = () => {}; // eslint-disable-line @typescript-eslint/no-empty-function
     system.postupdate = () => {}; // eslint-disable-line @typescript-eslint/no-empty-function
-    spyOn(system, 'preupdate');
-    spyOn(system, 'postupdate');
-    spyOn(system, 'update');
+    vi.spyOn(system, 'preupdate');
+    vi.spyOn(system, 'postupdate');
+    vi.spyOn(system, 'update');
     sm.addSystem(system);
     sm.updateSystems(SystemType.Update, null, 10);
     expect(system.preupdate).toHaveBeenCalledTimes(1);
@@ -122,7 +123,7 @@ describe('A SystemManager', () => {
     const qm = world.queryManager;
     const em = world.entityManager;
     const system = new FakeSystemPriority2(world, 'System3', [FakeComponentA, FakeComponentC], SystemType.Update);
-    spyOn(system, 'update').and.callThrough();
+    vi.spyOn(system, 'update');
     sm.addSystem(system);
 
     const e1 = new ex.Entity();
@@ -154,10 +155,10 @@ describe('A SystemManager', () => {
     const qm = world.queryManager;
     const em = world.entityManager;
     const system1 = new FakeSystemPriority2(world, 'System1', [FakeComponentA, FakeComponentC], SystemType.Update);
-    spyOn(system1, 'update').and.callThrough();
+    vi.spyOn(system1, 'update');
     sm.addSystem(system1);
     const system2 = new FakeSystemPriority2(world, 'System1', [FakeComponentA, FakeComponentC], SystemType.Draw);
-    spyOn(system2, 'update').and.callThrough();
+    vi.spyOn(system2, 'update');
     sm.addSystem(system2);
 
     sm.updateSystems(SystemType.Draw, null, 10);

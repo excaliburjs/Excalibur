@@ -1,4 +1,5 @@
 import * as ex from '@excalibur';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A StateMachine', () => {
   it('exists', () => {
@@ -76,8 +77,8 @@ describe('A StateMachine', () => {
   });
 
   it('can prevent transition onEnter', () => {
-    const enterSpy = jasmine.createSpy('enter').and.returnValue(false);
-    const exitSpy = jasmine.createSpy('exit').and.returnValue(false);
+    const enterSpy = vi.fn(() => false);
+    const exitSpy = vi.fn(() => false);
     const machine = ex.StateMachine.create({
       start: 'PING',
       states: {
@@ -93,16 +94,16 @@ describe('A StateMachine', () => {
     });
 
     expect(machine.go('PONG')).toBe(false);
-    enterSpy.and.returnValue(true);
+    enterSpy.mockImplementation(() => true);
     expect(machine.go('PONG')).toBe(true);
     expect(machine.go('PING')).toBe(false);
-    exitSpy.and.returnValue(true);
+    exitSpy.mockImplementation(() => true);
     expect(machine.go('PING')).toBe(true);
   });
 
   it('can pass data to states', () => {
-    const enterSpy = jasmine.createSpy('enter').and.returnValue(true);
-    const exitSpy = jasmine.createSpy('exit').and.returnValue(true);
+    const enterSpy = vi.fn(() => true);
+    const exitSpy = vi.fn(() => true);
     const machine = ex.StateMachine.create(
       {
         start: 'PING',
@@ -129,7 +130,7 @@ describe('A StateMachine', () => {
   });
 
   it('can update the current state', () => {
-    const updateSpy = jasmine.createSpy('update').and.returnValue(true);
+    const updateSpy = vi.fn(() => true);
     const machine = ex.StateMachine.create(
       {
         start: 'PING',
