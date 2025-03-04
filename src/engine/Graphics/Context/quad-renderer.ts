@@ -152,16 +152,17 @@ void main() {
 
   setShader(shader: Shader) {
     this.shader = shader;
+    this._layout.shader = shader;
   }
 
   /**
    * @param inputTextures {WebGLTexture[]} to pass to the renderer
    * @param output {Framebuffer}
    */
-  draw(inputTextures: WebGLTexture[], output: Framebuffer | null): void {
+  draw(inputTextures: WebGLTexture[], output: Framebuffer | null = null): void {
     const gl = this._graphicsContext.__gl;
     this.shader.use();
-    this._layout.use();
+    this._layout.use(true);
 
     for (let i = 0; i < inputTextures.length; i++) {
       gl.activeTexture(gl.TEXTURE0 + i);
@@ -172,17 +173,16 @@ void main() {
     if (output) {
       this._graphicsContext.pushFramebuffer(output);
     } else {
-      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      this._graphicsContext.getFramebuffer().bind();
     }
 
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
     if (output) {
       this._graphicsContext.popFramebuffer();
-    } else {
-      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-      gl.bindTexture(gl.TEXTURE_2D, null);
     }
+
+    gl.bindTexture(gl.TEXTURE_2D, null);
 
     GraphicsDiagnostics.DrawCallCount++;
   }

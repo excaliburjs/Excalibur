@@ -128,6 +128,7 @@ export class MaterialRenderer implements RendererPlugin {
     this._quadRenderer.setUV(vec(uvx0, uvy0), vec(uvx1, uvy1));
     this._quadRenderer.setScreenUV(vec(screenUVX0, screenUVY0), vec(screenUVX1, screenUVY1));
 
+    const gl = this._context.__gl;
     // This creates and uploads the texture if not already done
     let texture = this._addImageAsTexture(image);
     // Run pipeline if exists
@@ -136,6 +137,8 @@ export class MaterialRenderer implements RendererPlugin {
       texture = shader.draw(texture);
     } else {
       this._quadRenderer.setShader(shader);
+      shader.use();
+      material.uploadAndBind(gl);
     }
 
     shader.trySetUniformFloatColor('u_color', material.color);
@@ -162,13 +165,13 @@ export class MaterialRenderer implements RendererPlugin {
     shader.trySetUniformMatrix('u_transform', transform.to4x4());
 
     // bind graphic image texture 'uniform sampler2D u_graphic;'
-    //gl.activeTexture(gl.TEXTURE0 + 0);
-    //gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.activeTexture(gl.TEXTURE0 + 0);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
     shader.trySetUniformInt('u_graphic', 0);
 
     // bind the screen texture
-    //gl.activeTexture(gl.TEXTURE0 + 1);
-    //gl.bindTexture(gl.TEXTURE_2D, this._context.materialScreenTexture);
+    gl.activeTexture(gl.TEXTURE0 + 1);
+    gl.bindTexture(gl.TEXTURE_2D, this._context.materialScreenTexture);
     shader.trySetUniformInt('u_screen_texture', 1);
 
     // Draw a single quad
@@ -177,7 +180,7 @@ export class MaterialRenderer implements RendererPlugin {
     if (this._context.materialScreenTexture) {
       texturesToDraw.push(this._context.materialScreenTexture);
     }
-    this._quadRenderer.draw(texturesToDraw, this._context.getFramebuffer());
+    this._quadRenderer.draw(texturesToDraw);
 
     GraphicsDiagnostics.DrawnImagesCount++;
     GraphicsDiagnostics.DrawCallCount++;

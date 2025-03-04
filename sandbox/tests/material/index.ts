@@ -140,7 +140,7 @@ heartActor.onInitialize = () => {
   heartActor.graphics.material = outlineMaterial;
 };
 
-game.add(heartActor);
+//game.add(heartActor);
 
 game.input.pointers.primary.on('move', (evt) => {
   heartActor.pos = evt.worldPos;
@@ -289,9 +289,49 @@ var reflection = new ex.Actor({
 reflection.graphics.material = waterMaterial;
 reflection.z = 99;
 
-game.add(actor);
-game.add(backgroundActor);
-game.add(reflection);
+const stars = new ex.ImageSource('./stars2.png');
+loader.addResource(stars);
+
+var additional = game.graphicsContext.createMaterial({
+  name: 'test',
+  fragmentSource: glsl`#version 300 es
+      precision mediump float;
+      // UV coord
+      in vec2 v_uv;
+      uniform sampler2D u_graphic;
+      uniform sampler2D u_additional;
+      uniform vec4 u_color;
+      uniform float u_opacity;
+      out vec4 fragColor;
+      void main() {
+        vec4 color = u_color;
+        color = mix(texture(u_additional, v_uv), texture(u_graphic, v_uv), .5);
+        color.rgb = color.rgb * u_opacity;
+        color.a = color.a * u_opacity;
+        fragColor = color * u_color;
+      }`,
+  images: {
+    u_additional: stars
+  }
+});
+
+var swordImage = new ex.ImageSource('./sword.png');
+loader.addResource(swordImage);
+
+var additionalActor = new ex.Actor({
+  name: 'addiitonalActor',
+  pos: ex.vec(200, 200),
+  width: 100,
+  height: 100
+});
+
+additionalActor.graphics.use(swordImage.toSprite());
+additionalActor.graphics.material = additional;
+
+//game.add(actor);
+game.add(additionalActor);
+//game.add(backgroundActor);
+//game.add(reflection);
 
 game.start(loader).then(async () => {
   // const image = await game.screenshot(true);
