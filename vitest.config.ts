@@ -46,6 +46,16 @@ export default defineConfig({
           browser: 'chromium',
           provide: {
             browser: 'chromium'
+          },
+          launch: {
+            args: [
+              '--autoplay-policy=no-user-gesture-required',
+              '--mute-audio',
+              '--disable-gpu',
+              '--no-sandbox',
+              '--enable-precise-memory-info',
+              '--js-flags="--max_old_space_size=8192"'
+            ]
           }
         },
         {
