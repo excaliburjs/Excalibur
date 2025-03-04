@@ -29,12 +29,12 @@ describe('A ScreenAppender', () => {
     sut.log(ex.LogLevel.Info, ['this is a log']);
 
     await TestUtils.runOnWindows(async () => {
-      await expectAsync(sut.canvas).toEqualImage('src/spec/images/ScreenAppenderSpec/screen-log.png');
+      await expect(sut.canvas).toEqualImage('/src/spec/assets/images/ScreenAppenderSpec/screen-log.png');
     });
 
     // FIXME CI chokes on this one for some reason
     // await TestUtils.runOnLinux(async () => {
-    //   await expectAsync(sut.canvas).toEqualImage('src/spec/images/ScreenAppenderSpec/screen-log-linux.png');
+    //   await expect(sut.canvas).toEqualImage('src/spec/assets/images/ScreenAppenderSpec/screen-log-linux.png');
     // });
     engine.dispose();
   });
