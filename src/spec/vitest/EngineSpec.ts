@@ -1,5 +1,6 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
+import { inject } from 'vitest';
 
 /**
  *
@@ -811,7 +812,12 @@ describe('The engine', () => {
     engine.dispose();
   });
 
-  it('can screen shot and match the anti-aliasing with a half pixel when pixelRatio != 1.0', async () => {
+  it('can screen shot and match the anti-aliasing with a half pixel when pixelRatio != 1.0', async ({ skip }) => {
+    // safari inconsistencies
+    if (inject('browser') === 'webkit') {
+      skip();
+    }
+
     const engine = TestUtils.engine(
       {
         width: 200,

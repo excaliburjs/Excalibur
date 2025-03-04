@@ -30,5 +30,5 @@
     }
   },
   "include": ["./**/*.ts", "./__setup__/**/*.ts"],
-  "files": ["_boot.ts", "../../engine/files.d.ts", "../../engine/globals.d.ts"]
+  "files": ["_boot.ts", "../../engine/files.d.ts", "../../engine/globals.d.ts", "../../../vitest.config.ts"]
 }

@@ -1,5 +1,6 @@
 import * as ex from '@excalibur';
 import { delay } from '../../engine/Util/Util';
+import { inject } from 'vitest';
 
 /**
  *
@@ -149,7 +150,12 @@ describe('A Text Graphic', () => {
     });
   });
 
-  it('can draw multiple lines of text (font)', async () => {
+  it('can draw multiple lines of text (font)', async ({ skip }) => {
+    // safari inconsistencies
+    if (inject('browser') === 'webkit') {
+      skip();
+    }
+
     const sut = new ex.Text({
       text: 'multiple\nlines\nof text',
       color: ex.Color.Green,
@@ -182,7 +188,12 @@ describe('A Text Graphic', () => {
     });
   });
 
-  it('can have width and height', () => {
+  it('can have width and height', ({ skip }) => {
+    // safari inconsistencies
+    if (inject('browser') === 'webkit') {
+      skip();
+    }
+
     const sut = new ex.Text({
       text: 'some extra long text that we want to measure',
       color: ex.Color.Green,
@@ -200,7 +211,12 @@ describe('A Text Graphic', () => {
     expect(sut.localBounds.height).toBeCloseTo(18, 0);
   });
 
-  it('can measure text for a font', () => {
+  it('can measure text for a font', ({ skip }) => {
+    // safari inconsistencies
+    if (inject('browser') === 'webkit') {
+      skip();
+    }
+
     const sut = new ex.Font({
       family: 'Open Sans',
       size: 18,

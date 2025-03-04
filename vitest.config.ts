@@ -34,7 +34,6 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./src/spec/vitest/__setup__/setup.ts'],
     include: ['src/spec/vitest/**/*Spec.ts'],
-
     browser: {
       enabled: true,
       provider: 'playwright',
@@ -42,7 +41,26 @@ export default defineConfig({
       headless: process.env.CI === 'true' || process.env.HEADLESS === 'true',
       // https://vitest.dev/guide/browser/playwright
       // run `vitest --browser <name>` to run tests in a specific browser
-      instances: [{ browser: 'chromium' }, { browser: 'firefox' }, { browser: 'webkit' }]
+      instances: [
+        {
+          browser: 'chromium',
+          provide: {
+            browser: 'chromium'
+          }
+        },
+        {
+          browser: 'firefox',
+          provide: {
+            browser: 'firefox'
+          }
+        },
+        {
+          browser: 'webkit',
+          provide: {
+            browser: 'webkit'
+          }
+        }
+      ]
     }
   }
 });
@@ -61,4 +79,10 @@ function importAs(ext: string, query: string): Plugin {
       }
     }
   };
+}
+
+declare module 'vitest' {
+  export interface ProvidedContext {
+    browser: 'chromium' | 'firefox' | 'webkit';
+  }
 }
