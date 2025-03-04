@@ -1,4 +1,5 @@
 import * as ex from '@excalibur';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A Sparse Hash Grid Broadphase', () => {
   let actorA: ex.Actor;
@@ -351,19 +352,19 @@ describe('A Sparse Hash Grid Broadphase', () => {
     sut.track(actor1.collider.get());
 
     const ray = new ex.Ray(ex.vec(0, 0), ex.Vector.Right);
-    const filter = jasmine.createSpy('filter').and.callFake(() => true);
+    const filter = vi.fn(() => true);
     const hits = sut.rayCast(ray, {
       searchAllColliders: true,
       filter
     });
 
-    expect(filter.calls.argsFor(0)).toEqual([
+    expect(filter.mock.calls[0]).toEqual([
       { point: ex.vec(75, 0), distance: 75, collider: actor1.collider.get(), body: actor1.body, normal: ex.vec(-1, 0) }
     ]);
-    expect(filter.calls.argsFor(1)).toEqual([
+    expect(filter.mock.calls[1]).toEqual([
       { point: ex.vec(77, 0), distance: 77, collider: actor2.collider.get(), body: actor2.body, normal: ex.vec(-1, 0) }
     ]);
-    expect(filter.calls.argsFor(2)).toEqual([
+    expect(filter.mock.calls[2]).toEqual([
       { point: ex.vec(79, 0), distance: 79, collider: actor3.collider.get(), body: actor3.body, normal: ex.vec(-1, -0) }
     ]);
   });

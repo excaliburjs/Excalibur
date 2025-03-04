@@ -1,13 +1,10 @@
 import * as ex from '@excalibur';
-import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A SpriteSheet for Graphics', () => {
   let canvasElement: HTMLCanvasElement;
   let ctx: ex.ExcaliburGraphicsContext;
   beforeEach(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
-    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
-
     canvasElement = document.createElement('canvas');
     canvasElement.width = 120;
     canvasElement.height = 120;
@@ -19,7 +16,7 @@ describe('A SpriteSheet for Graphics', () => {
   });
 
   it('can be created with a constructor', async () => {
-    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const image = new ex.ImageSource('/src/spec/images/GraphicsTextSpec/spritefont.png');
 
     await image.load();
     const ss = new ex.SpriteSheet({
@@ -32,7 +29,7 @@ describe('A SpriteSheet for Graphics', () => {
   });
 
   it('can be created from a list of source views', async () => {
-    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const image = new ex.ImageSource('/src/spec/images/GraphicsTextSpec/spritefont.png');
     await image.load();
 
     const ss = ex.SpriteSheet.fromImageSourceWithSourceViews({
@@ -51,7 +48,7 @@ describe('A SpriteSheet for Graphics', () => {
   });
 
   it('can be created from a grid', async () => {
-    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const image = new ex.ImageSource('/src/spec/images/GraphicsTextSpec/spritefont.png');
 
     await image.load();
     const ss = ex.SpriteSheet.fromImageSource({
@@ -70,7 +67,7 @@ describe('A SpriteSheet for Graphics', () => {
   });
 
   it('can be created from a grid with interesting spacing', async () => {
-    const image = new ex.ImageSource('src/spec/images/SpriteSheetSpec/kenny-cards.png');
+    const image = new ex.ImageSource('/src/spec/images/SpriteSheetSpec/kenny-cards.png');
 
     await image.load();
 
@@ -97,11 +94,11 @@ describe('A SpriteSheet for Graphics', () => {
 
     expect(ss.sprites.length).toBe(4 * 14);
 
-    await expectAsync(canvasElement).toEqualImage('src/spec/images/SpriteSheetSpec/NewSpriteSpacing.png');
+    await expect(canvasElement).toEqualImage('/src/spec/images/SpriteSheetSpec/NewSpriteSpacing.png');
   });
 
   it('can be created from with spacing using vectors', async () => {
-    const image = new ex.ImageSource('src/spec/images/SpriteSheetSpec/kenny-cards.png');
+    const image = new ex.ImageSource('/src/spec/images/SpriteSheetSpec/kenny-cards.png');
 
     await image.load();
 
@@ -128,11 +125,11 @@ describe('A SpriteSheet for Graphics', () => {
 
     expect(ss.sprites.length).toBe(4 * 14);
 
-    await expectAsync(canvasElement).toEqualImage('src/spec/images/SpriteSheetSpec/NewSpriteSpacing.png');
+    await expect(canvasElement).toEqualImage('/src/spec/images/SpriteSheetSpec/NewSpriteSpacing.png');
   });
 
   it('can retrieve a sprite by x,y', async () => {
-    const image = new ex.ImageSource('src/spec/images/SpriteSheetSpec/kenny-cards.png');
+    const image = new ex.ImageSource('/src/spec/images/SpriteSheetSpec/kenny-cards.png');
 
     await image.load();
 
@@ -150,8 +147,8 @@ describe('A SpriteSheet for Graphics', () => {
       }
     });
 
-    expect(ss.getSprite(0, 0)).withContext('top left sprite').toEqual(ss.sprites[0]);
-    expect(ss.getSprite(13, 3)).withContext('bottom right sprite').not.toBeNull();
+    expect(ss.getSprite(0, 0), 'top left sprite').toEqual(ss.sprites[0]);
+    expect(ss.getSprite(13, 3), 'bottom right sprite').not.toBeNull();
 
     expect(() => ss.getSprite(13, 4)).toThrowError('No sprite exists in the SpriteSheet at (13, 4), y: 4 should be between 0 and 3 rows');
 
@@ -167,7 +164,7 @@ describe('A SpriteSheet for Graphics', () => {
   });
 
   it('can retrieve a sprite by x,y, with options', async () => {
-    const image = new ex.ImageSource('src/spec/images/SpriteSheetSpec/kenny-cards.png');
+    const image = new ex.ImageSource('/src/spec/images/SpriteSheetSpec/kenny-cards.png');
 
     await image.load();
 
@@ -214,7 +211,7 @@ describe('A SpriteSheet for Graphics', () => {
   });
 
   it('can be cloned', async () => {
-    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const image = new ex.ImageSource('/src/spec/images/GraphicsTextSpec/spritefont.png');
 
     await image.load();
     const ss = new ex.SpriteSheet({
