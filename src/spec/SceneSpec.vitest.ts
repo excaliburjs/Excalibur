@@ -1,5 +1,6 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A scene', () => {
   let actor: ex.Actor;
@@ -12,7 +13,7 @@ describe('A scene', () => {
     engine = TestUtils.engine({ width: 100, height: 100 });
     scene = new ex.Scene();
 
-    spyOn(scene, 'draw').and.callThrough();
+    vi.spyOn(scene, 'draw');
     engine.addScene('newScene', scene);
     engine.goToScene('newScene');
     await TestUtils.runToReady(engine);
@@ -78,8 +79,8 @@ describe('A scene', () => {
     expect(scene.timers.length).toBe(1);
     scene.clear();
 
-    expect(scene.entities.length).withContext('deferred entity removal means entities cleared at end of update').toBe(3);
-    expect(scene.timers.length).withContext("timers don't have deferred removal").toBe(0);
+    expect(scene.entities.length, 'deferred entity removal means entities cleared at end of update').toBe(3);
+    expect(scene.timers.length, "timers don't have deferred removal").toBe(0);
 
     scene.update(engine, 100);
     expect(scene.entities.length).toBe(0);
@@ -101,7 +102,7 @@ describe('A scene', () => {
       height: 10,
       color: ex.Color.Red
     });
-    actor.graphics.onPostDraw = jasmine.createSpy('draw');
+    actor.graphics.onPostDraw = vi.fn();
     actor.pos.x = 0;
     actor.pos.y = 0;
 
@@ -121,7 +122,7 @@ describe('A scene', () => {
       height: 10,
       color: ex.Color.Red
     });
-    actor.graphics.onPostDraw = jasmine.createSpy('draw');
+    actor.graphics.onPostDraw = vi.fn();
     actor.pos.x = -4;
     actor.pos.y = 0;
 
@@ -129,7 +130,7 @@ describe('A scene', () => {
     scene.update(engine, 100);
     scene.draw(engine.graphicsContext, 100);
 
-    expect(actor.isOffScreen).withContext('Actor should be onscreen').toBe(false);
+    expect(actor.isOffScreen, 'Actor should be onscreen').toBe(false);
     expect(actor.graphics.onPostDraw).toHaveBeenCalled();
   });
   it('does not draw offscreen Actors left', () => {
@@ -139,7 +140,7 @@ describe('A scene', () => {
       height: 10,
       color: ex.Color.Red
     });
-    actor.graphics.onPostDraw = jasmine.createSpy('draw');
+    actor.graphics.onPostDraw = vi.fn();
     actor.pos.x = -6;
     actor.pos.y = 0;
 
@@ -147,7 +148,7 @@ describe('A scene', () => {
     scene.update(engine, 100);
     scene.draw(engine.graphicsContext, 100);
 
-    expect(actor.isOffScreen).withContext('Actor should be offscreen').toBe(true);
+    expect(actor.isOffScreen, 'Actor should be offscreen').toBe(true);
     expect(actor.graphics.onPostDraw).not.toHaveBeenCalled();
   });
 
@@ -158,7 +159,7 @@ describe('A scene', () => {
       height: 10,
       color: ex.Color.Red
     });
-    actor.graphics.onPostDraw = jasmine.createSpy('draw');
+    actor.graphics.onPostDraw = vi.fn();
     actor.pos.x = 0;
     actor.pos.y = -4;
 
@@ -166,7 +167,7 @@ describe('A scene', () => {
     scene.update(engine, 100);
     scene.draw(engine.graphicsContext, 100);
 
-    expect(actor.isOffScreen).withContext('Actor should be onscreen').toBe(false);
+    expect(actor.isOffScreen, 'Actor should be onscreen').toBe(false);
     expect(actor.graphics.onPostDraw).toHaveBeenCalled();
   });
 
@@ -177,7 +178,7 @@ describe('A scene', () => {
       height: 10,
       color: ex.Color.Red
     });
-    actor.graphics.onPostDraw = jasmine.createSpy('draw');
+    actor.graphics.onPostDraw = vi.fn();
     actor.pos.x = 0;
     actor.pos.y = -6;
 
@@ -185,7 +186,7 @@ describe('A scene', () => {
     scene.update(engine, 100);
     scene.draw(engine.graphicsContext, 100);
 
-    expect(actor.isOffScreen).withContext('Actor should be offscreen').toBe(true);
+    expect(actor.isOffScreen, 'Actor should be offscreen').toBe(true);
     expect(actor.graphics.onPostDraw).not.toHaveBeenCalled();
   });
 
@@ -196,7 +197,7 @@ describe('A scene', () => {
       height: 10,
       color: ex.Color.Red
     });
-    actor.graphics.onPostDraw = jasmine.createSpy('draw');
+    actor.graphics.onPostDraw = vi.fn();
     actor.pos.x = 104;
     actor.pos.y = 0;
 
@@ -204,7 +205,7 @@ describe('A scene', () => {
     scene.update(engine, 100);
     scene.draw(engine.graphicsContext, 100);
 
-    expect(actor.isOffScreen).withContext('Actor should be onscreen').toBe(false);
+    expect(actor.isOffScreen, 'Actor should be onscreen').toBe(false);
     expect(actor.graphics.onPostDraw).toHaveBeenCalled();
   });
 
@@ -215,7 +216,7 @@ describe('A scene', () => {
       height: 10,
       color: ex.Color.Red
     });
-    actor.graphics.onPostDraw = jasmine.createSpy('draw');
+    actor.graphics.onPostDraw = vi.fn();
     actor.pos.x = 106;
     actor.pos.y = 0;
 
@@ -223,7 +224,7 @@ describe('A scene', () => {
     scene.update(engine, 100);
     scene.draw(engine.graphicsContext, 100);
 
-    expect(actor.isOffScreen).withContext('Actor should be offscreen').toBe(true);
+    expect(actor.isOffScreen, 'Actor should be offscreen').toBe(true);
     expect(actor.graphics.onPostDraw).not.toHaveBeenCalled();
   });
 
@@ -234,7 +235,7 @@ describe('A scene', () => {
       height: 10,
       color: ex.Color.Red
     });
-    actor.graphics.onPostDraw = jasmine.createSpy('draw');
+    actor.graphics.onPostDraw = vi.fn();
     actor.pos.x = 0;
     actor.pos.y = 104;
 
@@ -242,7 +243,7 @@ describe('A scene', () => {
     scene.update(engine, 100);
     scene.draw(engine.graphicsContext, 100);
 
-    expect(actor.isOffScreen).withContext('Actor should be onscreen').toBe(false);
+    expect(actor.isOffScreen, 'Actor should be onscreen').toBe(false);
     expect(actor.graphics.onPostDraw).toHaveBeenCalled();
   });
 
@@ -253,7 +254,7 @@ describe('A scene', () => {
       height: 10,
       color: ex.Color.Red
     });
-    actor.graphics.onPostDraw = jasmine.createSpy('draw');
+    actor.graphics.onPostDraw = vi.fn();
     actor.pos.x = 0;
     actor.pos.y = 106;
 
@@ -261,7 +262,7 @@ describe('A scene', () => {
     scene.update(engine, 100);
     scene.draw(engine.graphicsContext, 100);
 
-    expect(actor.isOffScreen).withContext('Actor should be offscreen').toBe(true);
+    expect(actor.isOffScreen, 'Actor should be offscreen').toBe(true);
     expect(actor.graphics.onPostDraw).not.toHaveBeenCalled();
   });
 
@@ -296,7 +297,7 @@ describe('A scene', () => {
   it('draws visible Actors', () => {
     engine.goToScene('root');
     actor.graphics.visible = true;
-    actor.graphics.onPostDraw = jasmine.createSpy('draw');
+    actor.graphics.onPostDraw = vi.fn();
 
     scene.add(actor);
     scene.draw(engine.graphicsContext, 100);
@@ -307,7 +308,7 @@ describe('A scene', () => {
   it('does not draw invisible actors', () => {
     engine.goToScene('root');
     actor.graphics.visible = false;
-    actor.graphics.onPostDraw = jasmine.createSpy('draw');
+    actor.graphics.onPostDraw = vi.fn();
 
     scene.add(actor);
     scene.draw(engine.graphicsContext, 100);
@@ -317,7 +318,7 @@ describe('A scene', () => {
 
   it('initializes after start or play in first update', async () => {
     const scene = new ex.Scene();
-    spyOn(scene, 'onInitialize');
+    vi.spyOn(scene, 'onInitialize');
 
     engine.addScene('otherScene', scene);
     expect(scene.onInitialize).toHaveBeenCalledTimes(0);
@@ -329,9 +330,9 @@ describe('A scene', () => {
 
   it('calls onActivate and onDeactivate with the correct args', async () => {
     const sceneA = new ex.Scene();
-    sceneA.onDeactivate = jasmine.createSpy('onDeactivate()');
+    sceneA.onDeactivate = vi.fn();
     const sceneB = new ex.Scene();
-    sceneB.onActivate = jasmine.createSpy('onActivate()');
+    sceneB.onActivate = vi.fn();
 
     engine.addScene('sceneA', sceneA);
     engine.addScene('sceneB', sceneB);
@@ -353,65 +354,67 @@ describe('A scene', () => {
     });
   });
 
-  it('fires initialize before activate', (done) => {
-    engine.stop();
-    engine.dispose();
-    engine = null;
-    engine = TestUtils.engine({ width: 100, height: 100 });
-    const scene = new ex.Scene();
+  it('fires initialize before activate', () =>
+    new Promise<void>((done) => {
+      engine.stop();
+      engine.dispose();
+      engine = null;
+      engine = TestUtils.engine({ width: 100, height: 100 });
+      const scene = new ex.Scene();
 
-    engine.removeScene('otherScene');
-    engine.addScene('otherScene', scene);
+      engine.removeScene('otherScene');
+      engine.addScene('otherScene', scene);
 
-    let initialized = false;
-    scene.once('initialize', (evt: ex.InitializeEvent) => {
-      initialized = true;
-    });
-    scene.once('activate', (evt: ex.ActivateEvent) => {
-      expect(initialized).toBe(true, 'Initialization should happen before activation');
-      done();
-    });
+      let initialized = false;
+      scene.once('initialize', (evt: ex.InitializeEvent) => {
+        initialized = true;
+      });
+      scene.once('activate', (evt: ex.ActivateEvent) => {
+        expect(initialized, 'Initialization should happen before activation').toBe(true);
+        done();
+      });
 
-    engine.goToScene('otherScene');
-    engine.start();
-    const clock = engine.clock as ex.TestClock;
-    clock.step(100);
-  });
+      engine.goToScene('otherScene');
+      engine.start();
+      const clock = engine.clock as ex.TestClock;
+      clock.step(100);
+    }));
 
-  xit('fires initialize before actor initialize before activate', (done) => {
-    engine.stop();
-    engine.dispose();
-    engine = null;
-    engine = TestUtils.engine({ width: 100, height: 100 });
-    scene = new ex.Scene();
+  it.skip('fires initialize before actor initialize before activate', () =>
+    new Promise<void>((done) => {
+      engine.stop();
+      engine.dispose();
+      engine = null;
+      engine = TestUtils.engine({ width: 100, height: 100 });
+      scene = new ex.Scene();
 
-    engine.removeScene('otherScene');
-    engine.addScene('otherScene', scene);
+      engine.removeScene('otherScene');
+      engine.addScene('otherScene', scene);
 
-    let sceneInitialized = false;
-    const sceneActivated = false;
-    let actorInitialized = false;
-    scene.once('initialize', (evt) => {
-      sceneInitialized = true;
-      expect(actorInitialized).toBe(true, 'Actor should be initialized before scene initialization');
-    });
-    const actor = new ex.Actor();
-    actor.once('initialize', (evt) => {
-      actorInitialized = true;
-    });
+      let sceneInitialized = false;
+      const sceneActivated = false;
+      let actorInitialized = false;
+      scene.once('initialize', (evt) => {
+        sceneInitialized = true;
+        expect(actorInitialized, 'Actor should be initialized before scene initialization').toBe(true);
+      });
+      const actor = new ex.Actor();
+      actor.once('initialize', (evt) => {
+        actorInitialized = true;
+      });
 
-    scene.once('activate', (evt) => {
-      expect(actorInitialized).toBe(true, 'Actor should be initialized before scene is activated');
-      done();
-    });
+      scene.once('activate', (evt) => {
+        expect(actorInitialized, 'Actor should be initialized before scene is activated').toBe(true);
+        done();
+      });
 
-    scene.add(actor);
-    engine.goToScene('otherScene');
-    engine.start();
-    const clock = engine.clock as ex.TestClock;
-    clock.step(100);
-    engine.dispose();
-  });
+      scene.add(actor);
+      engine.goToScene('otherScene');
+      engine.start();
+      const clock = engine.clock as ex.TestClock;
+      clock.step(100);
+      engine.dispose();
+    }));
 
   it('can only be initialized once', async () => {
     engine.stop();
@@ -423,7 +426,7 @@ describe('A scene', () => {
 
     engine.addScene('newScene', scene);
 
-    const initSpy = jasmine.createSpy('init');
+    const initSpy = vi.fn();
     scene.on('initialize', initSpy);
 
     await engine.goToScene('newScene');
@@ -454,7 +457,7 @@ describe('A scene', () => {
       sceneInit = true;
     };
     actor.onInitialize = () => {
-      expect(sceneInit).toBe(true, 'Scene should be initialized first before any actors');
+      expect(sceneInit, 'Scene should be initialized first before any actors').toBe(true);
     };
 
     await engine.goToScene('newScene');
@@ -473,7 +476,7 @@ describe('A scene', () => {
     });
     scene.update(engine, 10);
 
-    expect(removed).toBe(true, 'Actor postupdate was not called');
+    expect(removed, 'Actor postupdate was not called').toBe(true);
     expect(scene.actors.indexOf(actor)).toBe(-1);
   });
 
@@ -486,7 +489,7 @@ describe('A scene', () => {
     });
     scene.update(engine, 10);
 
-    expect(removed).toBe(true, 'Actor postupdate was not called');
+    expect(removed, 'Actor postupdate was not called').toBe(true);
     expect(scene.actors.indexOf(actor)).toBe(-1);
   });
 
@@ -504,7 +507,7 @@ describe('A scene', () => {
     });
     scene.update(engine, 10);
 
-    expect(removed).toBe(true, 'Actor postupdate was not called');
+    expect(removed, 'Actor postupdate was not called').toBe(true);
     expect(scene.actors.indexOf(actor)).toBe(-1);
     expect(scene.actors.length).toBe(1);
   });
@@ -522,7 +525,7 @@ describe('A scene', () => {
     });
     scene.update(engine, 10);
 
-    expect(removed).toBe(true, 'Actor postupdate was not called');
+    expect(removed, 'Actor postupdate was not called').toBe(true);
     expect(scene.actors.indexOf(actor)).toBe(-1);
     expect(scene.actors.length).toBe(1);
   });
@@ -544,8 +547,8 @@ describe('A scene', () => {
     const scene2 = new ex.Scene();
     const actor = new ex.Actor();
 
-    const entityRemoved = jasmine.createSpy('entityremoved');
-    const entityAdded = jasmine.createSpy('entityadded');
+    const entityRemoved = vi.fn();
+    const entityAdded = vi.fn();
 
     scene1.on('entityremoved', entityRemoved);
     scene2.on('entityadded', entityAdded);
@@ -553,14 +556,14 @@ describe('A scene', () => {
     scene1.add(actor);
 
     expect(actor.scene).toBe(scene1);
-    expect(scene1.contains(actor)).toBeTrue();
-    expect(scene2.contains(actor)).toBeFalse();
+    expect(scene1.contains(actor)).toBe(true);
+    expect(scene2.contains(actor)).toBe(false);
 
     scene2.transfer(actor);
 
     expect(actor.scene).toBe(scene2);
-    expect(scene1.contains(actor)).toBeFalse();
-    expect(scene2.contains(actor)).toBeTrue();
+    expect(scene1.contains(actor)).toBe(false);
+    expect(scene2.contains(actor)).toBe(true);
 
     expect(entityAdded).toHaveBeenCalledTimes(1);
     expect(entityRemoved).toHaveBeenCalledTimes(1);
@@ -576,8 +579,8 @@ describe('A scene', () => {
       interval: 100
     });
 
-    const entityRemoved = jasmine.createSpy('entityremoved');
-    const entityAdded = jasmine.createSpy('entityadded');
+    const entityRemoved = vi.fn();
+    const entityAdded = vi.fn();
 
     scene1.on('entityremoved', entityRemoved);
     scene2.on('entityadded', entityAdded);
@@ -585,14 +588,14 @@ describe('A scene', () => {
     scene1.add(timer);
 
     expect(timer.scene).toBe(scene1);
-    expect(scene1.timers.includes(timer)).toBeTrue();
-    expect(scene2.timers.includes(timer)).toBeFalse();
+    expect(scene1.timers.includes(timer)).toBe(true);
+    expect(scene2.timers.includes(timer)).toBe(false);
 
     scene2.transfer(timer);
 
     expect(timer.scene).toBe(scene2);
-    expect(scene1.timers.includes(timer)).toBeFalse();
-    expect(scene2.timers.includes(timer)).toBeTrue();
+    expect(scene1.timers.includes(timer)).toBe(false);
+    expect(scene2.timers.includes(timer)).toBe(true);
 
     expect(entityAdded).toHaveBeenCalledTimes(1);
     expect(entityRemoved).toHaveBeenCalledTimes(1);
@@ -622,11 +625,11 @@ describe('A scene', () => {
     actor.on('postupdate', () => {
       updated = true;
 
-      expect(initialized).toBe(true, 'Actor was not initialized before calling update');
+      expect(initialized, 'Actor was not initialized before calling update').toBe(true);
     });
     actor.on('postdraw', () => {
-      expect(updated).toBe(true, 'Actor was not updated before calling draw');
-      expect(initialized).toBe(true, 'Actor was not initialized before calling draw');
+      expect(updated, 'Actor was not updated before calling draw').toBe(true);
+      expect(initialized, 'Actor was not initialized before calling draw').toBe(true);
     });
 
     // create Timer
@@ -643,9 +646,9 @@ describe('A scene', () => {
     scene.update(engine, 11);
     scene.draw(engine.graphicsContext, 11);
 
-    expect(scene.actors.indexOf(actor)).toBeGreaterThan(-1, 'Actor was not added to scene');
-    expect(initialized).toBe(true, 'Actor was not initialized after timer callback');
-    expect(updated).toBe(true, 'Actor was not updated after timer callback');
+    expect(scene.actors.indexOf(actor), 'Actor was not added to scene').toBeGreaterThan(-1);
+    expect(initialized, 'Actor was not initialized after timer callback').toBe(true);
+    expect(updated, 'Actor was not updated after timer callback').toBe(true);
   });
 
   it('will update ScreenElement that were added in a Timer callback', () => {
@@ -658,11 +661,11 @@ describe('A scene', () => {
     actor.on('postupdate', () => {
       updated = true;
 
-      expect(initialized).toBe(true, 'ScreenElement was not initialized before calling update');
+      expect(initialized, 'ScreenElement was not initialized before calling update').toBe(true);
     });
     actor.on('postdraw', () => {
-      expect(updated).toBe(true, 'ScreenElement was not updated before calling draw');
-      expect(initialized).toBe(true, 'ScreenElement was not initialized before calling draw');
+      expect(updated, 'ScreenElement was not updated before calling draw').toBe(true);
+      expect(initialized, 'ScreenElement was not initialized before calling draw').toBe(true);
     });
 
     // create Timer
@@ -679,15 +682,15 @@ describe('A scene', () => {
     scene.update(engine, 11);
     scene.draw(engine.graphicsContext, 11);
 
-    expect(scene.actors.indexOf(actor)).toBeGreaterThan(-1, 'ScreenElement was not added to scene');
-    expect(initialized).toBe(true, 'ScreenElement was not initialized after timer callback');
-    expect(updated).toBe(true, 'ScreenElement was not updated after timer callback');
+    expect(scene.actors.indexOf(actor), 'ScreenElement was not added to scene').toBeGreaterThan(-1);
+    expect(initialized, 'ScreenElement was not initialized after timer callback').toBe(true);
+    expect(updated, 'ScreenElement was not updated after timer callback').toBe(true);
   });
 
   it('will kill the actor if the actor is removed from the scene', () => {
     scene.add(actor);
 
-    spyOn(actor, 'kill').and.callThrough();
+    vi.spyOn(actor, 'kill');
 
     scene.remove(actor);
 
@@ -699,7 +702,7 @@ describe('A scene', () => {
     scene.add(actor);
     actor.active = false;
 
-    spyOn(actor, 'kill').and.callThrough();
+    vi.spyOn(actor, 'kill');
 
     scene.remove(actor);
     expect(actor.kill).toHaveBeenCalledTimes(0);
@@ -707,7 +710,7 @@ describe('A scene', () => {
 
   it('will remove an actor from a scene if actor is killed', () => {
     scene.add(actor);
-    spyOn(scene, 'remove').and.callThrough();
+    vi.spyOn(scene, 'remove');
 
     actor.kill();
     scene.update(engine, 100);
@@ -723,7 +726,7 @@ describe('A scene', () => {
       updated = true;
     });
     tilemap.on('postdraw', () => {
-      expect(updated).toBe(true, 'TileMap was not updated before calling draw');
+      expect(updated, 'TileMap was not updated before calling draw').toBe(true);
     });
 
     // create Timer
@@ -740,8 +743,8 @@ describe('A scene', () => {
     scene.update(engine, 11);
     scene.draw(engine.graphicsContext, 11);
 
-    expect(scene.tileMaps.indexOf(tilemap)).toBeGreaterThan(-1, 'TileMap was not added to scene');
-    expect(updated).toBe(true, 'TileMap was not updated after timer callback');
+    expect(scene.tileMaps.indexOf(tilemap), 'TileMap was not added to scene').toBeGreaterThan(-1);
+    expect(updated, 'TileMap was not updated after timer callback').toBe(true);
   });
 
   it('will return true if it is the current engine scene', () => {
@@ -792,7 +795,7 @@ describe('A scene', () => {
         initCalled = true;
       });
 
-      spyOn(scene, 'onInitialize').and.callThrough();
+      vi.spyOn(scene, 'onInitialize');
 
       await TestUtils.runToReady(engine);
       await engine.goToScene('newScene');
@@ -809,8 +812,8 @@ describe('A scene', () => {
         expect(elapsedMs).toBe(100);
       };
 
-      spyOn(scene, 'onPostUpdate').and.callThrough();
-      spyOn(scene, '_postupdate').and.callThrough();
+      vi.spyOn(scene, 'onPostUpdate');
+      vi.spyOn(scene, '_postupdate');
 
       scene.update(engine, 100);
       scene.update(engine, 100);
@@ -826,8 +829,8 @@ describe('A scene', () => {
         expect(elapsedMs).toBe(100);
       };
 
-      spyOn(scene, 'onPreUpdate').and.callThrough();
-      spyOn(scene, '_preupdate').and.callThrough();
+      vi.spyOn(scene, 'onPreUpdate');
+      vi.spyOn(scene, '_preupdate');
 
       scene.update(engine, 100);
       scene.update(engine, 100);
@@ -844,8 +847,8 @@ describe('A scene', () => {
         expect(elapsedMs).toBe(100);
       };
 
-      spyOn(scene, 'onPreDraw').and.callThrough();
-      spyOn(scene, '_predraw').and.callThrough();
+      vi.spyOn(scene, 'onPreDraw');
+      vi.spyOn(scene, '_predraw');
 
       scene.draw(engine.graphicsContext, 100);
       scene.draw(engine.graphicsContext, 100);
@@ -862,8 +865,8 @@ describe('A scene', () => {
         expect(elapsedMs).toBe(100);
       };
 
-      spyOn(scene, 'onPostDraw').and.callThrough();
-      spyOn(scene, '_postdraw').and.callThrough();
+      vi.spyOn(scene, 'onPostDraw');
+      vi.spyOn(scene, '_postdraw');
 
       scene.draw(engine.graphicsContext, 100);
       scene.draw(engine.graphicsContext, 100);
