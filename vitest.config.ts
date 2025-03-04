@@ -33,7 +33,7 @@ export default defineConfig({
   test: {
     globals: true,
     setupFiles: ['./src/spec/vitest/__setup__/setup.ts'],
-    include: ['**/*.vitest.ts'],
+    include: ['src/spec/vitest/**/*Spec.ts'],
 
     browser: {
       enabled: true,
