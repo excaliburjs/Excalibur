@@ -1,12 +1,9 @@
 import * as ex from '@excalibur';
-import { ExcaliburMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A Shader', () => {
   let gl: WebGL2RenderingContext;
   let graphicsContext: ex.ExcaliburGraphicsContextWebGL;
-  beforeAll(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
-  });
 
   beforeEach(() => {
     const canvas = document.createElement('canvas');
@@ -42,7 +39,7 @@ describe('A Shader', () => {
     expect(sut.compiled).toBe(false);
     sut.compile();
     expect(sut.compiled).toBe(true);
-    expect(sut.attributes.a_position).withContext('a_position').toEqual({
+    expect(sut.attributes.a_position, 'a_position').toEqual({
       name: 'a_position',
       glType: gl.FLOAT,
       size: 4,
@@ -50,7 +47,7 @@ describe('A Shader', () => {
       location: sut.attributes.a_position.location
     });
 
-    expect(sut.attributes.a_otherposition).withContext('a_otherposition').toEqual({
+    expect(sut.attributes.a_otherposition, 'a_otherposition').toEqual({
       name: 'a_otherposition',
       glType: gl.FLOAT,
       size: 3,
@@ -59,7 +56,7 @@ describe('A Shader', () => {
     });
 
     const u_bool = sut.getUniformDefinitions()[0];
-    expect(u_bool).withContext('u_bool').toEqual({
+    expect(u_bool, 'u_bool').toEqual({
       name: 'u_bool',
       glType: gl.BOOL,
       location: u_bool.location
@@ -82,9 +79,7 @@ describe('A Shader', () => {
     });
     expect(() => {
       sut.compile();
-    }).toThrowMatching((e: Error) => {
-      return e.message.includes('vertex');
-    });
+    }).toThrowError(/vertex/);
   });
 
   it('can fail compiling fragment', () => {
@@ -103,9 +98,7 @@ describe('A Shader', () => {
     });
     expect(() => {
       sut.compile();
-    }).toThrowMatching((e: Error) => {
-      return e.message.includes('fragment');
-    });
+    }).toThrowError(/fragment/);
   });
 
   it('must be compiled and shader.use() to set uniforms', () => {
@@ -228,15 +221,15 @@ describe('A Shader', () => {
       }`
     });
     const logger = ex.Logger.getInstance();
-    const loggerSpy = spyOn(logger, 'warn');
+    const loggerSpy = vi.spyOn(logger, 'warn');
 
     sut.trySetUniformInt('u_int', 0);
-    expect(loggerSpy.calls.argsFor(0)).toEqual(['Must compile shader before setting a uniform uniform1i:u_int']);
+    expect(loggerSpy.mock.calls[0]).toEqual(['Must compile shader before setting a uniform uniform1i:u_int']);
 
     sut.compile();
 
     sut.trySetUniformInt('u_int', 0);
-    expect(loggerSpy.calls.argsFor(1)).toEqual([
+    expect(loggerSpy.mock.calls[1]).toEqual([
       'Currently accessed shader instance is not the current active shader in WebGL, must call `shader.use()` before setting uniforms'
     ]);
     sut.use();
@@ -284,8 +277,8 @@ describe('A Shader', () => {
     sut.compile();
     const tex = gl.createTexture();
 
-    spyOn(gl, 'activeTexture').and.callThrough();
-    spyOn(gl, 'bindTexture').and.callThrough();
+    vi.spyOn(gl, 'activeTexture');
+    vi.spyOn(gl, 'bindTexture');
 
     sut.setTexture(5, tex);
 

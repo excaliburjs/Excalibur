@@ -1,11 +1,8 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
-import { ExcaliburAsyncMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A Slide transition', () => {
-  beforeAll(() => {
-    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
-  });
   it('exists', () => {
     expect(ex.Slide).toBeDefined();
   });
@@ -29,7 +26,7 @@ describe('A Slide transition', () => {
       })
     );
 
-    const onDeactivateSpy = jasmine.createSpy('onDeactivate');
+    const onDeactivateSpy = vi.fn();
 
     engine.director.getSceneInstance('root').onDeactivate = onDeactivateSpy;
 
@@ -50,7 +47,7 @@ describe('A Slide transition', () => {
     await TestUtils.untilMacrotask(() => engine.currentSceneName !== 'root');
     clock.step(500);
     expect(onDeactivateSpy).toHaveBeenCalledTimes(1);
-    await expectAsync(engine.canvas).toEqualImage('/src/spec/images/SlideSpec/slide-down.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/SlideSpec/slide-down.png');
     engine.stop();
     engine.dispose();
   });
@@ -68,7 +65,7 @@ describe('A Slide transition', () => {
       })
     );
 
-    const onDeactivateSpy = jasmine.createSpy('onDeactivate');
+    const onDeactivateSpy = vi.fn();
 
     engine.director.getSceneInstance('root').onDeactivate = onDeactivateSpy;
 
@@ -89,7 +86,7 @@ describe('A Slide transition', () => {
     await TestUtils.untilMacrotask(() => engine.currentSceneName !== 'root');
     clock.step(500);
     expect(onDeactivateSpy).toHaveBeenCalledTimes(1);
-    await expectAsync(engine.canvas).toEqualImage('/src/spec/images/SlideSpec/slide-right.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/SlideSpec/slide-right.png');
     engine.stop();
     engine.dispose();
   });
@@ -107,7 +104,7 @@ describe('A Slide transition', () => {
       })
     );
 
-    const onDeactivateSpy = jasmine.createSpy('onDeactivate');
+    const onDeactivateSpy = vi.fn();
 
     engine.director.getSceneInstance('root').onDeactivate = onDeactivateSpy;
 
@@ -128,7 +125,7 @@ describe('A Slide transition', () => {
     await TestUtils.untilMacrotask(() => engine.currentSceneName !== 'root');
     clock.step(500);
     expect(onDeactivateSpy).toHaveBeenCalledTimes(1);
-    await expectAsync(engine.canvas).toEqualImage('/src/spec/images/SlideSpec/slide-left.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/SlideSpec/slide-left.png');
     engine.stop();
     engine.dispose();
   });
@@ -146,7 +143,7 @@ describe('A Slide transition', () => {
       })
     );
 
-    const onDeactivateSpy = jasmine.createSpy('onDeactivate');
+    const onDeactivateSpy = vi.fn();
 
     engine.director.getSceneInstance('root').onDeactivate = onDeactivateSpy;
 
@@ -167,7 +164,7 @@ describe('A Slide transition', () => {
     await TestUtils.untilMacrotask(() => engine.currentSceneName !== 'root');
     clock.step(500);
     expect(onDeactivateSpy).toHaveBeenCalledTimes(1);
-    await expectAsync(engine.canvas).toEqualImage('/src/spec/images/SlideSpec/slide-up.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/SlideSpec/slide-up.png');
     engine.stop();
     engine.dispose();
   });
@@ -185,7 +182,7 @@ describe('A Slide transition', () => {
       })
     );
 
-    const onDeactivateSpy = jasmine.createSpy('onDeactivate');
+    const onDeactivateSpy = vi.fn();
 
     engine.director.getSceneInstance('root').onDeactivate = onDeactivateSpy;
 
@@ -210,7 +207,7 @@ describe('A Slide transition', () => {
     await TestUtils.untilMacrotask(() => engine.currentSceneName !== 'root');
     clock.step(700);
     expect(onDeactivateSpy).toHaveBeenCalledTimes(1);
-    await expectAsync(engine.canvas).toEqualImage('/src/spec/images/SlideSpec/slide-up-transition.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/images/SlideSpec/slide-up-transition.png');
     engine.stop();
     engine.dispose();
   });
