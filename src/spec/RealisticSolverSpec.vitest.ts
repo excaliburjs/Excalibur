@@ -1,12 +1,8 @@
-import { ExcaliburMatchers } from 'excalibur-jasmine';
+import { describe, beforeEach, it, expect } from 'vitest';
 import * as ex from '@excalibur';
 import { getDefaultPhysicsConfig } from '../engine/Collision/PhysicsConfig';
 
 describe('A RealisticSolver', () => {
-  beforeAll(() => {
-    jasmine.addMatchers(ExcaliburMatchers);
-  });
-
   it('should exist', () => {
     expect(ex.RealisticSolver).toBeDefined();
   });
