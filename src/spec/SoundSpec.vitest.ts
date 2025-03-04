@@ -4,11 +4,16 @@ import { delay } from '../engine/Util/Util';
 import { WebAudio } from '../engine/Util/WebAudio';
 import { TestUtils } from './util/TestUtils';
 import { describe, beforeEach, it, expect } from 'vitest';
+import { page } from '@vitest/browser/context';
 
+// beware if running firefox/webkit, audio will play. not sure how to mute those browsers
+// also note that webkit cant play ogg files so only use supported formats here!
 describe('Sound resource', () => {
   let sut: ex.Sound;
 
   beforeAll(async () => {
+    // automate user interaction to allow WebAudio to unlock
+    await page.elementLocator(document.body).click();
     ex.Logger.getInstance().clearAppenders();
     await WebAudio.unlock();
   });
@@ -54,7 +59,7 @@ describe('Sound resource', () => {
   });
 
   it('should have duration', async () => {
-    sut = new ex.Sound('/src/spec/images/SoundSpec/preview.ogg');
+    sut = new ex.Sound('/src/spec/images/SoundSpec/preview.mp3');
     sut.duration = 5.0;
     await sut.load();
     expect(sut.duration).toBeDefined();
@@ -67,8 +72,10 @@ describe('Sound resource', () => {
     sut.on('playbackstart', playbackSpy);
 
     sut.loop = false;
+
     await sut.load();
     await sut.play();
+
     expect(playbackSpy).toHaveBeenCalledTimes(1);
   });
 
@@ -266,7 +273,7 @@ describe('Sound resource', () => {
     }));
 
   it('should return the current playback position of the audio track', async () => {
-    sut = new ex.Sound('/src/spec/images/SoundSpec/preview.ogg');
+    sut = new ex.Sound('/src/spec/images/SoundSpec/preview.mp3');
     await sut.load();
     sut.play();
     await delay(1000);
@@ -275,7 +282,7 @@ describe('Sound resource', () => {
   });
 
   it('should variable playback rate of the audio track', async () => {
-    sut = new ex.Sound('/src/spec/images/SoundSpec/preview.ogg');
+    sut = new ex.Sound('/src/spec/images/SoundSpec/preview.mp3');
     await sut.load();
     sut.playbackRate = 2.0;
     sut.play();
@@ -383,7 +390,7 @@ describe('Sound resource', () => {
     }));
 
   it('can seek to a position in the sound', async () => {
-    sut = new ex.Sound('/src/spec/images/SoundSpec/preview.ogg');
+    sut = new ex.Sound('/src/spec/images/SoundSpec/preview.mp3');
     await sut.load();
     expect(sut.getPlaybackPosition()).toBe(0);
     sut.seek(6.5);
@@ -391,13 +398,13 @@ describe('Sound resource', () => {
   });
 
   it('can get the total duration of the sound', async () => {
-    sut = new ex.Sound('/src/spec/images/SoundSpec/preview.ogg');
+    sut = new ex.Sound('/src/spec/images/SoundSpec/preview.mp3');
     await sut.load();
     expect(sut.getTotalPlaybackDuration()).toBeCloseTo(13.01, 1);
   });
 
   it('can set/get the playback rate', async () => {
-    sut = new ex.Sound('/src/spec/images/SoundSpec/preview.ogg');
+    sut = new ex.Sound('/src/spec/images/SoundSpec/preview.mp3');
     expect(sut.playbackRate).toBe(1.0);
     sut.playbackRate = 2.5;
     await sut.load();
@@ -405,7 +412,7 @@ describe('Sound resource', () => {
   });
 
   it('can set the playback rate and seek to the right position', async () => {
-    sut = new ex.Sound('/src/spec/images/SoundSpec/preview.ogg');
+    sut = new ex.Sound('/src/spec/images/SoundSpec/preview.mp3');
     expect(sut.playbackRate).toBe(1.0);
     sut.playbackRate = 2.5;
     await sut.load();
