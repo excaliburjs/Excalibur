@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 import { BoundingBox, GameEvent, LineSegment, Projection, Ray, vec, Vector } from '@excalibur';
-import { describe, beforeEach, it, expect } from 'vitest';
+
 import { getDefaultPhysicsConfig } from '../../engine/Collision/PhysicsConfig';
 
 describe('A CompositeCollider', () => {

@@ -1,5 +1,4 @@
 import { createContext, useContext } from '../../../src/engine/Context';
-import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A Context', () => {
   it('creates a context', () => {

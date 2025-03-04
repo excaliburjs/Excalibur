@@ -1,6 +1,5 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
-import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A physics world', () => {
   beforeEach(() => {

@@ -1,7 +1,6 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { getDefaultPhysicsConfig } from '../../engine/Collision/PhysicsConfig';
-import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A Collision', () => {
   let actor1: ex.Actor = null;

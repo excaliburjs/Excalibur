@@ -2,7 +2,6 @@ import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
 import type { TestClock } from '@excalibur';
-import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('The engine', () => {
   let engine: ex.Engine;

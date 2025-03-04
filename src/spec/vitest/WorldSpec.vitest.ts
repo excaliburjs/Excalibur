@@ -1,6 +1,5 @@
 import * as ex from '@excalibur';
 import { SystemType } from '@excalibur';
-import { it, describe, afterEach } from 'vitest';
 
 class FakeComponent extends ex.Component {}
 class FakeSystem extends ex.System {

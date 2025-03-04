@@ -1,5 +1,4 @@
 import * as ex from '@excalibur';
-import { describe, beforeEach, it, expect } from 'vitest';
 
 const inputTile = new ex.ImageSource('/src/spec/assets/images/GraphicsNineSliceSpec/InputTile.png');
 

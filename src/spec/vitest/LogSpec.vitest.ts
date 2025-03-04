@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-import { describe, beforeEach, it, expect, type MockInstance } from 'vitest';
+import { type MockInstance } from 'vitest';
 
 describe('Logger', () => {
   let logger: ex.Logger;

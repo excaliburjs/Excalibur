@@ -1,5 +1,4 @@
 import * as ex from '@excalibur';
-import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A VertexBuffer', () => {
   let gl: WebGL2RenderingContext;

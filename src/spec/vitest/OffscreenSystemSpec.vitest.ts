@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 import { GraphicsComponent, TransformComponent } from '@excalibur';
-import { describe, beforeEach, it, expect } from 'vitest';
+
 import { TestUtils } from './util/TestUtils';
 
 describe('The OffscreenSystem', () => {

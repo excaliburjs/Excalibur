@@ -1,6 +1,5 @@
 import * as ex from '@excalibur';
 import { Logger, TextureLoader } from '@excalibur';
-import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A Sprite Graphic', () => {
   let canvasElement: HTMLCanvasElement;

@@ -1,6 +1,5 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
-import { describe, it, expect } from 'vitest';
 
 describe('A Canvas Graphic', () => {
   it('exists', () => {

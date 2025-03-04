@@ -1,5 +1,4 @@
 import * as ex from '@excalibur';
-import { describe, beforeEach, it, expect } from 'vitest';
 
 const source = `#version 300 es
 precision mediump float;

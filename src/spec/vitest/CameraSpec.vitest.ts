@@ -1,6 +1,5 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
-import { it, describe, beforeEach, afterEach, expect } from 'vitest';
 
 describe('A camera', () => {
   let Camera: ex.Camera;

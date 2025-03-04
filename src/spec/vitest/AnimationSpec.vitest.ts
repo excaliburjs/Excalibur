@@ -1,6 +1,5 @@
 import * as ex from '@excalibur';
 import { ExcaliburGraphicsContext2DCanvas } from '../../engine/Graphics';
-import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A Graphics Animation', () => {
   it('exists', () => {

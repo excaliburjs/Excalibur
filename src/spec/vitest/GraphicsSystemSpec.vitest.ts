@@ -2,7 +2,6 @@ import * as ex from '@excalibur';
 import { TransformComponent } from '@excalibur';
 import { GraphicsComponent } from '../../engine/Graphics';
 import { TestUtils } from './util/TestUtils';
-import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A Graphics ECS System', () => {
   let entities: ex.Entity[];

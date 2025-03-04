@@ -3,7 +3,6 @@ import { TransformComponent } from '@excalibur';
 import { EulerIntegrator } from '../../engine/Collision/Integrator';
 import { MotionComponent } from '../../engine/EntityComponentSystem/Components/MotionComponent';
 import { getDefaultPhysicsConfig } from '../../engine/Collision/PhysicsConfig';
-import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A CollisionContact', () => {
   let actorA: ex.Actor;

@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "types": ["@types/jasmine", "@types/webpack-env", "@vitest/browser/providers/playwright", "vitest/globals"],
+    "types": ["@vitest/browser/providers/playwright", "vitest/globals"],
     "moduleResolution": "node",
     "sourceMap": true,
     "experimentalDecorators": true,

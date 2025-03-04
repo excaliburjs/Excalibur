@@ -1,6 +1,5 @@
 import * as ex from '@excalibur';
 import { watchDeep } from '../../engine/Util/Watch';
-import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('Utility functions', () => {
   it('can watch deep', () => {

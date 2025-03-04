@@ -1,4 +1,3 @@
-import { describe, beforeEach, it, expect } from 'vitest';
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';

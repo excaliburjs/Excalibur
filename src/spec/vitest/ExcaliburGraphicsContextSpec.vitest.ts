@@ -1,6 +1,5 @@
 import * as ex from '@excalibur';
 import { TextureLoader } from '@excalibur';
-import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('The ExcaliburGraphicsContext', () => {
   describe('2D', () => {

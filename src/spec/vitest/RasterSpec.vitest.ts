@@ -1,6 +1,5 @@
 import * as ex from '@excalibur';
 import { Color } from '@excalibur';
-import { describe, beforeEach, it, expect } from 'vitest';
 
 import type { RasterOptions } from '../../engine/Graphics';
 

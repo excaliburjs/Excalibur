@@ -1,5 +1,4 @@
 import * as ex from '@excalibur';
-import { describe, beforeEach, it, expect } from 'vitest';
 
 class FakeComponentA extends ex.Component {}
 class FakeComponentB extends ex.Component {}

@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-import { describe, beforeEach, it, expect } from 'vitest';
+
 import { PhysicsWorld } from '../../engine/Collision/PhysicsWorld';
 import { TestUtils } from './util/TestUtils';
 

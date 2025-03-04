@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-import { describe, beforeEach, it, expect } from 'vitest';
+
 class TestGraphic extends ex.Graphic {
   constructor(options?: ex.GraphicOptions) {
     super(options ?? {});

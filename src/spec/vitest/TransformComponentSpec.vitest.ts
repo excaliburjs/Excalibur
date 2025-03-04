@@ -1,7 +1,6 @@
 import * as ex from '@excalibur';
 import { TransformComponent } from '@excalibur';
 import { EulerIntegrator } from '../../engine/Collision/Integrator';
-import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('A TransformComponent', () => {
   it('exists', () => {

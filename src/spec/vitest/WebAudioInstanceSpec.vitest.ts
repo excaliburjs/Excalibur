@@ -1,5 +1,4 @@
 import * as ex from '@excalibur';
-import { it, describe, beforeEach, afterEach, expect } from 'vitest';
 
 describe('A webaudio instance', () => {
   let webaudio: ex.WebAudioInstance;
