@@ -7,6 +7,8 @@ import * as path from 'path';
 const versioner = require('./version');
 const version = process.env.release ? versioner.getReleaseVersion() : versioner.getAlphaVersion();
 
+const isArmMacOS = process.platform === 'darwin' && process.arch === 'arm64';
+
 export default defineConfig({
   plugins: [importAs('glsl', '?raw'), importAs('css', '?inline')],
   optimizeDeps: {
@@ -51,11 +53,12 @@ export default defineConfig({
             args: [
               '--autoplay-policy=no-user-gesture-required',
               '--mute-audio',
-              '--disable-gpu',
               '--no-sandbox',
               '--enable-precise-memory-info',
-              '--js-flags="--max_old_space_size=8192"'
-            ]
+              '--js-flags="--max_old_space_size=8192"',
+              // breaks webGL on arm macs
+              !isArmMacOS && '--disable-gpu'
+            ].filter(Boolean)
           }
         },
         {
