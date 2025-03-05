@@ -51,6 +51,8 @@ export default defineConfig({
           },
           launch: {
             // channel: 'chromium',
+            // needed for linux
+            ignoreDefaultArgs: ['--disable-render-backgrounding'],
             args: [
               '--autoplay-policy=no-user-gesture-required',
               '--mute-audio',
