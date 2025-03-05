@@ -51,7 +51,7 @@ jobs:
   tests:
     strategy:
       matrix:
-        runner: [ubuntu-latest, windows-latest]
+        runner: [ubuntu-latest, windows-2025]
     runs-on: ${{ matrix.runner }}
     env:
       CI: true
