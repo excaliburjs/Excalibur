@@ -76,7 +76,7 @@
     "test:ci": "npm run test:chromium -- --silent",
     "test:watch": "karma start --auto-watch --single-run=false",
     "test:vitest": "vitest",
-    "test:chromium": "vitest --browser chromium",
+    "test:chromium": "vitest text --browser chromium",
     "test:firefox": "vitest --browser firefox",
     "test:webkit": "vitest --browser webkit",
     "coveralls": "echo 'Temporarily Remove Coveralls Due To Outage'",
