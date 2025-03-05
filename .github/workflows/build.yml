@@ -30,6 +30,8 @@ jobs:
           node-version-file: '.nvmrc'
           registry-url: 'https://registry.npmjs.org'
           cache: npm
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
       - run: npm ci
       - run: npm run linux:ci
       - name: Coveralls

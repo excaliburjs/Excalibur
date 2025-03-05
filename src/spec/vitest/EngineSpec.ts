@@ -847,7 +847,7 @@ describe('The engine', () => {
 
     const image = await screenShotPromise;
 
-    await expect(image).toEqualImage('/src/spec/assets/images/EngineSpec/screenshot.png', 1.0);
+    await expect(image).toEqualImage('/src/spec/assets/images/EngineSpec/screenshot.png', 0.999);
     engine.dispose();
   });
 

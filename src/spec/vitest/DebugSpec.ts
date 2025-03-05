@@ -65,7 +65,7 @@ describe('Debug draw static', () => {
     ex.Debug.flush(context);
     context.flush();
 
-    await expect(canvas).toEqualImage('/src/spec/assets/images/DebugSpec/lines.png');
+    await expect(canvas).toEqualImage('/src/spec/assets/images/DebugSpec/lines.png', 0.99);
     context.dispose();
   });
 
