@@ -41,6 +41,7 @@ export default defineConfig({
       provider: 'playwright',
       isolate: true,
       headless: process.env.CI === 'true' || process.env.HEADLESS === 'true',
+      fileParallelism: false,
       // https://vitest.dev/guide/browser/playwright
       // run `vitest --browser <name>` to run tests in a specific browser
       instances: [
