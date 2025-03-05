@@ -103,9 +103,9 @@ const compareImageData = async (actual: Visual, expected: Visual, tolerance: num
   const percentDiff = (totalPixels - pixelsDiff) / totalPixels;
   diffContext.putImageData(diffData, 0, 0);
 
-  const actualBase64 = actualCtx.canvas.toDataURL('image/png', 0);
-  const expectedBase64 = expectedCtx.canvas.toDataURL('image/png', 0);
-  const diffBase64 = diffContext.canvas.toDataURL('image/png', 0);
+  const actualBase64 = actualCtx.canvas.toDataURL('image/png', 1);
+  const expectedBase64 = expectedCtx.canvas.toDataURL('image/png', 1);
+  const diffBase64 = diffContext.canvas.toDataURL('image/png', 1);
 
   if (percentDiff < tolerance) {
     return {
