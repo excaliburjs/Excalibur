@@ -11,20 +11,19 @@ type PixelmatchOptions = any;
 
 export declare type ExcaliburVisual = string | HTMLImageElement | HTMLCanvasElement | CanvasRenderingContext2D;
 
-const img1Canvas = document.createElement('canvas');
-const img1Context = img1Canvas.getContext('2d')!;
-
-const img2Canvas = document.createElement('canvas');
-const img2Context = img2Canvas.getContext('2d')!;
-
-const diffCanvas = document.createElement('canvas');
-const diffContext = diffCanvas.getContext('2d')!;
-
-export type Visual = string | HTMLImageElement | HTMLCanvasElement | CanvasRenderingContext2D;
+export type Visual = string | HTMLImageElement | HTMLCanvasElement | CanvasRenderingContext2D | ImageData;
 export type DiffOptions = PixelmatchOptions;
 
-const flushSourceToImageData = async (source: Visual, context: CanvasRenderingContext2D) => {
-  if (source instanceof HTMLImageElement) {
+const flushSourceToImageData = async (source: Visual) => {
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d')!;
+
+  if (source instanceof ImageData) {
+    context.canvas.width = source.width;
+    context.canvas.height = source.height;
+    context.imageSmoothingEnabled = false;
+    context.putImageData(source, 0, 0);
+  } else if (source instanceof HTMLImageElement) {
     source.decoding = 'sync';
 
     if (source.src) {
@@ -75,10 +74,16 @@ const flushSourceToImageData = async (source: Visual, context: CanvasRenderingCo
 
     context.drawImage(img, 0, 0);
   }
-  return context.getImageData(0, 0, context.canvas.width, context.canvas.height);
+  return [context.getImageData(0, 0, context.canvas.width, context.canvas.height), context] as const;
 };
 
-const compareImageData = (actualData: ImageData, expectedData: ImageData, tolerance: number) => {
+const compareImageData = async (actual: Visual, expected: Visual, tolerance: number) => {
+  const [actualData, actualCtx] = await flushSourceToImageData(actual);
+  const [expectedData, expectedCtx] = await flushSourceToImageData(expected);
+
+  const diffCanvas = document.createElement('canvas');
+  const diffContext = diffCanvas.getContext('2d')!;
+
   if (actualData.width !== expectedData.width || actualData.height !== expectedData.height) {
     return {
       pass: false,
@@ -98,8 +103,8 @@ const compareImageData = (actualData: ImageData, expectedData: ImageData, tolera
   const percentDiff = (totalPixels - pixelsDiff) / totalPixels;
   diffContext.putImageData(diffData, 0, 0);
 
-  const actualBase64 = img1Context.canvas.toDataURL('image/png', 0);
-  const expectedBase64 = img2Context.canvas.toDataURL('image/png', 0);
+  const actualBase64 = actualCtx.canvas.toDataURL('image/png', 0);
+  const expectedBase64 = expectedCtx.canvas.toDataURL('image/png', 0);
   const diffBase64 = diffContext.canvas.toDataURL('image/png', 0);
 
   if (percentDiff < tolerance) {
@@ -121,13 +126,7 @@ const compareImageData = (actualData: ImageData, expectedData: ImageData, tolera
 
 expect.extend({
   toEqualImage: async (actual: Visual, expected: Visual, tolerance: number = 0.995) => {
-    if (actual instanceof ImageData && expected instanceof ImageData) {
-      return compareImageData(actual, expected, tolerance);
-    }
-
-    const actualData = await flushSourceToImageData(actual, img1Context);
-    const expectedData = await flushSourceToImageData(expected, img2Context);
-    return compareImageData(actualData, expectedData, tolerance);
+    return await compareImageData(actual, expected, tolerance);
   },
 
   toBeVector: (actual: ex.Vector, expected: ex.Vector, delta: number = 0.01) => {
@@ -172,7 +171,7 @@ expect.extend({
     let msg: string | undefined;
 
     for (const imgData of data) {
-      const result = compareImageData(await flushSourceToImageData(actual, img1Context), imgData, tolerance);
+      const result = await compareImageData(actual, imgData, tolerance);
       if (!result.pass) {
         pass = false;
         msg = result.message();

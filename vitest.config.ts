@@ -36,13 +36,12 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./src/spec/vitest/__setup__/setup.ts'],
     include: ['src/spec/vitest/**/*Spec.ts'],
-    fileParallelism: false,
     browser: {
       enabled: true,
       provider: 'playwright',
       isolate: true,
+
       headless: process.env.CI === 'true' || process.env.HEADLESS === 'true',
-      fileParallelism: false,
       // https://vitest.dev/guide/browser/playwright
       // run `vitest --browser <name>` to run tests in a specific browser
       instances: [
