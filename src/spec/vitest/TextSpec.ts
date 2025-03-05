@@ -92,6 +92,7 @@ describe.runIf(isChromium)('A Text Graphic', () => {
     await waitForFontLoad('bold 18px Open Sans');
     await waitForFontLoad('italic bold 18px Open Sans');
     await waitForFontLoad('italic 18px Open Sans');
+    await delay(100);
   });
 
   it('exists', () => {
