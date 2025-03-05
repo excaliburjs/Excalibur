@@ -1356,6 +1356,8 @@ describe.runIf(isChromium)('A Text Graphic', () => {
     text1.draw(ctx, 0, 18);
     ctx.flush();
 
+    await new Promise((r) => setTimeout(r, 1000));
+
     await runOnWindows(async () => {
       await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/font-text-wrap-win.png');
     });
