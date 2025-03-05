@@ -50,14 +50,15 @@ export default defineConfig({
             browser: 'chromium'
           },
           launch: {
+            // channel: 'chromium',
             args: [
               '--autoplay-policy=no-user-gesture-required',
               '--mute-audio',
               '--no-sandbox',
               '--enable-precise-memory-info',
-              '--js-flags="--max_old_space_size=8192"'
+              '--js-flags="--max_old_space_size=8192"',
               // breaks webGL on arm macs
-              // !isArmMacOS && '--disable-gpu'
+              !isArmMacOS && '--disable-gpu'
             ].filter(Boolean)
           }
         },

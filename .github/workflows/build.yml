@@ -18,7 +18,8 @@ on:
 jobs:
   build:
     runs-on: [ubuntu-latest]
-
+    env:
+      CI: true
     steps:
       - uses: actions/checkout@v4
         with:
