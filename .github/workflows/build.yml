@@ -52,8 +52,6 @@ jobs:
     strategy:
       matrix:
         runner: [ubuntu-latest, windows-latest]
-        # only need to run coverage on one runner
-        coverage: [true, false]
     runs-on: ${{ matrix.runner }}
     env:
       CI: true
@@ -72,10 +70,10 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Tests
-        run: npm run test:ci -- --coverage=${{ matrix.coverage }}
+        run: npm run test:ci -- --coverage=${{ matrix.runner == 'ubuntu-latest' }}
 
       - name: Coveralls
-        if: ${{ matrix.coverage == 'true' }}
+        if: ${{ matrix.runner == 'ubuntu-latest'}}
         uses: coverallsapp/github-action@v2.3.6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
