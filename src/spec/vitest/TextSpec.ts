@@ -93,6 +93,11 @@ describe.runIf(isChromium)('A Text Graphic', () => {
     await waitForFontLoad('italic bold 18px Open Sans');
     await waitForFontLoad('italic 18px Open Sans');
     await delay(100);
+
+    // trying to figure out CI issues
+    if (process.env.CI) {
+      await delay(3000);
+    }
   });
 
   it('exists', () => {
