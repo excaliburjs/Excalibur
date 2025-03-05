@@ -37,6 +37,13 @@ export default defineConfig({
     setupFiles: ['./src/spec/vitest/__setup__/setup.ts'],
     include: ['src/spec/vitest/**/*Spec.ts'],
     reporters: [['default', { summary: false }]],
+    coverage: {
+      include: ['src/**/*.ts'],
+      enabled: process.env.CI === 'true',
+      provider: 'istanbul',
+      reporter: [['html'], ['lcov', { projectRoot: __dirname }], ['text-summary']],
+      reportsDirectory: path.join(__dirname, 'coverage')
+    },
     browser: {
       enabled: true,
       provider: 'playwright',
