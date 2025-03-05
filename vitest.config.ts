@@ -36,6 +36,7 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./src/spec/vitest/__setup__/setup.ts'],
     include: ['src/spec/vitest/**/*Spec.ts'],
+    reporters: [['default', { summary: false }]],
     browser: {
       enabled: true,
       provider: 'playwright',
