@@ -9,6 +9,7 @@ const version = process.env.release ? versioner.getReleaseVersion() : versioner.
 
 const isArmMacOS = process.platform === 'darwin' && process.arch === 'arm64';
 
+const HEADLESS = process.env.HEADLESS === 'true' || process.env.CI === 'true';
 export default defineConfig({
   plugins: [importAs('glsl', '?raw'), importAs('css', '?inline')],
   optimizeDeps: {
@@ -49,7 +50,7 @@ export default defineConfig({
       provider: 'playwright',
       isolate: true,
 
-      headless: process.env.CI === 'true' || process.env.HEADLESS === 'true',
+      headless: HEADLESS,
       // https://vitest.dev/guide/browser/playwright
       // run `vitest --browser <name>` to run tests in a specific browser
       instances: [
@@ -59,18 +60,32 @@ export default defineConfig({
             browser: 'chromium'
           },
           launch: {
-            // channel: 'chromium',
+            channel: 'chromium',
             // needed for linux
-            ignoreDefaultArgs: ['--disable-render-backgrounding', '--disable-remote-fonts'],
+            ignoreDefaultArgs: ['--disable-render-backgrounding', '--disable-remote-fonts', '--font-render-hinting'],
+            // ignoreDefaultArgs: true,
             args: [
-              // '--font-render-hinting=none',
+              '--no-default-browser-check',
+              '--no-first-run',
+              '--disable-default-apps',
+              '--disable-popup-blocking',
+              '--disable-translate',
+              '--disable-background-timer-throttling',
+              !isArmMacOS && '--disable-gpu',
+              '--disable-dev-shm-usage',
+
+              // on macOS, disable-background-timer-throttling is not enough
+              // and we need disable-renderer-backgrounding too
+              // see https://github.com/karma-runner/karma-chrome-launcher/issues/123
+              '--disable-renderer-backgrounding',
+              '--disable-device-discovery-notifications',
+
+              '--font-render-hinting=medium',
               '--autoplay-policy=no-user-gesture-required',
               '--mute-audio',
               '--no-sandbox',
               '--enable-precise-memory-info',
-              '--js-flags="--max_old_space_size=8192"',
-              // breaks webGL on arm macs
-              !isArmMacOS && '--disable-gpu'
+              '--js-flags="--max_old_space_size=8192"'
             ].filter(Boolean)
           }
         },
