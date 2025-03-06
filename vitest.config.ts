@@ -61,7 +61,7 @@ export default defineConfig({
           },
           launch: {
             channel: 'chrome',
-            ignoreDefaultArgs: ['--disable-remote-fonts'],
+            ignoreDefaultArgs: ['--disable-render-backgrounding', '--disable-remote-fonts', '--font-render-hinting'],
             args: [
               '--no-default-browser-check',
               '--no-first-run',
@@ -78,6 +78,7 @@ export default defineConfig({
               '--disable-renderer-backgrounding',
               '--disable-device-discovery-notifications',
 
+              // '--font-render-hinting=medium',
               '--autoplay-policy=no-user-gesture-required',
               '--mute-audio',
               '--no-sandbox',
