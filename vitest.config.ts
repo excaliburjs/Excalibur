@@ -62,7 +62,7 @@ export default defineConfig({
           launch: {
             channel: 'chrome',
             // needed for linux
-            ignoreDefaultArgs: ['--disable-render-backgrounding', '--disable-remote-fonts', '--font-render-hinting'],
+            ignoreDefaultArgs: ['--disable-render-backgrounding'],
 
             // ignoreDefaultArgs: true,
             args: [
