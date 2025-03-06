@@ -68,6 +68,8 @@ jobs:
           cache: npm
       - run: npm ci
       - uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: 133.0.6943.98
       # - name: Install Playwright browsers
       #   run: npx playwright install --with-deps
 
