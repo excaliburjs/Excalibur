@@ -60,27 +60,27 @@ export default defineConfig({
             browser: 'chromium'
           },
           launch: {
-            channel: 'chromium',
+            channel: 'chrome',
             // needed for linux
-            ignoreDefaultArgs: ['--disable-render-backgrounding', '--disable-remote-fonts', '--font-render-hinting'],
+            // ignoreDefaultArgs: ['--disable-render-backgrounding', '--disable-remote-fonts', '--font-render-hinting'],
             // ignoreDefaultArgs: true,
             args: [
-              '--no-default-browser-check',
-              '--no-first-run',
-              '--disable-default-apps',
-              '--disable-popup-blocking',
-              '--disable-translate',
-              '--disable-background-timer-throttling',
+              // '--no-default-browser-check',
+              // '--no-first-run',
+              // '--disable-default-apps',
+              // '--disable-popup-blocking',
+              // '--disable-translate',
+              // '--disable-background-timer-throttling',
               !isArmMacOS && '--disable-gpu',
               '--disable-dev-shm-usage',
 
               // on macOS, disable-background-timer-throttling is not enough
               // and we need disable-renderer-backgrounding too
               // see https://github.com/karma-runner/karma-chrome-launcher/issues/123
-              '--disable-renderer-backgrounding',
-              '--disable-device-discovery-notifications',
+              // '--disable-renderer-backgrounding',
+              // '--disable-device-discovery-notifications',
 
-              '--font-render-hinting=medium',
+              // '--font-render-hinting=medium',
               '--autoplay-policy=no-user-gesture-required',
               '--mute-audio',
               '--no-sandbox',

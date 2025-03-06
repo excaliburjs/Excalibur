@@ -66,8 +66,9 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           cache: npm
       - run: npm ci
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
+      - uses: browser-actions/setup-chrome@v1
+      # - name: Install Playwright browsers
+      #   run: npx playwright install --with-deps
 
       - name: Tests
         run: npm run test:ci -- --coverage=${{ matrix.runner == 'ubuntu-latest' }}
