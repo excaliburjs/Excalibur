@@ -78,7 +78,7 @@ export default defineConfig({
               // on macOS, disable-background-timer-throttling is not enough
               // and we need disable-renderer-backgrounding too
               // see https://github.com/karma-runner/karma-chrome-launcher/issues/123
-              '--disable-renderer-backgrounding',
+              // '--disable-renderer-backgrounding',
               '--disable-device-discovery-notifications',
 
               // '--font-render-hinting=medium',
