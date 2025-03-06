@@ -1,7 +1,7 @@
-import { EventEmitter } from '../EventEmitter';
-import { PointerEvent } from './PointerEvent';
-import { GlobalCoordinates } from '../Math';
-import { PointerEventReceiver } from './PointerEventReceiver';
+import type { EventEmitter } from '../EventEmitter';
+import type { PointerEvent } from './PointerEvent';
+import type { GlobalCoordinates } from '../Math';
+import type { PointerEventReceiver } from './PointerEventReceiver';
 import { RentalPool } from '../Util/RentalPool';
 
 /**

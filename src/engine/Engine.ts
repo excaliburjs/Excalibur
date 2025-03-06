@@ -1,17 +1,19 @@
 import { EX_VERSION } from './';
 import { Future } from './Util/Future';
-import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
+import type { EventKey, Handler, Subscription } from './EventEmitter';
+import { EventEmitter } from './EventEmitter';
 import { PointerScope } from './Input/PointerScope';
 import { Flags } from './Flags';
 import { polyfill } from './Polyfill';
 polyfill();
-import { CanUpdate, CanDraw, CanInitialize } from './Interfaces/LifecycleEvents';
-import { Vector } from './Math/vector';
-import { Screen, DisplayMode, Resolution, ViewportDimension } from './Screen';
-import { ScreenElement } from './ScreenElement';
-import { Actor } from './Actor';
-import { Timer } from './Timer';
-import { TileMap } from './TileMap';
+import type { CanUpdate, CanDraw, CanInitialize } from './Interfaces/LifecycleEvents';
+import type { Vector } from './Math/vector';
+import type { ViewportDimension } from './Screen';
+import { Screen, DisplayMode, Resolution } from './Screen';
+import type { ScreenElement } from './ScreenElement';
+import type { Actor } from './Actor';
+import type { Timer } from './Timer';
+import type { TileMap } from './TileMap';
 import { DefaultLoader } from './Director/DefaultLoader';
 import { Loader } from './Director/Loader';
 import { Detector } from './Util/Detector';
@@ -30,30 +32,36 @@ import {
 } from './Events';
 import { Logger, LogLevel } from './Util/Log';
 import { Color } from './Color';
-import { Scene, SceneConstructor, isSceneConstructor } from './Scene';
+import type { SceneConstructor } from './Scene';
+import { Scene, isSceneConstructor } from './Scene';
 import { Entity } from './EntityComponentSystem/Entity';
-import { DebugConfig, DebugStats } from './Debug/DebugConfig';
+import type { DebugStats } from './Debug/DebugConfig';
+import { DebugConfig } from './Debug/DebugConfig';
 import { BrowserEvents } from './Util/Browser';
+import type { AntialiasOptions, ExcaliburGraphicsContext } from './Graphics';
 import {
-  AntialiasOptions,
   DefaultAntialiasOptions,
   DefaultPixelArtOptions,
-  ExcaliburGraphicsContext,
   ExcaliburGraphicsContext2DCanvas,
   ExcaliburGraphicsContextWebGL,
   TextureLoader
 } from './Graphics';
-import { Clock, StandardClock } from './Util/Clock';
+import type { Clock } from './Util/Clock';
+import { StandardClock } from './Util/Clock';
 import { ImageFiltering } from './Graphics/Filtering';
 import { GraphicsDiagnostics } from './Graphics/GraphicsDiagnostics';
 import { Toaster } from './Util/Toaster';
-import { InputMapper } from './Input/InputMapper';
-import { GoToOptions, SceneMap, Director, StartOptions, SceneWithOptions, WithRoot, DirectorEvents } from './Director/Director';
+import type { InputMapper } from './Input/InputMapper';
+import type { GoToOptions, SceneMap, StartOptions, SceneWithOptions, WithRoot } from './Director/Director';
+import { Director, DirectorEvents } from './Director/Director';
 import { InputHost } from './Input/InputHost';
-import { getDefaultPhysicsConfig, PhysicsConfig } from './Collision/PhysicsConfig';
-import { DeepRequired } from './Util/Required';
-import { Context, createContext, useContext } from './Context';
-import { DefaultGarbageCollectionOptions, GarbageCollectionOptions, GarbageCollector } from './GarbageCollector';
+import type { PhysicsConfig } from './Collision/PhysicsConfig';
+import { getDefaultPhysicsConfig } from './Collision/PhysicsConfig';
+import type { DeepRequired } from './Util/Required';
+import type { Context } from './Context';
+import { createContext, useContext } from './Context';
+import type { GarbageCollectionOptions } from './GarbageCollector';
+import { DefaultGarbageCollectionOptions, GarbageCollector } from './GarbageCollector';
 import { mergeDeep } from './Util/Util';
 
 export type EngineEvents = DirectorEvents & {

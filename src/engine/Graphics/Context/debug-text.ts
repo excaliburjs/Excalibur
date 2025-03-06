@@ -1,8 +1,8 @@
-import { ExcaliburGraphicsContext } from '../Context/ExcaliburGraphicsContext';
+import type { ExcaliburGraphicsContext } from '../Context/ExcaliburGraphicsContext';
 import { ImageSource } from '../ImageSource';
 import { SpriteFont } from '../SpriteFont';
 import { SpriteSheet } from '../SpriteSheet';
-import { Vector } from '../../Math/vector';
+import type { Vector } from '../../Math/vector';
 import debugFont from './debug-font.png';
 
 /**

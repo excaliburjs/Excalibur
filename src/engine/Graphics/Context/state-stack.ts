@@ -1,7 +1,7 @@
 import { Color } from '../../Color';
 import { RentalPool } from '../../Util/RentalPool';
-import { ExcaliburGraphicsContextState } from './ExcaliburGraphicsContext';
-import { Material } from './material';
+import type { ExcaliburGraphicsContextState } from './ExcaliburGraphicsContext';
+import type { Material } from './material';
 
 export class ContextState implements ExcaliburGraphicsContextState {
   opacity: number = 1;

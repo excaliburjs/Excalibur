@@ -1,4 +1,4 @@
-import { Loadable } from '../Interfaces/Loadable';
+import type { Loadable } from '../Interfaces/Loadable';
 import { Logger } from '../Util/Log';
 import { EventEmitter } from '../EventEmitter';
 

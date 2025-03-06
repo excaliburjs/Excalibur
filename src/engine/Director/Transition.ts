@@ -1,13 +1,15 @@
-import { Engine } from '../Engine';
-import { Scene } from '../Scene';
+import type { Engine } from '../Engine';
+import type { Scene } from '../Scene';
 import { Future } from '../Util/Future';
 import { Entity, TransformComponent } from '../EntityComponentSystem';
 import { GraphicsComponent } from '../Graphics';
 import { CoordPlane } from '../Math/coord-plane';
 import { Vector } from '../Math/vector';
 import { clamp } from '../Math/util';
-import { EasingFunction, EasingFunctions } from '../Util/EasingFunctions';
-import { coroutine, CoroutineInstance } from '../Util/Coroutine';
+import type { EasingFunction } from '../Util/EasingFunctions';
+import { EasingFunctions } from '../Util/EasingFunctions';
+import type { CoroutineInstance } from '../Util/Coroutine';
+import { coroutine } from '../Util/Coroutine';
 import { Logger } from '../Util/Log';
 
 export interface TransitionOptions {

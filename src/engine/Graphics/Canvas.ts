@@ -1,5 +1,6 @@
-import { GraphicOptions } from './Graphic';
-import { Raster, RasterOptions } from './Raster';
+import type { GraphicOptions } from './Graphic';
+import type { RasterOptions } from './Raster';
+import { Raster } from './Raster';
 
 export interface CanvasOptions {
   draw?: (ctx: CanvasRenderingContext2D) => void;

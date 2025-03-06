@@ -1,6 +1,7 @@
 import { Vector, vec } from './Math/vector';
-import { Engine } from './Engine';
-import { Actor, ActorArgs } from './Actor';
+import type { Engine } from './Engine';
+import type { ActorArgs } from './Actor';
+import { Actor } from './Actor';
 import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
 import { CollisionType } from './Collision/CollisionType';
 import { CoordPlane } from './Math/coord-plane';

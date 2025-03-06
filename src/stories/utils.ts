@@ -1,4 +1,5 @@
-import { DisplayMode, Engine, EngineOptions, KeyEvent, Keys, Logger, PointerScope } from '../engine';
+import type { EngineOptions, KeyEvent } from '../engine';
+import { DisplayMode, Engine, Keys, Logger, PointerScope } from '../engine';
 
 interface HTMLCanvasElement {
   gameRef?: Engine;

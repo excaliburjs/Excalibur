@@ -1,7 +1,8 @@
-import { Engine } from '../Engine';
+import type { Engine } from '../Engine';
 import { Color } from '../Color';
 import { Rectangle } from '../Graphics';
-import { Transition, TransitionOptions } from './Transition';
+import type { TransitionOptions } from './Transition';
+import { Transition } from './Transition';
 
 export interface FadeOptions {
   duration?: number;

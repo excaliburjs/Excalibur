@@ -1,7 +1,7 @@
 import { GameEvent } from '../Events';
-import { Sound } from '../Resources/Sound/Sound';
-import { Actor } from '../Actor';
-import { WebAudioInstance } from '../Resources/Sound/WebAudioInstance';
+import type { Sound } from '../Resources/Sound/Sound';
+import type { Actor } from '../Actor';
+import type { WebAudioInstance } from '../Resources/Sound/WebAudioInstance';
 
 export class MediaEvent extends GameEvent<Sound> {
   /**
