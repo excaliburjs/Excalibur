@@ -63,7 +63,7 @@ export default defineConfig({
             // needed for linux
             ignoreDefaultArgs: ['--disable-render-backgrounding', '--disable-remote-fonts'],
             args: [
-              '--font-render-hinting=none',
+              // '--font-render-hinting=none',
               '--autoplay-policy=no-user-gesture-required',
               '--mute-audio',
               '--no-sandbox',
