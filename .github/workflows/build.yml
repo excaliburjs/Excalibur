@@ -50,6 +50,7 @@ jobs:
 
   tests:
     strategy:
+      fail-fast: false
       matrix:
         runner: [ubuntu-latest, windows-2025]
     runs-on: ${{ matrix.runner }}
