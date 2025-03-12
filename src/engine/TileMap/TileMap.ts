@@ -123,7 +123,7 @@ export class TileMap extends Entity implements HasNestedPointerEvents {
     this._collidersDirty = true;
   }
 
-  public flagTilesDirty() {
+  public flagTilesDirty(): void {
     for (let i = 0; i < this.tiles.length; i++) {
       if (this.tiles[i]) {
         this.tiles[i].flagDirty();
@@ -175,6 +175,10 @@ export class TileMap extends Entity implements HasNestedPointerEvents {
 
   public set rotation(val: number) {
     if (this.transform) {
+      if (val !== this.transform.rotation) {
+        this.flagCollidersDirty();
+        this.flagTilesDirty();
+      }
       this.transform.rotation = val;
     }
   }
@@ -185,7 +189,11 @@ export class TileMap extends Entity implements HasNestedPointerEvents {
   }
 
   public set scale(val: Vector) {
-    if (this.transform?.scale) {
+    if (this.transform) {
+      if (!val?.equals(this.transform.scale)) {
+        this.flagCollidersDirty();
+        this.flagTilesDirty();
+      }
       this.transform.scale = val;
     }
   }
@@ -196,7 +204,13 @@ export class TileMap extends Entity implements HasNestedPointerEvents {
   }
 
   public set pos(val: Vector) {
-    this.transform.pos = val;
+    if (this.transform) {
+      if (!val?.equals(this.transform.pos)) {
+        this.flagCollidersDirty();
+        this.flagTilesDirty();
+      }
+      this.transform.pos = val;
+    }
   }
 
   public get vel(): Vector {
@@ -881,11 +895,11 @@ export class Tile {
     this._recalculate();
   }
 
-  public flagDirty() {
-    return (this._posDirty = true);
+  public flagDirty(): void {
+    this._posDirty = true;
   }
 
-  private _recalculate() {
+  private _recalculate(): void {
     const geometryPos = this.map.pos.add(vec(this.x * this.map.tileWidth, this.y * this.map.tileHeight));
     this._geometry = new BoundingBox(geometryPos.x, geometryPos.y, geometryPos.x + this.map.tileWidth, geometryPos.y + this.map.tileHeight);
 
@@ -904,14 +918,14 @@ export class Tile {
   /**
    * Tile bounds in world space
    */
-  public get bounds() {
+  public get bounds(): BoundingBox {
     if (this._posDirty) {
       this._recalculate();
     }
     return this._bounds;
   }
 
-  public get defaultGeometry() {
+  public get defaultGeometry(): BoundingBox {
     return this._geometry;
   }
 
