@@ -534,6 +534,7 @@ export class ActionContext {
    * collide "meet" at a specified speed.
    * @param entity  The entity to meet
    * @param speed  The speed in pixels per second to move, if not specified it will match the speed of the other actor
+   * @param tolerance  The tolerance in pixels to meet, if not specified it will be 1 pixel
    */
   public meet(entity: Entity, speed?: number, tolerance?: number): ActionContext {
     if (speed === undefined && tolerance === undefined) {
