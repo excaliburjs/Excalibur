@@ -541,10 +541,6 @@ export class ActionContext {
     } else if (tolerance === undefined) {
       this._queue.add(new Meet(this._entity, entity, speed));
     } else {
-      //have linter ignore console log
-      // eslint-disable-next-line
-      console.log('here with a tolerance');
-
       this._queue.add(new Meet(this._entity, entity, speed, tolerance));
     }
     return this;
