@@ -535,11 +535,17 @@ export class ActionContext {
    * @param entity  The entity to meet
    * @param speed  The speed in pixels per second to move, if not specified it will match the speed of the other actor
    */
-  public meet(entity: Entity, speed?: number): ActionContext {
-    if (speed === undefined) {
+  public meet(entity: Entity, speed?: number, tolerance?: number): ActionContext {
+    if (speed === undefined && tolerance === undefined) {
       this._queue.add(new Meet(this._entity, entity));
-    } else {
+    } else if (tolerance === undefined) {
       this._queue.add(new Meet(this._entity, entity, speed));
+    } else {
+      //have linter ignore console log
+      // eslint-disable-next-line
+      console.log('here with a tolerance');
+
+      this._queue.add(new Meet(this._entity, entity, speed, tolerance));
     }
     return this;
   }
