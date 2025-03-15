@@ -8,6 +8,8 @@ section: Actions
 
 This method will cause the entity to move towards another until they are within 1 pixel of each other at a specified speed.
 
+A tolerance optional parameter has been added to increase the range in which the Meet Action is completed.  The default is still 1 pixel.
+
 :::warning
 
 This action could possibly never complete! Any actions chained off of it will not fire until the target is met. You will need to call `.clearActions()` to schedule new actions.
