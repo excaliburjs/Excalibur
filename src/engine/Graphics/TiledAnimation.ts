@@ -1,9 +1,11 @@
-import { ImageFiltering } from './Filtering';
-import { ImageWrapConfiguration } from './ImageSource';
-import { SourceView, Sprite } from './Sprite';
-import { ImageWrapping } from './Wrapping';
-import { Animation, AnimationOptions } from './Animation';
-import { GraphicOptions } from './Graphic';
+import type { ImageFiltering } from './Filtering';
+import type { ImageWrapConfiguration } from './ImageSource';
+import type { SourceView } from './Sprite';
+import { Sprite } from './Sprite';
+import type { ImageWrapping } from './Wrapping';
+import type { AnimationOptions } from './Animation';
+import { Animation } from './Animation';
+import type { GraphicOptions } from './Graphic';
 import { TiledSprite } from './TiledSprite';
 import { watch } from '../Util/Watch';
 import { Future } from '../Util/Future';

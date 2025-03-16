@@ -1,4 +1,4 @@
-import { Handler } from '../EventEmitter';
+import type { Handler } from '../EventEmitter';
 
 export interface Eventable {
   /**

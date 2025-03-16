@@ -1,8 +1,9 @@
 import { LineSegment } from '../../Math/line-segment';
-import { Vector, vec } from '../../Math/vector';
-import { Collider } from './Collider';
-import { CircleCollider } from './CircleCollider';
-import { PolygonCollider } from './PolygonCollider';
+import type { Vector } from '../../Math/vector';
+import { vec } from '../../Math/vector';
+import type { Collider } from './Collider';
+import type { CircleCollider } from './CircleCollider';
+import type { PolygonCollider } from './PolygonCollider';
 import { AffineMatrix } from '../../Math/affine-matrix';
 import { Pool } from '../../Util/Pool';
 

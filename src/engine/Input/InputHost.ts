@@ -1,4 +1,4 @@
-import { Engine } from '../Engine';
+import type { Engine } from '../Engine';
 import { Gamepads } from './Gamepad';
 import { InputMapper } from './InputMapper';
 import { Keyboard } from './Keyboard';

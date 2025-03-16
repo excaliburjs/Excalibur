@@ -1,9 +1,9 @@
-import { Vector } from '../../Math/vector';
-import { Color } from '../../Color';
-import { Resolution } from '../../Screen';
-import { PostProcessor } from '../PostProcessor/PostProcessor';
-import { AffineMatrix } from '../../Math/affine-matrix';
-import { Material, MaterialOptions } from './material';
+import type { Vector } from '../../Math/vector';
+import type { Color } from '../../Color';
+import type { Resolution } from '../../Screen';
+import type { PostProcessor } from '../PostProcessor/PostProcessor';
+import type { AffineMatrix } from '../../Math/affine-matrix';
+import type { Material, MaterialOptions } from './material';
 import { ImageFiltering } from '../Filtering';
 
 export type HTMLImageSource = HTMLImageElement | HTMLCanvasElement;

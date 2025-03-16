@@ -55,6 +55,8 @@
       }
     ],
     "@typescript-eslint/no-empty-function": "error",
+    "@typescript-eslint/consistent-type-imports": "error",
+    "@typescript-eslint/consistent-type-exports": "error",
     "curly": "error",
     "dot-notation": "error",
     "no-caller": "error",

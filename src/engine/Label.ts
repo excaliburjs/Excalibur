@@ -1,11 +1,12 @@
-import { Engine } from './Engine';
-import { Color } from './Color';
+import type { Engine } from './Engine';
+import type { Color } from './Color';
 import { vec, Vector } from './Math/vector';
 import { Text } from './Graphics/Text';
-import { GraphicsComponent, SpriteFont } from './Graphics';
+import type { SpriteFont } from './Graphics';
+import { GraphicsComponent } from './Graphics';
 import { Font } from './Graphics/Font';
 import { Actor } from './Actor';
-import { ActorArgs } from './Actor';
+import type { ActorArgs } from './Actor';
 
 /**
  * Option for creating a label

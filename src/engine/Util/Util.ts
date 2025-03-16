@@ -1,5 +1,5 @@
 import { Vector, vec } from '../Math/vector';
-import { Clock } from './Clock';
+import type { Clock } from './Clock';
 import { Future } from './Future';
 
 /**

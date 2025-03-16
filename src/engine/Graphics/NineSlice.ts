@@ -1,6 +1,7 @@
-import { Graphic, GraphicOptions } from './Graphic';
-import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
-import { ImageSource } from './ImageSource';
+import type { GraphicOptions } from './Graphic';
+import { Graphic } from './Graphic';
+import type { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
+import type { ImageSource } from './ImageSource';
 import { Logger } from '../Util/Log';
 import { Vector } from '../Math/vector';
 

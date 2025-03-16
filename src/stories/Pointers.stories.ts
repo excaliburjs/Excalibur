@@ -1,4 +1,4 @@
-import { Meta, StoryObj } from '@storybook/html';
+import type { Meta, StoryObj } from '@storybook/html';
 import * as ex from '../engine';
 import { withEngine } from './utils';
 

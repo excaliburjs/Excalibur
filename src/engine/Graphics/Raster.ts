@@ -1,10 +1,11 @@
-import { Graphic, GraphicOptions } from './Graphic';
-import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
+import type { GraphicOptions } from './Graphic';
+import { Graphic } from './Graphic';
+import type { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { Color } from '../Color';
 import { Vector } from '../Math/vector';
 import { BoundingBox } from '../Collision/BoundingBox';
 import { watch } from '../Util/Watch';
-import { ImageFiltering } from './Filtering';
+import type { ImageFiltering } from './Filtering';
 import { omit } from '../Util/Util';
 
 export interface RasterOptions extends GraphicOptions {

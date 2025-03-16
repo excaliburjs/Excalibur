@@ -1,7 +1,9 @@
-import { ImageSource } from './ImageSource';
-import { SourceView, Sprite } from './Sprite';
-import { GraphicOptions } from './Graphic';
-import { TiledSprite, TiledSpriteOptions } from './TiledSprite';
+import type { ImageSource } from './ImageSource';
+import type { SourceView } from './Sprite';
+import { Sprite } from './Sprite';
+import type { GraphicOptions } from './Graphic';
+import type { TiledSpriteOptions } from './TiledSprite';
+import { TiledSprite } from './TiledSprite';
 import { Vector } from '../Math/vector';
 
 /**

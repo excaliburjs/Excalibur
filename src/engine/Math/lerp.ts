@@ -1,6 +1,6 @@
 import { RotationType } from './rotation-type';
 import { TwoPI } from './util';
-import { Vector } from './vector';
+import type { Vector } from './vector';
 
 /**
  * Linear interpolation between `a` and `b`, at `time = 0` the value will be `a` at `time = 1` the value will be `b`

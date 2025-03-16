@@ -1,5 +1,6 @@
 import { ImageFiltering } from './Filtering';
-import { Raster, RasterOptions } from './Raster';
+import type { RasterOptions } from './Raster';
+import { Raster } from './Raster';
 
 export interface CircleOptions {
   radius: number;

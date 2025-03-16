@@ -1,11 +1,12 @@
 import { BoundingBox } from '../BoundingBox';
-import { Ray } from '../../Math/ray';
+import type { Ray } from '../../Math/ray';
 import { Logger } from '../../Util/Log';
-import { Id } from '../../Id';
-import { Entity } from '../../EntityComponentSystem/Entity';
+import type { Id } from '../../Id';
+import type { Entity } from '../../EntityComponentSystem/Entity';
 import { BodyComponent } from '../BodyComponent';
-import { Color, ExcaliburGraphicsContext } from '../..';
-import { DynamicTreeConfig } from '../PhysicsConfig';
+import type { ExcaliburGraphicsContext } from '../..';
+import { Color } from '../..';
+import type { DynamicTreeConfig } from '../PhysicsConfig';
 
 /**
  * Dynamic Tree Node used for tracking bounds within the tree

@@ -59,16 +59,16 @@ export { PointerButton } from './Input/PointerButton';
 
 export { NativePointerButton } from './Input/NativePointerButton';
 
-export { CapturePointerConfig } from './Input/CapturePointerConfig';
+export type { CapturePointerConfig } from './Input/CapturePointerConfig';
 
-export {
+export type {
   NativePointerEvent,
   NativeMouseEvent,
   NativeTouchEvent,
   NativeWheelEvent,
-  PointerInitOptions,
-  PointerEventReceiver
+  PointerInitOptions
 } from './Input/PointerEventReceiver';
+export { PointerEventReceiver } from './Input/PointerEventReceiver';
 
 export { PointerAbstraction } from './Input/PointerAbstraction';
 export { PointerComponent } from './Input/PointerComponent';
@@ -76,19 +76,17 @@ export { PointerSystem } from './Input/PointerSystem';
 export { PointerType } from './Input/PointerType';
 export { PointerScope } from './Input/PointerScope';
 
-export {
-  Gamepads,
-  Gamepad,
-  Buttons,
-  Axes,
+export type {
   NavigatorGamepads,
   NavigatorGamepad,
   NavigatorGamepadButton,
   NavigatorGamepadEvent,
   GamepadConfiguration
 } from './Input/Gamepad';
+export { Gamepads, Gamepad, Buttons, Axes } from './Input/Gamepad';
 
-export { Keys, KeyEvent, KeyboardInitOptions, Keyboard } from './Input/Keyboard';
+export type { KeyboardInitOptions } from './Input/Keyboard';
+export { Keys, KeyEvent, Keyboard } from './Input/Keyboard';
 export * from './Input/InputHost';
 export * from './Input/InputMapper';
 

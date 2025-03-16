@@ -1,8 +1,8 @@
 import { Resource } from './Resource';
-import { Sprite } from '../Graphics/Sprite';
+import type { Sprite } from '../Graphics/Sprite';
 import { SpriteSheet } from '../Graphics/SpriteSheet';
 import { Animation } from '../Graphics/Animation';
-import { Loadable } from '../Interfaces/Index';
+import type { Loadable } from '../Interfaces/Index';
 import { ImageSource } from '../Graphics/ImageSource';
 /**
  * The {@apilink Texture} object allows games built in Excalibur to load image resources.

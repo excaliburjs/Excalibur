@@ -1,10 +1,10 @@
 import { Color } from '../../Color';
-import { ExcaliburGraphicsContext } from './ExcaliburGraphicsContext';
+import type { ExcaliburGraphicsContext } from './ExcaliburGraphicsContext';
 import { ExcaliburGraphicsContextWebGL } from './ExcaliburGraphicsContextWebGL';
-import { Shader, UniformDictionary } from './shader';
+import type { Shader, UniformDictionary } from './shader';
 import { Logger } from '../../Util/Log';
-import { ImageSource } from '../ImageSource';
-import { ImageFiltering } from '../Filtering';
+import type { ImageSource } from '../ImageSource';
+import type { ImageFiltering } from '../Filtering';
 
 export interface MaterialOptions {
   /**

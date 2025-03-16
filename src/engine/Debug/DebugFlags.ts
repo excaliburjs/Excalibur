@@ -1,6 +1,6 @@
 ﻿import { ColorBlindnessMode } from '../Graphics/PostProcessor/ColorBlindnessMode';
 import { ColorBlindnessPostProcessor } from '../Graphics/PostProcessor/ColorBlindnessPostProcessor';
-import { Engine } from '../Engine';
+import type { Engine } from '../Engine';
 import { ExcaliburGraphicsContextWebGL } from '../Graphics/Context/ExcaliburGraphicsContextWebGL';
 
 export class ColorBlindFlags {

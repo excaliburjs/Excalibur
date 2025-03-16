@@ -1,19 +1,12 @@
-import { Ray } from '../Math/ray';
-import { DeepRequired } from '../Util/Required';
+import type { Ray } from '../Math/ray';
+import type { DeepRequired } from '../Util/Required';
 import { Observable } from '../Util/Observable';
-import {
-  BoundingBox,
-  Collider,
-  CollisionProcessor,
-  DynamicTreeCollisionProcessor,
-  RayCastHit,
-  RayCastOptions,
-  SparseHashGridCollisionProcessor
-} from './Index';
+import type { BoundingBox, Collider, CollisionProcessor, RayCastHit, RayCastOptions } from './Index';
+import { DynamicTreeCollisionProcessor, SparseHashGridCollisionProcessor } from './Index';
 import { BodyComponent } from './BodyComponent';
-import { PhysicsConfig } from './PhysicsConfig';
+import type { PhysicsConfig } from './PhysicsConfig';
 import { watchDeep } from '../Util/Watch';
-import { Vector } from '../Math/vector';
+import type { Vector } from '../Math/vector';
 import { SpatialPartitionStrategy } from './Detection/SpatialPartitionStrategy';
 
 export class PhysicsWorld {

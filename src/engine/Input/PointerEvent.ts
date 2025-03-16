@@ -1,7 +1,7 @@
-import { GlobalCoordinates } from '../Math/global-coordinates';
-import { Vector } from '../Math/vector';
-import { PointerButton } from './PointerButton';
-import { PointerType } from './PointerType';
+import type { GlobalCoordinates } from '../Math/global-coordinates';
+import type { Vector } from '../Math/vector';
+import type { PointerButton } from './PointerButton';
+import type { PointerType } from './PointerType';
 
 export class PointerEvent {
   public active = true;
