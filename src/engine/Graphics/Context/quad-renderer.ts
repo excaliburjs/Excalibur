@@ -1,4 +1,3 @@
-import { Vector } from '../../Math';
 import { GraphicsDiagnostics } from '../GraphicsDiagnostics';
 import { ExcaliburGraphicsContextWebGL } from './ExcaliburGraphicsContextWebGL';
 import { Framebuffer } from './framebuffer';
@@ -96,58 +95,59 @@ void main() {
     this._buffer.upload();
   }
 
-  setPostion(min: Vector, max: Vector): void {
+  setPostion(minX: number, minY: number, maxX: number, maxY: number): void {
     // 0,1
-    this._buffer.bufferData[6 * 0 + 0] = min.x;
-    this._buffer.bufferData[6 * 0 + 1] = max.y;
+    this._buffer.bufferData[6 * 0 + 0] = minX;
+    this._buffer.bufferData[6 * 0 + 1] = maxY;
 
     // 0, 0
-    this._buffer.bufferData[6 * 1 + 0] = min.x;
-    this._buffer.bufferData[6 * 1 + 1] = min.y;
+    this._buffer.bufferData[6 * 1 + 0] = minX;
+    this._buffer.bufferData[6 * 1 + 1] = minY;
 
     // 1, 1
-    this._buffer.bufferData[6 * 2 + 0] = max.x;
-    this._buffer.bufferData[6 * 2 + 1] = max.y;
+    this._buffer.bufferData[6 * 2 + 0] = maxX;
+    this._buffer.bufferData[6 * 2 + 1] = maxY;
 
     // 1, 0
-    this._buffer.bufferData[6 * 3 + 0] = max.x;
-    this._buffer.bufferData[6 * 3 + 1] = min.y;
+    this._buffer.bufferData[6 * 3 + 0] = maxX;
+    this._buffer.bufferData[6 * 3 + 1] = minY;
   }
 
-  setUV(min: Vector, max: Vector): void {
-    // 0,1
-    this._buffer.bufferData[6 * 0 + 2 + 0] = min.x;
-    this._buffer.bufferData[6 * 0 + 2 + 1] = max.y;
+  setUV(minX: number, minY: number, maxX: number, maxY: number): void {
+    // 0, 1
+    this._buffer.bufferData[6 * 0 + 2 + 0] = minX;
+    this._buffer.bufferData[6 * 0 + 2 + 1] = maxY;
 
     // 0, 0
-    this._buffer.bufferData[6 * 1 + 2 + 0] = min.x;
-    this._buffer.bufferData[6 * 1 + 2 + 1] = min.y;
+    this._buffer.bufferData[6 * 1 + 2 + 0] = minX;
+    this._buffer.bufferData[6 * 1 + 2 + 1] = minY;
 
     // 1, 1
-    this._buffer.bufferData[6 * 2 + 2 + 0] = max.x;
-    this._buffer.bufferData[6 * 2 + 2 + 1] = max.y;
+    this._buffer.bufferData[6 * 2 + 2 + 0] = maxX;
+    this._buffer.bufferData[6 * 2 + 2 + 1] = maxY;
 
     // 1, 0
-    this._buffer.bufferData[6 * 3 + 2 + 0] = max.x;
-    this._buffer.bufferData[6 * 3 + 2 + 1] = min.y;
+    this._buffer.bufferData[6 * 3 + 2 + 0] = maxX;
+    this._buffer.bufferData[6 * 3 + 2 + 1] = minY;
   }
 
-  setScreenUV(min: Vector, max: Vector): void {
+  setScreenUV(minX: number, minY: number, maxX: number, maxY: number): void {
+    // TODO something is broken here
     // 0,1
-    this._buffer.bufferData[6 * 0 + 4 + 0] = min.x;
-    this._buffer.bufferData[6 * 0 + 4 + 1] = max.y;
+    this._buffer.bufferData[6 * 0 + 4 + 0] = minX;
+    this._buffer.bufferData[6 * 0 + 4 + 1] = maxY;
 
     // 0, 0
-    this._buffer.bufferData[6 * 1 + 4 + 0] = min.x;
-    this._buffer.bufferData[6 * 1 + 4 + 1] = min.y;
+    this._buffer.bufferData[6 * 1 + 4 + 0] = minX;
+    this._buffer.bufferData[6 * 1 + 4 + 1] = minY;
 
     // 1, 1
-    this._buffer.bufferData[6 * 2 + 4 + 0] = max.x;
-    this._buffer.bufferData[6 * 2 + 4 + 1] = max.y;
+    this._buffer.bufferData[6 * 2 + 4 + 0] = maxX;
+    this._buffer.bufferData[6 * 2 + 4 + 1] = maxY;
 
     // 1, 0
-    this._buffer.bufferData[6 * 3 + 4 + 0] = max.x;
-    this._buffer.bufferData[6 * 3 + 4 + 1] = min.y;
+    this._buffer.bufferData[6 * 3 + 4 + 0] = maxX;
+    this._buffer.bufferData[6 * 3 + 4 + 1] = minY;
   }
 
   setShader(shader: Shader) {

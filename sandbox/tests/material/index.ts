@@ -298,7 +298,9 @@ var additional = game.graphicsContext.createMaterial({
       precision mediump float;
       // UV coord
       in vec2 v_uv;
+      // in vec2 v_screenuv;
       uniform sampler2D u_graphic;
+      // uniform sampler2D u_screen_texture:
       uniform sampler2D u_additional;
       uniform vec4 u_color;
       uniform float u_opacity;
@@ -306,7 +308,7 @@ var additional = game.graphicsContext.createMaterial({
       void main() {
         vec4 color = u_color;
         color = mix(texture(u_additional, v_uv), texture(u_graphic, v_uv), .5);
-        color.rgb = color.rgb * u_opacity;
+        // color.rgb = vec3(v_uv.x, v_uv.y, 0.0) * u_opacity;
         color.a = color.a * u_opacity;
         fragColor = color * u_color;
       }`,
@@ -328,10 +330,10 @@ var additionalActor = new ex.Actor({
 additionalActor.graphics.use(swordImage.toSprite());
 additionalActor.graphics.material = additional;
 
-//game.add(actor);
+game.add(actor);
 game.add(additionalActor);
-//game.add(backgroundActor);
-//game.add(reflection);
+game.add(backgroundActor);
+game.add(reflection);
 
 game.start(loader).then(async () => {
   // const image = await game.screenshot(true);

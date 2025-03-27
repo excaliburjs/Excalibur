@@ -72,9 +72,6 @@ export class MaterialRenderer implements RendererPlugin {
     const sw = view[2];
     const sh = view[3];
 
-    const topLeft = vec(dest[0], dest[1]);
-    //const topRight = vec(dest[0] + width, dest[1]);
-    //const bottomLeft = vec(dest[0], dest[1] + height);
     const bottomRight = vec(dest[0] + width, dest[1] + height);
 
     const imageWidth = image.width || width;
@@ -92,41 +89,9 @@ export class MaterialRenderer implements RendererPlugin {
     const screenUVX1 = bottomRightScreen.x / this._context.width;
     const screenUVY1 = bottomRightScreen.y / this._context.height;
 
-    //// (0, 0) - 0
-    //vertexBuffer[vertexIndex++] = topLeft.x;
-    //vertexBuffer[vertexIndex++] = topLeft.y;
-    //vertexBuffer[vertexIndex++] = uvx0;
-    //vertexBuffer[vertexIndex++] = uvy0;
-    //vertexBuffer[vertexIndex++] = screenUVX0;
-    //vertexBuffer[vertexIndex++] = screenUVY0;
-    //
-    //// (0, 1) - 1
-    //vertexBuffer[vertexIndex++] = bottomLeft.x;
-    //vertexBuffer[vertexIndex++] = bottomLeft.y;
-    //vertexBuffer[vertexIndex++] = uvx0;
-    //vertexBuffer[vertexIndex++] = uvy1;
-    //vertexBuffer[vertexIndex++] = screenUVX0;
-    //vertexBuffer[vertexIndex++] = screenUVY1;
-    //
-    //// (1, 0) - 2
-    //vertexBuffer[vertexIndex++] = topRight.x;
-    //vertexBuffer[vertexIndex++] = topRight.y;
-    //vertexBuffer[vertexIndex++] = uvx1;
-    //vertexBuffer[vertexIndex++] = uvy0;
-    //vertexBuffer[vertexIndex++] = screenUVX1;
-    //vertexBuffer[vertexIndex++] = screenUVY0;
-    //
-    //// (1, 1) - 3
-    //vertexBuffer[vertexIndex++] = bottomRight.x;
-    //vertexBuffer[vertexIndex++] = bottomRight.y;
-    //vertexBuffer[vertexIndex++] = uvx1;
-    //vertexBuffer[vertexIndex++] = uvy1;
-    //vertexBuffer[vertexIndex++] = screenUVX1;
-    //vertexBuffer[vertexIndex++] = screenUVY1;
-
-    this._quadRenderer.setPostion(topLeft, bottomRight);
-    this._quadRenderer.setUV(vec(uvx0, uvy0), vec(uvx1, uvy1));
-    this._quadRenderer.setScreenUV(vec(screenUVX0, screenUVY0), vec(screenUVX1, screenUVY1));
+    this._quadRenderer.setPostion(dest[0], dest[1], dest[0] + width, dest[1] + height);
+    this._quadRenderer.setUV(uvx0, uvy0, uvx1, uvy1);
+    this._quadRenderer.setScreenUV(screenUVX0, screenUVY0, screenUVX1, screenUVY1);
 
     const gl = this._context.__gl;
     // This creates and uploads the texture if not already done
