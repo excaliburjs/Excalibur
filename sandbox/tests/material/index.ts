@@ -298,7 +298,7 @@ var additional = game.graphicsContext.createMaterial({
       precision mediump float;
       // UV coord
       in vec2 v_uv;
-      // in vec2 v_screenuv;
+      in vec2 v_screenuv;
       uniform sampler2D u_graphic;
       // uniform sampler2D u_screen_texture:
       uniform sampler2D u_additional;
