@@ -27,10 +27,9 @@ interface EdgeOptions {
  * @template T The type of data stored in each node.
  */
 export class Graph<T> {
-  private _nodes: Map<G_UUID, Node<T>>;
+  private _nodes: Map<G_UUID, Node<T> | Vertex<T>>;
   private _edges: Set<Edge<T>>;
   adjacencyList: Map<G_UUID, Set<G_UUID>>;
-  edgeList: Map<G_UUID, Set<Edge<T>>>;
   id: G_UUID = GraphUUId.generateUUID();
 
   /**
@@ -42,15 +41,19 @@ export class Graph<T> {
     this._nodes = new Map();
     this._edges = new Set();
     this.adjacencyList = new Map();
-    this.edgeList = new Map();
   }
 
   /**
    * Adds a new node to the graph with the given data.
    * @returns The newly created node.
    */
-  addNode(data: T): Node<T> {
-    const newNode = new Node(data);
+  addNode(data: T, position?: Vector): Node<T> | Vertex<T> | PositionNode<T> {
+    let newNode;
+    if (position) {
+      newNode = new PositionNode(data, position);
+    } else {
+      newNode = new Node(data);
+    }
     this._nodes.set(newNode.id, newNode);
     this.adjacencyList.set(newNode.id, new Set());
     return newNode;
@@ -93,6 +96,10 @@ export class Graph<T> {
       this.deleteEdge(edge);
     }
 
+    this.adjacencyList.forEach((value, key) => {
+      value.delete(node.id);
+    });
+
     this._nodes.delete(node.id);
     this.adjacencyList.delete(node.id);
     return this._nodes;
@@ -104,7 +111,7 @@ export class Graph<T> {
    * @param data - The data to be stored in the new node.
    * @returns The newly created node.
    */
-  addVertex(data: T): Node<T> {
+  addVertex(data: T): Vertex<T> {
     return this.addNode(data);
   }
 
@@ -163,7 +170,6 @@ export class Graph<T> {
     from.registerNewEdge(newEdge);
     to.registerNewEdge(newEdge);
     this.adjacencyList.get(from.id)?.add(to.id);
-    this.edgeList.get(from.id)?.add(newEdge);
 
     if (!directed) {
       const duplicateEdge = new Edge(to, from, weight);
@@ -171,7 +177,6 @@ export class Graph<T> {
       this._edges.add(duplicateEdge);
       to.registerNewEdge(duplicateEdge);
       from.registerNewEdge(duplicateEdge);
-      this.edgeList.get(to.id)?.add(duplicateEdge);
       //link the two edges together
       newEdge.linkWithPartner(duplicateEdge);
       duplicateEdge.linkWithPartner(newEdge);
@@ -193,14 +198,12 @@ export class Graph<T> {
     edge.source.breakEdge(edge);
     edge.target.breakEdge(edge);
     this._edges.delete(edge);
-    this.edgeList.get(edge.source.id)?.delete(edge);
 
     const partnerEdge = edge.partnerEdge;
     if (partnerEdge) {
       partnerEdge.source.breakEdge(partnerEdge);
       partnerEdge.target.breakEdge(partnerEdge);
       this._edges.delete(partnerEdge);
-      this.edgeList.get(partnerEdge.source.id)?.delete(partnerEdge);
     }
   }
 
@@ -734,7 +737,7 @@ export class Node<T> {
 export class PositionNode<T> extends Node<T> {
   pos: Vector;
 
-  constructor(data: T, pos: ex.Vector) {
+  constructor(data: T, pos: Vector) {
     super(data);
     this.pos = pos;
   }
