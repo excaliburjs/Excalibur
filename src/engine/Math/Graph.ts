@@ -3,7 +3,7 @@ import { Vector } from './vector';
 /**
  * A unique identifier for a graph node or edge.
  */
-type G_UUID = string & { readonly __brand: unique symbol };
+export type G_UUID = string & { readonly __brand: unique symbol };
 
 /**
  * Options for creating a new edge in the graph.
@@ -398,97 +398,132 @@ export class Graph<T> {
    *     be `Infinity`.
    */
 
-  dijkstra(
-    startNode: Node<T>,
-    endNode: Node<T>
-  ): {
-    path: Node<T>[] | null;
-    distance: number;
-  } {
-    // Initialize data structures
-    const distances: Map<G_UUID, number> = new Map();
-    const previous: Map<G_UUID, G_UUID | null> = new Map();
-    const unvisited: Set<G_UUID> = new Set();
+  dijkstra(sourcenode: Node<T>): Array<{ node: Node<T>; distance: number; previous: Node<T> | null }> {
+    const visited: Node<T>[] = [];
+    const unvisited: Node<T>[] = [];
+    const resultArray: Array<{ node: Node<T>; distance: number; previous: Node<T> | null }> = [];
 
-    // Set initial distances
-    for (const [nodeId] of this._nodes) {
-      distances.set(nodeId, nodeId === startNode.id ? 0 : Infinity);
-      previous.set(nodeId, null);
-      unvisited.add(nodeId);
+    //fill unvisited
+    this.nodes.forEach((node) => unvisited.push(node));
+
+    //fill resultArray
+    this.nodes.forEach((node) => resultArray.push({ node, distance: Infinity, previous: null }));
+
+    //start with starting node
+    //add startingnode to result array
+    const startingNodeIndex = resultArray.findIndex((node) => node.node === sourcenode);
+    if (startingNodeIndex === -1) {
+      return [];
+    }
+    resultArray[startingNodeIndex].distance = 0;
+
+    visited.push(sourcenode);
+    unvisited.splice(unvisited.indexOf(sourcenode), 1);
+
+    let current = sourcenode;
+    const currentEdges = current.edges;
+    const filteredCurrentEdges: Edge<T>[] = Array.from(currentEdges).filter((edge: Edge<T>) => edge.target !== current);
+
+    //update result array with distances, which is edge values
+
+    for (const edge of filteredCurrentEdges) {
+      const index = resultArray.findIndex((node) => node.node === edge.target);
+
+      if (index === -1) {
+        return [];
+      }
+      resultArray[index].distance = edge.weight as number;
+      resultArray[index].previous = current;
     }
 
-    // Continue until we've visited all nodes or found the target
-    while (unvisited.size > 0) {
-      // Find closest unvisited node
-      let currentId: G_UUID | null = null;
-      let shortestDistance = Infinity;
+    while (unvisited.length > 0) {
+      //get list of unvisited available nodes
+      let listOfAvailableNodes: Node<T>[] = [];
+      let listofAvailableEntries: Array<{ node: Node<T>; distance: number; previous: Node<T> | null }> = [];
+      listofAvailableEntries = resultArray.filter((node) => unvisited.includes(node.node));
+      listOfAvailableNodes = listofAvailableEntries.map((node) => node.node);
 
-      for (const nodeId of unvisited) {
-        const distance = distances.get(nodeId) || Infinity;
-        if (distance < shortestDistance) {
-          shortestDistance = distance;
-          currentId = nodeId;
+      //loop through available nodes and find lowest distance to sourcenode
+      let lowestDistance = Infinity;
+      let lowestDistanceIndex = -1;
+
+      if (listOfAvailableNodes.length > 0) {
+        for (let i = 0; i < listOfAvailableNodes.length; i++) {
+          const unVisitiedNode = listOfAvailableNodes[i];
+
+          const index = resultArray.findIndex((node) => node.node === unVisitiedNode);
+          if (resultArray[index].distance < lowestDistance) {
+            lowestDistance = resultArray[index].distance;
+            lowestDistanceIndex = index;
+          }
+        }
+      } else {
+        //manage exception
+        //choose node from unvisited list that has lowest distance to source node
+
+        lowestDistance = Infinity;
+        lowestDistanceIndex = -1;
+        for (let i = 0; i < unvisited.length; i++) {
+          const unVisitiedNode = unvisited[i];
+          const index = resultArray.findIndex((node) => node.node === unVisitiedNode);
+          if (resultArray[index].distance < lowestDistance) {
+            lowestDistance = resultArray[index].distance;
+            lowestDistanceIndex = index;
+          }
         }
       }
 
-      // If we can't find a node, there's no path
-      if (currentId === null || shortestDistance === Infinity) {
-        break;
-      }
+      current = resultArray[lowestDistanceIndex].node;
+      let currentEdgesArray = Array.from(current.edges);
 
-      // If we found the target, we're done
-      if (currentId === endNode.id) {
-        break;
-      }
+      //remove visited from currentEdges
+      currentEdgesArray = currentEdgesArray.filter((edge: Edge<T>) => {
+        return !visited.includes(edge.source) && !visited.includes(edge.target);
+      });
 
-      // Remove from unvisited
-      unvisited.delete(currentId);
+      visited.push(current);
+      unvisited.splice(unvisited.indexOf(current), 1);
 
-      // Get all edges from this node
-      const currentNode = this._nodes.get(currentId)!;
-      const outgoingEdges = Array.from(currentNode.edges).filter((edge) => edge.source.id === currentId);
+      //update result array with distances, which is edge values
+      for (let i = 0; i < currentEdgesArray.length; i++) {
+        const edge = currentEdgesArray[i];
+        const index = resultArray.findIndex((node) => node.node === edge.target);
 
-      // Update distances to neighbors
-      for (const edge of outgoingEdges) {
-        const neighborId = edge.target.id;
+        //update cumulative distances
+        const previousIndex = resultArray.findIndex((node) => node.node === edge.source);
 
-        // Skip if neighbor has been visited
-        if (!unvisited.has(neighborId)) {
-          continue;
-        }
+        const previousDistance = resultArray[previousIndex].distance;
+        const cumDistance = (previousDistance + edge.weight!) as number;
 
-        const newDistance = (distances.get(currentId) || 0) + edge.weight;
-        const currentDistance = distances.get(neighborId) || Infinity;
-
-        if (newDistance < currentDistance) {
-          distances.set(neighborId, newDistance);
-          previous.set(neighborId, currentId);
+        if (cumDistance < resultArray[index].distance) {
+          resultArray[index].distance = cumDistance;
+          resultArray[index].previous = current;
         }
       }
     }
 
-    // Reconstruct path
+    return resultArray;
+  }
+
+  shortestPathDijkstra(sourcenode: Node<T>, endnode: Node<T>): { path: Node<T>[]; distance: number } {
+    const dAnalysis = this.dijkstra(sourcenode);
+
+    //iterate through dAnalysis to plot shortest path to endnode
     const path: Node<T>[] = [];
-    let current: G_UUID | null = endNode.id;
+    let current: Node<T> | null | undefined = endnode;
+    const distance = dAnalysis.find((node) => node.node === endnode)?.distance as number;
 
-    // No path found
-    if (previous.get(endNode.id) === null && startNode.id !== endNode.id) {
-      return { path: null, distance: Infinity };
+    while (current != null) {
+      path.push(current);
+
+      current = dAnalysis.find((node) => node.node === current)?.previous;
+
+      if (current == null) {
+        break;
+      }
     }
-
-    // Build the path
-    while (current !== null) {
-      //get currentNode
-
-      const nextNode: Node<T> = this._nodes.get(current)!;
-      path.unshift(nextNode);
-      current = previous.get(current)!;
-    }
-
-    return {
-      path,
-      distance: distances.get(endNode.id) || Infinity
-    };
+    path.reverse();
+    return { path, distance };
   }
 
   /**
