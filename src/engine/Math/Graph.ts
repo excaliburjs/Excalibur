@@ -1,3 +1,4 @@
+import { Random } from './Random';
 import { Vector } from './vector';
 
 /**
@@ -792,9 +793,11 @@ export type Vertex<T> = Node<T>;
 
 class GraphUUId {
   static generateUUID(): G_UUID {
+    const rng = new Random();
     const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
+
     const generatedUuid = uuid.replace(/[xy]/g, function (c) {
-      const r = (Math.random() * 16) | 0;
+      const r = (rng.nextInt() * 16) | 0;
       const v = c === 'x' ? r : (r & 0x3) | 0x8;
       return v.toString(16);
     });
