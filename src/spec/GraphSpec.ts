@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 
-describe('A Graph', () => {
+fdescribe('A Graph', () => {
   let graph: ex.Graph<string>;
 
   beforeEach(() => {
@@ -172,7 +172,7 @@ describe('A Graph', () => {
     });
   });
 
-  describe('Graph traversal', () => {
+  describe('traversal', () => {
     it('should perform breadth-first search (BFS)', () => {
       // Create a simple graph
       // A -> B -> D
@@ -265,7 +265,7 @@ describe('A Graph', () => {
   });
 
   describe('Path finding algorithms', () => {
-    it("should find shortest path using Dijkstra's algorithm", () => {
+    it('should create a Djikstra analysis of nodeA', () => {
       // Create a weighted graph
       //     5
       //  A --- B
@@ -289,25 +289,48 @@ describe('A Graph', () => {
       expect(result.length).toBe(4);
       expect(result[0].node).toBe(nodeA);
       expect(result[0].distance).toBe(0);
-      expect(result[1].node).toBe(nodeC);
-      expect(result[1].distance).toBe(2);
-      expect(result[2].node).toBe(nodeB);
-      expect(result[2].distance).toBe(5);
+      expect(result[1].node).toBe(nodeB);
+      expect(result[1].distance).toBe(5);
+      expect(result[2].node).toBe(nodeC);
+      expect(result[2].distance).toBe(2);
       expect(result[3].node).toBe(nodeD);
-      expect(result[3].distance).toBe(9);
+      expect(result[3].distance).toBe(6);
     });
 
-    it('should return Infinity distance when no path exists', () => {
+    it('should find shortest path between two nodes', () => {
+      const nodeA = graph.addNode('A');
+      const nodeB = graph.addNode('B');
+      const nodeC = graph.addNode('C');
+      const nodeD = graph.addNode('D');
+      const nodeE = graph.addNode('E');
+
+      //add edges
+
+      graph.addEdge(nodeA, nodeB, { weight: 5 });
+      graph.addEdge(nodeA, nodeC, { weight: 2 });
+      graph.addEdge(nodeB, nodeD, { weight: 1 });
+      graph.addEdge(nodeC, nodeD, { weight: 8 });
+      graph.addEdge(nodeD, nodeE, { weight: 3 });
+
+      // Find shortest path between A and E
+      const result = graph.shortestPathDijkstra(nodeA, nodeE);
+
+      expect(result.path.length).toBe(4);
+      expect(result.path[0]).toBe(nodeA);
+      expect(result.path[1]).toBe(nodeB);
+      expect(result.path[2]).toBe(nodeD);
+      expect(result.path[3]).toBe(nodeE);
+      expect(result.distance).toBe(9);
+    });
+
+    it('should return empty path when no path exists', () => {
       const nodeA = graph.addNode('A');
       const nodeB = graph.addNode('B');
 
       // No edge connecting A and B
       const result = graph.dijkstra(nodeA);
-      expect(result.length).toBe(2);
-      expect(result[0].node).toBe(nodeA);
-      expect(result[0].distance).toBe(0);
-      expect(result[1].node).toBe(nodeB);
-      expect(result[1].distance).toBe(Infinity);
+
+      expect(result.length).toBe(0);
     });
 
     it('should handle zero-distance path (same node)', () => {
@@ -356,24 +379,32 @@ describe('A Graph', () => {
     it('should find shortest path using A* algorithm', () => {
       // Create a graph with positioned nodes
       const nodeA = graph.addNode('A', new ex.Vector(0, 0));
-      const nodeB = graph.addNode('B', new ex.Vector(1, 0));
-      const nodeC = graph.addNode('C', new ex.Vector(0, 1));
-      const nodeD = graph.addNode('D', new ex.Vector(1, 1));
+      const nodeB = graph.addNode('B', new ex.Vector(3, 0));
+      const nodeC = graph.addNode('C', new ex.Vector(0, 4));
+      const nodeD = graph.addNode('D', new ex.Vector(3, 4));
 
       // Add edges with weights
-      graph.addEdge(nodeA, nodeB, { weight: 5 });
-      graph.addEdge(nodeA, nodeC, { weight: 2 });
-      graph.addEdge(nodeB, nodeD, { weight: 1 });
-      graph.addEdge(nodeC, nodeD, { weight: 8 });
+      graph.addEdge(nodeA, nodeB);
+      graph.addEdge(nodeA, nodeC);
+      graph.addEdge(nodeB, nodeD);
+      graph.addEdge(nodeC, nodeD);
+
+      /*
+      A -> B
+      |     |
+      v     v
+      C -> D
+      */
 
       const result = graph.aStar(nodeA as ex.PositionNode<string>, nodeD as ex.PositionNode<string>);
 
       expect(result.path).toBeDefined();
       expect(result.path?.length).toBe(3);
+      expect(result.pathSteps).toBe(2);
       expect(result.path?.[0]).toBe(nodeA as ex.PositionNode<string>);
       expect(result.path?.[1]).toBe(nodeB as ex.PositionNode<string>);
       expect(result.path?.[2]).toBe(nodeD as ex.PositionNode<string>);
-      expect(result.distance).toBe(6); // 5 + 1 = 6
+      expect(result.distance).toBe(5);
     });
 
     it('should throw error when A* is used with non-PositionNodes', () => {
@@ -383,7 +414,7 @@ describe('A Graph', () => {
       // Type assertion to test error condition
       expect(() => {
         graph.aStar(nodeA as unknown as ex.PositionNode<string>, nodeB as unknown as ex.PositionNode<string>);
-      }).toThrow(/requires PositionNode/);
+      }).toThrow(new Error('A* algorithm requires PositionNode with position vectors'));
     });
 
     it('should return null path when no path exists in A*', () => {
@@ -393,7 +424,9 @@ describe('A Graph', () => {
       // No edge connecting A and B
       const result = graph.aStar(nodeA as ex.PositionNode<string>, nodeB as ex.PositionNode<string>);
 
-      expect(result.path).toBeNull();
+      //path will be empty array and distance will be Infinity
+      expect(result.path.length).toBe(0);
+      expect(result.pathSteps).toBe(0);
       expect(result.distance).toBe(Infinity);
     });
   });

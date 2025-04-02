@@ -473,12 +473,16 @@ export class Graph<T> {
         }
       }
 
+      if (lowestDistanceIndex === -1) {
+        return [];
+      }
+
       current = resultArray[lowestDistanceIndex].node;
       let currentEdgesArray = Array.from(current.edges);
 
       //remove visited from currentEdges
       currentEdgesArray = currentEdgesArray.filter((edge: Edge<T>) => {
-        return !visited.includes(edge.source) && !visited.includes(edge.target);
+        return !visited.includes(edge.source) && !visited.includes(edge.target) && edge.target !== current;
       });
 
       visited.push(current);
@@ -505,9 +509,12 @@ export class Graph<T> {
     return resultArray;
   }
 
-  shortestPathDijkstra(sourcenode: Node<T>, endnode: Node<T>): { path: Node<T>[]; distance: number } {
-    const dAnalysis = this.dijkstra(sourcenode);
+  shortestPathDijkstra(startingnode: Node<T>, endnode: Node<T>): { path: Node<T>[]; distance: number } {
+    const dAnalysis = this.dijkstra(startingnode);
 
+    if (dAnalysis.length === 0) {
+      return { path: [], distance: Infinity };
+    }
     //iterate through dAnalysis to plot shortest path to endnode
     const path: Node<T>[] = [];
     let current: Node<T> | null | undefined = endnode;
