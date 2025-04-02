@@ -13,4 +13,4 @@ export * from './lerp';
 export * from './bezier-curve';
 export * from './util';
 export * from './rotation-type';
-export * from './graphdifferentfilename';
+export * from './graph';
