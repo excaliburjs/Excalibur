@@ -80,15 +80,6 @@ export class Graph<T> {
    * @param node - The node to be deleted from the graph.
    * @returns A map of all remaining nodes in the graph.
    */
-
-  /**
-   * Deletes a node from the graph along with all its associated edges.
-   * This method removes the specified node and any edges connected to it
-   * from the graph. It updates the internal structures to reflect these
-   * changes.
-   * @param node - The node to be deleted from the graph.
-   * @returns A map of all remaining nodes in the graph.
-   */
   deleteNode(node: Node<T>): Map<G_UUID, Node<T>> {
     //delete any edges tied to node
     const nodeEdges = node.edges;
@@ -106,7 +97,7 @@ export class Graph<T> {
   }
 
   /**
-   * Adds a new node to the graph with the given data and returns the newly
+   * Adds a new vertex to the graph with the given data and returns the newly
    * created node. This method is just an alias for {@link addNode}.
    * @param data - The data to be stored in the new node.
    * @returns The newly created node.
@@ -509,16 +500,30 @@ export class Graph<T> {
     return resultArray;
   }
 
-  shortestPathDijkstra(startingnode: Node<T>, endnode: Node<T>): { path: Node<T>[]; distance: number } {
-    const dAnalysis = this.dijkstra(startingnode);
+  /**
+   * Finds the shortest path between two nodes in the graph using the Dijkstra method
+   *
+   * This method calculates the shortest path from the specified start node to the
+   * specified end node in the graph. It returns an object containing the path and
+   * the total distance of the path.
+   * @param startingNode - The node from which the search for the shortest path begins.
+   * @param endNode - The node where the search for the shortest path ends.
+   * @returns An object containing:
+   *   - `path`: An array of nodes representing the shortest path from startNode to endNode.
+   *     If no path is found, this will be `null`.
+   *   - `distance`: The total distance of the shortest path. If no path is found, this will
+   *     be `Infinity`.
+   */
+  shortestPathDijkstra(startingNode: Node<T>, endNode: Node<T>): { path: Node<T>[]; distance: number } {
+    const dAnalysis = this.dijkstra(startingNode);
 
     if (dAnalysis.length === 0) {
       return { path: [], distance: Infinity };
     }
     //iterate through dAnalysis to plot shortest path to endnode
     const path: Node<T>[] = [];
-    let current: Node<T> | null | undefined = endnode;
-    const distance = dAnalysis.find((node) => node.node === endnode)?.distance as number;
+    let current: Node<T> | null | undefined = endNode;
+    const distance = dAnalysis.find((node) => node.node === endNode)?.distance as number;
 
     while (current != null) {
       path.push(current);
