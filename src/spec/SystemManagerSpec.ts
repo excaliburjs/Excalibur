@@ -165,12 +165,4 @@ describe('A SystemManager', () => {
     expect(system1.update).not.toHaveBeenCalled();
     expect(system2.update).toHaveBeenCalledWith(10);
   });
-
-  it('should throw on invalid system', () => {
-    const world = new ex.World(null);
-    const sm = world.systemManager;
-    expect(() => {
-      sm.addSystem(new FakeSystemPriority1(world, 'ErrorSystem', [], SystemType.Update));
-    }).toThrow(new Error('Cannot create query without components'));
-  });
 });

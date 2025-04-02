@@ -96,7 +96,7 @@ module.exports = (config) => {
     ],
     client: {
       // Excalibur logs / console logs suppressed when captureConsole = false;
-      captureConsole: false,
+      captureConsole: process.env.CAPTURE_CONSOLE === 'true',
       jasmine: {
         random: true,
         timeoutInterval: 70000 // needs to be bigger than no-activity

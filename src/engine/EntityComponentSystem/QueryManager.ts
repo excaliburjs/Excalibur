@@ -1,5 +1,5 @@
 import { Entity } from './Entity';
-import { Query } from './Query';
+import { Query, QueryParams } from './Query';
 import { Component, ComponentCtor } from './Component';
 import { World } from './World';
 import { TagQuery } from './TagQuery';
@@ -8,10 +8,10 @@ import { TagQuery } from './TagQuery';
  * The query manager is responsible for updating all queries when entities/components change
  */
 export class QueryManager {
-  private _queries = new Map<string, Query<any>>();
+  private _queries = new Map<string, Query<any, any>>();
   private _addComponentHandlers = new Map<Entity, (c: Component) => any>();
   private _removeComponentHandlers = new Map<Entity, (c: Component) => any>();
-  private _componentToQueriesIndex = new Map<ComponentCtor<any>, Query<any>[]>();
+  private _componentToQueriesIndex = new Map<ComponentCtor<any>, Query<any, any>[]>();
 
   private _tagQueries = new Map<string, TagQuery<any>>();
   private _addTagHandlers = new Map<Entity, (tag: string) => any>();
@@ -20,21 +20,24 @@ export class QueryManager {
 
   constructor(private _world: World) {}
 
-  public createQuery<TKnownComponentCtors extends ComponentCtor<Component>>(
-    requiredComponents: TKnownComponentCtors[]
-  ): Query<TKnownComponentCtors> {
-    const id = Query.createId(requiredComponents);
+  public createQuery<
+    TKnownComponentCtors extends ComponentCtor<Component> = never,
+    TAnyComponentCtors extends ComponentCtor<Component> = never
+  >(
+    params: TKnownComponentCtors[] | QueryParams<TKnownComponentCtors, TAnyComponentCtors>
+  ): Query<TKnownComponentCtors, TAnyComponentCtors> {
+    const id = Query.createId(params);
     if (this._queries.has(id)) {
       // short circuit if query is already created
       return this._queries.get(id) as Query<TKnownComponentCtors>;
     }
 
-    const query = new Query(requiredComponents);
+    const query = new Query<TKnownComponentCtors, TAnyComponentCtors>(params);
 
     this._queries.set(query.id, query);
 
     // index maintenance
-    for (const component of requiredComponents) {
+    for (const component of [...query.filter.components.all, ...query.filter.components.any, ...query.filter.components.not]) {
       const queries = this._componentToQueriesIndex.get(component);
       if (!queries) {
         this._componentToQueriesIndex.set(component, [query]);
