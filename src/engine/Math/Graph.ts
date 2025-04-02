@@ -547,6 +547,7 @@ export class Graph<T> {
     endNode: PositionNode<T>
   ): {
     path: PositionNode<T>[] | null;
+    pathSteps: number;
     distance: number;
     skippedNodes: Set<G_UUID>;
   } {
@@ -562,6 +563,7 @@ export class Graph<T> {
 
     // Track g scores (distance from start) and f scores (estimated total cost)
     const gScore: Map<G_UUID, number> = new Map();
+    const hScore: Map<G_UUID, number> = new Map();
     const fScore: Map<G_UUID, number> = new Map();
 
     // Track the path
@@ -580,8 +582,9 @@ export class Graph<T> {
     }
 
     for (const [nodeId] of positionNodes) {
-      gScore.set(nodeId, nodeId === startNode.id ? 0 : Infinity);
-      fScore.set(nodeId, nodeId === startNode.id ? this._heuristic(startNode, endNode) : Infinity);
+      gScore.set(nodeId, this._euclideanDistance(positionNodes.get(nodeId)!, startNode));
+      hScore.set(nodeId, this._euclideanDistance(positionNodes.get(nodeId)!, endNode));
+      fScore.set(nodeId, gScore.get(nodeId)! + hScore.get(nodeId)!);
       cameFrom.set(nodeId, null);
     }
 
@@ -618,6 +621,7 @@ export class Graph<T> {
 
         return {
           path,
+          pathSteps: path.length - 1,
           distance: gScore.get(endNode.id) || Infinity,
           skippedNodes
         };
@@ -648,38 +652,28 @@ export class Graph<T> {
         }
 
         // Find the edge connecting current to neighbor
-        const edge = Array.from(currentNode.edges).find((e) => e.source.id === currentId && e.target.id === neighborId);
+        const edge: Edge<T> = Array.from(currentNode.edges).find((e: Edge<T>) => e.source.id === currentId && e.target.id === neighborId);
 
         if (!edge) {
           continue;
         }
 
-        // Calculate tentative gScore
-        const tentativeGScore = (gScore.get(currentId) || 0) + edge.weight;
-
-        // If this path is better than previous, record it
-        if (tentativeGScore < (gScore.get(neighborId) || Infinity)) {
-          cameFrom.set(neighborId, currentId);
-          gScore.set(neighborId, tentativeGScore);
-          fScore.set(neighborId, tentativeGScore + this._heuristic(positionNeighbor, endNode));
-
-          // Add to open set if not already there
-          if (!openSet.has(neighborId)) {
-            openSet.add(neighborId);
-          }
+        cameFrom.set(neighborId, currentId);
+        // Add to open set if not already there
+        if (!openSet.has(neighborId)) {
+          openSet.add(neighborId);
         }
       }
     }
 
     // No path found
-    return { path: null, distance: Infinity, skippedNodes };
+    return { path: [], pathSteps: 0, distance: Infinity, skippedNodes };
   }
 
-  private _heuristic(node1: PositionNode<T>, node2: PositionNode<T>): number {
-    // Euclidean distance between positions
-    const dx = node2.pos.x - node1.pos.x;
-    const dy = node2.pos.y - node1.pos.y;
-    return Math.sqrt(dx * dx + dy * dy);
+  private _euclideanDistance(currentNode: PositionNode<T>, testNode: PositionNode<T>): number {
+    const a = currentNode.pos;
+    const b = testNode.pos;
+    return Math.sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2);
   }
 }
 
