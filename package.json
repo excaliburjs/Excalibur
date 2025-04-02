@@ -156,8 +156,6 @@
     "istanbul-instrumenter-loader": {
       "webpack": ">=5.68.0"
     }
-  },
-  "dependencies": {
-    "excalibur": "file:../../Meet/Excalibur"
   }
+  
 }
