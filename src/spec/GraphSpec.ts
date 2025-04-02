@@ -284,37 +284,74 @@ describe('A Graph', () => {
       graph.addEdge(nodeB, nodeD, { weight: 1 });
       graph.addEdge(nodeC, nodeD, { weight: 8 });
 
-      const result = graph.dijkstra(nodeA, nodeD);
+      const result = graph.dijkstra(nodeA);
 
-      expect(result.path).toBeDefined();
-      expect(result.path?.length).toBe(3);
-      expect(result.path?.[0]).toBe(nodeA);
-      expect(result.path?.[1]).toBe(nodeB);
-      expect(result.path?.[2]).toBe(nodeD);
-      expect(result.distance).toBe(6); // 5 + 1 = 6
+      expect(result.length).toBe(4);
+      expect(result[0].node).toBe(nodeA);
+      expect(result[0].distance).toBe(0);
+      expect(result[1].node).toBe(nodeC);
+      expect(result[1].distance).toBe(2);
+      expect(result[2].node).toBe(nodeB);
+      expect(result[2].distance).toBe(5);
+      expect(result[3].node).toBe(nodeD);
+      expect(result[3].distance).toBe(9);
     });
 
-    it('should return null path and Infinity distance when no path exists', () => {
+    it('should return Infinity distance when no path exists', () => {
       const nodeA = graph.addNode('A');
       const nodeB = graph.addNode('B');
 
       // No edge connecting A and B
-      const result = graph.dijkstra(nodeA, nodeB);
-
-      expect(result.path).toBeNull();
-      expect(result.distance).toBe(Infinity);
+      const result = graph.dijkstra(nodeA);
+      expect(result.length).toBe(2);
+      expect(result[0].node).toBe(nodeA);
+      expect(result[0].distance).toBe(0);
+      expect(result[1].node).toBe(nodeB);
+      expect(result[1].distance).toBe(Infinity);
     });
 
     it('should handle zero-distance path (same node)', () => {
       const nodeA = graph.addNode('A');
 
-      const result = graph.dijkstra(nodeA, nodeA);
+      const result = graph.dijkstra(nodeA);
 
-      expect(result.path?.length).toBe(1);
-      expect(result.path?.[0]).toBe(nodeA);
-      expect(result.distance).toBe(0);
+      expect(result.length).toBe(1);
+      expect(result[0].node).toBe(nodeA);
+      expect(result[0].distance).toBe(0);
+    });
+
+    it('should find shortest path between two nodes', () => {
+      const nodeA = graph.addNode('A');
+      const nodeB = graph.addNode('B');
+      const nodeC = graph.addNode('C');
+      const nodeD = graph.addNode('D');
+      const nodeE = graph.addNode('E');
+
+      graph.addEdge(nodeA, nodeB, { weight: 5 });
+      graph.addEdge(nodeA, nodeC, { weight: 2 });
+      graph.addEdge(nodeB, nodeD, { weight: 1 });
+      graph.addEdge(nodeC, nodeD, { weight: 8 });
+      graph.addEdge(nodeD, nodeE, { weight: 3 });
+
+      const result = graph.shortestPathDijkstra(nodeA, nodeE);
+      expect(result.path.length).toBe(4);
+      expect(result.path[0]).toBe(nodeA);
+      expect(result.path[1]).toBe(nodeB);
+      expect(result.path[2]).toBe(nodeD);
+      expect(result.path[3]).toBe(nodeE);
+      expect(result.distance).toBe(9);
+    });
+
+    it('should return empty path when no path exists', () => {
+      const nodeA = graph.addNode('A');
+      const nodeB = graph.addNode('B');
+
+      const result = graph.shortestPathDijkstra(nodeA, nodeB);
+      expect(result.path.length).toBe(0);
+      expect(result.distance).toBe(Infinity);
     });
   });
+
   describe('A* algorithm', () => {
     it('should find shortest path using A* algorithm', () => {
       // Create a graph with positioned nodes
