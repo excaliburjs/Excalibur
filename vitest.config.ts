@@ -3,6 +3,7 @@
 import type { Plugin } from 'vitest/config';
 import { defineConfig } from 'vitest/config';
 import * as path from 'path';
+import * as os from 'os';
 
 const versioner = require('./version');
 const version = process.env.release ? versioner.getReleaseVersion() : versioner.getAlphaVersion();
@@ -57,7 +58,8 @@ export default defineConfig({
         {
           browser: 'chromium',
           provide: {
-            browser: 'chromium'
+            browser: 'chromium',
+            platform: os.platform()
           },
           launch: {
             channel: 'chrome',
@@ -78,7 +80,6 @@ export default defineConfig({
               '--disable-renderer-backgrounding',
               '--disable-device-discovery-notifications',
 
-              // '--font-render-hinting=medium',
               '--autoplay-policy=no-user-gesture-required',
               '--mute-audio',
               '--no-sandbox',
@@ -90,13 +91,15 @@ export default defineConfig({
         {
           browser: 'firefox',
           provide: {
-            browser: 'firefox'
+            browser: 'firefox',
+            platform: os.platform()
           }
         },
         {
           browser: 'webkit',
           provide: {
-            browser: 'webkit'
+            browser: 'webkit',
+            platform: os.platform()
           }
         }
       ]
@@ -123,5 +126,6 @@ function importAs(ext: string, query: string): Plugin {
 declare module 'vitest' {
   export interface ProvidedContext {
     browser: 'chromium' | 'firefox' | 'webkit';
+    platform: NodeJS.Platform;
   }
 }
