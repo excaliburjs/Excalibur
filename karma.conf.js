@@ -107,7 +107,7 @@ module.exports = (config) => {
       '/src/': '/base/src/'
     },
     files: [
-      'src/spec/_boot.ts',
+      'src/spec/karma/_boot.ts',
       { pattern: 'src/spec/assets/**/*.mp3', included: false, served: true },
       { pattern: 'src/spec/assets/**/*.ogg', included: false, served: true },
       { pattern: 'src/spec/assets/**/*.svg', included: false, served: true },
@@ -120,7 +120,7 @@ module.exports = (config) => {
     ],
     mime: { 'text/x-typescript': ['ts', 'tsx'] },
     preprocessors: {
-      './src/spec/_boot.ts': ['webpack']
+      './src/spec/karma/_boot.ts': ['webpack']
     },
     webpack: {
       mode: 'none',

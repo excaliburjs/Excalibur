@@ -27,5 +27,5 @@
     }
   },
   "include": ["./**Spec.ts", "./**/*Spec.ts"],
-  "files": ["../../engine/files.d.ts", "../../engine/globals.d.ts"]
+  "files": ["_boot.ts", "../../engine/files.d.ts", "../../engine/globals.d.ts"]
 }
