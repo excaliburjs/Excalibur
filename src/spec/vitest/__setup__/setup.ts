@@ -1,7 +1,9 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
 import * as ex from '@excalibur';
-import { afterAll, beforeAll } from 'vitest';
+import { beforeAll } from 'vitest';
 import './matchers/expect';
+import { setupEngineInstanceReporter } from '../__reporters__/engine-instance.setup';
+
+setupEngineInstanceReporter();
 
 // add any global hooks here
 beforeAll(() => {
@@ -9,5 +11,3 @@ beforeAll(() => {
   // ensure consistent toEqualImage() resolution when running on hidpi displays
   window.devicePixelRatio = 1;
 });
-
-afterAll(() => {});

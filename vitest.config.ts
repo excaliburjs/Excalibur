@@ -4,13 +4,14 @@ import type { Plugin } from 'vitest/config';
 import { defineConfig } from 'vitest/config';
 import * as path from 'path';
 import * as os from 'os';
+import { EngineInstanceReporter } from './src/spec/vitest/__reporters__/engine-instance';
 
 const versioner = require('./version');
 const version = process.env.release ? versioner.getReleaseVersion() : versioner.getAlphaVersion();
 
 const isArmMacOS = process.platform === 'darwin' && process.arch === 'arm64';
-
 const HEADLESS = process.env.HEADLESS === 'true' || process.env.CI === 'true';
+
 export default defineConfig({
   plugins: [importAs('glsl', '?raw'), importAs('css', '?inline')],
   optimizeDeps: {
@@ -38,7 +39,7 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./src/spec/vitest/__setup__/setup.ts'],
     include: ['src/spec/vitest/**/*Spec.ts'],
-    reporters: [['default', { summary: false }]],
+    reporters: [['default', { summary: false }], new EngineInstanceReporter()],
     // enable with --coverage param
     coverage: {
       include: ['src/engine/**/*.ts'],
