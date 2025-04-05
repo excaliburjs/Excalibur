@@ -677,6 +677,11 @@ describe.runIf(isWindows && isChromium)('A Text Graphic', () => {
       })
     });
 
+    canvasElement = document.createElement('canvas');
+    canvasElement.width = 1000;
+    canvasElement.height = 1000;
+    ctx.clear();
+
     sut.draw(ctx, 10, 50);
     ctx.flush();
 
