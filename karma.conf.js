@@ -107,20 +107,20 @@ module.exports = (config) => {
       '/src/': '/base/src/'
     },
     files: [
-      'src/spec/_boot.ts',
-      { pattern: 'src/spec/images/**/*.mp3', included: false, served: true },
-      { pattern: 'src/spec/images/**/*.ogg', included: false, served: true },
-      { pattern: 'src/spec/images/**/*.svg', included: false, served: true },
-      { pattern: 'src/spec/images/**/*.png', included: false, served: true },
-      { pattern: 'src/spec/images/**/*.gif', included: false, served: true },
-      { pattern: 'src/spec/images/**/*.txt', included: false, served: true },
-      { pattern: 'src/spec/images/**/*.css', included: false, served: true },
-      { pattern: 'src/spec/images/**/*.woff2', included: false, served: true },
-      { pattern: 'src/spec/fonts/**/*.ttf', included: false, served: true }
+      'src/spec/karma/_boot.ts',
+      { pattern: 'src/spec/assets/**/*.mp3', included: false, served: true },
+      { pattern: 'src/spec/assets/**/*.ogg', included: false, served: true },
+      { pattern: 'src/spec/assets/**/*.svg', included: false, served: true },
+      { pattern: 'src/spec/assets/**/*.png', included: false, served: true },
+      { pattern: 'src/spec/assets/**/*.gif', included: false, served: true },
+      { pattern: 'src/spec/assets/**/*.txt', included: false, served: true },
+      { pattern: 'src/spec/assets/**/*.css', included: false, served: true },
+      { pattern: 'src/spec/assets/**/*.woff2', included: false, served: true },
+      { pattern: 'src/spec/assets/fonts/**/*.ttf', included: false, served: true }
     ],
     mime: { 'text/x-typescript': ['ts', 'tsx'] },
     preprocessors: {
-      './src/spec/_boot.ts': ['webpack']
+      './src/spec/karma/_boot.ts': ['webpack']
     },
     webpack: {
       mode: 'none',

@@ -2,7 +2,8 @@
 import { CollisionContact } from '../Detection/CollisionContact';
 import { PolygonCollider } from './PolygonCollider';
 import { EdgeCollider } from './EdgeCollider';
-import { SeparatingAxis, SeparationInfo } from './SeparatingAxis';
+import type { SeparationInfo } from './SeparatingAxis';
+import { SeparatingAxis } from './SeparatingAxis';
 import { LineSegment } from '../../Math/line-segment';
 import { Vector } from '../../Math/vector';
 import { TransformComponent } from '../../EntityComponentSystem';

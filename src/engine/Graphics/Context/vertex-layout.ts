@@ -1,6 +1,6 @@
 import { Logger } from '../..';
-import { Shader, VertexAttributeDefinition } from './shader';
-import { VertexBuffer } from './vertex-buffer';
+import type { Shader, VertexAttributeDefinition } from './shader';
+import type { VertexBuffer } from './vertex-buffer';
 import { getGLTypeFromSource, getGlTypeSizeBytes, isAttributeInSource } from './webgl-util';
 
 export interface VertexLayoutOptions {

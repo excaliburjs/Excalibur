@@ -1,5 +1,6 @@
-import { Vector, vec } from '../Math/vector';
-import { DeepRequired } from '../Util/Required';
+import type { Vector } from '../Math/vector';
+import { vec } from '../Math/vector';
+import type { DeepRequired } from '../Util/Required';
 import { SolverStrategy } from './SolverStrategy';
 import { ContactSolveBias } from './Solver/ContactBias';
 import { SpatialPartitionStrategy } from './Detection/SpatialPartitionStrategy';

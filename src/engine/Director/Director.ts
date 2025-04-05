@@ -1,7 +1,9 @@
-import { Engine } from '../Engine';
-import { DefaultLoader, LoaderConstructor, isLoaderConstructor } from './DefaultLoader';
-import { Scene, SceneConstructor, isSceneConstructor } from '../Scene';
-import { Transition } from './Transition';
+import type { Engine } from '../Engine';
+import type { LoaderConstructor } from './DefaultLoader';
+import { DefaultLoader, isLoaderConstructor } from './DefaultLoader';
+import type { SceneConstructor } from '../Scene';
+import { Scene, isSceneConstructor } from '../Scene';
+import type { Transition } from './Transition';
 import { Loader } from './Loader';
 import { Logger } from '../Util/Log';
 import { ActivateEvent, DeactivateEvent } from '../Events';

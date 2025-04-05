@@ -1,6 +1,6 @@
-import * as Events from '../Events';
-import { PointerEvent } from '../Input/PointerEvent';
-import { WheelEvent } from '../Input/WheelEvent';
+import type * as Events from '../Events';
+import type { PointerEvent } from '../Input/PointerEvent';
+import type { WheelEvent } from '../Input/WheelEvent';
 export interface PointerEvents {
   on(eventName: Events.pointerup, handler: (event: PointerEvent) => void): void;
   on(eventName: Events.pointerdown, handler: (event: PointerEvent) => void): void;

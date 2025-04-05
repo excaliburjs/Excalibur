@@ -1,6 +1,7 @@
-import { System, SystemType } from './System';
-import { Scene } from '../Scene';
-import { World } from './World';
+import type { SystemType } from './System';
+import { System } from './System';
+import type { Scene } from '../Scene';
+import type { World } from './World';
 import { removeItemFromArray } from '../Util/Util';
 
 export interface SystemCtor<T extends System> {

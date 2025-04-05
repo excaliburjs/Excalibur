@@ -1,8 +1,10 @@
-import { Vector } from './Math/vector';
-import { ExitTriggerEvent, EnterTriggerEvent, CollisionEndEvent, CollisionStartEvent } from './Events';
+import type { Vector } from './Math/vector';
+import type { CollisionEndEvent, CollisionStartEvent } from './Events';
+import { ExitTriggerEvent, EnterTriggerEvent } from './Events';
 import { CollisionType } from './Collision/CollisionType';
-import { Entity } from './EntityComponentSystem';
-import { Actor, ActorArgs, ActorEvents } from './Actor';
+import type { Entity } from './EntityComponentSystem';
+import type { ActorArgs, ActorEvents } from './Actor';
+import { Actor } from './Actor';
 import { EventEmitter } from './EventEmitter';
 
 export type TriggerEvents = ActorEvents & {

@@ -1,8 +1,10 @@
 import { Future } from '../Util/Future';
-import { ImageFiltering } from './Filtering';
-import { GraphicOptions } from './Graphic';
-import { ImageSource, ImageWrapConfiguration } from './ImageSource';
-import { SourceView, Sprite } from './Sprite';
+import type { ImageFiltering } from './Filtering';
+import type { GraphicOptions } from './Graphic';
+import type { ImageWrapConfiguration } from './ImageSource';
+import { ImageSource } from './ImageSource';
+import type { SourceView } from './Sprite';
+import { Sprite } from './Sprite';
 import { ImageWrapping } from './Wrapping';
 
 export interface TiledSpriteOptions {

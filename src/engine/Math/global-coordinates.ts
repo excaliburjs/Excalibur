@@ -1,4 +1,4 @@
-import { Engine } from '../Engine';
+import type { Engine } from '../Engine';
 import { Vector } from './vector';
 
 export class GlobalCoordinates {

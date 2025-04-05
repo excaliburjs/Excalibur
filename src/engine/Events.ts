@@ -1,18 +1,18 @@
-import { Scene } from './Scene';
-import { Vector } from './Math/vector';
-import { Actor } from './Actor';
-import { Trigger } from './Trigger';
-import { FrameStats } from './Debug';
-import { Engine } from './Engine';
-import { TileMap } from './TileMap';
-import { Side } from './Collision/Side';
-import { CollisionContact } from './Collision/Detection/CollisionContact';
-import { Collider } from './Collision/Colliders/Collider';
-import { Entity } from './EntityComponentSystem/Entity';
-import { OnInitialize, OnPreUpdate, OnPostUpdate, SceneActivationContext, OnAdd, OnRemove } from './Interfaces/LifecycleEvents';
-import { ExcaliburGraphicsContext } from './Graphics';
-import { Axes, Buttons, Gamepad } from './Input/Gamepad';
-import { Action } from './Actions/Action';
+import type { Scene } from './Scene';
+import type { Vector } from './Math/vector';
+import type { Actor } from './Actor';
+import type { Trigger } from './Trigger';
+import type { FrameStats } from './Debug';
+import type { Engine } from './Engine';
+import type { TileMap } from './TileMap';
+import type { Side } from './Collision/Side';
+import type { CollisionContact } from './Collision/Detection/CollisionContact';
+import type { Collider } from './Collision/Colliders/Collider';
+import type { Entity } from './EntityComponentSystem/Entity';
+import type { OnInitialize, OnPreUpdate, OnPostUpdate, SceneActivationContext, OnAdd, OnRemove } from './Interfaces/LifecycleEvents';
+import type { ExcaliburGraphicsContext } from './Graphics';
+import type { Axes, Buttons, Gamepad } from './Input/Gamepad';
+import type { Action } from './Actions/Action';
 
 export enum EventTypes {
   Kill = 'kill',

@@ -1,21 +1,22 @@
-import { FrameStats } from '../../Debug/DebugConfig';
-import { Entity } from '../../EntityComponentSystem';
-import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
+import type { FrameStats } from '../../Debug/DebugConfig';
+import type { Entity } from '../../EntityComponentSystem';
+import type { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
 import { createId } from '../../Id';
-import { Ray } from '../../Math/ray';
-import { Vector, vec } from '../../Math/vector';
+import type { Ray } from '../../Math/ray';
+import type { Vector } from '../../Math/vector';
+import { vec } from '../../Math/vector';
 import { Pool } from '../../Util/Pool';
 import { BodyComponent } from '../BodyComponent';
-import { BoundingBox } from '../BoundingBox';
-import { Collider } from '../Colliders/Collider';
+import type { BoundingBox } from '../BoundingBox';
+import type { Collider } from '../Colliders/Collider';
 import { CompositeCollider } from '../Colliders/CompositeCollider';
 import { CollisionType } from '../CollisionType';
 import { CollisionGroup } from '../Group/CollisionGroup';
-import { CollisionContact } from './CollisionContact';
-import { CollisionProcessor } from './CollisionProcessor';
+import type { CollisionContact } from './CollisionContact';
+import type { CollisionProcessor } from './CollisionProcessor';
 import { Pair } from './Pair';
-import { RayCastHit } from './RayCastHit';
-import { RayCastOptions } from './RayCastOptions';
+import type { RayCastHit } from './RayCastHit';
+import type { RayCastOptions } from './RayCastOptions';
 import { HashGridCell, HashGridProxy, SparseHashGrid } from './SparseHashGrid';
 
 /**

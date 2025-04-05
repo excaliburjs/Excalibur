@@ -1,9 +1,10 @@
 import { Vector } from '../Math/vector';
-import { PointerEvent } from './PointerEvent';
-import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
-import { PointerEvents } from './PointerEventReceiver';
+import type { PointerEvent } from './PointerEvent';
+import type { EventKey, Handler, Subscription } from '../EventEmitter';
+import { EventEmitter } from '../EventEmitter';
+import type { PointerEvents } from './PointerEventReceiver';
 import { GlobalCoordinates } from '../Math/global-coordinates';
-import { Engine } from '../Engine';
+import type { Engine } from '../Engine';
 
 export class PointerAbstraction {
   public events = new EventEmitter<PointerEvents>();

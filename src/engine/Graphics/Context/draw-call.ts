@@ -1,6 +1,6 @@
 import { AffineMatrix } from '../../Math/affine-matrix';
 import { Color } from '../../Color';
-import { ExcaliburGraphicsContextState } from './ExcaliburGraphicsContext';
+import type { ExcaliburGraphicsContextState } from './ExcaliburGraphicsContext';
 
 export class DrawCall {
   public z: number = 0;

@@ -1,15 +1,16 @@
 import { CollisionPostSolveEvent, CollisionPreSolveEvent, PostCollisionEvent, PreCollisionEvent } from '../../Events';
 import { clamp } from '../../Math/util';
-import { CollisionContact } from '../Detection/CollisionContact';
+import type { CollisionContact } from '../Detection/CollisionContact';
 import { CollisionType } from '../CollisionType';
 import { ContactConstraintPoint } from './ContactConstraintPoint';
 import { Side } from '../Side';
-import { CollisionSolver } from './Solver';
+import type { CollisionSolver } from './Solver';
 import { DegreeOfFreedom } from '../BodyComponent';
 import { CollisionJumpTable } from '../Colliders/CollisionJumpTable';
-import { DeepRequired } from '../../Util/Required';
-import { PhysicsConfig } from '../PhysicsConfig';
-import { ContactBias, ContactSolveBias, HorizontalFirst, None, VerticalFirst } from './ContactBias';
+import type { DeepRequired } from '../../Util/Required';
+import type { PhysicsConfig } from '../PhysicsConfig';
+import type { ContactBias } from './ContactBias';
+import { ContactSolveBias, HorizontalFirst, None, VerticalFirst } from './ContactBias';
 
 export class RealisticSolver implements CollisionSolver {
   directionMap = new Map<string, 'horizontal' | 'vertical'>();

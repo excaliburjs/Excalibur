@@ -1,6 +1,6 @@
-import { VertexLayout } from '../Context/vertex-layout';
-import { Shader } from '../Context/shader';
-import { ExcaliburGraphicsContextWebGL } from '../Context/ExcaliburGraphicsContextWebGL';
+import type { VertexLayout } from '../Context/vertex-layout';
+import type { Shader } from '../Context/shader';
+import type { ExcaliburGraphicsContextWebGL } from '../Context/ExcaliburGraphicsContextWebGL';
 
 /**
  * PostProcessors can be used to apply a shader to the entire screen. It is recommended

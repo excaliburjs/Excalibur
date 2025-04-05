@@ -1,6 +1,8 @@
-import { Engine, ScrollPreventionMode } from '../Engine';
+import type { Engine } from '../Engine';
+import { ScrollPreventionMode } from '../Engine';
 import { GlobalCoordinates } from '../Math/global-coordinates';
-import { vec, Vector } from '../Math/vector';
+import type { Vector } from '../Math/vector';
+import { vec } from '../Math/vector';
 import { PointerEvent } from './PointerEvent';
 import { WheelEvent } from './WheelEvent';
 import { PointerAbstraction } from './PointerAbstraction';
@@ -12,7 +14,8 @@ import { PointerButton } from './PointerButton';
 import { fail } from '../Util/Util';
 import { PointerType } from './PointerType';
 import { isCrossOriginIframe } from '../Util/IFrame';
-import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
+import type { EventKey, Handler, Subscription } from '../EventEmitter';
+import { EventEmitter } from '../EventEmitter';
 
 export type NativePointerEvent = globalThis.PointerEvent;
 export type NativeMouseEvent = globalThis.MouseEvent;

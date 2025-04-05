@@ -1,8 +1,9 @@
 import { MotionComponent } from '../../EntityComponentSystem/Components/MotionComponent';
 import { TransformComponent } from '../../EntityComponentSystem/Components/TransformComponent';
-import { Entity } from '../../EntityComponentSystem/Entity';
+import type { Entity } from '../../EntityComponentSystem/Entity';
 import { Vector, vec } from '../../Math/vector';
-import { Action, nextActionId } from '../Action';
+import type { Action } from '../Action';
+import { nextActionId } from '../Action';
 
 export class Meet implements Action {
   id = nextActionId();
