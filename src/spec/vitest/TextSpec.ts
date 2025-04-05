@@ -74,7 +74,7 @@ const isChromium = inject('browser') === 'chromium';
  */
 describe.runIf(isWindows && isChromium)('A Text Graphic', () => {
   let canvasElement: HTMLCanvasElement;
-  let ctx: ex.ExcaliburGraphicsContext2DCanvas;
+  let ctx: ex.ExcaliburGraphicsContext2DCanvas | ex.ExcaliburGraphicsContextWebGL;
 
   beforeAll(async () => {
     const fontface = document.createElement('link');
@@ -676,10 +676,11 @@ describe.runIf(isWindows && isChromium)('A Text Graphic', () => {
         baseAlign: ex.BaseAlign.Alphabetic
       })
     });
-
     canvasElement = document.createElement('canvas');
     canvasElement.width = 1000;
     canvasElement.height = 1000;
+
+    ctx = new ex.ExcaliburGraphicsContextWebGL({ canvasElement, snapToPixel: false });
     ctx.clear();
 
     sut.draw(ctx, 10, 50);
