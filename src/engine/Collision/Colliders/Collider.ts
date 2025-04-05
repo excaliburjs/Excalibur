@@ -1,18 +1,19 @@
-import { Color } from '../../Color';
-import { CollisionContact } from '../Detection/CollisionContact';
-import { BoundingBox } from '../BoundingBox';
-import { Projection } from '../../Math/projection';
-import { LineSegment } from '../../Math/line-segment';
+import type { Color } from '../../Color';
+import type { CollisionContact } from '../Detection/CollisionContact';
+import type { BoundingBox } from '../BoundingBox';
+import type { Projection } from '../../Math/projection';
+import type { LineSegment } from '../../Math/line-segment';
 import { Vector } from '../../Math/vector';
-import { Ray } from '../../Math/ray';
-import { Clonable } from '../../Interfaces/Clonable';
-import { Entity } from '../../EntityComponentSystem';
-import { createId, Id } from '../../Id';
-import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
-import { Transform } from '../../Math/transform';
+import type { Ray } from '../../Math/ray';
+import type { Clonable } from '../../Interfaces/Clonable';
+import type { Entity } from '../../EntityComponentSystem';
+import type { Id } from '../../Id';
+import { createId } from '../../Id';
+import type { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
+import type { Transform } from '../../Math/transform';
 import { EventEmitter } from '../../EventEmitter';
-import { RayCastHit } from '../Detection/RayCastHit';
-import { CompositeCollider } from './CompositeCollider';
+import type { RayCastHit } from '../Detection/RayCastHit';
+import type { CompositeCollider } from './CompositeCollider';
 
 /**
  * A collision collider specifies the geometry that can detect when other collision colliders intersect

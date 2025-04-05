@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-import { Engine } from '../Engine';
+import type { Engine } from '../Engine';
 import { vec } from '../Math/vector';
 import { Color } from '../Color';
 

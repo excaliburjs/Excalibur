@@ -1,0 +1,1 @@
+These tests are for running on specific versions of browsers on BrowserStack. Most tests should go in [../vitest](../vitest/), but anything that is affected by a particular browser version should go here.

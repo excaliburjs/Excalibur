@@ -1,18 +1,20 @@
 import { vec, Vector } from '../Math/vector';
 import { CollisionType } from './CollisionType';
-import { Clonable } from '../Interfaces/Clonable';
+import type { Clonable } from '../Interfaces/Clonable';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
 import { Component } from '../EntityComponentSystem/Component';
 import { CollisionGroup } from './Group/CollisionGroup';
-import { createId, Id } from '../Id';
+import type { Id } from '../Id';
+import { createId } from '../Id';
 import { clamp } from '../Math/util';
 import { ColliderComponent } from './ColliderComponent';
 import { Transform } from '../Math/transform';
 import { EventEmitter } from '../EventEmitter';
-import { getDefaultPhysicsConfig, PhysicsConfig } from './PhysicsConfig';
-import { DeepRequired } from '../Util/Required';
-import { Entity } from '../EntityComponentSystem';
+import type { PhysicsConfig } from './PhysicsConfig';
+import { getDefaultPhysicsConfig } from './PhysicsConfig';
+import type { DeepRequired } from '../Util/Required';
+import type { Entity } from '../EntityComponentSystem';
 
 export interface BodyComponentOptions {
   type?: CollisionType;

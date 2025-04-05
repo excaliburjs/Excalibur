@@ -3,8 +3,8 @@ import screenFragment from './screen-fragment.glsl';
 import { Shader } from '../shader';
 import { VertexBuffer } from '../vertex-buffer';
 import { VertexLayout } from '../vertex-layout';
-import { PostProcessor } from '../../PostProcessor/PostProcessor';
-import { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
+import type { PostProcessor } from '../../PostProcessor/PostProcessor';
+import type { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
 
 /**
  * This is responsible for painting the entire screen during the render passes

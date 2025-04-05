@@ -1,9 +1,9 @@
 import { Vector } from '../Math/vector';
-import { Ray } from '../Math/ray';
+import type { Ray } from '../Math/ray';
 import { Color } from '../Color';
 import { Side } from './Side';
-import { ExcaliburGraphicsContext } from '../Graphics/Context/ExcaliburGraphicsContext';
-import { AffineMatrix } from '../Math/affine-matrix';
+import type { ExcaliburGraphicsContext } from '../Graphics/Context/ExcaliburGraphicsContext';
+import type { AffineMatrix } from '../Math/affine-matrix';
 
 export interface BoundingBoxOptions {
   left: number;

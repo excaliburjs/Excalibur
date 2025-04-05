@@ -1,12 +1,13 @@
 import { WebAudio } from '../Util/WebAudio';
-import { Engine } from '../Engine';
-import { Loadable } from '../Interfaces/Loadable';
+import type { Engine } from '../Engine';
+import type { Loadable } from '../Interfaces/Loadable';
 import { Canvas } from '../Graphics/Canvas';
 import { ImageFiltering } from '../Graphics/Filtering';
 import { clamp } from '../Math/util';
 import { Sound } from '../Resources/Sound/Sound';
 import { Future } from '../Util/Future';
-import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
+import type { EventKey, Handler, Subscription } from '../EventEmitter';
+import { EventEmitter } from '../EventEmitter';
 import { Color } from '../Color';
 import { delay } from '../Util/Util';
 

@@ -1,4 +1,5 @@
-import { Raster, RasterOptions } from './Raster';
+import type { RasterOptions } from './Raster';
+import { Raster } from './Raster';
 
 export interface RectangleOptions {
   width: number;

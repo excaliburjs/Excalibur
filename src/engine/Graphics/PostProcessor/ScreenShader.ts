@@ -1,5 +1,5 @@
 import { Logger } from '../../Util/Log';
-import { ExcaliburGraphicsContextWebGL } from '../Context/ExcaliburGraphicsContextWebGL';
+import type { ExcaliburGraphicsContextWebGL } from '../Context/ExcaliburGraphicsContextWebGL';
 import { Shader } from '../Context/shader';
 import { VertexBuffer } from '../Context/vertex-buffer';
 import { VertexLayout } from '../Context/vertex-layout';

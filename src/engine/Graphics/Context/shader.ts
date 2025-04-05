@@ -1,17 +1,15 @@
+import type { ExcaliburGraphicsContext, ImageSource, TextureLoader } from '../..';
 import {
   AffineMatrix,
   Color,
-  ExcaliburGraphicsContext,
   ExcaliburGraphicsContextWebGL,
-  ImageSource,
   ImageSourceAttributeConstants,
   Logger,
   parseImageFiltering,
   parseImageWrapping,
-  TextureLoader,
   Vector
 } from '../..';
-import { Matrix } from '../../Math/matrix';
+import type { Matrix } from '../../Math/matrix';
 import { watch } from '../../Util/Watch';
 import { UniformBuffer } from './uniform-buffer';
 import { getAttributeComponentSize, getAttributePointerType } from './webgl-util';

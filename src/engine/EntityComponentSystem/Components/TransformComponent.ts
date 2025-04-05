@@ -1,8 +1,8 @@
-import { Vector } from '../../Math/vector';
+import type { Vector } from '../../Math/vector';
 import { CoordPlane } from '../../Math/coord-plane';
 import { Transform } from '../../Math/transform';
 import { Component } from '../Component';
-import { Entity } from '../Entity';
+import type { Entity } from '../Entity';
 import { Observable } from '../../Util/Observable';
 import { Logger } from '../../Util/Log';
 

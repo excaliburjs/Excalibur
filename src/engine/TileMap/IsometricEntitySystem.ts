@@ -1,7 +1,8 @@
 import { System, SystemType } from '../EntityComponentSystem/System';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { IsometricEntityComponent } from './IsometricEntityComponent';
-import { Query, SystemPriority, World } from '../EntityComponentSystem';
+import type { Query, World } from '../EntityComponentSystem';
+import { SystemPriority } from '../EntityComponentSystem';
 
 export class IsometricEntitySystem extends System {
   static priority: number = SystemPriority.Lower;

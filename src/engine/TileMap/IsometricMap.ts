@@ -1,20 +1,23 @@
 import { BodyComponent } from '../Collision/BodyComponent';
 import { BoundingBox } from '../Collision/BoundingBox';
 import { ColliderComponent } from '../Collision/ColliderComponent';
-import { Collider } from '../Collision/Colliders/Collider';
+import type { Collider } from '../Collision/Colliders/Collider';
 import { CollisionType } from '../Collision/CollisionType';
 import { CompositeCollider } from '../Collision/Colliders/CompositeCollider';
 import { vec, Vector } from '../Math/vector';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
-import { Entity, EntityEvents } from '../EntityComponentSystem/Entity';
-import { DebugGraphicsComponent, ExcaliburGraphicsContext, Graphic, GraphicsComponent } from '../Graphics';
+import type { EntityEvents } from '../EntityComponentSystem/Entity';
+import { Entity } from '../EntityComponentSystem/Entity';
+import type { ExcaliburGraphicsContext, Graphic } from '../Graphics';
+import { DebugGraphicsComponent, GraphicsComponent } from '../Graphics';
 import { IsometricEntityComponent } from './IsometricEntityComponent';
-import { DebugConfig } from '../Debug';
+import type { DebugConfig } from '../Debug';
 import { PointerComponent } from '../Input/PointerComponent';
-import { PointerEvent } from '../Input/PointerEvent';
+import type { PointerEvent } from '../Input/PointerEvent';
 import { EventEmitter } from '../EventEmitter';
-import { HasNestedPointerEvents, PointerEventsToObjectDispatcher } from '../Input/PointerEventsToObjectDispatcher';
-import { PointerEventReceiver } from '../Input/PointerEventReceiver';
+import type { HasNestedPointerEvents } from '../Input/PointerEventsToObjectDispatcher';
+import { PointerEventsToObjectDispatcher } from '../Input/PointerEventsToObjectDispatcher';
+import type { PointerEventReceiver } from '../Input/PointerEventReceiver';
 
 export type IsometricTilePointerEvents = {
   pointerup: PointerEvent;

@@ -1,10 +1,11 @@
 import { Vector } from '../Math/vector';
 import { Logger } from '../Util/Log';
-import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
-import { FontRenderer } from './FontCommon';
-import { Graphic, GraphicOptions } from './Graphic';
-import { Sprite } from './Sprite';
-import { SpriteSheet } from './SpriteSheet';
+import type { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
+import type { FontRenderer } from './FontCommon';
+import type { GraphicOptions } from './Graphic';
+import { Graphic } from './Graphic';
+import type { Sprite } from './Sprite';
+import type { SpriteSheet } from './SpriteSheet';
 import { BoundingBox } from '../Collision/BoundingBox';
 
 export interface SpriteFontOptions {
