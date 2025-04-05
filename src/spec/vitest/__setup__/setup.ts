@@ -2,8 +2,10 @@ import * as ex from '@excalibur';
 import { beforeAll } from 'vitest';
 import './matchers/expect';
 import { setupEngineInstanceReporter } from '../__reporters__/engine-instance.setup';
+import { setupMemoryReporter } from '../__reporters__/memory.setup';
 
 setupEngineInstanceReporter();
+setupMemoryReporter();
 
 // add any global hooks here
 beforeAll(() => {
