@@ -1,0 +1,143 @@
+---
+title: Graph
+slug: /graph
+section: Math
+---
+
+## Graphs
+
+A powerful and flexible graph data structure implementation for working with connected data. This module provides a complete set of tools for creating, manipulating, and traversing graph structures with support for both directed and undirected weighted edges.
+
+## Overview
+
+The Graph module allows you to:
+
+- Create and manage nodes/vertices with custom data
+- Connect nodes with weighted, directed or undirected edges
+- Position nodes in 2D space for spatial algorithms
+- Perform common graph traversal operations like BFS and DFS
+- Find optimal paths using Dijkstra's algorithm or A* search
+
+## Basic Usage
+
+### Creating a Graph and working with Nodes and Edges
+
+```ts
+import { Graph } from 'excalibur';
+
+// Create an empty graph of strings
+const graph = new Graph<string>();
+
+// Add a few nodes with string data
+const nodeA = graph.addNode("A");
+const nodeB = graph.addNode("B");
+const nodeC = graph.addNode("C");
+
+// Connect nodes with directed edges (default)
+graph.addEdge(nodeA, nodeB);
+graph.addEdge(nodeB, nodeC);
+graph.addEdge(nodeC, nodeD);
+graph.addEdge(nodeD, nodeE);
+
+// Connect nodes with undirected edges
+graph.addEdge(nodeA, nodeC, { directed: false });
+
+// Connect nodes with weighted edges
+graph.addEdge(nodeA, nodeB, { weight: 5 });
+
+// Check if nodes are connected
+const connected = graph.areNodesConnected(nodeA, nodeB); // true
+
+// Get neighbors of a node
+const neighbors = graph.getNeighbors(nodeA); // [nodeB]
+
+// Delete a node (and its edges)
+graph.deleteNode(nodeC);
+
+// Delete an edge
+graph.deleteEdge(edges[0]);
+```
+
+## Core Concepts
+
+### Node Types
+
+The Graph module supports several node types:
+
+Node: Basic graph node with data
+PositionNode: Node with 2D spatial coordinates, uses Excalibur's Native Vector type for position
+Vertex: An alias for Node for more traditional graph terminology
+
+```ts
+// Add positioned nodes, whe Vector positions are attached to nodes, it returns a PositionNode
+const nodeA = graph.addNode("A", new Vector(0, 0));
+const nodeB = graph.addNode("B", new Vector(5, 10));
+const nodeC = graph.addNode("C", new Vector(10, 5));
+```
+
+### Edge Properties
+
+Edges connect nodes and can have properties:
+
+weight: Numeric value representing distance or cost (default: 0)
+directed: Whether the edge is one-way or bidirectional (default: true)
+
+Using a bidrectional edge will create two edges that are mirrored, and connected by a property.
+
+```ts
+// Connect the nodes
+spatialGraph.addEdge(nodeA, nodeB, { weight: 11.2, directed: false }); // Euclidean distance
+
+```
+
+### Graph Traversal
+
+#### Breadth-First Search (BFS)
+
+Explore the graph layer by layer, visiting all direct neighbors before moving deeper:
+
+```ts
+// Create and populate your graph first
+const visitedNodeIds = graph.bfs(startNode);
+```
+
+#### Depth-First Search (DFS)
+
+Explore the graph by moving as far as possible along each branch before backtracking:
+
+```ts
+// Create and populate your graph first
+const visitedNodeIds = graph.dfs(startNode);
+```
+
+### Pathfinding Algorithms
+
+#### Shortest Path and Dijkstra's Algorithm
+
+Find the shortest path between two nodes in a weighted graph:
+
+```ts
+// Find shortest path from A to C
+const { path, distance } = graph.shortestPathDijkstra(nodeA, nodeC);
+
+// Get full analysis
+const dijkstraAnalysis = graph.dijkstra(nodeA);
+```
+
+#### A* Algorithm
+
+Find the shortest path using spatial information for better performance:
+
+## Other Features
+
+### Building a Graph from Data Arrays
+
+For convenience, you can create a graph from arrays of node data:
+```ts
+// Create a graph with string data nodes
+const cities = ["New York", "London", "Tokyo", "Sydney", "Paris"];
+const graph = Graph.createGraphFromNodes(cities);
+
+// Use alias for more traditional graph terminology
+const graph2 = Graph.createGraphFromVertices(cities);
+```
