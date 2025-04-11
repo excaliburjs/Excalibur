@@ -3,7 +3,8 @@
 var game = new ex.Engine({
   width: 600,
   height: 600,
-  pixelArt: true
+  pixelArt: true,
+  displayMode: ex.DisplayMode.FitScreenAndFill
 });
 
 game.showDebug(true);
@@ -24,15 +25,19 @@ var ss = ex.SpriteSheet.fromImageSource({
 
 var tm = new ex.TileMap({
   pos: ex.vec(-100, -100),
-  tileWidth: 16,
-  tileHeight: 16,
+  tileWidth: 16 * 20,
+  tileHeight: 16 * 20,
   columns: 40,
   rows: 40
 });
-tm.transform.scale = ex.vec(2, 2);
+
+//tm.addComponent(new ex.ParallaxComponent(ex.vec(.4, .4)));
+//tm.transform.scale = ex.vec(2, 2);
 // tm.transform.rotation = Math.PI / 4;
 
 var tileSprite = ss.sprites[0];
+tileSprite.destSize.width = 320;
+tileSprite.destSize.height = 320;
 
 for (var i = 0; i < tm.columns * tm.rows; i++) {
   tm.getTileByIndex(i).addGraphic(tileSprite);
@@ -54,8 +59,23 @@ game.input.pointers.primary.on('down', (evt: ex.PointerEvent) => {
 game.start(loader).then(async () => {
   await game.currentScene.camera.move(ex.Vector.Zero.clone(), 2000, ex.EasingFunctions.EaseInOutCubic);
   console.log(tm.getOnScreenTiles());
-  await game.currentScene.camera.move(new ex.Vector(200, 600), 2000, ex.EasingFunctions.EaseInOutCubic);
+  await game.currentScene.camera.move(new ex.Vector(800, 600), 4000, ex.EasingFunctions.EaseInOutCubic);
   console.log(tm.getOnScreenTiles());
+
+  await ex.coroutine(
+    game,
+    function* () {
+      let duration = 2000;
+      while (duration >= 0) {
+        const elapsed = yield;
+
+        game.currentScene.camera.rotation = ex.lerpAngle(0, Math.PI, ex.RotationType.ShortestPath, ex.clamp(1 - duration / 2000, 0, 1));
+
+        duration -= elapsed;
+      }
+    }.bind(this)
+  );
+
   await game.currentScene.camera.zoomOverTime(2, 1000);
   console.log(tm.getOnScreenTiles());
   await game.currentScene.camera.zoomOverTime(1, 1000);
