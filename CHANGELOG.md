@@ -45,7 +45,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
--
+- Change logging behavior for entities not in scenes, only log in dev builds
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
