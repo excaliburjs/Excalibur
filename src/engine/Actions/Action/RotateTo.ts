@@ -63,7 +63,8 @@ export class RotateToWithOptions implements Action {
     const newAngle = lerpAngle(this._startAngle, this._endAngle, this._rotationType, t);
     const currentAngle = this._tx.rotation;
 
-    const rx = (newAngle - currentAngle) / (elapsed / 1000);
+    const seconds = elapsed / 1000;
+    const rx = seconds === 0 ? 0 : (newAngle - currentAngle) / seconds;
     this._motion.angularVelocity = rx;
 
     if (this.isComplete(this.entity)) {
