@@ -63,8 +63,8 @@ export class RotateByWithOptions implements Action {
     const t = clamp(remap(0, this._durationMs, 0, 1, this._durationMs - this._currentMs), 0, 1);
     const newAngle = lerpAngle(this._startAngle, this._endAngle, this._rotationType, t);
     const currentAngle = this._tx.rotation;
-
-    const rx = (newAngle - currentAngle) / (elapsed / 1000);
+    const seconds = elapsed / 1000;
+    const rx = seconds === 0 ? 0 : (newAngle - currentAngle) / seconds;
     this._motion.angularVelocity = rx;
 
     if (this.isComplete()) {

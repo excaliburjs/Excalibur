@@ -56,7 +56,8 @@ export class ScaleToWithOptions implements Action {
     const newScale = lerpVector(this._startScale, this._endScale, t);
     const currentScale = this._tx.scale;
 
-    const sx = newScale.sub(currentScale).scale(1 / (elapsed / 1000));
+    const seconds = elapsed / 1000;
+    const sx = newScale.sub(currentScale).scale(seconds === 0 ? 0 : 1 / seconds);
     this._motion.scaleFactor = sx;
 
     if (this.isComplete()) {
