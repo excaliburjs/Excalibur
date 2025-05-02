@@ -6,16 +6,29 @@ import { Vector } from './vector';
  */
 export type G_UUID = string & { readonly __brand: unique symbol };
 
-/**
- * Options for creating a new edge in the graph.
- */
-interface EdgeOptions {
+interface EdgeOptionsWithWeight {
+  weight: number;
+  useEuclidean?: false;
   /**
-   * The weight of the edge.
-   * @default 0
+   * Whether the edge is directed.
+   * @default true
    */
-  weight?: number;
+  directed?: boolean;
+}
 
+interface EdgeOptionsWeightless {
+  weight?: undefined;
+  useEuclidean?: false | undefined;
+  /**
+   * Whether the edge is directed.
+   * @default true
+   */
+  directed?: boolean;
+}
+
+interface EdgeOptionsWithEuclidean {
+  weight?: undefined;
+  useEuclidean: true;
   /**
    * Whether the edge is directed.
    * @default true
@@ -24,11 +37,16 @@ interface EdgeOptions {
 }
 
 /**
+ * Options for creating a new edge in the graph.
+ */
+type EdgeOptions = EdgeOptionsWithWeight | EdgeOptionsWithEuclidean | EdgeOptionsWeightless;
+
+/**
  * A weighted graph data structure.
  * @template T The type of data stored in each node.
  */
 export class Graph<T> {
-  private _nodes: Map<G_UUID, Node<T> | Vertex<T>>;
+  private _nodes: Map<G_UUID, Node<T>>;
   private _edges: Set<Edge<T>>;
   adjacencyList: Map<G_UUID, Set<G_UUID>>;
   id: G_UUID = GraphUUId.generateUUID();
@@ -48,7 +66,7 @@ export class Graph<T> {
    * Adds a new node to the graph with the given data.
    * @returns The newly created node.
    */
-  addNode(data: T, position?: Vector): Node<T> | Vertex<T> | PositionNode<T> {
+  addNode(data: T, position?: Vector): Node<T> | PositionNode<T> {
     let newNode;
     if (position) {
       newNode = new PositionNode(data, position);
@@ -98,44 +116,6 @@ export class Graph<T> {
   }
 
   /**
-   * Adds a new vertex to the graph with the given data and returns the newly
-   * created node. This method is just an alias for {@link addNode}.
-   * @param data - The data to be stored in the new node.
-   * @returns The newly created node.
-   */
-  addVertex(data: T): Vertex<T> {
-    return this.addNode(data);
-  }
-
-  /**
-   * Deletes a vertex from the graph.
-   *
-   * This method removes the specified vertex and all associated edges
-   * from the graph by delegating to the `deleteNode` method. It updates
-   * the internal structures to reflect these changes.
-   * @param node - The vertex to be deleted from the graph.
-   * @returns A map of all remaining vertices in the graph.
-   */
-  deleteVertex(node: Node<T>): Map<G_UUID, Node<T>> {
-    this.deleteNode(node);
-    return this._nodes;
-  }
-
-  /**
-   * Adds multiple vertices to the graph with the given data.
-   *
-   * This method takes an array of data items, creates new nodes for each item,
-   * and adds them to the graph. It utilizes the `addNodes` method to perform
-   * the addition and updates the adjacency list accordingly.
-   * @param nodes - An array of data items to be added as vertices to the graph.
-   * @returns A map of all nodes in the graph, including the newly added vertices.
-   */
-
-  addVertices(nodes: T[]): Map<G_UUID, Node<T>> {
-    return this.addNodes(nodes);
-  }
-
-  /**
    * Adds a new edge between two nodes in the graph. If the edge already exists, it does not add a duplicate.
    * The function allows specifying edge options such as weight and directionality. For undirected edges,
    * it creates a duplicate edge in the reverse direction and links both edges as partners.
@@ -153,10 +133,8 @@ export class Graph<T> {
       return [];
     }
 
-    const weight = options?.weight ?? 0;
-    const directed = options?.directed ?? true;
-
-    const newEdge = new Edge(from, to, weight);
+    const directed = 'directed' in options ? options.directed : true;
+    const newEdge = new Edge(from, to, options);
 
     this._edges.add(newEdge);
     from.registerNewEdge(newEdge);
@@ -164,7 +142,7 @@ export class Graph<T> {
     this.adjacencyList.get(from.id)?.add(to.id);
 
     if (!directed) {
-      const duplicateEdge = new Edge(to, from, weight);
+      const duplicateEdge = new Edge(to, from, options);
       this.adjacencyList.get(to.id)?.add(from.id);
       this._edges.add(duplicateEdge);
       to.registerNewEdge(duplicateEdge);
@@ -220,15 +198,6 @@ export class Graph<T> {
   }
 
   /**
-   * Gets a node by its UUID.
-   * @param id - The UUID of the node to be retrieved.
-   * @returns The node with the specified UUID, or undefined if no such node exists.
-   */
-  getVertex(id: G_UUID): Node<T> {
-    return this._nodes.get(id)!;
-  }
-
-  /**
    * Retrieves the set of edges in the graph.
    *
    * The returned set is a shallow copy of the internal edge set.
@@ -237,21 +206,6 @@ export class Graph<T> {
    */
   get edges(): Set<Edge<T>> {
     return this._edges;
-  }
-
-  /**
-   * The set of vertices in the graph, keyed by their UUID.
-   *
-   * This property is an alias for the "nodes" property, and is provided
-   * for convenience when working with graph algorithms that expect a
-   * "vertices" property.
-   *
-   * The map returned by this property is a shallow copy of the internal map.
-   * The nodes in this map are not frozen, and may be modified by the caller.
-   * @returns A shallow copy of the graph's internal node map.
-   */
-  get vertices(): Map<G_UUID, Node<T>> {
-    return this._nodes;
   }
 
   /**
@@ -272,20 +226,6 @@ export class Graph<T> {
    * @returns true if the nodes are connected, false if not.
    */
   areNodesConnected(node1: Node<T>, node2: Node<T>): boolean {
-    return this.adjacencyList.get(node1.id)?.has(node2.id) ?? false;
-  }
-
-  /**
-   * Determines whether two vertices are directly connected by an edge.
-   *
-   * This method checks if there is a direct connection (edge) between the two
-   * specified nodes in the graph by inspecting the adjacency list.
-   * @param node1 - The first node to check for a connection.
-   * @param node2 - The second node to check for a connection.
-   * @returns true if there is a direct edge connecting node1 and node2, false otherwise.
-   */
-
-  areVerticesConnected(node1: Node<T>, node2: Node<T>): boolean {
     return this.adjacencyList.get(node1.id)?.has(node2.id) ?? false;
   }
 
@@ -361,17 +301,6 @@ export class Graph<T> {
   static createGraphFromNodes<T>(nodes: T[]): Graph<T> {
     const graph = new Graph<T>();
     graph.addNodes(nodes);
-    return graph;
-  }
-
-  /**
-   * Creates a new graph from an array of vertices, and adds them all to the graph.
-   * @param vertices - The array of vertices to add to the graph.
-   * @returns The newly created graph.
-   */
-  static createGraphFromVertices<T>(vertices: T[]): Graph<T> {
-    const graph = new Graph<T>();
-    graph.addNodes(vertices);
     return graph;
   }
 
@@ -701,10 +630,14 @@ export class Edge<T> {
   private _weight: number = 0;
   private _partnerEdge: Edge<T> | null = null; // Reference to the opposite direction edge
 
-  constructor(source: Node<T>, target: Node<T>, weight: number = 0) {
+  constructor(source: Node<T>, target: Node<T>, config?: EdgeOptions) {
     this._source = source;
     this._target = target;
-    this._weight = weight;
+    if (config && config.weight) {
+      this._weight = config.weight;
+    } else {
+      this._weight = (source as PositionNode<T>).pos.distance((target as PositionNode<T>).pos); //calc weight
+    }
   }
 
   linkWithPartner(partnerEdge: Edge<T>): void {
@@ -784,12 +717,6 @@ export class PositionNode<T> extends Node<T> {
     this.pos = pos;
   }
 }
-
-/**
- * Alias for a node in a graph, representing a vertex in a geometric context.
- * @template T The type of data stored in this vertex.
- */
-export type Vertex<T> = Node<T>;
 
 class GraphUUId {
   static rng: Random = new Random();

@@ -38,33 +38,10 @@ describe('A Graph', () => {
       expect(graph.edges.size).toBe(0);
     });
 
-    it('should add vertices as alias for nodes', () => {
-      const vertex = graph.addVertex('A');
-      expect(vertex).toBeInstanceOf(ex.Node);
-      expect(graph.vertices.size).toBe(1);
-    });
-
-    it('should delete a vertex from the graph', () => {
-      const vertex = graph.addVertex('A');
-      const remainingNodes = graph.deleteVertex(vertex);
-      expect(remainingNodes.size).toBe(0);
-    });
-
-    it('should add multiple vertices to the graph', () => {
-      const vertices = graph.addVertices(['A', 'B', 'C']);
-      expect(vertices.size).toBe(3);
-    });
-
     it('should get a node by its id', () => {
       const node = graph.addNode('A');
       const retrievedNode = graph.getNode(node.id);
       expect(retrievedNode).toBe(node);
-    });
-
-    it('should get a vertex by its id', () => {
-      const vertex = graph.addVertex('A');
-      const retrievedVertex = graph.getVertex(vertex.id);
-      expect(retrievedVertex).toBe(vertex);
     });
   });
 
@@ -126,7 +103,7 @@ describe('A Graph', () => {
       const nodeA = graph.addNode('A');
       const nodeB = graph.addNode('B');
 
-      const edges = graph.addEdge(nodeA, nodeB, { directed: false });
+      const edges = graph.addEdge(nodeA, nodeB, { weight: 5, directed: false });
       expect(graph.edges.size).toBe(2);
 
       graph.deleteEdge(edges[0]);
@@ -159,16 +136,6 @@ describe('A Graph', () => {
       expect(graph.areNodesConnected(nodeA, nodeB)).toBe(true);
       expect(graph.areNodesConnected(nodeA, nodeC)).toBe(false);
       expect(graph.areNodesConnected(nodeB, nodeA)).toBe(false); // Directed edge
-    });
-
-    it('should check if vertices are connected', () => {
-      const nodeA = graph.addVertex('A');
-      const nodeB = graph.addVertex('B');
-
-      graph.addEdge(nodeA, nodeB, { directed: false });
-
-      expect(graph.areVerticesConnected(nodeA, nodeB)).toBe(true);
-      expect(graph.areVerticesConnected(nodeB, nodeA)).toBe(true);
     });
   });
 
@@ -255,12 +222,6 @@ describe('A Graph', () => {
       const newGraph = ex.Graph.createGraphFromNodes(['A', 'B', 'C']);
       expect(newGraph).toBeInstanceOf(ex.Graph);
       expect(newGraph.nodes.size).toBe(3);
-    });
-
-    it('should create a graph from vertices', () => {
-      const newGraph = ex.Graph.createGraphFromVertices(['A', 'B', 'C']);
-      expect(newGraph).toBeInstanceOf(ex.Graph);
-      expect(newGraph.vertices.size).toBe(3);
     });
   });
 
