@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 
-fdescribe('A Graph', () => {
+describe('A Graph', () => {
   let graph: ex.Graph<string>;
 
   beforeEach(() => {
