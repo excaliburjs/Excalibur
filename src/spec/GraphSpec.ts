@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 
-describe('A Graph', () => {
+fdescribe('A Graph', () => {
   let graph: ex.Graph<string>;
 
   beforeEach(() => {
@@ -79,8 +79,8 @@ describe('A Graph', () => {
       const nodeA = graph.addNode('A');
       const nodeB = graph.addNode('B');
 
-      graph.addEdge(nodeA, nodeB);
-      const duplicateEdges = graph.addEdge(nodeA, nodeB);
+      graph.addEdge(nodeA, nodeB, { directed: true });
+      const duplicateEdges = graph.addEdge(nodeA, nodeB, { directed: true });
 
       expect(duplicateEdges.length).toBe(0);
       expect(graph.edges.size).toBe(1);
@@ -90,7 +90,7 @@ describe('A Graph', () => {
       const nodeA = graph.addNode('A');
       const nodeB = graph.addNode('B');
 
-      const edges = graph.addEdge(nodeA, nodeB);
+      const edges = graph.addEdge(nodeA, nodeB, { directed: true });
       expect(graph.edges.size).toBe(1);
 
       graph.deleteEdge(edges[0]);
@@ -131,7 +131,7 @@ describe('A Graph', () => {
       const nodeB = graph.addNode('B');
       const nodeC = graph.addNode('C');
 
-      graph.addEdge(nodeA, nodeB);
+      graph.addEdge(nodeA, nodeB, { directed: true });
 
       expect(graph.areNodesConnected(nodeA, nodeB)).toBe(true);
       expect(graph.areNodesConnected(nodeA, nodeC)).toBe(false);

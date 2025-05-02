@@ -12,7 +12,7 @@ A powerful and flexible graph data structure implementation for working with con
 
 The Graph module allows you to:
 
-- Create and manage nodes/vertices with custom data
+- Create and manage nodes with custom data
 - Connect nodes with weighted, directed or undirected edges
 - Position nodes in 2D space for spatial algorithms
 - Perform common graph traversal operations like BFS and DFS
@@ -33,17 +33,20 @@ const nodeA = graph.addNode("A");
 const nodeB = graph.addNode("B");
 const nodeC = graph.addNode("C");
 
-// Connect nodes with directed edges (default)
+// Connect nodes with bidirectional edges (default)
 graph.addEdge(nodeA, nodeB);
 graph.addEdge(nodeB, nodeC);
 graph.addEdge(nodeC, nodeD);
 graph.addEdge(nodeD, nodeE);
 
-// Connect nodes with undirected edges
-graph.addEdge(nodeA, nodeC, { directed: false });
+// Connect nodes in one direction only 
+graph.addEdge(nodeA, nodeC, { directed: true });
 
 // Connect nodes with weighted edges
 graph.addEdge(nodeA, nodeB, { weight: 5 });
+
+// Use coordinates of parent nodes to dictate weighting
+graph.addEdge(nodeA, nodeB, {useEuclidean: true});
 
 // Check if nodes are connected
 const connected = graph.areNodesConnected(nodeA, nodeB); // true
@@ -66,7 +69,6 @@ The Graph module supports several node types:
 
 Node: Basic graph node with data
 PositionNode: Node with 2D spatial coordinates, uses Excalibur's Native Vector type for position
-Vertex: An alias for Node for more traditional graph terminology
 
 ```ts
 // Add positioned nodes, whe Vector positions are attached to nodes, it returns a PositionNode
@@ -75,14 +77,33 @@ const nodeB = graph.addNode("B", new Vector(5, 10));
 const nodeC = graph.addNode("C", new Vector(10, 5));
 ```
 
+### Edge Options
+
+The optional third parameter for creating an Edge has this interface (in principle):
+
+```ts
+interface EdgeOptions = {
+  weighted: number
+  useEuclidean: boolean
+  direction: boolean
+}
+```
+
+It is setup as a discriminated union to allow:
+
+- passing a basic weighted value to an edge
+- directing the edge to use the positions of its parent nodes to calculate its weighting
+- or use no weighting at all
+
+You cannot pass a weighting parameter and direct the Edge to use Euclidean positions of the nodes, you have to pass one or the other.
+
 ### Edge Properties
 
 Edges connect nodes and can have properties:
 
 weight: Numeric value representing distance or cost (default: 0)
 directed: Whether the edge is one-way or bidirectional (default: true)
-
-Using a bidrectional edge will create two edges that are mirrored, and connected by a property.
+partner: reference to a paired edge if a bidirectional edge was created
 
 ```ts
 // Connect the nodes
@@ -137,7 +158,4 @@ For convenience, you can create a graph from arrays of node data:
 // Create a graph with string data nodes
 const cities = ["New York", "London", "Tokyo", "Sydney", "Paris"];
 const graph = Graph.createGraphFromNodes(cities);
-
-// Use alias for more traditional graph terminology
-const graph2 = Graph.createGraphFromVertices(cities);
 ```

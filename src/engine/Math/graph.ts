@@ -11,7 +11,7 @@ interface EdgeOptionsWithWeight {
   useEuclidean?: false;
   /**
    * Whether the edge is directed.
-   * @default true
+   * @default false
    */
   directed?: boolean;
 }
@@ -21,7 +21,7 @@ interface EdgeOptionsWeightless {
   useEuclidean?: false | undefined;
   /**
    * Whether the edge is directed.
-   * @default true
+   * @default false
    */
   directed?: boolean;
 }
@@ -31,7 +31,7 @@ interface EdgeOptionsWithEuclidean {
   useEuclidean: true;
   /**
    * Whether the edge is directed.
-   * @default true
+   * @default false
    */
   directed?: boolean;
 }
@@ -133,7 +133,14 @@ export class Graph<T> {
       return [];
     }
 
-    const directed = 'directed' in options ? options.directed : true;
+    let directed;
+
+    if (options) {
+      directed = 'directed' in options ? options.directed : false;
+    } else {
+      directed = false;
+    }
+
     const newEdge = new Edge(from, to, options);
 
     this._edges.add(newEdge);
@@ -635,8 +642,10 @@ export class Edge<T> {
     this._target = target;
     if (config && config.weight) {
       this._weight = config.weight;
-    } else {
+    } else if (config && config.useEuclidean) {
       this._weight = (source as PositionNode<T>).pos.distance((target as PositionNode<T>).pos); //calc weight
+    } else {
+      this._weight = 0;
     }
   }
 
