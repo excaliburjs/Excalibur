@@ -149,6 +149,11 @@ const dijkstraAnalysis = graph.dijkstra(nodeA);
 
 Find the shortest path using spatial information for better performance:
 
+```ts
+const aStarResults = graph.astar(nodeA, nodeB);
+```
+Returns an object with a list of nodes representing the path, a number representing the number of node steps required, the overall distance traversed, and if any nodes were skipped due to them not being PositionNodes.
+
 ## Other Features
 
 ### Building a Graph from Data Arrays
