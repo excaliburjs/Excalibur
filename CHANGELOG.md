@@ -23,6 +23,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed division by 0 when timescale is 0 in actions
 - Fixed `onTransition` on the initial scene transition
 - Fixed `ex.TriggerOptions` type to all optional parameters
 - Fixed issue where the ActorArgs type hint would not error when providing a color causing confusion when it didn't produce a default graphic.
@@ -44,7 +45,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
--
+- Change logging behavior for entities not in scenes, only log in dev builds
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
