@@ -676,6 +676,7 @@ describe.runIf(isWindows && isChromium)('A Text Graphic', () => {
         baseAlign: ex.BaseAlign.Alphabetic
       })
     });
+    canvasElement.remove();
     canvasElement = document.createElement('canvas');
     canvasElement.width = 1000;
     canvasElement.height = 1000;
@@ -708,6 +709,7 @@ describe.runIf(isWindows && isChromium)('A Text Graphic', () => {
         canvasElement.remove();
       }
 
+      canvasElement.remove();
       canvasElement = document.createElement('canvas');
       canvasElement.width = 200;
       canvasElement.height = 100;
