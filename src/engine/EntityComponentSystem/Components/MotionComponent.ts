@@ -8,6 +8,11 @@ export interface Motion {
   vel: Vector;
 
   /**
+   * The maximum component-wise velocity of an entity in pixels per second
+   */
+  maxVel: Vector;
+
+  /**
    * The acceleration of entity in pixels per second^2
    */
   acc: Vector;
@@ -38,6 +43,11 @@ export class MotionComponent extends Component {
    * The velocity of an entity in pixels per second
    */
   public vel: Vector = Vector.Zero;
+
+  /**
+   * The maximum component-wise velocity of an entity in pixels per second
+   */
+  public maxVel: Vector = Vector.One.scaleEqual(Infinity);
 
   /**
    * The acceleration of entity in pixels per second^2
