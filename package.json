@@ -75,7 +75,7 @@
     "legacy-visual": "npm run sandbox:copy && npm run sandbox:build",
     "test": "vitest",
     "test:watch": "npm run test -- --watch",
-    "test:ci": "HEADLESS=true npm run test:chromium -- --silent",
+    "test:ci": "npm run test:chromium -- --silent",
     "test:chromium": "vitest --browser chromium",
     "test:firefox": "vitest --browser firefox",
     "test:webkit": "vitest --browser webkit",
