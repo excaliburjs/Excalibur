@@ -52,9 +52,16 @@ export default defineConfig({
     browser: {
       enabled: true,
       provider: 'playwright',
+      // this will give each test their own environment. disabling this
+      // actually ended up breaking WebGL contexts in some cases
       isolate: true,
 
+      // this slows down the run but helps keep tests stable with how often
+      // we are opening and closing WebGL contexts
+      fileParallelism: false,
+
       headless: HEADLESS,
+
       // https://vitest.dev/guide/browser/playwright
       // run `vitest --browser <name>` to run tests in a specific browser
       instances: [
