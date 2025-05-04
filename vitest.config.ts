@@ -94,7 +94,7 @@ export default defineConfig({
               '--mute-audio',
               '--no-sandbox',
               '--enable-precise-memory-info',
-              '--js-flags="--max_old_space_size=8192"'
+              '--js-flags="--max_old_space_size=8192" --expose-gc'
             ].filter(Boolean)
           }
         },
