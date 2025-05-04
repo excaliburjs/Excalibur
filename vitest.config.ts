@@ -48,6 +48,7 @@ export default defineConfig({
       reporter: [['html'], ['lcov', { projectRoot: __dirname }], ['text-summary']],
       reportsDirectory: path.join(__dirname, 'coverage')
     },
+    pool: 'threads',
     browser: {
       enabled: true,
       provider: 'playwright',
