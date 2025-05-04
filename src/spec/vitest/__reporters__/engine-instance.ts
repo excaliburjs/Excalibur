@@ -4,6 +4,10 @@ import type { Reporter, TestCase, TestModule } from 'vitest/node';
 export class EngineInstanceReporter implements Reporter {
   leaks: string[] = [];
 
+  onWatcherRerun(files: string[], trigger?: string) {
+    this.leaks = [];
+  }
+
   onTestCaseResult(testCase: TestCase) {
     const { engineInstanceLeaks } = testCase.meta();
 

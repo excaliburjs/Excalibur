@@ -318,6 +318,7 @@ describe('A Coroutine', () => {
       clock.step(100);
 
       expect(result.isRunning()).toBe(false);
+      engine.dispose();
     });
   });
 
@@ -345,6 +346,7 @@ describe('A Coroutine', () => {
       expect(result.generator.next().value).toBe(400);
 
       expect(result.isRunning()).toBe(false);
+      engine.dispose();
     });
   });
 
@@ -373,6 +375,7 @@ describe('A Coroutine', () => {
       }
 
       expect(result.isRunning()).toBe(false);
+      engine.dispose();
     });
   });
 });

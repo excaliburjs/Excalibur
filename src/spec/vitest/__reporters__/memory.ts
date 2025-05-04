@@ -7,6 +7,10 @@ export class MemoryReporter implements Reporter {
     memory: number;
   }> = [];
 
+  onWatcherRerun() {
+    this.specs = [];
+  }
+
   onTestCaseResult(testCase: TestCase) {
     const { memory } = testCase.meta();
 
