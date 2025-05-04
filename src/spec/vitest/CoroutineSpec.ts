@@ -2,12 +2,20 @@ import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 
 describe('A Coroutine', () => {
+  let engine: ex.Engine;
+
+  afterEach(async () => {
+    if (engine) {
+      engine.dispose();
+    }
+  });
+
   it('exists', () => {
     expect(ex.coroutine).toBeDefined();
   });
 
   it('can be run', async () => {
-    const engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 });
     await engine.scope(async () => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
@@ -20,7 +28,6 @@ describe('A Coroutine', () => {
       clock.step(100);
       clock.step(100);
       await expect(result).resolves.toBeUndefined();
-      engine.dispose();
     });
   });
 
@@ -41,7 +48,7 @@ describe('A Coroutine', () => {
   });
 
   it('can bind a this arg overload 1', async () => {
-    const engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 });
     await engine.scope(async () => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
@@ -55,12 +62,11 @@ describe('A Coroutine', () => {
       clock.step(100);
       clock.step(100);
       await expect(result).resolves.toBeUndefined();
-      engine.dispose();
     });
   });
 
   it('can bind a this arg overload 2', async () => {
-    const engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 });
     await engine.scope(async () => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
@@ -74,12 +80,11 @@ describe('A Coroutine', () => {
       clock.step(100);
       clock.step(100);
       await expect(result).resolves.toBeUndefined();
-      engine.dispose();
     });
   });
 
   it('can run overload 2', async () => {
-    const engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 });
     await engine.scope(async () => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
@@ -92,12 +97,11 @@ describe('A Coroutine', () => {
       clock.step(100);
       clock.step(100);
       await expect(result).resolves.toBeUndefined();
-      engine.dispose();
     });
   });
 
   it('can be run on scheduled timing', async () => {
-    const engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 });
     await engine.scope(async () => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
@@ -174,11 +178,10 @@ describe('A Coroutine', () => {
       await expect(postdraw).resolves.toBeUndefined();
       await expect(postframe).resolves.toBeUndefined();
     });
-    engine.dispose();
   });
 
   it('can wait for given ms', async () => {
-    const engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 });
     const clock = engine.clock as ex.TestClock;
     clock.start();
     await engine.scope(async () => {
@@ -193,11 +196,10 @@ describe('A Coroutine', () => {
       clock.step(100);
       await expect(result).resolves.toBeUndefined();
     });
-    engine.dispose();
   });
 
   it('can wait for a promise', async () => {
-    const engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 });
     await engine.scope(async () => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
@@ -217,11 +219,10 @@ describe('A Coroutine', () => {
       clock.step(100);
       await expect(result).resolves.toBeUndefined();
     });
-    engine.dispose();
   });
 
   it('can throw error', async () => {
-    const engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 });
     await engine.scope(async () => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
@@ -241,12 +242,11 @@ describe('A Coroutine', () => {
       // 1 more yield
       clock.step(100);
       await expect(result).rejects.toThrowError('error here');
-      engine.dispose();
     });
   });
 
   it('can stop coroutines', async () => {
-    const engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 });
     await engine.scope(async () => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
@@ -264,12 +264,11 @@ describe('A Coroutine', () => {
       expect(result.isRunning()).toBe(false);
       clock.step(100);
       expect(result.isRunning()).toBe(false);
-      engine.dispose();
     });
   });
 
   it('can start coroutines', async () => {
-    const engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 });
     const logger = ex.Logger.getInstance();
     vi.spyOn(logger, 'warn');
     await engine.scope(async () => {
@@ -295,12 +294,11 @@ describe('A Coroutine', () => {
       clock.step(100);
       expect(result.isRunning()).toBe(false);
       expect(result.isComplete()).toBe(true);
-      engine.dispose();
     });
   });
 
   it('can have nested coroutines', async () => {
-    const engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 });
     await engine.scope(async () => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
@@ -318,12 +316,11 @@ describe('A Coroutine', () => {
       clock.step(100);
 
       expect(result.isRunning()).toBe(false);
-      engine.dispose();
     });
   });
 
   it('can iterate over coroutines', async () => {
-    const engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 });
     await engine.scope(async () => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
@@ -346,12 +343,11 @@ describe('A Coroutine', () => {
       expect(result.generator.next().value).toBe(400);
 
       expect(result.isRunning()).toBe(false);
-      engine.dispose();
     });
   });
 
   it('can iterate over coroutines', async () => {
-    const engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 });
     await engine.scope(async () => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
@@ -375,7 +371,6 @@ describe('A Coroutine', () => {
       }
 
       expect(result.isRunning()).toBe(false);
-      engine.dispose();
     });
   });
 });
