@@ -1,6 +1,7 @@
-import { Graphic, GraphicOptions } from './Graphic';
-import { ImageSource } from './ImageSource';
-import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
+import type { GraphicOptions } from './Graphic';
+import { Graphic } from './Graphic';
+import type { ImageSource } from './ImageSource';
+import type { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { Logger } from '../Util/Log';
 
 export type SourceView = { x: number; y: number; width: number; height: number };

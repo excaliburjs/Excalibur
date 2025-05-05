@@ -1,13 +1,14 @@
-import { Scene } from '../Scene';
+import type { Scene } from '../Scene';
 import { Logger } from '../Util/Log';
-import { Component, ComponentCtor } from './Component';
+import type { Component, ComponentCtor } from './Component';
 import { Entity } from './Entity';
 import { EntityManager } from './EntityManager';
-import { Query } from './Query';
+import type { Query } from './Query';
 import { QueryManager } from './QueryManager';
 import { System, SystemType } from './System';
-import { SystemCtor, SystemManager, isSystemConstructor } from './SystemManager';
-import { TagQuery } from './TagQuery';
+import type { SystemCtor } from './SystemManager';
+import { SystemManager, isSystemConstructor } from './SystemManager';
+import type { TagQuery } from './TagQuery';
 
 /**
  * The World is a self-contained entity component system for a particular context.

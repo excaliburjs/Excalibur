@@ -1,12 +1,12 @@
-import { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
-import { RendererPlugin } from '../renderer';
+import type { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
+import type { RendererPlugin } from '../renderer';
 import { Shader } from '../shader';
 import particleVertexSource from './particle-vertex.glsl';
 import particleFragmentSource from './particle-fragment.glsl';
-import { GpuParticleRenderer } from '../../../Particles/GpuParticleRenderer';
+import type { GpuParticleRenderer } from '../../../Particles/GpuParticleRenderer';
 import { vec } from '../../../Math/vector';
 import { Color } from '../../../Color';
-import { HTMLImageSource } from '../ExcaliburGraphicsContext';
+import type { HTMLImageSource } from '../ExcaliburGraphicsContext';
 import { ImageSourceAttributeConstants } from '../../ImageSource';
 import { parseImageWrapping } from '../../Wrapping';
 import { parseImageFiltering } from '../../Filtering';

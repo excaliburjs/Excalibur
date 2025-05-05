@@ -1,5 +1,5 @@
-import { CollisionGroup } from '../Group/CollisionGroup';
-import { RayCastHit } from './RayCastHit';
+import type { CollisionGroup } from '../Group/CollisionGroup';
+import type { RayCastHit } from './RayCastHit';
 
 export interface RayCastOptions {
   /**

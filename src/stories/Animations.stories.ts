@@ -1,4 +1,4 @@
-import { Meta, StoryObj } from '@storybook/html';
+import type { Meta, StoryObj } from '@storybook/html';
 import { Actor, Color, Loader, range } from '../engine';
 import { ImageSource, SpriteSheet, Animation, AnimationStrategy, Rectangle } from '../engine/Graphics';
 import { enumToControlSelectLabels, enumToControlSelectOptions, withEngine } from './utils';

@@ -1,11 +1,12 @@
-import { Engine } from '../Engine';
+import type { Engine } from '../Engine';
 import { Actor } from '../Actor';
 import { vec } from '../Math/vector';
 import { Random } from '../Math/Random';
 import { CollisionType } from '../Collision/CollisionType';
 import { randomInRange } from '../Math/util';
 import { EmitterType } from './EmitterType';
-import { Particle, ParticleTransform, ParticleEmitterArgs, ParticleConfig } from './Particles';
+import type { ParticleEmitterArgs, ParticleConfig } from './Particles';
+import { Particle, ParticleTransform } from './Particles';
 import { RentalPool } from '../Util/RentalPool';
 
 /**

@@ -1,11 +1,13 @@
 import { MotionComponent } from '../../EntityComponentSystem/Components/MotionComponent';
 import { TransformComponent } from '../../EntityComponentSystem/Components/TransformComponent';
-import { Entity } from '../../EntityComponentSystem/Entity';
+import type { Entity } from '../../EntityComponentSystem/Entity';
 import { clamp, remap } from '../../Math';
 import { Vector, vec } from '../../Math/vector';
-import { EasingFunction, EasingFunctions } from '../../Util/EasingFunctions';
+import type { EasingFunction } from '../../Util/EasingFunctions';
+import { EasingFunctions } from '../../Util/EasingFunctions';
 import { Logger } from '../../Util/Log';
-import { Action, nextActionId } from '../Action';
+import type { Action } from '../Action';
+import { nextActionId } from '../Action';
 
 export interface MoveByOptions {
   offset: Vector;

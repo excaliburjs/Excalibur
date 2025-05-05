@@ -1,18 +1,18 @@
 import { Util } from '../..';
 import { Pair } from '../Detection/Pair';
-import { Color } from '../../Color';
-import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
-import { LineSegment } from '../../Math/line-segment';
+import type { Color } from '../../Color';
+import type { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
+import type { LineSegment } from '../../Math/line-segment';
 import { Projection } from '../../Math/projection';
-import { Ray } from '../../Math/ray';
+import type { Ray } from '../../Math/ray';
 import { Vector } from '../../Math/vector';
 import { BoundingBox } from '../BoundingBox';
-import { CollisionContact } from '../Detection/CollisionContact';
+import type { CollisionContact } from '../Detection/CollisionContact';
 import { DynamicTree } from '../Detection/DynamicTree';
 import { DynamicTreeCollisionProcessor } from '../Detection/DynamicTreeCollisionProcessor';
-import { RayCastHit } from '../Detection/RayCastHit';
+import type { RayCastHit } from '../Detection/RayCastHit';
 import { Collider } from './Collider';
-import { Transform } from '../../Math/transform';
+import type { Transform } from '../../Math/transform';
 import { getDefaultPhysicsConfig } from '../PhysicsConfig';
 
 export class CompositeCollider extends Collider {

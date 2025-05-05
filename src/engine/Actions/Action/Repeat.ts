@@ -1,7 +1,8 @@
-import { Entity } from '../../EntityComponentSystem/Entity';
-import { Action, nextActionId } from '../Action';
+import type { Entity } from '../../EntityComponentSystem/Entity';
+import type { Action } from '../Action';
+import { nextActionId } from '../Action';
 import { ActionContext } from '../ActionContext';
-import { ActionQueue } from '../ActionQueue';
+import type { ActionQueue } from '../ActionQueue';
 
 export class Repeat implements Action {
   id = nextActionId();

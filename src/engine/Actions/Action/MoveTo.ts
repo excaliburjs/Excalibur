@@ -1,10 +1,12 @@
 import { MotionComponent } from '../../EntityComponentSystem/Components/MotionComponent';
 import { TransformComponent } from '../../EntityComponentSystem/Components/TransformComponent';
-import { Entity } from '../../EntityComponentSystem/Entity';
+import type { Entity } from '../../EntityComponentSystem/Entity';
 import { clamp, remap } from '../../Math';
 import { Vector, vec } from '../../Math/vector';
-import { EasingFunction, EasingFunctions } from '../../Util/EasingFunctions';
-import { Action, nextActionId } from '../Action';
+import type { EasingFunction } from '../../Util/EasingFunctions';
+import { EasingFunctions } from '../../Util/EasingFunctions';
+import type { Action } from '../Action';
+import { nextActionId } from '../Action';
 
 export interface MoveToOptions {
   pos: Vector;

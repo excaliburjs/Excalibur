@@ -1,9 +1,10 @@
-import { Engine } from '../Engine';
-import { System, TransformComponent, SystemType, Entity, World, Query, SystemPriority } from '../EntityComponentSystem';
+import type { Engine } from '../Engine';
+import type { Entity, World, Query } from '../EntityComponentSystem';
+import { System, TransformComponent, SystemType, SystemPriority } from '../EntityComponentSystem';
 import { GraphicsComponent } from '../Graphics/GraphicsComponent';
-import { Scene } from '../Scene';
+import type { Scene } from '../Scene';
 import { PointerComponent } from './PointerComponent';
-import { PointerEventReceiver } from './PointerEventReceiver';
+import type { PointerEventReceiver } from './PointerEventReceiver';
 import { CoordPlane } from '../Math/coord-plane';
 import { SparseHashGrid } from '../Collision/Detection/SparseHashGrid';
 import { PointerEventsToObjectDispatcher } from './PointerEventsToObjectDispatcher';

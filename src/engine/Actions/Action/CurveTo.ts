@@ -1,6 +1,9 @@
-import { Entity, TransformComponent } from '../../EntityComponentSystem';
-import { BezierCurve, clamp, remap, vec, Vector } from '../../Math';
-import { Action, nextActionId } from '../Action';
+import type { Entity } from '../../EntityComponentSystem';
+import { TransformComponent } from '../../EntityComponentSystem';
+import type { Vector } from '../../Math';
+import { BezierCurve, clamp, remap, vec } from '../../Math';
+import type { Action } from '../Action';
+import { nextActionId } from '../Action';
 
 export interface CurveToOptions {
   /**

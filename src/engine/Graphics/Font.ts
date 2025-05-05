@@ -1,10 +1,12 @@
-import { Vector } from '../Math/vector';
+import type { Vector } from '../Math/vector';
 import { BoundingBox } from '../Collision/Index';
 import { Color } from '../Color';
-import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
-import { BaseAlign, Direction, FontOptions, FontStyle, FontUnit, TextAlign, FontRenderer } from './FontCommon';
-import { Graphic, GraphicOptions } from './Graphic';
-import { RasterOptions } from './Raster';
+import type { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
+import type { FontOptions, FontRenderer } from './FontCommon';
+import { BaseAlign, Direction, FontStyle, FontUnit, TextAlign } from './FontCommon';
+import type { GraphicOptions } from './Graphic';
+import { Graphic } from './Graphic';
+import type { RasterOptions } from './Raster';
 import { ImageFiltering } from './Filtering';
 import { FontTextInstance } from './FontTextInstance';
 import { FontCache } from './FontCache';

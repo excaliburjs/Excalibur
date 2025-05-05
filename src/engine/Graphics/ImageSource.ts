@@ -1,12 +1,13 @@
 import { Resource } from '../Resources/Resource';
-import { Sprite, SpriteOptions } from './Sprite';
-import { Loadable } from '../Interfaces/Index';
+import type { SpriteOptions } from './Sprite';
+import { Sprite } from './Sprite';
+import type { Loadable } from '../Interfaces/Index';
 import { Logger } from '../Util/Log';
 import { ImageFiltering } from './Filtering';
 import { Future } from '../Util/Future';
 import { TextureLoader } from '../Graphics/Context/texture-loader';
 import { ImageWrapping } from './Wrapping';
-import { GraphicOptions } from './Graphic';
+import type { GraphicOptions } from './Graphic';
 
 export interface ImageSourceOptions {
   filtering?: ImageFiltering;

@@ -1,10 +1,11 @@
 /* eslint-disable storybook/context-in-play-function */
-import { Meta, StoryObj } from '@storybook/html';
+import type { Meta, StoryObj } from '@storybook/html';
 import { action } from '@storybook/addon-actions';
 import playIcon from '@fortawesome/fontawesome-free/svgs/solid/play.svg';
 import pauseIcon from '@fortawesome/fontawesome-free/svgs/solid/pause.svg';
 import stopIcon from '@fortawesome/fontawesome-free/svgs/solid/stop.svg';
-import { Actor, Sound, Loader, Color, NativeSoundEvent, EasingFunctions, NativeSoundProcessedEvent } from '../engine';
+import type { NativeSoundEvent, NativeSoundProcessedEvent } from '../engine';
+import { Actor, Sound, Loader, Color, EasingFunctions } from '../engine';
 import { ImageSource, Sprite } from '../engine/Graphics';
 import { withEngine } from './utils';
 

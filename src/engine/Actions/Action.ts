@@ -1,4 +1,4 @@
-import { Entity } from '../EntityComponentSystem/Entity';
+import type { Entity } from '../EntityComponentSystem/Entity';
 
 /**
  * Used for implementing actions for the {@apilink ActionContext | `Action API`}.

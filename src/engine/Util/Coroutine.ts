@@ -1,6 +1,6 @@
 import { createContext, useContext } from '../Context';
 import { Engine } from '../Engine';
-import { ScheduledCallbackTiming } from './Clock';
+import type { ScheduledCallbackTiming } from './Clock';
 import { Logger } from './Log';
 export type CoroutineGenerator = () => Generator<any | number | Promise<any> | undefined, void, number>;
 
