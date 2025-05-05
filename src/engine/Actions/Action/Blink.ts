@@ -1,6 +1,7 @@
 import { GraphicsComponent } from '../../Graphics/GraphicsComponent';
-import { Entity } from '../../EntityComponentSystem/Entity';
-import { Action, nextActionId } from '../Action';
+import type { Entity } from '../../EntityComponentSystem/Entity';
+import type { Action } from '../Action';
+import { nextActionId } from '../Action';
 
 export class Blink implements Action {
   id = nextActionId();

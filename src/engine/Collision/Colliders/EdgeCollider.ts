@@ -1,5 +1,5 @@
 import { BoundingBox } from '../BoundingBox';
-import { CollisionContact } from '../Detection/CollisionContact';
+import type { CollisionContact } from '../Detection/CollisionContact';
 import { CollisionJumpTable } from './CollisionJumpTable';
 import { CircleCollider } from './CircleCollider';
 import { PolygonCollider } from './PolygonCollider';
@@ -7,15 +7,15 @@ import { PolygonCollider } from './PolygonCollider';
 import { Projection } from '../../Math/projection';
 import { LineSegment } from '../../Math/line-segment';
 import { Vector } from '../../Math/vector';
-import { Ray } from '../../Math/ray';
-import { Color } from '../../Color';
+import type { Ray } from '../../Math/ray';
+import type { Color } from '../../Color';
 import { Collider } from './Collider';
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
-import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
-import { Transform } from '../../Math/transform';
+import type { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
+import type { Transform } from '../../Math/transform';
 import { AffineMatrix } from '../../Math/affine-matrix';
 import { BodyComponent } from '../Index';
-import { RayCastHit } from '../Detection/RayCastHit';
+import type { RayCastHit } from '../Detection/RayCastHit';
 
 export interface EdgeColliderOptions {
   /**

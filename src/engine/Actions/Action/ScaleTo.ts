@@ -1,8 +1,9 @@
 import { vec, Vector } from '../../Math/vector';
 import { MotionComponent } from '../../EntityComponentSystem/Components/MotionComponent';
 import { TransformComponent } from '../../EntityComponentSystem/Components/TransformComponent';
-import { Action, nextActionId } from '../Action';
-import { Entity } from '../../EntityComponentSystem/Entity';
+import type { Action } from '../Action';
+import { nextActionId } from '../Action';
+import type { Entity } from '../../EntityComponentSystem/Entity';
 import { clamp, lerpVector, remap } from '../../Math';
 
 export interface ScaleToOptions {
@@ -56,7 +57,8 @@ export class ScaleToWithOptions implements Action {
     const newScale = lerpVector(this._startScale, this._endScale, t);
     const currentScale = this._tx.scale;
 
-    const sx = newScale.sub(currentScale).scale(1 / (elapsed / 1000));
+    const seconds = elapsed / 1000;
+    const sx = newScale.sub(currentScale).scale(seconds === 0 ? 0 : 1 / seconds);
     this._motion.scaleFactor = sx;
 
     if (this.isComplete()) {

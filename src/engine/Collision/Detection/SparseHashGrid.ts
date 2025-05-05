@@ -1,6 +1,7 @@
 import { Color } from '../../Color';
-import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
-import { Vector, vec } from '../../Math/vector';
+import type { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
+import type { Vector } from '../../Math/vector';
+import { vec } from '../../Math/vector';
 import { RentalPool } from '../../Util/RentalPool';
 import { BoundingBox } from '../BoundingBox';
 

@@ -1,11 +1,13 @@
 import { MotionComponent } from '../../EntityComponentSystem/Components/MotionComponent';
 import { TransformComponent } from '../../EntityComponentSystem/Components/TransformComponent';
-import { Entity } from '../../EntityComponentSystem/Entity';
+import type { Entity } from '../../EntityComponentSystem/Entity';
 import { clamp, remap } from '../../Math';
 import { Vector, vec } from '../../Math/vector';
-import { EasingFunction, EasingFunctions } from '../../Util/EasingFunctions';
+import type { EasingFunction } from '../../Util/EasingFunctions';
+import { EasingFunctions } from '../../Util/EasingFunctions';
 import { Logger } from '../../Util/Log';
-import { Action, nextActionId } from '../Action';
+import type { Action } from '../Action';
+import { nextActionId } from '../Action';
 
 export interface MoveByOptions {
   offset: Vector;
@@ -57,8 +59,9 @@ export class MoveByWithOptions implements Action {
     const currentPos = this._tx.pos;
     const newPosX = this._easing(t, this._start.x, this._end.x, 1);
     const newPosY = this._easing(t, this._start.y, this._end.y, 1);
-    const velX = (newPosX - currentPos.x) / (elapsed / 1000);
-    const velY = (newPosY - currentPos.y) / (elapsed / 1000);
+    const seconds = elapsed / 1000;
+    const velX = seconds === 0 ? 0 : (newPosX - currentPos.x) / seconds;
+    const velY = seconds === 0 ? 0 : (newPosY - currentPos.y) / seconds;
     this._motion.vel.x = velX;
     this._motion.vel.y = velY;
 

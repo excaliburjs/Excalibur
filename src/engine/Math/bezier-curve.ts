@@ -1,5 +1,5 @@
 import { lerpVector, remap } from './lerp';
-import { Vector } from './vector';
+import type { Vector } from './vector';
 
 export interface BezierCurveOptions {
   /**

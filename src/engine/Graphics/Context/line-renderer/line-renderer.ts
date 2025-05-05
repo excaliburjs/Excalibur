@@ -1,9 +1,10 @@
-import { vec, Vector } from '../../../Math/vector';
-import { Color } from '../../../Color';
+import type { Vector } from '../../../Math/vector';
+import { vec } from '../../../Math/vector';
+import type { Color } from '../../../Color';
 import lineVertexSource from './line-vertex.glsl';
 import lineFragmentSource from './line-fragment.glsl';
-import { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
-import { RendererPlugin } from '../renderer';
+import type { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
+import type { RendererPlugin } from '../renderer';
 import { Shader, VertexBuffer, VertexLayout } from '../..';
 import { GraphicsDiagnostics } from '../../GraphicsDiagnostics';
 

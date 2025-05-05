@@ -1,4 +1,5 @@
-import { Action, nextActionId } from '../Action';
+import type { Action } from '../Action';
+import { nextActionId } from '../Action';
 
 export class CallMethod implements Action {
   id = nextActionId();

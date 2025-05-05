@@ -1,4 +1,4 @@
-import { WheelDeltaMode } from './WheelDeltaMode';
+import type { WheelDeltaMode } from './WheelDeltaMode';
 
 export class WheelEvent {
   public active = true;

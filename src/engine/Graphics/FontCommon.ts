@@ -1,7 +1,7 @@
-import { BoundingBox } from '../Collision/BoundingBox';
-import { Color } from '../Color';
-import { Vector } from '../Math/vector';
-import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
+import type { BoundingBox } from '../Collision/BoundingBox';
+import type { Color } from '../Color';
+import type { Vector } from '../Math/vector';
+import type { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 
 /**
  * Enum representing the different font size units

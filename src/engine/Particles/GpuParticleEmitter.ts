@@ -1,14 +1,17 @@
-import { Engine } from '../Engine';
+import type { Engine } from '../Engine';
 import { Actor } from '../Actor';
 import { EmitterType } from './EmitterType';
-import { ParticleEmitterArgs, ParticleTransform } from './Particles';
-import { GpuParticleConfig, GpuParticleRenderer } from './GpuParticleRenderer';
+import type { ParticleEmitterArgs } from './Particles';
+import { ParticleTransform } from './Particles';
+import type { GpuParticleConfig } from './GpuParticleRenderer';
+import { GpuParticleRenderer } from './GpuParticleRenderer';
 import { GraphicsComponent } from '../Graphics/GraphicsComponent';
 import { Random } from '../Math/Random';
-import { vec, Vector } from '../Math/vector';
+import type { Vector } from '../Math/vector';
+import { vec } from '../Math/vector';
 import { clamp } from '../Math';
-import { ExcaliburGraphicsContextWebGL } from '../Graphics/Context/ExcaliburGraphicsContextWebGL';
-import { ParticleRenderer } from '../Graphics/Context/particle-renderer/particle-renderer';
+import type { ExcaliburGraphicsContextWebGL } from '../Graphics/Context/ExcaliburGraphicsContextWebGL';
+import type { ParticleRenderer } from '../Graphics/Context/particle-renderer/particle-renderer';
 
 export class GpuParticleEmitter extends Actor {
   public particle: GpuParticleConfig = {

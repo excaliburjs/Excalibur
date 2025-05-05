@@ -1,4 +1,4 @@
-import { CollisionContact } from '../Detection/CollisionContact';
+import type { CollisionContact } from '../Detection/CollisionContact';
 
 /**
  * A collision solver figures out how to position colliders such that they are no longer overlapping

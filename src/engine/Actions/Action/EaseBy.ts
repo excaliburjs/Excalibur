@@ -1,8 +1,9 @@
 import { MotionComponent } from '../../EntityComponentSystem/Components/MotionComponent';
 import { TransformComponent } from '../../EntityComponentSystem/Components/TransformComponent';
-import { Entity } from '../../EntityComponentSystem/Entity';
+import type { Entity } from '../../EntityComponentSystem/Entity';
 import { vec, Vector } from '../../Math/vector';
-import { Action, nextActionId } from '../Action';
+import type { Action } from '../Action';
+import { nextActionId } from '../Action';
 
 /**
  * @deprecated use moveBy({offset: Vector, duration: number, easing: EasingFunction})
@@ -63,7 +64,8 @@ export class EaseBy implements Action {
         newY = this.easingFcn(this._currentLerpTime, this._lerpStart.y, this._lerpEnd.y, this._lerpDuration);
       }
       // Given the lerp position figure out the velocity in pixels per second
-      this._motion.vel = vec((newX - this._tx.pos.x) / (elapsed / 1000), (newY - this._tx.pos.y) / (elapsed / 1000));
+      const seconds = elapsed / 1000;
+      this._motion.vel = vec(seconds === 0 ? 0 : (newX - this._tx.pos.x) / seconds, seconds === 0 ? 0 : (newY - this._tx.pos.y) / seconds);
     } else {
       this._tx.pos = vec(this._lerpEnd.x, this._lerpEnd.y);
       this._motion.vel = Vector.Zero;
