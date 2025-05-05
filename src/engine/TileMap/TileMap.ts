@@ -532,18 +532,16 @@ export class TileMap extends Entity implements HasNestedPointerEvents {
    * Useful if you need to perform specific logic on onscreen tiles
    */
   public getOnScreenTiles(): readonly Tile[] {
-    let worldBounds = this._engine.screen.getWorldBounds();
+    const worldBounds = this._engine.screen.getWorldBounds();
+    let parallaxOffset = vec(0, 0);
+    let bounds = this.transform.coordPlane === CoordPlane.Screen ? this._engine.screen.getScreenBounds() : worldBounds;
     const maybeParallax = this.get(ParallaxComponent);
     if (maybeParallax && this.isInitialized) {
-      let pos = this.pos;
       const oneMinusFactor = Vector.One.sub(maybeParallax.parallaxFactor);
-      const parallaxOffset = this._engine.currentScene.camera.pos.scale(oneMinusFactor);
-      pos = pos.sub(parallaxOffset);
-      // adjust world bounds by parallax factor
-      worldBounds = worldBounds.translate(pos);
+      parallaxOffset = this._engine.currentScene.camera.pos.scale(oneMinusFactor);
+      bounds = bounds.translate(parallaxOffset.negate());
     }
 
-    const bounds = this.transform.coordPlane === CoordPlane.Screen ? this._engine.screen.getScreenBounds() : worldBounds;
     const topLeft = this._getTileCoordinates(bounds.topLeft);
     const topRight = this._getTileCoordinates(bounds.topRight);
     const bottomRight = this._getTileCoordinates(bounds.bottomRight);
