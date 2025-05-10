@@ -274,6 +274,8 @@ export class ScreenAppender implements Appender {
     this._ctx = this.canvas.getContext('2d')!;
     this.canvas.style.position = 'absolute';
     this.canvas.style.zIndex = options.zIndex?.toString() ?? '99';
+    this.canvas.style.pointerEvents = 'none';
+    this.canvas.style.userSelect = 'none';
     document.body.appendChild(this.canvas);
     this._positionScreenAppenderCanvas();
     options.engine.screen.events.on('resize', () => {
