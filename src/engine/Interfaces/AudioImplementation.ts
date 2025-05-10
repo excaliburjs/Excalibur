@@ -1,4 +1,4 @@
-import { Audio } from './Audio';
+import type { Audio } from './Audio';
 
 export type ExResponseType = '' | 'arraybuffer' | 'blob' | 'document' | 'json' | 'text';
 

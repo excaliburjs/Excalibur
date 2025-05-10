@@ -1,10 +1,11 @@
 import { GraphicsComponent } from '../../Graphics/GraphicsComponent';
-import { Entity } from '../../EntityComponentSystem/Entity';
-import { Action, nextActionId } from '../Action';
-import { Actor } from '../../Actor';
-import { Material } from '../../Graphics/Context/material';
-import { Color } from '../../Color';
-import { Shader } from '../../Graphics/Context/shader';
+import type { Entity } from '../../EntityComponentSystem/Entity';
+import type { Action } from '../Action';
+import { nextActionId } from '../Action';
+import type { Actor } from '../../Actor';
+import type { Material } from '../../Graphics/Context/material';
+import type { Color } from '../../Color';
+import type { Shader } from '../../Graphics/Context/shader';
 
 export class Flash implements Action {
   id = nextActionId();

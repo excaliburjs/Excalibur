@@ -1,6 +1,7 @@
 import { AffineMatrix } from './affine-matrix';
 import { canonicalizeAngle, sign } from './util';
-import { vec, Vector } from './vector';
+import type { Vector } from './vector';
+import { vec } from './vector';
 import { VectorView } from './vector-view';
 import { WatchVector } from './watch-vector';
 

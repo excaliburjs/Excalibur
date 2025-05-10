@@ -1,9 +1,9 @@
-import { GarbageCollector } from '../../GarbageCollector';
+import type { GarbageCollector } from '../../GarbageCollector';
 import { Logger } from '../../Util/Log';
 import { ImageFiltering } from '../Filtering';
-import { ImageSourceOptions, ImageWrapConfiguration } from '../ImageSource';
+import type { ImageSourceOptions, ImageWrapConfiguration } from '../ImageSource';
 import { ImageWrapping } from '../Wrapping';
-import { HTMLImageSource } from './ExcaliburGraphicsContext';
+import type { HTMLImageSource } from './ExcaliburGraphicsContext';
 
 /**
  * Manages loading image sources into webgl textures, a unique id is associated with all sources

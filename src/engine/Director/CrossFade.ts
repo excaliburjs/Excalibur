@@ -1,7 +1,9 @@
-import { ImageSource, Sprite } from '../Graphics';
-import { Engine } from '../Engine';
-import { Scene } from '../Scene';
-import { Transition, TransitionOptions } from './Transition';
+import type { Sprite } from '../Graphics';
+import { ImageSource } from '../Graphics';
+import type { Engine } from '../Engine';
+import type { Scene } from '../Scene';
+import type { TransitionOptions } from './Transition';
+import { Transition } from './Transition';
 import { vec } from '../Math/vector';
 
 export interface CrossFadeOptions {

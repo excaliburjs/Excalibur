@@ -52,3 +52,6 @@ obj/
 *.suo
 *.map
 *.orig
+
+# Test outputs
+__screenshots__

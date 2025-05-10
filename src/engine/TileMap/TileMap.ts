@@ -1,28 +1,32 @@
 import { BoundingBox } from '../Collision/BoundingBox';
-import { Engine } from '../Engine';
+import type { Engine } from '../Engine';
 import { Vector, vec } from '../Math/vector';
 import { Logger } from '../Util/Log';
-import { Entity, EntityEvents } from '../EntityComponentSystem/Entity';
+import type { EntityEvents } from '../EntityComponentSystem/Entity';
+import { Entity } from '../EntityComponentSystem/Entity';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { BodyComponent } from '../Collision/BodyComponent';
 import { CollisionType } from '../Collision/CollisionType';
 import { Shape } from '../Collision/Colliders/Shape';
-import { ExcaliburGraphicsContext, Graphic, GraphicsComponent, hasGraphicsTick, ParallaxComponent } from '../Graphics';
+import type { ExcaliburGraphicsContext, Graphic } from '../Graphics';
+import { GraphicsComponent, hasGraphicsTick, ParallaxComponent } from '../Graphics';
 import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
 import { ColliderComponent } from '../Collision/ColliderComponent';
-import { CompositeCollider } from '../Collision/Colliders/CompositeCollider';
+import type { CompositeCollider } from '../Collision/Colliders/CompositeCollider';
 import { DebugGraphicsComponent } from '../Graphics/DebugGraphicsComponent';
-import { Collider } from '../Collision/Colliders/Collider';
+import type { Collider } from '../Collision/Colliders/Collider';
 import { PostDrawEvent, PostUpdateEvent, PreDrawEvent, PreUpdateEvent } from '../Events';
-import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
+import type { EventKey, Handler, Subscription } from '../EventEmitter';
+import { EventEmitter } from '../EventEmitter';
 import { CoordPlane } from '../Math/coord-plane';
-import { DebugConfig } from '../Debug';
+import type { DebugConfig } from '../Debug';
 import { clamp } from '../Math/util';
 import { PointerComponent } from '../Input/PointerComponent';
-import { PointerEvent } from '../Input/PointerEvent';
-import { PointerEventReceiver } from '../Input/PointerEventReceiver';
-import { HasNestedPointerEvents, PointerEventsToObjectDispatcher } from '../Input/PointerEventsToObjectDispatcher';
-import { GlobalCoordinates } from '../Math';
+import type { PointerEvent } from '../Input/PointerEvent';
+import type { PointerEventReceiver } from '../Input/PointerEventReceiver';
+import type { HasNestedPointerEvents } from '../Input/PointerEventsToObjectDispatcher';
+import { PointerEventsToObjectDispatcher } from '../Input/PointerEventsToObjectDispatcher';
+import type { GlobalCoordinates } from '../Math';
 
 export interface TileMapOptions {
   /**
@@ -528,18 +532,16 @@ export class TileMap extends Entity implements HasNestedPointerEvents {
    * Useful if you need to perform specific logic on onscreen tiles
    */
   public getOnScreenTiles(): readonly Tile[] {
-    let worldBounds = this._engine.screen.getWorldBounds();
+    const worldBounds = this._engine.screen.getWorldBounds();
+    let parallaxOffset = vec(0, 0);
+    let bounds = this.transform.coordPlane === CoordPlane.Screen ? this._engine.screen.getScreenBounds() : worldBounds;
     const maybeParallax = this.get(ParallaxComponent);
     if (maybeParallax && this.isInitialized) {
-      let pos = this.pos;
       const oneMinusFactor = Vector.One.sub(maybeParallax.parallaxFactor);
-      const parallaxOffset = this._engine.currentScene.camera.pos.scale(oneMinusFactor);
-      pos = pos.sub(parallaxOffset);
-      // adjust world bounds by parallax factor
-      worldBounds = worldBounds.translate(pos);
+      parallaxOffset = this._engine.currentScene.camera.pos.scale(oneMinusFactor);
+      bounds = bounds.translate(parallaxOffset.negate());
     }
 
-    const bounds = this.transform.coordPlane === CoordPlane.Screen ? this._engine.screen.getScreenBounds() : worldBounds;
     const topLeft = this._getTileCoordinates(bounds.topLeft);
     const topRight = this._getTileCoordinates(bounds.topRight);
     const bottomRight = this._getTileCoordinates(bounds.bottomRight);

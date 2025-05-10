@@ -1,14 +1,17 @@
-import { Component, ComponentCtor, isComponentCtor } from './Component';
+import type { ComponentCtor } from './Component';
+import { Component, isComponentCtor } from './Component';
 
-import { Observable, Message } from '../Util/Observable';
-import { OnInitialize, OnPreUpdate, OnPostUpdate, OnAdd, OnRemove } from '../Interfaces/LifecycleEvents';
-import { Engine } from '../Engine';
+import type { Message } from '../Util/Observable';
+import { Observable } from '../Util/Observable';
+import type { OnInitialize, OnPreUpdate, OnPostUpdate, OnAdd, OnRemove } from '../Interfaces/LifecycleEvents';
+import type { Engine } from '../Engine';
 import { InitializeEvent, PreUpdateEvent, PostUpdateEvent, AddEvent, RemoveEvent } from '../Events';
 import { KillEvent } from '../Events';
-import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
-import { Scene } from '../Scene';
+import type { EventKey, Handler, Subscription } from '../EventEmitter';
+import { EventEmitter } from '../EventEmitter';
+import type { Scene } from '../Scene';
 import { removeItemFromArray } from '../Util/Util';
-import { MaybeKnownComponent } from './Types';
+import type { MaybeKnownComponent } from './Types';
 import { Logger } from '../Util/Log';
 
 /**

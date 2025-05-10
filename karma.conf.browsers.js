@@ -27,7 +27,7 @@ module.exports = (config) => {
       '/src/' : '/base/src/'
     },
     files: [
-            'src/browsersupport/BrowserSupportSpec.ts',
+            'src/spec/karma/BrowserSupportSpec.ts',
            ],
     mime: { 'text/x-typescript': ['ts', 'tsx'] },
     preprocessors: {

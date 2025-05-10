@@ -1,5 +1,5 @@
 import { Vector } from '../../Math/vector';
-import { CollisionContact } from '../Detection/CollisionContact';
+import type { CollisionContact } from '../Detection/CollisionContact';
 
 /**
  * Holds information about contact points, meant to be reused over multiple frames of contact

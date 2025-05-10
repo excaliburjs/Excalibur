@@ -1,13 +1,13 @@
-﻿import { FrameStats } from '../../Debug';
-import { Pair } from './Pair';
-import { Collider } from '../Colliders/Collider';
-import { CollisionContact } from './CollisionContact';
-import { RayCastOptions } from './RayCastOptions';
-import { Ray } from '../../Math/ray';
-import { RayCastHit } from './RayCastHit';
-import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
-import { BoundingBox } from '../BoundingBox';
-import { Vector } from '../../Math/vector';
+﻿import type { FrameStats } from '../../Debug';
+import type { Pair } from './Pair';
+import type { Collider } from '../Colliders/Collider';
+import type { CollisionContact } from './CollisionContact';
+import type { RayCastOptions } from './RayCastOptions';
+import type { Ray } from '../../Math/ray';
+import type { RayCastHit } from './RayCastHit';
+import type { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
+import type { BoundingBox } from '../BoundingBox';
+import type { Vector } from '../../Math/vector';
 
 /**
  * Definition for collision processor

@@ -1,7 +1,7 @@
 import { Entity } from './Entity';
-import { World } from './World';
+import type { World } from './World';
 import { removeItemFromArray } from '../Util/Util';
-import { Scene } from '../Scene';
+import type { Scene } from '../Scene';
 
 // Add/Remove entities and components
 

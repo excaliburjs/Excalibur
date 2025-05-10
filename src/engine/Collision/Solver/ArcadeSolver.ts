@@ -1,12 +1,13 @@
 import { PostCollisionEvent, PreCollisionEvent } from '../../Events';
-import { CollisionContact } from '../Detection/CollisionContact';
+import type { CollisionContact } from '../Detection/CollisionContact';
 import { CollisionType } from '../CollisionType';
 import { Side } from '../Side';
-import { CollisionSolver } from './Solver';
+import type { CollisionSolver } from './Solver';
 import { BodyComponent } from '../BodyComponent';
-import { ContactBias, ContactSolveBias, HorizontalFirst, None, VerticalFirst } from './ContactBias';
-import { PhysicsConfig } from '../PhysicsConfig';
-import { DeepRequired } from '../../Util/Required';
+import type { ContactBias } from './ContactBias';
+import { ContactSolveBias, HorizontalFirst, None, VerticalFirst } from './ContactBias';
+import type { PhysicsConfig } from '../PhysicsConfig';
+import type { DeepRequired } from '../../Util/Required';
 
 /**
  * ArcadeSolver is the default in Excalibur. It solves collisions so that there is no overlap between contacts,

@@ -1,15 +1,16 @@
 import { GraphicsComponent } from './GraphicsComponent';
 import { EnterViewPortEvent, ExitViewPortEvent } from '../Events';
-import { Scene } from '../Scene';
-import { Screen } from '../Screen';
+import type { Scene } from '../Scene';
+import type { Screen } from '../Screen';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
-import { Camera } from '../Camera';
+import type { Camera } from '../Camera';
 import { System, SystemType } from '../EntityComponentSystem/System';
 import { ParallaxComponent } from './ParallaxComponent';
 import { Vector } from '../Math/vector';
 import { CoordPlane } from '../Math/coord-plane';
-import { BoundingBox } from '../Collision/BoundingBox';
-import { Query, SystemPriority, World } from '../EntityComponentSystem';
+import type { BoundingBox } from '../Collision/BoundingBox';
+import type { Query, World } from '../EntityComponentSystem';
+import { SystemPriority } from '../EntityComponentSystem';
 
 export class OffscreenSystem extends System {
   static priority: number = SystemPriority.Higher;

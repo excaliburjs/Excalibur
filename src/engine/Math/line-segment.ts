@@ -1,4 +1,4 @@
-import { AffineMatrix } from './affine-matrix';
+import type { AffineMatrix } from './affine-matrix';
 import { Vector } from './vector';
 
 /**

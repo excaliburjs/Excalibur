@@ -2,8 +2,8 @@ import { BoundingBox } from '../Collision/BoundingBox';
 import { Color } from '../Color';
 import { line } from '../Util/DrawUtil';
 import { ExcaliburGraphicsContextWebGL } from './Context/ExcaliburGraphicsContextWebGL';
-import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
-import { Font } from './Font';
+import type { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
+import type { Font } from './Font';
 
 export class FontTextInstance {
   public canvas: HTMLCanvasElement;
