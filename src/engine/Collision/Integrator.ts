@@ -1,5 +1,5 @@
 import { Vector } from '../Math/vector';
-import type { TransformComponent } from '../EntityComponentSystem';
+import type { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import type { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
 
 export class EulerIntegrator {
