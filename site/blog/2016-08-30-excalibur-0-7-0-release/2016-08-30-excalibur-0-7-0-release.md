@@ -28,6 +28,6 @@ We’ve removed a number of deprecated methods. Check the [changelog](https://gi
 
 ## Contributing
 
-We have improved our contributing document to make it easier to jump into Excalibur development. If you’re interested in helping out, read through our [new Contributing documentation](https://github.com/excaliburjs/Excalibur/blob/main/.github/CONTRIBUTING.md)
+We have improved our contributing document to make it easier to jump into Excalibur development. If you’re interested in helping out, read through our [new Contributing documentation](https://github.com/excaliburjs/Excalibur/blob/main/CONTRIBUTING.md)
 
 Overall there were over 27 issues addressed in this release. Check out the full release notes for all of the details, including bug fixes and enhancements.
