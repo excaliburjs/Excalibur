@@ -19,10 +19,7 @@ export class EulerIntegrator {
     // integration is done in a tight loop so this is key to avoid GC'ing
     motion.vel.addEqual(totalAcc.scale(seconds, EulerIntegrator._ACC));
     // clamp the components of the velocity vector
-    motion.vel.setTo(
-      clamp(motion.vel.x, -motion.maxVel.x, motion.maxVel.x),
-      clamp(motion.vel.y, -motion.maxVel.y, motion.maxVel.y)
-    );
+    motion.vel.setTo(clamp(motion.vel.x, -motion.maxVel.x, motion.maxVel.x), clamp(motion.vel.y, -motion.maxVel.y, motion.maxVel.y));
 
     transform.pos
       .add(motion.vel.scale(seconds, EulerIntegrator._VEL), EulerIntegrator._POS)
