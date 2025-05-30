@@ -22,8 +22,7 @@ export class Meet implements Action {
   private _speedWasSpecified = false;
   private _tolerance = 1;
 
-
-  constructor(actor: Entity, actorToMeet: Entity, speed?: number, tolerance?: number ) {
+  constructor(actor: Entity, actorToMeet: Entity, speed?: number, tolerance?: number) {
     this._tx = actor.get(TransformComponent);
     this._motion = actor.get(MotionComponent);
     this._meetTx = actorToMeet.get(TransformComponent);
@@ -36,7 +35,7 @@ export class Meet implements Action {
       this._speedWasSpecified = true;
     }
 
-    if(tolerance !== undefined) {
+    if (tolerance !== undefined) {
       this._tolerance = tolerance;
     }
   }
