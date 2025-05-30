@@ -110,7 +110,7 @@
     "cross-env": "7.0.3",
     "css-loader": "6.11.0",
     "eslint": "8.57.1",
-    "eslint-config-prettier": "9.1.0",
+    "eslint-config-prettier": "10.1.5",
     "eslint-plugin-jsdoc": "50.6.11",
     "eslint-plugin-storybook": "0.12.0",
     "excalibur-jasmine": "0.3.8",
