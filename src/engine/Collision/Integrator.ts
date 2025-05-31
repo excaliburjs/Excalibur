@@ -1,7 +1,7 @@
 import { Vector } from '../Math/vector';
-import { clamp } from '../Math';
-import type { TransformComponent } from '../EntityComponentSystem';
+import type { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import type { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
+import { clamp } from '../Math';
 
 export class EulerIntegrator {
   // Scratch vectors to avoid allocation
