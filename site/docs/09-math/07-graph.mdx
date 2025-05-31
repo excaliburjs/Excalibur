@@ -65,13 +65,14 @@ graph.deleteEdge(edges[0]);
 
 ### Node Types
 
-The Graph module supports several node types:
+The Graph module supports two node types:
 
 Node: Basic graph node with data
+
 PositionNode: Node with 2D spatial coordinates, uses Excalibur's Native Vector type for position
 
 ```ts
-// Add positioned nodes, whe Vector positions are attached to nodes, it returns a PositionNode
+// Add positioned nodes, when Vector positions are attached to nodes, it returns a PositionNode
 const nodeA = graph.addNode("A", new Vector(0, 0));
 const nodeB = graph.addNode("B", new Vector(5, 10));
 const nodeC = graph.addNode("C", new Vector(10, 5));
