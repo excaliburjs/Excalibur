@@ -24,14 +24,14 @@ module.exports = (config) => {
     },
     proxies: {
       // smooths over loading files because karma prepends '/base/' to everything
-      '/src/' : '/base/src/'
+      '/src/': '/base/src/'
     },
     files: [
-            'src/spec/karma/BrowserSupportSpec.ts',
-           ],
+      'src/spec/karma/BrowserSupportSpec.ts',
+    ],
     mime: { 'text/x-typescript': ['ts', 'tsx'] },
     preprocessors: {
-      './src/browsersupport/BrowserSupportSpec.ts': ['webpack']
+      'src/spec/karma/BrowserSupportSpec.ts': ['webpack']
     },
     webpack: {
       mode: 'none',
@@ -90,9 +90,9 @@ module.exports = (config) => {
       }
     },
     webpackMiddleware: {
-    // webpack-dev-middleware configuration
-    // i. e.
-        stats: 'normal'
+      // webpack-dev-middleware configuration
+      // i. e.
+      stats: 'normal'
     },
     reporters: ['progress', 'summary'],
     summaryReporter: {
@@ -105,11 +105,11 @@ module.exports = (config) => {
       // Show a list of test clients, 'always', 'never' or 'ifneeded'
       browserList: 'always'
     },
-    browserDisconnectTimeout : 10000,
-    browserDisconnectTolerance : 1,
+    browserDisconnectTimeout: 10000,
+    browserDisconnectTolerance: 1,
     browserNoActivityTimeout: 60000, // appveyor is slow :(
-    captureTimeout : 4*60*1000,
-      // define browsers
+    captureTimeout: 4 * 60 * 1000,
+    // define browsers
     customLaunchers: {
       bs_latest_chrome_win10: {
         base: 'BrowserStack',
