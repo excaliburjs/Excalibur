@@ -16,6 +16,23 @@ describe('EulerIntegrator', () => {
     expect(transform.pos.y).toEqual(1);
   });
 
+  it('clamps motion velocity to maxVel', () => {
+    const transform = new TransformComponent();
+    const motion = new MotionComponent();
+    const totalAcc = new Vector(0, 0);
+    const elapsed = 500;
+
+    motion.vel = new Vector(-5, 5);
+    motion.maxVel = new Vector(-2, 2);
+
+    EulerIntegrator.integrate(transform, motion, totalAcc, elapsed);
+
+    expect(motion.vel.x).toEqual(-2);
+    expect(motion.vel.y).toEqual(2);
+    expect(transform.pos.x).toEqual(-1);
+    expect(transform.pos.y).toEqual(1);
+  });
+
   it('applies totalAcc', () => {
     const transform = new TransformComponent();
     const motion = new MotionComponent();
