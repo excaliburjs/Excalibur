@@ -5,19 +5,19 @@ import clsx from 'clsx';
 const data = [
   {
     title: '1 Hour of Excalibur Support',
-    link: 'https://savvycal.com/excalibur/support-1-hour',
+    link: 'https://cal.com/caliburn-games/1-hour-support',
     description: 'Book 1 hour of dedicated time with an Excalibur core maintainer. We will meet over a video call to discuss and work to provide you the information, issue resolution, debugging, or custom development you need.',
     price: '$100'
   },
   {
     title: '2 Hours of Excalibur Support',
-    link: 'https://savvycal.com/excalibur/support-2-hour',
+    link: 'https://cal.com/caliburn-games/2-hour-support',
     description: 'Book 2 hours of dedicated time with an Excalibur core maintainer. We will meet over a video call to discuss and work to provide you the information, issue resolution, debugging, or custom development you need.',
     price: '$180'
   },
   {
     title: 'Custom Development Project',
-    link: 'https://savvycal.com/excalibur/custom-quote',
+    link: 'https://cal.com/caliburn-games/30min',
     description: 'Schedule a free 30 minute meeting to get a quote for your project. This work would involve a maintainer writing custom code for your game, either in Excalibur, building a new plugin, or directly in your code base.',
     price: 'Starts at $4000'
   }
@@ -51,10 +51,10 @@ export default function Support() {
     <Layout
       title='Premium Support'
       description='Excalibur maintainers offer premium support through Caliburn Games LLC'
-      >
+    >
       <main className={styles.main}>
         <div className="ui container">
-        <h2>Book Premium Support</h2>
+          <h2>Book Premium Support</h2>
 
           <hr></hr>
           <p>

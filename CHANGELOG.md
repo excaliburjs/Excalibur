@@ -20,9 +20,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Added ability to use `ex.Vector` to specify offset and margin in `SpriteSheet.fromImageSource({..})`
 - New PostProcessor.onDraw() hook to handle uploading textures
 - Adds contact solve bias to RealisticSolver, this allows customization on which direction contacts are solved first. By default there is no bias set to 'none'.
+- Adds `maxVel` attribute to `MotionComponent`, which clamps velocity on separated X and Y axes
 
 ### Fixed
 
+- Fixed issue where the Actor.color did not respect being set
 - Fixed offscreen culling issue when using parallax on TileMaps
 - Fixed division by 0 when timescale is 0 in actions
 - Fixed `onTransition` on the initial scene transition

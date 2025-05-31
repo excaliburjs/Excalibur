@@ -190,6 +190,19 @@ describe('A game actor', () => {
     expect(actor.graphics.anchor).toBeVector(ex.vec(0, 0));
   });
 
+  it("can have it's color changed after construction", () => {
+    const actor = new ex.Actor({ color: ex.Color.Blue, width: 50, height: 50 });
+    const current = actor.graphics.current;
+    expect(current).toBeInstanceOf(ex.Raster);
+    if (current instanceof ex.Raster) {
+      expect(current.color).toStrictEqual(ex.Color.Blue);
+
+      actor.color = ex.Color.Black;
+
+      expect(current.color).toStrictEqual(ex.Color.Black);
+    }
+  });
+
   it('will inherit the scene from the parent entity after being added', () => {
     const parent = new ex.Actor();
     const child = new ex.Actor();

@@ -177,7 +177,7 @@ export class GraphicsComponent extends Component {
   public set color(v: Color | undefined) {
     if (v) {
       this._color = v.clone();
-      const currentGraphic = this.graphics.current;
+      const currentGraphic = this.current;
       if (currentGraphic instanceof Raster || currentGraphic instanceof Text) {
         currentGraphic.color = this._color;
       }
