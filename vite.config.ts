@@ -1,12 +1,12 @@
 import * as path from 'path';
+import * as fs from 'fs';
 import type { ResolvedConfig } from 'vite';
 import { defineConfig, mergeConfig } from 'vite';
 import banner from 'vite-plugin-banner';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
+import versioner from './version';
 
-const pkg = require('./package.json');
-const versioner = require('./version');
-
+const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
 const now = new Date();
 const dt = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
 const version = process.env.release ? versioner.getReleaseVersion() : versioner.getAlphaVersion();
