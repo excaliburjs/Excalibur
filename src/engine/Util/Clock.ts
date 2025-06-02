@@ -42,7 +42,7 @@ export abstract class Clock {
   private _lastTime: number = 0;
   public fpsSampler: FpsSampler;
   private _options: ClockOptions;
-  private _elapsed: number = 1;  
+  private _elapsed: number = 1;
   private _scheduledCbs: [id: ScheduleId, cb: (elapsed: number) => any, scheduledTime: number, timing: ScheduledCallbackTiming][] = [];
   private _totalElapsed: number = 0;
   private _nextScheduleId: ScheduleId = 0;
@@ -108,7 +108,7 @@ export abstract class Clock {
     this._scheduledCbs.push([id, cb, scheduledTime, timing]);
     return id;
   }
-  
+
   /**
    * Clears a scheduled callback using the ID returned from {@apilink schedule}
    * @param id The ID of the scheduled callback to clear
@@ -127,7 +127,7 @@ export abstract class Clock {
   public __runScheduledCbs(timing: ScheduledCallbackTiming = 'preframe') {
     // walk backwards to delete items as we loop
     for (let i = this._scheduledCbs.length - 1; i > -1; i--) {
-      const [id, callback, scheduledTime, callbackTiming] = this._scheduledCbs[i];
+      const [_, callback, scheduledTime, callbackTiming] = this._scheduledCbs[i];
       if (timing === callbackTiming && scheduledTime <= this._totalElapsed) {
         callback(this._elapsed);
         this._scheduledCbs.splice(i, 1);
