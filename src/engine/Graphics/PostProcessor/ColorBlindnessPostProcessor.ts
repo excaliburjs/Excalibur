@@ -1,4 +1,4 @@
-import colorBlindCorrectSource from './color-blind-fragment.glsl';
+import colorBlindCorrectSource from './color-blind-fragment.glsl?raw';
 import type { PostProcessor } from './PostProcessor';
 import { ColorBlindnessMode } from './ColorBlindnessMode';
 import type { Shader } from '../Context/shader';

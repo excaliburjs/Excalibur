@@ -10,8 +10,8 @@ import { Shader } from '../shader';
 import { VertexBuffer } from '../vertex-buffer';
 import { VertexLayout } from '../vertex-layout';
 
-import frag from './circle-renderer.frag.glsl';
-import vert from './circle-renderer.vert.glsl';
+import frag from './circle-renderer.frag.glsl?raw';
+import vert from './circle-renderer.vert.glsl?raw';
 
 export class CircleRenderer implements RendererPlugin {
   public readonly type = 'ex.circle';
