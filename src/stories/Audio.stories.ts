@@ -1,5 +1,5 @@
 /* eslint-disable storybook/context-in-play-function */
-import type { Meta, StoryObj } from '@storybook/html';
+import type { Meta, StoryObj } from '@storybook/html-vite';
 import { action } from 'storybook/actions';
 import playIcon from '@fortawesome/fontawesome-free/svgs/solid/play.svg';
 import pauseIcon from '@fortawesome/fontawesome-free/svgs/solid/pause.svg';

@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/html';
+import type { Meta, StoryObj } from '@storybook/html-vite';
 import type { Keys } from '../engine';
 import { Label, Color } from '../engine';
 import { withEngine } from './utils';
