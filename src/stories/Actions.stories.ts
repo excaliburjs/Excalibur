@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/html';
+import type { Meta, StoryObj } from '@storybook/html-vite';
 import { Actor, Loader, EasingFunctions, RotationType } from '../engine';
 import { ImageSource } from '../engine/Graphics';
 import { enumToControlSelectLabels, enumToControlSelectOptions, withEngine } from './utils';

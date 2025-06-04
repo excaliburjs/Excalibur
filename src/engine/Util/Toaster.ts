@@ -1,4 +1,4 @@
-import toasterCss from './Toaster.css';
+import toasterCss from './Toaster.css?inline';
 
 /**
  * The Toaster is only meant to be called from inside Excalibur to display messages to players
@@ -6,7 +6,7 @@ import toasterCss from './Toaster.css';
 export class Toaster {
   private _styleBlock: HTMLStyleElement;
   private _container: HTMLDivElement;
-  private _toasterCss: string = toasterCss.toString();
+  private _toasterCss: string = toasterCss;
 
   private _isInitialized = false;
   private _initialize() {

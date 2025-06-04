@@ -1,5 +1,5 @@
-import pointVertexSource from './point-vertex.glsl';
-import pointFragmentSource from './point-fragment.glsl';
+import pointVertexSource from './point-vertex.glsl?raw';
+import pointFragmentSource from './point-fragment.glsl?raw';
 import type { Vector } from '../../../Math/vector';
 import type { Color } from '../../../Color';
 import type { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';

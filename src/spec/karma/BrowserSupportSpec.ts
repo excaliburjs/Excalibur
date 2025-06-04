@@ -1,5 +1,3 @@
-import * as ex from '@excalibur';
-
 describe('Browser integration test', () => {
   it('should boot on browser', (done) => {
     const boot = () => {

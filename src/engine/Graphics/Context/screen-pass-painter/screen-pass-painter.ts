@@ -1,5 +1,5 @@
-import screenVertex from './screen-vertex.glsl';
-import screenFragment from './screen-fragment.glsl';
+import screenVertex from './screen-vertex.glsl?raw';
+import screenFragment from './screen-fragment.glsl?raw';
 import { Shader } from '../shader';
 import { VertexBuffer } from '../vertex-buffer';
 import { VertexLayout } from '../vertex-layout';
