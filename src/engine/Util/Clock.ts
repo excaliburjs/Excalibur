@@ -3,6 +3,11 @@ import { FpsSampler } from './Fps';
 
 export type ScheduledCallbackTiming = 'preframe' | 'postframe' | 'preupdate' | 'postupdate' | 'predraw' | 'postdraw';
 
+/**
+ * Unique identifier for a scheduled callback
+ */
+export type ScheduleId = number;
+
 export interface ClockOptions {
   /**
    * Define the function you'd like the clock to tick when it is started
@@ -38,8 +43,9 @@ export abstract class Clock {
   public fpsSampler: FpsSampler;
   private _options: ClockOptions;
   private _elapsed: number = 1;
-  private _scheduledCbs: [cb: (elapsed: number) => any, scheduledTime: number, timing: ScheduledCallbackTiming][] = [];
+  private _scheduledCbs: [id: ScheduleId, cb: (elapsed: number) => any, scheduledTime: number, timing: ScheduledCallbackTiming][] = [];
   private _totalElapsed: number = 0;
+  private _nextScheduleId: ScheduleId = 0;
   constructor(options: ClockOptions) {
     this._options = options;
     this.tick = options.tick;
@@ -84,7 +90,6 @@ export abstract class Clock {
   public setFatalExceptionHandler(handler: (e: unknown) => any) {
     this._onFatalException = handler;
   }
-
   /**
    * Schedule a callback to fire given a timeout in milliseconds using the excalibur {@apilink Clock}
    *
@@ -94,13 +99,26 @@ export abstract class Clock {
    * @param cb callback to fire
    * @param timeoutMs Optionally specify a timeout in milliseconds from now, default is 0ms which means the next possible tick
    * @param timing Optionally specify a timeout in milliseconds from now, default is 0ms which means the next possible tick
+   * @returns A unique identifier that can be used to clear the scheduled callback with {@apilink clearSchedule}
    */
-  public schedule(cb: (elapsed: number) => any, timeoutMs: number = 0, timing: ScheduledCallbackTiming = 'preframe') {
+  public schedule(cb: (elapsed: number) => any, timeoutMs: number = 0, timing: ScheduledCallbackTiming = 'preframe'): ScheduleId {
     // Scheduled based on internal elapsed time
     const scheduledTime = this._totalElapsed + timeoutMs;
-    this._scheduledCbs.push([cb, scheduledTime, timing]);
+    const id = this._nextScheduleId++;
+    this._scheduledCbs.push([id, cb, scheduledTime, timing]);
+    return id;
   }
 
+  /**
+   * Clears a scheduled callback using the ID returned from {@apilink schedule}
+   * @param id The ID of the scheduled callback to clear
+   */
+  public clearSchedule(id: ScheduleId): void {
+    const index = this._scheduledCbs.findIndex(([scheduleId]) => scheduleId === id);
+    if (index !== -1) {
+      this._scheduledCbs.splice(index, 1);
+    }
+  }
   /**
    * Called internally to trigger scheduled callbacks in the clock
    * @param timing
@@ -109,8 +127,9 @@ export abstract class Clock {
   public __runScheduledCbs(timing: ScheduledCallbackTiming = 'preframe') {
     // walk backwards to delete items as we loop
     for (let i = this._scheduledCbs.length - 1; i > -1; i--) {
-      if (timing === this._scheduledCbs[i][2] && this._scheduledCbs[i][1] <= this._totalElapsed) {
-        this._scheduledCbs[i][0](this._elapsed);
+      const [_, callback, scheduledTime, callbackTiming] = this._scheduledCbs[i];
+      if (timing === callbackTiming && scheduledTime <= this._totalElapsed) {
+        callback(this._elapsed);
         this._scheduledCbs.splice(i, 1);
       }
     }

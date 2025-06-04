@@ -106,6 +106,30 @@ describe('Clocks', () => {
       expect(scheduledCb2).toHaveBeenCalledTimes(1);
     });
 
+    it('can clear a scheduled callback', async () => {
+      const testClock = new ex.TestClock({
+        tick: () => {
+          /* nothing */
+        },
+        defaultUpdateMs: 1000
+      });
+      testClock.start();
+
+      const scheduledCb = vi.fn();
+
+      const schedule = testClock.schedule(scheduledCb, 1000);
+
+      expect(scheduledCb).not.toHaveBeenCalled();
+
+      await testClock.step(500);
+      expect(scheduledCb).not.toHaveBeenCalled();
+
+      testClock.clearSchedule(schedule);
+
+      await testClock.step(500);
+      expect(scheduledCb).not.toHaveBeenCalled();
+    });
+
     it('can limit fps', () => {
       const tickSpy = vi.fn();
       const clock = new ex.TestClock({

@@ -21,6 +21,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - New PostProcessor.onDraw() hook to handle uploading textures
 - Adds contact solve bias to RealisticSolver, this allows customization on which direction contacts are solved first. By default there is no bias set to 'none'.
 - Adds `maxVel` attribute to `MotionComponent`, which clamps velocity on separated X and Y axes
+- Add `Clock.clearSchedule(id)` and have `Clock.schedule` return an ID so you can clear a scheduled callback before it fires
 
 ### Fixed
 
