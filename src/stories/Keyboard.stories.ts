@@ -30,7 +30,7 @@ export const KeyEvents: StoryObj = {
       if (keys.length === 0) {
         keyLabel.text = 'Press some keys';
       } else {
-        const lastKeysPressed = keys.map((k) => k as Keys).join('');
+        lastKeysPressed = keys.map((k) => k as Keys).join('');
         keyLabel.text = lastKeysPressed;
       }
     });

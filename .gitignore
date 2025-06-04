@@ -56,3 +56,6 @@ obj/
 # Test outputs
 __screenshots__
 browserstack.err
+
+*storybook.log
+storybook-static

@@ -6,8 +6,10 @@ webpack.config.js
 webpack.config.prod.js
 wallaby.js
 version.js
+vite.config.common.js
 node_modules
 build
 coverage
 node_cache
 *.d.ts
+build-storybook

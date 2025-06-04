@@ -1,6 +1,10 @@
-import { defineConfig } from 'vite';
+/**
+ * This is a .js file instead of .ts so that storybook can import it
+ */
 
-const versioner = require('./version');
+import { defineConfig } from 'vite';
+import versioner from './version.js';
+
 const version = process.env.release ? versioner.getReleaseVersion() : versioner.getAlphaVersion();
 
 /**
