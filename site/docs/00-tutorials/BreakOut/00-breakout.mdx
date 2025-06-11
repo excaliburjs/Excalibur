@@ -91,6 +91,8 @@ Below we are going to create the paddle Actor for our Breakout game. Actors can 
 // @include: ex
 declare const game: ex.Engine;
 // ---cut---
+import { Engine, Actor, Color, CollisionType } from 'excalibur';
+
 // Create an actor with x position of 150px,
 // y position of 40px from the bottom of the screen,
 // width of 200px and a height of 20px
@@ -111,6 +113,7 @@ paddle.body.collisionType = CollisionType.Fixed;
 // `game.add` is the same as calling
 // `game.currentScene.add`
 game.add(paddle);
+game.start();
 ```
 
 Open up your favorite browser and you should see something like this:
@@ -151,6 +154,8 @@ Read more about the different [CollisionTypes](/docs/physics/#collision-types) t
 declare const game: ex.Engine;
 declare const paddle: ex.Actor;
 // ---cut---
+import { Engine, Actor, Color, CollisionType, vec } from 'excalibur';
+
 // Create a ball at pos (100, 300) to start
 const ball = new Actor({
   x: 100,
@@ -161,6 +166,7 @@ const ball = new Actor({
   color: Color.Red,
 });
 // Start the serve after a second
+// Create a new vector instance towards bottom right
 const ballSpeed = vec(100, 100);
 setTimeout(() => {
   // Set the velocity in pixels per second
@@ -175,8 +181,12 @@ ball.body.collisionType = CollisionType.Passive;
 // "ex.CollisionType.Active - this means participate and let excalibur resolve the positions/velocities of actors after collision"
 // "ex.CollisionType.Fixed - this means participate, but this object is unmovable"
 
-// Add the ball to the current scene
+// Add paddle and ball to the current scene
+game.add(paddle);
 game.add(ball);
+
+// Start game
+game.start();
 ```
 
 The ball is now setup to move at 100 pixels per second down and right. Next we will make the ball bounce off the side of the screen. Let’s take advantage of the `postupdate` event.
