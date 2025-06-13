@@ -6,9 +6,16 @@ section: Fundamentals
 
 The Excalibur mainloop, the infinite update and draw cycle, is driven by the [[Clock]].
 
+```twoslash include ex
+/// <reference path="../src/engine/excalibur.d.ts" />
+declare const game: ex.Engine;
+```
+
 ## Standard clock
 
 The standard clock is the default, and runs continuously once started. The internal implementation uses the browser [`requestAnimationFrame()`](https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame) to drive each game tick.
+
+### Limiting FPS
 
 The FPS of the clock can be artificially limited in the [[Engine]] constructor, this can be useful to produce a consistent experience on many platforms or testing lower a framerate.
 
@@ -16,23 +23,69 @@ If no max is set, the FPS will be whatever the browser allows (usually display r
 
 For example, limiting to 30fps:
 
-```typescript
-const game = new ex.Engine({
-    ...
+```ts twoslash
+// @include: ex
+// ---cut---
+const exampleGame = new ex.Engine({
     maxFps: 30
 });
 ```
 
 ### Scheduling tasks (also see [[Timer]])
 
-Instead of using the browser [`setTimeout()`](https://developer.mozilla.org/en-US/docs/Web/API/setTimeout) the clock can be used to schedule tasks that are tied to the excalibur clock, this means they will respect when a game is stopped and not fire.
+Instead of using the browser [`setTimeout()`](https://developer.mozilla.org/en-US/docs/Web/API/setTimeout) the clock can be used to 
+schedule tasks that are tied to the Excalibur clock using [[Clock.schedule]]. This means they will respect when a game is stopped and not fire scheduled tasks.
 
-```typescript
-const game = new ex.Engine({...});
+```ts twoslash
+// @include: ex
+// ---cut---
 game.clock.schedule(() => {
     console.log('Hello in 300ms');
 }, 300);
 ```
+
+#### Clearing scheduled tasks
+
+You can also cancel scheduled tasks by saving the ID returned from [[Clock.schedule|schedule]] and passing it to [[Clock.clearSchedule|clearSchedule]]:
+
+```ts twoslash
+// @include: ex
+// ---cut---
+const taskId = game.clock.schedule(() => {
+    console.log('This will never be logged');
+}, 500);
+
+// Cancel the scheduled task
+game.clock.clearSchedule(taskId);
+```
+
+
+#### Timing parameter
+
+The `schedule` method accepts an [[ScheduledCallbackTiming]] enum an optional third parameter that specifies when in the game loop the callback should execute. This allows precise control over when your scheduled tasks run relative to the game's update cycle.
+
+```ts twoslash
+// @include: ex
+// ---cut---
+// Schedule a callback to run before the frame is processed (default)
+game.clock.schedule(() => {
+    console.log('Running before the frame');
+}, 200, 'preframe');
+
+// Schedule a callback to run after the frame is processed
+game.clock.schedule(() => {
+    console.log('Running after the frame');
+}, 200, 'postframe');
+```
+
+Available timing options:
+- `'preframe'` (default): Executes before the frame update and draw cycle
+- `'postframe'`: Executes after the frame update and draw cycle
+- `'preupdate'`: Executes before the update logic
+- `'postupdate'`: Executes after the update logic
+- `'predraw'`: Executes before drawing
+- `'postdraw'`: Executes after drawing
+
 
 ## Test clock
 
@@ -40,8 +93,9 @@ The test clock allows single stepping of each clock tick, which can be useful fo
 
 ### Stepping & Running the clock
 
-```typescript
-const game = new ex.Engine({...});
+```ts twoslash
+// @include: ex
+// ---cut---
 const testClock = game.debug.useTestClock();
 
 // Single Step as if we are running 60fps
@@ -52,5 +106,4 @@ testClock.run(100, 16.6);
 
 // to switch back to the standard clock
 game.debug.useStandardClock();
-
 ```
