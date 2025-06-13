@@ -148,9 +148,10 @@ export interface CanRemove {
   off(eventName: Events.remove, handler?: (event: Events.RemoveEvent<any>) => void): void;
 }
 
-export interface SceneActivationContext<TData = undefined> {
+export interface SceneActivationContext<TData = undefined, TPreviousSceneData = undefined> {
   data?: TData;
   previousScene: Scene;
+  previousSceneData?: TPreviousSceneData;
   nextScene: Scene;
   engine: Engine;
 }
