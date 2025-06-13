@@ -14,8 +14,8 @@ import type { RendererPlugin } from '../renderer';
 import { Shader } from '../shader';
 import { VertexBuffer } from '../vertex-buffer';
 import { getMaxShaderComplexity } from '../webgl-util';
-import frag from './image-renderer-v2.frag.glsl';
-import vert from './image-renderer-v2.vert.glsl';
+import frag from './image-renderer-v2.frag.glsl?raw';
+import vert from './image-renderer-v2.vert.glsl?raw';
 
 export interface ImageRendererOptions {
   pixelArtSampler: boolean;

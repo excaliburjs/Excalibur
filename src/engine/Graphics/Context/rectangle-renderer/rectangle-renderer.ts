@@ -9,8 +9,8 @@ import { Shader } from '../shader';
 import { VertexBuffer } from '../vertex-buffer';
 import { VertexLayout } from '../vertex-layout';
 
-import frag from './rectangle-renderer.frag.glsl';
-import vert from './rectangle-renderer.vert.glsl';
+import frag from './rectangle-renderer.frag.glsl?raw';
+import vert from './rectangle-renderer.vert.glsl?raw';
 
 export class RectangleRenderer implements RendererPlugin {
   public readonly type = 'ex.rectangle';

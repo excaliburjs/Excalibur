@@ -46,7 +46,7 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Build
-        run: npm run core && npm run build:esm
+        run: npm run build
 
   tests:
     strategy:

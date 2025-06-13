@@ -1,5 +1,3 @@
-/// <reference path='../lib/excalibur.d.ts' />
-
 /*********************
  *                  uuuuuuuuuuuuuuuuuuuu
  *                u" uuuuuuuuuuuuuuuuuu "u
@@ -214,7 +212,7 @@ var svgImage = ex.ImageSource.fromSvgString(svg`
        xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
        xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
        sodipodi:docname="resize-full.svg" inkscape:version="0.48.4 r9939"
-       xmlns="http://www.w3.org/2000/svg" 
+       xmlns="http://www.w3.org/2000/svg"
        width="800px" height="800px"
        viewBox="0 0 1200 1200" enable-background="new 0 0 1200 1200" xml:space="preserve">
   <path id="path18934" fill="#000000ff" inkscape:connector-curvature="0"  d="M670.312,0l177.246,177.295L606.348,418.506l175.146,175.146

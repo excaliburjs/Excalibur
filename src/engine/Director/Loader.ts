@@ -3,7 +3,7 @@ import type { Loadable } from '../Interfaces/Loadable';
 import * as DrawUtil from '../Util/DrawUtil';
 
 import logoImg from './Loader.logo.png';
-import loaderCss from './Loader.css';
+import loaderCss from './Loader.css?inline';
 import type { Vector } from '../Math/vector';
 import { delay } from '../Util/Util';
 import { EventEmitter } from '../EventEmitter';
@@ -157,7 +157,7 @@ export class Loader extends DefaultLoader {
   protected _playButtonElement!: HTMLButtonElement;
   protected _styleBlock!: HTMLStyleElement;
   /** Loads the css from Loader.css */
-  protected _playButtonStyles: string = loaderCss.toString();
+  protected _playButtonStyles: string = loaderCss;
   protected get _playButton() {
     const existingRoot = document.getElementById('excalibur-play-root');
     if (existingRoot) {

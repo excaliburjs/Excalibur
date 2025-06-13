@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "types": ["@types/jasmine", "@types/webpack-env"],
+    "types": ["@types/jasmine", "@types/webpack-env", "../../engine/excalibur.d.ts"],
     "moduleResolution": "node",
     "sourceMap": true,
     "experimentalDecorators": true,

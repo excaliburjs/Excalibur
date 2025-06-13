@@ -13,8 +13,8 @@ import { Shader } from '../shader';
 import { VertexBuffer } from '../vertex-buffer';
 import { VertexLayout } from '../vertex-layout';
 import { getMaxShaderComplexity } from '../webgl-util';
-import frag from './image-renderer.frag.glsl';
-import vert from './image-renderer.vert.glsl';
+import frag from './image-renderer.frag.glsl?raw';
+import vert from './image-renderer.vert.glsl?raw';
 
 export interface ImageRendererOptions {
   pixelArtSampler: boolean;

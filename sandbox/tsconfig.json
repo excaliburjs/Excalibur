@@ -4,8 +4,13 @@
     "experimentalDecorators": true,
     "target": "ES2022",
     "module": "ESNext",
+    "moduleResolution": "bundler",
     "removeComments": false,
     "skipLibCheck": true,
-    "lib": ["dom", "es5", "es2015", "es2015.promise", "es2015.collection", "es2015.iterable"]
+    "lib": ["dom", "es5", "es2015", "es2015.promise", "es2015.collection", "es2015.iterable"],
+    "types": ["../src/engine/excalibur.d.ts"],
+    "paths": {
+      "@excalibur": ["../src/engine/index.ts"]
+    }
   }
 }

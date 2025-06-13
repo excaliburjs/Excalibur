@@ -1,8 +1,8 @@
 import type { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
 import type { RendererPlugin } from '../renderer';
 import { Shader } from '../shader';
-import particleVertexSource from './particle-vertex.glsl';
-import particleFragmentSource from './particle-fragment.glsl';
+import particleVertexSource from './particle-vertex.glsl?raw';
+import particleFragmentSource from './particle-fragment.glsl?raw';
 import type { GpuParticleRenderer } from '../../../Particles/GpuParticleRenderer';
 import { vec } from '../../../Math/vector';
 import { Color } from '../../../Color';

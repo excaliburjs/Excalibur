@@ -49,6 +49,7 @@ export const withEngine = (storyFn: (game: Engine, args?: Record<string, any>) =
       displayMode: DisplayMode.FitScreen,
       suppressPlayButton: true,
       pointerScope: PointerScope.Canvas,
+      pixelRatio: 1,
       ...options
     });
 
