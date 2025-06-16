@@ -15,6 +15,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added new way to output data from scenes `onDeactivate()`, returning data will be passed to the next `SceneActivationContext` in the `previousSceneData` property!
 - Added new `transitionstart` and `transitionend` events to `ex.Scenes`
 - Pipe `navigation*` events to `ex.Engine`
 - Added ability to use `ex.Vector` to specify offset and margin in `SpriteSheet.fromImageSource({..})`
