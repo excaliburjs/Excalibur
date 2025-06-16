@@ -253,8 +253,9 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   /**
    * This is called when the scene is made transitioned away from and stopped. It is meant to be overridden,
    * this is where you should cleanup any DOM UI or event handlers needed for the scene.
+   * @returns Either data to pass to the next scene activation context as `previousSceneData` or nothing
    */
-  public onDeactivate(context: SceneActivationContext): void {
+  public onDeactivate(context: SceneActivationContext): any | void {
     // will be overridden
   }
 
@@ -377,10 +378,10 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
    * Deactivates the scene with the base behavior, then calls the overridable `onDeactivate` implementation.
    * @internal
    */
-  public async _deactivate(context: SceneActivationContext<never>) {
+  public async _deactivate(context: SceneActivationContext<never>): Promise<any> {
     this._logger.debug('Scene.onDeactivate', this);
     this.input.toggleEnabled(false);
-    await this.onDeactivate(context);
+    return await this.onDeactivate(context);
   }
 
   /**

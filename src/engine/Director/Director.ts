@@ -574,12 +574,13 @@ export class Director<TKnownScenes extends string = any> {
     if (maybeDest) {
       const previousScene = this.currentScene;
       const nextScene = maybeDest;
+      let previousSceneData: any = undefined;
 
       this._logger.debug('Going to scene:', destinationScene);
       // only deactivate when initialized
       if (this.currentScene.isInitialized) {
         const context = { engine, previousScene, nextScene };
-        await this.currentScene._deactivate(context);
+        previousSceneData = await this.currentScene._deactivate(context);
         this.currentScene.events.emit('deactivate', new DeactivateEvent(context, this.currentScene));
         this.currentScene.input.clear();
       }
@@ -596,7 +597,7 @@ export class Director<TKnownScenes extends string = any> {
       // initialize the current scene if has not been already
       await this.currentScene._initialize(engine);
 
-      const context = { engine, previousScene, nextScene, data };
+      const context = { engine, previousScene, previousSceneData, nextScene, data };
       await this.currentScene._activate(context);
       this.currentScene.events.emit('activate', new ActivateEvent(context, this.currentScene));
     } else {
