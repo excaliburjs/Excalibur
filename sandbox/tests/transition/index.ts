@@ -65,6 +65,7 @@ class Level1 extends ex.Scene {
   }
 
   override onActivate(context: ex.SceneActivationContext<unknown>): void {
+    console.log('previousSceneData:', context.previousSceneData);
     this.player.pos.x %= this.engine.screen.width;
     if (this.player.pos.x < 0) {
       this.player.pos.x = this.engine.screen.width;
@@ -74,6 +75,10 @@ class Level1 extends ex.Scene {
     if (this.player.pos.y < 0) {
       this.player.pos.y = this.engine.screen.height;
     }
+  }
+
+  override onDeactivate(context: ex.SceneActivationContext): Promise<any> | void {
+    return 'scene 1 data';
   }
 }
 
@@ -103,6 +108,7 @@ class Level2 extends ex.Scene {
   }
 
   override onActivate(context: ex.SceneActivationContext<unknown>): void {
+    console.log('previousSceneData:', context.previousSceneData);
     this.player.pos.x %= this.engine.screen.width;
     if (this.player.pos.x < 0) {
       this.player.pos.x = this.engine.screen.width;
@@ -112,6 +118,10 @@ class Level2 extends ex.Scene {
     if (this.player.pos.y < 0) {
       this.player.pos.y = this.engine.screen.height;
     }
+  }
+
+  override onDeactivate(context: ex.SceneActivationContext): Promise<any> | any {
+    return 'scene 2 data';
   }
 }
 
@@ -141,8 +151,13 @@ class Level3 extends ex.Scene {
   }
 
   override onActivate(context: ex.SceneActivationContext<unknown>): void {
+    console.log('previousSceneData:', context.previousSceneData);
     this.player.pos.x %= this.engine.screen.width;
     this.player.pos.y %= this.engine.screen.height;
+  }
+
+  override onDeactivate(context: ex.SceneActivationContext): Promise<any> | any {
+    return 'scene 3 data';
   }
 }
 
