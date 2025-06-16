@@ -382,6 +382,35 @@ describe('A scene', () => {
     });
   });
 
+  it('calls onActivate and onDeactivate with the correct args (with ASYNC deactivation data)', async () => {
+    const sceneA = new ex.Scene();
+    sceneA.onDeactivate = vi.fn(async () => {
+      return 'SomeDeactivationData';
+    });
+    const sceneB = new ex.Scene();
+    sceneB.onActivate = vi.fn();
+
+    engine.addScene('sceneA', sceneA);
+    engine.addScene('sceneB', sceneB);
+
+    await engine.goToScene('sceneA');
+
+    await engine.goToScene('sceneB', { sceneActivationData: { foo: 'bar' } });
+
+    expect(sceneA.onDeactivate).toHaveBeenCalledWith({
+      engine,
+      previousScene: sceneA,
+      nextScene: sceneB
+    });
+    expect(sceneB.onActivate).toHaveBeenCalledWith({
+      engine,
+      previousScene: sceneA,
+      previousSceneData: 'SomeDeactivationData',
+      nextScene: sceneB,
+      data: { foo: 'bar' }
+    });
+  });
+
   it('fires initialize before activate', () =>
     new Promise<void>((done) => {
       engine.stop();
