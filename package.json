@@ -46,7 +46,7 @@
     "clean": "rimraf ./build",
     "linux:ci": "npm run clean && npm run all:ci && npm run coveralls && npm run apidocs",
     "appveyor": "npm run all:ci && npm run nuget 0.0.1",
-    "browserstack": "npm run build:vite:production && karma start karma.conf.browsers.js",
+    "browserstack": "npm run build:production && karma start karma.conf.browsers.js",
     "nuget": ".\\src\\tools\\NuGet.exe pack Excalibur.nuspec -OutputDirectory .\\build\\nuget -version",
     "dev": "concurrently --names \"build,types\" \"vite build --watch\" \"npm run types -- --watch\"",
     "start": "npm run build:watch",
