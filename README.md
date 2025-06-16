@@ -1,5 +1,6 @@
 ![Logo](/assets/logo.png?raw=true)
 
+[![CI](https://github.com/excaliburjs/Excalibur/actions/workflows/build.yml/badge.svg)](https://github.com/excaliburjs/Excalibur/actions/workflows/build.yml)
 [![Coverage Status](https://coveralls.io/repos/github/excaliburjs/Excalibur/badge.svg?branch=main)](https://coveralls.io/github/excaliburjs/Excalibur?branch=main)
 [![npm version](https://img.shields.io/npm/v/excalibur.svg)](https://www.npmjs.com/package/excalibur)
 [![npm downloads](https://img.shields.io/npm/dt/excalibur.svg)](https://www.npmjs.com/package/excalibur)
