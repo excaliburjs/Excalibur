@@ -249,7 +249,7 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
       return Promise.resolve(false);
     }
 
-    this.volume = volume || this.volume;
+    this.volume = volume ?? this.volume;
 
     if (this.isPaused()) {
       return this._resumePlayback();

@@ -26,6 +26,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where passing 0 to `ex.Sound.play(0)` would not set the volume to 0, instead the previous volume would play.
 - Fixed issue where the Actor.color did not respect being set
 - Fixed offscreen culling issue when using parallax on TileMaps
 - Fixed division by 0 when timescale is 0 in actions
