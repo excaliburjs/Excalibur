@@ -1,6 +1,5 @@
 import type { ComponentCtor, Query, World } from '../EntityComponentSystem';
 import { SystemPriority } from '../EntityComponentSystem';
-import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { System, SystemType } from '../EntityComponentSystem/System';
 import { CollisionEndEvent, CollisionStartEvent, ContactEndEvent, ContactStartEvent } from '../Events';
