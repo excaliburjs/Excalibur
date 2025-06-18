@@ -1,6 +1,4 @@
-﻿/// <reference path='../../lib/excalibur.d.ts' />
-
-class Box extends ex.Entity {
+﻿class Box extends ex.Entity {
   transform: ex.TransformComponent;
   collider: ex.ColliderComponent;
   pointer: ex.PointerComponent;
@@ -162,8 +160,8 @@ game.on('postupdate', (ue: ex.PostUpdateEvent) => {
   }
 });
 
-//game.currentScene.camera.x = 0;
-//game.currentScene.camera.y = 0;
+game.currentScene.camera.x = 0;
+game.currentScene.camera.y = 0;
 
 game.add(box1);
 game.add(cursor);
