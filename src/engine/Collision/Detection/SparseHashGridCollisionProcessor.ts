@@ -25,7 +25,7 @@ import { HashGridCell, HashGridProxy, SparseHashGrid } from './SparseHashGrid';
 export class HashColliderProxy extends HashGridProxy<Collider> {
   id: number = -1;
   owner: Entity;
-  body: BodyComponent;
+  body?: BodyComponent;
   collisionType: CollisionType;
   hasZeroBounds = false;
   /**
@@ -66,7 +66,7 @@ export class HashColliderProxy extends HashGridProxy<Collider> {
     this.topY = Math.floor(bounds.top / this.gridSize);
     this.owner = collider.owner;
     this.body = this.owner?.get(BodyComponent);
-    this.collisionType = this.body.collisionType ?? CollisionType.PreventCollision;
+    this.collisionType = this.body?.collisionType ?? CollisionType.PreventCollision;
   }
 
   /**
@@ -75,7 +75,7 @@ export class HashColliderProxy extends HashGridProxy<Collider> {
   update(): void {
     super.update();
     this.body = this.owner?.get(BodyComponent);
-    this.collisionType = this.body.collisionType ?? CollisionType.PreventCollision;
+    this.collisionType = this.body?.collisionType ?? CollisionType.PreventCollision;
     this.hasZeroBounds = this.collider.localBounds.hasZeroDimensions();
   }
 }
@@ -185,18 +185,18 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
           const collider = cell.proxies[colliderIndex];
           if (!collidersVisited.has(collider.collider.id.value)) {
             collidersVisited.add(collider.collider.id.value);
+            if (collider.body) {
+              if (options?.ignoreCollisionGroupAll && collider.body.group === CollisionGroup.All) {
+                continue;
+              }
 
-            if (options?.ignoreCollisionGroupAll && collider.body.group === CollisionGroup.All) {
-              continue;
+              const canCollide = (collisionMask & collider.body.group.category) !== 0;
+
+              // Early exit if not the right group
+              if (collider.body.group && !canCollide) {
+                continue;
+              }
             }
-
-            const canCollide = (collisionMask & collider.body.group.category) !== 0;
-
-            // Early exit if not the right group
-            if (collider.body.group && !canCollide) {
-              continue;
-            }
-
             const hit = collider.collider.rayCast(ray, maxDistance);
 
             // Collect up all the colliders that hit inside a cell
@@ -295,7 +295,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     }
 
     // If both are in the same collision group short circuit
-    if (!colliderA.body.group.canCollide(colliderB.body.group)) {
+    if (colliderA.body && colliderB.body && !colliderA.body.group.canCollide(colliderB.body.group)) {
       return false;
     }
 

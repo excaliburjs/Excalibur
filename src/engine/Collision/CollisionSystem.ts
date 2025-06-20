@@ -1,6 +1,5 @@
 import type { ComponentCtor, Query, World } from '../EntityComponentSystem';
 import { SystemPriority } from '../EntityComponentSystem';
-import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { System, SystemType } from '../EntityComponentSystem/System';
 import { CollisionEndEvent, CollisionStartEvent, ContactEndEvent, ContactStartEvent } from '../Events';
@@ -25,7 +24,7 @@ export class CollisionSystem extends System {
   static priority = SystemPriority.Higher;
 
   public systemType = SystemType.Update;
-  public query: Query<ComponentCtor<TransformComponent> | ComponentCtor<MotionComponent> | ComponentCtor<ColliderComponent>>;
+  public query: Query<ComponentCtor<TransformComponent> | ComponentCtor<ColliderComponent>>;
 
   private _engine: Engine;
   private _configDirty = false;
@@ -51,7 +50,7 @@ export class CollisionSystem extends System {
     this._physics.$configUpdate.subscribe(() => (this._configDirty = true));
     this._trackCollider = (c: Collider) => this._processor.track(c);
     this._untrackCollider = (c: Collider) => this._processor.untrack(c);
-    this.query = world.query([TransformComponent, MotionComponent, ColliderComponent]);
+    this.query = world.query([TransformComponent, ColliderComponent]);
     this.query.entityAdded$.subscribe((e) => {
       const colliderComponent = e.get(ColliderComponent);
       colliderComponent.$colliderAdded.subscribe(this._trackCollider);

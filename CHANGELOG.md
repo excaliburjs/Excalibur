@@ -26,6 +26,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed unecessary coupling with `ex.ColliderComponent`/`ex.BodyComponent` that prevented collider tracking on entities that have `ex.TransformComponent`/`ex.ColliderComponent`, this influenced users doing Entity level ECS with pointer events.
 - Fixed issue where passing 0 to `ex.Sound.play(0)` would not set the volume to 0, instead the previous volume would play.
 - Fixed issue where the Actor.color did not respect being set
 - Fixed offscreen culling issue when using parallax on TileMaps

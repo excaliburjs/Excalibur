@@ -211,7 +211,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
       for (const collider of potentialColliders) {
         const body = collider.owner.get(BodyComponent);
         // Skip non-active objects. Does not make sense on other collision types
-        if (body.collisionType !== CollisionType.Active) {
+        if (body?.collisionType !== CollisionType.Active) {
           continue;
         }
 
