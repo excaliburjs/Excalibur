@@ -88,6 +88,17 @@ export function isSceneConstructor(x: any): x is SceneConstructor {
  * actors in a scene. Only actors in scenes will be updated and drawn.
  *
  * Typical usages of a scene include: levels, menus, loading screens, etc.
+ *
+ * Scenes go through the following lifecycle
+ * 1. onPreLoad - called once
+ * 2. onInitialize - called once
+ * 3. onActivate - called the first frame the scene is current
+ * 4. onPreUpdate - called every update
+ * 5. onPostUpdate - called every update
+ * 6. onPreDraw - called every draw
+ * 7. onPostDraw - called every draw
+ * 8. onDeactivate - called teh first frame thescene is no longer current
+ *
  */
 export class Scene<TActivationData = unknown> implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate, CanDraw {
   private _logger: Logger = Logger.getInstance();
