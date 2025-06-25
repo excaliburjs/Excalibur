@@ -844,43 +844,6 @@ describe('A game actor', () => {
     await expect(engine.canvas).toEqualImage('/src/spec/assets/images/SpriteSpec/opacity.png');
   });
 
-  // it('will tick animations when drawing switched', async () => {
-  //   const texture = new ex.ImageSource('/src/spec/assets/images/SpriteSpec/icon.png');
-  //   await texture.load();
-  //   const sprite = new ex.Sprite({
-  //     image: texture,
-  //     width: 62,
-  //     height: 64,
-  //     rotation: 0,
-  //     scale: new ex.Vector(1, 1),
-  //     flipVertical: false,
-  //     flipHorizontal: false
-  //   });
-  //   const animation = new ex.Animation({
-  //     frames: [{graphic: sprite }, {graphic: sprite }],
-  //     frameDuration: 200,
-  //     strategy: ex.AnimationStrategy.Loop,
-  //     rotation: Math.PI,
-  //     scale: new ex.Vector(2, 2),
-  //     flipVertical: true,
-  //     flipHorizontal: true,
-  //     width: 100,
-  //     height: 200
-  //   });
-
-  //   spyOn(animation, 'tick')
-
-  //   const actor = new ex.Actor({
-  //     pos: new ex.Vector(engine.halfCanvasWidth, engine.halfCanvasHeight),
-  //     width: 10,
-  //     height: 10
-  //   });
-
-  //   actor.graphics.add('default', animation);
-  //   actor.graphics.show('default');
-  //   expect(animation.tick).toHaveBeenCalledWith(0);
-  // });
-
   it('will tick animations on update', async () => {
     scene.clear();
     const texture = new ex.ImageSource('/src/spec/assets/images/SpriteSpec/icon.png');

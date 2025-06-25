@@ -793,16 +793,6 @@ var group = new ex.GraphicsGroup({
 });
 healthbar.graphics.use(group);
 
-// var backgroundLayer = player.graphics.layers.create({
-//   name: 'background',
-//   order: -1
-// });
-
-// backgroundLayer.show(healthbar2, { offset: ex.vec(0, -70) });
-
-// // playerText.showDebug = true;
-// backgroundLayer.show(playerText, { offset: ex.vec(0, -70) });
-
 // Retrieve animations for player from sprite sheet
 var left = ex.Animation.fromSpriteSheet(spriteSheetRun, ex.range(1, 10), 50);
 // var left = new ex.Animation(game, left_sprites, 50);
