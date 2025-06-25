@@ -242,7 +242,7 @@ svgActor.graphics.add(
 // svgActor.graphics.add(svgExternal.toSprite());
 game.add(svgActor);
 
-var fontSource = new ex.FontSource('./html/Gorgeous Pixel.ttf', 'Gorgeous Pixel');
+var fontSource = new ex.FontSource('./Gorgeous Pixel.ttf', 'Gorgeous Pixel');
 
 var boot = new ex.Loader();
 // var boot = new ex.Loader({
