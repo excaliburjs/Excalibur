@@ -188,6 +188,10 @@ export class Director<TKnownScenes extends string = any> {
         if (deferredSceneInstance && deferredTransition) {
           deferredTransition._addToTargetScene(this._engine, deferredSceneInstance);
         }
+
+        const inTransition = this._getInTransition(deferredScene);
+        const hideLoader = inTransition?.hideLoader;
+        this.maybeLoadScene(deferredScene, hideLoader);
         await this.swapScene(deferredScene);
         if (deferredSceneInstance && deferredTransition) {
           await this.playTransition(deferredTransition, deferredSceneInstance);
@@ -228,13 +232,16 @@ export class Director<TKnownScenes extends string = any> {
 
     this.startScene = startScene;
 
+    const maybeHideLoader = options?.inTransition?.hideLoader ?? false;
+    this.maybeLoadScene(startScene, maybeHideLoader);
+
     // Fire and forget promise for the initial scene
     if (maybeStartTransition) {
-      const startSceneInstance = this.getSceneInstance(this.startScene);
+      const startSceneInstance = this.getSceneInstance(startScene);
       if (startSceneInstance) {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         maybeStartTransition._addToTargetScene(this._engine, startSceneInstance);
-        this.swapScene(this.startScene).then(() => {
+        this.swapScene(startScene).then(() => {
           startSceneInstance.onTransition('in');
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           return this.playTransition(maybeStartTransition, startSceneInstance);
@@ -242,7 +249,7 @@ export class Director<TKnownScenes extends string = any> {
       }
     } else {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.swapScene(this.startScene);
+      this.swapScene(startScene);
     }
 
     this.currentSceneName = this.startScene;
@@ -558,6 +565,8 @@ export class Director<TKnownScenes extends string = any> {
 
   /**
    * Swaps the current and destination scene after performing required lifecycle events
+   *
+   * Note: swap scene will wait for any pending loader on the destination scene
    * @param destinationScene
    * @param data
    */
