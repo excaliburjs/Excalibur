@@ -1,4 +1,4 @@
-// <script src="//unpkg.com/canvas-txt"></script>
+// <script type="module" src="//unpkg.com/canvas-txt"></script>
 var canvasTxt = window.canvasTxt.default;
 // or npm install canvas-txt --save
 // import canvasTxt from 'canvas-txt'

@@ -1,15 +1,15 @@
 import { Vector, vec } from '../Math/vector';
 import { Graphic } from './Graphic';
-import { HasTick } from './Animation';
-import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
+import type { HasTick } from './Animation';
+import type { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { BoundingBox } from '../Collision/Index';
 import { Component } from '../EntityComponentSystem/Component';
-import { Material } from './Context/material';
+import type { Material } from './Context/material';
 import { Logger } from '../Util/Log';
 import { WatchVector } from '../Math/watch-vector';
 import { TransformComponent } from '../EntityComponentSystem';
 import { GraphicsGroup } from '../Graphics/GraphicsGroup';
-import { Color } from '../Color';
+import type { Color } from '../Color';
 import { Raster } from './Raster';
 import { Text } from './Text';
 
@@ -177,7 +177,7 @@ export class GraphicsComponent extends Component {
   public set color(v: Color | undefined) {
     if (v) {
       this._color = v.clone();
-      const currentGraphic = this.graphics.current;
+      const currentGraphic = this.current;
       if (currentGraphic instanceof Raster || currentGraphic instanceof Text) {
         currentGraphic.color = this._color;
       }

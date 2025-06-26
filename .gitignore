@@ -52,3 +52,10 @@ obj/
 *.suo
 *.map
 *.orig
+
+# Test outputs
+__screenshots__
+browserstack.err
+
+*storybook.log
+storybook-static

@@ -1,6 +1,7 @@
-import { Graphic, GraphicOptions } from './Graphic';
-import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
-import { GetSpriteOptions, SpriteSheet } from './SpriteSheet';
+import type { GraphicOptions } from './Graphic';
+import { Graphic } from './Graphic';
+import type { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
+import type { GetSpriteOptions, SpriteSheet } from './SpriteSheet';
 import { Logger } from '../Util/Log';
 import { clamp } from '../Math/util';
 import { EventEmitter } from '../EventEmitter';

@@ -15,6 +15,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added new way to output data from scenes `onDeactivate()`, returning data will be passed to the next `SceneActivationContext` in the `previousSceneData` property!
 - Added new `transitionstart` and `transitionend` events to `ex.Scenes`
 - Pipe `navigation*` events to `ex.Engine`
 - Added ability to use `ex.Vector` to specify offset and margin in `SpriteSheet.fromImageSource({..})`
@@ -47,9 +48,17 @@ new Query([ComponentA, ComponentB] as const)
 const query = new Query({})
 ```
 
+- Adds `maxVel` attribute to `MotionComponent`, which clamps velocity on separated X and Y axes
+- Add `Clock.clearSchedule(id)` and have `Clock.schedule` return an ID so you can clear a scheduled callback before it fires
 
 ### Fixed
 
+- Fixed issue where the initial scene onPreLoad was not being run
+- Fixed unecessary coupling with `ex.ColliderComponent`/`ex.BodyComponent` that prevented collider tracking on entities that have `ex.TransformComponent`/`ex.ColliderComponent`, this influenced users doing Entity level ECS with pointer events.
+- Fixed issue where passing 0 to `ex.Sound.play(0)` would not set the volume to 0, instead the previous volume would play.
+- Fixed issue where the Actor.color did not respect being set
+- Fixed offscreen culling issue when using parallax on TileMaps
+- Fixed division by 0 when timescale is 0 in actions
 - Fixed `onTransition` on the initial scene transition
 - Fixed `ex.TriggerOptions` type to all optional parameters
 - Fixed issue where the ActorArgs type hint would not error when providing a color causing confusion when it didn't produce a default graphic.
@@ -71,7 +80,7 @@ const query = new Query({})
 
 ### Changed
 
--
+- Change logging behavior for entities not in scenes, only log in dev builds
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->

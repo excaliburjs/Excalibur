@@ -38,11 +38,11 @@ class StartButton extends ex.ScreenElement {
     })
 
     this.on('pointerenter', () => {
-      this.graphics.show('hover')
+      this.graphics.use('hover')
     })
 
     this.on('pointerleave', () => {
-      this.graphics.show('idle')
+      this.graphics.use('idle')
     })
   }
 }

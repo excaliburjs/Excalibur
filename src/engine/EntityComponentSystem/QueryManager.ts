@@ -1,7 +1,8 @@
-import { Entity } from './Entity';
-import { Query, QueryParams } from './Query';
-import { Component, ComponentCtor } from './Component';
-import { World } from './World';
+import type { Entity } from './Entity';
+import type { QueryParams } from './Query';
+import { Query } from './Query';
+import type { Component, ComponentCtor } from './Component';
+import type { World } from './World';
 import { TagQuery } from './TagQuery';
 
 /**

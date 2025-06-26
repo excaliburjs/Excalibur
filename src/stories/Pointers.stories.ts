@@ -1,4 +1,4 @@
-import { Meta, StoryObj } from '@storybook/html';
+import type { Meta, StoryObj } from '@storybook/html-vite';
 import * as ex from '../engine';
 import { withEngine } from './utils';
 
@@ -171,9 +171,9 @@ export const DragEvents: StoryObj = {
   parameters: {
     docs: {
       storyDescription: `
-In Excalibur you can subscribe to \`pointerdragstart\`, \`pointerdragmove\` and \`pointerdragend\` events 
+In Excalibur you can subscribe to \`pointerdragstart\`, \`pointerdragmove\` and \`pointerdragend\` events
 to perform drag-and-drop actions on Actors.
-    
+
 The actions pane displays the pointer events captured during the demo. Try clicking a box and dragging it around.
       `
     }

@@ -1,14 +1,15 @@
 import { ExResponse } from '../../Interfaces/AudioImplementation';
-import { Audio } from '../../Interfaces/Audio';
-import { Engine } from '../../Engine';
+import type { Audio } from '../../Interfaces/Audio';
+import type { Engine } from '../../Engine';
 import { Resource } from '../Resource';
 import { WebAudioInstance } from './WebAudioInstance';
 import { AudioContextFactory } from './AudioContext';
 import { NativeSoundEvent, NativeSoundProcessedEvent } from '../../Events/MediaEvents';
 import { canPlayFile } from '../../Util/Sound';
-import { Loadable } from '../../Interfaces/Index';
+import type { Loadable } from '../../Interfaces/Index';
 import { Logger } from '../../Util/Log';
-import { EventEmitter, EventKey, Handler, Subscription } from '../../EventEmitter';
+import type { EventKey, Handler, Subscription } from '../../EventEmitter';
+import { EventEmitter } from '../../EventEmitter';
 
 export type SoundEvents = {
   volumechange: NativeSoundEvent;
@@ -248,7 +249,7 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
       return Promise.resolve(false);
     }
 
-    this.volume = volume || this.volume;
+    this.volume = volume ?? this.volume;
 
     if (this.isPaused()) {
       return this._resumePlayback();

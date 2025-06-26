@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "types": ["@types/jasmine", "@types/webpack-env", "../../engine/excalibur.d.ts"],
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "experimentalDecorators": true,
+    "target": "es2018",
+    "module": "es2015",
+    "noImplicitAny": false,
+    "noUnusedLocals": false,
+    "downlevelIteration": true,
+    "lib": ["dom", "dom.iterable", "es5", "es2018"],
+    "rootDir": "../../",
+    "paths": {
+      "@excalibur": ["../../engine/"]
+    }
+  },
+  "include": ["./**Spec.ts", "./**/*Spec.ts"],
+  "files": ["_boot.ts", "../../engine/files.d.ts", "../../engine/globals.d.ts"]
+}

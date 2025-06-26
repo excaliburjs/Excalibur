@@ -1,9 +1,10 @@
-import pointVertexSource from './point-vertex.glsl';
-import pointFragmentSource from './point-fragment.glsl';
-import { Vector } from '../../../Math/vector';
-import { Color } from '../../../Color';
-import { ExcaliburGraphicsContextWebGL, pixelSnapEpsilon } from '../ExcaliburGraphicsContextWebGL';
-import { RendererPlugin } from '../renderer';
+import pointVertexSource from './point-vertex.glsl?raw';
+import pointFragmentSource from './point-fragment.glsl?raw';
+import type { Vector } from '../../../Math/vector';
+import type { Color } from '../../../Color';
+import type { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
+import { pixelSnapEpsilon } from '../ExcaliburGraphicsContextWebGL';
+import type { RendererPlugin } from '../renderer';
 import { Shader } from '../shader';
 import { VertexBuffer } from '../vertex-buffer';
 import { VertexLayout } from '../vertex-layout';

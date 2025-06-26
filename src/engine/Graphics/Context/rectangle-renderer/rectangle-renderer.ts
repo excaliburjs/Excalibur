@@ -1,15 +1,16 @@
 import { Color } from '../../../Color';
 import { vec, Vector } from '../../../Math/vector';
 import { GraphicsDiagnostics } from '../../GraphicsDiagnostics';
-import { ExcaliburGraphicsContextWebGL, pixelSnapEpsilon } from '../ExcaliburGraphicsContextWebGL';
+import type { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
+import { pixelSnapEpsilon } from '../ExcaliburGraphicsContextWebGL';
 import { QuadIndexBuffer } from '../quad-index-buffer';
-import { RendererPlugin } from '../renderer';
+import type { RendererPlugin } from '../renderer';
 import { Shader } from '../shader';
 import { VertexBuffer } from '../vertex-buffer';
 import { VertexLayout } from '../vertex-layout';
 
-import frag from './rectangle-renderer.frag.glsl';
-import vert from './rectangle-renderer.vert.glsl';
+import frag from './rectangle-renderer.frag.glsl?raw';
+import vert from './rectangle-renderer.vert.glsl?raw';
 
 export class RectangleRenderer implements RendererPlugin {
   public readonly type = 'ex.rectangle';

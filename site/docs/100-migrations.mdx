@@ -69,7 +69,7 @@ section: Migration Guides
       }
     }
     ```
-- Graphics components no longer support layering built in, they now ONLY hold 1 graphic at a time. WIth this `actor.graphics.show()` is now deprecated. This change simplifies usage of graphics for folks building games and removes complexity caused by supporting layering and multiple graphics in Excalibur.
+- Graphics components no longer support layering built in, they now ONLY hold 1 graphic at a time. With this `actor.graphics.show()` is now deprecated `graphics.use()` replaces the functionality. This change simplifies usage of graphics for folks building games and removes complexity caused by supporting layering and multiple graphics in Excalibur.
   - To use layering use 
     1. A [[GraphicsGroup]], you can specify a list of graphics in painter order (first is draw first, then so on)
         ```typescript

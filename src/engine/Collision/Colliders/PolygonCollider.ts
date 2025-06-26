@@ -1,20 +1,21 @@
-﻿import { Color } from '../../Color';
+﻿import type { Color } from '../../Color';
 import { BoundingBox } from '../BoundingBox';
 import { EdgeCollider } from './EdgeCollider';
 import { CollisionJumpTable } from './CollisionJumpTable';
 import { CircleCollider } from './CircleCollider';
-import { CollisionContact } from '../Detection/CollisionContact';
+import type { CollisionContact } from '../Detection/CollisionContact';
 import { Projection } from '../../Math/projection';
 import { LineSegment } from '../../Math/line-segment';
 import { Vector, vec } from '../../Math/vector';
 import { Ray } from '../../Math/ray';
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
 import { Collider } from './Collider';
-import { BodyComponent, Debug, ExcaliburGraphicsContext, Logger, sign } from '../..';
+import type { ExcaliburGraphicsContext } from '../..';
+import { BodyComponent, Debug, Logger, sign } from '../..';
 import { CompositeCollider } from './CompositeCollider';
 import { Shape } from './Shape';
 import { Transform } from '../../Math/transform';
-import { RayCastHit } from '../Detection/RayCastHit';
+import type { RayCastHit } from '../Detection/RayCastHit';
 
 export interface PolygonColliderOptions {
   /**

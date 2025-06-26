@@ -16,9 +16,46 @@ on:
   workflow_call:
 
 jobs:
+  lint:
+    runs-on: [ubuntu-latest]
+    env:
+      CI: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          registry-url: 'https://registry.npmjs.org'
+          cache: npm
+      - run: npm ci
+      - name: Check formatting
+        run: npm run format
+      - name: Lint
+        run: npm run lint
+
   build:
     runs-on: [ubuntu-latest]
+    env:
+      CI: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          registry-url: 'https://registry.npmjs.org'
+          cache: npm
+      - run: npm ci
+      - name: Build
+        run: npm run build
 
+  tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-latest, windows-2025]
+    runs-on: ${{ matrix.runner }}
+    env:
+      CI: true
     steps:
       - uses: actions/checkout@v4
         with:
@@ -30,8 +67,17 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           cache: npm
       - run: npm ci
-      - run: npm run linux:ci
+      - uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: 133.0.6943.98
+      # - name: Install Playwright browsers
+      #   run: npx playwright install --with-deps
+
+      - name: Tests
+        run: npm run test:ci -- --coverage=${{ matrix.runner == 'ubuntu-latest' }}
+
       - name: Coveralls
+        if: ${{ matrix.runner == 'ubuntu-latest'}}
         uses: coverallsapp/github-action@v2.3.6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}

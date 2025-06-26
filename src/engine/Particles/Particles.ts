@@ -1,14 +1,14 @@
-import { Engine } from '../Engine';
+import type { Engine } from '../Engine';
 import { Color } from '../Color';
 import { Vector, vec } from '../Math/vector';
-import { Random } from '../Math/Random';
+import type { Random } from '../Math/Random';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { GraphicsComponent } from '../Graphics/GraphicsComponent';
 import { Entity } from '../EntityComponentSystem/Entity';
 import { BoundingBox } from '../Collision/BoundingBox';
 import { clamp } from '../Math/util';
-import { Graphic } from '../Graphics';
-import { EmitterType } from './EmitterType';
+import type { Graphic } from '../Graphics';
+import type { EmitterType } from './EmitterType';
 import { MotionComponent } from '../EntityComponentSystem';
 import { EulerIntegrator } from '../Collision/Integrator';
 import type { ParticleEmitter } from './ParticleEmitter';

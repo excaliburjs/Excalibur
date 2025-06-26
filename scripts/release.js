@@ -31,7 +31,7 @@ async function main() {
     process.env.GH_TOKEN = `v${version}`;
     process.env.TRAVIS_TAG = `v${version}`;
     process.env.TRAVIS_BUILD_NUMBER = `v${version}`;
-    console.log(execSync(`npm run core && npm run core:bundle-prod`).toString());
+    console.log(execSync(`npm run build`).toString());
     console.log(`Zipping dists 🤐`);
     console.log(execSync(`powershell -noprofile "Compress-Archive -Force ./build/dist ./build/dist.${version}.zip"`).toString());
     console.log(`Building nuget package 📦`);

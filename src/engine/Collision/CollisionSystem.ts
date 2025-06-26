@@ -1,22 +1,22 @@
-import { ComponentCtor, Query, SystemPriority, World } from '../EntityComponentSystem';
-import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
+import type { ComponentCtor, Query, World } from '../EntityComponentSystem';
+import { SystemPriority } from '../EntityComponentSystem';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { System, SystemType } from '../EntityComponentSystem/System';
 import { CollisionEndEvent, CollisionStartEvent, ContactEndEvent, ContactStartEvent } from '../Events';
 import { SolverStrategy } from './SolverStrategy';
 import { ArcadeSolver } from './Solver/ArcadeSolver';
-import { Collider } from './Colliders/Collider';
-import { CollisionContact } from './Detection/CollisionContact';
+import type { Collider } from './Colliders/Collider';
+import type { CollisionContact } from './Detection/CollisionContact';
 import { RealisticSolver } from './Solver/RealisticSolver';
-import { CollisionSolver } from './Solver/Solver';
+import type { CollisionSolver } from './Solver/Solver';
 import { ColliderComponent } from './ColliderComponent';
 import { CompositeCollider } from './Colliders/CompositeCollider';
-import { Engine } from '../Engine';
-import { ExcaliburGraphicsContext } from '../Graphics/Context/ExcaliburGraphicsContext';
-import { Scene } from '../Scene';
+import type { Engine } from '../Engine';
+import type { ExcaliburGraphicsContext } from '../Graphics/Context/ExcaliburGraphicsContext';
+import type { Scene } from '../Scene';
 import { Side } from '../Collision/Side';
-import { PhysicsWorld } from './PhysicsWorld';
-import { CollisionProcessor } from './Detection/CollisionProcessor';
+import type { PhysicsWorld } from './PhysicsWorld';
+import type { CollisionProcessor } from './Detection/CollisionProcessor';
 import { SeparatingAxis } from './Colliders/SeparatingAxis';
 import { MotionSystem } from './MotionSystem';
 import { Pair } from './Detection/Pair';
@@ -24,7 +24,7 @@ export class CollisionSystem extends System {
   static priority = SystemPriority.Higher;
 
   public systemType = SystemType.Update;
-  public query: Query<ComponentCtor<TransformComponent> | ComponentCtor<MotionComponent> | ComponentCtor<ColliderComponent>>;
+  public query: Query<ComponentCtor<TransformComponent> | ComponentCtor<ColliderComponent>>;
 
   private _engine: Engine;
   private _configDirty = false;
@@ -50,7 +50,7 @@ export class CollisionSystem extends System {
     this._physics.$configUpdate.subscribe(() => (this._configDirty = true));
     this._trackCollider = (c: Collider) => this._processor.track(c);
     this._untrackCollider = (c: Collider) => this._processor.untrack(c);
-    this.query = world.query([TransformComponent, MotionComponent, ColliderComponent]);
+    this.query = world.query([TransformComponent, ColliderComponent]);
     this.query.entityAdded$.subscribe((e) => {
       const colliderComponent = e.get(ColliderComponent);
       colliderComponent.$colliderAdded.subscribe(this._trackCollider);

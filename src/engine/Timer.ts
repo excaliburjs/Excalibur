@@ -1,6 +1,6 @@
-import { Scene } from './Scene';
+import type { Scene } from './Scene';
 import { Logger } from './Util/Log';
-import * as ex from './index';
+import type * as ex from './index';
 import { Random } from './Math/Random';
 
 export interface TimerOptions {

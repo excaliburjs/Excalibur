@@ -1,9 +1,9 @@
 import { LineSegment } from '../../Math/line-segment';
 import { Vector } from '../../Math/vector';
 import { Ray } from '../../Math/ray';
-import { PolygonCollider } from './PolygonCollider';
-import { EdgeCollider } from './EdgeCollider';
-import { CircleCollider } from './CircleCollider';
+import type { PolygonCollider } from './PolygonCollider';
+import type { EdgeCollider } from './EdgeCollider';
+import type { CircleCollider } from './CircleCollider';
 import { clamp } from '../../Math/util';
 
 /**

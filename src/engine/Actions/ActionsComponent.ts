@@ -1,18 +1,18 @@
 import { ActionContext } from './ActionContext';
 import { Component } from '../EntityComponentSystem/Component';
-import { Entity } from '../EntityComponentSystem/Entity';
-import { Actor } from '../Actor';
+import type { Entity } from '../EntityComponentSystem/Entity';
+import type { Actor } from '../Actor';
 import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
-import { Vector, RotationType } from '../Math';
-import { EasingFunction } from '../Util/EasingFunctions';
-import { ActionQueue } from './ActionQueue';
-import { Action } from './Action';
-import { Color } from '../Color';
-import { CurveToOptions } from './Action/CurveTo';
-import { CurveByOptions } from './Action/CurveBy';
-import { MoveToOptions } from './Action/MoveTo';
-import { MoveByOptions, RotateByOptions, RotateToOptions, ScaleByOptions, ScaleToOptions } from './index';
+import type { Vector, RotationType } from '../Math';
+import type { EasingFunction } from '../Util/EasingFunctions';
+import type { ActionQueue } from './ActionQueue';
+import type { Action } from './Action';
+import type { Color } from '../Color';
+import type { CurveToOptions } from './Action/CurveTo';
+import type { CurveByOptions } from './Action/CurveBy';
+import type { MoveToOptions } from './Action/MoveTo';
+import type { MoveByOptions, RotateByOptions, RotateToOptions, ScaleByOptions, ScaleToOptions } from './index';
 
 export interface ActionContextMethods extends Pick<ActionContext, keyof ActionContext> {}
 

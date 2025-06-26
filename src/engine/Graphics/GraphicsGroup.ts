@@ -1,7 +1,9 @@
 import { Vector } from '../Math/vector';
-import { Graphic, GraphicOptions } from './Graphic';
-import { Animation, HasTick } from './Animation';
-import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
+import type { GraphicOptions } from './Graphic';
+import { Graphic } from './Graphic';
+import type { HasTick } from './Animation';
+import { Animation } from './Animation';
+import type { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { BoundingBox } from '../Collision/Index';
 import { Logger } from '../Util/Log';
 

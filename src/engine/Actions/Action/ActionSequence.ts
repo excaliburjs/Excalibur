@@ -1,7 +1,8 @@
-import { Entity } from '../../EntityComponentSystem';
-import { Action, nextActionId } from '../Action';
+import type { Entity } from '../../EntityComponentSystem';
+import type { Action } from '../Action';
+import { nextActionId } from '../Action';
 import { ActionContext } from '../ActionContext';
-import { ActionQueue } from '../ActionQueue';
+import type { ActionQueue } from '../ActionQueue';
 
 /**
  * Action that can represent a sequence of actions, this can be useful in conjunction with

@@ -1,8 +1,12 @@
 // Karma configuration
 const process = require('process');
-const path = require('path');
-const webpack = require('webpack');
+const fs = require('fs')
 process.env.CHROME_BIN = require('puppeteer').executablePath();
+
+
+if (!fs.existsSync('build/dist/excalibur.js')) {
+  throw new Error('Excalibur build not found. Please run "npm run build" first');
+}
 
 module.exports = (config) => {
   config.set({
@@ -14,7 +18,7 @@ module.exports = (config) => {
       timeout: 600
     },
     singleRun: true,
-    frameworks: ['jasmine'],
+    frameworks: ['webpack', 'jasmine'],
     client: {
       // Excalibur logs / console logs suppressed when captureConsole = false;
       captureConsole: false,
@@ -24,29 +28,24 @@ module.exports = (config) => {
     },
     proxies: {
       // smooths over loading files because karma prepends '/base/' to everything
-      '/src/' : '/base/src/'
+      '/src/': '/base/src/',
+      '/build/': '/base/build/'
     },
     files: [
-            'src/browsersupport/BrowserSupportSpec.ts',
-           ],
+      'build/dist/excalibur.js',
+      'src/spec/karma/BrowserSupportSpec.ts',
+    ],
     mime: { 'text/x-typescript': ['ts', 'tsx'] },
     preprocessors: {
-      './src/browsersupport/BrowserSupportSpec.ts': ['webpack']
+      'src/spec/karma/**/*.ts': ['webpack']
     },
     webpack: {
       mode: 'none',
       devtool: 'source-map',
       resolve: {
         extensions: ['.ts', '.js'],
-        alias: {
-          "@excalibur": path.resolve(__dirname, './src/engine/')
-        }
       },
       plugins: [
-        new webpack.DefinePlugin({
-          'process.env.__EX_VERSION': '\'test-runner\'',
-          'process.env.NODE_ENV': JSON.stringify('production')
-        }),
       ],
       module: {
         rules: [
@@ -58,41 +57,13 @@ module.exports = (config) => {
               configFile: 'tsconfig.json'
             }
           },
-          {
-            test: /\.css$/,
-            use: ['css-loader']
-          },
-          {
-            test: /\.(png|jpg|gif|mp3)$/i,
-            use: [
-              {
-                loader: 'url-loader',
-                options: {
-                  limit: 8192
-                }
-              }
-            ]
-          },
-          {
-            test: /\.glsl$/,
-            use: ['raw-loader']
-          },
-          {
-            test: /\.ts$/,
-            enforce: 'post',
-            include: path.resolve('src/engine/'),
-            use: {
-              loader: 'istanbul-instrumenter-loader',
-              options: { esModules: true }
-            }
-          }
         ]
       }
     },
     webpackMiddleware: {
-    // webpack-dev-middleware configuration
-    // i. e.
-        stats: 'normal'
+      // webpack-dev-middleware configuration
+      // i. e.
+      stats: 'normal'
     },
     reporters: ['progress', 'summary'],
     summaryReporter: {
@@ -105,11 +76,11 @@ module.exports = (config) => {
       // Show a list of test clients, 'always', 'never' or 'ifneeded'
       browserList: 'always'
     },
-    browserDisconnectTimeout : 10000,
-    browserDisconnectTolerance : 1,
+    browserDisconnectTimeout: 10000,
+    browserDisconnectTolerance: 1,
     browserNoActivityTimeout: 60000, // appveyor is slow :(
-    captureTimeout : 4*60*1000,
-      // define browsers
+    captureTimeout: 4 * 60 * 1000,
+    // define browsers
     customLaunchers: {
       bs_latest_chrome_win10: {
         base: 'BrowserStack',

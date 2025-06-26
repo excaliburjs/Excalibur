@@ -1,4 +1,31 @@
-﻿/// <reference path='../../lib/excalibur.d.ts' />
+﻿class Box extends ex.Entity {
+  transform: ex.TransformComponent;
+  collider: ex.ColliderComponent;
+  pointer: ex.PointerComponent;
+  color: ex.Color = new ex.Color(1, 1, 1); // TODO
+
+  set pos(v: ex.Vector) {
+    this.transform.pos = v;
+  }
+
+  get pos(): ex.Vector {
+    return this.transform.pos;
+  }
+
+  constructor(options: { name: string; x: number; y: number; width: number; height: number; color: ex.Color }) {
+    super({ name: options.name });
+
+    this.transform = new ex.TransformComponent();
+    this.transform.pos.setTo(options.x, options.y);
+    this.addComponent(this.transform);
+
+    this.collider = new ex.ColliderComponent(ex.Shape.Box(options.width, options.height));
+    this.addComponent(this.collider);
+
+    this.pointer = new ex.PointerComponent({ useColliderShape: true });
+    this.addComponent(this.pointer);
+  }
+}
 
 var game = new ex.Engine({
   width: 800,
@@ -6,26 +33,27 @@ var game = new ex.Engine({
   canvasElementId: 'game',
   pointerScope: ex.PointerScope.Document
 });
-var box = new ex.Actor({ x: 200, y: 200, width: 100, height: 100, color: ex.Color.Red });
-var box2 = new ex.Actor({ x: 0, y: 0, width: 50, height: 50, color: ex.Color.White });
-var cursor = new ex.Actor({ x: 0, y: 0, width: 10, height: 10, color: ex.Color.Chartreuse });
+
+var box1 = new Box({ name: 'box1', x: 200, y: 200, width: 100, height: 100, color: ex.Color.Red });
+var box2 = new Box({ name: 'box2', x: 0, y: 0, width: 50, height: 50, color: ex.Color.White });
+var cursor = new ex.Actor({ name: 'cursor', x: 0, y: 0, width: 10, height: 10, color: ex.Color.Chartreuse });
 var boxPointerDragging = false;
 
-var uiElement = new ex.ScreenElement({ x: 200, y: 0, width: 200, height: 200 });
-uiElement.color = ex.Color.Azure;
+var uiElement = new ex.ScreenElement({ name: 'uiElement', x: 200, y: 10, width: 100, height: 200, color: ex.Color.Black });
+uiElement.color = ex.Color.Black;
 uiElement.on('pointerdown', (p: ex.PointerEvent) => {
   console.log(p);
   uiElement.color = ex.Color.Red;
 });
 
-box.addChild(box2);
+box1.addChild(box2);
 // Change color of box when clicked
-box.on('pointerdown', (pe: ex.PointerEvent) => {
+box1.on('pointerdown', (pe: ex.PointerEvent) => {
   console.log('box clicked');
-  if (box.color.toString() === ex.Color.Red.toString()) {
-    box.color = ex.Color.Blue;
+  if (box1.color.toString() === ex.Color.Red.toString()) {
+    box1.color = ex.Color.Blue;
   } else {
-    box.color = ex.Color.Red;
+    box1.color = ex.Color.Red;
   }
 });
 
@@ -40,30 +68,30 @@ box2.on('pointerdown', (pe: ex.PointerEvent) => {
 });
 
 // Set drag flag
-box.on('pointerdragstart', (pe: ex.PointerEvent) => {
+box1.on('pointerdragstart', (pe: ex.PointerEvent) => {
   boxPointerDragging = true;
 });
 
 // Set drag flag
-box.on('pointerdragend', (pe: ex.PointerEvent) => {
+box1.on('pointerdragend', (pe: ex.PointerEvent) => {
   boxPointerDragging = false;
 });
 
 // Drag box around
-box.on('pointerdragmove', (pe: ex.PointerEvent) => {
+box1.on('pointerdragmove', (pe: ex.PointerEvent) => {
   if (boxPointerDragging) {
-    box.pos = pe.worldPos;
+    box1.pos = pe.worldPos;
   }
 });
 
 // Drag box around
-box.on('pointerdragleave', (pe: ex.PointerEvent) => {
+box1.on('pointerdragleave', (pe: ex.PointerEvent) => {
   if (boxPointerDragging) {
-    box.pos = pe.worldPos;
+    box1.pos = pe.worldPos;
   }
 });
 
-box.on('pointerwheel', (pe: ex.WheelEvent) => {
+box1.on('pointerwheel', (pe: ex.WheelEvent) => {
   box.rotation = box.rotation + (pe.deltaY > 0 ? 0.1 : -0.1);
 });
 
@@ -135,7 +163,7 @@ game.on('postupdate', (ue: ex.PostUpdateEvent) => {
 game.currentScene.camera.x = 0;
 game.currentScene.camera.y = 0;
 
-game.add(box);
+game.add(box1);
 game.add(cursor);
 game.add(uiElement);
 game.start();

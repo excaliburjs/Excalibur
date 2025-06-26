@@ -37,9 +37,9 @@ The graphics component allows developers to save named graphics to avoid passing
 
 ```typescript
 actor.graphics.add('jump', jumpAnimation)
-actor.graphics.show('jump') // display the graphic
+actor.graphics.use('jump') // display the graphic
 // equivalent to
-actor.graphics.show(jumpAnimation) // display the graphic
+actor.graphics.use(jumpAnimation) // display the graphic
 actor.graphics.hide() // hide the graphic
 ```
 

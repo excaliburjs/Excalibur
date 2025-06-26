@@ -1,10 +1,10 @@
-import colorBlindCorrectSource from './color-blind-fragment.glsl';
-import { PostProcessor } from './PostProcessor';
+import colorBlindCorrectSource from './color-blind-fragment.glsl?raw';
+import type { PostProcessor } from './PostProcessor';
 import { ColorBlindnessMode } from './ColorBlindnessMode';
-import { Shader } from '../Context/shader';
-import { VertexLayout } from '../Context/vertex-layout';
+import type { Shader } from '../Context/shader';
+import type { VertexLayout } from '../Context/vertex-layout';
 import { ScreenShader } from './ScreenShader';
-import { ExcaliburGraphicsContextWebGL } from '../Context/ExcaliburGraphicsContextWebGL';
+import type { ExcaliburGraphicsContextWebGL } from '../Context/ExcaliburGraphicsContextWebGL';
 
 export class ColorBlindnessPostProcessor implements PostProcessor {
   private _shader!: ScreenShader;

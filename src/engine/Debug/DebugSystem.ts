@@ -1,11 +1,12 @@
-import { Engine } from '../Engine';
-import { Scene } from '../Scene';
-import { Camera } from '../Camera';
+import type { Engine } from '../Engine';
+import type { Scene } from '../Scene';
+import type { Camera } from '../Camera';
 import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
 import { ColliderComponent } from '../Collision/ColliderComponent';
-import { Entity, Query, SystemPriority, TransformComponent, World } from '../EntityComponentSystem';
+import type { Entity, Query, World } from '../EntityComponentSystem';
+import { SystemPriority, TransformComponent } from '../EntityComponentSystem';
 import { System, SystemType } from '../EntityComponentSystem/System';
-import { ExcaliburGraphicsContext } from '../Graphics/Context/ExcaliburGraphicsContext';
+import type { ExcaliburGraphicsContext } from '../Graphics/Context/ExcaliburGraphicsContext';
 import { vec, Vector } from '../Math/vector';
 import { toDegrees } from '../Math/util';
 import { BodyComponent } from '../Collision/BodyComponent';

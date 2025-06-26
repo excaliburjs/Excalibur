@@ -1,4 +1,4 @@
-import { Meta, StoryObj } from '@storybook/html';
+import type { Meta, StoryObj } from '@storybook/html-vite';
 import { ParticleEmitter, EmitterType, Color, Vector } from '../engine';
 import { withEngine, enumToControlSelectOptions } from './utils';
 

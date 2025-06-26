@@ -1,21 +1,22 @@
-import { FrameStats } from '../../Debug/DebugConfig';
-import { Entity } from '../../EntityComponentSystem';
-import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
+import type { FrameStats } from '../../Debug/DebugConfig';
+import type { Entity } from '../../EntityComponentSystem';
+import type { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
 import { createId } from '../../Id';
-import { Ray } from '../../Math/ray';
-import { Vector, vec } from '../../Math/vector';
+import type { Ray } from '../../Math/ray';
+import type { Vector } from '../../Math/vector';
+import { vec } from '../../Math/vector';
 import { Pool } from '../../Util/Pool';
 import { BodyComponent } from '../BodyComponent';
-import { BoundingBox } from '../BoundingBox';
-import { Collider } from '../Colliders/Collider';
+import type { BoundingBox } from '../BoundingBox';
+import type { Collider } from '../Colliders/Collider';
 import { CompositeCollider } from '../Colliders/CompositeCollider';
 import { CollisionType } from '../CollisionType';
 import { CollisionGroup } from '../Group/CollisionGroup';
-import { CollisionContact } from './CollisionContact';
-import { CollisionProcessor } from './CollisionProcessor';
+import type { CollisionContact } from './CollisionContact';
+import type { CollisionProcessor } from './CollisionProcessor';
 import { Pair } from './Pair';
-import { RayCastHit } from './RayCastHit';
-import { RayCastOptions } from './RayCastOptions';
+import type { RayCastHit } from './RayCastHit';
+import type { RayCastOptions } from './RayCastOptions';
 import { HashGridCell, HashGridProxy, SparseHashGrid } from './SparseHashGrid';
 
 /**
@@ -24,7 +25,7 @@ import { HashGridCell, HashGridProxy, SparseHashGrid } from './SparseHashGrid';
 export class HashColliderProxy extends HashGridProxy<Collider> {
   id: number = -1;
   owner: Entity;
-  body: BodyComponent;
+  body?: BodyComponent;
   collisionType: CollisionType;
   hasZeroBounds = false;
   /**
@@ -65,7 +66,7 @@ export class HashColliderProxy extends HashGridProxy<Collider> {
     this.topY = Math.floor(bounds.top / this.gridSize);
     this.owner = collider.owner;
     this.body = this.owner?.get(BodyComponent);
-    this.collisionType = this.body.collisionType ?? CollisionType.PreventCollision;
+    this.collisionType = this.body?.collisionType ?? CollisionType.PreventCollision;
   }
 
   /**
@@ -74,7 +75,7 @@ export class HashColliderProxy extends HashGridProxy<Collider> {
   update(): void {
     super.update();
     this.body = this.owner?.get(BodyComponent);
-    this.collisionType = this.body.collisionType ?? CollisionType.PreventCollision;
+    this.collisionType = this.body?.collisionType ?? CollisionType.PreventCollision;
     this.hasZeroBounds = this.collider.localBounds.hasZeroDimensions();
   }
 }
@@ -184,18 +185,18 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
           const collider = cell.proxies[colliderIndex];
           if (!collidersVisited.has(collider.collider.id.value)) {
             collidersVisited.add(collider.collider.id.value);
+            if (collider.body) {
+              if (options?.ignoreCollisionGroupAll && collider.body.group === CollisionGroup.All) {
+                continue;
+              }
 
-            if (options?.ignoreCollisionGroupAll && collider.body.group === CollisionGroup.All) {
-              continue;
+              const canCollide = (collisionMask & collider.body.group.category) !== 0;
+
+              // Early exit if not the right group
+              if (collider.body.group && !canCollide) {
+                continue;
+              }
             }
-
-            const canCollide = (collisionMask & collider.body.group.category) !== 0;
-
-            // Early exit if not the right group
-            if (collider.body.group && !canCollide) {
-              continue;
-            }
-
             const hit = collider.collider.rayCast(ray, maxDistance);
 
             // Collect up all the colliders that hit inside a cell
@@ -294,7 +295,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     }
 
     // If both are in the same collision group short circuit
-    if (!colliderA.body.group.canCollide(colliderB.body.group)) {
+    if (colliderA.body && colliderB.body && !colliderA.body.group.canCollide(colliderB.body.group)) {
       return false;
     }
 

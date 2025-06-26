@@ -1,4 +1,5 @@
-import { DisplayMode, Engine, EngineOptions, KeyEvent, Keys, Logger, PointerScope } from '../engine';
+import type { EngineOptions, KeyEvent } from '../engine';
+import { DisplayMode, Engine, Keys, Logger, PointerScope } from '../engine';
 
 interface HTMLCanvasElement {
   gameRef?: Engine;
@@ -48,6 +49,7 @@ export const withEngine = (storyFn: (game: Engine, args?: Record<string, any>) =
       displayMode: DisplayMode.FitScreen,
       suppressPlayButton: true,
       pointerScope: PointerScope.Canvas,
+      pixelRatio: 1,
       ...options
     });
 

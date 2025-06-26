@@ -1,7 +1,7 @@
-import { BoundingBox } from '../Collision/BoundingBox';
-import { Color } from '../Color';
+import type { BoundingBox } from '../Collision/BoundingBox';
+import type { Color } from '../Color';
 import { Logger } from '../Util/Log';
-import { Font } from './Font';
+import type { Font } from './Font';
 import { FontTextInstance } from './FontTextInstance';
 
 export class FontCache {

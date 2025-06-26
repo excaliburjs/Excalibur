@@ -1,9 +1,10 @@
 import { randomInRange, TwoPI } from '../Math/util';
-import { ExcaliburGraphicsContextWebGL } from '../Graphics/Context/ExcaliburGraphicsContextWebGL';
-import { GpuParticleEmitter } from './GpuParticleEmitter';
-import { ParticleConfig, ParticleTransform } from './Particles';
-import { Random } from '../Math/Random';
-import { Sprite } from '../Graphics/Sprite';
+import type { ExcaliburGraphicsContextWebGL } from '../Graphics/Context/ExcaliburGraphicsContextWebGL';
+import type { GpuParticleEmitter } from './GpuParticleEmitter';
+import type { ParticleConfig } from './Particles';
+import { ParticleTransform } from './Particles';
+import type { Random } from '../Math/Random';
+import type { Sprite } from '../Graphics/Sprite';
 import { EmitterType } from './EmitterType';
 import { assert } from '../Util/Assert';
 import { vec } from '../Math/vector';

@@ -1,8 +1,8 @@
-import { Vector } from '../../Math/vector';
-import { Collider } from '../Colliders/Collider';
+import type { Vector } from '../../Math/vector';
+import type { Collider } from '../Colliders/Collider';
 import { CollisionType } from '../CollisionType';
 import { Pair } from './Pair';
-import { SeparationInfo } from '../Colliders/SeparatingAxis';
+import type { SeparationInfo } from '../Colliders/SeparatingAxis';
 import { BodyComponent } from '../BodyComponent';
 
 /**

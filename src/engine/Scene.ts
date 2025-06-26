@@ -1,8 +1,7 @@
 import { isScreenElement, ScreenElement } from './ScreenElement';
+import type { ActivateEvent, DeactivateEvent } from './Events';
 import {
   InitializeEvent,
-  ActivateEvent,
-  DeactivateEvent,
   PreUpdateEvent,
   PostUpdateEvent,
   PreDrawEvent,
@@ -12,11 +11,11 @@ import {
 } from './Events';
 import { Logger } from './Util/Log';
 import { Timer } from './Timer';
-import { Engine } from './Engine';
+import type { Engine } from './Engine';
 import { TileMap } from './TileMap';
 import { Camera } from './Camera';
 import { Actor } from './Actor';
-import { CanInitialize, CanActivate, CanDeactivate, CanUpdate, CanDraw, SceneActivationContext } from './Interfaces/LifecycleEvents';
+import type { CanInitialize, CanActivate, CanDeactivate, CanUpdate, CanDraw, SceneActivationContext } from './Interfaces/LifecycleEvents';
 import * as Util from './Util/Util';
 import { Trigger } from './Trigger';
 import { SystemType } from './EntityComponentSystem/System';
@@ -30,12 +29,13 @@ import { PointerSystem } from './Input/PointerSystem';
 import { ActionsSystem } from './Actions/ActionsSystem';
 import { IsometricEntitySystem } from './TileMap/IsometricEntitySystem';
 import { OffscreenSystem } from './Graphics/OffscreenSystem';
-import { ExcaliburGraphicsContext } from './Graphics';
+import type { ExcaliburGraphicsContext } from './Graphics';
 import { PhysicsWorld } from './Collision/PhysicsWorld';
-import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
-import { Color } from './Color';
-import { DefaultLoader } from './Director/DefaultLoader';
-import { Transition } from './Director';
+import type { EventKey, Handler, Subscription } from './EventEmitter';
+import { EventEmitter } from './EventEmitter';
+import type { Color } from './Color';
+import type { DefaultLoader } from './Director/DefaultLoader';
+import type { Transition } from './Director';
 import { InputHost } from './Input/InputHost';
 import { PointerScope } from './Input/PointerScope';
 import { getDefaultPhysicsConfig } from './Collision/PhysicsConfig';
@@ -88,6 +88,17 @@ export function isSceneConstructor(x: any): x is SceneConstructor {
  * actors in a scene. Only actors in scenes will be updated and drawn.
  *
  * Typical usages of a scene include: levels, menus, loading screens, etc.
+ *
+ * Scenes go through the following lifecycle
+ * 1. onPreLoad - called once
+ * 2. onInitialize - called once
+ * 3. onActivate - called the first frame the scene is current
+ * 4. onPreUpdate - called every update
+ * 5. onPostUpdate - called every update
+ * 6. onPreDraw - called every draw
+ * 7. onPostDraw - called every draw
+ * 8. onDeactivate - called teh first frame thescene is no longer current
+ *
  */
 export class Scene<TActivationData = unknown> implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate, CanDraw {
   private _logger: Logger = Logger.getInstance();
@@ -253,8 +264,9 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   /**
    * This is called when the scene is made transitioned away from and stopped. It is meant to be overridden,
    * this is where you should cleanup any DOM UI or event handlers needed for the scene.
+   * @returns Either data to pass to the next scene activation context as `previousSceneData` or nothing
    */
-  public onDeactivate(context: SceneActivationContext): void {
+  public onDeactivate(context: SceneActivationContext): any | void {
     // will be overridden
   }
 
@@ -377,10 +389,10 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
    * Deactivates the scene with the base behavior, then calls the overridable `onDeactivate` implementation.
    * @internal
    */
-  public async _deactivate(context: SceneActivationContext<never>) {
+  public async _deactivate(context: SceneActivationContext<never>): Promise<any> {
     this._logger.debug('Scene.onDeactivate', this);
     this.input.toggleEnabled(false);
-    await this.onDeactivate(context);
+    return await this.onDeactivate(context);
   }
 
   /**

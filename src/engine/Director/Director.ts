@@ -1,7 +1,9 @@
-import { Engine } from '../Engine';
-import { DefaultLoader, LoaderConstructor, isLoaderConstructor } from './DefaultLoader';
-import { Scene, SceneConstructor, isSceneConstructor } from '../Scene';
-import { Transition } from './Transition';
+import type { Engine } from '../Engine';
+import type { LoaderConstructor } from './DefaultLoader';
+import { DefaultLoader, isLoaderConstructor } from './DefaultLoader';
+import type { SceneConstructor } from '../Scene';
+import { Scene, isSceneConstructor } from '../Scene';
+import type { Transition } from './Transition';
 import { Loader } from './Loader';
 import { Logger } from '../Util/Log';
 import { ActivateEvent, DeactivateEvent } from '../Events';
@@ -186,6 +188,10 @@ export class Director<TKnownScenes extends string = any> {
         if (deferredSceneInstance && deferredTransition) {
           deferredTransition._addToTargetScene(this._engine, deferredSceneInstance);
         }
+
+        const inTransition = this._getInTransition(deferredScene);
+        const hideLoader = inTransition?.hideLoader;
+        this.maybeLoadScene(deferredScene, hideLoader);
         await this.swapScene(deferredScene);
         if (deferredSceneInstance && deferredTransition) {
           await this.playTransition(deferredTransition, deferredSceneInstance);
@@ -226,13 +232,16 @@ export class Director<TKnownScenes extends string = any> {
 
     this.startScene = startScene;
 
+    const maybeHideLoader = options?.inTransition?.hideLoader ?? false;
+    this.maybeLoadScene(startScene, maybeHideLoader);
+
     // Fire and forget promise for the initial scene
     if (maybeStartTransition) {
-      const startSceneInstance = this.getSceneInstance(this.startScene);
+      const startSceneInstance = this.getSceneInstance(startScene);
       if (startSceneInstance) {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         maybeStartTransition._addToTargetScene(this._engine, startSceneInstance);
-        this.swapScene(this.startScene).then(() => {
+        this.swapScene(startScene).then(() => {
           startSceneInstance.onTransition('in');
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           return this.playTransition(maybeStartTransition, startSceneInstance);
@@ -240,7 +249,7 @@ export class Director<TKnownScenes extends string = any> {
       }
     } else {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.swapScene(this.startScene);
+      this.swapScene(startScene);
     }
 
     this.currentSceneName = this.startScene;
@@ -556,6 +565,8 @@ export class Director<TKnownScenes extends string = any> {
 
   /**
    * Swaps the current and destination scene after performing required lifecycle events
+   *
+   * Note: swap scene will wait for any pending loader on the destination scene
    * @param destinationScene
    * @param data
    */
@@ -572,12 +583,13 @@ export class Director<TKnownScenes extends string = any> {
     if (maybeDest) {
       const previousScene = this.currentScene;
       const nextScene = maybeDest;
+      let previousSceneData: any = undefined;
 
       this._logger.debug('Going to scene:', destinationScene);
       // only deactivate when initialized
       if (this.currentScene.isInitialized) {
         const context = { engine, previousScene, nextScene };
-        await this.currentScene._deactivate(context);
+        previousSceneData = await this.currentScene._deactivate(context);
         this.currentScene.events.emit('deactivate', new DeactivateEvent(context, this.currentScene));
         this.currentScene.input.clear();
       }
@@ -594,7 +606,7 @@ export class Director<TKnownScenes extends string = any> {
       // initialize the current scene if has not been already
       await this.currentScene._initialize(engine);
 
-      const context = { engine, previousScene, nextScene, data };
+      const context = { engine, previousScene, previousSceneData, nextScene, data };
       await this.currentScene._activate(context);
       this.currentScene.events.emit('activate', new ActivateEvent(context, this.currentScene));
     } else {

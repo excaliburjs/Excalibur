@@ -1,22 +1,22 @@
-import { CollisionProcessor } from './CollisionProcessor';
+import type { CollisionProcessor } from './CollisionProcessor';
 import { DynamicTree } from './DynamicTree';
 import { Pair } from './Pair';
 
 import { Vector } from '../../Math/vector';
 import { Ray } from '../../Math/ray';
-import { FrameStats } from '../../Debug';
+import type { FrameStats } from '../../Debug';
 import { Logger } from '../../Util/Log';
 import { CollisionType } from '../CollisionType';
-import { Collider } from '../Colliders/Collider';
-import { CollisionContact } from '../Detection/CollisionContact';
+import type { Collider } from '../Colliders/Collider';
+import type { CollisionContact } from '../Detection/CollisionContact';
 import { BodyComponent } from '../BodyComponent';
 import { CompositeCollider } from '../Colliders/CompositeCollider';
 import { CollisionGroup } from '../Group/CollisionGroup';
-import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
-import { RayCastHit } from './RayCastHit';
-import { DeepRequired } from '../../Util/Required';
-import { PhysicsConfig } from '../PhysicsConfig';
-import { RayCastOptions } from './RayCastOptions';
+import type { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
+import type { RayCastHit } from './RayCastHit';
+import type { DeepRequired } from '../../Util/Required';
+import type { PhysicsConfig } from '../PhysicsConfig';
+import type { RayCastOptions } from './RayCastOptions';
 import { BoundingBox } from '../BoundingBox';
 import { createId } from '../../Id';
 
@@ -211,7 +211,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
       for (const collider of potentialColliders) {
         const body = collider.owner.get(BodyComponent);
         // Skip non-active objects. Does not make sense on other collision types
-        if (body.collisionType !== CollisionType.Active) {
+        if (body?.collisionType !== CollisionType.Active) {
           continue;
         }
 

@@ -7,14 +7,15 @@ import { ImageSourceAttributeConstants } from '../../ImageSource';
 import { parseImageWrapping } from '../../Wrapping';
 // import { ImageSourceAttributeConstants } from '../../ImageSource';
 // import { parseImageWrapping } from '../../Wrapping';
-import { HTMLImageSource } from '../ExcaliburGraphicsContext';
-import { ExcaliburGraphicsContextWebGL, pixelSnapEpsilon } from '../ExcaliburGraphicsContextWebGL';
-import { RendererPlugin } from '../renderer';
+import type { HTMLImageSource } from '../ExcaliburGraphicsContext';
+import type { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
+import { pixelSnapEpsilon } from '../ExcaliburGraphicsContextWebGL';
+import type { RendererPlugin } from '../renderer';
 import { Shader } from '../shader';
 import { VertexBuffer } from '../vertex-buffer';
 import { getMaxShaderComplexity } from '../webgl-util';
-import frag from './image-renderer-v2.frag.glsl';
-import vert from './image-renderer-v2.vert.glsl';
+import frag from './image-renderer-v2.frag.glsl?raw';
+import vert from './image-renderer-v2.vert.glsl?raw';
 
 export interface ImageRendererOptions {
   pixelArtSampler: boolean;

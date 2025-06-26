@@ -1,7 +1,7 @@
-import { Engine } from './../Engine';
-import * as Events from './../Events';
-import { Scene } from '../Scene';
-import { ExcaliburGraphicsContext } from '../Graphics';
+import type { Engine } from './../Engine';
+import type * as Events from './../Events';
+import type { Scene } from '../Scene';
+import type { ExcaliburGraphicsContext } from '../Graphics';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export interface _initialize {
@@ -148,9 +148,10 @@ export interface CanRemove {
   off(eventName: Events.remove, handler?: (event: Events.RemoveEvent<any>) => void): void;
 }
 
-export interface SceneActivationContext<TData = undefined> {
+export interface SceneActivationContext<TData = undefined, TPreviousSceneData = undefined> {
   data?: TData;
   previousScene: Scene;
+  previousSceneData?: TPreviousSceneData;
   nextScene: Scene;
   engine: Engine;
 }

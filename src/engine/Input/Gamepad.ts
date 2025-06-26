@@ -1,5 +1,6 @@
 import { GamepadConnectEvent, GamepadDisconnectEvent, GamepadButtonEvent, GamepadAxisEvent } from '../Events';
-import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
+import type { EventKey, Handler, Subscription } from '../EventEmitter';
+import { EventEmitter } from '../EventEmitter';
 
 export type GamepadEvents = {
   connect: GamepadConnectEvent;

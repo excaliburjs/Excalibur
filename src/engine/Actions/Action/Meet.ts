@@ -1,8 +1,9 @@
 import { MotionComponent } from '../../EntityComponentSystem/Components/MotionComponent';
 import { TransformComponent } from '../../EntityComponentSystem/Components/TransformComponent';
-import { Entity } from '../../EntityComponentSystem/Entity';
+import type { Entity } from '../../EntityComponentSystem/Entity';
 import { Vector, vec } from '../../Math/vector';
-import { Action, nextActionId } from '../Action';
+import type { Action } from '../Action';
+import { nextActionId } from '../Action';
 
 export class Meet implements Action {
   id = nextActionId();
@@ -20,8 +21,9 @@ export class Meet implements Action {
   private _started = false;
   private _stopped = false;
   private _speedWasSpecified = false;
+  private _tolerance = 1;
 
-  constructor(actor: Entity, actorToMeet: Entity, speed?: number) {
+  constructor(actor: Entity, actorToMeet: Entity, speed?: number, tolerance?: number) {
     this._tx = actor.get(TransformComponent);
     this._motion = actor.get(MotionComponent);
     this._meetTx = actorToMeet.get(TransformComponent);
@@ -32,6 +34,10 @@ export class Meet implements Action {
 
     if (speed !== undefined) {
       this._speedWasSpecified = true;
+    }
+
+    if (tolerance !== undefined) {
+      this._tolerance = tolerance;
     }
   }
 
@@ -62,7 +68,7 @@ export class Meet implements Action {
   }
 
   public isComplete(): boolean {
-    return this._stopped || this._distanceBetween <= 1;
+    return this._stopped || this._distanceBetween <= this._tolerance;
   }
 
   public stop(): void {

@@ -1,7 +1,7 @@
 import { Vector, vec } from '../Math/vector';
-import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
+import type { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { BoundingBox } from '../Collision/BoundingBox';
-import { Color } from '../Color';
+import type { Color } from '../Color';
 import { watch } from '../Util/Watch';
 import { AffineMatrix } from '../Math/affine-matrix';
 

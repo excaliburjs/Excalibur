@@ -1,9 +1,9 @@
 import { vec, Vector } from './Math/vector';
 import { Logger } from './Util/Log';
-import { Camera } from './Camera';
-import { BrowserEvents } from './Util/Browser';
+import type { Camera } from './Camera';
+import type { BrowserEvents } from './Util/Browser';
 import { BoundingBox } from './Collision/Index';
-import { ExcaliburGraphicsContext } from './Graphics/Context/ExcaliburGraphicsContext';
+import type { ExcaliburGraphicsContext } from './Graphics/Context/ExcaliburGraphicsContext';
 import { getPosition } from './Util/Util';
 import { ExcaliburGraphicsContextWebGL } from './Graphics/Context/ExcaliburGraphicsContextWebGL';
 import { ExcaliburGraphicsContext2DCanvas } from './Graphics/Context/ExcaliburGraphicsContext2DCanvas';
