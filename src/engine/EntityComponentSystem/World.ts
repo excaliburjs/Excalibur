@@ -3,7 +3,7 @@ import { Logger } from '../Util/Log';
 import type { Component, ComponentCtor } from './Component';
 import { Entity } from './Entity';
 import { EntityManager } from './EntityManager';
-import type { Query } from './Query';
+import type { Query, QueryParams } from './Query';
 import { QueryManager } from './QueryManager';
 import { System, SystemType } from './System';
 import type { SystemCtor } from './SystemManager';
@@ -27,10 +27,11 @@ export class World {
 
   /**
    * Query the ECS world for entities that match your components
-   * @param requiredTypes
    */
-  query<TKnownComponentCtors extends ComponentCtor<Component>>(requiredTypes: TKnownComponentCtors[]): Query<TKnownComponentCtors> {
-    return this.queryManager.createQuery(requiredTypes);
+  query<TKnownComponentCtors extends ComponentCtor<Component> = never, TAnyComponentCtors extends ComponentCtor<Component> = never>(
+    params: TKnownComponentCtors[] | QueryParams<TKnownComponentCtors, TAnyComponentCtors>
+  ): Query<TKnownComponentCtors, TAnyComponentCtors> {
+    return this.queryManager.createQuery(params);
   }
 
   queryTags<TKnownTags extends string>(requiredTags: TKnownTags[]): TagQuery<TKnownTags> {

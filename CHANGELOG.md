@@ -21,6 +21,33 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Added ability to use `ex.Vector` to specify offset and margin in `SpriteSheet.fromImageSource({..})`
 - New PostProcessor.onDraw() hook to handle uploading textures
 - Adds contact solve bias to RealisticSolver, this allows customization on which direction contacts are solved first. By default there is no bias set to 'none'.
+- Queries can now take additional options to filter in/out by components or tags.
+
+```ts
+const query = new Query({
+  // all fields are optional
+  components: {
+    all: [ComponentA, ComponentB] as const, // important for type safety!
+    any: [ComponentC, ComponentD] as const, // important for type safety!
+    not: [ComponentE]
+  },
+  tags: {
+    all: ['tagA', 'tagB'],
+    any: ['tagC', 'tagD'],
+    not: ['tagE']
+  }
+})
+
+// previous constructor type still works and is shorthand for components.all
+new Query([ComponentA, ComponentB] as const)
+```
+
+- Queries can now match all entities by specifying no filters
+
+```ts
+const query = new Query({})
+```
+
 - Adds `maxVel` attribute to `MotionComponent`, which clamps velocity on separated X and Y axes
 - Add `Clock.clearSchedule(id)` and have `Clock.schedule` return an ID so you can clear a scheduled callback before it fires
 
