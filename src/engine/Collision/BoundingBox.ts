@@ -408,7 +408,8 @@ export class BoundingBox {
       return null;
     }
 
-    const minIndex = getMinIndex(BoundingBox._SCRATCH_INTERSECT);
+    const minIndex = getMinIndex(BoundingBox._SCRATCH_INTERSECT) as 0 | 1 | 2 | 3;
+
     switch (minIndex) {
       case 0:
         return new Vector(0, -topPath);
@@ -419,8 +420,8 @@ export class BoundingBox {
       case 3:
         return new Vector(rightPath, 0);
       default:
-        // const index: never = minIndex;
-        throw new Error('Unreachable');
+        const index: never = minIndex;
+        throw new Error(`Unreachable index: [${index}] on bounding box intersection!`);
     }
   }
 
