@@ -19,7 +19,9 @@ export class Shape {
    */
   static Box(width: number, height: number, anchor: Vector = Vector.Half, offset: Vector = Vector.Zero): PolygonCollider {
     return new PolygonCollider({
-      points: new BoundingBox(-width * anchor.x, -height * anchor.y, width - width * anchor.x, height - height * anchor.y).getPoints(),
+      points: new BoundingBox(-width * anchor.x, -height * anchor.y, width - width * anchor.x, height - height * anchor.y)
+        .getPoints()
+        .slice(),
       offset: offset
     });
   }

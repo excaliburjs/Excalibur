@@ -4,6 +4,7 @@ import { Color } from '../Color';
 import { Side } from './Side';
 import type { ExcaliburGraphicsContext } from '../Graphics/Context/ExcaliburGraphicsContext';
 import type { AffineMatrix } from '../Math/affine-matrix';
+import { getMinIndex } from '../Util/Util';
 
 export interface BoundingBoxOptions {
   left: number;
@@ -254,7 +255,7 @@ export class BoundingBox {
   /**
    * Returns the world space points that make up the corners of the bounding box as a polygon
    */
-  public getPoints(): Vector[] {
+  public getPoints(): readonly Vector[] {
     if (this._left !== this.left || this._right !== this.right || this._top !== this.top || this._bottom !== this.bottom) {
       this._points.length = 0;
       this._points.push(new Vector(this.left, this.top));
@@ -274,46 +275,50 @@ export class BoundingBox {
    */
   public rayCast(ray: Ray, farClipDistance = Infinity): boolean {
     // algorithm from https://tavianator.com/fast-branchless-raybounding-box-intersections/
-    let tMin = -Infinity;
-    let tMax = +Infinity;
+    // principle visualisation: https://youtu.be/GqwUHXvQ7oA
+    let tMinMax: number, tMaxMin: number;
 
     const xInv = ray.dir.x === 0 ? Number.MAX_VALUE : 1 / ray.dir.x;
     const yInv = ray.dir.y === 0 ? Number.MAX_VALUE : 1 / ray.dir.y;
 
     const tx1 = (this.left - ray.pos.x) * xInv;
     const tx2 = (this.right - ray.pos.x) * xInv;
-    tMin = Math.min(tx1, tx2);
-    tMax = Math.max(tx1, tx2);
+    tMaxMin = Math.min(tx1, tx2);
+    tMinMax = Math.max(tx1, tx2);
 
     const ty1 = (this.top - ray.pos.y) * yInv;
     const ty2 = (this.bottom - ray.pos.y) * yInv;
-    tMin = Math.max(tMin, Math.min(ty1, ty2));
-    tMax = Math.min(tMax, Math.max(ty1, ty2));
+    tMaxMin = Math.max(tMaxMin, Math.min(ty1, ty2));
+    tMinMax = Math.min(tMinMax, Math.max(ty1, ty2));
 
-    return tMax >= Math.max(0, tMin) && tMin < farClipDistance;
+    return tMinMax >= 0 && tMinMax >= tMaxMin && tMaxMin < farClipDistance;
   }
 
+  /**
+   * Returns the time along the ray where a raycast hits
+   */
   public rayCastTime(ray: Ray, farClipDistance = Infinity): number {
     // algorithm from https://tavianator.com/fast-branchless-raybounding-box-intersections/
-    let tMin = -Infinity;
-    let tMax = +Infinity;
+    // principle visualisation: https://youtu.be/GqwUHXvQ7oA
 
+    let tMinMax: number, tMaxMin: number;
     const xInv = ray.dir.x === 0 ? Number.MAX_VALUE : 1 / ray.dir.x;
     const yInv = ray.dir.y === 0 ? Number.MAX_VALUE : 1 / ray.dir.y;
 
     const tx1 = (this.left - ray.pos.x) * xInv;
     const tx2 = (this.right - ray.pos.x) * xInv;
-    tMin = Math.min(tx1, tx2);
-    tMax = Math.max(tx1, tx2);
+    tMaxMin = Math.min(tx1, tx2);
+    tMinMax = Math.max(tx1, tx2);
 
     const ty1 = (this.top - ray.pos.y) * yInv;
     const ty2 = (this.bottom - ray.pos.y) * yInv;
-    tMin = Math.max(tMin, Math.min(ty1, ty2));
-    tMax = Math.min(tMax, Math.max(ty1, ty2));
+    tMaxMin = Math.max(tMaxMin, Math.min(ty1, ty2));
+    tMinMax = Math.min(tMinMax, Math.max(ty1, ty2));
 
-    if (tMax >= Math.max(0, tMin) && tMin < farClipDistance) {
-      return tMin;
+    if (tMinMax >= 0 && tMinMax >= tMaxMin && tMaxMin < farClipDistance) {
+      return tMaxMin;
     }
+
     return -1;
   }
 
@@ -376,6 +381,7 @@ export class BoundingBox {
     return totalBoundingBox.width + e < other.width + this.width && totalBoundingBox.height + e < other.height + this.height;
   }
 
+  private static _SCRATCH_INTERSECT = [0, 0, 0, 0];
   /**
    * Test wether this bounding box intersects with another returning
    * the intersection vector that can be used to resolve the collision. If there
@@ -384,124 +390,39 @@ export class BoundingBox {
    * @returns A Vector in the direction of the current BoundingBox, this <- other
    */
   public intersect(other: BoundingBox): Vector {
-    const totalBoundingBox = this.combine(other);
-
-    // If the total bounding box is less than or equal the sum of the 2 bounds then there is collision
-    if (
-      totalBoundingBox.width < other.width + this.width &&
-      totalBoundingBox.height < other.height + this.height &&
-      !totalBoundingBox.dimensions.equals(other.dimensions) &&
-      !totalBoundingBox.dimensions.equals(this.dimensions)
-    ) {
-      // collision
-      let overlapX = 0;
-      // right edge is between the other's left and right edge
-      /**
-       *     +-this-+
-       *     |      |
-       *     |    +-other-+
-       *     +----|-+     |
-       *          |       |
-       *          +-------+
-       *         <---
-       *          ^ overlap
-       */
-      if (this.right >= other.left && this.right <= other.right) {
-        overlapX = other.left - this.right;
-        // right edge is past the other's right edge
-        /**
-         *     +-other-+
-         *     |       |
-         *     |    +-this-+
-         *     +----|--+   |
-         *          |      |
-         *          +------+
-         *          --->
-         *          ^ overlap
-         */
-      } else {
-        overlapX = other.right - this.left;
-      }
-
-      let overlapY = 0;
-      // top edge is between the other's top and bottom edge
-      /**
-       *     +-other-+
-       *     |       |
-       *     |    +-this-+   | <- overlap
-       *     +----|--+   |   |
-       *          |      |  \ /
-       *          +------+   '
-       */
-      if (this.top <= other.bottom && this.top >= other.top) {
-        overlapY = other.bottom - this.top;
-        // top edge is above the other top edge
-        /**
-         *     +-this-+         .
-         *     |      |        / \
-         *     |    +-other-+   | <- overlap
-         *     +----|-+     |   |
-         *          |       |
-         *          +-------+
-         */
-      } else {
-        overlapY = other.top - this.bottom;
-      }
-
-      if (Math.abs(overlapX) < Math.abs(overlapY)) {
-        return new Vector(overlapX, 0);
-      } else {
-        return new Vector(0, overlapY);
-      }
-      // Case of total containment of one bounding box by another
-    } else if (totalBoundingBox.dimensions.equals(other.dimensions) || totalBoundingBox.dimensions.equals(this.dimensions)) {
-      let overlapX = 0;
-      // this is wider than the other
-      if (this.width - other.width >= 0) {
-        // This right edge is closest to the others right edge
-        if (this.right - other.right <= other.left - this.left) {
-          overlapX = other.left - this.right;
-          // This left edge is closest to the others left edge
-        } else {
-          overlapX = other.right - this.left;
-        }
-        // other is wider than this
-      } else {
-        // This right edge is closest to the others right edge
-        if (other.right - this.right <= this.left - other.left) {
-          overlapX = this.left - other.right;
-          // This left edge is closest to the others left edge
-        } else {
-          overlapX = this.right - other.left;
-        }
-      }
-
-      let overlapY = 0;
-      // this is taller than other
-      if (this.height - other.height >= 0) {
-        // The bottom edge is closest to the others bottom edge
-        if (this.bottom - other.bottom <= other.top - this.top) {
-          overlapY = other.top - this.bottom;
-        } else {
-          overlapY = other.bottom - this.top;
-        }
-        // other is taller than this
-      } else {
-        // The bottom edge is closest to the others bottom edge
-        if (other.bottom - this.bottom <= this.top - other.top) {
-          overlapY = this.top - other.bottom;
-        } else {
-          overlapY = this.bottom - other.top;
-        }
-      }
-
-      if (Math.abs(overlapX) < Math.abs(overlapY)) {
-        return new Vector(overlapX, 0);
-      } else {
-        return new Vector(0, overlapY);
-      }
-    } else {
+    // early exit
+    if (this.bottom <= other.top || other.bottom <= this.top || this.right <= other.left || other.right <= this.left) {
       return null;
+    }
+
+    // compute the pathes needed to get ahead of the other box in that direction
+    // if path <= 0 it means this box is already ahead in that direction
+    const topPath = this.bottom - other.top;
+    BoundingBox._SCRATCH_INTERSECT[0] = topPath;
+
+    const bottomPath = other.bottom - this.top;
+    BoundingBox._SCRATCH_INTERSECT[1] = bottomPath;
+
+    const leftPath = this.right - other.left;
+    BoundingBox._SCRATCH_INTERSECT[2] = leftPath;
+
+    const rightPath = other.right - this.left;
+    BoundingBox._SCRATCH_INTERSECT[3] = rightPath;
+
+    const minIndex = getMinIndex(BoundingBox._SCRATCH_INTERSECT) as 0 | 1 | 2 | 3;
+
+    switch (minIndex) {
+      case 0:
+        return new Vector(0, -topPath);
+      case 1:
+        return new Vector(0, bottomPath);
+      case 2:
+        return new Vector(-leftPath, 0);
+      case 3:
+        return new Vector(rightPath, 0);
+      default:
+        const index: never = minIndex;
+        throw new Error(`Unreachable index: [${index}] on bounding box intersection!`);
     }
   }
 

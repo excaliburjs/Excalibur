@@ -3,6 +3,26 @@ import type { Clock } from './Clock';
 import { Future } from './Future';
 
 /**
+ *
+ */
+export function getMinIndex(array: number[]): number {
+  if (array.length === 0) {
+    throw new Error('Cannot find minIndex of array.length == 0');
+  }
+
+  let min = array[0];
+  let minIndex = 0;
+
+  for (let i = 1; i < array.length; i++) {
+    if (array[i] < min) {
+      min = array[i];
+      minIndex = i;
+    }
+  }
+  return minIndex;
+}
+
+/**
  * Find the screen position of an HTML element
  */
 export function getPosition(el: HTMLElement): Vector {

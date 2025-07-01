@@ -80,6 +80,8 @@ const query = new Query({})
 
 ### Changed
 
+- Optimized BoundingBox.rayCast and BoundingBox.rayCastTime
+- Optimized BoundingBox.intersect(otherBoundingBox)
 - Change logging behavior for entities not in scenes, only log in dev builds
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
