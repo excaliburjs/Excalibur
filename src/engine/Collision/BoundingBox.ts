@@ -390,6 +390,11 @@ export class BoundingBox {
    * @returns A Vector in the direction of the current BoundingBox, this <- other
    */
   public intersect(other: BoundingBox): Vector {
+    // early exit
+    if (this.bottom <= other.top || other.bottom <= this.top || this.right <= other.left || other.right <= this.left) {
+      return null;
+    }
+
     // compute the pathes needed to get ahead of the other box in that direction
     // if path <= 0 it means this box is already ahead in that direction
     const topPath = this.bottom - other.top;
@@ -403,10 +408,6 @@ export class BoundingBox {
 
     const rightPath = other.right - this.left;
     BoundingBox._SCRATCH_INTERSECT[3] = rightPath;
-
-    if (topPath <= 0 || bottomPath <= 0 || leftPath <= 0 || rightPath <= 0) {
-      return null;
-    }
 
     const minIndex = getMinIndex(BoundingBox._SCRATCH_INTERSECT) as 0 | 1 | 2 | 3;
 
