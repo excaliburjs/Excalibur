@@ -9,8 +9,17 @@ const text = ts`
 import * as ex from 'excalibur';
 console.log('hello world');
 
+const game = new ex.Engine({
+    canvasElementId: 'preview-canvas',
+    displayMode: ex.DisplayMode.FitContainer,
+    width: 600,
+    height: 400
+});
+
 const a = new ex.Actor();
-`;
+
+
+game.start()`;
 
 // Solution: Configure Monaco Environment before importing
 window.MonacoEnvironment = {
@@ -55,3 +64,29 @@ const editor = monaco.editor.create(containerEl, {
 	theme: 'vs-dark'
 });
 
+function esm(templateStrings, ...substitutions) {
+  let js = templateStrings.raw[0];
+  for (let i=0; i<substitutions.length; i++) {
+    js += substitutions[i] + templateStrings.raw[i+1];
+  }
+  return 'data:text/javascript;base64,' + btoa(js);
+}
+
+// const getWorker = await monaco.languages.typescript.getTypeScriptWorker();
+
+const buildButtonEl = document.getElementById('build')! as HTMLButtonElement;
+
+buildButtonEl.addEventListener('click', async () => {
+	const model = editor.getModel()!
+	const getWorker = await monaco.languages.typescript.getTypeScriptWorker();
+
+	const client = await getWorker();
+
+
+	const runnanbleJs = await client.getEmitOutput(model.uri.toString(), false, false);
+	const firstJs = runnanbleJs.outputFiles.find(f => f.name.endsWith('.js'));
+	if (firstJs) {
+		// eval(firstJs.text);
+		import(esm`${firstJs.text}`);
+	}
+});

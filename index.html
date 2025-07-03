@@ -10,10 +10,27 @@
 
 <body>
 
-	<div id="container"></div>
+	<main>
+		<div id="container"></div>
+		<div id="preview">
+			<canvas id="preview-canvas"></canvas>
+			<div id="controls">
+					<button id="build">Build & Run</button>
+			</div>
+		</div>
+
+	</main>
 
 
-		<script type="module" src="main.ts"></script>
+	<script type="importmap">
+        {
+            "imports": {
+                "excalibur": "https://www.unpkg.com/excalibur@next/build/esm/excalibur.min.js"
+            }
+        }
+	</script>
+	<script type="module" src="main.ts"></script>
+
 
 </body>
 
