@@ -9,7 +9,7 @@ const text = ts`
 import * as ex from 'excalibur';
 console.log('hello world');
 
-const a = new Actor();
+const a = new ex.Actor();
 `;
 
 // Solution: Configure Monaco Environment before importing
@@ -29,7 +29,12 @@ window.MonacoEnvironment = {
 import exTypes from './node_modules/excalibur/build/dist/excalibur.d.ts?raw';
 //@ts-ignore
 import indexTypes from './node_modules/excalibur/build/dist/index.d.ts?raw';
-//
+
+//@ts-ignore
+import actorType from './node_modules/excalibur/build/dist/Actor.d.ts?raw';
+
+
+
 // Check if TypeScript language server is working
 const tsDefaults = monaco.languages.typescript.typescriptDefaults;
 
@@ -55,12 +60,8 @@ monaco.languages.typescript.typescriptDefaults.addExtraLib(
 );
 
 monaco.languages.typescript.typescriptDefaults.addExtraLib(
-	`
-/**
-* some actor
-*/
-declare class Actor {}`,
-	"ts:actor.d.ts"
+	actorType,
+	"file:///Actor.d.ts"
 );
 
 const containerEl = document.getElementById("container")!;
