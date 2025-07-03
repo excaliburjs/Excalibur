@@ -64,6 +64,10 @@ const editor = monaco.editor.create(containerEl, {
 	theme: 'vs-dark'
 });
 
+/**
+	* esm tagged template literal from Dr. Axel
+	* https://2ality.com/2019/10/eval-via-import.html
+	*/
 function esm(templateStrings, ...substitutions) {
   let js = templateStrings.raw[0];
   for (let i=0; i<substitutions.length; i++) {
@@ -86,7 +90,8 @@ buildButtonEl.addEventListener('click', async () => {
 	const runnanbleJs = await client.getEmitOutput(model.uri.toString(), false, false);
 	const firstJs = runnanbleJs.outputFiles.find(f => f.name.endsWith('.js'));
 	if (firstJs) {
-		// eval(firstJs.text);
-		import(esm`${firstJs.text}`);
+		// Dr. Axel to the rescue
+		// https://2ality.com/2019/10/eval-via-import.html
+		import(/* @vite-ignore */esm`${firstJs.text}`);
 	}
 });
