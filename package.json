@@ -10,6 +10,8 @@
   "author": "Erik Onarheim",
   "license": "BSD-2-Clause",
   "devDependencies": {
+    "@types/node": "^24.0.10",
+    "tsup": "^8.5.0",
     "typescript": "5.8.3",
     "vite": "7.0.0"
   },

@@ -25,14 +25,11 @@ window.MonacoEnvironment = {
 	}
 } as any;
 
-//@ts-ignore
-import exTypes from './node_modules/excalibur/build/dist/excalibur.d.ts?raw';
-//@ts-ignore
-import indexTypes from './node_modules/excalibur/build/dist/index.d.ts?raw';
-
-//@ts-ignore
-import actorType from './node_modules/excalibur/build/dist/Actor.d.ts?raw';
-
+import exTypes from './dist/index.d.ts?raw';
+monaco.languages.typescript.typescriptDefaults.addExtraLib(
+	exTypes,
+	"file:///index.d.ts"
+);
 
 
 // Check if TypeScript language server is working
@@ -41,28 +38,13 @@ const tsDefaults = monaco.languages.typescript.typescriptDefaults;
 monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
 	...tsDefaults.getCompilerOptions(),
 	paths: {
-		'excalibur': ['file:///excalibur.d.ts']
+		'excalibur': ['file:///index.d.ts']
 	}
 });
 
 // These should return the default configurations
 console.log('Compiler Options:', tsDefaults.getCompilerOptions());
 console.log('Diagnostics Options:', tsDefaults.getDiagnosticsOptions());
-
-monaco.languages.typescript.typescriptDefaults.addExtraLib(
-	exTypes,
-	"file:///excalibur.d.ts"
-);
-
-monaco.languages.typescript.typescriptDefaults.addExtraLib(
-	indexTypes,
-	"file:///index.d.ts"
-);
-
-monaco.languages.typescript.typescriptDefaults.addExtraLib(
-	actorType,
-	"file:///Actor.d.ts"
-);
 
 const containerEl = document.getElementById("container")!;
 
