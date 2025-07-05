@@ -239,16 +239,14 @@ export class Director<TKnownScenes extends string = any> {
     if (maybeStartTransition) {
       const startSceneInstance = this.getSceneInstance(startScene);
       if (startSceneInstance) {
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         maybeStartTransition._addToTargetScene(this._engine, startSceneInstance);
         this.swapScene(startScene).then(() => {
           startSceneInstance.onTransition('in');
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+
           return this.playTransition(maybeStartTransition, startSceneInstance);
         });
       }
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.swapScene(startScene);
     }
 
@@ -448,7 +446,7 @@ export class Director<TKnownScenes extends string = any> {
     if (hideLoader) {
       // Start hidden loader early and take advantage of the transition
       // Don't await and block on a hidden loader
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+
       this.maybeLoadScene(destinationScene, hideLoader);
     }
 
@@ -525,7 +523,7 @@ export class Director<TKnownScenes extends string = any> {
       sceneToLoadInstance.events.emit('preload', { loader });
       if (hideLoader) {
         // Don't await a hidden loader
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+
         this._engine.load(loader, hideLoader);
       } else {
         await this._engine.load(loader);

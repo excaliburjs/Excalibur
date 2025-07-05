@@ -44,7 +44,7 @@ export class Sprite extends Graphic {
     this.destSize = options.destSize ?? { width: width ?? 0, height: height ?? 0 };
     this._updateSpriteDimensions();
     // Fire when loaded
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+
     this.image.ready.then(() => {
       this._updateSpriteDimensions();
     });

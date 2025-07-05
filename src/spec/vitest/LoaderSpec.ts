@@ -383,7 +383,7 @@ describe('A loader', () => {
       const loader = new ex.Loader([new ex.ImageSource('/src/spec/assets/images/SpriteSpec/icon.png')]);
       loader.suppressPlayButton = true;
 
-      TestUtils.runToReady(engine, loader).then(async () => {
+      TestUtils.runToReady(engine, loader).then(() => {
         // With suppress play there is another 500 ms delay in engine load()
         testClock.step(1);
         engine.graphicsContext.flush();

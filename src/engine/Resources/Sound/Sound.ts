@@ -194,7 +194,6 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
 
       this._engine.on('visible', () => {
         if (engine.pauseAudioWhenHidden && this._wasPlayingOnHidden) {
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.play();
           this._wasPlayingOnHidden = false;
         }

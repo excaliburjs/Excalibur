@@ -384,7 +384,7 @@ describe('A scene', () => {
 
   it('calls onActivate and onDeactivate with the correct args (with ASYNC deactivation data)', async () => {
     const sceneA = new ex.Scene();
-    sceneA.onDeactivate = vi.fn(async () => {
+    sceneA.onDeactivate = vi.fn(() => {
       return 'SomeDeactivationData';
     });
     const sceneB = new ex.Scene();

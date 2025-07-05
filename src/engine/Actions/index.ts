@@ -1,6 +1,6 @@
 export * from './ActionContext';
 export * from './ActionQueue';
-export * from './Actionable';
+export type * from './Actionable';
 
 export * from './Action';
 export * from './Action/ActionSequence';

@@ -24,7 +24,7 @@ export class EngineInstanceReporter implements Reporter {
       for (const leak of this.leaks) {
         leakString += leak + '\n';
       }
-      console.log(leakString); // eslint-disable-line
+      console.log(leakString);
     }
   }
 }

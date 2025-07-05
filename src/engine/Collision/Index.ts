@@ -21,9 +21,9 @@ export * from './Group/CollisionGroupManager';
 
 export * from './Detection/Pair';
 export * from './Detection/CollisionContact';
-export * from './Detection/RayCastHit';
-export * from './Detection/RayCastOptions';
-export * from './Detection/CollisionProcessor';
+export type * from './Detection/RayCastHit';
+export type * from './Detection/RayCastOptions';
+export type * from './Detection/CollisionProcessor';
 export * from './Detection/DynamicTree';
 export * from './Detection/DynamicTreeCollisionProcessor';
 export * from './Detection/SparseHashGridCollisionProcessor';
@@ -35,7 +35,7 @@ export * from './Solver/ArcadeSolver';
 export * from './Solver/ContactBias';
 export * from './Solver/ContactConstraintPoint';
 export * from './Solver/RealisticSolver';
-export * from './Solver/Solver';
+export type * from './Solver/Solver';
 
 export * from './CollisionSystem';
 export * from './MotionSystem';

@@ -4,7 +4,7 @@ import { TestUtils } from './util/TestUtils';
 describe('A Coroutine', () => {
   let engine: ex.Engine;
 
-  afterEach(async () => {
+  afterEach(() => {
     if (engine) {
       engine.dispose();
     }
@@ -245,9 +245,9 @@ describe('A Coroutine', () => {
     });
   });
 
-  it('can stop coroutines', async () => {
+  it('can stop coroutines', () => {
     engine = TestUtils.engine({ width: 100, height: 100 });
-    await engine.scope(async () => {
+    engine.scope(() => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
       const result = ex.coroutine(function* () {
@@ -267,11 +267,11 @@ describe('A Coroutine', () => {
     });
   });
 
-  it('can start coroutines', async () => {
+  it('can start coroutines', () => {
     engine = TestUtils.engine({ width: 100, height: 100 });
     const logger = ex.Logger.getInstance();
     vi.spyOn(logger, 'warn');
-    await engine.scope(async () => {
+    engine.scope(() => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
       const result = ex.coroutine(
@@ -297,9 +297,9 @@ describe('A Coroutine', () => {
     });
   });
 
-  it('can have nested coroutines', async () => {
+  it('can have nested coroutines', () => {
     engine = TestUtils.engine({ width: 100, height: 100 });
-    await engine.scope(async () => {
+    engine.scope(() => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
       const result = ex.coroutine(function* () {
@@ -319,9 +319,9 @@ describe('A Coroutine', () => {
     });
   });
 
-  it('can iterate over coroutines', async () => {
+  it('can iterate over coroutines', () => {
     engine = TestUtils.engine({ width: 100, height: 100 });
-    await engine.scope(async () => {
+    engine.scope(() => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
       const result = ex.coroutine(
@@ -346,9 +346,9 @@ describe('A Coroutine', () => {
     });
   });
 
-  it('can iterate over coroutines', async () => {
+  it('can iterate over coroutines', () => {
     engine = TestUtils.engine({ width: 100, height: 100 });
-    await engine.scope(async () => {
+    engine.scope(() => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
       const result = ex.coroutine(

@@ -28,7 +28,7 @@ export class MemoryReporter implements Reporter {
     });
 
     for (const test of this.specs.slice(0, 20)) {
-      console.warn(`Spec ${test.name} MB: ${test.memory}`); // eslint-disable-line
+      console.warn(`Spec ${test.name} MB: ${test.memory}`);
     }
   }
 }
