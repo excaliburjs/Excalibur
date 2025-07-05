@@ -129,7 +129,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     const results: RayCastHit[] = [];
     const maxDistance = options?.maxDistance ?? Infinity;
     const collisionGroup = options?.collisionGroup;
-    const collisionMask = !collisionGroup ? options?.collisionMask ?? CollisionGroup.All.category : collisionGroup.category;
+    const collisionMask = !collisionGroup ? (options?.collisionMask ?? CollisionGroup.All.category) : collisionGroup.category;
     const searchAllColliders = options?.searchAllColliders ?? false;
 
     const unitRay = ray.dir.normalize();

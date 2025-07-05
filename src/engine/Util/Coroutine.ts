@@ -146,7 +146,7 @@ export function coroutine(...args: any[]): CoroutineInstance {
 
   const inside = useContext(InsideCoroutineContext);
   const schedule = options?.timing;
-  const autostart = inside ? false : options?.autostart ?? true;
+  const autostart = inside ? false : (options?.autostart ?? true);
   let engine: Engine;
   try {
     engine = passedEngine ?? Engine.useEngine();

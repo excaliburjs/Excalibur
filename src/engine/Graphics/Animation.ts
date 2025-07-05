@@ -172,7 +172,7 @@ export class Animation extends Graphic implements HasTick {
     this.frames = options.frames;
     this.speed = options.speed ?? this.speed;
     this.strategy = options.strategy ?? this.strategy;
-    this.frameDuration = options.totalDuration ? options.totalDuration / this.frames.length : options.frameDuration ?? this.frameDuration;
+    this.frameDuration = options.totalDuration ? options.totalDuration / this.frames.length : (options.frameDuration ?? this.frameDuration);
     if (options.reverse) {
       this.reverse();
     }

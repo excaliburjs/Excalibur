@@ -1021,7 +1021,7 @@ O|===|* >________________>\n\
       viewport: options.viewport ?? (options.width && options.height ? { width: options.width, height: options.height } : Resolution.SVGA),
       resolution: options.resolution,
       displayMode,
-      pixelRatio: options.suppressHiDPIScaling ? 1 : options.pixelRatio ?? null
+      pixelRatio: options.suppressHiDPIScaling ? 1 : (options.pixelRatio ?? null)
     });
 
     // TODO REMOVE STATIC!!!
@@ -1202,7 +1202,7 @@ O|===|* >________________>\n\
       viewport: options.viewport ?? (options.width && options.height ? { width: options.width, height: options.height } : Resolution.SVGA),
       resolution: options.resolution,
       displayMode,
-      pixelRatio: options.suppressHiDPIScaling ? 1 : options.pixelRatio ?? null
+      pixelRatio: options.suppressHiDPIScaling ? 1 : (options.pixelRatio ?? null)
     });
     this.screen.setCurrentCamera(this.currentScene.camera);
 
