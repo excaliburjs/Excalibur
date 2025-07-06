@@ -59,12 +59,7 @@ export class Random {
     this._mt = new Array<number>(this._n);
     // need to mask to support higher bit machines
 
-    const dynamicSeed = () => {
-      seedOffset++;
-      return initialSeed + seedOffset;
-    };
-
-    this._mt[0] = (seed || dynamicSeed()) >>> 0;
+    this._mt[0] = (seed || initialSeed + seedOffset++) >>> 0;
     this._seed = this._mt[0];
 
     for (let i = 1; i < this._n; i++) {
