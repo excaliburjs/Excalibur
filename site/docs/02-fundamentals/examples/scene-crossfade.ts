@@ -40,7 +40,7 @@ game.add('scene2', {
 });
 
 game.input.pointers.primary.on('down', () => {
-  game.currentSceneName === 'scene2' ? game.goto('scene1') : game.goto('scene2');
+  game.currentSceneName === 'scene2' ? game.goToScene('scene1') : game.goToScene('scene2');
 });
 
 game.start('scene2');
