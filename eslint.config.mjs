@@ -22,7 +22,7 @@ export default tseslint.config(
     '**/*.d.ts',
     '**/build-storybook'
   ]),
-  tseslint.configs.base,
+  tseslint.configs.recommendedTypeChecked,
   {
     plugins: {
       jsdoc
@@ -73,6 +73,49 @@ export default tseslint.config(
       '@typescript-eslint/no-empty-function': 'error',
       '@typescript-eslint/consistent-type-imports': 'error',
       '@typescript-eslint/consistent-type-exports': 'error',
+
+      // these are new rules introduced when upgrading typescript-eslint to 9, we may want to enable and fix some of these
+      // some of these are only affecting test files, maybe we just want to disable some of these only in test files
+      // (see ruleset below)
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/no-empty-object-type': 'off',
+      '@typescript-eslint/prefer-namespace-keyword': 'off',
+      '@typescript-eslint/no-namespace': 'off',
+      '@typescript-eslint/ban-ts-comment': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/unbound-method': 'off',
+
+      // these are ones we should probably enable & fix, and/or move to test files ruleset
+      'prefer-spread': 'off',
+      'prefer-rest-params': 'off',
+      '@typescript-eslint/no-unsafe-declaration-merging': 'off',
+      '@typescript-eslint/no-non-null-asserted-optional-chain': 'off',
+      '@typescript-eslint/no-unsafe-function-type': 'off',
+      '@typescript-eslint/no-duplicate-enum-values': 'off',
+      '@typescript-eslint/no-this-alias': 'off',
+      '@typescript-eslint/prefer-as-const': 'off',
+      '@typescript-eslint/no-wrapper-object-type': 'off',
+      '@typescript-eslint/no-misused-promises': 'off',
+      '@typescript-eslint/no-unnecessary-type-assertion': 'off',
+      '@typescript-eslint/no-redundant-type-constituents': 'off',
+      '@typescript-eslint/prefer-promise-reject-errors': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/only-throw-error': 'off',
+      '@typescript-eslint/no-unsafe-enum-comparison': 'off',
+      '@typescript-eslint/require-await': 'off',
+      '@typescript-eslint/restrict-plus-operands': 'off',
+      '@typescript-eslint/no-base-to-string': 'off',
+      '@typescript-eslint/restrict-template-expressions': 'off',
+      '@typescript-eslint/no-wrapper-object-types': 'off',
+      '@typescript-eslint/no-implied-eval': 'off',
+      '@typescript-eslint/no-duplicate-type-constituents': 'off',
+      '@typescript-eslint/no-floating-promises': 'off',
+      '@typescript-eslint/await-thenable': 'off',
+
       curly: 'error',
       'dot-notation': 'error',
       'no-caller': 'error',
@@ -127,6 +170,14 @@ export default tseslint.config(
           definedTags: ['hidden', 'internal', 'source', 'obsolete', 'warning', 'notimplemented', 'credit', 'typedoc']
         }
       ]
+    }
+  },
+  // lax ruleset for tests and stories
+  {
+    files: ['**/*Spec*', '**/*.stories*'],
+    rules: {
+      '@typescript-eslint/no-floating-promises': 'off',
+      '@typescript-eslint/await-thenable': 'off'
     }
   },
   {
