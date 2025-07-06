@@ -75,7 +75,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
     const results: RayCastHit[] = [];
     const maxDistance = options?.maxDistance ?? Infinity;
     const collisionGroup = options?.collisionGroup;
-    const collisionMask = !collisionGroup ? options?.collisionMask ?? CollisionGroup.All.category : collisionGroup.category;
+    const collisionMask = !collisionGroup ? (options?.collisionMask ?? CollisionGroup.All.category) : collisionGroup.category;
     const searchAllColliders = options?.searchAllColliders ?? false;
     this._dynamicCollisionTree.rayCastQuery(ray, maxDistance, (collider) => {
       const owner = collider.owner;
