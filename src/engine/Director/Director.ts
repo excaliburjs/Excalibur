@@ -191,6 +191,7 @@ export class Director<TKnownScenes extends string = any> {
 
         const inTransition = this._getInTransition(deferredScene);
         const hideLoader = inTransition?.hideLoader;
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.maybeLoadScene(deferredScene, hideLoader);
         await this.swapScene(deferredScene);
         if (deferredSceneInstance && deferredTransition) {
@@ -233,17 +234,18 @@ export class Director<TKnownScenes extends string = any> {
     this.startScene = startScene;
 
     const maybeHideLoader = options?.inTransition?.hideLoader ?? false;
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.maybeLoadScene(startScene, maybeHideLoader);
 
     // Fire and forget promise for the initial scene
     if (maybeStartTransition) {
       const startSceneInstance = this.getSceneInstance(startScene);
       if (startSceneInstance) {
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         maybeStartTransition._addToTargetScene(this._engine, startSceneInstance);
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.swapScene(startScene).then(() => {
           startSceneInstance.onTransition('in');
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+
           return this.playTransition(maybeStartTransition, startSceneInstance);
         });
       }
@@ -448,6 +450,7 @@ export class Director<TKnownScenes extends string = any> {
     if (hideLoader) {
       // Start hidden loader early and take advantage of the transition
       // Don't await and block on a hidden loader
+
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.maybeLoadScene(destinationScene, hideLoader);
     }
@@ -525,6 +528,7 @@ export class Director<TKnownScenes extends string = any> {
       sceneToLoadInstance.events.emit('preload', { loader });
       if (hideLoader) {
         // Don't await a hidden loader
+
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this._engine.load(loader, hideLoader);
       } else {

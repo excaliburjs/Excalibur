@@ -53,6 +53,7 @@ export class TiledSprite extends Sprite {
     if (this.image.isLoaded()) {
       this._applyTiling();
     } else {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.image.ready.then(() => this._applyTiling());
     }
   }
@@ -98,6 +99,7 @@ export class TiledSprite extends Sprite {
     this.sourceView.y = 0;
     this.image = tiledImageSource;
     // this._ready.resolve();
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.image.ready.then(() => this._ready.resolve());
   }
 }

@@ -114,6 +114,7 @@ export class NineSlice extends Graphic {
 
     this._initialize();
 
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this._imgSource.ready.then(() => {
       this._initialize();
     });

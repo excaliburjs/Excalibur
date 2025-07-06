@@ -71,12 +71,14 @@ export class TiledAnimation extends Animation {
         this.frames[i].graphic = tiledSprite;
 
         // There is a new calc'd sourceView when ready
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         tiledSprite.ready.then(() => {
           tiledSprite.sourceView = { ...tiledSprite.sourceView, ...this._sourceView };
         });
         promises.push(tiledSprite.ready);
       }
     }
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     Promise.all(promises).then(() => this._ready.resolve());
   }
 

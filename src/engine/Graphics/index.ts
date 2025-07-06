@@ -39,7 +39,7 @@ export * from './Context/particle-renderer/particle-renderer';
 export * from './Context/debug-text';
 
 // Post Processor
-export * from './PostProcessor/PostProcessor';
+export type * from './PostProcessor/PostProcessor';
 export * from './PostProcessor/ScreenShader';
 export * from './PostProcessor/ColorBlindnessMode';
 export * from './PostProcessor/ColorBlindnessPostProcessor';
@@ -55,7 +55,7 @@ export * from './Context/uniform-buffer';
 export * from './Context/vertex-layout';
 export * from './Context/quad-index-buffer';
 export * from './Context/material';
-export * from './Context/renderer';
+export type * from './Context/renderer';
 
 // Debug
 export * from './Debug';

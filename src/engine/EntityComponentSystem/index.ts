@@ -7,7 +7,7 @@ export * from './QueryManager';
 export * from './System';
 export * from './SystemManager';
 export * from './World';
-export * from './Types';
+export type * from './Types';
 export * from './Priority';
 
 export * from './Components/TransformComponent';

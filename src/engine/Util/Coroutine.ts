@@ -179,6 +179,7 @@ export function coroutine(...args: any[]): CoroutineInstance {
         }
 
         if (value instanceof Promise) {
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           value.then(() => {
             // schedule next loop
             engine.clock.schedule(loop, 0, schedule);
