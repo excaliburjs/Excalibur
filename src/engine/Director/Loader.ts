@@ -271,8 +271,10 @@ export class Loader extends DefaultLoader {
             try {
               this._logger.info('requesting fullscreen');
               if (this._originalOptions.fullscreenContainer instanceof HTMLElement) {
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises
                 this._originalOptions.fullscreenContainer.requestFullscreen();
               } else {
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises
                 this.engine.screen.enterFullscreen(this._originalOptions.fullscreenContainer);
               }
             } catch (error) {
