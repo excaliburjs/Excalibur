@@ -11,6 +11,8 @@
  * 32-bit mask
  */
 const BITMASK32: number = 0xffffffff;
+const initialSeed = Date.now();
+let seedOffset = 0;
 
 /**
  * Pseudo-random number generator following the Mersenne_Twister algorithm. Given a seed this generator will produce the same sequence
@@ -48,14 +50,22 @@ export class Random {
   private _mt: number[];
 
   private _index: number;
+  private _seed: number;
 
   /**
    * If no seed is specified, the Date.now() is used
    */
-  constructor(public seed?: number) {
+  constructor(seed?: number) {
     this._mt = new Array<number>(this._n);
     // need to mask to support higher bit machines
-    this._mt[0] = (seed || Date.now()) >>> 0;
+
+    const dynamicSeed = () => {
+      seedOffset++;
+      return initialSeed + seedOffset;
+    };
+
+    this._mt[0] = (seed || dynamicSeed()) >>> 0;
+    this._seed = this._mt[0];
 
     for (let i = 1; i < this._n; i++) {
       const s = this._mt[i - 1] ^ (this._mt[i - 1] >>> (this._w - 2));
@@ -270,5 +280,9 @@ export class Random {
    */
   public d20() {
     return this.integer(1, 20);
+  }
+
+  get seed() {
+    return this._seed;
   }
 }
