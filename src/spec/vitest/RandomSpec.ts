@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 
-describe.only('A random number', () => {
+describe('A random number', () => {
   it('exists', () => {
     expect(ex.Random).toBeDefined();
   });
