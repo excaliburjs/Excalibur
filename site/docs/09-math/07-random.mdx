@@ -8,15 +8,9 @@ section: Math
 
 You can instantiate the [[Random]] class with an optional seed number. You can
 reuse this seed anytime to get the exact sequence of random numbers back. If no
-seed is provided, it uses `Date.now()` ticks as the seed.
+seed is provided, it uses a static base seed from `Date.now()` ticks and increments each call.
 
-:::warning
-
-Avoid creating multiple instances of `new ex.Random()`, if you create many in the same moment they will share the same `Date.now()` seed and will produce the same sequence of numbers.
-
-It is recommended to create 1 instance of your seeded random and share it across your game.
-
-:::
+If you create mulitple instances of `new ex.Random()`, it will sequentially increment a base seed from an initial `Date.now()` call.  So each instance of the generator will be unique.
 
 ```ts
 const rand = new ex.Random(1234)

@@ -319,4 +319,21 @@ describe('A random number', () => {
     expect(min).toBeGreaterThan(0);
     expect(max).toBeLessThan(21);
   });
+
+  it('will have a seed even if not passed into constructor', () => {
+    const random1 = new ex.Random();
+    expect(random1.seed).toBeDefined();
+  });
+
+  it('can have sequential random instances with unique seeds', () => {
+    const random1 = new ex.Random();
+    const random2 = new ex.Random();
+    const random3 = new ex.Random();
+    const seed1 = random1.seed;
+    const seed2 = random2.seed;
+    const seed3 = random3.seed;
+    expect(seed1).not.toBe(seed2);
+    expect(seed1).not.toBe(seed3);
+    expect(seed2).not.toBe(seed3);
+  });
 });
