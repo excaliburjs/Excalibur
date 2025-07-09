@@ -4,8 +4,7 @@ import * as lz from "lz-string";
 const ts = (tag: any) => tag[0];
 
 //@ts-ignore
-import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker.js?url';
-
+import TsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker.js?worker';
 
 const defaultCode = ts`
 import * as ex from 'excalibur';
@@ -41,13 +40,13 @@ const getInitialCode = () => {
 
 // Solution: Configure Monaco Environment before importing
 window.MonacoEnvironment = {
-	getWorkerUrl: (moduleId: string, label: string) => {
+	getWorker: (moduleId: string, label: string) => {
 		switch (label) {
 			case 'typescript':
 			case 'javascript':
-				return tsWorker;
+				return new TsWorker();
 			default:
-				return tsWorker;
+				return new TsWorker();
 		}
 	}
 } as any;
