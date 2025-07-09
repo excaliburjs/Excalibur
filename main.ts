@@ -16,7 +16,14 @@ const game = new ex.Engine({
     height: 400
 });
 
-const a = new ex.Actor();
+const a = new ex.Actor({
+	pos: ex.vec(100, 100),
+	width: 100,
+	height: 100,
+	color: ex.Color.Red
+});
+
+game.add(a);
 
 
 game.start()`;
@@ -61,7 +68,7 @@ const editor = monaco.editor.create(containerEl, {
 	value: text,
 	language: 'typescript',
 	automaticLayout: true,
-	theme: 'vs-dark'
+	theme: 'vs-dark' // todo use browser theme
 });
 
 /**
@@ -79,19 +86,26 @@ function esm(templateStrings, ...substitutions) {
 // const getWorker = await monaco.languages.typescript.getTypeScriptWorker();
 
 const buildButtonEl = document.getElementById('build')! as HTMLButtonElement;
+const loadingEl = document.getElementsByClassName('loading')[0]! as HTMLDivElement;
 
 buildButtonEl.addEventListener('click', async () => {
+	loadingEl.style.display = 'block';
+
 	const model = editor.getModel()!
 	const getWorker = await monaco.languages.typescript.getTypeScriptWorker();
 
 	const client = await getWorker();
-
 
 	const runnanbleJs = await client.getEmitOutput(model.uri.toString(), false, false);
 	const firstJs = runnanbleJs.outputFiles.find(f => f.name.endsWith('.js'));
 	if (firstJs) {
 		// Dr. Axel to the rescue
 		// https://2ality.com/2019/10/eval-via-import.html
-		import(/* @vite-ignore */esm`${firstJs.text}`);
+		try {
+			await import(/* @vite-ignore */esm`${firstJs.text}`);
+		} finally {
+			loadingEl.style.display = 'none';
+		}
 	}
 });
+

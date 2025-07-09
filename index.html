@@ -9,13 +9,21 @@
 </head>
 
 <body>
-
+	<header>
+		<h1><img src="logo-white@2x.png" alt="" /><span class="sr-only">Excalibur.js Playground<span></h1>
+	</header>
 	<main>
 		<div id="container"></div>
 		<div id="preview">
-			<canvas id="preview-canvas"></canvas>
+			<div id="canvas-container">
+				<div class="loading">Building...</div>
+				<canvas id="preview-canvas">
+				</canvas>
+			</div>
 			<div id="controls">
-					<button id="build">Build & Run</button>
+				<button id="build">Build & Run</button>
+				<button id="debug">Toggle Debug</button>
+				<button id="share">Share</button>
 			</div>
 		</div>
 

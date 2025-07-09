@@ -1,25 +1,106 @@
+
+
 html, body {
 	margin: 0;
 	padding: 0;
 	height: 100%;
+	background-color: rgb(27, 27, 29);
+	font: 16px sans-serif;
+}
+
+header {
+	padding: 5px;
+}
+
+h1 {
+	font-size: .5em;
+	display: flex;
+	justify-content: center;
+}
+
+h1 img {
+	height: 100px;
+}
+
+button {
+	font-size: 1em;
+	color: white;
+	background-color: transparent;
+	padding: 10px;
+	border: solid #aaa 2px;
+	border-radius: 5px;
+}
+
+button:hover {
+	color: rgb(0, 127, 255);
+	background-color: rgba(0, 20, 120, .5);
+	padding: 10px;
+	border: solid rgb(0, 127, 255) 2px;
+	border-radius: 5px;
+}
+
+button:focus-visible {
+	border-color: black;
+	outline: white solid 4px;
+}
+
+.loading {
+	display: none;
+	color: white;
+}
+
+.sr-only {
+	position:absolute;
+	left:-10000px;
+	top:auto;
+	width:1px;
+	height:1px;
+	overflow:hidden;
 }
 
 #container {
-	height: 100%;
 	flex: 1 1 auto;
+	max-width: 800px;
+	width: 100%;
+	resize: vertical;
+	overflow: auto;
+	min-height: 400px;
 }
 
 #preview {
 	min-width: 400px;
+	width: 100%;
 	display: flex;
 	flex-direction: column;
 }
 
-#controls {
+#preview > #canvas-container {
+	min-height: 400px;
+	background-color: black;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
 
+#controls {
+	padding: 20px;
+	display: flex;
+	justify-content: space-around;
 }
 
 main {
 	height: 100%;
 	display: flex;
+}
+
+@media screen and (max-width: 800px) {
+
+	h1 img {
+		height: 50px;
+	}
+	
+	main {
+		height: auto;
+		flex-wrap: wrap-reverse;
+	}
 }
