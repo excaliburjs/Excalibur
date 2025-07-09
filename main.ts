@@ -140,9 +140,21 @@ debugButtonEl.addEventListener('click', toggleDebug);
 buildButtonEl.addEventListener('click', buildAndRun);
 
 window.addEventListener('keydown', (evt: KeyboardEvent) => {
+	if (evt.code === 'Escape') {
+		evt.preventDefault();
+		buildButtonEl.focus();
+		return false;
+
+	}
 	if ((evt.ctrlKey || evt.metaKey) && evt.code === 'KeyS') {
 		evt.preventDefault();
 		buildAndRun();
+		return false;
+	}
+	
+	if ((evt.ctrlKey || evt.metaKey) && evt.code === 'KeyD') {
+		evt.preventDefault();
+		toggleDebug();
 		return false;
 	}
 	return true;
