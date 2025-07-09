@@ -1,11 +1,13 @@
 import * as monaco from "monaco-editor";
+import * as lz from "lz-string";
 
 const ts = (tag: any) => tag[0];
 
 //@ts-ignore
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker.js?url';
 
-const text = ts`
+
+const defaultCode = ts`
 import * as ex from 'excalibur';
 console.log('hello world');
 
@@ -24,9 +26,18 @@ const a = new ex.Actor({
 });
 
 game.add(a);
+game.start();`;
 
+const getInitialCode = () => {
+	const paramsString = window.location.search;
+	const searchParams = new URLSearchParams(paramsString);
+	const sharedCode = searchParams.get("code");
+	console.log(sharedCode ? "has shared code": "no shared code");
+	const code = sharedCode ? lz.decompressFromEncodedURIComponent(sharedCode) : defaultCode;
 
-game.start()`;
+	return code;
+}
+
 
 // Solution: Configure Monaco Environment before importing
 window.MonacoEnvironment = {
@@ -65,7 +76,7 @@ console.log('Diagnostics Options:', tsDefaults.getDiagnosticsOptions());
 const containerEl = document.getElementById("container")!;
 
 const editor = monaco.editor.create(containerEl, {
-	value: text,
+	value: getInitialCode(),
 	language: 'typescript',
 	automaticLayout: true,
 	theme: 'vs-dark' // todo use browser theme
@@ -86,9 +97,11 @@ function esm(templateStrings, ...substitutions) {
 // const getWorker = await monaco.languages.typescript.getTypeScriptWorker();
 
 const buildButtonEl = document.getElementById('build')! as HTMLButtonElement;
+const debugButtonEl = document.getElementById('debug')! as HTMLButtonElement;
+const shareButtonEl = document.getElementById('share')! as HTMLButtonElement;
 const loadingEl = document.getElementsByClassName('loading')[0]! as HTMLDivElement;
 
-buildButtonEl.addEventListener('click', async () => {
+const buildAndRun = async () => {
 	loadingEl.style.display = 'block';
 
 	const model = editor.getModel()!
@@ -107,5 +120,30 @@ buildButtonEl.addEventListener('click', async () => {
 			loadingEl.style.display = 'none';
 		}
 	}
-});
+}
 
+const toggleDebug = () => {
+	(globalThis.___EXCALIBUR_DEVTOOL as any).toggleDebug();
+}
+
+const shareCode = () => {
+	const code = editor.getModel().getValue();
+	const encoded = `code=${lz.compressToEncodedURIComponent(code)}`;
+	const url = `${window.location}?${encoded}`;
+	console.log(code);
+	console.log(url);
+	navigator.clipboard.writeText(url);
+	window.history.pushState({}, "", "?" + encoded);
+}
+shareButtonEl.addEventListener('click', shareCode);
+debugButtonEl.addEventListener('click', toggleDebug);
+buildButtonEl.addEventListener('click', buildAndRun);
+
+window.addEventListener('keydown', (evt: KeyboardEvent) => {
+	if ((evt.ctrlKey || evt.metaKey) && evt.code === 'KeyS') {
+		evt.preventDefault();
+		buildAndRun();
+		return false;
+	}
+	return true;
+});
