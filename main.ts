@@ -3,6 +3,7 @@ import * as lz from "lz-string";
 
 const ts = (tag: any) => tag[0];
 
+// Super secret worker url
 //@ts-ignore
 import TsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker.js?worker';
 
@@ -51,7 +52,7 @@ window.MonacoEnvironment = {
 	}
 } as any;
 
-import exTypes from './dist/index.d.ts?raw';
+import exTypes from './types/index.d.ts?raw';
 monaco.languages.typescript.typescriptDefaults.addExtraLib(
 	exTypes,
 	"file:///index.d.ts"
