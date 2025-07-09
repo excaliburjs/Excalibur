@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "vite",
-    "build": "vite build"
+    "build": "vite build",
+    "serve": "vite serve"
   },
   "author": "Erik Onarheim",
   "license": "BSD-2-Clause",
