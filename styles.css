@@ -44,10 +44,26 @@ button:focus-visible {
 	outline: white solid 4px;
 }
 
+@keyframes rotation {
+	from {
+		transform: rotate(0deg);
+	}
+	
+	to {
+		transform: rotate(360deg);
+	}
+}
+
 .loading {
 	display: none;
 	color: white;
+	position: absolute;
 }
+
+.loading img {
+	animation: 4s linear 0s infinite rotation;
+}
+
 
 .sr-only {
 	position:absolute;
@@ -75,6 +91,7 @@ button:focus-visible {
 }
 
 #preview > #canvas-container {
+	position: relative;
 	min-height: 400px;
 	background-color: black;
 	display: flex;
