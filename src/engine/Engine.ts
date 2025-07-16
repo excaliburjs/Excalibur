@@ -63,6 +63,7 @@ import { createContext, useContext } from './Context';
 import type { GarbageCollectionOptions } from './GarbageCollector';
 import { DefaultGarbageCollectionOptions, GarbageCollector } from './GarbageCollector';
 import { mergeDeep } from './Util/Util';
+import { getDefaultGlobal } from './Util/IFrame';
 
 export type EngineEvents = DirectorEvents & {
   fallbackgraphicscontext: ExcaliburGraphicsContext2DCanvas;
@@ -248,6 +249,16 @@ export interface EngineOptions<TKnownScenes extends string = any> {
   displayMode?: DisplayMode;
 
   /**
+   * Optionally configure the global to listen to for browser events for Excalibur to listen to
+   */
+  global?: GlobalEventHandlers;
+
+  /**
+   * Optionally configure the global to listen to for browser events for Excalibur to listen to
+   */
+  global?: GlobalEventHandlers;
+
+  /**
    * Configures the pointer scope. Pointers scoped to the 'Canvas' can only fire events within the canvas viewport; whereas, 'Document'
    * (default) scoped will fire anywhere on the page.
    */
@@ -419,6 +430,8 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
    * @param cb
    */
   scope = <TReturn>(cb: () => TReturn) => Engine.Context.scope(this, cb);
+
+  public global: GlobalEventHandlers;
 
   private _garbageCollector: GarbageCollector;
 
@@ -923,6 +936,7 @@ O|===|* >________________>\n\
       displayMode = DisplayMode.FitScreen;
     }
 
+    this.global = options.global ?? getDefaultGlobal();
     this.grabWindowFocus = options.grabWindowFocus;
     this.pointerScope = options.pointerScope;
 
@@ -1466,6 +1480,7 @@ O|===|* >________________>\n\
     const pointerTarget = options && options.pointerScope === PointerScope.Document ? document : this.canvas;
     const grabWindowFocus = this._originalOptions?.grabWindowFocus ?? true;
     this.input = new InputHost({
+      global: this.global,
       pointerTarget,
       grabWindowFocus,
       engine: this
