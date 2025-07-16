@@ -1,6 +1,5 @@
-import { Logger } from '../Util/Log';
 import * as Events from '../Events';
-import { isCrossOriginIframe } from '../Util/IFrame';
+import { getDefaultGlobal, isIframe } from '../Util/IFrame';
 import type { EventKey, Handler, Subscription } from '../EventEmitter';
 import { EventEmitter } from '../EventEmitter';
 
@@ -240,7 +239,7 @@ export class KeyEvent extends Events.GameEvent<any> {
 }
 
 export interface KeyboardInitOptions {
-  global?: GlobalEventHandlers;
+  global: GlobalEventHandlers;
   grabWindowFocus?: boolean;
 }
 
@@ -307,19 +306,14 @@ export class Keyboard {
     let { global } = keyboardOptions;
     const { grabWindowFocus } = keyboardOptions;
     if (!global) {
-      if (isCrossOriginIframe()) {
-        global = window;
-        // Workaround for iframes like for itch.io or codesandbox
-        // https://www.reddit.com/r/gamemaker/comments/kfs5cs/keyboard_inputs_no_longer_working_in_html5_game/
-        // https://forum.gamemaker.io/index.php?threads/solved-keyboard-issue-on-itch-io.87336/
-        if (grabWindowFocus) {
-          window.focus();
-        }
+      global = getDefaultGlobal();
+    }
 
-        Logger.getInstance().warn('Excalibur might be in a cross-origin iframe, in order to receive keyboard events it must be in focus');
-      } else {
-        global = window.top;
-      }
+    // Workaround for iframes like for itch.io or codesandbox
+    // https://www.reddit.com/r/gamemaker/comments/kfs5cs/keyboard_inputs_no_longer_working_in_html5_game/
+    // https://forum.gamemaker.io/index.php?threads/solved-keyboard-issue-on-itch-io.87336/
+    if (grabWindowFocus && isIframe()) {
+      (global as any).focus();
     }
 
     global.addEventListener('blur', () => {

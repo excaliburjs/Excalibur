@@ -259,6 +259,16 @@ export interface EngineOptions<TKnownScenes extends string = any> {
   global?: GlobalEventHandlers;
 
   /**
+   * Optionally configure the global to listen to for browser events for Excalibur to listen to
+   */
+  global?: GlobalEventHandlers;
+
+  /**
+   * Optionally configure the global to listen to for browser events for Excalibur to listen to
+   */
+  global?: GlobalEventHandlers;
+
+  /**
    * Configures the pointer scope. Pointers scoped to the 'Canvas' can only fire events within the canvas viewport; whereas, 'Document'
    * (default) scoped will fire anywhere on the page.
    */

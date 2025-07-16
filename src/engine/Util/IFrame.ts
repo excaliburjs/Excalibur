@@ -1,3 +1,5 @@
+import { Logger } from './Log';
+
 /**
  * Checks if excalibur is in a x-origin iframe
  */
@@ -18,4 +20,23 @@ export function isCrossOriginIframe() {
     return true;
   }
   return false;
+}
+
+export function isIframe() {
+  return window !== window.top;
+}
+
+/**
+ * Grabs the default global object for Excalibur
+ */
+export function getDefaultGlobal(): GlobalEventHandlers {
+  let global: GlobalEventHandlers;
+  if (isCrossOriginIframe()) {
+    global = window;
+    Logger.getInstance().warn('Excalibur might be in a cross-origin iframe, in order to receive keyboard events it must be in focus');
+  } else {
+    global = window.top;
+  }
+
+  return global;
 }
