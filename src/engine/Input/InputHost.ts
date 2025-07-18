@@ -7,7 +7,7 @@ import { PointerEventReceiver } from './PointerEventReceiver';
 export interface InputHostOptions {
   pointerTarget: Document | HTMLCanvasElement;
   grabWindowFocus: boolean;
-  global: GlobalEventHandlers;
+  global?: GlobalEventHandlers | (() => GlobalEventHandlers);
   engine: Engine;
 }
 

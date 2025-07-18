@@ -13,7 +13,7 @@ import { NativePointerButton } from './NativePointerButton';
 import { PointerButton } from './PointerButton';
 import { fail } from '../Util/Util';
 import { PointerType } from './PointerType';
-import { isCrossOriginIframe } from '../Util/IFrame';
+import { isCrossOriginIframe, isIframe } from '../Util/IFrame';
 import type { EventKey, Handler, Subscription } from '../EventEmitter';
 import { EventEmitter } from '../EventEmitter';
 
@@ -342,7 +342,7 @@ export class PointerEventReceiver {
 
     const grabWindowFocus = options?.grabWindowFocus ?? true;
     // Handle cross origin iframe
-    if (grabWindowFocus && isCrossOriginIframe()) {
+    if (grabWindowFocus && (isCrossOriginIframe() || isIframe())) {
       const grabFocus = () => {
         window.focus();
       };

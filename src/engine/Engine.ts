@@ -249,9 +249,9 @@ export interface EngineOptions<TKnownScenes extends string = any> {
   displayMode?: DisplayMode;
 
   /**
-   * Optionally configure the global to listen to for browser events for Excalibur to listen to
+   * Optionally configure the global, or a factory to produce it to listen to for browser events for Excalibur to listen to
    */
-  global?: GlobalEventHandlers;
+  global?: GlobalEventHandlers | (() => GlobalEventHandlers);
 
   /**
    * Configures the pointer scope. Pointers scoped to the 'Canvas' can only fire events within the canvas viewport; whereas, 'Document'
@@ -284,8 +284,8 @@ export interface EngineOptions<TKnownScenes extends string = any> {
   suppressPlayButton?: boolean;
 
   /**
-   * Sets the focus of the window, this is needed when hosting excalibur in a cross-origin iframe in order for certain events
-   * (like keyboard) to work.
+   * Sets the focus of the window, this is needed when hosting excalibur in a cross-origin/same-origin iframe in order for certain events
+   * (like keyboard) to work. You can use
    * For example: itch.io or codesandbox.io
    *
    * By default set to true,
@@ -931,7 +931,9 @@ O|===|* >________________>\n\
       displayMode = DisplayMode.FitScreen;
     }
 
-    this.global = options.global ?? getDefaultGlobal();
+    const global = (options.global && typeof options.global === 'function' ? options.global() : options.global) as GlobalEventHandlers;
+
+    this.global = global ?? getDefaultGlobal();
     this.grabWindowFocus = options.grabWindowFocus;
     this.pointerScope = options.pointerScope;
 

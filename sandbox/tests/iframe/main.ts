@@ -1,7 +1,6 @@
 var engine = new ex.Engine({
   width: 600,
-  height: 400,
-  grabWindowFocus: false
+  height: 400
 });
 
 engine.toggleDebug();

@@ -1,5 +1,5 @@
 import * as Events from '../Events';
-import { getDefaultGlobal, isIframe } from '../Util/IFrame';
+import { getDefaultGlobal } from '../Util/IFrame';
 import type { EventKey, Handler, Subscription } from '../EventEmitter';
 import { EventEmitter } from '../EventEmitter';
 
@@ -239,7 +239,7 @@ export class KeyEvent extends Events.GameEvent<any> {
 }
 
 export interface KeyboardInitOptions {
-  global: GlobalEventHandlers;
+  global: GlobalEventHandlers | (() => GlobalEventHandlers);
   grabWindowFocus?: boolean;
 }
 
@@ -307,6 +307,8 @@ export class Keyboard {
     const { grabWindowFocus } = keyboardOptions;
     if (!global) {
       global = getDefaultGlobal();
+    } else if (typeof global === 'function') {
+      global = global();
     }
 
     // Workaround for iframes like for itch.io or codesandbox
