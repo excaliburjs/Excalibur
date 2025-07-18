@@ -312,7 +312,7 @@ export class Keyboard {
     // Workaround for iframes like for itch.io or codesandbox
     // https://www.reddit.com/r/gamemaker/comments/kfs5cs/keyboard_inputs_no_longer_working_in_html5_game/
     // https://forum.gamemaker.io/index.php?threads/solved-keyboard-issue-on-itch-io.87336/
-    if (grabWindowFocus && isIframe()) {
+    if (grabWindowFocus) {
       (global as any).focus();
     }
 
