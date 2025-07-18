@@ -15,6 +15,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added a new configuration option to `ex.Engine({global: ...})` where you can provide a keyboard global to override if iframe detection fails for anyway.
 - Added new way to output data from scenes `onDeactivate()`, returning data will be passed to the next `SceneActivationContext` in the `previousSceneData` property!
 - Added new `transitionstart` and `transitionend` events to `ex.Scenes`
 - Pipe `navigation*` events to `ex.Engine`
@@ -53,6 +54,7 @@ const query = new Query({})
 
 ### Fixed
 
+- Fixed issue where same origin iframes did not work properly with keyboard & pointer events
 - Fixed issue where the initial scene onPreLoad was not being run
 - Fixed unecessary coupling with `ex.ColliderComponent`/`ex.BodyComponent` that prevented collider tracking on entities that have `ex.TransformComponent`/`ex.ColliderComponent`, this influenced users doing Entity level ECS with pointer events.
 - Fixed issue where passing 0 to `ex.Sound.play(0)` would not set the volume to 0, instead the previous volume would play.
