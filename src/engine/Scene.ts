@@ -342,6 +342,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
         // PhysicsWorld config is watched so things will automagically update
         this.physics.config = this.engine.physics;
         this.input = new InputHost({
+          global: engine.global,
           pointerTarget: engine.pointerScope === PointerScope.Canvas ? engine.canvas : document,
           grabWindowFocus: engine.grabWindowFocus,
           engine
