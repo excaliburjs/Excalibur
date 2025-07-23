@@ -15,6 +15,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added a new `ex.SoundManager` type for managing groups of audio/sound effects/music volume in an easier way
 - Added a new configuration option to `ex.Engine({global: ...})` where you can provide a keyboard global to override if iframe detection fails for anyway.
 - Added new way to output data from scenes `onDeactivate()`, returning data will be passed to the next `SceneActivationContext` in the `previousSceneData` property!
 - Added new `transitionstart` and `transitionend` events to `ex.Scenes`
