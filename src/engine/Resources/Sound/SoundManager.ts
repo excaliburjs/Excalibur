@@ -6,19 +6,22 @@ export interface TaggedSoundsConfiguration {
 
 export interface SoundManagerOptions {
   /**
-   * Optionally set the max volume for a sound to be when played. All other volume operations will be a fraction of the mix.
+   * Optionally set the max `volume` for a `sound` to be when played. All other volume operations will be a fraction of the mix.
+   *
+   * You may also add a list of string `channels` to do group operations to sounds at once. For example mute all 'background' sounds.
+   *
    */
   mix: { sound: Sound; volume: number; channels?: string[] }[];
 }
 
-export class SoundManger<Tags = string> {
-  private _tagToConfig: Map<Tags, TaggedSoundsConfiguration>;
+export class SoundManger<Channel = string> {
+  private _tagToConfig: Map<Channel, TaggedSoundsConfiguration>;
   private _mix: Map<Sound, number>;
   private _muted = new Set<Sound>();
   private _all = new Set<Sound>();
 
   constructor(options: SoundManagerOptions) {
-    this._tagToConfig = new Map<Tags, TaggedSoundsConfiguration>();
+    this._tagToConfig = new Map<Channel, TaggedSoundsConfiguration>();
     this._mix = new Map<Sound, number>();
     if (options.mix) {
       for (const { sound, volume, channels: tags } of options.mix) {
@@ -26,13 +29,13 @@ export class SoundManger<Tags = string> {
         this._all.add(sound);
 
         if (tags) {
-          this.tag(sound, tags as Tags[]);
+          this.tag(sound, tags as Channel[]);
         }
       }
     }
   }
 
-  private _getSoundsForTag(tag: Tags): readonly Sound[] {
+  public getSoundsForTag(tag: Channel): readonly Sound[] {
     const config = this._tagToConfig.get(tag);
     if (config) {
       return config.sounds;
@@ -60,15 +63,15 @@ export class SoundManger<Tags = string> {
   }
 
   /**
-   * Play all Sounds that match a specific set of tags and optionally apply a custom volume with the mix
+   * Play all Sounds that match a specific set of tags and optionally apply a custom temporary volume multiplied against the maximum volume
    */
-  public play(tags: Tags[], volume?: number): Promise<void>;
+  public play(tags: Channel[], volume?: number): Promise<void>;
 
   /**
-   * Play a Sound and optionally apply a custom volume with the mix
+   * Play a Sound and optionally apply a custom temporary volume multiplied against the maximum volume
    */
   public play(sound: Sound, volume?: number): Promise<void>;
-  public play(tagsOrSound: Tags[] | Sound, volume: number = 1): Promise<void> {
+  public play(tagsOrSound: Channel[] | Sound, volume: number = 1): Promise<void> {
     if (Array.isArray(tagsOrSound)) {
       const tags = tagsOrSound;
 
@@ -76,7 +79,7 @@ export class SoundManger<Tags = string> {
       const playedAudio = new Set<Sound>();
 
       for (const tag of tags) {
-        const sounds = this._getSoundsForTag(tag);
+        const sounds = this.getSoundsForTag(tag);
         for (const sound of sounds) {
           if (playedAudio.has(sound) || this._isMuted(sound)) {
             continue;
@@ -101,10 +104,29 @@ export class SoundManger<Tags = string> {
   }
 
   /**
+   * Set the volume of playing and non-playing sounds
+   *
+   * Adjusts the mixed volume to the supplied value
+   *
+   */
+  public setVolume(tags: Channel[], volume: number) {
+    for (const tag of tags) {
+      const sounds = this.getSoundsForTag(tag);
+      for (const sound of sounds) {
+        if (this._isMuted(sound)) {
+          continue;
+        }
+        this.mix(sound, volume);
+      }
+    }
+  }
+
+  /**
    * Set the maximum volume a sound, if not set assumed to be 1.0 (100% of the source volume)
    */
   public mix(sound: Sound, volume: number): void {
     this._mix.set(sound, volume);
+    sound.volume = volume;
   }
 
   /**
@@ -117,19 +139,19 @@ export class SoundManger<Tags = string> {
   /**
    * Mute specific Sounds by tag, if none are provided all sounds are muted
    */
-  public mute(tags?: Tags[]) {
+  public mute(tags?: Channel[]) {
     if (tags) {
       for (const tag of tags) {
-        const sounds = this._getSoundsForTag(tag);
+        const sounds = this.getSoundsForTag(tag);
         for (let i = 0; i < sounds.length; i++) {
           this._muted.add(sounds[i]);
-           
+
           sounds[i].pause();
         }
       }
     } else {
       this._muted = new Set(this._all);
-       
+
       this._muted.forEach((s) => s.pause());
     }
   }
@@ -137,10 +159,10 @@ export class SoundManger<Tags = string> {
   /**
    * Unmute specific Sounds by tag, if none are provided all sounds are unmuted
    */
-  public unmute(tags?: Tags[]) {
+  public unmute(tags?: Channel[]) {
     if (tags) {
       for (const tag of tags) {
-        const sounds = this._getSoundsForTag(tag);
+        const sounds = this.getSoundsForTag(tag);
         for (let i = 0; i < sounds.length; i++) {
           if (this._muted.has(sounds[i])) {
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -150,13 +172,12 @@ export class SoundManger<Tags = string> {
         }
       }
     } else {
-       
       this._muted.forEach((s) => s.play());
       this._muted.clear();
     }
   }
 
-  public tag(sound: Sound, tags: Tags[]) {
+  public tag(sound: Sound, tags: Channel[]) {
     for (const tag of tags) {
       let maybeConfiguration = this._tagToConfig.get(tag);
       if (!maybeConfiguration) {
