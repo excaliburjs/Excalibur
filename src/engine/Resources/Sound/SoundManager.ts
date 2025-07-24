@@ -83,10 +83,10 @@ export class SoundManger<TSoundManagerOptions extends SoundManagerOptions, Chann
       return 0;
     }
 
-    let mix = 1;
+    let mix = this._defaultVolume;
 
     if (this._mix.has(sound)) {
-      mix *= this._mix.get(sound) ?? 1;
+      mix *= this._mix.get(sound) ?? this._defaultVolume;
     }
 
     return mix;
@@ -101,7 +101,7 @@ export class SoundManger<TSoundManagerOptions extends SoundManagerOptions, Chann
    * Play a Sound and optionally apply a custom temporary volume multiplied against the maximum volume
    */
   public play(sound: Sound, volume?: number): Promise<void>;
-  public play(tagsOrSound: Channel[] | Sound, volume: number = 1): Promise<void> {
+  public play(tagsOrSound: Channel[] | Sound, volume: number = this._defaultVolume): Promise<void> {
     if (Array.isArray(tagsOrSound)) {
       const tags = tagsOrSound;
 
