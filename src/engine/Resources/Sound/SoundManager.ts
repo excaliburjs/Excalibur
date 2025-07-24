@@ -1,41 +1,65 @@
-import type { Sound } from './Sound';
+import { Sound } from './Sound';
 
 export interface TaggedSoundsConfiguration {
   sounds: Sound[];
 }
 
+export interface SoundConfig {
+  sound: Sound;
+  volume?: number;
+  channels?: string[];
+}
+
 export interface SoundManagerOptions {
+  /**
+   * Optionally set the default volume for all sounds
+   *
+   * Default is 1 (100%)
+   */
+  volume?: number;
   /**
    * Optionally set the max `volume` for a `sound` to be when played. All other volume operations will be a fraction of the mix.
    *
    * You may also add a list of string `channels` to do group operations to sounds at once. For example mute all 'background' sounds.
    *
    */
-  sounds: { sound: Sound; volume: number; channels: string[] }[];
+  sounds: (Sound | { sound: Sound; volume?: number; channels?: string[] })[];
 }
 
-export type IsEqual<T, U> = [T] extends [U] ? true : false;
-export type PossibleChannels2<T> = T extends SoundManagerOptions ? T : never;
-export type PossibleChannels<TSoundManagerOptions> = TSoundManagerOptions extends SoundManagerOptions
-  ? Extract<TSoundManagerOptions['sounds'][number]['channels'][number], string>
-  : never;
+// export type IsEqual<T, U> = [T] extends [U] ? true : false;
+// export type PossibleChannels2<T> = T extends SoundManagerOptions ? T : never;
+// export type PossibleChannels<TSoundManagerOptions> = TSoundManagerOptions extends SoundManagerOptions
+//   ? Extract<TSoundManagerOptions['sounds'][number]['channels'][number], string>
+//   : never;
 
 export class SoundManger<TSoundManagerOptions extends SoundManagerOptions, Channel = string> {
   private _tagToConfig: Map<Channel, TaggedSoundsConfiguration>;
   private _mix: Map<Sound, number>;
   private _muted = new Set<Sound>();
   private _all = new Set<Sound>();
+  private _defaultVolume: number = 1;
 
   constructor(options: TSoundManagerOptions) {
     this._tagToConfig = new Map<Channel, TaggedSoundsConfiguration>();
     this._mix = new Map<Sound, number>();
+    this._defaultVolume = options.volume ?? 1;
     if (options.sounds) {
-      for (const { sound, volume, channels: tags } of options.sounds) {
-        this._mix.set(sound, volume);
+      for (const soundOrConfig of options.sounds) {
+        let sound: Sound;
+        let volume: number | undefined;
+        let channels: string[] | undefined;
+        if (soundOrConfig instanceof Sound) {
+          sound = soundOrConfig;
+          volume = this._defaultVolume;
+          channels = [];
+        } else {
+          ({ sound, volume, channels } = soundOrConfig);
+        }
+        this._mix.set(sound, volume ?? this._defaultVolume);
         this._all.add(sound);
 
-        if (tags) {
-          this.tag(sound, tags as Channel[]);
+        if (channels) {
+          this.tag(sound, channels as Channel[]);
         }
       }
     }
