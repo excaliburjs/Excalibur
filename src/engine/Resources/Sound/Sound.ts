@@ -31,6 +31,40 @@ export const SoundEvents = {
   PlaybackStart: 'playbackstart'
 };
 
+export interface SoundOptions {
+  /**
+   * @param paths A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
+   */
+  paths: string[];
+  /**
+   * [0-1] 0% to 100%
+   *
+   * By default 1 (100%)
+   */
+  volume?: number;
+  /**
+   * Loop infinitely
+   */
+  loop?: boolean;
+  /**
+   * Multiplyer
+   *
+   * By default 1
+   */
+  playbackSpeed?: number;
+  /**
+   * Seconds?
+   *
+   * By default unset, will play the natural length of the clip
+   */
+  duration?: number;
+
+  /**
+   * Advance to a position in the audio clip
+   */
+  position?: number;
+}
+
 /**
  * The {@apilink Sound} object allows games built in Excalibur to load audio
  * components, from soundtracks to sound effects. {@apilink Sound} is an {@apilink Loadable}

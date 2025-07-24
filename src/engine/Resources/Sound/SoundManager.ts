@@ -2,51 +2,31 @@ import type { Sound } from './Sound';
 
 export interface TaggedSoundsConfiguration {
   sounds: Sound[];
-  volume?: number;
 }
 
 export interface SoundManagerOptions {
   /**
    * Optionally set the max volume for a sound to be when played. All other volume operations will be a fraction of the mix.
    */
-  mix?: [sound: Sound, volume: number][];
-  /**
-   * Optionally categorize sounds and set their volume
-   */
-  tags: {
-    // TODO make optional
-    [tag: string]: TaggedSoundsConfiguration;
-  };
+  mix: { sound: Sound; volume: number; channels?: string[] }[];
 }
 
-export type PossibleTags<TSoundManagerOptions> = TSoundManagerOptions extends SoundManagerOptions
-  ? Extract<keyof TSoundManagerOptions['tags'], string>
-  : never;
-
-export class SoundManger<TSoundManagerOptions extends SoundManagerOptions, Tags = PossibleTags<TSoundManagerOptions>> {
-  // TODO | {} & string
+export class SoundManger<Tags = string> {
   private _tagToConfig: Map<Tags, TaggedSoundsConfiguration>;
-  private _soundToConfig: Map<Sound, TaggedSoundsConfiguration>;
   private _mix: Map<Sound, number>;
   private _muted = new Set<Sound>();
   private _all = new Set<Sound>();
-  constructor(options?: TSoundManagerOptions) {
+
+  constructor(options: SoundManagerOptions) {
     this._tagToConfig = new Map<Tags, TaggedSoundsConfiguration>();
-    this._soundToConfig = new Map<Sound, TaggedSoundsConfiguration>();
     this._mix = new Map<Sound, number>();
-    if (options?.mix) {
-      for (const [sound, volume] of options.mix) {
+    if (options.mix) {
+      for (const { sound, volume, channels: tags } of options.mix) {
         this._mix.set(sound, volume);
         this._all.add(sound);
-      }
-    }
 
-    if (options?.tags) {
-      for (const [tag, value] of Object.entries(options.tags)) {
-        this._tagToConfig.set(tag as Tags, value);
-        for (const sound of value.sounds) {
-          this._soundToConfig.set(sound, value);
-          this._all.add(sound);
+        if (tags) {
+          this.tag(sound, tags as Tags[]);
         }
       }
     }
@@ -61,8 +41,12 @@ export class SoundManger<TSoundManagerOptions extends SoundManagerOptions, Tags 
     return [];
   }
 
+  private _isMuted(sound: Sound): boolean {
+    return this._muted.has(sound);
+  }
+
   private _getCurrentVolume(sound: Sound): number {
-    if (this._muted.has(sound)) {
+    if (this._isMuted(sound)) {
       return 0;
     }
 
@@ -70,10 +54,6 @@ export class SoundManger<TSoundManagerOptions extends SoundManagerOptions, Tags 
 
     if (this._mix.has(sound)) {
       mix *= this._mix.get(sound) ?? 1;
-    }
-
-    if (this._soundToConfig.get(sound)) {
-      mix *= this._soundToConfig.get(sound)?.volume ?? 1;
     }
 
     return mix;
@@ -98,43 +78,26 @@ export class SoundManger<TSoundManagerOptions extends SoundManagerOptions, Tags 
       for (const tag of tags) {
         const sounds = this._getSoundsForTag(tag);
         for (const sound of sounds) {
-          if (playedAudio.has(sound)) {
+          if (playedAudio.has(sound) || this._isMuted(sound)) {
             continue;
           }
           const mixVolume = this._getCurrentVolume(sound);
 
-           
           playing.push(sound.play(mixVolume * volume));
           playedAudio.add(sound);
         }
       }
 
-       
       return Promise.all(playing) as unknown as Promise<void>;
     }
 
     const sound = tagsOrSound;
-    const effectiveVolume = volume * this._getCurrentVolume(sound);
-
-     
-    return sound.play(effectiveVolume) as unknown as Promise<void>;
-  }
-
-  /**
-   * Sets the volume for a set of tags
-   */
-  public volume(tags: Tags[], volume: number) {
-    for (const tag of tags) {
-      let maybeConfiguration = this._tagToConfig.get(tag);
-      if (!maybeConfiguration) {
-        maybeConfiguration = {
-          sounds: [],
-          volume
-        };
-      }
-      maybeConfiguration.volume = volume;
-      this._tagToConfig.set(tag, maybeConfiguration);
+    if (this._isMuted(sound)) {
+      return Promise.resolve();
     }
+
+    const effectiveVolume = volume * this._getCurrentVolume(sound);
+    return sound.play(effectiveVolume) as unknown as Promise<void>;
   }
 
   /**
@@ -160,10 +123,14 @@ export class SoundManger<TSoundManagerOptions extends SoundManagerOptions, Tags 
         const sounds = this._getSoundsForTag(tag);
         for (let i = 0; i < sounds.length; i++) {
           this._muted.add(sounds[i]);
+           
+          sounds[i].pause();
         }
       }
     } else {
       this._muted = new Set(this._all);
+       
+      this._muted.forEach((s) => s.pause());
     }
   }
 
@@ -175,10 +142,16 @@ export class SoundManger<TSoundManagerOptions extends SoundManagerOptions, Tags 
       for (const tag of tags) {
         const sounds = this._getSoundsForTag(tag);
         for (let i = 0; i < sounds.length; i++) {
-          this._muted.delete(sounds[i]);
+          if (this._muted.has(sounds[i])) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            sounds[i].play();
+            this._muted.delete(sounds[i]);
+          }
         }
       }
     } else {
+       
+      this._muted.forEach((s) => s.play());
       this._muted.clear();
     }
   }
