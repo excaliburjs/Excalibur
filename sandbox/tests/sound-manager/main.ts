@@ -12,7 +12,7 @@ forestSnd.loop = true;
 loader.addResource(forestSnd);
 
 var soundManager = new ex.SoundManger({
-  mix: [
+  sounds: [
     { sound: jumpSnd, volume: 0.4, channels: ['fx'] },
     { sound: forestSnd, volume: 0.2, channels: ['music'] }
   ]
@@ -41,6 +41,10 @@ game.input.keyboard.on('press', (evt) => {
 
   if (evt.key === ex.Keys.P) {
     soundManager.play(['music']);
+  }
+
+  if (evt.key === ex.Keys.V) {
+    soundManager.setVolume(['music'], 0.9);
   }
 });
 

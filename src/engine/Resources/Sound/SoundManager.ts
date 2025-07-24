@@ -11,20 +11,26 @@ export interface SoundManagerOptions {
    * You may also add a list of string `channels` to do group operations to sounds at once. For example mute all 'background' sounds.
    *
    */
-  mix: { sound: Sound; volume: number; channels?: string[] }[];
+  sounds: { sound: Sound; volume: number; channels: string[] }[];
 }
 
-export class SoundManger<Channel = string> {
+export type IsEqual<T, U> = [T] extends [U] ? true : false;
+export type PossibleChannels2<T> = T extends SoundManagerOptions ? T : never;
+export type PossibleChannels<TSoundManagerOptions> = TSoundManagerOptions extends SoundManagerOptions
+  ? Extract<TSoundManagerOptions['sounds'][number]['channels'][number], string>
+  : never;
+
+export class SoundManger<TSoundManagerOptions extends SoundManagerOptions, Channel = string> {
   private _tagToConfig: Map<Channel, TaggedSoundsConfiguration>;
   private _mix: Map<Sound, number>;
   private _muted = new Set<Sound>();
   private _all = new Set<Sound>();
 
-  constructor(options: SoundManagerOptions) {
+  constructor(options: TSoundManagerOptions) {
     this._tagToConfig = new Map<Channel, TaggedSoundsConfiguration>();
     this._mix = new Map<Sound, number>();
-    if (options.mix) {
-      for (const { sound, volume, channels: tags } of options.mix) {
+    if (options.sounds) {
+      for (const { sound, volume, channels: tags } of options.sounds) {
         this._mix.set(sound, volume);
         this._all.add(sound);
 
@@ -191,3 +197,29 @@ export class SoundManger<Channel = string> {
     }
   }
 }
+
+// const config = {
+// 	sounds: [
+// 		{ sound: null as unknown as Sound, volume: .2, channels: ['music', 'background'] },
+// 		{ sound: null as unknown as Sound, volume: .2, channels: ['fx'] }
+// 	]
+// };
+//
+//
+// export type _cf = typeof config;
+// export type _eq = IsEqual<_cf, SoundManagerOptions>;
+// export type tt<T> = T extends SoundManagerOptions ? T : never;
+// export type _rf = Extract<_cf['sounds'][number]['channels'][number], string>
+// export type _rt = tt<_cf>;
+// export type _re = PossibleChannels<_cf>;
+// export type _re2 = PossibleChannels2<_cf>;
+//
+// const sm = new SoundManger({
+// 	sounds: [
+// 		{ sound: null as unknown as Sound, volume: .2, channels: ['music', 'background'] },
+// 		{ sound: null as unknown as Sound, volume: .2, channels: ['fx'] }
+// 	]
+// } as const);
+// sm.play(['music', 'fx']);
+// sm.play(['invalid'])
+//
