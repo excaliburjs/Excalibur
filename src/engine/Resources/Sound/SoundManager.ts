@@ -10,7 +10,11 @@ export interface SoundConfig {
   channels?: string[];
 }
 
-export interface SoundManagerOptions {
+export interface SoundManagerOptions<Channel extends string = string> {
+  /**
+   * Optionally specify the possible channels to avoid typo's
+   */
+  channels?: readonly Channel[];
   /**
    * Optionally set the default volume for all sounds
    *
@@ -23,23 +27,19 @@ export interface SoundManagerOptions {
    * You may also add a list of string `channels` to do group operations to sounds at once. For example mute all 'background' sounds.
    *
    */
-  sounds: (Sound | { sound: Sound; volume?: number; channels?: string[] })[];
+  sounds: (Sound | { sound: Sound; volume?: number; channels?: NoInfer<Channel>[] })[];
 }
 
-// export type IsEqual<T, U> = [T] extends [U] ? true : false;
-// export type PossibleChannels2<T> = T extends SoundManagerOptions ? T : never;
-// export type PossibleChannels<TSoundManagerOptions> = TSoundManagerOptions extends SoundManagerOptions
-//   ? Extract<TSoundManagerOptions['sounds'][number]['channels'][number], string>
-//   : never;
+export type PossibleChannels<T> = T extends SoundManagerOptions<infer Channels> ? Channels : never;
 
-export class SoundManger<TSoundManagerOptions extends SoundManagerOptions, Channel = string> {
+export class SoundManger<Channel extends string> {
   private _tagToConfig: Map<Channel, TaggedSoundsConfiguration>;
   private _mix: Map<Sound, number>;
   private _muted = new Set<Sound>();
   private _all = new Set<Sound>();
   private _defaultVolume: number = 1;
 
-  constructor(options: TSoundManagerOptions) {
+  constructor(options: SoundManagerOptions<Channel>) {
     this._tagToConfig = new Map<Channel, TaggedSoundsConfiguration>();
     this._mix = new Map<Sound, number>();
     this._defaultVolume = options.volume ?? 1;
@@ -167,9 +167,21 @@ export class SoundManger<TSoundManagerOptions extends SoundManagerOptions, Chann
   }
 
   /**
+   * Mut specific sound by instance, in none provided all sounds are muted
+   */
+  public mute(sound?: Sound): void;
+  /**
    * Mute specific Sounds by tag, if none are provided all sounds are muted
    */
-  public mute(tags?: Channel[]) {
+  public mute(tags?: Channel[]): void;
+  public mute(tagsOrSound?: Channel[] | Sound): void {
+    if (tagsOrSound instanceof Sound) {
+      const sound = tagsOrSound;
+      this._muted.add(sound);
+      sound.pause();
+      return;
+    }
+    const tags = tagsOrSound;
     if (tags) {
       for (const tag of tags) {
         const sounds = this.getSoundsForTag(tag);
@@ -178,31 +190,40 @@ export class SoundManger<TSoundManagerOptions extends SoundManagerOptions, Chann
           sounds[i].pause();
         }
       }
-    } else {
-      this._muted = new Set(this._all);
-
-      this._muted.forEach((s) => s.pause());
+      return;
     }
+
+    this._muted = new Set(this._all);
+    this._muted.forEach((s) => s.pause());
   }
 
-  public toggle(tags?: Channel[]) {
+  public toggle(sound?: Sound): void;
+  public toggle(tags?: Channel[]): void;
+  public toggle(tagsOrSound?: Channel[] | Sound): void {
+    if (tagsOrSound instanceof Sound) {
+      const sound = tagsOrSound;
+      if (this._isMuted(sound)) {
+        this.unmute(sound);
+      } else {
+        this.mute(sound);
+      }
+      return;
+    }
+
+    const tags = tagsOrSound;
     if (tags) {
       for (const tag of tags) {
         const sounds = this.getSoundsForTag(tag);
         for (let i = 0; i < sounds.length; i++) {
           if (this._isMuted(sounds[i])) {
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            sounds[i].play();
-            this._muted.delete(sounds[i]);
+            this.unmute(sounds[i]);
           } else {
-            this._muted.add(sounds[i]);
-            sounds[i].pause();
+            this.mute(sounds[i]);
           }
         }
       }
     } else {
       if (this._muted.size > 0) {
-         
         this._muted.forEach((s) => s.play());
         this._muted.clear();
       } else {
@@ -213,9 +234,22 @@ export class SoundManger<TSoundManagerOptions extends SoundManagerOptions, Chann
   }
 
   /**
+   * Unmute specific Sounds by instance, if none are provided all sounds are unmuted
+   */
+  public unmute(sound?: Sound): void;
+  /**
    * Unmute specific Sounds by tag, if none are provided all sounds are unmuted
    */
-  public unmute(tags?: Channel[]) {
+  public unmute(tags?: Channel[]): void;
+  public unmute(tagsOrSound?: Channel[] | Sound): void {
+    if (tagsOrSound instanceof Sound) {
+      const sound = tagsOrSound;
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      sound.play();
+      this._muted.delete(sound);
+      return;
+    }
+    const tags = tagsOrSound;
     if (tags) {
       for (const tag of tags) {
         const sounds = this.getSoundsForTag(tag);
@@ -227,14 +261,19 @@ export class SoundManger<TSoundManagerOptions extends SoundManagerOptions, Chann
           }
         }
       }
-    } else {
-       
-      this._muted.forEach((s) => s.play());
-      this._muted.clear();
+      return;
     }
+
+    this._muted.forEach((s) => s.play());
+    this._muted.clear();
   }
 
+  /**
+   * Apply a list of tags to a sound instance
+   */
   public tag(sound: Sound, tags: Channel[]) {
+    this._mix.set(sound, this._defaultVolume);
+    this._all.add(sound);
     for (const tag of tags) {
       let maybeConfiguration = this._tagToConfig.get(tag);
       if (!maybeConfiguration) {
@@ -248,29 +287,3 @@ export class SoundManger<TSoundManagerOptions extends SoundManagerOptions, Chann
     }
   }
 }
-
-// const config = {
-// 	sounds: [
-// 		{ sound: null as unknown as Sound, volume: .2, channels: ['music', 'background'] },
-// 		{ sound: null as unknown as Sound, volume: .2, channels: ['fx'] }
-// 	]
-// };
-//
-//
-// export type _cf = typeof config;
-// export type _eq = IsEqual<_cf, SoundManagerOptions>;
-// export type tt<T> = T extends SoundManagerOptions ? T : never;
-// export type _rf = Extract<_cf['sounds'][number]['channels'][number], string>
-// export type _rt = tt<_cf>;
-// export type _re = PossibleChannels<_cf>;
-// export type _re2 = PossibleChannels2<_cf>;
-//
-// const sm = new SoundManger({
-// 	sounds: [
-// 		{ sound: null as unknown as Sound, volume: .2, channels: ['music', 'background'] },
-// 		{ sound: null as unknown as Sound, volume: .2, channels: ['fx'] }
-// 	]
-// } as const);
-// sm.play(['music', 'fx']);
-// sm.play(['invalid'])
-//
