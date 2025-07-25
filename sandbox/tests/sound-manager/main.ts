@@ -11,12 +11,31 @@ var forestSnd = new ex.Sound('./loop-forest.mp3');
 forestSnd.loop = true;
 loader.addResource(forestSnd);
 
+var challengeMusic = new ex.Sound('./challengeloopfixed.mp3');
+challengeMusic.loop = true;
+loader.addResource(challengeMusic);
+
+var guitarLoop = new ex.Sound('./loop-guitar.mp3');
+guitarLoop.loop = true;
+loader.addResource(guitarLoop);
+
 var soundManager = new ex.SoundManger({
   sounds: [
     { sound: jumpSnd, volume: 0.4, channels: ['fx'] },
-    { sound: forestSnd, volume: 0.2, channels: ['music'] }
+    { sound: forestSnd, volume: 0.2, channels: ['music', 'background'] },
+    { sound: challengeMusic, volume: 0.2, channels: ['music'] },
+    { sound: guitarLoop, volume: 0.2, channels: ['music'] }
   ]
 });
+
+var toggleMusic = new ex.Label({
+  pos: ex.vec(100, 100),
+  text: 'Toggle Music'
+});
+toggleMusic.on('pointerdown', () => {
+  soundManager.toggle(['music']);
+});
+game.add(toggleMusic);
 
 game.input.keyboard.on('press', (evt) => {
   if (evt.key === ex.Keys.J) {
@@ -50,4 +69,5 @@ game.input.keyboard.on('press', (evt) => {
 
 game.start(loader).then(() => {
   soundManager.play(forestSnd);
+  soundManager.play(challengeMusic);
 });

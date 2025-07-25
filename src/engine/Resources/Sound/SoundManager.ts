@@ -175,7 +175,6 @@ export class SoundManger<TSoundManagerOptions extends SoundManagerOptions, Chann
         const sounds = this.getSoundsForTag(tag);
         for (let i = 0; i < sounds.length; i++) {
           this._muted.add(sounds[i]);
-
           sounds[i].pause();
         }
       }
@@ -183,6 +182,33 @@ export class SoundManger<TSoundManagerOptions extends SoundManagerOptions, Chann
       this._muted = new Set(this._all);
 
       this._muted.forEach((s) => s.pause());
+    }
+  }
+
+  public toggle(tags?: Channel[]) {
+    if (tags) {
+      for (const tag of tags) {
+        const sounds = this.getSoundsForTag(tag);
+        for (let i = 0; i < sounds.length; i++) {
+          if (this._isMuted(sounds[i])) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            sounds[i].play();
+            this._muted.delete(sounds[i]);
+          } else {
+            this._muted.add(sounds[i]);
+            sounds[i].pause();
+          }
+        }
+      }
+    } else {
+      if (this._muted.size > 0) {
+         
+        this._muted.forEach((s) => s.play());
+        this._muted.clear();
+      } else {
+        this._muted = new Set(this._all);
+        this._muted.forEach((s) => s.pause());
+      }
     }
   }
 
@@ -202,6 +228,7 @@ export class SoundManger<TSoundManagerOptions extends SoundManagerOptions, Chann
         }
       }
     } else {
+       
       this._muted.forEach((s) => s.play());
       this._muted.clear();
     }
