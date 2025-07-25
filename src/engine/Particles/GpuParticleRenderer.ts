@@ -165,7 +165,9 @@ export class GpuParticleRenderer {
     const endIndex = particleCount * this._numInputFloats + startIndex;
     let countParticle = 0;
     for (let i = startIndex; i < endIndex; i += this._numInputFloats) {
-      const angle = this._random.floating(this.particle.minAngle || 0, this.particle.maxAngle || TwoPI);
+      let angle = this._random.floating(this.particle.minAngle || 0, this.particle.maxAngle || TwoPI);
+      angle +=
+        this.particle.transform === ParticleTransform.Local ? this.emitter.transform.rotation : this.emitter.transform.globalRotation;
       const speedX = this._random.floating(this.particle.minSpeed || 0, this.particle.maxSpeed || 0);
       const speedY = this._random.floating(this.particle.minSpeed || 0, this.particle.maxSpeed || 0);
       const dx = speedX * Math.cos(angle);
@@ -181,17 +183,12 @@ export class GpuParticleRenderer {
         ranY = radius * Math.sin(angle);
       }
       const tx = this.emitter.transform.apply(vec(ranX, ranY));
-      const rotation = (this.particle.rotation || 0) + angle;
       const data = [
         this.particle.transform === ParticleTransform.Local ? ranX : tx.x,
         this.particle.transform === ParticleTransform.Local ? ranY : tx.y, // pos in world space
         dx,
         dy, // velocity
-        this.particle.randomRotation
-          ? randomInRange(0, TwoPI, this._random)
-          : this.particle.transform === ParticleTransform.Local
-            ? this.particle.rotation || 0
-            : rotation, // rotation
+        this.particle.randomRotation ? randomInRange(0, TwoPI, this._random) : this.particle.rotation || 0, // rotation
         this.particle.angularVelocity || 0, // angular velocity
         this._particleLife // life
       ];
@@ -229,22 +226,22 @@ export class GpuParticleRenderer {
         // upload before the wrap
         // prettier-ignore
         gl.bufferSubData(
-          gl.ARRAY_BUFFER,
-          this._uploadIndex * 4,
-          this._particleData,
-          this._uploadIndex,
-          this._particleData.length - this._uploadIndex
-        );
+					gl.ARRAY_BUFFER,
+					this._uploadIndex * 4,
+					this._particleData,
+					this._uploadIndex,
+					this._particleData.length - this._uploadIndex
+				);
         // upload after the wrap if there are any
         if (this._wrappedParticles) {
           // prettier-ignore
           gl.bufferSubData(
-            gl.ARRAY_BUFFER,
-            0,
-            this._particleData,
-            0,
-            this._wrappedParticles * this._numInputFloats
-          );
+						gl.ARRAY_BUFFER,
+						0,
+						this._particleData,
+						0,
+						this._wrappedParticles * this._numInputFloats
+					);
         }
         this._wrappedLife = this._particleLife;
       }

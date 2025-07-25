@@ -148,7 +148,9 @@ export class ParticleEmitter extends Actor {
     }
 
     const p = this._particlePool.rent();
+    p.unparent();
     p.configure({
+      transform: this.particle.transform,
       life: this.particle.life,
       opacity: this.particle.opacity,
       beginColor: this.particle.beginColor,
