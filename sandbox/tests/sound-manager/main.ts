@@ -23,6 +23,7 @@ guitarLoop.loop = true;
 loader.addResource(guitarLoop);
 
 var soundManager = new ex.SoundManger({
+  channels: ['fx', 'music', 'background'],
   sounds: [
     { sound: jumpSnd, volume: 0.4, channels: ['fx'] },
     { sound: forestSnd, volume: 0.2, channels: ['music', 'background'] },

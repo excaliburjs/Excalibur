@@ -65,6 +65,10 @@ export class SoundManger<Channel extends string> {
     }
   }
 
+  public getSounds(): readonly Sound[] {
+    return Array.from(this._all);
+  }
+
   public getSoundsForTag(tag: Channel): readonly Sound[] {
     const config = this._tagToConfig.get(tag);
     if (config) {
@@ -134,35 +138,57 @@ export class SoundManger<Channel extends string> {
   }
 
   /**
+   * Set the volume of a playing or non-playing sound
+   *
+   * Adjusts the mixed volume to the supplied value
+   */
+  public setVolume(sound: Sound, volume: number): void;
+  /**
    * Set the volume of playing and non-playing sounds
    *
    * Adjusts the mixed volume to the supplied value
    *
    */
-  public setVolume(tags: Channel[], volume: number) {
+  public setVolume(tags: Channel[], volume: number): void;
+  public setVolume(tagsOrSound: Channel[] | Sound, volume: number): void {
+    if (tagsOrSound instanceof Sound) {
+      const sound = tagsOrSound;
+      this._setMix(sound, volume);
+      return;
+    }
+    const tags = tagsOrSound;
     for (const tag of tags) {
       const sounds = this.getSoundsForTag(tag);
       for (const sound of sounds) {
         if (this._isMuted(sound)) {
           continue;
         }
-        this.mix(sound, volume);
+        this._setMix(sound, volume);
       }
     }
   }
 
   /**
+   * Gets the volumn for a sound
+   */
+  public getVolume(sound: Sound): number {
+    return this._mix.get(sound) ?? 0;
+  }
+
+  /**
    * Set the maximum volume a sound, if not set assumed to be 1.0 (100% of the source volume)
    */
-  public mix(sound: Sound, volume: number): void {
+  private _setMix(sound: Sound, volume: number): void {
     this._mix.set(sound, volume);
     sound.volume = volume;
   }
 
   /**
    * Remove the maximum volume for a sound, will be 100% of the source volume
+   *
+   * Untracks the Sound in the sound manager
    */
-  public unmix(sound: Sound): void {
+  public untrack(sound: Sound): void {
     this._mix.delete(sound);
   }
 
