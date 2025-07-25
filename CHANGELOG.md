@@ -54,6 +54,8 @@ const query = new Query({})
 
 ### Fixed
 
+- Fixed issue where `GpuParticleEmitter` did not rotate with their parents
+- Fixed issue where Cpu `ParticleEmitter` did not respect `ParticleTransform.Local`
 - Fixed issue where same origin iframes did not work properly with keyboard & pointer events
 - Fixed issue where the initial scene onPreLoad was not being run
 - Fixed unecessary coupling with `ex.ColliderComponent`/`ex.BodyComponent` that prevented collider tracking on entities that have `ex.TransformComponent`/`ex.ColliderComponent`, this influenced users doing Entity level ECS with pointer events.
