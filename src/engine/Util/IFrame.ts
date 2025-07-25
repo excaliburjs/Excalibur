@@ -33,10 +33,10 @@ export function getDefaultGlobal(): GlobalEventHandlers {
   let global: GlobalEventHandlers;
   if (isCrossOriginIframe()) {
     global = window;
-    Logger.getInstance().warn('Excalibur might be in a cross-origin iframe, in order to receive keyboard events it must be in focus');
+    Logger.getInstance().warnOnce('Excalibur might be in a cross-origin iframe, in order to receive keyboard events it must be in focus');
   } else if (isIframe()) {
     global = window;
-    Logger.getInstance().warn('Excalibur might be in a iframe, in order to receive keyboard events it must be in focus');
+    Logger.getInstance().warnOnce('Excalibur might be in a iframe, in order to receive keyboard events it must be in focus');
   } else {
     global = window.top;
   }
