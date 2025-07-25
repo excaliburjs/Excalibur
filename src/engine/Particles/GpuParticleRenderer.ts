@@ -181,12 +181,17 @@ export class GpuParticleRenderer {
         ranY = radius * Math.sin(angle);
       }
       const tx = this.emitter.transform.apply(vec(ranX, ranY));
+      const rotation = (this.particle.rotation || 0) + angle;
       const data = [
         this.particle.transform === ParticleTransform.Local ? ranX : tx.x,
         this.particle.transform === ParticleTransform.Local ? ranY : tx.y, // pos in world space
         dx,
         dy, // velocity
-        this.particle.randomRotation ? randomInRange(0, TwoPI, this._random) : this.particle.rotation || 0, // rotation
+        this.particle.randomRotation
+          ? randomInRange(0, TwoPI, this._random)
+          : this.particle.transform === ParticleTransform.Local
+            ? this.particle.rotation || 0
+            : rotation, // rotation
         this.particle.angularVelocity || 0, // angular velocity
         this._particleLife // life
       ];
