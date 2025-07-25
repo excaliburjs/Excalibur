@@ -7,8 +7,11 @@ var loader = new ex.Loader();
 var jumpSnd = new ex.Sound('./jump.mp3');
 loader.addResource(jumpSnd);
 
-var forestSnd = new ex.Sound('./loop-forest.mp3');
-forestSnd.loop = true;
+var forestSnd = new ex.Sound({
+  paths: ['./loop-forest.mp3'],
+  loop: true,
+  volume: 0.9
+});
 loader.addResource(forestSnd);
 
 var challengeMusic = new ex.Sound('./challengeloopfixed.mp3');
