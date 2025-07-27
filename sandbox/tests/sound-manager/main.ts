@@ -40,6 +40,9 @@ toggleMusic.on('pointerdown', () => {
   soundManager.toggle(['music']);
 });
 game.add(toggleMusic);
+soundManager.getVolume(jumpSnd);
+console.log('getSounds()', soundManager.getSounds());
+console.log('tag count', soundManager.getSoundsForTag('music'));
 
 game.input.keyboard.on('press', (evt) => {
   if (evt.key === ex.Keys.J) {
