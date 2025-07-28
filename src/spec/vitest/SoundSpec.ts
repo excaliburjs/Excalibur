@@ -66,12 +66,35 @@ describe('Sound resource', () => {
     expect(sut.duration).toBe(5);
   });
 
+  it('should have duration (new ctor)', async () => {
+    sut = new ex.Sound({ paths: ['/src/spec/assets/images/SoundSpec/preview.mp3'] });
+    sut.duration = 5.0;
+    await sut.load();
+    expect(sut.duration).toBeDefined();
+    expect(sut.duration).toBe(5);
+  });
+
   it('should fire playbackstart event', async () => {
     const playbackSpy = vi.fn();
 
     sut.on('playbackstart', playbackSpy);
 
     sut.loop = false;
+
+    await sut.load();
+    await sut.play();
+
+    expect(playbackSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('should fire playbackstart event (new ctor)', async () => {
+    sut = new ex.Sound({
+      paths: ['/src/spec/assets/images/SoundSpec/test.mp3'],
+      loop: false
+    });
+    const playbackSpy = vi.fn();
+
+    sut.on('playbackstart', playbackSpy);
 
     await sut.load();
     await sut.play();
