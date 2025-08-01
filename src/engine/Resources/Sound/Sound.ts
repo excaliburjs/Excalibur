@@ -31,6 +31,50 @@ export const SoundEvents = {
   PlaybackStart: 'playbackstart'
 };
 
+export interface SoundOptions {
+  /**
+   * @param paths A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
+   */
+  paths: string[];
+  /**
+   * Optionally bust the cache on load
+   *
+   * Default is false
+   */
+  bustCache?: boolean;
+  /**
+   * [0-1] 0% to 100%
+   *
+   * By default 1 (100%)
+   */
+  volume?: number;
+  /**
+   * Loop infinitely
+   */
+  loop?: boolean;
+  /**
+   * Multiplyer
+   *
+   * By default 1
+   */
+  playbackRate?: number;
+  /**
+   * Seconds?
+   *
+   * By default unset, will play the natural length of the clip
+   */
+  duration?: number;
+
+  /**
+   * Advance to a position in the audio clip
+   */
+  position?: number;
+}
+
+function isSoundOptions(x: any): x is SoundOptions[] {
+  return !!x[0]?.paths;
+}
+
 /**
  * The {@apilink Sound} object allows games built in Excalibur to load audio
  * components, from soundtracks to sound effects. {@apilink Sound} is an {@apilink Loadable}
@@ -41,6 +85,8 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
   public logger: Logger = Logger.getInstance();
   public data!: AudioBuffer;
   private _resource: Resource<ArrayBuffer>;
+
+  public position: number | undefined;
   /**
    * Indicates whether the clip should loop when complete
    * @param value  Set the looping flag
@@ -131,15 +177,36 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
   /**
    * @param paths A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
    */
-  constructor(...paths: string[]) {
+
+  constructor(options: SoundOptions);
+  constructor(...paths: string[]);
+  constructor(...pathsOrSoundOption: string[] | SoundOptions[]) {
+    let options: SoundOptions;
+    if (isSoundOptions(pathsOrSoundOption)) {
+      options = pathsOrSoundOption[0];
+    } else {
+      options = {
+        paths: pathsOrSoundOption as string[]
+      };
+    }
     this._resource = new Resource('', ExResponse.type.arraybuffer);
+
+    const { volume, position, playbackRate, loop, bustCache, duration } = options;
+
+    this.volume = volume ?? this.volume;
+    this.playbackRate = playbackRate ?? this.playbackRate;
+    this.loop = loop ?? this.loop;
+    this.duration = duration ?? this.duration;
+    this.bustCache = bustCache ?? this.bustCache;
+    this.position = position ?? this.position;
+
     /**
      * Chrome : MP3, WAV, Ogg
      * Firefox : WAV, Ogg,
      * IE : MP3, WAV coming soon
      * Safari MP3, WAV, Ogg
      */
-    for (const path of paths) {
+    for (const path of options.paths) {
       if (canPlayFile(path)) {
         this.path = path;
         break;
@@ -147,9 +214,9 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
     }
 
     if (!this.path) {
-      this.logger.warn('This browser does not support any of the audio files specified:', paths.join(', '));
-      this.logger.warn('Attempting to use', paths[0]);
-      this.path = paths[0]; // select the first specified
+      this.logger.warn('This browser does not support any of the audio files specified:', options.paths.join(', '));
+      this.logger.warn('Attempting to use', options.paths[0]);
+      this.path = options.paths[0]; // select the first specified
     }
   }
 
@@ -254,6 +321,9 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
     if (this.isPaused()) {
       return this._resumePlayback();
     } else {
+      if (this.position) {
+        this.seek(this.position);
+      }
       return this._startPlayback();
     }
   }
