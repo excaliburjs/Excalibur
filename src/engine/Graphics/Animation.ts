@@ -166,6 +166,7 @@ export class Animation extends Graphic implements HasTick {
   private _done = false;
   private _playing = true;
   private _speed = 1;
+  private _wasReset: boolean;
 
   constructor(options: GraphicOptions & AnimationOptions) {
     super(options);
@@ -379,6 +380,7 @@ export class Animation extends Graphic implements HasTick {
    */
   public play(): void {
     this._playing = true;
+    this._wasReset = false;
   }
 
   /**
@@ -386,6 +388,7 @@ export class Animation extends Graphic implements HasTick {
    */
   public pause(): void {
     this._playing = false;
+    this._wasReset = false;
     this._firstTick = true; // firstTick must be set to emit the proper frame event
   }
 
@@ -393,6 +396,7 @@ export class Animation extends Graphic implements HasTick {
    * Reset the animation back to the beginning, including if the animation were done
    */
   public reset(): void {
+    this._wasReset = true;
     this._done = false;
     this._firstTick = true;
     this._currentFrame = 0;
@@ -492,6 +496,10 @@ export class Animation extends Graphic implements HasTick {
         next = currentFrame + (this._pingPongDirection % this.frames.length);
         break;
       }
+    }
+    if (this._wasReset) {
+      this._wasReset = false;
+      return this._currentFrame;
     }
     return next;
   }
