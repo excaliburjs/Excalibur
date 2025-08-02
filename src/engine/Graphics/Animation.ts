@@ -475,7 +475,7 @@ export class Animation extends Graphic implements HasTick {
       }
       case AnimationStrategy.Freeze: {
         next = clamp(currentFrame + 1, 0, this.frames.length - 1);
-        if (next >= this.frames.length - 1) {
+        if (currentFrame + 1 >= this.frames.length) {
           this._done = true;
           this.events.emit('end', this);
         }
