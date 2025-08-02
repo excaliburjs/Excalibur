@@ -15,6 +15,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added `ex.Animation.data` to store arbitrary meta data for an animation. Data can be directly added in the constructor as an option, by using the optional `data` argument in `fromSpriteSheet(...)` and as an option in `fromSpriteSheetCoordinates({...})`
 - Added a new configuration option to `ex.Engine({global: ...})` where you can provide a keyboard global to override if iframe detection fails for anyway.
 - Added new way to output data from scenes `onDeactivate()`, returning data will be passed to the next `SceneActivationContext` in the `previousSceneData` property!
 - Added new `transitionstart` and `transitionend` events to `ex.Scenes`
