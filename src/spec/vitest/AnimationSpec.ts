@@ -1,7 +1,7 @@
 import * as ex from '@excalibur';
 import { ExcaliburGraphicsContext2DCanvas } from '../../engine/Graphics';
 
-describe.only('A Graphics Animation', () => {
+describe('A Graphics Animation', () => {
   it('exists', () => {
     expect(ex.Animation).toBeDefined();
   });
