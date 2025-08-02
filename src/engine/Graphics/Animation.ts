@@ -166,7 +166,7 @@ export class Animation extends Graphic implements HasTick {
   private _done = false;
   private _playing = true;
   private _speed = 1;
-  private _wasResetDuringFrameCalc: boolean;
+  private _wasResetDuringFrameCalc: boolean = false;
 
   constructor(options: GraphicOptions & AnimationOptions) {
     super(options);
