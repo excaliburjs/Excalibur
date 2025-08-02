@@ -166,6 +166,7 @@ export class Animation extends Graphic implements HasTick {
   private _done = false;
   private _playing = true;
   private _speed = 1;
+  private _wasResetDuringFrameCalc: boolean = false;
 
   constructor(options: GraphicOptions & AnimationOptions) {
     super(options);
@@ -393,6 +394,7 @@ export class Animation extends Graphic implements HasTick {
    * Reset the animation back to the beginning, including if the animation were done
    */
   public reset(): void {
+    this._wasResetDuringFrameCalc = true;
     this._done = false;
     this._firstTick = true;
     this._currentFrame = 0;
@@ -447,6 +449,7 @@ export class Animation extends Graphic implements HasTick {
   }
 
   private _nextFrame(): number {
+    this._wasResetDuringFrameCalc = false;
     const currentFrame = this._currentFrame;
     if (this._done) {
       return currentFrame;
@@ -472,7 +475,7 @@ export class Animation extends Graphic implements HasTick {
       }
       case AnimationStrategy.Freeze: {
         next = clamp(currentFrame + 1, 0, this.frames.length - 1);
-        if (next >= this.frames.length - 1) {
+        if (currentFrame + 1 >= this.frames.length) {
           this._done = true;
           this.events.emit('end', this);
         }
@@ -492,6 +495,11 @@ export class Animation extends Graphic implements HasTick {
         next = currentFrame + (this._pingPongDirection % this.frames.length);
         break;
       }
+    }
+    if (this._wasResetDuringFrameCalc) {
+      // if reset during frame calculation discard the calc'd next and return the current frame.
+      this._wasResetDuringFrameCalc = false;
+      return this._currentFrame;
     }
     return next;
   }

@@ -690,4 +690,72 @@ describe('A Graphics Animation', () => {
     anim.speed = 100;
     expect(anim.speed).toBe(100);
   });
+
+  it('can be reset during the end event (end)', () => {
+    const rect = new ex.Rectangle({
+      width: 100,
+      height: 100,
+      color: ex.Color.Blue
+    });
+    const frames: ex.Frame[] = [
+      {
+        graphic: rect,
+        duration: 100
+      },
+      {
+        graphic: rect,
+        duration: 100
+      }
+    ];
+    const anim = new ex.Animation({
+      frames: frames,
+      strategy: ex.AnimationStrategy.End
+    });
+    const endSpy = vi.fn(() => {
+      anim.reset();
+      expect(anim.currentFrameIndex).toBe(0);
+    });
+    anim.events.once('end', endSpy);
+    anim.play();
+    expect(anim.currentFrameIndex).toBe(0);
+    anim.tick(100, 1);
+    expect(anim.currentFrameIndex).toBe(1);
+    anim.tick(100, 2);
+    expect(endSpy).toHaveBeenCalledOnce();
+    expect(anim.currentFrameIndex).toBe(0);
+  });
+
+  it('can be reset during the end event (freeze)', () => {
+    const rect = new ex.Rectangle({
+      width: 100,
+      height: 100,
+      color: ex.Color.Blue
+    });
+    const frames: ex.Frame[] = [
+      {
+        graphic: rect,
+        duration: 100
+      },
+      {
+        graphic: rect,
+        duration: 100
+      }
+    ];
+    const anim = new ex.Animation({
+      frames: frames,
+      strategy: ex.AnimationStrategy.Freeze
+    });
+    const endSpy = vi.fn(() => {
+      anim.reset();
+      expect(anim.currentFrameIndex).toBe(0);
+    });
+    anim.events.once('end', endSpy);
+    anim.play();
+    expect(anim.currentFrameIndex).toBe(0);
+    anim.tick(100, 1);
+    expect(anim.currentFrameIndex).toBe(1);
+    anim.tick(100, 2);
+    expect(endSpy).toHaveBeenCalledOnce();
+    expect(anim.currentFrameIndex).toBe(0);
+  });
 });
