@@ -690,4 +690,115 @@ describe('A Graphics Animation', () => {
     anim.speed = 100;
     expect(anim.speed).toBe(100);
   });
+
+  it('can store custom data', () => {
+    const rect = new ex.Rectangle({
+      width: 100,
+      height: 100,
+      color: ex.Color.Blue
+    });
+    const anim = new ex.Animation({
+      frames: [
+        {
+          graphic: rect,
+          duration: 100
+        }
+      ],
+      data: {
+        customKey: 'customValue'
+      }
+    });
+
+    expect(anim.data.get('customKey')).toBe('customValue');
+    expect(anim.data.has('nonExistentKey')).toBe(false);
+  });
+
+  it('can store custom data if created from sprite sheet', () => {
+    const sourceImage = new ex.ImageSource('some/image.png');
+    const ss = ex.SpriteSheet.fromImageSource({
+      image: sourceImage,
+      grid: {
+        spriteWidth: 10,
+        spriteHeight: 10,
+        rows: 10,
+        columns: 10
+      }
+    });
+    const anim = ex.Animation.fromSpriteSheet(ss, [0, 1, 2, 3], 100, ex.AnimationStrategy.Freeze, {
+      customKey: 'customValue'
+    });
+
+    expect(anim.data.get('customKey')).toBe('customValue');
+    expect(anim.data.has('nonExistentKey')).toBe(false);
+  });
+
+  it('can store custom data if created from sprite sheet coordinates', () => {
+    const sourceImage = new ex.ImageSource('some/image.png');
+    const ss = ex.SpriteSheet.fromImageSource({
+      image: sourceImage,
+      grid: {
+        spriteWidth: 10,
+        spriteHeight: 10,
+        rows: 10,
+        columns: 10
+      }
+    });
+    const anim = ex.Animation.fromSpriteSheetCoordinates({
+      spriteSheet: ss,
+      frameCoordinates: [
+        { x: 0, y: 0, duration: 100 },
+        { x: 1, y: 0, duration: 100 },
+        { x: 2, y: 0, duration: 100 },
+        { x: 3, y: 0, duration: 100 }
+      ],
+      strategy: ex.AnimationStrategy.Freeze,
+      data: {
+        customKey: 'customValue'
+      }
+    });
+
+    expect(anim.data.get('customKey')).toBe('customValue');
+    expect(anim.data.has('nonExistentKey')).toBe(false);
+  });
+
+  it('can store custom data after being created', () => {
+    const rect = new ex.Rectangle({
+      width: 100,
+      height: 100,
+      color: ex.Color.Blue
+    });
+    const anim = new ex.Animation({
+      frames: [
+        {
+          graphic: rect,
+          duration: 100
+        }
+      ]
+    });
+
+    expect(anim.data.size).toBe(0);
+    anim.data.set('customKey', 'customValue');
+    expect(anim.data.get('customKey')).toBe('customValue');
+    expect(anim.data.has('nonExistentKey')).toBe(false);
+  });
+
+  it('creates an empty map when undefined data is passed', () => {
+    const rect = new ex.Rectangle({
+      width: 100,
+      height: 100,
+      color: ex.Color.Blue
+    });
+    const anim = new ex.Animation({
+      frames: [
+        {
+          graphic: rect,
+          duration: 100
+        }
+      ],
+      data: undefined
+    });
+
+    expect(anim.data).toBeInstanceOf(Map);
+    expect(anim.data.size).toBe(0);
+  });
 });
