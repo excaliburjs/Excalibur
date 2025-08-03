@@ -93,6 +93,10 @@ export interface AnimationOptions {
    * Optionally specify the {@apilink AnimationStrategy} for the Animation
    */
   strategy?: AnimationStrategy;
+  /**
+   * Optionally set arbitrary meta data for the animation
+   */
+  data?: Record<string, any>;
 }
 
 export type AnimationEvents = {
@@ -143,6 +147,10 @@ export interface FromSpriteSheetOptions {
    * Optionally specify the animation should be reversed
    */
   reverse?: boolean;
+  /**
+   * Optionally set arbitrary meta data for the animation
+   */
+  data?: Record<string, any>;
 }
 
 /**
@@ -156,6 +164,7 @@ export class Animation extends Graphic implements HasTick {
   public frames: Frame[] = [];
   public strategy: AnimationStrategy = AnimationStrategy.Loop;
   public frameDuration: number = 100;
+  public data: Map<string, any>;
 
   private _idempotencyToken = -1;
 
@@ -174,6 +183,7 @@ export class Animation extends Graphic implements HasTick {
     this.speed = options.speed ?? this.speed;
     this.strategy = options.strategy ?? this.strategy;
     this.frameDuration = options.totalDuration ? options.totalDuration / this.frames.length : (options.frameDuration ?? this.frameDuration);
+    this.data = options.data ? new Map(Object.entries(options.data)) : new Map<string, any>();
     if (options.reverse) {
       this.reverse();
     }
@@ -226,7 +236,8 @@ export class Animation extends Graphic implements HasTick {
     spriteSheet: SpriteSheet,
     spriteSheetIndex: number[],
     durationPerFrame: number,
-    strategy: AnimationStrategy = AnimationStrategy.Loop
+    strategy: AnimationStrategy = AnimationStrategy.Loop,
+    data?: Record<string, any>
   ): Animation {
     const maxIndex = spriteSheet.sprites.length - 1;
     const invalidIndices = spriteSheetIndex.filter((index) => index < 0 || index > maxIndex);
@@ -242,7 +253,8 @@ export class Animation extends Graphic implements HasTick {
           graphic: f,
           duration: durationPerFrame
         })),
-      strategy: strategy
+      strategy: strategy,
+      data
     });
   }
 
@@ -268,7 +280,7 @@ export class Animation extends Graphic implements HasTick {
    * @returns Animation
    */
   public static fromSpriteSheetCoordinates(options: FromSpriteSheetOptions): Animation {
-    const { spriteSheet, frameCoordinates, durationPerFrame, durationPerFrameMs, speed, strategy, reverse } = options;
+    const { spriteSheet, frameCoordinates, durationPerFrame, durationPerFrameMs, speed, strategy, reverse, data } = options;
     const defaultDuration = durationPerFrame ?? durationPerFrameMs ?? 100;
     const frames: Frame[] = [];
     for (const coord of frameCoordinates) {
@@ -290,7 +302,8 @@ export class Animation extends Graphic implements HasTick {
       frames,
       strategy,
       speed,
-      reverse
+      reverse,
+      data
     });
   }
 
