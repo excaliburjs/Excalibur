@@ -12,7 +12,6 @@ import { EventEmitter } from '../EventEmitter';
 import type { Scene } from '../Scene';
 import { removeItemFromArray } from '../Util/Util';
 import type { MaybeKnownComponent } from './Types';
-import { Logger } from '../Util/Log';
 
 /**
  * Interface holding an entity component pair
@@ -78,7 +77,6 @@ export const EntityEvents = {
 export interface EntityOptions<TComponents extends Component> {
   name?: string;
   components?: TComponents[];
-  silenceWarnings?: boolean;
 }
 
 /**
@@ -126,15 +124,14 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
   constructor(componentsOrOptions?: TKnownComponents[] | EntityOptions<TKnownComponents>, name?: string) {
     let componentsToAdd!: TKnownComponents[];
     let nameToAdd: string | undefined;
-    let silence = false;
+
     if (Array.isArray(componentsOrOptions)) {
       componentsToAdd = componentsOrOptions;
       nameToAdd = name;
     } else if (componentsOrOptions && typeof componentsOrOptions === 'object') {
-      const { components, name, silenceWarnings } = componentsOrOptions;
+      const { components, name } = componentsOrOptions;
       componentsToAdd = components ?? [];
       nameToAdd = name;
-      silence = !!silenceWarnings;
     }
     if (nameToAdd) {
       this.name = nameToAdd;
@@ -142,16 +139,6 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
     if (componentsToAdd) {
       for (const component of componentsToAdd) {
         this.addComponent(component);
-      }
-    }
-
-    if (process.env.NODE_ENV === 'development') {
-      if (!silence) {
-        setTimeout(() => {
-          if (!this.scene && !this.isInitialized) {
-            Logger.getInstance().warn(`Entity "${this.name || this.id}" was not added to a scene.`);
-          }
-        }, 5000);
       }
     }
   }
