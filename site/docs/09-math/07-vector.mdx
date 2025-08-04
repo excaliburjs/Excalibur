@@ -62,3 +62,21 @@ console.log(anotherPoint.toString()) // "(50, 50)"
 
 Notice how both `point` and `samePoint` share the same vector reference, so using `setTo` mutates the vector. Use `clone` to ensure you are not changing vectors unexpectedly!
 
+### Linear interpolation (lerp) between vectors
+
+Lerp returns a new vector that represents a point along the line between two vectors. Given a number between 0 and 1 (representing the percentage of progress) and a target vector, it produces the intermediate vector at that fraction of the distance.
+
+The standard formula for linear interpolation is:
+
+```sh twoslash
+lerp(a, b, t) = a + (b - a) * t
+```
+- a = starting vector
+- b = target vector
+- t = interpolation factor (0 ≤ t ≤ 1)
+
+When t = 0, the result is a.
+
+When t = 1, the result is b.
+
+When t = 0.5, the result is exactly halfway between a and b.
