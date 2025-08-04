@@ -467,7 +467,7 @@ export class Vector implements Clonable<Vector> {
 
   public lerp(target: Vector, t: number) {
     t = clamp(t, 0, 1);
-    let newVector = new Vector(0, 0);
+    const newVector = new Vector(0, 0);
     newVector.x = this.x + (target.x - this.x) * t;
     newVector.y = this.y + (target.y - this.y) * t;
     return newVector;
