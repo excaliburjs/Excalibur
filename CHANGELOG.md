@@ -79,6 +79,7 @@ const query = new Query({})
 - Add warning if World.add() falls through! This is caused by multiple versions of Excalibur usually
 - Fixed CollidePolygonPolygon crash with some defense against invalid separation
 - Fixed issue with PostProcessor where it would not run correctly if no actors present
+- Removed warning in development for unadded entities
 
 ### Updates
 
