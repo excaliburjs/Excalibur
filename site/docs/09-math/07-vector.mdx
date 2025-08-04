@@ -67,7 +67,7 @@ Notice how both `point` and `samePoint` share the same vector reference, so usin
 #### `Vector.fromAngle(angle: number): Vector`
 Creates a unit vector from an angle in radians.
 
-```typescript
+```ts twoslash
 const rightVector = Vector.fromAngle(0); // (1, 0)
 const upVector = Vector.fromAngle(-Math.PI / 2); // (0, -1)
 ```
@@ -75,14 +75,14 @@ const upVector = Vector.fromAngle(-Math.PI / 2); // (0, -1)
 #### `Vector.distance(vec1: Vector, vec2: Vector): number`
 Calculates the distance between two vectors.
 
-```typescript
+```ts twoslash
 const distance = Vector.distance(vec(0, 0), vec(3, 4)); // 5
 ```
 
 #### `Vector.isValid(vec: Vector): boolean`
 Checks if a vector is valid (not null, undefined, or containing NaN/Infinity).
 
-```typescript
+```ts twoslash
 const isValid = Vector.isValid(new Vector(1, 2)); // true
 const isInvalid = Vector.isValid(new Vector(NaN, 1)); // false
 ```
@@ -106,21 +106,21 @@ Get or set the vector's magnitude (length). Setting this normalizes the vector a
 #### `add(v: Vector, dest?: Vector): Vector`
 Adds another vector to this one.
 
-```typescript
+```ts twoslash
 const result = vec(1, 2).add(vec(3, 4)); // (4, 6)
 ```
 
 #### `sub(v: Vector, dest?: Vector): Vector`
 Subtracts another vector from this one.
 
-```typescript
+```ts twoslash
 const result = vec(5, 3).sub(vec(2, 1)); // (3, 2)
 ```
 
 #### `scale(size: number | Vector, dest?: Vector): Vector`
 Scales the vector by a scalar or component-wise by another vector.
 
-```typescript
+```ts twoslash
 const scaled = vec(2, 3).scale(2); // (4, 6)
 const componentScaled = vec(2, 3).scale(vec(2, 0.5)); // (4, 1.5)
 ```
@@ -128,7 +128,7 @@ const componentScaled = vec(2, 3).scale(vec(2, 0.5)); // (4, 1.5)
 #### `normalize(): Vector`
 Returns a unit vector in the same direction.
 
-```typescript
+```ts twoslash
 const unit = vec(3, 4).normalize(); // (0.6, 0.8)
 ```
 
@@ -137,7 +137,7 @@ const unit = vec(3, 4).normalize(); // (0.6, 0.8)
 #### `distance(v?: Vector): number`
 Returns the distance to another vector, or magnitude if no vector provided.
 
-```typescript
+```ts twoslash
 const dist = vec(0, 0).distance(vec(3, 4)); // 5
 const magnitude = vec(3, 4).distance(); // 5
 ```
@@ -150,14 +150,14 @@ Returns the squared distance (faster than distance for comparisons).
 #### `dot(v: Vector): number`
 Calculates the dot product with another vector.
 
-```typescript
+```ts twoslash
 const dotProduct = vec(1, 2).dot(vec(3, 4)); // 11
 ```
 
 #### `cross(v: Vector | number): number | Vector`
 Calculates the cross product. With a vector, returns a scalar. With a scalar, returns a vector.
 
-```typescript
+```ts twoslash
 const crossScalar = vec(1, 2).cross(vec(3, 4)); // -2
 const crossVector = vec(1, 2).cross(5); // (10, -5)
 ```
@@ -165,7 +165,7 @@ const crossVector = vec(1, 2).cross(5); // (10, -5)
 #### `perpendicular(): Vector`
 Returns a perpendicular vector (rotated 90 degrees).
 
-```typescript
+```ts twoslash
 const perp = vec(1, 0).perpendicular(); // (0, -1)
 ```
 
@@ -177,14 +177,14 @@ Returns the normalized perpendicular vector.
 #### `toAngle(): number`
 Returns the angle of the vector in radians [0, 2π).
 
-```typescript
+```ts twoslash
 const angle = vec(1, 1).toAngle(); // π/4 (45 degrees)
 ```
 
 #### `rotate(angle: number, anchor?: Vector, dest?: Vector): Vector`
 Rotates the vector by an angle around an anchor point.
 
-```typescript
+```ts twoslash
 const rotated = vec(1, 0).rotate(Math.PI / 2); // (0, 1)
 ```
 
@@ -196,14 +196,14 @@ Returns the angle needed to rotate this vector to match the target angle.
 #### `equals(vector: Vector, tolerance?: number): boolean`
 Tests for equality within a tolerance.
 
-```typescript
+```ts twoslash
 const isEqual = vec(1, 1).equals(vec(1.001, 0.999), 0.01); // true
 ```
 
 #### `lerp(target: Vector, t: number): Vector`
 Linear interpolation between this vector and the target.  `t` is clamped between [0,1]
 
-```typescript
+```ts twoslash
 const midpoint = vec(0, 0).lerp(vec(10, 10), 0.5); // (5, 5)
 ```
 
@@ -221,9 +221,11 @@ Clamps the vector's magnitude to a maximum value (mutates the vector).
 
 ### Mutating Operations
 
-**⚠️ Warning**: These methods modify the original vector and should be used carefully.
+:::warning
+These methods modify the original vector and should be used carefully.
 
 - `addEqual(v: Vector)`: Adds and mutates
 - `subEqual(v: Vector)`: Subtracts and mutates  
 - `scaleEqual(size: number)`: Scales and mutates
 - `setTo(x: number, y: number)`: Sets components and mutates
+:::
