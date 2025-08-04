@@ -87,6 +87,7 @@ const query = new Query({})
 
 ### Changed
 
+- Changed the behavior of `fromSpriteSheet(...)`, `fromSpriteSheetCoordinates({...})` and `clone({})` of `ex.Animation` to return the subclass if called from there
 - Optimized BoundingBox.rayCast and BoundingBox.rayCastTime
 - Optimized BoundingBox.intersect(otherBoundingBox)
 - Change logging behavior for entities not in scenes, only log in dev builds
