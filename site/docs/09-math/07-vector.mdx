@@ -12,7 +12,7 @@ Excalibur uses the [[Vector]] structure to represent points. The [[Vector]] clas
 
 To quickly create a vector, use the [[vec]] global:
 
-```ts
+```ts twoslash
 import { vec } from 'excalibur'
 
 const point = vec(0, 10)
@@ -20,7 +20,7 @@ const point = vec(0, 10)
 
 Alternatively, you may see examples of using the more verbose `new Vector(x, y)` format:
 
-```ts
+```ts twoslash
 import { Vector } from 'excalibur'
 
 const point = new Vector(0, 10)
@@ -28,7 +28,7 @@ const point = new Vector(0, 10)
 
 To set the value of an existing vector, use [[Vector.setTo]]:
 
-```ts
+```ts twoslash
 import { vec } from 'excalibur'
 
 const point = vec(0, 10).setTo(10, 10)
@@ -48,7 +48,7 @@ There are some built-in vector constants you can use:
 
 Vectors are objects, so mutating them will change the state for all references. Use the [[Vector.clone]] method to clone a vector to mutate it:
 
-```ts
+```ts twoslash
 import { vec } from 'excalibur'
 
 const point = vec(0, 10)
@@ -62,170 +62,6 @@ console.log(anotherPoint.toString()) // "(50, 50)"
 
 Notice how both `point` and `samePoint` share the same vector reference, so using `setTo` mutates the vector. Use `clone` to ensure you are not changing vectors unexpectedly!
 
-### Static Methods Available
+## API Link
 
-#### `Vector.fromAngle(angle: number): Vector`
-Creates a unit vector from an angle in radians.
-
-```ts twoslash
-const rightVector = Vector.fromAngle(0); // (1, 0)
-const upVector = Vector.fromAngle(-Math.PI / 2); // (0, -1)
-```
-
-#### `Vector.distance(vec1: Vector, vec2: Vector): number`
-Calculates the distance between two vectors.
-
-```ts twoslash
-const distance = Vector.distance(vec(0, 0), vec(3, 4)); // 5
-```
-
-#### `Vector.isValid(vec: Vector): boolean`
-Checks if a vector is valid (not null, undefined, or containing NaN/Infinity).
-
-```ts twoslash
-const isValid = Vector.isValid(new Vector(1, 2)); // true
-const isInvalid = Vector.isValid(new Vector(NaN, 1)); // false
-```
-
-#### `Vector.min(vec1: Vector, vec2: Vector): Vector`
-Returns a vector with the minimum x and y components.
-
-#### `Vector.max(vec1: Vector, vec2: Vector): Vector`
-Returns a vector with the maximum x and y components.
-
-### Instance Properties
-
-#### `x: number` and `y: number`
-Get or set the vector components. **Warning**: Setting these properties mutates the vector.
-
-#### `magnitude: number`
-Get or set the vector's magnitude (length). Setting this normalizes the vector and scales it to the new magnitude.
-
-### Core Operations
-
-#### `add(v: Vector, dest?: Vector): Vector`
-Adds another vector to this one.
-
-```ts twoslash
-const result = vec(1, 2).add(vec(3, 4)); // (4, 6)
-```
-
-#### `sub(v: Vector, dest?: Vector): Vector`
-Subtracts another vector from this one.
-
-```ts twoslash
-const result = vec(5, 3).sub(vec(2, 1)); // (3, 2)
-```
-
-#### `scale(size: number | Vector, dest?: Vector): Vector`
-Scales the vector by a scalar or component-wise by another vector.
-
-```ts twoslash
-const scaled = vec(2, 3).scale(2); // (4, 6)
-const componentScaled = vec(2, 3).scale(vec(2, 0.5)); // (4, 1.5)
-```
-
-#### `normalize(): Vector`
-Returns a unit vector in the same direction.
-
-```ts twoslash
-const unit = vec(3, 4).normalize(); // (0.6, 0.8)
-```
-
-### Distance and Magnitude
-
-#### `distance(v?: Vector): number`
-Returns the distance to another vector, or magnitude if no vector provided.
-
-```ts twoslash
-const dist = vec(0, 0).distance(vec(3, 4)); // 5
-const magnitude = vec(3, 4).distance(); // 5
-```
-
-#### `squareDistance(v?: Vector): number`
-Returns the squared distance (faster than distance for comparisons).
-
-### Vector Math
-
-#### `dot(v: Vector): number`
-Calculates the dot product with another vector.
-
-```ts twoslash
-const dotProduct = vec(1, 2).dot(vec(3, 4)); // 11
-```
-
-#### `cross(v: Vector | number): number | Vector`
-Calculates the cross product. With a vector, returns a scalar. With a scalar, returns a vector.
-
-```ts twoslash
-const crossScalar = vec(1, 2).cross(vec(3, 4)); // -2
-const crossVector = vec(1, 2).cross(5); // (10, -5)
-```
-
-#### `perpendicular(): Vector`
-Returns a perpendicular vector (rotated 90 degrees).
-
-```ts twoslash
-const perp = vec(1, 0).perpendicular(); // (0, -1)
-```
-
-#### `normal(): Vector`
-Returns the normalized perpendicular vector.
-
-### Rotation and Angles
-
-#### `toAngle(): number`
-Returns the angle of the vector in radians [0, 2π).
-
-```ts twoslash
-const angle = vec(1, 1).toAngle(); // π/4 (45 degrees)
-```
-
-#### `rotate(angle: number, anchor?: Vector, dest?: Vector): Vector`
-Rotates the vector by an angle around an anchor point.
-
-```ts twoslash
-const rotated = vec(1, 0).rotate(Math.PI / 2); // (0, 1)
-```
-
-#### `angleBetween(angle: number, rotationType: RotationType): number`
-Returns the angle needed to rotate this vector to match the target angle.
-
-### Utility Methods
-
-#### `equals(vector: Vector, tolerance?: number): boolean`
-Tests for equality within a tolerance.
-
-```ts twoslash
-const isEqual = vec(1, 1).equals(vec(1.001, 0.999), 0.01); // true
-```
-
-#### `lerp(target: Vector, t: number): Vector`
-Linear interpolation between this vector and the target.  `t` is clamped between [0,1]
-
-```ts twoslash
-const midpoint = vec(0, 0).lerp(vec(10, 10), 0.5); // (5, 5)
-```
-
-#### `average(vec: Vector): Vector`
-Returns the midpoint between this vector and another.
-
-#### `clone(dest?: Vector): Vector`
-Creates a copy of the vector.
-
-#### `negate(): Vector`
-Returns the negated vector.
-
-#### `clampMagnitude(magnitude: number): Vector`
-Clamps the vector's magnitude to a maximum value (mutates the vector).
-
-### Mutating Operations
-
-:::warning
-These methods modify the original vector and should be used carefully.
-
-- `addEqual(v: Vector)`: Adds and mutates
-- `subEqual(v: Vector)`: Subtracts and mutates  
-- `scaleEqual(size: number)`: Scales and mutates
-- `setTo(x: number, y: number)`: Sets components and mutates
-:::
+[[Vector|Vectors]]
