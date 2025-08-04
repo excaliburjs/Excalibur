@@ -1,6 +1,8 @@
 import * as ex from '@excalibur';
 import { ExcaliburGraphicsContext2DCanvas } from '../../engine/Graphics';
 
+class ChildAnimation extends ex.Animation {}
+
 describe('A Graphics Animation', () => {
   it('exists', () => {
     expect(ex.Animation).toBeDefined();
@@ -869,5 +871,66 @@ describe('A Graphics Animation', () => {
 
     expect(anim.data).toBeInstanceOf(Map);
     expect(anim.data.size).toBe(0);
+  });
+
+  it('returns an instance of the subclass if created from sprite sheet', () => {
+    const sourceImage = new ex.ImageSource('some/image.png');
+    const ss = ex.SpriteSheet.fromImageSource({
+      image: sourceImage,
+      grid: {
+        spriteWidth: 10,
+        spriteHeight: 10,
+        rows: 10,
+        columns: 10
+      }
+    });
+    const anim = ChildAnimation.fromSpriteSheet(ss, [0, 1, 2, 3], 100, ex.AnimationStrategy.Freeze);
+
+    expect(anim).toBeInstanceOf(ChildAnimation);
+  });
+
+  it('returns an instance of the subclass if created from sprite sheet coordinates', () => {
+    const sourceImage = new ex.ImageSource('some/image.png');
+    const ss = ex.SpriteSheet.fromImageSource({
+      image: sourceImage,
+      grid: {
+        spriteWidth: 10,
+        spriteHeight: 10,
+        rows: 10,
+        columns: 10
+      }
+    });
+    const anim = ChildAnimation.fromSpriteSheetCoordinates({
+      spriteSheet: ss,
+      frameCoordinates: [
+        { x: 0, y: 0, duration: 100 },
+        { x: 1, y: 0, duration: 100 },
+        { x: 2, y: 0, duration: 100 },
+        { x: 3, y: 0, duration: 100 }
+      ],
+      strategy: ex.AnimationStrategy.Freeze
+    });
+
+    expect(anim).toBeInstanceOf(ChildAnimation);
+  });
+
+  it('can be cloned as a subclass', () => {
+    const rect = new ex.Rectangle({
+      width: 100,
+      height: 100,
+      color: ex.Color.Blue
+    });
+    const anim = new ChildAnimation({
+      frames: [
+        {
+          graphic: rect,
+          duration: 100
+        }
+      ]
+    });
+
+    const clone = anim.clone();
+
+    expect(clone).toBeInstanceOf(ChildAnimation);
   });
 });
