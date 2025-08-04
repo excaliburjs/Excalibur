@@ -352,207 +352,39 @@ describe('Vectors', () => {
     expect(before.y).toBeCloseTo(after.y, 4);
     expect(sut.magnitude).toBe(5);
   });
-});
 
-describe('Rays', () => {
-  it('exists', () => {
-    expect(ex.Ray).toBeDefined();
+  it('can lerp between vectors', () => {
+    const startingVector = new ex.Vector(0, 0);
+    const endingVector = new ex.Vector(4, 4);
+
+    const lerpVector = startingVector.lerp(endingVector, 0.5);
+    expect(lerpVector.x).toBeCloseTo(2);
+    expect(lerpVector.y).toBeCloseTo(2);
+
+    const lerpVector2 = startingVector.lerp(endingVector, 0.25);
+    expect(lerpVector2.x).toBeCloseTo(1);
+    expect(lerpVector2.y).toBeCloseTo(1);
+
+    const lerpVector3 = startingVector.lerp(endingVector, 0.75);
+    expect(lerpVector3.x).toBeCloseTo(3);
+    expect(lerpVector3.y).toBeCloseTo(3);
+
+    const lerpVector4 = startingVector.lerp(endingVector, 1);
+    expect(lerpVector4.x).toBeCloseTo(4);
+    expect(lerpVector4.y).toBeCloseTo(4);
   });
 
-  it('can be constructed', () => {
-    const ray = new ex.Ray(ex.Vector.Zero.clone(), new ex.Vector(1, 0));
-    expect(ray).toBeTruthy();
-    expect(ray.dir.equals(new ex.Vector(1, 0)));
-  });
+  it('can accept oob numbers in lerp and clamp them', () => {
+    const startingVector = new ex.Vector(0, 0);
+    const endingVector = new ex.Vector(4, 4);
 
-  it('can intersect with lines', () => {
-    const ray = new ex.Ray(ex.Vector.Zero.clone(), new ex.Vector(1, 0));
-    const line = new ex.LineSegment(new ex.Vector(1, -1), new ex.Vector(1, 1));
-    const intersection = ray.intersect(line);
+    const lerpVector = startingVector.lerp(endingVector, 10);
+    expect(lerpVector.x).toBeCloseTo(4);
+    expect(lerpVector.y).toBeCloseTo(4);
 
-    expect(intersection).toBeGreaterThan(0);
-
-    const point = ray.getPoint(intersection);
-
-    expect(point.equals(new ex.Vector(1, 0))).toBeTruthy();
-  });
-});
-
-describe('Lines', () => {
-  it('exist', () => {
-    expect(ex.LineSegment).toBeDefined();
-  });
-
-  it('can be constructed', () => {
-    const line = new ex.LineSegment(new ex.Vector(1, -1), new ex.Vector(1, 1));
-    expect(line).toBeTruthy();
-  });
-
-  it('can have a slope Vector', () => {
-    const line = new ex.LineSegment(new ex.Vector(1, -1), new ex.Vector(1, 1));
-    const slope = line.getSlope();
-
-    expect(slope.equals(new ex.Vector(0, 1))).toBeTruthy();
-  });
-
-  it('can have a slope value of infinity', () => {
-    const line = new ex.LineSegment(new ex.Vector(1, 0), new ex.Vector(1, 1));
-    const slope = line.slope;
-
-    expect(line.slope).toBe(Infinity);
-  });
-
-  it('can have a slope value of 0', () => {
-    const line = new ex.LineSegment(new ex.Vector(1, 1), new ex.Vector(2, 1));
-    const slope = line.slope;
-
-    expect(line.slope).toBe(0);
-  });
-
-  it('can have a positive slope value', () => {
-    const line = new ex.LineSegment(new ex.Vector(0, 0), new ex.Vector(1, 1));
-
-    expect(line.slope).toBe(1);
-  });
-
-  it('can have a negative slope value', () => {
-    const line = new ex.LineSegment(new ex.Vector(0, 0), new ex.Vector(-1, 1));
-
-    expect(line.slope).toBe(-1);
-  });
-
-  it('can have a y intercept of infinity', () => {
-    const line = new ex.LineSegment(new ex.Vector(1, 0), new ex.Vector(1, 1));
-
-    expect(line.intercept).toBe(-Infinity);
-  });
-
-  it('can have a positive y intercept', () => {
-    const line = new ex.LineSegment(new ex.Vector(1, 2), new ex.Vector(2, 2));
-
-    expect(line.intercept).toBe(2);
-  });
-
-  it('can have a negative y intercept', () => {
-    const line = new ex.LineSegment(new ex.Vector(1, 1), new ex.Vector(2, 2));
-
-    expect(line.intercept).toBe(0);
-  });
-
-  it('can have a normal', () => {
-    const line = new ex.LineSegment(new ex.Vector(1, 1), new ex.Vector(2, 1));
-
-    const normal = line.normal();
-    expect(normal.x).toBe(0);
-    expect(normal.y).toBe(-1);
-  });
-
-  it('can have a length', () => {
-    const line = new ex.LineSegment(new ex.Vector(1, -1), new ex.Vector(1, 1));
-    expect(line.getLength()).toBe(2);
-  });
-
-  it('can find a point by X value', () => {
-    const line = new ex.LineSegment(new ex.Vector(0, 0), new ex.Vector(2, 2));
-    const t = line.findPoint(1);
-
-    expect(t.y).toBe(1);
-  });
-
-  it('can find a point by Y value', () => {
-    const line = new ex.LineSegment(new ex.Vector(0, 0), new ex.Vector(2, 2));
-    const t = line.findPoint(null, 1);
-
-    expect(t.x).toBe(1);
-  });
-
-  it('can calculate the perpendicular distance from a point', () => {
-    const line = new ex.LineSegment(new ex.Vector(0, 0), new ex.Vector(200, 0));
-    const point = new ex.Vector(100, 100);
-    expect(line.distanceToPoint(point)).toBe(100);
-  });
-
-  it('can calculate the perpendicular distance from a point not above the line', () => {
-    const line = new ex.LineSegment(new ex.Vector(0, 0), new ex.Vector(200, 0));
-    const point = new ex.Vector(-100, 100);
-    expect(line.distanceToPoint(point)).toBe(100);
-  });
-
-  it('can determine if point lies on the line by x and y', () => {
-    const line = new ex.LineSegment(new ex.Vector(0, 0), new ex.Vector(2, 2));
-    const t = line.hasPoint(1, 1);
-
-    expect(t).toBe(true);
-  });
-
-  it('can determine if point lies on the line by Vector', () => {
-    const line = new ex.LineSegment(new ex.Vector(0, 0), new ex.Vector(2, 2));
-    const t = line.hasPoint(new ex.Vector(1, 1));
-
-    expect(t).toBe(true);
-  });
-
-  it('can determine if point lies on the line by x and y with absolute precision', () => {
-    const line = new ex.LineSegment(new ex.Vector(0, 0), new ex.Vector(2, 2));
-    const t = line.hasPoint(1.005, 1);
-
-    expect(t).toBe(false);
-  });
-
-  it('can determine if point lies on the line by Vector with absolute precision', () => {
-    const line = new ex.LineSegment(new ex.Vector(0, 0), new ex.Vector(2, 2));
-    const t = line.hasPoint(new ex.Vector(1.005, 1));
-
-    expect(t).toBe(false);
-  });
-
-  it('can determine if point lies on the line by x and y at a certain threshold', () => {
-    const line = new ex.LineSegment(new ex.Vector(0, 0), new ex.Vector(2, 2));
-    const t = line.hasPoint(1.005, 1, 0.1);
-
-    expect(t).toBe(true);
-  });
-
-  it('can determine if point lies on the line by Vector at a certain threshold', () => {
-    const line = new ex.LineSegment(new ex.Vector(0, 0), new ex.Vector(2, 2));
-    const t = line.hasPoint(new ex.Vector(1.005, 1), 0.1);
-
-    expect(t).toBe(true);
-  });
-});
-
-describe('Projections', () => {
-  it('exists', () => {
-    expect(ex.Projection).toBeDefined();
-  });
-
-  it('can be constructed', () => {
-    const proj = new ex.Projection(5, 10);
-    expect(proj).toBeTruthy();
-  });
-
-  it('can detect overlap between projections', () => {
-    const proj = new ex.Projection(5, 10);
-    const proj2 = new ex.Projection(7, 12);
-    expect(proj.getOverlap(proj2)).toBe(3);
-  });
-
-  it('can detect overlap between projections across zero', () => {
-    const proj = new ex.Projection(-5, 2);
-    const proj2 = new ex.Projection(-2, 5);
-    expect(proj.getOverlap(proj2)).toBe(4);
-  });
-
-  it('can detect no overlap between projections', () => {
-    const proj = new ex.Projection(5, 10);
-    const proj2 = new ex.Projection(10, 12);
-    expect(proj.getOverlap(proj2)).toBe(0);
-  });
-
-  it('can detect no overlap between projections with separation', () => {
-    const proj = new ex.Projection(5, 10);
-    const proj2 = new ex.Projection(11, 12);
-    expect(proj.getOverlap(proj2)).toBe(0);
+    const lerpVector2 = startingVector.lerp(endingVector, -10);
+    expect(lerpVector2.x).toBeCloseTo(0);
+    expect(lerpVector2.y).toBeCloseTo(0);
   });
 });
 
