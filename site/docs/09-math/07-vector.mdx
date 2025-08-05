@@ -1,14 +1,12 @@
 ---
-title: Vector
+title: Vectors
 slug: /vector
 section: Math
 ---
 
-## Vectors
-
 Excalibur uses the [[Vector]] structure to represent points. The [[Vector]] class has many different static methods available for doing vector math as well as instance methods to combine vectors together in different ways.
 
-### Creating vectors
+## Creating vectors
 
 To quickly create a vector, use the [[vec]] global:
 
@@ -44,7 +42,7 @@ There are some built-in vector constants you can use:
 - [[Vector.Up]]
 - [[Vector.Down]]
 
-### Cloning vectors
+## Cloning vectors
 
 Vectors are objects, so mutating them will change the state for all references. Use the [[Vector.clone]] method to clone a vector to mutate it:
 
@@ -52,25 +50,37 @@ Vectors are objects, so mutating them will change the state for all references. 
 import { vec } from 'excalibur'
 
 const point = vec(0, 10)
-const samePoint = point.setTo(8, 8)
-const anotherPoint = point.clone().setTo(50, 50)
+point.setTo(8, 8)
+     // ^?
+const samePoint = point
+const anotherPoint = point.clone()
+anotherPoint.setTo(50, 50)
 
 console.log(point.toString()) // "(8, 8)"
 console.log(samePoint.toString()) // "(8, 8)"
 console.log(anotherPoint.toString()) // "(50, 50)"
 ```
 
+
+:::tip
+
 Notice how both `point` and `samePoint` share the same vector reference, so using `setTo` mutates the vector. Use `clone` to ensure you are not changing vectors unexpectedly!
 
-### Linear interpolation (lerp) between vectors
+`setTo` returns `void` so that it "feels awkward" to chain it. 
+This is intentional to avoid confusion about whether you are mutating the vector or creating a new one. 
 
-Lerp returns a new vector that represents a point along the line between two vectors. Given a number between 0 and 1 (representing the percentage of progress) and a target vector, it produces the intermediate vector at that fraction of the distance.
+:::
+
+## Linear interpolation (lerp) between vectors
+
+[[Vector.lerp|Lerp]] returns a new vector that represents a point along the line between two vectors. Given a number between 0 and 1 (representing the percentage of progress) and a target vector, it produces the intermediate vector at that fraction of the distance.
 
 The standard formula for linear interpolation is:
 
-```sh twoslash
+```
 lerp(a, b, t) = a + (b - a) * t
 ```
+
 - a = starting vector
 - b = target vector
 - t = interpolation factor (0 ≤ t ≤ 1)
