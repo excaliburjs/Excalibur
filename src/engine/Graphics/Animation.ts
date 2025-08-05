@@ -190,15 +190,16 @@ export class Animation extends Graphic implements HasTick {
     this.goToFrame(0);
   }
 
-  public clone(): Animation {
-    return new Animation({
+  public clone<T extends typeof Animation>(): InstanceType<T> {
+    const ctor = this.constructor as T;
+    return new ctor({
       frames: this.frames.map((f) => ({ ...f })),
       frameDuration: this.frameDuration,
       speed: this.speed,
       reverse: this._reversed,
       strategy: this.strategy,
       ...this.cloneGraphicOptions()
-    });
+    }) as InstanceType<T>;
   }
 
   public override get width(): number {
@@ -232,13 +233,14 @@ export class Animation extends Graphic implements HasTick {
    * @param durationPerFrame duration per frame in milliseconds
    * @param strategy Optional strategy, default AnimationStrategy.Loop
    */
-  public static fromSpriteSheet(
+  public static fromSpriteSheet<T extends typeof Animation>(
+    this: T,
     spriteSheet: SpriteSheet,
     spriteSheetIndex: number[],
     durationPerFrame: number,
     strategy: AnimationStrategy = AnimationStrategy.Loop,
     data?: Record<string, any>
-  ): Animation {
+  ): InstanceType<T> {
     const maxIndex = spriteSheet.sprites.length - 1;
     const invalidIndices = spriteSheetIndex.filter((index) => index < 0 || index > maxIndex);
     if (invalidIndices.length) {
@@ -246,7 +248,7 @@ export class Animation extends Graphic implements HasTick {
         `Indices into SpriteSheet were provided that don\'t exist: ${invalidIndices.join(',')} no frame will be shown`
       );
     }
-    return new Animation({
+    return new this({
       frames: spriteSheet.sprites
         .filter((_, index) => spriteSheetIndex.indexOf(index) > -1)
         .map((f) => ({
@@ -255,7 +257,7 @@ export class Animation extends Graphic implements HasTick {
         })),
       strategy: strategy,
       data
-    });
+    }) as InstanceType<T>;
   }
 
   /**
@@ -279,7 +281,7 @@ export class Animation extends Graphic implements HasTick {
    * @param options
    * @returns Animation
    */
-  public static fromSpriteSheetCoordinates(options: FromSpriteSheetOptions): Animation {
+  public static fromSpriteSheetCoordinates<T extends typeof Animation>(this: T, options: FromSpriteSheetOptions): InstanceType<T> {
     const { spriteSheet, frameCoordinates, durationPerFrame, durationPerFrameMs, speed, strategy, reverse, data } = options;
     const defaultDuration = durationPerFrame ?? durationPerFrameMs ?? 100;
     const frames: Frame[] = [];
@@ -298,13 +300,13 @@ export class Animation extends Graphic implements HasTick {
       }
     }
 
-    return new Animation({
+    return new this({
       frames,
       strategy,
       speed,
       reverse,
       data
-    });
+    }) as InstanceType<T>;
   }
 
   /**
