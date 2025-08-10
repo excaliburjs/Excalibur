@@ -131,7 +131,7 @@
     "sync-request": "6.1.0",
     "terser-webpack-plugin": "5.3.14",
     "ts-loader": "9.5.2",
-    "typedoc": "0.25.13",
+    "typedoc": "0.28.10",
     "typescript": "5.6.3",
     "typescript-eslint": "8.38.0",
     "url-loader": "4.1.1",
