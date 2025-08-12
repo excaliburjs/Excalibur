@@ -15,6 +15,8 @@ import retroSkiImage from './images/retroski.png'
 import excalifarm from './images/excalifarm.png'
 import badRefImage from './images/bad-ref.png'
 import AxeNArrow from './images/AxeNArrow.png'
+import SpookyTruth from './images/SpookyTruth.png'
+import QuadRush from './images/QuadRush.png'
 
 export default [
   {
@@ -24,6 +26,22 @@ export default [
       'Entry for GameDev.js Jam 2025, a 2D survivor game with a theme of "balance"',
     url: 'https://mookie4242.itch.io/gamedevjsjam2025',
     source: 'https://github.com/jyoung4242/GameDevJSJam2025',
+  },
+  {
+    title: 'SpookyTruth',
+    image: SpookyTruth,
+    description:
+      'Entry for GBJAM 12, a 2D platform game "running" on a GameBoy',
+    url: 'https://daviderisaliti.itch.io/spookytruth',
+    source: 'https://github.com/DavDag/SpookyTruth',
+  },
+  {
+    title: 'QuadRush',
+    image: QuadRush,
+    description:
+      'Entry for ScoreJam 31, an highscore 2D platform game',
+    url: 'https://daviderisaliti.itch.io/quadrush',
+    source: 'https://github.com/DavDag/QuadRush',
   },
   {
     title: 'Bad Ref',
