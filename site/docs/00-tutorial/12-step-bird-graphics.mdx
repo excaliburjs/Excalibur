@@ -87,3 +87,81 @@ export class Bird extends ex.Actor {
 }
 ...
 ```
+
+Putting it all together
+
+```typescript
+// bird.ts
+
+export class Bird extends ex.Actor {
+  ...
+  startSprite!: ex.Sprite;
+  upAnimation!: ex.Animation;
+  downAnimation!: ex.Animation;
+  ...
+  override onInitialize(): void {
+    // Slice up image into a sprite sheet
+    const spriteSheet = ex.SpriteSheet.fromImageSource({
+        image: Resources.BirdImage,
+        grid: {
+            rows: 1,
+            columns: 4,
+            spriteWidth: 32,
+            spriteHeight: 32,
+        }
+    });
+
+    // Animation to play going up on tap
+    this.upAnimation = ex.Animation.fromSpriteSheet(
+        spriteSheet,
+        [2, 1, 0], // 3rd frame, then 2nd, then first
+        150, // 150ms for each frame
+        ex.AnimationStrategy.Freeze);
+
+    // Animation to play going down
+    this.downAnimation = ex.Animation.fromSpriteSheet(
+        spriteSheet,
+        [0, 1, 2],
+        150,
+        ex.AnimationStrategy.Freeze);
+
+    // Register animations by name
+    this.graphics.add('down', this.downAnimation);
+    this.graphics.add('up', this.upAnimation);
+    this.graphics.add('start', this.startSprite);
+
+    // Set the default sprite to use
+    this.graphics.use(this.startSprite);
+    ...
+    this.on('exitviewport', () => {
+        this.level.triggerGameOver();
+    });
+  }
+}
+...
+```
+
+To use the down animation when bird is going down or the up one, we need to use the specific animation on tap or when the y component of the velocity is positive.
+
+```typescript
+// bird.ts
+
+export class Bird extends ex.Actor {
+  ...
+  override onPostUpdate(engine: ex.Engine): void {
+    ...
+    if (!this.jumping && this.isInputActive(engine)) {
+      ...
+      this.graphics.use('up');
+      // rewind animations that froze
+      this.upAnimation.reset();
+      this.downAnimation.reset();
+    }
+    ...
+    if (this.vel.y > 0) {
+        this.graphics.use('down');
+    }
+  }
+}
+...
+```

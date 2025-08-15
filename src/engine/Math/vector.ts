@@ -454,6 +454,24 @@ export class Vector implements Clonable<Vector> {
     }
     return `(${this.x}, ${this.y})`;
   }
+
+  /**
+   * Linearly interpolates between the current vector and the target vector.
+   * At `t = 0`, the result is the current vector, and at `t = 1`, the result is the target vector.
+   * Values of `t` outside the range [0, 1] will be clamped to that range.
+   *
+   * @param target The target vector to interpolate towards.
+   * @param t The interpolation factor, clamped between 0 and 1.
+   * @returns A new vector that is the result of the linear interpolation.
+   */
+
+  public lerp(target: Vector, t: number) {
+    t = clamp(t, 0, 1);
+    const newVector = new Vector(0, 0);
+    newVector.x = this.x + (target.x - this.x) * t;
+    newVector.y = this.y + (target.y - this.y) * t;
+    return newVector;
+  }
 }
 
 /**

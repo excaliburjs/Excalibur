@@ -36,6 +36,7 @@ var cpuParticles = new ex.ParticleEmitter({
   z: 1,
   emitterType: ex.EmitterType.Circle,
   particle: {
+    // transform: ex.ParticleTransform.Local,
     minSpeed: 1,
     maxSpeed: 10,
     minAngle: 3.4,
@@ -59,6 +60,8 @@ particles.isEmitting = true;
 
 var particleParent = new ex.Actor({
   pos: ex.vec(400, 400),
+  rotation: Math.PI / 4,
+  // angularVelocity: .2,
   width: 10,
   height: 10,
   color: ex.Color.Red

@@ -93,6 +93,10 @@ export interface AnimationOptions {
    * Optionally specify the {@apilink AnimationStrategy} for the Animation
    */
   strategy?: AnimationStrategy;
+  /**
+   * Optionally set arbitrary meta data for the animation
+   */
+  data?: Record<string, any>;
 }
 
 export type AnimationEvents = {
@@ -143,6 +147,10 @@ export interface FromSpriteSheetOptions {
    * Optionally specify the animation should be reversed
    */
   reverse?: boolean;
+  /**
+   * Optionally set arbitrary meta data for the animation
+   */
+  data?: Record<string, any>;
 }
 
 /**
@@ -156,6 +164,7 @@ export class Animation extends Graphic implements HasTick {
   public frames: Frame[] = [];
   public strategy: AnimationStrategy = AnimationStrategy.Loop;
   public frameDuration: number = 100;
+  public data: Map<string, any>;
 
   private _idempotencyToken = -1;
 
@@ -166,6 +175,7 @@ export class Animation extends Graphic implements HasTick {
   private _done = false;
   private _playing = true;
   private _speed = 1;
+  private _wasResetDuringFrameCalc: boolean = false;
 
   constructor(options: GraphicOptions & AnimationOptions) {
     super(options);
@@ -173,21 +183,23 @@ export class Animation extends Graphic implements HasTick {
     this.speed = options.speed ?? this.speed;
     this.strategy = options.strategy ?? this.strategy;
     this.frameDuration = options.totalDuration ? options.totalDuration / this.frames.length : (options.frameDuration ?? this.frameDuration);
+    this.data = options.data ? new Map(Object.entries(options.data)) : new Map<string, any>();
     if (options.reverse) {
       this.reverse();
     }
     this.goToFrame(0);
   }
 
-  public clone(): Animation {
-    return new Animation({
+  public clone<T extends typeof Animation>(): InstanceType<T> {
+    const ctor = this.constructor as T;
+    return new ctor({
       frames: this.frames.map((f) => ({ ...f })),
       frameDuration: this.frameDuration,
       speed: this.speed,
       reverse: this._reversed,
       strategy: this.strategy,
       ...this.cloneGraphicOptions()
-    });
+    }) as InstanceType<T>;
   }
 
   public override get width(): number {
@@ -221,12 +233,14 @@ export class Animation extends Graphic implements HasTick {
    * @param durationPerFrame duration per frame in milliseconds
    * @param strategy Optional strategy, default AnimationStrategy.Loop
    */
-  public static fromSpriteSheet(
+  public static fromSpriteSheet<T extends typeof Animation>(
+    this: T,
     spriteSheet: SpriteSheet,
     spriteSheetIndex: number[],
     durationPerFrame: number,
-    strategy: AnimationStrategy = AnimationStrategy.Loop
-  ): Animation {
+    strategy: AnimationStrategy = AnimationStrategy.Loop,
+    data?: Record<string, any>
+  ): InstanceType<T> {
     const maxIndex = spriteSheet.sprites.length - 1;
     const invalidIndices = spriteSheetIndex.filter((index) => index < 0 || index > maxIndex);
     if (invalidIndices.length) {
@@ -234,15 +248,16 @@ export class Animation extends Graphic implements HasTick {
         `Indices into SpriteSheet were provided that don\'t exist: ${invalidIndices.join(',')} no frame will be shown`
       );
     }
-    return new Animation({
+    return new this({
       frames: spriteSheet.sprites
         .filter((_, index) => spriteSheetIndex.indexOf(index) > -1)
         .map((f) => ({
           graphic: f,
           duration: durationPerFrame
         })),
-      strategy: strategy
-    });
+      strategy: strategy,
+      data
+    }) as InstanceType<T>;
   }
 
   /**
@@ -266,8 +281,8 @@ export class Animation extends Graphic implements HasTick {
    * @param options
    * @returns Animation
    */
-  public static fromSpriteSheetCoordinates(options: FromSpriteSheetOptions): Animation {
-    const { spriteSheet, frameCoordinates, durationPerFrame, durationPerFrameMs, speed, strategy, reverse } = options;
+  public static fromSpriteSheetCoordinates<T extends typeof Animation>(this: T, options: FromSpriteSheetOptions): InstanceType<T> {
+    const { spriteSheet, frameCoordinates, durationPerFrame, durationPerFrameMs, speed, strategy, reverse, data } = options;
     const defaultDuration = durationPerFrame ?? durationPerFrameMs ?? 100;
     const frames: Frame[] = [];
     for (const coord of frameCoordinates) {
@@ -285,12 +300,13 @@ export class Animation extends Graphic implements HasTick {
       }
     }
 
-    return new Animation({
+    return new this({
       frames,
       strategy,
       speed,
-      reverse
-    });
+      reverse,
+      data
+    }) as InstanceType<T>;
   }
 
   /**
@@ -393,6 +409,7 @@ export class Animation extends Graphic implements HasTick {
    * Reset the animation back to the beginning, including if the animation were done
    */
   public reset(): void {
+    this._wasResetDuringFrameCalc = true;
     this._done = false;
     this._firstTick = true;
     this._currentFrame = 0;
@@ -447,6 +464,7 @@ export class Animation extends Graphic implements HasTick {
   }
 
   private _nextFrame(): number {
+    this._wasResetDuringFrameCalc = false;
     const currentFrame = this._currentFrame;
     if (this._done) {
       return currentFrame;
@@ -472,7 +490,7 @@ export class Animation extends Graphic implements HasTick {
       }
       case AnimationStrategy.Freeze: {
         next = clamp(currentFrame + 1, 0, this.frames.length - 1);
-        if (next >= this.frames.length - 1) {
+        if (currentFrame + 1 >= this.frames.length) {
           this._done = true;
           this.events.emit('end', this);
         }
@@ -492,6 +510,11 @@ export class Animation extends Graphic implements HasTick {
         next = currentFrame + (this._pingPongDirection % this.frames.length);
         break;
       }
+    }
+    if (this._wasResetDuringFrameCalc) {
+      // if reset during frame calculation discard the calc'd next and return the current frame.
+      this._wasResetDuringFrameCalc = false;
+      return this._currentFrame;
     }
     return next;
   }

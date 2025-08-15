@@ -1,6 +1,8 @@
 import * as ex from '@excalibur';
 import { ExcaliburGraphicsContext2DCanvas } from '../../engine/Graphics';
 
+class ChildAnimation extends ex.Animation {}
+
 describe('A Graphics Animation', () => {
   it('exists', () => {
     expect(ex.Animation).toBeDefined();
@@ -689,5 +691,246 @@ describe('A Graphics Animation', () => {
 
     anim.speed = 100;
     expect(anim.speed).toBe(100);
+  });
+
+  it('can be reset during the end event (end)', () => {
+    const rect = new ex.Rectangle({
+      width: 100,
+      height: 100,
+      color: ex.Color.Blue
+    });
+    const frames: ex.Frame[] = [
+      {
+        graphic: rect,
+        duration: 100
+      },
+      {
+        graphic: rect,
+        duration: 100
+      }
+    ];
+    const anim = new ex.Animation({
+      frames: frames,
+      strategy: ex.AnimationStrategy.End
+    });
+    const endSpy = vi.fn(() => {
+      anim.reset();
+      expect(anim.currentFrameIndex).toBe(0);
+    });
+    anim.events.once('end', endSpy);
+    anim.play();
+    expect(anim.currentFrameIndex).toBe(0);
+    anim.tick(100, 1);
+    expect(anim.currentFrameIndex).toBe(1);
+    anim.tick(100, 2);
+    expect(endSpy).toHaveBeenCalledOnce();
+    expect(anim.currentFrameIndex).toBe(0);
+  });
+
+  it('can be reset during the end event (freeze)', () => {
+    const rect = new ex.Rectangle({
+      width: 100,
+      height: 100,
+      color: ex.Color.Blue
+    });
+    const frames: ex.Frame[] = [
+      {
+        graphic: rect,
+        duration: 100
+      },
+      {
+        graphic: rect,
+        duration: 100
+      }
+    ];
+    const anim = new ex.Animation({
+      frames: frames,
+      strategy: ex.AnimationStrategy.Freeze
+    });
+    const endSpy = vi.fn(() => {
+      anim.reset();
+      expect(anim.currentFrameIndex).toBe(0);
+    });
+    anim.events.once('end', endSpy);
+    anim.play();
+    expect(anim.currentFrameIndex).toBe(0);
+    anim.tick(100, 1);
+    expect(anim.currentFrameIndex).toBe(1);
+    anim.tick(100, 2);
+    expect(endSpy).toHaveBeenCalledOnce();
+    expect(anim.currentFrameIndex).toBe(0);
+  });
+
+  it('can store custom data', () => {
+    const rect = new ex.Rectangle({
+      width: 100,
+      height: 100,
+      color: ex.Color.Blue
+    });
+
+    const anim = new ex.Animation({
+      frames: [
+        {
+          graphic: rect,
+          duration: 100
+        }
+      ],
+      data: {
+        customKey: 'customValue'
+      }
+    });
+
+    expect(anim.data.get('customKey')).toBe('customValue');
+    expect(anim.data.has('nonExistentKey')).toBe(false);
+  });
+
+  it('can store custom data if created from sprite sheet', () => {
+    const sourceImage = new ex.ImageSource('some/image.png');
+    const ss = ex.SpriteSheet.fromImageSource({
+      image: sourceImage,
+      grid: {
+        spriteWidth: 10,
+        spriteHeight: 10,
+        rows: 10,
+        columns: 10
+      }
+    });
+    const anim = ex.Animation.fromSpriteSheet(ss, [0, 1, 2, 3], 100, ex.AnimationStrategy.Freeze, {
+      customKey: 'customValue'
+    });
+
+    expect(anim.data.get('customKey')).toBe('customValue');
+    expect(anim.data.has('nonExistentKey')).toBe(false);
+  });
+
+  it('can store custom data if created from sprite sheet coordinates', () => {
+    const sourceImage = new ex.ImageSource('some/image.png');
+    const ss = ex.SpriteSheet.fromImageSource({
+      image: sourceImage,
+      grid: {
+        spriteWidth: 10,
+        spriteHeight: 10,
+        rows: 10,
+        columns: 10
+      }
+    });
+    const anim = ex.Animation.fromSpriteSheetCoordinates({
+      spriteSheet: ss,
+      frameCoordinates: [
+        { x: 0, y: 0, duration: 100 },
+        { x: 1, y: 0, duration: 100 },
+        { x: 2, y: 0, duration: 100 },
+        { x: 3, y: 0, duration: 100 }
+      ],
+      strategy: ex.AnimationStrategy.Freeze,
+      data: {
+        customKey: 'customValue'
+      }
+    });
+
+    expect(anim.data.get('customKey')).toBe('customValue');
+    expect(anim.data.has('nonExistentKey')).toBe(false);
+  });
+
+  it('can store custom data after being created', () => {
+    const rect = new ex.Rectangle({
+      width: 100,
+      height: 100,
+      color: ex.Color.Blue
+    });
+    const anim = new ex.Animation({
+      frames: [
+        {
+          graphic: rect,
+          duration: 100
+        }
+      ]
+    });
+
+    expect(anim.data.size).toBe(0);
+    anim.data.set('customKey', 'customValue');
+    expect(anim.data.get('customKey')).toBe('customValue');
+    expect(anim.data.has('nonExistentKey')).toBe(false);
+  });
+
+  it('creates an empty map when undefined data is passed', () => {
+    const rect = new ex.Rectangle({
+      width: 100,
+      height: 100,
+      color: ex.Color.Blue
+    });
+    const anim = new ex.Animation({
+      frames: [
+        {
+          graphic: rect,
+          duration: 100
+        }
+      ],
+      data: undefined
+    });
+
+    expect(anim.data).toBeInstanceOf(Map);
+    expect(anim.data.size).toBe(0);
+  });
+
+  it('returns an instance of the subclass if created from sprite sheet', () => {
+    const sourceImage = new ex.ImageSource('some/image.png');
+    const ss = ex.SpriteSheet.fromImageSource({
+      image: sourceImage,
+      grid: {
+        spriteWidth: 10,
+        spriteHeight: 10,
+        rows: 10,
+        columns: 10
+      }
+    });
+    const anim = ChildAnimation.fromSpriteSheet(ss, [0, 1, 2, 3], 100, ex.AnimationStrategy.Freeze);
+
+    expect(anim).toBeInstanceOf(ChildAnimation);
+  });
+
+  it('returns an instance of the subclass if created from sprite sheet coordinates', () => {
+    const sourceImage = new ex.ImageSource('some/image.png');
+    const ss = ex.SpriteSheet.fromImageSource({
+      image: sourceImage,
+      grid: {
+        spriteWidth: 10,
+        spriteHeight: 10,
+        rows: 10,
+        columns: 10
+      }
+    });
+    const anim = ChildAnimation.fromSpriteSheetCoordinates({
+      spriteSheet: ss,
+      frameCoordinates: [
+        { x: 0, y: 0, duration: 100 },
+        { x: 1, y: 0, duration: 100 },
+        { x: 2, y: 0, duration: 100 },
+        { x: 3, y: 0, duration: 100 }
+      ],
+      strategy: ex.AnimationStrategy.Freeze
+    });
+
+    expect(anim).toBeInstanceOf(ChildAnimation);
+  });
+
+  it('can be cloned as a subclass', () => {
+    const rect = new ex.Rectangle({
+      width: 100,
+      height: 100,
+      color: ex.Color.Blue
+    });
+    const anim = new ChildAnimation({
+      frames: [
+        {
+          graphic: rect,
+          duration: 100
+        }
+      ]
+    });
+
+    const clone = anim.clone();
+
+    expect(clone).toBeInstanceOf(ChildAnimation);
   });
 });

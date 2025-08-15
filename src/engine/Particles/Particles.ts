@@ -63,7 +63,7 @@ export class Particle extends Entity {
   public name = `Particle#${this.id}`;
 
   constructor(options: ParticleConfig) {
-    super({ silenceWarnings: true });
+    super();
     this.addComponent((this.transform = new TransformComponent()));
     this.addComponent((this.motion = new MotionComponent()));
     this.addComponent((this.graphics = new GraphicsComponent()));

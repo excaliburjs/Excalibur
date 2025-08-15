@@ -14,8 +14,17 @@ import nightBikeImage from './images/nightbike.png'
 import retroSkiImage from './images/retroski.png'
 import excalifarm from './images/excalifarm.png'
 import badRefImage from './images/bad-ref.png'
+import AxeNArrow from './images/AxeNArrow.png'
 
 export default [
+  {
+    title: 'Axe n Arrow',
+    image: AxeNArrow,
+    description:
+      'Entry for GameDev.js Jam 2025, a 2D survivor game with a theme of "balance"',
+    url: 'https://mookie4242.itch.io/gamedevjsjam2025',
+    source: 'https://github.com/jyoung4242/GameDevJSJam2025',
+  },
   {
     title: 'Bad Ref',
     image: badRefImage,

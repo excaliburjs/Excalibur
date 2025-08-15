@@ -50,6 +50,7 @@ soundManager.channel.play('music');
 soundManager.channel.setVolume('music', 0.9);
 ```
 
+- Added `ex.Animation.data` to store arbitrary meta data for an animation. Data can be directly added in the constructor as an option, by using the optional `data` argument in `fromSpriteSheet(...)` and as an option in `fromSpriteSheetCoordinates({...})`
 - Added a new configuration option to `ex.Engine({global: ...})` where you can provide a keyboard global to override if iframe detection fails for anyway.
 - Added new way to output data from scenes `onDeactivate()`, returning data will be passed to the next `SceneActivationContext` in the `previousSceneData` property!
 - Added new `transitionstart` and `transitionend` events to `ex.Scenes`
@@ -89,6 +90,9 @@ const query = new Query({})
 
 ### Fixed
 
+- Fixed issue where an animation that was `anim.reset()` inside of an animation event handler like `anim.once('end', () => anim.reset())` would not work correctly
+- Fixed issue where `GpuParticleEmitter` did not rotate with their parents
+- Fixed issue where Cpu `ParticleEmitter` did not respect `ParticleTransform.Local`
 - Fixed issue where same origin iframes did not work properly with keyboard & pointer events
 - Fixed issue where the initial scene onPreLoad was not being run
 - Fixed unecessary coupling with `ex.ColliderComponent`/`ex.BodyComponent` that prevented collider tracking on entities that have `ex.TransformComponent`/`ex.ColliderComponent`, this influenced users doing Entity level ECS with pointer events.
@@ -110,6 +114,7 @@ const query = new Query({})
 - Add warning if World.add() falls through! This is caused by multiple versions of Excalibur usually
 - Fixed CollidePolygonPolygon crash with some defense against invalid separation
 - Fixed issue with PostProcessor where it would not run correctly if no actors present
+- Removed warning in development for unadded entities
 
 ### Updates
 
@@ -117,6 +122,7 @@ const query = new Query({})
 
 ### Changed
 
+- Changed the behavior of `fromSpriteSheet(...)`, `fromSpriteSheetCoordinates({...})` and `clone()` of `ex.Animation` to return the subclass if called from there
 - Optimized BoundingBox.rayCast and BoundingBox.rayCastTime
 - Optimized BoundingBox.intersect(otherBoundingBox)
 - Change logging behavior for entities not in scenes, only log in dev builds
