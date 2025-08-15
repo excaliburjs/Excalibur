@@ -220,7 +220,7 @@ export class SoundManger<Channel extends string, SoundName extends string> imple
     return sound.play(effectiveVolume) as unknown as Promise<void>;
   }
 
-  public setVolume(soundname: string, volume: number = this._defaultVolume): void {
+  public setVolume(soundname: SoundName, volume: number = this._defaultVolume): void {
     const soundSound = this._nameToConfig.get(soundname);
     if (!soundSound) {
       return;
@@ -235,6 +235,7 @@ export class SoundManger<Channel extends string, SoundName extends string> imple
    * Gets the volumn for a sound
    */
   public getVolume(sound: Sound): number {
+    // TODO
     return this._mix.get(sound) ?? 0;
   }
 
@@ -252,10 +253,11 @@ export class SoundManger<Channel extends string, SoundName extends string> imple
    * Untracks the Sound in the sound manager
    */
   public untrack(sound: Sound): void {
+    // TODO
     this._mix.delete(sound);
   }
 
-  public mute(name?: string): void {
+  public mute(name?: SoundName): void {
     if (name) {
       const soundSound = this._nameToConfig.get(name);
       if (!soundSound) {
@@ -272,7 +274,7 @@ export class SoundManger<Channel extends string, SoundName extends string> imple
     this._muted.forEach((s) => s.pause());
   }
 
-  public unmute(name?: string): void {
+  public unmute(name?: SoundName): void {
     if (name) {
       const soundSound = this._nameToConfig.get(name);
       if (!soundSound) {
@@ -291,7 +293,7 @@ export class SoundManger<Channel extends string, SoundName extends string> imple
     this._muted.clear();
   }
 
-  public toggle(name?: string): void {
+  public toggle(name?: SoundName): void {
     if (name) {
       const soundSound = this._nameToConfig.get(name);
       if (!soundSound) {
@@ -320,6 +322,7 @@ export class SoundManger<Channel extends string, SoundName extends string> imple
    * Apply a list of channels to a sound instance
    */
   public addChannel(sound: Sound, channels: Channel[] | AnyString[]) {
+    // TODO
     const currentVolume = this._mix.get(sound);
 
     this._mix.set(sound, currentVolume ?? this._defaultVolume);
