@@ -22,14 +22,15 @@ var guitarLoop = new ex.Sound('./loop-guitar.mp3');
 guitarLoop.loop = true;
 loader.addResource(guitarLoop);
 
+// Maybe make sound manager a loadable
 var soundManager = new ex.SoundManger({
   channels: ['fx', 'music', 'background'],
-  sounds: [
-    { sound: jumpSnd, volume: 0.4, channels: ['fx'] },
-    { sound: forestSnd, volume: 0.2, channels: ['music', 'background'] },
-    { sound: challengeMusic, volume: 0.2, channels: ['music'] },
-    { sound: guitarLoop, volume: 0.2, channels: ['music'] }
-  ]
+  sounds: {
+    jumpSnd: { sound: jumpSnd, volume: 0.4, channels: ['fx'] },
+    forestSnd: { sound: forestSnd, volume: 0.2, channels: ['music', 'background'] },
+    challengeMusic: { sound: challengeMusic, volume: 0.2, channels: ['music'] },
+    guitarLoop: { sound: guitarLoop, volume: 0.2, channels: ['music'] }
+  }
 });
 
 var toggleMusic = new ex.Label({
@@ -37,20 +38,20 @@ var toggleMusic = new ex.Label({
   text: 'Toggle Music'
 });
 toggleMusic.on('pointerdown', () => {
-  soundManager.toggle(['music']);
+  soundManager.channel.toggle('music');
 });
 game.add(toggleMusic);
 soundManager.getVolume(jumpSnd);
 console.log('getSounds()', soundManager.getSounds());
-console.log('tag count', soundManager.getSoundsForTag('music'));
+console.log('channel count', soundManager.getSoundsForChannel('music'));
 
 game.input.keyboard.on('press', (evt) => {
   if (evt.key === ex.Keys.J) {
-    soundManager.play(jumpSnd);
+    soundManager.play('jumpSnd');
   }
 
   if (evt.key === ex.Keys.M) {
-    soundManager.mute(['music']);
+    soundManager.channel.mute('music');
   }
 
   if (evt.key === ex.Keys.A) {
@@ -62,19 +63,19 @@ game.input.keyboard.on('press', (evt) => {
   }
 
   if (evt.key === ex.Keys.U) {
-    soundManager.unmute(['music']);
+    soundManager.channel.unmute('music');
   }
 
   if (evt.key === ex.Keys.P) {
-    soundManager.play(['music']);
+    soundManager.channel.play('music');
   }
 
   if (evt.key === ex.Keys.V) {
-    soundManager.setVolume(['music'], 0.9);
+    soundManager.channel.setVolume('music', 0.9);
   }
 });
 
 game.start(loader).then(() => {
-  soundManager.play(forestSnd);
-  soundManager.play(challengeMusic);
+  soundManager.play('forestSnd');
+  soundManager.play('challengeMusic');
 });

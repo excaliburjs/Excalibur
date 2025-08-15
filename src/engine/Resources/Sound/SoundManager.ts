@@ -51,6 +51,7 @@ export type PossibleSounds<TSoundMangerOptions> = TSoundMangerOptions extends So
 export interface SoundManagerApi {
   setVolume(name: string, volume?: number): void;
   play(name: string, volume?: number): Promise<void>;
+  stop(name?: string): void;
   mute(name?: string): void;
   unmute(name?: string): void;
   toggle(name?: string): void;
@@ -61,6 +62,16 @@ export class ChannelCollection<Channel extends string> implements SoundManagerAp
     options: SoundManagerOptions<Channel, string>,
     public soundManager: SoundManger<Channel, string>
   ) {}
+
+  stop(name: string): void {
+    if (!name) {
+return;
+}
+    const sounds = this.soundManager.getSoundsForChannel(name);
+    for (let i = 0; i < sounds.length; i++) {
+      sounds[i].stop();
+    }
+  }
 
   setVolume(name: Channel, volume?: number): void {
     const sounds = this.soundManager.getSoundsForChannel(name);
@@ -257,6 +268,21 @@ export class SoundManger<Channel extends string, SoundName extends string> imple
     this._mix.delete(sound);
   }
 
+  public stop(name?: SoundName): void {
+    if (name) {
+      const soundSound = this._nameToConfig.get(name);
+      if (!soundSound) {
+        return;
+      }
+
+      const { sound } = soundSound;
+      sound.stop();
+      return;
+    }
+
+    this._all.forEach((s) => s.stop());
+  }
+
   public mute(name?: SoundName): void {
     if (name) {
       const soundSound = this._nameToConfig.get(name);
@@ -343,24 +369,24 @@ export class SoundManger<Channel extends string, SoundName extends string> imple
   }
 }
 
-const sm = new SoundManger({
-  volume: 0.7,
-  channels: ['background', 'sfx', 'other'],
-  sounds: {
-    // @ts-expect-error
-    jump: { sound: null as unknown as Sound, channels: ['sfx', 'madeup'], volume: 0.4 },
-    idleMusic: { sound: null as unknown as Sound, channels: ['background'], volume: 0.7 }
-  }
-});
-
-sm.channel.setVolume('background', 0.8);
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
-sm.channel.play('background');
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
-sm.play('jump');
-// @ts-expect-error
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
-sm.play('madeup');
-sm.channel.mute('background');
-// @ts-expect-error
-sm.channel.mute('madeup');
+// const sm = new SoundManger({
+//   volume: 0.7,
+//   channels: ['background', 'sfx', 'other'],
+//   sounds: {
+//     // @ts-expect-error
+//     jump: { sound: null as unknown as Sound, channels: ['sfx', 'madeup'], volume: 0.4 },
+//     idleMusic: { sound: null as unknown as Sound, channels: ['background'], volume: 0.7 }
+//   }
+// });
+//
+// sm.channel.setVolume('background', 0.8);
+// // eslint-disable-next-line @typescript-eslint/no-floating-promises
+// sm.channel.play('background');
+// // eslint-disable-next-line @typescript-eslint/no-floating-promises
+// sm.play('jump');
+// // @ts-expect-error
+// // eslint-disable-next-line @typescript-eslint/no-floating-promises
+// sm.play('madeup');
+// sm.channel.mute('background');
+// // @ts-expect-error
+// sm.channel.mute('madeup');
