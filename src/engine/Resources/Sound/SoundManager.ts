@@ -181,8 +181,8 @@ export class SoundManger<Channel extends string, SoundName extends string> imple
   public play(soundName: SoundName, volume: number = this._defaultVolume): Promise<void> {
     const soundSound = this._nameToConfig.get(soundName);
     if (!soundSound) {
-return Promise.resolve();
-}
+      return Promise.resolve();
+    }
 
     const { sound } = soundSound;
     if (this.isMuted(sound)) {
@@ -196,8 +196,8 @@ return Promise.resolve();
   public setVolume(soundname: string, volume: number = this._defaultVolume): void {
     const soundSound = this._nameToConfig.get(soundname);
     if (!soundSound) {
-return;
-}
+      return;
+    }
 
     const { sound } = soundSound;
     this._setMix(sound, volume);
@@ -303,8 +303,8 @@ return;
     if (name) {
       const soundSound = this._nameToConfig.get(name);
       if (!soundSound) {
-return;
-}
+        return;
+      }
 
       const { sound } = soundSound;
       this._muted.add(sound);
@@ -320,8 +320,8 @@ return;
     if (name) {
       const soundSound = this._nameToConfig.get(name);
       if (!soundSound) {
-return;
-}
+        return;
+      }
 
       const { sound } = soundSound;
 
@@ -339,8 +339,8 @@ return;
     if (name) {
       const soundSound = this._nameToConfig.get(name);
       if (!soundSound) {
-return;
-}
+        return;
+      }
 
       const { sound } = soundSound;
       if (this.isMuted(sound)) {
