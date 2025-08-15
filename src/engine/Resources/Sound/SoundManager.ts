@@ -57,15 +57,19 @@ export interface SoundManagerApi {
 }
 
 export class ChannelCollection<Channel extends string> implements SoundManagerApi {
-  private _channelToConfig: Map<Channel, ChannelSoundsConfiguration> = new Map<Channel, ChannelSoundsConfiguration>();
-
   constructor(
     options: SoundManagerOptions<Channel, string>,
     public soundManager: SoundManger<Channel, string>
   ) {}
 
   setVolume(name: Channel, volume?: number): void {
-    throw new Error('Method not implemented.');
+    const sounds = this.soundManager.getSoundsForChannel(name);
+    for (const sound of sounds) {
+      if (this.soundManager._isMuted(sound)) {
+        continue;
+      }
+      this.soundManager.setVolume(name, volume);
+    }
   }
 
   play(name: Channel, volume?: number): Promise<void> {
@@ -75,7 +79,7 @@ export class ChannelCollection<Channel extends string> implements SoundManagerAp
 
     const sounds = this.soundManager.getSoundsForChannel(name);
     for (const sound of sounds) {
-      if (playedAudio.has(sound) || this.soundManager.isMuted(sound)) {
+      if (playedAudio.has(sound) || this.soundManager._isMuted(sound)) {
         continue;
       }
       const mixVolume = this.soundManager._getEffectiveVolume(sound);
@@ -88,13 +92,36 @@ export class ChannelCollection<Channel extends string> implements SoundManagerAp
   }
 
   mute(name: Channel): void {
-    throw new Error('Method not implemented.');
+    const sounds = this.soundManager.getSoundsForChannel(name);
+    for (let i = 0; i < sounds.length; i++) {
+      this.soundManager._muted.add(sounds[i]);
+      sounds[i].pause();
+    }
   }
+
   unmute(name: Channel): void {
-    throw new Error('Method not implemented.');
+    const sounds = this.soundManager.getSoundsForChannel(name);
+    for (let i = 0; i < sounds.length; i++) {
+      if (this.soundManager._muted.has(sounds[i])) {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        sounds[i].play();
+        this.soundManager._muted.delete(sounds[i]);
+      }
+    }
   }
+
   toggle(name: Channel): void {
-    throw new Error('Method not implemented.');
+    const sounds = this.soundManager.getSoundsForChannel(name);
+    for (let i = 0; i < sounds.length; i++) {
+      if (this.soundManager._isMuted(sounds[i])) {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        sounds[i].play();
+        this.soundManager._muted.delete(sounds[i]);
+      } else {
+        this.soundManager._muted.add(sounds[i]);
+        sounds[i].pause();
+      }
+    }
   }
 }
 
@@ -106,7 +133,7 @@ export class SoundManger<Channel extends string, SoundName extends string> imple
   private _nameToConfig: Map<string, SoundConfig> = new Map<string, SoundConfig>();
   private _mix: Map<Sound, number> = new Map<Sound, number>();
 
-  private _muted = new Set<Sound>();
+  public _muted = new Set<Sound>();
   private _all = new Set<Sound>();
 
   private _defaultVolume: number = 1;
@@ -160,12 +187,12 @@ export class SoundManger<Channel extends string, SoundName extends string> imple
     return [];
   }
 
-  public isMuted(sound: Sound): boolean {
+  public _isMuted(sound: Sound): boolean {
     return this._muted.has(sound);
   }
 
   public _getEffectiveVolume(sound: Sound): number {
-    if (this.isMuted(sound)) {
+    if (this._isMuted(sound)) {
       return 0;
     }
 
@@ -185,7 +212,7 @@ export class SoundManger<Channel extends string, SoundName extends string> imple
     }
 
     const { sound } = soundSound;
-    if (this.isMuted(sound)) {
+    if (this._isMuted(sound)) {
       return Promise.resolve();
     }
 
@@ -203,77 +230,6 @@ export class SoundManger<Channel extends string, SoundName extends string> imple
     this._setMix(sound, volume);
     return;
   }
-
-  // /**
-  //  * Play all Sounds that match a specific set of channels and optionally apply a custom temporary volume multiplied against the maximum volume
-  //  */
-  // public play(channels: Channel[], volume?: number): Promise<void>;
-  // /**
-  //  * Play a Sound and optionally apply a custom temporary volume multiplied against the maximum volume
-  //  */
-  // public play(sound: Sound, volume?: number): Promise<void>;
-  // public play(channelsOrSound: Channel[] | Sound, volume: number = this._defaultVolume): Promise<void> {
-  //   if (Array.isArray(channelsOrSound)) {
-  //     const tags = channelsOrSound;
-  //
-  //     const playing: Promise<boolean>[] = [];
-  //     const playedAudio = new Set<Sound>();
-  //
-  //     for (const tag of tags) {
-  //       const sounds = this.getSoundsForChannel(tag);
-  //       for (const sound of sounds) {
-  //         if (playedAudio.has(sound) || this._isMuted(sound)) {
-  //           continue;
-  //         }
-  //         const mixVolume = this._getCurrentVolume(sound);
-  //
-  //         playing.push(sound.play(mixVolume * volume));
-  //         playedAudio.add(sound);
-  //       }
-  //     }
-  //
-  //     return Promise.all(playing) as unknown as Promise<void>;
-  //   }
-  //
-  //   const sound = channelsOrSound;
-  //   if (this._isMuted(sound)) {
-  //     return Promise.resolve();
-  //   }
-  //
-  //   const effectiveVolume = volume * this._getCurrentVolume(sound);
-  //   return sound.play(effectiveVolume) as unknown as Promise<void>;
-  // }
-
-  // /**
-  //  * Set the volume of a playing or non-playing sound
-  //  *
-  //  * Adjusts the mixed volume to the supplied value
-  //  */
-  // public setVolume(sound: Sound, volume: number): void;
-  // /**
-  //  * Set the volume of playing and non-playing sounds
-  //  *
-  //  * Adjusts the mixed volume to the supplied value
-  //  *
-  //  */
-  // public setVolume(channels: Channel[], volume: number): void;
-  // public setVolume(channelsOrSound: Channel[] | Sound, volume: number): void {
-  //   if (channelsOrSound instanceof Sound) {
-  //     const sound = channelsOrSound;
-  //     this._setMix(sound, volume);
-  //     return;
-  //   }
-  //   const tags = channelsOrSound;
-  //   for (const tag of tags) {
-  //     const sounds = this.getSoundsForChannel(tag);
-  //     for (const sound of sounds) {
-  //       if (this._isMuted(sound)) {
-  //         continue;
-  //       }
-  //       this._setMix(sound, volume);
-  //     }
-  //   }
-  // }
 
   /**
    * Gets the volumn for a sound
@@ -343,7 +299,7 @@ export class SoundManger<Channel extends string, SoundName extends string> imple
       }
 
       const { sound } = soundSound;
-      if (this.isMuted(sound)) {
+      if (this._isMuted(sound)) {
         this.unmute(name);
       } else {
         this.mute(name);
@@ -359,108 +315,6 @@ export class SoundManger<Channel extends string, SoundName extends string> imple
       this._muted.forEach((s) => s.pause());
     }
   }
-
-  // /**
-  //  * Mut specific sound by instance, in none provided all sounds are muted
-  //  */
-  // public mute(sound?: Sound): void;
-  // /**
-  //  * Mute specific Sounds by channel, if none are provided all sounds are muted
-  //  */
-  // public mute(channels?: Channel[]): void;
-  // public mute(channelsOrSound?: Channel[] | Sound): void {
-  //   if (channelsOrSound instanceof Sound) {
-  //     const sound = channelsOrSound;
-  //     this._muted.add(sound);
-  //     sound.pause();
-  //     return;
-  //   }
-  //   const tags = channelsOrSound;
-  //   if (tags) {
-  //     for (const tag of tags) {
-  //       const sounds = this.getSoundsForChannel(tag);
-  //       for (let i = 0; i < sounds.length; i++) {
-  //         this._muted.add(sounds[i]);
-  //         sounds[i].pause();
-  //       }
-  //     }
-  //     return;
-  //   }
-  //
-  //   this._muted = new Set(this._all);
-  //   this._muted.forEach((s) => s.pause());
-  // }
-
-  // public toggle(sound?: Sound): void;
-  // public toggle(channels?: Channel[]): void;
-  // public toggle(channelsOrSound?: Channel[] | Sound): void {
-  //   if (channelsOrSound instanceof Sound) {
-  //     const sound = channelsOrSound;
-  //     if (this._isMuted(sound)) {
-  //       this.unmute(sound);
-  //     } else {
-  //       this.mute(sound);
-  //     }
-  //     return;
-  //   }
-  //
-  //   const tags = channelsOrSound;
-  //   if (tags) {
-  //     for (const tag of tags) {
-  //       const sounds = this.getSoundsForChannel(tag);
-  //       for (let i = 0; i < sounds.length; i++) {
-  //         if (this._isMuted(sounds[i])) {
-  //           this.unmute(sounds[i]);
-  //         } else {
-  //           this.mute(sounds[i]);
-  //         }
-  //       }
-  //     }
-  //   } else {
-  //     if (this._muted.size > 0) {
-  //       this._muted.forEach((s) => s.play());
-  //       this._muted.clear();
-  //     } else {
-  //       this._muted = new Set(this._all);
-  //       this._muted.forEach((s) => s.pause());
-  //     }
-  //   }
-  // }
-
-  // /**
-  //  * Unmute specific Sounds by instance, if none are provided all sounds are unmuted
-  //  */
-  // public unmute(sound?: Sound): void;
-  // /**
-  //  * Unmute specific Sounds by tag, if none are provided all sounds are unmuted
-  //  */
-  // public unmute(channels?: Channel[]): void;
-  // public unmute(channelsOrSound?: Channel[] | Sound): void {
-  //   if (channelsOrSound instanceof Sound) {
-  //     const sound = channelsOrSound;
-  //     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  //     sound.play();
-  //     this._muted.delete(sound);
-  //     return;
-  //   }
-  //   const tags = channelsOrSound;
-  //   if (tags) {
-  //     for (const tag of tags) {
-  //       const sounds = this.getSoundsForChannel(tag);
-  //       for (let i = 0; i < sounds.length; i++) {
-  //         if (this._muted.has(sounds[i])) {
-  //           // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  //           sounds[i].play();
-  //           this._muted.delete(sounds[i]);
-  //         }
-  //       }
-  //     }
-  //     return;
-  //   }
-  //
-  //   this._muted.forEach((s) => s.play());
-  //   this._muted.clear();
-  // }
 
   /**
    * Apply a list of channels to a sound instance
