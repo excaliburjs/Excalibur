@@ -65,8 +65,8 @@ export class ChannelCollection<Channel extends string> implements SoundManagerAp
 
   stop(name: string): void {
     if (!name) {
-return;
-}
+      return;
+    }
     const sounds = this.soundManager.getSoundsForChannel(name);
     for (let i = 0; i < sounds.length; i++) {
       sounds[i].stop();
