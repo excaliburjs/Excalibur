@@ -15,6 +15,41 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added a new `ex.Sound({...})` option back constructor to set all the same props available on sound
+- Added a new `ex.SoundManager` type for managing groups of audio/sound effects/music volume in an easier way
+
+```ts
+const soundManager = new ex.SoundManger({
+  channels: ['fx', 'music', 'background'],
+  sounds: {
+    jumpSnd: { sound: jumpSnd, volume: 0.4, channels: ['fx'] },
+    forestSnd: { sound: forestSnd, volume: 0.2, channels: ['music', 'background'] },
+    challengeMusic: { sound: challengeMusic, volume: 0.2, channels: ['music'] },
+    guitarLoop: { sound: guitarLoop, volume: 0.2, channels: ['music'] }
+  }
+});
+
+// play a specific sound
+soundManager.play('jumpSnd');
+
+// mute a specific channel with all member sounds
+soundManager.channel.mute('music');
+
+// mute all sound
+soundManager.mute();
+// unmute all sound that was previously muted, and resume playing from the current location
+soundManager.unmute();
+
+// unmute a specific channel that was muted
+soundManager.channel.unmute('music');
+
+// play a specific channel
+soundManager.channel.play('music');
+
+// set the max volume of an entire channel
+soundManager.channel.setVolume('music', 0.9);
+```
+
 - Added `ex.Animation.data` to store arbitrary meta data for an animation. Data can be directly added in the constructor as an option, by using the optional `data` argument in `fromSpriteSheet(...)` and as an option in `fromSpriteSheetCoordinates({...})`
 - Added a new configuration option to `ex.Engine({global: ...})` where you can provide a keyboard global to override if iframe detection fails for anyway.
 - Added new way to output data from scenes `onDeactivate()`, returning data will be passed to the next `SceneActivationContext` in the `previousSceneData` property!
