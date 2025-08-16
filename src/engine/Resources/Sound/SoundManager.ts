@@ -60,7 +60,7 @@ export interface SoundManagerApi {
 export class ChannelCollection<Channel extends string> implements SoundManagerApi {
   constructor(
     options: SoundManagerOptions<Channel, string>,
-    public soundManager: SoundManger<Channel, string>
+    public soundManager: SoundManager<Channel, string>
   ) {}
 
   stop(name: string): void {
@@ -139,7 +139,7 @@ export class ChannelCollection<Channel extends string> implements SoundManagerAp
 /**
  * Manage Sound volume levels without mutating the original Sound objects
  */
-export class SoundManger<Channel extends string, SoundName extends string> implements SoundManagerApi {
+export class SoundManager<Channel extends string, SoundName extends string> implements SoundManagerApi {
   private _channelToConfig: Map<Channel, ChannelSoundsConfiguration> = new Map<Channel, ChannelSoundsConfiguration>();
   private _nameToConfig: Map<string, SoundConfig> = new Map<string, SoundConfig>();
   private _mix: Map<Sound, number> = new Map<Sound, number>();

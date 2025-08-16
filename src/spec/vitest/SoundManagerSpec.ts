@@ -2,12 +2,12 @@ import * as ex from '@excalibur';
 
 describe('A SoundManager', () => {
   it('exists', () => {
-    expect(ex.SoundManger).toBeDefined();
+    expect(ex.SoundManager).toBeDefined();
   });
 
   it('can be constructed', () => {
     expect(() => {
-      const sm = new ex.SoundManger({
+      const sm = new ex.SoundManager({
         channels: ['test'],
         sounds: {
           snd: { sound: new ex.Sound('./../assets/images/SoundSpec/test.mp3'), volume: 0.4, channels: ['test'] }
@@ -17,7 +17,7 @@ describe('A SoundManager', () => {
   });
 
   it('can play sounds', async () => {
-    const sm = new ex.SoundManger({
+    const sm = new ex.SoundManager({
       channels: ['test'],
       sounds: {
         snd: { sound: new ex.Sound('./../assets/images/SoundSpec/test.mp3'), volume: 0.4, channels: ['test'] }
@@ -30,7 +30,7 @@ describe('A SoundManager', () => {
   it('can sound volume', () => {
     const sound = new ex.Sound('./../assets/images/SoundSpec/test.mp3');
 
-    const sm = new ex.SoundManger({
+    const sm = new ex.SoundManager({
       channels: ['test'],
       sounds: {
         snd: { sound, volume: 0.4, channels: ['test'] }
@@ -47,7 +47,7 @@ describe('A SoundManager', () => {
     const spy = vi.spyOn(sound, 'play');
     spy.mockResolvedValue(true);
 
-    const sm = new ex.SoundManger({
+    const sm = new ex.SoundManager({
       channels: ['test'],
       sounds: {
         snd: { sound, volume: 0.4, channels: ['test'] }
@@ -68,7 +68,7 @@ describe('A SoundManager', () => {
     const spy2 = vi.spyOn(sound2, 'play');
     spy2.mockResolvedValue(true);
 
-    const sm = new ex.SoundManger({
+    const sm = new ex.SoundManager({
       channels: ['test', 'test2'],
       sounds: {
         snd1: { sound, volume: 0.4, channels: ['test'] },
@@ -101,7 +101,7 @@ describe('A SoundManager', () => {
     const spy2 = vi.spyOn(sound2, 'play');
     spy2.mockResolvedValue(true);
 
-    const sm = new ex.SoundManger({
+    const sm = new ex.SoundManager({
       channels: ['test', 'test2'],
       sounds: {
         snd1: { sound, volume: 0.4, channels: ['test'] },
@@ -131,7 +131,7 @@ describe('A SoundManager', () => {
     const spy2 = vi.spyOn(sound2, 'play');
     spy2.mockResolvedValue(true);
 
-    const sm = new ex.SoundManger({
+    const sm = new ex.SoundManager({
       channels: ['test', 'test2'],
       sounds: {
         snd1: { sound, volume: 0.4, channels: ['test'] },
