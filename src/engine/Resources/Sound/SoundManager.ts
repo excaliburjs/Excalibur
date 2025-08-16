@@ -241,8 +241,8 @@ export class SoundManger<Channel extends string, SoundName extends string> imple
   public getVolume(soundName: SoundName): number {
     const sound = this.getSound(soundName);
     if (!sound) {
-return 0;
-}
+      return 0;
+    }
     return this._mix.get(sound) ?? 0;
   }
 
@@ -284,8 +284,8 @@ return 0;
     this._nameToConfig.delete(soundName);
     const sound = this.getSound(soundName);
     if (!sound) {
-return;
-}
+      return;
+    }
     this._mix.delete(sound);
     this._all.delete(sound);
   }
@@ -372,8 +372,8 @@ return;
   public addChannel(soundName: SoundName | AnyString, channels: Channel[] | AnyString[]): void {
     const sound = this.getSound(soundName);
     if (!sound) {
-return;
-}
+      return;
+    }
     const currentVolume = this._mix.get(sound);
 
     this._mix.set(sound, currentVolume ?? this._defaultVolume);
@@ -396,8 +396,8 @@ return;
   public removeChannel(soundName: SoundName | AnyString, channels: Channel[] | AnyString[]): void {
     const sound = this.getSound(soundName);
     if (!sound) {
-return;
-}
+      return;
+    }
 
     for (const channel of channels) {
       const maybeConfiguration = this._channelToConfig.get(channel as Channel);
