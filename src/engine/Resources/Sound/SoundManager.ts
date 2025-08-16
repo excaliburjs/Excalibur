@@ -163,24 +163,7 @@ export class SoundManger<Channel extends string, SoundName extends string> imple
     this.channel = new ChannelCollection(options, this);
     if (options.sounds) {
       for (const [name, soundOrConfig] of Object.entries<Sound | SoundConfig>(options.sounds)) {
-        let sound: Sound;
-        let volume: number | undefined;
-        let channels: string[] | undefined;
-        if (soundOrConfig instanceof Sound) {
-          sound = soundOrConfig;
-          volume = this._defaultVolume;
-          channels = [];
-        } else {
-          ({ sound, volume, channels } = soundOrConfig);
-        }
-
-        this._nameToConfig.set(name, { sound, volume, channels } satisfies SoundConfig);
-        this._mix.set(sound, volume ?? this._defaultVolume);
-        this._all.add(sound);
-
-        if (channels) {
-          this.addChannel(sound, channels as Channel[]);
-        }
+        this.track(name, soundOrConfig);
       }
     }
   }
@@ -231,6 +214,16 @@ export class SoundManger<Channel extends string, SoundName extends string> imple
     return sound.play(effectiveVolume) as unknown as Promise<void>;
   }
 
+  public getSound(soundName: SoundName | AnyString): Sound | undefined {
+    const soundSound = this._nameToConfig.get(soundName);
+    if (!soundSound) {
+      return undefined;
+    }
+
+    const { sound } = soundSound;
+    return sound;
+  }
+
   public setVolume(soundname: SoundName, volume: number = this._defaultVolume): void {
     const soundSound = this._nameToConfig.get(soundname);
     if (!soundSound) {
@@ -245,8 +238,11 @@ export class SoundManger<Channel extends string, SoundName extends string> imple
   /**
    * Gets the volumn for a sound
    */
-  public getVolume(sound: Sound): number {
-    // TODO
+  public getVolume(soundName: SoundName): number {
+    const sound = this.getSound(soundName);
+    if (!sound) {
+return 0;
+}
     return this._mix.get(sound) ?? 0;
   }
 
@@ -258,14 +254,40 @@ export class SoundManger<Channel extends string, SoundName extends string> imple
     sound.volume = volume;
   }
 
+  public track(name: SoundName | AnyString, soundOrConfig: Sound | SoundConfig) {
+    let sound: Sound;
+    let volume: number | undefined;
+    let channels: string[] | undefined;
+    if (soundOrConfig instanceof Sound) {
+      sound = soundOrConfig;
+      volume = this._defaultVolume;
+      channels = [];
+    } else {
+      ({ sound, volume, channels } = soundOrConfig);
+    }
+
+    this._nameToConfig.set(name, { sound, volume, channels } satisfies SoundConfig);
+    this._mix.set(sound, volume ?? this._defaultVolume);
+    this._all.add(sound);
+
+    if (channels) {
+      this.addChannel(name, channels as Channel[]);
+    }
+  }
+
   /**
    * Remove the maximum volume for a sound, will be 100% of the source volume
    *
    * Untracks the Sound in the sound manager
    */
-  public untrack(sound: Sound): void {
-    // TODO
+  public untrack(soundName: SoundName): void {
+    this._nameToConfig.delete(soundName);
+    const sound = this.getSound(soundName);
+    if (!sound) {
+return;
+}
     this._mix.delete(sound);
+    this._all.delete(sound);
   }
 
   public stop(name?: SoundName): void {
@@ -347,8 +369,11 @@ export class SoundManger<Channel extends string, SoundName extends string> imple
   /**
    * Apply a list of channels to a sound instance
    */
-  public addChannel(sound: Sound, channels: Channel[] | AnyString[]) {
-    // TODO
+  public addChannel(soundName: SoundName | AnyString, channels: Channel[] | AnyString[]): void {
+    const sound = this.getSound(soundName);
+    if (!sound) {
+return;
+}
     const currentVolume = this._mix.get(sound);
 
     this._mix.set(sound, currentVolume ?? this._defaultVolume);
@@ -367,26 +392,24 @@ export class SoundManger<Channel extends string, SoundName extends string> imple
       this._channelToConfig.set(channel as Channel, maybeConfiguration);
     }
   }
+
+  public removeChannel(soundName: SoundName | AnyString, channels: Channel[] | AnyString[]): void {
+    const sound = this.getSound(soundName);
+    if (!sound) {
+return;
 }
 
-// const sm = new SoundManger({
-//   volume: 0.7,
-//   channels: ['background', 'sfx', 'other'],
-//   sounds: {
-//     // @ts-expect-error
-//     jump: { sound: null as unknown as Sound, channels: ['sfx', 'madeup'], volume: 0.4 },
-//     idleMusic: { sound: null as unknown as Sound, channels: ['background'], volume: 0.7 }
-//   }
-// });
-//
-// sm.channel.setVolume('background', 0.8);
-// // eslint-disable-next-line @typescript-eslint/no-floating-promises
-// sm.channel.play('background');
-// // eslint-disable-next-line @typescript-eslint/no-floating-promises
-// sm.play('jump');
-// // @ts-expect-error
-// // eslint-disable-next-line @typescript-eslint/no-floating-promises
-// sm.play('madeup');
-// sm.channel.mute('background');
-// // @ts-expect-error
-// sm.channel.mute('madeup');
+    for (const channel of channels) {
+      const maybeConfiguration = this._channelToConfig.get(channel as Channel);
+      if (!maybeConfiguration) {
+        return;
+      }
+      const index = maybeConfiguration.sounds.indexOf(sound);
+      if (index >= -1) {
+        maybeConfiguration.sounds.splice(index, 1);
+      }
+
+      this._channelToConfig.set(channel as Channel, maybeConfiguration);
+    }
+  }
+}

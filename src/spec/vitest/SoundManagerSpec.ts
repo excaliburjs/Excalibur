@@ -9,7 +9,9 @@ describe('A SoundManager', () => {
     expect(() => {
       const sm = new ex.SoundManger({
         channels: ['test'],
-        sounds: [{ sound: new ex.Sound('./../assets/images/SoundSpec/test.mp3'), volume: 0.4, channels: ['test'] }]
+        sounds: {
+          snd: { sound: new ex.Sound('./../assets/images/SoundSpec/test.mp3'), volume: 0.4, channels: ['test'] }
+        }
       });
     }).not.toThrow();
   });
@@ -17,10 +19,12 @@ describe('A SoundManager', () => {
   it('can play sounds', async () => {
     const sm = new ex.SoundManger({
       channels: ['test'],
-      sounds: [{ sound: new ex.Sound('./../assets/images/SoundSpec/test.mp3'), volume: 0.4, channels: ['test'] }]
+      sounds: {
+        snd: { sound: new ex.Sound('./../assets/images/SoundSpec/test.mp3'), volume: 0.4, channels: ['test'] }
+      }
     });
 
-    await sm.play(['test']);
+    await sm.channel.play('test');
   });
 
   it('can sound volume', () => {
@@ -28,12 +32,14 @@ describe('A SoundManager', () => {
 
     const sm = new ex.SoundManger({
       channels: ['test'],
-      sounds: [{ sound, volume: 0.4, channels: ['test'] }]
+      sounds: {
+        snd: { sound, volume: 0.4, channels: ['test'] }
+      }
     });
 
     expect(sm.getSounds().length).toBe(1);
     expect(sm.getSoundsForChannel('test').length).toBe(1);
-    expect(sm.getVolume(sound)).toBe(0.4);
+    expect(sm.getVolume('snd')).toBe(0.4);
   });
 
   it('can play sound at configured sm volume', () => {
@@ -43,10 +49,12 @@ describe('A SoundManager', () => {
 
     const sm = new ex.SoundManger({
       channels: ['test'],
-      sounds: [{ sound, volume: 0.4, channels: ['test'] }]
+      sounds: {
+        snd: { sound, volume: 0.4, channels: ['test'] }
+      }
     });
 
-    sm.play(sound);
+    sm.play('snd');
 
     expect(sound.play).toHaveBeenCalledWith(0.4);
   });
@@ -62,17 +70,23 @@ describe('A SoundManager', () => {
 
     const sm = new ex.SoundManger({
       channels: ['test', 'test2'],
-      sounds: [
-        { sound, volume: 0.4, channels: ['test'] },
-        { sound: sound2, volume: 0.8, channels: ['test', 'test2'] }
-      ]
+      sounds: {
+        snd1: { sound, volume: 0.4, channels: ['test'] },
+        snd2: { sound: sound2, volume: 0.8, channels: ['test', 'test2'] }
+      }
     });
 
     expect(sm.getSoundsForChannel('test')[0]).toEqual(sound);
     expect(sm.getSoundsForChannel('test')[1]).toEqual(sound2);
     expect(sm.getSoundsForChannel('test').length).toEqual(2);
 
-    sm.play(['test', 'test2']);
+    expect(sm.getSoundsForChannel('test3').length).toEqual(0);
+    sm.addChannel('snd2', ['test3']);
+    expect(sm.getSoundsForChannel('test3').length).toEqual(1);
+    sm.removeChannel('snd2', ['test3']);
+
+    sm.channel.play('test');
+    sm.channel.play('test2');
 
     expect(sound.play).toHaveBeenCalledWith(0.4);
     expect(sound2.play).toHaveBeenCalledWith(0.8);
@@ -89,10 +103,10 @@ describe('A SoundManager', () => {
 
     const sm = new ex.SoundManger({
       channels: ['test', 'test2'],
-      sounds: [
-        { sound, volume: 0.4, channels: ['test'] },
-        { sound: sound2, volume: 0.8, channels: ['test', 'test2'] }
-      ]
+      sounds: {
+        snd1: { sound, volume: 0.4, channels: ['test'] },
+        snd2: { sound: sound2, volume: 0.8, channels: ['test', 'test2'] }
+      }
     });
 
     expect(sm.getSoundsForChannel('test')[0]).toEqual(sound);
@@ -101,7 +115,8 @@ describe('A SoundManager', () => {
     expect(sm.getSoundsForChannel('test2')[0]).toEqual(sound2);
     expect(sm.getSoundsForChannel('test2').length).toEqual(1);
 
-    sm.play(['test', 'test2'], 0.5);
+    sm.channel.play('test', 0.5);
+    sm.channel.play('test2', 0.5);
 
     expect(sound.play).toHaveBeenCalledWith(0.2);
     expect(sound2.play).toHaveBeenCalledWith(0.4);
@@ -118,17 +133,17 @@ describe('A SoundManager', () => {
 
     const sm = new ex.SoundManger({
       channels: ['test', 'test2'],
-      sounds: [
-        { sound, volume: 0.4, channels: ['test'] },
-        { sound: sound2, volume: 0.8, channels: ['test', 'test2'] }
-      ]
+      sounds: {
+        snd1: { sound, volume: 0.4, channels: ['test'] },
+        snd2: { sound: sound2, volume: 0.8, channels: ['test', 'test2'] }
+      }
     });
 
     expect(sm.getSoundsForChannel('test').length).toEqual(2);
     expect(sm.getSoundsForChannel('test2').length).toEqual(1);
 
-    sm.addChannel(sound, ['new-channel']);
-    sm.addChannel(sound2, ['new-channel']);
+    sm.addChannel('snd1', ['new-channel']);
+    sm.addChannel('snd2', ['new-channel']);
 
     expect(sm.getSoundsForChannel('new-channel').length).toEqual(2);
   });
