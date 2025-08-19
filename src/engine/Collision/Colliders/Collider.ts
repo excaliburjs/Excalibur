@@ -38,7 +38,8 @@ export abstract class Collider implements Clonable<Collider> {
   public touching(other: Collider): boolean {
     const contact = this.collide(other);
 
-    if (contact) {
+    // if there is a contact then we are touching
+    if (contact && contact.length > 0) {
       return true;
     }
 
