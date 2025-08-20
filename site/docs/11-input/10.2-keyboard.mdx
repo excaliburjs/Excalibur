@@ -26,6 +26,8 @@ It is recommended that keyboard actions that directly effect actors be queried, 
 ```ts
 class Player extends ex.Actor {
   public update(engine, delta) {
+    super.update(engine, delta)
+
     if (
       engine.input.keyboard.isHeld(ex.Keys.W) ||
       engine.input.keyboard.isHeld(ex.Keys.Up)
