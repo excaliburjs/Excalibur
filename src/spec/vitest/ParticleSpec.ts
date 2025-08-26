@@ -279,6 +279,7 @@ describe('A particle', () => {
         randomRotation: false
       },
       pos: new ex.Vector(0, 0),
+      z: 5,
       width: 20,
       height: 30,
       isEmitting: true,
@@ -294,5 +295,10 @@ describe('A particle', () => {
     expect(emitter.children.length).toBe(0);
     expect(engine.currentScene.actors.length).toBe(1);
     expect(engine.currentScene.world.entityManager.entities.length).toBe(21);
+    expect(
+      engine.currentScene.world.entityManager.entities
+        .filter((entity) => entity instanceof ex.Particle)
+        .every((entity) => entity.transform.z === 5)
+    ).toBeTruthy();
   });
 });

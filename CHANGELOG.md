@@ -90,6 +90,7 @@ const query = new Query({})
 
 ### Fixed
 
+- Fixed issue where `ParticleEmitter` `Particle` did not receive z index value from emitter when in World space
 - Fixed issue where an animation that was `anim.reset()` inside of an animation event handler like `anim.once('end', () => anim.reset())` would not work correctly
 - Fixed issue where `GpuParticleEmitter` did not rotate with their parents
 - Fixed issue where Cpu `ParticleEmitter` did not respect `ParticleTransform.Local`

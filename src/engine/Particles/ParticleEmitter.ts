@@ -156,6 +156,7 @@ export class ParticleEmitter extends Actor {
       beginColor: this.particle.beginColor,
       endColor: this.particle.endColor,
       pos: vec(ranX, ranY),
+      z: this.particle.transform === ParticleTransform.Global ? this.z : undefined,
       vel: vec(dx, dy),
       acc: this.particle.acc,
       angularVelocity: this.particle.angularVelocity,

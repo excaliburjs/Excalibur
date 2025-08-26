@@ -94,6 +94,7 @@ export class Particle extends Entity {
     this.transform.pos = options.pos ?? this.transform.pos;
     this.transform.rotation = options.rotation ?? 0;
     this.transform.scale = vec(1, 1);
+    this.transform.z = options.z ?? 0;
 
     this.motion.vel = options.vel ?? this.motion.vel;
     this.motion.angularVelocity = options.angularVelocity ?? 0;
@@ -198,6 +199,10 @@ export interface ParticleConfig {
    * Starting rotation of the particle
    */
   rotation?: number;
+  /**
+   * Optionally set the z index of the particle, default is 0
+   */
+  z?: number;
   /**
    * Size of the particle in pixels
    */
