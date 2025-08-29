@@ -44,7 +44,7 @@
     "patch-package": "^8.0.0",
     "ts-loader": "9.5.2",
     "css-loader": "6.11.0",
-    "typescript": "~5.2.2",
+    "typescript": "~5.9.0",
     "url-loader": "^4.1.1"
   },
   "browserslist": {
