@@ -729,6 +729,8 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
 
   private _isInitialized: boolean = false;
 
+  private _hasCreatedCanvas: boolean = false;
+
   public emit<TEventName extends EventKey<EngineEvents>>(eventName: TEventName, event: EngineEvents[TEventName]): void;
   public emit(eventName: string, event?: any): void;
   public emit<TEventName extends EventKey<EngineEvents> | string>(eventName: TEventName, event?: any): void {
@@ -906,12 +908,15 @@ O|===|* >________________>\n\
       }
 
       this.canvas = <HTMLCanvasElement>document.getElementById(options.canvasElementId);
+      this._hasCreatedCanvas = false;
     } else if (options.canvasElement) {
       this._logger.debug('Using Canvas element specified:', options.canvasElement);
       this.canvas = options.canvasElement;
+      this._hasCreatedCanvas = false;
     } else {
       this._logger.debug('Using generated canvas element');
       this.canvas = <HTMLCanvasElement>document.createElement('canvas');
+      this._hasCreatedCanvas = true;
     }
 
     if (this.canvas && !options.enableCanvasContextMenu) {
@@ -1236,7 +1241,9 @@ O|===|* >________________>\n\
       this.stop();
       this._garbageCollector.forceCollectAll();
       this.input.toggleEnabled(false);
-      this.canvas.parentNode.removeChild(this.canvas);
+      if (this._hasCreatedCanvas) {
+        this.canvas.parentNode.removeChild(this.canvas);
+      }
       this.canvas = null;
       this.screen.dispose();
       this.graphicsContext.dispose();
