@@ -71,7 +71,7 @@ jobs:
         with:
           chrome-version: 133.0.6943.98
       - name: Install Playwright browsers
-        run: npx playwright install chrome --with-deps
+        run: npx playwright install chromium --with-deps
 
       - name: Tests
         run: npm run test:ci -- --coverage=${{ matrix.runner == 'ubuntu-latest' }}
