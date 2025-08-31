@@ -53,7 +53,7 @@ export default defineConfig(
               platform: os.platform()
             },
             launch: {
-              channel: 'chrome',
+              channel: 'chromium',
               ignoreDefaultArgs: ['--disable-render-backgrounding', '--disable-remote-fonts', '--font-render-hinting'],
               args: [
                 '--no-default-browser-check',
