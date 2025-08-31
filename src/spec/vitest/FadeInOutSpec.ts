@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-import { TestUtils } from './util/TestUtils';
+import { TestUtils } from '../__util__/TestUtils';
 
 describe('A FadeInOut transition', () => {
   it('exists', () => {
@@ -13,7 +13,7 @@ describe('A FadeInOut transition', () => {
     expect(sut.color).toEqual(ex.Color.Red);
   });
 
-  it('can fade in', async () => {
+  it('@visual can fade in', async () => {
     const engine = TestUtils.engine({ backgroundColor: ex.Color.ExcaliburBlue });
     const clock = engine.clock as ex.TestClock;
     await TestUtils.runToReady(engine);
@@ -51,7 +51,7 @@ describe('A FadeInOut transition', () => {
     engine.dispose();
   });
 
-  it('can fade out', async () => {
+  it('@visual can fade out', async () => {
     const engine = TestUtils.engine({ backgroundColor: ex.Color.ExcaliburBlue });
     const clock = engine.clock as ex.TestClock;
     await TestUtils.runToReady(engine);

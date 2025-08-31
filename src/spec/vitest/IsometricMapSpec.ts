@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 
-import { TestUtils } from './util/TestUtils';
+import { TestUtils } from '../__util__/TestUtils';
 
 describe('A IsometricMap', () => {
   it('exists', () => {
@@ -19,115 +19,117 @@ describe('A IsometricMap', () => {
     expect(sut).toBeDefined();
   });
 
-  it('can be drawn', async () => {
-    const engine = TestUtils.engine({}, ['suppress-obsolete-message']);
-    // engine.toggleDebug();
-    const clock = engine.clock as ex.TestClock;
-    const image = new ex.ImageSource('/src/spec/assets/images/IsometricMapSpec/tile.png');
-    await image.load();
-    const sprite = image.toSprite();
-    await TestUtils.runToReady(engine);
+  describe('@visual', () => {
+    it('can be drawn', async () => {
+      const engine = TestUtils.engine({}, ['suppress-obsolete-message']);
+      // engine.toggleDebug();
+      const clock = engine.clock as ex.TestClock;
+      const image = new ex.ImageSource('/src/spec/assets/images/IsometricMapSpec/tile.png');
+      await image.load();
+      const sprite = image.toSprite();
+      await TestUtils.runToReady(engine);
 
-    const sut = new ex.IsometricMap({
-      pos: ex.vec(250, 10),
-      tileWidth: 32,
-      tileHeight: 16,
-      columns: 15,
-      rows: 15
+      const sut = new ex.IsometricMap({
+        pos: ex.vec(250, 10),
+        tileWidth: 32,
+        tileHeight: 16,
+        columns: 15,
+        rows: 15
+      });
+
+      sut.tiles.forEach((tile) => tile.addGraphic(sprite));
+
+      engine.add(sut);
+      clock.step(100);
+
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/IsometricMapSpec/map.png');
+      engine.dispose();
     });
 
-    sut.tiles.forEach((tile) => tile.addGraphic(sprite));
+    it('can be drawn from the top', async () => {
+      const engine = TestUtils.engine({}, ['suppress-obsolete-message']);
+      // engine.toggleDebug();
+      const clock = engine.clock as ex.TestClock;
+      const image = new ex.ImageSource('/src/spec/assets/images/IsometricMapSpec/cube.png');
+      await image.load();
+      const sprite = image.toSprite();
+      await TestUtils.runToReady(engine);
 
-    engine.add(sut);
-    clock.step(100);
+      const sut = new ex.IsometricMap({
+        pos: ex.vec(250, 10),
+        renderFromTopOfGraphic: true,
+        tileWidth: 32,
+        tileHeight: 16,
+        columns: 15,
+        rows: 15
+      });
 
-    await expect(engine.canvas).toEqualImage('/src/spec/assets/images/IsometricMapSpec/map.png');
-    engine.dispose();
-  });
+      sut.tiles.forEach((tile) => tile.addGraphic(sprite));
 
-  it('can be drawn from the top', async () => {
-    const engine = TestUtils.engine({}, ['suppress-obsolete-message']);
-    // engine.toggleDebug();
-    const clock = engine.clock as ex.TestClock;
-    const image = new ex.ImageSource('/src/spec/assets/images/IsometricMapSpec/cube.png');
-    await image.load();
-    const sprite = image.toSprite();
-    await TestUtils.runToReady(engine);
+      engine.add(sut);
+      clock.step(100);
 
-    const sut = new ex.IsometricMap({
-      pos: ex.vec(250, 10),
-      renderFromTopOfGraphic: true,
-      tileWidth: 32,
-      tileHeight: 16,
-      columns: 15,
-      rows: 15
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/IsometricMapSpec/cube-map-top.png');
+      engine.dispose();
     });
 
-    sut.tiles.forEach((tile) => tile.addGraphic(sprite));
+    it('can be drawn from the bottom', async () => {
+      const engine = TestUtils.engine({}, ['suppress-obsolete-message']);
+      // engine.toggleDebug();
+      const clock = engine.clock as ex.TestClock;
+      const image = new ex.ImageSource('/src/spec/assets/images/IsometricMapSpec/cube.png');
+      await image.load();
+      const sprite = image.toSprite();
+      await TestUtils.runToReady(engine);
 
-    engine.add(sut);
-    clock.step(100);
+      const sut = new ex.IsometricMap({
+        pos: ex.vec(250, 10),
+        tileWidth: 32,
+        tileHeight: 16,
+        columns: 15,
+        rows: 15
+      });
 
-    await expect(engine.canvas).toEqualImage('/src/spec/assets/images/IsometricMapSpec/cube-map-top.png');
-    engine.dispose();
-  });
+      sut.tiles.forEach((tile) => tile.addGraphic(sprite));
 
-  it('can be drawn from the bottom', async () => {
-    const engine = TestUtils.engine({}, ['suppress-obsolete-message']);
-    // engine.toggleDebug();
-    const clock = engine.clock as ex.TestClock;
-    const image = new ex.ImageSource('/src/spec/assets/images/IsometricMapSpec/cube.png');
-    await image.load();
-    const sprite = image.toSprite();
-    await TestUtils.runToReady(engine);
+      engine.add(sut);
+      clock.step(100);
 
-    const sut = new ex.IsometricMap({
-      pos: ex.vec(250, 10),
-      tileWidth: 32,
-      tileHeight: 16,
-      columns: 15,
-      rows: 15
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/IsometricMapSpec/cube-map-bottom.png');
+      engine.dispose();
     });
 
-    sut.tiles.forEach((tile) => tile.addGraphic(sprite));
+    it('can be debug drawn', async () => {
+      const engine = TestUtils.engine({}, ['suppress-obsolete-message']);
+      engine.toggleDebug();
+      engine.debug.entity.showName = false;
+      engine.debug.entity.showId = false;
+      engine.debug.graphics.showBounds = false;
+      engine.debug.transform.showPosition = true;
+      engine.debug.isometric.showGrid = true;
+      engine.debug.isometric.showPosition = true;
+      const clock = engine.clock as ex.TestClock;
+      const image = new ex.ImageSource('/src/spec/assets/images/IsometricMapSpec/cube.png');
+      await image.load();
+      const sprite = image.toSprite();
+      await TestUtils.runToReady(engine);
 
-    engine.add(sut);
-    clock.step(100);
+      const sut = new ex.IsometricMap({
+        pos: ex.vec(250, 10),
+        tileWidth: 32,
+        tileHeight: 16,
+        columns: 15,
+        rows: 15
+      });
 
-    await expect(engine.canvas).toEqualImage('/src/spec/assets/images/IsometricMapSpec/cube-map-bottom.png');
-    engine.dispose();
-  });
+      sut.tiles.forEach((tile) => tile.addGraphic(sprite));
 
-  it('can be debug drawn', async () => {
-    const engine = TestUtils.engine({}, ['suppress-obsolete-message']);
-    engine.toggleDebug();
-    engine.debug.entity.showName = false;
-    engine.debug.entity.showId = false;
-    engine.debug.graphics.showBounds = false;
-    engine.debug.transform.showPosition = true;
-    engine.debug.isometric.showGrid = true;
-    engine.debug.isometric.showPosition = true;
-    const clock = engine.clock as ex.TestClock;
-    const image = new ex.ImageSource('/src/spec/assets/images/IsometricMapSpec/cube.png');
-    await image.load();
-    const sprite = image.toSprite();
-    await TestUtils.runToReady(engine);
+      engine.add(sut);
+      clock.step(100);
 
-    const sut = new ex.IsometricMap({
-      pos: ex.vec(250, 10),
-      tileWidth: 32,
-      tileHeight: 16,
-      columns: 15,
-      rows: 15
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/IsometricMapSpec/cube-map-debug.png');
+      engine.dispose();
     });
-
-    sut.tiles.forEach((tile) => tile.addGraphic(sprite));
-
-    engine.add(sut);
-    clock.step(100);
-
-    await expect(engine.canvas).toEqualImage('/src/spec/assets/images/IsometricMapSpec/cube-map-debug.png');
-    engine.dispose();
   });
 
   it('can find a tile coordinate from a world position', async () => {

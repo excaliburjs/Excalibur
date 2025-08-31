@@ -2,7 +2,7 @@ import * as ex from '@excalibur';
 import { canPlayFile } from '../../engine/Util/Sound';
 import { delay } from '../../engine/Util/Util';
 import { WebAudio } from '../../engine/Util/WebAudio';
-import { TestUtils } from './util/TestUtils';
+import { TestUtils } from '../__util__/TestUtils';
 
 import { page } from '@vitest/browser/context';
 

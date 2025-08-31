@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-import { TestUtils } from './util/TestUtils';
+import { TestUtils } from '../__util__/TestUtils';
 import { ScreenElement } from '@excalibur';
 
 describe('A ScreenElement', () => {
@@ -119,18 +119,20 @@ describe('A ScreenElement', () => {
     expect(screenElement.contains(50, 50, true)).toBe(true);
   });
 
-  it('is drawn on the top left with empty constructor', async () => {
-    const game = TestUtils.engine({ width: 720, height: 480 });
-    const clock = game.clock as ex.TestClock;
-    const bg = new ex.ImageSource('/src/spec/assets/images/ScreenElementSpec/emptyctor.png');
-    const loader = new ex.Loader([bg]);
-    await TestUtils.runToReady(game, loader);
-    const screenElement = new ex.ScreenElement();
-    screenElement.graphics.use(bg.toSprite());
-    game.add(screenElement);
-    game.currentScene.draw(game.graphicsContext, 100);
-    game.graphicsContext.flush();
-    await expect(game.canvas).toEqualImage('/src/spec/assets/images/ScreenElementSpec/emptyctor.png');
-    game.dispose();
+  describe('@visual', () => {
+    it('is drawn on the top left with empty constructor', async () => {
+      const game = TestUtils.engine({ width: 720, height: 480 });
+      const clock = game.clock as ex.TestClock;
+      const bg = new ex.ImageSource('/src/spec/assets/images/ScreenElementSpec/emptyctor.png');
+      const loader = new ex.Loader([bg]);
+      await TestUtils.runToReady(game, loader);
+      const screenElement = new ex.ScreenElement();
+      screenElement.graphics.use(bg.toSprite());
+      game.add(screenElement);
+      game.currentScene.draw(game.graphicsContext, 100);
+      game.graphicsContext.flush();
+      await expect(game.canvas).toEqualImage('/src/spec/assets/images/ScreenElementSpec/emptyctor.png');
+      game.dispose();
+    });
   });
 });

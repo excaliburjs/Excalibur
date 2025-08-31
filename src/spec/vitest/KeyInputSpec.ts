@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-import { Mocks } from './util/Mocks';
+import { Mocks } from '../__util__/Mocks';
 
 describe('A keyboard', () => {
   let mockWindow = null;

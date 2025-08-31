@@ -1,4 +1,4 @@
-import * as ex from 'excalibur';
+import * as ex from '@excalibur';
 
 describe('Lines', () => {
   it('exist', () => {

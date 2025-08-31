@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 
-import { TestUtils } from './util/TestUtils';
+import { TestUtils } from '../__util__/TestUtils';
 
 describe('A loader', () => {
   let engine: ex.Engine;
@@ -366,33 +366,35 @@ describe('A loader', () => {
         });
     }));
 
-  it('should not show the play button when suppressPlayButton is turned on', () =>
-    new Promise<void>((done, reject) => {
-      reset();
-      engine = TestUtils.engine({ suppressPlayButton: false });
-      engine.currentScene.add(
-        new ex.Actor({
-          pos: new ex.Vector(250, 250),
-          width: 20,
-          height: 20,
-          color: ex.Color.Red
-        })
-      );
-
-      const testClock = engine.clock as ex.TestClock;
-      const loader = new ex.Loader([new ex.ImageSource('/src/spec/assets/images/SpriteSpec/icon.png')]);
-      loader.suppressPlayButton = true;
-
-      TestUtils.runToReady(engine, loader).then(() => {
-        // With suppress play there is another 500 ms delay in engine load()
-        testClock.step(1);
-        engine.graphicsContext.flush();
-        expect(engine.canvas)
-          .toEqualImage('/src/spec/assets/images/EngineSpec/engine-suppress-play.png')
-          .then(() => {
-            done();
+  describe('@visual', () => {
+    it('should not show the play button when suppressPlayButton is turned on', () =>
+      new Promise<void>((done, reject) => {
+        reset();
+        engine = TestUtils.engine({ suppressPlayButton: false });
+        engine.currentScene.add(
+          new ex.Actor({
+            pos: new ex.Vector(250, 250),
+            width: 20,
+            height: 20,
+            color: ex.Color.Red
           })
-          .catch(reject);
-      });
-    }));
+        );
+
+        const testClock = engine.clock as ex.TestClock;
+        const loader = new ex.Loader([new ex.ImageSource('/src/spec/assets/images/SpriteSpec/icon.png')]);
+        loader.suppressPlayButton = true;
+
+        TestUtils.runToReady(engine, loader).then(() => {
+          // With suppress play there is another 500 ms delay in engine load()
+          testClock.step(1);
+          engine.graphicsContext.flush();
+          expect(engine.canvas)
+            .toEqualImage('/src/spec/assets/images/EngineSpec/engine-suppress-play.png')
+            .then(() => {
+              done();
+            })
+            .catch(reject);
+        });
+      }));
+  });
 });

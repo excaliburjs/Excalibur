@@ -1,7 +1,7 @@
 import * as ex from '@excalibur';
 import { CollisionJumpTable } from '@excalibur';
 
-import { TestUtils } from './util/TestUtils';
+import { TestUtils } from '../__util__/TestUtils';
 
 describe('Collision Shape', () => {
   describe('a Circle', () => {
@@ -363,7 +363,7 @@ describe('Collision Shape', () => {
       expect(contact.points[0].y).toBe(0);
     });
 
-    it('can be debug drawn', async () => {
+    it('@visual can be debug drawn', async () => {
       const canvasElement = document.createElement('canvas');
       canvasElement.width = 100;
       canvasElement.height = 100;
@@ -385,7 +385,7 @@ describe('Collision Shape', () => {
       await expect(canvasElement).toEqualImage('/src/spec/assets/images/CollisionShapeSpec/circle-debug.png');
     });
 
-    it('can be drawn with actor when in constructor', async () => {
+    it('@visual can be drawn with actor when in constructor', async () => {
       const circleActor = new ex.Actor({
         pos: new ex.Vector(100, 100),
         color: ex.Color.Blue,
@@ -816,7 +816,7 @@ describe('Collision Shape', () => {
       expect(tooFar, 'The polygon should be too far away for a hit').toBe(null);
     });
 
-    it('can be debug drawn', async () => {
+    it('@visual can be debug drawn', async () => {
       const polygon = new ex.PolygonCollider({
         offset: new ex.Vector(100, 100),
         points: [new ex.Vector(0, -100), new ex.Vector(-100, 50), new ex.Vector(100, 50)]
@@ -832,7 +832,7 @@ describe('Collision Shape', () => {
       await expect(engine.canvas).toEqualImage('/src/spec/assets/images/CollisionShapeSpec/triangle.png');
     });
 
-    it('can be drawn with actor', async () => {
+    it('@visual can be drawn with actor', async () => {
       const polygonActor = new ex.Actor({
         pos: new ex.Vector(150, 100),
         collider: ex.Shape.Polygon([new ex.Vector(0, -100), new ex.Vector(-100, 50), new ex.Vector(100, 50)])
@@ -1053,7 +1053,7 @@ describe('Collision Shape', () => {
       expect(moi).toBeCloseTo(10 * length * length, 0.001);
     });
 
-    it('can be drawn', async () => {
+    it('@visual can be drawn', async () => {
       const edge = new ex.EdgeCollider({
         begin: new ex.Vector(100, 100),
         end: new ex.Vector(400, 400)
@@ -1068,7 +1068,7 @@ describe('Collision Shape', () => {
       await expect(engine.canvas).toEqualImage('/src/spec/assets/images/CollisionShapeSpec/edge.png');
     });
 
-    it('can be drawn with actor', async () => {
+    it('@visual can be drawn with actor', async () => {
       const edgeActor = new ex.Actor({
         pos: new ex.Vector(150, 100),
         collider: ex.Shape.Edge(ex.Vector.Zero, new ex.Vector(300, 300))

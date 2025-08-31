@@ -1,7 +1,7 @@
 import * as ex from '@excalibur';
 
 import { PhysicsWorld } from '../../engine/Collision/PhysicsWorld';
-import { TestUtils } from './util/TestUtils';
+import { TestUtils } from '../__util__/TestUtils';
 
 describe('A game actor', () => {
   let actor: ex.Actor;
@@ -756,7 +756,7 @@ describe('A game actor', () => {
     expect(invisibleActor.graphics.onPostDraw).toHaveBeenCalled();
   });
 
-  it('can be drawn with a z-index', async () => {
+  it('@visual can be drawn with a z-index', async () => {
     engine.stop();
     engine.dispose();
     engine = null;
@@ -798,7 +798,7 @@ describe('A game actor', () => {
     await expect(engine.canvas).toEqualImage('/src/spec/assets/images/ActorSpec/zindex-green-top.png');
   });
 
-  it('can have a graphic drawn at an opacity', async () => {
+  it('@visual can have a graphic drawn at an opacity', async () => {
     engine.stop();
     engine.dispose();
     engine = null;
