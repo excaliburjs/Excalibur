@@ -4,8 +4,11 @@ import * as os from 'os';
 import type { ViteUserConfig } from 'vitest/config';
 import { defineConfig, mergeConfig } from 'vitest/config';
 import baseConfig from '../../vitest.config';
-const isArmMacOS = process.platform === 'darwin' && process.arch === 'arm64';
-const HEADLESS = process.env.HEADLESS === 'true' || process.env.CI === 'true';
+
+const enableGpu = [
+  // apple silicon macs
+  process.platform === 'darwin' && process.arch === 'arm64'
+].some(Boolean);
 
 export default defineConfig(
   mergeConfig(baseConfig, {
@@ -20,19 +23,16 @@ export default defineConfig(
         enabled: true,
         provider: 'playwright',
         // this will give each test their own environment. disabling this
-        // actually ended up breaking WebGL contexts in some cases
+        // ended up breaking WebGL contexts in some cases
         isolate: true,
 
-        // this slows down the run but helps keep tests stable with how often
-        // we are opening and closing WebGL contexts
-        fileParallelism: false,
-
-        headless: HEADLESS,
+        headless: process.env.CI === 'true' ? true : undefined,
 
         // https://vitest.dev/guide/browser/playwright
         // run `vitest --browser <name>` to run tests in a specific browser
         instances: [
           {
+            name: 'chrome',
             browser: 'chromium',
             provide: {
               browser: 'chromium',
@@ -40,6 +40,8 @@ export default defineConfig(
             },
             launch: {
               channel: 'chrome',
+              // we pass in a whole bunch of args to try and make rendering as consistent as possible across
+              // operating systems.
               ignoreDefaultArgs: ['--disable-render-backgrounding', '--disable-remote-fonts', '--font-render-hinting'],
               args: [
                 '--no-default-browser-check',
@@ -48,7 +50,7 @@ export default defineConfig(
                 '--disable-popup-blocking',
                 '--disable-translate',
                 '--disable-background-timer-throttling',
-                !isArmMacOS && '--disable-gpu',
+                !enableGpu && '--disable-gpu',
                 '--disable-dev-shm-usage',
 
                 // on macOS, disable-background-timer-throttling is not enough
