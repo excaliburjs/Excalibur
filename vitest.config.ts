@@ -9,8 +9,8 @@ import { MemoryReporter } from './src/spec/__util__/reporters/memory';
 
 export default defineConfig(
   mergeConfig(commonConfig, {
-    // our image urls have always been from root in tests. would be nice to
-    // have a better, more clear place of where served files go for tests
+    // our image urls have always been relative from root in tests. would be nice to
+    // have a better place of where served files go for tests and then we just use /images/xyz.png
     publicDir: __dirname,
     resolve: {
       alias: {

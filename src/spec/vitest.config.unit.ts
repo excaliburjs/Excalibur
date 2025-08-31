@@ -12,8 +12,10 @@ export default defineConfig(
       globals: true,
       setupFiles: ['./__util__/setup.ts', './__matchers__/expect.ts'],
       include: ['./vitest/**/*Spec.ts'],
-      pool: 'threads',
       testNamePattern: /^(?!.*@visual).+$/,
+      sequence: {
+        groupOrder: 0
+      },
       browser: {
         enabled: true,
         provider: 'playwright',

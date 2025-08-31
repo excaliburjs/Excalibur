@@ -5,11 +5,6 @@ import type { ViteUserConfig } from 'vitest/config';
 import { defineConfig, mergeConfig } from 'vitest/config';
 import baseConfig from '../../vitest.config';
 
-const enableGpu = [
-  // apple silicon macs
-  process.platform === 'darwin' && process.arch === 'arm64'
-].some(Boolean);
-
 export default defineConfig(
   mergeConfig(baseConfig, {
     test: {
@@ -18,7 +13,9 @@ export default defineConfig(
       setupFiles: ['./__util__/setup.ts', './__matchers__/expect.ts', './__matchers__/expect.visual.ts'],
       include: ['./vitest/**/*Spec.ts'],
       testNamePattern: /@visual/,
-      pool: 'threads',
+      sequence: {
+        groupOrder: 1
+      },
       browser: {
         enabled: true,
         provider: 'playwright',
@@ -28,18 +25,16 @@ export default defineConfig(
 
         headless: process.env.CI === 'true' ? true : undefined,
 
-        // https://vitest.dev/guide/browser/playwright
-        // run `vitest --browser <name>` to run tests in a specific browser
         instances: [
           {
-            // name: 'visual (chrome)',
+            name: 'visual (chrome)',
             browser: 'chromium',
             provide: {
               browser: 'chromium',
               platform: os.platform()
             },
             launch: {
-              channel: 'chromium',
+              channel: 'chrome',
               // we pass in a whole bunch of args to try and make rendering as consistent as possible across
               // operating systems.
               ignoreDefaultArgs: ['--disable-render-backgrounding', '--disable-remote-fonts', '--font-render-hinting'],
@@ -50,7 +45,7 @@ export default defineConfig(
                 '--disable-popup-blocking',
                 '--disable-translate',
                 '--disable-background-timer-throttling',
-                !enableGpu && '--disable-gpu',
+                '--disable-gpu',
                 '--disable-dev-shm-usage',
 
                 // on macOS, disable-background-timer-throttling is not enough

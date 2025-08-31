@@ -50,29 +50,7 @@ const isWindows = inject('platform') === 'win32';
 const isLinux = inject('platform') === 'linux';
 const isChromium = inject('browser') === 'chromium';
 
-/**
- * for now, only run the Text tests on Windows + Chromium because
- * there are too many subtle differences in rendering text
- * across browser/os combos.
- *
- * Screenshot assertions will need to be split apart by platform + browser. They
- * currently only work on Windows + Chromium. If you add a new platform+browser combo, you
- * will need to create those screenshots. There are Linux ones left over from before but I am
- * not sure if they are the correct ones, as we had issues getting them to pass
- * on any Linux+Chrome/Chromium combo after migrating from Karma.
- *
- * Notes for if we do enable other platforms:
- *
- * Linux (Chrome):
- *  - There seems to be +1 height difference per-line in text height. This can
- *    be accounted for by asserting `expect(height).toBeCloseTo(expectedHeight, -numberOfLines)`
- *    This could be a legit bug
- *
- *  - Text rendering on Chrome between GitHub Linux vs local Linux are different somehow. Tried
- *    all kinds of flags, but text quality differs quite a bit. Can be fixed to pass
- *    some linux screenshots by setting quality of the font to 3, or in one case 10.
- */
-describe.runIf(isWindows && isChromium)('A Text Graphic', () => {
+describe('A Text Graphic', () => {
   let canvasElement: HTMLCanvasElement;
   let ctx: ex.ExcaliburGraphicsContext2DCanvas | ex.ExcaliburGraphicsContextWebGL;
 
@@ -142,7 +120,30 @@ describe.runIf(isWindows && isChromium)('A Text Graphic', () => {
     expect(sut.height).toBe(currentBounds.height * 2);
     expect(sut.localBounds).toEqual(currentBounds.scale(ex.vec(2, 2)));
   });
-  describe('@visual', () => {
+
+  /**
+   * for now, only run the Text tests on Windows + Chromium because
+   * there are too many subtle differences in rendering text
+   * across browser/os combos.
+   *
+   * Screenshot assertions will need to be split apart by platform + browser. They
+   * currently only work on Windows + Chromium. If you add a new platform+browser combo, you
+   * will need to create those screenshots. There are Linux ones left over from before but I am
+   * not sure if they are the correct ones, as we had issues getting them to pass
+   * on any Linux+Chrome/Chromium combo after migrating from Karma.
+   *
+   * Notes for if we do enable other platforms:
+   *
+   * Linux (Chrome):
+   *  - There seems to be +1 height difference per-line in text height. This can
+   *    be accounted for by asserting `expect(height).toBeCloseTo(expectedHeight, -numberOfLines)`
+   *    This could be a legit bug
+   *
+   *  - Text rendering on Chrome between GitHub Linux vs local Linux are different somehow. Tried
+   *    all kinds of flags, but text quality differs quite a bit. Can be fixed to pass
+   *    some linux screenshots by setting quality of the font to 3, or in one case 10.
+   */
+  describe.runIf(isWindows && isChromium)('@visual', () => {
     it('can write text', async () => {
       const sut = new ex.Text({
         text: 'green text',
