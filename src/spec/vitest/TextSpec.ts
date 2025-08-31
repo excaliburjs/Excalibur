@@ -150,39 +150,40 @@ describe('A Text Graphic', () => {
     expect(sut.localBounds).toEqual(currentBounds.scale(ex.vec(2, 2)));
   });
 
-  it('can have width and height', () => {
-    const sut = new ex.Text({
-      text: 'some extra long text that we want to measure',
-      color: ex.Color.Green,
-      font: new ex.Font({
+  describe('@visual', () => {
+    // measurement tests do not screenshot but are still affected by browser rendering,
+    // so we'll group them in with the visual
+    it('can have width and height', () => {
+      const sut = new ex.Text({
+        text: 'some extra long text that we want to measure',
+        color: ex.Color.Green,
+        font: new ex.Font({
+          family: 'Open Sans',
+          size: 18,
+          quality: 1,
+          padding: 0
+        })
+      });
+
+      expect(sut.width).toBeCloseTo(386.9, -1);
+      expect(sut.height).toBeCloseTo(18, 0);
+      expect(sut.localBounds.width).toBeCloseTo(386.9, -1);
+      expect(sut.localBounds.height).toBeCloseTo(18, 0);
+    });
+
+    it('can measure text for a font', () => {
+      const sut = new ex.Font({
         family: 'Open Sans',
         size: 18,
         quality: 1,
         padding: 0
-      })
+      });
+
+      const bounds = sut.measureText('some extra long text that we want to measure');
+
+      expect(bounds.width).toBeCloseTo(386.9, -1);
+      expect(bounds.height).toBeCloseTo(18, 0);
     });
-
-    expect(sut.width).toBeCloseTo(386.9, -1);
-    expect(sut.height).toBeCloseTo(18, 0);
-    expect(sut.localBounds.width).toBeCloseTo(386.9, -1);
-    expect(sut.localBounds.height).toBeCloseTo(18, 0);
-  });
-
-  it('can measure text for a font', () => {
-    const sut = new ex.Font({
-      family: 'Open Sans',
-      size: 18,
-      quality: 1,
-      padding: 0
-    });
-
-    const bounds = sut.measureText('some extra long text that we want to measure');
-
-    expect(bounds.width).toBeCloseTo(386.9, -1);
-    expect(bounds.height).toBeCloseTo(18, 0);
-  });
-
-  describe('@visual', () => {
     it('can write text', async () => {
       const sut = new ex.Text({
         text: 'green text',
