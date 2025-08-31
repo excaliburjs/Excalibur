@@ -46,9 +46,38 @@ export function waitForFontLoad(font: string, timeout = 2000, interval = 100): P
   });
 }
 
-const isWindows = inject('platform') === 'win32';
-const isLinux = inject('platform') === 'linux';
-const isChromium = inject('browser') === 'chromium';
+/**
+ * Font rendering varies significantly between operating systems and browsers. Even for the same
+ * OS, the presence of certain kinds of fonts or enabled font features can affect this. So
+ * we use a low tolerance to at least ensure we don't break rendering altogether.
+ *
+ * Below are notes from when we only enabled font screenshot tests on Windows+Chrome.
+ * It explains some specific differences that may actually be bugs.
+ *
+ * -------------------------------------------------------------
+ *
+ * for now, only run the Text tests on Windows + Chromium because
+ * there are too many subtle differences in rendering text
+ * across browser/os combos.
+ *
+ * Screenshot assertions will need to be split apart by platform + browser. They
+ * currently only work on Windows + Chromium. If you add a new platform+browser combo, you
+ * will need to create those screenshots. There are Linux ones left over from before but I am
+ * not sure if they are the correct ones, as we had issues getting them to pass
+ * on any Linux+Chrome/Chromium combo after migrating from Karma.
+ *
+ * Notes for if we do enable other platforms:
+ *
+ * Linux (Chrome):
+ *  - There seems to be +1 height difference per-line in text height. This can
+ *    be accounted for by asserting `expect(height).toBeCloseTo(expectedHeight, -numberOfLines)`
+ *    This could be a legit bug
+ *
+ *  - Text rendering on Chrome between GitHub Linux vs local Linux are different somehow. Tried
+ *    all kinds of flags, but text quality differs quite a bit. Can be fixed to pass
+ *    some linux screenshots by setting quality of the font to 3, or in one case 10.
+ */
+const IMAGE_TOLERANCE = 0.91;
 
 describe('A Text Graphic', () => {
   let canvasElement: HTMLCanvasElement;
@@ -121,29 +150,39 @@ describe('A Text Graphic', () => {
     expect(sut.localBounds).toEqual(currentBounds.scale(ex.vec(2, 2)));
   });
 
-  /**
-   * for now, only run the Text tests on Windows + Chromium because
-   * there are too many subtle differences in rendering text
-   * across browser/os combos.
-   *
-   * Screenshot assertions will need to be split apart by platform + browser. They
-   * currently only work on Windows + Chromium. If you add a new platform+browser combo, you
-   * will need to create those screenshots. There are Linux ones left over from before but I am
-   * not sure if they are the correct ones, as we had issues getting them to pass
-   * on any Linux+Chrome/Chromium combo after migrating from Karma.
-   *
-   * Notes for if we do enable other platforms:
-   *
-   * Linux (Chrome):
-   *  - There seems to be +1 height difference per-line in text height. This can
-   *    be accounted for by asserting `expect(height).toBeCloseTo(expectedHeight, -numberOfLines)`
-   *    This could be a legit bug
-   *
-   *  - Text rendering on Chrome between GitHub Linux vs local Linux are different somehow. Tried
-   *    all kinds of flags, but text quality differs quite a bit. Can be fixed to pass
-   *    some linux screenshots by setting quality of the font to 3, or in one case 10.
-   */
-  describe.runIf(isWindows && isChromium)('@visual', () => {
+  it('can have width and height', () => {
+    const sut = new ex.Text({
+      text: 'some extra long text that we want to measure',
+      color: ex.Color.Green,
+      font: new ex.Font({
+        family: 'Open Sans',
+        size: 18,
+        quality: 1,
+        padding: 0
+      })
+    });
+
+    expect(sut.width).toBeCloseTo(386.9, -1);
+    expect(sut.height).toBeCloseTo(18, 0);
+    expect(sut.localBounds.width).toBeCloseTo(386.9, -1);
+    expect(sut.localBounds.height).toBeCloseTo(18, 0);
+  });
+
+  it('can measure text for a font', () => {
+    const sut = new ex.Font({
+      family: 'Open Sans',
+      size: 18,
+      quality: 1,
+      padding: 0
+    });
+
+    const bounds = sut.measureText('some extra long text that we want to measure');
+
+    expect(bounds.width).toBeCloseTo(386.9, -1);
+    expect(bounds.height).toBeCloseTo(18, 0);
+  });
+
+  describe('@visual', () => {
     it('can write text', async () => {
       const sut = new ex.Text({
         text: 'green text',
@@ -159,7 +198,7 @@ describe('A Text Graphic', () => {
 
       sut.draw(ctx, 10, 50);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/text.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/text.png', IMAGE_TOLERANCE);
     });
 
     it('can draw multiple lines of text (font)', async () => {
@@ -183,39 +222,7 @@ describe('A Text Graphic', () => {
       expect(sut.height).toBeCloseTo(18 * 3, 0);
       expect(sut.localBounds.height).toBeCloseTo(18 * 3, 0);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/multi-text-win.png');
-    });
-
-    it('can have width and height', () => {
-      const sut = new ex.Text({
-        text: 'some extra long text that we want to measure',
-        color: ex.Color.Green,
-        font: new ex.Font({
-          family: 'Open Sans',
-          size: 18,
-          quality: 1,
-          padding: 0
-        })
-      });
-
-      expect(sut.width).toBeCloseTo(386.9, -1);
-      expect(sut.height).toBeCloseTo(18, 0);
-      expect(sut.localBounds.width).toBeCloseTo(386.9, -1);
-      expect(sut.localBounds.height).toBeCloseTo(18, 0);
-    });
-
-    it('can measure text for a font', () => {
-      const sut = new ex.Font({
-        family: 'Open Sans',
-        size: 18,
-        quality: 1,
-        padding: 0
-      });
-
-      const bounds = sut.measureText('some extra long text that we want to measure');
-
-      expect(bounds.width).toBeCloseTo(386.9, -1);
-      expect(bounds.height).toBeCloseTo(18, 0);
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/multi-text-win.png', IMAGE_TOLERANCE);
     });
 
     it('can flip text vertically and horizontally', async () => {
@@ -235,7 +242,7 @@ describe('A Text Graphic', () => {
       sut.flipVertical = true;
       sut.draw(ctx, 10, 50);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/flipped.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/flipped.png', IMAGE_TOLERANCE);
     });
 
     it('can align fonts and reuse a font', async () => {
@@ -255,7 +262,7 @@ describe('A Text Graphic', () => {
       sut.draw(ctx, 10, 40);
       sut.draw(ctx, 10, 60);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/font-alignment.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/font-alignment.png', IMAGE_TOLERANCE);
     });
 
     it('can rotate text around the middle', async () => {
@@ -274,7 +281,7 @@ describe('A Text Graphic', () => {
       sut.rotation = Math.PI / 2;
       sut.draw(ctx, 10, 50);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/rotated.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/rotated.png', IMAGE_TOLERANCE);
     });
 
     it('can rotate text around the left', async () => {
@@ -294,7 +301,7 @@ describe('A Text Graphic', () => {
       sut.rotation = Math.PI / 2;
       sut.draw(ctx, 10, 50);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/rotated-left.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/rotated-left.png', IMAGE_TOLERANCE);
     });
 
     it('can rotate text around the right', async () => {
@@ -314,7 +321,7 @@ describe('A Text Graphic', () => {
       sut.rotation = -Math.PI / 2;
       sut.draw(ctx, 10, 50);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/rotated-right.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/rotated-right.png', IMAGE_TOLERANCE);
     });
 
     it('can be bold', async () => {
@@ -333,7 +340,7 @@ describe('A Text Graphic', () => {
 
       sut.draw(ctx, 10, 50);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/bold-win.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/bold-win.png', IMAGE_TOLERANCE);
     });
 
     it('can be italic', async () => {
@@ -352,7 +359,7 @@ describe('A Text Graphic', () => {
 
       sut.draw(ctx, 10, 50);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/italic.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/italic.png', IMAGE_TOLERANCE);
     });
 
     it('can have line height', async () => {
@@ -370,7 +377,7 @@ describe('A Text Graphic', () => {
 
       sut.draw(ctx, 10, 10);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/line-height-win.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/line-height-win.png', IMAGE_TOLERANCE);
     });
 
     it('can have a shadow', async () => {
@@ -393,7 +400,7 @@ describe('A Text Graphic', () => {
 
       sut.draw(ctx, 10, 50);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/shadow.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/shadow.png', IMAGE_TOLERANCE);
     });
 
     it('can reuse a font', async () => {
@@ -418,7 +425,7 @@ describe('A Text Graphic', () => {
       text2.draw(ctx, 10, 40);
       ctx.flush();
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/reuse-font-win.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/reuse-font-win.png', IMAGE_TOLERANCE);
     });
 
     it('can draw large pieces of text', async () => {
@@ -533,7 +540,7 @@ describe('A Text Graphic', () => {
       sut.draw(ctx, 10, 50);
       ctx.flush();
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/long-text.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/long-text.png', IMAGE_TOLERANCE);
     });
 
     it('can do some simple shadowing', async () => {
@@ -570,7 +577,7 @@ describe('A Text Graphic', () => {
       ctx.clear();
       sut.draw(ctx, 0, 50);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/spritefont-shadow.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/spritefont-shadow.png', IMAGE_TOLERANCE);
     });
 
     it('can rotate spritefont text around the middle', async () => {
@@ -603,7 +610,7 @@ describe('A Text Graphic', () => {
       sut.rotation = Math.PI / 2;
       sut.draw(ctx, 10, 40);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/rotated-spritefont.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/rotated-spritefont.png', IMAGE_TOLERANCE);
     });
 
     it('can align fonts and reuse a spritefont', async () => {
@@ -637,7 +644,7 @@ describe('A Text Graphic', () => {
       sut.draw(ctx, 0, 40);
       sut.draw(ctx, 0, 60);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/spritefont-alignment.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/spritefont-alignment.png', IMAGE_TOLERANCE);
     });
 
     it('can draw multiple lines of text (spritefont)', async () => {
@@ -675,67 +682,7 @@ describe('A Text Graphic', () => {
       expect(sut.localBounds.width).toBeCloseTo(80);
       expect(sut.localBounds.height).toBeCloseTo(48);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/multi-text-spritefont.png');
-    });
-
-    it('can measure text for a spritefont', async () => {
-      const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
-      await spriteFontImage.load();
-      const spriteFontSheet = ex.SpriteSheet.fromImageSource({
-        image: spriteFontImage,
-        grid: {
-          rows: 3,
-          columns: 16,
-          spriteWidth: 16,
-          spriteHeight: 16
-        }
-      });
-
-      const sut = new ex.SpriteFont({
-        alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
-        caseInsensitive: true,
-        spriteSheet: spriteFontSheet,
-        spacing: -6
-      });
-
-      const bounds = sut.measureText('some extra long text that we want to measure');
-      expect(bounds.width).toBeCloseTo(440, -1);
-      expect(bounds.height).toBeCloseTo(16, 0);
-    });
-
-    it('can word wrap text for a spritefont', async () => {
-      const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
-      await spriteFontImage.load();
-      const spriteFontSheet = ex.SpriteSheet.fromImageSource({
-        image: spriteFontImage,
-        grid: {
-          rows: 3,
-          columns: 16,
-          spriteWidth: 16,
-          spriteHeight: 16
-        }
-      });
-
-      const spriteFont = new ex.SpriteFont({
-        alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
-        caseInsensitive: true,
-        spriteSheet: spriteFontSheet,
-        spacing: -4
-      });
-
-      const sut = new ex.Text({
-        text: 'some super long text that should wrap after 100 pixels',
-        color: ex.Color.Green,
-        font: spriteFont,
-        maxWidth: 100
-      });
-
-      canvasElement.width = 100;
-      ctx.clear();
-
-      sut.draw(ctx, 0, 0);
-
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/sprite-font-text-wrap.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/multi-text-spritefont.png', IMAGE_TOLERANCE);
     });
 
     it('can word wrap text for a normal font', async () => {
@@ -761,7 +708,7 @@ describe('A Text Graphic', () => {
 
       await new Promise((r) => setTimeout(r, 1000));
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/font-text-wrap-win.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/font-text-wrap-win.png', IMAGE_TOLERANCE);
     });
   });
 
@@ -978,6 +925,79 @@ describe('A Text Graphic', () => {
       expect(sut.font).not.toBe(clone.font);
     });
 
+    it('will log warnings when there are issues', async () => {
+      const logger = ex.Logger.getInstance();
+      const warnSpy = vi.spyOn(logger, 'warnOnce');
+
+      const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
+
+      await spriteFontImage.load();
+
+      const spriteFontSheet = ex.SpriteSheet.fromImageSource({
+        image: spriteFontImage,
+        grid: {
+          rows: 1,
+          columns: 16,
+          spriteWidth: 16,
+          spriteHeight: 16
+        }
+      });
+
+      const spriteFont = new ex.SpriteFont({
+        alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
+        caseInsensitive: true,
+        spacing: -5,
+        spriteSheet: spriteFontSheet
+      });
+
+      const sut = new ex.Text({
+        text: 'a',
+        font: spriteFont
+      });
+
+      sut.text = '~';
+      sut.draw(ctx, 0, 0);
+
+      expect(warnSpy.mock.calls[0]).toEqual([
+        "SpriteFont - Cannot find letter '~' in configured alphabet '0123456789abcdefghijklmnopqrstuvwxyz,!'&.\"?- '."
+      ]);
+      expect(warnSpy.mock.calls[1]).toEqual([
+        'There maybe be more issues in the SpriteFont configuration. No additional warnings will be logged.'
+      ]);
+      warnSpy.mockReset();
+      sut.text = '?';
+      sut.draw(ctx, 0, 0);
+      expect(warnSpy.mock.calls[0]).toEqual(["SpriteFont - Cannot find sprite for '?' at index '42' in configured SpriteSheet"]);
+      expect(warnSpy.mock.calls[1]).toEqual([
+        'There maybe be more issues in the SpriteFont configuration. No additional warnings will be logged.'
+      ]);
+    });
+
+    it('can measure text for a spritefont', async () => {
+      const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
+      await spriteFontImage.load();
+      const spriteFontSheet = ex.SpriteSheet.fromImageSource({
+        image: spriteFontImage,
+        grid: {
+          rows: 3,
+          columns: 16,
+          spriteWidth: 16,
+          spriteHeight: 16
+        }
+      });
+
+      const sut = new ex.SpriteFont({
+        alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
+        caseInsensitive: true,
+        spriteSheet: spriteFontSheet,
+        spacing: -6
+      });
+
+      const bounds = sut.measureText('some extra long text that we want to measure');
+      expect(bounds.width).toBeCloseTo(440, -1);
+      expect(bounds.height).toBeCloseTo(16, 0);
+    });
+
     describe('@visual', () => {
       it('can specify a spritefont', async () => {
         const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
@@ -1074,56 +1094,43 @@ describe('A Text Graphic', () => {
 
         sut.draw(ctx, 0, 0);
 
-        await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/sprite-font-line-height.png');
+        await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/sprite-font-line-height.png', IMAGE_TOLERANCE);
+      });
+
+      it('can word wrap text for a spritefont', async () => {
+        const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
+        await spriteFontImage.load();
+        const spriteFontSheet = ex.SpriteSheet.fromImageSource({
+          image: spriteFontImage,
+          grid: {
+            rows: 3,
+            columns: 16,
+            spriteWidth: 16,
+            spriteHeight: 16
+          }
+        });
+
+        const spriteFont = new ex.SpriteFont({
+          alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
+          caseInsensitive: true,
+          spriteSheet: spriteFontSheet,
+          spacing: -4
+        });
+
+        const sut = new ex.Text({
+          text: 'some super long text that should wrap after 100 pixels',
+          color: ex.Color.Green,
+          font: spriteFont,
+          maxWidth: 100
+        });
+
+        canvasElement.width = 100;
+        ctx.clear();
+
+        sut.draw(ctx, 0, 0);
+
+        await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/sprite-font-text-wrap.png', IMAGE_TOLERANCE);
       });
     });
-  });
-
-  it('will log warnings when there are issues', async () => {
-    const logger = ex.Logger.getInstance();
-    const warnSpy = vi.spyOn(logger, 'warnOnce');
-
-    const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
-
-    await spriteFontImage.load();
-
-    const spriteFontSheet = ex.SpriteSheet.fromImageSource({
-      image: spriteFontImage,
-      grid: {
-        rows: 1,
-        columns: 16,
-        spriteWidth: 16,
-        spriteHeight: 16
-      }
-    });
-
-    const spriteFont = new ex.SpriteFont({
-      alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
-      caseInsensitive: true,
-      spacing: -5,
-      spriteSheet: spriteFontSheet
-    });
-
-    const sut = new ex.Text({
-      text: 'a',
-      font: spriteFont
-    });
-
-    sut.text = '~';
-    sut.draw(ctx, 0, 0);
-
-    expect(warnSpy.mock.calls[0]).toEqual([
-      "SpriteFont - Cannot find letter '~' in configured alphabet '0123456789abcdefghijklmnopqrstuvwxyz,!'&.\"?- '."
-    ]);
-    expect(warnSpy.mock.calls[1]).toEqual([
-      'There maybe be more issues in the SpriteFont configuration. No additional warnings will be logged.'
-    ]);
-    warnSpy.mockReset();
-    sut.text = '?';
-    sut.draw(ctx, 0, 0);
-    expect(warnSpy.mock.calls[0]).toEqual(["SpriteFont - Cannot find sprite for '?' at index '42' in configured SpriteSheet"]);
-    expect(warnSpy.mock.calls[1]).toEqual([
-      'There maybe be more issues in the SpriteFont configuration. No additional warnings will be logged.'
-    ]);
   });
 });

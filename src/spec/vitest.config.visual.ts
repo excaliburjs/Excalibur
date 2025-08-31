@@ -27,14 +27,13 @@ export default defineConfig(
 
         instances: [
           {
-            name: 'visual (chrome)',
             browser: 'chromium',
             provide: {
               browser: 'chromium',
               platform: os.platform()
             },
             launch: {
-              channel: 'chrome',
+              channel: 'chromium',
               // we pass in a whole bunch of args to try and make rendering as consistent as possible across
               // operating systems.
               ignoreDefaultArgs: ['--disable-render-backgrounding', '--disable-remote-fonts', '--font-render-hinting'],
