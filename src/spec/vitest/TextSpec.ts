@@ -25,25 +25,21 @@ declare global {
   }
 }
 
-/**
- *
- */
-export function waitForFontLoad(font: string, timeout = 2000, interval = 100): Promise<boolean> {
-  return new Promise((resolve, reject) => {
-    // repeatedly poll check
-    const poller = setInterval(async () => {
-      try {
-        await document.fonts.load(font);
-      } catch (err) {
-        reject(err);
-      }
-      if (document.fonts.check(font)) {
-        clearInterval(poller);
-        resolve(true);
-      }
-    }, interval);
-    setTimeout(() => clearInterval(poller), timeout);
+function waitForSheet(link: HTMLLinkElement) {
+  return new Promise<void>((res, rej) => {
+    link.addEventListener('load', () => res(), { once: true });
+    link.addEventListener('error', () => rej(new Error('stylesheet failed to load')), { once: true });
   });
+}
+
+async function waitFace(desc: string, text = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789') {
+  const faces = await document.fonts.load(desc, text);
+  if (!faces || faces.length === 0) {
+    throw new Error(`No @font-face matched: ${desc}`);
+  }
+  if (!document.fonts.check(desc, text)) {
+    throw new Error(`Font not ready after load(): ${desc}`);
+  }
 }
 
 /**
@@ -84,14 +80,19 @@ describe('A Text Graphic', () => {
   let ctx: ex.ExcaliburGraphicsContext2DCanvas | ex.ExcaliburGraphicsContextWebGL;
 
   beforeAll(async () => {
-    const fontface = document.createElement('link');
-    fontface.href = '/src/spec/assets/images/GraphicsTextSpec/fonts.css';
-    fontface.rel = 'stylesheet';
-    document.head.appendChild(fontface);
-    await waitForFontLoad('18px Open Sans');
-    await waitForFontLoad('bold 18px Open Sans');
-    await waitForFontLoad('italic bold 18px Open Sans');
-    await waitForFontLoad('italic 18px Open Sans');
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = '/src/spec/assets/images/GraphicsTextSpec/fonts.css';
+    document.head.appendChild(link);
+    await waitForSheet(link);
+
+    await Promise.all([
+      waitFace('400 1em "Open Sans"'),
+      waitFace('700 1em "Open Sans"'),
+      waitFace('italic 400 1em "Open Sans"'),
+      waitFace('italic 700 1em "Open Sans"')
+    ]);
+
     await document.fonts.ready;
   });
 
