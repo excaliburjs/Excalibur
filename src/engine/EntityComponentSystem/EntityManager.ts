@@ -104,10 +104,12 @@ export class EntityManager {
       const childAddedHandler = this._childAddedHandlerMap.get(entity);
       if (childAddedHandler) {
         entity.childrenAdded$.unsubscribe(childAddedHandler);
+        this._childAddedHandlerMap.delete(entity);
       }
       const childRemovedHandler = this._childRemovedHandlerMap.get(entity);
       if (childRemovedHandler) {
         entity.childrenRemoved$.unsubscribe(childRemovedHandler);
+        this._childRemovedHandlerMap.delete(entity);
       }
 
       // stats

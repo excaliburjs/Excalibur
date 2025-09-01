@@ -72,6 +72,7 @@ export class PointerEventsToObjectDispatcher<TObject extends { events: EventEmit
     const proxy = this._objectToProxy.get(object);
     if (proxy) {
       const index = this._proxies.indexOf(proxy);
+      this._objectToProxy.delete(object);
       if (index > -1) {
         this._proxies.splice(index, 1);
       }

@@ -116,6 +116,7 @@ const query = new Query({})
 - Fixed CollidePolygonPolygon crash with some defense against invalid separation
 - Fixed issue with PostProcessor where it would not run correctly if no actors present
 - Removed warning in development for unadded entities
+- Fixed memory leaks from retained entities in `Map<Entity>`
 
 ### Updates
 
