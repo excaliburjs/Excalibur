@@ -142,9 +142,11 @@ export class QueryManager {
     }
     if (addComponent) {
       entity.componentAdded$.unsubscribe(addComponent);
+      this._addComponentHandlers.delete(entity);
     }
     if (removeComponent) {
       entity.componentRemoved$.unsubscribe(removeComponent);
+      this._removeComponentHandlers.delete(entity);
     }
 
     // Handle tags
@@ -156,9 +158,11 @@ export class QueryManager {
 
     if (addTag) {
       entity.tagAdded$.unsubscribe(addTag);
+      this._addTagHandlers.delete(entity);
     }
     if (removeTag) {
       entity.tagRemoved$.unsubscribe(removeTag);
+      this._removeTagHandlers.delete(entity);
     }
   }
 
