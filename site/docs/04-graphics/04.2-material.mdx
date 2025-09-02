@@ -170,7 +170,7 @@ var waterMaterial = game.graphicsContext.createMaterial({
   fragmentSource: waterFrag,
   color: ex.Color.fromRGB(55, 0, 200, .6),
   images: {
-    u_noise: noise
+    u_noise: noise  // this will be referenced in your glsl shader as `uniform sampler2D u_noise;`
   }
 });
 ```
