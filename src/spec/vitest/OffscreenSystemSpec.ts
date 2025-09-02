@@ -1,7 +1,7 @@
 import * as ex from '@excalibur';
 import { GraphicsComponent, TransformComponent } from '@excalibur';
 
-import { TestUtils } from './util/TestUtils';
+import { TestUtils } from '../__util__/TestUtils';
 
 describe('The OffscreenSystem', () => {
   let entities: ex.Entity[];

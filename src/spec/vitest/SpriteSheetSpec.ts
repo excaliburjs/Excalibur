@@ -65,66 +65,68 @@ describe('A SpriteSheet for Graphics', () => {
     expect(ss.sprites[0].height).toBe(16);
   });
 
-  it('can be created from a grid with interesting spacing', async () => {
-    const image = new ex.ImageSource('/src/spec/assets/images/SpriteSheetSpec/kenny-cards.png');
+  describe('@visual', () => {
+    it('can be created from a grid with interesting spacing', async () => {
+      const image = new ex.ImageSource('/src/spec/assets/images/SpriteSheetSpec/kenny-cards.png');
 
-    await image.load();
+      await image.load();
 
-    const ss = ex.SpriteSheet.fromImageSource({
-      image,
-      grid: {
-        rows: 4,
-        columns: 14,
-        spriteWidth: 42,
-        spriteHeight: 60
-      },
-      spacing: {
-        originOffset: { x: 11, y: 2 },
-        margin: { x: 23, y: 5 }
-      }
+      const ss = ex.SpriteSheet.fromImageSource({
+        image,
+        grid: {
+          rows: 4,
+          columns: 14,
+          spriteWidth: 42,
+          spriteHeight: 60
+        },
+        spacing: {
+          originOffset: { x: 11, y: 2 },
+          margin: { x: 23, y: 5 }
+        }
+      });
+
+      ctx.clear();
+
+      ss.sprites[12].draw(ctx, 0, 0);
+      ss.sprites[24].draw(ctx, 60, 0);
+      ss.sprites[36].draw(ctx, 0, 60);
+      ss.sprites[48].draw(ctx, 60, 60);
+
+      expect(ss.sprites.length).toBe(4 * 14);
+
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/SpriteSheetSpec/NewSpriteSpacing.png');
     });
 
-    ctx.clear();
+    it('can be created from with spacing using vectors', async () => {
+      const image = new ex.ImageSource('/src/spec/assets/images/SpriteSheetSpec/kenny-cards.png');
 
-    ss.sprites[12].draw(ctx, 0, 0);
-    ss.sprites[24].draw(ctx, 60, 0);
-    ss.sprites[36].draw(ctx, 0, 60);
-    ss.sprites[48].draw(ctx, 60, 60);
+      await image.load();
 
-    expect(ss.sprites.length).toBe(4 * 14);
+      const ss = ex.SpriteSheet.fromImageSource({
+        image,
+        grid: {
+          rows: 4,
+          columns: 14,
+          spriteWidth: 42,
+          spriteHeight: 60
+        },
+        spacing: {
+          originOffset: ex.vec(11, 2),
+          margin: ex.vec(23, 5)
+        }
+      });
 
-    await expect(canvasElement).toEqualImage('/src/spec/assets/images/SpriteSheetSpec/NewSpriteSpacing.png');
-  });
+      ctx.clear();
 
-  it('can be created from with spacing using vectors', async () => {
-    const image = new ex.ImageSource('/src/spec/assets/images/SpriteSheetSpec/kenny-cards.png');
+      ss.sprites[12].draw(ctx, 0, 0);
+      ss.sprites[24].draw(ctx, 60, 0);
+      ss.sprites[36].draw(ctx, 0, 60);
+      ss.sprites[48].draw(ctx, 60, 60);
 
-    await image.load();
+      expect(ss.sprites.length).toBe(4 * 14);
 
-    const ss = ex.SpriteSheet.fromImageSource({
-      image,
-      grid: {
-        rows: 4,
-        columns: 14,
-        spriteWidth: 42,
-        spriteHeight: 60
-      },
-      spacing: {
-        originOffset: ex.vec(11, 2),
-        margin: ex.vec(23, 5)
-      }
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/SpriteSheetSpec/NewSpriteSpacing.png');
     });
-
-    ctx.clear();
-
-    ss.sprites[12].draw(ctx, 0, 0);
-    ss.sprites[24].draw(ctx, 60, 0);
-    ss.sprites[36].draw(ctx, 0, 60);
-    ss.sprites[48].draw(ctx, 60, 60);
-
-    expect(ss.sprites.length).toBe(4 * 14);
-
-    await expect(canvasElement).toEqualImage('/src/spec/assets/images/SpriteSheetSpec/NewSpriteSpacing.png');
   });
 
   it('can retrieve a sprite by x,y', async () => {

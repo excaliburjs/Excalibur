@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-import { TestUtils } from './util/TestUtils';
+import { TestUtils } from '../__util__/TestUtils';
 
 describe('A Director', () => {
   it('exists', () => {
@@ -122,7 +122,7 @@ describe('A Director', () => {
     expect(sut.getSceneName(new ex.Scene())).toBe(null);
   });
 
-  it('will draw a start scene transition', async () => {
+  it('@visual will draw a start scene transition', async () => {
     const engine = TestUtils.engine();
     const clock = engine.clock as ex.TestClock;
     clock.start();

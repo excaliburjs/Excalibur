@@ -109,14 +109,25 @@ describe('A Raster', () => {
     expect(sut.cloneRasterOptions()).toEqual(originalRasterOptions);
   });
 
-  it('can be drawn', async () => {
-    const sut = new TestRaster();
-    vi.spyOn(sut, 'rasterize');
-    vi.spyOn(sut, 'execute');
-    sut.draw(ctx, 0, 0);
-    expect(sut.execute).toHaveBeenCalledTimes(1);
+  describe('@visual', () => {
+    it('can be drawn', async () => {
+      const sut = new TestRaster();
+      vi.spyOn(sut, 'rasterize');
+      vi.spyOn(sut, 'execute');
+      sut.draw(ctx, 0, 0);
+      expect(sut.execute).toHaveBeenCalledTimes(1);
 
-    await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsRasterSpec/raster.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsRasterSpec/raster.png');
+    });
+
+    it('can have the quality increased', async () => {
+      const sut = new TestRaster({
+        quality: 4
+      });
+      sut.quality = 4;
+      sut.draw(ctx, 25, 25);
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsRasterSpec/raster-quality.png');
+    });
   });
 
   it('knows when it must be re-rastered', () => {
@@ -126,15 +137,6 @@ describe('A Raster', () => {
     expect(sut.dirty).toBe(false);
     sut.smoothing = false;
     expect(sut.dirty).toBe(true);
-  });
-
-  it('can have the quality increased', async () => {
-    const sut = new TestRaster({
-      quality: 4
-    });
-    sut.quality = 4;
-    sut.draw(ctx, 25, 25);
-    await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsRasterSpec/raster-quality.png');
   });
 
   it('can have padding and maintain correct size and not grow after each draw', () => {

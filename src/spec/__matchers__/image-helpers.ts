@@ -1,20 +1,23 @@
 /* eslint-disable no-console */
-// port of excalibur-jasmine for jest. might be a good idea to publish this as its own package.
-import { convertSourceVisualToImageData, ImageVisual } from './convert';
 import pixelmatch from 'pixelmatch';
 
-import type * as ex from '@excalibur';
-import { expect } from 'vitest';
+type ImageVisual = HTMLCanvasElement | CanvasRenderingContext2D | HTMLImageElement | string;
+export const convertSourceVisualToImageData = async (visual: ImageVisual): Promise<ImageData> => {
+  if (visual instanceof HTMLCanvasElement) {
+    return convertCanvas(visual);
+  }
+  if (visual instanceof CanvasRenderingContext2D) {
+    return convertContext(visual);
+  }
+  if (visual instanceof HTMLImageElement) {
+    return await convertImage(visual);
+  }
+  if (typeof visual === 'string') {
+    return await convertFilePath(visual);
+  }
+};
 
-// seems to not exist in pixelmatch?
-type PixelmatchOptions = any;
-
-export declare type ExcaliburVisual = string | HTMLImageElement | HTMLCanvasElement | CanvasRenderingContext2D;
-
-export type Visual = string | HTMLImageElement | HTMLCanvasElement | CanvasRenderingContext2D | ImageData;
-export type DiffOptions = PixelmatchOptions;
-
-const flushSourceToImageData = async (source: Visual) => {
+export const flushSourceToImageData = async (source: Visual) => {
   const canvas = document.createElement('canvas');
   const context = canvas.getContext('2d')!;
 
@@ -77,7 +80,7 @@ const flushSourceToImageData = async (source: Visual) => {
   return [context.getImageData(0, 0, context.canvas.width, context.canvas.height), context] as const;
 };
 
-const compareImageData = async (actual: Visual, expected: Visual, tolerance: number) => {
+export const compareImageData = async (actual: Visual, expected: Visual, tolerance: number) => {
   const [actualData, actualCtx] = await flushSourceToImageData(actual);
   const [expectedData, expectedCtx] = await flushSourceToImageData(expected);
 
@@ -124,81 +127,63 @@ const compareImageData = async (actual: Visual, expected: Visual, tolerance: num
   }
 };
 
-expect.extend({
-  toEqualImage: async (actual: Visual, expected: Visual, tolerance: number = 0.995) => {
-    return await compareImageData(actual, expected, tolerance);
-  },
+const convertContext = (visual: CanvasRenderingContext2D): ImageData => {
+  return visual.getImageData(0, 0, visual.canvas.width, visual.canvas.height);
+};
 
-  toBeVector: (actual: ex.Vector, expected: ex.Vector, delta: number = 0.01) => {
-    const distance = actual.distance(expected);
-    if (distance <= delta) {
-      return {
-        pass: true,
-        message: () => `Vector within delta ${distance} <= ${delta}`
-      };
-    } else {
-      return {
-        pass: false,
-        message: () =>
-          `Expected ex.Vector${actual.toString()} to be within ${delta} of ex.Vector${expected.toString()}, but was ${distance} distance apart`
-      };
+const convertCanvas = (canvas: HTMLCanvasElement): ImageData => {
+  const ctx = canvas.getContext('2d');
+  const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  return data;
+};
+
+const convertFilePath = async (imagePath: string, baseImagePath: string = ''): Promise<ImageData> => {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+
+  const img = new Image();
+  img.decoding = 'sync';
+  if (imagePath) {
+    img.src = baseImagePath + imagePath + '?_=' + Math.random();
+    try {
+      await img.decode();
+    } catch {
+      console.warn(`Image could not be decoded, check image src: ${img.src}`);
     }
-  },
-  toHaveValues: (actual: ex.Actor, expected: ex.ActorArgs) => {
-    let message = 'Expected actor to have properties:\r\n\r\n';
-    let passed = true;
-    for (const key in expected) {
-      if (actual[key] !== expected[key]) {
-        passed = false;
-        message += `Expected actor.${key} to be ${expected[key]}, but got ${actual[key]}\r\n`;
-      }
-    }
-
-    return {
-      pass: passed,
-      message: () => (passed ? 'Actor properties match' : message)
-    };
-  },
-  toHaveLoadedImages: async (actual: HTMLCanvasElement, images: ExcaliburVisual[], tolerance: number = 0.995) => {
-    const results: Promise<ImageData>[] = [];
-    for (const image of images) {
-      results.push(convertSourceVisualToImageData(image));
-    }
-
-    const data = await Promise.all(results);
-
-    let pass = true;
-    let msg: string | undefined;
-
-    for (const imgData of data) {
-      const result = await compareImageData(actual, imgData, tolerance);
-      if (!result.pass) {
-        pass = false;
-        msg = result.message();
-        break;
-      }
-    }
-
-    return {
-      pass,
-      message: () => msg
-    };
   }
-});
 
-interface CustomMatchers<R = unknown> {
-  /**
-   * Compare two images for pixel equality
-   * @param expected - The expected image to compare against
-   * @param tolerance - The difference tolerance level. Default is 0.995
-   */
-  toEqualImage(expected: Visual, tolerance?: number): Promise<R>;
-  toBeVector(expected: ex.Vector, delta?: number): R;
-  toHaveValues(expected: ex.ActorArgs): R;
-  toHaveLoadedImages(images: ExcaliburVisual[], tolerance?: number): Promise<R>;
-}
+  canvas.width = img.width;
+  canvas.height = img.height;
 
-declare module 'vitest' {
-  interface Assertion<T = any> extends CustomMatchers<T> {}
-  interface AsymmetricMatchersContaining extends CustomMatchers {}
-}
+  ctx.drawImage(img, 0, 0);
+  return ctx.getImageData(0, 0, img.width, img.height);
+};
+
+const convertImage = async (image: HTMLImageElement): Promise<ImageData> => {
+  const canvas = document.createElement('canvas');
+  image.decoding = 'sync';
+
+  if (image.src) {
+    try {
+      await image.decode();
+    } catch {
+      console.warn(`Image could not be decoded, check image src: ${image.src}`);
+    }
+  }
+
+  canvas.width = image.width;
+  canvas.height = image.height;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(image, 0, 0);
+
+  return ctx.getImageData(0, 0, image.width, image.height);
+};
+
+export type { ImageVisual };
+
+// seems to not exist in pixelmatch?
+type PixelmatchOptions = any;
+export declare type ExcaliburVisual = string | HTMLImageElement | HTMLCanvasElement | CanvasRenderingContext2D;
+
+export type Visual = string | HTMLImageElement | HTMLCanvasElement | CanvasRenderingContext2D | ImageData;
+export type DiffOptions = PixelmatchOptions;

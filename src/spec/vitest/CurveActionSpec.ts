@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 
-import { TestUtils } from './util/TestUtils';
+import { TestUtils } from '../__util__/TestUtils';
 
 describe('A actor can curve', () => {
   let engine: ex.Engine;

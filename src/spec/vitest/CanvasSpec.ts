@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-import { TestUtils } from './util/TestUtils';
+import { TestUtils } from '../__util__/TestUtils';
 
 describe('A Canvas Graphic', () => {
   it('exists', () => {
@@ -30,7 +30,7 @@ describe('A Canvas Graphic', () => {
     expect(sut.height).toBe(clone.height);
   });
 
-  it('can be drawn using the 2d canvas api', async () => {
+  it('@visual can be drawn using the 2d canvas api', async () => {
     const sut = new ex.Canvas({
       width: 100,
       height: 100,
@@ -102,7 +102,7 @@ describe('A Canvas Graphic', () => {
     expect(sut.execute).toHaveBeenCalledTimes(4);
   });
 
-  it('can be centered with the specified dimensions in an actor', async () => {
+  it('@visual can be centered with the specified dimensions in an actor', async () => {
     const engine = TestUtils.engine({ width: 100, height: 100 });
     const clock = engine.clock as ex.TestClock;
     await TestUtils.runToReady(engine);

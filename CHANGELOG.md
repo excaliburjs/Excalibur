@@ -15,6 +15,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Fixed ex.Font measureText always using 10px sans-serif on the first call on some browsers
 - Added a new `ex.Sound({...})` option back constructor to set all the same props available on sound
 - Added a new `ex.SoundManager` type for managing groups of audio/sound effects/music volume in an easier way
 

@@ -100,56 +100,58 @@ describe('A Graphic', () => {
     expect(sut.cloneGraphicOptions()).toEqual(originalOptions);
   });
 
-  it('can draw a graphic implementation', async () => {
-    ctx.clear();
-    const sut = new TestGraphic();
-    sut.draw(ctx, 25, 25);
-    await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicSpec/base.png');
-  });
+  describe('@visual', () => {
+    it('can draw a graphic implementation', async () => {
+      ctx.clear();
+      const sut = new TestGraphic();
+      sut.draw(ctx, 25, 25);
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicSpec/base.png');
+    });
 
-  it('has local bounds based on the width/height', () => {
-    const sut = new TestGraphic();
-    expect(sut.localBounds).toEqual(new ex.BoundingBox(0, 0, sut.width, sut.height));
-  });
+    it('has local bounds based on the width/height', () => {
+      const sut = new TestGraphic();
+      expect(sut.localBounds).toEqual(new ex.BoundingBox(0, 0, sut.width, sut.height));
+    });
 
-  it('can rotate a graphic implementation', async () => {
-    ctx.clear();
-    const sut = new TestGraphic();
-    sut.rotation = Math.PI / 4;
-    sut.draw(ctx, 25, 25);
-    await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicSpec/rotated.png');
-  });
+    it('can rotate a graphic implementation', async () => {
+      ctx.clear();
+      const sut = new TestGraphic();
+      sut.rotation = Math.PI / 4;
+      sut.draw(ctx, 25, 25);
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicSpec/rotated.png');
+    });
 
-  it('can flip a graphic implementation', async () => {
-    ctx.clear();
-    const sut = new TestGraphic();
-    sut.flipHorizontal = true;
-    sut.flipVertical = true;
-    sut.draw(ctx, 25, 25);
-    await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicSpec/flipped.png');
-  });
+    it('can flip a graphic implementation', async () => {
+      ctx.clear();
+      const sut = new TestGraphic();
+      sut.flipHorizontal = true;
+      sut.flipVertical = true;
+      sut.draw(ctx, 25, 25);
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicSpec/flipped.png');
+    });
 
-  it('can scale a graphic implementation', async () => {
-    ctx.clear();
-    const sut = new TestGraphic();
-    sut.scale = ex.vec(2, 2);
-    sut.draw(ctx, 25, 25);
-    await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicSpec/scaled.png');
-  });
+    it('can scale a graphic implementation', async () => {
+      ctx.clear();
+      const sut = new TestGraphic();
+      sut.scale = ex.vec(2, 2);
+      sut.draw(ctx, 25, 25);
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicSpec/scaled.png');
+    });
 
-  it('can set opacity on a graphic implementation', async () => {
-    ctx.clear();
-    const sut = new TestGraphic();
-    sut.opacity = 0.2;
-    sut.draw(ctx, 25, 25);
-    await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicSpec/opacity.png');
-  });
+    it('can set opacity on a graphic implementation', async () => {
+      ctx.clear();
+      const sut = new TestGraphic();
+      sut.opacity = 0.2;
+      sut.draw(ctx, 25, 25);
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicSpec/opacity.png');
+    });
 
-  it('can show a debug rect', async () => {
-    ctx.clear();
-    const sut = new TestGraphic();
-    sut.showDebug = true;
-    sut.draw(ctx, 25, 25);
-    await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicSpec/debug.png');
+    it('can show a debug rect', async () => {
+      ctx.clear();
+      const sut = new TestGraphic();
+      sut.showDebug = true;
+      sut.draw(ctx, 25, 25);
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicSpec/debug.png');
+    });
   });
 });

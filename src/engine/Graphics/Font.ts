@@ -53,6 +53,9 @@ export class Font extends Graphic implements FontRenderer {
       this.shadow.offset = options.shadow.offset ?? this.shadow.offset;
       this.shadow.color = options.shadow.color ?? this.shadow.color;
     }
+
+    // must be created after this is finished setting values
+    this._textMeasurement = new FontTextInstance(this, '', Color.Black);
   }
 
   public clone() {
@@ -142,7 +145,7 @@ export class Font extends Graphic implements FontRenderer {
     }
   }
 
-  private _textMeasurement = new FontTextInstance(this, '', Color.Black);
+  private _textMeasurement: FontTextInstance;
 
   public measureTextWithoutCache(text: string, maxWidth?: number) {
     return this._textMeasurement.measureText(text, maxWidth);
