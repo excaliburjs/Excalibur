@@ -22,7 +22,7 @@ h1 img {
 	height: 100px;
 }
 
-button {
+button, label {
 	font-size: 1em;
 	color: white;
 	background-color: transparent;

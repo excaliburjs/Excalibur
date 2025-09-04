@@ -27,6 +27,7 @@ This is the current implementation of the excalibur playground for sharing small
 
 ## Contribution Wishlist
 
+* Respect system light/dark mode configuration and style accordingly (currently we are dark mode hard coded)
 * Implement iframe embedding
 * Link to source code in github (or anywhere)
 * Support multiple versions of Excalibur (maybe even in progress branches?)
