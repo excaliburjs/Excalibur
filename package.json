@@ -6,6 +6,7 @@
   "scripts": {
     "start": "vite",
     "build": "vite build",
+    "build:types": "npx tsup --loader '.glsl=text' ./Excalibur/src/engine/index.ts --dts",
     "preview": "vite preview"
   },
   "author": "Erik Onarheim",
