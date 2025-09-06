@@ -29,7 +29,7 @@ This can be useful as a way to scale up your game.
 Cameras can implement a number of strategies to track, follow, or exhibit custom behavior in relation to a target. A common reason to use a
 strategy is to have the [[Camera]] follow an [[Actor]].
 
-In order to user the different built-in strategies, you can access [[Camera.strategy]]
+In order to use the different built-in strategies, you can access [[Camera.strategy]].
 
 :::warning
 
@@ -61,13 +61,24 @@ Keep the actor within a circle around the focus
 game.currentScene.camera.strategy.radiusAroundActor(actor, radius);
 ```
 
-Keep the camera limited within camera constraints.  
+Keep the camera limited within the given constraints.  
 Make sure that the camera bounds are at least as large as the viewport size.
 
 ```typescript
 let boundingBox = new BoundingBox(leftBorder, topBorder, rightBorder, bottomBorder);
 game.currentScene.camera.strategy.limitCameraBounds(boundingBox);
 ```
+
+#### Multiple strategies
+
+Multiple strategies can be applied to the camera. Strategies are applied in the order they were added. 
+
+For example: Let's say a `lockToActor` strategy and a `limitCameraBounds` strategy is added, in that order. When the
+strategies are processed, the camera will first lock to the actor, then, as the camera approaches the configured bounds
+of `limitCameraBounds` it is limited to those contraints. 
+
+In this example, the `limitCameraBounds` applies its effect on _top_ of the earlier `lockToActor` strategy. 
+
 
 #### Custom strategies
 
@@ -88,9 +99,54 @@ export interface CameraStrategy<T> {
   /**
    * Camera strategies perform an action to calculate a new focus returned out of the strategy
    */
-  action: (target: T, camera: Camera, engine: Engine, delta: number) => Vector;
+  action: (target: T, camera: Camera, engine: Engine, elapsed: number) => Vector;
 }
 ```
+
+When implementing custom strategies consider referencing the camera's current position with `camera.getFocus()` and
+calculate the next position from that vector. This allows strategies to be composed gracefully. 
+
+LockCameraToActorAxisStrategy sample:
+
+```typescript
+export class LockCameraToActorAxisStrategy implements CameraStrategy<Actor> {
+  constructor(
+    public target: Actor,
+    public axis: Axis
+  ) {}
+  public action = (target: Actor, cam: Camera, _eng: Engine, elapsed: number) => {
+    const center = target.center;
+    const currentFocus = cam.getFocus();
+    if (this.axis === Axis.X) {
+      return new Vector(center.x, currentFocus.y);
+    } else {
+      return new Vector(currentFocus.x, center.y);
+    }
+  };
+}
+```
+
+When configuring your custom strategy the first argument, `target`, can be of any type. While [[Actor]] is commonly the
+target, it can anything, such as a `BoundingBox`.
+
+#### Adding and removing strategies
+
+In the above examples we used convenience helpers, such as `game.currentScene.camera.strategy.lockToActor(actor)`, to
+add strategies to our scene. Occassionally you may need a bit more control over the strategy array. This can be done
+via the following methods and properties:
+
+ - `addStrategy<T extends CameraStrategy<any>[]>(...cameraStrategies: T)`
+    - Adds the given strategy to the end of the strategy array. The built in convenience helpers are wrappers for `addStrategy()`.
+    - Multiple strategies can be passed as arguments and they will be appended to the end of the strategy array. 
+ - `removeStrategy<T>(cameraStrategy: CameraStrategy<T>)`
+    - Removes the given strategy from the strategy array.
+ - `clearAllStrategies()`
+    - Clears all camera strategies from the camera.
+ - `setStrategies<T extends CameraStrategy<any>[]>(cameraStrategies: T)`
+    - Overwrites the current array of strategies with the provided set.
+ - `strategies`
+    - The camera's strategy array 
+
 
 ### Camera shake
 
