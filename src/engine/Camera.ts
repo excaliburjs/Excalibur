@@ -269,6 +269,9 @@ export class Camera implements CanUpdate, CanInitialize {
   protected _follow: Actor;
 
   private _cameraStrategies: CameraStrategy<any>[] = [];
+  public get strategies(): CameraStrategy<any>[] {
+    return this._cameraStrategies;
+  }
 
   public strategy: StrategyContainer = new StrategyContainer(this);
 
@@ -559,11 +562,19 @@ export class Camera implements CanUpdate, CanInitialize {
   }
 
   /**
-   * Adds a new camera strategy to this camera
+   * Adds one or more new camera strategies to this camera
    * @param cameraStrategy Instance of an {@apilink CameraStrategy}
    */
-  public addStrategy<T>(cameraStrategy: CameraStrategy<T>) {
-    this._cameraStrategies.push(cameraStrategy);
+  public addStrategy<T extends CameraStrategy<any>[]>(...cameraStrategies: T) {
+    this._cameraStrategies.push(...cameraStrategies);
+  }
+
+  /**
+   * Sets the strategies of this camera, replacing all existing strategies
+   * @param cameraStrategies Array of {@apilink CameraStrategy}
+   */
+  public setStrategies<T extends CameraStrategy<any>[]>(cameraStrategies: T) {
+    this._cameraStrategies = [...cameraStrategies];
   }
 
   /**
