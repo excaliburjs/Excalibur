@@ -2,6 +2,10 @@ version: '3'
 
 services:
   dev:
+    ports:
+      # vitest ports
+      - 51204:51204
+      - 4173:4173
     build:
       context: .
       dockerfile: docker/Dockerfile

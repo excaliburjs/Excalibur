@@ -22,8 +22,7 @@ export default defineConfig(
         // this will give each test their own environment. disabling this
         // ended up breaking WebGL contexts in some cases
         isolate: true,
-
-        headless: process.env.CI === 'true' ? true : undefined,
+        headless: true,
 
         instances: [
           {

@@ -3,7 +3,7 @@ from ubuntu:22.04
 # ubuntu-latest https://github.com/actions/virtual-environments
 
 # Chrome wants a timezone
-ENV TZ=America/Chicago 
+ENV TZ=America/Chicago
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 RUN apt update
@@ -11,7 +11,7 @@ RUN apt update
 RUN apt install -y wget curl gnupg libnss3-dev libgdk-pixbuf2.0-dev libgtk-3-dev libxss-dev libasound2
 
 # Install node
-RUN curl -sL https://deb.nodesource.com/setup_16.x  | bash -
+RUN curl -sL https://deb.nodesource.com/setup_22.x  | bash -
 RUN apt-get -y install nodejs
 
 

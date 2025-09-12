@@ -18,6 +18,8 @@ export default defineConfig(
       }
     },
     test: {
+      api: { host: '0.0.0.0' },
+      silent: 'passed-only',
       reporters: [['default', { summary: false }], new EngineInstanceReporter(), new MemoryReporter()],
       // enable with --coverage param
       coverage: {
