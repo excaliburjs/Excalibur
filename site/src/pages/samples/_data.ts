@@ -10,8 +10,16 @@ import sampleTactics from './images/tinytactics-small.gif'
 import sampleHtml from './images/html.gif'
 import samplePathfinding from './images/pathfinding.gif'
 import sampleJellyJumper from './images/jelly-jumper.gif'
+import sampleExcalitris from './images/excalitris.gif'
 
 export default [
+  {
+    title: 'Excalitris',
+    image: sampleExcalitris,
+    description: 'A Tetris clone built with Excalibur. Demonstrates using a JavaScript library (React) as UI.',
+    url: 'https://excaliburjs.com/sample-excalitris',
+    source: 'https://github.com/excaliburjs/excalitris',
+  },
   {
     title: 'Jelly Jumper',
     image: sampleJellyJumper,
