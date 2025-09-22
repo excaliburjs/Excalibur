@@ -18,7 +18,7 @@ export default [
     image: sampleExcalitris,
     description: 'A Tetris clone built with Excalibur. Demonstrates using a JavaScript library (React) as UI.',
     url: 'https://excaliburjs.com/sample-excalitris',
-    source: 'https://github.com/excaliburjs/excalitris',
+    source: 'https://github.com/excaliburjs/sample-excalitris',
   },
   {
     title: 'Jelly Jumper',
