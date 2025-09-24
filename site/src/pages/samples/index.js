@@ -7,9 +7,9 @@ import styles from './styles.module.css';
 
 const CardList = ({ items }) => (
   <div className={styles.cards}>
-    {items.map(({ image, title, description, url, source }) => (
+    {items.map(({ image, title, description, url, source, backgroundColor = 'var(--ifm-color-primary)' }) => (
       <div className={styles.card} key={title}>
-        <div className={styles.image}>
+        <div className={styles.image} style={{ backgroundColor }}>
           <img src={image} alt={title} title={title} />
         </div>
         <div className={styles.content}>

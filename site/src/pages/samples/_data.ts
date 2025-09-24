@@ -19,6 +19,7 @@ export default [
     description: 'A Tetris clone built with Excalibur. Demonstrates using a JavaScript library (React) as UI.',
     url: 'https://excaliburjs.com/sample-excalitris',
     source: 'https://github.com/excaliburjs/sample-excalitris',
+    backgroundColor: '#a5105c',
   },
   {
     title: 'Jelly Jumper',
@@ -26,6 +27,7 @@ export default [
     description: 'High fidelity sample of a platforming game with jump physics inspired by Super Mario World!',
     url: 'https://excaliburjs.com/sample-jelly-jumper',
     source: 'https://github.com/excaliburjs/sample-jelly-jumper',
+    backgroundColor: '#1e7050',
   },
   {
     title: 'Pathfinding',
@@ -54,6 +56,7 @@ export default [
     description: 'Example of building grid based movement.',
     url: 'https://codesandbox.io/s/github/excaliburjs/sample-grid',
     source: 'https://github.com/excaliburjs/sample-grid',
+    backgroundColor: '#643a32',
   },
   {
     title: 'Tiled w/ Parcel',
@@ -82,6 +85,7 @@ export default [
     description: 'This is a small platforming example.',
     url: 'https://codesandbox.io/s/github/excaliburjs/sample-platformer',
     source: 'https://github.com/excaliburjs/sample-platformer',
+    backgroundColor: '#5fcde4',
   },
   {
     title: 'Matter.js',
@@ -104,6 +108,7 @@ export default [
       'This is a sample clone of the popular mobile game flappy bird.',
     url: 'https://codesandbox.io/s/github/excaliburjs/excalibird',
     source: 'https://github.com/excaliburjs/excalibird',
+    backgroundColor: '#007fff',
   },
   {
     title: "Shoot 'Em Up",
@@ -111,6 +116,7 @@ export default [
     description: "This is an example of how to create a Shoot 'Em Up game",
     url: 'https://codesandbox.io/s/github/excaliburjs/sample-shootemup',
     source: 'https://github.com/excaliburjs/sample-shootemup',
+    backgroundColor: '#000000',
   },
   {
     title: 'Breakout',
@@ -118,5 +124,6 @@ export default [
     description: 'This is a sample brick breaking game.',
     url: 'https://codesandbox.io/s/github/excaliburjs/sample-breakout',
     source: 'https://github.com/excaliburjs/sample-breakout',
+    backgroundColor: '#020064',
   },
 ]

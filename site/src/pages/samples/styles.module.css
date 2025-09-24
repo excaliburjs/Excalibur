@@ -27,9 +27,11 @@
 }
 
 .card>.image {
-  background: rgba(0, 0, 0, .05);
-  display: block;
+  align-items: center;
+  aspect-ratio: 290 / 265;
+  display: flex;
   flex: 0 0 auto;
+  justify-content: center;
   padding: 0;
   position: relative;
 }
