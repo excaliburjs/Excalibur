@@ -76,11 +76,11 @@ jobs:
       - name: Tests
         run: npm run test:ci -- --coverage=${{ matrix.runner == 'ubuntu-latest' }}
 
-      - name: Coveralls
-        if: ${{ matrix.runner == 'ubuntu-latest'}}
-        uses: coverallsapp/github-action@v2.3.6
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Coveralls
+      #   if: ${{ matrix.runner == 'ubuntu-latest'}}
+      #   uses: coverallsapp/github-action@v2.3.6
+      #   with:
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
 
   typedoc:
     runs-on: [ubuntu-latest]
