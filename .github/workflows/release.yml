@@ -1,5 +1,7 @@
 name: Release to NPM
 on:
+  workflow_dispatch:
+    # No input required
   release:
     types: [published]
 
