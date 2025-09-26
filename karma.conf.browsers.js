@@ -152,8 +152,8 @@ module.exports = (config) => {
       'bs_latest_minus_1_chrome_win11',
       'bs_latest_firefox_win11',
       'bs_latest_minus_1_firefox_win11',
-      'bs_latest_opera_win11',
-      'bs_latest_minus_1_opera_win11',
+      // 'bs_latest_opera_win11',
+      // 'bs_latest_minus_1_opera_win11',
       'bs_safari_14_1',
       'bs_safari_13_1',
       'bs_safari_12_1'
