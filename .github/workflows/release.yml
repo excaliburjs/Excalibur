@@ -3,9 +3,6 @@ on:
   release:
     types: [published]
 
-env:
-  release: true
-
 jobs:
   build:
     uses: ./.github/workflows/build.yml
@@ -29,7 +26,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npm run build:esm
+        env:
+          release: true
       - run: npm publish --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
