@@ -15,6 +15,36 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+-
+
+### Fixed
+
+-
+
+### Updates
+
+-
+
+### Changed
+
+-
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [v0.31.0]
+
+### Breaking Changes
+
+-
+
+### Deprecated
+
+-
+
+### Added
+
 - Added new `ex.Camera.setStrategies()` and `ex.Camera.strategies` for additional control of strategy order
 - Fixed ex.Font measureText always using 10px sans-serif on the first call on some browsers
 - Added a new `ex.Sound({...})` option back constructor to set all the same props available on sound
@@ -132,9 +162,6 @@ const query = new Query({})
 - Optimized BoundingBox.intersect(otherBoundingBox)
 - Change logging behavior for entities not in scenes, only log in dev builds
 
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
 ## [v0.30.0]
 
