@@ -5,7 +5,6 @@ on:
 
 env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
 jobs:
   build:
@@ -14,6 +13,9 @@ jobs:
     name: Publish alpha npm package
     needs: [build]
     runs-on: [ubuntu-latest]
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - uses: actions/checkout@v4
@@ -30,7 +32,9 @@ jobs:
       - run: echo "alpha_version=$(node -e "console.log(require('./version').getAlphaVersion());")" >> $GITHUB_ENV
       - run: echo $alpha_version
       - run: npm --no-git-tag-version version $alpha_version
-      - run: npm publish --tag next
+      - run: npm publish --tag next --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Create Tag
         uses: actions/github-script@v7.0.1
         with:
