@@ -45,7 +45,8 @@
     "patch-package": "^8.0.0",
     "ts-loader": "9.5.2",
     "typescript": "~5.2.2",
-    "url-loader": "4.1.1"
+    "url-loader": "4.1.1",
+		"babel-loader": "10.0.0"
   },
   "browserslist": {
     "production": [
