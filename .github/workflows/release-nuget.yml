@@ -33,9 +33,12 @@ jobs:
       - run: npm run build
         env:
           release: true
-      - run: echo "version=$(node -e "console.log(require('./version').getReleaseVersion());")" >> $GITHUB_ENV
-      - run: echo $version
-      - run: npm run nuget -- $version
+      - run: echo "version=$(node -e "console.log(require('./version').getReleaseVersion());")" >> $env:GITHUB_ENV
+        shell: pwsh
+      - run: echo $env:version
+        shell: pwsh
+      - run: npm run nuget -- $env:version
+        shell: pwsh
 
       # Get a short-lived NuGet API key
       - name: NuGet login (OIDC → temp API key)
