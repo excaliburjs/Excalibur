@@ -1,0 +1,49 @@
+name: Release to Nuget
+on:
+  workflow_dispatch:
+    # No input required
+  release:
+    types: [published]
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+  deploy_release:
+    name: Publish nuget package
+    needs: [build]
+    runs-on: [windows-2025]
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 100
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '8.0.x'
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          registry-url: 'https://registry.npmjs.org'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+        env:
+          release: true
+      - run: echo "version=$(node -e "console.log(require('./version').getReleaseVersion());")" >> $GITHUB_ENV
+      - run: echo $version
+      - run: npm run nuget -- $version
+
+      # Get a short-lived NuGet API key
+      - name: NuGet login (OIDC → temp API key)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      # Push the package
+      - name: NuGet push
+        run: dotnet nuget push `build/nuget/Excalibur.${version}.nupkg` --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
