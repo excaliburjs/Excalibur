@@ -49,4 +49,5 @@ jobs:
 
       # Push the package
       - name: NuGet push
-        run: dotnet nuget push `build/nuget/Excalibur.${version}.nupkg` --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
+        run: dotnet nuget push "build/nuget/Excalibur.${{ env.version }}.nupkg" --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
+        shell: pwsh
