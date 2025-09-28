@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-import { TestUtils } from './util/TestUtils';
+import { TestUtils } from '../__util__/TestUtils';
 
 describe('A Line', () => {
   it('exists', () => {
@@ -67,55 +67,57 @@ describe('A Line', () => {
     expect(sut.height).toBe(4);
   });
 
-  it('can draw a line', async () => {
-    const sut = new ex.Line({
-      start: ex.vec(0, 0),
-      end: ex.vec(50, 50),
-      color: ex.Color.Green,
-      thickness: 5
+  describe('@visual', () => {
+    it('can draw a line', async () => {
+      const sut = new ex.Line({
+        start: ex.vec(0, 0),
+        end: ex.vec(50, 50),
+        color: ex.Color.Green,
+        thickness: 5
+      });
+
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      const ctx = new ex.ExcaliburGraphicsContextWebGL({ canvasElement, snapToPixel: false });
+
+      ctx.clear();
+      sut.draw(ctx, 0, 0);
+      ctx.flush();
+
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/LineSpec/line.png');
     });
 
-    const canvasElement = document.createElement('canvas');
-    canvasElement.width = 100;
-    canvasElement.height = 100;
-    const ctx = new ex.ExcaliburGraphicsContextWebGL({ canvasElement, snapToPixel: false });
+    it('can draw a line when added to a graphics component', async () => {
+      const game = TestUtils.engine({
+        width: 100,
+        height: 100,
+        backgroundColor: ex.Color.ExcaliburBlue
+      });
 
-    ctx.clear();
-    sut.draw(ctx, 0, 0);
-    ctx.flush();
+      const testClock = game.clock as ex.TestClock;
 
-    await expect(canvasElement).toEqualImage('/src/spec/assets/images/LineSpec/line.png');
-  });
+      await TestUtils.runToReady(game);
 
-  it('can draw a line when added to a graphics component', async () => {
-    const game = TestUtils.engine({
-      width: 100,
-      height: 100,
-      backgroundColor: ex.Color.ExcaliburBlue
+      const sut = new ex.Line({
+        start: ex.vec(0, 0),
+        end: ex.vec(50, 50),
+        color: ex.Color.Green,
+        thickness: 5
+      });
+
+      const actor = new ex.Actor({
+        pos: ex.vec(0, 0)
+      });
+      actor.graphics.anchor = ex.Vector.Zero;
+      actor.graphics.use(sut);
+      game.add(actor);
+
+      testClock.step(16);
+
+      await expect(game.canvas).toEqualImage('/src/spec/assets/images/LineSpec/line.png');
+
+      game.dispose();
     });
-
-    const testClock = game.clock as ex.TestClock;
-
-    await TestUtils.runToReady(game);
-
-    const sut = new ex.Line({
-      start: ex.vec(0, 0),
-      end: ex.vec(50, 50),
-      color: ex.Color.Green,
-      thickness: 5
-    });
-
-    const actor = new ex.Actor({
-      pos: ex.vec(0, 0)
-    });
-    actor.graphics.anchor = ex.Vector.Zero;
-    actor.graphics.use(sut);
-    game.add(actor);
-
-    testClock.step(16);
-
-    await expect(game.canvas).toEqualImage('/src/spec/assets/images/LineSpec/line.png');
-
-    game.dispose();
   });
 });

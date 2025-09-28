@@ -31,7 +31,7 @@ describe('A Circle Graphic', () => {
     expect(sut.height).toBe(20);
   });
 
-  it('can set a color', async () => {
+  it('@visual can set a color', async () => {
     const sut = new ex.Circle({
       radius: 10,
       padding: 0,
@@ -50,7 +50,7 @@ describe('A Circle Graphic', () => {
     await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsCircleSpec/circle.png');
   });
 
-  it('can set a lineWidth', async () => {
+  it('@visual can set a lineWidth', async () => {
     const sut = new ex.Circle({
       radius: 30,
       lineWidth: 15,

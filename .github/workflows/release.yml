@@ -1,12 +1,9 @@
 name: Release to NPM
 on:
+  workflow_dispatch:
+    # No input required
   release:
     types: [published]
-
-env:
-  release: true
-  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
 jobs:
   build:
@@ -15,6 +12,9 @@ jobs:
     name: Publish npm package
     needs: [build]
     runs-on: [ubuntu-latest]
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - uses: actions/checkout@v4
@@ -28,5 +28,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npm run build:esm
-      - run: npm publish
+        env:
+          release: true
+      - run: npm publish --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

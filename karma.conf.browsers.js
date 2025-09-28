@@ -82,47 +82,47 @@ module.exports = (config) => {
     captureTimeout: 4 * 60 * 1000,
     // define browsers
     customLaunchers: {
-      bs_latest_chrome_win10: {
+      bs_latest_chrome_win11: {
         base: 'BrowserStack',
         browser: 'Chrome',
         browser_version: 'latest',
         os: 'Windows',
-        os_version: '10'
+        os_version: '11'
       },
-      bs_latest_minus_1_chrome_win10: {
+      bs_latest_minus_1_chrome_win11: {
         base: 'BrowserStack',
         browser: 'Chrome',
         browser_version: 'latest-1',
         os: 'Windows',
-        os_version: '10'
+        os_version: '11'
       },
-      bs_latest_firefox_win10: {
+      bs_latest_firefox_win11: {
         base: 'BrowserStack',
         browser: 'Firefox',
         browser_version: 'latest',
         os: 'Windows',
-        os_version: '10'
+        os_version: '11'
       },
-      bs_latest_minus_1_firefox_win10: {
+      bs_latest_minus_1_firefox_win11: {
         base: 'BrowserStack',
         browser: 'Firefox',
         browser_version: 'latest-1',
         os: 'Windows',
-        os_version: '10'
+        os_version: '11'
       },
-      bs_latest_opera_win10: {
+      bs_latest_opera_win11: {
         base: 'BrowserStack',
         browser: 'Opera',
         browser_version: 'latest',
         os: 'Windows',
-        os_version: '10'
+        os_version: '11'
       },
-      bs_latest_minus_1_opera_win10: {
+      bs_latest_minus_1_opera_win11: {
         base: 'BrowserStack',
         browser: 'Opera',
         browser_version: 'latest-1',
         os: 'Windows',
-        os_version: '10'
+        os_version: '11'
       },
       bs_safari_14_1: {
         base: 'BrowserStack',
@@ -148,30 +148,15 @@ module.exports = (config) => {
     },
 
     browsers: [
-      'bs_latest_chrome_win10',
-      'bs_latest_minus_1_chrome_win10',
-      'bs_latest_firefox_win10',
-      'bs_latest_minus_1_firefox_win10',
-      'bs_latest_opera_win10',
-      'bs_latest_minus_1_opera_win10',
+      'bs_latest_chrome_win11',
+      'bs_latest_minus_1_chrome_win11',
+      'bs_latest_firefox_win11',
+      'bs_latest_minus_1_firefox_win11',
+      // 'bs_latest_opera_win11',
+      // 'bs_latest_minus_1_opera_win11',
       'bs_safari_14_1',
       'bs_safari_13_1',
       'bs_safari_12_1'
     ]
-    // browsers: ['ChromeHeadless_with_audio'],
-    // customLaunchers: {
-    //   ChromeHeadless_with_audio: {
-    //       base: 'ChromeHeadless',
-    //       flags: ['--autoplay-policy=no-user-gesture-required', '--mute-audio']
-    //   },
-    //   ChromeHeadless_with_debug: {
-    //     base: 'ChromeHeadless',
-    //     flags: ['--remote-debugging-port=9334', '--no-sandbox', '--disable-web-security']
-    //   },
-    //   Chrome_with_debug: {
-    //     base: 'Chrome',
-    //     flags: ['--remote-debugging-port=9334', '--no-sandbox']
-    //   }
-    // }
   });
 };

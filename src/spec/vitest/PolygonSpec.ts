@@ -44,15 +44,17 @@ describe('A Polygon Graphic', () => {
     expect(clone.strokeColor).toEqual(poly.strokeColor);
   });
 
-  it('can be drawn', async () => {
-    const poly = new ex.Polygon({
-      points: [ex.vec(10 * 5, 0), ex.vec(0, 20 * 5), ex.vec(20 * 5, 20 * 5)],
-      color: ex.Color.Green,
-      strokeColor: ex.Color.Violet
+  describe('@visual', () => {
+    it('can be drawn', async () => {
+      const poly = new ex.Polygon({
+        points: [ex.vec(10 * 5, 0), ex.vec(0, 20 * 5), ex.vec(20 * 5, 20 * 5)],
+        color: ex.Color.Green,
+        strokeColor: ex.Color.Violet
+      });
+
+      poly.draw(ctx, 0, 0);
+
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsPolygonSpec/poly.png', 0.993);
     });
-
-    poly.draw(ctx, 0, 0);
-
-    await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsPolygonSpec/poly.png', 0.993);
   });
 });

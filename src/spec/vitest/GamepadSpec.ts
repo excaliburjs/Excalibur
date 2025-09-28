@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
-import { TestUtils } from './util/TestUtils';
-import { Mocks } from './util/Mocks';
+import { TestUtils } from '../__util__/TestUtils';
+import { Mocks } from '../__util__/Mocks';
 
 describe('A gamepad', () => {
   let engine: ex.Engine;

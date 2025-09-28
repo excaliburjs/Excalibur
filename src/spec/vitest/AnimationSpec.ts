@@ -461,7 +461,7 @@ describe('A Graphics Animation', () => {
     expect(onFrame).toHaveBeenCalledTimes(2);
   });
 
-  it('draws the right frame to the screen', async () => {
+  it('@visual draws the right frame to the screen', async () => {
     const rect = new ex.Rectangle({
       width: 100,
       height: 100,

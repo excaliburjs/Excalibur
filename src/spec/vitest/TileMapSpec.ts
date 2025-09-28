@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-import { TestUtils } from './util/TestUtils';
+import { TestUtils } from '../__util__/TestUtils';
 import { BodyComponent } from '@excalibur';
 import { ColliderComponent } from '../../engine/Collision/ColliderComponent';
 
@@ -177,214 +177,216 @@ describe('A TileMap', () => {
     expect(otherCell2.data.get('some_vale')).not.toBeDefined();
   });
 
-  it('can use arbitrary graphics', async () => {
-    const tm = new ex.TileMap({
-      pos: ex.vec(0, 0),
-      tileWidth: 32,
-      tileHeight: 32,
-      rows: 3,
-      columns: 5
+  describe('@visual', () => {
+    it('can use arbitrary graphics', async () => {
+      const tm = new ex.TileMap({
+        pos: ex.vec(0, 0),
+        tileWidth: 32,
+        tileHeight: 32,
+        rows: 3,
+        columns: 5
+      });
+      tm._initialize(engine);
+      tm.update(engine, 99);
+
+      const cell = tm.getTile(0, 0);
+      const rectangle = new ex.Rectangle({
+        width: 32,
+        height: 32,
+        color: ex.Color.Red
+      });
+      const circle = new ex.Circle({
+        radius: 16,
+        color: ex.Color.Blue
+      });
+      const animation = new ex.Animation({
+        frames: [
+          { graphic: rectangle, duration: 100 },
+          { graphic: circle, duration: 100 }
+        ]
+      });
+
+      cell.addGraphic(animation);
+
+      drawWithTransform(engine.graphicsContext, tm, 99);
+      engine.graphicsContext.flush();
+
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/TileMapSpec/TileMapGraphicSquare.png');
+
+      tm.update(engine, 99);
+
+      drawWithTransform(engine.graphicsContext, tm, 99);
+      engine.graphicsContext.flush();
+
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/TileMapSpec/TileMapGraphicCircle.png');
     });
-    tm._initialize(engine);
-    tm.update(engine, 99);
 
-    const cell = tm.getTile(0, 0);
-    const rectangle = new ex.Rectangle({
-      width: 32,
-      height: 32,
-      color: ex.Color.Red
+    it('should draw the correct proportions', async () => {
+      await texture.load();
+      const tm = new ex.TileMap({
+        pos: ex.vec(30, 30),
+        tileWidth: 64,
+        tileHeight: 48,
+        rows: 3,
+        columns: 7
+      });
+      const spriteTiles = ex.SpriteSheet.fromImageSource({
+        image: texture,
+        grid: {
+          rows: 1,
+          columns: 1,
+          spriteWidth: 64,
+          spriteHeight: 48
+        }
+      });
+      tm.tiles.forEach(function (cell: ex.Tile) {
+        cell.solid = true;
+        cell.addGraphic(spriteTiles.sprites[0]);
+      });
+      tm._initialize(engine);
+
+      drawWithTransform(engine.graphicsContext, tm, 100);
+      engine.graphicsContext.flush();
+
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/TileMapSpec/TileMap.png');
     });
-    const circle = new ex.Circle({
-      radius: 16,
-      color: ex.Color.Blue
+
+    it('should draw from the bottom', async () => {
+      const tm = new ex.TileMap({
+        pos: ex.vec(30, 30),
+        tileWidth: 64,
+        tileHeight: 48,
+        rows: 3,
+        columns: 7
+      });
+      const tileGraphic = new ex.Rectangle({
+        color: ex.Color.Red,
+        strokeColor: ex.Color.Black,
+        width: 64,
+        height: 64
+      });
+      tm.tiles.forEach(function (cell: ex.Tile) {
+        cell.solid = true;
+        cell.addGraphic(tileGraphic);
+      });
+      tm._initialize(engine);
+
+      drawWithTransform(engine.graphicsContext, tm, 100);
+      engine.graphicsContext.flush();
+
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/TileMapSpec/tilemap-from-bottom.png');
     });
-    const animation = new ex.Animation({
-      frames: [
-        { graphic: rectangle, duration: 100 },
-        { graphic: circle, duration: 100 }
-      ]
+
+    it('should draw from the top', async () => {
+      const tm = new ex.TileMap({
+        pos: ex.vec(30, 30),
+        tileWidth: 64,
+        tileHeight: 48,
+        rows: 3,
+        columns: 7,
+        renderFromTopOfGraphic: true
+      });
+      const tileGraphic = new ex.Rectangle({
+        color: ex.Color.Red,
+        strokeColor: ex.Color.Black,
+        width: 64,
+        height: 64
+      });
+      tm.tiles.forEach(function (cell: ex.Tile) {
+        cell.solid = true;
+        cell.addGraphic(tileGraphic);
+      });
+      tm._initialize(engine);
+
+      drawWithTransform(engine.graphicsContext, tm, 100);
+      engine.graphicsContext.flush();
+
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/TileMapSpec/tilemap-from-top.png');
     });
 
-    cell.addGraphic(animation);
+    it('should handle offscreen culling correctly with negative coords', async () => {
+      await texture.load();
+      const tm = new ex.TileMap({
+        pos: ex.vec(-100, -100),
+        tileWidth: 64,
+        tileHeight: 48,
+        rows: 20,
+        columns: 20
+      });
+      const spriteTiles = ex.SpriteSheet.fromImageSource({
+        image: texture,
+        grid: {
+          rows: 1,
+          columns: 1,
+          spriteWidth: 64,
+          spriteHeight: 48
+        }
+      });
+      tm.tiles.forEach(function (cell: ex.Tile) {
+        cell.solid = true;
+        cell.addGraphic(spriteTiles.sprites[0]);
+      });
+      tm._initialize(engine);
 
-    drawWithTransform(engine.graphicsContext, tm, 99);
-    engine.graphicsContext.flush();
+      tm.update(engine, 100);
 
-    await expect(engine.canvas).toEqualImage('/src/spec/assets/images/TileMapSpec/TileMapGraphicSquare.png');
+      drawWithTransform(engine.graphicsContext, tm, 100);
+      engine.graphicsContext.flush();
 
-    tm.update(engine, 99);
-
-    drawWithTransform(engine.graphicsContext, tm, 99);
-    engine.graphicsContext.flush();
-
-    await expect(engine.canvas).toEqualImage('/src/spec/assets/images/TileMapSpec/TileMapGraphicCircle.png');
-  });
-
-  it('should draw the correct proportions', async () => {
-    await texture.load();
-    const tm = new ex.TileMap({
-      pos: ex.vec(30, 30),
-      tileWidth: 64,
-      tileHeight: 48,
-      rows: 3,
-      columns: 7
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/TileMapSpec/TileMapCulling.png');
     });
-    const spriteTiles = ex.SpriteSheet.fromImageSource({
-      image: texture,
-      grid: {
-        rows: 1,
-        columns: 1,
-        spriteWidth: 64,
-        spriteHeight: 48
-      }
+
+    it('should handle offscreen culling correctly when scaled', async () => {
+      await texture.load();
+      const tm = new ex.TileMap({
+        pos: ex.vec(100, 100),
+        tileWidth: 64,
+        tileHeight: 48,
+        rows: 20,
+        columns: 20
+      });
+      tm.scale = ex.vec(2, 2);
+      const spriteTiles = ex.SpriteSheet.fromImageSource({
+        image: texture,
+        grid: {
+          rows: 1,
+          columns: 1,
+          spriteWidth: 64,
+          spriteHeight: 48
+        }
+      });
+      tm.tiles.forEach(function (cell: ex.Tile) {
+        cell.solid = true;
+        cell.addGraphic(spriteTiles.sprites[0]);
+      });
+      tm._initialize(engine);
+      engine.currentScene.add(tm);
+
+      engine.currentScene.camera.x = 600;
+      engine.currentScene.update(engine, 100);
+      engine.currentScene.draw(engine.graphicsContext, 100);
+      engine.graphicsContext.flush();
+
+      expect(tm.getTile(0, 0).bounds).toEqual(
+        new ex.BoundingBox({
+          left: 100,
+          top: 100,
+          right: 228,
+          bottom: 196
+        })
+      );
+
+      expect(tm.getTile(1, 0).bounds).toEqual(
+        new ex.BoundingBox({
+          left: 228,
+          top: 100,
+          right: 356,
+          bottom: 196
+        })
+      );
+
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/TileMapSpec/tilemap-scaled.png');
     });
-    tm.tiles.forEach(function (cell: ex.Tile) {
-      cell.solid = true;
-      cell.addGraphic(spriteTiles.sprites[0]);
-    });
-    tm._initialize(engine);
-
-    drawWithTransform(engine.graphicsContext, tm, 100);
-    engine.graphicsContext.flush();
-
-    await expect(engine.canvas).toEqualImage('/src/spec/assets/images/TileMapSpec/TileMap.png');
-  });
-
-  it('should draw from the bottom', async () => {
-    const tm = new ex.TileMap({
-      pos: ex.vec(30, 30),
-      tileWidth: 64,
-      tileHeight: 48,
-      rows: 3,
-      columns: 7
-    });
-    const tileGraphic = new ex.Rectangle({
-      color: ex.Color.Red,
-      strokeColor: ex.Color.Black,
-      width: 64,
-      height: 64
-    });
-    tm.tiles.forEach(function (cell: ex.Tile) {
-      cell.solid = true;
-      cell.addGraphic(tileGraphic);
-    });
-    tm._initialize(engine);
-
-    drawWithTransform(engine.graphicsContext, tm, 100);
-    engine.graphicsContext.flush();
-
-    await expect(engine.canvas).toEqualImage('/src/spec/assets/images/TileMapSpec/tilemap-from-bottom.png');
-  });
-
-  it('should draw from the top', async () => {
-    const tm = new ex.TileMap({
-      pos: ex.vec(30, 30),
-      tileWidth: 64,
-      tileHeight: 48,
-      rows: 3,
-      columns: 7,
-      renderFromTopOfGraphic: true
-    });
-    const tileGraphic = new ex.Rectangle({
-      color: ex.Color.Red,
-      strokeColor: ex.Color.Black,
-      width: 64,
-      height: 64
-    });
-    tm.tiles.forEach(function (cell: ex.Tile) {
-      cell.solid = true;
-      cell.addGraphic(tileGraphic);
-    });
-    tm._initialize(engine);
-
-    drawWithTransform(engine.graphicsContext, tm, 100);
-    engine.graphicsContext.flush();
-
-    await expect(engine.canvas).toEqualImage('/src/spec/assets/images/TileMapSpec/tilemap-from-top.png');
-  });
-
-  it('should handle offscreen culling correctly with negative coords', async () => {
-    await texture.load();
-    const tm = new ex.TileMap({
-      pos: ex.vec(-100, -100),
-      tileWidth: 64,
-      tileHeight: 48,
-      rows: 20,
-      columns: 20
-    });
-    const spriteTiles = ex.SpriteSheet.fromImageSource({
-      image: texture,
-      grid: {
-        rows: 1,
-        columns: 1,
-        spriteWidth: 64,
-        spriteHeight: 48
-      }
-    });
-    tm.tiles.forEach(function (cell: ex.Tile) {
-      cell.solid = true;
-      cell.addGraphic(spriteTiles.sprites[0]);
-    });
-    tm._initialize(engine);
-
-    tm.update(engine, 100);
-
-    drawWithTransform(engine.graphicsContext, tm, 100);
-    engine.graphicsContext.flush();
-
-    await expect(engine.canvas).toEqualImage('/src/spec/assets/images/TileMapSpec/TileMapCulling.png');
-  });
-
-  it('should handle offscreen culling correctly when scaled', async () => {
-    await texture.load();
-    const tm = new ex.TileMap({
-      pos: ex.vec(100, 100),
-      tileWidth: 64,
-      tileHeight: 48,
-      rows: 20,
-      columns: 20
-    });
-    tm.scale = ex.vec(2, 2);
-    const spriteTiles = ex.SpriteSheet.fromImageSource({
-      image: texture,
-      grid: {
-        rows: 1,
-        columns: 1,
-        spriteWidth: 64,
-        spriteHeight: 48
-      }
-    });
-    tm.tiles.forEach(function (cell: ex.Tile) {
-      cell.solid = true;
-      cell.addGraphic(spriteTiles.sprites[0]);
-    });
-    tm._initialize(engine);
-    engine.currentScene.add(tm);
-
-    engine.currentScene.camera.x = 600;
-    engine.currentScene.update(engine, 100);
-    engine.currentScene.draw(engine.graphicsContext, 100);
-    engine.graphicsContext.flush();
-
-    expect(tm.getTile(0, 0).bounds).toEqual(
-      new ex.BoundingBox({
-        left: 100,
-        top: 100,
-        right: 228,
-        bottom: 196
-      })
-    );
-
-    expect(tm.getTile(1, 0).bounds).toEqual(
-      new ex.BoundingBox({
-        left: 228,
-        top: 100,
-        right: 356,
-        bottom: 196
-      })
-    );
-
-    await expect(engine.canvas).toEqualImage('/src/spec/assets/images/TileMapSpec/tilemap-scaled.png');
   });
 
   it('can return a tile by xy coord', () => {

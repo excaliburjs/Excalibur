@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-import { TestUtils } from './util/TestUtils';
+import { TestUtils } from '../__util__/TestUtils';
 
 describe('A GPU particle', () => {
   let engine: ex.Engine;
@@ -86,196 +86,198 @@ describe('A GPU particle', () => {
     expect(emitter.random.seed).toBe(1337);
   });
 
-  it('should emit particles', async () => {
-    const emitter = new ex.GpuParticleEmitter({
-      pos: new ex.Vector(400, 100),
-      width: 20,
-      height: 30,
-      isEmitting: true,
-      emitRate: 5,
-      particle: {
-        minSpeed: 100,
-        maxSpeed: 200,
-        acc: ex.Vector.Zero.clone(),
-        minAngle: 0,
-        maxAngle: Math.PI / 2,
-        life: 4000,
-        opacity: 0.5,
-        fade: false,
-        startSize: 30,
-        endSize: 40,
-        beginColor: ex.Color.Red.clone(),
-        endColor: ex.Color.Blue.clone(),
-        graphic: null,
-        angularVelocity: 3,
-        randomRotation: false
-      },
-      focus: null,
-      focusAccel: null,
-      emitterType: ex.EmitterType.Circle,
-      radius: 20,
-      random: new ex.Random(1337)
-    });
-    engine.backgroundColor = ex.Color.Transparent;
-    engine.add(emitter);
-    emitter.emitParticles(10);
+  describe('@visual', () => {
+    it('should emit particles', async () => {
+      const emitter = new ex.GpuParticleEmitter({
+        pos: new ex.Vector(400, 100),
+        width: 20,
+        height: 30,
+        isEmitting: true,
+        emitRate: 5,
+        particle: {
+          minSpeed: 100,
+          maxSpeed: 200,
+          acc: ex.Vector.Zero.clone(),
+          minAngle: 0,
+          maxAngle: Math.PI / 2,
+          life: 4000,
+          opacity: 0.5,
+          fade: false,
+          startSize: 30,
+          endSize: 40,
+          beginColor: ex.Color.Red.clone(),
+          endColor: ex.Color.Blue.clone(),
+          graphic: null,
+          angularVelocity: 3,
+          randomRotation: false
+        },
+        focus: null,
+        focusAccel: null,
+        emitterType: ex.EmitterType.Circle,
+        radius: 20,
+        random: new ex.Random(1337)
+      });
+      engine.backgroundColor = ex.Color.Transparent;
+      engine.add(emitter);
+      emitter.emitParticles(10);
 
-    engine.currentScene.update(engine, 100);
-    engine.currentScene.update(engine, 100);
-    engine.currentScene.update(engine, 100);
-    engine.currentScene.draw(engine.graphicsContext, 100);
-    engine.graphicsContext.flush();
-    await expect(engine.canvas).toEqualImage('/src/spec/assets/images/GpuParticlesSpec/particles.png');
-  });
-
-  it('should clear particles', async () => {
-    const emitter = new ex.GpuParticleEmitter({
-      pos: new ex.Vector(400, 100),
-      width: 20,
-      height: 30,
-      isEmitting: true,
-      emitRate: 5,
-      particle: {
-        minSpeed: 100,
-        maxSpeed: 200,
-        acc: ex.Vector.Zero.clone(),
-        minAngle: 0,
-        maxAngle: Math.PI / 2,
-        life: 4000,
-        opacity: 0.5,
-        fade: false,
-        startSize: 30,
-        endSize: 40,
-        beginColor: ex.Color.Red.clone(),
-        endColor: ex.Color.Blue.clone(),
-        graphic: null,
-        angularVelocity: 3,
-        randomRotation: false
-      },
-      focus: null,
-      focusAccel: null,
-      emitterType: ex.EmitterType.Circle,
-      radius: 20,
-      random: new ex.Random(1337)
-    });
-    engine.backgroundColor = ex.Color.Transparent;
-    engine.add(emitter);
-    emitter.emitParticles(10);
-    emitter.clearParticles();
-
-    engine.currentScene.update(engine, 100);
-    engine.currentScene.update(engine, 100);
-    engine.currentScene.update(engine, 100);
-    engine.currentScene.draw(engine.graphicsContext, 100);
-    engine.graphicsContext.flush();
-    await expect(engine.canvas).toEqualImage('/src/spec/assets/images/GpuParticlesSpec/clear.png');
-  });
-
-  it("should emit particles and wrap it's ring buffer", async () => {
-    const emitter = new ex.GpuParticleEmitter({
-      pos: new ex.Vector(400, 100),
-      width: 20,
-      height: 30,
-      isEmitting: true,
-      emitRate: 5,
-      maxParticles: 200,
-      particle: {
-        minSpeed: 100,
-        maxSpeed: 200,
-        acc: ex.Vector.Zero.clone(),
-        minAngle: 0,
-        maxAngle: Math.PI / 2,
-        life: 4000,
-        opacity: 0.5,
-        fade: false,
-        startSize: 30,
-        endSize: 40,
-        beginColor: ex.Color.Red.clone(),
-        endColor: ex.Color.Blue.clone(),
-        graphic: null,
-        angularVelocity: 3,
-        randomRotation: false
-      },
-      focus: null,
-      focusAccel: null,
-      emitterType: ex.EmitterType.Circle,
-      radius: 20,
-      random: new ex.Random(1337)
-    });
-    engine.backgroundColor = ex.Color.Transparent;
-    engine.add(emitter);
-
-    engine.currentScene.update(engine, 100);
-    emitter.emitParticles(50);
-    engine.currentScene.draw(engine.graphicsContext, 100);
-    engine.graphicsContext.flush();
-
-    engine.currentScene.update(engine, 100);
-    emitter.emitParticles(50);
-    engine.currentScene.draw(engine.graphicsContext, 100);
-    engine.graphicsContext.flush();
-
-    engine.currentScene.update(engine, 100);
-    emitter.emitParticles(50);
-    engine.currentScene.draw(engine.graphicsContext, 100);
-    engine.graphicsContext.flush();
-
-    engine.currentScene.update(engine, 100);
-    emitter.emitParticles(50);
-    engine.currentScene.draw(engine.graphicsContext, 100);
-    engine.graphicsContext.flush();
-
-    await expect(engine.canvas).toEqualImage('/src/spec/assets/images/GpuParticlesSpec/particles-wrapped.png');
-  });
-
-  it('can be parented', async () => {
-    const emitter = new ex.ParticleEmitter({
-      pos: new ex.Vector(0, 0),
-      width: 20,
-      height: 30,
-      isEmitting: true,
-      emitRate: 5,
-      particle: {
-        minSpeed: 100,
-        maxSpeed: 200,
-        acc: ex.Vector.Zero.clone(),
-        minAngle: 0,
-        maxAngle: Math.PI / 2,
-        life: 4000,
-        opacity: 0.5,
-        fade: false,
-        startSize: 30,
-        endSize: 40,
-        beginColor: ex.Color.Red.clone(),
-        endColor: ex.Color.Blue.clone(),
-        graphic: null,
-        angularVelocity: 3,
-        randomRotation: false
-      },
-      focus: null,
-      focusAccel: null,
-      emitterType: ex.EmitterType.Circle,
-      radius: 20,
-      random: new ex.Random(1337)
+      engine.currentScene.update(engine, 100);
+      engine.currentScene.update(engine, 100);
+      engine.currentScene.update(engine, 100);
+      engine.currentScene.draw(engine.graphicsContext, 100);
+      engine.graphicsContext.flush();
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/GpuParticlesSpec/particles.png');
     });
 
-    const parent = new ex.Actor({
-      pos: ex.vec(100, 50),
-      width: 10,
-      height: 10
+    it('should clear particles', async () => {
+      const emitter = new ex.GpuParticleEmitter({
+        pos: new ex.Vector(400, 100),
+        width: 20,
+        height: 30,
+        isEmitting: true,
+        emitRate: 5,
+        particle: {
+          minSpeed: 100,
+          maxSpeed: 200,
+          acc: ex.Vector.Zero.clone(),
+          minAngle: 0,
+          maxAngle: Math.PI / 2,
+          life: 4000,
+          opacity: 0.5,
+          fade: false,
+          startSize: 30,
+          endSize: 40,
+          beginColor: ex.Color.Red.clone(),
+          endColor: ex.Color.Blue.clone(),
+          graphic: null,
+          angularVelocity: 3,
+          randomRotation: false
+        },
+        focus: null,
+        focusAccel: null,
+        emitterType: ex.EmitterType.Circle,
+        radius: 20,
+        random: new ex.Random(1337)
+      });
+      engine.backgroundColor = ex.Color.Transparent;
+      engine.add(emitter);
+      emitter.emitParticles(10);
+      emitter.clearParticles();
+
+      engine.currentScene.update(engine, 100);
+      engine.currentScene.update(engine, 100);
+      engine.currentScene.update(engine, 100);
+      engine.currentScene.draw(engine.graphicsContext, 100);
+      engine.graphicsContext.flush();
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/GpuParticlesSpec/clear.png');
     });
-    parent.addChild(emitter);
 
-    engine.backgroundColor = ex.Color.Transparent;
-    engine.add(emitter);
+    it("should emit particles and wrap it's ring buffer", async () => {
+      const emitter = new ex.GpuParticleEmitter({
+        pos: new ex.Vector(400, 100),
+        width: 20,
+        height: 30,
+        isEmitting: true,
+        emitRate: 5,
+        maxParticles: 200,
+        particle: {
+          minSpeed: 100,
+          maxSpeed: 200,
+          acc: ex.Vector.Zero.clone(),
+          minAngle: 0,
+          maxAngle: Math.PI / 2,
+          life: 4000,
+          opacity: 0.5,
+          fade: false,
+          startSize: 30,
+          endSize: 40,
+          beginColor: ex.Color.Red.clone(),
+          endColor: ex.Color.Blue.clone(),
+          graphic: null,
+          angularVelocity: 3,
+          randomRotation: false
+        },
+        focus: null,
+        focusAccel: null,
+        emitterType: ex.EmitterType.Circle,
+        radius: 20,
+        random: new ex.Random(1337)
+      });
+      engine.backgroundColor = ex.Color.Transparent;
+      engine.add(emitter);
 
-    emitter.emitParticles(20);
-    engine.currentScene.update(engine, 100);
-    engine.currentScene.update(engine, 100);
-    engine.currentScene.update(engine, 100);
-    engine.currentScene.draw(engine.graphicsContext, 100);
-    engine.graphicsContext.flush();
-    await expect(engine.canvas).toEqualImage('/src/spec/assets/images/ParticleSpec/parented.png');
+      engine.currentScene.update(engine, 100);
+      emitter.emitParticles(50);
+      engine.currentScene.draw(engine.graphicsContext, 100);
+      engine.graphicsContext.flush();
+
+      engine.currentScene.update(engine, 100);
+      emitter.emitParticles(50);
+      engine.currentScene.draw(engine.graphicsContext, 100);
+      engine.graphicsContext.flush();
+
+      engine.currentScene.update(engine, 100);
+      emitter.emitParticles(50);
+      engine.currentScene.draw(engine.graphicsContext, 100);
+      engine.graphicsContext.flush();
+
+      engine.currentScene.update(engine, 100);
+      emitter.emitParticles(50);
+      engine.currentScene.draw(engine.graphicsContext, 100);
+      engine.graphicsContext.flush();
+
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/GpuParticlesSpec/particles-wrapped.png');
+    });
+
+    it('can be parented', async () => {
+      const emitter = new ex.ParticleEmitter({
+        pos: new ex.Vector(0, 0),
+        width: 20,
+        height: 30,
+        isEmitting: true,
+        emitRate: 5,
+        particle: {
+          minSpeed: 100,
+          maxSpeed: 200,
+          acc: ex.Vector.Zero.clone(),
+          minAngle: 0,
+          maxAngle: Math.PI / 2,
+          life: 4000,
+          opacity: 0.5,
+          fade: false,
+          startSize: 30,
+          endSize: 40,
+          beginColor: ex.Color.Red.clone(),
+          endColor: ex.Color.Blue.clone(),
+          graphic: null,
+          angularVelocity: 3,
+          randomRotation: false
+        },
+        focus: null,
+        focusAccel: null,
+        emitterType: ex.EmitterType.Circle,
+        radius: 20,
+        random: new ex.Random(1337)
+      });
+
+      const parent = new ex.Actor({
+        pos: ex.vec(100, 50),
+        width: 10,
+        height: 10
+      });
+      parent.addChild(emitter);
+
+      engine.backgroundColor = ex.Color.Transparent;
+      engine.add(emitter);
+
+      emitter.emitParticles(20);
+      engine.currentScene.update(engine, 100);
+      engine.currentScene.update(engine, 100);
+      engine.currentScene.update(engine, 100);
+      engine.currentScene.draw(engine.graphicsContext, 100);
+      engine.graphicsContext.flush();
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/ParticleSpec/parented.png');
+    });
   });
 
   it('can set the particle transform to local making particles children of the emitter', () => {

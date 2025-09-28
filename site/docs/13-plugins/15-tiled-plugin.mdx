@@ -78,9 +78,9 @@ Currently the plugin supports rendering both the Orthogonal and Isometric orient
 
 ![Tiled orientations](./tiled/orientation.png)
 
-### Background Color 
+### Background Color
 
-The plugin supports pulling the `Background Color` from the Tiled map. Configure the `useMapBackgroundColor` in your constructor 
+The plugin supports pulling the `Background Color` from the Tiled map. Configure the `useMapBackgroundColor` in your constructor
 
 ```typescript
 const tiledMap = new TiledResource('./isometric.tmx', {
@@ -104,7 +104,7 @@ The way that the plugin represents multiple tile layers in Tiled is by creating 
 
 You can mark a layer solid by setting the special custom boolean property `solid = true` on the tile layer. This will indicate to the plugin that any space with a non-zero Tile gid should be treated as a solid rectangle.
 
-However sometimes you need more than just solid rectangles, so the plugin also supports custom colliders setup on tiles in tilesets (read more about tilesets below). 
+However sometimes you need more than just solid rectangles, so the plugin also supports custom colliders setup on tiles in tilesets (read more about tilesets below).
 
 :::note
 
@@ -150,7 +150,7 @@ Tiled allows Infinite Tile Maps, these allow you to build tile maps without widt
 
 The plugin supports every type of tilesets in Tiled, embedded, external, collection of images, etc.
 
-Given a Tiled gid (global tile id), you can retrieve the tileset 
+Given a Tiled gid (global tile id), you can retrieve the tileset
 
 ```typescript
 const tiledMap = new TiledResource(...);
@@ -183,7 +183,7 @@ const colliders = tileset.getCollidersForGid(123);
 
 ### Custom Colliders
 
-All shapes and sizes are supported for custom colliders apart from non-circle ellipses. In fact you can have multiple geometries specified per Tile! 
+All shapes and sizes are supported for custom colliders apart from non-circle ellipses. In fact you can have multiple geometries specified per Tile!
 
 Custom colliders can be used in Tile layers, Inserted Tile objects and Templates!
 
@@ -210,7 +210,7 @@ const objectLayers = tiledMap.getObjectLayers();
 
 ### Querying for Objects
 
-All objects in the plugin can be queried based on various aspects about them, either their name, class, or potentially a property name/value! You can retrieve the Tiled object and/or the Actor produced by the plugin! 
+All objects in the plugin can be queried based on various aspects about them, either their name, class, or potentially a property name/value! You can retrieve the Tiled object and/or the Actor produced by the plugin!
 
 ```typescript
 
@@ -382,7 +382,11 @@ const tiledMap = new TiledResource('./example-city.tmx', {
 })
 ```
 
-A note on bundlers, because of an unfortunate naming collision `.tsx` also is used for TypeScript React components. Because of this you may need to work around bundler notions of what the file is to treat it as raw xml instead of a React component. For example, In the vite sample to work around `.tsx`
+A note on bundlers, because of an unfortunate naming collision `.tsx` also is used for TypeScript React components. Because of this you may need to work around bundler notions of what the file is to treat it as raw xml instead of a React component.
+
+### Vite configuration
+
+For example, in the Vite sample, we work around the `.tsx` issue using this configuration:
 
 ```typescript
 // vite.config.js
@@ -409,3 +413,38 @@ export default defineConfig({
     }
 });
 ```
+
+
+### Webpack configuration
+
+In the Webpack sample, we work around the `.tsx` issue using this configuration:
+
+```typescript
+module: {
+    rules: [
+        {
+            test: /\.ts?$/,
+            use: 'ts-loader',
+            exclude: /node_modules/
+        },
+        {
+            test: /\.(png|jpg|bmp|wav|mp3|tmx|tsx)$/,
+            loader: 'file-loader',
+            options: {
+                name: '[path][name].[ext]',
+                context: path.resolve(__dirname)
+            }
+        }
+    ]
+}
+```
+
+:::warning
+
+By default Bundlers will often add a hash to imported, static assets. For example: `styles.c1c53abc.css`
+
+Under normal circumstances this is fantastic for breaking cach when assets change. However Tiled assumes its dependent files are located in the same relative directory, using the same name that was used locally.
+
+If you receive 404 errors when the tilesets or assets are retrieved, double check the filename has not been altered by your bundler.
+
+:::

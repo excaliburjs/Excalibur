@@ -252,7 +252,7 @@ describe('A CompositeCollider', () => {
     expect(compCollider.contains(vec(-101, 0))).toBe(false);
   });
 
-  it('can be debug drawn', async () => {
+  it('@visual can be debug drawn', async () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 300;
     canvasElement.height = 300;

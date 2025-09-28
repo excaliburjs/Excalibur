@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-import { TestUtils } from './util/TestUtils';
+import { TestUtils } from '../__util__/TestUtils';
 
 describe('A CrossFade transition', () => {
   it('exists', () => {
@@ -34,7 +34,7 @@ describe('A CrossFade transition', () => {
     return await future.promise;
   }
 
-  it.skip('can cross fade', async () => {
+  it.skip('@visual can cross fade', async () => {
     const engine = TestUtils.engine({ backgroundColor: ex.Color.ExcaliburBlue });
     const clock = engine.clock as ex.TestClock;
     await TestUtils.runToReady(engine);

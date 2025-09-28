@@ -106,205 +106,207 @@ describe('A Sprite Graphic', () => {
     expect(sut.destSize.height).toBe(55);
   });
 
-  it('can specify a source/dest view of an image with default width and height', async () => {
-    const image = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
-    const sut = new ex.Sprite({
-      image,
-      width: 16,
-      height: 16
-    });
-
-    expect(sut.width, 'Graphic width should be 16').toBe(16);
-    expect(sut.height, 'Graphic height should be 16').toBe(16);
-    expect(sut.sourceView.x).toBe(0);
-    expect(sut.sourceView.y).toBe(0);
-    expect(sut.sourceView.width, 'Graphic sourceView width should be 16').toBe(16);
-    expect(sut.sourceView.height, 'Graphic sourceView height should be 16').toBe(16);
-    expect(sut.destSize.width, 'Graphic destSize width should be 16').toBe(16);
-    expect(sut.destSize.height, 'Graphic destSize height should be 16').toBe(16);
-    expect(sut.localBounds.width, 'Graphic local bounds width should be 16').toBe(16);
-    expect(sut.localBounds.height, 'Graphic local bounds height should be 16').toBe(16);
-
-    await image.load();
-    await image.ready;
-
-    ctx.clear();
-    sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
-    ctx.flush();
-
-    await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsSpriteSpec/source-view.png');
-  });
-
-  it('can draw an sprite image with a tint', async () => {
-    const image = new ex.ImageSource('/src/spec/assets/images/GraphicsSpriteSpec/icon.png');
-    const sut = image.toSprite();
-    sut.tint = ex.Color.Green;
-
-    await image.load();
-    await image.ready;
-
-    ctx.clear();
-    sut.draw(ctx, 0, 0);
-    ctx.flush();
-
-    await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsSpriteSpec/icon-tint.png');
-  });
-
-  it('can specify the width and height of a sprite after construction', async () => {
-    const image = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png', false, ex.ImageFiltering.Pixel);
-    const sut = new ex.Sprite({
-      image,
-      sourceView: {
-        x: 0,
-        y: 0,
+  describe('@visual', () => {
+    it('can specify a source/dest view of an image with default width and height', async () => {
+      const image = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
+      const sut = new ex.Sprite({
+        image,
         width: 16,
         height: 16
-      }
+      });
+
+      expect(sut.width, 'Graphic width should be 16').toBe(16);
+      expect(sut.height, 'Graphic height should be 16').toBe(16);
+      expect(sut.sourceView.x).toBe(0);
+      expect(sut.sourceView.y).toBe(0);
+      expect(sut.sourceView.width, 'Graphic sourceView width should be 16').toBe(16);
+      expect(sut.sourceView.height, 'Graphic sourceView height should be 16').toBe(16);
+      expect(sut.destSize.width, 'Graphic destSize width should be 16').toBe(16);
+      expect(sut.destSize.height, 'Graphic destSize height should be 16').toBe(16);
+      expect(sut.localBounds.width, 'Graphic local bounds width should be 16').toBe(16);
+      expect(sut.localBounds.height, 'Graphic local bounds height should be 16').toBe(16);
+
+      await image.load();
+      await image.ready;
+
+      ctx.clear();
+      sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
+      ctx.flush();
+
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsSpriteSpec/source-view.png');
     });
 
-    sut.width = 64;
-    sut.height = 64;
+    it('can draw an sprite image with a tint', async () => {
+      const image = new ex.ImageSource('/src/spec/assets/images/GraphicsSpriteSpec/icon.png');
+      const sut = image.toSprite();
+      sut.tint = ex.Color.Green;
 
-    await image.load();
-    await image.ready;
+      await image.load();
+      await image.ready;
 
-    ctx.clear();
-    sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
-    ctx.flush();
+      ctx.clear();
+      sut.draw(ctx, 0, 0);
+      ctx.flush();
 
-    await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsSpriteSpec/change-size.png');
-  });
-
-  it('can specify the width and height and scale', async () => {
-    const image = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png', false, ex.ImageFiltering.Pixel);
-    const sut = new ex.Sprite({
-      image,
-      sourceView: {
-        x: 0,
-        y: 0,
-        width: 16,
-        height: 16
-      }
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsSpriteSpec/icon-tint.png');
     });
 
-    sut.width = 64;
-    sut.height = 64;
+    it('can specify the width and height of a sprite after construction', async () => {
+      const image = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png', false, ex.ImageFiltering.Pixel);
+      const sut = new ex.Sprite({
+        image,
+        sourceView: {
+          x: 0,
+          y: 0,
+          width: 16,
+          height: 16
+        }
+      });
 
-    sut.scale = ex.vec(2, 2);
+      sut.width = 64;
+      sut.height = 64;
 
-    await image.load();
-    await image.ready;
+      await image.load();
+      await image.ready;
 
-    ctx.clear();
-    sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
-    ctx.flush();
-    expect(sut.width).toBe(128);
-    expect(sut.height).toBe(128);
-    await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsSpriteSpec/change-size-and-scale.png');
-  });
+      ctx.clear();
+      sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
+      ctx.flush();
 
-  it('can specify a source view of an image by default is same dimension as the source', async () => {
-    const image = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
-    const sut = new ex.Sprite({
-      image,
-      sourceView: {
-        x: 0,
-        y: 0,
-        width: 16,
-        height: 16
-      }
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsSpriteSpec/change-size.png');
     });
 
-    expect(sut.width, 'Graphic width should be 16').toBe(16);
-    expect(sut.height, 'Graphic height should be 16').toBe(16);
-    expect(sut.sourceView.x).toBe(0);
-    expect(sut.sourceView.y).toBe(0);
-    expect(sut.sourceView.width, 'Graphic sourceView width should be 16').toBe(16);
-    expect(sut.sourceView.height, 'Graphic sourceView height should be 16').toBe(16);
-    expect(sut.destSize.width, 'Graphic destSize width should be 16').toBe(16);
-    expect(sut.destSize.height, 'Graphic destSize height should be 16').toBe(16);
-    expect(sut.localBounds.width, 'Graphic local bounds width should be 16').toBe(16);
-    expect(sut.localBounds.height, 'Graphic local bounds height should be 16').toBe(16);
+    it('can specify the width and height and scale', async () => {
+      const image = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png', false, ex.ImageFiltering.Pixel);
+      const sut = new ex.Sprite({
+        image,
+        sourceView: {
+          x: 0,
+          y: 0,
+          width: 16,
+          height: 16
+        }
+      });
 
-    await image.load();
-    await image.ready;
+      sut.width = 64;
+      sut.height = 64;
 
-    ctx.clear();
-    sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
-    ctx.flush();
+      sut.scale = ex.vec(2, 2);
 
-    await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsSpriteSpec/source-view.png');
-  });
+      await image.load();
+      await image.ready;
 
-  it('can specify a source view of an image and a dest view dimension is destination', async () => {
-    const image = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png', false, ex.ImageFiltering.Pixel);
-    const sut = new ex.Sprite({
-      image,
-      sourceView: {
-        x: 0,
-        y: 0,
-        width: 16,
-        height: 16
-      },
-      destSize: {
-        width: 50,
-        height: 50
-      }
+      ctx.clear();
+      sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
+      ctx.flush();
+      expect(sut.width).toBe(128);
+      expect(sut.height).toBe(128);
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsSpriteSpec/change-size-and-scale.png');
     });
 
-    expect(sut.width, 'Graphic width should be 50').toBe(50);
-    expect(sut.height, 'Graphic height should be 50').toBe(50);
-    expect(sut.sourceView.x).toBe(0);
-    expect(sut.sourceView.y).toBe(0);
-    expect(sut.sourceView.width, 'Graphic sourceView width should be 50').toBe(16);
-    expect(sut.sourceView.height, 'Graphic sourceView height should be 50').toBe(16);
-    expect(sut.destSize.width, 'Graphic destSize width should be 50').toBe(50);
-    expect(sut.destSize.height, 'Graphic destSize height should be 50').toBe(50);
-    expect(sut.localBounds.width, 'Graphic local bounds width should be 50').toBe(50);
-    expect(sut.localBounds.height, 'Graphic local bounds height should be 50').toBe(50);
+    it('can specify a source view of an image by default is same dimension as the source', async () => {
+      const image = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
+      const sut = new ex.Sprite({
+        image,
+        sourceView: {
+          x: 0,
+          y: 0,
+          width: 16,
+          height: 16
+        }
+      });
 
-    await image.load();
-    await image.ready;
+      expect(sut.width, 'Graphic width should be 16').toBe(16);
+      expect(sut.height, 'Graphic height should be 16').toBe(16);
+      expect(sut.sourceView.x).toBe(0);
+      expect(sut.sourceView.y).toBe(0);
+      expect(sut.sourceView.width, 'Graphic sourceView width should be 16').toBe(16);
+      expect(sut.sourceView.height, 'Graphic sourceView height should be 16').toBe(16);
+      expect(sut.destSize.width, 'Graphic destSize width should be 16').toBe(16);
+      expect(sut.destSize.height, 'Graphic destSize height should be 16').toBe(16);
+      expect(sut.localBounds.width, 'Graphic local bounds width should be 16').toBe(16);
+      expect(sut.localBounds.height, 'Graphic local bounds height should be 16').toBe(16);
 
-    ctx.clear();
-    sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
-    ctx.flush();
+      await image.load();
+      await image.ready;
 
-    await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsSpriteSpec/dest-size.png');
-  });
+      ctx.clear();
+      sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
+      ctx.flush();
 
-  it('can specify only a dest view dimension, infers native size for source view', async () => {
-    const image = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
-    const sut = new ex.Sprite({
-      image,
-      destSize: {
-        width: 100,
-        height: 100
-      }
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsSpriteSpec/source-view.png');
     });
 
-    expect(sut.width, 'Graphic width should be 100').toBe(100);
-    expect(sut.height, 'Graphic height should be 100').toBe(100);
-    expect(sut.sourceView.x).toBe(0);
-    expect(sut.sourceView.y).toBe(0);
-    expect(sut.sourceView.width, 'Graphic sourceView width should be 0 before image load').toBe(0);
-    expect(sut.sourceView.height, 'Graphic sourceView height should be 0 before image load').toBe(0);
-    expect(sut.destSize.width, 'Graphic destSize width should be 100').toBe(100);
-    expect(sut.destSize.height, 'Graphic destSize height should be 100').toBe(100);
-    expect(sut.localBounds.width, 'Graphic local bounds width should be 100').toBe(100);
-    expect(sut.localBounds.height, 'Graphic local bounds height should be 100').toBe(100);
+    it('can specify a source view of an image and a dest view dimension is destination', async () => {
+      const image = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png', false, ex.ImageFiltering.Pixel);
+      const sut = new ex.Sprite({
+        image,
+        sourceView: {
+          x: 0,
+          y: 0,
+          width: 16,
+          height: 16
+        },
+        destSize: {
+          width: 50,
+          height: 50
+        }
+      });
 
-    await image.load();
-    await image.ready;
+      expect(sut.width, 'Graphic width should be 50').toBe(50);
+      expect(sut.height, 'Graphic height should be 50').toBe(50);
+      expect(sut.sourceView.x).toBe(0);
+      expect(sut.sourceView.y).toBe(0);
+      expect(sut.sourceView.width, 'Graphic sourceView width should be 50').toBe(16);
+      expect(sut.sourceView.height, 'Graphic sourceView height should be 50').toBe(16);
+      expect(sut.destSize.width, 'Graphic destSize width should be 50').toBe(50);
+      expect(sut.destSize.height, 'Graphic destSize height should be 50').toBe(50);
+      expect(sut.localBounds.width, 'Graphic local bounds width should be 50').toBe(50);
+      expect(sut.localBounds.height, 'Graphic local bounds height should be 50').toBe(50);
 
-    expect(sut.sourceView.width).not.toBe(0);
-    expect(sut.sourceView.height).not.toBe(0);
+      await image.load();
+      await image.ready;
 
-    ctx.clear();
-    sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
-    ctx.flush();
+      ctx.clear();
+      sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
+      ctx.flush();
 
-    await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsSpriteSpec/dest-view.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsSpriteSpec/dest-size.png');
+    });
+
+    it('can specify only a dest view dimension, infers native size for source view', async () => {
+      const image = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
+      const sut = new ex.Sprite({
+        image,
+        destSize: {
+          width: 100,
+          height: 100
+        }
+      });
+
+      expect(sut.width, 'Graphic width should be 100').toBe(100);
+      expect(sut.height, 'Graphic height should be 100').toBe(100);
+      expect(sut.sourceView.x).toBe(0);
+      expect(sut.sourceView.y).toBe(0);
+      expect(sut.sourceView.width, 'Graphic sourceView width should be 0 before image load').toBe(0);
+      expect(sut.sourceView.height, 'Graphic sourceView height should be 0 before image load').toBe(0);
+      expect(sut.destSize.width, 'Graphic destSize width should be 100').toBe(100);
+      expect(sut.destSize.height, 'Graphic destSize height should be 100').toBe(100);
+      expect(sut.localBounds.width, 'Graphic local bounds width should be 100').toBe(100);
+      expect(sut.localBounds.height, 'Graphic local bounds height should be 100').toBe(100);
+
+      await image.load();
+      await image.ready;
+
+      expect(sut.sourceView.width).not.toBe(0);
+      expect(sut.sourceView.height).not.toBe(0);
+
+      ctx.clear();
+      sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
+      ctx.flush();
+
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsSpriteSpec/dest-view.png');
+    });
   });
 
   it('will log one warning if the imagesource is not loaded', () => {

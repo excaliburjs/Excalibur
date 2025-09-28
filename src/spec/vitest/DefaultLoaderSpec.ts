@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-import { TestUtils } from './util/TestUtils';
+import { TestUtils } from '../__util__/TestUtils';
 
 describe('A DefaultLoader', () => {
   let engine: ex.Engine;
@@ -37,7 +37,7 @@ describe('A DefaultLoader', () => {
     expect(sut.progress).toBe(0);
   });
 
-  it('can draw', async () => {
+  it('@visual can draw', async () => {
     const sut = new ex.DefaultLoader({
       loadables: [, , ,]
     });

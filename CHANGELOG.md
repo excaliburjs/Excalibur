@@ -15,6 +15,38 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+-
+
+### Fixed
+
+-
+
+### Updates
+
+-
+
+### Changed
+
+-
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [v0.31.0]
+
+### Breaking Changes
+
+-
+
+### Deprecated
+
+-
+
+### Added
+
+- Added new `ex.Camera.setStrategies()` and `ex.Camera.strategies` for additional control of strategy order
+- Fixed ex.Font measureText always using 10px sans-serif on the first call on some browsers
 - Added a new `ex.Sound({...})` option back constructor to set all the same props available on sound
 - Added a new `ex.SoundManager` type for managing groups of audio/sound effects/music volume in an easier way
 
@@ -116,6 +148,7 @@ const query = new Query({})
 - Fixed CollidePolygonPolygon crash with some defense against invalid separation
 - Fixed issue with PostProcessor where it would not run correctly if no actors present
 - Removed warning in development for unadded entities
+- Fixed memory leaks from retained entities in `Map<Entity>`
 
 ### Updates
 
@@ -123,14 +156,12 @@ const query = new Query({})
 
 ### Changed
 
+- Updated `ex.Camera.addStrategy()` to accept multiple strategies
 - Changed the behavior of `fromSpriteSheet(...)`, `fromSpriteSheetCoordinates({...})` and `clone()` of `ex.Animation` to return the subclass if called from there
 - Optimized BoundingBox.rayCast and BoundingBox.rayCastTime
 - Optimized BoundingBox.intersect(otherBoundingBox)
 - Change logging behavior for entities not in scenes, only log in dev builds
 
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
 ## [v0.30.0]
 

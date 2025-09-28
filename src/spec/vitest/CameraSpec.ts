@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-import { TestUtils } from './util/TestUtils';
+import { TestUtils } from '../__util__/TestUtils';
 
 describe('A camera', () => {
   let Camera: ex.Camera;
@@ -369,6 +369,60 @@ describe('A camera', () => {
     expect(engine.currentScene.camera.pos.y).not.toBe(999);
     expect(engine.currentScene.camera.pos.x).toBe(750);
     expect(engine.currentScene.camera.pos.y).toBe(750);
+  });
+
+  it('can add a single strategy', () => {
+    const strategy = new ex.LockCameraToActorStrategy(actor);
+    engine.currentScene.camera = new ex.Camera();
+
+    engine.currentScene.camera.addStrategy(strategy);
+
+    expect(engine.currentScene.camera.strategies).toEqual([strategy]);
+  });
+
+  it('can add multiple strategies', () => {
+    const strategyA = new ex.LockCameraToActorStrategy(actor);
+    const strategyB = new ex.LimitCameraBoundsStrategy(new ex.BoundingBox(10, 10, 1000, 1000));
+    const strategyC = new ex.ElasticToActorStrategy(actor, 0.5, 0.2);
+    engine.currentScene.camera = new ex.Camera();
+
+    engine.currentScene.camera.addStrategy(strategyA, strategyB, strategyC);
+
+    expect(engine.currentScene.camera.strategies).toEqual([strategyA, strategyB, strategyC]);
+  });
+
+  it('can set strategies', () => {
+    const strategyA = new ex.LockCameraToActorStrategy(actor);
+    const strategyB = new ex.LimitCameraBoundsStrategy(new ex.BoundingBox(10, 10, 1000, 1000));
+    const strategyC = new ex.ElasticToActorStrategy(actor, 0.5, 0.2);
+    engine.currentScene.camera = new ex.Camera();
+
+    engine.currentScene.camera.addStrategy(strategyA);
+    engine.currentScene.camera.setStrategies([strategyB, strategyC]);
+
+    expect(engine.currentScene.camera.strategies).toEqual([strategyB, strategyC]);
+  });
+
+  it('can remove strategies', () => {
+    const strategyA = new ex.LockCameraToActorStrategy(actor);
+    const strategyB = new ex.LimitCameraBoundsStrategy(new ex.BoundingBox(10, 10, 1000, 1000));
+    engine.currentScene.camera = new ex.Camera();
+
+    engine.currentScene.camera.setStrategies([strategyA, strategyB]);
+    engine.currentScene.camera.removeStrategy(strategyA);
+
+    expect(engine.currentScene.camera.strategies).toEqual([strategyB]);
+  });
+
+  it('can clear all strategies', () => {
+    const strategyA = new ex.LockCameraToActorStrategy(actor);
+    const strategyB = new ex.LimitCameraBoundsStrategy(new ex.BoundingBox(10, 10, 1000, 1000));
+    engine.currentScene.camera = new ex.Camera();
+
+    engine.currentScene.camera.setStrategies([strategyA, strategyB]);
+    engine.currentScene.camera.clearAllStrategies();
+
+    expect(engine.currentScene.camera.strategies).toEqual([]);
   });
 
   it('can lerp over time', () =>

@@ -54,7 +54,7 @@ describe('A ImageSource', () => {
         xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
         xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
         sodipodi:docname="resize-full.svg" inkscape:version="0.48.4 r9939"
-        xmlns="http://www.w3.org/2000/svg" 
+        xmlns="http://www.w3.org/2000/svg"
         width="800px" height="800px"
         viewBox="0 0 1200 1200" enable-background="new 0 0 1200 1200" xml:space="preserve">
     <path id="path18934" fill="#000000ff" inkscape:connector-curvature="0"  d="M670.312,0l177.246,177.295L606.348,418.506l175.146,175.146
@@ -380,60 +380,62 @@ describe('A ImageSource', () => {
     await expect(spriteFontImage.load()).rejects.toThrowError("Error loading ImageSource from path '/42.png' with error [Not Found]");
   });
 
-  it('can be built from canvas elements', async () => {
-    const sutCanvas = document.createElement('canvas')!;
-    sutCanvas.width = 100;
-    sutCanvas.height = 100;
-    const sutCtx = sutCanvas.getContext('2d')!;
-    sutCtx.fillStyle = ex.Color.Black.toRGBA();
-    sutCtx.fillRect(20, 20, 50, 50);
+  describe('@visual', () => {
+    it('can be built from canvas elements', async () => {
+      const sutCanvas = document.createElement('canvas')!;
+      sutCanvas.width = 100;
+      sutCanvas.height = 100;
+      const sutCtx = sutCanvas.getContext('2d')!;
+      sutCtx.fillStyle = ex.Color.Black.toRGBA();
+      sutCtx.fillRect(20, 20, 50, 50);
 
-    const img = ex.ImageSource.fromHtmlCanvasElement(sutCanvas);
-    const sprite = img.toSprite();
-    await img.ready;
+      const img = ex.ImageSource.fromHtmlCanvasElement(sutCanvas);
+      const sprite = img.toSprite();
+      await img.ready;
 
-    ctx.clear();
-    sprite.draw(ctx, 0, 0);
-    ctx.flush();
+      ctx.clear();
+      sprite.draw(ctx, 0, 0);
+      ctx.flush();
 
-    await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsImageSourceSpec/canvas-image.png');
-  });
-
-  it('can be built from canvas elements with wrapping/filtering specified', async () => {
-    const sutCanvas = document.createElement('canvas')!;
-    sutCanvas.width = 100;
-    sutCanvas.height = 100;
-    const sutCtx = sutCanvas.getContext('2d')!;
-    sutCtx.fillStyle = ex.Color.Black.toRGBA();
-    sutCtx.fillRect(20, 20, 50, 50);
-
-    const img = ex.ImageSource.fromHtmlCanvasElement(sutCanvas, {
-      wrapping: ex.ImageWrapping.Repeat,
-      filtering: ex.ImageFiltering.Pixel
-    });
-    const sprite = img.toSprite();
-    await img.ready;
-
-    expect(img.image.getAttribute(ex.ImageSourceAttributeConstants.Filtering)).toBe(ex.ImageFiltering.Pixel);
-    expect(img.image.getAttribute(ex.ImageSourceAttributeConstants.WrappingX)).toBe(ex.ImageWrapping.Repeat);
-    expect(img.image.getAttribute(ex.ImageSourceAttributeConstants.WrappingY)).toBe(ex.ImageWrapping.Repeat);
-
-    const img2 = ex.ImageSource.fromHtmlCanvasElement(sutCanvas, {
-      wrapping: {
-        x: ex.ImageWrapping.Repeat,
-        y: ex.ImageWrapping.Clamp
-      },
-      filtering: ex.ImageFiltering.Blended
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsImageSourceSpec/canvas-image.png');
     });
 
-    expect(img2.image.getAttribute(ex.ImageSourceAttributeConstants.Filtering)).toBe(ex.ImageFiltering.Blended);
-    expect(img2.image.getAttribute(ex.ImageSourceAttributeConstants.WrappingX)).toBe(ex.ImageWrapping.Repeat);
-    expect(img2.image.getAttribute(ex.ImageSourceAttributeConstants.WrappingY)).toBe(ex.ImageWrapping.Clamp);
+    it('can be built from canvas elements with wrapping/filtering specified', async () => {
+      const sutCanvas = document.createElement('canvas')!;
+      sutCanvas.width = 100;
+      sutCanvas.height = 100;
+      const sutCtx = sutCanvas.getContext('2d')!;
+      sutCtx.fillStyle = ex.Color.Black.toRGBA();
+      sutCtx.fillRect(20, 20, 50, 50);
 
-    ctx.clear();
-    sprite.draw(ctx, 0, 0);
-    ctx.flush();
+      const img = ex.ImageSource.fromHtmlCanvasElement(sutCanvas, {
+        wrapping: ex.ImageWrapping.Repeat,
+        filtering: ex.ImageFiltering.Pixel
+      });
+      const sprite = img.toSprite();
+      await img.ready;
 
-    await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsImageSourceSpec/canvas-image.png');
+      expect(img.image.getAttribute(ex.ImageSourceAttributeConstants.Filtering)).toBe(ex.ImageFiltering.Pixel);
+      expect(img.image.getAttribute(ex.ImageSourceAttributeConstants.WrappingX)).toBe(ex.ImageWrapping.Repeat);
+      expect(img.image.getAttribute(ex.ImageSourceAttributeConstants.WrappingY)).toBe(ex.ImageWrapping.Repeat);
+
+      const img2 = ex.ImageSource.fromHtmlCanvasElement(sutCanvas, {
+        wrapping: {
+          x: ex.ImageWrapping.Repeat,
+          y: ex.ImageWrapping.Clamp
+        },
+        filtering: ex.ImageFiltering.Blended
+      });
+
+      expect(img2.image.getAttribute(ex.ImageSourceAttributeConstants.Filtering)).toBe(ex.ImageFiltering.Blended);
+      expect(img2.image.getAttribute(ex.ImageSourceAttributeConstants.WrappingX)).toBe(ex.ImageWrapping.Repeat);
+      expect(img2.image.getAttribute(ex.ImageSourceAttributeConstants.WrappingY)).toBe(ex.ImageWrapping.Clamp);
+
+      ctx.clear();
+      sprite.draw(ctx, 0, 0);
+      ctx.flush();
+
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsImageSourceSpec/canvas-image.png');
+    });
   });
 });
