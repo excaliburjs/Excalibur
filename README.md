@@ -56,10 +56,15 @@ allow the widest contributions possible. However, you can always use your own pr
 
 **Dev Container Support**
 
-With VS Code, you may be prompted to **Open in a [Dev Container](https://code.visualstudio.com/docs/devcontainers/containers)**. This is a great way to contribute if you don't want to install Playwright and
+In supported editors, you may be prompted to **Open in a Dev Container**. This is a great way to contribute if you don't want to install Playwright and
 its dependencies on your machine and keep everything isolated. 
 
-Dev Containers require [Docker](https://docs.docker.com/desktop/) (or [Podman](https://podman.io/)) to be installed and should work across all platforms. You can reference the VS Code documentation for how to make your environment ready to support dev containers.
+Dev Containers require [Docker](https://docs.docker.com/desktop/) (or [Podman](https://podman.io/)) to be installed and should work across all platforms.
+
+_Supported Editors_
+
+- [Visual Studio documentation](https://code.visualstudio.com/docs/devcontainers/containers)
+- [Web Storm documentation](https://www.jetbrains.com/help/webstorm/connect-to-devcontainer.html)
 
 ## Testing
 
