@@ -45,14 +45,6 @@ Compiled examples can be found [in the Excalibur Samples collection](http://exca
 
 Please read our [Contributing Guidelines](.github/CONTRIBUTING.md) and our [Code of Conduct](.github/CODE_OF_CONDUCT.md). Whether you've spotted a bug, have a question, or think of a new feature, we thank you for your help!
 
-## Mac/Linux
-
-Prerequisites
-* Docker for Mac https://docs.docker.com/desktop/mac/install/
-* In the root, run `docker compose build` (setup build environment and installs dependencies, only needed once)
-* To run tests in watch mode `docker compose run --rm dev npm run test:watch`
-* To run a build `docker compose run --rm dev npm run all`
-
 # Writing Documentation
 
 We love when people help improve our documentation. You can contribute to the docs in this repo under [`/site`](https://github.com/excaliburjs/Excalibur/tree/main/site)
@@ -61,6 +53,13 @@ We love when people help improve our documentation. You can contribute to the do
 
 The Excalibur.js team primarily uses [Visual Studio Code](http://code.visualstudio.com) as a platform agnostic editor to
 allow the widest contributions possible. However, you can always use your own preferred editor.
+
+**Dev Container Support**
+
+With VS Code, you may be prompted to **Open in a [Dev Container](https://code.visualstudio.com/docs/devcontainers/containers)**. This is a great way to contribute if you don't want to install Playwright and
+its dependencies on your machine and keep everything isolated. 
+
+Dev Containers require [Docker](https://docs.docker.com/desktop/) (or [Podman](https://podman.io/)) to be installed and should work across all platforms. You can reference the VS Code documentation for how to make your environment ready to support dev containers.
 
 ## Testing
 
@@ -77,7 +76,11 @@ After cloning the repository, run:
 
 ```sh
 npm install
+npx playwright install
 ```
+
+> ![TIP]
+> If you are using a Dev Container, this is handled for you automatically!
 
 You can then run the npm tasks for various purposes:
 
