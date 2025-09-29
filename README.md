@@ -79,7 +79,7 @@ npm install
 npx playwright install
 ```
 
-> ![TIP]
+> [!TIP]
 > If you are using a Dev Container, this is handled for you automatically!
 
 You can then run the npm tasks for various purposes:
