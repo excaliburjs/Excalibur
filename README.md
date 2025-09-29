@@ -81,11 +81,11 @@ After cloning the repository, run:
 
 ```sh
 npm install
-npx playwright install
+npx playwright install --with-deps
 ```
 
 > [!TIP]
-> If you are using a Dev Container, this is handled for you automatically!
+> If you are using a Dev Container, this is handled for you automatically! The `--with-deps` flag installs system dependencies, which may be needed depending on your OS.
 
 You can then run the npm tasks for various purposes:
 
