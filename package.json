@@ -114,7 +114,7 @@
     "karma-webpack": "5.0.1",
     "lint-staged": "15.5.2",
     "pixelmatch": "5.3.0",
-    "playwright": "1.54.2",
+    "playwright": "1.55.1",
     "prettier": "3.6.2",
     "puppeteer": "24.15.0",
     "raw-loader": "4.0.2",
@@ -130,13 +130,13 @@
     "typedoc": "0.25.13",
     "typescript": "5.6.3",
     "typescript-eslint": "8.38.0",
+    "url-loader": "4.1.1",
     "vite": "6.3.6",
     "vite-plugin-banner": "0.8.1",
     "vite-plugin-static-copy": "3.1.2",
     "vitest": "3.2.4",
     "webpack": "5.101.0",
-    "webpack-cli": "5.1.4",
-    "url-loader": "4.1.1"
+    "webpack-cli": "5.1.4"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,html,json,md,yml,yaml}": "prettier --write",

@@ -24,6 +24,7 @@ tscommand*
 *.log
 *.sql
 *.sqlite
+nohup.out
 
 # Sublime workspace settings #
 *.sublime-workspace
