@@ -15,7 +15,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- Support for [Visual Studio Code Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers) for an out-of-the-box contribution dev environment
+- DX: Support for [Visual Studio Code Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers) for an out-of-the-box contribution dev environment
+- DX: Support for [Vitest UI](https://vitest.dev/guide/ui.html) for browser testing
 
 ### Fixed
 
