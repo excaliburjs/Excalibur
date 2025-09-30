@@ -1,0 +1,26 @@
+// .devcontainer/devcontainer.json
+{
+  "name": "Node.js & TypeScript (Playwright)",
+  "image": "mcr.microsoft.com/playwright:v1.55.1-noble",
+  // Install browsers
+  "postCreateCommand": "npm install; npx playwright install",
+  // Start virtual Xserver for tests and leave running
+  "postStartCommand": "nohup bash -c 'Xvfb $DISPLAY -screen 0 1280x720x16 &'",
+  "containerEnv": {
+    "DISPLAY": ":99"
+  },
+  "portsAttributes": {
+    "51204": {
+      "label": "Vitest UI"
+    },
+    "5173": {
+      "label": "Vite Dev Server"
+    },
+    "6006": {
+      "label": "Storybook"
+    },
+    "3000": {
+      "label": "Docs Site"
+    }
+  }
+}
