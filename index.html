@@ -4,6 +4,18 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="twitter:card" content="summary_large_image">
+	<meta property="og:image" content="https://excaliburjs.com/playground/social.jpg">
+	<meta name="twitter:image" content="https://excaliburjs.com/playground/social.jpg">
+	<meta property="og:url" content="https://excaliburjs.com/playground/">
+	<meta property="og:locale" content="en">
+	<meta property="og:title" content="Excalibur.js Playground">
+	<meta name="description" content="Excalibur is a friendly TypeScript game engine for the web!">
+	<meta property="og:description" content="Excalibur is a friendly TypeScript game engine for the web!">
+	<link rel="icon" href="/img/favicon.ico">
+	<link rel="canonical" href="https://excaliburjs.com/playground/">
+	<link rel="alternate" href="https://excaliburjs.com/playground/" hreflang="en">
+	<link rel="alternate" href="https://excaliburjs.com/playground/" hreflang="x-default">
 	<title>Excalibur Playground</title>
 	<link rel="stylesheet" href="styles.css">
 </head>
@@ -17,19 +29,19 @@
 		<div id="preview">
 			<div id="canvas-container">
 				<div class="loading">
-						<div>Building...</div>
-						<img src="icon.png" alt="excalibur sword"/>
+					<div>Building...</div>
+					<img src="icon.png" alt="excalibur sword" />
 				</div>
 				<canvas id="preview-canvas">
 				</canvas>
 			</div>
 			<div id="controls">
-        <label for="auto-save">Auto Save
-          <input id="auto-save" type="checkbox" checked="checked">
-        </label>
+				<label for="auto-save">Auto Save
+					<input id="auto-save" type="checkbox" checked="checked">
+				</label>
 				<button id="build" title="Build & Run (CTRL+S)">Build & Run</button>
 				<button id="debug" title="Debug (CTRL+D)">Toggle Debug</button>
-				<button id="share" >Share</button>
+				<button id="share">Share</button>
 			</div>
 		</div>
 
