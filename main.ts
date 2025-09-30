@@ -95,14 +95,14 @@ function debounce(func: (..._: any[]) => any, delay: number) {
 
 const saveHandler = debounce(e => {
   if (autoSaveEl.checked) {
-    shareCode();
+    shareCode(false);
     console.log('Auto-save triggered!');
   }
 
   // Example: Handle Ctrl+S
   if (e.ctrlKey && e.keyCode === monaco.KeyCode.KeyS) {
     e.preventDefault();
-    shareCode();
+    shareCode(false);
     console.log('Save triggered!');
   }
 
@@ -154,16 +154,18 @@ const toggleDebug = () => {
   (globalThis.___EXCALIBUR_DEVTOOL as any).toggleDebug();
 }
 
-const shareCode = () => {
+const shareCode = (writeToClipboard?: boolean) => {
   const code = editor.getModel().getValue();
   const encoded = `code=${lz.compressToEncodedURIComponent(code)}`;
   const url = `${window.location}?${encoded}`;
   console.log(code);
   console.log(url);
-  navigator.clipboard.writeText(url);
+	if (writeToClipboard) {
+		navigator.clipboard.writeText(url);
+	}
   window.history.pushState({}, "", "?" + encoded);
 }
-shareButtonEl.addEventListener('click', shareCode);
+shareButtonEl.addEventListener('click', () => shareCode(true));
 debugButtonEl.addEventListener('click', toggleDebug);
 buildButtonEl.addEventListener('click', buildAndRun);
 
