@@ -67,12 +67,12 @@
     "build-storybook": "storybook build -o build-storybook",
     "sandbox": "cd sandbox && vite",
     "test": "vitest --ui",
+    "test:ci": "vitest",
     "test:watch": "npm run test -- --watch",
     "test:unit": "vitest --project unit",
     "test:unit:headless": "npm run test:unit -- --browser.headless",
     "test:visual": "vitest --project visual",
     "test:visual:headless": "npm run test:visual -- --browser.headless",
-    "test:ci": "npm run test -- --silent --hideSkippedTests",
     "apidocs": "node scripts/apidocs.js",
     "release": "cross-env release=true npm run all",
     "prepare": "husky"
