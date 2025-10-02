@@ -240,6 +240,11 @@ const config: Config = {
           label: 'Discord',
           position: 'left'
         },
+        {
+          href: 'https://buy.stripe.com/fZufZhf381coglRdpVe3e01',
+          label: 'Stickers',
+          position: 'left'
+        },
         { to: '/premium-support', label: 'Premium Support', position: 'right' },
         {
           href: 'https://github.com/excaliburjs/Excalibur',
