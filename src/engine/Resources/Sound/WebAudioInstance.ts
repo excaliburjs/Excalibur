@@ -30,9 +30,9 @@ export class WebAudioInstance implements Audio {
             this._handleEnd();
             if (this.loop) {
               // when looping don't set a duration
-              this._instance.start(0, data.pausedAt * this._playbackRate);
+              this._instance.start(this.scheduledStart, data.pausedAt * this._playbackRate);
             } else {
-              this._instance.start(0, data.pausedAt * this._playbackRate, this.duration);
+              this._instance.start(this.scheduledStart, data.pausedAt * this._playbackRate, this.duration);
             }
             data.startedAt = this._audioContext.currentTime - data.pausedAt;
             data.pausedAt = 0;
@@ -216,4 +216,6 @@ export class WebAudioInstance implements Audio {
   public get playbackRate() {
     return this._instance.playbackRate.value;
   }
+
+  public scheduledStart = 0;
 }
