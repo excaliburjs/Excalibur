@@ -134,3 +134,15 @@ export enum CollisionType {
   Fixed = 'Fixed'
 }
 ```
+
+## Site and docs language
+
+#### DO
+
+ - Use "Excalibur" (vs. "excalibur", "excalibur.js", "excaliburjs") when referring to the project or the broader ecosystem
+  - e.g. "Excalibur has built in types"
+  - e.g. "The Excalibur community can be found on Discord"
+
+#### DON'T
+
+ - Avoid referencing "new" code. Instead the docs should represent the current point in time. This minimizes the docs appearing stale over time

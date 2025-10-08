@@ -11,74 +11,87 @@ Particles can be used to generate dust, smoke, or fire effects in your games.
 The easiest way to create a [[ParticleEmitter]] is to use the
 [Particle Tester](https://excaliburjs.com/particle-tester/) to generate code for emitters.
 
-:::warning
-The particle tester constructor is currently out of date, you will need to modify it to match the below.
-:::
+### Circle emitter
 
-### Example: Adding an emitter
-
-```js
-const actor = new ex.Actor(...);
-const emitter = new ParticleEmitter({
-  x: 100,
-  y: 100,
-  radius: 5,
-  emitterType: ex.EmitterType.Circle, // Shape of emitter nozzle
-  minVel: 100,
-  maxVel: 200,
-  minAngle: 0,
-  maxAngle: Math.PI * 2,
-  isEmitting: true, // should the emitter be emitting
-  emitRate: 300, // 300 particles/second
-  opacity: 0.5,
-  fadeFlag: true, // fade particles overtime
-  particleLife: 1000, // in milliseconds = 1 sec
-  minSize: 1, // random size minimum in pixels
-  maxSize: 10, // random size maximum in pixels
-  startSize: 10, // starting size in pixels
-  endSize: 1, // ending size in pixels
-  acceleration: new Vector(accelX, accelY),
-  beginColor: ex.Color.Red,
-  endColor: ex.Color.Blue,
-  focusAccel: 800
-});
-// add the emitter as a child actor, it will draw on top of the parent actor
-// and move with the parent
-actor.add(emitter);
-// or, alternatively, add it to the current scene
-engine.add(emitter);
-```
-
-### 🧪 Alpha Particle Emitter
-
-In the latest build particle specific properties are nested under the `particle` config
+Particles are emitted from a circular nozzle of the given radius.
 
 ```typescript
-const emitter = new ParticleEmitter({
+const emitter = new ex.ParticleEmitter({
   x: game.halfDrawWidth,
   y: game.halfDrawHeight,
-  width,
-  height,
-  emitterType,
-  radius,
-  isEmitting,
-  emitRate,
-  focusAccel: 800,
+  emitterType: ex.EmitterType.Circle,    // Shape of emitter nozzle
+  radius: 10,                            // The radius of the emitter nozzle, only applies when emitterType is Circle
+  isEmitting: true,                      // Is the emitter actively emitting
+  emitRate: 300,                         // The number of particle particles emitted per second
   particle: {
-    minVel,
-    maxVel,
-    minAngle,
-    maxAngle,
-    opacity,
-    fade,
-    life,
-    minSize,
-    maxSize,
-    startSize,
-    endSize,
-    acc: new Vector(accelX, accelY),
+    minSpeed: -100,                      // A random speed between minSpeed and maxSpeed will be applied as the particles initial velocity
+    maxSpeed: -80,
+    minAngle: Math.PI/180 * 45,          // A random angle between minAngle and maxAngle will be applied as the particles initial direction.
+    maxAngle: Math.PI/180 * 90,          // Note: 0 radians being to the right, 1.5708 radians (90 degrees) being down, and so on
+    opacity: 1,                          // Initial opacity of the particle
+    fade: true,                          // Fade particles overtime
+    life: 1000,                          // In milliseconds = 1 sec,
+    minSize: 1,                          // Random size minimum in pixels
+    maxSize: 10,                         // Random size maximum in pixels
+    startSize: 10,                       // Starting size in pixels
+    endSize: 1,                          // Ending size in pixels
+    acc: new ex.Vector(0, 10),           // Acceleration applied to particle over its life
     beginColor: ex.Color.Red,
     endColor: ex.Color.Blue,
   }
 });
 ```
+
+<IFrameEmbed variant="playground" src="https://excaliburjs.com/excalibur-playground/?code=FASwtgDg9gTgLgAgFQIIYGcEFMAeCBmMUYCA5LgMaoA2IARgK4ykDcwwFUAduogOaowWBAF4EXLAHdsOAHQBRLnxASAFAG9gCbQipcAbhnnUsQrnACSAEwBcZCDCz6QUgLR7D6UgBotOqyDoENSoAJ4AslBWWHa4sgAigcFhkdGyAGIgcADC3HCoKlgwvjoIkiBWcAAWdgBsAAz1JTpVWCB8VXB2ACyNzdp0qBQA1nxEDFxWudSwsXLTsLIAQiEjvgC+AJRsHNy82GBZcEWi4lIysgAKqPAgFCbyh3DHMBp+OHYCQrJVNPjxMFQkgA6hVqs1Qp9BFgfn8AUCABJtDpwZqmI5FAAqoQgMQujwxMGxuNk2RAMHuWGagICDHQdgAjE0-IECc8VHw7HAYAwqX50XAAEqoY52ADMfT8EBucDuJjsmlKhy4AGVcVhbAgAEySpWoHBqrAa8W6nTKgCCSnlCHCIqqVwsAHoGQAOerIBDMvU4S18a226oO51uj0ATi9Olo+DxTNN2mVKpAAC8Y95SumM5ntH54-rEynGU0s8WMzmELwZfmY0WSyWy1hJlXGWna62y0MKHNZPosBRVEWmZt+gg6FhlFwFjAu5PZIKNcOG1MoDMpxcZytec11sAtjsvjDUFYrKoBS9tsB97IK-BVNsgA" />
+
+### Rectangle emitter
+
+Particles are emitted from a rectangular nozzle of the given width and height.
+
+```typescript
+const emitter = new ex.ParticleEmitter({
+  x: game.halfDrawWidth,
+  y: game.halfDrawHeight,
+  emitterType: ex.EmitterType.Rectangle, // Shape of emitter nozzle
+  width: 50,                             // The dimensions of the emitter nozzle, only applies when emitterType is Rectangle
+  height: 10,
+  isEmitting: true,
+  emitRate: 300,
+  particle: {
+    minSpeed: -100,
+    maxSpeed: -80,
+    minAngle: Math.PI/180 * 45,
+    maxAngle: Math.PI/180 * 90,
+    opacity: 1,
+    fade: true,
+    life: 1000,
+    minSize: 1,
+    maxSize: 10,
+    startSize: 10,
+    endSize: 1,
+    acc: new ex.Vector(0, -100),
+    beginColor: ex.Color.Red,
+    endColor: ex.Color.Yellow,
+  }
+});
+```
+
+<IFrameEmbed variant="playground" src="https://excaliburjs.com/excalibur-playground/?code=FASwtgDg9gTgLgAgFQIIYGcEFMAeCBmMUYCA5LgMaoA2IARgK4ykDcwwFUAduogOaowWBAF4EXLAHdsOAHQBRLnxASAFAG9gCbQipcAbhnnUsQrnACSAEwBcZCDCz6QUgLR7D6UgBotOqyDoENSoAJ4AslBWWHa4sgAigcFhkdGyAGIgcADC3HCoKlgwvjoIkiBWcAAWdgBsAAz1JTpVWCB8VXB2ACyNzdp0qBQA1nxEDFxWudSwsXLTsLIAQiEjvgC+AJRsHNy82GBZcEWi4lIysgAKqPAgFCbyh3DHMBp+OHYCQrJVNPjxMFQkgA6hVqs1Qp9BFgfn8AUCABJtDpwZqmI5FAAqoQgMQujwxMGxuNkACUsBR8koTN4EH5ypUaggAKxNUrsjmczl+VrtTp2ACMTT8gQJzxUfDscBgDCwtK5CtKfnRcFJqGOdgAzH1FbqldoIDc4HcTHZNKVDlwAILUvHhdVVK4WAD0AoAHPVkAhusz5Vy-NowKgcDa+KaEPbqk7XR6vQBONkKgMIKCGihZSEIAV+vW65P4VDRKUyuW53PJ2j4PFCnVlvMWlQAZRAAC9qzm69yLcHm23BYnO12dLwjb3qwPBzpk1hJmPBR3J1PSkMKHYJNI4gA1ClwWCqNmuGubBdLnR0LDKLgLGBzWTXslYKz9bCTa+3+8ATSw1Bmkma62ALYdi+GFCysVQVRebZgBA2QR3gVRtiAA" />
+
+## Adding an emitter
+
+An emitter can be added to either an actor or the scene itself.
+When added to an actor it will draw on top of that actor and move with it.
+
+### Adding to actor
+
+```typescript
+actor.add(emitter);
+```
+
+### Adding to scene
+
+```typescript
+engine.add(emitter);
+```
+

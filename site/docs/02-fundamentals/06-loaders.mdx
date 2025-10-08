@@ -6,11 +6,9 @@ section: Fundamentals
 
 Games typically will have assets like image files, sound files, level data, etc. that you want to make available to your code. Excalibur has built in types to help you load assets. Excalibur loaders can load anything that implement the [[Loadable]] interface.
 
-To build a custom designed loader check out the [custom loaders](/docs/custom-loaders) docs.
-
 ## Loader
 
-Excalibur has a built in type [[Loader]] with the Excalibur.js logo, progress bar and a play button.
+Excalibur has a built in type [[Loader]] with the Excalibur logo, progress bar and a play button.
 
 ![loader](loader.gif)
 
@@ -26,20 +24,20 @@ To unlock the audio context as part of a user action handler (clicking for examp
 
 ## DefaultLoader & Customizing Loaders
 
-[[DefaultLoader]] is the new base loader type that all excalibur loaders must derive from, in fact the built in [[Loader]] derives from this type.
+[[DefaultLoader]] is the base loader type that all Excalibur loaders must derive from, in fact the built in [[Loader]] derives from this type.
 
 It comes built in with a really simple logo-less loader that can be overridden.
 
 ![default loader example](./default-loader.gif)
 
-```typescript 
+```typescript
 // my-loader.ts
 import * as ex from 'excalibur';
 
 export class MyLoader extends ex.DefaultLoader {
 
   override onUpdate(engine: Engine, elapsedMilliseconds: number): void {
-    // Perform something every tick, for example collect time elapsed or check 
+    // Perform something every tick, for example collect time elapsed or check
     // what file names have been loaded for drawing!
   }
 
@@ -54,7 +52,7 @@ export class MyLoader extends ex.DefaultLoader {
     //
     // It's important to implement this in order to unlock the audio context in the browser.
     // Browsers automatically prevent audio from playing until the user performs an action.
-     
+
   }
 
   override async onBeforeLoad(): Promise<void> {
@@ -82,7 +80,7 @@ Present a button or something else for the user to interact, resolve `onUserActi
 
 ## Scene Loading
 
-Excalibur can now load resources specific to a scene instead of all up front!
+Excalibur can load resources specific to a scene instead of all up front!
 
 In your scene extend the [[Scene.onPreLoad]] method and you'll be passed any configured loader. [[Scene.onPreLoad]] will be called only once before [[Scene.onInitialize]];
 
