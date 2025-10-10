@@ -27,7 +27,19 @@ export function createContext<TValue>() {
       const old = ctx.value;
       ctx.value = value;
       try {
-        return cb();
+        const result: any = cb();
+
+        // FIXME: async cb() cause ctx.value to not be correct when the cb runs because of stack replacement
+        // https://github.com/tc39/proposal-async-context
+        // Check if result is a Promise
+        if (result && typeof result.then === 'function') {
+          // Wrap the promise to maintain context
+          return result.finally(() => {
+            ctx.value = old;
+          });
+        }
+
+        return result;
       } catch (e) {
         throw e;
       } finally {

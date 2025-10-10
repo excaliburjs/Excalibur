@@ -20,7 +20,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
--
+- Fixed issue that caused coroutines to not automatically discover the engine scheduler when inside an async lifecycle sometimes. This is because of the stack replacement issue of async/await the context reverts too soon.
 
 ### Updates
 
