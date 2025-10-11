@@ -11,10 +11,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
--
+- Legacy `EasingFunctions.*` are deprecated in favor of the simpler forms
 
 ### Added
 
+- Simpler easing functions of the form `(currentTime: number) => number` instead of the 4 parameter legacy ones
 - DX: Support for [Visual Studio Code Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers) for an out-of-the-box contribution dev environment
 - DX: Support for [Vitest UI](https://vitest.dev/guide/ui.html) for browser testing
 
