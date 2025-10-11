@@ -10,7 +10,7 @@ describe('A Transition', () => {
     const sut = new ex.Transition({
       duration: 1000,
       direction: 'in',
-      easing: ex.EasingFunctions.EaseInOutCubic,
+      easing: ex.easeInOutCubic,
       hideLoader: false,
       blockInput: false
     });
