@@ -1,7 +1,7 @@
 import { MotionComponent } from '../../EntityComponentSystem/Components/MotionComponent';
 import { TransformComponent } from '../../EntityComponentSystem/Components/TransformComponent';
 import type { Entity } from '../../EntityComponentSystem/Entity';
-import type { Easing} from '../../Math';
+import type { Easing } from '../../Math';
 import { clamp, lerp, linear, remap } from '../../Math';
 import { Vector, vec } from '../../Math/vector';
 import type { EasingFunction } from '../../Util/EasingFunctions';

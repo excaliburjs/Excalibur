@@ -11,7 +11,7 @@ import { EasingFunctions, isLegacyEasing } from '../Util/EasingFunctions';
 import type { CoroutineInstance } from '../Util/Coroutine';
 import { coroutine } from '../Util/Coroutine';
 import { Logger } from '../Util/Log';
-import type { Easing} from '../Math/easings';
+import type { Easing } from '../Math/easings';
 import { linear } from '../Math/easings';
 import { lerp } from '../Math';
 

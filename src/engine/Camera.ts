@@ -16,7 +16,7 @@ import { EventEmitter } from './EventEmitter';
 import { pixelSnapEpsilon } from './Graphics';
 import { sign } from './Math/util';
 import { WatchVector } from './Math/watch-vector';
-import type { Easing} from './Math';
+import type { Easing } from './Math';
 import { easeInOutCubic, lerp } from './Math';
 
 /**
