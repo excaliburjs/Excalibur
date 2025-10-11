@@ -9,6 +9,10 @@ export interface EasingFunction<TValueToEase = number> {
   (currentTime: number, startValue: TValueToEase, endValue: TValueToEase, duration: number): TValueToEase;
 }
 
+export function isLegacyEasing(x?: Function): x is EasingFunction {
+  return !!x && x.length === 4;
+}
+
 /**
  * Standard easing functions for motion in Excalibur, defined on a domain of [0, duration] and a range from [+startValue,+endValue]
  * Given a time, the function will return a value from positive startValue to positive endValue.

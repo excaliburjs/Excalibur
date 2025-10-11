@@ -25,6 +25,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Updates
 
+- Camera zoom and move now support new easing functions form
+- MoveTo/MoveBy actions now support new easing function form
 - Deps: Upgraded to Playwright 1.55.1
 - Tests: Split test suite into `unit` and `visual` tests
 

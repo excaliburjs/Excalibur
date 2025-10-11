@@ -1,11 +1,11 @@
 import { MotionComponent } from '../../EntityComponentSystem/Components/MotionComponent';
 import { TransformComponent } from '../../EntityComponentSystem/Components/TransformComponent';
 import type { Entity } from '../../EntityComponentSystem/Entity';
-import type { Easing} from '../../Math';
+import type { Easing } from '../../Math';
 import { clamp, lerp, linear, remap } from '../../Math';
 import { Vector, vec } from '../../Math/vector';
 import type { EasingFunction } from '../../Util/EasingFunctions';
-import { EasingFunctions } from '../../Util/EasingFunctions';
+import { EasingFunctions, isLegacyEasing } from '../../Util/EasingFunctions';
 import type { Action } from '../Action';
 import { nextActionId } from '../Action';
 
@@ -13,10 +13,6 @@ export interface MoveToOptions {
   pos: Vector;
   duration: number;
   easing?: Easing | EasingFunction;
-}
-
-function isLegacyEasing(x: Function): x is EasingFunction {
-  return x.length === 4;
 }
 
 /**
@@ -38,7 +34,7 @@ export class MoveToWithOptions implements Action {
   private _motion: MotionComponent;
   private _easing: Easing = linear;
   private _legacyEasing: EasingFunction = EasingFunctions.Linear;
-  private _isLegacyEasing = false;
+  private _useLegacyEasing = false;
 
   constructor(
     public entity: Entity,
@@ -46,9 +42,9 @@ export class MoveToWithOptions implements Action {
   ) {
     this._end = options.pos;
     this._easing = options.easing ?? this._easing;
-    if (options.easing && isLegacyEasing(options.easing)) {
+    if (isLegacyEasing(options.easing)) {
       this._legacyEasing = options.easing;
-      this._isLegacyEasing = true;
+      this._useLegacyEasing = true;
     }
     this._tx = entity.get(TransformComponent);
     this._motion = entity.get(MotionComponent);
@@ -69,7 +65,7 @@ export class MoveToWithOptions implements Action {
 
     let newPosX = 0;
     let newPosY = 0;
-    if (this._isLegacyEasing) {
+    if (this._useLegacyEasing) {
       newPosX = this._legacyEasing(t, this._start.x, this._end.x, 1);
       newPosY = this._legacyEasing(t, this._start.y, this._end.y, 1);
     } else {
