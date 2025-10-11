@@ -10,7 +10,7 @@ describe('A Transition', () => {
     const sut = new ex.Transition({
       duration: 1000,
       direction: 'in',
-      easing: ex.EasingFunctions.EaseInOutCubic,
+      easing: ex.easeInOutCubic,
       hideLoader: false,
       blockInput: false
     });
@@ -21,7 +21,7 @@ describe('A Transition', () => {
     expect(sut.direction).toBe('in');
     expect(sut.blockInput).toBe(false);
     expect(sut.hideLoader).toBe(false);
-    expect(sut.easing).toBe(ex.EasingFunctions.EaseInOutCubic);
+    expect(sut.easing).toBe(ex.easeInOutCubic);
 
     expect(sut.progress).toBe(1);
     expect(sut.complete).toBe(false);
@@ -37,7 +37,7 @@ describe('A Transition', () => {
     expect(sut.direction).toBe('out');
     expect(sut.blockInput).toBe(false);
     expect(sut.hideLoader).toBe(false);
-    expect(sut.easing).toBe(ex.EasingFunctions.Linear);
+    expect(sut.easing).toBe(ex.linear);
 
     expect(sut.progress).toBe(0);
     expect(sut.complete).toBe(false);

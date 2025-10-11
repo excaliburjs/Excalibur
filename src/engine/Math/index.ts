@@ -14,3 +14,4 @@ export * from './bezier-curve';
 export * from './util';
 export * from './rotation-type';
 export * from './graph';
+export * from './easings';
