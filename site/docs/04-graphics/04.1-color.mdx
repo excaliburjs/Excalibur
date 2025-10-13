@@ -4,14 +4,19 @@ slug: /color
 section: Graphics
 ---
 
+```twoslash include ex
+// @module: esnext
+// @allowUmdGlobalAccess
+/// <reference path="../../src/engine/excalibur.d.ts" />
+```
+
 ## Colors
 
 Excalibur provides some color static helpers you can use to work with Hex, RGBA and HSL colors. Colors expose different operations that allow you to change them such as lighten and darken.
 
 ### Creating colors
 
-```twoslash include ex
-/// <reference path="../../src/engine/excalibur.d.ts" />
+```ts twoslash 
 // RGBA
 new ex.Color(r, g, b, a)
 ex.Color.fromRGB(r, g, b, a)
@@ -57,6 +62,7 @@ The interpolation is performed in **HSL color space** for smooth hue transitions
 **Returns:** A new `Color` representing the interpolated result.
 
 **Example:**
+
 ```ts twoslash
 const mid = ex.Color.lerp(Color.Red, Color.Blue, 0.5); // A smooth purple blend
 ```
