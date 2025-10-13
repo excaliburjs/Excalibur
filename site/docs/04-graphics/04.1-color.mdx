@@ -4,19 +4,14 @@ slug: /color
 section: Graphics
 ---
 
-```twoslash include ex
-// @module: esnext
-// @allowUmdGlobalAccess
-/// <reference path="../../src/engine/excalibur.d.ts" />
-```
-
 ## Colors
 
 Excalibur provides some color static helpers you can use to work with Hex, RGBA and HSL colors. Colors expose different operations that allow you to change them such as lighten and darken.
 
 ### Creating colors
 
-```ts twoslash
+```twoslash include ex
+/// <reference path="../../src/engine/excalibur.d.ts" />
 // RGBA
 new ex.Color(r, g, b, a)
 ex.Color.fromRGB(r, g, b, a)
