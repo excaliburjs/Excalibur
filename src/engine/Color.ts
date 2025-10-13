@@ -275,6 +275,16 @@ export class Color {
   }
 
   /**
+   * Lerp between two colors
+   */
+  public static lerp(colorA: Color, colorB: Color, t: number): Color {
+    const color1: HSLColor = HSLColor.fromRGBA(colorA.r, colorA.g, colorA.b, colorA.a);
+    const color2: HSLColor = HSLColor.fromRGBA(colorB.r, colorB.g, colorB.b, colorB.a);
+    const newColor: HSLColor = HSLColor.lerp(color1, color2, t);
+    return newColor.toRGBA();
+  }
+
+  /**
    * Black (#000000)
    */
   public static get Black(): Color {
@@ -529,5 +539,23 @@ class HSLColor {
       l = this.l.toFixed(0),
       a = this.a.toFixed(0);
     return `hsla(${h}, ${s}, ${l}, ${a})`;
+  }
+
+  public static lerp(a: HSLColor, b: HSLColor, t: number): HSLColor {
+    t = Math.max(0, Math.min(1, t));
+
+    let dh = b.h - a.h;
+    if (dh > 0.5) {
+dh -= 1;
+} else if (dh < -0.5) {
+dh += 1;
+}
+
+    const h = (a.h + dh * t + 1) % 1;
+    const s = a.s + (b.s - a.s) * t;
+    const l = a.l + (b.l - a.l) * t;
+    const alpha = a.a + (b.a - a.a) * t;
+
+    return new HSLColor(h, s, l, alpha);
   }
 }

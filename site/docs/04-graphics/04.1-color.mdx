@@ -41,3 +41,26 @@ for all the code that uses that instance of Color.
 Here are some of the default colors and examples of what they look like.
 
 ![Excalibur Default Color Constants](./color-cropped.png)
+
+
+## Lerping Colors
+
+```ts
+Color.lerp(start: Color, end: Color, t: number): Color
+```
+
+Linearly interpolates between two colors.  
+The interpolation is performed in **HSL color space** for smooth hue transitions, then converted back to RGB.
+
+- `start` — The starting `Color`
+- `end` — The target `Color`
+- `t` — The interpolation factor, between `0` (start) and `1` (end)
+
+**Returns:** A new `Color` representing the interpolated result.
+
+**Example:**
+```ts
+const mid = Color.lerp(Color.Red, Color.Blue, 0.5); // A smooth purple blend
+```
+
+![Lerped Color - Red/Blue](./LerpedColor.png)
