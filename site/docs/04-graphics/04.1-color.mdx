@@ -16,7 +16,7 @@ Excalibur provides some color static helpers you can use to work with Hex, RGBA 
 
 ### Creating colors
 
-```js
+```js twoslash include ex
 // RGBA
 new ex.Color(r, g, b, a)
 ex.Color.fromRGB(r, g, b, a)
@@ -62,7 +62,7 @@ The interpolation is performed in **HSL color space** for smooth hue transitions
 **Returns:** A new `Color` representing the interpolated result.
 
 **Example:**
-```twoslash include ex
+```ts twoslash include ex
 const mid = ex.Color.lerp(Color.Red, Color.Blue, 0.5); // A smooth purple blend
 ```
 
