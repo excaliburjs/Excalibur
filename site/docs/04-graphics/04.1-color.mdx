@@ -10,8 +10,9 @@ Excalibur provides some color static helpers you can use to work with Hex, RGBA 
 
 ### Creating colors
 
-```ts twoslash 
-import * as ex from 'excalibur'; 
+
+```ts twoslash
+/// <reference path="../src/engine/excalibur.d.ts" />
 
 // RGBA
 new ex.Color(r, g, b, a)
@@ -59,8 +60,9 @@ The interpolation is performed in **HSL color space** for smooth hue transitions
 
 **Example:**
 
+
 ```ts twoslash
-import * as ex from 'excalibur'; 
+/// <reference path="../src/engine/excalibur.d.ts" />
 
 const mid = ex.Color.lerp(ex.Color.Red, ex.Color.Blue, 0.5); // A smooth purple blend
 ```
