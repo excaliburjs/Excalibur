@@ -546,10 +546,10 @@ class HSLColor {
 
     let dh = b.h - a.h;
     if (dh > 0.5) {
-dh -= 1;
-} else if (dh < -0.5) {
-dh += 1;
-}
+      dh -= 1;
+    } else if (dh < -0.5) {
+      dh += 1;
+    }
 
     const h = (a.h + dh * t + 1) % 1;
     const s = a.s + (b.s - a.s) * t;
