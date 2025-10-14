@@ -4,13 +4,30 @@ slug: /color
 section: Graphics
 ---
 
+```twoslash include ex
+// @module: esnext
+// @allowUmdGlobalAccess
+/// <reference path="../src/engine/excalibur.d.ts" />
+```
+
 ## Colors
 
 Excalibur provides some color static helpers you can use to work with Hex, RGBA and HSL colors. Colors expose different operations that allow you to change them such as lighten and darken.
 
 ### Creating colors
 
-```js
+
+```ts twoslash
+// @include: ex
+ const r = 255;
+ const g = 255;
+ const b = 255;
+ const a = 1.0;
+ const h = 10;
+ const s = 10;
+ const l = 10;
+ let myColor = new ex.Color(r,g,b,a)
+// ---cut---
 // RGBA
 new ex.Color(r, g, b, a)
 ex.Color.fromRGB(r, g, b, a)
@@ -23,7 +40,7 @@ ex.Color.fromHex('#000000FF')
 
 // String representation of a color with rgb as default
 // Options include rgb,hsl,hex
-ex.Color.toString('rgb')
+myColor.toString("rgb")
 ```
 
 ## Working with colors
@@ -41,3 +58,26 @@ for all the code that uses that instance of Color.
 Here are some of the default colors and examples of what they look like.
 
 ![Excalibur Default Color Constants](./color-cropped.png)
+
+
+## Lerping Colors
+
+The [[Color.lerp]] static method linearly interpolates between two colors.  
+
+The interpolation is performed in **HSL color space** for smooth hue transitions, then converted back to RGB.
+
+- `start` — The starting `Color`
+- `end` — The target `Color`
+- `t` — The interpolation factor, between `0` (start) and `1` (end)
+
+**Returns:** A new `Color` representing the interpolated result.
+
+**Example:**
+
+```ts twoslash
+// @include: ex
+// ---cut---
+const mid = ex.Color.lerp(ex.Color.Red, ex.Color.Blue, 0.5); // A smooth purple blend
+```
+
+![Lerped Color - Red/Blue](./LerpedColor.png)
