@@ -1,0 +1,89 @@
+---
+title: Tint
+slug: /tint
+section: Graphics
+---
+
+```twoslash include ex
+// @module: esnext
+// @allowUmdGlobalAccess
+/// <reference path="../src/engine/excalibur.d.ts" />
+```
+
+## Tint
+
+The tint property allows you to apply a color overlay to any [[Graphic]].  When a [[Graphic.tint|Tint]] is set, its color is multiplied with the original pixel colors of the graphic, allowing you to easily recolor or visually modify sprites, shapes, and other graphics.
+
+This is useful for effects like:
+
+- Changing a character’s outfit color
+- Flashing a sprite red when taking damage
+- Applying a global mood or atmosphere tint
+
+### Example
+
+Start with a simple Actor with a Sprite attached to it.
+
+```ts twoslash
+// @include: ex
+ const game = new ex.Engine({
+  width: 120, // the width of the canvas
+  height: 120, // the height of the canvas
+  displayMode: ex.DisplayMode.Fixed, // the display mode
+  pixelArt: true,
+});
+// ---cut---
+class TintActor extends ex.Actor {
+  constructor(center:ex.Vector) {
+    super({ width: 100, height: 100, pos: center });
+    // Pretend this is our loaded sprite
+    const swordSprite = new ex.Sprite({ image: new ex.ImageSource('./sword.png') });
+    this.graphics.use(swordSprite);
+  }
+}
+
+game.add(new TintActor(game.screen.center));
+```
+This will give you an Actor like this: 
+
+![Untinted Sword](./swordw_otint.png)
+
+To add a light red tint to it we need to tweak this to add the tint to the graphic.
+
+```ts twoslash
+// @include: ex
+ const game = new ex.Engine({
+  width: 120, // the width of the canvas
+  height: 120, // the height of the canvas
+  displayMode: ex.DisplayMode.Fixed, // the display mode
+  pixelArt: true,
+});
+// ---cut---
+class TintActor extends ex.Actor {
+
+  constructor(center:ex.Vector, tint: ex.Color) {  //<-------------  added Tint parameter
+    super({ width: 100, height: 100, pos: center });
+    // Pretend this is our loaded sprite
+    const swordSprite = new ex.Sprite({ image: new ex.ImageSource('./sword.png') });
+    swordSprite.tint = tint;                    //<-------------  setting the Graphic's tint property
+    this.graphics.use(swordSprite);
+  }
+}
+
+game.add(new TintActor(game.screen.center, ex.Color.fromHex("#FF000050")));
+```
+
+Gives you: 
+
+![Tinted Sword](./tintedsword.png)
+
+### Opacity
+
+To control 'how much' tinting is applied to a Graphic you can use the alpha channel of the color to lighten or deepen its tinting.
+
+
+![Opacity of tint](./opacity.png)
+
+### Clearing a Tint
+
+To clear a tint from a graphic, just set its tint to white `#FFFFFF`
