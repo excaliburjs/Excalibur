@@ -769,6 +769,16 @@ declare class Vector implements Clonable<Vector> {
      * Returns a string representation of the vector.
      */
     toString(fixed?: number): string;
+    /**
+     * Linearly interpolates between the current vector and the target vector.
+     * At `t = 0`, the result is the current vector, and at `t = 1`, the result is the target vector.
+     * Values of `t` outside the range [0, 1] will be clamped to that range.
+     *
+     * @param target The target vector to interpolate towards.
+     * @param t The interpolation factor, clamped between 0 and 1.
+     * @returns A new vector that is the result of the linear interpolation.
+     */
+    lerp(target: Vector, t: number): Vector;
 }
 /**
  * Shorthand for creating new Vectors - returns a new Vector instance with the
@@ -1242,7 +1252,6 @@ declare const EntityEvents: {
 interface EntityOptions<TComponents extends Component> {
     name?: string;
     components?: TComponents[];
-    silenceWarnings?: boolean;
 }
 /**
  * An Entity is the base type of anything that can have behavior in Excalibur, they are part of the built in entity component system
@@ -3256,6 +3265,7 @@ declare class Camera implements CanUpdate, CanInitialize {
     inverse: AffineMatrix;
     protected _follow: Actor;
     private _cameraStrategies;
+    get strategies(): CameraStrategy<any>[];
     strategy: StrategyContainer;
     /**
      * Get or set current zoom of the camera, defaults to 1
@@ -3401,10 +3411,15 @@ declare class Camera implements CanUpdate, CanInitialize {
      */
     get viewport(): BoundingBox;
     /**
-     * Adds a new camera strategy to this camera
+     * Adds one or more new camera strategies to this camera
      * @param cameraStrategy Instance of an {@apilink CameraStrategy}
      */
-    addStrategy<T>(cameraStrategy: CameraStrategy<T>): void;
+    addStrategy<T extends CameraStrategy<any>[]>(...cameraStrategies: T): void;
+    /**
+     * Sets the strategies of this camera, replacing all existing strategies
+     * @param cameraStrategies Array of {@apilink CameraStrategy}
+     */
+    setStrategies<T extends CameraStrategy<any>[]>(cameraStrategies: T): void;
     /**
      * Removes a camera strategy by reference
      * @param cameraStrategy Instance of an {@apilink CameraStrategy}
@@ -5919,6 +5934,10 @@ interface AnimationOptions {
      * Optionally specify the {@apilink AnimationStrategy} for the Animation
      */
     strategy?: AnimationStrategy;
+    /**
+     * Optionally set arbitrary meta data for the animation
+     */
+    data?: Record<string, any>;
 }
 type AnimationEvents = {
     frame: FrameEvent;
@@ -5971,6 +5990,10 @@ interface FromSpriteSheetOptions {
      * Optionally specify the animation should be reversed
      */
     reverse?: boolean;
+    /**
+     * Optionally set arbitrary meta data for the animation
+     */
+    data?: Record<string, any>;
 }
 /**
  * Create an Animation given a list of {@apilink Frame | `frames`} in {@apilink AnimationOptions}
@@ -5983,6 +6006,7 @@ declare class Animation extends Graphic implements HasTick {
     frames: Frame[];
     strategy: AnimationStrategy;
     frameDuration: number;
+    data: Map<string, any>;
     private _idempotencyToken;
     private _firstTick;
     private _currentFrame;
@@ -5991,8 +6015,9 @@ declare class Animation extends Graphic implements HasTick {
     private _done;
     private _playing;
     private _speed;
+    private _wasResetDuringFrameCalc;
     constructor(options: GraphicOptions & AnimationOptions);
-    clone(): Animation;
+    clone<T extends typeof Animation>(): InstanceType<T>;
     get width(): number;
     get height(): number;
     /**
@@ -6010,7 +6035,7 @@ declare class Animation extends Graphic implements HasTick {
      * @param durationPerFrame duration per frame in milliseconds
      * @param strategy Optional strategy, default AnimationStrategy.Loop
      */
-    static fromSpriteSheet(spriteSheet: SpriteSheet, spriteSheetIndex: number[], durationPerFrame: number, strategy?: AnimationStrategy): Animation;
+    static fromSpriteSheet<T extends typeof Animation>(this: T, spriteSheet: SpriteSheet, spriteSheetIndex: number[], durationPerFrame: number, strategy?: AnimationStrategy, data?: Record<string, any>): InstanceType<T>;
     /**
      * Create an {@apilink Animation} from a {@apilink SpriteSheet} given a list of coordinates
      *
@@ -6032,7 +6057,7 @@ declare class Animation extends Graphic implements HasTick {
      * @param options
      * @returns Animation
      */
-    static fromSpriteSheetCoordinates(options: FromSpriteSheetOptions): Animation;
+    static fromSpriteSheetCoordinates<T extends typeof Animation>(this: T, options: FromSpriteSheetOptions): InstanceType<T>;
     /**
      * Current animation speed
      *
@@ -8069,7 +8094,6 @@ declare enum EmitterType {
  * Api inspired by http://chancejs.com/# https://github.com/chancejs/chancejs
  */
 declare class Random {
-    seed?: number;
     private _lowerMask;
     private _upperMask;
     private _w;
@@ -8085,6 +8109,7 @@ declare class Random {
     private _f;
     private _mt;
     private _index;
+    private _seed;
     /**
      * If no seed is specified, the Date.now() is used
      */
@@ -8176,6 +8201,7 @@ declare class Random {
      * Returns the result of a d20 dice roll
      */
     d20(): number;
+    get seed(): number;
 }
 
 /**
@@ -8295,6 +8321,10 @@ interface ParticleConfig {
      * Starting rotation of the particle
      */
     rotation?: number;
+    /**
+     * Optionally set the z index of the particle, default is 0
+     */
+    z?: number;
     /**
      * Size of the particle in pixels
      */
@@ -11955,10 +11985,6 @@ type ActorArgs = ColliderArgs & {
      * Optionally supply a {@apilink CollisionGroup}
      */
     collisionGroup?: CollisionGroup;
-    /**
-     * Optionally silence excalibur warning warnings
-     */
-    silenceWarnings?: boolean;
 };
 type ColliderArgs = // custom collider
 {
@@ -12108,7 +12134,6 @@ declare class Actor extends Entity implements Eventable, PointerEvents$1, CanIni
      * {@apilink ActionContext | `Action context`} of the actor.
      */
     actions: ActionsComponent;
-    private _silenceWarnings;
     /**
      * Gets the position vector of the actor in pixels
      */
@@ -14652,7 +14677,7 @@ declare class KeyEvent extends GameEvent<any> {
     constructor(key: Keys, value?: string, originalEvent?: KeyboardEvent);
 }
 interface KeyboardInitOptions {
-    global?: GlobalEventHandlers;
+    global: GlobalEventHandlers | (() => GlobalEventHandlers);
     grabWindowFocus?: boolean;
 }
 type KeyEvents = {
@@ -14773,6 +14798,7 @@ declare class InputMapper {
 interface InputHostOptions {
     pointerTarget: Document | HTMLCanvasElement;
     grabWindowFocus: boolean;
+    global?: GlobalEventHandlers | (() => GlobalEventHandlers);
     engine: Engine;
 }
 declare class InputHost {
@@ -16272,6 +16298,10 @@ interface EngineOptions<TKnownScenes extends string = any> {
      */
     displayMode?: DisplayMode;
     /**
+     * Optionally configure the global, or a factory to produce it to listen to for browser events for Excalibur to listen to
+     */
+    global?: GlobalEventHandlers | (() => GlobalEventHandlers);
+    /**
      * Configures the pointer scope. Pointers scoped to the 'Canvas' can only fire events within the canvas viewport; whereas, 'Document'
      * (default) scoped will fire anywhere on the page.
      */
@@ -16297,8 +16327,8 @@ interface EngineOptions<TKnownScenes extends string = any> {
      */
     suppressPlayButton?: boolean;
     /**
-     * Sets the focus of the window, this is needed when hosting excalibur in a cross-origin iframe in order for certain events
-     * (like keyboard) to work.
+     * Sets the focus of the window, this is needed when hosting excalibur in a cross-origin/same-origin iframe in order for certain events
+     * (like keyboard) to work. You can use
      * For example: itch.io or codesandbox.io
      *
      * By default set to true,
@@ -16420,6 +16450,7 @@ declare class Engine<TKnownScenes extends string = any> implements CanInitialize
      * @param cb
      */
     scope: <TReturn>(cb: () => TReturn) => TReturn;
+    global: GlobalEventHandlers;
     private _garbageCollector;
     readonly garbageCollectorConfig: GarbageCollectionOptions | null;
     /**
@@ -16628,6 +16659,7 @@ declare class Engine<TKnownScenes extends string = any> implements CanInitialize
     private _timescale;
     private _loader;
     private _isInitialized;
+    private _hasCreatedCanvas;
     emit<TEventName extends EventKey<EngineEvents>>(eventName: TEventName, event: EngineEvents[TEventName]): void;
     emit(eventName: string, event?: any): void;
     on<TEventName extends EventKey<EngineEvents>>(eventName: TEventName, handler: Handler<EngineEvents[TEventName]>): Subscription;
@@ -16985,6 +17017,44 @@ declare const SoundEvents: {
     Resume: string;
     PlaybackStart: string;
 };
+interface SoundOptions {
+    /**
+     * @param paths A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
+     */
+    paths: string[];
+    /**
+     * Optionally bust the cache on load
+     *
+     * Default is false
+     */
+    bustCache?: boolean;
+    /**
+     * [0-1] 0% to 100%
+     *
+     * By default 1 (100%)
+     */
+    volume?: number;
+    /**
+     * Loop infinitely
+     */
+    loop?: boolean;
+    /**
+     * Multiplyer
+     *
+     * By default 1
+     */
+    playbackRate?: number;
+    /**
+     * Seconds?
+     *
+     * By default unset, will play the natural length of the clip
+     */
+    duration?: number;
+    /**
+     * Advance to a position in the audio clip
+     */
+    position?: number;
+}
 /**
  * The {@apilink Sound} object allows games built in Excalibur to load audio
  * components, from soundtracks to sound effects. {@apilink Sound} is an {@apilink Loadable}
@@ -16995,6 +17065,7 @@ declare class Sound implements Audio, Loadable<AudioBuffer> {
     logger: Logger;
     data: AudioBuffer;
     private _resource;
+    position: number | undefined;
     /**
      * Indicates whether the clip should loop when complete
      * @param value  Set the looping flag
@@ -17039,6 +17110,7 @@ declare class Sound implements Audio, Loadable<AudioBuffer> {
     /**
      * @param paths A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
      */
+    constructor(options: SoundOptions);
     constructor(...paths: string[]);
     isLoaded(): boolean;
     load(): Promise<AudioBuffer>;
@@ -17301,6 +17373,108 @@ declare class Resource<T> implements Loadable<T> {
      * Begin loading the resource and returns a promise to be resolved on completion
      */
     load(): Promise<T>;
+}
+
+type AnyString = {} & string;
+interface ChannelSoundsConfiguration {
+    sounds: Sound[];
+}
+interface SoundConfig<Channel extends string = string> {
+    sound: Sound;
+    /**
+     * Maximum volume for the sound manager to use, all soundManager.play(.5) calls will
+     */
+    volume?: number;
+    /**
+     *
+     * You may also add a list of string `channels` to do group operations to sounds at once. For example mute all 'background' sounds.
+     */
+    channels?: Channel[];
+}
+interface SoundManagerOptions<Channel extends string = string, SoundName extends string = string> {
+    /**
+     * Optionally specify the possible channels to avoid typo's
+     */
+    channels?: readonly Channel[];
+    /**
+     * Optionally set the default maximum volume for all sounds
+     *
+     * Default is 1 (100%)
+     */
+    volume?: number;
+    /**
+     * Optionally set the max `volume` for a `sound` to be when played. All other volume operations will be a fraction of the mix.
+     *
+     * You may also add a list of string `channels` to do group operations to sounds at once. For example mute all 'background' sounds.
+     *
+     */
+    sounds: Record<SoundName, Sound | SoundConfig<NoInfer<Channel>>>;
+}
+type PossibleChannels<TSoundManagerOptions> = TSoundManagerOptions extends SoundManagerOptions<infer Channels> ? Channels : never;
+type PossibleSounds<TSoundMangerOptions> = TSoundMangerOptions extends SoundManagerOptions ? Extract<keyof TSoundMangerOptions['sounds'], string> : never;
+interface SoundManagerApi {
+    setVolume(name: string, volume?: number): void;
+    play(name: string, volume?: number): Promise<void>;
+    stop(name?: string): void;
+    mute(name?: string): void;
+    unmute(name?: string): void;
+    toggle(name?: string): void;
+}
+declare class ChannelCollection<Channel extends string> implements SoundManagerApi {
+    soundManager: SoundManager<Channel, string>;
+    constructor(options: SoundManagerOptions<Channel, string>, soundManager: SoundManager<Channel, string>);
+    stop(name: string): void;
+    setVolume(name: Channel, volume?: number): void;
+    play(name: Channel, volume?: number): Promise<void>;
+    mute(name: Channel): void;
+    unmute(name: Channel): void;
+    toggle(name: Channel): void;
+}
+/**
+ * Manage Sound volume levels without mutating the original Sound objects
+ */
+declare class SoundManager<Channel extends string, SoundName extends string> implements SoundManagerApi {
+    private _channelToConfig;
+    private _nameToConfig;
+    private _mix;
+    _muted: Set<Sound>;
+    private _all;
+    private _defaultVolume;
+    set defaultVolume(volume: number);
+    get defaultVolume(): number;
+    channel: ChannelCollection<Channel>;
+    constructor(options: SoundManagerOptions<Channel, SoundName>);
+    getSounds(): readonly Sound[];
+    getSoundsForChannel(channel: Channel | AnyString): readonly Sound[];
+    _isMuted(sound: Sound): boolean;
+    _getEffectiveVolume(sound: Sound): number;
+    play(soundName: SoundName, volume?: number): Promise<void>;
+    getSound(soundName: SoundName | AnyString): Sound | undefined;
+    setVolume(soundname: SoundName, volume?: number): void;
+    /**
+     * Gets the volumn for a sound
+     */
+    getVolume(soundName: SoundName): number;
+    /**
+     * Set the maximum volume a sound, if not set assumed to be 1.0 (100% of the source volume)
+     */
+    private _setMix;
+    track(name: SoundName | AnyString, soundOrConfig: Sound | SoundConfig): void;
+    /**
+     * Remove the maximum volume for a sound, will be 100% of the source volume
+     *
+     * Untracks the Sound in the sound manager
+     */
+    untrack(soundName: SoundName): void;
+    stop(name?: SoundName): void;
+    mute(name?: SoundName): void;
+    unmute(name?: SoundName): void;
+    toggle(name?: SoundName): void;
+    /**
+     * Apply a list of channels to a sound instance
+     */
+    addChannel(soundName: SoundName | AnyString, channels: Channel[] | AnyString[]): void;
+    removeChannel(soundName: SoundName | AnyString, channels: Channel[] | AnyString[]): void;
 }
 
 /**
@@ -17884,4 +18058,4 @@ declare class RentalPool<T> {
  */
 declare const EX_VERSION: string;
 
-export { type Action, ActionCompleteEvent, ActionContext, type ActionContextMethods, ActionQueue, ActionSequence, ActionStartEvent, type Actionable, ActionsComponent, ActionsSystem, ActivateEvent, Actor, type ActorArgs, ActorEvents, AddEvent, AddedComponent, AffineMatrix, Animation, AnimationDirection, AnimationEvents, type AnimationOptions, AnimationStrategy, type AntialiasOptions, type Appender, ArcadeSolver, type Audio, AudioContextFactory, type AudioImplementation, Axes, Axis, BaseAlign, BezierCurve, type BezierCurveOptions, Blink, BodyComponent, type BodyComponentOptions, BoundingBox, type BoundingBoxOptions, BrowserComponent, BrowserEvents, Buttons, Camera, CameraEvents, type CameraStrategy, type CanActivate, type CanAdd, type CanBeKilled, type CanDeactivate, type CanDraw, type CanInitialize, type CanRemove, type CanUpdate, Canvas, type CanvasOptions, type CapturePointerConfig, Circle, CircleCollider, type CircleColliderOptions, type CircleOptions, Clock, type ClockOptions, type Clonable, ClosestLineJumpTable, Collider, ColliderComponent, type ColliderProxy, CollisionContact, CollisionEndEvent, CollisionGroup, CollisionGroupManager, CollisionJumpTable, CollisionPostSolveEvent, CollisionPreSolveEvent, type CollisionProcessor, type CollisionSolver, CollisionStartEvent, CollisionSystem, CollisionType, Color, ColorBlindFlags, ColorBlindnessMode, ColorBlindnessPostProcessor, Component, type ComponentCtor, type ComponentInstance, CompositeCollider, ConsoleAppender, type ContactBias, ContactConstraintPoint, ContactEndEvent, ContactSolveBias, ContactStartEvent, CoordPlane, type CoroutineGenerator, type CoroutineInstance, type CoroutineOptions, CrossFade, type CrossFadeOptions, CurveBy, type CurveByOptions, CurveTo, type CurveToOptions, DeactivateEvent, Debug, DebugConfig, type DebugDraw, DebugGraphicsComponent, type DebugStats, DebugSystem, DebugText, DefaultAntialiasOptions, DefaultGarbageCollectionOptions, DefaultLoader, type DefaultLoaderOptions, DefaultPixelArtOptions, DegreeOfFreedom, Delay, type DestinationSize, type DetectedFeatures, Detector, Die, Direction, Director, DirectorEvents, type DirectorNavigationEvent, DisplayMode, type DistributeEntity, DynamicTree, DynamicTreeCollisionProcessor, type DynamicTreeConfig, EX_VERSION, EaseBy, EaseTo, type EasingFunction, EasingFunctions, Edge, EdgeCollider, type EdgeColliderOptions, ElasticToActorStrategy, EmitterType, Engine, EngineEvents, type EngineOptions, EnterTriggerEvent, EnterViewPortEvent, Entity, type EntityComponent, EntityEvents, EntityManager, type EntityOptions, EventEmitter, type EventKey, type EventMap, EventTypes, type Eventable, Events, ExResponse, type ExResponseType, type ExResponseTypesLookup, type ExcaliburGraphicsContext, ExcaliburGraphicsContext2DCanvas, type ExcaliburGraphicsContext2DOptions, type ExcaliburGraphicsContextOptions, type ExcaliburGraphicsContextState, ExcaliburGraphicsContextWebGL, type ExcaliburGraphicsContextWebGLOptions, ExitTriggerEvent, ExitViewPortEvent, Fade, FadeInOut, type FadeOptions, Flags, Flash, Follow, Font, FontCache, type FontOptions, type FontRenderer, FontSource, type FontSourceOptions, FontStyle, FontUnit, FpsSampler, type FpsSamplerOptions, type Frame, type FrameActorStats, type FrameDurationStats, type FrameEvent, type FrameStatistics, FrameStats, type FromSpriteSheetOptions, type FullScreenChangeEvent, Future, type G_UUID, GameEvent, GameStartEvent, GameStopEvent, Gamepad, GamepadAxisEvent, GamepadButtonEvent, type GamepadConfiguration, GamepadConnectEvent, GamepadDisconnectEvent, Gamepads, type GarbageCollectionOptions, GarbageCollector, type GarbageCollectorOptions, type GetSpriteOptions, Gif, type GifFrame, GifParser, GlobalCoordinates, type GoToOptions, type GpuParticleConfig, GpuParticleEmitter, GpuParticleRenderer, Graph, Graphic, type GraphicOptions, GraphicsComponent, type GraphicsComponentOptions, GraphicsGroup, type GraphicsGrouping, type GraphicsGroupingOptions, type GraphicsShowOptions, type GraphicsStatistics, GraphicsSystem, type HTMLImageSource, type Handler, type HasTick, HashColliderProxy, HashGridCell, HashGridProxy, HiddenEvent, HorizontalFirst, type Id, ImageFiltering, ImageSource, ImageSourceAttributeConstants, type ImageSourceOptions, type ImageWrapConfiguration, ImageWrapping, InitializeEvent, InputHost, type InputHostOptions, InputMapper, type InputsOptions, IsometricEntityComponent, type IsometricEntityComponentOptions, IsometricEntitySystem, IsometricMap, type IsometricMapOptions, IsometricTile, type IsometricTilePointerEvents, KeyEvent, Keyboard, type KeyboardInitOptions, Keys, KillEvent, Label, type LabelOptions, type LegacyWebAudioSource, LimitCameraBoundsStrategy, Line, type LineGraphicsOptions, type LineOptions, LineSegment, type Loadable, Loader, type LoaderConstructor, LoaderEvents, type LoaderOptions, LockCameraToActorAxisStrategy, LockCameraToActorStrategy, LogLevel, Logger, Material, type MaterialImageOptions, type MaterialOptions, Matrix, MatrixLocations, type MaybeKnownComponent, type MaybeObserver, MediaEvent, Meet, type Message, type Motion, MotionComponent, MotionSystem, MoveBy, type MoveByOptions, MoveByWithOptions, MoveTo, type MoveToOptions, MoveToWithOptions, type NativeEventable, type NativeMouseEvent, NativePointerButton, type NativePointerEvent, NativeSoundEvent, NativeSoundProcessedEvent, type NativeTouchEvent, type NativeWheelEvent, type NavigatorGamepad, type NavigatorGamepadButton, type NavigatorGamepadEvent, type NavigatorGamepads, NineSlice, type NineSliceConfig, NineSliceStretch, Node, None, Observable, type Observer, type ObsoleteOptions, OffscreenSystem, type OnAdd, type OnInitialize, type OnPostDraw, type OnPostUpdate, type OnPreDraw, type OnPreUpdate, type OnRemove, Pair, ParallaxComponent, ParallelActions, Particle, type ParticleConfig, ParticleEmitter, type ParticleEmitterArgs, ParticleRenderer, ParticleTransform, type PhysicsConfig, type PhysicsStatistics, PhysicsStats, PhysicsWorld, type PixelRatioChangeEvent, type PointGraphicsOptions, PointerAbstraction, PointerButton, PointerComponent, PointerEvent, PointerEventReceiver, type PointerEvents$1 as PointerEvents, type PointerInitOptions, PointerScope, PointerSystem, PointerType, Polygon, PolygonCollider, type PolygonColliderOptions, type PolygonOptions, Pool, PositionNode, type PossibleStates, PostCollisionEvent, PostDebugDrawEvent, PostDrawEvent, PostFrameEvent, PostKillEvent, type PostProcessor, PostTransformDrawEvent, PostUpdateEvent, PreCollisionEvent, PreDebugDrawEvent, PreDrawEvent, PreFrameEvent, PreKillEvent, PreLoadEvent, PreTransformDrawEvent, PreUpdateEvent, Projection, QuadIndexBuffer, QuadTree, type QuadTreeItem, type QuadTreeOptions, Query, type QueryEntity, QueryManager, type QueryParams, RadiusAroundActorStrategy, Random, Raster, type RasterOptions, Ray, type RayCastHit, type RayCastOptions, RealisticSolver, type RectGraphicsOptions, Rectangle, type RectangleOptions, RemoveEvent, RemovedComponent, type RendererPlugin, RentalPool, Repeat, RepeatForever, Resolution, Resource, ResourceEvents, RotateBy, type RotateByOptions, RotateByWithOptions, RotateTo, type RotateToOptions, RotateToWithOptions, RotationType, ScaleBy, type ScaleByOptions, ScaleByWithOptions, ScaleTo, type ScaleToOptions, ScaleToWithOptions, Scene, type SceneActivationContext, type SceneConstructor, SceneEvents, type SceneMap, type SceneWithOptions, type ScheduleId, type ScheduledCallbackTiming, Screen, ScreenAppender, type ScreenAppenderOptions, ScreenElement, ScreenEvents, type ScreenOptions, type ScreenResizeEvent, ScreenShader, ScrollPreventionMode, Semaphore, SeparatingAxis, SeparationInfo, Shader, type ShaderOptions, Shape, Side, Slide, type SlideOptions, SolverStrategy, Sound, SoundEvents, type SourceView, SparseHashGrid, SparseHashGridCollisionProcessor, type SparseHashGridConfig, SpatialPartitionStrategy, Sprite, SpriteFont, type SpriteFontOptions, type SpriteOptions, SpriteSheet, type SpriteSheetGridOptions, type SpriteSheetOptions, type SpriteSheetSpacingDimensions, type SpriteSheetSparseOptions, StandardClock, type StartOptions, type State, StateMachine, type StateMachineDescription, type StateMachineState, StrategyContainer, Stream, type Subscription, System, type SystemCtor, SystemManager, SystemPriority, SystemType, TagQuery, TestClock, type TestClockOptions, Text, TextAlign, type TextOptions, TextureLoader, Tile, TileMap, TileMapEvents, type TileMapOptions, type TileOptions, type TilePointerEvents, TiledAnimation, type TiledAnimationOptions, TiledSprite, type TiledSpriteOptions, Timer, type TimerOptions, Toaster, Transform, TransformComponent, Transition, type TransitionOptions, TreeNode, Trigger, TriggerEvents, type TriggerOptions, TwoPI, UniformBuffer, type UniformBufferOptions, type UniformDefinition, type UniformDictionary, type UniformTypeNames, Index as Util, Vector, VectorView, type VectorViewOptions, type VertexAttributeDefinition, VertexBuffer, type VertexBufferOptions, VertexLayout, type VertexLayoutOptions, VerticalFirst, type ViewportDimension, type ViewportUnit, VisibleEvent, WebAudio, WebAudioInstance, type WebGLGraphicsContextInfo, WheelDeltaMode, WheelEvent, type WithRoot, World, type _add, type _initialize, type _postupdate, type _preupdate, type _remove, type activate, type add, approximatelyEqual, assert, type axis, type button, type cancel, canonicalizeAngle, clamp, type collisionend, type collisionstart, type connect, coroutine, createId, type deactivate, type disconnect, type down, type enter, type entertrigger, type enterviewport, type exittrigger, type exitviewport, frac, getDefaultPhysicsConfig, glTypeToUniformTypeName, hasGraphicsTick, hasOnAdd, hasOnInitialize, hasOnPostUpdate, hasOnPreUpdate, hasOnRemove, hasPostDraw, hasPreDraw, has_add, has_initialize, has_postupdate, has_preupdate, has_remove, type hidden, type hold, type initialize, inverseLerp, inverseLerpVector, isActor, isAddedComponent, isComponentCtor, isLoaderConstructor, isMoveByOptions, isMoveToOptions, isRemovedComponent, isRotateByOptions, isRotateToOptions, isScaleByOptions, isScaleToOptions, isSceneConstructor, isScreenElement, isSystemConstructor, type kill, type leave, lerp, lerpAngle, lerpVector, maxMessages, type move, nextActionId, obsolete, parseImageFiltering, parseImageWrapping, pixelSnapEpsilon, type pointercancel, type pointerdown, type pointerdragend, type pointerdragenter, type pointerdragleave, type pointerdragmove, type pointerdragstart, type pointerenter, type pointerleave, type pointermove, type pointerup, type pointerwheel, type postcollision, type postdebugdraw, type postdraw, type postframe, type postkill, type postupdate, type precollision, type predebugdraw, type predraw, type preframe, type prekill, type press, type preupdate, randomInRange, randomIntInRange, range, type release, remap, remapVector, type remove, resetObsoleteCounter, sign, type start, type stop, type subscribe, toDegrees, toRadians, type unsubscribe, type up, vec, type visible, webglUtil as webgl, type wheel };
+export { type Action, ActionCompleteEvent, ActionContext, type ActionContextMethods, ActionQueue, ActionSequence, ActionStartEvent, type Actionable, ActionsComponent, ActionsSystem, ActivateEvent, Actor, type ActorArgs, ActorEvents, AddEvent, AddedComponent, AffineMatrix, Animation, AnimationDirection, AnimationEvents, type AnimationOptions, AnimationStrategy, type AntialiasOptions, type AnyString, type Appender, ArcadeSolver, type Audio, AudioContextFactory, type AudioImplementation, Axes, Axis, BaseAlign, BezierCurve, type BezierCurveOptions, Blink, BodyComponent, type BodyComponentOptions, BoundingBox, type BoundingBoxOptions, BrowserComponent, BrowserEvents, Buttons, Camera, CameraEvents, type CameraStrategy, type CanActivate, type CanAdd, type CanBeKilled, type CanDeactivate, type CanDraw, type CanInitialize, type CanRemove, type CanUpdate, Canvas, type CanvasOptions, type CapturePointerConfig, ChannelCollection, type ChannelSoundsConfiguration, Circle, CircleCollider, type CircleColliderOptions, type CircleOptions, Clock, type ClockOptions, type Clonable, ClosestLineJumpTable, Collider, ColliderComponent, type ColliderProxy, CollisionContact, CollisionEndEvent, CollisionGroup, CollisionGroupManager, CollisionJumpTable, CollisionPostSolveEvent, CollisionPreSolveEvent, type CollisionProcessor, type CollisionSolver, CollisionStartEvent, CollisionSystem, CollisionType, Color, ColorBlindFlags, ColorBlindnessMode, ColorBlindnessPostProcessor, Component, type ComponentCtor, type ComponentInstance, CompositeCollider, ConsoleAppender, type ContactBias, ContactConstraintPoint, ContactEndEvent, ContactSolveBias, ContactStartEvent, CoordPlane, type CoroutineGenerator, type CoroutineInstance, type CoroutineOptions, CrossFade, type CrossFadeOptions, CurveBy, type CurveByOptions, CurveTo, type CurveToOptions, DeactivateEvent, Debug, DebugConfig, type DebugDraw, DebugGraphicsComponent, type DebugStats, DebugSystem, DebugText, DefaultAntialiasOptions, DefaultGarbageCollectionOptions, DefaultLoader, type DefaultLoaderOptions, DefaultPixelArtOptions, DegreeOfFreedom, Delay, type DestinationSize, type DetectedFeatures, Detector, Die, Direction, Director, DirectorEvents, type DirectorNavigationEvent, DisplayMode, type DistributeEntity, DynamicTree, DynamicTreeCollisionProcessor, type DynamicTreeConfig, EX_VERSION, EaseBy, EaseTo, type EasingFunction, EasingFunctions, Edge, EdgeCollider, type EdgeColliderOptions, ElasticToActorStrategy, EmitterType, Engine, EngineEvents, type EngineOptions, EnterTriggerEvent, EnterViewPortEvent, Entity, type EntityComponent, EntityEvents, EntityManager, type EntityOptions, EventEmitter, type EventKey, type EventMap, EventTypes, type Eventable, Events, ExResponse, type ExResponseType, type ExResponseTypesLookup, type ExcaliburGraphicsContext, ExcaliburGraphicsContext2DCanvas, type ExcaliburGraphicsContext2DOptions, type ExcaliburGraphicsContextOptions, type ExcaliburGraphicsContextState, ExcaliburGraphicsContextWebGL, type ExcaliburGraphicsContextWebGLOptions, ExitTriggerEvent, ExitViewPortEvent, Fade, FadeInOut, type FadeOptions, Flags, Flash, Follow, Font, FontCache, type FontOptions, type FontRenderer, FontSource, type FontSourceOptions, FontStyle, FontUnit, FpsSampler, type FpsSamplerOptions, type Frame, type FrameActorStats, type FrameDurationStats, type FrameEvent, type FrameStatistics, FrameStats, type FromSpriteSheetOptions, type FullScreenChangeEvent, Future, type G_UUID, GameEvent, GameStartEvent, GameStopEvent, Gamepad, GamepadAxisEvent, GamepadButtonEvent, type GamepadConfiguration, GamepadConnectEvent, GamepadDisconnectEvent, Gamepads, type GarbageCollectionOptions, GarbageCollector, type GarbageCollectorOptions, type GetSpriteOptions, Gif, type GifFrame, GifParser, GlobalCoordinates, type GoToOptions, type GpuParticleConfig, GpuParticleEmitter, GpuParticleRenderer, Graph, Graphic, type GraphicOptions, GraphicsComponent, type GraphicsComponentOptions, GraphicsGroup, type GraphicsGrouping, type GraphicsGroupingOptions, type GraphicsShowOptions, type GraphicsStatistics, GraphicsSystem, type HTMLImageSource, type Handler, type HasTick, HashColliderProxy, HashGridCell, HashGridProxy, HiddenEvent, HorizontalFirst, type Id, ImageFiltering, ImageSource, ImageSourceAttributeConstants, type ImageSourceOptions, type ImageWrapConfiguration, ImageWrapping, InitializeEvent, InputHost, type InputHostOptions, InputMapper, type InputsOptions, IsometricEntityComponent, type IsometricEntityComponentOptions, IsometricEntitySystem, IsometricMap, type IsometricMapOptions, IsometricTile, type IsometricTilePointerEvents, KeyEvent, Keyboard, type KeyboardInitOptions, Keys, KillEvent, Label, type LabelOptions, type LegacyWebAudioSource, LimitCameraBoundsStrategy, Line, type LineGraphicsOptions, type LineOptions, LineSegment, type Loadable, Loader, type LoaderConstructor, LoaderEvents, type LoaderOptions, LockCameraToActorAxisStrategy, LockCameraToActorStrategy, LogLevel, Logger, Material, type MaterialImageOptions, type MaterialOptions, Matrix, MatrixLocations, type MaybeKnownComponent, type MaybeObserver, MediaEvent, Meet, type Message, type Motion, MotionComponent, MotionSystem, MoveBy, type MoveByOptions, MoveByWithOptions, MoveTo, type MoveToOptions, MoveToWithOptions, type NativeEventable, type NativeMouseEvent, NativePointerButton, type NativePointerEvent, NativeSoundEvent, NativeSoundProcessedEvent, type NativeTouchEvent, type NativeWheelEvent, type NavigatorGamepad, type NavigatorGamepadButton, type NavigatorGamepadEvent, type NavigatorGamepads, NineSlice, type NineSliceConfig, NineSliceStretch, Node, None, Observable, type Observer, type ObsoleteOptions, OffscreenSystem, type OnAdd, type OnInitialize, type OnPostDraw, type OnPostUpdate, type OnPreDraw, type OnPreUpdate, type OnRemove, Pair, ParallaxComponent, ParallelActions, Particle, type ParticleConfig, ParticleEmitter, type ParticleEmitterArgs, ParticleRenderer, ParticleTransform, type PhysicsConfig, type PhysicsStatistics, PhysicsStats, PhysicsWorld, type PixelRatioChangeEvent, type PointGraphicsOptions, PointerAbstraction, PointerButton, PointerComponent, PointerEvent, PointerEventReceiver, type PointerEvents$1 as PointerEvents, type PointerInitOptions, PointerScope, PointerSystem, PointerType, Polygon, PolygonCollider, type PolygonColliderOptions, type PolygonOptions, Pool, PositionNode, type PossibleChannels, type PossibleSounds, type PossibleStates, PostCollisionEvent, PostDebugDrawEvent, PostDrawEvent, PostFrameEvent, PostKillEvent, type PostProcessor, PostTransformDrawEvent, PostUpdateEvent, PreCollisionEvent, PreDebugDrawEvent, PreDrawEvent, PreFrameEvent, PreKillEvent, PreLoadEvent, PreTransformDrawEvent, PreUpdateEvent, Projection, QuadIndexBuffer, QuadTree, type QuadTreeItem, type QuadTreeOptions, Query, type QueryEntity, QueryManager, type QueryParams, RadiusAroundActorStrategy, Random, Raster, type RasterOptions, Ray, type RayCastHit, type RayCastOptions, RealisticSolver, type RectGraphicsOptions, Rectangle, type RectangleOptions, RemoveEvent, RemovedComponent, type RendererPlugin, RentalPool, Repeat, RepeatForever, Resolution, Resource, ResourceEvents, RotateBy, type RotateByOptions, RotateByWithOptions, RotateTo, type RotateToOptions, RotateToWithOptions, RotationType, ScaleBy, type ScaleByOptions, ScaleByWithOptions, ScaleTo, type ScaleToOptions, ScaleToWithOptions, Scene, type SceneActivationContext, type SceneConstructor, SceneEvents, type SceneMap, type SceneWithOptions, type ScheduleId, type ScheduledCallbackTiming, Screen, ScreenAppender, type ScreenAppenderOptions, ScreenElement, ScreenEvents, type ScreenOptions, type ScreenResizeEvent, ScreenShader, ScrollPreventionMode, Semaphore, SeparatingAxis, SeparationInfo, Shader, type ShaderOptions, Shape, Side, Slide, type SlideOptions, SolverStrategy, Sound, type SoundConfig, SoundEvents, SoundManager, type SoundManagerApi, type SoundManagerOptions, type SoundOptions, type SourceView, SparseHashGrid, SparseHashGridCollisionProcessor, type SparseHashGridConfig, SpatialPartitionStrategy, Sprite, SpriteFont, type SpriteFontOptions, type SpriteOptions, SpriteSheet, type SpriteSheetGridOptions, type SpriteSheetOptions, type SpriteSheetSpacingDimensions, type SpriteSheetSparseOptions, StandardClock, type StartOptions, type State, StateMachine, type StateMachineDescription, type StateMachineState, StrategyContainer, Stream, type Subscription, System, type SystemCtor, SystemManager, SystemPriority, SystemType, TagQuery, TestClock, type TestClockOptions, Text, TextAlign, type TextOptions, TextureLoader, Tile, TileMap, TileMapEvents, type TileMapOptions, type TileOptions, type TilePointerEvents, TiledAnimation, type TiledAnimationOptions, TiledSprite, type TiledSpriteOptions, Timer, type TimerOptions, Toaster, Transform, TransformComponent, Transition, type TransitionOptions, TreeNode, Trigger, TriggerEvents, type TriggerOptions, TwoPI, UniformBuffer, type UniformBufferOptions, type UniformDefinition, type UniformDictionary, type UniformTypeNames, Index as Util, Vector, VectorView, type VectorViewOptions, type VertexAttributeDefinition, VertexBuffer, type VertexBufferOptions, VertexLayout, type VertexLayoutOptions, VerticalFirst, type ViewportDimension, type ViewportUnit, VisibleEvent, WebAudio, WebAudioInstance, type WebGLGraphicsContextInfo, WheelDeltaMode, WheelEvent, type WithRoot, World, type _add, type _initialize, type _postupdate, type _preupdate, type _remove, type activate, type add, approximatelyEqual, assert, type axis, type button, type cancel, canonicalizeAngle, clamp, type collisionend, type collisionstart, type connect, coroutine, createId, type deactivate, type disconnect, type down, type enter, type entertrigger, type enterviewport, type exittrigger, type exitviewport, frac, getDefaultPhysicsConfig, glTypeToUniformTypeName, hasGraphicsTick, hasOnAdd, hasOnInitialize, hasOnPostUpdate, hasOnPreUpdate, hasOnRemove, hasPostDraw, hasPreDraw, has_add, has_initialize, has_postupdate, has_preupdate, has_remove, type hidden, type hold, type initialize, inverseLerp, inverseLerpVector, isActor, isAddedComponent, isComponentCtor, isLoaderConstructor, isMoveByOptions, isMoveToOptions, isRemovedComponent, isRotateByOptions, isRotateToOptions, isScaleByOptions, isScaleToOptions, isSceneConstructor, isScreenElement, isSystemConstructor, type kill, type leave, lerp, lerpAngle, lerpVector, maxMessages, type move, nextActionId, obsolete, parseImageFiltering, parseImageWrapping, pixelSnapEpsilon, type pointercancel, type pointerdown, type pointerdragend, type pointerdragenter, type pointerdragleave, type pointerdragmove, type pointerdragstart, type pointerenter, type pointerleave, type pointermove, type pointerup, type pointerwheel, type postcollision, type postdebugdraw, type postdraw, type postframe, type postkill, type postupdate, type precollision, type predebugdraw, type predraw, type preframe, type prekill, type press, type preupdate, randomInRange, randomIntInRange, range, type release, remap, remapVector, type remove, resetObsoleteCounter, sign, type start, type stop, type subscribe, toDegrees, toRadians, type unsubscribe, type up, vec, type visible, webglUtil as webgl, type wheel };
