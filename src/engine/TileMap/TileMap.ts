@@ -565,14 +565,25 @@ export class TileMap extends Entity implements HasNestedPointerEvents {
    * @internal
    */
   public _processPointerToObject(receiver: PointerEventReceiver) {
-    this._pointerEventDispatcher.processPointerToObject(receiver, this.tiles);
+    // custom processor for tilmaps because it can be done VERY efficiently
+    // DO NOT CALL this._pointerEventDispatcher.processPointerToObject
+    const pointers: [pointerId: number, pos: GlobalCoordinates][] = Array.from(receiver.currentFramePointerCoords.entries());
+
+    // find specific tiles tile for pointer
+    for (const [pointerId, pos] of pointers) {
+      const tile = this.getTileByPoint(this.transform.coordPlane === CoordPlane.World ? pos.worldPos : pos.screenPos);
+      if (tile) {
+        this._pointerEventDispatcher.addPointerToObject(tile, pointerId);
+      }
+    }
   }
 
   /**
    * @internal
    */
   public _dispatchPointerEvents(receiver: PointerEventReceiver) {
-    this._pointerEventDispatcher.dispatchEvents(receiver, this.tiles);
+    // DO NOT PASS this.tiles, this signals to the dispatcher that order is not important
+    this._pointerEventDispatcher.dispatchEvents(receiver);
   }
 
   public update(engine: Engine, elapsed: number) {

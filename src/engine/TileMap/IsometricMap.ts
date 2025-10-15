@@ -18,6 +18,8 @@ import { EventEmitter } from '../EventEmitter';
 import type { HasNestedPointerEvents } from '../Input/PointerEventsToObjectDispatcher';
 import { PointerEventsToObjectDispatcher } from '../Input/PointerEventsToObjectDispatcher';
 import type { PointerEventReceiver } from '../Input/PointerEventReceiver';
+import type { GlobalCoordinates } from '../Math';
+import { CoordPlane } from '../Math';
 
 export type IsometricTilePointerEvents = {
   pointerup: PointerEvent;
@@ -403,7 +405,17 @@ export class IsometricMap extends Entity implements HasNestedPointerEvents {
    * @internal
    */
   public _processPointerToObject(receiver: PointerEventReceiver) {
-    this._pointerEventDispatcher.processPointerToObject(receiver, this.tiles);
+    // custom processor for tilmaps because it can be done VERY efficiently
+    // DO NOT CALL this._pointerEventDispatcher.processPointerToObject
+    const pointers: [pointerId: number, pos: GlobalCoordinates][] = Array.from(receiver.currentFramePointerCoords.entries());
+
+    // find specific tiles tile for pointer
+    for (const [pointerId, pos] of pointers) {
+      const tile = this.getTileByPoint(this.transform.coordPlane === CoordPlane.World ? pos.worldPos : pos.screenPos);
+      if (tile) {
+        this._pointerEventDispatcher.addPointerToObject(tile, pointerId);
+      }
+    }
   }
 
   /**
