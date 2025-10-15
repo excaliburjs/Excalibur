@@ -20,15 +20,17 @@ This is the current implementation of the excalibur playground for sharing small
 * First generate the types from Excalibur git submodule
 
     ```sh
+    # Windows
     npx tsup --loader ".glsl=text" .\Excalibur\src\engine\index.ts --dts
+
+    # Mac / Linux
+    npx tsup --loader ".glsl=text" ./Excalibur/src/engine/index.ts --dts
     ```
 * Run `npm install`
 * Run `npm start`
 
 ## Contribution Wishlist
 
-* Respect system light/dark mode configuration and style accordingly (currently we are dark mode hard coded)
-* Implement iframe embedding
 * Link to source code in github (or anywhere)
 * Support multiple versions of Excalibur (maybe even in progress branches?)
 * Auto save to the URL on keyup

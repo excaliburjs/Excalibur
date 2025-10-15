@@ -3,6 +3,12 @@ import * as lz from "lz-string";
 
 const ts = (tag: any) => tag[0];
 
+const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches;
+
+const searchParams = new URLSearchParams(document.location.search)
+const isEmbedded = searchParams.get('embed') === 'true';
+document.body.classList.toggle('embedded', isEmbedded);
+
 // Super secret worker url
 //@ts-ignore
 import TsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker.js?worker';
@@ -80,7 +86,8 @@ const editor = monaco.editor.create(containerEl, {
   value: getInitialCode(),
   language: 'typescript',
   automaticLayout: true,
-  theme: 'vs-dark' // todo use browser theme
+  theme: isLightMode ? 'vs-light' : 'vs-dark',
+  minimap: { enabled: !isEmbedded },
 });
 
 function debounce(func: (..._: any[]) => any, delay: number) {

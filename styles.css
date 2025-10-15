@@ -1,15 +1,35 @@
+:root {
+	--background: #1e1e1e;
+	--button-color: #fffffe;
+	--button-hover-color: #fffffe;
+	--button-hover-border: #176baa;
+	--button-hover-background: #176baa;
+}
 
+@media (prefers-color-scheme: light) {
+	:root {
+		--background: #fffffe;
+		--button-color: #176baa;
+		--button-hover-color: #fffffe;
+		--button-hover-border: #176baa;
+		--button-hover-background: #176baa;
+	}
+}
 
 html, body {
 	margin: 0;
 	padding: 0;
 	height: 100%;
-	background-color: rgb(27, 27, 29);
+	background-color: var(--background);
 	font: 16px sans-serif;
 }
 
 header {
 	padding: 5px;
+}
+
+body.embedded header {
+	display: none;
 }
 
 h1 {
@@ -23,19 +43,20 @@ h1 img {
 }
 
 button, label {
+	cursor: pointer;
 	font-size: 1em;
-	color: white;
+	color: var(--button-color);
 	background-color: transparent;
 	padding: 10px;
-	border: solid #aaa 2px;
+	border: solid var(--button-color) 2px;
 	border-radius: 5px;
 }
 
 button:hover {
-	color: rgb(0, 127, 255);
-	background-color: rgba(0, 20, 120, .5);
+	color: var(--button-hover-color);
+	background-color: var(--button-hover-background);
 	padding: 10px;
-	border: solid rgb(0, 127, 255) 2px;
+	border: solid var(--button-hover-border) 2px;
 	border-radius: 5px;
 }
 
@@ -93,7 +114,7 @@ button:focus-visible {
 #preview > #canvas-container {
 	position: relative;
 	min-height: 400px;
-	background-color: black;
+	background-color: var(--background);
 	display: flex;
 	justify-content: center;
 	align-items: center;

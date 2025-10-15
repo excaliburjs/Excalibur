@@ -22,7 +22,14 @@
 
 <body>
 	<header>
-		<h1><img src="logo-white@2x.png" alt="" /><span class="sr-only">Excalibur.js Playground<span></h1>
+		<h1>
+				<picture>
+					<source srcset="logo@2x.png" media="(prefers-color-scheme: light)"/>
+					<source srcset="logo-white@2x.png"  media="(prefers-color-scheme: dark)"/>
+					<img src="logo-white@2x.png" alt="Description of what the image shows"/>
+				</picture>
+				<span class="sr-only">Excalibur.js Playground<span>
+			</h1>
 	</header>
 	<main>
 		<div id="container"></div>
