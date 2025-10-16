@@ -56,7 +56,7 @@ export class PointerEventsToObjectDispatcher<TObject extends { events: EventEmit
     this._objectToProxy.set(object, proxy);
   }
 
-  private _getProxy(object: TObject): PointerTargetObjectProxy<TObject> {
+  public _getProxy(object: TObject): PointerTargetObjectProxy<TObject> {
     const proxy = this._objectToProxy.get(object);
     if (proxy) {
       return proxy;
@@ -123,19 +123,38 @@ export class PointerEventsToObjectDispatcher<TObject extends { events: EventEmit
    * @param receiver
    * @param sortedObjects
    */
-  public dispatchEvents(receiver: PointerEventReceiver, sortedObjects: TObject[]) {
+  public dispatchEvents(receiver: PointerEventReceiver, sortedObjects?: TObject[]) {
     const lastFrameEntities = new Set(this._lastFrameObjectToPointers.keys());
     const currentFrameEntities = new Set(this._currentFrameObjectToPointers.keys());
     // Filter preserves z order
     let lastMovePerPointer: Map<number, PointerEvent>;
     let lastUpPerPointer: Map<number, PointerEvent>;
     let lastDownPerPointer: Map<number, PointerEvent>;
+
+    let sortedObjectsProxies: PointerTargetObjectProxy<TObject>[] = [];
+    if (sortedObjects) {
+      for (let i = 0; i < sortedObjects.length; i++) {
+        const object = sortedObjects[i];
+        const proxy = this._getProxy(object);
+        sortedObjectsProxies.push(proxy);
+        // TODO it might be faster to "just" maintain a sorted list from last/current frame
+        // this will require some more engineering to accurately track z index changes over time
+      }
+    } else {
+      // eschew sorted order just use last/current frame entities in any order
+      // TODO use Set.union when it's more supported by the last 5 Safari versions
+      const unsortedObjectProxies = new Set(lastFrameEntities);
+      for (const other of currentFrameEntities) {
+        unsortedObjectProxies.add(other);
+      }
+      sortedObjectsProxies = Array.from(unsortedObjectProxies);
+    }
+
     // Dispatch events in proxy z order
-    for (let i = 0; i < sortedObjects.length; i++) {
-      const object = sortedObjects[i];
-      const proxy = this._getProxy(object);
-      if (hasNestedEvents(object)) {
-        object._dispatchPointerEvents(receiver);
+    for (let i = 0; i < sortedObjectsProxies.length; i++) {
+      const proxy = sortedObjectsProxies[i];
+      if (hasNestedEvents(proxy.object)) {
+        proxy.object._dispatchPointerEvents(receiver);
       }
       if (lastFrameEntities.has(proxy) || currentFrameEntities.has(proxy)) {
         lastDownPerPointer = this._processDownAndEmit(receiver, proxy);
