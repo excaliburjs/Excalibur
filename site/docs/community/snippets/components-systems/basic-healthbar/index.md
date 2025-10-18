@@ -26,9 +26,9 @@ The `HealthBar` component provides a **visual health bar** that can be attached 
 
 You can download the full TypeScript module here:
 
-[Download HealthBar.ts](./HealthBar.ts)
+[Download HealthBar.ts](./assets/healthbar.ts)
 
-[LifeBar.png](./lifebar.png)
+[LifeBar.png](./assets/lifebar.png)
 
 ```ts
 import { Actor, Engine, Scene } from 'excalibur';

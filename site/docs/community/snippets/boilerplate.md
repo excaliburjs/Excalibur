@@ -13,11 +13,13 @@ This guide explains **how to structure, write, and submit a snippet** so it appe
 ## 1️⃣ Directory Structure
 
 Each snippet should live in its **own folder** under the appropriate category:
+Any images or downloadable modules should reside in the assets folder
 
 ```bash
 docs/community/snippets/<category>/<your-snippet-name>/
 index.md <-- main snippet file
 /assets/demo.gif <-- optional visual demonstration or static assets
+/assets/myComponent.ts
 ```
 
 **Categories** might include:
@@ -34,7 +36,7 @@ docs/community/snippets/ui-hud/button-effects/index.md
 docs/community/snippets/ui-hud/button-effects/assets/demo.gif
 ```
 
-Your markdown file should have a header and include this content:
+## 2️⃣ Your markdown file should have a header and include this content:
 
 ```
 //index.md
