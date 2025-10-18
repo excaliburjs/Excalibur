@@ -1,18 +1,12 @@
 ---
-title: UI Snippets
-description: Reusable UI components contributed by the community.
+title: UI and HUD
+description: Reusable ScreenElements, UI and HUD to use in your game
 hide_table_of_contents: true
 ---
 
-# 🖥️ UI Snippets
+# 🖥️ UI and HUD elements
 
-This category contains snippets for UI elements such as buttons, HUDs, menus, and other interface components.
+import DocCardList from '@theme/DocCardList';
+import { useCurrentSidebarCategory } from '@docusaurus/theme-common';
 
 <DocCardList items={useCurrentSidebarCategory().items} />
-
----
-
-## Contributing a UI Snippet
-
-Follow the general snippet submission guidelines, and place your snippet in this folder:
-

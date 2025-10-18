@@ -16,11 +16,13 @@ export class HealthBar extends Component {
   _currentHealth: number;
   _maxHealth: number;
   _childActor: Actor | null = null;
+  _offset: Vector = vec(0, -25);
 
-  constructor(maxHealth: number) {
+  constructor(maxHealth: number, offset?: Vector) {
     super();
     this._maxHealth = maxHealth;
     this._currentHealth = maxHealth;
+    this._offset = offset ?? vec(0, 0);
   }
 
   init() {}
@@ -60,7 +62,7 @@ export class HealthBar extends Component {
       }
     }
 
-    this._childActor = new HealthBarActor(vec(0, -25));
+    this._childActor = new HealthBarActor(this._offset);
     owner.addChild(this._childActor);
     console.log(owner);
 

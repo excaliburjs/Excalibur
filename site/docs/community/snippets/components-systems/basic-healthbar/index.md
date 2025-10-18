@@ -40,7 +40,8 @@ const game = new Engine({ width: 800, height: 600 });
 class Player extends Actor {
   constructor() {
     super({ pos: vec(400, 300) });
-    this.addComponent(new HealthBar(100));  // set's max health to 100
+    this.addComponent(new HealthBar(100));  // set's max health to 100, default position of vec(0,-25)
+    // optionally this.addComponent(new HealthBar(100), vec(-10, -30)); // you can pass in custom position
   }
 }
 
@@ -67,6 +68,6 @@ Notes & Tips
 
 Make sure lifeBarSS is properly loaded before adding the component.
 
-You can customize position by changing the vec(0, -25) offset when creating the child actor.
+You can customize position by passing an optional vector to the component on creation.
 
 Works for any entity in your game.
