@@ -59,7 +59,7 @@ Field explanations:
 | `author`      | Contributor name                                    |
 | `date`        | Submission date                                     |
 
-There should be a title, description, code blocks demonstrating usage, and optionally, embedded demonstrations of snippet's usage
+There should be a title, feature description, code blocks demonstrating usage, and optionally, embedded demonstrations of snippet's usage
 
 ```
 # Button Effects
