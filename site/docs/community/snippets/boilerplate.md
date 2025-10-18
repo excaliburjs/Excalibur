@@ -19,7 +19,7 @@ Any images or downloadable modules should reside in the assets folder
 docs/community/snippets/<category>/<your-snippet-name>/
 index.md <-- main snippet file
 /assets/demo.gif <-- optional visual demonstration or static assets
-/assets/myComponent.ts
+/assets/myComponent.ts  <-- optional downloadable module
 ```
 
 **Categories** might include:
@@ -46,7 +46,6 @@ description: Adds hover and click effects to buttons in ExcaliburJS.
 tags: [ui, component]
 author: Jane Doe
 date: 2025-10-18
-demo: .assets/demo.gif
 ---
 ```
 

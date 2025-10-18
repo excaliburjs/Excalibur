@@ -24,12 +24,6 @@ The `HealthBar` component provides a **visual health bar** that can be attached 
 
 ## Usage
 
-You can download the full TypeScript module here:
-
-[Download HealthBar.ts](./assets/healthbar.ts)
-
-[LifeBar.png](./assets/lifebar.png)
-
 ```ts
 import { Actor, Engine, Scene } from 'excalibur';
 import { HealthBar } from './HealthBar';
@@ -58,13 +52,21 @@ player.getComponent(HealthBar).health -= 10; // decrease health
 player.getComponent(HealthBar).health = 50; // set health directly
 ```
 
-Demo
+## Demo
 
 The demo shows the health bar above a player entity, dynamically updating as health changes.
 
 ![Demo](./assets/demo.png)
 
-Notes & Tips
+## Downloadable Content
+
+You can download the full TypeScript module here:
+
+[Download HealthBar.ts](./assets/healthbar.ts)
+
+[LifeBar.png](./assets/lifebar.png)
+
+## Notes & Tips
 
 Make sure lifeBarSS is properly loaded before adding the component.
 
