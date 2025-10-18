@@ -181,6 +181,7 @@ const config: Config = {
         }
       };
     },
+    
     [
       'docusaurus-plugin-typedoc-api',
       {
@@ -229,6 +230,7 @@ const config: Config = {
         { to: '/blog', label: 'Blog', position: 'left' },
         { to: '/samples', label: 'Samples', position: 'left' },
         { to: '/showcase', label: 'Showcase', position: 'left' },
+        { to: '/docs/community', label: 'Community', position: 'left' },
         { to: '/donate', label: 'Donate', position: 'left' },
         {
           href: 'https://github.com/excaliburjs/Excalibur/discussions',
