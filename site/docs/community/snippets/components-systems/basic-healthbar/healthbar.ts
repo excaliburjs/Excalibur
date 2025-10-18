@@ -1,5 +1,16 @@
-import { Actor, Component, Entity, vec, Vector } from "excalibur";
-import { lifeBarSS } from "../resources";  // <-- import sprite sheet as you normally would
+import { Actor, Component, Entity, SpriteSheet, vec, Vector } from "excalibur";
+
+
+const lifeBarSS = SpriteSheet.fromImageSource({
+  image: "assets/lifebar.png",  //<--- import normally as you would
+  grid: {
+    rows: 1,
+    columns: 27,
+    spriteWidth: 32,
+    spriteHeight: 8,
+  },  
+})
+
 
 export class HealthBar extends Component {
   _currentHealth: number;
