@@ -58,11 +58,8 @@ Field explanations:
 | `tags`        | Array of relevant tags (used for filtering/search)  |
 | `author`      | Contributor name                                    |
 | `date`        | Submission date                                     |
-| `demo`        | Relative path to a demo image or GIF (optional)     |
-
 
 There should be a title, description, code blocks demonstrating usage, and optionally, embedded demonstrations of snippet's usage
-
 
 ```
 # Button Effects
