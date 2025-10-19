@@ -230,7 +230,12 @@ const config: Config = {
         { to: '/blog', label: 'Blog', position: 'left' },
         { to: '/samples', label: 'Samples', position: 'left' },
         { to: '/showcase', label: 'Showcase', position: 'left' },
-        { to: '/docs/community', label: 'Community', position: 'left' },
+        {
+          type: 'docSidebar',
+          sidebarId: 'communitySidebar', // sidebar generated from docs/community
+          position: 'left',
+          label: 'Community'
+        },
         { to: '/donate', label: 'Donate', position: 'left' },
         {
           href: 'https://github.com/excaliburjs/Excalibur/discussions',

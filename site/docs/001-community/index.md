@@ -14,7 +14,7 @@ Whether you’re looking for **ready-to-use code snippets**, learning materials,
 
 ## 📂 Explore Community Resources
 
-- [🧩 Snippets](./community/snippets/) – Reusable code examples contributed by the community <!-- - [🎨 Assets](./assets/) – Shared art packs, tilesets, and graphics   -->
+- [🧩 Snippets](./snippets/) – Reusable code examples contributed by the community <!-- - [🎨 Assets](./assets/) – Shared art packs, tilesets, and graphics   -->
 - [🧠 Tips & Tricks](./tips-tricks/) – Short tutorials and advice for working with ExcaliburJS  
 
 ---
