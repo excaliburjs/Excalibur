@@ -118,11 +118,51 @@ export class Query<
       .join('-');
   }
 
+  matchesNotFilter(entity: Entity): boolean {
+    for (const component of this.filter.components.not) {
+      if (entity.has(component)) {
+        return true;
+      }
+    }
+
+    // check if entity has none of the tags
+    for (const tag of this.filter.tags.not) {
+      if (entity.hasTag(tag)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   matches(entity: Entity): boolean {
-    // Components
+    // Components & Tags
+
+    // IMPORTANT: Check NOT conditions first, all exclusions first
+
+    // check if entity has none of the components
+    for (const component of this.filter.components.not) {
+      if (entity.has(component)) {
+        return false;
+      }
+    }
+
+    // check if entity has none of the tags
+    for (const tag of this.filter.tags.not) {
+      if (entity.hasTag(tag)) {
+        return false;
+      }
+    }
+
     // check if entity has all components
     for (const component of this.filter.components.all) {
       if (!entity.has(component)) {
+        return false;
+      }
+    }
+
+    // check if entity has all tags
+    for (const tag of this.filter.tags.all) {
+      if (!entity.hasTag(tag)) {
         return false;
       }
     }
@@ -142,21 +182,6 @@ export class Query<
       }
     }
 
-    // check if entity has none of the components
-    for (const component of this.filter.components.not) {
-      if (entity.has(component)) {
-        return false;
-      }
-    }
-
-    // Tags
-    // check if entity has all tags
-    for (const tag of this.filter.tags.all) {
-      if (!entity.hasTag(tag)) {
-        return false;
-      }
-    }
-
     // check if entity has any tags
     if (this.filter.tags.any.size > 0) {
       let found = false;
@@ -172,26 +197,25 @@ export class Query<
       }
     }
 
-    // check if entity has none of the tags
-    for (const tag of this.filter.tags.not) {
-      if (entity.hasTag(tag)) {
-        return false;
-      }
-    }
-
     return true;
   }
 
   /**
-   * Potentially adds an entity to a query index, returns true if added, false if not
+   * Potentially adds or removes an entity from a query index, returns true if added, false if not
    * @param entity
    */
-  checkAndAdd(entity: Entity) {
+  checkAndModify(entity: Entity): boolean {
+    if (this.matchesNotFilter(entity) && this.entities.includes(entity)) {
+      this.removeEntity(entity);
+      return false;
+    }
+
     if (this.matches(entity) && !this.entities.includes(entity)) {
       this.entities.push(entity);
       this.entityAdded$.notifyAll(entity);
       return true;
     }
+
     return false;
   }
 

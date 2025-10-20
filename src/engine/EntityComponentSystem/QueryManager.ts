@@ -3,7 +3,6 @@ import type { QueryParams } from './Query';
 import { Query } from './Query';
 import type { Component, ComponentCtor } from './Component';
 import type { World } from './World';
-import { TagQuery } from './TagQuery';
 
 /**
  * The query manager is responsible for updating all queries when entities/components change
@@ -12,12 +11,12 @@ export class QueryManager {
   private _queries = new Map<string, Query<any, any>>();
   private _addComponentHandlers = new Map<Entity, (c: Component) => any>();
   private _removeComponentHandlers = new Map<Entity, (c: Component) => any>();
-  private _componentToQueriesIndex = new Map<ComponentCtor<any>, Query<any, any>[]>();
 
-  private _tagQueries = new Map<string, TagQuery<any>>();
+  private _componentToQueriesIndex = new Map<ComponentCtor<any>, Query<any, any>[]>();
+  private _tagToQueriesIndex2 = new Map<string, Query<any, any>[]>();
+
   private _addTagHandlers = new Map<Entity, (tag: string) => any>();
   private _removeTagHandlers = new Map<Entity, (tag: string) => any>();
-  private _tagToQueriesIndex = new Map<string, TagQuery<any>[]>();
 
   constructor(private _world: World) {}
 
@@ -38,6 +37,7 @@ export class QueryManager {
     this._queries.set(query.id, query);
 
     // index maintenance
+    // components
     for (const component of [...query.filter.components.all, ...query.filter.components.any, ...query.filter.components.not]) {
       const queries = this._componentToQueriesIndex.get(component);
       if (!queries) {
@@ -46,30 +46,12 @@ export class QueryManager {
         queries.push(query);
       }
     }
+    // tags
+    for (const tag of [...query.filter.tags.all, ...query.filter.tags.any, ...query.filter.tags.not]) {
+      const queries = this._tagToQueriesIndex2.get(tag);
 
-    for (const entity of this._world.entities) {
-      this.addEntity(entity);
-    }
-
-    return query;
-  }
-
-  public createTagQuery<TKnownTags extends string>(requiredTags: TKnownTags[]): TagQuery<TKnownTags> {
-    const id = TagQuery.createId(requiredTags);
-    if (this._tagQueries.has(id)) {
-      // short circuit if query is already created
-      return this._tagQueries.get(id) as TagQuery<TKnownTags>;
-    }
-
-    const query = new TagQuery(requiredTags);
-
-    this._tagQueries.set(query.id, query);
-
-    // index maintenance
-    for (const tag of requiredTags) {
-      const queries = this._tagToQueriesIndex.get(tag);
       if (!queries) {
-        this._tagToQueriesIndex.set(tag, [query]);
+        this._tagToQueriesIndex2.set(tag, [query]);
       } else {
         queries.push(query);
       }
@@ -118,11 +100,9 @@ export class QueryManager {
     this._removeTagHandlers.set(entity, removeTag);
 
     for (const query of this._queries.values()) {
-      query.checkAndAdd(entity);
+      query.checkAndModify(entity);
     }
-    for (const tagQuery of this._tagQueries.values()) {
-      tagQuery.checkAndAdd(entity);
-    }
+
     entity.componentAdded$.subscribe(addComponent);
     entity.componentRemoved$.subscribe(removeComponent);
     entity.tagAdded$.subscribe(addTag);
@@ -152,9 +132,6 @@ export class QueryManager {
     // Handle tags
     const addTag = this._addTagHandlers.get(entity);
     const removeTag = this._removeTagHandlers.get(entity);
-    for (const tagQuery of this._tagQueries.values()) {
-      tagQuery.removeEntity(entity);
-    }
 
     if (addTag) {
       entity.tagAdded$.unsubscribe(addTag);
@@ -174,7 +151,7 @@ export class QueryManager {
   addComponent(entity: Entity, component: Component) {
     const queries = this._componentToQueriesIndex.get(component.constructor as ComponentCtor<any>) ?? [];
     for (const query of queries) {
-      query.checkAndAdd(entity);
+      query.checkAndModify(entity);
     }
   }
 
@@ -196,9 +173,9 @@ export class QueryManager {
    * @param tag
    */
   addTag(entity: Entity, tag: string) {
-    const queries = this._tagToQueriesIndex.get(tag) ?? [];
-    for (const query of queries) {
-      query.checkAndAdd(entity);
+    const queries2 = this._tagToQueriesIndex2.get(tag) ?? [];
+    for (const query of queries2) {
+      query.checkAndModify(entity);
     }
   }
 
@@ -208,8 +185,8 @@ export class QueryManager {
    * @param tag
    */
   removeTag(entity: Entity, tag: string) {
-    const queries = this._tagToQueriesIndex.get(tag) ?? [];
-    for (const query of queries) {
+    const queries2 = this._tagToQueriesIndex2.get(tag) ?? [];
+    for (const query of queries2) {
       query.removeEntity(entity);
     }
   }

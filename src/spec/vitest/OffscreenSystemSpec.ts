@@ -51,7 +51,7 @@ describe('The OffscreenSystem', () => {
 
     offscreen.events.on('enterviewport', onscreenSpy);
     offscreen.events.on('exitviewport', offscreenSpy);
-    sut.query.checkAndAdd(offscreen);
+    sut.query.checkAndModify(offscreen);
 
     // Should be offscreen
     sut.update();

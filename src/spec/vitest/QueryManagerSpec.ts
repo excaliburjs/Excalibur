@@ -111,6 +111,38 @@ describe('A QueryManager', () => {
     expect(queryAB.getEntities()).toEqual([]);
   });
 
+  it('can remove entities from queries that have components and tags', () => {
+    const world = new ex.World(null);
+    const entity1 = new ex.Entity();
+    entity1.addComponent(new FakeComponentA());
+    entity1.addComponent(new FakeComponentB());
+    entity1.addTag('ex.offscreen');
+
+    const entity2 = new ex.Entity();
+    entity2.addComponent(new FakeComponentA());
+    entity2.addComponent(new FakeComponentB());
+
+    const queryAB = world.query({
+      components: {
+        all: [FakeComponentA, FakeComponentB]
+      },
+      tags: {
+        not: ['ex.offscreen']
+      }
+    });
+    world.queryManager.addEntity(entity1);
+    world.queryManager.addEntity(entity2);
+    expect(queryAB.getEntities()).toEqual([entity2]);
+
+    entity2.addTag('ex.offscreen');
+    world.queryManager.addEntity(entity2);
+    expect(queryAB.getEntities()).toEqual([]);
+
+    entity1.removeTag('ex.offscreen');
+    world.queryManager.addEntity(entity1);
+    expect(queryAB.getEntities()).toEqual([entity1]);
+  });
+
   it('can remove entities from tag queries', () => {
     const world = new ex.World(null);
     const entity1 = new ex.Entity();

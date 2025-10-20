@@ -45,7 +45,7 @@ describe('DebugSystem', () => {
     await (engine.graphicsContext.debug as any)._debugText.load();
 
     const entity = new ex.Entity([new ex.TransformComponent(), new ex.ColliderComponent()]);
-    debugSystem.query.checkAndAdd(entity);
+    debugSystem.query.checkAndModify(entity);
 
     engine.debug.collider.showAll = true;
 
@@ -68,7 +68,7 @@ describe('DebugSystem', () => {
       actor.id = 0;
       engine.debug.transform.showAll = true;
       engine.debug.entity.showAll = true;
-      debugSystem.query.checkAndAdd(actor);
+      debugSystem.query.checkAndModify(actor);
       debugSystem.update();
 
       engine.graphicsContext.flush();
@@ -89,7 +89,7 @@ describe('DebugSystem', () => {
       actor.id = 0;
       actor.vel = ex.vec(100, 0);
       actor.acc = ex.vec(100, -100);
-      debugSystem.query.checkAndAdd(actor);
+      debugSystem.query.checkAndModify(actor);
       engine.debug.motion.showAll = true;
       engine.debug.collider.showGeometry = true;
       engine.debug.collider.geometryLineWidth = 2;
@@ -113,7 +113,7 @@ describe('DebugSystem', () => {
       actor.id = 0;
       actor.vel = ex.vec(100, 0);
       actor.acc = ex.vec(100, -100);
-      debugSystem.query.checkAndAdd(actor);
+      debugSystem.query.checkAndModify(actor);
       engine.debug.body.showAll = true;
       debugSystem.update();
 
@@ -133,7 +133,7 @@ describe('DebugSystem', () => {
 
       const actor = new ex.Actor({ name: 'thingy', x: -100 + center.x, y: center.y, width: 50, height: 50, color: ex.Color.Yellow });
       actor.id = 0;
-      debugSystem.query.checkAndAdd(actor);
+      debugSystem.query.checkAndModify(actor);
       engine.debug.entity.showId = true;
       engine.debug.collider.showAll = true;
       debugSystem.update();
@@ -155,7 +155,7 @@ describe('DebugSystem', () => {
       const actor = new ex.Actor({ name: 'thingy', x: -100 + center.x, y: center.y, width: 50, height: 50, color: ex.Color.Yellow });
       actor.collider.useCompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(150, 20), ex.Shape.Box(10, 150)]);
       actor.id = 0;
-      debugSystem.query.checkAndAdd(actor);
+      debugSystem.query.checkAndModify(actor);
       engine.debug.collider.showAll = true;
       engine.debug.collider.geometryLineWidth = 3;
       debugSystem.update();
@@ -177,7 +177,7 @@ describe('DebugSystem', () => {
       const actor = new ex.Actor({ name: 'thingy', x: -100 + center.x, y: center.y, width: 50, height: 50 });
       actor.graphics.use(new ex.Rectangle({ width: 200, height: 100, color: ex.Color.Red }));
       actor.id = 0;
-      debugSystem.query.checkAndAdd(actor);
+      debugSystem.query.checkAndModify(actor);
       engine.debug.collider.showBounds = false;
       engine.debug.collider.showGeometry = false;
       engine.debug.collider.showOwner = false;
@@ -203,7 +203,7 @@ describe('DebugSystem', () => {
           ctx.drawCircle(ex.vec(250, 250), 100, ex.Color.Blue);
         })
       ]);
-      debugSystem.query.checkAndAdd(entity);
+      debugSystem.query.checkAndModify(entity);
       debugSystem.update();
 
       engine.graphicsContext.flush();
@@ -230,7 +230,7 @@ describe('DebugSystem', () => {
       });
       tilemap.tiles[0].solid = true;
       tilemap.update(engine, 1);
-      debugSystem.query.checkAndAdd(tilemap);
+      debugSystem.query.checkAndModify(tilemap);
       debugSystem.update();
 
       engine.graphicsContext.flush();
