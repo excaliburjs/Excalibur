@@ -128,9 +128,11 @@ export class Query<
       .join('-');
   }
 
-  matchesNotFilter(entity: Entity): boolean {
+  matchesNotFilter(entity: Entity, removedComponent?: ComponentCtor<Component>): boolean {
     for (const component of this.filter.components.not) {
-      // if (entity._componentsToRemove.includes(component)) continue;
+      if (removedComponent === component) {
+continue;
+}
       if (entity.has(component)) {
         return true;
       }
@@ -145,14 +147,16 @@ export class Query<
     return false;
   }
 
-  matches(entity: Entity): boolean {
+  matches(entity: Entity, removedComponent?: ComponentCtor<Component>): boolean {
     // Components & Tags
 
     // IMPORTANT: Check NOT conditions first, all exclusions first
 
     // check if entity has none of the components
     for (const component of this.filter.components.not) {
-      // if (entity._componentsToRemove.includes(component)) continue;
+      if (removedComponent === component) {
+continue;
+}
       if (entity.has(component)) {
         return false;
       }
@@ -167,7 +171,9 @@ export class Query<
 
     // check if entity has all components
     for (const component of this.filter.components.all) {
-      // if (entity._componentsToRemove.includes(component)) continue;
+      if (component === removedComponent) {
+return false;
+}
       if (!entity.has(component)) {
         return false;
       }
@@ -216,16 +222,17 @@ export class Query<
   /**
    * Potentially adds or removes an entity from a query index, returns true if added, false if not added or was removed.
    * @param entity
+   * @param [optional] removedComponent that should be treated as removed from the entity
    */
-  checkAndModify(entity: Entity): boolean {
+  checkAndModify(entity: Entity, removedComponent?: ComponentCtor<Component>): boolean {
     const inCurrentQuery = this.entitiesSet.has(entity);
 
-    if (inCurrentQuery && this.matchesNotFilter(entity)) {
+    if (inCurrentQuery && this.matchesNotFilter(entity, removedComponent)) {
       this.removeEntity(entity);
       return false;
     }
 
-    const matches = this.matches(entity);
+    const matches = this.matches(entity, removedComponent);
 
     if (inCurrentQuery && !matches) {
       this.removeEntity(entity);

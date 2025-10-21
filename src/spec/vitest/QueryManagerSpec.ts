@@ -49,6 +49,39 @@ describe('A QueryManager', () => {
     expect(queryAB.getEntities(), 'No entities should match').toEqual([]);
   });
 
+  it('can create tag queries for entities', () => {
+    const world = new ex.World(null);
+    const entity1 = new ex.Entity();
+    entity1.addTag('A');
+    entity1.addTag('B');
+
+    const entity2 = new ex.Entity();
+    entity2.addTag('A');
+
+    world.entityManager.addEntity(entity1);
+    world.entityManager.addEntity(entity2);
+
+    // Query for all entities that have type A components
+    const queryA = world.queryTags(['A']);
+    // Query for all entities that have type A & B components
+    const queryAB = world.queryTags(['A', 'B']);
+
+    expect(queryA.getEntities(), 'Both entities have component A').toEqual([entity1, entity2]);
+    expect(queryAB.getEntities(), 'Only entity1 has both A+B').toEqual([entity1]);
+
+    // Queries update if component change
+    entity2.addTag('B');
+    expect(queryAB.getEntities(), 'Now both entities have A+B').toEqual([entity1, entity2]);
+
+    // Queries update if components change
+    entity2.removeTag('B');
+    expect(queryAB.getEntities(), 'Component force removed from entity, only entity1 A+B').toEqual([entity1]);
+
+    // Queries are deferred by default, so queries will update after removals
+    entity1.removeTag('B');
+    expect(queryAB.getEntities(), 'No entities should match').toEqual([]);
+  });
+
   it('can add entities to queries', () => {
     const world = new ex.World(null);
     const entity1 = new ex.Entity();
