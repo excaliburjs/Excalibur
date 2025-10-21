@@ -131,8 +131,8 @@ export class Query<
   matchesNotFilter(entity: Entity, removedComponent?: ComponentCtor<Component>): boolean {
     for (const component of this.filter.components.not) {
       if (removedComponent === component) {
-continue;
-}
+        continue;
+      }
       if (entity.has(component)) {
         return true;
       }
@@ -155,8 +155,8 @@ continue;
     // check if entity has none of the components
     for (const component of this.filter.components.not) {
       if (removedComponent === component) {
-continue;
-}
+        continue;
+      }
       if (entity.has(component)) {
         return false;
       }
@@ -172,8 +172,8 @@ continue;
     // check if entity has all components
     for (const component of this.filter.components.all) {
       if (component === removedComponent) {
-return false;
-}
+        return false;
+      }
       if (!entity.has(component)) {
         return false;
       }
