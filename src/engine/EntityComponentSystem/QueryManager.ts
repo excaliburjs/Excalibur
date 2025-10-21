@@ -13,7 +13,7 @@ export class QueryManager {
   private _removeComponentHandlers = new Map<Entity, (c: Component) => any>();
 
   private _componentToQueriesIndex = new Map<ComponentCtor<any>, Query<any, any>[]>();
-  private _tagToQueriesIndex = new Map<string, Query<any, any>[]>();
+  private _tagToQueriesIndex2 = new Map<string, Query<any, any>[]>();
 
   private _addTagHandlers = new Map<Entity, (tag: string) => any>();
   private _removeTagHandlers = new Map<Entity, (tag: string) => any>();
@@ -48,10 +48,10 @@ export class QueryManager {
     }
     // tags
     for (const tag of [...query.filter.tags.all, ...query.filter.tags.any, ...query.filter.tags.not]) {
-      const queries = this._tagToQueriesIndex.get(tag);
+      const queries = this._tagToQueriesIndex2.get(tag);
 
       if (!queries) {
-        this._tagToQueriesIndex.set(tag, [query]);
+        this._tagToQueriesIndex2.set(tag, [query]);
       } else {
         queries.push(query);
       }
@@ -173,8 +173,8 @@ export class QueryManager {
    * @param tag
    */
   addTag(entity: Entity, tag: string) {
-    const queries = this._tagToQueriesIndex.get(tag) ?? [];
-    for (const query of queries) {
+    const queries2 = this._tagToQueriesIndex2.get(tag) ?? [];
+    for (const query of queries2) {
       query.checkAndModify(entity);
     }
   }
@@ -185,8 +185,8 @@ export class QueryManager {
    * @param tag
    */
   removeTag(entity: Entity, tag: string) {
-    const queries = this._tagToQueriesIndex.get(tag) ?? [];
-    for (const query of queries) {
+    const queries2 = this._tagToQueriesIndex2.get(tag) ?? [];
+    for (const query of queries2) {
       query.checkAndModify(entity);
     }
   }
