@@ -130,6 +130,7 @@ export class Query<
 
   matchesNotFilter(entity: Entity): boolean {
     for (const component of this.filter.components.not) {
+      // if (entity._componentsToRemove.includes(component)) continue;
       if (entity.has(component)) {
         return true;
       }
@@ -151,6 +152,7 @@ export class Query<
 
     // check if entity has none of the components
     for (const component of this.filter.components.not) {
+      // if (entity._componentsToRemove.includes(component)) continue;
       if (entity.has(component)) {
         return false;
       }
@@ -165,6 +167,7 @@ export class Query<
 
     // check if entity has all components
     for (const component of this.filter.components.all) {
+      // if (entity._componentsToRemove.includes(component)) continue;
       if (!entity.has(component)) {
         return false;
       }

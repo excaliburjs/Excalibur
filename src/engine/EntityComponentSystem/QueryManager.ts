@@ -164,7 +164,9 @@ export class QueryManager {
     const queries = this._componentToQueriesIndex.get(component.constructor as ComponentCtor<any>) ?? [];
     for (const query of queries) {
       query.removeEntity(entity);
-      query.checkAndModify(entity);
+      // component removals are deferred
+      // so this should not be called
+      // query.checkAndModify(entity);
     }
   }
 
