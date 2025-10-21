@@ -44,7 +44,7 @@ export class MotionSystem extends System {
       transform = entities[i].get(TransformComponent);
       motion = entities[i].get(MotionComponent);
 
-      if (motion.integration.onScreenOnly) {
+      if (motion.integration.onScreenOnly && entities[i].hasTag('ex.offscreen')) {
         continue;
       }
 
