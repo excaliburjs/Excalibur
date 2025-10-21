@@ -47,6 +47,7 @@ export class Query<
   public readonly id: string;
 
   public entities: QueryEntity<TAllComponentCtors, TAnyComponentCtors>[] = [];
+  public entitySet = new Set<QueryEntity<TAllComponentCtors, TAnyComponentCtors>>();
 
   /**
    * This fires right after the component is added
@@ -205,12 +206,13 @@ export class Query<
    * @param entity
    */
   checkAndModify(entity: Entity): boolean {
-    if (this.matchesNotFilter(entity) && this.entities.includes(entity)) {
+    if (this.entitySet.has(entity) && this.matchesNotFilter(entity)) {
       this.removeEntity(entity);
       return false;
     }
 
-    if (this.matches(entity) && !this.entities.includes(entity)) {
+    if (!this.entitySet.has(entity) && this.matches(entity)) {
+      this.entitySet.add(entity);
       this.entities.push(entity);
       this.entityAdded$.notifyAll(entity);
       return true;
@@ -220,10 +222,14 @@ export class Query<
   }
 
   removeEntity(entity: Entity) {
+    const removed = this.entitySet.delete(entity);
+    if (removed) {
+      this.entityRemoved$.notifyAll(entity);
+    }
+
     const index = this.entities.indexOf(entity);
     if (index > -1) {
       this.entities.splice(index, 1);
-      this.entityRemoved$.notifyAll(entity);
     }
   }
 
