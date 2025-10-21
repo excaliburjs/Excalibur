@@ -46,14 +46,23 @@ export class Query<
 > {
   public readonly id: string;
 
-  public entities: QueryEntity<TAllComponentCtors, TAnyComponentCtors>[] = [];
+  private _entities: QueryEntity<TAllComponentCtors, TAnyComponentCtors>[] = [];
+  public get entities() {
+    if (this._dirty) {
+      this._entities = Array.from(this.entitiesSet);
+      this._dirty = false;
+    }
+    return this._entities;
+  }
+
+  public entitiesSet: Set<QueryEntity<TAllComponentCtors, TAnyComponentCtors>> = new Set();
 
   /**
-   * This fires right after the component is added
+   * This fires right after the component or tag is added
    */
   public entityAdded$ = new Observable<QueryEntity<TAllComponentCtors, TAnyComponentCtors>>();
   /**
-   * This fires right before the component is actually removed from the entity, it will still be available for cleanup purposes
+   * This fires right before the component or tag is actually removed from the entity, it will still be available for cleanup purposes
    */
   public entityRemoved$ = new Observable<QueryEntity<TAllComponentCtors, TAnyComponentCtors>>();
 
@@ -69,6 +78,7 @@ export class Query<
       not: new Set<string>()
     }
   };
+  private _dirty: boolean = false;
 
   constructor(params: TAllComponentCtors[] | QueryParams<TAllComponentCtors, TAnyComponentCtors>) {
     if (Array.isArray(params)) {
@@ -201,17 +211,27 @@ export class Query<
   }
 
   /**
-   * Potentially adds or removes an entity from a query index, returns true if added, false if not
+   * Potentially adds or removes an entity from a query index, returns true if added, false if not added or was removed.
    * @param entity
    */
   checkAndModify(entity: Entity): boolean {
-    if (this.matchesNotFilter(entity) && this.entities.includes(entity)) {
+    const inCurrentQuery = this.entitiesSet.has(entity);
+
+    if (inCurrentQuery && this.matchesNotFilter(entity)) {
       this.removeEntity(entity);
       return false;
     }
 
-    if (this.matches(entity) && !this.entities.includes(entity)) {
-      this.entities.push(entity);
+    const matches = this.matches(entity);
+
+    if (inCurrentQuery && !matches) {
+      this.removeEntity(entity);
+      return false;
+    }
+
+    if (!inCurrentQuery && matches) {
+      this._dirty = true;
+      this.entitiesSet.add(entity);
       this.entityAdded$.notifyAll(entity);
       return true;
     }
@@ -220,9 +240,9 @@ export class Query<
   }
 
   removeEntity(entity: Entity) {
-    const index = this.entities.indexOf(entity);
-    if (index > -1) {
-      this.entities.splice(index, 1);
+    const removed = this.entitiesSet.delete(entity);
+    if (removed) {
+      this._dirty = true;
       this.entityRemoved$.notifyAll(entity);
     }
   }

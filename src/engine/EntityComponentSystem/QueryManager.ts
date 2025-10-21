@@ -164,6 +164,7 @@ export class QueryManager {
     const queries = this._componentToQueriesIndex.get(component.constructor as ComponentCtor<any>) ?? [];
     for (const query of queries) {
       query.checkAndModify(entity);
+      query.removeEntity(entity);
     }
   }
 
@@ -188,6 +189,7 @@ export class QueryManager {
     const queries = this._tagToQueriesIndex.get(tag) ?? [];
     for (const query of queries) {
       query.checkAndModify(entity);
+      query.removeEntity(entity);
     }
   }
 }
