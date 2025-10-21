@@ -19,19 +19,34 @@ export class MotionSystem extends System {
     public physics: PhysicsWorld
   ) {
     super();
-    physics.$configUpdate.subscribe(() => (this._physicsConfigDirty = true));
-    this.query = this.world.query([TransformComponent, MotionComponent]);
+    this.query = this.world.query({
+      components: {
+        all: [TransformComponent, MotionComponent]
+      },
+      tags: {
+        not: this.physics.config.integration.onScreenOnly ? ['ex.offscreen'] : []
+      }
+    });
+
+    physics.$configUpdate.subscribe(() => {
+      this._physicsConfigDirty = true;
+    });
   }
 
   update(elapsed: number): void {
     let transform: TransformComponent;
     let motion: MotionComponent;
     const entities = this.query.entities;
-    const substep = this.physics.config.substep;
+    const config = this.physics.config;
+    const substep = config.substep;
 
     for (let i = 0; i < entities.length; i++) {
       transform = entities[i].get(TransformComponent);
       motion = entities[i].get(MotionComponent);
+
+      if (motion.integration.onScreenOnly && entities[i].hasTag('ex.offscreen')) {
+        continue;
+      }
 
       const optionalBody = entities[i].get(BodyComponent);
       if (this._physicsConfigDirty && optionalBody) {
@@ -56,7 +71,17 @@ export class MotionSystem extends System {
       // Update transform and motion based on Euler linear algebra
       EulerIntegrator.integrate(transform, motion, totalAcc, elapsed / substep);
     }
-    this._physicsConfigDirty = false;
+    if (this._physicsConfigDirty) {
+      this._physicsConfigDirty = false;
+      this.query = this.world.query({
+        components: {
+          all: [TransformComponent, MotionComponent]
+        },
+        tags: {
+          not: this.physics.config.integration.onScreenOnly ? ['ex.offscreen'] : []
+        }
+      });
+    }
   }
 
   captureOldTransformWithChildren(entity: Entity) {

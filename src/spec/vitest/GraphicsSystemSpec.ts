@@ -100,8 +100,8 @@ describe('A Graphics ECS System', () => {
 
       entities.push(offscreen);
       engine.graphicsContext.clear();
-      entities.forEach((e) => offscreenSystem.query.checkAndAdd(e));
-      entities.forEach((e) => sut.query.checkAndAdd(e));
+      entities.forEach((e) => offscreenSystem.query.checkAndModify(e));
+      entities.forEach((e) => sut.query.checkAndModify(e));
 
       offscreenSystem.update();
 
@@ -138,9 +138,9 @@ describe('A Graphics ECS System', () => {
       });
       actor.graphics.opacity = 0.5;
 
-      sut.query.checkAndAdd(actor);
+      sut.query.checkAndModify(actor);
 
-      offscreenSystem.query.checkAndAdd(actor);
+      offscreenSystem.query.checkAndModify(actor);
       offscreenSystem.update();
 
       engine.graphicsContext.clear();
@@ -173,7 +173,7 @@ describe('A Graphics ECS System', () => {
       actor.graphics.use(sword.toSprite());
       actor.graphics.flipHorizontal = true;
 
-      sut.query.checkAndAdd(actor);
+      sut.query.checkAndModify(actor);
 
       offscreenSystem.update();
 
@@ -207,7 +207,7 @@ describe('A Graphics ECS System', () => {
       actor.graphics.use(sword.toSprite());
       actor.graphics.flipVertical = true;
 
-      sut.query.checkAndAdd(actor);
+      sut.query.checkAndModify(actor);
 
       offscreenSystem.update();
 
@@ -242,7 +242,7 @@ describe('A Graphics ECS System', () => {
       actor.graphics.flipVertical = true;
       actor.graphics.flipHorizontal = true;
 
-      sut.query.checkAndAdd(actor);
+      sut.query.checkAndModify(actor);
 
       offscreenSystem.update();
 
@@ -278,7 +278,7 @@ describe('A Graphics ECS System', () => {
       actor.graphics.flipHorizontal = true;
       actor.graphics.offset = ex.vec(25, 25);
 
-      sut.query.checkAndAdd(actor);
+      sut.query.checkAndModify(actor);
 
       offscreenSystem.update();
 
@@ -314,7 +314,7 @@ describe('A Graphics ECS System', () => {
     const graphicsSystem = new ex.GraphicsSystem(game.currentScene.world);
     graphicsSystem.initialize(game.currentScene.world, game.currentScene);
     graphicsSystem.preupdate();
-    graphicsSystem.query.checkAndAdd(actor);
+    graphicsSystem.query.checkAndModify(actor);
 
     game.currentFrameLagMs = 8; // current lag in a 30 fps frame
     graphicsSystem.update(30);
@@ -352,7 +352,7 @@ describe('A Graphics ECS System', () => {
     const graphicsSystem = new ex.GraphicsSystem(game.currentScene.world);
     graphicsSystem.initialize(game.currentScene.world, game.currentScene);
     graphicsSystem.preupdate();
-    graphicsSystem.query.checkAndAdd(actor);
+    graphicsSystem.query.checkAndModify(actor);
 
     game.currentFrameLagMs = 1000 / 30 / 2; // current lag in a 30 fps frame
     graphicsSystem.update(16);
@@ -385,7 +385,7 @@ describe('A Graphics ECS System', () => {
     const graphicsSystem = new ex.GraphicsSystem(game.currentScene.world);
     graphicsSystem.initialize(game.currentScene.world, game.currentScene);
     graphicsSystem.preupdate();
-    graphicsSystem.query.checkAndAdd(actor);
+    graphicsSystem.query.checkAndModify(actor);
 
     actor.body.enableFixedUpdateInterpolate = false;
     game.currentFrameLagMs = 8; // current lag in a 30 fps frame
@@ -410,8 +410,8 @@ describe('A Graphics ECS System', () => {
     child.addComponent(new ex.GraphicsComponent());
     parent.addChild(child);
 
-    sut.query.checkAndAdd(parent);
-    sut.query.checkAndAdd(child);
+    sut.query.checkAndModify(parent);
+    sut.query.checkAndModify(child);
 
     expect(() => sut.update(1)).not.toThrow();
   });

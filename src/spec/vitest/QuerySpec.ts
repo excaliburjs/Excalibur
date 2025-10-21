@@ -43,10 +43,10 @@ describe('A query', () => {
     const entity2 = new ex.Entity();
     entity2.addComponent(compA);
 
-    queryAB.checkAndAdd(entity1);
+    queryAB.checkAndModify(entity1);
     expect(queryAB.getEntities()).toEqual([entity1]);
 
-    queryAB.checkAndAdd(entity2);
+    queryAB.checkAndModify(entity2);
     expect(queryAB.getEntities()).toEqual([entity1]);
   });
 
@@ -64,10 +64,10 @@ describe('A query', () => {
     const entity2 = new ex.Entity();
     entity2.addComponent(compB);
 
-    queryAB.checkAndAdd(entity1);
+    queryAB.checkAndModify(entity1);
     expect(queryAB.getEntities()).toEqual([entity1]);
 
-    queryAB.checkAndAdd(entity2);
+    queryAB.checkAndModify(entity2);
     expect(queryAB.getEntities()).toEqual([entity1, entity2]);
   });
 
@@ -87,10 +87,10 @@ describe('A query', () => {
     entity2.addComponent(compB);
     entity2.addTag('tag');
 
-    queryAB.checkAndAdd(entity1);
+    queryAB.checkAndModify(entity1);
     expect(queryAB.getEntities()).toEqual([entity1]);
 
-    queryAB.checkAndAdd(entity2);
+    queryAB.checkAndModify(entity2);
     expect(queryAB.getEntities()).toEqual([entity1, entity2]);
   });
 
@@ -110,10 +110,10 @@ describe('A query', () => {
     entity2.addComponent(compA);
     entity2.addComponent(compB);
 
-    queryAB.checkAndAdd(entity1);
+    queryAB.checkAndModify(entity1);
     expect(queryAB.getEntities()).toEqual([entity1]);
 
-    queryAB.checkAndAdd(entity2);
+    queryAB.checkAndModify(entity2);
     expect(queryAB.getEntities()).toEqual([entity1]);
   });
 
@@ -134,10 +134,10 @@ describe('A query', () => {
     entity2.addComponent(compA);
     entity2.addTag('tag');
 
-    queryAB.checkAndAdd(entity1);
+    queryAB.checkAndModify(entity1);
     expect(queryAB.getEntities()).toEqual([entity1]);
 
-    queryAB.checkAndAdd(entity2);
+    queryAB.checkAndModify(entity2);
     expect(queryAB.getEntities()).toEqual([entity1]);
   });
 
@@ -152,7 +152,7 @@ describe('A query', () => {
     const entity2 = new ex.Entity();
     entity2.addComponent(compA);
 
-    queryAB.checkAndAdd(entity1);
+    queryAB.checkAndModify(entity1);
     expect(queryAB.getEntities()).toEqual([entity1]);
 
     queryAB.removeEntity(entity2);
@@ -176,7 +176,7 @@ describe('A query', () => {
         done();
       });
 
-      queryAB.checkAndAdd(entity1);
+      queryAB.checkAndModify(entity1);
     }));
 
   it('notifies observers of when something is added to the query', () =>
@@ -187,7 +187,7 @@ describe('A query', () => {
       const entity1 = new ex.Entity();
       entity1.addComponent(compA);
       entity1.addComponent(compB);
-      queryAB.checkAndAdd(entity1);
+      queryAB.checkAndModify(entity1);
 
       queryAB.entityRemoved$.subscribe((e) => {
         expect(e).toBe(entity1);

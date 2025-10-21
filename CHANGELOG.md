@@ -15,11 +15,29 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Support for disabling integration for all offscreen entities, or on a per entity basis
+
+  ```typescript
+  // for all entities
+  const game = new ex.Engine({
+      physics: {
+        integration: {
+          // defaults to false
+          onScreenOnly: true
+        },
+    });
+
+  // per entity (only if engine is off)
+  const actor = new ex.Actor(...);
+  actor.get(MotionComponent).integration.onScreenOnly = true;
+  ```
+
 - DX: Support for [Visual Studio Code Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers) for an out-of-the-box contribution dev environment
 - DX: Support for [Vitest UI](https://vitest.dev/guide/ui.html) for browser testing
 
 ### Fixed
 
+- Fixed issue where not(tags) and not(component) queries weren't updating in the querymanager
 - Fixed Tilemap/Isometric map pointer performance on moderate to large maps, we changed the strategy to only consider tiles under the pointer instead of try to do sorted dispatch on NxM tiles.
 - Fixed issue that caused coroutines to not automatically discover the engine scheduler when inside an async lifecycle sometimes. This is because of the stack replacement issue of async/await the context reverts too soon.
 

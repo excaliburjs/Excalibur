@@ -8,7 +8,6 @@ import { QueryManager } from './QueryManager';
 import { System, SystemType } from './System';
 import type { SystemCtor } from './SystemManager';
 import { SystemManager, isSystemConstructor } from './SystemManager';
-import type { TagQuery } from './TagQuery';
 
 /**
  * The World is a self-contained entity component system for a particular context.
@@ -34,8 +33,11 @@ export class World {
     return this.queryManager.createQuery(params);
   }
 
-  queryTags<TKnownTags extends string>(requiredTags: TKnownTags[]): TagQuery<TKnownTags> {
-    return this.queryManager.createTagQuery(requiredTags);
+  /**
+   * @deprecated
+   */
+  queryTags<TKnownTags extends string>(requiredTags: TKnownTags[]): Query<any, any> {
+    return this.queryManager.createQuery({ tags: { all: requiredTags } }) as any;
   }
 
   /**

@@ -36,6 +36,15 @@ export interface PhysicsConfig {
    */
   enabled?: boolean;
   /**
+   * Configure integration systems
+   */
+  integration?: {
+    /**
+     * Integrate on screen only entities, defaults to false meaning all entities are integrated
+     */
+    onScreenOnly?: boolean;
+  };
+  /**
    * Configure gravity that applies to all {@apilink CollisionType.Active} bodies.
    *
    * This is acceleration in pixels/sec^2
@@ -220,6 +229,9 @@ export interface PhysicsConfig {
 
 export const getDefaultPhysicsConfig: () => DeepRequired<PhysicsConfig> = () => ({
   enabled: true,
+  integration: {
+    onScreenOnly: false
+  },
   gravity: vec(0, 0).clone(),
   solver: SolverStrategy.Arcade,
   substep: 1,

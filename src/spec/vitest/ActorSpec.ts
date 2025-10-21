@@ -637,7 +637,7 @@ describe('A game actor', () => {
     expect(childActor.pos.y).toBe(50);
 
     actor.addChild(childActor);
-    actionSystem.query.checkAndAdd(actor);
+    actionSystem.query.checkAndModify(actor);
 
     actor.actions.moveTo(10, 15, 1000);
     actionSystem.update(1000);

@@ -46,14 +46,23 @@ export class Query<
 > {
   public readonly id: string;
 
-  public entities: QueryEntity<TAllComponentCtors, TAnyComponentCtors>[] = [];
+  private _entities: QueryEntity<TAllComponentCtors, TAnyComponentCtors>[] = [];
+  public get entities() {
+    if (this._dirty) {
+      this._entities = Array.from(this.entitiesSet);
+      this._dirty = false;
+    }
+    return this._entities;
+  }
+
+  public entitiesSet: Set<QueryEntity<TAllComponentCtors, TAnyComponentCtors>> = new Set();
 
   /**
-   * This fires right after the component is added
+   * This fires right after the component or tag is added
    */
   public entityAdded$ = new Observable<QueryEntity<TAllComponentCtors, TAnyComponentCtors>>();
   /**
-   * This fires right before the component is actually removed from the entity, it will still be available for cleanup purposes
+   * This fires right before the component or tag is actually removed from the entity, it will still be available for cleanup purposes
    */
   public entityRemoved$ = new Observable<QueryEntity<TAllComponentCtors, TAnyComponentCtors>>();
 
@@ -69,6 +78,7 @@ export class Query<
       not: new Set<string>()
     }
   };
+  private _dirty: boolean = false;
 
   constructor(params: TAllComponentCtors[] | QueryParams<TAllComponentCtors, TAnyComponentCtors>) {
     if (Array.isArray(params)) {
@@ -118,11 +128,60 @@ export class Query<
       .join('-');
   }
 
-  matches(entity: Entity): boolean {
-    // Components
+  matchesNotFilter(entity: Entity, removedComponent?: ComponentCtor<Component>): boolean {
+    for (const component of this.filter.components.not) {
+      if (removedComponent === component) {
+        continue;
+      }
+      if (entity.has(component)) {
+        return true;
+      }
+    }
+
+    // check if entity has none of the tags
+    for (const tag of this.filter.tags.not) {
+      if (entity.hasTag(tag)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  matches(entity: Entity, removedComponent?: ComponentCtor<Component>): boolean {
+    // Components & Tags
+
+    // IMPORTANT: Check NOT conditions first, all exclusions first
+
+    // check if entity has none of the components
+    for (const component of this.filter.components.not) {
+      if (removedComponent === component) {
+        continue;
+      }
+      if (entity.has(component)) {
+        return false;
+      }
+    }
+
+    // check if entity has none of the tags
+    for (const tag of this.filter.tags.not) {
+      if (entity.hasTag(tag)) {
+        return false;
+      }
+    }
+
     // check if entity has all components
     for (const component of this.filter.components.all) {
+      if (component === removedComponent) {
+        return false;
+      }
       if (!entity.has(component)) {
+        return false;
+      }
+    }
+
+    // check if entity has all tags
+    for (const tag of this.filter.tags.all) {
+      if (!entity.hasTag(tag)) {
         return false;
       }
     }
@@ -142,21 +201,6 @@ export class Query<
       }
     }
 
-    // check if entity has none of the components
-    for (const component of this.filter.components.not) {
-      if (entity.has(component)) {
-        return false;
-      }
-    }
-
-    // Tags
-    // check if entity has all tags
-    for (const tag of this.filter.tags.all) {
-      if (!entity.hasTag(tag)) {
-        return false;
-      }
-    }
-
     // check if entity has any tags
     if (this.filter.tags.any.size > 0) {
       let found = false;
@@ -172,33 +216,43 @@ export class Query<
       }
     }
 
-    // check if entity has none of the tags
-    for (const tag of this.filter.tags.not) {
-      if (entity.hasTag(tag)) {
-        return false;
-      }
-    }
-
     return true;
   }
 
   /**
-   * Potentially adds an entity to a query index, returns true if added, false if not
+   * Potentially adds or removes an entity from a query index, returns true if added, false if not added or was removed.
    * @param entity
+   * @param [optional] removedComponent that should be treated as removed from the entity
    */
-  checkAndAdd(entity: Entity) {
-    if (this.matches(entity) && !this.entities.includes(entity)) {
-      this.entities.push(entity);
+  checkAndModify(entity: Entity, removedComponent?: ComponentCtor<Component>): boolean {
+    const inCurrentQuery = this.entitiesSet.has(entity);
+
+    if (inCurrentQuery && this.matchesNotFilter(entity, removedComponent)) {
+      this.removeEntity(entity);
+      return false;
+    }
+
+    const matches = this.matches(entity, removedComponent);
+
+    if (inCurrentQuery && !matches) {
+      this.removeEntity(entity);
+      return false;
+    }
+
+    if (!inCurrentQuery && matches) {
+      this._dirty = true;
+      this.entitiesSet.add(entity);
       this.entityAdded$.notifyAll(entity);
       return true;
     }
+
     return false;
   }
 
   removeEntity(entity: Entity) {
-    const index = this.entities.indexOf(entity);
-    if (index > -1) {
-      this.entities.splice(index, 1);
+    const removed = this.entitiesSet.delete(entity);
+    if (removed) {
+      this._dirty = true;
       this.entityRemoved$.notifyAll(entity);
     }
   }
