@@ -1,4 +1,4 @@
-import { isScreenElement, ScreenElement } from './ScreenElement';
+import type { ScreenElement } from './ScreenElement';
 import type { ActivateEvent, DeactivateEvent } from './Events';
 import {
   InitializeEvent,
@@ -472,7 +472,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
       this.camera.update(engine, elapsed);
     }
 
-    this._collectActorStats(engine);
+    engine.stats.currFrame.actors.alive = this.world.entityManager.entities.length;
 
     this._postupdate(engine, elapsed);
 
@@ -736,25 +736,5 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
       return this.engine.currentScene === this;
     }
     return false;
-  }
-
-  private _collectActorStats(engine: Engine) {
-    const actors = this.actors;
-    for (let i = 0; i < actors.length; i++) {
-      const actor = actors[i];
-      if (actor instanceof ScreenElement) {
-        engine.stats.currFrame.actors.ui++;
-      }
-      engine.stats.currFrame.actors.alive++;
-      for (let j = 0; j < actor.children.length; j++) {
-        const child = actor.children[j];
-        if (isScreenElement(child as Actor)) {
-          // TODO not true
-          engine.stats.currFrame.actors.ui++;
-        } else {
-          engine.stats.currFrame.actors.alive++;
-        }
-      }
-    }
   }
 }

@@ -7,11 +7,13 @@ import { Component } from '../EntityComponentSystem/Component';
 import type { Material } from './Context/material';
 import { Logger } from '../Util/Log';
 import { WatchVector } from '../Math/watch-vector';
+import type { Entity} from '../EntityComponentSystem';
 import { TransformComponent } from '../EntityComponentSystem';
 import { GraphicsGroup } from '../Graphics/GraphicsGroup';
 import type { Color } from '../Color';
 import { Raster } from './Raster';
 import { Text } from './Text';
+import { AffineMatrix } from '../Math';
 
 /**
  * Type guard for checking if a Graphic HasTick (used for graphics that change over time like animations)
@@ -409,26 +411,39 @@ export class GraphicsComponent extends Component {
    * Get local bounds of graphics component
    */
   public get localBounds(): BoundingBox {
-    if (!this._localBounds || this._localBounds.hasZeroDimensions()) {
+    if (
+      !this._localBounds ||
+      // inline zero width bb
+      this._localBounds.left === this._localBounds.right ||
+      this._localBounds.top === this._localBounds.bottom
+    ) {
       this.recalculateBounds();
     }
     return this._localBounds as BoundingBox; // recalc guarantees type
   }
 
+  private _boundsDirty = true;
+  private _scratchBounds = new BoundingBox();
   /**
    * Get world bounds of graphics component
    */
   public get bounds(): BoundingBox {
-    let bounds = this.localBounds;
+    if (!this._boundsDirty) {
+      return this._scratchBounds;
+    }
     if (this.owner) {
-      const tx = this.owner.get(TransformComponent);
-      if (tx) {
-        bounds = bounds.transform(tx.get().matrix);
+      const bounds = this.localBounds;
+      if (this._tx) {
+        bounds.transform(this._tx.get().matrix, this._scratchBounds);
+      } else {
+        bounds.clone(this._scratchBounds);
       }
     }
-    return bounds;
+    this._boundsDirty = false;
+    return this._scratchBounds;
   }
 
+  private _oldMatrix: Float64Array = AffineMatrix.identity().data;
   /**
    * Update underlying graphics if necessary, called internally
    * @param elapsed
@@ -439,6 +454,36 @@ export class GraphicsComponent extends Component {
     if (graphic && hasGraphicsTick(graphic)) {
       graphic.tick(elapsed, idempotencyToken);
     }
+    if (this._tx) {
+      const matrix = this._tx.get().matrix;
+      this._boundsDirty =
+        matrix.data[0] !== this._oldMatrix[0] ||
+        matrix.data[1] !== this._oldMatrix[1] ||
+        matrix.data[2] !== this._oldMatrix[2] ||
+        matrix.data[3] !== this._oldMatrix[3] ||
+        matrix.data[4] !== this._oldMatrix[4] ||
+        matrix.data[5] !== this._oldMatrix[5];
+      this._oldMatrix[0] = matrix.data[0];
+      this._oldMatrix[1] = matrix.data[1];
+      this._oldMatrix[2] = matrix.data[2];
+      this._oldMatrix[3] = matrix.data[3];
+      this._oldMatrix[4] = matrix.data[4];
+      this._oldMatrix[5] = matrix.data[5];
+    }
+  }
+
+  private _tx?: TransformComponent;
+  public override onAdd(owner: Entity): void {
+    const tx = owner.get(TransformComponent);
+    if (tx) {
+      this._tx = tx;
+      this._boundsDirty = true;
+    }
+  }
+
+  public override onRemove(): void {
+    this._tx = undefined;
+    this._boundsDirty = true;
   }
 
   public clone(): GraphicsComponent {
