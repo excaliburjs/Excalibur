@@ -35,7 +35,10 @@ export class GraphicsSystem extends System {
 
   constructor(public world: World) {
     super();
-    this.query = this.world.query([TransformComponent, GraphicsComponent]);
+    this.query = this.world.query({
+      components: { all: [TransformComponent, GraphicsComponent] },
+      tags: { not: ['ex.offscreen'] }
+    });
     this.query.entityAdded$.subscribe((e) => {
       const tx = e.get(TransformComponent);
       this._sortedTransforms.push(tx);
@@ -87,11 +90,6 @@ export class GraphicsSystem extends System {
     for (let transformIndex = 0; transformIndex < this._sortedTransforms.length; transformIndex++) {
       const transform = this._sortedTransforms[transformIndex];
       const entity = transform.owner as Entity;
-
-      // If the entity is offscreen skip
-      if (entity.hasTag('ex.offscreen')) {
-        continue;
-      }
 
       graphics = entity.get(GraphicsComponent);
       // Exit if graphics set to not visible
