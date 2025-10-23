@@ -118,6 +118,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
   public readonly components = new Map<Function, Component>();
   public componentValues: Component[] = [];
   public _componentsToRemove: ComponentCtor[] = [];
+  public _hasComponentsToRemove: boolean = false;
 
   constructor(options: EntityOptions<TKnownComponents>);
   constructor(components?: TKnownComponents[], name?: string);
@@ -460,6 +461,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
     } else {
       type = typeOrInstance.constructor as ComponentCtor<TComponent>;
     }
+    this._hasComponentsToRemove = true;
 
     if (force) {
       const componentToRemove = this.components.get(type);
@@ -497,10 +499,12 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    * @internal
    */
   public processComponentRemoval() {
-    for (const type of this._componentsToRemove) {
+    for (let i = 0; i < this._componentsToRemove.length; i++) {
+      const type = this._componentsToRemove[i];
       this.removeComponent(type, true);
     }
     this._componentsToRemove.length = 0;
+    this._hasComponentsToRemove = false;
   }
 
   /**
