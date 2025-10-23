@@ -14,4 +14,8 @@ export class AudioContextFactory {
 
     return this._INSTANCE!;
   }
+
+  public static currentTime(): number {
+    return AudioContextFactory.create().currentTime;
+  }
 }
