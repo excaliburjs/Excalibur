@@ -80,6 +80,10 @@ export class Transition extends Entity {
     return this._currentProgress;
   }
 
+  get distance(): number {
+    return this._currentDistance;
+  }
+
   get complete(): boolean {
     if (this.direction === 'out') {
       return this.progress >= 1;
