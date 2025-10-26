@@ -73,4 +73,16 @@ export class MotionComponent extends Component {
    * Inertia can be thought of as the resistance to motion
    */
   public inertia: number = 1;
+
+  /**
+   * Configure per-entity integration systems
+   */
+  public integration: {
+    /**
+     * Integrate on screen only entities, defaults to false meaning all entities are integrated
+     */
+    onScreenOnly: boolean;
+  } = {
+    onScreenOnly: false
+  };
 }

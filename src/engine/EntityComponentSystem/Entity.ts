@@ -117,7 +117,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    */
   public readonly components = new Map<Function, Component>();
   public componentValues: Component[] = [];
-  private _componentsToRemove: ComponentCtor[] = [];
+  public _componentsToRemove: ComponentCtor[] = [];
 
   constructor(options: EntityOptions<TKnownComponents>);
   constructor(components?: TKnownComponents[], name?: string);

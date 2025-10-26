@@ -27,8 +27,8 @@ var tm = new ex.TileMap({
   pos: ex.vec(-100, -100),
   tileWidth: 16 * 20,
   tileHeight: 16 * 20,
-  columns: 40,
-  rows: 40
+  columns: 400,
+  rows: 400
 });
 
 //tm.addComponent(new ex.ParallaxComponent(ex.vec(.4, .4)));
@@ -40,7 +40,9 @@ tileSprite.destSize.width = 320;
 tileSprite.destSize.height = 320;
 
 for (var i = 0; i < tm.columns * tm.rows; i++) {
-  tm.getTileByIndex(i).addGraphic(tileSprite);
+  const tile = tm.getTileByIndex(i);
+  tile.addGraphic(tileSprite);
+  tile.on('pointermove', () => console.log(tile.x, tile.y));
 }
 
 game.add(tm);

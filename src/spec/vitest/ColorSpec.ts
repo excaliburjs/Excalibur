@@ -147,4 +147,11 @@ describe('A color', () => {
     expect(color.g, 'g').toBe(255 / 2);
     expect(color.b, 'b').toBe(255 / 2);
   });
+
+  it('can be lerped', () => {
+    color = ex.Color.lerp(ex.Color.White, ex.Color.Black, 0.5);
+    expect(color.r, 'r').toBe(127.5);
+    expect(color.g, 'g').toBe(127.5);
+    expect(color.b, 'b').toBe(127.5);
+  });
 });
