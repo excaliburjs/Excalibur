@@ -11,10 +11,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
--
+- Legacy `EasingFunctions.*` are deprecated in favor of the simpler forms
 
 ### Added
 
+- Simpler easing functions of the form `(currentTime: number) => number` instead of the 4 parameter legacy ones
 - Support for disabling integration for all offscreen entities, or on a per entity basis
 
   ```typescript
@@ -44,6 +45,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Updates
 
+- Camera zoom and move now support new easing functions form
+- MoveTo/MoveBy actions now support new easing function form
+- Transitions now support new easing functions form
 - Deps: Upgraded to Playwright 1.55.1
 - Tests: Split test suite into `unit` and `visual` tests
 
