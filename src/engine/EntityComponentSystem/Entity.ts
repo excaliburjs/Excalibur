@@ -293,6 +293,15 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
   }
 
   /**
+   * Check if a child entity exists on the parent entity
+   * @param child entity to check for
+   */
+  public hasChild(child: Entity): boolean {
+    return child.parent === this;
+  }
+
+
+  /**
    * Adds an entity to be a child of this entity
    * @param entity
    */
