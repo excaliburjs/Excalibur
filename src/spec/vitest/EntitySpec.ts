@@ -1,5 +1,4 @@
 import * as ex from '@excalibur';
-import { expect } from '../../../node_modules/@types/chai/index.d.ts';
 
 class FakeComponentA extends ex.Component {}
 class FakeComponentB extends ex.Component {}
