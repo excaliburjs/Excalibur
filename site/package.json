@@ -42,7 +42,7 @@
     "@types/react": "^18.3.3",
     "css-loader": "6.11.0",
     "micromark-extension-mdxjs": "^3.0.0",
-    "patch-package": "^8.0.0",
+    "patch-package": "^8.0.1",
     "ts-loader": "9.5.2",
     "typescript": "~5.2.2",
     "url-loader": "4.1.1",
