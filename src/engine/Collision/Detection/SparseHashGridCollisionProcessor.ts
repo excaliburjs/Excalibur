@@ -121,7 +121,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
   query(bound: BoundingBox): Collider[];
   query(boundsOrPoint: Vector | BoundingBox): Collider[] {
     // FIXME workaround TS: https://github.com/microsoft/TypeScript/issues/14107
-    return this.hashGrid.query(boundsOrPoint as any);
+    return Array.from(this.hashGrid.query(boundsOrPoint as any));
   }
 
   rayCast(ray: Ray, options?: RayCastOptions): RayCastHit[] {
