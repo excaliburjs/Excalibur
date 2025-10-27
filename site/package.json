@@ -44,7 +44,7 @@
     "micromark-extension-mdxjs": "^3.0.0",
     "patch-package": "^8.0.0",
     "ts-loader": "9.5.2",
-    "typescript": "~5.2.2",
+    "typescript": "~5.9.0",
     "url-loader": "4.1.1",
 		"babel-loader": "10.0.0"
   },
