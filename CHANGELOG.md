@@ -38,6 +38,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where the Loader could run twice even if already loaded when included in the scene loader.
+- Fixed issue where pixel ratio was accidentally doubled during load if the loader was included in the scene loader.
 - Fixed issue where Slide trasition did not work properly when DisplayMode was FitScreenAndFill
 - Fixed issue where not(tags) and not(component) queries weren't updating in the querymanager
 - Fixed Tilemap/Isometric map pointer performance on moderate to large maps, we changed the strategy to only consider tiles under the pointer instead of try to do sorted dispatch on NxM tiles.
