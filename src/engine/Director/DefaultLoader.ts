@@ -111,6 +111,7 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
    */
   public addResource(loadable: Loadable<any>) {
     this._resources.push(loadable);
+    this._loaded = false;
   }
 
   /**
@@ -124,6 +125,7 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
     for (i; i < len; i++) {
       this.addResource(loadables[i]);
     }
+    this._loaded = false;
   }
 
   public markResourceComplete(): void {
@@ -138,11 +140,12 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
     return total > 0 ? clamp(this._numLoaded, 0, total) / total : 1;
   }
 
+  private _loaded = false;
   /**
    * Returns true if the loader has completely loaded all resources
    */
   public isLoaded() {
-    return this._numLoaded === this._resources.length;
+    return this._loaded;
   }
 
   private _totalTimeMs = 0;
@@ -210,15 +213,19 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
     this.canvas.flagDirty();
 
     await Promise.all(
-      this._resources.map(async (r) => {
-        this.events.emit('loadresourcestart', r);
-        await r.load().finally(() => {
-          // capture progress
-          this._numLoaded++;
-          this.canvas.flagDirty();
-          this.events.emit('loadresourceend', r);
-        });
-      })
+      this._resources
+        .filter((r) => {
+          return !r.isLoaded();
+        })
+        .map(async (r) => {
+          this.events.emit('loadresourcestart', r);
+          await r.load().finally(() => {
+            // capture progress
+            this._numLoaded++;
+            this.canvas.flagDirty();
+            this.events.emit('loadresourceend', r);
+          });
+        })
     );
 
     // Wire all sound to the engine
@@ -239,6 +246,7 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
 
     await this.onAfterLoad();
     this.events.emit('afterload');
+    this._loaded = true;
     return (this.data = this._resources);
   }
 
