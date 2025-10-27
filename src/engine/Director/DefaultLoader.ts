@@ -201,6 +201,10 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
    * that resolves when loading of all is complete AND the user has interacted with the loading screen
    */
   public async load(): Promise<Loadable<any>[]> {
+    if (this.isLoaded()) {
+      // Already loaded quick exit
+      return (this.data = this._resources);
+    }
     await this.onBeforeLoad();
     this.events.emit('beforeload');
     this.canvas.flagDirty();
