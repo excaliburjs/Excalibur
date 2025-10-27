@@ -507,4 +507,21 @@ describe('An entity', () => {
     expect(sut.get(MyBody)).toBe(undefined);
     expect(sut.get(ex.BodyComponent)).toBe(superBody);
   });
+
+  it('can detect children', () => {
+    const e = new ex.Entity();
+    const child1 = new ex.Entity();
+    const child2 = new ex.Entity();
+    const notChild = new ex.Entity();
+
+    e.addChild(child1);
+    child1.addChild(child2);
+
+    expect(e.hasChild(child1, true)).toBe(true);
+    expect(e.hasChild(child1, false)).toBe(true);
+    expect(e.hasChild(child2, false)).toBe(false);
+    expect(e.hasChild(child2, true)).toBe(true);
+    expect(child1.hasChild(child2)).toBe(true);
+    expect(e.hasChild(notChild)).toBe(false);
+  });
 });

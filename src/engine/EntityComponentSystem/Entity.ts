@@ -293,6 +293,28 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
   }
 
   /**
+   * Check if a child entity exists on the parent entity
+   * @param child entity to check for
+   * @param recursive whether to check recursively
+   */
+  public hasChild(child: Entity, recursive = false): boolean {
+    if (!recursive) {
+      return child.parent === this;
+    }
+
+    for (const c of this.children) {
+      if (c === child) {
+        return true;
+      }
+      if (recursive && c.hasChild(child, true)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
    * Adds an entity to be a child of this entity
    * @param entity
    */
