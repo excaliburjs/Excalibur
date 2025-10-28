@@ -141,6 +141,7 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
   }
 
   private _loaded = false;
+  private _isLoading = false;
   /**
    * Returns true if the loader has completely loaded all resources
    */
@@ -204,10 +205,16 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
    * that resolves when loading of all is complete AND the user has interacted with the loading screen
    */
   public async load(): Promise<Loadable<any>[]> {
+    if (this._isLoading) {
+      return this._loadingFuture.promise.then(() => {
+        return this._resources;
+      });
+    }
     if (this.isLoaded()) {
       // Already loaded quick exit
       return (this.data = this._resources);
     }
+    this._isLoading = true;
     await this.onBeforeLoad();
     this.events.emit('beforeload');
     this.canvas.flagDirty();
@@ -235,7 +242,6 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
       }
     }
 
-    this._loadingFuture.resolve();
     this.canvas.flagDirty();
     // Unlock browser AudioContext in after user gesture
     // See: https://github.com/excaliburjs/Excalibur/issues/262
@@ -246,6 +252,8 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
 
     await this.onAfterLoad();
     this.events.emit('afterload');
+    this._isLoading = false;
+    this._loadingFuture.resolve();
     this._loaded = true;
     return (this.data = this._resources);
   }
