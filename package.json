@@ -71,6 +71,7 @@
     "test:watch": "npm run test -- --watch",
     "test:unit": "vitest --project unit",
     "test:unit:headless": "npm run test:unit -- --browser.headless",
+    "test:debug:unit:headless": "npm run test:unit -- --browser.headless --inspect --no-file-parallelism",
     "test:visual": "vitest --project visual",
     "test:visual:headless": "npm run test:visual -- --browser.headless",
     "apidocs": "node scripts/apidocs.js",
