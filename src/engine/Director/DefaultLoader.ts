@@ -145,7 +145,7 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
    * Returns true if the loader has completely loaded all resources
    */
   public isLoaded() {
-    return this._loaded;
+    return this._loaded || this._resources.length === 0;
   }
 
   private _totalTimeMs = 0;
