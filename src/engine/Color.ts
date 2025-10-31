@@ -286,8 +286,8 @@ export class Color {
     return newColor.toRGBA();
   }
 
-  public static random(): Color {
-    const rng: Random = new Random();
+  public static random(rnd?: Random): Color {
+    const rng: Random = rnd ?? new Random();
     return new Color(rng.integer(0, 255), rng.integer(0, 255), rng.integer(0, 255));
   }
 
