@@ -1,3 +1,5 @@
+import { Random } from './Math';
+
 /**
  * Provides standard colors (e.g. {@apilink Color.Black})
  * but you can also create custom colors using RGB, HSL, or Hex. Also provides
@@ -282,6 +284,11 @@ export class Color {
     const color2: HSLColor = HSLColor.fromRGBA(colorB.r, colorB.g, colorB.b, colorB.a);
     const newColor: HSLColor = HSLColor.lerp(color1, color2, t);
     return newColor.toRGBA();
+  }
+
+  public static random(): Color {
+    const rng: Random = new Random();
+    return new Color(rng.integer(0, 255), rng.integer(0, 255), rng.integer(0, 255));
   }
 
   /**

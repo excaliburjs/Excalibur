@@ -154,4 +154,14 @@ describe('A color', () => {
     expect(color.g, 'g').toBe(127.5);
     expect(color.b, 'b').toBe(127.5);
   });
+
+  it('can be randomly generated', () => {
+    color = ex.Color.random();
+    expect(color.r).toBeGreaterThanOrEqual(0);
+    expect(color.r).toBeLessThanOrEqual(255);
+    expect(color.g).toBeGreaterThanOrEqual(0);
+    expect(color.g).toBeLessThanOrEqual(255);
+    expect(color.b).toBeGreaterThanOrEqual(0);
+    expect(color.b).toBeLessThanOrEqual(255);
+  });
 });
