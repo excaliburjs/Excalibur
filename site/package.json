@@ -31,7 +31,7 @@
     "react-dom": "^18.3.1",
     "react-live": "4.1.8",
     "rehype-raw": "^7.0.0",
-    "remark-emoji": "5.0.1",
+    "remark-emoji": "5.0.2",
     "remark-typedoc-symbol-links": "^2.1.0"
   },
   "devDependencies": {
