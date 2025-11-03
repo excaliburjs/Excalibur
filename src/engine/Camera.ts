@@ -243,11 +243,11 @@ export class LimitCameraBoundsStrategy implements CameraStrategy<BoundingBox> {
   };
 }
 
-export type CameraEvents = {
+export interface CameraEvents {
   preupdate: PreUpdateEvent<Camera>;
   postupdate: PostUpdateEvent<Camera>;
   initialize: InitializeEvent<Camera>;
-};
+}
 
 export const CameraEvents = {
   Initialize: 'initialize',

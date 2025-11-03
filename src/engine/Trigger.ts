@@ -7,10 +7,10 @@ import type { ActorArgs, ActorEvents } from './Actor';
 import { Actor } from './Actor';
 import { EventEmitter } from './EventEmitter';
 
-export type TriggerEvents = ActorEvents & {
+export interface TriggerEvents extends ActorEvents {
   exit: ExitTriggerEvent;
   enter: EnterTriggerEvent;
-};
+}
 
 export const TriggerEvents = {
   ExitTrigger: 'exit',

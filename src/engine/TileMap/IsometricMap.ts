@@ -21,14 +21,14 @@ import type { PointerEventReceiver } from '../Input/PointerEventReceiver';
 import type { GlobalCoordinates } from '../Math';
 import { CoordPlane } from '../Math';
 
-export type IsometricTilePointerEvents = {
+export interface IsometricTilePointerEvents {
   pointerup: PointerEvent;
   pointerdown: PointerEvent;
   pointermove: PointerEvent;
   pointercancel: PointerEvent;
   pointerenter: PointerEvent;
   pointerleave: PointerEvent;
-};
+}
 
 export class IsometricTile extends Entity {
   /**

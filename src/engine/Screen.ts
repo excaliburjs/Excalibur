@@ -235,7 +235,7 @@ export interface FullScreenChangeEvent {
 /**
  * Built in events supported by all entities
  */
-export type ScreenEvents = {
+export interface ScreenEvents {
   /**
    * Fires when the screen resizes, useful if you have logic that needs to be aware of resolution/viewport constraints
    */
@@ -248,7 +248,7 @@ export type ScreenEvents = {
    * Fires when the browser fullscreen api is successfully engaged or disengaged
    */
   fullscreen: FullScreenChangeEvent;
-};
+}
 
 export const ScreenEvents = {
   ScreenResize: 'resize',
