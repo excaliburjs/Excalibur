@@ -148,5 +148,17 @@
     "typedoc": {
       "typescript": ">=4.7.4"
     }
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "onFail": "error",
+      "version": ">=22"
+    },
+    "packageManager": {
+      "name": "npm",
+      "onFail": "error",
+      "version": ">=11"
+    }
   }
 }
