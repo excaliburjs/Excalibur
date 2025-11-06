@@ -165,6 +165,12 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
    * @deprecated use isSleeping
    */
   public setSleeping(sleeping: boolean) {
+    if (sleeping) {
+      this.owner?.addTag('ex.is_sleeping');
+    } else {
+      this.owner.removeTag('ex.is_sleeping');
+    }
+
     this.isSleeping = sleeping;
   }
 
@@ -172,6 +178,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     this._sleeping = sleeping;
     if (!sleeping) {
       // Give it a kick to keep it from falling asleep immediately
+      // TODO(ERIK) fix the magic multiple
       this.sleepMotion = this._bodyConfig.sleepEpsilon * 5;
     } else {
       this.vel = Vector.Zero;
@@ -188,10 +195,20 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     if (this._sleeping) {
       this.isSleeping = true;
     }
-    const currentMotion = this.vel.magnitude * this.vel.magnitude + Math.abs(this.angularVelocity * this.angularVelocity);
+
+    // FIXME: This is not robust enough to account for high acceleration situations and non substepping situations
+    // Right now they have high velocity
+    // What is their effective perceptive velcoity
+    const effectiveVel = this.pos.sub(this.oldPos);
+    // const effectiveAngularVel = this.rotation - this.oldRotation;
+
+    const currentMotion = effectiveVel.magnitude * effectiveVel.magnitude + Math.abs(this.angularVelocity * this.angularVelocity * 2);
+
     const bias = this._bodyConfig.sleepBias;
     this.sleepMotion = bias * this.sleepMotion + (1 - bias) * currentMotion;
     this.sleepMotion = clamp(this.sleepMotion, 0, 10 * this._bodyConfig.sleepEpsilon);
+
+    // FIXME canSleep doesn't respect the default configuration
     if (this.canSleep && this.sleepMotion < this._bodyConfig.sleepEpsilon) {
       this.isSleeping = true;
     }

@@ -24,7 +24,7 @@ export class MotionSystem extends System {
         all: [TransformComponent, MotionComponent]
       },
       tags: {
-        not: this.physics.config.integration.onScreenOnly ? ['ex.offscreen'] : []
+        not: this.physics.config.integration.onScreenOnly ? ['ex.offscreen', 'ex.is_sleeping'] : ['ex.is_sleeping']
       }
     });
 
