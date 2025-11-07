@@ -134,7 +134,9 @@ export class EntityManager {
   public processComponentRemovals(): void {
     for (let entityIndex = 0; entityIndex < this.entities.length; entityIndex++) {
       const entity = this.entities[entityIndex];
-      entity.processComponentRemoval();
+      if (entity._hasComponentsToRemove) {
+        entity.processComponentRemoval();
+      }
     }
   }
 

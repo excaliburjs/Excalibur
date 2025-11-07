@@ -722,9 +722,12 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * @internal
    */
   public _initialize(engine: Engine) {
-    super._initialize(engine);
-    for (const child of this.children) {
-      child._initialize(engine);
+    if (!this.isInitialized) {
+      super._initialize(engine);
+      for (let i = 0; i < this.children.length; i++) {
+        const child = this.children[i];
+        child._initialize(engine);
+      }
     }
   }
 

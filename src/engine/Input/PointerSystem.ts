@@ -140,7 +140,7 @@ export class PointerSystem extends System {
         }
       }
 
-      const graphics = this._graphicsHashGrid.query(pos.worldPos);
+      const graphics = Array.from(this._graphicsHashGrid.query(pos.worldPos));
       for (let i = 0; i < graphics.length; i++) {
         const graphic = graphics[i];
         const maybePointer = this._entityToPointer.get(graphic.owner);
