@@ -4,6 +4,9 @@ slug: /particles
 section: Other
 ---
 
+import sample1 from '!!raw-loader!./examples/13-particles-1.ts';
+import sample2 from '!!raw-loader!./examples/13-particles-2.ts';
+
 Particles can be used to generate dust, smoke, or fire effects in your games.
 
 ## Particles
@@ -42,7 +45,7 @@ const emitter = new ex.ParticleEmitter({
 });
 ```
 
-<IFrameEmbed variant="playground" src="https://excaliburjs.com/excalibur-playground/?embed=true&code=FASwtgDg9gTgLgAgFQIIYGcEFMAeCBmMUYCA5LgMaoA2IARgK4ykDcwwFUAduogOaowWBAF4EXLAHdsOAHQBRLnxASAFAG9gCbQipcAbhnnUsQrnACSAEwBcZCDCz6QUgLR7D6UgBotOqyDoENSoAJ4AslBWWHa4sgAigcFhkdGyAGIg1NQAwtxwqCpYML46CJIgVnAAFnYAbAAMDaU61VggfNVwdgAsTS3adKgUANZ8RAxcVnnUsLFyM7CyAEIho74AvgCUbBzcvNhgIHBwxaLiUjKyAAqo8CAUJvJHJ8Uafjh2AkKy1TT48RgqEkAHVKjUWqEvoIsL9-oDgQAJdqdOAtUzHU4wAAqoQgMSuz0xxVx+NkORAMEeWBaQICDHQdgAjM0-IEiScVHw7HAYAwaX4MXAAEqoU52ADM-T8EDucAeJjsmjKRy4AGV8VhbAgAEzSlWoHAarBayX6nSqgCCSkVCHCYuqNwsAHomQAOBrIBCsg04a18W32mpO10er0ATh9Olo+AJLPN2lVapAAC8494ypms9ntH5E4bk2nmc0c6Ws3mELw5YW4yWy2WK1gpjXmRn6+2K8MKPNZPosBRVCWWVsBgg6FhlFxFjAe9PZMKtaOm9MoLMZ1c56t+S0NsBtrtvrDUFYrKohVidsBD7Iq-BVDsgA" />
+<PlaygroundEmbed code={sample1} />
 
 ### Rectangle emitter
 
@@ -76,7 +79,7 @@ const emitter = new ex.ParticleEmitter({
 });
 ```
 
-<IFrameEmbed variant="playground" src="https://excaliburjs.com/excalibur-playground/?embed=true&code=FASwtgDg9gTgLgAgFQIIYGcEFMAeCBmMUYCA5LgMaoA2IARgK4ykDcwwFUAduogOaowWBAF4EXLAHdsOAHQBRLnxASAFAG9gCbQipcAbhnnUsQrnACSAEwBcZCDCz6QUgLR7D6UgBotOqyDoENSoAJ4AslBWWHa4sgAigcFhkdGyAGIg1NQAwtxwqCpYML46CJIgVnAAFnYAbAAMDaU61VggfNVwdgAsTS3adKgUANZ8RAxcVnnUsLFyM7CyAEIho74AvgCUbBzcvNhgIHBwxaLiUjKyAAqo8CAUJvJHJ8Uafjh2AkKy1TT48RgqEkAHVKjUWqEvoIsL9-oDgQAJdqdOAtUzHU4wAAqoQgMSuz0xxVx+NkACUsBQCkoTN4EH4KlVaggAKzNMqcrnc7l+NodLp2ACMzT8gSJJxUfDscBgDCw9J5SrKfgxcHJqFOdgAzP1lfqVdoIHc4A8THZNGUjlwAIK0gnhTXVG4WAD0QoAHA1kAgeqzFTy-NowKgcHa+OaEI6ai73V6fQBODlKoMIKDGijHKEIIUBg361P4VDRGVyhX5-Op2j4AkivUVgtWlQAZRAAC9a3mG7yraHWx3hcnuz2dLwTf3a0PhzpU1gphPhV3pzOysMKHYJNI4gA1KlwWCqDmuOtbJcrnR0LDKLiLGDzWS3ilYKwDbBTW-3x8ATSw2SgkhaDZgG2XZvlhYsrFUNUsR2YAwNkMd4FUHYgA" />
+<PlaygroundEmbed code={sample2} />
 
 ## Adding an emitter
 
@@ -94,4 +97,3 @@ actor.add(emitter);
 ```typescript
 engine.add(emitter);
 ```
-
