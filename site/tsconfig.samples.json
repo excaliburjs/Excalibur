@@ -1,0 +1,13 @@
+{
+  "extends": ["../src/engine/tsconfig.json"],
+  "include": ["./**/*.sample.ts"],
+  "exclude": ["../src/en"],
+  "compilerOptions": {
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@site/*": ["./*"],
+      "excalibur": ["../src/engine"]
+    }
+  }
+}
