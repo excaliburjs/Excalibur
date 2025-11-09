@@ -1,45 +1,34 @@
 import * as monaco from "monaco-editor";
 import * as lz from "lz-string";
 
-const ts = (tag: any) => tag[0];
+import templateDefault from './templates/default';
+import templateSpritesheet from './templates/spritesheet';
+import templateAudio from './templates/audio';
+
+const templates: Record<string, string> = {
+  'default': templateDefault,
+  'spritesheet': templateSpritesheet,
+  'audio': templateAudio,
+};
 
 const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches;
 
 const searchParams = new URLSearchParams(document.location.search)
 const isEmbedded = searchParams.get('embed') === 'true';
+const template = templates[searchParams.get('template')] ?? templates['default'];
+
 document.body.classList.toggle('embedded', isEmbedded);
 
 // Super secret worker url
 //@ts-ignore
 import TsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker.js?worker';
 
-const defaultCode = ts`
-import * as ex from 'excalibur';
-console.log('hello world');
-
-const game = new ex.Engine({
-    canvasElementId: 'preview-canvas',
-    displayMode: ex.DisplayMode.FitContainer,
-    width: 600,
-    height: 400
-});
-
-const a = new ex.Actor({
-	pos: ex.vec(100, 100),
-	width: 100,
-	height: 100,
-	color: ex.Color.Red
-});
-
-game.add(a);
-game.start();`;
-
 const getInitialCode = () => {
   const paramsString = window.location.search;
   const searchParams = new URLSearchParams(paramsString);
   const sharedCode = searchParams.get("code");
   console.log(sharedCode ? "has shared code" : "no shared code");
-  const code = sharedCode ? lz.decompressFromEncodedURIComponent(sharedCode) : defaultCode;
+  const code = sharedCode ? lz.decompressFromEncodedURIComponent(sharedCode) : template;
 
   return code;
 }

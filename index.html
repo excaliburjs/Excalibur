@@ -42,13 +42,21 @@
 				<canvas id="preview-canvas">
 				</canvas>
 			</div>
-			<div id="controls">
-				<label for="auto-save">Auto Save
-					<input id="auto-save" type="checkbox" checked="checked">
-				</label>
-				<button id="build" title="Build & Run (CTRL+S)">Build & Run</button>
-				<button id="debug" title="Debug (CTRL+D)">Toggle Debug</button>
-				<button id="share">Share</button>
+			<div class="toolbar">
+				<div class="controls">
+					<label for="auto-save">Auto Save
+						<input id="auto-save" type="checkbox" checked="checked">
+					</label>
+					<button id="build" title="Build & Run (CTRL+S)">Build & Run</button>
+					<button id="debug" title="Debug (CTRL+D)">Toggle Debug</button>
+					<button id="share">Share</button>
+				</div>
+				<div class="templates">
+					<h2>Templates</h2>
+					<a href="?template=default"><span class="icon">💀</span> <span>Load bare bones template</span></a>
+					<a href="?template=spritesheet"><span class="icon">🖼️</span> <span>Load spritesheet template</span></a>
+					<a href="?template=audio"><span class="icon">🔊</span> <span>Load audio template</span></a>
+				</div>
 			</div>
 		</div>
 

@@ -120,10 +120,62 @@ button:focus-visible {
 	align-items: center;
 }
 
-#controls {
+.toolbar {
 	padding: 20px;
 	display: flex;
-	justify-content: space-around;
+	flex-direction: column;
+	gap: 24px;
+	flex-wrap: wrap;
+}
+
+.controls {
+	display: flex;
+	justify-content: flex-start;
+	gap: 8px;
+}
+
+.templates {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: flex-start;
+	gap: 8px;
+}
+
+body.embedded .templates {
+	display: none;
+}
+
+.templates h2 {
+	color: var(--button-color);
+	font-size: 1.2rem;
+	line-height: 1.1;
+	margin: 0;
+}
+
+.templates a {
+	text-decoration: none;
+	color: var(--button-color);
+	display: flex;
+	gap: 12px;
+	border: solid var(--button-color) 2px;
+	padding: 8px;
+	border-radius: 5px;
+	min-width: 260px;
+}
+
+.icon {
+	transition: transform 250ms ease-out;
+}
+
+.templates a:hover {
+	color: var(--button-hover-color);
+	background-color: var(--button-hover-background);
+	border: solid var(--button-hover-border) 2px;
+}
+
+.templates a:hover .icon {
+	transform: scale(1.5) rotate(10deg);
 }
 
 main {
