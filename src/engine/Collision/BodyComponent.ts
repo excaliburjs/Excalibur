@@ -165,17 +165,18 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
    * @deprecated use isSleeping
    */
   public setSleeping(sleeping: boolean) {
+    this.isSleeping = sleeping;
+  }
+
+  public set isSleeping(sleeping: boolean) {
+    this._sleeping = sleeping;
+
     if (sleeping) {
       this.owner?.addTag('ex.is_sleeping');
     } else {
       this.owner.removeTag('ex.is_sleeping');
     }
 
-    this.isSleeping = sleeping;
-  }
-
-  public set isSleeping(sleeping: boolean) {
-    this._sleeping = sleeping;
     if (!sleeping) {
       // Give it a kick to keep it from falling asleep immediately
       // TODO(ERIK) fix the magic multiple
