@@ -203,6 +203,10 @@ export interface ScreenOptions {
  */
 export interface ScreenResizeEvent {
   /**
+   * Native browser event
+   */
+  event: Event;
+  /**
    * Current viewport in css pixels of the screen
    */
   viewport: ViewportDimension;
@@ -308,7 +312,6 @@ export class Screen {
   private _listenForOrientationChange() {
     if (window?.screen?.orientation) {
       window.screen.orientation.addEventListener('change', this._resizeHandler);
-      // window.screen.orientation.addEventListener('change', evt => console.log('orientation change:', evt));
     }
   }
 
@@ -379,7 +382,7 @@ export class Screen {
     } satisfies PixelRatioChangeEvent);
   };
 
-  private _resizeHandler = () => {
+  private _resizeHandler = (evt: Event) => {
     if (this._isDisposed) {
       return;
     }
@@ -390,6 +393,7 @@ export class Screen {
 
     // Emit resize event
     this.events.emit('resize', {
+      event: evt,
       resolution: this.resolution,
       viewport: this.viewport
     } satisfies ScreenResizeEvent);
