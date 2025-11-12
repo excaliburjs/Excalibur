@@ -1,14 +1,16 @@
 import * as monaco from "monaco-editor";
 import * as lz from "lz-string";
 
+import templateAudio from './templates/audio';
 import templateDefault from './templates/default';
 import templateSpritesheet from './templates/spritesheet';
-import templateAudio from './templates/audio';
+import templateTileset from './templates/tileset';
 
 const templates: Record<string, string> = {
+  'audio': templateAudio,
   'default': templateDefault,
   'spritesheet': templateSpritesheet,
-  'audio': templateAudio,
+  'tileset': templateTileset,
 };
 
 const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches;

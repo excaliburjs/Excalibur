@@ -28,10 +28,6 @@ header {
 	padding: 5px;
 }
 
-body.embedded header {
-	display: none;
-}
-
 h1 {
 	font-size: .5em;
 	display: flex;
@@ -131,6 +127,7 @@ button:focus-visible {
 .controls {
 	display: flex;
 	justify-content: flex-start;
+	flex-wrap: wrap;
 	gap: 8px;
 }
 
@@ -140,10 +137,6 @@ button:focus-visible {
 	justify-content: flex-start;
 	align-items: flex-start;
 	gap: 8px;
-}
-
-body.embedded .templates {
-	display: none;
 }
 
 .templates h2 {
@@ -183,6 +176,26 @@ main {
 	display: flex;
 }
 
+body.embedded main {
+	flex-direction: column-reverse;
+	align-items: center;
+}
+
+body.embedded .templates {
+	display: none;
+}
+
+body.embedded header {
+	display: none;
+}
+
+body.embedded #preview {
+	display: flex;
+	flex-direction: column;
+	max-width: 800px;
+	width: 100%;
+}
+
 @media screen and (max-width: 800px) {
 
 	h1 img {
@@ -192,5 +205,9 @@ main {
 	main {
 		height: auto;
 		flex-wrap: wrap-reverse;
+	}
+
+	#preview {
+		min-width: auto;
 	}
 }

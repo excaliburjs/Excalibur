@@ -3,7 +3,7 @@ import * as ex from 'excalibur';
 console.log('hello, world');
 
 const resources = {
-    sound: new ex.Sound('/rpg-audio/audio/handleCoins.ogg'),
+    sound: new ex.Sound('./rpg-audio/audio/handleCoins.ogg'),
 } as const;
 
 const loader = new ex.Loader(Object.values(resources));
