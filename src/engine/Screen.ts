@@ -299,8 +299,17 @@ export class Screen {
 
     this._listenForPixelRatio();
 
+    this._listenForOrientationChange();
+
     this._canvas.addEventListener('fullscreenchange', this._fullscreenChangeHandler);
     this.applyResolutionAndViewport();
+  }
+
+  private _listenForOrientationChange() {
+    if (window?.screen?.orientation) {
+      window.screen.orientation.addEventListener('change', this._resizeHandler);
+      // window.screen.orientation.addEventListener('change', evt => console.log('orientation change:', evt));
+    }
   }
 
   private _listenForPixelRatio() {
@@ -325,6 +334,11 @@ export class Screen {
       this.events.clear();
       this._browser.window.off('resize', this._resizeHandler);
       this._browser.window.clear();
+
+      if (window?.screen?.orientation) {
+        window.screen.orientation.removeEventListener('change', this._resizeHandler);
+      }
+
       if (this._resizeObserver) {
         this._resizeObserver.disconnect();
       }
