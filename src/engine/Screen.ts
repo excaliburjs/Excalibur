@@ -203,9 +203,9 @@ export interface ScreenOptions {
  */
 export interface ScreenResizeEvent {
   /**
-   * Native browser event
+   * Native browser event (if any)
    */
-  event: Event;
+  event?: Event;
   /**
    * Current viewport in css pixels of the screen
    */
@@ -382,7 +382,7 @@ export class Screen {
     } satisfies PixelRatioChangeEvent);
   };
 
-  private _resizeHandler = (evt: Event) => {
+  private _resizeHandler = (event?: Event) => {
     if (this._isDisposed) {
       return;
     }
@@ -393,7 +393,7 @@ export class Screen {
 
     // Emit resize event
     this.events.emit('resize', {
-      event: evt,
+      event,
       resolution: this.resolution,
       viewport: this.viewport
     } satisfies ScreenResizeEvent);
