@@ -38,6 +38,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where sometimes the when device orientation changed the screen would not recalculate viewport.
 - Fixed issue where the Loader could run twice even if already loaded when included in the scene loader.
 - Fixed issue where pixel ratio was accidentally doubled during load if the loader was included in the scene loader.
 - Fixed issue where Slide trasition did not work properly when DisplayMode was FitScreenAndFill
