@@ -203,6 +203,10 @@ export interface ScreenOptions {
  */
 export interface ScreenResizeEvent {
   /**
+   * Native browser event (if any)
+   */
+  event?: Event;
+  /**
    * Current viewport in css pixels of the screen
    */
   viewport: ViewportDimension;
@@ -299,8 +303,16 @@ export class Screen {
 
     this._listenForPixelRatio();
 
+    this._listenForOrientationChange();
+
     this._canvas.addEventListener('fullscreenchange', this._fullscreenChangeHandler);
     this.applyResolutionAndViewport();
+  }
+
+  private _listenForOrientationChange() {
+    if (window?.screen?.orientation) {
+      window.screen.orientation.addEventListener('change', this._resizeHandler);
+    }
   }
 
   private _listenForPixelRatio() {
@@ -325,6 +337,11 @@ export class Screen {
       this.events.clear();
       this._browser.window.off('resize', this._resizeHandler);
       this._browser.window.clear();
+
+      if (window?.screen?.orientation) {
+        window.screen.orientation.removeEventListener('change', this._resizeHandler);
+      }
+
       if (this._resizeObserver) {
         this._resizeObserver.disconnect();
       }
@@ -365,7 +382,7 @@ export class Screen {
     } satisfies PixelRatioChangeEvent);
   };
 
-  private _resizeHandler = () => {
+  private _resizeHandler = (event?: Event) => {
     if (this._isDisposed) {
       return;
     }
@@ -376,6 +393,7 @@ export class Screen {
 
     // Emit resize event
     this.events.emit('resize', {
+      event,
       resolution: this.resolution,
       viewport: this.viewport
     } satisfies ScreenResizeEvent);
@@ -709,10 +727,11 @@ export class Screen {
         newY = ((newY - screenMarginY) / screenHeight) * viewport.height;
         newX = (newX / window.innerWidth) * viewport.width;
       } else {
-        const screenWidth = window.innerHeight * this.aspectRatio;
-        const screenMarginX = (window.innerWidth - screenWidth) / 2;
+        const screen = window.screen;
+        const screenWidth = screen.height * this.aspectRatio;
+        const screenMarginX = (screen.width - screenWidth) / 2;
         newX = ((newX - screenMarginX) / screenWidth) * viewport.width;
-        newY = (newY / window.innerHeight) * viewport.height;
+        newY = (newY / screen.height) * viewport.height;
       }
     }
 
@@ -752,10 +771,11 @@ export class Screen {
         newY = (newY / viewport.height) * screenHeight + screenMarginY;
         newX = (newX / viewport.width) * window.innerWidth;
       } else {
-        const screenWidth = window.innerHeight * this.aspectRatio;
-        const screenMarginX = (window.innerWidth - screenWidth) / 2;
+        const screen = window.screen;
+        const screenWidth = screen.height * this.aspectRatio;
+        const screenMarginX = (screen.width - screenWidth) / 2;
         newX = (newX / viewport.width) * screenWidth + screenMarginX;
-        newY = (newY / viewport.height) * window.innerHeight;
+        newY = (newY / viewport.height) * screen.height;
       }
     }
 
@@ -943,12 +963,13 @@ export class Screen {
     const aspect = this.aspectRatio;
     let adjustedWidth = 0;
     let adjustedHeight = 0;
-    if (window.innerWidth / aspect < window.innerHeight) {
-      adjustedWidth = window.innerWidth;
-      adjustedHeight = window.innerWidth / aspect;
+    const screen = window.screen;
+    if (screen.width / aspect < screen.height) {
+      adjustedWidth = screen.width;
+      adjustedHeight = screen.width / aspect;
     } else {
-      adjustedWidth = window.innerHeight * aspect;
-      adjustedHeight = window.innerHeight;
+      adjustedWidth = screen.height * aspect;
+      adjustedHeight = screen.height;
     }
 
     this.viewport = {
@@ -966,8 +987,9 @@ export class Screen {
   private _computeFitScreenAndFill() {
     document.body.style.margin = '0px';
     document.body.style.overflow = 'hidden';
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
+    const screen = window.screen;
+    const vw = screen.width;
+    const vh = screen.height;
     this._computeFitAndFill(vw, vh);
     this.events.emit('resize', {
       resolution: this.resolution,
@@ -1042,8 +1064,9 @@ export class Screen {
     document.body.style.overflow = 'hidden';
     this.canvas.style.position = 'absolute';
 
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
+    const screen = window.screen;
+    const vw = screen.width;
+    const vh = screen.height;
 
     this._computeFitAndZoom(vw, vh);
     this.events.emit('resize', {
