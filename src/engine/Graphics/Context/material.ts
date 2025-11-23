@@ -108,6 +108,17 @@ export interface MaterialImageOptions {
 }
 
 export class Material {
+  static BuiltInUniforms = [
+    'u_time_ms',
+    'u_opacity',
+    'u_resolution',
+    'u_graphic_resolution',
+    'u_size',
+    'u_matrix',
+    'u_transform',
+    'u_graphic',
+    'u_screen_texture'
+  ];
   private _logger = Logger.getInstance();
   private _name: string;
   private _shader!: Shader;
@@ -137,6 +148,28 @@ export class Material {
       this._initialize(graphicsContext);
     } else {
       this._logger.warn(`Material ${name} was created in 2D Canvas mode, currently only WebGL is supported`);
+    }
+
+    if (process.env.NODE_ENV === 'development') {
+      if (this.images.u_graphic) {
+        this._logger.warn(
+          `Material named "${this.name}" is overriding built in image u_graphic, is this on purpose? If so ignore this warning.`
+        );
+      }
+
+      if (this.images.u_screen_texture) {
+        this._logger.warn(
+          `Material named "${this.name}" is overriding built in image u_screen_texture, is this on purpose? If so ignore this warning.`
+        );
+      }
+
+      for (const uniform of Object.keys(this._uniforms)) {
+        if (Material.BuiltInUniforms.includes(uniform)) {
+          this._logger.warn(
+            `Material named "${this.name}" is overriding built in uniform ${uniform}, is this on purpose? If so ignore this warning.`
+          );
+        }
+      }
     }
   }
 
@@ -200,6 +233,20 @@ export class Material {
 
   addImageSource(samplerName: string, image: ImageSource) {
     this._shader.addImageSource(samplerName, image);
+
+    if (process.env.NODE_ENV === 'development') {
+      if (this.images.u_graphic) {
+        this._logger.warn(
+          `Material named "${this.name}" is overriding built in image u_graphic, is this on purpose? If so ignore this warning.`
+        );
+      }
+
+      if (this.images.u_screen_texture) {
+        this._logger.warn(
+          `Material named "${this.name}" is overriding built in image u_screen_texture, is this on purpose? If so ignore this warning.`
+        );
+      }
+    }
   }
 
   removeImageSource(samplerName: string) {
