@@ -6,7 +6,8 @@ const resources = {
     tilemap: new ex.ImageSource('./tiny-town/tilemap/tilemap.png'),
 } as const;
 
-const loader = new ex.Loader(Object.values(resources));
+const loader = new ex.DefaultLoader();
+loader.addResource(resources.tilemap);
 
 const TILE_SIZE = 16;
 

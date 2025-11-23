@@ -15,8 +15,9 @@ const templates: Record<string, string> = {
 
 const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches;
 
-const searchParams = new URLSearchParams(document.location.search)
+const searchParams = new URLSearchParams(document.location.search);
 const isEmbedded = searchParams.get('embed') === 'true';
+const isAutoplay = searchParams.get('autoplay') === 'true';
 const template = templates[searchParams.get('template')] ?? templates['default'];
 
 document.body.classList.toggle('embedded', isEmbedded);
@@ -120,21 +121,42 @@ function esm(templateStrings, ...substitutions) {
   return 'data:text/javascript;base64,' + btoa(js);
 }
 
-// const getWorker = await monaco.languages.typescript.getTypeScriptWorker();
-
 const buildButtonEl = document.getElementById('build')! as HTMLButtonElement;
 const debugButtonEl = document.getElementById('debug')! as HTMLButtonElement;
 const shareButtonEl = document.getElementById('share')! as HTMLButtonElement;
 const loadingEl = document.getElementsByClassName('loading')[0]! as HTMLDivElement;
 
+const getClient = async (model: monaco.editor.ITextModel) => {
+  const maxAttempts = 3;
+  let lastError: unknown;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const getWorker = await monaco.languages.typescript.getTypeScriptWorker();
+      const client = await getWorker(model.uri);
+      return client;
+    } catch (err) {
+      lastError = err;
+      const message = String(err);
+      const shouldRetry = message.includes('TypeScript not registered') && attempt < maxAttempts;
+      console.warn(`Error getting TypeScript worker client (attempt ${attempt}/${maxAttempts}):`, err);
+      if (!shouldRetry) {
+        throw err;
+      }
+      
+      // A little exponential backoff never hurt anyone
+      // @see https://github.com/microsoft/monaco-editor/issues/115
+      await new Promise(res => setTimeout(res, Math.pow(2, attempt) * 100)); 
+    }
+  }
+
+  throw lastError;
+}
+
 const buildAndRun = async () => {
   loadingEl.style.display = 'block';
-
-  const model = editor.getModel()!
-  const getWorker = await monaco.languages.typescript.getTypeScriptWorker();
-
-  const client = await getWorker();
-
+  const model = editor.getModel()!;
+  const client = await getClient(model);  
   const runnanbleJs = await client.getEmitOutput(model.uri.toString(), false, false);
   const firstJs = runnanbleJs.outputFiles.find(f => f.name.endsWith('.js'));
   if (firstJs) {
@@ -166,6 +188,10 @@ const shareCode = (writeToClipboard?: boolean) => {
 shareButtonEl.addEventListener('click', () => shareCode(true));
 debugButtonEl.addEventListener('click', toggleDebug);
 buildButtonEl.addEventListener('click', buildAndRun);
+
+if (isAutoplay) {
+  buildAndRun();
+}
 
 window.addEventListener('keydown', (evt: KeyboardEvent) => {
   if (evt.code === 'Escape') {

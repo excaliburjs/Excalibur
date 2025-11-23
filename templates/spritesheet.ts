@@ -3,10 +3,11 @@ import * as ex from 'excalibur';
 console.log('hello, world');
   
 const resources = {
-    tilemap: new ex.ImageSource('./player-run.png'),
+    spritesheet: new ex.ImageSource('./player-run.png'),
 } as const;
 
-const loader = new ex.Loader(Object.values(resources));
+const loader = new ex.DefaultLoader();
+loader.addResource(resources.spritesheet);
 
 const TILE_SIZE = 96;
 
@@ -19,7 +20,7 @@ const game = new ex.Engine({
 });
 
 const runSheet = ex.SpriteSheet.fromImageSource({
-    image: resources.tilemap,
+    image: resources.spritesheet,
     grid: {
         rows: 1,
         columns: 21,
