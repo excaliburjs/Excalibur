@@ -183,6 +183,10 @@ export class Material {
     return this._fragmentSource.includes('u_screen_texture');
   }
 
+  get isOverridingGraphic() {
+    return !!this._images.u_graphic;
+  }
+
   update(callback: (shader: Shader) => any) {
     if (this._shader) {
       this._shader.use();
