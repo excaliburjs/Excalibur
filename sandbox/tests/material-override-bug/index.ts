@@ -18,6 +18,9 @@ var colorMaterial = game.graphicsContext.createMaterial({
     u_graphic: heartImage,
     u_graphic2: heartImage
   },
+  uniforms: {
+    u_size: ex.vec(20, 20)
+  },
   fragmentSource: glsl`#version 300 es
     precision mediump float;
     uniform sampler2D u_graphic;
@@ -27,7 +30,7 @@ var colorMaterial = game.graphicsContext.createMaterial({
 
     void main() {
 
-      // Should be a heart but is default
+      // Should be a heart! not the default blue square
       fragColor = texture(u_graphic, v_uv);
       // Correctly is heart 
       // fragColor = texture(u_graphic2, v_uv);
