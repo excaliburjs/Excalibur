@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 
-describe('Clocks', () => {
+describe.only('Clocks', () => {
   describe('A TestClock', () => {
     it('exists', () => {
       expect(ex.TestClock).toBeDefined();
@@ -128,6 +128,46 @@ describe('Clocks', () => {
 
       await testClock.step(500);
       expect(scheduledCb).not.toHaveBeenCalled();
+    });
+
+    it.only('can clear scheduled callbacks during dispatch of callbacks', () => {
+      const testClock = new ex.TestClock({
+        tick: () => {
+          /* nothing */
+        },
+        defaultUpdateMs: 1000
+      });
+      testClock.start();
+
+      const scheduledCb1 = vi.fn();
+      const id1 = testClock.schedule(scheduledCb1, 1000);
+
+      const scheduledCb2 = vi.fn();
+      const id2 = testClock.schedule(scheduledCb2, 1000);
+      const scheduledCb3 = vi.fn();
+      const id3 = testClock.schedule(scheduledCb3, 1000);
+
+      const scheduledCb4 = vi.fn(() => {
+        testClock.clearSchedule(id2);
+        testClock.clearSchedule(id1);
+      });
+      const id4 = testClock.schedule(scheduledCb4, 1000);
+      expect(scheduledCb1).not.toHaveBeenCalled();
+      expect(scheduledCb2).not.toHaveBeenCalled();
+      expect(scheduledCb3).not.toHaveBeenCalled();
+      expect(scheduledCb4).not.toHaveBeenCalled();
+      testClock.step(500);
+
+      expect(scheduledCb1).not.toHaveBeenCalled();
+      expect(scheduledCb2).not.toHaveBeenCalled();
+      expect(scheduledCb3).not.toHaveBeenCalled();
+      expect(scheduledCb4).not.toHaveBeenCalled();
+      testClock.step(500);
+
+      expect(scheduledCb1).not.toHaveBeenCalled();
+      expect(scheduledCb2).not.toHaveBeenCalled();
+      expect(scheduledCb3).toHaveBeenCalled();
+      expect(scheduledCb4).toHaveBeenCalled();
     });
 
     it('can limit fps', () => {
