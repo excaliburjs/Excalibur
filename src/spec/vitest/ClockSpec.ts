@@ -166,8 +166,8 @@ describe('Clocks', () => {
 
       expect(scheduledCb1).not.toHaveBeenCalled();
       expect(scheduledCb2).not.toHaveBeenCalled();
-      expect(scheduledCb3).toHaveBeenCalled();
-      expect(scheduledCb4).toHaveBeenCalled();
+      expect(scheduledCb3).toHaveBeenCalledOnce();
+      expect(scheduledCb4).toHaveBeenCalledOnce();
     });
 
     it('can limit fps', () => {
