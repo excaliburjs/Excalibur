@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 
-describe.only('Clocks', () => {
+describe('Clocks', () => {
   describe('A TestClock', () => {
     it('exists', () => {
       expect(ex.TestClock).toBeDefined();
@@ -130,7 +130,7 @@ describe.only('Clocks', () => {
       expect(scheduledCb).not.toHaveBeenCalled();
     });
 
-    it.only('can clear scheduled callbacks during dispatch of callbacks', () => {
+    it('can clear scheduled callbacks during dispatch of callbacks', () => {
       const testClock = new ex.TestClock({
         tick: () => {
           /* nothing */
