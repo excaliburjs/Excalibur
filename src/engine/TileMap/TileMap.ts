@@ -70,22 +70,21 @@ export interface TileMapOptions {
   meshingLookBehind?: number;
 }
 
-export type TilePointerEvents = {
+export interface TilePointerEvents {
   pointerup: PointerEvent;
   pointerdown: PointerEvent;
   pointermove: PointerEvent;
   pointercancel: PointerEvent;
   pointerenter: PointerEvent;
   pointerleave: PointerEvent;
-};
+}
 
-export type TileMapEvents = EntityEvents &
-  TilePointerEvents & {
-    preupdate: PreUpdateEvent<TileMap>;
-    postupdate: PostUpdateEvent<TileMap>;
-    predraw: PreDrawEvent;
-    postdraw: PostDrawEvent;
-  };
+export interface TileMapEvents extends EntityEvents, TilePointerEvents {
+  preupdate: PreUpdateEvent<TileMap>;
+  postupdate: PostUpdateEvent<TileMap>;
+  predraw: PreDrawEvent;
+  postdraw: PostDrawEvent;
+}
 
 export const TileMapEvents = {
   PreUpdate: 'preupdate',

@@ -2,13 +2,13 @@ import type { Loadable } from '../Interfaces/Loadable';
 import { Logger } from '../Util/Log';
 import { EventEmitter } from '../EventEmitter';
 
-export type ResourceEvents = {
+export interface ResourceEvents {
   complete: any;
   load: ProgressEvent<XMLHttpRequestEventTarget>;
   loadstart: ProgressEvent<XMLHttpRequestEventTarget>;
   progress: ProgressEvent<XMLHttpRequestEventTarget>;
   error: ProgressEvent<XMLHttpRequestEventTarget>;
-};
+}
 
 export const ResourceEvents = {
   Complete: 'complete',

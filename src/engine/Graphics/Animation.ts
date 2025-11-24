@@ -99,11 +99,11 @@ export interface AnimationOptions {
   data?: Record<string, any>;
 }
 
-export type AnimationEvents = {
+export interface AnimationEvents {
   frame: FrameEvent;
   loop: Animation;
   end: Animation;
-};
+}
 
 export const AnimationEvents = {
   Frame: 'frame',

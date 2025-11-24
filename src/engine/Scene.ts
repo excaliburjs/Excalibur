@@ -44,7 +44,7 @@ export class PreLoadEvent {
   loader: DefaultLoader;
 }
 
-export type SceneEvents = {
+export interface SceneEvents {
   initialize: InitializeEvent<Scene>;
   activate: ActivateEvent;
   deactivate: DeactivateEvent;
@@ -57,7 +57,7 @@ export type SceneEvents = {
   preload: PreLoadEvent;
   transitionstart: Transition;
   transitionend: Transition;
-};
+}
 
 export const SceneEvents = {
   Initialize: 'initialize',

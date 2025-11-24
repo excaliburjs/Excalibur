@@ -11,7 +11,7 @@ import { Logger } from '../../Util/Log';
 import type { EventKey, Handler, Subscription } from '../../EventEmitter';
 import { EventEmitter } from '../../EventEmitter';
 
-export type SoundEvents = {
+export interface SoundEvents {
   volumechange: NativeSoundEvent;
   processed: NativeSoundProcessedEvent;
   pause: NativeSoundEvent;
@@ -19,7 +19,7 @@ export type SoundEvents = {
   playbackend: NativeSoundEvent;
   resume: NativeSoundEvent;
   playbackstart: NativeSoundEvent;
-};
+}
 
 export const SoundEvents = {
   VolumeChange: 'volumechange',

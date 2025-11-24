@@ -193,7 +193,7 @@ type ColliderArgs =
       height?: undefined;
     };
 
-export type ActorEvents = EntityEvents & {
+export interface ActorEvents extends EntityEvents {
   collisionstart: CollisionStartEvent;
   collisionend: CollisionEndEvent;
   precollision: PreCollisionEvent;
@@ -223,7 +223,7 @@ export type ActorEvents = EntityEvents & {
   exitviewport: ExitViewPortEvent;
   actionstart: ActionStartEvent;
   actioncomplete: ActionCompleteEvent;
-};
+}
 
 export const ActorEvents = {
   CollisionStart: 'collisionstart',
