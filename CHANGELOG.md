@@ -15,6 +15,18 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added a convenience parameter to set the initial graphics or material in an Actor
+  ```typescript
+  const cloudSprite = cloud.toSprite();
+  const swirlMaterial = game.graphicsContext.createMaterial({
+    name: 'swirl',
+    fragmentSource
+  });
+  const actor = new ex.Actor({
+      graphic: cloudSprite,
+      material: swirlMaterial
+  });
+  ```
 - Simpler easing functions of the form `(currentTime: number) => number` instead of the 4 parameter legacy ones
 - Support for disabling integration for all offscreen entities, or on a per entity basis
 
