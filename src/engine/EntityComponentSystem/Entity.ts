@@ -632,7 +632,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
   }
 
   /**
-   * `onRemove` is called when Actor is added to scene. This method is meant to be
+   * `onRemove` is called when Actor is removed from a scene. This method is meant to be
    * overridden.
    *
    * Synonymous with the event handler `.on('remove', (evt) => {...})`

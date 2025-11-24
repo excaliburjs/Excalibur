@@ -109,15 +109,14 @@ export abstract class Clock {
     return id;
   }
 
+  private _idsToRemove: ScheduleId[] = [];
   /**
    * Clears a scheduled callback using the ID returned from {@apilink schedule}
    * @param id The ID of the scheduled callback to clear
    */
   public clearSchedule(id: ScheduleId): void {
-    const index = this._scheduledCbs.findIndex(([scheduleId]) => scheduleId === id);
-    if (index !== -1) {
-      this._scheduledCbs.splice(index, 1);
-    }
+    // Deferred removal
+    this._idsToRemove.push(id);
   }
   /**
    * Called internally to trigger scheduled callbacks in the clock
@@ -127,10 +126,22 @@ export abstract class Clock {
   public __runScheduledCbs(timing: ScheduledCallbackTiming = 'preframe') {
     // walk backwards to delete items as we loop
     for (let i = this._scheduledCbs.length - 1; i > -1; i--) {
-      const [_, callback, scheduledTime, callbackTiming] = this._scheduledCbs[i];
+      const [scheduleId, callback, scheduledTime, callbackTiming] = this._scheduledCbs[i];
+      if (this._idsToRemove.includes(scheduleId)) {
+        // skip canceled ids
+        continue;
+      }
       if (timing === callbackTiming && scheduledTime <= this._totalElapsed) {
         callback(this._elapsed);
         this._scheduledCbs.splice(i, 1);
+      }
+    }
+
+    // deferred removal
+    for (const id of this._idsToRemove) {
+      const index = this._scheduledCbs.findIndex(([scheduleId]) => scheduleId === id);
+      if (index !== -1) {
+        this._scheduledCbs.splice(index, 1);
       }
     }
   }
