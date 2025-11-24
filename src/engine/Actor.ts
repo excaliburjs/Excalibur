@@ -43,6 +43,7 @@ import { CoordPlane } from './Math/coord-plane';
 import type { EventKey, Handler, Subscription } from './EventEmitter';
 import { EventEmitter } from './EventEmitter';
 import type { Component } from './EntityComponentSystem';
+import type { Graphic, Material } from './Graphics';
 
 /**
  * Type guard for checking if something is an Actor
@@ -105,6 +106,14 @@ export type ActorArgs = ColliderArgs & {
    * If a width/height or a radius was set a default graphic will be added
    */
   color?: Color;
+  /**
+   * Optionally set the default graphic
+   */
+  graphic?: Graphic;
+  /**
+   * Optionally set the default material
+   */
+  material?: Material;
   /**
    * Optionally set the color of an actor, only used if no graphics are present
    * If a width/height or a radius was set a default graphic will be added
@@ -581,7 +590,9 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
       anchor,
       offset,
       collisionType,
-      collisionGroup
+      collisionGroup,
+      graphic,
+      material
     } = {
       ...config
     };
@@ -663,6 +674,12 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     }
 
     this.graphics.isVisible = visible ?? true;
+    if (graphic) {
+      this.graphics.use(graphic);
+    }
+    if (material) {
+      this.graphics.material = material;
+    }
   }
 
   public clone(): Actor {
