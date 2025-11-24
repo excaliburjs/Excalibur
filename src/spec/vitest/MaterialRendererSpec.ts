@@ -51,7 +51,7 @@ describe('A Material', () => {
       }
     });
 
-    expect(material.name).toBe('test');
+    expect(material.name).toBe('override-test');
     expect(warnSpy).toHaveBeenCalledWith();
   });
 
