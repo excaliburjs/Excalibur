@@ -52,7 +52,9 @@ describe('A Material', () => {
     });
 
     expect(material.name).toBe('override-test');
-    expect(warnSpy).toHaveBeenCalledWith();
+    expect(warnSpy).toHaveBeenCalledWith(
+      'Material named "override-test" is overriding built in image u_graphic, is this on purpose? If so ignore this warning.'
+    );
   });
 
   it('does not throw when use() is called after ctor', () => {
