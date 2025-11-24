@@ -35,6 +35,26 @@ describe('A Material', () => {
     expect(material.name).toBe('test');
   });
 
+  it('will warn if you override built in u_graphic', () => {
+    const warnSpy = vi.spyOn(ex.Logger.getInstance(), 'warn');
+    const material = new ex.Material({
+      name: 'override-test',
+      graphicsContext,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0, 0.0, 0.0, 1.0);
+      }`,
+      images: {
+        u_graphic: new ex.ImageSource('')
+      }
+    });
+
+    expect(material.name).toBe('test');
+    expect(warnSpy).toHaveBeenCalledWith();
+  });
+
   it('does not throw when use() is called after ctor', () => {
     const material = new ex.Material({
       name: 'test',
