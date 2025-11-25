@@ -1,4 +1,9 @@
+import * as ex from 'excalibur';
 
+const game = new ex.Engine({
+  canvasElementId: 'preview-canvas',
+  displayMode: ex.DisplayMode.FillContainer,
+});
 
 class MyScene extends ex.Scene {
   public onInitialize(): void {

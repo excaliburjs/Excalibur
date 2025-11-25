@@ -1,3 +1,10 @@
+import * as ex from 'excalibur';
+
+const game = new ex.Engine({
+  canvasElementId: 'preview-canvas',
+  displayMode: ex.DisplayMode.FillContainer,
+});
+
 const basicPlayer = new ex.Actor({
   name: 'player', // optionally assign a name
   width: 50,

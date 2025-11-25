@@ -1,9 +1,19 @@
-import playerRun from './player-run.png';
+import * as ex from 'excalibur';
 
-const runImage = new ex.ImageSource(playerRun);
+const game = new ex.Engine({
+  canvasElementId: 'preview-canvas',
+  displayMode: ex.DisplayMode.FillContainer,
+});
+
+const resources = {
+    spritesheet: new ex.ImageSource('./player-run.png'),
+} as const;
+
+const loader = new ex.DefaultLoader();
+loader.addResource(resources.spritesheet);
 
 const runSheet = ex.SpriteSheet.fromImageSource({
-    image: runImage,
+    image: resources.spritesheet,
     grid: {
         rows: 1,
         columns: 21,
@@ -29,7 +39,7 @@ const actor = new ex.Actor({
 });
 actor.graphics.use(runAnim);
 
-const loader = new ex.Loader([runImage]);
 game.start(loader).then(() => {
-    game.currentScene.add(actor);
+  game.currentScene.add(actor);
 });
+

@@ -18,14 +18,14 @@ export interface DefaultLoaderOptions {
   loadables?: Loadable<any>[];
 }
 
-export type LoaderEvents = {
+export interface LoaderEvents {
   // Add event types here
   beforeload: void;
   afterload: void;
   useraction: void;
   loadresourcestart: Loadable<any>;
   loadresourceend: Loadable<any>;
-};
+}
 
 export const LoaderEvents = {
   // Add event types here

@@ -65,7 +65,7 @@ import { DefaultGarbageCollectionOptions, GarbageCollector } from './GarbageColl
 import { mergeDeep } from './Util/Util';
 import { getDefaultGlobal } from './Util/IFrame';
 
-export type EngineEvents = DirectorEvents & {
+export interface EngineEvents extends DirectorEvents {
   fallbackgraphicscontext: ExcaliburGraphicsContext2DCanvas;
   initialize: InitializeEvent<Engine>;
   visible: VisibleEvent;
@@ -78,7 +78,7 @@ export type EngineEvents = DirectorEvents & {
   postframe: PostFrameEvent;
   predraw: PreDrawEvent;
   postdraw: PostDrawEvent;
-};
+}
 
 export const EngineEvents = {
   FallbackGraphicsContext: 'fallbackgraphicscontext',

@@ -54,7 +54,7 @@ export function isRemovedComponent(x: Message<EntityComponent>): x is RemovedCom
 /**
  * Built in events supported by all entities
  */
-export type EntityEvents = {
+export interface EntityEvents {
   initialize: InitializeEvent;
   //@ts-ignore
   add: AddEvent;
@@ -63,7 +63,7 @@ export type EntityEvents = {
   preupdate: PreUpdateEvent;
   postupdate: PostUpdateEvent;
   kill: KillEvent;
-};
+}
 
 export const EntityEvents = {
   Add: 'add',

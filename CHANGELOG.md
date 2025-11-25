@@ -52,6 +52,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Fixed issue where overriding built in uniforms and graphics no longer worked as v0.30.x
 - Fixed issue where clearSchedule during a scheduled callback could cause a cb to be skipped
+- Fixed issue where specifying custom events was difficult in TypeScript switched from `export type ...Events {` to `export interface ...Events {` which allows declaration merging by user game code to specify custom events
 - Fixed issue where the Loader could run twice even if already loaded when included in the scene loader.
 - Fixed issue where pixel ratio was accidentally doubled during load if the loader was included in the scene loader.
 - Fixed issue where Slide trasition did not work properly when DisplayMode was FitScreenAndFill
