@@ -1,8 +1,8 @@
 import type { Vector } from '../../../Math/vector';
 import { vec } from '../../../Math/vector';
 import type { Color } from '../../../Color';
-import lineVertexSource from './line-vertex.glsl?raw';
-import lineFragmentSource from './line-fragment.glsl?raw';
+import lineVertexSource from './debug-line-vertex.glsl?raw';
+import lineFragmentSource from './debug-line-fragment.glsl?raw';
 import type { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
 import type { RendererPlugin } from '../renderer';
 import { Shader, VertexBuffer, VertexLayout } from '../..';
@@ -13,8 +13,8 @@ export interface LineOptions {
   width?: number;
 }
 
-export class LineRenderer implements RendererPlugin {
-  public readonly type = 'ex.line';
+export class DebugLineRenderer implements RendererPlugin {
+  public readonly type = 'ex.debug-line';
   public priority: number = 0;
   private _context!: ExcaliburGraphicsContextWebGL;
   private _gl!: WebGL2RenderingContext;

@@ -1,5 +1,5 @@
-import pointVertexSource from './point-vertex.glsl?raw';
-import pointFragmentSource from './point-fragment.glsl?raw';
+import pointVertexSource from './debug-point-vertex.glsl?raw';
+import pointFragmentSource from './debug-point-fragment.glsl?raw';
 import type { Vector } from '../../../Math/vector';
 import type { Color } from '../../../Color';
 import type { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
@@ -10,8 +10,8 @@ import { VertexBuffer } from '../vertex-buffer';
 import { VertexLayout } from '../vertex-layout';
 import { GraphicsDiagnostics } from '../../GraphicsDiagnostics';
 
-export class PointRenderer implements RendererPlugin {
-  public readonly type = 'ex.point';
+export class DebugPointRenderer implements RendererPlugin {
+  public readonly type = 'ex.debug-point';
   public priority: number = 0;
   private _shader!: Shader;
   private _maxPoints: number = 10922;

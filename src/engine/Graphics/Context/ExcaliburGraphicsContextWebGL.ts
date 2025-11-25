@@ -23,8 +23,9 @@ import { TextureLoader } from './texture-loader';
 import type { RendererPlugin } from './renderer';
 
 // renderers
-import { LineRenderer } from './line-renderer/line-renderer';
-import { PointRenderer } from './point-renderer/point-renderer';
+import { DebugLineRenderer } from './debug-line-renderer/debug-line-renderer';
+import { DebugPointRenderer } from './debug-point-renderer/debug-point-renderer';
+import { DebugCircleRenderer } from './debug-circle-renderer/debug-circle-renderer';
 import { ScreenPassPainter } from './screen-pass-painter/screen-pass-painter';
 import { ImageRenderer } from './image-renderer/image-renderer';
 import { RectangleRenderer } from './rectangle-renderer/rectangle-renderer';
@@ -49,7 +50,9 @@ class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
   constructor(private _webglCtx: ExcaliburGraphicsContextWebGL) {}
 
   /**
-   * Draw a debugging rectangle to the context
+   * Draw a debugging rectangle to the graphics context
+   *
+   * Debugging draws are independent of scale/zoom
    * @param x
    * @param y
    * @param width
@@ -63,14 +66,16 @@ class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
   }
 
   /**
-   * Draw a debugging line to the context
+   * Draw a debugging line to the graphics context
+   *
+   * Debugging draws are independent of scale/zoom
    * @param start
    * @param end
    * @param lineOptions
    */
   drawLine(start: Vector, end: Vector, lineOptions?: LineGraphicsOptions): void {
-    this._webglCtx.draw<LineRenderer>(
-      'ex.line',
+    this._webglCtx.draw<DebugLineRenderer>(
+      'ex.debug-line',
       start,
       end,
       lineOptions?.color ?? Color.Black,
@@ -80,12 +85,23 @@ class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
   }
 
   /**
-   * Draw a debugging point to the context
+   * Draw a debugging point to the graphics context
+   *
+   * Debugging draws are independent of scale/zoom
    * @param point
    * @param pointOptions
    */
   drawPoint(point: Vector, pointOptions: PointGraphicsOptions = { color: Color.Black, size: 5 }): void {
-    this._webglCtx.draw<PointRenderer>('ex.point', point, pointOptions.color, pointOptions.size);
+    this._webglCtx.draw<DebugPointRenderer>('ex.debug-point', point, pointOptions.color, pointOptions.size);
+  }
+
+  /**
+   * Draw a debugging circle to the graphics context
+   *
+   * Debugging draws are independent of scale/zoom
+   */
+  drawCircle(pos: Vector, radius: number, color: Color, stroke?: Color, thickness?: number) {
+    this._webglCtx.draw<DebugCircleRenderer>('ex.debug-circle', pos, radius, color, stroke, thickness);
   }
 
   drawText(text: string, pos: Vector) {
@@ -328,9 +344,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this.register(new MaterialRenderer());
     this.register(new RectangleRenderer());
     this.register(new CircleRenderer());
-    this.register(new PointRenderer());
-    this.register(new LineRenderer());
-    this.lazyRegister<ParticleRenderer>('ex.particle', () => new ParticleRenderer());
+    this.lazyRegister('ex.debug-circle', () => new DebugCircleRenderer());
+    this.lazyRegister('ex.debug-point', () => new DebugPointRenderer());
+    this.lazyRegister('ex.debug-line', () => new DebugLineRenderer());
+    this.lazyRegister('ex.particle', () => new ParticleRenderer());
     this.register(
       new ImageRendererV2({
         uvPadding: this.uvPadding,
