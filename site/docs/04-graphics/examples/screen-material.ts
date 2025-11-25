@@ -1,5 +1,8 @@
+import * as ex from 'excalibur';
+
 const sword = new ex.ImageSource('https://cdn.rawgit.com/excaliburjs/Excalibur/7dd48128/assets/sword.png', false, ex.ImageFiltering.Pixel);
-const loader = new ex.Loader([sword]);
+const loader = new ex.DefaultLoader();
+loader.addResource(sword);
 
 const waterFrag = `#version 300 es
 precision mediump float;
@@ -105,6 +108,11 @@ void main() {
   
   fragColor.rgb = mix(screen_color.rgb, mixColor, u_color.a)*fragColor.a + (wave_crest_color.rgb * wave_crest);
 }`;
+
+const game = new ex.Engine({
+  canvasElementId: 'preview-canvas',
+  displayMode: ex.DisplayMode.FillContainer,
+});
 
 const waterMaterial =  game.graphicsContext.createMaterial({
   name: 'water',

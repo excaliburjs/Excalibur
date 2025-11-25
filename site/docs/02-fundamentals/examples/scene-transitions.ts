@@ -1,4 +1,9 @@
+import * as ex from 'excalibur';
 
+const game = new ex.Engine({
+  canvasElementId: 'preview-canvas',
+  displayMode: ex.DisplayMode.FillContainer,
+});
 
 class MyScene extends ex.Scene {
   public onInitialize(): void {
@@ -42,7 +47,7 @@ game.add('scene2', {
 });
 
 game.input.pointers.primary.on('down', () => {
-  game.currentSceneName === 'scene2' ? game.goto('scene1') : game.goto('scene2');
+  game.currentSceneName === 'scene2' ? game.goToScene('scene1') : game.goToScene('scene2');
 });
 
 game.start('scene2');

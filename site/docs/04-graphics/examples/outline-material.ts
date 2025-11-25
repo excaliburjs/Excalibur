@@ -1,5 +1,13 @@
+import * as ex from 'excalibur';
+
+const game = new ex.Engine({
+  canvasElementId: 'preview-canvas',
+  displayMode: ex.DisplayMode.FillContainer,
+});
+
 const sword = new ex.ImageSource('https://cdn.rawgit.com/excaliburjs/Excalibur/7dd48128/assets/sword.png', false, ex.ImageFiltering.Pixel);
-const loader = new ex.Loader([sword]);
+const loader = new ex.DefaultLoader();
+loader.addResource(sword);
 
 const outline = `#version 300 es
 precision mediump float;
