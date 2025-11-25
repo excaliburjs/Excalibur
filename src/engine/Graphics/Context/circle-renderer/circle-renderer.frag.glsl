@@ -13,8 +13,12 @@ in lowp vec4 v_strokeColor;
 // Stroke thickness if used
 in lowp float v_strokeThickness;
 
+in float v_radius;
+
 // Opacity
 in float v_opacity;
+
+// uniform float u_zoom;
 
 out vec4 fragColor;
 
@@ -38,15 +42,20 @@ void main() {
   float fill = smoothstep(-fade/2.0, fade/2.0, dist);
 
   // if dist is greater than the stroke thickness step to 1
-  float stroke = 1.0 - smoothstep(v_strokeThickness, v_strokeThickness + fade, dist);
+  float stroke = 
+    smoothstep(0.0, fade, dist * v_radius) -
+    smoothstep(v_strokeThickness, v_strokeThickness+ fade, dist * v_radius);
 
-  strokeColor.a *= fill * stroke;
+
+
+  strokeColor.a = stroke;
   strokeColor.rgb *= strokeColor.a;
+  vec4 finalColor = strokeColor;
 
-  color.a *= fill * (1.0 - stroke);
-  color.rgb *= color.a;
-
-  vec4 finalColor = mix(vec4(0.0), (color + strokeColor), fill);
+  // color.a *= fill * (1.0 - stroke);
+  // color.rgb *= color.a;
+  //
+  // vec4 finalColor = mix(vec4(0.0), (color + strokeColor), fill);
   finalColor.rgb = finalColor.rgb * v_opacity;
   finalColor.a = finalColor.a * v_opacity;
   fragColor = finalColor;

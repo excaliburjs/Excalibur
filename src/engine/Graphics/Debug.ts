@@ -1,5 +1,10 @@
 import type { Vector } from '../Math/vector';
-import type { ExcaliburGraphicsContext, LineGraphicsOptions, PointGraphicsOptions } from './Context/ExcaliburGraphicsContext';
+import type {
+  ExcaliburGraphicsContext,
+  LineGraphicsOptions,
+  PointGraphicsOptions,
+  RectGraphicsOptions
+} from './Context/ExcaliburGraphicsContext';
 import { Color } from '../Color';
 import type { Ray } from '../Math/ray';
 import type { BoundingBox } from '../Collision/BoundingBox';
@@ -75,7 +80,7 @@ export class Debug {
     });
   }
 
-  static drawBounds(boundingBox: BoundingBox, options?: { color?: Color }): void {
+  static drawBounds(boundingBox: BoundingBox, options?: RectGraphicsOptions): void {
     Debug.draw((ctx) => {
       ctx.debug.drawRect(boundingBox.left, boundingBox.top, boundingBox.width, boundingBox.height, options);
     });

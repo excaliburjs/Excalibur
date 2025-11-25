@@ -483,9 +483,9 @@ export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
     const helper = (currentNode: TreeNode<TProxy>) => {
       if (currentNode) {
         if (currentNode.isLeaf()) {
-          currentNode.bounds.draw(ex, Color.Green);
+          currentNode.bounds.draw(ex, { color: Color.Green });
         } else {
-          currentNode.bounds.draw(ex, Color.White);
+          currentNode.bounds.draw(ex, { color: Color.White });
         }
 
         if (currentNode.left) {

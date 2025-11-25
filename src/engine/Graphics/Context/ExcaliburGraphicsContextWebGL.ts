@@ -69,7 +69,14 @@ class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
    * @param lineOptions
    */
   drawLine(start: Vector, end: Vector, lineOptions?: LineGraphicsOptions): void {
-    this._webglCtx.draw<LineRenderer>('ex.line', start, end, lineOptions?.color ?? Color.Black);
+    this._webglCtx.draw<LineRenderer>(
+      'ex.line',
+      start,
+      end,
+      lineOptions?.color ?? Color.Black,
+      lineOptions?.lineWidth,
+      lineOptions?.dashed
+    );
   }
 
   /**
@@ -375,6 +382,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       antialias: this.multiSampleAntialiasing,
       samples: this.samples
     });
+
+    this.debug = new ExcaliburGraphicsContextWebGLDebug(this);
   }
 
   public register<T extends RendererPlugin>(renderer: T) {
@@ -576,7 +585,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this.draw<CircleRenderer>('ex.circle', pos, radius, color, stroke, thickness);
   }
 
-  debug = new ExcaliburGraphicsContextWebGLDebug(this);
+  debug!: ExcaliburGraphicsContextWebGLDebug;
 
   public save(): void {
     this._transform.save();

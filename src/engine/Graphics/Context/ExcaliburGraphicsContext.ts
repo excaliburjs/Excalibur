@@ -135,10 +135,14 @@ export interface ExcaliburGraphicsContextState {
 }
 export interface LineGraphicsOptions {
   color?: Color;
+  dashed?: boolean;
+  lineWidth?: number;
 }
 
 export interface RectGraphicsOptions {
   color?: Color;
+  dashed?: boolean;
+  lineWidth?: number;
 }
 
 export interface PointGraphicsOptions {

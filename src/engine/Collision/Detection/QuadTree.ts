@@ -239,12 +239,12 @@ export class QuadTree<TItem extends QuadTreeItem> {
   }
 
   debug(ctx: ExcaliburGraphicsContext) {
-    this.bounds.draw(ctx, Color.Yellow);
+    this.bounds.draw(ctx, { color: Color.Yellow });
     if (this._isDivided) {
-      this.topLeft.bounds.draw(ctx, Color.Yellow);
-      this.topRight.bounds.draw(ctx, Color.Yellow);
-      this.bottomLeft.bounds.draw(ctx, Color.Yellow);
-      this.bottomRight.bounds.draw(ctx, Color.Yellow);
+      this.topLeft.bounds.draw(ctx, { color: Color.Yellow });
+      this.topRight.bounds.draw(ctx, { color: Color.Yellow });
+      this.bottomLeft.bounds.draw(ctx, { color: Color.Yellow });
+      this.bottomRight.bounds.draw(ctx, { color: Color.Yellow });
     }
   }
 }

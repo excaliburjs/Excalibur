@@ -295,7 +295,7 @@ export class DebugConfig {
 
     showGeometry: true,
     geometryColor: Color.Green,
-    geometryLineWidth: 1,
+    geometryLineWidth: 2,
     geometryPointSize: 0.5
   };
 

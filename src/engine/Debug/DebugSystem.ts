@@ -12,7 +12,7 @@ import { toDegrees } from '../Math/util';
 import { BodyComponent } from '../Collision/BodyComponent';
 import { CollisionSystem } from '../Collision/CollisionSystem';
 import { CompositeCollider } from '../Collision/Colliders/CompositeCollider';
-import { GraphicsComponent } from '../Graphics/GraphicsComponent';
+import type { GraphicsComponent } from '../Graphics/GraphicsComponent';
 import { Particle } from '../Particles/Particles';
 import { DebugGraphicsComponent } from '../Graphics/DebugGraphicsComponent';
 import { CoordPlane } from '../Math/coord-plane';
@@ -149,13 +149,13 @@ export class DebugSystem extends System {
         }
       }
 
-      graphics = entity.get(GraphicsComponent);
-      if (graphics) {
-        if (graphicsSettings.showAll || graphicsSettings.showBounds) {
-          const bounds = graphics.localBounds;
-          bounds.draw(this._graphicsContext, graphicsSettings.boundsColor);
-        }
-      }
+      // graphics = entity.get(GraphicsComponent);
+      // if (graphics) {
+      //   if (graphicsSettings.showAll || graphicsSettings.showBounds) {
+      //     const bounds = graphics.localBounds;
+      //     bounds.draw(this._graphicsContext, {color: graphicsSettings.boundsColor, dashed: true});
+      //   }
+      // }
 
       debugDraw = entity.get(DebugGraphicsComponent);
       if (debugDraw) {
@@ -234,16 +234,25 @@ export class DebugSystem extends System {
             for (const collider of colliders) {
               const bounds = collider.bounds;
               const pos = vec(bounds.left, bounds.top);
-              this._graphicsContext.debug.drawRect(pos.x, pos.y, bounds.width, bounds.height, { color: colliderSettings.boundsColor });
+              this._graphicsContext.debug.drawRect(pos.x, pos.y, bounds.width, bounds.height, {
+                color: colliderSettings.boundsColor,
+                dashed: true
+              });
               if (colliderSettings.showAll || colliderSettings.showOwner) {
                 this._graphicsContext.debug.drawText(`owner id(${collider.owner.id})`, pos);
               }
             }
-            colliderComp.bounds.draw(this._graphicsContext, colliderSettings.boundsColor);
+            colliderComp.bounds.draw(this._graphicsContext, {
+              color: colliderSettings.boundsColor,
+              dashed: true
+            });
           } else if (collider) {
             const bounds = colliderComp.bounds;
             const pos = vec(bounds.left, bounds.top);
-            this._graphicsContext.debug.drawRect(pos.x, pos.y, bounds.width, bounds.height, { color: colliderSettings.boundsColor });
+            this._graphicsContext.debug.drawRect(pos.x, pos.y, bounds.width, bounds.height, {
+              color: colliderSettings.boundsColor,
+              dashed: true
+            });
             if (colliderSettings.showAll || colliderSettings.showOwner) {
               this._graphicsContext.debug.drawText(`owner id(${colliderComp.owner.id})`, pos);
             }

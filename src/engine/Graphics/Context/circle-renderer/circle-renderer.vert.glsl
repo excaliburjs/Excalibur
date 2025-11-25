@@ -18,6 +18,9 @@ out vec4 v_strokeColor;
 in float a_strokeThickness;
 out float v_strokeThickness;
 
+in float a_radius;
+out float v_radius;
+
 uniform mat4 u_matrix;
 
 
@@ -35,4 +38,5 @@ void main() {
    v_strokeColor = a_strokeColor;
    // Pass through the stroke thickenss to the fragment shader
    v_strokeThickness = a_strokeThickness;
+   v_radius = a_radius;
 }
