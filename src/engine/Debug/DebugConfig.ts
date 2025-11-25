@@ -311,7 +311,7 @@ export class DebugConfig {
     collisionNormalColor: Color.Cyan,
 
     showCollisionContacts: true,
-    contactSize: 2,
+    contactSize: 10,
     collisionContactColor: Color.Red
   };
 

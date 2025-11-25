@@ -21,6 +21,7 @@ export class PointRenderer implements RendererPlugin {
   private _context!: ExcaliburGraphicsContextWebGL;
   private _pointCount: number = 0;
   private _vertexIndex: number = 0;
+
   initialize(gl: WebGL2RenderingContext, context: ExcaliburGraphicsContextWebGL): void {
     this._gl = gl;
     this._context = context;
@@ -83,7 +84,7 @@ export class PointRenderer implements RendererPlugin {
     vertexBuffer[this._vertexIndex++] = color.g / 255;
     vertexBuffer[this._vertexIndex++] = color.b / 255;
     vertexBuffer[this._vertexIndex++] = color.a * opacity;
-    vertexBuffer[this._vertexIndex++] = size * Math.max(transform.getScaleX(), transform.getScaleY());
+    vertexBuffer[this._vertexIndex++] = size; // * Math.max(transform.getScaleX(), transform.getScaleY());
   }
 
   private _isFull() {

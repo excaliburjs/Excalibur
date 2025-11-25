@@ -211,8 +211,6 @@ export class CircleRenderer implements RendererPlugin {
     // Update ortho matrix uniform
     this._shader.setUniformMatrix('u_matrix', this._context.ortho);
 
-    // this._shader.setUniformFloat('u_zoom', this._context.getTransform().getScaleX());
-
     // Bind index buffer
     this._quads.bind();
 

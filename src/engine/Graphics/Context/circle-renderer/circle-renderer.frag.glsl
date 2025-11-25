@@ -18,8 +18,6 @@ in float v_radius;
 // Opacity
 in float v_opacity;
 
-// uniform float u_zoom;
-
 out vec4 fragColor;
 
 void main() {
@@ -29,34 +27,29 @@ void main() {
   vec4 color = v_color;
   vec4 strokeColor = v_strokeColor;
 
-  // circle border is at radius 1.0 
-  // dist is > 0 when inside the circle 
-  float d = length(uv);
   float dist = 1.0 - length(uv);
+  float radius = dist * v_radius; // 0 is the edge
 
   // Fade based on fwidth
-  float fade = fwidth(dot(uv, uv));
+  float fade = fwidth(dot(uv, uv)) / 2.0;
 
-  // if dist is greater than 0 step to 1;
-  // when we cross this 0 threshold add a smooth fade
-  float fill = smoothstep(-fade/2.0, fade/2.0, dist);
+  float fill = smoothstep(-fade, fade, radius);
 
-  // if dist is greater than the stroke thickness step to 1
   float stroke = 
-    smoothstep(0.0, fade, dist * v_radius) -
-    smoothstep(v_strokeThickness, v_strokeThickness+ fade, dist * v_radius);
-
-
+    smoothstep(0.0, fade, radius) -
+    smoothstep(v_strokeThickness, v_strokeThickness + fade, radius);
 
   strokeColor.a = stroke;
   strokeColor.rgb *= strokeColor.a;
-  vec4 finalColor = strokeColor;
 
-  // color.a *= fill * (1.0 - stroke);
-  // color.rgb *= color.a;
-  //
-  // vec4 finalColor = mix(vec4(0.0), (color + strokeColor), fill);
+  // vec4 finalColor = strokeColor;
+
+  color.a *= fill * (1.0 - stroke);
+  color.rgb *= color.a;
+
+  vec4 finalColor = mix(vec4(0.0), (color + strokeColor), fill);
   finalColor.rgb = finalColor.rgb * v_opacity;
   finalColor.a = finalColor.a * v_opacity;
+
   fragColor = finalColor;
 }

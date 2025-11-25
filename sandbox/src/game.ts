@@ -728,19 +728,19 @@ var healthbar = new ex.Actor({
 });
 player.addChild(healthbar);
 player.onPostUpdate = () => {
-  ex.Debug.drawLine(player.pos, player.pos.add(ex.Vector.Down.scale(100)), {
-    color: ex.Color.Red
-  });
-  ex.Debug.drawPoint(player.pos, {
-    size: 1,
-    color: ex.Color.Violet
-  });
-  ex.Debug.drawCircle(player.pos, 100, {
-    color: ex.Color.Transparent,
-    strokeColor: ex.Color.Black,
-    width: 1
-  });
-  ex.Debug.drawBounds(player.collider.bounds, { color: ex.Color.Yellow });
+  // ex.Debug.drawLine(player.pos, player.pos.add(ex.Vector.Down.scale(100)), {
+  //   color: ex.Color.Red
+  // });
+  // ex.Debug.drawPoint(player.pos, {
+  //   size: 1,
+  //   color: ex.Color.Violet
+  // });
+  // ex.Debug.drawCircle(player.pos, 100, {
+  //   color: ex.Color.Transparent,
+  //   strokeColor: ex.Color.Black,
+  //   width: 1
+  // });
+  // ex.Debug.drawBounds(player.collider.bounds, { color: ex.Color.Yellow });
 };
 // player.onPostDraw = (ctx: CanvasRenderingContext2D) => {
 //   ctx.fillStyle = 'red';
