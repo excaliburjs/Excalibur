@@ -62,8 +62,8 @@ export class DebugSystem extends System {
 
     const physicsSettings = this._engine.debug.physics;
 
-    let graphics: GraphicsComponent;
-    const graphicsSettings = this._engine.debug.graphics;
+    // let graphics: GraphicsComponent;
+    // const graphicsSettings = this._engine.debug.graphics;
 
     let debugDraw: DebugGraphicsComponent;
 

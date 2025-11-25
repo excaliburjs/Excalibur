@@ -735,11 +735,11 @@ player.onPostUpdate = () => {
   //   size: 1,
   //   color: ex.Color.Violet
   // });
-  // ex.Debug.drawCircle(player.pos, 100, {
-  //   color: ex.Color.Transparent,
-  //   strokeColor: ex.Color.Black,
-  //   width: 1
-  // });
+  ex.Debug.drawCircle(player.pos, 100, {
+    color: ex.Color.Transparent,
+    strokeColor: ex.Color.Black,
+    width: 1
+  });
   // ex.Debug.drawBounds(player.collider.bounds, { color: ex.Color.Yellow });
 };
 // player.onPostDraw = (ctx: CanvasRenderingContext2D) => {
