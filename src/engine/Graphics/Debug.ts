@@ -76,7 +76,7 @@ export class Debug {
       ...options
     };
     Debug.draw((ctx) => {
-      ctx.drawCircle(center, radius, color, strokeColor, width);
+      ctx.debug.drawCircle(center, radius, color, strokeColor, width);
     });
   }
 

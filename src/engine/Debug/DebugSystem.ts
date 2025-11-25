@@ -295,7 +295,7 @@ export class DebugSystem extends System {
       this._graphicsContext.save();
       this._camera.draw(this._graphicsContext);
       if (cameraSettings.showAll || cameraSettings.showFocus) {
-        this._graphicsContext.drawCircle(this._camera.pos, 4, cameraSettings.focusColor);
+        this._graphicsContext.debug.drawCircle(this._camera.pos, 4, cameraSettings.focusColor);
       }
       if (cameraSettings.showAll || cameraSettings.showZoom) {
         this._graphicsContext.debug.drawText(`zoom(${this._camera.zoom})`, this._camera.pos);

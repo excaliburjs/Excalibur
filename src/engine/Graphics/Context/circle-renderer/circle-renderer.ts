@@ -45,7 +45,7 @@ export class CircleRenderer implements RendererPlugin {
 
     this._buffer = new VertexBuffer({
       gl,
-      size: 15 * 4 * this._maxCircles,
+      size: 14 * 4 * this._maxCircles,
       type: 'dynamic'
     });
 
@@ -59,8 +59,7 @@ export class CircleRenderer implements RendererPlugin {
         ['a_opacity', 1],
         ['a_color', 4],
         ['a_strokeColor', 4],
-        ['a_strokeThickness', 1],
-        ['a_radius', 1]
+        ['a_strokeThickness', 1]
       ]
     });
 
@@ -90,7 +89,6 @@ export class CircleRenderer implements RendererPlugin {
 
     // transform based on current context
     const transform = this._context.getTransform();
-    const scale = transform.getScaleX();
     const opacity = this._context.opacity;
     const snapToPixel = this._context.snapToPixel;
 
@@ -136,8 +134,7 @@ export class CircleRenderer implements RendererPlugin {
     vertexBuffer[this._vertexIndex++] = stroke.g / 255;
     vertexBuffer[this._vertexIndex++] = stroke.b / 255;
     vertexBuffer[this._vertexIndex++] = stroke.a;
-    vertexBuffer[this._vertexIndex++] = strokeThickness;
-    vertexBuffer[this._vertexIndex++] = radius * scale;
+    vertexBuffer[this._vertexIndex++] = strokeThickness / radius;
 
     // (0, 1) - 1
     vertexBuffer[this._vertexIndex++] = bottomLeft.x;
@@ -153,8 +150,7 @@ export class CircleRenderer implements RendererPlugin {
     vertexBuffer[this._vertexIndex++] = stroke.g / 255;
     vertexBuffer[this._vertexIndex++] = stroke.b / 255;
     vertexBuffer[this._vertexIndex++] = stroke.a;
-    vertexBuffer[this._vertexIndex++] = strokeThickness;
-    vertexBuffer[this._vertexIndex++] = radius * scale;
+    vertexBuffer[this._vertexIndex++] = strokeThickness / radius;
 
     // (1, 0) - 2
     vertexBuffer[this._vertexIndex++] = topRight.x;
@@ -170,8 +166,7 @@ export class CircleRenderer implements RendererPlugin {
     vertexBuffer[this._vertexIndex++] = stroke.g / 255;
     vertexBuffer[this._vertexIndex++] = stroke.b / 255;
     vertexBuffer[this._vertexIndex++] = stroke.a;
-    vertexBuffer[this._vertexIndex++] = strokeThickness;
-    vertexBuffer[this._vertexIndex++] = radius * scale;
+    vertexBuffer[this._vertexIndex++] = strokeThickness / radius;
 
     // (1, 1) - 3
     vertexBuffer[this._vertexIndex++] = bottomRight.x;
@@ -187,8 +182,7 @@ export class CircleRenderer implements RendererPlugin {
     vertexBuffer[this._vertexIndex++] = stroke.g / 255;
     vertexBuffer[this._vertexIndex++] = stroke.b / 255;
     vertexBuffer[this._vertexIndex++] = stroke.a;
-    vertexBuffer[this._vertexIndex++] = strokeThickness;
-    vertexBuffer[this._vertexIndex++] = radius * scale;
+    vertexBuffer[this._vertexIndex++] = strokeThickness / radius;
   }
 
   hasPendingDraws(): boolean {

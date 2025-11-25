@@ -74,6 +74,31 @@ class ExcaliburGraphicsContext2DCanvasDebug implements DebugDraw {
     this._ex.__ctx.restore();
   }
 
+  public drawCircle(pos: Vector, radius: number, color: Color, stroke?: Color, thickness?: number) {
+    this._ex.__ctx.save();
+    this._ex.__ctx.beginPath();
+    if (stroke) {
+      this._ex.__ctx.strokeStyle = stroke.toString();
+    }
+    if (thickness) {
+      this._ex.__ctx.lineWidth = thickness;
+    }
+    this._ex.__ctx.fillStyle = color.toString();
+    this._ex.__ctx.arc(
+      this._ex.snapToPixel ? ~~(pos.x + pixelSnapEpsilon) : pos.x,
+      this._ex.snapToPixel ? ~~(pos.y + pixelSnapEpsilon) : pos.y,
+      radius,
+      0,
+      Math.PI * 2
+    );
+    this._ex.__ctx.fill();
+    if (stroke) {
+      this._ex.__ctx.stroke();
+    }
+    this._ex.__ctx.closePath();
+    this._ex.__ctx.restore();
+  }
+
   drawText(text: string, pos: Vector) {
     this._debugText.write(this._ex, text, pos);
   }
