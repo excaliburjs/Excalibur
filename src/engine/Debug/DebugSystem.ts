@@ -12,7 +12,6 @@ import { toDegrees } from '../Math/util';
 import { BodyComponent } from '../Collision/BodyComponent';
 import { CollisionSystem } from '../Collision/CollisionSystem';
 import { CompositeCollider } from '../Collision/Colliders/CompositeCollider';
-import type { GraphicsComponent } from '../Graphics/GraphicsComponent';
 import { Particle } from '../Particles/Particles';
 import { DebugGraphicsComponent } from '../Graphics/DebugGraphicsComponent';
 import { CoordPlane } from '../Math/coord-plane';
@@ -61,9 +60,6 @@ export class DebugSystem extends System {
     const colliderSettings = this._engine.debug.collider;
 
     const physicsSettings = this._engine.debug.physics;
-
-    // let graphics: GraphicsComponent;
-    // const graphicsSettings = this._engine.debug.graphics;
 
     let debugDraw: DebugGraphicsComponent;
 
@@ -148,14 +144,6 @@ export class DebugSystem extends System {
           this._graphicsContext.drawLine(Vector.Zero, tx.scale.add(Vector.Zero), txSettings.scaleColor, 2);
         }
       }
-
-      // graphics = entity.get(GraphicsComponent);
-      // if (graphics) {
-      //   if (graphicsSettings.showAll || graphicsSettings.showBounds) {
-      //     const bounds = graphics.localBounds;
-      //     bounds.draw(this._graphicsContext, {color: graphicsSettings.boundsColor, dashed: true});
-      //   }
-      // }
 
       debugDraw = entity.get(DebugGraphicsComponent);
       if (debugDraw) {
