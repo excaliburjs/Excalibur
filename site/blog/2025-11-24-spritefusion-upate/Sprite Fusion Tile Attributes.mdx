@@ -111,7 +111,7 @@ The ExcaliburJS SpriteFusion plugin now supports two powerful features for worki
 Pass a callback function to process tile attributes as the map loads:
 
 ```typescript
-const attributeCallback = (attData: AttributeData) => {
+const attributeCallback = (attData: TileAttributeData) => {
   const { tileData, mapData } = attData;
   const { attributes, x, y, id } = tileData;
   
@@ -128,7 +128,7 @@ const attributeCallback = (attData: AttributeData) => {
 const spriteFusionMap = new SpriteFusionResource({
   mapPath: './map/map.json',
   spritesheetPath: './map/spritesheet.png',
-  attributeCallback: attributeCallback
+  tileAttributeFactory: attributeCallback
 });
 ```
 
@@ -148,7 +148,7 @@ Mark layers as object layers, and the plugin will:
 const spriteFusionMap = new SpriteFusionResource({
   mapPath: './map/map.json',
   spritesheetPath: './map/spritesheet.png',
-  attributeCallback: attributeCallback,
+  tileAttributeFactory: attributeCallback,
   objectLayers: ['ObjectLayer', 'SpawnPoints', 'Triggers']
 });
 ```
@@ -214,7 +214,7 @@ class Slime extends ex.Actor {
 ### Step 3: Create Your Attribute Callback
 
 ```typescript
-const spawnEntities = (attData: AttributeData) => {
+const spawnEntities = (attData: TileAttributeData) => {
   const { tileData, mapData } = attData;
   const { attributes, x, y } = tileData;
   
@@ -262,7 +262,7 @@ const game = new ex.Engine({
 const spriteFusionMap = new SpriteFusionResource({
   mapPath: './map/dungeon.json',
   spritesheetPath: './map/spritesheet.png',
-  attributeCallback: spawnEntities,
+  tileAttributeFactory: spawnEntities,
   objectLayers: ['Enemies'] // Don't render this layer
 });
 
@@ -341,7 +341,7 @@ If a tile has both visual and data requirements, keep them on separate layers fo
 The plugin passes whatever JSON is in SpriteFusion. Add validation:
 
 ```typescript
-const attributeCallback = (attData: AttributeData) => {
+const attributeCallback = (attData: TileAttributeData) => {
   const { attributes } = attData.tileData;
   
   if (!attributes.entity) {
@@ -379,7 +379,7 @@ interface EnemyAttributes {
   range?: number;
 }
 
-const attributeCallback = (attData: AttributeData) => {
+const attributeCallback = (attData: TileAttributeData) => {
   const attrs = attData.tileData.attributes as EnemyAttributes;
   // TypeScript knows what's available
 };
@@ -424,7 +424,7 @@ import { SpriteFusionResource } from '@excaliburjs/plugin-spritefusion';
 const map = new SpriteFusionResource({
   mapPath: './map/map.json',
   spritesheetPath: './map/spritesheet.png',
-  attributeCallback: yourCallback,
+  tileAttributeFactory: yourCallback,
   objectLayers: ['DataLayer']
 });
 
