@@ -6,7 +6,7 @@ button#excalibur-play {
 button#excalibur-play {
   box-sizing: border-box;
   display: flex;
-  gap: .25rem;
+  gap: 0.25rem;
   white-space: nowrap;
   justify-content: center;
   position: relative;
@@ -49,10 +49,10 @@ span#excalibur-play-icon:after {
   box-sizing: border-box;
   position: absolute;
   content: '';
-  border: .5rem solid;
+  border: 0.5rem solid;
   border-color: transparent transparent transparent white;
-  left: calc(50% - .1rem);
-  top: calc(30% - .1rem);
+  left: calc(50% - 0.1rem);
+  top: calc(30% - 0.1rem);
   width: 0;
   height: 0;
 }
