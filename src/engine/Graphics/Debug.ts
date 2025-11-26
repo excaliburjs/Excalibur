@@ -14,7 +14,23 @@ export class Debug {
   static _drawCalls: ((ctx: ExcaliburGraphicsContext) => void)[] = [];
   static _ctx: ExcaliburGraphicsContext;
   static z: number = Infinity;
-  static config: DebugConfig;
+  static config: DebugConfig = {
+    // add some defaults
+    settings: {
+      text: {
+        foreground: Color.Black,
+        background: Color.Transparent,
+        border: Color.Transparent
+      },
+      z: {
+        text: Number.POSITIVE_INFINITY,
+        point: Number.MAX_SAFE_INTEGER - 1,
+        ray: Number.MAX_SAFE_INTEGER - 1,
+        dashed: Number.MAX_SAFE_INTEGER - 2,
+        solid: Number.MAX_SAFE_INTEGER - 3
+      }
+    }
+  } as any;
 
   static registerDebugConfig(config: DebugConfig) {
     Debug.config = config;
