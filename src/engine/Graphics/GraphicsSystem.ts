@@ -221,7 +221,6 @@ export class GraphicsSystem extends System {
         // This debug code is in-situ to avoid recalculating the positioning of graphics
         if (this._engine?.isDebug && this._engine.debug.graphics.showBounds) {
           this._graphicsContext.save();
-          this._graphicsContext.z = Debug.z;
           const offset = vec(offsetX, offsetY);
           if (graphic instanceof GraphicsGroup) {
             for (const member of graphic.members) {

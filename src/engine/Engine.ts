@@ -874,6 +874,8 @@ O|===|* >________________>\n\
 
     this._logger = Logger.getInstance();
 
+    this.debug = new DebugConfig(this);
+
     // If debug is enabled, let's log browser features to the console.
     if (this._logger.defaultLevel === LogLevel.Debug) {
       detector.logBrowserFeatures();
@@ -1073,8 +1075,6 @@ O|===|* >________________>\n\
       };
       mergeDeep(this.physics, options.physics);
     }
-
-    this.debug = new DebugConfig(this);
 
     this.director = new Director(this, options.scenes);
     this.director.events.pipe(this.events);

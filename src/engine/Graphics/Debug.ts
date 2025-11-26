@@ -8,14 +8,18 @@ import type {
 import { Color } from '../Color';
 import type { Ray } from '../Math/ray';
 import type { BoundingBox } from '../Collision/BoundingBox';
+import type { DebugConfig } from '../Debug';
 
 export class Debug {
   static _drawCalls: ((ctx: ExcaliburGraphicsContext) => void)[] = [];
   static _ctx: ExcaliburGraphicsContext;
   static z: number = Infinity;
-  static registerGraphicsContext(ctx: ExcaliburGraphicsContext) {
-    Debug._ctx = ctx;
+  static config: DebugConfig;
+
+  static registerDebugConfig(config: DebugConfig) {
+    Debug.config = config;
   }
+
   static draw(debugDrawCall: (ctx: ExcaliburGraphicsContext) => void) {
     this._drawCalls.push(debugDrawCall);
   }
@@ -93,6 +97,7 @@ export class Debug {
       ...options
     };
     Debug.draw((ctx) => {
+      ctx.z = Debug.config.settings.z.ray;
       const start = ray.pos;
       const end = ray.pos.add(ray.dir.scale(distance));
 

@@ -6,7 +6,7 @@ import type { Vector } from '../../Math/vector';
 // import debugFont from './debug-font.png';
 import debugFont2 from './monogram-bitmap.png';
 import { Debug } from '../Debug';
-import { Color } from '../../Color';
+import type { Color } from '../../Color';
 
 /**
  * Internal debug text helper
@@ -23,6 +23,9 @@ export class DebugText {
    */
   public readonly fontSheet = debugFont2;
   public size: number = 16;
+  public foregroundColor: Color = Debug.config.settings.text.foreground;
+  public backgroundColor: Color = Debug.config.settings.text.background;
+  public borderColor: Color = Debug.config.settings.text.border;
   private _imageSource!: ImageSource;
   private _spriteSheet!: SpriteSheet;
   private _spriteFont!: SpriteFont;
@@ -39,12 +42,10 @@ export class DebugText {
         }
       });
       this._spriteFont = new SpriteFont({
-        // alphabet: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ,!\'&."?-()+# ',
-        alphabet: ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~',
-        // caseInsensitive: true,
+        alphabet:
+          ' !"#$%&\'()*+,-./' + '0123456789:;<=>?' + '@ABCDEFGHIJKLMNO' + 'PQRSTUVWXYZ[\\]^_' + '`abcdefghijklmno' + 'pqrstuvwxyz{|}~?',
         caseInsensitive: false,
         spriteSheet: this._spriteSheet
-        // spacing: -2
       });
     });
   }
@@ -55,20 +56,21 @@ export class DebugText {
    * @param text
    * @param pos
    */
-  public write(ctx: ExcaliburGraphicsContext, text: string, pos: Vector) {
+  public write(ctx: ExcaliburGraphicsContext, text: string, pos: Vector, foreground?: Color, background?: Color) {
     if (this._imageSource.isLoaded()) {
       const pos1 = ctx.getTransform().getPosition();
       ctx.save();
       ctx.resetTransform();
+      ctx.z = Debug.config.settings.z.text;
       ctx.translate(pos1.x, pos1.y);
       ctx.scale(1.5, 1.5);
-      ctx.z = 9999;
       const bounds = this._spriteFont.measureText(text);
-      const color = Color.Red;
-      const inverted = color.invert();
-      inverted.a = 1;
-      ctx.drawRectangle(pos, bounds.width, bounds.height, inverted, Color.Gray, 1);
-      ctx.z = Debug.z;
+      const color = foreground ?? this.foregroundColor;
+      const bg = background ?? this.backgroundColor;
+      ctx.save();
+      ctx.z = Debug.config.settings.z.solid;
+      ctx.drawRectangle(pos, bounds.width, bounds.height, bg, this.borderColor, 1);
+      ctx.restore();
       ctx.tint = color;
       this._spriteFont.render(ctx, text, null, pos.x, pos.y);
       ctx.restore();

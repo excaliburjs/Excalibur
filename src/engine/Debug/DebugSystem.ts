@@ -103,7 +103,6 @@ export class DebugSystem extends System {
       if (tx.coordPlane === CoordPlane.Screen) {
         this._graphicsContext.translate(this._engine.screen.contentArea.left, this._engine.screen.contentArea.top);
       }
-      this._graphicsContext.z = txSettings.debugZIndex;
 
       this._applyTransform(entity);
       if (tx) {
@@ -192,7 +191,6 @@ export class DebugSystem extends System {
       if (tx.coordPlane === CoordPlane.Screen) {
         this._graphicsContext.translate(this._engine.screen.contentArea.left, this._engine.screen.contentArea.top);
       }
-      this._graphicsContext.z = txSettings.debugZIndex;
       motion = entity.get(MotionComponent);
       if (motion) {
         if (motionSettings.showAll || motionSettings.showVelocity) {
@@ -290,8 +288,6 @@ export class DebugSystem extends System {
       }
       this._graphicsContext.restore();
     }
-
-    this._graphicsContext.flush();
   }
 
   postupdate(engine: Scene<unknown>, elapsed: number): void {

@@ -42,6 +42,7 @@ import type { GarbageCollector } from '../../GarbageCollector';
 import { ParticleRenderer } from './particle-renderer/particle-renderer';
 import { ImageRendererV2 } from './image-renderer-v2/image-renderer-v2';
 import { Flags } from '../../Flags';
+import { Debug } from '../Debug';
 
 export const pixelSnapEpsilon = 0.0001;
 
@@ -74,6 +75,8 @@ class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
    * @param lineOptions
    */
   drawLine(start: Vector, end: Vector, lineOptions?: LineGraphicsOptions): void {
+    this._webglCtx.save();
+    this._webglCtx.z = lineOptions?.dashed ? Debug.config.settings.z.dashed : Debug.config.settings.z.solid;
     this._webglCtx.draw<DebugLineRenderer>(
       'ex.debug-line',
       start,
@@ -82,6 +85,7 @@ class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
       lineOptions?.lineWidth,
       lineOptions?.dashed
     );
+    this._webglCtx.restore();
   }
 
   /**
@@ -92,7 +96,10 @@ class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
    * @param pointOptions
    */
   drawPoint(point: Vector, pointOptions: PointGraphicsOptions = { color: Color.Black, size: 5 }): void {
+    this._webglCtx.save();
+    this._webglCtx.z = Debug.config.settings.z.point;
     this._webglCtx.draw<DebugPointRenderer>('ex.debug-point', point, pointOptions.color, pointOptions.size);
+    this._webglCtx.restore();
   }
 
   /**
@@ -101,7 +108,10 @@ class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
    * Debugging draws are independent of scale/zoom
    */
   drawCircle(pos: Vector, radius: number, color: Color, stroke?: Color, thickness?: number) {
+    this._webglCtx.save();
+    this._webglCtx.z = Debug.config.settings.z.solid;
     this._webglCtx.draw<DebugCircleRenderer>('ex.debug-circle', pos, radius, color, stroke, thickness);
+    this._webglCtx.restore();
   }
 
   /**
@@ -110,7 +120,10 @@ class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
    * Debugging draws are independent of scale/zoom
    */
   drawText(text: string, pos: Vector) {
+    this._webglCtx.save();
+    this._webglCtx.z = Debug.config.settings.z.text;
     this._debugText.write(this._webglCtx, text, pos);
+    this._webglCtx.restore();
   }
 }
 
