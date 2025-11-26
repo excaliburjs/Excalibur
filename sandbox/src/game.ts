@@ -42,17 +42,15 @@ var fullscreenButton = document.getElementById('fullscreen') as HTMLButtonElemen
 // ex.Physics.acc = new ex.Vector(0, 10); // global accel
 // Create an the game container
 var game = new ex.Engine({
-  width: 800 / 2,
-  height: 600 / 2,
-  viewport: { width: 800, height: 600 },
+  width: 800,
+  height: 600,
   canvasElementId: 'game',
-  // pixelRatio: 1,
-  // suppressPlayButton: true,
+  suppressPlayButton: true,
   pointerScope: ex.PointerScope.Canvas,
   displayMode: ex.DisplayMode.FitScreenAndFill,
   snapToPixel: false,
   // fixedUpdateFps: 30,
-  pixelRatio: 2,
+  // pixelRatio: 2,
   fixedUpdateFps: 60,
   maxFps: 60,
   antialiasing: {
@@ -63,7 +61,7 @@ var game = new ex.Engine({
     multiSampleAntialiasing: true
   },
   garbageCollection: true,
-  uvPadding: 0,
+  // uvPadding: 0.5,
   physics: {
     integration: {
       onScreenOnly: true

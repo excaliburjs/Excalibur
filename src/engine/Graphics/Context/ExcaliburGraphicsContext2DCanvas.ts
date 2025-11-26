@@ -13,7 +13,7 @@ import { GraphicsDiagnostics } from '../GraphicsDiagnostics';
 import { DebugText } from './debug-text';
 import type { Resolution } from '../../Screen';
 import type { PostProcessor } from '../PostProcessor/PostProcessor';
-import type { AffineMatrix } from '../../Math/affine-matrix';
+import { AffineMatrix } from '../../Math/affine-matrix';
 import type { Material, MaterialOptions } from './material';
 
 const pixelSnapEpsilon = 0.0001;
@@ -335,7 +335,7 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
   }
 
   public getTransform(): AffineMatrix {
-    throw new Error('Not implemented');
+    return AffineMatrix.identity();
   }
 
   public multiply(_m: AffineMatrix): void {
