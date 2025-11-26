@@ -3,6 +3,7 @@ import type { Engine } from '../Engine';
 import { Color } from '../Color';
 import type { CollisionContact } from '../Collision/Detection/CollisionContact';
 import type { StandardClock, TestClock } from '../Util/Clock';
+import { Debug } from '../Graphics/Debug';
 
 /**
  * Debug stats containing current and previous frame statistics
@@ -161,6 +162,8 @@ export class DebugConfig {
     this._engine = engine;
 
     this.colorBlindMode = new ColorBlindFlags(this._engine);
+
+    Debug.registerDebugConfig(this);
   }
 
   /**
@@ -219,6 +222,21 @@ export class DebugConfig {
     prevFrame: new FrameStats()
   };
 
+  public settings = {
+    text: {
+      foreground: Color.Black,
+      background: Color.Transparent,
+      border: Color.Transparent
+    },
+    z: {
+      text: Number.POSITIVE_INFINITY,
+      point: Number.MAX_SAFE_INTEGER - 1,
+      ray: Number.MAX_SAFE_INTEGER - 1,
+      dashed: Number.MAX_SAFE_INTEGER - 2,
+      solid: Number.MAX_SAFE_INTEGER - 3
+    }
+  };
+
   /**
    * Correct or simulate color blindness using {@apilink ColorBlindnessPostProcessor}.
    * @warning Will reduce FPS.
@@ -258,7 +276,6 @@ export class DebugConfig {
   public transform = {
     showAll: false,
 
-    debugZIndex: 10_000_000,
     showPosition: false,
     showPositionLabel: false,
     positionColor: Color.Yellow,
@@ -295,8 +312,8 @@ export class DebugConfig {
 
     showGeometry: true,
     geometryColor: Color.Green,
-    geometryLineWidth: 1,
-    geometryPointSize: 0.5
+    geometryLineWidth: 2,
+    geometryPointSize: 2
   };
 
   /**
@@ -311,7 +328,7 @@ export class DebugConfig {
     collisionNormalColor: Color.Cyan,
 
     showCollisionContacts: true,
-    contactSize: 2,
+    contactSize: 10,
     collisionContactColor: Color.Red
   };
 

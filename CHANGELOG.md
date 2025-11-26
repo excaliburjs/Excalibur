@@ -12,9 +12,33 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Deprecated
 
 - Legacy `EasingFunctions.*` are deprecated in favor of the simpler forms
+- Legacy `ex.BoundingBox.draw(..)` is deprecated, use `ex.BoundBox.debug(...)`
 
 ### Added
 
+
+- Added a way to configure general debug settings on text
+  ```typescript
+  class DebugConfig { 
+    ...
+      public settings = {
+        text: {
+          foreground: Color.Black,
+          background: Color.Transparent,
+          border: Color.Transparent
+        },
+        z: {
+          text:  Number.POSITIVE_INFINITY,
+          point: Number.MAX_SAFE_INTEGER - 1,
+          ray:   Number.MAX_SAFE_INTEGER - 1,
+          dashed:Number.MAX_SAFE_INTEGER - 2,
+          solid: Number.MAX_SAFE_INTEGER - 3
+        }
+      }
+    ...
+  }
+  ```
+- Added foreground and background color to `ex.DebugText`
 - Added a convenience parameter to set the initial graphics or material in an Actor
   ```typescript
   const cloudSprite = cloud.toSprite();
@@ -62,6 +86,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Updates
 
+- Perf improvement in debug draw mode
 - When overriding a built-in uniform/graphic there is now a warning in dev excalibur builds 
 - Camera zoom and move now support new easing functions form
 - MoveTo/MoveBy actions now support new easing function form
@@ -71,7 +96,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
--
+- Debug Text Font is switched to the more legible [monogram](https://datagoblin.itch.io/monogram)
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->

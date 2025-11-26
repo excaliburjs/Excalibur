@@ -12,7 +12,6 @@ import { toDegrees } from '../Math/util';
 import { BodyComponent } from '../Collision/BodyComponent';
 import { CollisionSystem } from '../Collision/CollisionSystem';
 import { CompositeCollider } from '../Collision/Colliders/CompositeCollider';
-import { GraphicsComponent } from '../Graphics/GraphicsComponent';
 import { Particle } from '../Particles/Particles';
 import { DebugGraphicsComponent } from '../Graphics/DebugGraphicsComponent';
 import { CoordPlane } from '../Math/coord-plane';
@@ -62,9 +61,6 @@ export class DebugSystem extends System {
 
     const physicsSettings = this._engine.debug.physics;
 
-    let graphics: GraphicsComponent;
-    const graphicsSettings = this._engine.debug.graphics;
-
     let debugDraw: DebugGraphicsComponent;
 
     let body: BodyComponent;
@@ -107,7 +103,6 @@ export class DebugSystem extends System {
       if (tx.coordPlane === CoordPlane.Screen) {
         this._graphicsContext.translate(this._engine.screen.contentArea.left, this._engine.screen.contentArea.top);
       }
-      this._graphicsContext.z = txSettings.debugZIndex;
 
       this._applyTransform(entity);
       if (tx) {
@@ -146,14 +141,6 @@ export class DebugSystem extends System {
 
         if (txSettings.showAll || txSettings.showScale) {
           this._graphicsContext.drawLine(Vector.Zero, tx.scale.add(Vector.Zero), txSettings.scaleColor, 2);
-        }
-      }
-
-      graphics = entity.get(GraphicsComponent);
-      if (graphics) {
-        if (graphicsSettings.showAll || graphicsSettings.showBounds) {
-          const bounds = graphics.localBounds;
-          bounds.draw(this._graphicsContext, graphicsSettings.boundsColor);
         }
       }
 
@@ -204,7 +191,6 @@ export class DebugSystem extends System {
       if (tx.coordPlane === CoordPlane.Screen) {
         this._graphicsContext.translate(this._engine.screen.contentArea.left, this._engine.screen.contentArea.top);
       }
-      this._graphicsContext.z = txSettings.debugZIndex;
       motion = entity.get(MotionComponent);
       if (motion) {
         if (motionSettings.showAll || motionSettings.showVelocity) {
@@ -234,16 +220,25 @@ export class DebugSystem extends System {
             for (const collider of colliders) {
               const bounds = collider.bounds;
               const pos = vec(bounds.left, bounds.top);
-              this._graphicsContext.debug.drawRect(pos.x, pos.y, bounds.width, bounds.height, { color: colliderSettings.boundsColor });
+              this._graphicsContext.debug.drawRect(pos.x, pos.y, bounds.width, bounds.height, {
+                color: colliderSettings.boundsColor,
+                dashed: true
+              });
               if (colliderSettings.showAll || colliderSettings.showOwner) {
                 this._graphicsContext.debug.drawText(`owner id(${collider.owner.id})`, pos);
               }
             }
-            colliderComp.bounds.draw(this._graphicsContext, colliderSettings.boundsColor);
+            colliderComp.bounds.debug(this._graphicsContext, {
+              color: colliderSettings.boundsColor,
+              dashed: true
+            });
           } else if (collider) {
             const bounds = colliderComp.bounds;
             const pos = vec(bounds.left, bounds.top);
-            this._graphicsContext.debug.drawRect(pos.x, pos.y, bounds.width, bounds.height, { color: colliderSettings.boundsColor });
+            this._graphicsContext.debug.drawRect(pos.x, pos.y, bounds.width, bounds.height, {
+              color: colliderSettings.boundsColor,
+              dashed: true
+            });
             if (colliderSettings.showAll || colliderSettings.showOwner) {
               this._graphicsContext.debug.drawText(`owner id(${colliderComp.owner.id})`, pos);
             }
@@ -286,15 +281,13 @@ export class DebugSystem extends System {
       this._graphicsContext.save();
       this._camera.draw(this._graphicsContext);
       if (cameraSettings.showAll || cameraSettings.showFocus) {
-        this._graphicsContext.drawCircle(this._camera.pos, 4, cameraSettings.focusColor);
+        this._graphicsContext.debug.drawCircle(this._camera.pos, 4, cameraSettings.focusColor);
       }
       if (cameraSettings.showAll || cameraSettings.showZoom) {
         this._graphicsContext.debug.drawText(`zoom(${this._camera.zoom})`, this._camera.pos);
       }
       this._graphicsContext.restore();
     }
-
-    this._graphicsContext.flush();
   }
 
   postupdate(engine: Scene<unknown>, elapsed: number): void {
