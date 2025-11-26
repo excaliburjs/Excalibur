@@ -137,7 +137,7 @@ To leverage this, there are a couple new interface properties available in the A
     /**
      * Callback to run when attributes are encountered
      */
-    attributeCallback?: (attData: AttributeData) => void;
+    tileAttributeFactory?: (attData: AttributeData) => void;
     /**
      * List of layer names to treat as object layers
      *
@@ -149,19 +149,41 @@ and some new interfaces:
 
 ```ts
 export interface TileData {
-  id: string;
+  /**
+   * SpriteFusion Tile Id
+   */
+  id: number;
+  /**
+   * The x and y position of the tile
+   */
   x: number;
   y: number;
+  /**
+   * The optional attributes of the tile
+   * */
   attributes: any;
 }
 
-export interface AttributeData {
+export interface TileAttributeData {
   tileData: TileData;
   mapData: SpriteFusionMapData;
 }
+
+//Have FactoryProps extends TileData now
+export interface FactoryProps extends TileData {
+  /**
+   * Excalibur world position
+   * */
+  worldPos: Vector;
+  /**
+   * Layer that this object is part of
+   * */
+  layer: Layer;
+}
+
 ```
 
-### Attribute Callback
+### tileAttributeFactory Callback
 
 This property allows you to pass into the plugin a callback that let's you manually manage how you want the attribute data to be
 handled.
@@ -169,7 +191,7 @@ handled.
 In this example, i'm passing this function into the setup:
 
 ```ts
-export const attributeCallback = (attData: AttributeData) => {
+export const attributeCallback = (attData: TileAttributeData) => {
   const { tileData, mapData } = attData;
   const { attributes, x, y, id } = tileData;
 
@@ -179,7 +201,7 @@ export const attributeCallback = (attData: AttributeData) => {
 const spriteFusionMap = new SpriteFusionResource({
   mapPath: "./src/SFmapData/map.json",
   spritesheetPath: "./src/SFmapData/spritesheet.png",
-  attributeCallback: attributeCallback,
+  tileAttributeFactory: attributeCallback,
 });
 ```
 
@@ -191,7 +213,7 @@ the scene.
 When you are creating a SF map project, you might want to create a layer that has data embedded into it, but you don't want things
 'drawn' as a tilemap layer by Excalibur.
 
-Now you can add layernames into this array field, and the layer attributes gets parsed and the attribute callback gets called, but
+Now you can add layernames into this array field, and the layer attributes gets parsed and the tileAttributeFactory callback gets called, but
 nothing gets drawn to a layer.
 
 Example:
@@ -200,7 +222,7 @@ Example:
 const spriteFusionMap = new SpriteFusionResource({
   mapPath: "./src/SFmapData/map.json",
   spritesheetPath: "./src/SFmapData/spritesheet.png",
-  attributeCallback: attributeCallback,
+  tileAttributeFactory: attributeCallback,
   objectLayers: ["ObjectLayer"],
 });
 ```
@@ -222,7 +244,7 @@ const spriteFusionMap = new SpriteFusionResource({
     },
 ```
 
-None of the `ObjectLayer` gets drawn to a tilemap, but the information gets passed to the Attribute Callback.
+None of the `ObjectLayer` gets drawn to a tilemap, but the information gets passed to the tileAttributeFactory Callback.
 
 ## Documentation
 
