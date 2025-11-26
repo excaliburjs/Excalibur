@@ -700,7 +700,7 @@ export class TileMap extends Entity implements HasNestedPointerEvents {
       gfx.z = 999;
       if (showColliderBounds) {
         for (let i = 0; i < this.tiles.length; i++) {
-          this.tiles[i].bounds.draw(gfx);
+          this.tiles[i].bounds.debug(gfx);
         }
       }
       gfx.restore();

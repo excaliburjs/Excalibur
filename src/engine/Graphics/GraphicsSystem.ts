@@ -17,7 +17,6 @@ import { PostDrawEvent, PostTransformDrawEvent, PreDrawEvent, PreTransformDrawEv
 import { Transform } from '../Math/transform';
 import { blendTransform } from './TransformInterpolation';
 import { Graphic } from './Graphic';
-import { Debug } from './Debug';
 
 export class GraphicsSystem extends System {
   static priority = SystemPriority.Average;
@@ -236,16 +235,18 @@ export class GraphicsSystem extends System {
               if (graphic.useAnchor) {
                 g?.localBounds
                   .translate(offset.add(pos))
-                  .draw(this._graphicsContext, { color: this._engine.debug.graphics.boundsColor, dashed: true });
+                  .debug(this._graphicsContext, { color: this._engine.debug.graphics.boundsColor, dashed: true });
               } else {
-                g?.localBounds.translate(pos).draw(this._graphicsContext, { color: this._engine.debug.graphics.boundsColor, dashed: true });
+                g?.localBounds
+                  .translate(pos)
+                  .debug(this._graphicsContext, { color: this._engine.debug.graphics.boundsColor, dashed: true });
               }
             }
           } else {
             /* istanbul ignore next */
             graphic?.localBounds
               .translate(offset)
-              .draw(this._graphicsContext, { color: this._engine.debug.graphics.boundsColor, dashed: true });
+              .debug(this._graphicsContext, { color: this._engine.debug.graphics.boundsColor, dashed: true });
           }
           this._graphicsContext.restore();
         }

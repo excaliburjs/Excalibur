@@ -228,7 +228,7 @@ export class DebugSystem extends System {
                 this._graphicsContext.debug.drawText(`owner id(${collider.owner.id})`, pos);
               }
             }
-            colliderComp.bounds.draw(this._graphicsContext, {
+            colliderComp.bounds.debug(this._graphicsContext, {
               color: colliderSettings.boundsColor,
               dashed: true
             });

@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Deprecated
 
 - Legacy `EasingFunctions.*` are deprecated in favor of the simpler forms
+- Legacy `ex.BoundingBox.draw(..)` is deprecated, use `ex.BoundBox.debug(...)`
 
 ### Added
 
