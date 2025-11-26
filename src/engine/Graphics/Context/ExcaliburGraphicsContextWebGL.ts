@@ -104,6 +104,11 @@ class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
     this._webglCtx.draw<DebugCircleRenderer>('ex.debug-circle', pos, radius, color, stroke, thickness);
   }
 
+  /**
+   * Draw some debugging text to the graphics context
+   *
+   * Debugging draws are independent of scale/zoom
+   */
   drawText(text: string, pos: Vector) {
     this._debugText.write(this._webglCtx, text, pos);
   }

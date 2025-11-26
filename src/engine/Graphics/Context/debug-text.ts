@@ -52,7 +52,12 @@ export class DebugText {
    */
   public write(ctx: ExcaliburGraphicsContext, text: string, pos: Vector) {
     if (this._imageSource.isLoaded()) {
+      const pos1 = ctx.getTransform().getPosition();
+      ctx.save();
+      ctx.resetTransform();
+      ctx.translate(pos1.x, pos1.y);
       this._spriteFont.render(ctx, text, null, pos.x, pos.y);
+      ctx.restore();
     }
   }
 }
