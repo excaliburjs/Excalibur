@@ -37,15 +37,21 @@ export class DebugText {
         grid: {
           rows: 8,
           columns: 16,
-          spriteWidth: 6,
-          spriteHeight: 12
+          spriteWidth: 6 * 2 - 2, // hack to avoid sample bleed
+          spriteHeight: 12 * 2
+        },
+        spacing: {
+          // hack to avoid sample bleed
+          originOffset: { x: 2, y: 0 },
+          margin: { x: 2, y: 0 }
         }
       });
       this._spriteFont = new SpriteFont({
         alphabet:
           ' !"#$%&\'()*+,-./' + '0123456789:;<=>?' + '@ABCDEFGHIJKLMNO' + 'PQRSTUVWXYZ[\\]^_' + '`abcdefghijklmno' + 'pqrstuvwxyz{|}~?',
         caseInsensitive: false,
-        spriteSheet: this._spriteSheet
+        spriteSheet: this._spriteSheet,
+        spacing: 2
       });
     });
   }
@@ -63,7 +69,6 @@ export class DebugText {
       ctx.resetTransform();
       ctx.z = Debug.config.settings.z.text;
       ctx.translate(pos1.x, pos1.y);
-      ctx.scale(1.5, 1.5);
       const bounds = this._spriteFont.measureText(text);
       const color = foreground ?? this.foregroundColor;
       const bg = background ?? this.backgroundColor;
