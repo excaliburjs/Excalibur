@@ -8,11 +8,6 @@ import type { RendererPlugin } from '../renderer';
 import { Shader, VertexBuffer, VertexLayout } from '../..';
 import { GraphicsDiagnostics } from '../../GraphicsDiagnostics';
 
-export interface LineOptions {
-  color?: Color;
-  width?: number;
-}
-
 export class DebugLineRenderer implements RendererPlugin {
   public readonly type = 'ex.debug-line';
   public priority: number = 0;
