@@ -820,7 +820,6 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   public kill() {
     if (this.scene) {
       this._prekill(this.scene);
-      this.events.emit('kill', new KillEvent(this));
       super.kill();
       this._postkill(this.scene);
     } else {
