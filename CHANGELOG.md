@@ -83,6 +83,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed issue where not(tags) and not(component) queries weren't updating in the querymanager
 - Fixed Tilemap/Isometric map pointer performance on moderate to large maps, we changed the strategy to only consider tiles under the pointer instead of try to do sorted dispatch on NxM tiles.
 - Fixed issue that caused coroutines to not automatically discover the engine scheduler when inside an async lifecycle sometimes. This is because of the stack replacement issue of async/await the context reverts too soon.
+- Fixed issue actor kill event was triggered twice
 
 ### Updates
 
