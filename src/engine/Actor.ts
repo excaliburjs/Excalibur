@@ -12,7 +12,7 @@ import type {
   ActionStartEvent,
   ActionCompleteEvent
 } from './Events';
-import { KillEvent, PreUpdateEvent, PostUpdateEvent, PostKillEvent, PreKillEvent } from './Events';
+import { type KillEvent, PreUpdateEvent, PostUpdateEvent, PostKillEvent, PreKillEvent } from './Events';
 import type { Engine } from './Engine';
 import type { Color } from './Color';
 import type { CanInitialize, CanUpdate, CanBeKilled } from './Interfaces/LifecycleEvents';
