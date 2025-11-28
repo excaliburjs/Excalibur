@@ -12,7 +12,7 @@ import type {
   ActionStartEvent,
   ActionCompleteEvent
 } from './Events';
-import { KillEvent, PreUpdateEvent, PostUpdateEvent, PostKillEvent, PreKillEvent } from './Events';
+import { type KillEvent, PreUpdateEvent, PostUpdateEvent, PostKillEvent, PreKillEvent } from './Events';
 import type { Engine } from './Engine';
 import type { Color } from './Color';
 import type { CanInitialize, CanUpdate, CanBeKilled } from './Interfaces/LifecycleEvents';
@@ -820,7 +820,6 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   public kill() {
     if (this.scene) {
       this._prekill(this.scene);
-      this.events.emit('kill', new KillEvent(this));
       super.kill();
       this._postkill(this.scene);
     } else {
