@@ -74,6 +74,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where pointer containment WAS NOT being uses on collision shape geometry, only their bounds
 - Fixed issue where overriding built in uniforms and graphics no longer worked as v0.30.x
 - Fixed issue where clearSchedule during a scheduled callback could cause a cb to be skipped
 - Fixed issue where specifying custom events was difficult in TypeScript switched from `export type ...Events {` to `export interface ...Events {` which allows declaration merging by user game code to specify custom events
