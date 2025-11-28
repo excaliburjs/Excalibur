@@ -147,7 +147,7 @@ export class BoundingBox {
    * Return whether the bounding box has zero dimensions in height,width or both
    */
   public hasZeroDimensions() {
-    return this.width === 0 || this.height === 0;
+    return this.left === this.right || this.top === this.bottom;
   }
 
   /**
@@ -173,8 +173,13 @@ export class BoundingBox {
     return new Vector(this.left, this.bottom);
   }
 
-  public translate(pos: Vector): BoundingBox {
-    return new BoundingBox(this.left + pos.x, this.top + pos.y, this.right + pos.x, this.bottom + pos.y);
+  public translate(pos: Vector, dest?: BoundingBox): BoundingBox {
+    dest = dest || new BoundingBox();
+    dest.left = this.left + pos.x;
+    dest.top = this.top + pos.y;
+    dest.right = this.right + pos.x;
+    dest.bottom = this.bottom + pos.y;
+    return dest;
   }
 
   /**
@@ -200,40 +205,35 @@ export class BoundingBox {
    * Transform the axis aligned bounding box by a {@apilink Matrix}, producing a new axis aligned bounding box
    * @param matrix
    */
-  public transform(matrix: AffineMatrix) {
+  public transform(matrix: AffineMatrix, dest?: BoundingBox) {
     // inlined these calculations to not use vectors would speed it up slightly
-    // const matFirstColumn = vec(matrix.data[0], matrix.data[1]);
-    // const xa = matFirstColumn.scale(this.left);
     const xa1 = matrix.data[0] * this.left;
     const xa2 = matrix.data[1] * this.left;
 
-    // const xb = matFirstColumn.scale(this.right);
     const xb1 = matrix.data[0] * this.right;
     const xb2 = matrix.data[1] * this.right;
 
-    // const matSecondColumn = vec(matrix.data[2], matrix.data[3]);
-    // const ya = matSecondColumn.scale(this.top);
     const ya1 = matrix.data[2] * this.top;
     const ya2 = matrix.data[3] * this.top;
 
-    // const yb = matSecondColumn.scale(this.bottom);
     const yb1 = matrix.data[2] * this.bottom;
     const yb2 = matrix.data[3] * this.bottom;
 
-    const matrixPos = matrix.getPosition();
-    // const topLeft = Vector.min(xa, xb).add(Vector.min(ya, yb)).add(matrixPos);
-    // const bottomRight = Vector.max(xa, xb).add(Vector.max(ya, yb)).add(matrixPos);
-    const left = Math.min(xa1, xb1) + Math.min(ya1, yb1) + matrixPos.x;
-    const top = Math.min(xa2, xb2) + Math.min(ya2, yb2) + matrixPos.y;
-    const right = Math.max(xa1, xb1) + Math.max(ya1, yb1) + matrixPos.x;
-    const bottom = Math.max(xa2, xb2) + Math.max(ya2, yb2) + matrixPos.y;
+    const matrixPosX = matrix.data[4];
+    const matrixPosY = matrix.data[5];
 
-    return new BoundingBox({
-      left, //: topLeft.x,
-      top, //: topLeft.y,
-      right, //: bottomRight.x,
-      bottom //: bottomRight.y
-    });
+    const left = Math.min(xa1, xb1) + Math.min(ya1, yb1) + matrixPosX;
+    const top = Math.min(xa2, xb2) + Math.min(ya2, yb2) + matrixPosY;
+    const right = Math.max(xa1, xb1) + Math.max(ya1, yb1) + matrixPosX;
+    const bottom = Math.max(xa2, xb2) + Math.max(ya2, yb2) + matrixPosY;
+
+    dest = dest || new BoundingBox();
+    dest.left = left;
+    dest.top = top;
+    dest.right = right;
+    dest.bottom = bottom;
+
+    return dest;
   }
 
   /**

@@ -38,7 +38,9 @@ export class HashGridProxy<T extends { bounds: BoundingBox }> {
   ) {
     this.gridSize = gridSize;
     this.bounds = object.bounds;
-    this.hasZeroBounds = this.bounds.hasZeroDimensions();
+    // this.hasZeroBounds = this.object.bounds.hasZeroDimensions();
+    // ^ inline the above hasZeroDimentions
+    this.hasZeroBounds = this.bounds.left === this.bounds.right || this.bounds.top === this.bounds.bottom;
     this.leftX = Math.floor(this.bounds.left / this.gridSize);
     this.rightX = Math.floor(this.bounds.right / this.gridSize);
     this.bottomY = Math.floor(this.bounds.bottom / this.gridSize);
@@ -90,7 +92,9 @@ export class HashGridProxy<T extends { bounds: BoundingBox }> {
     this.rightX = Math.floor(this.bounds.right / this.gridSize);
     this.bottomY = Math.floor(this.bounds.bottom / this.gridSize);
     this.topY = Math.floor(this.bounds.top / this.gridSize);
-    this.hasZeroBounds = this.object.bounds.hasZeroDimensions();
+    // this.hasZeroBounds = this.object.bounds.hasZeroDimensions();
+    // ^ inline the above hasZeroDimentions
+    this.hasZeroBounds = this.object.bounds.left === this.object.bounds.right || this.object.bounds.top === this.bounds.bottom;
   }
 }
 
@@ -144,10 +148,10 @@ export class SparseHashGrid<TObject extends { bounds: BoundingBox }, TProxy exte
     // TODO Re-hash the objects if the median proves to be different
   }
 
-  query(point: Vector): TObject[];
-  query(bounds: BoundingBox): TObject[];
-  query(boundsOrPoint: BoundingBox | Vector): TObject[] {
-    const results = new Set<TObject>();
+  query(point: Vector, dest?: Set<TObject>): Set<TObject>;
+  query(bounds: BoundingBox, dest?: Set<TObject>): Set<TObject>;
+  query(boundsOrPoint: BoundingBox | Vector, dest?: Set<TObject>): Set<TObject> {
+    const results = dest || new Set<TObject>();
     if (boundsOrPoint instanceof BoundingBox) {
       const bounds = boundsOrPoint;
       const leftX = Math.floor(bounds.left / this.gridSize);
@@ -183,7 +187,7 @@ export class SparseHashGrid<TObject extends { bounds: BoundingBox }, TProxy exte
         }
       }
     }
-    return Array.from(results);
+    return results;
   }
 
   get(xCoord: number, yCoord: number): HashGridCell<TObject> {
@@ -249,12 +253,27 @@ export class SparseHashGrid<TObject extends { bounds: BoundingBox }, TProxy exte
     // FIXME resetting bounds is wrong, if nothing has updated then
     // the bounds stay 0
     // this.bounds.reset();
-    for (const target of targets) {
+
+    let bounds: BoundingBox;
+    let leftX: number;
+    let rightX: number;
+    let bottomY: number;
+    let topY: number;
+    for (let i = 0; i < targets.length; i++) {
+      const target = targets[i];
+
       const proxy = this.objectToProxy.get(target);
       if (!proxy) {
         continue;
       }
-      if (proxy.hasChanged()) {
+      // BEGIN: inlined proxy.hasChanged()
+      bounds = proxy.object.bounds;
+      leftX = Math.floor(bounds.left / proxy.gridSize);
+      rightX = Math.floor(bounds.right / proxy.gridSize);
+      bottomY = Math.floor(bounds.bottom / proxy.gridSize);
+      topY = Math.floor(bounds.top / proxy.gridSize);
+      if (proxy.leftX !== leftX || proxy.rightX !== rightX || proxy.bottomY !== bottomY || proxy.topY !== topY) {
+        // END: inlined proxy.hasChanged()
         // TODO slightly wasteful only remove from changed
         for (let x = proxy.leftX; x <= proxy.rightX; x++) {
           for (let y = proxy.topY; y <= proxy.bottomY; y++) {
