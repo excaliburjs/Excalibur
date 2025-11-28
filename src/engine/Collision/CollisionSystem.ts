@@ -151,7 +151,7 @@ export class CollisionSystem extends System {
     }
 
     // Emit contact start/end events
-    this.runContactStartEnd();
+    this.runContactStartEnd(); // FIXME sleep awake here for bodies that are still left? prevent floaters
 
     // reset the last frame cache
     this._lastFrameContacts.clear();
@@ -206,6 +206,8 @@ export class CollisionSystem extends System {
       if (!this._currentFrameContacts.has(id)) {
         const colliderA = c.colliderA;
         const colliderB = c.colliderB;
+        c.bodyA.isSleeping = false;
+        c.bodyB.isSleeping = false;
         const side = Side.fromDirection(c.mtv);
         const opposite = Side.getOpposite(side);
         colliderA.events.emit('collisionend', new CollisionEndEvent(colliderA, colliderB, side, c));
