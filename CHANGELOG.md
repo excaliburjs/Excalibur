@@ -74,6 +74,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where onRemove would sometimes not be called
 - Fixed issue where pointer containment WAS NOT being uses on collision shape geometry, only their bounds
 - Fixed issue where overriding built in uniforms and graphics no longer worked as v0.30.x
 - Fixed issue where clearSchedule during a scheduled callback could cause a cb to be skipped
