@@ -576,7 +576,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
   }
 
   /**
-   * Removes Actor, meant to be called by the Scene when Actor is added.
+   * Removes Actor, meant to be called by the Scene when Actor is removed.
    *
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    * @internal
