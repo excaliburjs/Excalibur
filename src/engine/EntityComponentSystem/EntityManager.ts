@@ -112,6 +112,9 @@ export class EntityManager {
         this._childRemovedHandlerMap.delete(entity);
       }
 
+      // on remove lifecycle
+      entity._remove(this._world.scene.engine);
+
       // stats
       if (this._world?.scene?.engine) {
         this._world.scene.engine.stats.currFrame.actors.killed++;
