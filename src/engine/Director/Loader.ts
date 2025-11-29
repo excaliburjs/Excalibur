@@ -196,8 +196,18 @@ export class Loader extends DefaultLoader {
     }
 
     buttonElement.id = 'excalibur-play';
-    buttonElement.textContent = this.playButtonText;
     buttonElement.style.display = 'none';
+
+    if (buttonElement) {
+      const span = document.createElement('span');
+      span.id = 'excalibur-play-icon';
+      buttonElement.appendChild(span);
+
+      const text = document.createElement('span');
+      text.id = 'excalibur-play-text';
+      text.textContent = this.playButtonText;
+      buttonElement.appendChild(text);
+    }
     return buttonElement;
   };
 
@@ -250,7 +260,7 @@ export class Loader extends DefaultLoader {
         this.engine.browser.window.on('resize', resizeHandler);
       }
       this._playButtonShown = true;
-      this._playButton.style.display = 'block';
+      this._playButton.style.display = 'flex';
       document.body.addEventListener('keyup', (evt: KeyboardEvent) => {
         if (evt.key === 'Enter') {
           this._playButton.click();
@@ -344,7 +354,14 @@ export class Loader extends DefaultLoader {
   private _positionPlayButton() {
     if (this.engine) {
       const { x: left, y: top, width: screenWidth, height: screenHeight } = this.engine.canvas.getBoundingClientRect();
-      if (this._playButtonRootElement) {
+      if (this._playButtonRootElement && this._playButtonElement) {
+        const text = this._playButtonElement.querySelector('#excalibur-play-text')! as HTMLElement;
+        if (screenWidth < 450) {
+          text.style.display = 'none';
+        } else {
+          text.style.display = 'inline-block';
+        }
+
         const buttonWidth = this._playButton.clientWidth;
         const buttonHeight = this._playButton.clientHeight;
         if (this.playButtonPosition) {
@@ -353,6 +370,11 @@ export class Loader extends DefaultLoader {
         } else {
           this._playButtonRootElement.style.left = `${left + screenWidth / 2 - buttonWidth / 2}px`;
           this._playButtonRootElement.style.top = `${top + screenHeight / 2 - buttonHeight / 2 + 100}px`;
+        }
+
+        if (screenWidth < 450) {
+          this._playButtonRootElement.style.left = `${left + screenWidth / 2 - buttonWidth / 2}px`;
+          this._playButtonRootElement.style.top = `${top + screenHeight / 2 - buttonHeight / 2 + 25}px`;
         }
       }
     }
@@ -366,8 +388,6 @@ export class Loader extends DefaultLoader {
   public override onDraw(ctx: CanvasRenderingContext2D) {
     const canvasHeight = this.engine.canvasHeight / this.engine.pixelRatio;
     const canvasWidth = this.engine.canvasWidth / this.engine.pixelRatio;
-
-    this._positionPlayButton();
 
     ctx.fillStyle = this.backgroundColor;
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
