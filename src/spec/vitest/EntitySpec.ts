@@ -1,4 +1,5 @@
 import * as ex from '@excalibur';
+import { TestUtils } from '../__util__/TestUtils';
 
 class FakeComponentA extends ex.Component {}
 class FakeComponentB extends ex.Component {}
@@ -334,6 +335,40 @@ describe('An entity', () => {
     e.removeComponent(FakeComponentA);
     e.processComponentRemoval();
     expect(removedSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('will have onAdd & onRemove called when removed', async () => {
+    const engine = TestUtils.engine({ width: 100, height: 100 });
+    await TestUtils.runToReady(engine);
+
+    const e = new ex.Entity();
+
+    const onAddSpy = vi.fn();
+    e.onAdd = onAddSpy;
+
+    const onRemoveSpy = vi.fn();
+    e.onRemove = onRemoveSpy;
+
+    const scene = new ex.Scene();
+    scene.add(e);
+
+    engine.addScene('test', scene);
+    await engine.goToScene('test');
+    engine.screen.setCurrentCamera(engine.currentScene.camera);
+
+    class TestSystem extends ex.System {
+      systemType = ex.SystemType.Update;
+      update(elapsed: number): void {
+        e.kill();
+      }
+    }
+
+    scene.world.systemManager.addSystem(TestSystem);
+
+    scene.update(engine, 100);
+
+    expect(onAddSpy).toHaveBeenCalledOnce();
+    expect(onRemoveSpy).toHaveBeenCalledOnce();
   });
 
   it('can add and remove children in the ECS world', () => {
