@@ -113,7 +113,7 @@ export class EntityManager {
       }
 
       // on remove lifecycle
-      entity._remove(this._world.scene.engine);
+      entity._remove(this._world?.scene?.engine);
 
       // stats
       if (this._world?.scene?.engine) {
