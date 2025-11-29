@@ -389,8 +389,6 @@ export class Loader extends DefaultLoader {
     const canvasHeight = this.engine.canvasHeight / this.engine.pixelRatio;
     const canvasWidth = this.engine.canvasWidth / this.engine.pixelRatio;
 
-    // this._positionPlayButton();
-
     ctx.fillStyle = this.backgroundColor;
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
