@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="twitter:card" content="summary_large_image">
+	<meta property="og:image" content="https://excaliburjs.com/playground/social.jpg">
+	<meta name="twitter:image" content="https://excaliburjs.com/playground/social.jpg">
+	<meta property="og:url" content="https://excaliburjs.com/playground/">
+	<meta property="og:locale" content="en">
+	<meta property="og:title" content="Excalibur.js Playground">
+	<meta name="description" content="Excalibur is a friendly TypeScript game engine for the web!">
+	<meta property="og:description" content="Excalibur is a friendly TypeScript game engine for the web!">
+	<link rel="icon" href="/img/favicon.ico">
+	<link rel="canonical" href="https://excaliburjs.com/playground/">
+	<link rel="alternate" href="https://excaliburjs.com/playground/" hreflang="en">
+	<link rel="alternate" href="https://excaliburjs.com/playground/" hreflang="x-default">
+	<title>Excalibur Playground</title>
+	<link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+	<header>
+		<h1>
+				<picture>
+					<source srcset="logo@2x.png" media="(prefers-color-scheme: light)"/>
+					<source srcset="logo-white@2x.png"  media="(prefers-color-scheme: dark)"/>
+					<img src="logo-white@2x.png" alt="Description of what the image shows"/>
+				</picture>
+				<span class="sr-only">Excalibur.js Playground<span>
+			</h1>
+	</header>
+	<main>
+		<div id="container"></div>
+		<div id="preview">
+			<div id="canvas-container">
+				<div class="loading">
+					<div>Building...</div>
+					<img src="icon.png" alt="excalibur sword" />
+				</div>
+				<canvas id="preview-canvas">
+				</canvas>
+			</div>
+			<div class="toolbar">
+				<div class="controls">
+					<label for="auto-save">Auto Save
+						<input id="auto-save" type="checkbox" checked="checked">
+					</label>
+					<button id="build" title="Build & Run (CTRL+S)">Build & Run</button>
+					<button id="debug" title="Debug (CTRL+D)">Toggle Debug</button>
+					<button id="share">Share</button>
+				</div>
+				<div class="templates">
+					<h2>Templates</h2>
+					<a href="?template=default"><span class="icon">💀</span> <span>Load bare bones template</span></a>
+					<a href="?template=tileset"><span class="icon">🖼️</span> <span>Load tileset template</span></a>
+					<a href="?template=spritesheet"><span class="icon">🎞️</span> <span>Load spritesheet template</span></a>
+					<a href="?template=audio"><span class="icon">🔊</span> <span>Load audio template</span></a>
+				</div>
+			</div>
+		</div>
+
+	</main>
+
+
+	<script type="importmap">
+        {
+            "imports": {
+                "excalibur": "https://www.unpkg.com/excalibur@next/build/esm/excalibur.min.js"
+            }
+        }
+	</script>
+	<script type="module" src="main.ts"></script>
+
+
+</body>
+
+</html>
