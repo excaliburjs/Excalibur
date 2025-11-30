@@ -8,6 +8,7 @@ import { themes } from 'prism-react-renderer';
 import typedocSymbolLinks from 'remark-typedoc-symbol-links';
 import rehypeRaw from 'rehype-raw';
 
+import 'dotenv/config';
 
 const lightCodeTheme = themes.github;
 const darkCodeTheme = themes.dracula;
@@ -31,6 +32,11 @@ const config: Config = {
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/',
+
+  customFields: {
+    // Update .env.local to PLAYGROUND_URL=http://localhost:5173 to test the local playground in your local docs
+    playgroundUrl: process.env.PLAYGROUND_URL || 'https://excaliburjs.com/excalibur-playground'
+  },
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.

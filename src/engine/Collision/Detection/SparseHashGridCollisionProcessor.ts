@@ -28,22 +28,7 @@ export class HashColliderProxy extends HashGridProxy<Collider> {
   body?: BodyComponent;
   collisionType: CollisionType;
   hasZeroBounds = false;
-  /**
-   * left bounds x hash coordinate
-   */
-  leftX: number;
-  /**
-   * right bounds x hash coordinate
-   */
-  rightX: number;
-  /**
-   * bottom bounds y hash coordinate
-   */
-  bottomY: number;
-  /**
-   * top bounds y hash coordinate
-   */
-  topY: number;
+
   /**
    * References to the hash cell the collider is a current member of
    */
@@ -51,7 +36,7 @@ export class HashColliderProxy extends HashGridProxy<Collider> {
   /**
    * Grid size in pixels
    */
-  readonly gridSize: number;
+  declare readonly gridSize: number;
   constructor(
     public collider: Collider,
     gridSize: number

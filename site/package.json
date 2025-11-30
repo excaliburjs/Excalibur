@@ -26,6 +26,7 @@
     "clsx": "^2.1.1",
     "docusaurus-plugin-typedoc-api": "4.4.0",
     "docusaurus-preset-shiki-twoslash": "^1.1.41",
+    "dotenv": "^17.2.3",
     "lz-string": "^1.5.0",
     "mermaid": "11.12.1",
     "prism-react-renderer": "^2.4.0",

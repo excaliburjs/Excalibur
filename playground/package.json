@@ -6,7 +6,7 @@
   "scripts": {
     "start": "vite",
     "build": "vite build",
-    "build:types": "npx tsup --loader '.glsl=text' ./Excalibur/src/engine/index.ts --dts && cp dist/index.d.ts types/index.d.ts",
+    "build:types": "npx tsup --loader '.glsl=text' ../src/engine/index.ts --dts --tsconfig ../src/engine/tsconfig.json --out-dir types",
     "preview": "vite preview"
   },
   "author": "Erik Onarheim",

@@ -11,20 +11,14 @@ This is the current implementation of the excalibur playground for sharing small
 
 ## Developing Locally
 
-* Initialize the Excalibur git submodule
-
-    ```sh
-    git submodule init
-    git submodule update
-    ```
 * First generate the types from Excalibur git submodule
 
     ```sh
     # Windows
-    npx tsup --loader ".glsl=text" .\Excalibur\src\engine\index.ts --dts
+    npx tsup --loader ".glsl=text" ..\src\engine\index.ts --dts --tsconfig ..\src\engine\tsconfig.json --out-dir types
 
     # Mac / Linux
-    npx tsup --loader ".glsl=text" ./Excalibur/src/engine/index.ts --dts
+    npx tsup --loader '.glsl=text' ../src/engine/index.ts --dts --tsconfig ../src/engine/tsconfig.json --out-dir types
     ```
 * Run `npm install`
 * Run `npm start`

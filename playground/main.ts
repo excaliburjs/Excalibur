@@ -1,5 +1,5 @@
-import * as monaco from "monaco-editor";
-import * as lz from "lz-string";
+import * as monaco from 'monaco-editor';
+import * as lz from 'lz-string';
 
 import templateAudio from './templates/audio';
 import templateDefault from './templates/default';
@@ -7,10 +7,10 @@ import templateSpritesheet from './templates/spritesheet';
 import templateTileset from './templates/tileset';
 
 const templates: Record<string, string> = {
-  'audio': templateAudio,
-  'default': templateDefault,
-  'spritesheet': templateSpritesheet,
-  'tileset': templateTileset,
+  audio: templateAudio,
+  default: templateDefault,
+  spritesheet: templateSpritesheet,
+  tileset: templateTileset
 };
 
 const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches;
@@ -29,13 +29,12 @@ import TsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker.js?work
 const getInitialCode = () => {
   const paramsString = window.location.search;
   const searchParams = new URLSearchParams(paramsString);
-  const sharedCode = searchParams.get("code");
-  console.log(sharedCode ? "has shared code" : "no shared code");
+  const sharedCode = searchParams.get('code');
+  console.log(sharedCode ? 'has shared code' : 'no shared code');
   const code = sharedCode ? lz.decompressFromEncodedURIComponent(sharedCode) : template;
 
   return code;
-}
-
+};
 
 // Solution: Configure Monaco Environment before importing
 window.MonacoEnvironment = {
@@ -51,11 +50,7 @@ window.MonacoEnvironment = {
 } as any;
 
 import exTypes from './types/index.d.ts?raw';
-monaco.languages.typescript.typescriptDefaults.addExtraLib(
-  exTypes,
-  "file:///index.d.ts"
-);
-
+monaco.languages.typescript.typescriptDefaults.addExtraLib(exTypes, 'file:///index.d.ts');
 
 // Check if TypeScript language server is working
 const tsDefaults = monaco.languages.typescript.typescriptDefaults;
@@ -63,7 +58,7 @@ const tsDefaults = monaco.languages.typescript.typescriptDefaults;
 monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
   ...tsDefaults.getCompilerOptions(),
   paths: {
-    'excalibur': ['file:///index.d.ts']
+    excalibur: ['file:///index.d.ts']
   }
 });
 
@@ -71,7 +66,7 @@ monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
 console.log('Compiler Options:', tsDefaults.getCompilerOptions());
 console.log('Diagnostics Options:', tsDefaults.getDiagnosticsOptions());
 
-const containerEl = document.getElementById("container")!;
+const containerEl = document.getElementById('container')!;
 const autoSaveEl = document.getElementById('auto-save')! as HTMLInputElement;
 
 const editor = monaco.editor.create(containerEl, {
@@ -79,20 +74,20 @@ const editor = monaco.editor.create(containerEl, {
   language: 'typescript',
   automaticLayout: true,
   theme: isLightMode ? 'vs-light' : 'vs-dark',
-  minimap: { enabled: !isEmbedded },
+  minimap: { enabled: !isEmbedded }
 });
 
 function debounce(func: (..._: any[]) => any, delay: number) {
-    let timeout: number;
-    return function (...args) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => {
-            func.apply(this, args);
-        }, delay) as unknown as number;
-    };
+  let timeout: number;
+  return function (...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      func.apply(this, args);
+    }, delay) as unknown as number;
+  };
 }
 
-const saveHandler = debounce(e => {
+const saveHandler = debounce((e) => {
   if (autoSaveEl.checked) {
     shareCode(false);
     console.log('Auto-save triggered!');
@@ -104,15 +99,14 @@ const saveHandler = debounce(e => {
     shareCode(false);
     console.log('Save triggered!');
   }
-
 }, 500);
 
 editor.onKeyDown(saveHandler);
 
 /**
-  * esm tagged template literal from Dr. Axel
-  * https://2ality.com/2019/10/eval-via-import.html
-  */
+ * esm tagged template literal from Dr. Axel
+ * https://2ality.com/2019/10/eval-via-import.html
+ */
 function esm(templateStrings, ...substitutions) {
   let js = templateStrings.raw[0];
   for (let i = 0; i < substitutions.length; i++) {
@@ -143,36 +137,36 @@ const getClient = async (model: monaco.editor.ITextModel) => {
       if (!shouldRetry) {
         throw err;
       }
-      
+
       // A little exponential backoff never hurt anyone
       // @see https://github.com/microsoft/monaco-editor/issues/115
-      await new Promise(res => setTimeout(res, Math.pow(2, attempt) * 100)); 
+      await new Promise((res) => setTimeout(res, Math.pow(2, attempt) * 100));
     }
   }
 
   throw lastError;
-}
+};
 
 const buildAndRun = async () => {
   loadingEl.style.display = 'block';
   const model = editor.getModel()!;
-  const client = await getClient(model);  
+  const client = await getClient(model);
   const runnanbleJs = await client.getEmitOutput(model.uri.toString(), false, false);
-  const firstJs = runnanbleJs.outputFiles.find(f => f.name.endsWith('.js'));
+  const firstJs = runnanbleJs.outputFiles.find((f) => f.name.endsWith('.js'));
   if (firstJs) {
     // Dr. Axel to the rescue
     // https://2ality.com/2019/10/eval-via-import.html
     try {
-      await import(/* @vite-ignore */esm`${firstJs.text}`);
+      await import(/* @vite-ignore */ esm`${firstJs.text}`);
     } finally {
       loadingEl.style.display = 'none';
     }
   }
-}
+};
 
 const toggleDebug = () => {
   (globalThis.___EXCALIBUR_DEVTOOL as any).toggleDebug();
-}
+};
 
 const shareCode = (writeToClipboard?: boolean) => {
   const code = editor.getModel().getValue();
@@ -180,11 +174,11 @@ const shareCode = (writeToClipboard?: boolean) => {
   const url = `${window.location}?${encoded}`;
   console.log(code);
   console.log(url);
-	if (writeToClipboard) {
-		navigator.clipboard.writeText(url);
-	}
-  window.history.pushState({}, "", "?" + encoded);
-}
+  if (writeToClipboard) {
+    navigator.clipboard.writeText(url);
+  }
+  window.history.pushState({}, '', '?' + encoded);
+};
 shareButtonEl.addEventListener('click', () => shareCode(true));
 debugButtonEl.addEventListener('click', toggleDebug);
 buildButtonEl.addEventListener('click', buildAndRun);
@@ -198,7 +192,6 @@ window.addEventListener('keydown', (evt: KeyboardEvent) => {
     evt.preventDefault();
     buildButtonEl.focus();
     return false;
-
   }
   if ((evt.ctrlKey || evt.metaKey) && evt.code === 'KeyS') {
     evt.preventDefault();

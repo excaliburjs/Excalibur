@@ -325,8 +325,6 @@ export class Loader extends DefaultLoader {
     }
   }
 
-  data!: Loadable<any>[];
-
   public override async onUserAction(): Promise<void> {
     // short delay in showing the button for aesthetics
     await delay(200, this.engine?.clock);

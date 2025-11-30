@@ -1,4 +1,5 @@
 import * as lz from "lz-string";
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 
 type Props =  {
   autoplay?: boolean;
@@ -19,19 +20,21 @@ const style = {
   overflow: 'hidden',
 }
 
-const PLAYGROUND_URL = 'https://excaliburjs.com/excalibur-playground';
-
 export default ({ autoplay = true, code, title }: Props) => {
   const params = new URLSearchParams({
     embed: 'true',
     code: lz.compressToEncodedURIComponent(code)
   });
+
+  const { siteConfig } = useDocusaurusContext();
+  const { customFields } = siteConfig;
+  const  { playgroundUrl } = customFields;
   
   if (autoplay) {
     params.set('autoplay', 'true');
   }
   
-  const src = `${PLAYGROUND_URL}/?${params.toString()}`;
+  const src = `${playgroundUrl}/?${params.toString()}`;
 
   return <iframe src={src} style={style} title={title} />
 }
