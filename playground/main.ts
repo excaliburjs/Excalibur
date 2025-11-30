@@ -18,7 +18,7 @@ const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches;
 const searchParams = new URLSearchParams(document.location.search);
 const isEmbedded = searchParams.get('embed') === 'true';
 const isAutoplay = searchParams.get('autoplay') === 'true';
-const template = templates[searchParams.get('template')] ?? templates['default'];
+const template = templates[searchParams.get('template')] ?? templates.default;
 
 document.body.classList.toggle('embedded', isEmbedded);
 
@@ -30,7 +30,6 @@ const getInitialCode = () => {
   const paramsString = window.location.search;
   const searchParams = new URLSearchParams(paramsString);
   const sharedCode = searchParams.get('code');
-  console.log(sharedCode ? 'has shared code' : 'no shared code');
   const code = sharedCode ? lz.decompressFromEncodedURIComponent(sharedCode) : template;
 
   return code;
@@ -63,8 +62,8 @@ monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
 });
 
 // These should return the default configurations
-console.log('Compiler Options:', tsDefaults.getCompilerOptions());
-console.log('Diagnostics Options:', tsDefaults.getDiagnosticsOptions());
+// console.log('Compiler Options:', tsDefaults.getCompilerOptions());
+// console.log('Diagnostics Options:', tsDefaults.getDiagnosticsOptions());
 
 const containerEl = document.getElementById('container')!;
 const autoSaveEl = document.getElementById('auto-save')! as HTMLInputElement;
@@ -87,17 +86,15 @@ function debounce(func: (..._: any[]) => any, delay: number) {
   };
 }
 
-const saveHandler = debounce((e) => {
+const saveHandler = debounce(async (e) => {
   if (autoSaveEl.checked) {
-    shareCode(false);
-    console.log('Auto-save triggered!');
+    await shareCode(false);
   }
 
   // Example: Handle Ctrl+S
   if (e.ctrlKey && e.keyCode === monaco.KeyCode.KeyS) {
     e.preventDefault();
-    shareCode(false);
-    console.log('Save triggered!');
+    await shareCode(false);
   }
 }, 500);
 
@@ -133,6 +130,7 @@ const getClient = async (model: monaco.editor.ITextModel) => {
       lastError = err;
       const message = String(err);
       const shouldRetry = message.includes('TypeScript not registered') && attempt < maxAttempts;
+      // eslint-disable-next-line no-console
       console.warn(`Error getting TypeScript worker client (attempt ${attempt}/${maxAttempts}):`, err);
       if (!shouldRetry) {
         throw err;
@@ -168,14 +166,12 @@ const toggleDebug = () => {
   (globalThis.___EXCALIBUR_DEVTOOL as any).toggleDebug();
 };
 
-const shareCode = (writeToClipboard?: boolean) => {
+const shareCode = async (writeToClipboard?: boolean) => {
   const code = editor.getModel().getValue();
   const encoded = `code=${lz.compressToEncodedURIComponent(code)}`;
   const url = `${window.location}?${encoded}`;
-  console.log(code);
-  console.log(url);
   if (writeToClipboard) {
-    navigator.clipboard.writeText(url);
+    await navigator.clipboard.writeText(url);
   }
   window.history.pushState({}, '', '?' + encoded);
 };
@@ -184,7 +180,7 @@ debugButtonEl.addEventListener('click', toggleDebug);
 buildButtonEl.addEventListener('click', buildAndRun);
 
 if (isAutoplay) {
-  buildAndRun();
+  void buildAndRun();
 }
 
 window.addEventListener('keydown', (evt: KeyboardEvent) => {
@@ -195,7 +191,7 @@ window.addEventListener('keydown', (evt: KeyboardEvent) => {
   }
   if ((evt.ctrlKey || evt.metaKey) && evt.code === 'KeyS') {
     evt.preventDefault();
-    buildAndRun();
+    void buildAndRun();
     return false;
   }
 

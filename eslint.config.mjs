@@ -21,7 +21,8 @@ export default tseslint.config(
     '**/coverage',
     '**/node_cache',
     '**/*.d.ts',
-    '**/build-storybook'
+    '**/build-storybook',
+    'playground/types/**'
   ]),
   tseslint.configs.recommendedTypeChecked,
   {
