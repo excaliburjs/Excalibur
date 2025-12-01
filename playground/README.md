@@ -1,17 +1,21 @@
 # Excalibur Studio and Playground
 
-This is the current implementation of the excalibur playground for sharing small game examples via links!
+This is the current implementation of the Excalibur Playground for sharing small game examples via links!
 
 ## Project Goals
 
-* Eventually we want this to become the Excalibur Studio (a full fledged editor like Godot!) as well as the playground
+* Eventually we want this to become the Excalibur Studio (a full fledged editor like Godot!) as well as the Playground
 * Drag and drop Actors/Entities
 * More Terse Built-in Examples
-* Replace the current documentation site embedded examples
+
 
 ## Developing Locally
 
-* First generate the types from Excalibur git submodule
+### Initial setup
+
+* From the root of the project, run `npm install` 
+* Navigate to the `playground` directory, run `npm install`
+* Still within the `playground` directory, generate the types from the Excalibur engine
 
     ```sh
     # Windows
@@ -20,12 +24,14 @@ This is the current implementation of the excalibur playground for sharing small
     # Mac / Linux
     npx tsup --loader '.glsl=text' ../src/engine/index.ts --dts --tsconfig ../src/engine/tsconfig.json --out-dir types
     ```
-* Run `npm install`
+
+### Day to day development
+
+* Navigate to the `playground` directory
 * Run `npm start`
 
 ## Contribution Wishlist
 
-* Link to source code in github (or anywhere)
 * Support multiple versions of Excalibur (maybe even in progress branches?)
 * Auto save to the URL on keyup
 * Multiple file tree
