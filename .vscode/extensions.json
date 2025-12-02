@@ -4,6 +4,8 @@
   "recommendations": [
     // Extension identifier format: ${publisher}.${name}. Example: vscode.csharp
     "eamodio.gitlens",
-    "dbaeumer.vscode-eslint"
+    "dbaeumer.vscode-eslint",
+    "vitest.explorer",
+    "TypeScriptTeam.native-preview"
   ]
 }

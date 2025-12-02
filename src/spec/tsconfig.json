@@ -23,9 +23,9 @@
       "es2017.object",
       "es2018"
     ],
-    "baseUrl": ".",
     "rootDir": "../../",
     "paths": {
+      "*": ["./*"],
       "@excalibur": ["../engine/"]
     }
   },

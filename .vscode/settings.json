@@ -22,6 +22,7 @@
     "src/spec/*.js": true,
     "src/spec/*.map": true
   },
+  "typescript.experimental.useTsgo": true,
   "typescript.tsdk": "./node_modules/typescript/lib",
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
