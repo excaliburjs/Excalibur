@@ -1801,6 +1801,7 @@ O|===|* >________________>\n\
       this.stats.currFrame.duration.draw = afterDraw - afterUpdate;
       this.stats.currFrame.graphics.drawnImages = GraphicsDiagnostics.DrawnImagesCount;
       this.stats.currFrame.graphics.drawCalls = GraphicsDiagnostics.DrawCallCount;
+      this.stats.currFrame.graphics.rendererSwaps = GraphicsDiagnostics.RendererSwaps;
 
       this.emit('postframe', new PostFrameEvent(this, this.stats.currFrame));
       this.stats.prevFrame.reset(this.stats.currFrame);

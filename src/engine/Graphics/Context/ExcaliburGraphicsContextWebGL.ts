@@ -43,6 +43,7 @@ import { ParticleRenderer } from './particle-renderer/particle-renderer';
 import { ImageRendererV2 } from './image-renderer-v2/image-renderer-v2';
 import { Flags } from '../../Flags';
 import { Debug } from '../Debug';
+import { GraphicsDiagnostics } from '../GraphicsDiagnostics';
 
 export const pixelSnapEpsilon = 0.0001;
 
@@ -804,6 +805,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
             currentRenderer!.flush();
             currentRendererName = this._drawCalls[i].renderer;
             currentRenderer = this.get(currentRendererName);
+            GraphicsDiagnostics.RendererSwaps++;
           }
 
           // ! hack to grab screen texture before materials run because they might want it
