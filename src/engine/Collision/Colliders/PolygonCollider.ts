@@ -18,7 +18,6 @@ import { Transform } from '../../Math/transform';
 import type { RayCastHit } from '../Detection/RayCastHit';
 
 export interface PolygonColliderOptions {
-  
   /**
    * Pixel offset relative to a collider's body transform position.
    */
@@ -44,7 +43,7 @@ export class PolygonCollider extends Collider {
    * Pixel offset relative to a collider's body transform position.
    */
   public offset: Vector;
-  
+
   public flagDirty() {
     this._localBoundsDirty = true;
     this._localSidesDirty = true;
