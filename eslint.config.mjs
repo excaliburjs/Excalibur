@@ -9,6 +9,7 @@ export default tseslint.config(
     'site',
     'sandbox',
     'scripts',
+    'playground',
     'docs/api/**',
     '**/karma.conf.*',
     '**/webpack.config.js',
@@ -21,8 +22,7 @@ export default tseslint.config(
     '**/coverage',
     '**/node_cache',
     '**/*.d.ts',
-    '**/build-storybook',
-    'playground/types/**'
+    '**/build-storybook'
   ]),
   tseslint.configs.recommendedTypeChecked,
   {

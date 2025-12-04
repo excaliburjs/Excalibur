@@ -6,6 +6,9 @@ import templateDefault from './templates/default';
 import templateSpritesheet from './templates/spritesheet';
 import templateTileset from './templates/tileset';
 
+type ExcaliburDevTool = { toggleDebug: () => void };
+type GlobalWithDevTool = typeof globalThis & { ___EXCALIBUR_DEVTOOL?: ExcaliburDevTool };
+
 const templates: Record<string, string> = {
   audio: templateAudio,
   default: templateDefault,
@@ -18,7 +21,7 @@ const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches;
 const searchParams = new URLSearchParams(document.location.search);
 const isEmbedded = searchParams.get('embed') === 'true';
 const isAutoplay = searchParams.get('autoplay') === 'true';
-const template = templates[searchParams.get('template')] ?? templates.default;
+const template = templates[searchParams.get('template') ?? ''] ?? templates.default;
 
 document.body.classList.toggle('embedded', isEmbedded);
 
@@ -37,7 +40,7 @@ const getInitialCode = () => {
 
 // Solution: Configure Monaco Environment before importing
 window.MonacoEnvironment = {
-  getWorker: (moduleId: string, label: string) => {
+  getWorker: (_moduleId: string, label: string) => {
     switch (label) {
       case 'typescript':
       case 'javascript':
@@ -48,7 +51,7 @@ window.MonacoEnvironment = {
   }
 } as any;
 
-import exTypes from './types/index.d.ts?raw';
+import exTypes from '../types/index.d.cts?raw';
 monaco.languages.typescript.typescriptDefaults.addExtraLib(exTypes, 'file:///index.d.ts');
 
 // Check if TypeScript language server is working
@@ -78,7 +81,7 @@ const editor = monaco.editor.create(containerEl, {
 
 function debounce(func: (..._: any[]) => any, delay: number) {
   let timeout: number;
-  return function (...args) {
+  return function (this: unknown, ...args: any[]) {
     clearTimeout(timeout);
     timeout = setTimeout(() => {
       func.apply(this, args);
@@ -104,7 +107,7 @@ editor.onKeyDown(saveHandler);
  * esm tagged template literal from Dr. Axel
  * https://2ality.com/2019/10/eval-via-import.html
  */
-function esm(templateStrings, ...substitutions) {
+function esm(templateStrings: TemplateStringsArray, ...substitutions: any[]) {
   let js = templateStrings.raw[0];
   for (let i = 0; i < substitutions.length; i++) {
     js += substitutions[i] + templateStrings.raw[i + 1];
@@ -163,11 +166,12 @@ const buildAndRun = async () => {
 };
 
 const toggleDebug = () => {
-  (globalThis.___EXCALIBUR_DEVTOOL as any).toggleDebug();
+  const devTool = (globalThis as GlobalWithDevTool).___EXCALIBUR_DEVTOOL;
+  devTool?.toggleDebug();
 };
 
 const shareCode = async (writeToClipboard?: boolean) => {
-  const code = editor.getModel().getValue();
+  const code = editor.getModel()?.getValue() ?? '';
   const encoded = `code=${lz.compressToEncodedURIComponent(code)}`;
   const url = `${window.location}?${encoded}`;
   if (writeToClipboard) {

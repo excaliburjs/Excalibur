@@ -7,8 +7,15 @@ import webpack, { web } from 'webpack';
 import { themes } from 'prism-react-renderer';
 import typedocSymbolLinks from 'remark-typedoc-symbol-links';
 import rehypeRaw from 'rehype-raw';
+import { loadEnvFile } from 'node:process';
 
-import 'dotenv/config';
+try {
+  loadEnvFile();
+} catch (e) {
+  console.warn('.env file not found, proceeding without it.');
+}
+
+const playgroundUrl = process.env.PLAYGROUND_URL || 'https://excaliburjs.com/excalibur-playground';
 
 const lightCodeTheme = themes.github;
 const darkCodeTheme = themes.dracula;
@@ -34,8 +41,7 @@ const config: Config = {
   baseUrl: '/',
 
   customFields: {
-    // Update .env.local to PLAYGROUND_URL=http://localhost:5173 to test the local playground in your local docs
-    playgroundUrl: process.env.PLAYGROUND_URL || 'https://excaliburjs.com/excalibur-playground'
+    playgroundUrl,
   },
 
   // GitHub pages deployment config.

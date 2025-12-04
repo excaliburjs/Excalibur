@@ -15,20 +15,37 @@ This is the current implementation of the Excalibur Playground for sharing small
 
 * From the root of the project, run `npm install` 
 * Navigate to the `playground` directory, run `npm install`
-* Still within the `playground` directory, generate the types from the Excalibur engine
+* Still within the `playground` directory, generate the Excalibur engine types: 
 
-    ```sh
-    # Windows
-    npx tsup --loader ".glsl=text" ..\src\engine\index.ts --dts --tsconfig ..\src\engine\tsconfig.json --out-dir types
-
-    # Mac / Linux
-    npx tsup --loader '.glsl=text' ../src/engine/index.ts --dts --tsconfig ../src/engine/tsconfig.json --out-dir types
-    ```
+```sh
+npm run build:types
+```
 
 ### Day to day development
 
 * Navigate to the `playground` directory
 * Run `npm start`
+
+### Building locally 
+
+The Playground lives as a standalone app at https://excaliburjs.com/playground/ , while the main site, running at https://excaliburjs.com is built with Docusaurus. 
+The routing to the Playground is handled with Cloudflare rules. 
+
+Because of this, care needs to be taken with pathing to static assets within the Playground, such as images and javascript. 
+A [relative base](https://vite.dev/guide/build#relative-base) is configured in `vite.config.ts` to handle most typical scenarios. 
+
+You can test that the built Playground operates correctly in a subdirectory:
+
+```sh
+# build to `dist/playground`, instead of the default `playground`
+npm run build:dev 
+
+# serve the locally built version on http://localhost:8080/playground
+npx http-server dist
+```
+
+Open [http://localhost:8080/playground](http://localhost:8080/playground) and ensure styles, scripts, and assets load correctly. 
+
 
 ## Contribution Wishlist
 
