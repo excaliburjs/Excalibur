@@ -164,11 +164,13 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
     this._resource.bustCache = val;
   }
 
+  public scheduledStart = 0;
+
   private _loop = false;
   private _volume = 1;
   private _isStopped = false;
   // private _isPaused = false;
-  private _tracks: Audio[] = [];
+  private _tracks: WebAudioInstance[] = [];
   private _engine?: Engine;
   private _wasPlayingOnHidden: boolean = false;
   private _playbackRate = 1.0;
@@ -304,7 +306,7 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
    * Play the sound, returns a promise that resolves when the sound is done playing
    * An optional volume argument can be passed in to play the sound. Max volume is 1.0
    */
-  public play(volume?: number): Promise<boolean> {
+  public play(volume?: number, scheduledStart?: number): Promise<boolean> {
     if (!this.isLoaded()) {
       this.logger.warn('Cannot start playing. Resource', this.path, 'is not loaded yet');
 
@@ -324,7 +326,7 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
       if (this.position) {
         this.seek(this.position);
       }
-      return this._startPlayback();
+      return this._startPlayback(scheduledStart);
     }
   }
 
@@ -406,15 +408,16 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
    * Get Id of provided AudioInstance in current trackList
    * @param track {@apilink Audio} which Id is to be given
    */
-  public getTrackId(track: Audio): number {
+  public getTrackId(track: WebAudioInstance): number {
     return this._tracks.indexOf(track);
   }
 
-  private async _resumePlayback(): Promise<boolean> {
+  private async _resumePlayback(scheduledStart: number = 0): Promise<boolean> {
     if (this.isPaused()) {
       const resumed: Promise<boolean>[] = [];
       // ensure we resume *current* tracks (if paused)
       for (const track of this._tracks) {
+        track.scheduledStart = scheduledStart;
         resumed.push(
           track.play().then(() => {
             this._tracks.splice(this.getTrackId(track), 1);
@@ -435,8 +438,9 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
   /**
    * Starts playback, returns a promise that resolves when playback is complete
    */
-  private async _startPlayback(): Promise<boolean> {
+  private async _startPlayback(scheduledStart: number = 0): Promise<boolean> {
     const track = this._getTrackInstance(this.data);
+    track.scheduledStart = scheduledStart;
 
     const complete = await track.play(() => {
       this.events.emit('playbackstart', new NativeSoundEvent(this, track));
