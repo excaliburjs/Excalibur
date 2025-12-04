@@ -3,7 +3,7 @@ import type { Loadable } from '../Interfaces/Loadable';
 import * as DrawUtil from '../Util/DrawUtil';
 
 import logoImg from './Loader.logo.png';
-import loaderCss from './Loader.css?inline';
+import loaderCss from './Loader.css';
 import type { Vector } from '../Math/vector';
 import { delay } from '../Util/Util';
 import { EventEmitter } from '../EventEmitter';
