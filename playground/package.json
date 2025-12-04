@@ -7,15 +7,18 @@
     "start": "vite",
     "build": "vite build",
     "build:dev": "vite build --outDir dist/playground",
-    "build:types": "npx tsup --loader '.glsl=text' ../src/engine/index.ts --dts --tsconfig ../src/engine/tsconfig.json --out-dir types",
+    "build:types": "npx tsdown",
+    "build:types:tsup": "npx tsup --loader .glsl=text ../src/engine/index.ts --dts --tsconfig ../src/engine/tsconfig.json --out-dir types",
     "preview": "vite preview"
   },
   "author": "Erik Onarheim",
   "license": "BSD-2-Clause",
   "devDependencies": {
     "@types/node": "24.0.10",
+    "tsdown": "^0.17.0-beta.6",
     "tsup": "8.5.0",
     "typescript": "5.9.3",
+    "unplugin-raw": "^0.6.3",
     "vite": "7.2.4"
   },
   "dependencies": {
