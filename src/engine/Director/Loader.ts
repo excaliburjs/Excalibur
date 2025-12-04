@@ -324,6 +324,8 @@ export class Loader extends DefaultLoader {
       this._styleBlock = null as any;
     }
   }
+  
+  data!: Loadable<any>[];
 
   public override async onUserAction(): Promise<void> {
     // short delay in showing the button for aesthetics
