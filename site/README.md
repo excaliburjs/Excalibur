@@ -25,7 +25,7 @@ This is easily achieved with the `PLAYGROUND_URL` environment variable.
 ```sh
 # Start the Playground locally:
 cd playground
-npm run start
+npm start
 ```
 
 Update `site/.env`:
@@ -37,7 +37,7 @@ PLAYGROUND_URL=http://localhost:5173
 Run the site as usual:
 
 ```sh
-yarn start
+npm start
 ```
  
 
