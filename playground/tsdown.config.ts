@@ -7,6 +7,7 @@ export default defineConfig({
   tsconfig: '../src/engine/tsconfig.json',
   outDir: './types',
   // See: https://github.com/rolldown/tsdown/discussions/631
-  loader: { '.glsl': 'text', '.png': 'asset', '.css': 'text' },
+  loader: { '.glsl': 'text', '.png': 'asset' },
+  external: [/\.css\?inline$/, /\.css$/],
   plugins: [Raw()]
 });

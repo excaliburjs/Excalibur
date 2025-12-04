@@ -1,4 +1,4 @@
-import toasterCss from './Toaster.css';
+import toasterCss from './Toaster.css?inline';
 
 /**
  * The Toaster is only meant to be called from inside Excalibur to display messages to players

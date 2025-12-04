@@ -12,7 +12,6 @@ const dt = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
 const version = process.env.release ? versioner.getReleaseVersion() : versioner.getAlphaVersion();
 
 import commonConfig from './vite.config.common';
-import { inlineCssByDefault } from './vite.plugins';
 
 export default defineConfig(({ mode }) => {
   let config: ResolvedConfig;
@@ -50,8 +49,6 @@ export default defineConfig(({ mode }) => {
     },
 
     plugins: [
-      inlineCssByDefault(),
-      
       // get the resolved vite config so we can reference it in
       // callbacks
       {

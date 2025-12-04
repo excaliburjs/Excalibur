@@ -7,8 +7,8 @@ declare module '*.mp3';
 declare module '*.svg';
 
 declare module '*.css' {
-  const content: string;
-  export default content;
+  const value: { toString: () => string };
+  export default value;
 }
 
 declare module '*.glsl' {

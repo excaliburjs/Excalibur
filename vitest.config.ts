@@ -6,7 +6,6 @@ import { defineConfig, mergeConfig } from 'vitest/config';
 import commonConfig from './vite.config.common';
 import { EngineInstanceReporter } from './src/spec/__util__/reporters/engine-instance';
 import { MemoryReporter } from './src/spec/__util__/reporters/memory';
-import { inlineCssByDefault } from './vite.plugins';
 
 export default defineConfig(
   mergeConfig(commonConfig, {
@@ -29,9 +28,8 @@ export default defineConfig(
         reporter: [['html'], ['lcov', { projectRoot: __dirname }], ['text-summary']],
         reportsDirectory: path.join(__dirname, 'coverage')
       },
-      projects: [path.resolve(__dirname, './src/spec/vitest.config.unit.ts'), path.resolve(__dirname, './src/spec/vitest.config.visual.ts')],
-    },
-    plugins: [inlineCssByDefault()]
+      projects: [path.resolve(__dirname, './src/spec/vitest.config.unit.ts'), path.resolve(__dirname, './src/spec/vitest.config.visual.ts')]
+    }
   } satisfies ViteUserConfig)
 );
 
