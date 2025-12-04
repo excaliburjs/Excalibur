@@ -29,7 +29,7 @@ export default defineConfig(
         reporter: [['html'], ['lcov', { projectRoot: __dirname }], ['text-summary']],
         reportsDirectory: path.join(__dirname, 'coverage')
       },
-      projects: ['./src/spec/vitest.config.unit.ts', './src/spec/vitest.config.visual.ts']
+      projects: [path.resolve(__dirname, './src/spec/vitest.config.unit.ts'), path.resolve(__dirname, './src/spec/vitest.config.visual.ts')],
     },
     plugins: [inlineCssByDefault()]
   } satisfies ViteUserConfig)

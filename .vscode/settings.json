@@ -23,6 +23,7 @@
     "src/spec/*.map": true
   },
   "typescript.tsdk": "./node_modules/typescript/lib",
+  "vitest.cliArguments": "--project=unit --browser.headless",
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },

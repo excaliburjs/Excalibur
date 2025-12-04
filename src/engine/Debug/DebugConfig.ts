@@ -148,6 +148,7 @@ export interface PhysicsStatistics {
 export interface GraphicsStatistics {
   drawCalls: number;
   drawnImages: number;
+  rendererSwaps: number;
 }
 
 /**
@@ -424,7 +425,8 @@ export class FrameStats implements FrameStatistics {
 
   private _graphicsStats: GraphicsStatistics = {
     drawCalls: 0,
-    drawnImages: 0
+    drawnImages: 0,
+    rendererSwaps: 0
   };
 
   /**
@@ -444,12 +446,13 @@ export class FrameStats implements FrameStatistics {
       this._physicsStats.reset(otherStats.physics);
       this.graphics.drawCalls = otherStats.graphics.drawCalls;
       this.graphics.drawnImages = otherStats.graphics.drawnImages;
+      this.graphics.rendererSwaps = otherStats.graphics.rendererSwaps;
     } else {
       this.id = this.elapsedMs = this.fps = 0;
       this.actors.alive = this.actors.killed = this.actors.ui = 0;
       this.duration.update = this.duration.draw = 0;
       this._physicsStats.reset();
-      this.graphics.drawnImages = this.graphics.drawCalls = 0;
+      this.graphics.drawnImages = this.graphics.drawCalls = this.graphics.rendererSwaps = 0;
     }
   }
 
