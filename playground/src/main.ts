@@ -51,7 +51,7 @@ window.MonacoEnvironment = {
   }
 } as any;
 
-import exTypes from '../types/index.d.cts?raw';
+import exTypes from '../types/index.d.mts?raw';
 monaco.languages.typescript.typescriptDefaults.addExtraLib(exTypes, 'file:///index.d.ts');
 
 // Check if TypeScript language server is working
