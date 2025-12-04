@@ -1,4 +1,4 @@
-import type { ImageSource } from './ImageSource';
+import { ImageSource } from './ImageSource';
 import type { SourceView } from './Sprite';
 import { Sprite } from './Sprite';
 import type { GraphicOptions } from './Graphic';
@@ -176,6 +176,103 @@ export class SpriteSheet {
       return TiledSprite.fromSprite(sprite, options);
     }
     throw Error(`Invalid sprite coordinates (${x}, ${y})`);
+  }
+
+  public async getParsedSprite(x: number, y: number): Promise<Sprite> {
+    if (x >= this.columns || x < 0) {
+      throw Error(`No sprite exists in the SpriteSheet at (${x}, ${y}), x: ${x} should be between 0 and ${this.columns - 1} columns`);
+    }
+    if (y >= this.rows || y < 0) {
+      throw Error(`No sprite exists in the SpriteSheet at (${x}, ${y}), y: ${y} should be between 0 and ${this.rows - 1} rows`);
+    }
+    const spriteIndex = x + y * this.columns;
+    const sprite = this.sprites[spriteIndex];
+    const cnv = document.createElement('canvas');
+    const ctx = cnv.getContext('2d');
+    cnv.width = sprite.width;
+    cnv.height = sprite.height;
+
+    if (!sprite) {
+      throw Error(`Invalid sprite coordinates (${x}, ${y})`);
+    }
+    if (!ctx) {
+      throw Error('Unable to create canvas context');
+    }
+
+    ctx.drawImage(
+      sprite.image.image,
+      sprite.sourceView.x,
+      sprite.sourceView.y,
+      sprite.sourceView.width,
+      sprite.sourceView.height,
+      0,
+      0,
+      sprite.sourceView.width,
+      sprite.sourceView.height
+    );
+
+    const imgSrc = new ImageSource(cnv.toDataURL());
+    await imgSrc.load();
+
+    return new Sprite({
+      image: imgSrc,
+      sourceView: {
+        x: 0,
+        y: 0,
+        width: sprite.width,
+        height: sprite.height
+      },
+      destSize: {
+        width: sprite.width,
+        height: sprite.height
+      }
+    });
+  }
+
+  public async getParsedImage(x: number, y: number): Promise<HTMLImageElement> {
+    if (x >= this.columns || x < 0) {
+      throw Error(`No sprite exists in the SpriteSheet at (${x}, ${y}), x: ${x} should be between 0 and ${this.columns - 1} columns`);
+    }
+    if (y >= this.rows || y < 0) {
+      throw Error(`No sprite exists in the SpriteSheet at (${x}, ${y}), y: ${y} should be between 0 and ${this.rows - 1} rows`);
+    }
+    const spriteIndex = x + y * this.columns;
+    const sprite = this.sprites[spriteIndex];
+    const cnv = document.createElement('canvas');
+    const ctx = cnv.getContext('2d');
+    cnv.width = sprite.width;
+    cnv.height = sprite.height;
+
+    if (!sprite) {
+      throw Error(`Invalid sprite coordinates (${x}, ${y})`);
+    }
+    if (!ctx) {
+      throw Error('Unable to create canvas context');
+    }
+
+    ctx.drawImage(
+      sprite.image.image,
+      sprite.sourceView.x,
+      sprite.sourceView.y,
+      sprite.sourceView.width,
+      sprite.sourceView.height,
+      0,
+      0,
+      sprite.sourceView.width,
+      sprite.sourceView.height
+    );
+
+    const imgSrc = new Image(sprite.width, sprite.height);
+    imgSrc.src = cnv.toDataURL();
+
+    return new Promise((resolve, reject) => {
+      imgSrc.onload = () => {
+        resolve(imgSrc);
+      };
+      imgSrc.onerror = (e) => {
+        reject(e);
+      };
+    });
   }
 
   /**
