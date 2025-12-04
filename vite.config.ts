@@ -87,11 +87,11 @@ function inlineCssByDefault(): Plugin {
     transform(code, id) {
       // Only touch JS/TS/JSX/TSX
       if (!/\.(mjs|cjs|js|ts|jsx|tsx)$/.test(id)) {
-return null;
-}
+        return null;
+      }
       if (!code.includes('.css')) {
-return null;
-}
+        return null;
+      }
 
       // Match both:
       //   import styles from "./foo.css";
@@ -112,24 +112,24 @@ return null;
 
         // Don’t touch inline/url/custom-query or CSS Modules
         if (spec.includes('?')) {
-continue;
-}
+          continue;
+        }
         if (spec.endsWith('.module.css')) {
-continue;
-}
+          continue;
+        }
 
         const start = match.index + match[0].indexOf(spec);
         const end = start + spec.length;
 
         if (!s) {
-s = new MagicString(code);
-}
+          s = new MagicString(code);
+        }
         s.overwrite(start, end, `${spec}?inline`);
       }
 
       if (!s) {
-return null;
-}
+        return null;
+      }
 
       return {
         code: s.toString(),
