@@ -57,3 +57,19 @@ const ss = ex.SpriteSheet.fromImageSourceWithSourceViews({
   ],
 })
 ```
+
+## Parsing Out Discrete Images
+
+If you pass a large sheet image into a SpriteSheet then use a Sprite via `getSprite()`, Excalibur draws a window into that larger sheet.  But what if you want a completely isolated Sprite parsed out of the host image?  What if you wanted to use that Sprite in an HTML image for UI?  We got convenience methods to help with that.  They work exactly like `getSprite()` but they return NEW and unique Sprites and ImageElements.
+
+```ts
+const myNewSprite = getParsedSprite(x,y); // new Sprite
+```
+
+or 
+
+```ts
+const myNewImage = getParsedImage(x,y); //New HTMLImageElement
+```
+
+
