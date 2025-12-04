@@ -6,7 +6,7 @@ import type { Vector } from '../../Math/vector';
 // import debugFont from './debug-font.png';
 import debugFont2 from './monogram-bitmap.png';
 import { Debug } from '../Debug';
-import type { Color } from '../../Color';
+import { Color } from '../../Color';
 
 /**
  * Internal debug text helper
@@ -23,9 +23,15 @@ export class DebugText {
    */
   public readonly fontSheet = debugFont2;
   public size: number = 16;
-  public foregroundColor: Color = Debug.config.settings.text.foreground;
-  public backgroundColor: Color = Debug.config.settings.text.background;
-  public borderColor: Color = Debug.config.settings.text.border;
+  public get foregroundColor(): Color {
+    return Debug.config.settings.text.foreground;
+  }
+  public get backgroundColor(): Color {
+    return Debug.config.settings.text.background;
+  }
+  public get borderColor(): Color {
+    return Debug.config.settings.text.border;
+  }
   private _imageSource!: ImageSource;
   private _spriteSheet!: SpriteSheet;
   private _spriteFont!: SpriteFont;
@@ -70,11 +76,11 @@ export class DebugText {
       ctx.z = Debug.config.settings.z.text;
       ctx.translate(pos1.x, pos1.y);
       const bounds = this._spriteFont.measureText(text);
-      const color = foreground ?? this.foregroundColor;
-      const bg = background ?? this.backgroundColor;
+      const color = foreground ?? this.foregroundColor ?? Color.Black;
+      const bg = background ?? this.backgroundColor ?? Color.Transparent;
       ctx.save();
       ctx.z = Debug.config.settings.z.solid;
-      ctx.drawRectangle(pos, bounds.width, bounds.height, bg, this.borderColor, 1);
+      ctx.drawRectangle(pos, bounds.width, bounds.height, bg, this.borderColor ?? Color.Transparent, 1);
       ctx.restore();
       ctx.tint = color;
       this._spriteFont.render(ctx, text, null, pos.x, pos.y);
