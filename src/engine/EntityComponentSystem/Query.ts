@@ -46,6 +46,8 @@ export class Query<
 > {
   public readonly id: string;
 
+  // TODO materialize the components as tuples or something, this would help avoid the add$/remove$ pattern
+
   private _entities: QueryEntity<TAllComponentCtors, TAnyComponentCtors>[] = [];
   public get entities() {
     if (this._dirty) {
