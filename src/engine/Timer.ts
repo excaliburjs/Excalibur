@@ -2,6 +2,32 @@ import type { Scene } from './Scene';
 import { Logger } from './Util/Log';
 import type * as ex from './index';
 import { Random } from './Math/Random';
+import { EventEmitter } from './EventEmitter';
+
+/**
+ * Built in events supported by all entities
+ */
+export interface TimerEvents {
+  start: void;
+  stop: void;
+  pause: void;
+  resume: void;
+  cancel: void;
+
+  action: void;
+  complete: void;
+}
+
+export const TimerEvents = {
+  Start: 'start',
+  Stop: 'stop',
+  Pause: 'pause',
+  Resume: 'resume',
+  Cancel: 'cancel',
+
+  Action: 'action',
+  Complete: 'complete'
+} as const;
 
 export interface TimerOptions {
   /**
@@ -32,6 +58,10 @@ export interface TimerOptions {
    * Optionally provide a random instance to use for random behavior, otherwise a new random will be created seeded from the current time.
    */
   random?: ex.Random;
+  /**
+   * Optionally provide a callback to fire once when the timer completes its last action callback.
+   */
+  onComplete?: () => void;
 }
 
 /**
@@ -42,6 +72,7 @@ export class Timer {
   private _logger = Logger.getInstance();
   private static _MAX_ID: number = 0;
   public id: number = 0;
+  public events = new EventEmitter<TimerEvents>();
 
   private _elapsedTime: number = 0;
   private _totalTimeAlive: number = 0;
@@ -134,6 +165,7 @@ export class Timer {
         this._complete = true;
         this._running = false;
         this._elapsedTime = 0;
+        this.events.emit('complete');
       }
 
       if (!this.complete && this._elapsedTime >= this.interval) {
@@ -141,12 +173,14 @@ export class Timer {
           c.call(this);
         });
         this._numberOfTicks++;
+        this.events.emit('action');
         if (this.repeats) {
           this._elapsedTime = 0;
         } else {
           this._complete = true;
           this._running = false;
           this._elapsedTime = 0;
+          this.events.emit('complete');
         }
       }
     }
@@ -210,6 +244,7 @@ export class Timer {
    */
   public pause(): Timer {
     this._running = false;
+    this.events.emit('pause');
     return this;
   }
 
@@ -218,6 +253,7 @@ export class Timer {
    */
   public resume(): Timer {
     this._running = true;
+    this.events.emit('resume');
     return this;
   }
 
@@ -234,6 +270,8 @@ export class Timer {
       this._complete = false;
       this._elapsedTime = 0;
       this._numberOfTicks = 0;
+    } else {
+      this.events.emit('start');
     }
 
     return this;
@@ -246,6 +284,7 @@ export class Timer {
     this._running = false;
     this._elapsedTime = 0;
     this._numberOfTicks = 0;
+    this.events.emit('stop');
     return this;
   }
 
@@ -256,6 +295,7 @@ export class Timer {
     this.pause();
     if (this.scene) {
       this.scene.cancelTimer(this);
+      this.events.emit('cancel');
     }
   }
 }
