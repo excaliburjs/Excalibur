@@ -17,6 +17,23 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 
+- Added new Timer events! 
+  ```typescript
+  const timer = new ex.Timer({...});
+  timer.events.on('complete', () => {...}); // after the last repeat
+  timer.events.on('action', () => {...}); // every fire of the timer
+  timer.events.on('start', () => {...}); // after the timer is started
+  timer.events.on('stop', () => {...}); // after the timer is stopped 
+  timer.events.on('pause', () => {...}); // after every pause
+  timer.events.on('resume', () => {...}); // after every resume
+  timer.events.on('cancel', () => {...}); // after cancel
+
+  // or specify the onComplete in the constructor
+  const timer2 = new ex.Timer({
+      onComplete: () => {...},
+      ...
+  });
+  ```
 - Added a way to configure general debug settings on text
   ```typescript
   class DebugConfig { 
