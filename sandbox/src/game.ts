@@ -45,7 +45,7 @@ var game = new ex.Engine({
   width: 800,
   height: 600,
   canvasElementId: 'game',
-  suppressPlayButton: true,
+  // suppressPlayButton: true,
   pointerScope: ex.PointerScope.Canvas,
   displayMode: ex.DisplayMode.FitScreenAndFill,
   snapToPixel: false,
@@ -203,6 +203,17 @@ cards2.draw(game.graphicsContext, 0, 0);
 cards2.draw(game.graphicsContext, 0, 0);
 
 jump.volume = 0.3;
+
+var screenBox = new ex.ScreenElement({
+  pos: ex.vec(50, 50),
+  width: 64,
+  height: 64,
+  scale: ex.vec(2, 2),
+  color: ex.Color.Gray
+});
+game.add(screenBox);
+console.log('width', screenBox.width);
+console.log('height', screenBox.height);
 
 var svgExternal = new ex.ImageSource('../images/arrows.svg');
 var svg = (tags: TemplateStringsArray) => tags[0];
