@@ -46,6 +46,16 @@ npx http-server dist
 
 Open [http://localhost:8080/playground](http://localhost:8080/playground) and ensure styles, scripts, and assets load correctly. 
 
+### Production
+
+In production, the `BASE_URL` is overridden to route requests properly to `https://excaliburjs.com/playground`.
+
+You can also test this locally:
+
+```sh
+BASE_URL=/playground npm start
+```
+
 
 ## Contribution Wishlist
 
