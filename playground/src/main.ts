@@ -6,6 +6,8 @@ import templateDefault from './templates/default';
 import templateSpritesheet from './templates/spritesheet';
 import templateTileset from './templates/tileset';
 
+import './styles.css';
+
 type ExcaliburDevTool = { toggleDebug: () => void };
 type GlobalWithDevTool = typeof globalThis & { ___EXCALIBUR_DEVTOOL?: ExcaliburDevTool };
 
