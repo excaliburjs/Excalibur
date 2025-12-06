@@ -178,7 +178,13 @@ export class SpriteSheet {
     throw Error(`Invalid sprite coordinates (${x}, ${y})`);
   }
 
-  public async getParsedSprite(x: number, y: number): Promise<Sprite> {
+  /**
+   * Returns a sprite that has a new backing image the exact size of the sprite that tha is a copy of the original sprite slice.
+   *
+   * Useful if you need to apply effects, manipulate, or mutate the image and you don't want to disturb the original sprite sheet.
+   *
+   */
+  public async getSpriteAsStandalone(x: number, y: number): Promise<Sprite> {
     if (x >= this.columns || x < 0) {
       throw Error(`No sprite exists in the SpriteSheet at (${x}, ${y}), x: ${x} should be between 0 and ${this.columns - 1} columns`);
     }
@@ -229,7 +235,12 @@ export class SpriteSheet {
     });
   }
 
-  public async getParsedImage(x: number, y: number): Promise<HTMLImageElement> {
+  /**
+   * Returns a new image exact size and copy of the original sprite slice.
+   *
+   * Useful if you need to apply effects, manipulate, or mutate the image and you don't want to disturb the original sprite sheet.
+   */
+  public async getSpriteAsImage(x: number, y: number): Promise<HTMLImageElement> {
     if (x >= this.columns || x < 0) {
       throw Error(`No sprite exists in the SpriteSheet at (${x}, ${y}), x: ${x} should be between 0 and ${this.columns - 1} columns`);
     }
@@ -265,7 +276,7 @@ export class SpriteSheet {
     const imgSrc = new Image(sprite.width, sprite.height);
     imgSrc.src = cnv.toDataURL();
 
-    return new Promise((resolve, reject) => {
+    return await new Promise((resolve, reject) => {
       imgSrc.onload = () => {
         resolve(imgSrc);
       };

@@ -248,7 +248,7 @@ describe('A SpriteSheet for Graphics', () => {
       }
     });
 
-    const newImage = await ss.getParsedImage(0, 0);
+    const newImage = await ss.getSpriteAsImage(0, 0);
     expect(newImage.width).toBe(42);
     expect(newImage.height).toBe(60);
     expect(newImage).toBeInstanceOf(Image);
@@ -272,7 +272,7 @@ describe('A SpriteSheet for Graphics', () => {
       }
     });
 
-    const newSprite = await ss.getParsedSprite(0, 0);
+    const newSprite = await ss.getSpriteAsStandalone(0, 0);
     expect(newSprite.width).toBe(42);
     expect(newSprite.height).toBe(60);
     expect(newSprite).toBeInstanceOf(ex.Sprite);
