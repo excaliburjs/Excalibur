@@ -92,6 +92,8 @@ export class Timer {
     return this._baseInterval + this.random.integer(this.randomRange[0], this.randomRange[1]);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  private _onComplete: () => void = () => {};
   private _complete = false;
   public get complete() {
     return this._complete;
@@ -106,6 +108,7 @@ export class Timer {
     const numberOfRepeats = options.numberOfRepeats;
     const randomRange = options.randomRange;
     const random = options.random;
+    this._onComplete = options.onComplete ?? this._onComplete;
 
     if (!!numberOfRepeats && numberOfRepeats >= 0) {
       this.maxNumberOfRepeats = numberOfRepeats;
@@ -165,6 +168,7 @@ export class Timer {
         this._complete = true;
         this._running = false;
         this._elapsedTime = 0;
+        this._onComplete();
         this.events.emit('complete');
       }
 
@@ -180,6 +184,7 @@ export class Timer {
           this._complete = true;
           this._running = false;
           this._elapsedTime = 0;
+          this._onComplete();
           this.events.emit('complete');
         }
       }
