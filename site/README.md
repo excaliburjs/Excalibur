@@ -16,6 +16,33 @@ $ yarn start
 
 This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
 
+
+#### Playground integration
+
+While working on the docs locally, you may want to also use a local version of the Playground. 
+This is easily achieved with the `PLAYGROUND_URL` environment variable. 
+
+```sh
+# Start the Playground locally:
+cd playground
+npm start
+```
+
+Update `site/.env`:
+
+```sh
+PLAYGROUND_URL=http://localhost:5173
+```
+
+Run the site as usual:
+
+```sh
+npm start
+```
+ 
+
+
+
 ### Build
 
 ```
