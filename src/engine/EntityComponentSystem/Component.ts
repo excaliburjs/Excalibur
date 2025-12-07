@@ -91,8 +91,8 @@ export abstract class Component {
 
     for (const prop in this) {
       if (!this.hasOwnProperty(prop)) {
-continue;
-}
+        continue;
+      }
 
       // Skip owner, private fields, functions, and non-serializable objects
       if (
@@ -114,8 +114,8 @@ continue;
   deserialize(data: Record<string, any>): void {
     for (const key in data) {
       if (key === 'type' || key === 'owner' || key === 'dependencies') {
-continue;
-}
+        continue;
+      }
 
       if (this.hasOwnProperty(key)) {
         (this as any)[key] = this._deserializeValue(data[key], (this as any)[key]);
@@ -185,21 +185,21 @@ continue;
 
   private _isSerializable(value: any): boolean {
     if (value === null || value === undefined) {
-return true;
-}
+      return true;
+    }
 
     const type = typeof value;
     if (type === 'string' || type === 'number' || type === 'boolean') {
-return true;
-}
+      return true;
+    }
 
     // Check for Observable or other non-serializable objects
     if (type === 'object' && value.subscribe) {
-return false;
-}
+      return false;
+    }
     if (type === 'function') {
-return false;
-}
+      return false;
+    }
 
     return true;
   }

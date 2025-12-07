@@ -605,8 +605,8 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
    */
   private _serializeCollisionGroup(group: CollisionGroup): string {
     if (group === CollisionGroup.All) {
-return 'All';
-}
+      return 'All';
+    }
     // For custom groups, you'd need to serialize their name/mask
     return group.name ?? 'Custom';
   }
@@ -616,8 +616,8 @@ return 'All';
    */
   private _deserializeCollisionGroup(groupName: string): CollisionGroup {
     if (groupName === 'All') {
-return CollisionGroup.All;
-}
+      return CollisionGroup.All;
+    }
     // For custom groups, you'd need to look them up by name
     // This is a limitation - custom collision groups need a registry
     return CollisionGroup.All;
