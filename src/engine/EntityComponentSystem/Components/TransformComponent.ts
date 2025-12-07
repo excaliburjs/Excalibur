@@ -6,6 +6,10 @@ import type { Entity } from '../Entity';
 import { Observable } from '../../Util/Observable';
 import { Logger } from '../../Util/Log';
 
+// =============================================================
+// Transform Component Serialization Data
+// ============================================================
+
 export interface TransformComponentData {
   type: 'TransformComponent';
   pos: { x: number; y: number };

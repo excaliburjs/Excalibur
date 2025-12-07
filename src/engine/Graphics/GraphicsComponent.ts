@@ -503,7 +503,7 @@ export class GraphicsComponent extends Component {
       forceOnScreen: this.forceOnScreen
     };
 
-    // Extract graphic IDs/names (assume graphics are managed separately)
+    // Extract graphic IDs/names
     data.graphicRefs = Object.keys(this._graphics);
 
     // Serialize options for each graphic
@@ -518,7 +518,6 @@ export class GraphicsComponent extends Component {
       }
     }
 
-    // Serialize color if present
     if (this._color) {
       data.color = {
         r: this._color.r,
@@ -533,8 +532,7 @@ export class GraphicsComponent extends Component {
 
   /**
    * Custom deserialization
-   * NOTE: Graphics must be added separately via addGraphic() after deserialization
-   * This only restores the component's settings
+   * NOTE - This only restores the component's settings, it does NOT restore the graphics themselves.
    */
   public deserialize(data: GraphicsComponentData): void {
     this._current = data.current ?? 'default';
