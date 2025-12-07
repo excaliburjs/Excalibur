@@ -23,6 +23,34 @@ export interface BodyComponentOptions {
   config?: Pick<PhysicsConfig, 'bodies'>['bodies'];
 }
 
+// ============================================================================
+// BodyComponent Serialization Data
+// ============================================================================
+
+export interface BodyComponentData {
+  type: 'BodyComponent';
+
+  // Physics configuration
+  collisionType: string; // 'PreventCollision' | 'Passive' | 'Active' | 'Fixed'
+  mass: number;
+  bounciness: number;
+  friction: number;
+  useGravity: boolean;
+
+  // Collision group (simplified - may need custom handling)
+  collisionGroup?: string; // 'All'  | custom group name
+
+  // Sleep settings
+  canSleep: boolean;
+  isSleeping: boolean;
+
+  // Degrees of freedom limitations
+  limitDegreeOfFreedom: string[]; // ['x', 'y', 'rotation']
+
+  // Fixed update interpolation
+  enableFixedUpdateInterpolate: boolean;
+}
+
 export enum DegreeOfFreedom {
   Rotation = 'rotation',
   X = 'x',
@@ -514,5 +542,84 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   public clone(): BodyComponent {
     const component = super.clone() as BodyComponent;
     return component;
+  }
+
+  public serialize(): BodyComponentData {
+    return {
+      type: 'BodyComponent',
+
+      // Core physics settings
+      collisionType: CollisionType[this.collisionType], // Convert enum to string
+      mass: this._mass,
+      bounciness: this.bounciness,
+      friction: this.friction,
+      useGravity: this.useGravity,
+
+      // Collision group (simplified)
+      collisionGroup: this._serializeCollisionGroup(this.group),
+
+      // Sleep settings
+      canSleep: this.canSleep,
+      isSleeping: this._sleeping,
+
+      // Limitations
+      limitDegreeOfFreedom: this.limitDegreeOfFreedom.map((dof) => dof.toString()),
+
+      // Interpolation
+      enableFixedUpdateInterpolate: this.enableFixedUpdateInterpolate
+    };
+  }
+
+  /**
+   * Custom deserialization
+   */
+  public deserialize(data: BodyComponentData): void {
+    // Restore physics settings
+    this.collisionType = CollisionType[data.collisionType as keyof typeof CollisionType];
+    this._mass = data.mass;
+    this.bounciness = data.bounciness ?? 0.2;
+    this.friction = data.friction ?? 0.99;
+    this.useGravity = data.useGravity ?? true;
+
+    // Restore collision group
+    if (data.collisionGroup) {
+      this.group = this._deserializeCollisionGroup(data.collisionGroup);
+    }
+
+    // Restore sleep settings
+    this.canSleep = data.canSleep ?? false;
+    this._sleeping = data.isSleeping ?? false;
+
+    // Restore limitations
+    this.limitDegreeOfFreedom = (data.limitDegreeOfFreedom ?? []).map((str) => DegreeOfFreedom[str as keyof typeof DegreeOfFreedom]);
+
+    // Restore interpolation
+    this.enableFixedUpdateInterpolate = data.enableFixedUpdateInterpolate ?? true;
+
+    // Runtime state is NOT restored - will be initialized fresh
+    // transform and motion will be set in onAdd()
+  }
+  /**
+   * Helper to serialize CollisionGroup
+   * This is simplified - you may need more complex handling
+   */
+  private _serializeCollisionGroup(group: CollisionGroup): string {
+    if (group === CollisionGroup.All) {
+return 'All';
+}
+    // For custom groups, you'd need to serialize their name/mask
+    return group.name ?? 'Custom';
+  }
+
+  /**
+   * Helper to deserialize CollisionGroup
+   */
+  private _deserializeCollisionGroup(groupName: string): CollisionGroup {
+    if (groupName === 'All') {
+return CollisionGroup.All;
+}
+    // For custom groups, you'd need to look them up by name
+    // This is a limitation - custom collision groups need a registry
+    return CollisionGroup.All;
   }
 }
