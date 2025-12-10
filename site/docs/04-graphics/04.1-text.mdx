@@ -4,6 +4,9 @@ slug: /text
 section: Graphics
 ---
 
+import FontQuality from '!!raw-loader!./examples/font-quality.ts';
+import FontLabel from '!!raw-loader!./examples/font.ts';
+
 You may want to display [[Text]] in your game, this can be achieved with the [[Text]], [[Font]], and [[SpriteFont]].
 
 ## Text
@@ -53,6 +56,8 @@ const label = new ex.Label({
 });
 ```
 
+
+
 ## Font
 
 A [[Font]] is a traditional system or loaded web font.
@@ -98,9 +103,30 @@ var text = new ex.Text({
 });
 ```
 
+### Loading External Fonts
+
+
 It is recommended you load any font important to your game and not rely on any pre-installed system fonts, those will be different from computer to computer.
 
-For example the [google fonts](https://fonts.google.com/) loader is a common way to do this.
+```typescript
+const fontSource = new ex.FontSource('./Gorgeous Pixel.ttf', 'Gorgeous Pixel');
+
+// load the font in ex.Loader or directly with .load()
+await fontSource.load();
+
+const font = fontSource.toFont({
+  family: 'Gorgeous Pixel',
+  color: ex.Color.White,
+  size: 30,
+  shadow: {
+    blur: 15,
+    color: ex.Color.Black
+  }
+});
+
+```
+
+It is also possible to use the [google fonts](https://fonts.google.com/) loader to do this.
 
 ```html
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -119,7 +145,7 @@ const font = new ex.Font({
 })
 ```
 
-One potential issue with using web fonts is they won't render correctly until loaded see [article for details](https://erikonarheim.com/posts/dont-test-fonts/).
+One potential issue with using web fonts from google is they won't render correctly until loaded see [article for details](https://erikonarheim.com/posts/dont-test-fonts/).
 
 ```typescript
 async function waitForFontLoad(font, timeout = 2000, interval = 100) {
@@ -146,6 +172,24 @@ await waitForFontLoad('24px Roboto');
 const game = new ex.Engine({...})
 await game.start();
 ```
+
+## Text Quality
+
+Depending on your game you may run into a situation where you have blurry looking text, this can be caused by a few reasons and fixed by adjusting a few settings.
+
+Most of the strategies involve artificially giving the text more pixels to work with to render a more crisp result.
+
+1. Increase the `quality` (default 2), this works by upscaling the bitmap the text is drawn to internally, more pixels can yield higher fidelity.
+2. Increase the "resolution" of your game using the `pixelRatio`, this is especially necessary if you have a very low resolutions (less than 500x500).
+3. If you cannot upscale (or don't want to) you need to line up your font glyphs to align with pixels in the canvas.
+4. Reach for a sprite font tailored for the resolution you're working in (often this is useful in low res situations)>
+
+
+<PlaygroundEmbed
+  title="FontQuality"
+  code={FontQuality}
+/>
+
 
 ## SpriteFont
 
