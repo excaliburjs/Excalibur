@@ -20,7 +20,7 @@ import { Actor } from '../Actor';
 // ============================================================================
 
 export interface ColliderComponentData {
-  type: 'ColliderComponent';
+  type: string;
   colliderType: ColliderType | null;
   colliderData: ColliderCreationData | null;
 }
@@ -311,9 +311,10 @@ export class ColliderComponent extends Component {
   }
 
   serialize(): ColliderComponentData {
+    let type = this.constructor.name;
     const collider = this._collider;
     const returnData: ColliderComponentData = {
-      type: 'ColliderComponent',
+      type,
       colliderType: null,
       colliderData: null
     };

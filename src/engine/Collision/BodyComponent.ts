@@ -28,7 +28,7 @@ export interface BodyComponentOptions {
 // ============================================================================
 
 export interface BodyComponentData {
-  type: 'BodyComponent';
+  type: string;
 
   // Physics configuration
   collisionType: string; // 'PreventCollision' | 'Passive' | 'Active' | 'Fixed'
@@ -545,8 +545,10 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   }
 
   public serialize(): BodyComponentData {
+    let type = this.constructor.name;
+
     return {
-      type: 'BodyComponent',
+      type,
 
       // Core physics settings
       collisionType: CollisionType[this.collisionType], // Convert enum to string

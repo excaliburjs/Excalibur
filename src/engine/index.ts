@@ -111,6 +111,7 @@ export * from './Util/Semaphore';
 export * from './Util/Coroutine';
 export * from './Util/Assert';
 export * from './Util/RentalPool';
+export * from './Util/Serializer';
 
 // ex.Deprecated
 // import * as deprecated from './Deprecated';

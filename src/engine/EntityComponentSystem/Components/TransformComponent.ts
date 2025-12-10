@@ -11,7 +11,7 @@ import { Logger } from '../../Util/Log';
 // ============================================================
 
 export interface TransformComponentData {
-  type: 'TransformComponent';
+  type: string;
   pos: { x: number; y: number };
   rotation: number;
   scale: { x: number; y: number };
@@ -163,8 +163,9 @@ export class TransformComponent extends Component {
    * Private fields (_transform, _parentComponent) are automatically excluded
    */
   public serialize(): TransformComponentData {
+    let type = this.constructor.name;
     const data: TransformComponentData = {
-      type: 'TransformComponent',
+      type,
       pos: { x: this.pos.x, y: this.pos.y },
       rotation: this.rotation,
       scale: { x: this.scale.x, y: this.scale.y },

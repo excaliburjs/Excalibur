@@ -29,7 +29,7 @@ export interface GraphicsShowOptions {
 // ============================================================================
 
 export interface GraphicsComponentData {
-  type: 'GraphicsComponent';
+  type: string;
   current: string;
   graphicRefs: string[]; // List of graphic IDs used by this component
   options: {
@@ -49,6 +49,7 @@ export interface GraphicsComponentData {
   flipVertical: boolean;
   copyGraphics: boolean;
   forceOnScreen: boolean;
+  tint?: { r: number; g: number; b: number; a: number };
 }
 export interface GraphicsComponentOptions {
   onPostDraw?: (ex: ExcaliburGraphicsContext, elapsed: number) => void;
@@ -488,8 +489,9 @@ export class GraphicsComponent extends Component {
    * Custom serialization - stores graphic references instead of graphic data
    */
   public serialize(): GraphicsComponentData {
+    let type = this.constructor.name;
     const data: GraphicsComponentData = {
-      type: 'GraphicsComponent',
+      type,
       current: this._current,
       graphicRefs: [],
       options: {},
@@ -500,7 +502,8 @@ export class GraphicsComponent extends Component {
       flipHorizontal: this.flipHorizontal,
       flipVertical: this.flipVertical,
       copyGraphics: this.copyGraphics,
-      forceOnScreen: this.forceOnScreen
+      forceOnScreen: this.forceOnScreen,
+      tint: undefined
     };
 
     // Extract graphic IDs/names
@@ -524,6 +527,15 @@ export class GraphicsComponent extends Component {
         g: this._color.g,
         b: this._color.b,
         a: this._color.a
+      };
+    }
+
+    if (this.current?.tint) {
+      data.tint = {
+        r: this.current.tint.r,
+        g: this.current.tint.g,
+        b: this.current.tint.b,
+        a: this.current.tint.a
       };
     }
 
