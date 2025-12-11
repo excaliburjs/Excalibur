@@ -85,10 +85,15 @@ export class Serializer {
     }
 
     Serializer.registerBuiltInSerializers();
+
     if (autoRegisterComponents) {
       Serializer.registerCommonComponents();
     }
     Serializer._initialized = true;
+  }
+
+  static isInitialized(): boolean {
+    return Serializer._initialized;
   }
 
   // ============================================================================
@@ -97,11 +102,6 @@ export class Serializer {
 
   // #region compRegistry
   static registerComponent<T extends Component>(ctor: ComponentCtor<T>): void {
-    if (!Serializer._initialized) {
-      console.warn('Serializer not initialized. Call init() before registering components.');
-      return;
-    }
-
     const typeName = ctor.name;
     if (Serializer._componentRegistry.has(typeName)) {
       console.warn(`Component ${typeName} is already registered`);
@@ -122,13 +122,11 @@ export class Serializer {
     ];
 
     Serializer.registerComponents(commonComponents);
+
+    // console.log(Serializer.getRegisteredComponents());
   }
 
   static registerComponents(ctors: ComponentCtor[]): void {
-    if (!Serializer._initialized) {
-      console.warn('Serializer not initialized. Call init() before registering components.');
-      return;
-    }
     for (const ctor of ctors) {
       Serializer.registerComponent(ctor);
     }
@@ -659,10 +657,6 @@ export class Serializer {
    * Useful for types like Vector, Color, BoundingBox, etc.
    */
   static registerCustomSerializer(typeName: string, serialize: (obj: any) => any, deserialize: (data: any) => any): void {
-    if (!Serializer._initialized) {
-      console.warn('Serializer not initialized. Call init() before registering components.');
-      return;
-    }
     Serializer._customSerializers.set(typeName, { serialize, deserialize });
   }
 
