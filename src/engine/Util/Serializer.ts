@@ -680,7 +680,7 @@ export class Serializer {
     return Serializer._CUSTOMSERIALIZERS.get(typeName);
   }
 
-  static getRegistry(registry: 'graphics' | 'actors' | 'components'): any {
+  static getRegistry(registry: 'graphics' | 'actors' | 'components'): Map<string, any> {
     switch (registry) {
       case 'graphics':
         return Serializer._GRAPHICSREGISTRY;

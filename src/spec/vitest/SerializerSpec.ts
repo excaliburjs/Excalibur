@@ -3,7 +3,7 @@ import { Serializer } from '../../engine/Util/Serializer';
 import type { ComponentData, EntityData } from '../../engine/Util/Serializer';
 import { Component } from '../../engine/EntityComponentSystem/Component';
 import { Actor } from '../../engine/Actor';
-import { Entity } from '@excalibur';
+import { Entity, Logger } from '@excalibur';
 
 class MockComponent extends Component {
   public value: number = 0;
@@ -42,13 +42,14 @@ describe('The Serializer ', () => {
     });
 
     it('should warn when initializing twice', () => {
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {
+      const warnSpy = vi.spyOn(Logger.prototype, 'warn').mockImplementation(() => {
         vi.fn();
       });
+
       Serializer.init();
       Serializer.init();
-      expect(consoleSpy).toHaveBeenCalledWith('Serializer already initialized. Call reset() before re-initializing.');
-      consoleSpy.mockRestore();
+      expect(warnSpy).toHaveBeenCalledWith('Serializer already initialized. Call reset() before re-initializing.');
+      warnSpy.mockRestore();
     });
 
     it('should auto-register common components when autoRegisterComponents is true', () => {
@@ -89,16 +90,16 @@ describe('The Serializer ', () => {
     });
 
     it('should warn when registering duplicate component', () => {
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {
+      const warnSpy = vi.spyOn(Logger.prototype, 'warn').mockImplementation(() => {
         vi.fn();
       });
 
       Serializer.registerComponent(MockComponent);
       Serializer.registerComponent(MockComponent);
 
-      expect(consoleSpy).toHaveBeenCalledWith('Component MockComponent is already registered');
+      expect(warnSpy).toHaveBeenCalledWith('Component MockComponent is already registered');
 
-      consoleSpy.mockRestore();
+      warnSpy.mockRestore();
     });
 
     it('should register multiple components at once', () => {
@@ -150,16 +151,15 @@ describe('The Serializer ', () => {
     });
 
     it('should warn when registering duplicate custom actor', () => {
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {
+      const warnSpy = vi.spyOn(Logger.prototype, 'warn').mockImplementation(() => {
         vi.fn();
       });
 
       Serializer.registerCustomActor(CustomActor);
       Serializer.registerCustomActor(CustomActor);
 
-      expect(consoleSpy).toHaveBeenCalledWith('Custom Actor CustomActor is already registered');
-
-      consoleSpy.mockRestore();
+      expect(warnSpy).toHaveBeenCalledWith('Custom Actor CustomActor is already registered');
+      warnSpy.mockRestore();
     });
 
     it('should get custom actor constructor', () => {
@@ -211,16 +211,15 @@ describe('The Serializer ', () => {
     });
 
     it('should warn when registering duplicate graphic', () => {
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {
+      const warnSpy = vi.spyOn(Logger.prototype, 'warn').mockImplementation(() => {
         vi.fn();
       });
 
       Serializer.registerGraphic('sprite1', mockGraphic);
       Serializer.registerGraphic('sprite1', mockGraphic);
 
-      expect(consoleSpy).toHaveBeenCalledWith('Graphic sprite1 is already registered');
-
-      consoleSpy.mockRestore();
+      expect(warnSpy).toHaveBeenCalledWith('Graphic sprite1 is already registered');
+      warnSpy.mockRestore();
     });
 
     it('should get a registered graphic', () => {
@@ -318,17 +317,18 @@ describe('The Serializer ', () => {
     });
 
     it('should handle component data without type field', () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {
+      const warnSpy = vi.spyOn(Logger.prototype, 'error').mockImplementation(() => {
         vi.fn();
       });
 
+      // @ts-expect-error
       const data = { value: 42 } as ComponentData;
       const component = Serializer.deserializeComponent(data);
 
       expect(component).toBeNull();
-      expect(consoleSpy).toHaveBeenCalledWith('Component data missing type field');
+      expect(warnSpy).toHaveBeenCalledWith('Component data missing type field');
 
-      consoleSpy.mockRestore();
+      warnSpy.mockRestore();
     });
   });
 
@@ -675,9 +675,9 @@ describe('The Serializer ', () => {
       Serializer.reset();
 
       expect(Serializer.isInitialized()).toBe(false);
-      expect(Serializer.getRegistry('graphics')).toEqual({});
-      expect(Serializer.getRegistry('actors')).toEqual({});
-      expect(Serializer.getRegistry('components')).toEqual({});
+      expect(Serializer.getRegistry('graphics')).toEqual(new Map());
+      expect(Serializer.getRegistry('actors')).toEqual(new Map());
+      expect(Serializer.getRegistry('components')).toEqual(new Map());
     });
   });
 });
