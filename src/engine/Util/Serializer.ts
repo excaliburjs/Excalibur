@@ -4,14 +4,15 @@
 
 import { Entity } from '../EntityComponentSystem/Entity';
 import { Actor } from '../Actor';
-import { Component, ComponentCtor } from '../EntityComponentSystem/Component';
+import type { Component, ComponentCtor } from '../EntityComponentSystem/Component';
 import { MotionComponent, TransformComponent } from '../EntityComponentSystem';
 import { PointerComponent } from '../Input/PointerComponent';
 import { GraphicsComponent } from '../Graphics/GraphicsComponent';
 import { ActionsComponent } from '../Actions/ActionsComponent';
 import { BodyComponent } from '../Collision/BodyComponent';
 import { ColliderComponent } from '../Collision/ColliderComponent';
-import { Graphic } from '../Graphics';
+import type { Graphic } from '../Graphics';
+import { Logger } from './Log';
 
 // ============================================================================
 // Core Serialization Interfaces
@@ -57,43 +58,43 @@ export class Serializer {
   // ============================================================================
   // Private Members
   // ============================================================================
-
+  private static _LOGGER = Logger.getInstance();
   // Component type registry
-  private static _componentRegistry = new Map<string, ComponentCtor>();
+  private static _COMPONENTREGISTRY = new Map<string, ComponentCtor>();
   // Graphics registry for reference-based serialization
-  private static _graphicsRegistry = new Map<string, typeof Graphic>();
+  private static _GRAPHICSREGISTRY = new Map<string, typeof Graphic>();
   // Actor class registry for custom actor types
-  private static _actorRegistry = new Map<string, typeof Actor>();
+  private static _ACTORREGISTRY = new Map<string, typeof Actor>();
   // Custom serializers for complex types
-  private static _customSerializers = new Map<
+  private static _CUSTOMSERIALIZERS = new Map<
     string,
     {
       serialize: (obj: any) => any;
       deserialize: (data: any) => any;
     }
   >();
-  private static _initialized = false;
+  private static _INITIALIZED = false;
 
   // ============================================================================
   // Initialization
   // ============================================================================
 
   static init(autoRegisterComponents: boolean = true): void {
-    if (Serializer._initialized) {
-      console.warn('Serializer already initialized. Call reset() before re-initializing.');
+    if (Serializer._INITIALIZED) {
+      Serializer._LOGGER.warn('Serializer already initialized. Call reset() before re-initializing.');
       return;
     }
 
-    Serializer.registerBuiltInSerializers();
+    Serializer._REGISTERBUILTINSERIALIZERS();
 
     if (autoRegisterComponents) {
-      Serializer.registerCommonComponents();
+      Serializer._REGISTERCOMMONCOMPONENTS();
     }
-    Serializer._initialized = true;
+    Serializer._INITIALIZED = true;
   }
 
   static isInitialized(): boolean {
-    return Serializer._initialized;
+    return Serializer._INITIALIZED;
   }
 
   // ============================================================================
@@ -103,14 +104,14 @@ export class Serializer {
   // #region compRegistry
   static registerComponent<T extends Component>(ctor: ComponentCtor<T>): void {
     const typeName = ctor.name;
-    if (Serializer._componentRegistry.has(typeName)) {
-      console.warn(`Component ${typeName} is already registered`);
+    if (Serializer._COMPONENTREGISTRY.has(typeName)) {
+      Serializer._LOGGER.warn(`Component ${typeName} is already registered`);
       return;
     }
-    Serializer._componentRegistry.set(typeName, ctor);
+    Serializer._COMPONENTREGISTRY.set(typeName, ctor);
   }
 
-  private static registerCommonComponents(): void {
+  private static _REGISTERCOMMONCOMPONENTS(): void {
     const commonComponents: ComponentCtor[] = [
       TransformComponent,
       MotionComponent,
@@ -122,8 +123,6 @@ export class Serializer {
     ];
 
     Serializer.registerComponents(commonComponents);
-
-    // console.log(Serializer.getRegisteredComponents());
   }
 
   static registerComponents(ctors: ComponentCtor[]): void {
@@ -136,32 +135,32 @@ export class Serializer {
    * Check if a component type is registered
    */
   static isComponentRegistered(typeName: string): boolean {
-    return Serializer._componentRegistry.has(typeName);
+    return Serializer._COMPONENTREGISTRY.has(typeName);
   }
 
   /**
    * Get all registered component types
    */
   static getRegisteredComponents(): string[] {
-    return Array.from(Serializer._componentRegistry.keys());
+    return Array.from(Serializer._COMPONENTREGISTRY.keys());
   }
 
   /**
    * Unregister a component type
    */
   static unregisterComponent(typeName: string): boolean {
-    if (!Serializer._initialized) {
-      console.warn('Serializer not initialized. Call init() before registering components.');
+    if (!Serializer._INITIALIZED) {
+      Serializer._LOGGER.warn('Serializer not initialized. Call init() before registering components.');
       return false;
     }
-    return Serializer._componentRegistry.delete(typeName);
+    return Serializer._COMPONENTREGISTRY.delete(typeName);
   }
 
   /**
    * Clear all registered components
    */
   static clearComponents(): void {
-    Serializer._componentRegistry.clear();
+    Serializer._COMPONENTREGISTRY.clear();
   }
 
   // #endregion compRegistry
@@ -174,11 +173,11 @@ export class Serializer {
 
   static registerCustomActor(ctor: typeof Actor): void {
     const typeName = ctor.name;
-    if (Serializer._actorRegistry.has(typeName)) {
-      console.warn(`Custom Actor ${typeName} is already registered`);
+    if (Serializer._ACTORREGISTRY.has(typeName)) {
+      Serializer._LOGGER.warn(`Custom Actor ${typeName} is already registered`);
       return;
     }
-    Serializer._actorRegistry.set(typeName, ctor);
+    Serializer._ACTORREGISTRY.set(typeName, ctor);
   }
 
   static registerCustomActors(ctors: Array<typeof Actor>): void {
@@ -188,31 +187,35 @@ export class Serializer {
   }
 
   static isCustomActorRegistered(typeName: string): boolean {
-    if (Serializer._actorRegistry.has(typeName)) return true;
+    if (Serializer._ACTORREGISTRY.has(typeName)) {
+      return true;
+    }
     return false;
   }
 
   static getRegisteredCustomActors(): string[] {
-    if (Serializer._actorRegistry.size > 0) return Array.from(Serializer._actorRegistry.keys());
+    if (Serializer._ACTORREGISTRY.size > 0) {
+      return Array.from(Serializer._ACTORREGISTRY.keys());
+    }
     return [];
   }
 
   static getCustomActor(typeName: string): typeof Actor | null {
-    if (Serializer._actorRegistry.has(typeName)) {
-      return Serializer._actorRegistry.get(typeName)!;
+    if (Serializer._ACTORREGISTRY.has(typeName)) {
+      return Serializer._ACTORREGISTRY.get(typeName)!;
     }
     return null;
   }
 
   static unregisterCustomActor(typeName: string): boolean {
-    if (Serializer._actorRegistry.has(typeName)) {
-      return Serializer._actorRegistry.delete(typeName);
+    if (Serializer._ACTORREGISTRY.has(typeName)) {
+      return Serializer._ACTORREGISTRY.delete(typeName);
     }
     return false;
   }
 
   static clearCustomActors(): void {
-    Serializer._actorRegistry.clear();
+    Serializer._ACTORREGISTRY.clear();
   }
 
   // #endregion customActorRegistry
@@ -224,11 +227,11 @@ export class Serializer {
   // #region graphicsRegistry
 
   static registerGraphic(id: string, graphic: any): void {
-    if (Serializer._graphicsRegistry.has(id)) {
-      console.warn(`Graphic ${id} is already registered`);
+    if (Serializer._GRAPHICSREGISTRY.has(id)) {
+      Serializer._LOGGER.warn(`Graphic ${id} is already registered`);
       return;
     }
-    Serializer._graphicsRegistry.set(id, graphic);
+    Serializer._GRAPHICSREGISTRY.set(id, graphic);
   }
 
   static registerGraphics(graphics: Record<string, any>): void {
@@ -237,35 +240,35 @@ export class Serializer {
     }
   }
   static getGraphic(id: string): any | undefined {
-    return Serializer._graphicsRegistry.get(id);
+    return Serializer._GRAPHICSREGISTRY.get(id);
   }
 
   /**
    * Check if a graphic is registered
    */
   static isGraphicRegistered(id: string): boolean {
-    return Serializer._graphicsRegistry.has(id);
+    return Serializer._GRAPHICSREGISTRY.has(id);
   }
 
   /**
    * Get all registered graphic IDs
    */
   static getRegisteredGraphics(): string[] {
-    return Array.from(Serializer._graphicsRegistry.keys());
+    return Array.from(Serializer._GRAPHICSREGISTRY.keys());
   }
 
   /**
    * Unregister a graphic
    */
   static unregisterGraphic(id: string): boolean {
-    return Serializer._graphicsRegistry.delete(id);
+    return Serializer._GRAPHICSREGISTRY.delete(id);
   }
 
   /**
    * Clear all registered graphics
    */
   static clearGraphics(): void {
-    Serializer._graphicsRegistry.clear();
+    Serializer._GRAPHICSREGISTRY.clear();
   }
 
   // #endregion graphicsRegistry
@@ -280,12 +283,12 @@ export class Serializer {
    * Serialize a component
    */
   static serializeComponent(component: Component): ComponentData | null {
-    if (!Serializer._initialized) {
-      console.warn('Serializer not initialized. Call init() before registering components.');
+    if (!Serializer._INITIALIZED) {
+      Serializer._LOGGER.warn('Serializer not initialized. Call init() before registering components.');
       return null;
     }
     if (!component.serialize) {
-      console.warn(`Component ${component.constructor.name} does not have a serialize method`);
+      Serializer._LOGGER.warn(`Component ${component.constructor.name} does not have a serialize method`);
       return null;
     }
 
@@ -297,7 +300,7 @@ export class Serializer {
         ...data
       };
     } catch (error) {
-      console.error(`Error serializing component ${component.constructor.name}:`, error);
+      Serializer._LOGGER.error(`Error serializing component ${component.constructor.name}:`, error);
       return null;
     }
   }
@@ -306,20 +309,20 @@ export class Serializer {
    * Deserialize a component
    */
   static deserializeComponent(data: ComponentData): Component | null {
-    if (!Serializer._initialized) {
-      console.warn('Serializer not initialized. Call init() before registering components.');
+    if (!Serializer._INITIALIZED) {
+      Serializer._LOGGER.warn('Serializer not initialized. Call init() before registering components.');
       return null;
     }
     if (!data.type) {
-      console.error('Component data missing type field');
+      Serializer._LOGGER.error('Component data missing type field');
       return null;
     }
 
-    let attachGraphic = data.type == 'GraphicsComponent';
+    const attachGraphic = data.type === 'GraphicsComponent';
 
-    const Ctor = Serializer._componentRegistry.get(data.type);
+    const Ctor = Serializer._COMPONENTREGISTRY.get(data.type);
     if (!Ctor) {
-      console.warn(`Component type ${data.type} is not registered`);
+      Serializer._LOGGER.warn(`Component type ${data.type} is not registered`);
       return null;
     }
 
@@ -329,20 +332,19 @@ export class Serializer {
         component.deserialize(data);
 
         if (attachGraphic) {
-          debugger;
-          let grph = Serializer.getGraphic((data as any).current).clone();
+          const grph = Serializer.getGraphic((data as any).current).clone();
           if (grph) {
             (component as GraphicsComponent).use(grph);
           }
 
           if (data.tint) {
-            (component as GraphicsComponent).current!.tint = Serializer._customSerializers.get('Color')!.deserialize(data.tint);
+            (component as GraphicsComponent).current!.tint = Serializer._CUSTOMSERIALIZERS.get('Color')!.deserialize(data.tint);
           }
         }
       }
       return component;
     } catch (error) {
-      console.error(`Error deserializing component ${data.type}:`, error);
+      Serializer._LOGGER.error(`Error deserializing component ${data.type}:`, error);
       return null;
     }
   }
@@ -408,7 +410,7 @@ export class Serializer {
 
       return entity;
     } catch (error) {
-      console.error('Error deserializing entity:', error);
+      Serializer._LOGGER.error('Error deserializing entity:', error);
       return null;
     }
   }
@@ -428,7 +430,7 @@ export class Serializer {
 
     let customInstance: string | undefined = undefined;
 
-    for (const [key, ctor] of Serializer._actorRegistry.entries()) {
+    for (const [key, ctor] of Serializer._ACTORREGISTRY.entries()) {
       if (actor instanceof ctor) {
         customInstance = key;
         break;
@@ -467,7 +469,7 @@ export class Serializer {
       let entity: Actor;
 
       if (data.customInstance) {
-        const ctor = Serializer._actorRegistry.get(data.customInstance);
+        const ctor = Serializer._ACTORREGISTRY.get(data.customInstance);
         if (ctor) {
           entity = new ctor() as Actor;
         }
@@ -525,7 +527,7 @@ export class Serializer {
 
       return entity;
     } catch (error) {
-      console.error('Error deserializing entity:', error);
+      Serializer._LOGGER.error('Error deserializing entity:', error);
       return null;
     }
   }
@@ -554,7 +556,7 @@ export class Serializer {
       const data = JSON.parse(json);
       return Serializer.deserializeEntity(data);
     } catch (error) {
-      console.error('Error parsing entity JSON:', error);
+      Serializer._LOGGER.error('Error parsing entity JSON:', error);
       return null;
     }
   }
@@ -569,7 +571,7 @@ export class Serializer {
       const data = JSON.parse(json);
       return Serializer.deserializeActor(data);
     } catch (error) {
-      console.error('Error parsing actor JSON:', error);
+      Serializer._LOGGER.error('Error parsing actor JSON:', error);
       return null;
     }
   }
@@ -586,20 +588,34 @@ export class Serializer {
    * Validate entity data structure
    */
   static validateEntityData(data: any): data is EntityData {
-    if (!data || typeof data !== 'object') return false;
-    if (data.type !== 'Entity') return false;
-    if (typeof data.name !== 'string') return false;
-    if (!Array.isArray(data.components)) return false;
-    if (!Array.isArray(data.children)) return false;
+    if (!data || typeof data !== 'object') {
+      return false;
+    }
+    if (data.type !== 'Entity') {
+      return false;
+    }
+    if (typeof data.name !== 'string') {
+      return false;
+    }
+    if (!Array.isArray(data.components)) {
+      return false;
+    }
+    if (!Array.isArray(data.children)) {
+      return false;
+    }
 
     // Validate components
     for (const comp of data.components) {
-      if (!comp.type || typeof comp.type !== 'string') return false;
+      if (!comp.type || typeof comp.type !== 'string') {
+        return false;
+      }
     }
 
     // Recursively validate children
     for (const child of data.children) {
-      if (!Serializer.validateEntityData(child)) return false;
+      if (!Serializer.validateEntityData(child)) {
+        return false;
+      }
     }
 
     return true;
@@ -618,18 +634,18 @@ export class Serializer {
    */
 
   static reset(): void {
-    Serializer._componentRegistry.clear();
-    Serializer._customSerializers.clear();
-    Serializer._graphicsRegistry.clear();
-    Serializer._actorRegistry.clear();
-    Serializer._initialized = false;
+    Serializer._COMPONENTREGISTRY.clear();
+    Serializer._CUSTOMSERIALIZERS.clear();
+    Serializer._GRAPHICSREGISTRY.clear();
+    Serializer._ACTORREGISTRY.clear();
+    Serializer._INITIALIZED = false;
   }
 
   // ============================================================================
   // Custom Type Serializers
   // ============================================================================
 
-  private static registerBuiltInSerializers(): void {
+  private static _REGISTERBUILTINSERIALIZERS(): void {
     // Vector serializer
     Serializer.registerCustomSerializer(
       'Vector',
@@ -657,7 +673,22 @@ export class Serializer {
    * Useful for types like Vector, Color, BoundingBox, etc.
    */
   static registerCustomSerializer(typeName: string, serialize: (obj: any) => any, deserialize: (data: any) => any): void {
-    Serializer._customSerializers.set(typeName, { serialize, deserialize });
+    Serializer._CUSTOMSERIALIZERS.set(typeName, { serialize, deserialize });
+  }
+
+  static getCustomSerializer(typeName: string): { serialize: (obj: any) => any; deserialize: (data: any) => any } | undefined {
+    return Serializer._CUSTOMSERIALIZERS.get(typeName);
+  }
+
+  static getRegistry(registry: 'graphics' | 'actors' | 'components'): any {
+    switch (registry) {
+      case 'graphics':
+        return Serializer._GRAPHICSREGISTRY;
+      case 'actors':
+        return Serializer._ACTORREGISTRY;
+      case 'components':
+        return Serializer._COMPONENTREGISTRY;
+    }
   }
 
   // #endregion Utilities

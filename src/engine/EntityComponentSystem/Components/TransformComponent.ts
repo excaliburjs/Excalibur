@@ -163,7 +163,7 @@ export class TransformComponent extends Component {
    * Private fields (_transform, _parentComponent) are automatically excluded
    */
   public serialize(): TransformComponentData {
-    let type = this.constructor.name;
+    const type = this.constructor.name;
     const data: TransformComponentData = {
       type,
       pos: { x: this.pos.x, y: this.pos.y },

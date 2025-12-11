@@ -489,7 +489,7 @@ export class GraphicsComponent extends Component {
    * Custom serialization - stores graphic references instead of graphic data
    */
   public serialize(): GraphicsComponentData {
-    let type = this.constructor.name;
+    const type = this.constructor.name;
     const data: GraphicsComponentData = {
       type,
       current: this._current,

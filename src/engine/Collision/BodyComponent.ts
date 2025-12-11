@@ -545,7 +545,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   }
 
   public serialize(): BodyComponentData {
-    let type = this.constructor.name;
+    const type = this.constructor.name;
 
     return {
       type,

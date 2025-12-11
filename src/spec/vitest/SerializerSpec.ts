@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { ComponentData, EntityData, Serializer } from '../../engine/Util/Serializer';
+import { Serializer } from '../../engine/Util/Serializer';
+import type { ComponentData, EntityData } from '../../engine/Util/Serializer';
 import { Component } from '../../engine/EntityComponentSystem/Component';
 import { Actor } from '../../engine/Actor';
 import { Entity } from '@excalibur';
@@ -41,7 +42,9 @@ describe('The Serializer ', () => {
     });
 
     it('should warn when initializing twice', () => {
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {
+        vi.fn();
+      });
       Serializer.init();
       Serializer.init();
       expect(consoleSpy).toHaveBeenCalledWith('Serializer already initialized. Call reset() before re-initializing.');
@@ -51,13 +54,13 @@ describe('The Serializer ', () => {
     it('should auto-register common components when autoRegisterComponents is true', () => {
       Serializer.init(true);
       expect(Serializer.isInitialized()).toBe(true);
-      let a = Serializer.getRegisteredComponents();
+      const a = Serializer.getRegisteredComponents();
       expect(a.length).toBeGreaterThan(0);
     });
 
     it('should not auto-register components when autoRegisterComponents is false', () => {
       Serializer.init(false);
-      let a = Serializer.getRegisteredComponents();
+      const a = Serializer.getRegisteredComponents();
       expect(a.length).toBe(0);
     });
 
@@ -65,10 +68,12 @@ describe('The Serializer ', () => {
       Serializer.init();
 
       // Built-in serializers are private, but we can test they work
-      const vectorSerializer = Serializer['_customSerializers'].get('Vector');
+      // const vectorSerializer = Serializer['_customSerializers'].get('Vector');
+      const vectorSerializer = Serializer.getCustomSerializer('Vector');
       expect(vectorSerializer).toBeDefined();
 
-      const colorSerializer = Serializer['_customSerializers'].get('Color');
+      // const colorSerializer = Serializer['_customSerializers'].get('Color');
+      const colorSerializer = Serializer.getCustomSerializer('Color');
       expect(colorSerializer).toBeDefined();
     });
   });
@@ -84,7 +89,9 @@ describe('The Serializer ', () => {
     });
 
     it('should warn when registering duplicate component', () => {
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {
+        vi.fn();
+      });
 
       Serializer.registerComponent(MockComponent);
       Serializer.registerComponent(MockComponent);
@@ -96,7 +103,7 @@ describe('The Serializer ', () => {
 
     it('should register multiple components at once', () => {
       Serializer.registerComponents([MockComponent, MockComponentWithoutSerialize]);
-      let a = Serializer.getRegisteredComponents();
+      const a = Serializer.getRegisteredComponents();
       expect(a.length).toBe(2);
     });
 
@@ -143,7 +150,9 @@ describe('The Serializer ', () => {
     });
 
     it('should warn when registering duplicate custom actor', () => {
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {
+        vi.fn();
+      });
 
       Serializer.registerCustomActor(CustomActor);
       Serializer.registerCustomActor(CustomActor);
@@ -202,7 +211,9 @@ describe('The Serializer ', () => {
     });
 
     it('should warn when registering duplicate graphic', () => {
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {
+        vi.fn();
+      });
 
       Serializer.registerGraphic('sprite1', mockGraphic);
       Serializer.registerGraphic('sprite1', mockGraphic);
@@ -289,7 +300,9 @@ describe('The Serializer ', () => {
     });
 
     it('should return null when deserializing unregistered component', () => {
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {
+        vi.fn();
+      });
 
       const data: ComponentData = {
         type: 'UnknownComponent',
@@ -305,7 +318,9 @@ describe('The Serializer ', () => {
     });
 
     it('should handle component data without type field', () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {
+        vi.fn();
+      });
 
       const data = { value: 42 } as ComponentData;
       const component = Serializer.deserializeComponent(data);
@@ -511,7 +526,9 @@ describe('The Serializer ', () => {
     });
 
     it('should handle invalid JSON when deserializing entity', () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {
+        vi.fn();
+      });
 
       const entity = Serializer.entityFromJSON('invalid json');
 
@@ -623,12 +640,12 @@ describe('The Serializer ', () => {
 
       Serializer.registerCustomSerializer('CustomType', serialize, deserialize);
 
-      const serializer = Serializer['_customSerializers'].get('CustomType');
+      const serializer = Serializer.getCustomSerializer('CustomType');
       expect(serializer).toBeDefined();
     });
 
     it('should use built-in Vector serializer', () => {
-      const vectorSerializer = Serializer['_customSerializers'].get('Vector');
+      const vectorSerializer = Serializer.getCustomSerializer('Vector');
       expect(vectorSerializer).toBeDefined();
 
       const serialized = vectorSerializer!.serialize({ x: 10, y: 20 });
@@ -639,7 +656,8 @@ describe('The Serializer ', () => {
     });
 
     it('should use built-in Color serializer', () => {
-      const colorSerializer = Serializer['_customSerializers'].get('Color');
+      // const colorSerializer = Serializer['_customSerializers'].get('Color');
+      const colorSerializer = Serializer.getCustomSerializer('Color');
       expect(colorSerializer).toBeDefined();
 
       const serialized = colorSerializer!.serialize({ r: 255, g: 128, b: 64, a: 1 });
@@ -656,11 +674,10 @@ describe('The Serializer ', () => {
 
       Serializer.reset();
 
-      expect(Serializer['_initialized']).toBe(false);
-      expect(Serializer['_componentRegistry'].size).toBe(0);
-      expect(Serializer['_graphicsRegistry'].size).toBe(0);
-      expect(Serializer['_actorRegistry'].size).toBe(0);
-      expect(Serializer['_customSerializers'].size).toBe(0);
+      expect(Serializer.isInitialized()).toBe(false);
+      expect(Serializer.getRegistry('graphics')).toEqual({});
+      expect(Serializer.getRegistry('actors')).toEqual({});
+      expect(Serializer.getRegistry('components')).toEqual({});
     });
   });
 });
