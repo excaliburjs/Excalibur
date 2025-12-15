@@ -3,7 +3,7 @@ import * as ex from 'excalibur';
 console.log('hello, world');
   
 const resources = {
-    spritesheet: new ex.ImageSource('./player-run.png'),
+    spritesheet: new ex.ImageSource('./playground/player-run.png'),
 } as const;
 
 const loader = new ex.DefaultLoader();

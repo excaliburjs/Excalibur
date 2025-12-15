@@ -178,6 +178,9 @@ const shareCode = async (writeToClipboard?: boolean) => {
   const url = `${window.location}?${encoded}`;
   if (writeToClipboard) {
     await navigator.clipboard.writeText(url);
+    shareButtonEl.classList.remove("copied");
+    void shareButtonEl.offsetWidth; // trigger reflow
+    shareButtonEl.classList.add("copied");
   }
   window.history.pushState({}, '', '?' + encoded);
 };

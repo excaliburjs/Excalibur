@@ -48,6 +48,7 @@ label {
   padding: 10px;
   border: solid var(--button-color) 2px;
   border-radius: 5px;
+  position: relative;
 }
 
 button:hover {
@@ -209,5 +210,48 @@ body.embedded #preview {
 
   #preview {
     min-width: auto;
+  }
+}
+
+.tooltip {
+  background-color: black;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 12px;
+  left: 50%;
+  padding: 4px 8px;
+  position: absolute;
+  text-align: center;
+  top: 0;
+  opacity: 0;
+  transform: translate(-50%, -10px) scaleX(20%);
+  white-space: pre;
+  width: min-content;
+  z-index: 1;
+}
+
+#share.copied .tooltip {
+  animation: bumpUpAndWait 3500ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes bumpUpAndWait {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -10px) scaleX(20%);
+  }
+  
+  10% {
+    opacity: 1;
+    transform: translate(-50%, -30px) scaleX(100%);
+  }
+  
+  90% {
+    opacity: 1;
+    transform: translate(-50%, -30px) scaleX(100%);
+  }
+  
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -10px) scaleX(20%);
   }
 }
