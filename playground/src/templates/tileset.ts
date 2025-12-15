@@ -3,7 +3,7 @@ import * as ex from 'excalibur';
 console.log('hello, world');
 
 const resources = {
-    tilemap: new ex.ImageSource('./tiny-town/tilemap/tilemap.png'),
+    tilemap: new ex.ImageSource('./playground/tiny-town/tilemap/tilemap.png'),
 } as const;
 
 const loader = new ex.DefaultLoader();
