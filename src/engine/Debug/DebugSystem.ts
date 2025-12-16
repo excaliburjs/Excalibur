@@ -157,7 +157,11 @@ export class DebugSystem extends System {
       body = entity.get(BodyComponent);
       if (body) {
         if (bodySettings.showAll || bodySettings.showCollisionGroup) {
-          this._graphicsContext.debug.drawText(`collision group(${body.group.name})`, cursor);
+          this._graphicsContext.debug.drawText(`collision group name(${body.group.name}))`, cursor);
+          cursor = cursor.add(lineHeight);
+          this._graphicsContext.debug.drawText(`          mask(0x${(body.group.mask >>> 0).toString(16)})`, cursor);
+          cursor = cursor.add(lineHeight);
+          this._graphicsContext.debug.drawText(`          category(0x${(body.group.category >>> 0).toString(16)})`, cursor);
           cursor = cursor.add(lineHeight);
         }
 
