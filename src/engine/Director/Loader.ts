@@ -199,14 +199,20 @@ export class Loader extends DefaultLoader {
     buttonElement.style.display = 'none';
 
     if (buttonElement) {
-      const span = document.createElement('span');
-      span.id = 'excalibur-play-icon';
-      buttonElement.appendChild(span);
+      let [span, text] = buttonElement.getElementsByTagName('span');
 
-      const text = document.createElement('span');
+      if (!span) {
+        span ??= document.createElement('span');
+        buttonElement.appendChild(span);
+      }
+      span.id = 'excalibur-play-icon';
+
+      if (!text) {
+        text ??= document.createElement('span');
+        buttonElement.appendChild(text);
+      }
       text.id = 'excalibur-play-text';
       text.textContent = this.playButtonText;
-      buttonElement.appendChild(text);
     }
     return buttonElement;
   };

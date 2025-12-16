@@ -129,18 +129,16 @@ export class DebugSystem extends System {
         }
 
         if (txSettings.showAll || txSettings.showRotation) {
-          this._graphicsContext.drawLine(
-            Vector.Zero,
-            Vector.fromAngle(tx.rotation).scale(50).add(Vector.Zero),
-            txSettings.rotationColor,
-            2
-          );
+          this._graphicsContext.debug.drawLine(Vector.Zero, Vector.fromAngle(tx.rotation).scale(20).add(Vector.Zero), {
+            color: txSettings.rotationColor,
+            lineWidth: 2
+          });
           this._graphicsContext.debug.drawText(`rot deg(${toDegrees(tx.rotation).toFixed(2)})`, cursor);
           cursor = cursor.add(lineHeight);
         }
 
         if (txSettings.showAll || txSettings.showScale) {
-          this._graphicsContext.drawLine(Vector.Zero, tx.scale.add(Vector.Zero), txSettings.scaleColor, 2);
+          this._graphicsContext.debug.drawLine(Vector.Zero, tx.scale, { color: txSettings.scaleColor, lineWidth: 2 });
         }
       }
 
@@ -159,7 +157,11 @@ export class DebugSystem extends System {
       body = entity.get(BodyComponent);
       if (body) {
         if (bodySettings.showAll || bodySettings.showCollisionGroup) {
-          this._graphicsContext.debug.drawText(`collision group(${body.group.name})`, cursor);
+          this._graphicsContext.debug.drawText(`collision group name(${body.group.name}))`, cursor);
+          cursor = cursor.add(lineHeight);
+          this._graphicsContext.debug.drawText(`          mask(0x${(body.group.mask >>> 0).toString(16)})`, cursor);
+          cursor = cursor.add(lineHeight);
+          this._graphicsContext.debug.drawText(`          category(0x${(body.group.category >>> 0).toString(16)})`, cursor);
           cursor = cursor.add(lineHeight);
         }
 
@@ -195,12 +197,18 @@ export class DebugSystem extends System {
       if (motion) {
         if (motionSettings.showAll || motionSettings.showVelocity) {
           this._graphicsContext.debug.drawText(`vel${motion.vel.toString(2)}`, cursor.add(tx.globalPos));
-          this._graphicsContext.drawLine(tx.globalPos, tx.globalPos.add(motion.vel), motionSettings.velocityColor, 2);
+          this._graphicsContext.debug.drawLine(tx.globalPos, tx.globalPos.add(motion.vel), {
+            color: motionSettings.velocityColor,
+            lineWidth: 2
+          });
           cursor = cursor.add(lineHeight);
         }
 
         if (motionSettings.showAll || motionSettings.showAcceleration) {
-          this._graphicsContext.drawLine(tx.globalPos, tx.globalPos.add(motion.acc), motionSettings.accelerationColor, 2);
+          this._graphicsContext.debug.drawLine(tx.globalPos, tx.globalPos.add(motion.acc), {
+            color: motionSettings.accelerationColor,
+            lineWidth: 2
+          });
         }
       }
 

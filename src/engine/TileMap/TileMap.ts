@@ -666,12 +666,12 @@ export class TileMap extends Entity implements HasNestedPointerEvents {
     if (showGrid || showAll) {
       for (let r = 0; r < this.rows + 1; r++) {
         const yOffset = vec(0, r * this.tileHeight * this.scale.y);
-        gfx.drawLine(pos.add(yOffset), pos.add(vec(width, yOffset.y)), gridColor, gridWidth);
+        gfx.debug.drawLine(pos.add(yOffset), pos.add(vec(width, yOffset.y)), { color: gridColor, lineWidth: gridWidth });
       }
 
       for (let c = 0; c < this.columns + 1; c++) {
         const xOffset = vec(c * this.tileWidth * this.scale.x, 0);
-        gfx.drawLine(pos.add(xOffset), pos.add(vec(xOffset.x, height)), gridColor, gridWidth);
+        gfx.debug.drawLine(pos.add(xOffset), pos.add(vec(xOffset.x, height)), { color: gridColor, lineWidth: gridWidth });
       }
     }
 
@@ -684,7 +684,7 @@ export class TileMap extends Entity implements HasNestedPointerEvents {
         const bounds = collider.localBounds;
         const pos = collider.worldPos.sub(this.pos);
         if (showColliderBounds) {
-          gfx.drawRectangle(pos, bounds.width, bounds.height, colliderBoundsColor);
+          gfx.debug.drawRect(pos.x, pos.y, bounds.width, bounds.height, { color: colliderBoundsColor });
         }
       }
       gfx.restore();
