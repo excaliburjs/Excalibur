@@ -1,0 +1,27 @@
+{
+  "name": "excalibur-playground",
+  "version": "1.0.0",
+  "description": "Excalibur Playground and Editor",
+  "type": "module",
+  "scripts": {
+    "start": "vite",
+    "build": "vite build",
+    "build:dev": "vite build --outDir dist/playground",
+    "build:types": "npx tsdown",
+    "preview": "vite preview"
+  },
+  "author": "Erik Onarheim",
+  "license": "BSD-2-Clause",
+  "devDependencies": {
+    "@types/node": "24.0.10",
+    "tsdown": "0.17.0",
+    "typescript": "5.9.3",
+    "unplugin-raw": "0.6.3",
+    "vite": "7.2.4"
+  },
+  "dependencies": {
+    "excalibur": "0.30.3",
+    "lz-string": "1.5.0",
+    "monaco-editor": "0.52.2"
+  }
+}

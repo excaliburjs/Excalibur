@@ -595,4 +595,185 @@ describe('A Timer', () => {
     expect(timer.interval).toBe(905);
     timer.update(905);
   });
+
+  describe('events', () => {
+    it("fires 'action' event for every timer tick", () => {
+      const actionSpy = vi.fn();
+      const actionEventSpy = vi.fn();
+
+      const sut = new ex.Timer({
+        interval: 42,
+        repeats: true,
+        numberOfRepeats: 2,
+        action: actionSpy
+      });
+      sut.events.on('action', actionEventSpy);
+
+      scene.add(sut);
+
+      expect(actionSpy).not.toHaveBeenCalled();
+      expect(actionEventSpy).not.toHaveBeenCalled();
+      sut.start();
+      expect(actionSpy).not.toHaveBeenCalled();
+      expect(actionEventSpy).not.toHaveBeenCalledOnce();
+
+      scene.update(engine, 43);
+      scene.update(engine, 43);
+      scene.update(engine, 43);
+      scene.update(engine, 43);
+
+      expect(actionSpy).toHaveBeenCalledTimes(2);
+      expect(actionEventSpy).toHaveBeenCalledTimes(2);
+    });
+
+    it("fires 'complete' event when the timer has fired its last action", () => {
+      const completeSpy = vi.fn();
+      const completeEventSpy = vi.fn();
+
+      const sut = new ex.Timer({
+        interval: 42,
+        repeats: true,
+        numberOfRepeats: 2,
+        onComplete: completeSpy
+      });
+      sut.events.on('complete', completeEventSpy);
+
+      scene.add(sut);
+
+      expect(completeSpy).not.toHaveBeenCalled();
+      expect(completeEventSpy).not.toHaveBeenCalled();
+      sut.start();
+      expect(completeSpy).not.toHaveBeenCalled();
+      expect(completeEventSpy).not.toHaveBeenCalledOnce();
+
+      scene.update(engine, 43);
+      scene.update(engine, 43);
+      scene.update(engine, 43);
+      scene.update(engine, 43);
+
+      expect(completeSpy).toHaveBeenCalledTimes(1);
+      expect(completeEventSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("fires 'start' event when started", () => {
+      const startSpy = vi.fn();
+
+      const sut = new ex.Timer({
+        interval: 42
+      });
+      sut.events.on('start', startSpy);
+
+      scene.add(sut);
+
+      expect(startSpy).not.toHaveBeenCalled();
+      sut.start();
+      expect(startSpy).toHaveBeenCalledOnce();
+    });
+
+    it("fires 'pause' event when paused", () => {
+      const pauseSpy = vi.fn();
+
+      const sut = new ex.Timer({
+        interval: 42
+      });
+      sut.events.on('pause', pauseSpy);
+
+      scene.add(sut);
+
+      expect(pauseSpy).not.toHaveBeenCalled();
+      sut.start();
+      expect(pauseSpy).not.toHaveBeenCalled();
+
+      scene.update(engine, 40);
+
+      sut.pause();
+      expect(pauseSpy).toHaveBeenCalledOnce();
+    });
+
+    it("fires 'resume' event when resumed", () => {
+      const resumeSpy = vi.fn();
+
+      const sut = new ex.Timer({
+        interval: 42
+      });
+      sut.events.on('resume', resumeSpy);
+
+      scene.add(sut);
+
+      expect(resumeSpy).not.toHaveBeenCalled();
+      sut.start();
+      expect(resumeSpy).not.toHaveBeenCalled();
+
+      scene.update(engine, 40);
+
+      sut.pause();
+      expect(resumeSpy).not.toHaveBeenCalledOnce();
+
+      scene.update(engine, 40);
+      sut.resume();
+
+      expect(resumeSpy).toHaveBeenCalledOnce();
+    });
+
+    it("fires 'stop' event when stopped", () => {
+      const stopSpy = vi.fn();
+
+      const sut = new ex.Timer({
+        interval: 42
+      });
+      sut.events.on('stop', stopSpy);
+
+      scene.add(sut);
+
+      expect(stopSpy).not.toHaveBeenCalled();
+      sut.start();
+      expect(stopSpy).not.toHaveBeenCalled();
+
+      scene.update(engine, 40);
+
+      sut.pause();
+      expect(stopSpy).not.toHaveBeenCalledOnce();
+
+      scene.update(engine, 40);
+      sut.resume();
+
+      expect(stopSpy).not.toHaveBeenCalledOnce();
+
+      scene.update(engine, 40);
+      sut.stop();
+
+      expect(stopSpy).toHaveBeenCalledOnce();
+    });
+
+    it("fires 'cancel' event when cancelled", () => {
+      const cancelSpy = vi.fn();
+
+      const sut = new ex.Timer({
+        interval: 42
+      });
+      sut.events.on('cancel', cancelSpy);
+
+      scene.add(sut);
+
+      expect(cancelSpy).not.toHaveBeenCalled();
+      sut.start();
+      expect(cancelSpy).not.toHaveBeenCalled();
+
+      scene.update(engine, 40);
+
+      sut.pause();
+      expect(cancelSpy).not.toHaveBeenCalledOnce();
+
+      scene.update(engine, 40);
+      sut.resume();
+
+      expect(cancelSpy).not.toHaveBeenCalledOnce();
+
+      scene.update(engine, 40);
+      sut.stop();
+      sut.cancel();
+
+      expect(cancelSpy).toHaveBeenCalledOnce();
+    });
+  });
 });

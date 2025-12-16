@@ -1,0 +1,15 @@
+{
+  "extends": ["../src/engine/tsconfig.json"],
+  "include": [
+    "./docs/**/*.ts", 
+    "../src/engine/env.d.ts", 
+    "../src/engine/globals.d.ts", 
+    "../src/engine/files.d.ts"
+  ],
+  "compilerOptions": {
+    "paths": {
+      "@site/*": ["./*"],
+      "excalibur": ["../src/engine"]
+    }
+  }
+}

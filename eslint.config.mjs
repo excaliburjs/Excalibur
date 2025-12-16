@@ -9,6 +9,7 @@ export default tseslint.config(
     'site',
     'sandbox',
     'scripts',
+    'playground',
     'docs/api/**',
     '**/karma.conf.*',
     '**/webpack.config.js',

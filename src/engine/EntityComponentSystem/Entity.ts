@@ -54,7 +54,7 @@ export function isRemovedComponent(x: Message<EntityComponent>): x is RemovedCom
 /**
  * Built in events supported by all entities
  */
-export type EntityEvents = {
+export interface EntityEvents {
   initialize: InitializeEvent;
   //@ts-ignore
   add: AddEvent;
@@ -63,7 +63,7 @@ export type EntityEvents = {
   preupdate: PreUpdateEvent;
   postupdate: PostUpdateEvent;
   kill: KillEvent;
-};
+}
 
 export const EntityEvents = {
   Add: 'add',
@@ -576,7 +576,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
   }
 
   /**
-   * Removes Actor, meant to be called by the Scene when Actor is added.
+   * Removes Actor, meant to be called by the Scene when Actor is removed.
    *
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    * @internal
@@ -632,7 +632,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
   }
 
   /**
-   * `onRemove` is called when Actor is added to scene. This method is meant to be
+   * `onRemove` is called when Actor is removed from a scene. This method is meant to be
    * overridden.
    *
    * Synonymous with the event handler `.on('remove', (evt) => {...})`

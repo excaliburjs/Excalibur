@@ -23,8 +23,9 @@ import { TextureLoader } from './texture-loader';
 import type { RendererPlugin } from './renderer';
 
 // renderers
-import { LineRenderer } from './line-renderer/line-renderer';
-import { PointRenderer } from './point-renderer/point-renderer';
+import { DebugLineRenderer } from './debug-line-renderer/debug-line-renderer';
+import { DebugPointRenderer } from './debug-point-renderer/debug-point-renderer';
+import { DebugCircleRenderer } from './debug-circle-renderer/debug-circle-renderer';
 import { ScreenPassPainter } from './screen-pass-painter/screen-pass-painter';
 import { ImageRenderer } from './image-renderer/image-renderer';
 import { RectangleRenderer } from './rectangle-renderer/rectangle-renderer';
@@ -41,6 +42,8 @@ import type { GarbageCollector } from '../../GarbageCollector';
 import { ParticleRenderer } from './particle-renderer/particle-renderer';
 import { ImageRendererV2 } from './image-renderer-v2/image-renderer-v2';
 import { Flags } from '../../Flags';
+import { Debug } from '../Debug';
+import { GraphicsDiagnostics } from '../GraphicsDiagnostics';
 
 export const pixelSnapEpsilon = 0.0001;
 
@@ -49,7 +52,9 @@ class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
   constructor(private _webglCtx: ExcaliburGraphicsContextWebGL) {}
 
   /**
-   * Draw a debugging rectangle to the context
+   * Draw a debugging rectangle to the graphics context
+   *
+   * Debugging draws are independent of scale/zoom
    * @param x
    * @param y
    * @param width
@@ -63,26 +68,63 @@ class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
   }
 
   /**
-   * Draw a debugging line to the context
+   * Draw a debugging line to the graphics context
+   *
+   * Debugging draws are independent of scale/zoom
    * @param start
    * @param end
    * @param lineOptions
    */
   drawLine(start: Vector, end: Vector, lineOptions?: LineGraphicsOptions): void {
-    this._webglCtx.draw<LineRenderer>('ex.line', start, end, lineOptions?.color ?? Color.Black);
+    this._webglCtx.save();
+    this._webglCtx.z = lineOptions?.dashed ? Debug.config.settings.z.dashed : Debug.config.settings.z.solid;
+    this._webglCtx.draw<DebugLineRenderer>(
+      'ex.debug-line',
+      start,
+      end,
+      lineOptions?.color ?? Color.Black,
+      lineOptions?.lineWidth,
+      lineOptions?.dashed
+    );
+    this._webglCtx.restore();
   }
 
   /**
-   * Draw a debugging point to the context
+   * Draw a debugging point to the graphics context
+   *
+   * Debugging draws are independent of scale/zoom
    * @param point
    * @param pointOptions
    */
   drawPoint(point: Vector, pointOptions: PointGraphicsOptions = { color: Color.Black, size: 5 }): void {
-    this._webglCtx.draw<PointRenderer>('ex.point', point, pointOptions.color, pointOptions.size);
+    this._webglCtx.save();
+    this._webglCtx.z = Debug.config.settings.z.point;
+    this._webglCtx.draw<DebugPointRenderer>('ex.debug-point', point, pointOptions.color, pointOptions.size);
+    this._webglCtx.restore();
   }
 
+  /**
+   * Draw a debugging circle to the graphics context
+   *
+   * Debugging draws are independent of scale/zoom
+   */
+  drawCircle(pos: Vector, radius: number, color: Color, stroke?: Color, thickness?: number) {
+    this._webglCtx.save();
+    this._webglCtx.z = Debug.config.settings.z.solid;
+    this._webglCtx.draw<DebugCircleRenderer>('ex.debug-circle', pos, radius, color, stroke, thickness);
+    this._webglCtx.restore();
+  }
+
+  /**
+   * Draw some debugging text to the graphics context
+   *
+   * Debugging draws are independent of scale/zoom
+   */
   drawText(text: string, pos: Vector) {
+    this._webglCtx.save();
+    this._webglCtx.z = Debug.config.settings.z.text;
     this._debugText.write(this._webglCtx, text, pos);
+    this._webglCtx.restore();
   }
 }
 
@@ -321,9 +363,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this.register(new MaterialRenderer());
     this.register(new RectangleRenderer());
     this.register(new CircleRenderer());
-    this.register(new PointRenderer());
-    this.register(new LineRenderer());
-    this.lazyRegister<ParticleRenderer>('ex.particle', () => new ParticleRenderer());
+    this.lazyRegister('ex.debug-circle', () => new DebugCircleRenderer());
+    this.lazyRegister('ex.debug-point', () => new DebugPointRenderer());
+    this.lazyRegister('ex.debug-line', () => new DebugLineRenderer());
+    this.lazyRegister('ex.particle', () => new ParticleRenderer());
     this.register(
       new ImageRendererV2({
         uvPadding: this.uvPadding,
@@ -375,6 +418,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       antialias: this.multiSampleAntialiasing,
       samples: this.samples
     });
+
+    this.debug = new ExcaliburGraphicsContextWebGLDebug(this);
   }
 
   public register<T extends RendererPlugin>(renderer: T) {
@@ -576,7 +621,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this.draw<CircleRenderer>('ex.circle', pos, radius, color, stroke, thickness);
   }
 
-  debug = new ExcaliburGraphicsContextWebGLDebug(this);
+  debug!: ExcaliburGraphicsContextWebGLDebug;
 
   public save(): void {
     this._transform.save();
@@ -760,6 +805,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
             currentRenderer!.flush();
             currentRendererName = this._drawCalls[i].renderer;
             currentRenderer = this.get(currentRendererName);
+            GraphicsDiagnostics.RendererSwaps++;
           }
 
           // ! hack to grab screen texture before materials run because they might want it

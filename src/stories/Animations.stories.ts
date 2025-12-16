@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/html-vite';
-import { Actor, Color, Loader, range } from '../engine';
+import { Actor, Color, Loader } from '../engine';
 import { ImageSource, SpriteSheet, Animation, AnimationStrategy, Rectangle } from '../engine/Graphics';
 import { enumToControlSelectLabels, enumToControlSelectOptions, withEngine } from './utils';
 
@@ -22,13 +22,13 @@ export const MultipleFrames: StoryObj = {
     const spritesheet = SpriteSheet.fromImageSource({
       image: playerTexture,
       grid: {
-        columns: 3,
+        columns: 4,
         rows: 1,
         spriteWidth: 100,
         spriteHeight: 100
       }
     });
-    const animation = Animation.fromSpriteSheet(spritesheet, range(0, 2), 1500, strategy);
+    const animation = Animation.fromSpriteSheet(spritesheet, [0, 1, 2, 3, 2, 3, 2, 3], 1000, strategy);
     if (reverse) {
       animation.reverse();
     }

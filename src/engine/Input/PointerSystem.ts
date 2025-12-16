@@ -136,7 +136,9 @@ export class PointerSystem extends System {
         const collider = colliders[i];
         const maybePointer = this._entityToPointer.get(collider.owner);
         if (maybePointer && (maybePointer.useColliderShape || this.overrideUseColliderShape)) {
-          this._pointerEventDispatcher.addPointerToObject(collider.owner, pointerId);
+          if (collider.contains(pos.worldPos)) {
+            this._pointerEventDispatcher.addPointerToObject(collider.owner, pointerId);
+          }
         }
       }
 

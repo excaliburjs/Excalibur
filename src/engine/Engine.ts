@@ -65,7 +65,7 @@ import { DefaultGarbageCollectionOptions, GarbageCollector } from './GarbageColl
 import { mergeDeep } from './Util/Util';
 import { getDefaultGlobal } from './Util/IFrame';
 
-export type EngineEvents = DirectorEvents & {
+export interface EngineEvents extends DirectorEvents {
   fallbackgraphicscontext: ExcaliburGraphicsContext2DCanvas;
   initialize: InitializeEvent<Engine>;
   visible: VisibleEvent;
@@ -78,7 +78,7 @@ export type EngineEvents = DirectorEvents & {
   postframe: PostFrameEvent;
   predraw: PreDrawEvent;
   postdraw: PostDrawEvent;
-};
+}
 
 export const EngineEvents = {
   FallbackGraphicsContext: 'fallbackgraphicscontext',
@@ -874,6 +874,8 @@ O|===|* >________________>\n\
 
     this._logger = Logger.getInstance();
 
+    this.debug = new DebugConfig(this);
+
     // If debug is enabled, let's log browser features to the console.
     if (this._logger.defaultLevel === LogLevel.Debug) {
       detector.logBrowserFeatures();
@@ -1073,8 +1075,6 @@ O|===|* >________________>\n\
       };
       mergeDeep(this.physics, options.physics);
     }
-
-    this.debug = new DebugConfig(this);
 
     this.director = new Director(this, options.scenes);
     this.director.events.pipe(this.events);
@@ -1801,6 +1801,7 @@ O|===|* >________________>\n\
       this.stats.currFrame.duration.draw = afterDraw - afterUpdate;
       this.stats.currFrame.graphics.drawnImages = GraphicsDiagnostics.DrawnImagesCount;
       this.stats.currFrame.graphics.drawCalls = GraphicsDiagnostics.DrawCallCount;
+      this.stats.currFrame.graphics.rendererSwaps = GraphicsDiagnostics.RendererSwaps;
 
       this.emit('postframe', new PostFrameEvent(this, this.stats.currFrame));
       this.stats.prevFrame.reset(this.stats.currFrame);

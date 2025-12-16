@@ -156,7 +156,7 @@ export class MaterialRenderer implements RendererPlugin {
     vertexBuffer[vertexIndex++] = screenUVY1;
 
     // This creates and uploads the texture if not already done
-    const texture = this._addImageAsTexture(image);
+    let texture = this._addImageAsTexture(image);
 
     // apply material
     material.use();
@@ -187,6 +187,12 @@ export class MaterialRenderer implements RendererPlugin {
     shader.trySetUniformMatrix('u_transform', transform.to4x4());
 
     // bind graphic image texture 'uniform sampler2D u_graphic;'
+    if (material.isOverridingGraphic) {
+      if (material.images.u_graphic?.image) {
+        texture = this._addImageAsTexture(material.images.u_graphic.image);
+      }
+    }
+
     gl.activeTexture(gl.TEXTURE0 + 0);
     gl.bindTexture(gl.TEXTURE_2D, texture);
     shader.trySetUniformInt('u_graphic', 0);

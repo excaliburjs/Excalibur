@@ -22,12 +22,12 @@ export type NativeMouseEvent = globalThis.MouseEvent;
 export type NativeTouchEvent = globalThis.TouchEvent;
 export type NativeWheelEvent = globalThis.WheelEvent;
 
-export type PointerEvents = {
+export interface PointerEvents {
   move: PointerEvent;
   down: PointerEvent;
   up: PointerEvent;
   wheel: WheelEvent;
-};
+}
 
 export const PointerEvents = {
   Move: 'move',

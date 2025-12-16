@@ -2,12 +2,12 @@ import { GamepadConnectEvent, GamepadDisconnectEvent, GamepadButtonEvent, Gamepa
 import type { EventKey, Handler, Subscription } from '../EventEmitter';
 import { EventEmitter } from '../EventEmitter';
 
-export type GamepadEvents = {
+export interface GamepadEvents {
   connect: GamepadConnectEvent;
   disconnect: GamepadDisconnectEvent;
   button: GamepadButtonEvent;
   axis: GamepadAxisEvent;
-};
+}
 
 export const GamepadEvents = {
   GamepadConnect: 'connect',
