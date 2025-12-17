@@ -180,7 +180,6 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
 
     if (!sleeping) {
       // Give it a kick to keep it from falling asleep immediately
-      // TODO(ERIK) fix the magic multiple
       this.sleepMotion = this._bodyConfig.sleepEpsilon * 5;
     } else {
       this.vel = Vector.Zero;
