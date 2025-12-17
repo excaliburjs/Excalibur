@@ -15,20 +15,24 @@ export class MotionSystem extends System {
   public systemType = SystemType.Update;
   private _physicsConfigDirty = false;
   query: Query<typeof TransformComponent | typeof MotionComponent>;
+
+  private _createPhysicsQuery(world: World, physics: PhysicsWorld) {
+    return world.query({
+      components: {
+        all: [TransformComponent, MotionComponent]
+      },
+      tags: {
+        not: physics.config.integration.onScreenOnly ? ['ex.offscreen', 'ex.is_sleeping'] : ['ex.is_sleeping']
+      }
+    });
+  }
+
   constructor(
     public world: World,
     public physics: PhysicsWorld
   ) {
     super();
-    this.query = this.world.query({
-      components: {
-        all: [TransformComponent, MotionComponent]
-      },
-      tags: {
-        not: this.physics.config.integration.onScreenOnly ? ['ex.offscreen', 'ex.is_sleeping'] : ['ex.is_sleeping']
-      }
-    });
-
+    this.query = this._createPhysicsQuery(world, physics);
     physics.$configUpdate.subscribe(() => {
       this._physicsConfigDirty = true;
     });
@@ -55,6 +59,7 @@ export class MotionSystem extends System {
       }
 
       if (optionalBody?.isSleeping) {
+        // console.log('No sleeping bodies should be in this loop');
         assert('No sleeping bodies should be in this loop', () => !optionalBody.isSleeping);
         continue;
       }
@@ -75,14 +80,7 @@ export class MotionSystem extends System {
     }
     if (this._physicsConfigDirty) {
       this._physicsConfigDirty = false;
-      this.query = this.world.query({
-        components: {
-          all: [TransformComponent, MotionComponent]
-        },
-        tags: {
-          not: this.physics.config.integration.onScreenOnly ? ['ex.offscreen'] : []
-        }
-      });
+      this.query = this._createPhysicsQuery(this.world, this.physics);
     }
   }
 
