@@ -51,5 +51,5 @@ export interface CollisionSolver {
    * 4. postSolve
    * @param contacts
    */
-  solve(contacts: CollisionContact[]): CollisionContact[];
+  solve(contacts: CollisionContact[], duration?: number): CollisionContact[];
 }

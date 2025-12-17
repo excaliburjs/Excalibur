@@ -26,7 +26,7 @@ export class RealisticSolver implements CollisionSolver {
     return this.idToContactConstraint.get(id) ?? [];
   }
 
-  public solve(contacts: CollisionContact[]): CollisionContact[] {
+  public solve(contacts: CollisionContact[], duration: number): CollisionContact[] {
     // Events and init
     this.preSolve(contacts);
 
@@ -66,7 +66,7 @@ export class RealisticSolver implements CollisionSolver {
     this.solvePosition(contacts);
 
     // Events and any contact house-keeping the solver needs
-    this.postSolve(contacts);
+    this.postSolve(contacts, duration);
 
     return contacts;
   }
@@ -201,7 +201,7 @@ export class RealisticSolver implements CollisionSolver {
     }
   }
 
-  postSolve(contacts: CollisionContact[]) {
+  postSolve(contacts: CollisionContact[], duration: number) {
     for (let i = 0; i < contacts.length; i++) {
       const contact = contacts[i];
       const bodyA = contact.bodyA;
@@ -214,8 +214,8 @@ export class RealisticSolver implements CollisionSolver {
         }
 
         // Update motion values for sleeping
-        bodyA.updateMotion();
-        bodyB.updateMotion();
+        bodyA.updateMotion(duration);
+        bodyB.updateMotion(duration);
       }
 
       // Publish collision events on both participants

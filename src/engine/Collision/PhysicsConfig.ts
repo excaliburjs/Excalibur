@@ -131,23 +131,28 @@ export interface PhysicsConfig {
     defaultMass?: number;
 
     /**
-     * Sleep epsilon
+     * Sleep epsilon - (small number) this is the amount of massless kinetic energy a body needs to be below to fall asleep
      *
      * Default 0.07
      */
     sleepEpsilon?: number;
 
     /**
-     * Wake Threshold, the amount of "motion" need to wake a body from sleep
+     * Wake Threshold - the amount of "motion" or massless kinetic energy need to wake a body from sleep
      *
      * Default 0.07 * 3;
      */
     wakeThreshold?: number;
 
     /**
-     * Sleep bias
+     * Sleep bias - The weighted average to apply to the current frame body motion over one second
      *
-     * Default 0.9
+     * ```typescript
+     * let bias = Math.pos(sleepBias, durationSeconds);
+     * let motion = bias * previousAverageMotion + (1 - bias) * currentFrameMotion;
+     * ```
+     *
+     * Default 0.5
      */
     sleepBias?: number;
 
@@ -247,7 +252,7 @@ export const getDefaultPhysicsConfig: () => DeepRequired<PhysicsConfig> = () => 
     canSleepByDefault: false,
     sleepEpsilon: 0.07,
     wakeThreshold: 0.07 * 3,
-    sleepBias: 0.9,
+    sleepBias: 0.5,
     defaultMass: 10
   },
   spatialPartition: SpatialPartitionStrategy.SparseHashGrid,

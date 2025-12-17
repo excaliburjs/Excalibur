@@ -7,7 +7,7 @@ import { Component } from '../EntityComponentSystem/Component';
 import { CollisionGroup } from './Group/CollisionGroup';
 import type { Id } from '../Id';
 import { createId } from '../Id';
-import { clamp } from '../Math/util';
+import { canonicalizeAngle, clamp } from '../Math/util';
 import { ColliderComponent } from './ColliderComponent';
 import { Transform } from '../Math/transform';
 import { EventEmitter } from '../EventEmitter';
@@ -90,6 +90,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
       ...getDefaultPhysicsConfig().bodies,
       ...config
     };
+    // FIXME this doesnt' seem to work
     this.canSleep = this._bodyConfig.canSleepByDefault;
     this.sleepMotion = this._bodyConfig.sleepEpsilon * 5;
     this.wakeThreshold = this._bodyConfig.wakeThreshold;
@@ -192,24 +193,33 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   /**
    * Update body's {@apilink BodyComponent.sleepMotion} for the purpose of sleeping
    */
-  public updateMotion() {
+  public updateMotion(duration: number) {
+    // Implementation inspired from Game Physics Engine Development by Ian Millington
+    // Tweaked slightly for excalibur
     if (this._sleeping) {
       this.isSleeping = true;
     }
 
-    // FIXME: This is not robust enough to account for high acceleration situations and non substepping situations
-    // Right now they have high velocity
-    // What is their effective perceptive velcoity
+    // What is their effective perceptive velocity, instead of instantaneous .vel/.angularVelocity
     const effectiveVel = this.pos.sub(this.oldPos);
-    // const effectiveAngularVel = this.rotation - this.oldRotation;
+    const effectiveAngularVel = canonicalizeAngle(this.rotation) - canonicalizeAngle(this.oldRotation);
 
-    const currentMotion = effectiveVel.magnitude * effectiveVel.magnitude + Math.abs(this.angularVelocity * this.angularVelocity * 2);
+    // This is effectively a massless kinetic energy term
+    // We remove the mass terms from 1/2 mv^2 to keep objects of different masses from sleeping at different times
+    const vel = effectiveVel.magnitude;
+    const omega = effectiveAngularVel;
+    const currentMotion = vel * vel + omega * omega;
 
-    const bias = this._bodyConfig.sleepBias;
+    // Bias is frame duration dependent (sleepBias is smeared over 1-s frames
+    const bias = Math.pow(this._bodyConfig.sleepBias, duration / 1000);
+
+    // Rolling average of previous motion to keep things from sleeping if they stop abruptly but were just moving fast
     this.sleepMotion = bias * this.sleepMotion + (1 - bias) * currentMotion;
+
+    // Clamp motion to a maximum
     this.sleepMotion = clamp(this.sleepMotion, 0, 10 * this._bodyConfig.sleepEpsilon);
 
-    // FIXME canSleep doesn't respect the default configuration
+    // Low energy bodies go to sleep, just like real life ;)
     if (this.canSleep && this.sleepMotion < this._bodyConfig.sleepEpsilon) {
       this.isSleeping = true;
     }

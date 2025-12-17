@@ -121,7 +121,8 @@ export class CollisionSystem extends System {
     const substep = this._physics.config.substep;
     for (let step = 0; step < substep; step++) {
       if (step > 0) {
-        // first step is run by the MotionSystem when configured, so skip
+        // first step is run by the MotionSystem when configured, so skip 0th
+        // elapsed is used here because step size is calcluated in motion system
         this._motionSystem.update(elapsed);
       }
       // Re-use pairs from previous collision
@@ -131,7 +132,7 @@ export class CollisionSystem extends System {
 
       if (pairs.length) {
         contacts = this._processor.narrowphase(pairs, this._engine?.debug?.stats?.currFrame);
-        contacts = solver.solve(contacts);
+        contacts = solver.solve(contacts, elapsed / substep);
 
         // Record contacts for start/end
         for (const contact of contacts) {
