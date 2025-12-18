@@ -267,7 +267,7 @@ export class GraphicsSystem extends System {
       const optionalBody = ancestor?.get(BodyComponent);
       if (transform) {
         let tx = transform.get();
-        if (optionalBody) {
+        if (optionalBody && !optionalBody.isSleeping) {
           if (this._engine.fixedUpdateTimestep && optionalBody.__oldTransformCaptured && optionalBody.enableFixedUpdateInterpolate) {
             // Interpolate graphics if needed
             const blend = this._engine.currentFrameLagMs / this._engine.fixedUpdateTimestep;

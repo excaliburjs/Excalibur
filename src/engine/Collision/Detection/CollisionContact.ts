@@ -101,10 +101,10 @@ export class CollisionContact {
     const bodyB = this.bodyB;
     if (bodyA && bodyB) {
       if (bodyA.isSleeping !== bodyB.isSleeping) {
-        if (bodyA.isSleeping && bodyA.collisionType !== CollisionType.Fixed && bodyB.sleepMotion >= bodyA.wakeThreshold) {
+        if (bodyA.isSleeping && !bodyB.isSleeping) {
           bodyA.isSleeping = false;
         }
-        if (bodyB.isSleeping && bodyB.collisionType !== CollisionType.Fixed && bodyA.sleepMotion >= bodyB.wakeThreshold) {
+        if (bodyB.isSleeping && !bodyA.isSleeping) {
           bodyB.isSleeping = false;
         }
       }
