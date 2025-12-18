@@ -65,6 +65,10 @@ export class RealisticSolver implements CollisionSolver {
     // Solve position last because non-overlap is the most important
     this.solvePosition(contacts);
 
+    for (let i = 0; i < contacts.length; i++) {
+      contacts[i].matchAwake();
+    }
+
     // Events and any contact house-keeping the solver needs
     this.postSolve(contacts, duration);
 
@@ -80,6 +84,7 @@ export class RealisticSolver implements CollisionSolver {
         contact.cancel();
         continue;
       }
+
       // Publish collision events on both participants
       const side = Side.fromDirection(contact.mtv);
       const distance = Math.abs(contact?.info?.separation || 0);
@@ -103,9 +108,6 @@ export class RealisticSolver implements CollisionSolver {
         'beforecollisionresolve',
         new CollisionPreSolveEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate(), contact) as any
       );
-
-      // Match awake state for sleeping
-      contact.matchAwake();
     }
 
     // Keep track of contacts that done
@@ -212,10 +214,6 @@ export class RealisticSolver implements CollisionSolver {
         if (bodyA.collisionType === CollisionType.Passive || bodyB.collisionType === CollisionType.Passive) {
           continue;
         }
-
-        // Update motion values for sleeping
-        bodyA.updateMotion(duration);
-        bodyB.updateMotion(duration);
       }
 
       // Publish collision events on both participants
@@ -331,6 +329,7 @@ export class RealisticSolver implements CollisionSolver {
               if (!bodyA.limitDegreeOfFreedom.includes(DegreeOfFreedom.Rotation)) {
                 bodyA.rotation -= point.aToContact.cross(impulse) * bodyA.inverseInertia;
               }
+              bodyA.wake();
             }
 
             if (bodyB.collisionType === CollisionType.Active) {
@@ -346,6 +345,7 @@ export class RealisticSolver implements CollisionSolver {
               if (!bodyB.limitDegreeOfFreedom.includes(DegreeOfFreedom.Rotation)) {
                 bodyB.rotation += point.bToContact.cross(impulse) * bodyB.inverseInertia;
               }
+              bodyA.wake();
             }
           }
         }

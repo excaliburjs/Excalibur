@@ -100,13 +100,12 @@ export class CollisionContact {
     const bodyA = this.bodyA;
     const bodyB = this.bodyB;
     if (bodyA && bodyB) {
-      if (bodyA.isSleeping !== bodyB.isSleeping) {
-        if (bodyA.isSleeping && !bodyB.isSleeping) {
-          bodyA.isSleeping = false;
-        }
-        if (bodyB.isSleeping && !bodyA.isSleeping) {
-          bodyB.isSleeping = false;
-        }
+      const bodyAHasMotion = !this.bodyA.isSleeping && this.bodyA.sleepMotion > 0.17;
+      const bodyBHasMotion = !this.bodyB.isSleeping && this.bodyB.sleepMotion > 0.17;
+      if (bodyAHasMotion || bodyBHasMotion) {
+        // if (!this.bodyA.isSleeping || !this.bodyB.isSleeping) {
+        bodyA.wake();
+        bodyB.wake();
       }
     }
   }

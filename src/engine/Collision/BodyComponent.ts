@@ -157,7 +157,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
    * Whether this body is sleeping or not
    */
   public get isSleeping(): boolean {
-    return this._sleeping;
+    return this.canSleep && this._sleeping;
   }
 
   /**
@@ -169,19 +169,19 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     this.isSleeping = sleeping;
   }
 
-  public set isSleeping(sleeping: boolean) {
-    this._sleeping = sleeping;
-
-    if (sleeping) {
-      this.owner?.addTag('ex.is_sleeping');
-    } else {
-      this.owner.removeTag('ex.is_sleeping');
-    }
-
-    if (!sleeping) {
+  public wake() {
+    if (this._sleeping) {
+      this._sleeping = false;
+      this.owner?.removeTag('ex.is_sleeping');
       // Give it a kick to keep it from falling asleep immediately
-      this.sleepMotion = this._bodyConfig.sleepEpsilon * 5;
-    } else {
+      this.sleepMotion = this._bodyConfig.sleepEpsilon * 2;
+    }
+  }
+
+  public sleep() {
+    if (!this._sleeping && this.canSleep) {
+      this._sleeping = true;
+      this.owner?.addTag('ex.is_sleeping');
       this.vel = Vector.Zero;
       this.acc = Vector.Zero;
       this.angularVelocity = 0;
@@ -189,15 +189,24 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     }
   }
 
+  public set isSleeping(sleeping: boolean) {
+    if (sleeping) {
+      this.sleep();
+    } else {
+      this.wake();
+    }
+  }
+
   /**
    * Update body's {@apilink BodyComponent.sleepMotion} for the purpose of sleeping
    */
   public updateMotion(duration: number) {
+    if (this._sleeping) {
+return;
+}
+
     // Implementation inspired from Game Physics Engine Development by Ian Millington
     // Tweaked slightly for excalibur
-    if (this._sleeping) {
-      this.isSleeping = true;
-    }
 
     // What is their effective perceptive velocity, instead of instantaneous .vel/.angularVelocity
     const effectiveVel = this.pos.sub(this.oldPos);
@@ -213,14 +222,15 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     const bias = Math.pow(this._bodyConfig.sleepBias, duration / 1000);
 
     // Rolling average of previous motion to keep things from sleeping if they stop abruptly but were just moving fast
-    this.sleepMotion = bias * this.sleepMotion + (1 - bias) * currentMotion;
+    const previousMotion = this.sleepMotion;
+    this.sleepMotion = bias * previousMotion + (1.0 - bias) * currentMotion;
 
     // Clamp motion to a maximum
     this.sleepMotion = clamp(this.sleepMotion, 0, 10 * this._bodyConfig.sleepEpsilon);
 
     // Low energy bodies go to sleep, just like real life ;)
     if (this.canSleep && this.sleepMotion < this._bodyConfig.sleepEpsilon) {
-      this.isSleeping = true;
+      this.sleep();
     }
   }
 

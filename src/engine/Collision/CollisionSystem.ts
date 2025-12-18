@@ -20,11 +20,13 @@ import type { CollisionProcessor } from './Detection/CollisionProcessor';
 import { SeparatingAxis } from './Colliders/SeparatingAxis';
 import { MotionSystem } from './MotionSystem';
 import { Pair } from './Detection/Pair';
+import { BodyComponent } from './Index';
 export class CollisionSystem extends System {
   static priority = SystemPriority.Higher;
 
   public systemType = SystemType.Update;
   public query: Query<ComponentCtor<TransformComponent> | ComponentCtor<ColliderComponent>>;
+  public bodyQuery: Query<ComponentCtor<BodyComponent>>;
 
   private _engine: Engine;
   private _configDirty = false;
@@ -68,6 +70,7 @@ export class CollisionSystem extends System {
       }
     });
     this._motionSystem = world.get(MotionSystem) as MotionSystem;
+    this.bodyQuery = world.query([BodyComponent]);
   }
 
   initialize(world: World, scene: Scene) {
@@ -149,6 +152,12 @@ export class CollisionSystem extends System {
           }
         }
       }
+    }
+
+    let bodyComponent: BodyComponent;
+    for (let i = 0; i < this.bodyQuery.entities.length; i++) {
+      bodyComponent = this.bodyQuery.entities[i].get(BodyComponent);
+      bodyComponent.updateMotion(elapsed);
     }
 
     // Emit contact start/end events
