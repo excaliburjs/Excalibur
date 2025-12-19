@@ -73,6 +73,10 @@ When our `Bird` flies between two pipes we want to increment the score. To do th
 
 ```typescript
 // score-trigger.ts
+import * as ex from 'excalibur';
+import { Config } from './config';
+import { Level } from './level';
+
 export class ScoreTrigger extends ex.Actor {
     constructor(pos: ex.Vector, private level: Level) {
         super({
