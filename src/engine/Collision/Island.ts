@@ -1,9 +1,11 @@
+import type { BodyConfig} from './Index';
 import { CollisionType, type BodyComponent, type CollisionContact } from './Index';
 
 export class Island {
   bodies: BodyComponent[] = [];
   contacts: CollisionContact[] = [];
   isSleeping = false;
+  constructor(public config: BodyConfig) {}
   wake() {
     this.isSleeping = false;
     for (const body of this.bodies) {
@@ -45,14 +47,14 @@ export class Island {
       }
 
       // Only sleep if the ENTIRE island has been still long enough
-      if (minSleepTime > 1000) {
+      if (minSleepTime > this.config.sleepTimeThreshold) {
         this.sleep();
       }
     }
   }
 }
 
-export function buildContactIslands(bodies: BodyComponent[], contacts: CollisionContact[]): Island[] {
+export function buildContactIslands(config: BodyConfig, bodies: BodyComponent[], contacts: CollisionContact[]): Island[] {
   // Union-find to group connected bodies
   const parent = new Map<BodyComponent, BodyComponent>();
 
@@ -112,7 +114,7 @@ export function buildContactIslands(bodies: BodyComponent[], contacts: Collision
   }
 
   return Array.from(islandMap.values()).map((bodies) => {
-    const island = new Island();
+    const island = new Island(config);
     island.bodies = bodies;
     bodies.forEach((b) => (b.island = island));
     island.contacts = Array.from(new Set(bodies.flatMap((b) => bodyToContacts.get(b))));

@@ -36,6 +36,7 @@ export class CollisionSystem extends System {
   private _lastFrameContacts = new Map<string, CollisionContact>();
   private _currentFrameContacts = new Map<string, CollisionContact>();
   private _motionSystem: MotionSystem;
+  private _bodies: BodyComponent[] = [];
   private get _processor(): CollisionProcessor {
     return this._physics.collisionProcessor;
   }
@@ -72,6 +73,19 @@ export class CollisionSystem extends System {
     });
     this._motionSystem = world.get(MotionSystem) as MotionSystem;
     this.bodyQuery = world.query([BodyComponent]);
+
+    this.bodyQuery.entityAdded$.subscribe((e) => {
+      this._bodies.push(e.get(BodyComponent));
+    });
+
+    this.bodyQuery.entityRemoved$.subscribe((e) => {
+      const body = e.get(BodyComponent);
+
+      const indexOf = this._bodies.indexOf(body);
+      if (indexOf > -1) {
+        this._bodies.splice(indexOf, 1);
+      }
+    });
   }
 
   initialize(world: World, scene: Scene) {
@@ -81,13 +95,6 @@ export class CollisionSystem extends System {
   update(elapsed: number): void {
     if (!this._physics.config.enabled) {
       return;
-    }
-
-    let bodyComponent: BodyComponent;
-    const bodies: BodyComponent[] = [];
-    for (let i = 0; i < this.bodyQuery.entities.length; i++) {
-      bodyComponent = this.bodyQuery.entities[i].get(BodyComponent);
-      bodies.push(bodyComponent);
     }
 
     // TODO do we need to do this every frame?
@@ -144,10 +151,13 @@ export class CollisionSystem extends System {
       if (pairs.length) {
         contacts = this._processor.narrowphase(pairs, this._engine?.debug?.stats?.currFrame);
 
-        const islands = buildContactIslands(bodies, contacts);
+        if (this._physics.config.solver === SolverStrategy.Realistic) {
+          // TODO we could possbily enable this for Arcade, will require some thinking
+          const islands = buildContactIslands(this._physics.config.bodies, this._bodies, contacts);
 
-        for (const island of islands) {
-          island.updateSleepState(elapsed / substep);
+          for (const island of islands) {
+            island.updateSleepState(elapsed / substep);
+          }
         }
 
         contacts = solver.solve(contacts, elapsed / substep);
@@ -170,7 +180,7 @@ export class CollisionSystem extends System {
     }
 
     // Emit contact start/end events
-    this.runContactStartEnd(); // FIXME sleep awake here for bodies that are still left? prevent floaters
+    this.runContactStartEnd();
 
     // reset the last frame cache
     this._lastFrameContacts.clear();

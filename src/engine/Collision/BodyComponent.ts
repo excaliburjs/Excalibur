@@ -11,9 +11,8 @@ import { angleDifference, canonicalizeAngle, clamp } from '../Math/util';
 import { ColliderComponent } from './ColliderComponent';
 import { Transform } from '../Math/transform';
 import { EventEmitter } from '../EventEmitter';
-import type { PhysicsConfig } from './PhysicsConfig';
+import type { BodyConfig, PhysicsConfig } from './PhysicsConfig';
 import { getDefaultPhysicsConfig } from './PhysicsConfig';
-import type { DeepRequired } from '../Util/Required';
 import type { Entity } from '../EntityComponentSystem';
 import type { Island } from './Island';
 
@@ -55,8 +54,8 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
    */
   public enableFixedUpdateInterpolate = true;
 
-  private _bodyConfig: DeepRequired<Pick<PhysicsConfig, 'bodies'>['bodies']>;
-  private static _DEFAULT_CONFIG: DeepRequired<Pick<PhysicsConfig, 'bodies'>['bodies']> = {
+  private _bodyConfig: BodyConfig;
+  private static _DEFAULT_CONFIG: BodyConfig = {
     ...getDefaultPhysicsConfig().bodies
   };
   public wakeThreshold: number;
@@ -89,7 +88,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
    * Called by excalibur to update physics config defaults if they change
    * @param config
    */
-  public updatePhysicsConfig(config: DeepRequired<Pick<PhysicsConfig, 'bodies'>['bodies']>) {
+  public updatePhysicsConfig(config: BodyConfig) {
     this._bodyConfig = {
       ...getDefaultPhysicsConfig().bodies,
       ...config
@@ -112,7 +111,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
    * Called by excalibur to update defaults
    * @param config
    */
-  public static updateDefaultPhysicsConfig(config: DeepRequired<Pick<PhysicsConfig, 'bodies'>['bodies']>) {
+  public static updateDefaultPhysicsConfig(config: BodyConfig) {
     BodyComponent._DEFAULT_CONFIG = config;
   }
 
@@ -245,7 +244,6 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     // Low energy bodies go to sleep, just like real life ;)
     if (this.canFallAsleep) {
       this.sleepTime += duration;
-      // this.sleep();
     }
   }
 

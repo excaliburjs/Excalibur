@@ -157,6 +157,13 @@ export interface PhysicsConfig {
     sleepBias?: number;
 
     /**
+     * Amount of time that bodies (in contact islands) need to be below the sleepEpsilon
+     *
+     * Default 1000ms
+     */
+    sleepTimeThreshold?: number;
+
+    /**
      * By default bodies do not sleep, this can be turned on to improve perf if you have a lot of bodies.
      *
      * Default false
@@ -232,6 +239,8 @@ export interface PhysicsConfig {
   };
 }
 
+export type BodyConfig = DeepRequired<Pick<PhysicsConfig, 'bodies'>['bodies']>;
+
 export const getDefaultPhysicsConfig: () => DeepRequired<PhysicsConfig> = () => ({
   enabled: true,
   integration: {
@@ -249,10 +258,11 @@ export const getDefaultPhysicsConfig: () => DeepRequired<PhysicsConfig> = () => 
     surfaceEpsilon: 0.1
   },
   bodies: {
-    canSleepByDefault: false,
+    canSleepByDefault: true,
     sleepEpsilon: 0.07,
     wakeThreshold: 0.07 * 3,
     sleepBias: 0.5,
+    sleepTimeThreshold: 1000,
     defaultMass: 10
   },
   spatialPartition: SpatialPartitionStrategy.SparseHashGrid,
