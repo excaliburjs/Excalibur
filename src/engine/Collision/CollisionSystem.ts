@@ -21,6 +21,7 @@ import { SeparatingAxis } from './Colliders/SeparatingAxis';
 import { MotionSystem } from './MotionSystem';
 import { Pair } from './Detection/Pair';
 import { BodyComponent } from './Index';
+import { buildContactIslands } from './Island';
 export class CollisionSystem extends System {
   static priority = SystemPriority.Higher;
 
@@ -82,6 +83,13 @@ export class CollisionSystem extends System {
       return;
     }
 
+    let bodyComponent: BodyComponent;
+    const bodies: BodyComponent[] = [];
+    for (let i = 0; i < this.bodyQuery.entities.length; i++) {
+      bodyComponent = this.bodyQuery.entities[i].get(BodyComponent);
+      bodies.push(bodyComponent);
+    }
+
     // TODO do we need to do this every frame?
     // Collect up all the colliders and update them
     let colliders: Collider[] = [];
@@ -135,6 +143,13 @@ export class CollisionSystem extends System {
 
       if (pairs.length) {
         contacts = this._processor.narrowphase(pairs, this._engine?.debug?.stats?.currFrame);
+
+        const islands = buildContactIslands(bodies, contacts);
+
+        for (const island of islands) {
+          island.updateSleepState(elapsed / substep);
+        }
+
         contacts = solver.solve(contacts, elapsed / substep);
 
         // Record contacts for start/end
@@ -152,12 +167,6 @@ export class CollisionSystem extends System {
           }
         }
       }
-    }
-
-    let bodyComponent: BodyComponent;
-    for (let i = 0; i < this.bodyQuery.entities.length; i++) {
-      bodyComponent = this.bodyQuery.entities[i].get(BodyComponent);
-      bodyComponent.updateMotion(elapsed);
     }
 
     // Emit contact start/end events

@@ -1,6 +1,6 @@
 import type { Vector } from '../../Math/vector';
 import type { Collider } from '../Colliders/Collider';
-import { CollisionType } from '../CollisionType';
+// import { CollisionType } from '../CollisionType';
 import { Pair } from './Pair';
 import type { SeparationInfo } from '../Colliders/SeparatingAxis';
 import { BodyComponent } from '../BodyComponent';
@@ -90,23 +90,6 @@ export class CollisionContact {
     }
     if (this.colliderB.owner) {
       this.bodyB = this.colliderB.owner.get(BodyComponent);
-    }
-  }
-
-  /**
-   * Match contact awake state, except if body's are Fixed
-   */
-  public matchAwake(): void {
-    const bodyA = this.bodyA;
-    const bodyB = this.bodyB;
-    if (bodyA && bodyB) {
-      const bodyAHasMotion = !this.bodyA.isSleeping && this.bodyA.sleepMotion > 0.17;
-      const bodyBHasMotion = !this.bodyB.isSleeping && this.bodyB.sleepMotion > 0.17;
-      if (bodyAHasMotion || bodyBHasMotion) {
-        // if (!this.bodyA.isSleeping || !this.bodyB.isSleeping) {
-        bodyA.wake();
-        bodyB.wake();
-      }
     }
   }
 

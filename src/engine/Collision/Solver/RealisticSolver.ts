@@ -65,10 +65,6 @@ export class RealisticSolver implements CollisionSolver {
     // Solve position last because non-overlap is the most important
     this.solvePosition(contacts);
 
-    for (let i = 0; i < contacts.length; i++) {
-      contacts[i].matchAwake();
-    }
-
     // Events and any contact house-keeping the solver needs
     this.postSolve(contacts, duration);
 
@@ -329,7 +325,6 @@ export class RealisticSolver implements CollisionSolver {
               if (!bodyA.limitDegreeOfFreedom.includes(DegreeOfFreedom.Rotation)) {
                 bodyA.rotation -= point.aToContact.cross(impulse) * bodyA.inverseInertia;
               }
-              bodyA.wake();
             }
 
             if (bodyB.collisionType === CollisionType.Active) {
@@ -345,7 +340,6 @@ export class RealisticSolver implements CollisionSolver {
               if (!bodyB.limitDegreeOfFreedom.includes(DegreeOfFreedom.Rotation)) {
                 bodyB.rotation += point.bToContact.cross(impulse) * bodyB.inverseInertia;
               }
-              bodyA.wake();
             }
           }
         }

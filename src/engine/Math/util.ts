@@ -51,6 +51,16 @@ export function canonicalizeAngle(angle: number): number {
 }
 
 /**
+ * Return the different in angles in the range [0, 2PI)
+ */
+export function angleDifference(angle1: number, angle2: number): number {
+  const TWO_PI = 2 * Math.PI;
+  const diff = Math.abs(angle1 - angle2);
+  // Return the smaller of the direct distance or the wraparound distance
+  return Math.min(diff, TWO_PI - diff);
+}
+
+/**
  * Convert radians to degrees
  */
 export function toDegrees(radians: number): number {

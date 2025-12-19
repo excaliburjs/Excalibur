@@ -176,7 +176,7 @@ export class DebugSystem extends System {
         }
 
         if (bodySettings.showAll || bodySettings.showMotion) {
-          this._graphicsContext.debug.drawText(`motion(${body.sleepMotion})`, cursor);
+          this._graphicsContext.debug.drawText(`motion(${body.sleepMotion.toFixed(3)})`, cursor);
           cursor = cursor.add(lineHeight);
         }
 
