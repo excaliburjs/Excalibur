@@ -10,17 +10,12 @@ var game = new ex.Engine({
       positionIterations: 10,
       velocityIterations: 10
     },
-    substep: 5,
-    bodies: {
-      canSleepByDefault: true
-    }
+    substep: 5
+    // bodies: {
+    // canSleepByDefault: true
+    // }
   }
 });
-
-// game.debug.physics.showCollisionNormals = true;
-// game.debug.physics.showCollisionContacts = true;
-game.debug.body.showSleeping = true;
-game.debug.body.showMotion = true;
 
 var blockArt = new ex.Rectangle({
   width: 50,
