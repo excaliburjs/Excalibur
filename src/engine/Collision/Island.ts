@@ -1,4 +1,4 @@
-import type { BodyConfig} from './Index';
+import type { BodyConfig } from './Index';
 import { CollisionType, type BodyComponent, type CollisionContact } from './Index';
 
 export class Island {
