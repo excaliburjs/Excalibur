@@ -3,7 +3,6 @@ import { SystemPriority } from '../EntityComponentSystem';
 import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { System, SystemType } from '../EntityComponentSystem/System';
-import { assert } from '../Util/Assert';
 import { BodyComponent } from './BodyComponent';
 import { CollisionType } from './CollisionType';
 import { EulerIntegrator } from './Integrator';
@@ -59,8 +58,6 @@ export class MotionSystem extends System {
       }
 
       if (optionalBody?.isSleeping) {
-        // console.log('No sleeping bodies should be in this loop');
-        assert('No sleeping bodies should be in this loop', () => !optionalBody.isSleeping);
         continue;
       }
 
