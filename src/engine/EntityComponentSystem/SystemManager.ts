@@ -88,7 +88,7 @@ export class SystemManager {
    */
   public updateSystems(type: SystemType, scene: Scene, elapsed: number) {
     const systems = this.systems.filter((s) => s.systemType === type);
-    const stats = scene.engine.stats.currFrame;
+    const stats = scene.engine.stats.currFrame ?? {};
     let startTime: number;
     let endTime: number;
     const systemsLength = systems.length;
