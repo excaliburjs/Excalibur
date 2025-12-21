@@ -10,7 +10,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Behavior change: Realistic physics bodies can now sleep by default `canSleepByDefault`
 - Behavior change: The `sleepBias` default is lowered to 0.5 from .9
 - Behavior change: Bodies do not sleep until all bodies in an Island are low motion for at least `sleepTimeThreshold`, default 1000ms
-- Debug: Improve body related information output
+- Debug: Improve body related information output in the debug draw
 
 ### Deprecated
 
