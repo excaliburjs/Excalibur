@@ -26,7 +26,7 @@ export class RealisticSolver implements CollisionSolver {
     return this.idToContactConstraint.get(id) ?? [];
   }
 
-  public solve(contacts: CollisionContact[], duration: number): CollisionContact[] {
+  public solve(contacts: CollisionContact[]): CollisionContact[] {
     // Events and init
     this.preSolve(contacts);
 
@@ -66,7 +66,7 @@ export class RealisticSolver implements CollisionSolver {
     this.solvePosition(contacts);
 
     // Events and any contact house-keeping the solver needs
-    this.postSolve(contacts, duration);
+    this.postSolve(contacts);
 
     return contacts;
   }
@@ -199,7 +199,7 @@ export class RealisticSolver implements CollisionSolver {
     }
   }
 
-  postSolve(contacts: CollisionContact[], duration: number) {
+  postSolve(contacts: CollisionContact[]) {
     for (let i = 0; i < contacts.length; i++) {
       const contact = contacts[i];
       const bodyA = contact.bodyA;
