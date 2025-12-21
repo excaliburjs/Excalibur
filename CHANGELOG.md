@@ -7,7 +7,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
--
+- Behavior change: Realistic physics bodies can now sleep by default `canSleepByDefault`
+- Behavior change: The `sleepBias` default is lowered to 0.5 from .9
+- Behavior change: Bodies do not sleep until all bodies in an Island are low motion for at least `sleepTimeThreshold`, default 1000ms
+- Debug: Improve body related information output
 
 ### Deprecated
 
@@ -16,7 +19,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-
+- Added new contact `ex.Island` physics optimization, excalibur physics bodies will now wake or sleep the entire connected graph of bodies,
+this only works in the Realistic solver, but it's a huge perf win.
+- Added new `ex.angleDifference(angle1, angle2)` for calculating differences between angles in [0, 2Pi)
+- Added new debug stats to the frame to measure ECS system durations in milliseconds
+  ```typescript
+    const stats: Record<string, number> = engine.stats.currFrame.systemDuration;
+    // "update:CollisionSystem.update" -> .50
+  ```
 - Added new Timer events! 
   ```typescript
   const timer = new ex.Timer({...});
@@ -91,6 +101,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed possible perf issue in `canonicalizeAngle` if a large angle was provided it could take a long time
+- Fixed issue where physics bodies did not sleep under certain situations, especially when gravity was high.
 - Fixed issue where Animation fromSpriteSheet was ignoring repeated sprite sheet indices
 - Fixed issue where setting the width/height of a ScreenElement was incorrectly scaled when supplied with a scale in the ctor
 - Fixed issue where onRemove would sometimes not be called
