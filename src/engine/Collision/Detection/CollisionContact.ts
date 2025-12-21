@@ -1,6 +1,5 @@
 import type { Vector } from '../../Math/vector';
 import type { Collider } from '../Colliders/Collider';
-// import { CollisionType } from '../CollisionType';
 import { Pair } from './Pair';
 import type { SeparationInfo } from '../Colliders/SeparatingAxis';
 import { BodyComponent } from '../BodyComponent';
