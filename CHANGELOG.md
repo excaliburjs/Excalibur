@@ -17,6 +17,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 
+- Added new parameter to `ex.Sounds` to schedule start time, this allows you to synchronize playback of multiple audio tracks
+  ```typescript
+  const start500MsFromNow = AudioContextFactory.currentTime() + 500;
+
+  Resources.MusicSurface.play({ volume: .5, scheduledStartTime: start500MsFromNow });
+  // Start layered tracks at 0 volume so they are synchronized
+  Resources.MusicIndDrums.play({ volume: 0, scheduledStartTime: start500MsFromNow });
+  Resources.MusicIndTopper.play({ volume: 0, scheduledStartTime: start500MsFromNow });
+  Resources.MusicGroovyDrums.play({ volume: 0, scheduledStartTime: start500MsFromNow });
+  Resources.MusicGroovyTopper.play({ volume: 0, scheduledStartTime: start500MsFromNow });
+  ```
 - Added new Timer events! 
   ```typescript
   const timer = new ex.Timer({...});
