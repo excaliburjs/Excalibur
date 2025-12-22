@@ -71,6 +71,28 @@ export interface SoundOptions {
   position?: number;
 }
 
+export interface PlayOptions {
+  /**
+   * Volume to play between [0, 1]
+   */
+  volume?: number;
+
+  /**
+   * Schedule time to play in ms
+   *
+   * Compute using the audio context
+   *
+   * ```typescript
+   * const sound: Sound = ...;
+   * const oneThousandMillisecondsFromNow = AudioContextFactory.currentTime + 1000;
+   *
+   * sound.play({ scheduledStart: oneThousandMillisecondsFromNow });
+   *
+   * ```
+   */
+  scheduledStartTime?: number;
+}
+
 function isSoundOptions(x: any): x is SoundOptions[] {
   return !!x[0]?.paths;
 }
@@ -306,7 +328,7 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
    * Play the sound, returns a promise that resolves when the sound is done playing
    * An optional volume argument can be passed in to play the sound. Max volume is 1.0
    */
-  public play(volume?: number, scheduledStart?: number): Promise<boolean> {
+  public play(volumeOrConfig?: number | PlayOptions): Promise<boolean> {
     if (!this.isLoaded()) {
       this.logger.warn('Cannot start playing. Resource', this.path, 'is not loaded yet');
 
@@ -318,7 +340,14 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
       return Promise.resolve(false);
     }
 
-    this.volume = volume ?? this.volume;
+    let scheduledStart = 0;
+    if (volumeOrConfig instanceof Object) {
+      const { volume, scheduledStartTime } = volumeOrConfig;
+      scheduledStart = scheduledStartTime ?? scheduledStart;
+      this.volume = volume ?? this.volume;
+    } else {
+      this.volume = volumeOrConfig ?? this.volume;
+    }
 
     if (this.isPaused()) {
       return this._resumePlayback();
