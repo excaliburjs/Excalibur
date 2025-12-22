@@ -15,7 +15,10 @@ export class AudioContextFactory {
     return this._INSTANCE!;
   }
 
+  /**
+   * Return the current audio context time in millseconds
+   */
   public static currentTime(): number {
-    return AudioContextFactory.create().currentTime;
+    return AudioContextFactory.create().currentTime * 1000;
   }
 }

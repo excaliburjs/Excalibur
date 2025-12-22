@@ -78,7 +78,7 @@ export interface PlayOptions {
   volume?: number;
 
   /**
-   * Schedule time to play in ms
+   * Schedule time to play in milliseconds from the audio context origin
    *
    * Compute using the audio context
    *
@@ -86,7 +86,7 @@ export interface PlayOptions {
    * const sound: Sound = ...;
    * const oneThousandMillisecondsFromNow = AudioContextFactory.currentTime + 1000;
    *
-   * sound.play({ scheduledStart: oneThousandMillisecondsFromNow });
+   * sound.play({ scheduledStartTime: oneThousandMillisecondsFromNow });
    *
    * ```
    */
@@ -186,7 +186,20 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
     this._resource.bustCache = val;
   }
 
-  public scheduledStart = 0;
+  /**
+   * Schedule time to play in milliseconds from the audio context origin
+   *
+   * Compute using the audio context
+   *
+   * ```typescript
+   * const sound: Sound = ...;
+   * const oneThousandMillisecondsFromNow = AudioContextFactory.currentTime + 1000;
+   *
+   * sound.scheduledStartTime = oneThousandMillisecondsFromNow;
+   *
+   * ```
+   */
+  public scheduledStartTime = 0;
 
   private _loop = false;
   private _volume = 1;
@@ -446,7 +459,7 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
       const resumed: Promise<boolean>[] = [];
       // ensure we resume *current* tracks (if paused)
       for (const track of this._tracks) {
-        track.scheduledStart = scheduledStart;
+        track.scheduledStartTime = scheduledStart;
         resumed.push(
           track.play().then(() => {
             this._tracks.splice(this.getTrackId(track), 1);
@@ -467,9 +480,9 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
   /**
    * Starts playback, returns a promise that resolves when playback is complete
    */
-  private async _startPlayback(scheduledStart: number = 0): Promise<boolean> {
+  private async _startPlayback(scheduledStartTime: number = 0): Promise<boolean> {
     const track = this._getTrackInstance(this.data);
-    track.scheduledStart = scheduledStart;
+    track.scheduledStartTime = scheduledStartTime;
 
     const complete = await track.play(() => {
       this.events.emit('playbackstart', new NativeSoundEvent(this, track));
