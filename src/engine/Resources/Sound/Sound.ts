@@ -356,7 +356,7 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
     let scheduledStart = 0;
     if (volumeOrConfig instanceof Object) {
       const { volume, scheduledStartTime } = volumeOrConfig;
-      scheduledStart = scheduledStartTime ?? scheduledStart;
+      scheduledStart = (scheduledStartTime ?? 0) / 1000 || scheduledStart;
       this.volume = volume ?? this.volume;
     } else {
       this.volume = volumeOrConfig ?? this.volume;
