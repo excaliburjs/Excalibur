@@ -99,11 +99,11 @@ export interface AnimationOptions {
   data?: Record<string, any>;
 }
 
-export type AnimationEvents = {
+export interface AnimationEvents {
   frame: FrameEvent;
   loop: Animation;
   end: Animation;
-};
+}
 
 export const AnimationEvents = {
   Frame: 'frame',
@@ -242,19 +242,26 @@ export class Animation extends Graphic implements HasTick {
     data?: Record<string, any>
   ): InstanceType<T> {
     const maxIndex = spriteSheet.sprites.length - 1;
-    const invalidIndices = spriteSheetIndex.filter((index) => index < 0 || index > maxIndex);
+    const validIndices: number[] = [];
+    const invalidIndices: number[] = [];
+    spriteSheetIndex.forEach((index) => {
+      if (index < 0 || index > maxIndex) {
+        invalidIndices.push(index);
+      } else {
+        validIndices.push(index);
+      }
+    });
+
     if (invalidIndices.length) {
       Animation._LOGGER.warn(
-        `Indices into SpriteSheet were provided that don\'t exist: ${invalidIndices.join(',')} no frame will be shown`
+        `Indices into SpriteSheet were provided that don\'t exist: frames ${invalidIndices.join(',')} will not be shown`
       );
     }
     return new this({
-      frames: spriteSheet.sprites
-        .filter((_, index) => spriteSheetIndex.indexOf(index) > -1)
-        .map((f) => ({
-          graphic: f,
-          duration: durationPerFrame
-        })),
+      frames: validIndices.map((validIndex) => ({
+        graphic: spriteSheet.sprites[validIndex],
+        duration: durationPerFrame
+      })),
       strategy: strategy,
       data
     }) as InstanceType<T>;

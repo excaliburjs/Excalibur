@@ -1,15 +1,19 @@
 /* Buttons styles start */
+button#excalibur-play {
+  display: none;
+}
 
 button#excalibur-play {
-  display: inline-block;
+  box-sizing: border-box;
+  display: flex;
+  gap: 0.25rem;
+  white-space: nowrap;
+  justify-content: center;
   position: relative;
   z-index: 999;
   border-radius: 6px;
   border: none;
-  /*border: 3px solid;
-    border-color: white;
-    box-shadow: 0 0 10px #ccc;*/
-  padding: 1rem 1.5rem 1rem 4rem;
+  padding: 1rem;
   margin: 0;
   text-decoration: none;
   background: #00b233;
@@ -33,36 +37,37 @@ button#excalibur-play {
   animation: excalibur-button-fadein 200ms;
 }
 
-/*
-button#excalibur-play {
-  display: none;
-}*/
+span#excalibur-play-icon {
+  content: '';
+  display: inline-block;
+  position: relative;
+  width: 2rem;
+  height: 2rem;
+}
 
-button#excalibur-play:after {
+span#excalibur-play-icon:after {
+  box-sizing: border-box;
   position: absolute;
   content: '';
-  border: 8px solid;
+  border: 0.5rem solid;
   border-color: transparent transparent transparent white;
-  left: 35px;
-  top: 24px;
+  left: calc(50% - 0.1rem);
+  top: calc(30% - 0.1rem);
   width: 0;
   height: 0;
 }
 
-button#excalibur-play:before {
+span#excalibur-play-icon:before {
+  box-sizing: border-box;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   position: absolute;
   content: '';
   border: 3px solid;
-  left: 19px;
-  top: 14px;
-  border-radius: 20px;
-  width: 30px;
-  height: 30px;
-}
-
-button#excalibur-play:hover,
-button#excalibur-play:focus {
-  background: #00982c;
+  border-radius: 1rem;
+  width: 2rem;
+  height: 2rem;
 }
 
 button#excalibur-play:focus {

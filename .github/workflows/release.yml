@@ -4,6 +4,8 @@ on:
     # No input required
   release:
     types: [published]
+  push:
+    branches: [main]
 
 jobs:
   build:
@@ -21,15 +23,52 @@ jobs:
         with:
           submodules: true
           fetch-depth: 100
+
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
           registry-url: 'https://registry.npmjs.org'
           cache: npm
+
+      - name: Determine version and tag
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "release" ]] || [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            VERSION=$(node -p "require('./package.json').version")
+            echo "tag=latest" >> $GITHUB_OUTPUT
+            echo "publish_type=stable" >> $GITHUB_OUTPUT
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+          else
+            ALPHA_VERSION=$(node -e "console.log(require('./version').getAlphaVersion());")
+            echo "tag=next" >> $GITHUB_OUTPUT
+            echo "publish_type=alpha" >> $GITHUB_OUTPUT
+            echo "alpha_version=$ALPHA_VERSION" >> $GITHUB_OUTPUT
+            echo "verson=$ALPHA_VERSION" >> $GITHUB_OUTPUT
+
+            # Set the alpha version
+            npm --no-git-tag-version version $ALPHA_VERSION
+          fi
+
       - run: npm ci
-      - run: npm run build
+
+      - name: Build Alpha
+        if: steps.version.outputs.publish_type == 'alpha'
+        run: npm run build
+
+      - name: Publish to NPM (Alpha)
+        if: steps.version.outputs.publish_type == 'alpha'
+        run: npm publish --tag next --provenance
+
+      - name: Build Release
+        if: steps.version.outputs.publish_type == 'stable'
+        run: npm run build
         env:
           release: true
-      - run: npm publish --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish Release
+        if: steps.version.outputs.publish_type == 'stable'
+        run: npm publish --provenance
+
+      - name: Output Published Version
+        run: |
+          echo "Published version ${{ steps.version.outputs.version }} with tag ${{ steps.version.outputs.tag }}"

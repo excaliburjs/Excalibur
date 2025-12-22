@@ -282,8 +282,8 @@ export class EdgeCollider extends Collider {
   public debug(ex: ExcaliburGraphicsContext, color: Color) {
     const begin = this._getTransformedBegin();
     const end = this._getTransformedEnd();
-    ex.drawLine(begin, end, color, 2);
-    ex.drawCircle(begin, 2, color);
-    ex.drawCircle(end, 2, color);
+    ex.debug.drawLine(begin, end, { color, lineWidth: 2 }); // TODO Collider width configuration
+    ex.debug.drawCircle(begin, 2, color);
+    ex.debug.drawCircle(end, 2, color);
   }
 }

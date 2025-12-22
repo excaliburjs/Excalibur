@@ -288,7 +288,7 @@ export class CircleCollider extends Collider {
     ex.translate(pos.x, pos.y);
     ex.rotate(rotation);
     ex.scale(scale.x, scale.y);
-    ex.drawCircle(this.offset ?? Vector.Zero, this._naturalRadius, Color.Transparent, color, lineWidth);
+    ex.debug.drawCircle(this.offset ?? Vector.Zero, this._naturalRadius, Color.Transparent, color, lineWidth);
     ex.restore();
   }
 }

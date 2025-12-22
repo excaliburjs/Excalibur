@@ -7,7 +7,15 @@ import webpack, { web } from 'webpack';
 import { themes } from 'prism-react-renderer';
 import typedocSymbolLinks from 'remark-typedoc-symbol-links';
 import rehypeRaw from 'rehype-raw';
+import { loadEnvFile } from 'node:process';
 
+try {
+  loadEnvFile();
+} catch (e) {
+  console.warn('.env file not found, proceeding without it.');
+}
+
+const playgroundUrl = process.env.PLAYGROUND_URL || 'https://excaliburjs.com/excalibur-playground';
 
 const lightCodeTheme = themes.github;
 const darkCodeTheme = themes.dracula;
@@ -31,6 +39,10 @@ const config: Config = {
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/',
+
+  customFields: {
+    playgroundUrl,
+  },
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.

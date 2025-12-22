@@ -13,7 +13,7 @@ import { GraphicsDiagnostics } from '../GraphicsDiagnostics';
 import { DebugText } from './debug-text';
 import type { Resolution } from '../../Screen';
 import type { PostProcessor } from '../PostProcessor/PostProcessor';
-import type { AffineMatrix } from '../../Math/affine-matrix';
+import { AffineMatrix } from '../../Math/affine-matrix';
 import type { Material, MaterialOptions } from './material';
 
 const pixelSnapEpsilon = 0.0001;
@@ -70,6 +70,31 @@ class ExcaliburGraphicsContext2DCanvasDebug implements DebugDraw {
       Math.PI * 2
     );
     this._ex.__ctx.fill();
+    this._ex.__ctx.closePath();
+    this._ex.__ctx.restore();
+  }
+
+  public drawCircle(pos: Vector, radius: number, color: Color, stroke?: Color, thickness?: number) {
+    this._ex.__ctx.save();
+    this._ex.__ctx.beginPath();
+    if (stroke) {
+      this._ex.__ctx.strokeStyle = stroke.toString();
+    }
+    if (thickness) {
+      this._ex.__ctx.lineWidth = thickness;
+    }
+    this._ex.__ctx.fillStyle = color.toString();
+    this._ex.__ctx.arc(
+      this._ex.snapToPixel ? ~~(pos.x + pixelSnapEpsilon) : pos.x,
+      this._ex.snapToPixel ? ~~(pos.y + pixelSnapEpsilon) : pos.y,
+      radius,
+      0,
+      Math.PI * 2
+    );
+    this._ex.__ctx.fill();
+    if (stroke) {
+      this._ex.__ctx.stroke();
+    }
     this._ex.__ctx.closePath();
     this._ex.__ctx.restore();
   }
@@ -310,7 +335,15 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
   }
 
   public getTransform(): AffineMatrix {
-    throw new Error('Not implemented');
+    const domMatrix = this.__ctx.getTransform();
+    const affine = new AffineMatrix();
+    affine.data[0] = domMatrix.a; // scale x
+    affine.data[1] = domMatrix.b; // skew y
+    affine.data[2] = domMatrix.c; // skew x
+    affine.data[3] = domMatrix.d; // scale y
+    affine.data[4] = domMatrix.e; // translate x
+    affine.data[5] = domMatrix.f; // translate y
+    return affine;
   }
 
   public multiply(_m: AffineMatrix): void {

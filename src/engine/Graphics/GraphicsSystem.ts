@@ -217,8 +217,9 @@ export class GraphicsSystem extends System {
           graphic.flipVertical = oldFlipVertical;
         }
 
-        // TODO move debug code out?
+        // This debug code is in-situ to avoid recalculating the positioning of graphics
         if (this._engine?.isDebug && this._engine.debug.graphics.showBounds) {
+          this._graphicsContext.save();
           const offset = vec(offsetX, offsetY);
           if (graphic instanceof GraphicsGroup) {
             for (const member of graphic.members) {
@@ -232,15 +233,22 @@ export class GraphicsSystem extends System {
               }
 
               if (graphic.useAnchor) {
-                g?.localBounds.translate(offset.add(pos)).draw(this._graphicsContext, this._engine.debug.graphics.boundsColor);
+                g?.localBounds
+                  .translate(offset.add(pos))
+                  .debug(this._graphicsContext, { color: this._engine.debug.graphics.boundsColor, dashed: true });
               } else {
-                g?.localBounds.translate(pos).draw(this._graphicsContext, this._engine.debug.graphics.boundsColor);
+                g?.localBounds
+                  .translate(pos)
+                  .debug(this._graphicsContext, { color: this._engine.debug.graphics.boundsColor, dashed: true });
               }
             }
           } else {
             /* istanbul ignore next */
-            graphic?.localBounds.translate(offset).draw(this._graphicsContext, this._engine.debug.graphics.boundsColor);
+            graphic?.localBounds
+              .translate(offset)
+              .debug(this._graphicsContext, { color: this._engine.debug.graphics.boundsColor, dashed: true });
           }
+          this._graphicsContext.restore();
         }
       }
     }

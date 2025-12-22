@@ -36,7 +36,7 @@ and manipulate it directly.
 Actors (and other entities) must be added to a [Scene](/docs/scenes) to be drawn
 and updated on-screen.
 
-<GameCodeBlock live 
+<PlaygroundEmbed
   title="Basic actors"
   code={BasicActorExample} 
 />
@@ -462,9 +462,7 @@ By default Actors do not participate in collisions. If you wish to make
 an actor participate, you need to switch from the default [[CollisionType.PreventCollision|prevent collision]]
 to an [[CollisionType.Active|active]], [[CollisionType.Fixed|fixed]], or [[CollisionType.Passive|passive]] collision type.
 
-<GameCodeBlock live snippet="collision">
-{ActorCollisionExample}
-</GameCodeBlock>
+<PlaygroundEmbed code={ActorCollisionExample} />
 
 :::note
 

@@ -59,7 +59,7 @@ export class SpriteFont extends Graphic implements FontRenderer {
     this.lineHeight = lineHeight ?? this.lineHeight;
   }
 
-  private _getCharacterSprites(text: string): Sprite[] {
+  protected _getCharacterSprites(text: string): Sprite[] {
     const results: Sprite[] = [];
     // handle case insensitive
     const textToRender = this.caseInsensitive ? text.toLocaleLowerCase() : text;
@@ -155,7 +155,7 @@ export class SpriteFont extends Graphic implements FontRenderer {
   private _cachedText?: string;
   private _cachedLines?: string[];
   private _cachedRenderWidth?: number;
-  private _getLinesFromText(text: string, maxWidth?: number) {
+  protected _getLinesFromText(text: string, maxWidth?: number) {
     if (this._cachedText === text && this._cachedRenderWidth === maxWidth && this._cachedLines?.length) {
       return this._cachedLines;
     }

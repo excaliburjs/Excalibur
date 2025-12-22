@@ -1,7 +1,7 @@
 import type { Engine } from './Engine';
 import type { Screen } from './Screen';
 import type { EasingFunction } from './Util/EasingFunctions';
-import { EasingFunctions } from './Util/EasingFunctions';
+import { EasingFunctions, isLegacyEasing } from './Util/EasingFunctions';
 import { Vector, vec } from './Math/vector';
 import type { Actor } from './Actor';
 import { removeItemFromArray } from './Util/Util';
@@ -16,6 +16,8 @@ import { EventEmitter } from './EventEmitter';
 import { pixelSnapEpsilon } from './Graphics';
 import { sign } from './Math/util';
 import { WatchVector } from './Math/watch-vector';
+import type { Easing } from './Math';
+import { easeInOutCubic, lerp } from './Math';
 
 /**
  * Interface that describes a custom camera strategy for tracking targets
@@ -241,11 +243,11 @@ export class LimitCameraBoundsStrategy implements CameraStrategy<BoundingBox> {
   };
 }
 
-export type CameraEvents = {
+export interface CameraEvents {
   preupdate: PreUpdateEvent<Camera>;
   postupdate: PostUpdateEvent<Camera>;
   initialize: InitializeEvent<Camera>;
-};
+}
 
 export const CameraEvents = {
   Initialize: 'initialize',
@@ -384,8 +386,12 @@ export class Camera implements CanUpdate, CanInitialize {
 
   private _zoomResolve: (val: boolean) => void;
   private _zoomPromise: Promise<boolean>;
-  private _zoomEasing: EasingFunction = EasingFunctions.EaseInOutCubic;
-  private _easing: EasingFunction = EasingFunctions.EaseInOutCubic;
+  private _legacyZoomEasing: EasingFunction = EasingFunctions.EaseInOutCubic;
+  private _useLegacyZoom = false;
+  private _zoomEasing: Easing = easeInOutCubic;
+  private _legacyEasing: EasingFunction = EasingFunctions.EaseInOutCubic;
+  private _useLegacyEasing = false;
+  private _easing: Easing = easeInOutCubic;
 
   private _halfWidth: number = 0;
   private _halfHeight: number = 0;
@@ -481,7 +487,7 @@ export class Camera implements CanUpdate, CanInitialize {
    * @returns A {@apilink Promise} that resolves when movement is finished, including if it's interrupted.
    *          The {@apilink Promise} value is the {@apilink Vector} of the target position. It will be rejected if a move cannot be made.
    */
-  public move(pos: Vector, duration: number, easingFn: EasingFunction = EasingFunctions.EaseInOutCubic): Promise<Vector> {
+  public move(pos: Vector, duration: number, easingFn: Easing | EasingFunction = EasingFunctions.EaseInOutCubic): Promise<Vector> {
     if (typeof easingFn !== 'function') {
       throw 'Please specify an EasingFunction';
     }
@@ -504,7 +510,11 @@ export class Camera implements CanUpdate, CanInitialize {
     this._lerpEnd = pos;
     this._currentLerpTime = 0;
     this._cameraMoving = true;
-    this._easing = easingFn;
+    if (isLegacyEasing(easingFn)) {
+      this._legacyEasing = easingFn;
+    } else {
+      this._easing = easingFn;
+    }
 
     return this._lerpPromise;
   }
@@ -528,14 +538,22 @@ export class Camera implements CanUpdate, CanInitialize {
    * @param scale    The scale of the zoom
    * @param duration The duration of the zoom in milliseconds
    */
-  public zoomOverTime(scale: number, duration: number = 0, easingFn: EasingFunction = EasingFunctions.EaseInOutCubic): Promise<boolean> {
+  public zoomOverTime(
+    scale: number,
+    duration: number = 0,
+    easingFn: Easing | EasingFunction = EasingFunctions.EaseInOutCubic
+  ): Promise<boolean> {
     this._zoomPromise = new Promise<boolean>((resolve) => {
       this._zoomResolve = resolve;
     });
 
     if (duration) {
       this._isZooming = true;
-      this._zoomEasing = easingFn;
+      if (isLegacyEasing(easingFn)) {
+        this._legacyZoomEasing = easingFn;
+      } else {
+        this._easing = easingFn;
+      }
       this._currentZoomTime = 0;
       this._zoomDuration = duration;
       this._zoomStart = this.zoom;
@@ -758,8 +776,13 @@ export class Camera implements CanUpdate, CanInitialize {
 
     if (this._isZooming) {
       if (this._currentZoomTime < this._zoomDuration) {
-        const zoomEasing = this._zoomEasing;
-        const newZoom = zoomEasing(this._currentZoomTime, this._zoomStart, this._zoomEnd, this._zoomDuration);
+        let newZoom = this.zoom;
+        if (this._useLegacyZoom) {
+          const zoomEasing = this._legacyZoomEasing;
+          newZoom = zoomEasing(this._currentZoomTime, this._zoomStart, this._zoomEnd, this._zoomDuration);
+        } else {
+          newZoom = lerp(this._zoomStart, this._zoomEnd, this._zoomEasing(this._currentZoomTime / this._zoomDuration));
+        }
 
         this.zoom = newZoom;
         this._currentZoomTime += elapsed;
@@ -773,9 +796,14 @@ export class Camera implements CanUpdate, CanInitialize {
 
     if (this._cameraMoving) {
       if (this._currentLerpTime < this._lerpDuration) {
-        const moveEasing = EasingFunctions.CreateVectorEasingFunction(this._easing);
-
-        const lerpPoint = moveEasing(this._currentLerpTime, this._lerpStart, this._lerpEnd, this._lerpDuration);
+        let lerpPoint = this.pos;
+        if (this._useLegacyEasing) {
+          const moveEasing = EasingFunctions.CreateVectorEasingFunction(this._legacyEasing);
+          lerpPoint = moveEasing(this._currentLerpTime, this._lerpStart, this._lerpEnd, this._lerpDuration);
+        } else {
+          lerpPoint.x = lerp(this._lerpStart.x, this._lerpEnd.x, this._easing(this._currentLerpTime / this._lerpDuration));
+          lerpPoint.y = lerp(this._lerpStart.y, this._lerpEnd.y, this._easing(this._currentLerpTime / this._lerpDuration));
+        }
 
         this.pos = lerpPoint;
 

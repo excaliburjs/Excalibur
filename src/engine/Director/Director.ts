@@ -16,11 +16,11 @@ export interface DirectorNavigationEvent {
   destinationScene: Scene;
 }
 
-export type DirectorEvents = {
+export interface DirectorEvents {
   navigationstart: DirectorNavigationEvent;
   navigation: DirectorNavigationEvent;
   navigationend: DirectorNavigationEvent;
-};
+}
 
 export const DirectorEvents = {
   NavigationStart: 'navigationstart',

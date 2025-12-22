@@ -21,14 +21,14 @@ import type { PointerEventReceiver } from '../Input/PointerEventReceiver';
 import type { GlobalCoordinates } from '../Math';
 import { CoordPlane } from '../Math';
 
-export type IsometricTilePointerEvents = {
+export interface IsometricTilePointerEvents {
   pointerup: PointerEvent;
   pointerdown: PointerEvent;
   pointermove: PointerEvent;
   pointercancel: PointerEvent;
   pointerenter: PointerEvent;
   pointerleave: PointerEvent;
-};
+}
 
 export class IsometricTile extends Entity {
   /**
@@ -545,19 +545,19 @@ export class IsometricMap extends Entity implements HasNestedPointerEvents {
       for (let y = 0; y < this.rows + 1; y++) {
         const left = this.tileToWorld(vec(0, y));
         const right = this.tileToWorld(vec(this.columns, y));
-        gfx.drawLine(left, right, gridColor, gridWidth);
+        gfx.debug.drawLine(left, right, { color: gridColor, lineWidth: gridWidth });
       }
 
       for (let x = 0; x < this.columns + 1; x++) {
         const top = this.tileToWorld(vec(x, 0));
         const bottom = this.tileToWorld(vec(x, this.rows));
-        gfx.drawLine(top, bottom, gridColor, gridWidth);
+        gfx.debug.drawLine(top, bottom, { color: gridColor, lineWidth: gridWidth });
       }
     }
 
     if (showAll || showPosition) {
       for (const tile of this.tiles) {
-        gfx.drawCircle(this.tileToWorld(vec(tile.x, tile.y)), positionSize, positionColor);
+        gfx.debug.drawCircle(this.tileToWorld(vec(tile.x, tile.y)), positionSize, positionColor);
       }
     }
     if (showAll || showColliderGeometry) {

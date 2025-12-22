@@ -7,10 +7,13 @@ import { CoordPlane } from '../Math/coord-plane';
 import { Vector } from '../Math/vector';
 import { clamp } from '../Math/util';
 import type { EasingFunction } from '../Util/EasingFunctions';
-import { EasingFunctions } from '../Util/EasingFunctions';
+import { EasingFunctions, isLegacyEasing } from '../Util/EasingFunctions';
 import type { CoroutineInstance } from '../Util/Coroutine';
 import { coroutine } from '../Util/Coroutine';
 import { Logger } from '../Util/Log';
+import type { Easing } from '../Math/easings';
+import { linear } from '../Math/easings';
+import { lerp } from '../Math';
 
 export interface TransitionOptions {
   /**
@@ -37,7 +40,7 @@ export interface TransitionOptions {
   /**
    * Optionally specify a easing function, by default linear
    */
-  easing?: EasingFunction;
+  easing?: Easing | EasingFunction;
   /**
    * Optionally specify a transition direction, by default 'out'
    *
@@ -57,7 +60,8 @@ export class Transition extends Entity {
   readonly hideLoader: boolean;
   readonly blockInput: boolean;
   readonly duration: number;
-  readonly easing: EasingFunction;
+  readonly easing: Easing;
+  readonly legacyEasing: EasingFunction;
   readonly direction: 'out' | 'in';
   private _completeFuture = new Future<void>();
   protected _engine?: Engine;
@@ -69,6 +73,7 @@ export class Transition extends Entity {
   private _currentProgress: number = 0;
 
   public done = this._completeFuture.promise;
+  private _useLegacyEasing: boolean = false;
 
   /**
    * Returns a number between [0, 1] indicating what state the transition is in.
@@ -78,6 +83,10 @@ export class Transition extends Entity {
    */
   get progress(): number {
     return this._currentProgress;
+  }
+
+  get distance(): number {
+    return this._currentDistance;
   }
 
   get complete(): boolean {
@@ -92,7 +101,13 @@ export class Transition extends Entity {
     super();
     this.name = `Transition#${this.id}`;
     this.duration = options.duration;
-    this.easing = options.easing ?? EasingFunctions.Linear;
+    if (isLegacyEasing(options.easing)) {
+      this.legacyEasing = options.easing ?? EasingFunctions.Linear;
+      this._useLegacyEasing = true;
+    } else {
+      this.easing = options.easing ?? linear;
+    }
+
     this.direction = options.direction ?? 'out';
     this.hideLoader = options.hideLoader ?? false;
     this.blockInput = options.blockInput ?? false;
@@ -128,9 +143,17 @@ export class Transition extends Entity {
     }
 
     if (this.direction === 'out') {
-      this._currentProgress = clamp(this.easing(this._currentDistance, 0, 1, 1), 0, 1);
+      if (this._useLegacyEasing) {
+        this._currentProgress = clamp(this.legacyEasing(this._currentDistance, 0, 1, 1), 0, 1);
+      } else {
+        this._currentProgress = clamp(lerp(0, 1, this.easing(this._currentDistance)), 0, 1);
+      }
     } else {
-      this._currentProgress = clamp(this.easing(this._currentDistance, 1, 0, 1), 0, 1);
+      if (this._useLegacyEasing) {
+        this._currentProgress = clamp(this.legacyEasing(this._currentDistance, 1, 0, 1), 0, 1);
+      } else {
+        this._currentProgress = clamp(lerp(1, 0, this.easing(this._currentDistance)), 0, 1);
+      }
     }
   }
 
