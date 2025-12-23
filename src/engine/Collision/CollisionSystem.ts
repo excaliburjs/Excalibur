@@ -20,11 +20,14 @@ import type { CollisionProcessor } from './Detection/CollisionProcessor';
 import { SeparatingAxis } from './Colliders/SeparatingAxis';
 import { MotionSystem } from './MotionSystem';
 import { Pair } from './Detection/Pair';
+import { BodyComponent } from './Index';
+import { buildContactIslands } from './Island';
 export class CollisionSystem extends System {
   static priority = SystemPriority.Higher;
 
   public systemType = SystemType.Update;
   public query: Query<ComponentCtor<TransformComponent> | ComponentCtor<ColliderComponent>>;
+  public bodyQuery: Query<ComponentCtor<BodyComponent>>;
 
   private _engine: Engine;
   private _configDirty = false;
@@ -33,6 +36,7 @@ export class CollisionSystem extends System {
   private _lastFrameContacts = new Map<string, CollisionContact>();
   private _currentFrameContacts = new Map<string, CollisionContact>();
   private _motionSystem: MotionSystem;
+  private _bodies: BodyComponent[] = [];
   private get _processor(): CollisionProcessor {
     return this._physics.collisionProcessor;
   }
@@ -68,6 +72,20 @@ export class CollisionSystem extends System {
       }
     });
     this._motionSystem = world.get(MotionSystem) as MotionSystem;
+    this.bodyQuery = world.query([BodyComponent]);
+
+    this.bodyQuery.entityAdded$.subscribe((e) => {
+      this._bodies.push(e.get(BodyComponent));
+    });
+
+    this.bodyQuery.entityRemoved$.subscribe((e) => {
+      const body = e.get(BodyComponent);
+
+      const indexOf = this._bodies.indexOf(body);
+      if (indexOf > -1) {
+        this._bodies.splice(indexOf, 1);
+      }
+    });
   }
 
   initialize(world: World, scene: Scene) {
@@ -121,7 +139,8 @@ export class CollisionSystem extends System {
     const substep = this._physics.config.substep;
     for (let step = 0; step < substep; step++) {
       if (step > 0) {
-        // first step is run by the MotionSystem when configured, so skip
+        // first step is run by the MotionSystem when configured, so skip 0th
+        // elapsed is used here because step size is calcluated in motion system
         this._motionSystem.update(elapsed);
       }
       // Re-use pairs from previous collision
@@ -131,7 +150,17 @@ export class CollisionSystem extends System {
 
       if (pairs.length) {
         contacts = this._processor.narrowphase(pairs, this._engine?.debug?.stats?.currFrame);
-        contacts = solver.solve(contacts);
+
+        if (this._physics.config.solver === SolverStrategy.Realistic) {
+          // TODO we could possbily enable this for Arcade, will require some thinking
+          const islands = buildContactIslands(this._physics.config.bodies, this._bodies, contacts);
+
+          for (const island of islands) {
+            island.updateSleepState(elapsed / substep);
+          }
+        }
+
+        contacts = solver.solve(contacts, elapsed / substep);
 
         // Record contacts for start/end
         for (const contact of contacts) {
@@ -206,6 +235,8 @@ export class CollisionSystem extends System {
       if (!this._currentFrameContacts.has(id)) {
         const colliderA = c.colliderA;
         const colliderB = c.colliderB;
+        c.bodyA.isSleeping = false;
+        c.bodyB.isSleeping = false;
         const side = Side.fromDirection(c.mtv);
         const opposite = Side.getOpposite(side);
         colliderA.events.emit('collisionend', new CollisionEndEvent(colliderA, colliderB, side, c));

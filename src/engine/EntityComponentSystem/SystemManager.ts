@@ -88,19 +88,33 @@ export class SystemManager {
    */
   public updateSystems(type: SystemType, scene: Scene, elapsed: number) {
     const systems = this.systems.filter((s) => s.systemType === type);
-    for (const s of systems) {
-      if (s.preupdate) {
-        s.preupdate(scene, elapsed);
+    const stats = scene?.engine?.stats?.currFrame ?? ({ systemDuration: {} } as any);
+    let startTime: number;
+    let endTime: number;
+    const systemsLength = systems.length;
+
+    for (let i = 0; i < systemsLength; i++) {
+      if (systems[i].preupdate) {
+        startTime = performance.now();
+        systems[i].preupdate!(scene, elapsed);
+        endTime = performance.now();
+        stats.systemDuration[`${type}:${systems[i].constructor.name}.preupdate`] = endTime - startTime;
       }
     }
 
-    for (const s of systems) {
-      s.update(elapsed);
+    for (let i = 0; i < systemsLength; i++) {
+      startTime = performance.now();
+      systems[i].update(elapsed);
+      endTime = performance.now();
+      stats.systemDuration[`${type}:${systems[i].constructor.name}.update`] = endTime - startTime;
     }
 
-    for (const s of systems) {
-      if (s.postupdate) {
-        s.postupdate(scene, elapsed);
+    for (let i = 0; i < systemsLength; i++) {
+      if (systems[i].postupdate) {
+        startTime = performance.now();
+        systems[i].postupdate!(scene, elapsed);
+        endTime = performance.now();
+        stats.systemDuration[`${type}:${systems[i].constructor.name}.postupdate`] = endTime - startTime;
       }
     }
   }

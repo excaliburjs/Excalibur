@@ -40,6 +40,11 @@ export interface FrameStatistics {
   duration: FrameDurationStats;
 
   /**
+   * Duration statistics (in ms) for ECS systems
+   */
+  systemDuration: Record<string, number>;
+
+  /**
    * Actor statistics
    */
   actors: FrameActorStats;
@@ -429,6 +434,8 @@ export class FrameStats implements FrameStatistics {
     rendererSwaps: 0
   };
 
+  systemDuration: Record<string, number> = {};
+
   /**
    * Zero out values or clone other IFrameStat stats. Allows instance reuse.
    * @param [otherStats] Optional stats to clone
@@ -443,6 +450,9 @@ export class FrameStats implements FrameStatistics {
       this.actors.ui = otherStats.actors.ui;
       this.duration.update = otherStats.duration.update;
       this.duration.draw = otherStats.duration.draw;
+      for (const key in otherStats.systemDuration) {
+        this.systemDuration[key] = otherStats.systemDuration[key];
+      }
       this._physicsStats.reset(otherStats.physics);
       this.graphics.drawCalls = otherStats.graphics.drawCalls;
       this.graphics.drawnImages = otherStats.graphics.drawnImages;
@@ -453,6 +463,9 @@ export class FrameStats implements FrameStatistics {
       this.duration.update = this.duration.draw = 0;
       this._physicsStats.reset();
       this.graphics.drawnImages = this.graphics.drawCalls = this.graphics.rendererSwaps = 0;
+      for (const key in this.systemDuration) {
+        this.systemDuration[key] = 0;
+      }
     }
   }
 

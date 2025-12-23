@@ -99,7 +99,7 @@ describe('A AffineMatrix', () => {
     mat.setRotation(Math.PI * 2);
     expect(mat.getScaleX(), 'rotated 2 PI getScaleX()').toBeCloseTo(1, 2);
     expect(mat.getScaleY(), 'rotated 2 PI getScaleY()').toBeCloseTo(-1, 2);
-    expect(mat.getRotation(), 'rotated 2 PI getRotation()').toBeCloseTo(Math.PI * 2, 2);
+    expect(mat.getRotation(), 'rotated 2 PI getRotation()').toBeCloseTo(0, 2);
 
     mat.setRotation(Math.PI * 3);
     expect(mat.getScaleX(), 'rotated 3 PI getScaleX()').toBeCloseTo(1, 2);
@@ -119,7 +119,7 @@ describe('A AffineMatrix', () => {
     expect(mat.getRotation(), 'rotation PI').toBeCloseTo(Math.PI, 2);
 
     mat.setRotation(Math.PI * 2);
-    expect(mat.getRotation(), 'rotation 2 PI').toBeCloseTo(Math.PI * 2, 2);
+    expect(mat.getRotation(), 'rotation 2 PI').toBeCloseTo(0, 2);
 
     mat.setRotation(Math.PI * 3);
     expect(mat.getRotation(), 'roation 3 PI').toBeCloseTo(Math.PI, 2);

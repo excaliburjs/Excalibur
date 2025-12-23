@@ -46,19 +46,18 @@ export function approximatelyEqual(val1: number, val2: number, tolerance: number
  * Convert an angle to be the equivalent in the range [0, 2PI)
  */
 export function canonicalizeAngle(angle: number): number {
-  let tmpAngle = angle;
-  if (angle >= TwoPI) {
-    while (tmpAngle >= TwoPI) {
-      tmpAngle -= TwoPI;
-    }
-  }
+  const TWO_PI = 2 * Math.PI;
+  return ((angle % TWO_PI) + TWO_PI) % TWO_PI;
+}
 
-  if (angle < 0) {
-    while (tmpAngle < 0) {
-      tmpAngle += TwoPI;
-    }
-  }
-  return tmpAngle;
+/**
+ * Return the different in angles in the range [0, 2PI)
+ */
+export function angleDifference(angle1: number, angle2: number): number {
+  const TWO_PI = 2 * Math.PI;
+  const diff = Math.abs(angle1 - angle2);
+  // Return the smaller of the direct distance or the wraparound distance
+  return Math.min(diff, TWO_PI - diff);
 }
 
 /**
