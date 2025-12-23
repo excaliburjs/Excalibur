@@ -1,8 +1,8 @@
 {
   "name": "excalibur",
   "sideEffects": false,
-  "version": "0.31.0",
-  "exNextVersion": "0.32.0",
+  "version": "0.32.0",
+  "exNextVersion": "0.33.0",
   "publishConfig": {
     "provenance": true
   },
