@@ -12,7 +12,6 @@ import { toDegrees } from '../Math/util';
 import { BodyComponent } from '../Collision/BodyComponent';
 import { CollisionSystem } from '../Collision/CollisionSystem';
 import { CompositeCollider } from '../Collision/Colliders/CompositeCollider';
-import { GraphicsComponent } from '../Graphics/GraphicsComponent';
 import { Particle } from '../Particles/Particles';
 import { DebugGraphicsComponent } from '../Graphics/DebugGraphicsComponent';
 import { CoordPlane } from '../Math/coord-plane';
@@ -62,9 +61,6 @@ export class DebugSystem extends System {
 
     const physicsSettings = this._engine.debug.physics;
 
-    let graphics: GraphicsComponent;
-    const graphicsSettings = this._engine.debug.graphics;
-
     let debugDraw: DebugGraphicsComponent;
 
     let body: BodyComponent;
@@ -107,7 +103,6 @@ export class DebugSystem extends System {
       if (tx.coordPlane === CoordPlane.Screen) {
         this._graphicsContext.translate(this._engine.screen.contentArea.left, this._engine.screen.contentArea.top);
       }
-      this._graphicsContext.z = txSettings.debugZIndex;
 
       this._applyTransform(entity);
       if (tx) {
@@ -134,26 +129,16 @@ export class DebugSystem extends System {
         }
 
         if (txSettings.showAll || txSettings.showRotation) {
-          this._graphicsContext.drawLine(
-            Vector.Zero,
-            Vector.fromAngle(tx.rotation).scale(50).add(Vector.Zero),
-            txSettings.rotationColor,
-            2
-          );
+          this._graphicsContext.debug.drawLine(Vector.Zero, Vector.fromAngle(tx.rotation).scale(20).add(Vector.Zero), {
+            color: txSettings.rotationColor,
+            lineWidth: 2
+          });
           this._graphicsContext.debug.drawText(`rot deg(${toDegrees(tx.rotation).toFixed(2)})`, cursor);
           cursor = cursor.add(lineHeight);
         }
 
         if (txSettings.showAll || txSettings.showScale) {
-          this._graphicsContext.drawLine(Vector.Zero, tx.scale.add(Vector.Zero), txSettings.scaleColor, 2);
-        }
-      }
-
-      graphics = entity.get(GraphicsComponent);
-      if (graphics) {
-        if (graphicsSettings.showAll || graphicsSettings.showBounds) {
-          const bounds = graphics.localBounds;
-          bounds.draw(this._graphicsContext, graphicsSettings.boundsColor);
+          this._graphicsContext.debug.drawLine(Vector.Zero, tx.scale, { color: txSettings.scaleColor, lineWidth: 2 });
         }
       }
 
@@ -172,7 +157,11 @@ export class DebugSystem extends System {
       body = entity.get(BodyComponent);
       if (body) {
         if (bodySettings.showAll || bodySettings.showCollisionGroup) {
-          this._graphicsContext.debug.drawText(`collision group(${body.group.name})`, cursor);
+          this._graphicsContext.debug.drawText(`collision group name(${body.group.name}))`, cursor);
+          cursor = cursor.add(lineHeight);
+          this._graphicsContext.debug.drawText(`          mask(0x${(body.group.mask >>> 0).toString(16)})`, cursor);
+          cursor = cursor.add(lineHeight);
+          this._graphicsContext.debug.drawText(`          category(0x${(body.group.category >>> 0).toString(16)})`, cursor);
           cursor = cursor.add(lineHeight);
         }
 
@@ -187,7 +176,7 @@ export class DebugSystem extends System {
         }
 
         if (bodySettings.showAll || bodySettings.showMotion) {
-          this._graphicsContext.debug.drawText(`motion(${body.sleepMotion})`, cursor);
+          this._graphicsContext.debug.drawText(`motion(${body.sleepMotion.toFixed(3)})`, cursor);
           cursor = cursor.add(lineHeight);
         }
 
@@ -204,17 +193,22 @@ export class DebugSystem extends System {
       if (tx.coordPlane === CoordPlane.Screen) {
         this._graphicsContext.translate(this._engine.screen.contentArea.left, this._engine.screen.contentArea.top);
       }
-      this._graphicsContext.z = txSettings.debugZIndex;
       motion = entity.get(MotionComponent);
       if (motion) {
         if (motionSettings.showAll || motionSettings.showVelocity) {
           this._graphicsContext.debug.drawText(`vel${motion.vel.toString(2)}`, cursor.add(tx.globalPos));
-          this._graphicsContext.drawLine(tx.globalPos, tx.globalPos.add(motion.vel), motionSettings.velocityColor, 2);
+          this._graphicsContext.debug.drawLine(tx.globalPos, tx.globalPos.add(motion.vel), {
+            color: motionSettings.velocityColor,
+            lineWidth: 2
+          });
           cursor = cursor.add(lineHeight);
         }
 
         if (motionSettings.showAll || motionSettings.showAcceleration) {
-          this._graphicsContext.drawLine(tx.globalPos, tx.globalPos.add(motion.acc), motionSettings.accelerationColor, 2);
+          this._graphicsContext.debug.drawLine(tx.globalPos, tx.globalPos.add(motion.acc), {
+            color: motionSettings.accelerationColor,
+            lineWidth: 2
+          });
         }
       }
 
@@ -234,16 +228,25 @@ export class DebugSystem extends System {
             for (const collider of colliders) {
               const bounds = collider.bounds;
               const pos = vec(bounds.left, bounds.top);
-              this._graphicsContext.debug.drawRect(pos.x, pos.y, bounds.width, bounds.height, { color: colliderSettings.boundsColor });
+              this._graphicsContext.debug.drawRect(pos.x, pos.y, bounds.width, bounds.height, {
+                color: colliderSettings.boundsColor,
+                dashed: true
+              });
               if (colliderSettings.showAll || colliderSettings.showOwner) {
                 this._graphicsContext.debug.drawText(`owner id(${collider.owner.id})`, pos);
               }
             }
-            colliderComp.bounds.draw(this._graphicsContext, colliderSettings.boundsColor);
+            colliderComp.bounds.debug(this._graphicsContext, {
+              color: colliderSettings.boundsColor,
+              dashed: true
+            });
           } else if (collider) {
             const bounds = colliderComp.bounds;
             const pos = vec(bounds.left, bounds.top);
-            this._graphicsContext.debug.drawRect(pos.x, pos.y, bounds.width, bounds.height, { color: colliderSettings.boundsColor });
+            this._graphicsContext.debug.drawRect(pos.x, pos.y, bounds.width, bounds.height, {
+              color: colliderSettings.boundsColor,
+              dashed: true
+            });
             if (colliderSettings.showAll || colliderSettings.showOwner) {
               this._graphicsContext.debug.drawText(`owner id(${colliderComp.owner.id})`, pos);
             }
@@ -286,15 +289,13 @@ export class DebugSystem extends System {
       this._graphicsContext.save();
       this._camera.draw(this._graphicsContext);
       if (cameraSettings.showAll || cameraSettings.showFocus) {
-        this._graphicsContext.drawCircle(this._camera.pos, 4, cameraSettings.focusColor);
+        this._graphicsContext.debug.drawCircle(this._camera.pos, 4, cameraSettings.focusColor);
       }
       if (cameraSettings.showAll || cameraSettings.showZoom) {
         this._graphicsContext.debug.drawText(`zoom(${this._camera.zoom})`, this._camera.pos);
       }
       this._graphicsContext.restore();
     }
-
-    this._graphicsContext.flush();
   }
 
   postupdate(engine: Scene<unknown>, elapsed: number): void {

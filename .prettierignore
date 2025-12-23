@@ -6,5 +6,6 @@ build
 coverage
 node_cache
 /site
+/playground
 *.md
 *.mdx

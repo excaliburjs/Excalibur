@@ -1,0 +1,7 @@
+
+node_modules
+dist
+types
+!types/index.d.ts
+.DS_Store
+.tsbuildinfo

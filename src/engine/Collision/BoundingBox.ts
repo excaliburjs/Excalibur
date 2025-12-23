@@ -2,7 +2,7 @@ import { Vector } from '../Math/vector';
 import type { Ray } from '../Math/ray';
 import { Color } from '../Color';
 import { Side } from './Side';
-import type { ExcaliburGraphicsContext } from '../Graphics/Context/ExcaliburGraphicsContext';
+import type { ExcaliburGraphicsContext, RectGraphicsOptions } from '../Graphics/Context/ExcaliburGraphicsContext';
 import type { AffineMatrix } from '../Math/affine-matrix';
 import { getMinIndex } from '../Util/Util';
 
@@ -439,8 +439,18 @@ export class BoundingBox {
    * Draw a debug bounding box
    * @param ex
    * @param color
+   * @deprecated
    */
-  public draw(ex: ExcaliburGraphicsContext, color: Color = Color.Yellow) {
-    ex.debug.drawRect(this.left, this.top, this.width, this.height, { color });
+  public draw(ex: ExcaliburGraphicsContext, options: RectGraphicsOptions = { color: Color.Yellow }) {
+    ex.debug.drawRect(this.left, this.top, this.width, this.height, options);
+  }
+
+  /**
+   * Draw a debug bounding box
+   * @param ex
+   * @param color
+   */
+  public debug(ex: ExcaliburGraphicsContext, options: RectGraphicsOptions = { color: Color.Yellow }) {
+    ex.debug.drawRect(this.left, this.top, this.width, this.height, options);
   }
 }

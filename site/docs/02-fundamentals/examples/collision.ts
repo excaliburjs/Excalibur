@@ -1,5 +1,13 @@
-ex.Physics.useRealisticPhysics();
-ex.Physics.acc = ex.vec(0, 300);
+import * as ex from 'excalibur';
+
+const game = new ex.Engine({
+  canvasElementId: 'preview-canvas',
+  displayMode: ex.DisplayMode.FillContainer,
+  physics: {
+    solver: ex.SolverStrategy.Realistic,
+    gravity: ex.vec(0, 300),
+  }
+});
 
 const box = new ex.Actor({
     pos: ex.vec(game.halfDrawWidth, -100),

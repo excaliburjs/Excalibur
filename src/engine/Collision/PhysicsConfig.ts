@@ -131,25 +131,37 @@ export interface PhysicsConfig {
     defaultMass?: number;
 
     /**
-     * Sleep epsilon
+     * Sleep epsilon - (small number) this is the amount of massless kinetic energy a body needs to be below to fall asleep
      *
      * Default 0.07
      */
     sleepEpsilon?: number;
 
     /**
-     * Wake Threshold, the amount of "motion" need to wake a body from sleep
+     * Wake Threshold - the amount of "motion" or massless kinetic energy need to wake a body from sleep
      *
      * Default 0.07 * 3;
      */
     wakeThreshold?: number;
 
     /**
-     * Sleep bias
+     * Sleep bias - The weighted average to apply to the current frame body motion over one second
      *
-     * Default 0.9
+     * ```typescript
+     * let bias = Math.pos(sleepBias, durationSeconds);
+     * let motion = bias * previousAverageMotion + (1 - bias) * currentFrameMotion;
+     * ```
+     *
+     * Default 0.5
      */
     sleepBias?: number;
+
+    /**
+     * Amount of time that bodies (in contact islands) need to be below the sleepEpsilon
+     *
+     * Default 1000ms
+     */
+    sleepTimeThreshold?: number;
 
     /**
      * By default bodies do not sleep, this can be turned on to improve perf if you have a lot of bodies.
@@ -227,6 +239,8 @@ export interface PhysicsConfig {
   };
 }
 
+export type BodyConfig = DeepRequired<Pick<PhysicsConfig, 'bodies'>['bodies']>;
+
 export const getDefaultPhysicsConfig: () => DeepRequired<PhysicsConfig> = () => ({
   enabled: true,
   integration: {
@@ -244,10 +258,11 @@ export const getDefaultPhysicsConfig: () => DeepRequired<PhysicsConfig> = () => 
     surfaceEpsilon: 0.1
   },
   bodies: {
-    canSleepByDefault: false,
+    canSleepByDefault: true,
     sleepEpsilon: 0.07,
     wakeThreshold: 0.07 * 3,
-    sleepBias: 0.9,
+    sleepBias: 0.5,
+    sleepTimeThreshold: 1000,
     defaultMass: 10
   },
   spatialPartition: SpatialPartitionStrategy.SparseHashGrid,

@@ -7,14 +7,89 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
--
+- Behavior change: Realistic physics bodies can now sleep by default `canSleepByDefault`
+- Behavior change: The `sleepBias` default is lowered to 0.5 from .9
+- Behavior change: Bodies do not sleep until all bodies in an Island are low motion for at least `sleepTimeThreshold`, default 1000ms
+- Debug: Improve body related information output in the debug draw
 
 ### Deprecated
 
--
+- Legacy `EasingFunctions.*` are deprecated in favor of the simpler forms
+- Legacy `ex.BoundingBox.draw(..)` is deprecated, use `ex.BoundBox.debug(...)`
 
 ### Added
 
+- Added new contact `ex.Island` physics optimization, excalibur physics bodies will now wake or sleep the entire connected graph of bodies,
+this only works in the Realistic solver, but it's a huge perf win.
+- Added new `ex.angleDifference(angle1, angle2)` for calculating differences between angles in [0, 2Pi)
+- Added new debug stats to the frame to measure ECS system durations in milliseconds
+  ```typescript
+    const stats: Record<string, number> = engine.stats.currFrame.systemDuration;
+    // "update:CollisionSystem.update" -> .50
+
+- Added new parameter to `ex.Sounds` to schedule start time, this allows you to synchronize playback of multiple audio tracks
+  ```typescript
+  const start500MsFromNow = AudioContextFactory.currentTime() + 500;
+
+  Resources.MusicSurface.play({ volume: .5, scheduledStartTime: start500MsFromNow });
+  // Start layered tracks at 0 volume so they are synchronized
+  Resources.MusicIndDrums.play({ volume: 0, scheduledStartTime: start500MsFromNow });
+  Resources.MusicIndTopper.play({ volume: 0, scheduledStartTime: start500MsFromNow });
+  Resources.MusicGroovyDrums.play({ volume: 0, scheduledStartTime: start500MsFromNow });
+  Resources.MusicGroovyTopper.play({ volume: 0, scheduledStartTime: start500MsFromNow });
+  ```
+- Added new Timer events! 
+  ```typescript
+  const timer = new ex.Timer({...});
+  timer.events.on('complete', () => {...}); // after the last repeat
+  timer.events.on('action', () => {...}); // every fire of the timer
+  timer.events.on('start', () => {...}); // after the timer is started
+  timer.events.on('stop', () => {...}); // after the timer is stopped 
+  timer.events.on('pause', () => {...}); // after every pause
+  timer.events.on('resume', () => {...}); // after every resume
+  timer.events.on('cancel', () => {...}); // after cancel
+
+  // or specify the onComplete in the constructor
+  const timer2 = new ex.Timer({
+      onComplete: () => {...},
+      ...
+  });
+  ```
+- Added a way to configure general debug settings on text
+  ```typescript
+  class DebugConfig { 
+    ...
+      public settings = {
+        text: {
+          foreground: Color.Black,
+          background: Color.Transparent,
+          border: Color.Transparent
+        },
+        z: {
+          text:  Number.POSITIVE_INFINITY,
+          point: Number.MAX_SAFE_INTEGER - 1,
+          ray:   Number.MAX_SAFE_INTEGER - 1,
+          dashed:Number.MAX_SAFE_INTEGER - 2,
+          solid: Number.MAX_SAFE_INTEGER - 3
+        }
+      }
+    ...
+  }
+  ```
+- Added foreground and background color to `ex.DebugText`
+- Added a convenience parameter to set the initial graphics or material in an Actor
+  ```typescript
+  const cloudSprite = cloud.toSprite();
+  const swirlMaterial = game.graphicsContext.createMaterial({
+    name: 'swirl',
+    fragmentSource
+  });
+  const actor = new ex.Actor({
+      graphic: cloudSprite,
+      material: swirlMaterial
+  });
+  ```
+- Simpler easing functions of the form `(currentTime: number) => number` instead of the 4 parameter legacy ones
 - Support for disabling integration for all offscreen entities, or on a per entity basis
 
   ```typescript
@@ -37,18 +112,36 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed possible perf issue in `canonicalizeAngle` if a large angle was provided it could take a long time
+- Fixed issue where physics bodies did not sleep under certain situations, especially when gravity was high.
+- Fixed issue where Animation fromSpriteSheet was ignoring repeated sprite sheet indices
+- Fixed issue where setting the width/height of a ScreenElement was incorrectly scaled when supplied with a scale in the ctor
+- Fixed issue where onRemove would sometimes not be called
+- Fixed issue where pointer containment WAS NOT being uses on collision shape geometry, only their bounds
+- Fixed issue where overriding built in uniforms and graphics no longer worked as v0.30.x
+- Fixed issue where clearSchedule during a scheduled callback could cause a cb to be skipped
+- Fixed issue where specifying custom events was difficult in TypeScript switched from `export type ...Events {` to `export interface ...Events {` which allows declaration merging by user game code to specify custom events
+- Fixed issue where the Loader could run twice even if already loaded when included in the scene loader.
+- Fixed issue where pixel ratio was accidentally doubled during load if the loader was included in the scene loader.
+- Fixed issue where Slide trasition did not work properly when DisplayMode was FitScreenAndFill
 - Fixed issue where not(tags) and not(component) queries weren't updating in the querymanager
 - Fixed Tilemap/Isometric map pointer performance on moderate to large maps, we changed the strategy to only consider tiles under the pointer instead of try to do sorted dispatch on NxM tiles.
 - Fixed issue that caused coroutines to not automatically discover the engine scheduler when inside an async lifecycle sometimes. This is because of the stack replacement issue of async/await the context reverts too soon.
+- Fixed issue actor kill event was triggered twice
 
 ### Updates
 
+- Perf improvement in debug draw mode
+- When overriding a built-in uniform/graphic there is now a warning in dev excalibur builds 
+- Camera zoom and move now support new easing functions form
+- MoveTo/MoveBy actions now support new easing function form
+- Transitions now support new easing functions form
 - Deps: Upgraded to Playwright 1.55.1
 - Tests: Split test suite into `unit` and `visual` tests
 
 ### Changed
 
--
+- Debug Text Font is switched to the more legible [monogram](https://datagoblin.itch.io/monogram)
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->

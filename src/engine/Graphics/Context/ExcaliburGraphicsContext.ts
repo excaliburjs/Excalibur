@@ -135,10 +135,14 @@ export interface ExcaliburGraphicsContextState {
 }
 export interface LineGraphicsOptions {
   color?: Color;
+  dashed?: boolean;
+  lineWidth?: number;
 }
 
 export interface RectGraphicsOptions {
   color?: Color;
+  dashed?: boolean;
+  lineWidth?: number;
 }
 
 export interface PointGraphicsOptions {
@@ -169,6 +173,16 @@ export interface DebugDraw {
    * @param pointOptions
    */
   drawPoint(point: Vector, pointOptions?: PointGraphicsOptions): void;
+
+  /**
+   * Draw a circle to the Excalibur Graphics context
+   * @param pos
+   * @param radius
+   * @param color
+   * @param stroke Optionally specify the stroke color
+   * @param thickness
+   */
+  drawCircle(pos: Vector, radius: number, color: Color, stroke?: Color, thickness?: number): void;
 
   /**
    * Draw debug text

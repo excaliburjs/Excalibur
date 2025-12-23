@@ -1,0 +1,467 @@
+---
+slug: Sprite Fusion Tile Attributes
+title: Sprite Fusion Tile Attributes
+authors: [justin]
+tags: [gamedev tilemap level editing tooling]
+---
+
+import expng from './images/ex.png';
+import titleImage from './images/tileattribut.png';
+import tileattribute from './images/tileattributeclose.png';
+
+# Unlocking Tile Attributes in SpriteFusion: Embed Game Logic in Your Tilemaps
+
+<img src={titleImage} alt="TitleImage" style={{width: '480px'}}/>
+
+## Intro
+
+Every 2D gamedev knows the pain: you've got a beautiful tilemap, but now you need to add gameplay elements. Where do enemies spawn? Which tiles are collectibles? What triggers that secret door?
+
+The traditional solution? Maintain separate data structures, coordinate systems, and hope they stay in sync with your map. It's tedious, error-prone, and breaks the moment you resize your level.
+
+In this post, I'll show you how the **SpriteFusion tile attributes feature** changes the game. With the updated [ExcaliburJS SpriteFusion plugin](https://github.com/excaliburjs/excalibur-spritefusion), you can now **embed custom JSON data directly into your tilemap** — keeping your logic and layout in perfect harmony.
+
+## What Are Tile Attributes?
+
+Tile attributes let you attach custom JSON data to any tile in your SpriteFusion map. Think of it as adding metadata that travels with your tiles.
+
+Instead of manually tracking "enemy at position (10, 6)" in your code, you mark that tile in SpriteFusion:
+
+```json
+{
+  "id": "1",
+  "x": 10,
+  "y": 6,
+  "attributes": { 
+    "entity": "mushroom",
+    "health": 50,
+    "drops": ["coin", "powerup"]
+  }
+}
+```
+
+When your game loads, the plugin reads this data and hands it to you — ready to spawn entities, configure behaviors, or drive game logic.
+
+## Why This Matters
+
+### Before Tile Attributes
+
+The old workflow looked like this:
+
+1. Design your map in SpriteFusion
+2. Export as JSON
+3. Open your code editor
+4. Manually add entity spawn data with hardcoded coordinates
+5. Test the game
+6. Realize you need to move something
+7. Update both the map AND your spawn coordinates
+8. Repeat forever
+
+**Result**: Two sources of truth that constantly drift apart.
+
+### With Tile Attributes
+
+The new workflow:
+
+1. Design your map in SpriteFusion
+2. Add attributes directly to tiles where you want entities/logic
+3. Export as JSON
+4. Let the plugin handle everything
+
+**Result**: One source of truth. Change your map, and your game logic updates automatically.
+
+## How It Works in SpriteFusion
+
+As of October 2025, SpriteFusion added tile attributes to their editor. Here's how to use them:
+
+1. **Select a tile** in your map
+2. **Open the Tile Attributes panel**
+3. **Add your JSON data** — any valid JSON object works
+4. **Export as JSON** (not "save" — the plugin needs the JSON export)
+
+<img src={tileattribute} alt="TitleImage" style={{width: '250px'}}/>
+
+Your exported JSON now includes an `attributes` field:
+
+```json
+{
+  "tileSize": 16,
+  "mapWidth": 30,
+  "mapHeight": 12,
+  "layers": [
+    {
+      "name": "ObjectLayer",
+      "tiles": [
+        { "id": "0", "x": 25, "y": 3, "attributes": { "entity": "bottle" } },
+        { "id": "1", "x": 10, "y": 6, "attributes": { "entity": "mushroom" } },
+        { "id": "5", "x": 4, "y": 4, "attributes": { "entity": "knight" } }
+      ],
+      "collider": false
+    }
+  ]
+}
+```
+
+## The Updated Plugin API
+
+The ExcaliburJS SpriteFusion plugin now supports two powerful features for working with tile attributes:
+
+### 1. Attribute Callbacks
+
+Pass a callback function to process tile attributes as the map loads:
+
+```typescript
+const attributeCallback = (attData: TileAttributeData) => {
+  const { tileData, mapData } = attData;
+  const { attributes, x, y, id } = tileData;
+  
+  // Spawn entities based on attribute data
+  if (attributes.entity === 'mushroom') {
+    const enemy = new Mushroom({
+      pos: vec(x * mapData.tileSize, y * mapData.tileSize),
+      health: attributes.health || 50
+    });
+    game.add(enemy);
+  }
+};
+
+const spriteFusionMap = new SpriteFusionResource({
+  mapPath: './map/map.json',
+  spritesheetPath: './map/spritesheet.png',
+  tileAttributeFactory: attributeCallback
+});
+```
+
+The callback receives:
+- **tileData**: The specific tile's data including `id`, `x`, `y`, and `attributes`
+- **mapData**: The full map configuration for context
+
+### 2. Object Layers
+
+Sometimes you want a layer purely for data — no visual tiles, just positions and attributes. That's what **object layers** are for.
+
+Mark layers as object layers, and the plugin will:
+- ✅ Parse all tile attributes and call your callback
+- ❌ Skip rendering the layer as a visual tilemap
+
+```typescript
+const spriteFusionMap = new SpriteFusionResource({
+  mapPath: './map/map.json',
+  spritesheetPath: './map/spritesheet.png',
+  tileAttributeFactory: attributeCallback,
+  objectLayers: ['ObjectLayer', 'SpawnPoints', 'Triggers']
+});
+```
+
+This is perfect for:
+- Enemy spawn points
+- Item placement
+- Trigger zones
+- Waypoint paths
+- Anything that needs position data without visual tiles
+
+## A Complete Example: Enemy Spawner
+
+Let's walk through a practical example. We'll create a tilemap with embedded enemy data and spawn them automatically.
+
+### Step 1: Design Your Map
+
+In SpriteFusion:
+1. Create a layer called "Enemies"
+2. Place tiles where you want enemies to spawn
+3. Add attributes to each tile:
+
+```json
+{ "entity": "goblin", "patrol": true, "range": 3 }
+{ "entity": "slime", "speed": 2 }
+```
+
+### Step 2: Set Up Your Entities
+
+```typescript
+class Goblin extends ex.Actor {
+  constructor(config: { pos: Vector, patrol?: boolean, range?: number }) {
+    super({
+      pos: config.pos,
+      width: 16,
+      height: 16,
+      color: ex.Color.Green
+    });
+    
+    if (config.patrol) {
+      this.setupPatrol(config.range || 2);
+    }
+  }
+  
+  setupPatrol(range: number) {
+    // Add patrol behavior
+  }
+}
+
+class Slime extends ex.Actor {
+  constructor(config: { pos: Vector, speed?: number }) {
+    super({
+      pos: config.pos,
+      width: 16,
+      height: 16,
+      color: ex.Color.Blue,
+      vel: vec(config.speed || 1, 0)
+    });
+  }
+}
+```
+
+### Step 3: Create Your Attribute Callback
+
+```typescript
+const spawnEntities = (attData: TileAttributeData) => {
+  const { tileData, mapData } = attData;
+  const { attributes, x, y } = tileData;
+  
+  // Calculate world position
+  const worldPos = vec(
+    x * mapData.tileSize + mapData.tileSize / 2,
+    y * mapData.tileSize + mapData.tileSize / 2
+  );
+  
+  // Spawn based on entity type
+  let entity: ex.Actor | null = null;
+  
+  switch (attributes.entity) {
+    case 'goblin':
+      entity = new Goblin({
+        pos: worldPos,
+        patrol: attributes.patrol,
+        range: attributes.range
+      });
+      break;
+      
+    case 'slime':
+      entity = new Slime({
+        pos: worldPos,
+        speed: attributes.speed
+      });
+      break;
+      
+  }
+  
+  if (entity) {
+    game.add(entity);
+  }
+};
+```
+
+### Step 4: Load Your Map
+
+```typescript
+const game = new ex.Engine({
+  width: 800,
+  height: 600
+});
+
+const spriteFusionMap = new SpriteFusionResource({
+  mapPath: './map/dungeon.json',
+  spritesheetPath: './map/spritesheet.png',
+  tileAttributeFactory: spawnEntities,
+  objectLayers: ['Enemies'] // Don't render this layer
+});
+
+const loader = new ex.Loader([spriteFusionMap]);
+
+game.start(loader).then(() => {
+  spriteFusionMap.addToScene(game.currentScene);
+  // All enemies are now spawned with their custom data!
+});
+```
+
+## Advanced Use Cases
+
+Tile attributes aren't just for spawning entities. Here are more ways to use them:
+
+### Interactive Tiles
+
+```json
+{
+  "type": "door",
+  "locked": true,
+  "key": "brass_key",
+  "destination": "level_2"
+}
+```
+
+### Environmental Effects
+
+```json
+{
+  "hazard": "lava",
+  "damage": 10,
+  "interval": 1000
+}
+```
+
+### Quest Markers
+
+```json
+{
+  "npc": "merchant",
+  "dialog": "quest_intro",
+  "items": ["potion", "map"]
+}
+```
+
+### Pathfinding Data
+
+```json
+{
+  "node": true,
+  "connections": [12, 45, 67],
+  "cost": 2
+}
+```
+
+## Best Practices
+
+### Keep Attributes Focused
+
+Don't overload attributes with everything. Use them for:
+- ✅ Position-dependent data (spawn points, triggers)
+- ✅ Configuration that should live with the map
+- ❌ Complex game logic better suited for separate systems
+
+### Use Object Layers Wisely
+
+Visual layers and object layers serve different purposes:
+- **Visual layers**: Render the tilemap, optionally include attributes
+- **Object layers**: Pure data, no rendering
+
+If a tile has both visual and data requirements, keep them on separate layers for clarity.
+
+### Validate Your Attributes
+
+The plugin passes whatever JSON is in SpriteFusion. Add validation:
+
+```typescript
+const attributeCallback = (attData: TileAttributeData) => {
+  const { attributes } = attData.tileData;
+  
+  if (!attributes.entity) {
+    console.warn('Tile missing entity attribute:', attData);
+    return;
+  }
+  
+  // Safe to use attributes.entity now
+};
+```
+
+## Benefits of This Approach
+
+### 1. Single Source of Truth
+
+Your map IS your spawn data. No synchronization issues.
+
+### 2. Designer-Friendly
+
+Level designers can place and configure entities without touching code.
+
+### 3. Iteration Speed
+
+Move an enemy? Just drag the tile. Change stats? Update the attributes. Export and test.
+
+### 4. Type Safety (with TypeScript)
+
+Define your attribute schemas:
+
+```typescript
+interface EnemyAttributes {
+  entity: 'goblin' | 'slime' | 'boss';
+  health?: number;
+  patrol?: boolean;
+  range?: number;
+}
+
+const attributeCallback = (attData: TileAttributeData) => {
+  const attrs = attData.tileData.attributes as EnemyAttributes;
+  // TypeScript knows what's available
+};
+```
+
+## Common Pitfalls
+
+### Forgetting to Export as JSON
+
+SpriteFusion has both "Save" and "Export JSON" options. The plugin needs the **JSON export**, not the saved project file.
+
+### Mixing Visual and Data Responsibilities
+
+If your callback is making decisions based on tile graphics, you're coupling too tightly. Use attributes for data, tile IDs for visuals.
+
+### Overcomplicating Attributes
+
+Keep them simple. If you're nesting 5 levels deep in your JSON, consider moving that logic elsewhere.
+
+## Installation and Setup
+
+Get started in three steps:
+
+### 1. Install the Plugin
+
+```bash
+npm install @excaliburjs/plugin-spritefusion
+```
+
+### 2. Create Your Map in SpriteFusion
+
+- Visit https://www.spritefusion.com/editor
+- Design your map
+- Add tile attributes where needed
+- Export as JSON
+
+### 3. Load in Excalibur
+
+```typescript
+import { SpriteFusionResource } from '@excaliburjs/plugin-spritefusion';
+
+const map = new SpriteFusionResource({
+  mapPath: './map/map.json',
+  spritesheetPath: './map/spritesheet.png',
+  tileAttributeFactory: yourCallback,
+  objectLayers: ['DataLayer']
+});
+
+game.start(loader).then(() => {
+  map.addToScene(game.currentScene);
+});
+```
+
+## Why ExcaliburJS
+
+<img src={expng} alt="ExcaliburJS" style={{ width: "750px" }}/>  
+
+Small plug for the engine that makes this all possible:
+
+[ExcaliburJS](https://excaliburjs.com/) is a friendly, TypeScript 2D game engine for the web. It's free and open source (FOSS), well documented, and has a growing community of developers building great games.
+
+The SpriteFusion plugin is just one example of how Excalibur's architecture makes complex features feel natural. If you're interested in 2D web game development, check it out!
+
+Join the [Discord community](https://discord.gg/ScX52wD4eM) for questions and support.
+
+## Summary
+
+Tile attributes bridge the gap between level design and game logic. What used to require maintaining parallel data structures now happens automatically:
+
+- **Design once** — add entities, triggers, and logic directly in SpriteFusion
+- **One source of truth** — no more coordinate synchronization
+- **Iterate fast** — move things in the editor, not the code
+
+The updated ExcaliburJS SpriteFusion plugin makes this seamless with attribute callbacks and object layers. Your maps become more than just visuals — they're living configuration files for your game world.
+
+Whether you're spawning enemies, placing collectibles, or defining trigger zones, tile attributes keep your workflow smooth and your codebase clean.
+
+## Resources
+
+- [SpriteFusion Editor](https://www.spritefusion.com/editor)
+- [ExcaliburJS Documentation](https://excaliburjs.com)
+- [SpriteFusion Plugin Repository](https://github.com/excaliburjs/excalibur-spritefusion)
+- [Excalibur Discord](https://discord.gg/ScX52wD4eM)
+
+Ready to embed game logic in your tilemaps? Give SpriteFusion attributes a try — your future self will thank you when you move that boss fight for the tenth time and everything just works.

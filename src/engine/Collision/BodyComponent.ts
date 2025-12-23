@@ -7,14 +7,14 @@ import { Component } from '../EntityComponentSystem/Component';
 import { CollisionGroup } from './Group/CollisionGroup';
 import type { Id } from '../Id';
 import { createId } from '../Id';
-import { clamp } from '../Math/util';
+import { angleDifference, canonicalizeAngle, clamp } from '../Math/util';
 import { ColliderComponent } from './ColliderComponent';
 import { Transform } from '../Math/transform';
 import { EventEmitter } from '../EventEmitter';
-import type { PhysicsConfig } from './PhysicsConfig';
+import type { BodyConfig, PhysicsConfig } from './PhysicsConfig';
 import { getDefaultPhysicsConfig } from './PhysicsConfig';
-import type { DeepRequired } from '../Util/Required';
 import type { Entity } from '../EntityComponentSystem';
+import type { Island } from './Island';
 
 export interface BodyComponentOptions {
   type?: CollisionType;
@@ -39,6 +39,8 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   public readonly id: Id<'body'> = createId('body', BodyComponent._ID++);
   public events = new EventEmitter();
 
+  public island: Island | null = null;
+
   public oldTransform = new Transform();
 
   /**
@@ -52,11 +54,12 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
    */
   public enableFixedUpdateInterpolate = true;
 
-  private _bodyConfig: DeepRequired<Pick<PhysicsConfig, 'bodies'>['bodies']>;
-  private static _DEFAULT_CONFIG: DeepRequired<Pick<PhysicsConfig, 'bodies'>['bodies']> = {
+  private _bodyConfig: BodyConfig;
+  private static _DEFAULT_CONFIG: BodyConfig = {
     ...getDefaultPhysicsConfig().bodies
   };
   public wakeThreshold: number;
+  public sleepTime: number = 0;
 
   constructor(options?: BodyComponentOptions) {
     super();
@@ -85,20 +88,30 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
    * Called by excalibur to update physics config defaults if they change
    * @param config
    */
-  public updatePhysicsConfig(config: DeepRequired<Pick<PhysicsConfig, 'bodies'>['bodies']>) {
+  public updatePhysicsConfig(config: BodyConfig) {
     this._bodyConfig = {
       ...getDefaultPhysicsConfig().bodies,
       ...config
     };
+    // FIXME this doesnt' seem to work when config updated
     this.canSleep = this._bodyConfig.canSleepByDefault;
     this.sleepMotion = this._bodyConfig.sleepEpsilon * 5;
     this.wakeThreshold = this._bodyConfig.wakeThreshold;
   }
+
+  public get canFallAsleep() {
+    return this.canSleep && this.collisionType === CollisionType.Active && this.sleepMotion < this._bodyConfig.sleepEpsilon;
+  }
+
+  public get canWakeUp() {
+    return this.collisionType === CollisionType.Active && this.sleepMotion > this.wakeThreshold;
+  }
+
   /**
    * Called by excalibur to update defaults
    * @param config
    */
-  public static updateDefaultPhysicsConfig(config: DeepRequired<Pick<PhysicsConfig, 'bodies'>['bodies']>) {
+  public static updateDefaultPhysicsConfig(config: BodyConfig) {
     BodyComponent._DEFAULT_CONFIG = config;
   }
 
@@ -141,7 +154,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   /**
    * Can this body sleep, by default bodies do not sleep
    */
-  public canSleep: boolean;
+  public canSleep: boolean = this.collisionType === CollisionType.Active;
 
   private _sleeping = false;
   /**
@@ -156,7 +169,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
    * Whether this body is sleeping or not
    */
   public get isSleeping(): boolean {
-    return this._sleeping;
+    return this.canSleep && this._sleeping;
   }
 
   /**
@@ -168,12 +181,20 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     this.isSleeping = sleeping;
   }
 
-  public set isSleeping(sleeping: boolean) {
-    this._sleeping = sleeping;
-    if (!sleeping) {
+  public wake() {
+    if (this._sleeping && this.collisionType === CollisionType.Active) {
+      this._sleeping = false;
+      this.owner?.removeTag('ex.is_sleeping');
       // Give it a kick to keep it from falling asleep immediately
-      this.sleepMotion = this._bodyConfig.sleepEpsilon * 5;
-    } else {
+      this.sleepMotion = this._bodyConfig.sleepEpsilon * 2;
+      this.sleepTime = 0;
+    }
+  }
+
+  public sleep() {
+    if (!this._sleeping && this.canSleep) {
+      this._sleeping = true;
+      this.owner?.addTag('ex.is_sleeping');
       this.vel = Vector.Zero;
       this.acc = Vector.Zero;
       this.angularVelocity = 0;
@@ -181,19 +202,48 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     }
   }
 
+  public set isSleeping(sleeping: boolean) {
+    if (sleeping) {
+      this.sleep();
+    } else {
+      this.wake();
+    }
+  }
+
   /**
    * Update body's {@apilink BodyComponent.sleepMotion} for the purpose of sleeping
    */
-  public updateMotion() {
-    if (this._sleeping) {
-      this.isSleeping = true;
+  public updateMotion(duration: number) {
+    if (this.collisionType !== CollisionType.Active) {
+      return;
     }
-    const currentMotion = this.vel.magnitude * this.vel.magnitude + Math.abs(this.angularVelocity * this.angularVelocity);
-    const bias = this._bodyConfig.sleepBias;
-    this.sleepMotion = bias * this.sleepMotion + (1 - bias) * currentMotion;
+
+    // Implementation inspired from Game Physics Engine Development by Ian Millington
+    // Tweaked slightly for excalibur
+
+    // What is their effective perceptive velocity, instead of instantaneous .vel/.angularVelocity
+    const effectiveVel = this.pos.sub(this.oldPos);
+    const effectiveAngularVel = angleDifference(canonicalizeAngle(this.rotation), canonicalizeAngle(this.oldRotation));
+
+    // This is effectively a massless kinetic energy term
+    // We remove the mass terms from 1/2 mv^2 to keep objects of different masses from sleeping at different times
+    const vel = effectiveVel.magnitude;
+    const omega = effectiveAngularVel;
+    const currentMotion = vel * vel + omega * omega;
+
+    // Bias is frame duration dependent (sleepBias is smeared over 1-s frames
+    const bias = Math.pow(this._bodyConfig.sleepBias, duration / 1000);
+
+    // Rolling average of previous motion to keep things from sleeping if they stop abruptly but were just moving fast
+    const previousMotion = this.sleepMotion;
+    this.sleepMotion = bias * previousMotion + (1.0 - bias) * currentMotion;
+
+    // Clamp motion to a maximum
     this.sleepMotion = clamp(this.sleepMotion, 0, 10 * this._bodyConfig.sleepEpsilon);
-    if (this.canSleep && this.sleepMotion < this._bodyConfig.sleepEpsilon) {
-      this.isSleeping = true;
+
+    // Low energy bodies go to sleep, just like real life ;)
+    if (this.canFallAsleep) {
+      this.sleepTime += duration;
     }
   }
 

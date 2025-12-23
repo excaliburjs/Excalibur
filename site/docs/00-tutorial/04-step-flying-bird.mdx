@@ -49,3 +49,14 @@ export class Bird extends ex.Actor {
 
 }
 ```
+
+:::info
+**Heads up!**  
+After adding the flap/jump logic, you may notice a strange behavior:  
+if the Bird hits the ground and "dies," pressing the jump key **one more time** will cause the Bird to shoot upward infinitely.
+
+This happens because we haven't added any *game-over* or *collision-lockout* logic yet—so the Bird is still allowed to receive input even after crashing.
+
+Don't worry! This is expected at this stage of the tutorial.  
+We'll fix this behavior later once we introduce proper game-over handling.
+:::

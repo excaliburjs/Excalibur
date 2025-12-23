@@ -1,4 +1,5 @@
 import * as ex from '@excalibur';
+import { TestUtils } from '../__util__/TestUtils';
 
 class FakeComponentA extends ex.Component {}
 class FakeComponentB extends ex.Component {}
@@ -336,6 +337,40 @@ describe('An entity', () => {
     expect(removedSpy).toHaveBeenCalledTimes(1);
   });
 
+  it('will have onAdd & onRemove called when removed', async () => {
+    const engine = TestUtils.engine({ width: 100, height: 100 });
+    await TestUtils.runToReady(engine);
+
+    const e = new ex.Entity();
+
+    const onAddSpy = vi.fn();
+    e.onAdd = onAddSpy;
+
+    const onRemoveSpy = vi.fn();
+    e.onRemove = onRemoveSpy;
+
+    const scene = new ex.Scene();
+    scene.add(e);
+
+    engine.addScene('test', scene);
+    await engine.goToScene('test');
+    engine.screen.setCurrentCamera(engine.currentScene.camera);
+
+    class TestSystem extends ex.System {
+      systemType = ex.SystemType.Update;
+      update(elapsed: number): void {
+        e.kill();
+      }
+    }
+
+    scene.world.systemManager.addSystem(TestSystem);
+
+    scene.update(engine, 100);
+
+    expect(onAddSpy).toHaveBeenCalledOnce();
+    expect(onRemoveSpy).toHaveBeenCalledOnce();
+  });
+
   it('can add and remove children in the ECS world', () => {
     const e = new ex.Entity();
     const child = new ex.Entity();
@@ -506,5 +541,22 @@ describe('An entity', () => {
     sut.addComponent(superBody);
     expect(sut.get(MyBody)).toBe(undefined);
     expect(sut.get(ex.BodyComponent)).toBe(superBody);
+  });
+
+  it('can detect children', () => {
+    const e = new ex.Entity();
+    const child1 = new ex.Entity();
+    const child2 = new ex.Entity();
+    const notChild = new ex.Entity();
+
+    e.addChild(child1);
+    child1.addChild(child2);
+
+    expect(e.hasChild(child1, true)).toBe(true);
+    expect(e.hasChild(child1, false)).toBe(true);
+    expect(e.hasChild(child2, false)).toBe(false);
+    expect(e.hasChild(child2, true)).toBe(true);
+    expect(child1.hasChild(child2)).toBe(true);
+    expect(e.hasChild(notChild)).toBe(false);
   });
 });

@@ -1,16 +1,41 @@
 import type { Vector } from '../Math/vector';
-import type { ExcaliburGraphicsContext, LineGraphicsOptions, PointGraphicsOptions } from './Context/ExcaliburGraphicsContext';
+import type {
+  ExcaliburGraphicsContext,
+  LineGraphicsOptions,
+  PointGraphicsOptions,
+  RectGraphicsOptions
+} from './Context/ExcaliburGraphicsContext';
 import { Color } from '../Color';
 import type { Ray } from '../Math/ray';
 import type { BoundingBox } from '../Collision/BoundingBox';
+import type { DebugConfig } from '../Debug';
 
 export class Debug {
   static _drawCalls: ((ctx: ExcaliburGraphicsContext) => void)[] = [];
   static _ctx: ExcaliburGraphicsContext;
   static z: number = Infinity;
-  static registerGraphicsContext(ctx: ExcaliburGraphicsContext) {
-    Debug._ctx = ctx;
+  static config: DebugConfig = {
+    // add some defaults
+    settings: {
+      text: {
+        foreground: Color.Black,
+        background: Color.Transparent,
+        border: Color.Transparent
+      },
+      z: {
+        text: Number.POSITIVE_INFINITY,
+        point: Number.MAX_SAFE_INTEGER - 1,
+        ray: Number.MAX_SAFE_INTEGER - 1,
+        dashed: Number.MAX_SAFE_INTEGER - 2,
+        solid: Number.MAX_SAFE_INTEGER - 3
+      }
+    }
+  } as any;
+
+  static registerDebugConfig(config: DebugConfig) {
+    Debug.config = config;
   }
+
   static draw(debugDrawCall: (ctx: ExcaliburGraphicsContext) => void) {
     this._drawCalls.push(debugDrawCall);
   }
@@ -71,11 +96,11 @@ export class Debug {
       ...options
     };
     Debug.draw((ctx) => {
-      ctx.drawCircle(center, radius, color, strokeColor, width);
+      ctx.debug.drawCircle(center, radius, color, strokeColor, width);
     });
   }
 
-  static drawBounds(boundingBox: BoundingBox, options?: { color?: Color }): void {
+  static drawBounds(boundingBox: BoundingBox, options?: RectGraphicsOptions): void {
     Debug.draw((ctx) => {
       ctx.debug.drawRect(boundingBox.left, boundingBox.top, boundingBox.width, boundingBox.height, options);
     });
@@ -88,6 +113,7 @@ export class Debug {
       ...options
     };
     Debug.draw((ctx) => {
+      ctx.z = Debug.config.settings.z.ray;
       const start = ray.pos;
       const end = ray.pos.add(ray.dir.scale(distance));
 

@@ -61,11 +61,11 @@ describe('A Graphics Animation', () => {
         columns: 10
       }
     });
-    const anim = ex.Animation.fromSpriteSheet(ss, [0, 1, 2, 3], 100, ex.AnimationStrategy.Freeze);
+    const anim = ex.Animation.fromSpriteSheet(ss, [0, 1, 2, 1, 2, 3], 100, ex.AnimationStrategy.Freeze);
 
     expect(anim.strategy).toBe(ex.AnimationStrategy.Freeze);
     expect(anim.frames[0].duration).toBe(100);
-    expect(anim.frames.length).toBe(4);
+    expect(anim.frames.length).toBe(6);
   });
 
   it('can be defined from spritesheet coordinates', () => {
@@ -201,7 +201,7 @@ describe('A Graphics Animation', () => {
 
     expect(logger.warn).toHaveBeenCalledTimes(1);
     expect(logger.warn).toHaveBeenCalledExactlyOnceWith(
-      `Indices into SpriteSheet were provided that don\'t exist: ${invalidIndices.join(',')} no frame will be shown`
+      `Indices into SpriteSheet were provided that don't exist: frames ${invalidIndices.join(',')} will not be shown`
     );
     expect(anim.strategy).toBe(ex.AnimationStrategy.Freeze);
     // expect(anim.frames[0].duration).toBe(100);

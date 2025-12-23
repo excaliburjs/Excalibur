@@ -4,7 +4,7 @@
   "editor.insertSpaces": true,
   "editor.detectIndentation": false,
   "eslint.enable": true,
-  "eslint.options": { "overrideConfigFile": "./.eslintrc.json" },
+  "eslint.options": { "overrideConfigFile": "./eslint.config.mjs" },
   "eslint.alwaysShowStatus": true,
   "eslint.validate": ["typescript"],
   "files.exclude": {
@@ -23,6 +23,7 @@
     "src/spec/*.map": true
   },
   "typescript.tsdk": "./node_modules/typescript/lib",
+  "vitest.cliArguments": "--project=unit --browser.headless",
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },

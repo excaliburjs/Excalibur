@@ -80,6 +80,7 @@ export class RealisticSolver implements CollisionSolver {
         contact.cancel();
         continue;
       }
+
       // Publish collision events on both participants
       const side = Side.fromDirection(contact.mtv);
       const distance = Math.abs(contact?.info?.separation || 0);
@@ -103,9 +104,6 @@ export class RealisticSolver implements CollisionSolver {
         'beforecollisionresolve',
         new CollisionPreSolveEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate(), contact) as any
       );
-
-      // Match awake state for sleeping
-      contact.matchAwake();
     }
 
     // Keep track of contacts that done
@@ -124,7 +122,7 @@ export class RealisticSolver implements CollisionSolver {
       const colliderA = contact.colliderA;
       const bodyB = contact.bodyB;
       const colliderB = contact.colliderB;
-      if (bodyA && bodyB) {
+      if (bodyA && bodyB && (!bodyA.isSleeping || !bodyB.isSleeping)) {
         for (let j = 0; j < contact.points.length; j++) {
           const point = contact.points[j];
           const normal = contact.normal;
@@ -212,10 +210,6 @@ export class RealisticSolver implements CollisionSolver {
         if (bodyA.collisionType === CollisionType.Passive || bodyB.collisionType === CollisionType.Passive) {
           continue;
         }
-
-        // Update motion values for sleeping
-        bodyA.updateMotion();
-        bodyB.updateMotion();
       }
 
       // Publish collision events on both participants
@@ -253,8 +247,14 @@ export class RealisticSolver implements CollisionSolver {
   warmStart(contacts: CollisionContact[]) {
     for (let i = 0; i < contacts.length; i++) {
       const contact = contacts[i];
+
       const bodyA = contact.bodyA;
       const bodyB = contact.bodyB;
+
+      if (bodyA.isSleeping && bodyB.isSleeping) {
+        continue;
+      }
+
       if (bodyA && bodyB) {
         const contactPoints = this.idToContactConstraint.get(contact.id) ?? [];
         for (const point of contactPoints) {
@@ -285,6 +285,10 @@ export class RealisticSolver implements CollisionSolver {
         const bodyA = contact.bodyA;
         const bodyB = contact.bodyB;
 
+        if (bodyA.isSleeping && bodyB.isSleeping) {
+          continue;
+        }
+
         if (bodyA && bodyB) {
           // Skip solving active+passive
           if (bodyA.collisionType === CollisionType.Passive || bodyB.collisionType === CollisionType.Passive) {
@@ -296,9 +300,9 @@ export class RealisticSolver implements CollisionSolver {
             const normal = contact.normal;
             const separation = CollisionJumpTable.FindContactSeparation(contact, point.local);
 
-            const steeringConstant = this.config.steeringFactor; //0.2;
-            const maxCorrection = -5;
-            const slop = this.config.slop; //1;
+            const steeringConstant = this.config.steeringFactor; //0.2 pixels;
+            const maxCorrection = -5; // pixels
+            const slop = this.config.slop; //1 pixel;
 
             // Clamp to avoid over-correction
             // Remember that we are shooting for 0 overlap in the end
@@ -344,11 +348,16 @@ export class RealisticSolver implements CollisionSolver {
   }
 
   solveVelocity(contacts: CollisionContact[]) {
+    // velocityIterations:
     for (let i = 0; i < this.config.velocityIterations; i++) {
       for (let i = 0; i < contacts.length; i++) {
         const contact = contacts[i];
         const bodyA = contact.bodyA;
         const bodyB = contact.bodyB;
+
+        if (bodyA.isSleeping && bodyB.isSleeping) {
+          continue;
+        }
 
         if (bodyA && bodyB) {
           // Skip solving active+passive

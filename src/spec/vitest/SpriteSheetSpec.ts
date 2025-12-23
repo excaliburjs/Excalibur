@@ -229,4 +229,52 @@ describe('A SpriteSheet for Graphics', () => {
     expect(ss.rows).toBe(clone.rows);
     expect(ss.columns).toBe(clone.columns);
   });
+
+  it('can produce a unique image element by x,y', async () => {
+    const image = new ex.ImageSource('/src/spec/assets/images/SpriteSheetSpec/kenny-cards.png');
+
+    await image.load();
+    const ss = ex.SpriteSheet.fromImageSource({
+      image,
+      grid: {
+        rows: 4,
+        columns: 14,
+        spriteWidth: 42,
+        spriteHeight: 60
+      },
+      spacing: {
+        originOffset: { x: 11, y: 2 },
+        margin: { x: 23, y: 5 }
+      }
+    });
+
+    const newImage = await ss.getSpriteAsImage(0, 0);
+    expect(newImage.width).toBe(42);
+    expect(newImage.height).toBe(60);
+    expect(newImage).toBeInstanceOf(Image);
+  });
+
+  it('can produce a unique Sprite Object by x,y', async () => {
+    const image = new ex.ImageSource('/src/spec/assets/images/SpriteSheetSpec/kenny-cards.png');
+
+    await image.load();
+    const ss = ex.SpriteSheet.fromImageSource({
+      image,
+      grid: {
+        rows: 4,
+        columns: 14,
+        spriteWidth: 42,
+        spriteHeight: 60
+      },
+      spacing: {
+        originOffset: { x: 11, y: 2 },
+        margin: { x: 23, y: 5 }
+      }
+    });
+
+    const newSprite = await ss.getSpriteAsStandalone(0, 0);
+    expect(newSprite.width).toBe(42);
+    expect(newSprite.height).toBe(60);
+    expect(newSprite).toBeInstanceOf(ex.Sprite);
+  });
 });

@@ -3,6 +3,7 @@ import type { Engine } from '../Engine';
 import { Color } from '../Color';
 import type { CollisionContact } from '../Collision/Detection/CollisionContact';
 import type { StandardClock, TestClock } from '../Util/Clock';
+import { Debug } from '../Graphics/Debug';
 
 /**
  * Debug stats containing current and previous frame statistics
@@ -37,6 +38,11 @@ export interface FrameStatistics {
    * Duration statistics (in ms)
    */
   duration: FrameDurationStats;
+
+  /**
+   * Duration statistics (in ms) for ECS systems
+   */
+  systemDuration: Record<string, number>;
 
   /**
    * Actor statistics
@@ -147,6 +153,7 @@ export interface PhysicsStatistics {
 export interface GraphicsStatistics {
   drawCalls: number;
   drawnImages: number;
+  rendererSwaps: number;
 }
 
 /**
@@ -161,6 +168,8 @@ export class DebugConfig {
     this._engine = engine;
 
     this.colorBlindMode = new ColorBlindFlags(this._engine);
+
+    Debug.registerDebugConfig(this);
   }
 
   /**
@@ -219,6 +228,21 @@ export class DebugConfig {
     prevFrame: new FrameStats()
   };
 
+  public settings = {
+    text: {
+      foreground: Color.Black,
+      background: Color.Transparent,
+      border: Color.Transparent
+    },
+    z: {
+      text: Number.POSITIVE_INFINITY,
+      point: Number.MAX_SAFE_INTEGER - 1,
+      ray: Number.MAX_SAFE_INTEGER - 1,
+      dashed: Number.MAX_SAFE_INTEGER - 2,
+      solid: Number.MAX_SAFE_INTEGER - 3
+    }
+  };
+
   /**
    * Correct or simulate color blindness using {@apilink ColorBlindnessPostProcessor}.
    * @warning Will reduce FPS.
@@ -258,7 +282,6 @@ export class DebugConfig {
   public transform = {
     showAll: false,
 
-    debugZIndex: 10_000_000,
     showPosition: false,
     showPositionLabel: false,
     positionColor: Color.Yellow,
@@ -295,8 +318,8 @@ export class DebugConfig {
 
     showGeometry: true,
     geometryColor: Color.Green,
-    geometryLineWidth: 1,
-    geometryPointSize: 0.5
+    geometryLineWidth: 2,
+    geometryPointSize: 2
   };
 
   /**
@@ -311,7 +334,7 @@ export class DebugConfig {
     collisionNormalColor: Color.Cyan,
 
     showCollisionContacts: true,
-    contactSize: 2,
+    contactSize: 10,
     collisionContactColor: Color.Red
   };
 
@@ -407,8 +430,11 @@ export class FrameStats implements FrameStatistics {
 
   private _graphicsStats: GraphicsStatistics = {
     drawCalls: 0,
-    drawnImages: 0
+    drawnImages: 0,
+    rendererSwaps: 0
   };
+
+  systemDuration: Record<string, number> = {};
 
   /**
    * Zero out values or clone other IFrameStat stats. Allows instance reuse.
@@ -424,15 +450,22 @@ export class FrameStats implements FrameStatistics {
       this.actors.ui = otherStats.actors.ui;
       this.duration.update = otherStats.duration.update;
       this.duration.draw = otherStats.duration.draw;
+      for (const key in otherStats.systemDuration) {
+        this.systemDuration[key] = otherStats.systemDuration[key];
+      }
       this._physicsStats.reset(otherStats.physics);
       this.graphics.drawCalls = otherStats.graphics.drawCalls;
       this.graphics.drawnImages = otherStats.graphics.drawnImages;
+      this.graphics.rendererSwaps = otherStats.graphics.rendererSwaps;
     } else {
       this.id = this.elapsedMs = this.fps = 0;
       this.actors.alive = this.actors.killed = this.actors.ui = 0;
       this.duration.update = this.duration.draw = 0;
       this._physicsStats.reset();
-      this.graphics.drawnImages = this.graphics.drawCalls = 0;
+      this.graphics.drawnImages = this.graphics.drawCalls = this.graphics.rendererSwaps = 0;
+      for (const key in this.systemDuration) {
+        this.systemDuration[key] = 0;
+      }
     }
   }
 

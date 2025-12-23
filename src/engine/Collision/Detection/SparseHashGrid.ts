@@ -1,7 +1,6 @@
 import { Color } from '../../Color';
 import type { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
 import type { Vector } from '../../Math/vector';
-import { vec } from '../../Math/vector';
 import { RentalPool } from '../../Util/RentalPool';
 import { BoundingBox } from '../BoundingBox';
 
@@ -294,10 +293,9 @@ export class SparseHashGrid<TObject extends { bounds: BoundingBox }, TProxy exte
   }
 
   debug(ex: ExcaliburGraphicsContext, elapsed: number): void {
-    const transparent = Color.Transparent;
     const color = Color.White;
     for (const cell of this.sparseHashGrid.values()) {
-      ex.drawRectangle(vec(cell.x * this.gridSize, cell.y * this.gridSize), this.gridSize, this.gridSize, transparent, color, 2);
+      ex.debug.drawRect(cell.x * this.gridSize, cell.y * this.gridSize, this.gridSize, this.gridSize, { color, lineWidth: 2 });
     }
   }
 }

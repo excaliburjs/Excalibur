@@ -170,6 +170,38 @@ describe('A pointer', () => {
     expect(actualOrder).toEqual(['actor4', 'actor3', 'actor2', 'actor1']);
   });
 
+  it('should dispatch events on colliders correctly using geometry containment', () => {
+    const pointerSpy = vi.fn();
+
+    const actor1 = new ex.Actor({ x: 50, y: 50, radius: 50 });
+    actor1.z = 0;
+    actor1.on('pointerdown', (e) => {
+      pointerSpy(e.worldPos);
+    });
+
+    engine.add(actor1);
+
+    executeMouseEvent('pointerdown', <any>document, null, 100, 100);
+    engine.currentScene.update(engine, 0);
+    expect(pointerSpy).not.toHaveBeenCalled();
+
+    executeMouseEvent('pointerdown', <any>document, null, 0, 0);
+    engine.currentScene.update(engine, 0);
+    expect(pointerSpy).not.toHaveBeenCalled();
+
+    executeMouseEvent('pointerdown', <any>document, null, 50, 50);
+    engine.currentScene.update(engine, 0);
+    expect(pointerSpy).toHaveBeenCalledWith(ex.vec(50, 50));
+
+    executeMouseEvent('pointerdown', <any>document, null, Math.cos(0) * 50, 0);
+    engine.currentScene.update(engine, 0);
+    expect(pointerSpy).toHaveBeenCalledWith(ex.vec(Math.cos(0) * 50, 0));
+
+    executeMouseEvent('pointerdown', <any>document, null, Math.cos(0) * 50.1, 0);
+    engine.currentScene.update(engine, 0);
+    expect(pointerSpy).not.toHaveBeenCalledWith(ex.vec(Math.cos(0) * 50.1, 0));
+  });
+
   it('should not dispatch canceled events to the top level', () => {
     const actor1 = new ex.Actor({ x: 50, y: 50, width: 100, height: 100 });
 

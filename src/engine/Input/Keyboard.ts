@@ -243,11 +243,11 @@ export interface KeyboardInitOptions {
   grabWindowFocus?: boolean;
 }
 
-export type KeyEvents = {
+export interface KeyEvents {
   press: KeyEvent;
   hold: KeyEvent;
   release: KeyEvent;
-};
+}
 
 export const KeyEvents = {
   Press: 'press',

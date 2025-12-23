@@ -42,17 +42,15 @@ var fullscreenButton = document.getElementById('fullscreen') as HTMLButtonElemen
 // ex.Physics.acc = new ex.Vector(0, 10); // global accel
 // Create an the game container
 var game = new ex.Engine({
-  width: 800 / 2,
-  height: 600 / 2,
-  viewport: { width: 800, height: 600 },
+  width: 800,
+  height: 600,
   canvasElementId: 'game',
-  // pixelRatio: 1,
   // suppressPlayButton: true,
   pointerScope: ex.PointerScope.Canvas,
   displayMode: ex.DisplayMode.FitScreenAndFill,
   snapToPixel: false,
   // fixedUpdateFps: 30,
-  pixelRatio: 2,
+  // pixelRatio: 2,
   fixedUpdateFps: 60,
   maxFps: 60,
   antialiasing: {
@@ -63,7 +61,7 @@ var game = new ex.Engine({
     multiSampleAntialiasing: true
   },
   garbageCollection: true,
-  uvPadding: 0,
+  // uvPadding: 0.5,
   physics: {
     integration: {
       onScreenOnly: true
@@ -136,7 +134,7 @@ game.currentScene.onPreDraw = (ctx: ex.ExcaliburGraphicsContext) => {
   bb.left++;
   bb.bottom--;
   bb.right--;
-  bb.draw(ctx, ex.Color.Yellow);
+  // bb.draw(ctx, ex.Color.Yellow);
 
   // (ctx as ex.ExcaliburGraphicsContextWebGL).draw('custom', 1, 2, 3, 'custom args');
 
@@ -205,6 +203,17 @@ cards2.draw(game.graphicsContext, 0, 0);
 cards2.draw(game.graphicsContext, 0, 0);
 
 jump.volume = 0.3;
+
+var screenBox = new ex.ScreenElement({
+  pos: ex.vec(50, 50),
+  width: 64,
+  height: 64,
+  scale: ex.vec(2, 2),
+  color: ex.Color.Gray
+});
+game.add(screenBox);
+console.log('width', screenBox.width);
+console.log('height', screenBox.height);
 
 var svgExternal = new ex.ImageSource('../images/arrows.svg');
 var svg = (tags: TemplateStringsArray) => tags[0];
@@ -728,19 +737,19 @@ var healthbar = new ex.Actor({
 });
 player.addChild(healthbar);
 player.onPostUpdate = () => {
-  ex.Debug.drawLine(player.pos, player.pos.add(ex.Vector.Down.scale(100)), {
-    color: ex.Color.Red
-  });
-  ex.Debug.drawPoint(player.pos, {
-    size: 1,
-    color: ex.Color.Violet
-  });
+  // ex.Debug.drawLine(player.pos, player.pos.add(ex.Vector.Down.scale(100)), {
+  //   color: ex.Color.Red
+  // });
+  // ex.Debug.drawPoint(player.pos, {
+  //   size: 1,
+  //   color: ex.Color.Violet
+  // });
   ex.Debug.drawCircle(player.pos, 100, {
     color: ex.Color.Transparent,
     strokeColor: ex.Color.Black,
     width: 1
   });
-  ex.Debug.drawBounds(player.collider.bounds, { color: ex.Color.Yellow });
+  // ex.Debug.drawBounds(player.collider.bounds, { color: ex.Color.Yellow });
 };
 // player.onPostDraw = (ctx: CanvasRenderingContext2D) => {
 //   ctx.fillStyle = 'red';

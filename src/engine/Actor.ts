@@ -12,7 +12,7 @@ import type {
   ActionStartEvent,
   ActionCompleteEvent
 } from './Events';
-import { KillEvent, PreUpdateEvent, PostUpdateEvent, PostKillEvent, PreKillEvent } from './Events';
+import { type KillEvent, PreUpdateEvent, PostUpdateEvent, PostKillEvent, PreKillEvent } from './Events';
 import type { Engine } from './Engine';
 import type { Color } from './Color';
 import type { CanInitialize, CanUpdate, CanBeKilled } from './Interfaces/LifecycleEvents';
@@ -43,6 +43,7 @@ import { CoordPlane } from './Math/coord-plane';
 import type { EventKey, Handler, Subscription } from './EventEmitter';
 import { EventEmitter } from './EventEmitter';
 import type { Component } from './EntityComponentSystem';
+import type { Graphic, Material } from './Graphics';
 
 /**
  * Type guard for checking if something is an Actor
@@ -105,6 +106,14 @@ export type ActorArgs = ColliderArgs & {
    * If a width/height or a radius was set a default graphic will be added
    */
   color?: Color;
+  /**
+   * Optionally set the default graphic
+   */
+  graphic?: Graphic;
+  /**
+   * Optionally set the default material
+   */
+  material?: Material;
   /**
    * Optionally set the color of an actor, only used if no graphics are present
    * If a width/height or a radius was set a default graphic will be added
@@ -184,7 +193,7 @@ type ColliderArgs =
       height?: undefined;
     };
 
-export type ActorEvents = EntityEvents & {
+export interface ActorEvents extends EntityEvents {
   collisionstart: CollisionStartEvent;
   collisionend: CollisionEndEvent;
   precollision: PreCollisionEvent;
@@ -214,7 +223,7 @@ export type ActorEvents = EntityEvents & {
   exitviewport: ExitViewPortEvent;
   actionstart: ActionStartEvent;
   actioncomplete: ActionCompleteEvent;
-};
+}
 
 export const ActorEvents = {
   CollisionStart: 'collisionstart',
@@ -581,7 +590,9 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
       anchor,
       offset,
       collisionType,
-      collisionGroup
+      collisionGroup,
+      graphic,
+      material
     } = {
       ...config
     };
@@ -663,6 +674,12 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     }
 
     this.graphics.isVisible = visible ?? true;
+    if (graphic) {
+      this.graphics.use(graphic);
+    }
+    if (material) {
+      this.graphics.material = material;
+    }
   }
 
   public clone(): Actor {
@@ -806,7 +823,6 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   public kill() {
     if (this.scene) {
       this._prekill(this.scene);
-      this.events.emit('kill', new KillEvent(this));
       super.kill();
       this._postkill(this.scene);
     } else {

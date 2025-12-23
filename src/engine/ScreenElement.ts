@@ -31,7 +31,7 @@ export class ScreenElement extends Actor {
     this.pointer.useGraphicsBounds = true;
     this.pointer.useColliderShape = false;
     if (!config?.collider && config?.width > 0 && config?.height > 0) {
-      this.collider.useBoxCollider(this.width, this.height, this.anchor);
+      this.collider.useBoxCollider(config.width, config.height, this.anchor);
     }
   }
 
