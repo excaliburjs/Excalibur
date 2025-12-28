@@ -28,7 +28,7 @@ describe('Debug draw static', () => {
       ex.Debug.flush(context);
       context.flush();
 
-      await expect(canvas).toEqualImage('/src/spec/assets/images/DebugSpec/point.png');
+      await expect(canvas).toEqualImage('/src/spec/assets/images/debug-spec/point.png');
       context.dispose();
     });
 
@@ -47,7 +47,7 @@ describe('Debug draw static', () => {
       ex.Debug.flush(context);
       context.flush();
 
-      await expect(canvas).toEqualImage('/src/spec/assets/images/DebugSpec/line.png');
+      await expect(canvas).toEqualImage('/src/spec/assets/images/debug-spec/line.png');
       context.dispose();
     });
 
@@ -66,7 +66,7 @@ describe('Debug draw static', () => {
       ex.Debug.flush(context);
       context.flush();
 
-      await expect(canvas).toEqualImage('/src/spec/assets/images/DebugSpec/lines.png', 0.99);
+      await expect(canvas).toEqualImage('/src/spec/assets/images/debug-spec/lines.png', 0.99);
       context.dispose();
     });
 
@@ -85,7 +85,7 @@ describe('Debug draw static', () => {
       ex.Debug.flush(context);
       context.flush();
 
-      await expect(canvas).toEqualImage('/src/spec/assets/images/DebugSpec/text.png');
+      await expect(canvas).toEqualImage('/src/spec/assets/images/debug-spec/text.png');
     });
 
     it('can draw a polygon', async () => {
@@ -103,7 +103,7 @@ describe('Debug draw static', () => {
       ex.Debug.flush(context);
       context.flush();
 
-      await expect(canvas).toEqualImage('/src/spec/assets/images/DebugSpec/polygon.png');
+      await expect(canvas).toEqualImage('/src/spec/assets/images/debug-spec/polygon.png');
       context.dispose();
     });
 
@@ -122,7 +122,7 @@ describe('Debug draw static', () => {
       ex.Debug.flush(context);
       context.flush();
 
-      await expect(canvas).toEqualImage('/src/spec/assets/images/DebugSpec/circle.png');
+      await expect(canvas).toEqualImage('/src/spec/assets/images/debug-spec/circle.png');
       context.dispose();
     });
 
@@ -148,7 +148,7 @@ describe('Debug draw static', () => {
       ex.Debug.flush(context);
       context.flush();
 
-      await expect(canvas).toEqualImage('/src/spec/assets/images/DebugSpec/bounds.png');
+      await expect(canvas).toEqualImage('/src/spec/assets/images/debug-spec/bounds.png');
       context.dispose();
     });
 
@@ -169,7 +169,7 @@ describe('Debug draw static', () => {
       ex.Debug.flush(context);
       context.flush();
 
-      await expect(canvas).toEqualImage('/src/spec/assets/images/DebugSpec/ray.png');
+      await expect(canvas).toEqualImage('/src/spec/assets/images/debug-spec/ray.png');
       context.dispose();
     });
   });

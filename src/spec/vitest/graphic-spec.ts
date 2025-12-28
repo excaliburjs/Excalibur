@@ -105,7 +105,7 @@ describe('A Graphic', () => {
       ctx.clear();
       const sut = new TestGraphic();
       sut.draw(ctx, 25, 25);
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicSpec/base.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphic-spec/base.png');
     });
 
     it('has local bounds based on the width/height', () => {
@@ -118,7 +118,7 @@ describe('A Graphic', () => {
       const sut = new TestGraphic();
       sut.rotation = Math.PI / 4;
       sut.draw(ctx, 25, 25);
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicSpec/rotated.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphic-spec/rotated.png');
     });
 
     it('can flip a graphic implementation', async () => {
@@ -127,7 +127,7 @@ describe('A Graphic', () => {
       sut.flipHorizontal = true;
       sut.flipVertical = true;
       sut.draw(ctx, 25, 25);
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicSpec/flipped.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphic-spec/flipped.png');
     });
 
     it('can scale a graphic implementation', async () => {
@@ -135,7 +135,7 @@ describe('A Graphic', () => {
       const sut = new TestGraphic();
       sut.scale = ex.vec(2, 2);
       sut.draw(ctx, 25, 25);
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicSpec/scaled.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphic-spec/scaled.png');
     });
 
     it('can set opacity on a graphic implementation', async () => {
@@ -143,7 +143,7 @@ describe('A Graphic', () => {
       const sut = new TestGraphic();
       sut.opacity = 0.2;
       sut.draw(ctx, 25, 25);
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicSpec/opacity.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphic-spec/opacity.png');
     });
 
     it('can show a debug rect', async () => {
@@ -151,7 +151,7 @@ describe('A Graphic', () => {
       const sut = new TestGraphic();
       sut.showDebug = true;
       sut.draw(ctx, 25, 25);
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicSpec/debug.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphic-spec/debug.png');
     });
   });
 });

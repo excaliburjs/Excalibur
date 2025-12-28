@@ -73,7 +73,7 @@ describe('DebugSystem', () => {
 
       engine.graphicsContext.flush();
 
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/DebugSystemSpec/transform.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/debug-system-spec/transform.png');
     });
 
     it('can show motion info', async () => {
@@ -97,7 +97,7 @@ describe('DebugSystem', () => {
 
       engine.graphicsContext.flush();
 
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/DebugSystemSpec/motion.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/debug-system-spec/motion.png');
     });
 
     it('can show body info', async () => {
@@ -119,7 +119,7 @@ describe('DebugSystem', () => {
 
       engine.graphicsContext.flush();
 
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/DebugSystemSpec/body.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/debug-system-spec/body.png');
     });
 
     it('can show collider info', async () => {
@@ -140,7 +140,7 @@ describe('DebugSystem', () => {
 
       engine.graphicsContext.flush();
 
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/DebugSystemSpec/collider.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/debug-system-spec/collider.png');
     });
 
     it('can show composite collider info', async () => {
@@ -162,7 +162,7 @@ describe('DebugSystem', () => {
 
       engine.graphicsContext.flush();
 
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/DebugSystemSpec/composite-collider.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/debug-system-spec/composite-collider.png');
     });
 
     it('can show graphics info', async () => {
@@ -186,7 +186,7 @@ describe('DebugSystem', () => {
 
       engine.graphicsContext.flush();
 
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/DebugSystemSpec/graphics.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/debug-system-spec/graphics.png');
     });
 
     it('can show DebugGraphicsComponent', async () => {
@@ -207,7 +207,7 @@ describe('DebugSystem', () => {
       debugSystem.update();
 
       engine.graphicsContext.flush();
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/DebugSystemSpec/debug-draw-component.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/debug-system-spec/debug-draw-component.png');
     });
 
     it('can debug draw a tilemap', async () => {
@@ -234,7 +234,7 @@ describe('DebugSystem', () => {
       debugSystem.update();
 
       engine.graphicsContext.flush();
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/DebugSystemSpec/tilemap-debug.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/debug-system-spec/tilemap-debug.png');
     });
   });
 });

@@ -123,7 +123,7 @@ describe('A ScreenElement', () => {
     it('is drawn on the top left with empty constructor', async () => {
       const game = TestUtils.engine({ width: 720, height: 480 });
       const clock = game.clock as ex.TestClock;
-      const bg = new ex.ImageSource('/src/spec/assets/images/ScreenElementSpec/emptyctor.png');
+      const bg = new ex.ImageSource('/src/spec/assets/images/screen-element-spec/emptyctor.png');
       const loader = new ex.Loader([bg]);
       await TestUtils.runToReady(game, loader);
       const screenElement = new ex.ScreenElement();
@@ -131,7 +131,7 @@ describe('A ScreenElement', () => {
       game.add(screenElement);
       game.currentScene.draw(game.graphicsContext, 100);
       game.graphicsContext.flush();
-      await expect(game.canvas).toEqualImage('/src/spec/assets/images/ScreenElementSpec/emptyctor.png');
+      await expect(game.canvas).toEqualImage('/src/spec/assets/images/screen-element-spec/emptyctor.png');
       game.dispose();
     });
   });

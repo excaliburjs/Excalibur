@@ -22,7 +22,7 @@ describe('DebugText', () => {
 
       ctx.flush();
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/DebugTextSpec/draw-canvas2d.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/debug-text-spec/draw-canvas2d.png');
     });
 
     it('can write text (WebGL)', async () => {
@@ -41,7 +41,7 @@ describe('DebugText', () => {
 
       ctx.flush();
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/DebugTextSpec/draw-webgl.png', 0.94);
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/debug-text-spec/draw-webgl.png', 0.94);
     });
   });
 });

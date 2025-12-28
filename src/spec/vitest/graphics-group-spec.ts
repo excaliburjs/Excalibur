@@ -39,7 +39,7 @@ describe('A Graphics Group', () => {
       ctx.clear();
       group.draw(ctx, 25, 25);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsGroupSpec/graphics-group.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-group-spec/graphics-group.png');
     });
 
     it('can be created and drawn without anchor', async () => {
@@ -76,7 +76,7 @@ describe('A Graphics Group', () => {
       ctx.clear();
       group.draw(ctx, 100, 100);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsGroupSpec/graphics-group-without-anchor.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-group-spec/graphics-group-without-anchor.png');
     });
   });
 

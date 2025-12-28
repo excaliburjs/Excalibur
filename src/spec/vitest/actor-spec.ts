@@ -788,14 +788,14 @@ describe('A game actor', () => {
     scene.draw(engine.graphicsContext, 100);
     engine.graphicsContext.flush();
 
-    await expect(engine.canvas).toEqualImage('/src/spec/assets/images/ActorSpec/zindex-blue-top.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/assets/images/actor-spec/zindex-blue-top.png');
 
     green.z = 2;
     blue.z = 1;
     scene.draw(engine.graphicsContext, 100);
     engine.graphicsContext.flush();
 
-    await expect(engine.canvas).toEqualImage('/src/spec/assets/images/ActorSpec/zindex-green-top.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/assets/images/actor-spec/zindex-green-top.png');
   });
 
   it('@visual can have a graphic drawn at an opacity', async () => {
@@ -815,7 +815,7 @@ describe('A game actor', () => {
     const clock = engine.clock as ex.TestClock;
     clock.step(1);
 
-    const image = new ex.ImageSource('/src/spec/assets/images/SpriteSpec/icon.png');
+    const image = new ex.ImageSource('/src/spec/assets/images/sprite-spec/icon.png');
 
     await image.load();
     const sprite = new ex.Sprite({
@@ -841,12 +841,12 @@ describe('A game actor', () => {
     scene.draw(engine.graphicsContext, 100);
     engine.graphicsContext.flush();
 
-    await expect(engine.canvas).toEqualImage('/src/spec/assets/images/SpriteSpec/opacity.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/assets/images/sprite-spec/opacity.png');
   });
 
   it('will tick animations on update', async () => {
     scene.clear();
-    const texture = new ex.ImageSource('/src/spec/assets/images/SpriteSpec/icon.png');
+    const texture = new ex.ImageSource('/src/spec/assets/images/sprite-spec/icon.png');
     await texture.load();
     const sprite = new ex.Sprite({
       image: texture,

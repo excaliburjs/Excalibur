@@ -85,7 +85,7 @@ describe('A Line', () => {
       sut.draw(ctx, 0, 0);
       ctx.flush();
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/LineSpec/line.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/line-spec/line.png');
     });
 
     it('can draw a line when added to a graphics component', async () => {
@@ -115,7 +115,7 @@ describe('A Line', () => {
 
       testClock.step(16);
 
-      await expect(game.canvas).toEqualImage('/src/spec/assets/images/LineSpec/line.png');
+      await expect(game.canvas).toEqualImage('/src/spec/assets/images/line-spec/line.png');
 
       game.dispose();
     });

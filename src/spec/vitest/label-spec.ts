@@ -56,7 +56,7 @@ describe('A label', () => {
   });
 
   it('can be constructed with a spritefont', async () => {
-    const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
+    const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png');
 
     await spriteFontImage.load();
 

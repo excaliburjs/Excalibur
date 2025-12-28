@@ -65,7 +65,7 @@ describe('A loader', () => {
         loader.onInitialize(engine);
         loader.onDraw(loader.canvas.ctx);
         expect(loader.canvas.ctx.canvas)
-          .toHaveLoadedImages(['/src/spec/assets/images/LoaderSpec/zero.png'])
+          .toHaveLoadedImages(['/src/spec/assets/images/loader-spec/zero.png'])
           .then(() => {
             done();
           });
@@ -82,7 +82,7 @@ describe('A loader', () => {
         loader.onInitialize(engine);
         loader.onDraw(loader.canvas.ctx);
         expect(loader.canvas.ctx.canvas)
-          .toHaveLoadedImages(['/src/spec/assets/images/LoaderSpec/fifty.png'])
+          .toHaveLoadedImages(['/src/spec/assets/images/loader-spec/fifty.png'])
           .then(() => {
             done();
           });
@@ -101,7 +101,7 @@ describe('A loader', () => {
         loader.onInitialize(engine);
         loader.onDraw(loader.canvas.ctx);
         expect(loader.canvas.ctx.canvas)
-          .toHaveLoadedImages(['/src/spec/assets/images/LoaderSpec/100.png'])
+          .toHaveLoadedImages(['/src/spec/assets/images/loader-spec/100.png'])
           .then(() => {
             done();
           });
@@ -121,7 +121,7 @@ describe('A loader', () => {
 
         loader.onDraw(loader.canvas.ctx);
         expect(loader.canvas.ctx.canvas)
-          .toHaveLoadedImages(['/src/spec/assets/images/LoaderSpec/playbuttonshown-noprogressbar.png'])
+          .toHaveLoadedImages(['/src/spec/assets/images/loader-spec/playbuttonshown-noprogressbar.png'])
           .then(() => {
             done();
           });
@@ -149,7 +149,7 @@ describe('A loader', () => {
         loader.showPlayButton();
         loader.onDraw(loader.canvas.ctx);
         expect(loader.canvas.ctx.canvas)
-          .toHaveLoadedImages(['/src/spec/assets/images/LoaderSpec/logo-position.png'])
+          .toHaveLoadedImages(['/src/spec/assets/images/loader-spec/logo-position.png'])
           .then(() => {
             done();
           });
@@ -169,7 +169,7 @@ describe('A loader', () => {
         loader.onInitialize(engine);
         loader.onDraw(loader.canvas.ctx);
         expect(loader.canvas.ctx.canvas)
-          .toHaveLoadedImages(['/src/spec/assets/images/LoaderSpec/loader-position-color.png'])
+          .toHaveLoadedImages(['/src/spec/assets/images/loader-spec/loader-position-color.png'])
           .then(() => {
             done();
           });
@@ -252,7 +252,7 @@ describe('A loader', () => {
     const clock = (engine.clock = engine.clock.toTestClock());
     const pointerHandler = vi.fn();
     engine.input.pointers.primary.on('up', pointerHandler);
-    const loader = new ex.Loader([new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png')]);
+    const loader = new ex.Loader([new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png')]);
     const start = engine.start(loader);
 
     await loader.areResourcesLoaded();
@@ -401,7 +401,7 @@ describe('A loader', () => {
         );
 
         const testClock = engine.clock as ex.TestClock;
-        const loader = new ex.Loader([new ex.ImageSource('/src/spec/assets/images/SpriteSpec/icon.png')]);
+        const loader = new ex.Loader([new ex.ImageSource('/src/spec/assets/images/sprite-spec/icon.png')]);
         loader.suppressPlayButton = true;
 
         TestUtils.runToReady(engine, loader).then(() => {
@@ -409,7 +409,7 @@ describe('A loader', () => {
           testClock.step(1);
           engine.graphicsContext.flush();
           expect(engine.canvas)
-            .toEqualImage('/src/spec/assets/images/EngineSpec/engine-suppress-play.png')
+            .toEqualImage('/src/spec/assets/images/engine-spec/engine-suppress-play.png')
             .then(() => {
               done();
             })

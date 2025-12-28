@@ -34,14 +34,14 @@ describe('A Parallax Component', () => {
       expect(game.currentScene.camera.pos).toBeVector(ex.vec(100, 100));
 
       clock.step(16);
-      await expect(game.canvas).toEqualImage('/src/spec/assets/images/ParallaxSpec/parallax1.png');
+      await expect(game.canvas).toEqualImage('/src/spec/assets/images/parallax-spec/parallax1.png');
       expect(actor.hasTag('ex.offscreen')).toBe(false);
 
       game.currentScene.camera.pos = ex.vec(520, 520);
       game.currentScene.camera.drawPos = ex.vec(520, 520);
       clock.step();
       expect(game.currentScene.camera.pos).toBeVector(ex.vec(520, 520));
-      await expect(game.canvas).toEqualImage('/src/spec/assets/images/ParallaxSpec/parallax2.png');
+      await expect(game.canvas).toEqualImage('/src/spec/assets/images/parallax-spec/parallax2.png');
       expect(actor.hasTag('ex.offscreen')).toBe(false);
 
       game.currentScene.camera.pos = ex.vec(620, 620);
@@ -79,14 +79,14 @@ describe('A Parallax Component', () => {
 
       clock.step(16);
 
-      await expect(game.canvas).toEqualImage('/src/spec/assets/images/ParallaxSpec/tilemap.png');
+      await expect(game.canvas).toEqualImage('/src/spec/assets/images/parallax-spec/tilemap.png');
 
       game.currentScene.camera.pos = ex.vec(250, -480);
 
       clock.step(16); // seems like there is an out of phase issue
       clock.step(16);
 
-      await expect(game.canvas).toEqualImage('/src/spec/assets/images/ParallaxSpec/tilemap2.png');
+      await expect(game.canvas).toEqualImage('/src/spec/assets/images/parallax-spec/tilemap2.png');
       game.dispose();
     });
   });

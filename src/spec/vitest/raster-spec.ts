@@ -117,7 +117,7 @@ describe('A Raster', () => {
       sut.draw(ctx, 0, 0);
       expect(sut.execute).toHaveBeenCalledTimes(1);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsRasterSpec/raster.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-raster-spec/raster.png');
     });
 
     it('can have the quality increased', async () => {
@@ -126,7 +126,7 @@ describe('A Raster', () => {
       });
       sut.quality = 4;
       sut.draw(ctx, 25, 25);
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsRasterSpec/raster-quality.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-raster-spec/raster-quality.png');
     });
   });
 

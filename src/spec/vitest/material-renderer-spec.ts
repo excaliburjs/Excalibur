@@ -104,7 +104,7 @@ describe('A Material', () => {
       }`
       });
 
-      const tex = new ex.ImageSource('/src/spec/assets/images/MaterialRendererSpec/sword.png');
+      const tex = new ex.ImageSource('/src/spec/assets/images/material-renderer-spec/sword.png');
       await tex.load();
 
       graphicsContext.clear();
@@ -115,7 +115,7 @@ describe('A Material', () => {
       graphicsContext.restore();
 
       expect(graphicsContext.material).toBe(null);
-      await expect(canvas).toEqualImage('/src/spec/assets/images/MaterialRendererSpec/material.png');
+      await expect(canvas).toEqualImage('/src/spec/assets/images/material-renderer-spec/material.png');
       graphicsContext.dispose();
     });
 
@@ -147,7 +147,7 @@ describe('A Material', () => {
       }`
       });
 
-      const tex = new ex.ImageSource('/src/spec/assets/images/MaterialRendererSpec/sword.png');
+      const tex = new ex.ImageSource('/src/spec/assets/images/material-renderer-spec/sword.png');
       await tex.load();
 
       context.clear();
@@ -158,7 +158,7 @@ describe('A Material', () => {
       context.restore();
 
       expect(context.material).toBe(null);
-      await expect(canvas).toEqualImage('/src/spec/assets/images/MaterialRendererSpec/multiply-comp.png');
+      await expect(canvas).toEqualImage('/src/spec/assets/images/material-renderer-spec/multiply-comp.png');
       context.dispose();
     });
 
@@ -191,7 +191,7 @@ describe('A Material', () => {
       }`
       });
 
-      const tex = new ex.ImageSource('/src/spec/assets/images/MaterialRendererSpec/sword.png');
+      const tex = new ex.ImageSource('/src/spec/assets/images/material-renderer-spec/sword.png');
       await tex.load();
 
       context.clear();
@@ -205,7 +205,7 @@ describe('A Material', () => {
       context.restore();
 
       expect(context.material).toBe(null);
-      await expect(canvas).toEqualImage('/src/spec/assets/images/MaterialRendererSpec/update-uniform.png');
+      await expect(canvas).toEqualImage('/src/spec/assets/images/material-renderer-spec/update-uniform.png');
     });
 
     it('can be created with a custom fragment shader with the graphics component', async () => {
@@ -237,7 +237,7 @@ describe('A Material', () => {
       }`
       });
 
-      const tex = new ex.ImageSource('/src/spec/assets/images/MaterialRendererSpec/sword.png');
+      const tex = new ex.ImageSource('/src/spec/assets/images/material-renderer-spec/sword.png');
 
       const loader = new ex.Loader([tex]);
 
@@ -258,7 +258,7 @@ describe('A Material', () => {
       graphicsContext.flush();
 
       expect(graphicsContext.material).toBe(null);
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/MaterialRendererSpec/material-component.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/material-renderer-spec/material-component.png');
       engine.dispose();
     });
 
@@ -296,7 +296,7 @@ describe('A Material', () => {
       }`
       });
 
-      const tex = new ex.ImageSource('/src/spec/assets/images/MaterialRendererSpec/sword.png');
+      const tex = new ex.ImageSource('/src/spec/assets/images/material-renderer-spec/sword.png');
 
       const loader = new ex.Loader([tex]);
 
@@ -327,7 +327,7 @@ describe('A Material', () => {
       graphicsContext.flush();
 
       expect(graphicsContext.material).toBe(null);
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/MaterialRendererSpec/multi-mat.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/material-renderer-spec/multi-mat.png');
 
       engine.dispose();
     });
@@ -343,7 +343,7 @@ describe('A Material', () => {
         snapToPixel: true
       });
 
-      const stars = new ex.ImageSource('/src/spec/assets/images/MaterialRendererSpec/stars.png');
+      const stars = new ex.ImageSource('/src/spec/assets/images/material-renderer-spec/stars.png');
       await stars.load();
 
       const material = new ex.Material({
@@ -370,7 +370,7 @@ describe('A Material', () => {
         }
       });
 
-      const tex = new ex.ImageSource('/src/spec/assets/images/MaterialRendererSpec/sword.png');
+      const tex = new ex.ImageSource('/src/spec/assets/images/material-renderer-spec/sword.png');
       await tex.load();
 
       graphicsContext.clear();
@@ -381,7 +381,7 @@ describe('A Material', () => {
       graphicsContext.restore();
 
       expect(graphicsContext.material).toBe(null);
-      await expect(canvas).toEqualImage('/src/spec/assets/images/MaterialRendererSpec/additional.png');
+      await expect(canvas).toEqualImage('/src/spec/assets/images/material-renderer-spec/additional.png');
     });
 
     it('will log a warning if you exceed you texture slots', () => {
@@ -398,7 +398,7 @@ describe('A Material', () => {
         snapToPixel: true
       });
 
-      const stars = new ex.ImageSource('/src/spec/assets/images/MaterialRendererSpec/stars.png');
+      const stars = new ex.ImageSource('/src/spec/assets/images/material-renderer-spec/stars.png');
 
       const material = new ex.Material({
         name: 'test',

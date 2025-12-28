@@ -23,7 +23,7 @@ describe('A TiledSprite', () => {
   });
   describe('@visual', () => {
     it('can be created after load', async () => {
-      const image = new ex.ImageSource('/src/spec/assets/images/TiledSpriteSpec/ground.png');
+      const image = new ex.ImageSource('/src/spec/assets/images/tiled-sprite-spec/ground.png');
 
       await image.load();
       const sut = new ex.TiledSprite({
@@ -41,11 +41,11 @@ describe('A TiledSprite', () => {
       sut.draw(ctx, 0, 20);
       ctx.flush();
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/TiledSpriteSpec/tiled.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/tiled-sprite-spec/tiled.png');
     });
 
     it('can be created before load', async () => {
-      const image = new ex.ImageSource('/src/spec/assets/images/TiledSpriteSpec/ground.png');
+      const image = new ex.ImageSource('/src/spec/assets/images/tiled-sprite-spec/ground.png');
 
       const sut = new ex.TiledSprite({
         image,
@@ -63,11 +63,11 @@ describe('A TiledSprite', () => {
       sut.draw(ctx, 0, 20);
       ctx.flush();
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/TiledSpriteSpec/tiled.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/tiled-sprite-spec/tiled.png');
     });
 
     it('can be from a sprite', async () => {
-      const image = new ex.ImageSource('/src/spec/assets/images/TiledSpriteSpec/ground.png');
+      const image = new ex.ImageSource('/src/spec/assets/images/tiled-sprite-spec/ground.png');
       const sourceSprite = image.toSprite();
       sourceSprite.width = 400;
       sourceSprite.height = 400;
@@ -84,11 +84,11 @@ describe('A TiledSprite', () => {
       sut.draw(ctx, 0, 20);
       ctx.flush();
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/TiledSpriteSpec/tiled.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/tiled-sprite-spec/tiled.png');
     });
 
     it('can grab a tiled sprite from a sprite sheet', async () => {
-      const cardsImage = new ex.ImageSource('/src/spec/assets/images/TiledAnimationSpec/kenny-cards.png');
+      const cardsImage = new ex.ImageSource('/src/spec/assets/images/tiled-animation-spec/kenny-cards.png');
       await cardsImage.load();
       const cardSpriteSheet = ex.SpriteSheet.fromImageSource({
         image: cardsImage,
@@ -115,7 +115,7 @@ describe('A TiledSprite', () => {
       sut.draw(ctx, 0, 0);
       ctx.flush();
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/TiledSpriteSpec/from-spritesheet.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/tiled-sprite-spec/from-spritesheet.png');
     });
   });
 });

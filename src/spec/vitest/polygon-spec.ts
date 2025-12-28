@@ -54,7 +54,7 @@ describe('A Polygon Graphic', () => {
 
       poly.draw(ctx, 0, 0);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsPolygonSpec/poly.png', 0.993);
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-polygon-spec/poly.png', 0.993);
     });
   });
 });

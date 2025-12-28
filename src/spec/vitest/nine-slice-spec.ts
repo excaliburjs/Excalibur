@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 
-const inputTile = new ex.ImageSource('/src/spec/assets/images/GraphicsNineSliceSpec/InputTile.png');
+const inputTile = new ex.ImageSource('/src/spec/assets/images/graphics-nine-slice-spec/inputtile.png');
 
 describe('A NineSlice', () => {
   let canvasElement: HTMLCanvasElement;
@@ -170,7 +170,7 @@ describe('A NineSlice', () => {
       ctx.clear();
       const sut = new ex.NineSlice(testGraphicConfigSmall);
       sut.draw(ctx, 0, 0);
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsNineSliceSpec/InputTile.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-nine-slice-spec/inputtile.png');
     });
 
     it('can draw a tiled copy of input tile', async () => {
@@ -179,7 +179,7 @@ describe('A NineSlice', () => {
       ctx.clear();
       const sut = new ex.NineSlice(testGraphicConfigTile);
       sut.draw(ctx, 0, 0);
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsNineSliceSpec/resultImage_128_128_v_tile_h_tile.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-nine-slice-spec/resultimage_128_128_v_tile_h_tile.png');
     });
 
     it('can draw a fitted tile copy of input tile', async () => {
@@ -188,7 +188,7 @@ describe('A NineSlice', () => {
       ctx.clear();
       const sut = new ex.NineSlice(testGraphicConfigTileFit);
       sut.draw(ctx, 0, 0);
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsNineSliceSpec/resultImage_128_128_v_tilefit_h_tilefit.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-nine-slice-spec/resultimage_128_128_v_tilefit_h_tilefit.png');
     });
 
     it('can draw a stretched copy of input tile', async () => {
@@ -197,7 +197,7 @@ describe('A NineSlice', () => {
       ctx.clear();
       const sut = new ex.NineSlice(testGraphicConfigStretch);
       sut.draw(ctx, 0, 0);
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsNineSliceSpec/resultImage_128_128_v_stretch_h_stretch.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-nine-slice-spec/resultimage_128_128_v_stretch_h_stretch.png');
     });
 
     it('can draw the frame of a tile with no center', async () => {
@@ -206,7 +206,7 @@ describe('A NineSlice', () => {
       ctx.clear();
       const sut = new ex.NineSlice(testGraphicConfigNoCenter);
       sut.draw(ctx, 0, 0);
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsNineSliceSpec/resultImage_64_64_noCenter.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-nine-slice-spec/resultimage_64_64_noCenter.png');
     });
   });
 });

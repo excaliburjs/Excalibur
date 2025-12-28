@@ -149,7 +149,7 @@ describe('A Director', () => {
     expect(sut.currentSceneName).toBe('scene1');
     expect(sut.currentScene).toBe(scene1);
 
-    await expect(engine.canvas).toEqualImage('/src/spec/assets/images/DirectorSpec/fadein.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/assets/images/director-spec/fadein.png');
     engine.dispose();
   });
 

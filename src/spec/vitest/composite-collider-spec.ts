@@ -269,7 +269,7 @@ describe('A CompositeCollider', () => {
 
     ctx.flush();
 
-    await expect(canvasElement).toEqualImage('/src/spec/assets/images/CompositeColliderSpec/composite.png');
+    await expect(canvasElement).toEqualImage('/src/spec/assets/images/composite-collider-spec/composite.png');
   });
 
   it('is separated into a series of colliders in the dynamic tree', () => {

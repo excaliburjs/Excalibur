@@ -23,7 +23,7 @@ describe('A TiledAnimation', () => {
   });
   describe('@visual', () => {
     it('can be created', async () => {
-      const cardsImage = new ex.ImageSource('/src/spec/assets/images/TiledAnimationSpec/kenny-cards.png');
+      const cardsImage = new ex.ImageSource('/src/spec/assets/images/tiled-animation-spec/kenny-cards.png');
       await cardsImage.load();
       const cardSpriteSheet = ex.SpriteSheet.fromImageSource({
         image: cardsImage,
@@ -56,14 +56,14 @@ describe('A TiledAnimation', () => {
       sut.draw(ctx, 20, 20);
       ctx.flush();
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/TiledAnimationSpec/tiled.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/tiled-animation-spec/tiled.png');
 
       sut.tick(200);
       ctx.clear();
       sut.draw(ctx, 20, 20);
       ctx.flush();
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/TiledAnimationSpec/tiled-2.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/tiled-animation-spec/tiled-2.png');
     });
   });
 });

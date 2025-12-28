@@ -67,7 +67,7 @@ describe('The engine', () => {
         suppressPlayButton: false
       });
       (<any>engine)._suppressPlayButton = false;
-      const imageSource = new ex.ImageSource('/src/spec/assets/images/SpriteSpec/icon.png');
+      const imageSource = new ex.ImageSource('/src/spec/assets/images/sprite-spec/icon.png');
 
       const loader = new ex.Loader([imageSource]);
       const testClock = engine.clock as ex.TestClock;
@@ -80,7 +80,7 @@ describe('The engine', () => {
             testClock.run(1, 100);
             engine.graphicsContext.flush();
             expect(engine.canvas)
-              .toEqualImage('/src/spec/assets/images/EngineSpec/engine-load-complete.png')
+              .toEqualImage('/src/spec/assets/images/engine-spec/engine-load-complete.png')
               .then(() => {
                 done();
               });
@@ -270,14 +270,14 @@ describe('The engine', () => {
       );
 
       const testClock = engine.clock as ex.TestClock;
-      const loader = new ex.Loader([new ex.ImageSource('/src/spec/assets/images/SpriteSpec/icon.png')]);
+      const loader = new ex.Loader([new ex.ImageSource('/src/spec/assets/images/sprite-spec/icon.png')]);
 
       TestUtils.runToReady(engine, loader).then(() => {
         // With suppress play there is another 500 ms delay in engine load()
         testClock.step(1);
         engine.graphicsContext.flush();
         expect(engine.canvas)
-          .toEqualImage('/src/spec/assets/images/EngineSpec/engine-suppress-play.png')
+          .toEqualImage('/src/spec/assets/images/engine-spec/engine-suppress-play.png')
           .then(() => {
             done();
           });
@@ -831,7 +831,7 @@ describe('The engine', () => {
         []
       );
       const clock = engine.clock as ex.TestClock;
-      const img = new ex.ImageSource('/src/spec/assets/images/EngineSpec/sprite.png');
+      const img = new ex.ImageSource('/src/spec/assets/images/engine-spec/sprite.png');
       await img.load();
       const actor = new ex.Actor({
         x: 40.5,
@@ -848,7 +848,7 @@ describe('The engine', () => {
 
       const image = await screenShotPromise;
 
-      await expect(image).toEqualImage('/src/spec/assets/images/EngineSpec/screenshot.png', 0.999);
+      await expect(image).toEqualImage('/src/spec/assets/images/engine-spec/screenshot.png', 0.999);
       engine.dispose();
     });
 
@@ -861,7 +861,7 @@ describe('The engine', () => {
       });
       const clock = engine.clock as ex.TestClock;
       await TestUtils.runToReady(engine);
-      const playerImage = new ex.ImageSource('/src/spec/assets/images/EngineSpec/hero.png');
+      const playerImage = new ex.ImageSource('/src/spec/assets/images/engine-spec/hero.png');
       const playerSpriteSheet = ex.SpriteSheet.fromImageSource({
         image: playerImage,
         grid: {
@@ -871,7 +871,7 @@ describe('The engine', () => {
           columns: 8
         }
       });
-      const backgroundImage = new ex.ImageSource('/src/spec/assets/images/EngineSpec/tileset.png');
+      const backgroundImage = new ex.ImageSource('/src/spec/assets/images/engine-spec/tileset.png');
       const backgroundSpriteSheet = ex.SpriteSheet.fromImageSource({
         image: backgroundImage,
         grid: {
@@ -907,7 +907,7 @@ describe('The engine', () => {
 
       clock.step();
 
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/EngineSpec/snaptopixel.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/engine-spec/snaptopixel.png');
       engine.dispose();
     });
 
@@ -921,7 +921,7 @@ describe('The engine', () => {
       });
       const clock = engine.clock as ex.TestClock;
       await TestUtils.runToReady(engine);
-      const playerImage = new ex.ImageSource('/src/spec/assets/images/EngineSpec/hero.png');
+      const playerImage = new ex.ImageSource('/src/spec/assets/images/engine-spec/hero.png');
       const playerSpriteSheet = ex.SpriteSheet.fromImageSource({
         image: playerImage,
         grid: {
@@ -931,7 +931,7 @@ describe('The engine', () => {
           columns: 8
         }
       });
-      const backgroundImage = new ex.ImageSource('/src/spec/assets/images/EngineSpec/tileset.png');
+      const backgroundImage = new ex.ImageSource('/src/spec/assets/images/engine-spec/tileset.png');
       const backgroundSpriteSheet = ex.SpriteSheet.fromImageSource({
         image: backgroundImage,
         grid: {
@@ -966,7 +966,7 @@ describe('The engine', () => {
       engine.currentScene.camera.pos = player.pos;
 
       clock.step();
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/EngineSpec/pixelart.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/engine-spec/pixelart.png');
       engine.dispose();
     });
   });

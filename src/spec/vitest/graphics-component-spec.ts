@@ -351,7 +351,7 @@ describe('A Graphics ECS Component', () => {
 
   it('correctly calculates graphics bounds (sprite)', () => {
     const sut = new ex.GraphicsComponent();
-    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const image = new ex.ImageSource('src/spec/images/graphics-text-spec/spritefont.png');
     const sprite = new ex.Sprite({
       image,
       sourceView: {

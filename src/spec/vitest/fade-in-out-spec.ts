@@ -47,7 +47,7 @@ describe('A FadeInOut transition', () => {
     clock.step(500);
     await Promise.resolve();
     expect(onDeactivateSpy).toHaveBeenCalledTimes(1);
-    await expect(engine.canvas).toEqualImage('/src/spec/assets/images/FadeInOutSpec/fadein.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/assets/images/fade-in-out-spec/fadein.png');
     engine.dispose();
   });
 
@@ -80,7 +80,7 @@ describe('A FadeInOut transition', () => {
     await TestUtils.flushMicrotasks(clock, 3);
     clock.step(900);
     await Promise.resolve();
-    await expect(engine.canvas).toEqualImage('/src/spec/assets/images/FadeInOutSpec/fadeout.png');
+    await expect(engine.canvas).toEqualImage('/src/spec/assets/images/fade-in-out-spec/fadeout.png');
     engine.dispose();
   });
 });

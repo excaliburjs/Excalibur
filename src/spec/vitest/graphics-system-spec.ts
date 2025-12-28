@@ -114,7 +114,7 @@ describe('A Graphics ECS System', () => {
       expect(offscreenRect.draw).not.toHaveBeenCalled();
 
       engine.graphicsContext.flush();
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/GraphicsSystemSpec/graphics-system.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/graphics-system-spec/graphics-system.png');
     });
 
     it('will multiply the opacity set on the context', async () => {
@@ -148,7 +148,7 @@ describe('A Graphics ECS System', () => {
       sut.update(1);
 
       engine.graphicsContext.flush();
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/GraphicsSystemSpec/graphics-context-opacity.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/graphics-system-spec/graphics-context-opacity.png');
     });
 
     it('can flip graphics horizontally', async () => {
@@ -161,7 +161,7 @@ describe('A Graphics ECS System', () => {
       offscreenSystem.initialize(world, engine.currentScene);
       sut.initialize(world, engine.currentScene);
 
-      const sword = new ex.ImageSource('/src/spec/assets/images/GraphicsSystemSpec/sword.png');
+      const sword = new ex.ImageSource('/src/spec/assets/images/graphics-system-spec/sword.png');
       await sword.load();
 
       const actor = new ex.Actor({
@@ -182,7 +182,7 @@ describe('A Graphics ECS System', () => {
       sut.update(1);
 
       engine.graphicsContext.flush();
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/GraphicsSystemSpec/sword-flip-horizontal.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/graphics-system-spec/sword-flip-horizontal.png');
     });
 
     it('can flip graphics vertically', async () => {
@@ -195,7 +195,7 @@ describe('A Graphics ECS System', () => {
       offscreenSystem.initialize(world, engine.currentScene);
       sut.initialize(world, engine.currentScene);
 
-      const sword = new ex.ImageSource('/src/spec/assets/images/GraphicsSystemSpec/sword.png');
+      const sword = new ex.ImageSource('/src/spec/assets/images/graphics-system-spec/sword.png');
       await sword.load();
 
       const actor = new ex.Actor({
@@ -216,7 +216,7 @@ describe('A Graphics ECS System', () => {
       sut.update(1);
 
       engine.graphicsContext.flush();
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/GraphicsSystemSpec/sword-flip-vertical.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/graphics-system-spec/sword-flip-vertical.png');
     });
 
     it('can flip graphics both horizontally and vertically', async () => {
@@ -229,7 +229,7 @@ describe('A Graphics ECS System', () => {
       offscreenSystem.initialize(world, engine.currentScene);
       sut.initialize(world, engine.currentScene);
 
-      const sword = new ex.ImageSource('/src/spec/assets/images/GraphicsSystemSpec/sword.png');
+      const sword = new ex.ImageSource('/src/spec/assets/images/graphics-system-spec/sword.png');
       await sword.load();
 
       const actor = new ex.Actor({
@@ -251,7 +251,7 @@ describe('A Graphics ECS System', () => {
       sut.update(1);
 
       engine.graphicsContext.flush();
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/GraphicsSystemSpec/sword-flip-both.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/graphics-system-spec/sword-flip-both.png');
     });
 
     it('can flip graphics both horizontally and vertically with an offset', async () => {
@@ -264,7 +264,7 @@ describe('A Graphics ECS System', () => {
       offscreenSystem.initialize(world, engine.currentScene);
       sut.initialize(world, engine.currentScene);
 
-      const sword = new ex.ImageSource('/src/spec/assets/images/GraphicsSystemSpec/sword.png');
+      const sword = new ex.ImageSource('/src/spec/assets/images/graphics-system-spec/sword.png');
       await sword.load();
 
       const actor = new ex.Actor({
@@ -287,7 +287,7 @@ describe('A Graphics ECS System', () => {
       sut.update(1);
 
       engine.graphicsContext.flush();
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/GraphicsSystemSpec/sword-flip-both-offset.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/graphics-system-spec/sword-flip-both-offset.png');
     });
   });
 

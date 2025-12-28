@@ -24,7 +24,7 @@ describe('A IsometricMap', () => {
       const engine = TestUtils.engine({}, ['suppress-obsolete-message']);
       // engine.toggleDebug();
       const clock = engine.clock as ex.TestClock;
-      const image = new ex.ImageSource('/src/spec/assets/images/IsometricMapSpec/tile.png');
+      const image = new ex.ImageSource('/src/spec/assets/images/isometric-map-spec/tile.png');
       await image.load();
       const sprite = image.toSprite();
       await TestUtils.runToReady(engine);
@@ -42,7 +42,7 @@ describe('A IsometricMap', () => {
       engine.add(sut);
       clock.step(100);
 
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/IsometricMapSpec/map.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/isometric-map-spec/map.png');
       engine.dispose();
     });
 
@@ -50,7 +50,7 @@ describe('A IsometricMap', () => {
       const engine = TestUtils.engine({}, ['suppress-obsolete-message']);
       // engine.toggleDebug();
       const clock = engine.clock as ex.TestClock;
-      const image = new ex.ImageSource('/src/spec/assets/images/IsometricMapSpec/cube.png');
+      const image = new ex.ImageSource('/src/spec/assets/images/isometric-map-spec/cube.png');
       await image.load();
       const sprite = image.toSprite();
       await TestUtils.runToReady(engine);
@@ -69,7 +69,7 @@ describe('A IsometricMap', () => {
       engine.add(sut);
       clock.step(100);
 
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/IsometricMapSpec/cube-map-top.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/isometric-map-spec/cube-map-top.png');
       engine.dispose();
     });
 
@@ -77,7 +77,7 @@ describe('A IsometricMap', () => {
       const engine = TestUtils.engine({}, ['suppress-obsolete-message']);
       // engine.toggleDebug();
       const clock = engine.clock as ex.TestClock;
-      const image = new ex.ImageSource('/src/spec/assets/images/IsometricMapSpec/cube.png');
+      const image = new ex.ImageSource('/src/spec/assets/images/isometric-map-spec/cube.png');
       await image.load();
       const sprite = image.toSprite();
       await TestUtils.runToReady(engine);
@@ -95,7 +95,7 @@ describe('A IsometricMap', () => {
       engine.add(sut);
       clock.step(100);
 
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/IsometricMapSpec/cube-map-bottom.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/isometric-map-spec/cube-map-bottom.png');
       engine.dispose();
     });
 
@@ -109,7 +109,7 @@ describe('A IsometricMap', () => {
       engine.debug.isometric.showGrid = true;
       engine.debug.isometric.showPosition = true;
       const clock = engine.clock as ex.TestClock;
-      const image = new ex.ImageSource('/src/spec/assets/images/IsometricMapSpec/cube.png');
+      const image = new ex.ImageSource('/src/spec/assets/images/isometric-map-spec/cube.png');
       await image.load();
       const sprite = image.toSprite();
       await TestUtils.runToReady(engine);
@@ -127,7 +127,7 @@ describe('A IsometricMap', () => {
       engine.add(sut);
       clock.step(100);
 
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/IsometricMapSpec/cube-map-debug.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/isometric-map-spec/cube-map-debug.png');
       engine.dispose();
     });
   });
@@ -243,7 +243,7 @@ describe('A IsometricMap', () => {
   });
 
   it('can update graphics', async () => {
-    const image = new ex.ImageSource('/src/spec/assets/images/IsometricMapSpec/cube.png');
+    const image = new ex.ImageSource('/src/spec/assets/images/isometric-map-spec/cube.png');
     await image.load();
     const sprite = image.toSprite();
 

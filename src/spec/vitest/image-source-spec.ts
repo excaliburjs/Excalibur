@@ -24,7 +24,7 @@ describe('A ImageSource', () => {
   });
 
   it('can be constructed', () => {
-    const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
+    const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png');
     expect(spriteFontImage).toBeDefined();
   });
 
@@ -38,7 +38,7 @@ describe('A ImageSource', () => {
   });
 
   it('can load images', async () => {
-    const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
+    const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png');
     const whenLoaded = vi.fn();
     const image = await spriteFontImage.load();
     await spriteFontImage.ready.then(whenLoaded);
@@ -70,7 +70,7 @@ describe('A ImageSource', () => {
   });
 
   it('can load svg images', async () => {
-    const svgImage = new ex.ImageSource('/src/spec/assets/images/GraphicsImageSourceSpec/arrows.svg');
+    const svgImage = new ex.ImageSource('/src/spec/assets/images/graphics-image-source-spec/arrows.svg');
     const whenLoaded = vi.fn();
     await svgImage.load();
     await svgImage.ready.then(whenLoaded);
@@ -94,12 +94,12 @@ describe('A ImageSource', () => {
     vi.spyOn(logger, 'warn');
     vi.spyOn(logger, 'error');
 
-    const sut = new ex.ImageSource('/src/spec/assets/images/GraphicsImageSourceSpec/big-image.png');
+    const sut = new ex.ImageSource('/src/spec/assets/images/graphics-image-source-spec/big-image.png');
 
     await sut.load();
 
     expect(logger.warn).toHaveBeenCalledWith(
-      `The image [/src/spec/assets/images/GraphicsImageSourceSpec/big-image.png] provided to excalibur` +
+      `The image [/src/spec/assets/images/graphics-image-source-spec/big-image.png] provided to excalibur` +
         ` is too large may not work on all mobile devices, it is recommended you resize images to a maximum (4096x4096).\n\n` +
         `Images will likely render as black rectangles on some mobile platforms.\n\n` +
         `Read more here: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#understand_system_limits`
@@ -122,12 +122,12 @@ describe('A ImageSource', () => {
 
     (ex.TextureLoader as any)._MAX_TEXTURE_SIZE = 4096;
 
-    const sut = new ex.ImageSource('/src/spec/assets/images/GraphicsImageSourceSpec/big-image.png');
+    const sut = new ex.ImageSource('/src/spec/assets/images/graphics-image-source-spec/big-image.png');
 
     await sut.load();
 
     expect(logger.error).toHaveBeenCalledWith(
-      `The image [/src/spec/assets/images/GraphicsImageSourceSpec/big-image.png] provided to Excalibur is too large for the device's maximum ` +
+      `The image [/src/spec/assets/images/graphics-image-source-spec/big-image.png] provided to Excalibur is too large for the device's maximum ` +
         `texture size of (4096x4096) please resize to an image for excalibur to render properly.\n\n` +
         `Images will likely render as black rectangles.\n\n` +
         `Read more here: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#understand_system_limits`
@@ -143,7 +143,7 @@ describe('A ImageSource', () => {
     imageRenderer.initialize(webgl.__gl, webgl);
     vi.spyOn(webgl.textureLoader, 'load');
 
-    const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png', false, ex.ImageFiltering.Blended);
+    const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png', false, ex.ImageFiltering.Blended);
     const whenLoaded = vi.fn();
     const image = await spriteFontImage.load();
     await spriteFontImage.ready.then(whenLoaded);
@@ -174,7 +174,7 @@ describe('A ImageSource', () => {
     imageRenderer.initialize(webgl.__gl, webgl);
     vi.spyOn(webgl.textureLoader, 'load');
 
-    const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png', false, ex.ImageFiltering.Pixel);
+    const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png', false, ex.ImageFiltering.Pixel);
     const whenLoaded = vi.fn();
     const image = await spriteFontImage.load();
     await spriteFontImage.ready.then(whenLoaded);
@@ -205,7 +205,7 @@ describe('A ImageSource', () => {
     imageRenderer.initialize(webgl.__gl, webgl);
     vi.spyOn(webgl.textureLoader, 'load');
 
-    const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png', {
+    const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png', {
       filtering: ex.ImageFiltering.Pixel,
       wrapping: ex.ImageWrapping.Repeat
     });
@@ -239,7 +239,7 @@ describe('A ImageSource', () => {
     imageRenderer.initialize(webgl.__gl, webgl);
     vi.spyOn(webgl.textureLoader, 'load');
 
-    const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png', {
+    const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png', {
       filtering: ex.ImageFiltering.Pixel,
       wrapping: ex.ImageWrapping.Mirror
     });
@@ -275,7 +275,7 @@ describe('A ImageSource', () => {
     const texParameteri = vi.spyOn(webgl.__gl, 'texParameteri');
     const gl = webgl.__gl;
 
-    const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png', {
+    const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png', {
       filtering: ex.ImageFiltering.Pixel,
       wrapping: {
         x: ex.ImageWrapping.Mirror,
@@ -306,7 +306,7 @@ describe('A ImageSource', () => {
   });
 
   it('can convert to a Sprite', async () => {
-    const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
+    const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png');
     const sprite = spriteFontImage.toSprite();
 
     // Sprites have no width/height until the underlying image is loaded
@@ -320,7 +320,7 @@ describe('A ImageSource', () => {
   });
 
   it('can convert to a Sprite with options', async () => {
-    const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
+    const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png');
     const sprite = spriteFontImage.toSprite({
       sourceView: {
         x: 16,
@@ -345,7 +345,7 @@ describe('A ImageSource', () => {
   });
 
   it('can unload from memory', async () => {
-    const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
+    const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png');
     await spriteFontImage.load();
     expect(spriteFontImage.image.src).not.toBeNull();
     spriteFontImage.unload();
@@ -353,7 +353,7 @@ describe('A ImageSource', () => {
   });
 
   it('will resolve the image if already loaded', async () => {
-    const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
+    const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png');
     const image = await spriteFontImage.load();
 
     expect(spriteFontImage.isLoaded()).toBe(true);
@@ -397,7 +397,7 @@ describe('A ImageSource', () => {
       sprite.draw(ctx, 0, 0);
       ctx.flush();
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsImageSourceSpec/canvas-image.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-image-source-spec/canvas-image.png');
     });
 
     it('can be built from canvas elements with wrapping/filtering specified', async () => {
@@ -435,7 +435,7 @@ describe('A ImageSource', () => {
       sprite.draw(ctx, 0, 0);
       ctx.flush();
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsImageSourceSpec/canvas-image.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-image-source-spec/canvas-image.png');
     });
   });
 });

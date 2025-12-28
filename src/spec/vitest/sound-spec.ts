@@ -19,8 +19,8 @@ describe('Sound resource', () => {
   });
 
   beforeEach(() => {
-    sut = new ex.Sound('/src/spec/assets/images/SoundSpec/test.mp3');
-    expect(sut.path).toBe('/src/spec/assets/images/SoundSpec/test.mp3');
+    sut = new ex.Sound('/src/spec/assets/images/sound-spec/test.mp3');
+    expect(sut.path).toBe('/src/spec/assets/images/sound-spec/test.mp3');
   });
 
   it('should be able to be constructed', () => {
@@ -59,7 +59,7 @@ describe('Sound resource', () => {
   });
 
   it('should have duration', async () => {
-    sut = new ex.Sound('/src/spec/assets/images/SoundSpec/preview.mp3');
+    sut = new ex.Sound('/src/spec/assets/images/sound-spec/preview.mp3');
     sut.duration = 5.0;
     await sut.load();
     expect(sut.duration).toBeDefined();
@@ -67,7 +67,7 @@ describe('Sound resource', () => {
   });
 
   it('should have duration (new ctor)', async () => {
-    sut = new ex.Sound({ paths: ['/src/spec/assets/images/SoundSpec/preview.mp3'] });
+    sut = new ex.Sound({ paths: ['/src/spec/assets/images/sound-spec/preview.mp3'] });
     sut.duration = 5.0;
     await sut.load();
     expect(sut.duration).toBeDefined();
@@ -89,7 +89,7 @@ describe('Sound resource', () => {
 
   it('should fire playbackstart event (new ctor)', async () => {
     sut = new ex.Sound({
-      paths: ['/src/spec/assets/images/SoundSpec/test.mp3'],
+      paths: ['/src/spec/assets/images/sound-spec/test.mp3'],
       loop: false
     });
     const playbackSpy = vi.fn();
@@ -296,7 +296,7 @@ describe('Sound resource', () => {
     }));
 
   it('should return the current playback position of the audio track', async () => {
-    sut = new ex.Sound('/src/spec/assets/images/SoundSpec/preview.mp3');
+    sut = new ex.Sound('/src/spec/assets/images/sound-spec/preview.mp3');
     await sut.load();
     sut.play();
     await delay(1000);
@@ -305,7 +305,7 @@ describe('Sound resource', () => {
   });
 
   it('should variable playback rate of the audio track', async () => {
-    sut = new ex.Sound('/src/spec/assets/images/SoundSpec/preview.mp3');
+    sut = new ex.Sound('/src/spec/assets/images/sound-spec/preview.mp3');
     await sut.load();
     sut.playbackRate = 2.0;
     sut.play();
@@ -413,7 +413,7 @@ describe('Sound resource', () => {
     }));
 
   it('can seek to a position in the sound', async () => {
-    sut = new ex.Sound('/src/spec/assets/images/SoundSpec/preview.mp3');
+    sut = new ex.Sound('/src/spec/assets/images/sound-spec/preview.mp3');
     await sut.load();
     expect(sut.getPlaybackPosition()).toBe(0);
     sut.seek(6.5);
@@ -421,13 +421,13 @@ describe('Sound resource', () => {
   });
 
   it('can get the total duration of the sound', async () => {
-    sut = new ex.Sound('/src/spec/assets/images/SoundSpec/preview.mp3');
+    sut = new ex.Sound('/src/spec/assets/images/sound-spec/preview.mp3');
     await sut.load();
     expect(sut.getTotalPlaybackDuration()).toBeCloseTo(13.01, 1);
   });
 
   it('can set/get the playback rate', async () => {
-    sut = new ex.Sound('/src/spec/assets/images/SoundSpec/preview.mp3');
+    sut = new ex.Sound('/src/spec/assets/images/sound-spec/preview.mp3');
     expect(sut.playbackRate).toBe(1.0);
     sut.playbackRate = 2.5;
     await sut.load();
@@ -435,7 +435,7 @@ describe('Sound resource', () => {
   });
 
   it('can set the playback rate and seek to the right position', async () => {
-    sut = new ex.Sound('/src/spec/assets/images/SoundSpec/preview.mp3');
+    sut = new ex.Sound('/src/spec/assets/images/sound-spec/preview.mp3');
     expect(sut.playbackRate).toBe(1.0);
     sut.playbackRate = 2.5;
     await sut.load();

@@ -47,7 +47,7 @@ describe('A Circle Graphic', () => {
     ctx.clear();
     sut.draw(ctx, 50, 50);
 
-    await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsCircleSpec/circle.png');
+    await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-circle-spec/circle.png');
   });
 
   it('@visual can set a lineWidth', async () => {
@@ -66,7 +66,7 @@ describe('A Circle Graphic', () => {
     ctx.clear();
     sut.draw(ctx, 0, 0);
 
-    await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsCircleSpec/line-width.png');
+    await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-circle-spec/line-width.png');
   });
 
   it('can be cloned', () => {

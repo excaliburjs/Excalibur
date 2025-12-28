@@ -1,6 +1,5 @@
 import * as ex from '@excalibur';
 import { TestUtils } from '../__util__/test-utils';
-import { BodyComponent } from '@excalibur';
 import { ColliderComponent } from '../../engine/collision/collider-component';
 
 const drawWithTransform = (ctx: ex.ExcaliburGraphicsContext, tm: ex.TileMap, elapsedMs: number = 1) => {
@@ -25,7 +24,7 @@ describe('A TileMap', () => {
     engine.addScene('root', scene);
     await TestUtils.runToReady(engine);
     const clock = engine.clock as ex.TestClock;
-    texture = new ex.ImageSource('/src/spec/assets/images/TileMapSpec/Blocks.png');
+    texture = new ex.ImageSource('/src/spec/assets/images/tile-map-spec/blocks.png');
     await texture.load();
     clock.step(1);
   });
@@ -211,14 +210,14 @@ describe('A TileMap', () => {
       drawWithTransform(engine.graphicsContext, tm, 99);
       engine.graphicsContext.flush();
 
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/TileMapSpec/TileMapGraphicSquare.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/tile-map-spec/tilemapgraphicsquare.png');
 
       tm.update(engine, 99);
 
       drawWithTransform(engine.graphicsContext, tm, 99);
       engine.graphicsContext.flush();
 
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/TileMapSpec/TileMapGraphicCircle.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/tile-map-spec/tilemapgraphiccircle.png');
     });
 
     it('should draw the correct proportions', async () => {
@@ -248,7 +247,7 @@ describe('A TileMap', () => {
       drawWithTransform(engine.graphicsContext, tm, 100);
       engine.graphicsContext.flush();
 
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/TileMapSpec/TileMap.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/tile-map-spec/tilemap.png');
     });
 
     it('should draw from the bottom', async () => {
@@ -274,7 +273,7 @@ describe('A TileMap', () => {
       drawWithTransform(engine.graphicsContext, tm, 100);
       engine.graphicsContext.flush();
 
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/TileMapSpec/tilemap-from-bottom.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/tile-map-spec/tilemap-from-bottom.png');
     });
 
     it('should draw from the top', async () => {
@@ -301,7 +300,7 @@ describe('A TileMap', () => {
       drawWithTransform(engine.graphicsContext, tm, 100);
       engine.graphicsContext.flush();
 
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/TileMapSpec/tilemap-from-top.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/tile-map-spec/tilemap-from-top.png');
     });
 
     it('should handle offscreen culling correctly with negative coords', async () => {
@@ -333,7 +332,7 @@ describe('A TileMap', () => {
       drawWithTransform(engine.graphicsContext, tm, 100);
       engine.graphicsContext.flush();
 
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/TileMapSpec/TileMapCulling.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/tile-map-spec/tilemapculling.png');
     });
 
     it('should handle offscreen culling correctly when scaled', async () => {
@@ -385,7 +384,7 @@ describe('A TileMap', () => {
         })
       );
 
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/TileMapSpec/tilemap-scaled.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/tile-map-spec/tilemap-scaled.png');
     });
   });
 
@@ -442,7 +441,7 @@ describe('A TileMap', () => {
   });
 
   it('can add and remove graphics on a tile', async () => {
-    const image = new ex.ImageSource('/src/spec/assets/images/TileMapSpec/Blocks.png');
+    const image = new ex.ImageSource('/src/spec/assets/images/tile-map-spec/blocks.png');
     await image.load();
     const sprite = image.toSprite();
     const sut = new ex.TileMap({

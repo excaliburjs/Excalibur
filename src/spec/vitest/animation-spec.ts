@@ -502,17 +502,17 @@ describe('A Graphics Animation', () => {
 
     ctx.clear();
     anim.draw(ctx, 0, 0);
-    await expect(output).toEqualImage('/src/spec/assets/images/GraphicsAnimationSpec/frame-1.png');
+    await expect(output).toEqualImage('/src/spec/assets/images/graphics-animation-spec/frame-1.png');
 
     ctx.clear();
     anim.tick(100, 0);
     anim.draw(ctx, 0, 0);
-    await expect(output).toEqualImage('/src/spec/assets/images/GraphicsAnimationSpec/frame-2.png');
+    await expect(output).toEqualImage('/src/spec/assets/images/graphics-animation-spec/frame-2.png');
 
     ctx.clear();
     anim.tick(100, 1);
     anim.draw(ctx, 0, 0);
-    await expect(output).toEqualImage('/src/spec/assets/images/GraphicsAnimationSpec/frame-3.png');
+    await expect(output).toEqualImage('/src/spec/assets/images/graphics-animation-spec/frame-3.png');
   });
 
   it('calculate automatically the frame duration based on the animation total duration', () => {

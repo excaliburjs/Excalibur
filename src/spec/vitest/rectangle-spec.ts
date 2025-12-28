@@ -32,7 +32,7 @@ describe('A Rectangle Graphic', () => {
 
       rect.draw(ctx, 25, 25);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsRectSpec/rect.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-rect-spec/rect.png');
     });
 
     it('can be cloned', async () => {
@@ -55,7 +55,7 @@ describe('A Rectangle Graphic', () => {
 
       rect2.draw(ctx, 15, 25);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsRectSpec/clone-rect.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-rect-spec/clone-rect.png');
     });
   });
 });

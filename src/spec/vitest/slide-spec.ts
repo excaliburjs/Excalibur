@@ -46,7 +46,7 @@ describe('A Slide transition', () => {
       await TestUtils.untilMacrotask(() => engine.currentSceneName !== 'root');
       clock.step(500);
       expect(onDeactivateSpy).toHaveBeenCalledTimes(1);
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/SlideSpec/slide-down.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/slide-spec/slide-down.png');
       engine.stop();
       engine.dispose();
     });
@@ -85,7 +85,7 @@ describe('A Slide transition', () => {
       await TestUtils.untilMacrotask(() => engine.currentSceneName !== 'root');
       clock.step(500);
       expect(onDeactivateSpy).toHaveBeenCalledTimes(1);
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/SlideSpec/slide-right.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/slide-spec/slide-right.png');
       engine.stop();
       engine.dispose();
     });
@@ -124,7 +124,7 @@ describe('A Slide transition', () => {
       await TestUtils.untilMacrotask(() => engine.currentSceneName !== 'root');
       clock.step(500);
       expect(onDeactivateSpy).toHaveBeenCalledTimes(1);
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/SlideSpec/slide-left.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/slide-spec/slide-left.png');
       engine.stop();
       engine.dispose();
     });
@@ -163,7 +163,7 @@ describe('A Slide transition', () => {
       await TestUtils.untilMacrotask(() => engine.currentSceneName !== 'root');
       clock.step(500);
       expect(onDeactivateSpy).toHaveBeenCalledTimes(1);
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/SlideSpec/slide-up.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/slide-spec/slide-up.png');
       engine.stop();
       engine.dispose();
     });
@@ -206,7 +206,7 @@ describe('A Slide transition', () => {
       await TestUtils.untilMacrotask(() => engine.currentSceneName !== 'root');
       clock.step(700);
       expect(onDeactivateSpy).toHaveBeenCalledTimes(1);
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/SlideSpec/slide-up-transition.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/slide-spec/slide-up-transition.png');
       engine.stop();
       engine.dispose();
     });

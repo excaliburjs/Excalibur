@@ -126,7 +126,7 @@ describe('A GPU particle', () => {
       engine.currentScene.update(engine, 100);
       engine.currentScene.draw(engine.graphicsContext, 100);
       engine.graphicsContext.flush();
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/GpuParticlesSpec/particles.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/gpu-particles-spec/particles.png');
     });
 
     it('should clear particles', async () => {
@@ -169,7 +169,7 @@ describe('A GPU particle', () => {
       engine.currentScene.update(engine, 100);
       engine.currentScene.draw(engine.graphicsContext, 100);
       engine.graphicsContext.flush();
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/GpuParticlesSpec/clear.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/gpu-particles-spec/clear.png');
     });
 
     it("should emit particles and wrap it's ring buffer", async () => {
@@ -226,7 +226,7 @@ describe('A GPU particle', () => {
       engine.currentScene.draw(engine.graphicsContext, 100);
       engine.graphicsContext.flush();
 
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/GpuParticlesSpec/particles-wrapped.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/gpu-particles-spec/particles-wrapped.png');
     });
 
     it('can be parented', async () => {
@@ -276,7 +276,7 @@ describe('A GPU particle', () => {
       engine.currentScene.update(engine, 100);
       engine.currentScene.draw(engine.graphicsContext, 100);
       engine.graphicsContext.flush();
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/ParticleSpec/parented.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/particle-spec/parented.png');
     });
   });
 

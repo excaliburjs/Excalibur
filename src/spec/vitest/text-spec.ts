@@ -82,7 +82,7 @@ describe('A Text Graphic', () => {
   beforeAll(async () => {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = '/src/spec/assets/images/GraphicsTextSpec/fonts.css';
+    link.href = '/src/spec/assets/images/graphics-text-spec/fonts.css';
     document.head.appendChild(link);
     await waitForSheet(link);
 
@@ -200,7 +200,7 @@ describe('A Text Graphic', () => {
 
       sut.draw(ctx, 10, 50);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/text.png', IMAGE_TOLERANCE);
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-text-spec/text.png', IMAGE_TOLERANCE);
     });
 
     it('can draw multiple lines of text (font)', async () => {
@@ -224,7 +224,7 @@ describe('A Text Graphic', () => {
       expect(sut.height).toBeCloseTo(18 * 3, 0);
       expect(sut.localBounds.height).toBeCloseTo(18 * 3, 0);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/multi-text-win.png', IMAGE_TOLERANCE);
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-text-spec/multi-text-win.png', IMAGE_TOLERANCE);
     });
 
     it('can flip text vertically and horizontally', async () => {
@@ -244,7 +244,7 @@ describe('A Text Graphic', () => {
       sut.flipVertical = true;
       sut.draw(ctx, 10, 50);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/flipped.png', IMAGE_TOLERANCE);
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-text-spec/flipped.png', IMAGE_TOLERANCE);
     });
 
     it('can align fonts and reuse a font', async () => {
@@ -264,7 +264,7 @@ describe('A Text Graphic', () => {
       sut.draw(ctx, 10, 40);
       sut.draw(ctx, 10, 60);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/font-alignment.png', IMAGE_TOLERANCE);
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-text-spec/font-alignment.png', IMAGE_TOLERANCE);
     });
 
     it('can rotate text around the middle', async () => {
@@ -283,7 +283,7 @@ describe('A Text Graphic', () => {
       sut.rotation = Math.PI / 2;
       sut.draw(ctx, 10, 50);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/rotated.png', IMAGE_TOLERANCE);
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-text-spec/rotated.png', IMAGE_TOLERANCE);
     });
 
     it('can rotate text around the left', async () => {
@@ -303,7 +303,7 @@ describe('A Text Graphic', () => {
       sut.rotation = Math.PI / 2;
       sut.draw(ctx, 10, 50);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/rotated-left.png', IMAGE_TOLERANCE);
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-text-spec/rotated-left.png', IMAGE_TOLERANCE);
     });
 
     it('can rotate text around the right', async () => {
@@ -323,7 +323,7 @@ describe('A Text Graphic', () => {
       sut.rotation = -Math.PI / 2;
       sut.draw(ctx, 10, 50);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/rotated-right.png', IMAGE_TOLERANCE);
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-text-spec/rotated-right.png', IMAGE_TOLERANCE);
     });
 
     it('can be bold', async () => {
@@ -342,7 +342,7 @@ describe('A Text Graphic', () => {
 
       sut.draw(ctx, 10, 50);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/bold-win.png', IMAGE_TOLERANCE);
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-text-spec/bold-win.png', IMAGE_TOLERANCE);
     });
 
     it('can be italic', async () => {
@@ -361,7 +361,7 @@ describe('A Text Graphic', () => {
 
       sut.draw(ctx, 10, 50);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/italic.png', IMAGE_TOLERANCE);
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-text-spec/italic.png', IMAGE_TOLERANCE);
     });
 
     it('can have line height', async () => {
@@ -379,7 +379,7 @@ describe('A Text Graphic', () => {
 
       sut.draw(ctx, 10, 10);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/line-height-win.png', IMAGE_TOLERANCE);
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-text-spec/line-height-win.png', IMAGE_TOLERANCE);
     });
 
     it('can have a shadow', async () => {
@@ -402,7 +402,7 @@ describe('A Text Graphic', () => {
 
       sut.draw(ctx, 10, 50);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/shadow.png', IMAGE_TOLERANCE);
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-text-spec/shadow.png', IMAGE_TOLERANCE);
     });
 
     it('can reuse a font', async () => {
@@ -427,7 +427,7 @@ describe('A Text Graphic', () => {
       text2.draw(ctx, 10, 40);
       ctx.flush();
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/reuse-font-win.png', IMAGE_TOLERANCE);
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-text-spec/reuse-font-win.png', IMAGE_TOLERANCE);
     });
 
     it('can draw large pieces of text', async () => {
@@ -542,11 +542,11 @@ describe('A Text Graphic', () => {
       sut.draw(ctx, 10, 50);
       ctx.flush();
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/long-text.png', IMAGE_TOLERANCE);
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-text-spec/long-text.png', IMAGE_TOLERANCE);
     });
 
     it('can do some simple shadowing', async () => {
-      const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
+      const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png');
 
       await spriteFontImage.load();
 
@@ -579,11 +579,11 @@ describe('A Text Graphic', () => {
       ctx.clear();
       sut.draw(ctx, 0, 50);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/spritefont-shadow.png', IMAGE_TOLERANCE);
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-text-spec/spritefont-shadow.png', IMAGE_TOLERANCE);
     });
 
     it('can rotate spritefont text around the middle', async () => {
-      const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
+      const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png');
       await spriteFontImage.load();
       const spriteFontSheet = ex.SpriteSheet.fromImageSource({
         image: spriteFontImage,
@@ -612,11 +612,11 @@ describe('A Text Graphic', () => {
       sut.rotation = Math.PI / 2;
       sut.draw(ctx, 10, 40);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/rotated-spritefont.png', IMAGE_TOLERANCE);
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-text-spec/rotated-spritefont.png', IMAGE_TOLERANCE);
     });
 
     it('can align fonts and reuse a spritefont', async () => {
-      const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
+      const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png');
       await spriteFontImage.load();
       const spriteFontSheet = ex.SpriteSheet.fromImageSource({
         image: spriteFontImage,
@@ -646,11 +646,11 @@ describe('A Text Graphic', () => {
       sut.draw(ctx, 0, 40);
       sut.draw(ctx, 0, 60);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/spritefont-alignment.png', IMAGE_TOLERANCE);
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-text-spec/spritefont-alignment.png', IMAGE_TOLERANCE);
     });
 
     it('can draw multiple lines of text (spritefont)', async () => {
-      const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
+      const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png');
       await spriteFontImage.load();
       const spriteFontSheet = ex.SpriteSheet.fromImageSource({
         image: spriteFontImage,
@@ -684,7 +684,7 @@ describe('A Text Graphic', () => {
       expect(sut.localBounds.width).toBeCloseTo(80);
       expect(sut.localBounds.height).toBeCloseTo(48);
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/multi-text-spritefont.png', IMAGE_TOLERANCE);
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-text-spec/multi-text-spritefont.png', IMAGE_TOLERANCE);
     });
 
     it('can word wrap text for a normal font', async () => {
@@ -710,7 +710,7 @@ describe('A Text Graphic', () => {
 
       await new Promise((r) => setTimeout(r, 1000));
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/font-text-wrap-win.png', IMAGE_TOLERANCE);
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-text-spec/font-text-wrap-win.png', IMAGE_TOLERANCE);
     });
   });
 
@@ -898,7 +898,7 @@ describe('A Text Graphic', () => {
     });
 
     it('can be cloned', () => {
-      const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
+      const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png');
 
       const spriteFontSheet = ex.SpriteSheet.fromImageSource({
         image: spriteFontImage,
@@ -931,7 +931,7 @@ describe('A Text Graphic', () => {
       const logger = ex.Logger.getInstance();
       const warnSpy = vi.spyOn(logger, 'warnOnce');
 
-      const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
+      const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png');
 
       await spriteFontImage.load();
 
@@ -976,7 +976,7 @@ describe('A Text Graphic', () => {
     });
 
     it('can measure text for a spritefont', async () => {
-      const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
+      const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png');
       await spriteFontImage.load();
       const spriteFontSheet = ex.SpriteSheet.fromImageSource({
         image: spriteFontImage,
@@ -1002,7 +1002,7 @@ describe('A Text Graphic', () => {
 
     describe('@visual', () => {
       it('can specify a spritefont', async () => {
-        const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
+        const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png');
 
         await spriteFontImage.load();
 
@@ -1030,11 +1030,11 @@ describe('A Text Graphic', () => {
 
         sut.draw(ctx, 0, 50);
 
-        await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/spritefont-text.png');
+        await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-text-spec/spritefont-text.png');
       });
 
       it('can scale a spritefont', async () => {
-        const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
+        const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png');
 
         await spriteFontImage.load();
 
@@ -1063,11 +1063,11 @@ describe('A Text Graphic', () => {
 
         sut.draw(ctx, 0, 50);
         expect(spriteFont.measureText('some test')).toEqual(ex.BoundingBox.fromDimension((16 - 5) * 9 * 3, 16 * 3, ex.vec(0, 0)));
-        await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/spritefont-scaled.png');
+        await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-text-spec/spritefont-scaled.png');
       });
 
       it('can have a custom lineHeight', async () => {
-        const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
+        const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png');
 
         await spriteFontImage.load();
 
@@ -1096,11 +1096,11 @@ describe('A Text Graphic', () => {
 
         sut.draw(ctx, 0, 0);
 
-        await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/sprite-font-line-height.png', IMAGE_TOLERANCE);
+        await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-text-spec/sprite-font-line-height.png', IMAGE_TOLERANCE);
       });
 
       it('can word wrap text for a spritefont', async () => {
-        const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
+        const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png');
         await spriteFontImage.load();
         const spriteFontSheet = ex.SpriteSheet.fromImageSource({
           image: spriteFontImage,
@@ -1131,7 +1131,7 @@ describe('A Text Graphic', () => {
 
         sut.draw(ctx, 0, 0);
 
-        await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsTextSpec/sprite-font-text-wrap.png', IMAGE_TOLERANCE);
+        await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-text-spec/sprite-font-text-wrap.png', IMAGE_TOLERANCE);
       });
     });
   });

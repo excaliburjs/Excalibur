@@ -67,7 +67,7 @@ describe('A generic Resource', () => {
 
     it('should load a text resource', () =>
       new Promise<void>((done) => {
-        const text = new ex.Resource('/src/spec/assets/images/ResourceSpec/textresource.txt', 'text', true);
+        const text = new ex.Resource('/src/spec/assets/images/resource-spec/textresource.txt', 'text', true);
         text.load().then((data) => {
           expect(data).not.toBeNull();
           done();

@@ -10,7 +10,7 @@ describe('A Gif', () => {
       height: 100
     });
 
-    gif = new ex.Gif('/src/spec/assets/images/GifSpec/sword.gif');
+    gif = new ex.Gif('/src/spec/assets/images/gif-spec/sword.gif');
   });
   afterEach(() => {
     engine.stop();
@@ -29,7 +29,7 @@ describe('A Gif', () => {
 
   describe('@visual', () => {
     it('should parse gifs that have lct & anim params', async () => {
-      const sut = new ex.Gif('/src/spec/assets/images/GifSpec/loading-screen.gif');
+      const sut = new ex.Gif('/src/spec/assets/images/gif-spec/loading-screen.gif');
       await sut.load();
 
       const sprite = sut.toSprite(20);
@@ -38,11 +38,11 @@ describe('A Gif', () => {
       sprite.draw(engine.graphicsContext, 0, 0);
       engine.graphicsContext.flush();
 
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/GifSpec/loading-frame-20.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/gif-spec/loading-frame-20.png');
     });
 
     it('should parse gifs that have animations with sub frames', async () => {
-      const sut = new ex.Gif('/src/spec/assets/images/GifSpec/stoplight.gif');
+      const sut = new ex.Gif('/src/spec/assets/images/gif-spec/stoplight.gif');
       await sut.load();
       expect(sut.isLoaded()).toBe(true);
 
@@ -50,19 +50,19 @@ describe('A Gif', () => {
       sprite2.draw(engine.graphicsContext, 0, 0);
       engine.graphicsContext.flush();
 
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/GifSpec/stoplight-frame-3.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/gif-spec/stoplight-frame-3.png');
 
       const sprite1 = sut.toSprite(1);
       sprite1.draw(engine.graphicsContext, 0, 0);
       engine.graphicsContext.flush();
 
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/GifSpec/stoplight-frame-2.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/gif-spec/stoplight-frame-2.png');
 
       const sprite0 = sut.toSprite(0);
       sprite0.draw(engine.graphicsContext, 0, 0);
       engine.graphicsContext.flush();
 
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/GifSpec/stoplight-frame-1.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/gif-spec/stoplight-frame-1.png');
     });
 
     it('should load each frame', async () => {
@@ -79,7 +79,7 @@ describe('A Gif', () => {
       sprite.draw(engine.graphicsContext, 0, 0);
       engine.graphicsContext.flush();
 
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/GifSpec/frame1.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/gif-spec/frame1.png');
       engine.graphicsContext.backgroundColor = ex.Color.Transparent;
       engine.graphicsContext.clear();
 
@@ -88,7 +88,7 @@ describe('A Gif', () => {
       sprite.draw(engine.graphicsContext, 0, 0);
       engine.graphicsContext.flush();
 
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/GifSpec/frame2.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/gif-spec/frame2.png');
     });
 
     it('should be read as a SpriteSheet', async () => {
@@ -99,7 +99,7 @@ describe('A Gif', () => {
       sprite.draw(engine.graphicsContext, 0, 0);
       engine.graphicsContext.flush();
 
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/GifSpec/frame1.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/gif-spec/frame1.png');
     });
 
     it('should be read as an Animation', async () => {
@@ -114,7 +114,7 @@ describe('A Gif', () => {
       frame2.graphic.draw(engine.graphicsContext, 0, 0);
       engine.graphicsContext.flush();
 
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/GifSpec/frame2.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/gif-spec/frame2.png');
     });
   });
 });

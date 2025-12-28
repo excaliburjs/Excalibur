@@ -10,7 +10,7 @@ describe('A SoundManager', () => {
       const sm = new ex.SoundManager({
         channels: ['test'],
         sounds: {
-          snd: { sound: new ex.Sound('./../assets/images/SoundSpec/test.mp3'), volume: 0.4, channels: ['test'] }
+          snd: { sound: new ex.Sound('./../assets/images/sound-spec/test.mp3'), volume: 0.4, channels: ['test'] }
         }
       });
     }).not.toThrow();
@@ -20,7 +20,7 @@ describe('A SoundManager', () => {
     const sm = new ex.SoundManager({
       channels: ['test'],
       sounds: {
-        snd: { sound: new ex.Sound('./../assets/images/SoundSpec/test.mp3'), volume: 0.4, channels: ['test'] }
+        snd: { sound: new ex.Sound('./../assets/images/sound-spec/test.mp3'), volume: 0.4, channels: ['test'] }
       }
     });
 
@@ -28,7 +28,7 @@ describe('A SoundManager', () => {
   });
 
   it('can sound volume', () => {
-    const sound = new ex.Sound('./../assets/images/SoundSpec/test.mp3');
+    const sound = new ex.Sound('./../assets/images/sound-spec/test.mp3');
 
     const sm = new ex.SoundManager({
       channels: ['test'],
@@ -43,7 +43,7 @@ describe('A SoundManager', () => {
   });
 
   it('can play sound at configured sm volume', () => {
-    const sound = new ex.Sound('./../assets/images/SoundSpec/test.mp3');
+    const sound = new ex.Sound('./../assets/images/sound-spec/test.mp3');
     const spy = vi.spyOn(sound, 'play');
     spy.mockResolvedValue(true);
 
@@ -60,8 +60,8 @@ describe('A SoundManager', () => {
   });
 
   it('can edit channels', () => {
-    const sound = new ex.Sound('./../assets/images/SoundSpec/test.mp3');
-    const sound2 = new ex.Sound('./../assets/images/SoundSpec/test.mp3');
+    const sound = new ex.Sound('./../assets/images/sound-spec/test.mp3');
+    const sound2 = new ex.Sound('./../assets/images/sound-spec/test.mp3');
     const spy = vi.spyOn(sound, 'play');
     spy.mockResolvedValue(true);
 
@@ -93,8 +93,8 @@ describe('A SoundManager', () => {
   });
 
   it('can override volume', () => {
-    const sound = new ex.Sound('./../assets/images/SoundSpec/test.mp3');
-    const sound2 = new ex.Sound('./../assets/images/SoundSpec/test.mp3');
+    const sound = new ex.Sound('./../assets/images/sound-spec/test.mp3');
+    const sound2 = new ex.Sound('./../assets/images/sound-spec/test.mp3');
     const spy = vi.spyOn(sound, 'play');
     spy.mockResolvedValue(true);
 
@@ -123,8 +123,8 @@ describe('A SoundManager', () => {
   });
 
   it('can add a new channel', () => {
-    const sound = new ex.Sound('./../assets/images/SoundSpec/test.mp3');
-    const sound2 = new ex.Sound('./../assets/images/SoundSpec/test.mp3');
+    const sound = new ex.Sound('./../assets/images/sound-spec/test.mp3');
+    const sound2 = new ex.Sound('./../assets/images/sound-spec/test.mp3');
     const spy = vi.spyOn(sound, 'play');
     spy.mockResolvedValue(true);
 

@@ -126,7 +126,7 @@ describe('A particle', () => {
       engine.currentScene.update(engine, 100);
       engine.currentScene.draw(engine.graphicsContext, 100);
       engine.graphicsContext.flush();
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/ParticleSpec/Particles.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/particle-spec/Particles.png');
     });
 
     it('should clear particles', async () => {
@@ -169,7 +169,7 @@ describe('A particle', () => {
       engine.currentScene.update(engine, 100);
       engine.currentScene.draw(engine.graphicsContext, 100);
       engine.graphicsContext.flush();
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/ParticleSpec/clear.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/particle-spec/clear.png');
     });
 
     it('can be parented', async () => {
@@ -219,7 +219,7 @@ describe('A particle', () => {
       engine.currentScene.update(engine, 100);
       engine.currentScene.draw(engine.graphicsContext, 100);
       engine.graphicsContext.flush();
-      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/ParticleSpec/parented.png');
+      await expect(engine.canvas).toEqualImage('/src/spec/assets/images/particle-spec/parented.png');
     });
   });
 

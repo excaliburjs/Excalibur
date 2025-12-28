@@ -1,7 +1,7 @@
 import * as ex from '@excalibur';
 import { TransformComponent } from '@excalibur';
 import { EulerIntegrator } from '../../engine/collision/integrator';
-import { MotionComponent } from '../../engine/entitycomponentsystem/components/motion-component';
+import { MotionComponent } from '../../engine/entity-component-system/components/motion-component';
 import { getDefaultPhysicsConfig } from '../../engine/collision/physics-config';
 
 describe('A CollisionContact', () => {

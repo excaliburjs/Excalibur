@@ -46,12 +46,12 @@ describe('A DefaultLoader', () => {
     sut.onUpdate(engine, 100);
     sut.onDraw(sut.canvas.ctx);
     expect(sut.resources.length).toBe(3);
-    await expect(sut.canvas.ctx).toEqualImage('/src/spec/assets/images/DefaultLoaderSpec/loading.png');
+    await expect(sut.canvas.ctx).toEqualImage('/src/spec/assets/images/default-loader-spec/loading.png');
   });
 
   it('can load stuff', async () => {
-    const img1 = new ex.ImageSource('/src/spec/assets/images/DefaultLoaderSpec/loading.png');
-    const img2 = new ex.ImageSource('/src/spec/assets/images/DefaultLoaderSpec/loading.png');
+    const img1 = new ex.ImageSource('/src/spec/assets/images/default-loader-spec/loading.png');
+    const img2 = new ex.ImageSource('/src/spec/assets/images/default-loader-spec/loading.png');
     const sut = new ex.DefaultLoader({
       loadables: [img1, img2]
     });

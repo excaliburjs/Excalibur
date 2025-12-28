@@ -24,7 +24,7 @@ describe('A Sprite Graphic', () => {
   });
 
   it('can be constructed', () => {
-    const image = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
+    const image = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png');
     const sut = new ex.Sprite({
       image
     });
@@ -32,7 +32,7 @@ describe('A Sprite Graphic', () => {
   });
 
   it('can be cloned', () => {
-    const image = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
+    const image = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png');
     const sut = new ex.Sprite({
       image,
       sourceView: {
@@ -55,7 +55,7 @@ describe('A Sprite Graphic', () => {
   });
 
   it('correctly calculates size based on scale', () => {
-    const image = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
+    const image = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png');
     const sut = new ex.Sprite({
       image,
       sourceView: {
@@ -77,7 +77,7 @@ describe('A Sprite Graphic', () => {
   });
 
   it('correctly sets size based on scale', () => {
-    const image = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
+    const image = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png');
     const sut = new ex.Sprite({
       image,
       sourceView: {
@@ -108,7 +108,7 @@ describe('A Sprite Graphic', () => {
 
   describe('@visual', () => {
     it('can specify a source/dest view of an image with default width and height', async () => {
-      const image = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
+      const image = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png');
       const sut = new ex.Sprite({
         image,
         width: 16,
@@ -133,11 +133,11 @@ describe('A Sprite Graphic', () => {
       sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
       ctx.flush();
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsSpriteSpec/source-view.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-sprite-spec/source-view.png');
     });
 
     it('can draw an sprite image with a tint', async () => {
-      const image = new ex.ImageSource('/src/spec/assets/images/GraphicsSpriteSpec/icon.png');
+      const image = new ex.ImageSource('/src/spec/assets/images/graphics-sprite-spec/icon.png');
       const sut = image.toSprite();
       sut.tint = ex.Color.Green;
 
@@ -148,11 +148,11 @@ describe('A Sprite Graphic', () => {
       sut.draw(ctx, 0, 0);
       ctx.flush();
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsSpriteSpec/icon-tint.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-sprite-spec/icon-tint.png');
     });
 
     it('can specify the width and height of a sprite after construction', async () => {
-      const image = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png', false, ex.ImageFiltering.Pixel);
+      const image = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png', false, ex.ImageFiltering.Pixel);
       const sut = new ex.Sprite({
         image,
         sourceView: {
@@ -173,11 +173,11 @@ describe('A Sprite Graphic', () => {
       sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
       ctx.flush();
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsSpriteSpec/change-size.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-sprite-spec/change-size.png');
     });
 
     it('can specify the width and height and scale', async () => {
-      const image = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png', false, ex.ImageFiltering.Pixel);
+      const image = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png', false, ex.ImageFiltering.Pixel);
       const sut = new ex.Sprite({
         image,
         sourceView: {
@@ -201,11 +201,11 @@ describe('A Sprite Graphic', () => {
       ctx.flush();
       expect(sut.width).toBe(128);
       expect(sut.height).toBe(128);
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsSpriteSpec/change-size-and-scale.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-sprite-spec/change-size-and-scale.png');
     });
 
     it('can specify a source view of an image by default is same dimension as the source', async () => {
-      const image = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
+      const image = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png');
       const sut = new ex.Sprite({
         image,
         sourceView: {
@@ -234,11 +234,11 @@ describe('A Sprite Graphic', () => {
       sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
       ctx.flush();
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsSpriteSpec/source-view.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-sprite-spec/source-view.png');
     });
 
     it('can specify a source view of an image and a dest view dimension is destination', async () => {
-      const image = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png', false, ex.ImageFiltering.Pixel);
+      const image = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png', false, ex.ImageFiltering.Pixel);
       const sut = new ex.Sprite({
         image,
         sourceView: {
@@ -271,11 +271,11 @@ describe('A Sprite Graphic', () => {
       sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
       ctx.flush();
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsSpriteSpec/dest-size.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-sprite-spec/dest-size.png');
     });
 
     it('can specify only a dest view dimension, infers native size for source view', async () => {
-      const image = new ex.ImageSource('/src/spec/assets/images/GraphicsTextSpec/spritefont.png');
+      const image = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png');
       const sut = new ex.Sprite({
         image,
         destSize: {
@@ -305,7 +305,7 @@ describe('A Sprite Graphic', () => {
       sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
       ctx.flush();
 
-      await expect(canvasElement).toEqualImage('/src/spec/assets/images/GraphicsSpriteSpec/dest-view.png');
+      await expect(canvasElement).toEqualImage('/src/spec/assets/images/graphics-sprite-spec/dest-view.png');
     });
   });
 
