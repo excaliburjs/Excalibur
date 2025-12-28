@@ -1,5 +1,5 @@
 import * as Events from '../events';
-import { getDefaultGlobal } from '../util/i-frame';
+import { getDefaultGlobal } from '../util/iframe';
 import type { EventKey, Handler, Subscription } from '../event-emitter';
 import { EventEmitter } from '../event-emitter';
 
