@@ -31,7 +31,7 @@ export * from './tiled-animation';
 
 export * from './context/excalibur-graphics-context';
 export * from './context/excalibur-graphics-context-2d-canvas';
-export * from './context/excalibur-graphics-context-web-gl';
+export * from './context/excalibur-graphics-context-webgl';
 
 // todo deleteme
 export * from './context/particle-renderer/particle-renderer';

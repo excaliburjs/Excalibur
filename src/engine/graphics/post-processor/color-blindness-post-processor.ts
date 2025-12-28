@@ -4,7 +4,7 @@ import { ColorBlindnessMode } from './color-blindness-mode';
 import type { Shader } from '../context/shader';
 import type { VertexLayout } from '../context/vertex-layout';
 import { ScreenShader } from './screen-shader';
-import type { ExcaliburGraphicsContextWebGL } from '../context/excalibur-graphics-context-web-gl';
+import type { ExcaliburGraphicsContextWebGL } from '../context/excalibur-graphics-context-webgl';
 
 export class ColorBlindnessPostProcessor implements PostProcessor {
   private _shader!: ScreenShader;

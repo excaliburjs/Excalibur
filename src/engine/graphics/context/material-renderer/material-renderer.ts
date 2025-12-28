@@ -4,7 +4,7 @@ import { GraphicsDiagnostics } from '../../graphics-diagnostics';
 import { ImageSourceAttributeConstants } from '../../image-source';
 import { parseImageWrapping } from '../../wrapping';
 import type { HTMLImageSource } from '../excalibur-graphics-context';
-import type { ExcaliburGraphicsContextWebGL } from '../excalibur-graphics-context-web-gl';
+import type { ExcaliburGraphicsContextWebGL } from '../excalibur-graphics-context-webgl';
 import { QuadIndexBuffer } from '../quad-index-buffer';
 import type { RendererPlugin } from '../renderer';
 import { VertexBuffer } from '../vertex-buffer';

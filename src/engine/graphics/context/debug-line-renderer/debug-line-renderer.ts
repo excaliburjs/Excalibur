@@ -3,7 +3,7 @@ import { vec } from '../../../math/vector';
 import type { Color } from '../../../color';
 import lineVertexSource from './debug-line-vertex.glsl?raw';
 import lineFragmentSource from './debug-line-fragment.glsl?raw';
-import type { ExcaliburGraphicsContextWebGL } from '../excalibur-graphics-context-web-gl';
+import type { ExcaliburGraphicsContextWebGL } from '../excalibur-graphics-context-webgl';
 import type { RendererPlugin } from '../renderer';
 import { Shader, VertexBuffer, VertexLayout } from '../..';
 import { GraphicsDiagnostics } from '../../graphics-diagnostics';

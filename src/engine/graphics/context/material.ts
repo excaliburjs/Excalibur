@@ -1,6 +1,6 @@
 import { Color } from '../../color';
 import type { ExcaliburGraphicsContext } from './excalibur-graphics-context';
-import { ExcaliburGraphicsContextWebGL } from './excalibur-graphics-context-web-gl';
+import { ExcaliburGraphicsContextWebGL } from './excalibur-graphics-context-webgl';
 import type { Shader, UniformDictionary } from './shader';
 import { Logger } from '../../util/log';
 import type { ImageSource } from '../image-source';

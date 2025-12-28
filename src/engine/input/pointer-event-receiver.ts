@@ -13,7 +13,7 @@ import { NativePointerButton } from './native-pointer-button';
 import { PointerButton } from './pointer-button';
 import { fail } from '../util/util';
 import { PointerType } from './pointer-type';
-import { isCrossOriginIframe, isIframe } from '../util/i-frame';
+import { isCrossOriginIframe, isIframe } from '../util/iframe';
 import type { EventKey, Handler, Subscription } from '../event-emitter';
 import { EventEmitter } from '../event-emitter';
 

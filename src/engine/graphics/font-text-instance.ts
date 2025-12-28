@@ -1,7 +1,7 @@
 import { BoundingBox } from '../collision/bounding-box';
 import { Color } from '../color';
 import { line } from '../util/draw-util';
-import { ExcaliburGraphicsContextWebGL } from './context/excalibur-graphics-context-web-gl';
+import { ExcaliburGraphicsContextWebGL } from './context/excalibur-graphics-context-webgl';
 import type { ExcaliburGraphicsContext } from './context/excalibur-graphics-context';
 import type { Font } from './font';
 

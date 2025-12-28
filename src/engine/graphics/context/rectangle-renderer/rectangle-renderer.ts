@@ -1,8 +1,8 @@
 import { Color } from '../../../color';
 import { vec, Vector } from '../../../math/vector';
 import { GraphicsDiagnostics } from '../../graphics-diagnostics';
-import type { ExcaliburGraphicsContextWebGL } from '../excalibur-graphics-context-web-gl';
-import { pixelSnapEpsilon } from '../excalibur-graphics-context-web-gl';
+import type { ExcaliburGraphicsContextWebGL } from '../excalibur-graphics-context-webgl';
+import { pixelSnapEpsilon } from '../excalibur-graphics-context-webgl';
 import { QuadIndexBuffer } from '../quad-index-buffer';
 import type { RendererPlugin } from '../renderer';
 import { Shader } from '../shader';

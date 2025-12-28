@@ -10,7 +10,7 @@ import { Random } from '../math/random';
 import type { Vector } from '../math/vector';
 import { vec } from '../math/vector';
 import { clamp } from '../math';
-import type { ExcaliburGraphicsContextWebGL } from '../graphics/context/excalibur-graphics-context-web-gl';
+import type { ExcaliburGraphicsContextWebGL } from '../graphics/context/excalibur-graphics-context-webgl';
 import type { ParticleRenderer } from '../graphics/context/particle-renderer/particle-renderer';
 
 export class GpuParticleEmitter extends Actor {

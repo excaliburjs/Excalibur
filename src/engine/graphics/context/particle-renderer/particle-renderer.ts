@@ -1,4 +1,4 @@
-import type { ExcaliburGraphicsContextWebGL } from '../excalibur-graphics-context-web-gl';
+import type { ExcaliburGraphicsContextWebGL } from '../excalibur-graphics-context-webgl';
 import type { RendererPlugin } from '../renderer';
 import { Shader } from '../shader';
 import particleVertexSource from './particle-vertex.glsl?raw';

@@ -5,7 +5,7 @@ import type { BrowserEvents } from './util/browser';
 import { BoundingBox } from './collision/index';
 import type { ExcaliburGraphicsContext } from './graphics/context/excalibur-graphics-context';
 import { getPosition } from './util/util';
-import { ExcaliburGraphicsContextWebGL } from './graphics/context/excalibur-graphics-context-web-gl';
+import { ExcaliburGraphicsContextWebGL } from './graphics/context/excalibur-graphics-context-webgl';
 import { ExcaliburGraphicsContext2DCanvas } from './graphics/context/excalibur-graphics-context-2d-canvas';
 import { EventEmitter } from './event-emitter';
 

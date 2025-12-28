@@ -4,7 +4,7 @@ import { Shader } from '../shader';
 import { VertexBuffer } from '../vertex-buffer';
 import { VertexLayout } from '../vertex-layout';
 import type { PostProcessor } from '../../post-processor/post-processor';
-import type { ExcaliburGraphicsContextWebGL } from '../excalibur-graphics-context-web-gl';
+import type { ExcaliburGraphicsContextWebGL } from '../excalibur-graphics-context-webgl';
 
 /**
  * This is responsible for painting the entire screen during the render passes

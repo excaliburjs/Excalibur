@@ -1,5 +1,5 @@
 import { randomInRange, TwoPI } from '../math/util';
-import type { ExcaliburGraphicsContextWebGL } from '../graphics/context/excalibur-graphics-context-web-gl';
+import type { ExcaliburGraphicsContextWebGL } from '../graphics/context/excalibur-graphics-context-webgl';
 import type { GpuParticleEmitter } from './gpu-particle-emitter';
 import type { ParticleConfig } from './particles';
 import { ParticleTransform } from './particles';

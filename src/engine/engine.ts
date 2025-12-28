@@ -63,7 +63,7 @@ import { createContext, useContext } from './context';
 import type { GarbageCollectionOptions } from './garbage-collector';
 import { DefaultGarbageCollectionOptions, GarbageCollector } from './garbage-collector';
 import { mergeDeep } from './util/util';
-import { getDefaultGlobal } from './util/i-frame';
+import { getDefaultGlobal } from './util/iframe';
 
 export interface EngineEvents extends DirectorEvents {
   fallbackgraphicscontext: ExcaliburGraphicsContext2DCanvas;
