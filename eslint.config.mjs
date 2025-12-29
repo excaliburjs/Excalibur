@@ -10,6 +10,7 @@ export default tseslint.config(
     'sandbox',
     'scripts',
     'playground',
+    'Excalibur.nuspec',
     'docs/api/**',
     '**/karma.conf.*',
     '**/webpack.config.js',
