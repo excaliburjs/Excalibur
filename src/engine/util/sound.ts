@@ -6,7 +6,7 @@ import { Logger } from './log';
 export function canPlayFile(file: string): boolean {
   try {
     const a = new Audio();
-    const filetype = /.*\.([A-Za-z0-9]+)(?:(?:\?|\#).*)*$/;
+    const filetype = /.*\.([A-Za-z0-9]+)(?=[?#]|$)/;
     const type = file.match(filetype)[1];
     if (a.canPlayType('audio/' + type)) {
       return true;
