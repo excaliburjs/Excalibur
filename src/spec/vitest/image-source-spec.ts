@@ -143,7 +143,11 @@ describe('A ImageSource', () => {
     imageRenderer.initialize(webgl.__gl, webgl);
     vi.spyOn(webgl.textureLoader, 'load');
 
-    const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png', false, ex.ImageFiltering.Blended);
+    const spriteFontImage = new ex.ImageSource(
+      '/src/spec/assets/images/graphics-text-spec/spritefont.png',
+      false,
+      ex.ImageFiltering.Blended
+    );
     const whenLoaded = vi.fn();
     const image = await spriteFontImage.load();
     await spriteFontImage.ready.then(whenLoaded);
