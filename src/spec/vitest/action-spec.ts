@@ -166,14 +166,14 @@ describe('Action', () => {
 
   describe('blink', () => {
     it('can blink on and off', () => {
-      expect(actor.graphics.visible).toBe(true);
+      expect(actor.graphics.isVisible).toBe(true);
       actor.actions.blink(200, 200);
 
       scene.update(engine, 200);
-      expect(actor.graphics.visible).toBe(false);
+      expect(actor.graphics.isVisible).toBe(false);
 
       scene.update(engine, 250);
-      expect(actor.graphics.visible).toBe(true);
+      expect(actor.graphics.isVisible).toBe(true);
     });
 
     it('can be reset', () => {
@@ -187,31 +187,31 @@ describe('Action', () => {
     });
 
     it('can blink at a frequency forever', () => {
-      expect(actor.graphics.visible).toBe(true);
+      expect(actor.graphics.isVisible).toBe(true);
       actor.actions.repeatForever((ctx) => ctx.blink(200, 200));
       scene.update(engine, 200);
 
       for (let i = 0; i < 2; i++) {
-        expect(actor.graphics.visible).toBe(false);
+        expect(actor.graphics.isVisible).toBe(false);
         scene.update(engine, 200);
 
-        expect(actor.graphics.visible).toBe(true);
+        expect(actor.graphics.isVisible).toBe(true);
         scene.update(engine, 200);
       }
     });
 
     it('can be stopped', () => {
-      expect(actor.graphics.visible).toBe(true);
+      expect(actor.graphics.isVisible).toBe(true);
       actor.actions.blink(1, 3000);
 
       scene.update(engine, 500);
-      expect(actor.graphics.visible).toBe(false);
+      expect(actor.graphics.isVisible).toBe(false);
 
       actor.actions.clearActions();
 
       scene.update(engine, 500);
       scene.update(engine, 500);
-      expect(actor.graphics.visible).toBe(true);
+      expect(actor.graphics.isVisible).toBe(true);
     });
   });
 
@@ -239,7 +239,7 @@ describe('Action', () => {
       expect(scene.actors.length).toBe(1);
       actor.actions.die();
       scene.update(engine, 100);
-      expect(actor.active).toBe(false);
+      expect(actor.isActive).toBe(false);
       expect(scene.actors.length).toBe(0);
     });
 
@@ -526,19 +526,27 @@ describe('Action', () => {
 
   describe('easeBy', () => {
     it('can be reset', () => {
-      const easeTo = new ex.EaseBy(actor, 100, 0, 100, ex.EasingFunctions.EaseInOutCubic);
+      const easeTo = new ex.MoveByWithOptions(actor, {
+        offset: ex.vec(100, 0),
+        duration: 100,
+        easing: ex.easeInOutCubic
+      });
       easeTo.update(1000);
-      expect(easeTo.isComplete()).toBe(true);
+      expect(easeTo.isComplete(actor)).toBe(true);
 
       easeTo.reset();
       actor.pos = ex.vec(0, 0);
-      expect(easeTo.isComplete()).toBe(false);
+      expect(easeTo.isComplete(actor)).toBe(false);
     });
     it('can be eased to a location given an easing function (x,y) overload', () => {
       actor.pos = ex.vec(100, 100);
       expect(actor.pos).toBeVector(ex.vec(100, 100));
 
-      actor.actions.easeBy(100, 0, 1000, ex.EasingFunctions.EaseInOutCubic);
+      actor.actions.moveBy({
+        offset: ex.vec(100, 0),
+        duration: 1000,
+        easing: ex.easeInOutCubic
+      });
 
       scene.update(engine, 500);
       expect(actor.pos).toBeVector(ex.vec(150, 100));
@@ -557,7 +565,11 @@ describe('Action', () => {
       actor.pos = ex.vec(100, 100);
       expect(actor.pos).toBeVector(ex.vec(100, 100));
 
-      actor.actions.easeBy(ex.vec(100, 0), 1000, ex.EasingFunctions.EaseInOutCubic);
+      actor.actions.moveBy({
+        offset: ex.vec(100, 0),
+        duration: 1000,
+        easing: ex.easeInOutCubic
+      });
 
       scene.update(engine, 500);
       expect(actor.pos).toBeVector(ex.vec(150, 100));
@@ -576,7 +588,11 @@ describe('Action', () => {
       actor.pos = ex.vec(100, 100);
       expect(actor.pos).toBeVector(ex.vec(100, 100));
 
-      actor.actions.easeBy(100, 0, 1000, ex.EasingFunctions.EaseInOutCubic);
+      actor.actions.moveBy({
+        offset: ex.vec(100, 0),
+        duration: 1000,
+        easing: ex.easeInOutCubic
+      });
 
       scene.update(engine, 500);
       expect(actor.pos).toBeVector(ex.vec(150, 100));
@@ -593,18 +609,26 @@ describe('Action', () => {
 
   describe('easeTo', () => {
     it('can be reset', () => {
-      const easeTo = new ex.EaseTo(actor, 100, 0, 100, ex.EasingFunctions.EaseInOutCubic);
+      const easeTo = new ex.MoveToWithOptions(actor, {
+        pos: ex.vec(100, 0),
+        duration: 100,
+        easing: ex.easeInOutCubic
+      });
       easeTo.update(1000);
-      expect(easeTo.isComplete()).toBe(true);
+      expect(easeTo.isComplete(actor)).toBe(true);
 
       easeTo.reset();
       actor.pos = ex.vec(0, 0);
-      expect(easeTo.isComplete()).toBe(false);
+      expect(easeTo.isComplete(actor)).toBe(false);
     });
     it('can be eased to a location given an easing function (x,y) overload', () => {
       expect(actor.pos).toBeVector(ex.vec(0, 0));
 
-      actor.actions.easeTo(100, 0, 1000, ex.EasingFunctions.EaseInOutCubic);
+      actor.actions.moveTo({
+        pos: ex.vec(100, 0),
+        duration: 1000,
+        easing: ex.easeInOutCubic
+      });
 
       scene.update(engine, 500);
       expect(actor.pos).toBeVector(ex.vec(50, 0));
@@ -622,7 +646,11 @@ describe('Action', () => {
     it('can be eased to a location given an easing function vector overload', () => {
       expect(actor.pos).toBeVector(ex.vec(0, 0));
 
-      actor.actions.easeTo(ex.vec(100, 0), 1000, ex.EasingFunctions.EaseInOutCubic);
+      actor.actions.moveTo({
+        pos: ex.vec(100, 0),
+        duration: 1000,
+        easing: ex.easeInOutCubic
+      });
 
       scene.update(engine, 500);
       expect(actor.pos).toBeVector(ex.vec(50, 0));
@@ -640,7 +668,11 @@ describe('Action', () => {
     it('can be eased to a location given an easing function vector overload', () => {
       expect(actor.pos).toBeVector(ex.vec(0, 0));
 
-      actor.actions.easeTo(ex.vec(100, 0), 1000, ex.EasingFunctions.EaseInOutCubic);
+      actor.actions.moveTo({
+        pos: ex.vec(100, 0),
+        duration: 1000,
+        easing: ex.easeInOutCubic
+      });
 
       scene.update(engine, 500);
       expect(actor.pos).toBeVector(ex.vec(50, 0));
@@ -658,7 +690,11 @@ describe('Action', () => {
     it('can be stopped', () => {
       expect(actor.pos).toBeVector(ex.vec(0, 0));
 
-      actor.actions.easeTo(100, 0, 1000, ex.EasingFunctions.EaseInOutCubic);
+      actor.actions.moveTo({
+        pos: ex.vec(100, 0),
+        duration: 1000,
+        easing: ex.easeInOutCubic
+      });
 
       scene.update(engine, 500);
       expect(actor.pos).toBeVector(ex.vec(50, 0));

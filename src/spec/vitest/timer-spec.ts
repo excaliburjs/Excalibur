@@ -13,7 +13,7 @@ describe('A Timer', () => {
     });
     timer = new ex.Timer({
       interval: 500,
-      fcn: function () {
+      action: function () {
         /*do nothing*/
       }
     });
@@ -32,7 +32,7 @@ describe('A Timer', () => {
   it('has a unique id', () => {
     const newtimer = new ex.Timer({
       interval: 500,
-      fcn: function () {
+      action: function () {
         /*do nothing*/
       }
     });
@@ -41,7 +41,7 @@ describe('A Timer', () => {
 
     const newtimer2 = new ex.Timer({
       interval: 500,
-      fcn: function () {
+      action: function () {
         /*do nothing*/
       }
     });
@@ -52,7 +52,7 @@ describe('A Timer', () => {
   it('does not start when added to a scene', () => {
     const sut = new ex.Timer({
       interval: 42,
-      fcn: () => {
+      action: () => {
         /* nothing */
       }
     });
@@ -68,7 +68,7 @@ describe('A Timer', () => {
     const timerSpy = vi.fn();
     const sut = new ex.Timer({
       interval: 42,
-      fcn: timerSpy
+      action: timerSpy
     });
 
     scene.add(sut);
@@ -98,7 +98,7 @@ describe('A Timer', () => {
     const timerSpy = vi.fn();
     const sut = new ex.Timer({
       interval: 42,
-      fcn: timerSpy
+      action: timerSpy
     });
 
     scene.add(sut);
@@ -110,7 +110,7 @@ describe('A Timer', () => {
     const timerSpy = vi.fn();
     const sut = new ex.Timer({
       interval: 42,
-      fcn: timerSpy
+      action: timerSpy
     });
 
     scene.add(sut);
@@ -136,7 +136,7 @@ describe('A Timer', () => {
     const timerSpy = vi.fn();
     const sut = new ex.Timer({
       interval: 500,
-      fcn: timerSpy
+      action: timerSpy
     });
     sut.start();
     sut.update(501);
@@ -149,7 +149,7 @@ describe('A Timer', () => {
     const timerSpy = vi.fn();
     timer = new ex.Timer({
       interval: 500,
-      fcn: timerSpy,
+      action: timerSpy,
       repeats: true
     });
 
@@ -165,7 +165,7 @@ describe('A Timer', () => {
     const timerSpy = vi.fn();
     timer = new ex.Timer({
       interval: 500,
-      fcn: timerSpy,
+      action: timerSpy,
       repeats: true,
       numberOfRepeats: 2
     });
@@ -191,7 +191,7 @@ describe('A Timer', () => {
     const timerSpy = vi.fn();
     timer = new ex.Timer({
       interval: 500,
-      fcn: timerSpy,
+      action: timerSpy,
       repeats: true
     });
     scene.addTimer(timer);
@@ -228,7 +228,7 @@ describe('A Timer', () => {
     const timerSpy = vi.fn();
     timer = new ex.Timer({
       interval: 500,
-      fcn: timerSpy,
+      action: timerSpy,
       repeats: true
     });
     scene.addTimer(timer);
@@ -255,7 +255,7 @@ describe('A Timer', () => {
     // non-repeating timer
     timer = new ex.Timer({
       interval: 500,
-      fcn: timerSpy,
+      action: timerSpy,
       repeats: false
     });
     scene.add(timer);
@@ -283,7 +283,7 @@ describe('A Timer', () => {
     // non-repeating timer
     timer = new ex.Timer({
       interval: 500,
-      fcn: function () {
+      action: function () {
         count++;
       },
       repeats: false
@@ -313,7 +313,7 @@ describe('A Timer', () => {
     // non-repeating timer
     timer = new ex.Timer({
       interval: 500,
-      fcn: function () {
+      action: function () {
         count++;
       },
       repeats: true
@@ -338,7 +338,7 @@ describe('A Timer', () => {
     // non-repeating timer
     timer = new ex.Timer({
       interval: 500,
-      fcn: function () {
+      action: function () {
         const dummy = 0;
       },
       repeats: true,
@@ -374,7 +374,7 @@ describe('A Timer', () => {
     // arrange
     const timer = new ex.Timer({
       interval: 100,
-      fcn: () => {
+      action: () => {
         count++;
       },
       repeats: true
@@ -396,7 +396,7 @@ describe('A Timer', () => {
     // arrange
     const timer = new ex.Timer({
       interval: 100,
-      fcn: () => {
+      action: () => {
         count++;
       },
       repeats: true
