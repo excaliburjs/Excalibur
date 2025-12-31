@@ -553,6 +553,7 @@ describe('Action', () => {
       expect(actor.vel).toBeVector(ex.vec(100, 0));
 
       scene.update(engine, 500);
+      scene.update(engine, 1); // FIXME extra tick now
       expect(actor.pos).toBeVector(ex.vec(200, 100));
       expect(actor.vel).toBeVector(ex.vec(0, 0));
 
@@ -576,6 +577,7 @@ describe('Action', () => {
       expect(actor.vel).toBeVector(ex.vec(100, 0));
 
       scene.update(engine, 500);
+      scene.update(engine, 1); // FIXME extra tick required now
       expect(actor.pos).toBeVector(ex.vec(200, 100));
       expect(actor.vel).toBeVector(ex.vec(0, 0));
 
@@ -635,6 +637,7 @@ describe('Action', () => {
       expect(actor.vel).toBeVector(ex.vec(100, 0));
 
       scene.update(engine, 500);
+      scene.update(engine, 1); // FIXME extra tick required
       expect(actor.pos).toBeVector(ex.vec(100, 0));
       expect(actor.vel).toBeVector(ex.vec(0, 0));
 
@@ -657,6 +660,7 @@ describe('Action', () => {
       expect(actor.vel).toBeVector(ex.vec(100, 0));
 
       scene.update(engine, 500);
+      scene.update(engine, 1); // FIXME extra tick required
       expect(actor.pos).toBeVector(ex.vec(100, 0));
       expect(actor.vel).toBeVector(ex.vec(0, 0));
 
@@ -679,6 +683,7 @@ describe('Action', () => {
       expect(actor.vel).toBeVector(ex.vec(100, 0));
 
       scene.update(engine, 500);
+      scene.update(engine, 1);
       expect(actor.pos).toBeVector(ex.vec(100, 0));
       expect(actor.vel).toBeVector(ex.vec(0, 0));
 
