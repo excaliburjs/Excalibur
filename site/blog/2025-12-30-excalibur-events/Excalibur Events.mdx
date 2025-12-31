@@ -7,6 +7,8 @@ tags: [gamedev excaliburjs architecture events ai]
 
 # Event-Driven Gameplay in ExcaliburJS: Building Smarter, Decoupled Systems
 
+## A Primer on Excalibur Event Emitters
+
 <!-- optional title image -->
 import expng from './images/ex.png';
 import pubsub from './images/pubsub.png';
@@ -197,6 +199,22 @@ export class EnemyDetector extends ex.Actor {
   }
 }
 ```
+
+:::tip
+#### Passing parameters in the event
+
+When you call the `.emit()` method, the 2nd parameter you pass is what shows up as the incoming parameter for the event listener.
+
+For example:
+
+```ts
+// in the publisher
+this.events.emit("typingComplete", this.currentStringText);   
+
+// in the subscriber
+this.events.on('typingComplete', (e)=>{...});  // e is this.currentStringText
+```
+:::
 
 ## Common Gameplay Use Cases for Events
 
