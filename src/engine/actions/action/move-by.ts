@@ -73,7 +73,7 @@ export class MoveByWithOptions implements Action {
     }
   }
   public isComplete(entity: Entity): boolean {
-    return this._stopped || this._currentMs < 0;
+    return this._stopped || this._currentMs <= 0;
   }
 
   public stop(): void {
