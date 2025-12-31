@@ -9,8 +9,6 @@ export * from './action/repeat';
 export * from './action/repeat-forever';
 export * from './action/blink';
 export * from './action/die';
-export * from './action/ease-to';
-export * from './action/ease-by';
 export * from './action/fade';
 export * from './action/follow';
 export * from './action/meet';

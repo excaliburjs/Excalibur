@@ -113,22 +113,6 @@ export class GraphicsComponent extends Component {
 
   /**
    * Sets or gets wether any drawing should be visible in this component
-   * @deprecated use isVisible
-   */
-  public get visible(): boolean {
-    return this.isVisible;
-  }
-
-  /**
-   * Sets or gets wether any drawing should be visible in this component
-   * @deprecated use isVisible
-   */
-  public set visible(val: boolean) {
-    this.isVisible = val;
-  }
-
-  /**
-   * Sets or gets wether any drawing should be visible in this component
    */
   public isVisible: boolean = true;
 

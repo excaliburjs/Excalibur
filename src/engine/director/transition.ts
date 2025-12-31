@@ -6,8 +6,6 @@ import { GraphicsComponent } from '../graphics';
 import { CoordPlane } from '../math/coord-plane';
 import { Vector } from '../math/vector';
 import { clamp } from '../math/util';
-import type { EasingFunction } from '../util/easing-functions';
-import { EasingFunctions, isLegacyEasing } from '../util/easing-functions';
 import type { CoroutineInstance } from '../util/coroutine';
 import { coroutine } from '../util/coroutine';
 import { Logger } from '../util/log';
@@ -40,7 +38,7 @@ export interface TransitionOptions {
   /**
    * Optionally specify a easing function, by default linear
    */
-  easing?: Easing | EasingFunction;
+  easing?: Easing;
   /**
    * Optionally specify a transition direction, by default 'out'
    *
@@ -61,7 +59,6 @@ export class Transition extends Entity {
   readonly blockInput: boolean;
   readonly duration: number;
   readonly easing: Easing;
-  readonly legacyEasing: EasingFunction;
   readonly direction: 'out' | 'in';
   private _completeFuture = new Future<void>();
   protected _engine?: Engine;
@@ -73,7 +70,6 @@ export class Transition extends Entity {
   private _currentProgress: number = 0;
 
   public done = this._completeFuture.promise;
-  private _useLegacyEasing: boolean = false;
 
   /**
    * Returns a number between [0, 1] indicating what state the transition is in.
@@ -101,12 +97,7 @@ export class Transition extends Entity {
     super();
     this.name = `Transition#${this.id}`;
     this.duration = options.duration;
-    if (isLegacyEasing(options.easing)) {
-      this.legacyEasing = options.easing ?? EasingFunctions.Linear;
-      this._useLegacyEasing = true;
-    } else {
-      this.easing = options.easing ?? linear;
-    }
+    this.easing = options.easing ?? linear;
 
     this.direction = options.direction ?? 'out';
     this.hideLoader = options.hideLoader ?? false;
@@ -143,17 +134,9 @@ export class Transition extends Entity {
     }
 
     if (this.direction === 'out') {
-      if (this._useLegacyEasing) {
-        this._currentProgress = clamp(this.legacyEasing(this._currentDistance, 0, 1, 1), 0, 1);
-      } else {
-        this._currentProgress = clamp(lerp(0, 1, this.easing(this._currentDistance)), 0, 1);
-      }
+      this._currentProgress = clamp(lerp(0, 1, this.easing(this._currentDistance)), 0, 1);
     } else {
-      if (this._useLegacyEasing) {
-        this._currentProgress = clamp(this.legacyEasing(this._currentDistance, 1, 0, 1), 0, 1);
-      } else {
-        this._currentProgress = clamp(lerp(1, 0, this.easing(this._currentDistance)), 0, 1);
-      }
+      this._currentProgress = clamp(lerp(1, 0, this.easing(this._currentDistance)), 0, 1);
     }
   }
 

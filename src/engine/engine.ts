@@ -651,7 +651,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
    * Indicates whether the engine is set to fullscreen or not
    */
   public get isFullscreen(): boolean {
-    return this.screen.isFullScreen;
+    return this.screen.isFullscreen;
   }
 
   /**

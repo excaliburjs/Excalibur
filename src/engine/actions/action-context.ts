@@ -1,5 +1,3 @@
-import type { EasingFunction } from '../util/easing-functions';
-import { EasingFunctions } from '../util/easing-functions';
 import { ActionQueue } from './action-queue';
 import { Repeat } from './action/repeat';
 import { RepeatForever } from './action/repeat-forever';
@@ -16,8 +14,6 @@ import { isScaleToOptions, ScaleTo, ScaleToWithOptions } from './action/scale-to
 import type { ScaleByOptions } from './action/scale-by';
 import { isScaleByOptions, ScaleBy, ScaleByWithOptions } from './action/scale-by';
 import { CallMethod } from './action/call-method';
-import { EaseTo } from './action/ease-to';
-import { EaseBy } from './action/ease-by';
 import { Blink } from './action/blink';
 import { Fade } from './action/fade';
 import { Delay } from './action/delay';
@@ -88,87 +84,6 @@ export class ActionContext {
    */
   public curveTo(options: CurveToOptions): ActionContext {
     this._queue.add(new CurveTo(this._entity, options));
-    return this;
-  }
-
-  /**
-   * This method will move an actor to the specified `x` and `y` position over the
-   * specified duration using a given {@apilink EasingFunctions} and return back the actor. This
-   * method is part of the actor 'Action' fluent API allowing action chaining.
-   * @param pos       The x,y vector location to move the actor to
-   * @param duration  The time it should take the actor to move to the new location in milliseconds
-   * @param easingFcn Use {@apilink EasingFunction} or a custom function to use to calculate position, Default is {@apilink EasingFunctions.Linear}
-   * @deprecated use new moveTo({pos: Vector, duration: number, easing: EasingFunction})
-   */
-  public easeTo(pos: Vector, duration: number, easingFcn?: EasingFunction): ActionContext;
-  /**
-   * This method will move an actor to the specified `x` and `y` position over the
-   * specified duration using a given {@apilink EasingFunctions} and return back the actor. This
-   * method is part of the actor 'Action' fluent API allowing action chaining.
-   * @param x         The x location to move the actor to
-   * @param y         The y location to move the actor to
-   * @param duration  The time it should take the actor to move to the new location in milliseconds
-   * @param easingFcn Use {@apilink EasingFunction} or a custom function to use to calculate position, Default is {@apilink EasingFunctions.Linear}
-   * @deprecated use new moveTo({pos: Vector, duration: number, easing: EasingFunction})
-   */
-  public easeTo(x: number, y: number, duration: number, easingFcn?: EasingFunction): ActionContext;
-  public easeTo(...args: any[]): ActionContext {
-    let x = 0;
-    let y = 0;
-    let duration = 0;
-    let easingFcn = EasingFunctions.Linear;
-    if (args[0] instanceof Vector) {
-      x = args[0].x;
-      y = args[0].y;
-      duration = args[1];
-      easingFcn = args[2] ?? easingFcn;
-    } else {
-      x = args[0];
-      y = args[1];
-      duration = args[2];
-      easingFcn = args[3] ?? easingFcn;
-    }
-
-    this._queue.add(new EaseTo(this._entity, x, y, duration, easingFcn));
-    return this;
-  }
-
-  /**
-   * This method will move an actor by a specified vector offset relative to the current position given
-   * a duration and a {@apilink EasingFunction}. This method is part of the actor 'Action' fluent API allowing action chaining.
-   * @param offset Vector offset relative to the current position
-   * @param duration The duration in milliseconds
-   * @param easingFcn Use {@apilink EasingFunction} or a custom function to use to calculate position, Default is {@apilink EasingFunctions.Linear}
-   * @deprecated use new moveBy({offset: Vector, duration: number, easing: EasingFunction})
-   */
-  public easeBy(offset: Vector, duration: number, easingFcn?: EasingFunction): ActionContext;
-  /**
-   * This method will move an actor by a specified x and y offset relative to the current position given
-   * a duration and a {@apilink EasingFunction}. This method is part of the actor 'Action' fluent API allowing action chaining.
-   * @param offset Vector offset relative to the current position
-   * @param duration The duration in milliseconds
-   * @param easingFcn Use {@apilink EasingFunction} or a custom function to use to calculate position, Default is {@apilink EasingFunctions.Linear}
-   * @deprecated use new moveBy({offset: Vector, duration: number, easing: EasingFunction})
-   */
-  public easeBy(offsetX: number, offsetY: number, duration: number, easingFcn?: EasingFunction): ActionContext;
-  public easeBy(...args: any[]): ActionContext {
-    let offsetX = 0;
-    let offsetY = 0;
-    let duration = 0;
-    let easingFcn = EasingFunctions.Linear;
-    if (args[0] instanceof Vector) {
-      offsetX = args[0].x;
-      offsetY = args[0].y;
-      duration = args[1];
-      easingFcn = args[2] ?? easingFcn;
-    } else {
-      offsetX = args[0];
-      offsetY = args[1];
-      duration = args[2];
-      easingFcn = args[3] ?? easingFcn;
-    }
-
-    this._queue.add(new EaseBy(this._entity, offsetX, offsetY, duration, easingFcn));
     return this;
   }
 

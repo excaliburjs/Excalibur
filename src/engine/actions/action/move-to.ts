@@ -4,15 +4,13 @@ import type { Entity } from '../../entity-component-system/entity';
 import type { Easing } from '../../math';
 import { clamp, lerp, linear, remap } from '../../math';
 import { Vector, vec } from '../../math/vector';
-import type { EasingFunction } from '../../util/easing-functions';
-import { EasingFunctions, isLegacyEasing } from '../../util/easing-functions';
 import type { Action } from '../action';
 import { nextActionId } from '../action';
 
 export interface MoveToOptions {
   pos: Vector;
   duration: number;
-  easing?: Easing | EasingFunction;
+  easing?: Easing;
 }
 
 /**
@@ -33,8 +31,6 @@ export class MoveToWithOptions implements Action {
   private _stopped: boolean = false;
   private _motion: MotionComponent;
   private _easing: Easing = linear;
-  private _legacyEasing: EasingFunction = EasingFunctions.Linear;
-  private _useLegacyEasing = false;
 
   constructor(
     public entity: Entity,
@@ -42,10 +38,6 @@ export class MoveToWithOptions implements Action {
   ) {
     this._end = options.pos;
     this._easing = options.easing ?? this._easing;
-    if (isLegacyEasing(options.easing)) {
-      this._legacyEasing = options.easing;
-      this._useLegacyEasing = true;
-    }
     this._tx = entity.get(TransformComponent);
     this._motion = entity.get(MotionComponent);
     if (!this._tx) {
@@ -63,15 +55,8 @@ export class MoveToWithOptions implements Action {
     const t = clamp(remap(0, this._durationMs, 0, 1, this._durationMs - this._currentMs), 0, 1);
     const currentPos = this._tx.pos;
 
-    let newPosX = 0;
-    let newPosY = 0;
-    if (this._useLegacyEasing) {
-      newPosX = this._legacyEasing(t, this._start.x, this._end.x, 1);
-      newPosY = this._legacyEasing(t, this._start.y, this._end.y, 1);
-    } else {
-      newPosX = lerp(this._start.x, this._end.x, this._easing(t));
-      newPosY = lerp(this._start.y, this._end.y, this._easing(t));
-    }
+    const newPosX = lerp(this._start.x, this._end.x, this._easing(t));
+    const newPosY = lerp(this._start.y, this._end.y, this._easing(t));
 
     const seconds = elapsed / 1000;
     const velX = seconds === 0 ? 0 : (newPosX - currentPos.x) / seconds;
