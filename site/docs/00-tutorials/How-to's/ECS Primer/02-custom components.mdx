@@ -38,7 +38,7 @@ export class PlayerMovementComponent extends Component {
   heldKeys: Directions = [];
   keyboard: Keyboard;
 
-  conststructor(engine: Engine,speed?:number){
+  constructor(engine: Engine,speed?:number){
     super();
     if(speed) this.speed = speed;
     this.keyboard = engine.input.keyboard;
