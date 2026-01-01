@@ -1,0 +1,120 @@
+---
+title: Wiring Custom Components
+slug: /wiring-up-your-custom-components
+section: Tutorials
+---
+
+## Connecting the Component to the System
+
+Let's continue the keyboard control system from the previous page.
+
+If we define our System as: 
+
+```ts
+// KeyBoardControlSystem.ts
+
+import { System, Engine, Actor, Keys, MotionComponent, SystemType, World, Vector } from 'excalibur';
+import { PlayerMovementComponent } from './PlayerMovementComponent';
+
+export class KeyboardControlSystem extends System {
+  public systemType = SystemType.Update;
+  query: Query<typeof PlayerMovementComponent | typeof MotionComponent>;
+
+  constructor(world: World) {
+    super();
+    // this tells the query which entities are needed
+    this.query = world.query([PlayerMovementComponent, MotionComponent]);
+  }
+
+  update(delta: number) {
+
+    for (const entity of this.query.entities) {
+      // key your components
+      const keyboardControl = entity.get(PlayerMovementComponent);
+      const movementComponent = entity.get(MotionComponent);
+
+      // enable flag on keyboard control
+      if(!keyboardControl.enable) break;  
+      let speed = keyboardContrl.speed;
+
+      // set tracked velocity to zero
+      let vX = 0;
+      let vY = 0;
+
+      // Check the input keys...
+
+      //Up
+      if (keyboardControl.keyboard.isHeld(Keys.ArrowUp)) {
+        // set held direction
+        if(!keyboardControl.heldKey.includes('Up'))keyboardControl.heldKeys.push('Up');
+        vY += -speed;
+      }else{
+        // clear held direction
+        const index = fruits.indexOf('Up');
+        if (index !== -1) fruits.splice(index, 1);
+      }
+
+      //Down
+      if (keyboardControl.keyboard.isHeld(Keys.ArrowDown)) {
+        // set held direction
+        if(!keyboardControl.heldKey.includes('Down'))keyboardControl.heldKeys.push('Down');
+        vY += speed;
+      }else{
+        // clear held direction
+        const index = fruits.indexOf('Down');
+        if (index !== -1) fruits.splice(index, 1);
+      }
+
+      //Left
+      if (keyboardControl.keyboard.isHeld(Keys.ArrowLeft)) {
+        // set held direction
+        if(!keyboardControl.heldKey.includes('Left'))keyboardControl.heldKeys.push('Left');
+        vX += -speed;
+      }else{
+        // clear held direction
+        const index = fruits.indexOf('Left');
+        if (index !== -1) fruits.splice(index, 1);
+      }
+
+      //Right
+      if (keyboardControl.keyboard.isHeld(Keys.ArrowRight)) {
+        // set held direction
+        if(!keyboardControl.heldKey.includes('Right'))keyboardControl.heldKeys.push('Right');
+        vX += speed;
+      }else{
+        // clear held direction
+        const index = fruits.indexOf('Right');
+        if (index !== -1) fruits.splice(index, 1);
+      }
+      
+      //Set velocity on entity
+      movementComponent.vel = new Vector(vX,vY);
+    }
+  }
+}
+```
+
+## Implementing the system
+
+Systems get added to each [Scene](/docs/scenes) that uses them.  For the sake of this example, we'll add it to the root scene.
+
+```ts
+const game = new ex.Engine({
+  width: 800, // the width of the canvas
+  height: 600, // the height of the canvas
+  canvasElementId: '', // the DOM canvas element ID, if you are providing your own
+  displayMode: ex.DisplayMode.FitScreen, // the display mode
+  pointerScope: ex.PointerScope.Document // the scope of capturing pointer (mouse/touch) events
+});
+
+let rootWorld = game.currentScene.world;
+// add your new system to the scene's world
+rootWorld.add(new KeyboardControlSystem(rootWorld))
+
+game.start();
+
+```
+
+Now if you test this out, the actor you place the component on should move with the Arrow Keys!
+
+Finally, we'll discuss Systemless Components next

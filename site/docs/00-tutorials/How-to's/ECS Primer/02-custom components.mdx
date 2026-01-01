@@ -1,0 +1,79 @@
+---
+title: Custom Components
+slug: /custom-components
+section: Tutorials
+---
+
+## Custom Components
+
+Components are the building blocks of ECS. They store an entity’s state in a modular way. By creating custom components, you can:
+
+- Encapsulate reusable data
+- Expose helper methods to manipulate that data
+- Keep logic separate from systems (or complement systems later)
+
+A component should describe “what an entity has”, not “what it does.” Systems are where behavior happens — but components can have convenience methods that make life easier.
+
+There are two ways you can build out a component:
+
+1. The traditional way
+2. [Systemless Components](systemless-components) (advanced)
+
+Let's focus on traditional components first
+
+### Example: Keyboard Control
+
+```ts
+import { Component, Engine } from 'excalibur';
+
+type Directions = 'Left'|'Right'|'Up'|'Down';
+
+export class PlayerMovementComponent extends Component {
+  _enabled: boolean = true;
+  speed = 150; 
+  heldKeys: Directions = [];
+  keyboard: Keyboard;
+
+  conststructor(engine: Engine,speed?:number){
+    super();
+    if(speed) this.speed = speed;
+    this.keyboard = engine.input.keyboard;
+  }
+
+  set enable(enable: boolean){
+    this._enabled = enable;
+  }
+
+  get enable(){
+    return this._enabled;
+  }
+
+```
+
+To add this component to your Actor that you want controlled by keypress, simply:
+
+```ts
+import { Engine, Actor } from 'excalibur';
+import { PlayerMovementComponent } from './PlayerMovementComponent';
+import { MovementSystem } from './MovementSystem';
+
+const engine = new Engine();
+const player = new Actor({ x: 100, y: 100, width: 32, height: 32 });
+player.addComponent(new PlayerMovementComponent(engine, 100));
+
+engine.add(player);
+engine.start();
+```
+
+and to access this componet in your code you simply use:
+
+```ts
+let keyboardControl = player.get(PlayerMovementCompontent);
+// now keyboardControl has the speed, enable, and heldKeys properties on it!
+// also it will have the engine reference to the keyboard input
+```
+
+We will look at the keyboard system in the next section.
+
+
+
