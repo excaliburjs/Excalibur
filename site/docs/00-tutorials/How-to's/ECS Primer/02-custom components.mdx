@@ -57,12 +57,12 @@ export class PlayerMovementComponent extends Component {
 To add this component to your Actor that you want controlled by keypress, simply:
 
 ```ts
-import { Engine, Actor } from 'excalibur';
+import { Engine, Actor, Color } from 'excalibur';
 import { PlayerMovementComponent } from './PlayerMovementComponent';
 import { MovementSystem } from './MovementSystem';
 
 const engine = new Engine();
-const player = new Actor({ x: 100, y: 100, width: 32, height: 32 });
+const player = new Actor({ x: 100, y: 100, width: 32, height: 32, color: Color.Red });
 player.addComponent(new PlayerMovementComponent(engine, 100));
 
 engine.add(player);
