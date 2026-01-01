@@ -4,6 +4,8 @@ slug: /custom-components
 section: Tutorials
 ---
 
+import keypress from './images/keypress.png';
+
 ## Custom Components
 
 Components are the building blocks of ECS. They store an entity’s state in a modular way. By creating custom components, you can:
@@ -22,6 +24,8 @@ There are two ways you can build out a component:
 Let's focus on traditional components first
 
 ### Example: Keyboard Control
+
+<img src={keypress} alt="Pressing Keyboard" style={{ width: "500px" }} />
 
 ```ts
 import { Component, Engine } from 'excalibur';
