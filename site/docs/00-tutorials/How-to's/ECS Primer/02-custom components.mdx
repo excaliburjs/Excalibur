@@ -35,7 +35,7 @@ type Directions = 'Left'|'Right'|'Up'|'Down';
 export class PlayerMovementComponent extends Component {
   _enabled: boolean = true;
   speed = 150; 
-  heldKeys: Directions = [];
+  heldKeys: Directions[] = [];
   keyboard: Keyboard;
 
   constructor(engine: Engine,speed?:number){

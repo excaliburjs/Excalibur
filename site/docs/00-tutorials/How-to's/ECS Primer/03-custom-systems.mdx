@@ -26,16 +26,15 @@ export class KeyboardControlSystem extends System {
     this.query = world.query([PlayerMovementComponent, MotionComponent]);
   }
 
-  update(delta: number) {
-
+   update() {
     for (const entity of this.query.entities) {
       // key your components
       const keyboardControl = entity.get(PlayerMovementComponent);
       const movementComponent = entity.get(MotionComponent);
 
       // enable flag on keyboard control
-      if(!keyboardControl.enable) break;  
-      let speed = keyboardContrl.speed;
+      if (!keyboardControl.enable) break;
+      let speed = keyboardControl.speed;
 
       // set tracked velocity to zero
       let vX = 0;
@@ -46,49 +45,49 @@ export class KeyboardControlSystem extends System {
       //Up
       if (keyboardControl.keyboard.isHeld(Keys.ArrowUp)) {
         // set held direction
-        if(!keyboardControl.heldKey.includes('Up'))keyboardControl.heldKeys.push('Up');
+        if (!keyboardControl.heldKeys.includes("Up")) keyboardControl.heldKeys.push("Up");
         vY += -speed;
-      }else{
+      } else {
         // clear held direction
-        const index = keyboardControl.heldKey.indexOf('Up');
-        if (index !== -1) keyboardControl.heldKey.splice(index, 1);
+        const index = keyboardControl.heldKeys.indexOf("Up");
+        if (index !== -1) keyboardControl.heldKeys.splice(index, 1);
       }
 
       //Down
       if (keyboardControl.keyboard.isHeld(Keys.ArrowDown)) {
         // set held direction
-        if(!keyboardControl.heldKey.includes('Down'))keyboardControl.heldKeys.push('Down');
+        if (!keyboardControl.heldKeys.includes("Down")) keyboardControl.heldKeys.push("Down");
         vY += speed;
-      }else{
+      } else {
         // clear held direction
-        const index = keyboardControl.heldKey.indexOf('Down');
-        if (index !== -1) keyboardControl.heldKey.splice(index, 1);
+        const index = keyboardControl.heldKeys.indexOf("Down");
+        if (index !== -1) keyboardControl.heldKeys.splice(index, 1);
       }
 
       //Left
       if (keyboardControl.keyboard.isHeld(Keys.ArrowLeft)) {
         // set held direction
-        if(!keyboardControl.heldKey.includes('Left'))keyboardControl.heldKeys.push('Left');
+        if (!keyboardControl.heldKeys.includes("Left")) keyboardControl.heldKeys.push("Left");
         vX += -speed;
-      }else{
+      } else {
         // clear held direction
-        const index = keyboardControl.heldKey.indexOf('Left');
-        if (index !== -1) keyboardControl.heldKey.splice(index, 1);
+        const index = keyboardControl.heldKeys.indexOf("Left");
+        if (index !== -1) keyboardControl.heldKeys.splice(index, 1);
       }
 
       //Right
       if (keyboardControl.keyboard.isHeld(Keys.ArrowRight)) {
         // set held direction
-        if(!keyboardControl.heldKey.includes('Right'))keyboardControl.heldKeys.push('Right');
+        if (!keyboardControl.heldKeys.includes("Right")) keyboardControl.heldKeys.push("Right");
         vX += speed;
-      }else{
+      } else {
         // clear held direction
-        const index = keyboardControl.heldKey.indexOf('Right');
-        if (index !== -1) keyboardControl.heldKey.splice(index, 1);
+        const index = keyboardControl.heldKeys.indexOf("Right");
+        if (index !== -1) keyboardControl.heldKeys.splice(index, 1);
       }
-      
+
       //Set velocity on entity
-      movementComponent.vel = new Vector(vX,vY);
+      movementComponent.vel = new Vector(vX, vY);
     }
   }
 }
