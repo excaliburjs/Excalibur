@@ -3,6 +3,7 @@ title: Wiring Custom Components
 slug: /wiring-up-your-custom-components
 section: Tutorials
 ---
+import moveGif from './images/movement.gif';
 
 ## Connecting the Component to the System
 
@@ -28,11 +29,11 @@ export class KeyboardControlSystem extends System {
 
    update() {
     for (const entity of this.query.entities) {
-      // key your components
+      // get your components
       const keyboardControl = entity.get(PlayerMovementComponent);
       const movementComponent = entity.get(MotionComponent);
 
-      // enable flag on keyboard control
+      // check enable flag on keyboard control
       if (!keyboardControl.enable) break;
       let speed = keyboardControl.speed;
 
@@ -120,5 +121,7 @@ game.start();
 ```
 
 Now if you test this out, the actor you place the component on should move with the Arrow Keys!
+
+<img src={moveGif} alt="Moving Actor" style={{ width: "600px" }} />
 
 Finally, we'll discuss Systemless Components next
