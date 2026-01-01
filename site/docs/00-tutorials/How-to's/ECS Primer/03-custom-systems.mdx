@@ -50,8 +50,8 @@ export class KeyboardControlSystem extends System {
         vY += -speed;
       }else{
         // clear held direction
-        const index = fruits.indexOf('Up');
-        if (index !== -1) fruits.splice(index, 1);
+        const index = keyboardControl.heldKey.indexOf('Up');
+        if (index !== -1) keyboardControl.heldKey.splice(index, 1);
       }
 
       //Down
@@ -61,8 +61,8 @@ export class KeyboardControlSystem extends System {
         vY += speed;
       }else{
         // clear held direction
-        const index = fruits.indexOf('Down');
-        if (index !== -1) fruits.splice(index, 1);
+        const index = keyboardControl.heldKey.indexOf('Down');
+        if (index !== -1) keyboardControl.heldKey.splice(index, 1);
       }
 
       //Left
@@ -72,8 +72,8 @@ export class KeyboardControlSystem extends System {
         vX += -speed;
       }else{
         // clear held direction
-        const index = fruits.indexOf('Left');
-        if (index !== -1) fruits.splice(index, 1);
+        const index = keyboardControl.heldKey.indexOf('Left');
+        if (index !== -1) keyboardControl.heldKey.splice(index, 1);
       }
 
       //Right
@@ -83,8 +83,8 @@ export class KeyboardControlSystem extends System {
         vX += speed;
       }else{
         // clear held direction
-        const index = fruits.indexOf('Right');
-        if (index !== -1) fruits.splice(index, 1);
+        const index = keyboardControl.heldKey.indexOf('Right');
+        if (index !== -1) keyboardControl.heldKey.splice(index, 1);
       }
       
       //Set velocity on entity
