@@ -22,6 +22,6 @@
   "dependencies": {
     "excalibur": "0.32.0",
     "lz-string": "1.5.0",
-    "monaco-editor": "0.52.2"
+    "monaco-editor": "0.55.1"
   }
 }
