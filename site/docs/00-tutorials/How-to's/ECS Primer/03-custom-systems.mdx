@@ -4,12 +4,19 @@ slug: /wiring-up-your-custom-components
 section: Tutorials
 ---
 import moveGif from './images/movement.gif';
+import sample1 from '!!raw-loader!./code/ecs-1.ts';
 
 ## Connecting the Component to the System
 
 Let's continue the keyboard control system from the previous page.
 
 If we define our System as: 
+
+:::note
+I'm using WASD keys here to improve the user experience of the Playground below.
+I'm not using arrow keys as it moves the browser.
+:::
+
 
 ```ts
 // KeyBoardControlSystem.ts
@@ -44,7 +51,7 @@ export class KeyboardControlSystem extends System {
       // Check the input keys...
 
       //Up
-      if (keyboardControl.keyboard.isHeld(Keys.ArrowUp)) {
+      if (keyboardControl.keyboard.isHeld(Keys.W)) {
         // set held direction
         if (!keyboardControl.heldKeys.includes("Up")) keyboardControl.heldKeys.push("Up");
         vY += -speed;
@@ -55,7 +62,7 @@ export class KeyboardControlSystem extends System {
       }
 
       //Down
-      if (keyboardControl.keyboard.isHeld(Keys.ArrowDown)) {
+      if (keyboardControl.keyboard.isHeld(Keys.S)) {
         // set held direction
         if (!keyboardControl.heldKeys.includes("Down")) keyboardControl.heldKeys.push("Down");
         vY += speed;
@@ -66,7 +73,7 @@ export class KeyboardControlSystem extends System {
       }
 
       //Left
-      if (keyboardControl.keyboard.isHeld(Keys.ArrowLeft)) {
+      if (keyboardControl.keyboard.isHeld(Keys.A)) {
         // set held direction
         if (!keyboardControl.heldKeys.includes("Left")) keyboardControl.heldKeys.push("Left");
         vX += -speed;
@@ -77,7 +84,7 @@ export class KeyboardControlSystem extends System {
       }
 
       //Right
-      if (keyboardControl.keyboard.isHeld(Keys.ArrowRight)) {
+      if (keyboardControl.keyboard.isHeld(Keys.D)) {
         // set held direction
         if (!keyboardControl.heldKeys.includes("Right")) keyboardControl.heldKeys.push("Right");
         vX += speed;
@@ -122,6 +129,13 @@ game.start();
 
 Now if you test this out, the actor you place the component on should move with the Arrow Keys!
 
-<img src={moveGif} alt="Moving Actor" style={{ width: "600px" }} />
+## Try it out, using Excalibur Playground
+
+:::note
+Note on importing.  There are two ways of importing Excalibur, you can import `* as ex` which is in the playground sample.
+Or you can import like above, and each specific module you want to pull in.  It is up to you, we show both here.
+:::
+
+<PlaygroundEmbed code={sample1} />
 
 Finally, we'll discuss Systemless Components next
