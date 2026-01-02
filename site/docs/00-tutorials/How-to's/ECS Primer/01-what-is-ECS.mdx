@@ -1,0 +1,140 @@
+---
+title: What is an ECS
+slug: /what-is-ecs
+section: Tutorials
+---
+
+import ecspng from './images/ecs.png';
+
+<img src={ecspng} alt="ECS model" style={{ width: "700px" }} />
+
+## Why ECS Matters
+
+Game design often relies on inheritance: you make a Player class, an Enemy class, maybe a FlyingEnemy subclass, and so on. This can get messy quickly:
+
+- Hard to reuse logic
+- Difficult to add new behaviors
+- Easy to introduce bugs when changing one class
+
+ECS flips the model:
+
+- Entities are dumb containers
+- Components are small, focused data
+- Systems do the heavy lifting
+
+## A Quick Peek at ECS in Action
+
+```ts
+const player = new ex.Actor({ x: 100, y: 100 });
+
+//Attach the component to the player
+player.addComponent(new HealthComponent());
+
+//Attach the system to the engine
+engine.world.add(new HealthSystem());
+
+player.get(HealthComponent).damage(20);
+```
+
+Even this small snippet shows the ECS philosophy:
+
+- The player has a health component
+- A system observes and reacts to the health
+- Logic is centralized and predictable, not scattered across your game objects
+
+Let's break this down so we map ECS fundamentals to Excalibur's implementation.
+
+## Entities
+
+Excalibur has an [entity](/docs/entities) class, its simply a container of components. 
+
+Actors are 'premade' entities that come with several commonly used components on them already
+
+- Colliders Component
+- Transform Component
+- Body Component
+- Motion Component
+- Pointer Component
+- Actions Component
+- Graphics Component
+
+These allow Actors to have, out of the box, these behaviors: movement, shape/size, hit things, have sprites shown, and respond to mouse clicks.
+
+We will discuss how to make your own custom Components in this series.
+
+## Components
+
+[Components](/docs/components) are simply a collection of data tied to a behavior.  
+
+For example: for the Motion Component you have: 
+
+- velocity (vel)
+- acceleration (acc)
+- maxVel
+- torque
+- inerta
+
+These are all 'values' and data that are bolted on to an entity that allows the Motion System to use that data to 'move' the entity over time.
+
+## Systems
+
+[Systems](/docs/systems) are where the business logic resides.  The process and workflow of a system is as follows.
+
+1. On each update, the system collects ALL entities with the respective components on it needed
+
+    - These are called [Queries](/docs/queries), the 'search' for all impacted entities
+
+2. For each entity that is affected by the System, it uses the systems logic to modify any or all of the data associated with that entity
+
+This is best explained in an example.
+
+```ts
+import { Actor, Engine, Component, System, SystemType } from 'excalibur';
+
+// 1. Component: Health
+class HealthComponent extends Component {
+  current = 100;   // <---------- THIS IS THE DATA  (COMPONENT)
+
+  constructor(){
+    super();
+  }
+
+  damage(amount: number) {  //<---- you can do this too ;)
+    this.current = Math.max(0, this.current - amount);
+  }
+}
+
+// 2. System: Check health and kill actor if zero  <----THIS IS THE BEHAVIOR (SYSTEM)
+class HealthSystem extends System {
+  systemType = SystemType.Update;
+  query: Query<typeof HealthComponent>;
+  
+  constructor(world: World) {
+    super();
+    this.query = world.query([HealthComponent]);
+  }
+
+  update(world: any, delta: number) {
+    for (const entity of world.queryEntities(this.types)) {  //<--- LOOP THROUGH ALL ENTITIES FOR THIS SYSTEM
+      const health = entity.get(HealthComponent);
+      if (health.current <= 0) {
+        entity.kill();
+        console.log(`${entity.name} has died!`);
+      }
+    }
+  }
+}
+
+// 3. ENTITY SETUP
+const player = new Actor({ x: 100, y: 100, width: 32, height: 32 });  //  < ----- THIS IS THE ENITY
+player.addComponent(new HealthComponent());
+
+// 4. Damage the player
+player.get(HealthComponent).damage(50); // player still alive
+player.get(HealthComponent).damage(60); // triggers system → player dies
+
+```
+
+What makes ECS so useful is that if you have a certian mechanic that can be re-used for different Actors or Entities, then slap a component on it and the system will just 'pickup' that behavior for that actor, makes it super easy to extend behaviors without re-writing code.
+
+In this example, you can give any Actor the ability to have health and die simply by adding the component to it.

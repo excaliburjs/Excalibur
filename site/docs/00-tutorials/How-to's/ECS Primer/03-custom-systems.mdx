@@ -1,0 +1,141 @@
+---
+title: Wiring Custom Components
+slug: /wiring-up-your-custom-components
+section: Tutorials
+---
+import moveGif from './images/movement.gif';
+import sample1 from '!!raw-loader!./code/ecs-1.ts';
+
+## Connecting the Component to the System
+
+Let's continue the keyboard control system from the previous page.
+
+If we define our System as: 
+
+:::note
+I'm using WASD keys here to improve the user experience of the Playground below.
+I'm not using arrow keys as it moves the browser.
+:::
+
+
+```ts
+// KeyBoardControlSystem.ts
+
+import { System, Engine, Actor, Keys, MotionComponent, SystemType, World, Vector } from 'excalibur';
+import { PlayerMovementComponent } from './PlayerMovementComponent';
+
+export class KeyboardControlSystem extends System {
+  public systemType = SystemType.Update;
+  query: Query<typeof PlayerMovementComponent | typeof MotionComponent>;
+
+  constructor(world: World) {
+    super();
+    // this tells the query which entities are needed
+    this.query = world.query([PlayerMovementComponent, MotionComponent]);
+  }
+
+   update() {
+    for (const entity of this.query.entities) {
+      // get your components
+      const keyboardControl = entity.get(PlayerMovementComponent);
+      const movementComponent = entity.get(MotionComponent);
+
+      // check enable flag on keyboard control
+      if (!keyboardControl.enable) break;
+      let speed = keyboardControl.speed;
+
+      // set tracked velocity to zero
+      let vX = 0;
+      let vY = 0;
+
+      // Check the input keys...
+
+      //Up
+      if (keyboardControl.keyboard.isHeld(Keys.W)) {
+        // set held direction
+        if (!keyboardControl.heldKeys.includes("Up")) keyboardControl.heldKeys.push("Up");
+        vY += -speed;
+      } else {
+        // clear held direction
+        const index = keyboardControl.heldKeys.indexOf("Up");
+        if (index !== -1) keyboardControl.heldKeys.splice(index, 1);
+      }
+
+      //Down
+      if (keyboardControl.keyboard.isHeld(Keys.S)) {
+        // set held direction
+        if (!keyboardControl.heldKeys.includes("Down")) keyboardControl.heldKeys.push("Down");
+        vY += speed;
+      } else {
+        // clear held direction
+        const index = keyboardControl.heldKeys.indexOf("Down");
+        if (index !== -1) keyboardControl.heldKeys.splice(index, 1);
+      }
+
+      //Left
+      if (keyboardControl.keyboard.isHeld(Keys.A)) {
+        // set held direction
+        if (!keyboardControl.heldKeys.includes("Left")) keyboardControl.heldKeys.push("Left");
+        vX += -speed;
+      } else {
+        // clear held direction
+        const index = keyboardControl.heldKeys.indexOf("Left");
+        if (index !== -1) keyboardControl.heldKeys.splice(index, 1);
+      }
+
+      //Right
+      if (keyboardControl.keyboard.isHeld(Keys.D)) {
+        // set held direction
+        if (!keyboardControl.heldKeys.includes("Right")) keyboardControl.heldKeys.push("Right");
+        vX += speed;
+      } else {
+        // clear held direction
+        const index = keyboardControl.heldKeys.indexOf("Right");
+        if (index !== -1) keyboardControl.heldKeys.splice(index, 1);
+      }
+
+      //Set velocity on entity
+      movementComponent.vel = new Vector(vX, vY);
+    }
+  }
+}
+```
+### Key takeaways
+
+- We are using a Query to collect all impacted entities
+- We are grabbing their components
+- We are performing our 'logic' to manipulate the data for each update tik
+
+## Implementing the system
+
+Systems get added to each [Scene](/docs/scenes) that uses them.  For the sake of this example, we'll add it to the root scene.
+
+```ts
+const game = new ex.Engine({
+  width: 800, // the width of the canvas
+  height: 600, // the height of the canvas
+  canvasElementId: '', // the DOM canvas element ID, if you are providing your own
+  displayMode: ex.DisplayMode.FitScreen, // the display mode
+  pointerScope: ex.PointerScope.Document // the scope of capturing pointer (mouse/touch) events
+});
+
+let rootWorld = game.currentScene.world;
+// add your new system to the scene's world
+rootWorld.add(new KeyboardControlSystem(rootWorld))
+
+game.start();
+
+```
+
+Now if you test this out, the actor you place the component on should move with the WASD Keys, try it below!
+
+## Try it out, using Excalibur Playground
+
+:::note
+Note on importing.  There are two ways of importing Excalibur, you can import `* as ex` which is in the playground sample.
+Or you can import like above, and each specific module you want to pull in.  It is up to you, we show both here.
+:::
+
+<PlaygroundEmbed code={sample1} />
+
+Finally, we'll discuss Systemless Components next
