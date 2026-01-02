@@ -105,7 +105,7 @@
     "globals": "16.5.0",
     "husky": "9.1.7",
     "jasmine": "5.13.0",
-    "jasmine-core": "5.12.1",
+    "jasmine-core": "5.13.0",
     "karma": "6.4.4",
     "karma-browserstack-launcher": "1.6.0",
     "karma-chrome-launcher": "3.2.0",
