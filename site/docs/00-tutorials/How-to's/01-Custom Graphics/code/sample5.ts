@@ -128,7 +128,7 @@ export class HealthBar extends ex.Actor {
     this.graphics.use(new HealthBarGraphic());
   }
 
-  takeDamage(damageAmount){
+  takeDamage(damageAmount: number){
     this.currentHealth -= damageAmount;
 
     //renew health as a part of the demo
