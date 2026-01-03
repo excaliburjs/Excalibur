@@ -1,0 +1,99 @@
+---
+title: Filling out the draw logic
+slug: /graphic-draw-logic
+section: Tutorials
+---
+
+import sample2 from '!!raw-loader!./code/sample2.ts';
+import sample3 from '!!raw-loader!./code/sample3.ts';
+
+## Linking the new Graphic
+
+We've now added the graphic to our project and we have the child actor now using this custom graphic.  We've removed the `color` property from the child, as it no longer will be needed.
+
+<PlaygroundEmbed code={sample2} />
+
+Our current todo list: 
+  - [x] Create a Custom Graphic class
+  - [x] Attach the graphic to the child actor
+  - [ ] Add the graphic logic to the new class
+  - [ ] Add in logic to 'change' the actor's health
+  - [ ] Add in a lerp to make it change smoothly
+
+
+## How to draw a healthbar
+
+The process for drawing is going to follow these steps:
+
+- On the first draw and anytime something changes, we'll update the drawing
+- We need to manage our canvas scaling to help with pixel resolution and anit-aliasing of the canvas
+- Clear the previous draw
+- Draw the backgorund
+- Draw the bar fill
+- Draw the border
+- Draw the offline canvas to the ExcaliburGraphicsContext (with adjusted scaling)
+
+:::note
+The principle of up scaling the offline canvas is to increase the amount of pixels that are available to get scaled down into our Excalibur context when it does its sampling.  Otherwise you will end up with a blurry rendering due to anti-aliasing.  So we are essentially drawing a hi-res version of what we want to scale down.
+:::
+
+```ts
+
+protected _drawImage(ex: ex.ExcaliburGraphicsContext, x: number, y: number): void {
+    /*
+      Dirty Flag is used to tell the graphic something's changed
+    */
+    if (this.dirtyFlag && this.ctx) {
+      const ctx = this.ctx;
+      const s = this.drawScale;
+
+      // === Clear canvas and scale ===
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, this.cnv.width, this.cnv.height);
+      ctx.scale(s, s);
+
+      // === Background ===
+      ctx.fillStyle = this.backgroundColor.toString();
+      ctx.fillRect(0, 0, this.width, this.height);
+
+      // === Health fill ===
+      const border = this.borderSize;
+      const inset = border / 2; // or border if you prefer full padding
+      const fillWidth = (this.width - border);
+      const fillHeight = this.height - border; // stay inside border
+      ctx.fillStyle = this.safeColor.toString();
+      
+      ctx.fillRect(
+        inset, // x
+        inset, // y
+        fillWidth, // width
+        fillHeight // height
+      );
+
+      // === Border ===
+      ctx.lineWidth = this.borderSize;
+      ctx.strokeStyle = this.borderColor.toString();
+      ctx.strokeRect(0, 0, this.width, this.height);
+    }
+
+    // === Draw canvas === (forcing canvas to update)
+    this.cnv.setAttribute("forceUpload", "true");
+    ex.save();
+    ex.scale(1 / this.drawScale, 1 / this.drawScale);
+    ex.drawImage(this.cnv, x * this.drawScale, y * this.drawScale);
+    ex.restore();
+  }
+```
+
+<PlaygroundEmbed code={sample3} />
+
+:::note
+This draw routine runs every game frame, so if nothing changes, we want to skip the redrawing, it will only redraw the 'last' update!
+:::
+
+Our current todo list: 
+  - [x] Create a Custom Graphic class
+  - [x] Attach the graphic to the child actor
+  - [x] Add the graphic logic to the new class
+  - [ ] Add in logic to 'change' the actor's health
+  - [ ] Add in a lerp to make it change smoothly

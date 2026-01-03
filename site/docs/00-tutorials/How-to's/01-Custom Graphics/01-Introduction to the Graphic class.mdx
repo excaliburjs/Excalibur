@@ -1,0 +1,92 @@
+---
+title: The Graphic Class
+slug: /the-graphic-class
+section: Tutorials
+---
+
+## What are Graphics in Excalibur
+
+In ExcaliburJS, a Graphic is the visual representation of something in your game. It is responsible for how something is drawn—but not where it exists in the world or how it behaves.  Examples of graphics are: Sprites, Animations, Rasterized shapes, material shaders, and nine-slice panels.
+
+The separation from the actors and their graphics is an important distinction:
+
+- Actors represent things in the game world
+- Graphics represent how those things look
+
+An Actor can exist without a graphic, and a graphic can be swapped or changed without affecting gameplay logic.
+
+## The Graphics Component
+
+Every entity that wants to be rendered can have a Graphics component. This component manages the graphic for that entity.  Actors and ScreenElements come pre-baked with a graphics component already attached. Tiles in tilemaps can manage mulitple graphics.
+
+```ts
+const myActor = new ex.Actor({ x: 100, y: 100, width: 24, height: 24 }); // sets position and collider size
+
+
+myActor.graphics.use(
+  new ex.Rectangle({
+    width: 32,   // set's the graphic size, bigger than the actor
+    height: 32,
+    color: Color.Red
+  })
+);
+```
+
+In this example:
+
+The actor constructor defines position, rotation, scale, and collision behavior.
+
+The rectangle graphic defines what is drawn.
+
+:::note
+The graphic dimensions are independent of the Actor's dimensions
+:::
+
+Excalibur automatically applies the entity’s transform when drawing its graphics.  But the size of the graphic is independent of the Actor's boundaries.  So if you draw a large graphic on a small Actor, it will bleed over the collider boundaries, as the collider boundaries and graphic boundaries are independent.
+
+## Extending the Graphics Class
+
+Sometimes the built-in graphics like Rectangle, Sprite, or Polygon aren’t enough. Excalibur lets you extend the Graphic class to create completely custom visuals for your entities.
+
+When you extend Graphic, you get full control over how your entity is rendered, while still allowing Excalibur to handle positioning, rotation, and scaling automatically.
+
+Here’s the basic pattern:
+
+```ts
+class MyCustomGraphic extends ex.Graphic {
+  constructor() {
+    super({
+      width: 64,
+      height: 64
+    });
+  }
+
+  clone():MyCustomGraphic{
+    return new MyCustomeGraphic();
+  }
+
+  protected _drawImage(
+    ex: ex.ExcaliburGraphicsContext,
+    x: number,
+    y: number
+  ): void {
+    // Built in method for ExcaliburGraphicsContext to draw a primitive shape
+    ex.drawRectangle(vec(x, y), this.width, this.height, ex.Color.Purple, ex.Color.White, 2);
+  }
+}
+```
+
+The ExcaliburGraphicsContext gives access to several methods.
+
+- drawRectangle
+- drawCircle
+- drawImage
+- drawLine
+- and several others.
+
+:::tip
+The ExcaliburGraphicsContext is NOT a direct port of Canvas2dContext
+:::
+
+The pattern we will implement going forward utilizes the `drawImage` method primarily, as an offscreen canvas can be the source.
+
