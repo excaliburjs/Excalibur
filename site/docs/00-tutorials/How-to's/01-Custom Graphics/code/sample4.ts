@@ -116,6 +116,7 @@ export class HealthBar extends ex.Actor {
     this.graphics.use(new HealthBarGraphic());
   }
 
+  //comment added
   takeDamage(damageAmount: number) {
     this.currentHealth -= damageAmount;
 
