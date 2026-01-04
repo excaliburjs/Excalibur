@@ -1,0 +1,39 @@
+---
+title: Colliders Primer
+slug: /intro-to-colliders
+section: Tutorials
+---
+
+## Introduction: Colliders In ExcaliburJS
+
+In a game engine, visual elements and gameplay rules are separate concerns. Sprites, animations, and effects describe how the game looks, while collisions describe how objects are allowed to interact. Colliders are the mechanism Excalibur uses to define those interaction rules.
+
+At a basic level, a collider answers simple questions: can two objects overlap, should movement be blocked, and should an interaction be detected when they touch? These decisions are independent of rendering and are intentionally configurable, which allows the same visual object to behave differently depending on the needs of the game.
+
+Because colliders operate independently from graphics, they can feel unintuitive at first. A collider does not need to match the size or shape of a sprite, and an actor may use more than one collider to represent different kinds of interaction. This separation is deliberate, but it often leads to confusion when developers first encounter collision systems.
+
+### Who This Tutorial Is For
+
+This tutorial series is intended for developers who:
+
+- Are new to Excalibur or game development and are unfamiliar with collision systems
+- Are familiar with core concepts such as actors, scenes, and the game loop
+- Want a clearer mental model for collision behavior beyond trial-and-error
+- Prefer practical examples grounded in common gameplay scenarios
+
+The series does not assume:
+
+- Prior knowledge of physics engines
+- Advanced mathematics or simulation theory
+- Perfect familiarity with Excalibur’s collision APIs
+
+### What We Will Cover:
+
+- Colliders and Shapes
+- Collision Types
+- Collision Groups
+- Collision Events
+- Use cases:
+  - player and walls (boundaries)
+  - floor triggers
+  - hit boxes
