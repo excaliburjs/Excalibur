@@ -68,6 +68,7 @@ class MyBlock extends ex.Actor{
     });
   }
 
+  // collider start
   onCollisionStart(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
     if(!this.isMoving && other.owner instanceof MyPlayer){
       this.isMoving = true;
