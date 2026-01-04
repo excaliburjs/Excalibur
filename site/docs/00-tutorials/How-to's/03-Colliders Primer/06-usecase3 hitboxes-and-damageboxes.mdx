@@ -1,0 +1,38 @@
+---
+title: Use Case 3 HitBoxes and DamageBoxes
+slug: /hitboxes-and-damageboxes
+section: Tutorials
+---
+
+import usecase3 from '!!raw-loader!./code/usecase3.ts';
+import title from './images/usecasethreetitle.png';
+
+<img src={title} alt="Use Case 2" style={{ width: "400px" }} />
+
+### Problem
+
+We have a player and an enemy, we want to whack the enemy and cause damage.  The player swings a weapon, and must collide with special hit boxes on the enemy.
+
+Demonstrates:
+
+- Using child actors for their colliders
+- Using CollisionGroups to enable/disable collisions
+
+Using the demo:
+
+  - WASD to move the orange player
+  - Enter key swings the weapon
+  - Hitting the pink damage boxes causes the enemy damage (blink and flash)
+  - Running the player into the enemy causes the player to blink
+
+<PlaygroundEmbed code={usecase3} />
+
+### Takeaways from this use case
+
+#### The main actor doesn't have to have the collision ownership
+
+You can use child actors for hit and damage boxes.
+
+#### You can turn collisions on/off using ColliderGroups
+
+As a game becomes more complex, it might be easier to control the collision arrangement via groups over each individual matched entity.
