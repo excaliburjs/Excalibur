@@ -77,7 +77,7 @@ class MyWeapon extends ex.Actor{
       collisionGroup: weaponColliderGroup,
       z: 10,
     });
-  }wd
+  }
 
   onInitialize(engine: ex.Engine): void {
     this.actions.runAction(new AttackAction(this, this.parent as MyPlayer));

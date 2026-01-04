@@ -86,6 +86,9 @@ class MyBlock extends ex.Actor{
         case ex.Side.Right:
           this.moveDirection = ex.vec(-this.speed, 0);
           break;
+        default:
+          this.moveDirection = ex.Vector.Zero;
+          break;
       }
     }
     
