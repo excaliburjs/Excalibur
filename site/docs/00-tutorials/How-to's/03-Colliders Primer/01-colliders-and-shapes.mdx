@@ -99,7 +99,7 @@ const game = new ex.Engine({
 
 ```
 
-Or per composite
+Or per composite collider, this will override any default config
 
 ```typescript
 const tm = new ex.TileMap({...});
@@ -108,6 +108,14 @@ const comp = tm.collider.get() as ex.CompositeCollider;
 comp.compositeStrategy = 'separate';
 
 ```
+
+### Rule of Thumb
+
+* If your composite is connected and has no large gaps, use 'together'
+* If your composite is a level like a platformer with large gaps, use 'separate'
+
+:::
+
 
 ### Adding a Shape to an Actor
 
