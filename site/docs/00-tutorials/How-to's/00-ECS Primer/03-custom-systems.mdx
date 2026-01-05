@@ -108,14 +108,14 @@ export class KeyboardControlSystem extends System {
 
 ## Implementing the system
 
-Systems get added to each [Scene](/docs/scenes) that uses them.  For the sake of this example, we'll add it to the root scene.
+Systems get added to World of each [Scene](/docs/scenes) that uses them.  For the sake of this example, we'll add it to the root scene.
 
 ```ts
 const game = new ex.Engine({
-  width: 800, // the width of the canvas
-  height: 600, // the height of the canvas
+  width: 500, // the width of the canvas
+  height: 500, // the height of the canvas
   canvasElementId: '', // the DOM canvas element ID, if you are providing your own
-  displayMode: ex.DisplayMode.FitScreen, // the display mode
+  displayMode: ex.DisplayMode.Fixed, // the display mode
   pointerScope: ex.PointerScope.Document // the scope of capturing pointer (mouse/touch) events
 });
 
