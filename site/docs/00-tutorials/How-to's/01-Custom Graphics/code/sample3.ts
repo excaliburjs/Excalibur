@@ -16,7 +16,7 @@ class HealthBarGraphic extends ex.Graphic {
   ctx: CanvasRenderingContext2D | null;
 
   // dirty flag to trigger a redraw so we don't redraw every frame
-  dirtyFlag:boolean = true;  
+  dirtyFlag: boolean = true;
 
   constructor() {
     super({
@@ -28,13 +28,13 @@ class HealthBarGraphic extends ex.Graphic {
     this.cnv = document.createElement("canvas");
     this.cnv.width = this.width * this.drawScale;
     this.cnv.height = this.height * this.drawScale;
-    this.ctx = this.cnv.getContext("2d"); 
+    this.ctx = this.cnv.getContext("2d");
   }
 
-  clone(): HealthBarGraphic{
+  clone(): HealthBarGraphic {
     return new HealthBarGraphic();
   }
-  
+
   protected _drawImage(ex: ex.ExcaliburGraphicsContext, x: number, y: number): void {
     /*
       Dirty Flag is used to tell the graphic something's changed
@@ -58,7 +58,7 @@ class HealthBarGraphic extends ex.Graphic {
       const fillWidth = (this.width - border);
       const fillHeight = this.height - border; // stay inside border
       ctx.fillStyle = this.safeColor.toString();
-      
+
       ctx.fillRect(
         inset, // x
         inset, // y
@@ -102,18 +102,18 @@ export class HealthBar extends ex.Actor {
  Engine Setup
 *******************************/
 const game = new ex.Engine({
-    canvasElementId: 'preview-canvas',
-    displayMode: ex.DisplayMode.Fixed,
-    width: 500,
-    height: 500,
-    pixelArt: true
+  canvasElementId: 'preview-canvas',
+  displayMode: ex.DisplayMode.Fixed,
+  width: 500,
+  height: 500,
+  pixelArt: true
 });
 
 /******************************
  Setting up the parent actor
 *******************************/
 const player = new ex.Actor({ x: 300, y: 200, width: 32, height: 32, color: ex.Color.Red });
-player.addChild(new HealthBar(ex.vec(0, -24),ex.vec(36, 6), 100));
+player.addChild(new HealthBar(ex.vec(0, -24), ex.vec(36, 6), 100));
 game.add(player);
 game.start();
 
