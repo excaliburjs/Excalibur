@@ -474,6 +474,13 @@ export class TileMap extends Entity implements HasNestedPointerEvents {
   }
 
   /**
+   * Returns the {@apilink CompositeCollider}
+   */
+  public getCompositeCollider(): CompositeCollider {
+    return this._composite;
+  }
+
+  /**
    * Returns the {@apilink Tile} by index (row major order)
    *
    * Returns null if out of bounds
