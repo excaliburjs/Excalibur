@@ -1,6 +1,6 @@
 import { Vector, vec } from './math/vector';
 import type { Engine } from './engine';
-import type { ActorArgs } from './actor';
+import type { ActorOptions } from './actor';
 import { Actor } from './actor';
 import { TransformComponent } from './entity-component-system/components/transform-component';
 import { CollisionType } from './collision/collision-type';
@@ -21,9 +21,9 @@ export class ScreenElement extends Actor {
   protected _engine: Engine;
 
   constructor();
-  constructor(config?: ActorArgs);
+  constructor(config?: ActorOptions);
 
-  constructor(config?: ActorArgs) {
+  constructor(config?: ActorOptions) {
     super({ ...config });
     this.get(TransformComponent).coordPlane = CoordPlane.Screen;
     this.anchor = config?.anchor ?? vec(0, 0);

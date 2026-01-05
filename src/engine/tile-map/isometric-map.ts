@@ -362,7 +362,7 @@ export class IsometricMap extends Entity implements HasNestedPointerEvents {
 
     this.collider = this.get(ColliderComponent);
     if (this.collider) {
-      this.collider.set((this._composite = new CompositeCollider([])));
+      this.collider.use((this._composite = new CompositeCollider([])));
     }
 
     this.pointer = this.get(PointerComponent);
