@@ -6,7 +6,7 @@ import type { SpriteFont } from './graphics';
 import { GraphicsComponent } from './graphics';
 import { Font } from './graphics/font';
 import { Actor } from './actor';
-import type { ActorArgs } from './actor';
+import type { ActorOptions } from './actor';
 
 /**
  * Option for creating a label
@@ -113,7 +113,7 @@ export class Label extends Actor {
    * Build a new label
    * @param options
    */
-  constructor(options?: LabelOptions & ActorArgs) {
+  constructor(options?: LabelOptions & ActorOptions) {
     super(options);
     const { text, pos, x, y, spriteFont, font, color, maxWidth } = { text: '', ...options };
 
