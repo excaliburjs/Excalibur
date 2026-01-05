@@ -1,0 +1,124 @@
+---
+title: Collision Events
+slug: /collision-how-to-use
+section: Tutorials
+---
+
+## Events: How To Use Colliders
+
+Since actors have collider components, they gain a couple of event hooks out of the box. There are four total events tied to Collisions.
+
+```ts
+class MyActor extends ex.Actor {
+  constructor() {
+    super();
+  }
+
+  onCollisionStart(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {...}
+  onCollisionEnd(self: ex.Collider, other: ex.Collider, side: ex.Side, lastContact: ex.CollisionContact): void {...}
+  onPreCollisionResolve(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {...}
+  onPostCollisionResolve(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {...}
+}
+```
+
+--or--
+
+```ts
+class MyActor extends ex.Actor {
+  constructor() {
+    super();
+  }
+
+  onInitialize(engine: ex.Engine): void {
+    this.on("collisionstart", (e: ex.CollisionStartEvent) => {...});
+    this.on("collisionend", (e: ex.CollisionEndEvent) => {...});
+    this.on("precollision", (e: ex.PreCollisionEvent) => {...});
+    this.on("postcollision", (e: ex.PostCollisionEvent) => {...});
+  }
+
+  onp
+}
+```
+
+### Event Lifecycles
+
+As a reference [Event Lifecycles](/docs/collision-events#collision-event-lifecycle) shows a great visual of how/when these events occur. Note the difference between Active/Passive interactions and Active/Active interactions.
+
+### Start Collision
+
+`onCollisionStart(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact)`
+
+Every instance of an active collision that's being tracked (not disabled by Collision Groups), upon the start of any overlap, this fires. It happens ONLY at the beginning of the overlap, it does NOT continue to fire during any overlap.
+
+#### Parameters You Get
+
+When this event fires, it provides several pieces of useful information:
+- self: ex.Collider – The collider that belongs to the actor receiving the event.
+- other: ex.Collider – The collider that this actor is interacting with.
+- side: ex.Side – Indicates which side of the collider the contact occurred on (top, bottom, left, right, or none).
+- contact: ex.CollisionContact – Provides detailed information about the overlap, such as the minimum translation vector (how much the objects are intersecting) and the exact contact point.
+
+`onCollisionStart` is useful whenever you want to react immediately when a collision begins, for example:
+
+- Playing a sound effect the instant a player touches a wall or enemy.
+- Reducing health when a character is first hit by an attack.
+- Triggering a trap, opening a door, or starting a cutscene when a player enters a specific zone.
+
+### End Collision
+
+`onCollisionEnd(self: ex.Collider, other: ex.Collider, side: ex.Side, lastContact: ex.CollisionContact)`
+
+Every instance of an active collision that's being tracked (not disabled by Collision Groups), upon the end of any overlap, this fires. It happens ONLY at the end of the overlap.
+
+#### Parameters You Get
+
+- self: ex.Collider – The collider that belongs to the actor receiving the event.
+- other: ex.Collider – The collider that this actor was interacting with.
+- side: ex.Side – Indicates which side of the collider the contact last occurred on (top, bottom, left, right, or none).
+- lastContact: ex.CollisionContact – Provides detailed information about the final overlap.
+
+Typical uses: 
+
+- Resetting a player’s state after leaving a hazard zone
+- Stopping a sound or particle effect when contact ends
+- Updating AI state when an enemy is no longer in contact
+
+### Precollision and Postcollision
+
+The remaining events have special cases:
+
+#### precollision
+
+`onPreCollisionResolve(self: ex.Collider, other: ex.Collider, side: ex.Side, intersection: Vector, contact: ex.CollisionContact)`
+
+
+- When it fires: Every frame of an active overlap before collision resolution.
+- Purpose: Gives you a chance to modify how collisions are handled before the physics system moves the actors.
+
+Typical uses:
+
+- Adjusting collision behavior dynamically (e.g., temporarily making a collider passable)
+- Implementing one-way platforms or special movement rules
+- Cancelling certain collisions under specific conditions
+
+#### postcollision
+
+`onPostCollisionResolve(self: ex.Collider, other: ex.Collider, side: ex.Side, intersection: Vector, contact: ex.CollisionContact)`
+
+- When it fires: Every frame of an active overlap after collision resolution.
+- Purpose: Lets you react to the results of the collision, once positions and velocities have been adjusted.
+
+Typical uses:
+
+- Triggering effects or animations after an actor hits a wall or enemy
+- Applying forces or knockback after impact
+- Logging or debugging collision behavior
+
+## Summary of Collider Events
+
+| Event              | Fires When                    | Purpose                       | Typical Use                                 |
+| ------------------ | ----------------------------- | ----------------------------- | ------------------------------------------- |
+| `onCollisionStart` | First frame of overlap        | Initialize reaction           | Play sound, trigger trap, reduce health     |
+| `onCollisionEnd`   | Last frame of overlap         | Cleanup / end effect          | Reset states, stop effects                  |
+| `precollision`     | Every frame before resolution | Modify collision behavior     | One-way platforms, conditional pass-through |
+| `postcollision`    | Every frame after resolution  | Respond to resolved collision | Knockback, animations, logging              |

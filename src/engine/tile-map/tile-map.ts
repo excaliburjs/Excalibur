@@ -12,7 +12,7 @@ import type { ExcaliburGraphicsContext, Graphic } from '../graphics';
 import { GraphicsComponent, hasGraphicsTick, ParallaxComponent } from '../graphics';
 import { MotionComponent } from '../entity-component-system/components/motion-component';
 import { ColliderComponent } from '../collision/collider-component';
-import type { CompositeCollider } from '../collision/colliders/composite-collider';
+import type { CompositeCollider, CompositeStrategy } from '../collision/colliders/composite-collider';
 import { DebugGraphicsComponent } from '../graphics/debug-graphics-component';
 import type { Collider } from '../collision/colliders/collider';
 import { PostDrawEvent, PostUpdateEvent, PreDrawEvent, PreUpdateEvent } from '../events';
@@ -68,6 +68,13 @@ export interface TileMapOptions {
    * Infinity.
    */
   meshingLookBehind?: number;
+
+  /**
+   * Optionally set the composite strategy for the internal tilemap collider.
+   *
+   * Default is 'separate' for tilemaps which assumes this tilemap is being used to build disconnect geometry representing a level. Normally composites have 'together'.
+   */
+  compositeStrategy?: CompositeStrategy;
 }
 
 export interface TilePointerEvents {
@@ -290,6 +297,7 @@ export class TileMap extends Entity implements HasNestedPointerEvents {
     this._motion = this.get(MotionComponent);
     this.collider = this.get(ColliderComponent);
     this._composite = this.collider.useCompositeCollider([]);
+    this._composite.compositeStrategy = options.compositeStrategy ?? 'separate';
 
     this.transform.pos = options.pos ?? Vector.Zero;
     this._oldPos = this.transform.pos.clone();
@@ -471,6 +479,13 @@ export class TileMap extends Entity implements HasNestedPointerEvents {
     this.collider.update();
     // Notify that colliders have been updated
     this.collider.$colliderAdded.notifyAll(this._composite);
+  }
+
+  /**
+   * Returns the {@apilink CompositeCollider}
+   */
+  public getCompositeCollider(): CompositeCollider {
+    return this._composite;
   }
 
   /**

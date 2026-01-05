@@ -20,8 +20,8 @@
     "vite": "7.2.4"
   },
   "dependencies": {
-    "excalibur": "0.30.3",
+    "excalibur": "0.32.0",
     "lz-string": "1.5.0",
-    "monaco-editor": "0.52.2"
+    "monaco-editor": "0.55.1"
   }
 }

@@ -1,0 +1,70 @@
+---
+title: Setting up the new custom Graphic
+slug: /setup-custom-graphic
+section: Tutorials
+---
+
+import sample1 from '!!raw-loader!./code/sample1.ts';
+
+## Architecture
+
+To use a custom graphic, we'll need a container to add it to.  Since We are going to make a custom healthbar, let's setup our 'player' Actor, with a child Actor, and then have the child actor display the custom Graphic.
+
+For starters, lets scaffold in the player Actor, and then attach a white child actor and place the actor above our parent.
+
+<PlaygroundEmbed code={sample1} />
+
+Before moving on to the next segment, what will we be looking to achieve.
+
+Todo's:
+
+- [ ] Create a Custom Graphic class
+- [ ] Attach the graphic to the child actor
+- [ ] Add the graphic logic to the new class
+- [ ] Add in logic to 'change' the actor's health
+- [ ] Add in a lerp to make it change smoothly
+
+Let's map out the basic custom Graphic Class
+
+```ts
+class HealthBarGraphic extends ex.Graphic {
+  backgroundColor: ex.Color = ex.Color.Black;
+  borderColor: ex.Color = ex.Color.White;
+  safeColor: ex.Color = ex.Color.Green;
+  warningColor: ex.Color = ex.Color.Yellow;
+  criticalColor: ex.Color = ex.Color.Red;
+  borderSize: number = 2;
+
+  drawScale = 10;  // This will help us inject extra pixels into the offline canvas to draw mo' pretty
+  cnv: HTMLCanvasElement;
+  ctx: CanvasRenderingContext2D | null;
+
+  // dirty flag to trigger a redraw so we don't redraw every frame
+  dirtyFlag:boolean = true;  
+
+  constructor() {
+    super({
+      width: 36,  //hard-coded for this example, matching the child actor dims, you can pass this in to the graphic IRL
+      height: 6
+    });
+
+    //setup offscreen Canvas
+    this.cnv = document.createElement("canvas");
+    this.cnv.width = this.width * this.drawScale;
+    this.cnv.height = this.height * this.drawScale;
+    this.ctx = this.cnv.getContext("2d"); 
+  }
+
+  clone(): HealthBarGraphic{
+    return new HealthBarGraphic();
+  }
+
+  protected _drawImage(
+    ex: ex.ExcaliburGraphicsContext,
+    x: number,
+    y: number
+  ): void {}
+}
+```
+
+We'll attach this stubbed in class in the next section.

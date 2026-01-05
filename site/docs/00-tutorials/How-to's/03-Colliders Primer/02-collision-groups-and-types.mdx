@@ -1,0 +1,86 @@
+---
+title: Collision Types and Groups
+slug: /collision-types-and-groups
+section: Tutorials
+---
+
+import colgroup from './images/colGroup.png'
+
+## Collision Types
+
+Once you’ve assigned a shape to a collider, the next question is: how should it interact with other colliders? ExcaliburJS lets you answer this with collision types. These types define the collider’s behavior in the game world.
+
+There are four collision types:
+
+1. `ex.CollisionType.Active`
+
+Actively participates in collisions. Can block or detect other colliders depending on their type. Typical use: player characters, moving enemies, or any object whose motion should respond to collisions.
+
+2. `ex.CollisionType.Passive`
+
+Doesn’t move in response to collisions but can trigger detection events when touched by active colliders. Useful for triggers, sensors, or interactive zones where movement isn’t blocked.
+
+3. `ex.CollisionType.Fixed`
+
+Does not move and blocks all colliders that can be blocked. Perfect for walls, floors, or any solid environmental objects. Events will fire for this.
+
+4. `ex.CollisionType.PreventCollision` (DEFAULT)
+
+Completely ignores collisions. Doesn’t block, detect, or respond. Useful for purely visual objects or temporarily disabling collision. No events will be triggered with this setting. This is an Actor's default setting, so out of the box, NOTHING happens regarding collisions until this changes.
+
+## Collision Groups
+
+Collision groups let you control which sets of colliders can interact. For example:
+
+- “Player Bullets” vs “Enemy” — bullets collide with enemies but not with other players.
+- “Triggers” vs “Player” — only players activate floor triggers, everything else passes through.
+
+Groups are especially helpful in larger games, allowing you to filter collisions without adding complex conditional logic. 
+
+```ts
+import { CollisionGroup } from "excalibur";
+
+export const playerCollisionGroup = new CollisionGroup("player", 0b0001, 0b1010);
+export const EnemyCollisionGroup = new CollisionGroup("enemy", 0b010, 0b101);
+export const weaponCollisionGroup = new CollisionGroup("weapons", 0b0100, 0b010);
+export const dropsCollisionGroup = new CollisionGroup("drops", 0b1000, 0b0001);
+```
+
+There are 3 parts to managing collision groups:
+
+1. Name
+2. Binary Identifier
+3. Binary Mask
+
+### Name
+
+This is for your reference so you know how to identify which groups go with what items.
+
+### Binary Identifier
+
+This must be a unique bit set. Think of a walking 1 in a large group of 0's.
+
+- The first group can be `0b0001`
+- The second group can be `0b0010`
+- The third group can be `0b0100`
+- ...
+- the thirty-second group can be `0b1000000000000000000000000000...`, you get the idea
+
+Each unique group must have the 1 in a different spot.
+
+:::note
+This is a 32-bit number in the engine. Meaning... you have a maximum of 32 collider groups available.
+:::
+
+### Binary Mask
+
+This is the magic. The mask in this section tells the engine which interactions to care about and report on.
+
+Referencing the code above, we can state this:
+
+- The 'player' group can have collision events when touching enemies and drops.
+- The 'enemy' group can have collision events when touching players and weapons.
+- The 'weapon' group only has events when touching enemies
+- The 'drops' group only has events when touching players
+
+<img src={colgroup} alt="game colliders" style={{ width: "900px" }} />
