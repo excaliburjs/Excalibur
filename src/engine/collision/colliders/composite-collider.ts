@@ -15,6 +15,8 @@ import { Collider } from './collider';
 import type { Transform } from '../../math/transform';
 import { getDefaultPhysicsConfig } from '../physics-config';
 
+export type CompositeStrategy = 'separate' | 'together';
+
 export class CompositeCollider extends Collider {
   private _transform: Transform;
   private _collisionProcessor = new DynamicTreeCollisionProcessor({
@@ -26,7 +28,7 @@ export class CompositeCollider extends Collider {
   });
   private _colliders: Collider[] = [];
 
-  private _compositeStrategy?: 'separate' | 'together';
+  private _compositeStrategy?: CompositeStrategy;
   /**
    * Treat composite collider's member colliders as either separate colliders for the purposes of onCollisionStart/onCollision
    * or as a single collider together.
@@ -39,7 +41,7 @@ export class CompositeCollider extends Collider {
    *
    * Default is 'together' if unset
    */
-  public set compositeStrategy(value: 'separate' | 'together') {
+  public set compositeStrategy(value: CompositeStrategy) {
     this._compositeStrategy = value;
   }
   public get compositeStrategy() {
