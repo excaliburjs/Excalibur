@@ -102,9 +102,9 @@ class KeyboardControlSystem extends  ex.System {
 
 const game = new ex.Engine({
     canvasElementId: 'preview-canvas',
-    displayMode: ex.DisplayMode.FitContainer,
-    width: 600,
-    height: 400
+    displayMode: ex.DisplayMode.Fixed,
+    width: 500,
+    height: 500
 });
 
 let rootWorld = game.currentScene.world;
