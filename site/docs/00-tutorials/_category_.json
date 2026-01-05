@@ -1,0 +1,9 @@
+{
+  "label": "Tutorials",
+  "collapsed": true,
+  "position": 1,
+  "link": {
+    "type": "generated-index",
+    "description": "This is a sample of how to build a flappy bird style game in Excalibur."
+  }
+}

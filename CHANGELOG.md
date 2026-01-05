@@ -7,7 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
--
+- Behavior change - TileMap now uses 'separate' as the `compositeStrategy` as a better default. Commonly TileMap is used to build levels, so this default aligns with the common use.
 
 ### Deprecated
 

@@ -1,0 +1,352 @@
+import type { Engine } from '../engine';
+import type { Scene } from '../scene';
+import type { Camera } from '../camera';
+import { MotionComponent } from '../entity-component-system/components/motion-component';
+import { ColliderComponent } from '../collision/collider-component';
+import type { Entity, Query, World } from '../entity-component-system';
+import { SystemPriority, TransformComponent } from '../entity-component-system';
+import { System, SystemType } from '../entity-component-system/system';
+import type { ExcaliburGraphicsContext } from '../graphics/context/excalibur-graphics-context';
+import { vec, Vector } from '../math/vector';
+import { toDegrees } from '../math/util';
+import { BodyComponent } from '../collision/body-component';
+import { CollisionSystem } from '../collision/collision-system';
+import { CompositeCollider } from '../collision/colliders/composite-collider';
+import { Particle } from '../particles/particles';
+import { DebugGraphicsComponent } from '../graphics/debug-graphics-component';
+import { CoordPlane } from '../math/coord-plane';
+import { Debug } from '../graphics/debug';
+
+export class DebugSystem extends System {
+  static priority = SystemPriority.Lowest;
+
+  public readonly systemType = SystemType.Draw;
+  private _graphicsContext: ExcaliburGraphicsContext;
+  private _collisionSystem: CollisionSystem;
+  private _camera: Camera;
+  private _engine: Engine;
+  query: Query<typeof TransformComponent>;
+
+  constructor(public world: World) {
+    super();
+    this.query = this.world.query([TransformComponent]);
+  }
+
+  public initialize(world: World, scene: Scene): void {
+    this._graphicsContext = scene.engine.graphicsContext;
+    this._camera = scene.camera;
+    this._engine = scene.engine;
+    this._collisionSystem = world.systemManager.get(CollisionSystem);
+  }
+
+  update(): void {
+    if (!this._engine.isDebug) {
+      return;
+    }
+
+    const filterSettings = this._engine.debug.filter;
+
+    let id: number;
+    let name: string;
+    const entitySettings = this._engine.debug.entity;
+
+    let tx: TransformComponent;
+    const txSettings = this._engine.debug.transform;
+
+    let motion: MotionComponent;
+    const motionSettings = this._engine.debug.motion;
+
+    let colliderComp: ColliderComponent;
+    const colliderSettings = this._engine.debug.collider;
+
+    const physicsSettings = this._engine.debug.physics;
+
+    let debugDraw: DebugGraphicsComponent;
+
+    let body: BodyComponent;
+    const bodySettings = this._engine.debug.body;
+
+    const cameraSettings = this._engine.debug.camera;
+    for (let i = 0; i < this.query.entities.length; i++) {
+      const entity = this.query.entities[i];
+      if (entity.hasTag('offscreen')) {
+        // skip offscreen entities
+        continue;
+      }
+      if (entity instanceof Particle) {
+        // Particles crush the renderer :(
+        continue;
+      }
+      if (filterSettings.useFilter) {
+        const allIds = filterSettings.ids.length === 0;
+        const idMatch = allIds || filterSettings.ids.includes(entity.id);
+        if (!idMatch) {
+          continue;
+        }
+        const allNames = filterSettings.nameQuery === '';
+        const nameMatch = allNames || entity.name.includes(filterSettings.nameQuery);
+        if (!nameMatch) {
+          continue;
+        }
+      }
+
+      let cursor = Vector.Zero;
+      const lineHeight = vec(0, 16);
+      id = entity.id;
+      name = entity.name;
+      tx = entity.get(TransformComponent);
+
+      // This optionally sets our camera based on the entity coord plan (world vs. screen)
+      this._pushCameraTransform(tx);
+
+      this._graphicsContext.save();
+      if (tx.coordPlane === CoordPlane.Screen) {
+        this._graphicsContext.translate(this._engine.screen.contentArea.left, this._engine.screen.contentArea.top);
+      }
+
+      this._applyTransform(entity);
+      if (tx) {
+        if (txSettings.showAll || txSettings.showPosition) {
+          this._graphicsContext.debug.drawPoint(Vector.Zero, { size: 4, color: txSettings.positionColor });
+        }
+        if (txSettings.showAll || txSettings.showPositionLabel) {
+          this._graphicsContext.debug.drawText(`pos${tx.pos.toString(2)}`, cursor);
+          cursor = cursor.add(lineHeight);
+        }
+        if (txSettings.showAll || txSettings.showZIndex) {
+          this._graphicsContext.debug.drawText(`z(${tx.z.toFixed(1)})`, cursor);
+          cursor = cursor.add(lineHeight);
+        }
+
+        if (entitySettings.showAll || entitySettings.showId) {
+          this._graphicsContext.debug.drawText(`id(${id}) ${entity.parent ? 'child of id(' + entity.parent?.id + ')' : ''}`, cursor);
+          cursor = cursor.add(lineHeight);
+        }
+
+        if (entitySettings.showAll || entitySettings.showName) {
+          this._graphicsContext.debug.drawText(`name(${name})`, cursor);
+          cursor = cursor.add(lineHeight);
+        }
+
+        if (txSettings.showAll || txSettings.showRotation) {
+          this._graphicsContext.debug.drawLine(Vector.Zero, Vector.fromAngle(tx.rotation).scale(20).add(Vector.Zero), {
+            color: txSettings.rotationColor,
+            lineWidth: 2
+          });
+          this._graphicsContext.debug.drawText(`rot deg(${toDegrees(tx.rotation).toFixed(2)})`, cursor);
+          cursor = cursor.add(lineHeight);
+        }
+
+        if (txSettings.showAll || txSettings.showScale) {
+          this._graphicsContext.debug.drawLine(Vector.Zero, tx.scale, { color: txSettings.scaleColor, lineWidth: 2 });
+        }
+      }
+
+      debugDraw = entity.get(DebugGraphicsComponent);
+      if (debugDraw) {
+        if (!debugDraw.useTransform) {
+          this._graphicsContext.restore();
+        }
+        debugDraw.draw(this._graphicsContext, this._engine.debug);
+        if (!debugDraw.useTransform) {
+          this._graphicsContext.save();
+          this._applyTransform(entity);
+        }
+      }
+
+      body = entity.get(BodyComponent);
+      if (body) {
+        if (bodySettings.showAll || bodySettings.showCollisionGroup) {
+          this._graphicsContext.debug.drawText(`collision group name(${body.group.name}))`, cursor);
+          cursor = cursor.add(lineHeight);
+          this._graphicsContext.debug.drawText(`          mask(0x${(body.group.mask >>> 0).toString(16)})`, cursor);
+          cursor = cursor.add(lineHeight);
+          this._graphicsContext.debug.drawText(`          category(0x${(body.group.category >>> 0).toString(16)})`, cursor);
+          cursor = cursor.add(lineHeight);
+        }
+
+        if (bodySettings.showAll || bodySettings.showCollisionType) {
+          this._graphicsContext.debug.drawText(`collision type(${body.collisionType})`, cursor);
+          cursor = cursor.add(lineHeight);
+        }
+
+        if (bodySettings.showAll || bodySettings.showMass) {
+          this._graphicsContext.debug.drawText(`mass(${body.mass})`, cursor);
+          cursor = cursor.add(lineHeight);
+        }
+
+        if (bodySettings.showAll || bodySettings.showMotion) {
+          this._graphicsContext.debug.drawText(`motion(${body.sleepMotion.toFixed(3)})`, cursor);
+          cursor = cursor.add(lineHeight);
+        }
+
+        if (bodySettings.showAll || bodySettings.showSleeping) {
+          this._graphicsContext.debug.drawText(`sleeping(${body.canSleep ? body.isSleeping : 'cant sleep'})`, cursor);
+          cursor = cursor.add(lineHeight);
+        }
+      }
+
+      this._graphicsContext.restore();
+
+      // World space
+      this._graphicsContext.save();
+      if (tx.coordPlane === CoordPlane.Screen) {
+        this._graphicsContext.translate(this._engine.screen.contentArea.left, this._engine.screen.contentArea.top);
+      }
+      motion = entity.get(MotionComponent);
+      if (motion) {
+        if (motionSettings.showAll || motionSettings.showVelocity) {
+          this._graphicsContext.debug.drawText(`vel${motion.vel.toString(2)}`, cursor.add(tx.globalPos));
+          this._graphicsContext.debug.drawLine(tx.globalPos, tx.globalPos.add(motion.vel), {
+            color: motionSettings.velocityColor,
+            lineWidth: 2
+          });
+          cursor = cursor.add(lineHeight);
+        }
+
+        if (motionSettings.showAll || motionSettings.showAcceleration) {
+          this._graphicsContext.debug.drawLine(tx.globalPos, tx.globalPos.add(motion.acc), {
+            color: motionSettings.accelerationColor,
+            lineWidth: 2
+          });
+        }
+      }
+
+      // Colliders live in world space already so after the restore()
+      colliderComp = entity.get(ColliderComponent);
+      if (colliderComp) {
+        const collider = colliderComp.get();
+        if ((colliderSettings.showAll || colliderSettings.showGeometry) && collider) {
+          collider.debug(this._graphicsContext, colliderSettings.geometryColor, {
+            lineWidth: colliderSettings.geometryLineWidth,
+            pointSize: colliderSettings.geometryPointSize
+          });
+        }
+        if (colliderSettings.showAll || colliderSettings.showBounds) {
+          if (collider instanceof CompositeCollider) {
+            const colliders = collider.getColliders();
+            for (const collider of colliders) {
+              const bounds = collider.bounds;
+              const pos = vec(bounds.left, bounds.top);
+              this._graphicsContext.debug.drawRect(pos.x, pos.y, bounds.width, bounds.height, {
+                color: colliderSettings.boundsColor,
+                dashed: true
+              });
+              if (colliderSettings.showAll || colliderSettings.showOwner) {
+                this._graphicsContext.debug.drawText(`owner id(${collider.owner.id})`, pos);
+              }
+            }
+            colliderComp.bounds.debug(this._graphicsContext, {
+              color: colliderSettings.boundsColor,
+              dashed: true
+            });
+          } else if (collider) {
+            const bounds = colliderComp.bounds;
+            const pos = vec(bounds.left, bounds.top);
+            this._graphicsContext.debug.drawRect(pos.x, pos.y, bounds.width, bounds.height, {
+              color: colliderSettings.boundsColor,
+              dashed: true
+            });
+            if (colliderSettings.showAll || colliderSettings.showOwner) {
+              this._graphicsContext.debug.drawText(`owner id(${colliderComp.owner.id})`, pos);
+            }
+          }
+        }
+      }
+
+      this._graphicsContext.restore();
+      this._popCameraTransform(tx);
+    }
+
+    this._graphicsContext.save();
+    this._camera.draw(this._graphicsContext);
+    if (physicsSettings.showAll || physicsSettings.showBroadphaseSpacePartitionDebug) {
+      this._collisionSystem.debug(this._graphicsContext);
+    }
+    if (physicsSettings.showAll || physicsSettings.showCollisionContacts || physicsSettings.showCollisionNormals) {
+      for (const [_, contact] of this._engine.debug.stats.currFrame.physics.contacts) {
+        if (physicsSettings.showAll || physicsSettings.showCollisionContacts) {
+          for (const point of contact.points) {
+            this._graphicsContext.debug.drawPoint(point, {
+              size: physicsSettings.contactSize,
+              color: physicsSettings.collisionContactColor
+            });
+          }
+        }
+
+        if (physicsSettings.showAll || physicsSettings.showCollisionNormals) {
+          for (const point of contact.points) {
+            this._graphicsContext.debug.drawLine(point, contact.normal.scale(30).add(point), {
+              color: physicsSettings.collisionNormalColor
+            });
+          }
+        }
+      }
+    }
+    this._graphicsContext.restore();
+
+    if (cameraSettings) {
+      this._graphicsContext.save();
+      this._camera.draw(this._graphicsContext);
+      if (cameraSettings.showAll || cameraSettings.showFocus) {
+        this._graphicsContext.debug.drawCircle(this._camera.pos, 4, cameraSettings.focusColor);
+      }
+      if (cameraSettings.showAll || cameraSettings.showZoom) {
+        this._graphicsContext.debug.drawText(`zoom(${this._camera.zoom})`, this._camera.pos);
+      }
+      this._graphicsContext.restore();
+    }
+  }
+
+  postupdate(engine: Scene<unknown>, elapsed: number): void {
+    if (this._engine.isDebug) {
+      this._graphicsContext.save();
+      if (this._camera) {
+        this._camera.draw(this._graphicsContext);
+      }
+      Debug.flush(this._graphicsContext);
+      this._graphicsContext.restore();
+    }
+  }
+
+  /**
+   * This applies the current entity transform to the graphics context
+   * @param entity
+   */
+  private _applyTransform(entity: Entity): void {
+    const ancestors = entity.getAncestors();
+    for (const ancestor of ancestors) {
+      const transform = ancestor?.get(TransformComponent);
+      if (transform) {
+        this._graphicsContext.translate(transform.pos.x, transform.pos.y);
+        this._graphicsContext.scale(transform.scale.x, transform.scale.y);
+        this._graphicsContext.rotate(transform.rotation);
+      }
+    }
+  }
+
+  /**
+   * Applies the current camera transform if in world coordinates
+   * @param transform
+   */
+  private _pushCameraTransform(transform: TransformComponent) {
+    // Establish camera offset per entity
+    if (transform.coordPlane === CoordPlane.World) {
+      this._graphicsContext.save();
+      if (this._camera) {
+        this._camera.draw(this._graphicsContext);
+      }
+    }
+  }
+
+  /**
+   * Resets the current camera transform if in world coordinates
+   * @param transform
+   */
+  private _popCameraTransform(transform: TransformComponent) {
+    if (transform.coordPlane === CoordPlane.World) {
+      // Apply camera world offset
+      this._graphicsContext.restore();
+    }
+  }
+}

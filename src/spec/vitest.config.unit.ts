@@ -11,7 +11,7 @@ export default defineConfig(
       name: 'unit',
       globals: true,
       setupFiles: ['./__util__/setup.ts', './__matchers__/expect.ts'],
-      include: ['./vitest/**/*Spec.ts'],
+      include: ['./vitest/**/*spec.ts'],
       testNamePattern: /^(?!.*@visual).+$/,
       sequence: {
         groupOrder: 0

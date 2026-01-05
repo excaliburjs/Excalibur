@@ -1,0 +1,43 @@
+---
+title: Custom Graphics Primer
+slug: /custom-graphics-primer
+section: Tutorials
+---
+
+# Custom Graphics in ExcaliburJS
+
+## Introduction
+
+When you first start working with ExcaliburJS, most visuals come from sprites or built-in shape graphics like rectangles and circles. These cover a lot of common use cases—but eventually you’ll hit a point where your visuals need to respond to game state.
+
+Health bars that shrink as damage is taken. Cooldown meters that fill over time. UI elements that are drawn procedurally instead of loaded from an image file.
+
+That’s where custom Graphics come in.
+
+In this tutorial, we’ll walk step-by-step through ExcaliburJS’s Graphic system, starting from the absolute basics and building toward a fully functional health bar graphic that visually reflects a changing value.
+
+This guide focuses on understanding the mental model behind graphics—not just copying code—so you can confidently build your own dynamic visuals later.
+
+### Who This Tutorial Is For
+
+This tutorial is aimed at developers who:
+
+- Are comfortable with TypeScript
+- Have created actors and added them to an Engine
+- Have used sprites or built-in graphics before
+- Want to create UI or procedural visuals without external assets
+
+You do not need prior knowledge of HTML Canvas or low-level rendering APIs. Everything we use is part of ExcaliburJS’s graphics abstraction.
+
+### What You’ll Learn
+
+By the end of this tutorial, you will:
+
+- Understand what a Graphic is in ExcaliburJS
+- Know how graphics relate to actors and screenElements
+- Create your own custom Graphic class
+- Draw shapes manually using the graphics pipeline
+- Build a reusable health bar graphic that updates as health changes
+
+Along the way, we’ll also cover common pitfalls and clarify where rendering responsibilities should live versus where gameplay logic belongs.
+

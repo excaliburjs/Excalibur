@@ -1,0 +1,44 @@
+---
+title: Using Systemless Components
+slug: /systemless-components
+section: Tutorials
+---
+
+## Systemless Components
+
+Excalibur has a unique feature that not all ECS's contain.  You can extend the gameclock update tick to the component.  What this unlocks, is the ability to build simple logic into your component and skip the building of a system.  
+
+This is explained very nicely in this [article](https://mattjennings.io/blog/systemless-components-with-excalibur-js) by Matt Jennings: 
+
+Let's setup the example:
+
+```ts
+import { Component,  Entity, ActorEvents} from 'excalibur';
+
+export class MyCustomSystemlessComponent extends Component {
+  constructor(){
+    super();
+  }
+
+  onAdd(owner: Entity): void {
+    owner.on("preupdate", this.update.bind(this));
+  }
+
+  onRemove(previousOwner: Entity): void {
+    // this ensures you don't have a memory leak by creating a bunch of hanlders that don't get removed
+    previousOwner.off("preupdate", this.update.bind(this));
+  }
+
+  update(event: ActorEvents["preupdate"]){
+    // this fires with parent onPreUpdate()
+    
+    let engine = event.engine;   // engine reference
+    let elapsed = event.elapsed; // elapsed time since last update
+
+    //... Add your behavior logic here that would normally be in a System
+    
+  }
+}
+```
+
+The magic shows up in a variety of ways.  First let's wire up the onPreUpdate() tick from the owner actor.  We do this by using the built in onAdd and onRemove methods for the Component class.  Finally, you can add your 'system' logic in the update method.  This is handy if you have a simple system you want to add, and this reduces the boilerplate a bit!

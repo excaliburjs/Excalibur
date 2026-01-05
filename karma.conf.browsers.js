@@ -33,7 +33,7 @@ module.exports = (config) => {
     },
     files: [
       'build/dist/excalibur.js',
-      'src/spec/karma/BrowserSupportSpec.ts',
+      'src/spec/karma/browser-support-spec.ts',
     ],
     mime: { 'text/x-typescript': ['ts', 'tsx'] },
     preprocessors: {
