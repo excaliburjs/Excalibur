@@ -115,7 +115,7 @@ class HealthSystem extends System {
   }
 
   update(delta: number) {
-    for (const entity of this.query.entities(this.types)) {  //<--- LOOP THROUGH ALL ENTITIES FOR THIS SYSTEM
+    for (const entity of this.query.entities) {  //<--- LOOP THROUGH ALL ENTITIES FOR THIS SYSTEM
       const health = entity.get(HealthComponent);
       if (health.current <= 0) {
         entity.kill();
