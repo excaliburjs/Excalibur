@@ -57,33 +57,37 @@ const myTileMap = new ex.TileMap({
 
 const setupTileMap = () => {
   let whiteBorder = new ex.Rectangle({width: 30,height: 30,color: ex.Color.Transparent, strokeColor: ex.Color.White, lineWidth: 2});
-let whiteTile = new ex.Rectangle({width: 32, height: 32, color: ex.Color.White});
-let greyTile = new ex.GraphicsGroup({members: [new ex.Rectangle({width: 32, height: 32, color: ex.Color.Gray}), {graphic: whiteBorder, offset: ex.vec(1, 1)}]});
+  let whiteTile = new ex.Rectangle({width: 32, height: 32, color: ex.Color.White});
+  let greyTile = new ex.GraphicsGroup({members: [new ex.Rectangle({width: 32, height: 32, color: ex.Color.Gray}), {graphic: whiteBorder, offset: ex.vec(1, 1)}]});
 
-const isTopEdge = (index: number, width: number) => index < width;
-const isBottomEdge = (index: number, width: number, totalTiles: number) => index >= totalTiles - width;
-const isLeftEdge = (index: number, width: number) => index % width === 0;
-const isRightEdge = (index: number, width: number) => (index + 1) % width === 0;
+  const isTopEdge = (index: number, width: number) => index < width;
+  const isBottomEdge = (index: number, width: number, totalTiles: number) => index >= totalTiles - width;
+  const isLeftEdge = (index: number, width: number) => index % width === 0;
+  const isRightEdge = (index: number, width: number) => (index + 1) % width === 0;
 
-function isEdgeTile(index: number, width: number, totalTiles: number): boolean {
-  return (
-    isTopEdge(index, width) ||
-    isBottomEdge(index, width, totalTiles) ||
-    isLeftEdge(index, width) ||
-    isRightEdge(index, width)
-  );
-}
-
-let tileIndex = 0;
-for(const tile of myTileMap.tiles){
-  if(isEdgeTile(tileIndex, myTileMap.columns, myTileMap.tiles.length)){
-    tile.solid = true;
-    tile.addGraphic(greyTile);
-  }else{
-    tile.addGraphic(whiteTile);
+  function isEdgeTile(index: number, width: number, totalTiles: number): boolean {
+    return (
+      isTopEdge(index, width) ||
+      isBottomEdge(index, width, totalTiles) ||
+      isLeftEdge(index, width) ||
+      isRightEdge(index, width)
+    );
   }
-  tileIndex++;
-}
+
+  let tileIndex = 0;
+  for(const tile of myTileMap.tiles){
+    if(isEdgeTile(tileIndex, myTileMap.columns, myTileMap.tiles.length)){
+      tile.solid = true;
+      tile.addGraphic(greyTile);
+    }else{
+      tile.addGraphic(whiteTile);
+    }
+    tileIndex++;
+  }
+  
+  let CC:ex.CompositeCollider = myTileMap.getCompositeCollider();
+  CC.compositeStrategy = 'separate';
+
 }
 setupTileMap();
 
