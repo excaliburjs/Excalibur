@@ -4,9 +4,9 @@ import * as ex from 'excalibur';
  Player Setup
 *******************************/
 
-class MyPlayer extends ex.Actor{
+class MyPlayer extends ex.Actor {
   speed: number = 100;
-  constructor(){
+  constructor() {
     super({
       x: 250,
       y: 250,
@@ -18,7 +18,7 @@ class MyPlayer extends ex.Actor{
   }
 
   onCollisionStart(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
-    if(other.owner instanceof MyPrize){
+    if (other.owner instanceof MyPrize) {
       other.owner.kill();
     }
   }
@@ -56,9 +56,9 @@ const myTileMap = new ex.TileMap({
 })
 
 const setupTileMap = () => {
-  let whiteBorder = new ex.Rectangle({width: 30,height: 30,color: ex.Color.Transparent, strokeColor: ex.Color.White, lineWidth: 2});
-  let whiteTile = new ex.Rectangle({width: 32, height: 32, color: ex.Color.White});
-  let greyTile = new ex.GraphicsGroup({members: [new ex.Rectangle({width: 32, height: 32, color: ex.Color.Gray}), {graphic: whiteBorder, offset: ex.vec(1, 1)}]});
+  let whiteBorder = new ex.Rectangle({ width: 30, height: 30, color: ex.Color.Transparent, strokeColor: ex.Color.White, lineWidth: 2 });
+  let whiteTile = new ex.Rectangle({ width: 32, height: 32, color: ex.Color.White });
+  let greyTile = new ex.GraphicsGroup({ members: [new ex.Rectangle({ width: 32, height: 32, color: ex.Color.Gray }), { graphic: whiteBorder, offset: ex.vec(1, 1) }] });
 
   const isTopEdge = (index: number, width: number) => index < width;
   const isBottomEdge = (index: number, width: number, totalTiles: number) => index >= totalTiles - width;
@@ -75,34 +75,30 @@ const setupTileMap = () => {
   }
 
   let tileIndex = 0;
-  for(const tile of myTileMap.tiles){
-    if(isEdgeTile(tileIndex, myTileMap.columns, myTileMap.tiles.length)){
+  for (const tile of myTileMap.tiles) {
+    if (isEdgeTile(tileIndex, myTileMap.columns, myTileMap.tiles.length)) {
       tile.solid = true;
       tile.addGraphic(greyTile);
-    }else{
+    } else {
       tile.addGraphic(whiteTile);
     }
     tileIndex++;
   }
-  
-  let CC:ex.CompositeCollider = myTileMap.getCompositeCollider();
-  CC.compositeStrategy = 'separate';
-
 }
 setupTileMap();
 
 /******************************
  Button Setup
 *******************************/
-class MyButton extends ex.Actor{
-  constructor(){
+class MyButton extends ex.Actor {
+  constructor() {
     super({
       x: 96,
       y: 96,
       radius: 12,
       color: ex.Color.Black,
       z: 10,
-      
+
     })
   }
 }
@@ -118,7 +114,7 @@ let trigger = new ex.Trigger({
 
   action: () => {
     let isPrize = game.currentScene.entities.find(e => e instanceof MyPrize);
-    if(!isPrize){
+    if (!isPrize) {
       game.currentScene.add(new MyPrize());
     }
   },
@@ -128,8 +124,8 @@ let trigger = new ex.Trigger({
  Prize Setup
 *******************************/
 
-class MyPrize extends ex.Actor{
-  constructor(){
+class MyPrize extends ex.Actor {
+  constructor() {
     super({
       x: 300,
       y: 300,
@@ -146,11 +142,16 @@ class MyPrize extends ex.Actor{
  Engine Setup
 *******************************/
 const game = new ex.Engine({
-    canvasElementId: 'preview-canvas',
-    displayMode: ex.DisplayMode.Fixed,
-    width: 500,
-    height: 500,
-    pixelArt: true
+  canvasElementId: 'preview-canvas',
+  displayMode: ex.DisplayMode.Fixed,
+  width: 500,
+  height: 500,
+  pixelArt: true,
+  physics: {
+    colliders: {
+      compositeStrategy: 'separate'
+    }
+  }
 });
 
 /******************************

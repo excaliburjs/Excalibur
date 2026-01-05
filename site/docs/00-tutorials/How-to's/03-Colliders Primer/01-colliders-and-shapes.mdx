@@ -76,6 +76,47 @@ Excalibur provides several shapes to cover typical game needs:
 
   Combines multiple shapes into a single collider. Allows complex actors to have different interaction zones, like a player with a hitbox and a separate trigger zone for area effects.  Useful for drawing keep-in or keep-out boundaries for an area.
 
+:::tip
+
+A composite collider is a way of treating multiple pieces of geometry as one collider, this means there is a choice about how to resolve collisions.
+
+### Composite Collision Resolution Strategy
+
+1. 'together' - Treat all geometry as part of the same body, meaning only 1 contact is possible for the composite, and only 1 event is generated.
+2. 'separate' - Treat geometry as if it were part of separate bodies, a contact is possible for every piece of geometry, an event is generated for every contact.
+
+Set the default for all composites as engine config
+
+```typescript
+const game = new ex.Engine({
+  ...
+  physics: {
+    colliders: {
+      compositeStrategy: 'separate'
+    }
+  }
+});
+
+```
+
+Or per composite collider, this will override any default config
+
+```typescript
+const tm = new ex.TileMap({...});
+// TileMaps only have CompositeColliders
+const comp = tm.collider.get() as ex.CompositeCollider;
+comp.compositeStrategy = 'separate';
+
+```
+
+### Rule of Thumb
+
+* If your composite is connected and has no large gaps, use 'together'
+* If your composite is a level like a platformer with large gaps, use 'separate'
+
+:::
+
+
 ### Adding a Shape to an Actor
 
 Let's discuss the two ways this can happen.  

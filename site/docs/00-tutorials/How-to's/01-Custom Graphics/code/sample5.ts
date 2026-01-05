@@ -16,7 +16,7 @@ class HealthBarGraphic extends ex.Graphic {
   ctx: CanvasRenderingContext2D | null;
 
   // dirty flag to trigger a redraw so we don't redraw every frame
-  dirtyFlag:boolean = true;  
+  dirtyFlag: boolean = true;
   percent: number = 1.0;
   newpercent: number = 1.0;
   changeRate: number = 0.01;
@@ -31,19 +31,19 @@ class HealthBarGraphic extends ex.Graphic {
     this.cnv = document.createElement("canvas");
     this.cnv.width = this.width * this.drawScale;
     this.cnv.height = this.height * this.drawScale;
-    this.ctx = this.cnv.getContext("2d"); 
+    this.ctx = this.cnv.getContext("2d");
   }
 
   updatePercent(percentfill: number) {
-  this.newpercent = percentfill;
-  if(this.newpercent === this.percent) return;
-  this.dirtyFlag = true;
-}
+    this.newpercent = percentfill;
+    if (this.newpercent === this.percent) return;
+    this.dirtyFlag = true;
+  }
 
-  clone(): HealthBarGraphic{
+  clone(): HealthBarGraphic {
     return new HealthBarGraphic();
   }
-  
+
   protected _drawImage(ex: ex.ExcaliburGraphicsContext, x: number, y: number): void {
     if (this.dirtyFlag && this.ctx) {
       const ctx = this.ctx;
@@ -128,11 +128,11 @@ export class HealthBar extends ex.Actor {
     this.graphics.use(new HealthBarGraphic());
   }
 
-  takeDamage(damageAmount: number){
+  takeDamage(damageAmount: number) {
     this.currentHealth -= damageAmount;
 
     //renew health as a part of the demo
-    if(this.currentHealth < 0) this.currentHealth = this.maxHealth;
+    if (this.currentHealth < 0) this.currentHealth = this.maxHealth;
 
     let percent = this.currentHealth / this.maxHealth;
     (this.graphics.current as HealthBarGraphic).updatePercent(percent);
@@ -143,18 +143,18 @@ export class HealthBar extends ex.Actor {
  Engine Setup
 *******************************/
 const game = new ex.Engine({
-    canvasElementId: 'preview-canvas',
-    displayMode: ex.DisplayMode.Fixed,
-    width: 500,
-    height: 500,
-    pixelArt: true
+  canvasElementId: 'preview-canvas',
+  displayMode: ex.DisplayMode.Fixed,
+  width: 500,
+  height: 500,
+  pixelArt: true
 });
 
 /******************************
  Setting up the parent actor
 *******************************/
 const player = new ex.Actor({ x: 300, y: 200, width: 32, height: 32, color: ex.Color.Red });
-player.addChild(new HealthBar(ex.vec(0, -24),ex.vec(36, 6), 100));
+player.addChild(new HealthBar(ex.vec(0, -24), ex.vec(36, 6), 100));
 game.add(player);
 game.start();
 
@@ -163,7 +163,7 @@ game.start();
 *******************************/
 game.input.keyboard.on('press', (e: ex.KeyEvent) => {
   if (e.key === ex.Keys.Enter) {
-    (player.children[0] as HealthBar).takeDamage(10); 
+    (player.children[0] as HealthBar).takeDamage(10);
   }
 })
 

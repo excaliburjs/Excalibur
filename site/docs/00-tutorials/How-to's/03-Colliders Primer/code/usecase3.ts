@@ -4,8 +4,8 @@ import * as ex from 'excalibur';
 /******************************
  Custom Attack Action
 *******************************/
-class AttackAction implements ex.Action{
-  angVelocity:number ;
+class AttackAction implements ex.Action {
+  angVelocity: number;
   id: number = ex.nextActionId();
   owner: ex.Actor;
   parent: ex.Actor;
@@ -15,11 +15,11 @@ class AttackAction implements ex.Action{
   private elapsedTime = 0;
 
   constructor(
-     actor: ex.Actor,                     // the sword / child
-     parent: ex.Actor,                    
-     radius: number = 32,
-     angVelocity: number = Math.PI * 4,   // rad/sec
-     duration: number = 0.75              // seconds
+    actor: ex.Actor,                     // the sword / child
+    parent: ex.Actor,
+    radius: number = 32,
+    angVelocity: number = Math.PI * 4,   // rad/sec
+    duration: number = 0.75              // seconds
   ) {
     this.owner = actor;
     this.parent = parent;
@@ -36,14 +36,14 @@ class AttackAction implements ex.Action{
       Math.cos(this.angle) * this.radius,
       Math.sin(this.angle) * this.radius
     );
-    this.owner.rotation = this.angle+Math.PI/2;
+    this.owner.rotation = this.angle + Math.PI / 2;
     this.owner.pos = offset;
   }
 
   isComplete(entity: ex.Entity): boolean {
     return this.elapsedTime >= this.duration;
   }
-  
+
   reset(): void {
     this.elapsedTime = 0;
     this.angle = 0;
@@ -52,7 +52,7 @@ class AttackAction implements ex.Action{
   stop(): void {
     this.reset();
   }
-  
+
 }
 
 /******************************
@@ -65,8 +65,8 @@ const weaponColliderGroup = new ex.CollisionGroup('weaponCollider', 0b0100, 0b00
 /******************************
  Weapon Setup
 *******************************/
-class MyWeapon extends ex.Actor{
-  constructor(){
+class MyWeapon extends ex.Actor {
+  constructor() {
     super({
       x: 0,
       y: -36,
@@ -81,12 +81,12 @@ class MyWeapon extends ex.Actor{
 
   onInitialize(engine: ex.Engine): void {
     this.actions.runAction(new AttackAction(this, this.parent as MyPlayer));
-    this.on('actioncomplete', (a:ex.ActionCompleteEvent) => {
-        if(a.action instanceof AttackAction)  {
-          setTimeout(() => {
-            this.kill();
-          }, 500)
-        }
+    this.on('actioncomplete', (a: ex.ActionCompleteEvent) => {
+      if (a.action instanceof AttackAction) {
+        setTimeout(() => {
+          this.kill();
+        }, 500)
+      }
     });
   }
 }
@@ -94,10 +94,10 @@ class MyWeapon extends ex.Actor{
 /******************************
  Player Setup
 *******************************/
-class MyPlayer extends ex.Actor{
-  
+class MyPlayer extends ex.Actor {
+
   speed: number = 100;
-  constructor(){
+  constructor() {
     super({
       x: 250,
       y: 250,
@@ -112,15 +112,15 @@ class MyPlayer extends ex.Actor{
   onInitialize(engine: ex.Engine): void {
     engine.input.keyboard.on('press', (e) => {
       if (e.key === ex.Keys.Enter) {
-        if(this.children.length > 0) return;
+        if (this.children.length > 0) return;
         this.addChild(new MyWeapon());
       }
     });
   }
 
   onCollisionStart(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
-    if(other.owner instanceof MyEnemy){
-      this.actions.runAction(new ex.Blink(this,150,150,10));
+    if (other.owner instanceof MyEnemy) {
+      this.actions.runAction(new ex.Blink(this, 150, 150, 10));
     }
   }
 
@@ -150,8 +150,8 @@ let player = new MyPlayer();
  Enemy Setup
 *******************************/
 
-class EnemyDamageBox extends ex.Actor{
-  constructor(x: number, y: number){
+class EnemyDamageBox extends ex.Actor {
+  constructor(x: number, y: number) {
     super({
       x: x,
       y: y,
@@ -163,18 +163,18 @@ class EnemyDamageBox extends ex.Actor{
     });
   }
   onCollisionStart(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
-    if((this.parent as MyEnemy).isDamaged) return;
+    if ((this.parent as MyEnemy).isDamaged) return;
     (this.parent as MyEnemy).isDamaged = true;
-    let parallelAction = new ex.ParallelActions([new ex.Blink(this.parent,150,150,10), new ex.Flash(this.parent, ex.Color.White, 3000)]);
-    if(other.owner instanceof MyWeapon){
+    let parallelAction = new ex.ParallelActions([new ex.Blink(this.parent, 150, 150, 10), new ex.Flash(this.parent, ex.Color.White, 3000)]);
+    if (other.owner instanceof MyWeapon) {
       (this.parent as MyEnemy).actions.runAction(parallelAction);
     }
   }
 }
 
-class MyEnemy extends ex.Actor{
+class MyEnemy extends ex.Actor {
   isDamaged: boolean = false;
-  constructor(x: number, y: number){
+  constructor(x: number, y: number) {
     super({
       x: x,
       y: y,
@@ -182,14 +182,14 @@ class MyEnemy extends ex.Actor{
       color: ex.Color.Red,
       z: 10,
     });
-    this.addChild(new EnemyDamageBox(24,0));
-    this.addChild(new EnemyDamageBox(-24,0));
-    this.addChild(new EnemyDamageBox(0,24));
-    this.addChild(new EnemyDamageBox(0,-24));
+    this.addChild(new EnemyDamageBox(24, 0));
+    this.addChild(new EnemyDamageBox(-24, 0));
+    this.addChild(new EnemyDamageBox(0, 24));
+    this.addChild(new EnemyDamageBox(0, -24));
   }
   onInitialize(engine: ex.Engine): void {
-    this.on('actioncomplete', (a:ex.ActionCompleteEvent) => {
-      if(a.action instanceof ex.ParallelActions)  {
+    this.on('actioncomplete', (a: ex.ActionCompleteEvent) => {
+      if (a.action instanceof ex.ParallelActions) {
         this.isDamaged = false;
       }
     });
@@ -200,11 +200,11 @@ class MyEnemy extends ex.Actor{
  Engine Setup
 *******************************/
 const game = new ex.Engine({
-    canvasElementId: 'preview-canvas',
-    displayMode: ex.DisplayMode.Fixed,
-    width: 500,
-    height: 500,
-    pixelArt: true
+  canvasElementId: 'preview-canvas',
+  displayMode: ex.DisplayMode.Fixed,
+  width: 500,
+  height: 500,
+  pixelArt: true
 });
 
 /******************************
@@ -212,5 +212,5 @@ const game = new ex.Engine({
 *******************************/
 
 game.add(player);
-game.add(new MyEnemy(100,100));
+game.add(new MyEnemy(100, 100));
 game.start();

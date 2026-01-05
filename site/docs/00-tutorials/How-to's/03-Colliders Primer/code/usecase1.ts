@@ -4,9 +4,9 @@ import * as ex from 'excalibur';
  Player Setup
 *******************************/
 
-class MyPlayer extends ex.Actor{
+class MyPlayer extends ex.Actor {
   speed: number = 100;
-  constructor(){
+  constructor() {
     super({
       x: 300,
       y: 200,
@@ -18,14 +18,14 @@ class MyPlayer extends ex.Actor{
 
   onCollisionStart(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
     //match blocks velocity if they collide with player
-    if(other.owner instanceof MyBlock){
+    if (other.owner instanceof MyBlock) {
       this.speed = other.owner.speed;
     }
   }
 
   onCollisionEnd(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
     //match blocks velocity if they collide with player
-    if(other.owner instanceof MyBlock){
+    if (other.owner instanceof MyBlock) {
       this.speed = 100
     }
   }
@@ -52,11 +52,11 @@ class MyPlayer extends ex.Actor{
 /*******************************
  Block Setup
 *******************************/
-class MyBlock extends ex.Actor{
+class MyBlock extends ex.Actor {
   speed: number = 10;
   isMoving: boolean = false;
   moveDirection: ex.Vector = ex.Vector.Zero;
-  constructor(){
+  constructor() {
     super({
       x: 200,
       y: 200,
@@ -64,15 +64,15 @@ class MyBlock extends ex.Actor{
       height: 32,
       color: ex.Color.Blue,
       collisionType: ex.CollisionType.Passive
-      
+
     });
   }
 
   // collider start
   onCollisionStart(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
-    if(!this.isMoving && other.owner instanceof MyPlayer){
+    if (!this.isMoving && other.owner instanceof MyPlayer) {
       this.isMoving = true;
-      switch(side){
+      switch (side) {
         case ex.Side.None:
           this.moveDirection = ex.Vector.Zero;
           break;
@@ -93,20 +93,20 @@ class MyBlock extends ex.Actor{
           break;
       }
     }
-    
+
   }
 
   onCollisionEnd(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
-    if(this.isMoving && other.owner instanceof MyPlayer){
+    if (this.isMoving && other.owner instanceof MyPlayer) {
       this.isMoving = false;
       this.moveDirection = ex.Vector.Zero;
     }
   }
 
-  
+
 
   onPreUpdate(engine: ex.Engine, elapsed: number): void {
-    if(this.isMoving){
+    if (this.isMoving) {
       this.vel = this.moveDirection;
     } else {
       this.vel = ex.Vector.Zero;
@@ -117,20 +117,20 @@ class MyBlock extends ex.Actor{
 //*******************************
 // Room Setup
 //*******************************/
-class MyRoom extends ex.Actor{
+class MyRoom extends ex.Actor {
 
-   TopWall = ex.Shape.Box(420,10, ex.Vector.Zero, ex.vec(-210, -210));
-   BottomWall = ex.Shape.Box(420,10, ex.Vector.Zero, ex.vec(-210, 200));
-   LeftWall = ex.Shape.Box(10,420, ex.Vector.Zero, ex.vec(-210, -210));
-   RightWall = ex.Shape.Box(10,420, ex.Vector.Zero, ex.vec(200, -210));
+  TopWall = ex.Shape.Box(420, 10, ex.Vector.Zero, ex.vec(-210, -210));
+  BottomWall = ex.Shape.Box(420, 10, ex.Vector.Zero, ex.vec(-210, 200));
+  LeftWall = ex.Shape.Box(10, 420, ex.Vector.Zero, ex.vec(-210, -210));
+  RightWall = ex.Shape.Box(10, 420, ex.Vector.Zero, ex.vec(200, -210));
 
-   background = new ex.Rectangle({
-     width: 400,
-     height: 400,
-     color: ex.Color.White
-   });
-  
-  constructor(){
+  background = new ex.Rectangle({
+    width: 400,
+    height: 400,
+    color: ex.Color.White
+  });
+
+  constructor() {
     super({
       x: 250,
       y: 250,
@@ -151,11 +151,11 @@ class MyRoom extends ex.Actor{
  Engine Setup
 *******************************/
 const game = new ex.Engine({
-    canvasElementId: 'preview-canvas',
-    displayMode: ex.DisplayMode.Fixed,
-    width: 500,
-    height: 500,
-    pixelArt: true
+  canvasElementId: 'preview-canvas',
+  displayMode: ex.DisplayMode.Fixed,
+  width: 500,
+  height: 500,
+  pixelArt: true
 });
 
 /******************************
