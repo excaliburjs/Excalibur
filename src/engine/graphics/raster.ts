@@ -7,6 +7,7 @@ import { BoundingBox } from '../collision/bounding-box';
 import { watch } from '../util/watch';
 import type { ImageFiltering } from './filtering';
 import { omit } from '../util/util';
+import { ImageSourceAttributeConstants } from './image-source';
 
 export interface RasterOptions extends GraphicOptions {
   /**
@@ -273,8 +274,8 @@ export abstract class Raster extends Graphic {
     this._bitmap.width = this._getTotalWidth() * this.quality;
     this._bitmap.height = this._getTotalHeight() * this.quality;
     // Do a bad thing to pass the filtering as an attribute
-    this._bitmap.setAttribute('filtering', this.filtering as any);
-    this._bitmap.setAttribute('forceUpload', 'true');
+    this._bitmap.setAttribute(ImageSourceAttributeConstants.Filtering, this.filtering as any);
+    this._bitmap.setAttribute(ImageSourceAttributeConstants.ForceUpload, 'true');
     ctx.scale(this.quality, this.quality);
     ctx.translate(this.padding, this.padding);
     ctx.imageSmoothingEnabled = this.smoothing;

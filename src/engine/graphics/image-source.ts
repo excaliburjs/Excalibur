@@ -23,7 +23,8 @@ export interface ImageWrapConfiguration {
 export const ImageSourceAttributeConstants = {
   Filtering: 'filtering',
   WrappingX: 'wrapping-x',
-  WrappingY: 'wrapping-y'
+  WrappingY: 'wrapping-y',
+  ForceUpload: 'forceUpload'
 } as const;
 
 export class ImageSource implements Loadable<HTMLImageElement> {
