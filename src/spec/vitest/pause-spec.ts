@@ -10,14 +10,14 @@ describe('PauseSystem', () => {
   let engine: Engine;
   let scene: Scene;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     // Create a minimal engine instance for testing
     engine = new Engine({
       width: 800,
       height: 600
     });
     scene = engine.currentScene;
-    pauseSystem = scene.world.get(PauseSystem);
+    pauseSystem = scene.world.get(PauseSystem) as PauseSystem;
   });
 
   it('should initialize with isPaused set to false', () => {
