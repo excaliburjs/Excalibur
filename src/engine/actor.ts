@@ -460,6 +460,10 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     this.paused.canPause = canPause;
   }
 
+  public get isPaused(): boolean {
+    return this.paused.paused;
+  }
+
   private _anchor: Vector = watch(Vector.Half, (v) => this._handleAnchorChange(v));
   /**
    * The anchor to apply all actor related transformations like rotation,
