@@ -68,6 +68,7 @@ export class Particle extends Entity {
     this.addComponent((this.transform = new TransformComponent()));
     this.addComponent((this.motion = new MotionComponent()));
     this.addComponent((this.graphics = new GraphicsComponent()));
+    this.addComponent(this.paused);
     this.configure(options);
   }
 
