@@ -1,0 +1,57 @@
+---
+title: Pause
+slug: /pause
+section: Other
+---
+
+```twoslash include ex
+/// <reference path="../src/engine/excalibur.d.ts" />
+declare const game: ex.Engine;
+```
+
+# Pause System
+
+The Pause System provides a flexible way to pause and resume entities in your game. This system allows you to selectively pause certain entities while allowing others to continue updating, giving you fine-grained control over your game's pause behavior.
+
+## Overview
+
+The Pause System consists of two main components:
+
+- **`PauseComponent`** - A component that already is attached to [Actors](/docs/actors)
+- **`PauseSystem`** - A system that manages pause state across all entities in a scene
+
+## Quick Start
+
+```ts twoslash
+
+// @include: ex
+let scene = game.currentScene;
+// ---cut---
+
+// Create an actor that can be paused
+const player = new ex.Actor({ x: 100, y: 100, canPause: true });
+scene.add(player);
+
+// Pause the scene
+scene.pauseScene();
+
+// Resume the scene
+scene.resumeScene();
+```
+
+## PauseComponent
+
+The `PauseComponent` tracks whether an entity is currently paused and whether it can be paused.
+
+### Properties
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `paused` | `boolean` | `false` | Whether the entity is currently paused (read-only, managed by the system) |
+| `canPause` | `boolean` | `false` | Whether this entity can be paused by the scene |
+
+### Scene Events
+
+[Scenes](/docs/scenes) now have `pauseScene()` and `resumeScene()` methods that emit out the pause state of the scene.
+
+If you have UI elements, like a Pause Menu for example, that you want to respond to those events, you can listen to the scene's [events](/docs/events) emitter.

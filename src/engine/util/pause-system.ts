@@ -26,9 +26,10 @@ export class PauseSystem extends System {
     for (const pauseEntity of this.query.entities) {
       const pauseComponent = pauseEntity.get(PauseComponent);
       if (pauseComponent.canPause === false) {
-        continue;
+        pauseComponent.paused = false;
+      } else {
+        pauseComponent.paused = this.isPaused;
       }
-      pauseComponent.paused = this.isPaused;
     }
   }
 }
