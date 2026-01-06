@@ -195,24 +195,6 @@ export class Vector implements Clonable<Vector> {
   }
 
   /**
-   * The size (magnitude) of the Vector
-   * @deprecated Will be removed in v1, use Vector.magnitude
-   */
-  public get size(): number {
-    return this.distance();
-  }
-
-  /**
-   * Setting the size mutates the current vector
-   * @warning Can be used to set the size of the vector, **be very careful using this, mutating vectors can cause hard to find bugs**
-   * @deprecated Will be removed in v1, use Vector.magnitude
-   */
-  public set size(newLength: number) {
-    const v = this.normalize().scale(newLength);
-    this.setTo(v.x, v.y);
-  }
-
-  /**
    * The magnitude (length) of the Vector
    */
   public get magnitude(): number {

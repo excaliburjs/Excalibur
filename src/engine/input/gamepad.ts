@@ -315,16 +315,6 @@ export class Gamepad {
   }
 
   /**
-   * Whether or not the given button is pressed
-   * @deprecated will be removed in v0.28.0. Use isButtonHeld instead
-   * @param button     The button to query
-   * @param threshold  The threshold over which the button is considered to be pressed
-   */
-  public isButtonPressed(button: Buttons | number, threshold: number = 1) {
-    return this._buttons[button] >= threshold;
-  }
-
-  /**
    * Tests if a certain button is held down. This is persisted between frames.
    * @param button     The button to query
    * @param threshold  The threshold over which the button is considered to be pressed

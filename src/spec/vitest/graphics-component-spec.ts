@@ -11,7 +11,7 @@ describe('A Graphics ECS Component', () => {
     expect(sut.anchor).toBeVector(ex.vec(0.5, 0.5));
     expect(sut.offset).toBeVector(ex.vec(0, 0));
     expect(sut.opacity).toBe(1);
-    expect(sut.visible).toBe(true);
+    expect(sut.isVisible).toBe(true);
     expect(sut.current).toBeUndefined();
     expect(sut.graphics).toEqual({});
   });
@@ -32,7 +32,7 @@ describe('A Graphics ECS Component', () => {
     graphics.anchor = ex.vec(0, 0);
     graphics.offset = ex.vec(1, 1);
     graphics.opacity = 0.2;
-    graphics.visible = false;
+    graphics.isVisible = false;
     graphics.copyGraphics = true;
     graphics.onPreDraw = () => {
       /* do nothing */
@@ -50,7 +50,7 @@ describe('A Graphics ECS Component', () => {
     expect(sut.anchor).toBeVector(graphics.anchor);
     expect(sut.offset).toBeVector(graphics.offset);
     expect(sut.opacity).toEqual(graphics.opacity);
-    expect(sut.visible).toEqual(graphics.visible);
+    expect(sut.isVisible).toEqual(graphics.isVisible);
     expect(sut.copyGraphics).toEqual(graphics.copyGraphics);
     expect(sut.onPreDraw).toBe(sut.onPreDraw);
     expect(sut.onPostDraw).toBe(sut.onPostDraw);
@@ -84,7 +84,7 @@ describe('A Graphics ECS Component', () => {
     expect(sut.anchor).toBeVector(ex.vec(0, 0));
     expect(sut.offset).toBeVector(ex.vec(10, 11));
     expect(sut.opacity).toBe(0.5);
-    expect(sut.visible).toBe(false);
+    expect(sut.isVisible).toBe(false);
     expect(sut.current).not.toBeNull();
     expect(sut.graphics).toEqual({
       'some-gfx': rect

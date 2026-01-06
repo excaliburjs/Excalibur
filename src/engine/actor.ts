@@ -865,7 +865,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * Get the center point of an actor (global position)
    */
   public get center(): Vector {
-    const globalPos = this.getGlobalPos();
+    const globalPos = this.globalPos;
     return new Vector(
       globalPos.x + this.width / 2 - this.anchor.x * this.width,
       globalPos.y + this.height / 2 - this.anchor.y * this.height
@@ -880,20 +880,11 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   }
 
   public get width() {
-    return this.collider.localBounds.width * this.getGlobalScale().x;
+    return this.collider.localBounds.width * this.globalScale.x;
   }
 
   public get height() {
-    return this.collider.localBounds.height * this.getGlobalScale().y;
-  }
-
-  /**
-   * Gets this actor's rotation taking into account any parent relationships
-   * @returns Rotation angle in radians
-   * @deprecated Use {@apilink globalRotation} instead
-   */
-  public getGlobalRotation(): number {
-    return this.get(TransformComponent).globalRotation;
+    return this.collider.localBounds.height * this.globalScale.y;
   }
 
   /**
@@ -904,27 +895,10 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   }
 
   /**
-   * Gets an actor's world position taking into account parent relationships, scaling, rotation, and translation
-   * @returns Position in world coordinates
-   * @deprecated Use {@apilink globalPos} instead
-   */
-  public getGlobalPos(): Vector {
-    return this.get(TransformComponent).globalPos;
-  }
-
-  /**
    * The actor's world position taking into account parent relationships, scaling, rotation, and translation
    */
   public get globalPos(): Vector {
     return this.get(TransformComponent).globalPos;
-  }
-
-  /**
-   * Gets the global scale of the Actor
-   * @deprecated Use {@apilink globalScale} instead
-   */
-  public getGlobalScale(): Vector {
-    return this.get(TransformComponent).globalScale;
   }
 
   /**

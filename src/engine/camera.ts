@@ -1,7 +1,5 @@
 import type { Engine } from './engine';
 import type { Screen } from './screen';
-import type { EasingFunction } from './util/easing-functions';
-import { EasingFunctions, isLegacyEasing } from './util/easing-functions';
 import { Vector, vec } from './math/vector';
 import type { Actor } from './actor';
 import { removeItemFromArray } from './util/util';
@@ -386,11 +384,7 @@ export class Camera implements CanUpdate, CanInitialize {
 
   private _zoomResolve: (val: boolean) => void;
   private _zoomPromise: Promise<boolean>;
-  private _legacyZoomEasing: EasingFunction = EasingFunctions.EaseInOutCubic;
-  private _useLegacyZoom = false;
   private _zoomEasing: Easing = easeInOutCubic;
-  private _legacyEasing: EasingFunction = EasingFunctions.EaseInOutCubic;
-  private _useLegacyEasing = false;
   private _easing: Easing = easeInOutCubic;
 
   private _halfWidth: number = 0;
@@ -487,7 +481,7 @@ export class Camera implements CanUpdate, CanInitialize {
    * @returns A {@apilink Promise} that resolves when movement is finished, including if it's interrupted.
    *          The {@apilink Promise} value is the {@apilink Vector} of the target position. It will be rejected if a move cannot be made.
    */
-  public move(pos: Vector, duration: number, easingFn: Easing | EasingFunction = EasingFunctions.EaseInOutCubic): Promise<Vector> {
+  public move(pos: Vector, duration: number, easingFn: Easing = easeInOutCubic): Promise<Vector> {
     if (typeof easingFn !== 'function') {
       throw 'Please specify an EasingFunction';
     }
@@ -510,11 +504,7 @@ export class Camera implements CanUpdate, CanInitialize {
     this._lerpEnd = pos;
     this._currentLerpTime = 0;
     this._cameraMoving = true;
-    if (isLegacyEasing(easingFn)) {
-      this._legacyEasing = easingFn;
-    } else {
-      this._easing = easingFn;
-    }
+    this._easing = easingFn;
 
     return this._lerpPromise;
   }
@@ -538,22 +528,14 @@ export class Camera implements CanUpdate, CanInitialize {
    * @param scale    The scale of the zoom
    * @param duration The duration of the zoom in milliseconds
    */
-  public zoomOverTime(
-    scale: number,
-    duration: number = 0,
-    easingFn: Easing | EasingFunction = EasingFunctions.EaseInOutCubic
-  ): Promise<boolean> {
+  public zoomOverTime(scale: number, duration: number = 0, easingFn: Easing = easeInOutCubic): Promise<boolean> {
     this._zoomPromise = new Promise<boolean>((resolve) => {
       this._zoomResolve = resolve;
     });
 
     if (duration) {
       this._isZooming = true;
-      if (isLegacyEasing(easingFn)) {
-        this._legacyZoomEasing = easingFn;
-      } else {
-        this._easing = easingFn;
-      }
+      this._easing = easingFn;
       this._currentZoomTime = 0;
       this._zoomDuration = duration;
       this._zoomStart = this.zoom;
@@ -776,15 +758,7 @@ export class Camera implements CanUpdate, CanInitialize {
 
     if (this._isZooming) {
       if (this._currentZoomTime < this._zoomDuration) {
-        let newZoom = this.zoom;
-        if (this._useLegacyZoom) {
-          const zoomEasing = this._legacyZoomEasing;
-          newZoom = zoomEasing(this._currentZoomTime, this._zoomStart, this._zoomEnd, this._zoomDuration);
-        } else {
-          newZoom = lerp(this._zoomStart, this._zoomEnd, this._zoomEasing(this._currentZoomTime / this._zoomDuration));
-        }
-
-        this.zoom = newZoom;
+        this.zoom = lerp(this._zoomStart, this._zoomEnd, this._zoomEasing(this._currentZoomTime / this._zoomDuration));
         this._currentZoomTime += elapsed;
       } else {
         this._isZooming = false;
@@ -796,14 +770,9 @@ export class Camera implements CanUpdate, CanInitialize {
 
     if (this._cameraMoving) {
       if (this._currentLerpTime < this._lerpDuration) {
-        let lerpPoint = this.pos;
-        if (this._useLegacyEasing) {
-          const moveEasing = EasingFunctions.CreateVectorEasingFunction(this._legacyEasing);
-          lerpPoint = moveEasing(this._currentLerpTime, this._lerpStart, this._lerpEnd, this._lerpDuration);
-        } else {
-          lerpPoint.x = lerp(this._lerpStart.x, this._lerpEnd.x, this._easing(this._currentLerpTime / this._lerpDuration));
-          lerpPoint.y = lerp(this._lerpStart.y, this._lerpEnd.y, this._easing(this._currentLerpTime / this._lerpDuration));
-        }
+        const lerpPoint = this.pos;
+        lerpPoint.x = lerp(this._lerpStart.x, this._lerpEnd.x, this._easing(this._currentLerpTime / this._lerpDuration));
+        lerpPoint.y = lerp(this._lerpStart.y, this._lerpEnd.y, this._easing(this._currentLerpTime / this._lerpDuration));
 
         this.pos = lerpPoint;
 

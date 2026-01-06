@@ -39,10 +39,6 @@ export interface TimerOptions {
    */
   numberOfRepeats?: number;
   /**
-   * @deprecated use action: () => void, will be removed in v1.0
-   */
-  fcn?: () => void;
-  /**
    * Action to perform every time the timer fires
    */
   action?: () => void;
@@ -102,7 +98,7 @@ export class Timer {
   public scene: Scene = null;
 
   constructor(options: TimerOptions) {
-    const fcn = options.action ?? options.fcn;
+    const fcn = options.action;
     const interval = options.interval;
     const repeats = options.repeats;
     const numberOfRepeats = options.numberOfRepeats;

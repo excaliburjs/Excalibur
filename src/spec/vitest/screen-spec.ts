@@ -385,7 +385,7 @@ describe('A Screen', () => {
       viewport: { width: 800, height: 600 }
     });
 
-    expect(sut.isFullScreen).toBe(false);
+    expect(sut.isFullscreen).toBe(false);
 
     const nonFullScreenPage = sut.screenToPageCoordinates(ex.vec(800, 600));
     expect(nonFullScreenPage).toBeVector(ex.vec(800, 600));
@@ -393,7 +393,7 @@ describe('A Screen', () => {
     expect(nonFullScreenScreen).toBeVector(ex.vec(800, 600));
 
     canvas.dispatchEvent(new Event('fullscreenchange'));
-    expect(sut.isFullScreen).toBe(true);
+    expect(sut.isFullscreen).toBe(true);
 
     const page = sut.screenToPageCoordinates(ex.vec(800, 600));
     expect(page).toBeVector(ex.vec(1000, 775));
@@ -412,14 +412,14 @@ describe('A Screen', () => {
       viewport: { width: 800, height: 600 }
     });
 
-    expect(sut.isFullScreen).toBe(false);
+    expect(sut.isFullscreen).toBe(false);
     const nonFullScreenPage = sut.screenToPageCoordinates(ex.vec(800, 600));
     expect(nonFullScreenPage).toBeVector(ex.vec(800, 600));
     const nonFullScreenScreen = sut.pageToScreenCoordinates(nonFullScreenPage);
     expect(nonFullScreenScreen).toBeVector(ex.vec(800, 600));
 
     canvas.dispatchEvent(new Event('fullscreenchange'));
-    expect(sut.isFullScreen).toBe(true);
+    expect(sut.isFullscreen).toBe(true);
 
     const page = sut.screenToPageCoordinates(ex.vec(800, 600));
     expect(page).toBeVector(ex.vec(1183.33, 800));
