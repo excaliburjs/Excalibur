@@ -22,11 +22,12 @@ import { MotionSystem } from './motion-system';
 import { Pair } from './detection/pair';
 import { BodyComponent } from './index';
 import { buildContactIslands } from './island';
+import { PauseComponent } from '../entity-component-system/components/pause-component';
 export class CollisionSystem extends System {
   static priority = SystemPriority.Higher;
 
   public systemType = SystemType.Update;
-  public query: Query<ComponentCtor<TransformComponent> | ComponentCtor<ColliderComponent>>;
+  public query: Query<ComponentCtor<TransformComponent> | ComponentCtor<ColliderComponent> | typeof PauseComponent>;
   public bodyQuery: Query<ComponentCtor<BodyComponent>>;
 
   private _engine: Engine;
@@ -54,7 +55,7 @@ export class CollisionSystem extends System {
     this._physics.$configUpdate.subscribe(() => (this._configDirty = true));
     this._trackCollider = (c: Collider) => this._processor.track(c);
     this._untrackCollider = (c: Collider) => this._processor.untrack(c);
-    this.query = world.query([TransformComponent, ColliderComponent]);
+    this.query = world.query([TransformComponent, ColliderComponent, PauseComponent]);
     this.query.entityAdded$.subscribe((e) => {
       const colliderComponent = e.get(ColliderComponent);
       colliderComponent.$colliderAdded.subscribe(this._trackCollider);
@@ -103,6 +104,10 @@ export class CollisionSystem extends System {
     for (let entityIndex = 0; entityIndex < this.query.entities.length; entityIndex++) {
       const entity = this.query.entities[entityIndex];
       const colliderComp = entity.get(ColliderComponent);
+      const paused = entity.get(PauseComponent);
+      if (paused.paused) {
+        continue;
+      }
       const collider = colliderComp?.get();
       if (colliderComp && colliderComp.owner?.isActive && collider) {
         colliderComp.update();
