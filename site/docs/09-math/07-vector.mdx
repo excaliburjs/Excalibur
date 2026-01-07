@@ -10,26 +10,26 @@ Excalibur uses the [[Vector]] structure to represent points. The [[Vector]] clas
 
 To quickly create a vector, use the [[vec]] global:
 
-```ts twoslash
-import { vec } from 'excalibur'
+```ts
+import { vec } from 'excalibur';
 
-const point = vec(0, 10)
+const point = vec(0, 10);
 ```
 
 Alternatively, you may see examples of using the more verbose `new Vector(x, y)` format:
 
-```ts twoslash
-import { Vector } from 'excalibur'
+```ts
+import { Vector } from 'excalibur';
 
-const point = new Vector(0, 10)
+const point = new Vector(0, 10);
 ```
 
 To set the value of an existing vector, use [[Vector.setTo]]:
 
-```ts twoslash
-import { vec } from 'excalibur'
+```ts
+import { vec } from 'excalibur';
 
-const point = vec(0, 10).setTo(10, 10)
+const point = vec(0, 10).setTo(10, 10);
 ```
 
 There are some built-in vector constants you can use:
@@ -46,7 +46,7 @@ There are some built-in vector constants you can use:
 
 Vectors are objects, so mutating them will change the state for all references. Use the [[Vector.clone]] method to clone a vector to mutate it:
 
-```ts twoslash
+```ts
 import { vec } from 'excalibur';
 
 const point = vec(0, 10);
