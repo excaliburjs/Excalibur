@@ -9,7 +9,7 @@ import { Logger } from '../util/log';
 import { WatchVector } from '../math/watch-vector';
 import { TransformComponent } from '../entity-component-system';
 import { GraphicsGroup } from '../graphics/graphics-group';
-import type { Color } from '../color';
+import { Color } from '../color';
 import { Raster } from './raster';
 import { Text } from './text';
 

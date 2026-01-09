@@ -6,10 +6,10 @@ import { CollisionEndEvent, CollisionStartEvent, PostCollisionEvent, PreCollisio
 import { Observable } from '../util/observable';
 import { BoundingBox } from './bounding-box';
 import type { CollisionContact } from './detection/collision-contact';
-import type { CircleCollider } from './colliders/circle-collider';
+import { CircleCollider } from './colliders/circle-collider';
 import type { Collider } from './colliders/collider';
 import { CompositeCollider } from './colliders/composite-collider';
-import type { PolygonCollider } from './colliders/polygon-collider';
+import { PolygonCollider } from './colliders/polygon-collider';
 import type { EdgeCollider } from './colliders/edge-collider';
 import { Shape } from './colliders/shape';
 import { EventEmitter } from '../event-emitter';
