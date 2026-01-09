@@ -1,8 +1,8 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { Serializer } from '../../engine/Util/Serializer';
-import type { ComponentData, EntityData } from '../../engine/Util/Serializer';
-import { Component } from '../../engine/EntityComponentSystem/Component';
-import { Actor } from '../../engine/Actor';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { Serializer } from '../../engine/util/serializer';
+import type { ComponentData, EntityData } from '../../engine/util/serializer';
+import { Component } from '../../engine/entity-component-system/component';
+import { Actor } from '../../engine/actor';
 import { Entity, Logger } from '@excalibur';
 
 class MockComponent extends Component {
