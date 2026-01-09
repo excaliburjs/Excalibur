@@ -1,0 +1,117 @@
+---
+title: Step 8 - Periodic Pipes
+slug: /step-8-periodic-pipes
+section: Tutorial
+---
+
+# Step 8 - Periodic Pipes
+
+We want pipe to appear after a certain amount of time and for them to be in random positions. To accomplish this we'll use the `ex.Timer` which is a handy type for firing a callback periodically according to the excalibur `Clock` and `ex.Random` which provides a way of doing seeded random.
+
+`ex.Timer`'s can be created and configured to `repeats:` infinitely at a certain `interval:`, and call a callback `fcn:`.
+
+```typescript
+import * as ex from 'excalibur';
+
+// we'll use this timer below
+this.timer = new ex.Timer({
+    interval: intervalMs,
+    repeats: true,
+    action: () => this.spawnPipes()
+});
+// MUST BE added to a scene to work!!
+this.level.add(this.timer);
+
+```
+
+Let's create a new type that's responsible for creating our `Pipe`s, we'll call it `PipeFactory`.
+
+Create a new file `pipe-factory.ts`, note that this type is a plain old TypeScript/JavaScript class not extending any excalibur types.
+
+The `spawnPipes()` method creates the top and bottom pipe using a random floating point number between 0 and the height of the screen taking into account the gap we want between pipes with `Config.PipeGap`.
+
+We can `.start()`, `.stop()` the pipe factory and all the `Pipe`s created at the same time, also we added a `.reset()` which will come in handy later when we want to restart the game.
+
+
+```typescript
+// pipe-factory.ts
+import * as ex from 'excalibur';
+import { Bird } from './bird';
+import { Ground } from './ground';
+import { Pipe } from './pipe';
+import { Config } from './config';
+
+export class PipeFactory {
+
+    private timer: ex.Timer;
+    constructor(
+        private level: Level,
+        private random: ex.Random,
+        intervalMs: number) {
+            this.timer = new ex.Timer({
+                interval: intervalMs,
+                repeats: true,
+                action: () => this.spawnPipes()
+            });
+            this.level.add(this.timer);
+    }
+
+    spawnPipes() {
+        const randomPipePosition = this.random.floating(0, this.level.engine.screen.resolution.height - Config.PipeGap);
+
+        const bottomPipe = new Pipe(
+            ex.vec(this.level.engine.screen.drawWidth, randomPipePosition + Config.PipeGap),
+            'bottom'
+        );
+        this.level.add(bottomPipe);
+
+        const topPipe = new Pipe(
+            ex.vec(this.level.engine.screen.drawWidth, randomPipePosition),
+            'top'
+        );
+        this.level.add(topPipe);
+    }
+
+    start() {
+        this.timer.start();
+    }
+
+    reset() {
+        for (const actor of this.level.actors) {
+            if (actor instanceof Pipe) {
+                actor.kill();
+            }
+        }
+    }
+
+    stop() {
+        this.timer.stop();
+        for (const actor of this.level.actors) {
+            if (actor instanceof Pipe) {
+                actor.vel = ex.vec(0, 0);
+            }
+        }
+    }
+}
+```
+
+With this new `PipeFactory` we'll add it to our `Level` with a new `ex.Random`. If no seed is provided to `new ex.Random()` it'll use `Date.now()`
+
+```typescript
+// level.ts
+
+import { PipeFactory } from './pipe-factory';
+
+export class Level extends ex.Scene {
+    random = new ex.Random();
+    pipeFactory = new PipeFactory(this, this.random, Config.PipeInterval);
+    bird = new Bird();
+    ground!: Ground;
+
+    onInitialize(engine: ex.Engine): void {
+        ...
+
+        this.pipeFactory.start();
+    }
+}
+```

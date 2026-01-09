@@ -15,6 +15,6 @@
       "@excalibur": ["../../engine/"]
     }
   },
-  "include": ["./**Spec.ts", "./**/*Spec.ts"],
+  "include": ["./**spec.ts", "./**/*spec.ts"],
   "files": ["_boot.ts", "../../engine/files.d.ts", "../../engine/globals.d.ts"]
 }

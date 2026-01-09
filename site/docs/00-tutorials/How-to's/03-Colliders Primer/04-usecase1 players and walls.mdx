@@ -1,0 +1,58 @@
+---
+title: Use Case 1 Players and Walls
+slug: /players-and-walls
+section: Tutorials
+---
+
+import usecase1 from '!!raw-loader!./code/usecase1.ts';
+import title from './images/usecaseonetitle.png';
+
+<img src={title} alt="Use Case 1" style={{ width: "400px" }} />
+
+## Problem Statement
+
+We have a player, and we want it to not pass through walls or obstacles. (boundaries and obstacles)
+
+We are showing how to encapsulate an area like a room, we are demonstrating a class 'pushed block' mechanism.  This includes changing the players speed when pushing.
+
+Demonstrates:
+
+  - Player with active collider
+  - Walls with fixed colliders
+  - Block with passive collider
+  - Composite Colliders
+  - Using collision events and event parameters
+  - Using Debug mode to see the colliders
+
+Using the demo:
+
+ - WASD keys move the player around
+ - You can't leave the room
+ - You can push the block (Zelda style)
+
+<PlaygroundEmbed code={usecase1} />
+
+:::tip
+- Using the 'separate' setting on composite collider allows for each element of the composite to register collider events
+- Use an actor's velocity to move them to optimize collision resolution
+- Click 'Toggle Debug' to see the example without the debug draws for colliders
+:::
+
+### Takeaways from this use case
+
+#### Using different collider types.
+
+Walls are fixed, Players are Active, and items that need to be 'managed' different can be passive and then you can determine how the behave when they collide
+
+#### Composite Colliders
+
+You can provide numerous colliders to an actor, and then combine them into 'one' collider to create unique shapes,... like room boundaries.
+
+#### Using the events
+
+When an event fires for an Actor, you can sort through all the events by the 'other' parameter and respond differently based on what is hitting the Actor.
+
+### Debug mode
+
+You can set debug mode programmatically, or use the dev tools to enable/disable.
+

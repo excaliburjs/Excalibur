@@ -1,0 +1,83 @@
+---
+title: Use Case 2 TileMaps and Triggers
+slug: /tilemaps-and-triggers
+section: Tutorials
+---
+
+import usecase2 from '!!raw-loader!./code/usecase2.ts';
+import title from './images/usecasetwotitle.png';
+
+<img src={title} alt="Use Case 2" style={{ width: "400px" }} />
+
+## Problem Statement
+
+We have a player, and we want it to not pass through the outer tiles of the tilemap.  We will use the solid property on the tiles to add a collider.
+Also, we want the player to step on a trigger to show a prize.
+
+:::tip
+
+`TileMap`s use something called a "composite collider" to represent their collision geometry. A composite collider is a way of treating multiple pieces of geometry as one collider.
+
+### Composite Collision Resolution Strategy
+
+1. 'together' - Treat all geometry as part of the same body, meaning only 1 contact is possible for the composite, and only 1 event is generated.
+2. 'separate' - Treat geometry as if it were part of separate bodies, a contact is possible for every piece of geometry, an event is generated for every contact.
+
+Set the default for all composites as engine config
+
+```typescript
+const game = new ex.Engine({
+  ...
+  physics: {
+    colliders: {
+      compositeStrategy: 'separate'
+    }
+  }
+});
+
+```
+
+Or per composite
+
+```typescript
+const tm = new ex.TileMap({...});
+// TileMaps only have CompositeColliders
+const comp = tm.collider.get() as ex.CompositeCollider;
+comp.compositeStrategy = 'separate';
+
+```
+
+### Rule of Thumb
+
+* If your composite is connected and has no large gaps, use 'together'
+* If your composite is a level like a platformer with large gaps, use 'separate'
+
+:::
+
+Demonstrates:
+
+- Tilemap colliders
+- Triggers
+- Collectibles
+- Spawning
+
+Using the demo:
+
+  - WASD to move the orange player
+  - The gray tiles are solid
+  - The black circle is a button to press
+  - Pressing the button drops a coin to pick up
+  - Rinse and repeat
+
+<PlaygroundEmbed code={usecase2} />
+
+### Takeaways from this use case
+
+#### Tilemaps can set the solid property on tile for any of the tiles
+
+You can build whatever wall layout and each tile will have a collider on it.
+
+#### Triggers can be used instead of Actors
+
+Triggers are a special type of entity that can be less expensive than using an actor for just triggering a collision event.
+

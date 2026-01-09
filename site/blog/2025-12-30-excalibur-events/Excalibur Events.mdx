@@ -1,0 +1,478 @@
+---
+slug: Event Driven Gameplay in ExcaliburJS
+title: Event-Driven Gameplay in ExcaliburJS
+authors: [justin]
+tags: [gamedev excaliburjs architecture events ai]
+---
+
+# Event-Driven Gameplay in ExcaliburJS: Building Smarter, Decoupled Systems
+
+## A Primer on Excalibur Event Emitters
+
+<!-- optional title image -->
+import expng from './images/ex.png';
+import pubsub from './images/pubsub.png';
+import spag from './images/spag.jpg';
+import pillars from './images/pillars.png';
+import camera from './images/camera.gif';
+
+<img src={pubsub} alt="Pubsub model" style={{ width: "750px" }} />
+
+## Intro
+
+As your game grows, so does the complexity of its logic.
+
+Enemies need to react to the player. Animations need to trigger damage. AI systems need to coordinate state changes. UI needs to update
+when _something_ happens — but that “something” might come from anywhere.
+
+One approach is direct calls:
+
+```ts
+enemy.takeDamage(10);
+enemy.die();
+hud.updateHealth();
+sound.play();
+```
+
+This works… until it doesn’t.
+
+Suddenly everything knows about everything else. A small change in one system ripples through your entire codebase. Reuse becomes
+difficult. Debugging becomes painful.
+
+This is where event-driven architecture shines — and ExcaliburJS provides a powerful, flexible event system that can be used as a tool to connect different systems.
+
+In this article, we’ll explore:
+
+- What Excalibur’s event framework actually gives you
+- Why publish/subscribe (pub/sub) patterns matter in games
+- Practical, real-world use cases
+- And how to model gameplay events, not just callbacks
+
+Events are a tool. Any tool can help you solve a specific set of problems. As with any other tool, if you start applying this solution
+to the wrong problems, there are potential foot-guns. We will discuss this a bit.
+
+<!-- truncate -->
+
+## What Is Pub/Sub (and Why It Fits Games So Well)
+
+At its core, Excalibur’s event system follows a publish/subscribe model:
+
+- One system emits an event
+- Zero or more systems listen for it
+- The publisher has no knowledge of who’s listening — or if anyone is at all
+
+This decoupling is incredibly valuable in games, where many systems often react to the same stimulus.
+
+## Benefits of Pub/Sub in Game Architecture
+
+
+<img src={spag} alt="Spaghetti Code" style={{ width: "600px" }} />
+
+1. Loose Coupling
+
+   Your listening systems don't need to know about the emitter. For example: Your UI doesn’t need to know about combat math. They just
+   react to events.
+
+2. Semantic Meaning
+
+   Events turn low-level mechanics into high-level intent:
+
+    `"collisionstart" → "enemySpotted" `
+
+   `"frame" → "attackHit"`
+
+   `hp <= 0" → "died"`
+
+3. Fan-Out by Default
+
+   One event can trigger:
+
+   - Sound
+   - Visual effects
+   - State changes
+   - Analytics
+
+   …without a single direct dependency.
+
+4. Easier Iteration
+
+   Want to add screen shake on hit? Just listen to an event — no refactors required.
+
+## Events in ExcaliburJS (A Quick Mental Model)
+
+Almost everything in Excalibur has an .events property:
+
+- Actor
+- Scene
+- Engine
+- Animation
+
+And you can:
+
+- Listen with .on(...)
+- Remove with .off(...)
+- Emit with .emit(...)
+- Create your own typed event emitters
+
+This makes Excalibur events ideal for gameplay signaling, not just engine hooks. The two HUGE benefits with using the emitter is
+built-in type safety and leverage native IDE tools like Intellisense with autocomplete. This is a big quality of life feature.
+
+### The Three Pillars of ExcaliburJS Events
+
+<img src={pillars} alt="Pubsub model" style={{ width: "375px" }} />
+
+Excalibur’s event system is deceptively simple on the surface — but when used properly with TypeScript, it becomes a strongly-typed,
+scalable messaging system.
+
+Everything builds on three pillars:
+
+1. Event type definitions
+2. Extending GameEvents
+3. Const declaration event maps
+
+Once you understand how these fit together, you can confidently model almost any gameplay interaction.
+
+#### 1. Event Type Definitions
+
+At the most basic level, Excalibur events are just named signals with payloads. We can use an event interface to map the semantic event
+names to the actual GameEvents that are emitted.
+
+```ts
+interface DetectionEvents {
+  targetDetected: TargetDetectedEvent,
+  targetLost: TargetLostEvent,
+}
+```
+
+This event map answers two questions:
+
+1. What events can be emitted?
+2. Which events are mapped?
+
+#### 2. Extending GameEvents
+
+Then you define the specific events and their payloads.
+
+```ts
+export class TargetDetectedEvent extends  ex.GameEvent<EnemyDetector> {
+  constructor(public target: Actor) {
+    super();
+  }
+}
+export class TargetLostEvent extends  ex.GameEvent<EnemyDetector> {
+  constructor(public target: Actor) {
+    super();
+  }
+}
+
+```
+
+#### 3. Const Declaration (optional, but improves DevX)
+
+Declaring the events 'as const' provices replacing magic strings with enum-like behaviors.
+
+```ts
+export const DetectionEvents = {
+  targetDetected: "targetDetected",
+  targetLost: "targetLost",
+} as const;
+```
+
+The events are ready to use!
+
+#### Using the events
+
+Here's how to use these as extensions of Actor events (one way to use them)
+
+```ts
+export class EnemyDetector extends ex.Actor {
+  public events = new  ex.EventEmitter<ex.ActorEvents & DetectionEvents>(); // this combines the native event actor events with your new custom events
+
+  public onPostUpdate() {
+    if (playerSeen) { // This is your local logic for finding the player
+      this.events.emit(DetectionEvents.targetDetected, new TargetDetectedEvent(ActorThatWasSeen));  //pass the actor
+    }
+
+    if(previouslyDetectedPlayerGone){ // This is your local logic for when previously detected player leaves
+      this.events.emit(DetectionEvents.targetLost, new TargetLostEvent(ActorThatWasSeen));  //pass the actor
+    }
+  }
+}
+```
+
+:::tip
+#### Passing parameters in the event
+
+When you call the `.emit()` method, the 2nd parameter you pass is what shows up as the incoming parameter for the event listener.
+
+For example:
+
+```ts
+// in the publisher
+this.events.emit("typingComplete", this.currentStringText);   
+
+// in the subscriber
+this.events.on('typingComplete', (e)=>{...});  // e is this.currentStringText
+```
+:::
+
+## Common Gameplay Use Cases for Events
+
+Here are some use cases and game dev patterns where Excalibur’s event system really shines:
+
+- Perception systems (vision, hearing, proximity)
+- AI state transitions
+- Combat pipelines (chaining attacks!!!)
+- Animation timing
+- UI synchronization
+- Cross-entity communication (enemy alarms!!!)
+- Designer-friendly extensibility
+
+Let’s walk through three concrete examples.
+
+## Use Case 1: Line-of-Sight as an Actor Component
+
+<img src={camera} alt="LOS camera" style={{ width: "600px" }} />
+
+Line-of-sight detection is a perfect example of continuous logic that should emit discrete events.
+
+Instead of asking every frame:  “Can I see the player?”
+
+We want:
+
+  - "targetSeen"
+  - "targetLost"
+
+### The Pattern: Line-of-Sight Component
+
+Instead of baking events directly into the Actor, we can encapsulate behavior in a component:
+
+The LineOfSightComponent handles math, raycasts, and visibility checks.
+
+It emits semantic events like seen or lost.
+
+Other systems (AI, UI, audio) can respond without knowing the implementation details.
+
+#### Define your component
+
+```ts
+// 1. Define the interface
+interface LineOfSightEvents {
+  seen: LOSActorDetectedEvent;
+  lost: LOSactorLostEvent;
+}
+
+// 2. Extend GameEvents 
+class LOSActorDetectedEvent extends ex.GameEvent<LineOfSightComponent>{
+  constructor(detectedActor: ex.Actor){
+    ...
+  }
+}
+class LOSactorLostEvent extends ex.GameEvent<LineOfSightComponent>{
+  constructor(detectedActor: ex.Actor){
+    ...
+  }
+}
+
+// 3. Const Declaration
+ const LineOfSightEvents = {
+ seen: 'seen',
+ lost: 'lost',
+} as const;
+
+// 4. Usage
+ class LineOfSightComponent extends ex.Component{
+  events = new ex.EventEmitter<LineOfSightEvents>
+  constructor(){}
+
+  onPreUpdate(){
+    if(...){  // I see something
+      this.events.emit(LineOfSightEvents.seen, new LOSActorDetectedEvent(whatIsaw));
+    }
+    if(...){ // I don't see it anymore
+      this.events.emit(LineOfSightEvents.lost, new LOSactorLostEvent(whatIUsedToSee));
+    } 
+  }
+}
+
+// My Actor
+class MyDetectionActor extends ex.Actor{
+  LOS:LineOfSightComponent;
+  constructor(){
+    super(...);
+    this.LOS = new LineOfSightComponent();
+    this.addComponent(this.LOS);
+  }
+
+  onInitialization(){
+    this.LOS.events.on('seen', this.handleSeen);
+    this.LOS.events.on('lost', this.hanldeLost);
+  }
+
+  handleSeen(){...}
+  handleLost(){...}
+}
+
+```
+
+## Use Case 2: Finite State Machines via Events
+
+State machines often start simple — and quickly become tangled.
+
+```ts
+if (state === "idle" && seesPlayer) {
+  state = "chase";
+}
+```
+
+Now multiply that across:
+
+- Combat
+- Damage
+- Stuns
+- Animations
+- Death
+
+### Event-Driven FSMs
+
+Instead of polling conditions, let events drive transitions:
+
+```ts
+enemy.events.on("playerSeen", () => fsm.transition("chase"));
+enemy.events.on("tookDamage", () => fsm.transition("alert"));
+enemy.events.on("lostPlayer", () => fsm.transition("search"));
+```
+
+The FSM:
+
+- Doesn’t know about physics
+- Doesn’t know about raycasts
+- Only reacts to meaningful signals
+
+This pattern scales exceptionally well games that have scaled in size.
+
+## Use Case 3: Child Actors as Sensors (Extending Actor Events)
+
+Excalibur Actors already emit collision events — but sometimes you want specialized detection zones.
+
+Instead of overloading the main actor:
+
+- Add a child actor
+- Give it its own collider
+- Translate physics events into gameplay events
+
+We will quickly revisit the example given earlier, focusing on how to combine the events with the Native Actor emittor.
+
+```ts
+export class EnemyDetector extends ex.Actor {
+  ...
+
+  // this combines the native event actor events with your new custom events
+  public events = new ex.EventEmitter< ex.ActorEvents & DetectionEvents>(); 
+  
+  ...
+}
+```
+
+This demonstrates two powerful ideas:
+
+1. Extending actor behavior without inheritance
+2. Using child actors as modular sensors
+
+It’s especially effective for:
+
+- Stealth games
+- Traps
+- Trigger zones
+- Area-based AI awareness
+
+## Footguns and Pitfalls
+
+To be objective in this info, let's call out where a pub/sub system can go wrong.
+
+### When Not to Use Pub/Sub (and Why)
+
+Event-driven architecture is powerful — but it’s not free.
+
+Just because Excalibur makes events easy doesn’t mean everything should be an event. Overusing pub/sub can introduce subtle bugs, obscure control flow, and make your game harder to reason about.
+
+Here are the most common drawbacks — and how to recognize when pub/sub is the wrong tool.  
+
+### 1. Hidden Control Flow
+
+Events obscure sequence of operations, you don't have exact control over when and what order things happen.
+
+If you have direct callbacks, you are in complete control of execution, with events, you hand that off to the event system.  You can lose traceabilty of who all is listening to the event, and in what specific order the events are reacted to.
+
+You no longer know:
+
+  - Who is listening
+  - In what order handlers run
+  - What side effects will occur
+
+This can make debugging harder — especially when behavior changes “magically.”  Events like this are 'one-way' so if you need some acknowledgement from a receiver, then an event is probably not the best design choice.
+
+### 2. Debugging Can Become Non-Local
+
+An event emitted in one file may trigger behavior across different systems and components:
+
+  - Actors
+  - Components
+  - Scenes
+  - UI
+  - Audio systems
+
+This can make tracking down something that breaks more complicated.
+
+### 3. Overcomplicating simple tasks
+
+If you are connecting two elements, an event bus may be overkill and add unnecessary comlexity.
+
+## When Events are the right tool
+
+Use events when:
+
+- Multiple systems may react
+- You’re translating engine mechanics into gameplay meaning
+- You want extensibility without refactors
+- You’re modeling state changes, not actions
+
+Avoid events when:
+
+- Order is critical
+- Only one system will ever care
+- The caller needs a return value
+- The logic is simple and local
+
+## Summary
+
+In this article, we explored the ExcaliburJS events feature.
+
+We started by explaining the fundamentals of pub/sub systems and breaking down the three pillars of Excalibur’s event system. From there, we applied those ideas to an ECS component, using a LineOfSightComponent as a concrete example, tying events to triggering a Finite State Machine, and extending the native Actor events that already exist.
+
+This is where Excalibur’s event model shines.
+
+It’s not a global pub/sub free-for-all.  It’s a scoped, typed messaging system that encourages:
+
+- Local reasoning
+- Explicit contracts
+- Testable gameplay units
+- Scalable architecture as projects grow
+
+Events work best when they represent meaningful state transitions, not every frame-by-frame detail. When used this way, they become natural boundaries between systems — and those boundaries are what keep game code flexible, understandable, and fun to work in.
+
+## Why ExcaliburJS
+
+<img src={expng} alt="ExcaliburJS" style={{ width: "750px" }} />
+
+Small plug for the engine that makes this all possible:
+
+[ExcaliburJS](https://excaliburjs.com/) is a friendly, TypeScript 2D game engine for the web. It's free and open source (FOSS), well
+documented, and has a growing community of developers building great games.
+
+Excalibur event emitters are just one example of how Excalibur's architecture makes complex features feel natural. If you're interested
+in 2D web game development, check it out!
+
+Join the [Discord community](https://discord.gg/ScX52wD4eM) for questions and support.
+
+

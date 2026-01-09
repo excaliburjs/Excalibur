@@ -3,63 +3,63 @@
  * @description `process.env.__EX_VERSION` gets replaced by Webpack on build
  */
 export const EX_VERSION = process.env.__EX_VERSION;
-import { polyfill } from './Polyfill';
+import { polyfill } from './polyfill';
 polyfill();
 
 // This file is used as the bundle entry point and exports everything
 // that will be exposed as the `ex` global variable.
-export * from './Flags';
-export * from './Id';
-export * from './Engine';
-export * from './GarbageCollector';
-export * from './Screen';
-export * from './Actor';
-export * from './Math/index';
-export * from './Camera';
-export * from './Debug/index';
-export * from './EventEmitter';
-export * from './Events/MediaEvents';
-export * from './Events';
-export * from './Label';
-export { FontStyle, FontUnit, TextAlign, BaseAlign } from './Graphics/FontCommon';
-export * from './Particles/index';
-export * from './Scene';
+export * from './flags';
+export * from './id';
+export * from './engine';
+export * from './garbage-collector';
+export * from './screen';
+export * from './actor';
+export * from './math/index';
+export * from './camera';
+export * from './debug/index';
+export * from './event-emitter';
+export * from './events/media-events';
+export * from './events';
+export * from './label';
+export { FontStyle, FontUnit, TextAlign, BaseAlign } from './graphics/font-common';
+export * from './particles/index';
+export * from './scene';
 
-export * from './TileMap/index';
+export * from './tile-map/index';
 
-export * from './Timer';
-export * from './Trigger';
-export * from './ScreenElement';
+export * from './timer';
+export * from './trigger';
+export * from './screen-element';
 
-export * from './Actions/index';
-export * from './Collision/Index';
+export * from './actions/index';
+export * from './collision/index';
 
-export * from './Interfaces/Index';
-export * from './Resources/Index';
+export * from './interfaces/index';
+export * from './resources/index';
 
-export * from './EntityComponentSystem/index';
+export * from './entity-component-system/index';
 
-export * from './Director/index';
+export * from './director/index';
 
-export * from './Color';
+export * from './color';
 
-export * from './Graphics/index';
+export * from './graphics/index';
 
 // ex.Events namespace
-import * as events from './Events';
+import * as events from './events';
 export { events as Events };
 
-export { WheelEvent } from './Input/WheelEvent';
+export { WheelEvent } from './input/wheel-event';
 
-export { PointerEvent } from './Input/PointerEvent';
+export { PointerEvent } from './input/pointer-event';
 
-export { WheelDeltaMode } from './Input/WheelDeltaMode';
+export { WheelDeltaMode } from './input/wheel-delta-mode';
 
-export { PointerButton } from './Input/PointerButton';
+export { PointerButton } from './input/pointer-button';
 
-export { NativePointerButton } from './Input/NativePointerButton';
+export { NativePointerButton } from './input/native-pointer-button';
 
-export type { CapturePointerConfig } from './Input/CapturePointerConfig';
+export type { CapturePointerConfig } from './input/capture-pointer-config';
 
 export type {
   NativePointerEvent,
@@ -67,14 +67,14 @@ export type {
   NativeTouchEvent,
   NativeWheelEvent,
   PointerInitOptions
-} from './Input/PointerEventReceiver';
-export { PointerEventReceiver } from './Input/PointerEventReceiver';
+} from './input/pointer-event-receiver';
+export { PointerEventReceiver } from './input/pointer-event-receiver';
 
-export { PointerAbstraction } from './Input/PointerAbstraction';
-export { PointerComponent } from './Input/PointerComponent';
-export { PointerSystem } from './Input/PointerSystem';
-export { PointerType } from './Input/PointerType';
-export { PointerScope } from './Input/PointerScope';
+export { PointerAbstraction } from './input/pointer-abstraction';
+export { PointerComponent } from './input/pointer-component';
+export { PointerSystem } from './input/pointer-system';
+export { PointerType } from './input/pointer-type';
+export { PointerScope } from './input/pointer-scope';
 
 export type {
   NavigatorGamepads,
@@ -82,38 +82,38 @@ export type {
   NavigatorGamepadButton,
   NavigatorGamepadEvent,
   GamepadConfiguration
-} from './Input/Gamepad';
-export { Gamepads, Gamepad, Buttons, Axes } from './Input/Gamepad';
+} from './input/gamepad';
+export { Gamepads, Gamepad, Buttons, Axes } from './input/gamepad';
 
-export type { KeyboardInitOptions } from './Input/Keyboard';
-export { Keys, KeyEvent, Keyboard } from './Input/Keyboard';
-export * from './Input/InputHost';
-export * from './Input/InputMapper';
+export type { KeyboardInitOptions } from './input/keyboard';
+export { Keys, KeyEvent, Keyboard } from './input/keyboard';
+export * from './input/input-host';
+export * from './input/input-mapper';
 
 // ex.Util namespaces
-import * as util from './Util/Index';
+import * as util from './util/index';
 export { util as Util };
 
-export * from './Util/Browser';
-export * from './Util/Decorators';
-export * from './Util/Detector';
-export * from './Util/EasingFunctions';
-export * from './Util/Observable';
-export * from './Util/Log';
-export * from './Util/Pool';
-export * from './Util/Fps';
-export * from './Util/Clock';
-export * from './Util/WebAudio';
-export * from './Util/Toaster';
-export * from './Util/StateMachine';
-export * from './Util/Future';
-export * from './Util/Semaphore';
-export * from './Util/Coroutine';
-export * from './Util/Assert';
-export * from './Util/RentalPool';
-export * from './Util/Serializer';
+export * from './util/browser';
+export * from './util/decorators';
+export * from './util/detector';
+export * from './util/easing-functions';
+export * from './util/observable';
+export * from './util/log';
+export * from './util/pool';
+export * from './util/fps';
+export * from './util/clock';
+export * from './util/web-audio';
+export * from './util/toaster';
+export * from './util/state-machine';
+export * from './util/future';
+export * from './util/semaphore';
+export * from './util/coroutine';
+export * from './util/assert';
+export * from './util/rental-pool';
+export * from './util/serializer';
 
 // ex.Deprecated
-// import * as deprecated from './Deprecated';
+// import * as deprecated from './deprecated';
 // export { deprecated as Deprecated };
 // export * from './Deprecated';

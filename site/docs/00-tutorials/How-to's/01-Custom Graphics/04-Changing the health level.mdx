@@ -1,0 +1,114 @@
+---
+title: Changing the health bar level
+slug: /changing-the-health-bar
+section: Tutorials
+---
+
+import sample4 from '!!raw-loader!./code/sample4.ts';
+
+## Adding the ability to 'change' the health level
+
+A static health bar is useful, but games usually need dynamic feedback: changing fill levels and colors based on the entity’s current health or status. In this section, we’ll extend our custom health bar to react to a percentage value.
+
+Our current todo list: 
+  - [x] Create a Custom Graphic class
+  - [x] Attach the graphic to the child actor
+  - [x] Add the graphic logic to the new class
+  - [ ] Add in logic to 'change' the actor's health
+  - [ ] Add in a lerp to make it change smoothly
+
+To complete this next step we will:
+- add a trigger to change the health, a keypress
+- add a method to the actor to manage its health
+- add a method to the graphic to give the child access
+
+### Adding the Trigger
+
+We will use the Excalibur Input library to trigger a change in the Actor's 'health'.
+
+```ts
+game.input.keyboard.on('press', (e: ex.KeyEvent)=>{
+  if(e.key == ex.Keys.Enter){    
+    player.takeDamage(10);
+  }
+});
+```
+
+### Adding the method and properties into the child Actor
+
+Next, let's add the `takeDamage` method and associated health properties to the child.
+
+```ts
+export class HealthBar extends ex.Actor {
+  currentHealth: number;
+  maxHealth: number;
+
+  constructor(pos: ex.Vector, dims: ex.Vector, maxHealth: number) {
+    super({
+      pos,
+      width: dims.x,
+      height: dims.y,
+    });
+    this.currentHealth = maxHealth;     //<--- track the player's health
+    this.maxHealth = maxHealth;
+    this.graphics.use(new HealthBarGraphic());
+  }
+
+  takeDamage(damageAmount){
+    this.currentHealth -= damageAmount;
+
+    //renew health as a part of the demo
+    if(this.currentHealth < 0) this.currentHealth = this.maxHealth;
+
+    let percent = this.currentHealth / this.maxHealth;
+    // update the graphic
+    (this.graphics.current as HealthBarGraphic).updatePercent(percent);
+  }
+}
+```
+
+### Modify the Graphic to change the bar's fill based on percentage
+
+```ts
+class HealthBarGraphic extends ex.Graphic {
+  
+// ... the class property 
+percent:number = 1.0;
+
+// ... add a new method
+updatePercent(percentfill: number) {
+  this.percent = percentfill;
+  this.dirtyFlag = true;
+}
+
+// update the health fill logic in drawImage
+protected _drawImage(ex: ex.ExcaliburGraphicsContext, x: number, y: number): void {
+...
+// === Health fill ===
+const border = this.options.BorderWidth;
+const inset = border / 2; // or border if you prefer full padding
+const fillWidth = (this.width - border) * this.percent; //<----------------------- add * this.percent
+const fillHeight = this.height - border; // stay inside border
+
+// === Changing colors ===  <------------------------------------  add this section to change colors
+if (this.percent > 0.5) {
+  ctx.fillStyle = this.safeColor.toString();
+} else if (this.percent < 0.25) {
+  ctx.fillStyle = this.criticalColor.toString();
+} else {
+  ctx.fillStyle = this.warningColor.toString();
+}
+...
+}
+```
+
+## Try it out!
+
+<PlaygroundEmbed code={sample4} />
+
+Our current todo list: 
+  - [x] Create a Custom Graphic class
+  - [x] Attach the graphic to the child actor
+  - [x] Add the graphic logic to the new class
+  - [x] Add in logic to 'change' the actor's health
+  - [ ] Add in a lerp to make it change smoothly

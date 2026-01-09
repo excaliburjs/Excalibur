@@ -27,7 +27,7 @@
     "docusaurus-plugin-typedoc-api": "4.4.0",
     "docusaurus-preset-shiki-twoslash": "^1.1.41",
     "lz-string": "^1.5.0",
-    "mermaid": "11.12.1",
+    "mermaid": "11.12.2",
     "prism-react-renderer": "^2.4.0",
     "raw-loader": "^4.0.2",
     "react": "^18.3.1",

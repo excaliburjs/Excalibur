@@ -134,7 +134,7 @@ game.currentScene.onPreDraw = (ctx: ex.ExcaliburGraphicsContext) => {
   bb.left++;
   bb.bottom--;
   bb.right--;
-  bb.draw(ctx, ex.Color.Yellow);
+  // bb.draw(ctx, ex.Color.Yellow);
 
   // (ctx as ex.ExcaliburGraphicsContextWebGL).draw('custom', 1, 2, 3, 'custom args');
 

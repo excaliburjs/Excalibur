@@ -9,6 +9,8 @@ export default tseslint.config(
     'site',
     'sandbox',
     'scripts',
+    'playground',
+    'Excalibur.nuspec',
     'docs/api/**',
     '**/karma.conf.*',
     '**/webpack.config.js',
@@ -174,7 +176,7 @@ export default tseslint.config(
   },
   // lax ruleset for tests and stories
   {
-    files: ['**/*Spec*', '**/*.stories*'],
+    files: ['**/*spec*', '**/*.stories*'],
     rules: {
       '@typescript-eslint/no-floating-promises': 'off',
       '@typescript-eslint/await-thenable': 'off'

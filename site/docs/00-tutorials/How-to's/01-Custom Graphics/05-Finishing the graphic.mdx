@@ -1,0 +1,114 @@
+---
+title: Finishing the Graphic
+slug: /finishing-the-graphic
+section: Tutorials
+---
+
+import sample5 from '!!raw-loader!./code/sample5.ts';
+
+## Finishing up our graphic
+
+Our current todo list: 
+  - [x] Create a Custom Graphic class
+  - [x] Attach the graphic to the child actor
+  - [x] Add the graphic logic to the new class
+  - [x] Add in logic to 'change' the actor's health
+  - [ ] Add in a lerp to make it change smoothly
+
+So the final step for us is to add a smoothing or 'lerp' (interpolation) logic into our graphic to smooth the transitions when the health changes.  This will be a neat effect.
+
+To do this, we need to:
+
+- update the graphic with a new property
+- set the new property
+- add in the drawImage routine the ability to transition over time
+
+### Adding and setting the new property
+
+In our graphic class, we need to add a new property, let's call it `newPercent`.
+
+```ts
+export class HealthBarGraphic extends Graphic {
+  percent: number;
+  newpercent: number;  // <------------ added new property
+```
+
+This is where we will store the intial changed value for percent.
+
+In our updatePercent method, let's modify it to set the new property on change.
+
+```ts
+updatePercent(percentfill: number) {
+  this.newpercent = percentfill;
+  if (this.newpercent === this.percent) return;  //  check in case you 'update' with the current value
+  this.dirtyFlag = true;
+}
+```
+
+### Transition the value over time
+
+```ts
+protected _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number): void {
+    if (this.dirtyFlag && this.ctx) {
+      const ctx = this.ctx;
+      const s = this.drawScale;
+
+      // === Interpolation (smoothing transition) ===
+      if (this.newpercentfill != this.percentfill) {
+        if (this.newpercentfill > this.percentfill) {
+          this.percentfill += this.changeRate;
+        } else {
+          this.percentfill -= this.changeRate;
+        }
+        // when close, set equal and clear dirty flag
+        if (Math.abs(this.newpercentfill - this.percentfill) < this.changeRate) {
+          this.percentfill = this.newpercentfill;
+          this.dirtyFlag = false;
+        }
+      }
+```
+
+## Try the final form out!!!
+
+<PlaygroundEmbed code={sample5} />
+
+## Tutorial Summary
+
+In this tutorial, you built a fully custom, dynamic Graphic in ExcaliburJS — starting from a simple visual idea and ending with a polished, reusable UI element.
+
+Along the way, you learned:
+
+- Graphics are purely visual and independent from gameplay logic or collision
+- The Graphics component allows any entity to render visuals
+- Extending the Graphic class gives you full control over rendering
+- Canvas drawing logic lives inside _drawImage, while Excalibur handles transforms
+- A graphic can respond to game state by changing its appearance
+- Color thresholds provide immediate visual feedback to the player
+- Interpolation (lerping) creates smooth, readable transitions
+- A dirtyFlag prevents unnecessary redraws and improves performance
+
+Most importantly, you saw how custom graphics let you encapsulate visual behavior. The health bar doesn’t need to know why health changed — it only needs to know what to display.
+
+This pattern scales well beyond health bars. You can apply the same approach to:
+
+- Energy meters
+- Cooldown indicators
+- Progress bars
+- Procedural UI elements
+- Visual debugging tools
+
+Custom graphics are one of the most powerful — and often underused — features of ExcaliburJS. With them, you can build expressive, dynamic visuals that stay cleanly separated from your game logic.
+
+From here, try experimenting:
+
+- Add easing functions instead of linear interpolation
+- Animate colors or borders when health is critical
+- Combine multiple graphics into layered UI elements
+
+You now have everything you need to build rich, dynamic visuals directly into your game.
+
+Happy hacking 🚀
+
+
+
+
