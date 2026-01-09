@@ -2,17 +2,17 @@
 // ExcaliburJS Serialization System - Centralized Architecture
 // ============================================================================
 
-import { Entity } from '../EntityComponentSystem/Entity';
-import { Actor } from '../Actor';
-import type { Component, ComponentCtor } from '../EntityComponentSystem/Component';
-import { MotionComponent, TransformComponent } from '../EntityComponentSystem';
-import { PointerComponent } from '../Input/PointerComponent';
-import { GraphicsComponent } from '../Graphics/GraphicsComponent';
-import { ActionsComponent } from '../Actions/ActionsComponent';
-import { BodyComponent } from '../Collision/BodyComponent';
-import { ColliderComponent } from '../Collision/ColliderComponent';
-import type { Graphic } from '../Graphics';
-import { Logger } from './Log';
+import { Entity } from '../entity-component-system/entity';
+import { Actor } from '../actor';
+import type { Component, ComponentCtor } from '../entity-component-system/component';
+import { MotionComponent, TransformComponent } from '../entity-component-system';
+import { PointerComponent } from '../input/pointer-component';
+import { GraphicsComponent } from '../graphics/graphics-component';
+import { ActionsComponent } from '../actions/actions-component';
+import { BodyComponent } from '../collision/body-component';
+import { ColliderComponent } from '../collision/collider-component';
+import type { Graphic } from '../graphics';
+import { Logger } from './log';
 
 // ============================================================================
 // Core Serialization Interfaces
