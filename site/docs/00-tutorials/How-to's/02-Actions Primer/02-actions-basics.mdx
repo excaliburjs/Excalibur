@@ -13,7 +13,7 @@ Out of the box, Excalibur has many Actions pre-defined for developers.
 You have your movement Actions: [MoveBy](/docs/actions-move#moveby), [MoveTo](/docs/actions-move#moveto), [RotateTo](/docs/actions-rotate#rotateto), [RotateBy](/docs/actions-rotate#rotateby), [Meet](/docs/actions-meet), [Follow](/docs/actions-follow), CurveBy, CurveTo.  These take parameters and modify the velocity and position properties of the Actor over time.
 
 :::note
-The Follow Action and the Meet Action are the only out of the box Action that may NOT end automatically. Follow will not end by design. It must be stopped deliberately, as it will follow the target entity until finished.  The meet only ends when it intersects the target, so there is a chance it doesn't end either.
+The Follow Action and the Meet Action are the only out of the box Actions that may NOT end automatically. Follow will not end by design. It must be stopped deliberately, as it will follow the target entity until finished.  Meet only ends when it intersects the target, so there is a chance it doesn't end either.
 :::
 
 You also have cosmetic Actions: [Blink](/docs/actions-blink), Flash, [Fade](/docs/actions-fade), [Scale](/docs/actions-scale).  These change how the Actor looks.
@@ -49,7 +49,7 @@ There are two more methods that allow for actions to be repeated. Both methods t
 
 #### actions.repeat() 
 
-The actions.repeat method takes two parameters.  The first is the repeat builder callback, the 2nd represent the number of times to repeat, if left out, repeates forever:
+The actions.repeat method takes two parameters.  The first is the repeat builder callback, the 2nd represent the number of times to repeat, if left out, repeats forever:
 
 ```ts
 Actor.actions.repeat( (ctx)=>{
