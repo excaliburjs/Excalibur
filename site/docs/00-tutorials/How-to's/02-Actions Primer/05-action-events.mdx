@@ -1,0 +1,92 @@
+---
+title: Events and Asynch Flow
+slug: /events-and-asynch-flow
+section: Tutorials
+---
+## Events and Async Flow
+
+So far, we’ve focused on how actions are scheduled and composed.
+In this section, we’ll look at how actions communicate with the rest of the game.
+
+Actions don’t run in isolation — they participate in Excalibur’s event system and can also be used with Promises and async / await to create linear, readable game logic.
+
+### Actions and the Event System
+
+As actions run, they emit events through the actor they are attached to.
+
+These events allow other parts of your game to:
+
+- Observe when actions start or complete
+- React to changes in behavior
+- Interrupt or replace running actions
+
+This keeps actions decoupled from higher-level game logic.
+
+### Common Action Events
+
+Actions emit lifecycle events during execution.
+
+The two action events are:
+
+- Action Start – when an action begins running
+- Action Complete – when an action finishes successfully
+
+These events are dispatched on the actor running the action.
+
+```ts
+actor.on('actioncomplete', (evt) => {
+  console.log('An action completed:', evt.action);
+});
+```
+
+:::note
+Action events fire per-action, even when actions are part of a sequence or parallel group.
+:::
+
+### The ActionEvent Object
+
+When an action-related event fires, Excalibur passes an ActionEvent object to the event handler.
+
+This event object provides context about:
+
+- Which action triggered the event
+- Which entity was running it
+
+```ts
+actor.on('actioncomplete', (evt: ActionEvent) => {
+  console.log(evt.action);
+});
+```
+The ActionEvent is your primary way to connect action execution back to gameplay logic.
+
+### Using Promises with Actions
+
+There is a utility method on the actionContext and actionComponent, `toPromise()`.
+
+This let's you manage a returned promise that resolves with either the action or the queue overall clears.
+
+```ts
+// Run an action and convert its lifecycle into a Promise
+await actor.actions
+  .moveTo(400, 200, 100)
+  .toPromise();
+
+// This line runs only after the move action completes
+console.log('Move finished!');
+```
+Or you can use this with the .then API.
+
+```ts
+actor.actions
+  .moveTo(100, 100, 50)
+  .toPromise()
+  .then(() => console.log('Done!'));
+
+actor.actions.clearActions();
+// The Promise still resolves
+```
+
+### Demonstration
+
+In the [Custom Actions](/docs/custom-actions#real-example-of-custom-action) live example, we demonstrat how to use the action events
+

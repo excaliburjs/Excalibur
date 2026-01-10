@@ -1,0 +1,86 @@
+---
+title: Actions, the Basics
+slug: /actions-basics
+section: Tutorials
+---
+
+import repeating from '!!raw-loader!./code/repeating.ts';
+
+### Types of Actions
+
+Out of the box, Excalibur has many Actions pre-defined for developers.  
+
+You have your movement Actions: [MoveBy](/docs/actions-move#moveby), [MoveTo](/docs/actions-move#moveto), [RotateTo](/docs/actions-rotate#rotateto), [RotateBy](/docs/actions-rotate#rotateby), [Meet](/docs/actions-meet), [Follow](/docs/actions-follow), CurveBy, CurveTo.  These take parameters and modify the velocity and position properties of the Actor over time.
+
+:::note
+The Follow Action and the Meet Action are the only out of the box Action that may NOT end automatically. Follow will not end by design. It must be stopped deliberately, as it will follow the target entity until finished.  The meet only ends when it intersects the target, so there is a chance it doesn't end either.
+:::
+
+You also have cosmetic Actions: [Blink](/docs/actions-blink), Flash, [Fade](/docs/actions-fade), [Scale](/docs/actions-scale).  These change how the Actor looks.
+
+There are also a few utility actions: [Delay](/docs/actions-delay), [CallMethod](/docs/actions-callmethod), and [Die](/docs/actions-die).
+
+### Two Ways to Run an Action
+
+In Excalibur, you’ll see actions started in two common ways:
+
+```ts
+actor.actions.moveTo(vec(100,100), 200);
+```
+
+and
+
+```ts
+actor.actions.runAction(new MoveTo(vec(100,100), 200));
+```
+Both would execute the same action, by queing up a MoveTo action.
+
+### Stopping Actions
+
+Nearly all the actions run until the hit a 'completion' logic.  But if you need to stop and interrupt an action, there is the `.stop()` method on the action to interrupt its operation.
+
+### Resetting Actions
+
+There is a `.reset()` method on any action that will set the action's defaults back to defaults. In order to use a defined action instance more than once, it would need to be reset.
+
+### Repeating Actions
+
+There are two more methods that allow for actions to be repeated. Both methods take in a repeat builder callback: `(ctx: ActionContext)=>{}`.  This you use to 'build' the sequence that gets repeated.
+
+#### actions.repeat() 
+
+The actions.repeat method takes two parameters.  The first is the repeat builder callback, the 2nd represent the number of times to repeat, if left out, repeates forever:
+
+```ts
+Actor.actions.repeat( (ctx)=>{
+  ctx.moveTo(...);
+  ctx.delay(...);
+  ...
+}, 5); //repeats sequence 5x
+```
+
+#### actions.repeatforever()
+
+Very similar to repeat(), repeatForever simply takes the builder callback and runs it until manually stopped.
+
+```ts
+Actor.actions.repeatForever( (ctx)=>{
+  ctx.moveTo(...);
+  ctx.delay(...);
+  ...
+}); //repeats till manually stopped
+```
+
+### Basic Example
+
+The key piece demonstrated here:
+
+```ts
+player.actions.repeatForever((ctx) => {
+  ctx.blink(250, 250,  4);
+  ctx.flash(ex.Color.Blue, 1000);
+  ctx.scaleTo({scale: new ex.Vector(1.5, 1.5), duration: 1000});
+  ctx.scaleTo({scale: new ex.Vector(1, 1), duration: 1000})
+});
+```
+<PlaygroundEmbed code={repeating} />

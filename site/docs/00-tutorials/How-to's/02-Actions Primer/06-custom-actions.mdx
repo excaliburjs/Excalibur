@@ -1,0 +1,150 @@
+---
+title: Custom Actions!
+slug: /custom-actions
+section: Tutorials
+---
+
+import customAction from '!!raw-loader!./code/custom.ts';
+
+## Creating Custom Actions
+
+So far, we’ve used built-in actions, chained them, run them in parallel, listened for events, and awaited them asynchronously.
+
+In this final section, we’ll learn how to create our own actions using the Action interface.
+
+Custom actions allow you to package gameplay behavior into reusable, deterministic building blocks.
+
+### The Action Interface
+
+At its core, an action is a small object that implements the Action interface.
+
+```ts
+export interface Action {
+  id: number;
+  update(elapsed: number): void;
+  isComplete(entity: Entity): boolean;
+  reset(): void;
+  stop(): void;
+}
+```
+
+Each method corresponds to a specific part of the action lifecycle.
+
+### Understanding the Lifecycle
+
+#### update(elapsed)
+
+This get called every frame and passes in the duration since last call.  This is the primary logic driver for the action, and where a lot of the lifecycle gets managed.  We will show the recommended (but not required) pattern we suggest for using custom actions.
+
+#### isComplete(entity)
+
+Called after each update.
+
+- Receives the action context (the entity running the action)
+- Returns true when the action is finished
+- Completion should be deterministic
+
+#### reset()
+
+Called when the action is reused or re-run.
+
+- Reset all internal state
+- Clear timers, flags, and accumulators
+- Do not assume a new instance will be created
+
+#### stop()
+
+Called when the action is interrupted.
+
+- Cleanup any side effects
+- Restore modified state if necessary
+- Should be safe to call at any time
+
+### A minimal example
+
+```ts
+import * as ex from 'excalibur';
+
+export class MyCustomAction implements ex.Action {
+  // id is required
+  id = ex.nextActionId();  // this is convenience utility to track unique values, highly recommended
+  
+  // user added properties
+  myParam: number;
+  isDone: boolean = false;
+  isStarted: boolean = false;
+  elapsedTime: number = 0;
+
+// pass in to the action's constructor any important values
+  constructor( myParam:number){
+    this.myParam = myParam;
+  }
+
+  update(elapsed: number): void {
+    this.elapsedTime += elapsed;
+    // recommended to add first pass logic
+    if(!this.isStarted){
+      //...
+      this.isStarted = true;
+    }
+
+    // then added per frame logic
+    // ...
+
+    // then add action completed check
+    if(...){
+      this.isDone = true;
+    }
+
+  }
+
+  isComplete(entity: ex.Entity): boolean {
+    return this.isDone
+  }
+
+  reset(): void {
+    this.elapsedTime = 0;
+    this.isStarted = false;
+    this.isDone = false;
+  }
+
+  stop(): void {
+    // No persistent side effects to clean up
+    this.isDone = true
+  }
+}
+
+```
+
+Then you can simply use your action thusly:
+
+```ts
+Actor.actions.runAction(new MyCustomAction(42));
+```
+
+### Real Example of Custom Action
+
+Notes on this:
+
+```ts
+// Action event is used in Actor initialization
+onInitialize(engine: ex.Engine): void {
+    this.actions.runAction(new AttackAction(this));
+    this.on('actioncomplete', (a: ex.ActionCompleteEvent) => {
+      if (a.action instanceof AttackAction) {
+        setTimeout(() => {
+          this.kill();
+        }, 500)
+      }
+    });
+  }
+  ```
+
+<PlaygroundEmbed code={customAction} />
+
+### Final Takeaways
+
+- Custom actions implement the Action interface
+- Actions are small, deterministic state machines
+- The engine manages execution, events, and timing
+- Well-written actions are composable and reusable

@@ -1,0 +1,107 @@
+---
+title: Sequences and Parallel Actions
+slug: /sequences-and-parallel
+section: Tutorials
+---
+import parallel from '!!raw-loader!./code/parallel.ts';
+
+### Parallel Actions
+
+A parallel action allows multiple actions to run at the same time.
+
+Common examples include:
+
+- Moving while rotating
+- Moving while fading
+- Shaking and flashing simultaneously
+
+```ts
+actor.actions.parallel([
+  actor.actions.moveTo(400, 200, 100),
+  actor.actions.rotateBy(Math.PI * 2, Math.PI)
+]);
+```
+
+All parallel actions:
+
+- Start at the same time
+- Receive the same elapsed time updates
+- Run independently
+
+The parallel action itself completes only when all child actions have completed.
+
+- A parallel action is still a single entry in the action queue.
+
+This means it still blocks any following actions until it finishes.
+
+
+### Action Sequences
+
+Another way to bundle multiple steps together is by using an ActionSequence.
+
+An ActionSequence is itself an action, composed of multiple actions that run in order.
+
+Because an ActionSequence is an action, it can be queued just like any other:
+
+```ts
+const mySequence = new ActionSequence(actor, (ctx) => {
+  ctx.moveTo(400, 200, 100);
+  ctx.delay(500);
+  ctx.rotateTo(Math.PI, Math.PI / 2);
+});
+actor.actions.runAction(mySequence);
+```
+One powerful pattern is to combine ActionSequences with Parallel Actions to compose very complex automations in your game.
+
+#### Why Action Sequences Matter
+
+At first glance, ActionSequences may seem redundant — after all, you can already chain actions.
+
+The difference is encapsulation.
+
+ActionSequences allow you to:
+
+- Package complex behavior into a single reusable action
+- Hide internal sequencing details
+- Compose behaviors at a higher level
+
+This becomes especially powerful when combined with parallel actions.
+
+### Combining Sequences and Parallel Actions
+
+Because both parallel actions and action sequences are actions, they can be freely composed.
+
+```ts
+actor.actions.parallel([
+  actor.actions.runAction(attackSequence),
+  actor.actions.runAction(glowSequence)
+]);
+```
+This allows you to express complex behavior declaratively, without scattering logic across update loops or systems.
+
+Actions can be nested, composed, and reused — without breaking the action queue model.
+
+
+### Live Example
+
+Key part of this example:
+
+```ts
+let prlAction1 = new ex.ParallelActions([
+  new ex.MoveBy(player, 150, 0, 110),
+  new ex.ScaleTo(player, 2,2,1,1),
+]);
+
+let prlAction2 = new ex.ParallelActions([
+  new ex.MoveBy(player, -150, 0, 110),
+  new ex.ScaleTo(player, 1,1,1,1),
+]);
+
+player.actions.repeatForever((ctx) =>{
+  ctx.runAction(prlAction1);
+  ctx.runAction(prlAction2);
+});
+```
+
+
+<PlaygroundEmbed code={parallel} />
