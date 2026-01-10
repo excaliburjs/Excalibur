@@ -72,13 +72,17 @@ const rndmColor = ex.Color.random();
 
 ## Lerping Colors
 
-The [[Color.lerp]] static method linearly interpolates between two colors.  
-
-The interpolation is performed in **HSL color space** for smooth hue transitions, then converted back to RGB.
+The [[Color.lerp]] static method linearly interpolates between two colors.
 
 - `start` — The starting `Color`
 - `end` — The target `Color`
 - `t` — The interpolation factor, between `0` (start) and `1` (end)
+- `colorSpace` — The interpolation mode: `hsl` (default), `rgb` or `lrgb`
+
+Difference between interpolation modes:
+- HSL — performing interpolation in **HSL color space** for smooth hue transitions, then converted back to RGB. Balanced for speed and gradient realism;
+- RGB — linear interpolation for all **R**, **G**, **B** and **A** components separately, fastest mode for now;
+- LRGB — applying **alpha correcting** to **R**, **G** and **B** components, then interpolating it and **A** linear for more realistic gradient at the cost of speed.
 
 **Returns:** A new `Color` representing the interpolated result.
 
@@ -87,7 +91,9 @@ The interpolation is performed in **HSL color space** for smooth hue transitions
 ```ts twoslash
 // @include: ex
 // ---cut---
-const mid = ex.Color.lerp(ex.Color.Red, ex.Color.Blue, 0.5); // A smooth purple blend
+const midHSL = ex.Color.lerp(ex.Color.Red, ex.Color.Blue, 0.5); // A smooth purple blend, keeps brightness from source colors
+const midRGB = ex.Color.lerp(ex.Color.Red, ex.Color.Blue, 0.5, 'rgb'); // A fast purple blend, darker than real
+const midLRGB = ex.Color.lerp(ex.Color.Red, ex.Color.Blue, 0.5, 'lrgb'); // A realistic purple blend
 ```
 
 ![Lerped Color - Red/Blue](./LerpedColor.png)

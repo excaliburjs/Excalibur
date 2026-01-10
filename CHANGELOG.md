@@ -15,7 +15,20 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
--
+- Added new lerp modes for color which can be chosen by aptional parameter in `Color.lerp` or by calling different methods:
+  ```typescript
+  Color.lerp(colorA, colorB, t); // 'hsl' by default
+  // eqivalent to: 
+  Color.lerpHSL(colorA, colorB, t);
+  
+  Color.lerp(colorA, colorB, t, 'rgb');
+  // eqivalent to: 
+  Color.lerpRGB(colorA, colorB, t);
+  
+  Color.lerp(colorA, colorB, t, 'lrgb');
+  // equivalent to:
+  Color.lerpLRGB(colorA, colorB, t);
+  ```
 
 ### Fixed
 

@@ -149,10 +149,20 @@ describe('A color', () => {
   });
 
   it('can be lerped', () => {
-    color = ex.Color.lerp(ex.Color.White, ex.Color.Black, 0.5);
+    color = ex.Color.lerp(ex.Color.White, ex.Color.Black, 0.5, 'hsl');
     expect(color.r, 'r').toBe(127.5);
     expect(color.g, 'g').toBe(127.5);
     expect(color.b, 'b').toBe(127.5);
+
+    color = ex.Color.lerp(ex.Color.White, ex.Color.Black, 0.5, 'rgb');
+    expect(color.r, 'r').toBe(127.5);
+    expect(color.g, 'g').toBe(127.5);
+    expect(color.b, 'b').toBe(127.5);
+
+    color = ex.Color.lerp(ex.Color.White, ex.Color.Black, 0.5, 'lrgb');
+    expect(color.r, 'r').toBe(186.08371347438444);
+    expect(color.g, 'g').toBe(186.08371347438444);
+    expect(color.b, 'b').toBe(186.08371347438444);
   });
 
   it('can be randomly generated', () => {
