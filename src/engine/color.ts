@@ -326,12 +326,7 @@ export class Color {
    * Lerp between two colors using rgb for faster calculations
    */
   public static lerpRGB(colorA: Color, colorB: Color, t: number): Color {
-    return new Color(
-      lerp(colorA.r, colorB.r, t),
-      lerp(colorA.g, colorB.g, t),
-      lerp(colorA.b, colorB.b, t),
-      lerp(colorA.a, colorB.a, t)
-    );
+    return new Color(lerp(colorA.r, colorB.r, t), lerp(colorA.g, colorB.g, t), lerp(colorA.b, colorB.b, t), lerp(colorA.a, colorB.a, t));
   }
 
   /**
