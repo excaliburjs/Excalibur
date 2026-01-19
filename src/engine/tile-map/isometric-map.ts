@@ -293,22 +293,6 @@ export class IsometricMap extends Entity implements HasNestedPointerEvents {
 
   /**
    * Whether tiles should be visible
-   * @deprecated use isVisible
-   */
-  public get visible(): boolean {
-    return this.isVisible;
-  }
-
-  /**
-   * Whether tiles should be visible
-   * @deprecated use isVisible
-   */
-  public set visible(val: boolean) {
-    this.isVisible = val;
-  }
-
-  /**
-   * Whether tiles should be visible
    */
   public isVisible = true;
 

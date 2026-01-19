@@ -604,29 +604,9 @@ export class Screen {
 
   /**
    * Returns true if excalibur is fullscreen using the browser fullscreen api
-   * @deprecated use isFullscreen()
-   */
-  public get isFullScreen() {
-    return this._isFullscreen;
-  }
-
-  /**
-   * Returns true if excalibur is fullscreen using the browser fullscreen api
    */
   public get isFullscreen() {
     return this._isFullscreen;
-  }
-
-  /**
-   * Requests to go fullscreen using the browser fullscreen api, requires user interaction to be successful.
-   * For example, wire this to a user click handler.
-   *
-   * Optionally specify a target element id to go fullscreen, by default the game canvas is used
-   * @param elementId
-   * @deprecated use enterFullscreen(...)
-   */
-  public goFullScreen(elementId?: string): Promise<void> {
-    return this.enterFullscreen(elementId);
   }
 
   /**
@@ -659,14 +639,6 @@ export class Screen {
     }
     this._logger.warnOnce('Could not go fullscreen, is this an iPhone? Currently Apple does not support fullscreen on iPhones');
     return Promise.resolve();
-  }
-
-  /**
-   * Requests to exit fullscreen using the browser fullscreen api
-   * @deprecated use exitFullscreen()
-   */
-  public exitFullScreen(): Promise<void> {
-    return this.exitFullscreen();
   }
 
   public exitFullscreen(): Promise<void> {

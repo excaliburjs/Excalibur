@@ -97,7 +97,6 @@ export { util as Util };
 export * from './util/browser';
 export * from './util/decorators';
 export * from './util/detector';
-export * from './util/easing-functions';
 export * from './util/observable';
 export * from './util/log';
 export * from './util/pool';
