@@ -8,6 +8,19 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Breaking Changes
 
 - Behavior change - TileMap now uses 'separate' as the `compositeStrategy` as a better default. Commonly TileMap is used to build levels, so this default aligns with the common use.
+- Removed old legacy `ex.EasingFunctions` in favor of the [0, 1] common easing functions 
+- Removed EaseTo/EaseBy/actor.actions.(easeTo|easeBy) Action in favor of MoveTo/MoveBy/actor.actions.(moveTo|moveBy) Action with easing support
+- Removed `body.sleeping` in favor of `isSleeping`
+- Removed `entity.active` in favor of `isActive`
+- Removed `actor.getGlobalPos()` in favor of `actor.globalPos` getter/setter
+- Removed `actor.getGlobalRotation()` in favor of `actor.globalRotation` getter/setter
+- Removed `actor.getGlobalScale()` in favor of `actor.globalScale` getter/setter
+- Removed `BoundingBox.draw` in favor of `BoundingBox.debug`
+- Removed typo in `engine.isFullScreen` now `engine.isFullscreen`
+- Removed unused `tag-query.ts`
+- Removed `world.queryTags`, `world.query(...)` can query tags
+- Removed `Animation.durationPerFrameMs` in favor of `Animation.durationPerFrame`
+- Removed `Vector.size` in favor of `Vector.magnitude`
 
 ### Deprecated
 

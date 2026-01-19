@@ -29,10 +29,28 @@ export class ColliderComponent extends Component {
 
   constructor(collider?: Collider) {
     super();
-    this.set(collider);
+    this.use(collider);
   }
 
   private _collider: Collider;
+
+  /**
+   * Use specific collider geometry
+   * @param collider
+   * @returns the collider you set
+   */
+  public use<T extends Collider>(collider: T): T {
+    this.clear();
+    if (collider) {
+      this._collider = collider;
+      this._collider.owner = this.owner;
+      collider.events.pipe(this.events);
+      this.$colliderAdded.notifyAll(collider);
+      this.update();
+    }
+    return collider;
+  }
+
   /**
    * Get the current collider geometry
    */
@@ -44,17 +62,10 @@ export class ColliderComponent extends Component {
    * Set the collider geometry
    * @param collider
    * @returns the collider you set
+   * @deprecated Use .use(collider) instead
    */
   public set<T extends Collider>(collider: T): T {
-    this.clear();
-    if (collider) {
-      this._collider = collider;
-      this._collider.owner = this.owner;
-      collider.events.pipe(this.events);
-      this.$colliderAdded.notifyAll(collider);
-      this.update();
-    }
-    return collider;
+    return this.use(collider);
   }
 
   private _collidersToRemove: Collider[] = [];
@@ -209,7 +220,7 @@ export class ColliderComponent extends Component {
    */
   useBoxCollider(width: number, height: number, anchor: Vector = Vector.Half, center: Vector = Vector.Zero): PolygonCollider {
     const collider = Shape.Box(width, height, anchor, center);
-    return this.set(collider);
+    return this.use(collider);
   }
 
   /**
@@ -223,7 +234,7 @@ export class ColliderComponent extends Component {
    */
   usePolygonCollider(points: Vector[], center: Vector = Vector.Zero): PolygonCollider {
     const poly = Shape.Polygon(points, center);
-    return this.set(poly);
+    return this.use(poly);
   }
 
   /**
@@ -233,7 +244,7 @@ export class ColliderComponent extends Component {
    */
   useCircleCollider(radius: number, center: Vector = Vector.Zero): CircleCollider {
     const collider = Shape.Circle(radius, center);
-    return this.set(collider);
+    return this.use(collider);
   }
 
   /**
@@ -244,7 +255,7 @@ export class ColliderComponent extends Component {
    */
   useEdgeCollider(begin: Vector, end: Vector): EdgeCollider {
     const collider = Shape.Edge(begin, end);
-    return this.set(collider);
+    return this.use(collider);
   }
 
   /**
@@ -252,6 +263,6 @@ export class ColliderComponent extends Component {
    * @param colliders
    */
   useCompositeCollider(colliders: Collider[]): CompositeCollider {
-    return this.set(new CompositeCollider(colliders));
+    return this.use(new CompositeCollider(colliders));
   }
 }
