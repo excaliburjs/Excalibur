@@ -6,6 +6,19 @@ import type { Entity } from '../entity';
 import { Observable } from '../../util/observable';
 import { Logger } from '../../util/log';
 
+// =============================================================
+// Transform Component Serialization Data
+// ============================================================
+
+export interface TransformComponentData {
+  type: string;
+  pos: { x: number; y: number };
+  rotation: number;
+  scale: { x: number; y: number };
+  z: number;
+  coordPlane?: CoordPlane;
+}
+
 export class TransformComponent extends Component {
   private _logger = Logger.getInstance();
   private _parentComponent: TransformComponent | null = null;
@@ -143,5 +156,43 @@ export class TransformComponent extends Component {
     const component = new TransformComponent();
     component._transform = this._transform.clone();
     return component;
+  }
+
+  /**
+   * Custom serialization - only store local transform values
+   * Private fields (_transform, _parentComponent) are automatically excluded
+   */
+  public serialize(): TransformComponentData {
+    const type = this.constructor.name;
+    const data: TransformComponentData = {
+      type,
+      pos: { x: this.pos.x, y: this.pos.y },
+      rotation: this.rotation,
+      scale: { x: this.scale.x, y: this.scale.y },
+      z: this.z
+    };
+
+    // Only serialize coordPlane if not inherited from parent
+    if (!this._parentComponent) {
+      data.coordPlane = this._coordPlane;
+    }
+
+    return data;
+  }
+
+  /**
+   * Restore state from serialized data
+   */
+  public deserialize(data: TransformComponentData): void {
+    // Set local transform values
+    this.pos = { x: data.pos.x, y: data.pos.y } as Vector;
+    this.rotation = data.rotation;
+    this.scale = { x: data.scale.x, y: data.scale.y } as Vector;
+    this.z = data.z;
+
+    // Only set coordPlane if provided (root entities only)
+    if (data.coordPlane !== undefined && !this._parentComponent) {
+      this._coordPlane = data.coordPlane;
+    }
   }
 }
