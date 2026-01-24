@@ -49,16 +49,16 @@ import * as ex from 'excalibur';
 export class Bird extends ex.Actor {
     ...
     override onInitialize(): void {
-        this.acc = ex.vec(0, 1200); // pixels per second per second
+        this.start();
     }
 
-		start() {
-      // later we'll use this to start our bird after game over
-		}
+    start() {
+        this.acc = ex.vec(0, 1200); // pixels per second per second
+	}
 
-		stop() {
-      // later we'll use this to stop our bird after collision
-		}
+    stop() {
+        // later we'll use this to stop our bird after collision
+    }
 }
 ```
 
