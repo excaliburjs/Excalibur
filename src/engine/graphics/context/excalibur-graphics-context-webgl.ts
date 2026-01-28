@@ -49,7 +49,7 @@ export const pixelSnapEpsilon = 0.0001;
 
 class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
   private _debugText = new DebugText();
-  constructor(private _webglCtx: ExcaliburGraphicsContextWebGL) { }
+  constructor(private _webglCtx: ExcaliburGraphicsContextWebGL) {}
 
   /**
    * Draw a debugging rectangle to the graphics context
@@ -284,7 +284,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       handleContextRestored,
       onGraphicsPostConfig,
       onGraphicsPreInitialize,
-      onGraphicsPostInitialize,
+      onGraphicsPostInitialize
     } = options;
 
     this.__gl =
@@ -446,7 +446,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
     this.debug = new ExcaliburGraphicsContextWebGLDebug(this);
 
-
     if (this._onGraphicsPostInitialize) {
       this._onGraphicsPostInitialize(this);
     }
@@ -500,7 +499,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     if (!this._isDrawLifecycle) {
       this._logger.warnOnce(
         `Attempting to draw outside the the drawing lifecycle (preDraw/postDraw) is not supported and is a source of bugs/errors.\n` +
-        `If you want to do custom drawing, use Actor.graphics, or any onPreDraw or onPostDraw handler.`
+          `If you want to do custom drawing, use Actor.graphics, or any onPreDraw or onPostDraw handler.`
       );
     }
     if (this._isContextLost) {
