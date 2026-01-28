@@ -38,7 +38,7 @@ import { Entity } from './entity-component-system/entity';
 import type { DebugStats } from './debug/debug-config';
 import { DebugConfig } from './debug/debug-config';
 import { BrowserEvents } from './util/browser';
-import type { AntialiasOptions, ExcaliburGraphicsContext } from './graphics';
+import type { AntialiasOptions, ExcaliburGraphicsContext, ExcaliburGraphicsContextWebGLOptions } from './graphics';
 import {
   DefaultAntialiasOptions,
   DefaultPixelArtOptions,
@@ -64,6 +64,7 @@ import type { GarbageCollectionOptions } from './garbage-collector';
 import { DefaultGarbageCollectionOptions, GarbageCollector } from './garbage-collector';
 import { mergeDeep } from './util/util';
 import { getDefaultGlobal } from './util/iframe';
+import { Plugin } from './plugin';
 
 export interface EngineEvents extends DirectorEvents {
   fallbackgraphicscontext: ExcaliburGraphicsContext2DCanvas;
@@ -118,6 +119,10 @@ export enum ScrollPreventionMode {
  * Defines the available options to configure the Excalibur engine at constructor time.
  */
 export interface EngineOptions<TKnownScenes extends string = any> {
+  /**
+   * Optionally configure Excalibur plugins
+   */
+  plugins?: Plugin[];
   /**
    * Optionally configure the width of the viewport in css pixels
    */
@@ -427,6 +432,9 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   scope = <TReturn>(cb: () => TReturn) => Engine.Context.scope(this, cb);
 
   public global: GlobalEventHandlers;
+
+
+  private _plugins: Plugin[] = [];
 
   private _garbageCollector: GarbageCollector;
 
@@ -820,6 +828,14 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
 
     Flags.freeze();
 
+    if (options.plugins && options.plugins.length > 0) {
+      this._plugins = [...options.plugins];
+    }
+
+    for (let plugin of this._plugins) {
+      plugin.onEnginePreConfig(this, options);
+    }
+
     // Initialize browser events facade
     this.browser = new BrowserEvents(window, document);
 
@@ -830,7 +846,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
       message.innerText = 'Sorry, your browser does not support all the features needed for Excalibur';
       document.body.appendChild(message);
 
-      detector.failedTests.forEach(function (test) {
+      detector.failedTests.forEach(function(test) {
         const testMessage = document.createElement('div');
         testMessage.innerText = 'Browser feature missing ' + test;
         document.body.appendChild(testMessage);
@@ -968,7 +984,7 @@ O|===|* >________________>\n\
     if (nativeContextAntialiasing && multiSampleAntialiasing) {
       this._logger.warnOnce(
         `Cannot use antialias setting nativeContextAntialiasing and multiSampleAntialiasing` +
-          ` at the same time, they are incompatible settings. If you aren\'t sure use multiSampleAntialiasing`
+        ` at the same time, they are incompatible settings. If you aren\'t sure use multiSampleAntialiasing`
       );
     }
 
@@ -988,6 +1004,38 @@ O|===|* >________________>\n\
     if (!useCanvasGraphicsContext) {
       // Attempt webgl first
       try {
+
+        let onGraphicsPreConfig: (context: ExcaliburGraphicsContext, options: ExcaliburGraphicsContextWebGLOptions) => void;
+        let onGraphicsPostConfig: (context: ExcaliburGraphicsContext, options: ExcaliburGraphicsContextWebGLOptions) => void;
+        let onGraphicsPreInitialize: (context: ExcaliburGraphicsContext) => void;
+        let onGraphicsPostInitialize: (context: ExcaliburGraphicsContext) => void;
+        if (this._plugins.length > 0) {
+
+          onGraphicsPreConfig = (context: ExcaliburGraphicsContext, options: ExcaliburGraphicsContextWebGLOptions) => {
+            for (let plugin of this._plugins) {
+              plugin.onGraphicsPreConfig(context, options);
+            }
+          }
+
+          onGraphicsPostConfig = (context: ExcaliburGraphicsContext, options: ExcaliburGraphicsContextWebGLOptions) => {
+            for (let plugin of this._plugins) {
+              plugin.onGraphicsPostConfig(context, options);
+            }
+          }
+
+          onGraphicsPreInitialize = (context: ExcaliburGraphicsContext) => {
+            for (let plugin of this._plugins) {
+              plugin.onGraphicsPreInitialize(context);
+            }
+          }
+
+          onGraphicsPostInitialize = (context: ExcaliburGraphicsContext) => {
+            for (let plugin of this._plugins) {
+              plugin.onGraphicsPostInitialize(context);
+            }
+          }
+        }
+
         this.graphicsContext = new ExcaliburGraphicsContextWebGL({
           canvasElement: this.canvas,
           enableTransparency: this.enableCanvasTransparency,
@@ -1001,18 +1049,22 @@ O|===|* >________________>\n\
           useDrawSorting: options.useDrawSorting,
           garbageCollector: this.garbageCollectorConfig
             ? {
-                garbageCollector: this._garbageCollector,
-                collectionInterval: this.garbageCollectorConfig.textureCollectInterval
-              }
+              garbageCollector: this._garbageCollector,
+              collectionInterval: this.garbageCollectorConfig.textureCollectInterval
+            }
             : null,
           handleContextLost: options.handleContextLost ?? this._handleWebGLContextLost,
-          handleContextRestored: options.handleContextRestored
+          handleContextRestored: options.handleContextRestored,
+          onGraphicsPreConfig,
+          onGraphicsPostConfig,
+          onGraphicsPreInitialize,
+          onGraphicsPostInitialize
         });
       } catch (e) {
         this._logger.warn(
           `Excalibur could not load webgl for some reason (${(e as Error).message}) and loaded a Canvas 2D fallback. ` +
-            `Some features of Excalibur will not work in this mode. \n\n` +
-            'Read more about this issue at https://excaliburjs.com/docs/performance'
+          `Some features of Excalibur will not work in this mode. \n\n` +
+          'Read more about this issue at https://excaliburjs.com/docs/performance'
         );
         // fallback to canvas in case of failure
         useCanvasGraphicsContext = true;
@@ -1083,6 +1135,11 @@ O|===|* >________________>\n\
 
     (window as any).___EXCALIBUR_DEVTOOL = this;
     Engine.InstanceCount++;
+
+
+    for (let plugin of this._plugins) {
+      plugin.onEnginePreConfig(this, options);
+    }
   }
 
   private _handleWebGLContextLost = (e: Event) => {
@@ -1156,22 +1213,22 @@ O|===|* >________________>\n\
           this._performanceThresholdTriggered = true;
           this._logger.warn(
             `Switching to browser 2D Canvas fallback due to performance. Some features of Excalibur will not work in this mode.\n` +
-              "this might mean your browser doesn't have webgl enabled or hardware acceleration is unavailable.\n\n" +
-              'If in Chrome:\n' +
-              '  * Visit Settings > Advanced > System, and ensure "Use Hardware Acceleration" is checked.\n' +
-              '  * Visit chrome://flags/#ignore-gpu-blocklist and ensure "Override software rendering list" is "enabled"\n' +
-              'If in Firefox, visit about:config\n' +
-              '  * Ensure webgl.disabled = false\n' +
-              '  * Ensure webgl.force-enabled = true\n' +
-              '  * Ensure layers.acceleration.force-enabled = true\n\n' +
-              'Read more about this issue at https://excaliburjs.com/docs/performance'
+            "this might mean your browser doesn't have webgl enabled or hardware acceleration is unavailable.\n\n" +
+            'If in Chrome:\n' +
+            '  * Visit Settings > Advanced > System, and ensure "Use Hardware Acceleration" is checked.\n' +
+            '  * Visit chrome://flags/#ignore-gpu-blocklist and ensure "Override software rendering list" is "enabled"\n' +
+            'If in Firefox, visit about:config\n' +
+            '  * Ensure webgl.disabled = false\n' +
+            '  * Ensure webgl.force-enabled = true\n' +
+            '  * Ensure layers.acceleration.force-enabled = true\n\n' +
+            'Read more about this issue at https://excaliburjs.com/docs/performance'
           );
 
           if (showPlayerMessage) {
             this._toaster.toast(
               'Excalibur is encountering performance issues. ' +
-                "It's possible that your browser doesn't have hardware acceleration enabled. " +
-                'Visit [LINK] for more information and potential solutions.',
+              "It's possible that your browser doesn't have hardware acceleration enabled. " +
+              'Visit [LINK] for more information and potential solutions.',
               'https://excaliburjs.com/docs/performance'
             );
           }
@@ -1329,6 +1386,20 @@ O|===|* >________________>\n\
   }
 
   /**
+   * Adds a plugin to Excalibur
+   */
+  public addPlugin(plugin: Plugin): void {
+    this._plugins.push(plugin);
+  }
+
+  public removePlugin(plugin: Plugin): void {
+    const index = this._plugins.indexOf(plugin);
+    if (index > -1) {
+      this._plugins.splice(index, 1);
+    }
+  }
+
+  /**
    * Adds a {@apilink Scene} to the engine, think of scenes in Excalibur as you
    * would levels or menus.
    * @param sceneKey  The key of the scene, must be unique
@@ -1478,6 +1549,11 @@ O|===|* >________________>\n\
    * Initializes the internal canvas, rendering context, display mode, and native event listeners
    */
   private _initialize(options?: EngineOptions) {
+
+    for (let plugin of this._plugins) {
+      plugin.onEnginePreInitialize(this);
+    }
+
     this.pageScrollPreventionMode = options.scrollPreventionMode;
 
     // initialize inputs
@@ -1507,6 +1583,11 @@ O|===|* >________________>\n\
     if (!this.canvasElementId && !options.canvasElement) {
       document.body.appendChild(this.canvas);
     }
+
+
+    for (let plugin of this._plugins) {
+      plugin.onEnginePostConfig(this, options);
+    }
   }
 
   public toggleInputEnabled(enabled: boolean) {
@@ -1527,10 +1608,18 @@ O|===|* >________________>\n\
 
   private async _overrideInitialize(engine: Engine) {
     if (!this.isInitialized) {
+      for (let plugin of this._plugins) {
+        plugin.onEnginePreInitialize(this);
+      }
+
       await this.director.onInitialize();
       await this.onInitialize(engine);
       this.events.emit('initialize', new InitializeEvent(engine, this));
       this._isInitialized = true;
+
+      for (let plugin of this._plugins) {
+        plugin.onEnginePostInitialize(this);
+      }
     }
   }
 

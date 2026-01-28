@@ -49,7 +49,7 @@ export const pixelSnapEpsilon = 0.0001;
 
 class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
   private _debugText = new DebugText();
-  constructor(private _webglCtx: ExcaliburGraphicsContextWebGL) {}
+  constructor(private _webglCtx: ExcaliburGraphicsContextWebGL) { }
 
   /**
    * Draw a debugging rectangle to the graphics context
@@ -205,6 +205,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   public materialScreenTexture!: WebGLTexture | null;
 
+  private _onGraphicsPreInitialize?: (context: ExcaliburGraphicsContext) => void;
+
+  private _onGraphicsPostInitialize?: (context: ExcaliburGraphicsContext) => void;
+
   public get z(): number {
     return this._state.current.z;
   }
@@ -260,6 +264,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   private _isContextLost = false;
 
   constructor(options: ExcaliburGraphicsContextWebGLOptions) {
+    if (options.onGraphicsPreConfig) {
+      options.onGraphicsPreConfig(this, options);
+    }
     const {
       canvasElement,
       context,
@@ -274,8 +281,12 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       useDrawSorting,
       garbageCollector,
       handleContextLost,
-      handleContextRestored
+      handleContextRestored,
+      onGraphicsPostConfig,
+      onGraphicsPreInitialize,
+      onGraphicsPostInitialize,
     } = options;
+
     this.__gl =
       context ??
       (canvasElement.getContext('webgl2', {
@@ -295,6 +306,12 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
     if (handleContextRestored) {
       this.__gl.canvas.addEventListener('webglcontextrestored', handleContextRestored, false);
+    }
+    if (onGraphicsPreInitialize) {
+      this._onGraphicsPreInitialize = onGraphicsPreInitialize;
+    }
+    if (onGraphicsPostInitialize) {
+      this._onGraphicsPostInitialize = onGraphicsPostInitialize;
     }
 
     this.__gl.canvas.addEventListener('webglcontextlost', () => {
@@ -318,6 +335,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._drawCallPool.disableWarnings = true;
     this._drawCallPool.preallocate();
     this._init();
+    if (onGraphicsPostConfig) {
+      onGraphicsPostConfig(this, options);
+    }
   }
 
   private _disposed = false;
@@ -336,7 +356,12 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   }
 
   private _init() {
+    // add pre/post init here
     const gl = this.__gl;
+    if (this._onGraphicsPreInitialize) {
+      this._onGraphicsPreInitialize(this);
+    }
+
     // Setup viewport and view matrix
     this._ortho = Matrix.ortho(0, gl.canvas.width, gl.canvas.height, 0, 400, -400);
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
@@ -420,6 +445,11 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     });
 
     this.debug = new ExcaliburGraphicsContextWebGLDebug(this);
+
+
+    if (this._onGraphicsPostInitialize) {
+      this._onGraphicsPostInitialize(this);
+    }
   }
 
   public register<T extends RendererPlugin>(renderer: T) {
@@ -470,7 +500,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     if (!this._isDrawLifecycle) {
       this._logger.warnOnce(
         `Attempting to draw outside the the drawing lifecycle (preDraw/postDraw) is not supported and is a source of bugs/errors.\n` +
-          `If you want to do custom drawing, use Actor.graphics, or any onPreDraw or onPostDraw handler.`
+        `If you want to do custom drawing, use Actor.graphics, or any onPreDraw or onPostDraw handler.`
       );
     }
     if (this._isContextLost) {

@@ -667,6 +667,7 @@ export class Camera implements CanUpdate, CanInitialize {
 
   public _initialize(engine: Engine) {
     if (!this.isInitialized) {
+
       this._engine = engine;
       this._screen = engine.screen;
 
