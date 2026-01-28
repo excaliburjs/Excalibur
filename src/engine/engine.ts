@@ -38,7 +38,7 @@ import { Entity } from './entity-component-system/entity';
 import type { DebugStats } from './debug/debug-config';
 import { DebugConfig } from './debug/debug-config';
 import { BrowserEvents } from './util/browser';
-import type { AntialiasOptions, ExcaliburGraphicsContext } from './graphics';
+import type { AntialiasOptions, ExcaliburGraphicsContext, ExcaliburGraphicsContextWebGLOptions } from './graphics';
 import {
   DefaultAntialiasOptions,
   DefaultPixelArtOptions,
@@ -64,6 +64,7 @@ import type { GarbageCollectionOptions } from './garbage-collector';
 import { DefaultGarbageCollectionOptions, GarbageCollector } from './garbage-collector';
 import { mergeDeep } from './util/util';
 import { getDefaultGlobal } from './util/iframe';
+import { Plugin } from './plugin';
 
 export interface EngineEvents extends DirectorEvents {
   fallbackgraphicscontext: ExcaliburGraphicsContext2DCanvas;
@@ -118,6 +119,10 @@ export enum ScrollPreventionMode {
  * Defines the available options to configure the Excalibur engine at constructor time.
  */
 export interface EngineOptions<TKnownScenes extends string = any> {
+  /**
+   * Optionally configure Excalibur plugins
+   */
+  plugins?: Plugin[];
   /**
    * Optionally configure the width of the viewport in css pixels
    */
@@ -427,6 +432,8 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   scope = <TReturn>(cb: () => TReturn) => Engine.Context.scope(this, cb);
 
   public global: GlobalEventHandlers;
+
+  private _plugins: Plugin[] = [];
 
   private _garbageCollector: GarbageCollector;
 
@@ -820,6 +827,14 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
 
     Flags.freeze();
 
+    if (options.plugins && options.plugins.length > 0) {
+      this._plugins = [...options.plugins];
+    }
+
+    for (let plugin of this._plugins) {
+      plugin.onEnginePreConfig(this, options);
+    }
+
     // Initialize browser events facade
     this.browser = new BrowserEvents(window, document);
 
@@ -988,6 +1003,36 @@ O|===|* >________________>\n\
     if (!useCanvasGraphicsContext) {
       // Attempt webgl first
       try {
+        let onGraphicsPreConfig: (context: ExcaliburGraphicsContext, options: ExcaliburGraphicsContextWebGLOptions) => void;
+        let onGraphicsPostConfig: (context: ExcaliburGraphicsContext, options: ExcaliburGraphicsContextWebGLOptions) => void;
+        let onGraphicsPreInitialize: (context: ExcaliburGraphicsContext) => void;
+        let onGraphicsPostInitialize: (context: ExcaliburGraphicsContext) => void;
+        if (this._plugins.length > 0) {
+          onGraphicsPreConfig = (context: ExcaliburGraphicsContext, options: ExcaliburGraphicsContextWebGLOptions) => {
+            for (let plugin of this._plugins) {
+              plugin.onGraphicsPreConfig(context, options);
+            }
+          };
+
+          onGraphicsPostConfig = (context: ExcaliburGraphicsContext, options: ExcaliburGraphicsContextWebGLOptions) => {
+            for (let plugin of this._plugins) {
+              plugin.onGraphicsPostConfig(context, options);
+            }
+          };
+
+          onGraphicsPreInitialize = (context: ExcaliburGraphicsContext) => {
+            for (let plugin of this._plugins) {
+              plugin.onGraphicsPreInitialize(context);
+            }
+          };
+
+          onGraphicsPostInitialize = (context: ExcaliburGraphicsContext) => {
+            for (let plugin of this._plugins) {
+              plugin.onGraphicsPostInitialize(context);
+            }
+          };
+        }
+
         this.graphicsContext = new ExcaliburGraphicsContextWebGL({
           canvasElement: this.canvas,
           enableTransparency: this.enableCanvasTransparency,
@@ -1006,7 +1051,11 @@ O|===|* >________________>\n\
               }
             : null,
           handleContextLost: options.handleContextLost ?? this._handleWebGLContextLost,
-          handleContextRestored: options.handleContextRestored
+          handleContextRestored: options.handleContextRestored,
+          onGraphicsPreConfig,
+          onGraphicsPostConfig,
+          onGraphicsPreInitialize,
+          onGraphicsPostInitialize
         });
       } catch (e) {
         this._logger.warn(
@@ -1083,6 +1132,10 @@ O|===|* >________________>\n\
 
     (window as any).___EXCALIBUR_DEVTOOL = this;
     Engine.InstanceCount++;
+
+    for (let plugin of this._plugins) {
+      plugin.onEnginePreConfig(this, options);
+    }
   }
 
   private _handleWebGLContextLost = (e: Event) => {
@@ -1329,6 +1382,20 @@ O|===|* >________________>\n\
   }
 
   /**
+   * Adds a plugin to Excalibur
+   */
+  public addPlugin(plugin: Plugin): void {
+    this._plugins.push(plugin);
+  }
+
+  public removePlugin(plugin: Plugin): void {
+    const index = this._plugins.indexOf(plugin);
+    if (index > -1) {
+      this._plugins.splice(index, 1);
+    }
+  }
+
+  /**
    * Adds a {@apilink Scene} to the engine, think of scenes in Excalibur as you
    * would levels or menus.
    * @param sceneKey  The key of the scene, must be unique
@@ -1478,6 +1545,10 @@ O|===|* >________________>\n\
    * Initializes the internal canvas, rendering context, display mode, and native event listeners
    */
   private _initialize(options?: EngineOptions) {
+    for (let plugin of this._plugins) {
+      plugin.onEnginePreInitialize(this);
+    }
+
     this.pageScrollPreventionMode = options.scrollPreventionMode;
 
     // initialize inputs
@@ -1507,6 +1578,10 @@ O|===|* >________________>\n\
     if (!this.canvasElementId && !options.canvasElement) {
       document.body.appendChild(this.canvas);
     }
+
+    for (let plugin of this._plugins) {
+      plugin.onEnginePostConfig(this, options);
+    }
   }
 
   public toggleInputEnabled(enabled: boolean) {
@@ -1527,10 +1602,18 @@ O|===|* >________________>\n\
 
   private async _overrideInitialize(engine: Engine) {
     if (!this.isInitialized) {
+      for (let plugin of this._plugins) {
+        plugin.onEnginePreInitialize(this);
+      }
+
       await this.director.onInitialize();
       await this.onInitialize(engine);
       this.events.emit('initialize', new InitializeEvent(engine, this));
       this._isInitialized = true;
+
+      for (let plugin of this._plugins) {
+        plugin.onEnginePostInitialize(this);
+      }
     }
   }
 
