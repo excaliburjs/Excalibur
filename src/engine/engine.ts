@@ -64,7 +64,7 @@ import type { GarbageCollectionOptions } from './garbage-collector';
 import { DefaultGarbageCollectionOptions, GarbageCollector } from './garbage-collector';
 import { mergeDeep } from './util/util';
 import { getDefaultGlobal } from './util/iframe';
-import { Plugin } from './plugin';
+import type { Plugin } from './plugin';
 
 export interface EngineEvents extends DirectorEvents {
   fallbackgraphicscontext: ExcaliburGraphicsContext2DCanvas;
@@ -434,6 +434,9 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   public global: GlobalEventHandlers;
 
   private _plugins: Plugin[] = [];
+  public get plugins(): readonly Plugin[] {
+    return this._plugins;
+  }
 
   private _garbageCollector: GarbageCollector;
 
@@ -829,10 +832,11 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
 
     if (options.plugins && options.plugins.length > 0) {
       this._plugins = [...options.plugins];
+      this._plugins.sort((a, b) => a.priority - b.priority);
     }
 
-    for (let plugin of this._plugins) {
-      plugin.onEnginePreConfig(this, options);
+    for (const plugin of this._plugins) {
+      plugin.onEnginePreConfig?.(this, options);
     }
 
     // Initialize browser events facade
@@ -1009,26 +1013,26 @@ O|===|* >________________>\n\
         let onGraphicsPostInitialize: (context: ExcaliburGraphicsContext) => void;
         if (this._plugins.length > 0) {
           onGraphicsPreConfig = (context: ExcaliburGraphicsContext, options: ExcaliburGraphicsContextWebGLOptions) => {
-            for (let plugin of this._plugins) {
-              plugin.onGraphicsPreConfig(context, options);
+            for (const plugin of this._plugins) {
+              plugin.onGraphicsPreConfig?.(context, options);
             }
           };
 
           onGraphicsPostConfig = (context: ExcaliburGraphicsContext, options: ExcaliburGraphicsContextWebGLOptions) => {
-            for (let plugin of this._plugins) {
-              plugin.onGraphicsPostConfig(context, options);
+            for (const plugin of this._plugins) {
+              plugin.onGraphicsPostConfig?.(context, options);
             }
           };
 
           onGraphicsPreInitialize = (context: ExcaliburGraphicsContext) => {
-            for (let plugin of this._plugins) {
-              plugin.onGraphicsPreInitialize(context);
+            for (const plugin of this._plugins) {
+              plugin.onGraphicsPreInitialize?.(context);
             }
           };
 
           onGraphicsPostInitialize = (context: ExcaliburGraphicsContext) => {
-            for (let plugin of this._plugins) {
-              plugin.onGraphicsPostInitialize(context);
+            for (const plugin of this._plugins) {
+              plugin.onGraphicsPostInitialize?.(context);
             }
           };
         }
@@ -1132,10 +1136,6 @@ O|===|* >________________>\n\
 
     (window as any).___EXCALIBUR_DEVTOOL = this;
     Engine.InstanceCount++;
-
-    for (let plugin of this._plugins) {
-      plugin.onEnginePreConfig(this, options);
-    }
   }
 
   private _handleWebGLContextLost = (e: Event) => {
@@ -1294,6 +1294,11 @@ O|===|* >________________>\n\
       this.stop();
       this._garbageCollector.forceCollectAll();
       this.input.toggleEnabled(false);
+
+      for (const plugin of this.plugins) {
+        plugin.dispose?.();
+      }
+
       if (this._hasCreatedCanvas) {
         this.canvas.parentNode.removeChild(this.canvas);
       }
@@ -1379,20 +1384,6 @@ O|===|* >________________>\n\
    */
   public removeScene(entity: any): void {
     this.director.remove(entity);
-  }
-
-  /**
-   * Adds a plugin to Excalibur
-   */
-  public addPlugin(plugin: Plugin): void {
-    this._plugins.push(plugin);
-  }
-
-  public removePlugin(plugin: Plugin): void {
-    const index = this._plugins.indexOf(plugin);
-    if (index > -1) {
-      this._plugins.splice(index, 1);
-    }
   }
 
   /**
@@ -1545,10 +1536,6 @@ O|===|* >________________>\n\
    * Initializes the internal canvas, rendering context, display mode, and native event listeners
    */
   private _initialize(options?: EngineOptions) {
-    for (let plugin of this._plugins) {
-      plugin.onEnginePreInitialize(this);
-    }
-
     this.pageScrollPreventionMode = options.scrollPreventionMode;
 
     // initialize inputs
@@ -1579,8 +1566,8 @@ O|===|* >________________>\n\
       document.body.appendChild(this.canvas);
     }
 
-    for (let plugin of this._plugins) {
-      plugin.onEnginePostConfig(this, options);
+    for (const plugin of this._plugins) {
+      plugin.onEnginePostConfig?.(this, options);
     }
   }
 
@@ -1602,7 +1589,7 @@ O|===|* >________________>\n\
 
   private async _overrideInitialize(engine: Engine) {
     if (!this.isInitialized) {
-      for (let plugin of this._plugins) {
+      for (const plugin of this._plugins) {
         plugin.onEnginePreInitialize(this);
       }
 
@@ -1611,7 +1598,7 @@ O|===|* >________________>\n\
       this.events.emit('initialize', new InitializeEvent(engine, this));
       this._isInitialized = true;
 
-      for (let plugin of this._plugins) {
+      for (const plugin of this._plugins) {
         plugin.onEnginePostInitialize(this);
       }
     }
