@@ -16,7 +16,7 @@
     "@types/node": "24.0.10",
     "tsdown": "0.17.0",
     "typescript": "5.9.3",
-    "unplugin-raw": "0.6.3",
+    "unplugin-raw": "0.6.4",
     "vite": "7.2.4"
   },
   "dependencies": {
