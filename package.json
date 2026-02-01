@@ -88,7 +88,7 @@
     "@octokit/rest": "21.1.1",
     "@storybook/html-vite": "9.1.17",
     "@types/jasmine": "5.1.15",
-    "@types/node": "22.19.3",
+    "@types/node": "22.19.7",
     "@types/react-color": "3.0.13",
     "@types/webpack-env": "1.18.8",
     "@vitest/browser": "3.2.4",
