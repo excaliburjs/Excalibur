@@ -75,4 +75,132 @@ export abstract class Component {
    * Optional callback called when a component is removed from an entity
    */
   onRemove?(previousOwner: Entity): void;
+
+  /*
+   * Serialization, Deserialization, and toJSONhandled
+   */
+
+  toJSON(pretty: boolean = false): string {
+    return JSON.stringify(this.serialize(), null, pretty ? 2 : 0);
+  }
+
+  serialize(): Record<string, any> {
+    const data: Record<string, any> = {
+      type: this.constructor.name
+    };
+
+    for (const prop in this) {
+      if (!this.hasOwnProperty(prop)) {
+        continue;
+      }
+
+      // Skip owner, private fields, functions, and non-serializable objects
+      if (
+        prop === 'owner' ||
+        prop === 'dependencies' ||
+        prop.startsWith('_') ||
+        typeof this[prop] === 'function' ||
+        !this._isSerializable(this[prop])
+      ) {
+        continue;
+      }
+
+      data[prop] = this._serializeValue(this[prop]);
+    }
+
+    return data;
+  }
+
+  deserialize(data: Record<string, any>): void {
+    for (const key in data) {
+      if (key === 'type' || key === 'owner' || key === 'dependencies') {
+        continue;
+      }
+
+      if (this.hasOwnProperty(key)) {
+        (this as any)[key] = this._deserializeValue(data[key], (this as any)[key]);
+      }
+    }
+  }
+
+  protected _serializeValue(value: any): any {
+    if (value === null || value === undefined) {
+      return value;
+    }
+
+    // Handle Vector-like objects (any object with x/y numeric properties)
+    if (value && typeof value === 'object' && 'x' in value && 'y' in value && typeof value.x === 'number' && typeof value.y === 'number') {
+      return { x: value.x, y: value.y };
+    }
+
+    // Handle arrays
+    if (Array.isArray(value)) {
+      return value.map((v) => this._serializeValue(v));
+    }
+
+    // Handle plain objects
+    if (value && typeof value === 'object' && value.constructor === Object) {
+      const obj: Record<string, any> = {};
+      for (const k in value) {
+        if (value.hasOwnProperty(k)) {
+          obj[k] = this._serializeValue(value[k]);
+        }
+      }
+      return obj;
+    }
+
+    // Primitives (string, number, boolean) and other types
+    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+      return value;
+    }
+
+    // Skip non-serializable objects
+    return undefined;
+  }
+
+  protected _deserializeValue(data: any, existingValue?: any): any {
+    if (data === null || data === undefined) {
+      return data;
+    }
+
+    // If existing value has x/y (Vector-like), update it in place
+    if (
+      existingValue &&
+      typeof existingValue === 'object' &&
+      'x' in existingValue &&
+      'y' in existingValue &&
+      data &&
+      typeof data === 'object' &&
+      'x' in data &&
+      'y' in data
+    ) {
+      existingValue.x = data.x;
+      existingValue.y = data.y;
+      return existingValue;
+    }
+
+    // Otherwise return the deserialized data as-is
+    return data;
+  }
+
+  private _isSerializable(value: any): boolean {
+    if (value === null || value === undefined) {
+      return true;
+    }
+
+    const type = typeof value;
+    if (type === 'string' || type === 'number' || type === 'boolean') {
+      return true;
+    }
+
+    // Check for Observable or other non-serializable objects
+    if (type === 'object' && value.subscribe) {
+      return false;
+    }
+    if (type === 'function') {
+      return false;
+    }
+
+    return true;
+  }
 }
