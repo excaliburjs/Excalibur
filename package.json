@@ -116,7 +116,7 @@
     "karma-webpack": "5.0.1",
     "lint-staged": "15.5.2",
     "pixelmatch": "5.3.0",
-    "playwright": "1.57.0",
+    "playwright": "1.58.1",
     "prettier": "3.7.4",
     "puppeteer": "24.34.0",
     "raw-loader": "4.0.2",
