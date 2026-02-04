@@ -764,3 +764,29 @@ export class RemoveEvent<T extends OnRemove> extends GameEvent<T> {
     this.target = self;
   }
 }
+
+/**
+ * Event thown on a pause event in scene
+ */
+export class PauseEvent extends GameEvent<Scene> {
+  /**
+   * @param context  The context for the scene deactivation
+   */
+  constructor(public self: Scene) {
+    super();
+    this.target = self;
+  }
+}
+
+/**
+ * Event thown on a resume event in scene
+ */
+export class ResumeEvent extends GameEvent<Scene> {
+  /**
+   * @param context  The context for the scene deactivation
+   */
+  constructor(public self: Scene) {
+    super();
+    this.target = self;
+  }
+}
