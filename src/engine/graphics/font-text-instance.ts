@@ -55,7 +55,8 @@ export class FontTextInstance {
     let maxDescent = 0;
     for (let i = 0; i < lines.length; i++) {
       const metrics = this.ctx.measureText(lines[i]);
-      maxWidthLine = Math.max(maxWidthLine, metrics.width); // metrics.width is the glyph advance
+      // metrics.width is the glyph advance which is more accurate
+      maxWidthLine = Math.max(maxWidthLine, metrics.width);
       maxAscent = Math.max(maxAscent, metrics.actualBoundingBoxAscent);
       maxDescent = Math.max(maxDescent, metrics.actualBoundingBoxDescent);
     }
@@ -95,17 +96,17 @@ export class FontTextInstance {
     switch (this.font.textAlign) {
       case 'left':
       case 'start':
-        x = ltr ? 0 /* + strokeOffset */ : this.canvas.width; // TODO padding from the end?
+        x = ltr ? 0 : this.canvas.width; // TODO padding from the end?
         break;
       case 'center':
         x = this.canvas.width / 2;
         break;
       case 'right':
       case 'end':
-        x = ltr ? this.canvas.width /* - strokeOffset; */ : 0;
+        x = ltr ? this.canvas.width : 0;
         break;
       default:
-        x = 0; // + strokeOffset;
+        x = 0;
     }
     return x / this.font.quality;
   }
