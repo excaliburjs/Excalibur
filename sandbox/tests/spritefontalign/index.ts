@@ -27,7 +27,9 @@ var spriteFont = new ex.SpriteFont({
   spriteSheet: spriteFontSheet
 });
 
-var loader = new ex.Loader([spriteFontImage]);
+var fs = new ex.FontSource('./normal-400.woff2', 'Open Sans');
+
+var loader = new ex.Loader([spriteFontImage, fs]);
 
 var textA = new ex.Text({
   font: spriteFont,
@@ -40,7 +42,7 @@ var textAA = new ex.Actor({
   z: 1
 });
 textAA.graphics.add(textA);
-game.add(textAA);
+// game.add(textAA);
 
 var textB = new ex.Text({
   font: spriteFont,
@@ -53,7 +55,7 @@ var textBA = new ex.Actor({
   z: 2
 });
 textBA.graphics.add(textB);
-game.add(textBA);
+// game.add(textBA);
 
 var textC = new ex.Text({
   font: spriteFont,
@@ -66,7 +68,7 @@ var textCA = new ex.Actor({
   z: 2
 });
 textCA.graphics.add(textC);
-game.add(textCA);
+// game.add(textCA);
 
 var normalFont = new ex.Font({
   family: 'Consolas',
@@ -97,7 +99,7 @@ var textNormalAA = new ex.Actor({
   y: 80
 });
 textNormalAA.graphics.use(textNormalA);
-game.add(textNormalAA);
+// game.add(textNormalAA);
 
 var textNormalBA = new ex.Actor({
   anchor: ex.Vector.Zero,
@@ -105,14 +107,14 @@ var textNormalBA = new ex.Actor({
   y: 100
 });
 textNormalBA.graphics.use(textNormalB);
-game.add(textNormalBA);
+// game.add(textNormalBA);
 
 var textNormalCA = new ex.Actor({
   anchor: ex.Vector.Zero,
   x: 10,
-  y: 80
+  y: 40
 });
-textNormalCA.graphics.use(textNormalC);
+// textNormalCA.graphics.use(textNormalC);
 game.add(textNormalCA);
 
 let currentHue1 = 0;
@@ -122,5 +124,20 @@ textNormalCA.onPostUpdate = () => {
   currentColor1 = ex.Color.fromHSL(currentHue1, 0.6, 0.6);
   textNormalC.tint = currentColor1;
 };
+
+var sutf = new ex.Font({
+  family: 'Open Sans',
+  size: 18,
+  quality: 1
+  // baseAlign: ex.BaseAlign.Alphabetic
+});
+
+var text1 = new ex.Text({
+  text: 'some super long text that should wrap after 100 pixels',
+  font: sutf,
+  maxWidth: 100
+});
+
+textNormalCA.graphics.use(text1);
 
 game.start(loader).then(() => {});

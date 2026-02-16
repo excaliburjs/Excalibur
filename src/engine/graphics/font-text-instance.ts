@@ -12,6 +12,10 @@ export class FontTextInstance {
   public dimensions: BoundingBox;
   public disposed: boolean = false;
   private _lastHashCode: string;
+  private _maxDescent: number = 0;
+  private _maxAscent: number = 0;
+  private _maxLineHeight: number = 0;
+  public lineHeight: number = 0;
 
   constructor(
     public readonly font: Font,
@@ -56,14 +60,12 @@ export class FontTextInstance {
       maxDescent = Math.max(maxDescent, metrics.actualBoundingBoxDescent);
     }
 
-    let textHeight = Math.abs(maxAscent) + Math.abs(maxDescent);
-    const totalHeight = textHeight * lines.length;
-    // TODO do we want to account for line height in the font?
-    textHeight = totalHeight;
+    const textHeight = Math.abs(maxAscent) + Math.abs(maxDescent);
+    this._maxLineHeight = textHeight;
+    this._maxAscent = maxAscent;
+    this._maxDescent = maxDescent;
 
-    // const bottomBounds = lineAdjustedHeight - Math.abs(maxAscent);
-
-    return BoundingBox.fromDimension(maxWidthLine, textHeight, Vector.Zero, Vector.Zero);
+    return BoundingBox.fromDimension(maxWidthLine, textHeight * lines.length, Vector.Zero, Vector.Zero);
   }
 
   private _setDimension(textBounds: BoundingBox, bitmap: CanvasRenderingContext2D) {
@@ -90,52 +92,50 @@ export class FontTextInstance {
     // Calculate x position based on alignment
     let x;
     const ltr = this.font.direction === 'ltr';
-    const paddingWithQuality = this.font.padding * this.font.quality;
     switch (this.font.textAlign) {
       case 'left':
       case 'start':
-        x = ltr ? paddingWithQuality /* + strokeOffset */ : this.canvas.width - paddingWithQuality;
+        x = ltr ? 0 /* + strokeOffset */ : this.canvas.width; // TODO padding from the end?
         break;
       case 'center':
         x = this.canvas.width / 2;
         break;
       case 'right':
       case 'end':
-        x = ltr ? this.canvas.width - paddingWithQuality /* - strokeOffset; */ : paddingWithQuality;
+        x = ltr ? this.canvas.width /* - strokeOffset; */ : 0;
         break;
       default:
-        x = paddingWithQuality; // + strokeOffset;
+        x = 0; // + strokeOffset;
     }
     return x / this.font.quality;
   }
 
   private _yFromBaseline() {
     let startY;
-    const paddingWithQuality = this.font.padding * this.font.quality;
 
     switch (this.font.baseAlign) {
       case 'top':
       case 'hanging':
-        startY = paddingWithQuality; // + strokeOffset;
+        startY = -this.font.padding;
         break;
       case 'middle':
-        startY = (this.canvas.height - this.dimensions.height) / 2; // + this.totalAscent;
+        startY = (this.canvas.height - this.dimensions.height) / 2 + this._maxLineHeight;
         break;
       case 'bottom':
       case 'ideographic':
-        startY = this.canvas.height - paddingWithQuality /*- strokeOffset*/ - this.dimensions.height; // + this.totalAscent;
+        startY = this.canvas.height - this.dimensions.height + this._maxLineHeight;
         break;
       case 'alphabetic':
       default:
         // For alphabetic, position first line properly
-        startY = this.dimensions.height + paddingWithQuality; // + strokeOffset;
+        startY = this._maxLineHeight - this.font.padding;
         break;
     }
     return startY / this.font.quality;
   }
 
   protected _applyRasterProperties(ctx: CanvasRenderingContext2D) {
-    // ctx.translate(this.font.padding, this.font.padding);
+    ctx.translate(this.font.padding, this.font.padding);
     ctx.imageSmoothingEnabled = this.font.smoothing;
     ctx.lineWidth = this.font.lineWidth;
     ctx.setLineDash(this.font.lineDash ?? ctx.getLineDash());
@@ -145,7 +145,7 @@ export class FontTextInstance {
 
   private _applyFont(ctx: CanvasRenderingContext2D) {
     ctx.resetTransform();
-    // ctx.translate(this.font.padding + ctx.canvas.width / 2, this.font.padding + ctx.canvas.height / 2);
+    ctx.translate(this.font.padding, this.font.padding);
     ctx.scale(this.font.quality, this.font.quality);
     ctx.textAlign = this.font.textAlign;
     ctx.textBaseline = this.font.baseAlign;
@@ -182,7 +182,7 @@ export class FontTextInstance {
         ctx.strokeText(line, x, y + i * lineHeight);
       }
     }
-    // document.body.appendChild(this.canvas);
+    document.body.appendChild(this.canvas);
   }
 
   private _splitTextBitmap(bitmap: CanvasRenderingContext2D) {
@@ -237,7 +237,7 @@ export class FontTextInstance {
       this.dimensions = this.measureText(this.text, maxWidth);
       this._setDimension(this.dimensions, this.ctx);
       const lines = this._getLinesFromText(this.text, maxWidth);
-      const lineHeight = this.font.lineHeight ?? this.dimensions.height / lines.length;
+      const lineHeight = this.font.lineHeight ?? this.dimensions.height / lines.length - this._maxAscent;
 
       // draws the text to the main bitmap
       this._drawText(this.ctx, lines, lineHeight);
@@ -318,6 +318,7 @@ export class FontTextInstance {
       let line = lines[i];
       let newLine = '';
       if (this.measureText(line).width > maxWidth) {
+        // FIXME is this width different now since we are using the glyph advance which is more accurate?
         while (this.measureText(line).width > maxWidth) {
           newLine = line[line.length - 1] + newLine;
           line = line.slice(0, -1); // Remove last character from line
