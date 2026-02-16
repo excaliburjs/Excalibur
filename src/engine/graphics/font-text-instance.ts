@@ -12,7 +12,6 @@ export class FontTextInstance {
   public dimensions: BoundingBox;
   public disposed: boolean = false;
   private _lastHashCode: string;
-  private _maxDescent: number = 0;
   private _maxAscent: number = 0;
   private _maxLineHeight: number = 0;
   public lineHeight: number = 0;
@@ -66,7 +65,6 @@ export class FontTextInstance {
 
     this._maxLineHeight = textHeight;
     this._maxAscent = maxAscent;
-    this._maxDescent = maxDescent;
 
     return BoundingBox.fromDimension(maxWidthLine, textHeight * lines.length, Vector.Zero, Vector.Zero);
   }
@@ -185,7 +183,7 @@ export class FontTextInstance {
         ctx.strokeText(line, x, y + i * lineHeight);
       }
     }
-    document.body.appendChild(this.canvas);
+    // document.body.appendChild(this.canvas);
   }
 
   private _splitTextBitmap(bitmap: CanvasRenderingContext2D) {
