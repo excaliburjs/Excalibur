@@ -3,6 +3,7 @@ import type { Color } from '../color';
 import { ExcaliburGraphicsContextWebGL } from './context/excalibur-graphics-context-webgl';
 import type { ExcaliburGraphicsContext } from './context/excalibur-graphics-context';
 import type { Font } from './font';
+import { Vector } from '../math';
 
 export class FontTextInstance {
   public canvas: HTMLCanvasElement;
@@ -62,7 +63,7 @@ export class FontTextInstance {
 
     // const bottomBounds = lineAdjustedHeight - Math.abs(maxAscent);
 
-    return BoundingBox.fromDimension(maxWidthLine, textHeight);
+    return BoundingBox.fromDimension(maxWidthLine, textHeight, Vector.Zero, Vector.Zero);
   }
 
   private _setDimension(textBounds: BoundingBox, bitmap: CanvasRenderingContext2D) {
@@ -89,43 +90,45 @@ export class FontTextInstance {
     // Calculate x position based on alignment
     let x;
     const ltr = this.font.direction === 'ltr';
+    const paddingWithQuality = this.font.padding * this.font.quality;
     switch (this.font.textAlign) {
       case 'left':
       case 'start':
-        x = ltr ? this.font.padding /* + strokeOffset */ : this.canvas.width - this.font.padding;
+        x = ltr ? paddingWithQuality /* + strokeOffset */ : this.canvas.width - paddingWithQuality;
         break;
       case 'center':
         x = this.canvas.width / 2;
         break;
       case 'right':
       case 'end':
-        x = ltr ? this.canvas.width - this.font.padding /* - strokeOffset; */ : this.font.padding;
+        x = ltr ? this.canvas.width - paddingWithQuality /* - strokeOffset; */ : paddingWithQuality;
         break;
       default:
-        x = this.font.padding; // + strokeOffset;
+        x = paddingWithQuality; // + strokeOffset;
     }
     return x / this.font.quality;
   }
 
   private _yFromBaseline() {
     let startY;
+    const paddingWithQuality = this.font.padding * this.font.quality;
 
     switch (this.font.baseAlign) {
       case 'top':
       case 'hanging':
-        startY = this.font.padding; // + strokeOffset;
+        startY = paddingWithQuality; // + strokeOffset;
         break;
       case 'middle':
         startY = (this.canvas.height - this.dimensions.height) / 2; // + this.totalAscent;
         break;
       case 'bottom':
       case 'ideographic':
-        startY = this.canvas.height - this.font.padding /*- strokeOffset*/ - this.dimensions.height; // + this.totalAscent;
+        startY = this.canvas.height - paddingWithQuality /*- strokeOffset*/ - this.dimensions.height; // + this.totalAscent;
         break;
       case 'alphabetic':
       default:
         // For alphabetic, position first line properly
-        startY = this.dimensions.height + this.font.padding; // + strokeOffset;
+        startY = this.dimensions.height + paddingWithQuality; // + strokeOffset;
         break;
     }
     return startY / this.font.quality;

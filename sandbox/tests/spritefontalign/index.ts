@@ -73,7 +73,7 @@ var normalFont = new ex.Font({
   size: 20,
   color: ex.Color.Black,
   textAlign: ex.TextAlign.Left,
-  quality: 4
+  quality: 8
 });
 
 var textNormalA = new ex.Text({
@@ -82,7 +82,8 @@ var textNormalA = new ex.Text({
 });
 var textNormalB = new ex.Text({
   font: normalFont,
-  text: 'font with\nmultiple\nlines'
+  maxWidth: 50,
+  text: 'font with multiple lines that should wrap'
 });
 var textNormalC = new ex.Text({
   font: normalFont,
