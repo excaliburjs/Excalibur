@@ -55,13 +55,15 @@ export class FontTextInstance {
     let maxDescent = 0;
     for (let i = 0; i < lines.length; i++) {
       const metrics = this.ctx.measureText(lines[i]);
-      // metrics.width is the glyph advance which is more accurate
-      maxWidthLine = Math.max(maxWidthLine, metrics.width);
+      // metrics.width is the glyph advance which would be accurate, but we'll avoid the breaking change
+      const width = metrics.width + this.font.padding;
+      maxWidthLine = Math.max(maxWidthLine, width);
       maxAscent = Math.max(maxAscent, metrics.actualBoundingBoxAscent);
       maxDescent = Math.max(maxDescent, metrics.actualBoundingBoxDescent);
     }
 
     const textHeight = Math.abs(maxAscent) + Math.abs(maxDescent);
+
     this._maxLineHeight = textHeight;
     this._maxAscent = maxAscent;
     this._maxDescent = maxDescent;
@@ -274,8 +276,8 @@ export class FontTextInstance {
         frag.canvas.width,
         frag.canvas.height,
 
-        frag.x / this.font.quality + x - alignment, // - this.ctx.canvas.width / this.font.quality,
-        frag.y / this.font.quality + y - baseline, // - this.ctx.canvas.height / this.font.quality,
+        frag.x / this.font.quality + x - alignment,
+        frag.y / this.font.quality + y - baseline,
         frag.canvas.width / this.font.quality,
         frag.canvas.height / this.font.quality
       );
