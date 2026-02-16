@@ -1,6 +1,5 @@
 import { BoundingBox } from '../collision/bounding-box';
-import { Color } from '../color';
-import { line } from '../util/draw-util';
+import type { Color } from '../color';
 import { ExcaliburGraphicsContextWebGL } from './context/excalibur-graphics-context-webgl';
 import type { ExcaliburGraphicsContext } from './context/excalibur-graphics-context';
 import type { Font } from './font';
@@ -21,11 +20,15 @@ export class FontTextInstance {
   ) {
     this.canvas = document.createElement('canvas');
     const ctx = this.canvas.getContext('2d');
+
     if (!ctx) {
       throw new Error('Unable to create FontTextInstance, internal canvas failed to create');
     }
+
     this.ctx = ctx;
+
     this.dimensions = this.measureText(text);
+
     this._setDimension(this.dimensions, this.ctx);
     this._lastHashCode = this.getHashCode();
   }
@@ -41,28 +44,25 @@ export class FontTextInstance {
       lines = text.split('\n');
     }
 
-    const maxWidthLine = lines.reduce((a, b) => {
-      return a.length > b.length ? a : b;
-    });
-
     this._applyFont(this.ctx); // font must be applied to the context to measure it
-    const metrics = this.ctx.measureText(maxWidthLine);
-    let textHeight = Math.abs(metrics.actualBoundingBoxAscent) + Math.abs(metrics.actualBoundingBoxDescent);
+    let maxWidthLine = 0;
+    let maxAscent = 0;
+    let maxDescent = 0;
+    for (let i = 0; i < lines.length; i++) {
+      const metrics = this.ctx.measureText(lines[i]);
+      maxWidthLine = Math.max(maxWidthLine, metrics.width); // metrics.width is the glyph advance
+      maxAscent = Math.max(maxAscent, metrics.actualBoundingBoxAscent);
+      maxDescent = Math.max(maxDescent, metrics.actualBoundingBoxDescent);
+    }
 
-    // TODO line height makes the text bounds wonky
-    const lineAdjustedHeight = textHeight * lines.length;
-    textHeight = lineAdjustedHeight;
-    const bottomBounds = lineAdjustedHeight - Math.abs(metrics.actualBoundingBoxAscent);
-    const x = 0;
-    const y = 0;
-    const measurement = new BoundingBox({
-      left: x - Math.abs(metrics.actualBoundingBoxLeft) - this.font.padding,
-      top: y - Math.abs(metrics.actualBoundingBoxAscent) - this.font.padding,
-      bottom: y + bottomBounds + this.font.padding,
-      right: x + Math.abs(metrics.actualBoundingBoxRight) + this.font.padding
-    });
+    let textHeight = Math.abs(maxAscent) + Math.abs(maxDescent);
+    const totalHeight = textHeight * lines.length;
+    // TODO do we want to account for line height in the font?
+    textHeight = totalHeight;
 
-    return measurement;
+    // const bottomBounds = lineAdjustedHeight - Math.abs(maxAscent);
+
+    return BoundingBox.fromDimension(maxWidthLine, textHeight);
   }
 
   private _setDimension(textBounds: BoundingBox, bitmap: CanvasRenderingContext2D) {
@@ -70,30 +70,12 @@ export class FontTextInstance {
     if (this.font.lineHeight) {
       lineHeightRatio = this.font.lineHeight / this.font.size;
     }
-    // Changing the width and height clears the context properties
-    // We double the bitmap width to account for all possible alignment
-    // We scale by "quality" so we render text without jaggies
-    bitmap.canvas.width = (textBounds.width + this.font.padding * 2) * 2 * this.font.quality;
-    bitmap.canvas.height = (textBounds.height + this.font.padding * 2) * 2 * this.font.quality * lineHeightRatio;
+    bitmap.canvas.width = (textBounds.width + this.font.padding * 2) * this.font.quality;
+    bitmap.canvas.height = (textBounds.height + this.font.padding * 2) * this.font.quality * lineHeightRatio;
   }
 
   public static getHashCode(font: Font, text: string, color?: Color) {
-    const hash =
-      text +
-      '__hashcode__' +
-      font.fontString +
-      font.showDebug +
-      font.textAlign +
-      font.baseAlign +
-      font.direction +
-      font.lineHeight +
-      JSON.stringify(font.shadow) +
-      (font.padding.toString() +
-        font.smoothing.toString() +
-        font.lineWidth.toString() +
-        font.lineDash.toString() +
-        font.strokeColor?.toString() +
-        (color ? color.toString() : font.color.toString()));
+    const hash = text + '__hashcode__' + font.hashCode + (color?.hashCode ?? 0);
     return hash;
   }
 
@@ -101,8 +83,56 @@ export class FontTextInstance {
     return FontTextInstance.getHashCode(this.font, this.text, includeColor ? this.color : undefined);
   }
 
+  private _xFromAlignment() {
+    // const strokeOffset = this.font.strokeStyle ? this.lineWidth / 2 : 0;
+
+    // Calculate x position based on alignment
+    let x;
+    const ltr = this.font.direction === 'ltr';
+    switch (this.font.textAlign) {
+      case 'left':
+      case 'start':
+        x = ltr ? this.font.padding /* + strokeOffset */ : this.canvas.width - this.font.padding;
+        break;
+      case 'center':
+        x = this.canvas.width / 2;
+        break;
+      case 'right':
+      case 'end':
+        x = ltr ? this.canvas.width - this.font.padding /* - strokeOffset; */ : this.font.padding;
+        break;
+      default:
+        x = this.font.padding; // + strokeOffset;
+    }
+    return x / this.font.quality;
+  }
+
+  private _yFromBaseline() {
+    let startY;
+
+    switch (this.font.baseAlign) {
+      case 'top':
+      case 'hanging':
+        startY = this.font.padding; // + strokeOffset;
+        break;
+      case 'middle':
+        startY = (this.canvas.height - this.dimensions.height) / 2; // + this.totalAscent;
+        break;
+      case 'bottom':
+      case 'ideographic':
+        startY = this.canvas.height - this.font.padding /*- strokeOffset*/ - this.dimensions.height; // + this.totalAscent;
+        break;
+      case 'alphabetic':
+      default:
+        // For alphabetic, position first line properly
+        startY = this.dimensions.height + this.font.padding; // + strokeOffset;
+        break;
+    }
+    return startY / this.font.quality;
+  }
+
   protected _applyRasterProperties(ctx: CanvasRenderingContext2D) {
-    ctx.translate(this.font.padding, this.font.padding);
+    // ctx.translate(this.font.padding, this.font.padding);
     ctx.imageSmoothingEnabled = this.font.smoothing;
     ctx.lineWidth = this.font.lineWidth;
     ctx.setLineDash(this.font.lineDash ?? ctx.getLineDash());
@@ -112,7 +142,7 @@ export class FontTextInstance {
 
   private _applyFont(ctx: CanvasRenderingContext2D) {
     ctx.resetTransform();
-    ctx.translate(this.font.padding + ctx.canvas.width / 2, this.font.padding + ctx.canvas.height / 2);
+    // ctx.translate(this.font.padding + ctx.canvas.width / 2, this.font.padding + ctx.canvas.height / 2);
     ctx.scale(this.font.quality, this.font.quality);
     ctx.textAlign = this.font.textAlign;
     ctx.textBaseline = this.font.baseAlign;
@@ -136,26 +166,20 @@ export class FontTextInstance {
   private _drawText(ctx: CanvasRenderingContext2D, lines: string[], lineHeight: number): void {
     this._applyRasterProperties(ctx);
     this._applyFont(ctx);
+    const x = this._xFromAlignment();
+    const y = this._yFromBaseline();
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       if (this.color) {
-        ctx.fillText(line, 0, i * lineHeight);
+        ctx.fillText(line, x, y + i * lineHeight);
       }
 
       if (this.font.strokeColor) {
-        ctx.strokeText(line, 0, i * lineHeight);
+        ctx.strokeText(line, x, y + i * lineHeight);
       }
     }
-
-    if (this.font.showDebug) {
-      // Horizontal line
-      /* istanbul ignore next */
-      line(ctx, Color.Green, -ctx.canvas.width / 2, 0, ctx.canvas.width / 2, 0, 2);
-      // Vertical line
-      /* istanbul ignore next */
-      line(ctx, Color.Red, 0, -ctx.canvas.height / 2, 0, ctx.canvas.height / 2, 2);
-    }
+    // document.body.appendChild(this.canvas);
   }
 
   private _splitTextBitmap(bitmap: CanvasRenderingContext2D) {
@@ -234,6 +258,9 @@ export class FontTextInstance {
       this._dirty = false;
     }
 
+    const alignment = this._xFromAlignment();
+    const baseline = this._yFromBaseline();
+
     // draws the bitmap fragments to excalibur graphics context
     for (const frag of this._textFragments) {
       ex.drawImage(
@@ -242,8 +269,9 @@ export class FontTextInstance {
         0,
         frag.canvas.width,
         frag.canvas.height,
-        frag.x / this.font.quality + x - this.ctx.canvas.width / this.font.quality / 2,
-        frag.y / this.font.quality + y - this.ctx.canvas.height / this.font.quality / 2,
+
+        frag.x / this.font.quality + x - alignment, // - this.ctx.canvas.width / this.font.quality,
+        frag.y / this.font.quality + y - baseline, // - this.ctx.canvas.height / this.font.quality,
         frag.canvas.width / this.font.quality,
         frag.canvas.height / this.font.quality
       );

@@ -16,7 +16,7 @@ export class FontCache {
     if (FontCache._MEASURE_CACHE.has(hash)) {
       return FontCache._MEASURE_CACHE.get(hash)!;
     }
-    FontCache._LOGGER.debug('Font text measurement cache miss');
+    FontCache._LOGGER.debug(`Font text measurement cache miss: ${hash}`);
     const measurement = font.measureTextWithoutCache(text, maxWidth);
     FontCache._MEASURE_CACHE.set(hash, measurement);
     return measurement;
@@ -28,7 +28,7 @@ export class FontCache {
     if (!textInstance) {
       textInstance = new FontTextInstance(font, text, color);
       FontCache._TEXT_CACHE.set(hash, textInstance);
-      FontCache._LOGGER.debug('Font text instance cache miss');
+      FontCache._LOGGER.debug(`Font text instance cache miss: ${hash}`);
     }
 
     // Cache the bitmap for certain amount of time

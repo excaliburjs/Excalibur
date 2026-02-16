@@ -2,8 +2,8 @@ var game = new ex.Engine({
   antialiasing: false,
   width: 800,
   height: 600,
-  resolution: { width: 200, height: 200 },
-  configurePerformanceCanvas2DFallback: { allow: false }
+  resolution: { width: 800 / 4, height: 600 / 4 },
+  suppressPlayButton: true
 });
 ex.Logger.getInstance().defaultLevel = ex.LogLevel.Debug;
 game.toggleDebug();
@@ -72,7 +72,8 @@ var normalFont = new ex.Font({
   family: 'Consolas',
   size: 20,
   color: ex.Color.Black,
-  quality: 6
+  textAlign: ex.TextAlign.Left,
+  quality: 4
 });
 
 var textNormalA = new ex.Text({
@@ -81,7 +82,7 @@ var textNormalA = new ex.Text({
 });
 var textNormalB = new ex.Text({
   font: normalFont,
-  text: 'font\nwith\nmultiple\nlines'
+  text: 'font with\nmultiple\nlines'
 });
 var textNormalC = new ex.Text({
   font: normalFont,
@@ -107,8 +108,8 @@ game.add(textNormalBA);
 
 var textNormalCA = new ex.Actor({
   anchor: ex.Vector.Zero,
-  x: 100,
-  y: 180
+  x: 10,
+  y: 80
 });
 textNormalCA.graphics.use(textNormalC);
 game.add(textNormalCA);
