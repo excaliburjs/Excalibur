@@ -16,10 +16,6 @@ export class FontTextInstance {
    * Maximum upward reach from baseline, in text space
    */
   private _maxAscent: number = 0;
-  /**
-   * Height of a single line (max metric of all lines), in text space
-   */
-  private _maxLineHeight: number = 0;
 
   /**
    * Total height including all lines, in text space
@@ -73,15 +69,16 @@ export class FontTextInstance {
 
     const textHeight = Math.abs(maxAscent) + Math.abs(maxDescent);
     const totalHeight = textHeight * lines.length;
+    const adjustedPadding = this.font.padding / this.font.quality;
 
-    this._maxLineHeight = textHeight;
     this._maxAscent = maxAscent;
     this._totalHeight = totalHeight;
 
+    // dimensions are in text space
     return BoundingBox.fromDimension(
       maxWidthLine,
-      this._totalHeight,
-      vec(this._xAnchorFromAlignment(), this._yAnchorFromBaseline(maxAscent, this._totalHeight)),
+      this._totalHeight + adjustedPadding * 2,
+      vec(this._xAnchorFromAlignment(), this._yAnchorFromBaseline()),
       Vector.Zero
     );
   }
@@ -159,10 +156,8 @@ export class FontTextInstance {
   /**
    * used in measure text, should not reference final measurements like width/height
    * https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/textBaseline
-   * @param lineHeight (in text space)
-   * @param height (in text space)
    */
-  private _yAnchorFromBaseline(lineHeight: number, height: number) {
+  private _yAnchorFromBaseline() {
     let startY;
     switch (this.font.baseAlign) {
       case 'top':
@@ -179,38 +174,10 @@ export class FontTextInstance {
       case 'alphabetic':
       default:
         // For alphabetic, position first line properly
-        startY = lineHeight / height;
+        startY = this._maxAscent / this._totalHeight;
         break;
     }
     return startY;
-  }
-
-  /**
-   * This is for internal positioning on the internal canvas
-   *
-   */
-  private _yFromBaseline() {
-    let startY;
-
-    switch (this.font.baseAlign) {
-      case 'top':
-      case 'hanging':
-        startY = 0;
-        break;
-      case 'middle':
-        startY = (this.canvas.height - this.dimensions.height) / 2 + this._maxLineHeight;
-        break;
-      case 'bottom':
-      case 'ideographic':
-        startY = this.canvas.height - this.dimensions.height + this._maxLineHeight;
-        break;
-      case 'alphabetic':
-      default:
-        // For alphabetic, position first line properly
-        startY = this._maxLineHeight - this.font.padding;
-        break;
-    }
-    return startY / this.font.quality;
   }
 
   protected _applyRasterProperties(ctx: CanvasRenderingContext2D) {
@@ -342,24 +309,23 @@ export class FontTextInstance {
     }
 
     const adjustedPadding = this.font.padding / this.font.quality; // text space
-
     const destWidth = this.canvas.width / this.font.quality - adjustedPadding; // text space
-    const alignmentFromAnchor = this._xAnchorFromAlignment() * destWidth + adjustedPadding;
+    const destHeight = this._totalHeight; // text space
 
-    const destHeight = this._totalHeight;
-    const baselineFromAnchor = this._yAnchorFromBaseline(this._maxAscent, this._totalHeight) * destHeight + adjustedPadding;
+    const alignmentFromAnchor = this._xAnchorFromAlignment() * destWidth + adjustedPadding;
+    const baselineFromAnchor = this._yAnchorFromBaseline() * destHeight + adjustedPadding;
 
     // draws the bitmap fragments to excalibur graphics context
     for (const frag of this._textFragments) {
       ex.drawImage(
-        // source coords
+        // source coords are in canvas space
         frag.canvas,
         0,
         0,
         frag.canvas.width,
         frag.canvas.height,
 
-        // dest coords
+        // dest coords are in text space (quality removed)
         frag.x / this.font.quality + x - alignmentFromAnchor,
         frag.y / this.font.quality + y - baselineFromAnchor,
         frag.canvas.width / this.font.quality,
