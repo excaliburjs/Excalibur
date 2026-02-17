@@ -128,7 +128,7 @@ textNormalCA.onPostUpdate = () => {
 var sutf = new ex.Font({
   family: 'Open Sans',
   size: 18,
-  quality: 2,
+  quality: 2
   // textAlign: ex.TextAlign.Left,
   // textAlign: ex.TextAlign.Start,
   // textAlign: ex.TextAlign.Center,
@@ -137,7 +137,7 @@ var sutf = new ex.Font({
   // baseAlign: ex.BaseAlign.Top,
   // baseAlign: ex.BaseAlign.Bottom,
   // baseAlign: ex.BaseAlign.Middle,
-  baseAlign: ex.BaseAlign.Alphabetic
+  // baseAlign: ex.BaseAlign.Alphabetic
   // baseAlign: ex.BaseAlign.Ideographic,
 });
 

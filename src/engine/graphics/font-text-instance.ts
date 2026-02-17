@@ -63,7 +63,6 @@ export class FontTextInstance {
     let maxDescent = 0;
     for (let i = 0; i < lines.length; i++) {
       const metrics = this.ctx.measureText(lines[i]);
-      // metrics.width is the glyph advance which would be accurate, but we'll avoid the breaking change
       const width = metrics.width + this.font.padding;
       maxWidthLine = Math.max(maxWidthLine, width);
       maxAscent = Math.max(maxAscent, metrics.actualBoundingBoxAscent);
@@ -97,9 +96,6 @@ export class FontTextInstance {
 
   public static getHashCode(font: Font, text: string, color?: Color): number {
     return combineHashes(hashString(text), font.hashCode, color?.hashCode ?? 0);
-
-    // const hash = text + '__hashcode__' + font.hashCode + (color?.hashCode ?? 0);
-    // return hash;
   }
 
   public getHashCode(includeColor: boolean = true): number {
@@ -116,7 +112,7 @@ export class FontTextInstance {
     switch (this.font.textAlign) {
       case 'left':
       case 'start':
-        x = ltr ? 0 : 1; // TODO padding from the end?
+        x = ltr ? 0 : 1;
         break;
       case 'center':
         x = 0.5;
@@ -135,15 +131,13 @@ export class FontTextInstance {
    * This is for internal positioning on the internal canvas
    */
   private _xFromAlignment() {
-    // const strokeOffset = this.font.strokeStyle ? this.lineWidth / 2 : 0;
-
     // Calculate x position based on alignment
     let x;
     const ltr = this.font.direction === 'ltr';
     switch (this.font.textAlign) {
       case 'left':
       case 'start':
-        x = ltr ? 0 : this.canvas.width; // TODO padding from the end?
+        x = ltr ? 0 : this.canvas.width;
         break;
       case 'center':
         x = this.canvas.width / 2;
@@ -186,7 +180,6 @@ export class FontTextInstance {
   }
 
   protected _applyRasterProperties(ctx: CanvasRenderingContext2D) {
-    ctx.translate(this.font.padding, this.font.padding);
     ctx.imageSmoothingEnabled = this.font.smoothing;
     ctx.lineWidth = this.font.lineWidth;
     ctx.setLineDash(this.font.lineDash ?? ctx.getLineDash());
@@ -196,8 +189,8 @@ export class FontTextInstance {
 
   private _applyFont(ctx: CanvasRenderingContext2D) {
     ctx.resetTransform();
-    ctx.translate(this.font.padding, this.font.padding);
     ctx.scale(this.font.quality, this.font.quality);
+    ctx.translate(this.font.padding, this.font.padding);
     ctx.textAlign = this.font.textAlign;
     ctx.textBaseline = this.font.baseAlign;
     ctx.font = this.font.fontString;
@@ -221,7 +214,7 @@ export class FontTextInstance {
     this._applyRasterProperties(ctx);
     this._applyFont(ctx);
     const x = this._xFromAlignment();
-    const y = this._maxAscent;
+    const y = this._maxAscent - this.font.padding / this.font.quality;
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
