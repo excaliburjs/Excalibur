@@ -4,14 +4,15 @@ import { ExcaliburGraphicsContextWebGL } from './context/excalibur-graphics-cont
 import type { ExcaliburGraphicsContext } from './context/excalibur-graphics-context';
 import type { Font } from './font';
 import { vec, Vector } from '../math';
+import { combineHashes, hashString } from '../util/string';
 
 export class FontTextInstance {
   public canvas: HTMLCanvasElement;
   public ctx: CanvasRenderingContext2D;
   private _textFragments: { x: number; y: number; canvas: HTMLCanvasElement }[] = [];
-  public dimensions: BoundingBox; // TODO for graphics bounds we need to adjust based on alignment
+  public dimensions: BoundingBox;
   public disposed: boolean = false;
-  private _lastHashCode: string;
+  private _lastHashCode: number;
   /**
    * Maximum upward reach from baseline, in text space
    */
@@ -36,6 +37,8 @@ export class FontTextInstance {
     }
 
     this.ctx = ctx;
+
+    this.canvas.dataset.originalSrc = `text(${text}) font(${font.fontString}`;
 
     this.dimensions = this.measureText(text);
 
@@ -92,12 +95,14 @@ export class FontTextInstance {
     bitmap.canvas.height = (textBounds.height + this.font.padding * 2) * this.font.quality * lineHeightRatio;
   }
 
-  public static getHashCode(font: Font, text: string, color?: Color) {
-    const hash = text + '__hashcode__' + font.hashCode + (color?.hashCode ?? 0);
-    return hash;
+  public static getHashCode(font: Font, text: string, color?: Color): number {
+    return combineHashes(hashString(text), font.hashCode, color?.hashCode ?? 0);
+
+    // const hash = text + '__hashcode__' + font.hashCode + (color?.hashCode ?? 0);
+    // return hash;
   }
 
-  getHashCode(includeColor: boolean = true) {
+  public getHashCode(includeColor: boolean = true): number {
     return FontTextInstance.getHashCode(this.font, this.text, includeColor ? this.color : undefined);
   }
 
@@ -244,6 +249,7 @@ export class FontTextInstance {
       while (currentY < bitmap.canvas.height) {
         // create new bitmap
         const canvas = document.createElement('canvas');
+        canvas.dataset.originalSrc = `fragment(${currentX},${currentY}): text(${this.text}) font(${this.font.fontString}`;
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d');
