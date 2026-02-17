@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Breaking Changes
 
 - Behavior change - TileMap now uses 'separate' as the `compositeStrategy` as a better default. Commonly TileMap is used to build levels, so this default aligns with the common use.
+- Behavior change - Font/Text now render more accurately and faster be using less texture space, this unfortunately is a breaking change becuase text will render slightly different.
 
 ### Deprecated
 
@@ -32,7 +33,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
--
+- Performance: Font/Text now use smaller texture sizes, improving performance on Safari especially when rendering text
 
 ### Updates
 
