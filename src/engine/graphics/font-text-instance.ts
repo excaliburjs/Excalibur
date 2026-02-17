@@ -3,18 +3,28 @@ import type { Color } from '../color';
 import { ExcaliburGraphicsContextWebGL } from './context/excalibur-graphics-context-webgl';
 import type { ExcaliburGraphicsContext } from './context/excalibur-graphics-context';
 import type { Font } from './font';
-import { Vector } from '../math';
+import { vec, Vector } from '../math';
 
 export class FontTextInstance {
   public canvas: HTMLCanvasElement;
   public ctx: CanvasRenderingContext2D;
   private _textFragments: { x: number; y: number; canvas: HTMLCanvasElement }[] = [];
-  public dimensions: BoundingBox;
+  public dimensions: BoundingBox; // TODO for graphics bounds we need to adjust based on alignment
   public disposed: boolean = false;
   private _lastHashCode: string;
+  /**
+   * Maximum upward reach from baseline, in text space
+   */
   private _maxAscent: number = 0;
+  /**
+   * Height of a single line (max metric of all lines), in text space
+   */
   private _maxLineHeight: number = 0;
-  public lineHeight: number = 0;
+
+  /**
+   * Total height including all lines, in text space
+   */
+  private _totalHeight: number = 0;
 
   constructor(
     public readonly font: Font,
@@ -62,11 +72,18 @@ export class FontTextInstance {
     }
 
     const textHeight = Math.abs(maxAscent) + Math.abs(maxDescent);
+    const totalHeight = textHeight * lines.length;
 
     this._maxLineHeight = textHeight;
     this._maxAscent = maxAscent;
+    this._totalHeight = totalHeight;
 
-    return BoundingBox.fromDimension(maxWidthLine, textHeight * lines.length, Vector.Zero, Vector.Zero);
+    return BoundingBox.fromDimension(
+      maxWidthLine,
+      this._totalHeight,
+      vec(this._xAnchorFromAlignment(), this._yAnchorFromBaseline(maxAscent, this._totalHeight)),
+      Vector.Zero
+    );
   }
 
   private _setDimension(textBounds: BoundingBox, bitmap: CanvasRenderingContext2D) {
@@ -87,6 +104,34 @@ export class FontTextInstance {
     return FontTextInstance.getHashCode(this.font, this.text, includeColor ? this.color : undefined);
   }
 
+  /**
+   * used in measure text, should not reference final measurements like width/height
+   */
+  private _xAnchorFromAlignment() {
+    // Calculate x position based on alignment
+    let x;
+    const ltr = this.font.direction === 'ltr';
+    switch (this.font.textAlign) {
+      case 'left':
+      case 'start':
+        x = ltr ? 0 : 1; // TODO padding from the end?
+        break;
+      case 'center':
+        x = 0.5;
+        break;
+      case 'right':
+      case 'end':
+        x = ltr ? 1 : 0;
+        break;
+      default:
+        x = 0;
+    }
+    return x;
+  }
+
+  /**
+   * This is for internal positioning on the internal canvas
+   */
   private _xFromAlignment() {
     // const strokeOffset = this.font.strokeStyle ? this.lineWidth / 2 : 0;
 
@@ -111,13 +156,46 @@ export class FontTextInstance {
     return x / this.font.quality;
   }
 
+  /**
+   * used in measure text, should not reference final measurements like width/height
+   * https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/textBaseline
+   * @param lineHeight (in text space)
+   * @param height (in text space)
+   */
+  private _yAnchorFromBaseline(lineHeight: number, height: number) {
+    let startY;
+    switch (this.font.baseAlign) {
+      case 'top':
+      case 'hanging':
+        startY = 0;
+        break;
+      case 'middle':
+        startY = 0.5;
+        break;
+      case 'bottom':
+      case 'ideographic':
+        startY = 1;
+        break;
+      case 'alphabetic':
+      default:
+        // For alphabetic, position first line properly
+        startY = lineHeight / height;
+        break;
+    }
+    return startY;
+  }
+
+  /**
+   * This is for internal positioning on the internal canvas
+   *
+   */
   private _yFromBaseline() {
     let startY;
 
     switch (this.font.baseAlign) {
       case 'top':
       case 'hanging':
-        startY = -this.font.padding;
+        startY = 0;
         break;
       case 'middle':
         startY = (this.canvas.height - this.dimensions.height) / 2 + this._maxLineHeight;
@@ -171,7 +249,7 @@ export class FontTextInstance {
     this._applyRasterProperties(ctx);
     this._applyFont(ctx);
     const x = this._xFromAlignment();
-    const y = this._yFromBaseline();
+    const y = this._maxAscent;
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
@@ -183,7 +261,7 @@ export class FontTextInstance {
         ctx.strokeText(line, x, y + i * lineHeight);
       }
     }
-    // document.body.appendChild(this.canvas);
+    document.body.appendChild(this.canvas);
   }
 
   private _splitTextBitmap(bitmap: CanvasRenderingContext2D) {
@@ -238,7 +316,8 @@ export class FontTextInstance {
       this.dimensions = this.measureText(this.text, maxWidth);
       this._setDimension(this.dimensions, this.ctx);
       const lines = this._getLinesFromText(this.text, maxWidth);
-      const lineHeight = this.font.lineHeight ?? this.dimensions.height / lines.length - this._maxAscent;
+
+      const lineHeight = !this.font.lineHeight ? (this.dimensions.height - this._maxAscent) / lines.length : this.font.lineHeight;
 
       // draws the text to the main bitmap
       this._drawText(this.ctx, lines, lineHeight);
@@ -262,20 +341,27 @@ export class FontTextInstance {
       this._dirty = false;
     }
 
-    const alignment = this._xFromAlignment();
-    const baseline = this._yFromBaseline();
+    const adjustedPadding = this.font.padding / this.font.quality; // text space
+
+    const destWidth = this.canvas.width / this.font.quality - adjustedPadding; // text space
+    const alignmentFromAnchor = this._xAnchorFromAlignment() * destWidth + adjustedPadding;
+
+    const destHeight = this._totalHeight;
+    const baselineFromAnchor = this._yAnchorFromBaseline(this._maxAscent, this._totalHeight) * destHeight + adjustedPadding;
 
     // draws the bitmap fragments to excalibur graphics context
     for (const frag of this._textFragments) {
       ex.drawImage(
+        // source coords
         frag.canvas,
         0,
         0,
         frag.canvas.width,
         frag.canvas.height,
 
-        frag.x / this.font.quality + x - alignment,
-        frag.y / this.font.quality + y - baseline,
+        // dest coords
+        frag.x / this.font.quality + x - alignmentFromAnchor,
+        frag.y / this.font.quality + y - baselineFromAnchor,
         frag.canvas.width / this.font.quality,
         frag.canvas.height / this.font.quality
       );

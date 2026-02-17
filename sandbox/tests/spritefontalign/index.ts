@@ -2,7 +2,7 @@ var game = new ex.Engine({
   antialiasing: false,
   width: 800,
   height: 600,
-  resolution: { width: 800 / 4, height: 600 / 4 },
+  // resolution: { width: 800 / 4, height: 600 / 4 },
   suppressPlayButton: true
 });
 ex.Logger.getInstance().defaultLevel = ex.LogLevel.Debug;
@@ -111,7 +111,7 @@ textNormalBA.graphics.use(textNormalB);
 
 var textNormalCA = new ex.Actor({
   anchor: ex.Vector.Zero,
-  x: 10,
+  x: 100,
   y: 40
 });
 // textNormalCA.graphics.use(textNormalC);
@@ -128,16 +128,32 @@ textNormalCA.onPostUpdate = () => {
 var sutf = new ex.Font({
   family: 'Open Sans',
   size: 18,
-  quality: 1
-  // baseAlign: ex.BaseAlign.Alphabetic
+  quality: 2,
+  // textAlign: ex.TextAlign.Left,
+  // textAlign: ex.TextAlign.Start,
+  // textAlign: ex.TextAlign.Center,
+  // textAlign: ex.TextAlign.Right,
+  // textAlign: ex.TextAlign.End,
+  // baseAlign: ex.BaseAlign.Top,
+  // baseAlign: ex.BaseAlign.Bottom,
+  // baseAlign: ex.BaseAlign.Middle,
+  baseAlign: ex.BaseAlign.Alphabetic
+  // baseAlign: ex.BaseAlign.Ideographic,
 });
 
 var text1 = new ex.Text({
-  text: 'some super long text that should wrap after 100 pixels',
-  font: sutf,
-  maxWidth: 100
+  // text: 'some super long text that should wrap after 100 pixels',
+  text: 'some text qpjl,',
+  font: sutf
+  // maxWidth: 100
 });
 
 textNormalCA.graphics.use(text1);
+game.currentScene.camera.pos = textNormalCA.pos.add(ex.vec(50, 0));
+game.currentScene.camera.zoom = 4;
+game.onPostDraw = () => {
+  ex.Debug.drawLine(textNormalCA.pos, textNormalCA.pos.add(ex.vec(300, 0)), { color: ex.Color.Red });
+  // ex.Debug.drawText(sutf.textAlign, textNormalCA.pos);
+};
 
 game.start(loader).then(() => {});
