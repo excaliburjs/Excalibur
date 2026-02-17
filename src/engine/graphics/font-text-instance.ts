@@ -226,7 +226,8 @@ export class FontTextInstance {
         ctx.strokeText(line, x, y + i * lineHeight);
       }
     }
-    document.body.appendChild(this.canvas);
+    // // DEBUG
+    // document.body.appendChild(this.canvas);
   }
 
   private _splitTextBitmap(bitmap: CanvasRenderingContext2D) {
