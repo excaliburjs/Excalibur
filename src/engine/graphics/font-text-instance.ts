@@ -61,17 +61,17 @@ export class FontTextInstance {
     let maxWidthLine = 0;
     let maxAscent = 0;
     let maxDescent = 0;
+    const adjustedPadding = this.font.padding / this.font.quality;
     for (let i = 0; i < lines.length; i++) {
       const metrics = this.ctx.measureText(lines[i]);
-      const width = metrics.width + this.font.padding;
+      const width = metrics.width + adjustedPadding * 2;
       maxWidthLine = Math.max(maxWidthLine, width);
       maxAscent = Math.max(maxAscent, metrics.actualBoundingBoxAscent);
       maxDescent = Math.max(maxDescent, metrics.actualBoundingBoxDescent);
     }
 
     const textHeight = Math.abs(maxAscent) + Math.abs(maxDescent);
-    const totalHeight = textHeight * lines.length;
-    const adjustedPadding = this.font.padding / this.font.quality;
+    const totalHeight = textHeight * lines.length + adjustedPadding * 2;
 
     this._maxAscent = maxAscent;
     this._totalHeight = totalHeight;
@@ -79,7 +79,7 @@ export class FontTextInstance {
     // dimensions are in text space
     return BoundingBox.fromDimension(
       maxWidthLine,
-      this._totalHeight + adjustedPadding * 2,
+      this._totalHeight,
       vec(this._xAnchorFromAlignment(), this._yAnchorFromBaseline()),
       Vector.Zero
     );
@@ -214,7 +214,7 @@ export class FontTextInstance {
     this._applyRasterProperties(ctx);
     this._applyFont(ctx);
     const x = this._xFromAlignment();
-    const y = this._maxAscent - this.font.padding / this.font.quality;
+    const y = this._maxAscent;
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
@@ -226,7 +226,7 @@ export class FontTextInstance {
         ctx.strokeText(line, x, y + i * lineHeight);
       }
     }
-    // // DEBUG
+    // //DEBUG
     // document.body.appendChild(this.canvas);
   }
 

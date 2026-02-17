@@ -127,8 +127,8 @@ textNormalCA.onPostUpdate = () => {
 
 var sutf = new ex.Font({
   family: 'Open Sans',
-  size: 18,
-  quality: 2
+  size: 50,
+  quality: 4
   // textAlign: ex.TextAlign.Left,
   // textAlign: ex.TextAlign.Start,
   // textAlign: ex.TextAlign.Center,
@@ -143,14 +143,14 @@ var sutf = new ex.Font({
 
 var text1 = new ex.Text({
   // text: 'some super long text that should wrap after 100 pixels',
-  text: 'some text qpjl,',
+  text: 'Tsome text qpjl,',
   font: sutf
   // maxWidth: 100
 });
 
 textNormalCA.graphics.use(text1);
 game.currentScene.camera.pos = textNormalCA.pos.add(ex.vec(50, 0));
-game.currentScene.camera.zoom = 4;
+// game.currentScene.camera.zoom = 4;
 game.onPostDraw = () => {
   ex.Debug.drawLine(textNormalCA.pos, textNormalCA.pos.add(ex.vec(300, 0)), { color: ex.Color.Red });
   // ex.Debug.drawText(sutf.textAlign, textNormalCA.pos);
