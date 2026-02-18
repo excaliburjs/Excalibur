@@ -18,3 +18,19 @@ export function canPlayFile(file: string): boolean {
     return false;
   }
 }
+
+export function canPlayMime(mime: string): boolean {
+  try {
+    const a = new Audio();
+    const mimeMatch = /.*audio\/([A-Za-z0-9]+);?/;
+    const extractedMime = mime.match(mimeMatch)[1];
+    if (a.canPlayType(`audio/${extractedMime}`)) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (e) {
+    Logger.getInstance().warn('Cannot determine audio support via blob mime type.', e)
+    return false
+  }
+}
