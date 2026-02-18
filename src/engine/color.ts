@@ -50,6 +50,21 @@ export class Color {
     this.a = a != null ? a : 1;
   }
 
+  public get hashCode(): number {
+    const r = Math.round(this.r) & 0xff;
+    const g = Math.round(this.g) & 0xff;
+    const b = Math.round(this.b) & 0xff;
+    const a = Math.round(this.a * 255) & 0xff;
+
+    let hash = 0;
+    hash = (hash << 5) - hash + r;
+    hash = (hash << 5) - hash + g;
+    hash = (hash << 5) - hash + b;
+    hash = (hash << 5) - hash + a;
+
+    return hash | 0;
+  }
+
   /**
    * Creates a new instance of Color from an r, g, b, a
    * @param r  The red component of color (0-255)

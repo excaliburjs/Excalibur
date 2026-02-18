@@ -8,15 +8,15 @@ export class FontCache {
   public static FONT_TIMEOUT = 500;
   private static _LOGGER = Logger.getInstance();
   private static _TEXT_USAGE = new Map<FontTextInstance, number>();
-  private static _TEXT_CACHE = new Map<string, FontTextInstance>();
-  private static _MEASURE_CACHE = new Map<string, BoundingBox>();
+  private static _TEXT_CACHE = new Map<number, FontTextInstance>();
+  private static _MEASURE_CACHE = new Map<number, BoundingBox>();
 
   static measureText(text: string, font: Font, maxWidth?: number): BoundingBox {
     const hash = FontTextInstance.getHashCode(font, text);
     if (FontCache._MEASURE_CACHE.has(hash)) {
       return FontCache._MEASURE_CACHE.get(hash)!;
     }
-    FontCache._LOGGER.debug('Font text measurement cache miss');
+    FontCache._LOGGER.debug(`Font text measurement cache miss: text(${text}) font(${font.fontString}) hash(${hash})`);
     const measurement = font.measureTextWithoutCache(text, maxWidth);
     FontCache._MEASURE_CACHE.set(hash, measurement);
     return measurement;
@@ -28,7 +28,7 @@ export class FontCache {
     if (!textInstance) {
       textInstance = new FontTextInstance(font, text, color);
       FontCache._TEXT_CACHE.set(hash, textInstance);
-      FontCache._LOGGER.debug('Font text instance cache miss');
+      FontCache._LOGGER.debug(`Font text instance cache miss: text(${text}) font(${font.fontString}) hash(${hash})`);
     }
 
     // Cache the bitmap for certain amount of time
@@ -39,7 +39,7 @@ export class FontCache {
 
   static checkAndClearCache() {
     const deferred: FontTextInstance[] = [];
-    const currentHashCodes = new Set<string>();
+    const currentHashCodes = new Set<number>();
     for (const [textInstance, time] of FontCache._TEXT_USAGE.entries()) {
       // if bitmap hasn't been used in 100 ms clear it
       if (time + FontCache.FONT_TIMEOUT < performance.now()) {
@@ -63,7 +63,7 @@ export class FontCache {
     }
 
     // Regenerated measurement cache
-    const newTextMeasurementCache = new Map<string, BoundingBox>();
+    const newTextMeasurementCache = new Map<number, BoundingBox>();
     for (const current of currentHashCodes) {
       if (FontCache._MEASURE_CACHE.has(current)) {
         newTextMeasurementCache.set(current, FontCache._MEASURE_CACHE.get(current)!);
