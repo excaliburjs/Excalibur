@@ -31,6 +31,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   Color.lerpLRGB(colorA, colorB, t);
   ```
 - Added `Color.fromFloatArray([0.0, 0.0, 0.0, 1.0])` and `Color.toFloatArray()`
+- Sound objects can be created from `Blob`s:
+  ```typescript
+  const sound = await Sound.fromBlob(instanceOfBlob)
+  sound.play()
+  ```
 
 ### Fixed
 
