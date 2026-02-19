@@ -4,6 +4,7 @@
 export function polyfill() {
   /* istanbul ignore next */
   if (typeof window === 'undefined') {
+    (globalThis as any).window = {};
     window = <any>{
       audioContext: function () {
         return;
