@@ -342,7 +342,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
     // Clear background
-    gl.clearColor(this.backgroundColor.r / 255, this.backgroundColor.g / 255, this.backgroundColor.b / 255, this.backgroundColor.a);
+    gl.clearColor(...this.backgroundColor.toFloatArray());
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     // Enable alpha blending
@@ -734,7 +734,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     const gl = this.__gl;
     const currentTarget = this.multiSampleAntialiasing ? this._msaaTarget : this._renderTarget;
     currentTarget.use();
-    gl.clearColor(this.backgroundColor.r / 255, this.backgroundColor.g / 255, this.backgroundColor.b / 255, this.backgroundColor.a);
+    gl.clearColor(...this.backgroundColor.toFloatArray());
     // Clear the context with the newly set color. This is
     // the function call that actually does the drawing.
     gl.clear(gl.COLOR_BUFFER_BIT);
