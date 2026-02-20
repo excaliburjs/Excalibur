@@ -131,6 +131,21 @@ export class Color {
   }
 
   /**
+   * Creates a new instance of Color from array of float components.
+   * Missing components will be replaced with 0 for r, g, b, and 1 for a.
+   * @param array  Array of [r, g, b, a] components
+   */
+  public static fromFloatArray(array: number[]): Color {
+    const components = [
+      array[0] ?? 0,
+      array[1] ?? 0,
+      array[2] ?? 0,
+    ].map(c => Math.round(c * 255)) as [number, number, number];
+
+    return new Color(...components, array[3]);
+  }
+
+  /**
    * Lightens the current color by a specified amount
    * @param factor  The amount to lighten by [0-1]
    */
@@ -289,6 +304,21 @@ export class Color {
    */
   public toHSLA() {
     return HSLColor.fromRGBA(this.r, this.g, this.b, this.a).toString();
+  }
+
+  /**
+   * Return float array representation of a color.
+   * @param precision
+   */
+  public toFloatArray(precision?: number): [r: number, g: number, b: number, a: number] {
+    let components = [this.r / 255, this.g / 255, this.b / 255];
+
+    if (precision) {
+      components = components.map(c => parseFloat(c.toFixed(precision)));
+    }
+
+    components.push(this.a);
+    return components as [number, number, number, number];
   }
 
   /**

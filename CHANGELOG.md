@@ -30,6 +30,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   // equivalent to:
   Color.lerpLRGB(colorA, colorB, t);
   ```
+- Added `Color.fromFloatArray([0.0, 0.0, 0.0, 1.0])` and `Color.toFloatArray()`
 
 ### Fixed
 
