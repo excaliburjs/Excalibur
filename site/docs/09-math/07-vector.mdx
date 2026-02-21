@@ -47,18 +47,18 @@ There are some built-in vector constants you can use:
 Vectors are objects, so mutating them will change the state for all references. Use the [[Vector.clone]] method to clone a vector to mutate it:
 
 ```ts twoslash
-import { vec } from 'excalibur'
+import { vec } from 'excalibur';
 
-const point = vec(0, 10)
-point.setTo(8, 8)
+const point = vec(0, 10);
+point.setTo(8, 8);
      // ^?
-const samePoint = point
-const anotherPoint = point.clone()
-anotherPoint.setTo(50, 50)
+const samePoint = point;
+const anotherPoint = point.clone();
+anotherPoint.setTo(50, 50);
 
-console.log(point.toString()) // "(8, 8)"
-console.log(samePoint.toString()) // "(8, 8)"
-console.log(anotherPoint.toString()) // "(50, 50)"
+console.log(point.toString()); // "(8, 8)"
+console.log(samePoint.toString()); // "(8, 8)"
+console.log(anotherPoint.toString()); // "(50, 50)"
 ```
 
 
