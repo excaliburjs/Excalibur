@@ -154,7 +154,7 @@ Read more about the different [CollisionTypes](/docs/physics/#collision-types) t
 declare const game: ex.Engine;
 declare const paddle: ex.Actor;
 // ---cut---
-import { Engine, Actor, Color, CollisionType, Vector } from 'excalibur';
+import { Engine, Actor, Color, CollisionType, vec } from 'excalibur';
 
 // Create a ball at pos (100, 300) to start
 const ball = new Actor({
@@ -167,7 +167,7 @@ const ball = new Actor({
 });
 // Start the serve after a second
 // Create a new vector instance towards bottom right
-const ballSpeed = new Vector(100, 100);
+const ballSpeed = vec(100, 100);
 setTimeout(() => {
   // Set the velocity in pixels per second
   ball.vel = ballSpeed;
