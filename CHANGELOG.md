@@ -30,6 +30,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   // equivalent to:
   Color.lerpLRGB(colorA, colorB, t);
   ```
+- Sound objects can be created from `Blob`s:
+  ```typescript
+  const sound = await Sound.fromBlob(instanceOfBlob)
+  sound.play()
+  ```
 
 ### Fixed
 

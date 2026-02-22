@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-import { canPlayFile } from '../../engine/util/sound';
+import { canPlayFile, canPlayMime } from '../../engine/util/sound';
 import { delay } from '../../engine/util/util';
 import { WebAudio } from '../../engine/util/web-audio';
 import { TestUtils } from '../__util__/test-utils';
@@ -546,5 +546,47 @@ describe('Sound resource', () => {
           });
         });
       }));
+  });
+
+  describe('createFromBlob()', () => {
+    let MockBlob;
+    let MockAudioBuffer;
+    let MockAudioContext;
+
+    beforeAll(() => {
+      MockBlob = vi.mocked(Blob);
+      MockAudioBuffer = vi.mocked(AudioBuffer);
+      MockAudioContext = vi.mocked(AudioContext);
+    });
+
+    it('Allows ogg type', () => {
+      expect(canPlayMime('audio/ogg; codec=test')).toBe(true);
+      expect(canPlayMime('audio/ogg')).toBe(true);
+      expect(canPlayMime('audio/ogg;')).toBe(true);
+    });
+
+    it('Allows wav type', () => {
+      expect(canPlayMime('audio/wav; coded=test')).toBe(true);
+    });
+
+    it('Allows mp3 type', () => {
+      expect(canPlayMime('audio/mp3; coded=test')).toBe(true);
+    });
+
+    it('Warns for an unsupported type', () => {
+      expect(canPlayMime('audio/unsupported; codec=test')).toBe(false);
+      expect(canPlayMime('none')).toBe(false);
+    });
+
+    it('Creates an instance', async () => {
+      const mockInstance = {
+        type: 'audio/ogg; codec=test',
+        arrayBuffer: vi.fn().mock
+      };
+      const blob = MockBlob.mockReturnValue(mockInstance);
+      const instance = await ex.Sound.fromBlob(blob);
+
+      expect(instance).toBeDefined();
+    });
   });
 });
