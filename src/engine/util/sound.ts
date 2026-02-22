@@ -30,7 +30,7 @@ export function canPlayMime(mime: string): boolean {
       return false;
     }
   } catch (e) {
-    Logger.getInstance().warn('Cannot determine audio support via blob mime type.', e)
-    return false
+    Logger.getInstance().warn('Cannot determine audio support via blob mime type.', e);
+    return false;
   }
 }
