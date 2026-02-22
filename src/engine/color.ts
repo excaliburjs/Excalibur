@@ -136,11 +136,7 @@ export class Color {
    * @param array  Array of [r, g, b, a] components
    */
   public static fromFloatArray(array: number[]): Color {
-    const components = [
-      array[0] ?? 0,
-      array[1] ?? 0,
-      array[2] ?? 0,
-    ].map(c => Math.round(c * 255)) as [number, number, number];
+    const components = [array[0] ?? 0, array[1] ?? 0, array[2] ?? 0].map((c) => Math.round(c * 255)) as [number, number, number];
 
     return new Color(...components, array[3]);
   }
@@ -314,7 +310,7 @@ export class Color {
     let components = [this.r / 255, this.g / 255, this.b / 255];
 
     if (precision) {
-      components = components.map(c => parseFloat(c.toFixed(precision)));
+      components = components.map((c) => parseFloat(c.toFixed(precision)));
     }
 
     components.push(this.a);
