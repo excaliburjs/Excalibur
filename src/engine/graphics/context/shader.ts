@@ -762,7 +762,7 @@ export class Shader {
    * @param value
    */
   setUniformFloatColor(name: string, value: Color): void {
-    this.setUniform('uniform4f', name, value.r / 255, value.g / 255, value.b / 255, value.a);
+    this.setUniform('uniform4f', name, ...value.toFloatArray());
   }
 
   /**
@@ -773,7 +773,7 @@ export class Shader {
    * @param value
    */
   trySetUniformFloatColor(name: string, value: Color): boolean {
-    return this.trySetUniform('uniform4f', name, value.r / 255, value.g / 255, value.b / 255, value.a);
+    return this.trySetUniform('uniform4f', name, ...value.toFloatArray());
   }
 
   /**
