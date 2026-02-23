@@ -549,14 +549,31 @@ describe('Sound resource', () => {
   });
 
   describe('createFromBlob()', () => {
-    let MockBlob;
-    let MockAudioBuffer;
-    let MockAudioContext;
+    let testBlob: Blob;
+    let arrayBuffer: ArrayBuffer;
+    let audioContext: AudioContext;
+    let duration: number;
+    let mockBuffer: AudioBuffer;
 
-    beforeAll(() => {
-      MockBlob = vi.mocked(Blob);
-      MockAudioBuffer = vi.mocked(AudioBuffer);
-      MockAudioContext = vi.mocked(AudioContext);
+    beforeEach(() => {
+      testBlob = new Blob();
+      arrayBuffer = new ArrayBuffer(8);
+      audioContext = new AudioContext();
+      duration = 512;
+      mockBuffer = vi.mockObject({
+        duration,
+        length: 1,
+        numberOfChannels: 2,
+        sampleRate: 3,
+        copyFromChannel: vi.fn(),
+        copyToChannel: vi.fn(),
+        getChannelData: vi.fn()
+      });
+
+      vi.spyOn(testBlob, 'type', 'get').mockReturnValue('audio/ogg; coded=test');
+      vi.spyOn(testBlob, 'arrayBuffer').mockReturnValue(Promise.resolve(arrayBuffer));
+      vi.spyOn(ex.AudioContextFactory, 'create').mockReturnValue(audioContext);
+      vi.spyOn(audioContext, 'decodeAudioData').mockReturnValue(Promise.resolve(mockBuffer));
     });
 
     it('Allows ogg type', () => {
@@ -579,14 +596,16 @@ describe('Sound resource', () => {
     });
 
     it('Creates an instance', async () => {
-      const mockInstance = {
-        type: 'audio/ogg; codec=test',
-        arrayBuffer: vi.fn().mock
-      };
-      const blob = MockBlob.mockReturnValue(mockInstance);
-      const instance = await ex.Sound.fromBlob(blob);
+      const instance = await ex.Sound.fromBlob(testBlob);
 
       expect(instance).toBeDefined();
+    });
+
+    it('Populates relevant properties of the Sound instance', async () => {
+      const instance = await ex.Sound.fromBlob(testBlob);
+
+      expect(instance.data).toEqual(mockBuffer);
+      expect(instance._duration).toEqual(duration);
     });
   });
 });
