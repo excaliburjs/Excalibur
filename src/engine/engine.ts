@@ -38,7 +38,7 @@ import { Entity } from './entity-component-system/entity';
 import type { DebugStats } from './debug/debug-config';
 import { DebugConfig } from './debug/debug-config';
 import { BrowserEvents } from './util/browser';
-import type { AntialiasOptions, ExcaliburGraphicsContext } from './graphics';
+import type { AntialiasOptions, ExcaliburGraphicsContext, ExcaliburGraphicsContextWebGLOptions } from './graphics';
 import {
   DefaultAntialiasOptions,
   DefaultPixelArtOptions,
@@ -64,6 +64,7 @@ import type { GarbageCollectionOptions } from './garbage-collector';
 import { DefaultGarbageCollectionOptions, GarbageCollector } from './garbage-collector';
 import { mergeDeep } from './util/util';
 import { getDefaultGlobal } from './util/iframe';
+import type { Plugin } from './plugin';
 
 export interface EngineEvents extends DirectorEvents {
   fallbackgraphicscontext: ExcaliburGraphicsContext2DCanvas;
@@ -118,6 +119,10 @@ export enum ScrollPreventionMode {
  * Defines the available options to configure the Excalibur engine at constructor time.
  */
 export interface EngineOptions<TKnownScenes extends string = any> {
+  /**
+   * Optionally configure Excalibur plugins
+   */
+  plugins?: Plugin[];
   /**
    * Optionally configure the width of the viewport in css pixels
    */
@@ -427,6 +432,11 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   scope = <TReturn>(cb: () => TReturn) => Engine.Context.scope(this, cb);
 
   public global: GlobalEventHandlers;
+
+  private _plugins: Plugin[] = [];
+  public get plugins(): readonly Plugin[] {
+    return this._plugins;
+  }
 
   private _garbageCollector: GarbageCollector;
 
@@ -820,6 +830,15 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
 
     Flags.freeze();
 
+    if (options.plugins && options.plugins.length > 0) {
+      this._plugins = [...options.plugins];
+      this._plugins.sort((a, b) => a.priority - b.priority);
+    }
+
+    for (const plugin of this._plugins) {
+      plugin.onEnginePreConfig?.(this, options);
+    }
+
     // Initialize browser events facade
     this.browser = new BrowserEvents(window, document);
 
@@ -988,6 +1007,36 @@ O|===|* >________________>\n\
     if (!useCanvasGraphicsContext) {
       // Attempt webgl first
       try {
+        let onGraphicsPreConfig: (context: ExcaliburGraphicsContext, options: ExcaliburGraphicsContextWebGLOptions) => void;
+        let onGraphicsPostConfig: (context: ExcaliburGraphicsContext, options: ExcaliburGraphicsContextWebGLOptions) => void;
+        let onGraphicsPreInitialize: (context: ExcaliburGraphicsContext) => void;
+        let onGraphicsPostInitialize: (context: ExcaliburGraphicsContext) => void;
+        if (this._plugins.length > 0) {
+          onGraphicsPreConfig = (context: ExcaliburGraphicsContext, options: ExcaliburGraphicsContextWebGLOptions) => {
+            for (const plugin of this._plugins) {
+              plugin.onGraphicsPreConfig?.(context, options);
+            }
+          };
+
+          onGraphicsPostConfig = (context: ExcaliburGraphicsContext, options: ExcaliburGraphicsContextWebGLOptions) => {
+            for (const plugin of this._plugins) {
+              plugin.onGraphicsPostConfig?.(context, options);
+            }
+          };
+
+          onGraphicsPreInitialize = (context: ExcaliburGraphicsContext) => {
+            for (const plugin of this._plugins) {
+              plugin.onGraphicsPreInitialize?.(context);
+            }
+          };
+
+          onGraphicsPostInitialize = (context: ExcaliburGraphicsContext) => {
+            for (const plugin of this._plugins) {
+              plugin.onGraphicsPostInitialize?.(context);
+            }
+          };
+        }
+
         this.graphicsContext = new ExcaliburGraphicsContextWebGL({
           canvasElement: this.canvas,
           enableTransparency: this.enableCanvasTransparency,
@@ -1006,7 +1055,11 @@ O|===|* >________________>\n\
               }
             : null,
           handleContextLost: options.handleContextLost ?? this._handleWebGLContextLost,
-          handleContextRestored: options.handleContextRestored
+          handleContextRestored: options.handleContextRestored,
+          onGraphicsPreConfig,
+          onGraphicsPostConfig,
+          onGraphicsPreInitialize,
+          onGraphicsPostInitialize
         });
       } catch (e) {
         this._logger.warn(
@@ -1241,6 +1294,11 @@ O|===|* >________________>\n\
       this.stop();
       this._garbageCollector.forceCollectAll();
       this.input.toggleEnabled(false);
+
+      for (const plugin of this.plugins) {
+        plugin.dispose?.();
+      }
+
       if (this._hasCreatedCanvas) {
         this.canvas.parentNode.removeChild(this.canvas);
       }
@@ -1507,6 +1565,10 @@ O|===|* >________________>\n\
     if (!this.canvasElementId && !options.canvasElement) {
       document.body.appendChild(this.canvas);
     }
+
+    for (const plugin of this._plugins) {
+      plugin.onEnginePostConfig?.(this, options);
+    }
   }
 
   public toggleInputEnabled(enabled: boolean) {
@@ -1527,10 +1589,18 @@ O|===|* >________________>\n\
 
   private async _overrideInitialize(engine: Engine) {
     if (!this.isInitialized) {
+      for (const plugin of this._plugins) {
+        plugin.onEnginePreInitialize(this);
+      }
+
       await this.director.onInitialize();
       await this.onInitialize(engine);
       this.events.emit('initialize', new InitializeEvent(engine, this));
       this._isInitialized = true;
+
+      for (const plugin of this._plugins) {
+        plugin.onEnginePostInitialize(this);
+      }
     }
   }
 
