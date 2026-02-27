@@ -9,7 +9,7 @@ import { Logger } from '../util/log';
 import { WatchVector } from '../math/watch-vector';
 import { TransformComponent } from '../entity-component-system';
 import { GraphicsGroup } from '../graphics/graphics-group';
-import type { Color } from '../color';
+import { Color } from '../color';
 import { Raster } from './raster';
 import { Text } from './text';
 
@@ -24,7 +24,33 @@ export interface GraphicsShowOptions {
   offset?: Vector;
   anchor?: Vector;
 }
+// ============================================================================
+// GraphicsComponent Serialization Data Structure
+// ============================================================================
 
+export interface GraphicsComponentData {
+  type: string;
+  current: string;
+  graphicRefs: string[]; // List of graphic IDs used by this component
+  options: {
+    [name: string]:
+      | {
+          offset?: { x: number; y: number };
+          anchor?: { x: number; y: number };
+        }
+      | undefined;
+  };
+  isVisible: boolean;
+  opacity: number;
+  offset: { x: number; y: number };
+  anchor: { x: number; y: number };
+  color?: { r: number; g: number; b: number; a: number };
+  flipHorizontal: boolean;
+  flipVertical: boolean;
+  copyGraphics: boolean;
+  forceOnScreen: boolean;
+  tint?: { r: number; g: number; b: number; a: number };
+}
 export interface GraphicsComponentOptions {
   onPostDraw?: (ex: ExcaliburGraphicsContext, elapsed: number) => void;
   onPreDraw?: (ex: ExcaliburGraphicsContext, elapsed: number) => void;
@@ -457,5 +483,98 @@ export class GraphicsComponent extends Component {
     graphics.isVisible = this.isVisible;
 
     return graphics;
+  }
+
+  /**
+   * Custom serialization - stores graphic references instead of graphic data
+   */
+  public serialize(): GraphicsComponentData {
+    const type = this.constructor.name;
+    const data: GraphicsComponentData = {
+      type,
+      current: this._current,
+      graphicRefs: [],
+      options: {},
+      isVisible: this.isVisible,
+      opacity: this.opacity,
+      offset: { x: this._offset.x, y: this._offset.y },
+      anchor: { x: this._anchor.x, y: this._anchor.y },
+      flipHorizontal: this.flipHorizontal,
+      flipVertical: this.flipVertical,
+      copyGraphics: this.copyGraphics,
+      forceOnScreen: this.forceOnScreen,
+      tint: undefined
+    };
+
+    // Extract graphic IDs/names
+    data.graphicRefs = Object.keys(this._graphics);
+
+    // Serialize options for each graphic
+    for (const [name, option] of Object.entries(this._options)) {
+      if (option) {
+        data.options[name] = {
+          offset: option.offset ? { x: option.offset.x, y: option.offset.y } : undefined,
+          anchor: option.anchor ? { x: option.anchor.x, y: option.anchor.y } : undefined
+        };
+      } else {
+        data.options[name] = undefined;
+      }
+    }
+
+    if (this._color) {
+      data.color = {
+        r: this._color.r,
+        g: this._color.g,
+        b: this._color.b,
+        a: this._color.a
+      };
+    }
+
+    if (this.current?.tint) {
+      data.tint = {
+        r: this.current.tint.r,
+        g: this.current.tint.g,
+        b: this.current.tint.b,
+        a: this.current.tint.a
+      };
+    }
+
+    return data;
+  }
+
+  /**
+   * Custom deserialization
+   * NOTE - This only restores the component's settings, it does NOT restore the graphics themselves.
+   */
+  public deserialize(data: GraphicsComponentData): void {
+    this._current = data.current ?? 'default';
+    this.isVisible = data.isVisible ?? true;
+    this.opacity = data.opacity ?? 1;
+    this.flipHorizontal = data.flipHorizontal ?? false;
+    this.flipVertical = data.flipVertical ?? false;
+    this.copyGraphics = data.copyGraphics ?? false;
+    this.forceOnScreen = data.forceOnScreen ?? false;
+
+    // Restore offset and anchor as plain objects (WatchVector setup happens in setter)
+    this._offset = { x: data.offset.x, y: data.offset.y } as Vector;
+    this._anchor = { x: data.anchor.x, y: data.anchor.y } as Vector;
+
+    // Restore color
+    if (data.color) {
+      this._color = Color.fromRGB(data.color.r, data.color.g, data.color.b, data.color.a);
+    }
+
+    // Restore options (sans graphics themselves)
+    this._options = {};
+    for (const [name, option] of Object.entries(data.options)) {
+      if (option) {
+        this._options[name] = {
+          offset: option.offset ? ({ x: option.offset.x, y: option.offset.y } as Vector) : undefined,
+          anchor: option.anchor ? ({ x: option.anchor.x, y: option.anchor.y } as Vector) : undefined
+        };
+      } else {
+        this._options[name] = undefined;
+      }
+    }
   }
 }
