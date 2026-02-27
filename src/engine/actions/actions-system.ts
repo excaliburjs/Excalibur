@@ -1,6 +1,7 @@
 import type { Query, World } from '../entity-component-system';
 import { SystemPriority } from '../entity-component-system';
 import { System, SystemType } from '../entity-component-system//system';
+import { PauseComponent } from '../entity-component-system/components/pause-component';
 import { ActionsComponent } from './actions-component';
 
 export class ActionsSystem extends System {
@@ -8,11 +9,11 @@ export class ActionsSystem extends System {
 
   systemType = SystemType.Update;
   private _actions: ActionsComponent[] = [];
-  query: Query<typeof ActionsComponent>;
+  query: Query<typeof ActionsComponent | typeof PauseComponent>;
 
   constructor(public world: World) {
     super();
-    this.query = this.world.query([ActionsComponent]);
+    this.query = this.world.query([ActionsComponent, PauseComponent]);
 
     this.query.entityAdded$.subscribe((e) => this._actions.push(e.get(ActionsComponent)));
     this.query.entityRemoved$.subscribe((e) => {
@@ -26,6 +27,9 @@ export class ActionsSystem extends System {
   update(elapsed: number): void {
     for (let i = 0; i < this._actions.length; i++) {
       const action = this._actions[i];
+      if (action.owner?.get(PauseComponent).paused) {
+        continue;
+      }
       action.update(elapsed);
     }
   }
