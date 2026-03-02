@@ -14,7 +14,7 @@
   "license": "BSD-2-Clause",
   "devDependencies": {
     "@types/node": "24.0.10",
-    "tsdown": "0.20.2",
+    "tsdown": "0.20.3",
     "typescript": "5.9.3",
     "unplugin-raw": "0.6.4",
     "vite": "7.2.4"
