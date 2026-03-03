@@ -1,5 +1,5 @@
 import { isScreenElement, ScreenElement } from './screen-element';
-import type { ActivateEvent, DeactivateEvent } from './events';
+import type { ActivateEvent, DeactivateEvent, PauseEvent, ResumeEvent } from './events';
 import {
   InitializeEvent,
   PreUpdateEvent,
@@ -39,6 +39,7 @@ import type { Transition } from './director';
 import { InputHost } from './input/input-host';
 import { PointerScope } from './input/pointer-scope';
 import { getDefaultPhysicsConfig } from './collision/physics-config';
+import { PauseSystem } from './util/pause-system';
 
 export class PreLoadEvent {
   loader: DefaultLoader;
@@ -57,6 +58,8 @@ export interface SceneEvents {
   preload: PreLoadEvent;
   transitionstart: Transition;
   transitionend: Transition;
+  pause: PauseEvent;
+  resume: ResumeEvent;
 }
 
 export const SceneEvents = {
@@ -71,7 +74,9 @@ export const SceneEvents = {
   PostDebugDraw: 'postdebugdraw',
   PreLoad: 'preload',
   TransitionStart: 'transitionstart',
-  TransitionEnd: 'transitionend'
+  TransitionEnd: 'transitionend',
+  Pause: 'pause',
+  Resume: 'resume'
 } as const;
 
 export type SceneConstructor = new (...args: any[]) => Scene;
@@ -191,6 +196,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
     this.world.add(OffscreenSystem);
     this.world.add(GraphicsSystem);
     this.world.add(DebugSystem);
+    this.world.add(new PauseSystem(this));
   }
 
   public emit<TEventName extends EventKey<SceneEvents>>(eventName: TEventName, event: SceneEvents[TEventName]): void;
@@ -756,5 +762,13 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
         }
       }
     }
+  }
+
+  public pauseScene() {
+    this.events.emit('pause');
+  }
+
+  public resumeScene() {
+    this.events.emit('resume');
   }
 }
