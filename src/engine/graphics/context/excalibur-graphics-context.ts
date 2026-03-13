@@ -125,6 +125,12 @@ export interface ExcaliburGraphicsContextOptions {
    * Feature flag that enables draw sorting will removed in v0.29
    */
   useDrawSorting?: boolean;
+
+  onGraphicsPreConfig?: (context: ExcaliburGraphicsContextState, options: ExcaliburGraphicsContextOptions) => void;
+  onGraphicsPostConfig?: (context: ExcaliburGraphicsContextState, options: ExcaliburGraphicsContextOptions) => void;
+
+  onGraphicsPreInitialize?: (context: ExcaliburGraphicsContextState) => void;
+  onGraphicsPostInitialize?: (context: ExcaliburGraphicsContextState) => void;
 }
 
 export interface ExcaliburGraphicsContextState {

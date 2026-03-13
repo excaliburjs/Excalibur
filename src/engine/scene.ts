@@ -352,10 +352,18 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
 
         this.world.systemManager.initialize();
 
+        for (const plugin of engine.plugins) {
+          plugin.onScenePreInitialize?.(this);
+        }
+
         // This order is important! we want to be sure any custom init that add actors
         // fire before the actor init
         await this.onInitialize(engine);
         this._initializeChildren();
+
+        for (const plugin of engine.plugins) {
+          plugin.onScenePostInitialize?.(this);
+        }
 
         this._logger.debug('Scene.onInitialize', this, engine);
         this.events.emit('initialize', new InitializeEvent(engine, this));
