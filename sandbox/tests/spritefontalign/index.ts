@@ -121,4 +121,35 @@ textNormalCA.onPostUpdate = () => {
   textNormalC.tint = currentColor1;
 };
 
+var sutf = new ex.Font({
+  family: 'Open Sans',
+  size: 50,
+  quality: 4
+  // textAlign: ex.TextAlign.Left,
+  // textAlign: ex.TextAlign.Start,
+  // textAlign: ex.TextAlign.Center,
+  // textAlign: ex.TextAlign.Right,
+  // textAlign: ex.TextAlign.End,
+  // baseAlign: ex.BaseAlign.Top,
+  // baseAlign: ex.BaseAlign.Bottom,
+  // baseAlign: ex.BaseAlign.Middle,
+  // baseAlign: ex.BaseAlign.Alphabetic
+  // baseAlign: ex.BaseAlign.Ideographic,
+});
+
+var text1 = new ex.Text({
+  // text: 'some super long text that should wrap after 100 pixels',
+  text: 'Tsome text qpjl,',
+  font: sutf
+  // maxWidth: 100
+});
+
+textNormalCA.graphics.use(text1);
+game.currentScene.camera.pos = textNormalCA.pos.add(ex.vec(50, 0));
+game.currentScene.camera.zoom = 4;
+game.onPostDraw = () => {
+  ex.Debug.drawLine(textNormalCA.pos, textNormalCA.pos.add(ex.vec(300, 0)), { color: ex.Color.Red });
+  // ex.Debug.drawText(sutf.textAlign, textNormalCA.pos);
+};
+
 game.start(loader).then(() => {});
