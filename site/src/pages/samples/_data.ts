@@ -106,8 +106,8 @@ export default [
     image: sampleExcalibird,
     description:
       'This is a sample clone of the popular mobile game flappy bird.',
-    url: 'https://codesandbox.io/s/github/excaliburjs/excalibird',
-    source: 'https://github.com/excaliburjs/excalibird',
+    url: 'https://excaliburjs.com/sample-excalibird/',
+    source: 'https://github.com/excaliburjs/sample-excalibird',
     backgroundColor: '#007fff',
   },
   {

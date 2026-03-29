@@ -94,6 +94,20 @@ describe('A color', () => {
     expect(color.a).toBe(0);
   });
 
+  it('can be parsed from float array', () => {
+    color = ex.Color.fromFloatArray([1.0, 0.5, 1.0, 0.5]);
+    expect(color.r).toBe(255);
+    expect(color.g).toBe(128);
+    expect(color.b).toBe(255);
+    expect(color.a).toBe(0.5);
+
+    color = ex.Color.fromFloatArray([1.0]);
+    expect(color.r).toBe(255);
+    expect(color.g).toBe(0);
+    expect(color.b).toBe(0);
+    expect(color.a).toBe(1.0);
+  });
+
   it('should have a default alpha of 255 if not specified', () => {
     color = ex.Color.fromHex('#000000');
     expect(color.a).toBe(1);
@@ -117,6 +131,24 @@ describe('A color', () => {
     expect(color.toHex()).toBe('#1111111a');
     color = ex.Color.fromRGB(16.9, 16.9, 16.9);
     expect(color.toHex()).toBe('#111111');
+  });
+
+  it('generate valid float array representation', () => {
+    color = ex.Color.White;
+    let floatArray = color.toFloatArray();
+    expect(floatArray[0]).toBe(1.0);
+    expect(floatArray[1]).toBe(1.0);
+    expect(floatArray[2]).toBe(1.0);
+    expect(floatArray[3]).toBe(1.0);
+
+    color = ex.Color.Azure;
+    floatArray = color.toFloatArray();
+    expect(floatArray[0]).toBe(0.0);
+    expect(floatArray[1]).toBe(0.4980392156862745);
+    expect(floatArray[2]).toBe(1.0);
+    expect(floatArray[3]).toBe(1.0);
+
+    expect(color.toFloatArray(3)[1]).toBe(0.498);
   });
 
   it('can be darkened', () => {
@@ -149,10 +181,20 @@ describe('A color', () => {
   });
 
   it('can be lerped', () => {
-    color = ex.Color.lerp(ex.Color.White, ex.Color.Black, 0.5);
+    color = ex.Color.lerp(ex.Color.White, ex.Color.Black, 0.5, 'hsl');
     expect(color.r, 'r').toBe(127.5);
     expect(color.g, 'g').toBe(127.5);
     expect(color.b, 'b').toBe(127.5);
+
+    color = ex.Color.lerp(ex.Color.White, ex.Color.Black, 0.5, 'rgb');
+    expect(color.r, 'r').toBe(127.5);
+    expect(color.g, 'g').toBe(127.5);
+    expect(color.b, 'b').toBe(127.5);
+
+    color = ex.Color.lerp(ex.Color.White, ex.Color.Black, 0.5, 'lrgb');
+    expect(color.r, 'r').toBe(186.08371347438444);
+    expect(color.g, 'g').toBe(186.08371347438444);
+    expect(color.b, 'b').toBe(186.08371347438444);
   });
 
   it('can be randomly generated', () => {

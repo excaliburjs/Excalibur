@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Breaking Changes
 
 - Behavior change - TileMap now uses 'separate' as the `compositeStrategy` as a better default. Commonly TileMap is used to build levels, so this default aligns with the common use.
+- Behavior change - Font/Text now render more accurately and faster be using less texture space, this unfortunately is a breaking change becuase text will render slightly different.
 
 ### Deprecated
 
@@ -15,11 +16,30 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
--
+- Added new lerp modes for color which can be chosen by aptional parameter in `Color.lerp` or by calling different methods:
+  ```typescript
+  Color.lerp(colorA, colorB, t); // 'hsl' by default
+  // eqivalent to: 
+  Color.lerpHSL(colorA, colorB, t);
+  
+  Color.lerp(colorA, colorB, t, 'rgb');
+  // eqivalent to: 
+  Color.lerpRGB(colorA, colorB, t);
+  
+  Color.lerp(colorA, colorB, t, 'lrgb');
+  // equivalent to:
+  Color.lerpLRGB(colorA, colorB, t);
+  ```
+- Added `Color.fromFloatArray([0.0, 0.0, 0.0, 1.0])` and `Color.toFloatArray()`
+- Sound objects can be created from `Blob`s:
+  ```typescript
+  const sound = await Sound.fromBlob(instanceOfBlob)
+  sound.play()
+  ```
 
 ### Fixed
 
--
+- Performance: Font/Text now use smaller texture sizes, improving performance on Safari especially when rendering text
 
 ### Updates
 

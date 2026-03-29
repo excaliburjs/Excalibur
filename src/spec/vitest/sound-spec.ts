@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-import { canPlayFile } from '../../engine/util/sound';
+import { canPlayFile, canPlayMime } from '../../engine/util/sound';
 import { delay } from '../../engine/util/util';
 import { WebAudio } from '../../engine/util/web-audio';
 import { TestUtils } from '../__util__/test-utils';
@@ -546,5 +546,66 @@ describe('Sound resource', () => {
           });
         });
       }));
+  });
+
+  describe('createFromBlob()', () => {
+    let testBlob: Blob;
+    let arrayBuffer: ArrayBuffer;
+    let audioContext: AudioContext;
+    let duration: number;
+    let mockBuffer: AudioBuffer;
+
+    beforeEach(() => {
+      testBlob = new Blob();
+      arrayBuffer = new ArrayBuffer(8);
+      audioContext = new AudioContext();
+      duration = 512;
+      mockBuffer = vi.mockObject({
+        duration,
+        length: 1,
+        numberOfChannels: 2,
+        sampleRate: 3,
+        copyFromChannel: vi.fn(),
+        copyToChannel: vi.fn(),
+        getChannelData: vi.fn()
+      });
+
+      vi.spyOn(testBlob, 'type', 'get').mockReturnValue('audio/ogg; coded=test');
+      vi.spyOn(testBlob, 'arrayBuffer').mockReturnValue(Promise.resolve(arrayBuffer));
+      vi.spyOn(ex.AudioContextFactory, 'create').mockReturnValue(audioContext);
+      vi.spyOn(audioContext, 'decodeAudioData').mockReturnValue(Promise.resolve(mockBuffer));
+    });
+
+    it('Allows ogg type', () => {
+      expect(canPlayMime('audio/ogg; codec=test')).toBe(true);
+      expect(canPlayMime('audio/ogg')).toBe(true);
+      expect(canPlayMime('audio/ogg;')).toBe(true);
+    });
+
+    it('Allows wav type', () => {
+      expect(canPlayMime('audio/wav; coded=test')).toBe(true);
+    });
+
+    it('Allows mp3 type', () => {
+      expect(canPlayMime('audio/mp3; coded=test')).toBe(true);
+    });
+
+    it('Warns for an unsupported type', () => {
+      expect(canPlayMime('audio/unsupported; codec=test')).toBe(false);
+      expect(canPlayMime('none')).toBe(false);
+    });
+
+    it('Creates an instance', async () => {
+      const instance = await ex.Sound.fromBlob(testBlob);
+
+      expect(instance).toBeDefined();
+    });
+
+    it('Populates relevant properties of the Sound instance', async () => {
+      const instance = await ex.Sound.fromBlob(testBlob);
+
+      expect(instance.data).toEqual(mockBuffer);
+      expect(instance._duration).toEqual(duration);
+    });
   });
 });

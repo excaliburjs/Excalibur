@@ -1,0 +1,59 @@
+---
+title: Excalibur Actions Primer
+slug: /actions-primer
+section: Tutorials
+---
+
+## Introduction to Actions
+
+In Excalibur, an [Action](/docs/actions) represents a unit of behavior that runs automatically over time — moving, rotating, waiting, or performing some game-specific behavior.  Think of it as the automation feature of Excalibur.  
+
+Actions are not free-floating logic. They are executed and managed by the Actions Component in Excalibur’s ECS.
+
+### The Actions Component
+
+Every Actor in Excalibur comes with an ActionsComponent attached by default.
+
+The ActionsComponent is responsible for:
+
+- Holding the Action Queue
+- Updating the currently running action
+- Advancing to the next action when one completes
+- Providing the Action Context (the entity) to actions at runtime
+
+The actions component is stored under the `Actor.actions` convenience property.
+
+### What an Action Really Does
+
+An action will:
+
+- Run over multiple frames
+- Receive the elapsed time from the Engine
+- Mutate properties of the actor while it runs
+- Contain logic for when the action is completed
+
+### Why Actions Exist
+
+You could implement everything inside onPreUpdate or systems — but actions give you:
+
+- Deterministic sequencing
+- Readable behavior scripts
+- Self-contained cleanup
+- Easy composition
+
+### The rest of the story:
+
+This tutorial series breaks Actions down step by step:
+
+1. Page 1 – Basics of Actions:
+
+2. Page 2 – Queues and Chaining Actions:
+
+3. Page 3 – Parallel Actions and Sequences
+
+4. Page 4 – Action Events and Promises
+
+5. Page 5 - Custom Actions
+
+
+
