@@ -17,7 +17,7 @@
     "tsdown": "0.21.7",
     "typescript": "5.9.3",
     "unplugin-raw": "0.6.4",
-    "vite": "7.2.4"
+    "vite": "7.3.2"
   },
   "dependencies": {
     "excalibur": "0.32.0",
