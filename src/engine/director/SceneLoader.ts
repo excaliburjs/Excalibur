@@ -1,5 +1,9 @@
-import type { Loadable, SceneActivationContext } from 'excalibur';
-import { Future, Scene, Sound, WebAudio, Util } from 'excalibur';
+import type { Loadable } from '../interfaces/index';
+import type { SceneActivationContext } from '../interfaces/lifecycle-events';
+import { Scene } from '../scene';
+import { Sound } from '../resources/sound/sound';
+import { Future } from '../util/future';
+import { Util } from '..';
 
 export class BaseSceneLoader extends Scene {
   private _resourceReferences: Record<string, Loadable<any>> | Loadable<any>[] = {};
@@ -81,7 +85,7 @@ export class BaseSceneLoader extends Scene {
     if (isInitialLoad) {
       await this.onUserAction();
       this.events.emit('useraction');
-      await WebAudio.unlock();
+      // await WebAudio.unlock();
     }
 
     await this.onAfterLoad(pending, isInitialLoad);
