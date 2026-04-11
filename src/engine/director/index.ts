@@ -5,3 +5,4 @@ export * from './slide';
 export * from './director';
 export * from './loader';
 export * from './default-loader';
+export * from './SceneLoader';
