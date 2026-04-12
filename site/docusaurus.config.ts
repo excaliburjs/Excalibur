@@ -62,7 +62,7 @@ const config: Config = {
   },
 
   scripts: [
-    {src: 'https://plausible.io/js/script.js', defer: true, 'data-domain': 'excaliburjs.com'}
+    { src: 'https://plausible.io/js/script.js', defer: true, 'data-domain': 'excaliburjs.com' }
   ],
 
   presets: [
@@ -96,7 +96,7 @@ const config: Config = {
           postsPerPage: 'ALL',
           blogSidebarTitle: 'All posts',
           blogSidebarCount: 'ALL',
-          
+
         },
         theme: {
           customCss: './src/css/custom.css'
@@ -237,7 +237,11 @@ const config: Config = {
           position: 'left',
           label: 'Docs'
         },
-        { to: '/playground', label: 'Playground', position: 'left' },
+        {
+          href: 'https://excaliburjs.com/playground',
+          label: 'Playground',
+          position: 'left'
+        },
         { to: '/api', label: 'API', position: 'left' },
         { to: '/blog', label: 'Blog', position: 'left' },
         { to: '/samples', label: 'Samples', position: 'left' },
