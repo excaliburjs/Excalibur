@@ -39,18 +39,12 @@ export namespace Mocks {
       const mockNavigator = {
         setGamepads: function (index: number, numAxis: number, numButtons: number) {
           _internalGamePads[index] = {
-            axes: Array.apply(
-              null,
-              Array(numAxis).map(function () {
+            axes: Array.from({ length: numAxis }).map(function () {
                 return undefined;
-              })
-            ),
-            buttons: Array.apply(
-              null,
-              Array(numButtons).map(function () {
+              }),
+            buttons: Array.from({ length: numButtons }).map(function () {
                 return { pressed: false, value: 0 };
-              })
-            ),
+              }),
             connected: true,
             index: index,
             id: 'Mock Gamepad',

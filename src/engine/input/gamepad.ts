@@ -13,6 +13,8 @@ export const GamepadEvents = {
   GamepadConnect: 'connect',
   GamepadDisconnect: 'disconnect',
   GamepadButton: 'button',
+  GamepadButtonDown: 'buttondown',
+  GamepadButtonUp: 'buttonup',
   GamepadAxis: 'axis'
 };
 
@@ -189,18 +191,32 @@ export class Gamepads {
           const button = gamepad.buttons[buttonIndex];
           const value = button?.value;
           if (value !== this._oldPads[i]?.getButton(buttonIndex)) {
+            const exGamepad = this.at(i);
+            const buttonEnum = buttonIndex in Buttons ? buttonIndex as Buttons : Buttons.Unknown;
             if (button?.pressed) {
-              this.at(i).updateButton(buttonIndex, value);
+              exGamepad.updateButton(buttonIndex, value);
               // Fallback to unknown if not mapped
               // prettier-ignore
-              this.at(i).events.emit('button', new GamepadButtonEvent(
-                buttonIndex in Buttons ? buttonIndex as Buttons : Buttons.Unknown,
+              exGamepad.events.emit(GamepadEvents.GamepadButton, new GamepadButtonEvent(
+                buttonEnum,
                 buttonIndex,
                 value,
-                this.at(i))
+                exGamepad)
+              );
+              exGamepad.events.emit(GamepadEvents.GamepadButtonDown, new GamepadButtonEvent(
+                buttonEnum,
+                buttonIndex,
+                value,
+                exGamepad)
               );
             } else {
-              this.at(i).updateButton(buttonIndex, 0);
+              exGamepad.updateButton(buttonIndex, 0);
+              exGamepad.events.emit(GamepadEvents.GamepadButtonUp, new GamepadButtonEvent(
+                buttonEnum,
+                buttonIndex,
+                0,
+                exGamepad)
+              );
             }
           }
         }
