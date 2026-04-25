@@ -192,7 +192,7 @@ export class Gamepads {
           const value = button?.value;
           if (value !== this._oldPads[i]?.getButton(buttonIndex)) {
             const exGamepad = this.at(i);
-            const buttonEnum = buttonIndex in Buttons ? buttonIndex as Buttons : Buttons.Unknown;
+            const buttonEnum = buttonIndex in Buttons ? (buttonIndex as Buttons) : Buttons.Unknown;
             if (button?.pressed) {
               exGamepad.updateButton(buttonIndex, value);
               // Fallback to unknown if not mapped
@@ -203,20 +203,10 @@ export class Gamepads {
                 value,
                 exGamepad)
               );
-              exGamepad.events.emit(GamepadEvents.GamepadButtonDown, new GamepadButtonEvent(
-                buttonEnum,
-                buttonIndex,
-                value,
-                exGamepad)
-              );
+              exGamepad.events.emit(GamepadEvents.GamepadButtonDown, new GamepadButtonEvent(buttonEnum, buttonIndex, value, exGamepad));
             } else {
               exGamepad.updateButton(buttonIndex, 0);
-              exGamepad.events.emit(GamepadEvents.GamepadButtonUp, new GamepadButtonEvent(
-                buttonEnum,
-                buttonIndex,
-                0,
-                exGamepad)
-              );
+              exGamepad.events.emit(GamepadEvents.GamepadButtonUp, new GamepadButtonEvent(buttonEnum, buttonIndex, 0, exGamepad));
             }
           }
         }

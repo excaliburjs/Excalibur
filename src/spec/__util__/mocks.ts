@@ -40,11 +40,11 @@ export namespace Mocks {
         setGamepads: function (index: number, numAxis: number, numButtons: number) {
           _internalGamePads[index] = {
             axes: Array.from({ length: numAxis }).map(function () {
-                return undefined;
-              }),
+              return undefined;
+            }),
             buttons: Array.from({ length: numButtons }).map(function () {
-                return { pressed: false, value: 0 };
-              }),
+              return { pressed: false, value: 0 };
+            }),
             connected: true,
             index: index,
             id: 'Mock Gamepad',

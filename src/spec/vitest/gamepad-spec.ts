@@ -122,17 +122,17 @@ describe('A gamepad', () => {
     let currentButtonUpButton = null;
     let currentButtonUpValue = null;
 
-    gamepad.on("button", (buttonEvent: ex.GamepadButtonEvent) => {
+    gamepad.on('button', (buttonEvent: ex.GamepadButtonEvent) => {
       currentButton = buttonEvent.button;
       currentValue = buttonEvent.value;
     });
 
-    gamepad.on("buttondown", (buttonEvent: ex.GamepadButtonEvent) => {
+    gamepad.on('buttondown', (buttonEvent: ex.GamepadButtonEvent) => {
       currentButtonDownButton = buttonEvent.button;
       currentButtonDownValue = buttonEvent.value;
     });
 
-    gamepad.on("buttonup", (buttonEvent: ex.GamepadButtonEvent) => {
+    gamepad.on('buttonup', (buttonEvent: ex.GamepadButtonEvent) => {
       currentButtonUpButton = buttonEvent.button;
       currentButtonUpValue = buttonEvent.value;
     });
@@ -170,20 +170,19 @@ describe('A gamepad', () => {
 
     const gamepad = engine.input.gamepads.at(0);
 
-
     let currentButtonCounter = 0;
     let currentButtonDownCounter = 0;
     let currentButtonUpCounter = 0;
 
-    gamepad.on("button", (buttonEvent: ex.GamepadButtonEvent) => {
+    gamepad.on('button', (buttonEvent: ex.GamepadButtonEvent) => {
       currentButtonCounter++;
     });
 
-    gamepad.on("buttondown", (buttonEvent: ex.GamepadButtonEvent) => {
+    gamepad.on('buttondown', (buttonEvent: ex.GamepadButtonEvent) => {
       currentButtonDownCounter++;
     });
 
-    gamepad.on("buttonup", (buttonEvent: ex.GamepadButtonEvent) => {
+    gamepad.on('buttonup', (buttonEvent: ex.GamepadButtonEvent) => {
       currentButtonUpCounter++;
     });
 
