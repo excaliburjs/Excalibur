@@ -135,7 +135,7 @@
     "url-loader": "4.1.1",
     "vite": "6.4.2",
     "vite-plugin-banner": "0.8.1",
-    "vite-plugin-static-copy": "3.1.4",
+    "vite-plugin-static-copy": "3.4.0",
     "vitest": "3.2.4",
     "webpack": "5.104.1",
     "webpack-cli": "5.1.4"
