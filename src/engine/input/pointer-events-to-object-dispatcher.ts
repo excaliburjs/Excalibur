@@ -258,8 +258,8 @@ export class PointerEventsToObjectDispatcher<TObject extends { events: EventEmit
   ) {
     // up, down, and move are considered for enter and leave
     for (const event of lastUpDownMoveEvents) {
-      let isActive = event.active && object.active();
-      let isTouchOrPenEvent = event.pointerType === PointerType.Pen || event.pointerType === PointerType.Touch;
+      const isActive = event.active && object.active();
+      const isTouchOrPenEvent = event.pointerType === PointerType.Pen || event.pointerType === PointerType.Touch;
       // enter
       if (
         isActive &&
