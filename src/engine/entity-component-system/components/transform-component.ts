@@ -20,6 +20,8 @@ export interface TransformComponentData {
 }
 
 export class TransformComponent extends Component {
+  // @ts-ignore
+  private static _NAME = 'TransformComponent';
   private _logger = Logger.getInstance();
   private _parentComponent: TransformComponent | null = null;
   private _transform = new Transform();

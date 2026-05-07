@@ -71,6 +71,8 @@ export type ColliderCreationData =
   | CapsuleColliderData;
 
 export class ColliderComponent extends Component {
+  // @ts-ignore
+  private static _NAME = 'ColliderComponent';
   public events = new EventEmitter();
   /**
    * Observable that notifies when a collider is added to the body

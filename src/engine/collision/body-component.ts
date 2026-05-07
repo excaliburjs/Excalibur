@@ -62,6 +62,8 @@ export enum DegreeOfFreedom {
  * of physics simulation.
  */
 export class BodyComponent extends Component implements Clonable<BodyComponent> {
+  // @ts-ignore
+  private static _NAME = 'BodyComponent';
   public dependencies = [TransformComponent, MotionComponent];
   public static _ID = 0;
   public readonly id: Id<'body'> = createId('body', BodyComponent._ID++);

@@ -5,6 +5,8 @@ export interface PauseComponentInterface {
 }
 
 export class PauseComponent extends Component {
+  // @ts-ignore
+  private static _NAME = 'PauseComponent';
   paused: boolean = false;
   canPause: boolean = true;
 

@@ -17,6 +17,8 @@ import type { MoveByOptions, RotateByOptions, RotateToOptions, ScaleByOptions, S
 export interface ActionContextMethods extends Pick<ActionContext, keyof ActionContext> {}
 
 export class ActionsComponent extends Component implements ActionContextMethods {
+  // @ts-ignore
+  private static _NAME = 'ActionsComponent';
   dependencies = [TransformComponent, MotionComponent];
   private _ctx: ActionContext | null = null;
 
