@@ -83,7 +83,7 @@ export type {
   NavigatorGamepadEvent,
   GamepadConfiguration
 } from './input/gamepad';
-export { Gamepads, Gamepad, Buttons, Axes } from './input/gamepad';
+export { Gamepads, Gamepad, Buttons, Axes, GamepadEvents } from './input/gamepad';
 
 export type { KeyboardInitOptions } from './input/keyboard';
 export { Keys, KeyEvent, Keyboard } from './input/keyboard';
