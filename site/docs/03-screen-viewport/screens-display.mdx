@@ -4,7 +4,7 @@ slug: /screens
 section: Screen & Viewport
 ---
 
-The [[Screen]] is useful for for controlling the shape and behavior of you screen.
+The [[Screen]] is useful for controlling the shape and behavior of your screen.
 
 ## Basic Screen
 
@@ -17,19 +17,19 @@ const game = new ex.Engine({
 });
 ```
 
-The above snippet has the affect of setting the logical resolution to 800x600 and the viewport css pixels to 800x600.
+The above snippet has the effect of setting the logical resolution to 800x600 and the viewport css pixels to 800x600.
 
 ## Understanding Viewport & Resolution
 
-Excalibur has a screen abstraction for dealing with [[Screen.viewport]] size, and [[Screen.resolution]]. It also handles HiDPI scaling, the browser fullscreen API, and translation of screen coordinates into game world coordinates.
+Excalibur has a screen abstraction for dealing with the [[Screen.viewport]] size, and [[Screen.resolution]]. It also handles HiDPI scaling, the browser fullscreen API, and translation of screen coordinates into game world coordinates.
 
-The [[Screen.viewport]] represents the size of the window into the game work in CSS pixels on the screen. Another way to think about viewport is it represents the actual size of the "window" into the game on the computer screen.
+The [[Screen.viewport]] represents the size of the window in the game as CSS pixels on the screen. Another way to think about the viewport is that it represents the actual size of the "window" in the game as shown on the computer screen.
 
 The [[Screen.resolution]] represents the number of logical pixels stretched across the viewport.
 
-For example, a screen with resolution 100x100 and a resolution of 1000x1000 stretches, 100 logical game pixels across 1000 pixels of the screen.
+For example, a screen with a resolution 100x100 and a viewport of 1000x1000, stretches 100 logical game pixels across 1000 pixels of the screen.
 
-The screen resolution and viewport can be set and accessed of the engine constructor.
+The screen resolution and viewport can be set and accessed in the engine constructor.
 
 ```typescript
 const game = new ex.Engine({
@@ -97,11 +97,11 @@ An HTML canvas element has a "native" resolution which is specified using the `w
 
 ### Native Resolution
 
-If you don't explicitly set `canvasWidth` or `canvasHeight` Excalibur will manage the values for you, meaning that the "native" resolution will be the physical screen width/height so there is no "scaling" happening. This means your game logic must be responsive if the resolution of the game changes and you cannot depend on a "fixed" width/height coordinate system. Games which can be played on mobile devices _and_ desktop will work, since your game logic can detect what screen size the game is being played on and respond accordingly.
+If you don't explicitly set `canvasWidth` or `canvasHeight` Excalibur will manage the values for you, meaning that the "native" resolution will be the physical screen width/height so that there is no "scaling" happening. This means that your game logic must be responsive if the resolution of the game changes and you cannot depend on a "fixed" width/height coordinate system. Games which can be played on mobile devices _and_ desktop will work, if your game logic can detect what screen size the game is being played on and respond accordingly.
 
 ### Scaled Resolution
 
-Alternatively, if a native resolution is set and then CSS is used to change the _styled_ `width` and `height`, this makes your game _scale_ to whatever the CSS dimensions are. You would want to explicitly set a native resolution if your game depends on having a specific width/height of the "draw area". For example, you may want to design a game that depends on a fixed size of 1280x720 but you want to allow the user to view it at higher resolutions on their browser, so you may scale the canvas to a 16:9 ratio. Your game logic and positioning logic will still work since the game world is still 720px wide even though it may be displaying at 1080px wide on a high-res screen.
+Alternatively, if a native resolution is set and then CSS is used to change the _styled_ `width` and `height`, it makes your game _scale_ to whatever the CSS dimensions are. You would want to explicitly set a native resolution if your game depends on having a specific width/height of the "draw area". For example, you may want to design a game that depends on a fixed size of 1280x720 but you want to allow the user to view it at higher resolutions on their browser, so you may scale the canvas to a 16:9 ratio. Your game logic and positioning logic will still work since the game world is still 720px wide even though it may be displaying at 1080px wide on a high-res screen.
 
 ### HiDPI Displays
 
