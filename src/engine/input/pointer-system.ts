@@ -37,6 +37,7 @@ export class PointerSystem extends System {
 
     this.query.entityAdded$.subscribe((e) => {
       const tx = e.get(TransformComponent);
+      const coordPlane = tx.coordPlane;
       const pointer = e.get(PointerComponent);
       this._pointerEventDispatcher.addObject(
         e,
@@ -52,7 +53,8 @@ export class PointerSystem extends System {
       );
       this._entityToPointer.set(e, pointer);
       const maybeGfx = e.get(GraphicsComponent);
-      if (maybeGfx) {
+      const isInScreenSpace = coordPlane === CoordPlane.Screen;
+      if (maybeGfx && isInScreenSpace) {
         this._graphics.push(maybeGfx);
         this._graphicsHashGrid.track(maybeGfx);
       }
@@ -142,7 +144,7 @@ export class PointerSystem extends System {
         }
       }
 
-      const graphics = this._graphicsHashGrid.query(pos.worldPos);
+      const graphics = this._graphicsHashGrid.query(this._engine.worldToScreenCoordinates(pos.worldPos));
       for (let i = 0; i < graphics.length; i++) {
         const graphic = graphics[i];
         const maybePointer = this._entityToPointer.get(graphic.owner);
