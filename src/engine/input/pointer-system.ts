@@ -54,7 +54,7 @@ export class PointerSystem extends System {
       const maybeGfx = e.get(GraphicsComponent);
       if (maybeGfx) {
         this._graphics.push(maybeGfx);
-        this._graphicsHashGrid.track(maybeGfx); // disambiguate screen and world space
+        this._graphicsHashGrid.track(maybeGfx);
       }
       this._sortedTransforms.push(tx);
       this._sortedEntities.push(tx.owner);
