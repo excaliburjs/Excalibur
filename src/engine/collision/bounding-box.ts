@@ -5,6 +5,7 @@ import { Side } from './side';
 import type { ExcaliburGraphicsContext, RectGraphicsOptions } from '../graphics/context/excalibur-graphics-context';
 import type { AffineMatrix } from '../math/affine-matrix';
 import { getMinIndex } from '../util/util';
+import type { CoordPlane } from '../math';
 
 export interface BoundingBoxOptions {
   left: number;
@@ -16,7 +17,7 @@ export interface BoundingBoxOptions {
 /**
  * Axis Aligned collision primitive for Excalibur.
  */
-export class BoundingBox {
+export class BoundingBox<TCoordinates = CoordPlane.World> {
   public top: number;
   public right: number;
   public bottom: number;
@@ -48,7 +49,7 @@ export class BoundingBox {
   /**
    * Returns a new instance of {@apilink BoundingBox} that is a copy of the current instance
    */
-  public clone(dest?: BoundingBox): BoundingBox {
+  public clone(dest?: BoundingBox<TCoordinates>): BoundingBox<TCoordinates> {
     const result = dest || new BoundingBox(0, 0, 0, 0);
     result.left = this.left;
     result.right = this.right;
@@ -91,7 +92,7 @@ export class BoundingBox {
     return Side.None;
   }
 
-  public static fromPoints(points: Vector[]): BoundingBox {
+  public static fromPoints<TCoordinates = CoordPlane.World>(points: Vector[]): BoundingBox<TCoordinates> {
     let minX = Infinity;
     let minY = Infinity;
     let maxX = -Infinity;
@@ -120,7 +121,12 @@ export class BoundingBox {
    * @param anchor Default Vector.Half
    * @param pos Default Vector.Zero
    */
-  public static fromDimension(width: number, height: number, anchor: Vector = Vector.Half, pos: Vector = Vector.Zero) {
+  public static fromDimension<TCoordinates = CoordPlane.World>(
+    width: number,
+    height: number,
+    anchor: Vector = Vector.Half,
+    pos: Vector = Vector.Zero
+  ): BoundingBox<TCoordinates> {
     return new BoundingBox(
       -width * anchor.x + pos.x,
       -height * anchor.y + pos.y,
@@ -173,7 +179,7 @@ export class BoundingBox {
     return new Vector(this.left, this.bottom);
   }
 
-  public translate(pos: Vector): BoundingBox {
+  public translate(pos: Vector): BoundingBox<TCoordinates> {
     return new BoundingBox(this.left + pos.x, this.top + pos.y, this.right + pos.x, this.bottom + pos.y);
   }
 
@@ -181,9 +187,9 @@ export class BoundingBox {
    * Rotates a bounding box by and angle and around a point, if no point is specified (0, 0) is used by default. The resulting bounding
    * box is also axis-align. This is useful when a new axis-aligned bounding box is needed for rotated geometry.
    */
-  public rotate(angle: number, point: Vector = Vector.Zero): BoundingBox {
+  public rotate(angle: number, point: Vector = Vector.Zero): BoundingBox<TCoordinates> {
     const points = this.getPoints().map((p) => p.rotate(angle, point));
-    return BoundingBox.fromPoints(points);
+    return BoundingBox.fromPoints<TCoordinates>(points);
   }
 
   /**
@@ -191,16 +197,16 @@ export class BoundingBox {
    * @param scale
    * @param point
    */
-  public scale(scale: Vector, point: Vector = Vector.Zero): BoundingBox {
+  public scale(scale: Vector, point: Vector = Vector.Zero): BoundingBox<TCoordinates> {
     const shifted = this.translate(point);
-    return new BoundingBox(shifted.left * scale.x, shifted.top * scale.y, shifted.right * scale.x, shifted.bottom * scale.y);
+    return new BoundingBox<TCoordinates>(shifted.left * scale.x, shifted.top * scale.y, shifted.right * scale.x, shifted.bottom * scale.y);
   }
 
   /**
    * Transform the axis aligned bounding box by a {@apilink Matrix}, producing a new axis aligned bounding box
    * @param matrix
    */
-  public transform(matrix: AffineMatrix) {
+  public transform(matrix: AffineMatrix, dest?: BoundingBox) {
     // inlined these calculations to not use vectors would speed it up slightly
     // const matFirstColumn = vec(matrix.data[0], matrix.data[1]);
     // const xa = matFirstColumn.scale(this.left);
@@ -228,7 +234,15 @@ export class BoundingBox {
     const right = Math.max(xa1, xb1) + Math.max(ya1, yb1) + matrixPos.x;
     const bottom = Math.max(xa2, xb2) + Math.max(ya2, yb2) + matrixPos.y;
 
-    return new BoundingBox({
+    if (dest) {
+      dest.left = left;
+      dest.top = top;
+      dest.right = right;
+      dest.bottom = bottom;
+      return dest;
+    }
+
+    return new BoundingBox<TCoordinates>({
       left, //: topLeft.x,
       top, //: topLeft.y,
       right, //: bottomRight.x,
@@ -346,7 +360,7 @@ export class BoundingBox {
    * Combines this bounding box and another together returning a new bounding box
    * @param other  The bounding box to combine
    */
-  public combine(other: BoundingBox, dest?: BoundingBox): BoundingBox {
+  public combine(other: BoundingBox<TCoordinates>, dest?: BoundingBox<TCoordinates>): BoundingBox<TCoordinates> {
     const compositeBB = dest || new BoundingBox(0, 0, 0, 0);
     const left = Math.min(this.left, other.left);
     const top = Math.min(this.top, other.top);
@@ -430,7 +444,7 @@ export class BoundingBox {
    * Test whether the bounding box has intersected with another bounding box, returns the side of the current bb that intersected.
    * @param bb The other actor to test
    */
-  public intersectWithSide(bb: BoundingBox): Side {
+  public intersectWithSide(bb: BoundingBox<TCoordinates>): Side {
     const intersect = this.intersect(bb);
     return BoundingBox.getSideFromIntersection(intersect);
   }

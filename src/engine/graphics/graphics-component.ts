@@ -12,6 +12,7 @@ import { GraphicsGroup } from '../graphics/graphics-group';
 import { Color } from '../color';
 import { Raster } from './raster';
 import { Text } from './text';
+import { CoordPlane } from '../math';
 
 /**
  * Type guard for checking if a Graphic HasTick (used for graphics that change over time like animations)
@@ -441,15 +442,41 @@ export class GraphicsComponent extends Component {
     return this._localBounds as BoundingBox; // recalc guarantees type
   }
 
+  private _scratchWorldBounds = new BoundingBox();
   /**
    * Get world bounds of graphics component
    */
   public get bounds(): BoundingBox {
-    let bounds = this.localBounds;
+    const bounds = this.localBounds.clone(this._scratchWorldBounds);
     if (this.owner) {
       const tx = this.owner.get(TransformComponent);
       if (tx) {
-        bounds = bounds.transform(tx.get().matrix);
+        bounds.transform(tx.get().matrix, bounds);
+      }
+
+      const isScreenSpace = tx.coordPlane === CoordPlane.Screen;
+      if (isScreenSpace) {
+        const camera = this.owner.scene?.camera;
+        const screen = this.owner.scene?.engine?.screen;
+        if (camera && screen) {
+          // const points = [...bounds.getPoints()];
+          // for (let i = 0; i < points.length; i++) {
+          //   points[i] = screen.screenToWorldCoordinates(points[i]);
+          // }
+          // bounds = BoundingBox.fromPoints(points);
+
+          // For speed
+          // dubious transform by tampering with the camera inverse then putting it back
+          const topLeft = screen.contentArea.topLeft;
+          const oldX = camera.inverse.data[4];
+          const oldY = camera.inverse.data[5];
+          camera.inverse.data[4] += topLeft.x;
+          camera.inverse.data[5] += topLeft.y;
+          bounds.transform(camera.inverse, bounds);
+          camera.inverse.data[4] = oldX;
+          camera.inverse.data[5] = oldY;
+        }
+        return bounds;
       }
     }
     return bounds;

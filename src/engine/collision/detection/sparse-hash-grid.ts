@@ -225,6 +225,9 @@ export class SparseHashGrid<TObject extends { bounds: BoundingBox }, TProxy exte
     }
   }
 
+  /**
+   * **WARNING** TObjects must use the same coordPlan on their .bounds to work properly
+   */
   track(target: TObject): void {
     const proxy = this._buildProxy(target);
     this.objectToProxy.set(target, proxy);
