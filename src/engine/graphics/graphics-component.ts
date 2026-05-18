@@ -108,6 +108,8 @@ export interface GraphicsComponentOptions {
  * Component to manage drawings, using with the position component
  */
 export class GraphicsComponent extends Component {
+  // @ts-ignore
+  private static _NAME = 'GraphicsComponent';
   private _logger = Logger.getInstance();
 
   private _current: string = 'default';
