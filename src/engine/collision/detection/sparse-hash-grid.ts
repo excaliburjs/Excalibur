@@ -252,7 +252,7 @@ export class SparseHashGrid<TObject extends { bounds: BoundingBox }, TProxy exte
     // the bounds stay 0
     // this.bounds.reset();
     for (let i = 0; i < targets.length; i++) {
-      const target = targets[0];
+      const target = targets[i];
       const proxy = this.objectToProxy.get(target);
       if (!proxy) {
         continue;
