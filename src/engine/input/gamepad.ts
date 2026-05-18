@@ -6,6 +6,8 @@ export interface GamepadEvents {
   connect: GamepadConnectEvent;
   disconnect: GamepadDisconnectEvent;
   button: GamepadButtonEvent;
+  buttondown: GamepadButtonEvent;
+  buttonup: GamepadButtonEvent;
   axis: GamepadAxisEvent;
 }
 
