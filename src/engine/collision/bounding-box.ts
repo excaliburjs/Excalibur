@@ -5,7 +5,6 @@ import { Side } from './side';
 import type { ExcaliburGraphicsContext, RectGraphicsOptions } from '../graphics/context/excalibur-graphics-context';
 import type { AffineMatrix } from '../math/affine-matrix';
 import { getMinIndex } from '../util/util';
-import type { CoordPlane } from '../math';
 
 export interface BoundingBoxOptions {
   left: number;
@@ -17,7 +16,7 @@ export interface BoundingBoxOptions {
 /**
  * Axis Aligned collision primitive for Excalibur.
  */
-export class BoundingBox<TCoordinates = CoordPlane.World> {
+export class BoundingBox {
   public top: number;
   public right: number;
   public bottom: number;
@@ -49,7 +48,7 @@ export class BoundingBox<TCoordinates = CoordPlane.World> {
   /**
    * Returns a new instance of {@apilink BoundingBox} that is a copy of the current instance
    */
-  public clone(dest?: BoundingBox<TCoordinates>): BoundingBox<TCoordinates> {
+  public clone(dest?: BoundingBox): BoundingBox {
     const result = dest || new BoundingBox(0, 0, 0, 0);
     result.left = this.left;
     result.right = this.right;
@@ -92,7 +91,7 @@ export class BoundingBox<TCoordinates = CoordPlane.World> {
     return Side.None;
   }
 
-  public static fromPoints<TCoordinates = CoordPlane.World>(points: Vector[]): BoundingBox<TCoordinates> {
+  public static fromPoints(points: Vector[]): BoundingBox {
     let minX = Infinity;
     let minY = Infinity;
     let maxX = -Infinity;
@@ -121,12 +120,7 @@ export class BoundingBox<TCoordinates = CoordPlane.World> {
    * @param anchor Default Vector.Half
    * @param pos Default Vector.Zero
    */
-  public static fromDimension<TCoordinates = CoordPlane.World>(
-    width: number,
-    height: number,
-    anchor: Vector = Vector.Half,
-    pos: Vector = Vector.Zero
-  ): BoundingBox<TCoordinates> {
+  public static fromDimension(width: number, height: number, anchor: Vector = Vector.Half, pos: Vector = Vector.Zero): BoundingBox {
     return new BoundingBox(
       -width * anchor.x + pos.x,
       -height * anchor.y + pos.y,
@@ -179,7 +173,7 @@ export class BoundingBox<TCoordinates = CoordPlane.World> {
     return new Vector(this.left, this.bottom);
   }
 
-  public translate(pos: Vector): BoundingBox<TCoordinates> {
+  public translate(pos: Vector): BoundingBox {
     return new BoundingBox(this.left + pos.x, this.top + pos.y, this.right + pos.x, this.bottom + pos.y);
   }
 
@@ -187,9 +181,9 @@ export class BoundingBox<TCoordinates = CoordPlane.World> {
    * Rotates a bounding box by and angle and around a point, if no point is specified (0, 0) is used by default. The resulting bounding
    * box is also axis-align. This is useful when a new axis-aligned bounding box is needed for rotated geometry.
    */
-  public rotate(angle: number, point: Vector = Vector.Zero): BoundingBox<TCoordinates> {
+  public rotate(angle: number, point: Vector = Vector.Zero): BoundingBox {
     const points = this.getPoints().map((p) => p.rotate(angle, point));
-    return BoundingBox.fromPoints<TCoordinates>(points);
+    return BoundingBox.fromPoints(points);
   }
 
   /**
@@ -197,9 +191,9 @@ export class BoundingBox<TCoordinates = CoordPlane.World> {
    * @param scale
    * @param point
    */
-  public scale(scale: Vector, point: Vector = Vector.Zero): BoundingBox<TCoordinates> {
+  public scale(scale: Vector, point: Vector = Vector.Zero): BoundingBox {
     const shifted = this.translate(point);
-    return new BoundingBox<TCoordinates>(shifted.left * scale.x, shifted.top * scale.y, shifted.right * scale.x, shifted.bottom * scale.y);
+    return new BoundingBox(shifted.left * scale.x, shifted.top * scale.y, shifted.right * scale.x, shifted.bottom * scale.y);
   }
 
   /**
@@ -242,7 +236,7 @@ export class BoundingBox<TCoordinates = CoordPlane.World> {
       return dest;
     }
 
-    return new BoundingBox<TCoordinates>({
+    return new BoundingBox({
       left, //: topLeft.x,
       top, //: topLeft.y,
       right, //: bottomRight.x,
@@ -360,7 +354,7 @@ export class BoundingBox<TCoordinates = CoordPlane.World> {
    * Combines this bounding box and another together returning a new bounding box
    * @param other  The bounding box to combine
    */
-  public combine(other: BoundingBox<TCoordinates>, dest?: BoundingBox<TCoordinates>): BoundingBox<TCoordinates> {
+  public combine(other: BoundingBox, dest?: BoundingBox): BoundingBox {
     const compositeBB = dest || new BoundingBox(0, 0, 0, 0);
     const left = Math.min(this.left, other.left);
     const top = Math.min(this.top, other.top);
@@ -444,7 +438,7 @@ export class BoundingBox<TCoordinates = CoordPlane.World> {
    * Test whether the bounding box has intersected with another bounding box, returns the side of the current bb that intersected.
    * @param bb The other actor to test
    */
-  public intersectWithSide(bb: BoundingBox<TCoordinates>): Side {
+  public intersectWithSide(bb: BoundingBox): Side {
     const intersect = this.intersect(bb);
     return BoundingBox.getSideFromIntersection(intersect);
   }
