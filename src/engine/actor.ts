@@ -116,8 +116,7 @@ export type ActorArgs = ColliderArgs & {
    */
   material?: Material;
   /**
-   * Optionally set the color of an actor, only used if no graphics are present
-   * If a width/height or a radius was set a default graphic will be added
+   * Optionally set the opacity of an actor, only used if no graphics are present
    */
   opacity?: number;
   /**
@@ -129,7 +128,7 @@ export type ActorArgs = ColliderArgs & {
    */
   anchor?: Vector;
   /**
-   * Optionally set the anchor for graphics in the actor
+   * Optionally set the pixel offset for graphics in the actor
    */
   offset?: Vector;
   /**
