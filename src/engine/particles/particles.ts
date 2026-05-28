@@ -121,7 +121,8 @@ export class Particle extends Entity {
       this.graphics.localBounds = BoundingBox.fromDimension(this.size, this.size, Vector.Half);
       this.graphics.onPostDraw = (ctx) => {
         ctx.save();
-        ctx.debug.drawPoint(vec(0, 0), { color: this._currentColor, size: this.size });
+        ctx.z = this.transform.z;
+        ctx.drawCircle(vec(0, 0), this.size, this._currentColor);
         ctx.restore();
       };
     }
