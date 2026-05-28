@@ -1082,6 +1082,7 @@ var emitter = new ex.ParticleEmitter({
   pos: new ex.Vector(100, 300),
   width: 2,
   height: 2,
+  z: -10,
   particle: {
     minSpeed: 417,
     maxSpeed: 589,
@@ -1090,11 +1091,11 @@ var emitter = new ex.ParticleEmitter({
     opacity: 0.84,
     fade: true,
     life: 2465,
-    maxSize: 20.5,
-    minSize: 10,
+    maxSize: 40.5,
+    minSize: 40,
     beginColor: ex.Color.Red,
     endColor: ex.Color.Yellow,
-    graphic: blockSprite,
+    // graphic: blockSprite,
     angularVelocity: Math.PI / 10,
     acc: new ex.Vector(0, 460),
     randomRotation: true
