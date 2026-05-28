@@ -1,7 +1,7 @@
 import type { Entity, Query, World } from '../entity-component-system';
 import { SystemPriority } from '../entity-component-system';
 import { MotionComponent } from '../entity-component-system/components/motion-component';
-import { PauseComponent } from '../entity-component-system/components/pause-component';
+import { PauseComponentTag } from '../entity-component-system/components/pause-component';
 import { TransformComponent } from '../entity-component-system/components/transform-component';
 import { System, SystemType } from '../entity-component-system/system';
 import { BodyComponent } from './body-component';
@@ -14,15 +14,17 @@ export class MotionSystem extends System {
 
   public systemType = SystemType.Update;
   private _physicsConfigDirty = false;
-  query: Query<typeof TransformComponent | typeof MotionComponent | typeof PauseComponent>;
+  query: Query<typeof TransformComponent | typeof MotionComponent>;
 
   private _createPhysicsQuery(world: World, physics: PhysicsWorld) {
     return world.query({
       components: {
-        all: [TransformComponent, MotionComponent, PauseComponent]
+        all: [TransformComponent, MotionComponent]
       },
       tags: {
-        not: physics.config.integration.onScreenOnly ? ['ex.offscreen', 'ex.is_sleeping'] : ['ex.is_sleeping']
+        not: physics.config.integration.onScreenOnly
+          ? ['ex.offscreen', 'ex.is_sleeping', PauseComponentTag]
+          : ['ex.is_sleeping', PauseComponentTag]
       }
     });
   }
@@ -41,7 +43,6 @@ export class MotionSystem extends System {
   update(elapsed: number): void {
     let transform: TransformComponent;
     let motion: MotionComponent;
-    let paused: PauseComponent;
     const entities = this.query.entities;
     const config = this.physics.config;
     const substep = config.substep;
@@ -49,11 +50,6 @@ export class MotionSystem extends System {
     for (let i = 0; i < entities.length; i++) {
       transform = entities[i].get(TransformComponent);
       motion = entities[i].get(MotionComponent);
-      paused = entities[i].get(PauseComponent);
-
-      if (paused.paused) {
-        continue;
-      }
 
       if (motion.integration.onScreenOnly && entities[i].hasTag('ex.offscreen')) {
         continue;
