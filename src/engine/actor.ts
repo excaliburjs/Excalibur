@@ -143,6 +143,8 @@ export type ActorArgs = ColliderArgs & {
   collisionGroup?: CollisionGroup;
   /**
    * Optionally set if the actor can be paused
+   *
+   * (default is true)
    */
   canPause?: boolean;
 };

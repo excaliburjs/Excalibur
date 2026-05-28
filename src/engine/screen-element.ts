@@ -30,6 +30,7 @@ export class ScreenElement extends Actor {
     this.body.collisionType = config?.collisionType ?? CollisionType.PreventCollision;
     this.pointer.useGraphicsBounds = true;
     this.pointer.useColliderShape = false;
+    this.canPause = false;
     if (!config?.collider && config?.width > 0 && config?.height > 0) {
       this.collider.useBoxCollider(config.width, config.height, this.anchor);
     }

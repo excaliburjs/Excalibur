@@ -4,6 +4,7 @@ export interface PauseComponentInterface {
   canPause: boolean;
 }
 
+export const PauseComponentTag = 'ex.paused' as const;
 export class PauseComponent extends Component {
   // @ts-ignore
   private static _NAME = 'PauseComponent';
@@ -12,6 +13,6 @@ export class PauseComponent extends Component {
 
   constructor(config: Partial<PauseComponentInterface> = {}) {
     super();
-    this.canPause = config.canPause ?? false;
+    this.canPause = config.canPause ?? this.canPause;
   }
 }

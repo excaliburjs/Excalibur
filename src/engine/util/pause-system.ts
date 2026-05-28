@@ -1,7 +1,7 @@
 import type { EventEmitter, Scene, SceneEvents } from '..';
 import type { Query } from '../entity-component-system';
 import { System, SystemType } from '../entity-component-system';
-import { PauseComponent } from '../entity-component-system/components/pause-component';
+import { PauseComponent, PauseComponentTag } from '../entity-component-system/components/pause-component';
 
 export class PauseSystem extends System {
   systemType: SystemType = SystemType.Update;
@@ -29,6 +29,12 @@ export class PauseSystem extends System {
         pauseComponent.paused = false;
       } else {
         pauseComponent.paused = this.isPaused;
+
+        if (this.isPaused) {
+          pauseEntity.addTag(PauseComponentTag);
+        } else {
+          pauseEntity.removeTag(PauseComponentTag);
+        }
       }
     }
   }

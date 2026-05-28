@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { PauseSystem } from '../../engine/util/pause-system';
 import { PauseComponent } from '../../engine/entity-component-system/components/pause-component';
 import type { Scene } from '../../engine/scene';
@@ -25,15 +25,15 @@ describe('PauseSystem', () => {
   });
 
   it('should set isPaused to true when scene emits pause event', () => {
-    scene.pauseScene();
+    scene.pause();
     expect(pauseSystem.isPaused).toBe(true);
   });
 
   it('should set isPaused to false when scene emits resume event', () => {
-    scene.pauseScene();
+    scene.pause();
     expect(pauseSystem.isPaused).toBe(true);
 
-    scene.resumeScene();
+    scene.resume();
     expect(pauseSystem.isPaused).toBe(false);
   });
 
@@ -45,7 +45,7 @@ describe('PauseSystem', () => {
 
     expect(pauseComponent.paused).toBe(false);
 
-    scene.pauseScene();
+    scene.pause();
     pauseSystem.update(16);
 
     expect(pauseComponent.paused).toBe(true);
@@ -59,7 +59,7 @@ describe('PauseSystem', () => {
 
     expect(pauseComponent.paused).toBe(false);
 
-    scene.pauseScene();
+    scene.pause();
     pauseSystem.update(16);
 
     expect(pauseComponent.paused).toBe(false);
@@ -76,7 +76,7 @@ describe('PauseSystem', () => {
     nonPausableEntity.addComponent(nonPausableComponent);
     scene.add(nonPausableEntity);
 
-    scene.pauseScene();
+    scene.pause();
     pauseSystem.update(16);
 
     expect(pausableComponent.paused).toBe(true);
@@ -95,13 +95,13 @@ describe('PauseSystem', () => {
     scene.add(entity2);
 
     // Pause
-    scene.pauseScene();
+    scene.pause();
     pauseSystem.update(16);
     expect(component1.paused).toBe(true);
     expect(component2.paused).toBe(true);
 
     // Resume
-    scene.resumeScene();
+    scene.resume();
     pauseSystem.update(16);
     expect(component1.paused).toBe(false);
     expect(component2.paused).toBe(false);
@@ -114,22 +114,22 @@ describe('PauseSystem', () => {
     scene.add(entity);
 
     // First pause
-    scene.pauseScene();
+    scene.pause();
     pauseSystem.update(16);
     expect(pauseComponent.paused).toBe(true);
 
     // Resume
-    scene.resumeScene();
+    scene.resume();
     pauseSystem.update(16);
     expect(pauseComponent.paused).toBe(false);
 
     // Pause again
-    scene.pauseScene();
+    scene.pause();
     pauseSystem.update(16);
     expect(pauseComponent.paused).toBe(true);
 
     // Resume again
-    scene.resumeScene();
+    scene.resume();
     pauseSystem.update(16);
     expect(pauseComponent.paused).toBe(false);
   });
@@ -139,7 +139,7 @@ describe('PauseSystem', () => {
     scene.add(entityWithoutPause);
 
     expect(() => {
-      scene.pauseScene();
+      scene.pause();
       pauseSystem.update(16);
     }).not.toThrow();
   });
@@ -151,17 +151,17 @@ describe('PauseSystem', () => {
     scene.add(entity);
 
     // Initially pausable
-    scene.pauseScene();
+    scene.pause();
     pauseSystem.update(16);
     expect(pauseComponent.paused).toBe(true);
 
     // Make it non-pausable while paused
     pauseComponent.canPause = false;
-    scene.resumeScene();
+    scene.resume();
     pauseSystem.update(16);
 
     // Try to pause again - should not affect it
-    scene.pauseScene();
+    scene.pause();
     pauseSystem.update(16);
     expect(pauseComponent.paused).toBe(false);
   });

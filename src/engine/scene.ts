@@ -764,11 +764,11 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
     }
   }
 
-  public pauseScene() {
+  public pause() {
     this.events.emit('pause');
   }
 
-  public resumeScene() {
+  public resume() {
     this.events.emit('resume');
   }
 }
