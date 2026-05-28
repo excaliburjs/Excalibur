@@ -33,10 +33,10 @@ const player = new ex.Actor({ x: 100, y: 100, canPause: true });
 scene.add(player);
 
 // Pause the scene
-scene.pauseScene();
+scene.pause();
 
 // Resume the scene
-scene.resumeScene();
+scene.resume();
 ```
 
 ## PauseComponent
@@ -52,6 +52,6 @@ The `PauseComponent` tracks whether an entity is currently paused and whether it
 
 ### Scene Events
 
-[Scenes](/docs/scenes) now have `pauseScene()` and `resumeScene()` methods that emit out the pause state of the scene.
+[Scenes](/docs/scenes) now have `pause()` and `resume()` methods that emit out the pause state of the scene.
 
 If you have UI elements, like a Pause Menu for example, that you want to respond to those events, you can listen to the scene's [events](/docs/events) emitter.
