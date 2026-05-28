@@ -782,6 +782,7 @@ export class Screen {
     if (this._camera) {
       return this._camera.inverse.multiply(point);
     }
+    // fallback to center screen camera
     return point.sub(vec(this.resolution.width / 2, this.resolution.height / 2));
   }
 
@@ -795,6 +796,8 @@ export class Screen {
     if (this._camera) {
       return this._camera.transform.multiply(point);
     }
+
+    // fallback to center screen camera
     return point.add(vec(this.resolution.width / 2, this.resolution.height / 2));
   }
 
