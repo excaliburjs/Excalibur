@@ -451,6 +451,7 @@ export class GraphicsComponent extends Component {
     if (this.owner) {
       const tx = this.owner.get(TransformComponent);
       if (tx) {
+        // either world or screen space bounds
         bounds.transform(tx.get().matrix, bounds);
       }
 
@@ -459,12 +460,6 @@ export class GraphicsComponent extends Component {
         const camera = this.owner.scene?.camera;
         const screen = this.owner.scene?.engine?.screen;
         if (camera && screen) {
-          // const points = [...bounds.getPoints()];
-          // for (let i = 0; i < points.length; i++) {
-          //   points[i] = screen.screenToWorldCoordinates(points[i]);
-          // }
-          // bounds = BoundingBox.fromPoints(points);
-
           // For speed
           // dubious transform by tampering with the camera inverse then putting it back
           const topLeft = screen.contentArea.topLeft;
