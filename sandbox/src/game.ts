@@ -50,7 +50,7 @@ var game = new ex.Engine({
   displayMode: ex.DisplayMode.FitScreenAndFill,
   snapToPixel: false,
   // fixedUpdateFps: 30,
-  // pixelRatio: 2,
+  pixelRatio: 4,
   fixedUpdateFps: 60,
   maxFps: 60,
   antialiasing: {

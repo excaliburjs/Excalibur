@@ -122,7 +122,7 @@ export class Particle extends Entity {
       this.graphics.onPostDraw = (ctx) => {
         ctx.save();
         ctx.z = this.transform.z;
-        ctx.drawCircle(vec(0, 0), this.size, this._currentColor, Color.Black, 1);
+        ctx.drawCircle(vec(0, 0), this.size, this._currentColor);
         ctx.restore();
       };
     }
