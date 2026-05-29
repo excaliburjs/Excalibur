@@ -303,4 +303,41 @@ describe('A particle', () => {
         .every((entity) => entity.transform.z === 5)
     ).toBeTruthy();
   });
+
+  it('uses particle config z when specified, overriding emitter z', () => {
+    const emitter = new ex.ParticleEmitter({
+      particle: {
+        transform: ex.ParticleTransform.Global,
+        z: 10
+      },
+      pos: new ex.Vector(0, 0),
+      z: 5,
+      random: new ex.Random(1337)
+    });
+    engine.add(emitter);
+    emitter.emitParticles(10);
+    expect(
+      engine.currentScene.world.entityManager.entities
+        .filter((entity) => entity instanceof ex.Particle)
+        .every((entity) => entity.transform.z === 10)
+    ).toBeTruthy();
+  });
+
+  it('falls back to emitter z when particle config z is not set', () => {
+    const emitter = new ex.ParticleEmitter({
+      particle: {
+        transform: ex.ParticleTransform.Global
+      },
+      pos: new ex.Vector(0, 0),
+      z: 7,
+      random: new ex.Random(1337)
+    });
+    engine.add(emitter);
+    emitter.emitParticles(10);
+    expect(
+      engine.currentScene.world.entityManager.entities
+        .filter((entity) => entity instanceof ex.Particle)
+        .every((entity) => entity.transform.z === 7)
+    ).toBeTruthy();
+  });
 });
