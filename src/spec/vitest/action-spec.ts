@@ -1570,6 +1570,27 @@ describe('Action', () => {
     });
   });
 
+  describe('ActionQueue', () => {
+    it('does not remove last action when removing non-existent action', () => {
+      const queue = new ex.ActionQueue(actor);
+      const action1 = new ex.Delay(100);
+      const action2 = new ex.Delay(200);
+      const nonExistentAction = new ex.Delay(300);
+
+      queue.add(action1);
+      queue.add(action2);
+      expect(queue.getActions().length).toBe(2);
+
+      // Try to remove action that was never added
+      queue.remove(nonExistentAction);
+
+      // Should still have both original actions
+      expect(queue.getActions().length).toBe(2);
+      expect(queue.getActions()).toContain(action1);
+      expect(queue.getActions()).toContain(action2);
+    });
+  });
+
   describe('events', () => {
     it('emits actionstart event', () => {
       const spy = vi.fn();
