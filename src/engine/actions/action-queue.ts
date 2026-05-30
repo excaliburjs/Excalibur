@@ -35,7 +35,9 @@ export class ActionQueue {
    */
   public remove(action: Action) {
     const index = this._actions.indexOf(action);
-    this._actions.splice(index, 1);
+    if (index > -1) {
+      this._actions.splice(index, 1);
+    }
   }
 
   /**
