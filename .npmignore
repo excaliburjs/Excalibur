@@ -18,6 +18,8 @@ scripts/
 typedoc-default-themes/
 scripts/
 node_cache/*
+.husky/
+.devcontainer/
 
 .tsbuildinfo
 .prettierignore
