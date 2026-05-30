@@ -27,7 +27,6 @@ jobs:
       - uses: actions/setup-node@v6.4.0
         with:
           node-version-file: 'package.json'
-          check-latest: true
           package-manager-cache: false
           registry-url: 'https://registry.npmjs.org'
       - run: npm install -g npm@11.16.0
