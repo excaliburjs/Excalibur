@@ -9,6 +9,7 @@ build-storybook/
 coverage/
 docs/
 sandbox/
+playground/
 src/
 site/
 docker/
