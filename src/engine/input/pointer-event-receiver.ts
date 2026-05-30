@@ -384,10 +384,10 @@ export class PointerEventReceiver {
       this.target.removeEventListener('wheel', this._boundWheel);
     } else if (document.onmousewheel !== undefined) {
       // Webkit and IE
-      this.target.addEventListener('mousewheel', this._boundWheel);
+      this.target.removeEventListener('mousewheel', this._boundWheel);
     } else {
       // Remaining browser and older Firefox
-      this.target.addEventListener('MozMousePixelScroll', this._boundWheel);
+      this.target.removeEventListener('MozMousePixelScroll', this._boundWheel);
     }
   }
 
