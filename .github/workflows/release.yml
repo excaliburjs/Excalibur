@@ -50,6 +50,7 @@ jobs:
             npm --no-git-tag-version version $ALPHA_VERSION
           fi
 
+      - run: npm install -g npm@11.16.0
       - run: npm ci
 
       - name: Build Alpha

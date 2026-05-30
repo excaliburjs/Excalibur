@@ -158,7 +158,7 @@
     "packageManager": {
       "name": "npm",
       "onFail": "error",
-      "version": ">=11.15.0"
+      "version": ">=11"
     }
   }
 }
