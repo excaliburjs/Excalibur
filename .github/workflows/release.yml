@@ -57,7 +57,7 @@ jobs:
 
       - name: Publish to NPM (Alpha)
         if: steps.version.outputs.publish_type == 'alpha'
-        run: npm publish --tag next --provenance
+        run: npm stage publish --tag next --provenance
 
       - name: Build Release
         if: steps.version.outputs.publish_type == 'stable'
@@ -67,7 +67,7 @@ jobs:
 
       - name: Publish Release
         if: steps.version.outputs.publish_type == 'stable'
-        run: npm publish --provenance
+        run: npm stage publish --provenance
 
       - name: Output Published Version
         run: |
