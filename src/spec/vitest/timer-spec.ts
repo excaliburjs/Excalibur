@@ -498,6 +498,32 @@ describe('A Timer', () => {
     expect(count).toBe(1);
   });
 
+  it('does not remove last callback when removing non-existent callback', () => {
+    const callback1 = vi.fn();
+    const callback2 = vi.fn();
+    const nonExistentCallback = vi.fn();
+
+    const timer = new ex.Timer({
+      interval: 100,
+      repeats: true
+    });
+
+    scene.add(timer);
+    timer.start();
+
+    timer.on(callback1);
+    timer.on(callback2);
+
+    // Try to remove callback that was never added
+    timer.off(nonExistentCallback);
+
+    // Both original callbacks should still fire
+    scene.update(engine, 100);
+
+    expect(callback1).toHaveBeenCalledTimes(1);
+    expect(callback2).toHaveBeenCalledTimes(1);
+  });
+
   it('can be initialized with random time range', () => {
     const timer = new ex.Timer({
       interval: 100,

@@ -153,7 +153,9 @@ export class Timer {
    */
   public off(action: () => void) {
     const index = this._callbacks.indexOf(action);
-    this._callbacks.splice(index, 1);
+    if (index > -1) {
+      this._callbacks.splice(index, 1);
+    }
   }
   /**
    * Updates the timer after a certain number of milliseconds have elapsed. This is used internally by the engine.
