@@ -1,5 +1,5 @@
 const { execSync } = require('child_process');
-const package = require('./package.json');
+const packageJson = require('./package.json');
 
 function getCurrentCommit() {
   const commit = execSync('git rev-parse HEAD').toString().trim();
@@ -7,7 +7,7 @@ function getCurrentCommit() {
 }
 
 function getNextVersion() {
-  return package.exNextVersion;
+  return packageJson.exNextVersion;
 }
 
 function getAlphaVersion() {
@@ -21,7 +21,7 @@ function getAlphaVersion() {
 }
 
 function getReleaseVersion() {
-  return package.version;
+  return packageJson.version;
 }
 
 module.exports = {
