@@ -1,9 +1,11 @@
 import type { EventEmitter, Scene, SceneEvents } from '..';
 import type { Query } from '../entity-component-system';
-import { System, SystemType } from '../entity-component-system';
+import { System, SystemPriority, SystemType } from '../entity-component-system';
 import { PauseComponent, PauseComponentTag } from '../entity-component-system/components/pause-component';
 
 export class PauseSystem extends System {
+  static priority = SystemPriority.Highest;
+
   systemType: SystemType = SystemType.Update;
   query: Query<typeof PauseComponent>;
   sceneEventEmitter: EventEmitter<SceneEvents>;
@@ -25,16 +27,14 @@ export class PauseSystem extends System {
   update(elapsed: number): void {
     for (const pauseEntity of this.query.entities) {
       const pauseComponent = pauseEntity.get(PauseComponent);
-      if (pauseComponent.canPause === false) {
-        pauseComponent.paused = false;
-      } else {
-        pauseComponent.paused = this.isPaused;
+      const paused = this.isPaused && pauseComponent.canPause !== false;
 
-        if (this.isPaused) {
-          pauseEntity.addTag(PauseComponentTag);
-        } else {
-          pauseEntity.removeTag(PauseComponentTag);
-        }
+      pauseComponent.paused = paused;
+
+      if (paused) {
+        pauseEntity.addTag(PauseComponentTag);
+      } else {
+        pauseEntity.removeTag(PauseComponentTag);
       }
     }
   }
