@@ -1,0 +1,42 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import { loadApiData, type ApiPage } from '../../lib/api';
+
+const api = loadApiData();
+const groups = api.pages.reduce<Map<string, ApiPage[]>>((acc, page) => {
+  const pages = acc.get(page.kind) ?? [];
+  pages.push(page);
+  acc.set(page.kind, pages);
+  return acc;
+}, new Map());
+---
+<SiteLayout title="Excalibur.js API" description="Excalibur API reference generated from TypeDoc.">
+  <main class="content">
+    <h1>API Reference</h1>
+    <p>Generated from the Excalibur TypeScript source using TypeDoc.</p>
+    {api.rootSymbols.length ? (
+      <section>
+        <h2>Exports</h2>
+        <ul>
+          {api.rootSymbols.map((symbol) => <li id={symbol.name}><a href={symbol.url}>{symbol.name}</a></li>)}
+        </ul>
+      </section>
+    ) : null}
+    {[...groups.entries()].map(([kind, pages]) => (
+      <section>
+        <h2>{kind}</h2>
+        <ul>
+          {pages.map((page) => <li><a href={page.url}>{page.name}</a></li>)}
+        </ul>
+      </section>
+    ))}
+  </main>
+</SiteLayout>
+
+<style>
+  .content {
+    margin: 0 auto;
+    max-width: 960px;
+    padding: 3rem 1rem;
+  }
+</style>

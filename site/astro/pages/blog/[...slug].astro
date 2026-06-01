@@ -1,0 +1,39 @@
+---
+import { getCollection, render } from 'astro:content';
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import { getBlogDate, getBlogRoute } from '../../lib/blog';
+
+export async function getStaticPaths() {
+  const posts = (await getCollection('blog')).filter((post) => !post.data.draft);
+  return posts.map((post) => ({
+    params: { slug: getBlogRoute(post) },
+    props: { post }
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const title = post.data.title ?? post.id;
+---
+<SiteLayout title={`${title} | Excalibur.js Blog`} description={post.data.description ?? title}>
+  <main class="content">
+    <article>
+      <h1>{title}</h1>
+      <time datetime={getBlogDate(post).toISOString()}>{getBlogDate(post).toLocaleDateString('en-US')}</time>
+      <Content />
+    </article>
+  </main>
+</SiteLayout>
+
+<style>
+  .content {
+    margin: 0 auto;
+    max-width: 860px;
+    padding: 3rem 1rem;
+  }
+
+  :global(img),
+  :global(video) {
+    max-width: 100%;
+  }
+</style>

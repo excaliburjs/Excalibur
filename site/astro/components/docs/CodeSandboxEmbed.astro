@@ -1,0 +1,19 @@
+---
+import IFrameEmbed from './IFrameEmbed.astro';
+
+const { src, title, ...props } = Astro.props;
+---
+<IFrameEmbed
+  src={src}
+  title={title}
+  allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+  sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+  {...props}
+/>
+
+<style is:global>
+  iframe[src*="codesandbox"] {
+    border-radius: 4px;
+    height: 700px;
+  }
+</style>

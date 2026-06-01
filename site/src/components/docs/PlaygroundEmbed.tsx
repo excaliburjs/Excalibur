@@ -1,5 +1,4 @@
-import * as lz from 'lz-string';
-import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import lz from 'lz-string';
 import { useEffect, useRef, useState } from 'react';
 
 type Props = {
@@ -41,9 +40,7 @@ export default (props: Props) => {
     code: lz.compressToEncodedURIComponent(code)
   });
 
-  const { siteConfig } = useDocusaurusContext();
-  const { customFields } = siteConfig;
-  const { playgroundUrl } = customFields;
+  const playgroundUrl = import.meta.env.PUBLIC_PLAYGROUND_URL || 'https://excaliburjs.com/excalibur-playground';
 
   if (autoplay) {
     params.set('autoplay', 'true');

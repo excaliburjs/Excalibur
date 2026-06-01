@@ -1,0 +1,13 @@
+---
+const { src, title, className, ...props } = Astro.props;
+---
+<iframe class={className} src={src} title={title} {...props}></iframe>
+
+<style>
+  iframe {
+    border: 0;
+    height: 420px;
+    overflow: hidden;
+    width: 100%;
+  }
+</style>

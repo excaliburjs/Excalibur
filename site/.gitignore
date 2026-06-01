@@ -3,10 +3,15 @@
 
 # Production
 /build
+/build-astro
 
 # Generated files
 .docusaurus
+.astro
 .cache-loader
+/astro/generated/*.json
+/astro/public/excalibur.js
+/static/excalibur.js
 
 # Misc
 .DS_Store

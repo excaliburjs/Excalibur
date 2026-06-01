@@ -1,0 +1,52 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import showcase from '@legacy/pages/showcase/_data';
+---
+<SiteLayout title="Showcase | Excalibur.js" description="Games made with Excalibur.">
+  <main class="content">
+    <h1>Showcase</h1>
+    <p>Games and projects built by the Excalibur community.</p>
+    <div class="cards">
+      {showcase.map((game) => (
+        <article class="card">
+          <img src={game.image.src ?? game.image} alt={game.title} />
+          <div class="card-content">
+            <h2>{game.title}</h2>
+            <p>{game.description}</p>
+            <p><a href={game.url}>Play</a>{game.source ? <> · <a href={game.source}>Code</a></> : null}</p>
+          </div>
+        </article>
+      ))}
+    </div>
+  </main>
+</SiteLayout>
+
+<style>
+  .content {
+    margin: 0 auto;
+    max-width: 1120px;
+    padding: 3rem 1rem;
+  }
+
+  .cards {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+
+  .card {
+    border: 1px solid #d8e1ea;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  img {
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    width: 100%;
+  }
+
+  .card-content {
+    padding: 1rem;
+  }
+</style>

@@ -1,0 +1,30 @@
+:root {
+  --sl-color-accent-low: #d7eaf9;
+  --sl-color-accent: #2185d0;
+  --sl-color-accent-high: #041e2f;
+}
+
+.tsdoc-link.tsdoc-link--missing {
+  border-bottom: 1px dashed red;
+  color: rgba(255, 0, 0, 0.8);
+  cursor: help;
+}
+
+.snippet-resizer {
+  display: flex;
+  margin: 0;
+  overflow: hidden;
+  padding: 0;
+  resize: both;
+}
+
+.snippet-resizer > .snippet-resized {
+  border: 0;
+  flex-grow: 1;
+  margin: 0;
+  padding: 0;
+}
+
+.astro-code {
+  overflow: visible;
+}

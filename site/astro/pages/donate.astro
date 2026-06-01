@@ -1,0 +1,41 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+---
+<SiteLayout title="Donate | Excalibur.js" description="Please consider a small donation to support Excalibur.">
+  <main class="content">
+    <h1>Donate</h1>
+    <p>Please consider a small donation on the following platforms.</p>
+    <div class="actions">
+      <a href="https://github.com/sponsors/eonarheim">GitHub Sponsor</a>
+      <a href="https://www.patreon.com/join/erikonarheim">Patreon</a>
+      <a href="https://ko-fi.com/erikonarheim">Ko-Fi</a>
+      <a href="https://ko-fi.com/erikonarheim">Liberapay</a>
+    </div>
+    <p>Donations allow us to spend more time working on Excalibur.</p>
+  </main>
+</SiteLayout>
+
+<style>
+  .content {
+    margin: 0 auto;
+    max-width: 860px;
+    padding: 3rem 1rem;
+  }
+
+  .actions {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    margin: 2rem 0;
+  }
+
+  .actions a {
+    background: #2185d0;
+    border-radius: 12px;
+    color: white;
+    font-weight: 800;
+    padding: 1.25rem;
+    text-align: center;
+    text-decoration: none;
+  }
+</style>

@@ -1,11 +1,29 @@
 {
-  // This file is not used in compilation. It is here just for a nice editor experience.
-  "extends": ["../src/engine/tsconfig.json", "@docusaurus/tsconfig"],
+  "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
     "baseUrl": ".",
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
     "paths": {
+      "@astro-components/*": ["./astro/components/*"],
+      "@legacy/*": ["./src/*"],
       "@site/*": ["./*"],
       "excalibur": ["../src/engine"]
     }
-  }
+  },
+  "include": [
+    "astro/**/*",
+    "src/components/docs/PlaygroundEmbed.tsx",
+    "src/pages/samples/_data.ts",
+    "src/pages/showcase/_data.ts",
+    "*.d.ts"
+  ],
+  "exclude": [
+    "build",
+    "build-astro",
+    "node_modules",
+    "astro/public/**/*.js",
+    "astro/content/docs/**/*.ts",
+    "astro/content/docs/**/*.tsx"
+  ]
 }

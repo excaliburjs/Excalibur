@@ -1,0 +1,57 @@
+---
+import SiteLayout from '../../../layouts/SiteLayout.astro';
+import { getApiPageParam, loadApiData, type ApiPage } from '../../../lib/api';
+
+export function getStaticPaths() {
+  return loadApiData().pages.map((page) => ({
+    params: { kind: page.kind, name: getApiPageParam(page) },
+    props: { page }
+  }));
+}
+
+const { page } = Astro.props as { page: ApiPage };
+---
+<SiteLayout title={`${page.name} | Excalibur.js API`} description={page.summary || `${page.name} API reference`}>
+  <main class="content">
+    <p class="kind">{page.kind}</p>
+    <h1>{page.name}</h1>
+    {page.summary ? <p class="summary">{page.summary}</p> : null}
+    {page.members.length ? (
+      <section>
+        <h2>Members</h2>
+        {page.members.map((member) => (
+          <article id={member.name} class="member">
+            <p class="kind">{member.kind}</p>
+            <h3>{member.name}</h3>
+            {member.summary ? <p>{member.summary}</p> : null}
+          </article>
+        ))}
+      </section>
+    ) : null}
+  </main>
+</SiteLayout>
+
+<style>
+  .content {
+    margin: 0 auto;
+    max-width: 960px;
+    padding: 3rem 1rem;
+  }
+
+  .kind {
+    color: #6b7c8f;
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .summary {
+    font-size: 1.15rem;
+  }
+
+  .member {
+    border-top: 1px solid #d8e1ea;
+    padding: 1.25rem 0;
+  }
+</style>

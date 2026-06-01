@@ -1,0 +1,13 @@
+---
+const { story = '' } = Astro.props;
+const url = `/examples/?nav=0&path=/docs/${story}`;
+---
+<iframe title="Excalibur Storybook Example" allowfullscreen src={url}></iframe>
+
+<style>
+  iframe {
+    border: 1px solid #aaa;
+    height: 600px;
+    width: 100%;
+  }
+</style>

@@ -1,0 +1,60 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import samples from '@legacy/pages/samples/_data';
+---
+<SiteLayout title="Samples | Excalibur.js" description="Excalibur sample games you can reference.">
+  <main class="content">
+    <h1>Samples</h1>
+    <p>Learn Excalibur by referencing these sample games.</p>
+    <div class="cards">
+      {samples.map((sample) => (
+        <article class="card">
+          <div class="image" style={`background:${sample.backgroundColor ?? '#2185d0'}`}>
+            <img src={sample.image.src ?? sample.image} alt={sample.title} />
+          </div>
+          <div class="card-content">
+            <h2>{sample.title}</h2>
+            <p>{sample.description}</p>
+            <p><a href={sample.url}>Demo</a>{sample.source ? <> · <a href={sample.source}>Code</a></> : null}</p>
+          </div>
+        </article>
+      ))}
+    </div>
+  </main>
+</SiteLayout>
+
+<style>
+  .content {
+    margin: 0 auto;
+    max-width: 1120px;
+    padding: 3rem 1rem;
+  }
+
+  .cards {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+
+  .card {
+    border: 1px solid #d8e1ea;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .image {
+    align-items: center;
+    display: flex;
+    height: 150px;
+    justify-content: center;
+  }
+
+  img {
+    max-height: 100%;
+    max-width: 100%;
+  }
+
+  .card-content {
+    padding: 1rem;
+  }
+</style>

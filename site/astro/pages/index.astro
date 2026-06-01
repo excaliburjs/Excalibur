@@ -1,0 +1,67 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+---
+<SiteLayout title="Excalibur.js" description="Excalibur is a friendly TypeScript 2D game engine for the web.">
+  <main class="hero">
+    <section>
+      <p class="eyebrow">TypeScript 2D game engine</p>
+      <h1>Your friendly 2D game engine for the web.</h1>
+      <p>
+        Excalibur helps you build 2D HTML/JS games with TypeScript, sensible defaults, and a batteries-included engine.
+      </p>
+      <div class="actions">
+        <a class="button" href="/docs/">Read the docs</a>
+        <a class="button secondary" href="/docs/excalibird-flappy-bird/">Start the tutorial</a>
+      </div>
+    </section>
+  </main>
+</SiteLayout>
+
+<style>
+  .hero {
+    background: linear-gradient(145deg, #eaf6ff, #ffffff 60%);
+    min-height: 60vh;
+    padding: 6rem max(1rem, calc((100vw - 1120px) / 2));
+  }
+
+  section {
+    max-width: 740px;
+  }
+
+  h1 {
+    font-size: clamp(2.5rem, 8vw, 5.5rem);
+    line-height: 0.95;
+    margin: 0 0 1.25rem;
+  }
+
+  p {
+    font-size: 1.2rem;
+  }
+
+  .eyebrow {
+    color: #2185d0;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .button {
+    background: #2185d0;
+    border-radius: 999px;
+    color: white;
+    font-weight: 800;
+    padding: 0.85rem 1.2rem;
+    text-decoration: none;
+  }
+
+  .button.secondary {
+    background: #041e2f;
+  }
+</style>

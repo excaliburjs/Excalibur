@@ -1,0 +1,6 @@
+---
+import PlaygroundEmbed from '@legacy/components/docs/PlaygroundEmbed';
+
+const props = { code: '', ...Astro.props };
+---
+<PlaygroundEmbed client:visible {...props} />

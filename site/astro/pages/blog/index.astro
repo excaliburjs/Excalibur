@@ -1,0 +1,36 @@
+---
+import { getCollection } from 'astro:content';
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import { getBlogDate, getBlogPermalink } from '../../lib/blog';
+
+const posts = (await getCollection('blog'))
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => getBlogDate(b).getTime() - getBlogDate(a).getTime());
+---
+<SiteLayout title="Blog | Excalibur.js" description="Excalibur.js project news and articles.">
+  <main class="content">
+    <h1>Blog</h1>
+    <div class="posts">
+      {posts.map((post) => (
+        <article>
+          <h2><a href={getBlogPermalink(post)}>{post.data.title ?? post.id}</a></h2>
+          <time datetime={getBlogDate(post).toISOString()}>{getBlogDate(post).toLocaleDateString('en-US')}</time>
+          {post.data.description ? <p>{post.data.description}</p> : null}
+        </article>
+      ))}
+    </div>
+  </main>
+</SiteLayout>
+
+<style>
+  .content {
+    margin: 0 auto;
+    max-width: 900px;
+    padding: 3rem 1rem;
+  }
+
+  article {
+    border-top: 1px solid #d8e1ea;
+    padding: 1.5rem 0;
+  }
+</style>

@@ -1,11 +1,16 @@
 import sdk, { VM } from '@stackblitz/sdk';
-import { useEffect, useRef } from 'react';
-import { useColorMode } from '@docusaurus/theme-common';
+import { useEffect, useRef, useState } from 'react';
 
 const StackblitzPlayground = ({ code, title, assets = {} }: { title: string; code: string; assets?: Record<string, string> }) => {
-  const { colorMode } = useColorMode();
+  const [colorMode, setColorMode] = useState<'light' | 'dark'>(() => getColorMode());
   const embedRef = useRef<HTMLDivElement>();
   const vmRef = useRef<Promise<VM>>();
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => setColorMode(getColorMode()));
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (embedRef.current && !vmRef.current) {
@@ -131,6 +136,14 @@ async function buildFileAssets(assets: Record<string, string>) {
 
 function stripWebpackHmrDevServerRequire(script: string) {
   return script.replace(/__webpack_require__\((448|825)\);/g, '');
+}
+
+function getColorMode(): 'light' | 'dark' {
+  if (typeof document === 'undefined') {
+    return 'light';
+  }
+
+  return document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
 }
 
 export default StackblitzPlayground;

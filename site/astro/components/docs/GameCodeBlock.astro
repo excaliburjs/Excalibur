@@ -1,0 +1,7 @@
+---
+import PlaygroundEmbed from './PlaygroundEmbed.astro';
+
+const { code, live, title } = Astro.props;
+const body = code ?? '';
+---
+{live ? <PlaygroundEmbed code={body} title={title} /> : <pre><code>{body}</code></pre>}

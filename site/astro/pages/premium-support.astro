@@ -1,0 +1,60 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+
+const offerings = [
+  {
+    title: '1 Hour of Excalibur Support',
+    link: 'https://cal.com/caliburn-games/1-hour-support',
+    description: 'Book 1 hour of dedicated time with an Excalibur core maintainer.',
+    price: '$100'
+  },
+  {
+    title: '2 Hours of Excalibur Support',
+    link: 'https://cal.com/caliburn-games/2-hour-support',
+    description: 'Book 2 hours of dedicated time with an Excalibur core maintainer.',
+    price: '$180'
+  },
+  {
+    title: 'Custom Development Project',
+    link: 'https://cal.com/caliburn-games/30min',
+    description: 'Schedule a free 30 minute meeting to get a quote for your project.',
+    price: 'Starts at $4000'
+  }
+];
+---
+<SiteLayout title="Premium Support | Excalibur.js" description="Premium Excalibur support through Caliburn Games LLC.">
+  <main class="content">
+    <h1>Book Premium Support</h1>
+    <p>The Excalibur core maintainers offer premium support through Caliburn Games LLC.</p>
+    <div class="cards">
+      {offerings.map((offering) => (
+        <article>
+          <h2>{offering.title}</h2>
+          <p><strong>{offering.price}</strong></p>
+          <p>{offering.description}</p>
+          <a href={offering.link}>Book Now</a>
+        </article>
+      ))}
+    </div>
+  </main>
+</SiteLayout>
+
+<style>
+  .content {
+    margin: 0 auto;
+    max-width: 960px;
+    padding: 3rem 1rem;
+  }
+
+  .cards {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+
+  article {
+    border: 1px solid #d8e1ea;
+    border-radius: 12px;
+    padding: 1rem;
+  }
+</style>
