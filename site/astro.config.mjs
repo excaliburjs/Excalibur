@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { transformerTwoslash } from '@shikijs/twoslash';
 
 import { remarkApiSymbolLinks } from './astro/plugins/remark-api-symbol-links.mjs';
+import { buildDocsSidebar } from './astro/lib/build-sidebar.mjs';
 
 const playgroundUrl = process.env.PLAYGROUND_URL || process.env.PUBLIC_PLAYGROUND_URL || 'https://excaliburjs.com/excalibur-playground';
 
@@ -40,12 +41,7 @@ export default defineConfig({
         { icon: 'github', label: 'GitHub', href: 'https://github.com/excaliburjs/Excalibur' },
         { icon: 'discord', label: 'Discord', href: 'https://discord.gg/W6zUd4tTY3' }
       ],
-      sidebar: [
-        {
-          label: 'Docs',
-          items: [{ autogenerate: { directory: '.', collapsed: true } }]
-        }
-      ],
+      sidebar: buildDocsSidebar(),
       plugins: [
         starlightDocSearch({
           appId: 'IVI5ONIKWP',
