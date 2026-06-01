@@ -45,20 +45,20 @@ export interface PhysicsConfig {
     onScreenOnly?: boolean;
   };
   /**
-   * Configure gravity that applies to all {@apilink CollisionType.Active} bodies.
+   * Configure gravity that applies to all {@link CollisionType.Active} bodies.
    *
    * This is acceleration in pixels/sec^2
    *
    * Default vec(0, 0)
    *
-   * {@apilink BodyComponent.useGravity} to opt out
+   * {@link BodyComponent.useGravity} to opt out
    */
   gravity?: Vector;
   /**
    * Configure the type of physics simulation you would like
    *
-   * * {@apilink SolverStrategy.Arcade} is suitable for games where you might be doing platforming or top down movement.
-   * * {@apilink SolverStrategy.Realistic} is where you need objects to bounce off each other and respond like real world objects.
+   * * {@link SolverStrategy.Arcade} is suitable for games where you might be doing platforming or top down movement.
+   * * {@link SolverStrategy.Realistic} is where you need objects to bounce off each other and respond like real world objects.
    *
    * Default is Arcade
    */
@@ -79,7 +79,7 @@ export interface PhysicsConfig {
      * Treat composite collider's member colliders as either separate colliders for the purposes of onCollisionStart/onCollision
      * or as a single collider together.
      *
-     * This property can be overridden on individual {@apilink CompositeColliders}.
+     * This property can be overridden on individual {@link CompositeCollider}s.
      *
      * For composites without gaps or small groups of colliders, you probably want 'together'
      *
@@ -179,24 +179,24 @@ export interface PhysicsConfig {
   dynamicTree?: DynamicTreeConfig;
 
   /**
-   * Configure the {@apilink ArcadeSolver}
+   * Configure the {@link ArcadeSolver}
    */
   arcade?: {
     /**
-     * Hints the {@apilink ArcadeSolver} to preferentially solve certain contact directions first.
+     * Hints the {@link ArcadeSolver} to preferentially solve certain contact directions first.
      *
      * Options:
-     * * Solve {@apilink ContactSolveBias.VerticalFirst} which will do vertical contact resolution first (useful for platformers
+     * * Solve {@link ContactSolveBias.VerticalFirst} which will do vertical contact resolution first (useful for platformers
      * with up/down gravity)
-     * * Solve {@apilink ContactSolveBias.HorizontalFirst} which will do horizontal contact resolution first (useful for games with
+     * * Solve {@link ContactSolveBias.HorizontalFirst} which will do horizontal contact resolution first (useful for games with
      * left/right forces)
-     * * By default {@apilink ContactSolveBias.None} which sorts by distance
+     * * By default {@link ContactSolveBias.None} which sorts by distance
      */
     contactSolveBias?: ContactSolveBias;
   };
 
   /**
-   * Configure the {@apilink RealisticSolver}
+   * Configure the {@link RealisticSolver}
    */
   realistic?: {
     contactSolveBias?: ContactSolveBias;

@@ -85,7 +85,7 @@ export class TransformComponent extends Component {
 
   private _coordPlane = CoordPlane.World;
   /**
-   * The {@apilink CoordPlane | `coordinate plane`} for this transform for the entity.
+   * The {@link CoordPlane | `coordinate plane`} for this transform for the entity.
    */
   public get coordPlane() {
     if (this._parentComponent) {

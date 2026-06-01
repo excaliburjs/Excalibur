@@ -13,3 +13,4 @@ export * from './priority';
 export * from './components/transform-component';
 export * from './components/motion-component';
 export * from './components/pause-component';
+export * from './components/tags-component';

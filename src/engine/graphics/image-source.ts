@@ -86,7 +86,7 @@ export class ImageSource implements Loadable<HTMLImageElement> {
    * The path to the image, can also be a data url like 'data:image/'
    * @param pathOrBase64 {string} Path to the image resource relative from the HTML document hosting the game, or absolute
    * @param bustCache {boolean} Should excalibur add a cache busting querystring?
-   * @param filtering {ImageFiltering} Optionally override the image filtering set by {@apilink EngineOptions.antialiasing}
+   * @param filtering {ImageFiltering} Optionally override the image filtering set by {@link EngineOptions.antialiasing}
    */
   constructor(pathOrBase64: string, bustCache: boolean, filtering?: ImageFiltering);
   constructor(pathOrBase64: string, bustCacheOrOptions: boolean | ImageSourceOptions | undefined, filtering?: ImageFiltering) {

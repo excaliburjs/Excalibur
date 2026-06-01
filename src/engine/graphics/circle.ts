@@ -7,9 +7,9 @@ export interface CircleOptions {
 }
 
 /**
- * A circle {@apilink Graphic} for drawing circles to the {@apilink ExcaliburGraphicsContext}
+ * A circle {@link Graphic} for drawing circles to the {@link ExcaliburGraphicsContext}
  *
- * Circles default to {@apilink ImageFiltering.Blended}
+ * Circles default to {@link ImageFiltering.Blended}
  */
 export class Circle extends Raster {
   private _radius: number = 0;

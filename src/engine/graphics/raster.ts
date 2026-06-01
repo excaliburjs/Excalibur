@@ -24,7 +24,7 @@ export interface RasterOptions extends GraphicOptions {
   smoothing?: boolean;
 
   /**
-   * Optionally specify the color of the raster's bitmap context, by default {@apilink Color.Black}
+   * Optionally specify the color of the raster's bitmap context, by default {@link Color.Black}
    */
   color?: Color;
 
@@ -54,8 +54,8 @@ export interface RasterOptions extends GraphicOptions {
   padding?: number;
 
   /**
-   * Optionally specify what image filtering mode should be used, {@apilink ImageFiltering.Pixel} for pixel art,
-   * {@apilink ImageFiltering.Blended} for hi-res art
+   * Optionally specify what image filtering mode should be used, {@link ImageFiltering.Pixel} for pixel art,
+   * {@link ImageFiltering.Blended} for hi-res art
    *
    * By default unset, rasters defer to the engine antialiasing setting
    */
@@ -64,9 +64,9 @@ export interface RasterOptions extends GraphicOptions {
 
 /**
  * A Raster is a Graphic that needs to be first painted to a HTMLCanvasElement before it can be drawn to the
- * {@apilink ExcaliburGraphicsContext}. This is useful for generating custom images using the 2D canvas api.
+ * {@link ExcaliburGraphicsContext}. This is useful for generating custom images using the 2D canvas api.
  *
- * Implementors must implement the {@apilink Raster.execute} method to rasterize their drawing.
+ * Implementors must implement the {@link Raster.execute} method to rasterize their drawing.
  */
 export abstract class Raster extends Graphic {
   public filtering?: ImageFiltering;
@@ -259,7 +259,7 @@ export abstract class Raster extends Graphic {
 
   /**
    * Rasterize the graphic to a bitmap making it usable as in excalibur. Rasterize is called automatically if
-   * the graphic is {@apilink Raster.dirty} on the next {@apilink Graphic.draw} call
+   * the graphic is {@link Raster.dirty} on the next {@link Graphic.draw} call
    */
   public rasterize(): void {
     this._dirty = false;
@@ -296,7 +296,7 @@ export abstract class Raster extends Graphic {
 
   /**
    * Executes drawing implementation of the graphic, this is where the specific drawing code for the graphic
-   * should be implemented. Once `rasterize()` the graphic can be drawn to the {@apilink ExcaliburGraphicsContext} via `draw(...)`
+   * should be implemented. Once `rasterize()` the graphic can be drawn to the {@link ExcaliburGraphicsContext} via `draw(...)`
    * @param ctx Canvas to draw the graphic to
    */
   abstract execute(ctx: CanvasRenderingContext2D): void;

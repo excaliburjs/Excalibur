@@ -365,7 +365,7 @@ export class GraphicsComponent extends Component {
   }
 
   /**
-   * Use a graphic only, will set the default graphic. Returns the new {@apilink Graphic}
+   * Use a graphic only, will set the default graphic. Returns the new {@link Graphic}
    *
    * Optionally override the stored options
    * @param nameOrGraphic

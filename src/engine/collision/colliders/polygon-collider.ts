@@ -134,7 +134,7 @@ export class PolygonCollider extends Collider {
 
   /**
    * Returns if the polygon collider is convex, Excalibur does not handle non-convex collision shapes.
-   * Call {@apilink Polygon.triangulate} to generate a {@apilink CompositeCollider} from this non-convex shape
+   * Call {@link PolygonCollider.triangulate} to generate a {@link CompositeCollider} from this non-convex shape
    */
   public isConvex(): boolean {
     // From SO: https://stackoverflow.com/a/45372025
@@ -177,7 +177,7 @@ export class PolygonCollider extends Collider {
   }
 
   /**
-   * Tessellates the polygon into a triangle fan as a {@apilink CompositeCollider} of triangle polygons
+   * Tessellates the polygon into a triangle fan as a {@link CompositeCollider} of triangle polygons
    */
   public tessellate(): CompositeCollider {
     const polygons: Vector[][] = [];
@@ -191,7 +191,7 @@ export class PolygonCollider extends Collider {
 
   /**
    * Triangulate the polygon collider using the "Ear Clipping" algorithm.
-   * Returns a new {@apilink CompositeCollider} made up of smaller triangles.
+   * Returns a new {@link CompositeCollider} made up of smaller triangles.
    */
   public triangulate(): CompositeCollider {
     // https://www.youtube.com/watch?v=hTJFcHutls8

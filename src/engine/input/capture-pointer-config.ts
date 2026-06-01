@@ -1,5 +1,5 @@
 /**
- * Turn on move and drag events for an {@apilink Actor}
+ * Turn on move and drag events for an {@link Actor}
  */
 
 export interface CapturePointerConfig {

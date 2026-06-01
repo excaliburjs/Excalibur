@@ -23,7 +23,7 @@ export interface FrameStatistics {
   id: number;
 
   /**
-   * Gets the frame's delta (time since last frame scaled by {@apilink Engine.timescale}) (in ms)
+   * Gets the frame's delta (time since last frame scaled by {@link Engine.timescale}) (in ms)
    *
    * Excalibur extension depends on this
    */
@@ -158,7 +158,7 @@ export interface GraphicsStatistics {
 
 /**
  * Debug statistics and flags for Excalibur. If polling these values, it would be
- * best to do so on the `postupdate` event for {@apilink Engine}, after all values have been
+ * best to do so on the `postupdate` event for {@link Engine}, after all values have been
  * updated during a frame.
  */
 export class DebugConfig {
@@ -173,7 +173,7 @@ export class DebugConfig {
   }
 
   /**
-   * Switch the current excalibur clock with the {@apilink TestClock} and return
+   * Switch the current excalibur clock with the {@link TestClock} and return
    * it in the same running state.
    *
    * This is useful when you need to debug frame by frame.
@@ -192,7 +192,7 @@ export class DebugConfig {
   }
 
   /**
-   * Switch the current excalibur clock with the {@apilink StandardClock} and
+   * Switch the current excalibur clock with the {@link StandardClock} and
    * return it in the same running state.
    *
    * This is useful when you need to switch back to normal mode after
@@ -216,14 +216,14 @@ export class DebugConfig {
    */
   public stats: DebugStats = {
     /**
-     * Current frame statistics. Engine reuses this instance, use {@apilink FrameStats.clone} to copy frame stats.
-     * Best accessed on {@apilink postframe} event. See {@apilink FrameStats}
+     * Current frame statistics. Engine reuses this instance, use {@link FrameStats.clone} to copy frame stats.
+     * Best accessed on {@link postframe} event. See {@link FrameStats}
      */
     currFrame: new FrameStats(),
 
     /**
-     * Previous frame statistics. Engine reuses this instance, use {@apilink FrameStats.clone} to copy frame stats.
-     * Best accessed on {@apilink preframe} event. Best inspected on engine event `preframe`. See {@apilink FrameStats}
+     * Previous frame statistics. Engine reuses this instance, use {@link FrameStats.clone} to copy frame stats.
+     * Best accessed on {@link preframe} event. Best inspected on engine event `preframe`. See {@link FrameStats}
      */
     prevFrame: new FrameStats()
   };
@@ -244,8 +244,8 @@ export class DebugConfig {
   };
 
   /**
-   * Correct or simulate color blindness using {@apilink ColorBlindnessPostProcessor}.
-   * @warning Will reduce FPS.
+   * Correct or simulate color blindness using {@link ColorBlindnessPostProcessor}.
+   * **Warning:** Will reduce FPS.
    */
   public colorBlindMode: ColorBlindFlags;
 
@@ -400,7 +400,7 @@ export class DebugConfig {
 }
 
 /**
- * Implementation of a frame's stats. Meant to have values copied via {@apilink FrameStats.reset}, avoid
+ * Implementation of a frame's stats. Meant to have values copied via {@link FrameStats.reset}, avoid
  * creating instances of this every frame.
  */
 export class FrameStats implements FrameStatistics {

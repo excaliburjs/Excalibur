@@ -339,11 +339,8 @@ export class Graph<T> {
   /**
    * Finds the shortest path between two nodes in the graph using Dijkstra's algorithm.
    *
-   * This method calculates the shortest path from the specified start node to the
-   * specified end node in the graph. It returns an object containing the path and
-   * the total distance of the path.
-   * @param startNode - The node from which the search for the shortest path begins.
-   * @param endNode - The node where the search for the shortest path ends.
+   * This method calculates the shortest paths from the specified source node.
+   * @param sourcenode - The node from which the shortest path search begins.
    * @returns An object containing:
    *   - `path`: An array of nodes representing the shortest path from startNode to endNode.
    *     If no path is found, this will be `null`.

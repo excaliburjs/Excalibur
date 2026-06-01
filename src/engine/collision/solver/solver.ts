@@ -9,7 +9,6 @@ import type { CollisionContact } from '../detection/collision-contact';
  * 2. solveVelocity
  * 3. solvePosition
  * 4. postSolve
- * @inheritdoc
  */
 export interface CollisionSolver {
   // /**

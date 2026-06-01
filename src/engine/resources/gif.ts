@@ -5,8 +5,8 @@ import { Animation } from '../graphics/animation';
 import type { Loadable } from '../interfaces/index';
 import { ImageSource } from '../graphics/image-source';
 /**
- * The {@apilink Texture} object allows games built in Excalibur to load image resources.
- * {@apilink Texture} is an {@apilink Loadable} which means it can be passed to a {@apilink Loader}
+ * The {@link ImageSource} object allows games built in Excalibur to load image resources.
+ * {@link ImageSource} is an {@link Loadable} which means it can be passed to a {@link Loader}
  * to pre-load before starting a level or game.
  */
 export class Gif implements Loadable<ImageSource[]> {

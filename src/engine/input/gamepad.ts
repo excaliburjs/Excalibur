@@ -295,7 +295,7 @@ export class Gamepads {
 }
 
 /**
- * Gamepad holds state information for a connected controller. See {@apilink Gamepads}
+ * Gamepad holds state information for a connected controller. See {@link Gamepads}
  * for more information on handling controller input.
  */
 export class Gamepad {
@@ -367,7 +367,7 @@ export class Gamepad {
 
   /**
    * Gets the given axis value between -1 and 1. Values below
-   * {@apilink MinAxisMoveThreshold} are considered 0.
+   * {@link Gamepads.MinAxisMoveThreshold} are considered 0.
    */
   public getAxes(axes: Axes | number) {
     const value = this._axes[axes];

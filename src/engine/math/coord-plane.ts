@@ -1,5 +1,5 @@
 /**
- * Enum representing the coordinate plane for the position 2D vector in the {@apilink TransformComponent}
+ * Enum representing the coordinate plane for the position 2D vector in the {@link TransformComponent}
  */
 export enum CoordPlane {
   /**

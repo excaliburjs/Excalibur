@@ -33,7 +33,7 @@ export const SoundEvents = {
 
 export interface SoundOptions {
   /**
-   * @param paths A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
+   * A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
    */
   paths: string[];
   /**
@@ -98,9 +98,9 @@ function isSoundOptions(x: any): x is SoundOptions[] {
 }
 
 /**
- * The {@apilink Sound} object allows games built in Excalibur to load audio
- * components, from soundtracks to sound effects. {@apilink Sound} is an {@apilink Loadable}
- * which means it can be passed to a {@apilink Loader} to pre-load before a game or level.
+ * The {@link Sound} object allows games built in Excalibur to load audio
+ * components, from soundtracks to sound effects. {@link Sound} is an {@link Loadable}
+ * which means it can be passed to a {@link Loader} to pre-load before a game or level.
  */
 export class Sound implements Audio, Loadable<AudioBuffer> {
   public events = new EventEmitter<SoundEvents>();
@@ -210,10 +210,6 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
   private _wasPlayingOnHidden: boolean = false;
   private _playbackRate = 1.0;
   private _audioContext = AudioContextFactory.create();
-
-  /**
-   * @param paths A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
-   */
 
   constructor(options: SoundOptions);
   constructor(...paths: string[]);
@@ -448,7 +444,7 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
 
   /**
    * Get Id of provided AudioInstance in current trackList
-   * @param track {@apilink Audio} which Id is to be given
+   * @param track {@link Audio} which Id is to be given
    */
   public getTrackId(track: WebAudioInstance): number {
     return this._tracks.indexOf(track);

@@ -222,7 +222,7 @@ export class Query<
   /**
    * Potentially adds or removes an entity from a query index, returns true if added, false if not added or was removed.
    * @param entity
-   * @param [optional] removedComponent that should be treated as removed from the entity
+   * @param removedComponent Component that should be treated as removed from the entity
    */
   checkAndModify(entity: Entity, removedComponent?: ComponentCtor<Component>): boolean {
     const inCurrentQuery = this.entitiesSet.has(entity);

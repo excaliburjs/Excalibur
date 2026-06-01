@@ -46,7 +46,7 @@ export class BoundingBox {
   }
 
   /**
-   * Returns a new instance of {@apilink BoundingBox} that is a copy of the current instance
+   * Returns a new instance of {@link BoundingBox} that is a copy of the current instance
    */
   public clone(dest?: BoundingBox): BoundingBox {
     const result = dest || new BoundingBox(0, 0, 0, 0);
@@ -197,7 +197,7 @@ export class BoundingBox {
   }
 
   /**
-   * Transform the axis aligned bounding box by a {@apilink Matrix}, producing a new axis aligned bounding box
+   * Transform the axis aligned bounding box by a {@link Matrix}, producing a new axis aligned bounding box
    * @param matrix
    */
   public transform(matrix: AffineMatrix, dest?: BoundingBox) {
@@ -394,7 +394,7 @@ export class BoundingBox {
    * Test wether this bounding box intersects with another returning
    * the intersection vector that can be used to resolve the collision. If there
    * is no intersection null is returned.
-   * @param other  Other {@apilink BoundingBox} to test intersection with
+   * @param other  Other {@link BoundingBox} to test intersection with
    * @returns A Vector in the direction of the current BoundingBox, this <- other
    */
   public intersect(other: BoundingBox): Vector {
@@ -446,7 +446,7 @@ export class BoundingBox {
   /**
    * Draw a debug bounding box
    * @param ex
-   * @param color
+   * @param options
    * @deprecated
    */
   public draw(ex: ExcaliburGraphicsContext, options: RectGraphicsOptions = { color: Color.Yellow }) {
@@ -456,7 +456,7 @@ export class BoundingBox {
   /**
    * Draw a debug bounding box
    * @param ex
-   * @param color
+   * @param options
    */
   public debug(ex: ExcaliburGraphicsContext, options: RectGraphicsOptions = { color: Color.Yellow }) {
     ex.debug.drawRect(this.left, this.top, this.width, this.height, options);

@@ -46,7 +46,7 @@ export class StrategyContainer {
   constructor(public camera: Camera) {}
 
   /**
-   * Creates and adds the {@apilink LockCameraToActorStrategy} on the current camera.
+   * Creates and adds the {@link LockCameraToActorStrategy} on the current camera.
    * @param actor The actor to lock the camera to
    */
   public lockToActor(actor: Actor) {
@@ -54,7 +54,7 @@ export class StrategyContainer {
   }
 
   /**
-   * Creates and adds the {@apilink LockCameraToActorAxisStrategy} on the current camera
+   * Creates and adds the {@link LockCameraToActorAxisStrategy} on the current camera
    * @param actor The actor to lock the camera to
    * @param axis The axis to follow the actor on
    */
@@ -63,7 +63,7 @@ export class StrategyContainer {
   }
 
   /**
-   * Creates and adds the {@apilink ElasticToActorStrategy} on the current camera
+   * Creates and adds the {@link ElasticToActorStrategy} on the current camera
    * If cameraElasticity < cameraFriction < 1.0, the behavior will be a dampened spring that will slowly end at the target without bouncing
    * If cameraFriction < cameraElasticity < 1.0, the behavior will be an oscillating spring that will over
    * correct and bounce around the target
@@ -76,7 +76,7 @@ export class StrategyContainer {
   }
 
   /**
-   * Creates and adds the {@apilink RadiusAroundActorStrategy} on the current camera
+   * Creates and adds the {@link RadiusAroundActorStrategy} on the current camera
    * @param actor Target actor to follow when it is "radius" pixels away
    * @param radius Number of pixels away before the camera will follow
    */
@@ -85,7 +85,7 @@ export class StrategyContainer {
   }
 
   /**
-   * Creates and adds the {@apilink LimitCameraBoundsStrategy} on the current camera
+   * Creates and adds the {@link LimitCameraBoundsStrategy} on the current camera
    * @param box The bounding box to limit the camera to.
    */
   public limitCameraBounds(box: BoundingBox) {
@@ -201,7 +201,7 @@ export class RadiusAroundActorStrategy implements CameraStrategy<Actor> {
  */
 export class LimitCameraBoundsStrategy implements CameraStrategy<BoundingBox> {
   /**
-   * Useful for limiting the camera to a {@apilink TileMap}'s dimensions, or a specific area inside the map.
+   * Useful for limiting the camera to a {@link TileMap}'s dimensions, or a specific area inside the map.
    *
    * Note that this strategy does not perform any movement by itself.
    * It only sets the camera position to within the given bounds when the camera has gone beyond them.
@@ -258,7 +258,7 @@ export const CameraEvents = {
 /**
  * Cameras
  *
- * {@apilink Camera} is the base class for all Excalibur cameras. Cameras are used
+ * {@link Camera} is the base class for all Excalibur cameras. Cameras are used
  * to move around your game and set focus. They are used to determine
  * what is "off screen" and can be used to scale the game.
  *
@@ -404,7 +404,7 @@ export class Camera implements CanUpdate, CanInitialize {
   }
 
   /**
-   * Set the camera's x position (cannot be set when following an {@apilink Actor} or when moving)
+   * Set the camera's x position (cannot be set when following an {@link Actor} or when moving)
    */
   public set x(value: number) {
     if (!this._follow && !this._cameraMoving) {
@@ -420,7 +420,7 @@ export class Camera implements CanUpdate, CanInitialize {
   }
 
   /**
-   * Set the camera's y position (cannot be set when following an {@apilink Actor} or when moving)
+   * Set the camera's y position (cannot be set when following an {@link Actor} or when moving)
    */
   public set y(value: number) {
     if (!this._follow && !this._cameraMoving) {
@@ -483,9 +483,9 @@ export class Camera implements CanUpdate, CanInitialize {
    * This moves the camera focal point to the specified position using specified easing function. Cannot move when following an Actor.
    * @param pos The target position to move to
    * @param duration The duration in milliseconds the move should last
-   * @param [easingFn] An optional easing function ({@apilink EasingFunctions.EaseInOutCubic} by default)
-   * @returns A {@apilink Promise} that resolves when movement is finished, including if it's interrupted.
-   *          The {@apilink Promise} value is the {@apilink Vector} of the target position. It will be rejected if a move cannot be made.
+   * @param [easingFn] An optional easing function ({@link EasingFunctions.EaseInOutCubic} by default)
+   * @returns A Promise that resolves when movement is finished, including if it's interrupted.
+   *          The Promise value is the {@link Vector} of the target position. It will be rejected if a move cannot be made.
    */
   public move(pos: Vector, duration: number, easingFn: Easing | EasingFunction = EasingFunctions.EaseInOutCubic): Promise<Vector> {
     if (typeof easingFn !== 'function') {
@@ -581,7 +581,7 @@ export class Camera implements CanUpdate, CanInitialize {
 
   /**
    * Adds one or more new camera strategies to this camera
-   * @param cameraStrategy Instance of an {@apilink CameraStrategy}
+   * @param cameraStrategies Instances of {@link CameraStrategy}
    */
   public addStrategy<T extends CameraStrategy<any>[]>(...cameraStrategies: T) {
     this._cameraStrategies.push(...cameraStrategies);
@@ -589,7 +589,7 @@ export class Camera implements CanUpdate, CanInitialize {
 
   /**
    * Sets the strategies of this camera, replacing all existing strategies
-   * @param cameraStrategies Array of {@apilink CameraStrategy}
+   * @param cameraStrategies Array of {@link CameraStrategy}
    */
   public setStrategies<T extends CameraStrategy<any>[]>(cameraStrategies: T) {
     this._cameraStrategies = [...cameraStrategies];
@@ -597,7 +597,7 @@ export class Camera implements CanUpdate, CanInitialize {
 
   /**
    * Removes a camera strategy by reference
-   * @param cameraStrategy Instance of an {@apilink CameraStrategy}
+   * @param cameraStrategy Instance of an {@link CameraStrategy}
    */
   public removeStrategy<T>(cameraStrategy: CameraStrategy<T>) {
     removeItemFromArray(cameraStrategy, this._cameraStrategies);
@@ -613,7 +613,7 @@ export class Camera implements CanUpdate, CanInitialize {
   /**
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
-   * Internal _preupdate handler for {@apilink onPreUpdate} lifecycle event
+   * Internal _preupdate handler for {@link onPreUpdate} lifecycle event
    * @param engine The reference to the current game engine
    * @param elapsed  The time elapsed since the last update in milliseconds
    * @internal
@@ -637,7 +637,7 @@ export class Camera implements CanUpdate, CanInitialize {
   /**
    *  It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
-   * Internal _preupdate handler for {@apilink onPostUpdate} lifecycle event
+   * Internal _preupdate handler for {@link onPostUpdate} lifecycle event
    * @param engine The reference to the current game engine
    * @param elapsed  The time elapsed since the last update in milliseconds
    * @internal

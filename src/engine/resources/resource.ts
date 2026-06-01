@@ -19,8 +19,8 @@ export const ResourceEvents = {
 };
 
 /**
- * The {@apilink Resource} type allows games built in Excalibur to load generic resources.
- * For any type of remote resource it is recommended to use {@apilink Resource} for preloading.
+ * The {@link Resource} type allows games built in Excalibur to load generic resources.
+ * For any type of remote resource it is recommended to use {@link Resource} for preloading.
  */
 export class Resource<T> implements Loadable<T> {
   public data: T = null;

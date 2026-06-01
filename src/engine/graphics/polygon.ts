@@ -9,9 +9,9 @@ export interface PolygonOptions {
 }
 
 /**
- * A polygon {@apilink Graphic} for drawing arbitrary polygons to the {@apilink ExcaliburGraphicsContext}
+ * A polygon {@link Graphic} for drawing arbitrary polygons to the {@link ExcaliburGraphicsContext}
  *
- * Polygons default to {@apilink ImageFiltering.Blended}
+ * Polygons default to {@link ImageFiltering.Blended}
  */
 export class Polygon extends Raster {
   private _points: Vector[] = [];

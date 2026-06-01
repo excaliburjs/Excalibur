@@ -130,13 +130,13 @@ export interface EngineOptions<TKnownScenes extends string = any> {
 
   /**
    * Optionally configure the width & height of the viewport in css pixels.
-   * Use `viewport` instead of {@apilink EngineOptions.width} and {@apilink EngineOptions.height}, or vice versa.
+   * Use `viewport` instead of {@link EngineOptions.width} and {@link EngineOptions.height}, or vice versa.
    */
   viewport?: ViewportDimension;
 
   /**
    * Optionally specify the size the logical pixel resolution, if not specified it will be width x height.
-   * See {@apilink Resolution} for common presets.
+   * See {@link Resolution} for common presets.
    */
   resolution?: Resolution;
 
@@ -144,12 +144,12 @@ export interface EngineOptions<TKnownScenes extends string = any> {
    * Optionally specify antialiasing (smoothing), by default true (smooth pixels)
    *
    *  * `true` - useful for high resolution art work you would like smoothed, this also hints excalibur to load images
-   * with default blending {@apilink ImageFiltering.Blended}
+   * with default blending {@link ImageFiltering.Blended}
    *
    *  * `false` - useful for pixel art style art work you would like sharp, this also hints excalibur to load images
-   * with default blending {@apilink ImageFiltering.Pixel}
+   * with default blending {@link ImageFiltering.Pixel}
    *
-   * * {@apilink AntialiasOptions} Optionally deeply configure the different antialiasing settings, **WARNING** thar be dragons here.
+   * * {@link AntialiasOptions} Optionally deeply configure the different antialiasing settings, **WARNING** thar be dragons here.
    * It is recommended you stick to `true` or `false` unless you understand what you're doing and need to control rendering to
    * a high degree.
    */
@@ -162,7 +162,7 @@ export interface EngineOptions<TKnownScenes extends string = any> {
    *
    * * `false` - garbage collection is completely disabled (not recommended)
    *
-   * * {@apilink GarbageCollectionOptions} Optionally deeply configure garbage collection settings, **WARNING** thar be dragons here.
+   * * {@link GarbageCollectionOptions} Optionally deeply configure garbage collection settings, **WARNING** thar be dragons here.
    * It is recommended you stick to `true` or `false` unless you understand what you're doing, it is possible to get into a downward
    * spiral if collection timings are set too low where you are stuck in repeated collection.
    */
@@ -206,7 +206,7 @@ export interface EngineOptions<TKnownScenes extends string = any> {
 
   /**
    * Optionally upscale the number of pixels in the canvas. Normally only useful if you need a smoother look to your assets, especially
-   * {@apilink Text} or Pixel Art assets.
+   * {@link Text} or Pixel Art assets.
    *
    * **WARNING** It is recommended you try using `antialiasing: true` before adjusting pixel ratio. Pixel ratio will consume more memory
    * and on mobile may break if the internal size of the canvas exceeds 4k pixels in width or height.
@@ -243,8 +243,8 @@ export interface EngineOptions<TKnownScenes extends string = any> {
   snapToPixel?: boolean;
 
   /**
-   * The {@apilink DisplayMode} of the game, by default {@apilink DisplayMode.FitScreen} with aspect ratio 4:3 (800x600).
-   * Depending on this value, {@apilink width} and {@apilink height} may be ignored.
+   * The {@link DisplayMode} of the game, by default {@link DisplayMode.FitScreen} with aspect ratio 4:3 (800x600).
+   * Depending on this value, {@link width} and {@link height} may be ignored.
    */
   displayMode?: DisplayMode;
 
@@ -388,12 +388,12 @@ export interface EngineOptions<TKnownScenes extends string = any> {
    *
    * If false, Excalibur will not produce a physics simulation.
    *
-   * Default is configured to use {@apilink SolverStrategy.Arcade} physics simulation
+   * Default is configured to use {@link SolverStrategy.Arcade} physics simulation
    */
   physics?: boolean | PhysicsConfig;
 
   /**
-   * Optionally specify scenes with their transitions and loaders to excalibur's scene {@apilink Director}
+   * Optionally specify scenes with their transitions and loaders to excalibur's scene {@link Director}
    *
    * Scene transitions can can overridden dynamically by the `Scene` or by the call to `.goToScene`
    */
@@ -403,7 +403,7 @@ export interface EngineOptions<TKnownScenes extends string = any> {
 /**
  * The Excalibur Engine
  *
- * The {@apilink Engine} is the main driver for a game. It is responsible for
+ * The {@link Engine} is the main driver for a game. It is responsible for
  * starting/stopping the game, maintaining state, transmitting events,
  * loading resources, and managing the scene.
  */
@@ -613,28 +613,28 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   public debug: DebugConfig;
 
   /**
-   * Access {@apilink stats} that holds frame statistics.
+   * Access {@link stats} that holds frame statistics.
    */
   public get stats(): DebugStats {
     return this.debug.stats;
   }
 
   /**
-   * The current {@apilink Scene} being drawn and updated on screen
+   * The current {@link Scene} being drawn and updated on screen
    */
   public get currentScene(): Scene {
     return this.director.currentScene;
   }
 
   /**
-   * The current {@apilink Scene} being drawn and updated on screen
+   * The current {@link Scene} being drawn and updated on screen
    */
   public get currentSceneName(): string {
     return this.director.currentSceneName;
   }
 
   /**
-   * The default {@apilink Scene} of the game, use {@apilink Engine.goToScene} to transition to different scenes.
+   * The default {@link Scene} of the game, use {@link Engine.goToScene} to transition to different scenes.
    */
   public get rootScene(): Scene {
     return this.director.rootScene;
@@ -655,7 +655,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   }
 
   /**
-   * Indicates the current {@apilink DisplayMode} of the engine.
+   * Indicates the current {@link DisplayMode} of the engine.
    */
   public get displayMode(): DisplayMode {
     return this.screen.displayMode;
@@ -757,7 +757,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   }
 
   /**
-   * Default {@apilink EngineOptions}
+   * Default {@link EngineOptions}
    */
   private static _DEFAULT_ENGINE_OPTIONS: EngineOptions = {
     width: 0,
@@ -791,9 +791,9 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   public readonly _originalDisplayMode: DisplayMode;
 
   /**
-   * Creates a new game using the given {@apilink EngineOptions}. By default, if no options are provided,
+   * Creates a new game using the given {@link EngineOptions}. By default, if no options are provided,
    * the game will be rendered full screen (taking up all available browser window space).
-   * You can customize the game rendering through {@apilink EngineOptions}.
+   * You can customize the game rendering through {@link EngineOptions}.
    *
    * Example:
    *
@@ -1184,7 +1184,7 @@ O|===|* >________________>\n\
 
   /**
    * Switches the engine's graphics context to the 2D Canvas.
-   * @warning Some features of Excalibur will not work in this mode.
+   * **Warning:** Some features of Excalibur will not work in this mode.
    */
   public useCanvas2DFallback() {
     // Swap out the canvas
@@ -1285,23 +1285,23 @@ O|===|* >________________>\n\
   }
 
   /**
-   * Adds a {@apilink Timer} to the {@apilink currentScene}.
-   * @param timer  The timer to add to the {@apilink currentScene}.
+   * Adds a {@link Timer} to the {@link currentScene}.
+   * @param timer  The timer to add to the {@link currentScene}.
    */
   public addTimer(timer: Timer): Timer {
     return this.currentScene.addTimer(timer);
   }
 
   /**
-   * Removes a {@apilink Timer} from the {@apilink currentScene}.
-   * @param timer  The timer to remove to the {@apilink currentScene}.
+   * Removes a {@link Timer} from the {@link currentScene}.
+   * @param timer  The timer to remove to the {@link currentScene}.
    */
   public removeTimer(timer: Timer): Timer {
     return this.currentScene.removeTimer(timer);
   }
 
   /**
-   * Adds a {@apilink Scene} to the engine, think of scenes in Excalibur as you
+   * Adds a {@link Scene} to the engine, think of scenes in Excalibur as you
    * would levels or menus.
    * @param key  The name of the scene, must be unique
    * @param scene The scene to add to the engine
@@ -1312,7 +1312,7 @@ O|===|* >________________>\n\
   }
 
   /**
-   * Removes a {@apilink Scene} instance from the engine
+   * Removes a {@link Scene} instance from the engine
    * @param scene  The scene to remove
    */
   public removeScene(scene: Scene | SceneConstructor): void;
@@ -1329,39 +1329,39 @@ O|===|* >________________>\n\
   }
 
   /**
-   * Adds a {@apilink Scene} to the engine, think of scenes in Excalibur as you
+   * Adds a {@link Scene} to the engine, think of scenes in Excalibur as you
    * would levels or menus.
    * @param sceneKey  The key of the scene, must be unique
    * @param scene     The scene to add to the engine
    */
   public add(sceneKey: string, scene: Scene | SceneConstructor | SceneWithOptions): void;
   /**
-   * Adds a {@apilink Timer} to the {@apilink currentScene}.
-   * @param timer  The timer to add to the {@apilink currentScene}.
+   * Adds a {@link Timer} to the {@link currentScene}.
+   * @param timer  The timer to add to the {@link currentScene}.
    */
   public add(timer: Timer): void;
   /**
-   * Adds a {@apilink TileMap} to the {@apilink currentScene}, once this is done the TileMap
+   * Adds a {@link TileMap} to the {@link currentScene}, once this is done the TileMap
    * will be drawn and updated.
    */
   public add(tileMap: TileMap): void;
   /**
-   * Adds an actor to the {@apilink currentScene} of the game. This is synonymous
+   * Adds an actor to the {@link currentScene} of the game. This is synonymous
    * to calling `engine.currentScene.add(actor)`.
    *
    * Actors can only be drawn if they are a member of a scene, and only
-   * the {@apilink currentScene} may be drawn or updated.
-   * @param actor  The actor to add to the {@apilink currentScene}
+   * the {@link currentScene} may be drawn or updated.
+   * @param actor  The actor to add to the {@link currentScene}
    */
   public add(actor: Actor): void;
 
   public add(entity: Entity): void;
 
   /**
-   * Adds a {@apilink ScreenElement} to the {@apilink currentScene} of the game,
+   * Adds a {@link ScreenElement} to the {@link currentScene} of the game,
    * ScreenElements do not participate in collisions, instead the
    * remain in the same place on the screen.
-   * @param screenElement  The ScreenElement to add to the {@apilink currentScene}
+   * @param screenElement  The ScreenElement to add to the {@link currentScene}
    */
   public add(screenElement: ScreenElement): void;
   public add(entity: any): void {
@@ -1388,24 +1388,24 @@ O|===|* >________________>\n\
    */
   public remove(sceneKey: string): void;
   /**
-   * Removes a {@apilink Timer} from the {@apilink currentScene}.
-   * @param timer  The timer to remove to the {@apilink currentScene}.
+   * Removes a {@link Timer} from the {@link currentScene}.
+   * @param timer  The timer to remove to the {@link currentScene}.
    */
   public remove(timer: Timer): void;
   /**
-   * Removes a {@apilink TileMap} from the {@apilink currentScene}, it will no longer be drawn or updated.
+   * Removes a {@link TileMap} from the {@link currentScene}, it will no longer be drawn or updated.
    */
   public remove(tileMap: TileMap): void;
   /**
-   * Removes an actor from the {@apilink currentScene} of the game. This is synonymous
+   * Removes an actor from the {@link currentScene} of the game. This is synonymous
    * to calling `engine.currentScene.removeChild(actor)`.
    * Actors that are removed from a scene will no longer be drawn or updated.
-   * @param actor  The actor to remove from the {@apilink currentScene}.
+   * @param actor  The actor to remove from the {@link currentScene}.
    */
   public remove(actor: Actor): void;
   /**
-   * Removes a {@apilink ScreenElement} to the scene, it will no longer be drawn or updated
-   * @param screenElement  The ScreenElement to remove from the {@apilink currentScene}
+   * Removes a {@link ScreenElement} to the scene, it will no longer be drawn or updated
+   * @param screenElement  The ScreenElement to remove from the {@link currentScene}
    */
   public remove(screenElement: ScreenElement): void;
   public remove(entity: any): void {
@@ -1704,7 +1704,7 @@ O|===|* >________________>\n\
   /**
    * Starts the internal game loop for Excalibur after loading
    * any provided assets.
-   * @param loader  Optional {@apilink Loader} to use to load resources. The default loader is {@apilink Loader},
+   * @param loader  Optional {@link Loader} to use to load resources. The default loader is {@link Loader},
    * override to provide your own custom loader.
    *
    * Note: start() only resolves AFTER the user has clicked the play button
@@ -1712,7 +1712,8 @@ O|===|* >________________>\n\
   public async start(loader?: DefaultLoader): Promise<void>;
   /**
    * Starts the internal game loop for Excalibur after configuring any routes, loaders, or transitions
-   * @param startOptions Optional {@apilink StartOptions} to configure the routes for scenes in Excalibur
+   * @param sceneName The scene to start in.
+   * @param options Optional {@link StartOptions} to configure the routes for scenes in Excalibur
    *
    * Note: start() only resolves AFTER the user has clicked the play button
    */
@@ -1873,7 +1874,7 @@ O|===|* >________________>\n\
    * Another option available to you to load resources into the game.
    * Immediately after calling this the game will pause and the loading screen
    * will appear.
-   * @param loader  Some {@apilink Loadable} such as a {@apilink Loader} collection, {@apilink Sound}, or {@apilink Texture}.
+   * @param loader  Some {@link Loadable} such as a {@link Loader} collection, {@link Sound}, or {@link ImageSource}.
    */
   public async load(loader: DefaultLoader, hideLoader = false): Promise<void> {
     await this.scope(async () => {

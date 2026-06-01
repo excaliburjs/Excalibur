@@ -133,7 +133,7 @@ export class Director<TKnownScenes extends string = any> {
   mainLoader?: DefaultLoader;
 
   /**
-   * The default {@apilink Scene} of the game, use {@apilink Engine.goToScene} to transition to different scenes.
+   * The default {@link Scene} of the game, use {@link Engine.goToScene} to transition to different scenes.
    */
   public readonly rootScene: Scene;
 

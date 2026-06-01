@@ -32,7 +32,7 @@ export interface LoaderOptions extends DefaultLoaderOptions {
  * one time. The loader must be passed to the engine in order to
  * trigger the loading progress bar.
  *
- * The {@apilink Loader} itself implements {@apilink Loadable} so you can load loaders.
+ * The {@link Loader} itself implements {@link Loadable} so you can load loaders.
  *
  * ## Example: Pre-loading resources for a game
  *
@@ -125,7 +125,7 @@ export class Loader extends DefaultLoader {
   public loadingBarPosition!: Vector | null;
 
   /**
-   * Gets or sets the color of the loading bar, default is {@apilink Color.White}
+   * Gets or sets the color of the loading bar, default is {@link Color.White}
    */
   public loadingBarColor: Color = Color.White;
 

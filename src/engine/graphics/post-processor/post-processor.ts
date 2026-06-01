@@ -4,7 +4,7 @@ import type { ExcaliburGraphicsContextWebGL } from '../context/excalibur-graphic
 
 /**
  * PostProcessors can be used to apply a shader to the entire screen. It is recommended
- * you use the {@apilink ScreenShader} to build your post processor shader.
+ * you use the {@link ScreenShader} to build your post processor shader.
  *
  * The screen texture comes through as this uniform
  *
@@ -16,7 +16,7 @@ import type { ExcaliburGraphicsContextWebGL } from '../context/excalibur-graphic
  * `uniform float u_elapsed_ms` - the elapsed time from the last frame in milliseconds
  * `uniform vec2 u_resolution` - the resolution of the canvas (in pixels)
  *
- * Custom uniforms can be updated in the {@apilink PostProcessor.onUpdate}
+ * Custom uniforms can be updated in the {@link PostProcessor.onUpdate}
  */
 export interface PostProcessor {
   initialize(graphicsContext: ExcaliburGraphicsContextWebGL): void;
@@ -32,7 +32,6 @@ export interface PostProcessor {
 
   /**
    * Use the onDraw hook to upload any textures or command that need to run right before draw
-   * @param elapsed
    */
   onDraw?(): void;
 }

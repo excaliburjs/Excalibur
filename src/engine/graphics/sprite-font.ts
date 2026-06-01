@@ -15,7 +15,7 @@ export interface SpriteFontOptions {
    */
   alphabet: string;
   /**
-   * {@apilink SpriteSheet} to source character sprites from
+   * {@link SpriteSheet} to source character sprites from
    */
   spriteSheet: SpriteSheet;
   /**

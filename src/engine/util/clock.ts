@@ -91,7 +91,7 @@ export abstract class Clock {
     this._onFatalException = handler;
   }
   /**
-   * Schedule a callback to fire given a timeout in milliseconds using the excalibur {@apilink Clock}
+   * Schedule a callback to fire given a timeout in milliseconds using the excalibur {@link Clock}
    *
    * This is useful to use over the built in browser `setTimeout` because callbacks will be tied to the
    * excalibur update clock, instead of browser time, this means that callbacks wont fire if the game is
@@ -99,7 +99,7 @@ export abstract class Clock {
    * @param cb callback to fire
    * @param timeoutMs Optionally specify a timeout in milliseconds from now, default is 0ms which means the next possible tick
    * @param timing Optionally specify a timeout in milliseconds from now, default is 0ms which means the next possible tick
-   * @returns A unique identifier that can be used to clear the scheduled callback with {@apilink clearSchedule}
+   * @returns A unique identifier that can be used to clear the scheduled callback with {@link clearSchedule}
    */
   public schedule(cb: (elapsed: number) => any, timeoutMs: number = 0, timing: ScheduledCallbackTiming = 'preframe'): ScheduleId {
     // Scheduled based on internal elapsed time
@@ -111,7 +111,7 @@ export abstract class Clock {
 
   private _idsToRemove: ScheduleId[] = [];
   /**
-   * Clears a scheduled callback using the ID returned from {@apilink schedule}
+   * Clears a scheduled callback using the ID returned from {@link schedule}
    * @param id The ID of the scheduled callback to clear
    */
   public clearSchedule(id: ScheduleId): void {
@@ -209,7 +209,7 @@ export abstract class Clock {
 }
 
 /**
- * The {@apilink StandardClock} implements the requestAnimationFrame browser api to run the tick()
+ * The {@link StandardClock} implements the requestAnimationFrame browser api to run the tick()
  */
 export class StandardClock extends Clock {
   private _running = false;

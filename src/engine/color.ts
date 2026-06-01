@@ -1,9 +1,9 @@
 import { lerp, Random } from './math';
 
 /**
- * Provides standard colors (e.g. {@apilink Color.Black})
+ * Provides standard colors (e.g. {@link Color.Black})
  * but you can also create custom colors using RGB, HSL, or Hex. Also provides
- * useful color operations like {@apilink Color.lighten}, {@apilink Color.darken}, and more.
+ * useful color operations like {@link Color.lighten}, {@link Color.darken}, and more.
  */
 export class Color {
   /**

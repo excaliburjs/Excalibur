@@ -33,7 +33,7 @@ export abstract class Collider implements Clonable<Collider> {
   /**
    * Returns a boolean indicating whether this body collided with
    * or was in stationary contact with
-   * the body of the other {@apilink Collider}
+   * the body of the other {@link Collider}
    */
   public touching(other: Collider): boolean {
     const contact = this.collide(other);

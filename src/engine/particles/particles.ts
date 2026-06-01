@@ -15,7 +15,7 @@ import type { ParticleEmitter } from './particle-emitter';
 
 /**
 /**
- * CPU Particle is used in a {@apilink ParticleEmitter}
+ * CPU Particle is used in a {@link ParticleEmitter}
  */
 export class Particle extends Entity {
   public static DefaultConfig: ParticleConfig = {
@@ -175,10 +175,10 @@ export class Particle extends Entity {
 
 export interface ParticleConfig {
   /**
-   * Optionally set the emitted particle transform style, {@apilink ParticleTransform.Global} is the default and emits particles as if
+   * Optionally set the emitted particle transform style, {@link ParticleTransform.Global} is the default and emits particles as if
    * they were world space objects, useful for most effects.
    *
-   * If set to {@apilink ParticleTransform.Local} particles are children of the emitter and move relative to the emitter
+   * If set to {@link ParticleTransform.Local} particles are children of the emitter and move relative to the emitter
    * as they would in a parent/child actor relationship.
    */
   transform?: ParticleTransform;
@@ -289,12 +289,12 @@ export interface ParticleConfig {
 
 export enum ParticleTransform {
   /**
-   * {@apilink ParticleTransform.Global} is the default and emits particles as if
+   * {@link ParticleTransform.Global} is the default and emits particles as if
    * they were world space objects, useful for most effects.
    */
   Global = 'global',
   /**
-   * {@apilink ParticleTransform.Local} particles are children of the emitter and move relative to the emitter
+   * {@link ParticleTransform.Local} particles are children of the emitter and move relative to the emitter
    * as they would in a parent/child actor relationship.
    */
   Local = 'local'

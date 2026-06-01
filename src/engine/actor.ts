@@ -75,7 +75,7 @@ export type ActorArgs = ColliderArgs & {
    */
   pos?: Vector;
   /**
-   * Optionally set the coordinate plane of the actor, default is {@apilink CoordPlane.World} meaning actor is subject to camera positioning
+   * Optionally set the coordinate plane of the actor, default is {@link CoordPlane.World} meaning actor is subject to camera positioning
    */
   coordPlane?: CoordPlane;
   /**
@@ -137,7 +137,7 @@ export type ActorArgs = ColliderArgs & {
   collisionType?: CollisionType;
 
   /**
-   * Optionally supply a {@apilink CollisionGroup}
+   * Optionally supply a {@link CollisionGroup}
    */
   collisionGroup?: CollisionGroup;
   /**
@@ -267,7 +267,7 @@ export const ActorEvents = {
  * The most important primitive in Excalibur is an `Actor`. Anything that
  * can move on the screen, collide with another `Actor`, respond to events,
  * or interact with the current scene, must be an actor. An `Actor` **must**
- * be part of a {@apilink Scene} for it to be drawn to the screen.
+ * be part of a {@link Scene} for it to be drawn to the screen.
  */
 export class Actor extends Entity implements Eventable, PointerEvents, CanInitialize, CanUpdate, CanBeKilled {
   public events = new EventEmitter<ActorEvents>();
@@ -293,35 +293,35 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   public paused: PauseComponent;
 
   /**
-   * Access the Actor's built in {@apilink TransformComponent}
+   * Access the Actor's built in {@link TransformComponent}
    */
   public transform: TransformComponent;
 
   /**
-   * Access the Actor's built in {@apilink MotionComponent}
+   * Access the Actor's built in {@link MotionComponent}
    */
   public motion: MotionComponent;
 
   /**
-   * Access to the Actor's built in {@apilink GraphicsComponent}
+   * Access to the Actor's built in {@link GraphicsComponent}
    */
   public graphics: GraphicsComponent;
 
   /**
-   * Access to the Actor's built in {@apilink ColliderComponent}
+   * Access to the Actor's built in {@link ColliderComponent}
    */
   public collider: ColliderComponent;
 
   /**
-   * Access to the Actor's built in {@apilink PointerComponent} config
+   * Access to the Actor's built in {@link PointerComponent} config
    */
   public pointer: PointerComponent;
 
   /**
    * Useful for quickly scripting actor behavior, like moving to a place, patrolling back and forth, blinking, etc.
    *
-   *  Access to the Actor's built in {@apilink ActionsComponent} which forwards to the
-   * {@apilink ActionContext | `Action context`} of the actor.
+   *  Access to the Actor's built in {@link ActionsComponent} which forwards to the
+   * {@link ActionContext | `Action context`} of the actor.
    */
   public actions: ActionsComponent;
 
@@ -404,14 +404,14 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   }
 
   /**
-   * Sets the acceleration of the actor from the last frame. This does not include the global acc {@apilink Physics.acc}.
+   * Sets the acceleration of the actor from the last frame. This does not include the global physics acceleration.
    */
   public set oldAcc(theAcc: Vector) {
     this.body.oldAcc.setTo(theAcc.x, theAcc.y);
   }
 
   /**
-   * Gets the acceleration of the actor from the last frame. This does not include the global acc {@apilink Physics.acc}.
+   * Gets the acceleration of the actor from the last frame. This does not include the global physics acceleration.
    */
   public get oldAcc(): Vector {
     return this.body.oldAcc;
@@ -804,7 +804,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   /**
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
-   * Internal _prekill handler for {@apilink onPreKill} lifecycle event
+   * Internal _prekill handler for {@link onPreKill} lifecycle event
    * @internal
    */
   public _prekill(scene: Scene) {
@@ -815,7 +815,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   /**
    * Safe to override onPreKill lifecycle event handler. Synonymous with `.on('prekill', (evt) =>{...})`
    *
-   * `onPreKill` is called directly before an actor is killed and removed from its current {@apilink Scene}.
+   * `onPreKill` is called directly before an actor is killed and removed from its current {@link Scene}.
    */
   public onPreKill(scene: Scene) {
     // Override me
@@ -824,7 +824,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   /**
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
-   * Internal _prekill handler for {@apilink onPostKill} lifecycle event
+   * Internal _prekill handler for {@link onPostKill} lifecycle event
    * @internal
    */
   public _postkill(scene: Scene) {
@@ -835,7 +835,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   /**
    * Safe to override onPostKill lifecycle event handler. Synonymous with `.on('postkill', (evt) => {...})`
    *
-   * `onPostKill` is called directly after an actor is killed and remove from its current {@apilink Scene}.
+   * `onPostKill` is called directly after an actor is killed and remove from its current {@link Scene}.
    */
   public onPostKill(scene: Scene) {
     // Override me
@@ -918,7 +918,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   /**
    * Gets this actor's rotation taking into account any parent relationships
    * @returns Rotation angle in radians
-   * @deprecated Use {@apilink globalRotation} instead
+   * @deprecated Use {@link globalRotation} instead
    */
   public getGlobalRotation(): number {
     return this.get(TransformComponent).globalRotation;
@@ -934,7 +934,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   /**
    * Gets an actor's world position taking into account parent relationships, scaling, rotation, and translation
    * @returns Position in world coordinates
-   * @deprecated Use {@apilink globalPos} instead
+   * @deprecated Use {@link globalPos} instead
    */
   public getGlobalPos(): Vector {
     return this.get(TransformComponent).globalPos;
@@ -949,7 +949,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
 
   /**
    * Gets the global scale of the Actor
-   * @deprecated Use {@apilink globalScale} instead
+   * @deprecated Use {@link globalScale} instead
    */
   public getGlobalScale(): Vector {
     return this.get(TransformComponent).globalScale;
@@ -1103,7 +1103,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   /**
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
-   * Internal _preupdate handler for {@apilink onPreUpdate} lifecycle event
+   * Internal _preupdate handler for {@link onPreUpdate} lifecycle event
    * @param engine The reference to the current game engine
    * @param elapsed  The time elapsed since the last update in milliseconds
    * @internal
@@ -1116,7 +1116,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   /**
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
-   * Internal _preupdate handler for {@apilink onPostUpdate} lifecycle event
+   * Internal _preupdate handler for {@link onPostUpdate} lifecycle event
    * @param engine The reference to the current game engine
    * @param elapsed  The time elapsed since the last update in milliseconds
    * @internal

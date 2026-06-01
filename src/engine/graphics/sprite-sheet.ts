@@ -98,7 +98,7 @@ export class SpriteSheet {
   /**
    * Build a new sprite sheet from a list of sprites
    *
-   * Use {@apilink SpriteSheet.fromImageSource} to create a SpriteSheet from an {@apilink ImageSource} organized in a grid
+   * Use {@link SpriteSheet.fromImageSource} to create a SpriteSheet from an {@link ImageSource} organized in a grid
    * @param options
    */
   constructor(options: SpriteSheetOptions) {
@@ -109,7 +109,7 @@ export class SpriteSheet {
   }
 
   /**
-   * Find a sprite by their x/y integer coordinates in the SpriteSheet, for example `getSprite(0, 0)` is the {@apilink Sprite} in the top-left
+   * Find a sprite by their x/y integer coordinates in the SpriteSheet, for example `getSprite(0, 0)` is the {@link Sprite} in the top-left
    * and `getSprite(1, 0)` is the sprite one to the right.
    * @param x
    * @param y
@@ -144,7 +144,7 @@ export class SpriteSheet {
 
   /**
    * Find a sprite by their x/y integer coordinates in the SpriteSheet and configures tiling to repeat by default,
-   * for example `getTiledSprite(0, 0)` is the {@apilink TiledSprite} in the top-left
+   * for example `getTiledSprite(0, 0)` is the {@link TiledSprite} in the top-left
    * and `getTiledSprite(1, 0)` is the sprite one to the right.
    *
    * Example:
@@ -287,7 +287,7 @@ export class SpriteSheet {
   }
 
   /**
-   * Create a sprite sheet from a sparse set of {@apilink SourceView} rectangles
+   * Create a sprite sheet from a sparse set of {@link SourceView} rectangles
    * @param options
    */
   public static fromImageSourceWithSourceViews(options: SpriteSheetSparseOptions): SpriteSheet {
@@ -301,7 +301,7 @@ export class SpriteSheet {
   }
 
   /**
-   * Create a SpriteSheet from an {@apilink ImageSource} organized in a grid
+   * Create a SpriteSheet from an {@link ImageSource} organized in a grid
    *
    * Example:
    * ```

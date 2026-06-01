@@ -1,7 +1,7 @@
 ﻿import { Vector } from '../math/vector';
 
 /**
- * A definition of an EasingFunction. See {@apilink EasingFunctions}.
+ * A definition of an EasingFunction. See {@link EasingFunctions}.
  * @deprecated
  */
 // tslint:disable-next-line

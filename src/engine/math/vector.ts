@@ -121,7 +121,7 @@ export class Vector implements Clonable<Vector> {
 
   /**
    * Set the x component, THIS MUTATES the current vector. It is usually better to create a new vector.
-   * @warning **Be very careful setting components on shared vectors, mutating shared vectors can cause hard to find bugs**
+   * **Warning:** **Be very careful setting components on shared vectors, mutating shared vectors can cause hard to find bugs**
    */
   public set x(val: number) {
     this._x = val;
@@ -137,7 +137,7 @@ export class Vector implements Clonable<Vector> {
 
   /**
    * Set the y component, THIS MUTATES the current vector. It is usually better to create a new vector.
-   * @warning **Be very careful setting components on shared vectors, mutating shared vectors can cause hard to find bugs**
+   * **Warning:** **Be very careful setting components on shared vectors, mutating shared vectors can cause hard to find bugs**
    */
   public set y(val: number) {
     this._y = val;
@@ -145,7 +145,7 @@ export class Vector implements Clonable<Vector> {
 
   /**
    * Sets the x and y components at once, THIS MUTATES the current vector. It is usually better to create a new vector.
-   * @warning **Be very careful using this, mutating vectors can cause hard to find bugs**
+   * **Warning:** **Be very careful using this, mutating vectors can cause hard to find bugs**
    */
   setTo(x: number, y: number) {
     (this.x as number) = x;
@@ -162,7 +162,7 @@ export class Vector implements Clonable<Vector> {
   }
 
   /**
-   * The distance to another vector. If no other Vector is specified, this will return the {@apilink magnitude}.
+   * The distance to another vector. If no other Vector is specified, this will return the {@link magnitude}.
    * @param v  The other vector. Leave blank to use origin vector.
    */
   public distance(v?: Vector): number {
@@ -204,7 +204,7 @@ export class Vector implements Clonable<Vector> {
 
   /**
    * Setting the size mutates the current vector
-   * @warning Can be used to set the size of the vector, **be very careful using this, mutating vectors can cause hard to find bugs**
+   * **Warning:** Can be used to set the size of the vector, **be very careful using this, mutating vectors can cause hard to find bugs**
    * @deprecated Will be removed in v1, use Vector.magnitude
    */
   public set size(newLength: number) {
@@ -221,7 +221,7 @@ export class Vector implements Clonable<Vector> {
 
   /**
    * Setting the size mutates the current vector
-   * @warning Can be used to set the size of the vector, **be very careful using this, mutating vectors can cause hard to find bugs**
+   * **Warning:** Can be used to set the size of the vector, **be very careful using this, mutating vectors can cause hard to find bugs**
    */
   public set magnitude(newMagnitude: number) {
     this.normalize().scale(newMagnitude, this);
@@ -247,8 +247,7 @@ export class Vector implements Clonable<Vector> {
   }
 
   /**
-   * Scales a vector's by a factor of size
-   * @param size  The factor to scale the magnitude by
+   * Scales a vector by a factor or another vector
    * @param dest  Optionally provide a destination vector for the result
    */
   public scale(scale: Vector, dest?: Vector): Vector;
@@ -295,7 +294,7 @@ export class Vector implements Clonable<Vector> {
   /**
    * Adds one vector to this one modifying the original
    * @param v The vector to add
-   * @warning Be very careful using this, mutating vectors can cause hard to find bugs
+   * **Warning:** Be very careful using this, mutating vectors can cause hard to find bugs
    */
   public addEqual(v: Vector): Vector {
     this.setTo(this.x + v.x, this.y + v.y);
@@ -305,7 +304,7 @@ export class Vector implements Clonable<Vector> {
   /**
    * Subtracts a vector from this one modifying the original
    * @param v The vector to subtract
-   * @warning Be very careful using this, mutating vectors can cause hard to find bugs
+   * **Warning:** Be very careful using this, mutating vectors can cause hard to find bugs
    */
   public subEqual(v: Vector): Vector {
     this.setTo(this.x - v.x, this.y - v.y);
@@ -314,7 +313,7 @@ export class Vector implements Clonable<Vector> {
 
   /**
    * Scales this vector by a factor of size and modifies the original
-   * @warning Be very careful using this, mutating vectors can cause hard to find bugs
+   * **Warning:** Be very careful using this, mutating vectors can cause hard to find bugs
    */
   public scaleEqual(size: number): Vector {
     this.setTo(this.x * size, this.y * size);
@@ -382,8 +381,8 @@ export class Vector implements Clonable<Vector> {
   /**
    * Returns the difference in radians between the angle of this vector and given angle,
    * using the given rotation type.
-   * @param angle in radians to which the vector has to be rotated, using {@apilink rotate}
-   * @param rotationType what {@apilink RotationType} to use for the rotation
+   * @param angle in radians to which the vector has to be rotated, using {@link rotate}
+   * @param rotationType what {@link RotationType} to use for the rotation
    * @returns the angle by which the vector needs to be rotated to match the given angle
    */
   public angleBetween(angle: number, rotationType: RotationType): number {

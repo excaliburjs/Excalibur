@@ -1,7 +1,7 @@
 import type { Entity } from '../entity-component-system/entity';
 
 /**
- * Used for implementing actions for the {@apilink ActionContext | `Action API`}.
+ * Used for implementing actions for the {@link ActionContext | `Action API`}.
  */
 export interface Action {
   id: number;

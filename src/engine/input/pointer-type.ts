@@ -1,5 +1,5 @@
 /**
- * The type of pointer for a {@apilink PointerEvent}.
+ * The type of pointer for a {@link PointerEvent}.
  */
 export enum PointerType {
   Touch = 'Touch',

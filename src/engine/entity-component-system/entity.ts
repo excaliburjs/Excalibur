@@ -186,7 +186,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
   }
 
   /**
-   * Specifically get the tags on the entity from {@apilink TagsComponent}
+   * Specifically get the tags on the entity from {@link TagsComponent}
    */
   public get tags(): Set<string> {
     return this._tags;
@@ -592,7 +592,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
   /**
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
-   * Internal _preupdate handler for {@apilink onPreUpdate} lifecycle event
+   * Internal _preupdate handler for {@link onPreUpdate} lifecycle event
    * @internal
    */
   public _preupdate(engine: Engine, elapsed: number): void {
@@ -603,7 +603,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
   /**
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
-   * Internal _preupdate handler for {@apilink onPostUpdate} lifecycle event
+   * Internal _preupdate handler for {@link onPostUpdate} lifecycle event
    * @internal
    */
   public _postupdate(engine: Engine, elapsed: number): void {

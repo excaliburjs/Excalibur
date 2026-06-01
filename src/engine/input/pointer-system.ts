@@ -13,8 +13,8 @@ import { PointerEventsToObjectDispatcher } from './pointer-events-to-object-disp
  * The PointerSystem is responsible for dispatching pointer events to entities
  * that need them.
  *
- * The PointerSystem can be optionally configured by the {@apilink PointerComponent}, by default Entities use
- * the {@apilink Collider}'s shape for pointer events.
+ * The PointerSystem can be optionally configured by the {@link PointerComponent}, by default Entities use
+ * the {@link Collider}'s shape for pointer events.
  */
 export class PointerSystem extends System {
   static priority = SystemPriority.Higher;

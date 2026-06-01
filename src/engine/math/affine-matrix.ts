@@ -415,7 +415,7 @@ export class AffineMatrix {
   }
 
   /**
-   * Creates a new Matrix with the same data as the current {@apilink AffineMatrix}
+   * Creates a new Matrix with the same data as the current {@link AffineMatrix}
    */
   public clone(dest?: AffineMatrix): AffineMatrix {
     const mat = dest || new AffineMatrix();

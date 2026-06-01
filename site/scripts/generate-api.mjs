@@ -28,6 +28,8 @@ const result = spawnSync(
     '--name',
     'Excalibur.js API Documentation',
     '--excludePrivate',
+    '--validation.notExported',
+    'false',
     '--tsconfig',
     path.join(siteRoot, '..', 'src', 'engine', 'tsconfig.json'),
     path.join(siteRoot, '..', 'src', 'engine', 'index.ts')

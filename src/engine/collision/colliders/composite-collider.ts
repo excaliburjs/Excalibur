@@ -33,7 +33,7 @@ export class CompositeCollider extends Collider {
    * Treat composite collider's member colliders as either separate colliders for the purposes of onCollisionStart/onCollision
    * or as a single collider together.
    *
-   * This property can be overridden on individual {@apilink CompositeColliders}.
+   * This property can be overridden on individual {@link CompositeCollider}s.
    *
    * For composites without gaps or small groups of colliders, you probably want 'together'
    *

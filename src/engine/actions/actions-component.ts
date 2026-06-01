@@ -94,22 +94,22 @@ export class ActionsComponent extends Component implements ActionContextMethods 
 
   /**
    * This method will move an actor to the specified `x` and `y` position over the
-   * specified duration using a given {@apilink EasingFunctions} and return back the actor. This
+   * specified duration using a given {@link EasingFunctions} and return back the actor. This
    * method is part of the actor 'Action' fluent API allowing action chaining.
    * @param pos       The x,y vector location to move the actor to
    * @param duration  The time it should take the actor to move to the new location in milliseconds
-   * @param easingFcn Use {@apilink EasingFunctions} or a custom function to use to calculate position, Default is {@apilink EasingFunctions.Linear}
+   * @param easingFcn Use {@link EasingFunctions} or a custom function to use to calculate position, Default is {@link EasingFunctions.Linear}
    * @deprecated use new moveTo({pos: Vector, duration: number, easing: EasingFunction})
    */
   public easeTo(pos: Vector, duration: number, easingFcn?: EasingFunction): ActionContext;
   /**
    * This method will move an actor to the specified `x` and `y` position over the
-   * specified duration using a given {@apilink EasingFunctions} and return back the actor. This
+   * specified duration using a given {@link EasingFunctions} and return back the actor. This
    * method is part of the actor 'Action' fluent API allowing action chaining.
    * @param x         The x location to move the actor to
    * @param y         The y location to move the actor to
    * @param duration  The time it should take the actor to move to the new location in milliseconds
-   * @param easingFcn Use {@apilink EasingFunctions} or a custom function to use to calculate position, Default is {@apilink EasingFunctions.Linear}
+   * @param easingFcn Use {@link EasingFunctions} or a custom function to use to calculate position, Default is {@link EasingFunctions.Linear}
    * @deprecated use new moveTo({pos: Vector, duration: number, easing: EasingFunction})
    */
   public easeTo(x: number, y: number, duration: number, easingFcn?: EasingFunction): ActionContext;
@@ -119,7 +119,6 @@ export class ActionsComponent extends Component implements ActionContextMethods 
 
   /**
    *
-   * @param offset
    * @param duration
    * @param easingFcn
    * @deprecated use new moveBy({pos: Vector, duration: number, easing: EasingFunction})
@@ -127,8 +126,6 @@ export class ActionsComponent extends Component implements ActionContextMethods 
   public easeBy(offset: Vector, duration: number, easingFcn?: EasingFunction): ActionContext;
   /**
    *
-   * @param offsetX
-   * @param offsetY
    * @param duration
    * @param easingFcn
    * @deprecated use new moveBy({pos: Vector, duration: number, easing: EasingFunction})
@@ -174,15 +171,12 @@ export class ActionsComponent extends Component implements ActionContextMethods 
   /**
    * This method will move an actor by the specified x offset and y offset from its current position, at a certain speed.
    * This method is part of the actor 'Action' fluent API allowing action chaining.
-   * @param offset The (x, y) offset to apply to this actor
    * @param speed  The speed in pixels per second the actor should move
    */
   public moveBy(offset: Vector, speed: number): ActionContext;
   /**
    * This method will move an actor by the specified x offset and y offset from its current position, at a certain speed.
    * This method is part of the actor 'Action' fluent API allowing action chaining.
-   * @param xOffset     The x offset to apply to this actor
-   * @param yOffset     The y location to move the actor to
    * @param speed  The speed in pixels per second the actor should move
    */
   public moveBy(xOffset: number, yOffset: number, speed: number): ActionContext;
@@ -206,7 +200,7 @@ export class ActionsComponent extends Component implements ActionContextMethods 
    * method is part of the actor 'Action' fluent API allowing action chaining.
    * @param angle  The angle to rotate to in radians
    * @param speed         The angular velocity of the rotation specified in radians per second
-   * @param rotationType  The {@apilink RotationType} to use for this rotation
+   * @param rotationType  The {@link RotationType} to use for this rotation
    */
   public rotateTo(angle: number, speed: number, rotationType?: RotationType): ActionContext;
   public rotateTo(angle: number | RotateToOptions, speed?: number, rotationType?: RotationType): ActionContext {
@@ -225,7 +219,7 @@ export class ActionsComponent extends Component implements ActionContextMethods 
    * of the actor 'Action' fluent API allowing action chaining.
    * @param angleRadiansOffset  The angle to rotate to in radians relative to the current rotation
    * @param speed          The speed in radians/sec the actor should rotate at
-   * @param rotationType  The {@apilink RotationType} to use for this rotation, default is shortest path
+   * @param rotationType  The {@link RotationType} to use for this rotation, default is shortest path
    */
   public rotateBy(angleRadiansOffset: number, speed: number, rotationType?: RotationType): ActionContext;
   public rotateBy(angleRadiansOffsetOrOptions: number | RotateByOptions, speed?: number, rotationType?: RotationType): ActionContext {

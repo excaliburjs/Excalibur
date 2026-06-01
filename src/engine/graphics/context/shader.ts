@@ -733,7 +733,7 @@ export class Shader {
   }
 
   /**
-   * Set a {@apilink Vector} uniform for the current shader
+   * Set a {@link Vector} uniform for the current shader
    *
    * **Important** Must call ex.Shader.use() before setting a uniform!
    * @param name
@@ -744,7 +744,7 @@ export class Shader {
   }
 
   /**
-   * Set a {@apilink Vector} uniform for the current shader, WILL NOT THROW on error.
+   * Set a {@link Vector} uniform for the current shader, WILL NOT THROW on error.
    *
    * **Important** Must call ex.Shader.use() before setting a uniform!
    * @param name
@@ -755,7 +755,7 @@ export class Shader {
   }
 
   /**
-   * Set a {@apilink Color} uniform for the current shader
+   * Set a {@link Color} uniform for the current shader
    *
    * **Important** Must call ex.Shader.use() before setting a uniform!
    * @param name
@@ -766,7 +766,7 @@ export class Shader {
   }
 
   /**
-   * Set a {@apilink Color} uniform for the current shader, WILL NOT THROW on error.
+   * Set a {@link Color} uniform for the current shader, WILL NOT THROW on error.
    *
    * **Important** Must call ex.Shader.use() before setting a uniform!
    * @param name
@@ -777,7 +777,7 @@ export class Shader {
   }
 
   /**
-   * Set an {@apilink Matrix} uniform for the current shader
+   * Set an {@link Matrix} uniform for the current shader
    *
    * **Important** Must call ex.Shader.use() before setting a uniform!
    * @param name
@@ -798,7 +798,7 @@ export class Shader {
   }
 
   /**
-   * Set an {@apilink Matrix} uniform for the current shader, WILL NOT THROW on error.
+   * Set an {@link Matrix} uniform for the current shader, WILL NOT THROW on error.
    *
    * **Important** Must call ex.Shader.use() before setting a uniform!
    * @param name

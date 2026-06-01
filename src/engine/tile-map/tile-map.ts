@@ -482,14 +482,14 @@ export class TileMap extends Entity implements HasNestedPointerEvents {
   }
 
   /**
-   * Returns the {@apilink CompositeCollider}
+   * Returns the {@link CompositeCollider}
    */
   public getCompositeCollider(): CompositeCollider {
     return this._composite;
   }
 
   /**
-   * Returns the {@apilink Tile} by index (row major order)
+   * Returns the {@link Tile} by index (row major order)
    *
    * Returns null if out of bounds
    */
@@ -497,7 +497,7 @@ export class TileMap extends Entity implements HasNestedPointerEvents {
     return this.tiles[index] ?? null;
   }
   /**
-   * Returns the {@apilink Tile} by its x and y integer coordinates
+   * Returns the {@link Tile} by its x and y integer coordinates
    *
    * Returns null if out of bounds
    *
@@ -511,7 +511,7 @@ export class TileMap extends Entity implements HasNestedPointerEvents {
     return this.tiles[x + y * this.columns];
   }
   /**
-   * Returns the {@apilink Tile} by testing a point in world coordinates,
+   * Returns the {@link Tile} by testing a point in world coordinates,
    * returns `null` if no Tile was found.
    */
   public getTileByPoint(point: Vector): Tile | null {
@@ -629,7 +629,7 @@ export class TileMap extends Entity implements HasNestedPointerEvents {
   }
 
   /**
-   * Draws the tile map to the screen. Called by the {@apilink Scene}.
+   * Draws the tile map to the screen. Called by the {@link Scene}.
    * @param ctx ExcaliburGraphicsContext
    * @param elapsed  The number of milliseconds since the last draw
    */
@@ -741,7 +741,7 @@ export interface TileOptions {
  * TileMap Tile
  *
  * A light-weight object that occupies a space in a collision map. Generally
- * created by a {@apilink TileMap}.
+ * created by a {@link TileMap}.
  *
  * Tiles can draw multiple sprites. Note that the order of drawing is the order
  * of the sprites in the array so the last one will be drawn on top. You can
@@ -830,7 +830,7 @@ export class Tile {
   }
 
   /**
-   * Add another {@apilink Graphic} to this TileMap tile
+   * Add another {@link Graphic} to this TileMap tile
    * @param graphic
    */
   public addGraphic(graphic: Graphic, options?: { offset?: Vector }) {
@@ -843,7 +843,7 @@ export class Tile {
   }
 
   /**
-   * Remove an instance of a {@apilink Graphic} from this tile
+   * Remove an instance of a {@link Graphic} from this tile
    */
   public removeGraphic(graphic: Graphic) {
     const index = this._graphics.indexOf(graphic);
@@ -874,11 +874,11 @@ export class Tile {
   }
 
   /**
-   * Adds a custom collider to the {@apilink Tile} to use instead of it's bounds
+   * Adds a custom collider to the {@link Tile} to use instead of it's bounds
    *
-   * If no collider is set but {@apilink Tile.solid} is set, the tile bounds are used as a collider.
+   * If no collider is set but {@link Tile.solid} is set, the tile bounds are used as a collider.
    *
-   * **Note!** the {@apilink Tile.solid} must be set to true for it to act as a "fixed" collider
+   * **Note!** the {@link Tile.solid} must be set to true for it to act as a "fixed" collider
    * @param collider
    */
   public addCollider(collider: Collider) {
@@ -887,7 +887,7 @@ export class Tile {
   }
 
   /**
-   * Removes a collider from the {@apilink Tile}
+   * Removes a collider from the {@link Tile}
    * @param collider
    */
   public removeCollider(collider: Collider) {
@@ -899,7 +899,7 @@ export class Tile {
   }
 
   /**
-   * Clears all colliders from the {@apilink Tile}
+   * Clears all colliders from the {@link Tile}
    */
   public clearColliders() {
     this._colliders.length = 0;

@@ -3,7 +3,7 @@ import type { Action } from '../action';
 import { nextActionId } from '../action';
 
 /**
- * Action that can run multiple {@apilink Action}s or {@apilink ActionSequence}s at the same time
+ * Action that can run multiple {@link Action}s or {@link ActionSequence}s at the same time
  */
 export class ParallelActions implements Action {
   id = nextActionId();

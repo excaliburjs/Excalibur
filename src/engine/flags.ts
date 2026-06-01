@@ -1,5 +1,5 @@
 /**
- * Flags is a feature flag implementation for Excalibur. They can only be operated **before {@apilink Engine} construction**
+ * Flags is a feature flag implementation for Excalibur. They can only be operated **before {@link Engine} construction**
  * after which they are frozen and are read-only.
  *
  * Flags are used to enable experimental or preview features in Excalibur.
@@ -10,7 +10,7 @@ export class Flags {
 
   /**
    * Force excalibur to load the Canvas 2D graphics context fallback
-   * @warning not all features of excalibur are supported in the Canvas 2D fallback
+   * **Warning:** not all features of excalibur are supported in the Canvas 2D fallback
    */
   public static useCanvasGraphicsContext() {
     Flags.enable('use-canvas-context');
@@ -41,7 +41,7 @@ export class Flags {
     Flags._FLAGS = {};
   }
   /**
-   * Enable a specific feature flag by name. **Note: can only be set before {@apilink Engine} constructor time**
+   * Enable a specific feature flag by name. **Note: can only be set before {@link Engine} constructor time**
    * @param flagName
    */
   public static enable(flagName: string): void {
@@ -52,7 +52,7 @@ export class Flags {
   }
 
   /**
-   * Disable a specific feature flag by name. **Note: can only be set before {@apilink Engine} constructor time**
+   * Disable a specific feature flag by name. **Note: can only be set before {@link Engine} constructor time**
    * @param flagName
    */
   public static disable(flagName: string): void {

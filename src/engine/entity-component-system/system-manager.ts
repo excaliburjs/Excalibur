@@ -21,7 +21,7 @@ export function isSystemConstructor(x: any): x is SystemCtor<System> {
  */
 export class SystemManager {
   /**
-   * List of systems, to add a new system call {@apilink SystemManager.addSystem}
+   * List of systems, to add a new system call {@link SystemManager.addSystem}
    */
   public systems: System[] = [];
   public initialized = false;
