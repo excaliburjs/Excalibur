@@ -1,5 +1,3 @@
-/// <reference types="@vitest/browser/providers/playwright" />
-
 import * as path from 'path';
 import type { ViteUserConfig } from 'vitest/config';
 import { defineConfig, mergeConfig } from 'vitest/config';

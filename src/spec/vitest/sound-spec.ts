@@ -4,7 +4,7 @@ import { delay } from '../../engine/util/util';
 import { WebAudio } from '../../engine/util/web-audio';
 import { TestUtils } from '../__util__/test-utils';
 
-import { page } from '@vitest/browser/context';
+import { page } from 'vitest/browser';
 
 // beware if running firefox/webkit, audio will play. not sure how to mute those browsers
 // also note that webkit cant play ogg files so only use supported formats here!
