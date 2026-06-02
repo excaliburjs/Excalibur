@@ -21,6 +21,7 @@ export default defineConfig(
       browser: {
         enabled: true,
         provider: playwright(),
+        fileWriting: true, // Enable file writing for screenshot attachments
 
         headless: process.env.CI === 'true' ? true : undefined,
 
