@@ -79,6 +79,15 @@ jobs:
       - name: Tests
         run: npm run test:ci -- --coverage=${{ matrix.runner == 'ubuntu-latest' }}
 
+      - name: Upload Image Diff Data
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-diffs-${{ matrix.runner }}
+          path: vitest-image-failures.json
+          if-no-files-found: ignore
+          retention-days: 7
+
       - name: Coveralls
         if: ${{ matrix.runner == 'ubuntu-latest'}}
         uses: coverallsapp/github-action@v2.3.6
@@ -122,3 +131,35 @@ jobs:
       - run: npm install -g npm@11.16.0
       - run: npm ci --ignore-scripts
       - run: npm run build-storybook
+
+  comment-image-diffs:
+    runs-on: ubuntu-latest
+    needs: tests
+    if: failure() && github.event_name == 'pull_request'
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - name: Download Ubuntu Failures
+        uses: actions/download-artifact@v4
+        with:
+          name: image-diffs-ubuntu-latest
+          path: ./ubuntu-diffs
+        continue-on-error: true
+
+      - name: Download Windows Failures
+        uses: actions/download-artifact@v4
+        with:
+          name: image-diffs-windows-2025
+          path: ./windows-diffs
+        continue-on-error: true
+
+      - name: Generate and Post Comment
+        uses: actions/github-script@v7
+        env:
+          GITHUB_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        with:
+          script: |
+            const script = require('./.github/scripts/post-image-diff-comment.js');
+            await script({ github, context });

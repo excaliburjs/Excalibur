@@ -4,6 +4,7 @@ import { defineConfig, mergeConfig } from 'vitest/config';
 import commonConfig from './vite.config.common';
 import { EngineInstanceReporter } from './src/spec/__util__/reporters/engine-instance';
 import { MemoryReporter } from './src/spec/__util__/reporters/memory';
+import { ImageDiffReporter } from './src/spec/__util__/reporters/image-diff-reporter';
 
 export default defineConfig(
   mergeConfig(commonConfig, {
@@ -19,7 +20,7 @@ export default defineConfig(
       api: { host: '0.0.0.0' },
       silent: 'passed-only',
       clearMocks: true,
-      reporters: [['default', { summary: false }], new EngineInstanceReporter(), new MemoryReporter()],
+      reporters: [['default', { summary: false }], new EngineInstanceReporter(), new MemoryReporter(), new ImageDiffReporter()],
       // enable with --coverage param
       coverage: {
         include: ['src/engine/**/*.ts'],
