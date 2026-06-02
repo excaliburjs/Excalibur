@@ -136,7 +136,7 @@
     "vite": "8.0.14",
     "vite-plugin-banner": "0.8.1",
     "vite-plugin-static-copy": "4.1.0",
-    "vitest": "3.2.4",
+    "vitest": "4.1.0",
     "webpack": "5.104.1",
     "webpack-cli": "5.1.4"
   },
