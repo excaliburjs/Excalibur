@@ -369,6 +369,36 @@ describe('A Timer', () => {
     expect(timer.timesRepeated).toBe(4);
   });
 
+  it('can set numberOfRepeats via reset on a timer without initial numberOfRepeats', () => {
+    const timerSpy = vi.fn();
+    // Timer created WITHOUT numberOfRepeats
+    timer = new ex.Timer({
+      interval: 500,
+      fcn: timerSpy,
+      repeats: true
+    });
+    scene.add(timer);
+    timer.start();
+
+    // Should repeat indefinitely initially
+    scene.update(engine, 501);
+    scene.update(engine, 501);
+    scene.update(engine, 501);
+    expect(timerSpy).toHaveBeenCalledTimes(3);
+    expect(timer.complete).toBe(false);
+
+    // Reset with numberOfRepeats = 2
+    timer.reset(500, 2);
+    timer.start();
+
+    scene.update(engine, 501);
+    scene.update(engine, 501);
+    scene.update(engine, 501); // Should not fire - limit reached
+
+    expect(timer.timesRepeated).toBe(2);
+    expect(timer.complete).toBe(true);
+  });
+
   it('can be paused', () => {
     let count = 0;
     // arrange

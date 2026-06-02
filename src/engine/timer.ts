@@ -203,7 +203,7 @@ export class Timer {
       this._baseInterval = this.interval = newInterval;
     }
 
-    if (!!this.maxNumberOfRepeats && this.maxNumberOfRepeats >= 0) {
+    if (newNumberOfRepeats !== undefined && newNumberOfRepeats >= 0) {
       this.maxNumberOfRepeats = newNumberOfRepeats;
       if (!this.repeats) {
         throw new Error('repeats must be set to true if numberOfRepeats is set');
