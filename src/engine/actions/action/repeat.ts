@@ -39,9 +39,14 @@ export class Repeat implements Action {
 
   public stop(): void {
     this._stopped = true;
+    this._actionQueue.clearActions();
   }
 
   public reset(): void {
     this._repeat = this._originalRepeat;
+    this._stopped = false;
+    this._actionQueue.clearActions();
+    this._repeatBuilder(this._repeatContext);
+    this._repeat--; // current execution is the first repeat
   }
 }

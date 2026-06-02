@@ -31,6 +31,11 @@ export class ActionSequence implements Action {
 
   public stop(): void {
     this._stopped = true;
+    // Stop current action but don't clear queue, as reset() may reuse it
+    const currentAction = this._actionQueue.getCurrentAction();
+    if (currentAction) {
+      currentAction.stop();
+    }
   }
 
   public reset(): void {
