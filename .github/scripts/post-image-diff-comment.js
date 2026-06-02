@@ -16,6 +16,7 @@ module.exports = async ({ github, context }) => {
   function sanitizeMarkdown(str) {
     if (typeof str !== 'string') return 'Invalid data';
     return str
+      .replace(/\\/g, '\\\\') // Escape backslashes first
       .replace(/[`*_[\]()!#]/g, '\\$&') // Escape markdown special chars
       .replace(/</g, '&lt;') // Escape HTML
       .replace(/>/g, '&gt;')
