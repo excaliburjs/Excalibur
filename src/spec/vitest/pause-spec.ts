@@ -1,9 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { PauseSystem } from '../../engine/util/pause-system';
-import { PauseComponent } from '../../engine/entity-component-system/components/pause-component';
+import { PauseComponent, PauseComponentTag } from '../../engine/entity-component-system/components/pause-component';
 import type { Scene } from '../../engine/scene';
 import { Entity } from '../../engine/entity-component-system/entity';
 import { Engine } from '../../engine/engine';
+import { SystemPriority } from '../../engine/entity-component-system';
 
 describe('PauseSystem', () => {
   let pauseSystem: PauseSystem;
@@ -22,6 +23,10 @@ describe('PauseSystem', () => {
 
   it('should initialize with isPaused set to false', () => {
     expect(pauseSystem.isPaused).toBe(false);
+  });
+
+  it('should run before pause-sensitive systems', () => {
+    expect(PauseSystem.priority).toBe(SystemPriority.Highest);
   });
 
   it('should set isPaused to true when scene emits pause event', () => {
@@ -164,5 +169,24 @@ describe('PauseSystem', () => {
     scene.pause();
     pauseSystem.update(16);
     expect(pauseComponent.paused).toBe(false);
+  });
+
+  it('should remove paused tag when canPause becomes false while paused', () => {
+    const entity = new Entity();
+    const pauseComponent = new PauseComponent({ canPause: true });
+    entity.addComponent(pauseComponent);
+    scene.add(entity);
+
+    scene.pause();
+    pauseSystem.update(16);
+
+    expect(pauseComponent.paused).toBe(true);
+    expect(entity.hasTag(PauseComponentTag)).toBe(true);
+
+    pauseComponent.canPause = false;
+    pauseSystem.update(16);
+
+    expect(pauseComponent.paused).toBe(false);
+    expect(entity.hasTag(PauseComponentTag)).toBe(false);
   });
 });
