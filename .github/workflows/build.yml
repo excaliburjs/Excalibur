@@ -141,6 +141,9 @@ jobs:
       contents: read
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Download Ubuntu Failures
         uses: actions/download-artifact@v4
         with:
