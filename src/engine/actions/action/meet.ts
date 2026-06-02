@@ -26,8 +26,10 @@ export class Meet implements Action {
   constructor(actor: Entity, actorToMeet: Entity, speed?: number, tolerance?: number) {
     this._tx = actor.get(TransformComponent);
     this._motion = actor.get(MotionComponent);
+
     this._meetTx = actorToMeet.get(TransformComponent);
     this._meetMotion = actorToMeet.get(MotionComponent);
+
     this._current = new Vector(this._tx.pos.x, this._tx.pos.y);
     this._end = new Vector(this._meetTx.pos.x, this._meetTx.pos.y);
     this._speed = speed || 0;
@@ -42,6 +44,11 @@ export class Meet implements Action {
   }
 
   public update(elapsed: number): void {
+    if (!this._meetTx || !this._meetMotion) {
+      this.stop();
+      return;
+    }
+
     if (!this._started) {
       this._started = true;
       this._distanceBetween = this._current.distance(this._end);

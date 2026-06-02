@@ -35,6 +35,10 @@ export class Follow implements Action {
   }
 
   public update(elapsed: number): void {
+    if (!this._followTx || !this._followMotion) {
+      this.stop();
+      return;
+    }
     if (!this._started) {
       this._started = true;
       this._distanceBetween = this._current.distance(this._end);
