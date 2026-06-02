@@ -80,6 +80,7 @@ export class RotateToWithOptions implements Action {
   public stop(): void {
     this._motion.angularVelocity = 0;
     this._stopped = true;
+    this._started = false;
     this._currentMs = 0;
   }
 
@@ -187,6 +188,7 @@ export class RotateTo implements Action {
   public stop(): void {
     this._motion.angularVelocity = 0;
     this._stopped = true;
+    this._started = false;
   }
 
   public reset(): void {

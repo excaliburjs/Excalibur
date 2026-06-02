@@ -591,6 +591,62 @@ describe('Action', () => {
     });
   });
 
+  describe('clearActions', () => {
+    it('should allow first action to execute after clearActions (issue #3468)', () => {
+      // Replicate exact scenario from bug report
+      actor.pos = ex.vec(0, 0);
+
+      // Start a sequence with blink, scale, scale (like in the bug report)
+      actor.actions
+        .blink(100, 100, 1)
+        .scaleTo({ scale: ex.vec(1.4, 1.4), duration: 250 })
+        .scaleTo({ scale: ex.vec(1, 1), duration: 250 });
+
+      // Let actions run partially
+      scene.update(engine, 50);
+
+      // Clear actions mid-execution (simulating user calling clearActions)
+      actor.actions.clearActions();
+
+      // Now restart with a new sequence - FIRST action (blink) should execute
+      actor.actions
+        .blink(100, 100, 1)
+        .scaleTo({ scale: ex.vec(1.4, 1.4), duration: 250 })
+        .scaleTo({ scale: ex.vec(1, 1), duration: 250 });
+
+      // The blink action (first in sequence) should work
+      expect(actor.graphics.visible).toBe(true);
+      scene.update(engine, 100); // Should trigger blink
+      expect(actor.graphics.visible).toBe(false);
+
+      // Subsequent actions should also work
+      scene.update(engine, 100);
+      scene.update(engine, 250);
+      expect(actor.scale).toBeVector(ex.vec(1.4, 1.4));
+    });
+
+    it('should properly reset easeBy after clearActions', () => {
+      actor.pos = ex.vec(0, 0);
+
+      // Start easeBy and interrupt it
+      actor.actions.easeBy(100, 0, 1000, ex.EasingFunctions.Linear);
+      scene.update(engine, 500);
+      expect(actor.pos.x).toBeCloseTo(50, 1);
+
+      actor.actions.clearActions();
+
+      // Start new easeBy - should initialize correctly
+      actor.pos = ex.vec(0, 0);
+      actor.actions.easeBy(100, 0, 1000, ex.EasingFunctions.Linear);
+
+      scene.update(engine, 500);
+      expect(actor.pos.x).toBeCloseTo(50, 1);
+
+      scene.update(engine, 500);
+      expect(actor.pos.x).toBeCloseTo(100, 1);
+    });
+  });
+
   describe('easeTo', () => {
     it('can be reset', () => {
       const easeTo = new ex.EaseTo(actor, 100, 0, 100, ex.EasingFunctions.EaseInOutCubic);

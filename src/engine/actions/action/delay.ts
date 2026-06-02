@@ -25,6 +25,7 @@ export class Delay implements Action {
 
   public stop(): void {
     this._stopped = true;
+    this._started = false;
   }
 
   reset(): void {

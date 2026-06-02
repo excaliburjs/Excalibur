@@ -92,5 +92,6 @@ export class CurveBy implements Action {
   }
   stop(): void {
     this._stopped = true;
+    this._started = false;
   }
 }
