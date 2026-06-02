@@ -417,4 +417,28 @@ describe('A Graphics ECS Component', () => {
       })
     );
   });
+
+  it('should use WatchVector for offset and anchor after deserialization', () => {
+    const sut = new ex.GraphicsComponent();
+    const rect = new ex.Rectangle({ width: 100, height: 100 });
+    sut.use(rect);
+
+    const data = sut.serialize();
+
+    const sut2 = new ex.GraphicsComponent();
+    sut2.use(rect);
+    sut2.deserialize(data);
+
+    const recalcSpy = vi.spyOn(sut2, 'recalculateBounds');
+
+    // Modifying offset should trigger recalculateBounds
+    sut2.offset.x = 50;
+    expect(recalcSpy).toHaveBeenCalled();
+
+    recalcSpy.mockClear();
+
+    // Modifying anchor should trigger recalculateBounds
+    sut2.anchor.y = 0.25;
+    expect(recalcSpy).toHaveBeenCalled();
+  });
 });

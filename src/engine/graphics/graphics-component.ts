@@ -579,9 +579,9 @@ export class GraphicsComponent extends Component {
     this.copyGraphics = data.copyGraphics ?? false;
     this.forceOnScreen = data.forceOnScreen ?? false;
 
-    // Restore offset and anchor as plain objects (WatchVector setup happens in setter)
-    this._offset = { x: data.offset.x, y: data.offset.y } as Vector;
-    this._anchor = { x: data.anchor.x, y: data.anchor.y } as Vector;
+    // Use setters to create WatchVector with proper change detection
+    this.offset = vec(data.offset.x, data.offset.y);
+    this.anchor = vec(data.anchor.x, data.anchor.y);
 
     // Restore color
     if (data.color) {
