@@ -269,7 +269,7 @@ export class GraphicsComponent extends Component {
     this.copyGraphics = copyGraphics ?? this.copyGraphics;
     this.onPreDraw = onPreDraw ?? this.onPreDraw;
     this.onPostDraw = onPostDraw ?? this.onPostDraw;
-    this.onPreDraw = onPreTransformDraw ?? this.onPreTransformDraw;
+    this.onPreTransformDraw = onPreTransformDraw ?? this.onPreTransformDraw;
     this.onPostTransformDraw = onPostTransformDraw ?? this.onPostTransformDraw;
     this.isVisible = !!visible;
     this._current = current ?? this._current;

@@ -64,6 +64,19 @@ describe('A Graphics ECS Component', () => {
     expect(sut.owner).toBe(clone);
   });
 
+  it('can be constructed with onPreDraw and onPreTransformDraw callbacks', () => {
+    const onPreDrawSpy = vi.fn();
+    const onPreTransformDrawSpy = vi.fn();
+
+    const sut = new ex.GraphicsComponent({
+      onPreDraw: onPreDrawSpy,
+      onPreTransformDraw: onPreTransformDrawSpy
+    });
+
+    expect(sut.onPreDraw).toBe(onPreDrawSpy);
+    expect(sut.onPreTransformDraw).toBe(onPreTransformDrawSpy);
+  });
+
   it('can be constructed with optional params', () => {
     const rect = new ex.Rectangle({
       width: 40,
