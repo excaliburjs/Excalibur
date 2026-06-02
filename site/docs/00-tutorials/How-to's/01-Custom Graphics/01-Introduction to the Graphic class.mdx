@@ -17,7 +17,7 @@ An Actor can exist without a graphic, and a graphic can be swapped or changed wi
 
 ## The Graphics Component
 
-Every entity that wants to be rendered can have a Graphics component. This component manages the graphic for that entity.  Actors and ScreenElements come pre-baked with a graphics component already attached. Tiles in tilemaps can manage mulitple graphics.
+Every entity that wants to be rendered can have a Graphics component. This component manages the graphic for that entity.  Actors and ScreenElements come pre-baked with a graphics component already attached. Tiles in tilemaps can manage multiple graphics.
 
 ```ts
 const myActor = new ex.Actor({ x: 100, y: 100, width: 24, height: 24 }); // sets position and collider size
@@ -62,7 +62,7 @@ class MyCustomGraphic extends ex.Graphic {
   }
 
   clone():MyCustomGraphic{
-    return new MyCustomeGraphic();
+    return new MyCustomGraphic();
   }
 
   protected _drawImage(

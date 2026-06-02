@@ -42,7 +42,7 @@ game.currentScene.add(actor);
 
 ## Labels
 
-[[Label|Labels]] are a batteries included [[Actor|Actors]] with [[Text]] built and font built in.
+[[Label|Labels]] are battery-included [[Actor|Actors]] with [[Text]] and fonts built in.
 
 ```typescript
 const label = new ex.Label({
@@ -188,7 +188,7 @@ Most of the strategies involve artificially giving the text more pixels to work 
 1. Increase the `quality` (default 2), this works by upscaling the bitmap the text is drawn to internally, more pixels can yield higher fidelity.
 2. Increase the "resolution" of your game using the `pixelRatio`, this is especially necessary if you have a very low resolutions (less than 500x500).
 3. If you cannot upscale (or don't want to) you need to line up your font glyphs to align with pixels in the canvas.
-4. Reach for a sprite font tailored for the resolution you're working in (often this is useful in low res situations)>
+4. Reach for a sprite font tailored for the resolution you're working in (often this is useful in low res situations).
 
 
 <PlaygroundEmbed

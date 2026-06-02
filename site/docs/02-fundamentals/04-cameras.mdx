@@ -75,7 +75,7 @@ Multiple strategies can be applied to the camera. Strategies are applied in the 
 
 For example: Let's say a `lockToActor` strategy and a `limitCameraBounds` strategy is added, in that order. When the
 strategies are processed, the camera will first lock to the actor, then, as the camera approaches the configured bounds
-of `limitCameraBounds` it is limited to those contraints. 
+of `limitCameraBounds` it is limited to those constraints. 
 
 In this example, the `limitCameraBounds` applies its effect on _top_ of the earlier `lockToActor` strategy. 
 
@@ -132,7 +132,7 @@ target, it can anything, such as a `BoundingBox`.
 #### Adding and removing strategies
 
 In the above examples we used convenience helpers, such as `game.currentScene.camera.strategy.lockToActor(actor)`, to
-add strategies to our scene. Occassionally you may need a bit more control over the strategy array. This can be done
+add strategies to our scene. Occasionally you may need a bit more control over the strategy array. This can be done
 via the following methods and properties:
 
  - `addStrategy<T extends CameraStrategy<any>[]>(...cameraStrategies: T)`
