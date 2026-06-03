@@ -115,11 +115,44 @@ export class ImageDiffReporter implements Reporter {
   onTestRunEnd() {
     if (this.failures.length > 0) {
       const outputPath = path.join(process.cwd(), 'vitest-image-failures.json');
+      const imagesDir = path.join(process.cwd(), 'image-diffs');
 
       try {
+        // Create images directory if it doesn't exist
+        if (!fs.existsSync(imagesDir)) {
+          fs.mkdirSync(imagesDir, { recursive: true });
+        }
+
+        // Save each image as a separate PNG file
+        this.failures.forEach((failure, index) => {
+          const sanitizedTestName = failure.testName.replace(/[^a-z0-9]/gi, '_').substring(0, 50);
+          const baseName = `${index + 1}_${sanitizedTestName}`;
+
+          // Extract base64 data and save as PNG
+          ['expected', 'actual', 'diff'].forEach((type) => {
+            const base64Data = failure[type as keyof ImageFailure] as string;
+            if (base64Data && typeof base64Data === 'string') {
+              // Remove data URL prefix
+              const base64Only = base64Data.replace(/^data:image\/png;base64,/, '');
+              const buffer = Buffer.from(base64Only, 'base64');
+              const filename = `${baseName}_${type}.png`;
+              fs.writeFileSync(path.join(imagesDir, filename), buffer);
+            }
+          });
+
+          // Add image filenames to failure object for reference
+          (failure as any).imageFiles = {
+            expected: `${baseName}_expected.png`,
+            actual: `${baseName}_actual.png`,
+            diff: `${baseName}_diff.png`
+          };
+        });
+
+        // Write JSON with both base64 and filenames
         fs.writeFileSync(outputPath, JSON.stringify({ failures: this.failures }, null, 2), 'utf8');
         console.log(`\n📊 Image diff report written to: ${outputPath}`);
-        console.log(`   Found ${this.failures.length} image comparison failure(s)\n`);
+        console.log(`   Found ${this.failures.length} image comparison failure(s)`);
+        console.log(`   Images saved to: ${imagesDir}\n`);
       } catch (e) {
         console.error('Failed to write image diff report:', e);
       }

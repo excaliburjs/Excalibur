@@ -139,10 +139,6 @@ module.exports = async ({ github, context }) => {
         continue;
       }
 
-      // Check image size (approximate - base64 is ~1.37x original size)
-      const totalBase64Size = (f.expected?.length || 0) + (f.actual?.length || 0) + (f.diff?.length || 0);
-      const estimatedSizeKB = (totalBase64Size * 0.75) / 1024; // Rough estimate
-
       // Security: Sanitize user-controlled strings
       const safeTestName = sanitizeMarkdown(f.testName);
       const safeTestFile = sanitizeMarkdown(f.testFile);
@@ -150,32 +146,25 @@ module.exports = async ({ github, context }) => {
       comment += `#### ${shownFailures + 1}. \`${safeTestName}\`\n\n`;
       comment += `- **Location**: \`${safeTestFile}\`\n`;
       comment += `- **Match**: ${f.percentMatch.toFixed(2)}% (required: ${f.tolerance}%)\n`;
-      comment += `- **Pixels Different**: ${f.pixelsDiff}\n`;
+      comment += `- **Pixels Different**: ${f.pixelsDiff}\n\n`;
 
-      if (estimatedSizeKB > 100) {
-        comment += `- ⚠️ **Warning**: Large images (~${Math.round(estimatedSizeKB)}KB) - may not display properly\n`;
-      }
+      // Check if image files are available
+      if (f.imageFiles) {
+        const artifactBaseUrl = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}/artifacts`;
 
-      comment += '\n<details>\n';
-      comment += '<summary>📊 View Image Comparison</summary>\n\n';
-      comment += '| Expected | Actual | Diff |\n';
-      comment += '|:--------:|:------:|:----:|\n';
-
-      // Add images if available and not too large
-      if (estimatedSizeKB < 500) {
-        // Images are already validated above, safe to use
-        const expectedImg = `![Expected](${f.expected})`;
-        const actualImg = `![Actual](${f.actual})`;
-        const diffImg = `![Diff](${f.diff})`;
-        comment += `| ${expectedImg} | ${actualImg} | ${diffImg} |\n\n`;
+        comment += '<details>\n';
+        comment += '<summary>📊 View Images</summary>\n\n';
+        comment += `> 🔗 [Download artifact with images](${workflowUrl}#artifacts)\n\n`;
+        comment += '| Expected | Actual | Diff |\n';
+        comment += '|:--------:|:------:|:----:|\n';
+        comment += `| [🖼️ View](${artifactBaseUrl}/${f.imageFiles.expected}) | [🖼️ View](${artifactBaseUrl}/${f.imageFiles.actual}) | [🖼️ View](${artifactBaseUrl}/${f.imageFiles.diff}) |\n`;
+        comment += '\n> ⚠️ Click links above to download individual images from the artifact.\n';
+        comment += '</details>\n\n';
       } else {
-        comment += '| _Image too large_ | _Image too large_ | _Image too large_ |\n\n';
-        comment += '⚠️ Images are too large to display inline. Please view them in the workflow artifacts.\n\n';
+        comment += `> 📦 **Artifact**: \`image-diffs-${platform.name}\` - Download to view images\n\n`;
       }
 
-      comment += '</details>\n\n';
       comment += '---\n\n';
-
       shownFailures++;
     }
 
@@ -188,7 +177,17 @@ module.exports = async ({ github, context }) => {
     comment += `View the complete report in the [workflow logs](${workflowUrl}).\n\n`;
   }
 
-  comment += '\n*💡 Click "View Image Comparison" to see detailed diffs*\n';
+  comment += '\n---\n\n';
+  comment += '### 📥 How to View Images\n\n';
+  comment += '> ⚠️ **Note**: GitHub does not support displaying images directly in PR comments.\n\n';
+  comment += '**To view the Expected, Actual, and Diff images:**\n\n';
+  comment += '1. Click the [Workflow Run link](' + workflowUrl + ') above\n';
+  comment += '2. Scroll down to the **Artifacts** section\n';
+  comment += '3. Download the relevant artifact (e.g., `image-diffs-ubuntu-latest`)\n';
+  comment += '4. Extract the ZIP file and open `vitest-image-failures.json`\n';
+  comment += '5. The JSON contains base64-encoded PNG images for `expected`, `actual`, and `diff`\n';
+  comment +=
+    "6. To view an image: Copy the base64 string (starting with `data:image/png;base64,...`) and paste it into your browser's address bar\n\n";
   comment += `*⏰ Generated at: ${new Date().toISOString()}*`;
 
   // Security: Enforce maximum comment size (GitHub limit is ~65KB)
