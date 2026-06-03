@@ -1,4 +1,4 @@
-import type { Reporter, Task, File as RunnerTestFile } from 'vitest/node';
+import type { Reporter, TestCase, TestModule } from 'vitest/node';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -16,16 +16,20 @@ interface ImageFailure {
 export class ImageDiffReporter implements Reporter {
   private failures: ImageFailure[] = [];
 
-  onTaskUpdate(tasks: Task[]) {
-    for (const task of tasks) {
-      if (task.result?.state === 'fail') {
-        this.checkForImageFailure(task);
-      }
+  onTestCaseResult(testCase: TestCase) {
+    const result = testCase.result();
+
+    // Only process failed tests
+    if (result.state === 'failed') {
+      this.checkForImageFailure(testCase);
     }
   }
 
-  private checkForImageFailure(task: Task) {
-    const errors = task.result?.errors || [];
+  private checkForImageFailure(testCase: TestCase) {
+    const result = testCase.result();
+    if (result.state !== 'failed') return;
+
+    const errors = result.errors || [];
 
     for (const error of errors) {
       const errorMsg = error?.message || '';
@@ -33,7 +37,7 @@ export class ImageDiffReporter implements Reporter {
       // Check if this is an image comparison failure
       if (errorMsg.includes('Expected image to match within')) {
         try {
-          const failure = this.parseImageFailure(task, errorMsg);
+          const failure = this.parseImageFailure(testCase, errorMsg);
           if (failure) {
             this.failures.push(failure);
           }
@@ -44,11 +48,11 @@ export class ImageDiffReporter implements Reporter {
     }
   }
 
-  private parseImageFailure(task: Task, errorMsg: string): ImageFailure | null {
+  private parseImageFailure(testCase: TestCase, errorMsg: string): ImageFailure | null {
     try {
       // Extract test information
-      const testName = this.getFullTestName(task);
-      const testFile = this.getTestLocation(task);
+      const testName = testCase.fullName;
+      const testFile = this.getTestLocation(testCase);
 
       // Extract match percentage
       const matchMatch = errorMsg.match(/matched (\d+\.\d+)%/);
@@ -88,28 +92,11 @@ export class ImageDiffReporter implements Reporter {
     }
   }
 
-  private getFullTestName(task: Task): string {
-    const names: string[] = [];
-    let current: Task | undefined = task;
-
-    while (current) {
-      if (current.name) {
-        names.unshift(current.name);
-      }
-      current = current.suite as Task | undefined;
-    }
-
-    return names.join(' > ');
-  }
-
-  private getTestLocation(task: Task): string {
-    if (task.file) {
-      const file = task.file as RunnerTestFile;
-      const fileName = path.relative(process.cwd(), file.filepath);
-      const line = task.location?.line || 0;
-      return `${fileName}:${line}`;
-    }
-    return 'unknown';
+  private getTestLocation(testCase: TestCase): string {
+    const fileName = path.relative(process.cwd(), testCase.module.moduleId);
+    // TestCase doesn't expose line numbers directly in Vitest 4
+    // We could try to get it from the error stack trace if needed
+    return fileName;
   }
 
   private extractBase64Image(text: string, marker: string): string | null {
@@ -125,7 +112,7 @@ export class ImageDiffReporter implements Reporter {
     return base64;
   }
 
-  onFinished() {
+  onTestRunEnd() {
     if (this.failures.length > 0) {
       const outputPath = path.join(process.cwd(), 'vitest-image-failures.json');
 
@@ -137,5 +124,10 @@ export class ImageDiffReporter implements Reporter {
         console.error('Failed to write image diff report:', e);
       }
     }
+  }
+
+  onWatcherRerun() {
+    // Clear failures when tests are re-run in watch mode
+    this.failures = [];
   }
 }
