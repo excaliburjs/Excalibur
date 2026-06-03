@@ -44,7 +44,7 @@ export default defineConfig(
                 '--disable-popup-blocking',
                 '--disable-translate',
                 '--disable-background-timer-throttling',
-                // '--disable-gpu',
+                // --disable-gpu removed: Xvfb provides virtual display, GPU acceleration works
                 '--disable-dev-shm-usage',
 
                 // on macOS, disable-background-timer-throttling is not enough
@@ -57,7 +57,12 @@ export default defineConfig(
                 '--mute-audio',
                 '--no-sandbox',
                 '--enable-precise-memory-info',
-                '--js-flags="--max_old_space_size=8192" --expose-gc'
+                '--js-flags="--max_old_space_size=8192" --expose-gc',
+
+                // Additional flags for better rendering in CI
+                '--force-device-scale-factor=1',
+                '--window-size=1920,1080',
+                '--use-gl=swiftshader'
               ].filter(Boolean)
             }
           }

@@ -76,18 +76,22 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install chromium --with-deps
 
-      - name: Install Xvfb (Ubuntu only)
+      - name: Install Xvfb and Fonts (Ubuntu only)
         if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y xvfb
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb fonts-liberation fonts-noto-core
 
       - name: Tests
         run: |
           if [ "$RUNNER_OS" == "Linux" ]; then
-            xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" npm run test:ci -- --coverage=${{ matrix.runner == 'ubuntu-latest' }}
+            xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24 -ac +extension GLX +render -noreset" npm run test:ci -- --coverage=${{ matrix.runner == 'ubuntu-latest' }}
           else
             npm run test:ci -- --coverage=${{ matrix.runner == 'ubuntu-latest' }}
           fi
         shell: bash
+        env:
+          DISPLAY: ':99.0'
 
       - name: Upload Image Diff Data
         if: failure() && github.event_name == 'pull_request'
