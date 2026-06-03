@@ -117,7 +117,7 @@ module.exports = async ({ github, context }) => {
   comment += `**Workflow Run**: [View Details](${workflowUrl})\n\n`;
   comment += '---\n\n';
 
-  const MAX_FAILURES_TO_SHOW = 5;
+  const MAX_FAILURES_TO_SHOW = 10;
   let shownFailures = 0;
   let hiddenFailures = 0;
 
@@ -150,16 +150,8 @@ module.exports = async ({ github, context }) => {
 
       // Check if image files are available
       if (f.imageFiles) {
-        const artifactBaseUrl = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}/artifacts`;
-
-        comment += '<details>\n';
-        comment += '<summary>📊 View Images</summary>\n\n';
+        comment += '📊 View Images\n\n';
         comment += `> 🔗 [Download artifact with images](${workflowUrl}#artifacts)\n\n`;
-        comment += '| Expected | Actual | Diff |\n';
-        comment += '|:--------:|:------:|:----:|\n';
-        comment += `| [🖼️ View](${artifactBaseUrl}/${f.imageFiles.expected}) | [🖼️ View](${artifactBaseUrl}/${f.imageFiles.actual}) | [🖼️ View](${artifactBaseUrl}/${f.imageFiles.diff}) |\n`;
-        comment += '\n> ⚠️ Click links above to download individual images from the artifact.\n';
-        comment += '</details>\n\n';
       } else {
         comment += `> 📦 **Artifact**: \`image-diffs-${platform.name}\` - Download to view images\n\n`;
       }
@@ -177,17 +169,6 @@ module.exports = async ({ github, context }) => {
     comment += `View the complete report in the [workflow logs](${workflowUrl}).\n\n`;
   }
 
-  comment += '\n---\n\n';
-  comment += '### 📥 How to View Images\n\n';
-  comment += '> ⚠️ **Note**: GitHub does not support displaying images directly in PR comments.\n\n';
-  comment += '**To view the Expected, Actual, and Diff images:**\n\n';
-  comment += '1. Click the [Workflow Run link](' + workflowUrl + ') above\n';
-  comment += '2. Scroll down to the **Artifacts** section\n';
-  comment += '3. Download the relevant artifact (e.g., `image-diffs-ubuntu-latest`)\n';
-  comment += '4. Extract the ZIP file and open `vitest-image-failures.json`\n';
-  comment += '5. The JSON contains base64-encoded PNG images for `expected`, `actual`, and `diff`\n';
-  comment +=
-    "6. To view an image: Copy the base64 string (starting with `data:image/png;base64,...`) and paste it into your browser's address bar\n\n";
   comment += `*⏰ Generated at: ${new Date().toISOString()}*`;
 
   // Security: Enforce maximum comment size (GitHub limit is ~65KB)
