@@ -44,7 +44,7 @@ export default defineConfig(
                 '--disable-popup-blocking',
                 '--disable-translate',
                 '--disable-background-timer-throttling',
-                '--disable-gpu',
+                // '--disable-gpu',
                 '--disable-dev-shm-usage',
 
                 // on macOS, disable-background-timer-throttling is not enough
