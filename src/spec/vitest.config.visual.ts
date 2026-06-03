@@ -23,7 +23,9 @@ export default defineConfig(
         provider: playwright(),
         fileWriting: true, // Enable file writing for screenshot attachments
 
-        headless: process.env.CI === 'true' ? true : undefined,
+        // Run in windowed mode with Xvfb - fixes rendering issues in CI
+        // Xvfb provides the display, so we don't need headless mode
+        headless: false,
 
         instances: [
           {
