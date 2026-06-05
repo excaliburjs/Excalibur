@@ -591,6 +591,118 @@ describe('Action', () => {
     });
   });
 
+  describe('clearActions', () => {
+    it('should allow first action to execute after clearActions (issue #3468)', () => {
+      // Replicate exact scenario from bug report
+      actor.pos = ex.vec(0, 0);
+
+      // Start a sequence with blink, scale, scale (like in the bug report)
+      actor.actions
+        .blink(100, 100, 1)
+        .scaleTo({ scale: ex.vec(1.4, 1.4), duration: 250 })
+        .scaleTo({ scale: ex.vec(1, 1), duration: 250 });
+
+      // Let actions run partially
+      scene.update(engine, 50);
+
+      // Clear actions mid-execution (simulating user calling clearActions)
+      actor.actions.clearActions();
+
+      // Now restart with a new sequence - FIRST action (blink) should execute
+      actor.actions
+        .blink(100, 100, 1)
+        .scaleTo({ scale: ex.vec(1.4, 1.4), duration: 250 })
+        .scaleTo({ scale: ex.vec(1, 1), duration: 250 });
+
+      // The blink action (first in sequence) should work
+      expect(actor.graphics.visible).toBe(true);
+      scene.update(engine, 100); // Should trigger blink
+      expect(actor.graphics.visible).toBe(false);
+
+      // Subsequent actions should also work
+      scene.update(engine, 100);
+      scene.update(engine, 250);
+      expect(actor.scale).toBeVector(ex.vec(1.4, 1.4));
+    });
+
+    it('should properly reset easeBy after clearActions', () => {
+      actor.pos = ex.vec(0, 0);
+
+      // Start easeBy and interrupt it
+      actor.actions.easeBy(100, 0, 1000, ex.EasingFunctions.Linear);
+      scene.update(engine, 500);
+      expect(actor.pos.x).toBeCloseTo(50, 1);
+
+      actor.actions.clearActions();
+
+      // Start new easeBy - should initialize correctly
+      actor.pos = ex.vec(0, 0);
+      actor.actions.easeBy(100, 0, 1000, ex.EasingFunctions.Linear);
+
+      scene.update(engine, 500);
+      expect(actor.pos.x).toBeCloseTo(50, 1);
+
+      scene.update(engine, 500);
+      expect(actor.pos.x).toBeCloseTo(100, 1);
+    });
+
+    it('should execute first action after clearActions with recursive actions (original bug #3468)', () => {
+      // This test replicates the EXACT scenario from the bug report:
+      // 1. Actor has recursive actions running (rotateBy → moveTo → callMethod that recursively calls again)
+      // 2. clearActions() is called mid-execution
+      // 3. New sequence is started: blink → scaleTo → scaleTo → callMethod
+      // 4. The FIRST action (blink) should execute (was being skipped in the bug)
+
+      actor.pos = ex.vec(0, 0);
+      actor.rotation = 0;
+      actor.scale = ex.vec(1, 1);
+      let recursiveCalls = 0;
+
+      // Setup recursive actions pattern from bug report
+      const setupRecursiveActions = () => {
+        if (recursiveCalls < 2) {
+          recursiveCalls++;
+          actor.actions
+            .rotateBy(Math.PI / 4, Math.PI / 2)
+            .moveTo(ex.vec(50, 50), 100)
+            .callMethod(() => {
+              setupRecursiveActions(); // Recursive call (like in bug report)
+            });
+        }
+      };
+
+      // Start recursive actions (simulating normal game behavior)
+      setupRecursiveActions();
+
+      // Let actions run partially (mid-execution of recursive pattern)
+      scene.update(engine, 100);
+      expect(recursiveCalls).toBe(1); // First iteration started
+
+      // NOW: Mid-execution, call clearActions (like killWithEffect() in bug report)
+      actor.actions.clearActions();
+
+      // Start the death effect sequence from bug report:
+      // blink → scaleTo → scaleTo → callMethod (to kill actor)
+      let blinkExecuted = false;
+      actor.actions.blink(100, 100, 1).callMethod(() => {
+        blinkExecuted = true; // Track if blink completed
+      });
+
+      // THE BUG: The first action (blink) was being skipped after clearActions()
+      // THE FIX: It should now execute properly
+
+      expect(actor.graphics.visible).toBe(true);
+      scene.update(engine, 100); // Blink on (100ms)
+      expect(actor.graphics.visible).toBe(false); // ✓ BLINK EXECUTED! Bug is fixed!
+
+      scene.update(engine, 100); // Blink off (100ms)
+      expect(actor.graphics.visible).toBe(true);
+
+      scene.update(engine, 1); // CallMethod executes
+      expect(blinkExecuted).toBe(true); // Confirms the action sequence worked
+    });
+  });
+
   describe('easeTo', () => {
     it('can be reset', () => {
       const easeTo = new ex.EaseTo(actor, 100, 0, 100, ex.EasingFunctions.EaseInOutCubic);

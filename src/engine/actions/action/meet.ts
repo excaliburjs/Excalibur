@@ -81,6 +81,7 @@ export class Meet implements Action {
   public stop(): void {
     this._motion.vel = vec(0, 0);
     this._stopped = true;
+    this._started = false;
   }
 
   public reset(): void {

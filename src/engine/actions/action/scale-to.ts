@@ -73,6 +73,7 @@ export class ScaleToWithOptions implements Action {
   public stop(): void {
     this._motion.scaleFactor = Vector.Zero;
     this._stopped = true;
+    this._started = false;
     this._currentMs = 0;
   }
 
@@ -150,6 +151,7 @@ export class ScaleTo implements Action {
     this._motion.scaleFactor.x = 0;
     this._motion.scaleFactor.y = 0;
     this._stopped = true;
+    this._started = false;
   }
 
   public reset(): void {
