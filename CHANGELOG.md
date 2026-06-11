@@ -16,6 +16,25 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added `shouldAlwaysTick` option to `Animation`, `GraphicsGroup`, and `GraphicsComponent` to allow animations to continue ticking even when offscreen. This is useful for keeping animations synchronized across your game scene without causing performance regressions in the default case.
+  ```typescript
+  // Per-animation opt-in
+  const anim = new ex.Animation({
+    frames: [...],
+    shouldAlwaysTick: true
+  });
+
+  // Per-component opt-in
+  actor.graphics = new ex.GraphicsComponent({
+    shouldAlwaysTick: true
+  });
+
+  // Per-graphics-group opt-in
+  const group = new ex.GraphicsGroup({
+    members: [...],
+    shouldAlwaysTick: true
+  });
+  ```
 - Added new lerp modes for color which can be chosen by aptional parameter in `Color.lerp` or by calling different methods:
   ```typescript
   Color.lerp(colorA, colorB, t); // 'hsl' by default
