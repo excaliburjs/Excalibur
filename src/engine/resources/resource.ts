@@ -19,6 +19,20 @@ export const ResourceEvents = {
 };
 
 /**
+ * Error thrown when a resource fails to load due to network issues,
+ * CORS problems, or the resource being unreachable.
+ */
+export class ResourceLoadingError extends Error {
+  constructor(
+    public path: string,
+    message: string
+  ) {
+    super(message);
+    this.name = 'ResourceLoadingError';
+  }
+}
+
+/**
  * The {@apilink Resource} type allows games built in Excalibur to load generic resources.
  * For any type of remote resource it is recommended to use {@apilink Resource} for preloading.
  */
@@ -73,7 +87,18 @@ export class Resource<T> implements Loadable<T> {
       request.responseType = this.responseType;
       request.addEventListener('loadstart', (e) => this.events.emit('loadstart', e as any));
       request.addEventListener('progress', (e) => this.events.emit('progress', e as any));
-      request.addEventListener('error', (e) => this.events.emit('error', e as any));
+      request.addEventListener('error', (e) => {
+        this.events.emit('error', e as any);
+        reject(new ResourceLoadingError(this.path, `Failed to load resource at ${this.path}. This may be a network error, CORS issue, or the resource is unreachable.`));
+      });
+      request.addEventListener('abort', (e) => {
+        this.events.emit('error', e as any);
+        reject(new ResourceLoadingError(this.path, `Request to load resource at ${this.path} was aborted.`));
+      });
+      request.addEventListener('timeout', (e) => {
+        this.events.emit('error', e as any);
+        reject(new ResourceLoadingError(this.path, `Request to load resource at ${this.path} timed out.`));
+      });
       request.addEventListener('load', (e) => this.events.emit('load', e as any));
       request.addEventListener('load', () => {
         // XHR on file:// success status is 0, such as with PhantomJS
