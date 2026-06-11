@@ -5,21 +5,24 @@ export interface NativeEventable {
 
 export class BrowserComponent<T extends NativeEventable> {
   private _paused = false;
-  private _nativeHandlers: { [key: string]: (handler: any) => void } = {};
+  private _handlers = new Map<string, { handler: (evt: any) => void; wrapper: (evt: any) => void }>();
 
   on(eventName: string, handler: (evt: any) => void): void {
-    if (this._nativeHandlers[eventName]) {
-      this.off(eventName, this._nativeHandlers[eventName]);
+    const existing = this._handlers.get(eventName);
+    if (existing) {
+      this.nativeComponent.removeEventListener(eventName, existing.wrapper);
     }
-    this._nativeHandlers[eventName] = this._decorate(handler);
-    this.nativeComponent.addEventListener(eventName, this._nativeHandlers[eventName]);
+    const wrapper = this._decorate(handler);
+    this._handlers.set(eventName, { handler, wrapper });
+    this.nativeComponent.addEventListener(eventName, wrapper);
   }
   off(eventName: string, handler?: (event: any) => void): void {
-    if (!handler) {
-      handler = this._nativeHandlers[eventName];
+    const entry = this._handlers.get(eventName);
+    if (!entry) return;
+    if (!handler || entry.handler === handler) {
+      this.nativeComponent.removeEventListener(eventName, entry.wrapper);
+      this._handlers.delete(eventName);
     }
-    this.nativeComponent.removeEventListener(eventName, handler);
-    this._nativeHandlers[eventName] = null;
   }
 
   private _decorate(handler: (evt: any) => void): (evt: any) => void {
@@ -39,8 +42,8 @@ export class BrowserComponent<T extends NativeEventable> {
   }
 
   public clear() {
-    for (const event in this._nativeHandlers) {
-      this.off(event);
+    for (const eventName of this._handlers.keys()) {
+      this.off(eventName);
     }
   }
 
