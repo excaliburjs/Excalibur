@@ -991,9 +991,28 @@ describe('A Screen', () => {
     ]);
     expect(warnOnce.mock.calls[1]).toEqual([
       'Scaled resolution too big attempted recovery!' +
-        ` Pixel ratio was automatically reduced to (2) to avoid 4k texture limit.` +
+        ` Pixel ratio is automatically reduced to (2) to avoid 4k texture limit.` +
         ' Setting `ex.Engine({pixelRatio: ...}) will override any automatic recalculation, do so at your own risk.` ' +
         ' (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).'
     ]);
+  });
+
+  it('should only register window resize listener once for Window parent (not twice)', () => {
+    const addEventListenerSpy = vi.spyOn(window, 'addEventListener');
+
+    const sut = new ex.Screen({
+      canvas,
+      context,
+      browser,
+      displayMode: ex.DisplayMode.FitScreen,
+      viewport: { width: 800, height: 600 }
+    });
+
+    const resizeListenerCalls = addEventListenerSpy.mock.calls.filter(
+      call => call[0] === 'resize'
+    );
+    expect(resizeListenerCalls.length).toBe(1);
+
+    addEventListenerSpy.mockRestore();
   });
 });
