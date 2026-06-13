@@ -303,4 +303,136 @@ describe('A particle', () => {
         .every((entity) => entity.transform.z === 5)
     ).toBeTruthy();
   });
+
+  it('unparents local-space particles when processing dead particles', () => {
+    const emitter = new ex.ParticleEmitter({
+      particle: {
+        transform: ex.ParticleTransform.Local,
+        life: 100,
+        minSpeed: 0,
+        maxSpeed: 0,
+      },
+      pos: new ex.Vector(0, 0),
+      width: 10,
+      height: 10,
+      isEmitting: false,
+      emitRate: 0,
+      random: new ex.Random(1337)
+    });
+    engine.add(emitter);
+    emitter.emitParticles(5);
+    expect(emitter.children.length).toBe(5);
+
+    // Manually add particles to deadParticles to simulate death
+    const particles = [...emitter.children] as ex.Particle[];
+    particles.forEach(p => emitter.removeParticle(p));
+    expect(emitter.deadParticles.length).toBe(5);
+    expect(emitter.children.length).toBe(5); // still children until processed
+
+    // Manually call update to process dead particles
+    emitter.update(engine, 16);
+
+    // Dead particles should be unparented after processing
+    expect(emitter.children.length).toBe(0);
+    expect(emitter.deadParticles.length).toBe(0);
+  });
+
+  it('does not double-return dead local particles to the pool', () => {
+    const emitter = new ex.ParticleEmitter({
+      particle: {
+        transform: ex.ParticleTransform.Local,
+        life: 100,
+        minSpeed: 0,
+        maxSpeed: 0,
+      },
+      pos: new ex.Vector(0, 0),
+      width: 10,
+      height: 10,
+      isEmitting: false,
+      emitRate: 0,
+      random: new ex.Random(1337)
+    });
+    engine.add(emitter);
+    emitter.emitParticles(3);
+    const initialPoolSize = emitter['_particlePool']['_pool'].length;
+
+    // Manually simulate death
+    const particles = [...emitter.children] as ex.Particle[];
+    particles.forEach(p => emitter.removeParticle(p));
+
+    // Process dead particles
+    emitter.update(engine, 16);
+
+    // Pool should have exactly 3 more items (no duplicates)
+    const finalPoolSize = emitter['_particlePool']['_pool'].length;
+    expect(finalPoolSize - initialPoolSize).toBe(3);
+
+    // Calling update again should not add more (deadParticles already cleared)
+    emitter.update(engine, 16);
+    expect(emitter['_particlePool']['_pool'].length).toBe(finalPoolSize);
+  });
+
+  it('clearParticles properly unparents local particles', async () => {
+    const emitter = new ex.ParticleEmitter({
+      particle: {
+        transform: ex.ParticleTransform.Local,
+        life: 10000,
+        minSpeed: 0,
+        maxSpeed: 0,
+      },
+      pos: new ex.Vector(0, 0),
+      width: 10,
+      height: 10,
+      isEmitting: false,
+      emitRate: 0,
+      random: new ex.Random(1337)
+    });
+    engine.add(emitter);
+    emitter.emitParticles(5);
+    expect(emitter.children.length).toBe(5);
+
+    emitter.clearParticles();
+
+    // Step to process deferred removal
+    const clock = engine.clock as ex.TestClock;
+    clock.step(16);
+    await Promise.resolve();
+
+    expect(emitter.children.length).toBe(0);
+  });
+
+  it('same particle instance is never active in two slots after pool re-rent', async () => {
+    const emitter = new ex.ParticleEmitter({
+      particle: {
+        transform: ex.ParticleTransform.Local,
+        life: 100,
+        minSpeed: 0,
+        maxSpeed: 0,
+      },
+      pos: new ex.Vector(0, 0),
+      width: 10,
+      height: 10,
+      isEmitting: false,
+      emitRate: 0,
+      random: new ex.Random(1337)
+    });
+    engine.add(emitter);
+
+    // Emit particles that will die quickly
+    emitter.emitParticles(3);
+    const firstBatch = [...emitter['_activeParticles']];
+
+    // Manually simulate death and process
+    const particles = [...emitter.children] as ex.Particle[];
+    particles.forEach(p => emitter.removeParticle(p));
+    emitter.update(engine, 16);
+
+    // Emit again - should get recycled instances
+    emitter.emitParticles(3);
+    const secondBatch = [...emitter['_activeParticles']];
+
+    // No instance should appear twice in the active set
+    const allActive = new Set(secondBatch);
+    expect(allActive.size).toBe(secondBatch.length);
+  });
 });

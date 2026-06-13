@@ -73,6 +73,7 @@ export class Particle extends Entity {
   }
 
   private _emitter?: ParticleEmitter;
+  private _isDead = false;
   registerEmitter(emitter: ParticleEmitter) {
     this._emitter = emitter;
     if (this.particleTransform === ParticleTransform.Global) {
@@ -129,6 +130,8 @@ export class Particle extends Entity {
   }
 
   public override kill() {
+    if (this._isDead) return;
+    this._isDead = true;
     if (this._emitter?.isActive) {
       this._emitter.removeParticle(this);
     } else {
