@@ -310,7 +310,7 @@ describe('A particle', () => {
         transform: ex.ParticleTransform.Local,
         life: 100,
         minSpeed: 0,
-        maxSpeed: 0,
+        maxSpeed: 0
       },
       pos: new ex.Vector(0, 0),
       width: 10,
@@ -325,7 +325,7 @@ describe('A particle', () => {
 
     // Manually add particles to deadParticles to simulate death
     const particles = [...emitter.children] as ex.Particle[];
-    particles.forEach(p => emitter.removeParticle(p));
+    particles.forEach((p) => emitter.removeParticle(p));
     expect(emitter.deadParticles.length).toBe(5);
     expect(emitter.children.length).toBe(5); // still children until processed
 
@@ -343,7 +343,7 @@ describe('A particle', () => {
         transform: ex.ParticleTransform.Local,
         life: 100,
         minSpeed: 0,
-        maxSpeed: 0,
+        maxSpeed: 0
       },
       pos: new ex.Vector(0, 0),
       width: 10,
@@ -358,7 +358,7 @@ describe('A particle', () => {
 
     // Manually simulate death
     const particles = [...emitter.children] as ex.Particle[];
-    particles.forEach(p => emitter.removeParticle(p));
+    particles.forEach((p) => emitter.removeParticle(p));
 
     // Process dead particles
     emitter.update(engine, 16);
@@ -378,7 +378,7 @@ describe('A particle', () => {
         transform: ex.ParticleTransform.Local,
         life: 10000,
         minSpeed: 0,
-        maxSpeed: 0,
+        maxSpeed: 0
       },
       pos: new ex.Vector(0, 0),
       width: 10,
@@ -407,7 +407,7 @@ describe('A particle', () => {
         transform: ex.ParticleTransform.Local,
         life: 100,
         minSpeed: 0,
-        maxSpeed: 0,
+        maxSpeed: 0
       },
       pos: new ex.Vector(0, 0),
       width: 10,
@@ -424,7 +424,7 @@ describe('A particle', () => {
 
     // Manually simulate death and process
     const particles = [...emitter.children] as ex.Particle[];
-    particles.forEach(p => emitter.removeParticle(p));
+    particles.forEach((p) => emitter.removeParticle(p));
     emitter.update(engine, 16);
 
     // Emit again - should get recycled instances

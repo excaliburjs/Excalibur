@@ -13,12 +13,20 @@ describe('A RentalPool', () => {
   });
 
   it('can be constructed and pre-allocates', () => {
-    const pool = new RentalPool<MockObject>(() => new MockObject(), (m) => m, 5);
+    const pool = new RentalPool<MockObject>(
+      () => new MockObject(),
+      (m) => m,
+      5
+    );
     expect(pool['_pool'].length).toBe(5);
   });
 
   it('can rent and return objects', () => {
-    const pool = new RentalPool<MockObject>(() => new MockObject(), (m) => m, 2);
+    const pool = new RentalPool<MockObject>(
+      () => new MockObject(),
+      (m) => m,
+      2
+    );
     const a = pool.rent();
     const b = pool.rent();
     expect(pool['_pool'].length).toBe(0);
@@ -29,7 +37,11 @@ describe('A RentalPool', () => {
   });
 
   it('grows automatically when depleted', () => {
-    const pool = new RentalPool<MockObject>(() => new MockObject(), (m) => m, 2);
+    const pool = new RentalPool<MockObject>(
+      () => new MockObject(),
+      (m) => m,
+      2
+    );
     pool.rent();
     pool.rent();
     expect(pool['_pool'].length).toBe(0);
@@ -40,7 +52,11 @@ describe('A RentalPool', () => {
   });
 
   it('guards against double-returns', () => {
-    const pool = new RentalPool<MockObject>(() => new MockObject(), (m) => m, 3);
+    const pool = new RentalPool<MockObject>(
+      () => new MockObject(),
+      (m) => m,
+      3
+    );
     const a = pool.rent();
     const initialLength = pool['_pool'].length;
 
@@ -53,7 +69,11 @@ describe('A RentalPool', () => {
   });
 
   it('clears the double-return guard when an object is re-rented', () => {
-    const pool = new RentalPool<MockObject>(() => new MockObject(), (m) => m, 2);
+    const pool = new RentalPool<MockObject>(
+      () => new MockObject(),
+      (m) => m,
+      2
+    );
     const a = pool.rent();
     const b = pool.rent();
 
