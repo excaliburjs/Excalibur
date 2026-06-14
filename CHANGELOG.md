@@ -16,6 +16,25 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added `shouldAlwaysTick` option to `Animation`, `GraphicsGroup`, and `GraphicsComponent` to allow animations to continue ticking even when offscreen. This is useful for keeping animations synchronized across your game scene without causing performance regressions in the default case.
+  ```typescript
+  // Per-animation opt-in
+  const anim = new ex.Animation({
+    frames: [...],
+    shouldAlwaysTick: true
+  });
+
+  // Per-component opt-in
+  actor.graphics = new ex.GraphicsComponent({
+    shouldAlwaysTick: true
+  });
+
+  // Per-graphics-group opt-in
+  const group = new ex.GraphicsGroup({
+    members: [...],
+    shouldAlwaysTick: true
+  });
+  ```
 - Added new lerp modes for color which can be chosen by aptional parameter in `Color.lerp` or by calling different methods:
   ```typescript
   Color.lerp(colorA, colorB, t); // 'hsl' by default
@@ -40,6 +59,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 - Fixed issue where Local-space particles could be double-returned to the object pool, causing the same Particle instance to be active in two slots simultaneously
+- Fixed issue where `scaleTo({…})` and `scaleBy({…})` actions would cause entities to keep scaling indefinitely after the action completed, due to a copy-paste bug that zeroed `angularVelocity` instead of `scaleFactor`
+- Fixed issue where `scaleTo({…})` and `scaleBy({…})` actions used a live reference to the entity's scale vector as the interpolation start point, causing the easing curve to be corrupted if the entity's scale changed during the action
 - Fixed issue where the first action in a sequence would not execute after calling `clearActions()` mid-execution. All action types now properly reset their initialization state when stopped, resolving issue #3468
 - Performance: Font/Text now use smaller texture sizes, improving performance on Safari especially when rendering text
 

@@ -49,7 +49,7 @@ export class ScaleToWithOptions implements Action {
   }
   update(elapsed: number): void {
     if (!this._started) {
-      this._startScale = this._tx.scale;
+      this._startScale = this._tx.scale.clone();
       this._started = true;
     }
     this._currentMs -= elapsed;
@@ -63,7 +63,7 @@ export class ScaleToWithOptions implements Action {
 
     if (this.isComplete()) {
       this._tx.scale = this._endScale;
-      this._motion.angularVelocity = 0;
+      this._motion.scaleFactor = Vector.Zero;
     }
   }
   public isComplete(): boolean {
