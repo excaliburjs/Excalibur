@@ -1008,9 +1008,7 @@ describe('A Screen', () => {
       viewport: { width: 800, height: 600 }
     });
 
-    const resizeListenerCalls = addEventListenerSpy.mock.calls.filter(
-      call => call[0] === 'resize'
-    );
+    const resizeListenerCalls = addEventListenerSpy.mock.calls.filter((call) => call[0] === 'resize');
     expect(resizeListenerCalls.length).toBe(1);
 
     addEventListenerSpy.mockRestore();
