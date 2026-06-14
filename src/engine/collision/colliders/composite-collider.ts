@@ -78,7 +78,7 @@ export class CompositeCollider extends Collider {
   }
 
   removeCollider(collider: Collider) {
-    collider.events.pipe(this.events);
+    collider.events.unpipe(this.events);
     collider.composite = null;
     Util.removeItemFromArray(collider, this._colliders);
     this._collisionProcessor.untrack(collider);
