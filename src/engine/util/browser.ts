@@ -18,7 +18,9 @@ export class BrowserComponent<T extends NativeEventable> {
   }
   off(eventName: string, handler?: (event: any) => void): void {
     const entry = this._handlers.get(eventName);
-    if (!entry) return;
+    if (!entry) {
+      return;
+    }
     if (!handler || entry.handler === handler) {
       this.nativeComponent.removeEventListener(eventName, entry.wrapper);
       this._handlers.delete(eventName);
