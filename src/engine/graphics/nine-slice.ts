@@ -208,42 +208,57 @@ export class NineSlice extends Graphic {
   ) {
     const tempMarginW = marginWidth || 0;
     const tempMarginH = marginHeight || 0;
-    let tempSizeX: number, tempPositionX: number, tempSizeY: number, tempPositionY: number;
+    // let tempSizeX: number, tempPositionX: number, tempSizeY: number, tempPositionY: number;
     const numTilesX = this._getNumberOfTiles(targetCanvas.width, destinationSize.x, horizontalStretch);
     const numTilesY = this._getNumberOfTiles(targetCanvas.height, destinationSize.y, verticalStretch);
 
     for (let i = 0; i < numTilesX; i++) {
       for (let j = 0; j < numTilesY; j++) {
-        let { tempSize, tempPosition } = this._calculateParams(
-          i,
-          numTilesX,
-          targetCanvas.width,
-          destinationSize.x,
-          this._config.destinationConfig.horizontalStretch
-        );
-        tempSizeX = tempSize;
-        tempPositionX = tempPosition;
+        // let { tempSize, tempPosition } = this._calculateParams(
+        //   i,
+        //   numTilesX,
+        //   targetCanvas.width,
+        //   destinationSize.x,
+        //   this._config.destinationConfig.horizontalStretch
+        // );
+        // tempSizeX = tempSize;
+        // tempPositionX = tempPosition;
 
-        ({ tempSize, tempPosition } = this._calculateParams(
-          j,
-          numTilesY,
-          targetCanvas.height,
-          destinationSize.y,
-          this._config.destinationConfig.verticalStretch
-        ));
-        tempSizeY = tempSize;
-        tempPositionY = tempPosition;
+        // ({ tempSize, tempPosition } = this._calculateParams(
+        //   j,
+        //   numTilesY,
+        //   targetCanvas.height,
+        //   destinationSize.y,
+        //   this._config.destinationConfig.verticalStretch
+        // ));
+        // tempSizeY = tempSize;
+        // tempPositionY = tempPosition;
 
+        // context.drawImage(
+        //   targetCanvas,
+        //   0,
+        //   0,
+        //   targetCanvas.width,
+        //   targetCanvas.height,
+        //   tempMarginW + tempPositionX,
+        //   tempMarginH + tempPositionY,
+        //   tempSizeX,
+        //   tempSizeY
+        // );
+        const tempX = this._calculateParams(i, numTilesX, targetCanvas.width, destinationSize.x, horizontalStretch);
+        const tempY = this._calculateParams(j, numTilesY, targetCanvas.height, destinationSize.y, verticalStretch);
+        const srcW = horizontalStretch === NineSliceStretch.Tile ? tempX.tempSize : targetCanvas.width;
+        const srcH = verticalStretch === NineSliceStretch.Tile ? tempY.tempSize : targetCanvas.height;
         context.drawImage(
           targetCanvas,
           0,
           0,
-          targetCanvas.width,
-          targetCanvas.height,
-          tempMarginW + tempPositionX,
-          tempMarginH + tempPositionY,
-          tempSizeX,
-          tempSizeY
+          srcW,
+          srcH,
+          tempMarginW + tempX.tempPosition,
+          tempMarginH + tempY.tempPosition,
+          tempX.tempSize,
+          tempY.tempSize
         );
       }
     }
