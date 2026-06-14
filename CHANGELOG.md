@@ -41,6 +41,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Fixed issue where the first action in a sequence would not execute after calling `clearActions()` mid-execution. All action types now properly reset their initialization state when stopped, resolving issue #3468
 - Performance: Font/Text now use smaller texture sizes, improving performance on Safari especially when rendering text
+- Fixed `Color.screen()` blend mode bug where both operands were incorrectly using the parameter color instead of `this` and the parameter
+- Fixed `Color.toRGBA()` logic error in alpha check condition (`||` changed to `&&`)
+- Fixed `Color.toHSLA()` to output valid CSS format with degrees for hue and percentages for saturation/lightness
+- Fixed `Color.toHex()` to properly clamp RGB values to 0-255 range
 
 ### Updates
 
