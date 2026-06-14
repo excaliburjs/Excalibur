@@ -89,7 +89,12 @@ export class Resource<T> implements Loadable<T> {
       request.addEventListener('progress', (e) => this.events.emit('progress', e as any));
       request.addEventListener('error', (e) => {
         this.events.emit('error', e as any);
-        reject(new ResourceLoadingError(this.path, `Failed to load resource at ${this.path}. This may be a network error, CORS issue, or the resource is unreachable.`));
+        reject(
+          new ResourceLoadingError(
+            this.path,
+            `Failed to load resource at ${this.path}. This may be a network error, CORS issue, or the resource is unreachable.`
+          )
+        );
       });
       request.addEventListener('abort', (e) => {
         this.events.emit('error', e as any);
