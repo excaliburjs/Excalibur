@@ -376,7 +376,9 @@ export class Keyboard {
     }
     const code = ev.code as Keys;
     const key = this._keys.indexOf(code);
-    this._keys.splice(key, 1);
+    if (key > -1) {
+      this._keys.splice(key, 1);
+    }
     this._keysUp.push(code);
     const keyEvent = new KeyEvent(code, ev.key, ev);
 

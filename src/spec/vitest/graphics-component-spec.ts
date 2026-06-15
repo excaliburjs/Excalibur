@@ -282,6 +282,70 @@ describe('A Graphics ECS Component', () => {
     expect(animation.tick).toHaveBeenCalledWith(123, 4);
   });
 
+  it('updateOffscreen does not tick by default', () => {
+    const animation = new ex.Animation({
+      frames: []
+    });
+    const tickSpy = vi.spyOn(animation, 'tick');
+
+    const sut = new ex.GraphicsComponent();
+    sut.add(animation);
+
+    sut.updateOffscreen(123, 4);
+
+    expect(tickSpy).not.toHaveBeenCalled();
+  });
+
+  it('updateOffscreen ticks when graphic shouldAlwaysTick is true', () => {
+    const animation = new ex.Animation({
+      frames: [],
+      shouldAlwaysTick: true
+    });
+    const tickSpy = vi.spyOn(animation, 'tick');
+
+    const sut = new ex.GraphicsComponent();
+    sut.add(animation);
+
+    sut.updateOffscreen(123, 4);
+
+    expect(tickSpy).toHaveBeenCalledWith(123, 4);
+  });
+
+  it('updateOffscreen ticks when component shouldAlwaysTick is true', () => {
+    const animation = new ex.Animation({
+      frames: []
+    });
+    const tickSpy = vi.spyOn(animation, 'tick');
+
+    const sut = new ex.GraphicsComponent({
+      shouldAlwaysTick: true
+    });
+    sut.add(animation);
+
+    sut.updateOffscreen(123, 4);
+
+    expect(tickSpy).toHaveBeenCalledWith(123, 4);
+  });
+
+  it('can be constructed with shouldAlwaysTick', () => {
+    const sut = new ex.GraphicsComponent({
+      shouldAlwaysTick: true
+    });
+    expect(sut.shouldAlwaysTick).toBe(true);
+  });
+
+  it('clone preserves shouldAlwaysTick', () => {
+    const graphics = new ex.GraphicsComponent({
+      shouldAlwaysTick: true
+    });
+    const owner = new ex.Entity([graphics]);
+
+    const clone = owner.clone();
+    const sut = clone.get(ex.GraphicsComponent);
+
+    expect(sut.shouldAlwaysTick).toBe(true);
+  });
+
   it('correctly calculates graphics bounds (rasters)', () => {
     const sut = new ex.GraphicsComponent();
     const rec2 = new ex.Rectangle({

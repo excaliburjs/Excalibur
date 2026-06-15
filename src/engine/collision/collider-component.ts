@@ -131,6 +131,7 @@ export class ColliderComponent extends Component {
       this.$colliderRemoved.notifyAll(collider);
       collider.owner = null;
     }
+    this._collidersToRemove.length = 0;
   }
 
   public clone(): ColliderComponent {
