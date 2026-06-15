@@ -98,19 +98,19 @@ export function glTypeToUniformTypeName(gl: WebGL2RenderingContext, glType: numb
       return 'uniform4i';
     }
     case gl.FLOAT_MAT2: {
-      return 'uniform1f';
+      return 'uniformMatrix2fv';
     }
     case gl.FLOAT_MAT3: {
-      return 'uniform1f';
+      return 'uniformMatrix3fv';
     }
     case gl.FLOAT_MAT4: {
-      return 'uniform1f';
+      return 'uniformMatrix4fv';
     }
     case gl.SAMPLER_2D: {
-      return 'uniform1f';
+      return 'uniform1i';
     }
     case gl.SAMPLER_CUBE: {
-      return 'uniform1f';
+      return 'uniform1i';
     }
     case gl.UNSIGNED_INT: {
       return 'uniform1ui';
@@ -394,7 +394,14 @@ export class Shader {
         } else if (Array.isArray(value) && value[0] instanceof Float32Array && typeof value[1] === 'number') {
           this.setUniformBuffer(key, value[0], value[1]);
         } else if (typeof value === 'number') {
-          this.trySetUniformFloat(key, value);
+          const uniform = uniforms.find((u) => u.name === key);
+          if (uniform?.glType === gl.INT || uniform?.glType === gl.BOOL) {
+            this.trySetUniformInt(key, ~~value);
+          } else if (uniform?.glType === gl.UNSIGNED_INT) {
+            this.trySetUniform('uniform1ui', key, value >>> 0);
+          } else {
+            this.trySetUniformFloat(key, value);
+          }
         } else if (typeof value === 'boolean') {
           this.trySetUniformBoolean(key, value);
         } else if (value instanceof Vector) {
