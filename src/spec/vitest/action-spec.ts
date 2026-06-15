@@ -1569,6 +1569,82 @@ describe('Action', () => {
       expect(actor.scale.x).toBe(2.6);
       expect(actor.scale.y).toBe(2.6);
     });
+
+    it('(with options) stops scaling after completion', () => {
+      actor.actions.scaleTo({ scale: ex.vec(2, 2), duration: 1000 });
+
+      scene.update(engine, 1000);
+      expect(actor.scale.x).toBeCloseTo(2, 5);
+      expect(actor.scale.y).toBeCloseTo(2, 5);
+
+      // After completion, scale should NOT change on subsequent updates
+      scene.update(engine, 1000);
+      expect(actor.scale.x).toBeCloseTo(2, 5);
+      expect(actor.scale.y).toBeCloseTo(2, 5);
+
+      scene.update(engine, 5000);
+      expect(actor.scale.x).toBeCloseTo(2, 5);
+      expect(actor.scale.y).toBeCloseTo(2, 5);
+    });
+
+    it('(with options) scaleBy stops scaling after completion', () => {
+      actor.actions.scaleBy({ scaleOffset: ex.vec(1, 1), duration: 1000 });
+
+      scene.update(engine, 1000);
+      expect(actor.scale.x).toBeCloseTo(2, 5);
+      expect(actor.scale.y).toBeCloseTo(2, 5);
+
+      scene.update(engine, 1000);
+      expect(actor.scale.x).toBeCloseTo(2, 5);
+      expect(actor.scale.y).toBeCloseTo(2, 5);
+
+      scene.update(engine, 5000);
+      expect(actor.scale.x).toBeCloseTo(2, 5);
+      expect(actor.scale.y).toBeCloseTo(2, 5);
+    });
+
+    it('(with options) uses cloned start scale, not live reference', () => {
+      actor.scale = ex.vec(1, 1);
+      actor.actions.scaleTo({ scale: ex.vec(3, 3), duration: 1000 });
+
+      // Halfway through, manually mutate the entity's scale (simulating external influence)
+      scene.update(engine, 500);
+      // Should be halfway: lerp(1, 3, 0.5) = 2
+      expect(actor.scale.x).toBeCloseTo(2, 5);
+      expect(actor.scale.y).toBeCloseTo(2, 5);
+
+      // If _startScale aliased the live vector, mutating scale would corrupt the interpolation.
+      // Force the scale to something wrong — the action should still interpolate correctly.
+      actor.scale = ex.vec(100, 100);
+      scene.update(engine, 250);
+      // At t=0.75, should be lerp(1, 3, 0.75) = 2.5, NOT corrupted by the 100 mutation
+      expect(actor.scale.x).toBeCloseTo(2.5, 5);
+      expect(actor.scale.y).toBeCloseTo(2.5, 5);
+
+      scene.update(engine, 250);
+      expect(actor.scale.x).toBeCloseTo(3, 5);
+      expect(actor.scale.y).toBeCloseTo(3, 5);
+    });
+
+    it('(with options) scaleBy uses cloned start scale, not live reference', () => {
+      actor.scale = ex.vec(2, 2);
+      actor.actions.scaleBy({ scaleOffset: ex.vec(2, 2), duration: 1000 });
+
+      scene.update(engine, 500);
+      // lerp(2, 4, 0.5) = 3
+      expect(actor.scale.x).toBeCloseTo(3, 5);
+      expect(actor.scale.y).toBeCloseTo(3, 5);
+
+      actor.scale = ex.vec(100, 100);
+      scene.update(engine, 250);
+      // At t=0.75, should be lerp(2, 4, 0.75) = 3.5
+      expect(actor.scale.x).toBeCloseTo(3.5, 5);
+      expect(actor.scale.y).toBeCloseTo(3.5, 5);
+
+      scene.update(engine, 250);
+      expect(actor.scale.x).toBeCloseTo(4, 5);
+      expect(actor.scale.y).toBeCloseTo(4, 5);
+    });
   });
 
   describe('follow', () => {
