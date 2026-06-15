@@ -385,7 +385,12 @@ export class Shader {
       const uniforms = this.getUniformDefinitions();
       for (const [key, value] of entries) {
         if (value instanceof Float32Array) {
-          this.setUniformBuffer(key, value);
+          const blockIndex = gl.getUniformBlockIndex(this.program, key);
+          if (blockIndex !== gl.INVALID_INDEX) {
+            this.setUniformBuffer(key, value);
+          } else {
+            this.trySetUniformFloatArray(key, Array.from(value));
+          }
         } else if (Array.isArray(value) && value[0] instanceof Float32Array && typeof value[1] === 'number') {
           this.setUniformBuffer(key, value[0], value[1]);
         } else if (typeof value === 'number') {
@@ -616,7 +621,7 @@ export class Shader {
     }
     const gl = this._gl;
     const index = gl.getUniformBlockIndex(this.program, name);
-    if (index) {
+    if (index !== gl.INVALID_INDEX) {
       this.setUniformBuffer(name, data, bindingPoint);
       return true;
     }

@@ -284,4 +284,64 @@ describe('A Shader', () => {
     expect(gl.activeTexture).toHaveBeenCalledWith(gl.TEXTURE0 + 5);
     expect(gl.bindTexture).toHaveBeenCalledWith(gl.TEXTURE_2D, tex);
   });
+
+  it('can set Float32Array as regular uniform (not uniform block)', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      uniform vec4 u_axisAngle;
+      uniform float u_floatarray[4];
+      void main() {
+        gl_Position = a_position + vec4(u_axisAngle.x, u_axisAngle.y, u_axisAngle.z, u_axisAngle.w + u_floatarray[0]);
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0, 0, 0, 1.0);
+      }`
+    });
+
+    sut.uniforms = {
+      u_axisAngle: new Float32Array([1.0, 0.0, 0.0, Math.PI / 2]),
+      u_floatarray: new Float32Array([1.0, 2.0, 3.0, 4.0])
+    };
+
+    sut.compile();
+    sut.use();
+
+    expect(() => {
+      sut.setUniform('uniform4f', 'u_axisAngle', 1.0, 0.0, 0.0, Math.PI / 2);
+    }).not.toThrow();
+  });
+
+  it('can set Float32Array as uniform block when uniform block exists', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      layout(std140) uniform TestBlock {
+        vec4 data;
+      };
+      void main() {
+        gl_Position = a_position + data;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0, 0, 0, 1.0);
+      }`
+    });
+
+    sut.uniforms = {
+      TestBlock: new Float32Array([1.0, 0.0, 0.0, 1.0])
+    };
+
+    sut.compile();
+    sut.use();
+
+    expect(sut.uniforms.TestBlock).toBeInstanceOf(Float32Array);
+  });
 });
