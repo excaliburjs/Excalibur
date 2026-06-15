@@ -354,7 +354,7 @@ describe('A particle', () => {
     });
     engine.add(emitter);
     emitter.emitParticles(3);
-    const initialPoolSize = emitter['_particlePool']['_pool'].length;
+    const initialPoolSize = emitter._particlePool._pool.length;
 
     // Manually simulate death
     const particles = [...emitter.children] as ex.Particle[];
@@ -364,12 +364,12 @@ describe('A particle', () => {
     emitter.update(engine, 16);
 
     // Pool should have exactly 3 more items (no duplicates)
-    const finalPoolSize = emitter['_particlePool']['_pool'].length;
+    const finalPoolSize = emitter._particlePool._pool.length;
     expect(finalPoolSize - initialPoolSize).toBe(3);
 
     // Calling update again should not add more (deadParticles already cleared)
     emitter.update(engine, 16);
-    expect(emitter['_particlePool']['_pool'].length).toBe(finalPoolSize);
+    expect(emitter._particlePool._pool.length).toBe(finalPoolSize);
   });
 
   it('clearParticles properly unparents local particles', async () => {
@@ -401,7 +401,7 @@ describe('A particle', () => {
     expect(emitter.children.length).toBe(0);
   });
 
-  it('same particle instance is never active in two slots after pool re-rent', async () => {
+  it('same particle instance is never active in two slots after pool re-rent', () => {
     const emitter = new ex.ParticleEmitter({
       particle: {
         transform: ex.ParticleTransform.Local,
@@ -420,7 +420,7 @@ describe('A particle', () => {
 
     // Emit particles that will die quickly
     emitter.emitParticles(3);
-    const firstBatch = [...emitter['_activeParticles']];
+    const firstBatch = [...emitter._activeParticles];
 
     // Manually simulate death and process
     const particles = [...emitter.children] as ex.Particle[];
@@ -429,7 +429,7 @@ describe('A particle', () => {
 
     // Emit again - should get recycled instances
     emitter.emitParticles(3);
-    const secondBatch = [...emitter['_activeParticles']];
+    const secondBatch = [...emitter._activeParticles];
 
     // No instance should appear twice in the active set
     const allActive = new Set(secondBatch);
