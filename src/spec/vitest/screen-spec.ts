@@ -991,7 +991,7 @@ describe('A Screen', () => {
     ]);
     expect(warnOnce.mock.calls[1]).toEqual([
       'Scaled resolution too big attempted recovery!' +
-        ` Pixel ratio is automatically reduced to (2) to avoid 4k texture limit.` +
+        ` Pixel ratio was automatically reduced to (2) to avoid 4k texture limit.` +
         ' Setting `ex.Engine({pixelRatio: ...}) will override any automatic recalculation, do so at your own risk.` ' +
         ' (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).'
     ]);
