@@ -190,12 +190,14 @@ describe('A Shader', () => {
       uniform int u_unused;
       // nonsense shader for testing
       void main() {
+        vec4 result = vec4(0.0);
         if (u_bool) {
-          gl_Position = a_position + vec4(a_otherposition, u_float + float(u_int));
+          result += a_position + vec4(a_otherposition, u_float + float(u_int));
         } else {
-          gl_Position = u_mat * vec4(1.0, u_vec.x, u_vec.y, u_floatarray[1]);
+          result += u_mat * vec4(1.0, u_vec.x, u_vec.y, u_floatarray[1]);
         }
-        gl_Position = vec4(float(u_intarray[0]), float(u_intarray[1]), float(u_intarray[2]), float(u_intarray[3]));
+        result += vec4(float(u_intarray[0]), float(u_intarray[1]), float(u_intarray[2]), float(u_intarray[3]));
+        gl_Position = result;
       }`,
       fragmentSource: `
       void main() {
@@ -247,12 +249,14 @@ describe('A Shader', () => {
       uniform int u_unused;
       // nonsense shader for testing
       void main() {
+        vec4 result = vec4(0.0);
         if (u_bool) {
-          gl_Position = a_position + vec4(a_otherposition, u_float + float(u_int));
+          result += a_position + vec4(a_otherposition, u_float + float(u_int));
         } else {
-          gl_Position = u_mat * vec4(1.0, u_vec.x, u_vec.y, u_floatarray[1]);
+          result += u_mat * vec4(1.0, u_vec.x, u_vec.y, u_floatarray[1]);
         }
-        gl_Position = vec4(float(u_intarray[0]), float(u_intarray[1]), float(u_intarray[2]), float(u_intarray[3]));
+        result += vec4(float(u_intarray[0]), float(u_intarray[1]), float(u_intarray[2]), float(u_intarray[3]));
+        gl_Position = result;
       }`,
       fragmentSource: `
       void main() {
