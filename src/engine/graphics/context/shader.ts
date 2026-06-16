@@ -305,6 +305,9 @@ export class Shader {
   private _uniforms: { [variableName: string]: UniformDefinition } = {};
   private _uniformBuffers: { [blockName: string]: UniformBuffer } = {};
   private _uniformBufferBindingPoints: { [blockName: string]: number } = {};
+  private _uniformBlockIndexCache: { [blockName: string]: number } = {};
+  private _uniformBlockBindingSet: { [blockName: string]: boolean } = {};
+  private _boundBufferBase: Map<number, WebGLBuffer | null> = new Map();
   private _nextUniformBufferBindingPoint = 0;
   private _affineMatrixCache = new Float32Array(16);
   private _compiled = false;
@@ -383,6 +386,11 @@ export class Shader {
       buffer.dispose();
     }
     this._uniformBuffers = {};
+    this._uniformBlockIndexCache = {};
+    this._uniformBlockBindingSet = {};
+    this._boundBufferBase.clear();
+    this._uniformBufferBindingPoints = {};
+    this._nextUniformBufferBindingPoint = 0;
     
     // Textures are owned by TextureLoader, do not delete them here
     this._textures.clear();
@@ -428,7 +436,7 @@ export class Shader {
       for (const [key, value] of entries) {
         const uniform = this._uniforms[key];
         if (value instanceof Float32Array) {
-          const blockIndex = gl.getUniformBlockIndex(this.program, key);
+          const blockIndex = this._getUniformBlockIndex(key);
           if (blockIndex !== gl.INVALID_INDEX) {
             this.setUniformBuffer(key, value);
           } else if (uniform) {
@@ -664,6 +672,15 @@ export class Shader {
     gl.bindTexture(gl.TEXTURE_2D, texture);
   }
 
+  private _getUniformBlockIndex(name: string): number {
+    if (this._uniformBlockIndexCache[name] !== undefined) {
+      return this._uniformBlockIndexCache[name];
+    }
+    const index = this._gl.getUniformBlockIndex(this.program, name);
+    this._uniformBlockIndexCache[name] = index;
+    return index;
+  }
+
   /**
    * Set a uniform buffer block with a Float32Array
    * @param name The of the binding block
@@ -681,7 +698,7 @@ export class Shader {
       );
     }
     const gl = this._gl;
-    const index = gl.getUniformBlockIndex(this.program, name);
+    const index = this._getUniformBlockIndex(name);
     if (index === gl.INVALID_INDEX) {
       this._logger.warnOnce(`Invalid block name ${name}`);
       return;
@@ -715,11 +732,17 @@ export class Shader {
       });
       this._uniformBuffers[name] = uniformBuffer;
     }
-    gl.uniformBlockBinding(this.program, index, bindingPoint);
-    gl.bindBufferBase(gl.UNIFORM_BUFFER, bindingPoint, uniformBuffer.buffer);
+    if (!this._uniformBlockBindingSet[name]) {
+      gl.uniformBlockBinding(this.program, index, bindingPoint);
+      this._uniformBlockBindingSet[name] = true;
+    }
+    if (this._boundBufferBase.get(bindingPoint) !== uniformBuffer.buffer) {
+      gl.bindBufferBase(gl.UNIFORM_BUFFER, bindingPoint, uniformBuffer.buffer);
+      this._boundBufferBase.set(bindingPoint, uniformBuffer.buffer);
+    }
   }
 
-  trySetUniformBuffer(name: string, data: Float32Array, bindingPoint: number = 0): boolean {
+  trySetUniformBuffer(name: string, data: Float32Array, bindingPoint?: number): boolean {
     if (!this._compiled) {
       this._logger.warn(`Must compile shader before setting a uniform block ${name} at binding point ${bindingPoint}`);
       return false;
@@ -732,7 +755,7 @@ export class Shader {
       return false;
     }
     const gl = this._gl;
-    const index = gl.getUniformBlockIndex(this.program, name);
+    const index = this._getUniformBlockIndex(name);
     if (index !== gl.INVALID_INDEX) {
       this.setUniformBuffer(name, data, bindingPoint);
       return true;
