@@ -85,7 +85,7 @@ export function getGLTypeFromSource(gl: WebGLRenderingContext, source: string, v
  * @param gl
  * @param type
  */
-export function getAttributeComponentSize(gl: WebGLRenderingContext, type: number): number {
+export function getAttributeComponentSize(gl: WebGL2RenderingContext, type: number): number {
   switch (type) {
     case gl.LOW_FLOAT:
     case gl.HIGH_FLOAT:
@@ -128,7 +128,7 @@ export function getAttributeComponentSize(gl: WebGLRenderingContext, type: numbe
  * @param gl
  * @param type
  */
-export function getAttributePointerType(gl: WebGLRenderingContext, type: number) {
+export function getAttributePointerType(gl: WebGL2RenderingContext, type: number) {
   switch (type) {
     case gl.LOW_FLOAT:
     case gl.HIGH_FLOAT:
