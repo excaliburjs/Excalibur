@@ -355,7 +355,7 @@ export class Shader {
     }
     this._gl = graphicsContext.__gl;
     this._startingTextureSlot = startingTextureSlot ?? this._startingTextureSlot;
-    this._maxTextureSlots = this._gl.getParameter(this._gl.MAX_TEXTURE_IMAGE_UNITS) - this._startingTextureSlot;
+    this._maxTextureSlots = this._gl.getParameter(this._gl.MAX_TEXTURE_IMAGE_UNITS);
     this.vertexSource = vertexSource;
     this.fragmentSource = fragmentSource;
     this.uniforms = watch(uniforms ?? this.uniforms, () => this.flagUniformsDirty());
@@ -525,7 +525,6 @@ export class Shader {
     const gl = this._gl;
     // first 2 textures slots are usually taken by 1 default graphic 2 screen texture
     let textureSlot = this._startingTextureSlot;
-    const maxTextureSlot = this._startingTextureSlot + this._maxTextureSlots;
     for (const [textureName, image] of Object.entries(this.images)) {
       if (!image.isLoaded()) {
         if (!suppressWarning) {
@@ -535,8 +534,8 @@ export class Shader {
           );
         }
         continue;
-      } // skip unloaded images, maybe warn
-      if (textureSlot >= maxTextureSlot) {
+      }
+      if (textureSlot >= this._maxTextureSlots) {
         if (!suppressWarning) {
           this._logger.warnOnce(
             `Max number texture slots ${this._maxTextureSlots} have been reached for material "${this.name}", ` +
