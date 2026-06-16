@@ -948,7 +948,12 @@ describe('A Shader', () => {
 
     const fakeImage = {
       isLoaded: () => true,
-      image: { src: 'fake.png', getAttribute: () => null, removeAttribute: () => {} }
+      image: {
+        src: 'fake.png',
+        getAttribute: () => null,
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        removeAttribute: () => {}
+      }
     } as any;
 
     const fakeTexture = gl.createTexture();
@@ -1097,7 +1102,12 @@ void main() {
 
     const fakeImage = {
       isLoaded: () => true,
-      image: { src: 'null-texture.png', getAttribute: () => null, removeAttribute: () => {} }
+      image: {
+        src: 'null-texture.png',
+        getAttribute: () => null,
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        removeAttribute: () => {}
+      }
     } as any;
 
     vi.spyOn((sut as any)._textureLoader, 'load').mockReturnValue(null);
@@ -1197,7 +1207,7 @@ void main() {
     expect(ex.glTypeToUniformTypeName(gl, gl.UNSIGNED_INT_SAMPLER_2D_ARRAY)).toBe('uniform1i');
   });
 
-  it('setUniformBuffer does not mutate caller\'s Float32Array', () => {
+  it("setUniformBuffer does not mutate caller's Float32Array", () => {
     const sut = new ex.Shader({
       graphicsContext,
       vertexSource: `#version 300 es

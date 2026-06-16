@@ -16,14 +16,7 @@ import { getAttributeComponentSize, getAttributePointerType } from './webgl-util
 
 export type UniformDictionary = Record<
   string,
-  | number
-  | boolean
-  | Vector
-  | Color
-  | AffineMatrix
-  | Matrix
-  | Float32Array
-  | [uniformData: Float32Array, bindingPoint: number]
+  number | boolean | Vector | Color | AffineMatrix | Matrix | Float32Array | [uniformData: Float32Array, bindingPoint: number]
 >;
 /*
  * List of the possible glsl uniform types
@@ -381,7 +374,7 @@ export class Shader {
     }
     const gl = this._gl;
     gl.deleteProgram(this.program);
-    
+
     for (const buffer of Object.values(this._uniformBuffers)) {
       buffer.dispose();
     }
@@ -391,10 +384,10 @@ export class Shader {
     this._boundBufferBase.clear();
     this._uniformBufferBindingPoints = {};
     this._nextUniformBufferBindingPoint = 0;
-    
+
     // Textures are owned by TextureLoader, do not delete them here
     this._textures.clear();
-    
+
     this._gl = null as any;
   }
 
@@ -926,10 +919,13 @@ export class Shader {
 
   setUniformAffineMatrix(name: string, value: AffineMatrix): void {
     const m = this._affineMatrixCache;
-    m[0] = value.data[0]; m[1] = value.data[1]; m[2] = 0; m[3] = 0;
-    m[4] = value.data[2]; m[5] = value.data[3]; m[6] = 0; m[7] = 0;
-    m[8] = 0; m[9] = 0; m[10] = 1; m[11] = 0;
-    m[12] = value.data[4]; m[13] = value.data[5]; m[14] = 0; m[15] = 1;
+    // prettier-ignore
+    {
+      m[0] = value.data[0]; m[1] = value.data[1]; m[2] = 0; m[3] = 0;
+      m[4] = value.data[2]; m[5] = value.data[3]; m[6] = 0; m[7] = 0;
+      m[8] = 0; m[9] = 0; m[10] = 1; m[11] = 0;
+      m[12] = value.data[4]; m[13] = value.data[5]; m[14] = 0; m[15] = 1;
+    }
     this.setUniform('uniformMatrix4fv', name, false, m);
   }
 
