@@ -693,7 +693,7 @@ describe('A Shader', () => {
     expect(setUniformSpy).not.toHaveBeenCalledWith('u_texture', expect.any(Number));
   });
 
-  it('dispose() cleans up uniform buffers and textures', () => {
+  it('dispose() cleans up uniform buffers and texture cache', () => {
     const sut = new ex.Shader({
       graphicsContext,
       vertexSource: `#version 300 es
@@ -729,7 +729,10 @@ describe('A Shader', () => {
     sut.dispose();
 
     expect(deleteBufferSpy).toHaveBeenCalled();
-    expect(deleteTextureSpy).toHaveBeenCalledWith(fakeTexture);
+    // Textures are owned by TextureLoader, not deleted by Shader
+    expect(deleteTextureSpy).not.toHaveBeenCalledWith(fakeTexture);
+    // But the texture cache should be cleared
+    expect((sut as any)._textures.size).toBe(0);
   });
 
   it('Float32Array uniform uses correct WebGL method based on GL type', () => {
@@ -883,5 +886,249 @@ describe('A Shader', () => {
     sut.dispose();
 
     expect(() => sut.use()).toThrowError(/has been disposed/);
+  });
+
+  it('Float32Array for mat4 uniform uses uniformMatrix4fv not uniform1fv', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      uniform mat4 u_mat4;
+      void main() {
+        gl_Position = u_mat4 * a_position;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    const uniform1fvSpy = vi.spyOn(gl, 'uniform1fv');
+    const uniformMatrix4fvSpy = vi.spyOn(gl, 'uniformMatrix4fv');
+
+    sut.uniforms = {
+      u_mat4: new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1])
+    };
+
+    sut.compile();
+    sut.use();
+
+    expect(uniform1fvSpy).not.toHaveBeenCalled();
+    expect(uniformMatrix4fvSpy).toHaveBeenCalled();
+  });
+
+  it('_setImages stops binding textures when max slots exceeded', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      startingTextureSlot: 0,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      uniform sampler2D u_tex0;
+      uniform sampler2D u_tex1;
+      uniform sampler2D u_tex2;
+      void main() {
+        gl_Position = a_position;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    // Force max texture slots to 2
+    (sut as any)._maxTextureSlots = 2;
+
+    const fakeImage = {
+      isLoaded: () => true,
+      image: { src: 'fake.png', getAttribute: () => null, removeAttribute: () => {} }
+    } as any;
+
+    const fakeTexture = gl.createTexture();
+    vi.spyOn(sut as any, '_loadImageSource').mockReturnValue(fakeTexture);
+
+    sut.images = {
+      u_tex0: fakeImage,
+      u_tex1: fakeImage,
+      u_tex2: fakeImage // This one should be skipped
+    };
+
+    const activeTextureSpy = vi.spyOn(gl, 'activeTexture');
+    const logger = ex.Logger.getInstance();
+    const warnSpy = vi.spyOn(logger, 'warnOnce');
+
+    sut.compile();
+    sut.use();
+
+    // Should only have called activeTexture for slots 0 and 1, not slot 2
+    expect(activeTextureSpy).toHaveBeenCalledWith(gl.TEXTURE0 + 0);
+    expect(activeTextureSpy).toHaveBeenCalledWith(gl.TEXTURE0 + 1);
+    expect(activeTextureSpy).not.toHaveBeenCalledWith(gl.TEXTURE0 + 2);
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Max number texture slots'));
+  });
+
+  it('dispose() does NOT delete textures owned by TextureLoader', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      void main() {
+        gl_Position = a_position;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    sut.compile();
+
+    const fakeTexture = gl.createTexture();
+    const fakeImage = {} as any;
+    (sut as any)._textures.set(fakeImage, fakeTexture);
+
+    const deleteTextureSpy = vi.spyOn(gl, 'deleteTexture');
+
+    sut.dispose();
+
+    // Shader should NOT delete textures - they are owned by TextureLoader
+    expect(deleteTextureSpy).not.toHaveBeenCalledWith(fakeTexture);
+    // But should clear the local cache
+    expect((sut as any)._textures.size).toBe(0);
+  });
+
+  it('_processSourceForError handles multi-digit line numbers', () => {
+    // Create a shader with an error on line 12 (multi-digit)
+    const vertexSource = `#version 300 es
+in vec4 a_position;
+void main() {
+  // line 4
+  // line 5
+  // line 6
+  // line 7
+  // line 8
+  // line 9
+  // line 10
+  // line 11
+  gl_Position = a_position + INVALID_SYNTAX_HERE;
+}`;
+
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    try {
+      sut.compile();
+      expect.fail('Should have thrown');
+    } catch (e: any) {
+      const errorMessage = e.message;
+      // The error should correctly identify line 12 (where INVALID_SYNTAX_HERE is)
+      // Line 12 should be marked with "<----- ERROR!"
+      expect(errorMessage).toContain('12:');
+      expect(errorMessage).toContain('<----- ERROR!');
+      // The ERROR marker should be on line 12, not line 1 or 2
+      const lines = errorMessage.split('\n');
+      const errorLine = lines.find((l: string) => l.includes('<----- ERROR!'));
+      expect(errorLine).toBeDefined();
+      expect(errorLine).toMatch(/^12:/);
+    }
+  });
+
+  it('setUniformBuffer throws if shader is not currently bound', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      layout(std140) uniform TestBlock {
+        vec4 data;
+      };
+      void main() {
+        gl_Position = a_position + data;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    sut.compile();
+    // Note: NOT calling sut.use()
+
+    expect(() => {
+      sut.setUniformBuffer('TestBlock', new Float32Array([1.0, 2.0, 3.0, 4.0]));
+    }).toThrowError(/must call `shader.use\(\)` before setting uniforms/);
+  });
+
+  it('getAttributeDefinitions handles WebGL2 integer attribute types', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      in int a_int;
+      in ivec2 a_ivec2;
+      in ivec3 a_ivec3;
+      in ivec4 a_ivec4;
+      in uint a_uint;
+      in uvec2 a_uvec2;
+      in uvec3 a_uvec3;
+      in uvec4 a_uvec4;
+      void main() {
+        gl_Position = a_position + vec4(float(a_int), float(a_ivec2.x), float(a_ivec3.x), float(a_ivec4.x)) + vec4(float(a_uint), float(a_uvec2.x), float(a_uvec3.x), float(a_uvec4.x));
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    sut.compile();
+
+    expect(sut.attributes.a_int).toBeDefined();
+    expect(sut.attributes.a_int.glType).toBe(gl.INT);
+    expect(sut.attributes.a_int.size).toBe(1);
+
+    expect(sut.attributes.a_ivec2).toBeDefined();
+    expect(sut.attributes.a_ivec2.glType).toBe(gl.INT);
+    expect(sut.attributes.a_ivec2.size).toBe(2);
+
+    expect(sut.attributes.a_ivec3).toBeDefined();
+    expect(sut.attributes.a_ivec3.glType).toBe(gl.INT);
+    expect(sut.attributes.a_ivec3.size).toBe(3);
+
+    expect(sut.attributes.a_ivec4).toBeDefined();
+    expect(sut.attributes.a_ivec4.glType).toBe(gl.INT);
+    expect(sut.attributes.a_ivec4.size).toBe(4);
+
+    expect(sut.attributes.a_uint).toBeDefined();
+    expect(sut.attributes.a_uint.glType).toBe(gl.UNSIGNED_INT);
+    expect(sut.attributes.a_uint.size).toBe(1);
+
+    expect(sut.attributes.a_uvec2).toBeDefined();
+    expect(sut.attributes.a_uvec2.glType).toBe(gl.UNSIGNED_INT);
+    expect(sut.attributes.a_uvec2.size).toBe(2);
+
+    expect(sut.attributes.a_uvec3).toBeDefined();
+    expect(sut.attributes.a_uvec3.glType).toBe(gl.UNSIGNED_INT);
+    expect(sut.attributes.a_uvec3.size).toBe(3);
+
+    expect(sut.attributes.a_uvec4).toBeDefined();
+    expect(sut.attributes.a_uvec4.glType).toBe(gl.UNSIGNED_INT);
+    expect(sut.attributes.a_uvec4.size).toBe(4);
   });
 });

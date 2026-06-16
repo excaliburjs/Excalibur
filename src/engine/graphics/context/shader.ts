@@ -343,7 +343,7 @@ export class Shader {
     this.uniforms = watch(uniforms ?? this.uniforms, () => this.flagUniformsDirty());
     this.images = images ?? this.images;
     const keys = Object.keys(this.images);
-    if (keys.length >= this._maxTextureSlots) {
+    if (keys.length > this._maxTextureSlots) {
       this._logger.warn(
         `Max number texture slots ${this._maxTextureSlots} have been reached for material "${this.name}", ` +
           `no more textures will be uploaded due to hardware constraints.`
@@ -366,9 +366,7 @@ export class Shader {
     }
     this._uniformBuffers = {};
     
-    for (const texture of this._textures.values()) {
-      gl.deleteTexture(texture);
-    }
+    // Textures are owned by TextureLoader, do not delete them here
     this._textures.clear();
     
     this._gl = null as any;
@@ -418,6 +416,24 @@ export class Shader {
             this.trySetUniform('uniform3fv', key, value);
           } else if (uniform?.glType === gl.FLOAT_VEC4) {
             this.trySetUniform('uniform4fv', key, value);
+          } else if (uniform?.glType === gl.FLOAT_MAT2) {
+            this.trySetUniform('uniformMatrix2fv', key, false, value);
+          } else if (uniform?.glType === gl.FLOAT_MAT3) {
+            this.trySetUniform('uniformMatrix3fv', key, false, value);
+          } else if (uniform?.glType === gl.FLOAT_MAT4) {
+            this.trySetUniform('uniformMatrix4fv', key, false, value);
+          } else if (uniform?.glType === gl.FLOAT_MAT2x3) {
+            this.trySetUniform('uniformMatrix2x3fv', key, false, value);
+          } else if (uniform?.glType === gl.FLOAT_MAT2x4) {
+            this.trySetUniform('uniformMatrix2x4fv', key, false, value);
+          } else if (uniform?.glType === gl.FLOAT_MAT3x2) {
+            this.trySetUniform('uniformMatrix3x2fv', key, false, value);
+          } else if (uniform?.glType === gl.FLOAT_MAT3x4) {
+            this.trySetUniform('uniformMatrix3x4fv', key, false, value);
+          } else if (uniform?.glType === gl.FLOAT_MAT4x2) {
+            this.trySetUniform('uniformMatrix4x2fv', key, false, value);
+          } else if (uniform?.glType === gl.FLOAT_MAT4x3) {
+            this.trySetUniform('uniformMatrix4x3fv', key, false, value);
           } else {
             this.trySetUniformFloatArray(key, value);
           }
@@ -491,6 +507,7 @@ export class Shader {
     const gl = this._gl;
     // first 2 textures slots are usually taken by 1 default graphic 2 screen texture
     let textureSlot = this._startingTextureSlot;
+    const maxTextureSlot = this._startingTextureSlot + this._maxTextureSlots;
     for (const [textureName, image] of Object.entries(this.images)) {
       if (!image.isLoaded()) {
         if (!suppressWarning) {
@@ -507,6 +524,15 @@ export class Shader {
           this._logger.warnOnce(`Image ${textureName} (${image.image.src}) could not be loaded for some reason in shader ${this.name}`);
         }
         continue;
+      }
+      if (textureSlot >= maxTextureSlot) {
+        if (!suppressWarning) {
+          this._logger.warnOnce(
+            `Max number texture slots ${this._maxTextureSlots} have been reached for material "${this.name}", ` +
+              `no more textures will be uploaded due to hardware constraints.`
+          );
+        }
+        break;
       }
       gl.activeTexture(gl.TEXTURE0 + textureSlot);
       gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -633,6 +659,15 @@ export class Shader {
    * @param [bindingPoint]
    */
   setUniformBuffer(name: string, data: Float32Array, bindingPoint?: number): void {
+    if (!this._compiled) {
+      throw Error(`Must compile shader before setting a uniform block ${name}`);
+    }
+    if (!this.isCurrentlyBound()) {
+      throw Error(
+        'Currently accessed shader instance is not the current active shader in WebGL,' +
+          ' must call `shader.use()` before setting uniforms'
+      );
+    }
     const gl = this._gl;
     const index = gl.getUniformBlockIndex(this.program, name);
     if (index === gl.INVALID_INDEX) {
@@ -995,10 +1030,14 @@ export class Shader {
       return errorInfo;
     }
     const lines = source.split('\n');
-    const errorLineStart = errorInfo.search(/\d:\d/);
+    const errorLineStart = errorInfo.search(/\d+:\d+/);
+    if (errorLineStart === -1) {
+      return '\n\nSource:\n' + lines.map((l, i) => `${i + 1}: ${l}`).join('\n');
+    }
     const errorLineEnd = errorInfo.indexOf(' ', errorLineStart);
+    const endIdx = errorLineEnd === -1 ? errorInfo.length : errorLineEnd;
     const [_, error2] = errorInfo
-      .slice(errorLineStart, errorLineEnd)
+      .slice(errorLineStart, endIdx)
       .split(':')
       .map((v) => Number(v));
     for (let i = 0; i < lines.length; i++) {
