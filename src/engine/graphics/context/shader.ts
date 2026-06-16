@@ -432,67 +432,65 @@ export class Shader {
   private _setUniforms() {
     const gl = this._gl;
     const entries = Object.entries(this.uniforms);
-    if (entries.length) {
-      for (const [key, value] of entries) {
-        const uniform = this._uniforms[key];
-        if (value instanceof Float32Array) {
-          const blockIndex = this._getUniformBlockIndex(key);
-          if (blockIndex !== gl.INVALID_INDEX) {
-            this.setUniformBuffer(key, value);
-          } else if (uniform) {
-            let typeName = glTypeToUniformTypeName(gl, uniform.glType);
-            if (typeName.startsWith('uniformMatrix')) {
-              this.trySetUniform(typeName, key, false, value);
-            } else {
-              if (!typeName.endsWith('v')) {
-                typeName = (typeName + 'v') as UniformTypeNames;
-              }
-              this.trySetUniform(typeName, key, value);
+    for (const [key, value] of entries) {
+      const uniform = this._uniforms[key];
+      if (value instanceof Float32Array) {
+        const blockIndex = this._getUniformBlockIndex(key);
+        if (blockIndex !== gl.INVALID_INDEX) {
+          this.setUniformBuffer(key, value);
+        } else if (uniform) {
+          let typeName = glTypeToUniformTypeName(gl, uniform.glType);
+          if (typeName.startsWith('uniformMatrix')) {
+            this.trySetUniform(typeName, key, false, value);
+          } else {
+            if (!typeName.endsWith('v')) {
+              typeName = (typeName + 'v') as UniformTypeNames;
             }
-          } else {
-            this.trySetUniformFloatArray(key, value);
+            this.trySetUniform(typeName, key, value);
           }
-        } else if (Array.isArray(value) && value[0] instanceof Float32Array && typeof value[1] === 'number') {
-          this.setUniformBuffer(key, value[0], value[1]);
-        } else if (typeof value === 'number') {
-          if (!uniform) {
-            this.trySetUniformFloat(key, value);
-          } else {
-            const typeName = glTypeToUniformTypeName(gl, uniform.glType);
-            if (typeName === 'uniform1i') {
-              this.trySetUniformInt(key, ~~value);
-            } else if (typeName === 'uniform1ui') {
-              this.trySetUniform('uniform1ui', key, value >>> 0);
-            } else {
-              this.trySetUniformFloat(key, value);
-            }
-          }
-        } else if (typeof value === 'boolean') {
-          this.trySetUniformBoolean(key, value);
-        } else if (value instanceof Vector) {
-          if (uniform?.glType === gl.FLOAT_VEC3) {
-            this.trySetUniform('uniform3f', key, value.x, value.y, 0);
-          } else if (uniform?.glType === gl.FLOAT_VEC4) {
-            this.trySetUniform('uniform4f', key, value.x, value.y, 0, 0);
-          } else {
-            this.trySetUniformFloatVector(key, value);
-          }
-        } else if (value instanceof Color) {
-          this.trySetUniformFloatColor(key, value);
-        } else if (value instanceof AffineMatrix) {
-          this.setUniformAffineMatrix(key, value);
-        } else if (value instanceof Matrix) {
-          this.setUniformMatrix(key, value);
         } else {
-          if (uniform) {
-            const typeName = glTypeToUniformTypeName(gl, uniform.glType) as UniformTypeNames;
-            this.trySetUniform(typeName as any, key, value);
+          this.trySetUniformFloatArray(key, value);
+        }
+      } else if (Array.isArray(value) && value[0] instanceof Float32Array && typeof value[1] === 'number') {
+        this.setUniformBuffer(key, value[0], value[1]);
+      } else if (typeof value === 'number') {
+        if (!uniform) {
+          this.trySetUniformFloat(key, value);
+        } else {
+          const typeName = glTypeToUniformTypeName(gl, uniform.glType);
+          if (typeName === 'uniform1i') {
+            this.trySetUniformInt(key, ~~value);
+          } else if (typeName === 'uniform1ui') {
+            this.trySetUniform('uniform1ui', key, value >>> 0);
           } else {
-            this._logger.warnOnce(
-              `Could not locate uniform named ${key},` +
-                ` this can happen if the uniform is unused in the shader code some GPUs will remove this as an optimization.`
-            );
+            this.trySetUniformFloat(key, value);
           }
+        }
+      } else if (typeof value === 'boolean') {
+        this.trySetUniformBoolean(key, value);
+      } else if (value instanceof Vector) {
+        if (uniform?.glType === gl.FLOAT_VEC3) {
+          this.trySetUniform('uniform3f', key, value.x, value.y, 0);
+        } else if (uniform?.glType === gl.FLOAT_VEC4) {
+          this.trySetUniform('uniform4f', key, value.x, value.y, 0, 0);
+        } else {
+          this.trySetUniformFloatVector(key, value);
+        }
+      } else if (value instanceof Color) {
+        this.trySetUniformFloatColor(key, value);
+      } else if (value instanceof AffineMatrix) {
+        this.setUniformAffineMatrix(key, value);
+      } else if (value instanceof Matrix) {
+        this.setUniformMatrix(key, value);
+      } else {
+        if (uniform) {
+          const typeName = glTypeToUniformTypeName(gl, uniform.glType) as UniformTypeNames;
+          this.trySetUniform(typeName as any, key, value);
+        } else {
+          this._logger.warnOnce(
+            `Could not locate uniform named ${key},` +
+              ` this can happen if the uniform is unused in the shader code some GPUs will remove this as an optimization.`
+          );
         }
       }
     }
