@@ -528,7 +528,7 @@ export class Shader {
         }
         continue;
       }
-      if (textureSlot > this._maxTextureSlots) {
+      if (textureSlot >= this._maxTextureSlots) {
         if (!suppressWarning) {
           this._logger.warnOnce(
             `Max number texture slots ${this._maxTextureSlots} have been reached for material "${this.name}", ` +
