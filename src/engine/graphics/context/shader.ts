@@ -289,6 +289,9 @@ export class Shader {
 
   private _uniforms: { [variableName: string]: UniformDefinition } = {};
   private _uniformBuffers: { [blockName: string]: UniformBuffer } = {};
+  private _uniformBufferBindingPoints: { [blockName: string]: number } = {};
+  private _nextUniformBufferBindingPoint = 0;
+  private _affineMatrixCache = new Float32Array(16);
   private _compiled = false;
   private _onPreLink?: (program: WebGLProgram) => void;
   private _onPostCompile?: (shader: Shader) => void;
@@ -357,6 +360,17 @@ export class Shader {
   dispose() {
     const gl = this._gl;
     gl.deleteProgram(this.program);
+    
+    for (const buffer of Object.values(this._uniformBuffers)) {
+      buffer.dispose();
+    }
+    this._uniformBuffers = {};
+    
+    for (const texture of this._textures.values()) {
+      gl.deleteTexture(texture);
+    }
+    this._textures.clear();
+    
     this._gl = null as any;
   }
 
@@ -364,6 +378,9 @@ export class Shader {
    * Binds the shader program
    */
   use() {
+    if (!this._gl) {
+      throw new Error(`Shader "${this.name}" has been disposed and cannot be used. Create a new shader instance.`);
+    }
     const gl = this._gl;
     gl.useProgram(this.program);
     Shader._ACTIVE_SHADER_INSTANCE = this;
@@ -395,6 +412,12 @@ export class Shader {
           const blockIndex = gl.getUniformBlockIndex(this.program, key);
           if (blockIndex !== gl.INVALID_INDEX) {
             this.setUniformBuffer(key, value);
+          } else if (uniform?.glType === gl.FLOAT_VEC2) {
+            this.trySetUniform('uniform2fv', key, value);
+          } else if (uniform?.glType === gl.FLOAT_VEC3) {
+            this.trySetUniform('uniform3fv', key, value);
+          } else if (uniform?.glType === gl.FLOAT_VEC4) {
+            this.trySetUniform('uniform4fv', key, value);
           } else {
             this.trySetUniformFloatArray(key, value);
           }
@@ -483,6 +506,7 @@ export class Shader {
         if (!suppressWarning) {
           this._logger.warnOnce(`Image ${textureName} (${image.image.src}) could not be loaded for some reason in shader ${this.name}`);
         }
+        continue;
       }
       gl.activeTexture(gl.TEXTURE0 + textureSlot);
       gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -608,12 +632,20 @@ export class Shader {
    * @param data Float32Array
    * @param [bindingPoint]
    */
-  setUniformBuffer(name: string, data: Float32Array, bindingPoint: number = 0): void {
+  setUniformBuffer(name: string, data: Float32Array, bindingPoint?: number): void {
     const gl = this._gl;
     const index = gl.getUniformBlockIndex(this.program, name);
     if (index === gl.INVALID_INDEX) {
       this._logger.warnOnce(`Invalid block name ${name}`);
       return;
+    }
+    if (bindingPoint === undefined) {
+      if (this._uniformBufferBindingPoints[name] !== undefined) {
+        bindingPoint = this._uniformBufferBindingPoints[name];
+      } else {
+        bindingPoint = this._nextUniformBufferBindingPoint++;
+        this._uniformBufferBindingPoints[name] = bindingPoint;
+      }
     }
     let uniformBuffer: UniformBuffer;
     if (this._uniformBuffers[name]) {
@@ -826,12 +858,12 @@ export class Shader {
   }
 
   setUniformAffineMatrix(name: string, value: AffineMatrix): void {
-    this.setUniform('uniformMatrix4fv', name, false, new Float32Array([
-      value.data[0], value.data[1], 0, 0,
-      value.data[2], value.data[3], 0, 0,
-      0, 0, 1, 0,
-      value.data[4], value.data[5], 0, 1
-    ]));
+    const m = this._affineMatrixCache;
+    m[0] = value.data[0]; m[1] = value.data[1]; m[2] = 0; m[3] = 0;
+    m[4] = value.data[2]; m[5] = value.data[3]; m[6] = 0; m[7] = 0;
+    m[8] = 0; m[9] = 0; m[10] = 1; m[11] = 0;
+    m[12] = value.data[4]; m[13] = value.data[5]; m[14] = 0; m[15] = 1;
+    this.setUniform('uniformMatrix4fv', name, false, m);
   }
 
   /**
@@ -865,7 +897,8 @@ export class Shader {
       );
     }
     const gl = this._gl;
-    const location = gl.getUniformLocation(this.program, name);
+    const cached = this._uniforms[name];
+    const location = cached?.location ?? gl.getUniformLocation(this.program, name);
     if (location !== null) {
       const args = [location, ...value];
       (this._gl as any)[uniformType].apply(this._gl, args);
@@ -903,7 +936,8 @@ export class Shader {
       return false;
     }
     const gl = this._gl;
-    const location = gl.getUniformLocation(this.program, name);
+    const cached = this._uniforms[name];
+    const location = cached?.location ?? gl.getUniformLocation(this.program, name);
     if (location !== null) {
       const args = [location, ...value];
       (this._gl as any)[uniformType].apply(this._gl, args);

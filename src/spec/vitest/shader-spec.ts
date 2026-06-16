@@ -657,4 +657,231 @@ describe('A Shader', () => {
 
     expect(sut.uniforms.u_uint).toBe(42);
   });
+
+  it('_setImages skips null textures without binding or setting uniforms', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      uniform sampler2D u_texture;
+      void main() {
+        gl_Position = a_position;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    sut.compile();
+
+    const bindTextureSpy = vi.spyOn(gl, 'bindTexture');
+    const setUniformSpy = vi.spyOn(sut, 'trySetUniformInt');
+
+    const fakeImage = {
+      isLoaded: () => true,
+      image: { src: 'fake-image.png' }
+    } as any;
+    vi.spyOn(sut as any, '_loadImageSource').mockReturnValue(null);
+
+    sut.images = { u_texture: fakeImage };
+    sut.use();
+
+    expect(bindTextureSpy).not.toHaveBeenCalledWith(gl.TEXTURE_2D, null);
+    expect(setUniformSpy).not.toHaveBeenCalledWith('u_texture', expect.any(Number));
+  });
+
+  it('dispose() cleans up uniform buffers and textures', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      layout(std140) uniform TestBlock {
+        vec4 data;
+      };
+      void main() {
+        gl_Position = a_position + data;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    sut.uniforms = {
+      TestBlock: new Float32Array([1.0, 2.0, 3.0, 4.0])
+    };
+
+    sut.compile();
+    sut.use();
+
+    const fakeTexture = gl.createTexture();
+    const fakeImage = {} as any;
+    (sut as any)._textures.set(fakeImage, fakeTexture);
+
+    const deleteBufferSpy = vi.spyOn(gl, 'deleteBuffer');
+    const deleteTextureSpy = vi.spyOn(gl, 'deleteTexture');
+
+    sut.dispose();
+
+    expect(deleteBufferSpy).toHaveBeenCalled();
+    expect(deleteTextureSpy).toHaveBeenCalledWith(fakeTexture);
+  });
+
+  it('Float32Array uniform uses correct WebGL method based on GL type', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      uniform vec2 u_vec2Array[2];
+      uniform vec3 u_vec3Array[2];
+      uniform vec4 u_vec4Array[2];
+      void main() {
+        gl_Position = a_position + vec4(u_vec2Array[0].x + u_vec3Array[0].x + u_vec4Array[0].x);
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    sut.uniforms = {
+      u_vec2Array: new Float32Array([1.0, 2.0, 3.0, 4.0]),
+      u_vec3Array: new Float32Array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]),
+      u_vec4Array: new Float32Array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0])
+    };
+
+    sut.compile();
+    sut.use();
+
+    expect(sut.uniforms.u_vec2Array).toBeInstanceOf(Float32Array);
+    expect(sut.uniforms.u_vec3Array).toBeInstanceOf(Float32Array);
+    expect(sut.uniforms.u_vec4Array).toBeInstanceOf(Float32Array);
+  });
+
+  it('setUniform and trySetUniform use cached uniform locations', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      uniform float u_test;
+      void main() {
+        gl_Position = a_position + vec4(u_test);
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    sut.compile();
+    sut.use();
+
+    const getLocationSpy = vi.spyOn(gl, 'getUniformLocation');
+    getLocationSpy.mockClear();
+
+    sut.setUniformFloat('u_test', 1.0);
+    sut.trySetUniformFloat('u_test', 2.0);
+
+    expect(getLocationSpy).not.toHaveBeenCalled();
+  });
+
+  it('multiple uniform blocks get unique binding points automatically', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      layout(std140) uniform Block1 {
+        vec4 data1;
+      };
+      layout(std140) uniform Block2 {
+        vec4 data2;
+      };
+      void main() {
+        gl_Position = a_position + data1 + data2;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    sut.uniforms = {
+      Block1: new Float32Array([1.0, 2.0, 3.0, 4.0]),
+      Block2: new Float32Array([5.0, 6.0, 7.0, 8.0])
+    };
+
+    sut.compile();
+    sut.use();
+
+    const bindingPoints = (sut as any)._uniformBufferBindingPoints;
+    expect(bindingPoints.Block1).toBeDefined();
+    expect(bindingPoints.Block2).toBeDefined();
+    expect(bindingPoints.Block1).not.toBe(bindingPoints.Block2);
+  });
+
+  it('setUniformAffineMatrix reuses cached Float32Array', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      uniform mat4 u_affine;
+      void main() {
+        gl_Position = u_affine * a_position;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    sut.compile();
+    sut.use();
+
+    const cache = (sut as any)._affineMatrixCache;
+    const affine = new ex.AffineMatrix();
+
+    sut.setUniformAffineMatrix('u_affine', affine);
+    const firstRef = cache;
+
+    affine.data[0] = 99;
+    sut.setUniformAffineMatrix('u_affine', affine);
+    const secondRef = cache;
+
+    expect(firstRef).toBe(secondRef);
+  });
+
+  it('use() throws clear error after dispose()', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      void main() {
+        gl_Position = a_position;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    sut.compile();
+    sut.dispose();
+
+    expect(() => sut.use()).toThrowError(/has been disposed/);
+  });
 });
