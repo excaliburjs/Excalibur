@@ -173,6 +173,21 @@ export function glTypeToUniformTypeName(gl: WebGL2RenderingContext, glType: numb
     case gl.UNSIGNED_INT_SAMPLER_2D: {
       return 'uniform1i';
     }
+    case gl.SAMPLER_3D: {
+      return 'uniform1i';
+    }
+    case gl.SAMPLER_2D_SHADOW: {
+      return 'uniform1i';
+    }
+    case gl.UNSIGNED_INT_SAMPLER_3D: {
+      return 'uniform1i';
+    }
+    case gl.UNSIGNED_INT_SAMPLER_CUBE: {
+      return 'uniform1i';
+    }
+    case gl.UNSIGNED_INT_SAMPLER_2D_ARRAY: {
+      return 'uniform1i';
+    }
     default: {
       throw new Error(`Unknown uniform type: ${glType}`);
     }
@@ -358,6 +373,9 @@ export class Shader {
    * Deletes the webgl program from the gpu
    */
   dispose() {
+    if (!this._gl) {
+      return;
+    }
     const gl = this._gl;
     gl.deleteProgram(this.program);
     
@@ -391,6 +409,9 @@ export class Shader {
   }
 
   unuse() {
+    if (!this._gl) {
+      return;
+    }
     const gl = this._gl;
     Shader._ACTIVE_SHADER_INSTANCE = null;
     gl.useProgram(null);
@@ -410,42 +431,33 @@ export class Shader {
           const blockIndex = gl.getUniformBlockIndex(this.program, key);
           if (blockIndex !== gl.INVALID_INDEX) {
             this.setUniformBuffer(key, value);
-          } else if (uniform?.glType === gl.FLOAT_VEC2) {
-            this.trySetUniform('uniform2fv', key, value);
-          } else if (uniform?.glType === gl.FLOAT_VEC3) {
-            this.trySetUniform('uniform3fv', key, value);
-          } else if (uniform?.glType === gl.FLOAT_VEC4) {
-            this.trySetUniform('uniform4fv', key, value);
-          } else if (uniform?.glType === gl.FLOAT_MAT2) {
-            this.trySetUniform('uniformMatrix2fv', key, false, value);
-          } else if (uniform?.glType === gl.FLOAT_MAT3) {
-            this.trySetUniform('uniformMatrix3fv', key, false, value);
-          } else if (uniform?.glType === gl.FLOAT_MAT4) {
-            this.trySetUniform('uniformMatrix4fv', key, false, value);
-          } else if (uniform?.glType === gl.FLOAT_MAT2x3) {
-            this.trySetUniform('uniformMatrix2x3fv', key, false, value);
-          } else if (uniform?.glType === gl.FLOAT_MAT2x4) {
-            this.trySetUniform('uniformMatrix2x4fv', key, false, value);
-          } else if (uniform?.glType === gl.FLOAT_MAT3x2) {
-            this.trySetUniform('uniformMatrix3x2fv', key, false, value);
-          } else if (uniform?.glType === gl.FLOAT_MAT3x4) {
-            this.trySetUniform('uniformMatrix3x4fv', key, false, value);
-          } else if (uniform?.glType === gl.FLOAT_MAT4x2) {
-            this.trySetUniform('uniformMatrix4x2fv', key, false, value);
-          } else if (uniform?.glType === gl.FLOAT_MAT4x3) {
-            this.trySetUniform('uniformMatrix4x3fv', key, false, value);
+          } else if (uniform) {
+            let typeName = glTypeToUniformTypeName(gl, uniform.glType);
+            if (typeName.startsWith('uniformMatrix')) {
+              this.trySetUniform(typeName, key, false, value);
+            } else {
+              if (!typeName.endsWith('v')) {
+                typeName = (typeName + 'v') as UniformTypeNames;
+              }
+              this.trySetUniform(typeName, key, value);
+            }
           } else {
             this.trySetUniformFloatArray(key, value);
           }
         } else if (Array.isArray(value) && value[0] instanceof Float32Array && typeof value[1] === 'number') {
           this.setUniformBuffer(key, value[0], value[1]);
         } else if (typeof value === 'number') {
-          if (uniform?.glType === gl.INT || uniform?.glType === gl.BOOL) {
-            this.trySetUniformInt(key, ~~value);
-          } else if (uniform?.glType === gl.UNSIGNED_INT) {
-            this.trySetUniform('uniform1ui', key, value >>> 0);
-          } else {
+          if (!uniform) {
             this.trySetUniformFloat(key, value);
+          } else {
+            const typeName = glTypeToUniformTypeName(gl, uniform.glType);
+            if (typeName === 'uniform1i') {
+              this.trySetUniformInt(key, ~~value);
+            } else if (typeName === 'uniform1ui') {
+              this.trySetUniform('uniform1ui', key, value >>> 0);
+            } else {
+              this.trySetUniformFloat(key, value);
+            }
           }
         } else if (typeof value === 'boolean') {
           this.trySetUniformBoolean(key, value);
@@ -496,8 +508,8 @@ export class Shader {
     );
     // remove force attribute after upload
     imageElement.removeAttribute('forceUpload');
-    if (!this._textures.has(image)) {
-      this._textures.set(image, texture!);
+    if (texture && !this._textures.has(image)) {
+      this._textures.set(image, texture);
     }
 
     return texture;
@@ -518,13 +530,6 @@ export class Shader {
         }
         continue;
       } // skip unloaded images, maybe warn
-      const texture = this._loadImageSource(image);
-      if (!texture) {
-        if (!suppressWarning) {
-          this._logger.warnOnce(`Image ${textureName} (${image.image.src}) could not be loaded for some reason in shader ${this.name}`);
-        }
-        continue;
-      }
       if (textureSlot >= maxTextureSlot) {
         if (!suppressWarning) {
           this._logger.warnOnce(
@@ -533,6 +538,13 @@ export class Shader {
           );
         }
         break;
+      }
+      const texture = this._loadImageSource(image);
+      if (!texture) {
+        if (!suppressWarning) {
+          this._logger.warnOnce(`Image ${textureName} (${image.image.src}) could not be loaded for some reason in shader ${this.name}`);
+        }
+        continue;
       }
       gl.activeTexture(gl.TEXTURE0 + textureSlot);
       gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -689,17 +701,17 @@ export class Shader {
         uniformBuffer.dispose();
         uniformBuffer = new UniformBuffer({
           gl,
-          data
+          data: new Float32Array(data)
         });
         this._uniformBuffers[name] = uniformBuffer;
       } else {
         uniformBuffer.bufferData.set(data);
-        uniformBuffer.upload();
+        uniformBuffer.upload(data.length);
       }
     } else {
       uniformBuffer = new UniformBuffer({
         gl,
-        data
+        data: new Float32Array(data)
       });
       this._uniformBuffers[name] = uniformBuffer;
     }
@@ -1001,8 +1013,13 @@ export class Shader {
 
     const success = gl.getProgramParameter(program, gl.LINK_STATUS);
     if (!success) {
+      gl.deleteShader(vertexShader);
+      gl.deleteShader(fragmentShader);
       throw Error(`Could not link the program: [${gl.getProgramInfoLog(program)}]`);
     }
+
+    gl.deleteShader(vertexShader);
+    gl.deleteShader(fragmentShader);
 
     return program;
   }

@@ -1077,6 +1077,238 @@ void main() {
     }).toThrowError(/must call `shader.use\(\)` before setting uniforms/);
   });
 
+  it('_loadImageSource does not cache null textures', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      void main() {
+        gl_Position = a_position;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    sut.compile();
+
+    const fakeImage = {
+      isLoaded: () => true,
+      image: { src: 'null-texture.png', getAttribute: () => null, removeAttribute: () => {} }
+    } as any;
+
+    vi.spyOn((sut as any)._textureLoader, 'load').mockReturnValue(null);
+
+    const result = (sut as any)._loadImageSource(fakeImage);
+    expect(result).toBeNull();
+    expect((sut as any)._textures.has(fakeImage)).toBe(false);
+  });
+
+  it('unuse() does not throw after dispose()', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      void main() {
+        gl_Position = a_position;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    sut.compile();
+    sut.dispose();
+
+    expect(() => sut.unuse()).not.toThrow();
+  });
+
+  it('compile() deletes shader objects after linking to avoid GPU memory leak', () => {
+    const deleteShaderSpy = vi.spyOn(gl, 'deleteShader');
+
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      void main() {
+        gl_Position = a_position;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    sut.compile();
+
+    expect(deleteShaderSpy).toHaveBeenCalledTimes(2);
+  });
+
+  it('setUniformBuffer uses bufferSubData instead of bufferData when updating existing buffer', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      layout(std140) uniform TestBlock {
+        vec4 data;
+      };
+      void main() {
+        gl_Position = a_position + data;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    sut.compile();
+    sut.use();
+
+    const data1 = new Float32Array([1.0, 2.0, 3.0, 4.0]);
+    sut.setUniformBuffer('TestBlock', data1);
+
+    const bufferDataSpy = vi.spyOn(gl, 'bufferData');
+    const bufferSubDataSpy = vi.spyOn(gl, 'bufferSubData');
+    bufferDataSpy.mockClear();
+    bufferSubDataSpy.mockClear();
+
+    const data2 = new Float32Array([5.0, 6.0, 7.0, 8.0]);
+    sut.setUniformBuffer('TestBlock', data2);
+
+    expect(bufferDataSpy).not.toHaveBeenCalled();
+    expect(bufferSubDataSpy).toHaveBeenCalled();
+  });
+
+  it('glTypeToUniformTypeName handles all WebGL2 sampler types without throwing', () => {
+    expect(ex.glTypeToUniformTypeName(gl, gl.SAMPLER_3D)).toBe('uniform1i');
+    expect(ex.glTypeToUniformTypeName(gl, gl.SAMPLER_2D_SHADOW)).toBe('uniform1i');
+    expect(ex.glTypeToUniformTypeName(gl, gl.UNSIGNED_INT_SAMPLER_3D)).toBe('uniform1i');
+    expect(ex.glTypeToUniformTypeName(gl, gl.UNSIGNED_INT_SAMPLER_CUBE)).toBe('uniform1i');
+    expect(ex.glTypeToUniformTypeName(gl, gl.UNSIGNED_INT_SAMPLER_2D_ARRAY)).toBe('uniform1i');
+  });
+
+  it('setUniformBuffer does not mutate caller\'s Float32Array', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      layout(std140) uniform TestBlock {
+        vec4 data;
+      };
+      void main() {
+        gl_Position = a_position + data;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    sut.compile();
+    sut.use();
+
+    const data1 = new Float32Array([1.0, 2.0, 3.0, 4.0]);
+    const originalData1 = new Float32Array(data1);
+    sut.setUniformBuffer('TestBlock', data1);
+
+    const data2 = new Float32Array([5.0, 6.0, 7.0, 8.0]);
+    sut.setUniformBuffer('TestBlock', data2);
+
+    expect(data1).toEqual(originalData1);
+  });
+
+  it('dispose() does not throw when called twice', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      void main() {
+        gl_Position = a_position;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    sut.compile();
+    sut.dispose();
+
+    expect(() => sut.dispose()).not.toThrow();
+  });
+
+  it('compile() deletes shader objects even when link fails', () => {
+    const deleteShaderSpy = vi.spyOn(gl, 'deleteShader');
+    deleteShaderSpy.mockClear();
+
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      out float v_badType;
+      void main() {
+        v_badType = 1.0;
+        gl_Position = a_position;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      in vec2 v_badType;
+      void main() {
+        color = vec4(v_badType, 0.0, 1.0);
+      }`
+    });
+
+    expect(() => sut.compile()).toThrow();
+    expect(deleteShaderSpy).toHaveBeenCalledTimes(2);
+  });
+
+  it('sampler uniform set via number uses uniform1i not uniform1f', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      void main() {
+        gl_Position = a_position;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      uniform sampler2D u_texture;
+      void main() {
+        color = texture(u_texture, vec2(0.5));
+      }`
+    });
+
+    sut.compile();
+
+    const uniform1fSpy = vi.spyOn(gl, 'uniform1f');
+    const uniform1iSpy = vi.spyOn(gl, 'uniform1i');
+    uniform1fSpy.mockClear();
+    uniform1iSpy.mockClear();
+
+    sut.uniforms.u_texture = 3;
+    sut.flagUniformsDirty();
+    sut.use();
+
+    expect(uniform1iSpy).toHaveBeenCalledWith(expect.anything(), 3);
+    expect(uniform1fSpy).not.toHaveBeenCalled();
+  });
+
   it('getAttributeDefinitions handles WebGL2 integer attribute types', () => {
     const sut = new ex.Shader({
       graphicsContext,
