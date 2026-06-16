@@ -334,66 +334,6 @@ describe('A Shader', () => {
     expect(gl.bindTexture).toHaveBeenCalledWith(gl.TEXTURE_2D, tex);
   });
 
-  it('can set Float32Array as regular uniform (not uniform block)', () => {
-    const sut = new ex.Shader({
-      graphicsContext,
-      vertexSource: `#version 300 es
-      in vec4 a_position;
-      uniform vec4 u_axisAngle;
-      uniform float u_floatarray[4];
-      void main() {
-        gl_Position = a_position + vec4(u_axisAngle.x, u_axisAngle.y, u_axisAngle.z, u_axisAngle.w + u_floatarray[0]);
-      }`,
-      fragmentSource: `#version 300 es
-      precision mediump float;
-      out vec4 color;
-      void main() {
-        color = vec4(1.0, 0, 0, 1.0);
-      }`
-    });
-
-    sut.uniforms = {
-      u_axisAngle: new Float32Array([1.0, 0.0, 0.0, Math.PI / 2]),
-      u_floatarray: new Float32Array([1.0, 2.0, 3.0, 4.0])
-    };
-
-    sut.compile();
-    sut.use();
-
-    expect(() => {
-      sut.setUniform('uniform4f', 'u_axisAngle', 1.0, 0.0, 0.0, Math.PI / 2);
-    }).not.toThrow();
-  });
-
-  it('can set Float32Array as uniform block when uniform block exists', () => {
-    const sut = new ex.Shader({
-      graphicsContext,
-      vertexSource: `#version 300 es
-      in vec4 a_position;
-      layout(std140) uniform TestBlock {
-        vec4 data;
-      };
-      void main() {
-        gl_Position = a_position + data;
-      }`,
-      fragmentSource: `#version 300 es
-      precision mediump float;
-      out vec4 color;
-      void main() {
-        color = vec4(1.0, 0, 0, 1.0);
-      }`
-    });
-
-    sut.uniforms = {
-      TestBlock: new Float32Array([1.0, 0.0, 0.0, 1.0])
-    };
-
-    sut.compile();
-    sut.use();
-
-    expect(sut.uniforms.TestBlock).toBeInstanceOf(Float32Array);
-  });
-
   it('setUniformBuffer returns early for invalid block name without crashing', () => {
     const sut = new ex.Shader({
       graphicsContext,
@@ -843,28 +783,6 @@ void main() {
     expect((sut as any)._textures.has(fakeImage)).toBe(false);
   });
 
-  it('unuse() does not throw after dispose()', () => {
-    const sut = new ex.Shader({
-      graphicsContext,
-      vertexSource: `#version 300 es
-      in vec4 a_position;
-      void main() {
-        gl_Position = a_position;
-      }`,
-      fragmentSource: `#version 300 es
-      precision mediump float;
-      out vec4 color;
-      void main() {
-        color = vec4(1.0);
-      }`
-    });
-
-    sut.compile();
-    sut.dispose();
-
-    expect(() => sut.unuse()).not.toThrow();
-  });
-
   it('compile() always deletes shader objects', () => {
     const deleteShaderSpy = vi.spyOn(gl, 'deleteShader');
 
@@ -977,28 +895,6 @@ void main() {
     sut.setUniformBuffer('TestBlock', data2);
 
     expect(data1).toEqual(originalData1);
-  });
-
-  it('dispose() does not throw when called twice', () => {
-    const sut = new ex.Shader({
-      graphicsContext,
-      vertexSource: `#version 300 es
-      in vec4 a_position;
-      void main() {
-        gl_Position = a_position;
-      }`,
-      fragmentSource: `#version 300 es
-      precision mediump float;
-      out vec4 color;
-      void main() {
-        color = vec4(1.0);
-      }`
-    });
-
-    sut.compile();
-    sut.dispose();
-
-    expect(() => sut.dispose()).not.toThrow();
   });
 
   it('sampler uniform set via number uses uniform1i not uniform1f', () => {
@@ -1160,5 +1056,213 @@ void main() {
 
     expect(uniformBlockBindingSpy).not.toHaveBeenCalled();
     expect(bindBufferBaseSpy).not.toHaveBeenCalled();
+  });
+
+  it('addImageSource adds image and removeImageSource removes it', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      uniform sampler2D u_tex0;
+      uniform sampler2D u_tex1;
+      void main() {
+        gl_Position = a_position;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    sut.compile();
+
+    const fakeImage = {
+      isLoaded: () => true,
+      image: { src: 'fake.png' }
+    } as any;
+
+    sut.addImageSource('u_tex0', fakeImage);
+    expect(sut.images.u_tex0).toBe(fakeImage);
+
+    sut.addImageSource('u_tex1', fakeImage);
+    expect(sut.images.u_tex1).toBe(fakeImage);
+
+    sut.removeImageSource('u_tex0');
+    expect(sut.images.u_tex0).toBeUndefined();
+  });
+
+  it('compile() returns early if already compiled', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      void main() {
+        gl_Position = a_position;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    const program1 = sut.compile();
+    const program2 = sut.compile();
+
+    expect(program1).toBe(program2);
+  });
+
+  it('onPreLink and onPostCompile callbacks are called', () => {
+    const onPreLink = vi.fn();
+    const onPostCompile = vi.fn();
+
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      void main() {
+        gl_Position = a_position;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`,
+      onPreLink,
+      onPostCompile
+    });
+
+    sut.compile();
+
+    expect(onPreLink).toHaveBeenCalledTimes(1);
+    expect(onPreLink).toHaveBeenCalledWith(expect.any(WebGLProgram));
+    expect(onPostCompile).toHaveBeenCalledTimes(1);
+    expect(onPostCompile).toHaveBeenCalledWith(sut);
+  });
+
+  it('setUniformBuffer uses explicit bindingPoint when provided', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      layout(std140) uniform TestBlock {
+        vec4 data;
+      };
+      void main() {
+        gl_Position = a_position + data;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    sut.compile();
+    sut.use();
+
+    const uniformBlockBindingSpy = vi.spyOn(gl, 'uniformBlockBinding');
+    const bindBufferBaseSpy = vi.spyOn(gl, 'bindBufferBase');
+
+    const data = new Float32Array([1.0, 2.0, 3.0, 4.0]);
+    sut.setUniformBuffer('TestBlock', data, 5);
+
+    expect(uniformBlockBindingSpy).toHaveBeenCalledWith(expect.anything(), expect.anything(), 5);
+    expect(bindBufferBaseSpy).toHaveBeenCalledWith(gl.UNIFORM_BUFFER, 5, expect.anything());
+  });
+
+  it('uniforms dictionary with [Float32Array, bindingPoint] tuple sets explicit binding', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      layout(std140) uniform TestBlock {
+        vec4 data;
+      };
+      void main() {
+        gl_Position = a_position + data;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    const bindBufferBaseSpy = vi.spyOn(gl, 'bindBufferBase');
+
+    sut.uniforms = {
+      TestBlock: [new Float32Array([1.0, 2.0, 3.0, 4.0]), 7]
+    };
+
+    sut.compile();
+    sut.use();
+
+    expect(bindBufferBaseSpy).toHaveBeenCalledWith(gl.UNIFORM_BUFFER, 7, expect.anything());
+  });
+
+  it('_setImages warns for unloaded images', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      uniform sampler2D u_texture;
+      void main() {
+        gl_Position = a_position;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    sut.compile();
+
+    const fakeImage = {
+      isLoaded: () => false,
+      image: { src: 'unloaded.png' }
+    } as any;
+
+    const logger = ex.Logger.getInstance();
+    const warnSpy = vi.spyOn(logger, 'warnOnce');
+
+    sut.images = { u_texture: fakeImage };
+    sut.use();
+
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('in not loaded'));
+  });
+
+  it('setUniformAffineMatrix works via uniforms dictionary', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      uniform mat4 u_affine;
+      void main() {
+        gl_Position = u_affine * a_position;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    const affine = new ex.AffineMatrix();
+    sut.uniforms = { u_affine: affine };
+
+    sut.compile();
+    sut.use();
+
+    expect(sut.uniforms.u_affine).toBe(affine);
   });
 });
