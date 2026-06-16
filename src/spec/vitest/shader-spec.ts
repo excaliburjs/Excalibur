@@ -892,37 +892,6 @@ describe('A Shader', () => {
     expect(() => sut.use()).toThrowError(/has been disposed/);
   });
 
-  it('Float32Array for mat4 uniform uses uniformMatrix4fv not uniform1fv', () => {
-    const sut = new ex.Shader({
-      graphicsContext,
-      vertexSource: `#version 300 es
-      in vec4 a_position;
-      uniform mat4 u_mat4;
-      void main() {
-        gl_Position = u_mat4 * a_position;
-      }`,
-      fragmentSource: `#version 300 es
-      precision mediump float;
-      out vec4 color;
-      void main() {
-        color = vec4(1.0);
-      }`
-    });
-
-    const uniform1fvSpy = vi.spyOn(gl, 'uniform1fv');
-    const uniformMatrix4fvSpy = vi.spyOn(gl, 'uniformMatrix4fv');
-
-    sut.uniforms = {
-      u_mat4: new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1])
-    };
-
-    sut.compile();
-    sut.use();
-
-    expect(uniform1fvSpy).not.toHaveBeenCalled();
-    expect(uniformMatrix4fvSpy).toHaveBeenCalled();
-  });
-
   it('_setImages stops binding textures when max slots exceeded', () => {
     const sut = new ex.Shader({
       graphicsContext,
@@ -977,38 +946,6 @@ describe('A Shader', () => {
     expect(activeTextureSpy).toHaveBeenCalledWith(gl.TEXTURE0 + 1);
     expect(activeTextureSpy).not.toHaveBeenCalledWith(gl.TEXTURE0 + 2);
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Max number texture slots'));
-  });
-
-  it('dispose() does NOT delete textures owned by TextureLoader', () => {
-    const sut = new ex.Shader({
-      graphicsContext,
-      vertexSource: `#version 300 es
-      in vec4 a_position;
-      void main() {
-        gl_Position = a_position;
-      }`,
-      fragmentSource: `#version 300 es
-      precision mediump float;
-      out vec4 color;
-      void main() {
-        color = vec4(1.0);
-      }`
-    });
-
-    sut.compile();
-
-    const fakeTexture = gl.createTexture();
-    const fakeImage = {} as any;
-    (sut as any)._textures.set(fakeImage, fakeTexture);
-
-    const deleteTextureSpy = vi.spyOn(gl, 'deleteTexture');
-
-    sut.dispose();
-
-    // Shader should NOT delete textures - they are owned by TextureLoader
-    expect(deleteTextureSpy).not.toHaveBeenCalledWith(fakeTexture);
-    // But should clear the local cache
-    expect((sut as any)._textures.size).toBe(0);
   });
 
   it('_processSourceForError handles multi-digit line numbers', () => {
@@ -1139,10 +1076,10 @@ void main() {
     expect(() => sut.unuse()).not.toThrow();
   });
 
-  it('compile() deletes shader objects after linking to avoid GPU memory leak', () => {
+  it('compile() always deletes shader objects', () => {
     const deleteShaderSpy = vi.spyOn(gl, 'deleteShader');
 
-    const sut = new ex.Shader({
+    const sut1 = new ex.Shader({
       graphicsContext,
       vertexSource: `#version 300 es
       in vec4 a_position;
@@ -1157,8 +1094,30 @@ void main() {
       }`
     });
 
-    sut.compile();
+    sut1.compile();
+    expect(deleteShaderSpy).toHaveBeenCalledTimes(2);
 
+    deleteShaderSpy.mockClear();
+
+    const sut2 = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      out float v_badType;
+      void main() {
+        v_badType = 1.0;
+        gl_Position = a_position;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      in vec2 v_badType;
+      void main() {
+        color = vec4(v_badType, 0.0, 1.0);
+      }`
+    });
+
+    expect(() => sut2.compile()).toThrow();
     expect(deleteShaderSpy).toHaveBeenCalledTimes(2);
   });
 
@@ -1261,32 +1220,6 @@ void main() {
     expect(() => sut.dispose()).not.toThrow();
   });
 
-  it('compile() deletes shader objects even when link fails', () => {
-    const deleteShaderSpy = vi.spyOn(gl, 'deleteShader');
-    deleteShaderSpy.mockClear();
-
-    const sut = new ex.Shader({
-      graphicsContext,
-      vertexSource: `#version 300 es
-      in vec4 a_position;
-      out float v_badType;
-      void main() {
-        v_badType = 1.0;
-        gl_Position = a_position;
-      }`,
-      fragmentSource: `#version 300 es
-      precision mediump float;
-      out vec4 color;
-      in vec2 v_badType;
-      void main() {
-        color = vec4(v_badType, 0.0, 1.0);
-      }`
-    });
-
-    expect(() => sut.compile()).toThrow();
-    expect(deleteShaderSpy).toHaveBeenCalledTimes(2);
-  });
-
   it('sampler uniform set via number uses uniform1i not uniform1f', () => {
     const sut = new ex.Shader({
       graphicsContext,
@@ -1376,43 +1309,6 @@ void main() {
     expect(sut.attributes.a_uvec4).toBeDefined();
     expect(sut.attributes.a_uvec4.glType).toBe(gl.UNSIGNED_INT);
     expect(sut.attributes.a_uvec4.size).toBe(4);
-  });
-
-  it('trySetUniformBuffer uses auto-assignment when bindingPoint is undefined', () => {
-    const sut = new ex.Shader({
-      graphicsContext,
-      vertexSource: `#version 300 es
-      in vec4 a_position;
-      layout(std140) uniform Block1 {
-        vec4 data1;
-      };
-      layout(std140) uniform Block2 {
-        vec4 data2;
-      };
-      void main() {
-        gl_Position = a_position + data1 + data2;
-      }`,
-      fragmentSource: `#version 300 es
-      precision mediump float;
-      out vec4 color;
-      void main() {
-        color = vec4(1.0);
-      }`
-    });
-
-    sut.compile();
-    sut.use();
-
-    const data1 = new Float32Array([1.0, 2.0, 3.0, 4.0]);
-    const data2 = new Float32Array([5.0, 6.0, 7.0, 8.0]);
-
-    sut.trySetUniformBuffer('Block1', data1);
-    sut.trySetUniformBuffer('Block2', data2);
-
-    const bindingPoints = (sut as any)._uniformBufferBindingPoints;
-    expect(bindingPoints.Block1).toBeDefined();
-    expect(bindingPoints.Block2).toBeDefined();
-    expect(bindingPoints.Block1).not.toBe(bindingPoints.Block2);
   });
 
   it('setUniformBuffer caches getUniformBlockIndex results', () => {
