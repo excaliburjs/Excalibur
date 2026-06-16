@@ -354,7 +354,7 @@ export class Shader {
     this.uniforms = watch(uniforms ?? this.uniforms, () => this.flagUniformsDirty());
     this.images = images ?? this.images;
     const keys = Object.keys(this.images);
-    if (keys.length > this._maxTextureSlots) {
+    if (keys.length > (this._maxTextureSlots - this._startingTextureSlot)) {
       this._logger.warn(
         `Max number texture slots ${this._maxTextureSlots} have been reached for material "${this.name}", ` +
           `no more textures will be uploaded due to hardware constraints.`
@@ -528,7 +528,7 @@ export class Shader {
         }
         continue;
       }
-      if (textureSlot >= this._maxTextureSlots) {
+      if (textureSlot > this._maxTextureSlots) {
         if (!suppressWarning) {
           this._logger.warnOnce(
             `Max number texture slots ${this._maxTextureSlots} have been reached for material "${this.name}", ` +
