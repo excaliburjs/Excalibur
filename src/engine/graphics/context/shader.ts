@@ -9,14 +9,21 @@ import {
   parseImageWrapping,
   Vector
 } from '../..';
-import type { Matrix } from '../../math/matrix';
+import { Matrix } from '../../math/matrix';
 import { watch } from '../../util/watch';
 import { UniformBuffer } from './uniform-buffer';
 import { getAttributeComponentSize, getAttributePointerType } from './webgl-util';
 
 export type UniformDictionary = Record<
   string,
-  number | boolean | Vector | Color | AffineMatrix | Float32Array | [uniformData: Float32Array, bindingPoint: number]
+  | number
+  | boolean
+  | Vector
+  | Color
+  | AffineMatrix
+  | Matrix
+  | Float32Array
+  | [uniformData: Float32Array, bindingPoint: number]
 >;
 /*
  * List of the possible glsl uniform types
@@ -143,28 +150,28 @@ export function glTypeToUniformTypeName(gl: WebGL2RenderingContext, glType: numb
       return 'uniformMatrix4x3fv';
     }
     case gl.SAMPLER_2D_ARRAY: {
-      return 'uniform1fv';
+      return 'uniform1i';
     }
     case gl.SAMPLER_2D_ARRAY_SHADOW: {
-      return 'uniform1f';
+      return 'uniform1i';
     }
     case gl.SAMPLER_CUBE_SHADOW: {
-      return 'uniform1f';
+      return 'uniform1i';
     }
     case gl.INT_SAMPLER_2D: {
-      return 'uniform1f';
+      return 'uniform1i';
     }
     case gl.INT_SAMPLER_3D: {
-      return 'uniform1f';
+      return 'uniform1i';
     }
     case gl.INT_SAMPLER_CUBE: {
-      return 'uniform1f';
+      return 'uniform1i';
     }
     case gl.INT_SAMPLER_2D_ARRAY: {
-      return 'uniform1f';
+      return 'uniform1i';
     }
     case gl.UNSIGNED_INT_SAMPLER_2D: {
-      return 'uniform1ui';
+      return 'uniform1i';
     }
     default: {
       throw new Error(`Unknown uniform type: ${glType}`);
@@ -382,19 +389,18 @@ export class Shader {
     const gl = this._gl;
     const entries = Object.entries(this.uniforms);
     if (entries.length) {
-      const uniforms = this.getUniformDefinitions();
       for (const [key, value] of entries) {
+        const uniform = this._uniforms[key];
         if (value instanceof Float32Array) {
           const blockIndex = gl.getUniformBlockIndex(this.program, key);
           if (blockIndex !== gl.INVALID_INDEX) {
             this.setUniformBuffer(key, value);
           } else {
-            this.trySetUniformFloatArray(key, Array.from(value));
+            this.trySetUniformFloatArray(key, value);
           }
         } else if (Array.isArray(value) && value[0] instanceof Float32Array && typeof value[1] === 'number') {
           this.setUniformBuffer(key, value[0], value[1]);
         } else if (typeof value === 'number') {
-          const uniform = uniforms.find((u) => u.name === key);
           if (uniform?.glType === gl.INT || uniform?.glType === gl.BOOL) {
             this.trySetUniformInt(key, ~~value);
           } else if (uniform?.glType === gl.UNSIGNED_INT) {
@@ -405,13 +411,20 @@ export class Shader {
         } else if (typeof value === 'boolean') {
           this.trySetUniformBoolean(key, value);
         } else if (value instanceof Vector) {
-          this.trySetUniformFloatVector(key, value);
+          if (uniform?.glType === gl.FLOAT_VEC3) {
+            this.trySetUniform('uniform3f', key, value.x, value.y, 0);
+          } else if (uniform?.glType === gl.FLOAT_VEC4) {
+            this.trySetUniform('uniform4f', key, value.x, value.y, 0, 0);
+          } else {
+            this.trySetUniformFloatVector(key, value);
+          }
         } else if (value instanceof Color) {
           this.trySetUniformFloatColor(key, value);
         } else if (value instanceof AffineMatrix) {
           this.setUniformAffineMatrix(key, value);
+        } else if (value instanceof Matrix) {
+          this.setUniformMatrix(key, value);
         } else {
-          const uniform = uniforms.find((u) => u.name === key);
           if (uniform) {
             const typeName = glTypeToUniformTypeName(gl, uniform.glType) as UniformTypeNames;
             this.trySetUniform(typeName as any, key, value);
@@ -527,7 +540,10 @@ export class Shader {
     const uniforms: UniformDefinition[] = [];
     for (let i = 0; i < uniformCount; i++) {
       const uniform = gl.getActiveUniform(this.program, i)!;
-      const uniformLocation = gl.getUniformLocation(this.program, uniform.name)!;
+      const uniformLocation = gl.getUniformLocation(this.program, uniform.name);
+      if (uniformLocation === null) {
+        continue;
+      }
       uniforms.push({
         name: uniform.name,
         glType: uniform.type,
@@ -597,12 +613,22 @@ export class Shader {
     const index = gl.getUniformBlockIndex(this.program, name);
     if (index === gl.INVALID_INDEX) {
       this._logger.warnOnce(`Invalid block name ${name}`);
+      return;
     }
     let uniformBuffer: UniformBuffer;
     if (this._uniformBuffers[name]) {
       uniformBuffer = this._uniformBuffers[name];
-      uniformBuffer.bufferData.set(data);
-      uniformBuffer.upload();
+      if (data.length > uniformBuffer.bufferData.length) {
+        uniformBuffer.dispose();
+        uniformBuffer = new UniformBuffer({
+          gl,
+          data
+        });
+        this._uniformBuffers[name] = uniformBuffer;
+      } else {
+        uniformBuffer.bufferData.set(data);
+        uniformBuffer.upload();
+      }
     } else {
       uniformBuffer = new UniformBuffer({
         gl,
@@ -730,7 +756,7 @@ export class Shader {
    * @param name
    * @param value
    */
-  setUniformFloatArray(name: string, value: number[]): void {
+  setUniformFloatArray(name: string, value: Float32Array | number[]): void {
     this.setUniform('uniform1fv', name, value);
   }
   /**
@@ -740,7 +766,7 @@ export class Shader {
    * @param name
    * @param value
    */
-  trySetUniformFloatArray(name: string, value: number[]): boolean {
+  trySetUniformFloatArray(name: string, value: Float32Array | number[]): boolean {
     return this.trySetUniform('uniform1fv', name, value);
   }
 
@@ -800,13 +826,12 @@ export class Shader {
   }
 
   setUniformAffineMatrix(name: string, value: AffineMatrix): void {
-    // prettier-ignore
-    this.setUniform('uniformMatrix4fv', name, false, [
+    this.setUniform('uniformMatrix4fv', name, false, new Float32Array([
       value.data[0], value.data[1], 0, 0,
       value.data[2], value.data[3], 0, 0,
       0, 0, 1, 0,
       value.data[4], value.data[5], 0, 1
-    ]);
+    ]));
   }
 
   /**
@@ -841,7 +866,7 @@ export class Shader {
     }
     const gl = this._gl;
     const location = gl.getUniformLocation(this.program, name);
-    if (location) {
+    if (location !== null) {
       const args = [location, ...value];
       (this._gl as any)[uniformType].apply(this._gl, args);
     } else {
@@ -879,7 +904,7 @@ export class Shader {
     }
     const gl = this._gl;
     const location = gl.getUniformLocation(this.program, name);
-    if (location) {
+    if (location !== null) {
       const args = [location, ...value];
       (this._gl as any)[uniformType].apply(this._gl, args);
     } else {

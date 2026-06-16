@@ -16,6 +16,46 @@ describe('A Shader', () => {
     expect(ex.Shader).toBeDefined();
   });
 
+  it('maps all sampler types to uniform1i in glTypeToUniformTypeName', () => {
+    expect(ex.glTypeToUniformTypeName(gl, gl.SAMPLER_2D)).toBe('uniform1i');
+    expect(ex.glTypeToUniformTypeName(gl, gl.SAMPLER_CUBE)).toBe('uniform1i');
+    expect(ex.glTypeToUniformTypeName(gl, gl.SAMPLER_2D_ARRAY)).toBe('uniform1i');
+    expect(ex.glTypeToUniformTypeName(gl, gl.SAMPLER_2D_ARRAY_SHADOW)).toBe('uniform1i');
+    expect(ex.glTypeToUniformTypeName(gl, gl.SAMPLER_CUBE_SHADOW)).toBe('uniform1i');
+    expect(ex.glTypeToUniformTypeName(gl, gl.INT_SAMPLER_2D)).toBe('uniform1i');
+    expect(ex.glTypeToUniformTypeName(gl, gl.INT_SAMPLER_3D)).toBe('uniform1i');
+    expect(ex.glTypeToUniformTypeName(gl, gl.INT_SAMPLER_CUBE)).toBe('uniform1i');
+    expect(ex.glTypeToUniformTypeName(gl, gl.INT_SAMPLER_2D_ARRAY)).toBe('uniform1i');
+    expect(ex.glTypeToUniformTypeName(gl, gl.UNSIGNED_INT_SAMPLER_2D)).toBe('uniform1i');
+  });
+
+  it('skips uniform block members in getUniformDefinitions (null location)', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      uniform float u_regular;
+      layout(std140) uniform TestBlock {
+        vec4 data;
+      };
+      void main() {
+        gl_Position = a_position + data + vec4(u_regular);
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    sut.compile();
+    const defs = sut.getUniformDefinitions();
+    const names = defs.map((d) => d.name);
+    expect(names).toContain('u_regular');
+    expect(defs.every((d) => d.location !== null)).toBe(true);
+  });
+
   it('can be constructed & compiled with shader source', () => {
     const sut = new ex.Shader({
       graphicsContext,
@@ -343,5 +383,278 @@ describe('A Shader', () => {
     sut.use();
 
     expect(sut.uniforms.TestBlock).toBeInstanceOf(Float32Array);
+  });
+
+  it('setUniformBuffer returns early for invalid block name without crashing', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      void main() {
+        gl_Position = a_position;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    sut.compile();
+    sut.use();
+
+    const logger = ex.Logger.getInstance();
+    const warnSpy = vi.spyOn(logger, 'warnOnce');
+
+    expect(() => {
+      sut.setUniformBuffer('NonExistentBlock', new Float32Array([1.0, 2.0, 3.0, 4.0]));
+    }).not.toThrow();
+
+    expect(warnSpy).toHaveBeenCalledWith('Invalid block name NonExistentBlock');
+  });
+
+  it('setUniform and trySetUniform use null check not falsy check for location', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      uniform float u_first;
+      uniform float u_second;
+      uniform float u_third;
+      void main() {
+        gl_Position = a_position + vec4(u_first + u_second + u_third);
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    sut.compile();
+    sut.use();
+
+    expect(() => {
+      sut.setUniformFloat('u_first', 1.0);
+      sut.setUniformFloat('u_second', 2.0);
+      sut.setUniformFloat('u_third', 3.0);
+    }).not.toThrow();
+
+    expect(sut.trySetUniformFloat('u_first', 1.0)).toBe(true);
+    expect(sut.trySetUniformFloat('u_second', 2.0)).toBe(true);
+    expect(sut.trySetUniformFloat('u_third', 3.0)).toBe(true);
+  });
+
+  it('setUniformFloatArray accepts Float32Array directly without copy', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      uniform float u_floatarray[4];
+      void main() {
+        gl_Position = a_position + vec4(u_floatarray[0], u_floatarray[1], u_floatarray[2], u_floatarray[3]);
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    sut.compile();
+    sut.use();
+
+    const data = new Float32Array([1.0, 2.0, 3.0, 4.0]);
+    expect(() => {
+      sut.setUniformFloatArray('u_floatarray', data);
+    }).not.toThrow();
+
+    expect(sut.trySetUniformFloatArray('u_floatarray', data)).toBe(true);
+  });
+
+  it('setUniformBuffer recreates buffer if new data is larger', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      layout(std140) uniform TestBlock {
+        vec4 data;
+      };
+      void main() {
+        gl_Position = a_position + data;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    sut.compile();
+    sut.use();
+
+    const smallData = new Float32Array([1.0, 2.0, 3.0, 4.0]);
+    sut.setUniformBuffer('TestBlock', smallData);
+
+    const largeData = new Float32Array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]);
+    expect(() => {
+      sut.setUniformBuffer('TestBlock', largeData);
+    }).not.toThrow();
+  });
+
+  it('_setUniforms handles all uniform types correctly after refactor', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      uniform float u_float;
+      uniform int u_int;
+      uniform bool u_bool;
+      uniform vec2 u_vec;
+      uniform vec4 u_color;
+      uniform mat4 u_mat;
+      void main() {
+        gl_Position = a_position + vec4(u_float + float(u_int) + float(u_bool) + u_vec.x + u_color.x + u_mat[0][0]);
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    sut.uniforms = {
+      u_float: 1.5,
+      u_int: 42,
+      u_bool: true,
+      u_vec: ex.vec(1.0, 2.0),
+      u_color: ex.Color.Red,
+      u_mat: ex.Matrix.identity()
+    };
+
+    sut.compile();
+    sut.use();
+
+    expect(sut.uniforms.u_float).toBe(1.5);
+    expect(sut.uniforms.u_int).toBe(42);
+    expect(sut.uniforms.u_bool).toBe(true);
+  });
+
+  it('Vector uniform adapts to vec2/vec3/vec4 GLSL type', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      uniform vec2 u_vec2;
+      uniform vec3 u_vec3;
+      uniform vec4 u_vec4;
+      void main() {
+        gl_Position = a_position + vec4(u_vec2.x, u_vec3.x, u_vec4.x, 1.0);
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    sut.uniforms = {
+      u_vec2: ex.vec(1.0, 2.0),
+      u_vec3: ex.vec(3.0, 4.0),
+      u_vec4: ex.vec(5.0, 6.0)
+    };
+
+    sut.compile();
+    sut.use();
+
+    expect(sut.uniforms.u_vec2).toBeInstanceOf(ex.Vector);
+    expect(sut.uniforms.u_vec3).toBeInstanceOf(ex.Vector);
+    expect(sut.uniforms.u_vec4).toBeInstanceOf(ex.Vector);
+  });
+
+  it('setUniformAffineMatrix uses Float32Array for efficiency', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      uniform mat4 u_affine;
+      void main() {
+        gl_Position = u_affine * a_position;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    sut.compile();
+    sut.use();
+
+    const affine = new ex.AffineMatrix();
+    expect(() => {
+      sut.setUniformAffineMatrix('u_affine', affine);
+    }).not.toThrow();
+  });
+
+  it('_setUniforms uses cached uniform definitions instead of querying WebGL', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      uniform float u_test;
+      void main() {
+        gl_Position = a_position + vec4(u_test);
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    sut.compile();
+
+    const getUniformDefsSpy = vi.spyOn(sut, 'getUniformDefinitions');
+
+    sut.uniforms = { u_test: 1.0 };
+    sut.use();
+
+    sut.uniforms = { u_test: 2.0 };
+    sut.use();
+
+    expect(getUniformDefsSpy).not.toHaveBeenCalled();
+  });
+
+  it('unsigned int uniform handles conversion correctly', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      uniform uint u_uint;
+      void main() {
+        gl_Position = a_position + vec4(float(u_uint));
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    sut.uniforms = { u_uint: 42 };
+    sut.compile();
+    sut.use();
+
+    expect(sut.uniforms.u_uint).toBe(42);
   });
 });
