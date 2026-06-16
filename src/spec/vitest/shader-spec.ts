@@ -1377,4 +1377,111 @@ void main() {
     expect(sut.attributes.a_uvec4.glType).toBe(gl.UNSIGNED_INT);
     expect(sut.attributes.a_uvec4.size).toBe(4);
   });
+
+  it('trySetUniformBuffer uses auto-assignment when bindingPoint is undefined', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      layout(std140) uniform Block1 {
+        vec4 data1;
+      };
+      layout(std140) uniform Block2 {
+        vec4 data2;
+      };
+      void main() {
+        gl_Position = a_position + data1 + data2;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    sut.compile();
+    sut.use();
+
+    const data1 = new Float32Array([1.0, 2.0, 3.0, 4.0]);
+    const data2 = new Float32Array([5.0, 6.0, 7.0, 8.0]);
+
+    sut.trySetUniformBuffer('Block1', data1);
+    sut.trySetUniformBuffer('Block2', data2);
+
+    const bindingPoints = (sut as any)._uniformBufferBindingPoints;
+    expect(bindingPoints.Block1).toBeDefined();
+    expect(bindingPoints.Block2).toBeDefined();
+    expect(bindingPoints.Block1).not.toBe(bindingPoints.Block2);
+  });
+
+  it('setUniformBuffer caches getUniformBlockIndex results', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      layout(std140) uniform TestBlock {
+        vec4 data;
+      };
+      void main() {
+        gl_Position = a_position + data;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    sut.compile();
+    sut.use();
+
+    const getBlockIndexSpy = vi.spyOn(gl, 'getUniformBlockIndex');
+    getBlockIndexSpy.mockClear();
+
+    const data = new Float32Array([1.0, 2.0, 3.0, 4.0]);
+    sut.setUniformBuffer('TestBlock', data);
+    sut.setUniformBuffer('TestBlock', data);
+    sut.setUniformBuffer('TestBlock', data);
+
+    expect(getBlockIndexSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('setUniformBuffer skips redundant uniformBlockBinding and bindBufferBase calls', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      layout(std140) uniform TestBlock {
+        vec4 data;
+      };
+      void main() {
+        gl_Position = a_position + data;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    sut.compile();
+    sut.use();
+
+    const data = new Float32Array([1.0, 2.0, 3.0, 4.0]);
+    sut.setUniformBuffer('TestBlock', data);
+
+    const uniformBlockBindingSpy = vi.spyOn(gl, 'uniformBlockBinding');
+    const bindBufferBaseSpy = vi.spyOn(gl, 'bindBufferBase');
+    uniformBlockBindingSpy.mockClear();
+    bindBufferBaseSpy.mockClear();
+
+    sut.setUniformBuffer('TestBlock', data);
+    sut.setUniformBuffer('TestBlock', data);
+
+    expect(uniformBlockBindingSpy).not.toHaveBeenCalled();
+    expect(bindBufferBaseSpy).not.toHaveBeenCalled();
+  });
 });
