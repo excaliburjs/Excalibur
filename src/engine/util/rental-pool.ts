@@ -1,6 +1,7 @@
 export class RentalPool<T> {
   private _pool: T[] = [];
   private _size: number = 0;
+  private _returned = new WeakSet<object>();
   constructor(
     public builder: () => T,
     public cleaner: (used: T) => T,
@@ -33,7 +34,11 @@ export class RentalPool<T> {
       this.grow(this._size);
     }
 
-    return clean ? this.cleaner(this._pool.pop()) : this._pool.pop();
+    const item = clean ? this.cleaner(this._pool.pop()) : this._pool.pop();
+    if (item && typeof item === 'object') {
+      this._returned.delete(item);
+    }
+    return item;
   }
 
   /**
@@ -41,6 +46,12 @@ export class RentalPool<T> {
    * @param object
    */
   return(object: T): void {
+    if (object && typeof object === 'object' && this._returned.has(object)) {
+      return;
+    }
+    if (object && typeof object === 'object') {
+      this._returned.add(object);
+    }
     this._pool.push(object);
   }
 }

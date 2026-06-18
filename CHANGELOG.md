@@ -58,6 +58,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where Local-space particles could be double-returned to the object pool, causing the same Particle instance to be active in two slots simultaneously
 - Fixed issue where `scaleTo({…})` and `scaleBy({…})` actions would cause entities to keep scaling indefinitely after the action completed, due to a copy-paste bug that zeroed `angularVelocity` instead of `scaleFactor`
 - Fixed issue where `scaleTo({…})` and `scaleBy({…})` actions used a live reference to the entity's scale vector as the interpolation start point, causing the easing curve to be corrupted if the entity's scale changed during the action
 - Fixed issue where the first action in a sequence would not execute after calling `clearActions()` mid-execution. All action types now properly reset their initialization state when stopped, resolving issue #3468
