@@ -163,6 +163,12 @@ export class PointerSystem extends System {
     // Clear last frame's events
     this._pointerEventDispatcher.clear();
 
-    this._receivers.forEach((r) => r.clear());
+    // Flag receivers as processed so the InputHost doesn't double-process them this frame.
+    // If the PointerSystem is removed from a scene, the InputHost flush guarantees the receiver
+    // events are still cleared and the currentFrame* arrays don't leak (see issue #3356).
+    this._receivers.forEach((r) => {
+      r.clear();
+      r._processedThisFrame = true;
+    });
   }
 }

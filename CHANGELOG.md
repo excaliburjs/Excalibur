@@ -62,6 +62,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed issue where `scaleTo({…})` and `scaleBy({…})` actions used a live reference to the entity's scale vector as the interpolation start point, causing the easing curve to be corrupted if the entity's scale changed during the action
 - Fixed issue where the first action in a sequence would not execute after calling `clearActions()` mid-execution. All action types now properly reset their initialization state when stopped, resolving issue #3468
 - Performance: Font/Text now use smaller texture sizes, improving performance on Safari especially when rendering text
+- Fixed issue #3356 where removing the `PointerSystem` from a scene caused the `PointerEventReceiver`'s per-frame event arrays to grow unbounded (a memory leak), because clearing those arrays was only performed by the `PointerSystem`. The receiver is now always flushed once per frame by the `InputHost`, independent of whether a `PointerSystem` is active.
 
 ### Updates
 

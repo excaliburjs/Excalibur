@@ -78,6 +78,17 @@ export class PointerEventReceiver {
 
   private _enabled = true;
 
+  /**
+   * Tracks whether the {@apilink PointerSystem} has already processed (updated and cleared) this
+   * receiver during the current frame.
+   *
+   * This is used by the {@apilink InputHost} to guarantee the receiver's per-frame events are always
+   * flushed, even when no {@apilink PointerSystem} is active in the current scene. Without this, removing
+   * the PointerSystem would cause the `currentFrame*` arrays to grow unbounded on every native pointer event.
+   * @internal
+   */
+  public _processedThisFrame = false;
+
   constructor(
     public readonly target: GlobalEventHandlers & EventTarget,
     public engine: Engine

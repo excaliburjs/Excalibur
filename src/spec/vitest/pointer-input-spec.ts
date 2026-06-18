@@ -446,4 +446,33 @@ describe('A pointer', () => {
       removeEventListenerSpy.mockRestore();
     });
   });
+
+  describe('without a PointerSystem', () => {
+    it('should still clear per-frame events so the receiver arrays do not leak (#3356)', () => {
+      const receiver = engine.input.pointers as any;
+
+      // Remove the PointerSystem from the scene - previously this meant nothing cleared the
+      // receiver's currentFrame* arrays, leaking memory on every native pointer event.
+      const pointerSystem = engine.currentScene.world.get(ex.PointerSystem);
+      engine.currentScene.world.remove(pointerSystem);
+      expect(engine.currentScene.world.get(ex.PointerSystem)).toBeFalsy();
+
+      const clock = engine.clock as ex.TestClock;
+
+      for (let i = 0; i < 5; i++) {
+        executeMouseEvent('pointerdown', <any>document, ex.NativePointerButton.Left, 10, 10);
+        executeMouseEvent('pointermove', <any>document, null, 15, 15);
+        executeMouseEvent('pointerup', <any>document, ex.NativePointerButton.Left, 10, 10);
+        // advance a full frame
+        clock.step(16);
+      }
+
+      // The arrays must be flushed each frame even though no PointerSystem is present
+      expect(receiver.currentFrameDown.length).toBe(0);
+      expect(receiver.currentFrameMove.length).toBe(0);
+      expect(receiver.currentFrameUp.length).toBe(0);
+      expect(receiver.currentFrameCancel.length).toBe(0);
+      expect(receiver.currentFrameWheel.length).toBe(0);
+    });
+  });
 });

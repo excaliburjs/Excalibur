@@ -52,6 +52,17 @@ export class InputHost {
       this.keyboard.update();
       this.gamepads.update();
     }
+
+    // The PointerSystem normally updates and clears the pointer receiver each frame. If a scene has no
+    // active PointerSystem (e.g. it was removed via `world.remove(world.get(PointerSystem))`), the
+    // receiver's per-frame event arrays would otherwise grow unbounded. Flush here as a fallback so the
+    // receiver is always reset exactly once per frame regardless of the PointerSystem (see issue #3356).
+    if (this.pointers._processedThisFrame) {
+      this.pointers._processedThisFrame = false;
+    } else {
+      this.pointers.update();
+      this.pointers.clear();
+    }
   }
 
   clear() {
