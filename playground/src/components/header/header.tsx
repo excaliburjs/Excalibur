@@ -26,7 +26,11 @@ export function Header(props: Props) {
     <>
       <header className={styles.root}>
         <div className={styles.left}>
-          <img className={styles.logo} src={isLightMode ? '/logo@2x.png' : '/logo-white@2x.png'} alt="Excalibur Playground" />
+          <img
+            className={styles.logo}
+            src={`${import.meta.env.VITE_PLAYGROUND_PATH}${isLightMode ? '/logo@2x.png' : '/logo-white@2x.png'}`}
+            alt="Excalibur Playground"
+          />
           <span className="sr-only">Excalibur Playground</span>
         </div>
 
