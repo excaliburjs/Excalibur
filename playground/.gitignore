@@ -5,3 +5,4 @@ types
 !types/index.d.ts
 .DS_Store
 .tsbuildinfo
+.env

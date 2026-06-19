@@ -3,7 +3,7 @@ import * as ex from 'excalibur';
 console.log('hello, world');
 
 const resources = {
-    tilemap: new ex.ImageSource('./playground/tiny-town/tilemap/tilemap.png'),
+    tilemap: new ex.ImageSource('${import.meta.env.VITE_PLAYGROUND_PATH}/tiny-town/tilemap/tilemap.png'),
 } as const;
 
 const loader = new ex.DefaultLoader();
@@ -17,6 +17,7 @@ const game = new ex.Engine({
     width: 592,
     height: 400,
     pixelArt: true,
+    suppressConsoleBootMessage: true,
 });
 
 const spriteSheet = ex.SpriteSheet.fromImageSource({
