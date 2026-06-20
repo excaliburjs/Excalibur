@@ -4,8 +4,6 @@ export type ExcaliburDevTool = { toggleDebug: () => void; version?: string };
 
 export type GlobalWithDevTool = typeof globalThis & { ___EXCALIBUR_DEVTOOL?: ExcaliburDevTool };
 
-export type Assets = Record<string, string>;
-
 export type Monaco = typeof monaco;
 
 export type LogLevel = 'info' | 'warn' | 'log';

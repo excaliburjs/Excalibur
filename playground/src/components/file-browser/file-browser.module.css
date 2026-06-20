@@ -6,11 +6,11 @@
 }
 
 .info {
-  color: var(--color-sky-700);
-  border: 1px solid var(--color-sky-700);
   background-color: var(--color-sky-100);
-  padding: 12px;
+  border: 1px solid var(--color-sky-700);
+  color: var(--color-sky-700);
   font-size: 12px;
+  padding: 12px;
 }
 
 .list {
@@ -23,35 +23,69 @@
 
 .item {
   align-items: center;
-  display: flex;
-  flex-direction: row;
-  gap: 12px;
-  color: var(--color-zinc-300);
   background: transparent;
+  border: 1px solid var(--color-zinc-300);
+  color: var(--color-zinc-300);
+  display: grid;
   font-size: 12px;
-  padding: 4px;
+  gap: 12px;
+  grid-template-areas:
+    'header header'
+    'source snippet'
+    'credit credit';
+  grid-template-columns: 100px 1fr;
+  grid-template-rows: min-content 1fr min-content;
   margin: 0;
+  padding: 12px;
 
   :global(html[data-theme='light']) & {
     color: var(--color-zinc-900);
   }
 }
 
-.image {
-  width: 100px;
-  flex: 0 0 100px;
-  aspect-ratio: 1/1;
-  object-fit: cover;
+.header {
+  font-weight: 700;
+  grid-area: header;
+}
+
+.credit {
+  grid-area: credit;
+  text-align: right;
+}
+
+.credit a {
+  color: inherit;
+  font-weight: 400;
+}
+
+.source {
+  grid-area: source;
   overflow: hidden;
 }
 
-.contents {
-  flex: 1 1 auto;
+.image {
+  aspect-ratio: 1/1;
+  object-fit: cover;
+  overflow: hidden;
+  width: 100%;
 }
 
-.item pre {
-  color: var(--color-zinc-300);
+.audio {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.audio svg {
+  height: 50%;
+  width: 50%;
+}
+
+.snippet {
   background: var(--color-zinc-950);
+  color: var(--color-zinc-300);
+  grid-area: snippet;
   padding: 12px;
   width: 100%;
 }

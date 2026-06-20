@@ -1,5 +1,7 @@
 import { Tabs } from '../tabs/tabs';
 
+import styles from './play-area.module.css';
+
 export function PlayArea() {
   return (
     <Tabs
@@ -9,7 +11,7 @@ export function PlayArea() {
         {
           label: 'Preview',
           value: 'preview',
-          content: <canvas id="preview-canvas" />
+          content: <canvas className={styles.canvas} id="preview-canvas" />
         }
       ]}
     />

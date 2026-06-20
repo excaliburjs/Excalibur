@@ -87,6 +87,7 @@ export function Editor(props: Props) {
       theme={isLightMode ? 'ex-light' : 'ex-dark'}
       height="100%"
       language="typescript"
+      loading=""
       beforeMount={onBeforeMount}
       onMount={handleEditorDidMount}
       width="100%"

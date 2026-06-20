@@ -6,3 +6,4 @@ types
 .DS_Store
 .tsbuildinfo
 .env
+!src/components/icons
