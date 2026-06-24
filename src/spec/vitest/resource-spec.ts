@@ -74,4 +74,22 @@ describe('A generic Resource', () => {
         });
       }));
   });
+
+  describe('on network error', () => {
+    it('should reject with ResourceLoadingError on XHR error', () =>
+      new Promise<void>((done) => {
+        // Use a path that will trigger a network error (not a 404, but an actual XHR error)
+        // Using an invalid protocol triggers the XHR 'error' event
+        const badResource = new ex.Resource('file:///nonexistent/path/resource.png', 'blob');
+        badResource.load().then(
+          () => fail('Expected rejection'),
+          (err) => {
+            expect(err).toBeInstanceOf(ex.ResourceLoadingError);
+            expect(err.path).toBe('file:///nonexistent/path/resource.png');
+            expect(err.message).toContain('Failed to load resource');
+            done();
+          }
+        );
+      }));
+  });
 });

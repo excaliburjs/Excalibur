@@ -58,6 +58,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where `Resource.load()` would hang forever on network errors (DNS failure, CORS block, offline), deadlocking the loader and all scene navigation. The promise now rejects with a `ResourceLoadingError` containing the resource path and a descriptive message
+- Fixed issue where `Gif.isLoaded()` always returned `true` because it checked `!!this.data` on an empty array, causing Gifs to be silently skipped by the loader and never parsed
 - Fixed issue where `scaleTo({…})` and `scaleBy({…})` actions would cause entities to keep scaling indefinitely after the action completed, due to a copy-paste bug that zeroed `angularVelocity` instead of `scaleFactor`
 - Fixed issue where `scaleTo({…})` and `scaleBy({…})` actions used a live reference to the entity's scale vector as the interpolation start point, causing the easing curve to be corrupted if the entity's scale changed during the action
 - Fixed issue where the first action in a sequence would not execute after calling `clearActions()` mid-execution. All action types now properly reset their initialization state when stopped, resolving issue #3468
