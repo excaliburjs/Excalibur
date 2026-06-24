@@ -198,7 +198,7 @@ export class Color {
    * @param color  The other color
    */
   public screen(color: Color): Color {
-    const color1 = color.invert();
+    const color1 = this.invert();
     const color2 = color.invert();
     return color1.multiply(color2).invert();
   }
@@ -249,8 +249,7 @@ export class Color {
    * @see https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
    */
   private _componentToHex(c: number) {
-    // Handle negative and fractional numbers
-    const hex = Math.max(Math.round(c), 0).toString(16);
+    const hex = Math.max(Math.min(Math.round(c), 255), 0).toString(16);
     return hex.length === 1 ? '0' + hex : hex;
   }
 
@@ -289,7 +288,7 @@ export class Color {
    */
   public toRGBA() {
     const result = String(this.r.toFixed(0)) + ', ' + String(this.g.toFixed(0)) + ', ' + String(this.b.toFixed(0));
-    if (this.a !== undefined || this.a !== null) {
+    if (this.a !== undefined && this.a !== null) {
       return 'rgba(' + result + ', ' + String(this.a) + ')';
     }
     return 'rgb(' + result + ')';
@@ -649,11 +648,11 @@ class HSLColor {
   }
 
   public toString(): string {
-    const h = this.h.toFixed(0),
-      s = this.s.toFixed(0),
-      l = this.l.toFixed(0),
-      a = this.a.toFixed(0);
-    return `hsla(${h}, ${s}, ${l}, ${a})`;
+    const h = Math.round(this.h * 360),
+      s = Math.round(this.s * 100),
+      l = Math.round(this.l * 100),
+      a = this.a;
+    return `hsla(${h}, ${s}%, ${l}%, ${a})`;
   }
 
   public static lerp(a: HSLColor, b: HSLColor, t: number): HSLColor {
