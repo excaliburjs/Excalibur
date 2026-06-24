@@ -296,6 +296,7 @@ describe('A loader', () => {
       left: 0,
       right: 500,
       bottom: 500,
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
       toJSON: () => {}
     });
 
