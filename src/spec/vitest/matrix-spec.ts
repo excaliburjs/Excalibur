@@ -184,4 +184,50 @@ describe('A Matrix', () => {
 [0 0 0 1]
 `);
   });
+
+  it('can get correct scale with non-uniform scale and rotation', () => {
+    const mat = ex.Matrix.identity();
+    mat.setScale(ex.vec(2, 3));
+    mat.setRotation(Math.PI / 2);
+
+    expect(mat.getScaleX()).toBeCloseTo(2, 5);
+    expect(mat.getScaleY()).toBeCloseTo(3, 5);
+  });
+
+  it('setScaleX and setScaleY modify correct basis columns', () => {
+    const mat = ex.Matrix.identity();
+    mat.setRotation(Math.PI / 4);
+    mat.setScaleX(5);
+
+    const xscale = Math.sqrt(mat.data[0] * mat.data[0] + mat.data[1] * mat.data[1]);
+    expect(xscale).toBeCloseTo(5, 5);
+
+    mat.setScaleY(7);
+    const yscale = Math.sqrt(mat.data[4] * mat.data[4] + mat.data[5] * mat.data[5]);
+    expect(yscale).toBeCloseTo(7, 5);
+  });
+
+  it('round-trip setScale + setRotation preserves scale values', () => {
+    const mat = ex.Matrix.identity();
+    mat.setScale(ex.vec(4, 9));
+    mat.setRotation(Math.PI / 3);
+
+    expect(mat.getScaleX()).toBeCloseTo(4, 5);
+    expect(mat.getScaleY()).toBeCloseTo(9, 5);
+    expect(mat.getRotation()).toBeCloseTo(Math.PI / 3, 5);
+  });
+
+  it('setRotation produces correct column-major data layout', () => {
+    const mat = ex.Matrix.identity();
+    mat.setScale(ex.vec(2, 3));
+    mat.setRotation(Math.PI / 2);
+
+    const cos = Math.cos(Math.PI / 2);
+    const sin = Math.sin(Math.PI / 2);
+
+    expect(mat.data[0]).toBeCloseTo(cos * 2, 5);
+    expect(mat.data[1]).toBeCloseTo(sin * 2, 5);
+    expect(mat.data[4]).toBeCloseTo(-sin * 3, 5);
+    expect(mat.data[5]).toBeCloseTo(cos * 3, 5);
+  });
 });
