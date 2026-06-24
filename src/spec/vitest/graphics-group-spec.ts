@@ -119,4 +119,25 @@ describe('A Graphics Group', () => {
     group.reset();
     expect(animation.reset).toHaveBeenCalled();
   });
+
+  it('can be constructed with shouldAlwaysTick', () => {
+    const group = new ex.GraphicsGroup({
+      members: [],
+      shouldAlwaysTick: true
+    });
+    expect(group.shouldAlwaysTick).toBe(true);
+  });
+
+  it('clone preserves shouldAlwaysTick', () => {
+    const animation = new ex.Animation({
+      frames: []
+    });
+    const group = new ex.GraphicsGroup({
+      members: [{ offset: ex.vec(0, 0), graphic: animation }],
+      shouldAlwaysTick: true
+    });
+
+    const clone = group.clone();
+    expect(clone.shouldAlwaysTick).toBe(true);
+  });
 });

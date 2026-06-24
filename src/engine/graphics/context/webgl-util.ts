@@ -85,7 +85,7 @@ export function getGLTypeFromSource(gl: WebGLRenderingContext, source: string, v
  * @param gl
  * @param type
  */
-export function getAttributeComponentSize(gl: WebGLRenderingContext, type: number): number {
+export function getAttributeComponentSize(gl: WebGL2RenderingContext, type: number): number {
   switch (type) {
     case gl.LOW_FLOAT:
     case gl.HIGH_FLOAT:
@@ -97,13 +97,26 @@ export function getAttributeComponentSize(gl: WebGLRenderingContext, type: numbe
       return 3;
     case gl.FLOAT_VEC4:
       return 4;
+    case gl.INT:
+    case gl.UNSIGNED_INT:
+    case gl.BOOL:
     case gl.BYTE:
-      return 1;
     case gl.UNSIGNED_BYTE:
-      return 1;
     case gl.UNSIGNED_SHORT:
     case gl.SHORT:
       return 1;
+    case gl.INT_VEC2:
+    case gl.UNSIGNED_INT_VEC2:
+    case gl.BOOL_VEC2:
+      return 2;
+    case gl.INT_VEC3:
+    case gl.UNSIGNED_INT_VEC3:
+    case gl.BOOL_VEC3:
+      return 3;
+    case gl.INT_VEC4:
+    case gl.UNSIGNED_INT_VEC4:
+    case gl.BOOL_VEC4:
+      return 4;
     default:
       return 1;
   }
@@ -115,7 +128,7 @@ export function getAttributeComponentSize(gl: WebGLRenderingContext, type: numbe
  * @param gl
  * @param type
  */
-export function getAttributePointerType(gl: WebGLRenderingContext, type: number) {
+export function getAttributePointerType(gl: WebGL2RenderingContext, type: number) {
   switch (type) {
     case gl.LOW_FLOAT:
     case gl.HIGH_FLOAT:
@@ -124,6 +137,20 @@ export function getAttributePointerType(gl: WebGLRenderingContext, type: number)
     case gl.FLOAT_VEC3:
     case gl.FLOAT_VEC4:
       return gl.FLOAT;
+    case gl.INT:
+    case gl.INT_VEC2:
+    case gl.INT_VEC3:
+    case gl.INT_VEC4:
+    case gl.BOOL:
+    case gl.BOOL_VEC2:
+    case gl.BOOL_VEC3:
+    case gl.BOOL_VEC4:
+      return gl.INT;
+    case gl.UNSIGNED_INT:
+    case gl.UNSIGNED_INT_VEC2:
+    case gl.UNSIGNED_INT_VEC3:
+    case gl.UNSIGNED_INT_VEC4:
+      return gl.UNSIGNED_INT;
     case gl.BYTE:
       return gl.BYTE;
     case gl.UNSIGNED_BYTE:

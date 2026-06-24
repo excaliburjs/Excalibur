@@ -1,0 +1,22 @@
+.root {
+  align-items: center;
+  background: var(--color-purple-800);
+  border-top: 1px solid var(--color-purple-400);
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  padding: 4px 24px;
+  width: 100%;
+}
+
+.left {
+  color: var(--color-white);
+  font-family: var(--font-family);
+  font-size: 10px;
+}
+
+.right {
+  align-items: center;
+  display: flex;
+  justify-content: flex-end;
+}

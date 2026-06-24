@@ -9,14 +9,14 @@ import {
   parseImageWrapping,
   Vector
 } from '../..';
-import type { Matrix } from '../../math/matrix';
+import { Matrix } from '../../math/matrix';
 import { watch } from '../../util/watch';
 import { UniformBuffer } from './uniform-buffer';
 import { getAttributeComponentSize, getAttributePointerType } from './webgl-util';
 
 export type UniformDictionary = Record<
   string,
-  number | boolean | Vector | Color | AffineMatrix | Float32Array | [uniformData: Float32Array, bindingPoint: number]
+  number | boolean | Vector | Color | AffineMatrix | Matrix | Float32Array | [uniformData: Float32Array, bindingPoint: number]
 >;
 /*
  * List of the possible glsl uniform types
@@ -98,19 +98,19 @@ export function glTypeToUniformTypeName(gl: WebGL2RenderingContext, glType: numb
       return 'uniform4i';
     }
     case gl.FLOAT_MAT2: {
-      return 'uniform1f';
+      return 'uniformMatrix2fv';
     }
     case gl.FLOAT_MAT3: {
-      return 'uniform1f';
+      return 'uniformMatrix3fv';
     }
     case gl.FLOAT_MAT4: {
-      return 'uniform1f';
+      return 'uniformMatrix4fv';
     }
     case gl.SAMPLER_2D: {
-      return 'uniform1f';
+      return 'uniform1i';
     }
     case gl.SAMPLER_CUBE: {
-      return 'uniform1f';
+      return 'uniform1i';
     }
     case gl.UNSIGNED_INT: {
       return 'uniform1ui';
@@ -143,28 +143,43 @@ export function glTypeToUniformTypeName(gl: WebGL2RenderingContext, glType: numb
       return 'uniformMatrix4x3fv';
     }
     case gl.SAMPLER_2D_ARRAY: {
-      return 'uniform1fv';
+      return 'uniform1i';
     }
     case gl.SAMPLER_2D_ARRAY_SHADOW: {
-      return 'uniform1f';
+      return 'uniform1i';
     }
     case gl.SAMPLER_CUBE_SHADOW: {
-      return 'uniform1f';
+      return 'uniform1i';
     }
     case gl.INT_SAMPLER_2D: {
-      return 'uniform1f';
+      return 'uniform1i';
     }
     case gl.INT_SAMPLER_3D: {
-      return 'uniform1f';
+      return 'uniform1i';
     }
     case gl.INT_SAMPLER_CUBE: {
-      return 'uniform1f';
+      return 'uniform1i';
     }
     case gl.INT_SAMPLER_2D_ARRAY: {
-      return 'uniform1f';
+      return 'uniform1i';
     }
     case gl.UNSIGNED_INT_SAMPLER_2D: {
-      return 'uniform1ui';
+      return 'uniform1i';
+    }
+    case gl.SAMPLER_3D: {
+      return 'uniform1i';
+    }
+    case gl.SAMPLER_2D_SHADOW: {
+      return 'uniform1i';
+    }
+    case gl.UNSIGNED_INT_SAMPLER_3D: {
+      return 'uniform1i';
+    }
+    case gl.UNSIGNED_INT_SAMPLER_CUBE: {
+      return 'uniform1i';
+    }
+    case gl.UNSIGNED_INT_SAMPLER_2D_ARRAY: {
+      return 'uniform1i';
     }
     default: {
       throw new Error(`Unknown uniform type: ${glType}`);
@@ -282,6 +297,12 @@ export class Shader {
 
   private _uniforms: { [variableName: string]: UniformDefinition } = {};
   private _uniformBuffers: { [blockName: string]: UniformBuffer } = {};
+  private _uniformBufferBindingPoints: { [blockName: string]: number } = {};
+  private _uniformBlockIndexCache: { [blockName: string]: number } = {};
+  private _uniformBlockBindingSet: { [blockName: string]: boolean } = {};
+  private _boundBufferBase: Map<number, WebGLBuffer | null> = new Map();
+  private _nextUniformBufferBindingPoint = 0;
+  private _affineMatrixCache = new Float32Array(16);
   private _compiled = false;
   private _onPreLink?: (program: WebGLProgram) => void;
   private _onPostCompile?: (shader: Shader) => void;
@@ -327,13 +348,13 @@ export class Shader {
     }
     this._gl = graphicsContext.__gl;
     this._startingTextureSlot = startingTextureSlot ?? this._startingTextureSlot;
-    this._maxTextureSlots = this._gl.getParameter(this._gl.MAX_TEXTURE_IMAGE_UNITS) - this._startingTextureSlot;
+    this._maxTextureSlots = this._gl.getParameter(this._gl.MAX_TEXTURE_IMAGE_UNITS);
     this.vertexSource = vertexSource;
     this.fragmentSource = fragmentSource;
     this.uniforms = watch(uniforms ?? this.uniforms, () => this.flagUniformsDirty());
     this.images = images ?? this.images;
     const keys = Object.keys(this.images);
-    if (keys.length >= this._maxTextureSlots) {
+    if (keys.length > this._maxTextureSlots - this._startingTextureSlot) {
       this._logger.warn(
         `Max number texture slots ${this._maxTextureSlots} have been reached for material "${this.name}", ` +
           `no more textures will be uploaded due to hardware constraints.`
@@ -348,8 +369,25 @@ export class Shader {
    * Deletes the webgl program from the gpu
    */
   dispose() {
+    if (!this._gl) {
+      return;
+    }
     const gl = this._gl;
     gl.deleteProgram(this.program);
+
+    for (const buffer of Object.values(this._uniformBuffers)) {
+      buffer.dispose();
+    }
+    this._uniformBuffers = {};
+    this._uniformBlockIndexCache = {};
+    this._uniformBlockBindingSet = {};
+    this._boundBufferBase.clear();
+    this._uniformBufferBindingPoints = {};
+    this._nextUniformBufferBindingPoint = 0;
+
+    // Textures are owned by TextureLoader, do not delete them here
+    this._textures.clear();
+
     this._gl = null as any;
   }
 
@@ -357,6 +395,9 @@ export class Shader {
    * Binds the shader program
    */
   use() {
+    if (!this._gl) {
+      throw new Error(`Shader "${this.name}" has been disposed and cannot be used. Create a new shader instance.`);
+    }
     const gl = this._gl;
     gl.useProgram(this.program);
     Shader._ACTIVE_SHADER_INSTANCE = this;
@@ -369,6 +410,9 @@ export class Shader {
   }
 
   unuse() {
+    if (!this._gl) {
+      return;
+    }
     const gl = this._gl;
     Shader._ACTIVE_SHADER_INSTANCE = null;
     gl.useProgram(null);
@@ -381,34 +425,65 @@ export class Shader {
   private _setUniforms() {
     const gl = this._gl;
     const entries = Object.entries(this.uniforms);
-    if (entries.length) {
-      const uniforms = this.getUniformDefinitions();
-      for (const [key, value] of entries) {
-        if (value instanceof Float32Array) {
+    for (const [key, value] of entries) {
+      const uniform = this._uniforms[key];
+      if (value instanceof Float32Array) {
+        const blockIndex = this._getUniformBlockIndex(key);
+        if (blockIndex !== gl.INVALID_INDEX) {
           this.setUniformBuffer(key, value);
-        } else if (Array.isArray(value) && value[0] instanceof Float32Array && typeof value[1] === 'number') {
-          this.setUniformBuffer(key, value[0], value[1]);
-        } else if (typeof value === 'number') {
-          this.trySetUniformFloat(key, value);
-        } else if (typeof value === 'boolean') {
-          this.trySetUniformBoolean(key, value);
-        } else if (value instanceof Vector) {
-          this.trySetUniformFloatVector(key, value);
-        } else if (value instanceof Color) {
-          this.trySetUniformFloatColor(key, value);
-        } else if (value instanceof AffineMatrix) {
-          this.setUniformAffineMatrix(key, value);
-        } else {
-          const uniform = uniforms.find((u) => u.name === key);
-          if (uniform) {
-            const typeName = glTypeToUniformTypeName(gl, uniform.glType) as UniformTypeNames;
-            this.trySetUniform(typeName as any, key, value);
+        } else if (uniform) {
+          let typeName = glTypeToUniformTypeName(gl, uniform.glType);
+          if (typeName.startsWith('uniformMatrix')) {
+            this.trySetUniform(typeName, key, false, value);
           } else {
-            this._logger.warnOnce(
-              `Could not locate uniform named ${key},` +
-                ` this can happen if the uniform is unused in the shader code some GPUs will remove this as an optimization.`
-            );
+            if (!typeName.endsWith('v')) {
+              typeName = (typeName + 'v') as UniformTypeNames;
+            }
+            this.trySetUniform(typeName, key, value);
           }
+        } else {
+          this.trySetUniformFloatArray(key, value);
+        }
+      } else if (Array.isArray(value) && value[0] instanceof Float32Array && typeof value[1] === 'number') {
+        this.setUniformBuffer(key, value[0], value[1]);
+      } else if (typeof value === 'number') {
+        if (!uniform) {
+          this.trySetUniformFloat(key, value);
+        } else {
+          const typeName = glTypeToUniformTypeName(gl, uniform.glType);
+          if (typeName === 'uniform1i') {
+            this.trySetUniformInt(key, ~~value);
+          } else if (typeName === 'uniform1ui') {
+            this.trySetUniform('uniform1ui', key, value >>> 0);
+          } else {
+            this.trySetUniformFloat(key, value);
+          }
+        }
+      } else if (typeof value === 'boolean') {
+        this.trySetUniformBoolean(key, value);
+      } else if (value instanceof Vector) {
+        if (uniform?.glType === gl.FLOAT_VEC3) {
+          this.trySetUniform('uniform3f', key, value.x, value.y, 0);
+        } else if (uniform?.glType === gl.FLOAT_VEC4) {
+          this.trySetUniform('uniform4f', key, value.x, value.y, 0, 0);
+        } else {
+          this.trySetUniformFloatVector(key, value);
+        }
+      } else if (value instanceof Color) {
+        this.trySetUniformFloatColor(key, value);
+      } else if (value instanceof AffineMatrix) {
+        this.setUniformAffineMatrix(key, value);
+      } else if (value instanceof Matrix) {
+        this.setUniformMatrix(key, value);
+      } else {
+        if (uniform) {
+          const typeName = glTypeToUniformTypeName(gl, uniform.glType) as UniformTypeNames;
+          this.trySetUniform(typeName as any, key, value);
+        } else {
+          this._logger.warnOnce(
+            `Could not locate uniform named ${key},` +
+              ` this can happen if the uniform is unused in the shader code some GPUs will remove this as an optimization.`
+          );
         }
       }
     }
@@ -432,8 +507,8 @@ export class Shader {
     );
     // remove force attribute after upload
     imageElement.removeAttribute('forceUpload');
-    if (!this._textures.has(image)) {
-      this._textures.set(image, texture!);
+    if (texture && !this._textures.has(image)) {
+      this._textures.set(image, texture);
     }
 
     return texture;
@@ -452,12 +527,22 @@ export class Shader {
           );
         }
         continue;
-      } // skip unloaded images, maybe warn
+      }
+      if (textureSlot >= this._maxTextureSlots) {
+        if (!suppressWarning) {
+          this._logger.warnOnce(
+            `Max number texture slots ${this._maxTextureSlots} have been reached for material "${this.name}", ` +
+              `no more textures will be uploaded due to hardware constraints.`
+          );
+        }
+        break;
+      }
       const texture = this._loadImageSource(image);
       if (!texture) {
         if (!suppressWarning) {
           this._logger.warnOnce(`Image ${textureName} (${image.image.src}) could not be loaded for some reason in shader ${this.name}`);
         }
+        continue;
       }
       gl.activeTexture(gl.TEXTURE0 + textureSlot);
       gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -515,7 +600,10 @@ export class Shader {
     const uniforms: UniformDefinition[] = [];
     for (let i = 0; i < uniformCount; i++) {
       const uniform = gl.getActiveUniform(this.program, i)!;
-      const uniformLocation = gl.getUniformLocation(this.program, uniform.name)!;
+      const uniformLocation = gl.getUniformLocation(this.program, uniform.name);
+      if (uniformLocation === null) {
+        continue;
+      }
       uniforms.push({
         name: uniform.name,
         glType: uniform.type,
@@ -574,35 +662,77 @@ export class Shader {
     gl.bindTexture(gl.TEXTURE_2D, texture);
   }
 
+  private _getUniformBlockIndex(name: string): number {
+    if (this._uniformBlockIndexCache[name] !== undefined) {
+      return this._uniformBlockIndexCache[name];
+    }
+    const index = this._gl.getUniformBlockIndex(this.program, name);
+    this._uniformBlockIndexCache[name] = index;
+    return index;
+  }
+
   /**
    * Set a uniform buffer block with a Float32Array
    * @param name The of the binding block
    * @param data Float32Array
    * @param [bindingPoint]
    */
-  setUniformBuffer(name: string, data: Float32Array, bindingPoint: number = 0): void {
+  setUniformBuffer(name: string, data: Float32Array, bindingPoint?: number): void {
+    if (!this._compiled) {
+      throw Error(`Must compile shader before setting a uniform block ${name}`);
+    }
+    if (!this.isCurrentlyBound()) {
+      throw Error(
+        'Currently accessed shader instance is not the current active shader in WebGL,' +
+          ' must call `shader.use()` before setting uniforms'
+      );
+    }
     const gl = this._gl;
-    const index = gl.getUniformBlockIndex(this.program, name);
+    const index = this._getUniformBlockIndex(name);
     if (index === gl.INVALID_INDEX) {
       this._logger.warnOnce(`Invalid block name ${name}`);
+      return;
+    }
+    if (bindingPoint === undefined) {
+      if (this._uniformBufferBindingPoints[name] !== undefined) {
+        bindingPoint = this._uniformBufferBindingPoints[name];
+      } else {
+        bindingPoint = this._nextUniformBufferBindingPoint++;
+        this._uniformBufferBindingPoints[name] = bindingPoint;
+      }
     }
     let uniformBuffer: UniformBuffer;
     if (this._uniformBuffers[name]) {
       uniformBuffer = this._uniformBuffers[name];
-      uniformBuffer.bufferData.set(data);
-      uniformBuffer.upload();
+      if (data.length > uniformBuffer.bufferData.length) {
+        uniformBuffer.dispose();
+        uniformBuffer = new UniformBuffer({
+          gl,
+          data: new Float32Array(data)
+        });
+        this._uniformBuffers[name] = uniformBuffer;
+      } else {
+        uniformBuffer.bufferData.set(data);
+        uniformBuffer.upload(data.length);
+      }
     } else {
       uniformBuffer = new UniformBuffer({
         gl,
-        data
+        data: new Float32Array(data)
       });
       this._uniformBuffers[name] = uniformBuffer;
     }
-    gl.uniformBlockBinding(this.program, index, bindingPoint);
-    gl.bindBufferBase(gl.UNIFORM_BUFFER, bindingPoint, uniformBuffer.buffer);
+    if (!this._uniformBlockBindingSet[name]) {
+      gl.uniformBlockBinding(this.program, index, bindingPoint);
+      this._uniformBlockBindingSet[name] = true;
+    }
+    if (this._boundBufferBase.get(bindingPoint) !== uniformBuffer.buffer) {
+      gl.bindBufferBase(gl.UNIFORM_BUFFER, bindingPoint, uniformBuffer.buffer);
+      this._boundBufferBase.set(bindingPoint, uniformBuffer.buffer);
+    }
   }
 
-  trySetUniformBuffer(name: string, data: Float32Array, bindingPoint: number = 0): boolean {
+  trySetUniformBuffer(name: string, data: Float32Array, bindingPoint?: number): boolean {
     if (!this._compiled) {
       this._logger.warn(`Must compile shader before setting a uniform block ${name} at binding point ${bindingPoint}`);
       return false;
@@ -615,8 +745,8 @@ export class Shader {
       return false;
     }
     const gl = this._gl;
-    const index = gl.getUniformBlockIndex(this.program, name);
-    if (index) {
+    const index = this._getUniformBlockIndex(name);
+    if (index !== gl.INVALID_INDEX) {
       this.setUniformBuffer(name, data, bindingPoint);
       return true;
     }
@@ -718,7 +848,7 @@ export class Shader {
    * @param name
    * @param value
    */
-  setUniformFloatArray(name: string, value: number[]): void {
+  setUniformFloatArray(name: string, value: Float32Array | number[]): void {
     this.setUniform('uniform1fv', name, value);
   }
   /**
@@ -728,7 +858,7 @@ export class Shader {
    * @param name
    * @param value
    */
-  trySetUniformFloatArray(name: string, value: number[]): boolean {
+  trySetUniformFloatArray(name: string, value: Float32Array | number[]): boolean {
     return this.trySetUniform('uniform1fv', name, value);
   }
 
@@ -788,13 +918,15 @@ export class Shader {
   }
 
   setUniformAffineMatrix(name: string, value: AffineMatrix): void {
+    const m = this._affineMatrixCache;
     // prettier-ignore
-    this.setUniform('uniformMatrix4fv', name, false, [
-      value.data[0], value.data[1], 0, 0,
-      value.data[2], value.data[3], 0, 0,
-      0, 0, 1, 0,
-      value.data[4], value.data[5], 0, 1
-    ]);
+    {
+      m[0] = value.data[0]; m[1] = value.data[1]; m[2] = 0; m[3] = 0;
+      m[4] = value.data[2]; m[5] = value.data[3]; m[6] = 0; m[7] = 0;
+      m[8] = 0; m[9] = 0; m[10] = 1; m[11] = 0;
+      m[12] = value.data[4]; m[13] = value.data[5]; m[14] = 0; m[15] = 1;
+    }
+    this.setUniform('uniformMatrix4fv', name, false, m);
   }
 
   /**
@@ -828,8 +960,9 @@ export class Shader {
       );
     }
     const gl = this._gl;
-    const location = gl.getUniformLocation(this.program, name);
-    if (location) {
+    const cached = this._uniforms[name];
+    const location = cached?.location ?? gl.getUniformLocation(this.program, name);
+    if (location !== null) {
       const args = [location, ...value];
       (this._gl as any)[uniformType].apply(this._gl, args);
     } else {
@@ -866,8 +999,9 @@ export class Shader {
       return false;
     }
     const gl = this._gl;
-    const location = gl.getUniformLocation(this.program, name);
-    if (location) {
+    const cached = this._uniforms[name];
+    const location = cached?.location ?? gl.getUniformLocation(this.program, name);
+    if (location !== null) {
       const args = [location, ...value];
       (this._gl as any)[uniformType].apply(this._gl, args);
     } else {
@@ -895,8 +1029,13 @@ export class Shader {
 
     const success = gl.getProgramParameter(program, gl.LINK_STATUS);
     if (!success) {
+      gl.deleteShader(vertexShader);
+      gl.deleteShader(fragmentShader);
       throw Error(`Could not link the program: [${gl.getProgramInfoLog(program)}]`);
     }
+
+    gl.deleteShader(vertexShader);
+    gl.deleteShader(fragmentShader);
 
     return program;
   }
@@ -924,10 +1063,14 @@ export class Shader {
       return errorInfo;
     }
     const lines = source.split('\n');
-    const errorLineStart = errorInfo.search(/\d:\d/);
+    const errorLineStart = errorInfo.search(/\d+:\d+/);
+    if (errorLineStart === -1) {
+      return '\n\nSource:\n' + lines.map((l, i) => `${i + 1}: ${l}`).join('\n');
+    }
     const errorLineEnd = errorInfo.indexOf(' ', errorLineStart);
+    const endIdx = errorLineEnd === -1 ? errorInfo.length : errorLineEnd;
     const [_, error2] = errorInfo
-      .slice(errorLineStart, errorLineEnd)
+      .slice(errorLineStart, endIdx)
       .split(':')
       .map((v) => Number(v));
     for (let i = 0; i < lines.length; i++) {
