@@ -80,7 +80,7 @@ Keep a `config.ts` for tweaking global constant values easily, we've wired up th
 
 ## Prefer `onInitialize` to the constructor
 
-Where possible we use `onInitialize()` for initialization logic over the constructor, this saves CPU cycles because it's called before the first update an entity is needed and makes it easy to restart a game or reusing something by manually calling `onInitialize()`.
+Where possible, we use `onInitialize()` for initialization logic instead of the constructor. This saves CPU cycles because it's called before the first update an entity is needed and makes it easy to restart a game or reuse something by manually calling `onInitialize()`.
 
 ## Use `ex.Scene` as the [Composition Root](https://freecontent.manning.com/dependency-injection-in-net-2nd-edition-understanding-the-composition-root/)
 

@@ -324,31 +324,27 @@ export class AffineMatrix {
     const cosine = Math.cos(angle);
 
     this.data[0] = cosine * currentScale.x;
-    this.data[1] = sine * currentScale.y;
-    this.data[2] = -sine * currentScale.x;
+    this.data[1] = sine * currentScale.x;
+    this.data[2] = -sine * currentScale.y;
     this.data[3] = cosine * currentScale.y;
   }
 
   public getRotation(): number {
-    const angle = Math.atan2(this.data[1] / this.getScaleY(), this.data[0] / this.getScaleX());
+    const angle = Math.atan2(this.data[1] / this.getScaleX(), this.data[0] / this.getScaleX());
     return canonicalizeAngle(angle);
   }
 
   public getScaleX(): number {
-    // absolute scale of the matrix (we lose sign so need to add it back)
-    const xScaleSq = this.data[0] * this.data[0] + this.data[2] * this.data[2];
+    const xScaleSq = this.data[0] * this.data[0] + this.data[1] * this.data[1];
     if (xScaleSq === 1.0) {
-      // usually there isn't scale so we can avoid a sqrt
       return this._scaleSignX;
     }
     return this._scaleSignX * Math.sqrt(xScaleSq);
   }
 
   public getScaleY(): number {
-    // absolute scale of the matrix (we lose sign so need to add it back)
-    const yScaleSq = this.data[1] * this.data[1] + this.data[3] * this.data[3];
+    const yScaleSq = this.data[2] * this.data[2] + this.data[3] * this.data[3];
     if (yScaleSq === 1.0) {
-      // usually there isn't scale so we can avoid a sqrt
       return this._scaleSignY;
     }
     return this._scaleSignY * Math.sqrt(yScaleSq);
@@ -368,10 +364,9 @@ export class AffineMatrix {
       return;
     }
     this._scaleSignX = sign(val);
-    // negative scale acts like a 180 rotation, so flip
-    const xscale = vec(this.data[0] * this._scaleSignX, this.data[2] * this._scaleSignX).normalize();
+    const xscale = vec(this.data[0] * this._scaleSignX, this.data[1] * this._scaleSignX).normalize();
     this.data[0] = xscale.x * val;
-    this.data[2] = xscale.y * val;
+    this.data[1] = xscale.y * val;
     this._scale[0] = val;
   }
 
@@ -381,9 +376,8 @@ export class AffineMatrix {
       return;
     }
     this._scaleSignY = sign(val);
-    // negative scale acts like a 180 rotation, so flip
-    const yscale = vec(this.data[1] * this._scaleSignY, this.data[3] * this._scaleSignY).normalize();
-    this.data[1] = yscale.x * val;
+    const yscale = vec(this.data[2] * this._scaleSignY, this.data[3] * this._scaleSignY).normalize();
+    this.data[2] = yscale.x * val;
     this.data[3] = yscale.y * val;
     this._scale[1] = val;
   }

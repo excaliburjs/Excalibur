@@ -9,6 +9,8 @@ export interface IsometricEntityComponentOptions {
 }
 
 export class IsometricEntityComponent extends Component {
+  // @ts-ignore
+  private static _NAME = 'IsometricEntityComponent';
   /**
    * Vertical "height" in the isometric world
    */

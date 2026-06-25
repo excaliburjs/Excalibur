@@ -90,6 +90,7 @@ export class CurveTo implements Action {
   }
   stop(): void {
     this._stopped = true;
+    this._started = false;
     this._currentMs = 0;
   }
 }

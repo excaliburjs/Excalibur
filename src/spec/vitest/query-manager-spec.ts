@@ -257,6 +257,43 @@ describe('A QueryManager', () => {
     expect(queryAB.getEntities()).toEqual([]);
   });
 
+  it('does not duplicate entity subscriptions when creating queries after entities exist', () => {
+    const world = new ex.World(null);
+    const entity = new ex.Entity();
+    entity.addComponent(new FakeComponentA());
+    entity.addTag('A');
+
+    world.add(entity);
+
+    expect(entity.componentAdded$.subscriptions.length).toBe(1);
+    expect(entity.componentRemoved$.subscriptions.length).toBe(1);
+    expect(entity.tagAdded$.subscriptions.length).toBe(1);
+    expect(entity.tagRemoved$.subscriptions.length).toBe(1);
+
+    world.query([FakeComponentA]);
+    world.query([FakeComponentB]);
+    world.queryTags(['A']);
+    world.queryTags(['B']);
+
+    expect(entity.componentAdded$.subscriptions.length).toBe(1);
+    expect(entity.componentRemoved$.subscriptions.length).toBe(1);
+    expect(entity.tagAdded$.subscriptions.length).toBe(1);
+    expect(entity.tagRemoved$.subscriptions.length).toBe(1);
+  });
+
+  it('does not duplicate entity subscriptions when addEntity is called more than once', () => {
+    const world = new ex.World(null);
+    const entity = new ex.Entity();
+
+    world.queryManager.addEntity(entity);
+    world.queryManager.addEntity(entity);
+
+    expect(entity.componentAdded$.subscriptions.length).toBe(1);
+    expect(entity.componentRemoved$.subscriptions.length).toBe(1);
+    expect(entity.tagAdded$.subscriptions.length).toBe(1);
+    expect(entity.tagRemoved$.subscriptions.length).toBe(1);
+  });
+
   it('can update queries when a component is removed', () => {
     const world = new ex.World(null);
     const entity1 = new ex.Entity();

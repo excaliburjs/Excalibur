@@ -23,6 +23,7 @@ import { BodyComponent } from './collision/body-component';
 import type { Eventable } from './interfaces/evented';
 import type { PointerEvents } from './interfaces/pointer-event-handlers';
 import { CollisionType } from './collision/collision-type';
+import { PauseComponent } from './entity-component-system/components/pause-component';
 
 import type { EntityEvents } from './entity-component-system/entity';
 import { Entity } from './entity-component-system/entity';
@@ -115,8 +116,7 @@ export type ActorArgs = ColliderArgs & {
    */
   material?: Material;
   /**
-   * Optionally set the color of an actor, only used if no graphics are present
-   * If a width/height or a radius was set a default graphic will be added
+   * Optionally set the opacity of an actor, only used if no graphics are present
    */
   opacity?: number;
   /**
@@ -128,7 +128,7 @@ export type ActorArgs = ColliderArgs & {
    */
   anchor?: Vector;
   /**
-   * Optionally set the anchor for graphics in the actor
+   * Optionally set the pixel offset for graphics in the actor
    */
   offset?: Vector;
   /**
@@ -140,6 +140,12 @@ export type ActorArgs = ColliderArgs & {
    * Optionally supply a {@apilink CollisionGroup}
    */
   collisionGroup?: CollisionGroup;
+  /**
+   * Optionally set if the actor can be paused
+   *
+   * (default is true)
+   */
+  canPause?: boolean;
 };
 
 type ColliderArgs =
@@ -279,6 +285,12 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * acceleration, mass, inertia, etc.
    */
   public body: BodyComponent;
+
+  /**
+   * The physics body the is associated with this actor. The body is the container for all physical properties, like position, velocity,
+   * acceleration, mass, inertia, etc.
+   */
+  public paused: PauseComponent;
 
   /**
    * Access the Actor's built in {@apilink TransformComponent}
@@ -441,6 +453,18 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     this.get(TransformComponent).scale = scale;
   }
 
+  public get canPause(): boolean {
+    return this.paused.canPause;
+  }
+
+  public set canPause(canPause: boolean) {
+    this.paused.canPause = canPause;
+  }
+
+  public get isPaused(): boolean {
+    return this.paused.paused;
+  }
+
   private _anchor: Vector = watch(Vector.Half, (v) => this._handleAnchorChange(v));
   /**
    * The anchor to apply all actor related transformations like rotation,
@@ -592,7 +616,8 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
       collisionType,
       collisionGroup,
       graphic,
-      material
+      material,
+      canPause
     } = {
       ...config
     };
@@ -633,6 +658,9 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     if (collisionGroup) {
       this.body.group = collisionGroup;
     }
+
+    this.paused = new PauseComponent({ canPause });
+    this.addComponent(this.paused);
 
     if (color) {
       this.color = color;
@@ -837,7 +865,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   }
 
   /**
-   * Indicates wether the actor has been killed.
+   * Indicates whether the actor has been killed.
    */
   public isKilled(): boolean {
     return !this.isActive;

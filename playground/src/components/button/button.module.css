@@ -1,0 +1,49 @@
+.primary {
+  --background-color: var(--color-purple-700);
+  --background-color-hover: var(--color-purple-600);
+  --foreground-color: var(--color-white);
+  --border-color: var(--color-purple-400);
+}
+
+.outline {
+  --background-color: transparent;
+  --background-color-hover: var(--color-zinc-800);
+  --foreground-color: var(--color-zinc-100);
+  --border-color: var(--color-zinc-700);
+
+  :global(html[data-theme='light']) & {
+    --background-color: transparent;
+    --background-color-hover: var(--color-zinc-200);
+    --foreground-color: var(--color-zinc-900);
+    --border-color: var(--color-zinc-600);
+  }
+}
+
+.root {
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--foreground-color);
+  cursor: pointer;
+  font-family: var(--font-family);
+  font-size: 11px;
+  height: 28px;
+  padding: 0 10px;
+  transition:
+    background-color 200ms,
+    color 200ms;
+  white-space: nowrap;
+
+  &:hover {
+    background-color: var(--background-color-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--border-color);
+    outline-offset: 2px;
+  }
+
+  &[disabled] {
+    opacity: 0.25;
+  }
+}

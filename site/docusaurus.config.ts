@@ -62,7 +62,7 @@ const config: Config = {
   },
 
   scripts: [
-    {src: 'https://plausible.io/js/script.js', defer: true, 'data-domain': 'excaliburjs.com'}
+    { src: 'https://plausible.io/js/script.js', defer: true, 'data-domain': 'excaliburjs.com' }
   ],
 
   presets: [
@@ -96,7 +96,7 @@ const config: Config = {
           postsPerPage: 'ALL',
           blogSidebarTitle: 'All posts',
           blogSidebarCount: 'ALL',
-          
+
         },
         theme: {
           customCss: './src/css/custom.css'
@@ -237,24 +237,19 @@ const config: Config = {
           position: 'left',
           label: 'Docs'
         },
+        {
+          href: 'https://excaliburjs.com/playground',
+          label: 'Playground',
+          position: 'left'
+        },
         { to: '/api', label: 'API', position: 'left' },
         { to: '/blog', label: 'Blog', position: 'left' },
         { to: '/samples', label: 'Samples', position: 'left' },
         { to: '/showcase', label: 'Showcase', position: 'left' },
         { to: '/donate', label: 'Donate', position: 'left' },
         {
-          href: 'https://github.com/excaliburjs/Excalibur/discussions',
-          label: 'Discussions',
-          position: 'left'
-        },
-        {
           href: 'https://discord.gg/W6zUd4tTY3',
           label: 'Discord',
-          position: 'left'
-        },
-        {
-          href: 'https://buy.stripe.com/fZufZhf381coglRdpVe3e01',
-          label: 'Stickers',
           position: 'left'
         },
         { to: '/premium-support', label: 'Premium Support', position: 'right' },
@@ -274,6 +269,10 @@ const config: Config = {
             {
               label: 'Tutorial',
               to: '/docs/excalibird-flappy-bird'
+            },
+            {
+              label: 'Playground',
+              to: '/playground'
             }
           ]
         },
@@ -318,7 +317,11 @@ const config: Config = {
             {
               label: 'GitHub',
               href: 'https://github.com/excaliburjs/Excalibur'
-            }
+            },
+            {
+              label: 'Stickers',
+              href: 'https://buy.stripe.com/fZufZhf381coglRdpVe3e01'
+            },
           ]
         }
       ],

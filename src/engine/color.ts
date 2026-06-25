@@ -50,6 +50,21 @@ export class Color {
     this.a = a != null ? a : 1;
   }
 
+  public get hashCode(): number {
+    const r = Math.round(this.r) & 0xff;
+    const g = Math.round(this.g) & 0xff;
+    const b = Math.round(this.b) & 0xff;
+    const a = Math.round(this.a * 255) & 0xff;
+
+    let hash = 0;
+    hash = (hash << 5) - hash + r;
+    hash = (hash << 5) - hash + g;
+    hash = (hash << 5) - hash + b;
+    hash = (hash << 5) - hash + a;
+
+    return hash | 0;
+  }
+
   /**
    * Creates a new instance of Color from an r, g, b, a
    * @param r  The red component of color (0-255)
@@ -116,6 +131,17 @@ export class Color {
   }
 
   /**
+   * Creates a new instance of Color from array of float components.
+   * Missing components will be replaced with 0 for r, g, b, and 1 for a.
+   * @param array  Array of [r, g, b, a] components
+   */
+  public static fromFloatArray(array: number[]): Color {
+    const components = [array[0] ?? 0, array[1] ?? 0, array[2] ?? 0].map((c) => Math.round(c * 255)) as [number, number, number];
+
+    return new Color(...components, array[3]);
+  }
+
+  /**
    * Lightens the current color by a specified amount
    * @param factor  The amount to lighten by [0-1]
    */
@@ -172,7 +198,7 @@ export class Color {
    * @param color  The other color
    */
   public screen(color: Color): Color {
-    const color1 = color.invert();
+    const color1 = this.invert();
     const color2 = color.invert();
     return color1.multiply(color2).invert();
   }
@@ -223,8 +249,7 @@ export class Color {
    * @see https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
    */
   private _componentToHex(c: number) {
-    // Handle negative and fractional numbers
-    const hex = Math.max(Math.round(c), 0).toString(16);
+    const hex = Math.max(Math.min(Math.round(c), 255), 0).toString(16);
     return hex.length === 1 ? '0' + hex : hex;
   }
 
@@ -263,7 +288,7 @@ export class Color {
    */
   public toRGBA() {
     const result = String(this.r.toFixed(0)) + ', ' + String(this.g.toFixed(0)) + ', ' + String(this.b.toFixed(0));
-    if (this.a !== undefined || this.a !== null) {
+    if (this.a !== undefined && this.a !== null) {
       return 'rgba(' + result + ', ' + String(this.a) + ')';
     }
     return 'rgb(' + result + ')';
@@ -274,6 +299,21 @@ export class Color {
    */
   public toHSLA() {
     return HSLColor.fromRGBA(this.r, this.g, this.b, this.a).toString();
+  }
+
+  /**
+   * Return float array representation of a color.
+   * @param precision
+   */
+  public toFloatArray(precision?: number): [r: number, g: number, b: number, a: number] {
+    let components = [this.r / 255, this.g / 255, this.b / 255];
+
+    if (precision) {
+      components = components.map((c) => parseFloat(c.toFixed(precision)));
+    }
+
+    components.push(this.a);
+    return components as [number, number, number, number];
   }
 
   /**
@@ -608,11 +648,11 @@ class HSLColor {
   }
 
   public toString(): string {
-    const h = this.h.toFixed(0),
-      s = this.s.toFixed(0),
-      l = this.l.toFixed(0),
-      a = this.a.toFixed(0);
-    return `hsla(${h}, ${s}, ${l}, ${a})`;
+    const h = Math.round(this.h * 360),
+      s = Math.round(this.s * 100),
+      l = Math.round(this.l * 100),
+      a = this.a;
+    return `hsla(${h}, ${s}%, ${l}%, ${a})`;
   }
 
   public static lerp(a: HSLColor, b: HSLColor, t: number): HSLColor {

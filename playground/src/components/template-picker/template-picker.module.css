@@ -1,0 +1,115 @@
+.backdrop {
+  background-color: var(--color-black);
+  inset: 0;
+  min-height: 100dvh;
+  opacity: 0.75;
+  position: fixed;
+  transition: opacity 150ms;
+  z-index: 100;
+
+  /* iOS 26+: Ensure the backdrop covers the entire visible viewport. */
+  @supports (-webkit-touch-callout: none) {
+    position: absolute;
+  }
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+  }
+}
+
+.popup {
+  --background-color: var(--color-zinc-900);
+  --background-color-hover: var(--color-zinc-800);
+  --foreground-color: var(--color-zinc-100);
+  --border-color: var(--color-zinc-300);
+
+  :global(html[data-theme='light']) & {
+    --background-color: var(--color-zinc-100);
+    --background-color-hover: var(--color-zinc-200);
+    --foreground-color: var(--color-zinc-900);
+    --border-color: var(--color-zinc-600);
+  }
+
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  left: 50%;
+  max-width: calc(100vw - 24px);
+  padding: 24px;
+  position: fixed;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  transition:
+    transform 100ms ease-out,
+    opacity 100ms ease-out;
+  width: 420px;
+  z-index: 110;
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.98);
+  }
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.title {
+  color: var(--foreground-color);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.5rem;
+  margin: 0;
+}
+
+.description {
+  color: var(--foreground-color);
+  font-size: 14px;
+  line-height: 1.5rem;
+  margin: 0;
+}
+
+.separator {
+  background-color: var(--border-color);
+  height: 1px;
+}
+
+.actions {
+  display: flex;
+  justify-content: end;
+}
+
+.button {
+  align-items: center;
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--foreground-color);
+  cursor: pointer;
+  display: flex;
+  font-size: 14px;
+  font-weight: 400;
+  height: 36px;
+  justify-content: center;
+  line-height: 1;
+  margin: 0;
+  padding: 0 16px;
+  -webkit-user-select: none;
+  user-select: none;
+  white-space: nowrap;
+
+  &:hover {
+    background-color: var(--background-color-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--border-color);
+    outline-offset: 2px;
+  }
+}

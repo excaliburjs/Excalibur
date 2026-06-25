@@ -1,0 +1,11 @@
+diff --git a/node_modules/docusaurus-plugin-typedoc-api/lib/components/ApiPage.js b/node_modules/docusaurus-plugin-typedoc-api/lib/components/ApiPage.js
+index 2204247..58e80d5 100644
+--- a/node_modules/docusaurus-plugin-typedoc-api/lib/components/ApiPage.js
++++ b/node_modules/docusaurus-plugin-typedoc-api/lib/components/ApiPage.js
+@@ -73,5 +73,6 @@ function ApiPage(_ref) {
+     })
+   });
+ }
++Object.defineProperty(ApiPage, 'length', { writable: true, value: ApiPage.length });
+ module.exports = ApiPage;
+ //# sourceMappingURL=ApiPage.js.map

@@ -77,6 +77,7 @@ export class Flash implements Action {
       this._graphics.isVisible = true;
     }
     this._stopped = true;
+    this._started = false;
   }
 
   public reset() {

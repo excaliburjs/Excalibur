@@ -153,7 +153,9 @@ export class Timer {
    */
   public off(action: () => void) {
     const index = this._callbacks.indexOf(action);
-    this._callbacks.splice(index, 1);
+    if (index > -1) {
+      this._callbacks.splice(index, 1);
+    }
   }
   /**
    * Updates the timer after a certain number of milliseconds have elapsed. This is used internally by the engine.
@@ -203,7 +205,7 @@ export class Timer {
       this._baseInterval = this.interval = newInterval;
     }
 
-    if (!!this.maxNumberOfRepeats && this.maxNumberOfRepeats >= 0) {
+    if (newNumberOfRepeats !== undefined && newNumberOfRepeats >= 0) {
       this.maxNumberOfRepeats = newNumberOfRepeats;
       if (!this.repeats) {
         throw new Error('repeats must be set to true if numberOfRepeats is set');

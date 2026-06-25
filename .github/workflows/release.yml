@@ -24,11 +24,11 @@ jobs:
           submodules: true
           fetch-depth: 100
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6.4.0
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: 'package.json'
+          package-manager-cache: false
           registry-url: 'https://registry.npmjs.org'
-          cache: npm
 
       - name: Determine version and tag
         id: version
@@ -49,6 +49,7 @@ jobs:
             npm --no-git-tag-version version $ALPHA_VERSION
           fi
 
+      - run: npm install -g npm@11.16.0
       - run: npm ci
 
       - name: Build Alpha
@@ -57,7 +58,7 @@ jobs:
 
       - name: Publish to NPM (Alpha)
         if: steps.version.outputs.publish_type == 'alpha'
-        run: npm publish --tag next --provenance
+        run: npm stage publish --tag next --provenance
 
       - name: Build Release
         if: steps.version.outputs.publish_type == 'stable'
@@ -67,7 +68,7 @@ jobs:
 
       - name: Publish Release
         if: steps.version.outputs.publish_type == 'stable'
-        run: npm publish --provenance
+        run: npm stage publish --provenance
 
       - name: Output Published Version
         run: |

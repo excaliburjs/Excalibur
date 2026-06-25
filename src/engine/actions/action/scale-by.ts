@@ -50,7 +50,7 @@ export class ScaleByWithOptions implements Action {
   }
   update(elapsed: number): void {
     if (!this._started) {
-      this._startScale = this._tx.scale;
+      this._startScale = this._tx.scale.clone();
       this._endScale = this._startScale.add(this._scaleOffset);
       this._started = true;
     }
@@ -64,7 +64,7 @@ export class ScaleByWithOptions implements Action {
 
     if (this.isComplete()) {
       this._tx.scale = this._endScale;
-      this._motion.angularVelocity = 0;
+      this._motion.scaleFactor = Vector.Zero;
     }
   }
   public isComplete(): boolean {
@@ -74,6 +74,7 @@ export class ScaleByWithOptions implements Action {
   public stop(): void {
     this._motion.scaleFactor = Vector.Zero;
     this._stopped = true;
+    this._started = false;
     this._currentMs = 0;
   }
 
@@ -141,6 +142,7 @@ export class ScaleBy implements Action {
     this._motion.scaleFactor.x = 0;
     this._motion.scaleFactor.y = 0;
     this._stopped = true;
+    this._started = false;
   }
 
   public reset(): void {

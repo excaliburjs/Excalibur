@@ -10,6 +10,7 @@ import type { RasterOptions } from './raster';
 import { ImageFiltering } from './filtering';
 import { FontTextInstance } from './font-text-instance';
 import { FontCache } from './font-cache';
+import { combineHashes, hashString } from '../util/string';
 /**
  * Represents a system or web font in Excalibur
  *
@@ -54,8 +55,30 @@ export class Font extends Graphic implements FontRenderer {
       this.shadow.color = options.shadow.color ?? this.shadow.color;
     }
 
+    // FIXME can we change this we only need this for text measurement!?! maybe a cursed static?
     // must be created after this is finished setting values
     this._textMeasurement = new FontTextInstance(this, '', Color.Black);
+  }
+
+  public get hashCode(): number {
+    return combineHashes(
+      hashString(this.fontString),
+      +this.showDebug,
+      hashString(this.textAlign),
+      hashString(this.baseAlign),
+      hashString(this.direction),
+      +(this.lineHeight ?? 0),
+      +(this.shadow?.blur ?? 0),
+      +(this.shadow?.color?.hashCode ?? 0),
+      +(this.shadow?.offset?.x ?? 0),
+      +(this.shadow?.offset?.y ?? 0),
+      +this.padding,
+      +this.smoothing,
+      +this.lineWidth,
+      +this.lineDash.reduce((a, b) => a + b, 0),
+      +(this.strokeColor?.hashCode ?? 0),
+      this.color.hashCode
+    );
   }
 
   public clone() {

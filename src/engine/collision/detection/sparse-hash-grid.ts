@@ -225,6 +225,9 @@ export class SparseHashGrid<TObject extends { bounds: BoundingBox }, TProxy exte
     }
   }
 
+  /**
+   * **WARNING** TObjects must use the same coordPlan on their .bounds to work properly
+   */
   track(target: TObject): void {
     const proxy = this._buildProxy(target);
     this.objectToProxy.set(target, proxy);
@@ -248,7 +251,8 @@ export class SparseHashGrid<TObject extends { bounds: BoundingBox }, TProxy exte
     // FIXME resetting bounds is wrong, if nothing has updated then
     // the bounds stay 0
     // this.bounds.reset();
-    for (const target of targets) {
+    for (let i = 0; i < targets.length; i++) {
+      const target = targets[i];
       const proxy = this.objectToProxy.get(target);
       if (!proxy) {
         continue;

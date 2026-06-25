@@ -8,3 +8,5 @@ export * from './easing-functions';
 
 import * as drawUtil from './draw-util';
 export { drawUtil as DrawUtil };
+
+export { Serializer } from './serializer';

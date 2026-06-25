@@ -83,7 +83,7 @@ export type {
   NavigatorGamepadEvent,
   GamepadConfiguration
 } from './input/gamepad';
-export { Gamepads, Gamepad, Buttons, Axes } from './input/gamepad';
+export { Gamepads, Gamepad, Buttons, Axes, GamepadEvents } from './input/gamepad';
 
 export type { KeyboardInitOptions } from './input/keyboard';
 export { Keys, KeyEvent, Keyboard } from './input/keyboard';
@@ -111,6 +111,8 @@ export * from './util/semaphore';
 export * from './util/coroutine';
 export * from './util/assert';
 export * from './util/rental-pool';
+export * from './util/pause-system';
+export * from './util/serializer';
 
 export * from './plugin';
 

@@ -1,3 +1,22 @@
+diff --git a/node_modules/@docusaurus/core/lib/client/exports/ComponentCreator.js b/node_modules/@docusaurus/core/lib/client/exports/ComponentCreator.js
+index e3b63d0..d485ff0 100644
+--- a/node_modules/@docusaurus/core/lib/client/exports/ComponentCreator.js
++++ b/node_modules/@docusaurus/core/lib/client/exports/ComponentCreator.js
+@@ -82,8 +82,12 @@ export default function ComponentCreator(path, hash) {
+                     Object.keys(loadedModule)
+                         .filter((k) => k !== 'default')
+                         .forEach((nonDefaultKey) => {
+-                        chunk[nonDefaultKey] =
+-                            loadedModule[nonDefaultKey];
++                        try {
++                            chunk[nonDefaultKey] =
++                                loadedModule[nonDefaultKey];
++                        } catch (e) {
++                            // Skip non-writable properties (e.g. Function.length)
++                        }
+                     });
+                 }
+                 // We now have this chunk prepared. Go down the key path and replace the
 diff --git a/node_modules/@docusaurus/core/lib/commands/build.js b/node_modules/@docusaurus/core/lib/commands/build.js
 index 2865e66..7c69768 100644
 --- a/node_modules/@docusaurus/core/lib/commands/build.js

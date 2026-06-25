@@ -9,9 +9,10 @@ import { Logger } from '../util/log';
 import { WatchVector } from '../math/watch-vector';
 import { TransformComponent } from '../entity-component-system';
 import { GraphicsGroup } from '../graphics/graphics-group';
-import type { Color } from '../color';
+import { Color } from '../color';
 import { Raster } from './raster';
 import { Text } from './text';
+import { CoordPlane } from '../math';
 
 /**
  * Type guard for checking if a Graphic HasTick (used for graphics that change over time like animations)
@@ -24,7 +25,34 @@ export interface GraphicsShowOptions {
   offset?: Vector;
   anchor?: Vector;
 }
+// ============================================================================
+// GraphicsComponent Serialization Data Structure
+// ============================================================================
 
+export interface GraphicsComponentData {
+  type: string;
+  current: string;
+  graphicRefs: string[]; // List of graphic IDs used by this component
+  options: {
+    [name: string]:
+      | {
+          offset?: { x: number; y: number };
+          anchor?: { x: number; y: number };
+        }
+      | undefined;
+  };
+  isVisible: boolean;
+  opacity: number;
+  offset: { x: number; y: number };
+  anchor: { x: number; y: number };
+  color?: { r: number; g: number; b: number; a: number };
+  flipHorizontal: boolean;
+  flipVertical: boolean;
+  copyGraphics: boolean;
+  forceOnScreen: boolean;
+  shouldAlwaysTick: boolean;
+  tint?: { r: number; g: number; b: number; a: number };
+}
 export interface GraphicsComponentOptions {
   onPostDraw?: (ex: ExcaliburGraphicsContext, elapsed: number) => void;
   onPreDraw?: (ex: ExcaliburGraphicsContext, elapsed: number) => void;
@@ -76,12 +104,20 @@ export interface GraphicsComponentOptions {
    * Optional anchor
    */
   anchor?: Vector;
+
+  /**
+   * Optionally tick graphics even when offscreen, default false. When true, the current graphic will tick every frame
+   * regardless of whether the owning entity is offscreen.
+   */
+  shouldAlwaysTick?: boolean;
 }
 
 /**
  * Component to manage drawings, using with the position component
  */
 export class GraphicsComponent extends Component {
+  // @ts-ignore
+  private static _NAME = 'GraphicsComponent';
   private _logger = Logger.getInstance();
 
   private _current: string = 'default';
@@ -136,6 +172,15 @@ export class GraphicsComponent extends Component {
    * Optionally force the graphic onscreen, default false. Not recommend to use for perf reasons, only if you known what you're doing.
    */
   public forceOnScreen: boolean = false;
+
+  /**
+   * Optionally tick graphics even when offscreen, default false. When true, the current graphic will tick every frame
+   * regardless of whether the owning entity is offscreen. This is useful for keeping animations synchronized
+   * across your game scene.
+   *
+   * Can also be set per-graphic via {@apilink Animation.shouldAlwaysTick} or {@apilink GraphicsGroup.shouldAlwaysTick}.
+   */
+  public shouldAlwaysTick: boolean = false;
 
   /**
    * Sets or gets wither all drawings should have an opacity applied
@@ -221,7 +266,8 @@ export class GraphicsComponent extends Component {
       onPreDraw,
       onPostDraw,
       onPreTransformDraw,
-      onPostTransformDraw
+      onPostTransformDraw,
+      shouldAlwaysTick
     } = options;
 
     for (const [key, graphicOrOptions] of Object.entries(graphics as GraphicsComponentOptions)) {
@@ -240,9 +286,10 @@ export class GraphicsComponent extends Component {
     this.copyGraphics = copyGraphics ?? this.copyGraphics;
     this.onPreDraw = onPreDraw ?? this.onPreDraw;
     this.onPostDraw = onPostDraw ?? this.onPostDraw;
-    this.onPreDraw = onPreTransformDraw ?? this.onPreTransformDraw;
+    this.onPreTransformDraw = onPreTransformDraw ?? this.onPreTransformDraw;
     this.onPostTransformDraw = onPostTransformDraw ?? this.onPostTransformDraw;
     this.isVisible = !!visible;
+    this.shouldAlwaysTick = !!shouldAlwaysTick;
     this._current = current ?? this._current;
     if (current && this._graphics[current]) {
       this.use(current);
@@ -415,15 +462,36 @@ export class GraphicsComponent extends Component {
     return this._localBounds as BoundingBox; // recalc guarantees type
   }
 
+  private _scratchWorldBounds = new BoundingBox();
   /**
    * Get world bounds of graphics component
    */
   public get bounds(): BoundingBox {
-    let bounds = this.localBounds;
+    const bounds = this.localBounds.clone(this._scratchWorldBounds);
     if (this.owner) {
       const tx = this.owner.get(TransformComponent);
       if (tx) {
-        bounds = bounds.transform(tx.get().matrix);
+        // either world or screen space bounds
+        bounds.transform(tx.get().matrix, bounds);
+      }
+
+      const isScreenSpace = tx.coordPlane === CoordPlane.Screen;
+      if (isScreenSpace) {
+        const camera = this.owner.scene?.camera;
+        const screen = this.owner.scene?.engine?.screen;
+        if (camera && screen) {
+          // For speed
+          // dubious transform by tampering with the camera inverse then putting it back
+          const topLeft = screen.contentArea.topLeft;
+          const oldX = camera.inverse.data[4];
+          const oldY = camera.inverse.data[5];
+          camera.inverse.data[4] += topLeft.x;
+          camera.inverse.data[5] += topLeft.y;
+          bounds.transform(camera.inverse, bounds);
+          camera.inverse.data[4] = oldX;
+          camera.inverse.data[5] = oldY;
+        }
+        return bounds;
       }
     }
     return bounds;
@@ -441,6 +509,21 @@ export class GraphicsComponent extends Component {
     }
   }
 
+  /**
+   * Update underlying graphics when offscreen, only ticks if opted in via shouldAlwaysTick on the component or current graphic.
+   * Called internally by GraphicsSystem.
+   * @param elapsed
+   * @internal
+   */
+  public updateOffscreen(elapsed: number, idempotencyToken: number = 0) {
+    const graphic = this.current;
+    if (graphic && hasGraphicsTick(graphic)) {
+      if (this.shouldAlwaysTick || !!graphic.shouldAlwaysTick) {
+        graphic.tick(elapsed, idempotencyToken);
+      }
+    }
+  }
+
   public clone(): GraphicsComponent {
     const graphics = new GraphicsComponent();
     graphics._graphics = { ...this._graphics };
@@ -455,7 +538,103 @@ export class GraphicsComponent extends Component {
     graphics.onPreDraw = this.onPreDraw;
     graphics.onPostDraw = this.onPostDraw;
     graphics.isVisible = this.isVisible;
+    graphics.shouldAlwaysTick = this.shouldAlwaysTick;
 
     return graphics;
+  }
+
+  /**
+   * Custom serialization - stores graphic references instead of graphic data
+   */
+  public serialize(): GraphicsComponentData {
+    const type = this.constructor.name;
+    const data: GraphicsComponentData = {
+      type,
+      current: this._current,
+      graphicRefs: [],
+      options: {},
+      isVisible: this.isVisible,
+      opacity: this.opacity,
+      offset: { x: this._offset.x, y: this._offset.y },
+      anchor: { x: this._anchor.x, y: this._anchor.y },
+      flipHorizontal: this.flipHorizontal,
+      flipVertical: this.flipVertical,
+      copyGraphics: this.copyGraphics,
+      forceOnScreen: this.forceOnScreen,
+      shouldAlwaysTick: this.shouldAlwaysTick,
+      tint: undefined
+    };
+
+    // Extract graphic IDs/names
+    data.graphicRefs = Object.keys(this._graphics);
+
+    // Serialize options for each graphic
+    for (const [name, option] of Object.entries(this._options)) {
+      if (option) {
+        data.options[name] = {
+          offset: option.offset ? { x: option.offset.x, y: option.offset.y } : undefined,
+          anchor: option.anchor ? { x: option.anchor.x, y: option.anchor.y } : undefined
+        };
+      } else {
+        data.options[name] = undefined;
+      }
+    }
+
+    if (this._color) {
+      data.color = {
+        r: this._color.r,
+        g: this._color.g,
+        b: this._color.b,
+        a: this._color.a
+      };
+    }
+
+    if (this.current?.tint) {
+      data.tint = {
+        r: this.current.tint.r,
+        g: this.current.tint.g,
+        b: this.current.tint.b,
+        a: this.current.tint.a
+      };
+    }
+
+    return data;
+  }
+
+  /**
+   * Custom deserialization
+   * NOTE - This only restores the component's settings, it does NOT restore the graphics themselves.
+   */
+  public deserialize(data: GraphicsComponentData): void {
+    this._current = data.current ?? 'default';
+    this.isVisible = data.isVisible ?? true;
+    this.opacity = data.opacity ?? 1;
+    this.flipHorizontal = data.flipHorizontal ?? false;
+    this.flipVertical = data.flipVertical ?? false;
+    this.copyGraphics = data.copyGraphics ?? false;
+    this.forceOnScreen = data.forceOnScreen ?? false;
+    this.shouldAlwaysTick = data.shouldAlwaysTick ?? false;
+
+    // Use setters to create WatchVector with proper change detection
+    this.offset = vec(data.offset.x, data.offset.y);
+    this.anchor = vec(data.anchor.x, data.anchor.y);
+
+    // Restore color
+    if (data.color) {
+      this._color = Color.fromRGB(data.color.r, data.color.g, data.color.b, data.color.a);
+    }
+
+    // Restore options (sans graphics themselves)
+    this._options = {};
+    for (const [name, option] of Object.entries(data.options)) {
+      if (option) {
+        this._options[name] = {
+          offset: option.offset ? ({ x: option.offset.x, y: option.offset.y } as Vector) : undefined,
+          anchor: option.anchor ? ({ x: option.anchor.x, y: option.anchor.y } as Vector) : undefined
+        };
+      } else {
+        this._options[name] = undefined;
+      }
+    }
   }
 }

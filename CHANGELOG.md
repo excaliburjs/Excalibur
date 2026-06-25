@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Breaking Changes
 
 - Behavior change - TileMap now uses 'separate' as the `compositeStrategy` as a better default. Commonly TileMap is used to build levels, so this default aligns with the common use.
+- Behavior change - Font/Text now render more accurately and faster be using less texture space, this unfortunately is a breaking change becuase text will render slightly different.
 
 ### Deprecated
 
@@ -15,6 +16,25 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added `shouldAlwaysTick` option to `Animation`, `GraphicsGroup`, and `GraphicsComponent` to allow animations to continue ticking even when offscreen. This is useful for keeping animations synchronized across your game scene without causing performance regressions in the default case.
+  ```typescript
+  // Per-animation opt-in
+  const anim = new ex.Animation({
+    frames: [...],
+    shouldAlwaysTick: true
+  });
+
+  // Per-component opt-in
+  actor.graphics = new ex.GraphicsComponent({
+    shouldAlwaysTick: true
+  });
+
+  // Per-graphics-group opt-in
+  const group = new ex.GraphicsGroup({
+    members: [...],
+    shouldAlwaysTick: true
+  });
+  ```
 - Added new lerp modes for color which can be chosen by aptional parameter in `Color.lerp` or by calling different methods:
   ```typescript
   Color.lerp(colorA, colorB, t); // 'hsl' by default
@@ -29,10 +49,26 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   // equivalent to:
   Color.lerpLRGB(colorA, colorB, t);
   ```
+- Added `Color.fromFloatArray([0.0, 0.0, 0.0, 1.0])` and `Color.toFloatArray()`
+- Sound objects can be created from `Blob`s:
+  ```typescript
+  const sound = await Sound.fromBlob(instanceOfBlob)
+  sound.play()
+  ```
 
 ### Fixed
 
--
+- Fixed Matrix and AffineMatrix scale/rotation decomposition bug where getScaleX/getScaleY used wrong basis components for non-uniform scale combined with rotation, causing swapped scale values and corrupt transforms. Also fixed setRotation and setScaleX/setScaleY to operate on correct column basis vectors.
+- Fixed issue where `Resource.load()` would hang forever on network errors (DNS failure, CORS block, offline), deadlocking the loader and all scene navigation. The promise now rejects with a `ResourceLoadingError` containing the resource path and a descriptive message
+- Fixed issue where `Gif.isLoaded()` always returned `true` because it checked `!!this.data` on an empty array, causing Gifs to be silently skipped by the loader and never parsed
+- Fixed issue where `scaleTo({…})` and `scaleBy({…})` actions would cause entities to keep scaling indefinitely after the action completed, due to a copy-paste bug that zeroed `angularVelocity` instead of `scaleFactor`
+- Fixed issue where `scaleTo({…})` and `scaleBy({…})` actions used a live reference to the entity's scale vector as the interpolation start point, causing the easing curve to be corrupted if the entity's scale changed during the action
+- Fixed issue where the first action in a sequence would not execute after calling `clearActions()` mid-execution. All action types now properly reset their initialization state when stopped, resolving issue #3468
+- Performance: Font/Text now use smaller texture sizes, improving performance on Safari especially when rendering text
+- Fixed `Color.screen()` blend mode bug where both operands were incorrectly using the parameter color instead of `this` and the parameter
+- Fixed `Color.toRGBA()` logic error in alpha check condition (`||` changed to `&&`)
+- Fixed `Color.toHSLA()` to output valid CSS format with degrees for hue and percentages for saturation/lightness
+- Fixed `Color.toHex()` to properly clamp RGB values to 0-255 range
 
 ### Updates
 

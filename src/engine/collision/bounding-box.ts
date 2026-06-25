@@ -120,7 +120,7 @@ export class BoundingBox {
    * @param anchor Default Vector.Half
    * @param pos Default Vector.Zero
    */
-  public static fromDimension(width: number, height: number, anchor: Vector = Vector.Half, pos: Vector = Vector.Zero) {
+  public static fromDimension(width: number, height: number, anchor: Vector = Vector.Half, pos: Vector = Vector.Zero): BoundingBox {
     return new BoundingBox(
       -width * anchor.x + pos.x,
       -height * anchor.y + pos.y,
@@ -200,7 +200,7 @@ export class BoundingBox {
    * Transform the axis aligned bounding box by a {@apilink Matrix}, producing a new axis aligned bounding box
    * @param matrix
    */
-  public transform(matrix: AffineMatrix) {
+  public transform(matrix: AffineMatrix, dest?: BoundingBox) {
     // inlined these calculations to not use vectors would speed it up slightly
     // const matFirstColumn = vec(matrix.data[0], matrix.data[1]);
     // const xa = matFirstColumn.scale(this.left);
@@ -227,6 +227,14 @@ export class BoundingBox {
     const top = Math.min(xa2, xb2) + Math.min(ya2, yb2) + matrixPos.y;
     const right = Math.max(xa1, xb1) + Math.max(ya1, yb1) + matrixPos.x;
     const bottom = Math.max(xa2, xb2) + Math.max(ya2, yb2) + matrixPos.y;
+
+    if (dest) {
+      dest.left = left;
+      dest.top = top;
+      dest.right = right;
+      dest.bottom = bottom;
+      return dest;
+    }
 
     return new BoundingBox({
       left, //: topLeft.x,
