@@ -996,4 +996,21 @@ describe('A Screen', () => {
         ' (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).'
     ]);
   });
+
+  it('should only register window resize listener once for Window parent (not twice)', () => {
+    const addEventListenerSpy = vi.spyOn(window, 'addEventListener');
+
+    const sut = new ex.Screen({
+      canvas,
+      context,
+      browser,
+      displayMode: ex.DisplayMode.FitScreen,
+      viewport: { width: 800, height: 600 }
+    });
+
+    const resizeListenerCalls = addEventListenerSpy.mock.calls.filter((call) => call[0] === 'resize');
+    expect(resizeListenerCalls.length).toBe(1);
+
+    addEventListenerSpy.mockRestore();
+  });
 });

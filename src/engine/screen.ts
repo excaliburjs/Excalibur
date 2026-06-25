@@ -328,7 +328,9 @@ export class Screen {
       if (this._resizeObserver) {
         this._resizeObserver.disconnect();
       }
-      this.parent.removeEventListener('resize', this._resizeHandler);
+      if (!(this.parent instanceof Window)) {
+        this.parent.removeEventListener('resize', this._resizeHandler);
+      }
       // Safari <=13.1 workaround
       if (this._mediaQueryList.removeEventListener) {
         this._mediaQueryList.removeEventListener('change', this._pixelRatioChangeHandler);
@@ -1171,8 +1173,8 @@ export class Screen {
         this._resizeHandler();
       });
       this._resizeObserver.observe(this.parent);
+      this.parent.addEventListener('resize', this._resizeHandler);
     }
-    this.parent.addEventListener('resize', this._resizeHandler);
   }
 
   /**

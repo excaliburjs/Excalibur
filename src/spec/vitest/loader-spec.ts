@@ -286,11 +286,25 @@ describe('A loader', () => {
 
     const oldPos = [loader.playButtonRootElement.style.left, loader.playButtonRootElement.style.top];
 
-    engine.screen.viewport = { width: 100, height: 100 };
+    const originalGetBoundingClientRect = engine.canvas.getBoundingClientRect;
+    engine.canvas.getBoundingClientRect = () => ({
+      x: 0,
+      y: 0,
+      width: 500,
+      height: 500,
+      top: 0,
+      left: 0,
+      right: 500,
+      bottom: 500,
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      toJSON: () => {}
+    });
 
     engine.browser.window.nativeComponent.dispatchEvent(new Event('resize'));
 
     const newPos = [loader.playButtonRootElement.style.left, loader.playButtonRootElement.style.top];
+
+    engine.canvas.getBoundingClientRect = originalGetBoundingClientRect;
 
     expect(oldPos).not.toEqual(newPos);
   });

@@ -58,6 +58,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where window resize events were handled twice when using window-based display modes (FitScreen, FitScreenAndFill, FitScreenAndZoom, FillScreen), causing double resolution/viewport computation and double canvas size writes
 - Fixed Matrix and AffineMatrix scale/rotation decomposition bug where getScaleX/getScaleY used wrong basis components for non-uniform scale combined with rotation, causing swapped scale values and corrupt transforms. Also fixed setRotation and setScaleX/setScaleY to operate on correct column basis vectors.
 - Fixed issue where `Resource.load()` would hang forever on network errors (DNS failure, CORS block, offline), deadlocking the loader and all scene navigation. The promise now rejects with a `ResourceLoadingError` containing the resource path and a descriptive message
 - Fixed issue where `Gif.isLoaded()` always returned `true` because it checked `!!this.data` on an empty array, causing Gifs to be silently skipped by the loader and never parsed
