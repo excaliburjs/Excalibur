@@ -15,7 +15,7 @@ try {
   console.warn('.env file not found, proceeding without it.');
 }
 
-const playgroundUrl = process.env.PLAYGROUND_URL || 'https://excaliburjs.com/excalibur-playground';
+const playgroundUrl = process.env.PLAYGROUND_URL || 'https://excaliburjs.com/playground';
 
 const lightCodeTheme = themes.github;
 const darkCodeTheme = themes.dracula;
