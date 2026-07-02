@@ -17,10 +17,10 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
-    "@docusaurus/core": "3.5.2",
-    "@docusaurus/plugin-client-redirects": "3.5.2",
-    "@docusaurus/preset-classic": "3.5.2",
-    "@docusaurus/theme-mermaid": "3.5.2",
+    "@docusaurus/core": "3.10.1",
+    "@docusaurus/plugin-client-redirects": "3.10.1",
+    "@docusaurus/preset-classic": "3.10.1",
+    "@docusaurus/theme-mermaid": "3.10.1",
     "@mdx-js/react": "3.1.1",
     "@stackblitz/sdk": "^1.11.0",
     "clsx": "^2.1.1",
@@ -40,8 +40,8 @@
   "devDependencies": {
     "@babel/plugin-proposal-decorators": "^7.24.7",
     "@babel/plugin-syntax-decorators": "^7.24.7",
-    "@docusaurus/module-type-aliases": "3.4.0",
-    "@docusaurus/tsconfig": "^3.4.0",
+    "@docusaurus/module-type-aliases": "3.10.1",
+    "@docusaurus/tsconfig": "3.10.1",
     "@types/react": "^18.3.3",
     "babel-loader": "10.1.1",
     "css-loader": "6.11.0",

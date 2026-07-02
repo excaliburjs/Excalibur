@@ -5,7 +5,7 @@ import { ReflectionKind } from 'typedoc';
 import path from 'path';
 import webpack, { web } from 'webpack';
 import { themes } from 'prism-react-renderer';
-import typedocSymbolLinks from 'remark-typedoc-symbol-links';
+// import typedocSymbolLinks from 'remark-typedoc-symbol-links';
 import rehypeRaw from 'rehype-raw';
 import { loadEnvFile } from 'node:process';
 
@@ -76,16 +76,17 @@ const config: Config = {
           // Remove this to remove the "edit this page" links.
           editUrl: 'https://github.com/excaliburjs/Excalibur/tree/main/site/',
           rehypePlugins: [[rehypeRaw, rehypeRawOptions]],
-          remarkPlugins: [
-            [
-              typedocSymbolLinks,
-              {
-                basePath: '/api/',
-                typedoc: getTypedocJson,
-                linkBuilder: buildSymbolLink
-              }
-            ]
-          ]
+          // FIXME
+          // remarkPlugins: [
+          //   [
+          //     typedocSymbolLinks,
+          //     {
+          //       basePath: '/api/',
+          //       typedoc: getTypedocJson,
+          //       linkBuilder: buildSymbolLink
+          //     }
+          //   ]
+          // ]
         },
         blog: {
           showReadingTime: true,
@@ -193,21 +194,22 @@ const config: Config = {
         }
       };
     },
-    [
-      'docusaurus-plugin-typedoc-api',
-      {
-        projectRoot: typedocProjectRoot,
-        packages: [
-          {
-            path: '',
-            entry: 'index.ts',
-            typedocOptions: {
-              excludePrivate: true
-            }
-          }
-        ]
-      }
-    ],
+    // FIXME
+    // [
+    //   'docusaurus-plugin-typedoc-api',
+    //   {
+    //     projectRoot: typedocProjectRoot,
+    //     packages: [
+    //       {
+    //         path: '',
+    //         entry: 'index.ts',
+    //         typedocOptions: {
+    //           excludePrivate: true
+    //         }
+    //       }
+    //     ]
+    //   }
+    // ],
     [
       '@docusaurus/plugin-client-redirects',
       {
