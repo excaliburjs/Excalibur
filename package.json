@@ -97,7 +97,7 @@
     "@vitest/ui": "4.1.8",
     "concurrently": "9.2.3",
     "copyfiles": "2.4.1",
-    "coveralls-next": "6.0.1",
+    "coveralls-next": "6.0.2",
     "cross-env": "7.0.3",
     "css-loader": "6.11.0",
     "eslint": "9.30.1",
