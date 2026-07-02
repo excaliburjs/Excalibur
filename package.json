@@ -95,7 +95,7 @@
     "@vitest/browser-playwright": "4.1.8",
     "@vitest/coverage-istanbul": "4.1.8",
     "@vitest/ui": "4.1.8",
-    "concurrently": "9.2.1",
+    "concurrently": "9.2.3",
     "copyfiles": "2.4.1",
     "coveralls-next": "6.0.1",
     "cross-env": "7.0.3",
