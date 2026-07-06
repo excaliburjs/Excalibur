@@ -173,7 +173,7 @@ export class GameEvent<T, U = T> {
   /**
    * Target object for this event.
    */
-  public target: T;
+  public target!: T;
 
   /**
    * Other target object for this event

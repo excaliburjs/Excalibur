@@ -5,7 +5,7 @@ export interface NativeEventable {
 
 export class BrowserComponent<T extends NativeEventable> {
   private _paused = false;
-  private _nativeHandlers: { [key: string]: (handler: any) => void } = {};
+  private _nativeHandlers: Record<string, (handler: any) => void> = {};
 
   on(eventName: string, handler: (evt: any) => void): void {
     if (this._nativeHandlers[eventName]) {
@@ -19,7 +19,7 @@ export class BrowserComponent<T extends NativeEventable> {
       handler = this._nativeHandlers[eventName];
     }
     this.nativeComponent.removeEventListener(eventName, handler);
-    this._nativeHandlers[eventName] = null;
+    delete this._nativeHandlers[eventName];
   }
 
   private _decorate(handler: (evt: any) => void): (evt: any) => void {

@@ -20,7 +20,7 @@ export class MediaEvent extends GameEvent<Sound> {
    * Media event cannot bubble, so they have no path
    */
   protected get _path(): Actor[] {
-    return null;
+    return [];
   }
   /**
    * Media event cannot bubble, so they have no path

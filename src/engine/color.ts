@@ -26,15 +26,15 @@ export class Color {
   /**
    * Hue
    */
-  public h: number;
+  public h!: number;
   /**
    * Saturation
    */
-  public s: number;
+  public s!: number;
   /**
    * Lightness
    */
-  public l: number;
+  public l!: number;
 
   /**
    * Creates a new instance of Color from an r, g, b, a
@@ -625,10 +625,10 @@ class HSLColor {
           h = (r - g) / d + 4;
           break;
       }
-      h /= 6;
+      h! /= 6;
     }
 
-    return new HSLColor(h, s, l, a);
+    return new HSLColor(h!, s, l, a);
   }
 
   public toRGBA(): Color {

@@ -1,4 +1,4 @@
-import { StateMachine } from '../../util/state-machine';
+import { StateMachine } from '../../util/state-machine'
 import type { Audio } from '../../interfaces/audio';
 import { clamp } from '../../math/util';
 import { AudioContextFactory } from './audio-context';
@@ -198,7 +198,7 @@ export class WebAudioInstance implements Audio {
   }
 
   public getPlaybackPosition() {
-    const { pausedAt, startedAt } = this._stateMachine.data;
+    const { pausedAt, startedAt } = this._stateMachine.data!;
     if (pausedAt) {
       return pausedAt * this._playbackRate;
     }

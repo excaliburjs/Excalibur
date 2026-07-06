@@ -37,7 +37,7 @@ export class ResourceLoadingError extends Error {
  * For any type of remote resource it is recommended to use {@apilink Resource} for preloading.
  */
 export class Resource<T> implements Loadable<T> {
-  public data: T = null;
+  public data!: T;
   public logger: Logger = Logger.getInstance();
   public events = new EventEmitter();
 

@@ -46,7 +46,7 @@ export abstract class Collider implements Clonable<Collider> {
     return false;
   }
 
-  public owner: Entity;
+  public owner?: Entity;
 
   /**
    * Pixel offset of the collision collider relative to the collider, by default (0, 0) meaning the collider is positioned

@@ -213,7 +213,7 @@ export abstract class Clock {
  */
 export class StandardClock extends Clock {
   private _running = false;
-  private _requestId: number;
+  private _requestId!: number;
   constructor(options: ClockOptions) {
     super(options);
   }

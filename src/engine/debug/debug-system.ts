@@ -21,10 +21,10 @@ export class DebugSystem extends System {
   static priority = SystemPriority.Lowest;
 
   public readonly systemType = SystemType.Draw;
-  private _graphicsContext: ExcaliburGraphicsContext;
-  private _collisionSystem: CollisionSystem;
-  private _camera: Camera;
-  private _engine: Engine;
+  private _graphicsContext!: ExcaliburGraphicsContext;
+  private _collisionSystem!: CollisionSystem;
+  private _camera!: Camera;
+  private _engine!: Engine;
   query: Query<typeof TransformComponent>;
 
   constructor(public world: World) {
@@ -36,7 +36,7 @@ export class DebugSystem extends System {
     this._graphicsContext = scene.engine.graphicsContext;
     this._camera = scene.camera;
     this._engine = scene.engine;
-    this._collisionSystem = world.systemManager.get(CollisionSystem);
+    this._collisionSystem = world.systemManager.get(CollisionSystem)!;
   }
 
   update(): void {
@@ -142,7 +142,7 @@ export class DebugSystem extends System {
         }
       }
 
-      debugDraw = entity.get(DebugGraphicsComponent);
+      debugDraw = entity.get(DebugGraphicsComponent)!;
       if (debugDraw) {
         if (!debugDraw.useTransform) {
           this._graphicsContext.restore();
@@ -154,7 +154,7 @@ export class DebugSystem extends System {
         }
       }
 
-      body = entity.get(BodyComponent);
+      body = entity.get(BodyComponent)!;
       if (body) {
         if (bodySettings.showAll || bodySettings.showCollisionGroup) {
           this._graphicsContext.debug.drawText(`collision group name(${body.group.name}))`, cursor);
@@ -193,7 +193,7 @@ export class DebugSystem extends System {
       if (tx.coordPlane === CoordPlane.Screen) {
         this._graphicsContext.translate(this._engine.screen.contentArea.left, this._engine.screen.contentArea.top);
       }
-      motion = entity.get(MotionComponent);
+      motion = entity.get(MotionComponent)!;
       if (motion) {
         if (motionSettings.showAll || motionSettings.showVelocity) {
           this._graphicsContext.debug.drawText(`vel${motion.vel.toString(2)}`, cursor.add(tx.globalPos));
@@ -213,7 +213,7 @@ export class DebugSystem extends System {
       }
 
       // Colliders live in world space already so after the restore()
-      colliderComp = entity.get(ColliderComponent);
+      colliderComp = entity.get(ColliderComponent)!;
       if (colliderComp) {
         const collider = colliderComp.get();
         if ((colliderSettings.showAll || colliderSettings.showGeometry) && collider) {
@@ -233,7 +233,7 @@ export class DebugSystem extends System {
                 dashed: true
               });
               if (colliderSettings.showAll || colliderSettings.showOwner) {
-                this._graphicsContext.debug.drawText(`owner id(${collider.owner.id})`, pos);
+                this._graphicsContext.debug.drawText(`owner id(${collider.owner!.id})`, pos);
               }
             }
             colliderComp.bounds.debug(this._graphicsContext, {
@@ -248,7 +248,7 @@ export class DebugSystem extends System {
               dashed: true
             });
             if (colliderSettings.showAll || colliderSettings.showOwner) {
-              this._graphicsContext.debug.drawText(`owner id(${colliderComp.owner.id})`, pos);
+              this._graphicsContext.debug.drawText(`owner id(${colliderComp.owner!.id})`, pos);
             }
           }
         }

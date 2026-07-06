@@ -629,7 +629,7 @@ export class Graph<T> {
         }
 
         // Find the edge connecting current to neighbor
-        const edge: Edge<T> = Array.from(currentNode.edges).find((e: Edge<T>) => e.source.id === currentId && e.target.id === neighborId);
+        const edge: Edge<T> = Array.from(currentNode.edges).find((e: Edge<T>) => e.source.id === currentId && e.target.id === neighborId)!;
 
         if (!edge) {
           continue;

@@ -130,7 +130,7 @@
     "storybook": "9.1.20",
     "sync-request": "6.1.0",
     "ts-loader": "9.5.7",
-    "typescript": "5.6.3",
+    "typescript": "6.0.3",
     "typescript-eslint": "8.38.0",
     "url-loader": "4.1.1",
     "vite": "8.0.16",
@@ -143,11 +143,6 @@
   "lint-staged": {
     "*.{js,jsx,ts,tsx,html,json,md,yml,yaml}": "prettier --write",
     "*.{js,jsx,ts,tsx,html}": "eslint --fix"
-  },
-  "overrides": {
-    "typedoc": {
-      "typescript": ">=4.7.4"
-    }
   },
   "devEngines": {
     "runtime": {

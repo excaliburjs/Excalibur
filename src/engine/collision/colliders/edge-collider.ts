@@ -40,7 +40,7 @@ export class EdgeCollider extends Collider {
   begin: Vector;
   end: Vector;
 
-  private _transform: Transform;
+  private _transform!: Transform;
   private _globalMatrix: AffineMatrix = AffineMatrix.identity();
 
   constructor(options: EdgeColliderOptions) {
@@ -136,7 +136,7 @@ export class EdgeCollider extends Collider {
           distance: t,
           normal: this.asLine().normal(),
           collider: this,
-          body: this.owner?.get(BodyComponent),
+          body: this.owner?.get(BodyComponent)!,
           point: ray.getPoint(t)
         } satisfies RayCastHit;
       }

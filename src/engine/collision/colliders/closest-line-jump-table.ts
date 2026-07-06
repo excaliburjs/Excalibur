@@ -95,7 +95,7 @@ export const ClosestLineJumpTable = {
 
     const rayTowardsOther = new Ray(polygon.worldPos, otherDirection);
 
-    const thisPoint = polygon.rayCast(rayTowardsOther).point.add(rayTowardsOther.dir.scale(0.1));
+    const thisPoint = polygon.rayCast(rayTowardsOther)!.point.add(rayTowardsOther.dir.scale(0.1))!;
 
     const thisFace = polygon.getClosestFace(thisPoint);
 
@@ -115,7 +115,7 @@ export const ClosestLineJumpTable = {
 
     const rayTowardsOther = new Ray(polygon.worldPos, otherDirection.normalize());
 
-    const thisPoint = polygon.rayCast(rayTowardsOther).point.add(rayTowardsOther.dir.scale(0.1));
+    const thisPoint = polygon.rayCast(rayTowardsOther)!.point.add(rayTowardsOther.dir.scale(0.1));
 
     const thisFace = polygon.getClosestFace(thisPoint);
 
@@ -155,7 +155,7 @@ export const ClosestLineJumpTable = {
     const thisPoint = circleA.rayCast(rayTowardsOther);
     const otherPoint = circleB.rayCast(rayTowardsThis);
 
-    return new LineSegment(thisPoint.point, otherPoint.point);
+    return new LineSegment(thisPoint!.point, otherPoint!.point);
   },
 
   CircleEdgeClosestLine(circle: CircleCollider, edge: EdgeCollider) {

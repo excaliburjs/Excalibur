@@ -426,11 +426,11 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
    */
   scope = <TReturn>(cb: () => TReturn) => Engine.Context.scope(this, cb);
 
-  public global: GlobalEventHandlers;
+  public global!: GlobalEventHandlers;
 
-  private _garbageCollector: GarbageCollector;
+  private _garbageCollector!: GarbageCollector;
 
-  public readonly garbageCollectorConfig: GarbageCollectionOptions | null;
+  public readonly garbageCollectorConfig!: GarbageCollectionOptions | null;
 
   /**
    * Current Excalibur version string
@@ -452,32 +452,32 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   /**
    * Screen abstraction
    */
-  public screen: Screen;
+  public screen!: Screen;
 
   /**
    * Scene director, manages all scenes, scene transitions, and loaders in excalibur
    */
-  public director: Director<TKnownScenes>;
+  public director!: Director<TKnownScenes>;
 
   /**
    * Direct access to the engine's canvas element
    */
-  public canvas: HTMLCanvasElement;
+  public canvas!: HTMLCanvasElement;
 
   /**
    * Direct access to the ExcaliburGraphicsContext used for drawing things to the screen
    */
-  public graphicsContext: ExcaliburGraphicsContext;
+  public graphicsContext!: ExcaliburGraphicsContext;
 
   /**
    * Direct access to the canvas element ID, if an ID exists
    */
-  public canvasElementId: string;
+  public canvasElementId?: string;
 
   /**
    * Direct access to the physics configuration for excalibur
    */
-  public physics: DeepRequired<PhysicsConfig>;
+  public physics!: DeepRequired<PhysicsConfig>;
 
   /**
    * Optionally set the maximum fps if not set Excalibur will go as fast as the device allows.
@@ -520,10 +520,10 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   /**
    * Direct access to the excalibur clock
    */
-  public clock: Clock;
+  public clock!: Clock;
 
-  public readonly pointerScope: PointerScope;
-  public readonly grabWindowFocus: boolean;
+  public readonly pointerScope!: PointerScope;
+  public readonly grabWindowFocus!: boolean;
 
   /**
    * The width of the game canvas in pixels (physical width component of the
@@ -593,12 +593,12 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   /**
    * Access engine input like pointer, keyboard, or gamepad
    */
-  public input: InputHost;
+  public input!: InputHost;
 
   /**
    * Map multiple input sources to specific game actions actions
    */
-  public inputMapper: InputMapper;
+  public inputMapper!: InputMapper;
 
   private _inputEnabled: boolean = true;
 
@@ -610,7 +610,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
    *   * Graphics
    *   * Colliders
    */
-  public debug: DebugConfig;
+  public debug!: DebugConfig;
 
   /**
    * Access {@apilink stats} that holds frame statistics.
@@ -685,7 +685,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   /**
    * Sets the background color for the engine.
    */
-  public backgroundColor: Color;
+  public backgroundColor!: Color;
 
   /**
    * Sets the Transparency for the engine.
@@ -713,9 +713,9 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   /**
    * The mouse wheel scroll prevention mode
    */
-  public pageScrollPreventionMode: ScrollPreventionMode;
+  public pageScrollPreventionMode!: ScrollPreventionMode;
 
-  private _logger: Logger;
+  private _logger!: Logger;
 
   private _toaster: Toaster = new Toaster();
 
@@ -725,7 +725,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   private _timescale: number = 1.0;
 
   // loading
-  private _loader: DefaultLoader;
+  private _loader!: DefaultLoader;
 
   private _isInitialized: boolean = false;
 
@@ -753,7 +753,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   public off(eventName: string, handler: Handler<unknown>): void;
   public off(eventName: string): void;
   public off<TEventName extends EventKey<EngineEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
-    this.events.off(eventName, handler);
+    this.events.off(eventName, handler as any);
   }
 
   /**
@@ -778,17 +778,17 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
     garbageCollection: true,
     powerPreference: 'high-performance',
     pointerScope: PointerScope.Canvas,
-    suppressConsoleBootMessage: null,
-    suppressMinimumBrowserFeatureDetection: null,
-    suppressHiDPIScaling: null,
-    suppressPlayButton: null,
+    suppressConsoleBootMessage: undefined,
+    suppressMinimumBrowserFeatureDetection: undefined,
+    suppressHiDPIScaling: undefined,
+    suppressPlayButton: undefined,
     grabWindowFocus: true,
     scrollPreventionMode: ScrollPreventionMode.Canvas,
     backgroundColor: Color.fromHex('#2185d0') // Excalibur blue
   };
 
   private _originalOptions: EngineOptions = {};
-  public readonly _originalDisplayMode: DisplayMode;
+  public readonly _originalDisplayMode!: DisplayMode;
 
   /**
    * Creates a new game using the given {@apilink EngineOptions}. By default, if no options are provided,
@@ -839,7 +839,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
       if (options.canvasElementId) {
         const canvas = document.getElementById(options.canvasElementId);
         if (canvas) {
-          canvas.parentElement.removeChild(canvas);
+          canvas.parentElement!.removeChild(canvas);
         }
       }
 
@@ -941,8 +941,8 @@ O|===|* >________________>\n\
     const global = (options.global && typeof options.global === 'function' ? options.global() : options.global) as GlobalEventHandlers;
 
     this.global = global ?? getDefaultGlobal();
-    this.grabWindowFocus = options.grabWindowFocus;
-    this.pointerScope = options.pointerScope;
+    this.grabWindowFocus = options.grabWindowFocus!;
+    this.pointerScope = options.pointerScope!;
 
     this._originalDisplayMode = displayMode;
 
@@ -960,7 +960,7 @@ O|===|* >________________>\n\
     } else {
       pixelArtSampler = !!options.pixelArt;
       nativeContextAntialiasing = false;
-      multiSampleAntialiasing = options.antialiasing;
+      multiSampleAntialiasing = options.antialiasing!;
       canvasImageRendering = options.antialiasing ? 'auto' : 'pixelated';
       filtering = options.antialiasing ? ImageFiltering.Blended : ImageFiltering.Pixel;
     }
@@ -981,7 +981,7 @@ O|===|* >________________>\n\
     }
 
     // Override with any user option, if non default to .25 for pixel art, 0.01 for everything else
-    uvPadding = options.uvPadding ?? uvPadding ?? 0.01;
+    uvPadding = options.uvPadding ?? uvPadding! ?? 0.01;
 
     // Canvas 2D fallback can be flagged on
     let useCanvasGraphicsContext = Flags.isEnabled('use-canvas-context');
@@ -1001,10 +1001,10 @@ O|===|* >________________>\n\
           useDrawSorting: options.useDrawSorting,
           garbageCollector: this.garbageCollectorConfig
             ? {
-                garbageCollector: this._garbageCollector,
-                collectionInterval: this.garbageCollectorConfig.textureCollectInterval
+                garbageCollector: this._garbageCollector!,
+                collectionInterval: this.garbageCollectorConfig!.textureCollectInterval!
               }
-            : null,
+            : undefined,
           handleContextLost: options.handleContextLost ?? this._handleWebGLContextLost,
           handleContextRestored: options.handleContextRestored
         });
@@ -1039,7 +1039,7 @@ O|===|* >________________>\n\
       viewport: options.viewport ?? (options.width && options.height ? { width: options.width, height: options.height } : Resolution.SVGA),
       resolution: options.resolution,
       displayMode,
-      pixelRatio: options.suppressHiDPIScaling ? 1 : (options.pixelRatio ?? null)
+      pixelRatio: options.suppressHiDPIScaling ? 1 : (options.pixelRatio ?? undefined)
     });
 
     // TODO REMOVE STATIC!!!
@@ -1054,7 +1054,7 @@ O|===|* >________________>\n\
 
     this.fixedUpdateTimestep = options.fixedUpdateTimestep ?? this.fixedUpdateTimestep;
     this.fixedUpdateFps = options.fixedUpdateFps ?? this.fixedUpdateFps;
-    this.fixedUpdateTimestep = this.fixedUpdateTimestep || 1000 / this.fixedUpdateFps;
+    this.fixedUpdateTimestep = this.fixedUpdateTimestep || 1000 / this.fixedUpdateFps!;
 
     this.clock = new StandardClock({
       maxFps: this.maxFps,
@@ -1062,7 +1062,7 @@ O|===|* >________________>\n\
       onFatalException: (e) => this.onFatalException(e)
     });
 
-    this.enableCanvasTransparency = options.enableCanvasTransparency;
+    this.enableCanvasTransparency = options.enableCanvasTransparency!;
 
     if (typeof options.physics === 'boolean') {
       this.physics = {
@@ -1073,10 +1073,10 @@ O|===|* >________________>\n\
       this.physics = {
         ...getDefaultPhysicsConfig()
       };
-      mergeDeep(this.physics, options.physics);
+      mergeDeep(this.physics, options.physics!);
     }
 
-    this.director = new Director(this, options.scenes);
+    this.director = new Director(this, options.scenes!);
     this.director.events.pipe(this.events);
 
     this._initialize(options);
@@ -1131,17 +1131,17 @@ O|===|* >________________>\n\
   private _performanceThresholdTriggered = false;
   private _fpsSamples: number[] = [];
   private _monitorPerformanceThresholdAndTriggerFallback() {
-    const { allow } = this._originalOptions.configurePerformanceCanvas2DFallback;
-    let { threshold, showPlayerMessage } = this._originalOptions.configurePerformanceCanvas2DFallback;
+    const { allow } = this._originalOptions.configurePerformanceCanvas2DFallback!;
+    let { threshold, showPlayerMessage } = this._originalOptions.configurePerformanceCanvas2DFallback!;
     if (threshold === undefined) {
-      threshold = Engine._DEFAULT_ENGINE_OPTIONS.configurePerformanceCanvas2DFallback.threshold;
+      threshold = Engine._DEFAULT_ENGINE_OPTIONS.configurePerformanceCanvas2DFallback!.threshold;
     }
     if (showPlayerMessage === undefined) {
-      showPlayerMessage = Engine._DEFAULT_ENGINE_OPTIONS.configurePerformanceCanvas2DFallback.showPlayerMessage;
+      showPlayerMessage = Engine._DEFAULT_ENGINE_OPTIONS.configurePerformanceCanvas2DFallback!.showPlayerMessage;
     }
     if (!Flags.isEnabled('use-canvas-context') && allow && this.ready && !this._performanceThresholdTriggered) {
       // Calculate Average fps for last X number of frames after start
-      if (this._fpsSamples.length === threshold.numberOfFrames) {
+      if (this._fpsSamples.length === threshold!.numberOfFrames) {
         this._fpsSamples.splice(0, 1);
       }
       this._fpsSamples.push(this.clock.fpsSampler.fps);
@@ -1151,8 +1151,8 @@ O|===|* >________________>\n\
       }
       const average = total / this._fpsSamples.length;
 
-      if (this._fpsSamples.length === threshold.numberOfFrames) {
-        if (average <= threshold.fps) {
+      if (this._fpsSamples.length === threshold!.numberOfFrames) {
+        if (average <= threshold!.fps) {
           this._performanceThresholdTriggered = true;
           this._logger.warn(
             `Switching to browser 2D Canvas fallback due to performance. Some features of Excalibur will not work in this mode.\n` +
@@ -1189,7 +1189,7 @@ O|===|* >________________>\n\
   public useCanvas2DFallback() {
     // Swap out the canvas
     const newCanvas = this.canvas.cloneNode(false) as HTMLCanvasElement;
-    this.canvas.parentNode.replaceChild(newCanvas, this.canvas);
+    this.canvas!.parentNode!.replaceChild(newCanvas, this.canvas);
     this.canvas = newCanvas;
 
     const options = { ...this._originalOptions, antialiasing: this.screen.antialiasing };
@@ -1218,7 +1218,7 @@ O|===|* >________________>\n\
       viewport: options.viewport ?? (options.width && options.height ? { width: options.width, height: options.height } : Resolution.SVGA),
       resolution: options.resolution,
       displayMode,
-      pixelRatio: options.suppressHiDPIScaling ? 1 : (options.pixelRatio ?? null)
+      pixelRatio: options.suppressHiDPIScaling ? 1 : (options.pixelRatio ?? undefined)
     });
     this.screen.setCurrentCamera(this.currentScene.camera);
 
@@ -1242,12 +1242,12 @@ O|===|* >________________>\n\
       this._garbageCollector.forceCollectAll();
       this.input.toggleEnabled(false);
       if (this._hasCreatedCanvas) {
-        this.canvas.parentNode.removeChild(this.canvas);
+        this.canvas!.parentNode!.removeChild(this.canvas);
       }
-      this.canvas = null;
+      this.canvas = null as any;
       this.screen.dispose();
       this.graphicsContext.dispose();
-      this.graphicsContext = null;
+      this.graphicsContext = null as any;
       Engine.InstanceCount--;
     }
   }
@@ -1478,7 +1478,7 @@ O|===|* >________________>\n\
    * Initializes the internal canvas, rendering context, display mode, and native event listeners
    */
   private _initialize(options?: EngineOptions) {
-    this.pageScrollPreventionMode = options.scrollPreventionMode;
+    this.pageScrollPreventionMode = options?.scrollPreventionMode!;
 
     // initialize inputs
     const pointerTarget = options && options.pointerScope === PointerScope.Document ? document : this.canvas;
@@ -1504,7 +1504,7 @@ O|===|* >________________>\n\
       }
     });
 
-    if (!this.canvasElementId && !options.canvasElement) {
+    if (!this.canvasElementId && !options?.canvasElement) {
       document.body.appendChild(this.canvas);
     }
   }
@@ -1733,7 +1733,7 @@ O|===|* >________________>\n\
         loader = sceneNameOrLoader;
       } else if (typeof sceneNameOrLoader === 'string') {
         this.director.configureStart(sceneNameOrLoader, options);
-        loader = this.director.mainLoader;
+        loader = this.director.mainLoader!;
       }
 
       // Start the excalibur clock which drives the mainloop
@@ -1745,7 +1745,7 @@ O|===|* >________________>\n\
       }
       this._logger.debug('Game clock started');
 
-      await this.load(loader ?? new Loader());
+      await this.load(loader! ?? new Loader());
 
       // Initialize before ready
       await this._overrideInitialize(this);
@@ -1785,9 +1785,9 @@ O|===|* >________________>\n\
       const fixedTimestepMs = this.fixedUpdateTimestep;
       if (this.fixedUpdateTimestep) {
         this._lagMs += elapsedMs;
-        while (this._lagMs >= fixedTimestepMs) {
-          this._update(fixedTimestepMs);
-          this._lagMs -= fixedTimestepMs;
+        while (this._lagMs >= fixedTimestepMs!) {
+          this._update(fixedTimestepMs!);
+          this._lagMs -= fixedTimestepMs!;
         }
       } else {
         this._update(elapsedMs);
@@ -1855,8 +1855,8 @@ O|===|* >________________>\n\
       screenshot.width = finalWidth;
       screenshot.height = finalHeight;
       const ctx = screenshot.getContext('2d');
-      ctx.imageSmoothingEnabled = this.screen.antialiasing;
-      ctx.drawImage(this.canvas, 0, 0, finalWidth, finalHeight);
+      ctx!.imageSmoothingEnabled = this.screen.antialiasing;
+      ctx!.drawImage(this.canvas, 0, 0, finalWidth, finalHeight);
 
       const result = new Image();
       const raw = screenshot.toDataURL('image/png');
@@ -1898,7 +1898,7 @@ O|===|* >________________>\n\
       } finally {
         this._isLoading = false;
         this._hideLoader = false;
-        this._loader = null;
+        this._loader = null as any;
       }
     });
   }

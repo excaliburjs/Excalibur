@@ -114,7 +114,7 @@ export function roundRect(
   stroke: Color | null = Color.White,
   fill: Color | null = null
 ) {
-  let br: BorderRadius;
+  let br: BorderRadius = { tl: 0, tr: 0, br: 0, bl: 0 };;
 
   if (typeof radius === 'number') {
     br = { tl: radius, tr: radius, br: radius, bl: radius };
@@ -161,7 +161,7 @@ export function circle(
   y: number,
   radius: number,
   stroke: Color = Color.White,
-  fill: Color = null
+  fill?: Color
 ) {
   ctx.beginPath();
   ctx.arc(x, y, radius, 0, Math.PI * 2);

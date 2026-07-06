@@ -42,7 +42,7 @@ const logMessage = (message: string, options: ObsoleteOptions) => {
 export function obsolete(options?: ObsoleteOptions): any {
   options = {
     message: 'This feature will be removed in future versions of Excalibur.',
-    alternateMethod: null,
+    alternateMethod: undefined,
     showStackTrace: false,
     ...options
   };
@@ -70,7 +70,7 @@ export function obsolete(options?: ObsoleteOptions): any {
       // with es2015 classes we need to change our decoration tactic
       class DecoratedClass extends method {
         constructor(...args: any) {
-          logMessage(message, options);
+          logMessage(message, options!);
           super(...args);
         }
       }
@@ -88,14 +88,14 @@ export function obsolete(options?: ObsoleteOptions): any {
     if (descriptor && descriptor.get) {
       method.get = function (this: any) {
         logMessage(message, options);
-        return descriptor.get.apply(this, arguments);
+        return descriptor.get?.apply(this, arguments as any);
       };
     }
 
     if (descriptor && descriptor.set) {
       method.set = function (this: any) {
         logMessage(message, options);
-        return descriptor.set.apply(this, arguments);
+        return descriptor.set?.apply(this, arguments as any);
       };
     }
     return method;
