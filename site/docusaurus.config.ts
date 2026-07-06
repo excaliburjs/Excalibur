@@ -1,13 +1,15 @@
 import { Config } from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 import { Options as ClassicPresetOptions, ThemeConfig as ClassicPresetThemeConfig } from '@docusaurus/preset-classic';
-import { ReflectionKind } from 'typedoc';
+// import { ReflectionKind } from 'typedoc';
 import path from 'path';
-import webpack, { web } from 'webpack';
+import webpack from 'webpack';
 import { themes } from 'prism-react-renderer';
-// import typedocSymbolLinks from 'remark-typedoc-symbol-links';
+import { remarkApiSymbolLinks } from './plugins/remark-api-symbol-links.mjs';
+import typedocApiPlugin from './vendor/docusaurus-plugin-typedoc-api/packages/plugin/lib/index.js';
 import rehypeRaw from 'rehype-raw';
 import { loadEnvFile } from 'node:process';
+import { fileURLToPath } from 'node:url';
 
 try {
   loadEnvFile();
@@ -72,26 +74,19 @@ const config: Config = {
         docs: {
           sidebarCollapsed: true,
           sidebarPath: './sidebars.ts',
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
           editUrl: 'https://github.com/excaliburjs/Excalibur/tree/main/site/',
           rehypePlugins: [[rehypeRaw, rehypeRawOptions]],
-          // FIXME
-          // remarkPlugins: [
-          //   [
-          //     typedocSymbolLinks,
-          //     {
-          //       basePath: '/api/',
-          //       typedoc: getTypedocJson,
-          //       linkBuilder: buildSymbolLink
-          //     }
-          //   ]
-          // ]
+          remarkPlugins: [
+            [
+              remarkApiSymbolLinks,
+              {
+                indexPath: fileURLToPath(new URL('./generated/api-symbol-index.json', import.meta.url))
+              }
+            ]
+          ],
         },
         blog: {
           showReadingTime: true,
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
           editUrl: 'https://github.com/excaliburjs/Excalibur/tree/main/site/blog/',
           rehypePlugins: [[rehypeRaw, rehypeRawOptions]],
           postsPerPage: 'ALL',
@@ -129,87 +124,25 @@ const config: Config = {
               }
             }
           } as webpack.Configuration; // Force dev server config
-        },
-        configureAdditionalWebpack(): webpack.Configuration {
-          return {
-            name: 'excalibur',
-            devtool: false,
-            mode: 'production',
-            context: path.resolve(__dirname, '../src/engine'),
-            entry: {
-              excalibur: {
-                import: './index.ts',
-                library: {
-                  name: 'ex',
-                  type: 'umd'
-                },
-                filename: 'excalibur.js'
-              }
-            },
-            output: {
-              path: context.outDir,
-              publicPath: context.baseUrl,
-              uniqueName: 'excalibur',
-            },
-            optimization: {
-              minimize: false,
-              runtimeChunk: false
-            },
-            resolve: {
-              extensions: ['.ts', '.tsx', '.js']
-            },
-            module: {
-              rules: [
-                {
-                  test: /\.tsx?$/,
-                  use: ['ts-loader']
-                },
-                {
-                  test: /\.css$/,
-                  use: ['css-loader']
-                },
-                {
-                  test: /\.(png|jpg|gif|mp3)$/i,
-                  use: [
-                    {
-                      loader: 'url-loader',
-                      options: {
-                        limit: 8192
-                      }
-                    }
-                  ]
-                },
-                {
-                  test: /\.glsl$/,
-                  use: ['raw-loader']
-                }
-              ]
-            },
-            plugins: [
-              new webpack.DefinePlugin({
-                'process.env.__EX_VERSION': JSON.stringify('docusaurus')
-              })
-            ]
-          };
         }
       };
     },
     // FIXME
-    // [
-    //   'docusaurus-plugin-typedoc-api',
-    //   {
-    //     projectRoot: typedocProjectRoot,
-    //     packages: [
-    //       {
-    //         path: '',
-    //         entry: 'index.ts',
-    //         typedocOptions: {
-    //           excludePrivate: true
-    //         }
-    //       }
-    //     ]
-    //   }
-    // ],
+    [
+      typedocApiPlugin,
+      {
+        projectRoot: typedocProjectRoot,
+        packages: [
+          {
+            path: '',
+            entry: 'index.ts',
+            typedocOptions: {
+              excludePrivate: true
+            }
+          }
+        ]
+      }
+    ],
     [
       '@docusaurus/plugin-client-redirects',
       {
@@ -352,95 +285,95 @@ const config: Config = {
 
 export default config;
 
-function getTypedocJson() {
-  try {
-    return JSON.parse(require('fs').readFileSync(path.join(__dirname, '.docusaurus', 'api-typedoc-default.json'), 'utf8'));
-  } catch {
-    return null;
-  }
-}
+// function getTypedocJson() {
+//   try {
+//     return JSON.parse(require('fs').readFileSync(path.join(__dirname, '.docusaurus', 'api-typedoc-default.json'), 'utf8'));
+//   } catch {
+//     return null;
+//   }
+// }
 
-function buildSymbolLink(symbolPath: string, basePath: string, symbolLinkIndex: Map<string, [string, ReflectionKind][]>) {
-  let symbolLink = undefined;
-  const SYMBOL_CONTAINERS = [
-    ReflectionKind.Project,
-    ReflectionKind.Class,
-    ReflectionKind.Interface,
-    ReflectionKind.Enum,
-    ReflectionKind.Module,
-    ReflectionKind.SomeModule,
-    ReflectionKind.Namespace
-  ];
-  const symbolMatches = symbolLinkIndex.get(symbolPath) ?? [];
-  basePath = ensureTrailingSlash(basePath);
+// function buildSymbolLink(symbolPath: string, basePath: string, symbolLinkIndex: Map<string, [string, ReflectionKind][]>) {
+//   let symbolLink = undefined;
+//   const SYMBOL_CONTAINERS = [
+//     ReflectionKind.Project,
+//     ReflectionKind.Class,
+//     ReflectionKind.Interface,
+//     ReflectionKind.Enum,
+//     ReflectionKind.Module,
+//     ReflectionKind.SomeModule,
+//     ReflectionKind.Namespace
+//   ];
+//   const symbolMatches = symbolLinkIndex.get(symbolPath) ?? [];
+//   basePath = ensureTrailingSlash(basePath);
+//
+//   if (symbolMatches && symbolMatches.length) {
+//     const lastContainer = symbolMatches
+//       .concat([])
+//       .reverse()
+//       .find(([, kind]) => SYMBOL_CONTAINERS.includes(kind)) || [undefined, undefined];
+//     const moduleContainer = symbolMatches.find(([, kind]) => kind === ReflectionKind.SomeModule || kind === ReflectionKind.Module || kind === ReflectionKind.Namespace);
+//     let [, containerKind] = lastContainer;
+//
+//     if (moduleContainer) {
+//       containerKind = moduleContainer[1];
+//     }
+//
+//     let containerPath;
+//
+//     switch (containerKind) {
+//       case ReflectionKind.SomeModule:
+//       case ReflectionKind.Module:
+//       case ReflectionKind.Namespace:
+//         containerPath = 'namespace/';
+//         break;
+//       case ReflectionKind.Class:
+//         containerPath = 'class/';
+//         break;
+//       case ReflectionKind.Interface:
+//         containerPath = 'interface/';
+//         break;
+//       case ReflectionKind.Enum:
+//         containerPath = 'enum/';
+//         break;
+//       default:
+//         containerPath = '';
+//     }
+//
+//     // assemble file url
+//     symbolLink = symbolMatches.reduce((path, [matchSymbolName, matchSymbolKind]) => {
+//       switch (matchSymbolKind) {
+//         case ReflectionKind.Project:
+//           break;
+//         case ReflectionKind.SomeModule:
+//         case ReflectionKind.Module:
+//         case ReflectionKind.Namespace:
+//           path = path.replace(/class\//gi, 'namespace/');
+//           path += matchSymbolName.replace(/[^a-z0-9]/gi, '_') + '#';
+//           break;
+//         case ReflectionKind.Class:
+//         case ReflectionKind.Interface:
+//         case ReflectionKind.Enum:
+//           path += matchSymbolName;
+//           break;
+//         case ReflectionKind.Function:
+//           path += 'function/' + matchSymbolName;
+//           break;
+//         default:
+//           path += '#' + matchSymbolName;
+//           break;
+//       }
+//
+//       return path;
+//     }, basePath + containerPath);
+//   }
+//
+//   return symbolLink;
+// }
 
-  if (symbolMatches && symbolMatches.length) {
-    const lastContainer = symbolMatches
-      .concat([])
-      .reverse()
-      .find(([, kind]) => SYMBOL_CONTAINERS.includes(kind)) || [undefined, undefined];
-    const moduleContainer = symbolMatches.find(([, kind]) => kind === ReflectionKind.SomeModule || kind === ReflectionKind.Module || kind === ReflectionKind.Namespace);
-    let [, containerKind] = lastContainer;
-
-    if (moduleContainer) {
-      containerKind = moduleContainer[1];
-    }
-
-    let containerPath;
-
-    switch (containerKind) {
-      case ReflectionKind.SomeModule:
-      case ReflectionKind.Module:
-      case ReflectionKind.Namespace:
-        containerPath = 'namespace/';
-        break;
-      case ReflectionKind.Class:
-        containerPath = 'class/';
-        break;
-      case ReflectionKind.Interface:
-        containerPath = 'interface/';
-        break;
-      case ReflectionKind.Enum:
-        containerPath = 'enum/';
-        break;
-      default:
-        containerPath = '';
-    }
-
-    // assemble file url
-    symbolLink = symbolMatches.reduce((path, [matchSymbolName, matchSymbolKind]) => {
-      switch (matchSymbolKind) {
-        case ReflectionKind.Project:
-          break;
-        case ReflectionKind.SomeModule:
-        case ReflectionKind.Module:
-        case ReflectionKind.Namespace:
-          path = path.replace(/class\//gi, 'namespace/');
-          path += matchSymbolName.replace(/[^a-z0-9]/gi, '_') + '#';
-          break;
-        case ReflectionKind.Class:
-        case ReflectionKind.Interface:
-        case ReflectionKind.Enum:
-          path += matchSymbolName;
-          break;
-        case ReflectionKind.Function:
-          path += 'function/' + matchSymbolName;
-          break;
-        default:
-          path += '#' + matchSymbolName;
-          break;
-      }
-
-      return path;
-    }, basePath + containerPath);
-  }
-
-  return symbolLink;
-}
-
-function ensureTrailingSlash(path: string) {
-  if (!path.endsWith('/')) {
-    return path + '/';
-  }
-  return path;
-}
+// function ensureTrailingSlash(path: string) {
+//   if (!path.endsWith('/')) {
+//     return path + '/';
+//   }
+//   return path;
+// }
