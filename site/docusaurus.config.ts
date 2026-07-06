@@ -127,7 +127,6 @@ const config: Config = {
         }
       };
     },
-    // FIXME
     [
       typedocApiPlugin,
       {
