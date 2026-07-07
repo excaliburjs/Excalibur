@@ -5,7 +5,6 @@ import path from 'path';
 import webpack from 'webpack';
 import { themes } from 'prism-react-renderer';
 import { remarkApiSymbolLinks } from './plugins/remark-api-symbol-links.mjs';
-import typedocApiPlugin from './vendor/docusaurus-plugin-typedoc-api/lib/index.js';
 import rehypeRaw from 'rehype-raw';
 import { loadEnvFile } from 'node:process';
 import { fileURLToPath } from 'node:url';
@@ -109,7 +108,7 @@ const config: Config = {
   ],
 
   plugins: [
-    async function excaliburStackblitzPlugin(context) {
+    async function excaliburStackblitzPlugin() {
       return {
         name: 'excalibur-stackblitz-plugin',
         configureWebpack(): webpack.Configuration {
