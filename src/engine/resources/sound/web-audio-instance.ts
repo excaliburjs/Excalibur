@@ -1,4 +1,4 @@
-import { StateMachine } from '../../util/state-machine'
+import { StateMachine } from '../../util/state-machine';
 import type { Audio } from '../../interfaces/audio';
 import { clamp } from '../../math/util';
 import { AudioContextFactory } from './audio-context';

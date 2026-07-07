@@ -455,7 +455,7 @@ export class Keyboard {
       this._handleKeyDown(
         new KeyboardEvent('keydown', {
           code: key,
-          key: character 
+          key: character
         })
       );
     }

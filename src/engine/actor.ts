@@ -990,11 +990,11 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     if (recurse) {
       return (
         containment ||
-        this.children.some(child => {
+        this.children.some((child) => {
           if (child instanceof Actor) {
             return child.contains(x, y, true);
           }
-          return false
+          return false;
         })
       );
     }

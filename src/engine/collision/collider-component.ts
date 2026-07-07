@@ -112,7 +112,7 @@ export class ColliderComponent extends Component {
       this.update();
       return collider;
     }
-    throw new Error("Collider is null");
+    throw new Error('Collider is null');
   }
 
   private _collidersToRemove: Collider[] = [];
@@ -397,6 +397,6 @@ export class ColliderComponent extends Component {
       }
       return new CompositeCollider(parts);
     }
-    throw new Error("Unable to deserialize collider from data");
+    throw new Error('Unable to deserialize collider from data');
   }
 }

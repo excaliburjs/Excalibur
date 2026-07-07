@@ -397,7 +397,7 @@ export class BoundingBox {
    * @param other  Other {@apilink BoundingBox} to test intersection with
    * @returns A Vector in the direction of the current BoundingBox, this <- other
    */
-  public intersect(other: BoundingBox): Vector | null{
+  public intersect(other: BoundingBox): Vector | null {
     // early exit
     if (this.bottom <= other.top || other.bottom <= this.top || this.right <= other.left || other.right <= this.left) {
       return null;

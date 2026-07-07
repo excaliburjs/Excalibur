@@ -1,5 +1,5 @@
 import type { CollisionProcessor } from './collision-processor';
-import {  DynamicTree } from './dynamic-tree';
+import { DynamicTree } from './dynamic-tree';
 import { Pair } from './pair';
 
 import { Vector } from '../../math/vector';
