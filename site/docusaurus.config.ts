@@ -1,15 +1,15 @@
 import { Config } from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
-import { Options as ClassicPresetOptions, ThemeConfig as ClassicPresetThemeConfig } from '@docusaurus/preset-classic';
-// import { ReflectionKind } from 'typedoc';
+import { ThemeConfig as ClassicPresetThemeConfig } from '@docusaurus/preset-classic';
 import path from 'path';
 import webpack from 'webpack';
 import { themes } from 'prism-react-renderer';
 import { remarkApiSymbolLinks } from './plugins/remark-api-symbol-links.mjs';
-import typedocApiPlugin from './vendor/docusaurus-plugin-typedoc-api/packages/plugin/lib/index.js';
+import typedocApiPlugin from './vendor/docusaurus-plugin-typedoc-api/lib/index.js';
 import rehypeRaw from 'rehype-raw';
 import { loadEnvFile } from 'node:process';
 import { fileURLToPath } from 'node:url';
+import { DocusaurusPluginTypeDocApiOptions } from './vendor/docusaurus-plugin-typedoc-api/lib/types.js';
 
 try {
   loadEnvFile();
@@ -128,19 +128,32 @@ const config: Config = {
       };
     },
     [
-      typedocApiPlugin,
+      // Our fork of the typedoc plugin is here 
+      // https://github.com/excaliburjs/docusaurus-plugin-typedoc-api
+      // Needs to be built to work, in site/ `npm run build:docusaurus-plugin-typedoc-api`
+      './vendor/docusaurus-plugin-typedoc-api/',
       {
         projectRoot: typedocProjectRoot,
+        rehypePlugins: [[rehypeRaw, rehypeRawOptions]],
+        remarkPlugins: [
+          [
+            remarkApiSymbolLinks,
+            {
+              indexPath: fileURLToPath(new URL('./generated/api-symbol-index.json', import.meta.url))
+            }
+          ]
+        ],
+        typedocOptions: {
+          excludePrivate: 'true'
+        },
+        versions: {},
         packages: [
           {
             path: '',
-            entry: 'index.ts',
-            typedocOptions: {
-              excludePrivate: true
-            }
+            entry: 'index.ts'
           }
         ]
-      }
+      } satisfies DocusaurusPluginTypeDocApiOptions
     ],
     [
       '@docusaurus/plugin-client-redirects',

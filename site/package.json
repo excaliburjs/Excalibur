@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
-    "start": "docusaurus start",
-    "build": "docusaurus build",
+    "start": "npm run build:docusaurus-plugin-typedoc-api && docusaurus start",
+    "build": "npm run build:docusaurus-plugin-typedoc-api && docusaurus build",
+    "build:docusaurus-plugin-typedoc-api": "pushd vendor/docusaurus-plugin-typedoc-api && rimraf lib && tsc -p tsconfig.build.json && cp src/components/styles.css lib/components/ && popd",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",
@@ -14,14 +15,23 @@
     "write-heading-ids": "docusaurus write-heading-ids",
     "typecheck": "tsc",
     "typecheck:samples": "tsc --project ./tsconfig.samples.json",
-    "api:generate": "node ./scripts/gen-typedoc-api.mjs",
-    "postinstall": "patch-package"
+    "api:generate": "node ./scripts/gen-typedoc-api.mjs"
   },
   "dependencies": {
     "@docusaurus/core": "3.10.1",
     "@docusaurus/plugin-client-redirects": "3.10.1",
     "@docusaurus/preset-classic": "3.10.1",
+    "@docusaurus/theme-classic": "3.10.1",
+    "@docusaurus/theme-common": "3.10.1",
     "@docusaurus/theme-mermaid": "3.10.1",
+    "@docusaurus/mdx-loader": "3.10.1",
+    "@docusaurus/module-type-aliases": "3.10.1",
+    "@docusaurus/plugin-content-docs": "3.10.1",
+    "@docusaurus/tsconfig": "3.10.1",
+    "@docusaurus/types": "3.10.1",
+    "@docusaurus/utils": "3.10.1",
+
+
     "@mdx-js/react": "3.1.1",
     "@stackblitz/sdk": "^1.11.0",
     "clsx": "^2.1.1",
@@ -41,6 +51,7 @@
     "@vscode/codicons": "^0.0.36",
     "marked": "^9.1.6",
     "marked-smartypants": "^1.1.5"
+
   },
   "devDependencies": {
     "@babel/plugin-proposal-decorators": "^7.24.7",
@@ -48,13 +59,15 @@
     "@docusaurus/module-type-aliases": "3.10.1",
     "@docusaurus/tsconfig": "3.10.1",
     "@types/react": "^18.3.3",
+    "@types/marked": "^6.0.0",
     "babel-loader": "10.1.1",
     "css-loader": "6.11.0",
     "micromark-extension-mdxjs": "^3.0.0",
     "patch-package": "^8.0.0",
     "ts-loader": "9.5.7",
-    "typescript": "5.6.3",
-    "url-loader": "4.1.1"
+    "typescript": "6.0.3",
+    "url-loader": "4.1.1",
+    "rimraf": "^5.0.5"
   },
   "browserslist": {
     "production": [
