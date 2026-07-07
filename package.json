@@ -47,7 +47,7 @@
     "all": "npm run format && npm run lint && npm run build && npm run test",
     "all:ci": "npm run format && npm run lint && npm run test:ci && npm run build",
     "clean": "rimraf ./build",
-    "linux:ci": "npm run clean && npm run all:ci && npm run coveralls && npm run apidocs",
+    "linux:ci": "npm run clean && npm run all:ci && npm run coveralls",
     "appveyor": "npm run all:ci && npm run nuget 0.0.1",
     "browserstack": "npm run build:production && karma start karma.conf.browsers.js",
     "nuget": ".\\src\\tools\\NuGet.exe pack Excalibur.nuspec -OutputDirectory .\\build\\nuget -version",
