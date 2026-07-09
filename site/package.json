@@ -6,7 +6,7 @@
     "docusaurus": "docusaurus",
     "start": "npm run build:docusaurus-plugin-typedoc-api && docusaurus start",
     "build": "npm run build:docusaurus-plugin-typedoc-api && docusaurus build",
-    "build:docusaurus-plugin-typedoc-api": "pushd vendor/docusaurus-plugin-typedoc-api && rimraf lib && tsc -p tsconfig.build.json && cp src/components/styles.css lib/components/ && popd",
+    "build:docusaurus-plugin-typedoc-api": "cd vendor/docusaurus-plugin-typedoc-api && rimraf lib && tsc -p tsconfig.build.json && cp src/components/styles.css lib/components/ && cd ../..",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",
