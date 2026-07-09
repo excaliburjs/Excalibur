@@ -114,7 +114,9 @@ export class ColliderComponent extends Component {
       this.update();
       return collider;
     }
-    this._logger.warnOnce(`Actor.collider.set(...) - provided collider is null on entity name [${this.owner?.name}] id [${this.owner?.id}]`);
+    this._logger.warnOnce(
+      `Actor.collider.set(...) - provided collider is null on entity name [${this.owner?.name}] id [${this.owner?.id}]`
+    );
     return null as unknown as T;
   }
 
