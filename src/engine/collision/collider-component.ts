@@ -91,11 +91,11 @@ export class ColliderComponent extends Component {
     this.set(collider);
   }
 
-  private _collider?: Collider;
+  private _collider: Collider | null = null;
   /**
    * Get the current collider geometry
    */
-  public get(): Collider | undefined {
+  public get(): Collider | null {
     return this._collider;
   }
 
@@ -127,7 +127,7 @@ export class ColliderComponent extends Component {
   public clear() {
     if (this._collider) {
       this._collidersToRemove.push(this._collider);
-      this._collider = undefined;
+      this._collider = null;
     }
   }
 
@@ -135,7 +135,7 @@ export class ColliderComponent extends Component {
     for (const collider of this._collidersToRemove) {
       collider.events.unpipe(this.events);
       this.$colliderRemoved.notifyAll(collider);
-      collider.owner = undefined;
+      collider.owner = null;
     }
     this._collidersToRemove.length = 0;
   }

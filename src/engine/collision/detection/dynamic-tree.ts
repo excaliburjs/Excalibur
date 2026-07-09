@@ -69,7 +69,7 @@ export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
     // Search the tree for a node that is not a leaf and find the best place to insert
     const leafAABB = leaf.bounds;
     let currentRoot = this.root;
-    while (currentRoot?.isLeaf()) {
+    while (!currentRoot.isLeaf()) {
       const left = currentRoot!.left;
       const right = currentRoot!.right;
 
@@ -125,7 +125,7 @@ export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
     newParent.bounds = leafAABB.combine(currentRoot!.bounds);
     newParent.height = currentRoot!.height + 1;
 
-    if (oldParent !== null) {
+    if (oldParent) {
       // The sibling node was not the root
       if (oldParent!.left === currentRoot) {
         oldParent!.left = newParent;
