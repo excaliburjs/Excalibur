@@ -60,7 +60,7 @@ export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
    */
   private _insert(leaf: TreeNode<TProxy>): void {
     // If there are no nodes in the tree, make this the root leaf
-    if (this.root === null) {
+    if (!this.root) {
       this.root = leaf;
       this.root.parent = undefined;
       return;
