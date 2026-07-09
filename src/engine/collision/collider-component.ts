@@ -14,6 +14,7 @@ import type { EdgeCollider } from './colliders/edge-collider';
 import { Shape } from './colliders/shape';
 import { EventEmitter } from '../event-emitter';
 import { Actor } from '../actor';
+import { Logger } from '../util';
 
 // ============================================================================
 // ColliderComponent Serialization Data
@@ -71,6 +72,7 @@ export type ColliderCreationData =
   | CapsuleColliderData;
 
 export class ColliderComponent extends Component {
+  private _logger = Logger.getInstance();
   // @ts-ignore
   private static _NAME = 'ColliderComponent';
   public events = new EventEmitter();
@@ -112,7 +114,8 @@ export class ColliderComponent extends Component {
       this.update();
       return collider;
     }
-    throw new Error('Collider is null');
+    this._logger.warnOnce(`Actor.collider.set(...) - provided collider is null on entity name [${this.owner?.name}] id [${this.owner?.id}]`);
+    return null as unknown as T;
   }
 
   private _collidersToRemove: Collider[] = [];

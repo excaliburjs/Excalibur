@@ -69,7 +69,7 @@ export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
     // Search the tree for a node that is not a leaf and find the best place to insert
     const leafAABB = leaf.bounds;
     let currentRoot = this.root;
-    while (!currentRoot?.isLeaf()) {
+    while (currentRoot?.isLeaf()) {
       const left = currentRoot!.left;
       const right = currentRoot!.right;
 
