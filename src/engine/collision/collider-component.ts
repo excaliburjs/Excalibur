@@ -60,7 +60,7 @@ export interface EdgeColliderData {
 }
 
 export interface CompositeColliderData {
-  parts: ColliderCreationData[]; // nested
+  parts: ColliderCreationData[];
 }
 
 export type ColliderCreationData =
@@ -135,7 +135,7 @@ export class ColliderComponent extends Component {
     for (const collider of this._collidersToRemove) {
       collider.events.unpipe(this.events);
       this.$colliderRemoved.notifyAll(collider);
-      collider.owner = undefined;
+      collider.owner = null;
     }
     this._collidersToRemove.length = 0;
   }

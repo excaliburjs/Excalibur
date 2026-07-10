@@ -33,7 +33,7 @@ export class TreeNode<T> {
 
 export interface ColliderProxy<T> {
   id: Id<'collider'>;
-  owner?: T;
+  owner: T | null;
   bounds: BoundingBox;
 }
 
@@ -113,9 +113,9 @@ export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
 
       // Descend to the depths
       if (leftCost < rightCost) {
-        currentRoot = left as any;
+        currentRoot = left!;
       } else {
-        currentRoot = right as any;
+        currentRoot = right!;
       }
     }
 

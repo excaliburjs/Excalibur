@@ -47,9 +47,9 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
       this._dynamicCollisionTree.query(
         {
           id: createId('collider', -1),
-          owner: undefined,
+          owner: null,
           bounds: pointOrBounds
-        } as unknown as Collider,
+        } as Collider,
         (other) => {
           results.push(other);
           return false;
@@ -59,7 +59,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
       this._dynamicCollisionTree.query(
         {
           id: createId('collider', -1),
-          owner: undefined,
+          owner: null,
           bounds: new BoundingBox(pointOrBounds.x, pointOrBounds.y, pointOrBounds.x, pointOrBounds.y)
         } as Collider,
         (other) => {
