@@ -30,6 +30,10 @@ const config: Config = {
   themes: ['@docusaurus/theme-mermaid'],
   markdown: {
     mermaid: true,
+    hooks: {
+      onBrokenMarkdownLinks: 'throw',
+      onBrokenMarkdownImages: 'throw'
+    }
   },
   title: 'Excalibur.js',
   tagline: 'Your friendly TypeScript 2D game engine for the web.',
@@ -50,9 +54,9 @@ const config: Config = {
   organizationName: 'excaliburjs', // Usually your GitHub org/user name.
   projectName: 'Excalibur', // Usually your repo name.
 
+
   onBrokenLinks: 'warn',
   onBrokenAnchors: 'warn',
-  onBrokenMarkdownLinks: 'warn',
 
   // Even if you don't use internalization, you can use this field to set useful
   // metadata like html lang. For example, if your site is Chinese, you may want
@@ -77,9 +81,10 @@ const config: Config = {
           rehypePlugins: [[rehypeRaw, rehypeRawOptions]],
           remarkPlugins: [
             [
+              // This remark plugin wires the mdx links to the TypeDoc generated API Docs
               remarkApiSymbolLinks,
               {
-                indexPath: fileURLToPath(new URL('./generated/api-symbol-index.json', import.meta.url))
+                indexPath: './generated/api-symbol-index.json' // fileURLToPath(new URL('./generated/api-symbol-index.json', import.meta.url))
               }
             ]
           ],
@@ -91,7 +96,7 @@ const config: Config = {
           postsPerPage: 'ALL',
           blogSidebarTitle: 'All posts',
           blogSidebarCount: 'ALL',
-
+          onUntruncatedBlogPosts: 'ignore'
         },
         theme: {
           customCss: './src/css/custom.css'
@@ -130,20 +135,14 @@ const config: Config = {
       // Our fork of the typedoc plugin is here 
       // https://github.com/excaliburjs/docusaurus-plugin-typedoc-api
       // Needs to be built to work, in site/ `npm run build:docusaurus-plugin-typedoc-api`
+      // Builds the static typedoc pages
       './vendor/docusaurus-plugin-typedoc-api/',
       {
         projectRoot: typedocProjectRoot,
-        rehypePlugins: [[rehypeRaw, rehypeRawOptions]],
-        remarkPlugins: [
-          [
-            remarkApiSymbolLinks,
-            {
-              indexPath: fileURLToPath(new URL('./generated/api-symbol-index.json', import.meta.url))
-            }
-          ]
-        ],
+        rehypePlugins: [],
+        remarkPlugins: [],
         typedocOptions: {
-          excludePrivate: 'true'
+          excludePrivate: true
         },
         versions: {},
         packages: [

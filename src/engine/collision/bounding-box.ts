@@ -446,7 +446,7 @@ export class BoundingBox {
   /**
    * Draw a debug bounding box
    * @param ex
-   * @param color
+   * @param options 
    * @deprecated
    */
   public draw(ex: ExcaliburGraphicsContext, options: RectGraphicsOptions = { color: Color.Yellow }) {
@@ -456,7 +456,7 @@ export class BoundingBox {
   /**
    * Draw a debug bounding box
    * @param ex
-   * @param color
+   * @param options
    */
   public debug(ex: ExcaliburGraphicsContext, options: RectGraphicsOptions = { color: Color.Yellow }) {
     ex.debug.drawRect(this.left, this.top, this.width, this.height, options);

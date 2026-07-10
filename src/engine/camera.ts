@@ -581,7 +581,7 @@ export class Camera implements CanUpdate, CanInitialize {
 
   /**
    * Adds one or more new camera strategies to this camera
-   * @param cameraStrategy Instance of an {@apilink CameraStrategy}
+   * @param cameraStrategies Instance of an {@apilink CameraStrategy}
    */
   public addStrategy<T extends CameraStrategy<any>[]>(...cameraStrategies: T) {
     this._cameraStrategies.push(...cameraStrategies);

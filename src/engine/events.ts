@@ -770,7 +770,7 @@ export class RemoveEvent<T extends OnRemove> extends GameEvent<T> {
  */
 export class PauseEvent extends GameEvent<Scene> {
   /**
-   * @param context  The context for the scene deactivation
+   * @param self The context for the scene deactivation
    */
   constructor(public self: Scene) {
     super();
@@ -783,7 +783,7 @@ export class PauseEvent extends GameEvent<Scene> {
  */
 export class ResumeEvent extends GameEvent<Scene> {
   /**
-   * @param context  The context for the scene deactivation
+   * @param self  The context for the scene deactivation
    */
   constructor(public self: Scene) {
     super();
