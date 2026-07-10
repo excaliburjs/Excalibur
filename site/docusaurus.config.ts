@@ -56,7 +56,7 @@ const config: Config = {
 
 
   onBrokenLinks: 'throw',
-  onBrokenAnchors: 'warn',
+  onBrokenAnchors: 'throw',
 
   i18n: {
     defaultLocale: 'en',

@@ -73,11 +73,11 @@ Rasters are only rendered when they need to be, if no properties change on them,
 
 See these useful raster implemenations
 
-- [Text](#Text)
-- [Polygon](#Polygon)
-- [Rectangle](#Rectangle)
-- [Circle](#Circle)
-- [Canvas](#Canvas)
+- [Text](/docs/text)
+- [Polygon](#polygon)
+- [Rectangle](#rectangle)
+- [Circle](#circle)
+- [Canvas](#canvas)
 
 A custom raster can be built implementing the `execute` function, this is in fact how the [[Canvas]] is implemented.
 
@@ -141,7 +141,7 @@ const rect = new ex.Rectangle({
 
 ### Canvas
 
-The canvas is a special type of raster graphic that acts like a shim between direct CanvasRenderingContext2D drawing and the [ExcaliburGraphicsContext](#ExcaliburGraphicsContext)
+The canvas is a special type of raster graphic that acts like a shim between direct CanvasRenderingContext2D drawing and the [ExcaliburGraphicsContext](/docs/graphics-context)
 
 This type of raster is re-rendered every time the graphic is drawn, thus it should be used sparingly due to this inefficiency.
 
