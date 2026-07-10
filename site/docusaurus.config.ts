@@ -214,7 +214,7 @@ const config: Config = {
             },
             {
               label: 'Playground',
-              to: '/playground'
+              href: 'https://excaliburjs.com/playground',
             }
           ]
         },
