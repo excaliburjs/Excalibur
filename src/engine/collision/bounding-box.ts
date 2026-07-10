@@ -446,7 +446,7 @@ export class BoundingBox {
   /**
    * Draw a debug bounding box
    * @param ex
-   * @param options 
+   * @param options
    * @deprecated
    */
   public draw(ex: ExcaliburGraphicsContext, options: RectGraphicsOptions = { color: Color.Yellow }) {

@@ -11,7 +11,6 @@ import type { CollisionContact } from '../detection/collision-contact';
  * 4. postSolve
  */
 export interface CollisionSolver {
-
   /**
    * Solves overlapping contact in
    *
