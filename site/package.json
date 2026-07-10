@@ -33,6 +33,7 @@
     "@mdx-js/react": "3.1.1",
     "@stackblitz/sdk": "^1.11.0",
     "@typescript/twoslash": "3.2.12",
+    "@typescript/vfs": "1.6.4",
     "@vscode/codicons": "^0.0.36",
     "clsx": "^2.1.1",
     "docusaurus-preset-shiki-twoslash": "^1.1.41",
@@ -49,6 +50,12 @@
     "remark-emoji": "5.0.2",
     "typedoc": "0.28.19",
     "unist-util-visit": "5.1.0"
+  },
+  "overrides": {
+    "remark-shiki-twoslash": {
+      "@typescript/twoslash": "3.2.12",
+      "@typescript/vfs": "1.6.4"
+    }
   },
   "devDependencies": {
     "@babel/plugin-proposal-decorators": "^7.24.7",
