@@ -5,7 +5,7 @@
   "scripts": {
     "docusaurus": "docusaurus",
     "start": "npm run build:docusaurus-plugin-typedoc-api && npm run api:generate && docusaurus start",
-    "build": "npm run build:docusaurus-plugin-typedoc-api && npm run api:generate && docusaurus build",
+    "build": "npm run build:docusaurus-plugin-typedoc-api && npm run api:generate && mkdir .docusaurus && cp -r generated/ .docusaurus/generated/ && docusaurus build",
     "build:docusaurus-plugin-typedoc-api": "cd vendor/docusaurus-plugin-typedoc-api && rimraf lib && tsc -p tsconfig.build.json && cp src/components/styles.css lib/components/ && cd ../..",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
