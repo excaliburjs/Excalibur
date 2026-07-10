@@ -21,7 +21,7 @@ describe('A Component', () => {
   it('can be created', () => {
     const imp = new ComponentImplementation();
 
-    expect(imp.owner).toBe(undefined);
+    expect(imp.owner).toBe(null);
     expect(imp.onAdd).not.toHaveBeenCalled();
     expect(imp.onRemove).not.toHaveBeenCalled();
   });
@@ -37,7 +37,7 @@ describe('A Component', () => {
     expect(imp.onRemove).not.toHaveBeenCalled();
 
     entity.removeComponent(ComponentImplementation, true);
-    expect(imp.owner).toBe(undefined);
+    expect(imp.owner).toBe(null);
     expect(imp.onRemove).toHaveBeenCalledWith(entity);
   });
 
