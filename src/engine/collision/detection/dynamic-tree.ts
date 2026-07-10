@@ -113,9 +113,9 @@ export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
 
       // Descend to the depths
       if (leftCost < rightCost) {
-        currentRoot = left;
+        currentRoot = left as any;
       } else {
-        currentRoot = right;
+        currentRoot = right as any;
       }
     }
 

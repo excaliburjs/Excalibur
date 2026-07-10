@@ -135,7 +135,7 @@ export class ColliderComponent extends Component {
     for (const collider of this._collidersToRemove) {
       collider.events.unpipe(this.events);
       this.$colliderRemoved.notifyAll(collider);
-      collider.owner = null;
+      collider.owner = undefined;
     }
     this._collidersToRemove.length = 0;
   }
