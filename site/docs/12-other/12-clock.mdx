@@ -62,7 +62,9 @@ game.clock.clearSchedule(taskId);
 
 #### Timing parameter
 
-The `schedule` method accepts an [[ScheduledCallbackTiming]] enum an optional third parameter that specifies when in the game loop the callback should execute. This allows precise control over when your scheduled tasks run relative to the game's update cycle.
+The `schedule` method accepts an `ScheduledCallbackTiming` enum `'preframe' | 'postframe' | 'preupdate' | 'postupdate' | 'predraw' | 'postdraw'`
+an optional third parameter that specifies when in the game loop the callback should execute. This allows precise control over when your 
+scheduled tasks run relative to the game's update cycle.
 
 ```ts twoslash
 // @include: ex

@@ -55,7 +55,7 @@ const config: Config = {
   projectName: 'Excalibur', // Usually your repo name.
 
 
-  onBrokenLinks: 'warn',
+  onBrokenLinks: 'throw',
   onBrokenAnchors: 'warn',
 
   i18n: {
@@ -81,7 +81,7 @@ const config: Config = {
               // This remark plugin wires the mdx links to the TypeDoc generated API Docs
               remarkApiSymbolLinks,
               {
-                indexPath: './generated/api-symbol-index.json' // fileURLToPath(new URL('./generated/api-symbol-index.json', import.meta.url))
+                indexPath: './generated/api-symbol-index.json'
               }
             ]
           ],
@@ -132,7 +132,7 @@ const config: Config = {
       // Our fork of the typedoc plugin is here 
       // https://github.com/excaliburjs/docusaurus-plugin-typedoc-api
       // Needs to be built to work, in site/ `npm run build:docusaurus-plugin-typedoc-api`
-      // Builds the static typedoc pages
+      // Builds the static typedoc pages under api/class/*
       './vendor/docusaurus-plugin-typedoc-api/',
       {
         projectRoot: typedocProjectRoot,
