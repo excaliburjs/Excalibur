@@ -24,7 +24,7 @@ Actors use collision geometry for pointer events meaning they need at least a wi
 
 [[Actor.pointer]] and [[PointerComponent]]
 
-Read more [here](/docs/pointers#actor-pointer-events)
+Read more [here](/docs/pointers)
 
 ::: 
 
@@ -166,7 +166,7 @@ classDiagram
 
 ## Updating actors
 
-In most games, things are happening on screen: the background is parallax-ing, your hero responds to input, and enemies shoot bullets. In Excalibur, the logic that updates game state is run during the [update loop](/docs/engine#engine-lifecycle). Actors are a way to encapsulate that logic, such as a `Player`, `Enemy`, and `MenuButton`. Actors are designed to be pretty much anything!
+In most games, things are happening on screen: the background is parallax-ing, your hero responds to input, and enemies shoot bullets. In Excalibur, the logic that updates game state is run during the [update loop](/docs/engine). Actors are a way to encapsulate that logic, such as a `Player`, `Enemy`, and `MenuButton`. Actors are designed to be pretty much anything!
 
 ### Initialization
 
@@ -264,7 +264,7 @@ class Player extends ex.Actor {
 
 ### Post-update
 
-[[Actor.onPostUpdate]] is called after [[Actor.update]] to prepare state for the _next_ frame. Things that need to be updated include state, drawing, and position.
+[[Actor.onPostUpdate]] is called after the internal `Actor.update` to prepare state for the _next_ frame. Things that need to be updated include state, drawing, and position.
 
 :::tip
 
@@ -301,7 +301,7 @@ This can be useful at the beginning of development when you're just tinkering bu
 
 Think of an [[ImageSource]] as the raw image file that will be loaded into Excalibur from a url.
 
-In order for it to be drawn it must be converted to a [Sprite](/docs/graphics#sprites). A common pattern is to define graphics in the `onInitialize` method of an actor.
+In order for it to be drawn it must be converted to a [Sprite](/docs/sprites). A common pattern is to define graphics in the `onInitialize` method of an actor.
 
 ```ts twoslash
 // @module: esnext
