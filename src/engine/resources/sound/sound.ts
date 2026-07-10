@@ -31,6 +31,27 @@ export const SoundEvents = {
   PlaybackStart: 'playbackstart'
 };
 
+export interface SpatialAudioOptions {
+  position?: {
+    x: number;
+    y: number;
+    z?: number;
+  };
+  orientation?: {
+    x: number;
+    y: number;
+    z?: number;
+  };
+  panningModel?: PannerNode['panningModel'];
+  distanceModel?: PannerNode['distanceModel'];
+  refDistance?: number;
+  maxDistance?: number;
+  rolloffFactor?: number;
+  coneInnerAngle?: number;
+  coneOuterAngle?: number;
+  coneOuterGain?: number;
+}
+
 export interface SoundOptions {
   /**
    * @param paths A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
@@ -69,6 +90,11 @@ export interface SoundOptions {
    * Advance to a position in the audio clip
    */
   position?: number;
+
+  /**
+   * Optional spatial audio configuration for this sound.
+   */
+  spatial?: SpatialAudioOptions;
 }
 
 export interface PlayOptions {
@@ -91,6 +117,11 @@ export interface PlayOptions {
    * ```
    */
   scheduledStartTime?: number;
+
+  /**
+   * Optional spatial audio settings for this playback.
+   */
+  spatial?: SpatialAudioOptions;
 }
 
 function isSoundOptions(x: any): x is SoundOptions[] {
@@ -175,6 +206,11 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
   }
 
   /**
+   * Optional default spatial audio configuration for this Sound.
+   */
+  public spatial?: SpatialAudioOptions;
+
+  /**
    * Should excalibur add a cache busting querystring? By default false.
    * Must be set before loading
    */
@@ -228,7 +264,7 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
     }
     this._resource = new Resource('', ExResponse.type.arraybuffer);
 
-    const { volume, position, playbackRate, loop, bustCache, duration } = options;
+    const { volume, position, playbackRate, loop, bustCache, duration, spatial } = options;
 
     this.volume = volume ?? this.volume;
     this.playbackRate = playbackRate ?? this.playbackRate;
@@ -236,6 +272,7 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
     this.duration = duration ?? this.duration;
     this.bustCache = bustCache ?? this.bustCache;
     this.position = position ?? this.position;
+    this.spatial = spatial ?? this.spatial;
 
     /**
      * Chrome : MP3, WAV, Ogg
@@ -354,10 +391,12 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
     }
 
     let scheduledStart = 0;
+    let spatial = this.spatial;
     if (volumeOrConfig instanceof Object) {
-      const { volume, scheduledStartTime } = volumeOrConfig;
+      const { volume, scheduledStartTime, spatial: spatialOptions } = volumeOrConfig;
       scheduledStart = (scheduledStartTime ?? 0) / 1000 || scheduledStart;
       this.volume = volume ?? this.volume;
+      spatial = spatialOptions ?? spatial;
     } else {
       this.volume = volumeOrConfig ?? this.volume;
     }
@@ -368,7 +407,7 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
       if (this.position) {
         this.seek(this.position);
       }
-      return this._startPlayback(scheduledStart);
+      return this._startPlayback(scheduledStart, spatial);
     }
   }
 
@@ -480,8 +519,8 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
   /**
    * Starts playback, returns a promise that resolves when playback is complete
    */
-  private async _startPlayback(scheduledStartTime: number = 0): Promise<boolean> {
-    const track = this._getTrackInstance(this.data);
+  private async _startPlayback(scheduledStartTime: number = 0, spatial?: SpatialAudioOptions): Promise<boolean> {
+    const track = this._getTrackInstance(this.data, spatial);
     track.scheduledStartTime = scheduledStartTime;
 
     const complete = await track.play(() => {
@@ -500,9 +539,10 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
     return complete;
   }
 
-  private _getTrackInstance(data: AudioBuffer): WebAudioInstance {
+  private _getTrackInstance(data: AudioBuffer, spatial?: SpatialAudioOptions): WebAudioInstance {
     const newTrack = new WebAudioInstance(data);
 
+    newTrack.setSpatialOptions(spatial);
     newTrack.loop = this.loop;
     newTrack.volume = this.volume;
     newTrack.duration = this.duration ?? 0;

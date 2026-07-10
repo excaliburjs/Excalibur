@@ -3,6 +3,28 @@ import type { Audio } from '../../interfaces/audio';
 import { clamp } from '../../math/util';
 import { AudioContextFactory } from './audio-context';
 import { Future } from '../../util/future';
+import type { SpatialAudioOptions } from './sound.ts';
+
+// export interface SpatialAudioOptions {
+//   position?: {
+//     x: number;
+//     y: number;
+//     z?: number;
+//   };
+//   orientation?: {
+//     x: number;
+//     y: number;
+//     z?: number;
+//   };
+//   panningModel?: PannerNode['panningModel'];
+//   distanceModel?: PannerNode['distanceModel'];
+//   refDistance?: number;
+//   maxDistance?: number;
+//   rolloffFactor?: number;
+//   coneInnerAngle?: number;
+//   coneOuterAngle?: number;
+//   coneOuterGain?: number;
+// }
 
 interface SoundState {
   startedAt: number;
@@ -17,6 +39,8 @@ export class WebAudioInstance implements Audio {
   private _instance!: AudioBufferSourceNode;
   private _audioContext: AudioContext = AudioContextFactory.create();
   private _volumeNode = this._audioContext.createGain();
+  private _pannerNode: PannerNode | null = null;
+  private _spatialOptions?: SpatialAudioOptions;
 
   private _playingFuture = new Future<boolean>();
   private _stateMachine = StateMachine.create(
@@ -83,13 +107,108 @@ export class WebAudioInstance implements Audio {
     } satisfies SoundState
   );
 
+  /**
+   * Update the live PannerNode properties dynamically during runtime playback.
+   */
+  /**
+   * Update the live PannerNode properties dynamically during runtime playback.
+   */
+  public updateSpatialProperties(options: Partial<SpatialAudioOptions>) {
+    this._spatialOptions = { ...this._spatialOptions, ...options };
+
+    if (this._pannerNode) {
+      const { position, distanceModel, refDistance, maxDistance, rolloffFactor } = options;
+
+      // Update the structural attenuation rules if changed
+      if (distanceModel) this._pannerNode.distanceModel = distanceModel;
+      if (refDistance !== undefined) this._pannerNode.refDistance = refDistance;
+      if (maxDistance !== undefined) this._pannerNode.maxDistance = maxDistance;
+      if (rolloffFactor !== undefined) this._pannerNode.rolloffFactor = rolloffFactor;
+
+      // Update the real-time position vectors on the Web Audio thread
+      if (position) {
+        this._pannerNode.positionX.setValueAtTime(position.x, this._audioContext.currentTime);
+        this._pannerNode.positionY.setValueAtTime(position.y, this._audioContext.currentTime);
+        this._pannerNode.positionZ.setValueAtTime(position.z ?? 0, this._audioContext.currentTime);
+      }
+    }
+  }
+
   private _createNewBufferSource() {
     this._instance = this._audioContext.createBufferSource();
     this._instance.buffer = this._src;
     this._instance.loop = this.loop;
     this._instance.playbackRate.value = this._playbackRate;
-    this._instance.connect(this._volumeNode);
+
+    this._createSpatialNodes();
+    if (this._pannerNode) {
+      this._instance.connect(this._pannerNode);
+      this._pannerNode.connect(this._volumeNode);
+    } else {
+      this._instance.connect(this._volumeNode);
+    }
     this._volumeNode.connect(this._audioContext.destination);
+  }
+
+  private _createSpatialNodes() {
+    if (!this._spatialOptions) {
+      this._pannerNode = null;
+      return;
+    }
+
+    if (!this._pannerNode) {
+      this._pannerNode = this._audioContext.createPanner();
+    }
+
+    const {
+      position,
+      orientation,
+      panningModel,
+      distanceModel,
+      refDistance,
+      maxDistance,
+      rolloffFactor,
+      coneInnerAngle,
+      coneOuterAngle,
+      coneOuterGain
+    } = this._spatialOptions;
+
+    if (position) {
+      this._pannerNode.positionX.value = position.x;
+      this._pannerNode.positionY.value = position.y;
+      this._pannerNode.positionZ.value = position.z ?? 0;
+    }
+
+    if (orientation) {
+      this._pannerNode.orientationX.value = orientation.x;
+      this._pannerNode.orientationY.value = orientation.y;
+      this._pannerNode.orientationZ.value = orientation.z ?? 0;
+    }
+
+    if (panningModel) {
+      this._pannerNode.panningModel = panningModel;
+    }
+    if (distanceModel) {
+      this._pannerNode.distanceModel = distanceModel;
+    }
+    if (refDistance !== undefined) {
+      this._pannerNode.refDistance = refDistance;
+    }
+    if (maxDistance !== undefined) {
+      this._pannerNode.maxDistance = maxDistance;
+    }
+    if (rolloffFactor !== undefined) {
+      this._pannerNode.rolloffFactor = rolloffFactor;
+    }
+    if (coneInnerAngle !== undefined) {
+      this._pannerNode.coneInnerAngle = coneInnerAngle;
+    }
+    if (coneOuterAngle !== undefined) {
+      this._pannerNode.coneOuterAngle = coneOuterAngle;
+    }
+    if (coneOuterGain !== undefined) {
+      this._pannerNode.coneOuterGain = coneOuterGain;
+    }
   }
 
   private _handleEnd() {
@@ -159,6 +278,10 @@ export class WebAudioInstance implements Audio {
 
   constructor(private _src: AudioBuffer) {
     this._createNewBufferSource();
+  }
+
+  public setSpatialOptions(spatial?: SpatialAudioOptions) {
+    this._spatialOptions = spatial;
   }
 
   public isPlaying() {

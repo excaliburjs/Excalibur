@@ -5,6 +5,7 @@ describe('A webaudio instance', () => {
   let mockAudioContext: any;
   let mockGainNode: any;
   let mockBufferSource: any;
+  let mockPannerNode: any;
   const RealAudioContextCreate = ex.AudioContextFactory.create;
   const RealAudioContext = ex.AudioContextFactory.create();
 
@@ -17,8 +18,27 @@ describe('A webaudio instance', () => {
     mockGainNode = {
       connect: vi.fn(),
       gain: {
+        value: 1,
         setTargetAtTime: vi.fn()
       }
+    };
+
+    mockPannerNode = {
+      connect: vi.fn(),
+      positionX: { value: 0 },
+      positionY: { value: 0 },
+      positionZ: { value: 0 },
+      orientationX: { value: 0 },
+      orientationY: { value: 0 },
+      orientationZ: { value: 0 },
+      panningModel: 'HRTF',
+      distanceModel: 'inverse',
+      refDistance: 1,
+      maxDistance: 10000,
+      rolloffFactor: 1,
+      coneInnerAngle: 360,
+      coneOuterAngle: 360,
+      coneOuterGain: 0
     };
 
     mockBufferSource = {
@@ -43,6 +63,7 @@ describe('A webaudio instance', () => {
     mockAudioContext = {
       currentTime: 0,
       createGain: vi.fn(() => mockGainNode),
+      createPanner: vi.fn(() => mockPannerNode),
       createBufferSource: vi.fn(() => mockBufferSource)
     };
 
@@ -65,5 +86,27 @@ describe('A webaudio instance', () => {
     webaudio.play();
     webaudio.volume = 0.25;
     expect(mockGainNode.gain.setTargetAtTime).toHaveBeenCalledWith(webaudio.volume, 0, 0.1);
+  });
+
+  it('should create a panner node when spatial options are set', () => {
+    webaudio.setSpatialOptions({
+      position: { x: 1, y: 2, z: 3 },
+      orientation: { x: 0, y: 1, z: 0 },
+      panningModel: 'HRTF',
+      distanceModel: 'linear',
+      refDistance: 2,
+      maxDistance: 50,
+      rolloffFactor: 0.5,
+      coneInnerAngle: 30,
+      coneOuterAngle: 60,
+      coneOuterGain: 0.2
+    });
+
+    webaudio.play();
+
+    expect(mockAudioContext.createPanner).toHaveBeenCalled();
+    expect(mockPannerNode.positionX.value).toBe(1);
+    expect(mockPannerNode.positionY.value).toBe(2);
+    expect(mockPannerNode.positionZ.value).toBe(3);
   });
 });
