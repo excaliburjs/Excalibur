@@ -60,8 +60,8 @@ export class Transition extends Entity {
   readonly hideLoader: boolean;
   readonly blockInput: boolean;
   readonly duration: number;
-  readonly easing: Easing;
-  readonly legacyEasing: EasingFunction;
+  readonly easing!: Easing;
+  readonly legacyEasing!: EasingFunction;
   readonly direction: 'out' | 'in';
   private _completeFuture = new Future<void>();
   protected _engine?: Engine;

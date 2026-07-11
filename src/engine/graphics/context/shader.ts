@@ -434,12 +434,14 @@ export class Shader {
         } else if (uniform) {
           let typeName = glTypeToUniformTypeName(gl, uniform.glType);
           if (typeName.startsWith('uniformMatrix')) {
-            this.trySetUniform(typeName, key, false, value);
+            // FIXME, hardcoding the type here for now in TS6, it works for all mats
+            this.trySetUniform<'uniformMatrix4fv'>(typeName as any, key, false, value);
           } else {
             if (!typeName.endsWith('v')) {
               typeName = (typeName + 'v') as UniformTypeNames;
             }
-            this.trySetUniform(typeName, key, value);
+            // FIXME, hardcoding the type here for now in TS6, it works for all vectors
+            this.trySetUniform<'uniform4fv'>(typeName as any, key, value);
           }
         } else {
           this.trySetUniformFloatArray(key, value);

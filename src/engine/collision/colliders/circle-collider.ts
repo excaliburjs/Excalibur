@@ -45,7 +45,7 @@ export class CircleCollider extends Collider {
     return this._globalMatrix.getPosition();
   }
 
-  private _naturalRadius: number;
+  private _naturalRadius!: number;
 
   private _radius: number | undefined;
   /**
@@ -73,7 +73,7 @@ export class CircleCollider extends Collider {
     this._radius = val;
   }
 
-  private _transform: Transform;
+  private _transform!: Transform;
 
   constructor(options: CircleColliderOptions) {
     super();
@@ -141,7 +141,7 @@ export class CircleCollider extends Collider {
             point,
             normal: point.sub(c).normalize(),
             collider: this,
-            body: this.owner?.get(BodyComponent),
+            body: this.owner?.get(BodyComponent)!,
             distance: toi
           } satisfies RayCastHit;
         }
@@ -169,7 +169,7 @@ export class CircleCollider extends Collider {
             point,
             normal: point.sub(c).normalize(),
             collider: this,
-            body: this.owner?.get(BodyComponent),
+            body: this.owner?.get(BodyComponent)!,
             distance: minToi
           } satisfies RayCastHit;
         }
@@ -229,7 +229,7 @@ export class CircleCollider extends Collider {
   }
 
   private _localBoundsDirty = true;
-  private _localBounds: BoundingBox;
+  private _localBounds!: BoundingBox;
   /**
    * Get the axis aligned bounding box for the circle collider in local coordinates
    */

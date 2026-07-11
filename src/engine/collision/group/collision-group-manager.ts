@@ -21,7 +21,7 @@ export class CollisionGroupManager {
       throw new Error(`Cannot have more than ${this._MAX_GROUPS} collision groups`);
     }
     if (this._GROUPS.get(name)) {
-      const existingGroup = this._GROUPS.get(name);
+      const existingGroup = this._GROUPS.get(name)!;
       if (existingGroup.mask === mask) {
         return existingGroup;
       }

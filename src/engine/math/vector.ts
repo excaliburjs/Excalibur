@@ -248,10 +248,15 @@ export class Vector implements Clonable<Vector> {
 
   /**
    * Scales a vector's by a factor of size
-   * @param size  The factor to scale the magnitude by
-   * @param dest  Optionally provide a destination vector for the result
+   * @param scale The factor to scale the magnitude by
+   * @param dest {Optional} Optionally provide a destination vector for the result
    */
   public scale(scale: Vector, dest?: Vector): Vector;
+  /**
+   * Scales a vector's by a factor of size
+   * @param size  The factor to scale the magnitude by
+   * @param dest {Optional} Optionally provide a destination vector for the result
+   */
   public scale(size: number, dest?: Vector): Vector;
   public scale(sizeOrScale: number | Vector, dest?: Vector): Vector {
     const result = dest || new Vector(0, 0);

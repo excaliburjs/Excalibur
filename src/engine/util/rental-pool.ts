@@ -33,7 +33,7 @@ export class RentalPool<T> {
       this.grow(this._size);
     }
 
-    return clean ? this.cleaner(this._pool.pop()) : this._pool.pop();
+    return clean ? this.cleaner(this._pool.pop()!) : this._pool.pop()!;
   }
 
   /**

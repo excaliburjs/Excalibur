@@ -21,7 +21,7 @@ export enum LogLevel {
  * Derive from {@apilink Appender} to create your own logging appenders.
  */
 export class Logger {
-  private static _INSTANCE: Logger = null;
+  private static _INSTANCE?: Logger = undefined;
   private _appenders: Appender[] = [];
 
   constructor() {
@@ -198,7 +198,7 @@ export class ConsoleAppender implements Appender {
    */
   public log(level: LogLevel, args: any[]): void {
     // Check for console support
-    if (!console && !console.log && console.warn && console.error) {
+    if (!console || !console.log || !console.warn || !console.error) {
       // todo maybe do something better than nothing
       return;
     }

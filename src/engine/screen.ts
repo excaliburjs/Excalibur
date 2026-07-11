@@ -270,18 +270,18 @@ export class Screen {
   private _canvasImageRendering: 'auto' | 'pixelated' = 'auto';
   private _contentResolution: Resolution;
   private _browser: BrowserEvents;
-  private _camera: Camera;
-  private _resolution: Resolution;
+  private _camera!: Camera;
+  private _resolution!: Resolution;
   private _resolutionStack: Resolution[] = [];
-  private _viewport: ViewportDimension;
+  private _viewport!: ViewportDimension;
   private _viewportStack: ViewportDimension[] = [];
-  private _pixelRatioOverride: number | null = null;
+  private _pixelRatioOverride: number | undefined;
   private _displayMode: DisplayMode;
   private _isFullscreen = false;
-  private _mediaQueryList: MediaQueryList;
+  private _mediaQueryList!: MediaQueryList;
   private _isDisposed = false;
   private _logger = Logger.getInstance();
-  private _resizeObserver: ResizeObserver;
+  private _resizeObserver!: ResizeObserver;
 
   constructor(options: ScreenOptions) {
     this.viewport = options.viewport;
@@ -328,7 +328,9 @@ export class Screen {
       if (this._resizeObserver) {
         this._resizeObserver.disconnect();
       }
-      this.parent.removeEventListener('resize', this._resizeHandler);
+      if (!(this.parent instanceof Window)) {
+        this.parent.removeEventListener('resize', this._resizeHandler);
+      }
       // Safari <=13.1 workaround
       if (this._mediaQueryList.removeEventListener) {
         this._mediaQueryList.removeEventListener('change', this._pixelRatioChangeHandler);
@@ -336,7 +338,7 @@ export class Screen {
         this._mediaQueryList.removeListener(this._pixelRatioChangeHandler);
       }
       this._canvas.removeEventListener('fullscreenchange', this._fullscreenChangeHandler);
-      this._canvas = null;
+      this._canvas = null as any;
     }
   }
 
@@ -514,8 +516,9 @@ export class Screen {
 
   public popResolutionAndViewport() {
     if (this._resolutionStack.length && this._viewportStack.length) {
-      this.resolution = this._resolutionStack.pop();
-      this.viewport = this._viewportStack.pop();
+      // FIXME we should probably bomb if this is ever undefined
+      this.resolution = this._resolutionStack.pop()!;
+      this.viewport = this._viewportStack.pop()!;
     }
   }
 
@@ -641,11 +644,11 @@ export class Screen {
       const maybeElement = document.getElementById(elementId);
       // workaround for safari partial support
       if (maybeElement?.requestFullscreen || (maybeElement as any)?.webkitRequestFullscreen) {
-        if (!maybeElement.getAttribute('ex-fullscreen-listener')) {
-          maybeElement.setAttribute('ex-fullscreen-listener', 'true');
-          maybeElement.addEventListener('fullscreenchange', this._fullscreenChangeHandler);
+        if (!maybeElement?.getAttribute('ex-fullscreen-listener')) {
+          maybeElement!.setAttribute('ex-fullscreen-listener', 'true');
+          maybeElement!.addEventListener('fullscreenchange', this._fullscreenChangeHandler);
         }
-        if (maybeElement.requestFullscreen) {
+        if (maybeElement?.requestFullscreen) {
           return maybeElement.requestFullscreen() ?? Promise.resolve();
         } else if ((maybeElement as any).webkitRequestFullscreen) {
           return (maybeElement as any).webkitRequestFullscreen() ?? Promise.resolve();
@@ -1060,7 +1063,7 @@ export class Screen {
     this.canvas.style.height = '100%';
     this.canvas.style.position = 'relative';
     const parent = this.canvas.parentElement;
-    parent.style.overflow = 'hidden';
+    parent!.style.overflow = 'hidden';
     const { offsetWidth: vw, offsetHeight: vh } = this.canvas;
 
     this._computeFitAndZoom(vw, vh);
@@ -1135,7 +1138,7 @@ export class Screen {
     let widthUnit: ViewportUnit = 'pixel';
     let heightUnit: ViewportUnit = 'pixel';
     const parent = this.canvas.parentElement;
-    if (parent.clientWidth / aspect < parent.clientHeight) {
+    if (parent!.clientWidth / aspect < parent!.clientHeight) {
       this.canvas.style.width = '100%';
       adjustedWidth = 100;
       widthUnit = 'percent';
@@ -1171,8 +1174,8 @@ export class Screen {
         this._resizeHandler();
       });
       this._resizeObserver.observe(this.parent);
+      this.parent.addEventListener('resize', this._resizeHandler);
     }
-    this.parent.addEventListener('resize', this._resizeHandler);
   }
 
   /**

@@ -110,25 +110,6 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-  typedoc:
-    runs-on: [ubuntu-latest]
-    env:
-      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-          fetch-depth: 100
-      - uses: actions/setup-node@v6.4.0
-        with:
-          node-version-file: 'package.json'
-          package-manager-cache: false
-          registry-url: 'https://registry.npmjs.org'
-      - run: npm install -g npm@11.16.0
-      - run: npm ci --ignore-scripts
-      - run: npm run apidocs
-
   examples:
     runs-on: [ubuntu-latest]
     env:

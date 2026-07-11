@@ -42,7 +42,7 @@ import { getDefaultPhysicsConfig } from './collision/physics-config';
 import { PauseSystem } from './util/pause-system';
 
 export class PreLoadEvent {
-  loader: DefaultLoader;
+  loader!: DefaultLoader;
 }
 
 export interface SceneEvents {
@@ -173,12 +173,12 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   /**
    * Access to the Excalibur engine
    */
-  public engine: Engine;
+  public engine!: Engine;
 
   /**
    * Access scene specific input, handlers on this only fire when this scene is active.
    */
-  public input: InputHost;
+  public input!: InputHost;
 
   private _isInitialized: boolean = false;
   private _timers: Timer[] = [];
@@ -225,7 +225,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   public off(eventName: string, handler: Handler<unknown>): void;
   public off(eventName: string): void;
   public off<TEventName extends EventKey<SceneEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
-    this.events.off(eventName, handler);
+    this.events.off(eventName, handler as any);
   }
 
   /**
@@ -663,7 +663,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
    * @param entity
    */
   public transfer(entity: any): void {
-    let scene: Scene;
+    let scene: Scene | undefined = undefined;
     if (entity instanceof Entity && entity.scene && entity.scene !== this) {
       scene = entity.scene;
       entity.scene.world.remove(entity, false);
@@ -673,7 +673,9 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
       entity.scene.removeTimer(entity);
     }
 
-    scene?.emit('entityremoved', { target: entity } as any);
+    if (scene) {
+      scene.emit('entityremoved', { target: entity } as any);
+    }
     this.add(entity);
   }
 

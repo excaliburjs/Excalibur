@@ -34,7 +34,7 @@ export class RealisticSolver implements CollisionSolver {
     contacts = contacts.filter((c) => !c.isCanceled());
     // Locate collision bias order
     let bias: ContactBias;
-    switch (this.config.contactSolveBias) {
+    switch (this.config!.contactSolveBias) {
       case ContactSolveBias.HorizontalFirst: {
         bias = HorizontalFirst;
         break;
@@ -52,10 +52,10 @@ export class RealisticSolver implements CollisionSolver {
     // Sort contacts by distance to avoid artifacts with seams
     // It's important to solve in a specific order
     contacts.sort((a, b) => {
-      const aDir = this.directionMap.get(a.id);
-      const bDir = this.directionMap.get(b.id);
-      const aDist = this.distanceMap.get(a.id);
-      const bDist = this.distanceMap.get(b.id);
+      const aDir = this.directionMap.get(a.id)!;
+      const bDir = this.directionMap.get(b.id)!;
+      const aDist = this.distanceMap.get(a.id)!;
+      const bDist = this.distanceMap.get(b.id)!;
       return bias[aDir] - bias[bDir] || aDist - bDist;
     });
 
@@ -185,7 +185,7 @@ export class RealisticSolver implements CollisionSolver {
 
     // Warm contacts with accumulated impulse
     // Useful for tall stacks
-    if (this.config.warmStart) {
+    if (this.config!.warmStart) {
       this.warmStart(contacts);
     } else {
       for (let i = 0; i < contacts.length; i++) {
@@ -251,14 +251,14 @@ export class RealisticSolver implements CollisionSolver {
       const bodyA = contact.bodyA;
       const bodyB = contact.bodyB;
 
-      if (bodyA.isSleeping && bodyB.isSleeping) {
+      if (bodyA!.isSleeping && bodyB!.isSleeping) {
         continue;
       }
 
       if (bodyA && bodyB) {
         const contactPoints = this.idToContactConstraint.get(contact.id) ?? [];
         for (const point of contactPoints) {
-          if (this.config.warmStart) {
+          if (this.config!.warmStart) {
             const normalImpulse = contact.normal.scale(point.normalImpulse);
             const tangentImpulse = contact.tangent.scale(point.tangentImpulse);
             const impulse = normalImpulse.add(tangentImpulse);
@@ -279,13 +279,13 @@ export class RealisticSolver implements CollisionSolver {
    * @param contacts
    */
   solvePosition(contacts: CollisionContact[]) {
-    for (let i = 0; i < this.config.positionIterations; i++) {
+    for (let i = 0; i < this.config!.positionIterations; i++) {
       for (let i = 0; i < contacts.length; i++) {
         const contact = contacts[i];
         const bodyA = contact.bodyA;
         const bodyB = contact.bodyB;
 
-        if (bodyA.isSleeping && bodyB.isSleeping) {
+        if (bodyA!.isSleeping && bodyB!.isSleeping) {
           continue;
         }
 
@@ -300,9 +300,9 @@ export class RealisticSolver implements CollisionSolver {
             const normal = contact.normal;
             const separation = CollisionJumpTable.FindContactSeparation(contact, point.local);
 
-            const steeringConstant = this.config.steeringFactor; //0.2 pixels;
+            const steeringConstant = this.config!.steeringFactor; //0.2 pixels;
             const maxCorrection = -5; // pixels
-            const slop = this.config.slop; //1 pixel;
+            const slop = this.config!.slop; //1 pixel;
 
             // Clamp to avoid over-correction
             // Remember that we are shooting for 0 overlap in the end
@@ -349,13 +349,13 @@ export class RealisticSolver implements CollisionSolver {
 
   solveVelocity(contacts: CollisionContact[]) {
     // velocityIterations:
-    for (let i = 0; i < this.config.velocityIterations; i++) {
+    for (let i = 0; i < this.config!.velocityIterations; i++) {
       for (let i = 0; i < contacts.length; i++) {
         const contact = contacts[i];
         const bodyA = contact.bodyA;
         const bodyB = contact.bodyB;
 
-        if (bodyA.isSleeping && bodyB.isSleeping) {
+        if (bodyA!.isSleeping && bodyB!.isSleeping) {
           continue;
         }
 

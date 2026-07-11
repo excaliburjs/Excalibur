@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
-    "start": "docusaurus start",
-    "build": "docusaurus build",
+    "start": "npm run build:docusaurus-plugin-typedoc-api && npm run api:generate && docusaurus start",
+    "build": "npm run build:docusaurus-plugin-typedoc-api && npm run api:generate && mkdir .docusaurus && cp -r generated/ .docusaurus/generated/ && docusaurus build",
+    "build:docusaurus-plugin-typedoc-api": "cd vendor/docusaurus-plugin-typedoc-api && rimraf lib && tsc -p tsconfig.build.json && cp src/components/styles.css lib/components/ && cd ../..",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",
@@ -14,19 +15,31 @@
     "write-heading-ids": "docusaurus write-heading-ids",
     "typecheck": "tsc",
     "typecheck:samples": "tsc --project ./tsconfig.samples.json",
-    "postinstall": "patch-package"
+    "api:generate": "node ./scripts/gen-typedoc-api.mjs"
   },
   "dependencies": {
-    "@docusaurus/core": "3.5.2",
-    "@docusaurus/plugin-client-redirects": "3.5.2",
-    "@docusaurus/preset-classic": "3.5.2",
-    "@docusaurus/theme-mermaid": "3.5.2",
+    "@docusaurus/core": "3.10.1",
+    "@docusaurus/mdx-loader": "3.10.1",
+    "@docusaurus/module-type-aliases": "3.10.1",
+    "@docusaurus/plugin-client-redirects": "3.10.1",
+    "@docusaurus/plugin-content-docs": "3.10.1",
+    "@docusaurus/preset-classic": "3.10.1",
+    "@docusaurus/theme-classic": "3.10.1",
+    "@docusaurus/theme-common": "3.10.1",
+    "@docusaurus/theme-mermaid": "3.10.1",
+    "@docusaurus/tsconfig": "3.10.1",
+    "@docusaurus/types": "3.10.1",
+    "@docusaurus/utils": "3.10.1",
     "@mdx-js/react": "3.1.1",
     "@stackblitz/sdk": "^1.11.0",
+    "@typescript/twoslash": "3.2.12",
+    "@typescript/vfs": "1.6.4",
+    "@vscode/codicons": "^0.0.36",
     "clsx": "^2.1.1",
-    "docusaurus-plugin-typedoc-api": "4.4.0",
     "docusaurus-preset-shiki-twoslash": "^1.1.41",
     "lz-string": "^1.5.0",
+    "marked": "^9.1.6",
+    "marked-smartypants": "^1.1.5",
     "mermaid": "11.15.0",
     "prism-react-renderer": "^2.4.0",
     "raw-loader": "^4.0.2",
@@ -35,20 +48,28 @@
     "react-live": "4.1.8",
     "rehype-raw": "^7.0.0",
     "remark-emoji": "5.0.2",
-    "remark-typedoc-symbol-links": "^2.1.0"
+    "typedoc": "0.28.19",
+    "unist-util-visit": "5.1.0"
+  },
+  "overrides": {
+    "remark-shiki-twoslash": {
+      "@typescript/twoslash": "3.2.12",
+      "@typescript/vfs": "1.6.4"
+    }
   },
   "devDependencies": {
     "@babel/plugin-proposal-decorators": "^7.24.7",
     "@babel/plugin-syntax-decorators": "^7.24.7",
-    "@docusaurus/module-type-aliases": "3.4.0",
-    "@docusaurus/tsconfig": "^3.4.0",
+    "@docusaurus/module-type-aliases": "3.10.1",
+    "@docusaurus/tsconfig": "3.10.1",
     "@types/react": "^18.3.3",
     "babel-loader": "10.1.1",
     "css-loader": "6.11.0",
     "micromark-extension-mdxjs": "^3.0.0",
     "patch-package": "^8.0.0",
+    "rimraf": "^5.0.5",
     "ts-loader": "9.5.7",
-    "typescript": "5.6.3",
+    "typescript": "6.0.3",
     "url-loader": "4.1.1"
   },
   "browserslist": {

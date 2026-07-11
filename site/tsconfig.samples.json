@@ -7,6 +7,9 @@
     "../src/engine/files.d.ts"
   ],
   "compilerOptions": {
+    "rootDir" : "..",
+    "ignoreDeprecations": "6.0",
+    "skipLibCheck": true,
     "paths": {
       "@site/*": ["./*"],
       "excalibur": ["../src/engine"]

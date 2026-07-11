@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
     "outDir": "../../build/dist",
-    "moduleResolution": "node",
     "sourceMap": true,
     "experimentalDecorators": true,
     "target": "es2018",
-    "module": "es2015",
+    "moduleResolution": "bundler",
+    "module": "esnext",
     "declaration": true,
     "removeComments": false,
     "incremental": true,
@@ -17,7 +17,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": false,
     "allowUnreachableCode": false,
-    "downlevelIteration": true,
     "lib": ["dom", "dom.iterable", "es5", "es2018"],
     "types": ["node"]
   },
