@@ -9,6 +9,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Behavior change - TileMap now uses 'separate' as the `compositeStrategy` as a better default. Commonly TileMap is used to build levels, so this default aligns with the common use.
 - Behavior change - Font/Text now render more accurately and faster be using less texture space, this unfortunately is a breaking change becuase text will render slightly different.
+- Build: Docusaurus now throws the build on broken markdown links, broken anchors, and broken markdown images instead of warning. Any custom docs/blog content must have valid internal links, anchors, and images.
+- Build: The engine `tsconfig.json` now uses `module: "esnext"` with `moduleResolution: "bundler"` (previously `module: "es2015"` / `moduleResolution: "node"`), and `downlevelIteration` has been removed. The per-package `tsconfig.json` overrides in `director`, `entity-component-system`, `graphics`, and `resources` have been removed in favor of the single engine `tsconfig.json`. Consumers importing source directly may need bundler-compatible tooling.
+- Build: TypeDoc runner has been replaced by `site/scripts/gen-typedoc-api.mjs`.
 
 ### Deprecated
 
@@ -55,6 +58,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   const sound = await Sound.fromBlob(instanceOfBlob)
   sound.play()
   ```
+- Docs: The API documentation pipeline has been rebuilt around a vendored fork of `docusaurus-plugin-typedoc-api` (added as a git submodule under `site/vendor/docusaurus-plugin-typedoc-api`). The new `site/scripts/gen-typedoc-api.mjs` generates TypeDoc output and an `api-symbol-index.json` consumed by the docs site.
+  ```bash
+  # in site/
+  npm run build:docusaurus-plugin-typedoc-api  # build the vendored plugin
+  npm run api:generate                         # run typedoc + normalize
+  ```
+- Docs: New `remark-api-symbol-links` plugin (`site/plugins/remark-api-symbol-links.mjs`) resolves `[[Symbol]]` markdown links to the generated TypeDoc API pages using the symbol index, replacing the external `remark-typedoc-symbol-links` package.
 
 ### Fixed
 
@@ -70,14 +80,24 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed `Color.toRGBA()` logic error in alpha check condition (`||` changed to `&&`)
 - Fixed `Color.toHSLA()` to output valid CSS format with degrees for hue and percentages for saturation/lightness
 - Fixed `Color.toHex()` to properly clamp RGB values to 0-255 range
+- Docs: Fixed broken internal links, anchors, and `[[Symbol]]` references across the docs and blog (e.g. `#sprites` → `/docs/sprites`, `#ExcaliburGraphicsContext` → `/docs/graphics-context`), and replaced invalid `[[Actor.update]]` symbol links with plain `Actor.update` references where the member is not part of the public API surface
+- Docs: Fixed incorrect JSDoc `@param`/`@returns` tags and removed dead commented-out code blocks in engine source (e.g. `CollisionSolver`, `BoundingBox.draw`) that produced invalid TypeDoc output
+- Fixed `BoundingBox.intersect()` return type to be explicitly `Vector | null` (callers already null-checked, but the type was not reflected)
 
 ### Updates
 
--
+- Deps: Upgraded to TypeScript 6.0.3 (from 5.6.3) and typescript-eslint 8.63.0 (from 8.38.0); engine source updated for TS6 strictness (non-null assertions, `null` → `undefined` defaults, optional fields)
+- Deps: Upgraded to Docusaurus 3.10.1 (from 3.5.2) across the docs site, including `@docusaurus/*` packages, theme/preset packages, and the mdx-loader
+- Deps: Upgraded to TypeDoc 0.28.19 (vendored plugin) and removed the top-level `typedoc` devDependency / `overrides`
+- Deps: Upgraded Vitest 4.1.8 → 4.1.10 and Vite 8.0.16 → 8.1.4; browser API is now enabled with `allowWrite`/`allowExec` in the unit config, and the Vitest API host was changed from `0.0.0.0` to `127.0.0.1`
+- Deps: Upgraded `coveralls-next` 6.0.1 → 6.0.2
+- Deps: Removed unused `@types/marked` devDependency and `wallaby.js` test runner config
+- CI: API doc generation now runs as part of `npm run all:ci` (via `npm run apidocs` → `site/scripts/gen-typedoc-api.mjs`); the dedicated `typedoc` CI job in the build workflow has been removed
+- CI: The `eslint` config dropped the obsolete `parserOptions.project` overrides now that typescript-eslint handles project context differently
 
 ### Changed
 
-- 
+- API documentation are now generated into the Docusaurus build directory (`site/generated/`, gitignored) and copied into `.docusaurus/generated/` during `site` build, instead of the legacy `docs/api/` output location
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
@@ -1358,11 +1378,18 @@ const hits = engine.currentScene.physics.rayCast(
 
 ### Updates
 
-- 
+- Deps: Upgraded to TypeScript 6.0.3 (from 5.6.3) and typescript-eslint 8.63.0 (from 8.38.0); engine source updated for TS6 strictness (non-null assertions, `null` → `undefined` defaults, optional fields)
+- Deps: Upgraded to Docusaurus 3.10.1 (from 3.5.2) across the docs site, including `@docusaurus/*` packages, theme/preset packages, and the mdx-loader
+- Deps: Upgraded to TypeDoc 0.28.19 (vendored plugin) and removed the top-level `typedoc` devDependency / `overrides`
+- Deps: Upgraded Vitest 4.1.8 → 4.1.10 and Vite 8.0.16 → 8.1.4; browser API is now enabled with `allowWrite`/`allowExec` in the unit config, and the Vitest API host was changed from `0.0.0.0` to `127.0.0.1`
+- Deps: Upgraded `coveralls-next` 6.0.1 → 6.0.2
+- Deps: Removed unused `@types/marked` devDependency and `wallaby.js` test runner config
+- CI: API doc generation now runs as part of `npm run all:ci` (via `npm run apidocs` → `site/scripts/gen-typedoc-api.mjs`); the dedicated `typedoc` CI job in the build workflow has been removed
+- CI: The `eslint` config dropped the obsolete `parserOptions.project` overrides now that typescript-eslint handles project context differently
 
 ### Changed
 
-- 
+- API documentation are now generated into the Docusaurus build directory (`site/generated/`, gitignored) and copied into `.docusaurus/generated/` during `site` build, instead of the legacy `docs/api/` output location
 
 ## [v0.28.2]
 
