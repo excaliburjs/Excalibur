@@ -410,10 +410,10 @@ export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
    * Returns the internal height of the tree, shorter trees are better. Performance drops as the tree grows
    */
   public getHeight(): number {
-    if (this.root === null) {
+    if (!this.root) {
       return 0;
     }
-    return this.root!.height;
+    return this.root.height;
   }
 
   /**

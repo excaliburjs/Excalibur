@@ -199,9 +199,9 @@ export class LineSegment {
     const m = this.slope;
     const b = this.intercept;
 
-    if (x) {
+    if (x != null) {
       return new Vector(x, m * x + b);
-    } else if (y) {
+    } else if (y != null) {
       return new Vector((y - b) / m, y);
     } else {
       throw new Error('You must provide an X or a Y value');
