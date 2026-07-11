@@ -62,7 +62,6 @@
     "@babel/plugin-syntax-decorators": "^7.24.7",
     "@docusaurus/module-type-aliases": "3.10.1",
     "@docusaurus/tsconfig": "3.10.1",
-    "@types/marked": "^6.0.0",
     "@types/react": "^18.3.3",
     "babel-loader": "10.1.1",
     "css-loader": "6.11.0",
