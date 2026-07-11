@@ -319,7 +319,12 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     });
 
     this.__gl.canvas.addEventListener('webglcontextrestored', () => {
+      if (this._disposed || !this.__gl) {
+        return;
+      }
       this._isContextLost = false;
+      this._renderers.clear();
+      this._init();
     });
 
     this.textureLoader = new TextureLoader(this.__gl, garbageCollector);

@@ -4,6 +4,7 @@ import type { Resolution } from '../../screen';
 import type { PostProcessor } from '../post-processor/post-processor';
 import type { AffineMatrix } from '../../math/affine-matrix';
 import type { Material, MaterialOptions } from './material';
+import type { RendererPlugin } from './renderer';
 import { ImageFiltering } from '../filtering';
 
 export type HTMLImageSource = HTMLImageElement | HTMLCanvasElement;
@@ -126,11 +127,46 @@ export interface ExcaliburGraphicsContextOptions {
    */
   useDrawSorting?: boolean;
 
-  onGraphicsPreConfig?: (context: ExcaliburGraphicsContextState, options: ExcaliburGraphicsContextOptions) => void;
-  onGraphicsPostConfig?: (context: ExcaliburGraphicsContextState, options: ExcaliburGraphicsContextOptions) => void;
+  /**
+   * Hook called before the graphics context is configured. Use to modify options before
+   * the WebGL context is created. Called at the start of the constructor.
+   *
+   * Called internally by Excalibur to forward plugin hooks.
+   * @param context The graphics context being constructed
+   * @param options The graphics context options (mutable)
+   * @internal
+   */
+  onGraphicsPreConfig?: (context: ExcaliburGraphicsContext, options: ExcaliburGraphicsContextOptions) => void;
 
-  onGraphicsPreInitialize?: (context: ExcaliburGraphicsContextState) => void;
-  onGraphicsPostInitialize?: (context: ExcaliburGraphicsContextState) => void;
+  /**
+   * Hook called after the graphics context is configured but before initialization.
+   * Called after the WebGL context is created and configuration properties are set.
+   *
+   * Called internally by Excalibur to forward plugin hooks.
+   * @param context The graphics context being constructed
+   * @param options The graphics context options
+   * @internal
+   */
+  onGraphicsPostConfig?: (context: ExcaliburGraphicsContext, options: ExcaliburGraphicsContextOptions) => void;
+
+  /**
+   * Hook called before the graphics context's internal initialization (renderers, render targets).
+   *
+   * Called internally by Excalibur to forward plugin hooks.
+   * @param context The graphics context being initialized
+   * @internal
+   */
+  onGraphicsPreInitialize?: (context: ExcaliburGraphicsContext) => void;
+
+  /**
+   * Hook called after the graphics context's internal initialization is complete.
+   * This is where plugins typically register custom renderers and post-processors.
+   *
+   * Called internally by Excalibur to forward plugin hooks.
+   * @param context The initialized graphics context
+   * @internal
+   */
+  onGraphicsPostInitialize?: (context: ExcaliburGraphicsContext) => void;
 }
 
 export interface ExcaliburGraphicsContextState {
@@ -381,6 +417,54 @@ export interface ExcaliburGraphicsContext {
    * @internal
    */
   updatePostProcessors(elapsed: number): void;
+
+  /**
+   * Register a custom renderer plugin with the graphics context.
+   *
+   * The renderer is immediately initialized with the WebGL context.
+   * Use this for renderers that should always be available.
+   *
+   * In the Canvas 2D fallback context this is a no-op.
+   * @param renderer The renderer plugin to register
+   */
+  register<T extends RendererPlugin>(renderer: T): void;
+
+  /**
+   * Lazily register a custom renderer plugin with the graphics context.
+   *
+   * The renderer factory is stored and only instantiated the first time it is
+   * requested via {@apilink ExcaliburGraphicsContext.get}. Use this for renderers
+   * that may not be needed in every game to avoid unnecessary initialization cost.
+   *
+   * In the Canvas 2D fallback context this is a no-op.
+   * @param type     The unique renderer type name (matches {@apilink RendererPlugin.type})
+   * @param renderer A factory function that creates the renderer
+   */
+  lazyRegister<TRenderer extends RendererPlugin>(type: TRenderer['type'], renderer: () => TRenderer): void;
+
+  /**
+   * Look up a registered renderer plugin by its type name.
+   *
+   * If the renderer was lazily registered, it will be instantiated and initialized
+   * on first access.
+   *
+   * @param rendererName The unique renderer type name
+   * @returns The renderer plugin, or `undefined` if not found
+   */
+  get(rendererName: string): RendererPlugin | undefined;
+
+  /**
+   * Issue a draw command to a named renderer plugin.
+   *
+   * The renderer is looked up by name (auto-instantiating lazy renderers) and its
+   * `draw()` method is called with the provided arguments. Draw calls are sorted
+   * by z-index and renderer priority before flushing.
+   *
+   * In the Canvas 2D fallback context this is a no-op.
+   * @param rendererName The unique renderer type name to draw with
+   * @param args         Arguments forwarded to the renderer's `draw()` method
+   */
+  draw<TRenderer extends RendererPlugin>(rendererName: TRenderer['type'], ...args: Parameters<TRenderer['draw']>): void;
 
   /**
    * Gets or sets the material to be used in the current context's drawings

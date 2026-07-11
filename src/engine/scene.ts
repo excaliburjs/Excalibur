@@ -102,8 +102,12 @@ export function isSceneConstructor(x: any): x is SceneConstructor {
  * 5. onPostUpdate - called every update
  * 6. onPreDraw - called every draw
  * 7. onPostDraw - called every draw
- * 8. onDeactivate - called teh first frame thescene is no longer current
+ * 8. onDeactivate - called the first frame the scene is no longer current
  *
+ * Each lifecycle stage also fires corresponding {@apilink Plugin} hooks:
+ * `onScenePreInitialize`/`onScenePostInitialize`,
+ * `onScenePreActivate`/`onScenePostActivate`,
+ * `onScenePreDeactivate`/`onScenePostDeactivate`.
  */
 export class Scene<TActivationData = unknown> implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate, CanDraw {
   private _logger: Logger = Logger.getInstance();
@@ -391,7 +395,16 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
     try {
       this._logger.debug('Scene.onActivate', this);
       this.input.toggleEnabled(true);
+
+      for (const plugin of this.engine.plugins) {
+        plugin.onScenePreActivate?.(this);
+      }
+
       await this.onActivate(context);
+
+      for (const plugin of this.engine.plugins) {
+        plugin.onScenePostActivate?.(this);
+      }
     } catch (e) {
       this._logger.error(`Error during scene activation for scene ${this.engine?.director?.getSceneName(this)}!`);
       throw e;
@@ -406,8 +419,19 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
    */
   public async _deactivate(context: SceneActivationContext<never>): Promise<any> {
     this._logger.debug('Scene.onDeactivate', this);
+
+    for (const plugin of this.engine.plugins) {
+      plugin.onScenePreDeactivate?.(this);
+    }
+
     this.input.toggleEnabled(false);
-    return await this.onDeactivate(context);
+    const result = await this.onDeactivate(context);
+
+    for (const plugin of this.engine.plugins) {
+      plugin.onScenePostDeactivate?.(this);
+    }
+
+    return result;
   }
 
   /**

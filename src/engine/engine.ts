@@ -38,7 +38,7 @@ import { Entity } from './entity-component-system/entity';
 import type { DebugStats } from './debug/debug-config';
 import { DebugConfig } from './debug/debug-config';
 import { BrowserEvents } from './util/browser';
-import type { AntialiasOptions, ExcaliburGraphicsContext, ExcaliburGraphicsContextWebGLOptions } from './graphics';
+import type { AntialiasOptions, ExcaliburGraphicsContext, ExcaliburGraphicsContextOptions, ExcaliburGraphicsContextWebGLOptions } from './graphics';
 import {
   DefaultAntialiasOptions,
   DefaultPixelArtOptions,
@@ -438,6 +438,83 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
     return this._plugins;
   }
 
+  /**
+   * Check whether a plugin with the given name is currently installed.
+   *
+   * @param name The unique plugin name to check
+   * @returns `true` if a plugin with that name is installed
+   */
+  public hasPlugin(name: string): boolean {
+    return this._plugins.some((p) => p.name === name);
+  }
+
+  /**
+   * Add a plugin to the engine after construction.
+   *
+   * If the engine has already passed certain lifecycle stages, the plugin's hooks
+   * for those stages will be called immediately so the plugin can "catch up".
+   *
+   * If a plugin with the same {@apilink Plugin.name} is already installed, a warning
+   * is logged and the plugin is not added.
+   *
+   * @param plugin The plugin to add
+   * @returns `true` if the plugin was added, `false` if it was skipped (duplicate name)
+   */
+  public addPlugin(plugin: Plugin): boolean {
+    if (this._plugins.some((p) => p.name === plugin.name)) {
+      this._logger.warn(`Plugin with name "${plugin.name}" is already installed, skipping duplicate.`);
+      return false;
+    }
+
+    // Insert maintaining priority sort order
+    const insertIndex = this._plugins.findIndex((p) => p.priority > plugin.priority);
+    if (insertIndex === -1) {
+      this._plugins.push(plugin);
+    } else {
+      this._plugins.splice(insertIndex, 0, plugin);
+    }
+
+    // Catch up on lifecycle stages the engine has already passed
+    // Engine config hooks
+    plugin.onEnginePreConfig?.(this, this._originalOptions);
+    plugin.onEnginePostConfig?.(this, this._originalOptions);
+
+    // Graphics hooks - if the graphics context already exists
+    if (this.graphicsContext) {
+      const graphicsOptions = this._originalOptions as unknown as ExcaliburGraphicsContextOptions;
+      plugin.onGraphicsPreConfig?.(this.graphicsContext, graphicsOptions);
+      plugin.onGraphicsPostConfig?.(this.graphicsContext, graphicsOptions);
+      plugin.onGraphicsPreInitialize?.(this.graphicsContext);
+      plugin.onGraphicsPostInitialize?.(this.graphicsContext);
+    }
+
+    // Engine initialization hooks - if the engine is already initialized
+    if (this.isInitialized) {
+      plugin.onEnginePreInitialize?.(this);
+      plugin.onEnginePostInitialize?.(this);
+    }
+
+    return true;
+  }
+
+  /**
+   * Remove a plugin from the engine by name.
+   *
+   * The plugin's {@apilink Plugin.dispose} method will be called if present.
+   *
+   * @param name The unique plugin name to remove
+   * @returns `true` if the plugin was found and removed
+   */
+  public removePlugin(name: string): boolean {
+    const index = this._plugins.findIndex((p) => p.name === name);
+    if (index === -1) {
+      return false;
+    }
+    const [removed] = this._plugins.splice(index, 1);
+    removed?.dispose?.();
+    return true;
+  }
+
   private _garbageCollector: GarbageCollector;
 
   public readonly garbageCollectorConfig: GarbageCollectionOptions | null;
@@ -828,16 +905,23 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
     options = { ...Engine._DEFAULT_ENGINE_OPTIONS, ...options };
     this._originalOptions = options;
 
-    Flags.freeze();
-
     if (options.plugins && options.plugins.length > 0) {
-      this._plugins = [...options.plugins];
+      const logger = Logger.getInstance();
+      for (const plugin of options.plugins) {
+        if (this._plugins.some((p) => p.name === plugin.name)) {
+          logger.warn(`Plugin with name "${plugin.name}" is already installed, skipping duplicate.`);
+          continue;
+        }
+        this._plugins.push(plugin);
+      }
       this._plugins.sort((a, b) => a.priority - b.priority);
     }
 
     for (const plugin of this._plugins) {
       plugin.onEnginePreConfig?.(this, options);
     }
+
+    Flags.freeze();
 
     // Initialize browser events facade
     this.browser = new BrowserEvents(window, document);
@@ -1055,7 +1139,7 @@ O|===|* >________________>\n\
               }
             : null,
           handleContextLost: options.handleContextLost ?? this._handleWebGLContextLost,
-          handleContextRestored: options.handleContextRestored,
+          handleContextRestored: options.handleContextRestored ?? this._handleWebGLContextRestored,
           onGraphicsPreConfig,
           onGraphicsPostConfig,
           onGraphicsPreInitialize,
@@ -1142,6 +1226,12 @@ O|===|* >________________>\n\
     e.preventDefault();
     this.clock.stop();
     this._logger.fatalOnce('WebGL Graphics Lost', e);
+
+    // Notify plugins that the graphics context was lost
+    for (const plugin of this._plugins) {
+      plugin.onGraphicsContextLost?.(this.graphicsContext);
+    }
+
     const container = document.createElement('div');
     container.id = 'ex-webgl-graphics-context-lost';
     container.style.position = 'absolute';
@@ -1179,6 +1269,21 @@ O|===|* >________________>\n\
       const button = div.querySelector('#ex-webgl-graphics-reload');
       button?.addEventListener('click', () => location.reload());
     }
+  };
+
+  private _handleWebGLContextRestored = (e: Event) => {
+    this._logger.debug('WebGL Graphics Context Restored');
+
+    // Notify plugins that the graphics context was restored.
+    // The graphics context's _init() will re-run and call onGraphicsPreInitialize/onGraphicsPostInitialize
+    // so plugins can rebuild their WebGL resources.
+    for (const plugin of this._plugins) {
+      plugin.onGraphicsContextRestored?.(this.graphicsContext);
+    }
+
+    // Restart the clock
+    this.browser.resume();
+    this.clock.start();
   };
 
   private _performanceThresholdTriggered = false;
@@ -1815,7 +1920,17 @@ O|===|* >________________>\n\
       }
       this._logger.debug('Game clock started');
 
+      // Run plugin onLoad hooks before loading resources
+      for (const plugin of this._plugins) {
+        await plugin.onLoad?.();
+      }
+
       await this.load(loader ?? new Loader());
+
+      // Run plugin onLoadComplete hooks after resources are loaded
+      for (const plugin of this._plugins) {
+        await plugin.onLoadComplete?.();
+      }
 
       // Initialize before ready
       await this._overrideInitialize(this);
