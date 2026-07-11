@@ -37,7 +37,7 @@ export class ResourceLoadingError extends Error {
  * For any type of remote resource it is recommended to use {@apilink Resource} for preloading.
  */
 export class Resource<T> implements Loadable<T> {
-  public data: T = null;
+  public data!: T;
   public logger: Logger = Logger.getInstance();
   public events = new EventEmitter();
 
@@ -57,7 +57,7 @@ export class Resource<T> implements Loadable<T> {
    * to be drawn.
    */
   public isLoaded(): boolean {
-    return this.data !== null;
+    return !!this.data;
   }
 
   private _cacheBust(uri: string): string {
@@ -75,7 +75,7 @@ export class Resource<T> implements Loadable<T> {
   public load(): Promise<T> {
     return new Promise((resolve, reject) => {
       // Exit early if we already have data
-      if (this.data !== null) {
+      if (this.data) {
         this.logger.debug('Already have data for resource', this.path);
         this.events.emit('complete', this.data as any);
         resolve(this.data);

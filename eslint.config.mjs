@@ -190,11 +190,7 @@ export default tseslint.config(
 
     languageOptions: {
       ecmaVersion: 5,
-      sourceType: 'module',
-
-      parserOptions: {
-        project: false
-      }
+      sourceType: 'module'
     }
   },
   {
@@ -202,11 +198,7 @@ export default tseslint.config(
 
     languageOptions: {
       ecmaVersion: 5,
-      sourceType: 'module',
-
-      parserOptions: {
-        project: true
-      }
+      sourceType: 'module'
     }
   }
 );

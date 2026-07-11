@@ -268,7 +268,7 @@ export class Camera implements CanUpdate, CanInitialize {
   public transform: AffineMatrix = AffineMatrix.identity();
   public inverse: AffineMatrix = AffineMatrix.identity();
 
-  protected _follow: Actor;
+  protected _follow!: Actor;
 
   private _cameraStrategies: CameraStrategy<any>[] = [];
   public get strategies(): CameraStrategy<any>[] {
@@ -364,10 +364,10 @@ export class Camera implements CanUpdate, CanInitialize {
   private _cameraMoving: boolean = false;
   private _currentLerpTime: number = 0;
   private _lerpDuration: number = 1000; // 1 second
-  private _lerpStart: Vector = null;
-  private _lerpEnd: Vector = null;
-  private _lerpResolve: (value: Vector) => void;
-  private _lerpPromise: Promise<Vector>;
+  private _lerpStart!: Vector;
+  private _lerpEnd!: Vector;
+  private _lerpResolve!: (value: Vector) => void;
+  private _lerpPromise?: Promise<Vector>;
 
   //camera effects
   protected _isShaking: boolean = false;
@@ -384,8 +384,8 @@ export class Camera implements CanUpdate, CanInitialize {
   private _currentZoomTime: number = 0;
   private _zoomDuration: number = 0;
 
-  private _zoomResolve: (val: boolean) => void;
-  private _zoomPromise: Promise<boolean>;
+  private _zoomResolve!: (val: boolean) => void;
+  private _zoomPromise!: Promise<boolean>;
   private _legacyZoomEasing: EasingFunction = EasingFunctions.EaseInOutCubic;
   private _useLegacyZoom = false;
   private _zoomEasing: Easing = easeInOutCubic;
@@ -567,7 +567,7 @@ export class Camera implements CanUpdate, CanInitialize {
     return this._zoomPromise;
   }
 
-  private _viewport: BoundingBox = null;
+  private _viewport?: BoundingBox;
   /**
    * Gets the bounding box of the viewport of this camera in world coordinates
    */
@@ -581,7 +581,7 @@ export class Camera implements CanUpdate, CanInitialize {
 
   /**
    * Adds one or more new camera strategies to this camera
-   * @param cameraStrategy Instance of an {@apilink CameraStrategy}
+   * @param cameraStrategies Instance of an {@apilink CameraStrategy}
    */
   public addStrategy<T extends CameraStrategy<any>[]>(...cameraStrategies: T) {
     this._cameraStrategies.push(...cameraStrategies);
@@ -658,8 +658,8 @@ export class Camera implements CanUpdate, CanInitialize {
     // Overridable
   }
 
-  private _engine: Engine;
-  private _screen: Screen;
+  private _engine!: Engine;
+  private _screen!: Screen;
   private _isInitialized = false;
   public get isInitialized() {
     return this._isInitialized;
@@ -741,7 +741,7 @@ export class Camera implements CanUpdate, CanInitialize {
   public off(eventName: string, handler: Handler<unknown>): void;
   public off(eventName: string): void;
   public off<TEventName extends EventKey<CameraEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
-    this.events.off(eventName, handler);
+    this.events.off(eventName, handler as any);
   }
 
   public runStrategies(engine: Engine, elapsed: number) {
@@ -812,8 +812,8 @@ export class Camera implements CanUpdate, CanInitialize {
         this.pos = this._lerpEnd;
         const end = this._lerpEnd.clone();
 
-        this._lerpStart = null;
-        this._lerpEnd = null;
+        this._lerpStart = null as any;
+        this._lerpEnd = null as any;
         this._currentLerpTime = 0;
         this._cameraMoving = false;
         // Order matters here, resolve should be last so any chain promises have a clean slate

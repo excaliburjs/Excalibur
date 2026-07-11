@@ -577,7 +577,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * Sets the color of the actor's current graphic
    */
   public get color(): Color {
-    return this.graphics.color;
+    return this.graphics.color!;
   }
   public set color(v: Color) {
     this.graphics.color = v;
@@ -619,7 +619,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
       material,
       canPause
     } = {
-      ...config
+      ...config!
     };
 
     this.name = name ?? this.name;
@@ -682,8 +682,8 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
         );
       }
     } else {
-      if (width > 0 && height > 0) {
-        this.collider = new ColliderComponent(Shape.Box(width, height, this.anchor));
+      if (width! > 0 && height! > 0) {
+        this.collider = new ColliderComponent(Shape.Box(width!, height!, this.anchor));
         this.addComponent(this.collider);
 
         if (color && width && height) {
@@ -796,7 +796,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   public off(eventName: string, handler: Handler<unknown>): void;
   public off(eventName: string): void;
   public off<TEventName extends EventKey<ActorEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
-    this.events.off(eventName, handler);
+    this.events.off(eventName, handler as any);
   }
 
   // #endregion
@@ -990,8 +990,11 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     if (recurse) {
       return (
         containment ||
-        this.children.some((child: Actor) => {
-          return child.contains(x, y, true);
+        this.children.some((child) => {
+          if (child instanceof Actor) {
+            return child.contains(x, y, true);
+          }
+          return false;
         })
       );
     }

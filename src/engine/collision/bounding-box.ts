@@ -17,10 +17,10 @@ export interface BoundingBoxOptions {
  * Axis Aligned collision primitive for Excalibur.
  */
 export class BoundingBox {
-  public top: number;
-  public right: number;
-  public bottom: number;
-  public left: number;
+  public top!: number;
+  public right!: number;
+  public bottom!: number;
+  public left!: number;
 
   /**
    * Constructor allows passing of either an object with all coordinate components,
@@ -397,7 +397,7 @@ export class BoundingBox {
    * @param other  Other {@apilink BoundingBox} to test intersection with
    * @returns A Vector in the direction of the current BoundingBox, this <- other
    */
-  public intersect(other: BoundingBox): Vector {
+  public intersect(other: BoundingBox): Vector | null {
     // early exit
     if (this.bottom <= other.top || other.bottom <= this.top || this.right <= other.left || other.right <= this.left) {
       return null;
@@ -440,13 +440,13 @@ export class BoundingBox {
    */
   public intersectWithSide(bb: BoundingBox): Side {
     const intersect = this.intersect(bb);
-    return BoundingBox.getSideFromIntersection(intersect);
+    return BoundingBox.getSideFromIntersection(intersect!);
   }
 
   /**
    * Draw a debug bounding box
    * @param ex
-   * @param color
+   * @param options
    * @deprecated
    */
   public draw(ex: ExcaliburGraphicsContext, options: RectGraphicsOptions = { color: Color.Yellow }) {
@@ -456,7 +456,7 @@ export class BoundingBox {
   /**
    * Draw a debug bounding box
    * @param ex
-   * @param color
+   * @param options
    */
   public debug(ex: ExcaliburGraphicsContext, options: RectGraphicsOptions = { color: Color.Yellow }) {
     ex.debug.drawRect(this.left, this.top, this.width, this.height, options);

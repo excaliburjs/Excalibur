@@ -46,7 +46,7 @@ export abstract class Component {
   /**
    * Current owning {@apilink Entity}, if any, of this component. Null if not added to any {@apilink Entity}
    */
-  owner?: Entity = undefined;
+  owner: Entity | null = null;
 
   /**
    * Clones any properties on this component, if that property value has a `clone()` method it will be called

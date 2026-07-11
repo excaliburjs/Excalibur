@@ -476,12 +476,12 @@ export class Serializer {
       } else {
         entity = new Actor();
       }
-      entity.name = data.name;
+      entity!.name = data.name;
 
       //remove all existing components
       // debugger;
-      for (const component of entity.getComponents()) {
-        entity.removeComponent(component, true);
+      for (const component of entity!.getComponents()) {
+        entity!.removeComponent(component, true);
       }
 
       // debugger;
@@ -490,42 +490,42 @@ export class Serializer {
       for (const componentData of data.components) {
         const component = Serializer.deserializeComponent(componentData);
         if (component) {
-          entity.addComponent(component);
+          entity!.addComponent(component);
         }
       }
 
       // Setup actor references and getters/setters
-      if (entity.get(TransformComponent)) {
-        entity.transform = entity.get(TransformComponent)!;
+      if (entity!.get(TransformComponent)) {
+        entity!.transform = entity!.get(TransformComponent)!;
       }
-      if (entity.get(PointerComponent)) {
-        entity.pointer = entity.get(PointerComponent)!;
+      if (entity!.get(PointerComponent)) {
+        entity!.pointer = entity!.get(PointerComponent)!;
       }
-      if (entity.get(GraphicsComponent)) {
-        entity.graphics = entity.get(GraphicsComponent)!;
+      if (entity!.get(GraphicsComponent)) {
+        entity!.graphics = entity!.get(GraphicsComponent)!;
       }
-      if (entity.get(MotionComponent)) {
-        entity.motion = entity.get(MotionComponent)!;
+      if (entity!.get(MotionComponent)) {
+        entity!.motion = entity!.get(MotionComponent)!;
       }
-      if (entity.get(ActionsComponent)) {
-        entity.actions = entity.get(ActionsComponent)!;
+      if (entity!.get(ActionsComponent)) {
+        entity!.actions = entity!.get(ActionsComponent)!;
       }
-      if (entity.get(BodyComponent)) {
-        entity.body = entity.get(BodyComponent)!;
+      if (entity!.get(BodyComponent)) {
+        entity!.body = entity!.get(BodyComponent)!;
       }
-      if (entity.get(ColliderComponent)) {
-        entity.collider = entity.get(ColliderComponent);
+      if (entity!.get(ColliderComponent)) {
+        entity!.collider = entity!.get(ColliderComponent);
       }
 
       // Recursively deserialize children
       for (const childData of data.children) {
         const child = Serializer.deserializeEntity(childData);
         if (child) {
-          entity.addChild(child);
+          entity!.addChild(child);
         }
       }
 
-      return entity;
+      return entity!;
     } catch (error) {
       Serializer._LOGGER.error('Error deserializing entity:', error);
       return null;

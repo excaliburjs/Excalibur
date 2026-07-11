@@ -48,7 +48,7 @@ export class Ray {
     return -1;
   }
 
-  public intersectPoint(line: LineSegment): Vector {
+  public intersectPoint(line: LineSegment): Vector | null {
     const time = this.intersect(line);
     if (time < 0) {
       return null;

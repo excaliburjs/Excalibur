@@ -88,7 +88,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   private static _DEFAULT_CONFIG: BodyConfig = {
     ...getDefaultPhysicsConfig().bodies
   };
-  public wakeThreshold: number;
+  public wakeThreshold!: number;
   public sleepTime: number = 0;
 
   constructor(options?: BodyComponentOptions) {
@@ -107,7 +107,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
       };
     }
     this.updatePhysicsConfig(this._bodyConfig);
-    this._mass = BodyComponent._DEFAULT_CONFIG.defaultMass;
+    this._mass = BodyComponent._DEFAULT_CONFIG!.defaultMass;
   }
 
   public get matrix() {
@@ -130,7 +130,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   }
 
   public get canFallAsleep() {
-    return this.canSleep && this.collisionType === CollisionType.Active && this.sleepMotion < this._bodyConfig.sleepEpsilon;
+    return this.canSleep && this.collisionType === CollisionType.Active && this.sleepMotion < this._bodyConfig!.sleepEpsilon;
   }
 
   public get canWakeUp() {
@@ -165,8 +165,8 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
 
   public set mass(newMass: number) {
     this._mass = newMass;
-    this._cachedInertia = undefined;
-    this._cachedInverseInertia = undefined;
+    this._cachedInertia = undefined as any;
+    this._cachedInverseInertia = undefined as any;
   }
 
   /**
@@ -179,7 +179,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   /**
    * Amount of "motion" the body has before sleeping. If below {@apilink Physics.sleepEpsilon} it goes to "sleep"
    */
-  public sleepMotion: number;
+  public sleepMotion!: number;
 
   /**
    * Can this body sleep, by default bodies do not sleep
@@ -216,7 +216,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
       this._sleeping = false;
       this.owner?.removeTag('ex.is_sleeping');
       // Give it a kick to keep it from falling asleep immediately
-      this.sleepMotion = this._bodyConfig.sleepEpsilon * 2;
+      this.sleepMotion = this._bodyConfig!.sleepEpsilon * 2;
       this.sleepTime = 0;
     }
   }
@@ -262,14 +262,14 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     const currentMotion = vel * vel + omega * omega;
 
     // Bias is frame duration dependent (sleepBias is smeared over 1-s frames
-    const bias = Math.pow(this._bodyConfig.sleepBias, duration / 1000);
+    const bias = Math.pow(this._bodyConfig!.sleepBias, duration / 1000);
 
     // Rolling average of previous motion to keep things from sleeping if they stop abruptly but were just moving fast
     const previousMotion = this.sleepMotion;
     this.sleepMotion = bias * previousMotion + (1.0 - bias) * currentMotion;
 
     // Clamp motion to a maximum
-    this.sleepMotion = clamp(this.sleepMotion, 0, 10 * this._bodyConfig.sleepEpsilon);
+    this.sleepMotion = clamp(this.sleepMotion, 0, 10 * this._bodyConfig!.sleepEpsilon);
 
     // Low energy bodies go to sleep, just like real life ;)
     if (this.canFallAsleep) {
@@ -277,7 +277,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     }
   }
 
-  private _cachedInertia: number;
+  private _cachedInertia!: number;
   /**
    * Get the moment of inertia from the {@apilink ColliderComponent}
    */
@@ -287,13 +287,13 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     }
 
     // Inertia is a property of the geometry, so this is a little goofy but seems to be okay?
-    const collider = this.owner.get(ColliderComponent);
+    const collider = this.owner!.get(ColliderComponent);
     if (collider) {
       collider.$colliderAdded.subscribe(() => {
-        this._cachedInertia = null;
+        this._cachedInertia = null as any;
       });
       collider.$colliderRemoved.subscribe(() => {
-        this._cachedInertia = null;
+        this._cachedInertia = null as any;
       });
       const maybeCollider = collider.get();
       if (maybeCollider) {
@@ -303,7 +303,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     return 0;
   }
 
-  private _cachedInverseInertia: number;
+  private _cachedInverseInertia!: number;
   /**
    * Get the inverse moment of inertial from the {@apilink ColliderComponent}. If {@apilink CollisionType.Fixed} this is 0, meaning "infinite" mass
    */
@@ -362,12 +362,12 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     return this.globalPos;
   }
 
-  public transform: TransformComponent;
-  public motion: MotionComponent;
+  public transform!: TransformComponent;
+  public motion!: MotionComponent;
 
   override onAdd(owner: Entity<any>): void {
-    this.transform = this.owner?.get(TransformComponent);
-    this.motion = this.owner?.get(MotionComponent);
+    this.transform = this.owner?.get(TransformComponent)!;
+    this.motion = this.owner?.get(MotionComponent)!;
   }
 
   public get pos(): Vector {

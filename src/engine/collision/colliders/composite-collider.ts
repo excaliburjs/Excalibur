@@ -18,7 +18,7 @@ import { getDefaultPhysicsConfig } from '../physics-config';
 export type CompositeStrategy = 'separate' | 'together';
 
 export class CompositeCollider extends Collider {
-  private _transform: Transform;
+  private _transform!: Transform;
   private _collisionProcessor = new DynamicTreeCollisionProcessor({
     ...getDefaultPhysicsConfig()
   });
@@ -45,7 +45,7 @@ export class CompositeCollider extends Collider {
     this._compositeStrategy = value;
   }
   public get compositeStrategy() {
-    return this._compositeStrategy;
+    return this._compositeStrategy!;
   }
 
   constructor(colliders: Collider[]) {
@@ -73,7 +73,7 @@ export class CompositeCollider extends Collider {
       c.composite = this;
       this._colliders.push(c);
       this._collisionProcessor.track(c);
-      this._dynamicAABBTree.trackCollider(c);
+      this._dynamicAABBTree.trackCollider(c as any);
     }
   }
 
@@ -82,7 +82,7 @@ export class CompositeCollider extends Collider {
     collider.composite = null;
     Util.removeItemFromArray(collider, this._colliders);
     this._collisionProcessor.untrack(collider);
-    this._dynamicAABBTree.untrackCollider(collider);
+    this._dynamicAABBTree.untrackCollider(collider as any);
   }
 
   getColliders(): Collider[] {
@@ -162,8 +162,9 @@ export class CompositeCollider extends Collider {
 
     const pairs: Pair[] = [];
     for (const c of otherColliders) {
-      this._dynamicAABBTree.query(c, (potentialCollider: Collider) => {
-        pairs.push(new Pair(c, potentialCollider));
+      // FIXME this type seems wrong
+      this._dynamicAABBTree.query(c as any, (potentialCollider) => {
+        pairs.push(new Pair(c, potentialCollider as any));
         return false;
       });
     }
@@ -209,7 +210,7 @@ export class CompositeCollider extends Collider {
       }
       return minLine;
     }
-    return null;
+    return null as any;
   }
   contains(point: Vector): boolean {
     const colliders = this.getColliders();
@@ -261,7 +262,7 @@ export class CompositeCollider extends Collider {
       }
       return newProjection;
     }
-    return null;
+    return null as any;
   }
 
   update(transform: Transform): void {

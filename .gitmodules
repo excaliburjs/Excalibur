@@ -1,0 +1,3 @@
+[submodule "site/vendor/docusaurus-plugin-typedoc-api"]
+	path = site/vendor/docusaurus-plugin-typedoc-api
+	url = https://github.com/excaliburjs/docusaurus-plugin-typedoc-api.git
