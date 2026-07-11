@@ -52,10 +52,12 @@ import type { Scene } from './scene';
  */
 export abstract class Plugin {
   /**
-   * Unique name of the plugin. Used for deduplication — attempting to add a plugin
+   * Unique name of the plugin, pick something unique (official excalibur plugins use the reserved prefix "ex."). 
+   * Used for deduplication — attempting to add a plugin
    * with a name that is already installed will produce a warning and be skipped.
+   * @param name
    */
-  name: string;
+  constructor(public readonly name: string) { }
 
   /**
    * Plugin priority determines the order hooks are run across all installed plugins.

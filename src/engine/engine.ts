@@ -743,7 +743,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
    * Indicates whether the engine is set to fullscreen or not
    */
   public get isFullscreen(): boolean {
-    return this.screen.isFullScreen;
+    return this.screen.isFullscreen;
   }
 
   /**
@@ -938,7 +938,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
       message.innerText = 'Sorry, your browser does not support all the features needed for Excalibur';
       document.body.appendChild(message);
 
-      detector.failedTests.forEach(function (test) {
+      detector.failedTests.forEach(function(test) {
         const testMessage = document.createElement('div');
         testMessage.innerText = 'Browser feature missing ' + test;
         document.body.appendChild(testMessage);
@@ -1076,7 +1076,7 @@ O|===|* >________________>\n\
     if (nativeContextAntialiasing && multiSampleAntialiasing) {
       this._logger.warnOnce(
         `Cannot use antialias setting nativeContextAntialiasing and multiSampleAntialiasing` +
-          ` at the same time, they are incompatible settings. If you aren\'t sure use multiSampleAntialiasing`
+        ` at the same time, they are incompatible settings. If you aren\'t sure use multiSampleAntialiasing`
       );
     }
 
@@ -1100,31 +1100,29 @@ O|===|* >________________>\n\
         let onGraphicsPostConfig: (context: ExcaliburGraphicsContext, options: ExcaliburGraphicsContextWebGLOptions) => void;
         let onGraphicsPreInitialize: (context: ExcaliburGraphicsContext) => void;
         let onGraphicsPostInitialize: (context: ExcaliburGraphicsContext) => void;
-        if (this._plugins.length > 0) {
-          onGraphicsPreConfig = (context: ExcaliburGraphicsContext, options: ExcaliburGraphicsContextWebGLOptions) => {
-            for (const plugin of this._plugins) {
-              plugin.onGraphicsPreConfig?.(context, options);
-            }
-          };
+        onGraphicsPreConfig = (context: ExcaliburGraphicsContext, options: ExcaliburGraphicsContextWebGLOptions) => {
+          for (const plugin of this._plugins) {
+            plugin.onGraphicsPreConfig?.(context, options);
+          }
+        };
 
-          onGraphicsPostConfig = (context: ExcaliburGraphicsContext, options: ExcaliburGraphicsContextWebGLOptions) => {
-            for (const plugin of this._plugins) {
-              plugin.onGraphicsPostConfig?.(context, options);
-            }
-          };
+        onGraphicsPostConfig = (context: ExcaliburGraphicsContext, options: ExcaliburGraphicsContextWebGLOptions) => {
+          for (const plugin of this._plugins) {
+            plugin.onGraphicsPostConfig?.(context, options);
+          }
+        };
 
-          onGraphicsPreInitialize = (context: ExcaliburGraphicsContext) => {
-            for (const plugin of this._plugins) {
-              plugin.onGraphicsPreInitialize?.(context);
-            }
-          };
+        onGraphicsPreInitialize = (context: ExcaliburGraphicsContext) => {
+          for (const plugin of this._plugins) {
+            plugin.onGraphicsPreInitialize?.(context);
+          }
+        };
 
-          onGraphicsPostInitialize = (context: ExcaliburGraphicsContext) => {
-            for (const plugin of this._plugins) {
-              plugin.onGraphicsPostInitialize?.(context);
-            }
-          };
-        }
+        onGraphicsPostInitialize = (context: ExcaliburGraphicsContext) => {
+          for (const plugin of this._plugins) {
+            plugin.onGraphicsPostInitialize?.(context);
+          }
+        };
 
         this.graphicsContext = new ExcaliburGraphicsContextWebGL({
           canvasElement: this.canvas,
@@ -1139,9 +1137,9 @@ O|===|* >________________>\n\
           useDrawSorting: options.useDrawSorting,
           garbageCollector: this.garbageCollectorConfig
             ? {
-                garbageCollector: this._garbageCollector!,
-                collectionInterval: this.garbageCollectorConfig!.textureCollectInterval!
-              }
+              garbageCollector: this._garbageCollector!,
+              collectionInterval: this.garbageCollectorConfig!.textureCollectInterval!
+            }
             : undefined,
           handleContextLost: options.handleContextLost ?? this._handleWebGLContextLost,
           handleContextRestored: options.handleContextRestored ?? this._handleWebGLContextRestored,
@@ -1153,8 +1151,8 @@ O|===|* >________________>\n\
       } catch (e) {
         this._logger.warn(
           `Excalibur could not load webgl for some reason (${(e as Error).message}) and loaded a Canvas 2D fallback. ` +
-            `Some features of Excalibur will not work in this mode. \n\n` +
-            'Read more about this issue at https://excaliburjs.com/docs/performance'
+          `Some features of Excalibur will not work in this mode. \n\n` +
+          'Read more about this issue at https://excaliburjs.com/docs/performance'
         );
         // fallback to canvas in case of failure
         useCanvasGraphicsContext = true;
@@ -1276,7 +1274,7 @@ O|===|* >________________>\n\
     }
   };
 
-  private _handleWebGLContextRestored = (e: Event) => {
+  private _handleWebGLContextRestored = () => {
     this._logger.debug('WebGL Graphics Context Restored');
 
     // Notify plugins that the graphics context was restored.
@@ -1319,22 +1317,22 @@ O|===|* >________________>\n\
           this._performanceThresholdTriggered = true;
           this._logger.warn(
             `Switching to browser 2D Canvas fallback due to performance. Some features of Excalibur will not work in this mode.\n` +
-              "this might mean your browser doesn't have webgl enabled or hardware acceleration is unavailable.\n\n" +
-              'If in Chrome:\n' +
-              '  * Visit Settings > Advanced > System, and ensure "Use Hardware Acceleration" is checked.\n' +
-              '  * Visit chrome://flags/#ignore-gpu-blocklist and ensure "Override software rendering list" is "enabled"\n' +
-              'If in Firefox, visit about:config\n' +
-              '  * Ensure webgl.disabled = false\n' +
-              '  * Ensure webgl.force-enabled = true\n' +
-              '  * Ensure layers.acceleration.force-enabled = true\n\n' +
-              'Read more about this issue at https://excaliburjs.com/docs/performance'
+            "this might mean your browser doesn't have webgl enabled or hardware acceleration is unavailable.\n\n" +
+            'If in Chrome:\n' +
+            '  * Visit Settings > Advanced > System, and ensure "Use Hardware Acceleration" is checked.\n' +
+            '  * Visit chrome://flags/#ignore-gpu-blocklist and ensure "Override software rendering list" is "enabled"\n' +
+            'If in Firefox, visit about:config\n' +
+            '  * Ensure webgl.disabled = false\n' +
+            '  * Ensure webgl.force-enabled = true\n' +
+            '  * Ensure layers.acceleration.force-enabled = true\n\n' +
+            'Read more about this issue at https://excaliburjs.com/docs/performance'
           );
 
           if (showPlayerMessage) {
             this._toaster.toast(
               'Excalibur is encountering performance issues. ' +
-                "It's possible that your browser doesn't have hardware acceleration enabled. " +
-                'Visit [LINK] for more information and potential solutions.',
+              "It's possible that your browser doesn't have hardware acceleration enabled. " +
+              'Visit [LINK] for more information and potential solutions.',
               'https://excaliburjs.com/docs/performance'
             );
           }
@@ -1677,7 +1675,9 @@ O|===|* >________________>\n\
     }
 
     for (const plugin of this._plugins) {
-      plugin.onEnginePostConfig?.(this, options);
+      if (plugin.onEnginePostConfig) {
+        plugin.onEnginePostConfig?.(this, options ?? {});
+      }
     }
   }
 
@@ -1700,7 +1700,9 @@ O|===|* >________________>\n\
   private async _overrideInitialize(engine: Engine) {
     if (!this.isInitialized) {
       for (const plugin of this._plugins) {
-        plugin.onEnginePreInitialize(this);
+        if (plugin.onEnginePreInitialize) {
+          plugin.onEnginePreInitialize(this);
+        }
       }
 
       await this.director.onInitialize();
@@ -1709,7 +1711,9 @@ O|===|* >________________>\n\
       this._isInitialized = true;
 
       for (const plugin of this._plugins) {
-        plugin.onEnginePostInitialize(this);
+        if (plugin.onEnginePostInitialize) {
+          plugin.onEnginePostInitialize(this);
+        }
       }
     }
   }
