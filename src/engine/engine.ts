@@ -38,7 +38,12 @@ import { Entity } from './entity-component-system/entity';
 import type { DebugStats } from './debug/debug-config';
 import { DebugConfig } from './debug/debug-config';
 import { BrowserEvents } from './util/browser';
-import type { AntialiasOptions, ExcaliburGraphicsContext, ExcaliburGraphicsContextOptions, ExcaliburGraphicsContextWebGLOptions } from './graphics';
+import type {
+  AntialiasOptions,
+  ExcaliburGraphicsContext,
+  ExcaliburGraphicsContextOptions,
+  ExcaliburGraphicsContextWebGLOptions
+} from './graphics';
 import {
   DefaultAntialiasOptions,
   DefaultPixelArtOptions,
