@@ -87,7 +87,7 @@ export abstract class Plugin {
   async onLoadComplete?(): Promise<void>;
 
   /**
-   * Intercept and mutate the {@param options} passed into the Engine, and/or modify
+   * Intercept and mutate the @[apilink EngineOptions} passed into the Engine, and/or modify
    * the engine before any other configuration happens.
    *
    * This is the first hook called during engine construction. Feature flags can still
@@ -243,7 +243,7 @@ export abstract class Plugin {
    * Plugins that manage WebGL resources (shaders, buffers, textures) should
    * implement this to mark their resources as invalid. The context will be
    * restored and {@apilink onGraphicsContextRestored} will be called, after which
-   * {@apilink onGraphicsPreInitialize} and {@apiliink onGraphicsPostInitialize}
+   * {@apilink onGraphicsPreInitialize} and {@apilink onGraphicsPostInitialize}
    * will re-run so resources can be rebuilt.
    *
    * @param context The graphics context that was lost

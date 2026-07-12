@@ -1096,29 +1096,25 @@ O|===|* >________________>\n\
     if (!useCanvasGraphicsContext) {
       // Attempt webgl first
       try {
-        let onGraphicsPreConfig: (context: ExcaliburGraphicsContext, options: ExcaliburGraphicsContextWebGLOptions) => void;
-        let onGraphicsPostConfig: (context: ExcaliburGraphicsContext, options: ExcaliburGraphicsContextWebGLOptions) => void;
-        let onGraphicsPreInitialize: (context: ExcaliburGraphicsContext) => void;
-        let onGraphicsPostInitialize: (context: ExcaliburGraphicsContext) => void;
-        onGraphicsPreConfig = (context: ExcaliburGraphicsContext, options: ExcaliburGraphicsContextWebGLOptions) => {
+        const onGraphicsPreConfig = (context: ExcaliburGraphicsContext, options: ExcaliburGraphicsContextWebGLOptions) => {
           for (const plugin of this._plugins) {
             plugin.onGraphicsPreConfig?.(context, options);
           }
         };
 
-        onGraphicsPostConfig = (context: ExcaliburGraphicsContext, options: ExcaliburGraphicsContextWebGLOptions) => {
+        const onGraphicsPostConfig = (context: ExcaliburGraphicsContext, options: ExcaliburGraphicsContextWebGLOptions) => {
           for (const plugin of this._plugins) {
             plugin.onGraphicsPostConfig?.(context, options);
           }
         };
 
-        onGraphicsPreInitialize = (context: ExcaliburGraphicsContext) => {
+        const onGraphicsPreInitialize = (context: ExcaliburGraphicsContext) => {
           for (const plugin of this._plugins) {
             plugin.onGraphicsPreInitialize?.(context);
           }
         };
 
-        onGraphicsPostInitialize = (context: ExcaliburGraphicsContext) => {
+        const onGraphicsPostInitialize = (context: ExcaliburGraphicsContext) => {
           for (const plugin of this._plugins) {
             plugin.onGraphicsPostInitialize?.(context);
           }
