@@ -10,32 +10,37 @@ export class PauseSystem extends System {
   query: Query<typeof PauseComponent>;
   sceneEventEmitter: EventEmitter<SceneEvents>;
   isPaused = false;
+  wasPaused = false;
 
   constructor(scene: Scene) {
     super();
     this.query = scene.world.query([PauseComponent]);
     this.sceneEventEmitter = scene.events;
 
-    this.sceneEventEmitter.on('pause', (e) => {
+    this.sceneEventEmitter.on('pause', () => {
       this.isPaused = true;
     });
-    this.sceneEventEmitter.on('resume', (e) => {
+    this.sceneEventEmitter.on('resume', () => {
       this.isPaused = false;
     });
   }
 
-  update(elapsed: number): void {
-    for (const pauseEntity of this.query.entities) {
-      const pauseComponent = pauseEntity.get(PauseComponent);
-      const paused = this.isPaused && pauseComponent.canPause !== false;
-
-      pauseComponent.paused = paused;
-
-      if (paused) {
+  update(): void {
+    let pauseComponent: PauseComponent;
+    for (let i = 0; i < this.query.entities.length; i++) {
+      const pauseEntity = this.query.entities[i];
+      pauseComponent = pauseEntity.get(PauseComponent);
+      const paused = this.isPaused && pauseComponent.canPause;
+      if (!this.wasPaused && paused) {
+        // only add on the first pause
+        pauseComponent.paused = paused;
         pauseEntity.addTag(PauseComponentTag);
-      } else {
+      } else if (this.wasPaused && !this.isPaused) {
+        // only remove on the first unpause
         pauseEntity.removeTag(PauseComponentTag);
       }
     }
+
+    this.wasPaused ||= this.isPaused;
   }
 }
