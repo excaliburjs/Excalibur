@@ -24,6 +24,7 @@ export * from './label';
 export { FontStyle, FontUnit, TextAlign, BaseAlign } from './graphics/font-common';
 export * from './particles/index';
 export * from './scene';
+export * from './plugin';
 
 export * from './tile-map/index';
 
