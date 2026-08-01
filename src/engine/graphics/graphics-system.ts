@@ -75,7 +75,9 @@ export class GraphicsSystem extends System {
 
   public update(elapsed: number): void {
     this._token++;
+    let entity: Entity;
     let graphics: GraphicsComponent;
+    let transform: TransformComponent;
     FontCache.checkAndClearCache();
 
     // This is a performance enhancement, most things are in world space
@@ -85,15 +87,17 @@ export class GraphicsSystem extends System {
       this._camera.draw(this._graphicsContext);
     }
     for (let transformIndex = 0; transformIndex < this._sortedTransforms.length; transformIndex++) {
-      const transform = this._sortedTransforms[transformIndex];
-      const entity = transform.owner as Entity;
+      transform = this._sortedTransforms[transformIndex];
+      entity = transform.owner as Entity;
+      graphics = entity.get(GraphicsComponent);
+      const offscreen = entity.hasTag('ex.offscreen');
 
-      // If the entity is offscreen skip
-      if (entity.hasTag('ex.offscreen')) {
+      // If the entity is offscreen, only tick opted-in graphics and skip the rest
+      if (offscreen) {
+        graphics.updateOffscreen(elapsed, this._token);
         continue;
       }
 
-      graphics = entity.get(GraphicsComponent);
       // Exit if graphics set to not visible
       if (!graphics.isVisible) {
         continue;
@@ -115,9 +119,6 @@ export class GraphicsSystem extends System {
         this._graphicsContext.translate(this._engine.screen.contentArea.left, this._engine.screen.contentArea.top);
       }
 
-      // Tick any graphics state (but only once) for animations and graphics groups
-      graphics.update(elapsed, this._token);
-
       // Apply parallax
       const parallax = entity.get(ParallaxComponent);
       if (parallax) {
@@ -136,6 +137,9 @@ export class GraphicsSystem extends System {
       if (graphics.material) {
         this._graphicsContext.material = graphics.material;
       }
+
+      // Tick any graphics state (but only once) for animations and graphics groups
+      graphics.update(elapsed, this._token);
 
       // Optionally run the onPreDraw graphics lifecycle draw
       if (graphics.onPreDraw) {

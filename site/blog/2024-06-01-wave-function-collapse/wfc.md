@@ -2,7 +2,7 @@
 slug: Wave Function Collapse
 title: Wave Function Collapse
 authors: [justin]
-tags: [procedural generation wfc wave function collapse]
+tags: [procedural generation, wfc, wave function collapse]
 ---
 
 import img from './images/image.png';

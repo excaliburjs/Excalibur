@@ -58,7 +58,7 @@ export class QueryManager {
     }
 
     for (const entity of this._world.entities) {
-      this.addEntity(entity);
+      query.checkAndModify(entity);
     }
 
     return query;
@@ -85,6 +85,7 @@ export class QueryManager {
    * @param entity
    */
   addEntity(entity: Entity) {
+    const alreadyTracked = this._addComponentHandlers.has(entity);
     const maybeAddComponent = this._addComponentHandlers.get(entity);
     const maybeRemoveComponent = this._removeComponentHandlers.get(entity);
     const addComponent = maybeAddComponent ?? this._createAddComponentHandler(entity);
@@ -103,10 +104,12 @@ export class QueryManager {
       query.checkAndModify(entity);
     }
 
-    entity.componentAdded$.subscribe(addComponent);
-    entity.componentRemoved$.subscribe(removeComponent);
-    entity.tagAdded$.subscribe(addTag);
-    entity.tagRemoved$.subscribe(removeTag);
+    if (!alreadyTracked) {
+      entity.componentAdded$.subscribe(addComponent);
+      entity.componentRemoved$.subscribe(removeComponent);
+      entity.tagAdded$.subscribe(addTag);
+      entity.tagRemoved$.subscribe(removeTag);
+    }
   }
 
   /**

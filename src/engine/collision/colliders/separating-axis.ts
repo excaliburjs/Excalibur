@@ -14,12 +14,12 @@ export class SeparationInfo {
   /**
    * Collider A
    */
-  collider: Collider;
+  collider!: Collider;
 
   /**
    * Signed value (negative means overlap, positive no overlap)
    */
-  separation: number;
+  separation!: number;
 
   /**
    * Axis of separation from the collider's perspective
@@ -112,7 +112,7 @@ export class SeparatingAxis {
       if (smallestPointDistance > bestSeparation) {
         bestSeparation = smallestPointDistance;
         bestSideIndex = pointsAIndex;
-        localPoint = smallestLocalPoint;
+        localPoint = smallestLocalPoint!;
       }
     }
 
@@ -127,13 +127,13 @@ export class SeparatingAxis {
     }
     normalsA[bestSideIndex].clone(separationInfo.localAxis);
     normalsA[bestSideIndex].rotate(polyA.transform.rotation, SeparatingAxis._ZERO, separationInfo.axis);
-    polyA.transform.matrix.multiply(pointsA[bestSideIndex], separationInfo.side.begin);
-    polyA.transform.matrix.multiply(pointsA[bestSide2], separationInfo.side.end);
-    polyB.transform.matrix.multiply(localPoint, separationInfo.point);
+    polyA.transform.matrix.multiply(pointsA[bestSideIndex], separationInfo.side!.begin);
+    polyA.transform.matrix.multiply(pointsA[bestSide2], separationInfo.side!.end);
+    polyB.transform.matrix.multiply(localPoint!, separationInfo.point);
     separationInfo.sideId = bestSideIndex;
-    localPoint.clone(separationInfo.localPoint);
-    pointsA[bestSideIndex].clone(separationInfo.localSide.begin);
-    pointsA[bestSide2].clone(separationInfo.localSide.end);
+    localPoint!.clone(separationInfo.localPoint);
+    pointsA[bestSideIndex].clone(separationInfo.localSide!.begin);
+    pointsA[bestSide2].clone(separationInfo.localSide!.end);
     return separationInfo;
   }
   static findCirclePolygonSeparation(circle: CircleCollider, polygon: PolygonCollider): Vector | null {
@@ -164,7 +164,7 @@ export class SeparatingAxis {
     if (minIndex < 0) {
       return null;
     }
-    return minAxis.normalize().scale(minOverlap);
+    return minAxis!.normalize().scale(minOverlap);
   }
 
   static findPolygonPolygonSeparationDegenerate(polyA: PolygonCollider, polyB: PolygonCollider): SeparationInfo {
@@ -195,11 +195,11 @@ export class SeparatingAxis {
       collider: polyA,
       separation: bestAxis ? bestSeparation : 99,
       axis: bestAxis as Vector,
-      side: bestSide,
+      side: bestSide!,
       localSide: localSides[bestSideIndex],
       sideId: bestSideIndex,
       point: bestOtherPoint as Vector,
-      localPoint: bestAxis ? polyB.getFurthestLocalPoint(bestAxis!.negate()) : null
+      localPoint: (bestAxis ? polyB.getFurthestLocalPoint(bestAxis!.negate()) : null) as Vector
     };
   }
 }

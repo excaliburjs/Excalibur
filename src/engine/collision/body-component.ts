@@ -23,6 +23,34 @@ export interface BodyComponentOptions {
   config?: Pick<PhysicsConfig, 'bodies'>['bodies'];
 }
 
+// ============================================================================
+// BodyComponent Serialization Data
+// ============================================================================
+
+export interface BodyComponentData {
+  type: string;
+
+  // Physics configuration
+  collisionType: string; // 'PreventCollision' | 'Passive' | 'Active' | 'Fixed'
+  mass: number;
+  bounciness: number;
+  friction: number;
+  useGravity: boolean;
+
+  // Collision group (simplified - may need custom handling)
+  collisionGroup?: string; // 'All'  | custom group name
+
+  // Sleep settings
+  canSleep: boolean;
+  isSleeping: boolean;
+
+  // Degrees of freedom limitations
+  limitDegreeOfFreedom: string[]; // ['x', 'y', 'rotation']
+
+  // Fixed update interpolation
+  enableFixedUpdateInterpolate: boolean;
+}
+
 export enum DegreeOfFreedom {
   Rotation = 'rotation',
   X = 'x',
@@ -34,6 +62,8 @@ export enum DegreeOfFreedom {
  * of physics simulation.
  */
 export class BodyComponent extends Component implements Clonable<BodyComponent> {
+  // @ts-ignore
+  private static _NAME = 'BodyComponent';
   public dependencies = [TransformComponent, MotionComponent];
   public static _ID = 0;
   public readonly id: Id<'body'> = createId('body', BodyComponent._ID++);
@@ -58,7 +88,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   private static _DEFAULT_CONFIG: BodyConfig = {
     ...getDefaultPhysicsConfig().bodies
   };
-  public wakeThreshold: number;
+  public wakeThreshold!: number;
   public sleepTime: number = 0;
 
   constructor(options?: BodyComponentOptions) {
@@ -77,7 +107,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
       };
     }
     this.updatePhysicsConfig(this._bodyConfig);
-    this._mass = BodyComponent._DEFAULT_CONFIG.defaultMass;
+    this._mass = BodyComponent._DEFAULT_CONFIG!.defaultMass;
   }
 
   public get matrix() {
@@ -100,7 +130,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   }
 
   public get canFallAsleep() {
-    return this.canSleep && this.collisionType === CollisionType.Active && this.sleepMotion < this._bodyConfig.sleepEpsilon;
+    return this.canSleep && this.collisionType === CollisionType.Active && this.sleepMotion < this._bodyConfig!.sleepEpsilon;
   }
 
   public get canWakeUp() {
@@ -135,8 +165,8 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
 
   public set mass(newMass: number) {
     this._mass = newMass;
-    this._cachedInertia = undefined;
-    this._cachedInverseInertia = undefined;
+    this._cachedInertia = undefined as any;
+    this._cachedInverseInertia = undefined as any;
   }
 
   /**
@@ -149,7 +179,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   /**
    * Amount of "motion" the body has before sleeping. If below {@apilink Physics.sleepEpsilon} it goes to "sleep"
    */
-  public sleepMotion: number;
+  public sleepMotion!: number;
 
   /**
    * Can this body sleep, by default bodies do not sleep
@@ -186,7 +216,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
       this._sleeping = false;
       this.owner?.removeTag('ex.is_sleeping');
       // Give it a kick to keep it from falling asleep immediately
-      this.sleepMotion = this._bodyConfig.sleepEpsilon * 2;
+      this.sleepMotion = this._bodyConfig!.sleepEpsilon * 2;
       this.sleepTime = 0;
     }
   }
@@ -232,14 +262,14 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     const currentMotion = vel * vel + omega * omega;
 
     // Bias is frame duration dependent (sleepBias is smeared over 1-s frames
-    const bias = Math.pow(this._bodyConfig.sleepBias, duration / 1000);
+    const bias = Math.pow(this._bodyConfig!.sleepBias, duration / 1000);
 
     // Rolling average of previous motion to keep things from sleeping if they stop abruptly but were just moving fast
     const previousMotion = this.sleepMotion;
     this.sleepMotion = bias * previousMotion + (1.0 - bias) * currentMotion;
 
     // Clamp motion to a maximum
-    this.sleepMotion = clamp(this.sleepMotion, 0, 10 * this._bodyConfig.sleepEpsilon);
+    this.sleepMotion = clamp(this.sleepMotion, 0, 10 * this._bodyConfig!.sleepEpsilon);
 
     // Low energy bodies go to sleep, just like real life ;)
     if (this.canFallAsleep) {
@@ -247,7 +277,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     }
   }
 
-  private _cachedInertia: number;
+  private _cachedInertia!: number;
   /**
    * Get the moment of inertia from the {@apilink ColliderComponent}
    */
@@ -257,13 +287,13 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     }
 
     // Inertia is a property of the geometry, so this is a little goofy but seems to be okay?
-    const collider = this.owner.get(ColliderComponent);
+    const collider = this.owner!.get(ColliderComponent);
     if (collider) {
       collider.$colliderAdded.subscribe(() => {
-        this._cachedInertia = null;
+        this._cachedInertia = null as any;
       });
       collider.$colliderRemoved.subscribe(() => {
-        this._cachedInertia = null;
+        this._cachedInertia = null as any;
       });
       const maybeCollider = collider.get();
       if (maybeCollider) {
@@ -273,7 +303,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     return 0;
   }
 
-  private _cachedInverseInertia: number;
+  private _cachedInverseInertia!: number;
   /**
    * Get the inverse moment of inertial from the {@apilink ColliderComponent}. If {@apilink CollisionType.Fixed} this is 0, meaning "infinite" mass
    */
@@ -332,12 +362,12 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     return this.globalPos;
   }
 
-  public transform: TransformComponent;
-  public motion: MotionComponent;
+  public transform!: TransformComponent;
+  public motion!: MotionComponent;
 
   override onAdd(owner: Entity<any>): void {
-    this.transform = this.owner?.get(TransformComponent);
-    this.motion = this.owner?.get(MotionComponent);
+    this.transform = this.owner?.get(TransformComponent)!;
+    this.motion = this.owner?.get(MotionComponent)!;
   }
 
   public get pos(): Vector {
@@ -564,5 +594,86 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   public clone(): BodyComponent {
     const component = super.clone() as BodyComponent;
     return component;
+  }
+
+  public serialize(): BodyComponentData {
+    const type = this.constructor.name;
+
+    return {
+      type,
+
+      // Core physics settings
+      collisionType: CollisionType[this.collisionType], // Convert enum to string
+      mass: this._mass,
+      bounciness: this.bounciness,
+      friction: this.friction,
+      useGravity: this.useGravity,
+
+      // Collision group (simplified)
+      collisionGroup: this._serializeCollisionGroup(this.group),
+
+      // Sleep settings
+      canSleep: this.canSleep,
+      isSleeping: this._sleeping,
+
+      // Limitations
+      limitDegreeOfFreedom: this.limitDegreeOfFreedom.map((dof) => dof.toString()),
+
+      // Interpolation
+      enableFixedUpdateInterpolate: this.enableFixedUpdateInterpolate
+    };
+  }
+
+  /**
+   * Custom deserialization
+   */
+  public deserialize(data: BodyComponentData): void {
+    // Restore physics settings
+    this.collisionType = CollisionType[data.collisionType as keyof typeof CollisionType];
+    this._mass = data.mass;
+    this.bounciness = data.bounciness ?? 0.2;
+    this.friction = data.friction ?? 0.99;
+    this.useGravity = data.useGravity ?? true;
+
+    // Restore collision group
+    if (data.collisionGroup) {
+      this.group = this._deserializeCollisionGroup(data.collisionGroup);
+    }
+
+    // Restore sleep settings
+    this.canSleep = data.canSleep ?? false;
+    this._sleeping = data.isSleeping ?? false;
+
+    // Restore limitations
+    this.limitDegreeOfFreedom = (data.limitDegreeOfFreedom ?? []).map((str) => DegreeOfFreedom[str as keyof typeof DegreeOfFreedom]);
+
+    // Restore interpolation
+    this.enableFixedUpdateInterpolate = data.enableFixedUpdateInterpolate ?? true;
+
+    // Runtime state is NOT restored - will be initialized fresh
+    // transform and motion will be set in onAdd()
+  }
+  /**
+   * Helper to serialize CollisionGroup
+   * This is simplified - you may need more complex handling
+   */
+  private _serializeCollisionGroup(group: CollisionGroup): string {
+    if (group === CollisionGroup.All) {
+      return 'All';
+    }
+    // For custom groups, you'd need to serialize their name/mask
+    return group.name ?? 'Custom';
+  }
+
+  /**
+   * Helper to deserialize CollisionGroup
+   */
+  private _deserializeCollisionGroup(groupName: string): CollisionGroup {
+    if (groupName === 'All') {
+      return CollisionGroup.All;
+    }
+    // For custom groups, you'd need to look them up by name
+    // This is a limitation - custom collision groups need a registry
+    return CollisionGroup.All;
   }
 }

@@ -205,6 +205,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   public materialScreenTexture!: WebGLTexture | null;
 
+  private _onGraphicsPreInitialize?: (context: ExcaliburGraphicsContext) => void;
+
+  private _onGraphicsPostInitialize?: (context: ExcaliburGraphicsContext) => void;
+
   public get z(): number {
     return this._state.current.z;
   }
@@ -260,6 +264,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   private _isContextLost = false;
 
   constructor(options: ExcaliburGraphicsContextWebGLOptions) {
+    if (options.onGraphicsPreConfig) {
+      options.onGraphicsPreConfig(this, options);
+    }
     const {
       canvasElement,
       context,
@@ -274,8 +281,12 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       useDrawSorting,
       garbageCollector,
       handleContextLost,
-      handleContextRestored
+      handleContextRestored,
+      onGraphicsPostConfig,
+      onGraphicsPreInitialize,
+      onGraphicsPostInitialize
     } = options;
+
     this.__gl =
       context ??
       (canvasElement.getContext('webgl2', {
@@ -296,13 +307,24 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     if (handleContextRestored) {
       this.__gl.canvas.addEventListener('webglcontextrestored', handleContextRestored, false);
     }
+    if (onGraphicsPreInitialize) {
+      this._onGraphicsPreInitialize = onGraphicsPreInitialize;
+    }
+    if (onGraphicsPostInitialize) {
+      this._onGraphicsPostInitialize = onGraphicsPostInitialize;
+    }
 
     this.__gl.canvas.addEventListener('webglcontextlost', () => {
       this._isContextLost = true;
     });
 
     this.__gl.canvas.addEventListener('webglcontextrestored', () => {
+      if (this._disposed || !this.__gl) {
+        return;
+      }
       this._isContextLost = false;
+      this._renderers.clear();
+      this._init();
     });
 
     this.textureLoader = new TextureLoader(this.__gl, garbageCollector);
@@ -318,6 +340,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._drawCallPool.disableWarnings = true;
     this._drawCallPool.preallocate();
     this._init();
+    if (onGraphicsPostConfig) {
+      onGraphicsPostConfig(this, options);
+    }
   }
 
   private _disposed = false;
@@ -336,13 +361,18 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   }
 
   private _init() {
+    // add pre/post init here
     const gl = this.__gl;
+    if (this._onGraphicsPreInitialize) {
+      this._onGraphicsPreInitialize(this);
+    }
+
     // Setup viewport and view matrix
     this._ortho = Matrix.ortho(0, gl.canvas.width, gl.canvas.height, 0, 400, -400);
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
     // Clear background
-    gl.clearColor(this.backgroundColor.r / 255, this.backgroundColor.g / 255, this.backgroundColor.b / 255, this.backgroundColor.a);
+    gl.clearColor(...this.backgroundColor.toFloatArray());
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     // Enable alpha blending
@@ -420,6 +450,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     });
 
     this.debug = new ExcaliburGraphicsContextWebGLDebug(this);
+
+    if (this._onGraphicsPostInitialize) {
+      this._onGraphicsPostInitialize(this);
+    }
   }
 
   public register<T extends RendererPlugin>(renderer: T) {
@@ -734,7 +768,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     const gl = this.__gl;
     const currentTarget = this.multiSampleAntialiasing ? this._msaaTarget : this._renderTarget;
     currentTarget.use();
-    gl.clearColor(this.backgroundColor.r / 255, this.backgroundColor.g / 255, this.backgroundColor.b / 255, this.backgroundColor.a);
+    gl.clearColor(...this.backgroundColor.toFloatArray());
     // Clear the context with the newly set color. This is
     // the function call that actually does the drawing.
     gl.clear(gl.COLOR_BUFFER_BIT);

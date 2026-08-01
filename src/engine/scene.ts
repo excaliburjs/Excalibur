@@ -1,5 +1,5 @@
 import { isScreenElement, ScreenElement } from './screen-element';
-import type { ActivateEvent, DeactivateEvent } from './events';
+import type { ActivateEvent, DeactivateEvent, PauseEvent, ResumeEvent } from './events';
 import {
   InitializeEvent,
   PreUpdateEvent,
@@ -39,9 +39,10 @@ import type { Transition } from './director';
 import { InputHost } from './input/input-host';
 import { PointerScope } from './input/pointer-scope';
 import { getDefaultPhysicsConfig } from './collision/physics-config';
+import { PauseSystem } from './util/pause-system';
 
 export class PreLoadEvent {
-  loader: DefaultLoader;
+  loader!: DefaultLoader;
 }
 
 export interface SceneEvents {
@@ -57,6 +58,8 @@ export interface SceneEvents {
   preload: PreLoadEvent;
   transitionstart: Transition;
   transitionend: Transition;
+  pause: PauseEvent;
+  resume: ResumeEvent;
 }
 
 export const SceneEvents = {
@@ -71,7 +74,9 @@ export const SceneEvents = {
   PostDebugDraw: 'postdebugdraw',
   PreLoad: 'preload',
   TransitionStart: 'transitionstart',
-  TransitionEnd: 'transitionend'
+  TransitionEnd: 'transitionend',
+  Pause: 'pause',
+  Resume: 'resume'
 } as const;
 
 export type SceneConstructor = new (...args: any[]) => Scene;
@@ -97,8 +102,12 @@ export function isSceneConstructor(x: any): x is SceneConstructor {
  * 5. onPostUpdate - called every update
  * 6. onPreDraw - called every draw
  * 7. onPostDraw - called every draw
- * 8. onDeactivate - called teh first frame thescene is no longer current
+ * 8. onDeactivate - called the first frame the scene is no longer current
  *
+ * Each lifecycle stage also fires corresponding {@apilink Plugin} hooks:
+ * `onScenePreInitialize`/`onScenePostInitialize`,
+ * `onScenePreActivate`/`onScenePostActivate`,
+ * `onScenePreDeactivate`/`onScenePostDeactivate`.
  */
 export class Scene<TActivationData = unknown> implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate, CanDraw {
   private _logger: Logger = Logger.getInstance();
@@ -164,12 +173,12 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   /**
    * Access to the Excalibur engine
    */
-  public engine: Engine;
+  public engine!: Engine;
 
   /**
    * Access scene specific input, handlers on this only fire when this scene is active.
    */
-  public input: InputHost;
+  public input!: InputHost;
 
   private _isInitialized: boolean = false;
   private _timers: Timer[] = [];
@@ -191,6 +200,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
     this.world.add(OffscreenSystem);
     this.world.add(GraphicsSystem);
     this.world.add(DebugSystem);
+    this.world.add(new PauseSystem(this));
   }
 
   public emit<TEventName extends EventKey<SceneEvents>>(eventName: TEventName, event: SceneEvents[TEventName]): void;
@@ -215,7 +225,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   public off(eventName: string, handler: Handler<unknown>): void;
   public off(eventName: string): void;
   public off<TEventName extends EventKey<SceneEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
-    this.events.off(eventName, handler);
+    this.events.off(eventName, handler as any);
   }
 
   /**
@@ -352,10 +362,18 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
 
         this.world.systemManager.initialize();
 
+        for (const plugin of engine.plugins) {
+          plugin.onScenePreInitialize?.(this);
+        }
+
         // This order is important! we want to be sure any custom init that add actors
         // fire before the actor init
         await this.onInitialize(engine);
         this._initializeChildren();
+
+        for (const plugin of engine.plugins) {
+          plugin.onScenePostInitialize?.(this);
+        }
 
         this._logger.debug('Scene.onInitialize', this, engine);
         this.events.emit('initialize', new InitializeEvent(engine, this));
@@ -377,7 +395,16 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
     try {
       this._logger.debug('Scene.onActivate', this);
       this.input.toggleEnabled(true);
+
+      for (const plugin of this.engine.plugins) {
+        plugin.onScenePreActivate?.(this);
+      }
+
       await this.onActivate(context);
+
+      for (const plugin of this.engine.plugins) {
+        plugin.onScenePostActivate?.(this);
+      }
     } catch (e) {
       this._logger.error(`Error during scene activation for scene ${this.engine?.director?.getSceneName(this)}!`);
       throw e;
@@ -392,8 +419,19 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
    */
   public async _deactivate(context: SceneActivationContext<never>): Promise<any> {
     this._logger.debug('Scene.onDeactivate', this);
+
+    for (const plugin of this.engine.plugins) {
+      plugin.onScenePreDeactivate?.(this);
+    }
+
     this.input.toggleEnabled(false);
-    return await this.onDeactivate(context);
+    const result = await this.onDeactivate(context);
+
+    for (const plugin of this.engine.plugins) {
+      plugin.onScenePostDeactivate?.(this);
+    }
+
+    return result;
   }
 
   /**
@@ -625,7 +663,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
    * @param entity
    */
   public transfer(entity: any): void {
-    let scene: Scene;
+    let scene: Scene | undefined = undefined;
     if (entity instanceof Entity && entity.scene && entity.scene !== this) {
       scene = entity.scene;
       entity.scene.world.remove(entity, false);
@@ -635,7 +673,9 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
       entity.scene.removeTimer(entity);
     }
 
-    scene?.emit('entityremoved', { target: entity } as any);
+    if (scene) {
+      scene.emit('entityremoved', { target: entity } as any);
+    }
     this.add(entity);
   }
 
@@ -756,5 +796,13 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
         }
       }
     }
+  }
+
+  public pause() {
+    this.events.emit('pause');
+  }
+
+  public resume() {
+    this.events.emit('resume');
   }
 }

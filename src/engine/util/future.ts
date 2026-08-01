@@ -3,8 +3,8 @@
  */
 export class Future<T> {
   // Code from StephenCleary https://gist.github.com/StephenCleary/ba50b2da419c03b9cba1d20cb4654d5e
-  private _resolver: (value: T) => void;
-  private _rejecter: (error: Error) => void;
+  private _resolver!: (value: T) => void;
+  private _rejecter!: (error: Error) => void;
   private _isCompleted: boolean = false;
 
   constructor() {

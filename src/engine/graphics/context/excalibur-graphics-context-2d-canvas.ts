@@ -13,6 +13,7 @@ import { GraphicsDiagnostics } from '../graphics-diagnostics';
 import { DebugText } from './debug-text';
 import type { Resolution } from '../../screen';
 import type { PostProcessor } from '../post-processor/post-processor';
+import type { RendererPlugin } from './renderer';
 import { AffineMatrix } from '../../math/affine-matrix';
 import type { Material, MaterialOptions } from './material';
 
@@ -364,6 +365,23 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
 
   public updatePostProcessors(elapsed: number) {
     // pass
+  }
+
+  public register<T extends RendererPlugin>(_renderer: T): void {
+    // WebGL only - no-op in Canvas 2D fallback
+  }
+
+  public lazyRegister<TRenderer extends RendererPlugin>(_type: TRenderer['type'], _renderer: () => TRenderer): void {
+    // WebGL only - no-op in Canvas 2D fallback
+  }
+
+  public get(_rendererName: string): RendererPlugin | undefined {
+    // WebGL only - no renderers in Canvas 2D fallback
+    return undefined;
+  }
+
+  public draw<TRenderer extends RendererPlugin>(_rendererName: TRenderer['type'], ..._args: Parameters<TRenderer['draw']>): void {
+    // WebGL only - no-op in Canvas 2D fallback
   }
 
   public beginDrawLifecycle() {

@@ -3,6 +3,7 @@ import type { PointerEvent } from './pointer-event';
 import type { GlobalCoordinates } from '../math';
 import type { PointerEventReceiver } from './pointer-event-receiver';
 import { RentalPool } from '../util/rental-pool';
+import { PointerType } from './pointer-type';
 
 /**
  * Signals that an object has nested pointer events on nested objects that are not an Entity with
@@ -257,8 +258,16 @@ export class PointerEventsToObjectDispatcher<TObject extends { events: EventEmit
   ) {
     // up, down, and move are considered for enter and leave
     for (const event of lastUpDownMoveEvents) {
+      const isActive = event.active && object.active();
+      const isTouchOrPenEvent = event.pointerType === PointerType.Pen || event.pointerType === PointerType.Touch;
       // enter
-      if (event.active && object.active() && this._entered(object, event.pointerId)) {
+      if (
+        isActive &&
+        // enter can happen on move
+        (this._entered(object, event.pointerId) ||
+          // or enter can happen on pointer down
+          (isTouchOrPenEvent && event.type === 'down' && this._objectCurrentlyUnderPointer(object, event.pointerId)))
+      ) {
         object.events.emit('pointerenter', event as any);
         if (receiver.isDragging(event.pointerId)) {
           object.events.emit('pointerdragenter', event as any);
@@ -266,12 +275,11 @@ export class PointerEventsToObjectDispatcher<TObject extends { events: EventEmit
         break;
       }
       if (
-        event.active &&
-        object.active() &&
+        isActive &&
         // leave can happen on move
         (this._left(object, event.pointerId) ||
           // or leave can happen on pointer up
-          (this._objectCurrentlyUnderPointer(object, event.pointerId) && event.type === 'up'))
+          (isTouchOrPenEvent && event.type === 'up' && this._objectCurrentlyUnderPointer(object, event.pointerId)))
       ) {
         object.events.emit('pointerleave', event as any);
         if (receiver.isDragging(event.pointerId)) {

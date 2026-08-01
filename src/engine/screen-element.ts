@@ -18,7 +18,7 @@ export function isScreenElement(actor: Actor) {
  * not participate in collisions. Drawn on top of all other actors.
  */
 export class ScreenElement extends Actor {
-  protected _engine: Engine;
+  protected _engine!: Engine;
 
   constructor();
   constructor(config?: ActorArgs);
@@ -30,8 +30,9 @@ export class ScreenElement extends Actor {
     this.body.collisionType = config?.collisionType ?? CollisionType.PreventCollision;
     this.pointer.useGraphicsBounds = true;
     this.pointer.useColliderShape = false;
-    if (!config?.collider && config?.width > 0 && config?.height > 0) {
-      this.collider.useBoxCollider(config.width, config.height, this.anchor);
+    this.canPause = false;
+    if (!config?.collider && config?.width! > 0 && config?.height! > 0) {
+      this.collider.useBoxCollider(config!.width!, config!.height!, this.anchor);
     }
   }
 

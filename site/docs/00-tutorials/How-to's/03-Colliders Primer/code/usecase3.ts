@@ -165,7 +165,7 @@ class EnemyDamageBox extends ex.Actor {
   onCollisionStart(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
     if ((this.parent as MyEnemy).isDamaged) return;
     (this.parent as MyEnemy).isDamaged = true;
-    let parallelAction = new ex.ParallelActions([new ex.Blink(this.parent, 150, 150, 10), new ex.Flash(this.parent, ex.Color.White, 3000)]);
+    let parallelAction = new ex.ParallelActions([new ex.Blink(this.parent!, 150, 150, 10), new ex.Flash(this.parent!, ex.Color.White, 3000)]);
     if (other.owner instanceof MyWeapon) {
       (this.parent as MyEnemy).actions.runAction(parallelAction);
     }

@@ -24,6 +24,7 @@ export * from './label';
 export { FontStyle, FontUnit, TextAlign, BaseAlign } from './graphics/font-common';
 export * from './particles/index';
 export * from './scene';
+export * from './plugin';
 
 export * from './tile-map/index';
 
@@ -83,7 +84,7 @@ export type {
   NavigatorGamepadEvent,
   GamepadConfiguration
 } from './input/gamepad';
-export { Gamepads, Gamepad, Buttons, Axes } from './input/gamepad';
+export { Gamepads, Gamepad, Buttons, Axes, GamepadEvents } from './input/gamepad';
 
 export type { KeyboardInitOptions } from './input/keyboard';
 export { Keys, KeyEvent, Keyboard } from './input/keyboard';
@@ -111,6 +112,10 @@ export * from './util/semaphore';
 export * from './util/coroutine';
 export * from './util/assert';
 export * from './util/rental-pool';
+export * from './util/pause-system';
+export * from './util/serializer';
+
+export * from './plugin';
 
 // ex.Deprecated
 // import * as deprecated from './deprecated';

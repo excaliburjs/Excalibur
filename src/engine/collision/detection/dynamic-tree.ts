@@ -12,17 +12,17 @@ import type { DynamicTreeConfig } from '../physics-config';
  * Dynamic Tree Node used for tracking bounds within the tree
  */
 export class TreeNode<T> {
-  public left: TreeNode<T>;
-  public right: TreeNode<T>;
+  public left?: TreeNode<T>;
+  public right?: TreeNode<T>;
   public bounds: BoundingBox;
   public height: number;
-  public data: T;
+  public data?: T;
   constructor(public parent?: TreeNode<T>) {
-    this.parent = parent || null;
-    this.data = null;
+    this.parent = parent || undefined;
+    this.data = undefined;
     this.bounds = new BoundingBox();
-    this.left = null;
-    this.right = null;
+    this.left = undefined;
+    this.right = undefined;
     this.height = 0;
   }
 
@@ -33,7 +33,7 @@ export class TreeNode<T> {
 
 export interface ColliderProxy<T> {
   id: Id<'collider'>;
-  owner: T;
+  owner: T | null;
   bounds: BoundingBox;
 }
 
@@ -45,13 +45,13 @@ export interface ColliderProxy<T> {
  * Every non-leaf node is a bounding box that contains child bounding boxes.
  */
 export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
-  public root: TreeNode<TProxy>;
-  public nodes: { [key: number]: TreeNode<TProxy> };
+  public root?: TreeNode<TProxy>;
+  public nodes: Record<number, TreeNode<TProxy>>;
   constructor(
     private _config: Required<DynamicTreeConfig>,
     public worldBounds: BoundingBox = new BoundingBox(-Number.MAX_VALUE, -Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE)
   ) {
-    this.root = null;
+    this.root = undefined;
     this.nodes = {};
   }
 
@@ -60,9 +60,9 @@ export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
    */
   private _insert(leaf: TreeNode<TProxy>): void {
     // If there are no nodes in the tree, make this the root leaf
-    if (this.root === null) {
+    if (!this.root) {
       this.root = leaf;
-      this.root.parent = null;
+      this.root.parent = undefined;
       return;
     }
 
@@ -70,38 +70,38 @@ export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
     const leafAABB = leaf.bounds;
     let currentRoot = this.root;
     while (!currentRoot.isLeaf()) {
-      const left = currentRoot.left;
-      const right = currentRoot.right;
+      const left = currentRoot!.left;
+      const right = currentRoot!.right;
 
-      const area = currentRoot.bounds.getPerimeter();
-      const combinedAABB = currentRoot.bounds.combine(leafAABB);
-      const combinedArea = combinedAABB.getPerimeter();
+      const area = currentRoot?.bounds.getPerimeter();
+      const combinedAABB = currentRoot!.bounds.combine(leafAABB);
+      const combinedArea = combinedAABB!.getPerimeter();
 
       // Calculate cost heuristic for creating a new parent and leaf
       const cost = 2 * combinedArea;
 
       // Minimum cost of pushing the leaf down the tree
-      const inheritanceCost = 2 * (combinedArea - area);
+      const inheritanceCost = 2 * (combinedArea - area!);
 
       // Cost of descending
       let leftCost = 0;
-      const leftCombined = leafAABB.combine(left.bounds);
+      const leftCombined = leafAABB.combine(left!.bounds);
       let newArea;
       let oldArea;
-      if (left.isLeaf()) {
+      if (left?.isLeaf()) {
         leftCost = leftCombined.getPerimeter() + inheritanceCost;
       } else {
-        oldArea = left.bounds.getPerimeter();
+        oldArea = left?.bounds.getPerimeter();
         newArea = leftCombined.getPerimeter();
-        leftCost = newArea - oldArea + inheritanceCost;
+        leftCost = newArea - oldArea! + inheritanceCost;
       }
 
       let rightCost = 0;
-      const rightCombined = leafAABB.combine(right.bounds);
-      if (right.isLeaf()) {
+      const rightCombined = leafAABB.combine(right!.bounds);
+      if (right!.isLeaf()) {
         rightCost = rightCombined.getPerimeter() + inheritanceCost;
       } else {
-        oldArea = right.bounds.getPerimeter();
+        oldArea = right!.bounds.getPerimeter();
         newArea = rightCombined.getPerimeter();
         rightCost = newArea - oldArea + inheritanceCost;
       }
@@ -113,37 +113,37 @@ export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
 
       // Descend to the depths
       if (leftCost < rightCost) {
-        currentRoot = left;
+        currentRoot = left!;
       } else {
-        currentRoot = right;
+        currentRoot = right!;
       }
     }
 
     // Create the new parent node and insert into the tree
-    const oldParent = currentRoot.parent;
+    const oldParent = currentRoot!.parent;
     const newParent = new TreeNode(oldParent);
-    newParent.bounds = leafAABB.combine(currentRoot.bounds);
-    newParent.height = currentRoot.height + 1;
+    newParent.bounds = leafAABB.combine(currentRoot!.bounds);
+    newParent.height = currentRoot!.height + 1;
 
-    if (oldParent !== null) {
+    if (oldParent) {
       // The sibling node was not the root
-      if (oldParent.left === currentRoot) {
-        oldParent.left = newParent;
+      if (oldParent!.left === currentRoot) {
+        oldParent!.left = newParent;
       } else {
-        oldParent.right = newParent;
+        oldParent!.right = newParent;
       }
 
       newParent.left = currentRoot;
       newParent.right = leaf;
 
-      currentRoot.parent = newParent;
+      currentRoot!.parent = newParent;
       leaf.parent = newParent;
     } else {
       // The sibling node was the root
       newParent.left = currentRoot;
       newParent.right = leaf;
 
-      currentRoot.parent = newParent;
+      currentRoot!.parent = newParent;
       leaf.parent = newParent;
       this.root = newParent;
     }
@@ -151,7 +151,7 @@ export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
     // Walk up the tree fixing heights and AABBs
     let currentNode = leaf.parent;
     while (currentNode) {
-      currentNode = this._balance(currentNode);
+      currentNode = this._balance(currentNode)!;
 
       if (!currentNode.left) {
         throw new Error('Parent of current leaf cannot have a null left child' + currentNode);
@@ -163,7 +163,7 @@ export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
       currentNode.height = 1 + Math.max(currentNode.left.height, currentNode.right.height);
       currentNode.bounds = currentNode.left.bounds.combine(currentNode.right.bounds);
 
-      currentNode = currentNode.parent;
+      currentNode = currentNode.parent!;
     }
   }
 
@@ -172,17 +172,17 @@ export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
    */
   private _remove(leaf: TreeNode<TProxy>) {
     if (leaf === this.root) {
-      this.root = null;
+      this.root = undefined;
       return;
     }
 
     const parent = leaf.parent;
-    const grandParent = parent.parent;
+    const grandParent = parent!.parent;
     let sibling: TreeNode<TProxy>;
-    if (parent.left === leaf) {
-      sibling = parent.right;
+    if (parent!.left === leaf) {
+      sibling = parent!.right!;
     } else {
-      sibling = parent.left;
+      sibling = parent!.left!;
     }
 
     if (grandParent) {
@@ -195,15 +195,15 @@ export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
 
       let currentNode = grandParent;
       while (currentNode) {
-        currentNode = this._balance(currentNode);
-        currentNode.bounds = currentNode.left.bounds.combine(currentNode.right.bounds);
-        currentNode.height = 1 + Math.max(currentNode.left.height, currentNode.right.height);
+        currentNode = this._balance(currentNode)!;
+        currentNode.bounds = currentNode!.left!.bounds.combine(currentNode!.right!.bounds);
+        currentNode.height = 1 + Math.max(currentNode!.left!.height, currentNode!.right!.height);
 
-        currentNode = currentNode.parent;
+        currentNode = currentNode.parent!;
       }
     } else {
       this.root = sibling;
-      sibling.parent = null;
+      sibling.parent = undefined;
     }
   }
 
@@ -286,7 +286,6 @@ export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
       return;
     }
     this._remove(node);
-    this.nodes[collider.id.value] = null;
     delete this.nodes[collider.id.value];
   }
 
@@ -308,52 +307,52 @@ export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
     const a = node;
     const b = left;
     const c = right;
-    const d = left.left;
-    const e = left.right;
-    const f = right.left;
-    const g = right.right;
+    const d = left!.left;
+    const e = left!.right;
+    const f = right!.left;
+    const g = right!.right;
 
-    const balance = c.height - b.height;
+    const balance = c!.height - b!.height;
     // Rotate c node up
     if (balance > 1) {
       // Swap the right node with it's parent
-      c.left = a;
-      c.parent = a.parent;
+      c!.left = a;
+      c!.parent = a.parent;
       a.parent = c;
 
       // The original node's old parent should point to the right node
       // this is mega confusing
-      if (c.parent) {
-        if (c.parent.left === a) {
-          c.parent.left = c;
+      if (c!.parent) {
+        if (c!.parent!.left === a) {
+          c!.parent.left = c;
         } else {
-          c.parent.right = c;
+          c!.parent.right = c;
         }
       } else {
         this.root = c;
       }
 
       // Rotate
-      if (f.height > g.height) {
-        c.right = f;
-        a.right = g;
-        g.parent = a;
+      if (f!.height > g!.height) {
+        c!.right = f;
+        a!.right = g;
+        g!.parent = a;
 
-        a.bounds = b.bounds.combine(g.bounds);
-        c.bounds = a.bounds.combine(f.bounds);
+        a.bounds = b!.bounds.combine(g!.bounds);
+        c!.bounds = a!.bounds.combine(f!.bounds);
 
-        a.height = 1 + Math.max(b.height, g.height);
-        c.height = 1 + Math.max(a.height, f.height);
+        a.height = 1 + Math.max(b!.height, g!.height);
+        c!.height = 1 + Math.max(a!.height, f!.height);
       } else {
-        c.right = g;
-        a.right = f;
-        f.parent = a;
+        c!.right = g;
+        a!.right = f;
+        f!.parent = a;
 
-        a.bounds = b.bounds.combine(f.bounds);
-        c.bounds = a.bounds.combine(g.bounds);
+        a.bounds = b!.bounds.combine(f!.bounds);
+        c!.bounds = a.bounds.combine(g!.bounds);
 
-        a.height = 1 + Math.max(b.height, f.height);
-        c.height = 1 + Math.max(a.height, g.height);
+        a.height = 1 + Math.max(b!.height, f!.height);
+        c!.height = 1 + Math.max(a.height, g!.height);
       }
 
       return c;
@@ -361,45 +360,45 @@ export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
     // Rotate left node up
     if (balance < -1) {
       // swap
-      b.left = a;
-      b.parent = a.parent;
+      b!.left = a;
+      b!.parent = a.parent;
       a.parent = b;
 
       // node's old parent should point to b
-      if (b.parent) {
-        if (b.parent.left === a) {
-          b.parent.left = b;
+      if (b!.parent) {
+        if (b!.parent.left === a) {
+          b!.parent.left = b;
         } else {
-          if (b.parent.right !== a) {
+          if (b!.parent.right !== a) {
             throw 'Error rotating Dynamic Tree';
           }
-          b.parent.right = b;
+          b!.parent.right = b;
         }
       } else {
         this.root = b;
       }
 
       // rotate
-      if (d.height > e.height) {
-        b.right = d;
+      if (d!.height > e!.height) {
+        b!.right = d;
         a.left = e;
-        e.parent = a;
+        e!.parent = a;
 
-        a.bounds = c.bounds.combine(e.bounds);
-        b.bounds = a.bounds.combine(d.bounds);
+        a.bounds = c!.bounds.combine(e!.bounds);
+        b!.bounds = a.bounds.combine(d!.bounds);
 
-        a.height = 1 + Math.max(c.height, e.height);
-        b.height = 1 + Math.max(a.height, d.height);
+        a.height = 1 + Math.max(c!.height, e!.height);
+        b!.height = 1 + Math.max(a.height, d!.height);
       } else {
-        b.right = e;
+        b!.right = e;
         a.left = d;
-        d.parent = a;
+        d!.parent = a;
 
-        a.bounds = c.bounds.combine(d.bounds);
-        b.bounds = a.bounds.combine(e.bounds);
+        a.bounds = c!.bounds.combine(d!.bounds);
+        b!.bounds = a.bounds.combine(e!.bounds);
 
-        a.height = 1 + Math.max(c.height, d.height);
-        b.height = 1 + Math.max(a.height, e.height);
+        a.height = 1 + Math.max(c!.height, d!.height);
+        b!.height = 1 + Math.max(a.height, e!.height);
       }
       return b;
     }
@@ -411,7 +410,7 @@ export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
    * Returns the internal height of the tree, shorter trees are better. Performance drops as the tree grows
    */
   public getHeight(): number {
-    if (this.root === null) {
+    if (!this.root) {
       return 0;
     }
     return this.root.height;
@@ -429,16 +428,16 @@ export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
     const helper = (currentNode: TreeNode<TProxy>): boolean => {
       if (currentNode && currentNode.bounds.overlaps(bounds)) {
         if (currentNode.isLeaf() && currentNode.data !== collider) {
-          if (callback.call(collider, currentNode.data)) {
+          if (callback.call(collider, currentNode.data!)) {
             return true;
           }
         } else {
-          return helper(currentNode.left) || helper(currentNode.right);
+          return helper(currentNode.left!) || helper(currentNode.right!);
         }
       }
       return false;
     };
-    helper(this.root);
+    helper(this.root!);
   }
 
   /**
@@ -453,29 +452,29 @@ export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
     const helper = (currentNode: TreeNode<TProxy>): boolean => {
       if (currentNode && currentNode.bounds.rayCast(ray, max)) {
         if (currentNode.isLeaf()) {
-          if (callback.call(ray, currentNode.data)) {
+          if (callback.call(ray, currentNode.data!)) {
             // ray hit a leaf! return the body
             return true;
           }
         } else {
           // ray hit but not at a leaf, recurse deeper
-          return helper(currentNode.left) || helper(currentNode.right);
+          return helper(currentNode.left!) || helper(currentNode.right!);
         }
       }
       return false; // ray missed
     };
-    helper(this.root);
+    helper(this.root!);
   }
 
   public getNodes(): TreeNode<TProxy>[] {
     const helper = (currentNode: TreeNode<TProxy>): TreeNode<TProxy>[] => {
       if (currentNode) {
-        return [currentNode].concat(helper(currentNode.left), helper(currentNode.right));
+        return [currentNode].concat(helper(currentNode.left!), helper(currentNode.right!));
       } else {
         return [];
       }
     };
-    return helper(this.root);
+    return helper(this.root!);
   }
 
   public debug(ex: ExcaliburGraphicsContext) {
@@ -497,6 +496,6 @@ export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
       }
     };
 
-    helper(this.root);
+    helper(this.root!);
   }
 }

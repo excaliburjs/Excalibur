@@ -1,6 +1,7 @@
 import type { Query, World } from '../entity-component-system';
 import { SystemPriority } from '../entity-component-system';
 import { System, SystemType } from '../entity-component-system//system';
+import { PauseComponentTag } from '../entity-component-system/components/pause-component';
 import { ActionsComponent } from './actions-component';
 
 export class ActionsSystem extends System {
@@ -12,7 +13,10 @@ export class ActionsSystem extends System {
 
   constructor(public world: World) {
     super();
-    this.query = this.world.query([ActionsComponent]);
+    this.query = this.world.query({
+      components: { all: [ActionsComponent] },
+      tags: { not: [PauseComponentTag] }
+    });
 
     this.query.entityAdded$.subscribe((e) => this._actions.push(e.get(ActionsComponent)));
     this.query.entityRemoved$.subscribe((e) => {

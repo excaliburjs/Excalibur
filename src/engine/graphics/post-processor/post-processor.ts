@@ -32,7 +32,6 @@ export interface PostProcessor {
 
   /**
    * Use the onDraw hook to upload any textures or command that need to run right before draw
-   * @param elapsed
    */
   onDraw?(): void;
 }

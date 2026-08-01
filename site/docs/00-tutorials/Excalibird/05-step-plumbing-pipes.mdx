@@ -79,7 +79,7 @@ const bird = new Bird();
 game.add(bird);
 
 // drawHeight is the height of the visible drawing surface in game pixels
-const ground = new Ground(ex.vec(0, engine.screen.drawHeight - 64));
+const ground = new Ground(ex.vec(0, game.screen.drawHeight - 64));
 game.add(ground);
 
 const topPipe = new Pipe(ex.vec(game.screen.drawWidth, 150), 'top');

@@ -415,4 +415,126 @@ describe('A Graphics ECS System', () => {
 
     expect(() => sut.update(1)).not.toThrow();
   });
+
+  describe('offscreen ticking', () => {
+    it('does not tick offscreen animation by default', () => {
+      const world = engine.currentScene.world;
+      const sut = new ex.GraphicsSystem(world);
+      const offscreenSystem = new ex.OffscreenSystem(world);
+      engine.currentScene.camera.update(engine, 1);
+      engine.currentScene._initialize(engine);
+      engine.screen.setCurrentCamera(engine.currentScene.camera);
+      offscreenSystem.initialize(world, engine.currentScene);
+      sut.initialize(world, engine.currentScene);
+
+      const anim = new ex.Animation({
+        frames: [{ graphic: new ex.Rectangle({ width: 10, height: 10, color: ex.Color.Red }) }]
+      });
+      const tickSpy = vi.spyOn(anim, 'tick');
+
+      const offscreenEntity = new ex.Entity().addComponent(new ex.TransformComponent()).addComponent(new ex.GraphicsComponent());
+      offscreenEntity.get(ex.TransformComponent).pos = ex.vec(112.5, 112.5);
+      offscreenEntity.get(ex.GraphicsComponent).use(anim);
+
+      offscreenSystem.query.checkAndModify(offscreenEntity);
+      sut.query.checkAndModify(offscreenEntity);
+      offscreenSystem.update();
+
+      sut.preupdate();
+      sut.update(16);
+
+      expect(tickSpy).not.toHaveBeenCalled();
+    });
+
+    it('ticks offscreen animation when graphic shouldAlwaysTick is true', () => {
+      const world = engine.currentScene.world;
+      const sut = new ex.GraphicsSystem(world);
+      const offscreenSystem = new ex.OffscreenSystem(world);
+      engine.currentScene.camera.update(engine, 1);
+      engine.currentScene._initialize(engine);
+      engine.screen.setCurrentCamera(engine.currentScene.camera);
+      offscreenSystem.initialize(world, engine.currentScene);
+      sut.initialize(world, engine.currentScene);
+
+      const anim = new ex.Animation({
+        frames: [{ graphic: new ex.Rectangle({ width: 10, height: 10, color: ex.Color.Red }) }],
+        shouldAlwaysTick: true
+      });
+      const tickSpy = vi.spyOn(anim, 'tick');
+
+      const offscreenEntity = new ex.Entity().addComponent(new ex.TransformComponent()).addComponent(new ex.GraphicsComponent());
+      offscreenEntity.get(ex.TransformComponent).pos = ex.vec(112.5, 112.5);
+      offscreenEntity.get(ex.GraphicsComponent).use(anim);
+
+      offscreenSystem.query.checkAndModify(offscreenEntity);
+      sut.query.checkAndModify(offscreenEntity);
+      offscreenSystem.update();
+
+      sut.preupdate();
+      sut.update(16);
+
+      expect(tickSpy).toHaveBeenCalled();
+    });
+
+    it('ticks offscreen animation when component shouldAlwaysTick is true', () => {
+      const world = engine.currentScene.world;
+      const sut = new ex.GraphicsSystem(world);
+      const offscreenSystem = new ex.OffscreenSystem(world);
+      engine.currentScene.camera.update(engine, 1);
+      engine.currentScene._initialize(engine);
+      engine.screen.setCurrentCamera(engine.currentScene.camera);
+      offscreenSystem.initialize(world, engine.currentScene);
+      sut.initialize(world, engine.currentScene);
+
+      const anim = new ex.Animation({
+        frames: [{ graphic: new ex.Rectangle({ width: 10, height: 10, color: ex.Color.Red }) }]
+      });
+      const tickSpy = vi.spyOn(anim, 'tick');
+
+      const offscreenEntity = new ex.Entity()
+        .addComponent(new ex.TransformComponent())
+        .addComponent(new ex.GraphicsComponent({ shouldAlwaysTick: true }));
+      offscreenEntity.get(ex.TransformComponent).pos = ex.vec(112.5, 112.5);
+      offscreenEntity.get(ex.GraphicsComponent).use(anim);
+
+      offscreenSystem.query.checkAndModify(offscreenEntity);
+      sut.query.checkAndModify(offscreenEntity);
+      offscreenSystem.update();
+
+      sut.preupdate();
+      sut.update(16);
+
+      expect(tickSpy).toHaveBeenCalled();
+    });
+
+    it('does not tick invisible onscreen animation', () => {
+      const world = engine.currentScene.world;
+      const sut = new ex.GraphicsSystem(world);
+      const offscreenSystem = new ex.OffscreenSystem(world);
+      engine.currentScene.camera.update(engine, 1);
+      engine.currentScene._initialize(engine);
+      engine.screen.setCurrentCamera(engine.currentScene.camera);
+      offscreenSystem.initialize(world, engine.currentScene);
+      sut.initialize(world, engine.currentScene);
+
+      const anim = new ex.Animation({
+        frames: [{ graphic: new ex.Rectangle({ width: 10, height: 10, color: ex.Color.Red }) }]
+      });
+      const tickSpy = vi.spyOn(anim, 'tick');
+
+      const entity = new ex.Entity().addComponent(new ex.TransformComponent()).addComponent(new ex.GraphicsComponent());
+      entity.get(ex.TransformComponent).pos = ex.vec(50, 50);
+      entity.get(ex.GraphicsComponent).use(anim);
+      entity.get(ex.GraphicsComponent).isVisible = false;
+
+      offscreenSystem.query.checkAndModify(entity);
+      sut.query.checkAndModify(entity);
+      offscreenSystem.update();
+
+      sut.preupdate();
+      sut.update(16);
+
+      expect(tickSpy).not.toHaveBeenCalled();
+    });
+  });
 });

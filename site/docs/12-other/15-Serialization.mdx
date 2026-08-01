@@ -1,0 +1,521 @@
+---
+title: Serialization
+slug: /serialization
+section: Other
+---
+
+```twoslash include ex
+// @module: esnext
+// @allowUmdGlobalAccess
+/// <reference path="../src/engine/excalibur.d.ts" />
+```
+
+## ExcaliburJS Serialization System
+
+The Serialization System provides a centralized, extensible architecture for saving and loading game Entities, Actors, and Components in ExcaliburJS.
+
+### Overview
+
+The `Serializer` class serves as the central manager for all serialization operations, providing:
+
+- Component type registration and management
+- Entity and Actor serialization/deserialization
+- Custom Actor class support
+- Graphics registry for reference-based serialization
+- Custom type serializers for complex objects
+- JSON conversion utilities
+- Data validation
+
+### Getting Started
+
+#### Basic Setup
+
+```ts twoslash
+// @include: ex
+// ---cut---
+// Initialize with auto-registration of common components (default)
+ex.Serializer.init();
+
+// OR initialize without auto-registering components
+ex.Serializer.init(false);
+```
+
+### Serializing an Entity
+
+```ts twoslash
+// @include: ex
+let myEntity = new ex.Entity();
+// ---cut---
+// Serialize to object
+const entityData = ex.Serializer.serializeEntity(myEntity);
+
+// Serialize to JSON string
+const json = ex.Serializer.entityToJSON(myEntity, true); // pretty print
+```
+
+### Deserializing an Entity
+
+```ts twoslash
+// @include: ex
+let json = JSON.stringify({test: 'string'});
+let entityData:ex.EntityData = {
+  type: 'Entity' ,
+  name: 'testname',
+  tags: [],
+  components: [],
+  children: []
+};
+// ---cut---
+// Deserialize from object
+const entity = ex.Serializer.deserializeEntity(entityData);
+
+// Deserialize from JSON string
+let newEntity = ex.Serializer.entityFromJSON(json);
+```
+
+## Component Registry
+
+Components must be registered before they can be serialized/deserialized.  Common Excalibur Actor components are pre-registered on init.
+
+### Registering Components
+
+```ts twoslash
+// @include: ex
+
+class myComponent1 extends ex.Component {}
+class myComponent2 extends ex.Component {}
+
+// ---cut---
+// Register a single component
+
+class HealthComponent extends ex.Component {
+  currentHealth: number;
+  maxHealth: number;
+
+  constructor(maxHealth: number) {
+    super();
+    this.maxHealth = maxHealth;
+    this.currentHealth = maxHealth;
+  }
+}
+
+ex.Serializer.registerComponent(HealthComponent);
+
+// Register multiple components
+ex.Serializer.registerComponents([myComponent1, myComponent2]);
+```
+
+### Checking Registration
+
+```ts twoslash
+// @include: ex
+// ---cut---
+// Check if a component is registered
+if (ex.Serializer.isComponentRegistered('TransformComponent')) {
+  // Component is registered
+}
+
+// Get all registered components
+const registeredTypes = ex.Serializer.getRegisteredComponents();
+console.log(registeredTypes); // ['TransformComponent', 'MotionComponent', ...]
+```
+
+### Unregistering Components
+
+```ts twoslash
+// @include: ex
+// ---cut---
+// Unregister a specific component
+ex.Serializer.unregisterComponent('TransformComponent');
+
+// Clear all components
+ex.Serializer.clearComponents();
+```
+
+## Custom Actor Classes
+
+The serialization system supports custom Actor subclasses, preserving their specific implementations.
+
+### Registering Custom Actors
+
+Custom Actor classes are registered by the 'name' property on construction, which leaves them as defaults if you do not specify.
+
+```ts twoslash
+// @include: ex
+
+class Boss extends ex.Actor {
+  constructor() {
+    super();
+    // Player-specific initialization
+  }
+}
+
+class NPC extends ex.Actor {
+  constructor() {
+    super();
+    // Player-specific initialization
+  }
+}
+
+// ---cut---
+class Player extends ex.Actor {
+  constructor() {
+    super({
+      name: 'Player',
+    });
+    // Player-specific initialization
+  }
+}
+
+class Enemy extends ex.Actor {
+  constructor() {
+    super({
+      name: 'Enemy',
+    });
+    // Enemy-specific initialization
+  }
+}
+
+// Register custom actors
+ex.Serializer.registerCustomActor(Player);
+ex.Serializer.registerCustomActors([Enemy, Boss, NPC]);
+```
+
+### Serializing Custom Actors
+
+After you register a custom Actor class, then when you serialize a custom Actor, the system automatically detects its type and includes a `customInstance` field:
+
+```ts twoslash
+// @include: ex
+// ---cut---
+class Player extends ex.Actor {
+  constructor() {
+    super({
+      name: 'myTestActor',
+    });
+    // Player-specific initialization
+  }
+}
+
+ex.Serializer.registerCustomActor(Player);
+const player = new Player();
+const actorData = ex.Serializer.serializeActor(player);
+// actorData.customInstance === 'myTestActor'
+```
+
+### Deserializing Custom Actors
+
+The system automatically instantiates the correct custom Actor class:
+
+```ts twoslash
+// @include: ex
+// ---cut---
+
+let actorData: ex.EntityData = {
+  type:  'Actor',
+  name: "player",
+  tags: [],
+  components: [],
+  children: [],
+  customInstance: 'Player'
+};
+const player = ex.Serializer.deserializeActor(actorData);
+// player is an instance of the class with name: 'Player', not just Actor
+```
+
+### Managing Custom Actors
+
+```ts twoslash
+// @include: ex
+// ---cut---
+// Check if registered
+if (ex.Serializer.isCustomActorRegistered('Player')) {
+  // Player is registered
+}
+
+// Get registered custom actors
+const customActors = ex.Serializer.getRegisteredCustomActors();
+
+// Get a specific actor constructor
+const PlayerCtor = ex.Serializer.getCustomActor('Player');
+
+// Unregister
+ex.Serializer.unregisterCustomActor('Player');
+
+// Clear all
+ex.Serializer.clearCustomActors();
+```
+
+## Graphics Registry
+
+The Graphics Registry enables reference-based serialization for graphics. Instead of serializing entire graphic objects, you serialize references (IDs) and resolve them during deserialization.
+
+### Why Use Graphics Registry?
+
+Graphics objects (Sprites, Animations, etc.) can be large and complex. The registry pattern:
+
+- Reduces serialized data size
+- Avoids duplicate graphic data
+- Enables sharing graphics between entities
+- Simplifies graphic management
+
+
+The purpose of registering Graphics to the Serializer is to assist the 'deserialization' as we are not serializing and storing the graphics themselves, just the reference to the graphics.  Thus, this is assisted by using graphics in this pattern:
+
+```ts twoslash
+// @include: ex
+
+let testImage = new ex.ImageSource('./mysprite.png');
+testImage.load();
+let testSpriteOptions: ex.SpriteOptions = {
+  image: testImage,
+};
+let playerSprite = new ex.Sprite(testSpriteOptions);
+
+// ---cut---
+
+ex.Serializer.registerGraphic('mygraphic', playerSprite);
+
+class Player extends ex.Actor{
+  constructor(){
+    super();
+    // add grahphic by key
+    this.graphics.add('mygraphic', playerSprite)   //<-- this sets the key identifier for serialization
+    this.graphics.use('mygraphic')
+  }
+}
+
+```
+
+When the Graphics Component is deserialized it will grab the 'mygraphic' and attempt to reattach the Sprite to the new Actor.
+
+
+
+
+### Registering Graphics
+
+```ts twoslash
+// @include: ex
+let testImage = new ex.ImageSource('./mysprite.png');
+let testSpriteOptions: ex.SpriteOptions = {
+  image: testImage,
+};
+let testAnimationOptions: ex.AnimationOptions = {
+  strategy: ex.AnimationStrategy.Loop,
+  speed: 150,
+  frames: []
+};
+let enemyIdleSprite = new ex.Sprite(testSpriteOptions);
+let enemyAttackSprite = new ex.Sprite(testSpriteOptions);
+let coinAnimation = new ex.Animation(testAnimationOptions);
+// ---cut---
+
+// Load your resources
+const playerImage = new ex.ImageSource('./player.png');
+playerImage.load();
+
+// Create graphics
+const playerIdleSprite = playerImage.toSprite();
+const playerWalkAnimation =new ex.Animation(testAnimationOptions);
+
+// Register graphics with unique IDs
+// When an actor deserializes, it will use the id set to look up the Graphic
+ex.Serializer.registerGraphic('player-idle', playerIdleSprite); 
+ex.Serializer.registerGraphic('player-walk', playerWalkAnimation);
+
+// Register multiple at once
+ex.Serializer.registerGraphics({
+  'enemy-idle': enemyIdleSprite,
+  'enemy-attack': enemyAttackSprite,
+  'coin-spin': coinAnimation
+});
+```
+
+### Managing Graphics
+
+```ts twoslash
+// @include: ex
+// ---cut---
+// Get a graphic
+const graphic = ex.Serializer.getGraphic('player-idle');
+
+// Check if registered
+if (ex.Serializer.isGraphicRegistered('player-idle')) {
+  // Graphic is available
+}
+
+// Get all registered graphic IDs
+const graphicIds = ex.Serializer.getRegisteredGraphics();
+
+// Unregister a graphic
+ex.Serializer.unregisterGraphic('player-idle');
+
+// Clear all graphics
+ex.Serializer.clearGraphics();
+```
+
+## Actor Serialization
+
+Actors have special handling to preserve their convenience properties and references.
+
+### Serializing Actors
+
+```ts twoslash
+// @include: ex
+// ---cut---
+const actor = new ex.Actor({ x: 100, y: 200 });
+// ... configure actor ...
+
+const actorData = ex.Serializer.serializeActor(actor);
+```
+
+### Deserializing Actors
+
+The system automatically:
+- Removes existing default components
+- Adds deserialized components
+- Restores actor property references (`actor.transform`, `actor.graphics`, etc.)
+
+```ts twoslash
+// @include: ex
+let actorData: ex.EntityData = {
+  type:  'Actor',
+  name: "myActor",
+  tags: [],
+  components: [],
+  children: [],
+  customInstance: 'myActor'
+};
+// ---cut---
+const actor = ex.Serializer.deserializeActor(actorData);
+// actor.transform, actor.graphics, etc. are properly set
+```
+
+## Custom Type Serializers
+
+For complex types that need special serialization logic, you can register custom serializers.
+
+### Registering Custom Serializers
+
+```ts twoslash
+// @include: ex
+class MyCustomType{
+  constructor(data:any, data1:any){}
+}
+// ---cut---
+ex.Serializer.registerCustomSerializer(
+  'MyCustomType',
+  // Serialize function
+  (obj) => ({ 
+    data: obj.someData,
+    value: obj.someValue 
+  }),
+  // Deserialize function
+  (data) => new MyCustomType(data.data, data.value)
+);
+```
+
+#### Example
+
+```ts twoslash
+// @include: ex
+// ---cut---
+  // Color serializer
+  ex.Serializer.registerCustomSerializer(
+    'Color',
+    (color) => ({ r: color.r, g: color.g, b: color.b, a: color.a }),
+    (data) => ({ r: data.r, g: data.g, b: data.b, a: data.a })
+  );
+
+```
+
+
+### Built-in Serializers
+
+The system provides serializers for common ExcaliburJS types:
+
+#### Vectors
+
+  Registered as `{x: number, y: number}`
+
+#### Colors
+
+  Registered as `{r: number, g: number, b: number, a: number}`
+
+#### BoundingBox
+
+  Registered as `{left: number, top: number, right: number, bottom: number}`
+
+
+## Data Formats
+
+### EntityData Format
+
+```ts twoslash
+// @include: ex
+interface ComponentData {
+  type: string; // Component class name
+  // ... component-specific fields
+}
+
+// ---cut---
+interface EntityData {
+  type: 'Entity' | 'Actor';
+  name: string;
+  tags: string[];
+  components: ComponentData[];
+  children: EntityData[];
+  customInstance?: string; // For custom Actor classes
+}
+```
+
+### ComponentData Format
+
+```ts twoslash
+// @include: ex
+// ---cut---
+interface ComponentData {
+  type: string; // Component class name
+  // ... component-specific fields
+}
+```
+
+## Complete Example
+
+```ts twoslash
+// @include: ex
+const game = new ex.Engine({
+  width: 800, // the width of the canvas
+  height: 600, // the height of the canvas
+  displayMode: ex.DisplayMode.Fixed, // the display mode
+  pixelArt: true,
+});
+// ---cut---
+
+// Initialize
+ex.Serializer.init();
+
+// Register custom actors
+class Player extends ex.Actor { /* ... */ }
+ex.Serializer.registerCustomActor(Player);
+
+// Load and register graphics
+const spriteSheet = new ex.ImageSource('./player.png');
+spriteSheet.load();
+const playerSprite = spriteSheet.toSprite();
+ex.Serializer.registerGraphic('player-sprite', playerSprite);
+
+// Create and serialize an actor
+const player = new Player();
+player.pos.x = 100;
+player.pos.y = 200;
+player.graphics.use(playerSprite);
+
+const savedActorData = ex.Serializer.serializeActor(player);
+console.log('Saved:', savedActorData);
+
+// Later: deserialize
+const loadedPlayer:ex.Entity = ex.Serializer.deserializeActor(savedActorData) as ex.Entity;
+game.add(loadedPlayer);
+```
+

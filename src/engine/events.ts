@@ -173,7 +173,7 @@ export class GameEvent<T, U = T> {
   /**
    * Target object for this event.
    */
-  public target: T;
+  public target!: T;
 
   /**
    * Other target object for this event
@@ -760,6 +760,32 @@ export class RemoveEvent<T extends OnRemove> extends GameEvent<T> {
     public engine: Engine,
     public self: T
   ) {
+    super();
+    this.target = self;
+  }
+}
+
+/**
+ * Event thown on a pause event in scene
+ */
+export class PauseEvent extends GameEvent<Scene> {
+  /**
+   * @param self The context for the scene deactivation
+   */
+  constructor(public self: Scene) {
+    super();
+    this.target = self;
+  }
+}
+
+/**
+ * Event thown on a resume event in scene
+ */
+export class ResumeEvent extends GameEvent<Scene> {
+  /**
+   * @param self  The context for the scene deactivation
+   */
+  constructor(public self: Scene) {
     super();
     this.target = self;
   }
