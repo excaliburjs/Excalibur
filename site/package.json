@@ -48,7 +48,7 @@
     "react-live": "4.1.8",
     "rehype-raw": "^7.0.0",
     "remark-emoji": "5.0.2",
-    "typedoc": "0.28.19",
+    "typedoc": "0.28.20",
     "unist-util-visit": "5.1.0"
   },
   "overrides": {
