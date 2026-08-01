@@ -7,49 +7,9 @@ var game = new ex.Engine({
   pixelRatio: 2
 });
 
-var glsl: (x: any) => any = function (strings: TemplateStringsArray, ...values: any[]): string {
-  // Combine template strings and values
-  let source = strings.reduce((acc, str, i) => {
-    return acc + str + (values[i] !== undefined ? values[i] : '');
-  }, '');
-
-  // Add pixel art sampler
-  if (source.includes('pixel_texture(')) {
-    source =
-      `
-// Inigo Quilez pixel art filter https://jorenjoestar.github.io/post/pixel_art_filtering/
-vec4 pixel_texture(in sampler2D tex, in vec2 uv) {
-  vec2 pixel = uv * vec2(textureSize(tex, 0));
-
-  vec2 seam=floor(pixel+.5);
-  vec2 dudv=fwidth(pixel);
-  pixel=seam+clamp((pixel-seam)/dudv,-.5,.5);
-
-  vec2 pixel_uv =  pixel/vec2(textureSize(tex, 0));
-
-  return texture(tex, pixel_uv);
-
-}\n` + source;
-
-    // TODODthis insertion is problematic because it must go before the function def above,
-    // BUT it's possible it already exists in the source below
-    if (!source.includes(`uniform vec2 u_graphic_resolution;\n`)) {
-      source = `uniform vec2 u_graphic_resolution;\n` + source;
-    }
-  }
-
-  // Add precision pragma
-  const precisionRegex = /^\s*precision\s+(lowp|mediump|highp)\s+(float|int)\s*;/m;
-  if (!precisionRegex.test(source)) {
-    source = 'precision mediump float;\n' + source;
-  }
-
-  // Add WebGL2 version directive if not present
-  if (!source.trim().startsWith('#version')) {
-    source = '#version 300 es\n' + source;
-  }
-  return source;
-} as any;
+// The glsl tag adds #version/precision, injects pixel_texture, and gives the shader a straight
+// (un-premultiplied) alpha authoring space so no manual premultiply is needed.
+var glsl = ex.glsl;
 
 var cards = new ex.ImageSource('./kenny-cards.png');
 var cardSpriteSheet = ex.SpriteSheet.fromImageSource({
@@ -179,7 +139,6 @@ var polychrome = game.graphicsContext.createMaterial({
     }
 
     fragColor = color;
-    fragColor.rgb *= fragColor.a;
   }`
 });
 

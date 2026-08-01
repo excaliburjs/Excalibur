@@ -27,6 +27,24 @@ Materials are only supported in WebGL mode, this is the default mode for Excalib
 
 If you are using the `ex.Engine({pixelArt: true})` setting, you'll need to re-include the pixelArt sampler in your custom shader in order to preserve the pixel art effect.
 
+The [`ex.glsl`](#the-glsl-tag) tag injects it for you as `pixel_texture(sampler2D, vec2)`, along with the `u_graphic_resolution` uniform:
+
+```ts
+const material = game.graphicsContext.createMaterial({
+  name: 'pixel-art',
+  fragmentSource: ex.glsl`
+    in vec2 v_uv;
+    uniform sampler2D u_graphic;
+    out vec4 fragColor;
+
+    void main() {
+      fragColor = pixel_texture(u_graphic, v_uv);
+    }`
+});
+```
+
+Written by hand it looks like this. Note the manual premultiply at the end, which the `ex.glsl` tag also handles for you:
+
 ```glsl
 #version 300 es
 precision mediump float;
@@ -54,8 +72,9 @@ void main(void) {
     vec2 newUv = uv_iq(v_uv, u_graphic_resolution);
     vec4 sourceColor = texture(u_graphic, newUv);
 
+    // texture() already returns a premultiplied value here, so nothing more is needed.
+    // If you introduce your own alpha you must premultiply it, see the warning below.
     fragColor = sourceColor;
-    fragColor.rgb = fragColor.rgb * fragColor.a; // premultiply alpha
 }
 ```
 
@@ -103,11 +122,64 @@ Excalibur only supports GLSL ES 300 shaders `#version 300 es`, this version decl
 
 Excalibur deals in pre-multiplied alphas! This means your shader transparency might not be what you expect.
 
-Generally this can be solved by adding `fragColor.rgb = fragColor.rgb * fragColor.a;` or similar to your code.
+The pipeline is premultiplied end to end. Textures are uploaded with `UNPACK_PREMULTIPLY_ALPHA_WEBGL`, so `texture(u_graphic, uv)` hands you back an **already premultiplied** value, and the blend function is `(ONE, ONE_MINUS_SRC_ALPHA)`, so your color output must be premultiplied too.
+
+That cuts both ways, and both directions are easy to hit:
+
+* Introducing your own alpha (`fragColor = vec4(rgb, 0.5)`, `color.a *= u_opacity`) without premultiplying blends far too bright, closer to additive
+* Premultiplying a value you sampled straight out of `texture()` premultiplies it **twice**, which darkens antialiased edges
+
+The [`ex.glsl`](#the-glsl-tag) tag handles this for you. If you are writing raw shader source, you own the bookkeeping: convert to premultiplied at the very end with `fragColor.rgb = fragColor.rgb * fragColor.a;`, but only for alpha you introduced yourself.
 
 Check out [this great post](https://www.realtimerendering.com/blog/gpus-prefer-premultiplication/) about premultiplied alphas
 
 :::
+
+## The glsl tag
+
+[[glsl]] is a tagged template literal that handles the shader boilerplate, and most importantly the alpha bookkeeping described above. It also lights up GLSL syntax highlighting in editors that support it.
+
+Shaders written with the tag get a **straight (un-premultiplied) alpha authoring space**. Sampling calls are un-premultiplied on the way in and your color output is premultiplied on the way out, so ordinary intuitive alpha math works everywhere in between:
+
+```ts
+const material = game.graphicsContext.createMaterial({
+  name: 'fade',
+  fragmentSource: ex.glsl`
+    in vec2 v_uv;
+    uniform sampler2D u_graphic;
+    out vec4 fragColor;
+
+    void main() {
+      vec4 color = texture(u_graphic, v_uv);
+      color.a *= 0.5; // just works, no manual premultiply needed
+      fragColor = color;
+    }`
+});
+```
+
+Filtering still happens in premultiplied space where it belongs, only the filtered result is converted, so you keep the benefits described in the post linked above.
+
+The tag also:
+
+* Adds `#version 300 es` and a `precision` declaration if you did not write them
+* Injects the `pixel_texture(sampler2D, vec2)` pixel art filter if your source references it, plus `uniform vec2 u_graphic_resolution;` if you have not declared it
+* Exposes `ex_premultiply(vec4)` and `ex_unpremultiply(vec4)` if you want to convert by hand
+
+### Sampling data textures
+
+Textures that are not color data (a lookup table, a noise or data texture) should not be alpha converted. Sample those with `ex_texture_raw(tex, uv)`, which is passed through untouched:
+
+```glsl
+vec4 lookup = ex_texture_raw(u_lut, v_uv);
+```
+
+### Opting out
+
+To turn the transform off for a whole shader, add the pragma to its source. The tag still adds the `#version`, `precision`, and `pixel_texture`, but leaves all alpha handling to you:
+
+```glsl
+#pragma excalibur premultiply(off)
+```
 
 Once a [[Material|material]] is created it can be added/removed from the [[Actor|actor's]] [[GraphicsComponent|graphics component]] by accessing the [[GraphicsComponent.material]] property.
 
