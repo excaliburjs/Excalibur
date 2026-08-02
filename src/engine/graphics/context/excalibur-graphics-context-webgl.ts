@@ -203,6 +203,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   public textureLoader: TextureLoader;
 
+  private _materials: WeakRef<Material>[] = [];
+
   public materialScreenTexture!: WebGLTexture | null;
 
   private _onGraphicsPreInitialize?: (context: ExcaliburGraphicsContext) => void;
@@ -356,6 +358,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       this._renderers.clear();
       this._drawCallPool.dispose();
       this._drawCalls.length = 0;
+      this._materials.length = 0;
       this.__gl = null as any;
     }
   }
@@ -737,6 +740,35 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   public get material(): Material | null | undefined {
     return this._state.current.material;
+  }
+
+  /**
+   * Registers a material with this context so it can be enumerated with {@apilink ExcaliburGraphicsContextWebGL.materials},
+   * called automatically by the {@apilink Material} constructor.
+   *
+   * Materials are held weakly and do not prevent garbage collection.
+   */
+  public registerMaterial(material: Material): void {
+    this._materials.push(new WeakRef(material));
+  }
+
+  /**
+   * Returns all live materials created against this context, useful for debugging and tooling.
+   *
+   * Materials are held weakly; materials that have been garbage collected are pruned on access.
+   */
+  public get materials(): Material[] {
+    const live: Material[] = [];
+    const liveRefs: WeakRef<Material>[] = [];
+    for (const ref of this._materials) {
+      const material = ref.deref();
+      if (material) {
+        live.push(material);
+        liveRefs.push(ref);
+      }
+    }
+    this._materials = liveRefs;
+    return live;
   }
 
   /**

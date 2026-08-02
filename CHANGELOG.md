@@ -19,6 +19,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Materials are now enumerable for debugging and tooling (like the Excalibur Dev Tools browser extension): every `Material` has a unique `material.id` and public `material.vertexSource`/`material.fragmentSource` getters, and is automatically registered with its context, retrievable via `game.graphicsContext.materials`. The registry holds materials weakly so it does not prevent garbage collection.
 - Added the `ex.glsl` tagged template literal for authoring `Material` fragment shaders. It lights up GLSL syntax highlighting, adds the `#version`/`precision` boilerplate, injects the `pixel_texture()` pixel art filter on demand, and handles alpha premultiplication automatically.
 
   Excalibur's pipeline is premultiplied end to end, which makes hand written shaders easy to get subtly wrong in both directions: introducing your own alpha without premultiplying blends too bright, and premultiplying a `texture()` sample that is already premultiplied darkens antialiased edges. Shaders written with the tag instead get a straight (un-premultiplied) alpha authoring space, so ordinary alpha math just works:
