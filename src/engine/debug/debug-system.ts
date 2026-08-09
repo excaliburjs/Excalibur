@@ -103,7 +103,9 @@ export class DebugSystem extends System {
 
       this._graphicsContext.save();
       if (tx.coordPlane === CoordPlane.Screen) {
-        this._graphicsContext.translate(this._engine.screen.contentArea.left, this._engine.screen.contentArea.top);
+        // Screen space is rooted at contentArea.topLeft; translate by the
+        // content area offset to position the local (0,0) there.
+        this._graphicsContext.translate(this._engine.screen.contentAreaOffset.x, this._engine.screen.contentAreaOffset.y);
       }
 
       this._applyTransform(entity);
@@ -193,7 +195,9 @@ export class DebugSystem extends System {
       // World space
       this._graphicsContext.save();
       if (tx.coordPlane === CoordPlane.Screen) {
-        this._graphicsContext.translate(this._engine.screen.contentArea.left, this._engine.screen.contentArea.top);
+        // Screen space is rooted at contentArea.topLeft; translate by the
+        // content area offset to position the local (0,0) there.
+        this._graphicsContext.translate(this._engine.screen.contentAreaOffset.x, this._engine.screen.contentAreaOffset.y);
       }
       motion = entity.get(MotionComponent)!;
       if (motion) {
@@ -300,27 +304,40 @@ export class DebugSystem extends System {
     }
 
     // Screen-space overlay: visualize contentArea / unsafeArea in screen coordinates.
-    // These bounds are already in canvas (screen) coordinates, so we drop any active
-    // camera transform and render them raw. Especially useful for the *AndFill display
-    // modes where the safe content area is inset from the (possibly clipping) unsafe area.
+    // These bounds are expressed in the content-area-rooted screen (C) frame, so we
+    // drop any active camera transform, translate by `contentAreaOffset` to bring
+    // the bounds back into the canvas/resolution (R) frame where the visible canvas
+    // spans (0,0)-(resolution.width, resolution.height), and then clamp the drawn
+    // outline to that visible region. Especially useful for the *AndFill / *AndZoom
+    // display modes where the safe content area is inset from the (possibly clipping)
+    // unsafe area.
     const screenSettings = this._engine.debug.screen;
     if (screenSettings && screenSettings.showAll) {
       const screen = this._engine.screen;
       this._graphicsContext.save();
       this._graphicsContext.resetTransform();
+      // C-frame -> R-frame: position the bounds at their true on-canvas location.
+      this._graphicsContext.translate(screen.contentAreaOffset.x, screen.contentAreaOffset.y);
       this._graphicsContext.z = Debug.config.settings.z.solid;
 
       // Helper: draw a dashed debug box clamped to the visible canvas and inset 1px so the
-      // 2px stroke is fully onscreen. The underlying Screen bounds (e.g. unsafeArea under
-      // *AndFill) intentionally extend beyond the canvas to represent possibly-offscreen
-      // space; we keep that data intact but only clamp the *drawn* outline for visibility.
+      // 2px stroke is fully onscreen. The bounds are in C-frame; after the translate above
+      // the canvas spans (0,0)-(resolution.width, resolution.height) in the current ctx
+      // frame. unsafeArea under *AndFill / *AndZoom extends beyond the canvas (negative
+      // topLeft / bottomRight > resolution) to represent possibly-offscreen space; we keep
+      // that data intact but only clamp the *drawn* outline for visibility. Clamp values
+      // are in R-frame (translated), so we subtract the offset to express them in C-frame.
+      const offsetX = screen.contentAreaOffset.x;
+      const offsetY = screen.contentAreaOffset.y;
       const drawClampedBox = (bb: BoundingBox, color: Color) => {
-        const canvasW = screen.resolution.width;
-        const canvasH = screen.resolution.height;
-        const left = Math.max(0, bb.left) + 1;
-        const top = Math.max(0, bb.top) + 1;
-        const right = Math.min(canvasW, bb.right) - 1;
-        const bottom = Math.min(canvasH, bb.bottom) - 1;
+        const canvasLeft = -offsetX;
+        const canvasTop = -offsetY;
+        const canvasRight = screen.resolution.width - offsetX;
+        const canvasBottom = screen.resolution.height - offsetY;
+        const left = Math.max(canvasLeft, bb.left) + 1;
+        const top = Math.max(canvasTop, bb.top) + 1;
+        const right = Math.min(canvasRight, bb.right) - 1;
+        const bottom = Math.min(canvasBottom, bb.bottom) - 1;
         const w = right - left;
         const h = bottom - top;
         if (w > 0 && h > 0) {
@@ -339,6 +356,10 @@ export class DebugSystem extends System {
         drawClampedBox(screen.contentArea, screenSettings.contentAreaColor);
       }
 
+      // Back to R-frame (canvas coords) so the legend anchors to the visible
+      // canvas corner rather than the content-area corner.
+      this._graphicsContext.translate(-screen.contentAreaOffset.x, -screen.contentAreaOffset.y);
+
       if (screenSettings.showLegend) {
         const textScale = 0.6;
         const swatchPad = 4;
@@ -349,8 +370,10 @@ export class DebugSystem extends System {
         const legendPad = 4;
         const margin = 8;
 
-        // Both contentArea and unsafeArea are screen-space bounds by definition
-        // (see Screen.contentArea / Screen.unsafeArea docs).
+        // Both contentArea and unsafeArea are screen-space (C-frame) bounds by
+        // definition (see Screen.contentArea / Screen.unsafeArea docs): their
+        // topLeft is the content-area's top-left, which is (0,0) for contentArea
+        // and the (negative) clip for unsafeArea when inset.
         const contentLabel = `contentArea ${Math.round(screen.contentArea.width)}x${Math.round(screen.contentArea.height)} (Screen)`;
         const unsafeLabel = `unsafeArea ${Math.round(screen.unsafeArea.width)}x${Math.round(screen.unsafeArea.height)} (Screen)`;
 

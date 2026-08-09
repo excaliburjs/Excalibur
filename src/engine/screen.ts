@@ -22,6 +22,10 @@ export enum DisplayMode {
    * Fit the aspect ratio given by the game resolution within the container at all times will fill any gaps with canvas.
    * The displayed area outside the aspect ratio is not guaranteed to be on the screen, only the {@apilink Screen.contentArea}
    * is guaranteed to be on screen.
+   *
+   * Behaves like {@apilink DisplayMode.FitScreenAndFill} but driven by the parent element size
+   * instead of the window. Same C-frame rooting rules apply:
+   * `contentArea.topLeft === (0, 0)` and `unsafeArea` spans the full resolution in the C-frame.
    */
   FitContainerAndFill = 'FitContainerAndFill',
 
@@ -29,6 +33,37 @@ export enum DisplayMode {
    * Fit the aspect ratio given by the game resolution the screen at all times will fill the screen.
    * This displayed area outside the aspect ratio is not guaranteed to be on the screen, only the {@apilink Screen.contentArea}
    * is guaranteed to be on screen.
+   *
+   * Screen space (the {@apilink CoordPlane.Screen} frame, "C") is rooted at the top-left of the
+   * safe {@apilink Screen.contentArea}: `contentArea.topLeft === (0, 0)` and
+   * `contentArea.bottomRight === (contentAreaWidth, contentAreaHeight)`. The unsafe area spans the
+   * full resolution but is expressed in the same C-frame, so it extends symmetrically past the
+   * content area by half the clip on each clipped axis. {@apilink Screen.contentAreaOffset} is
+   * the resolution-space ("R") location of the content area top-left, used to convert C<->R.
+   *
+   * Horizontal-clip example (window wider than the content aspect ratio):
+   *
+   * ```
+   *     Canvas / resolution frame (R)              Screen / CoordPlane.Screen (C)
+   *
+   *       (0,0)                                          (0,0)
+   *       +--+----------+------------------+----------+   +--------------------------+
+   *       |un|  clip    |    contentArea    |  clip    |   |                          |
+   *       |sa|  -->     |    (safe area)    |  <--     |   |       contentArea       |
+   *       |fe|(offscr.) |                  | (offscr.)|   |   (0,0)..(contentW,H)     |
+   *       |  |          |                  |          |   |                          |
+   *       |  |          |  R-frame (0,0)..  |          |   |                          |
+   *       +--+----------+------------------+----------+   +--------------------------+
+   *       unsafe.left = -clip   contentAreaOffset.x = clip     unsafeArea spans (C-frame):
+   *                                                       left=-clip, right=contentRes.width+clip,
+   *                                                       width = resolution.width (was inflated by
+   *                                                       2*clip before the fix)
+   *                                <-- contentArea.width = contentRes.width -->
+   *     <----------- resolution.width = contentRes.width + 2*clip ----------->
+   * ```
+   *
+   * Vertical-clip behaves analgosly on the Y axis. {@apilink DisplayMode.FitContainerAndFill}
+   * follows the same rules but driven by the parent element size instead of the window.
    */
   FitScreenAndFill = 'FitScreenAndFill',
 
@@ -38,6 +73,11 @@ export enum DisplayMode {
    *
    * **warning** This will clip some drawable area from the user because of the zoom,
    * use {@apilink Screen.contentArea} to know the safe to draw area.
+   *
+   * The safe content area is centered on the (zoomed) unsafe area; the C-frame origin
+   * ({@apilink CoordPlane.Screen}) is at `contentArea.topLeft`. {@apilink Screen.contentAreaOffset}
+   * holds the per-axis half-clip in resolution space, and {@apilink Screen.unsafeArea} spans the
+   * full resolution in the same C-frame (was uninitialized before the fix).
    */
   FitContainerAndZoom = 'FitContainerAndZoom',
 
@@ -47,6 +87,11 @@ export enum DisplayMode {
    *
    * **warning** This will clip some drawable area from the user because of the zoom,
    * use {@apilink Screen.contentArea} to know the safe to draw area.
+   *
+   * The safe content area is centered on the (zoomed) unsafe area; the C-frame origin
+   * ({@apilink CoordPlane.Screen}) is at `contentArea.topLeft`. {@apilink Screen.contentAreaOffset}
+   * holds the per-axis half-clip in resolution space, and {@apilink Screen.unsafeArea} spans the
+   * full resolution in the same C-frame (was uninitialized before the fix).
    */
   FitScreenAndZoom = 'FitScreenAndZoom',
 
@@ -687,9 +732,14 @@ export class Screen {
    * Takes a coordinate in normal html page space, for example from a pointer move event, and translates it to
    * Excalibur screen space.
    *
-   * Excalibur screen space starts at the top left (0, 0) corner of the viewport, and extends to the
-   * bottom right corner (resolutionX, resolutionY). When using *AndFill suffixed display modes screen space
-   * (0, 0) is the top left of the safe content area bounding box not the viewport.
+   * Excalibur screen space is rooted at the top-left (0, 0) of the {@apilink Screen.contentArea} (the safe
+   * content area), and extends to (contentArea.width, contentArea.height). Anywhere the safe area differs from
+   * the full resolution (e.g. {@apilink DisplayMode.FitScreenAndFill}, {@apilink DisplayMode.FitContainerAndFill},
+   * {@apilink DisplayMode.FitScreenAndZoom}, {@apilink DisplayMode.FitContainerAndZoom}) the screen-space origin
+   * is shifted into the safe area, not the raw canvas top-left.
+   *
+   * This matches how {@apilink ScreenElement | `screen elements`} and {@apilink CoordPlane.Screen} entities are
+   * drawn: their local (0, 0) sits at {@apilink Screen.contentArea}.topLeft.
    * @param point
    */
   public pageToScreenCoordinates(point: Vector): Vector {
@@ -722,9 +772,10 @@ export class Screen {
     newX = (newX / viewport.width) * this.resolution.width;
     newY = (newY / viewport.height) * this.resolution.height;
 
-    // offset by content area
-    newX = newX - this.contentArea.left;
-    newY = newY - this.contentArea.top;
+    // offset into content-area-rooted screen space; this is the inverse of
+    // the addition done in screenToPageCoordinates.
+    newX = newX - this.contentAreaOffset.x;
+    newY = newY - this.contentAreaOffset.y;
 
     return new Vector(newX, newY);
   }
@@ -733,15 +784,18 @@ export class Screen {
    * Takes a coordinate in Excalibur screen space, and translates it to normal html page space. For example,
    * this is where html elements might live if you want to position them relative to Excalibur.
    *
-   * Excalibur screen space starts at the top left (0, 0) corner of the viewport, and extends to the
-   * bottom right corner (resolutionX, resolutionY)
+   * Excalibur screen space is rooted at the top-left (0, 0) of the {@apilink Screen.contentArea} (the safe
+   * content area), the inverse of {@apilink Screen.pageToScreenCoordinates}.
    * @param point
    */
   public screenToPageCoordinates(point: Vector): Vector {
     let newX = point.x;
     let newY = point.y;
 
-    // no need to offset by content area, drawing is already offset by this
+    // offset back into resolution space by the content area; this is the inverse
+    // of the subtraction done in pageToScreenCoordinates so the two are symmetric.
+    newX = newX + this.contentAreaOffset.x;
+    newY = newY + this.contentAreaOffset.y;
 
     const viewport = this._viewportToPixels(this.viewport);
 
@@ -773,13 +827,17 @@ export class Screen {
   /**
    * Takes a coordinate in Excalibur screen space, and translates it to Excalibur world space.
    *
+   * The screen coordinate is rooted at the top-left of the {@apilink Screen.contentArea} (the safe content area),
+   * matching how {@apilink ScreenElement | `screen elements`} and {@apilink CoordPlane.Screen} entities are drawn.
+   *
    * World space is where {@apilink Entity | `entities`} in Excalibur live by default {@apilink CoordPlane.World}
    * and extends infinitely out relative from the {@apilink Camera}.
    * @param point  Screen coordinate to convert
    */
   public screenToWorldCoordinates(point: Vector): Vector {
-    // offset by content area
-    point = point.add(vec(this.contentArea.left, this.contentArea.top));
+    // offset back into resolution space by the content area; this is the inverse
+    // of the subtraction done in worldToScreenCoordinates.
+    point = point.add(this.contentAreaOffset);
 
     // the only difference between screen & world is the camera transform
     if (this._camera) {
@@ -792,16 +850,23 @@ export class Screen {
   /**
    * Takes a coordinate in Excalibur world space, and translates it to Excalibur screen space.
    *
-   * Screen space is where {@apilink ScreenElement | `screen elements`} and {@apilink Entity | `entities`} with {@apilink CoordPlane.Screen} live.
+   * Screen space is where {@apilink ScreenElement | `screen elements`} and {@apilink Entity | `entities`} with
+   * {@apilink CoordPlane.Screen} live. The returned coordinate is rooted at the top-left of the
+   * {@apilink Screen.contentArea} (the safe content area), matching how `CoordPlane.Screen` entities are drawn.
    * @param point  World coordinate to convert
    */
   public worldToScreenCoordinates(point: Vector): Vector {
+    let screenPoint: Vector;
     if (this._camera) {
-      return this._camera.transform.multiply(point);
+      screenPoint = this._camera.transform.multiply(point);
+    } else {
+      // fallback to center screen camera
+      screenPoint = point.add(vec(this.resolution.width / 2, this.resolution.height / 2));
     }
 
-    // fallback to center screen camera
-    return point.add(vec(this.resolution.width / 2, this.resolution.height / 2));
+    // offset into the content-area-rooted frame; this is the inverse of the
+    // addition done in screenToWorldCoordinates so the two are symmetric.
+    return screenPoint.sub(this.contentAreaOffset);
   }
 
   public pageToWorldCoordinates(point: Vector): Vector {
@@ -927,7 +992,16 @@ export class Screen {
   }
 
   /**
-   * Returns the content area in screen space where it is safe to place content
+   * Returns the content area in screen space where it is safe to place content.
+   *
+   * Screen space is rooted at the top-left of the content area, so
+   * `contentArea.topLeft` is always `(0, 0)` and `contentArea.bottomRight` is
+   * `(contentArea.width, contentArea.height)`. To convert a screen-space point
+   * back to the raw canvas/resolution frame, add
+   * {@apilink Screen.contentAreaOffset}.
+   *
+   * // TODO(phase-3): a `CoordPlane.Canvas` could expose the raw resolution
+   * frame to users that need true canvas-corner coordinates.
    */
   public get contentArea(): BoundingBox {
     return this._contentArea;
@@ -935,13 +1009,36 @@ export class Screen {
 
   /**
    * Returns the unsafe area in screen space, this is the full screen and some space may not be onscreen.
+   *
+   * The unsafe area spans the full resolution, expressed in the same
+   * content-area-rooted screen space as {@apilink Screen.contentArea}: when the
+   * content area is inset from the canvas (e.g. {@apilink DisplayMode.FitScreenAndFill}),
+   * `unsafeArea.topLeft` is negative by the clip amount and `unsafeArea.width`
+   * equals {@apilink Screen.resolution}.width.
    */
   public get unsafeArea(): BoundingBox {
     return this._unsafeArea;
   }
 
+  /**
+   * Resolution-space offset of the safe content area's top-left corner. `(0, 0)`
+   * when the content area fills the canvas (no clipping); positive when the
+   * safe area is inset (e.g. under {@apilink DisplayMode.FitScreenAndFill}).
+   *
+   * Use this to convert between the {@apilink CoordPlane.Screen} frame (rooted
+   * at {@apilink Screen.contentArea}.topLeft) and the raw canvas/resolution
+   * frame (rooted at the canvas top-left). This is the value the engine
+   * translates by before drawing {@apilink CoordPlane.Screen} entities, and the
+   * inverse offset applied by {@apilink Screen.pageToScreenCoordinates} and
+   * {@apilink Screen.screenToWorldCoordinates}.
+   */
+  public get contentAreaOffset(): Vector {
+    return this._contentAreaOffset;
+  }
+
   private _contentArea: BoundingBox = new BoundingBox();
   private _unsafeArea: BoundingBox = new BoundingBox();
+  private _contentAreaOffset: Vector = Vector.Zero;
 
   private _computeFit() {
     document.body.style.margin = '0px';
@@ -961,6 +1058,9 @@ export class Screen {
       width: adjustedWidth,
       height: adjustedHeight
     };
+    // No clipping under FitScreen: screen space (0,0) coincides with the
+    // canvas top-left, and the unsafe area equals the content area.
+    this._contentAreaOffset = Vector.Zero;
     this._contentArea = BoundingBox.fromDimension(this.resolution.width, this.resolution.height, Vector.Zero);
     this._unsafeArea = BoundingBox.fromDimension(this.resolution.width, this.resolution.height, Vector.Zero);
     this.events.emit('resize', {
@@ -1010,17 +1110,21 @@ export class Screen {
         height: (((vw * this._contentResolution.width) / vw) * vh) / vw
       };
       const clip = (this.resolution.height - this._contentResolution.height) / 2;
+      // Screen space is rooted at the content area, so contentArea is anchored
+      // at (0,0) and the unsafe area extends symmetrically by the clip in the
+      // vertical direction (resolving the previous off-by-2*clip on bottom).
+      this._contentAreaOffset = vec(0, clip);
       this._contentArea = new BoundingBox({
-        top: clip,
+        top: 0,
         left: 0,
         right: this._contentResolution.width,
-        bottom: this.resolution.height - clip
+        bottom: this._contentResolution.height
       });
       this._unsafeArea = new BoundingBox({
         top: -clip,
         left: 0,
         right: this._contentResolution.width,
-        bottom: this.resolution.height + clip
+        bottom: this._contentResolution.height + clip
       });
     } else {
       this.resolution = {
@@ -1028,16 +1132,17 @@ export class Screen {
         height: (vh * this._contentResolution.height) / vh
       };
       const clip = (this.resolution.width - this._contentResolution.width) / 2;
+      this._contentAreaOffset = vec(clip, 0);
       this._contentArea = new BoundingBox({
         top: 0,
-        left: clip,
-        right: this.resolution.width - clip,
+        left: 0,
+        right: this._contentResolution.width,
         bottom: this._contentResolution.height
       });
       this._unsafeArea = new BoundingBox({
         top: 0,
         left: -clip,
-        right: this.resolution.width + clip,
+        right: this._contentResolution.width + clip,
         bottom: this._contentResolution.height
       });
     }
@@ -1111,24 +1216,42 @@ export class Screen {
       height: zoomedHeight
     };
 
-    const bounds = BoundingBox.fromDimension(this.viewport.width, this.viewport.height, Vector.Zero);
-    // return safe area
+    // Compute per-axis clip amounts in resolution space. Clip is symmetric:
+    // each side is inset by half the total clip, so the content area is
+    // centered on the (zoomed) unsafe area.
+    let offsetX = 0;
+    let offsetY = 0;
+    let contentWidth = this.resolution.width;
+    let contentHeight = this.resolution.height;
     if (this.viewport.width > vw) {
       const clip = ((this.viewport.width - vw) / this.viewport.width) * this.resolution.width;
-      bounds.top = 0;
-      bounds.left = clip / 2;
-      bounds.right = this.resolution.width - clip / 2;
-      bounds.bottom = this.resolution.height;
+      offsetX = clip / 2;
+      contentWidth = this.resolution.width - clip;
     }
-
     if (this.viewport.height > vh) {
       const clip = ((this.viewport.height - vh) / this.viewport.height) * this.resolution.height;
-      bounds.top = clip / 2;
-      bounds.left = 0;
-      bounds.bottom = this.resolution.height - clip / 2;
-      bounds.right = this.resolution.width;
+      offsetY = clip / 2;
+      contentHeight = this.resolution.height - clip;
     }
-    this._contentArea = bounds;
+
+    // Screen space is rooted at the content area: contentArea spans (0,0) to
+    // (contentWidth, contentHeight); unsafeArea spans the full resolution,
+    // expressed relative to contentArea.topLeft.
+    this._contentAreaOffset = vec(offsetX, offsetY);
+    this._contentArea = new BoundingBox({
+      left: 0,
+      top: 0,
+      right: contentWidth,
+      bottom: contentHeight
+    });
+    // `|| 0` keeps the left/top as +0 (not -0) on the non-clipping axis so
+    // downstream `Object.is(x, 0)` checks behave consistently.
+    this._unsafeArea = new BoundingBox({
+      left: -offsetX || 0,
+      top: -offsetY || 0,
+      right: this.resolution.width - offsetX,
+      bottom: this.resolution.height - offsetY
+    });
   }
 
   private _computeFitContainer() {
@@ -1156,7 +1279,11 @@ export class Screen {
       height: adjustedHeight,
       heightUnit
     };
+    // No clipping under FitContainer: screen space (0,0) coincides with the
+    // canvas top-left, and the unsafe area equals the content area.
+    this._contentAreaOffset = Vector.Zero;
     this._contentArea = BoundingBox.fromDimension(this.resolution.width, this.resolution.height, Vector.Zero);
+    this._unsafeArea = BoundingBox.fromDimension(this.resolution.width, this.resolution.height, Vector.Zero);
     this.events.emit('resize', {
       resolution: this.resolution,
       viewport: this.viewport
@@ -1208,7 +1335,13 @@ export class Screen {
       this.viewport = this.resolution;
     }
 
+    // Default (FillContainer/FillScreen/Fixed): no clipping, so screen space
+    // (0,0) sits at the canvas top-left and the unsafe area equals the
+    // content area. Specific display modes below override these by recomputing
+    // the offset, content area, and (extended) unsafe area.
+    this._contentAreaOffset = Vector.Zero;
     this._contentArea = BoundingBox.fromDimension(this.resolution.width, this.resolution.height, Vector.Zero);
+    this._unsafeArea = BoundingBox.fromDimension(this.resolution.width, this.resolution.height, Vector.Zero);
 
     if (this.displayMode === DisplayMode.FitScreen) {
       this._computeFit();

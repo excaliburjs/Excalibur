@@ -482,7 +482,10 @@ export class GraphicsComponent extends Component {
         if (camera && screen) {
           // For speed
           // dubious transform by tampering with the camera inverse then putting it back
-          const topLeft = screen.contentArea.topLeft;
+          // Screen space is rooted at contentArea.topLeft; the offset moves
+          // the local (0,0) into resolution space where the camera inverse
+          // then maps to world space.
+          const topLeft = screen.contentAreaOffset;
           const oldX = camera.inverse.data[4];
           const oldY = camera.inverse.data[5];
           camera.inverse.data[4] += topLeft.x;

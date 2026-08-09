@@ -116,7 +116,9 @@ export class GraphicsSystem extends System {
 
       this._graphicsContext.save();
       if (transform.coordPlane === CoordPlane.Screen) {
-        this._graphicsContext.translate(this._engine.screen.contentArea.left, this._engine.screen.contentArea.top);
+        // Screen space is rooted at contentArea.topLeft; translate by the
+        // content area offset to position the local (0,0) there.
+        this._graphicsContext.translate(this._engine.screen.contentAreaOffset.x, this._engine.screen.contentAreaOffset.y);
       }
 
       // Apply parallax
