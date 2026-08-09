@@ -15,6 +15,7 @@ import { CompositeCollider } from '../collision/colliders/composite-collider';
 import { Particle } from '../particles/particles';
 import { DebugGraphicsComponent } from '../graphics/debug-graphics-component';
 import { CoordPlane } from '../math/coord-plane';
+import { DisplayMode } from '../screen';
 import { Debug } from '../graphics/debug';
 import { Color } from '../color';
 import type { BoundingBox } from '../collision/bounding-box';
@@ -306,11 +307,10 @@ export class DebugSystem extends System {
     // Screen-space overlay: visualize contentArea / unsafeArea in screen coordinates.
     // These bounds are expressed in the content-area-rooted screen (C) frame, so we
     // drop any active camera transform, translate by `contentAreaOffset` to bring
-    // the bounds back into the canvas/resolution (R) frame where the visible canvas
-    // spans (0,0)-(resolution.width, resolution.height), and then clamp the drawn
-    // outline to that visible region. Especially useful for the *AndFill / *AndZoom
-    // display modes where the safe content area is inset from the (possibly clipping)
-    // unsafe area.
+    // the bounds back into the canvas/resolution (R) frame, and clamp the drawn
+    // outlines to the region actually visible in the window. Especially useful for
+    // the *AndFill / *AndZoom display modes where the safe content area is inset
+    // from the (possibly clipping) unsafe area.
     const screenSettings = this._engine.debug.screen;
     if (screenSettings && screenSettings.showAll) {
       const screen = this._engine.screen;
@@ -320,24 +320,24 @@ export class DebugSystem extends System {
       this._graphicsContext.translate(screen.contentAreaOffset.x, screen.contentAreaOffset.y);
       this._graphicsContext.z = Debug.config.settings.z.solid;
 
-      // Helper: draw a dashed debug box clamped to the visible canvas and inset 1px so the
-      // 2px stroke is fully onscreen. The bounds are in C-frame; after the translate above
-      // the canvas spans (0,0)-(resolution.width, resolution.height) in the current ctx
-      // frame. unsafeArea under *AndFill / *AndZoom extends beyond the canvas (negative
-      // topLeft / bottomRight > resolution) to represent possibly-offscreen space; we keep
-      // that data intact but only clamp the *drawn* outline for visibility. Clamp values
-      // are in R-frame (translated), so we subtract the offset to express them in C-frame.
+      // The visible region in C-frame. Under the *AndZoom modes the canvas
+      // overflows the window (negative CSS top/left, see Screen._computeFitAndZoom)
+      // so only the contentArea is onscreen; in every other mode the full canvas
+      // (unsafeArea) is visible.
+      const isZoomed = screen.displayMode === DisplayMode.FitScreenAndZoom || screen.displayMode === DisplayMode.FitContainerAndZoom;
+      const visible = isZoomed ? screen.contentArea : screen.unsafeArea;
       const offsetX = screen.contentAreaOffset.x;
       const offsetY = screen.contentAreaOffset.y;
+
+      // Helper: draw a dashed debug box clamped to the visible region and inset 1px so the
+      // 2px stroke is fully onscreen. unsafeArea under *AndFill / *AndZoom extends beyond
+      // the visible region to represent possibly-offscreen space; we keep that data intact
+      // but only clamp the *drawn* outline for visibility.
       const drawClampedBox = (bb: BoundingBox, color: Color) => {
-        const canvasLeft = -offsetX;
-        const canvasTop = -offsetY;
-        const canvasRight = screen.resolution.width - offsetX;
-        const canvasBottom = screen.resolution.height - offsetY;
-        const left = Math.max(canvasLeft, bb.left) + 1;
-        const top = Math.max(canvasTop, bb.top) + 1;
-        const right = Math.min(canvasRight, bb.right) - 1;
-        const bottom = Math.min(canvasBottom, bb.bottom) - 1;
+        const left = Math.max(visible.left, bb.left) + 1;
+        const top = Math.max(visible.top, bb.top) + 1;
+        const right = Math.min(visible.right, bb.right) - 1;
+        const bottom = Math.min(visible.bottom, bb.bottom) - 1;
         const w = right - left;
         const h = bottom - top;
         if (w > 0 && h > 0) {
@@ -385,11 +385,11 @@ export class DebugSystem extends System {
         const legendWidth = labelPadX + Math.ceil(maxLabelWidth) + legendPad * 2;
         const legendHeight = lineHeight * 2 + legendPad * 2;
 
-        // Anchor the legend to the bottom-right of the screen (canvas) coordinate plan.
-        const screenW = screen.resolution.width;
-        const screenH = screen.resolution.height;
-        const legendX = screenW - legendWidth - margin;
-        const legendY = screenH - legendHeight - margin;
+        // Anchor the legend to the bottom-right of the visible region in R-frame:
+        // the canvas corner in most modes, the contentArea corner under *AndZoom
+        // where the canvas edges hang outside the window.
+        const legendX = visible.right + offsetX - legendWidth - margin;
+        const legendY = visible.bottom + offsetY - legendHeight - margin;
 
         // Semi-transparent background so the legend is readable over any scene
         this._graphicsContext.drawRectangle(

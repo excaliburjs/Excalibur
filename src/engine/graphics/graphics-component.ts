@@ -484,15 +484,18 @@ export class GraphicsComponent extends Component {
           // dubious transform by tampering with the camera inverse then putting it back
           // Screen space is rooted at contentArea.topLeft; the offset moves
           // the local (0,0) into resolution space where the camera inverse
-          // then maps to world space.
+          // then maps to world space. Composing inverse ∘ translate(offset)
+          // means the offset passes through the inverse's linear part
+          // (zoom/rotation) before landing in the translation column.
           const topLeft = screen.contentAreaOffset;
-          const oldX = camera.inverse.data[4];
-          const oldY = camera.inverse.data[5];
-          camera.inverse.data[4] += topLeft.x;
-          camera.inverse.data[5] += topLeft.y;
-          bounds.transform(camera.inverse, bounds);
-          camera.inverse.data[4] = oldX;
-          camera.inverse.data[5] = oldY;
+          const inv = camera.inverse;
+          const oldX = inv.data[4];
+          const oldY = inv.data[5];
+          inv.data[4] += inv.data[0] * topLeft.x + inv.data[2] * topLeft.y;
+          inv.data[5] += inv.data[1] * topLeft.x + inv.data[3] * topLeft.y;
+          bounds.transform(inv, bounds);
+          inv.data[4] = oldX;
+          inv.data[5] = oldY;
         }
         return bounds;
       }
