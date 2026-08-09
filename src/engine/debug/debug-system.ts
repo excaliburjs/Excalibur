@@ -17,6 +17,7 @@ import { DebugGraphicsComponent } from '../graphics/debug-graphics-component';
 import { CoordPlane } from '../math/coord-plane';
 import { Debug } from '../graphics/debug';
 import { Color } from '../color';
+import type { BoundingBox } from '../collision/bounding-box';
 
 export class DebugSystem extends System {
   static priority = SystemPriority.Lowest;
@@ -309,19 +310,33 @@ export class DebugSystem extends System {
       this._graphicsContext.resetTransform();
       this._graphicsContext.z = Debug.config.settings.z.solid;
 
+      // Helper: draw a dashed debug box clamped to the visible canvas and inset 1px so the
+      // 2px stroke is fully onscreen. The underlying Screen bounds (e.g. unsafeArea under
+      // *AndFill) intentionally extend beyond the canvas to represent possibly-offscreen
+      // space; we keep that data intact but only clamp the *drawn* outline for visibility.
+      const drawClampedBox = (bb: BoundingBox, color: Color) => {
+        const canvasW = screen.resolution.width;
+        const canvasH = screen.resolution.height;
+        const left = Math.max(0, bb.left) + 1;
+        const top = Math.max(0, bb.top) + 1;
+        const right = Math.min(canvasW, bb.right) - 1;
+        const bottom = Math.min(canvasH, bb.bottom) - 1;
+        const w = right - left;
+        const h = bottom - top;
+        if (w > 0 && h > 0) {
+          this._graphicsContext.debug.drawRect(left, top, w, h, {
+            color,
+            dashed: true,
+            lineWidth: 2
+          });
+        }
+      };
+
       if (screenSettings.showUnsafeArea) {
-        screen.unsafeArea.debug(this._graphicsContext, {
-          color: screenSettings.unsafeAreaColor,
-          dashed: true,
-          lineWidth: 2
-        });
+        drawClampedBox(screen.unsafeArea, screenSettings.unsafeAreaColor);
       }
       if (screenSettings.showContentArea) {
-        screen.contentArea.debug(this._graphicsContext, {
-          color: screenSettings.contentAreaColor,
-          dashed: true,
-          lineWidth: 2
-        });
+        drawClampedBox(screen.contentArea, screenSettings.contentAreaColor);
       }
 
       if (screenSettings.showLegend) {
