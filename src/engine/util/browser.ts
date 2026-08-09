@@ -5,21 +5,53 @@ export interface NativeEventable {
 
 export class BrowserComponent<T extends NativeEventable> {
   private _paused = false;
-  private _nativeHandlers: Record<string, (handler: any) => void> = {};
+  /**
+   * Event name -> (original handler -> decorated wrapper)
+   *
+   * Supports multiple handlers per event name. Each registered handler is
+   * decorated with pause-awareness; the original handler reference is the key
+   * so callers can `off(eventName, originalHandler)` by the same reference they
+   * passed to `on`.
+   */
+  private _nativeHandlers: Map<string, Map<(evt: any) => void, (evt: any) => void>> = new Map();
 
   on(eventName: string, handler: (evt: any) => void): void {
-    if (this._nativeHandlers[eventName]) {
-      this.off(eventName, this._nativeHandlers[eventName]);
+    let perEvent = this._nativeHandlers.get(eventName);
+    if (!perEvent) {
+      perEvent = new Map();
+      this._nativeHandlers.set(eventName, perEvent);
     }
-    this._nativeHandlers[eventName] = this._decorate(handler);
-    this.nativeComponent.addEventListener(eventName, this._nativeHandlers[eventName]);
+    // Idempotent: registering the same handler reference twice is a no-op
+    // and never results in duplicate native listeners.
+    if (perEvent.has(handler)) {
+      return;
+    }
+    const decorated = this._decorate(handler);
+    perEvent.set(handler, decorated);
+    this.nativeComponent.addEventListener(eventName, decorated);
   }
+
   off(eventName: string, handler?: (event: any) => void): void {
-    if (!handler) {
-      handler = this._nativeHandlers[eventName];
+    const perEvent = this._nativeHandlers.get(eventName);
+    if (!perEvent) {
+      return;
     }
-    this.nativeComponent.removeEventListener(eventName, handler);
-    delete this._nativeHandlers[eventName];
+    if (!handler) {
+      // Remove every handler registered for this event
+      for (const [, decorated] of perEvent) {
+        this.nativeComponent.removeEventListener(eventName, decorated);
+      }
+      this._nativeHandlers.delete(eventName);
+      return;
+    }
+    const decorated = perEvent.get(handler);
+    if (decorated) {
+      this.nativeComponent.removeEventListener(eventName, decorated);
+      perEvent.delete(handler);
+      if (perEvent.size === 0) {
+        this._nativeHandlers.delete(eventName);
+      }
+    }
   }
 
   private _decorate(handler: (evt: any) => void): (evt: any) => void {
@@ -39,9 +71,12 @@ export class BrowserComponent<T extends NativeEventable> {
   }
 
   public clear() {
-    for (const event in this._nativeHandlers) {
-      this.off(event);
+    for (const [eventName, perEvent] of this._nativeHandlers) {
+      for (const [, decorated] of perEvent) {
+        this.nativeComponent.removeEventListener(eventName, decorated);
+      }
     }
+    this._nativeHandlers.clear();
   }
 
   constructor(public nativeComponent: T) {}
