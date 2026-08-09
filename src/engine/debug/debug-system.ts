@@ -16,6 +16,7 @@ import { Particle } from '../particles/particles';
 import { DebugGraphicsComponent } from '../graphics/debug-graphics-component';
 import { CoordPlane } from '../math/coord-plane';
 import { Debug } from '../graphics/debug';
+import { Color } from '../color';
 
 export class DebugSystem extends System {
   static priority = SystemPriority.Lowest;
@@ -294,6 +295,91 @@ export class DebugSystem extends System {
       if (cameraSettings.showAll || cameraSettings.showZoom) {
         this._graphicsContext.debug.drawText(`zoom(${this._camera.zoom})`, this._camera.pos);
       }
+      this._graphicsContext.restore();
+    }
+
+    // Screen-space overlay: visualize contentArea / unsafeArea in screen coordinates.
+    // These bounds are already in canvas (screen) coordinates, so we drop any active
+    // camera transform and render them raw. Especially useful for the *AndFill display
+    // modes where the safe content area is inset from the (possibly clipping) unsafe area.
+    const screenSettings = this._engine.debug.screen;
+    if (screenSettings && screenSettings.showAll) {
+      const screen = this._engine.screen;
+      this._graphicsContext.save();
+      this._graphicsContext.resetTransform();
+      this._graphicsContext.z = Debug.config.settings.z.solid;
+
+      if (screenSettings.showUnsafeArea) {
+        screen.unsafeArea.debug(this._graphicsContext, {
+          color: screenSettings.unsafeAreaColor,
+          dashed: true,
+          lineWidth: 2
+        });
+      }
+      if (screenSettings.showContentArea) {
+        screen.contentArea.debug(this._graphicsContext, {
+          color: screenSettings.contentAreaColor,
+          dashed: true,
+          lineWidth: 2
+        });
+      }
+
+      if (screenSettings.showLegend) {
+        const textScale = 0.6;
+        const swatchPad = 4;
+        const swatchWidth = 10;
+        const swatchHeight = 8;
+        const lineHeight = 13;
+        const labelPadX = swatchWidth + swatchPad;
+        const legendPad = 4;
+        const margin = 8;
+
+        // Both contentArea and unsafeArea are screen-space bounds by definition
+        // (see Screen.contentArea / Screen.unsafeArea docs).
+        const contentLabel = `contentArea ${Math.round(screen.contentArea.width)}x${Math.round(screen.contentArea.height)} (Screen)`;
+        const unsafeLabel = `unsafeArea ${Math.round(screen.unsafeArea.width)}x${Math.round(screen.unsafeArea.height)} (Screen)`;
+
+        // Measure each label so the legend background fits the text precisely.
+        const contentSize = this._graphicsContext.debug.measureText(contentLabel, textScale);
+        const unsafeSize = this._graphicsContext.debug.measureText(unsafeLabel, textScale);
+        const maxLabelWidth = Math.max(contentSize.width, unsafeSize.width);
+
+        const legendWidth = labelPadX + Math.ceil(maxLabelWidth) + legendPad * 2;
+        const legendHeight = lineHeight * 2 + legendPad * 2;
+
+        // Anchor the legend to the bottom-right of the screen (canvas) coordinate plan.
+        const screenW = screen.resolution.width;
+        const screenH = screen.resolution.height;
+        const legendX = screenW - legendWidth - margin;
+        const legendY = screenH - legendHeight - margin;
+
+        // Semi-transparent background so the legend is readable over any scene
+        this._graphicsContext.drawRectangle(
+          vec(legendX, legendY),
+          legendWidth,
+          legendHeight,
+          Color.fromRGB(0, 0, 0, 0.6),
+          screenSettings.legendColor,
+          1
+        );
+
+        // Row 1: content area swatch + label, colored to match the box
+        const row1 = vec(legendX + legendPad, legendY + legendPad);
+        this._graphicsContext.drawRectangle(row1, swatchWidth, swatchHeight, screenSettings.contentAreaColor);
+        this._graphicsContext.debug.drawText(contentLabel, row1.add(vec(labelPadX, 0)), {
+          foreground: screenSettings.contentAreaColor,
+          scale: textScale
+        });
+
+        // Row 2: unsafe area swatch + label, colored to match the box
+        const row2 = row1.add(vec(0, lineHeight));
+        this._graphicsContext.drawRectangle(row2, swatchWidth, swatchHeight, screenSettings.unsafeAreaColor);
+        this._graphicsContext.debug.drawText(unsafeLabel, row2.add(vec(labelPadX, 0)), {
+          foreground: screenSettings.unsafeAreaColor,
+          scale: textScale
+        });
+      }
+
       this._graphicsContext.restore();
     }
   }
