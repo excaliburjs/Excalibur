@@ -24,24 +24,24 @@ export enum CoordPlane {
  * C-frame is shifted into the safe area.
  *
  * ```
- *     World (infinite, camera)        Screen (CoordPlane.Screen, C)       Canvas / resolution (R)
+ *   World (infinite, camera)         Screen (CoordPlane.Screen, C)       Canvas / resolution (R)
  *
- *       +                                    +                                 +
- *       | (camera moves)                     | (0,0) = contentArea.topLeft     | (0,0) = canvas top-left
- *       |                                     |   shifts into the safe area     |   raw canvas corner
- *       |                                     |   on *AndFill / *AndZoom        |
- *       v                                     v                                 v
- *                                       +--- contentArea.width ---+         +--- resolution.width ---+
- *   worldToScreen():                    |                         |         |                         |
- *   camera.transform                    |     contentArea         |   <==   | unsafe |  contentArea   | unsafe |
- *   - contentAreaOffset  ============>  |  (CoordPlane.Screen)    |         | (clip) |   (R span)     | (clip) |
- *                                       |                         |         |                         |
- *   screenToWorld():                    +-------------------------+         +-------------------------+
+ *     +                                    +                                 +
+ *     | camera moves this                  | (0,0) = contentArea.topLeft     | (0,0) = canvas top-left
+ *     |                                    |   shifts into the safe area     |   raw canvas corner
+ *     |                                    |   on *AndFill / *AndZoom        |
+ *     v                                    v                                 v
+ *                                   +----------- contentW -----------+     +----------- resolutionW -------------------+
+ *   worldToScreen():                |                                |     |         |                        |        |
+ *   camera.transform                |        contentArea             |     | unsafe  |     contentArea        | unsafe |
+ *   - contentAreaOffset  ========>  |     (CoordPlane.Screen)        | <== | (clip)  |       (R span)         | (clip) |
+ *                                   |                                |     |         |                        |        |
+ *   screenToWorld():                +-------------------------------_+     +-------------------------------------------+
  *   camera.inverse
  *   + contentAreaOffset
  *
- *   contentAreaOffset = (clip, 0)   on the *AndFill / *AndZoom horizontal-clip axis;
- *                                     (0, 0)                under Fixed/FitScreen/FillScreen/FitContainer/FillContainer.
+ *   contentAreaOffset = (clip|0, clip|0)   on the *AndFill / *AndZoom horizontal-clip axis;
+ *                         (0, 0)    under Fixed/FitScreen/FillScreen/FitContainer/FillContainer.
  * ```
  *
  * Use {@apilink Screen.worldToScreenCoordinates}, {@apilink Screen.screenToWorldCoordinates},

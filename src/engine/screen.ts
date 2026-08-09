@@ -43,26 +43,29 @@ export enum DisplayMode {
    *
    * Horizontal-clip example (window wider than the content aspect ratio):
    *
-   * ```
-   *     Canvas / resolution frame (R)              Screen / CoordPlane.Screen (C)
-   *
-   *       (0,0)                                          (0,0)
-   *       +--+----------+------------------+----------+   +--------------------------+
-   *       |un|  clip    |    contentArea    |  clip    |   |                          |
-   *       |sa|  -->     |    (safe area)    |  <--     |   |       contentArea       |
-   *       |fe|(offscr.) |                  | (offscr.)|   |   (0,0)..(contentW,H)     |
-   *       |  |          |                  |          |   |                          |
-   *       |  |          |  R-frame (0,0)..  |          |   |                          |
-   *       +--+----------+------------------+----------+   +--------------------------+
-   *       unsafe.left = -clip   contentAreaOffset.x = clip     unsafeArea spans (C-frame):
-   *                                                       left=-clip, right=contentRes.width+clip,
-   *                                                       width = resolution.width (was inflated by
-   *                                                       2*clip before the fix)
-   *                                <-- contentArea.width = contentRes.width -->
-   *     <----------- resolution.width = contentRes.width + 2*clip ----------->
-   * ```
-   *
-   * Vertical-clip behaves analgosly on the Y axis. {@apilink DisplayMode.FitContainerAndFill}
+* ```
+ *     Canvas / resolution frame (R)            Screen / CoordPlane.Screen (C)
+ *
+ *       (0,0)                                          (0,0)
+ *       +-------+------------------+-------+           +--------------------------+
+ *       |unsafe |    contentArea   |unsafe |           |                          |
+ *       |(clip, |   (safe area)    |(clip, |           |       contentArea       |
+ *       | off-  |                  | off-  |   ====>   |   (0,0)..(contentW,H)    |
+ *       |screen)| R-frame (0,0) is |screen)|           |                          |
+ *       |       | here ----------> |       |           |                          |
+ *       +-------+------------------+-------+           +--------------------------+
+ *       ^-clip -^                  ^-clip -^
+ *
+ *       contentAreaOffset.x = clip
+ *
+ *        unsafeArea (C-frame): left = -clip,
+ *                           right = contentRes.width + clip,
+ *                           width = resolution.width
+ *       contentArea.width   = contentRes.width
+ *       resolution.width    = contentRes.width + 2*clip
+ * ```
+ *
+   * Vertical-clip behaves analogously on the Y axis. {@apilink DisplayMode.FitContainerAndFill}
    * follows the same rules but driven by the parent element size instead of the window.
    */
   FitScreenAndFill = 'FitScreenAndFill',

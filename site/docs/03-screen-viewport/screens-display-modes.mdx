@@ -184,23 +184,24 @@ Click and drag right corner to resize!
 The screen-space origin `(0, 0)` (the [[CoordPlane.Screen]] frame) is the top-left of the safe content area, not the raw canvas top-left. [[Screen.contentAreaOffset]] holds the resolution-space position of that origin — for example, in a horizontal-clip scenario (window wider than the content aspect ratio):
 
 ```
-    Canvas / resolution frame (R)                  Screen / CoordPlane.Screen (C)
+    Canvas / resolution frame (R)            Screen / CoordPlane.Screen (C)
 
-      (0,0)                                              (0,0)
-      +----------+------------------+----------+          +--------------------------+
-      |  unsafe  |   contentArea    |  unsafe  |          |                          |
-      |  (clip,  |   (safe area)    |  (clip,  |          |       contentArea       |
-      |   off-   |                  |   off-   |          |   (0,0)..(contentW,H)   |
-      |   screen) | R-frame (0,0).. |  screen) |          |                          |
-      |          |                  |          |          |                          |
-      +----------+------------------+----------+          +--------------------------+
-            <-- clip -->                <-- clip -->      <-- contentArea.width = contentRes.width -->
-      <--------- resolution.width = contentRes.width + 2*clip ---------->
+      (0,0)                                          (0,0)
+      +-------+------------------+-------+           +--------------------------+
+      |unsafe |    contentArea   |unsafe |           |                          |
+      |(clip, |   (safe area)    |(clip, |   ====>   |       contentArea       |
+      | off-  |                  | off-  |           |   (0,0)..(contentW,H)    |
+      |screen)| R-frame (0,0) is |screen)|           |                          |
+      |       | here ----------> |       |           |                          |
+      +-------+------------------+-------+           +--------------------------+
+      ^-clip -^                  ^-clip -^
 
-                     unsafeArea spans the full resolution in the C-frame:
-                       left = -clip, right = contentRes.width + clip
-                       width = resolution.width
-                     contentAreaOffset = (clip, 0)
+      contentAreaOffset.x = clip
+      unsafeArea (C-frame): left = -clip, 
+                            right = contentRes.width + clip,
+                            width = resolution.width
+      contentArea.width   = contentRes.width
+      resolution.width    = contentRes.width + 2*clip
 ```
 
 Vertical-clip (window taller than the content aspect ratio) is analogous on the Y axis. [[CoordPlane.Screen]] entities (`ScreenElement`s) drawn at `pos = (0, 0)` appear at the content area's top-left on screen.
