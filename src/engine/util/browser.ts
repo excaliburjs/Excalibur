@@ -37,7 +37,6 @@ export class BrowserComponent<T extends NativeEventable> {
       return;
     }
     if (!handler) {
-      // Remove every handler registered for this event
       for (const [, decorated] of perEvent) {
         this.nativeComponent.removeEventListener(eventName, decorated);
       }

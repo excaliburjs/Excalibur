@@ -76,8 +76,6 @@ export class DebugText {
       const base = this._spriteFont.measureText(text);
       return BoundingBox.fromDimension(base.width * scale, base.height * scale, VectorClass.Zero);
     }
-    // Rough estimate before the debug sprite font finishes loading (fire-and-forget load
-    // in the constructor); keeps legend sizing reasonable pre-load.
     return BoundingBox.fromDimension(text.length * 7 * scale, 12 * scale, VectorClass.Zero);
   }
 
@@ -100,8 +98,6 @@ export class DebugText {
       if (scale !== 1) {
         ctx.scale(scale, scale);
       }
-      // Convert the screen-space `pos` into the scaled local space so the glyphs
-      // land at the intended screen position after the scale transform is applied.
       const localPos = scale !== 1 ? pos.scale(1 / scale) : pos;
       const bounds = this._spriteFont.measureText(text);
       const color = foreground ?? this.foregroundColor ?? Color.Black;

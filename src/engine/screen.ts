@@ -775,8 +775,6 @@ export class Screen {
     newX = (newX / viewport.width) * this.resolution.width;
     newY = (newY / viewport.height) * this.resolution.height;
 
-    // offset into content-area-rooted screen space; this is the inverse of
-    // the addition done in screenToPageCoordinates.
     newX = newX - this.contentAreaOffset.x;
     newY = newY - this.contentAreaOffset.y;
 
@@ -795,8 +793,6 @@ export class Screen {
     let newX = point.x;
     let newY = point.y;
 
-    // offset back into resolution space by the content area; this is the inverse
-    // of the subtraction done in pageToScreenCoordinates so the two are symmetric.
     newX = newX + this.contentAreaOffset.x;
     newY = newY + this.contentAreaOffset.y;
 
@@ -838,15 +834,12 @@ export class Screen {
    * @param point  Screen coordinate to convert
    */
   public screenToWorldCoordinates(point: Vector): Vector {
-    // offset back into resolution space by the content area; this is the inverse
-    // of the subtraction done in worldToScreenCoordinates.
     point = point.add(this.contentAreaOffset);
 
     // the only difference between screen & world is the camera transform
     if (this._camera) {
       return this._camera.inverse.multiply(point);
     }
-    // fallback to center screen camera
     return point.sub(vec(this.resolution.width / 2, this.resolution.height / 2));
   }
 
@@ -863,12 +856,9 @@ export class Screen {
     if (this._camera) {
       screenPoint = this._camera.transform.multiply(point);
     } else {
-      // fallback to center screen camera
       screenPoint = point.add(vec(this.resolution.width / 2, this.resolution.height / 2));
     }
 
-    // offset into the content-area-rooted frame; this is the inverse of the
-    // addition done in screenToWorldCoordinates so the two are symmetric.
     return screenPoint.sub(this.contentAreaOffset);
   }
 
@@ -1061,8 +1051,6 @@ export class Screen {
       width: adjustedWidth,
       height: adjustedHeight
     };
-    // No clipping under FitScreen: screen space (0,0) coincides with the
-    // canvas top-left, and the unsafe area equals the content area.
     this._contentAreaOffset = Vector.Zero;
     this._contentArea = BoundingBox.fromDimension(this.resolution.width, this.resolution.height, Vector.Zero);
     this._unsafeArea = BoundingBox.fromDimension(this.resolution.width, this.resolution.height, Vector.Zero);
@@ -1113,9 +1101,6 @@ export class Screen {
         height: (((vw * this._contentResolution.width) / vw) * vh) / vw
       };
       const clip = (this.resolution.height - this._contentResolution.height) / 2;
-      // Screen space is rooted at the content area, so contentArea is anchored
-      // at (0,0) and the unsafe area extends symmetrically by the clip in the
-      // vertical direction (resolving the previous off-by-2*clip on bottom).
       this._contentAreaOffset = vec(0, clip);
       this._contentArea = new BoundingBox({
         top: 0,
@@ -1237,9 +1222,6 @@ export class Screen {
       contentHeight = this.resolution.height - clip;
     }
 
-    // Screen space is rooted at the content area: contentArea spans (0,0) to
-    // (contentWidth, contentHeight); unsafeArea spans the full resolution,
-    // expressed relative to contentArea.topLeft.
     this._contentAreaOffset = vec(offsetX, offsetY);
     this._contentArea = new BoundingBox({
       left: 0,
@@ -1282,8 +1264,6 @@ export class Screen {
       height: adjustedHeight,
       heightUnit
     };
-    // No clipping under FitContainer: screen space (0,0) coincides with the
-    // canvas top-left, and the unsafe area equals the content area.
     this._contentAreaOffset = Vector.Zero;
     this._contentArea = BoundingBox.fromDimension(this.resolution.width, this.resolution.height, Vector.Zero);
     this._unsafeArea = BoundingBox.fromDimension(this.resolution.width, this.resolution.height, Vector.Zero);
@@ -1338,10 +1318,6 @@ export class Screen {
       this.viewport = this.resolution;
     }
 
-    // Default (FillContainer/FillScreen/Fixed): no clipping, so screen space
-    // (0,0) sits at the canvas top-left and the unsafe area equals the
-    // content area. Specific display modes below override these by recomputing
-    // the offset, content area, and (extended) unsafe area.
     this._contentAreaOffset = Vector.Zero;
     this._contentArea = BoundingBox.fromDimension(this.resolution.width, this.resolution.height, Vector.Zero);
     this._unsafeArea = BoundingBox.fromDimension(this.resolution.width, this.resolution.height, Vector.Zero);
