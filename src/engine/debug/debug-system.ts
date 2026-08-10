@@ -104,8 +104,6 @@ export class DebugSystem extends System {
 
       this._graphicsContext.save();
       if (tx.coordPlane === CoordPlane.Screen) {
-        // Screen space is rooted at contentArea.topLeft; translate by the
-        // content area offset to position the local (0,0) there.
         this._graphicsContext.translate(this._engine.screen.contentAreaOffset.x, this._engine.screen.contentAreaOffset.y);
       }
 
@@ -196,8 +194,6 @@ export class DebugSystem extends System {
       // World space
       this._graphicsContext.save();
       if (tx.coordPlane === CoordPlane.Screen) {
-        // Screen space is rooted at contentArea.topLeft; translate by the
-        // content area offset to position the local (0,0) there.
         this._graphicsContext.translate(this._engine.screen.contentAreaOffset.x, this._engine.screen.contentAreaOffset.y);
       }
       motion = entity.get(MotionComponent)!;
@@ -304,35 +300,19 @@ export class DebugSystem extends System {
       this._graphicsContext.restore();
     }
 
-    // Screen-space overlay: visualize contentArea / unsafeArea in screen coordinates.
-    // These bounds are expressed in the content-area-rooted screen (C) frame, so we
-    // drop any active camera transform, translate by `contentAreaOffset` to bring
-    // the bounds back into the canvas/resolution (R) frame, and clamp the drawn
-    // outlines to the region actually visible in the window. Especially useful for
-    // the *AndFill / *AndZoom display modes where the safe content area is inset
-    // from the (possibly clipping) unsafe area.
     const screenSettings = this._engine.debug.screen;
     if (screenSettings && screenSettings.showAll) {
       const screen = this._engine.screen;
       this._graphicsContext.save();
       this._graphicsContext.resetTransform();
-      // C-frame -> R-frame: position the bounds at their true on-canvas location.
       this._graphicsContext.translate(screen.contentAreaOffset.x, screen.contentAreaOffset.y);
       this._graphicsContext.z = Debug.config.settings.z.solid;
 
-      // The visible region in C-frame. Under the *AndZoom modes the canvas
-      // overflows the window (negative CSS top/left, see Screen._computeFitAndZoom)
-      // so only the contentArea is onscreen; in every other mode the full canvas
-      // (unsafeArea) is visible.
       const isZoomed = screen.displayMode === DisplayMode.FitScreenAndZoom || screen.displayMode === DisplayMode.FitContainerAndZoom;
       const visible = isZoomed ? screen.contentArea : screen.unsafeArea;
       const offsetX = screen.contentAreaOffset.x;
       const offsetY = screen.contentAreaOffset.y;
 
-      // Helper: draw a dashed debug box clamped to the visible region and inset 1px so the
-      // 2px stroke is fully onscreen. unsafeArea under *AndFill / *AndZoom extends beyond
-      // the visible region to represent possibly-offscreen space; we keep that data intact
-      // but only clamp the *drawn* outline for visibility.
       const drawClampedBox = (bb: BoundingBox, color: Color) => {
         const left = Math.max(visible.left, bb.left) + 1;
         const top = Math.max(visible.top, bb.top) + 1;
@@ -356,8 +336,6 @@ export class DebugSystem extends System {
         drawClampedBox(screen.contentArea, screenSettings.contentAreaColor);
       }
 
-      // Back to R-frame (canvas coords) so the legend anchors to the visible
-      // canvas corner rather than the content-area corner.
       this._graphicsContext.translate(-screen.contentAreaOffset.x, -screen.contentAreaOffset.y);
 
       if (screenSettings.showLegend) {
@@ -370,14 +348,9 @@ export class DebugSystem extends System {
         const legendPad = 4;
         const margin = 8;
 
-        // Both contentArea and unsafeArea are screen-space (C-frame) bounds by
-        // definition (see Screen.contentArea / Screen.unsafeArea docs): their
-        // topLeft is the content-area's top-left, which is (0,0) for contentArea
-        // and the (negative) clip for unsafeArea when inset.
         const contentLabel = `contentArea ${Math.round(screen.contentArea.width)}x${Math.round(screen.contentArea.height)} (Screen)`;
         const unsafeLabel = `unsafeArea ${Math.round(screen.unsafeArea.width)}x${Math.round(screen.unsafeArea.height)} (Screen)`;
 
-        // Measure each label so the legend background fits the text precisely.
         const contentSize = this._graphicsContext.debug.measureText(contentLabel, textScale);
         const unsafeSize = this._graphicsContext.debug.measureText(unsafeLabel, textScale);
         const maxLabelWidth = Math.max(contentSize.width, unsafeSize.width);
@@ -385,13 +358,9 @@ export class DebugSystem extends System {
         const legendWidth = labelPadX + Math.ceil(maxLabelWidth) + legendPad * 2;
         const legendHeight = lineHeight * 2 + legendPad * 2;
 
-        // Anchor the legend to the bottom-right of the visible region in R-frame:
-        // the canvas corner in most modes, the contentArea corner under *AndZoom
-        // where the canvas edges hang outside the window.
         const legendX = visible.right + offsetX - legendWidth - margin;
         const legendY = visible.bottom + offsetY - legendHeight - margin;
 
-        // Semi-transparent background so the legend is readable over any scene
         this._graphicsContext.drawRectangle(
           vec(legendX, legendY),
           legendWidth,
@@ -401,7 +370,6 @@ export class DebugSystem extends System {
           1
         );
 
-        // Row 1: content area swatch + label, colored to match the box
         const row1 = vec(legendX + legendPad, legendY + legendPad);
         this._graphicsContext.drawRectangle(row1, swatchWidth, swatchHeight, screenSettings.contentAreaColor);
         this._graphicsContext.debug.drawText(contentLabel, row1.add(vec(labelPadX, 0)), {
@@ -409,7 +377,6 @@ export class DebugSystem extends System {
           scale: textScale
         });
 
-        // Row 2: unsafe area swatch + label, colored to match the box
         const row2 = row1.add(vec(0, lineHeight));
         this._graphicsContext.drawRectangle(row2, swatchWidth, swatchHeight, screenSettings.unsafeAreaColor);
         this._graphicsContext.debug.drawText(unsafeLabel, row2.add(vec(labelPadX, 0)), {
