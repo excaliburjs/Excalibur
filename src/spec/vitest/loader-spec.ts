@@ -321,11 +321,8 @@ describe('A loader', () => {
     loader.markResourceComplete();
     loader.showPlayButton();
 
-    // Simulate the user clicking the play button; the loader's click handler
-    // calls browser.window.off('resize', resizeHandler) internally.
     (loader.playButtonElement as unknown as HTMLButtonElement).click();
 
-    // The Screen's own resize handler must still be live.
     const resizeSpy = vi.fn();
     engine.screen.events.on('resize', resizeSpy);
 
@@ -334,7 +331,6 @@ describe('A loader', () => {
     engine.browser.window.nativeComponent.dispatchEvent(new Event('resize'));
 
     expect(resizeSpy).toHaveBeenCalled();
-    // FitScreen recomputes viewport from window dimensions on resize
     expect(engine.screen.viewport.width).toBeGreaterThan(1000);
   });
 

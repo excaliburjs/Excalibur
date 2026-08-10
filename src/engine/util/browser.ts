@@ -21,8 +21,6 @@ export class BrowserComponent<T extends NativeEventable> {
       perEvent = new Map();
       this._nativeHandlers.set(eventName, perEvent);
     }
-    // Idempotent: registering the same handler reference twice is a no-op
-    // and never results in duplicate native listeners.
     if (perEvent.has(handler)) {
       return;
     }

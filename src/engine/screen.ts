@@ -1204,9 +1204,6 @@ export class Screen {
       height: zoomedHeight
     };
 
-    // Compute per-axis clip amounts in resolution space. Clip is symmetric:
-    // each side is inset by half the total clip, so the content area is
-    // centered on the (zoomed) unsafe area.
     let offsetX = 0;
     let offsetY = 0;
     let contentWidth = this.resolution.width;

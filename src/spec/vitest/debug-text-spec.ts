@@ -19,11 +19,9 @@ describe('DebugText', () => {
 
     expect(small.width).toBeGreaterThan(0);
     expect(small.height).toBeGreaterThan(0);
-    // Halving the scale should roughly halve the dimensions
     expect(tiny.width).toBeCloseTo(small.width / 2, 0);
     expect(tiny.height).toBeCloseTo(small.height / 2, 0);
 
-    // The convenience passthrough on the graphics context debug API should agree
     const viaCtx = ctx.debug.measureText('some text', 1);
     expect(viaCtx.width).toBe(small.width);
     expect(viaCtx.height).toBe(small.height);
