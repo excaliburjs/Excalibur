@@ -72,18 +72,48 @@ describe('The BrowserEvents facade', () => {
     document.dispatchEvent(new Event('somedocevent2'));
   });
 
-  it('can only have 1 handler per event name at a time', () =>
-    new Promise<void>((done) => {
-      browser.window.on('couldfailevent', () => {
-        fail();
-      });
+  it('can register multiple handlers per event name and all fire', () => {
+    const first = vi.fn();
+    const second = vi.fn();
 
-      browser.window.on('couldfailevent', () => {
-        done();
-      });
+    browser.window.on('multihandlerevent', first);
+    browser.window.on('multihandlerevent', second);
 
-      window.dispatchEvent(new Event('couldfailevent'));
-    }));
+    window.dispatchEvent(new Event('multihandlerevent'));
+
+    expect(first).toHaveBeenCalledTimes(1);
+    expect(second).toHaveBeenCalledTimes(1);
+  });
+
+  it('registering the same handler reference twice is idempotent (no duplicate native listeners)', () => {
+    const addEventListenerSpy = vi.spyOn(window, 'addEventListener');
+    const handler = vi.fn();
+
+    browser.window.on('idempotentevent', handler);
+    browser.window.on('idempotentevent', handler);
+
+    const calls = addEventListenerSpy.mock.calls.filter((call) => call[0] === 'idempotentevent');
+    expect(calls.length).toBe(1);
+
+    window.dispatchEvent(new Event('idempotentevent'));
+    expect(handler).toHaveBeenCalledTimes(1);
+
+    addEventListenerSpy.mockRestore();
+  });
+
+  it('off(eventName, handler) removes only that handler, leaving others intact', () => {
+    const first = vi.fn();
+    const second = vi.fn();
+
+    browser.window.on('offsingleevent', first);
+    browser.window.on('offsingleevent', second);
+
+    browser.window.off('offsingleevent', first);
+    window.dispatchEvent(new Event('offsingleevent'));
+
+    expect(first).not.toHaveBeenCalled();
+    expect(second).toHaveBeenCalledTimes(1);
+  });
 
   it('can resume handlers', () => {
     const spy = vi.fn();

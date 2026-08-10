@@ -5,6 +5,7 @@ import type {
   PointGraphicsOptions,
   ExcaliburGraphicsContextOptions,
   DebugDraw,
+  DebugTextOptions,
   HTMLImageSource
 } from './excalibur-graphics-context';
 
@@ -120,11 +121,16 @@ class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
    *
    * Debugging draws are independent of scale/zoom
    */
-  drawText(text: string, pos: Vector) {
+  drawText(text: string, pos: Vector, options?: DebugTextOptions) {
     this._webglCtx.save();
     this._webglCtx.z = Debug.config.settings.z.text;
-    this._debugText.write(this._webglCtx, text, pos);
+    this._debugText.write(this._webglCtx, text, pos, options?.foreground, options?.background, options?.scale);
     this._webglCtx.restore();
+  }
+
+  measureText(text: string, scale: number = 1): { width: number; height: number } {
+    const bounds = this._debugText.measureText(text, scale);
+    return { width: bounds.width, height: bounds.height };
   }
 }
 

@@ -388,6 +388,38 @@ describe('A Graphics ECS Component', () => {
     );
   });
 
+  it('correctly calculates screen-space bounds with a content area offset and zoomed camera', () => {
+    const tx = new ex.TransformComponent();
+    tx.coordPlane = ex.CoordPlane.Screen;
+    tx.pos = ex.vec(100, 100);
+    const sut = new ex.GraphicsComponent();
+    const rect = new ex.Rectangle({
+      width: 20,
+      height: 20
+    });
+    sut.add(rect);
+
+    const entity = new ex.Entity([tx, sut]);
+
+    // zoom 2 camera rooted at the canvas origin: world = screenPoint / 2.
+    // The content-area offset must pass through the camera inverse's linear
+    // part, i.e. world = inverse(screenPoint + offset), matching
+    // Screen.screenToWorldCoordinates.
+    const camera = { inverse: ex.AffineMatrix.identity().scale(0.5, 0.5) };
+    const screen = { contentAreaOffset: ex.vec(87.5, 0) };
+    entity.scene = { camera, engine: { screen } } as any;
+
+    // screen-frame bounds are (90,90)-(110,110)
+    expect(sut.bounds).toEqual(
+      new ex.BoundingBox({
+        left: (90 + 87.5) / 2,
+        right: (110 + 87.5) / 2,
+        top: 45,
+        bottom: 55
+      })
+    );
+  });
+
   it('correctly calculates graphics bounds (rasters + offset)', () => {
     const sut = new ex.GraphicsComponent();
     const rec2 = new ex.Rectangle({

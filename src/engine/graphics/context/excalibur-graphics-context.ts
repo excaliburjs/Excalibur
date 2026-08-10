@@ -227,11 +227,32 @@ export interface DebugDraw {
   drawCircle(pos: Vector, radius: number, color: Color, stroke?: Color, thickness?: number): void;
 
   /**
-   * Draw debug text
-   * @param text
-   * @param pos
+   * Debug text styling options
    */
-  drawText(text: string, pos: Vector): void;
+  drawText(text: string, pos: Vector, options?: DebugTextOptions): void;
+
+  /**
+   * Measure the pixel dimensions of debug text as it would be drawn by {@apilink DebugDraw.drawText},
+   * accounting for the optional scale factor. Useful for sizing UI around debug labels.
+   * @param text   Text to measure
+   * @param scale  Glyph scale factor, defaults to 1
+   */
+  measureText(text: string, scale?: number): { width: number; height: number };
+}
+
+export interface DebugTextOptions {
+  /**
+   * Optional foreground color override for the debug text
+   */
+  foreground?: Color;
+  /**
+   * Optional background color drawn behind the debug text
+   */
+  background?: Color;
+  /**
+   * Optional scale factor applied to the debug text glyphs, defaults to 1
+   */
+  scale?: number;
 }
 
 export interface ExcaliburGraphicsContext {

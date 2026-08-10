@@ -3,6 +3,8 @@ import { ImageSource } from '../image-source';
 import { SpriteFont } from '../sprite-font';
 import { SpriteSheet } from '../sprite-sheet';
 import type { Vector } from '../../math/vector';
+import { BoundingBox } from '../../collision/bounding-box';
+import { Vector as VectorClass } from '../../math/vector';
 // import debugFont from './debug-font.png';
 import debugFont2 from './monogram-bitmap.png';
 import { Debug } from '../debug';
@@ -63,27 +65,49 @@ export class DebugText {
   }
 
   /**
+   * Measures the pixel dimensions of `text` as it would be drawn by {@apilink DebugText.write},
+   * accounting for the optional scale factor.
+   * @param text   Text to measure
+   * @param scale  Glyph scale factor, defaults to 1
+   * @returns BoundingBox whose width/height are the rendered size in pixels (origin Zero)
+   */
+  public measureText(text: string, scale: number = 1): BoundingBox {
+    if (this._imageSource?.isLoaded() && this._spriteFont) {
+      const base = this._spriteFont.measureText(text);
+      return BoundingBox.fromDimension(base.width * scale, base.height * scale, VectorClass.Zero);
+    }
+    return BoundingBox.fromDimension(text.length * 7 * scale, 12 * scale, VectorClass.Zero);
+  }
+
+  /**
    * Writes debug text using the built in sprint font
    * @param ctx
    * @param text
    * @param pos
+   * @param foreground Optional foreground color override
+   * @param background Optional background color override
+   * @param scale Optional glyph scale factor, defaults to 1
    */
-  public write(ctx: ExcaliburGraphicsContext, text: string, pos: Vector, foreground?: Color, background?: Color) {
+  public write(ctx: ExcaliburGraphicsContext, text: string, pos: Vector, foreground?: Color, background?: Color, scale: number = 1) {
     if (this._imageSource.isLoaded()) {
       const pos1 = ctx.getTransform().getPosition();
       ctx.save();
       ctx.resetTransform();
       ctx.z = Debug.config.settings.z.text;
       ctx.translate(pos1.x, pos1.y);
+      if (scale !== 1) {
+        ctx.scale(scale, scale);
+      }
+      const localPos = scale !== 1 ? pos.scale(1 / scale) : pos;
       const bounds = this._spriteFont.measureText(text);
       const color = foreground ?? this.foregroundColor ?? Color.Black;
       const bg = background ?? this.backgroundColor ?? Color.Transparent;
       ctx.save();
       ctx.z = Debug.config.settings.z.solid;
-      ctx.drawRectangle(pos, bounds.width, bounds.height, bg, this.borderColor ?? Color.Transparent, 1);
+      ctx.drawRectangle(localPos, bounds.width, bounds.height, bg, this.borderColor ?? Color.Transparent, 1);
       ctx.restore();
       ctx.tint = color;
-      this._spriteFont.render(ctx, text, null, pos.x, pos.y);
+      this._spriteFont.render(ctx, text, null, localPos.x, localPos.y);
       ctx.restore();
     }
   }

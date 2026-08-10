@@ -116,7 +116,7 @@ export class GraphicsSystem extends System {
 
       this._graphicsContext.save();
       if (transform.coordPlane === CoordPlane.Screen) {
-        this._graphicsContext.translate(this._engine.screen.contentArea.left, this._engine.screen.contentArea.top);
+        this._graphicsContext.translate(this._engine.screen.contentAreaOffset.x, this._engine.screen.contentAreaOffset.y);
       }
 
       // Apply parallax
