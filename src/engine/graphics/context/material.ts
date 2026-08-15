@@ -119,6 +119,11 @@ export class Material {
     'u_graphic',
     'u_screen_texture'
   ];
+  private static _ID = 0;
+  /**
+   * Unique identifier for this material, useful for debugging and tooling
+   */
+  public readonly id = Material._ID++;
   private _logger = Logger.getInstance();
   private _name: string;
   private _shader!: Shader;
@@ -146,6 +151,7 @@ export class Material {
 
     if (graphicsContext instanceof ExcaliburGraphicsContextWebGL) {
       this._initialize(graphicsContext);
+      graphicsContext.registerMaterial(this);
     } else {
       this._logger.warn(`Material ${name} was created in 2D Canvas mode, currently only WebGL is supported`);
     }
@@ -210,6 +216,20 @@ export class Material {
 
   get name() {
     return this._name;
+  }
+
+  /**
+   * Vertex source this material was created with (before shader compilation)
+   */
+  get vertexSource() {
+    return this._vertexSource;
+  }
+
+  /**
+   * Fragment source this material was created with (before shader compilation)
+   */
+  get fragmentSource() {
+    return this._fragmentSource;
   }
 
   get isUsingScreenTexture() {

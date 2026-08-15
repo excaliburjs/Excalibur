@@ -212,10 +212,12 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
   private _audioContext = AudioContextFactory.create();
 
   /**
+   * @param options
+   */
+  constructor(options: SoundOptions);
+  /**
    * @param paths A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
    */
-
-  constructor(options: SoundOptions);
   constructor(...paths: string[]);
   constructor(...pathsOrSoundOption: string[] | SoundOptions[]) {
     let options: SoundOptions;

@@ -22,7 +22,10 @@ export default defineConfig(
         enabled: true,
         provider: playwright(),
         headless: process.env.CI === 'true' ? true : undefined,
-
+        api: {
+          allowWrite: true,
+          allowExec: true
+        },
         instances: [
           {
             browser: 'chromium',

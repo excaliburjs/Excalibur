@@ -13,7 +13,7 @@ export class PhysicsWorld {
   $configUpdate = new Observable<DeepRequired<PhysicsConfig>>();
 
   private _configDirty = false;
-  private _config: DeepRequired<PhysicsConfig>;
+  private _config!: DeepRequired<PhysicsConfig>;
   get config(): DeepRequired<PhysicsConfig> {
     return watchDeep(this._config, (change) => {
       this.$configUpdate.notifyAll(change);

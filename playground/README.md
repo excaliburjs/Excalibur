@@ -21,6 +21,8 @@ This is the current implementation of the Excalibur Playground for sharing small
 npm run build:types
 ```
 
+Copy `.env.example` to `.env` 
+
 ### Day to day development
 
 * Navigate to the `playground` directory
@@ -38,7 +40,7 @@ You can test that the built Playground operates correctly in a subdirectory:
 
 ```sh
 # build to `dist/playground`, instead of the default `playground`
-npm run build:dev 
+npm run build:dev
 
 # serve the locally built version on http://localhost:8080/playground
 npx http-server dist
@@ -53,7 +55,7 @@ In production, the `BASE_URL` is overridden to route requests properly to `https
 You can also test this locally:
 
 ```sh
-BASE_URL=/playground npm start
+BASE_URL=/playground npm run start
 ```
 
 
@@ -64,8 +66,6 @@ BASE_URL=/playground npm start
 * Multiple file tree
 * Implement Asset Allow List (think similar to ShaderToy)
 * Save to local storage (and maybe to disk in the future)
-* Migrate html/js to [Lit HTML](https://lit.dev/) components, Shoelace is https://shoelace.style/ 
-  - Example: [Excalibur Dev Tools Browser Extension Repo](https://github.com/excaliburjs/excalibur-extension.git)
 * Add more debug tools to interface
   - Bonus points: Refactor the dev tools browser extension to be embeddable into HTML
 

@@ -14,6 +14,7 @@ import type { EdgeCollider } from './colliders/edge-collider';
 import { Shape } from './colliders/shape';
 import { EventEmitter } from '../event-emitter';
 import { Actor } from '../actor';
+import { Logger } from '../util';
 
 // ============================================================================
 // ColliderComponent Serialization Data
@@ -59,7 +60,7 @@ export interface EdgeColliderData {
 }
 
 export interface CompositeColliderData {
-  parts: ColliderCreationData[]; // nested
+  parts: ColliderCreationData[];
 }
 
 export type ColliderCreationData =
@@ -71,6 +72,7 @@ export type ColliderCreationData =
   | CapsuleColliderData;
 
 export class ColliderComponent extends Component {
+  private _logger = Logger.getInstance();
   // @ts-ignore
   private static _NAME = 'ColliderComponent';
   public events = new EventEmitter();
@@ -89,11 +91,11 @@ export class ColliderComponent extends Component {
     this.set(collider);
   }
 
-  private _collider: Collider;
+  private _collider: Collider | null = null;
   /**
    * Get the current collider geometry
    */
-  public get(): Collider | undefined {
+  public get(): Collider | null {
     return this._collider;
   }
 
@@ -102,7 +104,7 @@ export class ColliderComponent extends Component {
    * @param collider
    * @returns the collider you set
    */
-  public set<T extends Collider>(collider: T): T {
+  public set<T extends Collider>(collider?: T): T {
     this.clear();
     if (collider) {
       this._collider = collider;
@@ -110,8 +112,14 @@ export class ColliderComponent extends Component {
       collider.events.pipe(this.events);
       this.$colliderAdded.notifyAll(collider);
       this.update();
+      return collider;
     }
-    return collider;
+    if (this.owner) {
+      this._logger.warnOnce(
+        `Actor.collider.set(...) - provided collider is null on entity name [${this.owner.name}] id [${this.owner.id}]`
+      );
+    }
+    return null as unknown as T;
   }
 
   private _collidersToRemove: Collider[] = [];
@@ -135,8 +143,7 @@ export class ColliderComponent extends Component {
   }
 
   public clone(): ColliderComponent {
-    const clone = new ColliderComponent(this._collider.clone());
-
+    const clone = new ColliderComponent(this._collider?.clone());
     return clone;
   }
 
@@ -172,8 +179,8 @@ export class ColliderComponent extends Component {
    * @param other
    */
   collide(other: ColliderComponent): CollisionContact[] {
-    let colliderA = this._collider;
-    let colliderB = other._collider;
+    let colliderA = this._collider!;
+    let colliderB = other._collider!;
     if (!colliderA || !colliderB) {
       return [];
     }
@@ -183,7 +190,7 @@ export class ColliderComponent extends Component {
     let flipped = false;
     if (colliderB instanceof CompositeCollider) {
       colliderA = colliderB;
-      colliderB = this._collider;
+      colliderB = this._collider!;
       flipped = true;
     }
 
@@ -195,8 +202,8 @@ export class ColliderComponent extends Component {
             contact.mtv = contact.mtv.negate();
             contact.normal = contact.normal.negate();
             contact.tangent = contact.normal.perpendicular();
-            contact.colliderA = this._collider;
-            contact.colliderB = other._collider;
+            contact.colliderA = this._collider!;
+            contact.colliderB = other._collider!;
           });
         }
         return contacts;
@@ -255,7 +262,7 @@ export class ColliderComponent extends Component {
 
   onRemove() {
     this.events.clear();
-    this.$colliderRemoved.notifyAll(this._collider);
+    this.$colliderRemoved.notifyAll(this._collider!);
   }
 
   /**
@@ -267,7 +274,7 @@ export class ColliderComponent extends Component {
    */
   useBoxCollider(width: number, height: number, anchor: Vector = Vector.Half, center: Vector = Vector.Zero): PolygonCollider {
     const collider = Shape.Box(width, height, anchor, center);
-    return this.set(collider);
+    return this.set(collider)!;
   }
 
   /**
@@ -342,7 +349,7 @@ export class ColliderComponent extends Component {
         const partComponent = new ColliderComponent(part);
         const serializedPart = partComponent.serialize();
         //convert back to creation data
-        partsData.push(serializedPart.colliderData);
+        partsData.push(serializedPart.colliderData!);
       }
       returnData.colliderData = { parts: partsData } as CompositeColliderData;
     }
@@ -397,6 +404,6 @@ export class ColliderComponent extends Component {
       }
       return new CompositeCollider(parts);
     }
-    return null;
+    throw new Error('Unable to deserialize collider from data');
   }
 }

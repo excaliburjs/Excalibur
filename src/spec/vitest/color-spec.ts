@@ -18,8 +18,8 @@ describe('A color', () => {
     expect(color.toString('hex')).toBe('#000000');
   });
 
-  it('should display hsla(0,0,0,1)', () => {
-    expect(color.toString('hsl')).toBe('hsla(0, 0, 0, 1)');
+  it('should display hsla(0, 0%, 0%, 1)', () => {
+    expect(color.toString('hsl')).toBe('hsla(0, 0%, 0%, 1)');
   });
 
   it('should display an error message', () => {
@@ -108,7 +108,7 @@ describe('A color', () => {
     expect(color.a).toBe(1.0);
   });
 
-  it('should have a default alpha of 255 if not specified', () => {
+  it('should have a default alpha of 1 if not specified', () => {
     color = ex.Color.fromHex('#000000');
     expect(color.a).toBe(1);
     color = ex.Color.fromRGB(0, 0, 0);
@@ -216,5 +216,118 @@ describe('A color', () => {
     expect(color.g).toBeLessThanOrEqual(255);
     expect(color.b).toBeGreaterThanOrEqual(0);
     expect(color.b).toBeLessThanOrEqual(255);
+  });
+
+  it('can be screened with another color', () => {
+    color = ex.Color.Black.screen(ex.Color.Black);
+    expect(color.r).toBe(0);
+    expect(color.g).toBe(0);
+    expect(color.b).toBe(0);
+
+    color = ex.Color.White.screen(ex.Color.White);
+    expect(color.r).toBe(255);
+    expect(color.g).toBe(255);
+    expect(color.b).toBe(255);
+
+    color = ex.Color.Red.screen(ex.Color.Blue);
+    expect(color.r).toBe(255);
+    expect(color.g).toBe(0);
+    expect(color.b).toBe(255);
+
+    const halfRed = new ex.Color(128, 0, 0);
+    const halfGreen = new ex.Color(0, 128, 0);
+    color = halfRed.screen(halfGreen);
+    expect(Math.round(color.r)).toBe(128);
+    expect(Math.round(color.g)).toBe(128);
+    expect(color.b).toBe(0);
+  });
+
+  it('screen is commutative', () => {
+    const a = new ex.Color(100, 150, 200);
+    const b = new ex.Color(50, 75, 100);
+    const ab = a.screen(b);
+    const ba = b.screen(a);
+    expect(Math.round(ab.r)).toBe(Math.round(ba.r));
+    expect(Math.round(ab.g)).toBe(Math.round(ba.g));
+    expect(Math.round(ab.b)).toBe(Math.round(ba.b));
+  });
+
+  it('can be inverted', () => {
+    color = ex.Color.White.invert();
+    expect(color.r).toBe(0);
+    expect(color.g).toBe(0);
+    expect(color.b).toBe(0);
+    expect(color.a).toBe(0);
+
+    color = ex.Color.Black.invert();
+    expect(color.r).toBe(255);
+    expect(color.g).toBe(255);
+    expect(color.b).toBe(255);
+    expect(color.a).toBe(0);
+
+    const halfAlpha = new ex.Color(100, 150, 200, 0.3);
+    const inverted = halfAlpha.invert();
+    expect(inverted.r).toBe(155);
+    expect(inverted.g).toBe(105);
+    expect(inverted.b).toBe(55);
+    expect(inverted.a).toBe(0.7);
+  });
+
+  it('can be multiplied', () => {
+    color = ex.Color.White.multiply(ex.Color.White);
+    expect(color.r).toBe(255);
+    expect(color.g).toBe(255);
+    expect(color.b).toBe(255);
+
+    color = ex.Color.Black.multiply(ex.Color.White);
+    expect(color.r).toBe(0);
+    expect(color.g).toBe(0);
+    expect(color.b).toBe(0);
+
+    const halfRed = new ex.Color(128, 0, 0);
+    const halfGreen = new ex.Color(0, 128, 0);
+    color = halfRed.multiply(halfGreen);
+    expect(color.r).toBe(0);
+    expect(color.g).toBe(0);
+    expect(color.b).toBe(0);
+
+    const gray1 = new ex.Color(128, 128, 128);
+    const gray2 = new ex.Color(128, 128, 128);
+    color = gray1.multiply(gray2);
+    expect(Math.round(color.r)).toBe(64);
+    expect(Math.round(color.g)).toBe(64);
+    expect(Math.round(color.b)).toBe(64);
+  });
+
+  it('screen handles alpha correctly', () => {
+    const semiBlack = new ex.Color(0, 0, 0, 0.5);
+    const semiWhite = new ex.Color(255, 255, 255, 0.5);
+    color = semiBlack.screen(semiWhite);
+    expect(color.a).toBe(0.75);
+
+    const opaqueRed = new ex.Color(255, 0, 0, 1);
+    const semiBlue = new ex.Color(0, 0, 255, 0.5);
+    color = opaqueRed.screen(semiBlue);
+    expect(color.a).toBe(1);
+  });
+
+  it('toHex clamps out-of-range values', () => {
+    const overColor = new ex.Color(300, -10, 256, 1);
+    const hex = overColor.toHex();
+    expect(hex).toBe('#ff00ff');
+  });
+
+  it('toHSLA produces valid CSS format', () => {
+    color = ex.Color.Red;
+    const hsl = color.toHSLA();
+    expect(hsl).toBe('hsla(0, 100%, 50%, 1)');
+
+    color = ex.Color.Green;
+    const hslGreen = color.toHSLA();
+    expect(hslGreen).toBe('hsla(120, 100%, 50%, 1)');
+
+    color = ex.Color.Blue;
+    const hslBlue = color.toHSLA();
+    expect(hslBlue).toBe('hsla(240, 100%, 50%, 1)');
   });
 });

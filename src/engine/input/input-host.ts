@@ -25,7 +25,9 @@ export class InputHost {
     this.pointers = new PointerEventReceiver(pointerTarget, engine);
     this.gamepads = new Gamepads();
 
-    this.keyboard.init({ global, grabWindowFocus });
+    if (global) {
+      this.keyboard.init({ global, grabWindowFocus });
+    }
     this.pointers.init({ grabWindowFocus });
     this.gamepads.init();
     this.inputMapper = new InputMapper({

@@ -7,8 +7,25 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- Behavior change - Excalibur screen space is now consistently rooted at the top-left of the safe content area (`Screen.contentArea`) across the whole API. Previously the clipping display modes (`FitScreenAndFill`, `FitContainerAndFill`, `FitScreenAndZoom`, `FitContainerAndZoom`) disagreed about where screen space started: `CoordPlane.Screen` entities and pointer events were rooted at the content area's corner, but `Screen.worldToScreenCoordinates` returned raw canvas/resolution coordinates and `Screen.contentArea.left/top` carried the canvas-space inset. Every API now shares the single content-area-rooted definition, which fixes several pointer, transition, and `unsafeArea` bugs in the clipping display modes, but is a breaking change for code that relied on the old canvas-rooted values:
+  - `Screen.worldToScreenCoordinates(point)` now returns coordinates rooted at the content area (previously the raw camera projection in canvas/resolution coordinates). `Screen.screenToWorldCoordinates` is the exact inverse, as before.
+  - `Screen.contentArea` is now always rooted at `(0, 0)`, and `Screen.unsafeArea.topLeft` is negative by the clip amount. The canvas-space inset that `contentArea.left/top` used to carry is available from the new `Screen.contentAreaOffset`.
+  - Display modes that never clip (`Fixed`, `FitScreen`, `FillScreen`, `FitContainer`, `FillContainer`) have a `(0, 0)` offset and are unaffected.
+
+  If you need the old canvas-rooted values, for example to position an HTML overlay over the canvas, shim them by adding `Screen.contentAreaOffset` back:
+
+  ```typescript
+  // Before: worldToScreenCoordinates returned canvas coordinates
+  const canvasPos = engine.screen.worldToScreenCoordinates(actor.pos).add(engine.screen.contentAreaOffset);
+
+  // Before: contentArea.topLeft was the safe area corner in canvas coordinates
+  const safeAreaCorner = engine.screen.contentAreaOffset.clone();
+  ```
 - Behavior change - TileMap now uses 'separate' as the `compositeStrategy` as a better default. Commonly TileMap is used to build levels, so this default aligns with the common use.
 - Behavior change - Font/Text now render more accurately and faster be using less texture space, this unfortunately is a breaking change becuase text will render slightly different.
+- Build: Docusaurus now throws the build on broken markdown links, broken anchors, and broken markdown images instead of warning. Any custom docs/blog content must have valid internal links, anchors, and images.
+- Build: The engine `tsconfig.json` now uses `module: "esnext"` with `moduleResolution: "bundler"` (previously `module: "es2015"` / `moduleResolution: "node"`), and `downlevelIteration` has been removed. The per-package `tsconfig.json` overrides in `director`, `entity-component-system`, `graphics`, and `resources` have been removed in favor of the single engine `tsconfig.json`. Consumers importing source directly may need bundler-compatible tooling.
+- Build: TypeDoc runner has been replaced by `site/scripts/gen-typedoc-api.mjs`.
 
 ### Deprecated
 
@@ -16,25 +33,29 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- Added `shouldAlwaysTick` option to `Animation`, `GraphicsGroup`, and `GraphicsComponent` to allow animations to continue ticking even when offscreen. This is useful for keeping animations synchronized across your game scene without causing performance regressions in the default case.
+- Materials are now enumerable for debugging and tooling (like the Excalibur Dev Tools browser extension): every `Material` has a unique `material.id` and public `material.vertexSource`/`material.fragmentSource` getters, and is automatically registered with its context, retrievable via `game.graphicsContext.materials`. The registry holds materials weakly so it does not prevent garbage collection.
+- Added the `ex.glsl` tagged template literal for authoring `Material` fragment shaders. It lights up GLSL syntax highlighting, adds the `#version`/`precision` boilerplate, injects the `pixel_texture()` pixel art filter on demand, and handles alpha premultiplication automatically.
+
+  Excalibur's pipeline is premultiplied end to end, which makes hand written shaders easy to get subtly wrong in both directions: introducing your own alpha without premultiplying blends too bright, and premultiplying a `texture()` sample that is already premultiplied darkens antialiased edges. Shaders written with the tag instead get a straight (un-premultiplied) alpha authoring space, so ordinary alpha math just works:
+
   ```typescript
-  // Per-animation opt-in
-  const anim = new ex.Animation({
-    frames: [...],
-    shouldAlwaysTick: true
-  });
+  const material = game.graphicsContext.createMaterial({
+    name: 'fade',
+    fragmentSource: ex.glsl`
+      in vec2 v_uv;
+      uniform sampler2D u_graphic;
+      out vec4 fragColor;
 
-  // Per-component opt-in
-  actor.graphics = new ex.GraphicsComponent({
-    shouldAlwaysTick: true
-  });
-
-  // Per-graphics-group opt-in
-  const group = new ex.GraphicsGroup({
-    members: [...],
-    shouldAlwaysTick: true
+      void main() {
+        vec4 color = texture(u_graphic, v_uv);
+        color.a *= 0.5; // no manual premultiply needed
+        fragColor = color;
+      }`
   });
   ```
+
+  Sample non-color data with `ex_texture_raw(tex, uv)` to bypass the conversion, or add `#pragma excalibur premultiply(off)` to opt a shader out entirely.
+
 - Added new lerp modes for color which can be chosen by aptional parameter in `Color.lerp` or by calling different methods:
   ```typescript
   Color.lerp(colorA, colorB, t); // 'hsl' by default
@@ -55,22 +76,47 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   const sound = await Sound.fromBlob(instanceOfBlob)
   sound.play()
   ```
+- Docs: The API documentation pipeline has been rebuilt around a vendored fork of `docusaurus-plugin-typedoc-api` (added as a git submodule under `site/vendor/docusaurus-plugin-typedoc-api`). The new `site/scripts/gen-typedoc-api.mjs` generates TypeDoc output and an `api-symbol-index.json` consumed by the docs site.
+  ```bash
+  # in site/
+  npm run build:docusaurus-plugin-typedoc-api  # build the vendored plugin
+  npm run api:generate                         # run typedoc + normalize
+  ```
+- Docs: New `remark-api-symbol-links` plugin (`site/plugins/remark-api-symbol-links.mjs`) resolves `[[Symbol]]` markdown links to the generated TypeDoc API pages using the symbol index, replacing the external `remark-typedoc-symbol-links` package.
 
 ### Fixed
 
 - Fixed issue where Local-space particles could be double-returned to the object pool, causing the same Particle instance to be active in two slots simultaneously
+- Fixed issue where window resize events were handled twice when using window-based display modes (FitScreen, FitScreenAndFill, FitScreenAndZoom, FillScreen), causing double resolution/viewport computation and double canvas size writes
+- Fixed Matrix and AffineMatrix scale/rotation decomposition bug where getScaleX/getScaleY used wrong basis components for non-uniform scale combined with rotation, causing swapped scale values and corrupt transforms. Also fixed setRotation and setScaleX/setScaleY to operate on correct column basis vectors.
+- Fixed issue where `Resource.load()` would hang forever on network errors (DNS failure, CORS block, offline), deadlocking the loader and all scene navigation. The promise now rejects with a `ResourceLoadingError` containing the resource path and a descriptive message
+- Fixed issue where `Gif.isLoaded()` always returned `true` because it checked `!!this.data` on an empty array, causing Gifs to be silently skipped by the loader and never parsed
 - Fixed issue where `scaleTo({…})` and `scaleBy({…})` actions would cause entities to keep scaling indefinitely after the action completed, due to a copy-paste bug that zeroed `angularVelocity` instead of `scaleFactor`
 - Fixed issue where `scaleTo({…})` and `scaleBy({…})` actions used a live reference to the entity's scale vector as the interpolation start point, causing the easing curve to be corrupted if the entity's scale changed during the action
 - Fixed issue where the first action in a sequence would not execute after calling `clearActions()` mid-execution. All action types now properly reset their initialization state when stopped, resolving issue #3468
 - Performance: Font/Text now use smaller texture sizes, improving performance on Safari especially when rendering text
+- Fixed `Color.screen()` blend mode bug where both operands were incorrectly using the parameter color instead of `this` and the parameter
+- Fixed `Color.toRGBA()` logic error in alpha check condition (`||` changed to `&&`)
+- Fixed `Color.toHSLA()` to output valid CSS format with degrees for hue and percentages for saturation/lightness
+- Fixed `Color.toHex()` to properly clamp RGB values to 0-255 range
+- Docs: Fixed broken internal links, anchors, and `[[Symbol]]` references across the docs and blog (e.g. `#sprites` → `/docs/sprites`, `#ExcaliburGraphicsContext` → `/docs/graphics-context`), and replaced invalid `[[Actor.update]]` symbol links with plain `Actor.update` references where the member is not part of the public API surface
+- Docs: Fixed incorrect JSDoc `@param`/`@returns` tags and removed dead commented-out code blocks in engine source (e.g. `CollisionSolver`, `BoundingBox.draw`) that produced invalid TypeDoc output
+- Fixed `BoundingBox.intersect()` return type to be explicitly `Vector | null` (callers already null-checked, but the type was not reflected)
 
 ### Updates
 
--
+- Deps: Upgraded to TypeScript 6.0.3 (from 5.6.3) and typescript-eslint 8.63.0 (from 8.38.0); engine source updated for TS6 strictness (non-null assertions, `null` → `undefined` defaults, optional fields)
+- Deps: Upgraded to Docusaurus 3.10.1 (from 3.5.2) across the docs site, including `@docusaurus/*` packages, theme/preset packages, and the mdx-loader
+- Deps: Upgraded to TypeDoc 0.28.19 (vendored plugin) and removed the top-level `typedoc` devDependency / `overrides`
+- Deps: Upgraded Vitest 4.1.8 → 4.1.10 and Vite 8.0.16 → 8.1.4; browser API is now enabled with `allowWrite`/`allowExec` in the unit config, and the Vitest API host was changed from `0.0.0.0` to `127.0.0.1`
+- Deps: Upgraded `coveralls-next` 6.0.1 → 6.0.2
+- Deps: Removed unused `@types/marked` devDependency and `wallaby.js` test runner config
+- CI: API doc generation now runs as part of `npm run all:ci` (via `npm run apidocs` → `site/scripts/gen-typedoc-api.mjs`); the dedicated `typedoc` CI job in the build workflow has been removed
+- CI: The `eslint` config dropped the obsolete `parserOptions.project` overrides now that typescript-eslint handles project context differently
 
 ### Changed
 
-- 
+- API documentation are now generated into the Docusaurus build directory (`site/generated/`, gitignored) and copied into `.docusaurus/generated/` during `site` build, instead of the legacy `docs/api/` output location
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
@@ -1351,11 +1397,18 @@ const hits = engine.currentScene.physics.rayCast(
 
 ### Updates
 
-- 
+- Deps: Upgraded to TypeScript 6.0.3 (from 5.6.3) and typescript-eslint 8.63.0 (from 8.38.0); engine source updated for TS6 strictness (non-null assertions, `null` → `undefined` defaults, optional fields)
+- Deps: Upgraded to Docusaurus 3.10.1 (from 3.5.2) across the docs site, including `@docusaurus/*` packages, theme/preset packages, and the mdx-loader
+- Deps: Upgraded to TypeDoc 0.28.19 (vendored plugin) and removed the top-level `typedoc` devDependency / `overrides`
+- Deps: Upgraded Vitest 4.1.8 → 4.1.10 and Vite 8.0.16 → 8.1.4; browser API is now enabled with `allowWrite`/`allowExec` in the unit config, and the Vitest API host was changed from `0.0.0.0` to `127.0.0.1`
+- Deps: Upgraded `coveralls-next` 6.0.1 → 6.0.2
+- Deps: Removed unused `@types/marked` devDependency and `wallaby.js` test runner config
+- CI: API doc generation now runs as part of `npm run all:ci` (via `npm run apidocs` → `site/scripts/gen-typedoc-api.mjs`); the dedicated `typedoc` CI job in the build workflow has been removed
+- CI: The `eslint` config dropped the obsolete `parserOptions.project` overrides now that typescript-eslint handles project context differently
 
 ### Changed
 
-- 
+- API documentation are now generated into the Docusaurus build directory (`site/generated/`, gitignored) and copied into `.docusaurus/generated/` during `site` build, instead of the legacy `docs/api/` output location
 
 ## [v0.28.2]
 

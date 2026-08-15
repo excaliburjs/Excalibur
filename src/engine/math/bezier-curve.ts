@@ -23,7 +23,7 @@ export class BezierCurve {
   // Thanks Freya! https://www.youtube.com/watch?v=aVwxzDHniEw
   private _distLookup: number[] = [];
   private _controlPoints: [Vector, Vector, Vector, Vector];
-  private _arcLength: number;
+  private _arcLength!: number;
   readonly quality: number = 4;
   constructor(options: BezierCurveOptions) {
     if (options.controlPoints.length !== 4) {

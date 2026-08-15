@@ -5,6 +5,7 @@ import type {
   PointGraphicsOptions,
   ExcaliburGraphicsContextOptions,
   DebugDraw,
+  DebugTextOptions,
   HTMLImageSource
 } from './excalibur-graphics-context';
 
@@ -120,11 +121,16 @@ class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
    *
    * Debugging draws are independent of scale/zoom
    */
-  drawText(text: string, pos: Vector) {
+  drawText(text: string, pos: Vector, options?: DebugTextOptions) {
     this._webglCtx.save();
     this._webglCtx.z = Debug.config.settings.z.text;
-    this._debugText.write(this._webglCtx, text, pos);
+    this._debugText.write(this._webglCtx, text, pos, options?.foreground, options?.background, options?.scale);
     this._webglCtx.restore();
+  }
+
+  measureText(text: string, scale: number = 1): { width: number; height: number } {
+    const bounds = this._debugText.measureText(text, scale);
+    return { width: bounds.width, height: bounds.height };
   }
 }
 
@@ -203,7 +209,13 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   public textureLoader: TextureLoader;
 
+  private _materials: WeakRef<Material>[] = [];
+
   public materialScreenTexture!: WebGLTexture | null;
+
+  private _onGraphicsPreInitialize?: (context: ExcaliburGraphicsContext) => void;
+
+  private _onGraphicsPostInitialize?: (context: ExcaliburGraphicsContext) => void;
 
   public get z(): number {
     return this._state.current.z;
@@ -260,6 +272,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   private _isContextLost = false;
 
   constructor(options: ExcaliburGraphicsContextWebGLOptions) {
+    if (options.onGraphicsPreConfig) {
+      options.onGraphicsPreConfig(this, options);
+    }
     const {
       canvasElement,
       context,
@@ -274,8 +289,12 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       useDrawSorting,
       garbageCollector,
       handleContextLost,
-      handleContextRestored
+      handleContextRestored,
+      onGraphicsPostConfig,
+      onGraphicsPreInitialize,
+      onGraphicsPostInitialize
     } = options;
+
     this.__gl =
       context ??
       (canvasElement.getContext('webgl2', {
@@ -296,13 +315,24 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     if (handleContextRestored) {
       this.__gl.canvas.addEventListener('webglcontextrestored', handleContextRestored, false);
     }
+    if (onGraphicsPreInitialize) {
+      this._onGraphicsPreInitialize = onGraphicsPreInitialize;
+    }
+    if (onGraphicsPostInitialize) {
+      this._onGraphicsPostInitialize = onGraphicsPostInitialize;
+    }
 
     this.__gl.canvas.addEventListener('webglcontextlost', () => {
       this._isContextLost = true;
     });
 
     this.__gl.canvas.addEventListener('webglcontextrestored', () => {
+      if (this._disposed || !this.__gl) {
+        return;
+      }
       this._isContextLost = false;
+      this._renderers.clear();
+      this._init();
     });
 
     this.textureLoader = new TextureLoader(this.__gl, garbageCollector);
@@ -318,6 +348,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._drawCallPool.disableWarnings = true;
     this._drawCallPool.preallocate();
     this._init();
+    if (onGraphicsPostConfig) {
+      onGraphicsPostConfig(this, options);
+    }
   }
 
   private _disposed = false;
@@ -331,12 +364,18 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       this._renderers.clear();
       this._drawCallPool.dispose();
       this._drawCalls.length = 0;
+      this._materials.length = 0;
       this.__gl = null as any;
     }
   }
 
   private _init() {
+    // add pre/post init here
     const gl = this.__gl;
+    if (this._onGraphicsPreInitialize) {
+      this._onGraphicsPreInitialize(this);
+    }
+
     // Setup viewport and view matrix
     this._ortho = Matrix.ortho(0, gl.canvas.width, gl.canvas.height, 0, 400, -400);
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
@@ -420,6 +459,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     });
 
     this.debug = new ExcaliburGraphicsContextWebGLDebug(this);
+
+    if (this._onGraphicsPostInitialize) {
+      this._onGraphicsPostInitialize(this);
+    }
   }
 
   public register<T extends RendererPlugin>(renderer: T) {
@@ -703,6 +746,35 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   public get material(): Material | null | undefined {
     return this._state.current.material;
+  }
+
+  /**
+   * Registers a material with this context so it can be enumerated with {@apilink ExcaliburGraphicsContextWebGL.materials},
+   * called automatically by the {@apilink Material} constructor.
+   *
+   * Materials are held weakly and do not prevent garbage collection.
+   */
+  public registerMaterial(material: Material): void {
+    this._materials.push(new WeakRef(material));
+  }
+
+  /**
+   * Returns all live materials created against this context, useful for debugging and tooling.
+   *
+   * Materials are held weakly; materials that have been garbage collected are pruned on access.
+   */
+  public get materials(): Material[] {
+    const live: Material[] = [];
+    const liveRefs: WeakRef<Material>[] = [];
+    for (const ref of this._materials) {
+      const material = ref.deref();
+      if (material) {
+        live.push(material);
+        liveRefs.push(ref);
+      }
+    }
+    this._materials = liveRefs;
+    return live;
   }
 
   /**

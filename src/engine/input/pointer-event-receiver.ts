@@ -196,7 +196,7 @@ export class PointerEventReceiver {
   public off(eventName: string, handler: Handler<unknown>): void;
   public off(eventName: string): void;
   public off<TEventName extends EventKey<PointerEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
-    this.events.off(eventName, handler);
+    this.events.off(eventName, handler as any);
   }
 
   /**
@@ -334,10 +334,10 @@ export class PointerEventReceiver {
       this.target.addEventListener('wheel', this._boundWheel, wheelOptions);
     } else if (document.onmousewheel !== undefined) {
       // Webkit and IE
-      this.target.addEventListener('mousewheel', this._boundWheel, wheelOptions);
+      this.target.addEventListener('mousewheel' as any, this._boundWheel, wheelOptions);
     } else {
       // Remaining browser and older Firefox
-      this.target.addEventListener('MozMousePixelScroll', this._boundWheel, wheelOptions);
+      this.target.addEventListener('MozMousePixelScroll' as any, this._boundWheel, wheelOptions);
     }
 
     const grabWindowFocus = options?.grabWindowFocus ?? true;
@@ -384,10 +384,10 @@ export class PointerEventReceiver {
       this.target.removeEventListener('wheel', this._boundWheel);
     } else if (document.onmousewheel !== undefined) {
       // Webkit and IE
-      this.target.removeEventListener('mousewheel', this._boundWheel);
+      this.target.removeEventListener('mousewheel' as any, this._boundWheel);
     } else {
       // Remaining browser and older Firefox
-      this.target.removeEventListener('MozMousePixelScroll', this._boundWheel);
+      this.target.removeEventListener('MozMousePixelScroll' as any, this._boundWheel);
     }
   }
 
@@ -546,8 +546,10 @@ export class PointerEventReceiver {
 
     // Force update pointer system
     const pointerSystem = this.engine.currentScene.world.get(PointerSystem);
-    pointerSystem.preupdate(this.engine.currentScene, 1);
-    pointerSystem.update(1);
+    if (pointerSystem) {
+      pointerSystem!.preupdate!(this.engine.currentScene, 1);
+      pointerSystem!.update(1);
+    }
   }
 
   private _nativeButtonToPointerButton(s: NativePointerButton): PointerButton {

@@ -21,7 +21,7 @@ export class QuadTree<TItem extends QuadTreeItem> {
     maxDepth: 10,
     capacity: 10,
     level: 0
-  };
+  } as const;
 
   public halfWidth: number;
   public halfHeight: number;
@@ -35,7 +35,7 @@ export class QuadTree<TItem extends QuadTreeItem> {
 
   constructor(
     public bounds: BoundingBox,
-    public options?: QuadTreeOptions
+    public options: QuadTreeOptions
   ) {
     this.options = { ...this._defaultOptions, ...options };
     this.halfWidth = bounds.width / 2;
@@ -50,7 +50,7 @@ export class QuadTree<TItem extends QuadTreeItem> {
     const newLevelOptions = {
       maxDepth: this.options.maxDepth,
       capacity: this.options.capacity,
-      level: this.options.level + 1
+      level: this.options!.level! + 1
     };
     this.topLeft = new QuadTree<TItem>(
       new BoundingBox({
@@ -123,7 +123,7 @@ export class QuadTree<TItem extends QuadTreeItem> {
     this.items.push(item);
 
     // capacity
-    if (this.items.length > this.options.capacity && this.options.level < this.options.maxDepth) {
+    if (this.items.length > this.options.capacity && this.options!.level! < this.options!.maxDepth!) {
       if (!this._isDivided) {
         this._split();
       }
@@ -179,17 +179,17 @@ export class QuadTree<TItem extends QuadTreeItem> {
     let results = this.items;
 
     if (this._isDivided) {
-      if (this.topLeft.bounds.overlaps(boundingBox)) {
-        results = results.concat(this.topLeft.query(boundingBox));
+      if (this.topLeft!.bounds.overlaps(boundingBox)) {
+        results = results.concat(this.topLeft!.query(boundingBox));
       }
-      if (this.topRight.bounds.overlaps(boundingBox)) {
-        results = results.concat(this.topRight.query(boundingBox));
+      if (this.topRight!.bounds.overlaps(boundingBox)) {
+        results = results.concat(this.topRight!.query(boundingBox));
       }
-      if (this.bottomLeft.bounds.overlaps(boundingBox)) {
-        results = results.concat(this.bottomLeft.query(boundingBox));
+      if (this.bottomLeft!.bounds.overlaps(boundingBox)) {
+        results = results.concat(this.bottomLeft!.query(boundingBox));
       }
-      if (this.bottomRight.bounds.overlaps(boundingBox)) {
-        results = results.concat(this.bottomRight.query(boundingBox));
+      if (this.bottomRight!.bounds.overlaps(boundingBox)) {
+        results = results.concat(this.bottomRight!.query(boundingBox));
       }
     }
 
@@ -214,10 +214,10 @@ export class QuadTree<TItem extends QuadTreeItem> {
     let results = this.items;
 
     if (this._isDivided) {
-      results = results.concat(this.topLeft.getAllItems());
-      results = results.concat(this.topRight.getAllItems());
-      results = results.concat(this.bottomLeft.getAllItems());
-      results = results.concat(this.bottomRight.getAllItems());
+      results = results.concat(this.topLeft!.getAllItems());
+      results = results.concat(this.topRight!.getAllItems());
+      results = results.concat(this.bottomLeft!.getAllItems());
+      results = results.concat(this.bottomRight!.getAllItems());
     }
 
     results = results.filter((item, index) => {
@@ -234,17 +234,22 @@ export class QuadTree<TItem extends QuadTreeItem> {
 
     return (
       1 +
-      Math.max(this.topLeft.getTreeDepth(), this.topRight.getTreeDepth(), this.bottomLeft.getTreeDepth(), this.bottomRight.getTreeDepth())
+      Math.max(
+        this.topLeft!.getTreeDepth(),
+        this.topRight!.getTreeDepth(),
+        this.bottomLeft!.getTreeDepth(),
+        this.bottomRight!.getTreeDepth()
+      )
     );
   }
 
   debug(ctx: ExcaliburGraphicsContext) {
     this.bounds.debug(ctx, { color: Color.Yellow });
     if (this._isDivided) {
-      this.topLeft.bounds.debug(ctx, { color: Color.Yellow });
-      this.topRight.bounds.debug(ctx, { color: Color.Yellow });
-      this.bottomLeft.bounds.debug(ctx, { color: Color.Yellow });
-      this.bottomRight.bounds.debug(ctx, { color: Color.Yellow });
+      this.topLeft!.bounds.debug(ctx, { color: Color.Yellow });
+      this.topRight!.bounds.debug(ctx, { color: Color.Yellow });
+      this.bottomLeft!.bounds.debug(ctx, { color: Color.Yellow });
+      this.bottomRight!.bounds.debug(ctx, { color: Color.Yellow });
     }
   }
 }

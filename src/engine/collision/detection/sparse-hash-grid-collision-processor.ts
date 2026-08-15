@@ -64,7 +64,7 @@ export class HashColliderProxy extends HashGridProxy<Collider> {
     this.rightX = Math.floor(bounds.right / this.gridSize);
     this.bottomY = Math.floor(bounds.bottom / this.gridSize);
     this.topY = Math.floor(bounds.top / this.gridSize);
-    this.owner = collider.owner;
+    this.owner = collider.owner!;
     this.body = this.owner?.get(BodyComponent);
     this.collisionType = this.body?.collisionType ?? CollisionType.PreventCollision;
   }
@@ -94,8 +94,8 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
   public _pairPool = new Pool<Pair>(
     () => new Pair({ id: createId('collider', 0) } as Collider, { id: createId('collider', 0) } as Collider),
     (instance) => {
-      instance.colliderA = null;
-      instance.colliderB = null;
+      instance.colliderA = null as any;
+      instance.colliderB = null as any;
       return instance;
     },
     200

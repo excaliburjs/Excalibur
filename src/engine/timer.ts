@@ -86,7 +86,7 @@ export class Timer {
   public repeats: boolean = false;
   public maxNumberOfRepeats: number = -1;
   public randomRange: [number, number] = [0, 0];
-  public random: ex.Random;
+  public random!: ex.Random;
   private _baseInterval = 10;
   private _generateRandomInterval = () => {
     return this._baseInterval + this.random.integer(this.randomRange[0], this.randomRange[1]);
@@ -99,7 +99,7 @@ export class Timer {
     return this._complete;
   }
 
-  public scene: Scene = null;
+  public scene!: Scene;
 
   constructor(options: TimerOptions) {
     const fcn = options.action ?? options.fcn;

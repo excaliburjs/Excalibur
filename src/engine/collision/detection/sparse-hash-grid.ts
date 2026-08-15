@@ -95,9 +95,9 @@ export class HashGridProxy<T extends { bounds: BoundingBox }> {
 
 export class HashGridCell<TObject extends { bounds: BoundingBox }, TProxy extends HashGridProxy<TObject> = HashGridProxy<TObject>> {
   proxies: TProxy[] = [];
-  key: string;
-  x: number;
-  y: number;
+  key!: string;
+  x!: number;
+  y!: number;
 
   configure(x: number, y: number) {
     this.x = x;
@@ -134,7 +134,7 @@ export class SparseHashGrid<TObject extends { bounds: BoundingBox }, TProxy exte
     this.sparseHashGrid = new Map<string, HashGridCell<TObject, TProxy>>();
     this.objectToProxy = new Map<TObject, TProxy>();
     if (options.proxyFactory) {
-      this._buildProxy = (object: TObject) => options.proxyFactory(object, this.gridSize);
+      this._buildProxy = (object: TObject) => options.proxyFactory!(object, this.gridSize);
     } else {
       this._buildProxy = (object: TObject) => new HashGridProxy(object, this.gridSize) as TProxy;
     }
@@ -187,7 +187,7 @@ export class SparseHashGrid<TObject extends { bounds: BoundingBox }, TProxy exte
 
   get(xCoord: number, yCoord: number): HashGridCell<TObject> {
     const key = HashGridCell.calculateHashKey(xCoord, yCoord);
-    const cell = this.sparseHashGrid.get(key);
+    const cell = this.sparseHashGrid.get(key)!;
     return cell;
   }
 

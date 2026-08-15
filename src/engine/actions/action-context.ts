@@ -146,7 +146,8 @@ export class ActionContext {
   /**
    * This method will move an actor by a specified x and y offset relative to the current position given
    * a duration and a {@apilink EasingFunction}. This method is part of the actor 'Action' fluent API allowing action chaining.
-   * @param offset Vector offset relative to the current position
+   * @param offsetX pixel offset relative to the current position
+   * @param offsetY pixel offset relative to the current position
    * @param duration The duration in milliseconds
    * @param easingFcn Use {@apilink EasingFunction} or a custom function to use to calculate position, Default is {@apilink EasingFunctions.Linear}
    * @deprecated use new moveBy({offset: Vector, duration: number, easing: EasingFunction})
@@ -225,11 +226,17 @@ export class ActionContext {
   /**
    * This method will move an actor by the specified x offset and y offset from its current position, at a certain speed.
    * This method is part of the actor 'Action' fluent API allowing action chaining.
+   * @param offset  The Vector offset to apply to this actor
+   * @param speed  The speed in pixels per second the actor should move
+   */
+  public moveBy(offset: Vector, speed: number): ActionContext;
+  /**
+   * This method will move an actor by the specified x offset and y offset from its current position, at a certain speed.
+   * This method is part of the actor 'Action' fluent API allowing action chaining.
    * @param xOffset     The x offset to apply to this actor
    * @param yOffset     The y location to move the actor to
    * @param speed  The speed in pixels per second the actor should move
    */
-  public moveBy(offset: Vector, speed: number): ActionContext;
   public moveBy(xOffset: number, yOffset: number, speed: number): ActionContext;
   public moveBy(
     xOffsetOrVectorOrOptions: number | Vector | MoveByOptions,

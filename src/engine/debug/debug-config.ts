@@ -397,6 +397,26 @@ export class DebugConfig {
     gridWidth: 1,
     showColliderGeometry: true
   };
+
+  /**
+   * Screen debug settings
+   *
+   * Visualizes the screen-space coordinate plan, including the safe {@apilink Screen.contentArea}
+   * and the full {@apilink Screen.unsafeArea} (which may be partially offscreen under the
+   * *AndFill display modes).
+   */
+  public screen = {
+    showAll: false,
+
+    showContentArea: true,
+    contentAreaColor: Color.Green,
+
+    showUnsafeArea: true,
+    unsafeAreaColor: Color.Red,
+
+    showLegend: true,
+    legendColor: Color.White
+  };
 }
 
 /**
