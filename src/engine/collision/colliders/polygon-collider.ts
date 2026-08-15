@@ -51,8 +51,8 @@ export class PolygonCollider extends Collider {
     this._sidesDirty = true;
   }
 
-  private _points: Vector[];
-  private _normals: Vector[];
+  private _points!: Vector[];
+  private _normals!: Vector[];
 
   public get normals(): readonly Vector[] {
     return this._normals;
@@ -547,7 +547,7 @@ export class PolygonCollider extends Collider {
     if (collider instanceof CircleCollider) {
       return ClosestLineJumpTable.PolygonCircleClosestLine(this, collider);
     } else if (collider instanceof PolygonCollider) {
-      return ClosestLineJumpTable.PolygonPolygonClosestLine(this, collider);
+      return ClosestLineJumpTable.PolygonPolygonClosestLine(this, collider)!;
     } else if (collider instanceof EdgeCollider) {
       return ClosestLineJumpTable.PolygonEdgeClosestLine(this, collider);
     } else {
@@ -586,7 +586,7 @@ export class PolygonCollider extends Collider {
         furthestPoint = pts[i];
       }
     }
-    return furthestPoint;
+    return furthestPoint!;
   }
 
   /**
@@ -632,7 +632,7 @@ export class PolygonCollider extends Collider {
       };
     }
 
-    return null;
+    return null!;
   }
 
   /**
@@ -643,7 +643,7 @@ export class PolygonCollider extends Collider {
   }
 
   private _localBoundsDirty = true;
-  private _localBounds: BoundingBox;
+  private _localBounds!: BoundingBox;
   /**
    * Get the axis aligned bounding box for the polygon collider in local coordinates
    */
@@ -656,8 +656,8 @@ export class PolygonCollider extends Collider {
     return this._localBounds;
   }
 
-  private _cachedMass: number;
-  private _cachedInertia: number;
+  private _cachedMass!: number;
+  private _cachedInertia!: number;
   /**
    * Get the moment of inertia for an arbitrary polygon
    * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
@@ -704,9 +704,9 @@ export class PolygonCollider extends Collider {
       return {
         collider: this,
         distance: minContactTime,
-        body: this.owner?.get(BodyComponent),
+        body: this.owner?.get(BodyComponent)!,
         point: ray.getPoint(minContactTime),
-        normal: contactSide.normal()
+        normal: contactSide!.normal()
       } satisfies RayCastHit;
     }
 

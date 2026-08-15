@@ -50,6 +50,7 @@ export interface GraphicsComponentData {
   flipVertical: boolean;
   copyGraphics: boolean;
   forceOnScreen: boolean;
+  shouldAlwaysTick: boolean;
   tint?: { r: number; g: number; b: number; a: number };
 }
 export interface GraphicsComponentOptions {
@@ -103,6 +104,12 @@ export interface GraphicsComponentOptions {
    * Optional anchor
    */
   anchor?: Vector;
+
+  /**
+   * Optionally tick graphics even when offscreen, default false. When true, the current graphic will tick every frame
+   * regardless of whether the owning entity is offscreen.
+   */
+  shouldAlwaysTick?: boolean;
 }
 
 /**
@@ -165,6 +172,15 @@ export class GraphicsComponent extends Component {
    * Optionally force the graphic onscreen, default false. Not recommend to use for perf reasons, only if you known what you're doing.
    */
   public forceOnScreen: boolean = false;
+
+  /**
+   * Optionally tick graphics even when offscreen, default false. When true, the current graphic will tick every frame
+   * regardless of whether the owning entity is offscreen. This is useful for keeping animations synchronized
+   * across your game scene.
+   *
+   * Can also be set per-graphic via {@apilink Animation.shouldAlwaysTick} or {@apilink GraphicsGroup.shouldAlwaysTick}.
+   */
+  public shouldAlwaysTick: boolean = false;
 
   /**
    * Sets or gets wither all drawings should have an opacity applied
@@ -250,7 +266,8 @@ export class GraphicsComponent extends Component {
       onPreDraw,
       onPostDraw,
       onPreTransformDraw,
-      onPostTransformDraw
+      onPostTransformDraw,
+      shouldAlwaysTick
     } = options;
 
     for (const [key, graphicOrOptions] of Object.entries(graphics as GraphicsComponentOptions)) {
@@ -269,9 +286,10 @@ export class GraphicsComponent extends Component {
     this.copyGraphics = copyGraphics ?? this.copyGraphics;
     this.onPreDraw = onPreDraw ?? this.onPreDraw;
     this.onPostDraw = onPostDraw ?? this.onPostDraw;
-    this.onPreDraw = onPreTransformDraw ?? this.onPreTransformDraw;
+    this.onPreTransformDraw = onPreTransformDraw ?? this.onPreTransformDraw;
     this.onPostTransformDraw = onPostTransformDraw ?? this.onPostTransformDraw;
     this.isVisible = !!visible;
+    this.shouldAlwaysTick = !!shouldAlwaysTick;
     this._current = current ?? this._current;
     if (current && this._graphics[current]) {
       this.use(current);
@@ -464,14 +482,20 @@ export class GraphicsComponent extends Component {
         if (camera && screen) {
           // For speed
           // dubious transform by tampering with the camera inverse then putting it back
-          const topLeft = screen.contentArea.topLeft;
-          const oldX = camera.inverse.data[4];
-          const oldY = camera.inverse.data[5];
-          camera.inverse.data[4] += topLeft.x;
-          camera.inverse.data[5] += topLeft.y;
-          bounds.transform(camera.inverse, bounds);
-          camera.inverse.data[4] = oldX;
-          camera.inverse.data[5] = oldY;
+          // Screen space is rooted at contentArea.topLeft; the offset moves
+          // the local (0,0) into resolution space where the camera inverse
+          // then maps to world space. Composing inverse ∘ translate(offset)
+          // means the offset passes through the inverse's linear part
+          // (zoom/rotation) before landing in the translation column.
+          const topLeft = screen.contentAreaOffset;
+          const inv = camera.inverse;
+          const oldX = inv.data[4];
+          const oldY = inv.data[5];
+          inv.data[4] += inv.data[0] * topLeft.x + inv.data[2] * topLeft.y;
+          inv.data[5] += inv.data[1] * topLeft.x + inv.data[3] * topLeft.y;
+          bounds.transform(inv, bounds);
+          inv.data[4] = oldX;
+          inv.data[5] = oldY;
         }
         return bounds;
       }
@@ -491,6 +515,21 @@ export class GraphicsComponent extends Component {
     }
   }
 
+  /**
+   * Update underlying graphics when offscreen, only ticks if opted in via shouldAlwaysTick on the component or current graphic.
+   * Called internally by GraphicsSystem.
+   * @param elapsed
+   * @internal
+   */
+  public updateOffscreen(elapsed: number, idempotencyToken: number = 0) {
+    const graphic = this.current;
+    if (graphic && hasGraphicsTick(graphic)) {
+      if (this.shouldAlwaysTick || !!graphic.shouldAlwaysTick) {
+        graphic.tick(elapsed, idempotencyToken);
+      }
+    }
+  }
+
   public clone(): GraphicsComponent {
     const graphics = new GraphicsComponent();
     graphics._graphics = { ...this._graphics };
@@ -505,6 +544,7 @@ export class GraphicsComponent extends Component {
     graphics.onPreDraw = this.onPreDraw;
     graphics.onPostDraw = this.onPostDraw;
     graphics.isVisible = this.isVisible;
+    graphics.shouldAlwaysTick = this.shouldAlwaysTick;
 
     return graphics;
   }
@@ -527,6 +567,7 @@ export class GraphicsComponent extends Component {
       flipVertical: this.flipVertical,
       copyGraphics: this.copyGraphics,
       forceOnScreen: this.forceOnScreen,
+      shouldAlwaysTick: this.shouldAlwaysTick,
       tint: undefined
     };
 
@@ -578,10 +619,11 @@ export class GraphicsComponent extends Component {
     this.flipVertical = data.flipVertical ?? false;
     this.copyGraphics = data.copyGraphics ?? false;
     this.forceOnScreen = data.forceOnScreen ?? false;
+    this.shouldAlwaysTick = data.shouldAlwaysTick ?? false;
 
-    // Restore offset and anchor as plain objects (WatchVector setup happens in setter)
-    this._offset = { x: data.offset.x, y: data.offset.y } as Vector;
-    this._anchor = { x: data.anchor.x, y: data.anchor.y } as Vector;
+    // Use setters to create WatchVector with proper change detection
+    this.offset = vec(data.offset.x, data.offset.y);
+    this.anchor = vec(data.anchor.x, data.anchor.y);
 
     // Restore color
     if (data.color) {

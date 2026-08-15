@@ -61,7 +61,8 @@ export default defineConfig(({ mode }) => {
         targets: [
           {
             src: 'src/engine/excalibur.d.ts',
-            dest: 'dist/'
+            dest: 'dist/',
+            rename: { stripBase: true }
           }
         ]
       }),

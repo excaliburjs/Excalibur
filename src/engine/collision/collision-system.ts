@@ -30,7 +30,7 @@ export class CollisionSystem extends System {
   public query: Query<ComponentCtor<TransformComponent> | ComponentCtor<ColliderComponent>>;
   public bodyQuery: Query<ComponentCtor<BodyComponent>>;
 
-  private _engine: Engine;
+  private _engine!: Engine;
   private _configDirty = false;
   private _realisticSolver: RealisticSolver;
   private _arcadeSolver: ArcadeSolver;
@@ -239,8 +239,8 @@ export class CollisionSystem extends System {
       if (!this._currentFrameContacts.has(id)) {
         const colliderA = c.colliderA;
         const colliderB = c.colliderB;
-        c.bodyA.isSleeping = false;
-        c.bodyB.isSleeping = false;
+        c.bodyA!.isSleeping = false;
+        c.bodyB!.isSleeping = false;
         const side = Side.fromDirection(c.mtv);
         const opposite = Side.getOpposite(side);
         colliderA.events.emit('collisionend', new CollisionEndEvent(colliderA, colliderB, side, c));

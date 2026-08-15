@@ -71,7 +71,7 @@ export class Gif implements Loadable<ImageSource[]> {
   }
 
   public isLoaded() {
-    return !!this.data;
+    return this.data.length > 0;
   }
 
   /**

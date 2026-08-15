@@ -77,7 +77,7 @@ export class Label extends Actor {
   }
 
   public override get color(): Color {
-    return this._text.color;
+    return this._text.color!;
   }
 
   public override set color(color: Color) {
@@ -94,7 +94,7 @@ export class Label extends Actor {
     this.graphics.opacity = opacity;
   }
 
-  private _spriteFont: SpriteFont;
+  private _spriteFont!: SpriteFont;
   /**
    * The {@apilink SpriteFont} to use, if any. Overrides {@apilink Font | `font`} if present.
    */
@@ -115,7 +115,7 @@ export class Label extends Actor {
    */
   constructor(options?: LabelOptions & ActorArgs) {
     super(options);
-    const { text, pos, x, y, spriteFont, font, color, maxWidth } = { text: '', ...options };
+    const { text, pos, x, y, spriteFont, font, color, maxWidth } = { text: '', ...options! };
 
     this.pos = pos ?? (x && y ? vec(x, y) : this.pos);
     this.text = text ?? this.text;

@@ -1,0 +1,57 @@
+.root {
+  display: grid;
+  grid-template-areas:
+    'header header'
+    'editor preview'
+    'status-bar status-bar';
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: 45px 1fr 25px;
+  height: 100vh;
+  padding: 0;
+  width: 100vw;
+
+  &.embedded {
+    grid-template-areas:
+      'preview'
+      'editor'
+      'status-bar';
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr 25px;
+  }
+}
+
+.header {
+  grid-area: header;
+
+  .root.embedded & {
+    display: none;
+  }
+}
+
+.editor {
+  grid-area: editor;
+  height: 100%;
+  overflow: hidden;
+}
+
+.preview {
+  grid-area: preview;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.playArea {
+  flex: 1 1 50%;
+  overflow: hidden;
+}
+
+.console {
+  flex: 1 1 50%;
+  overflow: hidden;
+}
+
+.statusBar {
+  grid-area: status-bar;
+}

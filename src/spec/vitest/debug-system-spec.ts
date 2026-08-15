@@ -54,6 +54,30 @@ describe('DebugSystem', () => {
     }).not.toThrow();
   });
 
+  it('does not crash with the screen area overlay enabled', async () => {
+    const world = engine.currentScene.world;
+    const debugSystem = new ex.DebugSystem(world);
+    engine.currentScene.world.add(debugSystem);
+    debugSystem.initialize(world, engine.currentScene);
+
+    engine.graphicsContext.clear();
+    await (engine.graphicsContext.debug as any)._debugText.load();
+
+    // Sanity: the new debug block exists and is gated behind showAll
+    expect(engine.debug.screen).toBeDefined();
+    expect(engine.debug.screen.showAll).toBe(false);
+    expect(engine.debug.screen.showContentArea).toBe(true);
+    expect(engine.debug.screen.showUnsafeArea).toBe(true);
+    expect(engine.debug.screen.showLegend).toBe(true);
+
+    engine.debug.screen.showAll = true;
+
+    expect(() => {
+      debugSystem.update();
+      engine.graphicsContext.flush();
+    }).not.toThrow();
+  });
+
   describe('@visual', () => {
     it('can show transform and entity info', async () => {
       const world = engine.currentScene.world;

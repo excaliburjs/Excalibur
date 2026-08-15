@@ -403,25 +403,23 @@ export class Matrix {
     const cosine = Math.cos(angle);
 
     this.data[0] = cosine * currentScale.x;
-    this.data[1] = sine * currentScale.y;
-    this.data[4] = -sine * currentScale.x;
+    this.data[1] = sine * currentScale.x;
+    this.data[4] = -sine * currentScale.y;
     this.data[5] = cosine * currentScale.y;
   }
 
   public getRotation(): number {
-    const angle = Math.atan2(this.data[1] / this.getScaleY(), this.data[0] / this.getScaleX());
+    const angle = Math.atan2(this.data[1] / this.getScaleX(), this.data[0] / this.getScaleX());
     return canonicalizeAngle(angle);
   }
 
   public getScaleX(): number {
-    // absolute scale of the matrix (we lose sign so need to add it back)
-    const xscale = vec(this.data[0], this.data[4]).magnitude;
+    const xscale = vec(this.data[0], this.data[1]).magnitude;
     return this._scaleSignX * xscale;
   }
 
   public getScaleY(): number {
-    // absolute scale of the matrix (we lose sign so need to add it back)
-    const yscale = vec(this.data[1], this.data[5]).magnitude;
+    const yscale = vec(this.data[4], this.data[5]).magnitude;
     return this._scaleSignY * yscale;
   }
 
@@ -440,10 +438,9 @@ export class Matrix {
     }
 
     this._scaleSignX = sign(val);
-    // negative scale acts like a 180 rotation, so flip
-    const xscale = vec(this.data[0] * this._scaleSignX, this.data[4] * this._scaleSignX).normalize();
+    const xscale = vec(this.data[0] * this._scaleSignX, this.data[1] * this._scaleSignX).normalize();
     this.data[0] = xscale.x * val;
-    this.data[4] = xscale.y * val;
+    this.data[1] = xscale.y * val;
     this._scaleX = val;
   }
 
@@ -454,9 +451,8 @@ export class Matrix {
       return;
     }
     this._scaleSignY = sign(val);
-    // negative scale acts like a 180 rotation, so flip
-    const yscale = vec(this.data[1] * this._scaleSignY, this.data[5] * this._scaleSignY).normalize();
-    this.data[1] = yscale.x * val;
+    const yscale = vec(this.data[4] * this._scaleSignY, this.data[5] * this._scaleSignY).normalize();
+    this.data[4] = yscale.x * val;
     this.data[5] = yscale.y * val;
     this._scaleY = val;
   }

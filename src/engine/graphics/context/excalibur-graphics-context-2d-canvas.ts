@@ -4,6 +4,7 @@ import type {
   PointGraphicsOptions,
   ExcaliburGraphicsContextOptions,
   DebugDraw,
+  DebugTextOptions,
   HTMLImageSource
 } from './excalibur-graphics-context';
 import type { Vector } from '../../math/vector';
@@ -13,6 +14,7 @@ import { GraphicsDiagnostics } from '../graphics-diagnostics';
 import { DebugText } from './debug-text';
 import type { Resolution } from '../../screen';
 import type { PostProcessor } from '../post-processor/post-processor';
+import type { RendererPlugin } from './renderer';
 import { AffineMatrix } from '../../math/affine-matrix';
 import type { Material, MaterialOptions } from './material';
 
@@ -99,8 +101,13 @@ class ExcaliburGraphicsContext2DCanvasDebug implements DebugDraw {
     this._ex.__ctx.restore();
   }
 
-  drawText(text: string, pos: Vector) {
-    this._debugText.write(this._ex, text, pos);
+  drawText(text: string, pos: Vector, options?: DebugTextOptions) {
+    this._debugText.write(this._ex, text, pos, options?.foreground, options?.background, options?.scale);
+  }
+
+  measureText(text: string, scale: number = 1): { width: number; height: number } {
+    const bounds = this._debugText.measureText(text, scale);
+    return { width: bounds.width, height: bounds.height };
   }
 }
 
@@ -364,6 +371,23 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
 
   public updatePostProcessors(elapsed: number) {
     // pass
+  }
+
+  public register<T extends RendererPlugin>(_renderer: T): void {
+    // WebGL only - no-op in Canvas 2D fallback
+  }
+
+  public lazyRegister<TRenderer extends RendererPlugin>(_type: TRenderer['type'], _renderer: () => TRenderer): void {
+    // WebGL only - no-op in Canvas 2D fallback
+  }
+
+  public get(_rendererName: string): RendererPlugin | undefined {
+    // WebGL only - no renderers in Canvas 2D fallback
+    return undefined;
+  }
+
+  public draw<TRenderer extends RendererPlugin>(_rendererName: TRenderer['type'], ..._args: Parameters<TRenderer['draw']>): void {
+    // WebGL only - no-op in Canvas 2D fallback
   }
 
   public beginDrawLifecycle() {

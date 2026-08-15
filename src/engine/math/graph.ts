@@ -342,8 +342,7 @@ export class Graph<T> {
    * This method calculates the shortest path from the specified start node to the
    * specified end node in the graph. It returns an object containing the path and
    * the total distance of the path.
-   * @param startNode - The node from which the search for the shortest path begins.
-   * @param endNode - The node where the search for the shortest path ends.
+   * @param sourcenode - The node from which the search for the shortest path begins.
    * @returns An object containing:
    *   - `path`: An array of nodes representing the shortest path from startNode to endNode.
    *     If no path is found, this will be `null`.
@@ -629,7 +628,7 @@ export class Graph<T> {
         }
 
         // Find the edge connecting current to neighbor
-        const edge: Edge<T> = Array.from(currentNode.edges).find((e: Edge<T>) => e.source.id === currentId && e.target.id === neighborId);
+        const edge: Edge<T> = Array.from(currentNode.edges).find((e: Edge<T>) => e.source.id === currentId && e.target.id === neighborId)!;
 
         if (!edge) {
           continue;

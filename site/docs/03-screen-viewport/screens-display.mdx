@@ -75,21 +75,32 @@ const game = new ex.Engine({
 
 ## Coordinate systems
 
-In Excalibur, due to HTML canvas native and scaled resolution, there are essentially _two_ kinds of coordinates: a **screen** coordinate and a **world** coordinate.
+In Excalibur, due to HTML canvas having both native resolution and scaled resolution, there are essentially _two_ kinds of coordinates: a **screen** coordinate and a **world** coordinate.
 
 ### Screen coordinates
 
-A screen coordinate is a point on a user's physical screen. `(0, 0)` in screen coordinates is the top-left of the canvas. Excalibur translates mouse event positions into screen coordinates for you. Screen coordinates ignore the game camera, think of it like where the user is physically pointing on top of your game.
+A screen coordinate is a point on a user's physical screen. Excalibur translates mouse event positions into screen coordinates for you. Screen coordinates ignore the game camera, think of it like where the user is physically pointing on top of your game.
+
+The screen-space origin `(0, 0)` is always at the top-left of the safe [[Screen.contentArea]] — the area guaranteed to be visible on screen. Under display modes that don't clip ([[DisplayMode.Fixed]], [[DisplayMode.FitScreen]], [[DisplayMode.FillScreen]], [[DisplayMode.FitContainer]], [[DisplayMode.FillContainer]]) the safe content area fills the whole canvas, so screen `(0, 0)` coincides with the canvas top-left. Under [[DisplayMode.FitScreenAndFill]], [[DisplayMode.FitContainerAndFill]], [[DisplayMode.FitScreenAndZoom]] and [[DisplayMode.FitContainerAndZoom]] the canvas is larger than the safe content area (extra "unsafe" pixels are clipped off screen), so screen `(0, 0)` is shifted into the safe area by [[Screen.contentAreaOffset]].
+
+This matches how [[CoordPlane.Screen]] entities ([[ScreenElement | `screen elements`]]) are drawn: an entity at `pos = (0, 0)` always appears at the safe content area's top-left, regardless of clip. [[Screen.contentAreaOffset]] holds the resolution-space position of that origin (e.g. `(87.5, 0)` in the horizontal-clip case), and is what the engine translates by before drawing screen-space entities.
 
 ### World coordinates
 
-A world coordinate is a point _in the game world_ relative to a [scene's camera](/docs/scenes#camera). The world space is the default place where actors operate. By default the camera is centered such that the origin is in the top left. If the camera is not moved `(0, 0)` in the game world will be the top left of your game, but if you move the camera to `(0, 0)` the actor will now be center screen.
+A world coordinate is a point _in the game world_ relative to a [scene's camera](/docs/cameras). The world space is the default place where actors operate. By default the camera is centered such that the origin is in the top left. If the camera is not moved `(0, 0)` in the game world will be the top left of your game, but if you move the camera to `(0, 0)` the actor will now be center screen.
 
 ### Converting between coordinates
 
 Usually, your game logic should only deal in terms of world coordinates because this is the coordinate system you're positioning actors in or drawing in. Sometimes though, you need to convert between systems when interfacing with input.
 
-Excalibur provides two methods to convert between systems, [[Engine.screenToWorldCoordinates]] and [[Engine.worldToScreenCoordinates]]. Use these methods to convert between coordinate systems as they take into account all the information Excalibur collects to appropriately do the math for you including scaling, device pixel ratio, and more.
+Excalibur provides four methods on [[Screen]] to convert between frames, together with helpers on [[Engine]] that delegate to them:
+
+- [[Screen.pageToScreenCoordinates]] — HTML page (pointer events) → Excalibur screen-space (C-frame, rooted at `contentArea.topLeft`).
+- [[Screen.screenToPageCoordinates]] — inverse of the above; useful for positioning HTML overlays relative to screen-space coordinates.
+- [[Screen.screenToWorldCoordinates]] — screen-space (C-frame) → world space (applies camera inverse + `contentAreaOffset`).
+- [[Screen.worldToScreenCoordinates]] — world space → screen-space (C-frame), inverse of the above.
+
+All four take the content-area offset (and HiDPI / fullscreen letterboxing) into account for you, so a `page → screen → page` round trip or a `screen → world → screen` round trip returns the input point. Use [[Screen.contentAreaOffset]] directly only if you need to convert between the C-frame and the raw canvas / resolution ("R") frame by hand.
 
 ## Game resolution
 

@@ -487,7 +487,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
       const componentToRemove = this.components.get(type);
       if (componentToRemove) {
         this.componentRemoved$.notifyAll(componentToRemove);
-        componentToRemove.owner = undefined;
+        componentToRemove.owner = null;
         if (componentToRemove.onRemove) {
           componentToRemove.onRemove(this);
         }

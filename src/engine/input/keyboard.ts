@@ -296,15 +296,15 @@ export class Keyboard {
   public off(eventName: string, handler: Handler<unknown>): void;
   public off(eventName: string): void;
   public off<TEventName extends EventKey<KeyEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
-    this.events.off(eventName, handler);
+    this.events.off(eventName, handler as any);
   }
 
   /**
    * Initialize Keyboard event listeners
    */
   init(keyboardOptions?: KeyboardInitOptions): void {
-    let { global } = keyboardOptions;
-    const { grabWindowFocus } = keyboardOptions;
+    let { global } = keyboardOptions!;
+    const { grabWindowFocus } = keyboardOptions!;
     if (!global) {
       global = getDefaultGlobal();
     } else if (typeof global === 'function') {
@@ -376,7 +376,9 @@ export class Keyboard {
     }
     const code = ev.code as Keys;
     const key = this._keys.indexOf(code);
-    this._keys.splice(key, 1);
+    if (key > -1) {
+      this._keys.splice(key, 1);
+    }
     this._keysUp.push(code);
     const keyEvent = new KeyEvent(code, ev.key, ev);
 
@@ -453,7 +455,7 @@ export class Keyboard {
       this._handleKeyDown(
         new KeyboardEvent('keydown', {
           code: key,
-          key: character ?? null
+          key: character
         })
       );
     }
@@ -461,7 +463,7 @@ export class Keyboard {
       this._handleKeyUp(
         new KeyboardEvent('keyup', {
           code: key,
-          key: character ?? null
+          key: character
         })
       );
     }
