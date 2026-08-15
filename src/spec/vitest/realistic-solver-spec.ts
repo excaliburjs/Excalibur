@@ -28,14 +28,14 @@ describe('A RealisticSolver', () => {
     });
 
     const contact = new ex.CollisionContact(
-      player.collider.get(),
-      block.collider.get(),
+      player.collider.get()!,
+      block.collider.get()!,
       ex.Vector.Down,
       ex.Vector.Down,
       ex.Vector.Up.perpendicular(),
       [],
       [],
-      null
+      null as any
     );
 
     contact.mtv = ex.vec(-0, 0);
@@ -52,22 +52,12 @@ describe('A RealisticSolver', () => {
     const actor1 = new ex.Actor({ x: 0, y: 0, width: 40, height: 40, collisionType: ex.CollisionType.Active });
     const actor2 = new ex.Actor({ x: 30, y: 0, width: 40, height: 40, collisionType: ex.CollisionType.Active });
 
-    const contact = new ex.CollisionContact(
-      actor1.collider.get(),
-      actor2.collider.get(),
-      ex.Vector.Right,
-      ex.Vector.Right,
-      ex.Vector.Up,
-      [ex.vec(20, 0)],
-      [ex.vec(20, 0)],
-      null
-    );
-    contact.mtv = ex.vec(10, 0);
+    const contact = actor1.collider.collide(actor2.collider);
 
     // Should not throw and should complete successfully with multiple iterations
-    realisticSolver.preSolve([contact]);
-    realisticSolver.solvePosition([contact]);
-    realisticSolver.solveVelocity([contact]);
-    realisticSolver.postSolve([contact]);
+    realisticSolver.preSolve(contact);
+    realisticSolver.solvePosition(contact);
+    realisticSolver.solveVelocity(contact);
+    realisticSolver.postSolve(contact);
   });
 });
