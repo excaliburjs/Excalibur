@@ -75,6 +75,9 @@ void main(void) {
     // texture() already returns a premultiplied value here, so nothing more is needed.
     // If you introduce your own alpha you must premultiply it, see the warning below.
     fragColor = sourceColor;
+    // if you aren't using the ex.glsl tag you must manually premultiply
+    // or if you're introducing your own opacity
+    // fragColor.rgb = fragColor.rgb * fragColor.a;
 }
 ```
 
@@ -260,15 +263,15 @@ Materials come with a lot of built in uniforms you can use!
 
 * `vec2 u_resolution` - Current screen resolution
 
-* `vec2 u_graphic_resolution` - Current graphic's resolution
+* `vec2 u_graphic_resolution` - Current graphic's resolution (Note: if this is a sprite sheet it's the whole sheet)
 
-* `vec2 u_size` - Current destination draw size
+* `vec2 u_size` - Current destination draw size (think the final game world size)
 
 * `mat4 u_matrix` - Excalibur's current orthographic projection matrix
 
 * `mat4 u_transform` - Excalibur's current world transform
 
-* `sampler2D u_graphic` - Current graphic's texture
+* `sampler2D u_graphic` - Current graphic's texture (Note: if this is a sprite sheet it's the whole sheet, `v_uv` will give you the slice)
 
 * `sampler2D u_screen_texture` - Current excalibur screen texture just before rendering the material
 
