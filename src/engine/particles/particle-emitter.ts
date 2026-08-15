@@ -190,11 +190,15 @@ export class ParticleEmitter extends Actor {
 
     // deferred removal
     for (let i = 0; i < this.deadParticles.length; i++) {
+      const p = this.deadParticles[i];
       if (this?.scene?.world) {
-        this.scene.world.remove(this.deadParticles[i], false);
-        this._particlePool.return(this.deadParticles[i]);
+        if (p.particleTransform === ParticleTransform.Local) {
+          this.removeChild(p);
+        }
+        this.scene.world.remove(p, false);
+        this._particlePool.return(p);
       }
-      const index = this._activeParticles.indexOf(this.deadParticles[i]);
+      const index = this._activeParticles.indexOf(p);
       if (index > -1) {
         this._activeParticles.splice(index, 1);
       }
