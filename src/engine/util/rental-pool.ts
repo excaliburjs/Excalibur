@@ -34,11 +34,11 @@ export class RentalPool<T> {
       this.grow(this._size);
     }
 
-    const item = clean ? this.cleaner(this._pool.pop()) : this._pool.pop();
+    const item = clean ? this.cleaner(this._pool.pop()!) : this._pool.pop();
     if (item && typeof item === 'object') {
       this._returned.delete(item);
     }
-    return item;
+    return item!;
   }
 
   /**
