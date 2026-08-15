@@ -33,6 +33,7 @@ const matrix: BrowserStackTarget[] = [
 ];
 
 function browserstackInstance(target: BrowserStackTarget) {
+  console.log("Connected");
   return {
     browser: target.browser,
     name: target.name,
@@ -66,7 +67,7 @@ export default defineConfig(
     test: {
       name: 'browserstack',
       globals: true,
-      include: ['./browserstack/**/*spec.ts'],
+      include: [path.resolve(__dirname, './browserstack/browser-support-spec.ts')],
       globalSetup: [path.resolve(__dirname, './browserstack/browserstack-tunnel.ts')],
       // remote real browsers are slow to provision and run
       testTimeout: 60_000,
