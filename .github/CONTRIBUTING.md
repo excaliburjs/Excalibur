@@ -68,7 +68,7 @@ We require code contributions to have an open issue in our backlog prior to deve
 - Please ensure that there is an issue created for what you're working on. This helps us track the work being done!
 - Open a pull request as soon as you feel you have the beginning of something workable, or if you have design ideas to discuss. Getting feedback from us early will help you with your work! We will flag the pull request as Work-In-Progress while we work with you on your contribution.
 - Do all of your work in a new git branch. Only include code in the branch for the single issue you are working on.
-- Include Jasmine tests for your changes, following our [styleguide](#tests). Put them in the src/spec folder.
+- Include Vitest tests for your changes, following our [styleguide](#tests). Put them in the src/spec folder.
 - Document new public methods and properties based on the [styleguide](#documentation).
 - If you've modified Excalibur code (i.e. not just tests or documentation), update CHANGELOG.md with your changes. The changelog is reserved for concise consumer-centric changes; all other information should be included appropriately as code comments, API documentation, or additional documentation. The categories we use are adapted from [Keep a Changelog][keep-a-changelog]:
   - `Breaking Changes` for changes to the existing API that are not backwards compatible
