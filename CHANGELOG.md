@@ -33,25 +33,28 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- Added `shouldAlwaysTick` option to `Animation`, `GraphicsGroup`, and `GraphicsComponent` to allow animations to continue ticking even when offscreen. This is useful for keeping animations synchronized across your game scene without causing performance regressions in the default case.
+- Added the `ex.glsl` tagged template literal for authoring `Material` fragment shaders. It lights up GLSL syntax highlighting, adds the `#version`/`precision` boilerplate, injects the `pixel_texture()` pixel art filter on demand, and handles alpha premultiplication automatically.
+
+  Excalibur's pipeline is premultiplied end to end, which makes hand written shaders easy to get subtly wrong in both directions: introducing your own alpha without premultiplying blends too bright, and premultiplying a `texture()` sample that is already premultiplied darkens antialiased edges. Shaders written with the tag instead get a straight (un-premultiplied) alpha authoring space, so ordinary alpha math just works:
+
   ```typescript
-  // Per-animation opt-in
-  const anim = new ex.Animation({
-    frames: [...],
-    shouldAlwaysTick: true
-  });
+  const material = game.graphicsContext.createMaterial({
+    name: 'fade',
+    fragmentSource: ex.glsl`
+      in vec2 v_uv;
+      uniform sampler2D u_graphic;
+      out vec4 fragColor;
 
-  // Per-component opt-in
-  actor.graphics = new ex.GraphicsComponent({
-    shouldAlwaysTick: true
-  });
-
-  // Per-graphics-group opt-in
-  const group = new ex.GraphicsGroup({
-    members: [...],
-    shouldAlwaysTick: true
+      void main() {
+        vec4 color = texture(u_graphic, v_uv);
+        color.a *= 0.5; // no manual premultiply needed
+        fragColor = color;
+      }`
   });
   ```
+
+  Sample non-color data with `ex_texture_raw(tex, uv)` to bypass the conversion, or add `#pragma excalibur premultiply(off)` to opt a shader out entirely.
+
 - Added new lerp modes for color which can be chosen by aptional parameter in `Color.lerp` or by calling different methods:
   ```typescript
   Color.lerp(colorA, colorB, t); // 'hsl' by default
