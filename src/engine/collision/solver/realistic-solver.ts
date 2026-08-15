@@ -279,7 +279,7 @@ export class RealisticSolver implements CollisionSolver {
    * @param contacts
    */
   solvePosition(contacts: CollisionContact[]) {
-    for (let i = 0; i < this.config.positionIterations; i++) {
+    for (let i = 0; i < this.config!.positionIterations; i++) {
       for (let j = 0; j < contacts.length; j++) {
         const contact = contacts[j];
         const bodyA = contact.bodyA;
@@ -349,7 +349,7 @@ export class RealisticSolver implements CollisionSolver {
 
   solveVelocity(contacts: CollisionContact[]) {
     // velocityIterations:
-    for (let i = 0; i < this.config.velocityIterations; i++) {
+    for (let i = 0; i < this.config!.velocityIterations; i++) {
       for (let j = 0; j < contacts.length; j++) {
         const contact = contacts[j];
         const bodyA = contact.bodyA;
