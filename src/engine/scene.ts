@@ -292,7 +292,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   }
 
   /**
-   * Safe to override onPostUpdate lifecycle event handler. Synonymous with `.on('preupdate', (evt) =>{...})`
+   * Safe to override onPostUpdate lifecycle event handler. Synonymous with `.on('postupdate', (evt) =>{...})`
    *
    * `onPostUpdate` is called directly after a scene is updated.
    * @param engine reference to the engine
@@ -303,7 +303,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   }
 
   /**
-   * Safe to override onPreDraw lifecycle event handler. Synonymous with `.on('preupdate', (evt) =>{...})`
+   * Safe to override onPreDraw lifecycle event handler. Synonymous with `.on('predraw', (evt) =>{...})`
    *
    * `onPreDraw` is called directly before a scene is drawn.
    *
@@ -313,7 +313,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   }
 
   /**
-   * Safe to override onPostDraw lifecycle event handler. Synonymous with `.on('preupdate', (evt) =>{...})`
+   * Safe to override onPostDraw lifecycle event handler. Synonymous with `.on('postdraw', (evt) =>{...})`
    *
    * `onPostDraw` is called directly after a scene is drawn.
    *
