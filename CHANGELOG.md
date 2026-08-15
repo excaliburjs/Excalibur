@@ -7,6 +7,20 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- Behavior change - Excalibur screen space is now consistently rooted at the top-left of the safe content area (`Screen.contentArea`) across the whole API. Previously the clipping display modes (`FitScreenAndFill`, `FitContainerAndFill`, `FitScreenAndZoom`, `FitContainerAndZoom`) disagreed about where screen space started: `CoordPlane.Screen` entities and pointer events were rooted at the content area's corner, but `Screen.worldToScreenCoordinates` returned raw canvas/resolution coordinates and `Screen.contentArea.left/top` carried the canvas-space inset. Every API now shares the single content-area-rooted definition, which fixes several pointer, transition, and `unsafeArea` bugs in the clipping display modes, but is a breaking change for code that relied on the old canvas-rooted values:
+  - `Screen.worldToScreenCoordinates(point)` now returns coordinates rooted at the content area (previously the raw camera projection in canvas/resolution coordinates). `Screen.screenToWorldCoordinates` is the exact inverse, as before.
+  - `Screen.contentArea` is now always rooted at `(0, 0)`, and `Screen.unsafeArea.topLeft` is negative by the clip amount. The canvas-space inset that `contentArea.left/top` used to carry is available from the new `Screen.contentAreaOffset`.
+  - Display modes that never clip (`Fixed`, `FitScreen`, `FillScreen`, `FitContainer`, `FillContainer`) have a `(0, 0)` offset and are unaffected.
+
+  If you need the old canvas-rooted values, for example to position an HTML overlay over the canvas, shim them by adding `Screen.contentAreaOffset` back:
+
+  ```typescript
+  // Before: worldToScreenCoordinates returned canvas coordinates
+  const canvasPos = engine.screen.worldToScreenCoordinates(actor.pos).add(engine.screen.contentAreaOffset);
+
+  // Before: contentArea.topLeft was the safe area corner in canvas coordinates
+  const safeAreaCorner = engine.screen.contentAreaOffset.clone();
+  ```
 - Behavior change - TileMap now uses 'separate' as the `compositeStrategy` as a better default. Commonly TileMap is used to build levels, so this default aligns with the common use.
 - Behavior change - Font/Text now render more accurately and faster be using less texture space, this unfortunately is a breaking change becuase text will render slightly different.
 - Build: Docusaurus now throws the build on broken markdown links, broken anchors, and broken markdown images instead of warning. Any custom docs/blog content must have valid internal links, anchors, and images.

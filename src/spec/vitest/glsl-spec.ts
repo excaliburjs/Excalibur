@@ -291,7 +291,7 @@ describe('The glsl tagged template literal', () => {
 
   it('warns when the author also premultiplies by hand', () => {
     const warnSpy = vi.spyOn(ex.Logger.getInstance(), 'warnOnce');
-    ex.glsl`
+    const _ = ex.glsl`
     in vec2 v_uv;
     uniform sampler2D u_graphic;
     out vec4 fragColor;
@@ -301,6 +301,7 @@ describe('The glsl tagged template literal', () => {
     }`;
 
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('premultiplies alpha by hand'));
+    expect(_).toBeDefined();
   });
 
   describe('compiles in webgl', () => {

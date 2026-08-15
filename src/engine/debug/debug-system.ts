@@ -15,7 +15,10 @@ import { CompositeCollider } from '../collision/colliders/composite-collider';
 import { Particle } from '../particles/particles';
 import { DebugGraphicsComponent } from '../graphics/debug-graphics-component';
 import { CoordPlane } from '../math/coord-plane';
+import { DisplayMode } from '../screen';
 import { Debug } from '../graphics/debug';
+import { Color } from '../color';
+import type { BoundingBox } from '../collision/bounding-box';
 
 export class DebugSystem extends System {
   static priority = SystemPriority.Lowest;
@@ -101,7 +104,7 @@ export class DebugSystem extends System {
 
       this._graphicsContext.save();
       if (tx.coordPlane === CoordPlane.Screen) {
-        this._graphicsContext.translate(this._engine.screen.contentArea.left, this._engine.screen.contentArea.top);
+        this._graphicsContext.translate(this._engine.screen.contentAreaOffset.x, this._engine.screen.contentAreaOffset.y);
       }
 
       this._applyTransform(entity);
@@ -191,7 +194,7 @@ export class DebugSystem extends System {
       // World space
       this._graphicsContext.save();
       if (tx.coordPlane === CoordPlane.Screen) {
-        this._graphicsContext.translate(this._engine.screen.contentArea.left, this._engine.screen.contentArea.top);
+        this._graphicsContext.translate(this._engine.screen.contentAreaOffset.x, this._engine.screen.contentAreaOffset.y);
       }
       motion = entity.get(MotionComponent)!;
       if (motion) {
@@ -294,6 +297,94 @@ export class DebugSystem extends System {
       if (cameraSettings.showAll || cameraSettings.showZoom) {
         this._graphicsContext.debug.drawText(`zoom(${this._camera.zoom})`, this._camera.pos);
       }
+      this._graphicsContext.restore();
+    }
+
+    const screenSettings = this._engine.debug.screen;
+    if (screenSettings && screenSettings.showAll) {
+      const screen = this._engine.screen;
+      this._graphicsContext.save();
+      this._graphicsContext.resetTransform();
+      this._graphicsContext.translate(screen.contentAreaOffset.x, screen.contentAreaOffset.y);
+      this._graphicsContext.z = Debug.config.settings.z.solid;
+
+      const isZoomed = screen.displayMode === DisplayMode.FitScreenAndZoom || screen.displayMode === DisplayMode.FitContainerAndZoom;
+      const visible = isZoomed ? screen.contentArea : screen.unsafeArea;
+      const offsetX = screen.contentAreaOffset.x;
+      const offsetY = screen.contentAreaOffset.y;
+
+      const drawClampedBox = (bb: BoundingBox, color: Color) => {
+        const left = Math.max(visible.left, bb.left) + 1;
+        const top = Math.max(visible.top, bb.top) + 1;
+        const right = Math.min(visible.right, bb.right) - 1;
+        const bottom = Math.min(visible.bottom, bb.bottom) - 1;
+        const w = right - left;
+        const h = bottom - top;
+        if (w > 0 && h > 0) {
+          this._graphicsContext.debug.drawRect(left, top, w, h, {
+            color,
+            dashed: true,
+            lineWidth: 2
+          });
+        }
+      };
+
+      if (screenSettings.showUnsafeArea) {
+        drawClampedBox(screen.unsafeArea, screenSettings.unsafeAreaColor);
+      }
+      if (screenSettings.showContentArea) {
+        drawClampedBox(screen.contentArea, screenSettings.contentAreaColor);
+      }
+
+      this._graphicsContext.translate(-screen.contentAreaOffset.x, -screen.contentAreaOffset.y);
+
+      if (screenSettings.showLegend) {
+        const textScale = 0.6;
+        const swatchPad = 4;
+        const swatchWidth = 10;
+        const swatchHeight = 8;
+        const lineHeight = 13;
+        const labelPadX = swatchWidth + swatchPad;
+        const legendPad = 4;
+        const margin = 8;
+
+        const contentLabel = `contentArea ${Math.round(screen.contentArea.width)}x${Math.round(screen.contentArea.height)} (Screen)`;
+        const unsafeLabel = `unsafeArea ${Math.round(screen.unsafeArea.width)}x${Math.round(screen.unsafeArea.height)} (Screen)`;
+
+        const contentSize = this._graphicsContext.debug.measureText(contentLabel, textScale);
+        const unsafeSize = this._graphicsContext.debug.measureText(unsafeLabel, textScale);
+        const maxLabelWidth = Math.max(contentSize.width, unsafeSize.width);
+
+        const legendWidth = labelPadX + Math.ceil(maxLabelWidth) + legendPad * 2;
+        const legendHeight = lineHeight * 2 + legendPad * 2;
+
+        const legendX = visible.right + offsetX - legendWidth - margin;
+        const legendY = visible.bottom + offsetY - legendHeight - margin;
+
+        this._graphicsContext.drawRectangle(
+          vec(legendX, legendY),
+          legendWidth,
+          legendHeight,
+          Color.fromRGB(0, 0, 0, 0.6),
+          screenSettings.legendColor,
+          1
+        );
+
+        const row1 = vec(legendX + legendPad, legendY + legendPad);
+        this._graphicsContext.drawRectangle(row1, swatchWidth, swatchHeight, screenSettings.contentAreaColor);
+        this._graphicsContext.debug.drawText(contentLabel, row1.add(vec(labelPadX, 0)), {
+          foreground: screenSettings.contentAreaColor,
+          scale: textScale
+        });
+
+        const row2 = row1.add(vec(0, lineHeight));
+        this._graphicsContext.drawRectangle(row2, swatchWidth, swatchHeight, screenSettings.unsafeAreaColor);
+        this._graphicsContext.debug.drawText(unsafeLabel, row2.add(vec(labelPadX, 0)), {
+          foreground: screenSettings.unsafeAreaColor,
+          scale: textScale
+        });
+      }
+
       this._graphicsContext.restore();
     }
   }

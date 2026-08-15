@@ -4,6 +4,7 @@ import type {
   PointGraphicsOptions,
   ExcaliburGraphicsContextOptions,
   DebugDraw,
+  DebugTextOptions,
   HTMLImageSource
 } from './excalibur-graphics-context';
 import type { Vector } from '../../math/vector';
@@ -100,8 +101,13 @@ class ExcaliburGraphicsContext2DCanvasDebug implements DebugDraw {
     this._ex.__ctx.restore();
   }
 
-  drawText(text: string, pos: Vector) {
-    this._debugText.write(this._ex, text, pos);
+  drawText(text: string, pos: Vector, options?: DebugTextOptions) {
+    this._debugText.write(this._ex, text, pos, options?.foreground, options?.background, options?.scale);
+  }
+
+  measureText(text: string, scale: number = 1): { width: number; height: number } {
+    const bounds = this._debugText.measureText(text, scale);
+    return { width: bounds.width, height: bounds.height };
   }
 }
 
