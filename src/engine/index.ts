@@ -28,6 +28,8 @@ export * from './plugin';
 
 export * from './tile-map/index';
 
+export * from './lighting/index';
+
 export * from './timer';
 export * from './trigger';
 export * from './screen-element';

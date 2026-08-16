@@ -33,6 +33,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added an opt-in 2D lighting simulation, enabled with the new `lighting: true` engine option (default `false`). When enabled every scene gets a `FlickerSystem` and `LightingSystem` that render darkness veils, point/cone lights with flicker, and occluder shadows via the new `DarknessComponent`, `AmbientLightComponent`, `PointLightComponent`, `ConeLightComponent`, and `LightOccluderComponent` components. The overlay is rasterized with the 2D Canvas API and re-uploaded to the GPU every frame, which carries a performance penalty — this is why the feature is off by default. The systems can also be added manually to individual scenes with `scene.world.add(new ex.LightingSystem())` without enabling the engine option.
+
+  ```typescript
+  const game = new ex.Engine({ lighting: true });
+  const lamp = new ex.Actor({ pos: ex.vec(100, 100) });
+  lamp.addComponent(new ex.PointLightComponent({ color: ex.Color.fromRGB(255, 200, 80), radius: 200 }));
+  ```
 - Materials are now enumerable for debugging and tooling (like the Excalibur Dev Tools browser extension): every `Material` has a unique `material.id` and public `material.vertexSource`/`material.fragmentSource` getters, and is automatically registered with its context, retrievable via `game.graphicsContext.materials`. The registry holds materials weakly so it does not prevent garbage collection.
 - Added the `ex.glsl` tagged template literal for authoring `Material` fragment shaders. It lights up GLSL syntax highlighting, adds the `#version`/`precision` boilerplate, injects the `pixel_texture()` pixel art filter on demand, and handles alpha premultiplication automatically.
 
