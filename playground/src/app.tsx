@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import clsx from 'clsx';
 
 import { Console } from './components/console/console';
-import { debouncedUpdateEsm, updateEsm } from './utils/esm';
+import { updateEsm } from './utils/esm';
+import { debounce } from './utils/debounce';
 import { Editor } from './components/editor/editor';
 import { FileBrowser } from './components/file-browser/file-browser';
 import { getSearchParam } from './utils/search-params';
@@ -16,26 +17,39 @@ import { useLogs } from './hooks/use-logs';
 
 import styles from './app.module.css';
 
+const PREVIEW_DEBOUNCE_MS = 500;
+
 export function App() {
   const [templatePickerOpen, setTemplatePickerOpen] = useState(false);
   const [autoPlay, setAutoPlay] = useState(getSearchParam('initialAutoPlay'));
   const [code, setCode] = useState(getSearchParam('initialCode'));
   const [compiledCode, setCompiledCode] = useState('');
+  const [isCompiling, setIsCompiling] = useState(false);
   const [tab, setTab] = useState(getSearchParam('initialTab'));
   const [isLightMode, setIsLightMode] = useLightMode(getSearchParam('initialLightMode'));
   const devTool = useDevTool();
   const { logs } = useLogs();
 
+  // Unified run path: dispose any current engine, then re-import the compiled code.
+  // Safe on first press — disposeEngine is a guarded no-op when no engine exists.
+  const runCompiled = (text: string) => {
+    devTool.disposeEngine();
+    updateEsm(text);
+  };
+
+  // Debounce dispose + re-import together so auto-play never leaves a window where the engine is
+  // disposed but not yet recreated. Stable instance is safe: disposeEngine reads the engine via
+  // the hook's ref, so the first-render closure never goes stale.
+  const debouncedRunCompiled = useMemo(() => debounce(runCompiled, PREVIEW_DEBOUNCE_MS), []);
+
   const onCompiledChange = (text: string) => {
     setCompiledCode(text);
     if (autoPlay) {
-      debouncedUpdateEsm(text);
+      debouncedRunCompiled(text);
     }
   };
 
-  const manualPlay = () => {
-    updateEsm(compiledCode);
-  };
+  const run = () => runCompiled(compiledCode);
 
   return (
     <div className={clsx(styles.root, { [styles.embedded]: getSearchParam('isEmbedded') })}>
@@ -44,7 +58,7 @@ export function App() {
           autoPlay={autoPlay}
           code={code}
           isLightMode={isLightMode}
-          onPlay={manualPlay}
+          onPlay={run}
           setAutoPlay={setAutoPlay}
           setCode={setCode}
           setIsLightMode={setIsLightMode}
@@ -61,7 +75,15 @@ export function App() {
             {
               label: 'Editor',
               value: 'editor',
-              content: <Editor isLightMode={isLightMode} onChange={setCode} onCompiledChange={onCompiledChange} value={code} />
+              content: (
+                <Editor
+                  isLightMode={isLightMode}
+                  onChange={setCode}
+                  onCompiledChange={onCompiledChange}
+                  onCompilingChange={setIsCompiling}
+                  value={code}
+                />
+              )
             },
             {
               label: 'Assets',
@@ -79,7 +101,7 @@ export function App() {
 
       <div className={styles.preview}>
         <div className={styles.playArea}>
-          <PlayArea />
+          <PlayArea isEmbedded={getSearchParam('isEmbedded')} isCompiling={isCompiling} onRestart={run} />
         </div>
       </div>
 

@@ -1,4 +1,50 @@
+.root {
+  height: 100%;
+  position: relative;
+}
+
 .canvas {
   /* Removes the trailing space */
   display: block;
+}
+
+.restart {
+  position: absolute;
+  right: 8px;
+  top: 4px;
+  z-index: 2;
+}
+
+.spinner {
+  align-items: center;
+  background-color: rgb(0 0 0 / 40%);
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 38px;
+  z-index: 3;
+
+  :global(html[data-theme='light']) & {
+    background-color: rgb(255 255 255 / 50%);
+  }
+}
+
+.spinnerIcon {
+  animation: ex-spin 0.8s linear infinite;
+  border: 3px solid var(--color-zinc-600);
+  border-radius: 50%;
+  border-top-color: var(--color-purple-500);
+  box-sizing: border-box;
+  display: block;
+  height: 28px;
+  width: 28px;
+}
+
+@keyframes ex-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

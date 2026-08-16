@@ -1398,6 +1398,8 @@ O|===|* >________________>\n\
       this.stop();
       this._garbageCollector.forceCollectAll();
       this.input.toggleEnabled(false);
+      this.input.pointers.detach();
+      this.director.dispose();
 
       for (const plugin of this.plugins) {
         plugin.dispose?.();
