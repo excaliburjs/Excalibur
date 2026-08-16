@@ -508,7 +508,8 @@ coordinate space depends on which scope it fires in:
 | `graphics.onPostTransformDraw` / `entity.on('posttransformdraw')` | **World space** — entity transform restored. For `CoordPlane.Screen` entities the camera is re-applied before this fires so it's also **world space**. |
 | `Scene.onPostDraw` / `scene.on('postdraw')` | **Screen pixels** — `world.update(Draw)` completed; outer camera `restore()` done |
 | `Engine.onPostDraw` / `engine.on('postdraw')` | **Screen pixels** — same as above, scene draw finished; `flush()` runs next |
-| `scene.on('predebugdraw' | 'postdebugdraw')` | **Screen pixels** — debug scene-level events are naked |
+| `scene.on('predebugdraw')` | **Screen pixels** — debug scene-level events are naked |
+| `scene.on('postdebugdraw')` | **Screen pixels** — same as above, fired end of debug draw |
 
 :::warning
 If you mutate the context inside any draw handler, balance your own `ctx.save()` / `ctx.restore()`.
