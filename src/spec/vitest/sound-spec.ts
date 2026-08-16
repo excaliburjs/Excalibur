@@ -1,4 +1,5 @@
 import * as ex from '@excalibur';
+import { SoundTrack } from '../../engine/resources/sound/sound-track';
 import { canPlayFile, canPlayMime } from '../../engine/util/sound';
 import { delay } from '../../engine/util/util';
 import { WebAudio } from '../../engine/util/web-audio';
@@ -206,32 +207,32 @@ describe('Sound resource', () => {
   it('should not provide a duration if looping', async () => {
     await sut.load();
 
-    const webaudio = new ex.WebAudioInstance(sut.data);
-    vi.spyOn(webaudio as any, '_createNewBufferSource').mockImplementation(() => void 0);
+    const track = new SoundTrack(sut.data);
+    vi.spyOn(track as any, '_createNewBufferSource').mockImplementation(() => void 0);
     const instance = {
       start: vi.fn()
     } as any;
-    (webaudio as any)._instance = instance;
-    webaudio.loop = true;
-    webaudio.play();
+    (track as any)._instance = instance;
+    track.loop = true;
+    track.play();
 
-    expect((webaudio as any)._createNewBufferSource).toHaveBeenCalled();
+    expect((track as any)._createNewBufferSource).toHaveBeenCalled();
     expect(instance.start).toHaveBeenCalledWith(0, 0);
   });
 
   it('should provide a duration if not looping', async () => {
     await sut.load();
 
-    const webaudio = new ex.WebAudioInstance(sut.data);
-    vi.spyOn(webaudio as any, '_createNewBufferSource').mockImplementation(() => void 0);
+    const track = new SoundTrack(sut.data);
+    vi.spyOn(track as any, '_createNewBufferSource').mockImplementation(() => void 0);
     const instance = {
       start: vi.fn()
     } as any;
-    (webaudio as any)._instance = instance;
-    webaudio.loop = false;
-    webaudio.play();
+    (track as any)._instance = instance;
+    track.loop = false;
+    track.play();
 
-    expect((webaudio as any)._createNewBufferSource).toHaveBeenCalled();
+    expect((track as any)._createNewBufferSource).toHaveBeenCalled();
     expect(instance.start).toHaveBeenCalledWith(0, 0, sut.duration);
   });
 

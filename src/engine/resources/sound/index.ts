@@ -1,4 +1,4 @@
 export * from './sound';
 export * from './sound-manager';
 export * from './audio-context';
-export * from './web-audio-instance';
+export type { SoundTrack, AudioGraphBuilder, AudioGraphContext } from './sound-track';
