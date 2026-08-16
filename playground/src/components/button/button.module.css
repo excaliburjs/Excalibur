@@ -47,3 +47,25 @@
     opacity: 0.25;
   }
 }
+
+.icon {
+  --background-color: transparent;
+  --background-color-hover: var(--color-zinc-800);
+  --foreground-color: var(--color-zinc-100);
+  --border-color: var(--color-zinc-700);
+
+  align-items: center;
+  border-radius: 50%;
+  display: inline-flex;
+  font-size: 14px;
+  justify-content: center;
+  padding: 0;
+  width: 28px;
+
+  :global(html[data-theme='light']) & {
+    --background-color: transparent;
+    --background-color-hover: var(--color-zinc-200);
+    --foreground-color: var(--color-zinc-900);
+    --border-color: var(--color-zinc-600);
+  }
+}

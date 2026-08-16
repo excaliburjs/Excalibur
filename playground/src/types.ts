@@ -1,6 +1,12 @@
 import * as monaco from 'monaco-editor';
 
-export type ExcaliburDevTool = { toggleDebug: () => void; version?: string };
+export type ExcaliburDevTool = {
+  toggleDebug: () => void;
+  version?: string;
+  stop?: () => void;
+  dispose?: () => void;
+  isDisposed?: () => boolean;
+};
 
 export type GlobalWithDevTool = typeof globalThis & { ___EXCALIBUR_DEVTOOL?: ExcaliburDevTool };
 

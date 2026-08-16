@@ -12,6 +12,7 @@ type Props = {
   isLightMode: boolean;
   onChange: (text: string) => void;
   onCompiledChange: (text: string) => void;
+  onCompilingChange?: (compiling: boolean) => void;
   value: string;
 };
 
@@ -25,7 +26,7 @@ const monacoOptions = {
 } satisfies editor.IStandaloneEditorConstructionOptions;
 
 export function Editor(props: Props) {
-  const { isLightMode, onChange, onCompiledChange, value } = props;
+  const { isLightMode, onChange, onCompiledChange, onCompilingChange, value } = props;
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<Monaco | null>(null);
 
@@ -67,7 +68,9 @@ export function Editor(props: Props) {
 
   const compileCode = async () => {
     if (editorRef.current && monacoRef.current) {
+      onCompilingChange?.(true);
       const response = await emit(editorRef.current, monacoRef.current);
+      onCompilingChange?.(false);
 
       switch (response.status) {
         case 'valid':

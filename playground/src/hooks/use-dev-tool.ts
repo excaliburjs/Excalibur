@@ -37,8 +37,23 @@ export function useDevTool() {
     devtools.current.toggleDebug();
   };
 
+  const disposeEngine = () => {
+    const engine = devtools.current as any;
+    if (!engine || engine.isDisposed?.()) {
+      return;
+    }
+    engine.stop?.();
+    engine.input?.pointers?.detach?.();
+    engine.input?.toggleEnabled?.(false);
+    const scene = engine.currentScene ?? engine.director?.currentScene;
+    scene?.input?.pointers?.detach?.();
+    scene?.input?.toggleEnabled?.(false);
+    engine.dispose?.();
+  };
+
   return {
     version,
-    toggle
+    toggle,
+    disposeEngine
   };
 }

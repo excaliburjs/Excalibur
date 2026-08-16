@@ -1,7 +1,3 @@
-import { debounce } from './debounce';
-
-const PREVIEW_DEBOUNCE_MS = 500;
-
 /**
  * esm tagged template literal from Dr. Axel
  * https://2ality.com/2019/10/eval-via-import.html
@@ -15,7 +11,9 @@ export function esm(templateStrings: TemplateStringsArray, ...substitutions: any
 }
 
 export function updateEsm(text: string) {
-  import(/* @vite-ignore */ esm`${text}`);
+  // Append (not prepend) a unique comment so the data-URL module specifier is always unique,
+  // keeping the browser's dynamic-import cache busted while preserving user line numbers in
+  // stack traces. Without this, Run/Restart of unchanged code silently no-ops (cached module).
+  const bust = `\n/* ${Math.random().toString(36).slice(2)} */`;
+  import(/* @vite-ignore */ esm`${text}${bust}`);
 }
-
-export const debouncedUpdateEsm = debounce(updateEsm, PREVIEW_DEBOUNCE_MS);

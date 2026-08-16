@@ -416,7 +416,7 @@ export class PointerEventReceiver {
    * Responsible for handling and parsing pointer events
    */
   private _handle(ev: NativeTouchEvent | NativePointerEvent | NativeMouseEvent) {
-    if (!this._enabled) {
+    if (this.engine.isDisposed() || !this._enabled) {
       return;
     }
     ev.preventDefault();
@@ -477,7 +477,7 @@ export class PointerEventReceiver {
   }
 
   private _handleWheel(ev: NativeWheelEvent) {
-    if (!this._enabled) {
+    if (this.engine.isDisposed() || !this._enabled) {
       return;
     }
     // Should we prevent page scroll because of this event
