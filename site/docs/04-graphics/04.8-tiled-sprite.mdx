@@ -21,6 +21,9 @@ Under the hood, `TiledSprite` draws the source image into a fresh `<canvas>` and
 what makes it "tile". This differs from a plain [[Sprite]], whose [[ImageSource]] defaults to
 [[ImageWrapping.Clamp]] (no repetition).
 
+The [Excalibird tutorial](/docs/step-14-ground-graphics) uses this pattern to tile the ground png across
+the bottom of the screen.
+
 ## Configuration
 
 [[TiledSprite]] extends [[Sprite]] and accepts a [[TiledSpriteOptions]] object:
@@ -67,10 +70,14 @@ You can pass a single `ImageWrapping` value to apply the same mode on both axes,
 ```ts twoslash
 // @include: ex
 // ---cut---
+const groundImage = new ex.ImageSource('./ground.png');
+const bannerImage = new ex.ImageSource('./banner.png');
+const patternImage = new ex.ImageSource('./pattern.png');
+
 // Repeat on both axes (the default)
 const ground = new ex.TiledSprite({ image: groundImage, width: 800, height: 200 });
 
-// Repeat horizontally, clamp vertically
+// Repeat horizontally, clamp vertically (useful for ground that should not stack)
 const banner = new ex.TiledSprite({
   image: bannerImage,
   width: 1000,
@@ -89,25 +96,67 @@ const backdrop = new ex.TiledSprite({
 
 ## Usage
 
-The most direct way is to construct a [[TiledSprite]] from a loaded [[ImageSource]]:
+The most direct way is to construct a [[TiledSprite]] from a loaded [[ImageSource]]. The Excalibird
+tutorial's `ground.png` is a good candidate — it's a 64-pixel-tall image designed to repeat horizontally:
 
 ```ts twoslash
 // @include: ex
 // ---cut---
-const groundTile = new ex.ImageSource('./ground.png');
+// From Excalibird, see https://excaliburjs.com/docs/step-14-ground-graphics
+const groundImage = new ex.ImageSource('./ground.png');
 
 class GroundActor extends ex.Actor {
   constructor() {
-    super({ pos: ex.vec(400, 300) });
+    super({ pos: ex.vec(0, 0), anchor: ex.vec(0, 0) });
+    // Tile the 64-tall ground across the full screen width
     const tiled = new ex.TiledSprite({
-      image: groundTile,
+      image: groundImage,
       width: 800,
-      height: 200
+      height: 64,
+      wrapping: { x: ex.ImageWrapping.Repeat, y: ex.ImageWrapping.Clamp }
     });
     this.graphics.use(tiled);
   }
 }
 ```
+
+### Scrolling the tile
+
+To make the ground appear to scroll, animate the `sourceView.x` of the underlying sprite — the wrapping
+mode handles the wrap-around for you:
+
+```ts twoslash
+// @include: ex
+// ---cut---
+const groundImage = new ex.ImageSource('./ground.png');
+
+class ScrollingGround extends ex.Actor {
+  private _tiled: ex.TiledSprite;
+  private _speed = -100; // pixels per second
+
+  constructor() {
+    super({ pos: ex.vec(0, 0), anchor: ex.vec(0, 0) });
+    this._tiled = new ex.TiledSprite({
+      image: groundImage,
+      width: 800,
+      height: 64,
+      wrapping: { x: ex.ImageWrapping.Repeat, y: ex.ImageWrapping.Clamp }
+    });
+    this.graphics.use(this._tiled);
+  }
+
+  public onPostUpdate(_engine: ex.Engine, elapsedMs: number) {
+    this._tiled.sourceView.x += this._speed * (elapsedMs / 1000);
+    this._tiled.sourceView.x = this._tiled.sourceView.x % groundImage.width;
+  }
+}
+```
+
+:::note
+This is the same scroll trick used in the [Excalibird ground step](/docs/step-14-ground-graphics) —
+but with `TiledSprite` you no longer need to also set `destSize.width` to match `sourceView.width`, because
+`TiledSprite` already manages the destination region for you via its `width`/`height` options.
+:::
 
 ### From an existing Sprite
 
@@ -116,8 +165,9 @@ Use [[TiledSprite.fromSprite]] to wrap a sprite you already have:
 ```ts twoslash
 // @include: ex
 // ---cut---
-const sprite = new ex.Sprite({ image: groundTile });
-const tiled = ex.TiledSprite.fromSprite(sprite, { width: 800, height: 200 });
+const groundImage = new ex.ImageSource('./ground.png');
+const sprite = new ex.Sprite({ image: groundImage });
+const tiled = ex.TiledSprite.fromSprite(sprite, { width: 800, height: 64 });
 ```
 
 ### From a SpriteSheet frame
@@ -128,14 +178,15 @@ your tile graphics live in an atlas:
 ```ts twoslash
 // @include: ex
 // ---cut---
+const groundImage = new ex.ImageSource('./ground.png');
 const sheet = ex.SpriteSheet.fromImageSource({
-  image: groundTile,
-  grid: { rows: 1, columns: 2, spriteWidth: 16, spriteHeight: 16 }
+  image: groundImage,
+  grid: { rows: 1, columns: 1, spriteWidth: 64, spriteHeight: 64 }
 });
 
-const tiledGround = sheet.getTiledSprite(1, 0, {
+const tiledGround = sheet.getTiledSprite(0, 0, {
   width: 800,
-  height: 200,
+  height: 64,
   wrapping: { x: ex.ImageWrapping.Repeat, y: ex.ImageWrapping.Clamp }
 });
 ```
