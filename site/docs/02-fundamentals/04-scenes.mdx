@@ -218,9 +218,9 @@ enemy.on('collisionstart', (ev) => {
 ```
 
 :::note
-The deferred entity is still iterated by systems for the remainder of the **current** frame — its
-`isActive` flag flips to `false` only after the kill call, so systems that already started processing it
-this frame will finish. It is removed before the next update.
+The deferred entity is still iterated by systems for the remainder of the **current** frame — `kill()`
+synchronously sets `isActive = false`, but systems that already started processing it this frame will
+finish. It is removed before the next update.
 :::
 
 ### `Scene.clear`

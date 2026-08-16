@@ -294,7 +294,7 @@ Override these on a subclass of [[Entity]] or [[Actor]]:
 |---|---|---|
 | [[Entity.onInitialize|`onInitialize(engine)`]] | `(engine) => void` | once, on the entity's first update tick (before its first `onPreUpdate`) |
 | [[Entity.onAdd|`onAdd(engine)`]] | `(engine) => void` | once, when the entity becomes active in a scene |
-| [[Entity.onRemove|`onRemove(engine)`]] | `(engine) => void` | once, when the entity is removed; for killed entities this runs at the end-of-frame deferred-removal pass |
+| [[Entity.onRemove|`onRemove(engine)`]] | `(engine) => void` | once, when the entity is removed; fires either inside the deferred-removal pass at the end of `World.update(Update)`, or earlier in the entity's own `update()` if the entity was already inactive by then |
 | [[Entity.onPreUpdate|`onPreUpdate(engine, elapsed)`]] | `(engine, elapsed) => void` | per-frame, before children update |
 | [[Entity.onPostUpdate|`onPostUpdate(engine, elapsed)`]] | `(engine, elapsed) => void` | per-frame, after children update |
 
@@ -540,8 +540,11 @@ runs exactly once with interpolated positions.
 - **`Entity.onAdd` / `onRemove` fire from the world update**, not synchronously from `scene.add` /
   `scene.remove`. They fire on the entity's first/last valid `update` tick.
 - **Deferred entity removal**: [[Entity.kill|`entity.kill()`]] sets `isActive = false`; the actual array
-  splice + `onRemove` happens in `processEntityRemovals` at the **end** of `World.update(Update)`. Killing
-  mid-update is safe — see [Removing Entities from a Scene](/docs/scenes#removing-entities-from-a-scene).
+  splice happens in `processEntityRemovals` at the **end** of `World.update(Update)`. `onRemove` is invoked
+  during that splice — or earlier, inside the entity's own `update()` at `entity.ts:677`, if the entity was
+  already inactive by then (e.g. a self-kill from `onPreUpdate`/`onPostUpdate`, or a kill by an earlier
+  entity's update). Either way, killing mid-update is safe — see
+  [Removing Entities from a Scene](/docs/scenes#removing-entities-from-a-scene).
 - **Coroutines default to `'preframe'`** and don't stop on entity death — see
   [Coroutines](/docs/coroutines#coroutine-timing--lifecycle).
 - **Pointer events fire in z-order**: when an event targets overlapping actors, higher-z actors get it
