@@ -18,7 +18,7 @@ This action could possibly never complete! Any actions chained off of it will no
 
 :::warning
 
-`Meet` writes the actor's [[MotionComponent.vel|velocity]] directly every frame and zeroes it on completion
+`Meet` writes the actor's [[MotionComponent.vel]] directly every frame and zeroes it on completion
 or `stop()`. If you also set velocity elsewhere (custom movement code, a separate action, an integrator
 input), `Meet` will clobber it — pick one or the other.
 

@@ -242,7 +242,7 @@ Actors have the following **extra** events you can subscribe to:
 
 When a pointer event targets overlapping actors, Excalibur dispatches to each actor in z-order (front-most
 first). Ordinarily every actor whose bounds contain the pointer receives the event. To stop further actors
-from handling the same event, call [[Input.PointerEvent.cancel|`event.cancel()`]] inside your handler:
+from handling the same event, call [[PointerEvent.cancel]] inside your handler:
 
 ```ts twoslash
 // @include: ex

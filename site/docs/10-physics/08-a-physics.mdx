@@ -121,13 +121,13 @@ Under the hood excalibur does a broadphase/narrowphase approach to locating and 
 
 ## Querying Colliders
 
-[[Scene.physics|scene.physics]] exposes two `query` overloads for finding colliders in the current physics
+[[Scene.physics]] exposes two `query` overloads for finding colliders in the current physics
 world. Both return the live [[Collider]] instances — you can read their owning entity, shape, or bounds from
 the result.
 
 ### Query by Point
 
-[[PhysicsWorld.query|`physics.query(point: Vector)`]] returns every [[Collider]] that **contains** the
+[[PhysicsWorld.query]] (`physics.query(point: Vector)`) returns every [[Collider]] that **contains** the
 point. Useful for click-to-select, pointer picking, or "what's under this position" checks.
 
 ```typescript
@@ -139,7 +139,7 @@ for (const collider of colliders) {
 
 ### Query by Bounds
 
-[[PhysicsWorld.query|`physics.query(bounds: BoundingBox)`]] returns every [[Collider]] whose **bounds
+[[PhysicsWorld.query]] (`physics.query(bounds: BoundingBox)`) returns every [[Collider]] whose **bounds
 overlap** the supplied [[BoundingBox]]. Useful for selection-box picks, "is anything inside this region"
 checks, or pre-broadphase lookups.
 
@@ -149,9 +149,9 @@ const colliders = game.currentScene.physics.query(region);
 ```
 
 :::note
-These are point/bounds overlap queries against the collider's [[Collider.bounds|world bounds]]. For
-ray-based queries (line-of-sight, ground-detection sweeps), see [[PhysicsWorld.rayCast|`scene.physics
-.rayCast`]] instead.
+These are point/bounds overlap queries against the collider's [[Collider.bounds]]. For
+ray-based queries (line-of-sight, ground-detection sweeps), see [[PhysicsWorld.rayCast]]
+(`scene.physics.rayCast`) instead.
 :::
 
 ## Example Active-Active/Active-Fixed scenario

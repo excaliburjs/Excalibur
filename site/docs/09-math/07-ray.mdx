@@ -132,7 +132,7 @@ const point = actor.collider.get().rayCast(ray)
 ### Zero-direction Rays are not NaN
 
 When you construct a [[Ray]] with a zero direction vector, the constructor calls
-[[Vector.normalize|`Vector.normalize()`]], which guards the exact-zero case and returns [[Vector.Zero]]
+[[Vector.normalize]], which guards the exact-zero case and returns [[Vector.Zero]]
 rather than dividing by zero. So `new ex.Ray(pos, ex.Vector.Zero)` is **not** a NaN source — it produces a
 ray pointing nowhere, and any subsequent `intersect` call returns `-1` (no hit) silently.
 
@@ -162,11 +162,11 @@ regardless of where colliders actually are.
 
 ### Degenerate `LineSegment`s can produce `NaN`
 
-The real silent-NaN risk isn't in [[Ray]] — it's in [[LineSegment.getSlope|`LineSegment.getSlope()`]], which
+The real silent-NaN risk isn't in [[Ray]] — it's in [[LineSegment.getSlope]], which
 divides by the segment length **without** a zero guard. A zero-length segment (`begin === end`) produces
 `(NaN, NaN)`, cached in `this._slope` for the lifetime of that segment.
 
-Since [[Ray.intersect|`Ray.intersect()`]] calls `line.getSlope()` internally, **passing a degenerate
+Since [[Ray.intersect]] calls `line.getSlope()` internally, **passing a degenerate
 `LineSegment` to a well-formed `Ray` pulls NaN into the intersection math and the result is undefined.**
 Avoid constructing zero-length segments; if you snapshot edges or build segments from pairs of points,
 filter out any pair where `a.equals(b)` before constructing the segment:

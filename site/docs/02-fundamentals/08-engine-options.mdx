@@ -21,9 +21,9 @@ antialiasing?: boolean | AntialiasOptions;   // default: true
 
 Controls pixel smoothing for the canvas, and additionally **hints** how images load:
 
-- `true` — smoothing on; images load with [[ImageFiltering.Blended|Blended]] filtering. Useful for
+- `true` — smoothing on; images load with [[ImageFiltering.Blended]] filtering. Useful for
   high-resolution artwork.
-- `false` — smoothing off; images load with [[ImageFiltering.Pixel|Pixel]] filtering. Useful for pixel art
+- `false` — smoothing off; images load with [[ImageFiltering.Pixel]] filtering. Useful for pixel art
   where you want sharp edges. See the [Pixel Art guide](/docs/pixel-art) for the full pixel workflow.
 - An [[AntialiasOptions]] object — deeply configures the various sub-flags. **Warning:** mixing the
   individual sub-options can produce surprising visuals; stick to `true` or `false` unless you have a
@@ -62,7 +62,7 @@ const game = new ex.Engine({
 });
 ```
 
-Read or write the flag at runtime through [[Engine.snapToPixel|`engine.snapToPixel`]] — it forwards to the
+Read or write the flag at runtime through [[Engine.snapToPixel]] — it forwards to the
 graphics context's `snapToPixel` field.
 
 ## `maxFps`

@@ -356,7 +356,7 @@ class Player extends ex.Actor {
 
 ### Pre-draw
 
-[[GraphicsComponent.onPreDraw|Actor.graphics.onPreDraw]] is an optional function-property hook that fires
+[[GraphicsComponent.onPreDraw]] is an optional function-property hook that fires
 just before the actor's graphic is drawn. The [[ExcaliburGraphicsContext]] at this point is in **entity-local
 space** — the camera and the actor's own (and any ancestor) transforms have already been applied, so `(0,0)`
 is the actor's world position. Don't translate to your actor's `pos` yourself; it's done for you.
@@ -385,7 +385,7 @@ class Player extends ex.Actor {
 
 ### Post-draw
 
-[[GraphicsComponent.onPostDraw|Actor.graphics.onPostDraw]] is an optional function-property hook that fires
+[[GraphicsComponent.onPostDraw]] is an optional function-property hook that fires
 just after the actor's graphic is drawn, **in the same save/restore scope** as `onPreDraw`. It is the
 recommended hook for custom drawing because the actor's graphic has already been rendered (so you can draw
 overlays, debug indicators, etc. on top).

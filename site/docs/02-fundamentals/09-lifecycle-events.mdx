@@ -25,7 +25,7 @@ and (for draw-phase hooks) the graphics-context coordinate space at the moment y
 ## Per-frame timeline
 
 A single frame runs this sequence. The Update section repeats 0..N times per frame when
-[[EngineOptions.fixedUpdateTimestep|fixed-update]] is enabled; otherwise it runs exactly once. The Draw
+[[EngineOptions.fixedUpdateTimestep]] (fixed-update) is enabled; otherwise it runs exactly once. The Draw
 section always runs exactly once.
 
 ```mermaid mermaid
@@ -64,15 +64,15 @@ sequenceDiagram
 ```
 
 `onPreFrame*` / `onPostFrame*` have **no override hook** — they are event-only. Use
-[[Engine.on|`engine.on('preframe', ...)`]] / [[Engine.on|`engine.on('postframe', ...)`]] to subscribe.
+[[Engine.on]](`engine.on('preframe', ...)`) / [[Engine.on]](`engine.on('postframe', ...)`) to subscribe.
 
-If [[Engine]] is loading, the entire Update section is skipped and only [[DefaultLoader.onUpdate|loader's
-`onUpdate`]] runs; in Draw, the loader canvas is rendered instead of the scene.
+If [[Engine]] is loading, the entire Update section is skipped and only [[DefaultLoader.onUpdate]] (the
+loader's `onUpdate`) runs; in Draw, the loader canvas is rendered instead of the scene.
 
 ## Detailed timing diagrams
 
 The end-to-end frame is split into two diagrams — one for the **Update** phase (which may repeat N times per
-frame when [[EngineOptions.fixedUpdateTimestep|fixed-update]] is on) and one for the **Draw** phase (which
+frame when [[EngineOptions.fixedUpdateTimestep]] (fixed-update) is on) and one for the **Draw** phase (which
 runs exactly once per frame). Each arrow is an emit/Hook firing in source order; `Note` rows flesh out the
 per-system work and the coordinate space of the active `ExcaliburGraphicsContext`.
 
@@ -380,7 +380,7 @@ Override on a subclass of [[Transition]] (e.g., custom scene transitions):
 
 ### `System` (advanced ECS)
 
-[[System|Systems]] use lowercase method names rather than `onX`:
+[[System]] (Systems) use lowercase method names rather than `onX`:
 
 | Hook | Signature | Fires |
 |---|---|---|
@@ -519,12 +519,12 @@ without popping leaks into sibling entities or the post-frame phase.
 
 ## Substepping & repeated Events
 
-If [[PhysicsConfig.substep|`physics.config.substep`]] is greater than 1, `precollision`, `postcollision`,
+If [[PhysicsConfig.substep]] is greater than 1, `precollision`, `postcollision`,
 `beforecollisionresolve`, `aftercollisionresolve`, and the motion integration step run **once per
 substep** in the same frame. `collisionstart` / `collisionend` / `contactstart` / `contactend` run **once
 per frame** after all substeps complete (they're keyed against the previous frame's contact map).
 
-In [[EngineOptions.fixedUpdateTimestep|fixed-update]] mode, the entire Update section (including all
+In [[EngineOptions.fixedUpdateTimestep]] (fixed-update) mode, the entire Update section (including all
 collision and pointer events) runs N times per frame to consume accumulated lag, while the Draw section
 runs exactly once with interpolated positions.
 
@@ -535,7 +535,7 @@ runs exactly once with interpolated positions.
   `world.update(SystemType.Update)`, not before it.
 - **`Entity.onAdd` / `onRemove` fire from the world update**, not synchronously from `scene.add` /
   `scene.remove`. They fire on the entity's first/last valid `update` tick.
-- **Deferred entity removal**: [[Entity.kill|`entity.kill()`]] sets `isActive = false`; the actual array
+- **Deferred entity removal**: [[Entity.kill]] (the `entity.kill()` call) sets `isActive = false`; the actual array
   splice happens in `processEntityRemovals` at the **end** of `World.update(Update)`. `onRemove` is invoked
   during that splice — or earlier, inside the entity's own `update()` at `entity.ts:677`, if the entity was
   already inactive by then (e.g. a self-kill from `onPreUpdate`/`onPostUpdate`, or a kill by an earlier
@@ -544,7 +544,7 @@ runs exactly once with interpolated positions.
 - **Coroutines default to `'preframe'`** and don't stop on entity death — see
   [Coroutines](/docs/coroutines#coroutine-timing--lifecycle).
 - **Pointer events fire in z-order**: when an event targets overlapping actors, higher-z actors get it
-  first. Call [[Input.PointerEvent.cancel|`event.cancel()`]] in a handler to make lower-z actors skip the
+  first. Call [[PointerEvent.cancel]] in a handler to make lower-z actors skip the
   event — see [Propagation and Cancelling Pointer Events](/docs/pointers#propagation-and-cancelling-pointer-events).
 - **`pointerdraw` does not exist** — if you want cursor visuals, draw them from inside a
   `graphics.onPostDraw` or as a screen-space overlay.

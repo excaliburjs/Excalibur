@@ -44,11 +44,11 @@ Entities can be added as children of other entities, once added child entities m
 
 ### Killing an Entity
 
-[[Entity.kill|`entity.kill()`]] flips the entity's `isActive` flag to `false` and queues it for removal —
+[[Entity.kill]] flips the entity's `isActive` flag to `false` and queues it for removal —
 the actual array splice happens at the end of the current world update, after every system has finished
 iterating. This is the same deferred-removal invariant described in the
 [Scenes guide](/docs/scenes#removing-entities-from-a-scene): killing is safe to call mid-update, including
-from inside a collision handler or another entity's update loop. [[Entity.isKilled|`isKilled()`]] reports
+from inside a collision handler or another entity's update loop. [[Entity.isKilled]] reports
 the post-`kill` state (`true` once `kill()` has been called).
 
 ## Components

@@ -121,7 +121,7 @@ animation.events.on('end', (a) => {
 
 ### Replaying an Animation
 
-Animations that use the [[AnimationStrategy.End|End]] or [[AnimationStrategy.Freeze|Freeze]] strategies emit
+Animations that use the [[AnimationStrategy.End]] or [[AnimationStrategy.Freeze]] strategies emit
 `end` once when they finish. To play the animation again, call [[Animation.reset]] from inside the `end`
 handler — it rewinds the current frame to `0` and clears the `done` flag so the animation can run once more.
 This is safe to call from within the `end` handler: Excalibur guards against the in-flight frame advance so

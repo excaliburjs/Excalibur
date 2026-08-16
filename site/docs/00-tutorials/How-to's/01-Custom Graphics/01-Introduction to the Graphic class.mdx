@@ -81,7 +81,7 @@ The ExcaliburGraphicsContext gives access to several methods.
 ## Providing Size and Bounds
 
 Notice the `super({ width: 64, height: 64 })` call above — it's not just a nicety. A [[Graphic]]'s
-[[Graphic.localBounds|localBounds]] are derived from its `width` and `height`, and both **default to `0`**.
+[[Graphic.localBounds]] are derived from its `width` and `height`, and both **default to `0`**.
 When you skip the size, several systems see a zero-sized object:
 
 - **Pointer/collision picking** — the physics query and collision-pair logic short-circuit on zero bounds,
