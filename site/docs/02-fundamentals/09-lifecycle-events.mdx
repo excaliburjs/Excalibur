@@ -259,11 +259,11 @@ Override these on a subclass of [[Engine]]:
 
 | Hook | Signature | Fires |
 |---|---|---|
-| [[Engine.onInitialize|`onInitialize(engine)`]] | `(engine: Engine) => void` | once, after `start()` completes loading and before the first frame |
-| [[Engine.onPreUpdate|`onPreUpdate(engine, elapsed)`]] | `(engine, elapsed: number) => void` | start of each Update, before `Scene.update` |
-| [[Engine.onPostUpdate|`onPostUpdate(engine, elapsed)`]] | `(engine, elapsed: number) => void` | end of each Update, after `Scene.update` and post-processors |
-| [[Engine.onPreDraw|`onPreDraw(ctx, elapsed)`]] | `(ctx, elapsed: number) => void` | start of each Draw, before `Scene.draw` |
-| [[Engine.onPostDraw|`onPostDraw(ctx, elapsed)`]] | `(ctx, elapsed: number) => void` | end of each Draw, after `Scene.draw` and before `flush()` |
+| [[Engine.onInitialize]] | `(engine: Engine) => void` | once, after `start()` completes loading and before the first frame |
+| [[Engine.onPreUpdate]] | `(engine, elapsed: number) => void` | start of each Update, before `Scene.update` |
+| [[Engine.onPostUpdate]] | `(engine, elapsed: number) => void` | end of each Update, after `Scene.update` and post-processors |
+| [[Engine.onPreDraw]] | `(ctx, elapsed: number) => void` | start of each Draw, before `Scene.draw` |
+| [[Engine.onPostDraw]] | `(ctx, elapsed: number) => void` | end of each Draw, after `Scene.draw` and before `flush()` |
 
 ### `Scene`
 
@@ -271,15 +271,15 @@ Override these on a subclass of [[Scene]]:
 
 | Hook | Signature | Fires |
 |---|---|---|
-| [[Scene.onPreLoad|`onPreLoad(loader)`]] | `(loader: DefaultLoader) => void` | once, when the scene is first navigated to, before loading resources |
-| [[Scene.onInitialize|`onInitialize(engine)`]] | `(engine) => void` | once, when the scene is first activated, after `onPreLoad` |
-| [[Scene.onActivate|`onActivate(ctx)`]] | `(ctx: SceneActivationContext) => void` | every time the scene is switched to via `goToScene` |
-| [[Scene.onDeactivate|`onDeactivate(ctx)`]] | `(ctx) => void \| any` | every time the scene is switched away from; the returned data is forwarded to the next scene's `onActivate` as `previousSceneData` |
-| [[Scene.onTransition|`onTransition(direction)`]] | `(direction: 'in' \| 'out') => Transition \| undefined` | when a scene transition is requested |
-| [[Scene.onPreUpdate|`onPreUpdate(engine, elapsed)`]] | `(engine, elapsed) => void` | start of scene update, before timers/world/camera |
-| [[Scene.onPostUpdate|`onPostUpdate(engine, elapsed)`]] | `(engine, elapsed) => void` | end of scene update, after the world & camera processed |
-| [[Scene.onPreDraw|`onPreDraw(ctx, elapsed)`]] | `(ctx, elapsed) => void` | start of scene draw, before the world draw systems |
-| [[Scene.onPostDraw|`onPostDraw(ctx, elapsed)`]] | `(ctx, elapsed) => void` | end of scene draw, after the world draw systems & debug draw |
+| [[Scene.onPreLoad]] | `(loader: DefaultLoader) => void` | once, when the scene is first navigated to, before loading resources |
+| [[Scene.onInitialize]] | `(engine) => void` | once, when the scene is first activated, after `onPreLoad` |
+| [[Scene.onActivate]] | `(ctx: SceneActivationContext) => void` | every time the scene is switched to via `goToScene` |
+| [[Scene.onDeactivate]] | `(ctx) => void \| any` | every time the scene is switched away from; the returned data is forwarded to the next scene's `onActivate` as `previousSceneData` |
+| [[Scene.onTransition]] | `(direction: 'in' \| 'out') => Transition \| undefined` | when a scene transition is requested |
+| [[Scene.onPreUpdate]] | `(engine, elapsed) => void` | start of scene update, before timers/world/camera |
+| [[Scene.onPostUpdate]] | `(engine, elapsed) => void` | end of scene update, after the world & camera processed |
+| [[Scene.onPreDraw]] | `(ctx, elapsed) => void` | start of scene draw, before the world draw systems |
+| [[Scene.onPostDraw]] | `(ctx, elapsed) => void` | end of scene draw, after the world draw systems & debug draw |
 
 ### `Entity` and `Actor`
 
@@ -287,22 +287,22 @@ Override these on a subclass of [[Entity]] or [[Actor]]:
 
 | Hook | Signature | Fires |
 |---|---|---|
-| [[Entity.onInitialize|`onInitialize(engine)`]] | `(engine) => void` | once, on the entity's first update tick (before its first `onPreUpdate`) |
-| [[Entity.onAdd|`onAdd(engine)`]] | `(engine) => void` | once, when the entity becomes active in a scene |
-| [[Entity.onRemove|`onRemove(engine)`]] | `(engine) => void` | once, when the entity is removed; fires either inside the deferred-removal pass at the end of `World.update(Update)`, or earlier in the entity's own `update()` if the entity was already inactive by then |
-| [[Entity.onPreUpdate|`onPreUpdate(engine, elapsed)`]] | `(engine, elapsed) => void` | per-frame, before children update |
-| [[Entity.onPostUpdate|`onPostUpdate(engine, elapsed)`]] | `(engine, elapsed) => void` | per-frame, after children update |
+| [[Entity.onInitialize]] | `(engine) => void` | once, on the entity's first update tick (before its first `onPreUpdate`) |
+| [[Entity.onAdd]] | `(engine) => void` | once, when the entity becomes active in a scene |
+| [[Entity.onRemove]] | `(engine) => void` | once, when the entity is removed; fires either inside the deferred-removal pass at the end of `World.update(Update)`, or earlier in the entity's own `update()` if the entity was already inactive by then |
+| [[Entity.onPreUpdate]] | `(engine, elapsed) => void` | per-frame, before children update |
+| [[Entity.onPostUpdate]] | `(engine, elapsed) => void` | per-frame, after children update |
 
 [[Actor]] adds:
 
 | Hook | Signature | Fires |
 |---|---|---|
-| [[Actor.onPreKill|`onPreKill(scene)`]] | `(scene) => void` | synchronously by `kill()`, just before `super.kill()` flips `isActive = false` |
-| [[Actor.onPostKill|`onPostKill(scene)`]] | `(scene) => void` | synchronously by `kill()`, immediately after `super.kill()` |
-| [[Actor.onPreCollisionResolve|`onPreCollisionResolve(self, other, side, contact)`]] | `(self, other: Collider, side: Side, contact: CollisionContact) => void` | per-contact, during solver `preSolve` (before resolution). Wired by [[ColliderComponent]] |
-| [[Actor.onPostCollisionResolve|`onPostCollisionResolve(self, other, side, contact)`]] | `(self, other, side, contact) => void` | per-contact, during solver `postSolve` (after resolution) |
-| [[Actor.onCollisionStart|`onCollisionStart(self, other, side, contact)`]] | `(self, other, side, contact) => void` | once, when two colliders first touch |
-| [[Actor.onCollisionEnd|`onCollisionEnd(self, other, side, lastContact)`]] | `(self, other, side, lastContact) => void` | once, when two colliders separate |
+| [[Actor.onPreKill]] | `(scene) => void` | synchronously by `kill()`, just before `super.kill()` flips `isActive = false` |
+| [[Actor.onPostKill]] | `(scene) => void` | synchronously by `kill()`, immediately after `super.kill()` |
+| [[Actor.onPreCollisionResolve]] | `(self, other: Collider, side: Side, contact: CollisionContact) => void` | per-contact, during solver `preSolve` (before resolution). Wired by [[ColliderComponent]] |
+| [[Actor.onPostCollisionResolve]] | `(self, other, side, contact) => void` | per-contact, during solver `postSolve` (after resolution) |
+| [[Actor.onCollisionStart]] | `(self, other, side, contact) => void` | once, when two colliders first touch |
+| [[Actor.onCollisionEnd]] | `(self, other, side, lastContact) => void` | once, when two colliders separate |
 
 :::note
 Actor overrides update and does **not** recurse into children between `_preupdate` and `_postupdate`. Child
@@ -343,9 +343,9 @@ Override on a subclass of [[Camera]]:
 
 | Hook | Signature | Fires |
 |---|---|---|
-| [[Camera.onInitialize|`onInitialize(engine)`]] | `(engine) => void` | once, during [[Scene]] initialization |
-| [[Camera.onPreUpdate|`onPreUpdate(engine, elapsed)`]] | `(engine, elapsed) => void` | per-frame, near the **end** of the Update phase (after the world; see Gotchas) |
-| [[Camera.onPostUpdate|`onPostUpdate(engine, elapsed)`]] | `(engine, elapsed) => void` | per-frame, after camera integration & strategies |
+| [[Camera.onInitialize]] | `(engine) => void` | once, during [[Scene]] initialization |
+| [[Camera.onPreUpdate]] | `(engine, elapsed) => void` | per-frame, near the **end** of the Update phase (after the world; see Gotchas) |
+| [[Camera.onPostUpdate]] | `(engine, elapsed) => void` | per-frame, after camera integration & strategies |
 
 :::warning
 The [[Camera]] is updated at the **end** of [[Scene.update]], *after* `world.update(SystemType.Update)`. So
@@ -360,12 +360,12 @@ Override on a subclass of [[DefaultLoader]]:
 
 | Hook | Signature | Fires |
 |---|---|---|
-| [[DefaultLoader.onInitialize|`onInitialize(engine)`]] | `(engine) => void` | once, when load begins |
-| [[DefaultLoader.onUserAction|`onUserAction()`]] | `() => Promise<void>` | when the user is expected to interact (usually a click); needed to unlock the audio context |
-| [[DefaultLoader.onBeforeLoad|`onBeforeLoad()`]] | `() => Promise<void>` | once, before resources are fetched |
-| [[DefaultLoader.onAfterLoad|`onAfterLoad()`]] | `() => Promise<void>` | once, after resources are fetched and audio unlocked |
-| [[DefaultLoader.onUpdate|`onUpdate(engine, elapsed)`]] | `(engine, elapsed) => void` | per-frame **while loading** (this replaces the entire scene update during loading) |
-| [[DefaultLoader.onDraw|`onDraw(ctx)`]] | `(ctx: CanvasRenderingContext2D) => void` | per-frame **while loading**, on the loader's 2D canvas |
+| [[DefaultLoader.onInitialize]] | `(engine) => void` | once, when load begins |
+| [[DefaultLoader.onUserAction]] | `() => Promise<void>` | when the user is expected to interact (usually a click); needed to unlock the audio context |
+| [[DefaultLoader.onBeforeLoad]] | `() => Promise<void>` | once, before resources are fetched |
+| [[DefaultLoader.onAfterLoad]] | `() => Promise<void>` | once, after resources are fetched and audio unlocked |
+| [[DefaultLoader.onUpdate]] | `(engine, elapsed) => void` | per-frame **while loading** (this replaces the entire scene update during loading) |
+| [[DefaultLoader.onDraw]] | `(ctx: CanvasRenderingContext2D) => void` | per-frame **while loading**, on the loader's 2D canvas |
 
 ### `Transition`
 
@@ -373,10 +373,10 @@ Override on a subclass of [[Transition]] (e.g., custom scene transitions):
 
 | Hook | Signature | Fires |
 |---|---|---|
-| [[Transition.onStart|`onStart(progress)`]] | `(progress: number) => void` | once, at the beginning of the transition |
-| [[Transition.onUpdate|`onUpdate(progress)`]] | `(progress: number) => void` | per-frame during the transition |
-| [[Transition.onEnd|`onEnd(progress)`]] | `(progress: number) => void` | once, when the transition finishes |
-| [[Transition.onReset|`onReset()`]] | `() => void` | when the transition instance is reset for reuse |
+| [[Transition.onStart]] | `(progress: number) => void` | once, at the beginning of the transition |
+| [[Transition.onUpdate]] | `(progress: number) => void` | per-frame during the transition |
+| [[Transition.onEnd]] | `(progress: number) => void` | once, when the transition finishes |
+| [[Transition.onReset]] | `() => void` | when the transition instance is reset for reuse |
 
 ### `System` (advanced ECS)
 
