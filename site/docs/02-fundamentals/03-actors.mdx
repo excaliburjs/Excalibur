@@ -356,13 +356,15 @@ class Player extends ex.Actor {
 
 ### Pre-draw
 
-[[GraphicsComponent.onPreDraw|Actor.graphics.onPreDraw]] is run _before_ the core draw logic to prepare the frame.
+[[GraphicsComponent.onPreDraw|Actor.graphics.onPreDraw]] is an optional function-property hook that fires
+just before the actor's graphic is drawn. The [[ExcaliburGraphicsContext]] at this point is in **entity-local
+space** — the camera and the actor's own (and any ancestor) transforms have already been applied, so `(0,0)`
+is the actor's world position. Don't translate to your actor's `pos` yourself; it's done for you.
 
-:::warning
+:::note
 
-[[GraphicsComponent.onPreDraw|Actor.graphics.onPreDraw]] runs _before_ Excalibur has run all its draw logic to apply effects, transform information, etc. so you essentially are working with the _last frame's draw state_.
-
-Reference [Actor lifecycle](#actor-lifecycle) for a breakdown of each phase and when things are executed.
+`onPreDraw` fires inside the `GraphicsSystem`'s per-entity save/restore scope, so anything you `save()` you
+must also `restore()` to avoid leaking transforms into sibling actors.
 
 :::
 
@@ -373,11 +375,9 @@ class Player extends ex.Actor {
   constructor(config?: ex.ActorArgs) {
     super(config);
 
-    /**
-     * ADVANCED: This is run before Actor.graphics.onPreDraw core logic.
-     */
-    this.graphics.onPreDraw = (ctx: ex.ExcaliburGraphicsContext, delta: number) => {
-      // custom drawing
+    this.graphics.onPreDraw = (ctx: ex.ExcaliburGraphicsContext, elapsed: number) => {
+      // Draw before the actor's graphic — entity-local space
+      ctx.drawRectangle(ex.vec(0, 0), 8, 8, ex.Color.Yellow);
     };
   }
 }
@@ -385,13 +385,10 @@ class Player extends ex.Actor {
 
 ### Post-draw
 
-[[GraphicsComponent.onPostDraw|Actor.graphics.onPostDraw]] is run _after_ the core draw and will draw in the current frame.
-
-:::tip
-
-[[GraphicsComponent.onPostDraw|Actor.graphics.onPostDraw]] is the recommended method to override since Excalibur has run its core draw logic and you can now customize what gets drawn during the current frame.
-
-:::
+[[GraphicsComponent.onPostDraw|Actor.graphics.onPostDraw]] is an optional function-property hook that fires
+just after the actor's graphic is drawn, **in the same save/restore scope** as `onPreDraw`. It is the
+recommended hook for custom drawing because the actor's graphic has already been rendered (so you can draw
+overlays, debug indicators, etc. on top).
 
 ```ts twoslash
 // @include: ex
@@ -400,16 +397,21 @@ class Player extends ex.Actor {
   constructor(config?: ex.ActorArgs) {
     super(config);
 
-    /**
-     * ADVANCED: This is run after the core draw logic.
-     */
-    this.graphics.onPostDraw = (ctx: ex.ExcaliburGraphicsContext, delta: number) => {
-      // custom drawing
+    this.graphics.onPostDraw = (ctx: ex.ExcaliburGraphicsContext, elapsed: number) => {
+      // Draw after the actor's graphic — entity-local space
+      ctx.drawRectangle(ex.vec(0, 0), 4, 4, ex.Color.Red);
     };
   }
 }
 
 ```
+
+:::tip
+
+For a full breakdown of every draw-phase hook, its coordinate space, and where it sits in the per-frame
+timeline, see the [Lifecycle Events reference](/docs/lifecycle-events#draw-phase-coordinate-spaces).
+
+:::
 
 ### Adding actors to the scene
 

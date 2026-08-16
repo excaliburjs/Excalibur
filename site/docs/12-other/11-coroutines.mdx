@@ -22,3 +22,49 @@ Coroutines return a promise when they are complete. You can think of each `yield
       elapsed = yield; // frame 3
     });
   ```
+
+## Coroutine Timing & Lifecycle
+
+### Default timing is preframe
+
+Coroutines run **preframe** by default — each `yield` resumes at the start of the frame, *before* the
+engine tick and scene update. To run a coroutine after the engine tick instead, pass
+`timing: 'postframe'`:
+
+```typescript
+const co = coroutine(engine, function * () {
+  // ... your logic
+}, { timing: 'postframe' });
+```
+
+The full timing set (from [[Clock]]) is `'preframe'`, `'postframe'`, `'preupdate'`, `'postupdate'`,
+`'predraw'`, and `'postdraw'`. `'preframe'` matches the default.
+
+### Coroutines don't stop on actor death
+
+A coroutine is scheduled on the engine [[Clock]] and has no awareness of the actor that started it. Killing
+the actor does not cancel the coroutine — it keeps ticking until the generator returns or you explicitly
+cancel it. If your coroutine should die with the actor, hold the coroutine handle and call
+[[CoroutineInstance.cancel|`co.cancel()`]] from `kill` or `_prekill`:
+
+```typescript
+class MyActor extends ex.Actor {
+  private _co: ex.CoroutineInstance;
+
+  onInitialize() {
+    this._co = ex.coroutine(this.scene.engine, function * () {
+      // ... long-running effect
+    });
+  }
+
+  public kill() {
+    this._co?.cancel();
+    super.kill();
+  }
+}
+```
+
+:::note
+`coroutine(...)` returns a [[CoroutineInstance]] that is also thenable — you can `await` it for completion
+*and* keep the handle to call `.cancel()`, `.isRunning()`, or `.start()`.
+:::

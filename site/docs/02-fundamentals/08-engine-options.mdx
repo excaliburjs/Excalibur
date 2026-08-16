@@ -1,0 +1,96 @@
+---
+title: Engine Options
+slug: /engine-options
+section: Fundamentals
+---
+
+```twoslash include ex
+// @module: esnext
+// @allowUmdGlobalAccess
+/// <reference path="../src/engine/excalibur.d.ts" />
+```
+
+A handful of [[EngineOptions]] live outside the typical width/height/displayMode trio and are easy to miss.
+This page is a quick reference for three of them.
+
+## `antialiasing`
+
+```ts
+antialiasing?: boolean | AntialiasOptions;   // default: true
+```
+
+Controls pixel smoothing for the canvas, and additionally **hints** how images load:
+
+- `true` — smoothing on; images load with [[ImageFiltering.Blended|Blended]] filtering. Useful for
+  high-resolution artwork.
+- `false` — smoothing off; images load with [[ImageFiltering.Pixel|Pixel]] filtering. Useful for pixel art
+  where you want sharp edges. See the [Pixel Art guide](/docs/pixel-art) for the full pixel workflow.
+- An [[AntialiasOptions]] object — deeply configures the various sub-flags. **Warning:** mixing the
+  individual sub-options can produce surprising visuals; stick to `true` or `false` unless you have a
+  specific reason.
+
+```ts twoslash
+// @include: ex
+// ---cut---
+const game = new ex.Engine({
+  width: 256,
+  height: 240,
+  antialiasing: false // sharp pixel art
+});
+```
+
+The runtime default is stored on the engine and propagates to the graphics context.
+
+## `snapToPixel`
+
+```ts
+snapToPixel?: boolean;   // default: false
+```
+
+When enabled, Excalibur snaps graphics to the nearest pixel at draw time. Useful alongside
+`antialiasing: false` for pixel-art games that want stable 1:1 ×integer pixel output and want to avoid
+sub-pixel jitter on slow movement.
+
+```ts twoslash
+// @include: ex
+// ---cut---
+const game = new ex.Engine({
+  width: 256,
+  height: 240,
+  antialiasing: false,
+  snapToPixel: true
+});
+```
+
+Read or write the flag at runtime through [[Engine.snapToPixel|`engine.snapToPixel`]] — it forwards to the
+graphics context's `snapToPixel` field.
+
+## `maxFps`
+
+```ts
+maxFps?: number;   // default: Infinity (i.e. as fast as the device allows)
+```
+
+Caps the simulation frame rate. Useful when your game cannot maintain a consistent frame rate: a steady
+30fps often feels better than one that bounces between 30 and 60.
+
+```ts twoslash
+// @include: ex
+// ---cut---
+const game = new ex.Engine({
+  width: 800,
+  height: 600,
+  maxFps: 60
+});
+```
+
+The value is forwarded to the engine [[Clock]] at construction time; the clock enforces the limit by gating
+its tick schedule.
+
+## Cross-references
+
+- See the [Engine Fundamentals](/docs/engine) page for the broader [[Engine]] construction story.
+- See the [Pixel Art guide](/docs/pixel-art) for the recommended `antialiasing: false` + `snapToPixel: true`
+  setup.
+- See the [[PhysicsConfig]] / physics section for the `physics` block (solver, gravity, contact solve bias,
+  etc.) which is also part of [[EngineOptions]].

@@ -1,0 +1,123 @@
+---
+title: Grounded and Contact-Side Detection
+slug: /grounded-and-contact-side
+section: Tutorials
+---
+
+## Problem Statement
+
+"Grounded" usually means: is the player currently supported by a surface underneath them? Variants of this
+question come up in platformers (`can jump?`), top-down games (`on the floor?`), and any time gameplay
+branches on whether an actor is touching a wall on a specific side.
+
+The reliable pattern is to track ongoing contacts keyed by side using the `collisionstart` / `collisionend`
+events. For one-shot "is there ground here right now" polls, a downward raycast works as a fallback.
+
+## The `side` Field on Collision Events
+
+Every [[CollisionStartEvent]] and [[CollisionEndEvent]] carries a `side: [[Side]]` field. The [[Side]] enum
+has `Top`, `Bottom`, `Left`, `Right` (plus `None`). The engine computes `side` from the contact's MTV via
+[[Side.fromDirection]], and sends the **opposite** side to the *other* collider (so each party sees the side
+of its own box where contact happened).
+
+```typescript
+player.on('collisionstart', (ev: ex.CollisionStartEvent) => {
+  // ev.side === ex.Side.Bottom means "the player was contacted on its bottom edge"
+  if (ev.side === ex.Side.Bottom) {
+    // standing on something
+  }
+});
+
+player.on('collisionend', (ev: ex.CollisionEndEvent) => {
+  // ev.lastContact.id matches the same id from the corresponding collisionstart
+});
+```
+
+:::note
+The MTV convention is that the normal points **away from colliderA**. So `Side.fromDirection(mtv)` returns
+the side of colliderA where contact happened; the engine calls [[Side.getOpposite]] before emitting the
+event to colliderB. Both sides see "the side of my own box where contact happened".
+:::
+
+## Bookkeeping Pattern: `ev.side` Map
+
+The robust approach is to keep a `Map` of active contacts keyed by `ev.contact.id`, recording each
+contact's side, and rebuild a "touching per side" summary each `collisionstart` / `collisionend`. This
+naturally handles standing on multiple platforms at once, walking onto and off platforms, and is what the
+sandbox `high-gravity-arcade` reference uses.
+
+```typescript
+class TouchingComponent extends ex.Component {
+  // Sets per side — true if any contact is on that side
+  [ex.Side.Left] = new Set<ex.Actor>();
+  [ex.Side.Right] = new Set<ex.Actor>();
+  [ex.Side.Top] = new Set<ex.Actor>();
+  [ex.Side.Bottom] = new Set<ex.Actor>();
+}
+
+const touching = new TouchingComponent();
+const contacts = new Map<string, { actor: ex.Actor; side: ex.Side }>();
+
+player.on('collisionstart', (ev: ex.CollisionStartEvent) => {
+  if (!ev.other) return;
+  contacts.set(ev.contact.id, { actor: ev.other.owner, side: ev.side });
+  rebuildTouching();
+});
+
+player.on('collisionend', (ev: ex.CollisionEndEvent) => {
+  contacts.delete(ev.lastContact.id);
+  rebuildTouching();
+});
+
+function rebuildTouching() {
+  for (const side of [ex.Side.Left, ex.Side.Right, ex.Side.Top, ex.Side.Bottom]) {
+    touching[side].clear();
+  }
+  for (const { actor, side } of contacts.values()) {
+    touching[side].add(actor);
+  }
+}
+
+// Then in update:
+const grounded = touching[ex.Side.Bottom].size > 0;
+if (grounded && jumpPressed) {
+  player.vel.y = -jumpSpeed;
+}
+```
+
+:::tip Why events and not a position check?
+In a high-gravity scene, the actor's bottom-y may overlap the floor by a fraction each frame before the solver
+resolves it. A "is it touching the floor" check based on geometry alone is unreliable. The `collisionstart`
+/ `collisionend` events are tied to the actual contact pairs the physics system saw — the source of truth.
+:::
+
+## Raycast Poll Alternative
+
+When you want a pure distance-to-ground reading (for coyote time, fall-through-one-way platforms, or
+landing-prediction), use [[PhysicsWorld.rayCast|`scene.physics.rayCast`]] casting a ray straight down from
+the player:
+
+```typescript
+const hits = game.currentScene.physics.rayCast(
+  new ex.Ray(player.pos, ex.Vector.Down),
+  { maxDistance: 100, searchAllColliders: false } // closest hit only
+);
+const grounded = hits.length > 0 && hits[0].distance < player.height / 2 + 1;
+```
+
+This is a snapshot — it tells you what's under the player this frame, but it doesn't keep a contact list.
+
+:::warning
+A single downward ray from `player.pos` only samples one point. Standing at the edge of a tile, or moving
+across a seam between two tiles, can give a "no ground" reading even though the player is partially
+supported. For interactions where you care about all support, prefer the `ev.side` bookkeeping pattern; use
+raycast as a complementary signal for distance/coyote logic.
+:::
+
+## Cross-Platform: No Built-in "Twin-Ray" Helper
+
+A common suggestion is to cast two parallel rays from the bottom-left and bottom-right corners of the actor
+to detect ground reliably across its footprint. Excalibur does not ship a twin-ray helper — if you need that
+pattern, build it yourself by casting two [[Ray]]s and OR-ing the results. The `ev.side` bookkeeping above
+handles the same "supported across multiple platforms" use case without the sampling gaps of a ray pattern,
+so prefer it unless you need actual ground distance values.

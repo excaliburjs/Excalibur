@@ -42,6 +42,15 @@ Entities can be added as children of other entities, once added child entities m
 - `onPreUpdate` happens at the beginning of update
 - `onPostUpdate` happens at the end of the update
 
+### Killing an Entity
+
+[[Entity.kill|`entity.kill()`]] flips the entity's `isActive` flag to `false` and queues it for removal —
+the actual array splice happens at the end of the current world update, after every system has finished
+iterating. This is the same deferred-removal invariant described in the
+[Scenes guide](/docs/scenes#removing-entities-from-a-scene): killing is safe to call mid-update, including
+from inside a collision handler or another entity's update loop. [[Entity.isKilled|`isKilled()`]] reports
+the post-`kill` state (`true` once `kill()` has been called).
+
 ## Components
 
 Components can be added and removed from an entity. Only 1 instance of a component type can be part of an entity at at time.

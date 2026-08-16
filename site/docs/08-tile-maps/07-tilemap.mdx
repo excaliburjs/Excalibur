@@ -57,6 +57,79 @@ for (let tile of tilemap.tiles) {
 
 <IFrameEmbed src="https://excaliburjs.com/excalibur-snippets/tilemap/"/>
 
+## Per-Tile Pointer Events
+
+Every [[Tile]] has its own [[EventEmitter|event emitter]] and supports the same pointer events as an actor:
+`pointerdown`, `pointerup`, `pointermove`, `pointercancel`, `pointerenter`, and `pointerleave`. This makes
+per-tile hover, click, and high-light patterns built-in — no manual raycast or bounds test needed.
+
+```typescript
+const tilemap = new ex.TileMap({ rows: 10, columns: 10, tileWidth: 16, tileHeight: 16 });
+
+for (const tile of tilemap.tiles) {
+  tile.on('pointerenter', (pe: ex.PointerEvent) => {
+    tile.addGraphic(highlightSprite);
+  });
+  tile.on('pointerleave', (pe: ex.PointerEvent) => {
+    tile.clearGraphics();
+  });
+  tile.on('pointerdown', (pe: ex.PointerEvent) => {
+    tile.addGraphic(selectedSprite);
+  });
+}
+```
+
+The dispatch is efficient: [[TileMap]] uses [[TileMap.getTileByPoint|getTileByPoint]] to find the tile under
+each pointer and routes the event straight to that tile, so even large tilemaps avoid a per-frame scan. If
+your high-light logic only needs the hovered tile each frame (rather than enter/leave signals), you can poll
+directly:
+
+```typescript
+const hovered = tilemap.getTileByPoint(engine.input.pointers.primary.lastWorldPos);
+```
+
+:::note
+The pointer event also fires `pointerenter` / `pointerleave` when the pointer crosses tile boundaries, even
+while staying inside the tilemap as a whole. Use the tile-level events for hover-tooltips, placement
+previews, and per-tile clicks. Subscribe on the [[TileMap]] itself if you only care about pointer activity
+inside the map (not which specific tile).
+:::
+
+Isometric tilemaps expose an equivalent event set via `IsometricTilePointerEvents`.
+
+## Solving Tile-Seam Sticking
+
+When an actor rests on a row of solid tiles and moves horizontally, it can catch on each tile seam — the
+solver sees a tiny horizontal overlap at the next tile's edge and tries to resolve it before the floor
+contact, producing a "sticking" stutter. Excalibur ships a bias-based fix.
+
+[[ContactSolveBias]] tells the solver to prefer certain contact directions first. For platformers with
+up/down gravity, set [[ContactSolveBias.VerticalFirst|VerticalFirst]] so floor contacts resolve before seam
+contacts — the floor lift then cancels the small horizontal overlap before it sticks.
+
+```typescript
+const game = new ex.Engine({
+  width: 1000,
+  height: 1000,
+  physics: {
+    solver: ex.SolverStrategy.Arcade,
+    arcade: {
+      contactSolveBias: ex.ContactSolveBias.VerticalFirst
+    }
+  }
+});
+```
+
+:::note
+`contactSolveBias` is available on both the `arcade` and `realistic` physics config blocks. The default is
+[[ContactSolveBias.None|None]], which sorts contacts by distance only. [[ContactSolveBias.HorizontalFirst|
+HorizontalFirst]] is the inverse — prefer horizontal contacts first, useful for side-scrollers with
+left/right-dominant forces.
+:::
+
+For games with left/right gravity (rare) or that prioritize wall-jumping precision over floor slides, pick
+the matching bias or leave the default `None`.
+
 ## Tiled plugin
 
 Excalibur has a Tiled map plugin https://github.com/excaliburjs/excalibur-tiled/ for loading `.tmx` maps.

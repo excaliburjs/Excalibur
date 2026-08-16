@@ -238,6 +238,37 @@ Actors have the following **extra** events you can subscribe to:
 - `pointerdragmove` - When a pointer drags an actor
 - `pointerdragend` - When a pointer ends a drag on an actor
 
+### Propagation and Cancelling Pointer Events
+
+When a pointer event targets overlapping actors, Excalibur dispatches to each actor in z-order (front-most
+first). Ordinarily every actor whose bounds contain the pointer receives the event. To stop further actors
+from handling the same event, call [[Input.PointerEvent.cancel|`event.cancel()`]] inside your handler:
+
+```ts twoslash
+// @include: ex
+// ---cut---
+class Hud extends ex.Actor {
+  constructor() {
+    super();
+    // A modal/dialog covering the screen: swallow clicks so the game underneath does not receive them
+    this.on('pointerdown', (pe: ex.PointerEvent) => {
+      pe.cancel();
+      console.log('HUD absorbed the click');
+    });
+  }
+}
+```
+
+Calling `cancel()` sets the event's `active` flag to `false`; any lower-z actors that would have received
+the same event later in the dispatch loop skip it entirely. Down, up, move, enter, leave, cancel, and wheel
+events all respect this flag.
+
+:::note
+`cancel()` is **not** the same as the legacy `stopPropagation()` found on [[GameEvent]]. Modern pointer
+events do not bubble up a DOM-style tree — they fan out to overlapping actors in z-order. `cancel()` is the
+propagation-stop equivalent for this dispatch model.
+:::
+
 ## Checking the Pointer Type
 
 The primary pointer can be a mouse, stylus, or single finger touch event. You

@@ -118,3 +118,39 @@ animation.events.on('end', (a) => {
   console.log('ended')
 })
 ```
+
+### Replaying an Animation
+
+Animations that use the [[AnimationStrategy.End|End]] or [[AnimationStrategy.Freeze|Freeze]] strategies emit
+`end` once when they finish. To play the animation again, call [[Animation.reset]] from inside the `end`
+handler — it rewinds the current frame to `0` and clears the `done` flag so the animation can run once more.
+This is safe to call from within the `end` handler: Excalibur guards against the in-flight frame advance so
+the reset position wins out.
+
+```ts twoslash
+// @include: ex
+// @include: animation
+// ---cut---
+animation.strategy = ex.AnimationStrategy.End;
+animation.events.on('end', (a) => {
+  a.reset();
+});
+```
+
+To jump the animation to a specific frame on demand (for example to restart from the first frame), use
+[[Animation.goToFrame]]:
+
+```ts twoslash
+// @include: ex
+// @include: animation
+// ---cut---
+animation.goToFrame(0);
+```
+
+If the [[Animation]] lives inside a [[GraphicsGroup]], calling [[GraphicsGroup.reset]] forwards the reset to
+any nested animations so the same replay pattern works through nested graphics.
+
+:::note
+Only the `End` and `Freeze` strategies emit `end`. The `Loop` and `PingPong` strategies never finish and
+emit the `loop` event each cycle instead — they don't need `reset()` to keep playing.
+:::

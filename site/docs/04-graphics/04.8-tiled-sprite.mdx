@@ -1,0 +1,147 @@
+---
+title: Tiled Sprite
+slug: /tiled-sprite
+section: Graphics
+---
+
+```twoslash include ex
+// @module: esnext
+// @allowUmdGlobalAccess
+/// <reference path="../src/engine/excalibur.d.ts" />
+```
+
+## Overview
+
+A [[TiledSprite]] repeats an image source across a region of a given `width` and `height`. This is useful
+for scrolling backgrounds, repeating ground textures, tiled floors, and any case where a single sprite
+should fill a larger area by repetition rather than scaling.
+
+Under the hood, `TiledSprite` draws the source image into a fresh `<canvas>` and wraps it in a new
+[[ImageSource]] using the requested [[ImageWrapping]] mode — by default [[ImageWrapping.Repeat]], which is
+what makes it "tile". This differs from a plain [[Sprite]], whose [[ImageSource]] defaults to
+[[ImageWrapping.Clamp]] (no repetition).
+
+## Configuration
+
+[[TiledSprite]] extends [[Sprite]] and accepts a [[TiledSpriteOptions]] object:
+
+```typescript
+export interface TiledSpriteOptions {
+  /** Image source to tile */
+  image: ImageSource;
+  /** Optionally crop a sub-region of the source image */
+  sourceView?: SourceView;
+  /** Optionally override the pixel filtering mode */
+  filtering?: ImageFiltering;
+  /**
+   * Optionally override the image wrapping mode. The default wrapping for TiledSprite is Repeat.
+   * Pass an { x, y } pair to control each axis independently.
+   */
+  wrapping?: ImageWrapConfiguration | ImageWrapping;
+  /** Total width in pixels to tile the image across */
+  width: number;
+  /** Total height in pixels to tile the image across */
+  height: number;
+}
+```
+
+The `width` and `height` fields define the full destination region; the source image is repeated to fill
+that region. Because `TiledSprite` extends [[Sprite]], you can use it anywhere a [[Graphic]] is accepted —
+on an actor via `this.graphics.use(...)` or inside a [[GraphicsGroup]].
+
+## Wrapping Modes
+
+The [[ImageWrapping]] enum controls how the source image repeats:
+
+```typescript
+export enum ImageWrapping {
+  Clamp = 'Clamp',     // No repetition; edges clamp (default for ImageSource)
+  Repeat = 'Repeat',   // Tile the image end-to-end (default for TiledSprite)
+  Mirror = 'Mirror'    // Tile, flipping the image each repetition
+}
+```
+
+You can pass a single `ImageWrapping` value to apply the same mode on both axes, or an
+`ImageWrapConfiguration` (`{ x, y }`) to control each axis independently:
+
+```ts twoslash
+// @include: ex
+// ---cut---
+// Repeat on both axes (the default)
+const ground = new ex.TiledSprite({ image: groundImage, width: 800, height: 200 });
+
+// Repeat horizontally, clamp vertically
+const banner = new ex.TiledSprite({
+  image: bannerImage,
+  width: 1000,
+  height: 64,
+  wrapping: { x: ex.ImageWrapping.Repeat, y: ex.ImageWrapping.Clamp }
+});
+
+// Mirror each repetition for a seamless pattern
+const backdrop = new ex.TiledSprite({
+  image: patternImage,
+  width: 1024,
+  height: 768,
+  wrapping: ex.ImageWrapping.Mirror
+});
+```
+
+## Usage
+
+The most direct way is to construct a [[TiledSprite]] from a loaded [[ImageSource]]:
+
+```ts twoslash
+// @include: ex
+// ---cut---
+const groundTile = new ex.ImageSource('./ground.png');
+
+class GroundActor extends ex.Actor {
+  constructor() {
+    super({ pos: ex.vec(400, 300) });
+    const tiled = new ex.TiledSprite({
+      image: groundTile,
+      width: 800,
+      height: 200
+    });
+    this.graphics.use(tiled);
+  }
+}
+```
+
+### From an existing Sprite
+
+Use [[TiledSprite.fromSprite]] to wrap a sprite you already have:
+
+```ts twoslash
+// @include: ex
+// ---cut---
+const sprite = new ex.Sprite({ image: groundTile });
+const tiled = ex.TiledSprite.fromSprite(sprite, { width: 800, height: 200 });
+```
+
+### From a SpriteSheet frame
+
+[[SpriteSheet.getTiledSprite]] builds a [[TiledSprite]] from a specific cell in a sprite sheet — handy when
+your tile graphics live in an atlas:
+
+```ts twoslash
+// @include: ex
+// ---cut---
+const sheet = ex.SpriteSheet.fromImageSource({
+  image: groundTile,
+  grid: { rows: 1, columns: 2, spriteWidth: 16, spriteHeight: 16 }
+});
+
+const tiledGround = sheet.getTiledSprite(1, 0, {
+  width: 800,
+  height: 200,
+  wrapping: { x: ex.ImageWrapping.Repeat, y: ex.ImageWrapping.Clamp }
+});
+```
+
+## Animations
+
+For a tiling **animation** (each frame repeated across the region), use [[TiledAnimation]] which applies the
+same wrapping strategy to every frame of an [[Animation]]. Like `TiledSprite`, its wrapping defaults to
+[[ImageWrapping.Repeat]].
