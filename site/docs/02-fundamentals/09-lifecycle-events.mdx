@@ -90,7 +90,7 @@ sequenceDiagram
     rect rgb(245, 245, 245)
     Note over Clock: Pre-frame
     Clock->>Engine: emit('preframe') — PreFrameEvent(stats.prevFrame)
-    Note over Engine: ⏱ only event, no onPreFrame override exists
+    Note over Engine: event-only, no onPreFrame override exists
     end
 
     rect rgb(232, 240, 254)
@@ -99,61 +99,73 @@ sequenceDiagram
     Engine->>Engine: emit('preupdate') + onPreUpdate(engine, elapsed)
     Engine->>Scene: scene.update(engine, elapsed)
     Scene->>Scene: emit('preupdate') + onPreUpdate(engine, elapsed)
-    Scene->>Scene: timers.update() → emit('action') each tick,('complete') on finish
+    Scene->>Scene: timers.update() then emit('action') each tick
+    Scene->>Scene: timers emit('complete') on finish
     Scene->>World: world.update(SystemType.Update, elapsed)
 
-    Note over World,Entity: Entity lifecycle pass (EntityManager.updateEntities)
+    Note over World,Entity: Entity lifecycle pass EntityManager.updateEntities
     loop every active entity
-        Entity->>Entity: _initialize → emit('initialize') + onInitialize (once)
-        Entity->>Entity: _add → emit('add') + onAdd (once)
+        Entity->>Entity: _initialize then emit('initialize') + onInitialize once
+        Entity->>Entity: _add then emit('add') + onAdd once
         Entity->>Entity: emit('preupdate') + onPreUpdate
-        Note over Entity: Entity recurses children before _postupdate<br/>Actor does not recurse — children tracked by manager
+        Note over Entity: Entity recurses children before _postupdate
+        Note over Entity: Actor does not recurse — children tracked by manager
         Entity->>Entity: emit('postupdate') + onPostUpdate
-        Entity->>Entity: if killed → queued for deferred removal
+        Entity->>Entity: if killed then queued for deferred removal
     end
 
-    Note over World: Batch 1 — every Update system's preupdate?(scene, elapsed)
-    Note over World: Batch 2 — every Update system's update(elapsed) in priority order
+    Note over World: Batch 1 — every Update system preupdate? fires
+    Note over World: Batch 2 — every Update system update(elapsed) in priority order
 
     rect rgb(255, 248, 230)
-    Note over World: PauseSystem (Highest) — toggle PauseComponentTag
-    Note over World: ActionsSystem (Higher) — action queue tick<br/>→ entity.emit('actionstart' / 'actioncomplete')
-    Note over World: MotionSystem (Higher) — Euler integration + gravity<br/>(world space; captures _oldPos for interpolation)
-    Note over World: CollisionSystem (Higher) — broadphase → narrowphase → solve
-    Note over World: per physics.config.substep (default 1):
-    Note over World:   preSolve → collider.emit('precollision') + ('beforecollisionresolve' Realistic only)
-    Note over World:   actor.onPreCollisionResolve(self, other, side, contact) ← bridge via ColliderComponent
+    Note over World: PauseSystem Highest — toggle PauseComponentTag
+    Note over World: ActionsSystem Higher — action queue tick
+    Note over World:   entity emit('actionstart' / 'actioncomplete')
+    Note over World: MotionSystem Higher — Euler integration + gravity
+    Note over World:   world space, captures _oldPos for interpolation
+    Note over World: CollisionSystem Higher — broadphase then narrowphase then solve
+    Note over World: per physics.config.substep default 1
+    Note over World:   preSolve then collider emit('precollision')
+    Note over World:   Realistic only: collider emit('beforecollisionresolve')
+    Note over World:   actor.onPreCollisionResolve(self, other, side, contact)
     Note over World:   solveVelocity / solvePosition (no events)
-    Note over World:   postSolve → collider.emit('postcollision') + ('aftercollisionresolve' Realistic only)
+    Note over World:   postSolve then collider emit('postcollision')
+    Note over World:   Realistic only: collider emit('aftercollisionresolve')
     Note over World:   actor.onPostCollisionResolve(self, other, side, contact)
-    Note over World: after all substeps:
-    Note over World:   new contacts → collider.emit('collisionstart') + ('contactstart')<br/>actor.onCollisionStart(self, other, side, contact)
-    Note over World:   ended contacts → collider.emit('collisionend') + ('contactend')<br/>actor.onCollisionEnd(self, other, side, lastContact)
+    Note over World: after all substeps
+    Note over World:   new contacts then collider emit('collisionstart' / 'contactstart')
+    Note over World:   actor.onCollisionStart(self, other, side, contact)
+    Note over World:   ended contacts then collider emit('collisionend' / 'contactend')
+    Note over World:   actor.onCollisionEnd(self, other, side, lastContact)
     end
 
     rect rgb(232, 252, 230)
-    Note over World: PointerSystem (Higher) — picks via collider shape or graphics bounds
-    Note over World: processPointerToObject → dispatchEvents per object in z-order (top first)
+    Note over World: PointerSystem Higher — picks via collider or graphics bounds
+    Note over World: processPointerToObject then dispatchEvents per object in z-order
     loop per entity under pointer, top-z first
         Entity->>Entity: emit('pointerdown' / 'pointerup' / 'pointermove')
         Entity->>Entity: emit('pointerenter' / 'pointerleave' / 'pointercancel' / 'pointerwheel')
-        Entity->>Entity: emit('pointerdragstart' / 'pointerdragend' / 'pointerdragmove'/ 'pointerdragenter' / 'pointerdragleave')
+        Entity->>Entity: emit('pointerdragstart' / 'pointerdragend' / 'pointerdragmove')
+        Entity->>Entity: emit('pointerdragenter' / 'pointerdragleave')
         Note over Entity: call pe.cancel() here to skip lower-z targets
     end
-    Note over World: receivers.update() → receiver.emit('down' / 'up' / 'move' / 'cancel' / 'wheel')
+    Note over World: receivers.update() then receiver emit('down'/'up'/'move'/'cancel'/'wheel')
     Note over World: primary pointer also emits 'pointerdown' / 'pointerwheel' / 'wheel'
     end
 
-    Note over World: IsometricEntitySystem (Lower) — set z from elevation + pos.y
+    Note over World: IsometricEntitySystem Lower — set z from elevation + pos.y
 
-    Note over World: Batch 3 — every Update system's postupdate?(scene, elapsed)
-    Note over World: Deferred removals — processComponentRemovals() → component.onRemove(prevOwner)
-    Note over World: processEntityRemovals() → entity._remove(engine) → emit('remove') + onRemove
+    Note over World: Batch 3 — every Update system postupdate? fires
+    Note over World: Deferred removals — processComponentRemovals()
+    Note over World:   component.onRemove(prevOwner)
+    Note over World: processEntityRemovals() then entity._remove(engine)
+    Note over World:   entity emit('remove') + onRemove
 
     Scene->>Camera: camera.update(engine, elapsed) — runs AFTER world.update
-    Camera->>Camera: _initialize → emit('initialize') + onInitialize (once)
+    Camera->>Camera: _initialize then emit('initialize') + onInitialize once
     Camera->>Camera: emit('preupdate') + onPreUpdate(engine, elapsed)
-    Note over Camera: Euler integration, zoom/move lerp, shake, strategies<br/>CAUTION: fires after systems despite the "Pre" name
+    Note over Camera: Euler integration, zoom/move lerp, shake, strategies
+    Note over Camera: CAUTION: fires after systems despite the "Pre" name
     Camera->>Camera: emit('postupdate') + onPostUpdate(engine, elapsed)
     Scene->>Scene: emit('postupdate') + onPostUpdate(engine, elapsed)
     Scene->>Scene: scene.input.update()
@@ -169,79 +181,80 @@ sequenceDiagram
     Engine->>GC: beginDrawLifecycle() + clear()
     Clock->>Engine: scheduled callbacks timing='predraw'
     Engine->>Engine: emit('predraw') + onPreDraw(ctx, elapsed)
-    Note over GC: 🎨 screen pixel space — camera NOT applied
+    Note over GC: screen pixel space — camera NOT applied
     Engine->>Scene: scene.draw(ctx, elapsed)
     Scene->>Scene: emit('predraw') + onPreDraw(ctx, elapsed)
-    Note over GC: 🎨 screen pixel space
+    Note over GC: screen pixel space
     Scene->>World: world.update(SystemType.Draw, elapsed)
-    Note over World: (no entityManager.updateEntities in Draw phase)
-    Note over World: Batch 1 — every Draw system's preupdate?(scene, elapsed)
+    Note over World: no entityManager.updateEntities in Draw phase
+    Note over World: Batch 1 — every Draw system preupdate? fires
 
     rect rgb(232, 240, 254)
-    Note over World: OffscreenSystem (Higher) — world-space bbox test per entity
-    Note over World:   emit('exitviewport') when going off-screen<br/>emit('enterviewport') when coming back
+    Note over World: OffscreenSystem Higher — world-space bbox test per entity
+    Note over World:   emit('exitviewport') when going off-screen
+    Note over World:   emit('enterviewport') when coming back
     end
 
     rect rgb(255, 240, 240)
-    Note over World: GraphicsSystem (Average) — main render pass
-    GC->>GC: save()  — push outer (camera) scope
+    Note over World: GraphicsSystem Average — main render pass
+    GC->>GC: save() — push outer camera scope
     Camera->>GC: ctx.multiply(camera.transform)
-    Note over GC: 🎨 WORLD SPACE (interpolated if fixed-update on)
+    Note over GC: WORLD SPACE (interpolated if fixed-update on)
     loop per entity in ascending globalZ
         Entity->>Entity: emit('pretransformdraw') + graphics.onPreTransformDraw
-        Note over GC: 🎨 world space — entity transform not yet applied
+        Note over GC: world space — entity transform not yet applied
         alt CoordPlane.Screen entity
-            GC->>GC: restore() (drop camera) + save() + translate(contentAreaOffset)
-            Note over GC: 🎨 SCREEN space — camera gone, content-area offset applied
+            GC->>GC: restore() then save() then translate(contentAreaOffset)
+            Note over GC: SCREEN space — camera gone, content-area offset applied
         end
-        GC->>GC: _applyTransform(entity) — translate / scale / rotate by ancestors + self
-        Note over GC: 🎨 ENTITY-LOCAL SPACE — (0,0) is the entity's pos
+        GC->>GC: _applyTransform(entity) — translate/scale/rotate by ancestors + self
+        Note over GC: ENTITY-LOCAL SPACE — 0,0 is the entity's pos
         Entity->>Entity: emit('predraw') + graphics.onPreDraw(ctx, elapsed)
-        Note over GC: 🎨 entity-local space (screen-relative local for CoordPlane.Screen)
+        Note over GC: entity-local (screen-relative local for CoordPlane.Screen)
         Entity->>Entity: _drawGraphicsComponent — graphic.draw(ctx, offsetX, offsetY)
-        Note over GC: 🎨 entity-local space — actual pixels drawn here
+        Note over GC: entity-local — actual pixels drawn here
         Entity->>Entity: emit('postdraw') + graphics.onPostDraw(ctx, elapsed)
-        Note over GC: 🎨 entity-local space — same save/restore scope as onPreDraw
+        Note over GC: entity-local — same save/restore scope as onPreDraw
         GC->>GC: restore() — undo entity transform
         alt CoordPlane.Screen entity
-            GC->>GC: save() + camera.draw again — restore world space
+            GC->>GC: save() then camera.draw again — restore world space
         end
         Entity->>Entity: emit('posttransformdraw') + graphics.onPostTransformDraw
-        Note over GC: 🎨 world space for BOTH coord planes
+        Note over GC: world space for BOTH coord planes
     end
-    GC->>GC: restore() — pop outer (camera) scope
-    Note over GC: 🎨 back to screen pixel space
+    GC->>GC: restore() — pop outer camera scope
+    Note over GC: back to screen pixel space
     end
 
     rect rgb(240, 240, 240)
-    Note over World: DebugSystem (Lowest) — only when engine.isDebug
+    Note over World: DebugSystem Lowest — only when engine.isDebug
     Note over World: draws transform / body / collider overlays per entity
-    Note over World: Batch 3 — Draw system postupdate?(scene, elapsed) — DebugSystem.flush(ctx)
+    Note over World: Batch 3 — Draw system postupdate? — DebugSystem.flush(ctx)
     end
 
-    Note over Scene: if engine.isDebug: scene.debugDraw(ctx) — no-op body
-    Scene->>Scene: emit('predebugdraw') + ('postdebugdraw')
-    Note over GC: 🎨 screen pixel space (naked)
+    Note over Scene: if engine.isDebug then scene.debugDraw(ctx) — no-op body
+    Scene->>Scene: emit('predebugdraw') then emit('postdebugdraw')
+    Note over GC: screen pixel space (naked)
     Scene->>Scene: emit('postdraw') + onPostDraw(ctx, elapsed)
-    Note over GC: 🎨 screen pixel space
+    Note over GC: screen pixel space
     Engine->>Engine: scheduled callbacks timing='postdraw'
     Engine->>Engine: emit('postdraw') + onPostDraw(ctx, elapsed)
-    Note over GC: 🎨 screen pixel space — flush() runs next
+    Note over GC: screen pixel space — flush() runs next
     Engine->>GC: flush() + endDrawLifecycle()
     end
 
     rect rgb(245, 245, 245)
     Note over Clock: Post-frame
     Clock->>Engine: emit('postframe') — PostFrameEvent(stats.currFrame)
-    Note over Engine: ⏱ only event, no onPostFrame override exists
+    Note over Engine: event-only, no onPostFrame override exists
     end
 ```
 
 Legend:
-- **✏️ Override hook** — `onX` methods shown alongside their matching event emit.
-- **🎨Coordinate space** annotations describe the active transform on the `ExcaliburGraphicsContext` at the moment the adjacent hook/event fires.
-- **`onPreFrame*` / `onPostFrame*`** have no override — they are event-only.
-- The Camera column runs **after** the world update despite its `onPreUpdate` name — see [Commongotchas](#common-gotchas) below.
+- **Override hook** — `onX` methods shown alongside their matching event emit.
+- **Coordinate space** annotations describe the active transform on the `ExcaliburGraphicsContext` at the moment the adjacent hook/event fires.
+- **`onPreFrame` / `onPostFrame`** have no override — they are event-only.
+- The Camera column runs **after** the world update despite its `onPreUpdate` name — see [Common gotchas](#common-gotchas) below.
 
 ## Lifecycle override hooks
 
