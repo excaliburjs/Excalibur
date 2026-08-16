@@ -11,6 +11,7 @@ import { Color } from '../color';
 import { ScreenElement } from '../screen-element';
 import { Canvas } from '../graphics/canvas';
 import { Logger } from '../util/log';
+import { BoundingBox } from '../collision/bounding-box';
 import { DarknessComponent } from './darkness-component';
 import { AmbientLightComponent } from './ambient-light-component';
 import { PointLightComponent } from './point-light-component';
@@ -22,7 +23,11 @@ type CircleOccluder = { kind: 'circle'; center: Vector; radius: number };
 type Occluder = PolyOccluder | CircleOccluder;
 
 type WorldToScreen = (worldPos: Vector) => Vector;
-type RoomClip = { x: number; y: number; w: number; h: number };
+
+/** Finds the room darkness rect (if any) that contains a screen-space point, used to clip light/shadow drawing */
+function findRoomClip(screenPos: Vector, roomClips: BoundingBox[]): BoundingBox | undefined {
+  return roomClips.find((clip) => clip.contains(screenPos));
+}
 
 const DEFAULT_Z_INDEX = 100;
 /** World-pixel padding added around the camera frustum when culling lights/occluders */
@@ -38,14 +43,15 @@ const SHADOW_MID_OPACITY = 0.6;
 
 /** Projects local vertex chains out into full absolute world coordinates. Entity scale is not applied. */
 function localToWorld(vertices: Vector[], worldPos: Vector, rotation: number): Vector[] {
-  const cos = Math.cos(rotation);
-  const sin = Math.sin(rotation);
-  return vertices.map((v) => new Vector(worldPos.x + v.x * cos - v.y * sin, worldPos.y + v.x * sin + v.y * cos));
+  return vertices.map((v) => v.rotate(rotation).add(worldPos));
 }
 
-/** Translates an Excalibur Color object into standard CSS rgba string format. */
+/**
+ * Translates an Excalibur Color object into standard CSS rgba string format with an explicit alpha
+ * override (rather than the Color's own `.a`, since callers compute alpha dynamically per light/veil).
+ */
 function colorToRgba(color: Color, alpha: number): string {
-  return `rgba(${color.r}, ${color.g}, ${color.b}, ${alpha})`;
+  return `rgba(${color.r.toFixed(0)}, ${color.g.toFixed(0)}, ${color.b.toFixed(0)}, ${alpha})`;
 }
 
 /**
@@ -347,17 +353,15 @@ export class LightingSystem extends System {
     light: PointLightComponent | ConeLightComponent,
     screenPos: Vector,
     effectiveZoom: number,
-    roomClips: RoomClip[],
+    roomClips: BoundingBox[],
     wedge?: { start: number; end: number }
   ): void {
-    const activeClip = roomClips.find(
-      (rect) => screenPos.x >= rect.x && screenPos.x <= rect.x + rect.w && screenPos.y >= rect.y && screenPos.y <= rect.y + rect.h
-    );
+    const activeClip = findRoomClip(screenPos, roomClips);
 
     ctx.save();
     if (activeClip) {
       ctx.beginPath();
-      ctx.rect(activeClip.x, activeClip.y, activeClip.w, activeClip.h);
+      ctx.rect(activeClip.left, activeClip.top, activeClip.width, activeClip.height);
       ctx.clip();
     }
     ctx.globalCompositeOperation = 'source-over';
@@ -419,7 +423,7 @@ export class LightingSystem extends System {
       return colorToRgba(color, effectiveAlpha);
     };
 
-    const roomClips: RoomClip[] = [];
+    const roomClips: BoundingBox[] = [];
 
     for (const e of this._darknessQuery.entities) {
       const d = e.get(DarknessComponent)!;
@@ -435,17 +439,11 @@ export class LightingSystem extends System {
       const hh = (d.height / 2) * effectiveZoom;
       const center = worldToScreen(xf.pos);
 
-      const rect = {
-        x: center.x - hw,
-        y: center.y - hh,
-        w: hw * 2,
-        h: hh * 2
-      };
-
+      const rect = BoundingBox.fromDimension(hw * 2, hh * 2, Vector.Half, center);
       roomClips.push(rect);
 
       ctx.fillStyle = darknessFill(d);
-      ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+      ctx.fillRect(rect.left, rect.top, rect.width, rect.height);
     }
 
     const camPos = camera.pos;
@@ -468,13 +466,9 @@ export class LightingSystem extends System {
       const xf = e.get(TransformComponent)!;
 
       if (comp.shape.kind === 'circle') {
-        const cos = Math.cos(xf.rotation);
-        const sin = Math.sin(xf.rotation);
-        const rotatedOffset = new Vector(comp.offset.x * cos - comp.offset.y * sin, comp.offset.x * sin + comp.offset.y * cos);
-
         occluders.push({
           kind: 'circle',
-          center: xf.pos.add(rotatedOffset),
+          center: xf.pos.add(comp.offset.rotate(xf.rotation)),
           radius: comp.shape.radius
         });
       } else {
@@ -493,18 +487,16 @@ export class LightingSystem extends System {
       }
       this._offscreenCtx.clearRect(0, 0, w, h);
 
-      const activeClip = roomClips.find(
-        (rect) => screenPos.x >= rect.x && screenPos.x <= rect.x + rect.w && screenPos.y >= rect.y && screenPos.y <= rect.y + rect.h
-      );
+      const activeClip = findRoomClip(screenPos, roomClips);
 
       if (activeClip) {
         this._offscreenCtx.save();
         this._offscreenCtx.beginPath();
-        this._offscreenCtx.rect(activeClip.x, activeClip.y, activeClip.w, activeClip.h);
+        this._offscreenCtx.rect(activeClip.left, activeClip.top, activeClip.width, activeClip.height);
         this._offscreenCtx.clip();
       }
 
-      const shadowReach = activeClip ? Math.sqrt(activeClip.w ** 2 + activeClip.h ** 2) : Math.sqrt(w ** 2 + h ** 2);
+      const shadowReach = activeClip ? Math.sqrt(activeClip.width ** 2 + activeClip.height ** 2) : Math.sqrt(w ** 2 + h ** 2);
 
       this._offscreenCtx.globalCompositeOperation = 'source-over';
       drawShape(this._offscreenCtx);
@@ -519,7 +511,7 @@ export class LightingSystem extends System {
       ctx.save();
       if (activeClip) {
         ctx.beginPath();
-        ctx.rect(activeClip.x, activeClip.y, activeClip.w, activeClip.h);
+        ctx.rect(activeClip.left, activeClip.top, activeClip.width, activeClip.height);
         ctx.clip();
       }
       ctx.globalCompositeOperation = 'destination-out';
