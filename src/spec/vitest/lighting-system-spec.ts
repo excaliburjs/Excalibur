@@ -47,6 +47,14 @@ describe('A Lighting System', () => {
       const lightingSystems = engine.currentScene.world.systemManager.systems.filter((s) => s instanceof ex.LightingSystem);
       expect(lightingSystems).toEqual([lighting]);
     });
+
+    it('still adds a FlickerSystem when a custom LightingSystem instance is pre-added', async () => {
+      engine = TestUtils.engine({ width: 100, height: 100, lighting: true });
+      engine.currentScene.world.add(new ex.LightingSystem({ zIndex: 50 }));
+      await engine.currentScene._initialize(engine);
+
+      expect(engine.currentScene.world.systemManager.get(ex.FlickerSystem)).toBeInstanceOf(ex.FlickerSystem);
+    });
   });
 
   describe('provisioning', () => {
@@ -256,6 +264,17 @@ describe('A Lighting System', () => {
 
       const circle = new ex.LightOccluderComponent({ shape: { kind: 'circle', radius: 5 }, offset: ex.vec(0, 10) });
       expect(circle.localVertices()).toEqual([]);
+    });
+
+    it('can clone an entity carrying a LightOccluderComponent', () => {
+      engine = TestUtils.engine({ width: 100, height: 100 });
+      const wall = new ex.Actor({ pos: ex.vec(10, 10), color: ex.Color.Gray });
+      wall.addComponent(new ex.LightOccluderComponent({ shape: { kind: 'box', width: 10, height: 10 }, offset: ex.vec(1, 2) }));
+
+      expect(() => wall.clone()).not.toThrow();
+      const clonedOccluder = wall.clone().get(ex.LightOccluderComponent);
+      expect(clonedOccluder.shape).toEqual({ kind: 'box', width: 10, height: 10 });
+      expect(clonedOccluder.offset).toEqual(ex.vec(1, 2));
     });
   });
 

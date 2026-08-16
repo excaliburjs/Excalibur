@@ -36,6 +36,14 @@ export class LightOccluderComponent extends Component {
     this.offset = options.offset ?? Vector.Zero;
   }
 
+  public clone(): LightOccluderComponent {
+    return new LightOccluderComponent({
+      shape: this.shape,
+      castShadows: this.castShadows,
+      offset: this.offset.clone()
+    });
+  }
+
   /**
    * Evaluates the bounding shape vertices in local space, factoring in local offsets.
    * Returns an empty array for circular primitives.

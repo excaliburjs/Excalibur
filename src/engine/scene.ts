@@ -363,9 +363,13 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
         this.camera._initialize(engine);
 
         // Lighting is opt-in, skip provisioning the systems entirely when disabled
-        if (this.engine.lighting.enabled && !this.world.systemManager.get(LightingSystem)) {
-          this.world.add(new FlickerSystem());
-          this.world.add(new LightingSystem());
+        if (this.engine.lighting.enabled) {
+          if (!this.world.systemManager.get(FlickerSystem)) {
+            this.world.add(new FlickerSystem());
+          }
+          if (!this.world.systemManager.get(LightingSystem)) {
+            this.world.add(new LightingSystem());
+          }
         }
 
         this.world.systemManager.initialize();
