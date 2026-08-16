@@ -58,3 +58,22 @@ engine.input.keyboard.on("press", (evt: KeyEvent) => {...});
 engine.input.keyboard.on("release", (evt: KeyEvent) => {...});
 engine.input.keyboard.on("hold", (evt: KeyEvent) => {...});
 ```
+
+### Synthesizing Keyboard Events
+
+You can synthesize keyboard input programmatically with [[Keyboard.triggerEvent]]. The method takes a
+direction (`"down"` or `"up"`), a [[Keys]] code, and an optional character string. The synthesized event
+routes through the same internal handlers as a real browser key event, so any `press`/`release`/`hold`
+subscriptions and `wasPressed`/`wasReleased`/`isHeld` state all update as if the player had pressed the key.
+
+This is useful for tutorials that demonstrate controls, scripted cut-scenes, on-screen keyboards, or
+unit-testing input-dependent logic.
+
+```ts
+// Synthesize pressing and releasing the Space key
+engine.input.keyboard.triggerEvent("down", ex.Keys.Space);
+engine.input.keyboard.triggerEvent("up", ex.Keys.Space);
+
+// The optional character argument populates the event's `key` field
+engine.input.keyboard.triggerEvent("down", ex.Keys.A, "a");
+```

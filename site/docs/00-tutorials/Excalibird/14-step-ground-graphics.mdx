@@ -4,7 +4,6 @@ slug: /step-14-ground-graphics
 section: Tutorial
 ---
 
-
 import Ground from '!!url-loader!./images/ground.png';
 
 # Step 14 - Ground Graphics
@@ -12,6 +11,12 @@ import Ground from '!!url-loader!./images/ground.png';
 Finally the ground graphics, feel free to use and remix.
 
 <img src={Ground} width="200px" style={{imageRendering: 'pixelated', border: 'solid'}} alt="pixel art pipe graphic"></img>
+
+:::tip
+Excalibur also ships a [[TiledSprite]] graphic that handles the destination size and wrapping for you —
+see the [Tiled Sprite guide](/docs/tiled-sprite) for a higher-level alternative to the manual
+`sourceView.width` + `destSize.width` approach shown below.
+:::
 
 We want the ground to tile and repeat horizontally we can take advantage of the `ex.ImageWrapping.Repeat` to accomplish this
 

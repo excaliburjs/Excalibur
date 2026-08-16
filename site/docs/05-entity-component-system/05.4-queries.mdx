@@ -47,10 +47,9 @@ entityB.addTag("tagB");
 game.currentScene.add(entityA);
 game.currentScene.add(entityB);
 
-const queryA = game.currentScene.world.queryTags(["tagA"]);
-const queryB = game.currentScene.world.queryTags(["tagB"]);
+const queryA = game.currentScene.world.query({ tags: { all: ["tagA"] } });
+const queryB = game.currentScene.world.query({ tags: { all: ["tagB"] } });
 
-const entityA = queryA.entities[0];
-const entityB = queryB.entities[0];
-
+console.log(entityA === queryA.entities[0]); // true
+console.log(entityB === queryB.entities[0]); // true
 ```

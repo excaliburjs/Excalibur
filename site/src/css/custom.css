@@ -60,3 +60,120 @@
 
 .snippet-resizer { display:flex; margin:0; padding:0; resize:both; overflow:hidden }
 .snippet-resizer > .snippet-resized { flex-grow:1; margin:0; padding:0; border:0 }
+
+/* ===================================================================
+ * Mermaid: Click-to-zoom wrapper
+ *
+ * The swizzled Mermaid component (site/src/theme/Mermaid/index.tsx) wraps
+ * every mermaid block in a hover-reveal zoom affordance and a fullscreen
+ * lightbox. Dense sequence diagrams (Lifecycle Events reference) become
+ * unreadable when shrunk to fit the doc column — click to pan inside the
+ * overlay at full SVG size.
+ * =================================================================== */
+.mermaid-zoomable {
+  position: relative;
+  cursor: zoom-in;
+  display: inline-block;
+  width: 100%;
+}
+
+.mermaid-zoomable .mermaid-zoom-button {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: var(--ifm-color-emphasis-100, rgba(0, 0, 0, 0.07));
+  color: var(--ifm-font-color-base, #1c1e21);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, background 0.15s ease;
+}
+
+.mermaid-zoomable:hover .mermaid-zoom-button,
+.mermaid-zoomable:focus-within .mermaid-zoom-button {
+  opacity: 1;
+}
+
+.mermaid-zoomable .mermaid-zoom-button:hover {
+  background: var(--ifm-color-emphasis-200, rgba(0, 0, 0, 0.15));
+}
+
+/* The lightbox: fixed fullscreen backdrop with the SVG at native size. */
+.mermaid-zoom-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--ifm-z-index-overlay, 1000);
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+}
+
+.mermaid-zoom-content {
+  /* Allow the SVG to render at its intrinsic size and pan when larger
+     than the viewport. `pointer-events: auto` lets the inner SVG consume
+     clicks so they don't inadvertently close the overlay. */
+  max-width: 92vw;
+  max-height: 88vh;
+  overflow: auto;
+  background: var(--ifm-background-color, #fff);
+  border-radius: 8px;
+  padding: 1rem;
+  cursor: default;
+  pointer-events: auto;
+}
+
+.mermaid-zoom-content svg {
+  max-width: none !important;
+  font-size: 18px;
+  display: block;
+}
+
+.mermaid-zoom-close {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  cursor: pointer;
+  z-index: 1;
+  transition: background 0.15s ease;
+}
+
+.mermaid-zoom-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* ===================================================================
+ * Mermaid: in-page diagram tweaks
+ *
+ * The docusaurus theme-mermaid module CSS sets `max-width: 100%` on every
+ * SVG by default, which shrinks dense diagrams. We let wide diagrams pan
+ * horizontally in place; the zoom button above provides the full-size view.
+ * =================================================================== */
+.docusaurus-mermaid-container {
+  overflow-x: auto;
+}
+
+.docusaurus-mermaid-container > svg {
+  max-width: none !important;
+  min-width: 100%;
+  height: auto !important;
+  font-size: 18px;
+}
