@@ -11,18 +11,15 @@ interface SoundState {
 /**
  * Context handed to an {@apilink AudioGraphBuilder} so users can insert custom
  * Web Audio nodes (e.g. a {@apilink PannerNode} for spatial audio) into a
- * track's node graph right before playback starts.
+ * track's node graph. The builder runs once when the track is created; the
+ * effect nodes it returns are reused across pause/resume/seek so that runtime
+ * mutations made via captured references keep working for the track's lifetime.
  */
 export interface AudioGraphContext {
   /**
    * The shared {@apilink AudioContext} for this engine.
    */
   readonly audioContext: AudioContext;
-  /**
-   * The single-use {@apilink AudioBufferSourceNode} for this track. Its buffer,
-   * loop, playbackRate and detune (pitch) are already configured by Sound.
-   */
-  readonly source: AudioBufferSourceNode;
   /**
    * The Sound-managed output {@apilink GainNode}. Any custom graph must be
    * connected (directly or via the returned node) to this node so that volume
@@ -37,23 +34,29 @@ export interface AudioGraphContext {
 }
 
 /**
- * Builder invoked once per track right before playback starts. It lets users
- * customize the Web Audio node graph for custom audio effects (spatial audio,
- * filters, reverb, etc.).
+ * Builder invoked ONCE per track when it is created (i.e. on each fresh
+ * `Sound.play()`). It lets users insert custom Web Audio nodes for custom audio
+ * effects (spatial audio, filters, reverb, etc.). The returned effect nodes are
+ * reused across pause/resume/seek for the track's lifetime, so the caller can
+ * capture references and mutate them at runtime (e.g. move a panner).
  *
  * Return:
  *  - `void`/`undefined` for the default graph `source → volumeNode → destination`.
  *  - A single {@apilink AudioNode} to insert it as `source → node → volumeNode`.
  *  - An `{ input, output }` pair to insert an arbitrary multi-node chain as
- *    `source → input … output → volumeNode`.
+ *    `source → input … output → volumeNode`. Any intermediate nodes wired
+ *    between `input` and `output` are owned by the caller; Sound only tracks +
+ *    disconnects `input` and `output` on teardown.
  *
- * Sound performs all the wiring and tears down inserted nodes on stop/complete.
+ * Sound performs all wiring between `source`, the returned nodes, and
+ * `volumeNode`, and disconnects them on stop/complete.
  *
- * Example (spatial audio via a panner the caller can mutate later):
+ * Example (spatial audio via a panner the caller can mutate later — the
+ * captured reference stays valid across pause/resume):
  * ```typescript
  * const sound = new ex.Sound('/sfx/explosion.ogg');
  * let panner: PannerNode;
- * sound.onPlay = ({ audioContext, source, volumeNode }) => {
+ * sound.onPlay = ({ audioContext }) => {
  *   panner = audioContext.createPanner();
  *   panner.positionX.value = 10;
  *   return panner;
@@ -75,8 +78,15 @@ export class SoundTrack {
   private _volumeNode = this._audioContext.createGain();
 
   /**
-   * Effect nodes inserted by an {@apilink AudioGraphBuilder}, tracked so they
-   * can be disconnected on teardown.
+   * Head/tail of the persistent effect graph (built once). If `_effectInput` is
+   * null the default graph (source → volumeNode) is used. Otherwise
+   * `source → _effectInput … → volumeNode`.
+   */
+  private _effectInput: AudioNode | null = null;
+  /**
+   * Effect nodes tracked for teardown disconnect (the returned input/output, or
+   * a single returned node). Intermediate nodes in a caller-built chain are the
+   * caller's responsibility.
    */
   private _effectNodes: AudioNode[] = [];
 
@@ -87,7 +97,9 @@ export class SoundTrack {
       states: {
         PLAYING: {
           onEnter: ({ data }) => {
-            // Buffer nodes are single use
+            // Buffer source nodes are single use; allocate a fresh one each
+            // (re)start, but reuse the persistent effect graph so captured
+            // references keep working.
             this._createNewBufferSource();
             this._handleEnd();
             if (this.loop) {
@@ -105,9 +117,8 @@ export class SoundTrack {
             if (to === 'STOPPED') {
               this._playingFuture.resolve(true);
             }
-            // Whenever you're not playing... you stop!
-            this._instance.onended = null; // disconnect the wired on-end handler
-            this._disconnectGraph();
+            // Whenever you're not playing... the single-use source is stopped!
+            this._disconnectSource();
             this._instance = null as any;
           },
           transitions: ['STOPPED', 'PAUSED', 'SEEK']
@@ -124,6 +135,8 @@ export class SoundTrack {
             data.pausedAt = 0;
             data.startedAt = 0;
             this._playingFuture.resolve(true);
+            // Fully tear down the graph when stopped.
+            this._disposeGraph();
           },
           transitions: ['PLAYING', 'PAUSED', 'SEEK']
         },
@@ -145,44 +158,33 @@ export class SoundTrack {
   );
 
   /**
-   * Optional custom node-graph builder for this track. Usually supplied by the
-   * owning {@apilink Sound} (resolved from `Sound.onPlay` / `PlayOptions.onPlay`).
+   * @param _src       The decoded audio buffer to play.
+   * @param _onPlay    Optional custom node-graph builder invoked ONCE here.
+   *                   The returned effect nodes are reused across pause/resume.
    */
   constructor(
     private _src: AudioBuffer,
     private _onPlay?: AudioGraphBuilder
   ) {
+    // Build the persistent effect graph once and connect it to volumeNode.
+    this._volumeNode.connect(this._audioContext.destination);
+    this._buildEffectGraph();
+    // Allocate the initial single-use source so `loop`/`playbackRate`/`pitch`
+    // setters have a node to mutate before the first play.
     this._createNewBufferSource();
   }
 
   /**
-   * Build a fresh single-use {@apilink AudioBufferSourceNode}, configure it, and
-   * wire the node graph (default or custom via {@apilink AudioGraphBuilder}).
+   * Build the persistent effect graph by invoking the {@apilink AudioGraphBuilder}
+   * ONCE. Wires `effectOutput → volumeNode`. Called only from the constructor.
    */
-  private _createNewBufferSource() {
-    // Tear down any previous graph before allocating a new one.
-    this._disconnectGraph();
-
-    this._instance = this._audioContext.createBufferSource();
-    this._instance.buffer = this._src;
-    this._instance.loop = this.loop;
-    this._instance.playbackRate.value = this._playbackRate;
-    this._instance.detune.value = this._pitch;
-    this._wireGraph();
-    this._volumeNode.connect(this._audioContext.destination);
-  }
-
-  /**
-   * Wire `source → [effects] → volumeNode` per the {@apilink AudioGraphBuilder}.
-   * Sound performs all wiring so volume management is preserved.
-   */
-  private _wireGraph() {
-    const source = this._instance;
-    const volumeNode = this._volumeNode;
+  private _buildEffectGraph() {
     const builder = this._onPlay;
+    const volumeNode = this._volumeNode;
 
     if (!builder) {
-      source.connect(volumeNode);
+      this._effectInput = null;
+      this._effectNodes = [];
       return;
     }
 
@@ -190,36 +192,62 @@ export class SoundTrack {
     try {
       result = builder({
         audioContext: this._audioContext,
-        source,
         volumeNode,
         track: this
       });
     } catch (e) {
       // If a user builder throws, fall back to the default graph so audio still plays.
-      source.connect(volumeNode);
+      this._effectInput = null;
+      this._effectNodes = [];
       return;
     }
 
     if (!result) {
-      source.connect(volumeNode);
-    } else if (typeof result === 'object' && 'input' in result && 'output' in result) {
+      this._effectInput = null;
+      this._effectNodes = [];
+    } else if (
+      typeof result === 'object' &&
+      'input' in result &&
+      'output' in result &&
+      typeof (result as { input: AudioNode }).input.connect === 'function'
+    ) {
       // Multi-node chain: source → input … output → volumeNode
-      source.connect(result.input);
-      result.output.connect(volumeNode);
-      this._effectNodes = [result.input, result.output];
+      const { input, output } = result as { input: AudioNode; output: AudioNode };
+      output.connect(volumeNode);
+      this._effectInput = input;
+      this._effectNodes = [input, output];
     } else {
       // Single inserted AudioNode: source → node → volumeNode
-      source.connect(result as AudioNode);
-      (result as AudioNode).connect(volumeNode);
-      this._effectNodes = [result as AudioNode];
+      const node = result as AudioNode;
+      node.connect(volumeNode);
+      this._effectInput = node;
+      this._effectNodes = [node];
     }
   }
 
   /**
-   * Disconnect the current source and any inserted effect nodes. The
-   * Sound-managed `volumeNode` is left connected to the destination.
+   * Allocate a fresh single-use {@apilink AudioBufferSourceNode}, configure it,
+   * and connect it into the persistent effect graph (or volumeNode). The effect
+   * graph must already exist (built once in the constructor).
    */
-  private _disconnectGraph() {
+  private _createNewBufferSource() {
+    // Stop/disconnect any previous single-use source (idempotent).
+    this._disconnectSource();
+
+    this._instance = this._audioContext.createBufferSource();
+    this._instance.buffer = this._src;
+    this._instance.loop = this.loop;
+    this._instance.playbackRate.value = this._playbackRate;
+    this._instance.detune.value = this._pitch;
+    // Connect source → effectInput (or volumeNode if default graph)
+    this._instance.connect(this._effectInput ?? this._volumeNode);
+  }
+
+  /**
+   * Stop + disconnect only the single-use source, leaving the persistent effect
+   * graph intact for reuse on resume/seek. Idempotent.
+   */
+  private _disconnectSource() {
     if (this._instance) {
       try {
         this._instance.onended = null;
@@ -229,6 +257,15 @@ export class SoundTrack {
         // source may already be stopped/disconnected; ignore
       }
     }
+  }
+
+  /**
+   * Fully dispose the persistent effect graph (called on stop / natural
+   * completion). Disconnects all tracked effect nodes and their edges to the
+   * Sound-managed `volumeNode`. Idempotent.
+   */
+  private _disposeGraph() {
+    this._disconnectSource();
     for (const node of this._effectNodes) {
       try {
         node.disconnect();
@@ -237,11 +274,14 @@ export class SoundTrack {
       }
     }
     this._effectNodes = [];
+    this._effectInput = null;
   }
 
   private _handleEnd() {
     if (!this.loop) {
       this._instance.onended = () => {
+        // On natural completion, dispose the graph so effect nodes are released.
+        this._disposeGraph();
         this._playingFuture.resolve(true);
       };
     }
@@ -259,6 +299,7 @@ export class SoundTrack {
       this._instance.loop = value;
       if (!this.loop) {
         this._instance.onended = () => {
+          this._disposeGraph();
           this._playingFuture.resolve(true);
         };
       }
@@ -370,11 +411,14 @@ export class SoundTrack {
 
   private _playbackRate = 1.0;
   public set playbackRate(playbackRate: number) {
-    this._instance.playbackRate.value = this._playbackRate = playbackRate;
+    this._playbackRate = playbackRate;
+    if (this._instance) {
+      this._instance.playbackRate.value = playbackRate;
+    }
   }
 
   public get playbackRate() {
-    return this._instance.playbackRate.value;
+    return this._playbackRate;
   }
 
   public scheduledStartTime = 0;

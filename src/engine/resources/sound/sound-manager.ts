@@ -89,7 +89,7 @@ export type ArraySoundsNames<T> = T extends readonly (infer E)[]
 
 export interface SoundManagerApi {
   setVolume(name: string, volume?: number): void;
-  play(name: string, volume?: number): Promise<void>;
+  play(name: string, volume?: number): Promise<boolean>;
   stop(name?: string): void;
   mute(name?: string): void;
   unmute(name?: string): void;
@@ -122,15 +122,17 @@ export class ChannelCollection<Channel extends string> implements SoundManagerAp
     }
   }
 
-  play(name: Channel, volume?: number): Promise<void> {
+  play(name: Channel, volume?: number): Promise<boolean> {
     volume ??= this.soundManager.defaultVolume;
     const playing: Promise<boolean>[] = [];
     const playedAudio = new Set<Sound>();
 
     const sounds = this.soundManager.getSoundsForChannel(name);
+    let anyDropped = false;
     for (const sound of sounds) {
       // Enforce manager-wide concurrent track cap on each play to bound total voices.
       if (this.soundManager._activeTrackCount() >= this.soundManager.maxConcurrentTracks) {
+        anyDropped = true;
         break;
       }
       if (playedAudio.has(sound) || this.soundManager._isMuted(sound)) {
@@ -142,7 +144,8 @@ export class ChannelCollection<Channel extends string> implements SoundManagerAp
       playedAudio.add(sound);
     }
 
-    return Promise.all(playing) as unknown as Promise<void>;
+    // Resolve true if every requested play went through; false if any was dropped.
+    return Promise.all(playing).then((results) => results.every((r) => r) && !anyDropped) as unknown as Promise<boolean>;
   }
 
   mute(name: Channel): void {
@@ -276,40 +279,45 @@ export class SoundManager<Channel extends string, SoundName extends string> impl
 
   /**
    * Resolve a bare {@apilink Sound} or a registered name to the underlying
-   * sound and whether it is tracked by this manager.
+   * sound, the name it is registered under, and whether it is tracked.
+   *
+   * For a bare Sound, lookup is by IDENTITY (not by the sound's own name) so an
+   * alias registered via `track('gold', coin)` resolves correctly even though
+   * `coin.name === 'coin'`.
    */
   private _resolve(soundOrName: Sound | string): { sound: Sound | undefined; tracked: boolean; name: string } {
     if (soundOrName instanceof Sound) {
-      const name = getSoundName(soundOrName);
-      const cfg = this._nameToConfig.get(name);
-      if (cfg && cfg.sound === soundOrName) {
-        return { sound: soundOrName, tracked: true, name };
+      // Search by identity so aliases work.
+      for (const [name, cfg] of this._nameToConfig) {
+        if (cfg.sound === soundOrName) {
+          return { sound: soundOrName, tracked: true, name };
+        }
       }
-      return { sound: soundOrName, tracked: false, name };
+      return { sound: soundOrName, tracked: false, name: getSoundName(soundOrName) };
     }
     const cfg = this._nameToConfig.get(soundOrName);
     return cfg ? { sound: cfg.sound, tracked: true, name: soundOrName } : { sound: undefined, tracked: false, name: soundOrName };
   }
 
-  public play(name: SoundName, volume?: number): Promise<void>;
-  public play(sound: Sound, volume?: number): Promise<void>;
-  public play(nameOrSound: SoundName | Sound, volume: number = this._defaultVolume): Promise<void> {
+  public play(name: SoundName, volume?: number): Promise<boolean>;
+  public play(sound: Sound, volume?: number): Promise<boolean>;
+  public play(nameOrSound: SoundName | Sound, volume: number = this._defaultVolume): Promise<boolean> {
     const r = this._resolve(nameOrSound);
     if (!r.sound) {
-      return Promise.resolve();
+      return Promise.resolve(false);
     }
 
     if (this._activeTrackCount() >= this.maxConcurrentTracks) {
       this._logger.warnOnce(`SoundManager: maxConcurrentTracks (${this.maxConcurrentTracks}) reached; dropping play of "${r.name}".`);
-      return Promise.resolve();
+      return Promise.resolve(false);
     }
 
     if (this._isMuted(r.sound)) {
-      return Promise.resolve();
+      return Promise.resolve(false);
     }
 
     const effectiveVolume = r.tracked ? volume * this._getEffectiveVolume(r.sound) : volume * this._defaultVolume;
-    return (r.sound as Sound).play(effectiveVolume) as unknown as Promise<void>;
+    return (r.sound as Sound).play(effectiveVolume);
   }
 
   public getSound(name: SoundName | AnyString): Sound | undefined;

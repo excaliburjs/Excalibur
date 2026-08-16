@@ -198,8 +198,9 @@ describe('Sound refactor: names, pitch, limiter, onPlay, SoundManager', () => {
       await new Promise<void>((done) => {
         s1.once('playbackstart', async () => {
           expect(s1.instanceCount()).toBe(1);
-          // s2 should be dropped by the manager cap
-          await mgr.play('test');
+          // s2 should be dropped by the manager cap (returns false)
+          const result = await mgr.play('test');
+          expect(result).toBe(false);
           expect(s2.instanceCount()).toBe(0);
           expect(s1.instanceCount()).toBe(1);
           mgr.stop();
@@ -207,6 +208,29 @@ describe('Sound refactor: names, pitch, limiter, onPlay, SoundManager', () => {
         });
         mgr.play('preview'); // starts s1
       });
+    });
+  });
+
+  describe('SoundManager bare-Sound alias resolution (bug regression)', () => {
+    it('tracks a sound under an alias and resolves bare-Sound overloads by identity', () => {
+      const coin = new ex.Sound('/sfx/coin.mp3'); // coin.name === 'coin'
+      const mgr = ex.createSoundManager({ sounds: [] });
+      mgr.track('gold', coin); // registered under 'gold', not 'coin'
+
+      // bare-Sound lookup should find it (identity-based, not name-based)
+      expect(mgr.getSound(coin)).toBe(coin);
+      expect(mgr.getSound('gold')).toBe(coin);
+      expect(mgr.getSound('coin')).toBeUndefined(); // not registered under its own name
+
+      // setVolume(coin) updates the manager mix (visible via getVolume('gold'))
+      mgr.setVolume(coin, 0.25);
+      expect(mgr.getVolume('gold')).toBeCloseTo(0.25, 5);
+
+      // untrack(coin) removes the alias entirely; getSound('gold') is now undefined.
+      // getSound(coin) returns the sound itself (passthrough), so check by name.
+      mgr.untrack(coin);
+      expect(mgr.getSound('gold')).toBeUndefined();
+      expect(mgr.getSound('coin')).toBeUndefined();
     });
   });
 

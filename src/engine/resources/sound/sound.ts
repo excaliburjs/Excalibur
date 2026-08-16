@@ -92,17 +92,21 @@ export interface SoundOptions {
   maxConcurrentTracks?: number;
 
   /**
-   * Optional custom Web Audio node-graph builder invoked once per track right
-   * before playback starts. Lets users insert custom audio effects (spatial
-   * audio, filters, reverb, etc.).
+   * Optional custom Web Audio node-graph builder invoked ONCE per track when it
+   * is created (i.e. on each fresh `Sound.play()`). The returned effect nodes
+   * are reused across pause/resume/seek so that runtime mutations made via
+   * captured references keep working for the track's lifetime.
    *
    * Return:
    *  - `void`/`undefined` for the default graph `source → volumeNode → destination`.
    *  - A single {@apilink AudioNode} to insert it as `source → node → volumeNode`.
    *  - An `{ input, output }` pair to insert an arbitrary multi-node chain as
-   *    `source → input … output → volumeNode`.
+   *    `source → input … output → volumeNode`. Any intermediate nodes wired
+   *    between `input` and `output` are owned by the caller; Sound only tracks
+   *    + disconnects `input` and `output` on teardown.
    *
-   * Sound performs all the wiring and tears down inserted nodes on stop/complete.
+   * Sound performs all wiring between `source`, the returned nodes, and
+   * `volumeNode`, and disconnects them on stop/complete.
    */
   onPlay?: AudioGraphBuilder;
 }
@@ -136,7 +140,10 @@ export interface PlayOptions {
 
   /**
    * Optional per-play node-graph builder. Overrides {@apilink Sound.onPlay} for
-   * this single playback.
+   * this single playback. Applies only on a fresh play (a new track is
+   * created); when resuming a paused sound, the existing track keeps its
+   * original builder (so the builder runs once per track, and captured effect
+   * node references stay valid across pause/resume).
    */
   onPlay?: AudioGraphBuilder;
 }

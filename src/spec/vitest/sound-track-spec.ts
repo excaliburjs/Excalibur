@@ -74,17 +74,26 @@ describe('A SoundTrack (internal)', () => {
     expect(track.pitch).toBe(1200);
   });
 
+  it('should not throw when setting playbackRate with no live source', () => {
+    // After stop/complete the single-use source is nulled; playbackRate must not throw.
+    expect(() => {
+      track.playbackRate = 2.0;
+      void track.playbackRate;
+    }).not.toThrow();
+  });
+
   it('should use the default graph (source → volumeNode) when no builder is supplied', () => {
+    // source → volumeNode is wired in the constructor
     expect(mockBufferSource.connect).toHaveBeenCalledWith(mockGainNode);
   });
 
-  it('should insert a single returned AudioNode as source → node → volumeNode', () => {
+  it('should insert a single returned node as source → node → volumeNode', () => {
     const inserted = { connect: vi.fn(), disconnect: vi.fn() } as any;
     track = new SoundTrack(RealAudioContext.createBuffer(1, 1, 22050), () => inserted);
 
-    // source → inserted
+    // source → inserted (wired when source is created in the constructor)
     expect(mockBufferSource.connect).toHaveBeenCalledWith(inserted);
-    // inserted → volumeNode
+    // inserted → volumeNode (wired once in the builder pass)
     expect(inserted.connect).toHaveBeenCalledWith(mockGainNode);
   });
 
@@ -105,10 +114,26 @@ describe('A SoundTrack (internal)', () => {
     expect(mockBufferSource.connect).toHaveBeenCalledWith(mockGainNode);
   });
 
+  it('should run the builder ONCE per track, reusing effect nodes across pause/resume', () => {
+    const createPanner = vi.fn(() => ({ connect: vi.fn(), disconnect: vi.fn() }) as any);
+    track = new SoundTrack(RealAudioContext.createBuffer(1, 1, 22050), ({ audioContext }) => {
+      void audioContext;
+      return createPanner();
+    });
+
+    track.play();
+    track.pause();
+    // resume: a new single-use source is created, but the builder must NOT run again
+    track.play();
+
+    // The single-use AudioBufferSourceNode is re-allocated on every restart, but
+    // the persistent effect graph (builder) must be built exactly once.
+    expect(createPanner).toHaveBeenCalledTimes(1);
+  });
+
   it('should disconnect inserted effect nodes when stopped', () => {
     const inserted = { connect: vi.fn(), disconnect: vi.fn() } as any;
     track = new SoundTrack(RealAudioContext.createBuffer(1, 1, 22050), () => inserted);
-    vi.clearAllMocks();
 
     track.play();
     track.stop();
