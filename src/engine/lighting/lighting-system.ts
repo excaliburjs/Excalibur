@@ -6,6 +6,7 @@ import { TransformComponent } from '../entity-component-system/components/transf
 import type { Scene } from '../scene';
 import type { Engine } from '../engine';
 import { Vector } from '../math/vector';
+import type { AffineMatrix } from '../math/affine-matrix';
 import { CoordPlane } from '../math/coord-plane';
 import { Color } from '../color';
 import { ScreenElement } from '../screen-element';
@@ -19,11 +20,20 @@ import { ConeLightComponent } from './cone-light-component';
 import { LightOccluderComponent } from './light-occluder-component';
 import type { Occluder } from './light-occluder-component';
 
-type WorldToScreen = (worldPos: Vector) => Vector;
-
 interface DarknessEntry {
   comp: DarknessComponent;
   transform: TransformComponent;
+  cachedRect: BoundingBox | null;
+  lastCenterX: number | null;
+  lastCenterY: number | null;
+  lastZoom: number | null;
+  lastWidth: number | null;
+  lastHeight: number | null;
+}
+
+interface AmbientResult {
+  intensity: number;
+  color: Color | null;
 }
 
 interface LightEntry<TLight> {
@@ -36,11 +46,11 @@ interface OccluderEntry {
   transform: TransformComponent;
   cached: Occluder | null;
   cachedLocalVerts: Vector[] | null;
-  lastX: number;
-  lastY: number;
-  lastRotation: number;
-  lastScaleX: number;
-  lastScaleY: number;
+  lastX: number | null;
+  lastY: number | null;
+  lastRotation: number | null;
+  lastScaleX: number | null;
+  lastScaleY: number | null;
 }
 
 interface ConeGradientOptions {
@@ -54,18 +64,6 @@ function findRoomClip(screenPos: Vector, roomClips: BoundingBox[]): BoundingBox 
   return roomClips.find((clip) => clip.contains(screenPos));
 }
 
-const DEFAULT_Z_INDEX = 100;
-/** World-pixel padding added around the camera frustum when culling lights/occluders */
-const CULL_PADDING = 64;
-/** Ambient brightness floor assumed when no AmbientLightComponent is present */
-const DEFAULT_AMBIENT_INTENSITY = 0.05;
-/** Fraction of a light's intensity used when painting its colored tint */
-const TINT_ALPHA_FACTOR = 0.35;
-/** Occluder shadow radial gradient opacity at the occluder (near) edge */
-const SHADOW_NEAR_OPACITY = 0.92;
-/** Occluder shadow radial gradient opacity at 40% reach */
-const SHADOW_MID_OPACITY = 0.6;
-
 /**
  * Computes a 2D shadow volume polygon projecting away from a light source point.
  *
@@ -75,8 +73,11 @@ const SHADOW_MID_OPACITY = 0.6;
  *
  * Known limitation: the quad splits the corners if the silhouette edge is not face on with the occluder.
  */
-function shadowPolygon(lightSource: Vector, occluderVerts: Vector[], worldToScreen: WorldToScreen, reach: number): Vector[] {
-  const occluderScreenVerts = occluderVerts.map(worldToScreen);
+function shadowPolygon(lightSource: Vector, occluderVerts: Vector[], camTransform: AffineMatrix, reach: number): Vector[] {
+  const occluderScreenVerts: Vector[] = [];
+  for (let i = 0; i < occluderVerts.length; i++) {
+    occluderScreenVerts.push(camTransform.multiply(occluderVerts[i]));
+  }
 
   let nearestDistSq = Infinity;
   let minAngle = Infinity;
@@ -123,12 +124,12 @@ function drawShadowCircle(
   lightScreen: Vector,
   centerWorld: Vector,
   worldRadius: number,
-  worldToScreen: WorldToScreen,
+  camTransform: AffineMatrix,
   zoom: number,
   reach: number,
   grad: CanvasGradient
 ): void {
-  const center = worldToScreen(centerWorld);
+  const center = camTransform.multiply(centerWorld);
   const screenRadius = worldRadius * zoom;
 
   const dx = center.x - lightScreen.x;
@@ -231,6 +232,7 @@ export class LightingSystem extends System {
   private _pointLights: LightEntry<PointLightComponent>[] = [];
   private _coneLights: LightEntry<ConeLightComponent>[] = [];
   private _occluderEntries: OccluderEntry[] = [];
+  private _ambientScratch: AmbientResult = { intensity: 0, color: null };
 
   constructor(options?: LightingSystemOptions) {
     super();
@@ -241,17 +243,30 @@ export class LightingSystem extends System {
     this._scene = scene;
     this._engine = scene.engine;
 
-    // NOTE: world.query() backfills any entities that already match by synchronously firing
-    // entityAdded$ for each one *before* returning — before we've had a chance to subscribe below.
-    // So each cached array is also seeded directly from `query.entities` (the already-backfilled
-    // set), otherwise entities added to the scene before this system initializes would be missed.
-
     this._darknessQuery = world.query([DarknessComponent, TransformComponent]);
     for (const e of this._darknessQuery.entities) {
-      this._darknessEntries.push({ comp: e.get(DarknessComponent)!, transform: e.get(TransformComponent)! });
+      this._darknessEntries.push({
+        comp: e.get(DarknessComponent)!,
+        transform: e.get(TransformComponent)!,
+        cachedRect: null,
+        lastCenterX: null,
+        lastCenterY: null,
+        lastZoom: null,
+        lastWidth: null,
+        lastHeight: null
+      });
     }
     this._darknessQuery.entityAdded$.subscribe((e) => {
-      this._darknessEntries.push({ comp: e.get(DarknessComponent)!, transform: e.get(TransformComponent)! });
+      this._darknessEntries.push({
+        comp: e.get(DarknessComponent)!,
+        transform: e.get(TransformComponent)!,
+        cachedRect: null,
+        lastCenterX: null,
+        lastCenterY: null,
+        lastZoom: null,
+        lastWidth: null,
+        lastHeight: null
+      });
     });
     this._darknessQuery.entityRemoved$.subscribe((e) => {
       const comp = e.get(DarknessComponent)!;
@@ -313,11 +328,11 @@ export class LightingSystem extends System {
         transform: e.get(TransformComponent)!,
         cached: null,
         cachedLocalVerts: null,
-        lastX: NaN,
-        lastY: NaN,
-        lastRotation: NaN,
-        lastScaleX: NaN,
-        lastScaleY: NaN
+        lastX: null,
+        lastY: null,
+        lastRotation: null,
+        lastScaleX: null,
+        lastScaleY: null
       });
     }
     this._occluderQuery.entityAdded$.subscribe((e) => {
@@ -326,11 +341,11 @@ export class LightingSystem extends System {
         transform: e.get(TransformComponent)!,
         cached: null,
         cachedLocalVerts: null,
-        lastX: NaN,
-        lastY: NaN,
-        lastRotation: NaN,
-        lastScaleX: NaN,
-        lastScaleY: NaN
+        lastX: null,
+        lastY: null,
+        lastRotation: null,
+        lastScaleX: null,
+        lastScaleY: null
       });
     });
     this._occluderQuery.entityRemoved$.subscribe((e) => {
@@ -367,7 +382,7 @@ export class LightingSystem extends System {
         pos: this._options.pos ?? Vector.Zero,
         width: initialWidth,
         height: initialHeight,
-        z: this._options.zIndex ?? DEFAULT_Z_INDEX,
+        z: this._options.zIndex ?? this._engine.lighting.zIndex,
         coordPlane: CoordPlane.Screen,
         color: Color.Transparent
       });
@@ -407,22 +422,26 @@ export class LightingSystem extends System {
       }
     }
 
-    // Lighting content (flicker, moving lights/occluders/camera) can change every frame, so the
-    // canvas graphic is always flagged dirty here; the actual raster work happens lazily in the
-    // draw pass via _renderLightingCanvas.
     this._lightingCanvas.flagDirty();
   }
 
-  private _computeAmbient(): { intensity: number; color: Color | null } {
-    // Last enabled ambient light wins, they are not blended
-    let intensity = DEFAULT_AMBIENT_INTENSITY;
-    let color: Color | null = null;
+  /**
+   * Writes the scene's effective ambient intensity/color into `dest` (avoids allocating a fresh
+   * object every frame). Last ambient light in the scene wins, they are not blended.
+   */
+  private _computeAmbient(dest: AmbientResult): void {
+    dest.intensity = this._engine.lighting.ambientIntensity;
+    dest.color = null;
     for (let i = 0; i < this._ambientLights.length; i++) {
       const a = this._ambientLights[i];
-      intensity = a.enabled ? a.intensity : 0;
-      color = a.enabled ? a.color : null;
+      dest.intensity = a.enabled ? a.intensity : 0;
+      dest.color = a.enabled ? a.color : null;
     }
-    return { intensity, color };
+    if (this._ambientLights.length > 1 && process.env.NODE_ENV === 'development') {
+      Logger.getInstance().warnOnce(
+        `Scene has ${this._ambientLights.length} AmbientLightComponents, only the last one added is used — they are not blended`
+      );
+    }
   }
 
   private _darknessFill(d: DarknessComponent, ambientIntensity: number, ambientColor: Color | null): string {
@@ -444,7 +463,7 @@ export class LightingSystem extends System {
     w: number,
     h: number,
     effectiveZoom: number,
-    worldToScreen: WorldToScreen,
+    camTransform: AffineMatrix,
     ambientIntensity: number,
     ambientColor: Color | null
   ): BoundingBox[] {
@@ -460,11 +479,8 @@ export class LightingSystem extends System {
         continue;
       }
 
-      const hw = (d.width / 2) * effectiveZoom;
-      const hh = (d.height / 2) * effectiveZoom;
-      const center = worldToScreen(entry.transform.pos);
-
-      const rect = BoundingBox.fromDimension(hw * 2, hh * 2, Vector.Half, center);
+      const center = camTransform.multiply(entry.transform.pos);
+      const rect = this._computeRoomRect(entry, center, effectiveZoom);
       roomClips.push(rect);
 
       ctx.fillStyle = this._darknessFill(d, ambientIntensity, ambientColor);
@@ -472,6 +488,37 @@ export class LightingSystem extends System {
     }
 
     return roomClips;
+  }
+
+  /**
+   * Computes (and caches) a room darkness rect's screen-space clip bounds. Only rebuilds the
+   * BoundingBox when the room's screen position, zoom, or dimensions changed since last frame.
+   */
+  private _computeRoomRect(entry: DarknessEntry, center: Vector, effectiveZoom: number): BoundingBox {
+    const d = entry.comp;
+    const unchanged =
+      entry.cachedRect &&
+      entry.lastCenterX === center.x &&
+      entry.lastCenterY === center.y &&
+      entry.lastZoom === effectiveZoom &&
+      entry.lastWidth === d.width &&
+      entry.lastHeight === d.height;
+
+    if (unchanged) {
+      return entry.cachedRect!;
+    }
+
+    const hw = (d.width / 2) * effectiveZoom;
+    const hh = (d.height / 2) * effectiveZoom;
+
+    entry.cachedRect = BoundingBox.fromDimension(hw * 2, hh * 2, Vector.Half, center);
+    entry.lastCenterX = center.x;
+    entry.lastCenterY = center.y;
+    entry.lastZoom = effectiveZoom;
+    entry.lastWidth = d.width;
+    entry.lastHeight = d.height;
+
+    return entry.cachedRect;
   }
 
   private _inCameraView(cullBounds: BoundingBox, worldPos: Vector, radius: number): boolean {
@@ -543,25 +590,27 @@ export class LightingSystem extends System {
     lightScreen: Vector,
     occluders: Occluder[],
     reach: number,
-    worldToScreen: WorldToScreen
+    camTransform: AffineMatrix
   ): void {
     const zoom = this._scene.camera.zoom;
+    const shadowNearOpacity = this._engine.lighting.shadowNearOpacity;
+    const shadowMidOpacity = this._engine.lighting.shadowMidOpacity;
     for (const occ of occluders) {
       if (occ.kind === 'circle') {
-        const centerScreen = worldToScreen(occ.center);
+        const centerScreen = camTransform.multiply(occ.center);
         const dx = centerScreen.x - lightScreen.x;
         const dy = centerScreen.y - lightScreen.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
 
         const nearDist = Math.max(0, dist - occ.radius * zoom);
         const grad = ctx.createRadialGradient(lightScreen.x, lightScreen.y, nearDist, lightScreen.x, lightScreen.y, reach);
-        grad.addColorStop(0, `rgba(0,0,0,${SHADOW_NEAR_OPACITY})`);
-        grad.addColorStop(0.4, `rgba(0,0,0,${SHADOW_MID_OPACITY})`);
+        grad.addColorStop(0, `rgba(0,0,0,${shadowNearOpacity})`);
+        grad.addColorStop(0.4, `rgba(0,0,0,${shadowMidOpacity})`);
         grad.addColorStop(1, 'rgba(0,0,0,0)');
 
-        drawShadowCircle(ctx, lightScreen, occ.center, occ.radius, worldToScreen, zoom, reach, grad);
+        drawShadowCircle(ctx, lightScreen, occ.center, occ.radius, camTransform, zoom, reach, grad);
       } else {
-        const poly = shadowPolygon(lightScreen, occ.verts, worldToScreen, reach);
+        const poly = shadowPolygon(lightScreen, occ.verts, camTransform, reach);
         if (poly.length < 3) {
           continue;
         }
@@ -571,8 +620,8 @@ export class LightingSystem extends System {
         const nearDist = Math.sqrt((nearMidX - lightScreen.x) ** 2 + (nearMidY - lightScreen.y) ** 2);
 
         const grad = ctx.createRadialGradient(lightScreen.x, lightScreen.y, nearDist, lightScreen.x, lightScreen.y, reach);
-        grad.addColorStop(0, `rgba(0,0,0,${SHADOW_NEAR_OPACITY})`);
-        grad.addColorStop(0.4, `rgba(0,0,0,${SHADOW_MID_OPACITY})`);
+        grad.addColorStop(0, `rgba(0,0,0,${shadowNearOpacity})`);
+        grad.addColorStop(0.4, `rgba(0,0,0,${shadowMidOpacity})`);
         grad.addColorStop(1, 'rgba(0,0,0,0)');
 
         ctx.fillStyle = grad;
@@ -635,7 +684,7 @@ export class LightingSystem extends System {
     roomClips: BoundingBox[],
     w: number,
     h: number,
-    worldToScreen: WorldToScreen,
+    camTransform: AffineMatrix,
     cone?: ConeGradientOptions
   ): void {
     if (!this._offscreenCtx || !this._offscreen) {
@@ -662,7 +711,7 @@ export class LightingSystem extends System {
     }
 
     this._offscreenCtx.globalCompositeOperation = 'destination-out';
-    this._drawOccluderShadows(this._offscreenCtx, screenPos, occluders, shadowReach, worldToScreen);
+    this._drawOccluderShadows(this._offscreenCtx, screenPos, occluders, shadowReach, camTransform);
 
     if (activeClip) {
       this._offscreenCtx.restore();
@@ -701,7 +750,7 @@ export class LightingSystem extends System {
     ctx.globalCompositeOperation = 'source-over';
 
     const screenRadius = light.radius * effectiveZoom;
-    const tintAlpha = light.currentIntensity * TINT_ALPHA_FACTOR;
+    const tintAlpha = light.currentIntensity * this._engine.lighting.tintAlphaFactor;
 
     const grad = ctx.createRadialGradient(screenPos.x, screenPos.y, 0, screenPos.x, screenPos.y, screenRadius);
     grad.addColorStop(0, Color.fromRGB(light.color.r, light.color.g, light.color.b, tintAlpha).toRGBA());
@@ -729,7 +778,7 @@ export class LightingSystem extends System {
     w: number,
     h: number,
     effectiveZoom: number,
-    worldToScreen: WorldToScreen
+    camTransform: AffineMatrix
   ): void {
     for (let i = 0; i < this._pointLights.length; i++) {
       const entry = this._pointLights[i];
@@ -742,10 +791,10 @@ export class LightingSystem extends System {
         continue;
       }
 
-      const screenPos = worldToScreen(pos);
+      const screenPos = camTransform.multiply(pos);
       const screenRadius = light.radius * effectiveZoom;
 
-      this._drawLight(ctx, screenPos, screenRadius, light.currentIntensity, occluders, roomClips, w, h, worldToScreen);
+      this._drawLight(ctx, screenPos, screenRadius, light.currentIntensity, occluders, roomClips, w, h, camTransform);
     }
   }
 
@@ -757,7 +806,7 @@ export class LightingSystem extends System {
     w: number,
     h: number,
     effectiveZoom: number,
-    worldToScreen: WorldToScreen
+    camTransform: AffineMatrix
   ): void {
     for (let i = 0; i < this._coneLights.length; i++) {
       const entry = this._coneLights[i];
@@ -770,11 +819,11 @@ export class LightingSystem extends System {
         continue;
       }
 
-      const screenPos = worldToScreen(pos);
+      const screenPos = camTransform.multiply(pos);
       const screenRadius = light.radius * effectiveZoom;
       const halfAngle = light.angle / 2;
 
-      this._drawLight(ctx, screenPos, screenRadius, light.currentIntensity, occluders, roomClips, w, h, worldToScreen, {
+      this._drawLight(ctx, screenPos, screenRadius, light.currentIntensity, occluders, roomClips, w, h, camTransform, {
         startAngle: light.direction - halfAngle,
         endAngle: light.direction + halfAngle,
         softness: light.softness
@@ -787,7 +836,7 @@ export class LightingSystem extends System {
     cullBounds: BoundingBox,
     roomClips: BoundingBox[],
     effectiveZoom: number,
-    worldToScreen: WorldToScreen
+    camTransform: AffineMatrix
   ): void {
     for (let i = 0; i < this._pointLights.length; i++) {
       const entry = this._pointLights[i];
@@ -800,7 +849,7 @@ export class LightingSystem extends System {
         continue;
       }
 
-      this._drawColorTint(ctx, light, worldToScreen(pos), effectiveZoom, roomClips);
+      this._drawColorTint(ctx, light, camTransform.multiply(pos), effectiveZoom, roomClips);
     }
 
     for (let i = 0; i < this._coneLights.length; i++) {
@@ -815,7 +864,7 @@ export class LightingSystem extends System {
       }
 
       const halfAngle = light.angle / 2;
-      this._drawColorTint(ctx, light, worldToScreen(pos), effectiveZoom, roomClips, {
+      this._drawColorTint(ctx, light, camTransform.multiply(pos), effectiveZoom, roomClips, {
         start: light.direction - halfAngle,
         end: light.direction + halfAngle
       });
@@ -823,11 +872,8 @@ export class LightingSystem extends System {
   }
 
   private _renderLightingCanvas(ctx: CanvasRenderingContext2D): void {
-    const screen = this._engine.screen;
     const camera = this._scene.camera;
-    // The overlay raster is anchored at the canvas top left (unsafeArea.topLeft), so project into
-    // the raw resolution frame by undoing the content-area rooting of screen space
-    const worldToScreen: WorldToScreen = (worldPos) => screen.worldToScreenCoordinates(worldPos).add(screen.contentAreaOffset);
+    const camTransform = camera.transform;
 
     const w = this._lightingCanvas.width;
     const h = this._lightingCanvas.height;
@@ -835,16 +881,25 @@ export class LightingSystem extends System {
 
     ctx.clearRect(0, 0, w, h);
 
-    const { intensity: ambientIntensity, color: ambientColor } = this._computeAmbient();
-    const roomClips = this._drawDarknessVeil(ctx, w, h, effectiveZoom, worldToScreen, ambientIntensity, ambientColor);
+    this._computeAmbient(this._ambientScratch);
+    const roomClips = this._drawDarknessVeil(
+      ctx,
+      w,
+      h,
+      effectiveZoom,
+      camTransform,
+      this._ambientScratch.intensity,
+      this._ambientScratch.color
+    );
 
+    const cullPadding = this._engine.lighting.cullPadding;
     const vp = camera.viewport;
-    const cullBounds = new BoundingBox(vp.left - CULL_PADDING, vp.top - CULL_PADDING, vp.right + CULL_PADDING, vp.bottom + CULL_PADDING);
+    const cullBounds = new BoundingBox(vp.left - cullPadding, vp.top - cullPadding, vp.right + cullPadding, vp.bottom + cullPadding);
 
     const occluders = this._collectOccluders();
 
-    this._drawPointLights(ctx, cullBounds, occluders, roomClips, w, h, effectiveZoom, worldToScreen);
-    this._drawConeLights(ctx, cullBounds, occluders, roomClips, w, h, effectiveZoom, worldToScreen);
-    this._drawColorTints(ctx, cullBounds, roomClips, effectiveZoom, worldToScreen);
+    this._drawPointLights(ctx, cullBounds, occluders, roomClips, w, h, effectiveZoom, camTransform);
+    this._drawConeLights(ctx, cullBounds, occluders, roomClips, w, h, effectiveZoom, camTransform);
+    this._drawColorTints(ctx, cullBounds, roomClips, effectiveZoom, camTransform);
   }
 }
