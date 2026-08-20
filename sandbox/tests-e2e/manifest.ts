@@ -18,6 +18,12 @@ export interface SandboxCase {
    * or a shader driven by elapsed time), not as a general flakiness workaround.
    */
   tolerance?: number;
+  /**
+   * Overrides the default number of post-action clock-steps (see sandbox.spec.ts) before
+   * capturing. Use for scenes whose documented visual state only appears after a scripted
+   * delay longer than the default ~10 steps (~166ms simulated) covers.
+   */
+  settleSteps?: number;
 }
 
 async function clickCanvasCenter(page: Page, canvas: Locator) {
@@ -51,7 +57,13 @@ export const SANDBOX_CASES: SandboxCase[] = [
   },
   { dir: 'camera', file: 'lerp.html', name: 'camera-lerp', action: (page) => page.click('#move-xy') },
   { dir: 'camera', file: 'strategy.html', name: 'camera-strategy', action: (page) => page.click('#lockToActor') },
-  { dir: 'camera', file: 'zoom.html', name: 'camera-zoom' },
+  {
+    dir: 'camera',
+    file: 'zoom.html',
+    name: 'camera-zoom',
+    // "Click to zoom in and out over time"
+    action: (page, canvas) => clickCanvasCenter(page, canvas)
+  },
   { dir: 'camera-animation', skip: 'index.html has an empty body with no script tag - nothing renders' },
   { dir: 'clip-canvas' },
   { dir: 'clonebehavior' },
@@ -99,7 +111,19 @@ export const SANDBOX_CASES: SandboxCase[] = [
   { dir: 'incorrectside' },
   { dir: 'input', file: 'index.html', name: 'input' },
   { dir: 'input', file: 'keyboard.html', name: 'input-keyboard' },
-  { dir: 'input', file: 'iframe.html', name: 'input-iframe' },
+  {
+    dir: 'input',
+    file: 'iframe.html',
+    name: 'input-iframe',
+    // "Key events should work through the iframe, press keys on the keyboard" - click the
+    // iframe's canvas first so it (not the parent page) has focus for the keypress.
+    action: async (page, canvas) => {
+      await canvas.click();
+      // The label shows currently-held keys (getKeys()) each frame - press() releases
+      // before we ever step/capture, so hold it down instead.
+      await page.keyboard.down('a');
+    }
+  },
   {
     dir: 'input',
     file: 'gamepad.html',
@@ -146,11 +170,28 @@ export const SANDBOX_CASES: SandboxCase[] = [
   { dir: 'multi-engine' },
   { dir: 'occluder' },
   { dir: 'onpreload' },
-  { dir: 'opacity' },
+  // "After 1 second, a red square and a red heart should appear" (opacity.ts: actions.delay(1000))
+  { dir: 'opacity', settleSteps: 70 },
   { dir: 'parallax' },
   { dir: 'parallel' },
-  { dir: 'physics', file: 'index.html', name: 'physics' },
-  { dir: 'physics', file: 'fastphysics.html', name: 'physics-fast' },
+  {
+    dir: 'physics',
+    file: 'index.html',
+    name: 'physics',
+    // "Press b for more blocks"
+    action: (page) => page.keyboard.press('b')
+  },
+  {
+    dir: 'physics',
+    file: 'fastphysics.html',
+    name: 'physics-fast',
+    // "Press arrow keys to launch in different directions for more rockets". Rockets launch
+    // at 6000px/s and self-kill once off-screen (fastphysics.ts's preupdate check) - the
+    // default settle window is more than enough real time for it to already be gone, so
+    // capture almost immediately after the keypress instead.
+    action: (page) => page.keyboard.press('ArrowUp'),
+    settleSteps: 1
+  },
   { dir: 'physics', file: 'physics2.html', name: 'physics2' },
   { dir: 'pointer' },
   // Custom card shader with per-pixel color cycling driven by elapsed time - see 'imagewrapping' above.
@@ -160,10 +201,25 @@ export const SANDBOX_CASES: SandboxCase[] = [
   // CRT post-process shader driven by elapsed time - see 'imagewrapping' above.
   { dir: 'postprocessor', tolerance: 0.1 },
   { dir: 'raycast' },
-  { dir: 'rotation', file: 'rotation.html' },
+  {
+    dir: 'rotation',
+    file: 'rotation.html',
+    // "Press 'd' for debug mode. Click the buttons to change the RotationType. Click
+    // anywhere else on the canvas to have the actor rotate to that angle."
+    action: async (page, canvas) => {
+      await page.keyboard.press('d');
+      await canvas.click({ position: { x: 150, y: 50 } }); // "Longest Path" button
+      await canvas.click({ position: { x: 300, y: 300 } }); // rotate-to-click elsewhere
+    }
+  },
   { dir: 'router' },
   { dir: 'scale', file: 'scale.html' },
-  { dir: 'scene', file: 'lifecycle.html', name: 'scene-lifecycle' },
+  {
+    dir: 'scene',
+    file: 'lifecycle.html',
+    name: 'scene-lifecycle',
+    action: (page) => page.click('#goToScene')
+  },
   { dir: 'scene-input' },
   { dir: 'scene-keyboard' },
   { dir: 'scenepredraw' },
@@ -199,7 +255,11 @@ export const SANDBOX_CASES: SandboxCase[] = [
   { dir: 'sprite-tint' },
   { dir: 'text-bounds', skip: 'no HTML entry point exists under sandbox/tests/text-bounds (index.ts only)' },
   { dir: 'text-centering' },
-  { dir: 'textcrash' },
+  {
+    dir: 'textcrash',
+    // "Click on the screen, numbers should increment"
+    action: (page, canvas) => clickCanvasCenter(page, canvas)
+  },
   { dir: 'text-wrapping' },
   { dir: 'tilemap', file: 'tilemap.html' },
   { dir: 'tilemap-custom-edge-collider' },
@@ -209,7 +269,8 @@ export const SANDBOX_CASES: SandboxCase[] = [
   { dir: 'triangulation' },
   { dir: 'trigger', file: 'trigger.html' },
   { dir: 'ui' },
-  { dir: 'uniform-buffer' },
+  // Custom shader with a uniform buffer - see 'imagewrapping' above.
+  { dir: 'uniform-buffer', tolerance: 0.1 },
   { dir: 'updating-text' },
   { dir: 'within', file: 'within.html' },
   {

@@ -137,8 +137,11 @@ for (const sandboxCase of SANDBOX_CASES) {
     }
 
     // Deterministically advance a handful more frames so the action's effects (and any
-    // steady-state animation) are reflected in the render before capturing.
-    await stepEngineClock(frame, 10);
+    // steady-state animation) are reflected in the render before capturing. Scenes with a
+    // longer scripted delay before their documented visual state appears (e.g. an
+    // actions.delay(...)) opt into more steps via manifest.ts rather than this default
+    // growing for everyone.
+    await stepEngineClock(frame, sandboxCase.settleSteps ?? 10);
 
     // A number of scenes animate continuously (particles, shaders, looping sprites) and
     // never produce two consecutive identical frames, which trips up toHaveScreenshot's
