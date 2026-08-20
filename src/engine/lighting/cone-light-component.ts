@@ -28,6 +28,9 @@ export interface ConeLightComponentOptions extends PointLightComponentOptions {
  * cutting through any {@apilink DarknessComponent} veil.
  */
 export class ConeLightComponent extends Component {
+  // @ts-ignore
+  private static _NAME = 'ConeLightComponent';
+
   public color: Color;
   public intensity: number;
   public radius: number;

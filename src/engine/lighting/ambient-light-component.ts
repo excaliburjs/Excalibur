@@ -25,6 +25,9 @@ export interface AmbientLightComponentOptions {
  * If multiple ambient lights exist in a scene, the last one wins — they are not blended.
  */
 export class AmbientLightComponent extends Component {
+  // @ts-ignore
+  private static _NAME = 'AmbientLightComponent';
+
   public color: Color;
   public intensity: number;
   public enabled: boolean;

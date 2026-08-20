@@ -31,6 +31,9 @@ export interface PointLightComponentOptions {
  * cutting through any {@apilink DarknessComponent} veil.
  */
 export class PointLightComponent extends Component {
+  // @ts-ignore
+  private static _NAME = 'PointLightComponent';
+
   public color: Color;
   public intensity: number;
   public radius: number;

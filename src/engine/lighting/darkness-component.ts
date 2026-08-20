@@ -27,6 +27,9 @@ export interface DarknessComponentOptions {
  * dimensions the veil is a "room" rectangle in world pixels centered on the owning entity's position.
  */
 export class DarknessComponent extends Component {
+  // @ts-ignore
+  private static _NAME = 'DarknessComponent';
+
   public color: Color;
   public intensity: number;
   public width: number;
