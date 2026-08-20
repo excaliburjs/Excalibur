@@ -100,36 +100,26 @@ for (const sandboxCase of SANDBOX_CASES) {
     await stepEngineClock(frame, 1);
 
     // Scenes booted with a Loader draw a loading bar directly onto the canvas and show a
-    // real DOM "Play game" button (#excalibur-play-root), which must be clicked before the
-    // game actually starts. Its element is created *lazily*, only once Loader.onUserAction's
-    // 200ms "aesthetic" delay (see src/engine/director/loader.ts) has elapsed on our
-    // now-manually-driven clock - so the settle window before checking for it must clear
-    // that delay (~13 simulated frames), or every Loader-based scene looks like it has none.
-    await stepEngineClock(frame, 30);
-    const playButton = frame.locator('#excalibur-play-root button');
-    let hasPlayButton = (await playButton.count()) > 0;
-    if (!hasPlayButton) {
-      // Real (non-clock-gated) asset loading ahead of onUserAction can occasionally push
-      // this past the first settle window - give slow scenes one more chance before
-      // concluding there's no Loader here at all.
-      await stepEngineClock(frame, 20);
-      hasPlayButton = (await playButton.count()) > 0;
-    }
-    if (hasPlayButton) {
-      let playButtonVisible = await playButton.isVisible().catch(() => false);
-      for (let i = 0; i < 30 && !playButtonVisible; i++) {
+    // real DOM "Play game" button (#excalibur-play-root) once ready, which must be clicked
+    // before the game actually starts. The root element's aria-busy attribute reflects
+    // readiness precisely (see src/engine/director/loader.ts): "true" while loading/waiting
+    // out the aesthetic delay, "false" once it's safe to click, and the element doesn't
+    // exist at all for scenes with no Loader - so one attribute check replaces guessing how
+    // many simulated frames the delay needs.
+    let playButtonReady = false;
+    for (let i = 0; i < 30 && !playButtonReady; i++) {
+      playButtonReady = (await frame.evaluate(() => document.getElementById('excalibur-play-root')?.getAttribute('aria-busy'))) === 'false';
+      if (!playButtonReady) {
         await stepEngineClock(frame, 2);
-        playButtonVisible = await playButton.isVisible().catch(() => false);
       }
-      if (playButtonVisible) {
-        await playButton.click();
-        for (let i = 0; i < 20 && (await playButton.isVisible().catch(() => false)); i++) {
-          await stepEngineClock(frame, 2);
-        }
-      }
+    }
+    const playButton = frame.locator('#excalibur-play-root button');
+    if (playButtonReady) {
+      await playButton.click();
     }
     // We should never end up screenshotting the boot screen (Excalibur logo / loading bar /
-    // play button) - fail loudly instead of silently capturing it.
+    // play button) - fail loudly instead of silently capturing it. hidePlayButton() flips
+    // aria-busy back to "true" synchronously on click, so this never needs its own step loop.
     await expect(playButton, 'loader play button should be dismissed before capturing').toBeHidden();
 
     if (sandboxCase.action) {
