@@ -62,6 +62,8 @@ import { Director, DirectorEvents } from './director/director';
 import { InputHost } from './input/input-host';
 import type { PhysicsConfig } from './collision/physics-config';
 import { getDefaultPhysicsConfig } from './collision/physics-config';
+import type { LightingConfig } from './lighting/lighting-config';
+import { getDefaultLightingConfig } from './lighting/lighting-config';
 import type { DeepRequired } from './util/required';
 import type { Context } from './context';
 import { createContext, useContext } from './context';
@@ -403,6 +405,19 @@ export interface EngineOptions<TKnownScenes extends string = any> {
   physics?: boolean | PhysicsConfig;
 
   /**
+   * Optionally enable the 2D lighting simulation in excalibur, adding the {@apilink LightingSystem} and
+   * {@apilink FlickerSystem} to every scene.
+   *
+   * **Low performance API** — the lighting overlay is rasterized with the 2D Canvas API and re-uploaded
+   * to the GPU every frame, which carries a performance penalty.
+   *
+   * Pass a {@apilink LightingConfig} to tune the lighting simulation's defaults instead of just enabling it.
+   *
+   * Default is false
+   */
+  lighting?: boolean | LightingConfig;
+
+  /**
    * Optionally specify scenes with their transitions and loaders to excalibur's scene {@apilink Director}
    *
    * Scene transitions can can overridden dynamically by the `Scene` or by the call to `.goToScene`
@@ -570,6 +585,11 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
    * Direct access to the physics configuration for excalibur
    */
   public physics!: DeepRequired<PhysicsConfig>;
+
+  /**
+   * Direct access to the lighting configuration for excalibur
+   */
+  public lighting!: DeepRequired<LightingConfig>;
 
   /**
    * Optionally set the maximum fps if not set Excalibur will go as fast as the device allows.
@@ -868,6 +888,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
     antialiasing: true,
     pixelArt: false,
     garbageCollection: true,
+    lighting: false,
     powerPreference: 'high-performance',
     pointerScope: PointerScope.Canvas,
     suppressConsoleBootMessage: undefined,
@@ -1210,6 +1231,18 @@ O|===|* >________________>\n\
         ...getDefaultPhysicsConfig()
       };
       mergeDeep(this.physics, options.physics!);
+    }
+
+    if (typeof options.lighting === 'boolean') {
+      this.lighting = {
+        ...getDefaultLightingConfig(),
+        enabled: options.lighting
+      };
+    } else {
+      this.lighting = {
+        ...getDefaultLightingConfig()
+      };
+      mergeDeep(this.lighting, options.lighting!);
     }
 
     this.director = new Director(this, options.scenes!);
