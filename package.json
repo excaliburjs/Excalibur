@@ -74,6 +74,8 @@
     "test:debug:unit:headless": "npm run test:unit -- --browser.headless --inspect --no-file-parallelism",
     "test:visual": "vitest --project visual",
     "test:visual:headless": "npm run test:visual -- --browser.headless",
+    "test:sandbox": "playwright test",
+    "test:sandbox:update": "playwright test --update-snapshots",
     "apidocs": "node site/scripts/gen-typedoc-api.mjs",
     "release": "cross-env release=true npm run all",
     "prepare": "husky"
@@ -86,6 +88,7 @@
     "@eslint/js": "9.30.1",
     "@fortawesome/fontawesome-free": "6.7.2",
     "@octokit/rest": "21.1.1",
+    "@playwright/test": "1.60.0",
     "@storybook/html-vite": "9.1.20",
     "@types/jasmine": "5.1.15",
     "@types/node": "22.19.19",

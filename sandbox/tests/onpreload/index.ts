@@ -21,7 +21,7 @@ class EmptyScene extends ex.Scene {
 
   override onPreLoad(loader: ex.DefaultLoader): void {
     console.log(`Pre loading ${this.name} scene`);
-    const image = new ex.ImageSource('https://cdn.rawgit.com/excaliburjs/Excalibur/7dd48128/assets/sword.png');
+    const image = new ex.ImageSource('./sword.png');
     loader.addResource(image);
   }
 }

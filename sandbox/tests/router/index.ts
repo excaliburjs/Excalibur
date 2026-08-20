@@ -46,7 +46,7 @@ class MyCustomScene extends ex.Scene {
     const image2 = new ex.ImageSource('./spritefont.png?=2');
     const image3 = new ex.ImageSource('./spritefont.png?=3');
     const image4 = new ex.ImageSource('./spritefont.png?=4');
-    const sword = new ex.ImageSource('https://cdn.rawgit.com/excaliburjs/Excalibur/7dd48128/assets/sword.png');
+    const sword = new ex.ImageSource('./sword.png');
     loader.addResource(image1);
     loader.addResource(image2);
     loader.addResource(image3);
@@ -104,7 +104,7 @@ scene2.onPreLoad = (loader) => {
   const image2 = new ex.ImageSource('./spritefont.png?=2');
   const image3 = new ex.ImageSource('./spritefont.png?=3');
   const image4 = new ex.ImageSource('./spritefont.png?=4');
-  const sword = new ex.ImageSource('https://cdn.rawgit.com/excaliburjs/Excalibur/7dd48128/assets/sword.png');
+  const sword = new ex.ImageSource('./sword.png');
   loader.addResource(image1);
   loader.addResource(image2);
   loader.addResource(image3);
@@ -130,7 +130,7 @@ const image1 = new ex.ImageSource('./spritefont.png?=1');
 const image2 = new ex.ImageSource('./spritefont.png?=2');
 const image3 = new ex.ImageSource('./spritefont.png?=3');
 const image4 = new ex.ImageSource('./spritefont.png?=4');
-const sword = new ex.ImageSource('https://cdn.rawgit.com/excaliburjs/Excalibur/7dd48128/assets/sword.png');
+const sword = new ex.ImageSource('./sword.png');
 boot.addResource(image1);
 boot.addResource(image2);
 boot.addResource(image3);

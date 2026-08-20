@@ -4,7 +4,7 @@ var game = new ex.Engine({
   displayMode: ex.DisplayMode.FitScreenAndFill
 });
 
-var swordImg = new ex.ImageSource('https://cdn.rawgit.com/excaliburjs/Excalibur/7dd48128/assets/sword.png');
+var swordImg = new ex.ImageSource('./sword.png');
 
 var actor = new ex.Actor({
   anchor: ex.vec(0.5, 0.5),

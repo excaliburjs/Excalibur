@@ -4,7 +4,7 @@ var game = new ex.Engine({
   displayMode: ex.DisplayMode.FitScreen
 });
 
-var swordImg = new ex.ImageSource('https://cdn.rawgit.com/excaliburjs/Excalibur/7dd48128/assets/sword.png');
+var swordImg = new ex.ImageSource('./sword.png');
 
 var particles = new ex.GpuParticleEmitter({
   pos: ex.vec(100, 0),
