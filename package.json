@@ -66,6 +66,7 @@
     "visual": "storybook dev -p 6006",
     "build-storybook": "storybook build -o build-storybook",
     "sandbox": "cd sandbox && vite",
+    "new:sandbox": "node scripts/new-sandbox-test.js",
     "test": "vitest --ui",
     "test:ci": "vitest",
     "test:watch": "npm run test -- --watch",
