@@ -18,10 +18,10 @@ import { SANDBOX_CASES } from './manifest';
 //    swapping instances would silently drop anything already scheduled via
 //    clock.schedule() on the original clock, e.g. the Loader's own 200ms "show play button"
 //    delay (Loader.onUserAction) or a coroutine's next step, leaving those permanently
-//    stuck. Steps are paced with a real rAF yield between them so GPU-heavy shader scenes
-//    get a chance to actually flush their draw calls instead of backing up the command
-//    queue - only the simulated elapsed time handed to the engine is deterministic, not the
-//    real-world pacing between steps.
+//    stuck. Steps are paced with a real rAF yield every few steps (see YIELD_EVERY below) so
+//    GPU-heavy shader scenes get a chance to actually flush their draw calls instead of
+//    backing up the command queue - only the simulated elapsed time handed to the engine is
+//    deterministic, not the real-world pacing between steps.
 const INSTALL_DETERMINISM_HOOKS = `
   (function () {
     let seed = 0x2f6e2b1;
@@ -47,11 +47,19 @@ const INSTALL_DETERMINISM_HOOKS = `
       // clock.start() again, which would resume the real rAF loop and undo the freeze.
       engine.clock.start = function () {};
     }
+    // Yielding to a real rAF after every single simulated step (rather than batching several
+    // together) is what keeps GPU-heavy shader scenes (polychrome, tiling) from backing up
+    // their WebGL command queue into an unresponsive tab - but it's real wall-clock cost paid
+    // by every scene, most of which don't need it. Batch a few steps per yield as a
+    // middle ground.
+    var YIELD_EVERY = 3;
     for (let i = 0; i < steps; i++) {
       engine.clock.update(stepMs || 16.6);
-      await new Promise(function (resolve) {
-        requestAnimationFrame(resolve);
-      });
+      if ((i + 1) % YIELD_EVERY === 0 || i === steps - 1) {
+        await new Promise(function (resolve) {
+          requestAnimationFrame(resolve);
+        });
+      }
     }
     return true;
   };
