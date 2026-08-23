@@ -21,6 +21,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   // Before: contentArea.topLeft was the safe area corner in canvas coordinates
   const safeAreaCorner = engine.screen.contentAreaOffset.clone();
   ```
+- Behavior change - `rotateBy({angleRadiansOffset, duration})` with no `rotationType` now rotates by exactly the signed offset provided, preserving full and multiple turns, instead of taking the shortest path to the canonicalized target orientation. Offsets larger than `Math.PI` now travel in the direction of their sign (previously they rotated the shorter way around), and `2 * Math.PI` performs a full revolution (previously a no-op). Pass an explicit `rotationType` to keep path-based behavior
 - Behavior change - TileMap now uses 'separate' as the `compositeStrategy` as a better default. Commonly TileMap is used to build levels, so this default aligns with the common use.
 - Behavior change - Font/Text now render more accurately and faster be using less texture space, this unfortunately is a breaking change becuase text will render slightly different.
 - Build: Docusaurus now throws the build on broken markdown links, broken anchors, and broken markdown images instead of warning. Any custom docs/blog content must have valid internal links, anchors, and images.
