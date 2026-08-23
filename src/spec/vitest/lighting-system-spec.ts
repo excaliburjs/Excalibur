@@ -286,6 +286,34 @@ describe('A Lighting System', () => {
       expect(ctx.getImageData(50, 75, 1, 1).data[3]).toBeGreaterThan(200);
     });
 
+    it('follows a panning camera instead of leaving a finite darkness room rect stuck at its first screen position', async () => {
+      engine = TestUtils.engine({ width: 100, height: 100, lighting: { enabled: true, ambientIntensity: 0 } });
+      await engine.currentScene._initialize(engine);
+      engine.screen.setCurrentCamera(engine.currentScene.camera);
+      engine.currentScene.camera.pos = ex.vec(50, 50);
+
+      const room = new ex.Actor({ pos: ex.vec(50, 50) });
+      room.addComponent(new ex.DarknessComponent({ color: ex.Color.Black, intensity: 1, width: 60, height: 20 }));
+      engine.currentScene.add(room);
+      engine.currentScene.update(engine, 16);
+
+      const lighting = engine.currentScene.world.systemManager.get(ex.LightingSystem);
+      const raster = document.createElement('canvas');
+      raster.width = 100;
+      raster.height = 100;
+      const ctx = raster.getContext('2d');
+      (lighting as any)._renderLightingCanvas(ctx);
+      expect(ctx.getImageData(50, 50, 1, 1).data[3]).toBeGreaterThan(200); // room center - dark
+
+      // Pan the camera away from the (unmoved) room without touching zoom/rotation
+      engine.currentScene.camera.pos = ex.vec(150, 50);
+      engine.currentScene.update(engine, 16);
+      (lighting as any)._renderLightingCanvas(ctx);
+
+      // The room's screen quad must have followed the pan - this pixel is no longer inside it
+      expect(ctx.getImageData(50, 50, 1, 1).data[3]).toBe(0);
+    });
+
     it('clips a light to its containing room rect using the rotated geometry, not the unrotated one', async () => {
       engine = TestUtils.engine({ width: 100, height: 100, lighting: { enabled: true, ambientIntensity: 0 } });
       await engine.currentScene._initialize(engine);

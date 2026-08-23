@@ -27,6 +27,8 @@ interface DarknessEntry {
   cached: RoomClip | null;
   lastCenterX: number | null;
   lastCenterY: number | null;
+  lastCamX: number | null;
+  lastCamY: number | null;
   lastZoom: number | null;
   lastRotation: number | null;
   lastWidth: number | null;
@@ -293,6 +295,8 @@ export class LightingSystem extends System {
         cached: null,
         lastCenterX: null,
         lastCenterY: null,
+        lastCamX: null,
+        lastCamY: null,
         lastZoom: null,
         lastRotation: null,
         lastWidth: null,
@@ -306,6 +310,8 @@ export class LightingSystem extends System {
         cached: null,
         lastCenterX: null,
         lastCenterY: null,
+        lastCamX: null,
+        lastCamY: null,
         lastZoom: null,
         lastRotation: null,
         lastWidth: null,
@@ -457,6 +463,13 @@ export class LightingSystem extends System {
     const screen = this._engine.screen;
     this._lightingEntity.transform.coordPlane = CoordPlane.Screen;
 
+    // Camera.transform isn't finalized for this frame until Camera.draw() applies fixed-update
+    // interpolation/pixel-snapping - normally that's done by GraphicsSystem (SystemPriority.Average),
+    const graphicsContext = this._engine.graphicsContext;
+    graphicsContext.save();
+    this._scene.camera.draw(graphicsContext);
+    graphicsContext.restore();
+
     if (!this._options.pos && !this._options.screenElement) {
       // Anchor the overlay to the top left of the full visible canvas, the unsafeArea spans the
       // whole resolution and its topLeft is negative by the clip amount in clipping display modes
@@ -483,10 +496,8 @@ export class LightingSystem extends System {
       }
     }
 
-    // Load bearing: flagDirty() forces this frame's light/darkness/occluder state to be re-rendered.
-    // rasterize() is called here rather than left lazy so the raster cost is attributed to
-    // LightingSystem in profiling/debug instrumentation, not GraphicsSystem/DrawingSystem.
-    this._lightingCanvas.flagDirty();
+    // rasterize() forces this frame's light/darkness/occluder state to be re-rendered.
+    // it is called here rather than left lazy so the raster cost is attributed to
     this._lightingCanvas.rasterize();
   }
 
@@ -547,16 +558,20 @@ export class LightingSystem extends System {
 
   /**
    * Computes (and caches) a room darkness rect's world bounds and camera-rotated screen quad. Only
-   * rebuilds when the room's world position/dimensions or the camera's zoom/rotation changed since
-   * last frame.
+   * rebuilds when the room's world position/dimensions or the camera's pos/zoom/rotation changed since
+   * last frame - the screen quad depends on the camera's full transform, not just zoom/rotation, so
+   * camera pan alone must invalidate it too or the room's screen position goes stale.
    */
   private _computeRoomClip(entry: DarknessEntry, camera: Camera): RoomClip {
     const d = entry.comp;
     const pos = entry.transform.pos;
+    const camPos = camera.pos;
     const unchanged =
       entry.cached &&
       entry.lastCenterX === pos.x &&
       entry.lastCenterY === pos.y &&
+      entry.lastCamX === camPos.x &&
+      entry.lastCamY === camPos.y &&
       entry.lastZoom === camera.zoom &&
       entry.lastRotation === camera.rotation &&
       entry.lastWidth === d.width &&
@@ -579,6 +594,8 @@ export class LightingSystem extends System {
     entry.cached = { worldBounds, screenCorners };
     entry.lastCenterX = pos.x;
     entry.lastCenterY = pos.y;
+    entry.lastCamX = camPos.x;
+    entry.lastCamY = camPos.y;
     entry.lastZoom = camera.zoom;
     entry.lastRotation = camera.rotation;
     entry.lastWidth = d.width;
