@@ -33,12 +33,36 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- Added an opt-in 2D lighting simulation, enabled with the new `lighting: true` engine option (default `false`). When enabled every scene gets a `FlickerSystem` and `LightingSystem` that render darkness veils, point/cone lights with flicker, and occluder shadows via the new `DarknessComponent`, `AmbientLightComponent`, `PointLightComponent`, `ConeLightComponent`, and `LightOccluderComponent` components. The overlay is rasterized with the 2D Canvas API and re-uploaded to the GPU every frame, which carries a performance penalty — this is why the feature is off by default. The systems can also be added manually to individual scenes with `scene.world.add(new ex.LightingSystem())` without enabling the engine option.
+- Added an opt-in 2D lighting simulation, enabled with the new `lighting: true` engine option (default `false`). When enabled every scene gets a `FlickerSystem` and `LightingSystem` that render darkness veils, point/cone lights with flicker, and occluder shadows via the new `DarknessComponent`, `PointLightComponent`, `ConeLightComponent`, and `LightOccluderComponent` components. The overlay is rasterized with the 2D Canvas API and re-uploaded to the GPU every frame, which carries a performance penalty — this is why the feature is off by default. The systems can also be added manually to individual scenes with `scene.world.add(new ex.LightingSystem())` without enabling the engine option.
 
   ```typescript
   const game = new ex.Engine({ lighting: true });
   const lamp = new ex.Actor({ pos: ex.vec(100, 100) });
   lamp.addComponent(new ex.PointLightComponent({ color: ex.Color.fromRGB(255, 200, 80), radius: 200 }));
+  ```
+
+  Pass a `LightingConfig` object instead of `true` to tune the simulation's defaults — including the ambient brightness floor/color assumed everywhere a scene has no explicit `DarknessComponent` override:
+
+  ```typescript
+  const game = new ex.Engine({
+    lighting: {
+      enabled: true,
+      zIndex: 100, // z-index of the lighting overlay
+      cullPadding: 64, // world-pixel padding around the camera frustum when culling lights/occluders
+      ambientIntensity: 0.1, // ambient brightness floor (0.0 to 1.0)
+      ambientColor: ex.Color.fromRGB(60, 60, 200), // tints the darkness veil toward this color
+      tintAlphaFactor: 0.35, // fraction of a light's intensity used for its colored tint
+      shadowNearOpacity: 0.92, // occluder shadow opacity at the occluder's edge
+      shadowMidOpacity: 0.6 // occluder shadow opacity at 40% of the shadow's reach
+    }
+  });
+  ```
+
+  Any entity with a collider-like shape can cast a dynamic shadow by adding a `LightOccluderComponent`:
+
+  ```typescript
+  const crate = new ex.Actor({ pos: ex.vec(300, 200), width: 40, height: 40 });
+  crate.addComponent(new ex.LightOccluderComponent({ shape: { kind: 'box', width: 40, height: 40 } }));
   ```
 - Materials are now enumerable for debugging and tooling (like the Excalibur Dev Tools browser extension): every `Material` has a unique `material.id` and public `material.vertexSource`/`material.fragmentSource` getters, and is automatically registered with its context, retrievable via `game.graphicsContext.materials`. The registry holds materials weakly so it does not prevent garbage collection.
 - Added the `ex.glsl` tagged template literal for authoring `Material` fragment shaders. It lights up GLSL syntax highlighting, adds the `#version`/`precision` boilerplate, injects the `pixel_texture()` pixel art filter on demand, and handles alpha premultiplication automatically.

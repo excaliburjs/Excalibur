@@ -14,7 +14,6 @@ import { Canvas } from '../graphics/canvas';
 import { Logger } from '../util/log';
 import { BoundingBox } from '../collision/bounding-box';
 import { DarknessComponent } from './darkness-component';
-import { AmbientLightComponent } from './ambient-light-component';
 import { PointLightComponent } from './point-light-component';
 import { ConeLightComponent } from './cone-light-component';
 import { LightOccluderComponent } from './light-occluder-component';
@@ -64,6 +63,14 @@ function findRoomClip(screenPos: Vector, roomClips: BoundingBox[]): BoundingBox 
   return roomClips.find((clip) => clip.contains(screenPos));
 }
 
+/** Projects `v` away from `source` out to `reach` world/screen units, used to close off shadow volume far edges */
+function projectAway(v: Vector, source: Vector, reach: number): Vector {
+  const dx = v.x - source.x;
+  const dy = v.y - source.y;
+  const len = Math.sqrt(dx * dx + dy * dy) || 1;
+  return new Vector(v.x + (dx / len) * reach, v.y + (dy / len) * reach);
+}
+
 /**
  * Computes a 2D shadow volume polygon projecting away from a light source point.
  *
@@ -71,7 +78,9 @@ function findRoomClip(screenPos: Vector, roomClips: BoundingBox[]): BoundingBox 
  * near tip, the min/max angular hull vertices (as seen from the light) are the silhouette edge
  * extremes, and those two silhouette vertices are projected out to `reach` to close off the far edge.
  *
- * Known limitation: the quad splits the corners if the silhouette edge is not face on with the occluder.
+ * Known limitation: since the near tip is the closest hull point rather than one of the silhouette
+ * extremes, the shadow's near edge can still kink/split when the silhouette edge is not face on with
+ * the occluder.
  */
 function shadowPolygon(lightSource: Vector, occluderVerts: Vector[], camTransform: AffineMatrix, reach: number): Vector[] {
   const occluderScreenVerts: Vector[] = [];
@@ -105,15 +114,8 @@ function shadowPolygon(lightSource: Vector, occluderVerts: Vector[], camTransfor
     }
   }
 
-  const project = (v: Vector): Vector => {
-    const dx = v.x - lightSource.x;
-    const dy = v.y - lightSource.y;
-    const len = Math.sqrt(dx * dx + dy * dy) || 1;
-    return new Vector(v.x + (dx / len) * reach, v.y + (dy / len) * reach);
-  };
-
-  const farMin = project(occluderScreenVerts[minAngleIdx]);
-  const farMax = project(occluderScreenVerts[maxAngleIdx]);
+  const farMin = projectAway(occluderScreenVerts[minAngleIdx], lightSource, reach);
+  const farMax = projectAway(occluderScreenVerts[maxAngleIdx], lightSource, reach);
 
   return [occluderScreenVerts[nearestIdx], occluderScreenVerts[minAngleIdx], farMin, farMax, occluderScreenVerts[maxAngleIdx]];
 }
@@ -149,15 +151,8 @@ function drawShadowCircle(
   const tp1 = new Vector(center.x + Math.cos(t1 + Math.PI / 2) * screenRadius, center.y + Math.sin(t1 + Math.PI / 2) * screenRadius);
   const tp2 = new Vector(center.x + Math.cos(t2 - Math.PI / 2) * screenRadius, center.y + Math.sin(t2 - Math.PI / 2) * screenRadius);
 
-  const project = (v: Vector): Vector => {
-    const px = v.x - lightScreen.x;
-    const py = v.y - lightScreen.y;
-    const len = Math.sqrt(px * px + py * py) || 1;
-    return new Vector(v.x + (px / len) * reach, v.y + (py / len) * reach);
-  };
-
-  const far1 = project(tp1);
-  const far2 = project(tp2);
+  const far1 = projectAway(tp1, lightScreen, reach);
+  const far2 = projectAway(tp2, lightScreen, reach);
 
   ctx.fillStyle = grad;
   ctx.beginPath();
@@ -201,16 +196,18 @@ export interface LightingSystemOptions {
  *
  * Enabled scene-wide via {@apilink EngineOptions.lighting}, or add an instance manually to a scene's world.
  *
- * **Low performance API** — the overlay is rasterized with the 2D Canvas API and re-uploaded to the
- * GPU every frame.
+ * **Potentially performance impacting** — the overlay is rasterized with the 2D Canvas API and re-uploaded
+ * to the GPU every frame.
  *
- * Known limitations: camera rotation is ignored, occluder shadow *radii* are not scaled by entity
- * scale (only occluder position/rotation/vertices are), and polygon shadow volumes can split at
- * corners when the silhouette edge is not face on to the light.
+ * Known limitations: cone light direction and darkness room rects do not rotate with the camera (light and
+ * occluder positions do, since they're projected through the full camera transform), circle occluder radii
+ * scale uniformly with `Math.min(scale.x, scale.y)` so a non-uniformly scaled occluder won't cast an
+ * elliptical shadow, and polygon shadow volumes can split at corners when the silhouette edge is not face
+ * on to the light.
  */
 export class LightingSystem extends System {
-  static priority = SystemPriority.Lower;
-  public readonly systemType = SystemType.Update;
+  static priority = SystemPriority.Highest;
+  public readonly systemType = SystemType.Draw;
 
   private _options: LightingSystemOptions;
   private _engine!: Engine;
@@ -222,13 +219,11 @@ export class LightingSystem extends System {
   private _offscreenCtx: CanvasRenderingContext2D | null = null;
 
   private _darknessQuery!: Query<typeof DarknessComponent | typeof TransformComponent>;
-  private _ambientQuery!: Query<typeof AmbientLightComponent>;
   private _pointQuery!: Query<typeof PointLightComponent | typeof TransformComponent>;
   private _coneQuery!: Query<typeof ConeLightComponent | typeof TransformComponent>;
   private _occluderQuery!: Query<typeof LightOccluderComponent | typeof TransformComponent>;
 
   private _darknessEntries: DarknessEntry[] = [];
-  private _ambientLights: AmbientLightComponent[] = [];
   private _pointLights: LightEntry<PointLightComponent>[] = [];
   private _coneLights: LightEntry<ConeLightComponent>[] = [];
   private _occluderEntries: OccluderEntry[] = [];
@@ -243,6 +238,14 @@ export class LightingSystem extends System {
     this._scene = scene;
     this._engine = scene.engine;
 
+    this._initDarkness(world);
+    this._initPointLights(world);
+    this._initConeLights(world);
+    this._initOccluders(world);
+    this._initCanvas(scene);
+  }
+
+  private _initDarkness(world: World): void {
     this._darknessQuery = world.query([DarknessComponent, TransformComponent]);
     for (const e of this._darknessQuery.entities) {
       this._darknessEntries.push({
@@ -275,22 +278,9 @@ export class LightingSystem extends System {
         this._darknessEntries.splice(index, 1);
       }
     });
+  }
 
-    this._ambientQuery = world.query([AmbientLightComponent]);
-    for (const e of this._ambientQuery.entities) {
-      this._ambientLights.push(e.get(AmbientLightComponent)!);
-    }
-    this._ambientQuery.entityAdded$.subscribe((e) => {
-      this._ambientLights.push(e.get(AmbientLightComponent)!);
-    });
-    this._ambientQuery.entityRemoved$.subscribe((e) => {
-      const comp = e.get(AmbientLightComponent)!;
-      const index = this._ambientLights.indexOf(comp);
-      if (index > -1) {
-        this._ambientLights.splice(index, 1);
-      }
-    });
-
+  private _initPointLights(world: World): void {
     this._pointQuery = world.query([PointLightComponent, TransformComponent]);
     for (const e of this._pointQuery.entities) {
       this._pointLights.push({ light: e.get(PointLightComponent)!, transform: e.get(TransformComponent)! });
@@ -305,7 +295,9 @@ export class LightingSystem extends System {
         this._pointLights.splice(index, 1);
       }
     });
+  }
 
+  private _initConeLights(world: World): void {
     this._coneQuery = world.query([ConeLightComponent, TransformComponent]);
     for (const e of this._coneQuery.entities) {
       this._coneLights.push({ light: e.get(ConeLightComponent)!, transform: e.get(TransformComponent)! });
@@ -320,7 +312,9 @@ export class LightingSystem extends System {
         this._coneLights.splice(index, 1);
       }
     });
+  }
 
+  private _initOccluders(world: World): void {
     this._occluderQuery = world.query([LightOccluderComponent, TransformComponent]);
     for (const e of this._occluderQuery.entities) {
       this._occluderEntries.push({
@@ -355,7 +349,9 @@ export class LightingSystem extends System {
         this._occluderEntries.splice(index, 1);
       }
     });
+  }
 
+  private _initCanvas(scene: Scene): void {
     this._offscreen = document.createElement('canvas');
     this._offscreenCtx = this._offscreen.getContext('2d');
 
@@ -422,26 +418,22 @@ export class LightingSystem extends System {
       }
     }
 
+    // Load bearing: flags the canvas dirty so the next rasterize() re-runs _renderLightingCanvas and
+    // picks up this frame's light/darkness/occluder state, instead of reusing the previous frame's raster.
     this._lightingCanvas.flagDirty();
+    // Manually rasterize here, during this Draw-phase system's own update(), rather than lazily letting
+    // GraphicsSystem trigger it on draw - keeps the 2D canvas raster cost attributed to LightingSystem
+    // in profiling/debug instrumentation instead of showing up inside GraphicsSystem/DrawingSystem.
+    this._lightingCanvas.rasterize();
   }
 
   /**
    * Writes the scene's effective ambient intensity/color into `dest` (avoids allocating a fresh
-   * object every frame). Last ambient light in the scene wins, they are not blended.
+   * object every frame).
    */
   private _computeAmbient(dest: AmbientResult): void {
     dest.intensity = this._engine.lighting.ambientIntensity;
-    dest.color = null;
-    for (let i = 0; i < this._ambientLights.length; i++) {
-      const a = this._ambientLights[i];
-      dest.intensity = a.enabled ? a.intensity : 0;
-      dest.color = a.enabled ? a.color : null;
-    }
-    if (this._ambientLights.length > 1 && process.env.NODE_ENV === 'development') {
-      Logger.getInstance().warnOnce(
-        `Scene has ${this._ambientLights.length} AmbientLightComponents, only the last one added is used — they are not blended`
-      );
-    }
+    dest.color = this._engine.lighting.ambientColor;
   }
 
   private _darknessFill(d: DarknessComponent, ambientIntensity: number, ambientColor: Color | null): string {
@@ -561,7 +553,7 @@ export class LightingSystem extends System {
       entry.cached = {
         kind: 'circle',
         center: xf.apply(entry.comp.offset),
-        radius: entry.comp.shape.radius
+        radius: entry.comp.shape.radius * Math.min(Math.abs(scale.x), Math.abs(scale.y))
       };
     } else {
       entry.cached = {
@@ -595,7 +587,8 @@ export class LightingSystem extends System {
     const zoom = this._scene.camera.zoom;
     const shadowNearOpacity = this._engine.lighting.shadowNearOpacity;
     const shadowMidOpacity = this._engine.lighting.shadowMidOpacity;
-    for (const occ of occluders) {
+    for (let i = 0; i < occluders.length; i++) {
+      const occ = occluders[i];
       if (occ.kind === 'circle') {
         const centerScreen = camTransform.multiply(occ.center);
         const dx = centerScreen.x - lightScreen.x;
@@ -627,8 +620,8 @@ export class LightingSystem extends System {
         ctx.fillStyle = grad;
         ctx.beginPath();
         ctx.moveTo(poly[0].x, poly[0].y);
-        for (let i = 1; i < poly.length; i++) {
-          ctx.lineTo(poly[i].x, poly[i].y);
+        for (let j = 1; j < poly.length; j++) {
+          ctx.lineTo(poly[j].x, poly[j].y);
         }
         ctx.closePath();
         ctx.fill();

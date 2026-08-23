@@ -79,8 +79,10 @@ describe('A Lighting System', () => {
       const lighting = new ex.LightingSystem({ size: { width: 32, height: 16 } });
       engine.currentScene.world.add(lighting);
       await engine.currentScene._initialize(engine);
+      engine.screen.setCurrentCamera(engine.currentScene.camera);
 
       engine.currentScene.update(engine, 16);
+      engine.currentScene.draw(engine.graphicsContext, 16);
 
       const [lightingEntity] = engine.currentScene.world.entityManager.getByName('lighting');
       expect(lightingEntity.get(ex.GraphicsComponent).current.width).toBe(32);
@@ -108,13 +110,16 @@ describe('A Lighting System', () => {
 
   describe('darkness and ambient light', () => {
     it('blends the darkness veil toward the ambient light color', async () => {
-      engine = TestUtils.engine({ width: 100, height: 100, lighting: true });
+      engine = TestUtils.engine({
+        width: 100,
+        height: 100,
+        lighting: { enabled: true, ambientColor: ex.Color.fromRGB(0, 0, 255), ambientIntensity: 0.5 }
+      });
       await engine.currentScene._initialize(engine);
       engine.screen.setCurrentCamera(engine.currentScene.camera);
 
       const room = new ex.Actor();
       room.addComponent(new ex.DarknessComponent({ color: ex.Color.Black, intensity: 1 }));
-      room.addComponent(new ex.AmbientLightComponent({ color: ex.Color.fromRGB(0, 0, 255), intensity: 0.5 }));
       engine.currentScene.add(room);
       engine.currentScene.update(engine, 16);
 
@@ -134,13 +139,16 @@ describe('A Lighting System', () => {
     });
 
     it('subtracts ambient intensity from the darkness veil opacity', async () => {
-      engine = TestUtils.engine({ width: 100, height: 100, lighting: true });
+      engine = TestUtils.engine({
+        width: 100,
+        height: 100,
+        lighting: { enabled: true, ambientColor: ex.Color.White, ambientIntensity: 0.3 }
+      });
       await engine.currentScene._initialize(engine);
       engine.screen.setCurrentCamera(engine.currentScene.camera);
 
       const room = new ex.Actor();
       room.addComponent(new ex.DarknessComponent({ color: ex.Color.Black, intensity: 0.8 }));
-      room.addComponent(new ex.AmbientLightComponent({ color: ex.Color.White, intensity: 0.3 }));
       engine.currentScene.add(room);
       engine.currentScene.update(engine, 16);
 
@@ -192,12 +200,12 @@ describe('A Lighting System', () => {
       const torch = new ex.Actor({ pos: ex.vec(50, 50) });
       const pointLight = new ex.PointLightComponent({
         intensity: 0.5,
-        flicker: { speed: 2.5, amplitude: 0.2, secondarySpeed: 5.1 }
+        flicker: { frequency: 2.5, amplitude: 0.2, secondaryFrequency: 5.1 }
       });
       const spot = new ex.Actor({ pos: ex.vec(25, 25) });
       const coneLight = new ex.ConeLightComponent({
         intensity: 0.1,
-        flicker: { speed: 13, amplitude: 1 }
+        flicker: { frequency: 13, amplitude: 1 }
       });
       torch.addComponent(pointLight);
       spot.addComponent(coneLight);
@@ -215,6 +223,12 @@ describe('A Lighting System', () => {
   });
 
   describe('components', () => {
+    it('lighting config has the documented ambient defaults', () => {
+      engine = TestUtils.engine({ width: 100, height: 100 });
+      expect(engine.lighting.ambientIntensity).toBe(0.05);
+      expect(engine.lighting.ambientColor).toBe(null);
+    });
+
     it('components have the documented defaults', () => {
       engine = TestUtils.engine({ width: 100, height: 100 });
       const darkness = new ex.DarknessComponent();
@@ -222,11 +236,6 @@ describe('A Lighting System', () => {
       expect(darkness.intensity).toBe(0.85);
       expect(darkness.width).toBe(Infinity);
       expect(darkness.height).toBe(Infinity);
-
-      const ambient = new ex.AmbientLightComponent();
-      expect(ambient.color).toEqual(ex.Color.White);
-      expect(ambient.intensity).toBe(0.05);
-      expect(ambient.enabled).toBe(true);
 
       const point = new ex.PointLightComponent();
       expect(point.color).toEqual(ex.Color.White);
@@ -279,8 +288,8 @@ describe('A Lighting System', () => {
   });
 
   describe('@visual', () => {
-    async function setupLightingEngine(): Promise<ex.Engine> {
-      const visualEngine = TestUtils.engine({ width: 100, height: 100, lighting: true });
+    async function setupLightingEngine(lighting?: Partial<ex.LightingConfig>): Promise<ex.Engine> {
+      const visualEngine = TestUtils.engine({ width: 100, height: 100, lighting: { enabled: true, ...lighting } });
       await visualEngine.currentScene._initialize(visualEngine);
       visualEngine.screen.setCurrentCamera(visualEngine.currentScene.camera);
       return visualEngine;
@@ -294,11 +303,10 @@ describe('A Lighting System', () => {
     }
 
     it('renders a point light punching through the darkness veil', async () => {
-      engine = await setupLightingEngine();
+      engine = await setupLightingEngine({ ambientIntensity: 0 });
 
       const world = new ex.Actor();
       world.addComponent(new ex.DarknessComponent({ color: ex.Color.Black, intensity: 1 }));
-      world.addComponent(new ex.AmbientLightComponent({ intensity: 0 }));
       engine.currentScene.add(world);
 
       const lamp = new ex.Actor({ pos: ex.vec(50, 50) });
@@ -310,11 +318,10 @@ describe('A Lighting System', () => {
     });
 
     it('renders a cone light wedge', async () => {
-      engine = await setupLightingEngine();
+      engine = await setupLightingEngine({ ambientIntensity: 0 });
 
       const world = new ex.Actor();
       world.addComponent(new ex.DarknessComponent({ color: ex.Color.Black, intensity: 1 }));
-      world.addComponent(new ex.AmbientLightComponent({ intensity: 0 }));
       engine.currentScene.add(world);
 
       const flashlight = new ex.Actor({ pos: ex.vec(20, 50) });
@@ -326,11 +333,10 @@ describe('A Lighting System', () => {
     });
 
     it('renders occluder shadows cast by a box occluder', async () => {
-      engine = await setupLightingEngine();
+      engine = await setupLightingEngine({ ambientIntensity: 0 });
 
       const world = new ex.Actor();
       world.addComponent(new ex.DarknessComponent({ color: ex.Color.Black, intensity: 1 }));
-      world.addComponent(new ex.AmbientLightComponent({ intensity: 0 }));
       engine.currentScene.add(world);
 
       const lamp = new ex.Actor({ pos: ex.vec(30, 50) });
@@ -346,11 +352,10 @@ describe('A Lighting System', () => {
     });
 
     it('renders a colored ambient tint over the darkness veil', async () => {
-      engine = await setupLightingEngine();
+      engine = await setupLightingEngine({ ambientColor: ex.Color.fromRGB(60, 60, 200), ambientIntensity: 0.3 });
 
       const world = new ex.Actor();
       world.addComponent(new ex.DarknessComponent({ color: ex.Color.Black, intensity: 0.9 }));
-      world.addComponent(new ex.AmbientLightComponent({ color: ex.Color.fromRGB(60, 60, 200), intensity: 0.3 }));
       engine.currentScene.add(world);
 
       drawFrame(engine);

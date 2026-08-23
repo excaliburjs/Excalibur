@@ -408,8 +408,8 @@ export interface EngineOptions<TKnownScenes extends string = any> {
    * Optionally enable the 2D lighting simulation in excalibur, adding the {@apilink LightingSystem} and
    * {@apilink FlickerSystem} to every scene.
    *
-   * **Low performance API** — the lighting overlay is rasterized with the 2D Canvas API and re-uploaded
-   * to the GPU every frame, which carries a performance penalty.
+   * **Potential performance impact** — the lighting overlay is rasterized with the 2D Canvas API and
+   * re-uploaded to the GPU every frame, which carries a performance penalty.
    *
    * Pass a {@apilink LightingConfig} to tune the lighting simulation's defaults instead of just enabling it.
    *

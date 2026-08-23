@@ -2,13 +2,17 @@ var game = new ex.Engine({
   width: 800,
   height: 600,
   displayMode: ex.DisplayMode.FitScreenAndFill,
-  lighting: true
+  lighting: {
+    enabled: true,
+    // Blue-ish moonlight ambient blended into every darkness veil in the scene
+    ambientIntensity: 0.1,
+    ambientColor: ex.Color.fromRGB(60, 60, 200)
+  }
 });
 
-// Global darkness veil with a blue-ish moonlight ambient
+// Global darkness veil
 var environment = new ex.Actor({ name: 'environment' });
 environment.addComponent(new ex.DarknessComponent({ color: ex.Color.fromRGB(0, 0, 10), intensity: 0.9 }));
-environment.addComponent(new ex.AmbientLightComponent({ color: ex.Color.fromRGB(60, 60, 200), intensity: 0.1 }));
 game.add(environment);
 
 // A finite "room" darkness rect, darker than the global veil
@@ -23,7 +27,7 @@ lamp.addComponent(
     color: ex.Color.fromRGB(255, 200, 80),
     intensity: 0.6,
     radius: 300,
-    flicker: { speed: 2.5, amplitude: 0.15, secondarySpeed: 5.1 }
+    flicker: { frequency: 2.5, amplitude: 0.15, secondaryFrequency: 5.1 }
   })
 );
 game.add(lamp);

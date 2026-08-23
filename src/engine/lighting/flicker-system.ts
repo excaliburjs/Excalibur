@@ -29,11 +29,13 @@ export class FlickerSystem extends System {
     this._elapsed += elapsed / 1000;
     const t = this._elapsed;
 
-    for (const entity of this._pointQuery.entities) {
-      this._applyFlicker(entity.get(PointLightComponent)!, t);
+    const pointEntities = this._pointQuery.entities;
+    for (let i = 0; i < pointEntities.length; i++) {
+      this._applyFlicker(pointEntities[i].get(PointLightComponent)!, t);
     }
-    for (const entity of this._coneQuery.entities) {
-      this._applyFlicker(entity.get(ConeLightComponent)!, t);
+    const coneEntities = this._coneQuery.entities;
+    for (let i = 0; i < coneEntities.length; i++) {
+      this._applyFlicker(coneEntities[i].get(ConeLightComponent)!, t);
     }
   }
 
@@ -48,10 +50,10 @@ export class FlickerSystem extends System {
       return;
     }
 
-    const { speed, amplitude, secondarySpeed } = light.flicker;
-    let offset = Math.sin(t * speed * Math.PI * 2) * amplitude;
-    if (secondarySpeed) {
-      offset += Math.sin(t * secondarySpeed * Math.PI * 2) * amplitude * 0.4;
+    const { frequency, amplitude, secondaryFrequency } = light.flicker;
+    let offset = Math.sin(t * frequency * Math.PI * 2) * amplitude;
+    if (secondaryFrequency) {
+      offset += Math.sin(t * secondaryFrequency * Math.PI * 2) * amplitude * 0.4;
       offset /= 1.4;
     }
     light.currentIntensity = Math.max(0, light.intensity + offset);
