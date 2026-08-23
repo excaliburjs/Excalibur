@@ -854,6 +854,7 @@ export class Camera implements CanUpdate, CanInitialize {
   public draw(ctx: ExcaliburGraphicsContext): void {
     // default to the current position
     this.pos.clone(this.drawPos);
+    this.updateTransform(this.drawPos);
 
     // interpolation if fixed update is on
     // must happen on the draw, because more draws are potentially happening than updates
