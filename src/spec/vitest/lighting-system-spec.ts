@@ -194,6 +194,106 @@ describe('A Lighting System', () => {
     });
   });
 
+  describe('camera rotation', () => {
+    it('rotates a cone light wedge along with the camera', async () => {
+      engine = TestUtils.engine({ width: 100, height: 100, lighting: { enabled: true, ambientIntensity: 0 } });
+      await engine.currentScene._initialize(engine);
+      engine.screen.setCurrentCamera(engine.currentScene.camera);
+      engine.currentScene.camera.pos = ex.vec(50, 50);
+
+      const world = new ex.Actor();
+      world.addComponent(new ex.DarknessComponent({ color: ex.Color.Black, intensity: 1 }));
+      engine.currentScene.add(world);
+
+      const flashlight = new ex.Actor({ pos: ex.vec(50, 50) });
+      // Half-angle 45deg pointing right (direction 0) - "right" and "down" probes sit squarely
+      // inside/outside the wedge so a 90deg camera rotation flips which one is lit.
+      flashlight.addComponent(new ex.ConeLightComponent({ radius: 40, angle: Math.PI / 2, direction: 0, softness: 0 }));
+      engine.currentScene.add(flashlight);
+
+      const lighting = engine.currentScene.world.systemManager.get(ex.LightingSystem);
+      const raster = document.createElement('canvas');
+      raster.width = 100;
+      raster.height = 100;
+      const ctx = raster.getContext('2d');
+
+      engine.currentScene.update(engine, 16);
+      (lighting as any)._renderLightingCanvas(ctx);
+      const rightAtRotation0 = ctx.getImageData(75, 50, 1, 1).data[3];
+      const downAtRotation0 = ctx.getImageData(50, 75, 1, 1).data[3];
+      expect(rightAtRotation0).toBeLessThan(200); // lit - punched through the veil
+      expect(downAtRotation0).toBeGreaterThan(200); // dark - outside the wedge
+
+      engine.currentScene.camera.rotation = Math.PI / 2;
+      engine.currentScene.update(engine, 16);
+      (lighting as any)._renderLightingCanvas(ctx);
+      const rightAtRotation90 = ctx.getImageData(75, 50, 1, 1).data[3];
+      const downAtRotation90 = ctx.getImageData(50, 75, 1, 1).data[3];
+      expect(rightAtRotation90).toBeGreaterThan(200); // now dark - wedge rotated away
+      expect(downAtRotation90).toBeLessThan(200); // now lit - wedge rotated into it
+    });
+
+    it('rotates a finite darkness room rect along with the camera', async () => {
+      engine = TestUtils.engine({ width: 100, height: 100, lighting: { enabled: true, ambientIntensity: 0 } });
+      await engine.currentScene._initialize(engine);
+      engine.screen.setCurrentCamera(engine.currentScene.camera);
+      engine.currentScene.camera.pos = ex.vec(50, 50);
+      engine.currentScene.camera.rotation = Math.PI / 2;
+
+      // A wide, short room - at 90deg rotation this becomes narrow and tall on screen
+      const room = new ex.Actor({ pos: ex.vec(50, 50) });
+      room.addComponent(new ex.DarknessComponent({ color: ex.Color.Black, intensity: 1, width: 60, height: 20 }));
+      engine.currentScene.add(room);
+      engine.currentScene.update(engine, 16);
+
+      const lighting = engine.currentScene.world.systemManager.get(ex.LightingSystem);
+      const raster = document.createElement('canvas');
+      raster.width = 100;
+      raster.height = 100;
+      const ctx = raster.getContext('2d');
+      (lighting as any)._renderLightingCanvas(ctx);
+
+      // Was inside the unrotated (wide) rect, now outside the rotated (narrow) one
+      expect(ctx.getImageData(75, 50, 1, 1).data[3]).toBe(0);
+      // Was outside the unrotated (short) rect, now inside the rotated (tall) one
+      expect(ctx.getImageData(50, 75, 1, 1).data[3]).toBeGreaterThan(200);
+    });
+
+    it('clips a light to its containing room rect using the rotated geometry, not the unrotated one', async () => {
+      engine = TestUtils.engine({ width: 100, height: 100, lighting: { enabled: true, ambientIntensity: 0 } });
+      await engine.currentScene._initialize(engine);
+      engine.screen.setCurrentCamera(engine.currentScene.camera);
+      engine.currentScene.camera.pos = ex.vec(50, 50);
+      engine.currentScene.camera.rotation = Math.PI / 2;
+
+      const veil = new ex.Actor();
+      veil.addComponent(new ex.DarknessComponent({ color: ex.Color.Black, intensity: 1 }));
+      engine.currentScene.add(veil);
+
+      // A wide, short room - at 90deg rotation this becomes narrow (x) and tall (y) on screen
+      const room = new ex.Actor({ pos: ex.vec(50, 50) });
+      room.addComponent(new ex.DarknessComponent({ color: ex.Color.Black, intensity: 1, width: 60, height: 20 }));
+      engine.currentScene.add(room);
+
+      const lamp = new ex.Actor({ pos: ex.vec(50, 50) });
+      lamp.addComponent(new ex.PointLightComponent({ radius: 25 }));
+      engine.currentScene.add(lamp);
+      engine.currentScene.update(engine, 16);
+
+      const lighting = engine.currentScene.world.systemManager.get(ex.LightingSystem);
+      const raster = document.createElement('canvas');
+      raster.width = 100;
+      raster.height = 100;
+      const ctx = raster.getContext('2d');
+      (lighting as any)._renderLightingCanvas(ctx);
+
+      // Within the light's raw radius but outside the rotated (narrow) room - must stay clipped/dark
+      expect(ctx.getImageData(65, 50, 1, 1).data[3]).toBeGreaterThan(200);
+      // Within the light's raw radius and inside the rotated (tall) room - should be lit
+      expect(ctx.getImageData(50, 70, 1, 1).data[3]).toBeLessThan(200);
+    });
+  });
+
   describe('flicker', () => {
     it('forces disabled lights to zero intensity', async () => {
       engine = TestUtils.engine({ width: 100, height: 100, lighting: true });
