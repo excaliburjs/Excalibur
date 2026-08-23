@@ -184,6 +184,14 @@ export interface LightingSystemOptions {
    * The caller becomes responsible for its position and size.
    */
   screenElement?: ScreenElement;
+  /**
+   * Overrides {@apilink EngineOptions.lighting}'s `ambientIntensity` for this scene's instance.
+   */
+  ambientIntensity?: number;
+  /**
+   * Overrides {@apilink EngineOptions.lighting}'s `ambientColor` for this scene's instance.
+   */
+  ambientColor?: Color | null;
 }
 
 /**
@@ -418,12 +426,10 @@ export class LightingSystem extends System {
       }
     }
 
-    // Load bearing: flags the canvas dirty so the next rasterize() re-runs _renderLightingCanvas and
-    // picks up this frame's light/darkness/occluder state, instead of reusing the previous frame's raster.
+    // Load bearing: flagDirty() forces this frame's light/darkness/occluder state to be re-rendered.
+    // rasterize() is called here rather than left lazy so the raster cost is attributed to
+    // LightingSystem in profiling/debug instrumentation, not GraphicsSystem/DrawingSystem.
     this._lightingCanvas.flagDirty();
-    // Manually rasterize here, during this Draw-phase system's own update(), rather than lazily letting
-    // GraphicsSystem trigger it on draw - keeps the 2D canvas raster cost attributed to LightingSystem
-    // in profiling/debug instrumentation instead of showing up inside GraphicsSystem/DrawingSystem.
     this._lightingCanvas.rasterize();
   }
 
@@ -432,8 +438,8 @@ export class LightingSystem extends System {
    * object every frame).
    */
   private _computeAmbient(dest: AmbientResult): void {
-    dest.intensity = this._engine.lighting.ambientIntensity;
-    dest.color = this._engine.lighting.ambientColor;
+    dest.intensity = this._options.ambientIntensity ?? this._engine.lighting.ambientIntensity;
+    dest.color = this._options.ambientColor ?? this._engine.lighting.ambientColor;
   }
 
   private _darknessFill(d: DarknessComponent, ambientIntensity: number, ambientColor: Color | null): string {

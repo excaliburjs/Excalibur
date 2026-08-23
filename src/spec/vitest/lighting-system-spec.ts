@@ -162,6 +162,36 @@ describe('A Lighting System', () => {
       const [, , , a] = ctx.getImageData(50, 50, 1, 1).data;
       expect(a / 255).toBeCloseTo(0.8 - 0.3, 1);
     });
+
+    it('overrides the engine ambient config with a per-instance ambientIntensity/ambientColor', async () => {
+      engine = TestUtils.engine({
+        width: 100,
+        height: 100,
+        lighting: { enabled: true, ambientColor: ex.Color.White, ambientIntensity: 0 }
+      });
+      const lighting = new ex.LightingSystem({ ambientColor: ex.Color.fromRGB(0, 0, 255), ambientIntensity: 0.5 });
+      engine.currentScene.world.add(lighting);
+      await engine.currentScene._initialize(engine);
+      engine.screen.setCurrentCamera(engine.currentScene.camera);
+
+      const room = new ex.Actor();
+      room.addComponent(new ex.DarknessComponent({ color: ex.Color.Black, intensity: 1 }));
+      engine.currentScene.add(room);
+      engine.currentScene.update(engine, 16);
+
+      const raster = document.createElement('canvas');
+      raster.width = 100;
+      raster.height = 100;
+      const ctx = raster.getContext('2d');
+      (lighting as any)._renderLightingCanvas(ctx);
+
+      const [r, g, b, a] = ctx.getImageData(50, 50, 1, 1).data;
+      // Black veil blended halfway toward blue ambient at alpha 1 - 0.5, per the instance override
+      expect(r).toBe(0);
+      expect(g).toBe(0);
+      expect(b).toBeCloseTo(128, -1);
+      expect(a).toBeCloseTo(128, -1);
+    });
   });
 
   describe('flicker', () => {

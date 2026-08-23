@@ -4,23 +4,19 @@ var game = new ex.Engine({
   displayMode: ex.DisplayMode.FitScreenAndFill,
   lighting: {
     enabled: true,
-    // Blue-ish moonlight ambient blended into every darkness veil in the scene
     ambientIntensity: 0.1,
     ambientColor: ex.Color.fromRGB(60, 60, 200)
   }
 });
 
-// Global darkness veil
 var environment = new ex.Actor({ name: 'environment' });
 environment.addComponent(new ex.DarknessComponent({ color: ex.Color.fromRGB(0, 0, 10), intensity: 0.9 }));
 game.add(environment);
 
-// A finite "room" darkness rect, darker than the global veil
 var room = new ex.Actor({ name: 'room', pos: ex.vec(750, 150) });
 room.addComponent(new ex.DarknessComponent({ color: ex.Color.fromRGB(5, 5, 20), intensity: 0.95, width: 300, height: 200 }));
 game.add(room);
 
-// Flickering warm lamp
 var lamp = new ex.Actor({ pos: ex.vec(400, 300), radius: 5, color: ex.Color.fromRGB(255, 200, 80) });
 lamp.addComponent(
   new ex.PointLightComponent({
@@ -32,7 +28,6 @@ lamp.addComponent(
 );
 game.add(lamp);
 
-// Cone light that follows the pointer direction
 var flashlight = new ex.Actor({ pos: ex.vec(200, 420), radius: 5, color: ex.Color.White });
 var cone = new ex.ConeLightComponent({
   color: ex.Color.fromRGB(200, 255, 200),
@@ -47,7 +42,6 @@ game.input.pointers.primary.on('move', (evt) => {
   cone.direction = evt.worldPos.sub(flashlight.pos).toAngle();
 });
 
-// Occluders: box, circle, polygon
 var crate = new ex.Actor({ pos: ex.vec(520, 260), width: 40, height: 40, color: ex.Color.Brown });
 crate.addComponent(new ex.LightOccluderComponent({ shape: { kind: 'box', width: 40, height: 40 } }));
 crate.actions.repeatForever((ctx) => ctx.rotateBy({ angleRadiansOffset: Math.PI, duration: 4000 }));
@@ -67,12 +61,10 @@ wedge.addComponent(
 );
 game.add(wedge);
 
-// A light inside the room rect to show room clipping
 var roomLamp = new ex.Actor({ pos: ex.vec(750, 150), radius: 5, color: ex.Color.fromRGB(255, 120, 120) });
 roomLamp.addComponent(new ex.PointLightComponent({ color: ex.Color.fromRGB(255, 120, 120), intensity: 0.8, radius: 120 }));
 game.add(roomLamp);
 
-// Floor grid so the darkness has something to darken
 for (let x = -2; x < 12; x++) {
   for (let y = -2; y < 10; y++) {
     var tile = new ex.Actor({
@@ -86,7 +78,6 @@ for (let x = -2; x < 12; x++) {
   }
 }
 
-// Camera pan/zoom controls to exercise repositioning + resolution resync
 game.onPostUpdate = () => {
   var kb = game.input.keyboard;
   var speed = 5;
