@@ -51,6 +51,10 @@ interface AmbientResult {
 interface LightEntry<TLight> {
   light: TLight;
   transform: TransformComponent;
+  /** This frame's screen-space position, mutated in place every frame via an AffineMatrix `dest` write - never reallocated. */
+  screenPos: Vector;
+  screenRadius: number;
+  visible: boolean;
 }
 
 interface OccluderEntry {
@@ -64,6 +68,13 @@ interface OccluderEntry {
   lastScaleX: number | null;
   lastScaleY: number | null;
 }
+
+/**
+ * An {@apilink Occluder}'s geometry pre-transformed to screen space for the current frame's camera -
+ * computed once per occluder per frame (in `_collectScreenOccluders`) rather than once per (light,
+ * occluder) pair, since an occluder's screen position doesn't depend on which light is asking.
+ */
+type ScreenOccluder = { kind: 'circle'; screenCenter: Vector; screenRadius: number } | { kind: 'poly'; screenVerts: Vector[] };
 
 interface ConeGradientOptions {
   startAngle: number;
@@ -106,12 +117,7 @@ function projectAway(v: Vector, source: Vector, reach: number): Vector {
  * extremes, and those two silhouette vertices are projected out to `reach` to close off the far edge.
  *
  */
-function shadowPolygon(lightSource: Vector, occluderVerts: Vector[], camTransform: AffineMatrix, reach: number): Vector[] {
-  const occluderScreenVerts: Vector[] = [];
-  for (let i = 0; i < occluderVerts.length; i++) {
-    occluderScreenVerts.push(camTransform.multiply(occluderVerts[i]));
-  }
-
+function shadowPolygon(lightSource: Vector, occluderScreenVerts: Vector[], reach: number): Vector[] {
   let nearestDistSq = Infinity;
   let minAngle = Infinity;
   let maxAngle = -Infinity;
@@ -155,16 +161,11 @@ function shadowPolygon(lightSource: Vector, occluderVerts: Vector[], camTransfor
 function drawShadowCircle(
   ctx: CanvasRenderingContext2D,
   lightScreen: Vector,
-  centerWorld: Vector,
-  worldRadius: number,
-  camTransform: AffineMatrix,
-  zoom: number,
+  center: Vector,
+  screenRadius: number,
   reach: number,
   grad: CanvasGradient
 ): void {
-  const center = camTransform.multiply(centerWorld);
-  const screenRadius = worldRadius * zoom;
-
   const dx = center.x - lightScreen.x;
   const dy = center.y - lightScreen.y;
   const dist = Math.sqrt(dx * dx + dy * dy);
@@ -323,10 +324,22 @@ export class LightingSystem extends System {
   private _initPointLights(world: World): void {
     this._pointQuery = world.query([PointLightComponent, TransformComponent]);
     for (const e of this._pointQuery.entities) {
-      this._pointLights.push({ light: e.get(PointLightComponent)!, transform: e.get(TransformComponent)! });
+      this._pointLights.push({
+        light: e.get(PointLightComponent)!,
+        transform: e.get(TransformComponent)!,
+        screenPos: new Vector(0, 0),
+        screenRadius: 0,
+        visible: false
+      });
     }
     this._pointQuery.entityAdded$.subscribe((e) => {
-      this._pointLights.push({ light: e.get(PointLightComponent)!, transform: e.get(TransformComponent)! });
+      this._pointLights.push({
+        light: e.get(PointLightComponent)!,
+        transform: e.get(TransformComponent)!,
+        screenPos: new Vector(0, 0),
+        screenRadius: 0,
+        visible: false
+      });
     });
     this._pointQuery.entityRemoved$.subscribe((e) => {
       const light = e.get(PointLightComponent)!;
@@ -340,10 +353,22 @@ export class LightingSystem extends System {
   private _initConeLights(world: World): void {
     this._coneQuery = world.query([ConeLightComponent, TransformComponent]);
     for (const e of this._coneQuery.entities) {
-      this._coneLights.push({ light: e.get(ConeLightComponent)!, transform: e.get(TransformComponent)! });
+      this._coneLights.push({
+        light: e.get(ConeLightComponent)!,
+        transform: e.get(TransformComponent)!,
+        screenPos: new Vector(0, 0),
+        screenRadius: 0,
+        visible: false
+      });
     }
     this._coneQuery.entityAdded$.subscribe((e) => {
-      this._coneLights.push({ light: e.get(ConeLightComponent)!, transform: e.get(TransformComponent)! });
+      this._coneLights.push({
+        light: e.get(ConeLightComponent)!,
+        transform: e.get(TransformComponent)!,
+        screenPos: new Vector(0, 0),
+        screenRadius: 0,
+        visible: false
+      });
     });
     this._coneQuery.entityRemoved$.subscribe((e) => {
       const light = e.get(ConeLightComponent)!;
@@ -563,7 +588,35 @@ export class LightingSystem extends System {
   }
 
   private _inCameraView(cullBounds: BoundingBox, worldPos: Vector, radius: number): boolean {
-    return cullBounds.overlaps(BoundingBox.fromDimension(radius * 2, radius * 2, Vector.Half, worldPos));
+    return (
+      cullBounds.left < worldPos.x + radius &&
+      worldPos.x - radius < cullBounds.right &&
+      cullBounds.top < worldPos.y + radius &&
+      worldPos.y - radius < cullBounds.bottom
+    );
+  }
+
+  /**
+   * Computes (once per frame, shared by the erase and tint passes) whether each light in `entries` is
+   * enabled and within `cullBounds`, and its screen-space position/radius. Writes into each entry's
+   * persistent `screenPos` in place rather than allocating a new Vector.
+   */
+  private _updateLightVisibility<TLight extends PointLightComponent | ConeLightComponent>(
+    entries: LightEntry<TLight>[],
+    cullBounds: BoundingBox,
+    camera: Camera
+  ): void {
+    for (let i = 0; i < entries.length; i++) {
+      const entry = entries[i];
+      const light = entry.light;
+      if (!light.enabled || !this._inCameraView(cullBounds, entry.transform.pos, light.radius)) {
+        entry.visible = false;
+        continue;
+      }
+      entry.visible = true;
+      camera.transform.multiply(entry.transform.pos, entry.screenPos);
+      entry.screenRadius = light.radius * camera.zoom;
+    }
   }
 
   /**
@@ -626,33 +679,48 @@ export class LightingSystem extends System {
     return occluders;
   }
 
-  private _drawOccluderShadows(
-    ctx: CanvasRenderingContext2D,
-    lightScreen: Vector,
-    occluders: Occluder[],
-    reach: number,
-    camTransform: AffineMatrix
-  ): void {
-    const zoom = this._scene.camera.zoom;
+  /**
+   * Transforms every occluder's (cached, world-space) geometry to screen space once for this frame,
+   * so `_drawOccluderShadows` can reuse the same screen-space geometry for every light instead of
+   * re-transforming it once per (light, occluder) pair.
+   */
+  private _collectScreenOccluders(camera: Camera): ScreenOccluder[] {
+    const occluders = this._collectOccluders();
+    const screenOccluders: ScreenOccluder[] = [];
+    for (let i = 0; i < occluders.length; i++) {
+      const occ = occluders[i];
+      if (occ.kind === 'circle') {
+        screenOccluders.push({
+          kind: 'circle',
+          screenCenter: camera.transform.multiply(occ.center),
+          screenRadius: occ.radius * camera.zoom
+        });
+      } else {
+        screenOccluders.push({ kind: 'poly', screenVerts: occ.verts.map((v) => camera.transform.multiply(v)) });
+      }
+    }
+    return screenOccluders;
+  }
+
+  private _drawOccluderShadows(ctx: CanvasRenderingContext2D, lightScreen: Vector, occluders: ScreenOccluder[], reach: number): void {
     const shadowNearOpacity = this._engine.lighting.shadowNearOpacity;
     const shadowMidOpacity = this._engine.lighting.shadowMidOpacity;
     for (let i = 0; i < occluders.length; i++) {
       const occ = occluders[i];
       if (occ.kind === 'circle') {
-        const centerScreen = camTransform.multiply(occ.center);
-        const dx = centerScreen.x - lightScreen.x;
-        const dy = centerScreen.y - lightScreen.y;
+        const dx = occ.screenCenter.x - lightScreen.x;
+        const dy = occ.screenCenter.y - lightScreen.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
 
-        const nearDist = Math.max(0, dist - occ.radius * zoom);
+        const nearDist = Math.max(0, dist - occ.screenRadius);
         const grad = ctx.createRadialGradient(lightScreen.x, lightScreen.y, nearDist, lightScreen.x, lightScreen.y, reach);
         grad.addColorStop(0, `rgba(0,0,0,${shadowNearOpacity})`);
         grad.addColorStop(0.4, `rgba(0,0,0,${shadowMidOpacity})`);
         grad.addColorStop(1, 'rgba(0,0,0,0)');
 
-        drawShadowCircle(ctx, lightScreen, occ.center, occ.radius, camTransform, zoom, reach, grad);
+        drawShadowCircle(ctx, lightScreen, occ.screenCenter, occ.screenRadius, reach, grad);
       } else {
-        const poly = shadowPolygon(lightScreen, occ.verts, camTransform, reach);
+        const poly = shadowPolygon(lightScreen, occ.screenVerts, reach);
         if (poly.length < 3) {
           continue;
         }
@@ -722,7 +790,7 @@ export class LightingSystem extends System {
     screenPos: Vector,
     screenRadius: number,
     alpha: number,
-    occluders: Occluder[],
+    occluders: ScreenOccluder[],
     roomClips: RoomClip[],
     w: number,
     h: number,
@@ -753,7 +821,7 @@ export class LightingSystem extends System {
     }
 
     this._offscreenCtx.globalCompositeOperation = 'destination-out';
-    this._drawOccluderShadows(this._offscreenCtx, screenPos, occluders, shadowReach, camera.transform);
+    this._drawOccluderShadows(this._offscreenCtx, screenPos, occluders, shadowReach);
 
     if (activeClip) {
       this._offscreenCtx.restore();
@@ -814,8 +882,7 @@ export class LightingSystem extends System {
 
   private _drawPointLights(
     ctx: CanvasRenderingContext2D,
-    cullBounds: BoundingBox,
-    occluders: Occluder[],
+    occluders: ScreenOccluder[],
     roomClips: RoomClip[],
     w: number,
     h: number,
@@ -823,26 +890,16 @@ export class LightingSystem extends System {
   ): void {
     for (let i = 0; i < this._pointLights.length; i++) {
       const entry = this._pointLights[i];
-      const light = entry.light;
-      if (!light.enabled) {
+      if (!entry.visible) {
         continue;
       }
-      const pos = entry.transform.pos;
-      if (!this._inCameraView(cullBounds, pos, light.radius)) {
-        continue;
-      }
-
-      const screenPos = camera.transform.multiply(pos);
-      const screenRadius = light.radius * camera.zoom;
-
-      this._drawLight(ctx, screenPos, screenRadius, light.currentIntensity, occluders, roomClips, w, h, camera);
+      this._drawLight(ctx, entry.screenPos, entry.screenRadius, entry.light.currentIntensity, occluders, roomClips, w, h, camera);
     }
   }
 
   private _drawConeLights(
     ctx: CanvasRenderingContext2D,
-    cullBounds: BoundingBox,
-    occluders: Occluder[],
+    occluders: ScreenOccluder[],
     roomClips: RoomClip[],
     w: number,
     h: number,
@@ -850,21 +907,14 @@ export class LightingSystem extends System {
   ): void {
     for (let i = 0; i < this._coneLights.length; i++) {
       const entry = this._coneLights[i];
+      if (!entry.visible) {
+        continue;
+      }
       const light = entry.light;
-      if (!light.enabled) {
-        continue;
-      }
-      const pos = entry.transform.pos;
-      if (!this._inCameraView(cullBounds, pos, light.radius)) {
-        continue;
-      }
-
-      const screenPos = camera.transform.multiply(pos);
-      const screenRadius = light.radius * camera.zoom;
       const halfAngle = light.angle / 2;
       const screenDirection = light.direction + camera.rotation;
 
-      this._drawLight(ctx, screenPos, screenRadius, light.currentIntensity, occluders, roomClips, w, h, camera, {
+      this._drawLight(ctx, entry.screenPos, entry.screenRadius, light.currentIntensity, occluders, roomClips, w, h, camera, {
         startAngle: screenDirection - halfAngle,
         endAngle: screenDirection + halfAngle,
         softness: light.softness
@@ -872,35 +922,24 @@ export class LightingSystem extends System {
     }
   }
 
-  private _drawColorTints(ctx: CanvasRenderingContext2D, cullBounds: BoundingBox, roomClips: RoomClip[], camera: Camera): void {
+  private _drawColorTints(ctx: CanvasRenderingContext2D, roomClips: RoomClip[], camera: Camera): void {
     for (let i = 0; i < this._pointLights.length; i++) {
       const entry = this._pointLights[i];
-      const light = entry.light;
-      if (!light.enabled || light.color.equal(Color.White)) {
+      if (!entry.visible || entry.light.color.equal(Color.White)) {
         continue;
       }
-      const pos = entry.transform.pos;
-      if (!this._inCameraView(cullBounds, pos, light.radius)) {
-        continue;
-      }
-
-      this._drawColorTint(ctx, light, camera.transform.multiply(pos), camera, roomClips);
+      this._drawColorTint(ctx, entry.light, entry.screenPos, camera, roomClips);
     }
 
     for (let i = 0; i < this._coneLights.length; i++) {
       const entry = this._coneLights[i];
+      if (!entry.visible || entry.light.color.equal(Color.White)) {
+        continue;
+      }
       const light = entry.light;
-      if (!light.enabled || light.color.equal(Color.White)) {
-        continue;
-      }
-      const pos = entry.transform.pos;
-      if (!this._inCameraView(cullBounds, pos, light.radius)) {
-        continue;
-      }
-
       const halfAngle = light.angle / 2;
       const screenDirection = light.direction + camera.rotation;
-      this._drawColorTint(ctx, light, camera.transform.multiply(pos), camera, roomClips, {
+      this._drawColorTint(ctx, light, entry.screenPos, camera, roomClips, {
         start: screenDirection - halfAngle,
         end: screenDirection + halfAngle
       });
@@ -921,11 +960,13 @@ export class LightingSystem extends System {
     const cullPadding = this._engine.lighting.cullPadding;
     const vp = camera.viewport;
     const cullBounds = new BoundingBox(vp.left - cullPadding, vp.top - cullPadding, vp.right + cullPadding, vp.bottom + cullPadding);
+    this._updateLightVisibility(this._pointLights, cullBounds, camera);
+    this._updateLightVisibility(this._coneLights, cullBounds, camera);
 
-    const occluders = this._collectOccluders();
+    const occluders = this._collectScreenOccluders(camera);
 
-    this._drawPointLights(ctx, cullBounds, occluders, roomClips, w, h, camera);
-    this._drawConeLights(ctx, cullBounds, occluders, roomClips, w, h, camera);
-    this._drawColorTints(ctx, cullBounds, roomClips, camera);
+    this._drawPointLights(ctx, occluders, roomClips, w, h, camera);
+    this._drawConeLights(ctx, occluders, roomClips, w, h, camera);
+    this._drawColorTints(ctx, roomClips, camera);
   }
 }
