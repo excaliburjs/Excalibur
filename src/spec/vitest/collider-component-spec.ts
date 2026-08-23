@@ -263,17 +263,35 @@ describe('A ColliderComponent', () => {
       expect(data.colliderData).toBeNull();
     });
 
-    // BUG: EdgeCollider extends Collider directly (not PolygonCollider), so none of
-    // serialize()'s instanceof checks (PolygonCollider/CircleCollider/CompositeCollider)
-    // match it. An actor with useEdgeCollider() silently loses its collider on
-    // serialize -- no error, no warning, just null data. Documenting current behavior.
-    it('BUG: serialize() silently drops edge colliders (colliderType stays null)', () => {
+    it('round-trips an edge collider', () => {
       const comp = new ex.ColliderComponent();
-      comp.useEdgeCollider(ex.vec(0, 0), ex.vec(100, 0));
+      comp.useEdgeCollider(ex.vec(0, 0), ex.vec(100, 50));
       const data = comp.serialize();
 
-      expect(data.colliderType).toBeNull();
-      expect(data.colliderData).toBeNull();
+      expect(data.colliderType).toBe('edge');
+      expect(data.colliderData).toEqual({ start: { x: 0, y: 0 }, end: { x: 100, y: 50 } });
+
+      const roundTripped = new ex.ColliderComponent();
+      roundTripped.deserialize(data);
+
+      const restored = roundTripped.get() as ex.EdgeCollider;
+      expect(restored).toBeInstanceOf(ex.EdgeCollider);
+      expect(restored.begin).toBeVector(ex.vec(0, 0));
+      expect(restored.end).toBeVector(ex.vec(100, 50));
+    });
+
+    it('round-trips a composite collider with an edge part', () => {
+      const comp = new ex.ColliderComponent();
+      comp.useCompositeCollider([ex.Shape.Circle(15), ex.Shape.Edge(ex.vec(0, 0), ex.vec(20, 0))]);
+      const data = comp.serialize();
+
+      const roundTripped = new ex.ColliderComponent();
+      roundTripped.deserialize(data);
+
+      const restored = roundTripped.get() as ex.CompositeCollider;
+      const parts = restored.getColliders();
+      expect(parts.length).toBe(2);
+      expect(parts.some((p) => p instanceof ex.EdgeCollider)).toBe(true);
     });
   });
 

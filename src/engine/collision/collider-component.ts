@@ -10,7 +10,7 @@ import { CircleCollider } from './colliders/circle-collider';
 import type { Collider } from './colliders/collider';
 import { CompositeCollider } from './colliders/composite-collider';
 import { PolygonCollider } from './colliders/polygon-collider';
-import type { EdgeCollider } from './colliders/edge-collider';
+import { EdgeCollider } from './colliders/edge-collider';
 import { Shape } from './colliders/shape';
 import { EventEmitter } from '../event-emitter';
 import { Actor } from '../actor';
@@ -342,6 +342,12 @@ export class ColliderComponent extends Component {
         radius: collider.radius,
         offset: { x: collider.offset.x, y: collider.offset.y }
       } as CircleColliderData;
+    } else if (collider instanceof EdgeCollider) {
+      returnData.colliderType = 'edge';
+      returnData.colliderData = {
+        start: { x: collider.begin.x, y: collider.begin.y },
+        end: { x: collider.end.x, y: collider.end.y }
+      } as EdgeColliderData;
     } else if (collider instanceof CompositeCollider) {
       returnData.colliderType = 'composite';
       const partsData: ColliderCreationData[] = [];
@@ -365,6 +371,9 @@ export class ColliderComponent extends Component {
     } else if (data.colliderType === 'circle') {
       const circleData = data.colliderData as CircleColliderData;
       this.useCircleCollider(circleData.radius, Vector.Zero).offset = new Vector(circleData.offset?.x ?? 0, circleData.offset?.y ?? 0);
+    } else if (data.colliderType === 'edge') {
+      const edgeData = data.colliderData as EdgeColliderData;
+      this.useEdgeCollider(new Vector(edgeData.start.x, edgeData.start.y), new Vector(edgeData.end.x, edgeData.end.y));
     } else if (data.colliderType === 'composite') {
       const compositeData = data.colliderData as CompositeColliderData;
       const parts: Collider[] = [];
