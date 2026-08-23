@@ -1,8 +1,9 @@
 import { System, SystemType } from '../entity-component-system/system';
 import { SystemPriority } from '../entity-component-system/priority';
 import type { World } from '../entity-component-system/world';
-import type { Query } from '../entity-component-system/query';
 import { TransformComponent } from '../entity-component-system/components/transform-component';
+import type { Component, ComponentCtor } from '../entity-component-system/component';
+import type { Entity } from '../entity-component-system/entity';
 import type { Scene } from '../scene';
 import type { Engine } from '../engine';
 import type { Camera } from '../camera';
@@ -259,11 +260,6 @@ export class LightingSystem extends System {
   private _offscreen: HTMLCanvasElement | null = null;
   private _offscreenCtx: CanvasRenderingContext2D | null = null;
 
-  private _darknessQuery!: Query<typeof DarknessComponent | typeof TransformComponent>;
-  private _pointQuery!: Query<typeof PointLightComponent | typeof TransformComponent>;
-  private _coneQuery!: Query<typeof ConeLightComponent | typeof TransformComponent>;
-  private _occluderQuery!: Query<typeof LightOccluderComponent | typeof TransformComponent>;
-
   private _darknessEntries: DarknessEntry[] = [];
   private _pointLights: LightEntry<PointLightComponent>[] = [];
   private _coneLights: LightEntry<ConeLightComponent>[] = [];
@@ -286,111 +282,83 @@ export class LightingSystem extends System {
     this._initCanvas(scene);
   }
 
-  private _initDarkness(world: World): void {
-    this._darknessQuery = world.query([DarknessComponent, TransformComponent]);
-    for (const e of this._darknessQuery.entities) {
-      this._darknessEntries.push({
-        comp: e.get(DarknessComponent)!,
-        transform: e.get(TransformComponent)!,
-        cached: null,
-        lastCenterX: null,
-        lastCenterY: null,
-        lastCamX: null,
-        lastCamY: null,
-        lastZoom: null,
-        lastRotation: null,
-        lastWidth: null,
-        lastHeight: null
-      });
+  /**
+   * Queries `world` for entities with `ctor` + a TransformComponent, seeds `entries` from the
+   * initial matches, and wires the query's entityAdded$/entityRemoved$ to keep `entries` in sync
+   * as matching entities are added/removed. Shared by all four light-like component trackers below.
+   */
+  private _wireQuery<TComp extends Component, TEntry>(
+    world: World,
+    ctor: ComponentCtor<TComp>,
+    entries: TEntry[],
+    makeEntry: (comp: TComp, transform: TransformComponent) => TEntry,
+    getComp: (entry: TEntry) => TComp
+  ): void {
+    const query = world.query([ctor, TransformComponent]);
+    const add = (e: Entity) => entries.push(makeEntry(e.get(ctor)! as TComp, e.get(TransformComponent)!));
+    for (let i = 0; i < query.entities.length; i++) {
+      add(query.entities[i]);
     }
-    this._darknessQuery.entityAdded$.subscribe((e) => {
-      this._darknessEntries.push({
-        comp: e.get(DarknessComponent)!,
-        transform: e.get(TransformComponent)!,
-        cached: null,
-        lastCenterX: null,
-        lastCenterY: null,
-        lastCamX: null,
-        lastCamY: null,
-        lastZoom: null,
-        lastRotation: null,
-        lastWidth: null,
-        lastHeight: null
-      });
-    });
-    this._darknessQuery.entityRemoved$.subscribe((e) => {
-      const comp = e.get(DarknessComponent)!;
-      const index = this._darknessEntries.findIndex((entry) => entry.comp === comp);
+    query.entityAdded$.subscribe(add);
+    query.entityRemoved$.subscribe((e) => {
+      const comp = e.get(ctor)! as TComp;
+      const index = entries.findIndex((entry) => getComp(entry) === comp);
       if (index > -1) {
-        this._darknessEntries.splice(index, 1);
+        entries.splice(index, 1);
       }
     });
+  }
+
+  private _initDarkness(world: World): void {
+    this._wireQuery(
+      world,
+      DarknessComponent,
+      this._darknessEntries,
+      (comp, transform) => ({
+        comp,
+        transform,
+        cached: null,
+        lastCenterX: null,
+        lastCenterY: null,
+        lastCamX: null,
+        lastCamY: null,
+        lastZoom: null,
+        lastRotation: null,
+        lastWidth: null,
+        lastHeight: null
+      }),
+      (entry) => entry.comp
+    );
   }
 
   private _initPointLights(world: World): void {
-    this._pointQuery = world.query([PointLightComponent, TransformComponent]);
-    for (const e of this._pointQuery.entities) {
-      this._pointLights.push({
-        light: e.get(PointLightComponent)!,
-        transform: e.get(TransformComponent)!,
-        screenPos: new Vector(0, 0),
-        screenRadius: 0,
-        visible: false
-      });
-    }
-    this._pointQuery.entityAdded$.subscribe((e) => {
-      this._pointLights.push({
-        light: e.get(PointLightComponent)!,
-        transform: e.get(TransformComponent)!,
-        screenPos: new Vector(0, 0),
-        screenRadius: 0,
-        visible: false
-      });
-    });
-    this._pointQuery.entityRemoved$.subscribe((e) => {
-      const light = e.get(PointLightComponent)!;
-      const index = this._pointLights.findIndex((entry) => entry.light === light);
-      if (index > -1) {
-        this._pointLights.splice(index, 1);
-      }
-    });
+    this._wireQuery(
+      world,
+      PointLightComponent,
+      this._pointLights,
+      (light, transform) => ({ light, transform, screenPos: new Vector(0, 0), screenRadius: 0, visible: false }),
+      (entry) => entry.light
+    );
   }
 
   private _initConeLights(world: World): void {
-    this._coneQuery = world.query([ConeLightComponent, TransformComponent]);
-    for (const e of this._coneQuery.entities) {
-      this._coneLights.push({
-        light: e.get(ConeLightComponent)!,
-        transform: e.get(TransformComponent)!,
-        screenPos: new Vector(0, 0),
-        screenRadius: 0,
-        visible: false
-      });
-    }
-    this._coneQuery.entityAdded$.subscribe((e) => {
-      this._coneLights.push({
-        light: e.get(ConeLightComponent)!,
-        transform: e.get(TransformComponent)!,
-        screenPos: new Vector(0, 0),
-        screenRadius: 0,
-        visible: false
-      });
-    });
-    this._coneQuery.entityRemoved$.subscribe((e) => {
-      const light = e.get(ConeLightComponent)!;
-      const index = this._coneLights.findIndex((entry) => entry.light === light);
-      if (index > -1) {
-        this._coneLights.splice(index, 1);
-      }
-    });
+    this._wireQuery(
+      world,
+      ConeLightComponent,
+      this._coneLights,
+      (light, transform) => ({ light, transform, screenPos: new Vector(0, 0), screenRadius: 0, visible: false }),
+      (entry) => entry.light
+    );
   }
 
   private _initOccluders(world: World): void {
-    this._occluderQuery = world.query([LightOccluderComponent, TransformComponent]);
-    for (const e of this._occluderQuery.entities) {
-      this._occluderEntries.push({
-        comp: e.get(LightOccluderComponent)!,
-        transform: e.get(TransformComponent)!,
+    this._wireQuery(
+      world,
+      LightOccluderComponent,
+      this._occluderEntries,
+      (comp, transform) => ({
+        comp,
+        transform,
         cached: null,
         cachedLocalVerts: null,
         lastX: null,
@@ -398,28 +366,9 @@ export class LightingSystem extends System {
         lastRotation: null,
         lastScaleX: null,
         lastScaleY: null
-      });
-    }
-    this._occluderQuery.entityAdded$.subscribe((e) => {
-      this._occluderEntries.push({
-        comp: e.get(LightOccluderComponent)!,
-        transform: e.get(TransformComponent)!,
-        cached: null,
-        cachedLocalVerts: null,
-        lastX: null,
-        lastY: null,
-        lastRotation: null,
-        lastScaleX: null,
-        lastScaleY: null
-      });
-    });
-    this._occluderQuery.entityRemoved$.subscribe((e) => {
-      const comp = e.get(LightOccluderComponent)!;
-      const index = this._occluderEntries.findIndex((entry) => entry.comp === comp);
-      if (index > -1) {
-        this._occluderEntries.splice(index, 1);
-      }
-    });
+      }),
+      (entry) => entry.comp
+    );
   }
 
   private _initCanvas(scene: Scene): void {
@@ -465,10 +414,7 @@ export class LightingSystem extends System {
 
     // Camera.transform isn't finalized for this frame until Camera.draw() applies fixed-update
     // interpolation/pixel-snapping - normally that's done by GraphicsSystem (SystemPriority.Average),
-    const graphicsContext = this._engine.graphicsContext;
-    graphicsContext.save();
-    this._scene.camera.draw(graphicsContext);
-    graphicsContext.restore();
+    this._scene.camera._finalizeDrawTransform(this._engine.graphicsContext);
 
     if (!this._options.pos && !this._options.screenElement) {
       // Anchor the overlay to the top left of the full visible canvas, the unsafeArea spans the
@@ -564,7 +510,7 @@ export class LightingSystem extends System {
    */
   private _computeRoomClip(entry: DarknessEntry, camera: Camera): RoomClip {
     const d = entry.comp;
-    const pos = entry.transform.pos;
+    const pos = entry.transform.globalPos;
     const camPos = camera.pos;
     const unchanged =
       entry.cached &&
@@ -626,12 +572,12 @@ export class LightingSystem extends System {
     for (let i = 0; i < entries.length; i++) {
       const entry = entries[i];
       const light = entry.light;
-      if (!light.enabled || !this._inCameraView(cullBounds, entry.transform.pos, light.radius)) {
+      if (!light.enabled || !this._inCameraView(cullBounds, entry.transform.globalPos, light.radius)) {
         entry.visible = false;
         continue;
       }
       entry.visible = true;
-      camera.transform.multiply(entry.transform.pos, entry.screenPos);
+      camera.transform.multiply(entry.transform.globalPos, entry.screenPos);
       entry.screenRadius = light.radius * camera.zoom;
     }
   }
@@ -643,9 +589,9 @@ export class LightingSystem extends System {
    */
   private _computeOccluderGeometry(entry: OccluderEntry): Occluder {
     const xf = entry.transform.get();
-    const pos = xf.pos;
-    const rotation = xf.rotation;
-    const scale = xf.scale;
+    const pos = xf.globalPos;
+    const rotation = xf.globalRotation;
+    const scale = xf.globalScale;
     const localVerts = entry.comp.localVertices();
 
     const unchanged =
@@ -742,9 +688,7 @@ export class LightingSystem extends System {
           continue;
         }
 
-        const nearMidX = (poly[0].x + poly[3].x) / 2;
-        const nearMidY = (poly[0].y + poly[3].y) / 2;
-        const nearDist = Math.sqrt((nearMidX - lightScreen.x) ** 2 + (nearMidY - lightScreen.y) ** 2);
+        const nearDist = Vector.distance(poly[0], lightScreen);
 
         const grad = ctx.createRadialGradient(lightScreen.x, lightScreen.y, nearDist, lightScreen.x, lightScreen.y, reach);
         grad.addColorStop(0, `rgba(0,0,0,${shadowNearOpacity})`);
@@ -975,7 +919,7 @@ export class LightingSystem extends System {
     const roomClips = this._drawDarknessVeil(ctx, w, h, camera, this._ambientScratch.intensity, this._ambientScratch.color);
 
     const cullPadding = this._engine.lighting.cullPadding;
-    const vp = camera.viewport;
+    const vp = this._engine.screen.getWorldBounds();
     const cullBounds = new BoundingBox(vp.left - cullPadding, vp.top - cullPadding, vp.right + cullPadding, vp.bottom + cullPadding);
     this._updateLightVisibility(this._pointLights, cullBounds, camera);
     this._updateLightVisibility(this._coneLights, cullBounds, camera);
