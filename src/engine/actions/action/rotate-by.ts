@@ -19,7 +19,9 @@ export interface RotateByOptions {
    * Optionally provide type of rotation. When omitted the entity rotates by exactly the
    * signed offset provided, preserving full turns (an offset of 2 PI performs a full revolution).
    * When provided, the offset determines the target orientation and the rotation type picks
-   * the travel path to it (a ShortestPath rotation of 2 PI will not move).
+   * the travel path to it. Non-zero full-turn multiples of 2 PI travel one full revolution in
+   * the requested direction for Clockwise, CounterClockwise, and LongestPath, while
+   * ShortestPath will not move.
    */
   rotationType?: RotationType;
 }
@@ -62,19 +64,23 @@ export class RotateByWithOptions implements Action {
     if (!this._started) {
       this._startAngle = this._tx.rotation;
       this._currentAngle = this._startAngle;
-      // The two canonical paths to the target orientation: positive in [0, 2PI), negative in [-2PI, 0)
-      const positivePath = canonicalizeAngle(this._offset);
-      const negativePath = positivePath - TwoPI;
+      // The two canonical paths to the target orientation: positive in [0, 2PI), negative in [-2PI, 0).
+      // A non-zero full-turn multiple targets the starting orientation; treat it as one full turn so
+      // directional rotation types still revolve instead of degenerating to 0 or -2PI arbitrarily
+      const canonicalOffset = canonicalizeAngle(this._offset);
+      const isFullTurn = canonicalOffset === 0 && this._offset !== 0;
+      const positivePath = isFullTurn ? TwoPI : canonicalOffset;
+      const negativePath = isFullTurn ? -TwoPI : canonicalOffset - TwoPI;
       switch (this._rotationType) {
         case undefined:
           // No explicit rotation type: rotate by exactly the signed offset, preserving full turns
           this._travel = this._offset;
           break;
         case RotationType.ShortestPath:
-          this._travel = Math.abs(positivePath) <= Math.abs(negativePath) ? positivePath : negativePath;
+          this._travel = isFullTurn ? 0 : Math.abs(positivePath) <= Math.abs(negativePath) ? positivePath : negativePath;
           break;
         case RotationType.LongestPath:
-          this._travel = Math.abs(positivePath) > Math.abs(negativePath) ? positivePath : negativePath;
+          this._travel = isFullTurn ? Math.sign(this._offset) * TwoPI : Math.abs(positivePath) > Math.abs(negativePath) ? positivePath : negativePath;
           break;
         case RotationType.Clockwise:
           this._travel = positivePath;

@@ -1336,6 +1336,40 @@ describe('Action', () => {
       expect(actor.angularVelocity).toBe(0);
     });
 
+    it('(with options) full-turn offsets with explicit directional rotation types travel a full revolution', () => {
+      expect(actor.rotation).toBe(0);
+
+      actor.actions.rotateBy({ angleRadiansOffset: Math.PI * 2, duration: 1000, rotationType: ex.RotationType.Clockwise });
+      scene.update(engine, 500);
+      expect(actor.rotation).toBeCloseTo(Math.PI, 5);
+      expect(actor.angularVelocity).toBeGreaterThan(0);
+      scene.update(engine, 500);
+      scene.update(engine, 100);
+      expect(actor.rotation).toBeCloseTo(0, 5);
+      expect(actor.angularVelocity).toBe(0);
+
+      actor.actions.rotateBy({ angleRadiansOffset: Math.PI * 2, duration: 1000, rotationType: ex.RotationType.CounterClockwise });
+      scene.update(engine, 500);
+      expect(actor.rotation).toBeCloseTo(Math.PI, 5);
+      expect(actor.angularVelocity).toBeLessThan(0);
+      scene.update(engine, 500);
+      scene.update(engine, 100);
+      expect(actor.rotation).toBeCloseTo(0, 5);
+      expect(actor.angularVelocity).toBe(0);
+    });
+
+    it('(with options) full-turn offsets with explicit ShortestPath do not move', () => {
+      expect(actor.rotation).toBe(0);
+
+      actor.actions.rotateBy({ angleRadiansOffset: Math.PI * 2, duration: 1000, rotationType: ex.RotationType.ShortestPath });
+      scene.update(engine, 500);
+      expect(actor.rotation).toBeCloseTo(0, 5);
+      scene.update(engine, 500);
+      scene.update(engine, 100);
+      expect(actor.rotation).toBeCloseTo(0, 5);
+      expect(actor.angularVelocity).toBe(0);
+    });
+
     it('(with options) can rotate multiple revolutions with a negative offset', () => {
       expect(actor.rotation).toBe(0);
 
