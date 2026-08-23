@@ -260,6 +260,37 @@ describe('A Lighting System', () => {
       expect(downAtRotation90).toBeLessThan(200);
     });
 
+    it('sweeps a cone light wedge with the owning entity world rotation', async () => {
+      // Regression test: the wedge direction previously used only light.direction + camera.rotation,
+      // so a cone parented to a rotating entity orbited with it but its beam never swept.
+      engine = TestUtils.engine({ width: 100, height: 100, lighting: { enabled: true, ambientIntensity: 0 } });
+      await engine.currentScene._initialize(engine);
+      engine.screen.setCurrentCamera(engine.currentScene.camera);
+
+      const veil = new ex.Actor();
+      veil.addComponent(new ex.DarknessComponent({ color: ex.Color.Black, intensity: 1 }));
+      engine.currentScene.add(veil);
+
+      const parent = new ex.Actor({ pos: ex.vec(50, 50), rotation: Math.PI / 2 });
+      const child = new ex.Actor();
+      child.addComponent(new ex.ConeLightComponent({ radius: 45, angle: Math.PI / 2, direction: 0, softness: 0 }));
+      parent.addChild(child);
+      engine.currentScene.add(parent);
+      engine.currentScene.update(engine, 16);
+
+      const lighting = engine.currentScene.world.systemManager.get(ex.LightingSystem);
+      const raster = document.createElement('canvas');
+      raster.width = 100;
+      raster.height = 100;
+      const ctx = raster.getContext('2d');
+      (lighting as any)._renderLightingCanvas(ctx);
+
+      // direction 0 rotated by the parent's PI/2 -> the beam points down (+y)
+      expect(ctx.getImageData(50, 75, 1, 1).data[3]).toBeLessThan(200);
+      // straight right (unrotated direction 0) must stay dark
+      expect(ctx.getImageData(75, 50, 1, 1).data[3]).toBeGreaterThan(200);
+    });
+
     it('rotates a finite darkness room rect along with the camera', async () => {
       engine = TestUtils.engine({ width: 100, height: 100, lighting: { enabled: true, ambientIntensity: 0 } });
       await engine.currentScene._initialize(engine);
@@ -417,6 +448,49 @@ describe('A Lighting System', () => {
       expect(ctx.getImageData(90, 50, 1, 1).data[3]).toBeGreaterThan(200); // behind the pillar - shadowed
     });
 
+    it('casts a circle occluder shadow spanning the full silhouette when the light is close', async () => {
+      // Regression test: drawShadowCircle previously computed the tangent points with inverted
+      // perpendicular signs (t1 + PI/2 / t2 - PI/2), producing a wedge narrower than the circle's
+      // true silhouette that collapsed as the light approached the occluder - light leaked around
+      // the edges of every circle occluder.
+      engine = TestUtils.engine({
+        width: 100,
+        height: 100,
+        lighting: { enabled: true, ambientIntensity: 0, shadowNearOpacity: 1, shadowMidOpacity: 0.9 }
+      });
+      await engine.currentScene._initialize(engine);
+      engine.screen.setCurrentCamera(engine.currentScene.camera);
+
+      const veil = new ex.Actor();
+      veil.addComponent(new ex.DarknessComponent({ color: ex.Color.Black, intensity: 1 }));
+      engine.currentScene.add(veil);
+
+      // Close to the pillar: d = 16, r = 8 -> true silhouette half-angle asin(8/16) ~= 0.524 rad
+      const lamp = new ex.Actor({ pos: ex.vec(44, 50) });
+      lamp.addComponent(new ex.PointLightComponent({ radius: 90 }));
+      engine.currentScene.add(lamp);
+
+      const pillar = new ex.Actor({ pos: ex.vec(60, 50) });
+      pillar.addComponent(new ex.LightOccluderComponent({ shape: { kind: 'circle', radius: 8 } }));
+      engine.currentScene.add(pillar);
+      engine.currentScene.update(engine, 16);
+
+      const lighting = engine.currentScene.world.systemManager.get(ex.LightingSystem);
+      const raster = document.createElement('canvas');
+      raster.width = 100;
+      raster.height = 100;
+      const ctx = raster.getContext('2d');
+      (lighting as any)._renderLightingCanvas(ctx);
+
+      // Directly behind the pillar - shadowed regardless of tangent geometry
+      expect(ctx.getImageData(80, 50, 1, 1).data[3]).toBeGreaterThan(200);
+      // Off-axis at ~0.44 rad from the light, inside the true silhouette (0.524 rad) but outside
+      // the too-narrow buggy wedge - must be shadowed
+      expect(ctx.getImageData(76, 65, 1, 1).data[3]).toBeGreaterThan(200);
+      // At ~0.75 rad, outside the true silhouette - must stay lit (guards against overcorrection)
+      expect(ctx.getImageData(70, 74, 1, 1).data[3]).toBeLessThan(200);
+    });
+
     it('does not throw and still lights the scene when a circle occluder contains the light itself', async () => {
       engine = TestUtils.engine({ width: 100, height: 100, lighting: { enabled: true, ambientIntensity: 0 } });
       await engine.currentScene._initialize(engine);
@@ -443,6 +517,40 @@ describe('A Lighting System', () => {
 
       expect(() => (lighting as any)._renderLightingCanvas(ctx)).not.toThrow();
       expect(ctx.getImageData(50, 50, 1, 1).data[3]).toBeLessThan(200);
+    });
+
+    it('skips building shadow gradients for occluders beyond the light radius', async () => {
+      engine = TestUtils.engine({ width: 100, height: 100, lighting: { enabled: true, ambientIntensity: 0 } });
+      await engine.currentScene._initialize(engine);
+      engine.screen.setCurrentCamera(engine.currentScene.camera);
+
+      const veil = new ex.Actor();
+      veil.addComponent(new ex.DarknessComponent({ color: ex.Color.Black, intensity: 1 }));
+      engine.currentScene.add(veil);
+
+      const lamp = new ex.Actor({ pos: ex.vec(20, 50) });
+      lamp.addComponent(new ex.PointLightComponent({ radius: 30 }));
+      engine.currentScene.add(lamp);
+
+      // Nearest edge is 60px from the light, twice its radius - its shadow can't erase anything
+      const crate = new ex.Actor({ pos: ex.vec(90, 50) });
+      crate.addComponent(new ex.LightOccluderComponent({ shape: { kind: 'box', width: 10, height: 10 } }));
+      engine.currentScene.add(crate);
+      engine.currentScene.update(engine, 16);
+
+      const lighting = engine.currentScene.world.systemManager.get(ex.LightingSystem);
+      const gradientSpy = vi.spyOn((lighting as any)._offscreenCtx, 'createRadialGradient');
+
+      const raster = document.createElement('canvas');
+      raster.width = 100;
+      raster.height = 100;
+      const ctx = raster.getContext('2d');
+      (lighting as any)._renderLightingCanvas(ctx);
+
+      // Only the light's own gradient - the out-of-range occluder's shadow gradient is skipped
+      expect(gradientSpy).toHaveBeenCalledTimes(1);
+      expect(ctx.getImageData(20, 50, 1, 1).data[3]).toBeLessThan(200); // light still renders
+      expect(ctx.getImageData(90, 50, 1, 1).data[3]).toBeGreaterThan(200); // beyond it stays dark
     });
 
     it('skips shadow casting for an occluder with castShadows disabled', async () => {
@@ -626,6 +734,112 @@ describe('A Lighting System', () => {
 
       expect(lightingEntity.get(ex.GraphicsComponent).current.width).toBe(150);
       expect(lightingEntity.get(ex.GraphicsComponent).current.height).toBe(80);
+    });
+
+    it('removes the lighting overlay and unsubscribes queries when lighting is disabled at runtime', async () => {
+      // Regression test: disabling lighting removed the LightingSystem but left the provisioned
+      // ScreenElement behind with the last rasterized darkness veil frozen over the screen, and each
+      // disable/enable cycle stacked another overlay + leaked query subscriptions.
+      engine = TestUtils.engine({ width: 100, height: 100, lighting: true });
+      await engine.currentScene._initialize(engine);
+      engine.screen.setCurrentCamera(engine.currentScene.camera);
+      engine.currentScene.update(engine, 16);
+      expect(engine.currentScene.world.entityManager.getByName('lighting').length).toBe(1);
+
+      const lighting = engine.currentScene.world.systemManager.get(ex.LightingSystem);
+
+      engine.lighting.enabled = false;
+      engine.currentScene.update(engine, 16);
+      engine.currentScene.update(engine, 16); // entity removal is deferred one update
+
+      expect(engine.currentScene.world.systemManager.get(ex.LightingSystem)).toBeFalsy();
+      expect(engine.currentScene.world.entityManager.getByName('lighting').length).toBe(0);
+      expect((lighting as any)._subscriptions.length).toBe(0);
+
+      engine.lighting.enabled = true;
+      engine.currentScene.update(engine, 16);
+      engine.currentScene.update(engine, 16);
+
+      expect(engine.currentScene.world.systemManager.get(ex.LightingSystem)).toBeInstanceOf(ex.LightingSystem);
+      expect(engine.currentScene.world.entityManager.getByName('lighting').length).toBe(1);
+    });
+
+    it('hides the canvas on a caller-provided ScreenElement host instead of removing it when uninitialized', async () => {
+      engine = TestUtils.engine({ width: 100, height: 100 });
+      const customHost = new ex.ScreenElement({ name: 'custom-lighting-host', width: 100, height: 100 });
+      engine.currentScene.add(customHost);
+      const lighting = new ex.LightingSystem({ screenElement: customHost });
+      engine.currentScene.world.add(lighting);
+      await engine.currentScene._initialize(engine);
+      expect(customHost.graphics.current).toBeInstanceOf(ex.Canvas);
+
+      engine.currentScene.world.remove(lighting);
+      engine.currentScene.update(engine, 16);
+
+      expect(customHost.isKilled()).toBe(false);
+      expect(customHost.graphics.current).toBeFalsy();
+    });
+
+    it('rebuilds a room rect screen quad when the camera transform moves without pos/zoom/rotation changing', async () => {
+      // Regression test: the room clip cache was keyed on camera pos/zoom/rotation, but the screen
+      // quad is built from camera.transform which also moves with camera shake and fixed-update
+      // interpolation - the veil froze in place while everything else shook.
+      engine = TestUtils.engine({ width: 100, height: 100, lighting: { enabled: true, ambientIntensity: 0 } });
+      await engine.currentScene._initialize(engine);
+      engine.screen.setCurrentCamera(engine.currentScene.camera);
+
+      const room = new ex.Actor({ pos: ex.vec(50, 50) });
+      room.addComponent(new ex.DarknessComponent({ color: ex.Color.Black, intensity: 1, width: 60, height: 40 }));
+      engine.currentScene.add(room);
+      engine.currentScene.update(engine, 16);
+
+      const lighting = engine.currentScene.world.systemManager.get(ex.LightingSystem);
+      const raster = document.createElement('canvas');
+      raster.width = 100;
+      raster.height = 100;
+      const ctx = raster.getContext('2d');
+      (lighting as any)._renderLightingCanvas(ctx);
+      const firstCornerX = (lighting as any)._darknessEntries[0].cached.screenCorners[0].x;
+
+      // Shift the camera transform directly, the way shake offsets and draw interpolation do -
+      // camera.pos/zoom/rotation stay identical
+      engine.currentScene.camera.transform.data[4] += 5;
+      (lighting as any)._renderLightingCanvas(ctx);
+      const secondCornerX = (lighting as any)._darknessEntries[0].cached.screenCorners[0].x;
+
+      expect(secondCornerX).toBeCloseTo(firstCornerX + 5, 5);
+    });
+
+    it('tracks runtime intensity changes when no FlickerSystem is present', async () => {
+      // Regression test: the render passes read only currentIntensity, which nothing wrote on the
+      // documented manual-add path (LightingSystem without FlickerSystem), freezing every light at
+      // its constructor-time intensity.
+      engine = TestUtils.engine({ width: 100, height: 100 });
+      const lighting = new ex.LightingSystem({ ambientIntensity: 0 });
+      engine.currentScene.world.add(lighting);
+      await engine.currentScene._initialize(engine);
+      engine.screen.setCurrentCamera(engine.currentScene.camera);
+
+      const veil = new ex.Actor();
+      veil.addComponent(new ex.DarknessComponent({ color: ex.Color.Black, intensity: 1 }));
+      engine.currentScene.add(veil);
+
+      const torch = new ex.Actor({ pos: ex.vec(50, 50) });
+      const light = new ex.PointLightComponent({ radius: 40, intensity: 1 });
+      torch.addComponent(light);
+      engine.currentScene.add(torch);
+      engine.currentScene.update(engine, 16);
+
+      const raster = document.createElement('canvas');
+      raster.width = 100;
+      raster.height = 100;
+      const ctx = raster.getContext('2d');
+      (lighting as any)._renderLightingCanvas(ctx);
+      expect(ctx.getImageData(50, 50, 1, 1).data[3]).toBeLessThan(200);
+
+      light.intensity = 0;
+      (lighting as any)._renderLightingCanvas(ctx);
+      expect(ctx.getImageData(50, 50, 1, 1).data[3]).toBeGreaterThan(200);
     });
 
     it('reuses cached room/occluder geometry when rendered twice with nothing changed', async () => {

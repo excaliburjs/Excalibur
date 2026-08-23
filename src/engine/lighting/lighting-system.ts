@@ -15,6 +15,7 @@ import { Color } from '../color';
 import { ScreenElement } from '../screen-element';
 import { Canvas } from '../graphics/canvas';
 import { Logger } from '../util/log';
+import type { Observable } from '../util/observable';
 import { BoundingBox } from '../collision/bounding-box';
 import { DarknessComponent } from './darkness-component';
 import { PointLightComponent } from './point-light-component';
@@ -28,10 +29,12 @@ interface DarknessEntry {
   cached: RoomClip | null;
   lastCenterX: number | null;
   lastCenterY: number | null;
-  lastCamX: number | null;
-  lastCamY: number | null;
-  lastZoom: number | null;
-  lastRotation: number | null;
+  /**
+   * Snapshot of the camera transform's 6 matrix components from the last rebuild. The screen quad
+   * depends on the full finalized camera transform - which also moves with camera shake and
+   * fixed-update interpolation - so caching on pos/zoom/rotation alone goes stale during those.
+   */
+  lastCameraMatrix: Float64Array | null;
   lastWidth: number | null;
   lastHeight: number | null;
 }
@@ -77,7 +80,9 @@ interface OccluderEntry {
  * computed once per occluder per frame (in `_collectScreenOccluders`) rather than once per (light,
  * occluder) pair, since an occluder's screen position doesn't depend on which light is asking.
  */
-type ScreenOccluder = { kind: 'circle'; screenCenter: Vector; screenRadius: number } | { kind: 'poly'; screenVerts: Vector[] };
+type ScreenOccluder =
+  | { kind: 'circle'; screenCenter: Vector; screenRadius: number }
+  | { kind: 'poly'; screenVerts: Vector[]; boundCenter: Vector; boundRadius: number };
 
 interface ConeGradientOptions {
   startAngle: number;
@@ -183,8 +188,11 @@ function drawShadowCircle(
   const t1 = angleToCenter - halfAngle;
   const t2 = angleToCenter + halfAngle;
 
-  const tp1 = new Vector(center.x + Math.cos(t1 + Math.PI / 2) * screenRadius, center.y + Math.sin(t1 + Math.PI / 2) * screenRadius);
-  const tp2 = new Vector(center.x + Math.cos(t2 - Math.PI / 2) * screenRadius, center.y + Math.sin(t2 - Math.PI / 2) * screenRadius);
+  // A tangent ray at angle t from the light touches the circle at the point whose direction from
+  // the circle's center is perpendicular to the ray, on the side facing away from it: t1 - PI/2
+  // for the min-angle ray and t2 + PI/2 for the max-angle ray
+  const tp1 = new Vector(center.x + Math.cos(t1 - Math.PI / 2) * screenRadius, center.y + Math.sin(t1 - Math.PI / 2) * screenRadius);
+  const tp2 = new Vector(center.x + Math.cos(t2 + Math.PI / 2) * screenRadius, center.y + Math.sin(t2 + Math.PI / 2) * screenRadius);
 
   const far1 = projectAway(tp1, lightScreen, reach);
   const far2 = projectAway(tp2, lightScreen, reach);
@@ -195,7 +203,8 @@ function drawShadowCircle(
   ctx.lineTo(far1.x, far1.y);
   ctx.lineTo(far2.x, far2.y);
   ctx.lineTo(tp2.x, tp2.y);
-  ctx.arc(center.x, center.y, screenRadius, t2 - Math.PI / 2, t1 + Math.PI / 2, true);
+  // Close along the circle's far cap (through angleToCenter, away from the light)
+  ctx.arc(center.x, center.y, screenRadius, t2 + Math.PI / 2, t1 - Math.PI / 2, true);
   ctx.closePath();
   ctx.fill();
 }
@@ -265,6 +274,7 @@ export class LightingSystem extends System {
   private _coneLights: LightEntry<ConeLightComponent>[] = [];
   private _occluderEntries: OccluderEntry[] = [];
   private _ambientScratch: AmbientResult = { intensity: 0, color: null };
+  private _subscriptions: { observable: Observable<any>; fn: (e: any) => void }[] = [];
 
   constructor(options?: LightingSystemOptions) {
     super();
@@ -283,6 +293,34 @@ export class LightingSystem extends System {
   }
 
   /**
+   * Releases everything `initialize` provisioned: unsubscribes the component tracking queries,
+   * removes the lighting overlay ScreenElement (when this system created it), and drops the
+   * offscreen scratch canvas. Called by the {@apilink SystemManager} when the system is removed,
+   * e.g. when `engine.lighting.enabled` is turned off at runtime.
+   */
+  public uninitialize(_world: World, scene: Scene): void {
+    for (const sub of this._subscriptions) {
+      sub.observable.unsubscribe(sub.fn);
+    }
+    this._subscriptions.length = 0;
+    this._darknessEntries.length = 0;
+    this._pointLights.length = 0;
+    this._coneLights.length = 0;
+    this._occluderEntries.length = 0;
+
+    if (this._lightingEntity) {
+      if (this._options.screenElement) {
+        // Caller-managed host: leave the entity in place but stop showing the (now frozen) canvas
+        this._lightingEntity.graphics.hide();
+      } else {
+        scene.remove(this._lightingEntity);
+      }
+    }
+    this._offscreen = null;
+    this._offscreenCtx = null;
+  }
+
+  /**
    * Queries `world` for entities with `ctor` + a TransformComponent, seeds `entries` from the
    * initial matches, and wires the query's entityAdded$/entityRemoved$ to keep `entries` in sync
    * as matching entities are added/removed. Shared by all four light-like component trackers below.
@@ -296,17 +334,19 @@ export class LightingSystem extends System {
   ): void {
     const query = world.query([ctor, TransformComponent]);
     const add = (e: Entity) => entries.push(makeEntry(e.get(ctor)! as TComp, e.get(TransformComponent)!));
-    for (let i = 0; i < query.entities.length; i++) {
-      add(query.entities[i]);
-    }
-    query.entityAdded$.subscribe(add);
-    query.entityRemoved$.subscribe((e) => {
+    const remove = (e: Entity) => {
       const comp = e.get(ctor)! as TComp;
       const index = entries.findIndex((entry) => getComp(entry) === comp);
       if (index > -1) {
         entries.splice(index, 1);
       }
-    });
+    };
+    for (let i = 0; i < query.entities.length; i++) {
+      add(query.entities[i]);
+    }
+    query.entityAdded$.subscribe(add);
+    query.entityRemoved$.subscribe(remove);
+    this._subscriptions.push({ observable: query.entityAdded$, fn: add }, { observable: query.entityRemoved$, fn: remove });
   }
 
   private _initDarkness(world: World): void {
@@ -320,10 +360,7 @@ export class LightingSystem extends System {
         cached: null,
         lastCenterX: null,
         lastCenterY: null,
-        lastCamX: null,
-        lastCamY: null,
-        lastZoom: null,
-        lastRotation: null,
+        lastCameraMatrix: null,
         lastWidth: null,
         lastHeight: null
       }),
@@ -504,22 +541,27 @@ export class LightingSystem extends System {
 
   /**
    * Computes (and caches) a room darkness rect's world bounds and camera-rotated screen quad. Only
-   * rebuilds when the room's world position/dimensions or the camera's pos/zoom/rotation changed since
-   * last frame - the screen quad depends on the camera's full transform, not just zoom/rotation, so
-   * camera pan alone must invalidate it too or the room's screen position goes stale.
+   * rebuilds when the room's world position/dimensions or the camera's finalized transform changed
+   * since last frame - the screen quad depends on the camera's full transform (which also moves with
+   * camera shake and fixed-update interpolation, not just pos/zoom/rotation), so the transform's
+   * matrix components are the cache key.
    */
   private _computeRoomClip(entry: DarknessEntry, camera: Camera): RoomClip {
     const d = entry.comp;
     const pos = entry.transform.globalPos;
-    const camPos = camera.pos;
+    const m = camera.transform.data;
+    const lastM = entry.lastCameraMatrix;
     const unchanged =
       entry.cached &&
       entry.lastCenterX === pos.x &&
       entry.lastCenterY === pos.y &&
-      entry.lastCamX === camPos.x &&
-      entry.lastCamY === camPos.y &&
-      entry.lastZoom === camera.zoom &&
-      entry.lastRotation === camera.rotation &&
+      lastM !== null &&
+      lastM[0] === m[0] &&
+      lastM[1] === m[1] &&
+      lastM[2] === m[2] &&
+      lastM[3] === m[3] &&
+      lastM[4] === m[4] &&
+      lastM[5] === m[5] &&
       entry.lastWidth === d.width &&
       entry.lastHeight === d.height;
 
@@ -540,10 +582,10 @@ export class LightingSystem extends System {
     entry.cached = { worldBounds, screenCorners };
     entry.lastCenterX = pos.x;
     entry.lastCenterY = pos.y;
-    entry.lastCamX = camPos.x;
-    entry.lastCamY = camPos.y;
-    entry.lastZoom = camera.zoom;
-    entry.lastRotation = camera.rotation;
+    if (!entry.lastCameraMatrix) {
+      entry.lastCameraMatrix = new Float64Array(6);
+    }
+    entry.lastCameraMatrix.set(m);
     entry.lastWidth = d.width;
     entry.lastHeight = d.height;
 
@@ -630,14 +672,47 @@ export class LightingSystem extends System {
     return entry.cached;
   }
 
-  private _collectOccluders(): Occluder[] {
+  /**
+   * True when the occluder's world geometry overlaps `bounds` expanded by `expand` on every side.
+   * Shadows only matter for occluders within a light's radius, and visible light centers lie within
+   * the cull bounds expanded by their own radius - so `expand` of twice the largest visible light
+   * radius is conservative.
+   */
+  private _occluderInRange(occ: Occluder, bounds: BoundingBox, expand: number): boolean {
+    if (occ.kind === 'circle') {
+      return (
+        bounds.left - expand < occ.center.x + occ.radius &&
+        occ.center.x - occ.radius < bounds.right + expand &&
+        bounds.top - expand < occ.center.y + occ.radius &&
+        occ.center.y - occ.radius < bounds.bottom + expand
+      );
+    }
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    for (let i = 0; i < occ.verts.length; i++) {
+      const v = occ.verts[i];
+      minX = Math.min(minX, v.x);
+      minY = Math.min(minY, v.y);
+      maxX = Math.max(maxX, v.x);
+      maxY = Math.max(maxY, v.y);
+    }
+    return bounds.left - expand < maxX && minX < bounds.right + expand && bounds.top - expand < maxY && minY < bounds.bottom + expand;
+  }
+
+  private _collectOccluders(cullBounds: BoundingBox, maxLightRadius: number): Occluder[] {
     const occluders: Occluder[] = [];
     for (let i = 0; i < this._occluderEntries.length; i++) {
       const entry = this._occluderEntries[i];
       if (!entry.comp.castShadows) {
         continue;
       }
-      occluders.push(this._computeOccluderGeometry(entry));
+      const occ = this._computeOccluderGeometry(entry);
+      if (!this._occluderInRange(occ, cullBounds, 2 * maxLightRadius)) {
+        continue;
+      }
+      occluders.push(occ);
     }
     return occluders;
   }
@@ -645,10 +720,11 @@ export class LightingSystem extends System {
   /**
    * Transforms every occluder's (cached, world-space) geometry to screen space once for this frame,
    * so `_drawOccluderShadows` can reuse the same screen-space geometry for every light instead of
-   * re-transforming it once per (light, occluder) pair.
+   * re-transforming it once per (light, occluder) pair. Also computes a screen-space bounding circle
+   * per occluder so the shadow pass can cheaply skip (light, occluder) pairs that are out of range.
    */
-  private _collectScreenOccluders(camera: Camera): ScreenOccluder[] {
-    const occluders = this._collectOccluders();
+  private _collectScreenOccluders(camera: Camera, cullBounds: BoundingBox, maxLightRadius: number): ScreenOccluder[] {
+    const occluders = this._collectOccluders(cullBounds, maxLightRadius);
     const screenOccluders: ScreenOccluder[] = [];
     for (let i = 0; i < occluders.length; i++) {
       const occ = occluders[i];
@@ -659,13 +735,31 @@ export class LightingSystem extends System {
           screenRadius: occ.radius * camera.zoom
         });
       } else {
-        screenOccluders.push({ kind: 'poly', screenVerts: occ.verts.map((v) => camera.transform.multiply(v)) });
+        const screenVerts = occ.verts.map((v) => camera.transform.multiply(v));
+        const boundCenter = new Vector(0, 0);
+        for (let j = 0; j < screenVerts.length; j++) {
+          boundCenter.x += screenVerts[j].x;
+          boundCenter.y += screenVerts[j].y;
+        }
+        boundCenter.x /= screenVerts.length;
+        boundCenter.y /= screenVerts.length;
+        let boundRadius = 0;
+        for (let j = 0; j < screenVerts.length; j++) {
+          boundRadius = Math.max(boundRadius, Vector.distance(boundCenter, screenVerts[j]));
+        }
+        screenOccluders.push({ kind: 'poly', screenVerts, boundCenter, boundRadius });
       }
     }
     return screenOccluders;
   }
 
-  private _drawOccluderShadows(ctx: CanvasRenderingContext2D, lightScreen: Vector, occluders: ScreenOccluder[], reach: number): void {
+  private _drawOccluderShadows(
+    ctx: CanvasRenderingContext2D,
+    lightScreen: Vector,
+    lightScreenRadius: number,
+    occluders: ScreenOccluder[],
+    reach: number
+  ): void {
     const shadowNearOpacity = this._engine.lighting.shadowNearOpacity;
     const shadowMidOpacity = this._engine.lighting.shadowMidOpacity;
     for (let i = 0; i < occluders.length; i++) {
@@ -676,6 +770,11 @@ export class LightingSystem extends System {
         const dist = Math.sqrt(dx * dx + dy * dy);
 
         const nearDist = Math.max(0, dist - occ.screenRadius);
+        // The light's gradient fades to zero at its screen radius - a shadow starting entirely
+        // beyond it erases nothing, skip before paying for the gradient + fill
+        if (nearDist > lightScreenRadius) {
+          continue;
+        }
         const grad = ctx.createRadialGradient(lightScreen.x, lightScreen.y, nearDist, lightScreen.x, lightScreen.y, reach);
         grad.addColorStop(0, `rgba(0,0,0,${shadowNearOpacity})`);
         grad.addColorStop(0.4, `rgba(0,0,0,${shadowMidOpacity})`);
@@ -683,6 +782,11 @@ export class LightingSystem extends System {
 
         drawShadowCircle(ctx, lightScreen, occ.screenCenter, occ.screenRadius, reach, grad);
       } else {
+        const bdx = occ.boundCenter.x - lightScreen.x;
+        const bdy = occ.boundCenter.y - lightScreen.y;
+        if (Math.sqrt(bdx * bdx + bdy * bdy) - occ.boundRadius > lightScreenRadius) {
+          continue;
+        }
         const poly = shadowPolygon(lightScreen, occ.screenVerts, reach);
         if (poly.length < 3) {
           continue;
@@ -782,7 +886,7 @@ export class LightingSystem extends System {
     }
 
     this._offscreenCtx.globalCompositeOperation = 'destination-out';
-    this._drawOccluderShadows(this._offscreenCtx, screenPos, occluders, shadowReach);
+    this._drawOccluderShadows(this._offscreenCtx, screenPos, screenRadius, occluders, shadowReach);
 
     if (activeClip) {
       this._offscreenCtx.restore();
@@ -873,7 +977,9 @@ export class LightingSystem extends System {
       }
       const light = entry.light;
       const halfAngle = light.angle / 2;
-      const screenDirection = light.direction + camera.rotation;
+      // direction is relative to the owning entity's world rotation, so a cone parented to a
+      // rotating entity sweeps with it; camera rotation carries the result into screen space
+      const screenDirection = light.direction + entry.transform.globalRotation + camera.rotation;
 
       this._drawLight(ctx, entry.screenPos, entry.screenRadius, light.currentIntensity, occluders, roomClips, w, h, camera, {
         startAngle: screenDirection - halfAngle,
@@ -899,7 +1005,7 @@ export class LightingSystem extends System {
       }
       const light = entry.light;
       const halfAngle = light.angle / 2;
-      const screenDirection = light.direction + camera.rotation;
+      const screenDirection = light.direction + entry.transform.globalRotation + camera.rotation;
       this._drawColorTint(ctx, light, entry.screenPos, camera, roomClips, {
         start: screenDirection - halfAngle,
         end: screenDirection + halfAngle
@@ -924,7 +1030,19 @@ export class LightingSystem extends System {
     this._updateLightVisibility(this._pointLights, cullBounds, camera);
     this._updateLightVisibility(this._coneLights, cullBounds, camera);
 
-    const occluders = this._collectScreenOccluders(camera);
+    let maxLightRadius = 0;
+    for (let i = 0; i < this._pointLights.length; i++) {
+      if (this._pointLights[i].visible) {
+        maxLightRadius = Math.max(maxLightRadius, this._pointLights[i].light.radius);
+      }
+    }
+    for (let i = 0; i < this._coneLights.length; i++) {
+      if (this._coneLights[i].visible) {
+        maxLightRadius = Math.max(maxLightRadius, this._coneLights[i].light.radius);
+      }
+    }
+
+    const occluders = this._collectScreenOccluders(camera, cullBounds, maxLightRadius);
 
     this._drawPointLights(ctx, occluders, roomClips, w, h, camera);
     this._drawConeLights(ctx, occluders, roomClips, w, h, camera);
