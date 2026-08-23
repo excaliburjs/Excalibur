@@ -248,16 +248,16 @@ describe('A Lighting System', () => {
       (lighting as any)._renderLightingCanvas(ctx);
       const rightAtRotation0 = ctx.getImageData(75, 50, 1, 1).data[3];
       const downAtRotation0 = ctx.getImageData(50, 75, 1, 1).data[3];
-      expect(rightAtRotation0).toBeLessThan(200); // lit - punched through the veil
-      expect(downAtRotation0).toBeGreaterThan(200); // dark - outside the wedge
+      expect(rightAtRotation0).toBeLessThan(200);
+      expect(downAtRotation0).toBeGreaterThan(200);
 
       engine.currentScene.camera.rotation = Math.PI / 2;
       engine.currentScene.update(engine, 16);
       (lighting as any)._renderLightingCanvas(ctx);
       const rightAtRotation90 = ctx.getImageData(75, 50, 1, 1).data[3];
       const downAtRotation90 = ctx.getImageData(50, 75, 1, 1).data[3];
-      expect(rightAtRotation90).toBeGreaterThan(200); // now dark - wedge rotated away
-      expect(downAtRotation90).toBeLessThan(200); // now lit - wedge rotated into it
+      expect(rightAtRotation90).toBeGreaterThan(200);
+      expect(downAtRotation90).toBeLessThan(200);
     });
 
     it('rotates a finite darkness room rect along with the camera', async () => {
@@ -576,12 +576,12 @@ describe('A Lighting System', () => {
       raster.height = 100;
       const ctx = raster.getContext('2d');
       (lighting as any)._renderLightingCanvas(ctx);
-      expect(ctx.getImageData(50, 50, 1, 1).data[3]).toBeLessThan(200); // lit while present
+      expect(ctx.getImageData(50, 50, 1, 1).data[3]).toBeLessThan(200);
 
       torch.removeComponent(ex.PointLightComponent, true);
       engine.currentScene.update(engine, 16);
       (lighting as any)._renderLightingCanvas(ctx);
-      expect(ctx.getImageData(50, 50, 1, 1).data[3]).toBeGreaterThan(200); // dark again after removal
+      expect(ctx.getImageData(50, 50, 1, 1).data[3]).toBeGreaterThan(200);
     });
 
     it('resizes the lighting canvas and offscreen buffer when the screen resolution changes', async () => {

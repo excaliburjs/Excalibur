@@ -105,9 +105,6 @@ function projectAway(v: Vector, source: Vector, reach: number): Vector {
  * near tip, the min/max angular hull vertices (as seen from the light) are the silhouette edge
  * extremes, and those two silhouette vertices are projected out to `reach` to close off the far edge.
  *
- * Known limitation: since the near tip is the closest hull point rather than one of the silhouette
- * extremes, the shadow's near edge can still kink/split when the silhouette edge is not face on with
- * the occluder.
  */
 function shadowPolygon(lightSource: Vector, occluderVerts: Vector[], camTransform: AffineMatrix, reach: number): Vector[] {
   const occluderScreenVerts: Vector[] = [];
@@ -122,11 +119,6 @@ function shadowPolygon(lightSource: Vector, occluderVerts: Vector[], camTransfor
   let maxAngleIdx = 0;
   let nearestIdx = 0;
 
-  // atan2 has a branch cut at +-PI ("due left" of the light) - naively comparing raw atan2 values
-  // breaks whenever the occluder's silhouette straddles that cut. Unwrap every vertex's angle relative
-  // to vertex 0's own (raw) angle instead: a convex occluder's silhouette, as seen from any external
-  // point, always subtends less than PI, so a single +-2*PI correction relative to any one of its own
-  // vertices is always enough - no general multi-wrap unwrapping needed.
   const refAngle = Math.atan2(occluderScreenVerts[0].y - lightSource.y, occluderScreenVerts[0].x - lightSource.x);
 
   for (let i = 0; i < occluderScreenVerts.length; i++) {
