@@ -66,6 +66,7 @@ export class EventEmitter<TEventMap extends EventMap = any> {
       this._listenersOnce[eventName] = newOnceListeners;
     } else {
       delete this._listeners[eventName];
+      delete this._listenersOnce[eventName];
     }
   }
 

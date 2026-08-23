@@ -233,12 +233,13 @@ describe('A Graph', () => {
       //  |     |
       // 2|     |1
       //  |     |
-      //  C --- D
+      //  C --- D     E (unreachable node)
       //     8
       const nodeA = graph.addNode('A');
       const nodeB = graph.addNode('B');
       const nodeC = graph.addNode('C');
       const nodeD = graph.addNode('D');
+      const nodeE = graph.addNode('E');
 
       graph.addEdge(nodeA, nodeB, { weight: 5 });
       graph.addEdge(nodeA, nodeC, { weight: 2 });
@@ -247,7 +248,7 @@ describe('A Graph', () => {
 
       const result = graph.dijkstra(nodeA);
 
-      expect(result.length).toBe(4);
+      expect(result.length).toBe(5);
       expect(result[0].node).toBe(nodeA);
       expect(result[0].distance).toBe(0);
       expect(result[1].node).toBe(nodeB);
@@ -256,6 +257,8 @@ describe('A Graph', () => {
       expect(result[2].distance).toBe(2);
       expect(result[3].node).toBe(nodeD);
       expect(result[3].distance).toBe(6);
+      expect(result[4].node).toBe(nodeE);
+      expect(result[4].distance).toBe(Infinity);
     });
 
     it('should find shortest path between two nodes', () => {
@@ -284,14 +287,18 @@ describe('A Graph', () => {
       expect(result.distance).toBe(9);
     });
 
-    it('should return empty path when no path exists', () => {
+    it('should return graph with Infinity distance', () => {
       const nodeA = graph.addNode('A');
       const nodeB = graph.addNode('B');
 
       // No edge connecting A and B
       const result = graph.dijkstra(nodeA);
 
-      expect(result.length).toBe(0);
+      expect(result.length).toBe(2);
+      expect(result[0].node).toBe(nodeA);
+      expect(result[0].distance).toBe(0);
+      expect(result[1].node).toBe(nodeB);
+      expect(result[1].distance).toBe(Infinity);
     });
 
     it('should handle zero-distance path (same node)', () => {

@@ -5,7 +5,7 @@ import { Resource } from '../resource';
 import { WebAudioInstance } from './web-audio-instance';
 import { AudioContextFactory } from './audio-context';
 import { NativeSoundEvent, NativeSoundProcessedEvent } from '../../events/media-events';
-import { canPlayFile } from '../../util/sound';
+import { canPlayFile, canPlayMime } from '../../util/sound';
 import type { Loadable } from '../../interfaces/index';
 import { Logger } from '../../util/log';
 import type { EventKey, Handler, Subscription } from '../../event-emitter';
@@ -212,10 +212,12 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
   private _audioContext = AudioContextFactory.create();
 
   /**
+   * @param options
+   */
+  constructor(options: SoundOptions);
+  /**
    * @param paths A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
    */
-
-  constructor(options: SoundOptions);
   constructor(...paths: string[]);
   constructor(...pathsOrSoundOption: string[] | SoundOptions[]) {
     let options: SoundOptions;
@@ -536,5 +538,19 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
   public off(eventName: string): void;
   public off<TEventName extends EventKey<SoundEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
     this.events.off(eventName, handler as any);
+  }
+
+  public static async fromBlob(blob: Blob) {
+    if (!canPlayMime(blob.type)) {
+      Logger.getInstance().warn('Blob mime type is unsupported.');
+    }
+
+    const sound = new Sound();
+    const arrayBuffer = await blob.arrayBuffer();
+    const decodedBuffer = await AudioContextFactory.create().decodeAudioData(arrayBuffer);
+    sound.data = decodedBuffer;
+    sound._duration = decodedBuffer.duration;
+
+    return sound;
   }
 }

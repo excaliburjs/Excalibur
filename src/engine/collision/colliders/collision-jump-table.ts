@@ -205,7 +205,7 @@ export const CollisionJumpTable = {
     linePoly.owner = edge.owner;
     const tx = edge.owner?.get(TransformComponent);
     if (tx) {
-      linePoly.update(edge.owner.get(TransformComponent).get());
+      linePoly.update(edge.owner!.get(TransformComponent).get());
     }
     // Gross hack but poly-poly works well
     const contact = this.CollidePolygonPolygon(polygon, linePoly);
@@ -243,7 +243,7 @@ export const CollisionJumpTable = {
 
     const toIncidentFrame = other.transform.inverse.multiply(main.transform.matrix, ScratchMatrix);
     const toIncidentFrameRotation = toIncidentFrame.getRotation();
-    const referenceEdgeNormal = main.normals[separation.sideId].rotate(toIncidentFrameRotation, ScratchZero, ScratchNormal);
+    const referenceEdgeNormal = main.normals[separation!.sideId!].rotate(toIncidentFrameRotation, ScratchZero, ScratchNormal);
     let minEdge = Number.MAX_VALUE;
     let incidentEdgeIndex = 0;
     for (let i = 0; i < other.normals.length; i++) {
@@ -372,7 +372,7 @@ export const CollisionJumpTable = {
         circlePoint = shapeA.getFurthestPoint(contact.normal);
       }
 
-      const dist = worldPoint.distance(circlePoint);
+      const dist = worldPoint.distance(circlePoint!);
 
       if (contact.info.side) {
         return dist > 0 ? -dist : 0;

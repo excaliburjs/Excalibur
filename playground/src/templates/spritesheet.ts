@@ -3,7 +3,7 @@ import * as ex from 'excalibur';
 console.log('hello, world');
   
 const resources = {
-    spritesheet: new ex.ImageSource('./playground/player-run.png'),
+    spritesheet: new ex.ImageSource('${import.meta.env.VITE_PLAYGROUND_PATH}/player-run.png'),
 } as const;
 
 const loader = new ex.DefaultLoader();
@@ -17,6 +17,7 @@ const game = new ex.Engine({
     width: 592,
     height: 400,
     pixelArt: true,
+    suppressConsoleBootMessage: true,
 });
 
 const runSheet = ex.SpriteSheet.fromImageSource({

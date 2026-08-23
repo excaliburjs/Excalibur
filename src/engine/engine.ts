@@ -38,7 +38,12 @@ import { Entity } from './entity-component-system/entity';
 import type { DebugStats } from './debug/debug-config';
 import { DebugConfig } from './debug/debug-config';
 import { BrowserEvents } from './util/browser';
-import type { AntialiasOptions, ExcaliburGraphicsContext } from './graphics';
+import type {
+  AntialiasOptions,
+  ExcaliburGraphicsContext,
+  ExcaliburGraphicsContextOptions,
+  ExcaliburGraphicsContextWebGLOptions
+} from './graphics';
 import {
   DefaultAntialiasOptions,
   DefaultPixelArtOptions,
@@ -57,6 +62,8 @@ import { Director, DirectorEvents } from './director/director';
 import { InputHost } from './input/input-host';
 import type { PhysicsConfig } from './collision/physics-config';
 import { getDefaultPhysicsConfig } from './collision/physics-config';
+import type { LightingConfig } from './lighting/lighting-config';
+import { getDefaultLightingConfig } from './lighting/lighting-config';
 import type { DeepRequired } from './util/required';
 import type { Context } from './context';
 import { createContext, useContext } from './context';
@@ -64,6 +71,7 @@ import type { GarbageCollectionOptions } from './garbage-collector';
 import { DefaultGarbageCollectionOptions, GarbageCollector } from './garbage-collector';
 import { mergeDeep } from './util/util';
 import { getDefaultGlobal } from './util/iframe';
+import type { Plugin } from './plugin';
 
 export interface EngineEvents extends DirectorEvents {
   fallbackgraphicscontext: ExcaliburGraphicsContext2DCanvas;
@@ -118,6 +126,10 @@ export enum ScrollPreventionMode {
  * Defines the available options to configure the Excalibur engine at constructor time.
  */
 export interface EngineOptions<TKnownScenes extends string = any> {
+  /**
+   * Optionally configure Excalibur plugins
+   */
+  plugins?: Plugin[];
   /**
    * Optionally configure the width of the viewport in css pixels
    */
@@ -393,6 +405,19 @@ export interface EngineOptions<TKnownScenes extends string = any> {
   physics?: boolean | PhysicsConfig;
 
   /**
+   * Optionally enable the 2D lighting simulation in excalibur, adding the {@apilink LightingSystem} and
+   * {@apilink FlickerSystem} to every scene.
+   *
+   * **Potential performance impact** — the lighting overlay is rasterized with the 2D Canvas API and
+   * re-uploaded to the GPU every frame, which carries a performance penalty.
+   *
+   * Pass a {@apilink LightingConfig} to tune the lighting simulation's defaults instead of just enabling it.
+   *
+   * Default is false
+   */
+  lighting?: boolean | LightingConfig;
+
+  /**
    * Optionally specify scenes with their transitions and loaders to excalibur's scene {@apilink Director}
    *
    * Scene transitions can can overridden dynamically by the `Scene` or by the call to `.goToScene`
@@ -426,11 +451,93 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
    */
   scope = <TReturn>(cb: () => TReturn) => Engine.Context.scope(this, cb);
 
-  public global: GlobalEventHandlers;
+  public global!: GlobalEventHandlers;
 
-  private _garbageCollector: GarbageCollector;
+  private _plugins: Plugin[] = [];
+  public get plugins(): readonly Plugin[] {
+    return this._plugins;
+  }
 
-  public readonly garbageCollectorConfig: GarbageCollectionOptions | null;
+  /**
+   * Check whether a plugin with the given name is currently installed.
+   *
+   * @param name The unique plugin name to check
+   * @returns `true` if a plugin with that name is installed
+   */
+  public hasPlugin(name: string): boolean {
+    return this._plugins.some((p) => p.name === name);
+  }
+
+  /**
+   * Add a plugin to the engine after construction.
+   *
+   * If the engine has already passed certain lifecycle stages, the plugin's hooks
+   * for those stages will be called immediately so the plugin can "catch up".
+   *
+   * If a plugin with the same {@apilink Plugin.name} is already installed, a warning
+   * is logged and the plugin is not added.
+   *
+   * @param plugin The plugin to add
+   * @returns `true` if the plugin was added, `false` if it was skipped (duplicate name)
+   */
+  public addPlugin(plugin: Plugin): boolean {
+    if (this._plugins.some((p) => p.name === plugin.name)) {
+      this._logger.warn(`Plugin with name "${plugin.name}" is already installed, skipping duplicate.`);
+      return false;
+    }
+
+    // Insert maintaining priority sort order
+    const insertIndex = this._plugins.findIndex((p) => p.priority > plugin.priority);
+    if (insertIndex === -1) {
+      this._plugins.push(plugin);
+    } else {
+      this._plugins.splice(insertIndex, 0, plugin);
+    }
+
+    // Catch up on lifecycle stages the engine has already passed
+    // Engine config hooks
+    plugin.onEnginePreConfig?.(this, this._originalOptions);
+    plugin.onEnginePostConfig?.(this, this._originalOptions);
+
+    // Graphics hooks - if the graphics context already exists
+    if (this.graphicsContext) {
+      const graphicsOptions = this._originalOptions as unknown as ExcaliburGraphicsContextOptions;
+      plugin.onGraphicsPreConfig?.(this.graphicsContext, graphicsOptions);
+      plugin.onGraphicsPostConfig?.(this.graphicsContext, graphicsOptions);
+      plugin.onGraphicsPreInitialize?.(this.graphicsContext);
+      plugin.onGraphicsPostInitialize?.(this.graphicsContext);
+    }
+
+    // Engine initialization hooks - if the engine is already initialized
+    if (this.isInitialized) {
+      plugin.onEnginePreInitialize?.(this);
+      plugin.onEnginePostInitialize?.(this);
+    }
+
+    return true;
+  }
+
+  /**
+   * Remove a plugin from the engine by name.
+   *
+   * The plugin's {@apilink Plugin.dispose} method will be called if present.
+   *
+   * @param name The unique plugin name to remove
+   * @returns `true` if the plugin was found and removed
+   */
+  public removePlugin(name: string): boolean {
+    const index = this._plugins.findIndex((p) => p.name === name);
+    if (index === -1) {
+      return false;
+    }
+    const [removed] = this._plugins.splice(index, 1);
+    removed?.dispose?.();
+    return true;
+  }
+
+  private _garbageCollector!: GarbageCollector;
+
+  public readonly garbageCollectorConfig!: GarbageCollectionOptions | null;
 
   /**
    * Current Excalibur version string
@@ -452,32 +559,37 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   /**
    * Screen abstraction
    */
-  public screen: Screen;
+  public screen!: Screen;
 
   /**
    * Scene director, manages all scenes, scene transitions, and loaders in excalibur
    */
-  public director: Director<TKnownScenes>;
+  public director!: Director<TKnownScenes>;
 
   /**
    * Direct access to the engine's canvas element
    */
-  public canvas: HTMLCanvasElement;
+  public canvas!: HTMLCanvasElement;
 
   /**
    * Direct access to the ExcaliburGraphicsContext used for drawing things to the screen
    */
-  public graphicsContext: ExcaliburGraphicsContext;
+  public graphicsContext!: ExcaliburGraphicsContext;
 
   /**
    * Direct access to the canvas element ID, if an ID exists
    */
-  public canvasElementId: string;
+  public canvasElementId?: string;
 
   /**
    * Direct access to the physics configuration for excalibur
    */
-  public physics: DeepRequired<PhysicsConfig>;
+  public physics!: DeepRequired<PhysicsConfig>;
+
+  /**
+   * Direct access to the lighting configuration for excalibur
+   */
+  public lighting!: DeepRequired<LightingConfig>;
 
   /**
    * Optionally set the maximum fps if not set Excalibur will go as fast as the device allows.
@@ -520,10 +632,10 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   /**
    * Direct access to the excalibur clock
    */
-  public clock: Clock;
+  public clock!: Clock;
 
-  public readonly pointerScope: PointerScope;
-  public readonly grabWindowFocus: boolean;
+  public readonly pointerScope!: PointerScope;
+  public readonly grabWindowFocus!: boolean;
 
   /**
    * The width of the game canvas in pixels (physical width component of the
@@ -593,12 +705,12 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   /**
    * Access engine input like pointer, keyboard, or gamepad
    */
-  public input: InputHost;
+  public input!: InputHost;
 
   /**
    * Map multiple input sources to specific game actions actions
    */
-  public inputMapper: InputMapper;
+  public inputMapper!: InputMapper;
 
   private _inputEnabled: boolean = true;
 
@@ -610,7 +722,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
    *   * Graphics
    *   * Colliders
    */
-  public debug: DebugConfig;
+  public debug!: DebugConfig;
 
   /**
    * Access {@apilink stats} that holds frame statistics.
@@ -651,7 +763,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
    * Indicates whether the engine is set to fullscreen or not
    */
   public get isFullscreen(): boolean {
-    return this.screen.isFullScreen;
+    return this.screen.isFullscreen;
   }
 
   /**
@@ -685,7 +797,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   /**
    * Sets the background color for the engine.
    */
-  public backgroundColor: Color;
+  public backgroundColor!: Color;
 
   /**
    * Sets the Transparency for the engine.
@@ -713,9 +825,9 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   /**
    * The mouse wheel scroll prevention mode
    */
-  public pageScrollPreventionMode: ScrollPreventionMode;
+  public pageScrollPreventionMode!: ScrollPreventionMode;
 
-  private _logger: Logger;
+  private _logger!: Logger;
 
   private _toaster: Toaster = new Toaster();
 
@@ -725,7 +837,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   private _timescale: number = 1.0;
 
   // loading
-  private _loader: DefaultLoader;
+  private _loader!: DefaultLoader;
 
   private _isInitialized: boolean = false;
 
@@ -753,7 +865,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   public off(eventName: string, handler: Handler<unknown>): void;
   public off(eventName: string): void;
   public off<TEventName extends EventKey<EngineEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
-    this.events.off(eventName, handler);
+    this.events.off(eventName, handler as any);
   }
 
   /**
@@ -776,19 +888,20 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
     antialiasing: true,
     pixelArt: false,
     garbageCollection: true,
+    lighting: false,
     powerPreference: 'high-performance',
     pointerScope: PointerScope.Canvas,
-    suppressConsoleBootMessage: null,
-    suppressMinimumBrowserFeatureDetection: null,
-    suppressHiDPIScaling: null,
-    suppressPlayButton: null,
+    suppressConsoleBootMessage: undefined,
+    suppressMinimumBrowserFeatureDetection: undefined,
+    suppressHiDPIScaling: undefined,
+    suppressPlayButton: undefined,
     grabWindowFocus: true,
     scrollPreventionMode: ScrollPreventionMode.Canvas,
     backgroundColor: Color.fromHex('#2185d0') // Excalibur blue
   };
 
   private _originalOptions: EngineOptions = {};
-  public readonly _originalDisplayMode: DisplayMode;
+  public readonly _originalDisplayMode!: DisplayMode;
 
   /**
    * Creates a new game using the given {@apilink EngineOptions}. By default, if no options are provided,
@@ -818,6 +931,22 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
     options = { ...Engine._DEFAULT_ENGINE_OPTIONS, ...options };
     this._originalOptions = options;
 
+    if (options.plugins && options.plugins.length > 0) {
+      const logger = Logger.getInstance();
+      for (const plugin of options.plugins) {
+        if (this._plugins.some((p) => p.name === plugin.name)) {
+          logger.warn(`Plugin with name "${plugin.name}" is already installed, skipping duplicate.`);
+          continue;
+        }
+        this._plugins.push(plugin);
+      }
+      this._plugins.sort((a, b) => a.priority - b.priority);
+    }
+
+    for (const plugin of this._plugins) {
+      plugin.onEnginePreConfig?.(this, options);
+    }
+
     Flags.freeze();
 
     // Initialize browser events facade
@@ -839,7 +968,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
       if (options.canvasElementId) {
         const canvas = document.getElementById(options.canvasElementId);
         if (canvas) {
-          canvas.parentElement.removeChild(canvas);
+          canvas.parentElement!.removeChild(canvas);
         }
       }
 
@@ -941,8 +1070,8 @@ O|===|* >________________>\n\
     const global = (options.global && typeof options.global === 'function' ? options.global() : options.global) as GlobalEventHandlers;
 
     this.global = global ?? getDefaultGlobal();
-    this.grabWindowFocus = options.grabWindowFocus;
-    this.pointerScope = options.pointerScope;
+    this.grabWindowFocus = options.grabWindowFocus!;
+    this.pointerScope = options.pointerScope!;
 
     this._originalDisplayMode = displayMode;
 
@@ -960,7 +1089,7 @@ O|===|* >________________>\n\
     } else {
       pixelArtSampler = !!options.pixelArt;
       nativeContextAntialiasing = false;
-      multiSampleAntialiasing = options.antialiasing;
+      multiSampleAntialiasing = options.antialiasing!;
       canvasImageRendering = options.antialiasing ? 'auto' : 'pixelated';
       filtering = options.antialiasing ? ImageFiltering.Blended : ImageFiltering.Pixel;
     }
@@ -981,13 +1110,37 @@ O|===|* >________________>\n\
     }
 
     // Override with any user option, if non default to .25 for pixel art, 0.01 for everything else
-    uvPadding = options.uvPadding ?? uvPadding ?? 0.01;
+    uvPadding = options.uvPadding ?? uvPadding! ?? 0.01;
 
     // Canvas 2D fallback can be flagged on
     let useCanvasGraphicsContext = Flags.isEnabled('use-canvas-context');
     if (!useCanvasGraphicsContext) {
       // Attempt webgl first
       try {
+        const onGraphicsPreConfig = (context: ExcaliburGraphicsContext, options: ExcaliburGraphicsContextWebGLOptions) => {
+          for (const plugin of this._plugins) {
+            plugin.onGraphicsPreConfig?.(context, options);
+          }
+        };
+
+        const onGraphicsPostConfig = (context: ExcaliburGraphicsContext, options: ExcaliburGraphicsContextWebGLOptions) => {
+          for (const plugin of this._plugins) {
+            plugin.onGraphicsPostConfig?.(context, options);
+          }
+        };
+
+        const onGraphicsPreInitialize = (context: ExcaliburGraphicsContext) => {
+          for (const plugin of this._plugins) {
+            plugin.onGraphicsPreInitialize?.(context);
+          }
+        };
+
+        const onGraphicsPostInitialize = (context: ExcaliburGraphicsContext) => {
+          for (const plugin of this._plugins) {
+            plugin.onGraphicsPostInitialize?.(context);
+          }
+        };
+
         this.graphicsContext = new ExcaliburGraphicsContextWebGL({
           canvasElement: this.canvas,
           enableTransparency: this.enableCanvasTransparency,
@@ -1001,12 +1154,16 @@ O|===|* >________________>\n\
           useDrawSorting: options.useDrawSorting,
           garbageCollector: this.garbageCollectorConfig
             ? {
-                garbageCollector: this._garbageCollector,
-                collectionInterval: this.garbageCollectorConfig.textureCollectInterval
+                garbageCollector: this._garbageCollector!,
+                collectionInterval: this.garbageCollectorConfig!.textureCollectInterval!
               }
-            : null,
+            : undefined,
           handleContextLost: options.handleContextLost ?? this._handleWebGLContextLost,
-          handleContextRestored: options.handleContextRestored
+          handleContextRestored: options.handleContextRestored ?? this._handleWebGLContextRestored,
+          onGraphicsPreConfig,
+          onGraphicsPostConfig,
+          onGraphicsPreInitialize,
+          onGraphicsPostInitialize
         });
       } catch (e) {
         this._logger.warn(
@@ -1039,7 +1196,7 @@ O|===|* >________________>\n\
       viewport: options.viewport ?? (options.width && options.height ? { width: options.width, height: options.height } : Resolution.SVGA),
       resolution: options.resolution,
       displayMode,
-      pixelRatio: options.suppressHiDPIScaling ? 1 : (options.pixelRatio ?? null)
+      pixelRatio: options.suppressHiDPIScaling ? 1 : (options.pixelRatio ?? undefined)
     });
 
     // TODO REMOVE STATIC!!!
@@ -1054,7 +1211,7 @@ O|===|* >________________>\n\
 
     this.fixedUpdateTimestep = options.fixedUpdateTimestep ?? this.fixedUpdateTimestep;
     this.fixedUpdateFps = options.fixedUpdateFps ?? this.fixedUpdateFps;
-    this.fixedUpdateTimestep = this.fixedUpdateTimestep || 1000 / this.fixedUpdateFps;
+    this.fixedUpdateTimestep = this.fixedUpdateTimestep || 1000 / this.fixedUpdateFps!;
 
     this.clock = new StandardClock({
       maxFps: this.maxFps,
@@ -1062,7 +1219,7 @@ O|===|* >________________>\n\
       onFatalException: (e) => this.onFatalException(e)
     });
 
-    this.enableCanvasTransparency = options.enableCanvasTransparency;
+    this.enableCanvasTransparency = options.enableCanvasTransparency!;
 
     if (typeof options.physics === 'boolean') {
       this.physics = {
@@ -1073,10 +1230,22 @@ O|===|* >________________>\n\
       this.physics = {
         ...getDefaultPhysicsConfig()
       };
-      mergeDeep(this.physics, options.physics);
+      mergeDeep(this.physics, options.physics!);
     }
 
-    this.director = new Director(this, options.scenes);
+    if (typeof options.lighting === 'boolean') {
+      this.lighting = {
+        ...getDefaultLightingConfig(),
+        enabled: options.lighting
+      };
+    } else {
+      this.lighting = {
+        ...getDefaultLightingConfig()
+      };
+      mergeDeep(this.lighting, options.lighting!);
+    }
+
+    this.director = new Director(this, options.scenes!);
     this.director.events.pipe(this.events);
 
     this._initialize(options);
@@ -1089,6 +1258,12 @@ O|===|* >________________>\n\
     e.preventDefault();
     this.clock.stop();
     this._logger.fatalOnce('WebGL Graphics Lost', e);
+
+    // Notify plugins that the graphics context was lost
+    for (const plugin of this._plugins) {
+      plugin.onGraphicsContextLost?.(this.graphicsContext);
+    }
+
     const container = document.createElement('div');
     container.id = 'ex-webgl-graphics-context-lost';
     container.style.position = 'absolute';
@@ -1128,20 +1303,35 @@ O|===|* >________________>\n\
     }
   };
 
+  private _handleWebGLContextRestored = () => {
+    this._logger.debug('WebGL Graphics Context Restored');
+
+    // Notify plugins that the graphics context was restored.
+    // The graphics context's _init() will re-run and call onGraphicsPreInitialize/onGraphicsPostInitialize
+    // so plugins can rebuild their WebGL resources.
+    for (const plugin of this._plugins) {
+      plugin.onGraphicsContextRestored?.(this.graphicsContext);
+    }
+
+    // Restart the clock
+    this.browser.resume();
+    this.clock.start();
+  };
+
   private _performanceThresholdTriggered = false;
   private _fpsSamples: number[] = [];
   private _monitorPerformanceThresholdAndTriggerFallback() {
-    const { allow } = this._originalOptions.configurePerformanceCanvas2DFallback;
-    let { threshold, showPlayerMessage } = this._originalOptions.configurePerformanceCanvas2DFallback;
+    const { allow } = this._originalOptions.configurePerformanceCanvas2DFallback!;
+    let { threshold, showPlayerMessage } = this._originalOptions.configurePerformanceCanvas2DFallback!;
     if (threshold === undefined) {
-      threshold = Engine._DEFAULT_ENGINE_OPTIONS.configurePerformanceCanvas2DFallback.threshold;
+      threshold = Engine._DEFAULT_ENGINE_OPTIONS.configurePerformanceCanvas2DFallback!.threshold;
     }
     if (showPlayerMessage === undefined) {
-      showPlayerMessage = Engine._DEFAULT_ENGINE_OPTIONS.configurePerformanceCanvas2DFallback.showPlayerMessage;
+      showPlayerMessage = Engine._DEFAULT_ENGINE_OPTIONS.configurePerformanceCanvas2DFallback!.showPlayerMessage;
     }
     if (!Flags.isEnabled('use-canvas-context') && allow && this.ready && !this._performanceThresholdTriggered) {
       // Calculate Average fps for last X number of frames after start
-      if (this._fpsSamples.length === threshold.numberOfFrames) {
+      if (this._fpsSamples.length === threshold!.numberOfFrames) {
         this._fpsSamples.splice(0, 1);
       }
       this._fpsSamples.push(this.clock.fpsSampler.fps);
@@ -1151,8 +1341,8 @@ O|===|* >________________>\n\
       }
       const average = total / this._fpsSamples.length;
 
-      if (this._fpsSamples.length === threshold.numberOfFrames) {
-        if (average <= threshold.fps) {
+      if (this._fpsSamples.length === threshold!.numberOfFrames) {
+        if (average <= threshold!.fps) {
           this._performanceThresholdTriggered = true;
           this._logger.warn(
             `Switching to browser 2D Canvas fallback due to performance. Some features of Excalibur will not work in this mode.\n` +
@@ -1189,7 +1379,7 @@ O|===|* >________________>\n\
   public useCanvas2DFallback() {
     // Swap out the canvas
     const newCanvas = this.canvas.cloneNode(false) as HTMLCanvasElement;
-    this.canvas.parentNode.replaceChild(newCanvas, this.canvas);
+    this.canvas!.parentNode!.replaceChild(newCanvas, this.canvas);
     this.canvas = newCanvas;
 
     const options = { ...this._originalOptions, antialiasing: this.screen.antialiasing };
@@ -1218,7 +1408,7 @@ O|===|* >________________>\n\
       viewport: options.viewport ?? (options.width && options.height ? { width: options.width, height: options.height } : Resolution.SVGA),
       resolution: options.resolution,
       displayMode,
-      pixelRatio: options.suppressHiDPIScaling ? 1 : (options.pixelRatio ?? null)
+      pixelRatio: options.suppressHiDPIScaling ? 1 : (options.pixelRatio ?? undefined)
     });
     this.screen.setCurrentCamera(this.currentScene.camera);
 
@@ -1241,13 +1431,20 @@ O|===|* >________________>\n\
       this.stop();
       this._garbageCollector.forceCollectAll();
       this.input.toggleEnabled(false);
-      if (this._hasCreatedCanvas) {
-        this.canvas.parentNode.removeChild(this.canvas);
+      this.input.pointers.detach();
+      this.director.dispose();
+
+      for (const plugin of this.plugins) {
+        plugin.dispose?.();
       }
-      this.canvas = null;
+
+      if (this._hasCreatedCanvas) {
+        this.canvas!.parentNode!.removeChild(this.canvas);
+      }
+      this.canvas = null as any;
       this.screen.dispose();
       this.graphicsContext.dispose();
-      this.graphicsContext = null;
+      this.graphicsContext = null as any;
       Engine.InstanceCount--;
     }
   }
@@ -1478,7 +1675,7 @@ O|===|* >________________>\n\
    * Initializes the internal canvas, rendering context, display mode, and native event listeners
    */
   private _initialize(options?: EngineOptions) {
-    this.pageScrollPreventionMode = options.scrollPreventionMode;
+    this.pageScrollPreventionMode = options?.scrollPreventionMode!;
 
     // initialize inputs
     const pointerTarget = options && options.pointerScope === PointerScope.Document ? document : this.canvas;
@@ -1504,8 +1701,14 @@ O|===|* >________________>\n\
       }
     });
 
-    if (!this.canvasElementId && !options.canvasElement) {
+    if (!this.canvasElementId && !options?.canvasElement) {
       document.body.appendChild(this.canvas);
+    }
+
+    for (const plugin of this._plugins) {
+      if (plugin.onEnginePostConfig) {
+        plugin.onEnginePostConfig?.(this, options ?? {});
+      }
     }
   }
 
@@ -1527,10 +1730,22 @@ O|===|* >________________>\n\
 
   private async _overrideInitialize(engine: Engine) {
     if (!this.isInitialized) {
+      for (const plugin of this._plugins) {
+        if (plugin.onEnginePreInitialize) {
+          plugin.onEnginePreInitialize(this);
+        }
+      }
+
       await this.director.onInitialize();
       await this.onInitialize(engine);
       this.events.emit('initialize', new InitializeEvent(engine, this));
       this._isInitialized = true;
+
+      for (const plugin of this._plugins) {
+        if (plugin.onEnginePostInitialize) {
+          plugin.onEnginePostInitialize(this);
+        }
+      }
     }
   }
 
@@ -1712,7 +1927,8 @@ O|===|* >________________>\n\
   public async start(loader?: DefaultLoader): Promise<void>;
   /**
    * Starts the internal game loop for Excalibur after configuring any routes, loaders, or transitions
-   * @param startOptions Optional {@apilink StartOptions} to configure the routes for scenes in Excalibur
+   * @param sceneName
+   * @param options {Optional} {@apilink StartOptions} to configure the routes for scenes in Excalibur
    *
    * Note: start() only resolves AFTER the user has clicked the play button
    */
@@ -1733,7 +1949,7 @@ O|===|* >________________>\n\
         loader = sceneNameOrLoader;
       } else if (typeof sceneNameOrLoader === 'string') {
         this.director.configureStart(sceneNameOrLoader, options);
-        loader = this.director.mainLoader;
+        loader = this.director.mainLoader!;
       }
 
       // Start the excalibur clock which drives the mainloop
@@ -1745,7 +1961,17 @@ O|===|* >________________>\n\
       }
       this._logger.debug('Game clock started');
 
-      await this.load(loader ?? new Loader());
+      // Run plugin onLoad hooks before loading resources
+      for (const plugin of this._plugins) {
+        await plugin.onLoad?.();
+      }
+
+      await this.load(loader! ?? new Loader());
+
+      // Run plugin onLoadComplete hooks after resources are loaded
+      for (const plugin of this._plugins) {
+        await plugin.onLoadComplete?.();
+      }
 
       // Initialize before ready
       await this._overrideInitialize(this);
@@ -1785,9 +2011,9 @@ O|===|* >________________>\n\
       const fixedTimestepMs = this.fixedUpdateTimestep;
       if (this.fixedUpdateTimestep) {
         this._lagMs += elapsedMs;
-        while (this._lagMs >= fixedTimestepMs) {
-          this._update(fixedTimestepMs);
-          this._lagMs -= fixedTimestepMs;
+        while (this._lagMs >= fixedTimestepMs!) {
+          this._update(fixedTimestepMs!);
+          this._lagMs -= fixedTimestepMs!;
         }
       } else {
         this._update(elapsedMs);
@@ -1855,8 +2081,8 @@ O|===|* >________________>\n\
       screenshot.width = finalWidth;
       screenshot.height = finalHeight;
       const ctx = screenshot.getContext('2d');
-      ctx.imageSmoothingEnabled = this.screen.antialiasing;
-      ctx.drawImage(this.canvas, 0, 0, finalWidth, finalHeight);
+      ctx!.imageSmoothingEnabled = this.screen.antialiasing;
+      ctx!.drawImage(this.canvas, 0, 0, finalWidth, finalHeight);
 
       const result = new Image();
       const raw = screenshot.toDataURL('image/png');
@@ -1898,7 +2124,7 @@ O|===|* >________________>\n\
       } finally {
         this._isLoading = false;
         this._hideLoader = false;
-        this._loader = null;
+        this._loader = null as any;
       }
     });
   }

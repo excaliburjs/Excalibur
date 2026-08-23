@@ -16,6 +16,11 @@ export interface GraphicsGroupingOptions {
    * positioning graphics in the group is done with the `offset` property.
    */
   useAnchor?: boolean;
+  /**
+   * Optionally tick this graphics group even when offscreen, default false. Useful for keeping animations synchronized
+   * across your game scene.
+   */
+  shouldAlwaysTick?: boolean;
 }
 
 export interface GraphicsGrouping {
@@ -36,18 +41,21 @@ export interface GraphicsGrouping {
 export class GraphicsGroup extends Graphic implements HasTick {
   private _logger = Logger.getInstance();
   public useAnchor: boolean = true;
+  public shouldAlwaysTick: boolean = false;
   public members: (GraphicsGrouping | Graphic)[] = [];
 
   constructor(options: GraphicsGroupingOptions & GraphicOptions) {
     super(options);
     this.members = options.members;
     this.useAnchor = options.useAnchor ?? this.useAnchor;
+    this.shouldAlwaysTick = options.shouldAlwaysTick ?? this.shouldAlwaysTick;
     this._updateDimensions();
   }
 
   public clone(): GraphicsGroup {
     return new GraphicsGroup({
       members: [...this.members],
+      shouldAlwaysTick: this.shouldAlwaysTick,
       ...this.cloneGraphicOptions()
     });
   }

@@ -16,7 +16,7 @@ export default defineConfig({
     'process.env.__EX_VERSION': JSON.stringify(version),
     'process.env.NODE_ENV': JSON.stringify('development')
   },
-  esbuild: {
+  oxc: {
     target: 'es2018',
     tsconfigRaw: {
       compilerOptions: {

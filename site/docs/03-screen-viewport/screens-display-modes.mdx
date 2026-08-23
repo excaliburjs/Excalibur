@@ -181,6 +181,31 @@ Click and drag right corner to resize!
 
 [[DisplayMode.FitScreenAndFill]] is similar to [[DisplayMode.FitScreen]] and will fit the game in the screen while preserving the original aspect ratio, but allow the excess gaps to be drawn to. This ensures there is no "letterboxing" and the entire screen is covered by canvas. You can use the [[Screen.contentArea]] to return a screen space bounding box of area of the screen guaranteed to be visible to the user.
 
+The screen-space origin `(0, 0)` (the [[CoordPlane.Screen]] frame) is the top-left of the safe content area, not the raw canvas top-left. [[Screen.contentAreaOffset]] holds the resolution-space position of that origin — for example, in a horizontal-clip scenario (window wider than the content aspect ratio):
+
+```
+    Canvas / resolution frame (R)            Screen / CoordPlane.Screen (C)
+
+      (0,0)                                          (0,0)
+      +-------+------------------+-------+           +--------------------------+
+      |unsafe |    contentArea   |unsafe |           |                          |
+      |(clip, |   (safe area)    |(clip, |   ====>   |       contentArea       |
+      | off-  |                  | off-  |           |   (0,0)..(contentW,H)    |
+      |screen)| R-frame (0,0) is |screen)|           |                          |
+      |       | here ----------> |       |           |                          |
+      +-------+------------------+-------+           +--------------------------+
+      ^-clip -^                  ^-clip -^
+
+      contentAreaOffset.x = clip
+      unsafeArea (C-frame): left = -clip, 
+                            right = contentRes.width + clip,
+                            width = resolution.width
+      contentArea.width   = contentRes.width
+      resolution.width    = contentRes.width + 2*clip
+```
+
+Vertical-clip (window taller than the content aspect ratio) is analogous on the Y axis. [[CoordPlane.Screen]] entities (`ScreenElement`s) drawn at `pos = (0, 0)` appear at the content area's top-left on screen.
+
 ![Content area](content-area.png)
 
 <div class="snippet-resizer snippet-border" alt="Resize me!">
@@ -194,6 +219,8 @@ Click and drag right corner to resize!
 ### Fit Container And Fill Display Mode
 
 [[DisplayMode.FitContainerAndFill]] is similar to [[DisplayMode.FitContainer]] and will fit the game to the the current container preserving the original aspect ratio, but allow the excess gaps in the container to be drawn to. You can use the [[Screen.contentArea]] to return a screen space bounding box of area of the screen guaranteed to be visible to the user.
+
+Behaves identically to [[DisplayMode.FitScreenAndFill]] above (same C-frame rooting, same offset math) but driven by the parent element's size instead of the window.
 
 ![Content area](content-area.png)
 

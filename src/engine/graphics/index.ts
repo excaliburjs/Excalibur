@@ -49,6 +49,7 @@ export * from './filtering';
 export * from './wrapping';
 
 // rendering
+export * from './context/glsl';
 export * from './context/shader';
 export * from './context/vertex-buffer';
 export * from './context/uniform-buffer';

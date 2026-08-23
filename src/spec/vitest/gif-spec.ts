@@ -18,6 +18,16 @@ describe('A Gif', () => {
     engine = null;
   });
 
+  it('should not be loaded by default (C6 regression)', () => {
+    expect(gif.isLoaded()).toBe(false);
+  });
+
+  it('should be loaded after load() completes (C6 regression)', async () => {
+    expect(gif.isLoaded()).toBe(false);
+    await gif.load();
+    expect(gif.isLoaded()).toBe(true);
+  });
+
   it('should parse gif files correctly', () =>
     new Promise<void>((done) => {
       gif.load().then(() => {

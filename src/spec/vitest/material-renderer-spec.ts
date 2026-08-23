@@ -72,6 +72,51 @@ describe('A Material', () => {
     expect(() => material.use()).not.toThrow();
   });
 
+  it('has a unique id and exposes its sources', () => {
+    const fragmentSource = `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0, 0.0, 0.0, 1.0);
+      }`;
+    const material1 = new ex.Material({
+      name: 'test-1',
+      graphicsContext,
+      fragmentSource
+    });
+    const material2 = new ex.Material({
+      name: 'test-2',
+      graphicsContext,
+      fragmentSource
+    });
+
+    expect(material1.id).not.toBe(material2.id);
+    expect(material1.fragmentSource).toBe(fragmentSource);
+    expect(material1.vertexSource).toContain('void main()');
+  });
+
+  it('is registered with the graphics context on construction', () => {
+    const webgl = graphicsContext as ex.ExcaliburGraphicsContextWebGL;
+    const fragmentSource = `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0, 0.0, 0.0, 1.0);
+      }`;
+    const direct = new ex.Material({
+      name: 'direct',
+      graphicsContext,
+      fragmentSource
+    });
+    const created = webgl.createMaterial({
+      name: 'created',
+      fragmentSource
+    });
+
+    expect(webgl.materials).toContain(direct);
+    expect(webgl.materials).toContain(created);
+  });
+
   describe('@visual', () => {
     it('can be created with a custom fragment shader', async () => {
       const canvas = document.createElement('canvas');

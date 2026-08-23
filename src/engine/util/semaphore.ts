@@ -16,7 +16,9 @@ class AsyncWaitQueue<T> {
 
   public dequeue(value: T): void {
     const future = this._queue.shift();
-    future.resolve(value);
+    if (future) {
+      future.resolve(value);
+    }
   }
 }
 

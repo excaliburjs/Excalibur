@@ -81,6 +81,12 @@ export class CircleRenderer implements RendererPlugin {
     return false;
   }
 
+  _scratchTopLeft = vec(0, 0);
+  _scratchTopRight = vec(0, 0);
+  _scratchBottomRight = vec(0, 0);
+  _scratchBottomLeft = vec(0, 0);
+  _scratchRadius = vec(0, 0);
+
   draw(pos: Vector, radius: number, color: Color, stroke: Color = Color.Transparent, strokeThickness: number = 0): void {
     if (this._isFull()) {
       this.flush();
@@ -92,10 +98,21 @@ export class CircleRenderer implements RendererPlugin {
     const opacity = this._context.opacity;
     const snapToPixel = this._context.snapToPixel;
 
-    const topLeft = transform.multiply(pos.add(vec(-radius, -radius)));
-    const topRight = transform.multiply(pos.add(vec(radius, -radius)));
-    const bottomRight = transform.multiply(pos.add(vec(radius, radius)));
-    const bottomLeft = transform.multiply(pos.add(vec(-radius, radius)));
+    this._scratchRadius.x = -radius;
+    this._scratchRadius.y = -radius;
+    const topLeft = transform.multiply(pos.add(this._scratchRadius, this._scratchTopLeft), this._scratchTopLeft);
+
+    this._scratchRadius.x = radius;
+    this._scratchRadius.y = -radius;
+    const topRight = transform.multiply(pos.add(this._scratchRadius, this._scratchTopRight), this._scratchTopRight);
+
+    this._scratchRadius.x = radius;
+    this._scratchRadius.y = radius;
+    const bottomRight = transform.multiply(pos.add(this._scratchRadius, this._scratchBottomRight), this._scratchBottomRight);
+
+    this._scratchRadius.x = -radius;
+    this._scratchRadius.y = radius;
+    const bottomLeft = transform.multiply(pos.add(this._scratchRadius, this._scratchBottomLeft), this._scratchBottomLeft);
 
     if (snapToPixel) {
       topLeft.x = ~~(topLeft.x + pixelSnapEpsilon);

@@ -9,7 +9,7 @@ import { BoundingBox } from '../collision/bounding-box';
 import { clamp } from '../math/util';
 import type { Graphic } from '../graphics';
 import type { EmitterType } from './emitter-type';
-import { MotionComponent } from '../entity-component-system';
+import { MotionComponent, PauseComponent } from '../entity-component-system';
 import { EulerIntegrator } from '../collision/integrator';
 import type { ParticleEmitter } from './particle-emitter';
 
@@ -58,6 +58,7 @@ export class Particle extends Entity {
   public transform: TransformComponent;
   public motion: MotionComponent;
   public graphics: GraphicsComponent;
+  public paused: PauseComponent = new PauseComponent({ canPause: true });
   public particleTransform = ParticleTransform.Global;
 
   public name = `Particle#${this.id}`;
@@ -67,10 +68,12 @@ export class Particle extends Entity {
     this.addComponent((this.transform = new TransformComponent()));
     this.addComponent((this.motion = new MotionComponent()));
     this.addComponent((this.graphics = new GraphicsComponent()));
+    this.addComponent(this.paused);
     this.configure(options);
   }
 
   private _emitter?: ParticleEmitter;
+  private _isDead = false;
   registerEmitter(emitter: ParticleEmitter) {
     this._emitter = emitter;
     if (this.particleTransform === ParticleTransform.Global) {
@@ -119,13 +122,18 @@ export class Particle extends Entity {
       this.graphics.localBounds = BoundingBox.fromDimension(this.size, this.size, Vector.Half);
       this.graphics.onPostDraw = (ctx) => {
         ctx.save();
-        ctx.debug.drawPoint(vec(0, 0), { color: this._currentColor, size: this.size });
+        ctx.z = this.transform.z;
+        ctx.drawCircle(vec(0, 0), this.size, this._currentColor);
         ctx.restore();
       };
     }
   }
 
   public override kill() {
+    if (this._isDead) {
+      return;
+    }
+    this._isDead = true;
     if (this._emitter?.isActive) {
       this._emitter.removeParticle(this);
     } else {

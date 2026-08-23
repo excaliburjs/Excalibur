@@ -6,6 +6,22 @@ import type { Vector } from './vector';
  */
 export type G_UUID = string & { readonly __brand: unique symbol };
 
+/**
+ * Interface to define data with a custom id
+ */
+export interface DataWithId {
+  id: G_UUID;
+}
+
+/**
+ * Return true if obj implement DataWithId interface
+ * @param obj value to test
+ * @returns true if obj implement DataWithId
+ */
+const isDataWithId = (obj: unknown): obj is DataWithId => {
+  return (obj as DataWithId)?.id !== undefined && typeof (obj as DataWithId).id === 'string';
+};
+
 interface EdgeOptionsWithWeight {
   weight: number;
   useEuclidean?: false;
@@ -84,9 +100,7 @@ export class Graph<T> {
    */
   addNodes(nodes: T[]): Map<G_UUID, Node<T>> {
     for (const node of nodes) {
-      const thisNewNode = new Node(node);
-      this._nodes.set(thisNewNode.id, thisNewNode);
-      this.adjacencyList.set(thisNewNode.id, new Set());
+      this.addNode(node);
     }
     return this._nodes;
   }
@@ -237,6 +251,17 @@ export class Graph<T> {
   }
 
   /**
+   * Reset the graph
+   *
+   * Clear all nodes and edges from the graph.
+   */
+  reset(): void {
+    this._nodes.clear();
+    this._edges.clear();
+    this.adjacencyList.clear();
+  }
+
+  /**
    * Performs a breadth-first search (BFS) on the graph starting from the given node.
    *
    * This method explores the graph layer by layer, starting from the specified node.
@@ -317,8 +342,7 @@ export class Graph<T> {
    * This method calculates the shortest path from the specified start node to the
    * specified end node in the graph. It returns an object containing the path and
    * the total distance of the path.
-   * @param startNode - The node from which the search for the shortest path begins.
-   * @param endNode - The node where the search for the shortest path ends.
+   * @param sourcenode - The node from which the search for the shortest path begins.
    * @returns An object containing:
    *   - `path`: An array of nodes representing the shortest path from startNode to endNode.
    *     If no path is found, this will be `null`.
@@ -331,11 +355,11 @@ export class Graph<T> {
     const unvisited: Node<T>[] = [];
     const resultArray: Array<{ node: Node<T>; distance: number; previous: Node<T> | null }> = [];
 
-    //fill unvisited
-    this.nodes.forEach((node) => unvisited.push(node));
-
-    //fill resultArray
-    this.nodes.forEach((node) => resultArray.push({ node, distance: Infinity, previous: null }));
+    //fill unvisited and resultArray
+    this.nodes.forEach((node) => {
+      unvisited.push(node);
+      resultArray.push({ node, distance: Infinity, previous: null });
+    });
 
     //start with starting node
     //add startingnode to result array
@@ -401,8 +425,9 @@ export class Graph<T> {
         }
       }
 
+      // add test for -1 index representing unreachable node
       if (lowestDistanceIndex === -1) {
-        return [];
+        break;
       }
 
       current = resultArray[lowestDistanceIndex].node;
@@ -461,7 +486,9 @@ export class Graph<T> {
     const path: Node<T>[] = [];
     let current: Node<T> | null | undefined = endNode;
     const distance = dAnalysis.find((node) => node.node === endNode)?.distance as number;
-
+    if (distance === Infinity) {
+      return { path: [], distance: Infinity };
+    }
     while (current != null) {
       path.push(current);
 
@@ -601,7 +628,7 @@ export class Graph<T> {
         }
 
         // Find the edge connecting current to neighbor
-        const edge: Edge<T> = Array.from(currentNode.edges).find((e: Edge<T>) => e.source.id === currentId && e.target.id === neighborId);
+        const edge: Edge<T> = Array.from(currentNode.edges).find((e: Edge<T>) => e.source.id === currentId && e.target.id === neighborId)!;
 
         if (!edge) {
           continue;
@@ -679,11 +706,12 @@ export class Edge<T> {
  * @template T The type of data stored in this node.
  */
 export class Node<T> {
-  private _id: G_UUID = GraphUUId.generateUUID();
+  private _id: G_UUID;
   private _data: T;
   private _edges: Set<Edge<T>>;
 
   constructor(data: T) {
+    this._id = isDataWithId(data) ? data.id : GraphUUId.generateUUID();
     this._data = data;
     this._edges = new Set();
   }

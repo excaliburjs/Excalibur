@@ -12,14 +12,14 @@ export class Follow implements Action {
   private _followTx: TransformComponent;
   private _followMotion: MotionComponent;
 
-  public x: number;
-  public y: number;
+  public x!: number;
+  public y!: number;
   private _current: Vector;
   private _end: Vector;
-  private _dir: Vector;
+  private _dir!: Vector;
   private _speed: number;
   private _maximumDistance: number;
-  private _distanceBetween: number;
+  private _distanceBetween!: number;
   private _started = false;
   private _stopped = false;
 
@@ -35,6 +35,10 @@ export class Follow implements Action {
   }
 
   public update(elapsed: number): void {
+    if (!this._followTx || !this._followMotion) {
+      this.stop();
+      return;
+    }
     if (!this._started) {
       this._started = true;
       this._distanceBetween = this._current.distance(this._end);
@@ -67,6 +71,7 @@ export class Follow implements Action {
   public stop(): void {
     this._motion.vel = vec(0, 0);
     this._stopped = true;
+    this._started = false;
   }
 
   public isComplete(): boolean {

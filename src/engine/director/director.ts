@@ -628,4 +628,15 @@ export class Director<TKnownScenes extends string = any> {
       destinationName: destinationScene
     } as DirectorNavigationEvent);
   }
+
+  /**
+   * Tears down any initialized scene's {@apilink InputHost}, removing native pointer listeners
+   * the scene attached to the canvas/window and disabling input. Called by {@apilink Engine.dispose}.
+   */
+  public dispose() {
+    for (const scene of this._sceneToInstance.values()) {
+      scene.input?.pointers.detach();
+      scene.input?.toggleEnabled(false);
+    }
+  }
 }

@@ -18,8 +18,8 @@ describe('A color', () => {
     expect(color.toString('hex')).toBe('#000000');
   });
 
-  it('should display hsla(0,0,0,1)', () => {
-    expect(color.toString('hsl')).toBe('hsla(0, 0, 0, 1)');
+  it('should display hsla(0, 0%, 0%, 1)', () => {
+    expect(color.toString('hsl')).toBe('hsla(0, 0%, 0%, 1)');
   });
 
   it('should display an error message', () => {
@@ -94,7 +94,21 @@ describe('A color', () => {
     expect(color.a).toBe(0);
   });
 
-  it('should have a default alpha of 255 if not specified', () => {
+  it('can be parsed from float array', () => {
+    color = ex.Color.fromFloatArray([1.0, 0.5, 1.0, 0.5]);
+    expect(color.r).toBe(255);
+    expect(color.g).toBe(128);
+    expect(color.b).toBe(255);
+    expect(color.a).toBe(0.5);
+
+    color = ex.Color.fromFloatArray([1.0]);
+    expect(color.r).toBe(255);
+    expect(color.g).toBe(0);
+    expect(color.b).toBe(0);
+    expect(color.a).toBe(1.0);
+  });
+
+  it('should have a default alpha of 1 if not specified', () => {
     color = ex.Color.fromHex('#000000');
     expect(color.a).toBe(1);
     color = ex.Color.fromRGB(0, 0, 0);
@@ -117,6 +131,24 @@ describe('A color', () => {
     expect(color.toHex()).toBe('#1111111a');
     color = ex.Color.fromRGB(16.9, 16.9, 16.9);
     expect(color.toHex()).toBe('#111111');
+  });
+
+  it('generate valid float array representation', () => {
+    color = ex.Color.White;
+    let floatArray = color.toFloatArray();
+    expect(floatArray[0]).toBe(1.0);
+    expect(floatArray[1]).toBe(1.0);
+    expect(floatArray[2]).toBe(1.0);
+    expect(floatArray[3]).toBe(1.0);
+
+    color = ex.Color.Azure;
+    floatArray = color.toFloatArray();
+    expect(floatArray[0]).toBe(0.0);
+    expect(floatArray[1]).toBe(0.4980392156862745);
+    expect(floatArray[2]).toBe(1.0);
+    expect(floatArray[3]).toBe(1.0);
+
+    expect(color.toFloatArray(3)[1]).toBe(0.498);
   });
 
   it('can be darkened', () => {
@@ -149,10 +181,20 @@ describe('A color', () => {
   });
 
   it('can be lerped', () => {
-    color = ex.Color.lerp(ex.Color.White, ex.Color.Black, 0.5);
+    color = ex.Color.lerp(ex.Color.White, ex.Color.Black, 0.5, 'hsl');
     expect(color.r, 'r').toBe(127.5);
     expect(color.g, 'g').toBe(127.5);
     expect(color.b, 'b').toBe(127.5);
+
+    color = ex.Color.lerp(ex.Color.White, ex.Color.Black, 0.5, 'rgb');
+    expect(color.r, 'r').toBe(127.5);
+    expect(color.g, 'g').toBe(127.5);
+    expect(color.b, 'b').toBe(127.5);
+
+    color = ex.Color.lerp(ex.Color.White, ex.Color.Black, 0.5, 'lrgb');
+    expect(color.r, 'r').toBe(186.08371347438444);
+    expect(color.g, 'g').toBe(186.08371347438444);
+    expect(color.b, 'b').toBe(186.08371347438444);
   });
 
   it('can be randomly generated', () => {
@@ -174,5 +216,200 @@ describe('A color', () => {
     expect(color.g).toBeLessThanOrEqual(255);
     expect(color.b).toBeGreaterThanOrEqual(0);
     expect(color.b).toBeLessThanOrEqual(255);
+  });
+
+  it('can be screened with another color', () => {
+    color = ex.Color.Black.screen(ex.Color.Black);
+    expect(color.r).toBe(0);
+    expect(color.g).toBe(0);
+    expect(color.b).toBe(0);
+
+    color = ex.Color.White.screen(ex.Color.White);
+    expect(color.r).toBe(255);
+    expect(color.g).toBe(255);
+    expect(color.b).toBe(255);
+
+    color = ex.Color.Red.screen(ex.Color.Blue);
+    expect(color.r).toBe(255);
+    expect(color.g).toBe(0);
+    expect(color.b).toBe(255);
+
+    const halfRed = new ex.Color(128, 0, 0);
+    const halfGreen = new ex.Color(0, 128, 0);
+    color = halfRed.screen(halfGreen);
+    expect(Math.round(color.r)).toBe(128);
+    expect(Math.round(color.g)).toBe(128);
+    expect(color.b).toBe(0);
+  });
+
+  it('screen is commutative', () => {
+    const a = new ex.Color(100, 150, 200);
+    const b = new ex.Color(50, 75, 100);
+    const ab = a.screen(b);
+    const ba = b.screen(a);
+    expect(Math.round(ab.r)).toBe(Math.round(ba.r));
+    expect(Math.round(ab.g)).toBe(Math.round(ba.g));
+    expect(Math.round(ab.b)).toBe(Math.round(ba.b));
+  });
+
+  it('can be inverted', () => {
+    color = ex.Color.White.invert();
+    expect(color.r).toBe(0);
+    expect(color.g).toBe(0);
+    expect(color.b).toBe(0);
+    expect(color.a).toBe(0);
+
+    color = ex.Color.Black.invert();
+    expect(color.r).toBe(255);
+    expect(color.g).toBe(255);
+    expect(color.b).toBe(255);
+    expect(color.a).toBe(0);
+
+    const halfAlpha = new ex.Color(100, 150, 200, 0.3);
+    const inverted = halfAlpha.invert();
+    expect(inverted.r).toBe(155);
+    expect(inverted.g).toBe(105);
+    expect(inverted.b).toBe(55);
+    expect(inverted.a).toBe(0.7);
+  });
+
+  it('can be multiplied', () => {
+    color = ex.Color.White.multiply(ex.Color.White);
+    expect(color.r).toBe(255);
+    expect(color.g).toBe(255);
+    expect(color.b).toBe(255);
+
+    color = ex.Color.Black.multiply(ex.Color.White);
+    expect(color.r).toBe(0);
+    expect(color.g).toBe(0);
+    expect(color.b).toBe(0);
+
+    const halfRed = new ex.Color(128, 0, 0);
+    const halfGreen = new ex.Color(0, 128, 0);
+    color = halfRed.multiply(halfGreen);
+    expect(color.r).toBe(0);
+    expect(color.g).toBe(0);
+    expect(color.b).toBe(0);
+
+    const gray1 = new ex.Color(128, 128, 128);
+    const gray2 = new ex.Color(128, 128, 128);
+    color = gray1.multiply(gray2);
+    expect(Math.round(color.r)).toBe(64);
+    expect(Math.round(color.g)).toBe(64);
+    expect(Math.round(color.b)).toBe(64);
+  });
+
+  it('screen handles alpha correctly', () => {
+    const semiBlack = new ex.Color(0, 0, 0, 0.5);
+    const semiWhite = new ex.Color(255, 255, 255, 0.5);
+    color = semiBlack.screen(semiWhite);
+    expect(color.a).toBe(0.75);
+
+    const opaqueRed = new ex.Color(255, 0, 0, 1);
+    const semiBlue = new ex.Color(0, 0, 255, 0.5);
+    color = opaqueRed.screen(semiBlue);
+    expect(color.a).toBe(1);
+  });
+
+  it('toHex clamps out-of-range values', () => {
+    const overColor = new ex.Color(300, -10, 256, 1);
+    const hex = overColor.toHex();
+    expect(hex).toBe('#ff00ff');
+  });
+
+  it('toHSLA produces valid CSS format', () => {
+    color = ex.Color.Red;
+    const hsl = color.toHSLA();
+    expect(hsl).toBe('hsla(0, 100%, 50%, 1)');
+
+    color = ex.Color.Green;
+    const hslGreen = color.toHSLA();
+    expect(hslGreen).toBe('hsla(120, 100%, 50%, 1)');
+
+    color = ex.Color.Blue;
+    const hslBlue = color.toHSLA();
+    expect(hslBlue).toBe('hsla(240, 100%, 50%, 1)');
+  });
+
+  it('can be saturated', () => {
+    const color = ex.Color.fromHSL(0, 0.5, 0.5);
+    const saturated = color.saturate(0.5);
+    expect(saturated.toHSLA()).not.toBe(color.toHSLA());
+  });
+
+  it('can be desaturated', () => {
+    const color = ex.Color.fromHSL(0, 0.5, 0.5);
+    const desaturated = color.desaturate(0.5);
+    expect(desaturated.toHSLA()).not.toBe(color.toHSLA());
+  });
+
+  it('can throw on an invalid rgb string', () => {
+    expect(() => ex.Color.fromRGBString('not-a-color')).toThrowError('Invalid rgb/a string: not-a-color');
+  });
+
+  it('can be compared for equality', () => {
+    expect(ex.Color.Red.equal(ex.Color.fromRGB(255, 0, 0))).toBe(true);
+    expect(ex.Color.Red.equal(ex.Color.Blue)).toBe(false);
+  });
+
+  it('produces a hashCode', () => {
+    const a = ex.Color.fromRGB(10, 20, 30, 1);
+    const b = ex.Color.fromRGB(10, 20, 30, 1);
+    const c = ex.Color.fromRGB(11, 20, 30, 1);
+
+    expect(a.hashCode).toBe(b.hashCode);
+    expect(a.hashCode).not.toBe(c.hashCode);
+  });
+
+  it('fillStyle returns the same as toString', () => {
+    color = ex.Color.fromRGB(10, 20, 30, 0.5);
+    expect(color.fillStyle()).toBe(color.toString());
+  });
+
+  it('can clone into a destination color', () => {
+    const source = ex.Color.fromRGB(10, 20, 30, 0.4);
+    const dest = new ex.Color(0, 0, 0);
+
+    const result = source.clone(dest);
+
+    expect(result).toBe(dest);
+    expect(dest.r).toBe(10);
+    expect(dest.g).toBe(20);
+    expect(dest.b).toBe(30);
+    expect(dest.a).toBe(0.4);
+  });
+
+  it('exposes the standard palette of named colors', () => {
+    const palette: [string, string][] = [
+      ['Black', '#000000'],
+      ['White', '#ffffff'],
+      ['Gray', '#808080'],
+      ['LightGray', '#d3d3d3'],
+      ['DarkGray', '#a9a9a9'],
+      ['Yellow', '#ffff00'],
+      ['Orange', '#ffa500'],
+      ['Red', '#ff0000'],
+      ['Vermilion', '#ff5b31'],
+      ['Rose', '#ff007f'],
+      ['Pink', '#ffc0cb'],
+      ['Magenta', '#ff00ff'],
+      ['Violet', '#7f00ff'],
+      ['Purple', '#800080'],
+      ['Blue', '#0000ff'],
+      ['Azure', '#007fff'],
+      ['Cyan', '#00ffff'],
+      ['Viridian', '#59978f'],
+      ['Teal', '#008080'],
+      ['Green', '#00ff00'],
+      ['Chartreuse', '#7fff00'],
+      ['ExcaliburBlue', '#176baa'],
+      ['Brown', '#964b00']
+    ];
+
+    for (const [name, hex] of palette) {
+      expect((ex.Color as any)[name].toHex(), name).toBe(hex);
+    }
+
+    expect(ex.Color.Transparent.toHex()).toBe('#ffffff00');
   });
 });
