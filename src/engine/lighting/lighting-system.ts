@@ -9,6 +9,7 @@ import type { Camera } from '../camera';
 import { Vector } from '../math/vector';
 import type { AffineMatrix } from '../math/affine-matrix';
 import { CoordPlane } from '../math/coord-plane';
+import { canonicalizeAngle } from '../math/util';
 import { Color } from '../color';
 import { ScreenElement } from '../screen-element';
 import { Canvas } from '../graphics/canvas';
@@ -121,9 +122,21 @@ function shadowPolygon(lightSource: Vector, occluderVerts: Vector[], camTransfor
   let maxAngleIdx = 0;
   let nearestIdx = 0;
 
+  // atan2 has a branch cut at +-PI ("due left" of the light) - naively comparing raw atan2 values
+  // breaks whenever the occluder's silhouette straddles that cut. Unwrap every vertex's angle relative
+  // to vertex 0's own (raw) angle instead: a convex occluder's silhouette, as seen from any external
+  // point, always subtends less than PI, so a single +-2*PI correction relative to any one of its own
+  // vertices is always enough - no general multi-wrap unwrapping needed.
+  const refAngle = Math.atan2(occluderScreenVerts[0].y - lightSource.y, occluderScreenVerts[0].x - lightSource.x);
+
   for (let i = 0; i < occluderScreenVerts.length; i++) {
     // light source to occluder vertex
-    const angle = Math.atan2(occluderScreenVerts[i].y - lightSource.y, occluderScreenVerts[i].x - lightSource.x);
+    const rawAngle = Math.atan2(occluderScreenVerts[i].y - lightSource.y, occluderScreenVerts[i].x - lightSource.x);
+    let delta = canonicalizeAngle(rawAngle - refAngle); // [0, 2*PI)
+    if (delta > Math.PI) {
+      delta -= 2 * Math.PI; // (-PI, PI]
+    }
+    const angle = refAngle + delta;
     if (angle < minAngle) {
       minAngle = angle;
       minAngleIdx = i;
