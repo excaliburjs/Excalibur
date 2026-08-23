@@ -4,7 +4,7 @@ import { TransformComponent } from '../../entity-component-system/components/tra
 import { MotionComponent } from '../../entity-component-system/components/motion-component';
 import type { Entity } from '../../entity-component-system/entity';
 import { canonicalizeAngle, clamp, TwoPI } from '../../math/util';
-import { lerpAngle, remap, RotationType } from '../../math';
+import { remap, RotationType } from '../../math';
 
 export interface RotateByOptions {
   /**
@@ -16,7 +16,10 @@ export interface RotateByOptions {
    */
   duration: number;
   /**
-   * Optionally provide type of rotation, default is RotationType.ShortestPath
+   * Optionally provide type of rotation. When omitted the entity rotates by exactly the
+   * signed offset provided, preserving full turns (an offset of 2 PI performs a full revolution).
+   * When provided, the offset determines the target orientation and the rotation type picks
+   * the travel path to it (a ShortestPath rotation of 2 PI will not move).
    */
   rotationType?: RotationType;
 }
@@ -38,8 +41,9 @@ export class RotateByWithOptions implements Action {
   private _motion: MotionComponent;
   private _offset: number = 0;
   private _startAngle: number = 0;
-  private _rotationType: RotationType;
-  private _endAngle: number = 0;
+  private _rotationType?: RotationType;
+  private _travel: number = 0;
+  private _currentAngle: number = 0;
   constructor(
     public entity: Entity,
     options: RotateByOptions
@@ -51,25 +55,50 @@ export class RotateByWithOptions implements Action {
       throw new Error(`Entity ${entity.name} has no TransformComponent, can only RotateBy on Entities with TransformComponents.`);
     }
     this._durationMs = options.duration;
-    this._rotationType = options.rotationType ?? RotationType.ShortestPath;
+    this._rotationType = options.rotationType;
     this._currentMs = this._durationMs;
   }
   update(elapsed: number): void {
     if (!this._started) {
       this._startAngle = this._tx.rotation;
-      this._endAngle = canonicalizeAngle(this._startAngle + this._offset);
+      this._currentAngle = this._startAngle;
+      // The two canonical paths to the target orientation: positive in [0, 2PI), negative in [-2PI, 0)
+      const positivePath = canonicalizeAngle(this._offset);
+      const negativePath = positivePath - TwoPI;
+      switch (this._rotationType) {
+        case undefined:
+          // No explicit rotation type: rotate by exactly the signed offset, preserving full turns
+          this._travel = this._offset;
+          break;
+        case RotationType.ShortestPath:
+          this._travel = Math.abs(positivePath) <= Math.abs(negativePath) ? positivePath : negativePath;
+          break;
+        case RotationType.LongestPath:
+          this._travel = Math.abs(positivePath) > Math.abs(negativePath) ? positivePath : negativePath;
+          break;
+        case RotationType.Clockwise:
+          this._travel = positivePath;
+          break;
+        case RotationType.CounterClockwise:
+          this._travel = negativePath;
+          break;
+      }
+      if (this._offset === 0) {
+        this._travel = 0;
+      }
       this._started = true;
     }
     this._currentMs -= elapsed;
     const t = clamp(remap(0, this._durationMs, 0, 1, this._durationMs - this._currentMs), 0, 1);
-    const newAngle = lerpAngle(this._startAngle, this._endAngle, this._rotationType, t);
-    const currentAngle = this._tx.rotation;
+    const newAngle = this._startAngle + this._travel * t;
     const seconds = elapsed / 1000;
-    const rx = seconds === 0 ? 0 : (newAngle - currentAngle) / seconds;
+    // Track the un-canonicalized angle so wrapping the transform's rotation doesn't spike velocity
+    const rx = seconds === 0 ? 0 : (newAngle - this._currentAngle) / seconds;
+    this._currentAngle = newAngle;
     this._motion.angularVelocity = rx;
 
     if (this.isComplete()) {
-      this._tx.rotation = this._endAngle;
+      this._tx.rotation = canonicalizeAngle(this._startAngle + this._travel);
       this._motion.angularVelocity = 0;
     }
   }
