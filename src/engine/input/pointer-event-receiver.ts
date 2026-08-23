@@ -64,6 +64,8 @@ export class PointerEventReceiver {
   public primary: PointerAbstraction = new PointerAbstraction();
 
   private _activeNativePointerIdsToNormalized = new Map<number, number>();
+  private _freedNormalizedIds: number[] = [];
+  private _nextNormalizedId = 0;
   public lastFramePointerCoords = new Map<number, GlobalCoordinates>();
   public currentFramePointerCoords = new Map<number, GlobalCoordinates>();
 
@@ -275,6 +277,7 @@ export class PointerEventReceiver {
       for (const [native, normalized] of ids) {
         if (normalized === event.pointerId) {
           this._activeNativePointerIdsToNormalized.delete(native);
+          this._freedNormalizedIds.push(normalized);
         }
       }
     }
@@ -395,20 +398,20 @@ export class PointerEventReceiver {
    * Take native pointer id and map it to index in active pointers
    * @param nativePointerId
    */
-  private _normalizePointerId(nativePointerId: number) {
-    // Add to the the native pointer set id
-    this._activeNativePointerIdsToNormalized.set(nativePointerId, -1);
+  private _normalizePointerId(nativePointerId: number): number {
+    const existing = this._activeNativePointerIdsToNormalized.get(nativePointerId);
+    if (existing !== undefined) {
+      return existing;
+    }
 
-    // Native pointer ids in ascending order
-    const currentPointerIds = Array.from(this._activeNativePointerIdsToNormalized.keys()).sort((a, b) => a - b);
-
-    // The index into sorted ids will be the new id, will always have an id
-    const id = currentPointerIds.findIndex((p) => p === nativePointerId);
+    // Reuse an id freed by a lifted pointer if one exists, otherwise hand out
+    // the next never-before-used id. Either way this never changes the id of
+    // an already-tracked pointer.
+    const id = this._freedNormalizedIds.pop() ?? this._nextNormalizedId++;
 
     // Save the mapping so we can reverse it later
     this._activeNativePointerIdsToNormalized.set(nativePointerId, id);
 
-    // ignore pointer because game isn't watching
     return id;
   }
 
