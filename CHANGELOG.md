@@ -39,10 +39,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   - New `ex.ShaderPipeline` linear chain (`source → pass0 → pass1 → ... → destination`) with per-pass `scale` for downsample/upsample and `u_original` bound for composite passes. Any object implementing `ex.ShaderPipelineLike` (`process(source, destination)`) can be used instead for custom non-linear graphs.
   - `ex.Material` accepts `passes` (an array of fragment strings/`ShaderPass`es, or a `ShaderPipelineLike`) plus `padding` in source pixels so effects like blur/glow are not clipped to the graphic's quad; `fragmentSource` is now optional when `passes` is provided. The pipeline output substitutes `u_graphic` in the composite fragment, and everything else about materials (screen texture, uniforms, images, batching) is unchanged.
   - `ex.PostProcessor` gains an optional multipass `process(source, destination)` hook (`getShader`/`getLayout` are now optional), and the new `ex.ShaderPipelinePostProcessor` runs a pipeline over the whole screen, chaining with existing single-pass post processors in order.
-  - New built-in effects usable per-graphic or fullscreen:
-    - `ex.createBlurPasses({ graphicsContext, scale, strength })` — separable gaussian blur
-    - `ex.createGlowPasses({ graphicsContext, color, scale, strength, intensity })` — outer glow: the graphic's silhouette is tinted, blurred, and composited back under the original (pair with `Material` `padding` so the halo has room)
-    - `ex.BloomEffect({ graphicsContext, threshold, intensity, levels })` — progressive downsample/upsample ladder bloom implemented as a `ShaderPipelineLike` pass graph, with live-tunable `threshold`/`intensity`
+  - New built-in effects usable per-graphic or fullscreen, each a `ShaderPipelineLike` object with live-tunable settings:
+    - `ex.BlurEffect({ graphicsContext, scale, strength })` — separable gaussian blur, animate `blur.strength` any time
+    - `ex.GlowEffect({ graphicsContext, color, scale, strength, intensity })` — outer glow: the graphic's silhouette is tinted, blurred, and composited back under the original (pair with `Material` `padding` so the halo has room); `color`/`strength`/`intensity` are live properties
+    - `ex.BloomEffect({ graphicsContext, threshold, intensity, levels })` — progressive downsample/upsample ladder bloom implemented as a custom pass graph, with live-tunable `threshold`/`intensity`
+    - The underlying pass factories `ex.createBlurPasses(...)`/`ex.createGlowPasses(...)` are also exported for splicing into custom pass chains
 
   ```typescript
   const material = new ex.Material({

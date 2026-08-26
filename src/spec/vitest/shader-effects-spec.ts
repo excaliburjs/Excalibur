@@ -170,6 +170,153 @@ describe('Glow passes', () => {
   });
 });
 
+describe('A BlurEffect', () => {
+  let context: ex.ExcaliburGraphicsContextWebGL;
+  let source: ex.Framebuffer;
+  let destination: ex.Framebuffer;
+
+  beforeEach(() => {
+    ({ context } = createTestContext());
+    source = new ex.Framebuffer({ graphicsContext: context, width: 32, height: 32 });
+    destination = new ex.Framebuffer({ graphicsContext: context, width: 32, height: 32 });
+
+    // white box in the middle half, transparent elsewhere
+    const box = new ex.ShaderPass({
+      graphicsContext: context,
+      fragmentSource: `
+        in vec2 v_uv;
+        out vec4 fragColor;
+        void main() {
+          bool inside = v_uv.x > 0.25 && v_uv.x < 0.75 && v_uv.y > 0.25 && v_uv.y < 0.75;
+          fragColor = inside ? vec4(1.0) : vec4(0.0);
+        }`
+    });
+    box.draw({ destination: source });
+    box.dispose();
+  });
+
+  afterEach(() => {
+    source.dispose();
+    destination.dispose();
+    context.dispose();
+    context = null;
+  });
+
+  it('exists', () => {
+    expect(ex.BlurEffect).toBeDefined();
+  });
+
+  it('exposes live strength and a fixed scale', () => {
+    const blur = new ex.BlurEffect({ graphicsContext: context, strength: 2, scale: 0.25 });
+    expect(blur.strength).toBe(2);
+    expect(blur.scale).toBe(0.25);
+    blur.strength = 5;
+    expect(blur.strength).toBe(5);
+    blur.dispose();
+  });
+
+  it('changing strength changes the blur output', () => {
+    const blur = new ex.BlurEffect({ graphicsContext: context, strength: 0 });
+
+    // strength 0 samples the same texel 9 times, edges stay sharp
+    blur.process(source, destination);
+    const sharpOutside = readPixel(context.__gl, destination, 4, 16);
+    expect(sharpOutside[3]).toBe(0);
+
+    // strength 8 spreads the box well past the same pixel
+    blur.strength = 8;
+    blur.process(source, destination);
+    const blurredOutside = readPixel(context.__gl, destination, 4, 16);
+    expect(blurredOutside[3]).toBeGreaterThan(0);
+    blur.dispose();
+  });
+});
+
+describe('A GlowEffect', () => {
+  let context: ex.ExcaliburGraphicsContextWebGL;
+  let source: ex.Framebuffer;
+  let destination: ex.Framebuffer;
+
+  beforeEach(() => {
+    ({ context } = createTestContext());
+    source = new ex.Framebuffer({ graphicsContext: context, width: 32, height: 32 });
+    destination = new ex.Framebuffer({ graphicsContext: context, width: 32, height: 32 });
+
+    // opaque red box in the middle half, transparent elsewhere
+    const box = new ex.ShaderPass({
+      graphicsContext: context,
+      fragmentSource: `
+        in vec2 v_uv;
+        out vec4 fragColor;
+        void main() {
+          bool inside = v_uv.x > 0.25 && v_uv.x < 0.75 && v_uv.y > 0.25 && v_uv.y < 0.75;
+          fragColor = inside ? vec4(1.0, 0.0, 0.0, 1.0) : vec4(0.0);
+        }`
+    });
+    box.draw({ destination: source });
+    box.dispose();
+  });
+
+  afterEach(() => {
+    source.dispose();
+    destination.dispose();
+    context.dispose();
+    context = null;
+  });
+
+  it('exists', () => {
+    expect(ex.GlowEffect).toBeDefined();
+  });
+
+  it('exposes live color, intensity, strength and a fixed scale', () => {
+    const glow = new ex.GlowEffect({ graphicsContext: context, color: ex.Color.Green, strength: 3, intensity: 2, scale: 0.25 });
+    expect(glow.color).toEqual(ex.Color.Green);
+    expect(glow.strength).toBe(3);
+    expect(glow.intensity).toBe(2);
+    expect(glow.scale).toBe(0.25);
+
+    glow.color = ex.Color.Magenta;
+    glow.strength = 1;
+    glow.intensity = 0.5;
+    expect(glow.color).toEqual(ex.Color.Magenta);
+    expect(glow.strength).toBe(1);
+    expect(glow.intensity).toBe(0.5);
+    glow.dispose();
+  });
+
+  it('changing color changes the halo, changing intensity to 0 removes it', () => {
+    const glow = new ex.GlowEffect({ graphicsContext: context, color: ex.Color.Green, strength: 2 });
+
+    glow.process(source, destination);
+    let halo = readPixel(context.__gl, destination, 5, 16);
+    expect(halo[1]).toBeGreaterThan(0);
+    expect(halo[2]).toBe(0);
+
+    glow.color = ex.Color.Blue;
+    glow.process(source, destination);
+    halo = readPixel(context.__gl, destination, 5, 16);
+    expect(halo[2]).toBeGreaterThan(0);
+    expect(halo[1]).toBe(0);
+
+    glow.intensity = 0;
+    glow.process(source, destination);
+    halo = readPixel(context.__gl, destination, 5, 16);
+    expect(halo[3]).toBe(0);
+    glow.dispose();
+  });
+
+  it('plugs into a Material as its pipeline', () => {
+    const glow = new ex.GlowEffect({ graphicsContext: context });
+    const material = new ex.Material({
+      name: 'glow-material',
+      graphicsContext: context,
+      passes: glow
+    });
+    expect(material.pipeline).toBe(glow);
+    glow.dispose();
+  });
+});
+
 describe('Shader effects @visual', () => {
   it('can bloom a graphic through a material', async () => {
     const { canvas, context } = createTestContext();

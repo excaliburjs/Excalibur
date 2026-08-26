@@ -1,7 +1,10 @@
 import { vec } from '../../../../math/vector';
 import type { ExcaliburGraphicsContextWebGL } from '../../excalibur-graphics-context-webgl';
 import { glsl } from '../../glsl';
+import type { ShaderPassDestination, ShaderPassSource } from '../shader-pass';
 import { ShaderPass } from '../shader-pass';
+import type { ShaderPipelineLike, ShaderPipelineProcessOptions } from '../shader-pipeline';
+import { ShaderPipeline } from '../shader-pipeline';
 
 export interface BlurPassesOptions {
   graphicsContext: ExcaliburGraphicsContextWebGL;
@@ -85,4 +88,55 @@ export function createBlurPasses(options: BlurPassesOptions): ShaderPass[] {
       }
     })
   ];
+}
+
+/**
+ * Separable gaussian blur wrapped in a convenient object with live-tunable settings, the
+ * ergonomic counterpart to {@apilink createBlurPasses}.
+ *
+ * ```typescript
+ * const blur = new ex.BlurEffect({ graphicsContext, strength: 2 });
+ * actor.graphics.material = new ex.Material({ graphicsContext, passes: blur, padding: 16 });
+ *
+ * blur.strength = 4; // animate any time, applies next frame
+ * ```
+ */
+export class BlurEffect implements ShaderPipelineLike {
+  /**
+   * Resolution the blur runs at relative to the source, fixed at construction
+   */
+  public readonly scale: number;
+  private _pipeline: ShaderPipeline;
+  private _horizontal: ShaderPass;
+  private _vertical: ShaderPass;
+
+  constructor(options: BlurPassesOptions) {
+    this.scale = options.scale ?? 0.5;
+    this._pipeline = new ShaderPipeline({
+      graphicsContext: options.graphicsContext,
+      name: 'blur effect',
+      passes: createBlurPasses(options)
+    });
+    [this._horizontal, this._vertical] = this._pipeline.passes;
+  }
+
+  /**
+   * Blur radius multiplier in texels of the (downsampled) blur resolution
+   */
+  public get strength(): number {
+    return this._horizontal.uniforms.u_strength as number;
+  }
+
+  public set strength(value: number) {
+    this._horizontal.uniforms.u_strength = value;
+    this._vertical.uniforms.u_strength = value;
+  }
+
+  public process(source: ShaderPassSource, destination: ShaderPassDestination, options?: ShaderPipelineProcessOptions): void {
+    this._pipeline.process(source, destination, options);
+  }
+
+  public dispose(): void {
+    this._pipeline.dispose();
+  }
 }

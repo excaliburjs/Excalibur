@@ -22,7 +22,7 @@ blurred.graphics.use(swordImage.toSprite());
 blurred.graphics.material = new ex.Material({
   name: 'blur-material',
   graphicsContext,
-  passes: ex.createBlurPasses({ graphicsContext, strength: 4 }),
+  passes: new ex.BlurEffect({ graphicsContext, strength: 4 }),
   padding: 16
 });
 game.add(blurred);
@@ -63,13 +63,13 @@ tinted.graphics.material = new ex.Material({
 game.add(tinted);
 
 // 4. Glow material: cyan halo around the sprite silhouette, intensity pulses over time
-var glowPasses = ex.createGlowPasses({ graphicsContext, color: ex.Color.Cyan, strength: 3, intensity: 2 });
+var glowEffect = new ex.GlowEffect({ graphicsContext, color: ex.Color.Cyan, strength: 3, intensity: 2 });
 var glowing = new ex.Actor({ pos: ex.vec(620, 150) });
 glowing.graphics.use(swordImage.toSprite());
 glowing.graphics.material = new ex.Material({
   name: 'glow-material',
   graphicsContext,
-  passes: glowPasses,
+  passes: glowEffect,
   padding: 24
 });
 game.add(glowing);
@@ -91,15 +91,14 @@ var totalTime = 0;
 game.on('postupdate', (evt) => {
   totalTime += evt.elapsed;
   var pulse = (Math.sin(totalTime / 300) + 1) / 2; // 0..1
-  // glow silhouette pass owns the intensity uniform
-  glowPasses[0].uniforms.u_glow_intensity =  pulse * 1;
+  glowEffect.intensity = pulse * 1;
   bloomEffect.intensity = 0.25 + pulse * 2;
 });
 
 // 6. Fullscreen post processors, blur toggled with 'p', bloom toggled with 'b'
 var fullscreenBlur = new ex.ShaderPipelinePostProcessor({
   name: 'fullscreen-blur',
-  passes: ex.createBlurPasses({ graphicsContext, strength: 3 })
+  pipeline: new ex.BlurEffect({ graphicsContext, strength: 3 })
 });
 var fullscreenBloom = new ex.ShaderPipelinePostProcessor({
   name: 'fullscreen-bloom',
