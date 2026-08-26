@@ -281,6 +281,69 @@ describe('A PointerEventReceiver', () => {
       receiver.detach();
     });
 
+    it('reuses the smallest freed id so a lone new contact lands back on the primary pointer', () => {
+      // Regression test: freed ids were reused LIFO, so after a multi-touch release the next
+      // single touch popped the highest freed id and pointers.primary (id 0) went silent.
+      const receiver = new ex.PointerEventReceiver(engine.canvas, engine);
+      receiver.init();
+
+      engine.canvas.dispatchEvent(new window.PointerEvent('pointerdown', { pointerId: 5, pointerType: 'touch', clientX: 10, clientY: 10 }));
+      engine.canvas.dispatchEvent(new window.PointerEvent('pointerdown', { pointerId: 7, pointerType: 'touch', clientX: 20, clientY: 20 }));
+      expect(receiver.currentFrameDown.map((e) => e.pointerId)).toEqual([0, 1]);
+
+      engine.canvas.dispatchEvent(new window.PointerEvent('pointerup', { pointerId: 5, pointerType: 'touch', clientX: 10, clientY: 10 }));
+      engine.canvas.dispatchEvent(new window.PointerEvent('pointerup', { pointerId: 7, pointerType: 'touch', clientX: 20, clientY: 20 }));
+      receiver.clear();
+
+      engine.canvas.dispatchEvent(new window.PointerEvent('pointerdown', { pointerId: 9, pointerType: 'touch', clientX: 30, clientY: 30 }));
+      expect(receiver.currentFrameDown.map((e) => e.pointerId)).toEqual([0]);
+
+      receiver.detach();
+    });
+
+    it('frees the normalized id and down state when a pointer is cancelled', () => {
+      // Regression test: only pointerup freed ids - cancelled contacts (palm rejection, browser
+      // gesture takeover) leaked their mapping forever and left the pointer reporting down.
+      const receiver = new ex.PointerEventReceiver(engine.canvas, engine);
+      receiver.init();
+
+      engine.canvas.dispatchEvent(new window.PointerEvent('pointerdown', { pointerId: 5, pointerType: 'touch', clientX: 10, clientY: 10 }));
+      expect(receiver.currentFrameDown.map((e) => e.pointerId)).toEqual([0]);
+      expect(receiver.isDown(0)).toBe(true);
+
+      engine.canvas.dispatchEvent(new window.PointerEvent('pointercancel', { pointerId: 5, pointerType: 'touch', clientX: 10, clientY: 10 }));
+      expect(receiver.isDown(0)).toBe(false);
+      receiver.clear();
+
+      expect((receiver as any)._activeNativePointerIdsToNormalized.size).toBe(0);
+
+      engine.canvas.dispatchEvent(new window.PointerEvent('pointerdown', { pointerId: 9, pointerType: 'touch', clientX: 30, clientY: 30 }));
+      expect(receiver.currentFrameDown.map((e) => e.pointerId)).toEqual([0]);
+      expect((receiver as any)._activeNativePointerIdsToNormalized.size).toBe(1);
+
+      receiver.detach();
+    });
+
+    it('keeps the mouse id reserved after mouse up so a later touch cannot steal the primary pointer', () => {
+      const receiver = new ex.PointerEventReceiver(engine.canvas, engine);
+      receiver.init();
+
+      engine.canvas.dispatchEvent(new window.PointerEvent('pointerdown', { pointerId: 1, pointerType: 'mouse', clientX: 10, clientY: 10 }));
+      engine.canvas.dispatchEvent(new window.PointerEvent('pointerup', { pointerId: 1, pointerType: 'mouse', clientX: 10, clientY: 10 }));
+      expect(receiver.currentFrameUp.map((e) => e.pointerId)).toEqual([0]);
+      receiver.clear();
+
+      // The mouse still exists (it hovers) - a new touch must not take over id 0
+      engine.canvas.dispatchEvent(new window.PointerEvent('pointerdown', { pointerId: 5, pointerType: 'touch', clientX: 30, clientY: 30 }));
+      expect(receiver.currentFrameDown.map((e) => e.pointerId)).toEqual([1]);
+
+      // And the hovering mouse keeps routing to the primary pointer
+      engine.canvas.dispatchEvent(new window.PointerEvent('pointermove', { pointerId: 1, pointerType: 'mouse', clientX: 15, clientY: 15 }));
+      expect(receiver.currentFrameMove.map((e) => e.pointerId)).toEqual([0]);
+
+      receiver.detach();
+    });
+
     it('stops handling events after detach()', () => {
       const receiver = new ex.PointerEventReceiver(engine.canvas, engine);
       receiver.init();

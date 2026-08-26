@@ -267,19 +267,33 @@ export class PointerEventReceiver {
     }
   }
 
+  private _releaseEndedPointer(event: PointerEvent, freedThisFrame: Set<number>): void {
+    this.currentFramePointerCoords.delete(event.pointerId);
+    // A mouse persists after 'up' (it keeps hovering), keep its id reserved so a later
+    // touch can't steal it and inherit the mouse's per-id hover state
+    if (event.pointerType === PointerType.Mouse) {
+      return;
+    }
+    const ids = this._activeNativePointerIdsToNormalized.entries();
+    for (const [native, normalized] of ids) {
+      if (normalized === event.pointerId && !freedThisFrame.has(normalized)) {
+        this._activeNativePointerIdsToNormalized.delete(native);
+        this._freedNormalizedIds.push(normalized);
+        freedThisFrame.add(normalized);
+      }
+    }
+  }
+
   /**
    * Clears the current frame event and pointer data
    */
   public clear() {
+    const freedThisFrame = new Set<number>();
     for (const event of this.currentFrameUp) {
-      this.currentFramePointerCoords.delete(event.pointerId);
-      const ids = this._activeNativePointerIdsToNormalized.entries();
-      for (const [native, normalized] of ids) {
-        if (normalized === event.pointerId) {
-          this._activeNativePointerIdsToNormalized.delete(native);
-          this._freedNormalizedIds.push(normalized);
-        }
-      }
+      this._releaseEndedPointer(event, freedThisFrame);
+    }
+    for (const event of this.currentFrameCancel) {
+      this._releaseEndedPointer(event, freedThisFrame);
     }
     this.currentFrameDown.length = 0;
     this.currentFrameUp.length = 0;
@@ -404,10 +418,21 @@ export class PointerEventReceiver {
       return existing;
     }
 
-    // Reuse an id freed by a lifted pointer if one exists, otherwise hand out
-    // the next never-before-used id. Either way this never changes the id of
-    // an already-tracked pointer.
-    const id = this._freedNormalizedIds.pop() ?? this._nextNormalizedId++;
+    // Reuse the smallest id freed by a lifted pointer if one exists (so a lone new contact
+    // always lands back on the primary pointer at id 0), otherwise hand out the next
+    // never-before-used id. Either way this never changes the id of an already-tracked pointer.
+    let id: number;
+    if (this._freedNormalizedIds.length > 0) {
+      let minIndex = 0;
+      for (let i = 1; i < this._freedNormalizedIds.length; i++) {
+        if (this._freedNormalizedIds[i] < this._freedNormalizedIds[minIndex]) {
+          minIndex = i;
+        }
+      }
+      id = this._freedNormalizedIds.splice(minIndex, 1)[0];
+    } else {
+      id = this._nextNormalizedId++;
+    }
 
     // Save the mapping so we can reverse it later
     this._activeNativePointerIdsToNormalized.set(nativePointerId, id);
@@ -474,6 +499,7 @@ export class PointerEventReceiver {
         case 'touchcancel':
         case 'pointercancel':
           this.currentFrameCancel.push(new PointerEvent('cancel', pointerId, button, pointerType, coord, ev));
+          this.currentFramePointerDown.set(pointerId, false);
           break;
       }
     }
