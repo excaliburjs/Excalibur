@@ -62,8 +62,8 @@ export class SystemManager {
    */
   public removeSystem(system: System) {
     const removed = removeItemFromArray(system, this.systems);
-    if (removed && this.initialized && system.uninitialize) {
-      system.uninitialize(this._world, this._world.scene);
+    if (removed && this.initialized && system.dispose) {
+      system.dispose(this._world, this._world.scene);
     }
   }
 

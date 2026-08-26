@@ -764,7 +764,7 @@ describe('A Lighting System', () => {
       expect(engine.currentScene.world.entityManager.getByName('lighting').length).toBe(1);
     });
 
-    it('hides the canvas on a caller-provided ScreenElement host instead of removing it when uninitialized', async () => {
+    it('hides the canvas on a caller-provided ScreenElement host instead of removing it when disposed', async () => {
       engine = TestUtils.engine({ width: 100, height: 100 });
       const customHost = new ex.ScreenElement({ name: 'custom-lighting-host', width: 100, height: 100 });
       engine.currentScene.add(customHost);

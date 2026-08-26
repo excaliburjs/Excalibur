@@ -34,7 +34,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- Added an optional `System.uninitialize(world, scene)` lifecycle hook, called by the `SystemManager` when a system is removed after having been initialized — use it to release resources the system provisioned in `initialize` (entities it added, observable subscriptions, etc.). The `LightingSystem` uses it to remove its provisioned overlay and unsubscribe its component queries when lighting is disabled at runtime
+- Added an optional `System.dispose(world, scene)` lifecycle hook, called by the `SystemManager` when a system is removed after having been initialized — use it to release resources the system provisioned in `initialize` (entities it added, observable subscriptions, etc.). The `LightingSystem` uses it to remove its provisioned overlay and unsubscribe its component queries when lighting is disabled at runtime
 - Added an opt-in 2D lighting simulation, enabled with the new `lighting: true` engine option (default `false`). When enabled every scene gets a `FlickerSystem` and `LightingSystem` that render darkness veils, point/cone lights with flicker, and occluder shadows via the new `DarknessComponent`, `PointLightComponent`, `ConeLightComponent`, and `LightOccluderComponent` components. The overlay is rasterized with the 2D Canvas API and re-uploaded to the GPU every frame, which carries a performance penalty — this is why the feature is off by default. The systems can also be added manually to individual scenes with `scene.world.add(new ex.LightingSystem())` without enabling the engine option.
 
   ```typescript

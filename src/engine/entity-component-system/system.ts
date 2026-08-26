@@ -56,12 +56,12 @@ export abstract class System {
   initialize?(world: World, scene: Scene): void;
 
   /**
-   * Optionally specify an uninitialize handler, called when the system is removed from the
+   * Optionally specify a dispose handler, called when the system is removed from the
    * {@apilink SystemManager} after having been initialized. Use it to release any resources the
    * system provisioned in `initialize` (entities it added, observable subscriptions, etc.)
    * @param scene
    */
-  uninitialize?(world: World, scene: Scene): void;
+  dispose?(world: World, scene: Scene): void;
 
   /**
    * Update all entities that match this system's types

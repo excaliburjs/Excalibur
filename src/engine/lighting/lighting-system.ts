@@ -84,6 +84,12 @@ type ScreenOccluder =
   | { kind: 'circle'; screenCenter: Vector; screenRadius: number }
   | { kind: 'poly'; screenVerts: Vector[]; boundCenter: Vector; boundRadius: number };
 
+/**
+ * Where {@apilink LightingConfig.shadowMidOpacity} applies along an occluder shadow's radial
+ * gradient, per its documented contract: "opacity at 40% of the shadow's reach".
+ */
+const SHADOW_MID_STOP = 0.4;
+
 interface ConeGradientOptions {
   startAngle: number;
   endAngle: number;
@@ -298,7 +304,7 @@ export class LightingSystem extends System {
    * offscreen scratch canvas. Called by the {@apilink SystemManager} when the system is removed,
    * e.g. when `engine.lighting.enabled` is turned off at runtime.
    */
-  public uninitialize(_world: World, scene: Scene): void {
+  public dispose(_world: World, scene: Scene): void {
     for (const sub of this._subscriptions) {
       sub.observable.unsubscribe(sub.fn);
     }
@@ -777,7 +783,7 @@ export class LightingSystem extends System {
         }
         const grad = ctx.createRadialGradient(lightScreen.x, lightScreen.y, nearDist, lightScreen.x, lightScreen.y, reach);
         grad.addColorStop(0, `rgba(0,0,0,${shadowNearOpacity})`);
-        grad.addColorStop(0.4, `rgba(0,0,0,${shadowMidOpacity})`);
+        grad.addColorStop(SHADOW_MID_STOP, `rgba(0,0,0,${shadowMidOpacity})`);
         grad.addColorStop(1, 'rgba(0,0,0,0)');
 
         drawShadowCircle(ctx, lightScreen, occ.screenCenter, occ.screenRadius, reach, grad);
@@ -796,7 +802,7 @@ export class LightingSystem extends System {
 
         const grad = ctx.createRadialGradient(lightScreen.x, lightScreen.y, nearDist, lightScreen.x, lightScreen.y, reach);
         grad.addColorStop(0, `rgba(0,0,0,${shadowNearOpacity})`);
-        grad.addColorStop(0.4, `rgba(0,0,0,${shadowMidOpacity})`);
+        grad.addColorStop(SHADOW_MID_STOP, `rgba(0,0,0,${shadowMidOpacity})`);
         grad.addColorStop(1, 'rgba(0,0,0,0)');
 
         ctx.fillStyle = grad;

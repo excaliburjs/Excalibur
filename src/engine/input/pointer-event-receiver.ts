@@ -269,8 +269,12 @@ export class PointerEventReceiver {
 
   private _releaseEndedPointer(event: PointerEvent, freedThisFrame: Set<number>): void {
     this.currentFramePointerCoords.delete(event.pointerId);
-    // A mouse persists after 'up' (it keeps hovering), keep its id reserved so a later
-    // touch can't steal it and inherit the mouse's per-id hover state
+    // A mouse remains in range after 'up' and keeps producing pointermove events under the same
+    // native pointerId: the spec fires pointerout/pointerleave after pointerup only "for input
+    // devices that do not support hover", and permits the UA to "always reuse the same pointerId
+    // for a particular pointing device" (https://www.w3.org/TR/pointerevents3/#the-pointerup-event,
+    // https://www.w3.org/TR/pointerevents3/#pointerid-attribute). Keep its id reserved so a later
+    // touch can't steal it and inherit the mouse's per-id hover state.
     if (event.pointerType === PointerType.Mouse) {
       return;
     }
@@ -418,9 +422,7 @@ export class PointerEventReceiver {
       return existing;
     }
 
-    // Reuse the smallest id freed by a lifted pointer if one exists (so a lone new contact
-    // always lands back on the primary pointer at id 0), otherwise hand out the next
-    // never-before-used id. Either way this never changes the id of an already-tracked pointer.
+    // Reuse the smallest freed id (so a lone new contact lands back on the primary pointer at id 0), otherwise mint a new one
     let id: number;
     if (this._freedNormalizedIds.length > 0) {
       let minIndex = 0;
