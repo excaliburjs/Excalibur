@@ -92,7 +92,7 @@ game.on('postupdate', (evt) => {
   totalTime += evt.elapsed;
   var pulse = (Math.sin(totalTime / 300) + 1) / 2; // 0..1
   // glow silhouette pass owns the intensity uniform
-  glowPasses[0].uniforms.u_glow_intensity = 0.5 + pulse * 2.5;
+  glowPasses[0].uniforms.u_glow_intensity =  pulse * 1;
   bloomEffect.intensity = 0.25 + pulse * 2;
 });
 
