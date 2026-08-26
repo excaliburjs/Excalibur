@@ -33,6 +33,28 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added multipass **shader pipelines** for composing shader effects that need more than one pass (blur, bloom, glow), built on an explicit source→destination dataflow with no hidden bind state:
+  - New `ex.Framebuffer` and `ex.MultisampleFramebuffer` primitives that are both a render destination and a texture source (`framebuffer.texture`, `framebuffer.glFramebuffer`, `framebuffer.texelSize`), with `resize()`, `clear()`, and `dispose()`. These replace the internal (never exported) `RenderTarget`/`RenderSource` classes inside the WebGL context. Reading a `MultisampleFramebuffer.texture` resolves the MSAA samples automatically.
+  - New `ex.ShaderPass` quad renderer: `pass.draw(source, destination)` or `pass.draw({ sources: { u_a: fbA, u_b: fbB }, destination, uniforms })` with named sampler sources, per-pass declarative `uniforms`, and convention uniforms (`u_image`, `u_resolution`, `u_texelSize`, `u_time_ms`, `u_elapsed_ms`). Fragments are authored with the `glsl` tag's straight-alpha conventions.
+  - New `ex.ShaderPipeline` linear chain (`source → pass0 → pass1 → ... → destination`) with per-pass `scale` for downsample/upsample and `u_original` bound for composite passes. Any object implementing `ex.ShaderPipelineLike` (`process(source, destination)`) can be used instead for custom non-linear graphs.
+  - `ex.Material` accepts `passes` (an array of fragment strings/`ShaderPass`es, or a `ShaderPipelineLike`) plus `padding` in source pixels so effects like blur/glow are not clipped to the graphic's quad; `fragmentSource` is now optional when `passes` is provided. The pipeline output substitutes `u_graphic` in the composite fragment, and everything else about materials (screen texture, uniforms, images, batching) is unchanged.
+  - `ex.PostProcessor` gains an optional multipass `process(source, destination)` hook (`getShader`/`getLayout` are now optional), and the new `ex.ShaderPipelinePostProcessor` runs a pipeline over the whole screen, chaining with existing single-pass post processors in order.
+  - New `ex.createBlurPasses({ graphicsContext, scale, strength })` separable gaussian blur effect usable per-graphic or fullscreen.
+
+  ```typescript
+  const material = new ex.Material({
+    graphicsContext,
+    passes: ex.createBlurPasses({ graphicsContext, strength: 2 }),
+    padding: 16 // blur can bleed 16px outside the sprite without clipping
+  });
+  actor.graphics.material = material;
+
+  // fullscreen
+  game.graphicsContext.addPostProcessor(
+    new ex.ShaderPipelinePostProcessor({ passes: ex.createBlurPasses({ graphicsContext }) })
+  );
+  ```
+
 - Added an opt-in 2D lighting simulation, enabled with the new `lighting: true` engine option (default `false`). When enabled every scene gets a `FlickerSystem` and `LightingSystem` that render darkness veils, point/cone lights with flicker, and occluder shadows via the new `DarknessComponent`, `PointLightComponent`, `ConeLightComponent`, and `LightOccluderComponent` components. The overlay is rasterized with the 2D Canvas API and re-uploaded to the GPU every frame, which carries a performance penalty — this is why the feature is off by default. The systems can also be added manually to individual scenes with `scene.world.add(new ex.LightingSystem())` without enabling the engine option.
 
   ```typescript
@@ -117,6 +139,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where the post processor `u_time_ms` uniform accumulated elapsed time once per post processor per update, advancing N times too fast with N post processors installed
 - Fixed issue where Local-space particles could be double-returned to the object pool, causing the same Particle instance to be active in two slots simultaneously
 - Fixed issue where window resize events were handled twice when using window-based display modes (FitScreen, FitScreenAndFill, FitScreenAndZoom, FillScreen), causing double resolution/viewport computation and double canvas size writes
 - Fixed Matrix and AffineMatrix scale/rotation decomposition bug where getScaleX/getScaleY used wrong basis components for non-uniform scale combined with rotation, causing swapped scale values and corrupt transforms. Also fixed setRotation and setScaleX/setScaleY to operate on correct column basis vectors.

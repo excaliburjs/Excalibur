@@ -5,6 +5,10 @@ import type { Shader, UniformDictionary } from './shader';
 import { Logger } from '../../util/log';
 import type { ImageSource } from '../image-source';
 import type { ImageFiltering } from '../filtering';
+import { Framebuffer } from './framebuffer';
+import type { ShaderPassLike, ShaderPipelineLike } from './shader-pipeline/shader-pipeline';
+import { ShaderPipeline } from './shader-pipeline/shader-pipeline';
+import { glsl } from './glsl';
 
 export interface MaterialOptions {
   /**
@@ -60,8 +64,27 @@ export interface MaterialOptions {
    * * `uniform vec4 u_color` - The current color of the material
    * * `uniform float u_opacity` - The current opacity of the graphics context
    *
+   * Optional when `passes` is provided, in which case a passthrough composite is used
    */
-  fragmentSource: string;
+  fragmentSource?: string;
+
+  /**
+   * Optional multipass {@apilink ShaderPipeline} run on the graphic's texture before the material's
+   * `fragmentSource` composites the result on screen.
+   *
+   * Provide an ordered list of passes (bare fragment strings or {@apilink ShaderPass}), or any
+   * {@apilink ShaderPipelineLike} implementation for custom non-linear pass graphs.
+   *
+   * The pipeline output replaces `u_graphic` in the composite fragment.
+   */
+  passes?: ShaderPassLike[] | ShaderPipelineLike;
+
+  /**
+   * Extra transparent pixels (in source-texture pixels) added around the graphic when running
+   * `passes`, so effects like blur/glow are not clipped to the graphic's quad. The on-screen quad
+   * expands to match. Default 0.
+   */
+  padding?: number;
 
   /**
    * Add custom color, by default ex.Color.Transparent
@@ -107,6 +130,21 @@ export interface MaterialImageOptions {
   filtering?: ImageFiltering;
 }
 
+/**
+ * Composite used when a material provides `passes` but no `fragmentSource`, draws the pipeline
+ * output with the graphics context opacity applied
+ */
+const defaultCompositeFragmentSource = glsl`
+in vec2 v_uv;
+uniform sampler2D u_graphic;
+uniform float u_opacity;
+out vec4 fragColor;
+void main() {
+  vec4 color = texture(u_graphic, v_uv);
+  color.a *= u_opacity;
+  fragColor = color;
+}`;
+
 export class Material {
   static BuiltInUniforms = [
     'u_time_ms',
@@ -135,12 +173,25 @@ export class Material {
   private _images: Record<string, ImageSource> = {};
   private _uniforms: UniformDictionary = {};
 
+  private _graphicsContext?: ExcaliburGraphicsContextWebGL;
+  private _passes?: ShaderPassLike[] | ShaderPipelineLike;
+  private _pipeline?: ShaderPipelineLike;
+  private _padding: number = 0;
+  private _seedFramebuffer?: Framebuffer;
+  private _outputFramebuffer?: Framebuffer;
+
   constructor(options: MaterialOptions) {
-    const { color, name, vertexSource, fragmentSource, graphicsContext, images, uniforms } = options;
+    const { color, name, vertexSource, fragmentSource, passes, padding, graphicsContext, images, uniforms } = options;
+
+    if (!fragmentSource && !passes) {
+      throw Error(`Material ${name} must be provided a fragmentSource or passes`);
+    }
 
     this._name = name ?? 'anonymous material';
     this._vertexSource = vertexSource ?? defaultVertexSource;
-    this._fragmentSource = fragmentSource;
+    this._fragmentSource = fragmentSource ?? defaultCompositeFragmentSource;
+    this._passes = passes;
+    this._padding = padding ?? this._padding;
     this._color = color ?? this._color;
     this._uniforms = uniforms ?? this._uniforms;
     this._images = images ?? this._images;
@@ -182,6 +233,19 @@ export class Material {
   private _initialize(graphicsContextWebGL: ExcaliburGraphicsContextWebGL) {
     if (this._initialized) {
       return;
+    }
+    this._graphicsContext = graphicsContextWebGL;
+
+    if (this._passes) {
+      if (Array.isArray(this._passes)) {
+        this._pipeline = new ShaderPipeline({
+          graphicsContext: graphicsContextWebGL,
+          name: this._name,
+          passes: this._passes
+        });
+      } else {
+        this._pipeline = this._passes;
+      }
     }
 
     this._shader = graphicsContextWebGL.createShader({
@@ -233,11 +297,51 @@ export class Material {
   }
 
   get isUsingScreenTexture() {
-    return this._fragmentSource.includes('u_screen_texture');
+    return !!this._fragmentSource?.includes('u_screen_texture');
   }
 
   get isOverridingGraphic() {
     return !!this._images.u_graphic;
+  }
+
+  /**
+   * The multipass pipeline run on the graphic before the composite fragment, if any
+   */
+  get pipeline(): ShaderPipelineLike | undefined {
+    return this._pipeline;
+  }
+
+  /**
+   * Extra transparent pixels added around the graphic when running the pipeline
+   */
+  get padding(): number {
+    return this._padding;
+  }
+
+  /**
+   * Lazily creates/resizes the padded framebuffer the graphic is seeded into before the pipeline runs
+   * @internal
+   */
+  public getSeedFramebuffer(width: number, height: number): Framebuffer {
+    if (!this._seedFramebuffer) {
+      this._seedFramebuffer = new Framebuffer({ graphicsContext: this._graphicsContext!, width, height });
+    } else {
+      this._seedFramebuffer.resize(width, height);
+    }
+    return this._seedFramebuffer;
+  }
+
+  /**
+   * Lazily creates/resizes the framebuffer holding the pipeline's final output for compositing
+   * @internal
+   */
+  public getOutputFramebuffer(width: number, height: number): Framebuffer {
+    if (!this._outputFramebuffer) {
+      this._outputFramebuffer = new Framebuffer({ graphicsContext: this._graphicsContext!, width, height });
+    } else {
+      this._outputFramebuffer.resize(width, height);
+    }
+    return this._outputFramebuffer;
   }
 
   update(callback: (shader: Shader) => any) {

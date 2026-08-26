@@ -1,6 +1,7 @@
 import type { VertexLayout } from '../context/vertex-layout';
 import type { Shader } from '../context/shader';
 import type { ExcaliburGraphicsContextWebGL } from '../context/excalibur-graphics-context-webgl';
+import type { Framebuffer } from '../context/framebuffer';
 
 /**
  * PostProcessors can be used to apply a shader to the entire screen. It is recommended
@@ -17,11 +18,25 @@ import type { ExcaliburGraphicsContextWebGL } from '../context/excalibur-graphic
  * `uniform vec2 u_resolution` - the resolution of the canvas (in pixels)
  *
  * Custom uniforms can be updated in the {@apilink PostProcessor.onUpdate}
+ *
+ * A post processor is either **single-pass**, providing {@apilink PostProcessor.getShader} and
+ * {@apilink PostProcessor.getLayout}, or **multipass**, providing {@apilink PostProcessor.process}
+ * (see {@apilink ShaderPipelinePostProcessor}). When `process` is present it takes precedence.
  */
 export interface PostProcessor {
   initialize(graphicsContext: ExcaliburGraphicsContextWebGL): void;
-  getShader(): Shader;
-  getLayout(): VertexLayout;
+  getShader?(): Shader;
+  getLayout?(): VertexLayout;
+
+  /**
+   * Optional multipass escape hatch, when present it is called instead of the single-pass
+   * shader/layout path.
+   *
+   * `source` is the current (MSAA-resolved) screen framebuffer, implementations must render
+   * their final result into `destination`, for example with a {@apilink ShaderPipeline}.
+   */
+  process?(source: Framebuffer, destination: Framebuffer): void;
+
   /**
    * Use the onUpdate hook to update any uniforms in the postprocessors shader
    *
