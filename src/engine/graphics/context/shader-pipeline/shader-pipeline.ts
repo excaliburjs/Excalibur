@@ -1,8 +1,7 @@
 import type { ExcaliburGraphicsContextWebGL } from '../excalibur-graphics-context-webgl';
 import { Framebuffer } from '../framebuffer';
-import { ImageSource } from '../../image-source';
 import type { ShaderPassDestination, ShaderPassSource } from './shader-pass';
-import { ShaderPass } from './shader-pass';
+import { getSourceDimensions, ShaderPass } from './shader-pass';
 
 export interface ShaderPipelineProcessOptions {
   /**
@@ -69,18 +68,6 @@ export class ShaderPipeline implements ShaderPipelineLike {
     this._intermediates = new Array(this.passes.length).fill(undefined);
   }
 
-  private _sourceDimensions(source: ShaderPassSource): [width: number, height: number] {
-    if (source instanceof Framebuffer) {
-      return [source.width, source.height];
-    }
-    if (source instanceof ImageSource) {
-      return [source.width, source.height];
-    }
-    // raw WebGLTexture has no queryable dimensions, fall back to the canvas
-    const gl = this._graphicsContext.__gl;
-    return [gl.drawingBufferWidth, gl.drawingBufferHeight];
-  }
-
   /**
    * Runs every pass in order, rendering the final pass into `destination`
    */
@@ -88,7 +75,7 @@ export class ShaderPipeline implements ShaderPipelineLike {
     if (this._disposed) {
       throw new Error(`ShaderPipeline "${this.name}" has been disposed and cannot be used. Create a new pipeline instance.`);
     }
-    const [sourceWidth, sourceHeight] = this._sourceDimensions(source);
+    const [sourceWidth, sourceHeight] = getSourceDimensions(this._graphicsContext, source);
     const elapsed = options?.elapsed;
 
     let previous: ShaderPassSource = source;

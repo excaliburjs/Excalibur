@@ -116,6 +116,24 @@ export function resetSharedQuadBuffer(graphicsContext: ExcaliburGraphicsContextW
   sharedQuadBuffers.delete(graphicsContext);
 }
 
+/**
+ * Pixel dimensions of a {@apilink ShaderPassSource}, falling back to the canvas drawing buffer
+ * for raw `WebGLTexture`s which have no queryable dimensions
+ */
+export function getSourceDimensions(
+  graphicsContext: ExcaliburGraphicsContextWebGL,
+  source: ShaderPassSource
+): [width: number, height: number] {
+  if (source instanceof Framebuffer) {
+    return [source.width, source.height];
+  }
+  if (source instanceof ImageSource) {
+    return [source.width, source.height];
+  }
+  const gl = graphicsContext.__gl;
+  return [gl.drawingBufferWidth, gl.drawingBufferHeight];
+}
+
 function getSharedQuadBuffer(graphicsContext: ExcaliburGraphicsContextWebGL): VertexBuffer {
   let buffer = sharedQuadBuffers.get(graphicsContext);
   if (!buffer) {

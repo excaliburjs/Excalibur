@@ -20,8 +20,10 @@ export interface BlurPassesOptions {
 /**
  * Blurring premultiplied colors directly is the correct alpha handling for a weighted average,
  * so this fragment opts out of the glsl tag's straight-alpha authoring space.
+ *
+ * Expects `u_direction` (e.g. `vec(1, 0)` for horizontal) and `u_strength` uniforms.
  */
-const gaussianBlurSource = glsl`#pragma excalibur premultiply(off)
+export const gaussianBlurFragmentSource = glsl`#pragma excalibur premultiply(off)
 in vec2 v_uv;
 uniform sampler2D u_image;
 uniform vec2 u_texelSize;
@@ -66,7 +68,7 @@ export function createBlurPasses(options: BlurPassesOptions): ShaderPass[] {
     new ShaderPass({
       graphicsContext,
       name: 'gaussian blur horizontal',
-      fragmentSource: gaussianBlurSource,
+      fragmentSource: gaussianBlurFragmentSource,
       scale: scale ?? 0.5,
       uniforms: {
         u_direction: vec(1, 0),
@@ -76,7 +78,7 @@ export function createBlurPasses(options: BlurPassesOptions): ShaderPass[] {
     new ShaderPass({
       graphicsContext,
       name: 'gaussian blur vertical',
-      fragmentSource: gaussianBlurSource,
+      fragmentSource: gaussianBlurFragmentSource,
       uniforms: {
         u_direction: vec(0, 1),
         u_strength: strength ?? 1

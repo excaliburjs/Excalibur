@@ -56,6 +56,8 @@ export * from './context/framebuffer';
 export * from './context/shader-pipeline/shader-pass';
 export * from './context/shader-pipeline/shader-pipeline';
 export * from './context/shader-pipeline/effects/blur-passes';
+export * from './context/shader-pipeline/effects/bloom-effect';
+export * from './context/shader-pipeline/effects/glow-passes';
 export * from './context/vertex-buffer';
 export * from './context/uniform-buffer';
 export * from './context/vertex-layout';

@@ -4,7 +4,7 @@
 
 var game = new ex.Engine({
   canvasElementId: 'game',
-  width: 600,
+  width: 900,
   height: 300,
   displayMode: ex.DisplayMode.FitScreen,
   backgroundColor: ex.Color.fromHex('#222233'),
@@ -62,12 +62,39 @@ tinted.graphics.material = new ex.Material({
 });
 game.add(tinted);
 
-// 4. Fullscreen blur post processor, toggled with 'p'
+// 4. Glow material: cyan halo around the sprite silhouette
+var glowing = new ex.Actor({ pos: ex.vec(620, 150) });
+glowing.graphics.use(swordImage.toSprite());
+glowing.graphics.material = new ex.Material({
+  name: 'glow-material',
+  graphicsContext,
+  passes: ex.createGlowPasses({ graphicsContext, color: ex.Color.Cyan, strength: 3, intensity: 2 }),
+  padding: 24
+});
+game.add(glowing);
+
+// 5. Bloom material: bright areas of the sprite bloom outward
+var blooming = new ex.Actor({ pos: ex.vec(780, 150) });
+blooming.graphics.use(swordImage.toSprite());
+blooming.graphics.material = new ex.Material({
+  name: 'bloom-material',
+  graphicsContext,
+  passes: new ex.BloomEffect({ graphicsContext, threshold: 0.3, intensity: 1.5 }),
+  padding: 32
+});
+game.add(blooming);
+
+// 6. Fullscreen post processors, blur toggled with 'p', bloom toggled with 'b'
 var fullscreenBlur = new ex.ShaderPipelinePostProcessor({
   name: 'fullscreen-blur',
   passes: ex.createBlurPasses({ graphicsContext, strength: 3 })
 });
+var fullscreenBloom = new ex.ShaderPipelinePostProcessor({
+  name: 'fullscreen-bloom',
+  pipeline: new ex.BloomEffect({ graphicsContext, threshold: 0.4, intensity: 1.5 })
+});
 var blurOn = false;
+var bloomOn = false;
 game.input.keyboard.on('press', (evt) => {
   if (evt.key === ex.Keys.P) {
     blurOn = !blurOn;
@@ -75,6 +102,14 @@ game.input.keyboard.on('press', (evt) => {
       graphicsContext.addPostProcessor(fullscreenBlur);
     } else {
       graphicsContext.removePostProcessor(fullscreenBlur);
+    }
+  }
+  if (evt.key === ex.Keys.B) {
+    bloomOn = !bloomOn;
+    if (bloomOn) {
+      graphicsContext.addPostProcessor(fullscreenBloom);
+    } else {
+      graphicsContext.removePostProcessor(fullscreenBloom);
     }
   }
 });
