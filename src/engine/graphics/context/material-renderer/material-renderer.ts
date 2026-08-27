@@ -143,7 +143,6 @@ export class MaterialRenderer implements RendererPlugin {
     // This creates and uploads the texture if not already done
     let texture = this._addImageAsTexture(image);
 
-    // bind graphic image texture 'uniform sampler2D u_graphic;'
     if (material.isOverridingGraphic) {
       if (material.images.u_graphic?.image) {
         texture = this._addImageAsTexture(material.images.u_graphic.image);
@@ -163,8 +162,10 @@ export class MaterialRenderer implements RendererPlugin {
       const pad = material.padding;
       const seedWidth = sw + 2 * pad;
       const seedHeight = sh + 2 * pad;
+      const maybeFiltering = image.getAttribute(ImageSourceAttributeConstants.Filtering);
+      const graphicFiltering = maybeFiltering ? parseImageFiltering(maybeFiltering) : undefined;
       const seed = material.getSeedFramebuffer(seedWidth, seedHeight);
-      const output = material.getOutputFramebuffer(seedWidth, seedHeight);
+      const output = material.getOutputFramebuffer(seedWidth, seedHeight, graphicFiltering);
 
       this._seedPass.draw({
         source: texture,
@@ -175,7 +176,16 @@ export class MaterialRenderer implements RendererPlugin {
           u_inner_max: vec((pad + sw) / seedWidth, (pad + sh) / seedHeight)
         }
       });
-      pipeline.process(seed, output);
+      pipeline.process(seed, output, {
+        uniforms: {
+          ...material.uniforms,
+          u_opacity: opacity,
+          u_color: material.color,
+          u_graphic_resolution: vec(imageWidth, imageHeight),
+          u_size: vec(sw, sh)
+        },
+        sources: material.images
+      });
       texture = output.texture;
 
       // restore the frame's draw framebuffer and viewport

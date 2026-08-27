@@ -35,10 +35,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Added multipass **shader pipelines** for composing shader effects that need more than one pass (blur, bloom, glow), built on an explicit source→destination dataflow with no hidden bind state:
   - New `ex.Framebuffer` and `ex.MultisampleFramebuffer` primitives that are both a render destination and a texture source (`framebuffer.texture`, `framebuffer.glFramebuffer`, `framebuffer.texelSize`), with `resize()`, `clear()`, and `dispose()`. These replace the internal (never exported) `RenderTarget`/`RenderSource` classes inside the WebGL context. Reading a `MultisampleFramebuffer.texture` resolves the MSAA samples automatically.
-  - New `ex.ShaderPass` quad renderer: `pass.draw(source, destination)` or `pass.draw({ sources: { u_a: fbA, u_b: fbB }, destination, uniforms })` with named sampler sources, per-pass declarative `uniforms`, and convention uniforms (`u_image`, `u_resolution`, `u_texelSize`, `u_time_ms`, `u_elapsed_ms`). Fragments are authored with the `glsl` tag's straight-alpha conventions.
+  - New `ex.ShaderPass`: applies a fragment shader to an image, framebuffer, or texture and produces a new image — the building block for custom effects. `pass.draw(source, destination)` for the simple case, or `pass.draw({ sources: { u_smaller: quarterResolution, u_larger: halfResolution }, destination, uniforms })` for multiple named sampler sources and per-draw uniforms. Convention uniforms are provided (`u_image`, `u_resolution`, `u_texelSize`, `u_time_ms`, `u_elapsed_ms`) and fragments are authored with the `glsl` tag's straight-alpha conventions.
   - New `ex.ShaderPipeline` linear chain (`source → pass0 → pass1 → ... → destination`) with per-pass `scale` for downsample/upsample and `u_original` bound for composite passes. Any object implementing `ex.ShaderPipelineLike` (`process(source, destination)`) can be used instead for custom non-linear graphs.
-  - `ex.Material` accepts `passes` (an array of fragment strings/`ShaderPass`es, or a `ShaderPipelineLike`) plus `padding` in source pixels so effects like blur/glow are not clipped to the graphic's quad; `fragmentSource` is now optional when `passes` is provided. The pipeline output substitutes `u_graphic` in the composite fragment, and everything else about materials (screen texture, uniforms, images, batching) is unchanged.
-  - `ex.PostProcessor` gains an optional multipass `process(source, destination)` hook (`getShader`/`getLayout` are now optional), and the new `ex.ShaderPipelinePostProcessor` runs a pipeline over the whole screen, chaining with existing single-pass post processors in order.
+  - `ex.Material` can now run multipass pipelines, with `MaterialOptions` typed as a union so only valid combinations compile:
+    - `fragmentSource` only — single-pass custom shading of the graphic, exactly as before
+    - `passes` only — run a multipass effect (fragment strings, `ShaderPass`es, or an effect object like `BloomEffect`) on the graphic offscreen; a default passthrough composite draws the result
+    - `passes` + `fragmentSource` — the fragment shader becomes the **final composite**: it draws the pipeline's output (bound as `u_graphic`) on screen, which is where screen-space work like `u_screen_texture` belongs
+    - `padding` (with `passes`) — extra transparent source pixels around the graphic so blur/glow halos are not clipped to the quad
+    - the material's custom `uniforms` and built-ins (`u_opacity`, `u_color`, `u_graphic_resolution`, `u_size`) are forwarded to every pass
+  - `ex.PostProcessor` is now built around a single `process(source, destination)` hook (`initialize` is optional, so `ShaderPipelineLike` effect objects can be added with `addPostProcessor` directly); the legacy `getShader`/`getLayout` single-pass path still works but is deprecated for removal in v1. `ex.ShaderPipelinePostProcessor` builds a fullscreen post processor from a list of fragment sources, chaining with other post processors in order. `ColorBlindnessPostProcessor` is now implemented on `ShaderPass` internally.
   - New built-in effects usable per-graphic or fullscreen, each a `ShaderPipelineLike` object with live-tunable settings:
     - `ex.BlurEffect({ graphicsContext, scale, strength })` — separable gaussian blur, animate `blur.strength` any time
     - `ex.GlowEffect({ graphicsContext, color, scale, strength, intensity })` — outer glow: the graphic's silhouette is tinted, blurred, and composited back under the original (pair with `Material` `padding` so the halo has room); `color`/`strength`/`intensity` are live properties
@@ -46,17 +51,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
     - The underlying pass factories `ex.createBlurPasses(...)`/`ex.createGlowPasses(...)` are also exported for splicing into custom pass chains
 
   ```typescript
-  const material = new ex.Material({
+  const blur = new ex.BlurEffect({ graphicsContext, strength: 2 });
+  actor.graphics.material = new ex.Material({
     graphicsContext,
-    passes: ex.createBlurPasses({ graphicsContext, strength: 2 }),
+    passes: blur,
     padding: 16 // blur can bleed 16px outside the sprite without clipping
   });
-  actor.graphics.material = material;
+  blur.strength = 4; // live-tunable any time
 
-  // fullscreen
-  game.graphicsContext.addPostProcessor(
-    new ex.ShaderPipelinePostProcessor({ passes: ex.createBlurPasses({ graphicsContext }) })
-  );
+  // fullscreen: effects can be added as post processors directly
+  game.graphicsContext.addPostProcessor(new ex.BloomEffect({ graphicsContext, threshold: 0.6 }));
   ```
 
 - Added an opt-in 2D lighting simulation, enabled with the new `lighting: true` engine option (default `false`). When enabled every scene gets a `FlickerSystem` and `LightingSystem` that render darkness veils, point/cone lights with flicker, and occluder shadows via the new `DarknessComponent`, `PointLightComponent`, `ConeLightComponent`, and `LightOccluderComponent` components. The overlay is rasterized with the 2D Canvas API and re-uploaded to the GPU every frame, which carries a performance penalty — this is why the feature is off by default. The systems can also be added manually to individual scenes with `scene.world.add(new ex.LightingSystem())` without enabling the engine option.

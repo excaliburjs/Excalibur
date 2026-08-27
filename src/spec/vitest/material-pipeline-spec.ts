@@ -170,6 +170,67 @@ describe('A Material with a shader pipeline', () => {
     expect(readCanvasPixel(context, 75, 50)).toEqual([0, 0, 0, 255]);
   });
 
+  it('forwards material images to passes as named sources', async () => {
+    const tex = new ex.ImageSource('/src/spec/assets/images/material-renderer-spec/sword.png');
+    const overlay = new ex.ImageSource('/src/spec/assets/images/material-renderer-spec/sword.png');
+    await Promise.all([tex.load(), overlay.load()]);
+
+    // red where the overlay image is opaque at its center, proving u_overlay was bound
+    const sampleOverlay = `
+      in vec2 v_uv;
+      uniform sampler2D u_image;
+      uniform sampler2D u_overlay;
+      out vec4 fragColor;
+      void main() {
+        float overlayAlpha = texture(u_overlay, vec2(0.5, 0.5)).a;
+        fragColor = overlayAlpha > 0.5 ? vec4(1.0, 0.0, 0.0, 1.0) : vec4(0.0, 0.0, 1.0, 1.0);
+      }`;
+
+    const material = new ex.Material({
+      name: 'images-to-passes',
+      graphicsContext: context,
+      passes: [sampleOverlay],
+      images: {
+        u_overlay: overlay
+      }
+    });
+
+    context.beginDrawLifecycle();
+    context.clear();
+    context.save();
+    context.material = material;
+    context.drawImage(tex.image, 0, 0);
+    context.flush();
+    context.restore();
+    context.endDrawLifecycle();
+
+    expect(readCanvasPixel(context, 50, 50)).toEqual([255, 0, 0, 255]);
+  });
+
+  it('output framebuffer inherits the graphic filtering for crisp pixel art', async () => {
+    const tex = new ex.ImageSource('/src/spec/assets/images/material-renderer-spec/sword.png', {
+      filtering: ex.ImageFiltering.Pixel
+    });
+    await tex.load();
+
+    const material = new ex.Material({
+      name: 'pixel-output',
+      graphicsContext: context,
+      passes: [passthrough]
+    });
+
+    context.beginDrawLifecycle();
+    context.clear();
+    context.save();
+    context.material = material;
+    context.drawImage(tex.image, 0, 0);
+    context.flush();
+    context.restore();
+    context.endDrawLifecycle();
+
+    expect(material.getOutputFramebuffer(100, 100).filtering).toBe(ex.ImageFiltering.Pixel);
+  });
+
   describe('@visual', () => {
     it('renders identically to a plain material when the pipeline is a passthrough', async () => {
       const material = new ex.Material({

@@ -48,7 +48,7 @@ describe('A Framebuffer', () => {
     expect(fb.texelSize[1]).toBeCloseTo(1 / 50);
     expect(fb.texture).toBeInstanceOf(WebGLTexture);
     expect(fb.glFramebuffer).toBeInstanceOf(WebGLFramebuffer);
-    expect(fb.filtering).toBe(ex.ImageFiltering.Blended);
+    expect(fb.filtering).toBe(ex.ImageFiltering.Pixel);
     expect(fb.wrapping).toEqual({ x: ex.ImageWrapping.Clamp, y: ex.ImageWrapping.Clamp });
     fb.dispose();
   });

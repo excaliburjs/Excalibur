@@ -19,8 +19,7 @@ import { Logger } from '../../util/log';
 import { DebugText } from './debug-text';
 import type { Resolution } from '../../screen';
 import { Framebuffer, MultisampleFramebuffer } from './framebuffer';
-import { resetSharedQuadBuffer } from './shader-pipeline/shader-pass';
-import { ImageFiltering } from '../filtering';
+import { VertexBuffer } from './vertex-buffer';
 import type { PostProcessor } from '../post-processor/post-processor';
 import { TextureLoader } from './texture-loader';
 import type { RendererPlugin } from './renderer';
@@ -36,7 +35,7 @@ import { CircleRenderer } from './circle-renderer/circle-renderer';
 import { Pool } from '../../util/pool';
 import { DrawCall } from './draw-call';
 import type { AffineMatrix } from '../../math/affine-matrix';
-import type { MaterialOptions } from './material';
+import type { MaterialOptionsWithoutContext } from './material';
 import { Material } from './material';
 import { MaterialRenderer } from './material-renderer/material-renderer';
 import type { ShaderOptions } from './shader';
@@ -268,6 +267,33 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     return this._drawTarget;
   }
 
+  private _screenQuadBuffer?: VertexBuffer;
+  /**
+   * Shared static clip-space quad (interleaved [x, y, u, v] * 6 vertices) used by every
+   * {@apilink ShaderPass} on this context, meant for internal use only.
+   * @internal
+   */
+  public get __screenQuadBuffer(): VertexBuffer {
+    if (!this._screenQuadBuffer) {
+      this._screenQuadBuffer = new VertexBuffer({
+        gl: this.__gl,
+        type: 'static',
+        // prettier-ignore
+        data: new Float32Array([
+          -1, -1, 0, 0,
+          -1,  1, 0, 1,
+           1, -1, 1, 0,
+
+           1, -1, 1, 0,
+          -1,  1, 0, 1,
+           1,  1, 1, 1
+        ])
+      });
+      this._screenQuadBuffer.upload();
+    }
+    return this._screenQuadBuffer;
+  }
+
   /**
    * Checks the underlying webgl implementation if the requested internal resolution is supported
    * @param dim
@@ -347,7 +373,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       }
       this._isContextLost = false;
       this._renderers.clear();
-      resetSharedQuadBuffer(this);
       this._init();
     });
 
@@ -443,11 +468,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
     this._screenRenderer = new ScreenPassPainter(this);
 
-    // ImageFiltering.Pixel preserves the historical NEAREST sampling of the frame targets
+    // the frame targets keep the default ImageFiltering.Pixel, they are only ever sampled 1:1
     this._renderTarget = new Framebuffer({
       graphicsContext: this,
       transparency: this.transparency,
-      filtering: ImageFiltering.Pixel,
       width: gl.canvas.width,
       height: gl.canvas.height
     });
@@ -456,14 +480,12 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       new Framebuffer({
         graphicsContext: this,
         transparency: this.transparency,
-        filtering: ImageFiltering.Pixel,
         width: gl.canvas.width,
         height: gl.canvas.height
       }),
       new Framebuffer({
         graphicsContext: this,
         transparency: this.transparency,
-        filtering: ImageFiltering.Pixel,
         width: gl.canvas.width,
         height: gl.canvas.height
       })
@@ -473,7 +495,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       this._msaaTarget = new MultisampleFramebuffer({
         graphicsContext: this,
         transparency: this.transparency,
-        filtering: ImageFiltering.Pixel,
         width: gl.canvas.width,
         height: gl.canvas.height,
         samples: this.samples
@@ -481,6 +502,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     }
 
     this._drawTarget = this._msaaTarget ?? this._renderTarget;
+
+    // drop the shared screen quad so it is rebuilt against a restored context
+    this._screenQuadBuffer = undefined;
 
     this.debug = new ExcaliburGraphicsContextWebGLDebug(this);
 
@@ -733,7 +757,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       }
     }
     this._postprocessors.push(postprocessor);
-    postprocessor.initialize(this);
+    postprocessor.initialize?.(this);
   }
 
   public removePostProcessor(postprocessor: PostProcessor) {
@@ -815,7 +839,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
    * @param options
    * @returns Material
    */
-  public createMaterial(options: Omit<MaterialOptions, 'graphicsContext'>): Material {
+  public createMaterial(options: MaterialOptionsWithoutContext): Material {
     const material = new Material({ ...options, graphicsContext: this });
     return material;
   }

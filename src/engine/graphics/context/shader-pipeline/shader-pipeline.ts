@@ -1,5 +1,6 @@
 import type { ExcaliburGraphicsContextWebGL } from '../excalibur-graphics-context-webgl';
 import { Framebuffer } from '../framebuffer';
+import type { UniformDictionary } from '../shader';
 import type { ShaderPassDestination, ShaderPassSource } from './shader-pass';
 import { getSourceDimensions, ShaderPass } from './shader-pass';
 
@@ -8,6 +9,38 @@ export interface ShaderPipelineProcessOptions {
    * Elapsed milliseconds forwarded to each pass's `u_elapsed_ms`
    */
   elapsed?: number;
+  /**
+   * Uniform values forwarded to every pass, merged over each pass's own uniforms.
+   *
+   * Materials use this to flow their custom uniforms and built-ins into the pipeline.
+   */
+  uniforms?: UniformDictionary;
+  /**
+   * Additional named sources bound to every pass after its own (`u_image`, `u_original`, ...),
+   * each record key is bound as the sampler uniform of that name.
+   *
+   * Materials use this to flow their `images` into the pipeline. Reserved pass source names
+   * cannot be overridden.
+   */
+  sources?: Record<string, ShaderPassSource>;
+}
+
+/**
+ * Adds `extra` sources onto `sources` without clobbering the pass's own reserved names
+ * @internal
+ */
+export function mergePassSources(
+  sources: Record<string, ShaderPassSource>,
+  extra?: Record<string, ShaderPassSource>
+): Record<string, ShaderPassSource> {
+  if (extra) {
+    for (const [name, source] of Object.entries(extra)) {
+      if (!(name in sources)) {
+        sources[name] = source;
+      }
+    }
+  }
+  return sources;
 }
 
 /**
@@ -77,6 +110,8 @@ export class ShaderPipeline implements ShaderPipelineLike {
     }
     const [sourceWidth, sourceHeight] = getSourceDimensions(this._graphicsContext, source);
     const elapsed = options?.elapsed;
+    const uniforms = options?.uniforms;
+    const extraSources = options?.sources;
 
     let previous: ShaderPassSource = source;
     for (let i = 0; i < this.passes.length; i++) {
@@ -104,11 +139,9 @@ export class ShaderPipeline implements ShaderPipelineLike {
       }
 
       pass.draw({
-        sources: {
-          u_image: previous,
-          u_original: source
-        },
+        sources: mergePassSources({ u_image: previous, u_original: source }, extraSources),
         destination: target,
+        uniforms,
         elapsed
       });
 

@@ -129,6 +129,22 @@ describe('A PostProcessor', () => {
       context.dispose();
     });
 
+    it('accepts a ShaderPipelineLike effect directly', () => {
+      const { context } = createContext();
+      const bloom = new ex.BloomEffect({ graphicsContext: context });
+      const processSpy = vi.spyOn(bloom, 'process');
+      context.addPostProcessor(bloom);
+
+      context.beginDrawLifecycle();
+      context.clear();
+      context.flush();
+      context.endDrawLifecycle();
+
+      expect(processSpy).toHaveBeenCalledTimes(1);
+      bloom.dispose();
+      context.dispose();
+    });
+
     it('does not require a shader during updatePostProcessors', () => {
       const { context } = createContext();
       const mock = new MockProcessPostProcessor();

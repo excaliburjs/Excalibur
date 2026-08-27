@@ -8,7 +8,6 @@ import type { ExcaliburGraphicsContextWebGL } from '../excalibur-graphics-contex
 import { Framebuffer } from '../framebuffer';
 import { glsl } from '../glsl';
 import type { Shader, UniformDictionary } from '../shader';
-import { VertexBuffer } from '../vertex-buffer';
 import { VertexLayout } from '../vertex-layout';
 
 /**
@@ -103,20 +102,6 @@ void main() {
 }`;
 
 /**
- * Clip space quad shared by every pass on a context, interleaved [x, y, u, v] * 6 vertices
- */
-const sharedQuadBuffers = new WeakMap<ExcaliburGraphicsContextWebGL, VertexBuffer>();
-
-/**
- * Drops the shared quad buffer for a context so it is rebuilt, called by the context when the
- * webgl context is restored after a loss
- * @internal
- */
-export function resetSharedQuadBuffer(graphicsContext: ExcaliburGraphicsContextWebGL): void {
-  sharedQuadBuffers.delete(graphicsContext);
-}
-
-/**
  * Pixel dimensions of a {@apilink ShaderPassSource}, falling back to the canvas drawing buffer
  * for raw `WebGLTexture`s which have no queryable dimensions
  */
@@ -132,29 +117,6 @@ export function getSourceDimensions(
   }
   const gl = graphicsContext.__gl;
   return [gl.drawingBufferWidth, gl.drawingBufferHeight];
-}
-
-function getSharedQuadBuffer(graphicsContext: ExcaliburGraphicsContextWebGL): VertexBuffer {
-  let buffer = sharedQuadBuffers.get(graphicsContext);
-  if (!buffer) {
-    buffer = new VertexBuffer({
-      gl: graphicsContext.__gl,
-      type: 'static',
-      // prettier-ignore
-      data: new Float32Array([
-        -1, -1, 0, 0,
-        -1,  1, 0, 1,
-         1, -1, 1, 0,
-
-         1, -1, 1, 0,
-        -1,  1, 0, 1,
-         1,  1, 1, 1
-      ])
-    });
-    buffer.upload();
-    sharedQuadBuffers.set(graphicsContext, buffer);
-  }
-  return buffer;
 }
 
 interface ResolvedSource {
@@ -236,7 +198,7 @@ export class ShaderPass {
     this._layout = new VertexLayout({
       gl: this._graphicsContext.__gl,
       shader: this._shader,
-      vertexBuffer: getSharedQuadBuffer(this._graphicsContext),
+      vertexBuffer: this._graphicsContext.__screenQuadBuffer,
       attributes: [
         ['a_position', 2],
         ['a_uv', 2]

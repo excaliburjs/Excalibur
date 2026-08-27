@@ -23,7 +23,10 @@ export interface GlowPassesOptions {
    */
   strength?: number;
   /**
-   * Glow opacity multiplier, default 1. Values above 1 make a denser, hotter glow.
+   * Multiplies the halo's **opacity**, default 1.
+   *
+   * The halo saturates at full opacity, so 0-1 is the useful range for fading a glow in and
+   * out; values above 1 make the core denser and hotter before saturating.
    */
   intensity?: number;
 }
@@ -162,7 +165,10 @@ export class GlowEffect implements ShaderPipelineLike {
   }
 
   /**
-   * Glow opacity multiplier, values above 1 make a denser, hotter glow
+   * Multiplies the halo's **opacity**.
+   *
+   * The halo saturates at full opacity, so 0-1 is the useful range for fading a glow in and
+   * out; values above 1 make the core denser and hotter before saturating.
    */
   public get intensity(): number {
     return this._silhouette.uniforms.u_glow_intensity as number;

@@ -86,13 +86,17 @@ blooming.graphics.material = new ex.Material({
 });
 game.add(blooming);
 
-// Pulse the glow and bloom by updating their uniforms each frame
+// Pulse the glow and bloom by updating their uniforms each frame.
+// The two intensities are different units:
+// - glow.intensity multiplies the halo's opacity, it saturates at 1 so 0..1 is the useful range
+// - bloom.intensity multiplies the light ADDED on top of the image, 1 is the neutral amount
+//   so it needs to swing past 1 to read as "hot"
 var totalTime = 0;
 game.on('postupdate', (evt) => {
   totalTime += evt.elapsed;
   var pulse = (Math.sin(totalTime / 300) + 1) / 2; // 0..1
-  glowEffect.intensity = pulse * 1;
-  bloomEffect.intensity = 0.25 + pulse * 2;
+  glowEffect.intensity = pulse;
+  bloomEffect.intensity = pulse * 2;
 });
 
 // 6. Fullscreen post processors, blur toggled with 'p', bloom toggled with 'b'

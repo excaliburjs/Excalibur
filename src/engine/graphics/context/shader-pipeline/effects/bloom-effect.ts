@@ -1,10 +1,12 @@
 import { vec } from '../../../../math/vector';
+import { ImageFiltering } from '../../../filtering';
 import type { ExcaliburGraphicsContextWebGL } from '../../excalibur-graphics-context-webgl';
 import { Framebuffer } from '../../framebuffer';
 import { glsl } from '../../glsl';
 import type { ShaderPassDestination, ShaderPassSource } from '../shader-pass';
 import { getSourceDimensions, ShaderPass } from '../shader-pass';
 import type { ShaderPipelineLike, ShaderPipelineProcessOptions } from '../shader-pipeline';
+import { mergePassSources } from '../shader-pipeline';
 
 export interface BloomEffectOptions {
   graphicsContext: ExcaliburGraphicsContextWebGL;
@@ -13,7 +15,9 @@ export interface BloomEffectOptions {
    */
   threshold?: number;
   /**
-   * Strength of the bloom added onto the original image, default 1
+   * Multiplies the bloom light **added on top of** the original image, default 1.
+   *
+   * 1 is the neutral amount, values above 1 read as hotter, values below 1 are subtle.
    */
   intensity?: number;
   /**
@@ -187,7 +191,9 @@ export class BloomEffect implements ShaderPipelineLike {
   }
 
   /**
-   * Strength of the bloom added onto the original image
+   * Multiplies the bloom light **added on top of** the original image.
+   *
+   * 1 is the neutral amount, values above 1 read as hotter, values below 1 are subtle.
    */
   public get intensity(): number {
     return this._combine.uniforms.u_intensity as number;
@@ -204,14 +210,25 @@ export class BloomEffect implements ShaderPipelineLike {
       width = Math.max(1, Math.floor(width / 2));
       height = Math.max(1, Math.floor(height / 2));
       if (!this._downFramebuffers[level]) {
-        this._downFramebuffers[level] = new Framebuffer({ graphicsContext: this._graphicsContext, width, height });
+        // linear filtering is what makes the bilinear tap patterns work
+        this._downFramebuffers[level] = new Framebuffer({
+          graphicsContext: this._graphicsContext,
+          width,
+          height,
+          filtering: ImageFiltering.Blended
+        });
       } else {
         this._downFramebuffers[level].resize(width, height);
       }
       // up framebuffers mirror every level but the smallest
       if (level < this._levels - 1) {
         if (!this._upFramebuffers[level]) {
-          this._upFramebuffers[level] = new Framebuffer({ graphicsContext: this._graphicsContext, width, height });
+          this._upFramebuffers[level] = new Framebuffer({
+            graphicsContext: this._graphicsContext,
+            width,
+            height,
+            filtering: ImageFiltering.Blended
+          });
         } else {
           this._upFramebuffers[level].resize(width, height);
         }
@@ -224,19 +241,27 @@ export class BloomEffect implements ShaderPipelineLike {
       throw new Error('BloomEffect has been disposed and cannot be used. Create a new effect instance.');
     }
     const elapsed = options?.elapsed;
+    const uniforms = options?.uniforms;
+    const extraSources = options?.sources;
     const [sourceWidth, sourceHeight] = getSourceDimensions(this._graphicsContext, source);
     this._ensureFramebuffers(sourceWidth, sourceHeight);
 
     // extract bright areas into the first half-resolution level
-    this._threshold.draw({ source, destination: this._downFramebuffers[0], elapsed });
+    this._threshold.draw({
+      sources: mergePassSources({ u_image: source }, extraSources),
+      destination: this._downFramebuffers[0],
+      uniforms,
+      elapsed
+    });
 
     // blur down the ladder, the tap footprint is in destination texels for a wider blur
     for (let level = 1; level < this._levels; level++) {
       const target = this._downFramebuffers[level];
       this._downsample.draw({
-        source: this._downFramebuffers[level - 1],
+        sources: mergePassSources({ u_image: this._downFramebuffers[level - 1] }, extraSources),
         destination: target,
         uniforms: {
+          ...uniforms,
           u_texelSize: vec(target.texelSize[0], target.texelSize[1])
         }
       });
@@ -246,22 +271,18 @@ export class BloomEffect implements ShaderPipelineLike {
     let smaller: Framebuffer = this._downFramebuffers[this._levels - 1];
     for (let level = this._levels - 2; level >= 0; level--) {
       this._upsampleMerge.draw({
-        sources: {
-          u_larger: this._downFramebuffers[level],
-          u_smaller: smaller
-        },
-        destination: this._upFramebuffers[level]
+        sources: mergePassSources({ u_larger: this._downFramebuffers[level], u_smaller: smaller }, extraSources),
+        destination: this._upFramebuffers[level],
+        uniforms
       });
       smaller = this._upFramebuffers[level];
     }
 
     // add the accumulated bloom onto the original
     this._combine.draw({
-      sources: {
-        u_image: smaller,
-        u_original: source
-      },
+      sources: mergePassSources({ u_image: smaller, u_original: source }, extraSources),
       destination,
+      uniforms,
       elapsed
     });
   }

@@ -20,7 +20,9 @@ export interface FramebufferOptions {
   /**
    * How this framebuffer's texture is sampled when used as a source.
    *
-   * Default {@apilink ImageFiltering.Blended} (linear), which makes downsample/upsample effects like blur cheap.
+   * Default {@apilink ImageFiltering.Pixel} (nearest), matching the engine's frame targets which are
+   * only ever sampled 1:1. Pass {@apilink ImageFiltering.Blended} (linear) for anything that samples
+   * at a different resolution, like downsample/upsample blur chains.
    */
   filtering?: ImageFiltering;
   /**
@@ -68,7 +70,7 @@ export class Framebuffer {
     this._height = height;
     this._texelSize = [1 / width, 1 / height];
     this.transparency = transparency ?? true;
-    this.filtering = filtering ?? ImageFiltering.Blended;
+    this.filtering = filtering ?? ImageFiltering.Pixel;
     if (typeof wrapping === 'object') {
       this.wrapping = wrapping;
     } else {
