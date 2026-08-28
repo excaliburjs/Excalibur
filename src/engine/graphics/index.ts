@@ -41,6 +41,7 @@ export * from './context/debug-text';
 // post processor
 export type * from './post-processor/post-processor';
 export * from './post-processor/screen-shader';
+export * from './post-processor/shader-pipeline-post-processor';
 export * from './post-processor/color-blindness-mode';
 export * from './post-processor/color-blindness-post-processor';
 
@@ -51,6 +52,12 @@ export * from './wrapping';
 // rendering
 export * from './context/glsl';
 export * from './context/shader';
+export * from './context/framebuffer';
+export * from './context/shader-pipeline/shader-pass';
+export * from './context/shader-pipeline/shader-pipeline';
+export * from './context/shader-pipeline/effects/blur-passes';
+export * from './context/shader-pipeline/effects/bloom-effect';
+export * from './context/shader-pipeline/effects/glow-passes';
 export * from './context/vertex-buffer';
 export * from './context/uniform-buffer';
 export * from './context/vertex-layout';
