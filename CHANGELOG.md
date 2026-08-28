@@ -21,6 +21,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   // Before: contentArea.topLeft was the safe area corner in canvas coordinates
   const safeAreaCorner = engine.screen.contentAreaOffset.clone();
   ```
+- Behavior change - `rotateBy({angleRadiansOffset, duration})` with no `rotationType` now rotates by exactly the signed offset provided, preserving full and multiple turns, instead of taking the shortest path to the canonicalized target orientation. Offsets larger than `Math.PI` now travel in the direction of their sign (previously they rotated the shorter way around), and `2 * Math.PI` performs a full revolution (previously a no-op). Pass an explicit `rotationType` to keep path-based behavior
 - Behavior change - TileMap now uses 'separate' as the `compositeStrategy` as a better default. Commonly TileMap is used to build levels, so this default aligns with the common use.
 - Removed old legacy `ex.EasingFunctions` in favor of the [0, 1] common easing functions 
 - Removed EaseTo/EaseBy/actor.actions.(easeTo|easeBy) Action in favor of MoveTo/MoveBy/actor.actions.(moveTo|moveBy) Action with easing support
@@ -45,6 +46,37 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - 
 
 ### Added
+
+- Added an optional `System.dispose(world, scene)` lifecycle hook, called by the `SystemManager` when a system is removed after having been initialized — use it to release resources the system provisioned in `initialize` (entities it added, observable subscriptions, etc.). The `LightingSystem` uses it to remove its provisioned overlay and unsubscribe its component queries when lighting is disabled at runtime
+- Added multipass **shader pipelines** for composing shader effects that need more than one pass (blur, bloom, glow), built on an explicit source→destination dataflow with no hidden bind state:
+  - New `ex.Framebuffer` and `ex.MultisampleFramebuffer` primitives that are both a render destination and a texture source (`framebuffer.texture`, `framebuffer.glFramebuffer`, `framebuffer.texelSize`), with `resize()`, `clear()`, and `dispose()`. These replace the internal (never exported) `RenderTarget`/`RenderSource` classes inside the WebGL context. Reading a `MultisampleFramebuffer.texture` resolves the MSAA samples automatically.
+  - New `ex.ShaderPass`: applies a fragment shader to an image, framebuffer, or texture and produces a new image — the building block for custom effects. `pass.draw(source, destination)` for the simple case, or `pass.draw({ sources: { u_smaller: quarterResolution, u_larger: halfResolution }, destination, uniforms })` for multiple named sampler sources and per-draw uniforms. Convention uniforms are provided (`u_image`, `u_resolution`, `u_texelSize`, `u_time_ms`, `u_elapsed_ms`) and fragments are authored with the `glsl` tag's straight-alpha conventions.
+  - New `ex.ShaderPipeline` linear chain (`source → pass0 → pass1 → ... → destination`) with per-pass `scale` for downsample/upsample and `u_original` bound for composite passes. Any object implementing `ex.ShaderPipelineLike` (`process(source, destination)`) can be used instead for custom non-linear graphs.
+  - `ex.Material` can now run multipass pipelines, with `MaterialOptions` typed as a union so only valid combinations compile:
+    - `fragmentSource` only — single-pass custom shading of the graphic, exactly as before
+    - `passes` only — run a multipass effect (fragment strings, `ShaderPass`es, or an effect object like `BloomEffect`) on the graphic offscreen; a default passthrough composite draws the result
+    - `passes` + `fragmentSource` — the fragment shader becomes the **final composite**: it draws the pipeline's output (bound as `u_graphic`) on screen, which is where screen-space work like `u_screen_texture` belongs
+    - `padding` (with `passes`) — extra transparent source pixels around the graphic so blur/glow halos are not clipped to the quad
+    - the material's custom `uniforms` and built-ins (`u_opacity`, `u_color`, `u_graphic_resolution`, `u_size`) are forwarded to every pass
+  - `ex.PostProcessor` is now built around a single `process(source, destination)` hook (`initialize` is optional, so `ShaderPipelineLike` effect objects can be added with `addPostProcessor` directly); the legacy `getShader`/`getLayout` single-pass path still works but is deprecated for removal in v1. `ex.ShaderPipelinePostProcessor` builds a fullscreen post processor from `passes` (mirroring `Material`: a list of fragment sources/`ShaderPass`es, or a `ShaderPipelineLike` effect), chaining with other post processors in order. `ColorBlindnessPostProcessor` is now implemented on `ShaderPass` internally.
+  - New built-in effects usable per-graphic or fullscreen, each a `ShaderPipelineLike` object with live-tunable settings:
+    - `ex.BlurEffect({ graphicsContext, scale, strength })` — separable gaussian blur, animate `blur.strength` any time
+    - `ex.GlowEffect({ graphicsContext, color, scale, strength, intensity })` — outer glow: the graphic's silhouette is tinted, blurred, and composited back under the original (pair with `Material` `padding` so the halo has room); `color`/`strength`/`intensity` are live properties
+    - `ex.BloomEffect({ graphicsContext, threshold, intensity, levels })` — progressive downsample/upsample ladder bloom implemented as a custom pass graph, with live-tunable `threshold`/`intensity`
+    - The underlying pass factories `ex.createBlurPasses(...)`/`ex.createGlowPasses(...)` are also exported for splicing into custom pass chains
+
+  ```typescript
+  const blur = new ex.BlurEffect({ graphicsContext, strength: 2 });
+  actor.graphics.material = new ex.Material({
+    graphicsContext,
+    passes: blur,
+    padding: 16 // blur can bleed 16px outside the sprite without clipping
+  });
+  blur.strength = 4; // live-tunable any time
+
+  // fullscreen: effects can be added as post processors directly
+  game.graphicsContext.addPostProcessor(new ex.BloomEffect({ graphicsContext, threshold: 0.6 }));
+  ```
 
 - Added an opt-in 2D lighting simulation, enabled with the new `lighting: true` engine option (default `false`). When enabled every scene gets a `FlickerSystem` and `LightingSystem` that render darkness veils, point/cone lights with flicker, and occluder shadows via the new `DarknessComponent`, `PointLightComponent`, `ConeLightComponent`, and `LightOccluderComponent` components. The overlay is rasterized with the 2D Canvas API and re-uploaded to the GPU every frame, which carries a performance penalty — this is why the feature is off by default. The systems can also be added manually to individual scenes with `scene.world.add(new ex.LightingSystem())` without enabling the engine option.
 
@@ -130,6 +162,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where `rotateBy({…})` would not rotate at all for a full-turn offset (`2 * Math.PI` normalized to a zero-length rotation) and would rotate the wrong way for offsets larger than `Math.PI`. When no `rotationType` is provided, `rotateBy` now rotates by exactly the signed offset given, preserving full and multiple turns; when a `rotationType` is provided, the offset determines the target orientation and the type picks the travel path as before. Also fixed an angular velocity spike of ±2π on frames where a multi-turn rotation wrapped past the canonical angle range
+- Fixed issue where a pointer's normalized id could change mid-contact. `PointerEventReceiver` normalized native pointer ids by sorting all active native ids and using the array index, so an already-tracked pointer (e.g. a touch in a multi-touch gesture) was silently re-assigned a different id when another pointer went down or up, routing its subsequent events to the wrong `PointerAbstraction`. Normalized ids are now stable for the lifetime of the contact; the smallest freed id is reused for new contacts (so a lone new touch always lands back on `pointers.primary`); cancelled contacts (`pointercancel`/`touchcancel`) free their id and clear their down state instead of leaking; and the mouse keeps its id reserved after mouse-up since it persists as a hover pointer
+- Fixed issue where the post processor `u_time_ms` uniform accumulated elapsed time once per post processor per update, advancing N times too fast with N post processors installed
 - Fixed issue where Local-space particles could be double-returned to the object pool, causing the same Particle instance to be active in two slots simultaneously
 - Fixed issue where window resize events were handled twice when using window-based display modes (FitScreen, FitScreenAndFill, FitScreenAndZoom, FillScreen), causing double resolution/viewport computation and double canvas size writes
 - Fixed Matrix and AffineMatrix scale/rotation decomposition bug where getScaleX/getScaleY used wrong basis components for non-uniform scale combined with rotation, causing swapped scale values and corrupt transforms. Also fixed setRotation and setScaleX/setScaleY to operate on correct column basis vectors.

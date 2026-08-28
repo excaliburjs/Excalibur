@@ -851,10 +851,16 @@ export class Camera implements CanUpdate, CanInitialize {
    * Applies the relevant transformations to the game canvas to "move" or apply effects to the Camera
    * @param ctx Canvas context to apply transformations
    */
-  public draw(ctx: ExcaliburGraphicsContext): void {
+  /**
+   * Finalizes this frame's draw transform (fixed-update interpolation and pixel-snap), without
+   * mutating `ctx`. Split out from {@apilink draw} so systems that need the finalized transform
+   * before their own draw pass (e.g. LightingSystem, which runs before GraphicsSystem) can call
+   * this directly instead of the full `draw()`, which also applies the transform to the context.
+   * @internal
+   */
+  public _finalizeDrawTransform(ctx: ExcaliburGraphicsContext): void {
     // default to the current position
     this.pos.clone(this.drawPos);
-    this.updateTransform(this.drawPos);
 
     // interpolation if fixed update is on
     // must happen on the draw, because more draws are potentially happening than updates
@@ -863,6 +869,8 @@ export class Camera implements CanUpdate, CanInitialize {
       const interpolatedPos = this.pos.scale(blend).add(this._oldPos.scale(1.0 - blend));
       interpolatedPos.clone(this.drawPos);
       this.updateTransform(interpolatedPos);
+    } else {
+      this.updateTransform(this.drawPos);
     }
     // Snap camera to pixel
     if (ctx.snapToPixel) {
@@ -872,6 +880,10 @@ export class Camera implements CanUpdate, CanInitialize {
       snapPos.clone(this.drawPos);
       this.updateTransform(snapPos);
     }
+  }
+
+  public draw(ctx: ExcaliburGraphicsContext): void {
+    this._finalizeDrawTransform(ctx);
     ctx.multiply(this.transform);
   }
 

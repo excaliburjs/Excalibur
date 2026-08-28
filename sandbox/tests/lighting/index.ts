@@ -65,6 +65,28 @@ var roomLamp = new ex.Actor({ pos: ex.vec(750, 150), radius: 5, color: ex.Color.
 roomLamp.addComponent(new ex.PointLightComponent({ color: ex.Color.fromRGB(255, 120, 120), intensity: 0.8, radius: 120 }));
 game.add(roomLamp);
 
+// Child lights: parent rotates, child holds a point light offset from the parent,
+// grandchild holds a cone light — verifies world-transform inheritance for lights
+var carousel = new ex.Actor({ name: 'carousel', pos: ex.vec(150, 150), radius: 8, color: ex.Color.Magenta });
+carousel.actions.repeatForever((ctx) => ctx.rotateBy({ angleRadiansOffset: Math.PI * 2, duration: 6000 }));
+game.add(carousel);
+
+var orbitLight = new ex.Actor({ name: 'orbit-light', pos: ex.vec(80, 0), radius: 4, color: ex.Color.fromRGB(120, 200, 255) });
+orbitLight.addComponent(new ex.PointLightComponent({ color: ex.Color.fromRGB(120, 200, 255), intensity: 0.7, radius: 150 }));
+carousel.addChild(orbitLight);
+
+var beacon = new ex.Actor({ name: 'beacon', pos: ex.vec(40, 0), radius: 3, color: ex.Color.Yellow });
+beacon.addComponent(
+  new ex.ConeLightComponent({
+    color: ex.Color.fromRGB(255, 255, 150),
+    intensity: 0.8,
+    radius: 250,
+    angle: Math.PI / 6,
+    softness: 0.2
+  })
+);
+orbitLight.addChild(beacon);
+
 for (let x = -2; x < 12; x++) {
   for (let y = -2; y < 10; y++) {
     var tile = new ex.Actor({
