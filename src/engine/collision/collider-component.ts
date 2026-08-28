@@ -104,7 +104,7 @@ export class ColliderComponent extends Component {
    * @param collider
    * @returns the collider you set
    */
-  public set<T extends Collider>(collider?: T): T {
+  public use<T extends Collider>(collider?: T): T {
     this.clear();
     if (collider) {
       this._collider = collider;
@@ -116,17 +116,10 @@ export class ColliderComponent extends Component {
     }
     if (this.owner) {
       this._logger.warnOnce(
-        `Actor.collider.set(...) - provided collider is null on entity name [${this.owner.name}] id [${this.owner.id}]`
+        `Actor.collider.use(...) - provided collider is null on entity name [${this.owner.name}] id [${this.owner.id}]`
       );
     }
     return null as unknown as T;
-  }
-
-  /**
-   * Get the current collider geometry
-   */
-  public get(): Collider | undefined {
-    return this._collider;
   }
 
   /**
