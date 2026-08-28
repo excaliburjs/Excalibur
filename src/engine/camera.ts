@@ -266,7 +266,7 @@ export class Camera implements CanUpdate, CanInitialize {
   public transform: AffineMatrix = AffineMatrix.identity();
   public inverse: AffineMatrix = AffineMatrix.identity();
 
-  protected _follow: Actor;
+  protected _follow!: Actor;
 
   private _cameraStrategies: CameraStrategy<any>[] = [];
   public get strategies(): CameraStrategy<any>[] {
@@ -362,10 +362,10 @@ export class Camera implements CanUpdate, CanInitialize {
   private _cameraMoving: boolean = false;
   private _currentLerpTime: number = 0;
   private _lerpDuration: number = 1000; // 1 second
-  private _lerpStart: Vector = null;
-  private _lerpEnd: Vector = null;
-  private _lerpResolve: (value: Vector) => void;
-  private _lerpPromise: Promise<Vector>;
+  private _lerpStart!: Vector;
+  private _lerpEnd!: Vector;
+  private _lerpResolve!: (value: Vector) => void;
+  private _lerpPromise?: Promise<Vector>;
 
   //camera effects
   protected _isShaking: boolean = false;
@@ -549,7 +549,7 @@ export class Camera implements CanUpdate, CanInitialize {
     return this._zoomPromise;
   }
 
-  private _viewport: BoundingBox = null;
+  private _viewport?: BoundingBox;
   /**
    * Gets the bounding box of the viewport of this camera in world coordinates
    */
@@ -563,7 +563,7 @@ export class Camera implements CanUpdate, CanInitialize {
 
   /**
    * Adds one or more new camera strategies to this camera
-   * @param cameraStrategy Instance of an {@apilink CameraStrategy}
+   * @param cameraStrategies Instance of an {@apilink CameraStrategy}
    */
   public addStrategy<T extends CameraStrategy<any>[]>(...cameraStrategies: T) {
     this._cameraStrategies.push(...cameraStrategies);
@@ -640,8 +640,8 @@ export class Camera implements CanUpdate, CanInitialize {
     // Overridable
   }
 
-  private _engine: Engine;
-  private _screen: Screen;
+  private _engine!: Engine;
+  private _screen!: Screen;
   private _isInitialized = false;
   public get isInitialized() {
     return this._isInitialized;
@@ -723,7 +723,7 @@ export class Camera implements CanUpdate, CanInitialize {
   public off(eventName: string, handler: Handler<unknown>): void;
   public off(eventName: string): void;
   public off<TEventName extends EventKey<CameraEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
-    this.events.off(eventName, handler);
+    this.events.off(eventName, handler as any);
   }
 
   public runStrategies(engine: Engine, elapsed: number) {
@@ -781,8 +781,8 @@ export class Camera implements CanUpdate, CanInitialize {
         this.pos = this._lerpEnd;
         const end = this._lerpEnd.clone();
 
-        this._lerpStart = null;
-        this._lerpEnd = null;
+        this._lerpStart = null as any;
+        this._lerpEnd = null as any;
         this._currentLerpTime = 0;
         this._cameraMoving = false;
         // Order matters here, resolve should be last so any chain promises have a clean slate
@@ -820,7 +820,14 @@ export class Camera implements CanUpdate, CanInitialize {
    * Applies the relevant transformations to the game canvas to "move" or apply effects to the Camera
    * @param ctx Canvas context to apply transformations
    */
-  public draw(ctx: ExcaliburGraphicsContext): void {
+  /**
+   * Finalizes this frame's draw transform (fixed-update interpolation and pixel-snap), without
+   * mutating `ctx`. Split out from {@apilink draw} so systems that need the finalized transform
+   * before their own draw pass (e.g. LightingSystem, which runs before GraphicsSystem) can call
+   * this directly instead of the full `draw()`, which also applies the transform to the context.
+   * @internal
+   */
+  public _finalizeDrawTransform(ctx: ExcaliburGraphicsContext): void {
     // default to the current position
     this.pos.clone(this.drawPos);
 
@@ -831,6 +838,8 @@ export class Camera implements CanUpdate, CanInitialize {
       const interpolatedPos = this.pos.scale(blend).add(this._oldPos.scale(1.0 - blend));
       interpolatedPos.clone(this.drawPos);
       this.updateTransform(interpolatedPos);
+    } else {
+      this.updateTransform(this.drawPos);
     }
     // Snap camera to pixel
     if (ctx.snapToPixel) {
@@ -840,6 +849,10 @@ export class Camera implements CanUpdate, CanInitialize {
       snapPos.clone(this.drawPos);
       this.updateTransform(snapPos);
     }
+  }
+
+  public draw(ctx: ExcaliburGraphicsContext): void {
+    this._finalizeDrawTransform(ctx);
     ctx.multiply(this.transform);
   }
 

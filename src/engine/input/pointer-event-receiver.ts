@@ -64,6 +64,8 @@ export class PointerEventReceiver {
   public primary: PointerAbstraction = new PointerAbstraction();
 
   private _activeNativePointerIdsToNormalized = new Map<number, number>();
+  private _freedNormalizedIds: number[] = [];
+  private _nextNormalizedId = 0;
   public lastFramePointerCoords = new Map<number, GlobalCoordinates>();
   public currentFramePointerCoords = new Map<number, GlobalCoordinates>();
 
@@ -196,7 +198,7 @@ export class PointerEventReceiver {
   public off(eventName: string, handler: Handler<unknown>): void;
   public off(eventName: string): void;
   public off<TEventName extends EventKey<PointerEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
-    this.events.off(eventName, handler);
+    this.events.off(eventName, handler as any);
   }
 
   /**
@@ -265,18 +267,37 @@ export class PointerEventReceiver {
     }
   }
 
+  private _releaseEndedPointer(event: PointerEvent, freedThisFrame: Set<number>): void {
+    this.currentFramePointerCoords.delete(event.pointerId);
+    // A mouse remains in range after 'up' and keeps producing pointermove events under the same
+    // native pointerId: the spec fires pointerout/pointerleave after pointerup only "for input
+    // devices that do not support hover", and permits the UA to "always reuse the same pointerId
+    // for a particular pointing device" (https://www.w3.org/TR/pointerevents3/#the-pointerup-event,
+    // https://www.w3.org/TR/pointerevents3/#pointerid-attribute). Keep its id reserved so a later
+    // touch can't steal it and inherit the mouse's per-id hover state.
+    if (event.pointerType === PointerType.Mouse) {
+      return;
+    }
+    const ids = this._activeNativePointerIdsToNormalized.entries();
+    for (const [native, normalized] of ids) {
+      if (normalized === event.pointerId && !freedThisFrame.has(normalized)) {
+        this._activeNativePointerIdsToNormalized.delete(native);
+        this._freedNormalizedIds.push(normalized);
+        freedThisFrame.add(normalized);
+      }
+    }
+  }
+
   /**
    * Clears the current frame event and pointer data
    */
   public clear() {
+    const freedThisFrame = new Set<number>();
     for (const event of this.currentFrameUp) {
-      this.currentFramePointerCoords.delete(event.pointerId);
-      const ids = this._activeNativePointerIdsToNormalized.entries();
-      for (const [native, normalized] of ids) {
-        if (normalized === event.pointerId) {
-          this._activeNativePointerIdsToNormalized.delete(native);
-        }
-      }
+      this._releaseEndedPointer(event, freedThisFrame);
+    }
+    for (const event of this.currentFrameCancel) {
+      this._releaseEndedPointer(event, freedThisFrame);
     }
     this.currentFrameDown.length = 0;
     this.currentFrameUp.length = 0;
@@ -334,10 +355,10 @@ export class PointerEventReceiver {
       this.target.addEventListener('wheel', this._boundWheel, wheelOptions);
     } else if (document.onmousewheel !== undefined) {
       // Webkit and IE
-      this.target.addEventListener('mousewheel', this._boundWheel, wheelOptions);
+      this.target.addEventListener('mousewheel' as any, this._boundWheel, wheelOptions);
     } else {
       // Remaining browser and older Firefox
-      this.target.addEventListener('MozMousePixelScroll', this._boundWheel, wheelOptions);
+      this.target.addEventListener('MozMousePixelScroll' as any, this._boundWheel, wheelOptions);
     }
 
     const grabWindowFocus = options?.grabWindowFocus ?? true;
@@ -384,10 +405,10 @@ export class PointerEventReceiver {
       this.target.removeEventListener('wheel', this._boundWheel);
     } else if (document.onmousewheel !== undefined) {
       // Webkit and IE
-      this.target.addEventListener('mousewheel', this._boundWheel);
+      this.target.removeEventListener('mousewheel' as any, this._boundWheel);
     } else {
       // Remaining browser and older Firefox
-      this.target.addEventListener('MozMousePixelScroll', this._boundWheel);
+      this.target.removeEventListener('MozMousePixelScroll' as any, this._boundWheel);
     }
   }
 
@@ -395,20 +416,29 @@ export class PointerEventReceiver {
    * Take native pointer id and map it to index in active pointers
    * @param nativePointerId
    */
-  private _normalizePointerId(nativePointerId: number) {
-    // Add to the the native pointer set id
-    this._activeNativePointerIdsToNormalized.set(nativePointerId, -1);
+  private _normalizePointerId(nativePointerId: number): number {
+    const existing = this._activeNativePointerIdsToNormalized.get(nativePointerId);
+    if (existing !== undefined) {
+      return existing;
+    }
 
-    // Native pointer ids in ascending order
-    const currentPointerIds = Array.from(this._activeNativePointerIdsToNormalized.keys()).sort((a, b) => a - b);
-
-    // The index into sorted ids will be the new id, will always have an id
-    const id = currentPointerIds.findIndex((p) => p === nativePointerId);
+    // Reuse the smallest freed id (so a lone new contact lands back on the primary pointer at id 0), otherwise mint a new one
+    let id: number;
+    if (this._freedNormalizedIds.length > 0) {
+      let minIndex = 0;
+      for (let i = 1; i < this._freedNormalizedIds.length; i++) {
+        if (this._freedNormalizedIds[i] < this._freedNormalizedIds[minIndex]) {
+          minIndex = i;
+        }
+      }
+      id = this._freedNormalizedIds.splice(minIndex, 1)[0];
+    } else {
+      id = this._nextNormalizedId++;
+    }
 
     // Save the mapping so we can reverse it later
     this._activeNativePointerIdsToNormalized.set(nativePointerId, id);
 
-    // ignore pointer because game isn't watching
     return id;
   }
 
@@ -416,7 +446,7 @@ export class PointerEventReceiver {
    * Responsible for handling and parsing pointer events
    */
   private _handle(ev: NativeTouchEvent | NativePointerEvent | NativeMouseEvent) {
-    if (!this._enabled) {
+    if (this.engine.isDisposed() || !this._enabled) {
       return;
     }
     ev.preventDefault();
@@ -471,13 +501,14 @@ export class PointerEventReceiver {
         case 'touchcancel':
         case 'pointercancel':
           this.currentFrameCancel.push(new PointerEvent('cancel', pointerId, button, pointerType, coord, ev));
+          this.currentFramePointerDown.set(pointerId, false);
           break;
       }
     }
   }
 
   private _handleWheel(ev: NativeWheelEvent) {
-    if (!this._enabled) {
+    if (this.engine.isDisposed() || !this._enabled) {
       return;
     }
     // Should we prevent page scroll because of this event
@@ -546,8 +577,10 @@ export class PointerEventReceiver {
 
     // Force update pointer system
     const pointerSystem = this.engine.currentScene.world.get(PointerSystem);
-    pointerSystem.preupdate(this.engine.currentScene, 1);
-    pointerSystem.update(1);
+    if (pointerSystem) {
+      pointerSystem!.preupdate!(this.engine.currentScene, 1);
+      pointerSystem!.update(1);
+    }
   }
 
   private _nativeButtonToPointerButton(s: NativePointerButton): PointerButton {

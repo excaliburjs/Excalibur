@@ -8,7 +8,7 @@ import type { Collider } from '../colliders/collider';
  * Models a potential collision between 2 colliders
  */
 export class Pair {
-  public id: string = null;
+  public id: string;
   constructor(
     public colliderA: Collider,
     public colliderB: Collider

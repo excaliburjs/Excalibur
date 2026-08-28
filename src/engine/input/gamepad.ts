@@ -6,6 +6,8 @@ export interface GamepadEvents {
   connect: GamepadConnectEvent;
   disconnect: GamepadDisconnectEvent;
   button: GamepadButtonEvent;
+  buttondown: GamepadButtonEvent;
+  buttonup: GamepadButtonEvent;
   axis: GamepadAxisEvent;
 }
 
@@ -13,6 +15,8 @@ export const GamepadEvents = {
   GamepadConnect: 'connect',
   GamepadDisconnect: 'disconnect',
   GamepadButton: 'button',
+  GamepadButtonDown: 'buttondown',
+  GamepadButtonUp: 'buttonup',
   GamepadAxis: 'axis'
 };
 
@@ -42,7 +46,7 @@ export class Gamepads {
   private _pads: Gamepad[] = [];
   private _initSuccess: boolean = false;
   private _navigator: NavigatorGamepads = <any>navigator;
-  private _minimumConfiguration: GamepadConfiguration = null;
+  private _minimumConfiguration!: GamepadConfiguration;
   private _enabled = true;
 
   public init() {
@@ -55,7 +59,7 @@ export class Gamepads {
 
     // In Chrome, this will return 4 undefined items until a button is pressed
     // In FF, this will not return any items until a button is pressed
-    this._oldPads = this._clonePads(this._navigator.getGamepads());
+    this._oldPads = this._clonePads(this._navigator.getGamepads() as NavigatorGamepad[]);
     if (this._oldPads.length && this._oldPads[0]) {
       this._initSuccess = true;
     }
@@ -131,7 +135,7 @@ export class Gamepads {
   public off(eventName: string): void;
   public off<TEventName extends EventKey<GamepadEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
     this._enableAndUpdate(); // implicitly enable
-    this.events.off(eventName, handler);
+    this.events.off(eventName, handler as any);
   }
 
   /**
@@ -159,8 +163,8 @@ export class Gamepads {
         gamepad.connected = false;
         continue;
       } else {
-        const gamepad = this.at(i);
-        if (!this.at(i).connected && this._isGamepadValid(gamepads[i])) {
+        const gamepad = this.at(i)!;
+        if (!this.at(i).connected && this._isGamepadValid(gamepads[i]!)) {
           gamepad.events.pipe(this.events);
           this.events.emit('connect', new GamepadConnectEvent(i, this.at(i)));
         }
@@ -171,14 +175,14 @@ export class Gamepads {
       this.at(i).update();
 
       // Only supported in Chrome
-      if (gamepads[i].timestamp && gamepads[i].timestamp === this._gamePadTimeStamps[i]) {
+      if (gamepads[i]!.timestamp && gamepads[i]!.timestamp === this._gamePadTimeStamps[i]) {
         continue;
       }
 
-      this._gamePadTimeStamps[i] = gamepads[i].timestamp;
+      this._gamePadTimeStamps[i] = gamepads[i]!.timestamp;
 
       // Add reference to navigator gamepad
-      this.at(i).navigatorGamepad = gamepads[i];
+      this.at(i).navigatorGamepad = gamepads[i]!;
 
       // Buttons
 
@@ -189,18 +193,22 @@ export class Gamepads {
           const button = gamepad.buttons[buttonIndex];
           const value = button?.value;
           if (value !== this._oldPads[i]?.getButton(buttonIndex)) {
+            const exGamepad = this.at(i);
+            const buttonEnum = buttonIndex in Buttons ? (buttonIndex as Buttons) : Buttons.Unknown;
             if (button?.pressed) {
-              this.at(i).updateButton(buttonIndex, value);
+              exGamepad.updateButton(buttonIndex, value);
               // Fallback to unknown if not mapped
               // prettier-ignore
-              this.at(i).events.emit('button', new GamepadButtonEvent(
-                buttonIndex in Buttons ? buttonIndex as Buttons : Buttons.Unknown,
+              exGamepad.events.emit(GamepadEvents.GamepadButton, new GamepadButtonEvent(
+                buttonEnum,
                 buttonIndex,
                 value,
-                this.at(i))
+                exGamepad)
               );
+              exGamepad.events.emit(GamepadEvents.GamepadButtonDown, new GamepadButtonEvent(buttonEnum, buttonIndex, value, exGamepad));
             } else {
-              this.at(i).updateButton(buttonIndex, 0);
+              exGamepad.updateButton(buttonIndex, 0);
+              exGamepad.events.emit(GamepadEvents.GamepadButtonUp, new GamepadButtonEvent(buttonEnum, buttonIndex, 0, exGamepad));
             }
           }
         }
@@ -213,7 +221,7 @@ export class Gamepads {
           }
         }
       }
-      this._oldPads[i] = this._clonePad(gamepads[i]);
+      this._oldPads[i] = this._clonePad(gamepads[i]!);
     }
   }
 
@@ -293,7 +301,7 @@ export class Gamepads {
 export class Gamepad {
   public events = new EventEmitter<GamepadEvents>();
   public connected = false;
-  public navigatorGamepad: NavigatorGamepad;
+  public navigatorGamepad!: NavigatorGamepad;
   private _axes: number[] = new Array(4);
   private _buttons: number[] = new Array(16);
   private _buttonsUp: number[] = new Array(16);
@@ -400,7 +408,7 @@ export class Gamepad {
   public off(eventName: string, handler: Handler<unknown>): void;
   public off(eventName: string): void;
   public off<TEventName extends EventKey<GamepadEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
-    this.events.off(eventName, handler);
+    this.events.off(eventName, handler as any);
   }
 }
 

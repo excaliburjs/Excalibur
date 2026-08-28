@@ -20,8 +20,8 @@ export interface StateMachineState<TData> {
 }
 
 export class StateMachine<TPossibleStates extends string, TData> {
-  public startState: State<TData>;
-  private _currentState: State<TData>;
+  public startState!: State<TData>;
+  private _currentState!: State<TData>;
   public get currentState(): State<TData> {
     return this._currentState;
   }
@@ -29,7 +29,7 @@ export class StateMachine<TPossibleStates extends string, TData> {
     this._currentState = state;
   }
   public states = new Map<string, State<TData>>();
-  public data: TData;
+  public data?: TData;
 
   static create<TMachine extends StateMachineDescription<TData>, TData>(
     machineDescription: TMachine,
@@ -39,8 +39,8 @@ export class StateMachine<TPossibleStates extends string, TData> {
     machine.data = data;
     for (const stateName in machineDescription.states) {
       machine.states.set(stateName as PossibleStates<TMachine>, {
-        name: stateName,
-        ...machineDescription.states[stateName]
+        ...machineDescription.states[stateName],
+        name: stateName
       });
     }
 
@@ -57,7 +57,7 @@ export class StateMachine<TPossibleStates extends string, TData> {
         }
       }
     }
-    machine.currentState = machine.startState = machine.states.get(machineDescription.start);
+    machine.currentState = machine.startState = machine.states.get(machineDescription.start)!;
     return machine;
   }
 
@@ -67,16 +67,16 @@ export class StateMachine<TPossibleStates extends string, TData> {
 
   go(stateName: TPossibleStates, eventData?: any): boolean {
     if (this.currentState.transitions.includes(stateName) || this.currentState.transitions.includes('*')) {
-      const potentialNewState = this.states.get(stateName);
+      const potentialNewState = this.states.get(stateName)!;
       if (this.currentState.onExit) {
-        const canExit = this.currentState?.onExit({ to: potentialNewState.name, data: this.data });
+        const canExit = this.currentState?.onExit({ to: potentialNewState.name!, data: this.data! });
         if (canExit === false) {
           return false;
         }
       }
 
       if (potentialNewState?.onEnter) {
-        const canEnter = potentialNewState?.onEnter({ from: this.currentState.name, eventData, data: this.data });
+        const canEnter = potentialNewState?.onEnter({ from: this.currentState.name!, eventData, data: this.data! });
         if (canEnter === false) {
           return false;
         }
@@ -92,7 +92,7 @@ export class StateMachine<TPossibleStates extends string, TData> {
 
   update(elapsed: number) {
     if (this.currentState.onUpdate) {
-      this.currentState.onUpdate(this.data, elapsed);
+      this.currentState.onUpdate(this.data!, elapsed);
     }
   }
 
@@ -107,8 +107,8 @@ export class StateMachine<TPossibleStates extends string, TData> {
   }
 
   restore(saveKey: string) {
-    const state: StateMachineState<TData> = JSON.parse(localStorage.getItem(saveKey));
-    this.currentState = this.states.get(state.currentState);
+    const state: StateMachineState<TData> = JSON.parse(localStorage.getItem(saveKey)!);
+    this.currentState = this.states.get(state.currentState)!;
     this.data = state.data;
   }
 }

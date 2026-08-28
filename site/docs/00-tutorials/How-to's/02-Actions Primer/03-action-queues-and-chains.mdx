@@ -1,0 +1,127 @@
+---
+title: Queues and Chains
+slug: /action-queues-chains
+section: Tutorials
+---
+
+import chaining from '!!raw-loader!./code/chaining.ts';
+
+## Queues, Chaining, and Managing Actions
+
+On the previous page, we introduced Actions and the ActionsComponent.
+Now we’ll look at how actions are scheduled and executed using the Action Queue.
+
+Understanding the queue is the key to understanding everything else about actions.
+
+### The Action Queue
+
+Each Actor has exactly one action queue, managed by its ActionsComponent.
+
+Conceptually, it looks like this:
+
+```bash
+[ Action 1 ] → [ Action 2 ] → [ Action 3 ]
+```
+
+The rules are simple:
+
+- Only one action runs at a time
+- Actions run in the order they were added
+- When an action completes, the next action begins automatically
+- If the queue is empty, nothing runs
+
+You don’t manually advance actions — the engine does that for you.
+
+### Adding Actions to the Queue
+
+The most common way to add actions is through the actor.actions convenience API.
+
+```ts
+actor.actions.moveTo(400, 200, 100);
+```
+
+This immediately enqueues a MoveTo action at the end of the queue.
+
+If the queue was empty, the action starts running on the next frame.  The `runAction()` method also allows for adding to the queue.
+
+### Managing the Queue
+
+#### Clearing Actions
+
+You can immediately stop all queued and running actions:
+
+```ts
+actor.actions.clearActions();
+```
+
+This:
+
+- Stops the currently running action
+- Removes all remaining queued actions
+- Leaves the actor idle
+
+This is commonly used when:
+
+- Player input interrupts scripted behavior
+- An entity changes state (e.g. stunned, killed)
+- You need to take immediate control
+
+#### Replacing an Action
+
+A common pattern is to clear and replace the queue:
+
+```ts
+actor.actions.clearActions();
+actor.actions.moveTo(200, 200, 150);
+```
+
+This ensures the new behavior starts immediately, without waiting for existing actions to finish.
+
+### Chaining Actions
+
+Most of the time, you won’t add just one action — you’ll chain multiple actions together.
+
+```ts
+actor.actions
+  .moveTo(400, 200, 100)
+  .delay(500)
+  .rotateTo(Math.PI, Math.PI / 2);
+```
+
+This creates a readable behavior script:
+
+- Move to a position
+- Wait for half a second
+- Rotate to a new angle
+
+Each call appends an action to the queue and returns the same ActionsComponent, allowing fluent chaining.
+
+Chaining actions is a great way to express behaviors in Excalibur.
+
+### Live Example
+
+The key piece demonstrated here:
+
+```ts
+player.actions.repeatForever((ctx) =>{
+  ctx.moveTo({pos: ex.vec(100, 100), duration: 750})
+    .moveTo({pos: ex.vec(400, 100), duration: 750})
+    .moveTo({pos: ex.vec(400, 400), duration: 750})
+    .moveTo({pos: ex.vec(100, 400), duration: 750})
+    .moveTo({pos: ex.vec(250, 250), duration: 750});
+});
+```
+
+Also, on `Enter` key the action queue gets cleared.
+
+```ts
+player.onInitialize = (engine:ex.Engine) => {
+  engine.input.keyboard.on('press', (evt) => {
+    if(evt.key === ex.Keys.Enter){
+      player.actions.clearActions();      
+    }
+  });
+};
+```
+
+<PlaygroundEmbed code={chaining} />

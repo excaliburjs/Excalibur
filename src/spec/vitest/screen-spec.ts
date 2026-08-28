@@ -140,6 +140,245 @@ describe('A Screen', () => {
     expect(sut.viewport.height).toBe(800);
   });
 
+  describe('contentArea / unsafeArea framing (Option A, C-frame)', () => {
+    it('FitScreenAndFill horizontal clip: contentArea is rooted at (0,0); unsafeArea spans the full resolution', () => {
+      // window 1300x800, content 800x600 -> vertical-clip branch:
+      //   resolution = 975x600, clip = 87.5
+      const sut = new ex.Screen({
+        canvas,
+        context,
+        browser,
+        displayMode: ex.DisplayMode.FitScreenAndFill,
+        viewport: { width: 800, height: 600 }
+      });
+
+      Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1300 });
+      Object.defineProperty(window, 'innerHeight', { writable: true, configurable: true, value: 800 });
+      window.dispatchEvent(new Event('resize'));
+
+      // contentArea is in C-frame (rooted at contentArea.topLeft).
+      expect(sut.contentArea.left).toBe(0);
+      expect(sut.contentArea.top).toBe(0);
+      expect(sut.contentArea.right).toBe(800);
+      expect(sut.contentArea.bottom).toBe(600);
+      expect(sut.contentArea.width).toBe(800);
+      expect(sut.contentArea.height).toBe(600);
+
+      // unsafeArea spans the full resolution in C-frame: it extends symmetrically
+      // by clip on both sides. Width must equal resolution.width (regression test
+      // for the previous off-by-2*clip that produced width = contentRes + 2*clip).
+      expect(sut.unsafeArea.left).toBeCloseTo(-87.5, 5);
+      expect(sut.unsafeArea.top).toBe(0);
+      expect(sut.unsafeArea.right).toBeCloseTo(800 + 87.5, 5);
+      expect(sut.unsafeArea.bottom).toBe(600);
+      expect(sut.unsafeArea.width).toBeCloseTo(975, 5);
+      expect(sut.unsafeArea.height).toBe(600);
+
+      // The content-area offset is the resolution-space location of the
+      // content area's top-left; used to convert C<->R.
+      expect(sut.contentAreaOffset.x).toBeCloseTo(87.5, 5);
+      expect(sut.contentAreaOffset.y).toBe(0);
+    });
+
+    it('FitScreenAndFill vertical clip: contentArea is rooted at (0,0); unsafeArea spans the full resolution', () => {
+      // window 1300x1300, content 800x600 -> horizontal-clip branch:
+      //   resolution = 800x800, clip = 100
+      const sut = new ex.Screen({
+        canvas,
+        context,
+        browser,
+        displayMode: ex.DisplayMode.FitScreenAndFill,
+        viewport: { width: 800, height: 600 }
+      });
+
+      Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1300 });
+      Object.defineProperty(window, 'innerHeight', { writable: true, configurable: true, value: 1300 });
+      window.dispatchEvent(new Event('resize'));
+
+      expect(sut.contentArea.left).toBe(0);
+      expect(sut.contentArea.top).toBe(0);
+      expect(sut.contentArea.right).toBe(800);
+      expect(sut.contentArea.bottom).toBe(600);
+      expect(sut.contentArea.width).toBe(800);
+      expect(sut.contentArea.height).toBe(600);
+
+      expect(sut.unsafeArea.left).toBe(0);
+      expect(sut.unsafeArea.top).toBeCloseTo(-100, 5);
+      expect(sut.unsafeArea.right).toBe(800);
+      expect(sut.unsafeArea.bottom).toBeCloseTo(600 + 100, 5);
+      expect(sut.unsafeArea.width).toBe(800);
+      expect(sut.unsafeArea.height).toBeCloseTo(800, 5); // regression: was 1000 before fix
+
+      expect(sut.contentAreaOffset.x).toBe(0);
+      expect(sut.contentAreaOffset.y).toBeCloseTo(100, 5);
+    });
+
+    it('non-clipping display modes set contentAreaOffset to (0,0) and unsafeArea == contentArea', () => {
+      // Fixed, FillScreen, FitScreen, FitContainer, FillContainer all path through
+      // the catch-all reset -> offset is Zero, areas equal the full resolution.
+      const sut = new ex.Screen({
+        canvas,
+        context,
+        browser,
+        displayMode: ex.DisplayMode.FitScreen,
+        viewport: { width: 800, height: 600 }
+      });
+      Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1000 });
+      Object.defineProperty(window, 'innerHeight', { writable: true, configurable: true, value: 800 });
+      window.dispatchEvent(new Event('resize'));
+
+      expect(sut.contentAreaOffset.x).toBe(0);
+      expect(sut.contentAreaOffset.y).toBe(0);
+      expect(sut.unsafeArea.left).toBe(0);
+      expect(sut.unsafeArea.top).toBe(0);
+      expect(sut.unsafeArea.width).toBe(sut.resolution.width);
+      expect(sut.unsafeArea.height).toBe(sut.resolution.height);
+      expect(sut.contentArea.width).toBe(sut.unsafeArea.width);
+      expect(sut.contentArea.height).toBe(sut.unsafeArea.height);
+    });
+
+    it('FitScreenAndZoom: contentArea / unsafeArea / offset are reset (previously _unsafeArea was left empty)', () => {
+      // window 1300x800, content 800x600 -> viewport 1300x975, vertical zoom
+      // clip: resolution = 800x600, clip (res space) = (975-800)/975 * 600 ≈ 107.7,
+      // half ≈ 53.85
+      const sut = new ex.Screen({
+        canvas,
+        context,
+        browser,
+        displayMode: ex.DisplayMode.FitScreenAndZoom,
+        viewport: { width: 800, height: 600 }
+      });
+      Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1300 });
+      Object.defineProperty(window, 'innerHeight', { writable: true, configurable: true, value: 800 });
+      window.dispatchEvent(new Event('resize'));
+
+      expect(sut.contentAreaOffset.x).toBeCloseTo(0, 5);
+      expect(sut.contentAreaOffset.y).toBeCloseTo(53.85, 1);
+      expect(sut.contentArea.left).toBe(0);
+      expect(sut.contentArea.top).toBe(0);
+      expect(sut.contentArea.width).toBe(800);
+      expect(sut.contentArea.height).toBeCloseTo(600 - 107.7, 1); // ≈ 492.3
+
+      // unsafeArea now spans the full resolution in C-frame (was uninitialized before).
+      expect(sut.unsafeArea.left).toBe(0);
+      expect(sut.unsafeArea.top).toBeCloseTo(-53.85, 1);
+      expect(sut.unsafeArea.right).toBe(800);
+      expect(sut.unsafeArea.bottom).toBeCloseTo(600 - 53.85, 1);
+      expect(sut.unsafeArea.width).toBe(800);
+      expect(sut.unsafeArea.height).toBe(600);
+    });
+
+    it('page <-> screen round trips are symmetric in FitScreenAndFill (horizontal clip)', () => {
+      // window 1300x800, content 800x600 -> resolution 975x600, clip 87.5
+      const sut = new ex.Screen({
+        canvas,
+        context,
+        browser,
+        displayMode: ex.DisplayMode.FitScreenAndFill,
+        viewport: { width: 800, height: 600 }
+      });
+      Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1300 });
+      Object.defineProperty(window, 'innerHeight', { writable: true, configurable: true, value: 800 });
+      window.dispatchEvent(new Event('resize'));
+
+      // Canvas is positioned at (0,0) in this jsdom setup, so a page point at
+      // (canvasCornerX, canvasCornerY) === (0, 0) should map to screen>.
+      // Content-corner in page: 87.5 res * (viewport/res) = 87.5 * 1300/975 = ~116.67 px
+      const contentCornerPage = ex.vec(87.5 * (1300 / 975), 0);
+      // Page -> screen -> page must round-trip for an arbitrary in-bounds page point.
+      const p = ex.vec(500, 400);
+      const screen = sut.pageToScreenCoordinates(p);
+      const p2 = sut.screenToPageCoordinates(screen);
+      expect(p2).toBeVector(p);
+
+      // Page -> screen for the content corner should yield screen (0, 0).
+      const screenCorner = sut.pageToScreenCoordinates(contentCornerPage);
+      expect(screenCorner.x).toBeCloseTo(0, 5);
+      expect(screenCorner.y).toBeCloseTo(0, 5);
+
+      // Screen (0,0) back to page should yield the content-corner page coords.
+      const pageFromScreenZero = sut.screenToPageCoordinates(ex.vec(0, 0));
+      expect(pageFromScreenZero).toBeVector(contentCornerPage);
+
+      // unsafeArea.topLeft (in C-frame) -> page should yield the canvas top-left.
+      const unsafeTopLeftPage = sut.screenToPageCoordinates(sut.unsafeArea.topLeft);
+      expect(unsafeTopLeftPage.x).toBeCloseTo(0, 5);
+      expect(unsafeTopLeftPage.y).toBeCloseTo(0, 5);
+    });
+
+    it('page <-> screen round trips are symmetric in FitScreenAndFill (vertical clip)', () => {
+      // window 1300x1300, content 800x600 -> resolution 800x800, clip 100
+      const sut = new ex.Screen({
+        canvas,
+        context,
+        browser,
+        displayMode: ex.DisplayMode.FitScreenAndFill,
+        viewport: { width: 800, height: 600 }
+      });
+      Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1300 });
+      Object.defineProperty(window, 'innerHeight', { writable: true, configurable: true, value: 1300 });
+      window.dispatchEvent(new Event('resize'));
+
+      const p = ex.vec(500, 500);
+      const screen = sut.pageToScreenCoordinates(p);
+      const p2 = sut.screenToPageCoordinates(screen);
+      expect(p2).toBeVector(p);
+
+      // Content-corner in page: (0, 100 res * viewport/res = 100 * 1300/800 = 162.5)
+      const contentCornerPage = ex.vec(0, 100 * (1300 / 800));
+      const screenCorner = sut.pageToScreenCoordinates(contentCornerPage);
+      expect(screenCorner.x).toBeCloseTo(0, 5);
+      expect(screenCorner.y).toBeCloseTo(0, 5);
+
+      const pageFromScreenZero = sut.screenToPageCoordinates(ex.vec(0, 0));
+      expect(pageFromScreenZero.x).toBeCloseTo(contentCornerPage.x, 5);
+      expect(pageFromScreenZero.y).toBeCloseTo(contentCornerPage.y, 5);
+
+      // unsafeArea.topLeft (vertical-clip) = (0, -100); in page this is the canvas top-left.
+      const unsafeTopLeftPage = sut.screenToPageCoordinates(sut.unsafeArea.topLeft);
+      expect(unsafeTopLeftPage.x).toBeCloseTo(0, 5);
+      expect(unsafeTopLeftPage.y).toBeCloseTo(0, 5);
+    });
+
+    it('world <-> screen round trips are symmetric in FitScreenAndFill (centered camera)', () => {
+      // window 1300x800, content 800x600 -> resolution 975x600, clip 87.5
+      const sut = new ex.Screen({
+        canvas,
+        context,
+        browser,
+        displayMode: ex.DisplayMode.FitScreenAndFill,
+        viewport: { width: 800, height: 600 }
+      });
+      Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1300 });
+      Object.defineProperty(window, 'innerHeight', { writable: true, configurable: true, value: 800 });
+      window.dispatchEvent(new Event('resize'));
+
+      const camera = new Camera();
+      // Pin the camera at the world origin so the math is unambiguous. The
+      // default-centered camera (placed at contentArea.center) would also
+      // round-trip but obscures the offset math.
+      camera.pos = ex.vec(0, 0);
+      sut.setCurrentCamera(camera);
+      sut.applyResolutionAndViewport();
+      camera._initialize({ screen: sut, clock: { elapsed: () => 16 } } as ex.Engine);
+
+      // Camera at world (0,0), zoom 1: world origin -> resolution center
+      // (resolution.width/2, resolution.height/2) = (487.5, 300) in R-frame,
+      // then worldToScreenCoordinates subtracts contentAreaOffset (87.5, 0)
+      // to give the C-frame position (400, 300) == contentArea.center.
+      const worldOriginScreen = sut.worldToScreenCoordinates(ex.vec(0, 0));
+      expect(worldOriginScreen.x).toBeCloseTo(400, 5);
+      expect(worldOriginScreen.y).toBeCloseTo(300, 5);
+
+      // Round-trip
+      for (const p of [ex.vec(0, 0), ex.vec(-100, 200), ex.vec(123.4, -567.8)]) {
+        const screen = sut.worldToScreenCoordinates(p);
+        const back = sut.screenToWorldCoordinates(screen);
+        expect(back).toBeVector(p);
+      }
+    });
+  });
+
   it('can use the FitContainerAndFill display mode, screen aspectRatio > container aspect ratio', () => {
     const parentEl = document.createElement('div');
     document.body.removeChild(canvas);
@@ -995,5 +1234,22 @@ describe('A Screen', () => {
         ' Setting `ex.Engine({pixelRatio: ...}) will override any automatic recalculation, do so at your own risk.` ' +
         ' (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).'
     ]);
+  });
+
+  it('should only register window resize listener once for Window parent (not twice)', () => {
+    const addEventListenerSpy = vi.spyOn(window, 'addEventListener');
+
+    const sut = new ex.Screen({
+      canvas,
+      context,
+      browser,
+      displayMode: ex.DisplayMode.FitScreen,
+      viewport: { width: 800, height: 600 }
+    });
+
+    const resizeListenerCalls = addEventListenerSpy.mock.calls.filter((call) => call[0] === 'resize');
+    expect(resizeListenerCalls.length).toBe(1);
+
+    addEventListenerSpy.mockRestore();
   });
 });

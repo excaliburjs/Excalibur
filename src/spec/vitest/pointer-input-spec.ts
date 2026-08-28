@@ -427,4 +427,23 @@ describe('A pointer', () => {
       expect(wheelHandler).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe('detach', () => {
+    it('should properly remove wheel event listeners on detach', () => {
+      const receiver = engine.input.pointers as any;
+      const target = receiver.target;
+
+      const removeEventListenerSpy = vi.spyOn(target, 'removeEventListener');
+
+      receiver.detach();
+
+      // Should call removeEventListener, not addEventListener, for wheel events
+      const wheelCalls = removeEventListenerSpy.mock.calls.filter(
+        (call) => call[0] === 'wheel' || call[0] === 'mousewheel' || call[0] === 'MozMousePixelScroll'
+      );
+      expect(wheelCalls.length).toBeGreaterThan(0);
+
+      removeEventListenerSpy.mockRestore();
+    });
+  });
 });

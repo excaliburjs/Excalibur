@@ -17,6 +17,8 @@ export interface PointerComponentOptions {
  * are intersecting the pointer.
  */
 export class PointerComponent extends Component {
+  // @ts-ignore
+  private static _NAME = 'PointerComponent';
   /**
    * Use any existing Collider component geometry for pointer events. This is useful if you want
    * user pointer events only to trigger on the same collision geometry used in the collider component

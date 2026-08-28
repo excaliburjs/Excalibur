@@ -13,6 +13,12 @@ export interface HasTick {
    * @param idempotencyToken Optional idempotencyToken prevents a ticking animation from updating twice per frame
    */
   tick(elapsed: number, idempotencyToken?: number): void;
+
+  /**
+   * Optional property to tick any graphics EVEN when offscreen, this is useful when you want to keep animations synchronized
+   * across your game scene.
+   */
+  shouldAlwaysTick?: boolean;
 }
 
 export enum AnimationDirection {
@@ -97,6 +103,11 @@ export interface AnimationOptions {
    * Optionally set arbitrary meta data for the animation
    */
   data?: Record<string, any>;
+  /**
+   * Optionally tick this animation even when offscreen, default false. Useful for keeping animations synchronized
+   * across your game scene.
+   */
+  shouldAlwaysTick?: boolean;
 }
 
 export interface AnimationEvents {
@@ -147,6 +158,10 @@ export interface FromSpriteSheetOptions {
    * Optionally set arbitrary meta data for the animation
    */
   data?: Record<string, any>;
+  /**
+   * Optionally tick this animation even when offscreen, default false.
+   */
+  shouldAlwaysTick?: boolean;
 }
 
 /**
@@ -161,6 +176,7 @@ export class Animation extends Graphic implements HasTick {
   public strategy: AnimationStrategy = AnimationStrategy.Loop;
   public frameDuration: number = 100;
   public data: Map<string, any>;
+  public shouldAlwaysTick: boolean = false;
 
   private _idempotencyToken = -1;
 
@@ -180,6 +196,7 @@ export class Animation extends Graphic implements HasTick {
     this.strategy = options.strategy ?? this.strategy;
     this.frameDuration = options.totalDuration ? options.totalDuration / this.frames.length : (options.frameDuration ?? this.frameDuration);
     this.data = options.data ? new Map(Object.entries(options.data)) : new Map<string, any>();
+    this.shouldAlwaysTick = options.shouldAlwaysTick ?? this.shouldAlwaysTick;
     if (options.reverse) {
       this.reverse();
     }
@@ -194,6 +211,7 @@ export class Animation extends Graphic implements HasTick {
       speed: this.speed,
       reverse: this._reversed,
       strategy: this.strategy,
+      shouldAlwaysTick: this.shouldAlwaysTick,
       ...this.cloneGraphicOptions()
     }) as InstanceType<T>;
   }
@@ -308,7 +326,8 @@ export class Animation extends Graphic implements HasTick {
       strategy,
       speed,
       reverse,
-      data
+      data,
+      shouldAlwaysTick
     }) as InstanceType<T>;
   }
 

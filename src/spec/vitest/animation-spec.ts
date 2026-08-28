@@ -50,6 +50,44 @@ describe('A Graphics Animation', () => {
     expect(clone.direction).toBe(ex.AnimationDirection.Backward);
   });
 
+  it('can be constructed with shouldAlwaysTick', () => {
+    const anim = new ex.Animation({
+      frames: [],
+      shouldAlwaysTick: true
+    });
+    expect(anim.shouldAlwaysTick).toBe(true);
+  });
+
+  it('clone preserves shouldAlwaysTick', () => {
+    const anim = new ex.Animation({
+      frames: [],
+      shouldAlwaysTick: true
+    });
+
+    const clone = anim.clone();
+    expect(clone.shouldAlwaysTick).toBe(true);
+  });
+
+  it('fromSpriteSheetCoordinates passes through shouldAlwaysTick', () => {
+    const sourceImage = new ex.ImageSource('some/image.png');
+    const ss = ex.SpriteSheet.fromImageSource({
+      image: sourceImage,
+      grid: {
+        spriteWidth: 10,
+        spriteHeight: 10,
+        rows: 10,
+        columns: 10
+      }
+    });
+    const anim = ex.Animation.fromSpriteSheetCoordinates({
+      spriteSheet: ss,
+      frameCoordinates: [{ x: 0, y: 0 }],
+      shouldAlwaysTick: true
+    });
+
+    expect(anim.shouldAlwaysTick).toBe(true);
+  });
+
   it('can be defined from a spritesheet', () => {
     const sourceImage = new ex.ImageSource('some/image.png');
     const ss = ex.SpriteSheet.fromImageSource({

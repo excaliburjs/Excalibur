@@ -3,6 +3,7 @@ import { TransformComponent } from '../entity-component-system/components/transf
 import { IsometricEntityComponent } from './isometric-entity-component';
 import type { Query, World } from '../entity-component-system';
 import { SystemPriority } from '../entity-component-system';
+import { PauseComponentTag } from '../entity-component-system/components/pause-component';
 
 export class IsometricEntitySystem extends System {
   static priority: number = SystemPriority.Lower;
@@ -11,12 +12,16 @@ export class IsometricEntitySystem extends System {
   query: Query<typeof TransformComponent | typeof IsometricEntityComponent>;
   constructor(public world: World) {
     super();
-    this.query = this.world.query([TransformComponent, IsometricEntityComponent]);
+    this.query = this.world.query({
+      components: { all: [TransformComponent, IsometricEntityComponent] },
+      tags: { not: [PauseComponentTag] }
+    });
   }
 
   update(): void {
     let transform: TransformComponent;
     let iso: IsometricEntityComponent;
+
     for (let i = 0; i < this.query.entities.length; i++) {
       const entity = this.query.entities[i];
       transform = entity.get(TransformComponent);

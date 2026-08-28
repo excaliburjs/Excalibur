@@ -30,6 +30,7 @@ import type { CurveToOptions } from './action/curve-to';
 import { CurveTo } from './action/curve-to';
 import type { CurveByOptions } from './action/curve-by';
 import { CurveBy } from './action/curve-by';
+import { Logger } from '../util';
 
 /**
  * The fluent Action API allows you to perform "actions" on
@@ -139,11 +140,17 @@ export class ActionContext {
   /**
    * This method will move an actor by the specified x offset and y offset from its current position, at a certain speed.
    * This method is part of the actor 'Action' fluent API allowing action chaining.
+   * @param offset  The Vector offset to apply to this actor
+   * @param speed  The speed in pixels per second the actor should move
+   */
+  public moveBy(offset: Vector, speed: number): ActionContext;
+  /**
+   * This method will move an actor by the specified x offset and y offset from its current position, at a certain speed.
+   * This method is part of the actor 'Action' fluent API allowing action chaining.
    * @param xOffset     The x offset to apply to this actor
    * @param yOffset     The y location to move the actor to
    * @param speed  The speed in pixels per second the actor should move
    */
-  public moveBy(offset: Vector, speed: number): ActionContext;
   public moveBy(xOffset: number, yOffset: number, speed: number): ActionContext;
   public moveBy(
     xOffsetOrVectorOrOptions: number | Vector | MoveByOptions,
@@ -446,6 +453,10 @@ export class ActionContext {
    * @param followDistance  The distance to maintain when following, if not specified the actor will follow at the current distance.
    */
   public follow(entity: Entity, followDistance?: number): ActionContext {
+    if (!entity) {
+      Logger.getInstance().warn(`Entity does not exist when calling .follow() action`);
+      return this;
+    }
     if (followDistance === undefined) {
       this._queue.add(new Follow(this._entity, entity));
     } else {
@@ -462,6 +473,10 @@ export class ActionContext {
    * @param tolerance  The tolerance in pixels to meet, if not specified it will be 1 pixel
    */
   public meet(entity: Entity, speed?: number, tolerance?: number): ActionContext {
+    if (!entity) {
+      Logger.getInstance().warn(`Entity does not exist when calling .meet() action`);
+      return this;
+    }
     if (speed === undefined && tolerance === undefined) {
       this._queue.add(new Meet(this._entity, entity));
     } else if (tolerance === undefined) {

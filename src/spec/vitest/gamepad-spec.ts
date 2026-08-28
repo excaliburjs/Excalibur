@@ -116,23 +116,106 @@ describe('A gamepad', () => {
     let currentButton = null;
     let currentValue = null;
 
+    let currentButtonDownButton = null;
+    let currentButtonDownValue = null;
+
+    let currentButtonUpButton = null;
+    let currentButtonUpValue = null;
+
     gamepad.on('button', (buttonEvent: ex.GamepadButtonEvent) => {
       currentButton = buttonEvent.button;
       currentValue = buttonEvent.value;
     });
 
+    gamepad.on('buttondown', (buttonEvent: ex.GamepadButtonEvent) => {
+      currentButtonDownButton = buttonEvent.button;
+      currentButtonDownValue = buttonEvent.value;
+    });
+
+    gamepad.on('buttonup', (buttonEvent: ex.GamepadButtonEvent) => {
+      currentButtonUpButton = buttonEvent.button;
+      currentButtonUpValue = buttonEvent.value;
+    });
+
     expect(currentButton).toBeNull();
     expect(currentValue).toBeNull();
+
+    expect(currentButtonDownButton).toBeNull();
+    expect(currentButtonDownValue).toBeNull();
+
+    expect(currentButtonUpButton).toBeNull();
+    expect(currentButtonUpValue).toBeNull();
 
     for (const button in ex.Buttons) {
       if (typeof button === 'number') {
         engine.input.gamepads.update();
+        //press button
         nav.setGamepadButton(0, button, 1.0);
         engine.input.gamepads.update();
         expect(currentButton).toBe(button);
         expect(currentValue).toBe(1.0);
+        expect(currentButtonDownButton).toBe(button);
+        expect(currentButtonDownValue).toBe(1.0);
+        // release button
+        nav.setGamepadButton(0, button, 0);
+        engine.input.gamepads.update();
+        expect(currentButtonUpButton).toBe(button);
+        expect(currentButtonUpValue).toBe(0);
       }
     }
+  });
+
+  it('should fire button events the correct amount of times', () => {
+    nav.setGamepads(0, 4, 16); // valid 4 axis > 2 and 16 buttons > 4
+
+    const gamepad = engine.input.gamepads.at(0);
+
+    let currentButtonCounter = 0;
+    let currentButtonDownCounter = 0;
+    let currentButtonUpCounter = 0;
+
+    gamepad.on('button', (buttonEvent: ex.GamepadButtonEvent) => {
+      currentButtonCounter++;
+    });
+
+    gamepad.on('buttondown', (buttonEvent: ex.GamepadButtonEvent) => {
+      currentButtonDownCounter++;
+    });
+
+    gamepad.on('buttonup', (buttonEvent: ex.GamepadButtonEvent) => {
+      currentButtonUpCounter++;
+    });
+
+    expect(currentButtonCounter).toBe(0);
+    expect(currentButtonDownCounter).toBe(0);
+    expect(currentButtonUpCounter).toBe(0);
+
+    const button = ex.Buttons.Face1;
+    engine.input.gamepads.update();
+    //press button
+    nav.setGamepadButton(0, button, 1.0);
+    engine.input.gamepads.update();
+    expect(currentButtonCounter).toBe(1);
+    expect(currentButtonDownCounter).toBe(1);
+    expect(gamepad.wasButtonPressed(button)).toBe(true);
+    expect(gamepad.wasButtonReleased(button)).toBe(false);
+    expect(currentButtonUpCounter).toBe(0);
+    //change button pressure
+    nav.setGamepadButton(0, button, 0.5);
+    engine.input.gamepads.update();
+    expect(currentButtonCounter).toBe(2);
+    expect(currentButtonDownCounter).toBe(2);
+    expect(gamepad.wasButtonPressed(button, 0)).toBe(true);
+    expect(gamepad.wasButtonReleased(button)).toBe(false);
+    expect(currentButtonUpCounter).toBe(0);
+    // release button
+    nav.setGamepadButton(0, button, 0);
+    engine.input.gamepads.update();
+    expect(currentButtonCounter).toBe(2);
+    expect(currentButtonDownCounter).toBe(2);
+    expect(gamepad.wasButtonPressed(button)).toBe(false);
+    expect(gamepad.wasButtonReleased(button)).toBe(true);
+    expect(currentButtonUpCounter).toBe(1);
   });
 
   it('should fire events on all predefined axis', () => {

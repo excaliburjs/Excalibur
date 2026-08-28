@@ -1,6 +1,7 @@
 import type { Entity, Query, World } from '../entity-component-system';
 import { SystemPriority } from '../entity-component-system';
 import { MotionComponent } from '../entity-component-system/components/motion-component';
+import { PauseComponentTag } from '../entity-component-system/components/pause-component';
 import { TransformComponent } from '../entity-component-system/components/transform-component';
 import { System, SystemType } from '../entity-component-system/system';
 import { BodyComponent } from './body-component';
@@ -21,7 +22,9 @@ export class MotionSystem extends System {
         all: [TransformComponent, MotionComponent]
       },
       tags: {
-        not: physics.config.integration.onScreenOnly ? ['ex.offscreen', 'ex.is_sleeping'] : ['ex.is_sleeping']
+        not: physics.config.integration.onScreenOnly
+          ? ['ex.offscreen', 'ex.is_sleeping', PauseComponentTag]
+          : ['ex.is_sleeping', PauseComponentTag]
       }
     });
   }

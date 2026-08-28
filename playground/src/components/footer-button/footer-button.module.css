@@ -1,0 +1,22 @@
+.root {
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: color(from var(--color-white) srgb r g b / 0);
+  border: 0;
+  font-family: var(--font-family);
+  font-size: 10px;
+  height: 100%;
+  padding: 0 10px;
+  transition: background-color 100ms;
+  white-space: nowrap;
+  color: var(--color-white);
+}
+
+.root:hover {
+  background-color: color(from var(--color-white) srgb r g b / 0.3);
+}
+
+.root:focus-visible {
+  outline: 2px solid var(--border-white);
+  outline-offset: 2px;
+}

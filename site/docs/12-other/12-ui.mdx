@@ -17,10 +17,10 @@ Please consider [html based first](#html-based-ui) but if the UI makes more sens
 
 In Excalibur, if you want to display something like a HUD element or UI element, you can create an instance of [[ScreenElement]]. A screen element has the following semantics that differ from a regular [actor](/docs/actors):
 
-- They automatically [capture pointer events](/docs/input#actor-pointer-events)
+- They automatically [capture pointer events](/docs/pointers#handling-pointer-events-on-actors)
 - They do not participate in collisions
 - They appear above all "normal" actors in a [scene](/docs/scenes)
-- Invoking [[ScreenElement.contains]] will check against [screen coordinates](/docs/engine#screen-coordinates) by default.
+- Invoking [[ScreenElement.contains]] will check against [screen coordinates](/docs/screens#screen-coordinates) by default.
 
 Other than that, they are the same as normal actors where you can assign drawings, perform actions, etc.
 

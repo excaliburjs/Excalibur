@@ -262,6 +262,23 @@ describe('An EventEmitter', () => {
     expect(value).toBe(0);
   });
 
+  it('can remove all listeners including once listeners when called without handler', () => {
+    const emitter = new ex.EventEmitter();
+    const onHandler = vi.fn();
+    const onceHandler = vi.fn();
+
+    emitter.on('myevent', onHandler);
+    emitter.once('myevent', onceHandler);
+
+    // Remove all listeners for 'myevent'
+    emitter.off('myevent');
+
+    emitter.emit('myevent');
+
+    expect(onHandler).not.toHaveBeenCalled();
+    expect(onceHandler).not.toHaveBeenCalled();
+  });
+
   it('has event handlers called in the right order', () => {
     const pubsub = new ex.EventEmitter();
 

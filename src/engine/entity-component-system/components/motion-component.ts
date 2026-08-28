@@ -39,6 +39,8 @@ export interface Motion {
 }
 
 export class MotionComponent extends Component {
+  // @ts-ignore
+  private static _NAME = 'MotionComponent';
   /**
    * The velocity of an entity in pixels per second
    */

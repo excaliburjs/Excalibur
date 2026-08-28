@@ -48,9 +48,10 @@ export class ScreenPassPainter {
 
   renderWithPostProcessor(postprocessor: PostProcessor): void {
     const gl = this._gl;
-    const shader = postprocessor.getShader();
+    // only single-pass post processors reach this path, multipass ones provide process() instead
+    const shader = postprocessor.getShader!();
     shader.use();
-    postprocessor.getLayout().use();
+    postprocessor.getLayout!().use();
     gl.activeTexture(gl.TEXTURE0);
     shader.trySetUniformInt('u_image', 0);
     if (postprocessor.onDraw) {

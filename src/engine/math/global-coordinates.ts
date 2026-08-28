@@ -14,7 +14,7 @@ export class GlobalCoordinates {
       pageX = <number>xOrPos;
       pageY = <number>yOrEngine;
       pagePos = new Vector(pageX, pageY);
-      engine = engineOrUndefined;
+      engine = engineOrUndefined!;
     } else {
       pagePos = <Vector>xOrPos;
       pageX = pagePos.x;

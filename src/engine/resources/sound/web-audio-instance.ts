@@ -198,7 +198,7 @@ export class WebAudioInstance implements Audio {
   }
 
   public getPlaybackPosition() {
-    const { pausedAt, startedAt } = this._stateMachine.data;
+    const { pausedAt, startedAt } = this._stateMachine.data!;
     if (pausedAt) {
       return pausedAt * this._playbackRate;
     }
