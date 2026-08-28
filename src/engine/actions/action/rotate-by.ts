@@ -80,7 +80,11 @@ export class RotateByWithOptions implements Action {
           this._travel = isFullTurn ? 0 : Math.abs(positivePath) <= Math.abs(negativePath) ? positivePath : negativePath;
           break;
         case RotationType.LongestPath:
-          this._travel = isFullTurn ? Math.sign(this._offset) * TwoPI : Math.abs(positivePath) > Math.abs(negativePath) ? positivePath : negativePath;
+          this._travel = isFullTurn
+            ? Math.sign(this._offset) * TwoPI
+            : Math.abs(positivePath) > Math.abs(negativePath)
+              ? positivePath
+              : negativePath;
           break;
         case RotationType.Clockwise:
           this._travel = positivePath;

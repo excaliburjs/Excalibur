@@ -142,9 +142,13 @@ describe('A PointerEventReceiver', () => {
       receiver.on('cancel' as any, cancelHandler);
 
       const c = coords();
-      receiver.currentFrameDown.push(new ex.PointerEvent('down', 0, ex.PointerButton.Left, ex.PointerType.Mouse, c, new Event('pointerdown')));
+      receiver.currentFrameDown.push(
+        new ex.PointerEvent('down', 0, ex.PointerButton.Left, ex.PointerType.Mouse, c, new Event('pointerdown'))
+      );
       receiver.currentFrameUp.push(new ex.PointerEvent('up', 0, ex.PointerButton.Left, ex.PointerType.Mouse, c, new Event('pointerup')));
-      receiver.currentFrameMove.push(new ex.PointerEvent('move', 0, ex.PointerButton.Left, ex.PointerType.Mouse, c, new Event('pointermove')));
+      receiver.currentFrameMove.push(
+        new ex.PointerEvent('move', 0, ex.PointerButton.Left, ex.PointerType.Mouse, c, new Event('pointermove'))
+      );
       receiver.currentFrameCancel.push(
         new ex.PointerEvent('cancel', 0, ex.PointerButton.Left, ex.PointerType.Mouse, c, new Event('pointercancel'))
       );
@@ -191,9 +195,13 @@ describe('A PointerEventReceiver', () => {
     it('empties all current-frame event queues and pointer coordinates for released pointers', () => {
       const receiver = new ex.PointerEventReceiver(engine.canvas, engine);
       const c = coords();
-      receiver.currentFrameDown.push(new ex.PointerEvent('down', 0, ex.PointerButton.Left, ex.PointerType.Mouse, c, new Event('pointerdown')));
+      receiver.currentFrameDown.push(
+        new ex.PointerEvent('down', 0, ex.PointerButton.Left, ex.PointerType.Mouse, c, new Event('pointerdown'))
+      );
       receiver.currentFrameUp.push(new ex.PointerEvent('up', 0, ex.PointerButton.Left, ex.PointerType.Mouse, c, new Event('pointerup')));
-      receiver.currentFrameMove.push(new ex.PointerEvent('move', 0, ex.PointerButton.Left, ex.PointerType.Mouse, c, new Event('pointermove')));
+      receiver.currentFrameMove.push(
+        new ex.PointerEvent('move', 0, ex.PointerButton.Left, ex.PointerType.Mouse, c, new Event('pointermove'))
+      );
       receiver.currentFrameCancel.push(
         new ex.PointerEvent('cancel', 0, ex.PointerButton.Left, ex.PointerType.Mouse, c, new Event('pointercancel'))
       );
@@ -220,7 +228,11 @@ describe('A PointerEventReceiver', () => {
       engine.canvas.dispatchEvent(new window.PointerEvent('pointerdown', { pointerId: 2, clientX: 10, clientY: 10, button: 1 }));
       engine.canvas.dispatchEvent(new window.PointerEvent('pointerdown', { pointerId: 3, clientX: 10, clientY: 10, button: 2 }));
 
-      expect(receiver.currentFrameDown.map((e) => e.button)).toEqual([ex.PointerButton.Left, ex.PointerButton.Middle, ex.PointerButton.Right]);
+      expect(receiver.currentFrameDown.map((e) => e.button)).toEqual([
+        ex.PointerButton.Left,
+        ex.PointerButton.Middle,
+        ex.PointerButton.Right
+      ]);
 
       receiver.detach();
     });
@@ -311,7 +323,9 @@ describe('A PointerEventReceiver', () => {
       expect(receiver.currentFrameDown.map((e) => e.pointerId)).toEqual([0]);
       expect(receiver.isDown(0)).toBe(true);
 
-      engine.canvas.dispatchEvent(new window.PointerEvent('pointercancel', { pointerId: 5, pointerType: 'touch', clientX: 10, clientY: 10 }));
+      engine.canvas.dispatchEvent(
+        new window.PointerEvent('pointercancel', { pointerId: 5, pointerType: 'touch', clientX: 10, clientY: 10 })
+      );
       expect(receiver.isDown(0)).toBe(false);
       receiver.clear();
 
