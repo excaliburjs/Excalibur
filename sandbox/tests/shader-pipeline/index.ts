@@ -102,11 +102,11 @@ game.on('postupdate', (evt) => {
 // 6. Fullscreen post processors, blur toggled with 'p', bloom toggled with 'b'
 var fullscreenBlur = new ex.ShaderPipelinePostProcessor({
   name: 'fullscreen-blur',
-  pipeline: new ex.BlurEffect({ graphicsContext, strength: 3 })
+  passes: new ex.BlurEffect({ graphicsContext, strength: 3 })
 });
 var fullscreenBloom = new ex.ShaderPipelinePostProcessor({
   name: 'fullscreen-bloom',
-  pipeline: new ex.BloomEffect({ graphicsContext, threshold: 0.4, intensity: 1.5 })
+  passes: new ex.BloomEffect({ graphicsContext, threshold: 0.4, intensity: 1.5 })
 });
 var blurOn = false;
 var bloomOn = false;

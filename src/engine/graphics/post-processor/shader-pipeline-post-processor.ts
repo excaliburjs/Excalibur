@@ -10,14 +10,13 @@ export interface ShaderPipelinePostProcessorOptions {
    */
   name?: string;
   /**
-   * Ordered passes run over the screen, see {@apilink ShaderPipeline}
+   * Multipass pipeline run over the screen, mirroring {@apilink Material}'s `passes`.
+   *
+   * Provide an ordered list of passes (bare fragment strings or {@apilink ShaderPass}), or any
+   * {@apilink ShaderPipelineLike} implementation ({@apilink BloomEffect}, {@apilink GlowEffect},
+   * {@apilink BlurEffect}, or your own pass graph).
    */
-  passes?: ShaderPassLike[];
-  /**
-   * Bring your own pipeline, for example a custom non-linear pass graph implementing
-   * {@apilink ShaderPipelineLike}
-   */
-  pipeline?: ShaderPipelineLike;
+  passes: ShaderPassLike[] | ShaderPipelineLike;
 }
 
 /**
@@ -34,16 +33,16 @@ export interface ShaderPipelinePostProcessorOptions {
  */
 export class ShaderPipelinePostProcessor implements PostProcessor {
   public readonly name: string;
-  private _options: ShaderPipelinePostProcessorOptions;
+  private _passes: ShaderPassLike[] | ShaderPipelineLike;
   private _pipeline?: ShaderPipelineLike;
   private _elapsed = 0;
 
   constructor(options: ShaderPipelinePostProcessorOptions) {
-    if (!options.passes?.length && !options.pipeline) {
-      throw new Error(`ShaderPipelinePostProcessor "${options.name ?? 'anonymous'}" must be provided passes or a pipeline`);
+    if (!options.passes || (Array.isArray(options.passes) && !options.passes.length)) {
+      throw new Error(`ShaderPipelinePostProcessor "${options.name ?? 'anonymous'}" must be provided passes`);
     }
     this.name = options.name ?? 'anonymous pipeline post processor';
-    this._options = options;
+    this._passes = options.passes;
   }
 
   /**
@@ -63,13 +62,15 @@ export class ShaderPipelinePostProcessor implements PostProcessor {
     if (this._pipeline) {
       return;
     }
-    this._pipeline =
-      this._options.pipeline ??
-      new ShaderPipeline({
+    if (Array.isArray(this._passes)) {
+      this._pipeline = new ShaderPipeline({
         graphicsContext,
         name: this.name,
-        passes: this._options.passes!
+        passes: this._passes
       });
+    } else {
+      this._pipeline = this._passes;
+    }
   }
 
   public onUpdate(elapsed: number): void {

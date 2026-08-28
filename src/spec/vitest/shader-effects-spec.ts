@@ -98,7 +98,7 @@ describe('A BloomEffect', () => {
 
   it('plugs into a ShaderPipelinePostProcessor as a custom pipeline', () => {
     const bloom = new ex.BloomEffect({ graphicsContext: context });
-    const pp = new ex.ShaderPipelinePostProcessor({ pipeline: bloom });
+    const pp = new ex.ShaderPipelinePostProcessor({ passes: bloom });
     context.addPostProcessor(pp);
     expect(pp.pipeline).toBe(bloom);
 

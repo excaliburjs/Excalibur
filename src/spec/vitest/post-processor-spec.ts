@@ -198,8 +198,9 @@ describe('A PostProcessor', () => {
       return { canvas, context };
     }
 
-    it('throws without passes or a pipeline', () => {
-      expect(() => new ex.ShaderPipelinePostProcessor({})).toThrowError(/passes or a pipeline/);
+    it('throws without passes', () => {
+      expect(() => new ex.ShaderPipelinePostProcessor({} as any)).toThrowError(/must be provided passes/);
+      expect(() => new ex.ShaderPipelinePostProcessor({ passes: [] })).toThrowError(/must be provided passes/);
     });
 
     it('throws accessing the pipeline before initialize', () => {
@@ -233,7 +234,7 @@ describe('A PostProcessor', () => {
         process: vi.fn(),
         dispose: vi.fn()
       };
-      const pp = new ex.ShaderPipelinePostProcessor({ pipeline: custom });
+      const pp = new ex.ShaderPipelinePostProcessor({ passes: custom });
       context.addPostProcessor(pp);
 
       context.beginDrawLifecycle();

@@ -124,7 +124,7 @@ void main() {
  * // fullscreen
  * game.graphicsContext.addPostProcessor(
  *   new ex.ShaderPipelinePostProcessor({
- *     pipeline: new ex.BloomEffect({ graphicsContext, threshold: 0.6, intensity: 1.5 })
+ *     passes: new ex.BloomEffect({ graphicsContext, threshold: 0.6, intensity: 1.5 })
  *   })
  * );
  *
