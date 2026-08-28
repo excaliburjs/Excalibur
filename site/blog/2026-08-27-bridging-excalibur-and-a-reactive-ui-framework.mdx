@@ -1,0 +1,111 @@
+---
+slug: bridging-excalibur-and-a-reactive-ui-framework
+title: Combining Excalibur with a Reactive UI Framework
+authors: [erik]
+tags: [gamedev, excaliburjs, ui, solidjs]
+---
+
+Excalibur's game loop is imperative: an `Engine` runs its own `update`/`draw` cycle, and your `Actor`s and `Scene`s mutate state directly on every tick. Reactive UI frameworks like React and Solid work the opposite way — your components declare _what_ the UI should look like for a given state, and the framework figures out how to update the DOM.
+
+Both models are great on their own, but the seam between them — "how do I show the player's score, in HTML, above my canvas, and have it update when the game changes it?" — is where people usually get stuck. This post walks through one way to do that, using [SolidJS](https://www.solidjs.com/), and calls out the pitfalls along the way.
+
+<!-- truncate -->
+
+:::note Why Solid, and why a blog post instead of a docs page?
+
+The docs cover [getting a vanilla Excalibur canvas loading inside Next.js](/docs/nextjs) or [Solid](/docs/solidjs) — that part is uncontroversial. How you wire your UI framework's reactivity up to your game state is much more a matter of taste, and we don't want to be in the business of maintaining "the" official answer for every framework's quirks. This post picks Solid because it ships fine-grained signals out of the box, which maps cleanly onto Excalibur's per-tick mutations without extra machinery. The same ideas apply to React, Vue, or anything else — you'll just need your own reactive primitive to bridge the gap (React's `useState` in particular doesn't play well with imperative `render()` calls from outside a component, which is what motivates reaching for something signal-like there too).
+
+Thanks to [Dryspell](https://github.com/Dryspell) for the original writeup and example code this post is adapted from.
+
+:::
+
+## The problem
+
+Say you have a `score` that goes up whenever the player breaks a brick. The increment happens deep inside an `Actor`'s collision handler — nowhere near your component tree. Solid's `render()` function only runs once; it doesn't re-run on its own just because a plain variable changed. You need something that both your game code and your UI can read and write, and that notifies the UI when it changes. That's exactly what a signal is.
+
+## Creating a signal for game state
+
+Create a signal wherever it's convenient — a scene, a top-level game module, or right next to where you initialize the engine:
+
+```typescript
+import { createSignal } from "solid-js";
+
+export const [gameState, setGameState] = createSignal({ score: 0, lives: 3 });
+```
+
+From your Excalibur code, update it the same way you'd update any other piece of state:
+
+```typescript
+this.on("collisionstart", () => {
+	setGameState((prev) => ({ ...prev, score: prev.score + 1 }));
+});
+```
+
+## Rendering the UI
+
+Render your UI component into a DOM node that sits on top of (or alongside) the game canvas, passing the signal down as a prop:
+
+```typescript
+import { render } from "solid-js/web";
+
+render(
+	() => <UI gameState={gameState} setGameState={setGameState} />,
+	document.getElementById("gameUi")!
+);
+```
+
+```typescript
+export default function UI(props: {
+	gameState: Accessor<{ score: number; lives: number }>;
+	setGameState: Setter<{ score: number; lives: number }>;
+}) {
+	return <div>Score: {props.gameState().score}</div>;
+}
+```
+
+Because Solid components only run once and subscribe directly to the signals they read, `<div>Score: {props.gameState().score}</div>` updates in place whenever `setGameState` is called — no VDOM diff, no re-render of the rest of the tree.
+
+## Positioning UI relative to the canvas
+
+Absolutely-positioned UI needs a `position: relative` ancestor to anchor against — typically the same wrapper `<div>` that holds your `<canvas>`. If you need to position an element relative to a specific point in the game world (like a health bar above a unit), convert the world position to page coordinates and re-derive it on resize:
+
+```typescript
+function getElementPosition(worldPos: Vector, game: Engine) {
+	const pagePos = game.screen.worldToPageCoordinates(worldPos);
+	return { left: pagePos.x, top: pagePos.y };
+}
+
+const [position, setPosition] = createSignal(getElementPosition(unit.pos, game));
+
+const onResize = () => setPosition(getElementPosition(unit.pos, game));
+window.addEventListener("resize", onResize);
+
+onCleanup(() => window.removeEventListener("resize", onResize));
+```
+
+## Cleaning up
+
+`render()` returns a `dispose` function — call it when the UI should go away (a menu closing, a scene tearing down):
+
+```typescript
+const dispose = render(() => <UnitMenu unit={unit} />, uiRoot);
+
+// later
+dispose();
+```
+
+If you don't dispose UI tied to a scene when that scene is torn down, you'll leak DOM nodes and the reactive subscriptions that back them.
+
+## Pitfalls
+
+A few things that are easy to get wrong the first time:
+
+- **Don't create a new signal every frame.** Create it once, outside your `update` loop, and call the setter from within the loop. Creating signals per-tick defeats the point and leaks memory.
+- **Don't put expensive work inside a component body.** Components re-run their reactive scope when a signal they read changes — keep that scope cheap and leave the heavy lifting (pathfinding, physics, etc.) in your Excalibur code.
+- **Only update signals when the value actually changes.** If you're mirroring a fast-changing value like position every tick, consider throttling UI updates — the game doesn't need the DOM to repaint 60 times a second to look responsive.
+- **None of this runs during SSR.** Keep your game and UI-bridging code behind a client-only boundary (`clientOnly` in SolidStart, `dynamic(..., { ssr: false })` in Next.js) — see the [Solid](/docs/solidjs) and [Next.js](/docs/nextjs) getting started guides.
+- **Dispose what you create.** Every `render()` call should have a matching teardown path tied to the Excalibur lifecycle it's attached to (an `Actor`'s `kill`, a `Scene`'s deactivate, etc.).
+
+## Other frameworks
+
+If you're using React and want the same fine-grained behavior, you'll need to reach for something outside `useState` — a hand-rolled signal, a library like [Preact signals](https://preactjs.com/guide/v10/signals/) or [Jotai](https://jotai.org/), or reconsidering whether you need per-tick reactivity at all versus updating on a lower-frequency interval. For worked examples in other frameworks, check the community [Breakout example](https://github.com/Dryspell/next-sword-meta) that inspired this post, or start a thread in [Discussions](https://github.com/excaliburjs/Excalibur/discussions) — we'd rather point to community patterns than prescribe one framework's answer as official.
