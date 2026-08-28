@@ -331,8 +331,8 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     return !!this.owner?.isActive;
   }
 
-  public transform: TransformComponent;
-  public motion: MotionComponent;
+  public transform!: TransformComponent;
+  public motion!: MotionComponent;
 
   override onAdd(owner: Entity<any>): void {
     this.transform = this.owner?.get(TransformComponent)!;

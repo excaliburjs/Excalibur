@@ -382,8 +382,8 @@ export class Camera implements CanUpdate, CanInitialize {
   private _currentZoomTime: number = 0;
   private _zoomDuration: number = 0;
 
-  private _zoomResolve: (val: boolean) => void;
-  private _zoomPromise: Promise<boolean>;
+  private _zoomResolve!: (val: boolean) => void;
+  private _zoomPromise!: Promise<boolean>;
   private _zoomEasing: Easing = easeInOutCubic;
   private _easing: Easing = easeInOutCubic;
 
