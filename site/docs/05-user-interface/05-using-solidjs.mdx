@@ -1,0 +1,84 @@
+---
+title: Using SolidJS
+slug: /solidjs
+section: User Interface
+---
+
+## Starting a new project
+
+Start a new project with [SolidJS](https://start.solidjs.com/getting-started/project-setup) using your favorite package manager or use the command:
+
+```bash
+pnpm create solid
+```
+
+Once this is done you can follow the remainder of the guide for [an existing project](#existing-solidjs-projects).
+
+## Existing SolidJS projects
+
+:::note
+
+This guide is very similar to the [NextJS](./04-using-nextjs.mdx) guide and so it may be helpful to look at that guide for more or different information.
+
+:::
+
+Install ExcaliburJS with your package manager
+
+```bash
+npm install excalibur
+```
+
+Create a client component that houses your game. It should look something like:
+
+```typescript
+import { onMount } from "solid-js";
+import { intializeGame } from "./game";
+
+export const gameCanvasId = "gameCanvas";
+
+export default function Game() {
+	onMount(() => {
+		intializeGame(gameCanvasId);
+	});
+
+	return (
+		<canvas id={gameCanvasId} width="800" height="600"></canvas>
+	);
+}
+```
+
+and create a page that uses the component:
+
+```typescript
+import { clientOnly } from "@solidjs/start";
+
+const ClientOnlyGame = clientOnly(() => import("~/components/Game"));
+export default function GamePage() {
+	return <ClientOnlyGame />;
+}
+```
+
+Note that we have to dynamically import the game component to prevent it from being server side rendered.
+
+Finally, create a function that initializes and renders the game:
+
+```typescript
+import { Engine } from "excalibur";
+
+export const intializeGame = (gameCanvasId: string) => {
+	const game = new Engine({
+		canvasElementId: gameCanvasId,
+		width: 800,
+		height: 600,
+	});
+
+	game.start().catch((e) => console.error(e));
+	return game;
+};
+```
+
+From here, you can start the game by running `pnpm run dev` and navigating to the page that you created. All the rest of the ExcaliburJS API and documentation should work as expected.
+
+## Adding UI on top of your game
+
+Once your game is loading, you'll likely want to render score displays, menus, or other UI on top of the canvas using SolidJS itself. SolidJS's built-in signals make this a natural fit for Excalibur's imperative game loop — see [Combining Excalibur with a Reactive UI Framework](/blog/bridging-excalibur-and-a-reactive-ui-framework) on the blog for a worked example, including how to position UI elements relative to the canvas and clean them up when they're no longer needed. For simpler cases, plain [HTML/CSS UI](/docs/html) overlaid on the canvas is often all you need.
