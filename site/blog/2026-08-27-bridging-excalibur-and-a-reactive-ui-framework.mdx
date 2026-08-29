@@ -1,7 +1,7 @@
 ---
 slug: bridging-excalibur-and-a-reactive-ui-framework
 title: Combining Excalibur with a Reactive UI Framework
-authors: [erik]
+authors: [erik, dryspell]
 tags: [gamedev, excaliburjs, ui, solidjs]
 ---
 
@@ -15,7 +15,7 @@ Both models are great on their own, but the seam between them — "how do I show
 
 The docs cover [getting a vanilla Excalibur canvas loading inside Next.js](/docs/nextjs) or [Solid](/docs/solidjs) — that part is uncontroversial. How you wire your UI framework's reactivity up to your game state is much more a matter of taste, and we don't want to be in the business of maintaining "the" official answer for every framework's quirks. This post picks Solid because it ships fine-grained signals out of the box, which maps cleanly onto Excalibur's per-tick mutations without extra machinery. The same ideas apply to React, Vue, or anything else — you'll just need your own reactive primitive to bridge the gap (React's `useState` in particular doesn't play well with imperative `render()` calls from outside a component, which is what motivates reaching for something signal-like there too).
 
-Thanks to [Dryspell](https://github.com/Dryspell) for the original writeup and example code this post is adapted from.
+Thanks to [Dryspell](https://github.com/Dryspell) for the original writeup and example code this post is adapted from — see [solid-sword-meta](https://github.com/Dryspell/solid-sword-meta) for the full Solid example.
 
 :::
 
@@ -82,6 +82,19 @@ window.addEventListener("resize", onResize);
 
 onCleanup(() => window.removeEventListener("resize", onResize));
 ```
+
+That handles *position*. If your UI also needs to visually *scale* with the canvas — font sizes, borders, whole panels growing or shrinking as the game resizes or letterboxes — you don't need to compute that ratio by hand. Excalibur already maintains a `--ex-pixel-ratio` CSS custom property on `<html>`, kept in sync automatically on every resize, so you can scale an overlay against it directly:
+
+```css
+.ui-container {
+	transform-origin: 0 0;
+	transform: scale(var(--ex-pixel-ratio));
+}
+```
+
+`--ex-pixel-ratio` is `Engine.screen.worldToPagePixelRatio` under the hood — the ratio between one Excalibur world unit and one CSS pixel. Don't confuse it with `Screen.pixelRatio`, which is the device pixel ratio used for the canvas's backing-store resolution and answers a different question. See [HTML UI with Pixel Conversion](/blog/happy-new-year-excalibur-2025#html-ui-with-pixel-conversion) for the original writeup and example repos ([sample-html](https://github.com/excaliburjs/sample-html), [sample-react](https://github.com/excaliburjs/sample-react)).
+
+If you're rendering into a Shadow DOM (as most Web Component libraries do by default), double-check that the variable is actually reaching your styles — CSS custom properties are inherited across shadow boundaries by spec, but it's worth confirming rather than assuming, especially if you've customized `createRenderRoot()`.
 
 ## Cleaning up
 
