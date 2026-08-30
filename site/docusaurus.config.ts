@@ -285,10 +285,32 @@ const config: Config = {
        * The position of the live playground, above or under the editor
        * Possible values: "top" | "bottom"
        */
-      playgroundPosition: 'bottom'
-    }
-  } as ClassicPresetThemeConfig
-};
+playgroundPosition: 'bottom'
+      },
+      mermaid: {
+        options: {
+          // Lift the mermaid text size out of the cramped default — sequence diagrams in the
+          // Lifecycle Events reference are dense and otherwise render at ~13px. 18px keeps the
+          // text legible without overflowing the doc column; wide diagrams pan via CSS in custom.css.
+          themeVariables: {
+            fontSize: '18px'
+          },
+          // Use HTML labels so the bumped font-size applies to flowchart-style text too
+          flowchart: {
+            htmlLabels: true,
+            curve: 'linear'
+          },
+          sequence: {
+            // Bigger participant boxes + notes for the lifecycle diagram readability
+            actorMargin: 50,
+            boxMargin: 10,
+            noteMargin: 10,
+            messageMargin: 35
+          }
+        }
+      }
+    } as ClassicPresetThemeConfig
+  };
 
 export default config;
 

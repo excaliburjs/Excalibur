@@ -1,0 +1,73 @@
+---
+title: Rental Pool
+slug: /rental-pool
+section: Other
+---
+
+## Object Pooling with `RentalPool`
+
+For games that spawn many short-lived objects — projectiles, particles, dropped loot — allocating and
+garbage-collecting each one is wasteful. [[RentalPool]] is a simple free-list object pool shipped with the
+engine and used internally for particles, spatial-hash grid cells, graphics-context state stacks, and
+pointer-dispatch proxies.
+
+### Building a Pool
+
+Construct a `RentalPool<T>` with three arguments: a `builder` that produces a fresh instance, a `cleaner`
+that resets a previously-used instance, and a `preAllocate` size for the initial allotment.
+
+```typescript
+const projectiles = new ex.RentalPool<Projectile>(
+  () => new Projectile(),                       // builder — called only when the pool must grow
+  (p) => { p.reset(); return p; },              // cleaner — restore state on reuse (must return p)
+  100                                           // preAllocate — 100 Projectiles ready up front
+);
+```
+
+:::note
+The cleaner's contract is `(used: T) => T` — it must **return** the (mutated) object, not `void`. The
+renter uses that return value as the rented instance.
+:::
+
+### Renting and Returning
+
+```typescript
+// Rent a projectile; pass `true` to run the cleaner first (typical for reused entities)
+const p = projectiles.rent(true);
+
+// ... fire, update, do work with p ...
+
+// Give it back; double-return is silently ignored
+projectiles.return(p);
+```
+
+- `rent(clean = false)` pops from the pool. With `clean = true` the cleaner runs first, resetting any state
+  left by the previous renter.
+- `return(object)` pushes the object back into the pool. A `WeakSet`-backed guard means the same object
+  returned twice is silently ignored — common in pooled-entity lifecycle code.
+
+### Auto-Grow
+
+If the pool is empty when `rent()` is called, it auto-doubles in size by calling `builder`. The first grow
+costs one batch of allocations; subsequent grows amortize over the lifetime of the pool.
+
+### When to Use RentalPool
+
+Use `RentalPool` when:
+- You spawn large numbers of similar objects per second (particles, bullets, debris)
+- A `reset` step is cheaper than a fresh `new`
+- You want predictable memory behaviour and no GC stalls mid-frame
+
+:::tip
+`RentalPool` works on any object type, but the `WeakSet` double-return guard only works for reference
+objects. For primitive-array pools the guard is skipped (which is fine — primitives are cheap to dup).
+:::
+
+### Internal Uses
+
+For reference, the engine uses `RentalPool` in several places — useful patterns to imitate:
+
+- [[ParticleEmitter]] pre-allocates 500 [[Particle]]s and recycles them as they age out
+- The [[ExcaliburGraphicsContext]] pools `ContextState` and transform matrices for its draw-state stack
+- The sparse-hash-grid broadphase pools its cells
+- The pointer-event dispatcher pools per-object proxies

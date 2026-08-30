@@ -12,6 +12,13 @@ section: Fundamentals
 
 Nearly everything in Excalibur has a way to listen to events! This is useful when you want to know exactly when things happen in Excalibur and respond to them with game logic. [[Actor|Actors]], [[Scene|Scenes]], [[Engine|Engines]], [[ActionsComponent|Actions]], [[Animation|Animations]], and various components have events you can hook into just look for the `.events` member!
 
+:::tip
+
+For a complete enumeration of every engine/scene/actor/camera lifecycle hook and event subscription
+name with timing and coordinate-space details, see the [Lifecycle Events reference](/docs/lifecycle-events).
+
+:::
+
 :::info
 
 Excalibur events are handled synchronously, which is great for debugging and reducing timing bugs.

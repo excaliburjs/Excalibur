@@ -51,6 +51,19 @@ You would include your script (or [bundle it](/docs/installation)) on an HTML pa
 
 Excalibur can automatically generate a `<canvas>` element for you or you can provide your own using [[EngineOptions.canvasElementId]].
 
+Engines also accept options like [[EngineOptions.antialiasing]], [[EngineOptions.snapToPixel]],
+and [[EngineOptions.maxFps]] that control pixel rendering and frame-rate caps. See the
+[Engine Options reference](/docs/engine-options) for the full list.
+
+## Lifecycle events
+
+Excalibur exposes `onX` override hooks on [[Engine]], [[Scene]], [[Actor]]/[[Entity]], [[Camera]],
+[[DefaultLoader]], and [[Transition]], plus per-class event subscriptions like `engine.on('preupdate', ...)`.
+
+For a complete enumeration of every override hook, every event-name subscription, the per-frame timing order,
+and the graphics-context coordinate space at each draw hook, see the
+[Lifecycle Events reference](/docs/lifecycle-events).
+
 ## The main loop
 
 The Excalibur engine uses a simple main loop. The engine updates and renders

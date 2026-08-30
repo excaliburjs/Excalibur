@@ -202,6 +202,47 @@ class Level extends Scene {
 }
 ```
 
+## Removing Entities from a Scene
+
+[[Entity.kill]] does **not** immediately remove the entity. It flips an `isActive` flag to
+`false`; the scene's ECS world queues the entity for removal and the actual array splice happens at the end
+of the current world update, after every system has finished its iteration. This makes killing safe to call
+mid-update — including from inside another entity's update handler or from a collision event handler.
+
+```typescript
+enemy.on('collisionstart', (ev) => {
+  if (ev.other.owner.isPlayer) {
+    enemy.kill();             // safe — removal is deferred until end of frame
+  }
+});
+```
+
+:::note
+The deferred entity is still iterated by systems for the remainder of the **current** frame — `kill()`
+synchronously sets `isActive = false`, but systems that already started processing it this frame will
+finish. It is removed before the next update.
+:::
+
+### `Scene.clear`
+
+[[Scene.clear]] (`scene.clear(deferred = true)`) walks every entity and timer in the scene and removes them.
+With the default `deferred = true`, every entity removal is queued and processed at the end of the current
+world update — safe to call from anywhere, including inside an update handler. Pass `deferred = false` to
+splice immediately, which is **unsafe** to call while the update loop is iterating entities but useful
+between frames when you want the scene empty before the next tick.
+
+```typescript
+// Safe from any call site (default)
+game.currentScene.clear();
+
+// Immediate splice — only call when no system is iterating entities
+game.currentScene.clear(false);
+```
+
+Actors extend the same pattern: [[Actor.kill]] wraps `super.kill()` with `_prekill` and
+`_postkill` lifecycle hooks so subclasses can run dedicated cleanup logic before and after the deferred
+removal.
+
 ## Loading
 
 Scenes can now load resources specific to them by implementing the [[Scene.onPreLoad]].

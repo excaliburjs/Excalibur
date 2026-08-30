@@ -126,3 +126,53 @@ const ray = new ex.Ray(ex.vec(100, 100), ex.Vector.Right)
 const point = actor.collider.get().rayCast(ray)
 // Vector(150, 100)
 ```
+
+## Degenerate Rays and Line Segments
+
+### Zero-direction Rays are not NaN
+
+When you construct a [[Ray]] with a zero direction vector, the constructor calls
+[[Vector.normalize]], which guards the exact-zero case and returns [[Vector.Zero]]
+rather than dividing by zero. So `new ex.Ray(pos, ex.Vector.Zero)` is **not** a NaN source — it produces a
+ray pointing nowhere, and any subsequent `intersect` call returns `-1` (no hit) silently.
+
+```typescript
+const ray = new ex.Ray(ex.vec(100, 100), ex.Vector.Zero);
+ray.intersect(someSegment); // -1, no hit (no NaN)
+```
+
+If you build a ray from a *delta* that may be zero (for example a target directly on top of the source),
+explicitly check before constructing:
+
+```typescript
+const delta = target.sub(source);
+if (delta.distance() > 0) {
+  const ray = new ex.Ray(source, delta);
+  // ...
+} else {
+  // source and target coincide — no meaningful direction
+}
+```
+
+:::warning
+The silent `-1` return can mask a real bug — a ray you expected to point somewhere is pointing nowhere. If
+you rely on a ray missing as "no target in line of sight", a zero direction will *always* report no hit
+regardless of where colliders actually are.
+:::
+
+### Degenerate `LineSegment`s can produce `NaN`
+
+The real silent-NaN risk isn't in [[Ray]] — it's in [[LineSegment.getSlope]], which
+divides by the segment length **without** a zero guard. A zero-length segment (`begin === end`) produces
+`(NaN, NaN)`, cached in `this._slope` for the lifetime of that segment.
+
+Since [[Ray.intersect]] calls `line.getSlope()` internally, **passing a degenerate
+`LineSegment` to a well-formed `Ray` pulls NaN into the intersection math and the result is undefined.**
+Avoid constructing zero-length segments; if you snapshot edges or build segments from pairs of points,
+filter out any pair where `a.equals(b)` before constructing the segment:
+
+```typescript
+const segment = begin.equals(end)
+  ? null
+  : new ex.LineSegment(begin, end);
+```
