@@ -631,9 +631,9 @@ describe('Action', () => {
         .scaleTo({ scale: ex.vec(1, 1), duration: 250 });
 
       // The blink action (first in sequence) should work
-      expect(actor.graphics.visible).toBe(true);
+      expect(actor.graphics.isVisible).toBe(true);
       scene.update(engine, 100); // Should trigger blink
-      expect(actor.graphics.visible).toBe(false);
+      expect(actor.graphics.isVisible).toBe(false);
 
       // Subsequent actions should also work
       scene.update(engine, 100);
@@ -645,7 +645,7 @@ describe('Action', () => {
       actor.pos = ex.vec(0, 0);
 
       // Start easeBy and interrupt it
-      actor.actions.easeBy(100, 0, 1000, ex.EasingFunctions.Linear);
+      actor.actions.moveBy({ offset: ex.vec(100, 0), duration: 1000, easing: ex.linear });
       scene.update(engine, 500);
       expect(actor.pos.x).toBeCloseTo(50, 1);
 
@@ -653,7 +653,7 @@ describe('Action', () => {
 
       // Start new easeBy - should initialize correctly
       actor.pos = ex.vec(0, 0);
-      actor.actions.easeBy(100, 0, 1000, ex.EasingFunctions.Linear);
+      actor.actions.moveBy({ offset: ex.vec(100, 0), duration: 1000, easing: ex.linear });
 
       scene.update(engine, 500);
       expect(actor.pos.x).toBeCloseTo(50, 1);
@@ -707,12 +707,12 @@ describe('Action', () => {
       // THE BUG: The first action (blink) was being skipped after clearActions()
       // THE FIX: It should now execute properly
 
-      expect(actor.graphics.visible).toBe(true);
+      expect(actor.graphics.isVisible).toBe(true);
       scene.update(engine, 100); // Blink on (100ms)
-      expect(actor.graphics.visible).toBe(false); // ✓ BLINK EXECUTED! Bug is fixed!
+      expect(actor.graphics.isVisible).toBe(false); // ✓ BLINK EXECUTED! Bug is fixed!
 
       scene.update(engine, 100); // Blink off (100ms)
-      expect(actor.graphics.visible).toBe(true);
+      expect(actor.graphics.isVisible).toBe(true);
 
       scene.update(engine, 1); // CallMethod executes
       expect(blinkExecuted).toBe(true); // Confirms the action sequence worked

@@ -272,8 +272,8 @@ describe('A QueryManager', () => {
 
     world.query([FakeComponentA]);
     world.query([FakeComponentB]);
-    world.queryTags(['A']);
-    world.queryTags(['B']);
+    world.query({ tags: { all: ['A'] } });
+    world.query({ tags: { all: ['B'] } });
 
     expect(entity.componentAdded$.subscriptions.length).toBe(1);
     expect(entity.componentRemoved$.subscriptions.length).toBe(1);
