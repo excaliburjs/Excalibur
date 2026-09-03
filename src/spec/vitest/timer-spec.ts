@@ -374,7 +374,7 @@ describe('A Timer', () => {
     // Timer created WITHOUT numberOfRepeats
     timer = new ex.Timer({
       interval: 500,
-      fcn: timerSpy,
+      action: timerSpy,
       repeats: true
     });
     scene.add(timer);
