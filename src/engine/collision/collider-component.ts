@@ -88,7 +88,7 @@ export class ColliderComponent extends Component {
 
   constructor(collider?: Collider) {
     super();
-    this.set(collider);
+    this.use(collider);
   }
 
   private _collider: Collider | null = null;
@@ -100,11 +100,11 @@ export class ColliderComponent extends Component {
   }
 
   /**
-   * Set the collider geometry
+   * Use specific collider geometry
    * @param collider
    * @returns the collider you set
    */
-  public set<T extends Collider>(collider?: T): T {
+  public use<T extends Collider>(collider?: T): T {
     this.clear();
     if (collider) {
       this._collider = collider;
@@ -116,10 +116,20 @@ export class ColliderComponent extends Component {
     }
     if (this.owner) {
       this._logger.warnOnce(
-        `Actor.collider.set(...) - provided collider is null on entity name [${this.owner.name}] id [${this.owner.id}]`
+        `Actor.collider.use(...) - provided collider is null on entity name [${this.owner.name}] id [${this.owner.id}]`
       );
     }
     return null as unknown as T;
+  }
+
+  /**
+   * Set the collider geometry
+   * @param collider
+   * @returns the collider you set
+   * @deprecated Use .use(collider) instead
+   */
+  public set<T extends Collider>(collider: T): T {
+    return this.use(collider);
   }
 
   private _collidersToRemove: Collider[] = [];
@@ -288,7 +298,7 @@ export class ColliderComponent extends Component {
    */
   usePolygonCollider(points: Vector[], center: Vector = Vector.Zero): PolygonCollider {
     const poly = Shape.Polygon(points, center);
-    return this.set(poly);
+    return this.use(poly);
   }
 
   /**
@@ -298,7 +308,7 @@ export class ColliderComponent extends Component {
    */
   useCircleCollider(radius: number, center: Vector = Vector.Zero): CircleCollider {
     const collider = Shape.Circle(radius, center);
-    return this.set(collider);
+    return this.use(collider);
   }
 
   /**
@@ -309,7 +319,7 @@ export class ColliderComponent extends Component {
    */
   useEdgeCollider(begin: Vector, end: Vector): EdgeCollider {
     const collider = Shape.Edge(begin, end);
-    return this.set(collider);
+    return this.use(collider);
   }
 
   /**
@@ -317,7 +327,7 @@ export class ColliderComponent extends Component {
    * @param colliders
    */
   useCompositeCollider(colliders: Collider[]): CompositeCollider {
-    return this.set(new CompositeCollider(colliders));
+    return this.use(new CompositeCollider(colliders));
   }
 
   serialize(): ColliderComponentData {

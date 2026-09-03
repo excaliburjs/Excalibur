@@ -1,7 +1,7 @@
 import type { Engine } from '../engine';
 import { Actor } from '../actor';
 import { EmitterType } from './emitter-type';
-import type { ParticleEmitterArgs } from './particles';
+import type { ParticleEmitterOptions } from './particles';
 import { ParticleTransform } from './particles';
 import type { GpuParticleConfig } from './gpu-particle-renderer';
 import { GpuParticleRenderer } from './gpu-particle-renderer';
@@ -53,7 +53,7 @@ export class GpuParticleEmitter extends Actor {
     this.transform.z = z;
   }
 
-  constructor(config: ParticleEmitterArgs & { maxParticles?: number; particle?: GpuParticleConfig }) {
+  constructor(config: ParticleEmitterOptions & { maxParticles?: number; particle?: GpuParticleConfig }) {
     super({ name: `GpuParticleEmitter`, width: config.width, height: config.height }); // somewhat goofy way of doing width/height
     this.addComponent(this.graphics, true);
     (this.graphics.onPostDraw as any) = this.draw.bind(this);

@@ -57,7 +57,7 @@ export function isActor(x: any): x is Actor {
 /**
  * Actor constructor options
  */
-export type ActorArgs = ColliderArgs & {
+export type ActorOptions = ColliderArgs & {
   /**
    * Optionally set the name of the actor, default is 'anonymous'
    */
@@ -198,6 +198,12 @@ type ColliderArgs =
       width?: undefined;
       height?: undefined;
     };
+
+/**
+ * Actor constructor options
+ * @deprecated use ActorOptions
+ */
+export type ActorArgs = ActorOptions;
 
 export interface ActorEvents extends EntityEvents {
   collisionstart: CollisionStartEvent;
@@ -589,7 +595,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    *
    * @param config
    */
-  constructor(config?: ActorArgs) {
+  constructor(config?: ActorOptions) {
     super();
 
     const {

@@ -6,10 +6,7 @@ import { vec, Vector } from '../../math/vector';
 import { CompositeCollider } from './composite-collider';
 import { Logger } from '../..';
 
-/**
- * Excalibur helper for defining colliders quickly
- */
-export class Shape {
+export class Colliders {
   /**
    * Creates a box collider, under the hood defines a {@apilink PolygonCollider} collider
    * @param width Width of the box
@@ -77,6 +74,114 @@ export class Shape {
    * @param width
    * @param height
    * @param offset Optional offset
+   */
+  static Capsule(width: number, height: number, offset = Vector.Zero): CompositeCollider {
+    const logger = Logger.getInstance();
+    if (width === height) {
+      logger.warn('A capsule collider with equal width and height is a circle, consider using a ex.Colliders.Circle or ex.CircleCollider');
+    }
+
+    const vertical = height >= width;
+
+    if (vertical) {
+      // height > width, if equal maybe use a circle
+      const capsule = new CompositeCollider([
+        Colliders.Circle(width / 2, vec(0, -height / 2 + width / 2).add(offset)),
+        Colliders.Box(width, height - width, Vector.Half, offset),
+        Colliders.Circle(width / 2, vec(0, height / 2 - width / 2).add(offset))
+      ]);
+      capsule.compositeStrategy = 'together';
+      return capsule;
+    } else {
+      // width > height, if equal maybe use a circle
+      const capsule = new CompositeCollider([
+        Colliders.Circle(height / 2, vec(-width / 2 + height / 2, 0).add(offset)),
+        Colliders.Box(width - height, height, Vector.Half, offset),
+        Colliders.Circle(height / 2, vec(width / 2 - height / 2, 0).add(offset))
+      ]);
+      capsule.compositeStrategy = 'together';
+      return capsule;
+    }
+  }
+}
+
+/**
+ * Excalibur helper for defining colliders quickly
+ * @deprecated use Colliders.*
+ */
+export class Shape {
+  /**
+   * Creates a box collider, under the hood defines a {@apilink PolygonCollider} collider
+   * @param width Width of the box
+   * @param height Height of the box
+   * @param anchor Anchor of the box (default (.5, .5)) which positions the box relative to the center of the collider's position
+   * @param offset Optional offset relative to the collider in local coordinates
+   * @deprecated use Colliders.Box
+   */
+  static Box(width: number, height: number, anchor: Vector = Vector.Half, offset: Vector = Vector.Zero): PolygonCollider {
+    return new PolygonCollider({
+      points: new BoundingBox(-width * anchor.x, -height * anchor.y, width - width * anchor.x, height - height * anchor.y)
+        .getPoints()
+        .slice(),
+      offset: offset
+    });
+  }
+
+  /**
+   * Creates a new {@apilink PolygonCollider | `arbitrary polygon`} collider
+   *
+   * PolygonColliders are useful for creating convex polygon shapes
+   * @param points Points specified in counter clockwise
+   * @param offset Optional offset relative to the collider in local coordinates
+   * @deprecated Use Colliders.Polygon
+   */
+  static Polygon(points: Vector[], offset: Vector = Vector.Zero, suppressConvexWarning = false): PolygonCollider {
+    return new PolygonCollider({
+      points: points,
+      offset: offset,
+      suppressConvexWarning
+    });
+  }
+
+  /**
+   * Creates a new {@apilink CircleCollider | `circle`} collider
+   *
+   * Circle colliders are useful for balls, or to make collisions more forgiving on sharp edges
+   * @param radius Radius of the circle collider
+   * @param offset Optional offset relative to the collider in local coordinates
+   * @deprecated Use Colliders.Circle
+   */
+  static Circle(radius: number, offset: Vector = Vector.Zero): CircleCollider {
+    return new CircleCollider({
+      radius: radius,
+      offset: offset
+    });
+  }
+
+  /**
+   * Creates a new {@apilink EdgeCollider | `edge`} collider
+   *
+   * Edge colliders are useful for  floors, walls, and other barriers
+   * @param begin Beginning of the edge in local coordinates to the collider
+   * @param end Ending of the edge in local coordinates to the collider
+   * @deprecated Use Colliders.Edge
+   */
+  static Edge(begin: Vector, end: Vector): EdgeCollider {
+    return new EdgeCollider({
+      begin: begin,
+      end: end
+    });
+  }
+
+  /**
+   * Creates a new capsule shaped {@apilink CompositeCollider} using 2 circles and a box
+   *
+   * Capsule colliders are useful for platformers with incline or jagged floors to have a smooth
+   * player experience.
+   * @param width
+   * @param height
+   * @param offset Optional offset
+   * @deprecated Use Colliders.Capsule
    */
   static Capsule(width: number, height: number, offset = Vector.Zero): CompositeCollider {
     const logger = Logger.getInstance();
