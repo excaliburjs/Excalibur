@@ -90,7 +90,7 @@ export class ActionContext {
 
   /**
    * Moves an actor to a specified {@link Vector} in a given duration in milliseconds.
-   * You may optionally specify an {@link EasingFunction}
+   * You may optionally specify an {@link Easing}
    * @param options
    */
   public moveTo(options: MoveToOptions): ActionContext;
@@ -133,7 +133,7 @@ export class ActionContext {
 
   /**
    * Moves an actor by a specified offset {@link Vector} in a given duration in milliseconds.
-   * You may optionally specify an {@link EasingFunction}
+   * You may optionally specify an {@link Easing}
    * @param options
    */
   public moveBy(options: MoveByOptions): ActionContext;
