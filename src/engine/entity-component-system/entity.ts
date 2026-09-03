@@ -150,22 +150,6 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
 
   /**
    * Whether this entity is active, if set to false it will be reclaimed
-   * @deprecated use isActive
-   */
-  public get active(): boolean {
-    return this.isActive;
-  }
-
-  /**
-   * Whether this entity is active, if set to false it will be reclaimed
-   * @deprecated use isActive
-   */
-  public set active(val: boolean) {
-    this.isActive = val;
-  }
-
-  /**
-   * Whether this entity is active, if set to false it will be reclaimed
    */
   public isActive: boolean = true;
 

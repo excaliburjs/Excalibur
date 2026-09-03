@@ -135,11 +135,7 @@ export interface FromSpriteSheetOptions {
    * the default duration.
    */
   frameCoordinates: { x: number; y: number; duration?: number; options?: GetSpriteOptions }[];
-  /**
-   * Optionally specify a default duration for frames in milliseconds
-   * @deprecated use `durationPerFrame`
-   */
-  durationPerFrameMs?: number;
+
   /**
    * Optionally specify a default duration for frames in milliseconds
    */
@@ -307,9 +303,8 @@ export class Animation extends Graphic implements HasTick {
    * @returns Animation
    */
   public static fromSpriteSheetCoordinates<T extends typeof Animation>(this: T, options: FromSpriteSheetOptions): InstanceType<T> {
-    const { spriteSheet, frameCoordinates, durationPerFrame, durationPerFrameMs, speed, strategy, reverse, data, shouldAlwaysTick } =
-      options;
-    const defaultDuration = durationPerFrame ?? durationPerFrameMs ?? 100;
+    const { spriteSheet, frameCoordinates, durationPerFrame, speed, strategy, reverse, data, shouldAlwaysTick } = options;
+    const defaultDuration = durationPerFrame ?? 100;
     const frames: Frame[] = [];
     for (const coord of frameCoordinates) {
       const { x, y, duration, options } = coord;

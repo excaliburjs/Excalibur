@@ -23,6 +23,19 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   ```
 - Behavior change - `rotateBy({angleRadiansOffset, duration})` with no `rotationType` now rotates by exactly the signed offset provided, preserving full and multiple turns, instead of taking the shortest path to the canonicalized target orientation. Offsets larger than `Math.PI` now travel in the direction of their sign (previously they rotated the shorter way around), and `2 * Math.PI` performs a full revolution (previously a no-op). Pass an explicit `rotationType` to keep path-based behavior
 - Behavior change - TileMap now uses 'separate' as the `compositeStrategy` as a better default. Commonly TileMap is used to build levels, so this default aligns with the common use.
+- Removed old legacy `ex.EasingFunctions` in favor of the [0, 1] common easing functions 
+- Removed EaseTo/EaseBy/actor.actions.(easeTo|easeBy) Action in favor of MoveTo/MoveBy/actor.actions.(moveTo|moveBy) Action with easing support
+- Removed `body.sleeping` in favor of `isSleeping`
+- Removed `entity.active` in favor of `isActive`
+- Removed `actor.getGlobalPos()` in favor of `actor.globalPos` getter/setter
+- Removed `actor.getGlobalRotation()` in favor of `actor.globalRotation` getter/setter
+- Removed `actor.getGlobalScale()` in favor of `actor.globalScale` getter/setter
+- Removed `BoundingBox.draw` in favor of `BoundingBox.debug`
+- Removed typo in `engine.isFullScreen` now `engine.isFullscreen`
+- Removed unused `tag-query.ts`
+- Removed `world.queryTags`, `world.query(...)` can query tags
+- Removed `Animation.durationPerFrameMs` in favor of `Animation.durationPerFrame`
+- Removed `Vector.size` in favor of `Vector.magnitude`
 - Behavior change - Font/Text now render more accurately and faster be using less texture space, this unfortunately is a breaking change becuase text will render slightly different.
 - Build: Docusaurus now throws the build on broken markdown links, broken anchors, and broken markdown images instead of warning. Any custom docs/blog content must have valid internal links, anchors, and images.
 - Build: The engine `tsconfig.json` now uses `module: "esnext"` with `moduleResolution: "bundler"` (previously `module: "es2015"` / `moduleResolution: "node"`), and `downlevelIteration` has been removed. The per-package `tsconfig.json` overrides in `director`, `entity-component-system`, `graphics`, and `resources` have been removed in favor of the single engine `tsconfig.json`. Consumers importing source directly may need bundler-compatible tooling.
