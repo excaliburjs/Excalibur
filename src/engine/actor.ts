@@ -3,8 +3,8 @@ import type {
   PreCollisionEvent,
   CollisionStartEvent,
   CollisionEndEvent,
-  EnterViewPortEvent,
-  ExitViewPortEvent,
+  EnterViewportEvent,
+  ExitViewportEvent,
   PreDrawEvent,
   PostDrawEvent,
   PreDebugDrawEvent,
@@ -233,8 +233,8 @@ export interface ActorEvents extends EntityEvents {
   pointerdragenter: PointerEvent;
   pointerdragleave: PointerEvent;
   pointerdragmove: PointerEvent;
-  enterviewport: EnterViewPortEvent;
-  exitviewport: ExitViewPortEvent;
+  enterviewport: EnterViewportEvent;
+  exitviewport: ExitViewportEvent;
   actionstart: ActionStartEvent;
   actioncomplete: ActionCompleteEvent;
 }
@@ -265,8 +265,8 @@ export const ActorEvents = {
   PointerDragEnter: 'pointerdragenter',
   PointerDragLeave: 'pointerdragleave',
   PointerDragMove: 'pointerdragmove',
-  EnterViewPort: 'enterviewport',
-  ExitViewPort: 'exitviewport',
+  EnterViewport: 'enterviewport',
+  ExitViewport: 'exitviewport',
   ActionStart: 'actionstart',
   ActionComplete: 'actioncomplete'
 } as const;

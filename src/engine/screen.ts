@@ -273,7 +273,7 @@ export interface PixelRatioChangeEvent {
 /**
  * Fires when the browser fullscreen api is successfully engaged or disengaged
  */
-export interface FullScreenChangeEvent {
+export interface FullscreenChangeEvent {
   /**
    * Current fullscreen state
    */
@@ -295,13 +295,13 @@ export interface ScreenEvents {
   /**
    * Fires when the browser fullscreen api is successfully engaged or disengaged
    */
-  fullscreen: FullScreenChangeEvent;
+  fullscreen: FullscreenChangeEvent;
 }
 
 export const ScreenEvents = {
   ScreenResize: 'resize',
   PixelRatioChange: 'pixelratio',
-  FullScreenChange: 'fullscreen'
+  FullscreenChange: 'fullscreen'
 } as const;
 
 /**
@@ -398,7 +398,7 @@ export class Screen {
     this._logger.debug('Fullscreen Change', this._isFullscreen);
     this.events.emit('fullscreen', {
       fullscreen: this.isFullscreen
-    } satisfies FullScreenChangeEvent);
+    } satisfies FullscreenChangeEvent);
   };
 
   private _pixelRatioChangeHandler = () => {

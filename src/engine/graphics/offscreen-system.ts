@@ -1,5 +1,5 @@
 import { GraphicsComponent } from './graphics-component';
-import { EnterViewPortEvent, ExitViewPortEvent } from '../events';
+import { EnterViewportEvent, ExitViewportEvent } from '../events';
 import type { Scene } from '../scene';
 import type { Screen } from '../screen';
 import { TransformComponent } from '../entity-component-system/components/transform-component';
@@ -55,12 +55,12 @@ export class OffscreenSystem extends System {
       // Figure out if entities are offscreen
       const entityOffscreen = this._isOffscreen(transform, graphics, parallaxOffset);
       if (entityOffscreen && !entity.hasTag('ex.offscreen')) {
-        entity.events.emit('exitviewport', new ExitViewPortEvent(entity));
+        entity.events.emit('exitviewport', new ExitViewportEvent(entity));
         entity.addTag('ex.offscreen');
       }
 
       if (!entityOffscreen && entity.hasTag('ex.offscreen')) {
-        entity.events.emit('enterviewport', new EnterViewPortEvent(entity));
+        entity.events.emit('enterviewport', new EnterViewportEvent(entity));
         entity.removeTag('ex.offscreen');
       }
     }
