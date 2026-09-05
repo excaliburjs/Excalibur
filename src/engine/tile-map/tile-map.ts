@@ -98,6 +98,8 @@ export const TileMapEvents = {
   PostUpdate: 'postupdate',
   PreDraw: 'predraw',
   PostDraw: 'postdraw',
+  PointerEnter: 'pointerenter',
+  PointerLeave: 'pointerleave',
   PointerUp: 'pointerup',
   PointerDown: 'pointerdown',
   PointerMove: 'pointermove',

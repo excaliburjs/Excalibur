@@ -10,7 +10,9 @@ import type {
   PreDebugDrawEvent,
   PostDebugDrawEvent,
   ActionStartEvent,
-  ActionCompleteEvent
+  ActionCompleteEvent,
+  PostTransformDrawEvent,
+  PreTransformDrawEvent
 } from './events';
 import { type KillEvent, PreUpdateEvent, PostUpdateEvent, PostKillEvent, PreKillEvent } from './events';
 import type { Engine } from './engine';
@@ -215,8 +217,8 @@ export interface ActorEvents extends EntityEvents {
   postkill: PostKillEvent;
   predraw: PreDrawEvent;
   postdraw: PostDrawEvent;
-  pretransformdraw: PreDrawEvent;
-  posttransformdraw: PostDrawEvent;
+  pretransformdraw: PreTransformDrawEvent;
+  posttransformdraw: PostTransformDrawEvent;
   predebugdraw: PreDebugDrawEvent;
   postdebugdraw: PostDebugDrawEvent;
   pointerup: PointerEvent;
