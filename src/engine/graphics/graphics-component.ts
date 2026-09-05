@@ -247,6 +247,7 @@ export class GraphicsComponent extends Component {
       graphics,
       offset,
       copyGraphics,
+      material,
       onPreDraw,
       onPostDraw,
       onPreTransformDraw,
@@ -268,6 +269,7 @@ export class GraphicsComponent extends Component {
     this.anchor = anchor ?? this.anchor;
     this.color = color ?? this.color;
     this.copyGraphics = copyGraphics ?? this.copyGraphics;
+    this.material = material ?? this.material;
     this.onPreDraw = onPreDraw ?? this.onPreDraw;
     this.onPostDraw = onPostDraw ?? this.onPostDraw;
     this.onPreTransformDraw = onPreTransformDraw ?? this.onPreTransformDraw;
