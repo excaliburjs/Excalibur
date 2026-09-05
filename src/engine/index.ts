@@ -115,10 +115,3 @@ export * from './util/assert';
 export * from './util/rental-pool';
 export * from './util/pause-system';
 export * from './util/serializer';
-
-export * from './plugin';
-
-// ex.Deprecated
-// import * as deprecated from './deprecated';
-// export { deprecated as Deprecated };
-// export * from './Deprecated';

@@ -1933,11 +1933,6 @@ O|===|* >________________>\n\
    * Note: start() only resolves AFTER the user has clicked the play button
    */
   public async start(sceneName: WithRoot<TKnownScenes>, options?: StartOptions): Promise<void>;
-  /**
-   * Starts the internal game loop after any loader is finished
-   * @param loader
-   */
-  public async start(loader?: DefaultLoader): Promise<void>;
   public async start(sceneNameOrLoader?: WithRoot<TKnownScenes> | DefaultLoader, options?: StartOptions): Promise<void> {
     await this.scope(async () => {
       if (!this._compatible) {
