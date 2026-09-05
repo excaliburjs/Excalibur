@@ -167,7 +167,7 @@ export class ShaderPass {
     const { graphicsContext, name, fragmentSource, uniforms, scale, filtering } = options;
     this._graphicsContext = graphicsContext;
     this.name = name ?? 'anonymous shader pass';
-    this._fragmentSource = fragmentSource ? glsl`${fragmentSource}` : defaultPassthroughFragment;
+    this._fragmentSource = fragmentSource ? fragmentSource : defaultPassthroughFragment;
     this._initialUniforms = uniforms;
     this.scale = scale ?? 1;
     this.filtering = filtering ?? ImageFiltering.Blended;

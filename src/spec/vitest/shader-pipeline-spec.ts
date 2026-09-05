@@ -22,13 +22,15 @@ function readPixel(gl: WebGL2RenderingContext, framebuffer: ex.Framebuffer, x: n
   return Array.from(pixel);
 }
 
-const fillRed = `
+const fillRed = `#version 300 es
+  precision mediump float;
   out vec4 fragColor;
   void main() {
     fragColor = vec4(1.0, 0.0, 0.0, 1.0);
   }`;
 
-const swizzleRedToGreen = `
+const swizzleRedToGreen = `#version 300 es
+  precision mediump float;
   in vec2 v_uv;
   uniform sampler2D u_image;
   out vec4 fragColor;
@@ -93,7 +95,8 @@ describe('A ShaderPipeline', () => {
   });
 
   it('provides the pipeline source as u_original to every pass', () => {
-    const mixWithOriginal = `
+    const mixWithOriginal = `#version 300 es
+      precision mediump float;
       in vec2 v_uv;
       uniform sampler2D u_image;
       uniform sampler2D u_original;

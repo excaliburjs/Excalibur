@@ -60,7 +60,8 @@ describe('A ShaderPass', () => {
     const pass = new ex.ShaderPass({
       graphicsContext: context,
       name: 'tint',
-      fragmentSource: `
+      fragmentSource: `#version 300 es
+        precision mediump float;
         in vec2 v_uv;
         uniform sampler2D u_image;
         uniform vec4 u_tint;
@@ -97,7 +98,8 @@ describe('A ShaderPass', () => {
 
     const merge = new ex.ShaderPass({
       graphicsContext: context,
-      fragmentSource: `
+      fragmentSource: `#version 300 es
+        precision mediump float;
         in vec2 v_uv;
         uniform sampler2D u_first;
         uniform sampler2D u_second;
@@ -191,7 +193,8 @@ describe('A ShaderPass', () => {
     const pass = new ex.ShaderPass({
       graphicsContext: context,
       name: 'screen-pass',
-      fragmentSource: `
+      fragmentSource: `#version 300 es
+        precision mediump float;
         in vec2 v_uv;
         uniform sampler2D u_screen_texture;
         out vec4 fragColor;

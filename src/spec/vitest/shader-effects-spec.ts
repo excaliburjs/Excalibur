@@ -123,7 +123,8 @@ describe('Glow passes', () => {
     // opaque red box in the middle half of the source, transparent elsewhere
     const box = new ex.ShaderPass({
       graphicsContext: context,
-      fragmentSource: `
+      fragmentSource: `#version 300 es
+        precision mediump float;
         in vec2 v_uv;
         out vec4 fragColor;
         void main() {
@@ -183,7 +184,8 @@ describe('A BlurEffect', () => {
     // white box in the middle half, transparent elsewhere
     const box = new ex.ShaderPass({
       graphicsContext: context,
-      fragmentSource: `
+      fragmentSource: `#version 300 es
+        precision mediump float;
         in vec2 v_uv;
         out vec4 fragColor;
         void main() {
@@ -245,7 +247,8 @@ describe('A GlowEffect', () => {
     // opaque red box in the middle half, transparent elsewhere
     const box = new ex.ShaderPass({
       graphicsContext: context,
-      fragmentSource: `
+      fragmentSource: `#version 300 es
+        precision mediump float;
         in vec2 v_uv;
         out vec4 fragColor;
         void main() {

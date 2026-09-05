@@ -22,7 +22,8 @@ function readCanvasPixel(context: ex.ExcaliburGraphicsContextWebGL, x: number, y
   return Array.from(pixel);
 }
 
-const passthrough = `
+const passthrough = `#version 300 es
+  precision mediump float;
   in vec2 v_uv;
   uniform sampler2D u_image;
   out vec4 fragColor;
@@ -30,7 +31,8 @@ const passthrough = `
     fragColor = texture(u_image, v_uv);
   }`;
 
-const fillGreen = `
+const fillGreen = `#version 300 es
+  precision mediump float;
   out vec4 fragColor;
   void main() {
     fragColor = vec4(0.0, 1.0, 0.0, 1.0);
@@ -176,7 +178,8 @@ describe('A Material with a shader pipeline', () => {
     await Promise.all([tex.load(), overlay.load()]);
 
     // red where the overlay image is opaque at its center, proving u_overlay was bound
-    const sampleOverlay = `
+    const sampleOverlay = `#version 300 es
+      precision mediump float;
       in vec2 v_uv;
       uniform sampler2D u_image;
       uniform sampler2D u_overlay;

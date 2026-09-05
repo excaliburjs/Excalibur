@@ -211,7 +211,14 @@ describe('A PostProcessor', () => {
     it('builds a pipeline from passes and forwards elapsed to process', () => {
       const { context } = createContext();
       const pp = new ex.ShaderPipelinePostProcessor({
-        passes: ['in vec2 v_uv; uniform sampler2D u_image; out vec4 fragColor; void main() { fragColor = texture(u_image, v_uv); }']
+        passes: [
+          `#version 300 es
+           precision mediump float;
+           in vec2 v_uv;
+           uniform sampler2D u_image;
+           out vec4 fragColor; 
+           void main() { fragColor = texture(u_image, v_uv); }`
+        ]
       });
       context.addPostProcessor(pp);
       expect(pp.pipeline).toBeInstanceOf(ex.ShaderPipeline);
@@ -252,7 +259,8 @@ describe('A PostProcessor', () => {
       const { canvas, context } = createContext(4, 4);
       // paint the frame solid white then run red-channel and green-channel passes
       context.backgroundColor = ex.Color.White;
-      const redOnly = `
+      const redOnly = `#version 300 es
+        precision mediump float;
         in vec2 v_uv;
         uniform sampler2D u_image;
         out vec4 fragColor;
@@ -260,7 +268,8 @@ describe('A PostProcessor', () => {
           vec4 color = texture(u_image, v_uv);
           fragColor = vec4(color.r, 0.0, 0.0, 1.0);
         }`;
-      const shiftRedToGreen = `
+      const shiftRedToGreen = `#version 300 es
+        precision mediump float;
         in vec2 v_uv;
         uniform sampler2D u_image;
         out vec4 fragColor;
