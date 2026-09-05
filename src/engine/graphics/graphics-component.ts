@@ -524,13 +524,20 @@ export class GraphicsComponent extends Component {
     if (this.color) {
       graphics.color = this.color.clone();
     }
+    if (this.current) {
+      this.use(this.current);
+    }
     graphics.opacity = this.opacity;
     graphics.anchor = this.anchor.clone();
     graphics.copyGraphics = this.copyGraphics;
+    graphics.material = this.material;
+    graphics.forceOnScreen = this.forceOnScreen;
     graphics.onPreDraw = this.onPreDraw;
     graphics.onPostDraw = this.onPostDraw;
     graphics.isVisible = this.isVisible;
     graphics.shouldAlwaysTick = this.shouldAlwaysTick;
+    graphics.onPreTransformDraw = this.onPreTransformDraw;
+    graphics.onPostTransformDraw = this.onPostTransformDraw;
 
     return graphics;
   }

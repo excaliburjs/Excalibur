@@ -212,6 +212,7 @@ export class Animation extends Graphic implements HasTick {
       reverse: this._reversed,
       strategy: this.strategy,
       shouldAlwaysTick: this.shouldAlwaysTick,
+      data: this.data,
       ...this.cloneGraphicOptions()
     }) as InstanceType<T>;
   }
