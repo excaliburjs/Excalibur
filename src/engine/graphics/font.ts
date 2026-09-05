@@ -3,7 +3,7 @@ import { BoundingBox } from '../collision/index';
 import { Color } from '../color';
 import type { ExcaliburGraphicsContext } from './context/excalibur-graphics-context';
 import type { FontOptions, FontRenderer } from './font-common';
-import { BaseAlign, Direction, FontStyle, FontUnit, TextAlign } from './font-common';
+import { BaseAlign, TextDirection, FontStyle, FontUnit, TextAlign } from './font-common';
 import type { GraphicOptions } from './graphic';
 import { Graphic } from './graphic';
 import type { RasterOptions } from './raster';
@@ -126,7 +126,7 @@ export class Font extends Graphic implements FontRenderer {
   public unit: FontUnit = FontUnit.Px;
   public textAlign: TextAlign = TextAlign.Left;
   public baseAlign: BaseAlign = BaseAlign.Top;
-  public direction: Direction = Direction.LeftToRight;
+  public direction: TextDirection = TextDirection.LeftToRight;
   /**
    * Font line height in pixels, default line height if unset
    */

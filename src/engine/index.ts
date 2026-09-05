@@ -21,7 +21,7 @@ export * from './event-emitter';
 export * from './events/media-events';
 export * from './events';
 export * from './label';
-export { FontStyle, FontUnit, TextAlign, BaseAlign } from './graphics/font-common';
+export { FontStyle, FontUnit, TextAlign, BaseAlign, TextDirection } from './graphics/font-common';
 export * from './particles/index';
 export * from './scene';
 export * from './plugin';
