@@ -98,7 +98,6 @@ import * as util from './util/index';
 export { util as Util };
 
 export * from './util/browser';
-export * from './util/decorators';
 export * from './util/detector';
 export * from './util/observable';
 export * from './util/log';
