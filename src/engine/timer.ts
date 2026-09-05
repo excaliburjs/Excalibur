@@ -1,6 +1,5 @@
 import type { Scene } from './scene';
 import { Logger } from './util/log';
-import type * as ex from './index';
 import { Random } from './math/random';
 import { EventEmitter } from './event-emitter';
 
@@ -53,7 +52,7 @@ export interface TimerOptions {
   /**
    * Optionally provide a random instance to use for random behavior, otherwise a new random will be created seeded from the current time.
    */
-  random?: ex.Random;
+  random?: Random;
   /**
    * Optionally provide a callback to fire once when the timer completes its last action callback.
    */
@@ -82,7 +81,7 @@ export class Timer {
   public repeats: boolean = false;
   public maxNumberOfRepeats: number = -1;
   public randomRange: [number, number] = [0, 0];
-  public random!: ex.Random;
+  public random!: Random;
   private _baseInterval = 10;
   private _generateRandomInterval = () => {
     return this._baseInterval + this.random.integer(this.randomRange[0], this.randomRange[1]);
