@@ -43,7 +43,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
-- 
+- `ex.Pool` renamed to `ex.ArenaPool`
 
 ### Added
 

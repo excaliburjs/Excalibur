@@ -5,7 +5,7 @@ import type { Collider } from './collider';
 import type { CircleCollider } from './circle-collider';
 import type { PolygonCollider } from './polygon-collider';
 import { AffineMatrix } from '../../math/affine-matrix';
-import { Pool } from '../../util/pool';
+import { ArenaPool } from '../../util/arena-pool';
 
 /**
  * Specific information about a contact and it's separation
@@ -59,7 +59,7 @@ export class SeparationInfo {
 }
 
 export class SeparatingAxis {
-  static SeparationPool = new Pool(
+  static SeparationPool = new ArenaPool(
     () => new SeparationInfo(),
     (i) => i, // no recycle
     500

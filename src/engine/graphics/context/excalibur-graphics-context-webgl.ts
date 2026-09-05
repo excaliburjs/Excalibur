@@ -32,7 +32,7 @@ import { ScreenPassPainter } from './screen-pass-painter/screen-pass-painter';
 import { ImageRenderer } from './image-renderer/image-renderer';
 import { RectangleRenderer } from './rectangle-renderer/rectangle-renderer';
 import { CircleRenderer } from './circle-renderer/circle-renderer';
-import { Pool } from '../../util/pool';
+import { ArenaPool } from '../../util/arena-pool';
 import { DrawCall } from './draw-call';
 import type { AffineMatrix } from '../../math/affine-matrix';
 import type { MaterialOptionsWithoutContext } from './material';
@@ -157,7 +157,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   private _isDrawLifecycle = false;
   public useDrawSorting = true;
 
-  private _drawCallPool = new Pool<DrawCall>(() => new DrawCall(), undefined, 4000);
+  private _drawCallPool = new ArenaPool<DrawCall>(() => new DrawCall(), undefined, 4000);
 
   private _drawCallIndex = 0;
   private _drawCalls: DrawCall[] = new Array(4000).fill(null);

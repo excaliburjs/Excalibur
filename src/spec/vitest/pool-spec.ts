@@ -10,11 +10,11 @@ class MockPoolable {
 
 describe('An object Pool', () => {
   it('should exist', () => {
-    expect(ex.Pool).toBeDefined();
+    expect(ex.ArenaPool).toBeDefined();
   });
 
   it('can be constructed', () => {
-    const pool = new ex.Pool<MockPoolable>(
+    const pool = new ex.ArenaPool<MockPoolable>(
       () => new MockPoolable(),
       (m) => m.dispose(),
       10
@@ -23,7 +23,7 @@ describe('An object Pool', () => {
   });
 
   it('can get instances up to the maximum', () => {
-    const pool = new ex.Pool<MockPoolable>(
+    const pool = new ex.ArenaPool<MockPoolable>(
       () => new MockPoolable(),
       (m) => m.dispose(),
       10
@@ -42,7 +42,7 @@ describe('An object Pool', () => {
 
   it('can get instances and return them to get recycled', () => {
     const recycler = vi.fn((m) => m.dispose());
-    const pool = new ex.Pool<MockPoolable>(() => new MockPoolable(), recycler, 10);
+    const pool = new ex.ArenaPool<MockPoolable>(() => new MockPoolable(), recycler, 10);
     const intances: MockPoolable[] = [];
     for (let i = 0; i < 10; i++) {
       const instance = pool.get();
@@ -61,7 +61,7 @@ describe('An object Pool', () => {
   });
 
   it('can borrow a single instance temporarily', () => {
-    const pool = new ex.Pool<MockPoolable>(
+    const pool = new ex.ArenaPool<MockPoolable>(
       () => new MockPoolable(),
       (m) => m.dispose(),
       10
@@ -75,7 +75,7 @@ describe('An object Pool', () => {
   });
 
   it('can be used in a using which are then reclaimed', () => {
-    const pool = new ex.Pool<MockPoolable>(
+    const pool = new ex.ArenaPool<MockPoolable>(
       () => new MockPoolable(),
       (m) => m.dispose(),
       10
@@ -92,7 +92,7 @@ describe('An object Pool', () => {
   });
 
   it('can have instances unhooked from the pool', () => {
-    const pool = new ex.Pool<MockPoolable>(
+    const pool = new ex.ArenaPool<MockPoolable>(
       () => new MockPoolable(),
       (m) => m.dispose(),
       10

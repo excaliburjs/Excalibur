@@ -102,7 +102,7 @@ export * from './util/decorators';
 export * from './util/detector';
 export * from './util/observable';
 export * from './util/log';
-export * from './util/pool';
+export * from './util/arena-pool';
 export * from './util/fps';
 export * from './util/clock';
 export * from './util/web-audio';

@@ -5,7 +5,7 @@ import { createId } from '../../id';
 import type { Ray } from '../../math/ray';
 import type { Vector } from '../../math/vector';
 import { vec } from '../../math/vector';
-import { Pool } from '../../util/pool';
+import { ArenaPool } from '../../util/arena-pool';
 import { BodyComponent } from '../body-component';
 import type { BoundingBox } from '../bounding-box';
 import type { Collider } from '../colliders/collider';
@@ -91,7 +91,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
   private _pairs = new Set<string>();
   private _nonPairs = new Set<string>();
 
-  public _pairPool = new Pool<Pair>(
+  public _pairPool = new ArenaPool<Pair>(
     () => new Pair({ id: createId('collider', 0) } as Collider, { id: createId('collider', 0) } as Collider),
     (instance) => {
       instance.colliderA = null as any;
