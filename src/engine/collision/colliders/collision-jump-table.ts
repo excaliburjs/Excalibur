@@ -4,12 +4,13 @@ import { PolygonCollider } from './polygon-collider';
 import { EdgeCollider } from './edge-collider';
 import type { SeparationInfo } from './separating-axis';
 import { SeparatingAxis } from './separating-axis';
+import type { SatShape } from './separating-axis';
+import type { Collider } from './collider';
 import { LineSegment } from '../../math/line-segment';
 import { Vector } from '../../math/vector';
 import { TransformComponent } from '../../entity-component-system';
-import { Pair } from '../detection/pair';
 import { AffineMatrix } from '../../math/affine-matrix';
-import { Transform } from '../../math/transform';
+import type { Transform } from '../../math/transform';
 const ScratchZero = Vector.Zero; // TODO constant vector
 const ScratchNormal = Vector.Zero; // TODO constant vector
 const ScratchMatrix = AffineMatrix.identity();
@@ -194,31 +195,13 @@ export const CollisionJumpTable = {
   },
 
   CollidePolygonEdge(polygon: PolygonCollider, edge: EdgeCollider): CollisionContact[] {
-    const pc = polygon.center;
-    const ec = edge.center;
-    const dir = ec.sub(pc).normalize();
-
-    // build a temporary polygon from the edge to use SAT
-    const linePoly = new PolygonCollider({
-      points: [edge.begin, edge.end, edge.end.add(dir.scale(100)), edge.begin.add(dir.scale(100))],
-      offset: edge.offset
-    });
-    linePoly.owner = edge.owner;
-    const tx = edge.owner?.get(TransformComponent);
-    if (tx) {
-      linePoly.update(edge.owner!.get(TransformComponent).get());
-    }
-    // Gross hack but poly-poly works well
-    const contact = this.CollidePolygonPolygon(polygon, linePoly);
-    if (contact.length) {
-      // Fudge the contact back to edge
-      contact[0].colliderB = edge;
-      (contact[0].id as any) = Pair.calculatePairHash(polygon.id, edge.id);
-    }
-    return contact;
+    // An edge is a two-sided, two point convex shape, the polygon SAT + clipping handles it directly
+    return this.CollidePolygonPolygon(polygon, edge);
   },
 
-  CollidePolygonPolygon(polyA: PolygonCollider, polyB: PolygonCollider): CollisionContact[] {
+  CollidePolygonPolygon(polyA: SatShape, polyB: SatShape): CollisionContact[] {
+    const colliderA = polyA as unknown as Collider;
+    const colliderB = polyB as unknown as Collider;
     // Multi contact from SAT
     // https://gamedev.stackexchange.com/questions/111390/multiple-contacts-for-sat-collision-detection
     // do a SAT test to find a min axis if it exists
@@ -239,8 +222,8 @@ export const CollisionJumpTable = {
     const separation = separationA.separation > separationB.separation ? separationA : separationB;
 
     // The incident side is the most opposite from the axes of collision on the other collider
-    const other = separation.collider === polyA ? polyB : polyA;
-    const main = separation.collider === polyA ? polyA : polyB;
+    const other = separation.collider === colliderA ? polyB : polyA;
+    const main = separation.collider === colliderA ? polyA : polyB;
 
     const toIncidentFrame = other.transform.inverse.multiply(main.transform.matrix, ScratchMatrix);
     const toIncidentFrameRotation = toIncidentFrame.getRotation();
@@ -291,7 +274,9 @@ export const CollisionJumpTable = {
         normal = normal.negate();
         tangent = normal.perpendicular();
       }
-      return [new CollisionContact(polyA, polyB, normal.scale(-separation.separation), normal, tangent, points, localPoints, separation)];
+      return [
+        new CollisionContact(colliderA, colliderB, normal.scale(-separation.separation), normal, tangent, points, localPoints, separation)
+      ];
     }
     return [];
   },
@@ -313,7 +298,7 @@ export const CollisionJumpTable = {
     // both are polygons
     if (shapeA instanceof PolygonCollider && shapeB instanceof PolygonCollider) {
       type UnsafeTransformAccess = { _transform: Transform };
-      type UnsafeVectorAccess = { _x: number, _y: number };
+      type UnsafeVectorAccess = { _x: number; _y: number };
       if (contact.info.localSide) {
         // inlined below
         // let side;
@@ -344,28 +329,40 @@ export const CollisionJumpTable = {
         const _localSide = contact.info.localSide;
         const _localBegin = _localSide.begin;
         const _localEnd = _localSide.end;
-        const _sideBeginX = sideMatrix[0] * (_localBegin as unknown as UnsafeVectorAccess)._x +
+        const _sideBeginX =
+          sideMatrix[0] * (_localBegin as unknown as UnsafeVectorAccess)._x +
           sideMatrix[2] * (_localBegin as unknown as UnsafeVectorAccess)._y +
-          sideMatrix[4] + (sideOffset as unknown as UnsafeVectorAccess)._x;
+          sideMatrix[4] +
+          (sideOffset as unknown as UnsafeVectorAccess)._x;
 
-        const _sideBeginY = sideMatrix[1] * (_localBegin as unknown as UnsafeVectorAccess)._x +
+        const _sideBeginY =
+          sideMatrix[1] * (_localBegin as unknown as UnsafeVectorAccess)._x +
           sideMatrix[3] * (_localBegin as unknown as UnsafeVectorAccess)._y +
-          sideMatrix[5] + (sideOffset as unknown as UnsafeVectorAccess)._y;
+          sideMatrix[5] +
+          (sideOffset as unknown as UnsafeVectorAccess)._y;
 
-        const _sideEndX = sideMatrix[0] * (_localEnd as unknown as UnsafeVectorAccess)._x +
+        const _sideEndX =
+          sideMatrix[0] * (_localEnd as unknown as UnsafeVectorAccess)._x +
           sideMatrix[2] * (_localEnd as unknown as UnsafeVectorAccess)._y +
-          sideMatrix[4] + (sideOffset as unknown as UnsafeVectorAccess)._x;
+          sideMatrix[4] +
+          (sideOffset as unknown as UnsafeVectorAccess)._x;
 
-        const _sideEndY = sideMatrix[1] * (_localEnd as unknown as UnsafeVectorAccess)._x +
+        const _sideEndY =
+          sideMatrix[1] * (_localEnd as unknown as UnsafeVectorAccess)._x +
           sideMatrix[3] * (_localEnd as unknown as UnsafeVectorAccess)._y +
-          sideMatrix[5] + (sideOffset as unknown as UnsafeVectorAccess)._y;
+          sideMatrix[5] +
+          (sideOffset as unknown as UnsafeVectorAccess)._y;
 
-        const _worldPointX = pointMatrix[0] * (localPoint as unknown as UnsafeVectorAccess)._x +
-          pointMatrix[2] * (localPoint as unknown as UnsafeVectorAccess)._y + pointMatrix[4] +
+        const _worldPointX =
+          pointMatrix[0] * (localPoint as unknown as UnsafeVectorAccess)._x +
+          pointMatrix[2] * (localPoint as unknown as UnsafeVectorAccess)._y +
+          pointMatrix[4] +
           (pointOffset as unknown as UnsafeVectorAccess)._x;
 
-        const _worldPointY = pointMatrix[1] * (localPoint as unknown as UnsafeVectorAccess)._x +
-          pointMatrix[3] * (localPoint as unknown as UnsafeVectorAccess)._y + pointMatrix[5] +
+        const _worldPointY =
+          pointMatrix[1] * (localPoint as unknown as UnsafeVectorAccess)._x +
+          pointMatrix[3] * (localPoint as unknown as UnsafeVectorAccess)._y +
+          pointMatrix[5] +
           (pointOffset as unknown as UnsafeVectorAccess)._y;
 
         const _dx = _sideEndX - _sideBeginX;

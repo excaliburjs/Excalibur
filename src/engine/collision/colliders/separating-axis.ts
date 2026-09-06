@@ -6,8 +6,43 @@ import type { CircleCollider } from './circle-collider';
 import type { PolygonCollider } from './polygon-collider';
 import { AffineMatrix } from '../../math/affine-matrix';
 import { ArenaPool } from '../../util/arena-pool';
+import type { Id } from '../../id';
+import type { Transform } from '../../math/transform';
 
 const HASH_RANGE = 1 << 25;
+/**
+ * Upper bound on remembered separating axes, the cache is only an optimization so it is simply cleared when exceeded
+ */
+const SEPARATION_CACHE_MAX_ENTRIES = 10_000;
+
+/**
+ * Minimal convex shape description the separating axis test and contact clipping operate on.
+ *
+ * {@apilink PolygonCollider} and {@apilink EdgeCollider} (as a two-sided, two point "polygon") both satisfy this.
+ */
+export interface SatShape {
+  id: Id<'collider'>;
+  /**
+   * Points in local space (relative to `transform`), in perimeter order
+   */
+  points: readonly Vector[];
+  /**
+   * Outward normal for the side starting at each point, normals[i] belongs to side points[i] -> points[(i + 1) % length]
+   */
+  normals: readonly Vector[];
+  /**
+   * Transform from local space to world space
+   */
+  transform: Transform;
+  /**
+   * Center of the shape in world space
+   */
+  center: Vector;
+}
+
+function isPolygonCollider(shape: SatShape): shape is PolygonCollider {
+  return typeof (shape as PolygonCollider).getLocalSides === 'function';
+}
 
 /**
  * Specific information about a contact and it's separation
@@ -78,12 +113,12 @@ export class SeparatingAxis {
   // usually the separating axis doesnt change allowing us to save work on non-colliding pairs
   private static _SEPARATION_CACHE = new Map();
 
-  static findPolygonPolygonSeparation(polyA: PolygonCollider, polyB: PolygonCollider): SeparationInfo {
+  static findPolygonPolygonSeparation(polyA: SatShape, polyB: SatShape): SeparationInfo {
     const matrixA = polyA.transform.matrix;
     const matrixB = polyB.transform.matrix;
 
     // if polyB has 0 scale we need to hop back to degenerate separation
-    if (matrixB.determinant() === 0) {
+    if (matrixB.determinant() === 0 && isPolygonCollider(polyA) && isPolygonCollider(polyB)) {
       return SeparatingAxis.findPolygonPolygonSeparationDegenerate(polyA, polyB);
     }
 
@@ -101,7 +136,7 @@ export class SeparatingAxis {
     // inlined below
     // const toPolyBSpaceRotation = toPolyBSpace.getRotation();
     const polyBSpaceData = toPolyBSpace.data;
-    const rotDiff = polyA.transform.rotation - polyB.transform.rotation;
+    const rotDiff = polyA.transform.globalRotation - polyB.transform.globalRotation;
     const _cos = Math.cos(rotDiff);
     const _sin = Math.sin(rotDiff);
     // end inline
@@ -143,7 +178,7 @@ export class SeparatingAxis {
       }
       if (smallestPointDistance > 0) {
         const separationInfo = SeparatingAxis.SeparationPool.get();
-        separationInfo.collider = polyA;
+        separationInfo.collider = polyA as unknown as Collider;
         separationInfo.separation = smallestPointDistance;
         return separationInfo;
       }
@@ -192,7 +227,7 @@ export class SeparatingAxis {
       // Early out there is a POSITIVE separating axis so a gap (no overlap)
       if (smallestPointDistance > 0) {
         const separationInfo = SeparatingAxis.SeparationPool.get();
-        separationInfo.collider = polyA;
+        separationInfo.collider = polyA as unknown as Collider;
         separationInfo.separation = smallestPointDistance;
         return separationInfo;
       }
@@ -209,14 +244,14 @@ export class SeparatingAxis {
     // TODO can we avoid applying world space transforms?
     const bestSide2 = (bestSideIndex + 1) % pointsA.length;
     const separationInfo = SeparatingAxis.SeparationPool.get();
-    separationInfo.collider = polyA;
+    separationInfo.collider = polyA as unknown as Collider;
     separationInfo.separation = bestSeparation;
     if (bestSeparation > 0) {
       // early out because if separation is > 0 then no local point
       return separationInfo;
     }
     normalsA[bestSideIndex].clone(separationInfo.localAxis);
-    normalsA[bestSideIndex].rotate(polyA.transform.rotation, SeparatingAxis._ZERO, separationInfo.axis);
+    normalsA[bestSideIndex].rotate(polyA.transform.globalRotation, SeparatingAxis._ZERO, separationInfo.axis);
     // inlined
     // polyA.transform.matrix.multiply(pointsA[bestSideIndex], separationInfo.side!.begin);
     // polyA.transform.matrix.multiply(pointsA[bestSide2], separationInfo.side!.end);
@@ -228,6 +263,9 @@ export class SeparatingAxis {
     // end inline
     //
     separationInfo.sideId = bestSideIndex;
+    if (SeparatingAxis._SEPARATION_CACHE.size >= SEPARATION_CACHE_MAX_ENTRIES) {
+      SeparatingAxis._SEPARATION_CACHE.clear();
+    }
     SeparatingAxis._SEPARATION_CACHE.set(_pairKey, bestSideIndex);
     localPoint!.clone(separationInfo.localPoint);
     pointsA[bestSideIndex].clone(separationInfo.localSide!.begin);

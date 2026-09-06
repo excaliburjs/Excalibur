@@ -93,4 +93,35 @@ describe('A RealisticSolver', () => {
     realisticSolver.preSolve(noPoint);
     expect(realisticSolver.getContactConstraints(noPoint[0].id).length).toBe(0);
   });
+
+  it('does not solve contacts that touch a sleeping body', () => {
+    const realisticSolver = new ex.RealisticSolver(getDefaultPhysicsConfig().realistic);
+
+    const floor = new ex.Actor({ x: 0, y: 20, width: 200, height: 40, collisionType: ex.CollisionType.Fixed });
+    const box = new ex.Actor({ x: 0, y: -18, width: 40, height: 40, collisionType: ex.CollisionType.Active });
+    box.body.canSleep = true;
+    floor.collider.update();
+    box.collider.update();
+
+    const solveOnce = () => {
+      const contacts = box.collider.collide(floor.collider);
+      expect(contacts.length).toBe(1);
+      realisticSolver.preSolve(contacts);
+      realisticSolver.solveVelocity(contacts);
+      realisticSolver.solvePosition(contacts);
+      realisticSolver.postSolve(contacts);
+    };
+
+    box.body.sleep();
+    solveOnce();
+    // a sleeping body is never integrated, so it must not receive impulses or corrections either
+    expect(box.pos.y).toBe(-18);
+    expect(box.vel).toBeVector(ex.vec(0, 0));
+    expect(box.body.angularVelocity).toBe(0);
+
+    box.body.wake();
+    solveOnce();
+    // once awake the overlap is corrected as usual
+    expect(box.pos.y).toBeLessThan(-18);
+  });
 });

@@ -235,6 +235,9 @@ export class CollisionSystem extends System {
       if (!this._lastFrameContacts.has(id)) {
         const colliderA = c.colliderA;
         const colliderB = c.colliderB;
+        // A new contact wakes both participants, sleeping bodies are not solved
+        c.bodyA!.isSleeping = false;
+        c.bodyB!.isSleeping = false;
         const side = Side.fromDirection(c.mtv);
         const opposite = Side.getOpposite(side);
         colliderA.events.emit('collisionstart', new CollisionStartEvent(colliderA, colliderB, side, c));

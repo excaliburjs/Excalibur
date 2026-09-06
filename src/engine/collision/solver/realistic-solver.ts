@@ -122,7 +122,7 @@ export class RealisticSolver implements CollisionSolver {
       const colliderA = contact.colliderA;
       const bodyB = contact.bodyB;
       const colliderB = contact.colliderB;
-      if (bodyA && bodyB && (!bodyA.isSleeping || !bodyB.isSleeping)) {
+      if (bodyA && bodyB && !bodyA.isSleeping && !bodyB.isSleeping) {
         for (let j = 0; j < contact.points.length; j++) {
           const point = contact.points[j];
           const normal = contact.normal;
@@ -256,7 +256,7 @@ export class RealisticSolver implements CollisionSolver {
       const bodyA = contact.bodyA;
       const bodyB = contact.bodyB;
 
-      if (bodyA!.isSleeping && bodyB!.isSleeping) {
+      if (bodyA!.isSleeping || bodyB!.isSleeping) {
         continue;
       }
 
@@ -290,7 +290,7 @@ export class RealisticSolver implements CollisionSolver {
         const bodyA = contact.bodyA;
         const bodyB = contact.bodyB;
 
-        if (bodyA!.isSleeping && bodyB!.isSleeping) {
+        if (bodyA!.isSleeping || bodyB!.isSleeping) {
           continue;
         }
 
@@ -360,7 +360,7 @@ export class RealisticSolver implements CollisionSolver {
         const bodyA = contact.bodyA;
         const bodyB = contact.bodyB;
 
-        if (bodyA!.isSleeping && bodyB!.isSleeping) {
+        if (bodyA!.isSleeping || bodyB!.isSleeping) {
           continue;
         }
 
