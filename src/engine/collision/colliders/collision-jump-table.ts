@@ -6,12 +6,74 @@ import type { SeparationInfo } from './separating-axis';
 import { SeparatingAxis } from './separating-axis';
 import type { SatShape } from './separating-axis';
 import type { Collider } from './collider';
-import { LineSegment } from '../../math/line-segment';
 import { Vector } from '../../math/vector';
 import { TransformComponent } from '../../entity-component-system';
 import { AffineMatrix } from '../../math/affine-matrix';
 import type { Transform } from '../../math/transform';
 const ScratchZero = Vector.Zero; // TODO constant vector
+
+/**
+ * Direct component access, skips accessor dispatch in hot loops
+ */
+type UnsafeVector = { _x: number; _y: number };
+
+/**
+ * Scratch segment for contact clipping
+ */
+const ClipScratch = { x0: 0, y0: 0, x1: 0, y1: 0 };
+
+/**
+ * Clips the segment in {@link ClipScratch} against the half plane `dir . p - length <= 0` in place.
+ *
+ * Mirrors {@apilink LineSegment.clip} with an unnormalized direction, without allocating
+ * @returns false when fewer than 2 points survive (no segment)
+ */
+function clipScratchSegment(dirX: number, dirY: number, length: number): boolean {
+  const s = ClipScratch;
+  const near = dirX * s.x0 + dirY * s.y0 - length;
+  const far = dirX * s.x1 + dirY * s.y1 - length;
+  let count = 0;
+  let ax = 0;
+  let ay = 0;
+  let bx = 0;
+  let by = 0;
+  if (near <= 0) {
+    ax = s.x0;
+    ay = s.y0;
+    count++;
+  }
+  if (far <= 0) {
+    if (count === 0) {
+      ax = s.x1;
+      ay = s.y1;
+    } else {
+      bx = s.x1;
+      by = s.y1;
+    }
+    count++;
+  }
+  if (near * far < 0) {
+    const t = near / (near - far);
+    const ix = s.x0 + (s.x1 - s.x0) * t;
+    const iy = s.y0 + (s.y1 - s.y0) * t;
+    if (count === 0) {
+      ax = ix;
+      ay = iy;
+    } else {
+      bx = ix;
+      by = iy;
+    }
+    count++;
+  }
+  if (count !== 2) {
+    return false;
+  }
+  s.x0 = ax;
+  s.y0 = ay;
+  s.x1 = bx;
+  s.y1 = by;
+  return true;
+}
 const ScratchNormal = Vector.Zero; // TODO constant vector
 const ScratchMatrix = AffineMatrix.identity();
 
@@ -245,40 +307,65 @@ export const CollisionJumpTable = {
 
     // Clip incident side by the perpendicular lines at each end of the reference side
     // https://en.wikipedia.org/wiki/Sutherland%E2%80%93Hodgman_algorithm
-    const referenceSide = separation.localSide.transform(toIncidentFrame);
-    const referenceDirection = separation.localAxis.perpendicular().negate().rotate(toIncidentFrameRotation);
+    // Done in scalars on scratch state, this runs for every contact every substep so it must not allocate
+    const m = toIncidentFrame.data;
+    const localBegin = separation.localSide.begin as unknown as UnsafeVector;
+    const localEnd = separation.localSide.end as unknown as UnsafeVector;
+    // reference side in the incident frame
+    const refBeginX = m[0] * localBegin._x + m[2] * localBegin._y + m[4];
+    const refBeginY = m[1] * localBegin._x + m[3] * localBegin._y + m[5];
+    const refEndX = m[0] * localEnd._x + m[2] * localEnd._y + m[4];
+    const refEndY = m[1] * localEnd._x + m[3] * localEnd._y + m[5];
+    // reference direction = localAxis.perpendicular().negate() = (-axis.y, axis.x), rotated into the incident frame
+    const localAxis = separation.localAxis as unknown as UnsafeVector;
+    const cos = Math.cos(toIncidentFrameRotation);
+    const sin = Math.sin(toIncidentFrameRotation);
+    const refDirX = -localAxis._y * cos - localAxis._x * sin;
+    const refDirY = -localAxis._y * sin + localAxis._x * cos;
 
-    const incidentSide = new LineSegment(other.points[incidentEdgeIndex], other.points[(incidentEdgeIndex + 1) % other.points.length]);
-    const clipRight = incidentSide.clip(referenceDirection.negate(), -referenceDirection.dot(referenceSide.begin), false);
-    let clipLeft: LineSegment | null = null;
-    if (clipRight) {
-      clipLeft = clipRight.clip(referenceDirection, referenceDirection.dot(referenceSide.end), false);
+    const incidentPoints = other.points;
+    const incidentBegin = incidentPoints[incidentEdgeIndex] as unknown as UnsafeVector;
+    const incidentEnd = incidentPoints[(incidentEdgeIndex + 1) % incidentPoints.length] as unknown as UnsafeVector;
+    const clip = ClipScratch;
+    clip.x0 = incidentBegin._x;
+    clip.y0 = incidentBegin._y;
+    clip.x1 = incidentEnd._x;
+    clip.y1 = incidentEnd._y;
+    // right plane at the reference begin, then left plane at the reference end
+    if (!clipScratchSegment(-refDirX, -refDirY, -(refDirX * refBeginX + refDirY * refBeginY))) {
+      return [];
+    }
+    if (!clipScratchSegment(refDirX, refDirY, refDirX * refEndX + refDirY * refEndY)) {
+      return [];
     }
 
-    if (clipLeft) {
-      const localPoints: Vector[] = [];
-      const points: Vector[] = [];
-      const clipPoints = clipLeft.getPoints();
-
-      for (let i = 0; i < clipPoints.length; i++) {
-        const p = clipPoints[i];
-        if (referenceSide.below(p)) {
-          localPoints.push(p);
-          points.push(other.transform.apply(p));
-        }
+    // Keep the clipped points that are below (penetrating) the reference side, same test as LineSegment.below
+    const localPoints: Vector[] = [];
+    const points: Vector[] = [];
+    const om = other.transform.matrix.data;
+    const refDX = refEndX - refBeginX;
+    const refDY = refEndY - refBeginY;
+    for (let i = 0; i < 2; i++) {
+      const cx = i === 0 ? clip.x0 : clip.x1;
+      const cy = i === 0 ? clip.y0 : clip.y1;
+      if (refDX * (cy - refBeginY) - refDY * (cx - refBeginX) >= 0) {
+        localPoints.push(new Vector(cx, cy));
+        points.push(new Vector(om[0] * cx + om[2] * cy + om[4], om[1] * cx + om[3] * cy + om[5]));
       }
-      let normal = separation.axis;
-      let tangent = normal.perpendicular();
-      // Point Contact A -> B
-      if (polyB.center.sub(polyA.center).dot(normal) < 0) {
-        normal = normal.negate();
-        tangent = normal.perpendicular();
-      }
-      return [
-        new CollisionContact(colliderA, colliderB, normal.scale(-separation.separation), normal, tangent, points, localPoints, separation)
-      ];
     }
-    return [];
+
+    // separation.axis lives in the pooled SeparationInfo, copy it so the contact owns its normal
+    let normal = separation.axis.clone();
+    // Point Contact A -> B
+    const centerA = polyA.center;
+    const centerB = polyB.center;
+    if ((centerB.x - centerA.x) * normal.x + (centerB.y - centerA.y) * normal.y < 0) {
+      normal = normal.negate();
+    }
+    const tangent = normal.perpendicular();
+    return [
+      new CollisionContact(colliderA, colliderB, normal.scale(-separation.separation), normal, tangent, points, localPoints, separation)
+    ];
   },
 
   FindContactSeparation(contact: CollisionContact, localPoint: Vector): number {

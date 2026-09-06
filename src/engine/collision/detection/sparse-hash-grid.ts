@@ -48,7 +48,7 @@ export class HashGridProxy<T extends { bounds: BoundingBox }> {
    * Has the hashed bounds changed
    */
   hasChanged(): boolean {
-    const bounds = this.object.bounds;
+    const bounds = this.bounds;
     const leftX = Math.floor(bounds.left / this.gridSize);
     const rightX = Math.floor(bounds.right / this.gridSize);
     const bottomY = Math.floor(bounds.bottom / this.gridSize);
@@ -260,6 +260,8 @@ export class SparseHashGrid<TObject extends { bounds: BoundingBox }, TProxy exte
       if (!proxy) {
         continue;
       }
+      // refresh world bounds once per frame, the broadphase reads proxy.bounds directly
+      proxy.updateBounds();
       if (proxy.hasChanged()) {
         // TODO slightly wasteful only remove from changed
         for (let x = proxy.leftX; x <= proxy.rightX; x++) {

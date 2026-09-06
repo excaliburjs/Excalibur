@@ -512,4 +512,40 @@ describe('A Collision', () => {
 
     expect(collisionEnd).toHaveBeenCalledTimes(1);
   });
+
+  it('emits precollision and postcollision once per frame when substepping', () =>
+    new Promise<void>((done) => {
+      engine.stop();
+      engine.dispose();
+      engine = TestUtils.engine({
+        width: 600,
+        height: 400,
+        physics: {
+          solver: ex.SolverStrategy.Realistic,
+          substep: 3,
+          gravity: ex.vec(0, 0)
+        }
+      });
+      clock = engine.clock = engine.clock.toTestClock();
+
+      engine.start().then(() => {
+        const a = new ex.Actor({ x: 100, y: 100, width: 50, height: 50, collisionType: ex.CollisionType.Active });
+        const b = new ex.Actor({ x: 140, y: 100, width: 50, height: 50, collisionType: ex.CollisionType.Active });
+        engine.add(a);
+        engine.add(b);
+
+        let pre = 0;
+        let post = 0;
+        a.on('precollision', () => pre++);
+        a.on('postcollision', () => post++);
+
+        clock.step(16);
+        expect(pre, 'precollision fires once per frame, not once per substep').toBe(1);
+        expect(post, 'postcollision fires once per frame, not once per substep').toBe(1);
+        clock.step(16);
+        expect(pre).toBe(2);
+        expect(post).toBe(2);
+        done();
+      });
+    }));
 });

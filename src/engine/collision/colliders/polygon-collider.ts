@@ -45,6 +45,7 @@ export class PolygonCollider extends Collider {
   public offset: Vector;
 
   public flagDirty() {
+    this._boundsDirty = true;
     this._localBoundsDirty = true;
     this._localSidesDirty = true;
     this._transformedPointsDirty = true;
@@ -374,7 +375,8 @@ export class PolygonCollider extends Collider {
    * Get the center of the collider in world coordinates
    */
   public get center(): Vector {
-    return this.bounds.center;
+    const bounds = this._getWorldBounds();
+    return new Vector((bounds.left + bounds.right) / 2, (bounds.top + bounds.bottom) / 2);
   }
 
   private _transformedPointsDirty = true;
@@ -502,6 +504,7 @@ export class PolygonCollider extends Collider {
     if (transform) {
       // This change means an update must be performed in order for geometry to update
       transform.cloneWithParent(this._transform);
+      this._boundsDirty = true;
       this._transformedPointsDirty = true;
       this._sidesDirty = true;
       if (this.offset.x !== 0 || this.offset.y !== 0) {
@@ -638,8 +641,25 @@ export class PolygonCollider extends Collider {
   /**
    * Get the axis aligned bounding box for the polygon collider in world coordinates
    */
+  private _boundsDirty = true;
+  private _bounds = new BoundingBox();
+  /**
+   * World space bounds cached until the collider is updated, internal so callers can't mutate the cache
+   */
+  private _getWorldBounds(): BoundingBox {
+    if (this._boundsDirty) {
+      this.localBounds.transform(this._transform.matrix, this._bounds);
+      this._boundsDirty = false;
+    }
+    return this._bounds;
+  }
+
+  /**
+   * Get the axis aligned bounding box for the polygon collider in world coordinates
+   */
   public get bounds(): BoundingBox {
-    return this.localBounds.transform(this._transform.matrix);
+    const bounds = this._getWorldBounds();
+    return new BoundingBox(bounds.left, bounds.top, bounds.right, bounds.bottom);
   }
 
   private _localBoundsDirty = true;

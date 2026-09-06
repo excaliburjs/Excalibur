@@ -147,7 +147,7 @@ export class CollisionSystem extends System {
           }
         }
 
-        contacts = solver.solve(contacts, elapsed / substep);
+        contacts = solver.solve(contacts, elapsed / substep, step, substep);
 
         // Record contacts for start/end
         for (const contact of contacts) {

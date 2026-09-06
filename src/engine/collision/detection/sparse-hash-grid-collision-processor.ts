@@ -20,6 +20,11 @@ import type { RayCastOptions } from './ray-cast-options';
 import { HashGridCell, HashGridProxy, SparseHashGrid } from './sparse-hash-grid';
 
 /**
+ * Packs two collider ids into one number for pair de-duplication, supports ids up to 2^26
+ */
+const PAIR_KEY_RANGE = 1 << 26;
+
+/**
  * Proxy type to stash collision info
  */
 export class HashColliderProxy extends HashGridProxy<Collider> {
@@ -88,8 +93,9 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
   readonly gridSize: number;
   readonly hashGrid: SparseHashGrid<Collider, HashColliderProxy>;
 
-  private _pairs = new Set<string>();
-  private _nonPairs = new Set<string>();
+  // pair de-duplication keyed by packed numeric collider ids, string ids are only built for pairs that survive
+  private _pairs = new Set<number>();
+  private _nonPairs = new Set<number>();
 
   public _pairPool = new ArenaPool<Pair>(
     () => new Pair({ id: createId('collider', 0) } as Collider, { id: createId('collider', 0) } as Collider),
@@ -344,19 +350,22 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
             // skip duplicates
             continue;
           }
-          const id = Pair.calculatePairHash(proxy.collider.id, other.collider.id);
-          if (this._nonPairs.has(id)) {
+          const idA = proxy.collider.id.value;
+          const idB = other.collider.id.value;
+          const key = idA < idB ? idA * PAIR_KEY_RANGE + idB : idB * PAIR_KEY_RANGE + idA;
+          if (this._nonPairs.has(key)) {
             continue; // Is there a way we can re-use the non-pair cache
           }
-          if (!this._pairs.has(id) && this._canCollide(proxy, other) && proxy.object.bounds.overlaps(other.object.bounds)) {
+          // proxy bounds were refreshed by update() this frame, no need to recompute collider bounds
+          if (!this._pairs.has(key) && this._canCollide(proxy, other) && proxy.bounds.overlaps(other.bounds)) {
             const pair = this._pairPool.get();
             pair.colliderA = proxy.collider;
             pair.colliderB = other.collider;
-            pair.id = id;
-            this._pairs.add(id);
+            pair.id = Pair.calculatePairHash(proxy.collider.id, other.collider.id);
+            this._pairs.add(key);
             pairs.push(pair);
           } else {
-            this._nonPairs.add(id);
+            this._nonPairs.add(key);
           }
         }
       }
