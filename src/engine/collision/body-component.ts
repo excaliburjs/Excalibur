@@ -15,6 +15,7 @@ import type { BodyConfig, PhysicsConfig } from './physics-config';
 import { getDefaultPhysicsConfig } from './physics-config';
 import type { Entity } from '../entity-component-system';
 import type { Island } from './island';
+import { assert } from '../util/assert';
 
 export interface BodyComponentOptions {
   type?: CollisionType;
@@ -384,6 +385,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   }
 
   public set vel(val: Vector) {
+    assert("Less than huge", () => val.magnitude < 1_000);
     this.motion.vel = val;
   }
 
@@ -501,12 +503,24 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
       finalImpulse.y = 0;
     }
 
+    // assert("Velocity resonable x: " + this!.vel.x, () => Math.abs(this!.vel.x) < 1_000);
+    // assert("Velocity resonable y: " + this!.vel.y, () => Math.abs(this!.vel.y) < 1_000);
+
+    // const beforeImpulseVelX = this.vel.x;
+    // const beforeImpulseVelY = this.vel.y;
     this.vel.addEqual(finalImpulse);
 
     if (!this.limitDegreeOfFreedom.includes(DegreeOfFreedom.Rotation)) {
       const distanceFromCenter = point.sub(this.globalPos, this._distanceFromCenterScratch);
       this.angularVelocity += this.inverseInertia * distanceFromCenter.cross(impulse);
     }
+
+    // if (!(Math.abs(this!.vel.x) < 10_000)) {
+    //   throw new Error(`Velocity: (${beforeImpulseVelX}, ${beforeImpulseVelY})`);
+    // }
+
+    // assert("Velocity resonable x: " + this!.vel.x, () => Math.abs(this!.vel.x) < 1_000);
+    // assert("Velocity resonable y: " + this!.vel.y, () => Math.abs(this!.vel.y) < 1_000);
   }
 
   /**

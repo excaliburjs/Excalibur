@@ -1,4 +1,5 @@
 import { Color } from '../../color';
+import { assert } from '../../util/assert';
 import type { ExcaliburGraphicsContext } from '../../graphics/context/excalibur-graphics-context';
 import type { Vector } from '../../math/vector';
 import { RentalPool } from '../../util/rental-pool';
@@ -89,13 +90,13 @@ export class HashGridProxy<T extends { bounds: BoundingBox }> {
     this.rightX = Math.floor(this.bounds.right / this.gridSize);
     this.bottomY = Math.floor(this.bounds.bottom / this.gridSize);
     this.topY = Math.floor(this.bounds.top / this.gridSize);
-    this.hasZeroBounds = this.object.bounds.hasZeroDimensions();
+    this.hasZeroBounds = this.bounds.hasZeroDimensions();
   }
 }
 
 export class HashGridCell<TObject extends { bounds: BoundingBox }, TProxy extends HashGridProxy<TObject> = HashGridProxy<TObject>> {
   proxies: TProxy[] = [];
-  key!: string;
+  key!: number | string;
   x!: number;
   y!: number;
 
@@ -106,13 +107,16 @@ export class HashGridCell<TObject extends { bounds: BoundingBox }, TProxy extend
   }
 
   static calculateHashKey(x: number, y: number) {
+    if (x >= -16384 && x <= 16384 && y >= -16384 && y <= 16384) {
+      return (x + 16384) * 32768 + (y + 16384);
+    }
     return `${x}+${y}`;
   }
 }
 
 export class SparseHashGrid<TObject extends { bounds: BoundingBox }, TProxy extends HashGridProxy<TObject> = HashGridProxy<TObject>> {
   readonly gridSize: number;
-  readonly sparseHashGrid: Map<string, HashGridCell<TObject, TProxy>>;
+  readonly sparseHashGrid: Map<number | string, HashGridCell<TObject, TProxy>>;
   readonly objectToProxy: Map<TObject, TProxy>;
 
   public bounds = new BoundingBox();
@@ -246,6 +250,18 @@ export class SparseHashGrid<TObject extends { bounds: BoundingBox }, TProxy exte
     }
   }
 
+  private _isValid(leftX: number, rightX: number, topY: number, bottomY: number) {
+    if (!Number.isFinite(leftX) || !Number.isFinite(rightX) || !Number.isFinite(topY) || !Number.isFinite(bottomY)) {
+      return false;
+    }
+    if (Number.isNaN(leftX) || Number.isNaN(rightX) || Number.isNaN(topY) || Number.isNaN(bottomY)) {
+      return false;
+    }
+    const spanX = rightX - leftX + 1;
+    const spanY = bottomY - topY + 1;
+    return spanX > 0 && spanY > 0 && spanX * spanY <= 100_000;
+  }
+
   update(targets: TObject[]): number {
     let updated = 0;
     // FIXME resetting bounds is wrong, if nothing has updated then
@@ -265,9 +281,15 @@ export class SparseHashGrid<TObject extends { bounds: BoundingBox }, TProxy exte
           }
         }
         proxy.update();
+        // if (!this._isValid(proxy.leftX, proxy.rightX, proxy.topY, proxy.bottomY)) {
+        //   debugger;
+        //   continue;
+        // }
         // TODO slightly wasteful only add new
+        let maxIter = 6;
         for (let x = proxy.leftX; x <= proxy.rightX; x++) {
           for (let y = proxy.topY; y <= proxy.bottomY; y++) {
+            assert("too many cells" + JSON.stringify(proxy.object.owner.vel) , () => maxIter-- > 0);
             this._insert(x, y, proxy);
           }
         }

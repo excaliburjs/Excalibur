@@ -9,6 +9,7 @@ import { Vector } from '../../math/vector';
 import { TransformComponent } from '../../entity-component-system';
 import { Pair } from '../detection/pair';
 import { AffineMatrix } from '../../math/affine-matrix';
+import { Transform } from '../../math/transform';
 const ScratchZero = Vector.Zero; // TODO constant vector
 const ScratchNormal = Vector.Zero; // TODO constant vector
 const ScratchMatrix = AffineMatrix.identity();
@@ -311,24 +312,66 @@ export const CollisionJumpTable = {
 
     // both are polygons
     if (shapeA instanceof PolygonCollider && shapeB instanceof PolygonCollider) {
+      type UnsafeTransformAccess = { _transform: Transform };
+      type UnsafeVectorAccess = { _x: number, _y: number };
       if (contact.info.localSide) {
-        let side: LineSegment;
-        let worldPoint: Vector;
+        // inlined below
+        // let side;
+        // let worldPoint;
+        let sideMatrix;
+        let sideOffset;
+        let pointMatrix;
+        let pointOffset;
         if (contact.info.collider === shapeA) {
-          side = new LineSegment(
-            txA.apply(contact.info.localSide.begin).add(shapeA.offset),
-            txA.apply(contact.info.localSide.end).add(shapeA.offset)
-          );
-          worldPoint = txB.apply(localPoint).add(shapeB.offset);
+          // inlined below
+          // side = new LineSegment(txA.apply(contact.info.localSide.begin).add(shapeA.offset), txA.apply(contact.info.localSide.end).add(shapeA.offset));
+          // worldPoint = txB.apply(localPoint).add(shapeB.offset);
+          sideMatrix = (txA as unknown as UnsafeTransformAccess)._transform.matrix.data;
+          sideOffset = shapeA.offset;
+          pointMatrix = (txB as unknown as UnsafeTransformAccess)._transform.matrix.data;
+          pointOffset = shapeB.offset;
         } else {
-          side = new LineSegment(
-            txB.apply(contact.info.localSide.begin).add(shapeB.offset),
-            txB.apply(contact.info.localSide.end).add(shapeB.offset)
-          );
-          worldPoint = txA.apply(localPoint).add(shapeA.offset);
+          // inlined below
+          // side = new LineSegment(txB.apply(contact.info.localSide.begin).add(shapeB.offset), txB.apply(contact.info.localSide.end).add(shapeB.offset));
+          // worldPoint = txA.apply(localPoint).add(shapeA.offset);
+          sideMatrix = (txB as unknown as UnsafeTransformAccess)._transform.matrix.data;
+          sideOffset = shapeB.offset;
+          pointMatrix = (txA as unknown as UnsafeTransformAccess)._transform.matrix.data;
+          pointOffset = shapeA.offset;
         }
+        // inlined below
+        // return side.distanceToPoint(worldPoint, true);
+        const _localSide = contact.info.localSide;
+        const _localBegin = _localSide.begin;
+        const _localEnd = _localSide.end;
+        const _sideBeginX = sideMatrix[0] * (_localBegin as unknown as UnsafeVectorAccess)._x +
+          sideMatrix[2] * (_localBegin as unknown as UnsafeVectorAccess)._y +
+          sideMatrix[4] + (sideOffset as unknown as UnsafeVectorAccess)._x;
 
-        return side.distanceToPoint(worldPoint, true);
+        const _sideBeginY = sideMatrix[1] * (_localBegin as unknown as UnsafeVectorAccess)._x +
+          sideMatrix[3] * (_localBegin as unknown as UnsafeVectorAccess)._y +
+          sideMatrix[5] + (sideOffset as unknown as UnsafeVectorAccess)._y;
+
+        const _sideEndX = sideMatrix[0] * (_localEnd as unknown as UnsafeVectorAccess)._x +
+          sideMatrix[2] * (_localEnd as unknown as UnsafeVectorAccess)._y +
+          sideMatrix[4] + (sideOffset as unknown as UnsafeVectorAccess)._x;
+
+        const _sideEndY = sideMatrix[1] * (_localEnd as unknown as UnsafeVectorAccess)._x +
+          sideMatrix[3] * (_localEnd as unknown as UnsafeVectorAccess)._y +
+          sideMatrix[5] + (sideOffset as unknown as UnsafeVectorAccess)._y;
+
+        const _worldPointX = pointMatrix[0] * (localPoint as unknown as UnsafeVectorAccess)._x +
+          pointMatrix[2] * (localPoint as unknown as UnsafeVectorAccess)._y + pointMatrix[4] +
+          (pointOffset as unknown as UnsafeVectorAccess)._x;
+
+        const _worldPointY = pointMatrix[1] * (localPoint as unknown as UnsafeVectorAccess)._x +
+          pointMatrix[3] * (localPoint as unknown as UnsafeVectorAccess)._y + pointMatrix[5] +
+          (pointOffset as unknown as UnsafeVectorAccess)._y;
+
+        const _dx = _sideEndX - _sideBeginX;
+        const _dy = _sideEndY - _sideBeginY;
+        const _l = Math.sqrt(_dx * _dx + _dy * _dy);
+        return (_dy * _worldPointX - _dx * _worldPointY + _sideEndX * _sideBeginY - _sideEndY * _sideBeginX) / _l;
       }
     }
 

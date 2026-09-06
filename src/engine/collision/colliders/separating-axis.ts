@@ -7,6 +7,8 @@ import type { PolygonCollider } from './polygon-collider';
 import { AffineMatrix } from '../../math/affine-matrix';
 import { ArenaPool } from '../../util/arena-pool';
 
+const HASH_RANGE = 1 << 25;
+
 /**
  * Specific information about a contact and it's separation
  */
@@ -65,13 +67,24 @@ export class SeparatingAxis {
     500
   );
   private static _ZERO = vec(0, 0);
-  private static _SCRATCH_POINT = vec(0, 0);
-  private static _SCRATCH_SUB_POINT = vec(0, 0);
-  private static _SCRATCH_NORMAL = vec(0, 0);
+  // inlined 
+  // private static _SCRATCH_POINT = vec(0, 0);
+  // private static _SCRATCH_SUB_POINT = vec(0, 0);
+  // private static _SCRATCH_NORMAL = vec(0, 0);
+
   private static _SCRATCH_MATRIX = AffineMatrix.identity();
+
+  // warming trick to start with the last separating axis, take advantage of frame->frame coherency
+  // usually the separating axis doesnt change allowing us to save work on non-colliding pairs
+  private static _SEPARATION_CACHE = new Map();
+
   static findPolygonPolygonSeparation(polyA: PolygonCollider, polyB: PolygonCollider): SeparationInfo {
+    const matrixA = polyA.transform.matrix;
+    const matrixB = polyB.transform.matrix;
+
+
     // if polyB has 0 scale we need to hop back to degenerate separation
-    if (polyB.transform.matrix.determinant() === 0) {
+    if (matrixB.determinant() === 0) {
       return SeparatingAxis.findPolygonPolygonSeparationDegenerate(polyA, polyB);
     }
 
@@ -84,15 +97,78 @@ export class SeparatingAxis {
     let localPoint: Vector;
     // Work inside polyB reference frame
     // inv polyB converts to local space from polyA world space
-    const toPolyBSpace = polyB.transform.inverse.multiply(polyA.transform.matrix, SeparatingAxis._SCRATCH_MATRIX);
-    const toPolyBSpaceRotation = toPolyBSpace.getRotation();
+    const toPolyBSpace = polyB.transform.inverse.multiply(matrixA, SeparatingAxis._SCRATCH_MATRIX);
+ 
+    // inlined below
+    // const toPolyBSpaceRotation = toPolyBSpace.getRotation();
+    const polyBSpaceData = toPolyBSpace.data;
+    const rotDiff = polyA.transform.rotation - polyB.transform.rotation;
+    const _cos = Math.cos(rotDiff);
+    const _sin = Math.sin(rotDiff);
+    // end inline
 
     const normalsA = polyA.normals;
     const pointsA = polyA.points;
     const pointsB = polyB.points;
+
+    type UnsafeVectorAccess = { _x: number,  _y: number };
+
+    // check warm separation cache first
+    const _pairKey = polyA.id.value * HASH_RANGE + polyB.id.value; // power of 2 hash trick
+    const _cachedAxis = SeparatingAxis._SEPARATION_CACHE.get(_pairKey);
+    if (_cachedAxis !== undefined && _cachedAxis < normalsA.length) {
+      const normalA = normalsA[_cachedAxis];
+      const _normalX = (normalA as unknown as UnsafeVectorAccess)._x * _cos
+                      -(normalA as unknown as UnsafeVectorAccess)._y * _sin;
+      const _normalY = (normalA as unknown as UnsafeVectorAccess)._x * _sin
+                      +(normalA as unknown as UnsafeVectorAccess)._y * _cos;
+      const _pointA = pointsA[_cachedAxis]
+      // matrix x vector -> vector
+      const _pointX = polyBSpaceData[0] * (_pointA as unknown as UnsafeVectorAccess)._x +
+                      polyBSpaceData[2] * (_pointA as unknown as UnsafeVectorAccess)._y +
+                      polyBSpaceData[4];
+      const _pointY = polyBSpaceData[1] * (_pointA as unknown as UnsafeVectorAccess)._x +
+                      polyBSpaceData[3] * (_pointA as unknown as UnsafeVectorAccess)._y +
+                      polyBSpaceData[5];
+
+      let smallestPointDistance = Number.MAX_VALUE;
+      for (let pointsBIndex = 0; pointsBIndex < pointsB.length; pointsBIndex++) {
+        const _pointB = pointsB[pointsBIndex];
+        const distance = _normalX * ((_pointB as unknown as UnsafeVectorAccess)._x - _pointX) +
+                         _normalY * ((_pointB as unknown as UnsafeVectorAccess)._y - _pointY);
+
+        if (distance < smallestPointDistance) {
+          smallestPointDistance = distance;
+        }
+      }
+      if (smallestPointDistance > 0) {
+        const separationInfo = SeparatingAxis.SeparationPool.get();
+        separationInfo.collider = polyA;
+        separationInfo.separation = smallestPointDistance;
+        // console.log('warm:', separationInfo);
+        return separationInfo;
+      }
+    }
+
+    // check for real separation
     for (let pointsAIndex = 0; pointsAIndex < pointsA.length; pointsAIndex++) {
-      const normal = normalsA[pointsAIndex].rotate(toPolyBSpaceRotation, SeparatingAxis._ZERO, SeparatingAxis._SCRATCH_NORMAL);
-      const point = toPolyBSpace.multiply(pointsA[pointsAIndex], SeparatingAxis._SCRATCH_POINT);
+      // inlined below for speed
+      // const normal = normalsA[pointsAIndex].rotate(toPolyBSpaceRotation, SeparatingAxis._ZERO, SeparatingAxis._SCRATCH_NORMAL);
+      // const point = toPolyBSpace.multiply(pointsA[pointsAIndex], SeparatingAxis._SCRATCH_POINT);
+      const normalA = normalsA[pointsAIndex];
+      const _normalX = (normalA as unknown as UnsafeVectorAccess)._x * _cos
+                      -(normalA as unknown as UnsafeVectorAccess)._y * _sin;
+      const _normalY = (normalA as unknown as UnsafeVectorAccess)._x * _sin
+                      +(normalA as unknown as UnsafeVectorAccess)._y * _cos;
+      const _pointA = pointsA[pointsAIndex];
+      // matrix x vector -> vector
+      const _pointX = polyBSpaceData[0] * (_pointA as unknown as UnsafeVectorAccess)._x +
+                      polyBSpaceData[2] * (_pointA as unknown as UnsafeVectorAccess)._y +
+                      polyBSpaceData[4];
+      const _pointY = polyBSpaceData[1] * (_pointA as unknown as UnsafeVectorAccess)._x +
+                      polyBSpaceData[3] * (_pointA as unknown as UnsafeVectorAccess)._y +
+                      polyBSpaceData[5];
+      // end inline
 
       // For every point in polyB
       // We want to see how much overlap there is on the axis provided by the normal
@@ -100,11 +176,26 @@ export class SeparatingAxis {
       let smallestPointDistance = Number.MAX_VALUE;
       let smallestLocalPoint: Vector;
       for (let pointsBIndex = 0; pointsBIndex < pointsB.length; pointsBIndex++) {
-        const distance = normal.dot(pointsB[pointsBIndex].sub(point, SeparatingAxis._SCRATCH_SUB_POINT));
+        // inlined below for speed
+        // const distance = normal.dot(pointsB[pointsBIndex].sub(point, SeparatingAxis._SCRATCH_SUB_POINT));
+        const _pointB = pointsB[pointsBIndex];
+        const distance = _normalX * ((_pointB as unknown as UnsafeVectorAccess)._x - _pointX) +
+                         _normalY * ((_pointB as unknown as UnsafeVectorAccess)._y - _pointY);
+        // end inline
+
         if (distance < smallestPointDistance) {
           smallestPointDistance = distance;
-          smallestLocalPoint = pointsB[pointsBIndex];
+          smallestLocalPoint = _pointB
         }
+      }
+
+      // Early out there is a POSITIVE separating axis so a gap (no overlap)
+      if (smallestPointDistance > 0) {
+        const separationInfo = SeparatingAxis.SeparationPool.get();
+        separationInfo.collider = polyA;
+        separationInfo.separation = smallestPointDistance;
+        // console.log('early:', separationInfo);
+        return separationInfo;
       }
 
       // We take the maximum overlap as the separation between the
@@ -127,15 +218,26 @@ export class SeparatingAxis {
     }
     normalsA[bestSideIndex].clone(separationInfo.localAxis);
     normalsA[bestSideIndex].rotate(polyA.transform.rotation, SeparatingAxis._ZERO, separationInfo.axis);
-    polyA.transform.matrix.multiply(pointsA[bestSideIndex], separationInfo.side!.begin);
-    polyA.transform.matrix.multiply(pointsA[bestSide2], separationInfo.side!.end);
-    polyB.transform.matrix.multiply(localPoint!, separationInfo.point);
+    // inlined 
+    // polyA.transform.matrix.multiply(pointsA[bestSideIndex], separationInfo.side!.begin);
+    // polyA.transform.matrix.multiply(pointsA[bestSide2], separationInfo.side!.end);
+    // polyB.transform.matrix.multiply(localPoint!, separationInfo.point);
+
+    matrixA.multiply(pointsA[bestSideIndex], separationInfo.side!.begin);
+    matrixA.multiply(pointsA[bestSide2], separationInfo.side!.end);
+    matrixB.multiply(localPoint!, separationInfo.point);
+    // end inline
+    //
     separationInfo.sideId = bestSideIndex;
+    SeparatingAxis._SEPARATION_CACHE.set(_pairKey, bestSideIndex);
     localPoint!.clone(separationInfo.localPoint);
     pointsA[bestSideIndex].clone(separationInfo.localSide!.begin);
     pointsA[bestSide2].clone(separationInfo.localSide!.end);
+
+    // console.log('full:', separationInfo.separation, separationInfo.axis)
     return separationInfo;
   }
+
   static findCirclePolygonSeparation(circle: CircleCollider, polygon: PolygonCollider): Vector | null {
     const axes = polygon.axes;
     const pc = polygon.center;
