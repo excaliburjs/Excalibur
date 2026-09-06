@@ -1,5 +1,4 @@
 import { Color } from '../../color';
-import { assert } from '../../util/assert';
 import type { ExcaliburGraphicsContext } from '../../graphics/context/excalibur-graphics-context';
 import type { Vector } from '../../math/vector';
 import { RentalPool } from '../../util/rental-pool';
@@ -250,18 +249,6 @@ export class SparseHashGrid<TObject extends { bounds: BoundingBox }, TProxy exte
     }
   }
 
-  private _isValid(leftX: number, rightX: number, topY: number, bottomY: number) {
-    if (!Number.isFinite(leftX) || !Number.isFinite(rightX) || !Number.isFinite(topY) || !Number.isFinite(bottomY)) {
-      return false;
-    }
-    if (Number.isNaN(leftX) || Number.isNaN(rightX) || Number.isNaN(topY) || Number.isNaN(bottomY)) {
-      return false;
-    }
-    const spanX = rightX - leftX + 1;
-    const spanY = bottomY - topY + 1;
-    return spanX > 0 && spanY > 0 && spanX * spanY <= 100_000;
-  }
-
   update(targets: TObject[]): number {
     let updated = 0;
     // FIXME resetting bounds is wrong, if nothing has updated then
@@ -281,15 +268,9 @@ export class SparseHashGrid<TObject extends { bounds: BoundingBox }, TProxy exte
           }
         }
         proxy.update();
-        // if (!this._isValid(proxy.leftX, proxy.rightX, proxy.topY, proxy.bottomY)) {
-        //   debugger;
-        //   continue;
-        // }
         // TODO slightly wasteful only add new
-        let maxIter = 6;
         for (let x = proxy.leftX; x <= proxy.rightX; x++) {
           for (let y = proxy.topY; y <= proxy.bottomY; y++) {
-            assert("too many cells" + JSON.stringify(proxy.object.owner.vel) , () => maxIter-- > 0);
             this._insert(x, y, proxy);
           }
         }

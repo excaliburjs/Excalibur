@@ -11,13 +11,12 @@ import type { DeepRequired } from '../../util/required';
 import type { PhysicsConfig } from '../physics-config';
 import type { ContactBias } from './contact-bias';
 import { ContactSolveBias, HorizontalFirst, None, VerticalFirst } from './contact-bias';
-import { assert } from '../../util/assert';
 
 export class RealisticSolver implements CollisionSolver {
   directionMap = new Map<string, 'horizontal' | 'vertical'>();
   distanceMap = new Map<string, number>();
 
-  constructor(public config: DeepRequired<Pick<PhysicsConfig, 'realistic'>['realistic']>) { }
+  constructor(public config: DeepRequired<Pick<PhysicsConfig, 'realistic'>['realistic']>) {}
   lastFrameContacts: Map<string, CollisionContact> = new Map();
 
   // map contact id to contact points
@@ -154,6 +153,8 @@ export class RealisticSolver implements CollisionSolver {
           if (contactPoints[pointIndex] && contactPoints[pointIndex]?.point?.squareDistance(point) < 4) {
             contactPoints[pointIndex].point = point;
             contactPoints[pointIndex].local = contact.localPoints[pointIndex];
+            // Rebind to the live contact so relative velocity uses the current normal/bodies
+            contactPoints[pointIndex].contact = contact;
           } else {
             // new contact if it's not close or doesn't exist
             contactPoints[pointIndex] = new ContactConstraintPoint(point, contact.localPoints[pointIndex], contact);
@@ -175,6 +176,9 @@ export class RealisticSolver implements CollisionSolver {
           }
           pointIndex++;
         }
+        // Drop constraint points left over from a previous, larger manifold (e.g. 2 point face contact -> 1 point corner contact).
+        // Stale points carry an old world point/lever arm/accumulated impulse and make the velocity solver diverge.
+        contactPoints.length = pointIndex;
       }
       this.idToContactConstraint.set(contact.id, contactPoints);
     }
@@ -205,9 +209,6 @@ export class RealisticSolver implements CollisionSolver {
       const contact = contacts[i];
       const bodyA = contact.bodyA;
       const bodyB = contact.bodyB;
-
-      // assert("Velocity resonable x: " + bodyA!.vel.x, () => Math.abs(bodyA!.vel.x) < 10_000);
-      // assert("Velocity resonable y: " + bodyA!.vel.y, () => Math.abs(bodyA!.vel.y) < 10_000);
 
       if (bodyA && bodyB) {
         // Skip post solve for active+passive collisions
@@ -267,8 +268,6 @@ export class RealisticSolver implements CollisionSolver {
             const tangentImpulse = contact.tangent.scale(point.tangentImpulse);
             const impulse = normalImpulse.add(tangentImpulse);
 
-            // assert("warm impulses reasonable" + impulse.magnitude, () => impulse.magnitude < 20_000);
-
             bodyA.applyImpulse(point.point, impulse.negate());
             bodyB.applyImpulse(point.point, impulse);
           } else {
@@ -327,8 +326,6 @@ export class RealisticSolver implements CollisionSolver {
                 impulseForce.y = 0;
               }
 
-              assert("impulses aren't nan", () => !Number.isNaN(impulseForce.x) && !Number.isNaN(impulseForce.y));
-              assert("impulses reasonable", () => impulseForce.magnitude < 100);
               bodyA.globalPos = bodyA.globalPos.add(impulseForce);
               if (!bodyA.limitDegreeOfFreedom.includes(DegreeOfFreedom.Rotation)) {
                 bodyA.rotation -= point.aToContact.cross(impulse) * bodyA.inverseInertia;
@@ -344,16 +341,10 @@ export class RealisticSolver implements CollisionSolver {
                 impulseForce.y = 0;
               }
 
-              assert("impulses aren't nan", () => !Number.isNaN(impulseForce.x) && !Number.isNaN(impulseForce.y));
-              assert("impulses reasonable", () => impulseForce.magnitude < 100);
-
               bodyB.globalPos = bodyB.globalPos.add(impulseForce);
               if (!bodyB.limitDegreeOfFreedom.includes(DegreeOfFreedom.Rotation)) {
                 bodyB.rotation += point.bToContact.cross(impulse) * bodyB.inverseInertia;
               }
-
-              // assert("Position resonable x: " + bodyA!.pos.x, () => Math.abs(bodyA!.pos.x) < 12_000);
-              // assert("Position resonable y: " + bodyA!.pos.y, () => Math.abs(bodyA!.pos.y) < 12_000);
             }
           }
         }
@@ -386,7 +377,6 @@ export class RealisticSolver implements CollisionSolver {
           // Friction constraint
           for (const point of constraints) {
             const relativeVelocity = point.getRelativeVelocity();
-            assert("relative vel non-nan", () => !Number.isNaN(relativeVelocity.x) && !Number.isNaN(relativeVelocity.y));
 
             // Negate velocity in tangent direction to simulate friction
             const tangentVelocity = -relativeVelocity.dot(contact.tangent);
@@ -403,24 +393,14 @@ export class RealisticSolver implements CollisionSolver {
 
             const impulse = contact.tangent.scale(impulseDelta);
 
-            // assert("friction constraint impulse" + impulse.magnitude, () => impulse.magnitude < 20_000);
-
-            assert("vel A non-inf", () => Number.isFinite(bodyA.vel.magnitude));
-            assert("vel B non-inf", () => Number.isFinite(bodyB.vel.magnitude));
             bodyA.applyImpulse(point.point, impulse.negate());
             bodyB.applyImpulse(point.point, impulse);
-            assert("vel A non-inf", () => Number.isFinite(bodyA.vel.magnitude));
-            assert("vel B non-inf", () => Number.isFinite(bodyB.vel.magnitude));
-
-            // assert("Velocity resonable x: " + bodyA!.vel.x, () => Math.abs(bodyA!.vel.x) < 10_000);
-            // assert("Velocity resonable y: " + bodyA!.vel.y, () => Math.abs(bodyA!.vel.y) < 10_000);
           }
 
           // Bounce constraint
           for (const point of constraints) {
             // Need to recalc relative velocity because the previous step could have changed vel
             const relativeVelocity = point.getRelativeVelocity();
-            assert("relative vel non-nan", () => !Number.isNaN(relativeVelocity.x) && !Number.isNaN(relativeVelocity.y));
 
             // Compute impulse in normal direction
             const normalVelocity = relativeVelocity.dot(contact.normal);
@@ -428,38 +408,19 @@ export class RealisticSolver implements CollisionSolver {
             // Per Erin it is a mistake to apply the restitution inside the iteration
             // From Erin Catto's Box2D we keep original contact velocity and adjust by small impulses
             let impulseDelta = -point.normalMass * (normalVelocity - point.originalVelocityAndRestitution);
-            console.log(
-              "relative:",
-              point.contact.bodyA?.vel.magnitude,
-              point.contact.bodyA?.angularVelocity,
-              point.contact.bodyB?.vel.magnitude,
-              point.contact.bodyB?.angularVelocity,
-              "originalVelRestitution",
-              point.originalVelocityAndRestitution
-            );
 
             // Clamping based in Erin Catto's GDC 2014 talk
             // Accumulated impulse stored in the contact is always positive (dV >= 0)
             // But deltas can be negative
 
-            assert("impulse non-nan", () => !Number.isNaN(point.normalImpulse));
-            assert("impulseDelata non-nan", () => !Number.isNaN(impulseDelta));
             const newImpulse = Math.max(point.normalImpulse + impulseDelta, 0);
             impulseDelta = newImpulse - point.normalImpulse;
             point.normalImpulse = newImpulse;
-            assert("impulse positive", () => point.normalImpulse >= 0);
 
             const impulse = contact.normal.scale(impulseDelta);
-            // assert("bounce constraint impulse: " + impulse.magnitude, () => impulse.magnitude < 20_000);
 
-            assert("vel A non-inf: " + impulseDelta, () => Number.isFinite(bodyA.vel.magnitude));
-            assert("vel B non-inf: " + impulseDelta, () => Number.isFinite(bodyB.vel.magnitude));
             bodyA.applyImpulse(point.point, impulse.negate());
             bodyB.applyImpulse(point.point, impulse);
-            assert("vel A non-inf: " + impulseDelta, () => Number.isFinite(bodyA.vel.magnitude));
-            assert("vel B non-inf: " + impulseDelta, () => Number.isFinite(bodyB.vel.magnitude));
-            // assert("Velocity resonable x: " + bodyA!.vel.x, () => Math.abs(bodyA!.vel.x) < 10_000);
-            // assert("Velocity resonable y: " + bodyA!.vel.y, () => Math.abs(bodyA!.vel.y) < 10_000);
           }
         }
       }

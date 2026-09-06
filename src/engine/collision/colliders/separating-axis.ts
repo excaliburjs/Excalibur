@@ -67,7 +67,7 @@ export class SeparatingAxis {
     500
   );
   private static _ZERO = vec(0, 0);
-  // inlined 
+  // inlined
   // private static _SCRATCH_POINT = vec(0, 0);
   // private static _SCRATCH_SUB_POINT = vec(0, 0);
   // private static _SCRATCH_NORMAL = vec(0, 0);
@@ -81,7 +81,6 @@ export class SeparatingAxis {
   static findPolygonPolygonSeparation(polyA: PolygonCollider, polyB: PolygonCollider): SeparationInfo {
     const matrixA = polyA.transform.matrix;
     const matrixB = polyB.transform.matrix;
-
 
     // if polyB has 0 scale we need to hop back to degenerate separation
     if (matrixB.determinant() === 0) {
@@ -98,7 +97,7 @@ export class SeparatingAxis {
     // Work inside polyB reference frame
     // inv polyB converts to local space from polyA world space
     const toPolyBSpace = polyB.transform.inverse.multiply(matrixA, SeparatingAxis._SCRATCH_MATRIX);
- 
+
     // inlined below
     // const toPolyBSpaceRotation = toPolyBSpace.getRotation();
     const polyBSpaceData = toPolyBSpace.data;
@@ -111,31 +110,32 @@ export class SeparatingAxis {
     const pointsA = polyA.points;
     const pointsB = polyB.points;
 
-    type UnsafeVectorAccess = { _x: number,  _y: number };
+    type UnsafeVectorAccess = { _x: number; _y: number };
 
     // check warm separation cache first
     const _pairKey = polyA.id.value * HASH_RANGE + polyB.id.value; // power of 2 hash trick
     const _cachedAxis = SeparatingAxis._SEPARATION_CACHE.get(_pairKey);
     if (_cachedAxis !== undefined && _cachedAxis < normalsA.length) {
       const normalA = normalsA[_cachedAxis];
-      const _normalX = (normalA as unknown as UnsafeVectorAccess)._x * _cos
-                      -(normalA as unknown as UnsafeVectorAccess)._y * _sin;
-      const _normalY = (normalA as unknown as UnsafeVectorAccess)._x * _sin
-                      +(normalA as unknown as UnsafeVectorAccess)._y * _cos;
-      const _pointA = pointsA[_cachedAxis]
+      const _normalX = (normalA as unknown as UnsafeVectorAccess)._x * _cos - (normalA as unknown as UnsafeVectorAccess)._y * _sin;
+      const _normalY = (normalA as unknown as UnsafeVectorAccess)._x * _sin + (normalA as unknown as UnsafeVectorAccess)._y * _cos;
+      const _pointA = pointsA[_cachedAxis];
       // matrix x vector -> vector
-      const _pointX = polyBSpaceData[0] * (_pointA as unknown as UnsafeVectorAccess)._x +
-                      polyBSpaceData[2] * (_pointA as unknown as UnsafeVectorAccess)._y +
-                      polyBSpaceData[4];
-      const _pointY = polyBSpaceData[1] * (_pointA as unknown as UnsafeVectorAccess)._x +
-                      polyBSpaceData[3] * (_pointA as unknown as UnsafeVectorAccess)._y +
-                      polyBSpaceData[5];
+      const _pointX =
+        polyBSpaceData[0] * (_pointA as unknown as UnsafeVectorAccess)._x +
+        polyBSpaceData[2] * (_pointA as unknown as UnsafeVectorAccess)._y +
+        polyBSpaceData[4];
+      const _pointY =
+        polyBSpaceData[1] * (_pointA as unknown as UnsafeVectorAccess)._x +
+        polyBSpaceData[3] * (_pointA as unknown as UnsafeVectorAccess)._y +
+        polyBSpaceData[5];
 
       let smallestPointDistance = Number.MAX_VALUE;
       for (let pointsBIndex = 0; pointsBIndex < pointsB.length; pointsBIndex++) {
         const _pointB = pointsB[pointsBIndex];
-        const distance = _normalX * ((_pointB as unknown as UnsafeVectorAccess)._x - _pointX) +
-                         _normalY * ((_pointB as unknown as UnsafeVectorAccess)._y - _pointY);
+        const distance =
+          _normalX * ((_pointB as unknown as UnsafeVectorAccess)._x - _pointX) +
+          _normalY * ((_pointB as unknown as UnsafeVectorAccess)._y - _pointY);
 
         if (distance < smallestPointDistance) {
           smallestPointDistance = distance;
@@ -145,7 +145,6 @@ export class SeparatingAxis {
         const separationInfo = SeparatingAxis.SeparationPool.get();
         separationInfo.collider = polyA;
         separationInfo.separation = smallestPointDistance;
-        // console.log('warm:', separationInfo);
         return separationInfo;
       }
     }
@@ -156,18 +155,18 @@ export class SeparatingAxis {
       // const normal = normalsA[pointsAIndex].rotate(toPolyBSpaceRotation, SeparatingAxis._ZERO, SeparatingAxis._SCRATCH_NORMAL);
       // const point = toPolyBSpace.multiply(pointsA[pointsAIndex], SeparatingAxis._SCRATCH_POINT);
       const normalA = normalsA[pointsAIndex];
-      const _normalX = (normalA as unknown as UnsafeVectorAccess)._x * _cos
-                      -(normalA as unknown as UnsafeVectorAccess)._y * _sin;
-      const _normalY = (normalA as unknown as UnsafeVectorAccess)._x * _sin
-                      +(normalA as unknown as UnsafeVectorAccess)._y * _cos;
+      const _normalX = (normalA as unknown as UnsafeVectorAccess)._x * _cos - (normalA as unknown as UnsafeVectorAccess)._y * _sin;
+      const _normalY = (normalA as unknown as UnsafeVectorAccess)._x * _sin + (normalA as unknown as UnsafeVectorAccess)._y * _cos;
       const _pointA = pointsA[pointsAIndex];
       // matrix x vector -> vector
-      const _pointX = polyBSpaceData[0] * (_pointA as unknown as UnsafeVectorAccess)._x +
-                      polyBSpaceData[2] * (_pointA as unknown as UnsafeVectorAccess)._y +
-                      polyBSpaceData[4];
-      const _pointY = polyBSpaceData[1] * (_pointA as unknown as UnsafeVectorAccess)._x +
-                      polyBSpaceData[3] * (_pointA as unknown as UnsafeVectorAccess)._y +
-                      polyBSpaceData[5];
+      const _pointX =
+        polyBSpaceData[0] * (_pointA as unknown as UnsafeVectorAccess)._x +
+        polyBSpaceData[2] * (_pointA as unknown as UnsafeVectorAccess)._y +
+        polyBSpaceData[4];
+      const _pointY =
+        polyBSpaceData[1] * (_pointA as unknown as UnsafeVectorAccess)._x +
+        polyBSpaceData[3] * (_pointA as unknown as UnsafeVectorAccess)._y +
+        polyBSpaceData[5];
       // end inline
 
       // For every point in polyB
@@ -179,13 +178,14 @@ export class SeparatingAxis {
         // inlined below for speed
         // const distance = normal.dot(pointsB[pointsBIndex].sub(point, SeparatingAxis._SCRATCH_SUB_POINT));
         const _pointB = pointsB[pointsBIndex];
-        const distance = _normalX * ((_pointB as unknown as UnsafeVectorAccess)._x - _pointX) +
-                         _normalY * ((_pointB as unknown as UnsafeVectorAccess)._y - _pointY);
+        const distance =
+          _normalX * ((_pointB as unknown as UnsafeVectorAccess)._x - _pointX) +
+          _normalY * ((_pointB as unknown as UnsafeVectorAccess)._y - _pointY);
         // end inline
 
         if (distance < smallestPointDistance) {
           smallestPointDistance = distance;
-          smallestLocalPoint = _pointB
+          smallestLocalPoint = _pointB;
         }
       }
 
@@ -194,7 +194,6 @@ export class SeparatingAxis {
         const separationInfo = SeparatingAxis.SeparationPool.get();
         separationInfo.collider = polyA;
         separationInfo.separation = smallestPointDistance;
-        // console.log('early:', separationInfo);
         return separationInfo;
       }
 
@@ -218,7 +217,7 @@ export class SeparatingAxis {
     }
     normalsA[bestSideIndex].clone(separationInfo.localAxis);
     normalsA[bestSideIndex].rotate(polyA.transform.rotation, SeparatingAxis._ZERO, separationInfo.axis);
-    // inlined 
+    // inlined
     // polyA.transform.matrix.multiply(pointsA[bestSideIndex], separationInfo.side!.begin);
     // polyA.transform.matrix.multiply(pointsA[bestSide2], separationInfo.side!.end);
     // polyB.transform.matrix.multiply(localPoint!, separationInfo.point);
@@ -234,7 +233,6 @@ export class SeparatingAxis {
     pointsA[bestSideIndex].clone(separationInfo.localSide!.begin);
     pointsA[bestSide2].clone(separationInfo.localSide!.end);
 
-    // console.log('full:', separationInfo.separation, separationInfo.axis)
     return separationInfo;
   }
 

@@ -101,28 +101,8 @@ export class CollisionSystem extends System {
       return;
     }
 
-    // TODO do we need to do this every frame?
     // Collect up all the colliders and update them
-    let colliders: Collider[] = [];
-    for (let entityIndex = 0; entityIndex < this.query.entities.length; entityIndex++) {
-      const entity = this.query.entities[entityIndex];
-      const colliderComp = entity.get(ColliderComponent);
-      const collider = colliderComp?.get();
-      if (colliderComp && colliderComp.owner?.isActive && collider) {
-        colliderComp.update();
-
-        // Flatten composite colliders
-        if (collider instanceof CompositeCollider) {
-          const compositeColliders = collider.getColliders();
-          if (!collider.compositeStrategy) {
-            collider.compositeStrategy = this._physics.config.colliders.compositeStrategy;
-          }
-          colliders = colliders.concat(compositeColliders);
-        } else {
-          colliders.push(collider);
-        }
-      }
-    }
+    const colliders = this._updateColliders();
 
     // Update the spatial partitioning data structures
     // TODO if collider invalid it will break the processor
@@ -146,6 +126,9 @@ export class CollisionSystem extends System {
         // first step is run by the MotionSystem when configured, so skip 0th
         // elapsed is used here because step size is calcluated in motion system
         this._motionSystem.update(elapsed);
+        // Colliders snapshot their transform on update(); refresh them so the substep narrowphase
+        // and solver lever arms match the integrated/position-corrected body transforms
+        this._updateColliders();
       }
       // Re-use pairs from previous collision
       if (contacts.length) {
@@ -203,6 +186,33 @@ export class CollisionSystem extends System {
 
   postupdate(): void {
     SeparatingAxis.SeparationPool.done();
+  }
+
+  /**
+   * Refresh every active collider's transform snapshot and return the flattened list of colliders
+   */
+  private _updateColliders(): Collider[] {
+    let colliders: Collider[] = [];
+    for (let entityIndex = 0; entityIndex < this.query.entities.length; entityIndex++) {
+      const entity = this.query.entities[entityIndex];
+      const colliderComp = entity.get(ColliderComponent);
+      const collider = colliderComp?.get();
+      if (colliderComp && colliderComp.owner?.isActive && collider) {
+        colliderComp.update();
+
+        // Flatten composite colliders
+        if (collider instanceof CompositeCollider) {
+          const compositeColliders = collider.getColliders();
+          if (!collider.compositeStrategy) {
+            collider.compositeStrategy = this._physics.config.colliders.compositeStrategy;
+          }
+          colliders = colliders.concat(compositeColliders);
+        } else {
+          colliders.push(collider);
+        }
+      }
+    }
+    return colliders;
   }
 
   getSolver(): CollisionSolver {
