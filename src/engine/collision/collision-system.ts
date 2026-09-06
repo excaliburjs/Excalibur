@@ -117,6 +117,21 @@ export class CollisionSystem extends System {
     // Given possible pairs find actual contacts
     let contacts: CollisionContact[] = [];
 
+    // Contacts between bodies that can't move (both asleep, or asleep against fixed geometry) are excluded from the
+    // broadphase and carried over from the previous frame unchanged instead of being detected and solved again.
+    // They still take part in islands (so an awake body touching a sleeping pile wakes it) and in start/end tracking.
+    let dormantContacts: CollisionContact[] = [];
+    const stats = this._engine?.debug?.stats?.currFrame;
+    for (const contact of this._lastFrameContacts.values()) {
+      if (Pair.isDormant(contact.bodyA, contact.bodyB) && contact.colliderA.owner?.isActive && contact.colliderB.owner?.isActive) {
+        contact.persist();
+        dormantContacts.push(contact);
+        if (stats) {
+          stats.physics.contacts.set(contact.id, contact);
+        }
+      }
+    }
+
     const solver: CollisionSolver = this.getSolver();
 
     // Solve, this resolves the position/velocity so entities aren't overlapping
@@ -126,43 +141,49 @@ export class CollisionSystem extends System {
         // first step is run by the MotionSystem when configured, so skip 0th
         // elapsed is used here because step size is calcluated in motion system
         this._motionSystem.update(elapsed);
-        // Colliders snapshot their transform on update(); refresh them so the substep narrowphase
-        // and solver lever arms match the integrated/position-corrected body transforms
-        this._updateColliders();
-      }
-      // Re-use pairs from previous collision
-      if (contacts.length) {
-        pairs = contacts.map((c) => new Pair(c.colliderA, c.colliderB));
+        // colliders sync lazily from their owner transform, so the substep narrowphase and solver lever arms
+        // always see the integrated/position-corrected body transforms without an explicit refresh
+
+        // Re-use pairs from previous collision
+        if (contacts.length) {
+          pairs = contacts.map((c) => new Pair(c.colliderA, c.colliderB));
+        }
+
+        // Dormant pairs woken during the previous substep need real detection from now on
+        if (dormantContacts.length) {
+          const stillDormant: CollisionContact[] = [];
+          for (const contact of dormantContacts) {
+            if (Pair.isDormant(contact.bodyA, contact.bodyB)) {
+              stillDormant.push(contact);
+            } else {
+              pairs.push(new Pair(contact.colliderA, contact.colliderB));
+            }
+          }
+          dormantContacts = stillDormant;
+        }
       }
 
-      if (pairs.length) {
-        contacts = this._processor.narrowphase(pairs, this._engine?.debug?.stats?.currFrame);
+      if (pairs.length || dormantContacts.length) {
+        contacts = pairs.length ? this._processor.narrowphase(pairs, stats) : [];
+        const frameContacts = dormantContacts.length ? contacts.concat(dormantContacts) : contacts;
 
         if (this._physics.config.solver === SolverStrategy.Realistic) {
           // TODO we could possbily enable this for Arcade, will require some thinking
-          const islands = buildContactIslands(this._physics.config.bodies, this._bodies, contacts);
+          const islands = buildContactIslands(this._physics.config.bodies, this._bodies, frameContacts);
 
           for (const island of islands) {
             island.updateSleepState(elapsed / substep);
           }
         }
 
-        contacts = solver.solve(contacts, elapsed / substep, step, substep);
+        solver.solve(frameContacts, elapsed / substep, step, substep);
 
-        // Record contacts for start/end
-        for (const contact of contacts) {
-          if (contact.isCanceled()) {
-            continue;
-          }
-          // Process composite ids, things with the same composite id are treated as the same collider for start/end
-          const index = contact.id.indexOf('|');
-          if (index > 0) {
-            const compositeId = contact.id.substring(index + 1);
-            this._currentFrameContacts.set(compositeId, contact);
-          } else {
-            this._currentFrameContacts.set(contact.id, contact);
-          }
-        }
+        // Only contacts detected this substep drive the next substep's pairs, carried contacts are excluded
+        contacts = contacts.filter((c) => !c.isCanceled());
+
+        // Record contacts for start/end from the solver's input: dormant contacts (carried over, or whose bodies fell
+        // asleep during this substep) are filtered out of the solved list but must stay alive
+        this._recordContacts(frameContacts);
       }
     }
 
@@ -188,8 +209,24 @@ export class CollisionSystem extends System {
     SeparatingAxis.SeparationPool.done();
   }
 
+  private _recordContacts(contacts: CollisionContact[]) {
+    for (const contact of contacts) {
+      if (contact.isCanceled()) {
+        continue;
+      }
+      // Process composite ids, things with the same composite id are treated as the same collider for start/end
+      const index = contact.id.indexOf('|');
+      if (index > 0) {
+        const compositeId = contact.id.substring(index + 1);
+        this._currentFrameContacts.set(compositeId, contact);
+      } else {
+        this._currentFrameContacts.set(contact.id, contact);
+      }
+    }
+  }
+
   /**
-   * Refresh every active collider's transform snapshot and return the flattened list of colliders
+   * Binds every active collider to its owner transform (a cheap no-op once bound) and returns the flattened list
    */
   private _updateColliders(): Collider[] {
     let colliders: Collider[] = [];

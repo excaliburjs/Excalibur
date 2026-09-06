@@ -48,6 +48,7 @@ export class HashGridProxy<T extends { bounds: BoundingBox }> {
    * Has the hashed bounds changed
    */
   hasChanged(): boolean {
+    this.updateBounds();
     const bounds = this.bounds;
     const leftX = Math.floor(bounds.left / this.gridSize);
     const rightX = Math.floor(bounds.right / this.gridSize);
@@ -213,13 +214,18 @@ export class SparseHashGrid<TObject extends { bounds: BoundingBox }, TProxy exte
     // Hash collider into appropriate cell
     const cell = this.sparseHashGrid.get(key);
     if (cell) {
-      const proxyIndex = cell.proxies.indexOf(proxy);
+      // swap-remove, membership order doesn't matter (pair order comes from proxy insertion order)
+      const proxies = cell.proxies;
+      const proxyIndex = proxies.indexOf(proxy);
       if (proxyIndex > -1) {
-        cell.proxies.splice(proxyIndex, 1);
+        proxies[proxyIndex] = proxies[proxies.length - 1];
+        proxies.pop();
       }
-      const cellIndex = proxy.cells.indexOf(cell);
+      const cells = proxy.cells;
+      const cellIndex = cells.indexOf(cell);
       if (cellIndex > -1) {
-        proxy.cells.splice(cellIndex, 1);
+        cells[cellIndex] = cells[cells.length - 1];
+        cells.pop();
       }
       if (cell.proxies.length === 0) {
         this._hashGridCellPool.return(cell);
@@ -260,8 +266,7 @@ export class SparseHashGrid<TObject extends { bounds: BoundingBox }, TProxy exte
       if (!proxy) {
         continue;
       }
-      // refresh world bounds once per frame, the broadphase reads proxy.bounds directly
-      proxy.updateBounds();
+      // hasChanged refreshes proxy.bounds when needed, the broadphase reads them directly
       if (proxy.hasChanged()) {
         // TODO slightly wasteful only remove from changed
         for (let x = proxy.leftX; x <= proxy.rightX; x++) {

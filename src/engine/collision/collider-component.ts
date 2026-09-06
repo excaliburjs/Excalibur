@@ -143,11 +143,23 @@ export class ColliderComponent extends Component {
     }
   }
 
+  private _collidersToFinalize: Collider[] = [];
+
+  /**
+   * Removal happens in two phases: colliders removed this frame are untracked from collision detection right away, but
+   * stay wired to this component for one more frame so the `collisionend` of any contact they were in still reaches the
+   * owner. The next call finalizes them.
+   */
   public processColliderRemoval() {
-    for (const collider of this._collidersToRemove) {
+    for (const collider of this._collidersToFinalize) {
       collider.events.unpipe(this.events);
-      this.$colliderRemoved.notifyAll(collider);
       collider.owner = null;
+    }
+    this._collidersToFinalize.length = 0;
+
+    for (const collider of this._collidersToRemove) {
+      this.$colliderRemoved.notifyAll(collider);
+      this._collidersToFinalize.push(collider);
     }
     this._collidersToRemove.length = 0;
   }

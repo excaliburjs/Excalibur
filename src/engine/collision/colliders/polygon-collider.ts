@@ -45,6 +45,7 @@ export class PolygonCollider extends Collider {
   public offset: Vector;
 
   public flagDirty() {
+    this._worldVersion++;
     this._boundsDirty = true;
     this._localBoundsDirty = true;
     this._localSidesDirty = true;
@@ -91,7 +92,7 @@ export class PolygonCollider extends Collider {
 
   private _transform: Transform = new Transform();
   public get transform() {
-    return this._transform;
+    return this._tx;
   }
 
   private _transformedPoints: Vector[] = [];
@@ -368,7 +369,7 @@ export class PolygonCollider extends Collider {
    * Returns the world position of the collider, which is the current body transform plus any defined offset
    */
   public get worldPos(): Vector {
-    return this._transform.pos;
+    return this._tx.pos;
   }
 
   /**
@@ -384,11 +385,12 @@ export class PolygonCollider extends Collider {
    * Calculates the underlying transformation from the body relative space to world space
    */
   private _calculateTransformation() {
+    const transform = this._tx;
     const points = this.points;
     const len = points.length;
     this._transformedPoints.length = 0; // clear out old transform
     for (let i = 0; i < len; i++) {
-      this._transformedPoints[i] = this._transform.apply(points[i].clone());
+      this._transformedPoints[i] = transform.apply(points[i].clone());
     }
   }
 
@@ -396,6 +398,7 @@ export class PolygonCollider extends Collider {
    * Gets the points that make up the polygon in world space, from actor relative space (if specified)
    */
   public getTransformedPoints(): Vector[] {
+    this._sync();
     if (this._transformedPointsDirty) {
       this._calculateTransformation();
       this._transformedPointsDirty = false;
@@ -408,6 +411,7 @@ export class PolygonCollider extends Collider {
    * Gets the sides of the polygon in world space
    */
   public getSides(): LineSegment[] {
+    this._sync();
     if (this._sidesDirty) {
       const lines = [];
       const points = this.getTransformedPoints();
@@ -502,24 +506,78 @@ export class PolygonCollider extends Collider {
    */
   public update(transform: Transform): void {
     if (transform) {
-      // This change means an update must be performed in order for geometry to update
-      transform.cloneWithParent(this._transform);
-      this._boundsDirty = true;
-      this._transformedPointsDirty = true;
-      this._sidesDirty = true;
-      if (this.offset.x !== 0 || this.offset.y !== 0) {
-        this._transform.pos.x += this.offset.x;
-        this._transform.pos.y += this.offset.y;
+      if (transform !== this._ownerTransform) {
+        this._ownerTransform = transform;
+        this._syncedVersion = -1;
       }
-
-      if (this._transform.isMirrored()) {
-        // negative transforms really mess with things in collision local space
-        // flatten out the negatives by applying to geometry
-        this.points = this.points.map((p) => vec(p.x * sign(this._transform.scale.x), p.y * sign(this._transform.scale.y)));
-        this._transform.scale.x = Math.abs(this._transform.scale.x);
-        this._transform.scale.y = Math.abs(this._transform.scale.y);
-      }
+      this._sync();
     }
+  }
+
+  // Colliders keep only local geometry, the owner transform is referenced and world space caches are rebuilt lazily
+  // whenever it (or the offset) changes
+  private _ownerTransform: Transform | null = null;
+  private _syncedVersion = -1;
+  private _syncedOffsetX = NaN;
+  private _syncedOffsetY = NaN;
+  // sign flips currently applied to the local points to undo a mirrored owner transform
+  private _appliedMirrorX = 1;
+  private _appliedMirrorY = 1;
+
+  /**
+   * Rebuilds the world transform snapshot from the owner transform if anything changed since the last sync
+   */
+  private _sync(): void {
+    const owner = this._ownerTransform;
+    if (!owner) {
+      return;
+    }
+    const version = owner.version;
+    if (version === this._syncedVersion && this.offset.x === this._syncedOffsetX && this.offset.y === this._syncedOffsetY) {
+      return;
+    }
+    this._syncedVersion = version;
+    this._syncedOffsetX = this.offset.x;
+    this._syncedOffsetY = this.offset.y;
+
+    owner.cloneWithParent(this._transform);
+    this._boundsDirty = true;
+    this._transformedPointsDirty = true;
+    this._sidesDirty = true;
+    if (this.offset.x !== 0 || this.offset.y !== 0) {
+      this._transform.pos.x += this.offset.x;
+      this._transform.pos.y += this.offset.y;
+    }
+
+    // negative transforms really mess with things in collision local space
+    // flatten out the negatives by applying them to the geometry, tracked so it is only applied once
+    const mirrorX = sign(this._transform.scale.x) || 1;
+    const mirrorY = sign(this._transform.scale.y) || 1;
+    if (mirrorX !== this._appliedMirrorX || mirrorY !== this._appliedMirrorY) {
+      const flipX = mirrorX * this._appliedMirrorX;
+      const flipY = mirrorY * this._appliedMirrorY;
+      this.points = this.points.map((p) => vec(p.x * flipX, p.y * flipY));
+      this._appliedMirrorX = mirrorX;
+      this._appliedMirrorY = mirrorY;
+    }
+    if (this._transform.isMirrored()) {
+      this._transform.scale.x = Math.abs(this._transform.scale.x);
+      this._transform.scale.y = Math.abs(this._transform.scale.y);
+    }
+    this._worldVersion++;
+  }
+
+  /**
+   * The world transform snapshot, synced with the owner transform on access
+   */
+  private get _tx(): Transform {
+    this._sync();
+    return this._transform;
+  }
+
+  public override get worldVersion(): number {
+    this._sync();
+    return this._worldVersion;
   }
 
   /**
@@ -528,7 +586,7 @@ export class PolygonCollider extends Collider {
   public contains(point: Vector): boolean {
     // Always cast to the right, as long as we cast in a consistent fixed direction we
     // will be fine
-    const localPoint = this._transform.applyInverse(point);
+    const localPoint = this._tx.applyInverse(point);
     const testRay = new Ray(localPoint, new Vector(1, 0));
 
     let intersectCount = 0;
@@ -647,8 +705,9 @@ export class PolygonCollider extends Collider {
    * World space bounds cached until the collider is updated, internal so callers can't mutate the cache
    */
   private _getWorldBounds(): BoundingBox {
+    this._sync();
     if (this._boundsDirty) {
-      this.localBounds.transform(this._transform.matrix, this._bounds);
+      this.localBounds.transform(this._tx.matrix, this._bounds);
       this._boundsDirty = false;
     }
     return this._bounds;

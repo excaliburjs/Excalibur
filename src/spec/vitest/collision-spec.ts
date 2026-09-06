@@ -548,4 +548,62 @@ describe('A Collision', () => {
         done();
       });
     }));
+
+  it('carries contacts between sleeping bodies over without re-detecting them', () =>
+    new Promise<void>((done) => {
+      engine.stop();
+      engine.dispose();
+      engine = TestUtils.engine({
+        width: 600,
+        height: 400,
+        physics: {
+          solver: ex.SolverStrategy.Realistic,
+          gravity: ex.vec(0, 200),
+          bodies: { canSleepByDefault: true, sleepTimeThreshold: 200 }
+        }
+      });
+      clock = engine.clock = engine.clock.toTestClock();
+
+      engine.start().then(() => {
+        const floor = new ex.Actor({ x: 300, y: 300, width: 600, height: 20, collisionType: ex.CollisionType.Fixed });
+        const box = new ex.Actor({ x: 300, y: 270, width: 40, height: 40, collisionType: ex.CollisionType.Active });
+        engine.add(floor);
+        engine.add(box);
+
+        let starts = 0;
+        let ends = 0;
+        box.on('collisionstart', () => starts++);
+        box.on('collisionend', () => ends++);
+
+        // let the box land and fall asleep
+        for (let i = 0; i < 250; i++) {
+          clock.step(16);
+        }
+        expect(box.body.isSleeping).toBe(true);
+        expect(starts).toBe(1);
+        expect(ends).toBe(0);
+
+        const processor = engine.currentScene.physics.collisionProcessor;
+        const narrowphase = vi.spyOn(processor, 'narrowphase');
+        const postcollision = vi.fn();
+        box.on('postcollision', postcollision);
+        for (let i = 0; i < 20; i++) {
+          clock.step(16);
+        }
+
+        // the sleeping box vs fixed floor pair is dormant: no detection, no events, contact still alive
+        expect(narrowphase).not.toHaveBeenCalled();
+        expect(postcollision).not.toHaveBeenCalled();
+        expect(ends).toBe(0);
+        expect(box.body.isSleeping).toBe(true);
+
+        // waking the box resumes detection on the same contact without a new collisionstart
+        box.body.wake();
+        clock.step(16);
+        expect(narrowphase).toHaveBeenCalled();
+        expect(starts).toBe(1);
+        expect(ends).toBe(0);
+        done();
+      });
+    }));
 });

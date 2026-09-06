@@ -74,6 +74,20 @@ export class HashColliderProxy extends HashGridProxy<Collider> {
     this.collisionType = this.body?.collisionType ?? CollisionType.PreventCollision;
   }
 
+  private _lastWorldVersion = -1;
+
+  /**
+   * Skips the bounds refresh and cell comparison entirely when the collider's world geometry hasn't changed
+   */
+  override hasChanged(): boolean {
+    const version = this.collider.worldVersion;
+    if (version === this._lastWorldVersion) {
+      return false;
+    }
+    this._lastWorldVersion = version;
+    return super.hasChanged();
+  }
+
   /**
    * Updates the hashed bounds coordinates
    */
@@ -285,6 +299,12 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
   }
 
   private _canCollide(colliderA: HashColliderProxy, colliderB: HashColliderProxy) {
+    // dormant pairs keep their last contact instead of being detected again, checked first because in a settled
+    // scene nearly every candidate pair is dormant
+    if (Pair.isDormant(colliderA.body, colliderB.body)) {
+      return false;
+    }
+
     // Prevent self collision
     if (colliderA.collider.id === colliderB.collider.id) {
       return false;
@@ -337,6 +357,10 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     for (const proxy of this.hashGrid.objectToProxy.values()) {
       proxy.id = proxyId++; // track proxies we've already processed
       if (!proxy.owner.isActive || proxy.collisionType === CollisionType.PreventCollision) {
+        continue;
+      }
+      // a sleeping body's pairs are either dormant (carried over) or found from its awake neighbour's side
+      if (proxy.body?.isSleeping) {
         continue;
       }
       // for every cell proxy collider is member of

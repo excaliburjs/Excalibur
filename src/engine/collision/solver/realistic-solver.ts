@@ -10,6 +10,7 @@ import type { CollisionSolver } from './solver';
 import type { BodyComponent } from '../body-component';
 import { DegreeOfFreedom } from '../body-component';
 import { CollisionJumpTable } from '../colliders/collision-jump-table';
+import { Pair } from '../detection/pair';
 import type { DeepRequired } from '../../util/required';
 import type { PhysicsConfig } from '../physics-config';
 import type { ContactBias } from './contact-bias';
@@ -51,8 +52,8 @@ export class RealisticSolver implements CollisionSolver {
     // Events and init
     this.preSolve(contacts, substep);
 
-    // Remove any canceled contacts
-    contacts = contacts.filter((c) => !c.isCanceled());
+    // Remove any canceled contacts, dormant (sleeping) contacts are only carried for their constraints and never solved
+    contacts = contacts.filter((c) => !c.isCanceled() && !Pair.isDormant(c.bodyA, c.bodyB));
     // Locate collision bias order
     let bias: ContactBias;
     switch (this.config!.contactSolveBias) {
@@ -104,6 +105,10 @@ export class RealisticSolver implements CollisionSolver {
     this.directionMap.clear();
     for (let i = 0; i < contacts.length; i++) {
       const contact = contacts[i];
+      // Sleeping contacts are carried over without being simulated, no events, no solve ordering
+      if (Pair.isDormant(contact.bodyA, contact.bodyB)) {
+        continue;
+      }
       if (Math.abs(contact.mtv.x) < epsilon && Math.abs(contact.mtv.y) < epsilon) {
         // Cancel near 0 mtv collisions
         contact.cancel();
@@ -142,10 +147,14 @@ export class RealisticSolver implements CollisionSolver {
     for (let i = 0; i < contacts.length; i++) {
       const contact = contacts[i];
       currentIds.add(contact.id);
-      const contactPoints = this.idToContactConstraint.get(contact.id) ?? [];
 
       const bodyA = contact.bodyA;
       const bodyB = contact.bodyB;
+      // Keep the accumulated impulses of sleeping contacts for when they wake, nothing else to do for them
+      if (Pair.isDormant(bodyA, bodyB)) {
+        continue;
+      }
+      const contactPoints = this.idToContactConstraint.get(contact.id) ?? [];
       if (bodyA && bodyB && !bodyA.isSleeping && !bodyB.isSleeping) {
         const colliderA = contact.colliderA;
         const colliderB = contact.colliderB;
