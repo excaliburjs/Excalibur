@@ -104,7 +104,9 @@ export class CompositeCollider extends Collider {
     const first = colliders[0]?.bounds;
     const results = colliders.reduce(
       (acc, collider) => acc.combine(collider.bounds),
-      first ? new BoundingBox(first.left, first.top, first.right, first.bottom) : new BoundingBox().translate(this.worldPos)
+      first
+        ? new BoundingBox({ left: first.left, top: first.top, right: first.right, bottom: first.bottom })
+        : new BoundingBox().translate(this.worldPos)
     );
 
     return results.translate(this.offset);

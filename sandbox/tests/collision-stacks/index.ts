@@ -13,10 +13,10 @@ var engine = new ex.Engine({
     bodies: { canSleepByDefault: true },
     realistic: {
       velocityIterations: 4,
-      positionIterations: 2,
-    },
+      positionIterations: 2
+    }
   },
-  fixedUpdateFps: 30,
+  fixedUpdateFps: 30
 });
 
 var WALL_THICKNESS = 10;
@@ -33,26 +33,32 @@ function addWalls(engine: ex.Engine): void {
   const t = WALL_THICKNESS;
 
   // Floor
-  engine.add(new ex.Actor({
-    name: 'Floor',
-    pos: ex.vec(cx, bottom + t / 2),
-    collider: ex.Colliders.Edge(ex.vec(-w / 2, 0), ex.vec(w / 2, 0)),
-    collisionType: ex.CollisionType.Fixed
-  }));
+  engine.add(
+    new ex.Actor({
+      name: 'Floor',
+      pos: ex.vec(cx, bottom + t / 2),
+      collider: ex.Colliders.Edge(ex.vec(-w / 2, 0), ex.vec(w / 2, 0)),
+      collisionType: ex.CollisionType.Fixed
+    })
+  );
 
-  engine.add(new ex.Actor({
-    name: 'LeftWall',
-    pos: ex.vec(left - t / 2, cy),
-    collider: ex.Colliders.Edge(ex.vec(0, -h / 2), ex.vec(0, h / 2)),
-    collisionType: ex.CollisionType.Fixed
-  }));
+  engine.add(
+    new ex.Actor({
+      name: 'LeftWall',
+      pos: ex.vec(left - t / 2, cy),
+      collider: ex.Colliders.Edge(ex.vec(0, -h / 2), ex.vec(0, h / 2)),
+      collisionType: ex.CollisionType.Fixed
+    })
+  );
   // Right wall
-  engine.add(new ex.Actor({
-    name: 'RightWall',
-    pos: ex.vec(right + t / 2, cy),
-    collider: ex.Colliders.Edge(ex.vec(0, -h / 2), ex.vec(0, h / 2)),
-    collisionType: ex.CollisionType.Fixed
-  }));
+  engine.add(
+    new ex.Actor({
+      name: 'RightWall',
+      pos: ex.vec(right + t / 2, cy),
+      collider: ex.Colliders.Edge(ex.vec(0, -h / 2), ex.vec(0, h / 2)),
+      collisionType: ex.CollisionType.Fixed
+    })
+  );
 }
 
 addWalls(engine);
@@ -66,13 +72,12 @@ for (let i = 0; i < PLAYER_COUNT; i++) {
     width: 40,
     height: 40,
     color: ex.Color.random(),
-    collisionType: ex.CollisionType.Active,
+    collisionType: ex.CollisionType.Active
   });
   // player.motion.maxVel = ex.vec(50000, 50000);
   engine.add(player);
 }
 
 engine.start().then(() => {
-  engine.currentScene.camera.pos = ex.vec(0, 0)
-
+  engine.currentScene.camera.pos = ex.vec(0, 0);
 });

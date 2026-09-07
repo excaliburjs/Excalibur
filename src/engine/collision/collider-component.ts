@@ -151,6 +151,9 @@ export class ColliderComponent extends Component {
    * owner. The next call finalizes them.
    */
   public processColliderRemoval() {
+    if (this._collidersToFinalize.length === 0 && this._collidersToRemove.length === 0) {
+      return; // called for every entity every frame, keep the common case free
+    }
     for (const collider of this._collidersToFinalize) {
       collider.events.unpipe(this.events);
       collider.owner = null;

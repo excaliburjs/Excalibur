@@ -718,7 +718,8 @@ export class PolygonCollider extends Collider {
    */
   public get bounds(): BoundingBox {
     const bounds = this._getWorldBounds();
-    return new BoundingBox(bounds.left, bounds.top, bounds.right, bounds.bottom);
+    // object form like every other construction site, keeps the BoundingBox constructor monomorphic
+    return new BoundingBox({ left: bounds.left, top: bounds.top, right: bounds.right, bottom: bounds.bottom });
   }
 
   private _localBoundsDirty = true;
