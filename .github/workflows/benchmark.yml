@@ -1,0 +1,120 @@
+name: Benchmark
+
+# Informational performance comparison of this build against the latest published release, run with
+# https://github.com/excaliburjs/excalibur-benchmark. Results land in the job summary and in the
+# `benchmark-results` artifact (results json, svg charts, report.md). The job never fails on a
+# regression: shared runners are noisy, look for changes that persist across runs.
+#
+# This workflow executes the code under test, so it is deliberately unprivileged: read-only token, no persisted
+# credentials, no secrets, and nothing it produces is ever consumed by a job with write access. PR code only ever runs
+# in the pull_request event (isolated cache scope, read-only token), never on a default-branch context: collaborators
+# re-run a PR's benchmark with a `/benchmark` comment (benchmark-comment.yml re-runs the PR's own run and replies with
+# a link), and `workflow_dispatch` benchmarks whichever branch of this repository is selected in the Actions UI.
+#
+# Hosted runners have no GPU: Chromium renders with swiftshader, so drawing scenarios (bunnymark) are ~40x slower than
+# on real hardware. Deltas between the two engines still compare like for like. For real GPU numbers run the tool
+# locally with `--gl hardware --headed`, or point this workflow at a self-hosted runner with a GPU and xvfb.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      baseline:
+        description: 'Baseline engine spec (npm:excalibur@<version|tag>, or a URL to a UMD bundle)'
+        default: 'npm:excalibur@latest'
+        required: false
+      tests:
+        description: 'Comma separated scenario names to run (empty = all)'
+        default: ''
+        required: false
+      repeat:
+        description: 'Interleaved repetitions per scenario'
+        default: '2'
+        required: false
+
+concurrency:
+  group: benchmark-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Pin the benchmark tool to a known commit. Update deliberately when the tool or its scenarios change.
+  BENCHMARK_REPO: excaliburjs/excalibur-benchmark
+  BENCHMARK_REF: main # TODO replace with the sha of the pushed benchmark tool rewrite
+  BENCHMARK_BASELINE: ${{ inputs.baseline || 'npm:excalibur@latest' }}
+  BENCHMARK_REPEAT: ${{ inputs.repeat || '2' }}
+  BENCHMARK_TESTS: ${{ inputs.tests || '' }}
+  BENCHMARK_WARN_PERCENT: '20'
+  BENCHMARK_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    # untrusted code runs here: read-only token, no secrets
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          persist-credentials: false
+      - uses: actions/setup-node@v6.5.0
+        with:
+          node-version-file: 'package.json'
+          package-manager-cache: false
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm install -g npm@11.16.0
+      - run: npm ci
+      - name: Build candidate bundle
+        run: npm run build:production
+
+      - name: Checkout benchmark tool
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.BENCHMARK_REPO }}
+          ref: ${{ env.BENCHMARK_REF }}
+          path: benchmark
+          persist-credentials: false
+      - name: Install benchmark tool
+        working-directory: benchmark
+        run: |
+          npm ci
+          npx playwright install chromium --with-deps
+          npm run build
+
+      - name: Run benchmarks
+        working-directory: benchmark
+        run: |
+          node bench.mjs run \
+            --candidate ../build/dist/excalibur.js \
+            --baseline "$BENCHMARK_BASELINE" \
+            --repeat "$BENCHMARK_REPEAT" \
+            ${BENCHMARK_TESTS:+--tests "$BENCHMARK_TESTS"} \
+            --out ../bench-results/results.json \
+            --charts ../bench-results/charts
+
+      - name: Report
+        if: always()
+        working-directory: benchmark
+        run: |
+          mkdir -p ../bench-results
+          echo "Benchmarked commit \`$BENCHMARK_HEAD_SHA\` against \`$BENCHMARK_BASELINE\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          if [ -f ../bench-results/results.json ]; then
+            node bench.mjs report ../bench-results/results.json --markdown --warn "$BENCHMARK_WARN_PERCENT" --charts ../bench-results/charts > ../bench-results/report.md
+            cat ../bench-results/report.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Benchmark produced no results" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: bench-results/
+          retention-days: 30
+          if-no-files-found: ignore

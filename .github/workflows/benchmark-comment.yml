@@ -1,0 +1,35 @@
+name: Benchmark Comment
+
+# `/benchmark` PR comments (collaborators only) re-run the PR's most recent Benchmark run and reply with a link to it.
+#
+# This is the only privileged part of the benchmark and it never checks out or runs PR code: the script comes from the
+# default branch and the reply is built from API data only, never from the comment text. Re-running the PR's own
+# pull_request run (instead of dispatching a run on the default branch with the PR's sha) keeps PR code in the
+# pull_request context: read-only token and an isolated cache scope, so it can't poison caches used on main. Results
+# stay in that run's job summary; no write token ever handles output produced by the code under test.
+# issue_comment workflows only run from the default branch, so this is active once the file is on main.
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  rerun:
+    if: github.event.issue.pull_request && startsWith(github.event.comment.body, '/benchmark')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read # checkout of the script from the default branch
+      actions: write # find and re-run the PR's Benchmark run
+      pull-requests: read # head sha of the PR
+      issues: write # reaction + reply on the PR comment
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Re-run the benchmark for this PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const script = require('./.github/scripts/rerun-benchmark.js');
+            await script({ github, context, core });

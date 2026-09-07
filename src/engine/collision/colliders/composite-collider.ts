@@ -100,9 +100,13 @@ export class CompositeCollider extends Collider {
   get bounds(): BoundingBox {
     // TODO cache this
     const colliders = this.getColliders();
+    // member bounds may be cached instances, start from a copy so they are never mutated
+    const first = colliders[0]?.bounds;
     const results = colliders.reduce(
       (acc, collider) => acc.combine(collider.bounds),
-      colliders[0]?.bounds ?? new BoundingBox().translate(this.worldPos)
+      first
+        ? new BoundingBox({ left: first.left, top: first.top, right: first.right, bottom: first.bottom })
+        : new BoundingBox().translate(this.worldPos)
     );
 
     return results.translate(this.offset);
