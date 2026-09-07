@@ -6,9 +6,10 @@ name: Benchmark
 # regression: shared runners are noisy, look for changes that persist across runs.
 #
 # This workflow executes the code under test, so it is deliberately unprivileged: read-only token, no persisted
-# credentials, no secrets, and nothing it produces is ever consumed by a job with write access. Collaborators can
-# re-run it on a PR with a `/benchmark` comment (benchmark-comment.yml dispatches it at the PR head sha and replies
-# with a link to the run).
+# credentials, no secrets, and nothing it produces is ever consumed by a job with write access. PR code only ever runs
+# in the pull_request event (isolated cache scope, read-only token), never on a default-branch context: collaborators
+# re-run a PR's benchmark with a `/benchmark` comment (benchmark-comment.yml re-runs the PR's own run and replies with
+# a link), and `workflow_dispatch` benchmarks whichever branch of this repository is selected in the Actions UI.
 #
 # Hosted runners have no GPU: Chromium renders with swiftshader, so drawing scenarios (bunnymark) are ~40x slower than
 # on real hardware. Deltas between the two engines still compare like for like. For real GPU numbers run the tool
@@ -31,22 +32,11 @@ on:
         required: false
       repeat:
         description: 'Interleaved repetitions per scenario'
-        default: '3'
+        default: '2'
         required: false
-      ref:
-        description: 'Commit to benchmark (empty = the ref the workflow runs on). Set by /benchmark comments.'
-        default: ''
-        required: false
-      pr:
-        description: 'Pull request number the commit belongs to (empty = none). Set by /benchmark comments.'
-        default: ''
-        required: false
-
-# names dispatched runs after their PR so benchmark-comment.yml can find and link them
-run-name: ${{ inputs.pr != '' && format('Benchmark (PR #{0})', inputs.pr) || 'Benchmark' }}
 
 concurrency:
-  group: benchmark-${{ github.event.pull_request.number || inputs.pr || github.ref }}
+  group: benchmark-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 env:
@@ -57,7 +47,7 @@ env:
   BENCHMARK_REPEAT: ${{ inputs.repeat || '2' }}
   BENCHMARK_TESTS: ${{ inputs.tests || '' }}
   BENCHMARK_WARN_PERCENT: '20'
-  BENCHMARK_HEAD_SHA: ${{ github.event.pull_request.head.sha || inputs.ref || github.sha }}
+  BENCHMARK_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
 
 jobs:
   benchmark:
@@ -70,8 +60,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
-          # Use only trusted event refs/SHAs; never dispatch-provided refs.
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
       - uses: actions/setup-node@v6.5.0
         with:
