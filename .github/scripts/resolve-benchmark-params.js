@@ -22,7 +22,7 @@ module.exports = async ({ github, context, core }) => {
   const DEFAULT_BASELINE = 'npm:excalibur@latest';
   const DEFAULT_REPEAT = '2';
   // npm specs only from comments: a version, tag or range of the excalibur package. No URLs, no other packages.
-  const BASELINE_PATTERN = /^npm:excalibur@[A-Za-z0-9.+^~<>=|* -]{1,64}$/;
+  const BASELINE_PATTERN = /^npm:excalibur@[A-Za-z0-9][A-Za-z0-9.+-]{0,63}$/;
   const TESTS_PATTERN = /^[a-z0-9-]+(,[a-z0-9-]+)*$/;
   const ALLOWED_ASSOCIATIONS = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
 
@@ -89,7 +89,16 @@ module.exports = async ({ github, context, core }) => {
     });
     outputs.ref = pr.head.sha;
     outputs.head_sha = pr.head.sha;
-    outputs.trigger = `@${comment.user.login} via \`${comment.body.split('\n')[0].trim()}\``;
+    // rebuilt from the validated values, never echo the raw comment text into the bot's comment
+    const command = [
+      '/benchmark',
+      `--baseline ${outputs.baseline}`,
+      outputs.tests ? `--tests ${outputs.tests}` : '',
+      `--repeat ${outputs.repeat}`
+    ]
+      .filter(Boolean)
+      .join(' ');
+    outputs.trigger = `@${String(comment.user.login).replace(/[^A-Za-z0-9-]/g, '')} via \`${command}\``;
     await react(github, context, comment.id, 'rocket');
   }
 
