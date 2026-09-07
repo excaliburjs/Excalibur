@@ -1,4 +1,4 @@
-import type { ExcaliburGraphicsContext, ImageSource, TextureLoader } from '../..';
+import type { ExcaliburGraphicsContext, ImageSource, TextureLoader, Vector3, Vector4 } from '../..';
 import {
   AffineMatrix,
   Color,
@@ -16,7 +16,16 @@ import { getAttributeComponentSize, getAttributePointerType } from './webgl-util
 
 export type UniformDictionary = Record<
   string,
-  number | boolean | Vector | Color | AffineMatrix | Matrix | Float32Array | [uniformData: Float32Array, bindingPoint: number]
+  | number
+  | boolean
+  | Vector
+  | Vector3
+  | Vector4
+  | Color
+  | AffineMatrix
+  | Matrix
+  | Float32Array
+  | [uniformData: Float32Array, bindingPoint: number]
 >;
 /*
  * List of the possible glsl uniform types
@@ -884,6 +893,49 @@ export class Shader {
    */
   trySetUniformFloatVector(name: string, value: Vector): boolean {
     return this.trySetUniform('uniform2f', name, value.x, value.y);
+  }
+
+  /**
+   * Set a {@apilink Vector} uniform for the current shader
+   * **Important** Must call ex.Shader.use() before setting a uniform!
+   * @param name
+   * @param value
+   */
+
+  setUniformFloatVector3(name: string, value: Vector3): void {
+    this.setUniform('uniform3f', name, value.x, value.y, value.z);
+  }
+
+  /**
+   * Set a {@apilink Vector} uniform for the current shader, WILL NOT THROW on error.
+   * **Important** Must call ex.Shader.use() before setting a uniform!
+   * @param name
+   * @param value
+   * @returns
+   */
+  trySetUniformFloatVector3(name: string, value: Vector3): boolean {
+    return this.trySetUniform('uniform3f', name, value.x, value.y, value.z);
+  }
+
+  /**
+   * Set a {@apilink Vector} uniform for the current shader
+   * **Important** Must call ex.Shader.use() before setting a uniform!
+   * @param name
+   * @param value
+   */
+  setUniformFloatVector4(name: string, value: Vector4): void {
+    this.setUniform('uniform4f', name, value.x, value.y, value.z, value.w);
+  }
+
+  /**
+   * Set a {@apilink Vector} uniform for the current shader, WILL NOT THROW on error.
+   * **Important** Must call ex.Shader.use() before setting a uniform!
+   * @param name
+   * @param value
+   * @returns
+   */
+  trySetUniformFloatVector4(name: string, value: Vector4): boolean {
+    return this.trySetUniform('uniform4f', name, value.x, value.y, value.z, value.w);
   }
 
   /**
