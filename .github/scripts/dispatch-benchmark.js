@@ -3,8 +3,10 @@
  *
  * Handles `/benchmark [--baseline <npm spec>] [--tests <a,b>] [--repeat <n>]` comments on pull requests:
  * checks the author is a collaborator, validates the options strictly (they end up as workflow inputs and in shell
- * commands), reacts to the comment, and dispatches benchmark.yml on the default branch with the PR's head sha.
- * The benchmark itself runs in that unprivileged workflow; this script never checks out or executes PR code.
+ * commands), dispatches benchmark.yml on the default branch with the PR's head sha, and replies with a link to the
+ * run. Results stay in that run's job summary: the benchmark executes PR code in an unprivileged workflow and nothing
+ * it produces is read back by this (privileged) one. The reply is built from validated values only, the raw comment
+ * text is never echoed.
  *
  * Executed by github-script@v7 in benchmark-comment.yml.
  *
@@ -77,22 +79,54 @@ module.exports = async ({ github, context, core }) => {
     .filter(Boolean)
     .join(' ');
   const login = String(comment.user.login).replace(/[^A-Za-z0-9-]/g, '');
+  const runName = `Benchmark (PR #${pr.number})`; // benchmark.yml's run-name for dispatched runs
+  const dispatchedAt = new Date();
 
   await github.rest.actions.createWorkflowDispatch({
     owner: context.repo.owner,
     repo: context.repo.repo,
     workflow_id: WORKFLOW_FILE,
     ref: context.payload.repository.default_branch,
-    inputs: {
-      ...inputs,
-      ref: pr.head.sha,
-      pr: String(pr.number),
-      trigger: `@${login} via \`${command}\``
-    }
+    inputs: { ...inputs, ref: pr.head.sha, pr: String(pr.number) }
   });
   await react(github, context, comment.id, 'rocket');
   core.info(`dispatched ${WORKFLOW_FILE} for PR #${pr.number} at ${pr.head.sha}: ${command}`);
+
+  const run = await findDispatchedRun(github, context, WORKFLOW_FILE, runName, dispatchedAt);
+  const runsUrl = `${context.payload.repository.html_url}/actions/workflows/${WORKFLOW_FILE}?query=event%3Aworkflow_dispatch`;
+  const where = run ? `[this run](${run.html_url})` : `the run named "${runName}" [here](${runsUrl})`;
+  await github.rest.issues.createComment({
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    issue_number: pr.number,
+    body:
+      `🚀 Benchmarking ${pr.head.sha.substring(0, 7)} for @${login} (\`${command}\`). ` +
+      `Results land in the job summary of ${where} when it finishes.`
+  });
 };
+
+/**
+ * The dispatch API returns nothing, so find the run it started: newest workflow_dispatch run of the workflow with the
+ * expected run-name, created after the dispatch. The run can take a few seconds to appear.
+ */
+async function findDispatchedRun(github, context, workflowFile, runName, since, attempts = 6, delayMs = 5000) {
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    const { data } = await github.rest.actions.listWorkflowRuns({
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      workflow_id: workflowFile,
+      event: 'workflow_dispatch',
+      created: `>=${since.toISOString().substring(0, 19)}Z`,
+      per_page: 10
+    });
+    const run = data.workflow_runs.find((r) => r.display_title === runName || r.name === runName);
+    if (run) {
+      return run;
+    }
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+  }
+  return null;
+}
 
 /**
  * Parses `/benchmark --key value ...` (first line only), returns known keys plus a list of unknown tokens
@@ -127,6 +161,6 @@ async function react(github, context, commentId, content) {
       content
     });
   } catch (error) {
-    console.warn(`Could not add reaction: ${error.message}`);
+    console.info(`Could not add reaction: ${error.message}`);
   }
 }

@@ -2,12 +2,13 @@ name: Benchmark
 
 # Informational performance comparison of this build against the latest published release, run with
 # https://github.com/excaliburjs/excalibur-benchmark. Results land in the job summary and in the
-# `benchmark-results` artifact (results json, svg charts, report.md, meta.json). The job never fails on a
+# `benchmark-results` artifact (results json, svg charts, report.md). The job never fails on a
 # regression: shared runners are noisy, look for changes that persist across runs.
 #
 # This workflow executes the code under test, so it is deliberately unprivileged: read-only token, no persisted
-# credentials, and it never comments. `benchmark-comment.yml` handles `/benchmark` PR comments (it dispatches this
-# workflow with the PR head sha) and posts the sticky PR comment from the artifact once a run completes.
+# credentials, no secrets, and nothing it produces is ever consumed by a job with write access. Collaborators can
+# re-run it on a PR with a `/benchmark` comment (benchmark-comment.yml dispatches it at the PR head sha and replies
+# with a link to the run).
 #
 # Hosted runners have no GPU: Chromium renders with swiftshader, so drawing scenarios (bunnymark) are ~40x slower than
 # on real hardware. Deltas between the two engines still compare like for like. For real GPU numbers run the tool
@@ -37,13 +38,12 @@ on:
         default: ''
         required: false
       pr:
-        description: 'Pull request number to report results on (empty = none). Set by /benchmark comments.'
+        description: 'Pull request number the commit belongs to (empty = none). Set by /benchmark comments.'
         default: ''
         required: false
-      trigger:
-        description: 'Who/what started the run, shown in the PR comment. Set by /benchmark comments.'
-        default: ''
-        required: false
+
+# names dispatched runs after their PR so benchmark-comment.yml can find and link them
+run-name: ${{ inputs.pr != '' && format('Benchmark (PR #{0})', inputs.pr) || 'Benchmark' }}
 
 concurrency:
   group: benchmark-${{ github.event.pull_request.number || inputs.pr || github.ref }}
@@ -57,16 +57,13 @@ env:
   BENCHMARK_REPEAT: ${{ inputs.repeat || '2' }}
   BENCHMARK_TESTS: ${{ inputs.tests || '' }}
   BENCHMARK_WARN_PERCENT: '20'
-  # what the results are about, written to meta.json for the comment workflow
-  BENCHMARK_PR: ${{ github.event.pull_request.number || inputs.pr || '' }}
   BENCHMARK_HEAD_SHA: ${{ github.event.pull_request.head.sha || inputs.ref || github.sha }}
-  BENCHMARK_TRIGGER: ${{ inputs.trigger || '' }}
 
 jobs:
   benchmark:
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    # untrusted code runs here: read-only token, nothing else
+    # untrusted code runs here: read-only token, no secrets
     permissions:
       contents: read
     steps:
@@ -92,8 +89,6 @@ jobs:
           repository: ${{ env.BENCHMARK_REPO }}
           ref: ${{ env.BENCHMARK_REF }}
           path: benchmark
-          token: ${{ secrets.BENCHMARK_READ }}
-          # never leave the token on disk where the code under test could read it
           persist-credentials: false
       - name: Install benchmark tool
         working-directory: benchmark
@@ -118,19 +113,14 @@ jobs:
         working-directory: benchmark
         run: |
           mkdir -p ../bench-results
+          echo "Benchmarked commit \`$BENCHMARK_HEAD_SHA\` against \`$BENCHMARK_BASELINE\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
           if [ -f ../bench-results/results.json ]; then
             node bench.mjs report ../bench-results/results.json --markdown --warn "$BENCHMARK_WARN_PERCENT" --charts ../bench-results/charts > ../bench-results/report.md
             cat ../bench-results/report.md >> "$GITHUB_STEP_SUMMARY"
           else
             echo "Benchmark produced no results" >> "$GITHUB_STEP_SUMMARY"
           fi
-          # consumed by benchmark-comment.yml, values come from event data / validated dispatch inputs
-          node -e '
-            const fs = require("fs");
-            fs.writeFileSync("../bench-results/meta.json", JSON.stringify({
-              pr: process.env.BENCHMARK_PR, headSha: process.env.BENCHMARK_HEAD_SHA, trigger: process.env.BENCHMARK_TRIGGER
-            }));
-          '
 
       - name: Upload results
         if: always()
