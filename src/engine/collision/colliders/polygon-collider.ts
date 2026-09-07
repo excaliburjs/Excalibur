@@ -91,8 +91,12 @@ export class PolygonCollider extends Collider {
   }
 
   private _transform: Transform = new Transform();
-  public get transform() {
-    return this._tx;
+  /**
+   * The world transform snapshot, synced with the owner transform on access
+   */
+  public get transform(): Transform {
+    this._sync();
+    return this._transform;
   }
 
   private _transformedPoints: Vector[] = [];
@@ -369,7 +373,7 @@ export class PolygonCollider extends Collider {
    * Returns the world position of the collider, which is the current body transform plus any defined offset
    */
   public get worldPos(): Vector {
-    return this._tx.pos;
+    return this.transform.pos;
   }
 
   /**
@@ -385,7 +389,7 @@ export class PolygonCollider extends Collider {
    * Calculates the underlying transformation from the body relative space to world space
    */
   private _calculateTransformation() {
-    const transform = this._tx;
+    const transform = this.transform;
     const points = this.points;
     const len = points.length;
     this._transformedPoints.length = 0; // clear out old transform
@@ -518,8 +522,8 @@ export class PolygonCollider extends Collider {
   // whenever it (or the offset) changes
   private _ownerTransform: Transform | null = null;
   private _syncedVersion = -1;
-  private _syncedOffsetX = NaN;
-  private _syncedOffsetY = NaN;
+  private _syncedOffsetX: number | null = null;
+  private _syncedOffsetY: number | null = null;
   // sign flips currently applied to the local points to undo a mirrored owner transform
   private _appliedMirrorX = 1;
   private _appliedMirrorY = 1;
@@ -567,14 +571,6 @@ export class PolygonCollider extends Collider {
     this._worldVersion++;
   }
 
-  /**
-   * The world transform snapshot, synced with the owner transform on access
-   */
-  private get _tx(): Transform {
-    this._sync();
-    return this._transform;
-  }
-
   public override get worldVersion(): number {
     this._sync();
     return this._worldVersion;
@@ -586,7 +582,7 @@ export class PolygonCollider extends Collider {
   public contains(point: Vector): boolean {
     // Always cast to the right, as long as we cast in a consistent fixed direction we
     // will be fine
-    const localPoint = this._tx.applyInverse(point);
+    const localPoint = this.transform.applyInverse(point);
     const testRay = new Ray(localPoint, new Vector(1, 0));
 
     let intersectCount = 0;
@@ -707,7 +703,7 @@ export class PolygonCollider extends Collider {
   private _getWorldBounds(): BoundingBox {
     this._sync();
     if (this._boundsDirty) {
-      this.localBounds.transform(this._tx.matrix, this._bounds);
+      this.localBounds.transform(this.transform.matrix, this._bounds);
       this._boundsDirty = false;
     }
     return this._bounds;

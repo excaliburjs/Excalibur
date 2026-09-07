@@ -21,11 +21,6 @@ import { ContactSolveBias, HorizontalFirst, None, VerticalFirst } from './contac
  */
 type UnsafeVector = { _x: number; _y: number };
 
-/**
- * Largest single position correction in pixels
- */
-const MAX_POSITION_CORRECTION = -5;
-
 export class RealisticSolver implements CollisionSolver {
   directionMap = new Map<string, 'horizontal' | 'vertical'>();
   distanceMap = new Map<string, number>();
@@ -44,7 +39,8 @@ export class RealisticSolver implements CollisionSolver {
   /**
    * Solve the contacts for one physics (sub)step
    * @param contacts
-   * @param _duration length of the step in ms (unused)
+   * @param _duration length of the step in ms, unused but kept so `substep`/`substepCount` line up positionally with
+   * the {@apilink CollisionSolver} interface
    * @param substep index of the substep within the frame, collision events are emitted on the first and last substep only
    * @param substepCount total substeps in the frame
    */
@@ -88,7 +84,8 @@ export class RealisticSolver implements CollisionSolver {
     this.solvePosition(contacts);
 
     // Events and any contact house-keeping the solver needs
-    this.postSolve(contacts, substep === substepCount - 1);
+    const emitEventsLastSubstep = substep === substepCount - 1;
+    this.postSolve(contacts, emitEventsLastSubstep);
 
     return contacts;
   }
@@ -100,12 +97,15 @@ export class RealisticSolver implements CollisionSolver {
    */
   preSolve(contacts: CollisionContact[], substep: number = 0) {
     const epsilon = 0.0001;
-    const emitEvents = substep === 0;
+    const emitEventsOnFirstSubstep = substep === 0;
     this.distanceMap.clear();
     this.directionMap.clear();
     for (let i = 0; i < contacts.length; i++) {
       const contact = contacts[i];
-      // Sleeping contacts are carried over without being simulated, no events, no solve ordering
+      // Only fully dormant pairs (both asleep, or one asleep against a Fixed body) skip preSolve entirely.
+      // A pair with one sleeping body against an awake, movable body still gets its constraint refreshed here
+      // (just not solved, see warmStart/solvePosition/solveVelocity) so it has up to date warm-start data for
+      // the frame its island wakes
       if (Pair.isDormant(contact.bodyA, contact.bodyB)) {
         continue;
       }
@@ -121,7 +121,7 @@ export class RealisticSolver implements CollisionSolver {
       this.distanceMap.set(contact.id, distance);
       this.directionMap.set(contact.id, side === Side.Left || side === Side.Right ? 'horizontal' : 'vertical');
 
-      if (emitEvents) {
+      if (emitEventsOnFirstSubstep) {
         // Publish collision events on both participants
         contact.colliderA.events.emit(
           'precollision',
@@ -314,6 +314,8 @@ export class RealisticSolver implements CollisionSolver {
       const contact = contacts[i];
       const bodyA = contact.bodyA;
       const bodyB = contact.bodyB;
+      // We do want to warm start these contacts eventually, but we wait for the contact island to wake both
+      // bodies together rather than warm starting one side of a still-sleeping pair
       if (!bodyA || !bodyB || bodyA.isSleeping || bodyB.isSleeping) {
         continue;
       }
@@ -354,6 +356,8 @@ export class RealisticSolver implements CollisionSolver {
         const bodyA = contact.bodyA;
         const bodyB = contact.bodyB;
 
+        // We do want to solve these eventually, but we wait for the contact island to wake both bodies
+        // together, we don't apply position solves to a still-sleeping body
         if (!bodyA || !bodyB || bodyA.isSleeping || bodyB.isSleeping) {
           continue;
         }
@@ -374,7 +378,7 @@ export class RealisticSolver implements CollisionSolver {
 
           // Clamp to avoid over-correction
           // Remember that we are shooting for 0 overlap in the end
-          const steeringForce = clamp(steeringConstant * (separation + slop), MAX_POSITION_CORRECTION, 0);
+          const steeringForce = clamp(steeringConstant * (separation + slop), this.config!.maxPositionCorrection, 0);
           if (steeringForce === 0) {
             continue;
           }

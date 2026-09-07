@@ -41,8 +41,8 @@ export class CircleCollider extends Collider {
 
   private _globalMatrix: AffineMatrix = AffineMatrix.identity();
   private _syncedVersion = -1;
-  private _syncedOffsetX = NaN;
-  private _syncedOffsetY = NaN;
+  private _syncedOffsetX: number | null = null;
+  private _syncedOffsetY: number | null = null;
 
   /**
    * Rebuilds the world matrix from the owner transform if it (or the offset) changed since the last sync

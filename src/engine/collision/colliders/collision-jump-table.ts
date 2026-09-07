@@ -4,7 +4,7 @@ import { PolygonCollider } from './polygon-collider';
 import { EdgeCollider } from './edge-collider';
 import type { SeparationInfo } from './separating-axis';
 import { SeparatingAxis } from './separating-axis';
-import type { SatShape } from './separating-axis';
+import type { SatShape } from './sat-shape';
 import type { Collider } from './collider';
 import { Vector } from '../../math/vector';
 import { TransformComponent } from '../../entity-component-system';
@@ -308,14 +308,14 @@ export const CollisionJumpTable = {
     // Clip incident side by the perpendicular lines at each end of the reference side
     // https://en.wikipedia.org/wiki/Sutherland%E2%80%93Hodgman_algorithm
     // Done in scalars on scratch state, this runs for every contact every substep so it must not allocate
-    const m = toIncidentFrame.data;
+    const incidentFrameData = toIncidentFrame.data;
     const localBegin = separation.localSide.begin as unknown as UnsafeVector;
     const localEnd = separation.localSide.end as unknown as UnsafeVector;
     // reference side in the incident frame
-    const refBeginX = m[0] * localBegin._x + m[2] * localBegin._y + m[4];
-    const refBeginY = m[1] * localBegin._x + m[3] * localBegin._y + m[5];
-    const refEndX = m[0] * localEnd._x + m[2] * localEnd._y + m[4];
-    const refEndY = m[1] * localEnd._x + m[3] * localEnd._y + m[5];
+    const refBeginX = incidentFrameData[0] * localBegin._x + incidentFrameData[2] * localBegin._y + incidentFrameData[4];
+    const refBeginY = incidentFrameData[1] * localBegin._x + incidentFrameData[3] * localBegin._y + incidentFrameData[5];
+    const refEndX = incidentFrameData[0] * localEnd._x + incidentFrameData[2] * localEnd._y + incidentFrameData[4];
+    const refEndY = incidentFrameData[1] * localEnd._x + incidentFrameData[3] * localEnd._y + incidentFrameData[5];
     // reference direction = localAxis.perpendicular().negate() = (-axis.y, axis.x), rotated into the incident frame
     const localAxis = separation.localAxis as unknown as UnsafeVector;
     const cos = Math.cos(toIncidentFrameRotation);
@@ -342,7 +342,7 @@ export const CollisionJumpTable = {
     // Keep the clipped points that are below (penetrating) the reference side, same test as LineSegment.below
     const localPoints: Vector[] = [];
     const points: Vector[] = [];
-    const om = other.transform.matrix.data;
+    const otherMatrixData = other.transform.matrix.data;
     const refDX = refEndX - refBeginX;
     const refDY = refEndY - refBeginY;
     for (let i = 0; i < 2; i++) {
@@ -350,7 +350,12 @@ export const CollisionJumpTable = {
       const cy = i === 0 ? clip.y0 : clip.y1;
       if (refDX * (cy - refBeginY) - refDY * (cx - refBeginX) >= 0) {
         localPoints.push(new Vector(cx, cy));
-        points.push(new Vector(om[0] * cx + om[2] * cy + om[4], om[1] * cx + om[3] * cy + om[5]));
+        points.push(
+          new Vector(
+            otherMatrixData[0] * cx + otherMatrixData[2] * cy + otherMatrixData[4],
+            otherMatrixData[1] * cx + otherMatrixData[3] * cy + otherMatrixData[5]
+          )
+        );
       }
     }
 

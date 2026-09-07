@@ -46,6 +46,9 @@ export class HashGridProxy<T extends { bounds: BoundingBox }> {
 
   /**
    * Has the hashed bounds changed
+   *
+   * Refreshes `bounds` as a side effect (via {@apilink updateBounds}) so callers that need the current
+   * bounds regardless of the result (see {@apilink SparseHashGrid.update}) don't have to recompute them
    */
   hasChanged(): boolean {
     this.updateBounds();
@@ -82,10 +85,10 @@ export class HashGridProxy<T extends { bounds: BoundingBox }> {
 
   /**
    * Updates the hashed bounds coordinates
+   *
+   * Only called after {@apilink hasChanged} returns true, which has already refreshed `bounds`
    */
   update(): void {
-    this.bounds = this.object.bounds;
-
     this.leftX = Math.floor(this.bounds.left / this.gridSize);
     this.rightX = Math.floor(this.bounds.right / this.gridSize);
     this.bottomY = Math.floor(this.bounds.bottom / this.gridSize);
@@ -94,9 +97,16 @@ export class HashGridProxy<T extends { bounds: BoundingBox }> {
   }
 }
 
+/**
+ * Grid coordinates within this bound pack into a single safe-integer number for fast Map lookups;
+ * coordinates outside it (an extremely large or spread out world) fall back to a BigInt key.
+ */
+const HASH_GRID_KEY_BOUND = 1 << 20;
+const HASH_GRID_KEY_RANGE = HASH_GRID_KEY_BOUND * 2;
+
 export class HashGridCell<TObject extends { bounds: BoundingBox }, TProxy extends HashGridProxy<TObject> = HashGridProxy<TObject>> {
   proxies: TProxy[] = [];
-  key!: number | string;
+  key!: number | bigint;
   x!: number;
   y!: number;
 
@@ -106,17 +116,17 @@ export class HashGridCell<TObject extends { bounds: BoundingBox }, TProxy extend
     this.key = HashGridCell.calculateHashKey(x, y);
   }
 
-  static calculateHashKey(x: number, y: number) {
-    if (x >= -16384 && x <= 16384 && y >= -16384 && y <= 16384) {
-      return (x + 16384) * 32768 + (y + 16384);
+  static calculateHashKey(x: number, y: number): number | bigint {
+    if (x >= -HASH_GRID_KEY_BOUND && x <= HASH_GRID_KEY_BOUND && y >= -HASH_GRID_KEY_BOUND && y <= HASH_GRID_KEY_BOUND) {
+      return (x + HASH_GRID_KEY_BOUND) * HASH_GRID_KEY_RANGE + (y + HASH_GRID_KEY_BOUND);
     }
-    return `${x}+${y}`;
+    return BigInt(x) * BigInt(4294967296) + BigInt(y);
   }
 }
 
 export class SparseHashGrid<TObject extends { bounds: BoundingBox }, TProxy extends HashGridProxy<TObject> = HashGridProxy<TObject>> {
   readonly gridSize: number;
-  readonly sparseHashGrid: Map<number | string, HashGridCell<TObject, TProxy>>;
+  readonly sparseHashGrid: Map<number | bigint, HashGridCell<TObject, TProxy>>;
   readonly objectToProxy: Map<TObject, TProxy>;
 
   public bounds = new BoundingBox();
@@ -135,7 +145,7 @@ export class SparseHashGrid<TObject extends { bounds: BoundingBox }, TProxy exte
 
   constructor(options: { size: number; proxyFactory?: (object: TObject, gridSize: number) => TProxy }) {
     this.gridSize = options.size;
-    this.sparseHashGrid = new Map<string, HashGridCell<TObject, TProxy>>();
+    this.sparseHashGrid = new Map<number | bigint, HashGridCell<TObject, TProxy>>();
     this.objectToProxy = new Map<TObject, TProxy>();
     if (options.proxyFactory) {
       this._buildProxy = (object: TObject) => options.proxyFactory!(object, this.gridSize);

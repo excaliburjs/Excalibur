@@ -6,39 +6,14 @@ import type { CircleCollider } from './circle-collider';
 import type { PolygonCollider } from './polygon-collider';
 import { AffineMatrix } from '../../math/affine-matrix';
 import { ArenaPool } from '../../util/arena-pool';
-import type { Id } from '../../id';
-import type { Transform } from '../../math/transform';
+import type { SatShape } from './sat-shape';
+export type { SatShape } from './sat-shape';
 
 const HASH_RANGE = 1 << 25;
 /**
  * Upper bound on remembered separating axes, the cache is only an optimization so it is simply cleared when exceeded
  */
 const SEPARATION_CACHE_MAX_ENTRIES = 10_000;
-
-/**
- * Minimal convex shape description the separating axis test and contact clipping operate on.
- *
- * {@apilink PolygonCollider} and {@apilink EdgeCollider} (as a two-sided, two point "polygon") both satisfy this.
- */
-export interface SatShape {
-  id: Id<'collider'>;
-  /**
-   * Points in local space (relative to `transform`), in perimeter order
-   */
-  points: readonly Vector[];
-  /**
-   * Outward normal for the side starting at each point, normals[i] belongs to side points[i] -> points[(i + 1) % length]
-   */
-  normals: readonly Vector[];
-  /**
-   * Transform from local space to world space
-   */
-  transform: Transform;
-  /**
-   * Center of the shape in world space
-   */
-  center: Vector;
-}
 
 /**
  * Deep copies separation info out of the per frame {@apilink SeparatingAxis.SeparationPool} so it can outlive the frame

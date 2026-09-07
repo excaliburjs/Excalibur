@@ -22,7 +22,10 @@ import { HashGridCell, HashGridProxy, SparseHashGrid } from './sparse-hash-grid'
 /**
  * Packs two collider ids into one number for pair de-duplication, supports ids up to 2^26
  */
-const PAIR_KEY_RANGE = 1 << 26;
+function calculateHash(idA: number, idB: number): number {
+  const PAIR_KEY_RANGE = 1 << 26;
+  return idA < idB ? idA * PAIR_KEY_RANGE + idB : idB * PAIR_KEY_RANGE + idA;
+}
 
 /**
  * Proxy type to stash collision info
@@ -107,7 +110,6 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
   readonly gridSize: number;
   readonly hashGrid: SparseHashGrid<Collider, HashColliderProxy>;
 
-  // pair de-duplication keyed by packed numeric collider ids, string ids are only built for pairs that survive
   private _pairs = new Set<number>();
   private _nonPairs = new Set<number>();
 
@@ -376,7 +378,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
           }
           const idA = proxy.collider.id.value;
           const idB = other.collider.id.value;
-          const key = idA < idB ? idA * PAIR_KEY_RANGE + idB : idB * PAIR_KEY_RANGE + idA;
+          const key = calculateHash(idA, idB);
           if (this._nonPairs.has(key)) {
             continue; // Is there a way we can re-use the non-pair cache
           }
