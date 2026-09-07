@@ -32,10 +32,14 @@ module.exports = async ({ github, context }) => {
     report = report.substring(0, MAX_BODY) + '\n\n_(report truncated, see the artifact)_';
   }
 
+  const trigger = process.env.BENCHMARK_TRIGGER ? `Triggered by ${process.env.BENCHMARK_TRIGGER}. ` : '';
   const body = [
     MARKER,
     report,
     '',
+    trigger
+      ? `<sub>${trigger}Comment \`/benchmark [--baseline npm:excalibur@<version>] [--tests a,b] [--repeat n]\` to run again.</sub>`
+      : '<sub>Comment `/benchmark [--baseline npm:excalibur@<version>] [--tests a,b] [--repeat n]` to run again.</sub>',
     `<sub>Commit ${commitSha ? commitSha.substring(0, 7) : 'unknown'} · [workflow run](${workflowUrl}) · charts and raw results are in the \`benchmark-results\` artifact · informational only</sub>`
   ].join('\n');
 

@@ -5,6 +5,11 @@ name: Benchmark
 # (results json + svg charts) and a sticky PR comment. The job never fails on a regression: shared runners are noisy,
 # look for changes that persist across runs.
 #
+# Re-run on demand from a PR by commenting:
+#   /benchmark
+#   /benchmark --baseline npm:excalibur@0.33.0-alpha.124 --tests actors-1000,actors-4000 --repeat 5
+# Only collaborators can trigger it. The workflow definition comes from main, the code under test is the PR head.
+#
 # Hosted runners have no GPU: Chromium renders with swiftshader, so drawing scenarios (bunnymark) are ~40x slower than
 # on real hardware. Deltas between the two engines still compare like for like. For real GPU numbers run the tool
 # locally with `--gl hardware --headed`, or point this workflow at a self-hosted runner with a GPU and xvfb.
@@ -14,6 +19,8 @@ on:
     branches: [main]
   push:
     branches: [main]
+  issue_comment:
+    types: [created]
   workflow_dispatch:
     inputs:
       baseline:
@@ -30,30 +37,44 @@ on:
         required: false
 
 concurrency:
-  group: benchmark-${{ github.ref }}
+  group: benchmark-${{ github.event.pull_request.number || github.event.issue.number || github.ref }}
   cancel-in-progress: true
 
 env:
   # Pin the benchmark tool to a known commit. Update deliberately when the tool or its scenarios change.
   BENCHMARK_REPO: excaliburjs/excalibur-benchmark
   BENCHMARK_REF: main # TODO replace with the sha of the pushed benchmark tool rewrite
-  # workflow_dispatch can override these to bisect a regression against any published alpha, e.g. npm:excalibur@0.33.0-alpha.124
-  BENCHMARK_BASELINE: ${{ github.event.inputs.baseline || 'npm:excalibur@latest' }}
-  BENCHMARK_REPEAT: ${{ github.event.inputs.repeat || '2' }}
-  BENCHMARK_TESTS: ${{ github.event.inputs.tests || '' }}
   BENCHMARK_WARN_PERCENT: '20'
 
 jobs:
   benchmark:
+    # comments only trigger a run when they are a /benchmark command on a pull request
+    if: github.event_name != 'issue_comment' || (github.event.issue.pull_request && startsWith(github.event.comment.body, '/benchmark'))
     runs-on: ubuntu-latest
     timeout-minutes: 60
     permissions:
       id-token: read
+      contents: read
+      issues: write
       pull-requests: write
     steps:
+      - name: Resolve run parameters
+        id: params
+        uses: actions/github-script@v7
+        env:
+          INPUT_BASELINE: ${{ github.event.inputs.baseline }}
+          INPUT_TESTS: ${{ github.event.inputs.tests }}
+          INPUT_REPEAT: ${{ github.event.inputs.repeat }}
+        with:
+          script: |
+            const script = require('./.github/scripts/resolve-benchmark-params.js');
+            await script({ github, context, core });
+
       - uses: actions/checkout@v4
         with:
           submodules: true
+          # empty for pull_request/push/dispatch (default checkout), the PR head sha for /benchmark comments
+          ref: ${{ steps.params.outputs.ref }}
       - uses: actions/setup-node@v6.5.0
         with:
           node-version-file: 'package.json'
@@ -80,6 +101,10 @@ jobs:
 
       - name: Run benchmarks
         working-directory: benchmark
+        env:
+          BENCHMARK_BASELINE: ${{ steps.params.outputs.baseline }}
+          BENCHMARK_REPEAT: ${{ steps.params.outputs.repeat }}
+          BENCHMARK_TESTS: ${{ steps.params.outputs.tests }}
         run: |
           node bench.mjs run \
             --candidate ../build/dist/excalibur.js \
@@ -110,10 +135,11 @@ jobs:
           if-no-files-found: ignore
 
       - name: Comment on PR
-        if: github.event_name == 'pull_request' && always()
+        if: (github.event_name == 'pull_request' || github.event_name == 'issue_comment') && always()
         uses: actions/github-script@v7
         env:
-          GITHUB_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          GITHUB_HEAD_SHA: ${{ steps.params.outputs.head_sha }}
+          BENCHMARK_TRIGGER: ${{ steps.params.outputs.trigger }}
         with:
           script: |
             const script = require('./.github/scripts/post-benchmark-comment.js');
