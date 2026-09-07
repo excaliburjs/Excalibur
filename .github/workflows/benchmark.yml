@@ -70,8 +70,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
-          # empty for pull_request/push (default checkout), the PR head sha for dispatched /benchmark runs
-          ref: ${{ inputs.ref }}
+          # Use trusted event refs only; do not execute dispatcher-provided refs in this workflow.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
       - uses: actions/setup-node@v6.5.0
         with:
