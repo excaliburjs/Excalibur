@@ -1,0 +1,66 @@
+name: Benchmark Comment
+
+# The privileged half of the benchmark: it never checks out or runs untrusted code.
+# - `/benchmark` PR comments (collaborators only) are validated and turned into a workflow_dispatch of benchmark.yml
+#   with the PR head sha. Options: --baseline npm:excalibur@<version|tag> --tests a,b --repeat n
+# - when a Benchmark run completes, its `benchmark-results` artifact is posted as one sticky PR comment.
+# Both jobs run the scripts from the default branch. Note: workflow_run only fires for workflow files on the
+# default branch, so the comment job is active once this file is on main.
+
+on:
+  issue_comment:
+    types: [created]
+  workflow_run:
+    workflows: [Benchmark]
+    types: [completed]
+
+jobs:
+  dispatch:
+    if: github.event_name == 'issue_comment' && github.event.issue.pull_request && startsWith(github.event.comment.body, '/benchmark')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write
+      pull-requests: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate command and dispatch benchmark
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const script = require('./.github/scripts/dispatch-benchmark.js');
+            await script({ github, context, core });
+
+  comment:
+    if: github.event_name == 'workflow_run'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Download benchmark results
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: benchmark-results
+          path: bench-results
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Post sticky PR comment
+        uses: actions/github-script@v7
+        env:
+          BENCHMARK_RUN_URL: ${{ github.event.workflow_run.html_url }}
+          BENCHMARK_RUN_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+        with:
+          script: |
+            const script = require('./.github/scripts/post-benchmark-comment.js');
+            await script({ github, context });

@@ -1,14 +1,13 @@
 name: Benchmark
 
 # Informational performance comparison of this build against the latest published release, run with
-# https://github.com/excaliburjs/excalibur-benchmark. Results land in the job summary, an artifact
-# (results json + svg charts) and a sticky PR comment. The job never fails on a regression: shared runners are noisy,
-# look for changes that persist across runs.
+# https://github.com/excaliburjs/excalibur-benchmark. Results land in the job summary and in the
+# `benchmark-results` artifact (results json, svg charts, report.md, meta.json). The job never fails on a
+# regression: shared runners are noisy, look for changes that persist across runs.
 #
-# Re-run on demand from a PR by commenting:
-#   /benchmark
-#   /benchmark --baseline npm:excalibur@0.33.0-alpha.124 --tests actors-1000,actors-4000 --repeat 5
-# Only collaborators can trigger it. The workflow definition comes from main, the code under test is the PR head.
+# This workflow executes the code under test, so it is deliberately unprivileged: read-only token, no persisted
+# credentials, and it never comments. `benchmark-comment.yml` handles `/benchmark` PR comments (it dispatches this
+# workflow with the PR head sha) and posts the sticky PR comment from the artifact once a run completes.
 #
 # Hosted runners have no GPU: Chromium renders with swiftshader, so drawing scenarios (bunnymark) are ~40x slower than
 # on real hardware. Deltas between the two engines still compare like for like. For real GPU numbers run the tool
@@ -19,8 +18,6 @@ on:
     branches: [main]
   push:
     branches: [main]
-  issue_comment:
-    types: [created]
   workflow_dispatch:
     inputs:
       baseline:
@@ -35,46 +32,50 @@ on:
         description: 'Interleaved repetitions per scenario'
         default: '3'
         required: false
+      ref:
+        description: 'Commit to benchmark (empty = the ref the workflow runs on). Set by /benchmark comments.'
+        default: ''
+        required: false
+      pr:
+        description: 'Pull request number to report results on (empty = none). Set by /benchmark comments.'
+        default: ''
+        required: false
+      trigger:
+        description: 'Who/what started the run, shown in the PR comment. Set by /benchmark comments.'
+        default: ''
+        required: false
 
 concurrency:
-  group: benchmark-${{ github.event.pull_request.number || github.event.issue.number || github.ref }}
+  group: benchmark-${{ github.event.pull_request.number || inputs.pr || github.ref }}
   cancel-in-progress: true
 
 env:
   # Pin the benchmark tool to a known commit. Update deliberately when the tool or its scenarios change.
   BENCHMARK_REPO: excaliburjs/excalibur-benchmark
   BENCHMARK_REF: main # TODO replace with the sha of the pushed benchmark tool rewrite
+  BENCHMARK_BASELINE: ${{ inputs.baseline || 'npm:excalibur@latest' }}
+  BENCHMARK_REPEAT: ${{ inputs.repeat || '2' }}
+  BENCHMARK_TESTS: ${{ inputs.tests || '' }}
   BENCHMARK_WARN_PERCENT: '20'
+  # what the results are about, written to meta.json for the comment workflow
+  BENCHMARK_PR: ${{ github.event.pull_request.number || inputs.pr || '' }}
+  BENCHMARK_HEAD_SHA: ${{ github.event.pull_request.head.sha || inputs.ref || github.sha }}
+  BENCHMARK_TRIGGER: ${{ inputs.trigger || '' }}
 
 jobs:
   benchmark:
-    # comments only trigger a run when they are a /benchmark command on a pull request
-    if: github.event_name != 'issue_comment' || (github.event.issue.pull_request && startsWith(github.event.comment.body, '/benchmark'))
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    # untrusted code runs here: read-only token, nothing else
     permissions:
-      id-token: read
       contents: read
-      issues: write
-      pull-requests: write
     steps:
-      - name: Resolve run parameters
-        id: params
-        uses: actions/github-script@v7
-        env:
-          INPUT_BASELINE: ${{ github.event.inputs.baseline }}
-          INPUT_TESTS: ${{ github.event.inputs.tests }}
-          INPUT_REPEAT: ${{ github.event.inputs.repeat }}
-        with:
-          script: |
-            const script = require('./.github/scripts/resolve-benchmark-params.js');
-            await script({ github, context, core });
-
       - uses: actions/checkout@v4
         with:
           submodules: true
-          # empty for pull_request/push/dispatch (default checkout), the PR head sha for /benchmark comments
-          ref: ${{ steps.params.outputs.ref }}
+          # empty for pull_request/push (default checkout), the PR head sha for dispatched /benchmark runs
+          ref: ${{ inputs.ref }}
+          persist-credentials: false
       - uses: actions/setup-node@v6.5.0
         with:
           node-version-file: 'package.json'
@@ -92,6 +93,8 @@ jobs:
           ref: ${{ env.BENCHMARK_REF }}
           path: benchmark
           token: ${{ secrets.BENCHMARK_READ }}
+          # never leave the token on disk where the code under test could read it
+          persist-credentials: false
       - name: Install benchmark tool
         working-directory: benchmark
         run: |
@@ -101,10 +104,6 @@ jobs:
 
       - name: Run benchmarks
         working-directory: benchmark
-        env:
-          BENCHMARK_BASELINE: ${{ steps.params.outputs.baseline }}
-          BENCHMARK_REPEAT: ${{ steps.params.outputs.repeat }}
-          BENCHMARK_TESTS: ${{ steps.params.outputs.tests }}
         run: |
           node bench.mjs run \
             --candidate ../build/dist/excalibur.js \
@@ -118,12 +117,20 @@ jobs:
         if: always()
         working-directory: benchmark
         run: |
+          mkdir -p ../bench-results
           if [ -f ../bench-results/results.json ]; then
             node bench.mjs report ../bench-results/results.json --markdown --warn "$BENCHMARK_WARN_PERCENT" --charts ../bench-results/charts > ../bench-results/report.md
             cat ../bench-results/report.md >> "$GITHUB_STEP_SUMMARY"
           else
             echo "Benchmark produced no results" >> "$GITHUB_STEP_SUMMARY"
           fi
+          # consumed by benchmark-comment.yml, values come from event data / validated dispatch inputs
+          node -e '
+            const fs = require("fs");
+            fs.writeFileSync("../bench-results/meta.json", JSON.stringify({
+              pr: process.env.BENCHMARK_PR, headSha: process.env.BENCHMARK_HEAD_SHA, trigger: process.env.BENCHMARK_TRIGGER
+            }));
+          '
 
       - name: Upload results
         if: always()
@@ -133,14 +140,3 @@ jobs:
           path: bench-results/
           retention-days: 30
           if-no-files-found: ignore
-
-      - name: Comment on PR
-        if: (github.event_name == 'pull_request' || github.event_name == 'issue_comment') && always()
-        uses: actions/github-script@v7
-        env:
-          GITHUB_HEAD_SHA: ${{ steps.params.outputs.head_sha }}
-          BENCHMARK_TRIGGER: ${{ steps.params.outputs.trigger }}
-        with:
-          script: |
-            const script = require('./.github/scripts/post-benchmark-comment.js');
-            await script({ github, context });
