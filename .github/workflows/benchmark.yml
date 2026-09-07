@@ -15,6 +15,19 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      baseline:
+        description: 'Baseline engine spec (npm:excalibur@<version|tag>, or a URL to a UMD bundle)'
+        default: 'npm:excalibur@latest'
+        required: false
+      tests:
+        description: 'Comma separated scenario names to run (empty = all)'
+        default: ''
+        required: false
+      repeat:
+        description: 'Interleaved repetitions per scenario'
+        default: '3'
+        required: false
 
 concurrency:
   group: benchmark-${{ github.ref }}
@@ -24,8 +37,10 @@ env:
   # Pin the benchmark tool to a known commit. Update deliberately when the tool or its scenarios change.
   BENCHMARK_REPO: excaliburjs/excalibur-benchmark
   BENCHMARK_REF: main # TODO replace with the sha of the pushed benchmark tool rewrite
-  BENCHMARK_BASELINE: npm:excalibur@latest
-  BENCHMARK_REPEAT: '2'
+  # workflow_dispatch can override these to bisect a regression against any published alpha, e.g. npm:excalibur@0.33.0-alpha.124
+  BENCHMARK_BASELINE: ${{ github.event.inputs.baseline || 'npm:excalibur@latest' }}
+  BENCHMARK_REPEAT: ${{ github.event.inputs.repeat || '2' }}
+  BENCHMARK_TESTS: ${{ github.event.inputs.tests || '' }}
   BENCHMARK_WARN_PERCENT: '20'
 
 jobs:
@@ -55,6 +70,7 @@ jobs:
           repository: ${{ env.BENCHMARK_REPO }}
           ref: ${{ env.BENCHMARK_REF }}
           path: benchmark
+          token: ${{ secrets.BENCHMARK_READ }}
       - name: Install benchmark tool
         working-directory: benchmark
         run: |
@@ -69,6 +85,7 @@ jobs:
             --candidate ../build/dist/excalibur.js \
             --baseline "$BENCHMARK_BASELINE" \
             --repeat "$BENCHMARK_REPEAT" \
+            ${BENCHMARK_TESTS:+--tests "$BENCHMARK_TESTS"} \
             --out ../bench-results/results.json \
             --charts ../bench-results/charts
 
