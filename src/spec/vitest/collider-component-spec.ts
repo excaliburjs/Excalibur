@@ -97,9 +97,16 @@ describe('A ColliderComponent', () => {
     comp.clear();
     comp.processColliderRemoval();
 
+    // first pass untracks the collider from collision detection but keeps it wired to the owner
+    // so a pending collisionend can still be delivered
     expect(comp.get()).toBeNull();
-    expect(collider.events.unpipe).toHaveBeenCalled();
     expect(comp.$colliderRemoved.notifyAll).toHaveBeenCalled();
+    expect(collider.events.unpipe).not.toHaveBeenCalled();
+    expect(collider.owner).not.toBeNull();
+
+    // second pass (next frame) finalizes the removal
+    comp.processColliderRemoval();
+    expect(collider.events.unpipe).toHaveBeenCalled();
     expect(collider.owner).toBeNull();
   });
 

@@ -12,7 +12,7 @@ import type { Color } from '../../color';
 import { Collider } from './collider';
 import { ClosestLineJumpTable } from './closest-line-jump-table';
 import type { ExcaliburGraphicsContext } from '../../graphics/context/excalibur-graphics-context';
-import type { Transform } from '../../math/transform';
+import { Transform } from '../../math/transform';
 import { AffineMatrix } from '../../math/affine-matrix';
 import { BodyComponent } from '../index';
 import type { RayCastHit } from '../detection/ray-cast-hit';
@@ -40,8 +40,76 @@ export class EdgeCollider extends Collider {
   begin: Vector;
   end: Vector;
 
-  private _transform!: Transform;
+  private _transform: Transform = new Transform();
   private _globalMatrix: AffineMatrix = AffineMatrix.identity();
+  private _syncedVersion = -1;
+  private _syncedOffsetX: number | null = null;
+  private _syncedOffsetY: number | null = null;
+
+  /**
+   * Rebuilds the world matrix from the owner transform if it (or the offset) changed since the last sync
+   */
+  private _ensureWorld(): void {
+    const tx = this._transform;
+    const version = tx.version;
+    if (version === this._syncedVersion && this.offset.x === this._syncedOffsetX && this.offset.y === this._syncedOffsetY) {
+      return;
+    }
+    this._syncedVersion = version;
+    this._syncedOffsetX = this.offset.x;
+    this._syncedOffsetY = this.offset.y;
+    tx.matrix.clone(this._globalMatrix);
+    this._globalMatrix.translate(this.offset.x, this.offset.y);
+    this._worldVersion++;
+  }
+
+  public override get worldVersion(): number {
+    this._ensureWorld();
+    return this._worldVersion;
+  }
+
+  // Two point / two normal convex shape view of the edge used by the separating axis test
+  private _satPoints: Vector[] = [];
+  private _satNormals: Vector[] = [];
+  private _satCacheKey = '';
+
+  /**
+   * The transform from local edge space to world space, offset is baked into {@apilink EdgeCollider.points}
+   */
+  public get transform(): Transform {
+    return this._transform;
+  }
+
+  private _updateSatShape() {
+    const key = `${this.begin.x},${this.begin.y},${this.end.x},${this.end.y},${this.offset.x},${this.offset.y}`;
+    if (key === this._satCacheKey) {
+      return;
+    }
+    this._satCacheKey = key;
+    const begin = this.begin.add(this.offset);
+    const end = this.end.add(this.offset);
+    this._satPoints = [begin, end];
+    // Same convention as PolygonCollider normals: normal for side points[i] -> points[i + 1]
+    // An edge is two sided so the second "side" is the reverse edge with the opposite normal
+    const normal = end.sub(begin).normal();
+    this._satNormals = [normal, normal.negate()];
+  }
+
+  /**
+   * The edge as two points in local space (offset applied), ordered begin -> end
+   */
+  public get points(): readonly Vector[] {
+    this._updateSatShape();
+    return this._satPoints;
+  }
+
+  /**
+   * Outward normals for the two sides (begin -> end and end -> begin) of the edge in local space
+   */
+  public get normals(): readonly Vector[] {
+    this._updateSatShape();
+    return this._satNormals;
+  }
 
   constructor(options: EdgeColliderOptions) {
     super();
@@ -76,10 +144,12 @@ export class EdgeCollider extends Collider {
   }
 
   private _getTransformedBegin(): Vector {
+    this._ensureWorld();
     return this._globalMatrix.multiply(this.begin);
   }
 
   private _getTransformedEnd(): Vector {
+    this._ensureWorld();
     return this._globalMatrix.multiply(this.end);
   }
 
@@ -258,10 +328,11 @@ export class EdgeCollider extends Collider {
    * @inheritdoc
    */
   public update(transform: Transform): void {
-    this._transform = transform;
-    const globalMat = transform.matrix ?? this._globalMatrix;
-    globalMat.clone(this._globalMatrix);
-    this._globalMatrix.translate(this.offset.x, this.offset.y);
+    if (transform !== this._transform) {
+      this._transform = transform;
+      this._syncedVersion = -1;
+    }
+    this._ensureWorld();
   }
 
   /**

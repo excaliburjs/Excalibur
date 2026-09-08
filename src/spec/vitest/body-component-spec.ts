@@ -91,4 +91,35 @@ describe('A body component', () => {
     // Should have a new owner
     expect(sut.owner).toBe(clone);
   });
+
+  it('applies scalar impulses at an offset the same as applyImpulse', () => {
+    const viaVector = new ex.Actor({ x: 0, y: 0, width: 40, height: 40, collisionType: ex.CollisionType.Active });
+    const viaScalar = new ex.Actor({ x: 0, y: 0, width: 40, height: 40, collisionType: ex.CollisionType.Active });
+
+    viaVector.body.applyImpulse(ex.vec(20, 20), ex.vec(0, -100));
+    viaScalar.body.applyImpulseAtOffset(20, 20, 0, -100);
+
+    expect(viaScalar.vel).toBeVector(viaVector.vel);
+    expect(viaScalar.body.angularVelocity).toBeCloseTo(viaVector.body.angularVelocity, 6);
+    expect(viaScalar.body.angularVelocity).not.toBe(0);
+  });
+
+  it('honors limited degrees of freedom for scalar impulses', () => {
+    const noRotation = new ex.Actor({ x: 0, y: 0, width: 40, height: 40, collisionType: ex.CollisionType.Active });
+    noRotation.body.limitDegreeOfFreedom = [ex.DegreeOfFreedom.Rotation];
+    noRotation.body.applyImpulseAtOffset(20, 20, 30, -100);
+    expect(noRotation.body.angularVelocity).toBe(0);
+    expect(noRotation.vel.y).toBeLessThan(0);
+    expect(noRotation.vel.x).toBeGreaterThan(0);
+
+    const noX = new ex.Actor({ x: 0, y: 0, width: 40, height: 40, collisionType: ex.CollisionType.Active });
+    noX.body.limitDegreeOfFreedom = [ex.DegreeOfFreedom.X];
+    noX.body.applyImpulseAtOffset(20, 20, 30, -100);
+    expect(noX.vel.x).toBe(0);
+    expect(noX.vel.y).toBeLessThan(0);
+
+    const fixed = new ex.Actor({ x: 0, y: 0, width: 40, height: 40, collisionType: ex.CollisionType.Fixed });
+    fixed.body.applyImpulseAtOffset(20, 20, 30, -100);
+    expect(fixed.vel).toBeVector(ex.vec(0, 0));
+  });
 });

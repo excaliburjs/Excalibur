@@ -40,8 +40,38 @@ export class CircleCollider extends Collider {
   public offset: Vector = Vector.Zero;
 
   private _globalMatrix: AffineMatrix = AffineMatrix.identity();
+  private _syncedVersion = -1;
+  private _syncedOffsetX: number | null = null;
+  private _syncedOffsetY: number | null = null;
+
+  /**
+   * Rebuilds the world matrix from the owner transform if it (or the offset) changed since the last sync
+   */
+  private _ensureWorld(): void {
+    const tx = this._transform;
+    if (!tx) {
+      return;
+    }
+    const version = tx.version;
+    if (version === this._syncedVersion && this.offset.x === this._syncedOffsetX && this.offset.y === this._syncedOffsetY) {
+      return;
+    }
+    this._syncedVersion = version;
+    this._syncedOffsetX = this.offset.x;
+    this._syncedOffsetY = this.offset.y;
+    tx.matrix.clone(this._globalMatrix);
+    this._globalMatrix.translate(this.offset.x, this.offset.y);
+    this._radius = undefined;
+    this._worldVersion++;
+  }
+
+  public override get worldVersion(): number {
+    this._ensureWorld();
+    return this._worldVersion;
+  }
 
   public get worldPos(): Vector {
+    this._ensureWorld();
     return this._globalMatrix.getPosition();
   }
 
@@ -52,6 +82,7 @@ export class CircleCollider extends Collider {
    * Get the radius of the circle
    */
   public get radius(): number {
+    this._ensureWorld();
     if (this._radius) {
       return this._radius;
     }
@@ -96,6 +127,7 @@ export class CircleCollider extends Collider {
    * Get the center of the collider in world coordinates
    */
   public get center(): Vector {
+    this._ensureWorld();
     return this._globalMatrix.getPosition();
   }
 
@@ -225,6 +257,7 @@ export class CircleCollider extends Collider {
    * Get the axis aligned bounding box for the circle collider in world coordinates
    */
   public get bounds(): BoundingBox {
+    this._ensureWorld();
     return this.localBounds.transform(this._globalMatrix);
   }
 
@@ -258,11 +291,11 @@ export class CircleCollider extends Collider {
 
   /* istanbul ignore next */
   public update(transform: Transform): void {
-    this._transform = transform;
-    const globalMat = transform.matrix ?? this._globalMatrix;
-    globalMat.clone(this._globalMatrix);
-    this._globalMatrix.translate(this.offset.x, this.offset.y);
-    this._radius = undefined;
+    if (transform !== this._transform) {
+      this._transform = transform;
+      this._syncedVersion = -1;
+    }
+    this._ensureWorld();
   }
 
   /**
