@@ -2,6 +2,7 @@ import { Config } from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 import { ThemeConfig as ClassicPresetThemeConfig } from '@docusaurus/preset-classic';
 import path from 'path';
+import ts from 'typescript';
 import webpack from 'webpack';
 import { themes } from 'prism-react-renderer';
 import { remarkApiSymbolLinks } from './plugins/remark-api-symbol-links.mjs';
@@ -22,6 +23,7 @@ const lightCodeTheme = themes.github;
 const darkCodeTheme = themes.dracula;
 
 const typedocProjectRoot = path.join(__dirname, '..', 'src', 'engine');
+const excaliburTypesPath = path.join(__dirname, '..', 'build', 'dist', 'excalibur.d.ts');
 const rehypeRawOptions = {
   passThrough: ['mdxjsEsm', 'mdxJsxTextElement', 'mdxJsxFlowElement', 'mdxFlowExpression']
 };
@@ -104,7 +106,13 @@ const config: Config = {
       'docusaurus-preset-shiki-twoslash',
       {
         themes: ['github-light', 'github-dark'],
-        ignoreCodeblocksWithCodefenceMeta: ['live', 'mermaid']
+        ignoreCodeblocksWithCodefenceMeta: ['live', 'mermaid'],
+        defaultCompilerOptions: {
+          baseUrl: __dirname,
+          paths: { excalibur: [excaliburTypesPath] },
+          moduleResolution: ts.ModuleResolutionKind.Bundler,
+          module: ts.ModuleKind.ESNext
+        }
       }
     ]
   ],
@@ -291,96 +299,3 @@ const config: Config = {
 };
 
 export default config;
-
-// function getTypedocJson() {
-//   try {
-//     return JSON.parse(require('fs').readFileSync(path.join(__dirname, '.docusaurus', 'api-typedoc-default.json'), 'utf8'));
-//   } catch {
-//     return null;
-//   }
-// }
-
-// function buildSymbolLink(symbolPath: string, basePath: string, symbolLinkIndex: Map<string, [string, ReflectionKind][]>) {
-//   let symbolLink = undefined;
-//   const SYMBOL_CONTAINERS = [
-//     ReflectionKind.Project,
-//     ReflectionKind.Class,
-//     ReflectionKind.Interface,
-//     ReflectionKind.Enum,
-//     ReflectionKind.Module,
-//     ReflectionKind.SomeModule,
-//     ReflectionKind.Namespace
-//   ];
-//   const symbolMatches = symbolLinkIndex.get(symbolPath) ?? [];
-//   basePath = ensureTrailingSlash(basePath);
-//
-//   if (symbolMatches && symbolMatches.length) {
-//     const lastContainer = symbolMatches
-//       .concat([])
-//       .reverse()
-//       .find(([, kind]) => SYMBOL_CONTAINERS.includes(kind)) || [undefined, undefined];
-//     const moduleContainer = symbolMatches.find(([, kind]) => kind === ReflectionKind.SomeModule || kind === ReflectionKind.Module || kind === ReflectionKind.Namespace);
-//     let [, containerKind] = lastContainer;
-//
-//     if (moduleContainer) {
-//       containerKind = moduleContainer[1];
-//     }
-//
-//     let containerPath;
-//
-//     switch (containerKind) {
-//       case ReflectionKind.SomeModule:
-//       case ReflectionKind.Module:
-//       case ReflectionKind.Namespace:
-//         containerPath = 'namespace/';
-//         break;
-//       case ReflectionKind.Class:
-//         containerPath = 'class/';
-//         break;
-//       case ReflectionKind.Interface:
-//         containerPath = 'interface/';
-//         break;
-//       case ReflectionKind.Enum:
-//         containerPath = 'enum/';
-//         break;
-//       default:
-//         containerPath = '';
-//     }
-//
-//     // assemble file url
-//     symbolLink = symbolMatches.reduce((path, [matchSymbolName, matchSymbolKind]) => {
-//       switch (matchSymbolKind) {
-//         case ReflectionKind.Project:
-//           break;
-//         case ReflectionKind.SomeModule:
-//         case ReflectionKind.Module:
-//         case ReflectionKind.Namespace:
-//           path = path.replace(/class\//gi, 'namespace/');
-//           path += matchSymbolName.replace(/[^a-z0-9]/gi, '_') + '#';
-//           break;
-//         case ReflectionKind.Class:
-//         case ReflectionKind.Interface:
-//         case ReflectionKind.Enum:
-//           path += matchSymbolName;
-//           break;
-//         case ReflectionKind.Function:
-//           path += 'function/' + matchSymbolName;
-//           break;
-//         default:
-//           path += '#' + matchSymbolName;
-//           break;
-//       }
-//
-//       return path;
-//     }, basePath + containerPath);
-//   }
-//
-//   return symbolLink;
-// }
-
-// function ensureTrailingSlash(path: string) {
-//   if (!path.endsWith('/')) {
-//     return path + '/';
-//   }
-//   return path;
-// }

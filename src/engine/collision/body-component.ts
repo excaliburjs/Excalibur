@@ -510,6 +510,39 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   }
 
   /**
+   * Apply an impulse (impulseX, impulseY) at a lever arm (offsetX, offsetY) from the body's center.
+   *
+   * Scalar variant of {@apilink BodyComponent.applyImpulse} used by the collision solver hot loops, it allocates nothing
+   * @param offsetX
+   * @param offsetY
+   * @param impulseX
+   * @param impulseY
+   */
+  public applyImpulseAtOffset(offsetX: number, offsetY: number, impulseX: number, impulseY: number): void {
+    if (this.collisionType !== CollisionType.Active) {
+      return; // only active objects participate in the simulation
+    }
+    const inverseMass = this.inverseMass;
+    const vel = this.motion.vel;
+    const dof = this.limitDegreeOfFreedom;
+    if (dof.length === 0) {
+      vel.x += impulseX * inverseMass;
+      vel.y += impulseY * inverseMass;
+      this.motion.angularVelocity += this.inverseInertia * (offsetX * impulseY - offsetY * impulseX);
+      return;
+    }
+    if (!dof.includes(DegreeOfFreedom.X)) {
+      vel.x += impulseX * inverseMass;
+    }
+    if (!dof.includes(DegreeOfFreedom.Y)) {
+      vel.y += impulseY * inverseMass;
+    }
+    if (!dof.includes(DegreeOfFreedom.Rotation)) {
+      this.motion.angularVelocity += this.inverseInertia * (offsetX * impulseY - offsetY * impulseX);
+    }
+  }
+
+  /**
    * Apply only linear impulse to the body
    * @param impulse
    */
