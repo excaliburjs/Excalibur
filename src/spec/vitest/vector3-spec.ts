@@ -36,8 +36,8 @@ describe('Vector3', () => {
     expect(ex.Vector3.One.equals(new ex.Vector3(1, 1, 1))).toBeTruthy();
     expect(ex.Vector3.Right.equals(new ex.Vector3(1, 0, 0))).toBeTruthy();
     expect(ex.Vector3.Left.equals(new ex.Vector3(-1, 0, 0))).toBeTruthy();
-    expect(ex.Vector3.Up.equals(new ex.Vector3(0, 1, 0))).toBeTruthy();
-    expect(ex.Vector3.Down.equals(new ex.Vector3(0, -1, 0))).toBeTruthy();
+    expect(ex.Vector3.Up.equals(new ex.Vector3(0, -1, 0))).toBeTruthy();
+    expect(ex.Vector3.Down.equals(new ex.Vector3(0, 1, 0))).toBeTruthy();
     expect(ex.Vector3.Forward.equals(new ex.Vector3(0, 0, 1))).toBeTruthy();
     expect(ex.Vector3.Back.equals(new ex.Vector3(0, 0, -1))).toBeTruthy();
   });
