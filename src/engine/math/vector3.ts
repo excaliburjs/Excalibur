@@ -40,17 +40,17 @@ export class Vector3 implements Clonable<Vector3> {
   }
 
   /**
-   * A unit vector pointing up (0, 1, 0)
+   * A unit vector pointing up (0, -1, 0)
    */
   public static get Up() {
-    return new Vector3(0, 1, 0);
+    return new Vector3(0, -1, 0);
   }
 
   /**
-   * A unit vector pointing down (0, -1, 0)
+   * A unit vector pointing down (0, 1, 0)
    */
   public static get Down() {
-    return new Vector3(0, -1, 0);
+    return new Vector3(0, 1, 0);
   }
 
   /**
