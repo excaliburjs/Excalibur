@@ -923,7 +923,7 @@ export class Shader {
   }
 
   /**
-   * Set a {@apilink Vector} uniform for the current shader, WILL NOT THROW on error.
+   * Set a {@apilink Vector3} uniform for the current shader, WILL NOT THROW on error.
    * **Important** Must call ex.Shader.use() before setting a uniform!
    * @param name
    * @param value
@@ -934,7 +934,7 @@ export class Shader {
   }
 
   /**
-   * Set a {@apilink Vector} uniform for the current shader
+   * Set a {@apilink Vector4} uniform for the current shader
    * **Important** Must call ex.Shader.use() before setting a uniform!
    * @param name
    * @param value
@@ -944,7 +944,7 @@ export class Shader {
   }
 
   /**
-   * Set a {@apilink Vector} uniform for the current shader, WILL NOT THROW on error.
+   * Set a {@apilink Vector4} uniform for the current shader, WILL NOT THROW on error.
    * **Important** Must call ex.Shader.use() before setting a uniform!
    * @param name
    * @param value
