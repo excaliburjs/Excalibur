@@ -1,4 +1,4 @@
-import type { ExcaliburGraphicsContext, ImageSource, TextureLoader, Vector3, Vector4 } from '../..';
+import type { ExcaliburGraphicsContext, ImageSource, TextureLoader } from '../..';
 import {
   AffineMatrix,
   Color,
@@ -7,7 +7,9 @@ import {
   Logger,
   parseImageFiltering,
   parseImageWrapping,
-  Vector
+  Vector,
+  Vector3,
+  Vector4
 } from '../..';
 import { Matrix } from '../../math/matrix';
 import { watch } from '../../util/watch';
@@ -479,6 +481,20 @@ export class Shader {
           this.trySetUniform('uniform4f', key, value.x, value.y, 0, 0);
         } else {
           this.trySetUniformFloatVector(key, value);
+        }
+      } else if (value instanceof Vector3) {
+        if (uniform?.glType === gl.FLOAT_VEC3) {
+          this.trySetUniform('uniform3f', key, value.x, value.y, value.z);
+        } else if (uniform?.glType === gl.FLOAT_VEC4) {
+          this.trySetUniform('uniform4f', key, value.x, value.y, value.z, 0);
+        } else {
+          this.trySetUniformFloatVector3(key, value);
+        }
+      } else if (value instanceof Vector4) {
+        if (uniform?.glType === gl.FLOAT_VEC4) {
+          this.trySetUniform('uniform4f', key, value.x, value.y, value.z, value.w);
+        } else {
+          this.trySetUniformFloatVector4(key, value);
         }
       } else if (value instanceof Color) {
         this.trySetUniformFloatColor(key, value);
