@@ -352,6 +352,8 @@ export class Vector3 implements Clonable<Vector3> {
   /**
    * Copies components out into an array or Float32Array
    */
+  public toArray(dest?: number[], offset?: number): number[];
+  public toArray(dest: Float32Array, offset?: number): Float32Array;
   public toArray(dest: number[] | Float32Array = [], offset = 0): number[] | Float32Array {
     dest[offset] = this.x;
     dest[offset + 1] = this.y;
