@@ -7,7 +7,7 @@ In order to do our TypeDoc includes we've forked the
 
 ## Local Dev
 
-Be sure the core types have been generated in the root directory
+Be sure the core excalibur types have been generated in the root directory (requires a build)
 
 ```sh
 > cd .. && npm run build && cd site/
