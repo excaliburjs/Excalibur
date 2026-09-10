@@ -1,143 +1,183 @@
 import * as ex from '@excalibur';
-import { SoundTrack } from '../../engine/resources/sound/sound-track';
+import { delay } from '../../engine/util/util';
+import { WebAudio } from '../../engine/util/web-audio';
+import { page } from 'vitest/browser';
 
-describe('A SoundTrack (internal)', () => {
-  let track: SoundTrack;
-  let mockAudioContext: any;
-  let mockGainNode: any;
-  let mockBufferSource: any;
-  const RealAudioContextCreate = ex.AudioContextFactory.create;
-  const RealAudioContext = ex.AudioContextFactory.create();
+describe('A SoundTrack', () => {
+  let audioContext: AudioContext;
+  let destination: GainNode;
+  let buffer: AudioBuffer;
+  let sources: AudioBufferSourceNode[];
 
-  afterEach(() => {
-    ex.AudioContextFactory.create = RealAudioContextCreate;
+  beforeAll(async () => {
+    // automate user interaction to allow WebAudio to unlock
+    await page.elementLocator(document.body).click();
+    ex.Logger.getInstance().clearAppenders();
+    await WebAudio.unlock();
   });
 
   beforeEach(() => {
-    vi.spyOn(ex.AudioContextFactory, 'create');
-    mockGainNode = {
-      connect: vi.fn(),
-      gain: {
-        value: 1,
-        setTargetAtTime: vi.fn()
-      }
-    };
-
-    mockBufferSource = {
-      buffer: null,
-      loop: null,
-      connect: vi.fn(),
-      disconnect: vi.fn(),
-      stop: vi.fn(),
-      onended: null,
-      playbackRate: {
-        value: 1,
-        setValueAtTime: vi.fn()
-      },
-      detune: {
-        value: 0
-      },
-      start: vi.fn()
-    };
-
-    mockAudioContext = {
-      currentTime: 0,
-      createGain: vi.fn(() => mockGainNode),
-      createBufferSource: vi.fn(() => mockBufferSource)
-    };
-
-    ex.AudioContextFactory.create = vi.fn(() => mockAudioContext);
-
-    track = new SoundTrack(RealAudioContext.createBuffer(1, 1, 22050));
+    audioContext = ex.AudioContextFactory.create();
+    destination = audioContext.createGain();
+    // a tenth of a second of silence
+    buffer = audioContext.createBuffer(1, audioContext.sampleRate / 10, audioContext.sampleRate);
+    sources = [];
+    const createBufferSource = audioContext.createBufferSource.bind(audioContext);
+    vi.spyOn(audioContext, 'createBufferSource').mockImplementation(() => {
+      const source = createBufferSource();
+      vi.spyOn(source, 'connect');
+      vi.spyOn(source, 'disconnect');
+      sources.push(source);
+      return source;
+    });
   });
 
-  it('should be defined', () => {
-    expect(track).toBeDefined();
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
-  it('should set volume immediately', () => {
-    track.volume = 0.5;
-    expect(mockGainNode.gain.value).toEqual(0.5);
-    expect(mockGainNode.gain.setTargetAtTime).not.toHaveBeenCalled();
+  it('is exported as a runtime class', () => {
+    expect(ex.SoundTrack).toBeDefined();
+    expect(new ex.SoundTrack(buffer, destination)).toBeInstanceOf(ex.SoundTrack);
   });
 
-  it('should ramp volume when set during playback', () => {
+  it('starts stopped with no source allocated', () => {
+    const track = new ex.SoundTrack(buffer, destination);
+    expect(track.isStopped()).toBe(true);
+    expect(sources.length).toBe(0);
+  });
+
+  it('wires source → destination by default', () => {
+    const track = new ex.SoundTrack(buffer, destination);
+    track.loop = true;
     track.play();
-    track.volume = 0.25;
-    expect(mockGainNode.gain.setTargetAtTime).toHaveBeenCalledWith(track.volume, 0, 0.1);
+
+    expect(sources.length).toBe(1);
+    expect(sources[0].connect).toHaveBeenCalledWith(destination);
+    track.stop();
   });
 
-  it('should apply pitch to the source detune', () => {
-    track.pitch = 1200;
-    // setting pitch updates the live AudioBufferSourceNode.detune
-    expect(mockBufferSource.detune.value).toBe(1200);
-    expect(track.pitch).toBe(1200);
-  });
-
-  it('should not throw when setting playbackRate with no live source', () => {
-    // After stop/complete the single-use source is nulled; playbackRate must not throw.
-    expect(() => {
-      track.playbackRate = 2.0;
-      void track.playbackRate;
-    }).not.toThrow();
-  });
-
-  it('should use the default graph (source → volumeNode) when no builder is supplied', () => {
-    // source → volumeNode is wired in the constructor
-    expect(mockBufferSource.connect).toHaveBeenCalledWith(mockGainNode);
-  });
-
-  it('should insert a single returned node as source → node → volumeNode', () => {
-    const inserted = { connect: vi.fn(), disconnect: vi.fn() } as any;
-    track = new SoundTrack(RealAudioContext.createBuffer(1, 1, 22050), () => inserted);
-
-    // source → inserted (wired when source is created in the constructor)
-    expect(mockBufferSource.connect).toHaveBeenCalledWith(inserted);
-    // inserted → volumeNode (wired once in the builder pass)
-    expect(inserted.connect).toHaveBeenCalledWith(mockGainNode);
-  });
-
-  it('should wire an {input, output} chain as source → input … output → volumeNode', () => {
-    const input = { connect: vi.fn(), disconnect: vi.fn() } as any;
-    const output = { connect: vi.fn(), disconnect: vi.fn() } as any;
-    track = new SoundTrack(RealAudioContext.createBuffer(1, 1, 22050), () => ({ input, output }));
-
-    expect(mockBufferSource.connect).toHaveBeenCalledWith(input);
-    expect(output.connect).toHaveBeenCalledWith(mockGainNode);
-  });
-
-  it('should fall back to the default graph if the builder throws', () => {
-    track = new SoundTrack(RealAudioContext.createBuffer(1, 1, 22050), () => {
-      throw new Error('boom');
+  it('lets the onPlay hook wire the graph instead', () => {
+    const effect = audioContext.createBiquadFilter();
+    const hook = vi.fn(({ source, destination: dest }: ex.AudioGraphContext) => {
+      source.connect(effect).connect(dest);
     });
+    const track = new ex.SoundTrack(buffer, destination, hook);
+    track.loop = true;
+    track.play();
 
-    expect(mockBufferSource.connect).toHaveBeenCalledWith(mockGainNode);
+    expect(hook).toHaveBeenCalledWith({ audioContext, source: sources[0], destination, track });
+    expect(sources[0].connect).toHaveBeenCalledWith(effect);
+    expect(sources[0].connect).not.toHaveBeenCalledWith(destination);
+    track.stop();
   });
 
-  it('should run the builder ONCE per track, reusing effect nodes across pause/resume', () => {
-    const createPanner = vi.fn(() => ({ connect: vi.fn(), disconnect: vi.fn() }) as any);
-    track = new SoundTrack(RealAudioContext.createBuffer(1, 1, 22050), ({ audioContext }) => {
-      void audioContext;
-      return createPanner();
-    });
+  it('allocates a fresh configured source and re-runs the hook on every (re)start', () => {
+    const hook = vi.fn(({ source, destination: dest }: ex.AudioGraphContext) => source.connect(dest));
+    const track = new ex.SoundTrack(buffer, destination, hook);
+    track.loop = true;
+    track.playbackRate = 1.5;
+    track.pitch = 700;
 
     track.play();
     track.pause();
-    // resume: a new single-use source is created, but the builder must NOT run again
+    track.play();
+    track.seek(0.05);
     track.play();
 
-    // The single-use AudioBufferSourceNode is re-allocated on every restart, but
-    // the persistent effect graph (builder) must be built exactly once.
-    expect(createPanner).toHaveBeenCalledTimes(1);
+    expect(sources.length).toBe(3);
+    expect(hook).toHaveBeenCalledTimes(3);
+    for (const source of sources) {
+      expect(source.loop).toBe(true);
+      expect(source.playbackRate.value).toBe(1.5);
+      expect(source.detune.value).toBe(700);
+    }
+    // previous single-use sources are disconnected
+    expect(sources[0].disconnect).toHaveBeenCalled();
+    expect(sources[1].disconnect).toHaveBeenCalled();
+    expect(sources[2].disconnect).not.toHaveBeenCalled();
+    track.stop();
   });
 
-  it('should disconnect inserted effect nodes when stopped', () => {
-    const inserted = { connect: vi.fn(), disconnect: vi.fn() } as any;
-    track = new SoundTrack(RealAudioContext.createBuffer(1, 1, 22050), () => inserted);
+  it('applies loop, playbackRate and pitch to the live source', () => {
+    const track = new ex.SoundTrack(buffer, destination);
+    track.loop = true;
+    track.play();
+
+    track.playbackRate = 2;
+    track.pitch = 1200;
+    track.loop = false;
+    expect(sources[0].playbackRate.value).toBe(2);
+    expect(sources[0].detune.value).toBe(1200);
+    expect(sources[0].loop).toBe(false);
+    track.stop();
+  });
+
+  it('reports the seeked position, keeps it across pause, and rewinds on stop', () => {
+    const track = new ex.SoundTrack(buffer, destination);
+    track.loop = true;
+    expect(track.getPlaybackPosition()).toBe(0);
+
+    track.seek(0.05);
+    expect(track.isPaused()).toBe(true);
+    expect(track.getPlaybackPosition()).toBe(0.05);
 
     track.play();
-    track.stop();
+    expect(track.isPlaying()).toBe(true);
+    expect(track.getPlaybackPosition()).toBeGreaterThanOrEqual(0.05);
+    expect(sources[0].start).toBeDefined();
 
-    expect(inserted.disconnect).toHaveBeenCalled();
+    track.pause();
+    expect(track.isPaused()).toBe(true);
+    expect(track.getPlaybackPosition()).toBeGreaterThanOrEqual(0.05);
+
+    track.stop();
+    expect(track.isStopped()).toBe(true);
+    expect(track.getPlaybackPosition()).toBe(0);
+  });
+
+  it('stops and resolves play() when the source ends naturally', async () => {
+    const track = new ex.SoundTrack(buffer, destination);
+    const started = vi.fn();
+    const done = track.play(started);
+    expect(started).toHaveBeenCalled();
+    expect(track.isPlaying()).toBe(true);
+
+    await expect(done).resolves.toBe(true);
+    expect(track.isStopped()).toBe(true);
+    expect(sources[0].disconnect).toHaveBeenCalled();
+  });
+
+  it('resolves play() when stopped explicitly', async () => {
+    const track = new ex.SoundTrack(buffer, destination);
+    track.loop = true;
+    const done = track.play();
+    await delay(10);
+    expect(track.isPlaying()).toBe(true);
+    track.stop();
+    await expect(done).resolves.toBe(true);
+  });
+
+  it('honors the duration when not looping', () => {
+    const track = new ex.SoundTrack(buffer, destination);
+    expect(track.duration).toBe(buffer.duration);
+    track.duration = 0.05;
+    expect(track.duration).toBe(0.05);
+    track.duration = undefined;
+    expect(track.duration).toBe(buffer.duration);
+  });
+
+  it('logs and falls back to the default graph when the hook throws', () => {
+    const error = vi.spyOn(ex.Logger.getInstance(), 'error');
+    const track = new ex.SoundTrack(buffer, destination, () => {
+      throw new Error('boom');
+    });
+    track.loop = true;
+    track.play();
+
+    expect(error).toHaveBeenCalled();
+    expect(sources[0].connect).toHaveBeenCalledWith(destination);
+    expect(track.isPlaying()).toBe(true);
+    track.stop();
   });
 });

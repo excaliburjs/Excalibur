@@ -8,6 +8,7 @@ import type { Engine } from '../../engine';
 import { Logger } from '../../util/log';
 import type { EventKey, Handler, Subscription } from '../../event-emitter';
 import { EventEmitter } from '../../event-emitter';
+import { clamp } from '../../math/util';
 
 export interface SoundEvents {
   volumechange: NativeSoundEvent;
@@ -85,28 +86,16 @@ export interface SoundOptions {
   position?: number;
 
   /**
-   * Maximum number of concurrent tracks (playbacks) allowed for this single
+   * Maximum number of simultaneously playing tracks allowed for this single
    * Sound. When the cap is reached, new `play()` calls are dropped and resolve
    * to `false`. Default unset (unbounded).
    */
   maxConcurrentTracks?: number;
 
   /**
-   * Optional custom Web Audio node-graph builder invoked ONCE per track when it
-   * is created (i.e. on each fresh `Sound.play()`). The returned effect nodes
-   * are reused across pause/resume/seek so that runtime mutations made via
-   * captured references keep working for the track's lifetime.
-   *
-   * Return:
-   *  - `void`/`undefined` for the default graph `source → volumeNode → destination`.
-   *  - A single {@apilink AudioNode} to insert it as `source → node → volumeNode`.
-   *  - An `{ input, output }` pair to insert an arbitrary multi-node chain as
-   *    `source → input … output → volumeNode`. Any intermediate nodes wired
-   *    between `input` and `output` are owned by the caller; Sound only tracks
-   *    + disconnects `input` and `output` on teardown.
-   *
-   * Sound performs all wiring between `source`, the returned nodes, and
-   * `volumeNode`, and disconnects them on stop/complete.
+   * Optional hook to wire custom Web Audio nodes (spatial panners, filters,
+   * reverb, analysers...) between this sound's source and its output. Runs each
+   * time a track (re)starts. See {@apilink AudioGraphBuilder}.
    */
   onPlay?: AudioGraphBuilder;
 }
@@ -139,11 +128,10 @@ export interface PlayOptions {
   pitch?: number;
 
   /**
-   * Optional per-play node-graph builder. Overrides {@apilink Sound.onPlay} for
-   * this single playback. Applies only on a fresh play (a new track is
-   * created); when resuming a paused sound, the existing track keeps its
-   * original builder (so the builder runs once per track, and captured effect
-   * node references stay valid across pause/resume).
+   * Optional per-play audio graph hook. Overrides {@apilink Sound.onPlay} for
+   * the track this call creates (and for its later resumes). Ignored when the
+   * call resumes already paused tracks, which keep their own hook.
+   * See {@apilink AudioGraphBuilder}.
    */
   onPlay?: AudioGraphBuilder;
 }
@@ -157,43 +145,33 @@ function isSoundOptions(x: any): x is SoundOptions[] {
  * the runtime derivation in {@apilink Sound}'s constructor so inferred names
  * stay strongly typed.
  *
- * `/sfx/coin.mp3?v=2` → `coin`, `/sfx/coin.<hash>.mp3` → `coin.<hash>`.
+ * `/sfx/coin.mp3?v=2` → `coin`, `/sfx/coin.<hash>.mp3` → `coin.<hash>`, `.env` → `.env`.
  */
 export type Basename<S extends string> = StripLastExt<StripHash<StripQuery<LastPath<S>>>>;
 type StripQuery<S extends string> = S extends `${infer B}?${string}` ? B : S;
 type StripHash<S extends string> = S extends `${infer B}#${string}` ? B : S;
-type LastPath<S extends string> = S extends `${string}/${infer R}` ? (R extends '' ? S : LastPath<R>) : S;
+type LastPath<S extends string, Orig extends string = S> = S extends `${string}/${infer R}` ? (R extends '' ? Orig : LastPath<R, Orig>) : S;
 type StripLastExt<S extends string> = S extends `${infer Pre}.${infer Post}`
   ? Post extends `${string}.${string}`
     ? `${Pre}.${StripLastExt<Post>}`
-    : Pre
+    : Pre extends ''
+      ? S
+      : Pre
   : S;
 
 /**
- * Derive a sound's default name from its path: basename without extension.
- * `/sfx/coin.mp3?v=2` → `coin`. Falls back to the raw path if it has no
- * basename, or to `''` if the path is empty.
+ * Derive a sound's default name from its path: basename without extension,
+ * see {@apilink Basename} for the matching compile-time type.
  */
-function basenameWithoutExt(p: string): string {
-  if (!p) {
-    return '';
+function basenameWithoutExt(path: string): string {
+  const segments = path.split('/');
+  let name = segments[segments.length - 1];
+  if (name === '') {
+    name = path; // trailing slash, no basename to use
   }
-  const last = p.split('/').pop()!;
-  const noQuery = last.split('?')[0]!.split('#')[0]!;
-  if (!noQuery) {
-    return p;
-  }
-  const dot = noQuery.lastIndexOf('.');
-  return dot > 0 ? noQuery.slice(0, dot) : noQuery;
-}
-
-/**
- * Get the registered name of a {@apilink Sound}: the explicit `name` if one was
- * provided at construction, otherwise the basename-without-extension of its
- * path. Used by {@apilink SoundManager} when auto-keying sounds by filename.
- */
-export function getSoundName(sound: Sound): string {
-  return sound.name;
+  name = name.split('?')[0].split('#')[0];
+  const dot = name.lastIndexOf('.');
+  return dot > 0 ? name.slice(0, dot) : name;
 }
 
 /**
@@ -237,6 +215,9 @@ export class Sound<TName extends string = string> implements Loadable<AudioBuffe
    */
   public readonly name: TName;
 
+  /**
+   * Position in seconds new playbacks start from
+   */
   public position: number | undefined;
   /**
    * Indicates whether the clip should loop when complete
@@ -255,16 +236,28 @@ export class Sound<TName extends string = string> implements Loadable<AudioBuffe
     return this._loop;
   }
 
+  /**
+   * Volume [0-1] applied to every track of this sound, ramped smoothly while playing
+   */
   public set volume(value: number) {
+    value = clamp(value, 0, 1);
     this._volume = value;
 
-    for (const track of this._tracks) {
-      track.volume = this._volume;
+    if (this._output) {
+      const gain = this._output.gain;
+      if (this.isPlaying() && gain.setTargetAtTime) {
+        // https://developer.mozilla.org/en-US/docs/Web/API/AudioParam/setTargetAtTime
+        // After each .1 seconds timestep, the target value will ~63.2% closer to the target value.
+        // This exponential ramp provides a more pleasant transition in gain
+        gain.setTargetAtTime(value, this._audioContext.currentTime, 0.1);
+      } else {
+        gain.value = value;
+      }
     }
 
     this.events.emit('volumechange', new NativeSoundEvent(this));
 
-    this.logger.debug('Set loop for all instances of sound', this.path, 'to', this._volume);
+    this.logger.debug('Set volume for all instances of sound', this.path, 'to', this._volume);
   }
   public get volume(): number {
     return this._volume;
@@ -333,7 +326,6 @@ export class Sound<TName extends string = string> implements Loadable<AudioBuffe
   private _loop = false;
   private _volume = 1;
   private _isStopped = false;
-  // private _isPaused = false;
   private _tracks: SoundTrack[] = [];
   private _engine?: Engine;
   private _wasPlayingOnHidden: boolean = false;
@@ -341,6 +333,10 @@ export class Sound<TName extends string = string> implements Loadable<AudioBuffe
   private _pitch = 0;
   private _maxConcurrentTracks?: number;
   private _audioContext = AudioContextFactory.create();
+  /**
+   * Output gain shared by every track of this sound, created on first use
+   */
+  private _output?: GainNode;
 
   /**
    * Construct a Sound from an options object with an explicit `name`. The class
@@ -405,8 +401,8 @@ export class Sound<TName extends string = string> implements Loadable<AudioBuffe
   }
 
   /**
-   * Optional custom Web Audio node-graph builder invoked once per track right
-   * before playback starts. See {@apilink AudioGraphBuilder}.
+   * Optional hook to wire custom Web Audio nodes between this sound's source
+   * and its output, runs each time a track (re)starts. See {@apilink AudioGraphBuilder}.
    */
   public onPlay?: AudioGraphBuilder;
 
@@ -427,7 +423,7 @@ export class Sound<TName extends string = string> implements Loadable<AudioBuffe
   }
 
   /**
-   * Maximum number of concurrent tracks (playbacks) allowed for this single
+   * Maximum number of simultaneously playing tracks allowed for this single
    * Sound. When the cap is reached, new `play()` calls are dropped and resolve
    * to `false`. Default unset (unbounded).
    */
@@ -447,7 +443,7 @@ export class Sound<TName extends string = string> implements Loadable<AudioBuffe
       return this.data;
     }
     const arraybuffer = await this._resource.load();
-    const audiobuffer = await this.decodeAudio(arraybuffer.slice(0));
+    const audiobuffer = await this.decodeAudio(arraybuffer);
     this._duration = this._duration ?? audiobuffer?.duration ?? undefined;
     this.events.emit('processed', new NativeSoundProcessedEvent(this, audiobuffer));
     return (this.data = audiobuffer);
@@ -455,6 +451,7 @@ export class Sound<TName extends string = string> implements Loadable<AudioBuffe
 
   public async decodeAudio(data: ArrayBuffer): Promise<AudioBuffer> {
     try {
+      // decodeAudioData detaches the buffer it is given, decode a copy so the caller keeps theirs
       return await this._audioContext.decodeAudioData(data.slice(0));
     } catch (e) {
       this.logger.error(
@@ -497,10 +494,23 @@ export class Sound<TName extends string = string> implements Loadable<AudioBuffe
   }
 
   /**
-   * Returns how many instances of the sound are currently playing
+   * Returns how many tracks of the sound currently exist (playing or paused)
    */
   public instanceCount(): number {
     return this._tracks.length;
+  }
+
+  /**
+   * Returns how many tracks of the sound are currently playing
+   */
+  public playingCount(): number {
+    let count = 0;
+    for (const track of this._tracks) {
+      if (track.isPlaying()) {
+        count++;
+      }
+    }
+    return count;
   }
 
   /**
@@ -521,6 +531,8 @@ export class Sound<TName extends string = string> implements Loadable<AudioBuffe
   /**
    * Play the sound, returns a promise that resolves when the sound is done playing
    * An optional volume argument can be passed in to play the sound. Max volume is 1.0
+   *
+   * If any track of this sound is paused, play resumes the paused tracks instead of starting a new one.
    */
   public play(volumeOrConfig?: number | PlayOptions): Promise<boolean> {
     if (!this.isLoaded()) {
@@ -549,17 +561,13 @@ export class Sound<TName extends string = string> implements Loadable<AudioBuffe
 
     if (this.isPaused()) {
       return this._resumePlayback(scheduledStart, playPitch);
-    } else {
-      // Enforce per-sound concurrent track cap (drop new plays when at cap)
-      if (this._maxConcurrentTracks != null && this._tracks.length >= this._maxConcurrentTracks) {
-        this.logger.warnOnce(`Sound "${this.name}" has reached maxConcurrentTracks (${this._maxConcurrentTracks}); dropping play.`);
-        return Promise.resolve(false);
-      }
-      if (this.position) {
-        this.seek(this.position);
-      }
-      return this._startPlayback(scheduledStart, playPitch, playOnPlay);
     }
+
+    if (this._maxConcurrentTracks != null && this.playingCount() >= this._maxConcurrentTracks) {
+      this.logger.warnOnce(`Sound "${this.name}" has reached maxConcurrentTracks (${this._maxConcurrentTracks}); dropping play.`);
+      return Promise.resolve(false);
+    }
+    return this._startPlayback(scheduledStart, playPitch, playOnPlay);
   }
 
   /**
@@ -604,12 +612,17 @@ export class Sound<TName extends string = string> implements Loadable<AudioBuffe
     });
   }
 
+  /**
+   * Seek a track to a position in seconds, the track is paused until the next play().
+   *
+   * If no track exists one is created so that `seek(); play()` starts from the position.
+   */
   public seek(position: number, trackId = 0) {
     if (this._tracks.length === 0) {
-      this._getTrackInstance(this.data);
+      this._createTrack();
     }
 
-    this._tracks[trackId].seek(position);
+    this._tracks[trackId]?.seek(position);
   }
 
   public getTotalPlaybackDuration() {
@@ -630,10 +643,7 @@ export class Sound<TName extends string = string> implements Loadable<AudioBuffe
    * @param trackId
    */
   public getPlaybackPosition(trackId = 0) {
-    if (this._tracks.length) {
-      return this._tracks[trackId].getPlaybackPosition();
-    }
-    return 0;
+    return this._tracks[trackId]?.getPlaybackPosition() ?? 0;
   }
 
   /**
@@ -645,28 +655,28 @@ export class Sound<TName extends string = string> implements Loadable<AudioBuffe
   }
 
   private async _resumePlayback(scheduledStart: number = 0, pitch?: number): Promise<boolean> {
-    if (this.isPaused()) {
-      const resumed: Promise<boolean>[] = [];
-      // ensure we resume *current* tracks (if paused)
-      for (const track of this._tracks) {
-        track.scheduledStartTime = scheduledStart;
-        if (pitch != null) {
-          track.pitch = pitch;
-        }
-        resumed.push(
-          track.play().then(() => {
-            this._tracks.splice(this.getTrackId(track), 1);
-            return true;
-          })
-        );
+    const resumed: Promise<boolean>[] = [];
+    for (const track of this._tracks) {
+      if (!track.isPaused()) {
+        continue;
       }
-
-      this.events.emit('resume', new NativeSoundEvent(this));
-
-      this.logger.debug('Resuming paused instances for sound', this.path, this._tracks);
-      // resolve when resumed tracks are done
-      await Promise.all(resumed);
+      track.scheduledStartTime = scheduledStart;
+      if (pitch != null) {
+        track.pitch = pitch;
+      }
+      resumed.push(
+        track.play().then((complete) => {
+          this._removeTrack(track);
+          return complete;
+        })
+      );
     }
+
+    this.events.emit('resume', new NativeSoundEvent(this));
+
+    this.logger.debug('Resuming paused instances for sound', this.path, this._tracks);
+    // resolve when resumed tracks are done
+    await Promise.all(resumed);
     return true;
   }
 
@@ -674,8 +684,11 @@ export class Sound<TName extends string = string> implements Loadable<AudioBuffe
    * Starts playback, returns a promise that resolves when playback is complete
    */
   private async _startPlayback(scheduledStartTime: number = 0, pitch?: number, onPlay?: AudioGraphBuilder): Promise<boolean> {
-    const track = this._getTrackInstance(this.data, pitch, onPlay);
+    const track = this._createTrack(pitch, onPlay);
     track.scheduledStartTime = scheduledStartTime;
+    if (this.position) {
+      track.seek(this.position);
+    }
 
     const complete = await track.play(() => {
       this.events.emit('playbackstart', new NativeSoundEvent(this, track));
@@ -683,28 +696,38 @@ export class Sound<TName extends string = string> implements Loadable<AudioBuffe
     });
 
     this.events.emit('playbackend', new NativeSoundEvent(this, track));
-
-    // cleanup any done tracks
-    const trackId = this.getTrackId(track);
-    if (trackId !== -1) {
-      this._tracks.splice(trackId, 1);
-    }
+    this._removeTrack(track);
 
     return complete;
   }
 
-  private _getTrackInstance(data: AudioBuffer, pitch?: number, onPlay?: AudioGraphBuilder): SoundTrack {
-    const newTrack = new SoundTrack(data, onPlay ?? this.onPlay);
+  private _removeTrack(track: SoundTrack) {
+    const trackId = this._tracks.indexOf(track);
+    if (trackId !== -1) {
+      this._tracks.splice(trackId, 1);
+    }
+  }
 
-    newTrack.loop = this.loop;
-    newTrack.volume = this.volume;
-    newTrack.duration = this.duration ?? 0;
-    newTrack.playbackRate = this._playbackRate;
-    newTrack.pitch = pitch ?? this._pitch;
+  private _getOutput(): GainNode {
+    if (!this._output) {
+      this._output = this._audioContext.createGain();
+      this._output.gain.value = this._volume;
+      this._output.connect(this._audioContext.destination);
+    }
+    return this._output;
+  }
 
-    this._tracks.push(newTrack);
+  private _createTrack(pitch?: number, onPlay?: AudioGraphBuilder): SoundTrack {
+    const track = new SoundTrack(this.data, this._getOutput(), onPlay ?? this.onPlay);
 
-    return newTrack;
+    track.loop = this._loop;
+    track.duration = this._duration;
+    track.playbackRate = this._playbackRate;
+    track.pitch = pitch ?? this._pitch;
+
+    this._tracks.push(track);
+
+    return track;
   }
 
   public emit<TEventName extends EventKey<SoundEvents>>(eventName: TEventName, event: SoundEvents[TEventName]): void;
