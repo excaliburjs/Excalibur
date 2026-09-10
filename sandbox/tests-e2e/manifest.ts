@@ -71,6 +71,19 @@ export const SANDBOX_CASES: SandboxCase[] = [
   { dir: 'collision', file: 'passive.html', name: 'collision-passive' },
   { dir: 'collision', file: 'touching.html', name: 'collision-touching' },
   { dir: 'collisionvelocity', file: 'vel.html' },
+  {
+    dir: 'component-serialization',
+    action: async (page, canvas) => {
+      await clickCanvasCenter(page, canvas);
+      // Pointer events are only dispatched to actors during the engine's update loop, unlike
+      // keyboard events (emitted synchronously off the raw DOM listener) - step a couple frames
+      // so the click above actually sets focused=true before typing, or the keystrokes land
+      // while still unfocused and get silently dropped by TextInputComponent's focus guard.
+      await page.evaluate(() => (window as any).__exStep?.(2));
+      await page.keyboard.type('hello');
+      await page.click('#save');
+    }
+  },
   { dir: 'composite-collider' },
   { dir: 'contentarea' },
   { dir: 'coordinates' },
