@@ -122,4 +122,94 @@ describe('A body component', () => {
     fixed.body.applyImpulseAtOffset(20, 20, 30, -100);
     expect(fixed.vel).toBeVector(ex.vec(0, 0));
   });
+
+  it('invalidates the inverse inertia cache when collider geometry is added after the body', () => {
+    // Body reads its inertia before any geometry exists, the cache gets filled with the no-geometry values
+    const actor = new ex.Actor({ x: 0, y: 0, collisionType: ex.CollisionType.Active });
+    expect(actor.body.inertia).toBe(0);
+    expect(actor.body.inverseInertia).toBe(Infinity);
+
+    actor.collider.use(ex.Shape.Box(10, 10));
+
+    // Adding the collider geometry must invalidate both caches, no Infinity and no NaN rotation
+    expect(actor.body.inertia).not.toBe(0);
+    expect(Number.isFinite(actor.body.inverseInertia)).toBe(true);
+
+    const reference = new ex.Actor({ x: 0, y: 0, width: 10, height: 10, collisionType: ex.CollisionType.Active });
+    expect(actor.body.inverseInertia).toBeCloseTo(reference.body.inverseInertia, 10);
+
+    actor.body.applyImpulse(ex.vec(5, 5), ex.vec(0, -10));
+    expect(Number.isNaN(actor.body.angularVelocity)).toBe(false);
+    expect(actor.body.angularVelocity).not.toBe(0);
+  });
+
+  it('invalidates the inverse inertia cache when a collider component is added after the body', () => {
+    const entity = new ex.Entity([new ex.BodyComponent({ type: ex.CollisionType.Active })]);
+    const body = entity.get(ex.BodyComponent);
+    expect(body.inverseInertia).toBe(Infinity);
+
+    entity.addComponent(new ex.ColliderComponent(ex.Shape.Box(10, 10)));
+
+    expect(body.inertia).not.toBe(0);
+    expect(Number.isFinite(body.inverseInertia)).toBe(true);
+  });
+
+  it('invalidates the inverse inertia cache when the collision type changes', () => {
+    const actor = new ex.Actor({ x: 0, y: 0, width: 10, height: 10, collisionType: ex.CollisionType.Active });
+    const activeInverseInertia = actor.body.inverseInertia;
+    expect(Number.isFinite(activeInverseInertia)).toBe(true);
+    expect(activeInverseInertia).not.toBe(0);
+
+    actor.body.collisionType = ex.CollisionType.Fixed;
+    expect(actor.body.inverseInertia).toBe(0);
+
+    actor.body.collisionType = ex.CollisionType.Active;
+    expect(actor.body.inverseInertia).toBeCloseTo(activeInverseInertia, 10);
+  });
+
+  it('does not leak collider subscriptions when inertia is read repeatedly', () => {
+    const actor = new ex.Actor({ x: 0, y: 0, collisionType: ex.CollisionType.Active });
+    const collider = actor.collider;
+
+    // Every read misses the cache (no geometry), the body must stay wired exactly once
+    for (let i = 0; i < 50; i++) {
+      expect(actor.body.inertia).toBe(0);
+      void actor.body.inverseInertia;
+    }
+    expect(collider.$colliderAdded.subscriptions.length).toBe(1);
+    expect(collider.$colliderRemoved.subscriptions.length).toBe(1);
+
+    collider.use(ex.Shape.Box(10, 10));
+    expect(Number.isFinite(actor.body.inverseInertia)).toBe(true);
+    expect(collider.$colliderAdded.subscriptions.length).toBe(1);
+  });
+
+  it('unwires collider subscriptions when the collider component is removed', () => {
+    const actor = new ex.Actor({ x: 0, y: 0, width: 10, height: 10, collisionType: ex.CollisionType.Active });
+    const collider = actor.get(ex.ColliderComponent);
+    expect(collider.$colliderAdded.subscriptions.length).toBe(1);
+
+    actor.removeComponent(ex.ColliderComponent);
+    actor.processComponentRemoval();
+
+    expect(collider.$colliderAdded.subscriptions.length).toBe(0);
+    expect(collider.$colliderRemoved.subscriptions.length).toBe(0);
+  });
+
+  it('wires inertia invalidation independently after clone', () => {
+    const actor = new ex.Actor({ x: 0, y: 0, width: 10, height: 10, color: ex.Color.Red, collisionType: ex.CollisionType.Active });
+    const originalInverseInertia = actor.body.inverseInertia;
+
+    const clone = actor.clone();
+    const cloneBody = clone.get(ex.BodyComponent);
+    const cloneCollider = clone.get(ex.ColliderComponent);
+
+    // Clone is wired to its own collider, not the original's
+    expect(cloneCollider.$colliderAdded.subscriptions.length).toBe(1);
+
+    cloneCollider.use(ex.Shape.Box(40, 40));
+    expect(cloneBody.inverseInertia).not.toBeCloseTo(originalInverseInertia, 10);
+    // The original's cache is untouched by the clone's collider changing
+    expect(actor.body.inverseInertia).toBeCloseTo(originalInverseInertia, 10);
+  });
 });

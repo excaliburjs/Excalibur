@@ -93,6 +93,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
 
   constructor(options?: BodyComponentOptions) {
     super();
+    this._bindCacheHandlers();
     if (options) {
       this.collisionType = options.type ?? this.collisionType;
       this.group = options.group ?? this.group;
@@ -148,7 +149,19 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   /**
    * Collision type for the rigidbody physics simulation, by default {@apilink CollisionType.PreventCollision}
    */
-  public collisionType: CollisionType = CollisionType.PreventCollision;
+  private _collisionType: CollisionType = CollisionType.PreventCollision;
+
+  public get collisionType(): CollisionType {
+    return this._collisionType;
+  }
+
+  public set collisionType(type: CollisionType) {
+    if (this._collisionType !== type) {
+      this._collisionType = type;
+      // Inverse inertia depends on the collision type (Fixed means "infinite" inertia), keep the cache honest
+      this._invalidateInertia();
+    }
+  }
 
   /**
    * The collision group for the body's colliders, by default body colliders collide with everything
@@ -165,8 +178,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
 
   public set mass(newMass: number) {
     this._mass = newMass;
-    this._cachedInertia = undefined as any;
-    this._cachedInverseInertia = undefined as any;
+    this._invalidateInertia();
   }
 
   /**
@@ -261,41 +273,81 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     }
   }
 
-  private _cachedInertia!: number;
+  private _cachedInertia: number | undefined;
   /**
    * Get the moment of inertia from the {@apilink ColliderComponent}
    */
   public get inertia() {
-    if (this._cachedInertia) {
+    if (this._cachedInertia !== undefined) {
       return this._cachedInertia;
     }
 
     // Inertia is a property of the geometry, so this is a little goofy but seems to be okay?
-    const collider = this.owner!.get(ColliderComponent);
-    if (collider) {
-      collider.$colliderAdded.subscribe(() => {
-        this._cachedInertia = null as any;
-      });
-      collider.$colliderRemoved.subscribe(() => {
-        this._cachedInertia = null as any;
-      });
-      const maybeCollider = collider.get();
-      if (maybeCollider) {
-        return (this._cachedInertia = maybeCollider.getInertia(this.mass));
-      }
-    }
-    return 0;
+    const maybeCollider = this.owner?.get(ColliderComponent)?.get();
+    return (this._cachedInertia = maybeCollider ? maybeCollider.getInertia(this.mass) : 0);
   }
 
-  private _cachedInverseInertia!: number;
+  private _cachedInverseInertia: number | undefined;
   /**
    * Get the inverse moment of inertial from the {@apilink ColliderComponent}. If {@apilink CollisionType.Fixed} this is 0, meaning "infinite" mass
    */
   public get inverseInertia() {
-    if (this._cachedInverseInertia) {
+    if (this._cachedInverseInertia !== undefined) {
       return this._cachedInverseInertia;
     }
-    return (this._cachedInverseInertia = this.collisionType === CollisionType.Fixed ? 0 : 1 / this.inertia);
+    return (this._cachedInverseInertia = this._collisionType === CollisionType.Fixed ? 0 : 1 / this.inertia);
+  }
+
+  /**
+   * Clears the inertia/inverse inertia caches so they are recomputed from the current collider geometry and collision type
+   */
+  private _invalidateInertia() {
+    this._cachedInertia = undefined;
+    this._cachedInverseInertia = undefined;
+  }
+
+  private _wiredCollider: ColliderComponent | null = null;
+  private _invalidateColliderCache!: () => void;
+  private _handleEntityComponentAdded!: (component: Component) => void;
+  private _handleEntityComponentRemoved!: (component: Component) => void;
+
+  /**
+   * Binds the cache invalidation handlers to this instance, called from the constructor and again after clone so
+   * cloned bodies never share subscriptions with their original
+   */
+  private _bindCacheHandlers() {
+    this._wiredCollider = null;
+    this._invalidateColliderCache = () => this._invalidateInertia();
+    this._handleEntityComponentAdded = (component: Component) => {
+      if (component instanceof ColliderComponent) {
+        this._wireCollider(component);
+        this._invalidateInertia();
+      }
+    };
+    this._handleEntityComponentRemoved = (component: Component) => {
+      if (component instanceof ColliderComponent) {
+        this._unwireCollider();
+        this._invalidateInertia();
+      }
+    };
+  }
+
+  private _wireCollider(collider: ColliderComponent) {
+    if (this._wiredCollider === collider) {
+      return;
+    }
+    this._unwireCollider();
+    this._wiredCollider = collider;
+    collider.$colliderAdded.subscribe(this._invalidateColliderCache);
+    collider.$colliderRemoved.subscribe(this._invalidateColliderCache);
+  }
+
+  private _unwireCollider() {
+    if (this._wiredCollider) {
+      this._wiredCollider.$colliderAdded.unsubscribe(this._invalidateColliderCache);
+      this._wiredCollider.$colliderRemoved.unsubscribe(this._invalidateColliderCache);
+      this._wiredCollider = null;
+    }
   }
 
   /**
@@ -337,6 +389,20 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   override onAdd(owner: Entity<any>): void {
     this.transform = this.owner?.get(TransformComponent)!;
     this.motion = this.owner?.get(MotionComponent)!;
+    owner.componentAdded$.subscribe(this._handleEntityComponentAdded);
+    owner.componentRemoved$.subscribe(this._handleEntityComponentRemoved);
+    const collider = owner.get(ColliderComponent);
+    if (collider) {
+      this._wireCollider(collider);
+    }
+    this._invalidateInertia();
+  }
+
+  onRemove(owner: Entity<any>): void {
+    owner.componentAdded$.unsubscribe(this._handleEntityComponentAdded);
+    owner.componentRemoved$.unsubscribe(this._handleEntityComponentRemoved);
+    this._unwireCollider();
+    this._invalidateInertia();
   }
 
   public get pos(): Vector {
@@ -595,6 +661,9 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
 
   public clone(): BodyComponent {
     const component = super.clone() as BodyComponent;
+    // super.clone() copies the original's bound cache invalidation handlers and collider wiring by reference,
+    // rebind them so the clone never shares subscriptions with the original
+    component._bindCacheHandlers();
     return component;
   }
 
@@ -651,6 +720,9 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
 
     // Restore interpolation
     this.enableFixedUpdateInterpolate = data.enableFixedUpdateInterpolate ?? true;
+
+    // Mass was restored directly, make sure the inertia caches are recomputed
+    this._invalidateInertia();
 
     // Runtime state is NOT restored - will be initialized fresh
     // transform and motion will be set in onAdd()
