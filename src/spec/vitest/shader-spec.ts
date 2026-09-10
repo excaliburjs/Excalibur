@@ -1265,4 +1265,82 @@ void main() {
 
     expect(sut.uniforms.u_affine).toBe(affine);
   });
+
+  it('correctly maps Vector uniforms to FLOAT_VEC2, FLOAT_VEC3, or FLOAT_VEC4 depending on uniform type', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      uniform vec2 u_vec2;
+      uniform vec3 u_vec3;
+      uniform vec4 u_vec4;
+      void main() {
+        gl_Position = a_position + vec4(u_vec2, 0.0, 0.0) + vec4(u_vec3, 0.0) + u_vec4;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    const trySetUniform2fSpy = vi.spyOn(sut, 'trySetUniformFloatVector');
+    const trySetUniformSpy = vi.spyOn(sut, 'trySetUniform');
+
+    const v = ex.vec(10, 20);
+    sut.uniforms = {
+      u_vec2: v,
+      u_vec3: v,
+      u_vec4: v
+    };
+
+    sut.compile();
+    sut.use();
+
+    expect(trySetUniform2fSpy).toHaveBeenCalledWith('u_vec2', v);
+    expect(trySetUniformSpy).toHaveBeenCalledWith('uniform3f', 'u_vec3', 10, 20, 0);
+    expect(trySetUniformSpy).toHaveBeenCalledWith('uniform4f', 'u_vec4', 10, 20, 0, 0);
+  });
+
+  it('supports setting Vector values as vec3 or vec4 explicitly', () => {
+    const sut = new ex.Shader({
+      graphicsContext,
+      vertexSource: `#version 300 es
+      in vec4 a_position;
+      uniform vec3 u_vec3;
+      uniform vec4 u_vec4;
+      void main() {
+        gl_Position = a_position + vec4(u_vec3, 0.0) + u_vec4;
+      }`,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+    });
+
+    sut.compile();
+    sut.use();
+
+    const uniform3fSpy = vi.spyOn(gl, 'uniform3f');
+    const uniform4fSpy = vi.spyOn(gl, 'uniform4f');
+
+    const v = ex.vec3(5, 10, 15);
+    const v4 = ex.vec4(5, 10, 15, 20);
+
+    // Test explicit vector methods directly
+    sut.setUniformFloatVector3('u_vec3', v);
+    expect(uniform3fSpy).toHaveBeenCalledWith(expect.anything(), 5, 10, 15);
+
+    sut.trySetUniformFloatVector3('u_vec3', v);
+    expect(uniform3fSpy).toHaveBeenCalledWith(expect.anything(), 5, 10, 15);
+
+    sut.setUniformFloatVector4('u_vec4', v4);
+    expect(uniform4fSpy).toHaveBeenCalledWith(expect.anything(), 5, 10, 15, 20);
+
+    sut.trySetUniformFloatVector4('u_vec4', v4);
+    expect(uniform4fSpy).toHaveBeenCalledWith(expect.anything(), 5, 10, 15, 20);
+  });
 });

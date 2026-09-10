@@ -14,7 +14,8 @@ export interface ConeLightComponentOptions extends PointLightComponentOptions {
    */
   angle?: number;
   /**
-   * World-space heading angle in radians (0 = Right). Default 0
+   * Heading angle in radians relative to the owning entity's world rotation
+   * (0 = Right when the entity is unrotated). Default 0
    */
   direction?: number;
   /**
@@ -39,10 +40,19 @@ export class ConeLightComponent extends Component {
   public softness: number;
   public flicker?: FlickerOptions;
   public enabled: boolean;
+
+  private _currentIntensity: number | null = null;
   /**
-   * Runtime intensity after flicker calculations are applied, written by the {@apilink FlickerSystem}
+   * Runtime intensity after flicker calculations are applied, written by the {@apilink FlickerSystem}.
+   * Until a {@apilink FlickerSystem} writes a value (e.g. a {@apilink LightingSystem} added manually
+   * without one), reads track the live {@apilink ConeLightComponent.intensity} value.
    */
-  public currentIntensity: number;
+  public get currentIntensity(): number {
+    return this._currentIntensity ?? this.intensity;
+  }
+  public set currentIntensity(value: number) {
+    this._currentIntensity = value;
+  }
 
   constructor(options?: ConeLightComponentOptions) {
     super();
@@ -54,7 +64,6 @@ export class ConeLightComponent extends Component {
     this.softness = options?.softness ?? 0.25;
     this.flicker = options?.flicker;
     this.enabled = options?.enabled ?? true;
-    this.currentIntensity = this.intensity;
     if (process.env.NODE_ENV === 'development') {
       if (this.radius < 0 || this.intensity < 0) {
         Logger.getInstance().warn(

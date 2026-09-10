@@ -39,10 +39,19 @@ export class PointLightComponent extends Component {
   public radius: number;
   public flicker?: FlickerOptions;
   public enabled: boolean;
+
+  private _currentIntensity: number | null = null;
   /**
-   * Runtime intensity after flicker calculations are applied, written by the {@apilink FlickerSystem}
+   * Runtime intensity after flicker calculations are applied, written by the {@apilink FlickerSystem}.
+   * Until a {@apilink FlickerSystem} writes a value (e.g. a {@apilink LightingSystem} added manually
+   * without one), reads track the live {@apilink PointLightComponent.intensity} value.
    */
-  public currentIntensity: number;
+  public get currentIntensity(): number {
+    return this._currentIntensity ?? this.intensity;
+  }
+  public set currentIntensity(value: number) {
+    this._currentIntensity = value;
+  }
 
   constructor(options?: PointLightComponentOptions) {
     super();
@@ -51,7 +60,6 @@ export class PointLightComponent extends Component {
     this.radius = options?.radius ?? 150;
     this.flicker = options?.flicker;
     this.enabled = options?.enabled ?? true;
-    this.currentIntensity = this.intensity;
     if (process.env.NODE_ENV === 'development') {
       if (this.radius < 0 || this.intensity < 0) {
         Logger.getInstance().warn(

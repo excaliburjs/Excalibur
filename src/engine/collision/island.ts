@@ -23,6 +23,8 @@ export class Island {
   updateSleepState(elapsed: number) {
     let islandHasMotion = false;
     let allBodiesCanSleep = true;
+    let anyAwake = false;
+    let anySleeping = false;
 
     for (const body of this.bodies) {
       body.updateMotion(elapsed);
@@ -33,10 +35,17 @@ export class Island {
       if (body.canWakeUp) {
         islandHasMotion ||= true;
       }
+      if (body.isSleeping) {
+        anySleeping = true;
+      } else {
+        anyAwake = true;
+      }
     }
 
-    // Wake entire island if ANY body has motion
-    if (islandHasMotion) {
+    // Wake entire island if ANY body has motion, or if the island is only partially asleep.
+    // Bodies in an island share a sleep state, mixed islands would let awake bodies push into
+    // sleeping (never integrated) bodies
+    if (islandHasMotion || (anyAwake && anySleeping)) {
       this.wake();
 
       // Put entire island to sleep if ALL bodies are below threshold

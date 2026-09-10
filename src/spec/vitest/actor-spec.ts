@@ -538,8 +538,8 @@ describe('A game actor', () => {
     actor.addChild(child);
     motionSystem.update(100);
 
-    expect(child.getGlobalPos().x).toBeCloseTo(10, 0.001);
-    expect(child.getGlobalPos().y).toBeCloseTo(20, 0.001);
+    expect(child.globalPos.x).toBeCloseTo(10, 0.001);
+    expect(child.globalPos.y).toBeCloseTo(20, 0.001);
   });
 
   it('is rotated along with its grandparent', () => {
@@ -555,9 +555,9 @@ describe('A game actor', () => {
     child.addChild(grandchild);
     motionSystem.update(100);
 
-    expect(grandchild.getGlobalRotation()).toBe(rotation);
-    expect(grandchild.getGlobalPos().x).toBeCloseTo(10, 0.001);
-    expect(grandchild.getGlobalPos().y).toBeCloseTo(30, 0.001);
+    expect(grandchild.globalRotation).toBe(rotation);
+    expect(grandchild.globalPos.x).toBeCloseTo(10, 0.001);
+    expect(grandchild.globalPos.y).toBeCloseTo(30, 0.001);
   });
 
   it('is scaled along with its parent', () => {
@@ -570,8 +570,8 @@ describe('A game actor', () => {
     actor.addChild(child);
     motionSystem.update(100);
 
-    expect(child.getGlobalPos().x).toBe(30);
-    expect(child.getGlobalPos().y).toBe(30);
+    expect(child.globalPos.x).toBe(30);
+    expect(child.globalPos.y).toBe(30);
   });
 
   it('is scaled along with its grandparent', () => {
@@ -590,8 +590,8 @@ describe('A game actor', () => {
     // p = (10, 10)
     // c = (10 * 2 + 10, 10 * 2 + 10) = (30, 30)
     // gc = (10 * 2 + 30, 10 * 2 + 30) = (50, 50)
-    expect(grandchild.getGlobalPos().x).toBe(50);
-    expect(grandchild.getGlobalPos().y).toBe(50);
+    expect(grandchild.globalPos.x).toBe(50);
+    expect(grandchild.globalPos.y).toBe(50);
   });
 
   it('is rotated and scaled along with its parent', () => {
@@ -606,8 +606,8 @@ describe('A game actor', () => {
     actor.addChild(child);
     motionSystem.update(100);
 
-    expect(child.getGlobalPos().x).toBeCloseTo(10, 0.001);
-    expect(child.getGlobalPos().y).toBeCloseTo(30, 0.001);
+    expect(child.globalPos.x).toBeCloseTo(10, 0.001);
+    expect(child.globalPos.y).toBeCloseTo(30, 0.001);
   });
 
   it('is rotated and scaled along with its grandparent', () => {
@@ -624,8 +624,8 @@ describe('A game actor', () => {
     child.addChild(grandchild);
     motionSystem.update(100);
 
-    expect(grandchild.getGlobalPos().x).toBeCloseTo(10, 0.001);
-    expect(grandchild.getGlobalPos().y).toBeCloseTo(50, 0.001);
+    expect(grandchild.globalPos.x).toBeCloseTo(10, 0.001);
+    expect(grandchild.globalPos.y).toBeCloseTo(50, 0.001);
   });
 
   it('can find its global coordinates if it has a parent', () => {
@@ -645,8 +645,8 @@ describe('A game actor', () => {
     actionSystem.update(1);
     motionSystem.update(1);
 
-    expect(childActor.getGlobalPos().x).toBe(60);
-    expect(childActor.getGlobalPos().y).toBe(65);
+    expect(childActor.globalPos.x).toBe(60);
+    expect(childActor.globalPos.y).toBe(65);
   });
 
   it('can find its global coordinates if it has multiple parents', () => {
@@ -665,8 +665,8 @@ describe('A game actor', () => {
     actor.update(engine, 1);
     scene.update(engine, 1);
 
-    expect(grandChildActor.getGlobalPos().x).toBe(70);
-    expect(grandChildActor.getGlobalPos().y).toBe(75);
+    expect(grandChildActor.globalPos.x).toBe(70);
+    expect(grandChildActor.globalPos.y).toBe(75);
   });
 
   it("can find its global coordinates if it doesn't have a parent", () => {
@@ -679,8 +679,8 @@ describe('A game actor', () => {
     actor.update(engine, 1);
     scene.update(engine, 1);
 
-    expect(actor.getGlobalPos().x).toBe(10);
-    expect(actor.getGlobalPos().y).toBe(15);
+    expect(actor.globalPos.x).toBe(10);
+    expect(actor.globalPos.y).toBe(15);
   });
 
   it('can be removed from the scene', () => {
@@ -1032,7 +1032,7 @@ describe('A game actor', () => {
 
     childActor.graphics.onPostDraw = vi.fn();
 
-    childActor.graphics.visible = true;
+    childActor.graphics.isVisible = true;
     scene.draw(engine.graphicsContext, 100);
     expect(childActor.graphics.onPostDraw).toHaveBeenCalled();
   });
@@ -1045,7 +1045,7 @@ describe('A game actor', () => {
 
     childActor.graphics.onPostDraw = vi.fn();
 
-    childActor.graphics.visible = false;
+    childActor.graphics.isVisible = false;
     scene.draw(engine.graphicsContext, 100);
     expect(childActor.graphics.onPostDraw).not.toHaveBeenCalled();
   });

@@ -3,7 +3,6 @@
     "types": ["@vitest/browser/providers/playwright", "vitest/globals"],
     "moduleResolution": "node",
     "sourceMap": true,
-    "experimentalDecorators": true,
     "target": "es2015",
     "module": "es2015",
     "noImplicitAny": false,

@@ -1,6 +1,8 @@
 import { sign } from './util';
 import { Vector, vec } from './vector';
 import { canonicalizeAngle } from './util';
+import { vec3, Vector3 } from './vector3';
+import { vec4, Vector4 } from './vector4';
 
 export enum MatrixLocations {
   X = 12,
@@ -171,6 +173,32 @@ export class Matrix {
   }
 
   /**
+   * Creates a brand new translation matrix at the specified 3d point
+   * @param vec
+   */
+  public static translation3d(vec: Vector3): Matrix {
+    const mat = Matrix.identity();
+    mat.data[12] = vec.x;
+    mat.data[13] = vec.y;
+    mat.data[14] = vec.z;
+    return mat;
+  }
+
+  /**
+   * Creates a brand new translation matrix at the specified 4d point
+   * @param vec
+   *
+   */
+  public static translation4d(vec: Vector4): Matrix {
+    const mat = Matrix.identity();
+    mat.data[12] = vec.x;
+    mat.data[13] = vec.y;
+    mat.data[14] = vec.z;
+    mat.data[15] = vec.w;
+    return mat;
+  }
+
+  /**
    * Creates a brand new scaling matrix with the specified scaling factor
    * @param sx
    * @param sy
@@ -209,7 +237,22 @@ export class Matrix {
    * @param dest
    */
   multiply(matrix: Matrix, dest?: Matrix): Matrix;
-  multiply(vectorOrMatrix: Vector | Matrix, dest?: Vector | Matrix): Vector | Matrix {
+  /**
+   * Multiply the current matrix by a 4D vector producing a new 4D vector
+   * @param vector
+   * @param dest
+   */
+  multiply(vector: Vector4, dest?: Vector4): Vector4;
+  /**
+   * Multiply the current matrix by a 3D vector producing a new 3D vector
+   * @param vector
+   * @param dest
+   */
+  multiply(vector: Vector3, dest?: Vector3): Vector3;
+  multiply(
+    vectorOrMatrix: Vector | Vector3 | Vector4 | Matrix,
+    dest?: Vector | Vector3 | Vector4 | Matrix
+  ): Vector | Vector3 | Vector4 | Matrix {
     if (vectorOrMatrix instanceof Vector) {
       const result = (dest as Vector) || new Vector(0, 0);
       const vector = vectorOrMatrix;
@@ -220,7 +263,33 @@ export class Matrix {
       result.x = resultX;
       result.y = resultY;
       return result;
+    } else if (vectorOrMatrix instanceof Vector3) {
+      const result = (dest as Vector3) || vec3(0, 0, 0);
+      const vector = vectorOrMatrix;
+      // Treats Vector3 as a 3D point (w = 1.0)
+      const resultX = vector.x * this.data[0] + vector.y * this.data[4] + vector.z * this.data[8] + this.data[12];
+      const resultY = vector.x * this.data[1] + vector.y * this.data[5] + vector.z * this.data[9] + this.data[13];
+      const resultZ = vector.x * this.data[2] + vector.y * this.data[6] + vector.z * this.data[10] + this.data[14];
+
+      result.x = resultX;
+      result.y = resultY;
+      result.z = resultZ;
+      return result;
+    } else if (vectorOrMatrix instanceof Vector4) {
+      const result = (dest as Vector4) || vec4(0, 0, 0, 0);
+      const vector = vectorOrMatrix;
+      const resultX = vector.x * this.data[0] + vector.y * this.data[4] + vector.z * this.data[8] + vector.w * this.data[12];
+      const resultY = vector.x * this.data[1] + vector.y * this.data[5] + vector.z * this.data[9] + vector.w * this.data[13];
+      const resultZ = vector.x * this.data[2] + vector.y * this.data[6] + vector.z * this.data[10] + vector.w * this.data[14];
+      const resultW = vector.x * this.data[3] + vector.y * this.data[7] + vector.z * this.data[11] + vector.w * this.data[15];
+
+      result.x = resultX;
+      result.y = resultY;
+      result.z = resultZ;
+      result.w = resultW;
+      return result;
     } else {
+      // Matrix
       const result = (dest as Matrix) || new Matrix();
       const other = vectorOrMatrix;
       const a11 = this.data[0];

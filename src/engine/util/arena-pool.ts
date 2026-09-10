@@ -1,5 +1,12 @@
 import { Logger } from '../util/log';
-export class Pool<Type> {
+
+/**
+ * This pool works like an arena allocator, it preallocates a large list of objects and passes them out sequentially
+ * It is meant to be freed all at once, so things that can be reclaimed after a frame are the ideal type.
+ *
+ * If you need to take singular objects and put singular objects back {@link RentalPool} is ideal.
+ */
+export class ArenaPool<Type> {
   public totalAllocations = 0;
   public index = 0;
   public objects: Type[] = [];
@@ -28,7 +35,7 @@ export class Pool<Type> {
    * By returning values out of the context they will be un-hooked from the pool and are free to be passed to consumers
    * @param context
    */
-  using(context: (pool: Pool<Type>) => Type[] | void) {
+  using(context: (pool: ArenaPool<Type>) => Type[] | void) {
     const result = context(this);
     if (result) {
       return this.done(...result);
@@ -92,3 +99,8 @@ export class Pool<Type> {
     return objects;
   }
 }
+
+/**
+ * @deprecated Use ArenaPool
+ */
+export class Pool<T> extends ArenaPool<T> {}

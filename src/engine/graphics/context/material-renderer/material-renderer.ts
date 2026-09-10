@@ -5,10 +5,32 @@ import { ImageSourceAttributeConstants } from '../../image-source';
 import { parseImageWrapping } from '../../wrapping';
 import type { HTMLImageSource } from '../excalibur-graphics-context';
 import type { ExcaliburGraphicsContextWebGL } from '../excalibur-graphics-context-webgl';
+import { glsl } from '../glsl';
 import { QuadIndexBuffer } from '../quad-index-buffer';
 import type { RendererPlugin } from '../renderer';
+import { ShaderPass } from '../shader-pipeline/shader-pass';
 import { VertexBuffer } from '../vertex-buffer';
 import { VertexLayout } from '../vertex-layout';
+
+/**
+ * Seeds a material pipeline: copies the graphic's source view into the inner rect of the padded
+ * seed framebuffer, the padded border is written transparent black
+ */
+const seedFragmentSource = glsl`
+in vec2 v_uv;
+uniform sampler2D u_image;
+uniform vec4 u_source_uv;  // source view [u0, v0, u1, v1]
+uniform vec2 u_inner_min;  // inner rect min in destination uv space
+uniform vec2 u_inner_max;  // inner rect max in destination uv space
+out vec4 fragColor;
+void main() {
+  vec2 t = (v_uv - u_inner_min) / (u_inner_max - u_inner_min);
+  if (t.x < 0.0 || t.x > 1.0 || t.y < 0.0 || t.y > 1.0) {
+    fragColor = vec4(0.0);
+  } else {
+    fragColor = texture(u_image, mix(u_source_uv.xy, u_source_uv.zw, t));
+  }
+}`;
 
 export class MaterialRenderer implements RendererPlugin {
   public readonly type: string = 'ex.material';
@@ -20,9 +42,15 @@ export class MaterialRenderer implements RendererPlugin {
   private _quads: any;
   private _buffer!: VertexBuffer;
   private _layout!: VertexLayout;
+  private _seedPass!: ShaderPass;
   initialize(gl: WebGL2RenderingContext, context: ExcaliburGraphicsContextWebGL): void {
     this._gl = gl;
     this._context = context;
+    this._seedPass = new ShaderPass({
+      graphicsContext: context,
+      name: 'material pipeline seed',
+      fragmentSource: seedFragmentSource
+    });
 
     // Setup memory layout
     this._buffer = new VertexBuffer({
@@ -50,6 +78,7 @@ export class MaterialRenderer implements RendererPlugin {
   public dispose() {
     this._buffer.dispose();
     this._quads.dispose();
+    this._seedPass.dispose();
     this._textures.length = 0;
     this._context = null as any;
     this._gl = null as any;
@@ -103,18 +132,83 @@ export class MaterialRenderer implements RendererPlugin {
     const sw = view[2];
     const sh = view[3];
 
-    const topLeft = vec(dest[0], dest[1]);
-    const topRight = vec(dest[0] + width, dest[1]);
-    const bottomLeft = vec(dest[0], dest[1] + height);
-    const bottomRight = vec(dest[0] + width, dest[1] + height);
-
     const imageWidth = image.width || width;
     const imageHeight = image.height || height;
 
-    const uvx0 = sx / imageWidth;
-    const uvy0 = sy / imageHeight;
-    const uvx1 = (sx + sw - 0.01) / imageWidth;
-    const uvy1 = (sy + sh - 0.01) / imageHeight;
+    let uvx0 = sx / imageWidth;
+    let uvy0 = sy / imageHeight;
+    let uvx1 = (sx + sw - 0.01) / imageWidth;
+    let uvy1 = (sy + sh - 0.01) / imageHeight;
+
+    // This creates and uploads the texture if not already done
+    let texture = this._addImageAsTexture(image);
+
+    if (material.isOverridingGraphic) {
+      if (material.images.u_graphic?.image) {
+        texture = this._addImageAsTexture(material.images.u_graphic.image);
+      }
+    }
+
+    // Run the material's multipass pipeline on the graphic offscreen, the result composites
+    // through the regular quad below
+    const pipeline = material.pipeline;
+    let padDestX = 0;
+    let padDestY = 0;
+    let graphicResolutionX = imageWidth;
+    let graphicResolutionY = imageHeight;
+    let sizeX = sw;
+    let sizeY = sh;
+    if (pipeline) {
+      const pad = material.padding;
+      const seedWidth = sw + 2 * pad;
+      const seedHeight = sh + 2 * pad;
+      const maybeFiltering = image.getAttribute(ImageSourceAttributeConstants.Filtering);
+      const graphicFiltering = maybeFiltering ? parseImageFiltering(maybeFiltering) : undefined;
+      const seed = material.getSeedFramebuffer(seedWidth, seedHeight);
+      const output = material.getOutputFramebuffer(seedWidth, seedHeight, graphicFiltering);
+
+      this._seedPass.draw({
+        source: texture,
+        destination: seed,
+        uniforms: {
+          u_source_uv: new Float32Array([uvx0, uvy0, uvx1, uvy1]),
+          u_inner_min: vec(pad / seedWidth, pad / seedHeight),
+          u_inner_max: vec((pad + sw) / seedWidth, (pad + sh) / seedHeight)
+        }
+      });
+      pipeline.process(seed, output, {
+        uniforms: {
+          ...material.uniforms,
+          u_opacity: opacity,
+          u_color: material.color,
+          u_graphic_resolution: vec(imageWidth, imageHeight),
+          u_size: vec(sw, sh)
+        },
+        sources: material.images
+      });
+      texture = output.texture;
+
+      // restore the frame's draw framebuffer and viewport
+      this._context.drawTarget.bind();
+
+      // the pipeline output exactly fills its texture
+      uvx0 = 0;
+      uvy0 = 0;
+      uvx1 = 1;
+      uvy1 = 1;
+      // padding in source pixels scaled into destination units
+      padDestX = pad * (width / sw);
+      padDestY = pad * (height / sh);
+      graphicResolutionX = seedWidth;
+      graphicResolutionY = seedHeight;
+      sizeX = seedWidth;
+      sizeY = seedHeight;
+    }
+
+    const topLeft = vec(dest[0] - padDestX, dest[1] - padDestY);
+    const topRight = vec(dest[0] + width + padDestX, dest[1] - padDestY);
+    const bottomLeft = vec(dest[0] - padDestX, dest[1] + height + padDestY);
+    const bottomRight = vec(dest[0] + width + padDestX, dest[1] + height + padDestY);
 
     const topLeftScreen = transform.getPosition();
     const bottomRightScreen = topLeftScreen.add(bottomRight);
@@ -155,9 +249,6 @@ export class MaterialRenderer implements RendererPlugin {
     vertexBuffer[vertexIndex++] = screenUVX1;
     vertexBuffer[vertexIndex++] = screenUVY1;
 
-    // This creates and uploads the texture if not already done
-    let texture = this._addImageAsTexture(image);
-
     // apply material
     material.use();
 
@@ -174,11 +265,11 @@ export class MaterialRenderer implements RendererPlugin {
     // apply resolution
     shader.trySetUniformFloatVector('u_resolution', vec(this._context.width, this._context.height));
 
-    // apply graphic resolution
-    shader.trySetUniformFloatVector('u_graphic_resolution', vec(imageWidth, imageHeight));
+    // apply graphic resolution, the pipeline output resolution when a pipeline ran
+    shader.trySetUniformFloatVector('u_graphic_resolution', vec(graphicResolutionX, graphicResolutionY));
 
-    // apply size
-    shader.trySetUniformFloatVector('u_size', vec(sw, sh));
+    // apply size, the padded size when a pipeline ran
+    shader.trySetUniformFloatVector('u_size', vec(sizeX, sizeY));
 
     // apply orthographic projection
     shader.trySetUniformMatrix('u_matrix', this._context.ortho);
@@ -186,13 +277,7 @@ export class MaterialRenderer implements RendererPlugin {
     // apply geometry transform
     shader.trySetUniformMatrix('u_transform', transform.to4x4());
 
-    // bind graphic image texture 'uniform sampler2D u_graphic;'
-    if (material.isOverridingGraphic) {
-      if (material.images.u_graphic?.image) {
-        texture = this._addImageAsTexture(material.images.u_graphic.image);
-      }
-    }
-
+    // bind graphic image texture 'uniform sampler2D u_graphic;' (or the pipeline output)
     gl.activeTexture(gl.TEXTURE0 + 0);
     gl.bindTexture(gl.TEXTURE_2D, texture);
     shader.trySetUniformInt('u_graphic', 0);

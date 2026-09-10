@@ -10,7 +10,7 @@ import { CircleCollider } from './colliders/circle-collider';
 import type { Collider } from './colliders/collider';
 import { CompositeCollider } from './colliders/composite-collider';
 import { PolygonCollider } from './colliders/polygon-collider';
-import type { EdgeCollider } from './colliders/edge-collider';
+import { EdgeCollider } from './colliders/edge-collider';
 import { Shape } from './colliders/shape';
 import { EventEmitter } from '../event-emitter';
 import { Actor } from '../actor';
@@ -88,7 +88,7 @@ export class ColliderComponent extends Component {
 
   constructor(collider?: Collider) {
     super();
-    this.set(collider);
+    this.use(collider);
   }
 
   private _collider: Collider | null = null;
@@ -100,11 +100,11 @@ export class ColliderComponent extends Component {
   }
 
   /**
-   * Set the collider geometry
+   * Use specific collider geometry
    * @param collider
    * @returns the collider you set
    */
-  public set<T extends Collider>(collider?: T): T {
+  public use<T extends Collider>(collider?: T): T {
     this.clear();
     if (collider) {
       this._collider = collider;
@@ -116,10 +116,20 @@ export class ColliderComponent extends Component {
     }
     if (this.owner) {
       this._logger.warnOnce(
-        `Actor.collider.set(...) - provided collider is null on entity name [${this.owner.name}] id [${this.owner.id}]`
+        `Actor.collider.use(...) - provided collider is null on entity name [${this.owner.name}] id [${this.owner.id}]`
       );
     }
     return null as unknown as T;
+  }
+
+  /**
+   * Set the collider geometry
+   * @param collider
+   * @returns the collider you set
+   * @deprecated Use .use(collider) instead
+   */
+  public set<T extends Collider>(collider: T): T {
+    return this.use(collider);
   }
 
   private _collidersToRemove: Collider[] = [];
@@ -133,11 +143,26 @@ export class ColliderComponent extends Component {
     }
   }
 
+  private _collidersToFinalize: Collider[] = [];
+
+  /**
+   * Removal happens in two phases: colliders removed this frame are untracked from collision detection right away, but
+   * stay wired to this component for one more frame so the `collisionend` of any contact they were in still reaches the
+   * owner. The next call finalizes them.
+   */
   public processColliderRemoval() {
-    for (const collider of this._collidersToRemove) {
+    if (this._collidersToFinalize.length === 0 && this._collidersToRemove.length === 0) {
+      return; // called for every entity every frame, keep the common case free
+    }
+    for (const collider of this._collidersToFinalize) {
       collider.events.unpipe(this.events);
-      this.$colliderRemoved.notifyAll(collider);
       collider.owner = null;
+    }
+    this._collidersToFinalize.length = 0;
+
+    for (const collider of this._collidersToRemove) {
+      this.$colliderRemoved.notifyAll(collider);
+      this._collidersToFinalize.push(collider);
     }
     this._collidersToRemove.length = 0;
   }
@@ -288,7 +313,7 @@ export class ColliderComponent extends Component {
    */
   usePolygonCollider(points: Vector[], center: Vector = Vector.Zero): PolygonCollider {
     const poly = Shape.Polygon(points, center);
-    return this.set(poly);
+    return this.use(poly);
   }
 
   /**
@@ -298,7 +323,7 @@ export class ColliderComponent extends Component {
    */
   useCircleCollider(radius: number, center: Vector = Vector.Zero): CircleCollider {
     const collider = Shape.Circle(radius, center);
-    return this.set(collider);
+    return this.use(collider);
   }
 
   /**
@@ -309,7 +334,7 @@ export class ColliderComponent extends Component {
    */
   useEdgeCollider(begin: Vector, end: Vector): EdgeCollider {
     const collider = Shape.Edge(begin, end);
-    return this.set(collider);
+    return this.use(collider);
   }
 
   /**
@@ -317,7 +342,7 @@ export class ColliderComponent extends Component {
    * @param colliders
    */
   useCompositeCollider(colliders: Collider[]): CompositeCollider {
-    return this.set(new CompositeCollider(colliders));
+    return this.use(new CompositeCollider(colliders));
   }
 
   serialize(): ColliderComponentData {
@@ -342,6 +367,12 @@ export class ColliderComponent extends Component {
         radius: collider.radius,
         offset: { x: collider.offset.x, y: collider.offset.y }
       } as CircleColliderData;
+    } else if (collider instanceof EdgeCollider) {
+      returnData.colliderType = 'edge';
+      returnData.colliderData = {
+        start: { x: collider.begin.x, y: collider.begin.y },
+        end: { x: collider.end.x, y: collider.end.y }
+      } as EdgeColliderData;
     } else if (collider instanceof CompositeCollider) {
       returnData.colliderType = 'composite';
       const partsData: ColliderCreationData[] = [];
@@ -365,6 +396,9 @@ export class ColliderComponent extends Component {
     } else if (data.colliderType === 'circle') {
       const circleData = data.colliderData as CircleColliderData;
       this.useCircleCollider(circleData.radius, Vector.Zero).offset = new Vector(circleData.offset?.x ?? 0, circleData.offset?.y ?? 0);
+    } else if (data.colliderType === 'edge') {
+      const edgeData = data.colliderData as EdgeColliderData;
+      this.useEdgeCollider(new Vector(edgeData.start.x, edgeData.start.y), new Vector(edgeData.end.x, edgeData.end.y));
     } else if (data.colliderType === 'composite') {
       const compositeData = data.colliderData as CompositeColliderData;
       const parts: Collider[] = [];

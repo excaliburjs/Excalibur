@@ -3,7 +3,6 @@
     "types": ["@types/jasmine", "@types/webpack-env", "../../engine/excalibur.d.ts"],
     "moduleResolution": "node",
     "sourceMap": true,
-    "experimentalDecorators": true,
     "target": "es2018",
     "module": "es2015",
     "noImplicitAny": false,

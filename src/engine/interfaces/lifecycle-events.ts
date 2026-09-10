@@ -82,7 +82,7 @@ export interface _postupdate {
  *
  */
 export function has_postupdate(a: any): a is _postupdate {
-  return !!a.onPostUpdate;
+  return !!a._postupdate;
 }
 
 export interface OnPostUpdate {

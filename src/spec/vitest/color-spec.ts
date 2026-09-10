@@ -330,4 +330,86 @@ describe('A color', () => {
     const hslBlue = color.toHSLA();
     expect(hslBlue).toBe('hsla(240, 100%, 50%, 1)');
   });
+
+  it('can be saturated', () => {
+    const color = ex.Color.fromHSL(0, 0.5, 0.5);
+    const saturated = color.saturate(0.5);
+    expect(saturated.toHSLA()).not.toBe(color.toHSLA());
+  });
+
+  it('can be desaturated', () => {
+    const color = ex.Color.fromHSL(0, 0.5, 0.5);
+    const desaturated = color.desaturate(0.5);
+    expect(desaturated.toHSLA()).not.toBe(color.toHSLA());
+  });
+
+  it('can throw on an invalid rgb string', () => {
+    expect(() => ex.Color.fromRGBString('not-a-color')).toThrowError('Invalid rgb/a string: not-a-color');
+  });
+
+  it('can be compared for equality', () => {
+    expect(ex.Color.Red.equal(ex.Color.fromRGB(255, 0, 0))).toBe(true);
+    expect(ex.Color.Red.equal(ex.Color.Blue)).toBe(false);
+  });
+
+  it('produces a hashCode', () => {
+    const a = ex.Color.fromRGB(10, 20, 30, 1);
+    const b = ex.Color.fromRGB(10, 20, 30, 1);
+    const c = ex.Color.fromRGB(11, 20, 30, 1);
+
+    expect(a.hashCode).toBe(b.hashCode);
+    expect(a.hashCode).not.toBe(c.hashCode);
+  });
+
+  it('fillStyle returns the same as toString', () => {
+    color = ex.Color.fromRGB(10, 20, 30, 0.5);
+    expect(color.fillStyle()).toBe(color.toString());
+  });
+
+  it('can clone into a destination color', () => {
+    const source = ex.Color.fromRGB(10, 20, 30, 0.4);
+    const dest = new ex.Color(0, 0, 0);
+
+    const result = source.clone(dest);
+
+    expect(result).toBe(dest);
+    expect(dest.r).toBe(10);
+    expect(dest.g).toBe(20);
+    expect(dest.b).toBe(30);
+    expect(dest.a).toBe(0.4);
+  });
+
+  it('exposes the standard palette of named colors', () => {
+    const palette: [string, string][] = [
+      ['Black', '#000000'],
+      ['White', '#ffffff'],
+      ['Gray', '#808080'],
+      ['LightGray', '#d3d3d3'],
+      ['DarkGray', '#a9a9a9'],
+      ['Yellow', '#ffff00'],
+      ['Orange', '#ffa500'],
+      ['Red', '#ff0000'],
+      ['Vermilion', '#ff5b31'],
+      ['Rose', '#ff007f'],
+      ['Pink', '#ffc0cb'],
+      ['Magenta', '#ff00ff'],
+      ['Violet', '#7f00ff'],
+      ['Purple', '#800080'],
+      ['Blue', '#0000ff'],
+      ['Azure', '#007fff'],
+      ['Cyan', '#00ffff'],
+      ['Viridian', '#59978f'],
+      ['Teal', '#008080'],
+      ['Green', '#00ff00'],
+      ['Chartreuse', '#7fff00'],
+      ['ExcaliburBlue', '#176baa'],
+      ['Brown', '#964b00']
+    ];
+
+    for (const [name, hex] of palette) {
+      expect((ex.Color as any)[name].toHex(), name).toBe(hex);
+    }
+
+    expect(ex.Color.Transparent.toHex()).toBe('#ffffff00');
+  });
 });

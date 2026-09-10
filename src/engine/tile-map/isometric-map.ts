@@ -293,22 +293,6 @@ export class IsometricMap extends Entity implements HasNestedPointerEvents {
 
   /**
    * Whether tiles should be visible
-   * @deprecated use isVisible
-   */
-  public get visible(): boolean {
-    return this.isVisible;
-  }
-
-  /**
-   * Whether tiles should be visible
-   * @deprecated use isVisible
-   */
-  public set visible(val: boolean) {
-    this.isVisible = val;
-  }
-
-  /**
-   * Whether tiles should be visible
    */
   public isVisible = true;
 
@@ -362,7 +346,7 @@ export class IsometricMap extends Entity implements HasNestedPointerEvents {
 
     this.collider = this.get(ColliderComponent);
     if (this.collider) {
-      this.collider.set((this._composite = new CompositeCollider([])));
+      this.collider.use((this._composite = new CompositeCollider([])));
     }
 
     this.pointer = this.get(PointerComponent);

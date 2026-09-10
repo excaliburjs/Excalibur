@@ -106,7 +106,7 @@ export enum FontStyle {
 /**
  * Enum representing the text direction, useful for other languages, or writing text in reverse
  */
-export enum Direction {
+export enum TextDirection {
   LeftToRight = 'ltr',
   RightToLeft = 'rtl'
 }
@@ -146,7 +146,7 @@ export interface FontOptions {
   /**
    * Optionally specify the text direction, by default LeftToRight
    */
-  direction?: Direction;
+  direction?: TextDirection;
   /**
    * Optionally override the text line height in pixels, useful for multiline text. If unset will use default.
    */

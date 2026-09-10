@@ -5,7 +5,6 @@ import type { Actor } from '../actor';
 import { MotionComponent } from '../entity-component-system/components/motion-component';
 import { TransformComponent } from '../entity-component-system/components/transform-component';
 import type { Vector, RotationType } from '../math';
-import type { EasingFunction } from '../util/easing-functions';
 import type { ActionQueue } from './action-queue';
 import type { Action } from './action';
 import type { Color } from '../color';
@@ -93,54 +92,8 @@ export class ActionsComponent extends Component implements ActionContextMethods 
   }
 
   /**
-   * This method will move an actor to the specified `x` and `y` position over the
-   * specified duration using a given {@apilink EasingFunctions} and return back the actor. This
-   * method is part of the actor 'Action' fluent API allowing action chaining.
-   * @param pos       The x,y vector location to move the actor to
-   * @param duration  The time it should take the actor to move to the new location in milliseconds
-   * @param easingFcn Use {@apilink EasingFunctions} or a custom function to use to calculate position, Default is {@apilink EasingFunctions.Linear}
-   * @deprecated use new moveTo({pos: Vector, duration: number, easing: EasingFunction})
-   */
-  public easeTo(pos: Vector, duration: number, easingFcn?: EasingFunction): ActionContext;
-  /**
-   * This method will move an actor to the specified `x` and `y` position over the
-   * specified duration using a given {@apilink EasingFunctions} and return back the actor. This
-   * method is part of the actor 'Action' fluent API allowing action chaining.
-   * @param x         The x location to move the actor to
-   * @param y         The y location to move the actor to
-   * @param duration  The time it should take the actor to move to the new location in milliseconds
-   * @param easingFcn Use {@apilink EasingFunctions} or a custom function to use to calculate position, Default is {@apilink EasingFunctions.Linear}
-   * @deprecated use new moveTo({pos: Vector, duration: number, easing: EasingFunction})
-   */
-  public easeTo(x: number, y: number, duration: number, easingFcn?: EasingFunction): ActionContext;
-  public easeTo(...args: any[]): ActionContext {
-    return this._getCtx().easeTo.apply(this._ctx, args as any);
-  }
-
-  /**
-   *
-   * @param offset
-   * @param duration
-   * @param easingFcn
-   * @deprecated use new moveBy({pos: Vector, duration: number, easing: EasingFunction})
-   */
-  public easeBy(offset: Vector, duration: number, easingFcn?: EasingFunction): ActionContext;
-  /**
-   *
-   * @param offsetX
-   * @param offsetY
-   * @param duration
-   * @param easingFcn
-   * @deprecated use new moveBy({pos: Vector, duration: number, easing: EasingFunction})
-   */
-  public easeBy(offsetX: number, offsetY: number, duration: number, easingFcn?: EasingFunction): ActionContext;
-  public easeBy(...args: any[]): ActionContext {
-    return this._getCtx().easeBy.apply(this._ctx, args as any);
-  }
-
-  /**
    * Moves an actor to a specified {@link Vector} in a given duration in milliseconds.
-   * You may optionally specify an {@link EasingFunction}
+   * You may optionally specify an {@link Easing}
    * @param options
    */
   public moveTo(options: MoveToOptions): ActionContext;
@@ -167,7 +120,7 @@ export class ActionsComponent extends Component implements ActionContextMethods 
 
   /**
    * Moves an actor by a specified offset {@link Vector} in a given duration in milliseconds.
-   * You may optionally specify an {@link EasingFunction}
+   * You may optionally specify an {@link Easing}
    * @param options
    */
   public moveBy(options: MoveByOptions): ActionContext;

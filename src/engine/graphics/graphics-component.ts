@@ -149,22 +149,6 @@ export class GraphicsComponent extends Component {
 
   /**
    * Sets or gets wether any drawing should be visible in this component
-   * @deprecated use isVisible
-   */
-  public get visible(): boolean {
-    return this.isVisible;
-  }
-
-  /**
-   * Sets or gets wether any drawing should be visible in this component
-   * @deprecated use isVisible
-   */
-  public set visible(val: boolean) {
-    this.isVisible = val;
-  }
-
-  /**
-   * Sets or gets wether any drawing should be visible in this component
    */
   public isVisible: boolean = true;
 
@@ -263,6 +247,7 @@ export class GraphicsComponent extends Component {
       graphics,
       offset,
       copyGraphics,
+      material,
       onPreDraw,
       onPostDraw,
       onPreTransformDraw,
@@ -284,6 +269,7 @@ export class GraphicsComponent extends Component {
     this.anchor = anchor ?? this.anchor;
     this.color = color ?? this.color;
     this.copyGraphics = copyGraphics ?? this.copyGraphics;
+    this.material = material ?? this.material;
     this.onPreDraw = onPreDraw ?? this.onPreDraw;
     this.onPostDraw = onPostDraw ?? this.onPostDraw;
     this.onPreTransformDraw = onPreTransformDraw ?? this.onPreTransformDraw;
@@ -538,13 +524,20 @@ export class GraphicsComponent extends Component {
     if (this.color) {
       graphics.color = this.color.clone();
     }
+    if (this.current) {
+      this.use(this.current);
+    }
     graphics.opacity = this.opacity;
     graphics.anchor = this.anchor.clone();
     graphics.copyGraphics = this.copyGraphics;
+    graphics.material = this.material;
+    graphics.forceOnScreen = this.forceOnScreen;
     graphics.onPreDraw = this.onPreDraw;
     graphics.onPostDraw = this.onPostDraw;
     graphics.isVisible = this.isVisible;
     graphics.shouldAlwaysTick = this.shouldAlwaysTick;
+    graphics.onPreTransformDraw = this.onPreTransformDraw;
+    graphics.onPostTransformDraw = this.onPostTransformDraw;
 
     return graphics;
   }

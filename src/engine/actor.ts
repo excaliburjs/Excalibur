@@ -3,14 +3,16 @@ import type {
   PreCollisionEvent,
   CollisionStartEvent,
   CollisionEndEvent,
-  EnterViewPortEvent,
-  ExitViewPortEvent,
+  EnterViewportEvent,
+  ExitViewportEvent,
   PreDrawEvent,
   PostDrawEvent,
   PreDebugDrawEvent,
   PostDebugDrawEvent,
   ActionStartEvent,
-  ActionCompleteEvent
+  ActionCompleteEvent,
+  PostTransformDrawEvent,
+  PreTransformDrawEvent
 } from './events';
 import { type KillEvent, PreUpdateEvent, PostUpdateEvent, PostKillEvent, PreKillEvent } from './events';
 import type { Engine } from './engine';
@@ -57,7 +59,7 @@ export function isActor(x: any): x is Actor {
 /**
  * Actor constructor options
  */
-export type ActorArgs = ColliderArgs & {
+export type ActorOptions = ColliderArgs & {
   /**
    * Optionally set the name of the actor, default is 'anonymous'
    */
@@ -199,6 +201,12 @@ type ColliderArgs =
       height?: undefined;
     };
 
+/**
+ * Actor constructor options
+ * @deprecated use ActorOptions
+ */
+export type ActorArgs = ActorOptions;
+
 export interface ActorEvents extends EntityEvents {
   collisionstart: CollisionStartEvent;
   collisionend: CollisionEndEvent;
@@ -209,8 +217,8 @@ export interface ActorEvents extends EntityEvents {
   postkill: PostKillEvent;
   predraw: PreDrawEvent;
   postdraw: PostDrawEvent;
-  pretransformdraw: PreDrawEvent;
-  posttransformdraw: PostDrawEvent;
+  pretransformdraw: PreTransformDrawEvent;
+  posttransformdraw: PostTransformDrawEvent;
   predebugdraw: PreDebugDrawEvent;
   postdebugdraw: PostDebugDrawEvent;
   pointerup: PointerEvent;
@@ -225,8 +233,8 @@ export interface ActorEvents extends EntityEvents {
   pointerdragenter: PointerEvent;
   pointerdragleave: PointerEvent;
   pointerdragmove: PointerEvent;
-  enterviewport: EnterViewPortEvent;
-  exitviewport: ExitViewPortEvent;
+  enterviewport: EnterViewportEvent;
+  exitviewport: ExitViewportEvent;
   actionstart: ActionStartEvent;
   actioncomplete: ActionCompleteEvent;
 }
@@ -257,8 +265,8 @@ export const ActorEvents = {
   PointerDragEnter: 'pointerdragenter',
   PointerDragLeave: 'pointerdragleave',
   PointerDragMove: 'pointerdragmove',
-  EnterViewPort: 'enterviewport',
-  ExitViewPort: 'exitviewport',
+  EnterViewport: 'enterviewport',
+  ExitViewport: 'exitviewport',
   ActionStart: 'actionstart',
   ActionComplete: 'actioncomplete'
 } as const;
@@ -589,7 +597,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    *
    * @param config
    */
-  constructor(config?: ActorArgs) {
+  constructor(config?: ActorOptions) {
     super();
 
     const {
@@ -893,7 +901,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * Get the center point of an actor (global position)
    */
   public get center(): Vector {
-    const globalPos = this.getGlobalPos();
+    const globalPos = this.globalPos;
     return new Vector(
       globalPos.x + this.width / 2 - this.anchor.x * this.width,
       globalPos.y + this.height / 2 - this.anchor.y * this.height
@@ -908,20 +916,11 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   }
 
   public get width() {
-    return this.collider.localBounds.width * this.getGlobalScale().x;
+    return this.collider.localBounds.width * this.globalScale.x;
   }
 
   public get height() {
-    return this.collider.localBounds.height * this.getGlobalScale().y;
-  }
-
-  /**
-   * Gets this actor's rotation taking into account any parent relationships
-   * @returns Rotation angle in radians
-   * @deprecated Use {@apilink globalRotation} instead
-   */
-  public getGlobalRotation(): number {
-    return this.get(TransformComponent).globalRotation;
+    return this.collider.localBounds.height * this.globalScale.y;
   }
 
   /**
@@ -932,27 +931,10 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   }
 
   /**
-   * Gets an actor's world position taking into account parent relationships, scaling, rotation, and translation
-   * @returns Position in world coordinates
-   * @deprecated Use {@apilink globalPos} instead
-   */
-  public getGlobalPos(): Vector {
-    return this.get(TransformComponent).globalPos;
-  }
-
-  /**
    * The actor's world position taking into account parent relationships, scaling, rotation, and translation
    */
   public get globalPos(): Vector {
     return this.get(TransformComponent).globalPos;
-  }
-
-  /**
-   * Gets the global scale of the Actor
-   * @deprecated Use {@apilink globalScale} instead
-   */
-  public getGlobalScale(): Vector {
-    return this.get(TransformComponent).globalScale;
   }
 
   /**

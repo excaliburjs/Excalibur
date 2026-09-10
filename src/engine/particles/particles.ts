@@ -305,7 +305,7 @@ export enum ParticleTransform {
   Local = 'local'
 }
 
-export interface ParticleEmitterArgs {
+export interface ParticleEmitterOptions {
   particle?: ParticleConfig;
   x?: number;
   y?: number;
@@ -333,3 +333,8 @@ export interface ParticleEmitterArgs {
   radius?: number;
   random?: Random;
 }
+
+/**
+ * @deprecated use ParticleEmitterOptions
+ */
+export type ParticleEmitterArgs = ParticleEmitterOptions;

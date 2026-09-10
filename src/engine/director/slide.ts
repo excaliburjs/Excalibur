@@ -6,10 +6,11 @@ import type { TransitionOptions } from './transition';
 import { Transition } from './transition';
 import { Vector } from '../math/vector';
 import { vec } from '../math/vector';
-import { EasingFunctions, type EasingFunction } from '../util/easing-functions';
 import { CoordPlane } from '../math/coord-plane';
 import { lerp } from '../math/lerp';
 import type { Camera } from '../camera';
+import type { Easing } from '../math/easings';
+import { linear } from '../math/easings';
 
 export interface SlideOptions {
   /**
@@ -23,7 +24,7 @@ export interface SlideOptions {
   /**
    * Optionally select an easing function, by default linear (aka lerp)
    */
-  easingFunction?: EasingFunction;
+  easingFunction?: Easing;
 }
 
 /**
@@ -34,7 +35,7 @@ export interface SlideOptions {
 export class Slide extends Transition {
   private _image!: HTMLImageElement;
   private _screenCover!: Sprite;
-  private _easing = EasingFunctions.Linear;
+  private _easing = linear;
   readonly slideDirection: 'up' | 'down' | 'left' | 'right';
   private _start: Vector = Vector.Zero;
   private _end: Vector = Vector.Zero;
@@ -103,7 +104,7 @@ export class Slide extends Transition {
   }
 
   override onStart(progress: number): void {
-    const time = this._easing(this.distance, 0, 1, 1);
+    const time = this._easing(this.distance);
     this.transform.pos.x = lerp(this._start.x, this._end.x, time);
     this.transform.pos.y = lerp(this._start.y, this._end.y, time);
     this._camera.pos.x = lerp(this._startCameraPosition.x, this._destinationCameraPosition.x, time);
@@ -111,7 +112,7 @@ export class Slide extends Transition {
   }
 
   override onUpdate(progress: number): void {
-    const time = this._easing(this.distance, 0, 1, 1);
+    const time = this._easing(this.distance);
     this.transform.pos.x = lerp(this._start.x, this._end.x, time);
     this.transform.pos.y = lerp(this._start.y, this._end.y, time);
     this._camera.pos.x = lerp(this._startCameraPosition.x, this._destinationCameraPosition.x, time);

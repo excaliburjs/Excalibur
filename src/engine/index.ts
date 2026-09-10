@@ -21,7 +21,7 @@ export * from './event-emitter';
 export * from './events/media-events';
 export * from './events';
 export * from './label';
-export { FontStyle, FontUnit, TextAlign, BaseAlign } from './graphics/font-common';
+export { FontStyle, FontUnit, TextAlign, BaseAlign, TextDirection } from './graphics/font-common';
 export * from './particles/index';
 export * from './scene';
 export * from './plugin';
@@ -98,12 +98,10 @@ import * as util from './util/index';
 export { util as Util };
 
 export * from './util/browser';
-export * from './util/decorators';
 export * from './util/detector';
-export * from './util/easing-functions';
 export * from './util/observable';
 export * from './util/log';
-export * from './util/pool';
+export * from './util/arena-pool';
 export * from './util/fps';
 export * from './util/clock';
 export * from './util/web-audio';
@@ -116,10 +114,3 @@ export * from './util/assert';
 export * from './util/rental-pool';
 export * from './util/pause-system';
 export * from './util/serializer';
-
-export * from './plugin';
-
-// ex.Deprecated
-// import * as deprecated from './deprecated';
-// export { deprecated as Deprecated };
-// export * from './Deprecated';

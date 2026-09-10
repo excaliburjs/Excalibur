@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/html-vite';
-import { Actor, Loader, EasingFunctions, RotationType } from '../engine';
+import { Actor, easeInOutCubic, easeOutCubic, Loader, RotationType, vec } from '../engine';
 import { ImageSource } from '../engine/graphics';
 import { enumToControlSelectLabels, enumToControlSelectOptions, withEngine } from './utils';
 
@@ -286,8 +286,8 @@ export const Ease: StoryObj = {
     const originalPos = heart.pos.clone();
     heart.actions.repeatForever((actions) => {
       actions
-        .easeTo(originalPos.x + easeX, originalPos.y + easeY, duration, EasingFunctions.EaseOutCubic)
-        .easeTo(originalPos.x, originalPos.y, duration, EasingFunctions.EaseInOutCubic);
+        .moveTo({ pos: vec(originalPos.x + easeX, originalPos.y + easeY), duration, easing: easeOutCubic })
+        .moveTo({ pos: vec(originalPos.x, originalPos.y), duration, easing: easeInOutCubic });
     });
   }),
   parameters: {

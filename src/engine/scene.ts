@@ -183,6 +183,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   public input!: InputHost;
 
   private _isInitialized: boolean = false;
+  private _lastLightingEnabled: boolean = false;
   private _timers: Timer[] = [];
   public get timers(): readonly Timer[] {
     return this._timers;
@@ -363,7 +364,8 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
         this.camera._initialize(engine);
 
         // Lighting is opt-in, skip provisioning the systems entirely when disabled
-        if (this.engine.lighting.enabled) {
+        this._lastLightingEnabled = this.engine.lighting.enabled;
+        if (this._lastLightingEnabled) {
           if (!this.world.systemManager.get(FlickerSystem)) {
             this.world.add(new FlickerSystem());
           }
@@ -490,6 +492,29 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
     this.onPostDraw(ctx, elapsed);
   }
 
+  private _checkEnableDisableSystems(): void {
+    if (this.engine.lighting.enabled !== this._lastLightingEnabled) {
+      this._lastLightingEnabled = this.engine.lighting.enabled;
+      if (this._lastLightingEnabled) {
+        if (!this.world.systemManager.get(FlickerSystem)) {
+          this.world.add(new FlickerSystem());
+        }
+        if (!this.world.systemManager.get(LightingSystem)) {
+          this.world.add(new LightingSystem());
+        }
+      } else {
+        const flicker = this.world.systemManager.get(FlickerSystem);
+        if (flicker) {
+          this.world.remove(flicker);
+        }
+        const lighting = this.world.systemManager.get(LightingSystem);
+        if (lighting) {
+          this.world.remove(lighting);
+        }
+      }
+    }
+  }
+
   /**
    * Updates all the actors and timers in the scene. Called by the {@apilink Engine}.
    * @param engine  Reference to the current Engine
@@ -514,6 +539,8 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
     for (const timer of this._timers) {
       timer.update(elapsed);
     }
+
+    this._checkEnableDisableSystems();
 
     this.world.update(SystemType.Update, elapsed);
 

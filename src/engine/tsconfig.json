@@ -2,7 +2,6 @@
   "compilerOptions": {
     "outDir": "../../build/dist",
     "sourceMap": true,
-    "experimentalDecorators": true,
     "target": "es2018",
     "moduleResolution": "bundler",
     "module": "esnext",

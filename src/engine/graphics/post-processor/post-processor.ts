@@ -1,27 +1,62 @@
 import type { VertexLayout } from '../context/vertex-layout';
 import type { Shader } from '../context/shader';
 import type { ExcaliburGraphicsContextWebGL } from '../context/excalibur-graphics-context-webgl';
+import type { Framebuffer } from '../context/framebuffer';
 
 /**
- * PostProcessors can be used to apply a shader to the entire screen. It is recommended
- * you use the {@apilink ScreenShader} to build your post processor shader.
+ * PostProcessors apply a shader effect to the entire screen at the end of the frame.
  *
- * The screen texture comes through as this uniform
+ * Implement {@apilink PostProcessor.process}: the current (MSAA-resolved) screen arrives as
+ * `source` and the result must be rendered into `destination` — typically with a
+ * {@apilink ShaderPass} or {@apilink ShaderPipeline}. Because the shape matches
+ * {@apilink ShaderPipelineLike}, effect objects like {@apilink BloomEffect} or
+ * {@apilink BlurEffect} can be added as post processors directly:
  *
- * `uniform sampler2D u_image`
+ * ```typescript
+ * game.graphicsContext.addPostProcessor(new ex.BloomEffect({ graphicsContext }));
+ * ```
  *
- * Post processor shaders get some default uniforms passed to them
+ * Use {@apilink ShaderPipelinePostProcessor} to build one from a list of fragment sources.
  *
- * `uniform float u_time_ms` - total playback time in milliseconds
- * `uniform float u_elapsed_ms` - the elapsed time from the last frame in milliseconds
- * `uniform vec2 u_resolution` - the resolution of the canvas (in pixels)
+ * Fragment shaders in a {@apilink ShaderPass}/{@apilink ShaderPipeline} get these built-ins:
  *
- * Custom uniforms can be updated in the {@apilink PostProcessor.onUpdate}
+ * * `uniform sampler2D u_image` - the current screen (or previous pass output)
+ * * `uniform vec2 u_resolution` - the destination resolution (in pixels)
+ * * `uniform vec2 u_texelSize` - `1.0 / source resolution`
+ * * `uniform float u_time_ms` - total time in milliseconds
+ * * `uniform float u_elapsed_ms` - elapsed milliseconds since the last frame
+ * * `in vec2 v_uv` - 0-1 UV over the screen
+ *
+ * The deprecated single-pass path receives `u_image` at slot 0 plus `u_time_ms`,
+ * `u_elapsed_ms`, and `u_resolution` when declared; custom uniforms can be updated in
+ * {@apilink PostProcessor.onUpdate}.
  */
 export interface PostProcessor {
-  initialize(graphicsContext: ExcaliburGraphicsContextWebGL): void;
-  getShader(): Shader;
-  getLayout(): VertexLayout;
+  /**
+   * Called once when the post processor is added to the graphics context
+   */
+  initialize?(graphicsContext: ExcaliburGraphicsContextWebGL): void;
+
+  /**
+   * `source` is the current (MSAA-resolved) screen framebuffer, render the result into
+   * `destination`, for example with a {@apilink ShaderPass} or {@apilink ShaderPipeline}.
+   */
+  process?(source: Framebuffer, destination: Framebuffer): void;
+
+  /**
+   * @deprecated implement {@apilink PostProcessor.process} instead, the single-pass
+   * shader/layout path will be removed in v1. The screen texture is bound to slot 0 as
+   * `uniform sampler2D u_image` and default uniforms (`u_time_ms`, `u_elapsed_ms`,
+   * `u_resolution`) are set when declared.
+   */
+  getShader?(): Shader;
+
+  /**
+   * @deprecated implement {@apilink PostProcessor.process} instead, the single-pass
+   * shader/layout path will be removed in v1
+   */
+  getLayout?(): VertexLayout;
+
   /**
    * Use the onUpdate hook to update any uniforms in the postprocessors shader
    *

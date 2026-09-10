@@ -1,4 +1,5 @@
 import type { DeepRequired } from '../util/required';
+import type { Color } from '../color';
 
 /**
  * Lighting simulation configuration, normalized from {@apilink EngineOptions.lighting}
@@ -22,10 +23,15 @@ export interface LightingConfig {
    */
   cullPadding?: number;
   /**
-   * Ambient brightness floor (0.0 to 1.0) assumed when no {@apilink AmbientLightComponent} is present
-   * in the scene. Default 0.05.
+   * Ambient brightness floor (0.0 to 1.0) subtracted from darkness intensity. Default 0.05.
    */
   ambientIntensity?: number;
+  /**
+   * Ambient light color, blended into any {@apilink DarknessComponent} veil proportional to
+   * `ambientIntensity` (e.g. a blue ambient at low intensity produces a moonlit veil). Default `null`,
+   * meaning no color tint is applied.
+   */
+  ambientColor?: Color | null;
   /**
    * Fraction of a light's intensity used when painting its colored tint (0.0 to 1.0). Default 0.35.
    */
@@ -45,6 +51,7 @@ export const getDefaultLightingConfig: () => DeepRequired<LightingConfig> = () =
   zIndex: 100,
   cullPadding: 64,
   ambientIntensity: 0.05,
+  ambientColor: null,
   tintAlphaFactor: 0.35,
   shadowNearOpacity: 0.92,
   shadowMidOpacity: 0.6

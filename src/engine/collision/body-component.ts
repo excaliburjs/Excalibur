@@ -187,28 +187,12 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   public canSleep: boolean = this.collisionType === CollisionType.Active;
 
   private _sleeping = false;
-  /**
-   * Whether this body is sleeping or not
-   * @deprecated use isSleeping
-   */
-  public get sleeping(): boolean {
-    return this.isSleeping;
-  }
 
   /**
    * Whether this body is sleeping or not
    */
   public get isSleeping(): boolean {
     return this.canSleep && this._sleeping;
-  }
-
-  /**
-   * Set the sleep state of the body
-   * @param sleeping
-   * @deprecated use isSleeping
-   */
-  public setSleeping(sleeping: boolean) {
-    this.isSleeping = sleeping;
   }
 
   public wake() {
@@ -342,24 +326,9 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
 
   /**
    * Returns if the owner is active
-   * @deprecated use isActive
-   */
-  public get active() {
-    return !!this.owner?.isActive;
-  }
-
-  /**
-   * Returns if the owner is active
    */
   public get isActive() {
     return !!this.owner?.isActive;
-  }
-
-  /**
-   * @deprecated Use globalPos
-   */
-  public get center() {
-    return this.globalPos;
   }
 
   public transform!: TransformComponent;
@@ -537,6 +506,39 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     if (!this.limitDegreeOfFreedom.includes(DegreeOfFreedom.Rotation)) {
       const distanceFromCenter = point.sub(this.globalPos, this._distanceFromCenterScratch);
       this.angularVelocity += this.inverseInertia * distanceFromCenter.cross(impulse);
+    }
+  }
+
+  /**
+   * Apply an impulse (impulseX, impulseY) at a lever arm (offsetX, offsetY) from the body's center.
+   *
+   * Scalar variant of {@apilink BodyComponent.applyImpulse} used by the collision solver hot loops, it allocates nothing
+   * @param offsetX
+   * @param offsetY
+   * @param impulseX
+   * @param impulseY
+   */
+  public applyImpulseAtOffset(offsetX: number, offsetY: number, impulseX: number, impulseY: number): void {
+    if (this.collisionType !== CollisionType.Active) {
+      return; // only active objects participate in the simulation
+    }
+    const inverseMass = this.inverseMass;
+    const vel = this.motion.vel;
+    const dof = this.limitDegreeOfFreedom;
+    if (dof.length === 0) {
+      vel.x += impulseX * inverseMass;
+      vel.y += impulseY * inverseMass;
+      this.motion.angularVelocity += this.inverseInertia * (offsetX * impulseY - offsetY * impulseX);
+      return;
+    }
+    if (!dof.includes(DegreeOfFreedom.X)) {
+      vel.x += impulseX * inverseMass;
+    }
+    if (!dof.includes(DegreeOfFreedom.Y)) {
+      vel.y += impulseY * inverseMass;
+    }
+    if (!dof.includes(DegreeOfFreedom.Rotation)) {
+      this.motion.angularVelocity += this.inverseInertia * (offsetX * impulseY - offsetY * impulseX);
     }
   }
 

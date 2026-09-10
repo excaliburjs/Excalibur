@@ -86,7 +86,7 @@ describe('A ScreenElement', () => {
   });
 
   it('is drawn when visible', () => {
-    screenElement.graphics.visible = true;
+    screenElement.graphics.isVisible = true;
     screenElement.graphics.onPostDraw = vi.fn();
 
     scene.add(screenElement);
@@ -96,7 +96,7 @@ describe('A ScreenElement', () => {
   });
 
   it('is not drawn when not visible', () => {
-    screenElement.graphics.visible = false;
+    screenElement.graphics.isVisible = false;
     screenElement.graphics.onPostDraw = vi.fn();
 
     scene.add(screenElement);

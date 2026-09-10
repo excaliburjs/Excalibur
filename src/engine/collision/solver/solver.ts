@@ -20,6 +20,9 @@ export interface CollisionSolver {
    * 3. solvePosition
    * 4. postSolve
    * @param contacts
+   * @param duration length of the (sub)step in ms
+   * @param substep index of the substep within the current frame, starting at 0
+   * @param substepCount total number of substeps in the current frame
    */
-  solve(contacts: CollisionContact[], duration?: number): CollisionContact[];
+  solve(contacts: CollisionContact[], duration?: number, substep?: number, substepCount?: number): CollisionContact[];
 }

@@ -5,7 +5,7 @@ export interface FlickerOptions {
   /**
    * Frequency of the flicker oscillation in Hz.
    */
-  speed: number;
+  frequency: number;
   /**
    * Maximum deviation from base intensity (0.0 to 1.0).
    */
@@ -13,5 +13,5 @@ export interface FlickerOptions {
   /**
    * Optional secondary wave frequency for asymmetrical, organic modulation.
    */
-  secondarySpeed?: number;
+  secondaryFrequency?: number;
 }
