@@ -3,7 +3,7 @@ var game = new ex.Engine({
   height: 600
 });
 
-var tex = new ex.ImageSource('https://cdn.rawgit.com/excaliburjs/Excalibur/7dd48128/assets/sword.png');
+var tex = new ex.ImageSource('./sword.png');
 
 var loader = new ex.Loader([tex]);
 

@@ -15,8 +15,6 @@ export default tseslint.config(
     'src/spec/__util__/**',
     '.github/scripts/**',
     '**/karma.conf.*',
-    '**/webpack.config.js',
-    '**/webpack.config.prod.js',
     '**/wallaby.js',
     '**/version.js',
     '**/vite.config.common.js',
