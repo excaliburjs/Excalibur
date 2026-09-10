@@ -82,6 +82,8 @@ type MaterialShaderOptions =
        * Pre-built uniforms:
        *
        * * `uniform sampler2D u_graphic` - The current graphic displayed by the GraphicsComponent
+       * * `uniform sampler2D u_image` - Synonym for `u_graphic`
+       * * `uniform sampler2D u_original` - The pre-effect graphic; equal to `u_graphic`/`u_image` when there is no pipeline
        * * `uniform sampler2D u_screen_texture` - The screen texture, bound when referenced in the source
        * * `uniform vec2 u_resolution` - The current resolution of the screen (in pixels)
        * * `uniform vec2 u_graphic_resolution` - The current resolution of the graphic (in pixels)
@@ -113,7 +115,9 @@ type MaterialShaderOptions =
 
       /**
        * The **final composite** fragment shader: it draws the pipeline's output (bound as
-       * `u_graphic`) on screen and is where screen-space work like `u_screen_texture` belongs.
+       * `u_graphic`, with `u_image` as a synonym) on screen and is where screen-space work like
+       * `u_screen_texture` belongs. The pre-effect graphic is also available as `u_original`, so
+       * the composite can mix the processed result with the untouched source.
        *
        * When omitted a passthrough composite is used that draws the pipeline output with the
        * context opacity applied.
@@ -163,6 +167,31 @@ export interface MaterialImageOptions {
 }
 
 /**
+ * Passed to {@apilink Material.update}'s callback for batch-updating a material mid-frame.
+ */
+export interface MaterialContext {
+  /**
+   * The material's declarative uniforms, the same dictionary as `material.uniforms` — changes
+   * reach the composite shader and, when `passes` is used, are forwarded to every pass on the
+   * next draw, consistent with any other declarative uniform.
+   */
+  uniforms: UniformDictionary;
+  /**
+   * Every compiled {@apilink Shader} this material drives, in order: the composite shader first,
+   * followed by each pipeline pass's shader when the pipeline can enumerate them (see
+   * {@apilink ShaderPipelineLike.getShaders}; a custom pipeline that omits it only contributes the
+   * composite shader here).
+   */
+  shaders: Shader[];
+  /**
+   * The same shaders as `shaders`, keyed by {@apilink Shader.name}. Shaders sharing a name (for
+   * example several unnamed passes) collide here, last one wins — `shaders` is the complete,
+   * order-preserving source of truth.
+   */
+  shadersByName: Map<string, Shader>;
+}
+
+/**
  * Composite used when a material provides `passes` but no `fragmentSource`, draws the pipeline
  * output with the graphics context opacity applied
  */
@@ -187,6 +216,8 @@ export class Material {
     'u_matrix',
     'u_transform',
     'u_graphic',
+    'u_image',
+    'u_original',
     'u_screen_texture'
   ];
   private static _ID = 0;
@@ -246,6 +277,12 @@ export class Material {
         );
       }
 
+      if (this.images.u_image) {
+        this._logger.warn(
+          `Material named "${this.name}" is overriding built in image u_image, is this on purpose? If so ignore this warning.`
+        );
+      }
+
       if (this.images.u_screen_texture) {
         this._logger.warn(
           `Material named "${this.name}" is overriding built in image u_screen_texture, is this on purpose? If so ignore this warning.`
@@ -287,9 +324,10 @@ export class Material {
       uniforms: this._uniforms,
       images: this._images,
       // max texture slots
-      // - 2 for the graphic texture and screen texture
-      // - 1 if just graphic
-      startingTextureSlot: this.isUsingScreenTexture ? 2 : 1
+      // - 1 for the graphic texture (u_graphic/u_image)
+      // - +1 if the screen texture is referenced
+      // - +1 if the composite references u_original and a pipeline is present (needs its own slot)
+      startingTextureSlot: 1 + (this.isUsingScreenTexture ? 1 : 0) + (this.isUsingOriginalTexture ? 1 : 0)
     });
     this._initialized = true;
   }
@@ -329,11 +367,20 @@ export class Material {
   }
 
   get isOverridingGraphic() {
-    return !!this.images.u_graphic;
+    return !!(this.images.u_graphic || this.images.u_image);
   }
 
   get isUsingScreenTexture() {
     return !!this._fragmentSource?.includes('u_screen_texture');
+  }
+
+  /**
+   * True when a pipeline is present and the composite fragmentSource references `u_original`,
+   * meaning it needs its own texture slot distinct from `u_graphic`/`u_image` (the pipeline output).
+   * Without a pipeline, `u_original` is simply an alias for `u_graphic`/`u_image`.
+   */
+  get isUsingOriginalTexture() {
+    return !!this.pipeline && !!this._fragmentSource?.includes('u_original');
   }
 
   /**
@@ -396,10 +443,20 @@ export class Material {
     return this._outputFramebuffer;
   }
 
-  update(callback: (shader: Shader) => any) {
+  /**
+   * Batch-update this material. The callback receives a {@apilink MaterialContext} with `uniforms`
+   * (the declarative dictionary, the normal way to change values so they also flow to every pass)
+   * and `shaders`/`shadersByName` for direct access to every compiled shader this material drives,
+   * for the rarer case of calling shader methods directly on a specific pass.
+   */
+  update(callback: (context: MaterialContext) => any) {
     if (this._shader) {
-      this._shader.use();
-      callback(this._shader);
+      const shaders = [this._shader, ...(this._pipeline?.getShaders?.() ?? [])];
+      callback({
+        uniforms: this.uniforms,
+        shaders,
+        shadersByName: new Map(shaders.map((shader) => [shader.name, shader]))
+      });
     }
   }
 
@@ -414,6 +471,12 @@ export class Material {
       if (this.images.u_graphic) {
         this._logger.warn(
           `Material named "${this.name}" is overriding built in image u_graphic, is this on purpose? If so ignore this warning.`
+        );
+      }
+
+      if (this.images.u_image) {
+        this._logger.warn(
+          `Material named "${this.name}" is overriding built in image u_image, is this on purpose? If so ignore this warning.`
         );
       }
 

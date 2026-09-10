@@ -5,7 +5,6 @@ import { nextActionId } from '../action';
 import type { Actor } from '../../actor';
 import type { Material } from '../../graphics/context/material';
 import type { Color } from '../../color';
-import type { Shader } from '../../graphics/context/shader';
 
 export class Flash implements Action {
   id = nextActionId();
@@ -58,8 +57,8 @@ export class Flash implements Action {
     this._currentDuration -= elapsed;
 
     if (this._graphics) {
-      this._material?.update((shader: Shader) => {
-        shader.trySetUniformFloat('u_blend', this._currentDuration / this._total);
+      this._material?.update((context) => {
+        context.uniforms.u_blend = this._currentDuration / this._total;
       });
     }
 

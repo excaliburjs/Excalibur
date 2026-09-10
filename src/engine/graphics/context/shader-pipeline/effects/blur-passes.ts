@@ -1,6 +1,7 @@
 import { vec } from '../../../../math/vector';
 import type { ExcaliburGraphicsContextWebGL } from '../../excalibur-graphics-context-webgl';
 import { glsl } from '../../glsl';
+import type { Shader } from '../../shader';
 import type { ShaderPassDestination, ShaderPassSource } from '../shader-pass';
 import { ShaderPass } from '../shader-pass';
 import type { ShaderPipelineLike, ShaderPipelineProcessOptions } from '../shader-pipeline';
@@ -134,6 +135,13 @@ export class BlurEffect implements ShaderPipelineLike {
 
   public process(source: ShaderPassSource, destination: ShaderPassDestination, options?: ShaderPipelineProcessOptions): void {
     this._pipeline.process(source, destination, options);
+  }
+
+  /**
+   * Every internal pass's compiled {@apilink Shader}, in the order they run
+   */
+  public getShaders(): Shader[] {
+    return this._pipeline.getShaders();
   }
 
   public dispose(): void {
