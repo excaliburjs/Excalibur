@@ -1,0 +1,320 @@
+---
+title: Using SolidJS
+slug: /solidjs
+section: Getting Started
+---
+
+## Starting a new project
+
+Start a new project with [SolidJS](https://start.solidjs.com/getting-started/project-setup) using your favorite package manager or use the command:
+
+```bash
+pnpm create solid
+```
+
+Once this is done you can follow the remainder of the guide for [an existing project](#existing-solidjs-projects).
+
+## Exisiting SolidJS projects
+
+:::note
+
+This guide is very similar to the [NextJS](./04-using-nextjs.mdx) guide and so it may be helpful to look at that guide for more or different information.
+
+:::
+
+Install ExcaliburJS with your package manager
+
+```bash
+npm install excalibur
+```
+
+Create a client component that houses your game. It should look something like:
+
+```typescript
+import { onMount } from "solid-js";
+import initializeGame from "./src/main";
+
+export const gameCanvasId = "gameCanvas";
+export const gameUiId = "gameUi";
+
+export default function Game() {
+	onMount(() => {
+		initializeGame();
+	});
+
+	return (
+		<div
+			style={{
+				"justify-content": "center",
+				"align-items": "center",
+				position: "relative",
+				width: "800px",
+				height: "600px",
+			}}
+		>
+			<canvas id={gameCanvasId}></canvas>
+			<div id={gameUiId} />
+		</div>
+	);
+}
+```
+
+and create a page that uses the component:
+
+```typescript
+import { clientOnly } from "@solidjs/start";
+
+const ClientOnlyGame = clientOnly(() => import("~/components/breakoutUIGame"));
+export default function Breakout() {
+	return <ClientOnlyGame />;
+}
+```
+
+Note that we have to dynamically import the game component to prevent it from being server side rendered.
+
+Finally, create a function that initializes and renders the game:
+
+```typescript
+export const intializeGame = (gameCanvasId: string, gameUiId: string) => {
+	const game = new Engine({
+		canvasElementId: gameCanvasId,
+		width: 800,
+		height: 600,
+	});
+
+	return game;
+};
+```
+
+From here, you can start the game by running `pnpm run dev` and navigating to the page that you created. All the rest of the ExcaliburJS API and documentation should work as expected.
+
+## Using ExcaliburJS with SolidJS
+
+ExcaliburJS can be used with SolidJS, similarly to that of React, but with several key differences. SolidJS has signals natively built in which simplifies some of the rendering of HTML elements. The following snippets are taken from the [ExcaliburJS SolidJS examples](https://github.com/Dryspell/solid-sword-meta)
+
+### Rendering JSX to the DOM
+
+Wherever necessary, you can create a SolidJS signal to manage your game state. For example, to manage the game's score:
+
+```typescript
+const [gameState, setGameState] = createSignal({ score: 0, lives: 3 });
+```
+
+You can then render the score in your game component by calling the SolidJS `render` function and passing in the UI component that you want to render with the `gameState` as props. For example, to render the score in a button that increments the score when clicked, you can do the following:
+
+```typescript
+render(
+	() => (
+		<UI
+			gameState={gameState}
+			setGameState={setGameState}
+			game={game}
+			actions={{ generateRandomBrick }}
+		/>
+	),
+	document.getElementById(gameUiId)!
+);
+```
+
+```typescript
+export default function UI({
+	gameState,
+	setGameState,
+	game,
+	actions,
+}: {
+	gameState: Accessor<GameState>;
+	setGameState: Setter<GameState>;
+	game: Engine;
+	actions: { generateRandomBrick: () => void };
+}) {
+	const [inputValue, setInputValue] = createSignal("");
+
+	return (
+		<>
+			<div style={{ position: "absolute", right: 0, top: "55%" }}>
+				<button
+					style={{
+						padding: "1rem",
+						margin: "1rem",
+						"border-radius": "0.5rem",
+						"background-color": "#2e026d",
+						color: "white",
+						border: "none",
+					}}
+					onClick={() => {
+						setGameState((prev) => ({
+							...prev,
+							score: prev.score + 1,
+						}));
+					}}
+				>
+					{`Score: ${gameState().score}`}
+				</button>
+			</div>
+		</>
+	);
+}
+```
+
+:::note
+
+Note that SolidJS components only render once and so we do not need to trigger a re-render when the score changes like in the React example. This is done automatically by SolidJS because we can access the gameState signal directly.
+
+:::
+
+### Removing components from the DOM
+
+The SolidJS render function returns a `dispose` method that can be used to remove the component from the DOM which can be useful for managing components that have short-lived lifecycles.
+
+For example you can pass the `dispose` method to the `onClick` handler of a button to remove the component from the DOM when the button is clicked:
+
+```typescript
+const disposeMenu = render(
+				() => (
+					<UnitMenu
+						unit={cell.unit!}
+						game={this.engine}
+						menuOptions={[
+							{
+								key: "move",
+								text: "Move",
+								onClick: () => {
+									this.selectionManager.selectUnit(
+										cell.unit!,
+										"move"
+									);
+									disposeMenu();
+								},
+							},
+              // ... More menu options
+```
+
+and you can also wrap up this functionality like so:
+
+```typescript
+const menu = {
+	show: () => {
+		const dispose = render(
+			() => <UnitMenu unit={unit1} game={this.engine} />,
+			document.getElementById(gameUiId)!
+		);
+		menu.hide = dispose;
+	},
+	hide: () => {},
+};
+
+menu.show();
+menu.hide();
+```
+
+### Positioning elements relative to the game canvas
+
+You can position elements relative to the game canvas by using the `position: absolute` CSS property and setting the `top`, `left`, `right` or `bottom` properties to the desired position. Keep in mind that you want the parent container of both the `gameCanvas` and your `UI` element to be the nearest parent with `position: relative` for the `position: absolute` to track appropriately (absolute seeks nearest relative parent). For example, to position a button in the top right corner of the game canvas, you can do the following:
+
+```typescript
+export const ButtonUI = ({
+	state,
+	setState,
+}: {
+	state: Accessor<State>;
+	setState: Setter<State>;
+}) => {
+	return (
+		<div
+			style={{
+				position: "absolute",
+				top: "0px",
+				right: "0px",
+				padding: "1rem",
+			}}
+		>
+			<button>Click me</button>
+		</div>
+	);
+};
+```
+
+To calculate the position of an element relative to the game canvas, you can create and add a `resize` event listener to the document that sets and applies a CSS variable `--pixel-conversion` to the element that you want to position relative to the game canvas.
+
+#### styles.module.css
+
+```css
+.menu {
+	position: absolute;
+	width: calc(64px * var(--pixel-conversion));
+	font-size: calc(8px * var(--pixel-conversion));
+	border: black calc(1px * var(--pixel-conversion)) solid;
+}
+```
+
+#### UnitMenu.tsx
+
+```typescript
+export function getUnitMenuPosition(unit: Unit, engine: Engine) {
+	const pagePos = engine.screen.worldToPageCoordinates(unit.pos);
+	return {
+		left: pagePos.x + worldDistanceToPage(32, engine),
+		top: pagePos.y,
+	};
+}
+
+const generateResizeListener =
+	(
+		game: Engine,
+		unit: Unit,
+		setMenuPosition: Setter<{ left: number; top: number }>
+	) =>
+	() => {
+		document.documentElement.style.setProperty(
+			"--pixel-conversion",
+			worldDistanceToPage(1, game).toString()
+		);
+
+		setMenuPosition(getUnitMenuPosition(unit, game));
+	};
+
+export default function UnitMenu({
+	unit,
+	game,
+	menuOptions,
+}: {
+	unit: Unit;
+	game: Engine;
+	menuOptions?: MenuOption[];
+}) {
+	const [unitMenuPosition, setUnitMenuPosition] = createSignal(
+		getUnitMenuPosition(unit, game)
+	);
+
+	document.documentElement.style.setProperty(
+		"--pixel-conversion",
+		worldDistanceToPage(1, game).toString()
+	);
+
+	const resizeListener = generateResizeListener(
+		game,
+		unit,
+		setUnitMenuPosition
+	);
+	window.addEventListener("resize", resizeListener);
+
+	onCleanup(() => {
+		window.removeEventListener("resize", resizeListener);
+	});
+
+	return (
+		<>
+			<div
+				class={styles.menu}
+				style={{
+					left: `${unitMenuPosition().left}px`,
+					top: `${unitMenuPosition().top}px`,
+				}}
+			>
+				//... YOUR UI COMPONENT
+			</div>
+		</>
+	);
+}
+```

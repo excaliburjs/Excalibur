@@ -1,0 +1,244 @@
+---
+title: Using NextJS
+slug: /nextjs
+section: Getting Started
+---
+
+## Starting a new project
+
+Start a new project with [NextJS](https://nextjs.org/docs/getting-started/installation) with your favorite package manager or use the command:
+
+```bash
+npx create-next-app@latest
+```
+
+Once this is done you can follow the remainder of the guide for [an existing project](#existing-nextjs-projects).
+
+## Exisiting NextJS projects
+
+:::note
+
+This guide is very similar to the [SolidJS](./05-using-solidjs.mdx) guide and so it may be helpful to look at that guide for more or different information.
+
+:::
+
+Install ExcaliburJS with your package manager
+
+```bash
+npm install excalibur
+```
+
+Create a client component that houses your game. It should look something like:
+
+#### Entry.tsx
+
+```typescript
+"use client";
+import { type Engine } from "excalibur";
+import React from "react";
+import { intializeGame } from "./breakout-ui";
+
+export default function Game() {
+	const gameCanvas = React.useRef<HTMLCanvasElement>(null);
+	const gameRef = React.useRef<Engine>();
+	const uiRef = React.useRef<HTMLDivElement>(null);
+
+	React.useEffect(() => {
+		if (!gameRef.current && gameCanvas.current && uiRef.current) {
+			intializeGame(gameRef.current, gameCanvas.current, uiRef.current);
+		}
+	}, []);
+
+	return (
+		<div
+			style={{
+				justifyContent: "center",
+				alignItems: "center",
+				position: "relative",
+				width: 800,
+				height: 600,
+			}}
+		>
+			<canvas ref={gameCanvas} id="gameCanvas"></canvas>
+			<div
+				// style={{ position: "absolute", display: "flex", width: "100%" }}
+				ref={uiRef}
+			/>
+		</div>
+	);
+}
+```
+
+and create a page that uses the component:
+
+#### page.tsx
+
+```typescript
+"use client";
+
+import dynamic from "next/dynamic";
+
+const Game = dynamic(() => import("./Game"), { ssr: false });
+
+export default function GamePage() {
+	return <Game />;
+}
+```
+
+Note that we have to dynamically import the game component to prevent it from being server side rendered.
+
+Finally, create a function that initializes and renders the game:
+
+#### game.ts
+
+```typescript
+export const intializeGame = (
+	game: Engine | undefined,
+	gameCanvas: HTMLCanvasElement,
+	uiRoot: HTMLDivElement
+) => {
+	game = new Engine({
+		canvasElement: gameCanvas,
+		displayMode: DisplayMode.FitContainerAndFill,
+		// width: 800,
+		// height: 600,
+	});
+
+	game?.start().catch((e) => console.error(e));
+	return game;
+};
+```
+
+From here, you can start the game by running `npm run dev` and navigating to the page that you created. All the rest of the ExcaliburJS API and documentation should work as expected.
+
+## Using ExcaliburJS with React
+
+ExcaliburJS can be used with React by creating a custom signal state that can be used to update the game state and hook into the React lifecycle. The following snippets are taken from the [ExcaliburJS Breakout example](https://github.com/Dryspell/next-sword-meta/tree/main/src/app/breakout-ui)
+
+Create a new utility file that houses the createSignal function:
+
+#### utils.ts
+
+```typescript
+type JSONValue =
+	| string
+	| number
+	| boolean
+	| JSONValue[]
+	| {
+			[key: string]: JSONValue;
+	  }
+	| null;
+
+export type Accessor<T> = () => T;
+
+export type SetterParams<T> = T | ((prev: T) => T);
+
+export type Setter<T> = (updater: SetterParams<T>) => void;
+
+export type Signal<T> = [get: Accessor<T>, set: Setter<T>];
+
+export const createSignal = <T extends JSONValue>(
+	initialValue: T,
+	sideEffects?: [(state: T, setState: Setter<T>) => void]
+): Signal<T> => {
+	let value = initialValue;
+
+	const get = () => value;
+	const set = (updater: SetterParams<T>) => {
+		typeof updater === "function"
+			? (value = updater(value))
+			: (value = updater);
+	};
+
+	const setWithSideEffects = (updater: SetterParams<T>) => {
+		set(updater);
+		sideEffects?.forEach((sideEffect) =>
+			sideEffect(get(), setWithSideEffects)
+		);
+	};
+
+	return [get, setWithSideEffects];
+};
+```
+
+Now, create a react root in your game logic (this can really be anywhere within your game logic) and use the signal to reference and update the game state:
+
+:::note
+
+Make sure your file is now a `.tsx` file type!
+
+:::
+
+#### game.tsx
+
+```typescript
+const ui = createRoot(uiRoot);
+
+const [gameState, setGameState] = createSignal({ score: 0, lives: 3 }, [
+	(state, setState) => {
+		ui.render(
+			<UI
+				gameState={state}
+				setGameState={setState}
+				game={game}
+				actions={{ generateRandomBrick }}
+			/>
+		);
+	},
+]);
+
+ui.render(
+	<UI
+		gameState={gameState()}
+		setGameState={setGameState}
+		game={game}
+		actions={{ generateRandomBrick }}
+	/>
+);
+```
+
+By passing in the `setGameState` function to the UI component, you can update the game state from within the UI component:
+
+#### UI.tsx
+
+```typescript
+<button
+	style={{
+		padding: "1rem",
+		margin: "1rem",
+		borderRadius: "0.5rem",
+		backgroundColor: "#2e026d",
+		color: "white",
+		border: "none",
+	}}
+	onClick={() => {
+		setGameState((prev) => {
+			prev.score = prev.score + 1;
+			return prev;
+		});
+	}}
+>
+	{`Score: ${gameState.score}`}
+</button>
+```
+
+Your UI component can really be any React component and you can have as many signals representing different pieces of state as you want, say one for each entity in your game and this code can be placed inside the constructor of your Actor class or your scenes or really anywhere you choose.
+
+:::note
+
+Note that our `setGameState` function is re-rendering the entire UI component every time the game state changes but it does it by React's VDOM diffing approach and so it preserves input fields and other non-different parts of the DOM. Unfortunately it doesn't seem to work to make the `gameState, setGameState` to be coming from a `useState` hook because the `render` function will not automatically re-render on prop changes. This is what necessitates the custom signal which forces re-render upon change. This is a bit inefficient and can be optimized by using a more granular approach to updating the UI, say by using SolidJS, but should still be relatively performant. This also creates separate reactive trees for each UI component which can be useful for performance reasons.
+
+:::
+
+To remove your component from the DOM, you can simply call
+
+```typescript
+ui.unmount();
+```
+
+This of course can be called anywhere and will remove the component from the DOM and stop any side effects from running. Of course you can also hide your components just as you would with any other React component by setting the `display` property to `none` or by doing conditional rendering.
+
+:::tip
+
+Positioning the UI components can be a bit tricky. We recommend using a `position: absolute` style on the root element of your UI component and then using `top`, `left`, `right`, `bottom` to position the component relative to the parent element. See the [SolidJS guide](./05-using-solidjs.mdx) for more information on how to do this.
