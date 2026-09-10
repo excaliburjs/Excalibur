@@ -464,7 +464,7 @@ export class Sound<TName extends string = string> implements Loadable<AudioBuffe
   }
 
   public wireEngine(engine: Engine) {
-    if (engine) {
+    if (engine && this._engine !== engine) {
       this._engine = engine;
 
       this._engine.on('hidden', () => {
@@ -708,7 +708,12 @@ export class Sound<TName extends string = string> implements Loadable<AudioBuffe
     }
   }
 
-  private _getOutput(): GainNode {
+  /**
+   * The {@apilink GainNode} every track of this sound is mixed into, carrying {@apilink Sound.volume}.
+   * Connected straight to the audio context destination until a {@apilink SoundManager} re-routes it
+   * through its mixer graph.
+   */
+  public get output(): GainNode {
     if (!this._output) {
       this._output = this._audioContext.createGain();
       this._output.gain.value = this._volume;
@@ -718,7 +723,7 @@ export class Sound<TName extends string = string> implements Loadable<AudioBuffe
   }
 
   private _createTrack(pitch?: number, onPlay?: AudioGraphBuilder): SoundTrack {
-    const track = new SoundTrack(this.data, this._getOutput(), onPlay ?? this.onPlay);
+    const track = new SoundTrack(this.data, this.output, onPlay ?? this.onPlay);
 
     track.loop = this._loop;
     track.duration = this._duration;

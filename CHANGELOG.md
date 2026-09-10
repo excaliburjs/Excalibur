@@ -8,7 +8,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Breaking Changes
 
 - Sound: the audio implementation abstraction has been removed and Web Audio is the only implementation. `ex.WebAudioInstance` is replaced by `ex.SoundTrack` (returned by `Sound.instances` and `NativeSoundEvent.track`), and the `ex.Audio`, `ex.AudioImplementation`, `ex.ExResponse`, `ex.ExResponseType` and `ex.ExResponseTypesLookup` exports are gone (pass the response type string to `new ex.Resource(path, 'arraybuffer')` instead). Per-track volume moved to the owning `Sound`, so `SoundTrack` has no `volume`.
-- `SoundManager.play()` and `SoundManager.channel.play()` now resolve to a `boolean` (false when the sound was unknown, muted, or dropped by a concurrency cap) instead of `void`. `SoundManager.unmute()`/`toggle()` no longer start sounds that were not playing when they were muted. `ChannelCollection` is constructed with only the manager, and the quasi-internal `_muted`, `_isMuted()`, `_getEffectiveVolume()` and `_activeTrackCount()` members are replaced by `isMuted()` and `playingCount()`.
+- `SoundManager` is now a real Web Audio mixer (`Sound.output → mix gain → SoundChannel → SoundManager.output → speakers`) instead of multiplying volumes into `Sound.volume` on each play:
+  - A sound routes through a single `channel` (`SoundConfig.channel`, `SoundManager.setChannel()`) rather than a list of `channels`; `addChannel()`/`removeChannel()` are removed. Channel volume and mute apply to the whole channel via `SoundChannel` (`manager.getChannel('music')`, `manager.channel.setVolume/mute/...`).
+  - `SoundManager.volume` is the master volume (`defaultVolume` is removed) and `play(name, volume)` passes `volume` through to `Sound.play()` untouched; `setVolume`/`getVolume` read and write the sound's mix gain and never write `Sound.volume`.
+  - Muting (sound, channel or master) silences playback instead of pausing it, so muted sounds still play and are audible mid-clip when unmuted. `mute()`/`unmute()`/`toggle()` with no argument act on the master output.
+  - `SoundManager.play()` and `SoundManager.channel.play()` resolve to a `boolean` (false when the sound was unknown or dropped by a concurrency cap) instead of `void`. `ChannelCollection` is constructed with only the manager, and the quasi-internal `_muted`, `_isMuted()`, `_getEffectiveVolume()` and `_activeTrackCount()` members are replaced by `isMuted()` and `playingCount()`.
 - Behavior change - Excalibur screen space is now consistently rooted at the top-left of the safe content area (`Screen.contentArea`) across the whole API. Previously the clipping display modes (`FitScreenAndFill`, `FitContainerAndFill`, `FitScreenAndZoom`, `FitContainerAndZoom`) disagreed about where screen space started: `CoordPlane.Screen` entities and pointer events were rooted at the content area's corner, but `Screen.worldToScreenCoordinates` returned raw canvas/resolution coordinates and `Screen.contentArea.left/top` carried the canvas-space inset. Every API now shares the single content-area-rooted definition, which fixes several pointer, transition, and `unsafeArea` bugs in the clipping display modes, but is a breaking change for code that relied on the old canvas-rooted values:
   - `Screen.worldToScreenCoordinates(point)` now returns coordinates rooted at the content area (previously the raw camera projection in canvas/resolution coordinates). `Screen.screenToWorldCoordinates` is the exact inverse, as before.
   - `Screen.contentArea` is now always rooted at `(0, 0)`, and `Screen.unsafeArea.topLeft` is negative by the clip amount. The canvas-space inset that `contentArea.left/top` used to carry is available from the new `Screen.contentAreaOffset`.
@@ -49,6 +53,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   ```
 - `Sound.pitch` (and `sound.play({ pitch })`) shifts pitch in cents via `AudioBufferSourceNode.detune`.
 - `Sound.maxConcurrentTracks` and `SoundManager.maxConcurrentTracks` cap the number of simultaneously playing tracks, dropping new plays (which resolve to `false`) once reached. `Sound.playingCount()` and `SoundManager.playingCount()` report the current number.
+- `SoundManager` is `Loadable`: `loader.addResource(manager)` loads (and wires to the engine) every sound it manages, including sounds tracked later.
+- `SoundChannel` exposes its `input` and `output` gain nodes so effects can be inserted for a whole channel, and `Sound.output` exposes the sound's own gain node for custom routing:
+
+  ```typescript
+  const music = manager.getChannel('music');
+  const muffle = music.audioContext.createBiquadFilter();
+  muffle.type = 'lowpass';
+  music.input.disconnect();
+  music.input.connect(muffle).connect(music.output);
+  ```
 - `Sound.name` (an explicit `name` option, or the file's basename without extension) is the default key when a sound is registered with a `SoundManager`, so `sounds` accepts an array of `Sound`/`SoundConfig` as well as the record form, and `track(sound)`/`track(config)` work without a name. `ex.createSound(path)` and `ex.createSoundManager(options)` infer literal name types so `manager.play('coin')` is checked at compile time. `SoundManager` methods also accept a `Sound` instance in place of a name.
 - Materials are now enumerable for debugging and tooling (like the Excalibur Dev Tools browser extension): every `Material` has a unique `material.id` and public `material.vertexSource`/`material.fragmentSource` getters, and is automatically registered with its context, retrievable via `game.graphicsContext.materials`. The registry holds materials weakly so it does not prevent garbage collection.
 - Added the `ex.glsl` tagged template literal for authoring `Material` fragment shaders. It lights up GLSL syntax highlighting, adds the `#version`/`precision` boilerplate, injects the `pixel_texture()` pixel art filter on demand, and handles alpha premultiplication automatically.
@@ -103,7 +117,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
-- Fixed `SoundManager.channel.setVolume()` doing nothing (it passed the channel name where a sound was expected), `SoundManager.removeChannel()` removing the wrong sound when the sound was not in the channel, and `SoundManager.untrack()` leaving the sound in its channels.
+- Fixed `SoundManager.channel.setVolume()` doing nothing (it passed the channel name where a sound was expected), `SoundManager.unmute()` starting every managed sound, and `SoundManager.untrack()` leaving the sound in its channels.
+- Fixed `Sound.wireEngine()` registering duplicate engine handlers when called twice with the same engine.
 - Fixed `Sound` with `position` set creating two tracks and starting from the beginning.
 - Fixed `SoundManagerOptions` no longer rejecting channel names in `sounds` that were not declared in `channels`.
 - Fixed issue where Local-space particles could be double-returned to the object pool, causing the same Particle instance to be active in two slots simultaneously

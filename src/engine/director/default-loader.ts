@@ -5,6 +5,7 @@ import { Canvas } from '../graphics/canvas';
 import { ImageFiltering } from '../graphics/filtering';
 import { clamp } from '../math/util';
 import { Sound } from '../resources/sound/sound';
+import { SoundManager } from '../resources/sound/sound-manager';
 import { Future } from '../util/future';
 import type { EventKey, Handler, Subscription } from '../event-emitter';
 import { EventEmitter } from '../event-emitter';
@@ -238,7 +239,7 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
 
     // Wire all sound to the engine
     for (const resource of this._resources) {
-      if (resource instanceof Sound) {
+      if (resource instanceof Sound || resource instanceof SoundManager) {
         resource.wireEngine(this.engine);
       }
     }

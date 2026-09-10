@@ -1,10 +1,48 @@
 import * as ex from '@excalibur';
 import { WebAudio } from '../../engine/util/web-audio';
+import { TestUtils } from '../__util__/test-utils';
 import { page } from 'vitest/browser';
 
+const TEST = '/src/spec/assets/images/sound-spec/test.mp3';
+const PREVIEW = '/src/spec/assets/images/sound-spec/preview.mp3';
+
 describe('A SoundManager', () => {
+  let audioContext: AudioContext;
+
+  beforeAll(async () => {
+    // automate user interaction to allow WebAudio to unlock
+    await page.elementLocator(document.body).click();
+    ex.Logger.getInstance().clearAppenders();
+    await WebAudio.unlock();
+  });
+
+  beforeEach(() => {
+    audioContext = ex.AudioContextFactory.create();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  /**
+   * Spy on connect() of every gain node created from here on, returns the created nodes
+   */
+  const captureGains = () => {
+    const created: GainNode[] = [];
+    const createGain = audioContext.createGain.bind(audioContext);
+    vi.spyOn(audioContext, 'createGain').mockImplementation(() => {
+      const gain = createGain();
+      vi.spyOn(gain, 'connect');
+      vi.spyOn(gain, 'disconnect');
+      created.push(gain);
+      return gain;
+    });
+    return created;
+  };
+
   it('exists', () => {
     expect(ex.SoundManager).toBeDefined();
+    expect(ex.SoundChannel).toBeDefined();
   });
 
   it('can be constructed', () => {
@@ -12,143 +50,219 @@ describe('A SoundManager', () => {
       const sm = new ex.SoundManager({
         channels: ['test'],
         sounds: {
-          snd: { sound: new ex.Sound('./../assets/images/sound-spec/test.mp3'), volume: 0.4, channels: ['test'] }
+          snd: { sound: new ex.Sound(TEST), volume: 0.4, channel: 'test' }
         }
       });
+      void sm;
     }).not.toThrow();
   });
 
-  it('can play sounds', async () => {
-    const sm = new ex.SoundManager({
-      channels: ['test'],
-      sounds: {
-        snd: { sound: new ex.Sound('./../assets/images/sound-spec/test.mp3'), volume: 0.4, channels: ['test'] }
-      }
+  describe('mixer graph', () => {
+    it('routes sound → mix → channel → master → speakers', () => {
+      const sound = new ex.Sound(TEST);
+      const soundOutput = sound.output;
+      vi.spyOn(soundOutput, 'connect');
+      vi.spyOn(soundOutput, 'disconnect');
+      const gains = captureGains();
+
+      const sm = new ex.SoundManager({
+        channels: ['sfx'],
+        sounds: { snd: { sound, volume: 0.4, channel: 'sfx' } }
+      });
+      const sfx = sm.getChannel('sfx');
+      const [master, channelInput, channelOutput, mix] = gains;
+
+      expect(master).toBe(sm.output);
+      expect(master.connect).toHaveBeenCalledWith(audioContext.destination);
+      expect(channelInput).toBe(sfx.input);
+      expect(channelOutput).toBe(sfx.output);
+      expect(channelInput.connect).toHaveBeenCalledWith(channelOutput);
+      expect(channelOutput.connect).toHaveBeenCalledWith(master);
+
+      expect(soundOutput.disconnect).toHaveBeenCalled();
+      expect(soundOutput.connect).toHaveBeenCalledWith(mix);
+      expect(mix.connect).toHaveBeenCalledWith(channelInput);
+      expect(mix.gain.value).toBeCloseTo(0.4);
+      expect(sfx.sounds).toEqual([sound]);
     });
 
-    await sm.channel.play('test');
-  });
-
-  it('can sound volume', () => {
-    const sound = new ex.Sound('./../assets/images/sound-spec/test.mp3');
-
-    const sm = new ex.SoundManager({
-      channels: ['test'],
-      sounds: {
-        snd: { sound, volume: 0.4, channels: ['test'] }
-      }
+    it('routes sounds without a channel straight to the master output', () => {
+      const sound = new ex.Sound(TEST);
+      const gains = captureGains();
+      const sm = ex.createSoundManager({ sounds: [sound] });
+      const [master, mix] = gains;
+      expect(mix.connect).toHaveBeenCalledWith(master);
+      expect(sm.getChannels()).toEqual([]);
     });
 
-    expect(sm.getSounds().length).toBe(1);
-    expect(sm.getSoundsForChannel('test').length).toBe(1);
-    expect(sm.getVolume('snd')).toBe(0.4);
-  });
-
-  it('can play sound at configured sm volume', () => {
-    const sound = new ex.Sound('./../assets/images/sound-spec/test.mp3');
-    const spy = vi.spyOn(sound, 'play');
-    spy.mockResolvedValue(true);
-
-    const sm = new ex.SoundManager({
-      channels: ['test'],
-      sounds: {
-        snd: { sound, volume: 0.4, channels: ['test'] }
-      }
+    it('creates declared channels eagerly and others on first use', () => {
+      const sm = ex.createSoundManager({ channels: ['music', 'sfx'], sounds: [] });
+      expect(sm.getChannels().map((c) => c.name)).toEqual(['music', 'sfx']);
+      const music = sm.getChannel('music');
+      expect(sm.channel.get('music')).toBe(music);
+      expect(music).toBeInstanceOf(ex.SoundChannel);
+      expect(music.audioContext).toBe(audioContext);
     });
 
-    sm.play('snd');
+    it('moves a sound between channels with setChannel', () => {
+      const sound = new ex.Sound(TEST);
+      void sound.output; // create the sound's own gain before capturing the manager's
+      const gains = captureGains();
+      const sm = ex.createSoundManager({ channels: ['music', 'sfx'], sounds: [{ sound, channel: 'music' }] });
+      const mix = gains[gains.length - 1];
 
-    expect(sound.play).toHaveBeenCalledWith(0.4);
-  });
+      expect(sm.getSoundsForChannel('music')).toEqual([sound]);
+      sm.setChannel(sound, 'sfx');
+      expect(sm.getSoundsForChannel('music')).toEqual([]);
+      expect(sm.getSoundsForChannel('sfx')).toEqual([sound]);
+      expect(mix.disconnect).toHaveBeenCalled();
+      expect(mix.connect).toHaveBeenLastCalledWith(sm.getChannel('sfx').input);
 
-  it('can edit channels', () => {
-    const sound = new ex.Sound('./../assets/images/sound-spec/test.mp3');
-    const sound2 = new ex.Sound('./../assets/images/sound-spec/test.mp3');
-    const spy = vi.spyOn(sound, 'play');
-    spy.mockResolvedValue(true);
-
-    const spy2 = vi.spyOn(sound2, 'play');
-    spy2.mockResolvedValue(true);
-
-    const sm = new ex.SoundManager({
-      channels: ['test', 'test2'],
-      sounds: {
-        snd1: { sound, volume: 0.4, channels: ['test'] },
-        snd2: { sound: sound2, volume: 0.8, channels: ['test', 'test2'] }
-      }
+      sm.setChannel('test', undefined);
+      expect(sm.getSoundsForChannel('sfx')).toEqual([]);
+      expect(mix.connect).toHaveBeenLastCalledWith(sm.output);
     });
 
-    expect(sm.getSoundsForChannel('test')[0]).toEqual(sound);
-    expect(sm.getSoundsForChannel('test')[1]).toEqual(sound2);
-    expect(sm.getSoundsForChannel('test').length).toEqual(2);
+    it('restores a sound to the speakers when untracked', () => {
+      const sound = new ex.Sound(TEST);
+      const soundOutput = sound.output;
+      vi.spyOn(soundOutput, 'connect');
+      const sm = ex.createSoundManager({ channels: ['sfx'], sounds: [{ sound, channel: 'sfx' }] });
 
-    expect(sm.getSoundsForChannel('test3').length).toEqual(0);
-    sm.addChannel('snd2', ['test3']);
-    expect(sm.getSoundsForChannel('test3').length).toEqual(1);
-    sm.removeChannel('snd2', ['test3']);
-
-    sm.channel.play('test');
-    sm.channel.play('test2');
-
-    expect(sound.play).toHaveBeenCalledWith(0.4);
-    expect(sound2.play).toHaveBeenCalledWith(0.8);
-  });
-
-  it('can override volume', () => {
-    const sound = new ex.Sound('./../assets/images/sound-spec/test.mp3');
-    const sound2 = new ex.Sound('./../assets/images/sound-spec/test.mp3');
-    const spy = vi.spyOn(sound, 'play');
-    spy.mockResolvedValue(true);
-
-    const spy2 = vi.spyOn(sound2, 'play');
-    spy2.mockResolvedValue(true);
-
-    const sm = new ex.SoundManager({
-      channels: ['test', 'test2'],
-      sounds: {
-        snd1: { sound, volume: 0.4, channels: ['test'] },
-        snd2: { sound: sound2, volume: 0.8, channels: ['test', 'test2'] }
-      }
+      sm.untrack(sound);
+      expect(soundOutput.connect).toHaveBeenLastCalledWith(audioContext.destination);
+      expect(sm.getSounds()).toEqual([]);
+      expect(sm.getSoundsForChannel('sfx')).toEqual([]);
+      expect(sm.getSound('test')).toBeUndefined();
     });
 
-    expect(sm.getSoundsForChannel('test')[0]).toEqual(sound);
-    expect(sm.getSoundsForChannel('test')[1]).toEqual(sound2);
-    expect(sm.getSoundsForChannel('test').length).toEqual(2);
-    expect(sm.getSoundsForChannel('test2')[0]).toEqual(sound2);
-    expect(sm.getSoundsForChannel('test2').length).toEqual(1);
-
-    sm.channel.play('test', 0.5);
-    sm.channel.play('test2', 0.5);
-
-    expect(sound.play).toHaveBeenCalledWith(0.2);
-    expect(sound2.play).toHaveBeenCalledWith(0.4);
+    it('re-routes a sound that is tracked by a second manager', () => {
+      const sound = new ex.Sound(TEST);
+      const first = ex.createSoundManager({ channels: ['a'], sounds: [{ sound, channel: 'a' }] });
+      const second = ex.createSoundManager({ channels: ['b'], sounds: [{ sound, channel: 'b' }] });
+      expect(first.getSoundsForChannel('a')).toEqual([sound]);
+      expect(second.getSoundsForChannel('b')).toEqual([sound]);
+      // the sound's output only feeds the most recent manager
+      first.untrack(sound);
+      expect(second.getSound('test')).toBe(sound);
+    });
   });
 
-  it('can add a new channel', () => {
-    const sound = new ex.Sound('./../assets/images/sound-spec/test.mp3');
-    const sound2 = new ex.Sound('./../assets/images/sound-spec/test.mp3');
-    const spy = vi.spyOn(sound, 'play');
-    spy.mockResolvedValue(true);
+  describe('volume and mute', () => {
+    it('tracks mix, channel and master volumes separately from Sound.volume', () => {
+      const sound = new ex.Sound(TEST);
+      const sm = new ex.SoundManager({
+        volume: 0.8,
+        channels: ['test'],
+        sounds: { snd: { sound, volume: 0.4, channel: 'test' } }
+      });
 
-    const spy2 = vi.spyOn(sound2, 'play');
-    spy2.mockResolvedValue(true);
+      expect(sm.volume).toBe(0.8);
+      expect(sm.getVolume('snd')).toBe(0.4);
+      expect(sm.channel.getVolume('test')).toBe(1);
+      expect(sound.volume).toBe(1);
 
-    const sm = new ex.SoundManager({
-      channels: ['test', 'test2'],
-      sounds: {
-        snd1: { sound, volume: 0.4, channels: ['test'] },
-        snd2: { sound: sound2, volume: 0.8, channels: ['test', 'test2'] }
-      }
+      sm.setVolume('snd', 0.2);
+      sm.channel.setVolume('test', 0.5);
+      sm.volume = 2;
+      expect(sm.getVolume('snd')).toBeCloseTo(0.2);
+      expect(sm.getChannel('test').volume).toBe(0.5);
+      expect(sm.volume).toBe(1);
+      expect(sound.volume, 'the mixer never writes Sound.volume').toBe(1);
     });
 
-    expect(sm.getSoundsForChannel('test').length).toEqual(2);
-    expect(sm.getSoundsForChannel('test2').length).toEqual(1);
+    it('passes the play volume through to the sound untouched', () => {
+      const sound = new ex.Sound(TEST);
+      const play = vi.spyOn(sound, 'play').mockResolvedValue(true);
+      const sm = new ex.SoundManager({
+        channels: ['test'],
+        sounds: { snd: { sound, volume: 0.4, channel: 'test' } }
+      });
 
-    sm.addChannel('snd1', ['new-channel']);
-    sm.addChannel('snd2', ['new-channel']);
+      sm.play('snd');
+      expect(play).toHaveBeenLastCalledWith(undefined);
+      sm.play('snd', 0.5);
+      expect(play).toHaveBeenLastCalledWith(0.5);
+      sm.channel.play('test', 0.25);
+      expect(play).toHaveBeenLastCalledWith(0.25);
+    });
 
-    expect(sm.getSoundsForChannel('new-channel').length).toEqual(2);
+    it('composes sound, channel and master mutes', () => {
+      const sound = new ex.Sound(TEST);
+      const other = new ex.Sound(PREVIEW);
+      const sm = ex.createSoundManager({
+        channels: ['music', 'sfx'],
+        sounds: [
+          { sound, channel: 'music' },
+          { sound: other, channel: 'sfx' }
+        ]
+      });
+
+      expect(sm.isMuted(sound)).toBe(false);
+      sm.mute(sound);
+      expect(sm.isMuted('test')).toBe(true);
+      expect(sm.isMuted(other)).toBe(false);
+      sm.unmute(sound);
+      expect(sm.isMuted(sound)).toBe(false);
+
+      sm.channel.mute('music');
+      expect(sm.channel.isMuted('music')).toBe(true);
+      expect(sm.isMuted(sound)).toBe(true);
+      expect(sm.isMuted(other)).toBe(false);
+      sm.channel.toggle('music');
+      expect(sm.isMuted(sound)).toBe(false);
+
+      sm.mute();
+      expect(sm.muted).toBe(true);
+      expect(sm.isMuted(sound)).toBe(true);
+      expect(sm.isMuted(other)).toBe(true);
+      sm.toggle();
+      expect(sm.muted).toBe(false);
+      expect(sm.isMuted(other)).toBe(false);
+
+      sm.toggle(sound);
+      expect(sm.isMuted(sound)).toBe(true);
+      sm.toggle(sound);
+      expect(sm.isMuted(sound)).toBe(false);
+    });
+
+    it('keeps playing (silently) while muted and never pauses or starts sounds', async () => {
+      const sound = new ex.Sound(TEST);
+      const play = vi.spyOn(sound, 'play').mockResolvedValue(true);
+      const pause = vi.spyOn(sound, 'pause');
+      const sm = ex.createSoundManager({ sounds: [sound] });
+
+      sm.mute();
+      expect(await sm.play('test')).toBe(true);
+      expect(play).toHaveBeenCalledTimes(1);
+      expect(pause).not.toHaveBeenCalled();
+
+      sm.unmute();
+      sm.toggle();
+      sm.toggle();
+      expect(play).toHaveBeenCalledTimes(1);
+    });
+
+    it('stops every sound in a channel', () => {
+      const sound = new ex.Sound(TEST);
+      const other = new ex.Sound(PREVIEW);
+      const stop = vi.spyOn(sound, 'stop');
+      const otherStop = vi.spyOn(other, 'stop');
+      const sm = ex.createSoundManager({
+        channels: ['music', 'sfx'],
+        sounds: [
+          { sound, channel: 'music' },
+          { sound: other, channel: 'sfx' }
+        ]
+      });
+      sm.channel.stop('music');
+      expect(stop).toHaveBeenCalled();
+      expect(otherStop).not.toHaveBeenCalled();
+      sm.stop();
+      expect(otherStop).toHaveBeenCalled();
+    });
   });
+
   describe('registration', () => {
     it('auto-names sounds from filenames in array form', () => {
       const coin = new ex.Sound('/sfx/coin.mp3');
@@ -167,13 +281,13 @@ describe('A SoundManager', () => {
     });
 
     it('supports track(sound), track(config) and track(name, sound)', () => {
-      const mgr = ex.createSoundManager({ sounds: [] });
+      const mgr = ex.createSoundManager({ channels: ['sfx'], sounds: [] });
       const coin = new ex.Sound('/sfx/coin.mp3');
       mgr.track(coin);
       expect(mgr.getSound('coin')).toBe(coin);
 
       const named = new ex.Sound('/sfx/named.mp3');
-      mgr.track({ sound: named, name: 'other', volume: 0.5, channels: ['sfx'] });
+      mgr.track({ sound: named, name: 'other', volume: 0.5, channel: 'sfx' });
       expect(mgr.getSound('other')).toBe(named);
       expect(mgr.getVolume(named)).toBe(0.5);
       expect(mgr.getSoundsForChannel('sfx')).toEqual([named]);
@@ -194,126 +308,89 @@ describe('A SoundManager', () => {
 
       mgr.setVolume(coin, 0.25);
       expect(mgr.getVolume(coin)).toBeCloseTo(0.25, 5);
-      expect(coin.volume).toBeCloseTo(0.25, 5);
 
       mgr.untrack(coin);
       expect(mgr.getSound('gold')).toBeUndefined();
       expect(mgr.getSounds()).toEqual([]);
     });
 
-    it('untrack removes the sound from its channels', () => {
-      const coin = new ex.Sound('/sfx/coin.mp3');
-      const mgr = ex.createSoundManager({ channels: ['sfx'], sounds: [{ sound: coin, channels: ['sfx'] }] });
-      expect(mgr.getSoundsForChannel('sfx')).toEqual([coin]);
-      mgr.untrack('coin');
-      expect(mgr.getSoundsForChannel('sfx')).toEqual([]);
-    });
-
-    it('removeChannel leaves the channel alone for a sound that is not in it', () => {
-      const coin = new ex.Sound('/sfx/coin.mp3');
-      const jump = new ex.Sound('/sfx/jump.mp3');
-      const mgr = ex.createSoundManager({ channels: ['sfx'], sounds: [{ sound: coin, channels: ['sfx'] }, jump] });
-      mgr.removeChannel('jump', ['sfx']);
-      expect(mgr.getSoundsForChannel('sfx')).toEqual([coin]);
-      mgr.removeChannel('coin', ['sfx', 'nope']);
-      expect(mgr.getSoundsForChannel('sfx')).toEqual([]);
-    });
-
     it('createSoundManager infers the sound name and channel unions (compile-time)', () => {
       const coin = ex.createSound('/sfx/coin.mp3');
-      const mgr = ex.createSoundManager({
-        channels: ['sfx'],
-        sounds: [coin, { sound: ex.createSound('/sfx/jump.mp3'), channels: ['sfx'] }]
-      });
+      const mgr = ex.createSoundManager({ channels: ['sfx'], sounds: [coin, { sound: ex.createSound('/sfx/jump.mp3'), channel: 'sfx' }] });
       mgr.play('coin');
       mgr.play('jump');
       mgr.channel.play('sfx');
+      mgr.getChannel('sfx');
       // @ts-expect-error not a registered sound
       void mgr.play('coinn');
       // @ts-expect-error not a declared channel
       void mgr.channel.play('sfxx');
+      // @ts-expect-error not a declared channel
+      void mgr.getChannel('sfxx');
       void ex.createSoundManager({
         channels: ['sfx'],
         // @ts-expect-error not a declared channel
-        sounds: [{ sound: coin, channels: ['musik'] }]
+        sounds: [{ sound: coin, channel: 'musik' }]
       });
       void new ex.SoundManager({
         channels: ['sfx'],
         // @ts-expect-error not a declared channel
-        sounds: { coin: { sound: coin, channels: ['musik'] } }
+        sounds: { coin: { sound: coin, channel: 'musik' } }
       });
       mgr.stop();
     });
   });
 
-  describe('mute', () => {
-    it('does not start sounds that were not playing when unmuted', () => {
-      const sound = new ex.Sound('./../assets/images/sound-spec/test.mp3');
-      const play = vi.spyOn(sound, 'play').mockResolvedValue(true);
-      const mgr = ex.createSoundManager({ sounds: [sound] });
+  describe('loading', () => {
+    it('is Loadable and loads every managed sound', async () => {
+      const s1 = new ex.Sound(TEST);
+      const s2 = new ex.Sound(PREVIEW);
+      const mgr = ex.createSoundManager({ sounds: [s1, s2] });
+      expect(mgr.isLoaded()).toBe(false);
 
-      mgr.mute();
-      expect(mgr.isMuted(sound)).toBe(true);
-      mgr.unmute();
-      expect(mgr.isMuted(sound)).toBe(false);
-      expect(play).not.toHaveBeenCalled();
-
-      mgr.toggle();
-      mgr.toggle();
-      expect(play).not.toHaveBeenCalled();
+      const data = await mgr.load();
+      expect(mgr.isLoaded()).toBe(true);
+      expect(mgr.data).toBe(data);
+      expect(data.length).toBe(2);
+      expect(s1.isLoaded()).toBe(true);
+      expect(s2.isLoaded()).toBe(true);
     });
 
-    it('drops plays of muted sounds', async () => {
-      const sound = new ex.Sound('./../assets/images/sound-spec/test.mp3');
-      const play = vi.spyOn(sound, 'play').mockResolvedValue(true);
-      const mgr = ex.createSoundManager({ sounds: [sound] });
-      mgr.mute(sound);
-      expect(await mgr.play('test')).toBe(false);
-      expect(play).not.toHaveBeenCalled();
+    it('wires every sound to the engine, including sounds tracked later', () => {
+      const engine = TestUtils.engine();
+      try {
+        const s1 = new ex.Sound(TEST);
+        const s2 = new ex.Sound(PREVIEW);
+        const wire1 = vi.spyOn(s1, 'wireEngine');
+        const wire2 = vi.spyOn(s2, 'wireEngine');
+        const mgr = ex.createSoundManager({ sounds: [s1] });
+
+        mgr.wireEngine(engine);
+        expect(wire1).toHaveBeenCalledWith(engine);
+
+        mgr.track(s2);
+        expect(wire2).toHaveBeenCalledWith(engine);
+      } finally {
+        engine.dispose();
+      }
     });
-  });
 
-  describe('channel volume', () => {
-    it('sets the mix of every sound in the channel', () => {
-      const sound = new ex.Sound('./../assets/images/sound-spec/test.mp3');
-      const sound2 = new ex.Sound('./../assets/images/sound-spec/test.mp3');
-      vi.spyOn(sound, 'play').mockResolvedValue(true);
-      vi.spyOn(sound2, 'play').mockResolvedValue(true);
-      const sm = new ex.SoundManager({
-        channels: ['background', 'other'],
-        sounds: {
-          snd1: { sound, volume: 0.4, channels: ['background'] },
-          snd2: { sound: sound2, volume: 0.8, channels: ['other'] }
-        }
-      });
-
-      sm.channel.setVolume('background', 0.2);
-      expect(sm.getVolume('snd1')).toBeCloseTo(0.2);
-      expect(sm.getVolume('snd2')).toBeCloseTo(0.8);
-      sm.play('snd1');
-      expect(sound.play).toHaveBeenCalledWith(expect.closeTo(0.2, 5));
+    it('can be added to a loader', () => {
+      const mgr = ex.createSoundManager({ sounds: [new ex.Sound(TEST)] });
+      const loader = new ex.DefaultLoader();
+      loader.addResource(mgr);
+      expect(loader.resources).toContain(mgr);
     });
   });
 
   describe('maxConcurrentTracks', () => {
-    const PREVIEW = '/src/spec/assets/images/sound-spec/preview.mp3';
-    const TEST = '/src/spec/assets/images/sound-spec/test.mp3';
-
-    beforeAll(async () => {
-      await page.elementLocator(document.body).click();
-      ex.Logger.getInstance().clearAppenders();
-      await WebAudio.unlock();
-    });
-
     it('drops new plays across sounds once the manager cap is reached', async () => {
       const s1 = new ex.Sound(PREVIEW);
       const s2 = new ex.Sound(TEST);
       s1.loop = true;
       s2.loop = true;
-      await s1.load();
-      await s2.load();
-
       const mgr = ex.createSoundManager({ sounds: [s1, s2], maxConcurrentTracks: 1 });
+      await mgr.load();
 
       await new Promise<void>((done) => {
         s1.once('playbackstart', async () => {
@@ -329,19 +406,17 @@ describe('A SoundManager', () => {
       });
     });
 
-    it('does not count paused (muted) tracks toward the cap', async () => {
+    it('does not count paused tracks toward the cap', async () => {
       const s1 = new ex.Sound(PREVIEW);
       const s2 = new ex.Sound(TEST);
       s1.loop = true;
       s2.loop = true;
-      await s1.load();
-      await s2.load();
-
       const mgr = ex.createSoundManager({ sounds: [s1, s2], maxConcurrentTracks: 1 });
+      await mgr.load();
 
       await new Promise<void>((done) => {
         s1.once('playbackstart', () => {
-          mgr.mute(s1);
+          s1.pause();
           expect(s1.isPaused()).toBe(true);
           expect(mgr.playingCount()).toBe(0);
 
