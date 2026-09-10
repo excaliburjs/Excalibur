@@ -144,10 +144,15 @@ export class MaterialRenderer implements RendererPlugin {
     let texture = this._addImageAsTexture(image);
 
     if (material.isOverridingGraphic) {
-      if (material.images.u_graphic?.image) {
-        texture = this._addImageAsTexture(material.images.u_graphic.image);
+      const overrideImage = material.images.u_graphic?.image ?? material.images.u_image?.image;
+      if (overrideImage) {
+        texture = this._addImageAsTexture(overrideImage);
       }
     }
+
+    // The pre-pipeline graphic, bound as u_original; stays equal to `texture` (u_graphic/u_image)
+    // until/unless a pipeline seeds a separate, padded texture below
+    let originalTexture: WebGLTexture = texture;
 
     // Run the material's multipass pipeline on the graphic offscreen, the result composites
     // through the regular quad below
@@ -176,6 +181,7 @@ export class MaterialRenderer implements RendererPlugin {
           u_inner_max: vec((pad + sw) / seedWidth, (pad + sh) / seedHeight)
         }
       });
+      originalTexture = seed.texture;
       pipeline.process(seed, output, {
         uniforms: {
           ...material.uniforms,
@@ -278,15 +284,28 @@ export class MaterialRenderer implements RendererPlugin {
     shader.trySetUniformMatrix('u_transform', transform.to4x4());
 
     // bind graphic image texture 'uniform sampler2D u_graphic;' (or the pipeline output)
+    // 'u_image' is a synonym, same texture unit, no extra bind needed
     gl.activeTexture(gl.TEXTURE0 + 0);
     gl.bindTexture(gl.TEXTURE_2D, texture);
     shader.trySetUniformInt('u_graphic', 0);
+    shader.trySetUniformInt('u_image', 0);
 
     // bind the screen texture
     if (material.isUsingScreenTexture) {
       gl.activeTexture(gl.TEXTURE0 + 1);
       gl.bindTexture(gl.TEXTURE_2D, this._context.materialScreenTexture);
       shader.trySetUniformInt('u_screen_texture', 1);
+    }
+
+    // bind the pre-pipeline graphic as 'uniform sampler2D u_original;' when it needs its own
+    // texture slot; otherwise it's just an alias for u_graphic/u_image (no pipeline ran)
+    if (material.isUsingOriginalTexture) {
+      const originalSlot = material.isUsingScreenTexture ? 2 : 1;
+      gl.activeTexture(gl.TEXTURE0 + originalSlot);
+      gl.bindTexture(gl.TEXTURE_2D, originalTexture);
+      shader.trySetUniformInt('u_original', originalSlot);
+    } else {
+      shader.trySetUniformInt('u_original', 0);
     }
 
     // bind quad index buffer

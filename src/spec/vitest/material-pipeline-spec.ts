@@ -95,6 +95,48 @@ describe('A Material with a shader pipeline', () => {
     expect(material.pipeline).toBeUndefined();
   });
 
+  it('resolves u_image as a synonym for u_graphic with no pipeline', async () => {
+    const tex = new ex.ImageSource('/src/spec/assets/images/material-renderer-spec/sword.png');
+    await tex.load();
+
+    const sampleGraphic = `#version 300 es
+      precision mediump float;
+      in vec2 v_uv;
+      uniform sampler2D u_graphic;
+      out vec4 fragColor;
+      void main() { fragColor = texture(u_graphic, v_uv); }`;
+    const sampleImage = `#version 300 es
+      precision mediump float;
+      in vec2 v_uv;
+      uniform sampler2D u_image;
+      out vec4 fragColor;
+      void main() { fragColor = texture(u_image, v_uv); }`;
+
+    context.beginDrawLifecycle();
+    context.clear();
+    context.save();
+    context.material = new ex.Material({ name: 'graphic-ref', graphicsContext: context, fragmentSource: sampleGraphic });
+    context.drawImage(tex.image, 0, 0);
+    context.flush();
+    context.restore();
+    context.endDrawLifecycle();
+    const graphicPixel = readCanvasPixel(context, 50, 50);
+
+    context.beginDrawLifecycle();
+    context.clear();
+    context.save();
+    context.material = new ex.Material({ name: 'image-ref', graphicsContext: context, fragmentSource: sampleImage });
+    context.drawImage(tex.image, 0, 0);
+    context.flush();
+    context.restore();
+    context.endDrawLifecycle();
+    const imagePixel = readCanvasPixel(context, 50, 50);
+
+    // u_image samples the same graphic u_graphic would, not an unbound black texture
+    expect(imagePixel).not.toEqual([0, 0, 0, 255]);
+    expect(imagePixel).toEqual(graphicPixel);
+  });
+
   it('runs the pipeline when drawing and expands the quad by padding', async () => {
     const tex = new ex.ImageSource('/src/spec/assets/images/material-renderer-spec/sword.png');
     await tex.load();
@@ -122,6 +164,36 @@ describe('A Material with a shader pipeline', () => {
     expect(readCanvasPixel(context, 72, 72)).toEqual([0, 255, 0, 255]); // inside opposite padded border
     expect(readCanvasPixel(context, 24, 24)).toEqual([0, 0, 0, 255]); // outside is background
     expect(readCanvasPixel(context, 76, 76)).toEqual([0, 0, 0, 255]); // outside is background
+  });
+
+  it('binds u_original in the composite to the pre-pipeline graphic, distinct from the pipeline output bound as u_graphic', async () => {
+    const tex = new ex.ImageSource('/src/spec/assets/images/material-renderer-spec/sword.png');
+    await tex.load();
+
+    const material = new ex.Material({
+      name: 'original-composite',
+      graphicsContext: context,
+      passes: [fillGreen],
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      in vec2 v_uv;
+      uniform sampler2D u_original;
+      out vec4 fragColor;
+      void main() { fragColor = texture(u_original, v_uv); }`
+    });
+
+    context.beginDrawLifecycle();
+    context.clear();
+    context.save();
+    context.material = material;
+    context.drawImage(tex.image, 0, 0);
+    context.flush();
+    context.restore();
+    context.endDrawLifecycle();
+
+    // the pass fills solid green, but a composite sampling u_original sees the pre-pipeline
+    // sword texture instead, proving it's bound to a distinct, seeded texture
+    expect(readCanvasPixel(context, 50, 50)).not.toEqual([0, 255, 0, 255]);
   });
 
   it('keeps the padded border transparent for a passthrough pipeline', async () => {
@@ -232,6 +304,45 @@ describe('A Material with a shader pipeline', () => {
     context.endDrawLifecycle();
 
     expect(material.getOutputFramebuffer(100, 100).filtering).toBe(ex.ImageFiltering.Pixel);
+  });
+
+  it('exposes the composite shader and every pass shader to update(), in order', () => {
+    const material = new ex.Material({
+      name: 'multi-pass',
+      graphicsContext: context,
+      passes: [fillGreen, passthrough]
+    });
+
+    let seen: ex.MaterialContext | undefined;
+    material.update((materialContext) => {
+      seen = materialContext;
+    });
+
+    const pipeline = material.pipeline as ex.ShaderPipeline;
+    const passShaders = pipeline.getShaders();
+    expect(seen!.shaders).toHaveLength(3);
+    expect(seen!.shaders[0]).toBe(material.getShader());
+    expect(seen!.shaders.slice(1)).toEqual(passShaders);
+    expect(seen!.shadersByName.size).toBe(3);
+    expect(seen!.shadersByName.get(material.name)).toBe(material.getShader());
+  });
+
+  it('update() only exposes the composite shader when there is no pipeline', () => {
+    const material = new ex.Material({
+      name: 'no-pipeline',
+      graphicsContext: context,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() { color = vec4(1.0, 0.0, 0.0, 1.0); }`
+    });
+
+    let seen: ex.MaterialContext | undefined;
+    material.update((materialContext) => {
+      seen = materialContext;
+    });
+
+    expect(seen!.shaders).toEqual([material.getShader()]);
   });
 
   describe('@visual', () => {

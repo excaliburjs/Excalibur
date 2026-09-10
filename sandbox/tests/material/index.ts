@@ -144,8 +144,8 @@ game.add(heartActor);
 
 game.input.pointers.primary.on('move', (evt) => {
   heartActor.pos = evt.worldPos;
-  swirlMaterial.update((shader) => {
-    shader.trySetUniformFloatVector('iMouse', evt.worldPos);
+  swirlMaterial.update((context) => {
+    context.uniforms.iMouse = evt.worldPos;
   });
 });
 

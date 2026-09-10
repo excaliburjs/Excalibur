@@ -36,6 +36,8 @@ export interface ShaderPassOptions {
    * Conventions available to every pass:
    *
    * * `uniform sampler2D u_image` - the source (positional shorthand); named sources bind to their record keys
+   * * `uniform sampler2D u_graphic` - synonym for `u_image`
+   * * `uniform sampler2D u_original` - the pipeline's original, pre-pass source
    * * `uniform vec2 u_resolution` - destination resolution in pixels
    * * `uniform vec2 u_texelSize` - `1.0 / primary source resolution`
    * * `uniform float u_time_ms` - total time in milliseconds
