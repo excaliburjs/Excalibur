@@ -11,6 +11,10 @@
 const fs = require('fs');
 const path = require('path');
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function fail(message) {
   console.error(`Error: ${message}`);
   process.exit(1);
@@ -112,8 +116,9 @@ if (indexHtml.includes(`href="tests/${name}/`) || indexHtml.includes(`href="test
 // (custom actions), which makes safely parsing insertion position more trouble than it's
 // worth for a scaffolding convenience. Reorder by hand later if you care about the ordering.
 const manifest = fs.readFileSync(manifestPath, 'utf8');
+const safeNameForRegex = escapeRegExp(name);
 
-if (new RegExp(`dir:\\s*'${name}'`).test(manifest)) {
+if (new RegExp(`dir:\\s*'${safeNameForRegex}'`).test(manifest)) {
   console.log(`sandbox/tests-e2e/manifest.ts already has an entry for '${name}' - leaving it alone.`);
 } else {
   const closingIndex = manifest.lastIndexOf('];');
