@@ -113,6 +113,9 @@ export class ImageSource implements Loadable<HTMLImageElement> {
         `Use the ex.Gif type to load gifs, you may have mixed results with ${pathOrBase64} in ex.ImageSource. Fully supported: svg, jpg, bmp, and png`
       );
     }
+    // Load failures reject `ready`, games that never await it should not see unhandled rejection noise,
+    // the error is surfaced through load()
+    this.ready.catch(() => undefined);
   }
 
   /**
@@ -190,13 +193,24 @@ export class ImageSource implements Loadable<HTMLImageElement> {
     TextureLoader.checkImageSizeSupportedAndLog(image);
 
     image.toBlob((blob) => {
-      // TODO throw? if blob null?
-      const url = URL.createObjectURL(blob!);
+      if (!blob) {
+        const message = `Unable to create an image from the canvas element, the canvas may be too large for this browser`;
+        imageSource._logger.error(message);
+        imageSource._readyFuture.reject(new Error(message));
+        return;
+      }
+      const url = URL.createObjectURL(blob);
       imageSource.image.onload = () => {
         // no longer need to read the blob so it's revoked
         URL.revokeObjectURL(url);
         imageSource.data = imageSource.image;
         imageSource._readyFuture.resolve(imageSource.image);
+      };
+      imageSource.image.onerror = () => {
+        URL.revokeObjectURL(url);
+        const message = `Unable to decode the canvas image blob (${blob.type}, ${blob.size} bytes) into an image`;
+        imageSource._logger.error(message);
+        imageSource._readyFuture.reject(new Error(message));
       };
       imageSource.image.src = url;
     });
@@ -229,14 +243,18 @@ export class ImageSource implements Loadable<HTMLImageElement> {
     if (this.isLoaded()) {
       return this.data;
     }
+    let objectUrl: string | null = null;
+    let contentType = 'unknown content';
     try {
       // Load base64 or blob if needed
       let url: string;
       if (!this.path.includes('data:image/')) {
         const blob = await this._resource.load();
-        url = URL.createObjectURL(blob);
+        contentType = `${blob.type || 'unknown type'}, ${blob.size} bytes`;
+        url = objectUrl = URL.createObjectURL(blob);
       } else {
         url = this.path;
+        contentType = `${/^data:([^;,]+)/.exec(this.path)?.[1] ?? 'unknown type'} (data url)`;
       }
 
       // Decode the image
@@ -246,6 +264,8 @@ export class ImageSource implements Loadable<HTMLImageElement> {
       // Otherwise chrome will throw still Image.decode() failures for large textures
       const loadedFuture = new Future<void>();
       image.onload = () => loadedFuture.resolve();
+      image.onerror = () =>
+        loadedFuture.reject(new Error(`the response could not be decoded as an image, received ${contentType}`));
       image.src = url;
       image.setAttribute('data-original-src', this.path);
 
@@ -260,7 +280,16 @@ export class ImageSource implements Loadable<HTMLImageElement> {
       // emit warning if potentially too big
       TextureLoader.checkImageSizeSupportedAndLog(this.data);
     } catch (error: any) {
-      throw `Error loading ImageSource from path '${this.path}' with error [${error.message}]`;
+      const message = `Error loading ImageSource from path '${this.path}' with error [${
+        error instanceof Error ? error.message : String(error)
+      }]`;
+      this._logger.error(message);
+      this._readyFuture.reject(new Error(message));
+      // The failed image is never usable, release the blob it was decoded from
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
+      throw new Error(message);
     }
     // Do a bad thing to pass the filtering as an attribute
     this.data.setAttribute(ImageSourceAttributeConstants.Filtering, this.filtering as any); // TODO fix type
