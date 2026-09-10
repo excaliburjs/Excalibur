@@ -47,14 +47,35 @@ describe('A SoundTrack', () => {
     expect(sources.length).toBe(0);
   });
 
-  it('wires source → destination by default', () => {
+  it('has increasing ids', () => {
+    const a = new ex.SoundTrack(buffer, destination);
+    const b = new ex.SoundTrack(buffer, destination);
+    expect(b.id).toBeGreaterThan(a.id);
+  });
+
+  it('wires bufferSource → track gain → destination by default', () => {
     const track = new ex.SoundTrack(buffer, destination);
+    const gain = (track as any)._gain as GainNode;
+    vi.spyOn(gain, 'connect');
+    vi.spyOn(gain, 'disconnect');
     track.loop = true;
     track.play();
 
     expect(sources.length).toBe(1);
-    expect(sources[0].connect).toHaveBeenCalledWith(destination);
+    expect(sources[0].connect).toHaveBeenCalledWith(gain);
+    expect(gain.connect).toHaveBeenCalledWith(destination);
+
     track.stop();
+    expect(gain.disconnect).toHaveBeenCalled();
+  });
+
+  it('applies per-track volume to the track gain', () => {
+    const track = new ex.SoundTrack(buffer, destination);
+    const gain = (track as any)._gain as GainNode;
+    track.volume = 0.25;
+    expect(gain.gain.value).toBeCloseTo(0.25);
+    track.volume = 4;
+    expect(track.volume).toBe(1);
   });
 
   it('lets the onPlay hook wire the graph instead', () => {
@@ -66,9 +87,12 @@ describe('A SoundTrack', () => {
     track.loop = true;
     track.play();
 
-    expect(hook).toHaveBeenCalledWith({ audioContext, source: sources[0], destination, track });
-    expect(sources[0].connect).toHaveBeenCalledWith(effect);
-    expect(sources[0].connect).not.toHaveBeenCalledWith(destination);
+    const gain = (track as any)._gain as GainNode;
+    expect(hook).toHaveBeenCalledWith({ audioContext, source: gain, bufferSource: sources[0], destination, track });
+    // identity checks, vitest deep-equals any two GainNodes
+    const connects = (sources[0].connect as any).mock.calls;
+    expect(connects).toHaveLength(1);
+    expect(connects[0][0]).toBe(gain);
     track.stop();
   });
 
@@ -142,6 +166,7 @@ describe('A SoundTrack', () => {
     const done = track.play(started);
     expect(started).toHaveBeenCalled();
     expect(track.isPlaying()).toBe(true);
+    expect(track.done).toBe(done);
 
     await expect(done).resolves.toBe(true);
     expect(track.isStopped()).toBe(true);
@@ -176,7 +201,7 @@ describe('A SoundTrack', () => {
     track.play();
 
     expect(error).toHaveBeenCalled();
-    expect(sources[0].connect).toHaveBeenCalledWith(destination);
+    expect(sources[0].connect).toHaveBeenCalledWith((track as any)._gain);
     expect(track.isPlaying()).toBe(true);
     track.stop();
   });

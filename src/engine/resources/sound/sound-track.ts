@@ -2,6 +2,7 @@ import { StateMachine } from '../../util/state-machine';
 import { AudioContextFactory } from './audio-context';
 import { Future } from '../../util/future';
 import { Logger } from '../../util/log';
+import { clamp } from '../../math/util';
 
 /**
  * Context handed to an {@apilink AudioGraphBuilder} each time a {@apilink SoundTrack}
@@ -14,15 +15,21 @@ export interface AudioGraphContext {
    */
   readonly audioContext: AudioContext;
   /**
-   * The single-use {@apilink AudioBufferSourceNode} for this playback. It is fully configured
-   * (buffer, loop, playbackRate, detune) but not yet started, so you may schedule automation on
-   * its params. Excalibur owns this node and disconnects it when the track stops or pauses.
+   * The track's audio: the buffer source already routed through the track's own volume gain.
+   * Connect this (not `bufferSource`) to `destination`, or the per-play volume is bypassed.
+   * Excalibur disconnects it each time the track restarts or stops.
    */
-  readonly source: AudioBufferSourceNode;
+  readonly source: AudioNode;
   /**
-   * The {@apilink Sound}'s output node (a {@apilink GainNode} that Excalibur uses for volume and
-   * that is connected to the audio context destination). Anything you wire must eventually reach
-   * this node or the track will be silent.
+   * The single-use {@apilink AudioBufferSourceNode} feeding `source`. It is fully configured
+   * (buffer, loop, playbackRate, detune) but not yet started, so you may schedule automation on
+   * its params. It is already connected to `source`; do not connect it anywhere else.
+   */
+  readonly bufferSource: AudioBufferSourceNode;
+  /**
+   * The {@apilink Sound}'s output node (a {@apilink GainNode} that carries {@apilink Sound.volume}
+   * and is connected onwards to the speakers or a {@apilink SoundManager}). Anything you wire must
+   * eventually reach this node or the track will be silent.
    */
   readonly destination: AudioNode;
   /**
@@ -68,15 +75,22 @@ export interface AudioGraphContext {
 export type AudioGraphBuilder = (ctx: AudioGraphContext) => void;
 
 /**
- * A single playback of a {@apilink Sound}. Produced by `Sound.play()` and `Sound.seek()`, see
- * {@apilink Sound.instances}.
+ * A single playback of a {@apilink Sound}. Produced by `Sound.play()`, `Sound.start()` and
+ * `Sound.seek()`, see {@apilink Sound.instances}.
  *
- * Wraps a single-use Web Audio `AudioBufferSourceNode`; a fresh source is allocated each time the
- * track (re)starts.
+ * Wraps a single-use Web Audio `AudioBufferSourceNode` routed through a per-track volume gain;
+ * a fresh buffer source is allocated each time the track (re)starts.
  * @see https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API
  */
 export class SoundTrack {
+  private static _NEXT_ID = 0;
+  /**
+   * Monotonically increasing id, older tracks have lower ids
+   */
+  public readonly id = SoundTrack._NEXT_ID++;
+
   private _audioContext: AudioContext = AudioContextFactory.create();
+  private _gain: GainNode = this._audioContext.createGain();
   private _source: AudioBufferSourceNode | null = null;
   private _playingFuture = new Future<boolean>();
   // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -128,6 +142,7 @@ export class SoundTrack {
       STOPPED: {
         onEnter: () => {
           this._offset = 0;
+          this._gain.disconnect();
           this._playingFuture.resolve(true);
         },
         transitions: ['PLAYING', 'PAUSED', 'SEEK']
@@ -137,7 +152,7 @@ export class SoundTrack {
 
   /**
    * @param _buffer       The decoded audio to play
-   * @param _destination  The node this track's source is wired into (the owning Sound's output)
+   * @param _destination  The node this track is wired into (the owning Sound's output)
    * @param _onPlay       Optional hook that wires `source → destination`, see {@apilink AudioGraphBuilder}
    */
   constructor(
@@ -147,26 +162,35 @@ export class SoundTrack {
   ) {}
 
   /**
-   * Allocate and configure a fresh single-use source and wire it into the graph
+   * Allocate and configure a fresh single-use buffer source and (re)wire the track into the graph
    */
   private _createSource(): AudioBufferSourceNode {
     this._disconnectSource();
+    // sever last (re)start's wiring so per-play effect nodes are not doubled up
+    this._gain.disconnect();
 
     const source = (this._source = this._audioContext.createBufferSource());
     source.buffer = this._buffer;
     source.loop = this._loop;
     source.playbackRate.value = this._playbackRate;
     source.detune.value = this._pitch;
+    source.connect(this._gain);
 
     if (this._onPlay) {
       try {
-        this._onPlay({ audioContext: this._audioContext, source, destination: this._destination, track: this });
+        this._onPlay({
+          audioContext: this._audioContext,
+          source: this._gain,
+          bufferSource: source,
+          destination: this._destination,
+          track: this
+        });
       } catch (e) {
         Logger.getInstance().error('Sound onPlay hook threw, falling back to the default audio graph', e);
-        source.connect(this._destination);
+        this._gain.connect(this._destination);
       }
     } else {
-      source.connect(this._destination);
+      this._gain.connect(this._destination);
     }
 
     source.onended = () => {
@@ -190,6 +214,26 @@ export class SoundTrack {
     source.onended = null;
     source.stop();
     source.disconnect();
+  }
+
+  private _volume = 1;
+  /**
+   * Volume [0-1] of this track only, multiplied with {@apilink Sound.volume}. Default 1.
+   */
+  public get volume(): number {
+    return this._volume;
+  }
+  public set volume(value: number) {
+    this._volume = clamp(value, 0, 1);
+    const gain = this._gain.gain;
+    if (this.isPlaying() && gain.setTargetAtTime) {
+      // https://developer.mozilla.org/en-US/docs/Web/API/AudioParam/setTargetAtTime
+      // After each .1 seconds timestep, the target value will ~63.2% closer to the target value.
+      // This exponential ramp provides a more pleasant transition in gain
+      gain.setTargetAtTime(this._volume, this._audioContext.currentTime, 0.1);
+    } else {
+      gain.value = this._volume;
+    }
   }
 
   private _loop = false;
@@ -254,6 +298,13 @@ export class SoundTrack {
    * Audio context time in seconds at which the next (re)start is scheduled, 0 means immediately
    */
   public scheduledStartTime = 0;
+
+  /**
+   * Resolves when the track completes or is stopped
+   */
+  public get done(): Promise<boolean> {
+    return this._playingFuture.promise;
+  }
 
   public isPlaying() {
     return this._stateMachine.in('PLAYING');

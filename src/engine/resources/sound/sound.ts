@@ -100,12 +100,35 @@ export interface SoundOptions {
   onPlay?: AudioGraphBuilder;
 }
 
+/**
+ * One-off overrides for a single playback, see {@apilink Sound.play}. Unset options fall back to the
+ * {@apilink Sound}'s configuration; nothing here changes the Sound itself.
+ */
 export interface PlayOptions {
   /**
-   * Volume to play between [0, 1]
+   * Volume [0-1] of this track, multiplied with {@apilink Sound.volume}. Default 1.
    */
   volume?: number;
-
+  /**
+   * Pitch shift in cents for this track, overrides {@apilink Sound.pitch}
+   */
+  pitch?: number;
+  /**
+   * Playback speed multiplier for this track, overrides {@apilink Sound.playbackRate}
+   */
+  playbackRate?: number;
+  /**
+   * Loop this track, overrides {@apilink Sound.loop}
+   */
+  loop?: boolean;
+  /**
+   * Position in seconds to start this track from, overrides {@apilink Sound.position}
+   */
+  position?: number;
+  /**
+   * Duration in seconds to play this track for, overrides {@apilink Sound.duration}
+   */
+  duration?: number;
   /**
    * Schedule time to play in milliseconds from the audio context origin
    *
@@ -113,24 +136,14 @@ export interface PlayOptions {
    *
    * ```typescript
    * const sound: Sound = ...;
-   * const oneThousandMillisecondsFromNow = AudioContextFactory.currentTime + 1000;
+   * const oneThousandMillisecondsFromNow = AudioContextFactory.currentTime() + 1000;
    *
    * sound.play({ scheduledStartTime: oneThousandMillisecondsFromNow });
-   *
    * ```
    */
   scheduledStartTime?: number;
-
   /**
-   * Optional per-play pitch override (cents). Overrides {@apilink Sound.pitch}
-   * for this single playback.
-   */
-  pitch?: number;
-
-  /**
-   * Optional per-play audio graph hook. Overrides {@apilink Sound.onPlay} for
-   * the track this call creates (and for its later resumes). Ignored when the
-   * call resumes already paused tracks, which keep their own hook.
+   * Audio graph hook for this track (and its later resumes), overrides {@apilink Sound.onPlay}.
    * See {@apilink AudioGraphBuilder}.
    */
   onPlay?: AudioGraphBuilder;
@@ -216,7 +229,7 @@ export class Sound<TName extends string = string> implements Loadable<AudioBuffe
   public readonly name: TName;
 
   /**
-   * Position in seconds new playbacks start from
+   * Position in seconds new tracks start from, see {@apilink PlayOptions.position} for a one-off
    */
   public position: number | undefined;
   /**
@@ -307,21 +320,6 @@ export class Sound<TName extends string = string> implements Loadable<AudioBuffe
   public set bustCache(val: boolean) {
     this._resource.bustCache = val;
   }
-
-  /**
-   * Schedule time to play in milliseconds from the audio context origin
-   *
-   * Compute using the audio context
-   *
-   * ```typescript
-   * const sound: Sound = ...;
-   * const oneThousandMillisecondsFromNow = AudioContextFactory.currentTime + 1000;
-   *
-   * sound.scheduledStartTime = oneThousandMillisecondsFromNow;
-   *
-   * ```
-   */
-  public scheduledStartTime = 0;
 
   private _loop = false;
   private _volume = 1;
@@ -477,7 +475,7 @@ export class Sound<TName extends string = string> implements Loadable<AudioBuffe
       this._engine.on('visible', () => {
         if (engine.pauseAudioWhenHidden && this._wasPlayingOnHidden) {
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          this.play();
+          this.resume();
           this._wasPlayingOnHidden = false;
         }
       });
@@ -529,45 +527,105 @@ export class Sound<TName extends string = string> implements Loadable<AudioBuffe
   }
 
   /**
-   * Play the sound, returns a promise that resolves when the sound is done playing
-   * An optional volume argument can be passed in to play the sound. Max volume is 1.0
+   * Play a new track of this sound, returns a promise that resolves when that track is done
+   * playing (false if the play was dropped, e.g. by {@apilink Sound.maxConcurrentTracks}).
    *
-   * If any track of this sound is paused, play resumes the paused tracks instead of starting a new one.
+   * Options apply to this track only and never change the Sound's own configuration:
+   *
+   * ```typescript
+   * sound.play();                                   // the sound as configured
+   * sound.play({ volume: 0.3, pitch: -200 });       // quieter and lower, this time only
+   * sound.play({ position: 2, duration: 1 });       // one second starting two seconds in
+   * ```
+   *
+   * To continue paused tracks use {@apilink Sound.resume}, to get a handle on the track
+   * use {@apilink Sound.start}.
    */
-  public play(volumeOrConfig?: number | PlayOptions): Promise<boolean> {
+  public play(options?: PlayOptions): Promise<boolean>;
+  /**
+   * Play a new track at a volume [0-1] (multiplied with {@apilink Sound.volume}) for this track only
+   * @deprecated Use `play({ volume })` instead. Will be removed in v0.34
+   */
+  public play(volume: number): Promise<boolean>;
+  public play(volumeOrOptions?: number | PlayOptions): Promise<boolean> {
+    const track = this.start(volumeOrOptions as PlayOptions);
+    return track ? track.done : Promise.resolve(false);
+  }
+
+  /**
+   * Like {@apilink Sound.play} but returns the {@apilink SoundTrack} synchronously so it can be
+   * stopped, seeked or adjusted while it plays. Returns `undefined` if the play was dropped.
+   *
+   * ```typescript
+   * const footstep = sound.start({ volume: 0.5 });
+   * footstep?.stop();
+   * await footstep?.done;
+   * ```
+   */
+  public start(options?: PlayOptions): SoundTrack | undefined {
     if (!this.isLoaded()) {
       this.logger.warn('Cannot start playing. Resource', this.path, 'is not loaded yet');
-
-      return Promise.resolve(true);
+      return undefined;
     }
 
     if (this._isStopped) {
       this.logger.warn('Cannot start playing. Engine is in a stopped state.');
-      return Promise.resolve(false);
-    }
-
-    let scheduledStart = 0;
-    let playPitch = this._pitch;
-    let playOnPlay: AudioGraphBuilder | undefined = this.onPlay;
-    if (volumeOrConfig instanceof Object) {
-      const { volume, scheduledStartTime, pitch, onPlay } = volumeOrConfig;
-      scheduledStart = (scheduledStartTime ?? 0) / 1000 || scheduledStart;
-      this.volume = volume ?? this.volume;
-      playPitch = pitch ?? playPitch;
-      playOnPlay = onPlay ?? playOnPlay;
-    } else {
-      this.volume = volumeOrConfig ?? this.volume;
-    }
-
-    if (this.isPaused()) {
-      return this._resumePlayback(scheduledStart, playPitch);
+      return undefined;
     }
 
     if (this._maxConcurrentTracks != null && this.playingCount() >= this._maxConcurrentTracks) {
       this.logger.warnOnce(`Sound "${this.name}" has reached maxConcurrentTracks (${this._maxConcurrentTracks}); dropping play.`);
-      return Promise.resolve(false);
+      return undefined;
     }
-    return this._startPlayback(scheduledStart, playPitch, playOnPlay);
+
+    const overrides: PlayOptions = typeof options === 'number' ? { volume: options } : (options ?? {});
+    const track = this._createTrack(overrides);
+    track.scheduledStartTime = (overrides.scheduledStartTime ?? 0) / 1000;
+    const position = overrides.position ?? this.position;
+    if (position) {
+      track.seek(position);
+    }
+
+    // the completion future never rejects
+    void track
+      .play(() => {
+        this.events.emit('playbackstart', new NativeSoundEvent(this, track));
+        this.logger.debug('Playing new instance for sound', this.path);
+      })
+      .then(() => {
+        this.events.emit('playbackend', new NativeSoundEvent(this, track));
+        this._removeTrack(track);
+      });
+
+    return track;
+  }
+
+  /**
+   * Resume every paused (or seeked) track, resolves when they are done playing.
+   * Resolves `false` immediately if nothing was paused.
+   */
+  public async resume(): Promise<boolean> {
+    const resumed: Promise<boolean>[] = [];
+    for (const track of this._tracks) {
+      if (!track.isPaused()) {
+        continue;
+      }
+      resumed.push(
+        track.play().then((complete) => {
+          this._removeTrack(track);
+          return complete;
+        })
+      );
+    }
+    if (resumed.length === 0) {
+      return false;
+    }
+
+    this.events.emit('resume', new NativeSoundEvent(this));
+    this.logger.debug('Resuming paused instances for sound', this.path, this._tracks);
+
+    await Promise.all(resumed);
+    return true;
   }
 
   /**
@@ -613,9 +671,9 @@ export class Sound<TName extends string = string> implements Loadable<AudioBuffe
   }
 
   /**
-   * Seek a track to a position in seconds, the track is paused until the next play().
+   * Seek a track to a position in seconds, the track is paused until the next {@apilink Sound.resume}.
    *
-   * If no track exists one is created so that `seek(); play()` starts from the position.
+   * If no track exists one is created so that `seek(); resume()` starts from the position.
    */
   public seek(position: number, trackId = 0) {
     if (this._tracks.length === 0) {
@@ -654,53 +712,6 @@ export class Sound<TName extends string = string> implements Loadable<AudioBuffe
     return this._tracks.indexOf(track);
   }
 
-  private async _resumePlayback(scheduledStart: number = 0, pitch?: number): Promise<boolean> {
-    const resumed: Promise<boolean>[] = [];
-    for (const track of this._tracks) {
-      if (!track.isPaused()) {
-        continue;
-      }
-      track.scheduledStartTime = scheduledStart;
-      if (pitch != null) {
-        track.pitch = pitch;
-      }
-      resumed.push(
-        track.play().then((complete) => {
-          this._removeTrack(track);
-          return complete;
-        })
-      );
-    }
-
-    this.events.emit('resume', new NativeSoundEvent(this));
-
-    this.logger.debug('Resuming paused instances for sound', this.path, this._tracks);
-    // resolve when resumed tracks are done
-    await Promise.all(resumed);
-    return true;
-  }
-
-  /**
-   * Starts playback, returns a promise that resolves when playback is complete
-   */
-  private async _startPlayback(scheduledStartTime: number = 0, pitch?: number, onPlay?: AudioGraphBuilder): Promise<boolean> {
-    const track = this._createTrack(pitch, onPlay);
-    track.scheduledStartTime = scheduledStartTime;
-    if (this.position) {
-      track.seek(this.position);
-    }
-
-    const complete = await track.play(() => {
-      this.events.emit('playbackstart', new NativeSoundEvent(this, track));
-      this.logger.debug('Playing new instance for sound', this.path);
-    });
-
-    this.events.emit('playbackend', new NativeSoundEvent(this, track));
-    this._removeTrack(track);
-
-    return complete;
-  }
-
   private _removeTrack(track: SoundTrack) {
     const trackId = this._tracks.indexOf(track);
     if (trackId !== -1) {
@@ -722,13 +733,17 @@ export class Sound<TName extends string = string> implements Loadable<AudioBuffe
     return this._output;
   }
 
-  private _createTrack(pitch?: number, onPlay?: AudioGraphBuilder): SoundTrack {
-    const track = new SoundTrack(this.data, this.output, onPlay ?? this.onPlay);
+  /**
+   * Snapshot the sound's configuration, overlaid with per-play overrides, into a new track
+   */
+  private _createTrack(overrides: PlayOptions = {}): SoundTrack {
+    const track = new SoundTrack(this.data, this.output, overrides.onPlay ?? this.onPlay);
 
-    track.loop = this._loop;
-    track.duration = this._duration;
-    track.playbackRate = this._playbackRate;
-    track.pitch = pitch ?? this._pitch;
+    track.volume = overrides.volume ?? 1;
+    track.loop = overrides.loop ?? this._loop;
+    track.duration = overrides.duration ?? this._duration;
+    track.playbackRate = overrides.playbackRate ?? this._playbackRate;
+    track.pitch = overrides.pitch ?? this._pitch;
 
     this._tracks.push(track);
 

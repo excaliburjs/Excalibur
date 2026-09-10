@@ -17,7 +17,7 @@ describe('Sound resource', () => {
    */
   const playAndAwait = async (event: 'playbackstart' | 'resume', config?: number | ex.PlayOptions) => {
     const fired = new Promise<void>((done) => sut.once(event, () => done()));
-    const complete = sut.play(config);
+    const complete = event === 'resume' ? sut.resume() : sut.play(config as ex.PlayOptions);
     await fired;
     return { complete };
   };
@@ -132,7 +132,7 @@ describe('Sound resource', () => {
 
     sut.once('playbackstart', () => {
       sut.pause();
-      sut.play();
+      sut.resume();
     });
 
     sut.loop = false;
@@ -258,12 +258,12 @@ describe('Sound resource', () => {
       });
     }));
 
-  it('should set volume with argument sent to play', () =>
+  it('should apply a volume argument sent to play to that track only', () =>
     new Promise<void>((done) => {
       sut.load().then(() => {
         sut.once('playbackstart', () => {
-          expect(sut.volume).toBe(0.5);
-          expect((sut as any)._output.gain.value).toBeCloseTo(0.5);
+          expect(sut.volume).toBe(1);
+          expect(sut.instances[0].volume).toBe(0.5);
           done();
         });
 
@@ -603,7 +603,7 @@ describe('Sound resource', () => {
       });
     });
 
-    it('resumes a seeked track on play with a single track', async () => {
+    it('resumes a seeked track with a single track', async () => {
       sut = new ex.Sound('/src/spec/assets/images/sound-spec/preview.mp3');
       sut.loop = true;
       await sut.load();
@@ -618,7 +618,7 @@ describe('Sound resource', () => {
           sut.stop();
           done();
         });
-        sut.play();
+        sut.resume();
       });
     });
 
@@ -652,7 +652,7 @@ describe('Sound resource', () => {
 
       sut.pause();
       expect(sut.isPaused()).toBe(true);
-      sut.play(); // resumes both
+      sut.resume();
 
       await first;
       expect(firstTrack.isStopped()).toBe(true);
@@ -660,6 +660,80 @@ describe('Sound resource', () => {
       expect(sut.instances[0]).toBe(secondTrack);
       expect(sut.isPlaying()).toBe(true);
       sut.stop();
+    });
+  });
+
+  describe('one-off play options', () => {
+    it('snapshots the sound config overlaid with the options without mutating the sound', async () => {
+      sut = new ex.Sound({ paths: ['/src/spec/assets/images/sound-spec/preview.mp3'], volume: 0.8, pitch: 100, loop: true });
+      await sut.load();
+
+      const track = sut.start({ volume: 0.5, pitch: -200, playbackRate: 2, loop: false, duration: 3, position: 1 })!;
+      expect(track).toBeInstanceOf(ex.SoundTrack);
+      expect(track.volume).toBe(0.5);
+      expect(track.pitch).toBe(-200);
+      expect(track.playbackRate).toBe(2);
+      expect(track.loop).toBe(false);
+      expect(track.duration).toBe(3);
+      expect(track.getPlaybackPosition()).toBeGreaterThanOrEqual(1);
+
+      expect(sut.volume).toBe(0.8);
+      expect(sut.pitch).toBe(100);
+      expect(sut.playbackRate).toBe(1);
+      expect(sut.loop).toBe(true);
+      expect(sut.position).toBeUndefined();
+      sut.stop();
+    });
+
+    it('falls back to the sound config for unset options', async () => {
+      sut = new ex.Sound({ paths: ['/src/spec/assets/images/sound-spec/preview.mp3'], pitch: 100, loop: true, playbackRate: 1.5 });
+      await sut.load();
+      const track = sut.start({ volume: 0.25 })!;
+      expect(track.volume).toBe(0.25);
+      expect(track.pitch).toBe(100);
+      expect(track.loop).toBe(true);
+      expect(track.playbackRate).toBe(1.5);
+      sut.stop();
+    });
+
+    it('start() returns the track whose done promise matches play()', async () => {
+      sut = new ex.Sound('/src/spec/assets/images/sound-spec/preview.mp3');
+      await sut.load();
+      const track = sut.start({ duration: 0.2 })!;
+      expect(sut.instances).toEqual([track]);
+      expect(track.isPlaying()).toBe(true);
+      await expect(track.done).resolves.toBe(true);
+      expect(sut.instanceCount()).toBe(0);
+
+      const stopped = sut.start()!;
+      stopped.stop();
+      await expect(stopped.done).resolves.toBe(true);
+    });
+
+    it('start() returns undefined when the play is dropped', () => {
+      expect(sut.start(), 'not loaded').toBeUndefined();
+    });
+
+    it('play() always starts a new track, even while another is paused', async () => {
+      sut = new ex.Sound('/src/spec/assets/images/sound-spec/preview.mp3');
+      sut.loop = true;
+      await sut.load();
+      const first = sut.start()!;
+      sut.pause();
+      expect(first.isPaused()).toBe(true);
+
+      const second = sut.start()!;
+      expect(second).not.toBe(first);
+      expect(first.isPaused()).toBe(true);
+      expect(second.isPlaying()).toBe(true);
+      expect(sut.instanceCount()).toBe(2);
+      sut.stop();
+    });
+
+    it('resume() resolves false when nothing is paused', async () => {
+      sut = new ex.Sound('/src/spec/assets/images/sound-spec/preview.mp3');
+      await sut.load();
+      expect(await sut.resume()).toBe(false);
     });
   });
 
@@ -678,8 +752,9 @@ describe('Sound resource', () => {
         sut.once('playbackstart', () => {
           expect(ctx).toBeDefined();
           expect(ctx!.audioContext).toBe(ex.AudioContextFactory.create());
-          expect(ctx!.source).toBeInstanceOf(AudioBufferSourceNode);
-          expect(ctx!.destination).toBeInstanceOf(GainNode);
+          expect(ctx!.source).toBeInstanceOf(GainNode);
+          expect(ctx!.bufferSource).toBeInstanceOf(AudioBufferSourceNode);
+          expect(ctx!.destination).toBe(sut.output);
           expect(ctx!.track).toBe(sut.instances[0]);
           expect(sut.instances[0]).toBeInstanceOf(ex.SoundTrack);
           sut.stop();
@@ -693,8 +768,13 @@ describe('Sound resource', () => {
       sut = new ex.Sound({ paths: ['/src/spec/assets/images/sound-spec/preview.mp3'], loop: true, playbackRate: 2, pitch: 100 });
       await sut.load();
       let seen: { rate: number; detune: number; loop: boolean; trackRate: number } | undefined;
-      sut.onPlay = ({ source, destination, track }) => {
-        seen = { rate: source.playbackRate.value, detune: source.detune.value, loop: source.loop, trackRate: track.playbackRate };
+      sut.onPlay = ({ source, bufferSource, destination, track }) => {
+        seen = {
+          rate: bufferSource.playbackRate.value,
+          detune: bufferSource.detune.value,
+          loop: bufferSource.loop,
+          trackRate: track.playbackRate
+        };
         source.connect(destination);
       };
 

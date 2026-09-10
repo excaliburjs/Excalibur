@@ -2,7 +2,8 @@ import { clamp } from '../../math';
 import { Logger } from '../../util/log';
 import type { Loadable } from '../../interfaces/loadable';
 import type { Engine } from '../../engine';
-import { Sound } from './sound';
+import { Sound, type PlayOptions } from './sound';
+import type { SoundTrack } from './sound-track';
 import { AudioContextFactory } from './audio-context';
 
 export type AnyString = {} & string;
@@ -29,11 +30,75 @@ export interface SoundConfig<Channel extends string = string, SName extends stri
   channel?: Channel;
 }
 
+/**
+ * Context handed to an {@apilink AudioBusBuilder}: wire `input` to `output` through any effects.
+ */
+export interface AudioBusContext {
+  readonly audioContext: AudioContext;
+  /**
+   * Unity gain the bus's sources are mixed into
+   */
+  readonly input: GainNode;
+  /**
+   * Carries the bus volume and mute, connected onwards to the speakers
+   */
+  readonly output: GainNode;
+}
+
+/**
+ * Lifecycle hook that wires a bus ({@apilink SoundChannel} or the {@apilink SoundManager} master)
+ * when it is created, replacing the default `input → output` edge. Use it to insert effects that
+ * apply to every sound on the bus:
+ *
+ * ```typescript
+ * const manager = ex.createSoundManager({
+ *   channels: [
+ *     'sfx',
+ *     {
+ *       name: 'music',
+ *       onConnect: ({ audioContext, input, output }) => {
+ *         const muffle = audioContext.createBiquadFilter();
+ *         muffle.type = 'lowpass';
+ *         input.connect(muffle).connect(output);
+ *       }
+ *     }
+ *   ],
+ *   onConnect: ({ audioContext, input, output }) => {
+ *     input.connect(audioContext.createDynamicsCompressor()).connect(output);
+ *   },
+ *   sounds: [...]
+ * });
+ * ```
+ */
+export type AudioBusBuilder = (ctx: AudioBusContext) => void;
+
+export interface SoundChannelOptions<Channel extends string = string> {
+  name: Channel;
+  /**
+   * Channel volume [0-1], default 1
+   */
+  volume?: number;
+  /**
+   * Maximum number of simultaneously playing tracks in this channel, default unbounded.
+   * See {@apilink SoundManagerOptions.voiceStealing} for what happens at the cap.
+   */
+  maxConcurrentTracks?: number;
+  /**
+   * Wire the channel's `input` to its `output` through effects, see {@apilink AudioBusBuilder}
+   */
+  onConnect?: AudioBusBuilder;
+}
+
+/**
+ * The channel name of a `channels` entry, which is either a string or a {@apilink SoundChannelOptions}
+ */
+export type ChannelName<T> = T extends string ? T : T extends { name: infer N extends string } ? N : never;
+
 export interface SoundManagerOptions<Channel extends string = string, SoundName extends string = string> {
   /**
-   * Optionally specify the possible channels to avoid typo's
+   * Optionally specify the possible channels to avoid typo's, as names or {@apilink SoundChannelOptions}
    */
-  channels?: readonly Channel[];
+  channels?: readonly (Channel | SoundChannelOptions<Channel>)[];
   /**
    * Master volume [0-1] for every sound in this manager
    *
@@ -42,10 +107,20 @@ export interface SoundManagerOptions<Channel extends string = string, SoundName 
   volume?: number;
   /**
    * Maximum number of simultaneously playing tracks allowed across ALL sounds
-   * managed by this {@apilink SoundManager}. When the cap is reached, new
-   * `play()` calls are dropped. Default is unbounded (`Infinity`).
+   * managed by this {@apilink SoundManager}. Default is unbounded (`Infinity`).
+   * Channels can set their own cap with {@apilink SoundChannelOptions.maxConcurrentTracks}.
    */
   maxConcurrentTracks?: number;
+  /**
+   * What happens when a `maxConcurrentTracks` cap (channel or manager) is reached:
+   * `false` (default) drops the new play, `true` stops the oldest playing track in that
+   * scope to make room for it.
+   */
+  voiceStealing?: boolean;
+  /**
+   * Wire the master `input` to `output` through effects (e.g. a compressor), see {@apilink AudioBusBuilder}
+   */
+  onConnect?: AudioBusBuilder;
   /**
    * The sounds to manage, each optionally with a mix `volume` and a `channel`.
    *
@@ -87,6 +162,22 @@ export type ArraySoundsNames<T> = T extends readonly (infer E)[]
   : never;
 
 /**
+ * Wire a bus `input → output`, through the builder's effects if one is given
+ */
+function connectBus(input: GainNode, output: GainNode, audioContext: AudioContext, onConnect?: AudioBusBuilder) {
+  if (!onConnect) {
+    input.connect(output);
+    return;
+  }
+  try {
+    onConnect({ audioContext, input, output });
+  } catch (e) {
+    Logger.getInstance().error('SoundManager onConnect hook threw, falling back to the default audio graph', e);
+    input.connect(output);
+  }
+}
+
+/**
  * Smoothly move a gain to a value to avoid clicks, falls back to a direct set
  */
 function setGain(gain: AudioParam, value: number, audioContext: AudioContext) {
@@ -118,9 +209,13 @@ export class SoundChannel {
    */
   public readonly input: GainNode;
   /**
-   * Carries the channel volume and mute, connected to the manager's master output
+   * Carries the channel volume and mute, connected to the manager's master input
    */
   public readonly output: GainNode;
+  /**
+   * Maximum number of simultaneously playing tracks in this channel, default unbounded
+   */
+  public maxConcurrentTracks: number = Infinity;
   private _sounds: Sound[] = [];
   private _volume = 1;
   private _muted = false;
@@ -128,11 +223,18 @@ export class SoundChannel {
   constructor(
     public readonly name: string,
     public readonly audioContext: AudioContext,
-    master: AudioNode
+    master: AudioNode,
+    options?: Omit<SoundChannelOptions, 'name'>
   ) {
     this.input = audioContext.createGain();
     this.output = audioContext.createGain();
-    this.input.connect(this.output).connect(master);
+    this.output.connect(master);
+    connectBus(this.input, this.output, audioContext, options?.onConnect);
+    this.maxConcurrentTracks = options?.maxConcurrentTracks ?? Infinity;
+    if (options?.volume !== undefined) {
+      this._volume = clamp(options.volume, 0, 1);
+      this.output.gain.value = this._volume;
+    }
   }
 
   /**
@@ -140,6 +242,17 @@ export class SoundChannel {
    */
   public get sounds(): readonly Sound[] {
     return this._sounds;
+  }
+
+  /**
+   * Number of currently-playing tracks across the channel's sounds
+   */
+  public playingCount(): number {
+    let count = 0;
+    for (const sound of this._sounds) {
+      count += sound.playingCount();
+    }
+    return count;
   }
 
   /**
@@ -198,7 +311,7 @@ export class SoundChannel {
 
 export interface SoundManagerApi {
   setVolume(name: string, volume?: number): void;
-  play(name: string, volume?: number): Promise<boolean>;
+  play(name: string, options?: number | PlayOptions): Promise<boolean>;
   stop(name?: string): void;
   mute(name?: string): void;
   unmute(name?: string): void;
@@ -242,10 +355,10 @@ export class ChannelCollection<Channel extends string> implements SoundManagerAp
    * Play every sound in the channel, resolves to true if every sound played, false if any was
    * dropped by a concurrency cap.
    */
-  play(name: Channel, volume?: number): Promise<boolean> {
+  play(name: Channel, options?: number | PlayOptions): Promise<boolean> {
     const playing: Promise<boolean>[] = [];
     for (const sound of this.soundManager.getChannel(name).sounds) {
-      playing.push(this.soundManager.play(sound, volume));
+      playing.push(this.soundManager.play(sound, options as PlayOptions));
     }
     return Promise.all(playing).then((results) => results.every((r) => r));
   }
@@ -279,9 +392,17 @@ export class ChannelCollection<Channel extends string> implements SoundManagerAp
 export class SoundManager<Channel extends string, SoundName extends string> implements SoundManagerApi, Loadable<AudioBuffer[]> {
   private _audioContext = AudioContextFactory.create();
   /**
-   * Master gain every managed sound is mixed into, connected to the audio context destination
+   * Master bus input every channel (and channel-less sound) is mixed into
+   */
+  public readonly input: GainNode;
+  /**
+   * Master gain carrying the master volume and mute, connected to the audio context destination
    */
   public readonly output: GainNode;
+  /**
+   * Stop the oldest playing track to make room when a cap is reached instead of dropping the new play
+   */
+  public voiceStealing: boolean = false;
 
   private _sounds = new Map<string, Sound>();
   private _names = new Map<Sound, string>();
@@ -309,13 +430,21 @@ export class SoundManager<Channel extends string, SoundName extends string> impl
   public data!: AudioBuffer[];
 
   constructor(options: SoundManagerOptions<Channel, SoundName>) {
+    this.input = this._audioContext.createGain();
     this.output = this._audioContext.createGain();
     this.output.connect(this._audioContext.destination);
+    connectBus(this.input, this.output, this._audioContext, options.onConnect);
     this.volume = options.volume ?? 1;
     this.maxConcurrentTracks = options.maxConcurrentTracks ?? Infinity;
+    this.voiceStealing = options.voiceStealing ?? false;
     this.channel = new ChannelCollection(this);
     for (const channel of options.channels ?? []) {
-      this.getChannel(channel);
+      if (typeof channel === 'string') {
+        this.getChannel(channel);
+      } else {
+        const { name, ...channelOptions } = channel;
+        this._channels.set(name, new SoundChannel(name, this._audioContext, this.input, channelOptions));
+      }
     }
     if (Array.isArray(options.sounds)) {
       for (const s of options.sounds as readonly (Sound | SoundConfig)[]) {
@@ -389,7 +518,7 @@ export class SoundManager<Channel extends string, SoundName extends string> impl
   public getChannel(name: Channel): SoundChannel {
     let channel = this._channels.get(name);
     if (!channel) {
-      this._channels.set(name, (channel = new SoundChannel(name, this._audioContext, this.output)));
+      this._channels.set(name, (channel = new SoundChannel(name, this._audioContext, this.input)));
     }
     return channel;
   }
@@ -417,7 +546,7 @@ export class SoundManager<Channel extends string, SoundName extends string> impl
     this._soundChannel.delete(sound);
     mix.gain.disconnect();
     if (channel === undefined) {
-      mix.gain.connect(this.output);
+      mix.gain.connect(this.input);
     } else {
       const soundChannel = this.getChannel(channel);
       soundChannel._add(sound);
@@ -449,24 +578,65 @@ export class SoundManager<Channel extends string, SoundName extends string> impl
   }
 
   /**
-   * Play a sound, optionally setting its own volume. Resolves to false if the sound
-   * is unknown or dropped by {@apilink SoundManager.maxConcurrentTracks}. Muted sounds
-   * still play (silently) so they are audible mid-clip when unmuted.
+   * Play a sound with optional one-off {@apilink PlayOptions}. Resolves to false if the sound
+   * is unknown or dropped by a concurrency cap. Muted sounds still play (silently) so they are
+   * audible mid-clip when unmuted.
    */
-  public play(name: SoundName, volume?: number): Promise<boolean>;
-  public play(sound: Sound, volume?: number): Promise<boolean>;
-  public play(nameOrSound: SoundName | Sound, volume?: number): Promise<boolean> {
+  public play(name: SoundName, options?: number | PlayOptions): Promise<boolean>;
+  public play(sound: Sound, options?: number | PlayOptions): Promise<boolean>;
+  public play(nameOrSound: SoundName | Sound, options?: number | PlayOptions): Promise<boolean> {
+    const track = this.start(nameOrSound as Sound, options as PlayOptions);
+    return track ? track.done : Promise.resolve(false);
+  }
+
+  /**
+   * Like {@apilink SoundManager.play} but returns the {@apilink SoundTrack} synchronously, or
+   * `undefined` if the play was dropped.
+   */
+  public start(name: SoundName, options?: PlayOptions): SoundTrack | undefined;
+  public start(sound: Sound, options?: PlayOptions): SoundTrack | undefined;
+  public start(nameOrSound: SoundName | Sound, options?: PlayOptions): SoundTrack | undefined {
     const sound = this._resolve(nameOrSound);
     if (!sound) {
-      return Promise.resolve(false);
+      return undefined;
     }
 
-    if (this.playingCount() >= this.maxConcurrentTracks) {
+    const channel = this._soundChannel.get(sound);
+    if (channel && !this._makeRoom(channel.sounds, channel.playingCount(), channel.maxConcurrentTracks)) {
+      this._logger.warnOnce(
+        `SoundManager: channel "${channel.name}" maxConcurrentTracks (${channel.maxConcurrentTracks}) reached; dropping play of "${sound.name}".`
+      );
+      return undefined;
+    }
+    if (!this._makeRoom(this.getSounds(), this.playingCount(), this.maxConcurrentTracks)) {
       this._logger.warnOnce(`SoundManager: maxConcurrentTracks (${this.maxConcurrentTracks}) reached; dropping play of "${sound.name}".`);
-      return Promise.resolve(false);
+      return undefined;
     }
 
-    return sound.play(volume);
+    return sound.start(options);
+  }
+
+  /**
+   * Returns whether a new track fits under `max`, stopping the oldest playing track among
+   * `sounds` first when {@apilink SoundManager.voiceStealing} is on
+   */
+  private _makeRoom(sounds: readonly Sound[], playing: number, max: number): boolean {
+    if (playing < max) {
+      return true;
+    }
+    if (!this.voiceStealing) {
+      return false;
+    }
+    let oldest: SoundTrack | undefined;
+    for (const sound of sounds) {
+      for (const track of sound.instances) {
+        if (track.isPlaying() && (!oldest || track.id < oldest.id)) {
+          oldest = track;
+        }
+      }
+    }
+    oldest?.stop();
+    return playing - 1 < max;
   }
 
   public getSound(name: SoundName | AnyString): Sound | undefined;
@@ -646,10 +816,10 @@ export class SoundManager<Channel extends string, SoundName extends string> impl
  * ```
  */
 export function createSoundManager<
-  const S extends readonly (Sound<any> | SoundConfig<C[number], any>)[],
-  const C extends readonly string[] = readonly string[]
+  const S extends readonly (Sound<any> | SoundConfig<ChannelName<C[number]>, any>)[],
+  const C extends readonly (string | SoundChannelOptions<string>)[] = readonly string[]
 >(
-  options: SoundManagerOptions<C[number], ArraySoundsNames<S>> & { sounds: S; channels?: C }
-): SoundManager<C[number], ArraySoundsNames<S>> {
-  return new SoundManager<C[number], ArraySoundsNames<S>>(options);
+  options: SoundManagerOptions<ChannelName<C[number]>, ArraySoundsNames<S>> & { sounds: S; channels?: C }
+): SoundManager<ChannelName<C[number]>, ArraySoundsNames<S>> {
+  return new SoundManager<ChannelName<C[number]>, ArraySoundsNames<S>>(options);
 }
