@@ -1,0 +1,157 @@
+---
+title: Using Materials on Actors
+slug: /using-materials-on-actors
+section: Tutorials
+---
+import usecase2 from '!!raw-loader!./code/try-it1.ts';
+
+## What We Cover
+
+In this section, we'll explore the two primary ways to create materials in ExcaliburJS, dive into the material creation options for configuring textures and initial uniforms, and walk step-by-step through building a clean, reusable Actor class that encapsulates custom material logic..
+
+- Two Ways to Instantiate Materials: engine.graphicsContext.createMaterial(...) vs. new ex.Material(...).  
+
+- Material Creation Options: Setting initial uniforms, secondary textures (images), and passes during construction.  
+
+- Building a Reusable Actor: Encapsulating shader state and lifecycle methods inside a custom ex.Actor subclass.  
+
+## Creation Methods 
+
+Excalibur offers two ways to construct materials depending on whether you want the engine to manage context binding automatically or prefer explicit instance creation..
+
+### Engine `graphicsContext`
+
+This helper method automatically binds the engine's current WebGL graphics context behind the scenes:
+
+```ts
+import * as ex from 'excalibur';
+
+// In your scene setup or engine initialization
+const flashMaterial = engine.graphicsContext.createMaterial({
+  name: 'inline-flash',
+  fragmentSource: ex.glsl`
+    uniform sampler2D u_graphic;
+    in vec2 v_uv;
+    out vec4 fragColor;
+
+    void main() {
+      vec4 tex = texture(u_graphic, v_uv);
+      fragColor = vec4(1.0, 1.0, 1.0, tex.a);
+    }
+  `
+});
+```
+
+### Direct Instantiation
+
+When structuring modular game code—such as custom Actor classes or standalone shader libraries—you can instantiate `ex.Material` directly:
+
+```ts
+import * as ex from 'excalibur';
+
+const dissolveMaterial = new ex.Material({
+  name: 'direct-dissolve',
+  graphicsContext: engine.graphicsContext, // Explicit context reference
+  fragmentSource: ex.glsl`
+    uniform sampler2D u_graphic;
+    uniform float u_progress;
+    in vec2 v_uv;
+    out vec4 fragColor;
+
+    void main() {
+      vec4 tex = texture(u_graphic, v_uv);
+      // Simple vertical threshold dissolve
+      if (v_uv.y < u_progress) {
+        discard;
+      }
+      fragColor = tex;
+    }
+  `
+});
+```
+
+## Deep Dive: Material Creation Options
+
+When calling `createMaterial()` or `new ex.Material()`, you can configure much more than just fragmentSource. You can supply initial uniforms, secondary texture maps, and pipeline passes right at instantiation time.
+
+| Property | Type | Description |
+|:---------|:----:|:----:|
+| name                  | string                         |  A unique identifier for debugging and DevTool inspection.                               |
+| fragmentSource        | string                         |  The GLSL ES 3.00 shader source (always wrap with ex.glsl)                               |
+| vertexSource          | string(optional)               |  Custom vertex shader source if overriding standard Excalibur vertex calculations        |
+| images                | `Record<string, ImageSource>`    |  Secondary textures/samplers (e.g., normal maps, noise textures, LUTs) bound to uniforms.|
+| uniforms              | `Record<string, UniformValue>`   |  Initial default uniform values (floats, vectors, colors) applied on creation.           |
+| passes                | ShaderPass[]                   |  Array of multi-pass effects (e.g., GlowEffect, BlurEffect) bound to the material.       |
+| `padding` | number | Pixel expansion added around graphic bounds to prevent multi-pass effect clipping|
+
+:::note
+Note on Multi-Pass Effects (passes) and (padding): While you can register passes when defining your material options, we will cover the ShaderPipeline architecture, ShaderPass execution,padding, and multi-pass effects (like BlurEffect and GlowEffect) in detail in a later dedicated section of this tutorial series.
+:::
+
+## Building a Material-Enabled `Enemy` Class
+
+Rather than assigning materials inline everywhere, encapsulation keeps your game logic clean. Let's create an Enemy actor that applies a damage flash effect using material.update() whenever it takes a hit.
+
+```ts
+import * as ex from 'excalibur';
+
+export class Enemy extends ex.Actor {
+  private _hitMaterial!: ex.Material;
+  private _flashProgress: number = 0;
+
+  onInitialize(engine: ex.Engine): void {
+    // 1. Construct the graphic
+    const graphic = new ex.Rectangle({
+      width: 64,
+      height: 64,
+      color: ex.Color.Red
+    });
+    this.graphics.use(graphic);
+
+    // 2. Instantiate the material using new ex.Material
+    this._hitMaterial = new ex.Material({
+      name: 'enemy-hit-flash',
+      graphicsContext: engine.graphicsContext,
+      fragmentSource: ex.glsl`
+        uniform sampler2D u_graphic;
+        uniform float u_flash_amount;
+        in vec2 v_uv;
+        out vec4 fragColor;
+
+        void main() {
+          vec4 tex = texture(u_graphic, v_uv);
+          // Tint toward solid white based on u_flash_amount
+          vec3 flashColor = mix(tex.rgb, vec3(1.0), u_flash_amount);
+          fragColor = vec4(flashColor, tex.a);
+        }
+      `
+    });
+
+    // 3. Assign material to graphics
+    this.graphics.material = this._hitMaterial;
+  }
+
+  // Call this method whenever the enemy takes damage
+  public takeDamage(): void {
+    this._flashProgress = 1.0;
+  }
+
+  onPreUpdate(engine: ex.Engine, deltaMs: number): void {
+    // Decay flash amount over time
+    if (this._flashProgress > 0) {
+      this._flashProgress = Math.max(0, this._flashProgress - deltaMs / 200);
+
+      // Update shader uniform safely in the update loop
+      this._hitMaterial.update((shader) => {
+        shader.setUniformFloat('u_flash_amount', this._flashProgress);
+      });
+    }
+  }
+}
+```
+
+## Try It in the Playground
+
+Click on the rectangle in the interactive editor below to trigger the damage flash on the custom Actor class:
+
+<PlaygroundEmbed code={usecase2} />

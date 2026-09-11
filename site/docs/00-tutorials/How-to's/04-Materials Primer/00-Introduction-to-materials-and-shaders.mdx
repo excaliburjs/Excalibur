@@ -1,0 +1,100 @@
+---
+title: Materials Primer
+slug: /Introduction-to-materials-and-shaders
+section: Tutorials
+---
+import usecase0 from '!!raw-loader!./code/basic-example.ts';
+import usecase1 from '!!raw-loader!./code/try-it0.ts';
+import lit from './images/literal.png';
+
+## What This Guide Covers (and What It Doesn't)
+
+This tutorial series is a practical, recipe-driven guide to using Excalibur's material system and shader pipelines in your games.
+
+What we will cover:
+
+- How to create and assign custom Material instances to Actors and Graphics.
+- Passing live game state into shaders using dynamic uniforms (floats, vectors, colors, textures).
+- How ex.glsl abstracts alpha premultiplication so you can output standard RGBA colors without black fringe artifacts.
+- Building multi-pass post-processing chains with ShaderPipeline (e.g., GlowEffect, BlurEffect, and custom passes).
+- Live-debugging and tweaking materials using the Excalibur DevTool overlay.
+
+What we will NOT cover:
+
+- GLSL Math & Language Fundamentals: We won't be teaching vector math, trigonometry, or general GLSL syntax from scratch. If you need a refresher on GLSL syntax, check out The Book of Shaders.
+- Low-level WebGL Plumbing: You won't need to write vertex buffer objects, compile raw WebGL shader programs, or manage matrix transforms. Excalibur abstracts this away entirely.
+
+## Introduction
+
+Materials let you change how any Actor or Graphic looks on screen. Whether you want an enemy to flash white when taking damage, add a subtle outline to interactive items, or make water wobble, Excalibur's material system handles the heavy lifting.
+
+You don't need to be a WebGL expert or graphics developer to use materials as Excalibur provides simple helpers to write custom visual effects in just a few lines of code.
+
+## 3-Step Shader Quickstart
+
+To create a custom visual effect on an Actor, you only need three steps:
+
+1. Write your fragment code using ex.glsl.
+2. Create a material using engine.graphicsContext.createMaterial().
+3. Assign it to actor.graphics.material.
+
+## Quick Example: Hit Flash Effect
+Here is how to create a simple material that flashes an Actor solid white:
+
+<PlaygroundEmbed code={usecase0} />
+
+## Excalibur Built-In Attributes and Uniforms
+
+When writing a custom fragment shader, Excalibur automatically binds key variables so you don't have to write matrix math or manual texture setup.  There are more than what's listed here, please see official docs for full list. [Built in Uniforms/Attributes](/docs/materials#material-built-in-uniforms)
+
+| Property | Catagory | Type 
+|:---------|:----:|:----:|
+| v_uv        | varying    |  `vector`    |
+| v_screenuv  | varying    |  `vector`    |
+| u_graphic   | uniform    |  `sampler2d` |
+| u_opacity   | uniform    |  `number`    |
+| u_time_ms   | uniform    |  `number`    |
+
+:::note
+Excalibur handles vertex positions, camera matrices, and drawing transforms automatically behind the scenes. You only need to focus on fragment color calculations in your shader code!
+:::
+
+## The `ex.glsl` Tagged Template Literal
+
+When defining shader source code in Excalibur, you can wrap your string in the `ex.glsl` tagged template helper:
+
+```typescript
+const myShader =  ex.glsl`
+    uniform sampler2D u_graphic;
+    in vec2 v_uv;
+    out vec4 fragColor;
+
+    void main() {
+      vec4 tex = texture(u_graphic, v_uv);
+      // Output standard straight RGBA—ex.glsl handles premultiplication!
+      fragColor = vec4(tex.rgb, tex.a);
+    }
+  `;
+```
+
+### What ex.glsl Does Behind the Scenes
+
+#### Automatic Premultiplied Alpha Output: 
+
+Standard WebGL textures require premultiplied alpha (multiplying RGB by Alpha) to render transparency correctly. Writing fragColor = vec4(rgb, a) normally produces dark halos around translucent edges. The ex.glsl parser processes your GLSL code at runtime, automatically transforming standard RGBA outputs into correctly premultiplied colors.
+
+#### Boilerplate Injections: 
+
+It handles default GLSL precision definitions (precision mediump float;) and internal shader preamble requirements so you do not have to write repetitive WebGL setup code.
+
+#### Editor Syntax Highlighting
+
+Using ex.glsl allows popular code editor extensions (like VS Code's Comment Tagged Templates) to recognize the string block as true GLSL code, providing real-time syntax highlighting and autocomplete.
+
+<img src={lit} alt="Literal Highlighting" style={{ width: "700px" }} />
+
+## Try It in the Playground
+
+Tweak the color mix values in the live editor below to see how the shader modifies the sprite instantly:
+
+<PlaygroundEmbed code={usecase1} />

@@ -1,0 +1,183 @@
+---
+title: Shader Pipeline and Effects
+slug: /shader-pipeline-and-effects
+section: Tutorials
+---
+import usecase3 from '!!raw-loader!./code/try-it2.ts';
+
+## What We'll Cover
+
+Single fragment shaders are great for simple color overrides or hit-flashes, but complex visual effects—like a bloom glow, multi-stage radial blur, or post-processing chains—require executing multiple shader passes in sequence.
+
+In this module, we'll cover Excalibur's multi-pass architecture:
+
+- Understanding ShaderPipeline: How framebuffers pass rendered pixel data from one stage to the next (source → pass0 → fb0 → pass1 → destination).
+- Using Built-In Effects: Applying ready-to-use pipeline effects like BlurEffect and GlowEffect.
+- Updating Pass Uniforms: Modifying uniforms on individual ShaderPass instances at runtime.
+- Preventing Effect Clipping: Using material padding to prevent glows and blurs from cutting off at sprite borders.
+
+### What is a ShaderPipeline?
+
+A ShaderPipeline manages a chain of sequential ShaderPass operations. Instead of rendering directly to the canvas in a single step, the output of each pass is stored in an offscreen framebuffer and passed as the input texture (u_graphic) to the next pass.
+
+## Built-In Pipeline Effects
+
+Excalibur includes pre-built multi-pass effects that you can plug directly into a Material using the passes array.
+
+1. `GlowEffect`
+
+Creates a soft outer or inner radial aura around transparent or solid graphics.
+
+```ts
+import * as ex from 'excalibur';
+
+const glow = new ex.GlowEffect({
+  graphicsContext: engine.graphicsContext,
+  color: ex.Color.Cyan,
+  radius: 8
+});
+
+const glowingMaterial = new ex.Material({
+  name: 'cyan-glow-material',
+  graphicsContext: engine.graphicsContext,
+  passes: [glow],
+  padding: 16 // Prevent glow clipping!
+});
+
+actor.graphics.material = glowingMaterial;
+```
+2. BlurEffect
+
+Applies a multi-pass gaussian or box blur across an Actor or Graphic.
+
+```ts
+import * as ex from 'excalibur';
+
+const blur = new ex.BlurEffect({
+  graphicsContext: engine.graphicsContext,
+  radius: 5
+});
+
+const blurredMaterial = new ex.Material({
+  name: 'blur-material',
+  graphicsContext: engine.graphicsContext,
+  passes: [blur],
+  padding: 10
+});
+
+actor.graphics.material = blurredMaterial;
+```
+
+## Material `padding`: Preventing Border Clipping
+
+When applying spatial effects like glows, blurs, or outlines, the generated effect often extends beyond the original pixel bounding box of the graphic.
+
+By default, Excalibur renders graphics strictly within their geometric bounds. Without padding, an 8px outer glow will be harshly clipped at the sprite's edge.
+
+Always specify a padding value (in pixels) on MaterialOptions equal to or greater than your effect's blur or glow radius:
+
+```ts
+const paddedMaterial = new ex.Material({
+  graphicsContext: engine.graphicsContext,
+  passes: [glowEffect],
+  padding: 16 // Expands render target bounds by 16px on all sides
+});
+```
+
+## Updating Pass Uniforms at Runtime
+
+Because each ShaderPass maintains its own internal material and shader state, you can update pass uniforms dynamically in response to gameplay events.
+
+```ts
+import * as ex from 'excalibur';
+
+export class MagicSword extends ex.Actor {
+  private _glowEffect!: ex.GlowEffect;
+  private _material!: ex.Material;
+
+  onInitialize(engine: ex.Engine): void {
+    // 1. Create the pass instance
+    this._glowEffect = new ex.GlowEffect({
+      graphicsContext: engine.graphicsContext,
+      color: ex.Color.Yellow,
+      radius: 0 // Start uncharged
+    });
+
+    // 2. Attach pass to the material
+    this._material = new ex.Material({
+      name: 'sword-glow',
+      graphicsContext: engine.graphicsContext,
+      passes: [this._glowEffect],
+      padding: 20
+    });
+
+    this.graphics.material = this._material;
+  }
+
+  // Drive glow intensity dynamically based on sword charge level (0.0 to 1.0)
+  public setChargeLevel(chargeRatio: number): void {
+    // Update built-in effect properties directly
+    this._glowEffect.radius = Math.floor(chargeRatio * 16);
+
+    // Or update custom pass uniforms directly via shaderPass.uniforms
+    this._glowEffect.uniforms.u_intensity = chargeRatio;
+    this._glowEffect.uniforms.u_glowColor = ex.Color.fromHex('#ff0055');
+  }
+}
+```
+
+## Custom ShaderPass Creation & Uniform Updates
+
+If you need a custom multi-step pipeline stage (for example, a chromatic aberration or custom wave distortion pass), you can instantiate ex.ShaderPass directly and define initial uniforms.  You can then read or write custom pass values directly through shaderPass.uniforms at any point in your game loop.  
+
+```ts
+import * as ex from 'excalibur';
+
+// 1. Instantiate the custom ShaderPass with default uniforms
+const chromaticPass = new ex.ShaderPass({
+  graphicsContext: engine.graphicsContext,
+  uniforms: {
+    u_shift: 0.005,
+    u_colorTint: ex.Color.Red
+  },
+  fragmentSource: ex.glsl`
+    uniform sampler2D u_graphic; // Inputs pixel data from previous pipeline step
+    uniform float u_shift;
+    uniform vec4 u_colorTint;
+
+    in vec2 v_uv;
+    out vec4 fragColor;
+
+    void main() {
+      // Sample RGB channels with offset to create chromatic aberration
+      float r = texture(u_graphic, v_uv + vec2(u_shift, 0.0)).r;
+      float g = texture(u_graphic, v_uv).g;
+      float b = texture(u_graphic, v_uv - vec2(u_shift, 0.0)).b;
+      float a = texture(u_graphic, v_uv).a;
+      vec4 color = vec4(r, g, b, a);
+      fragColor = color * u_colorTint;
+    }
+  `
+});
+
+// 2. Attach pass to a material
+const aberrationMaterial = new ex.Material({
+  name: 'chromatic-aberration-material',
+  graphicsContext: engine.graphicsContext,
+  passes: [chromaticPass],
+  padding: 10 // Prevent clipping around edges
+});
+
+actor.graphics.material = aberrationMaterial;
+
+// 3. Update pass uniforms directly in an update loop or event listener
+actor.onPreUpdate = (engine, deltaMs) => {
+  // Directly write to pass uniforms using shaderPass.uniforms
+  chromaticPass.uniforms.u_shift = 0.01 * Math.sin(engine.clock.elapsed() / 200);
+  chromaticPass.uniforms.u_colorTint = ex.Color.Cyan;
+};
+```
+
+## Try it in the Playground!
+
+<PlaygroundEmbed code={usecase3} />

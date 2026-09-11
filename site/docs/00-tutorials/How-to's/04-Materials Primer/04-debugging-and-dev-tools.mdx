@@ -1,0 +1,57 @@
+---
+title: Debugging and Dev Tools
+slug: /debugging-and-dev-tools
+section: Tutorials
+---
+
+## What We Cover
+
+Writing shaders directly inside string literals can make debugging tricky—a missing semicolon, an undeclared uniform, or an unhandled alpha channel can turn your graphics solid black or fail to render entirely.
+
+In this final section, we'll cover how to inspect, live-edit, and troubleshoot materials using the official browser extension and WebGL compilation logs:
+
+- Inspecting Materials via the Excalibur Browser Extension: Live property inspection, uniform tweaking, and pass inspection.
+- Reading GLSL Compilation & Link Errors: Interpreting WebGL error logs directly in your browser console.
+- Troubleshooting Common Material Artifacts: Quick-reference fixes for black boxes, invisible actors, clipped borders, and dark halos.
+
+## Live Inspection with the Excalibur DevTools Extension
+
+Rather than writing temporary debugging code or toggling values manually in TypeScript, you can use the official Excalibur DevTools Extension (available for Chrome and Firefox). It hooks directly into your browser's Developer Tools panel to inspect your active engine instance, scene hierarchy, actors, and material state in real time.
+
+## Setting Up the Extension
+
+1. Install the extension from the Chrome Web Store or Firefox Add-ons.
+2. Open your Excalibur game in the browser and open Developer Tools (F12 or Cmd+Option+I).
+3. Select the Excalibur tab in the devtools panel.
+
+### Key Material Debugging Features
+
+- Material Inspection: Select any Actor in the scene graph to view its attached Material by name, confirm context bindings, and verify whether materials are applied at the Actor or Graphic level.
+- Live Uniform Tweakables: Inspect active uniform values (floats, vec2, colors) and edit them live via sliders and color pickers to test visual thresholds without recompiling or reloading the browser.
+- ShaderPass & Pipeline Inspector: Drill down into multi-pass ShaderPipeline chains to inspect individual ShaderPass stages, helping you isolate exactly which pass in an effect chain is producing unwanted artifacts.
+- Render Timings: Monitor GPU pass execution times to identify heavy fragment shaders or overly complex multi-pass setups causing frame drops.
+
+## Reading GLSL Compilation & Link Errors
+
+When a fragment shader contains syntax errors or invalid uniform declarations, WebGL fails to compile the shader program. Excalibur catches these errors during material creation and logs formatted GLSL error reports directly to the browser console.
+
+### Typical Console Output
+
+```sh
+[Excalibur] Error compiling shader "enemy-hit-flash":
+1: #version 300 es
+2: precision mediump float;
+3: uniform sampler2D u_graphic;
+4: out vec4 fragColor;
+5: void main() {
+6:   fragColor = vec4(1.0) // ERROR: Missing semicolon!
+7: }
+
+WebGL: INVALID_OPERATION: useProgram: program not valid
+```
+
+## How to Debug Compilation Failures
+
+1. Check the Line Number: Excalibur prints the entire injected GLSL source with numbered lines in the console. Match the line number in the error message directly against your template string.
+
+2. Check Uniform Declarations: If material.update() or shaderPass.uniforms updates a value without error but nothing changes visually, verify that the uniform name in GLSL matches your TypeScript property key exact case.

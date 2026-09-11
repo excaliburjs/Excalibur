@@ -1,0 +1,116 @@
+---
+title: Uniforms and Runtime Updates
+slug: /uniforms-and-runtime-updates
+section: Tutorials
+---
+
+## What We Cover
+
+While Excalibur automatically provides built-in variables like coordinates (v_uv) and engine time (u_time_ms), custom uniforms allow you to pass your own gameplay state into GLSL shaders—such as an Actor's health percentage, spell charge intensity, or custom tint color.
+
+- Understanding Uniforms: Passing dynamic values from JavaScript/TypeScript into GLSL shaders.
+- Updating Materials Safely: Using `material.update((shader) => { ... })`
+- Common Uniform Types: Working with floats, vectors, colors, and textures.
+- Game-Driven Example: Building a health-bar dissolve effect driven by gameplay events.
+
+## What is a Uniform?
+
+While inputs like v_uv change for every pixel across a sprite, a uniform is a global variable that remains constant for the entire graphic during a single draw call. Think of uniforms as public variables on your shader that JavaScript can write to at any time.
+
+### Supported Uniform Types
+
+Excalibur provides type-safe setter methods on the underlying Shader instance inside material.update():
+
+| Type | GLSL Type | Excalibur Setter 
+|:---------|:----:|:----:|
+| Boolean         | bool        |  trySetUniformBoolean       |
+| Number          | int         |  trySetUniformInt           |
+| Number Array    | int[]       |  trySetUniformIntArray      |
+| Float           | float       |  trySetUniformFloat         |
+| Float Array     | float[]     |  trySetUniformFloatArray    |
+| Float32Array    | float[]     |  trySetUniformBuffer        |
+| Matrix          | mat         |  trySetUniformMatrix        |
+| Vector          | vec2        |  trySetUniformFloatVector   |
+| Vector3         | vec3        |  trySetUniformFloatVector3  |
+| Vector4         | vec4        |  trySetUniformFloatVector4  |
+| Color           | vec4        |  trySetUniformFloatColor    |
+| Texture/Image   | sampler2d   |  setTexture                 |
+
+### The `material.update()` Pattern
+
+To modify uniforms safely without breaking WebGL state, wrap your updates in `material.update():`
+
+```ts
+// Inside an Actor's onPreUpdate or event listener:
+myMaterial.update((shader:ex.Shader) => {
+  // Pass a single float value
+  shader.setUniformFloat('u_myint', myInt);
+
+  // Pass an Excalibur Color directly as a vec4
+  shader.setUniformColor('u_glow_color', ex.Color.Cyan);
+});
+```
+
+### Example: Gameplay-Driven Dissolve Effect
+
+Here is a practical example where taking damage directly drives a u_health uniform to burn away an Actor's graphic:
+
+```ts
+import * as ex from 'excalibur';
+
+export class BossEnemy extends ex.Actor {
+  private _dissolveMaterial!: ex.Material;
+  public maxHealth: number = 100;
+  public currentHealth: number = 100;
+
+  onInitialize(engine: ex.Engine): void {
+    this.graphics.use(new ex.Rectangle({
+      width: 100,
+      height: 100,
+      color: ex.Color.Red
+    }));
+
+    // Construct material with a custom health threshold uniform
+    this._dissolveMaterial = new ex.Material({
+      name: 'boss-dissolve',
+      graphicsContext: engine.graphicsContext,
+      fragmentSource: ex.glsl`
+        uniform sampler2D u_graphic;
+        uniform float u_health; // Custom gameplay uniform (1.0 = full, 0.0 = dead)
+        
+        in vec2 v_uv;
+        out vec4 fragColor;
+
+        void main() {
+          vec4 tex = texture(u_graphic, v_uv);
+
+          // Discard pixels vertically as health drops
+          if (v_uv.y > u_health) {
+            discard;
+          }
+
+          fragColor = tex;
+        }
+      `
+    });
+
+    this.graphics.material = this._dissolveMaterial;
+    this.updateHealthUniform();
+  }
+
+  // Call whenever health changes
+  public takeDamage(amount: number): void {
+    this.currentHealth = Math.max(0, this.currentHealth - amount);
+    this.updateHealthUniform();
+  }
+
+  private updateHealthUniform(): void {
+    const healthPercent = this.currentHealth / this.maxHealth;
+
+    // Push gameplay state directly into the shader
+    this._dissolveMaterial.update((shader) => {
+      shader.setUniformFloat('u_health', healthPercent);
+    });
+  }
+}
+```
