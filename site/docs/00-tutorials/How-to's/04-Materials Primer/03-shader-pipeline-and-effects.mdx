@@ -98,16 +98,17 @@ export class MagicSword extends ex.Actor {
   onInitialize(engine: ex.Engine): void {
     // 1. Create the pass instance
     this._glowEffect = new ex.GlowEffect({
-      graphicsContext: engine.graphicsContext,
-      color: ex.Color.Yellow,
-      radius: 0 // Start uncharged
+      graphicsContext: engine.graphicsContext as ex.ExcaliburGraphicsContextWebGL,
+      color: Color.Cyan,
+      strength: 3,
+      intensity: 2,
     });
 
     // 2. Attach pass to the material
     this._material = new ex.Material({
       name: 'sword-glow',
       graphicsContext: engine.graphicsContext,
-      passes: [this._glowEffect],
+      passes: this._glowEffect,
       padding: 20
     });
 
@@ -116,12 +117,9 @@ export class MagicSword extends ex.Actor {
 
   // Drive glow intensity dynamically based on sword charge level (0.0 to 1.0)
   public setChargeLevel(chargeRatio: number): void {
-    // Update built-in effect properties directly
-    this._glowEffect.radius = Math.floor(chargeRatio * 16);
-
     // Or update custom pass uniforms directly via shaderPass.uniforms
-    this._glowEffect.uniforms.u_intensity = chargeRatio;
-    this._glowEffect.uniforms.u_glowColor = ex.Color.fromHex('#ff0055');
+    this._glowEffect.intensity = chargeRatio;
+    this._glowEffect.color = ex.Color.fromHex("#ff0055");
   }
 }
 ```
@@ -137,7 +135,7 @@ import * as ex from 'excalibur';
 const chromaticPass = new ex.ShaderPass({
   graphicsContext: engine.graphicsContext,
   uniforms: {
-    u_shift: 0.005,
+    u_shift: 0.05,
     u_colorTint: ex.Color.Red
   },
   fragmentSource: ex.glsl`
