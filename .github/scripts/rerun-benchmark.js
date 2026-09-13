@@ -53,10 +53,10 @@ module.exports = async ({ github, context, core }) => {
   const sha = pr.head.sha.substring(0, 7);
   let body;
   if (run.status !== 'completed') {
-    body = `The benchmark for ${sha} is still running: [see the run](${run.html_url}). Results land in its job summary.`;
+    body = `The benchmark for ${sha} is still running: [see the run](${run.html_url}). Results are posted to the benchmark comment on this PR when it completes.`;
   } else {
     await github.rest.actions.reRunWorkflow({ ...repo, run_id: run.id });
-    body = `🚀 Re-running the benchmark for ${sha} at the request of @${login}: [see the run](${run.html_url}). Results land in its job summary.`;
+    body = `🚀 Re-running the benchmark for ${sha} at the request of @${login}: [see the run](${run.html_url}). Results are posted to the benchmark comment on this PR when it completes (charts in the run's job summary and artifact).`;
   }
   await react(github, repo, comment.id, 'rocket');
   await github.rest.issues.createComment({ ...repo, issue_number: pr.number, body });

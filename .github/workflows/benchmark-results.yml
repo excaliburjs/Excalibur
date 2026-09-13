@@ -1,0 +1,61 @@
+name: Benchmark Results
+
+# Posts the results of a pull request's Benchmark run (benchmark.yml) as one sticky comment on the PR, updated in place
+# on every completed run (including `/benchmark` re-runs). Push and workflow_dispatch Benchmark runs are not commented.
+#
+# This is the privileged half of the benchmark and it never checks out or runs PR code: it runs from the default branch
+# on `workflow_run`, with a token scoped to reading the run's artifact and writing PR comments. The Benchmark run
+# executed the PR's code with the PR's own copy of benchmark.yml, so its artifact is untrusted input in every respect
+# (name, size, bytes). post-benchmark-comment.js takes the PR, commit and run url from the event payload only, picks the
+# artifact by API metadata before downloading a byte, extracts only results.json under a size cap, and rebuilds the
+# table from an allowlist of numbers and strictly shaped identifiers. No string produced by the code under test is
+# ever echoed into the comment; charts and full error text stay in the run's job summary and artifact.
+#
+# Nothing from the workflow_run payload is interpolated into a shell step (head_branch, titles, commit messages and
+# actor names are attacker controlled), the script reads it from the github-script context instead.
+#
+# workflow_run workflows only run from the default branch, so this is active once the file is on main. To exercise it
+# before a new PR (or to re-post a run), collaborators can "Run workflow" with the id of an existing Benchmark run; the
+# script re-fetches the run and applies the same checks.
+
+on:
+  workflow_run:
+    workflows: [Benchmark]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'Id of the pull_request Benchmark run to (re)post'
+        required: true
+
+# Serialize events for the same PR branch so two runs can't race on the comment (the script also refuses to let an
+# older run overwrite a newer run's results)
+concurrency:
+  group: benchmark-results-${{ github.event.workflow_run.head_repository.full_name || 'manual' }}-${{ github.event.workflow_run.head_branch || inputs.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  comment:
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.event == 'pull_request' &&
+       contains(fromJSON('["success", "failure"]'), github.event.workflow_run.conclusion))
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read # checkout of the script from the default branch
+      actions: read # list and download the Benchmark run's artifact
+      pull-requests: write # create / update the results comment
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/scripts
+      - name: Post benchmark results
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        env:
+          RESULTS_RUN_ID: ${{ github.event.workflow_run.id || inputs.run_id }}
+        with:
+          script: |
+            const script = require('./.github/scripts/post-benchmark-comment.js');
+            await script({ github, context, core, exec });
