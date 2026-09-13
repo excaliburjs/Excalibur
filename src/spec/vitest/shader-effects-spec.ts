@@ -54,6 +54,14 @@ describe('A BloomEffect', () => {
     bloom.dispose();
   });
 
+  it('exposes every internal pass shader via getShaders()', () => {
+    const bloom = new ex.BloomEffect({ graphicsContext: context });
+    const shaders = bloom.getShaders();
+    expect(shaders).toHaveLength(4);
+    expect(shaders.every((shader) => shader instanceof ex.Shader)).toBe(true);
+    bloom.dispose();
+  });
+
   it('brightens pixels above the threshold', () => {
     // 60% gray, luminance 0.6 passes a 0.5 threshold everywhere
     source.clear(new ex.Color(153, 153, 153, 1));
@@ -217,6 +225,14 @@ describe('A BlurEffect', () => {
     blur.dispose();
   });
 
+  it('exposes every internal pass shader via getShaders()', () => {
+    const blur = new ex.BlurEffect({ graphicsContext: context });
+    const shaders = blur.getShaders();
+    expect(shaders).toHaveLength(2);
+    expect(shaders.every((shader) => shader instanceof ex.Shader)).toBe(true);
+    blur.dispose();
+  });
+
   it('changing strength changes the blur output', () => {
     const blur = new ex.BlurEffect({ graphicsContext: context, strength: 0 });
 
@@ -284,6 +300,14 @@ describe('A GlowEffect', () => {
     expect(glow.color).toEqual(ex.Color.Magenta);
     expect(glow.strength).toBe(1);
     expect(glow.intensity).toBe(0.5);
+    glow.dispose();
+  });
+
+  it('exposes every internal pass shader via getShaders()', () => {
+    const glow = new ex.GlowEffect({ graphicsContext: context });
+    const shaders = glow.getShaders();
+    expect(shaders).toHaveLength(4);
+    expect(shaders.every((shader) => shader instanceof ex.Shader)).toBe(true);
     glow.dispose();
   });
 

@@ -1,6 +1,6 @@
 import type { ExcaliburGraphicsContextWebGL } from '../excalibur-graphics-context-webgl';
 import { Framebuffer } from '../framebuffer';
-import type { UniformDictionary } from '../shader';
+import type { Shader, UniformDictionary } from '../shader';
 import type { ShaderPassDestination, ShaderPassSource } from './shader-pass';
 import { getSourceDimensions, ShaderPass } from './shader-pass';
 
@@ -16,7 +16,7 @@ export interface ShaderPipelineProcessOptions {
    */
   uniforms?: UniformDictionary;
   /**
-   * Additional named sources bound to every pass after its own (`u_image`, `u_original`, ...),
+   * Additional named sources bound to every pass after its own (`u_image`, `u_graphic`, `u_original`, ...),
    * each record key is bound as the sampler uniform of that name.
    *
    * Materials use this to flow their `images` into the pipeline. Reserved pass source names
@@ -53,6 +53,12 @@ export function mergePassSources(
 export interface ShaderPipelineLike {
   process(source: ShaderPassSource, destination: ShaderPassDestination, options?: ShaderPipelineProcessOptions): void;
   dispose?(): void;
+  /**
+   * Every compiled {@apilink Shader} this pipeline drives, in pass order. Optional — a pass graph
+   * that can't enumerate its own passes may omit this; {@apilink Material.update} falls back to
+   * just the composite shader when it's missing.
+   */
+  getShaders?(): Shader[];
 }
 
 /**
@@ -67,8 +73,9 @@ export interface ShaderPipelineOptions {
    */
   name?: string;
   /**
-   * Ordered passes, each one reads the previous pass's output as `u_image` (the pipeline source
-   * for the first pass) and can read the original pipeline source as `u_original`
+   * Ordered passes, each one reads the previous pass's output as `u_image` (`u_graphic` is
+   * accepted as a synonym; the pipeline source for the first pass) and can read the original
+   * pipeline source as `u_original`
    */
   passes: ShaderPassLike[];
 }
@@ -139,7 +146,7 @@ export class ShaderPipeline implements ShaderPipelineLike {
       }
 
       pass.draw({
-        sources: mergePassSources({ u_image: previous, u_original: source }, extraSources),
+        sources: mergePassSources({ u_image: previous, u_graphic: previous, u_original: source }, extraSources),
         destination: target,
         uniforms,
         elapsed
@@ -147,6 +154,13 @@ export class ShaderPipeline implements ShaderPipelineLike {
 
       previous = target ?? previous;
     }
+  }
+
+  /**
+   * Every pass's compiled {@apilink Shader}, in pass order
+   */
+  public getShaders(): Shader[] {
+    return this.passes.map((pass) => pass.getShader());
   }
 
   /**
