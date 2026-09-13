@@ -264,8 +264,7 @@ export class ImageSource implements Loadable<HTMLImageElement> {
       // Otherwise chrome will throw still Image.decode() failures for large textures
       const loadedFuture = new Future<void>();
       image.onload = () => loadedFuture.resolve();
-      image.onerror = () =>
-        loadedFuture.reject(new Error(`the response could not be decoded as an image, received ${contentType}`));
+      image.onerror = () => loadedFuture.reject(new Error(`the response could not be decoded as an image, received ${contentType}`));
       image.src = url;
       image.setAttribute('data-original-src', this.path);
 
