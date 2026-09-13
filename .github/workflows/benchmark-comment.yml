@@ -5,8 +5,8 @@ name: Benchmark Comment
 # This is the only privileged part of the benchmark and it never checks out or runs PR code: the script comes from the
 # default branch and the reply is built from API data only, never from the comment text. Re-running the PR's own
 # pull_request run (instead of dispatching a run on the default branch with the PR's sha) keeps PR code in the
-# pull_request context: read-only token and an isolated cache scope, so it can't poison caches used on main. Results
-# stay in that run's job summary; no write token ever handles output produced by the code under test.
+# pull_request context: read-only token and an isolated cache scope, so it can't poison caches used on main. When the
+# re-run completes, benchmark-results.yml updates the sticky results comment on the PR from validated numbers only.
 # issue_comment workflows only run from the default branch, so this is active once the file is on main.
 
 on:
