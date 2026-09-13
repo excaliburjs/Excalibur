@@ -422,7 +422,7 @@ function validateExtras(rawExtras) {
 
 const fmt = (v) => (Number.isFinite(v) ? v.toFixed(2) : '-');
 const fmtDelta = (v) => (Number.isFinite(v) ? `${v > 0 ? '+' : ''}${v.toFixed(1)}%` : '-');
-const cell = (s) => String(s).replace(/\|/g, '\\|');
+const cell = (s) => String(s).replace(/\\/g, '\\\\').replace(/\|/g, '\\|');
 const spread = (side) => (side.runs > 1 ? ` <sub>(${fmt(side.minMedian)}–${fmt(side.maxMedian)})</sub>` : '');
 const extrasText = (pairs) => pairs.map(([k, v]) => `${k}=${Number.isInteger(v) ? v : v.toFixed(2)}`).join(', ');
 
