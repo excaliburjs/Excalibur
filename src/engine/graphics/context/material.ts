@@ -171,22 +171,16 @@ export interface MaterialImageOptions {
  */
 export interface MaterialContext {
   /**
-   * The material's declarative uniforms, the same dictionary as `material.uniforms` — changes
-   * reach the composite shader and, when `passes` is used, are forwarded to every pass on the
-   * next draw, consistent with any other declarative uniform.
+   * The material's uniforms, the same dictionary as `material.uniforms` changes
+   * reach the composite shader and, when `passes` is used, are forwarded to every pass
    */
   uniforms: UniformDictionary;
   /**
-   * Every compiled {@apilink Shader} this material drives, in order: the composite shader first,
-   * followed by each pipeline pass's shader when the pipeline can enumerate them (see
-   * {@apilink ShaderPipelineLike.getShaders}; a custom pipeline that omits it only contributes the
-   * composite shader here).
+   * Every compiled {@apilink Shader} this material drives, in order
    */
   shaders: Shader[];
   /**
-   * The same shaders as `shaders`, keyed by {@apilink Shader.name}. Shaders sharing a name (for
-   * example several unnamed passes) collide here, last one wins — `shaders` is the complete,
-   * order-preserving source of truth.
+   * The same shaders as `shaders`, keyed by {@apilink Shader.name}.
    */
   shadersByName: Map<string, Shader>;
 }
