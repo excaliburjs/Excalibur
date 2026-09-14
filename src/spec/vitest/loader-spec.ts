@@ -202,6 +202,45 @@ describe('A loader', () => {
     expect(loader.playButtonRootElement).toBeFalsy();
   });
 
+  it('marks the play button root as not busy and dispatches a ready event when the button is shown', () => {
+    const loader = new ex.Loader([, , , ,]);
+    loader.markResourceComplete();
+    loader.markResourceComplete();
+    loader.markResourceComplete();
+    loader.markResourceComplete();
+
+    const handler = vi.fn();
+    document.addEventListener(ex.ExcaliburPlayReadyEvent, handler);
+    try {
+      loader.showPlayButton();
+
+      expect(loader.playButtonRootElement.getAttribute('aria-busy')).toBe('false');
+      expect(handler).toHaveBeenCalledTimes(1);
+      const event = handler.mock.calls[0][0] as CustomEvent;
+      expect(event.detail.loader).toBe(loader);
+      expect(event.detail.playButtonElement).toBe(loader.playButtonElement);
+    } finally {
+      document.removeEventListener(ex.ExcaliburPlayReadyEvent, handler);
+      loader.dispose();
+    }
+  });
+
+  it('marks the play button root as busy again once hidden', () => {
+    const loader = new ex.Loader([, , , ,]);
+    loader.markResourceComplete();
+    loader.markResourceComplete();
+    loader.markResourceComplete();
+    loader.markResourceComplete();
+    loader.showPlayButton();
+
+    expect(loader.playButtonRootElement.getAttribute('aria-busy')).toBe('false');
+
+    loader.hidePlayButton();
+
+    expect(loader.playButtonRootElement.getAttribute('aria-busy')).toBe('true');
+    loader.dispose();
+  });
+
   it('can have the enter key pressed to start', () =>
     new Promise<void>((done) => {
       const loader = new ex.Loader([, , , ,]);

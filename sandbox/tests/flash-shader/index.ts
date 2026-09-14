@@ -3,7 +3,7 @@ var game = new ex.Engine({
   height: 800
 });
 
-var tex = new ex.ImageSource('https://cdn.rawgit.com/excaliburjs/Excalibur/7dd48128/assets/sword.png', false, ex.ImageFiltering.Pixel);
+var tex = new ex.ImageSource('./sword.png', false, ex.ImageFiltering.Pixel);
 
 var actor = new ex.Actor({
   pos: ex.vec(300, 300),

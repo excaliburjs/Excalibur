@@ -12,7 +12,7 @@ var game = new ex.Engine({
   antialiasing: true
 });
 
-var tex = new ex.ImageSource('https://cdn.rawgit.com/excaliburjs/Excalibur/7dd48128/assets/sword.png', false, ex.ImageFiltering.Pixel);
+var tex = new ex.ImageSource('./sword.png', false, ex.ImageFiltering.Pixel);
 var heartImage = new ex.ImageSource('./heart.png', false, ex.ImageFiltering.Pixel);
 var background = new ex.ImageSource('./stars.png', false, ex.ImageFiltering.Blended);
 

@@ -9,7 +9,7 @@ var game = new ex.Engine({
   // antialiasing: false
 });
 
-var tex = new ex.ImageSource('https://cdn.rawgit.com/excaliburjs/Excalibur/7dd48128/assets/sword.png', {
+var tex = new ex.ImageSource('./sword.png', {
   wrapping: ex.ImageWrapping.Repeat
 });
 

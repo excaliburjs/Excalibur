@@ -14,6 +14,17 @@ import type { Screen } from '../screen';
 import { Logger } from '../util/log';
 import { Future } from '../util/future';
 
+/**
+ * Name of the custom event dispatched on `document` once the loader's play button becomes
+ * visible and clickable (see {@apilink Loader.showPlayButton}). The button is created and
+ * shown lazily, after a short aesthetic delay - external tooling (e2e tests, devtools) that
+ * needs to click it should wait for this event (or poll `playButtonRootElement`'s
+ * `aria-busy` attribute for `"false"`) rather than guessing how long that delay is.
+ *
+ * `event.detail` is `{ loader, playButtonElement }`.
+ */
+export const ExcaliburPlayReadyEvent = 'excalibur-play-ready';
+
 export interface LoaderOptions extends DefaultLoaderOptions {
   /**
    * Go fullscreen after loading and clicking play
@@ -167,6 +178,7 @@ export class Loader extends DefaultLoader {
       this._playButtonRootElement = document.createElement('div');
       this._playButtonRootElement.id = 'excalibur-play-root';
       this._playButtonRootElement.style.position = 'absolute';
+      this._playButtonRootElement.setAttribute('aria-busy', 'true');
       document.body.appendChild(this._playButtonRootElement);
     }
     if (!this._styleBlock) {
@@ -267,6 +279,12 @@ export class Loader extends DefaultLoader {
       }
       this._playButtonShown = true;
       this._playButton.style.display = 'flex';
+      this._playButtonRootElement.setAttribute('aria-busy', 'false');
+      document.dispatchEvent(
+        new CustomEvent(ExcaliburPlayReadyEvent, {
+          detail: { loader: this, playButtonElement: this._playButtonElement }
+        })
+      );
       document.body.addEventListener('keyup', (evt: KeyboardEvent) => {
         if (evt.key === 'Enter') {
           this._playButton.click();
@@ -315,6 +333,7 @@ export class Loader extends DefaultLoader {
   public hidePlayButton() {
     this._playButtonShown = false;
     this._playButton.style.display = 'none';
+    this._playButtonRootElement.setAttribute('aria-busy', 'true');
   }
 
   /**

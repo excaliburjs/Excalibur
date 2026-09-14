@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Component Serialization</title>
+    <style type="text/css">
+      #game {
+        float: left;
+      }
+
+      #debug {
+        float: left;
+        margin-left: 2em;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="game"></canvas>
+
+    <dl id="debug">
+      <dt>Instructions</dt>
+      <dd>
+        Click the box to focus it, then type some text (Backspace to edit, Enter to unfocus). Click <b>Save</b> to serialize the actor (via
+        <code>ex.Serializer</code>) and write it to <code>localStorage</code>. Reload this page — the saved text should reappear instead of
+        the default blank box, proving it was rehydrated from <code>localStorage</code> on scene init. Click <b>Clear Storage</b> and reload
+        to reset back to the default.
+      </dd>
+      <button id="save">Save</button>
+      <button id="clear">Clear Storage</button>
+    </dl>
+
+    <script type="module" src="./index.js"></script>
+  </body>
+</html>

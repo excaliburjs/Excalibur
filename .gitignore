@@ -62,4 +62,6 @@ browserstack.err
 storybook-static
 image-diffs
 vitest-image-failures.json
+test-results
+/playwright-report
 site/generated
