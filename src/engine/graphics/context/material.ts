@@ -368,11 +368,6 @@ export class Material {
     return !!this._fragmentSource?.includes('u_screen_texture');
   }
 
-  /**
-   * True when a pipeline is present and the composite fragmentSource references `u_original`,
-   * meaning it needs its own texture slot distinct from `u_graphic`/`u_image` (the pipeline output).
-   * Without a pipeline, `u_original` is simply an alias for `u_graphic`/`u_image`.
-   */
   get isUsingOriginalTexture() {
     return !!this.pipeline && !!this._fragmentSource?.includes('u_original');
   }
@@ -392,12 +387,11 @@ export class Material {
   }
 
   /**
-   * Lazily creates/resizes the padded framebuffer the graphic is seeded into before the pipeline runs
+   * Lazily creates/resizes the padded framebuffer
    * @internal
    */
   public getSeedFramebuffer(width: number, height: number): Framebuffer {
     if (!this._seedFramebuffer) {
-      // always Blended: only sampled by passes, where linear is what downsampling effects want
       this._seedFramebuffer = new Framebuffer({
         graphicsContext: this._graphicsContext!,
         width,
@@ -411,11 +405,7 @@ export class Material {
   }
 
   /**
-   * Lazily creates/resizes the framebuffer holding the pipeline's final output for compositing.
-   *
-   * The composite quad samples this at whatever scale the camera/transform produces, so it
-   * inherits the graphic's filtering (crisp for pixel art), defaulting to the engine's
-   * Blended image default.
+   * Lazily creates/resizes the final output for compositing
    * @internal
    */
   public getOutputFramebuffer(width: number, height: number, filtering?: ImageFiltering): Framebuffer {
@@ -437,12 +427,6 @@ export class Material {
     return this._outputFramebuffer;
   }
 
-  /**
-   * Batch-update this material. The callback receives a {@apilink MaterialContext} with `uniforms`
-   * (the declarative dictionary, the normal way to change values so they also flow to every pass)
-   * and `shaders`/`shadersByName` for direct access to every compiled shader this material drives,
-   * for the rarer case of calling shader methods directly on a specific pass.
-   */
   update(callback: (context: MaterialContext) => any) {
     if (this._shader) {
       const shaders = [this._shader, ...(this._pipeline?.getShaders?.() ?? [])];
@@ -488,9 +472,7 @@ export class Material {
 
   use() {
     if (this._initialized) {
-      // bind the shader
       this._shader.use();
-      // Apply standard uniforms
       this._shader.trySetUniformFloatColor('u_color', this._color);
     } else {
       throw Error(`Material ${this.name} not yet initialized, use the ExcaliburGraphicsContext.createMaterial() to work around this.`);
