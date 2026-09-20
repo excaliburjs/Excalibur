@@ -79,7 +79,7 @@ class MyWeapon extends ex.Actor {
     });
   }
 
-  onInitialize(engine: ex.Engine): void {
+  override onInitialize(engine: ex.Engine): void {
     this.actions.runAction(new AttackAction(this, this.parent as MyPlayer));
     this.on('actioncomplete', (a: ex.ActionCompleteEvent) => {
       if (a.action instanceof AttackAction) {
@@ -109,7 +109,7 @@ class MyPlayer extends ex.Actor {
     });
   }
 
-  onInitialize(engine: ex.Engine): void {
+  override onInitialize(engine: ex.Engine): void {
     engine.input.keyboard.on('press', (e) => {
       if (e.key === ex.Keys.Enter) {
         if (this.children.length > 0) return;
@@ -118,13 +118,13 @@ class MyPlayer extends ex.Actor {
     });
   }
 
-  onCollisionStart(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
+  override onCollisionStart(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
     if (other.owner instanceof MyEnemy) {
       this.actions.runAction(new ex.Blink(this, 150, 150, 10));
     }
   }
 
-  onPreUpdate(engine: ex.Engine, elapsed: number): void {
+  override onPreUpdate(engine: ex.Engine, elapsed: number): void {
     let tracked_velocity = ex.Vector.Zero;
     if (engine.input.keyboard.isHeld(ex.Keys.A)) {
       tracked_velocity.x = -this.speed;
@@ -162,7 +162,8 @@ class EnemyDamageBox extends ex.Actor {
       z: 10,
     });
   }
-  onCollisionStart(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
+
+  override onCollisionStart(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
     if ((this.parent as MyEnemy).isDamaged) return;
     (this.parent as MyEnemy).isDamaged = true;
     let parallelAction = new ex.ParallelActions([new ex.Blink(this.parent!, 150, 150, 10), new ex.Flash(this.parent!, ex.Color.White, 3000)]);
@@ -187,7 +188,8 @@ class MyEnemy extends ex.Actor {
     this.addChild(new EnemyDamageBox(0, 24));
     this.addChild(new EnemyDamageBox(0, -24));
   }
-  onInitialize(engine: ex.Engine): void {
+
+  override onInitialize(engine: ex.Engine): void {
     this.on('actioncomplete', (a: ex.ActionCompleteEvent) => {
       if (a.action instanceof ex.ParallelActions) {
         this.isDamaged = false;
