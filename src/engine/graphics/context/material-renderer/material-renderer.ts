@@ -150,12 +150,7 @@ export class MaterialRenderer implements RendererPlugin {
       }
     }
 
-    // The pre-pipeline graphic, bound as u_original; stays equal to `texture` (u_graphic/u_image)
-    // until/unless a pipeline seeds a separate, padded texture below
     let originalTexture: WebGLTexture = texture;
-
-    // Run the material's multipass pipeline on the graphic offscreen, the result composites
-    // through the regular quad below
     const pipeline = material.pipeline;
     let padDestX = 0;
     let padDestY = 0;
@@ -194,15 +189,12 @@ export class MaterialRenderer implements RendererPlugin {
       });
       texture = output.texture;
 
-      // restore the frame's draw framebuffer and viewport
       this._context.drawTarget.bind();
 
-      // the pipeline output exactly fills its texture
       uvx0 = 0;
       uvy0 = 0;
       uvx1 = 1;
       uvy1 = 1;
-      // padding in source pixels scaled into destination units
       padDestX = pad * (width / sw);
       padDestY = pad * (height / sh);
       graphicResolutionX = seedWidth;
@@ -255,50 +247,36 @@ export class MaterialRenderer implements RendererPlugin {
     vertexBuffer[vertexIndex++] = screenUVX1;
     vertexBuffer[vertexIndex++] = screenUVY1;
 
-    // apply material
     material.use();
 
     this._layout.shader = shader!;
-    // apply layout and geometry
     this._layout.use(true);
 
-    // apply time in ms since the page (performance.now())
     shader.trySetUniformFloat('u_time_ms', performance.now());
 
-    // apply opacity
     shader.trySetUniformFloat('u_opacity', opacity);
 
-    // apply resolution
     shader.trySetUniformFloatVector('u_resolution', vec(this._context.width, this._context.height));
 
-    // apply graphic resolution, the pipeline output resolution when a pipeline ran
     shader.trySetUniformFloatVector('u_graphic_resolution', vec(graphicResolutionX, graphicResolutionY));
 
-    // apply size, the padded size when a pipeline ran
     shader.trySetUniformFloatVector('u_size', vec(sizeX, sizeY));
 
-    // apply orthographic projection
     shader.trySetUniformMatrix('u_matrix', this._context.ortho);
 
-    // apply geometry transform
     shader.trySetUniformMatrix('u_transform', transform.to4x4());
 
-    // bind graphic image texture 'uniform sampler2D u_graphic;' (or the pipeline output)
-    // 'u_image' is a synonym, same texture unit, no extra bind needed
     gl.activeTexture(gl.TEXTURE0 + 0);
     gl.bindTexture(gl.TEXTURE_2D, texture);
     shader.trySetUniformInt('u_graphic', 0);
     shader.trySetUniformInt('u_image', 0);
 
-    // bind the screen texture
     if (material.isUsingScreenTexture) {
       gl.activeTexture(gl.TEXTURE0 + 1);
       gl.bindTexture(gl.TEXTURE_2D, this._context.materialScreenTexture);
       shader.trySetUniformInt('u_screen_texture', 1);
     }
 
-    // bind the pre-pipeline graphic as 'uniform sampler2D u_original;' when it needs its own
-    // texture slot; otherwise it's just an alias for u_graphic/u_image (no pipeline ran)
     if (material.isUsingOriginalTexture) {
       const originalSlot = material.isUsingScreenTexture ? 2 : 1;
       gl.activeTexture(gl.TEXTURE0 + originalSlot);
@@ -308,10 +286,8 @@ export class MaterialRenderer implements RendererPlugin {
       shader.trySetUniformInt('u_original', 0);
     }
 
-    // bind quad index buffer
     this._quads.bind();
 
-    // Draw a single quad
     gl.drawElements(gl.TRIANGLES, 6, this._quads.bufferGlType, 0);
 
     GraphicsDiagnostics.DrawnImagesCount++;
