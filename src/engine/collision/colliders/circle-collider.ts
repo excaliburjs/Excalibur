@@ -37,7 +37,7 @@ export class CircleCollider extends Collider {
   /**
    * Position of the circle relative to the collider, by default (0, 0).
    */
-  public offset: Vector = Vector.Zero;
+  public override offset: Vector = Vector.Zero;
 
   private _globalMatrix: AffineMatrix = AffineMatrix.identity();
   private _syncedVersion = -1;

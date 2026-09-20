@@ -7,7 +7,7 @@ import { Entity } from '../entity-component-system/entity';
 import { TransformComponent } from '../entity-component-system/components/transform-component';
 import { BodyComponent } from '../collision/body-component';
 import { CollisionType } from '../collision/collision-type';
-import { Shape } from '../collision/colliders/shape';
+import { Colliders } from '../collision/colliders/colliders';
 import type { ExcaliburGraphicsContext, Graphic } from '../graphics';
 import { GraphicsComponent, hasGraphicsTick, ParallaxComponent } from '../graphics';
 import { MotionComponent } from '../entity-component-system/components/motion-component';
@@ -112,7 +112,7 @@ export const TileMapEvents = {
  * TileMaps are useful for top down or side scrolling grid oriented games.
  */
 export class TileMap extends Entity implements HasNestedPointerEvents {
-  public events = new EventEmitter<TileMapEvents>();
+  public override events = new EventEmitter<TileMapEvents>();
   private _token = 0;
   private _engine!: Engine;
 
@@ -247,28 +247,34 @@ export class TileMap extends Entity implements HasNestedPointerEvents {
     return this.tileHeight * this.rows * this.scale.y;
   }
 
-  public emit<TEventName extends EventKey<TileMapEvents>>(eventName: TEventName, event: TileMapEvents[TEventName]): void;
-  public emit(eventName: string, event?: any): void;
-  public emit<TEventName extends EventKey<TileMapEvents> | string>(eventName: TEventName, event?: any): void {
+  public override emit<TEventName extends EventKey<TileMapEvents>>(eventName: TEventName, event: TileMapEvents[TEventName]): void;
+  public override emit(eventName: string, event?: any): void;
+  public override emit<TEventName extends EventKey<TileMapEvents> | string>(eventName: TEventName, event?: any): void {
     this.events.emit(eventName, event);
   }
 
-  public on<TEventName extends EventKey<TileMapEvents>>(eventName: TEventName, handler: Handler<TileMapEvents[TEventName]>): Subscription;
-  public on(eventName: string, handler: Handler<unknown>): Subscription;
-  public on<TEventName extends EventKey<TileMapEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+  public override on<TEventName extends EventKey<TileMapEvents>>(
+    eventName: TEventName,
+    handler: Handler<TileMapEvents[TEventName]>
+  ): Subscription;
+  public override on(eventName: string, handler: Handler<unknown>): Subscription;
+  public override on<TEventName extends EventKey<TileMapEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
     return this.events.on(eventName, handler);
   }
 
-  public once<TEventName extends EventKey<TileMapEvents>>(eventName: TEventName, handler: Handler<TileMapEvents[TEventName]>): Subscription;
-  public once(eventName: string, handler: Handler<unknown>): Subscription;
-  public once<TEventName extends EventKey<TileMapEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+  public override once<TEventName extends EventKey<TileMapEvents>>(
+    eventName: TEventName,
+    handler: Handler<TileMapEvents[TEventName]>
+  ): Subscription;
+  public override once(eventName: string, handler: Handler<unknown>): Subscription;
+  public override once<TEventName extends EventKey<TileMapEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
     return this.events.once(eventName, handler);
   }
 
-  public off<TEventName extends EventKey<TileMapEvents>>(eventName: TEventName, handler: Handler<TileMapEvents[TEventName]>): void;
-  public off(eventName: string, handler: Handler<unknown>): void;
-  public off(eventName: string): void;
-  public off<TEventName extends EventKey<TileMapEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
+  public override off<TEventName extends EventKey<TileMapEvents>>(eventName: TEventName, handler: Handler<TileMapEvents[TEventName]>): void;
+  public override off(eventName: string, handler: Handler<unknown>): void;
+  public override off(eventName: string): void;
+  public override off<TEventName extends EventKey<TileMapEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
     this.events.off(eventName, handler as any);
   }
 
@@ -351,7 +357,7 @@ export class TileMap extends Entity implements HasNestedPointerEvents {
     });
   }
 
-  public _initialize(engine: Engine) {
+  public override _initialize(engine: Engine) {
     super._initialize(engine);
     this._engine = engine;
   }
@@ -474,7 +480,7 @@ export class TileMap extends Entity implements HasNestedPointerEvents {
     }
 
     for (const c of colliders) {
-      const collider = Shape.Box(c.width, c.height, Vector.Zero, vec(c.left - this.pos.x, c.top - this.pos.y));
+      const collider = Colliders.Box(c.width, c.height, Vector.Zero, vec(c.left - this.pos.x, c.top - this.pos.y));
       collider.owner = this;
       this._composite.addCollider(collider);
     }
@@ -602,7 +608,7 @@ export class TileMap extends Entity implements HasNestedPointerEvents {
     this._pointerEventDispatcher.dispatchEvents(receiver);
   }
 
-  public update(engine: Engine, elapsed: number) {
+  public override update(engine: Engine, elapsed: number) {
     this._initialize(engine);
     this.onPreUpdate(engine, elapsed);
     this.emit('preupdate', new PreUpdateEvent(engine, elapsed, this));

@@ -263,7 +263,7 @@ export interface LightingSystemOptions {
  * split at corners when the silhouette edge is not face on to the light.
  */
 export class LightingSystem extends System {
-  static priority = SystemPriority.Highest;
+  static override priority = SystemPriority.Highest;
   public readonly systemType = SystemType.Draw;
 
   private _options: LightingSystemOptions;
@@ -287,7 +287,7 @@ export class LightingSystem extends System {
     this._options = options ?? {};
   }
 
-  public initialize(world: World, scene: Scene): void {
+  public override initialize(world: World, scene: Scene): void {
     this._scene = scene;
     this._engine = scene.engine;
 
@@ -304,7 +304,7 @@ export class LightingSystem extends System {
    * offscreen scratch canvas. Called by the {@apilink SystemManager} when the system is removed,
    * e.g. when `engine.lighting.enabled` is turned off at runtime.
    */
-  public dispose(_world: World, scene: Scene): void {
+  public override dispose(_world: World, scene: Scene): void {
     for (const sub of this._subscriptions) {
       sub.observable.unsubscribe(sub.fn);
     }

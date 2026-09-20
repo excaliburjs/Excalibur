@@ -31,35 +31,35 @@ function calculateHash(idA: number, idB: number): number {
  * Proxy type to stash collision info
  */
 export class HashColliderProxy extends HashGridProxy<Collider> {
-  id: number = -1;
+  override id: number = -1;
   owner: Entity;
   body?: BodyComponent;
   collisionType: CollisionType;
-  hasZeroBounds = false;
+  override hasZeroBounds = false;
   /**
    * left bounds x hash coordinate
    */
-  leftX: number;
+  override leftX: number;
   /**
    * right bounds x hash coordinate
    */
-  rightX: number;
+  override rightX: number;
   /**
    * bottom bounds y hash coordinate
    */
-  bottomY: number;
+  override bottomY: number;
   /**
    * top bounds y hash coordinate
    */
-  topY: number;
+  override topY: number;
   /**
    * References to the hash cell the collider is a current member of
    */
-  cells: HashGridCell<Collider, HashColliderProxy>[] = [];
+  override cells: HashGridCell<Collider, HashColliderProxy>[] = [];
   /**
    * Grid size in pixels
    */
-  readonly gridSize: number;
+  override readonly gridSize: number;
   constructor(
     public collider: Collider,
     gridSize: number
@@ -94,7 +94,7 @@ export class HashColliderProxy extends HashGridProxy<Collider> {
   /**
    * Updates the hashed bounds coordinates
    */
-  update(): void {
+  override update(): void {
     super.update();
     this.body = this.owner?.get(BodyComponent);
     this.collisionType = this.body?.collisionType ?? CollisionType.PreventCollision;

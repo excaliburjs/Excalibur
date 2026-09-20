@@ -36,7 +36,7 @@ export interface EdgeColliderOptions {
  * Edge is a single line collider to create collisions with a single line.
  */
 export class EdgeCollider extends Collider {
-  offset: Vector;
+  override offset: Vector;
   begin: Vector;
   end: Vector;
 

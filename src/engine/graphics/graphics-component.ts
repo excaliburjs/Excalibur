@@ -516,7 +516,7 @@ export class GraphicsComponent extends Component {
     }
   }
 
-  public clone(): GraphicsComponent {
+  public override clone(): GraphicsComponent {
     const graphics = new GraphicsComponent();
     graphics._graphics = { ...this._graphics };
     graphics._options = { ...this._options };
@@ -545,7 +545,7 @@ export class GraphicsComponent extends Component {
   /**
    * Custom serialization - stores graphic references instead of graphic data
    */
-  public serialize(): GraphicsComponentData {
+  public override serialize(): GraphicsComponentData {
     const type = this.constructor.name;
     const data: GraphicsComponentData = {
       type,
@@ -604,7 +604,7 @@ export class GraphicsComponent extends Component {
    * Custom deserialization
    * NOTE - This only restores the component's settings, it does NOT restore the graphics themselves.
    */
-  public deserialize(data: GraphicsComponentData): void {
+  public override deserialize(data: GraphicsComponentData): void {
     this._current = data.current ?? 'default';
     this.isVisible = data.isVisible ?? true;
     this.opacity = data.opacity ?? 1;

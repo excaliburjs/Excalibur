@@ -128,7 +128,7 @@ export class Label extends Actor {
     gfx.use(this._text);
   }
 
-  public _initialize(engine: Engine) {
+  public override _initialize(engine: Engine) {
     super._initialize(engine);
   }
 

@@ -515,7 +515,7 @@ export class PreCollisionEvent<T extends Collider = Collider> extends GameEvent<
    */
   constructor(
     public self: T,
-    public other: T,
+    public override other: T,
     public side: Side,
     public intersection: Vector,
     public contact: CollisionContact
@@ -537,7 +537,7 @@ export class PostCollisionEvent<T extends Collider = Collider> extends GameEvent
    */
   constructor(
     public self: T,
-    public other: T,
+    public override other: T,
     public side: Side,
     public intersection: Vector,
     public contact: CollisionContact
@@ -598,7 +598,7 @@ export class CollisionStartEvent<T extends Collider = Collider> extends GameEven
    */
   constructor(
     public self: T,
-    public other: T,
+    public override other: T,
     public side: Side,
     public contact: CollisionContact
   ) {
@@ -616,7 +616,7 @@ export class CollisionEndEvent<T extends Collider = Collider> extends GameEvent<
    */
   constructor(
     public self: T,
-    public other: T,
+    public override other: T,
     public side: Side,
     public lastContact: CollisionContact
   ) {

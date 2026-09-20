@@ -36,12 +36,12 @@ export class ScreenElement extends Actor {
     }
   }
 
-  public _initialize(engine: Engine) {
+  public override _initialize(engine: Engine) {
     this._engine = engine;
     super._initialize(engine);
   }
 
-  public contains(x: number, y: number, useWorld: boolean = true) {
+  public override contains(x: number, y: number, useWorld: boolean = true) {
     if (useWorld) {
       return super.contains(x, y);
     }

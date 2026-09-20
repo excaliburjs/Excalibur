@@ -70,7 +70,7 @@ export class LightOccluderComponent extends Component {
     this._localVertices = null;
   }
 
-  public clone(): LightOccluderComponent {
+  public override clone(): LightOccluderComponent {
     return new LightOccluderComponent({
       shape: this.shape,
       castShadows: this.castShadows,

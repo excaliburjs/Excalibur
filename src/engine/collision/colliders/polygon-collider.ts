@@ -13,7 +13,7 @@ import { Collider } from './collider';
 import type { ExcaliburGraphicsContext } from '../..';
 import { BodyComponent, Debug, Logger, sign } from '../..';
 import { CompositeCollider } from './composite-collider';
-import { Shape } from './shape';
+import { Colliders } from './colliders';
 import { Transform } from '../../math/transform';
 import type { RayCastHit } from '../detection/ray-cast-hit';
 
@@ -42,7 +42,7 @@ export class PolygonCollider extends Collider {
   /**
    * Pixel offset relative to a collider's body transform position.
    */
-  public offset: Vector;
+  public override offset: Vector;
 
   public flagDirty() {
     this._worldVersion++;
@@ -192,7 +192,7 @@ export class PolygonCollider extends Collider {
     }
     polygons.push([this.points[0], this.points[1], this.points[2]]);
 
-    return new CompositeCollider(polygons.map((points) => Shape.Polygon(points)));
+    return new CompositeCollider(polygons.map((points) => Colliders.Polygon(points)));
   }
 
   /**
@@ -356,7 +356,7 @@ export class PolygonCollider extends Collider {
     triangles.push([vertices[0], vertices[1], vertices[2]]);
 
     // FIXME: there is a colinear triangle that sneaks in here sometimes
-    return new CompositeCollider(triangles.map((points) => Shape.Polygon(points, Vector.Zero, true)));
+    return new CompositeCollider(triangles.map((points) => Colliders.Polygon(points, Vector.Zero, true)));
   }
 
   /**

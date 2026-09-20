@@ -30,7 +30,7 @@ export class Line extends Graphic {
     this.height = height;
   }
 
-  public get localBounds() {
+  public override get localBounds() {
     return this._localBounds;
   }
 

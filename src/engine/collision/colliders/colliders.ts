@@ -194,18 +194,18 @@ export class Shape {
     if (vertical) {
       // height > width, if equal maybe use a circle
       const capsule = new CompositeCollider([
-        Shape.Circle(width / 2, vec(0, -height / 2 + width / 2).add(offset)),
-        Shape.Box(width, height - width, Vector.Half, offset),
-        Shape.Circle(width / 2, vec(0, height / 2 - width / 2).add(offset))
+        Colliders.Circle(width / 2, vec(0, -height / 2 + width / 2).add(offset)),
+        Colliders.Box(width, height - width, Vector.Half, offset),
+        Colliders.Circle(width / 2, vec(0, height / 2 - width / 2).add(offset))
       ]);
       capsule.compositeStrategy = 'together';
       return capsule;
     } else {
       // width > height, if equal maybe use a circle
       const capsule = new CompositeCollider([
-        Shape.Circle(height / 2, vec(-width / 2 + height / 2, 0).add(offset)),
-        Shape.Box(width - height, height, Vector.Half, offset),
-        Shape.Circle(height / 2, vec(width / 2 - height / 2, 0).add(offset))
+        Colliders.Circle(height / 2, vec(-width / 2 + height / 2, 0).add(offset)),
+        Colliders.Box(width - height, height, Vector.Half, offset),
+        Colliders.Circle(height / 2, vec(width / 2 - height / 2, 0).add(offset))
       ]);
       capsule.compositeStrategy = 'together';
       return capsule;

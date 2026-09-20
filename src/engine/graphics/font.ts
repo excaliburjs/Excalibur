@@ -140,7 +140,7 @@ export class Font extends Graphic implements FontRenderer {
 
   private _textBounds: BoundingBox = new BoundingBox();
 
-  public get localBounds(): BoundingBox {
+  public override get localBounds(): BoundingBox {
     return this._textBounds;
   }
 
@@ -148,7 +148,7 @@ export class Font extends Graphic implements FontRenderer {
     // TODO weird vestigial drawimage
   }
 
-  protected _rotate(ex: ExcaliburGraphicsContext) {
+  protected override _rotate(ex: ExcaliburGraphicsContext) {
     // TODO this needs to change depending on the bounding box...
     const origin = this.origin ?? this._textBounds.center;
     ex.translate(origin.x, origin.y);
@@ -156,7 +156,7 @@ export class Font extends Graphic implements FontRenderer {
     ex.translate(-origin.x, -origin.y);
   }
 
-  protected _flip(ex: ExcaliburGraphicsContext) {
+  protected override _flip(ex: ExcaliburGraphicsContext) {
     if (this.flipHorizontal) {
       ex.translate(this._textBounds.width / this.scale.x, 0);
       ex.scale(-1, 1);
@@ -185,7 +185,7 @@ export class Font extends Graphic implements FontRenderer {
     return FontCache.measureText(text, this, maxWidth);
   }
 
-  protected _postDraw(ex: ExcaliburGraphicsContext): void {
+  protected override _postDraw(ex: ExcaliburGraphicsContext): void {
     ex.restore();
   }
 

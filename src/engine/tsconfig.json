@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "../../build/dist",
+    "outDir": "../../build/esm",
     "sourceMap": true,
     "target": "es2018",
     "moduleResolution": "bundler",
@@ -13,6 +13,7 @@
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
+    "noImplicitOverride": true,
     "noUnusedLocals": true,
     "noUnusedParameters": false,
     "allowUnreachableCode": false,

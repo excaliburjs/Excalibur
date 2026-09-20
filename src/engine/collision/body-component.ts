@@ -64,7 +64,7 @@ export enum DegreeOfFreedom {
 export class BodyComponent extends Component implements Clonable<BodyComponent> {
   // @ts-ignore
   private static _NAME = 'BodyComponent';
-  public dependencies = [TransformComponent, MotionComponent];
+  public override dependencies = [TransformComponent, MotionComponent];
   public static _ID = 0;
   public readonly id: Id<'body'> = createId('body', BodyComponent._ID++);
   public events = new EventEmitter();
@@ -593,12 +593,12 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     this.oldGlobalPos.setTo(this.globalPos.x, this.globalPos.y);
   }
 
-  public clone(): BodyComponent {
+  public override clone(): BodyComponent {
     const component = super.clone() as BodyComponent;
     return component;
   }
 
-  public serialize(): BodyComponentData {
+  public override serialize(): BodyComponentData {
     const type = this.constructor.name;
 
     return {
@@ -629,7 +629,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   /**
    * Custom deserialization
    */
-  public deserialize(data: BodyComponentData): void {
+  public override deserialize(data: BodyComponentData): void {
     // Restore physics settings
     this.collisionType = CollisionType[data.collisionType as keyof typeof CollisionType];
     this._mass = data.mass;

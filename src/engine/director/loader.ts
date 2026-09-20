@@ -98,7 +98,7 @@ export class Loader extends DefaultLoader {
     fullscreenContainer: undefined
   };
   private _originalOptions: LoaderOptions = { loadables: [] };
-  public events = new EventEmitter();
+  public override events = new EventEmitter();
   public screen!: Screen;
   private _playButtonShown: boolean = false;
 
@@ -331,7 +331,7 @@ export class Loader extends DefaultLoader {
     }
   }
 
-  data!: Loadable<any>[];
+  override data!: Loadable<any>[];
 
   public override async onUserAction(): Promise<void> {
     // short delay in showing the button for aesthetics

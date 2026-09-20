@@ -34,7 +34,7 @@ import { MotionComponent } from './entity-component-system/components/motion-com
 import { GraphicsComponent } from './graphics/graphics-component';
 import { Rectangle } from './graphics/rectangle';
 import { ColliderComponent } from './collision/collider-component';
-import { Shape } from './collision/colliders/shape';
+import { Colliders } from './collision/colliders/colliders';
 import { watch } from './util/watch';
 import type { Collider, CollisionContact, CollisionGroup, Side } from './collision/index';
 import { Circle } from './graphics/circle';
@@ -278,7 +278,7 @@ export const ActorEvents = {
  * be part of a {@apilink Scene} for it to be drawn to the screen.
  */
 export class Actor extends Entity implements Eventable, PointerEvents, CanInitialize, CanUpdate, CanBeKilled {
-  public events = new EventEmitter<ActorEvents>();
+  public override events = new EventEmitter<ActorEvents>();
   // #region Properties
 
   /**
@@ -678,7 +678,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
       this.collider = new ColliderComponent(collider);
       this.addComponent(this.collider);
     } else if (radius) {
-      this.collider = new ColliderComponent(Shape.Circle(radius));
+      this.collider = new ColliderComponent(Colliders.Circle(radius));
       this.addComponent(this.collider);
 
       if (color) {
@@ -691,7 +691,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
       }
     } else {
       if (width! > 0 && height! > 0) {
-        this.collider = new ColliderComponent(Shape.Box(width!, height!, this.anchor));
+        this.collider = new ColliderComponent(Colliders.Box(width!, height!, this.anchor));
         this.addComponent(this.collider);
 
         if (color && width && height) {
@@ -718,7 +718,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     }
   }
 
-  public clone(): Actor {
+  public override clone(): Actor {
     const clone = new Actor({
       color: this.color.clone(),
       anchor: this.anchor.clone(),
@@ -764,7 +764,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    *
    * Synonymous with the event handler `.on('initialize', (evt) => {...})`
    */
-  public onInitialize(engine: Engine): void {
+  public override onInitialize(engine: Engine): void {
     // Override me
   }
 
@@ -774,7 +774,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    * @internal
    */
-  public _initialize(engine: Engine) {
+  public override _initialize(engine: Engine) {
     super._initialize(engine);
     for (const child of this.children) {
       child._initialize(engine);
@@ -782,28 +782,34 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   }
 
   // #region Events
-  public emit<TEventName extends EventKey<ActorEvents>>(eventName: TEventName, event: ActorEvents[TEventName]): void;
-  public emit(eventName: string, event?: any): void;
-  public emit<TEventName extends EventKey<ActorEvents> | string>(eventName: TEventName, event?: any): void {
+  public override emit<TEventName extends EventKey<ActorEvents>>(eventName: TEventName, event: ActorEvents[TEventName]): void;
+  public override emit(eventName: string, event?: any): void;
+  public override emit<TEventName extends EventKey<ActorEvents> | string>(eventName: TEventName, event?: any): void {
     this.events.emit(eventName, event);
   }
 
-  public on<TEventName extends EventKey<ActorEvents>>(eventName: TEventName, handler: Handler<ActorEvents[TEventName]>): Subscription;
-  public on(eventName: string, handler: Handler<unknown>): Subscription;
-  public on<TEventName extends EventKey<ActorEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+  public override on<TEventName extends EventKey<ActorEvents>>(
+    eventName: TEventName,
+    handler: Handler<ActorEvents[TEventName]>
+  ): Subscription;
+  public override on(eventName: string, handler: Handler<unknown>): Subscription;
+  public override on<TEventName extends EventKey<ActorEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
     return this.events.on(eventName, handler);
   }
 
-  public once<TEventName extends EventKey<ActorEvents>>(eventName: TEventName, handler: Handler<ActorEvents[TEventName]>): Subscription;
-  public once(eventName: string, handler: Handler<unknown>): Subscription;
-  public once<TEventName extends EventKey<ActorEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+  public override once<TEventName extends EventKey<ActorEvents>>(
+    eventName: TEventName,
+    handler: Handler<ActorEvents[TEventName]>
+  ): Subscription;
+  public override once(eventName: string, handler: Handler<unknown>): Subscription;
+  public override once<TEventName extends EventKey<ActorEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
     return this.events.once(eventName, handler);
   }
 
-  public off<TEventName extends EventKey<ActorEvents>>(eventName: TEventName, handler: Handler<ActorEvents[TEventName]>): void;
-  public off(eventName: string, handler: Handler<unknown>): void;
-  public off(eventName: string): void;
-  public off<TEventName extends EventKey<ActorEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
+  public override off<TEventName extends EventKey<ActorEvents>>(eventName: TEventName, handler: Handler<ActorEvents[TEventName]>): void;
+  public override off(eventName: string, handler: Handler<unknown>): void;
+  public override off(eventName: string): void;
+  public override off<TEventName extends EventKey<ActorEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
     this.events.off(eventName, handler as any);
   }
 
@@ -853,7 +859,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * If the current actor is a member of the scene, this will remove
    * it from the scene graph. It will no longer be drawn or updated.
    */
-  public kill() {
+  public override kill() {
     if (this.scene) {
       this._prekill(this.scene);
       super.kill();
@@ -875,7 +881,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   /**
    * Indicates whether the actor has been killed.
    */
-  public isKilled(): boolean {
+  public override isKilled(): boolean {
     return !this.isActive;
   }
 
@@ -1010,7 +1016,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * @param engine The reference to the current game engine
    * @param elapsed  The time elapsed since the last update in milliseconds
    */
-  public update(engine: Engine, elapsed: number) {
+  public override update(engine: Engine, elapsed: number) {
     this._initialize(engine);
     this._add(engine);
     this._preupdate(engine, elapsed);
@@ -1025,7 +1031,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * @param engine The reference to the current game engine
    * @param elapsed  The time elapsed since the last update in milliseconds
    */
-  public onPreUpdate(engine: Engine, elapsed: number): void {
+  public override onPreUpdate(engine: Engine, elapsed: number): void {
     // Override me
   }
 
@@ -1036,7 +1042,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * @param engine The reference to the current game engine
    * @param elapsed  The time elapsed since the last update in milliseconds
    */
-  public onPostUpdate(engine: Engine, elapsed: number): void {
+  public override onPostUpdate(engine: Engine, elapsed: number): void {
     // Override me
   }
 
@@ -1093,7 +1099,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * @param elapsed  The time elapsed since the last update in milliseconds
    * @internal
    */
-  public _preupdate(engine: Engine, elapsed: number): void {
+  public override _preupdate(engine: Engine, elapsed: number): void {
     this.events.emit('preupdate', new PreUpdateEvent(engine, elapsed, this));
     this.onPreUpdate(engine, elapsed);
   }
@@ -1106,7 +1112,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * @param elapsed  The time elapsed since the last update in milliseconds
    * @internal
    */
-  public _postupdate(engine: Engine, elapsed: number): void {
+  public override _postupdate(engine: Engine, elapsed: number): void {
     this.events.emit('postupdate', new PostUpdateEvent(engine, elapsed, this));
     this.onPostUpdate(engine, elapsed);
   }

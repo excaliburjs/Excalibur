@@ -9,22 +9,19 @@
   "description": "Excalibur.js is a simple JavaScript game engine with TypeScript bindings for making 2D games in HTML5 Canvas. Our mission is to make web game development as simple as possible.",
   "author": "https://github.com/excaliburjs/Excalibur/graphs/contributors",
   "homepage": "https://github.com/excaliburjs/Excalibur",
-  "main": "build/dist/excalibur.min.js",
-  "typings": "build/dist/excalibur.d.ts",
+  "main": "build/esm/excalibur.min.js",
+  "typings": "build/esm/excalibur.d.ts",
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "types": "./build/dist/excalibur.d.ts",
+      "types": "./build/esm/excalibur.d.ts",
       "development": {
-        "import": "./build/esm/excalibur.development.js",
-        "require": "./build/dist/excalibur.development.js"
+        "import": "./build/esm/excalibur.development.js"
       },
       "production": {
-        "import": "./build/esm/excalibur.js",
-        "require": "./build/dist/excalibur.js"
+        "import": "./build/esm/excalibur.js"
       },
-      "import": "./build/esm/excalibur.js",
-      "require": "./build/dist/excalibur.js"
+      "import": "./build/esm/excalibur.js"
     }
   },
   "repository": {
@@ -53,7 +50,7 @@
     "nuget": ".\\src\\tools\\NuGet.exe pack Excalibur.nuspec -OutputDirectory .\\build\\nuget -version",
     "dev": "concurrently --names \"build,types\" \"vite build --watch\" \"npm run types -- --watch\"",
     "start": "npm run build:watch",
-    "types": "tsc --project src/engine/tsconfig.json --declaration --incremental true --tsBuildInfoFile build/dist/.tsbuildinfo --emitDeclarationOnly",
+    "types": "tsc --project src/engine/tsconfig.json --declaration --incremental true --tsBuildInfoFile build/esm/.tsbuildinfo --emitDeclarationOnly",
     "build": "npm run build:production && npm run build:development && npm run types",
     "build:production": "vite build && vite build --minify false",
     "build:development": "vite build --mode development && vite build --mode development --minify false",

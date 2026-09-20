@@ -18,14 +18,14 @@ export interface ActionContextMethods extends Pick<ActionContext, keyof ActionCo
 export class ActionsComponent extends Component implements ActionContextMethods {
   // @ts-ignore
   private static _NAME = 'ActionsComponent';
-  dependencies = [TransformComponent, MotionComponent];
+  override dependencies = [TransformComponent, MotionComponent];
   private _ctx: ActionContext | null = null;
 
-  onAdd(entity: Entity) {
+  override onAdd(entity: Entity) {
     this._ctx = new ActionContext(entity);
   }
 
-  onRemove() {
+  override onRemove() {
     this._ctx = null;
   }
 

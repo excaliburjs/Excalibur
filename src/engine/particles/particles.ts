@@ -61,7 +61,7 @@ export class Particle extends Entity {
   public paused: PauseComponent = new PauseComponent({ canPause: true });
   public particleTransform = ParticleTransform.Global;
 
-  public name = `Particle#${this.id}`;
+  public override name = `Particle#${this.id}`;
 
   constructor(options: ParticleConfig) {
     super();
@@ -141,7 +141,7 @@ export class Particle extends Entity {
     }
   }
 
-  public update(engine: Engine, elapsed: number) {
+  public override update(engine: Engine, elapsed: number) {
     this.life = this.life - elapsed;
 
     if (this.life < 0) {

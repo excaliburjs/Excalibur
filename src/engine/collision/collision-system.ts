@@ -24,7 +24,7 @@ import { BodyComponent } from './index';
 import { buildContactIslands } from './island';
 import { PauseComponentTag } from '../entity-component-system/components/pause-component';
 export class CollisionSystem extends System {
-  static priority = SystemPriority.Higher;
+  static override priority = SystemPriority.Higher;
 
   public systemType = SystemType.Update;
   public query: Query<ComponentCtor<TransformComponent> | ComponentCtor<ColliderComponent>>;
@@ -92,7 +92,7 @@ export class CollisionSystem extends System {
     });
   }
 
-  initialize(world: World, scene: Scene) {
+  override initialize(world: World, scene: Scene) {
     this._engine = scene.engine;
   }
 
@@ -205,7 +205,7 @@ export class CollisionSystem extends System {
     }
   }
 
-  postupdate(): void {
+  override postupdate(): void {
     SeparatingAxis.SeparationPool.done();
   }
 

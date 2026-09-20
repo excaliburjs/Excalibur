@@ -10,7 +10,7 @@ import { EulerIntegrator } from './integrator';
 import type { PhysicsWorld } from './physics-world';
 
 export class MotionSystem extends System {
-  static priority = SystemPriority.Higher;
+  static override priority = SystemPriority.Higher;
 
   public systemType = SystemType.Update;
   private _physicsConfigDirty = false;

@@ -19,7 +19,7 @@ import { blendTransform } from './transform-interpolation';
 import { Graphic } from './graphic';
 
 export class GraphicsSystem extends System {
-  static priority = SystemPriority.Average;
+  static override priority = SystemPriority.Average;
 
   public readonly systemType = SystemType.Draw;
   private _token = 0;
@@ -52,7 +52,7 @@ export class GraphicsSystem extends System {
     });
   }
 
-  public initialize(world: World, scene: Scene): void {
+  public override initialize(world: World, scene: Scene): void {
     this._camera = scene.camera;
     this._engine = scene.engine;
   }
@@ -62,7 +62,7 @@ export class GraphicsSystem extends System {
     this._zHasChanged = true;
   };
 
-  public preupdate(): void {
+  public override preupdate(): void {
     // Graphics context could be switched to fallback in a new frame
     this._graphicsContext = this._engine.graphicsContext;
     if (this._zHasChanged) {

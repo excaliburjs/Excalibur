@@ -13,7 +13,7 @@ import type { Query, World } from '../entity-component-system';
 import { SystemPriority } from '../entity-component-system';
 
 export class OffscreenSystem extends System {
-  static priority: number = SystemPriority.Higher;
+  static override priority: number = SystemPriority.Higher;
 
   public systemType = SystemType.Draw;
   private _camera!: Camera;
@@ -26,7 +26,7 @@ export class OffscreenSystem extends System {
     this.query = this.world.query([TransformComponent, GraphicsComponent]);
   }
 
-  public initialize(world: World, scene: Scene): void {
+  public override initialize(world: World, scene: Scene): void {
     this._camera = scene.camera;
     this._screen = scene.engine.screen;
   }

@@ -28,7 +28,7 @@ export class GpuParticleEmitter extends Actor {
     randomRotation: false
   };
 
-  public graphics = new GraphicsComponent();
+  public override graphics = new GraphicsComponent();
   public renderer: GpuParticleRenderer;
   public isEmitting: boolean = false;
   public emitRate: number = 1;
@@ -37,19 +37,19 @@ export class GpuParticleEmitter extends Actor {
   public readonly maxParticles: number = 2000;
   random: Random;
 
-  public get pos() {
+  public override get pos() {
     return this.transform.pos;
   }
 
-  public set pos(pos: Vector) {
+  public override set pos(pos: Vector) {
     this.transform.pos = pos;
   }
 
-  public get z() {
+  public override get z() {
     return this.transform.z;
   }
 
-  public set z(z: number) {
+  public override set z(z: number) {
     this.transform.z = z;
   }
 
@@ -81,14 +81,14 @@ export class GpuParticleEmitter extends Actor {
     this.renderer = new GpuParticleRenderer(this, this.random, this.particle);
   }
 
-  public _initialize(engine: Engine): void {
+  public override _initialize(engine: Engine): void {
     super._initialize(engine);
     const context = engine.graphicsContext as ExcaliburGraphicsContextWebGL;
     this.renderer.initialize(context.__gl, context);
   }
 
   private _particlesToEmit = 0;
-  public update(engine: Engine, elapsed: number): void {
+  public override update(engine: Engine, elapsed: number): void {
     super.update(engine, elapsed);
 
     if (this.isEmitting) {

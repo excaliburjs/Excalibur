@@ -6,7 +6,7 @@ export * from './solver-strategy';
 export * from './colliders/collider';
 export * from './bounding-box';
 
-export * from './colliders/shape';
+export * from './colliders/colliders';
 export * from './colliders/collider';
 export * from './colliders/composite-collider';
 export * from './colliders/circle-collider';

@@ -7,13 +7,13 @@ export class MediaEvent extends GameEvent<Sound> {
   /**
    * Media event cannot bubble
    */
-  public set bubbles(_value: boolean) {
+  public override set bubbles(_value: boolean) {
     // stubbed
   }
   /**
    * Media event cannot bubble
    */
-  public get bubbles(): boolean {
+  public override get bubbles(): boolean {
     return false;
   }
   /**
@@ -30,7 +30,7 @@ export class MediaEvent extends GameEvent<Sound> {
   }
 
   constructor(
-    public target: Sound,
+    public override target: Sound,
     protected _name: string = 'MediaEvent'
   ) {
     super();
@@ -39,7 +39,7 @@ export class MediaEvent extends GameEvent<Sound> {
   /**
    * Prevents event from bubbling
    */
-  public stopPropagation(): void {
+  public override stopPropagation(): void {
     /**
      * Stub
      */

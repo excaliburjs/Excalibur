@@ -4,7 +4,7 @@ import { System, SystemPriority, SystemType } from '../entity-component-system';
 import { PauseComponent, PauseComponentTag } from '../entity-component-system/components/pause-component';
 
 export class PauseSystem extends System {
-  static priority = SystemPriority.Highest;
+  static override priority = SystemPriority.Highest;
 
   systemType: SystemType = SystemType.Update;
   query: Query<typeof PauseComponent>;

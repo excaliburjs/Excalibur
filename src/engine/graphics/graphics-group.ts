@@ -67,7 +67,7 @@ export class GraphicsGroup extends Graphic implements HasTick {
     return bb;
   }
 
-  public get localBounds(): BoundingBox {
+  public override get localBounds(): BoundingBox {
     const bb = new BoundingBox();
     for (const member of this.members) {
       if (member instanceof Graphic) {
@@ -119,7 +119,7 @@ export class GraphicsGroup extends Graphic implements HasTick {
     }
   }
 
-  protected _preDraw(ex: ExcaliburGraphicsContext, x: number, y: number) {
+  protected override _preDraw(ex: ExcaliburGraphicsContext, x: number, y: number) {
     this._updateDimensions();
     super._preDraw(ex, this.useAnchor ? x : 0, this.useAnchor ? y : 0);
   }

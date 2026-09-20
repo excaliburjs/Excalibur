@@ -36,7 +36,7 @@ export class IsometricTile extends Entity {
    */
   public solid: boolean = false;
 
-  public events = new EventEmitter<EntityEvents & IsometricTilePointerEvents>();
+  public override events = new EventEmitter<EntityEvents & IsometricTilePointerEvents>();
 
   private _gfx: GraphicsComponent;
   private _tileBounds = new BoundingBox();
@@ -409,7 +409,7 @@ export class IsometricMap extends Entity implements HasNestedPointerEvents {
     this._pointerEventDispatcher.dispatchEvents(receiver, this.tiles);
   }
 
-  public update(): void {
+  public override update(): void {
     if (this._collidersDirty) {
       this.updateColliders();
       this._collidersDirty = false;

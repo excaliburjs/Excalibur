@@ -13,14 +13,14 @@ import { ConeLightComponent } from './cone-light-component';
  * so it must run before the {@apilink LightingSystem} rasterizes the frame.
  */
 export class FlickerSystem extends System {
-  static priority = SystemPriority.Average;
+  static override priority = SystemPriority.Average;
   public readonly systemType = SystemType.Update;
 
   private _pointQuery!: Query<typeof PointLightComponent>;
   private _coneQuery!: Query<typeof ConeLightComponent>;
   private _elapsed = 0;
 
-  public initialize(world: World): void {
+  public override initialize(world: World): void {
     this._pointQuery = world.query([PointLightComponent]);
     this._coneQuery = world.query([ConeLightComponent]);
   }

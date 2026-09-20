@@ -121,11 +121,11 @@ export class TiledAnimation extends Animation {
     }
   }
 
-  get width() {
+  override get width() {
     return this._tiledWidth;
   }
 
-  get height() {
+  override get height() {
     return this._tiledHeight;
   }
 

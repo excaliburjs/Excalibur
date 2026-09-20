@@ -25,7 +25,7 @@ export default defineConfig(({ mode }) => {
       outDir: path.resolve(__dirname, 'build'),
       emptyOutDir: false,
       lib: {
-        formats: ['es', 'umd'],
+        formats: ['es'],
         name: 'ex',
         fileName(format) {
           let fileName = 'excalibur';
@@ -61,7 +61,7 @@ export default defineConfig(({ mode }) => {
         targets: [
           {
             src: 'src/engine/excalibur.d.ts',
-            dest: 'dist/',
+            dest: 'esm/',
             rename: { stripBase: true }
           }
         ]

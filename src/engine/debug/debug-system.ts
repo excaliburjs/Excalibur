@@ -21,7 +21,7 @@ import { Color } from '../color';
 import type { BoundingBox } from '../collision/bounding-box';
 
 export class DebugSystem extends System {
-  static priority = SystemPriority.Lowest;
+  static override priority = SystemPriority.Lowest;
 
   public readonly systemType = SystemType.Draw;
   private _graphicsContext!: ExcaliburGraphicsContext;
@@ -35,7 +35,7 @@ export class DebugSystem extends System {
     this.query = this.world.query([TransformComponent]);
   }
 
-  public initialize(world: World, scene: Scene): void {
+  public override initialize(world: World, scene: Scene): void {
     this._graphicsContext = scene.engine.graphicsContext;
     this._camera = scene.camera;
     this._engine = scene.engine;
@@ -389,7 +389,7 @@ export class DebugSystem extends System {
     }
   }
 
-  postupdate(engine: Scene<unknown>, elapsed: number): void {
+  override postupdate(engine: Scene<unknown>, elapsed: number): void {
     if (this._engine.isDebug) {
       this._graphicsContext.save();
       if (this._camera) {
