@@ -113,8 +113,6 @@ export class ImageSource implements Loadable<HTMLImageElement> {
         `Use the ex.Gif type to load gifs, you may have mixed results with ${pathOrBase64} in ex.ImageSource. Fully supported: svg, jpg, bmp, and png`
       );
     }
-    // Load failures reject `ready`, games that never await it should not see unhandled rejection noise,
-    // the error is surfaced through load()
     this.ready.catch(() => undefined);
   }
 
@@ -270,10 +268,6 @@ export class ImageSource implements Loadable<HTMLImageElement> {
 
       await loadedFuture.promise;
 
-      // Set results
-      // We defer loading the texture into webgl until the first draw that way we avoid a singleton
-      // and for the multi-engine case the texture needs to be created in EACH webgl context to work
-      // See image-renderer.ts draw()
       this.data = image;
 
       // emit warning if potentially too big
@@ -284,7 +278,6 @@ export class ImageSource implements Loadable<HTMLImageElement> {
       }]`;
       this._logger.error(message);
       this._readyFuture.reject(new Error(message));
-      // The failed image is never usable, release the blob it was decoded from
       if (objectUrl) {
         URL.revokeObjectURL(objectUrl);
       }
