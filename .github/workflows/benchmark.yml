@@ -93,7 +93,7 @@ jobs:
         working-directory: benchmark
         run: |
           node bench.mjs run \
-            --candidate ../build/dist/excalibur.js \
+            --candidate ../build/esm/excalibur.js \
             --baseline "$BENCHMARK_BASELINE" \
             --repeat "$BENCHMARK_REPEAT" \
             ${BENCHMARK_TESTS:+--tests "$BENCHMARK_TESTS"} \
