@@ -55,6 +55,29 @@ describe('A Material', () => {
     expect(warnSpy).toHaveBeenCalledWith(
       'Material named "override-test" is overriding built in image u_graphic, is this on purpose? If so ignore this warning.'
     );
+    expect(material.isOverridingGraphic).toBe(true);
+  });
+
+  it('will warn if you override built in u_image, the same as u_graphic', () => {
+    const warnSpy = vi.spyOn(ex.Logger.getInstance(), 'warn');
+    const material = new ex.Material({
+      name: 'override-test-2',
+      graphicsContext,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0, 0.0, 0.0, 1.0);
+      }`,
+      images: {
+        u_image: new ex.ImageSource('')
+      }
+    });
+
+    expect(warnSpy).toHaveBeenCalledWith(
+      'Material named "override-test-2" is overriding built in image u_image, is this on purpose? If so ignore this warning.'
+    );
+    expect(material.isOverridingGraphic).toBe(true);
   });
 
   it('does not throw when use() is called after ctor', () => {
@@ -242,8 +265,8 @@ describe('A Material', () => {
       context.clear();
       context.save();
       context.material = material;
-      material.update((shader) => {
-        shader.setUniformFloatColor('customcolor', ex.Color.Red);
+      material.update((context) => {
+        context.uniforms.customcolor = ex.Color.Red;
       });
       context.drawImage(tex.image, 0, 0);
       context.flush();
