@@ -23,7 +23,7 @@ const lightCodeTheme = themes.github;
 const darkCodeTheme = themes.dracula;
 
 const typedocProjectRoot = path.join(__dirname, '..', 'src', 'engine');
-const excaliburTypesPath = path.join(__dirname, '..', 'build', 'dist', 'excalibur.d.ts');
+const excaliburTypesPath = path.join(__dirname, '..', 'build', 'esm', 'excalibur.d.ts');
 const rehypeRawOptions = {
   passThrough: ['mdxjsEsm', 'mdxJsxTextElement', 'mdxJsxFlowElement', 'mdxFlowExpression']
 };
