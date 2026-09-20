@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 ex.Flags.enable('suppress-obsolete-message');
 
 const testsContext = require.context('.', true, /Spec$/);

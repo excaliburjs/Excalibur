@@ -37,6 +37,7 @@ module.exports = (config) => {
     ],
     mime: { 'text/x-typescript': ['ts', 'tsx'] },
     preprocessors: {
+      'build/esm/excalibur.js': ['webpack'],
       'src/spec/karma/**/*.ts': ['webpack']
     },
     webpack: {
