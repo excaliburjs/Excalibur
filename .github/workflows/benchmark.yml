@@ -46,7 +46,7 @@ env:
   # `npm run test:scripts` with a fresh results.json: the validator in post-benchmark-comment.js is coupled to the
   # results schema.
   BENCHMARK_REPO: excaliburjs/excalibur-benchmark
-  BENCHMARK_REF: 146adc9999a0
+  BENCHMARK_REF: 146adc9999a0a340f3c44b85847598d7b94582c1
   BENCHMARK_BASELINE: ${{ inputs.baseline || 'npm:excalibur@latest' }}
   BENCHMARK_REPEAT: ${{ inputs.repeat || '2' }}
   BENCHMARK_TESTS: ${{ inputs.tests || '' }}
