@@ -118,6 +118,22 @@ describe('A ShaderPipeline', () => {
     pipeline.dispose();
   });
 
+  it('provides u_graphic as a synonym for u_image to every pass', () => {
+    const pipeline = new ex.ShaderPipeline({
+      graphicsContext: context,
+      passes: [fillRed, swizzleRedToGreen]
+    });
+
+    const secondDraw = vi.spyOn(pipeline.passes[1], 'draw');
+
+    source.clear(ex.Color.Blue);
+    pipeline.process(source, destination);
+
+    const secondOptions = secondDraw.mock.calls[0][0] as ex.ShaderPassDrawOptions;
+    expect((secondOptions.sources as any).u_graphic).toBe((secondOptions.sources as any).u_image);
+    pipeline.dispose();
+  });
+
   it('allocates intermediates at each pass scale and renders the last pass at destination size', () => {
     const pipeline = new ex.ShaderPipeline({
       graphicsContext: context,

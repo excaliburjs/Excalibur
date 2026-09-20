@@ -46,8 +46,8 @@ var flash = (actor: ex.Actor, color: ex.Color, duration: number) => {
       while (currentDuration > 0) {
         const elapsed = yield;
         currentDuration -= elapsed;
-        material.update((shader) => {
-          shader.trySetUniformFloat('u_blend', currentDuration / total);
+        material.update((context) => {
+          context.uniforms.u_blend = currentDuration / total;
         });
       }
       actor.graphics.material = null;

@@ -190,7 +190,7 @@ Once a [[Material|material]] is created it can be added/removed from the [[Actor
 
 To pass data to [[Material|materials]] we use a concept called "uniforms", you can think of these as global variables that are the same for each pixel during a draw.
 
-To update a materials uniform we recommend using [[Material.update]], this will automatically set up the shader context for you so it is ready for you to use. You get passed the excalibur [[Shader]] instance and you can set uniforms from there! There are a number of `trySet*` prefixed methods we recommend you use, these methods will attempt to set a uniform if it exists.
+To update a material's uniforms we recommend using [[Material.update]], the callback is passed a [[MaterialContext]] containing the material's declarative `uniforms` dictionary — the same dictionary as `material.uniforms`. Setting values there is the recommended way to change uniforms, since they reach the composite shader and, when a pipeline is used, are forwarded to every pass on the next draw. For the rarer case of calling shader methods directly, `context.shaders` and `context.shadersByName` give access to every compiled [[Shader]] the material drives.
 
 
 ```ts twoslash
@@ -220,8 +220,8 @@ const material = actor.graphics.material = game.graphicsContext.createMaterial({
 
 game.input.pointers.primary.on('move', evt => {
   actor.pos = evt.worldPos;
-  material.update(shader => {
-    shader.trySetUniformFloatVector('iMouse', evt.worldPos);
+  material.update(context => {
+    context.uniforms.iMouse = evt.worldPos;
   });
 });
 

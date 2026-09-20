@@ -6,10 +6,12 @@ name: Benchmark
 # regression: shared runners are noisy, look for changes that persist across runs.
 #
 # This workflow executes the code under test, so it is deliberately unprivileged: read-only token, no persisted
-# credentials, no secrets, and nothing it produces is ever consumed by a job with write access. PR code only ever runs
-# in the pull_request event (isolated cache scope, read-only token), never on a default-branch context: collaborators
-# re-run a PR's benchmark with a `/benchmark` comment (benchmark-comment.yml re-runs the PR's own run and replies with
-# a link), and `workflow_dispatch` benchmarks whichever branch of this repository is selected in the Actions UI.
+# credentials, no secrets. PR code only ever runs in the pull_request event (isolated cache scope, read-only token),
+# never on a default-branch context: collaborators re-run a PR's benchmark with a `/benchmark` comment
+# (benchmark-comment.yml re-runs the PR's own run and replies with a link), and `workflow_dispatch` benchmarks whichever
+# branch of this repository is selected in the Actions UI. The only consumer of the artifact is benchmark-results.yml,
+# which runs on `workflow_run` from the default branch, treats the artifact as untrusted input (a PR controls this file
+# too) and posts a table rebuilt from validated numbers as a sticky comment on the PR.
 #
 # Hosted runners have no GPU: Chromium renders with swiftshader, so drawing scenarios (bunnymark) are ~40x slower than
 # on real hardware. Deltas between the two engines still compare like for like. For real GPU numbers run the tool
@@ -40,9 +42,11 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  # Pin the benchmark tool to a known commit. Update deliberately when the tool or its scenarios change.
+  # Pin the benchmark tool to a known commit. Update deliberately when the tool or its scenarios change, and re-run
+  # `npm run test:scripts` with a fresh results.json: the validator in post-benchmark-comment.js is coupled to the
+  # results schema.
   BENCHMARK_REPO: excaliburjs/excalibur-benchmark
-  BENCHMARK_REF: main # TODO replace with the sha of the pushed benchmark tool rewrite
+  BENCHMARK_REF: 8bde10fa42db5fdf2c7bdb3c58a0f591b64ca424
   BENCHMARK_BASELINE: ${{ inputs.baseline || 'npm:excalibur@latest' }}
   BENCHMARK_REPEAT: ${{ inputs.repeat || '2' }}
   BENCHMARK_TESTS: ${{ inputs.tests || '' }}
@@ -57,11 +61,11 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           submodules: true
           persist-credentials: false
-      - uses: actions/setup-node@v6.5.0
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version-file: 'package.json'
           package-manager-cache: false
@@ -72,7 +76,7 @@ jobs:
         run: npm run build:production
 
       - name: Checkout benchmark tool
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           repository: ${{ env.BENCHMARK_REPO }}
           ref: ${{ env.BENCHMARK_REF }}
@@ -112,9 +116,10 @@ jobs:
 
       - name: Upload results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: benchmark-results
           path: bench-results/
           retention-days: 30
           if-no-files-found: ignore
+          overwrite: true # a `/benchmark` re-run uploads under the same run id

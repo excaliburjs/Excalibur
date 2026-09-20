@@ -3,6 +3,7 @@ import { ImageFiltering } from '../../../filtering';
 import type { ExcaliburGraphicsContextWebGL } from '../../excalibur-graphics-context-webgl';
 import { Framebuffer } from '../../framebuffer';
 import { glsl } from '../../glsl';
+import type { Shader } from '../../shader';
 import type { ShaderPassDestination, ShaderPassSource } from '../shader-pass';
 import { getSourceDimensions, ShaderPass } from '../shader-pass';
 import type { ShaderPipelineLike, ShaderPipelineProcessOptions } from '../shader-pipeline';
@@ -285,6 +286,14 @@ export class BloomEffect implements ShaderPipelineLike {
       uniforms,
       elapsed
     });
+  }
+
+  /**
+   * Every internal pass's compiled {@apilink Shader}, in the order they run: threshold,
+   * downsample, upsample-merge, combine
+   */
+  public getShaders(): Shader[] {
+    return [this._threshold, this._downsample, this._upsampleMerge, this._combine].map((pass) => pass.getShader());
   }
 
   public dispose(): void {
