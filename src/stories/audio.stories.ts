@@ -4,7 +4,7 @@ import playIcon from '@fortawesome/fontawesome-free/svgs/solid/play.svg';
 import pauseIcon from '@fortawesome/fontawesome-free/svgs/solid/pause.svg';
 import stopIcon from '@fortawesome/fontawesome-free/svgs/solid/stop.svg';
 import type { NativeSoundEvent, NativeSoundProcessedEvent } from '../engine';
-import { Actor, Sound, Loader, Color, EasingFunctions } from '../engine';
+import { Actor, Sound, Loader, Color, linear, vec } from '../engine';
 import { ImageSource, Sprite } from '../engine/graphics';
 import { withEngine } from './utils';
 
@@ -71,7 +71,7 @@ export const PlayingASound: StoryObj = {
       if (guitarLoopSound.duration > 0) {
         startTime = Date.now();
         elapsedTime = 0;
-        playHead.actions.easeTo(playheadEndPos, playHead.pos.y, guitarLoopSound.duration * 1000, EasingFunctions.Linear);
+        playHead.actions.moveTo({ pos: vec(playheadEndPos, playHead.pos.y), duration: guitarLoopSound.duration * 1000, easing: linear });
       }
       startOrPauseBtn.graphics.use('pause');
       action('playbackstart')(e);
@@ -87,7 +87,11 @@ export const PlayingASound: StoryObj = {
     guitarLoopSound.on('resume', (e: NativeSoundEvent) => {
       startTime = Date.now();
       if (guitarLoopSound.duration > 0) {
-        playHead.actions.easeTo(playheadEndPos, playHead.pos.y, guitarLoopSound.duration * 1000 - elapsedTime, EasingFunctions.Linear);
+        playHead.actions.moveTo({
+          pos: vec(playheadEndPos, playHead.pos.y),
+          duration: guitarLoopSound.duration * 1000 - elapsedTime,
+          easing: linear
+        });
       }
       startOrPauseBtn.graphics.use('pause');
       action('resume')(e);

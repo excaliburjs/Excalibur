@@ -18,19 +18,19 @@ export class VectorView extends Vector {
     this._setX = options.setX;
     this._setY = options.setY;
   }
-  public get x() {
+  public override get x() {
     return (this._x = this._getX());
   }
 
-  public set x(val) {
+  public override set x(val) {
     this._setX(val);
     this._x = val;
   }
 
-  public get y() {
+  public override get y() {
     return (this._y = this._getY());
   }
-  public set y(val) {
+  public override set y(val) {
     this._setY(val);
     this._y = val;
   }

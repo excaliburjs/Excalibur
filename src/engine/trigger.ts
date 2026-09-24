@@ -45,7 +45,7 @@ export interface TriggerOptions {
  * are invisible, and can only be seen when {@apilink Trigger.visible} is set to `true`.
  */
 export class Trigger extends Actor {
-  public events = new EventEmitter<TriggerEvents & ActorEvents>();
+  public override events = new EventEmitter<TriggerEvents & ActorEvents>();
   public target?: Entity;
   /**
    * Action to fire when triggered by collision

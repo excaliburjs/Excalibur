@@ -1,5 +1,6 @@
 import * as ex from '@excalibur';
 import { getDefaultPhysicsConfig } from '../../engine/collision/physics-config';
+import { TestUtils } from '../__util__/test-utils';
 
 describe('A DynamicTree Broadphase', () => {
   let actorA: ex.Actor;
@@ -246,6 +247,157 @@ describe('A DynamicTree Broadphase', () => {
     expect(hits[0].collider).toEqual(actor3.collider.get());
     expect(hits[0].distance).toBe(275);
     expect(hits[0].point).toEqual(ex.vec(275, 0));
+  });
+
+  it('exposes tracked colliders via getColliders', () => {
+    const dt = new ex.DynamicTreeCollisionProcessor(getDefaultPhysicsConfig());
+    dt.track(actorA.collider.get());
+    dt.track(actorB.collider.get());
+
+    expect(dt.getColliders()).toEqual([actorA.collider.get(), actorB.collider.get()]);
+  });
+
+  it('can query by point', () => {
+    const dt = new ex.DynamicTreeCollisionProcessor(getDefaultPhysicsConfig());
+    dt.track(actorA.collider.get());
+    dt.track(actorB.collider.get());
+    dt.track(actorC.collider.get());
+
+    const results = dt.query(ex.vec(0, 0));
+    expect(results).toEqual([actorA.collider.get()]);
+  });
+
+  it('can query by bounds', () => {
+    const dt = new ex.DynamicTreeCollisionProcessor(getDefaultPhysicsConfig());
+    dt.track(actorA.collider.get());
+    dt.track(actorB.collider.get());
+    dt.track(actorC.collider.get());
+
+    const results = dt.query(new ex.BoundingBox(-15, -15, 35, 15));
+    expect(results.length).toBe(2);
+    expect(results).toEqual(expect.arrayContaining([actorA.collider.get(), actorB.collider.get()]));
+  });
+
+  it('warns and no-ops tracking a null collider', () => {
+    const dt = new ex.DynamicTreeCollisionProcessor(getDefaultPhysicsConfig());
+    const logger = ex.Logger.getInstance();
+    vi.spyOn(logger, 'warn');
+
+    dt.track(null as any);
+
+    expect(logger.warn).toHaveBeenCalledWith('Cannot track null collider');
+    expect(dt.getColliders()).toEqual([]);
+  });
+
+  it('warns and no-ops untracking a null collider', () => {
+    const dt = new ex.DynamicTreeCollisionProcessor(getDefaultPhysicsConfig());
+    const logger = ex.Logger.getInstance();
+    vi.spyOn(logger, 'warn');
+
+    dt.untrack(null as any);
+
+    expect(logger.warn).toHaveBeenCalledWith('Cannot untrack a null collider');
+  });
+
+  it('can untrack a collider', () => {
+    const dt = new ex.DynamicTreeCollisionProcessor(getDefaultPhysicsConfig());
+    dt.track(actorA.collider.get());
+    dt.track(actorB.collider.get());
+    expect(dt.getColliders().length).toBe(2);
+
+    expect(dt.query(ex.vec(0, 0))).toEqual([actorA.collider.get()]);
+
+    dt.untrack(actorA.collider.get());
+
+    expect(dt.getColliders()).toEqual([actorB.collider.get()]);
+    // actorA's own position (0,0) is outside actorB's bounds (centered at 20,0),
+    // so the tree should no longer report anything there once actorA is untracked
+    expect(dt.query(ex.vec(0, 0))).toEqual([]);
+  });
+
+  it('can untrack a composite collider, removing every sub-collider', () => {
+    const circle = ex.Shape.Circle(50);
+    const box = ex.Shape.Box(200, 10);
+    const compCollider = new ex.CompositeCollider([circle, box]);
+    const actor = new ex.Actor({ collider: compCollider });
+    const dt = new ex.DynamicTreeCollisionProcessor(getDefaultPhysicsConfig());
+    dt.track(compCollider);
+    expect(dt.getColliders().length).toBe(2);
+
+    dt.untrack(compCollider);
+
+    expect(dt.getColliders()).toEqual([]);
+  });
+
+  it('applies narrowphase to collision pairs and returns actual contacts', () => {
+    const overlapping = new ex.Actor({ x: 0, y: 0, radius: 10, collisionType: ex.CollisionType.Active });
+    const overlapping2 = new ex.Actor({ x: 15, y: 0, radius: 10, collisionType: ex.CollisionType.Active });
+    const dt = new ex.DynamicTreeCollisionProcessor(getDefaultPhysicsConfig());
+    dt.track(overlapping.collider.get());
+    dt.track(overlapping2.collider.get());
+
+    const pairs = dt.broadphase([overlapping.collider.get(), overlapping2.collider.get()], 100);
+    expect(pairs.length).toBe(1);
+
+    const contacts = dt.narrowphase(pairs);
+    expect(contacts.length).toBe(1);
+  });
+
+  it('narrowphase returns no contacts for non-overlapping pairs', () => {
+    const dt = new ex.DynamicTreeCollisionProcessor(getDefaultPhysicsConfig());
+    dt.track(actorA.collider.get());
+    dt.track(actorC.collider.get());
+
+    const contacts = dt.narrowphase([new ex.Pair(actorA.collider.get(), actorC.collider.get())]);
+    expect(contacts).toEqual([]);
+  });
+
+  it('update() reports how many tracked colliders actually moved', () => {
+    const dt = new ex.DynamicTreeCollisionProcessor(getDefaultPhysicsConfig());
+    dt.track(actorA.collider.get());
+    dt.track(actorB.collider.get());
+
+    // no movement yet
+    expect(dt.update([actorA.collider.get(), actorB.collider.get()])).toBe(0);
+
+    actorA.pos = ex.vec(500, 500);
+    actorA.collider.update();
+
+    expect(dt.update([actorA.collider.get(), actorB.collider.get()])).toBe(1);
+  });
+
+  it('debug delegates to the underlying dynamic tree without throwing', () => {
+    const dt = new ex.DynamicTreeCollisionProcessor(getDefaultPhysicsConfig());
+    dt.track(actorA.collider.get());
+    const engine = TestUtils.engine({ width: 100, height: 100 });
+
+    expect(() => dt.debug(engine.graphicsContext)).not.toThrow();
+
+    engine.dispose();
+  });
+
+  it('catches a fast moving object via continuous collision detection and repositions it on contact', () => {
+    const dt = new ex.DynamicTreeCollisionProcessor(getDefaultPhysicsConfig());
+    const stationary = new ex.Actor({ x: 200, y: 0, radius: 10, collisionType: ex.CollisionType.Active });
+    const fast = new ex.Actor({ x: 0, y: 0, radius: 10, collisionType: ex.CollisionType.Active });
+    fast.body.vel = ex.vec(5000, 0);
+
+    dt.track(stationary.collider.get());
+    dt.track(fast.collider.get());
+
+    const stats = { physics: { pairs: 0, fastBodies: 0, fastBodyCollisions: 0, contacts: new Map(), collisions: 0 } } as any;
+    // naive integration (uncaught) would put the fast body at 5000 * (100/1000) = 500,
+    // tunneling straight through the stationary collider at x=200
+    const naiveTunneledPosition = 500;
+
+    dt.broadphase([stationary.collider.get(), fast.collider.get()], 100, stats);
+
+    expect(stats.physics.fastBodies).toBe(1);
+    expect(stats.physics.fastBodyCollisions).toBe(1);
+    // continuous collision detection should have caught it and pulled it back to
+    // somewhere near the stationary collider's surface, short of tunneling through
+    expect(fast.body.globalPos.x).toBeGreaterThan(0);
+    expect(fast.body.globalPos.x).toBeLessThan(naiveTunneledPosition);
   });
 
   it('can rayCast with filter and search all colliders false, returns 1 hit', () => {

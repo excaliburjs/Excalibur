@@ -35,7 +35,7 @@ export class Polygon extends Raster {
   constructor(options: RasterOptions & PolygonOptions) {
     super(options);
     this.points = options.points;
-    this.filtering = ImageFiltering.Blended;
+    this.filtering = options.filtering ?? ImageFiltering.Blended;
     this.rasterize();
   }
 

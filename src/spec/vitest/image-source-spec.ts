@@ -384,6 +384,40 @@ describe('A ImageSource', () => {
     await expect(spriteFontImage.load()).rejects.toThrowError("Error loading ImageSource from path '/42.png' with error [Not Found]");
   });
 
+  it('will reject and log an error if the response cannot be decoded as an image', async () => {
+    const logger = ex.Logger.getInstance();
+    vi.spyOn(logger, 'error');
+    const sut = new ex.ImageSource('/src/spec/assets/images/graphics-image-source-spec/corrupt.png');
+
+    await expect(sut.load()).rejects.toThrowError(
+      /Error loading ImageSource from path '.*corrupt\.png' with error \[the response could not be decoded as an image/
+    );
+    expect(logger.error).toHaveBeenCalledTimes(1);
+    expect(sut.isLoaded()).toBe(false);
+    await expect(sut.ready).rejects.toThrowError(/could not be decoded as an image/);
+  });
+
+  it('will reject and log an error if a base64 image cannot be decoded', async () => {
+    const logger = ex.Logger.getInstance();
+    vi.spyOn(logger, 'error');
+    // 'QUJD' is valid base64 for 'ABC', which is not a png
+    const sut = new ex.ImageSource('data:image/png;base64,QUJD');
+
+    await expect(sut.load()).rejects.toThrowError(/could not be decoded as an image, received image\/png \(data url\)/);
+    expect(logger.error).toHaveBeenCalledTimes(1);
+    await expect(sut.ready).rejects.toThrowError(/could not be decoded as an image/);
+  });
+
+  it('will reject ready when the image fails to load', async () => {
+    const logger = ex.Logger.getInstance();
+    vi.spyOn(logger, 'error');
+    const sut = new ex.ImageSource('/42.png');
+
+    const whenReadyRejects = expect(sut.ready).rejects.toThrowError("Error loading ImageSource from path '/42.png'");
+    await expect(sut.load()).rejects.toThrowError("Error loading ImageSource from path '/42.png'");
+    await whenReadyRejects;
+  });
+
   describe('@visual', () => {
     it('can be built from canvas elements', async () => {
       const sutCanvas = document.createElement('canvas')!;

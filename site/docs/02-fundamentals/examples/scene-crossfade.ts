@@ -6,7 +6,7 @@ const game = new ex.Engine({
 });
 
 class MyScene extends ex.Scene {
-  public onInitialize(): void {
+  public override onInitialize(): void {
     this.add(
       new ex.Actor({
         pos: ex.vec(200, 200),
@@ -19,7 +19,7 @@ class MyScene extends ex.Scene {
 
 
 class MyOtherScene extends ex.Scene {
-  public onInitialize(): void {
+  public override onInitialize(): void {
     this.add(
       new ex.Actor({
         pos: ex.vec(200, 200),

@@ -4,9 +4,13 @@ import { ExcaliburGraphicsContextWebGL } from './excalibur-graphics-context-webg
 import type { Shader, UniformDictionary } from './shader';
 import { Logger } from '../../util/log';
 import type { ImageSource } from '../image-source';
-import type { ImageFiltering } from '../filtering';
+import { ImageFiltering } from '../filtering';
+import { Framebuffer } from './framebuffer';
+import type { ShaderPassLike, ShaderPipelineLike } from './shader-pipeline/shader-pipeline';
+import { ShaderPipeline } from './shader-pipeline/shader-pipeline';
+import { glsl } from './glsl';
 
-export interface MaterialOptions {
+type MaterialSharedOptions = {
   /**
    * Name the material for debugging
    */
@@ -43,27 +47,6 @@ export interface MaterialOptions {
   vertexSource?: string;
 
   /**
-   * Add custom fragment shader
-   *
-   * *Note: Excalibur image alpha's are pre-multiplied
-   *
-   * Pre-built varyings:
-   *
-   * * `in vec2 v_uv` - UV coordinate
-   * * `in vec2 v_screenuv` - UV coordinate
-   *
-   * Pre-built uniforms:
-   *
-   * * `uniform sampler2D u_graphic` - The current graphic displayed by the GraphicsComponent
-   * * `uniform vec2 u_resolution` - The current resolution of the screen
-   * * `uniform vec2 u_size;` - The current size of the graphic
-   * * `uniform vec4 u_color` - The current color of the material
-   * * `uniform float u_opacity` - The current opacity of the graphics context
-   *
-   */
-  fragmentSource: string;
-
-  /**
    * Add custom color, by default ex.Color.Transparent
    */
   color?: Color;
@@ -71,15 +54,91 @@ export interface MaterialOptions {
   /**
    * Add additional images to the material, you are limited by the GPU's maximum texture slots
    *
-   * Specify a dictionary of uniform sampler names to ImageSource
+   * Specify a dictionary of uniform sampler names to ImageSource, they are also bound as named
+   * sources in every pass when `passes` is provided
    */
   images?: Record<string, ImageSource>;
 
   /**
-   * Optionally set starting uniforms on a shader
+   * Optionally set starting uniforms on a shader, they are also forwarded to every pass when
+   * `passes` is provided
    */
   uniforms?: UniformDictionary;
-}
+};
+
+type MaterialShaderOptions =
+  | // single pass custom shading
+  {
+      /**
+       * The fragment shader applied when the graphic is drawn on screen
+       *
+       * *Note: Excalibur image alpha's are pre-multiplied
+       *
+       * Pre-built varyings:
+       *
+       * * `in vec2 v_uv` - UV coordinate
+       * * `in vec2 v_screenuv` - UV coordinate
+       *
+       * Pre-built uniforms:
+       *
+       * * `uniform sampler2D u_graphic` - The current graphic displayed by the GraphicsComponent
+       * * `uniform sampler2D u_image` - Synonym for `u_graphic`
+       * * `uniform sampler2D u_original` - The pre-effect graphic; equal to `u_graphic`/`u_image` when there is no pipeline
+       * * `uniform sampler2D u_screen_texture` - The screen texture, bound when referenced in the source
+       * * `uniform vec2 u_resolution` - The current resolution of the screen (in pixels)
+       * * `uniform vec2 u_graphic_resolution` - The current resolution of the graphic (in pixels)
+       * * `uniform vec2 u_size;` - The current size of the graphic (in pixels)
+       * * `uniform vec4 u_color` - The current color of the material
+       * * `uniform float u_opacity` - The current opacity of the graphics context
+       * * `uniform float u_time_ms` - The current time in milliseconds
+       * * `uniform mat4 u_matrix` - The orthographic projection matrix
+       * * `uniform mat4 u_transform` - The current geometry transform matrix
+       */
+      fragmentSource: string;
+
+      passes?: undefined;
+      padding?: undefined;
+    }
+  // multipass pipeline
+  | {
+      /**
+       * Multipass pipeline run on the graphic's texture offscreen before it is drawn.
+       *
+       * Provide an ordered list of passes (bare fragment strings or {@apilink ShaderPass}), or any
+       * {@apilink ShaderPipelineLike} implementation ({@apilink BloomEffect}, {@apilink GlowEffect},
+       * {@apilink BlurEffect}, or your own pass graph).
+       *
+       * The material's `uniforms`, `images`, and built-ins (`u_opacity`, `u_color`,
+       * `u_graphic_resolution`, `u_size`) are forwarded to every pass.
+       */
+      passes: ShaderPassLike[] | ShaderPipelineLike;
+
+      /**
+       * The **final composite** fragment shader: it draws the pipeline's output (bound as
+       * `u_graphic`, with `u_image` as a synonym) on screen and is where screen-space work like
+       * `u_screen_texture` belongs. The pre-effect graphic is also available as `u_original`, so
+       * the composite can mix the processed result with the untouched source.
+       *
+       * When omitted a passthrough composite is used that draws the pipeline output with the
+       * context opacity applied.
+       */
+      fragmentSource?: string;
+
+      /**
+       * Extra transparent pixels (in source-texture pixels) added around the graphic when running
+       * `passes`, so effects like blur/glow are not clipped to the graphic's quad. The on-screen
+       * quad expands to match. Default 0.
+       */
+      padding?: number;
+    };
+
+export type MaterialOptions = MaterialShaderOptions & MaterialSharedOptions;
+
+/**
+ * {@apilink MaterialOptions} without the graphics context, preserving the valid
+ * fragmentSource/passes combinations, used by {@apilink ExcaliburGraphicsContextWebGL.createMaterial}
+ */
+export type MaterialOptionsWithoutContext = MaterialShaderOptions & Omit<MaterialSharedOptions, 'graphicsContext'>;
 
 const defaultVertexSource = `#version 300 es
 in vec2 a_position;
@@ -107,6 +166,40 @@ export interface MaterialImageOptions {
   filtering?: ImageFiltering;
 }
 
+/**
+ * Passed to {@apilink Material.update}'s callback for batch-updating a material mid-frame.
+ */
+export interface MaterialContext {
+  /**
+   * The material's uniforms, the same dictionary as `material.uniforms` changes
+   * reach the composite shader and, when `passes` is used, are forwarded to every pass
+   */
+  uniforms: UniformDictionary;
+  /**
+   * Every compiled {@apilink Shader} this material drives, in order
+   */
+  shaders: Shader[];
+  /**
+   * The same shaders as `shaders`, keyed by {@apilink Shader.name}.
+   */
+  shadersByName: Map<string, Shader>;
+}
+
+/**
+ * Composite used when a material provides `passes` but no `fragmentSource`, draws the pipeline
+ * output with the graphics context opacity applied
+ */
+const defaultCompositeFragmentSource = glsl`
+in vec2 v_uv;
+uniform sampler2D u_graphic;
+uniform float u_opacity;
+out vec4 fragColor;
+void main() {
+  vec4 color = texture(u_graphic, v_uv);
+  color.a *= u_opacity;
+  fragColor = color;
+}`;
+
 export class Material {
   static BuiltInUniforms = [
     'u_time_ms',
@@ -117,6 +210,8 @@ export class Material {
     'u_matrix',
     'u_transform',
     'u_graphic',
+    'u_image',
+    'u_original',
     'u_screen_texture'
   ];
   private static _ID = 0;
@@ -135,12 +230,25 @@ export class Material {
   private _images: Record<string, ImageSource> = {};
   private _uniforms: UniformDictionary = {};
 
+  private _graphicsContext?: ExcaliburGraphicsContextWebGL;
+  private _passes?: ShaderPassLike[] | ShaderPipelineLike;
+  private _pipeline?: ShaderPipelineLike;
+  private _padding: number = 0;
+  private _seedFramebuffer?: Framebuffer;
+  private _outputFramebuffer?: Framebuffer;
+
   constructor(options: MaterialOptions) {
-    const { color, name, vertexSource, fragmentSource, graphicsContext, images, uniforms } = options;
+    const { color, name, vertexSource, fragmentSource, passes, padding, graphicsContext, images, uniforms } = options;
+
+    if (!fragmentSource && !passes) {
+      throw Error(`Material ${name} must be provided a fragmentSource or passes`);
+    }
 
     this._name = name ?? 'anonymous material';
     this._vertexSource = vertexSource ?? defaultVertexSource;
-    this._fragmentSource = fragmentSource;
+    this._fragmentSource = fragmentSource ?? defaultCompositeFragmentSource;
+    this._passes = passes;
+    this._padding = padding ?? this._padding;
     this._color = color ?? this._color;
     this._uniforms = uniforms ?? this._uniforms;
     this._images = images ?? this._images;
@@ -160,6 +268,12 @@ export class Material {
       if (this.images.u_graphic) {
         this._logger.warn(
           `Material named "${this.name}" is overriding built in image u_graphic, is this on purpose? If so ignore this warning.`
+        );
+      }
+
+      if (this.images.u_image) {
+        this._logger.warn(
+          `Material named "${this.name}" is overriding built in image u_image, is this on purpose? If so ignore this warning.`
         );
       }
 
@@ -183,6 +297,19 @@ export class Material {
     if (this._initialized) {
       return;
     }
+    this._graphicsContext = graphicsContextWebGL;
+
+    if (this._passes) {
+      if (Array.isArray(this._passes)) {
+        this._pipeline = new ShaderPipeline({
+          graphicsContext: graphicsContextWebGL,
+          name: this._name,
+          passes: this._passes
+        });
+      } else {
+        this._pipeline = this._passes;
+      }
+    }
 
     this._shader = graphicsContextWebGL.createShader({
       name: this._name,
@@ -191,9 +318,10 @@ export class Material {
       uniforms: this._uniforms,
       images: this._images,
       // max texture slots
-      // - 2 for the graphic texture and screen texture
-      // - 1 if just graphic
-      startingTextureSlot: this.isUsingScreenTexture ? 2 : 1
+      // - 1 for the graphic texture (u_graphic/u_image)
+      // - +1 if the screen texture is referenced
+      // - +1 if the composite references u_original and a pipeline is present (needs its own slot)
+      startingTextureSlot: 1 + (this.isUsingScreenTexture ? 1 : 0) + (this.isUsingOriginalTexture ? 1 : 0)
     });
     this._initialized = true;
   }
@@ -232,18 +360,81 @@ export class Material {
     return this._fragmentSource;
   }
 
-  get isUsingScreenTexture() {
-    return this._fragmentSource.includes('u_screen_texture');
-  }
-
   get isOverridingGraphic() {
-    return !!this._images.u_graphic;
+    return !!(this.images.u_graphic || this.images.u_image);
   }
 
-  update(callback: (shader: Shader) => any) {
+  get isUsingScreenTexture() {
+    return !!this._fragmentSource?.includes('u_screen_texture');
+  }
+
+  get isUsingOriginalTexture() {
+    return !!this.pipeline && !!this._fragmentSource?.includes('u_original');
+  }
+
+  /**
+   * The multipass pipeline run on the graphic before the composite fragment, if any
+   */
+  get pipeline(): ShaderPipelineLike | undefined {
+    return this._pipeline;
+  }
+
+  /**
+   * Extra transparent pixels added around the graphic when running the pipeline
+   */
+  get padding(): number {
+    return this._padding;
+  }
+
+  /**
+   * Lazily creates/resizes the padded framebuffer
+   * @internal
+   */
+  public getSeedFramebuffer(width: number, height: number): Framebuffer {
+    if (!this._seedFramebuffer) {
+      this._seedFramebuffer = new Framebuffer({
+        graphicsContext: this._graphicsContext!,
+        width,
+        height,
+        filtering: ImageFiltering.Blended
+      });
+    } else {
+      this._seedFramebuffer.resize(width, height);
+    }
+    return this._seedFramebuffer;
+  }
+
+  /**
+   * Lazily creates/resizes the final output for compositing
+   * @internal
+   */
+  public getOutputFramebuffer(width: number, height: number, filtering?: ImageFiltering): Framebuffer {
+    const resolvedFiltering = filtering ?? this._outputFramebuffer?.filtering ?? ImageFiltering.Blended;
+    if (this._outputFramebuffer && this._outputFramebuffer.filtering !== resolvedFiltering) {
+      this._outputFramebuffer.dispose();
+      this._outputFramebuffer = undefined;
+    }
+    if (!this._outputFramebuffer) {
+      this._outputFramebuffer = new Framebuffer({
+        graphicsContext: this._graphicsContext!,
+        width,
+        height,
+        filtering: resolvedFiltering
+      });
+    } else {
+      this._outputFramebuffer.resize(width, height);
+    }
+    return this._outputFramebuffer;
+  }
+
+  update(callback: (context: MaterialContext) => any) {
     if (this._shader) {
-      this._shader.use();
-      callback(this._shader);
+      const shaders = [this._shader, ...(this._pipeline?.getShaders?.() ?? [])];
+      callback({
+        uniforms: this.uniforms,
+        shaders,
+        shadersByName: new Map(shaders.map((shader) => [shader.name, shader]))
+      });
     }
   }
 
@@ -261,6 +452,12 @@ export class Material {
         );
       }
 
+      if (this.images.u_image) {
+        this._logger.warn(
+          `Material named "${this.name}" is overriding built in image u_image, is this on purpose? If so ignore this warning.`
+        );
+      }
+
       if (this.images.u_screen_texture) {
         this._logger.warn(
           `Material named "${this.name}" is overriding built in image u_screen_texture, is this on purpose? If so ignore this warning.`
@@ -275,9 +472,7 @@ export class Material {
 
   use() {
     if (this._initialized) {
-      // bind the shader
       this._shader.use();
-      // Apply standard uniforms
       this._shader.trySetUniformFloatColor('u_color', this._color);
     } else {
       throw Error(`Material ${this.name} not yet initialized, use the ExcaliburGraphicsContext.createMaterial() to work around this.`);

@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
-    "outDir": "../../build/dist",
+    "outDir": "../../build/esm",
     "sourceMap": true,
-    "experimentalDecorators": true,
     "target": "es2018",
     "moduleResolution": "bundler",
     "module": "esnext",
@@ -14,6 +13,7 @@
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
+    "noImplicitOverride": true,
     "noUnusedLocals": true,
     "noUnusedParameters": false,
     "allowUnreachableCode": false,

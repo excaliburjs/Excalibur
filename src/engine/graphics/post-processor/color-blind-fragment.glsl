@@ -1,9 +1,11 @@
 #version 300 es
 precision mediump float;
+// color math is applied to the premultiplied screen colors directly
+#pragma excalibur premultiply(off)
 // our texture
 uniform sampler2D u_image;
 // the texCoords passed in from the vertex shader.
-in vec2 v_texcoord;
+in vec2 v_uv;
 
 // color blind type
 uniform int u_type;
@@ -14,7 +16,7 @@ uniform bool u_simulate;
 out vec4 fragColor;
 
 void main() {
-  vec4 o =  texture(u_image, v_texcoord);
+  vec4 o =  texture(u_image, v_uv);
   // RGB to LMS matrix conversion
   float L = (17.8824 * o.r) + (43.5161 * o.g) + (4.11935 * o.b);
   float M = (3.45565 * o.r) + (27.1554 * o.g) + (3.86714 * o.b);

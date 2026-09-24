@@ -1,6 +1,7 @@
 import { Matrix } from './matrix';
 import { canonicalizeAngle, sign } from './util';
 import { vec, Vector } from './vector';
+import { Vector3 } from './vector3';
 
 export class AffineMatrix {
   /**
@@ -204,6 +205,12 @@ export class AffineMatrix {
    * @param vector
    * @param dest
    */
+  multiply(vector: Vector3, dest?: Vector3): Vector3;
+  /**
+   * Multiply the current matrix by a vector producing a new vector
+   * @param vector
+   * @param dest
+   */
   multiply(vector: Vector, dest?: Vector): Vector;
   /**
    * Multiply the current matrix by another matrix producing a new matrix
@@ -211,7 +218,7 @@ export class AffineMatrix {
    * @param dest
    */
   multiply(matrix: AffineMatrix, dest?: AffineMatrix): AffineMatrix;
-  multiply(vectorOrMatrix: Vector | AffineMatrix, dest?: Vector | AffineMatrix): Vector | AffineMatrix {
+  multiply(vectorOrMatrix: Vector | Vector3 | AffineMatrix, dest?: Vector | Vector3 | AffineMatrix): Vector | Vector3 | AffineMatrix {
     if (vectorOrMatrix instanceof Vector) {
       const result = (dest as Vector) || new Vector(0, 0);
       const vector = vectorOrMatrix;
@@ -221,6 +228,19 @@ export class AffineMatrix {
 
       result.x = resultX;
       result.y = resultY;
+      return result;
+    } else if (vectorOrMatrix instanceof Vector3) {
+      const result = (dest as Vector3) || new Vector3(0, 0, 0);
+      const vector = vectorOrMatrix;
+      // these shenanigans are to allow dest and vector to be the same instance
+      const resultX = vector.x * this.data[0] + vector.y * this.data[2] + vector.z * this.data[4];
+      const resultY = vector.x * this.data[1] + vector.y * this.data[3] + vector.z * this.data[5];
+      // last row is always assumed [0, 0, 1]
+      const resultZ = vector.z;
+
+      result.x = resultX;
+      result.y = resultY;
+      result.z = resultZ;
       return result;
     } else {
       const result = (dest as AffineMatrix) || new AffineMatrix();

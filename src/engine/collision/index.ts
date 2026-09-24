@@ -6,7 +6,7 @@ export * from './solver-strategy';
 export * from './colliders/collider';
 export * from './bounding-box';
 
-export * from './colliders/shape';
+export * from './colliders/colliders';
 export * from './colliders/collider';
 export * from './colliders/composite-collider';
 export * from './colliders/circle-collider';
@@ -14,6 +14,7 @@ export * from './colliders/edge-collider';
 export * from './colliders/polygon-collider';
 export * from './colliders/collision-jump-table';
 export * from './colliders/closest-line-jump-table';
+export type * from './colliders/sat-shape';
 export * from './colliders/separating-axis';
 
 export * from './group/collision-group';

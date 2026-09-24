@@ -66,7 +66,37 @@ export class Pair {
       return false;
     }
 
+    // dormant pairs keep their last contact instead of being detected again
+    if (Pair.isDormant(bodyA, bodyB)) {
+      return false;
+    }
+
     return true;
+  }
+
+  /**
+   * A pair is dormant when neither body can move: both are asleep, or one is asleep against a
+   * {@apilink CollisionType.Fixed} body. Dormant pairs need no collision detection, the collision system
+   * carries their last contact over unchanged until one of them wakes.
+   * @param bodyA
+   * @param bodyB
+   */
+  public static isDormant(bodyA: BodyComponent | null | undefined, bodyB: BodyComponent | null | undefined): boolean {
+    if (!bodyA || !bodyB) {
+      return false;
+    }
+    const aSleeping = bodyA.isSleeping;
+    const bSleeping = bodyB.isSleeping;
+    if (aSleeping && bSleeping) {
+      return true;
+    }
+    if (aSleeping && bodyB.collisionType === CollisionType.Fixed) {
+      return true;
+    }
+    if (bSleeping && bodyA.collisionType === CollisionType.Fixed) {
+      return true;
+    }
+    return false;
   }
 
   /**

@@ -17,7 +17,7 @@ import { PointerEventsToObjectDispatcher } from './pointer-events-to-object-disp
  * the {@apilink Collider}'s shape for pointer events.
  */
 export class PointerSystem extends System {
-  static priority = SystemPriority.Higher;
+  static override priority = SystemPriority.Higher;
 
   public readonly systemType = SystemType.Update;
 
@@ -94,7 +94,7 @@ export class PointerSystem extends System {
 
   private _scene!: Scene<unknown>;
 
-  public initialize(world: World, scene: Scene): void {
+  public override initialize(world: World, scene: Scene): void {
     this._engine = scene.engine;
     this._scene = scene;
   }
@@ -107,7 +107,7 @@ export class PointerSystem extends System {
     this._zHasChanged = true;
   };
 
-  public preupdate(): void {
+  public override preupdate(): void {
     if (this._scene.camera.hasChanged()) {
       // if the camera has changed we want to force a transform update so pointers can be correctly calc'd
       this._scene.camera.updateTransform(this._scene.camera.pos);

@@ -295,7 +295,7 @@ describe('A scene', () => {
 
   it('draws visible Actors', () => {
     engine.goToScene('root');
-    actor.graphics.visible = true;
+    actor.graphics.isVisible = true;
     actor.graphics.onPostDraw = vi.fn();
 
     scene.add(actor);
@@ -306,7 +306,7 @@ describe('A scene', () => {
 
   it('does not draw invisible actors', () => {
     engine.goToScene('root');
-    actor.graphics.visible = false;
+    actor.graphics.isVisible = false;
     actor.graphics.onPostDraw = vi.fn();
 
     scene.add(actor);
@@ -630,7 +630,7 @@ describe('A scene', () => {
     const scene1 = new ex.Scene();
     const scene2 = new ex.Scene();
     const timer = new ex.Timer({
-      fcn: () => {
+      action: () => {
         /* pass */
       },
       interval: 100
@@ -692,7 +692,7 @@ describe('A scene', () => {
     // create Timer
     const timer = new ex.Timer({
       interval: 10,
-      fcn: () => {
+      action: () => {
         scene.add(actor);
       },
       repeats: false
@@ -728,7 +728,7 @@ describe('A scene', () => {
     // create Timer
     const timer = new ex.Timer({
       interval: 10,
-      fcn: () => {
+      action: () => {
         scene.add(actor);
       },
       repeats: false
@@ -757,7 +757,7 @@ describe('A scene', () => {
 
   it('will not kill the actor if it is already dead', () => {
     scene.add(actor);
-    actor.active = false;
+    actor.isActive = false;
 
     vi.spyOn(actor, 'kill');
 
@@ -789,7 +789,7 @@ describe('A scene', () => {
     // create Timer
     const timer = new ex.Timer({
       interval: 10,
-      fcn: () => {
+      action: () => {
         scene.add(tilemap);
       },
       repeats: false

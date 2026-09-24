@@ -149,22 +149,6 @@ export class GraphicsComponent extends Component {
 
   /**
    * Sets or gets wether any drawing should be visible in this component
-   * @deprecated use isVisible
-   */
-  public get visible(): boolean {
-    return this.isVisible;
-  }
-
-  /**
-   * Sets or gets wether any drawing should be visible in this component
-   * @deprecated use isVisible
-   */
-  public set visible(val: boolean) {
-    this.isVisible = val;
-  }
-
-  /**
-   * Sets or gets wether any drawing should be visible in this component
    */
   public isVisible: boolean = true;
 
@@ -263,6 +247,7 @@ export class GraphicsComponent extends Component {
       graphics,
       offset,
       copyGraphics,
+      material,
       onPreDraw,
       onPostDraw,
       onPreTransformDraw,
@@ -284,6 +269,7 @@ export class GraphicsComponent extends Component {
     this.anchor = anchor ?? this.anchor;
     this.color = color ?? this.color;
     this.copyGraphics = copyGraphics ?? this.copyGraphics;
+    this.material = material ?? this.material;
     this.onPreDraw = onPreDraw ?? this.onPreDraw;
     this.onPostDraw = onPostDraw ?? this.onPostDraw;
     this.onPreTransformDraw = onPreTransformDraw ?? this.onPreTransformDraw;
@@ -530,7 +516,7 @@ export class GraphicsComponent extends Component {
     }
   }
 
-  public clone(): GraphicsComponent {
+  public override clone(): GraphicsComponent {
     const graphics = new GraphicsComponent();
     graphics._graphics = { ...this._graphics };
     graphics._options = { ...this._options };
@@ -538,13 +524,20 @@ export class GraphicsComponent extends Component {
     if (this.color) {
       graphics.color = this.color.clone();
     }
+    if (this.current) {
+      this.use(this.current);
+    }
     graphics.opacity = this.opacity;
     graphics.anchor = this.anchor.clone();
     graphics.copyGraphics = this.copyGraphics;
+    graphics.material = this.material;
+    graphics.forceOnScreen = this.forceOnScreen;
     graphics.onPreDraw = this.onPreDraw;
     graphics.onPostDraw = this.onPostDraw;
     graphics.isVisible = this.isVisible;
     graphics.shouldAlwaysTick = this.shouldAlwaysTick;
+    graphics.onPreTransformDraw = this.onPreTransformDraw;
+    graphics.onPostTransformDraw = this.onPostTransformDraw;
 
     return graphics;
   }
@@ -552,7 +545,7 @@ export class GraphicsComponent extends Component {
   /**
    * Custom serialization - stores graphic references instead of graphic data
    */
-  public serialize(): GraphicsComponentData {
+  public override serialize(): GraphicsComponentData {
     const type = this.constructor.name;
     const data: GraphicsComponentData = {
       type,
@@ -611,7 +604,7 @@ export class GraphicsComponent extends Component {
    * Custom deserialization
    * NOTE - This only restores the component's settings, it does NOT restore the graphics themselves.
    */
-  public deserialize(data: GraphicsComponentData): void {
+  public override deserialize(data: GraphicsComponentData): void {
     this._current = data.current ?? 'default';
     this.isVisible = data.isVisible ?? true;
     this.opacity = data.opacity ?? 1;

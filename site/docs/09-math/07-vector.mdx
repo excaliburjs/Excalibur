@@ -4,43 +4,52 @@ slug: /vector
 section: Math
 ---
 
+Excalibur provides three vector types to handle spatial math:
+* **[[Vector]]**: 2D vectors for positioning, velocities, and physics on a plane.
+* **[[Vector3]]**: 3D vectors commonly used for spatial transforms, lighting, and shader uniforms.
+* **[[Vector4]]**: 4D vectors primary used for homogeneous coordinates, WebGL shaders, and matrix transformations.
+
 Excalibur uses the [[Vector]] structure to represent points. The [[Vector]] class has many different static methods available for doing vector math as well as instance methods to combine vectors together in different ways.
 
-## Creating vectors
+## Creating Vectors
 
-To quickly create a vector, use the [[vec]] global:
+To quickly create vectors, use the global shorthand functions [[vec]], [[vec3]], or [[vec4]]:
 
 ```ts twoslash
-import { vec } from 'excalibur'
+import { vec, vec3, vec4 } from 'excalibur'
 
-const point = vec(0, 10)
+const point2D = vec(0, 10)
+const point3D = vec3(0, 10, 5)
+const point4D = vec4(0, 10, 5, 1)
 ```
 
 Alternatively, you may see examples of using the more verbose `new Vector(x, y)` format:
 
 ```ts twoslash
-import { Vector } from 'excalibur'
+import { Vector, Vector3, Vector4 } from 'excalibur'
 
-const point = new Vector(0, 10)
+const point2D = new Vector(0, 10)
+const point3D = new Vector3(0, 10, 5)
+const point4D = new Vector4(0, 10, 5, 1)
 ```
 
 To set the value of an existing vector, use [[Vector.setTo]]:
 
 ```ts twoslash
-import { vec } from 'excalibur'
+import { vec, vec3, vec4 } from 'excalibur'
 
-const point = vec(0, 10).setTo(10, 10)
+const point2D = vec(0, 10).setTo(10, 10)
+const point3D = vec3(0, 10, 0).setTo(10, 10, 10)
+const point4D = vec4(0, 0, 0, 0).setTo(10, 10, 10, 1)
 ```
 
-There are some built-in vector constants you can use:
+Each vector class provides built-in constants for common directional and utility vectors:
 
-- [[Vector.Zero]]
-- [[Vector.One]]
-- [[Vector.Half]]
-- [[Vector.Left]]
-- [[Vector.Right]]
-- [[Vector.Up]]
-- [[Vector.Down]]
+| Feature | Constants Available |
+| :--- | :--- | 
+| **[[Vector]]** | `Zero, One, Half, Left, Right, Up, Down` |
+| **[[Vector3]]** | `Zero, One, Left, Right, Up, Down, Forward, Back` |
+| **[[Vector4]]** | `Zero, One` |
 
 ## Cloning vectors
 
@@ -73,7 +82,7 @@ This is intentional to avoid confusion about whether you are mutating the vector
 
 ## Linear interpolation (lerp) between vectors
 
-[[Vector.lerp|Lerp]] returns a new vector that represents a point along the line between two vectors. Given a number between 0 and 1 (representing the percentage of progress) and a target vector, it produces the intermediate vector at that fraction of the distance.
+All vector classes support lerp, which returns a new vector representing a point along the path between two vectors. Given a target vector and an interpolation factor t between 0 and 1, it produces the intermediate vector.
 
 The standard formula for linear interpolation is:
 
@@ -90,3 +99,15 @@ When t = 0, the result is a.
 When t = 1, the result is b.
 
 When t = 0.5, the result is exactly halfway between a and b.
+
+```ts twoslash
+import { vec, vec3 } from 'excalibur'
+
+const start2D = vec(0, 0)
+const end2D = vec(100, 200)
+const mid2D = start2D.lerp(end2D, 0.5) // vec(50, 100)
+
+const start3D = vec3(0, 0, 0)
+const end3D = vec3(10, 20, 30)
+const mid3D = start3D.lerp(end3D, 0.5) // vec3(5, 10, 15)
+```

@@ -74,7 +74,7 @@ export class Text extends Graphic {
 
   private _textWidth: number = 0;
 
-  public get width() {
+  public override get width() {
     if (this._textWidth === 0) {
       this._calculateDimension();
     }
@@ -82,7 +82,7 @@ export class Text extends Graphic {
   }
 
   private _textHeight: number = 0;
-  public get height() {
+  public override get height() {
     if (this._textHeight === 0) {
       this._calculateDimension();
     }
@@ -95,7 +95,7 @@ export class Text extends Graphic {
     this._textHeight = height;
   }
 
-  public get localBounds(): BoundingBox {
+  public override get localBounds(): BoundingBox {
     return this.font.measureText(this._text, this.maxWidth).scale(this.scale);
   }
 

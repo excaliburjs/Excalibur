@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "sourceMap": true,
-    "experimentalDecorators": true,
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",

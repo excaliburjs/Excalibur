@@ -3,7 +3,6 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "docusaurus": "docusaurus",
     "start": "npm run build:docusaurus-plugin-typedoc-api && npm run api:generate && docusaurus start",
     "build": "npm run build:docusaurus-plugin-typedoc-api && npm run api:generate && mkdir .docusaurus && cp -r generated/ .docusaurus/generated/ && docusaurus build",
     "build:docusaurus-plugin-typedoc-api": "cd vendor/docusaurus-plugin-typedoc-api && rimraf lib && tsc -p tsconfig.build.json && cp src/components/styles.css lib/components/ && cd ../..",
@@ -40,7 +39,7 @@
     "lz-string": "^1.5.0",
     "marked": "^9.1.6",
     "marked-smartypants": "^1.1.5",
-    "mermaid": "11.16.1",
+    "mermaid": "11.17.2",
     "prism-react-renderer": "^2.4.0",
     "raw-loader": "^4.0.2",
     "react": "^18.3.1",

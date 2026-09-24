@@ -7,7 +7,9 @@ import {
   Logger,
   parseImageFiltering,
   parseImageWrapping,
-  Vector
+  Vector,
+  Vector3,
+  Vector4
 } from '../..';
 import { Matrix } from '../../math/matrix';
 import { watch } from '../../util/watch';
@@ -16,7 +18,16 @@ import { getAttributeComponentSize, getAttributePointerType } from './webgl-util
 
 export type UniformDictionary = Record<
   string,
-  number | boolean | Vector | Color | AffineMatrix | Matrix | Float32Array | [uniformData: Float32Array, bindingPoint: number]
+  | number
+  | boolean
+  | Vector
+  | Vector3
+  | Vector4
+  | Color
+  | AffineMatrix
+  | Matrix
+  | Float32Array
+  | [uniformData: Float32Array, bindingPoint: number]
 >;
 /*
  * List of the possible glsl uniform types
@@ -471,6 +482,20 @@ export class Shader {
         } else {
           this.trySetUniformFloatVector(key, value);
         }
+      } else if (value instanceof Vector3) {
+        if (uniform?.glType === gl.FLOAT_VEC3) {
+          this.trySetUniform('uniform3f', key, value.x, value.y, value.z);
+        } else if (uniform?.glType === gl.FLOAT_VEC4) {
+          this.trySetUniform('uniform4f', key, value.x, value.y, value.z, 0);
+        } else {
+          this.trySetUniformFloatVector3(key, value);
+        }
+      } else if (value instanceof Vector4) {
+        if (uniform?.glType === gl.FLOAT_VEC4) {
+          this.trySetUniform('uniform4f', key, value.x, value.y, value.z, value.w);
+        } else {
+          this.trySetUniformFloatVector4(key, value);
+        }
       } else if (value instanceof Color) {
         this.trySetUniformFloatColor(key, value);
       } else if (value instanceof AffineMatrix) {
@@ -884,6 +909,49 @@ export class Shader {
    */
   trySetUniformFloatVector(name: string, value: Vector): boolean {
     return this.trySetUniform('uniform2f', name, value.x, value.y);
+  }
+
+  /**
+   * Set a {@apilink Vector3} uniform for the current shader
+   * **Important** Must call ex.Shader.use() before setting a uniform!
+   * @param name
+   * @param value
+   */
+
+  setUniformFloatVector3(name: string, value: Vector3): void {
+    this.setUniform('uniform3f', name, value.x, value.y, value.z);
+  }
+
+  /**
+   * Set a {@apilink Vector3} uniform for the current shader, WILL NOT THROW on error.
+   * **Important** Must call ex.Shader.use() before setting a uniform!
+   * @param name
+   * @param value
+   * @returns
+   */
+  trySetUniformFloatVector3(name: string, value: Vector3): boolean {
+    return this.trySetUniform('uniform3f', name, value.x, value.y, value.z);
+  }
+
+  /**
+   * Set a {@apilink Vector4} uniform for the current shader
+   * **Important** Must call ex.Shader.use() before setting a uniform!
+   * @param name
+   * @param value
+   */
+  setUniformFloatVector4(name: string, value: Vector4): void {
+    this.setUniform('uniform4f', name, value.x, value.y, value.z, value.w);
+  }
+
+  /**
+   * Set a {@apilink Vector4} uniform for the current shader, WILL NOT THROW on error.
+   * **Important** Must call ex.Shader.use() before setting a uniform!
+   * @param name
+   * @param value
+   * @returns
+   */
+  trySetUniformFloatVector4(name: string, value: Vector4): boolean {
+    return this.trySetUniform('uniform4f', name, value.x, value.y, value.z, value.w);
   }
 
   /**

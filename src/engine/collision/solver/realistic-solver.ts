@@ -1,20 +1,30 @@
 import { CollisionPostSolveEvent, CollisionPreSolveEvent, PostCollisionEvent, PreCollisionEvent } from '../../events';
 import { clamp } from '../../math/util';
+import { vec } from '../../math/vector';
+import type { Vector } from '../../math/vector';
 import type { CollisionContact } from '../detection/collision-contact';
 import { CollisionType } from '../collision-type';
 import { ContactConstraintPoint } from './contact-constraint-point';
 import { Side } from '../side';
 import type { CollisionSolver } from './solver';
+import type { BodyComponent } from '../body-component';
 import { DegreeOfFreedom } from '../body-component';
 import { CollisionJumpTable } from '../colliders/collision-jump-table';
+import { Pair } from '../detection/pair';
 import type { DeepRequired } from '../../util/required';
 import type { PhysicsConfig } from '../physics-config';
 import type { ContactBias } from './contact-bias';
 import { ContactSolveBias, HorizontalFirst, None, VerticalFirst } from './contact-bias';
 
+/**
+ * Direct component access, skips accessor dispatch in the solver hot loops (same trick as the separating axis code)
+ */
+type UnsafeVector = { _x: number; _y: number };
+
 export class RealisticSolver implements CollisionSolver {
   directionMap = new Map<string, 'horizontal' | 'vertical'>();
   distanceMap = new Map<string, number>();
+  private _currentContactIds = new Set<string>();
 
   constructor(public config: DeepRequired<Pick<PhysicsConfig, 'realistic'>['realistic']>) {}
   lastFrameContacts: Map<string, CollisionContact> = new Map();
@@ -26,12 +36,20 @@ export class RealisticSolver implements CollisionSolver {
     return this.idToContactConstraint.get(id) ?? [];
   }
 
-  public solve(contacts: CollisionContact[]): CollisionContact[] {
+  /**
+   * Solve the contacts for one physics (sub)step
+   * @param contacts
+   * @param _duration length of the step in ms, unused but kept so `substep`/`substepCount` line up positionally with
+   * the {@apilink CollisionSolver} interface
+   * @param substep index of the substep within the frame, collision events are emitted on the first and last substep only
+   * @param substepCount total substeps in the frame
+   */
+  public solve(contacts: CollisionContact[], _duration?: number, substep: number = 0, substepCount: number = 1): CollisionContact[] {
     // Events and init
-    this.preSolve(contacts);
+    this.preSolve(contacts, substep);
 
-    // Remove any canceled contacts
-    contacts = contacts.filter((c) => !c.isCanceled());
+    // Remove any canceled contacts, dormant (sleeping) contacts are only carried for their constraints and never solved
+    contacts = contacts.filter((c) => !c.isCanceled() && !Pair.isDormant(c.bodyA, c.bodyB));
     // Locate collision bias order
     let bias: ContactBias;
     switch (this.config!.contactSolveBias) {
@@ -66,121 +84,160 @@ export class RealisticSolver implements CollisionSolver {
     this.solvePosition(contacts);
 
     // Events and any contact house-keeping the solver needs
-    this.postSolve(contacts);
+    const emitEventsLastSubstep = substep === substepCount - 1;
+    this.postSolve(contacts, emitEventsLastSubstep);
 
     return contacts;
   }
 
-  preSolve(contacts: CollisionContact[]) {
+  /**
+   * Prepares the contact constraints (effective masses, lever arms, restitution targets) and warm starts them
+   * @param contacts
+   * @param substep index of the substep within the frame, `precollision`/`beforecollisionresolve` are only emitted on the first
+   */
+  preSolve(contacts: CollisionContact[], substep: number = 0) {
     const epsilon = 0.0001;
+    const emitEventsOnFirstSubstep = substep === 0;
+    this.distanceMap.clear();
+    this.directionMap.clear();
     for (let i = 0; i < contacts.length; i++) {
       const contact = contacts[i];
+      // Only fully dormant pairs (both asleep, or one asleep against a Fixed body) skip preSolve entirely.
+      // A pair with one sleeping body against an awake, movable body still gets its constraint refreshed here
+      // (just not solved, see warmStart/solvePosition/solveVelocity) so it has up to date warm-start data for
+      // the frame its island wakes
+      if (Pair.isDormant(contact.bodyA, contact.bodyB)) {
+        continue;
+      }
       if (Math.abs(contact.mtv.x) < epsilon && Math.abs(contact.mtv.y) < epsilon) {
         // Cancel near 0 mtv collisions
         contact.cancel();
         continue;
       }
 
-      // Publish collision events on both participants
       const side = Side.fromDirection(contact.mtv);
       const distance = Math.abs(contact?.info?.separation || 0);
 
       this.distanceMap.set(contact.id, distance);
       this.directionMap.set(contact.id, side === Side.Left || side === Side.Right ? 'horizontal' : 'vertical');
 
-      contact.colliderA.events.emit(
-        'precollision',
-        new PreCollisionEvent(contact.colliderA, contact.colliderB, side, contact.mtv, contact)
-      );
-      contact.colliderA.events.emit(
-        'beforecollisionresolve',
-        new CollisionPreSolveEvent(contact.colliderA, contact.colliderB, side, contact.mtv, contact) as any
-      );
-      contact.colliderB.events.emit(
-        'precollision',
-        new PreCollisionEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate(), contact)
-      );
-      contact.colliderB.events.emit(
-        'beforecollisionresolve',
-        new CollisionPreSolveEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate(), contact) as any
-      );
+      if (emitEventsOnFirstSubstep) {
+        // Publish collision events on both participants
+        contact.colliderA.events.emit(
+          'precollision',
+          new PreCollisionEvent(contact.colliderA, contact.colliderB, side, contact.mtv, contact)
+        );
+        contact.colliderA.events.emit(
+          'beforecollisionresolve',
+          new CollisionPreSolveEvent(contact.colliderA, contact.colliderB, side, contact.mtv, contact) as any
+        );
+        contact.colliderB.events.emit(
+          'precollision',
+          new PreCollisionEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate(), contact)
+        );
+        contact.colliderB.events.emit(
+          'beforecollisionresolve',
+          new CollisionPreSolveEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate(), contact) as any
+        );
+      }
     }
 
-    // Keep track of contacts that done
-    const finishedContactIds = Array.from(this.idToContactConstraint.keys());
+    const currentIds = this._currentContactIds;
+    currentIds.clear();
     for (let i = 0; i < contacts.length; i++) {
       const contact = contacts[i];
-      // Remove all current contacts that are not done
-      const index = finishedContactIds.indexOf(contact.id);
-      if (index > -1) {
-        finishedContactIds.splice(index, 1);
+      currentIds.add(contact.id);
+
+      const bodyA = contact.bodyA;
+      const bodyB = contact.bodyB;
+      // Keep the accumulated impulses of sleeping contacts for when they wake, nothing else to do for them
+      if (Pair.isDormant(bodyA, bodyB)) {
+        continue;
       }
       const contactPoints = this.idToContactConstraint.get(contact.id) ?? [];
+      if (bodyA && bodyB && !bodyA.isSleeping && !bodyB.isSleeping) {
+        const colliderA = contact.colliderA;
+        const colliderB = contact.colliderB;
+        const normal = contact.normal as unknown as UnsafeVector;
+        const tangent = contact.tangent as unknown as UnsafeVector;
+        const nX = normal._x;
+        const nY = normal._y;
+        const tX = tangent._x;
+        const tY = tangent._y;
 
-      let pointIndex = 0;
-      const bodyA = contact.bodyA;
-      const colliderA = contact.colliderA;
-      const bodyB = contact.bodyB;
-      const colliderB = contact.colliderB;
-      if (bodyA && bodyB && (!bodyA.isSleeping || !bodyB.isSleeping)) {
+        // Lever arms are measured from the collider centers, the same origin the impulses are applied about
+        const centerA = colliderA.center as unknown as UnsafeVector;
+        const centerB = colliderB.center as unknown as UnsafeVector;
+        const cAX = centerA._x;
+        const cAY = centerA._y;
+        const cBX = centerB._x;
+        const cBY = centerB._y;
+
+        const invMassA = bodyA.inverseMass;
+        const invMassB = bodyB.inverseMass;
+        const invInertiaA = bodyA.inverseInertia;
+        const invInertiaB = bodyB.inverseInertia;
+
+        const velA = bodyA.vel as unknown as UnsafeVector;
+        const velB = bodyB.vel as unknown as UnsafeVector;
+        const wA = bodyA.angularVelocity;
+        const wB = bodyB.angularVelocity;
+        const restitution = bodyA.bounciness > bodyB.bounciness ? bodyA.bounciness : bodyB.bounciness;
+
+        let pointIndex = 0;
         for (let j = 0; j < contact.points.length; j++) {
           const point = contact.points[j];
-          const normal = contact.normal;
-          const tangent = contact.tangent;
-
-          const aToContact = point.sub(colliderA.center);
-          const bToContact = point.sub(colliderB.center);
-
-          const aToContactNormal = aToContact.cross(normal);
-          const bToContactNormal = bToContact.cross(normal);
-
-          const normalMass =
-            bodyA.inverseMass +
-            bodyB.inverseMass +
-            bodyA.inverseInertia * aToContactNormal * aToContactNormal +
-            bodyB.inverseInertia * bToContactNormal * bToContactNormal;
-
-          const aToContactTangent = aToContact.cross(tangent);
-          const bToContactTangent = bToContact.cross(tangent);
-
-          const tangentMass =
-            bodyA.inverseMass +
-            bodyB.inverseMass +
-            bodyA.inverseInertia * aToContactTangent * aToContactTangent +
-            bodyB.inverseInertia * bToContactTangent * bToContactTangent;
 
           // Preserve normal/tangent impulse by re-using the contact point if it's close
-          if (contactPoints[pointIndex] && contactPoints[pointIndex]?.point?.squareDistance(point) < 4) {
-            contactPoints[pointIndex].point = point;
-            contactPoints[pointIndex].local = contact.localPoints[pointIndex];
+          let constraint = contactPoints[pointIndex];
+          if (constraint && constraint.point.squareDistance(point) < 4) {
+            constraint.point = point;
+            constraint.local = contact.localPoints[j];
+            // Rebind to the live contact so relative velocity uses the current normal/bodies
+            constraint.contact = contact;
           } else {
             // new contact if it's not close or doesn't exist
-            contactPoints[pointIndex] = new ContactConstraintPoint(point, contact.localPoints[pointIndex], contact);
+            constraint = contactPoints[pointIndex] = new ContactConstraintPoint(point, contact.localPoints[j], contact);
           }
 
-          // Update contact point calculations
-          contactPoints[pointIndex].aToContact = aToContact;
-          contactPoints[pointIndex].bToContact = bToContact;
-          contactPoints[pointIndex].normalMass = 1.0 / normalMass;
-          contactPoints[pointIndex].tangentMass = 1.0 / tangentMass;
+          const p = point as unknown as UnsafeVector;
+          const rAX = p._x - cAX;
+          const rAY = p._y - cAY;
+          const rBX = p._x - cBX;
+          const rBY = p._y - cBY;
+          constraint.aToContact.setTo(rAX, rAY);
+          constraint.bToContact.setTo(rBX, rBY);
 
-          // Calculate relative velocity before solving to accurately do restitution
-          const restitution = bodyA.bounciness > bodyB.bounciness ? bodyA.bounciness : bodyB.bounciness;
-          const relativeVelocity = contact.normal.dot(contactPoints[pointIndex].getRelativeVelocity());
-          contactPoints[pointIndex].originalVelocityAndRestitution = 0;
-          if (relativeVelocity < -0.1) {
-            // TODO what's a good threshold here?
-            contactPoints[pointIndex].originalVelocityAndRestitution = -restitution * relativeVelocity;
-          }
+          // 2D cross(r, axis) = r.x * axis.y - r.y * axis.x
+          const rAN = rAX * nY - rAY * nX;
+          const rBN = rBX * nY - rBY * nX;
+          constraint.normalMass = 1.0 / (invMassA + invMassB + invInertiaA * rAN * rAN + invInertiaB * rBN * rBN);
+
+          const rAT = rAX * tY - rAY * tX;
+          const rBT = rBX * tY - rBY * tX;
+          constraint.tangentMass = 1.0 / (invMassA + invMassB + invInertiaA * rAT * rAT + invInertiaB * rBT * rBT);
+
+          // Relative velocity at the contact before solving to accurately do restitution
+          // point velocity = v + w x r, where w x r = (-w * r.y, w * r.x)
+          const relX = velB._x - wB * rBY - (velA._x - wA * rAY);
+          const relY = velB._y + wB * rBX - (velA._y + wA * rAX);
+          const relativeNormalVelocity = relX * nX + relY * nY;
+          // TODO what's a good threshold here?
+          constraint.originalVelocityAndRestitution = relativeNormalVelocity < -0.1 ? -restitution * relativeNormalVelocity : 0;
           pointIndex++;
         }
+        // Drop constraint points left over from a previous, larger manifold (e.g. 2 point face contact -> 1 point corner contact).
+        // Stale points carry an old world point/lever arm/accumulated impulse and make the velocity solver diverge.
+        contactPoints.length = pointIndex;
       }
       this.idToContactConstraint.set(contact.id, contactPoints);
     }
 
-    // Clean up any contacts that did not occur last frame
-    for (const id of finishedContactIds) {
-      this.idToContactConstraint.delete(id);
+    // Clean up constraints for contacts that ended
+    for (const id of this.idToContactConstraint.keys()) {
+      if (!currentIds.has(id)) {
+        this.idToContactConstraint.delete(id);
+      }
     }
 
     // Warm contacts with accumulated impulse
@@ -199,7 +256,14 @@ export class RealisticSolver implements CollisionSolver {
     }
   }
 
-  postSolve(contacts: CollisionContact[]) {
+  /**
+   * @param contacts
+   * @param emitEvents whether `postcollision`/`aftercollisionresolve` fire, only the last substep of a frame does
+   */
+  postSolve(contacts: CollisionContact[], emitEvents: boolean = true) {
+    if (!emitEvents) {
+      return;
+    }
     for (let i = 0; i < contacts.length; i++) {
       const contact = contacts[i];
       const bodyA = contact.bodyA;
@@ -245,30 +309,35 @@ export class RealisticSolver implements CollisionSolver {
    * @param contacts
    */
   warmStart(contacts: CollisionContact[]) {
+    const warm = this.config!.warmStart;
     for (let i = 0; i < contacts.length; i++) {
       const contact = contacts[i];
-
       const bodyA = contact.bodyA;
       const bodyB = contact.bodyB;
-
-      if (bodyA!.isSleeping && bodyB!.isSleeping) {
+      // We do want to warm start these contacts eventually, but we wait for the contact island to wake both
+      // bodies together rather than warm starting one side of a still-sleeping pair
+      if (!bodyA || !bodyB || bodyA.isSleeping || bodyB.isSleeping) {
         continue;
       }
 
-      if (bodyA && bodyB) {
-        const contactPoints = this.idToContactConstraint.get(contact.id) ?? [];
-        for (const point of contactPoints) {
-          if (this.config!.warmStart) {
-            const normalImpulse = contact.normal.scale(point.normalImpulse);
-            const tangentImpulse = contact.tangent.scale(point.tangentImpulse);
-            const impulse = normalImpulse.add(tangentImpulse);
-
-            bodyA.applyImpulse(point.point, impulse.negate());
-            bodyB.applyImpulse(point.point, impulse);
-          } else {
-            point.normalImpulse = 0;
-            point.tangentImpulse = 0;
-          }
+      const contactPoints = this.idToContactConstraint.get(contact.id);
+      if (!contactPoints) {
+        continue;
+      }
+      const normal = contact.normal as unknown as UnsafeVector;
+      const tangent = contact.tangent as unknown as UnsafeVector;
+      for (let j = 0; j < contactPoints.length; j++) {
+        const point = contactPoints[j];
+        if (warm) {
+          const impulseX = normal._x * point.normalImpulse + tangent._x * point.tangentImpulse;
+          const impulseY = normal._y * point.normalImpulse + tangent._y * point.tangentImpulse;
+          const rA = point.aToContact as unknown as UnsafeVector;
+          const rB = point.bToContact as unknown as UnsafeVector;
+          bodyA.applyImpulseAtOffset(rA._x, rA._y, -impulseX, -impulseY);
+          bodyB.applyImpulseAtOffset(rB._x, rB._y, impulseX, impulseY);
+        } else {
+          point.normalImpulse = 0;
+          point.tangentImpulse = 0;
         }
       }
     }
@@ -279,70 +348,93 @@ export class RealisticSolver implements CollisionSolver {
    * @param contacts
    */
   solvePosition(contacts: CollisionContact[]) {
+    const steeringConstant = this.config!.steeringFactor; //0.2 pixels;
+    const slop = this.config!.slop; //1 pixel;
     for (let i = 0; i < this.config!.positionIterations; i++) {
       for (let j = 0; j < contacts.length; j++) {
         const contact = contacts[j];
         const bodyA = contact.bodyA;
         const bodyB = contact.bodyB;
 
-        if (bodyA!.isSleeping && bodyB!.isSleeping) {
+        // We do want to solve these eventually, but we wait for the contact island to wake both bodies
+        // together, we don't apply position solves to a still-sleeping body
+        if (!bodyA || !bodyB || bodyA.isSleeping || bodyB.isSleeping) {
           continue;
         }
 
-        if (bodyA && bodyB) {
-          // Skip solving active+passive
-          if (bodyA.collisionType === CollisionType.Passive || bodyB.collisionType === CollisionType.Passive) {
+        // Skip solving active+passive
+        if (bodyA.collisionType === CollisionType.Passive || bodyB.collisionType === CollisionType.Passive) {
+          continue;
+        }
+
+        const constraints = this.idToContactConstraint.get(contact.id);
+        if (!constraints) {
+          continue;
+        }
+        const normal = contact.normal as unknown as UnsafeVector;
+        for (let k = 0; k < constraints.length; k++) {
+          const point = constraints[k];
+          const separation = CollisionJumpTable.FindContactSeparation(contact, point.local);
+
+          // Clamp to avoid over-correction
+          // Remember that we are shooting for 0 overlap in the end
+          const steeringForce = clamp(steeringConstant * (separation + slop), this.config!.maxPositionCorrection, 0);
+          if (steeringForce === 0) {
             continue;
           }
 
-          const constraints = this.idToContactConstraint.get(contact.id) ?? [];
-          for (const point of constraints) {
-            const normal = contact.normal;
-            const separation = CollisionJumpTable.FindContactSeparation(contact, point.local);
+          // This is a pseudo impulse, meaning we aren't doing a real impulse calculation
+          // We adjust position and rotation instead of doing the velocity
+          const impulse = -steeringForce * point.normalMass;
+          const impulseX = normal._x * impulse;
+          const impulseY = normal._y * impulse;
 
-            const steeringConstant = this.config!.steeringFactor; //0.2 pixels;
-            const maxCorrection = -5; // pixels
-            const slop = this.config!.slop; //1 pixel;
-
-            // Clamp to avoid over-correction
-            // Remember that we are shooting for 0 overlap in the end
-            const steeringForce = clamp(steeringConstant * (separation + slop), maxCorrection, 0);
-            const impulse = normal.scale(-steeringForce * point.normalMass);
-
-            // This is a pseudo impulse, meaning we aren't doing a real impulse calculation
-            // We adjust position and rotation instead of doing the velocity
-            if (bodyA.collisionType === CollisionType.Active) {
-              // TODO make applyPseudoImpulse function?
-              const impulseForce = impulse.negate().scale(bodyA.inverseMass);
-              if (bodyA.limitDegreeOfFreedom.includes(DegreeOfFreedom.X)) {
-                impulseForce.x = 0;
-              }
-              if (bodyA.limitDegreeOfFreedom.includes(DegreeOfFreedom.Y)) {
-                impulseForce.y = 0;
-              }
-
-              bodyA.globalPos = bodyA.globalPos.add(impulseForce);
-              if (!bodyA.limitDegreeOfFreedom.includes(DegreeOfFreedom.Rotation)) {
-                bodyA.rotation -= point.aToContact.cross(impulse) * bodyA.inverseInertia;
-              }
-            }
-
-            if (bodyB.collisionType === CollisionType.Active) {
-              const impulseForce = impulse.scale(bodyB.inverseMass);
-              if (bodyB.limitDegreeOfFreedom.includes(DegreeOfFreedom.X)) {
-                impulseForce.x = 0;
-              }
-              if (bodyB.limitDegreeOfFreedom.includes(DegreeOfFreedom.Y)) {
-                impulseForce.y = 0;
-              }
-
-              bodyB.globalPos = bodyB.globalPos.add(impulseForce);
-              if (!bodyB.limitDegreeOfFreedom.includes(DegreeOfFreedom.Rotation)) {
-                bodyB.rotation += point.bToContact.cross(impulse) * bodyB.inverseInertia;
-              }
-            }
+          if (bodyA.collisionType === CollisionType.Active) {
+            this._applyPositionCorrection(bodyA, point.aToContact, -impulseX, -impulseY);
+          }
+          if (bodyB.collisionType === CollisionType.Active) {
+            this._applyPositionCorrection(bodyB, point.bToContact, impulseX, impulseY);
           }
         }
+      }
+    }
+  }
+
+  /**
+   * Moves and rotates a body by a pseudo impulse applied at a lever arm from its center, honoring the limited degrees of freedom
+   */
+  private _applyPositionCorrection(body: BodyComponent, offset: Vector, impulseX: number, impulseY: number) {
+    const dof = body.limitDegreeOfFreedom;
+    const inverseMass = body.inverseMass;
+    let dx = impulseX * inverseMass;
+    let dy = impulseY * inverseMass;
+    if (dof.length > 0) {
+      if (dof.includes(DegreeOfFreedom.X)) {
+        dx = 0;
+      }
+      if (dof.includes(DegreeOfFreedom.Y)) {
+        dy = 0;
+      }
+    }
+
+    const transform = body.transform.get();
+    if (transform.parent) {
+      // parented transforms need the full global -> local conversion
+      body.globalPos = body.globalPos.add(vec(dx, dy));
+    } else {
+      // unparented transforms are their own global space, mutate in place (flags the matrix dirty, no allocation)
+      const pos = transform.pos;
+      pos.x += dx;
+      pos.y += dy;
+    }
+
+    if (!dof.includes(DegreeOfFreedom.Rotation)) {
+      const r = offset as unknown as UnsafeVector;
+      const deltaRotation = body.inverseInertia * (r._x * impulseY - r._y * impulseX);
+      if (transform.parent) {
+        body.rotation += deltaRotation;
+      } else {
+        transform.rotation += deltaRotation;
       }
     }
   }
@@ -355,65 +447,90 @@ export class RealisticSolver implements CollisionSolver {
         const bodyA = contact.bodyA;
         const bodyB = contact.bodyB;
 
-        if (bodyA!.isSleeping && bodyB!.isSleeping) {
+        if (!bodyA || !bodyB || bodyA.isSleeping || bodyB.isSleeping) {
           continue;
         }
 
-        if (bodyA && bodyB) {
-          // Skip solving active+passive
-          if (bodyA.collisionType === CollisionType.Passive || bodyB.collisionType === CollisionType.Passive) {
-            continue;
-          }
+        // Skip solving active+passive
+        if (bodyA.collisionType === CollisionType.Passive || bodyB.collisionType === CollisionType.Passive) {
+          continue;
+        }
 
-          const friction = Math.min(bodyA.friction, bodyB.friction);
+        const constraints = this.idToContactConstraint.get(contact.id);
+        if (!constraints || constraints.length === 0) {
+          continue;
+        }
 
-          const constraints = this.idToContactConstraint.get(contact.id) ?? [];
+        const friction = Math.min(bodyA.friction, bodyB.friction);
+        const normal = contact.normal as unknown as UnsafeVector;
+        const tangent = contact.tangent as unknown as UnsafeVector;
+        const nX = normal._x;
+        const nY = normal._y;
+        const tX = tangent._x;
+        const tY = tangent._y;
+        // velocity vectors are mutated in place by applyImpulseAtOffset so these stay valid for the contact
+        const velA = bodyA.vel as unknown as UnsafeVector;
+        const velB = bodyB.vel as unknown as UnsafeVector;
 
-          // Friction constraint
-          for (const point of constraints) {
-            const relativeVelocity = point.getRelativeVelocity();
+        // Friction constraint
+        for (let k = 0; k < constraints.length; k++) {
+          const point = constraints[k];
+          const rA = point.aToContact as unknown as UnsafeVector;
+          const rB = point.bToContact as unknown as UnsafeVector;
+          const wA = bodyA.angularVelocity;
+          const wB = bodyB.angularVelocity;
+          // relative velocity at the contact point, w x r = (-w * r.y, w * r.x)
+          const relX = velB._x - wB * rB._y - (velA._x - wA * rA._y);
+          const relY = velB._y + wB * rB._x - (velA._y + wA * rA._x);
 
-            // Negate velocity in tangent direction to simulate friction
-            const tangentVelocity = -relativeVelocity.dot(contact.tangent);
-            let impulseDelta = tangentVelocity * point.tangentMass;
+          // Negate velocity in tangent direction to simulate friction
+          const tangentVelocity = -(relX * tX + relY * tY);
+          let impulseDelta = tangentVelocity * point.tangentMass;
 
-            // Clamping based in Erin Catto's GDC 2006 talk
-            // Correct clamping https://github.com/erincatto/box2d-lite/blob/master/docs/GDC2006_Catto_Erin_PhysicsTutorial.pdf
-            // Accumulated fiction impulse is always between -uMaxFriction < dT < uMaxFriction
-            // But deltas can vary
-            const maxFriction = friction * point.normalImpulse;
-            const newImpulse = clamp(point.tangentImpulse + impulseDelta, -maxFriction, maxFriction);
-            impulseDelta = newImpulse - point.tangentImpulse;
-            point.tangentImpulse = newImpulse;
+          // Clamping based in Erin Catto's GDC 2006 talk
+          // Correct clamping https://github.com/erincatto/box2d-lite/blob/master/docs/GDC2006_Catto_Erin_PhysicsTutorial.pdf
+          // Accumulated fiction impulse is always between -uMaxFriction < dT < uMaxFriction
+          // But deltas can vary
+          const maxFriction = friction * point.normalImpulse;
+          const newImpulse = clamp(point.tangentImpulse + impulseDelta, -maxFriction, maxFriction);
+          impulseDelta = newImpulse - point.tangentImpulse;
+          point.tangentImpulse = newImpulse;
 
-            const impulse = contact.tangent.scale(impulseDelta);
-            bodyA.applyImpulse(point.point, impulse.negate());
-            bodyB.applyImpulse(point.point, impulse);
-          }
+          const impulseX = tX * impulseDelta;
+          const impulseY = tY * impulseDelta;
+          bodyA.applyImpulseAtOffset(rA._x, rA._y, -impulseX, -impulseY);
+          bodyB.applyImpulseAtOffset(rB._x, rB._y, impulseX, impulseY);
+        }
 
-          // Bounce constraint
-          for (const point of constraints) {
-            // Need to recalc relative velocity because the previous step could have changed vel
-            const relativeVelocity = point.getRelativeVelocity();
+        // Bounce constraint
+        for (let k = 0; k < constraints.length; k++) {
+          const point = constraints[k];
+          const rA = point.aToContact as unknown as UnsafeVector;
+          const rB = point.bToContact as unknown as UnsafeVector;
+          // Need to recalc relative velocity because the previous step could have changed vel
+          const wA = bodyA.angularVelocity;
+          const wB = bodyB.angularVelocity;
+          const relX = velB._x - wB * rB._y - (velA._x - wA * rA._y);
+          const relY = velB._y + wB * rB._x - (velA._y + wA * rA._x);
 
-            // Compute impulse in normal direction
-            const normalVelocity = relativeVelocity.dot(contact.normal);
+          // Compute impulse in normal direction
+          const normalVelocity = relX * nX + relY * nY;
 
-            // Per Erin it is a mistake to apply the restitution inside the iteration
-            // From Erin Catto's Box2D we keep original contact velocity and adjust by small impulses
-            let impulseDelta = -point.normalMass * (normalVelocity - point.originalVelocityAndRestitution);
+          // Per Erin it is a mistake to apply the restitution inside the iteration
+          // From Erin Catto's Box2D we keep original contact velocity and adjust by small impulses
+          let impulseDelta = -point.normalMass * (normalVelocity - point.originalVelocityAndRestitution);
 
-            // Clamping based in Erin Catto's GDC 2014 talk
-            // Accumulated impulse stored in the contact is always positive (dV > 0)
-            // But deltas can be negative
-            const newImpulse = Math.max(point.normalImpulse + impulseDelta, 0);
-            impulseDelta = newImpulse - point.normalImpulse;
-            point.normalImpulse = newImpulse;
+          // Clamping based in Erin Catto's GDC 2014 talk
+          // Accumulated impulse stored in the contact is always positive (dV >= 0)
+          // But deltas can be negative
+          const newImpulse = Math.max(point.normalImpulse + impulseDelta, 0);
+          impulseDelta = newImpulse - point.normalImpulse;
+          point.normalImpulse = newImpulse;
 
-            const impulse = contact.normal.scale(impulseDelta);
-            bodyA.applyImpulse(point.point, impulse.negate());
-            bodyB.applyImpulse(point.point, impulse);
-          }
+          const impulseX = nX * impulseDelta;
+          const impulseY = nY * impulseDelta;
+          bodyA.applyImpulseAtOffset(rA._x, rA._y, -impulseX, -impulseY);
+          bodyB.applyImpulseAtOffset(rB._x, rB._y, impulseX, impulseY);
         }
       }
     }

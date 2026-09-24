@@ -6,7 +6,7 @@ import { SystemPriority } from '../entity-component-system';
 import { PauseComponentTag } from '../entity-component-system/components/pause-component';
 
 export class IsometricEntitySystem extends System {
-  static priority: number = SystemPriority.Lower;
+  static override priority: number = SystemPriority.Lower;
 
   public readonly systemType = SystemType.Update;
   query: Query<typeof TransformComponent | typeof IsometricEntityComponent>;

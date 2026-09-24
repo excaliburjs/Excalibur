@@ -166,14 +166,14 @@ describe('Action', () => {
 
   describe('blink', () => {
     it('can blink on and off', () => {
-      expect(actor.graphics.visible).toBe(true);
+      expect(actor.graphics.isVisible).toBe(true);
       actor.actions.blink(200, 200);
 
       scene.update(engine, 200);
-      expect(actor.graphics.visible).toBe(false);
+      expect(actor.graphics.isVisible).toBe(false);
 
       scene.update(engine, 250);
-      expect(actor.graphics.visible).toBe(true);
+      expect(actor.graphics.isVisible).toBe(true);
     });
 
     it('can be reset', () => {
@@ -187,31 +187,31 @@ describe('Action', () => {
     });
 
     it('can blink at a frequency forever', () => {
-      expect(actor.graphics.visible).toBe(true);
+      expect(actor.graphics.isVisible).toBe(true);
       actor.actions.repeatForever((ctx) => ctx.blink(200, 200));
       scene.update(engine, 200);
 
       for (let i = 0; i < 2; i++) {
-        expect(actor.graphics.visible).toBe(false);
+        expect(actor.graphics.isVisible).toBe(false);
         scene.update(engine, 200);
 
-        expect(actor.graphics.visible).toBe(true);
+        expect(actor.graphics.isVisible).toBe(true);
         scene.update(engine, 200);
       }
     });
 
     it('can be stopped', () => {
-      expect(actor.graphics.visible).toBe(true);
+      expect(actor.graphics.isVisible).toBe(true);
       actor.actions.blink(1, 3000);
 
       scene.update(engine, 500);
-      expect(actor.graphics.visible).toBe(false);
+      expect(actor.graphics.isVisible).toBe(false);
 
       actor.actions.clearActions();
 
       scene.update(engine, 500);
       scene.update(engine, 500);
-      expect(actor.graphics.visible).toBe(true);
+      expect(actor.graphics.isVisible).toBe(true);
     });
   });
 
@@ -239,7 +239,7 @@ describe('Action', () => {
       expect(scene.actors.length).toBe(1);
       actor.actions.die();
       scene.update(engine, 100);
-      expect(actor.active).toBe(false);
+      expect(actor.isActive).toBe(false);
       expect(scene.actors.length).toBe(0);
     });
 
@@ -526,19 +526,27 @@ describe('Action', () => {
 
   describe('easeBy', () => {
     it('can be reset', () => {
-      const easeTo = new ex.EaseBy(actor, 100, 0, 100, ex.EasingFunctions.EaseInOutCubic);
+      const easeTo = new ex.MoveByWithOptions(actor, {
+        offset: ex.vec(100, 0),
+        duration: 100,
+        easing: ex.easeInOutCubic
+      });
       easeTo.update(1000);
-      expect(easeTo.isComplete()).toBe(true);
+      expect(easeTo.isComplete(actor)).toBe(true);
 
       easeTo.reset();
       actor.pos = ex.vec(0, 0);
-      expect(easeTo.isComplete()).toBe(false);
+      expect(easeTo.isComplete(actor)).toBe(false);
     });
     it('can be eased to a location given an easing function (x,y) overload', () => {
       actor.pos = ex.vec(100, 100);
       expect(actor.pos).toBeVector(ex.vec(100, 100));
 
-      actor.actions.easeBy(100, 0, 1000, ex.EasingFunctions.EaseInOutCubic);
+      actor.actions.moveBy({
+        offset: ex.vec(100, 0),
+        duration: 1000,
+        easing: ex.easeInOutCubic
+      });
 
       scene.update(engine, 500);
       expect(actor.pos).toBeVector(ex.vec(150, 100));
@@ -557,7 +565,11 @@ describe('Action', () => {
       actor.pos = ex.vec(100, 100);
       expect(actor.pos).toBeVector(ex.vec(100, 100));
 
-      actor.actions.easeBy(ex.vec(100, 0), 1000, ex.EasingFunctions.EaseInOutCubic);
+      actor.actions.moveBy({
+        offset: ex.vec(100, 0),
+        duration: 1000,
+        easing: ex.easeInOutCubic
+      });
 
       scene.update(engine, 500);
       expect(actor.pos).toBeVector(ex.vec(150, 100));
@@ -576,7 +588,11 @@ describe('Action', () => {
       actor.pos = ex.vec(100, 100);
       expect(actor.pos).toBeVector(ex.vec(100, 100));
 
-      actor.actions.easeBy(100, 0, 1000, ex.EasingFunctions.EaseInOutCubic);
+      actor.actions.moveBy({
+        offset: ex.vec(100, 0),
+        duration: 1000,
+        easing: ex.easeInOutCubic
+      });
 
       scene.update(engine, 500);
       expect(actor.pos).toBeVector(ex.vec(150, 100));
@@ -615,9 +631,9 @@ describe('Action', () => {
         .scaleTo({ scale: ex.vec(1, 1), duration: 250 });
 
       // The blink action (first in sequence) should work
-      expect(actor.graphics.visible).toBe(true);
+      expect(actor.graphics.isVisible).toBe(true);
       scene.update(engine, 100); // Should trigger blink
-      expect(actor.graphics.visible).toBe(false);
+      expect(actor.graphics.isVisible).toBe(false);
 
       // Subsequent actions should also work
       scene.update(engine, 100);
@@ -629,7 +645,7 @@ describe('Action', () => {
       actor.pos = ex.vec(0, 0);
 
       // Start easeBy and interrupt it
-      actor.actions.easeBy(100, 0, 1000, ex.EasingFunctions.Linear);
+      actor.actions.moveBy({ offset: ex.vec(100, 0), duration: 1000, easing: ex.linear });
       scene.update(engine, 500);
       expect(actor.pos.x).toBeCloseTo(50, 1);
 
@@ -637,7 +653,7 @@ describe('Action', () => {
 
       // Start new easeBy - should initialize correctly
       actor.pos = ex.vec(0, 0);
-      actor.actions.easeBy(100, 0, 1000, ex.EasingFunctions.Linear);
+      actor.actions.moveBy({ offset: ex.vec(100, 0), duration: 1000, easing: ex.linear });
 
       scene.update(engine, 500);
       expect(actor.pos.x).toBeCloseTo(50, 1);
@@ -691,12 +707,12 @@ describe('Action', () => {
       // THE BUG: The first action (blink) was being skipped after clearActions()
       // THE FIX: It should now execute properly
 
-      expect(actor.graphics.visible).toBe(true);
+      expect(actor.graphics.isVisible).toBe(true);
       scene.update(engine, 100); // Blink on (100ms)
-      expect(actor.graphics.visible).toBe(false); // ✓ BLINK EXECUTED! Bug is fixed!
+      expect(actor.graphics.isVisible).toBe(false); // ✓ BLINK EXECUTED! Bug is fixed!
 
       scene.update(engine, 100); // Blink off (100ms)
-      expect(actor.graphics.visible).toBe(true);
+      expect(actor.graphics.isVisible).toBe(true);
 
       scene.update(engine, 1); // CallMethod executes
       expect(blinkExecuted).toBe(true); // Confirms the action sequence worked
@@ -705,18 +721,26 @@ describe('Action', () => {
 
   describe('easeTo', () => {
     it('can be reset', () => {
-      const easeTo = new ex.EaseTo(actor, 100, 0, 100, ex.EasingFunctions.EaseInOutCubic);
+      const easeTo = new ex.MoveToWithOptions(actor, {
+        pos: ex.vec(100, 0),
+        duration: 100,
+        easing: ex.easeInOutCubic
+      });
       easeTo.update(1000);
-      expect(easeTo.isComplete()).toBe(true);
+      expect(easeTo.isComplete(actor)).toBe(true);
 
       easeTo.reset();
       actor.pos = ex.vec(0, 0);
-      expect(easeTo.isComplete()).toBe(false);
+      expect(easeTo.isComplete(actor)).toBe(false);
     });
     it('can be eased to a location given an easing function (x,y) overload', () => {
       expect(actor.pos).toBeVector(ex.vec(0, 0));
 
-      actor.actions.easeTo(100, 0, 1000, ex.EasingFunctions.EaseInOutCubic);
+      actor.actions.moveTo({
+        pos: ex.vec(100, 0),
+        duration: 1000,
+        easing: ex.easeInOutCubic
+      });
 
       scene.update(engine, 500);
       expect(actor.pos).toBeVector(ex.vec(50, 0));
@@ -734,7 +758,11 @@ describe('Action', () => {
     it('can be eased to a location given an easing function vector overload', () => {
       expect(actor.pos).toBeVector(ex.vec(0, 0));
 
-      actor.actions.easeTo(ex.vec(100, 0), 1000, ex.EasingFunctions.EaseInOutCubic);
+      actor.actions.moveTo({
+        pos: ex.vec(100, 0),
+        duration: 1000,
+        easing: ex.easeInOutCubic
+      });
 
       scene.update(engine, 500);
       expect(actor.pos).toBeVector(ex.vec(50, 0));
@@ -752,13 +780,18 @@ describe('Action', () => {
     it('can be eased to a location given an easing function vector overload', () => {
       expect(actor.pos).toBeVector(ex.vec(0, 0));
 
-      actor.actions.easeTo(ex.vec(100, 0), 1000, ex.EasingFunctions.EaseInOutCubic);
+      actor.actions.moveTo({
+        pos: ex.vec(100, 0),
+        duration: 1000,
+        easing: ex.easeInOutCubic
+      });
 
       scene.update(engine, 500);
       expect(actor.pos).toBeVector(ex.vec(50, 0));
       expect(actor.vel).toBeVector(ex.vec(100, 0));
 
       scene.update(engine, 500);
+      scene.update(engine, 1);
       expect(actor.pos).toBeVector(ex.vec(100, 0));
       expect(actor.vel).toBeVector(ex.vec(0, 0));
 
@@ -770,7 +803,11 @@ describe('Action', () => {
     it('can be stopped', () => {
       expect(actor.pos).toBeVector(ex.vec(0, 0));
 
-      actor.actions.easeTo(100, 0, 1000, ex.EasingFunctions.EaseInOutCubic);
+      actor.actions.moveTo({
+        pos: ex.vec(100, 0),
+        duration: 1000,
+        easing: ex.easeInOutCubic
+      });
 
       scene.update(engine, 500);
       expect(actor.pos).toBeVector(ex.vec(50, 0));
@@ -1294,6 +1331,96 @@ describe('Action', () => {
 
       scene.update(engine, 500);
       expect(actor.rotation).toBe(Math.PI / 2);
+      expect(actor.angularVelocity).toBe(0);
+    });
+
+    it('(with options) can rotate a full revolution when no rotation type is provided', () => {
+      expect(actor.rotation).toBe(0);
+
+      actor.actions.rotateBy({ angleRadiansOffset: Math.PI * 2, duration: 2000 });
+
+      scene.update(engine, 500);
+      expect(actor.rotation).toBeCloseTo(Math.PI / 2, 5);
+
+      scene.update(engine, 500);
+      expect(actor.rotation).toBeCloseTo(Math.PI, 5);
+
+      scene.update(engine, 500);
+      expect(actor.rotation).toBeCloseTo((3 * Math.PI) / 2, 5);
+
+      scene.update(engine, 500);
+      expect(actor.rotation).toBeCloseTo(0, 5);
+
+      scene.update(engine, 500);
+      expect(actor.rotation).toBeCloseTo(0, 5);
+      expect(actor.angularVelocity).toBe(0);
+    });
+
+    it('(with options) rotates by the exact signed offset when larger than PI and no rotation type is provided', () => {
+      expect(actor.rotation).toBe(0);
+
+      actor.actions.rotateBy({ angleRadiansOffset: (3 * Math.PI) / 2, duration: 2000 });
+
+      // Rotates positively through PI, not backwards -PI/2
+      scene.update(engine, 1000);
+      expect(actor.rotation).toBeCloseTo((3 * Math.PI) / 4, 5);
+
+      scene.update(engine, 1000);
+      expect(actor.rotation).toBeCloseTo((3 * Math.PI) / 2, 5);
+
+      scene.update(engine, 500);
+      expect(actor.rotation).toBeCloseTo((3 * Math.PI) / 2, 5);
+      expect(actor.angularVelocity).toBe(0);
+    });
+
+    it('(with options) full-turn offsets with explicit directional rotation types travel a full revolution', () => {
+      expect(actor.rotation).toBe(0);
+
+      actor.actions.rotateBy({ angleRadiansOffset: Math.PI * 2, duration: 1000, rotationType: ex.RotationType.Clockwise });
+      scene.update(engine, 500);
+      expect(actor.rotation).toBeCloseTo(Math.PI, 5);
+      expect(actor.angularVelocity).toBeGreaterThan(0);
+      scene.update(engine, 500);
+      scene.update(engine, 100);
+      expect(actor.rotation).toBeCloseTo(0, 5);
+      expect(actor.angularVelocity).toBe(0);
+
+      actor.actions.rotateBy({ angleRadiansOffset: Math.PI * 2, duration: 1000, rotationType: ex.RotationType.CounterClockwise });
+      scene.update(engine, 500);
+      expect(actor.rotation).toBeCloseTo(Math.PI, 5);
+      expect(actor.angularVelocity).toBeLessThan(0);
+      scene.update(engine, 500);
+      scene.update(engine, 100);
+      expect(actor.rotation).toBeCloseTo(0, 5);
+      expect(actor.angularVelocity).toBe(0);
+    });
+
+    it('(with options) full-turn offsets with explicit ShortestPath do not move', () => {
+      expect(actor.rotation).toBe(0);
+
+      actor.actions.rotateBy({ angleRadiansOffset: Math.PI * 2, duration: 1000, rotationType: ex.RotationType.ShortestPath });
+      scene.update(engine, 500);
+      expect(actor.rotation).toBeCloseTo(0, 5);
+      scene.update(engine, 500);
+      scene.update(engine, 100);
+      expect(actor.rotation).toBeCloseTo(0, 5);
+      expect(actor.angularVelocity).toBe(0);
+    });
+
+    it('(with options) can rotate multiple revolutions with a negative offset', () => {
+      expect(actor.rotation).toBe(0);
+
+      actor.actions.rotateBy({ angleRadiansOffset: -Math.PI * 4, duration: 2000 });
+
+      scene.update(engine, 500);
+      expect(actor.rotation).toBeCloseTo(Math.PI, 5);
+
+      scene.update(engine, 500);
+      expect(actor.rotation).toBeCloseTo(0, 5);
+
+      scene.update(engine, 1000);
+      scene.update(engine, 500);
+      expect(actor.rotation).toBeCloseTo(0, 5);
       expect(actor.angularVelocity).toBe(0);
     });
 
