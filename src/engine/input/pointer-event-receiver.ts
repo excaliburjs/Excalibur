@@ -578,8 +578,8 @@ export class PointerEventReceiver {
     // Force update pointer system
     const pointerSystem = this.engine.currentScene.world.get(PointerSystem);
     if (pointerSystem) {
-      pointerSystem!.preupdate!(this.engine.currentScene, 1);
-      pointerSystem!.update(1);
+      pointerSystem!.onPreUpdate!(this.engine.currentScene, 1);
+      pointerSystem!.onUpdate(1);
     }
   }
 

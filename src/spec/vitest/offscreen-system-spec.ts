@@ -33,7 +33,7 @@ describe('The OffscreenSystem', () => {
     engine.currentScene.camera.update(engine, 1);
     engine.screen.setCurrentCamera(engine.currentScene.camera);
     engine.currentScene._initialize(engine);
-    sut.initialize(engine.currentScene.world, engine.currentScene);
+    sut.onInitialize(engine.currentScene.world, engine.currentScene);
 
     const rect = new ex.Rectangle({
       width: 25,
@@ -54,7 +54,7 @@ describe('The OffscreenSystem', () => {
     sut.query.checkAndModify(offscreen);
 
     // Should be offscreen
-    sut.update();
+    sut.onUpdate();
     expect(offscreenSpy).toHaveBeenCalled();
     expect(onscreenSpy).not.toHaveBeenCalled();
     expect(offscreen.hasTag('ex.offscreen')).toBe(true);
@@ -63,7 +63,7 @@ describe('The OffscreenSystem', () => {
 
     // Should be onscreen
     offscreen.get(TransformComponent).pos = ex.vec(80, 80);
-    sut.update();
+    sut.onUpdate();
     offscreen.processComponentRemoval();
     expect(offscreenSpy).not.toHaveBeenCalled();
     expect(onscreenSpy).toHaveBeenCalled();

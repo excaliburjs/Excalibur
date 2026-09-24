@@ -26,12 +26,12 @@ export class OffscreenSystem extends System {
     this.query = this.world.query([TransformComponent, GraphicsComponent]);
   }
 
-  public override initialize(world: World, scene: Scene): void {
+  public override onInitialize(world: World, scene: Scene): void {
     this._camera = scene.camera;
     this._screen = scene.engine.screen;
   }
 
-  update(): void {
+  onUpdate(): void {
     this._worldBounds = this._screen.getWorldBounds();
     let transform: TransformComponent;
     let graphics: GraphicsComponent;

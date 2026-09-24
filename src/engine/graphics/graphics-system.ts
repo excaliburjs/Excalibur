@@ -52,7 +52,7 @@ export class GraphicsSystem extends System {
     });
   }
 
-  public override initialize(world: World, scene: Scene): void {
+  public override onInitialize(world: World, scene: Scene): void {
     this._camera = scene.camera;
     this._engine = scene.engine;
   }
@@ -62,7 +62,7 @@ export class GraphicsSystem extends System {
     this._zHasChanged = true;
   };
 
-  public override preupdate(): void {
+  public override onPreUpdate(): void {
     // Graphics context could be switched to fallback in a new frame
     this._graphicsContext = this._engine.graphicsContext;
     if (this._zHasChanged) {
@@ -73,7 +73,7 @@ export class GraphicsSystem extends System {
     }
   }
 
-  public update(elapsed: number): void {
+  public onUpdate(elapsed: number): void {
     this._token++;
     let entity: Entity;
     let graphics: GraphicsComponent;

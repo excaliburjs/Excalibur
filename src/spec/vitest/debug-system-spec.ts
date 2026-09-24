@@ -39,7 +39,7 @@ describe('DebugSystem', () => {
     const world = engine.currentScene.world;
     const debugSystem = new ex.DebugSystem(world);
     engine.currentScene.world.add(debugSystem);
-    debugSystem.initialize(world, engine.currentScene);
+    debugSystem.onInitialize(world, engine.currentScene);
 
     engine.graphicsContext.clear();
     await (engine.graphicsContext.debug as any)._debugText.load();
@@ -50,7 +50,7 @@ describe('DebugSystem', () => {
     engine.debug.collider.showAll = true;
 
     expect(() => {
-      debugSystem.update();
+      debugSystem.onUpdate();
     }).not.toThrow();
   });
 
@@ -58,7 +58,7 @@ describe('DebugSystem', () => {
     const world = engine.currentScene.world;
     const debugSystem = new ex.DebugSystem(world);
     engine.currentScene.world.add(debugSystem);
-    debugSystem.initialize(world, engine.currentScene);
+    debugSystem.onInitialize(world, engine.currentScene);
 
     engine.graphicsContext.clear();
     await (engine.graphicsContext.debug as any)._debugText.load();
@@ -73,7 +73,7 @@ describe('DebugSystem', () => {
     engine.debug.screen.showAll = true;
 
     expect(() => {
-      debugSystem.update();
+      debugSystem.onUpdate();
       engine.graphicsContext.flush();
     }).not.toThrow();
   });
@@ -83,7 +83,7 @@ describe('DebugSystem', () => {
       const world = engine.currentScene.world;
       const debugSystem = new ex.DebugSystem(world);
       engine.currentScene.world.add(debugSystem);
-      debugSystem.initialize(world, engine.currentScene);
+      debugSystem.onInitialize(world, engine.currentScene);
 
       engine.graphicsContext.clear();
       await (engine.graphicsContext.debug as any)._debugText.load();
@@ -93,7 +93,7 @@ describe('DebugSystem', () => {
       engine.debug.transform.showAll = true;
       engine.debug.entity.showAll = true;
       debugSystem.query.checkAndModify(actor);
-      debugSystem.update();
+      debugSystem.onUpdate();
 
       engine.graphicsContext.flush();
 
@@ -104,7 +104,7 @@ describe('DebugSystem', () => {
       const world = engine.currentScene.world;
       const debugSystem = new ex.DebugSystem(world);
       engine.currentScene.world.add(debugSystem);
-      debugSystem.initialize(world, engine.currentScene);
+      debugSystem.onInitialize(world, engine.currentScene);
 
       engine.graphicsContext.clear();
       await (engine.graphicsContext.debug as any)._debugText.load();
@@ -117,7 +117,7 @@ describe('DebugSystem', () => {
       engine.debug.motion.showAll = true;
       engine.debug.collider.showGeometry = true;
       engine.debug.collider.geometryLineWidth = 2;
-      debugSystem.update();
+      debugSystem.onUpdate();
 
       engine.graphicsContext.flush();
 
@@ -128,7 +128,7 @@ describe('DebugSystem', () => {
       const world = engine.currentScene.world;
       const debugSystem = new ex.DebugSystem(world);
       engine.currentScene.world.add(debugSystem);
-      debugSystem.initialize(world, engine.currentScene);
+      debugSystem.onInitialize(world, engine.currentScene);
 
       engine.graphicsContext.clear();
       await (engine.graphicsContext.debug as any)._debugText.load();
@@ -139,7 +139,7 @@ describe('DebugSystem', () => {
       actor.acc = ex.vec(100, -100);
       debugSystem.query.checkAndModify(actor);
       engine.debug.body.showAll = true;
-      debugSystem.update();
+      debugSystem.onUpdate();
 
       engine.graphicsContext.flush();
 
@@ -150,7 +150,7 @@ describe('DebugSystem', () => {
       const world = engine.currentScene.world;
       const debugSystem = new ex.DebugSystem(world);
       engine.currentScene.world.add(debugSystem);
-      debugSystem.initialize(world, engine.currentScene);
+      debugSystem.onInitialize(world, engine.currentScene);
 
       engine.graphicsContext.clear();
       await (engine.graphicsContext.debug as any)._debugText.load();
@@ -160,7 +160,7 @@ describe('DebugSystem', () => {
       debugSystem.query.checkAndModify(actor);
       engine.debug.entity.showId = true;
       engine.debug.collider.showAll = true;
-      debugSystem.update();
+      debugSystem.onUpdate();
 
       engine.graphicsContext.flush();
 
@@ -171,7 +171,7 @@ describe('DebugSystem', () => {
       const world = engine.currentScene.world;
       const debugSystem = new ex.DebugSystem(world);
       engine.currentScene.world.add(debugSystem);
-      debugSystem.initialize(world, engine.currentScene);
+      debugSystem.onInitialize(world, engine.currentScene);
 
       engine.graphicsContext.clear();
       await (engine.graphicsContext.debug as any)._debugText.load();
@@ -182,7 +182,7 @@ describe('DebugSystem', () => {
       debugSystem.query.checkAndModify(actor);
       engine.debug.collider.showAll = true;
       engine.debug.collider.geometryLineWidth = 3;
-      debugSystem.update();
+      debugSystem.onUpdate();
 
       engine.graphicsContext.flush();
 
@@ -193,7 +193,7 @@ describe('DebugSystem', () => {
       const world = engine.currentScene.world;
       const debugSystem = new ex.DebugSystem(world);
       engine.currentScene.world.add(debugSystem);
-      debugSystem.initialize(world, engine.currentScene);
+      debugSystem.onInitialize(world, engine.currentScene);
 
       engine.graphicsContext.clear();
       await (engine.graphicsContext.debug as any)._debugText.load();
@@ -206,7 +206,7 @@ describe('DebugSystem', () => {
       engine.debug.collider.showGeometry = false;
       engine.debug.collider.showOwner = false;
       engine.debug.graphics.showAll = true;
-      debugSystem.update();
+      debugSystem.onUpdate();
 
       engine.graphicsContext.flush();
 
@@ -217,7 +217,7 @@ describe('DebugSystem', () => {
       const world = engine.currentScene.world;
       const debugSystem = new ex.DebugSystem(world);
       engine.currentScene.world.add(debugSystem);
-      debugSystem.initialize(world, engine.currentScene);
+      debugSystem.onInitialize(world, engine.currentScene);
 
       engine.graphicsContext.clear();
 
@@ -228,7 +228,7 @@ describe('DebugSystem', () => {
         })
       ]);
       debugSystem.query.checkAndModify(entity);
-      debugSystem.update();
+      debugSystem.onUpdate();
 
       engine.graphicsContext.flush();
       await expect(engine.canvas).toEqualImage('/src/spec/assets/images/debug-system-spec/debug-draw-component.png');
@@ -238,7 +238,7 @@ describe('DebugSystem', () => {
       const world = engine.currentScene.world;
       const debugSystem = new ex.DebugSystem(world);
       engine.currentScene.world.add(debugSystem);
-      debugSystem.initialize(world, engine.currentScene);
+      debugSystem.onInitialize(world, engine.currentScene);
 
       engine.graphicsContext.clear();
       engine.debug.tilemap.showGrid = true;
@@ -255,7 +255,7 @@ describe('DebugSystem', () => {
       tilemap.tiles[0].solid = true;
       tilemap.update(engine, 1);
       debugSystem.query.checkAndModify(tilemap);
-      debugSystem.update();
+      debugSystem.onUpdate();
 
       engine.graphicsContext.flush();
       await expect(engine.canvas).toEqualImage('/src/spec/assets/images/debug-system-spec/tilemap-debug.png');

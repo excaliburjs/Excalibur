@@ -94,7 +94,7 @@ export class PointerSystem extends System {
 
   private _scene!: Scene<unknown>;
 
-  public override initialize(world: World, scene: Scene): void {
+  public override onInitialize(world: World, scene: Scene): void {
     this._engine = scene.engine;
     this._scene = scene;
   }
@@ -107,7 +107,7 @@ export class PointerSystem extends System {
     this._zHasChanged = true;
   };
 
-  public override preupdate(): void {
+  public override onPreUpdate(): void {
     if (this._scene.camera.hasChanged()) {
       // if the camera has changed we want to force a transform update so pointers can be correctly calc'd
       this._scene.camera.updateTransform(this._scene.camera.pos);
@@ -125,7 +125,7 @@ export class PointerSystem extends System {
     }
   }
 
-  public update(): void {
+  public onUpdate(): void {
     // Update graphics
     this._graphicsHashGrid.update(this._graphics);
 

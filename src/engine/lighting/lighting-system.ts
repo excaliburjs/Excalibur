@@ -287,7 +287,7 @@ export class LightingSystem extends System {
     this._options = options ?? {};
   }
 
-  public override initialize(world: World, scene: Scene): void {
+  public override onInitialize(world: World, scene: Scene): void {
     this._scene = scene;
     this._engine = scene.engine;
 
@@ -451,7 +451,7 @@ export class LightingSystem extends System {
     this._lightingEntity.graphics.use(this._lightingCanvas);
   }
 
-  public update(elapsed: number): void {
+  public onUpdate(elapsed: number): void {
     const screen = this._engine.screen;
     this._lightingEntity.transform.coordPlane = CoordPlane.Screen;
 
