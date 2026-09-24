@@ -135,7 +135,7 @@ describe('A SoundManager', () => {
       expect(soundOutput.connect).toHaveBeenLastCalledWith(audioContext.destination);
       expect(sm.getSounds()).toEqual([]);
       expect(sm.getSoundsForChannel('sfx')).toEqual([]);
-      expect(sm.getSound('test')).toBeUndefined();
+      expect(sm.getSound('test')).toBe(null);
     });
 
     it('re-routes a sound that is tracked by a second manager', () => {
@@ -281,7 +281,7 @@ describe('A SoundManager', () => {
       const coin = new ex.Sound('/sfx/coin.mp3');
       const mgr = new ex.SoundManager({ sounds: { myKey: coin } });
       expect(mgr.getSound('myKey')).toBe(coin);
-      expect(mgr.getSound('coin')).toBeUndefined();
+      expect(mgr.getSound('coin')).toBe(null);
     });
 
     it('supports track(sound), track(config) and track(name, sound)', () => {
@@ -308,13 +308,13 @@ describe('A SoundManager', () => {
 
       expect(mgr.getSound(coin)).toBe(coin);
       expect(mgr.getSound('gold')).toBe(coin);
-      expect(mgr.getSound('coin')).toBeUndefined();
+      expect(mgr.getSound('coin')).toBe(null);
 
       mgr.setVolume(coin, 0.25);
       expect(mgr.getVolume(coin)).toBeCloseTo(0.25, 5);
 
       mgr.untrack(coin);
-      expect(mgr.getSound('gold')).toBeUndefined();
+      expect(mgr.getSound('gold')).toBe(null);
       expect(mgr.getSounds()).toEqual([]);
     });
 
@@ -460,7 +460,7 @@ describe('A SoundManager', () => {
       const first = mgr.start('preview', { loop: true })!;
       expect(first).toBeInstanceOf(ex.SoundTrack);
       expect(mgr.getChannel('sfx').playingCount()).toBe(1);
-      expect(mgr.start('preview'), 'over the sfx cap').toBeUndefined();
+      expect(mgr.start('preview'), 'over the sfx cap').toBe(null);
       expect(mgr.start('test', { loop: true }), 'music channel is not capped').toBeInstanceOf(ex.SoundTrack);
       expect(first.isPlaying()).toBe(true);
       mgr.stop();

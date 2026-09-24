@@ -711,7 +711,7 @@ describe('Sound resource', () => {
     });
 
     it('start() returns undefined when the play is dropped', () => {
-      expect(sut.start(), 'not loaded').toBeUndefined();
+      expect(sut.start(), 'not loaded').toBe(null);
     });
 
     it('play() always starts a new track, even while another is paused', async () => {
