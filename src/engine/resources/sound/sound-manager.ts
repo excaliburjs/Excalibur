@@ -17,8 +17,8 @@ export interface SoundConfig<Channel extends string = string, SName extends stri
   name?: SName;
 
   /**
-   * Mix volume [0-1] for this sound in the manager, default 1. Composes with the
-   * sound's own volume, its channel volume and the manager's master volume.
+   * Mix volume [0-1] for this sound, default 1 (full volume). Multiplies with the
+   * sound's own volume, its channel volume, and the master volume.
    */
   volume?: number;
 
@@ -31,16 +31,19 @@ export interface SoundConfig<Channel extends string = string, SName extends stri
 }
 
 /**
- * Context handed to an {@apilink AudioBusBuilder}: wire `input` to `output` through any effects.
+ * Context for {@apilink AudioBusBuilder} useful for custom effects
  */
 export interface AudioBusContext {
+  /**
+   * Browser Web Audio API context
+   */
   readonly audioContext: AudioContext;
   /**
-   * Unity gain the bus's sources are mixed into
+   * Gain the bus sources
    */
   readonly input: GainNode;
   /**
-   * Carries the bus volume and mute, connected onwards to the speakers
+   * Carries the bus volume and mute, out to speakers
    */
   readonly output: GainNode;
 }
@@ -182,7 +185,7 @@ function connectBus(input: GainNode, output: GainNode, audioContext: AudioContex
  */
 function setGain(gain: AudioParam, value: number, audioContext: AudioContext) {
   if (gain.setTargetAtTime) {
-    gain.setTargetAtTime(value, audioContext.currentTime, 0.02);
+    gain.setTargetAtTime(value, audioContext.currentTime, 0.02); // this is .1 on Sound
   } else {
     gain.value = value;
   }
@@ -205,11 +208,11 @@ function setGain(gain: AudioParam, value: number, audioContext: AudioContext) {
  */
 export class SoundChannel {
   /**
-   * Unity gain every sound in the channel connects to
+   * Gain node every sound in the channel connects to
    */
   public readonly input: GainNode;
   /**
-   * Carries the channel volume and mute, connected to the manager's master input
+   * Output gain node that carries the channel volume and mute, connected to the manager's master input
    */
   public readonly output: GainNode;
   /**
@@ -532,11 +535,11 @@ export class SoundManager<Channel extends string, SoundName extends string> impl
   }
 
   /**
-   * Route a tracked sound through a channel, or `undefined` for straight to the master output
+   * Route a tracked sound through a channel, or `null` for straight to the master output
    */
-  public setChannel(name: SoundName, channel: Channel | undefined): void;
-  public setChannel(sound: Sound, channel: Channel | undefined): void;
-  public setChannel(nameOrSound: SoundName | Sound, channel: Channel | undefined): void {
+  public setChannel(name: SoundName, channel: Channel | null): void;
+  public setChannel(sound: Sound, channel: Channel | null): void;
+  public setChannel(nameOrSound: SoundName | Sound, channel: Channel | null): void {
     const sound = this._resolve(nameOrSound);
     const mix = sound && this._mix.get(sound);
     if (!sound || !mix) {
@@ -545,7 +548,7 @@ export class SoundManager<Channel extends string, SoundName extends string> impl
     this._soundChannel.get(sound)?._remove(sound);
     this._soundChannel.delete(sound);
     mix.gain.disconnect();
-    if (channel === undefined) {
+    if (channel === null) {
       mix.gain.connect(this.input);
     } else {
       const soundChannel = this.getChannel(channel);
@@ -573,8 +576,8 @@ export class SoundManager<Channel extends string, SoundName extends string> impl
    * Sound resolves by identity (not by its own name) so aliases registered via
    * `track('gold', coin)` work, and an untracked Sound resolves to itself.
    */
-  private _resolve(nameOrSound: Sound | string): Sound | undefined {
-    return nameOrSound instanceof Sound ? nameOrSound : this._sounds.get(nameOrSound);
+  private _resolve(nameOrSound: Sound | string): Sound | null {
+    return nameOrSound instanceof Sound ? nameOrSound : (this._sounds.get(nameOrSound) ?? null);
   }
 
   /**
@@ -591,26 +594,26 @@ export class SoundManager<Channel extends string, SoundName extends string> impl
 
   /**
    * Like {@apilink SoundManager.play} but returns the {@apilink SoundTrack} synchronously, or
-   * `undefined` if the play was dropped.
+   * `null` if the play was dropped.
    */
-  public start(name: SoundName, options?: PlayOptions): SoundTrack | undefined;
-  public start(sound: Sound, options?: PlayOptions): SoundTrack | undefined;
-  public start(nameOrSound: SoundName | Sound, options?: PlayOptions): SoundTrack | undefined {
+  public start(name: SoundName, options?: PlayOptions): SoundTrack | null;
+  public start(sound: Sound, options?: PlayOptions): SoundTrack | null;
+  public start(nameOrSound: SoundName | Sound, options?: PlayOptions): SoundTrack | null {
     const sound = this._resolve(nameOrSound);
     if (!sound) {
-      return undefined;
+      return null;
     }
 
     const channel = this._soundChannel.get(sound);
     if (channel && !this._makeRoom(channel.sounds, channel.playingCount(), channel.maxConcurrentTracks)) {
       this._logger.warnOnce(
-        `SoundManager: channel "${channel.name}" maxConcurrentTracks (${channel.maxConcurrentTracks}) reached; dropping play of "${sound.name}".`
+        `SoundManager: channel "${channel.name}" maxConcurrentTracks (${channel.maxConcurrentTracks}) reached: dropping "${sound.name}".`
       );
-      return undefined;
+      return null;
     }
     if (!this._makeRoom(this.getSounds(), this.playingCount(), this.maxConcurrentTracks)) {
-      this._logger.warnOnce(`SoundManager: maxConcurrentTracks (${this.maxConcurrentTracks}) reached; dropping play of "${sound.name}".`);
-      return undefined;
+      this._logger.warnOnce(`SoundManager: maxConcurrentTracks (${this.maxConcurrentTracks}) reached: dropping "${sound.name}".`);
+      return null;
     }
 
     return sound.start(options);
@@ -627,7 +630,7 @@ export class SoundManager<Channel extends string, SoundName extends string> impl
     if (!this.voiceStealing) {
       return false;
     }
-    let oldest: SoundTrack | undefined;
+    let oldest: SoundTrack | null = null;
     for (const sound of sounds) {
       for (const track of sound.instances) {
         if (track.isPlaying() && (!oldest || track.id < oldest.id)) {
@@ -639,9 +642,9 @@ export class SoundManager<Channel extends string, SoundName extends string> impl
     return playing - 1 < max;
   }
 
-  public getSound(name: SoundName | AnyString): Sound | undefined;
+  public getSound(name: SoundName | AnyString): Sound | null;
   public getSound(sound: Sound): Sound;
-  public getSound(nameOrSound: SoundName | AnyString | Sound): Sound | undefined {
+  public getSound(nameOrSound: SoundName | AnyString | Sound): Sound | null {
     return this._resolve(nameOrSound);
   }
 
@@ -688,7 +691,7 @@ export class SoundManager<Channel extends string, SoundName extends string> impl
   public track(sound: Sound | SoundConfig): void;
   public track(name: SoundName | AnyString, soundOrConfig: Sound | SoundConfig): void;
   public track(nameOrSound: SoundName | AnyString | Sound | SoundConfig, soundOrConfig?: Sound | SoundConfig): void {
-    let name: string | undefined;
+    let name: string | null = null;
     let config: Sound | SoundConfig;
     if (soundOrConfig === undefined) {
       config = nameOrSound as Sound | SoundConfig;
@@ -717,7 +720,7 @@ export class SoundManager<Channel extends string, SoundName extends string> impl
     this._mix.set(sound, mix);
     sound.output.disconnect();
     sound.output.connect(mix.gain);
-    this.setChannel(sound, channel as Channel | undefined);
+    this.setChannel(sound, channel as Channel | null);
 
     if (this._engine) {
       sound.wireEngine(this._engine);
@@ -732,10 +735,10 @@ export class SoundManager<Channel extends string, SoundName extends string> impl
   public untrack(nameOrSound: SoundName | Sound): void {
     const sound = this._resolve(nameOrSound);
     const name = sound && this._names.get(sound);
-    if (!sound || name === undefined) {
+    if (!sound || name === null || name === undefined) {
       return;
     }
-    this.setChannel(sound, undefined);
+    this.setChannel(sound, null);
     this._mix.get(sound)?.gain.disconnect();
     sound.output.disconnect();
     sound.output.connect(this._audioContext.destination);

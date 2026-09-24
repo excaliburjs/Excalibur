@@ -554,7 +554,7 @@ export class Sound<TName extends string = string> implements Loadable<AudioBuffe
 
   /**
    * Like {@apilink Sound.play} but returns the {@apilink SoundTrack} synchronously so it can be
-   * stopped, seeked or adjusted while it plays. Returns `undefined` if the play was dropped.
+   * stopped, seeked or adjusted while it plays. Returns `null` if the play was dropped.
    *
    * ```typescript
    * const footstep = sound.start({ volume: 0.5 });
@@ -562,20 +562,20 @@ export class Sound<TName extends string = string> implements Loadable<AudioBuffe
    * await footstep?.done;
    * ```
    */
-  public start(options?: PlayOptions): SoundTrack | undefined {
+  public start(options?: PlayOptions): SoundTrack | null {
     if (!this.isLoaded()) {
       this.logger.warn('Cannot start playing. Resource', this.path, 'is not loaded yet');
-      return undefined;
+      return null;
     }
 
     if (this._isStopped) {
       this.logger.warn('Cannot start playing. Engine is in a stopped state.');
-      return undefined;
+      return null;
     }
 
     if (this._maxConcurrentTracks != null && this.playingCount() >= this._maxConcurrentTracks) {
       this.logger.warnOnce(`Sound "${this.name}" has reached maxConcurrentTracks (${this._maxConcurrentTracks}); dropping play.`);
-      return undefined;
+      return null;
     }
 
     const overrides: PlayOptions = typeof options === 'number' ? { volume: options } : (options ?? {});
