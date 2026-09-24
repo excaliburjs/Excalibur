@@ -40,7 +40,7 @@ export class MotionSystem extends System {
     });
   }
 
-  update(elapsed: number): void {
+  onUpdate(elapsed: number): void {
     let transform: TransformComponent;
     let motion: MotionComponent;
     const entities = this.query.entities;

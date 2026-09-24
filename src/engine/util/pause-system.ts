@@ -30,7 +30,7 @@ export class PauseSystem extends System {
    */
   private _pausedCount = 0;
 
-  update(): void {
+  onUpdate(): void {
     // Every actor has a PauseComponent, so this scan is O(entities) every frame. When the scene isn't paused, wasn't
     // paused last frame and no entity is still tagged paused there is nothing to do.
     if (!this.isPaused && !this.wasPaused && this._pausedCount === 0) {

@@ -18,7 +18,7 @@ export class IsometricEntitySystem extends System {
     });
   }
 
-  update(): void {
+  onUpdate(): void {
     let transform: TransformComponent;
     let iso: IsometricEntityComponent;
 
