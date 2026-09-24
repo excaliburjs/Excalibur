@@ -1,6 +1,6 @@
 import type { Sound } from '../resources/sound/sound';
+import type { SoundTrack } from '../resources/sound/sound-track';
 import type { Actor } from '../actor';
-import type { WebAudioInstance } from '../resources/sound/web-audio-instance';
 import { GameEvent } from '../';
 
 export class MediaEvent extends GameEvent<Sound> {
@@ -71,7 +71,7 @@ export class MediaEvent extends GameEvent<Sound> {
 export class NativeSoundEvent extends MediaEvent {
   constructor(
     target: Sound,
-    public track?: WebAudioInstance
+    public track?: SoundTrack
   ) {
     super(target, 'NativeSoundEvent');
   }

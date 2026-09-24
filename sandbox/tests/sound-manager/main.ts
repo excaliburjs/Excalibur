@@ -4,34 +4,46 @@ var game = new ex.Engine({
 });
 
 var loader = new ex.Loader();
-var jumpSnd = new ex.Sound('./jump.mp3');
-loader.addResource(jumpSnd);
-
-var forestSnd = new ex.Sound({
-  paths: ['./loop-forest.mp3'],
-  loop: true,
-  volume: 0.9
-});
-loader.addResource(forestSnd);
-
-var challengeMusic = new ex.Sound('./challengeloopfixed.mp3');
-challengeMusic.loop = true;
-loader.addResource(challengeMusic);
-
-var guitarLoop = new ex.Sound('./loop-guitar.mp3');
-guitarLoop.loop = true;
-loader.addResource(guitarLoop);
+// var jumpSnd = new ex.Sound('./jump.mp3');
+// loader.addResource(jumpSnd);
+//
+// var forestSnd = new ex.Sound({
+//   paths: ['./loop-forest.mp3'],
+//   loop: true,
+//   volume: 0.9
+// });
+// loader.addResource(forestSnd);
+//
+// var challengeMusic = new ex.Sound('./challengeloopfixed.mp3');
+// challengeMusic.loop = true;
+// loader.addResource(challengeMusic);
+//
+// var guitarLoop = new ex.Sound('./loop-guitar.mp3');
+// guitarLoop.loop = true;
+// loader.addResource(guitarLoop);
 
 // Maybe make sound manager a loadable
-var soundManager = new ex.SoundManger({
+
+var soundManager = ex.createSoundManager({
   channels: ['fx', 'music', 'background'],
-  sounds: {
-    jumpSnd: { sound: jumpSnd, volume: 0.4, channels: ['fx'] },
-    forestSnd: { sound: forestSnd, volume: 0.2, channels: ['music', 'background'] },
-    challengeMusic: { sound: challengeMusic, volume: 0.2, channels: ['music'] },
-    guitarLoop: { sound: guitarLoop, volume: 0.2, channels: ['music'] }
-  }
+  sounds: [
+    { sound: ex.createSound('./jump.mp3'), volume: 0.4, channel: 'fx' },
+    { sound: ex.createSound('./loop-forest.mp3'), volume: 0.2, channel: 'music' },
+    { sound: ex.createSound('./challengeloopfixed.mp3'), volume: 0.2, channel: 'music' },
+    { sound: ex.createSound('./loop-guitar.mp3'), volume: 0.2, channel: 'music' }
+  ]
 });
+loader.addResource(soundManager);
+
+// var soundManager = new ex.SoundManger({
+//   channels: ['fx', 'music', 'background'],
+//   sounds: {
+//     jumpSnd: { sound: jumpSnd, volume: 0.4, channels: ['fx'] },
+//     forestSnd: { sound: forestSnd, volume: 0.2, channels: ['music', 'background'] },
+//     challengeMusic: { sound: challengeMusic, volume: 0.2, channels: ['music'] },
+//     guitarLoop: { sound: guitarLoop, volume: 0.2, channels: ['music'] }
+//   }
+// });
 
 var toggleMusic = new ex.Label({
   pos: ex.vec(100, 100),
@@ -47,7 +59,7 @@ console.log('channel count', soundManager.getSoundsForChannel('music'));
 
 game.input.keyboard.on('press', (evt) => {
   if (evt.key === ex.Keys.J) {
-    soundManager.play('jumpSnd');
+    soundManager.play('jump');
   }
 
   if (evt.key === ex.Keys.M) {
@@ -76,6 +88,6 @@ game.input.keyboard.on('press', (evt) => {
 });
 
 game.start(loader).then(() => {
-  soundManager.play('forestSnd');
-  soundManager.play('challengeMusic');
+  soundManager.play('loop-forest');
+  soundManager.play('challengeloopfixed');
 });

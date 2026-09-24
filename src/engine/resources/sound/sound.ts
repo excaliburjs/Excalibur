@@ -1,15 +1,14 @@
-import { ExResponse } from '../../interfaces/audio-implementation';
-import type { Audio } from '../../interfaces/audio';
-import type { Engine } from '../../engine';
 import { Resource } from '../resource';
-import { WebAudioInstance } from './web-audio-instance';
+import { SoundTrack, type AudioGraphBuilder } from './sound-track';
 import { AudioContextFactory } from './audio-context';
 import { NativeSoundEvent, NativeSoundProcessedEvent } from '../../events/media-events';
 import { canPlayFile, canPlayMime } from '../../util/sound';
 import type { Loadable } from '../../interfaces/index';
+import type { Engine } from '../../engine';
 import { Logger } from '../../util/log';
 import type { EventKey, Handler, Subscription } from '../../event-emitter';
 import { EventEmitter } from '../../event-emitter';
+import { clamp } from '../../math/util';
 
 export interface SoundEvents {
   volumechange: NativeSoundEvent;
@@ -32,6 +31,15 @@ export const SoundEvents = {
 };
 
 export interface SoundOptions {
+  /**
+   * Optional explicit name for this sound. Used as the default key when this
+   * Sound is registered with a {@apilink SoundManager} (otherwise the basename
+   * without extension of the selected path is used, e.g. `/sfx/coin.mp3` → `coin`).
+   *
+   * If passed as a string literal, it is inferred as the {@apilink Sound}'s
+   * name type parameter for strong typing.
+   */
+  name?: string;
   /**
    * @param paths A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
    */
@@ -59,6 +67,13 @@ export interface SoundOptions {
    */
   playbackRate?: number;
   /**
+   * Pitch shift in cents (semitones are 100 cents). Default 0 (no change).
+   * Backed by {@apilink AudioBufferSourceNode.detune}; composes with
+   * {@apilink Sound.playbackRate}. Note: changing pitch also affects playback
+   * speed (this is a Web Audio limitation).
+   */
+  pitch?: number;
+  /**
    * Seconds?
    *
    * By default unset, will play the natural length of the clip
@@ -69,14 +84,51 @@ export interface SoundOptions {
    * Advance to a position in the audio clip
    */
   position?: number;
+
+  /**
+   * Maximum number of simultaneously playing tracks allowed for this single
+   * Sound. When the cap is reached, new `play()` calls are dropped and resolve
+   * to `false`. Default unset (unbounded).
+   */
+  maxConcurrentTracks?: number;
+
+  /**
+   * Optional hook to wire custom Web Audio nodes (spatial panners, filters,
+   * reverb, analysers...) between this sound's source and its output. Runs each
+   * time a track (re)starts. See {@apilink AudioGraphBuilder}.
+   */
+  onPlay?: AudioGraphBuilder;
 }
 
+/**
+ * One-off overrides for a single playback, see {@apilink Sound.play}. Unset options fall back to the
+ * {@apilink Sound}'s configuration; nothing here changes the Sound itself.
+ */
 export interface PlayOptions {
   /**
-   * Volume to play between [0, 1]
+   * Volume [0-1] of this track, multiplied with {@apilink Sound.volume}. Default 1.
    */
   volume?: number;
-
+  /**
+   * Pitch shift in cents for this track, overrides {@apilink Sound.pitch}
+   */
+  pitch?: number;
+  /**
+   * Playback speed multiplier for this track, overrides {@apilink Sound.playbackRate}
+   */
+  playbackRate?: number;
+  /**
+   * Loop this track, overrides {@apilink Sound.loop}
+   */
+  loop?: boolean;
+  /**
+   * Position in seconds to start this track from, overrides {@apilink Sound.position}
+   */
+  position?: number;
+  /**
+   * Duration in seconds to play this track for, overrides {@apilink Sound.duration}
+   */
+  duration?: number;
   /**
    * Schedule time to play in milliseconds from the audio context origin
    *
@@ -84,13 +136,17 @@ export interface PlayOptions {
    *
    * ```typescript
    * const sound: Sound = ...;
-   * const oneThousandMillisecondsFromNow = AudioContextFactory.currentTime + 1000;
+   * const oneThousandMillisecondsFromNow = AudioContextFactory.currentTime() + 1000;
    *
    * sound.play({ scheduledStartTime: oneThousandMillisecondsFromNow });
-   *
    * ```
    */
   scheduledStartTime?: number;
+  /**
+   * Audio graph hook for this track (and its later resumes), overrides {@apilink Sound.onPlay}.
+   * See {@apilink AudioGraphBuilder}.
+   */
+  onPlay?: AudioGraphBuilder;
 }
 
 function isSoundOptions(x: any): x is SoundOptions[] {
@@ -98,16 +154,83 @@ function isSoundOptions(x: any): x is SoundOptions[] {
 }
 
 /**
+ * Compile-time basename-without-extension of a path string literal, mirroring
+ * the runtime derivation in {@apilink Sound}'s constructor so inferred names
+ * stay strongly typed.
+ *
+ * `/sfx/coin.mp3?v=2` → `coin`, `/sfx/coin.<hash>.mp3` → `coin.<hash>`, `.env` → `.env`.
+ */
+export type Basename<S extends string> = StripLastExt<StripHash<StripQuery<LastPath<S>>>>;
+type StripQuery<S extends string> = S extends `${infer B}?${string}` ? B : S;
+type StripHash<S extends string> = S extends `${infer B}#${string}` ? B : S;
+type LastPath<S extends string, Orig extends string = S> = S extends `${string}/${infer R}` ? (R extends '' ? Orig : LastPath<R, Orig>) : S;
+type StripLastExt<S extends string> = S extends `${infer Pre}.${infer Post}`
+  ? Post extends `${string}.${string}`
+    ? `${Pre}.${StripLastExt<Post>}`
+    : Pre extends ''
+      ? S
+      : Pre
+  : S;
+
+/**
+ * Derive a sound's default name from its path: basename without extension,
+ * see {@apilink Basename} for the matching compile-time type.
+ */
+function basenameWithoutExt(path: string): string {
+  const segments = path.split('/');
+  let name = segments[segments.length - 1];
+  if (name === '') {
+    name = path; // trailing slash, no basename to use
+  }
+  name = name.split('?')[0].split('#')[0];
+  const dot = name.lastIndexOf('.');
+  return dot > 0 ? name.slice(0, dot) : name;
+}
+
+/**
+ * Factory for constructing a {@apilink Sound} with an inferred name type. Unlike
+ * `new Sound(...)` (whose name type defaults to `string`), `createSound`
+ * captures the basename-without-extension of a path literal — or an explicit
+ * `name` literal — as the `TName` type parameter.
+ *
+ * ```typescript
+ * const coin = createSound('/sfx/coin.mp3');        // Sound<'coin'>
+ * const jump = createSound({ name: 'jump', paths: ['/sfx/jump.ogg'] }); // Sound<'jump'>
+ * const plain = new Sound('/sfx/coin.mp3');          // Sound<string>
+ * ```
+ */
+export function createSound<const TPath extends string>(...paths: TPath[]): Sound<Basename<TPath>>;
+export function createSound<const TName extends string>(options: SoundOptions & { name: TName; paths: string[] }): Sound<TName>;
+export function createSound(...pathsOrOptions: any[]): Sound<any> {
+  return new Sound(...pathsOrOptions);
+}
+
+/**
  * The {@apilink Sound} object allows games built in Excalibur to load audio
  * components, from soundtracks to sound effects. {@apilink Sound} is an {@apilink Loadable}
  * which means it can be passed to a {@apilink Loader} to pre-load before a game or level.
+ *
+ * The optional `TName` type parameter is the sound's registered name — either
+ * the `name` option if provided, or the basename-without-extension of the
+ * selected path. It is inferred from constructor arguments when string literals
+ * are passed.
  */
-export class Sound implements Audio, Loadable<AudioBuffer> {
+export class Sound<TName extends string = string> implements Loadable<AudioBuffer> {
   public events = new EventEmitter<SoundEvents>();
   public logger: Logger = Logger.getInstance();
   public data!: AudioBuffer;
   private _resource: Resource<ArrayBuffer>;
 
+  /**
+   * The registered name of this Sound. Either the explicit `name` option or
+   * the basename-without-extension of the selected path. Used as the default
+   * key when registered with a {@apilink SoundManager}.
+   */
+  public readonly name: TName;
+
+  /**
+   * Position in seconds new tracks start from, see {@apilink PlayOptions.position} for a one-off
+   */
   public position: number | undefined;
   /**
    * Indicates whether the clip should loop when complete
@@ -126,16 +249,28 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
     return this._loop;
   }
 
+  /**
+   * Volume [0-1] applied to every track of this sound, ramped smoothly while playing
+   */
   public set volume(value: number) {
+    value = clamp(value, 0, 1);
     this._volume = value;
 
-    for (const track of this._tracks) {
-      track.volume = this._volume;
+    if (this._output) {
+      const gain = this._output.gain;
+      if (this.isPlaying() && gain.setTargetAtTime) {
+        // https://developer.mozilla.org/en-US/docs/Web/API/AudioParam/setTargetAtTime
+        // After each .1 seconds timestep, the target value will ~63.2% closer to the target value.
+        // This exponential ramp provides a more pleasant transition in gain
+        gain.setTargetAtTime(value, this._audioContext.currentTime, 0.1);
+      } else {
+        gain.value = value;
+      }
     }
 
     this.events.emit('volumechange', new NativeSoundEvent(this));
 
-    this.logger.debug('Set loop for all instances of sound', this.path, 'to', this._volume);
+    this.logger.debug('Set volume for all instances of sound', this.path, 'to', this._volume);
   }
   public get volume(): number {
     return this._volume;
@@ -160,9 +295,9 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
   }
 
   /**
-   * Return array of Current AudioInstances playing or being paused
+   * Return array of Current {@apilink SoundTrack} instances playing or being paused
    */
-  public get instances(): Audio[] {
+  public get instances(): SoundTrack[] {
     return this._tracks;
   }
 
@@ -186,40 +321,39 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
     this._resource.bustCache = val;
   }
 
-  /**
-   * Schedule time to play in milliseconds from the audio context origin
-   *
-   * Compute using the audio context
-   *
-   * ```typescript
-   * const sound: Sound = ...;
-   * const oneThousandMillisecondsFromNow = AudioContextFactory.currentTime + 1000;
-   *
-   * sound.scheduledStartTime = oneThousandMillisecondsFromNow;
-   *
-   * ```
-   */
-  public scheduledStartTime = 0;
-
   private _loop = false;
   private _volume = 1;
   private _isStopped = false;
-  // private _isPaused = false;
-  private _tracks: WebAudioInstance[] = [];
+  private _tracks: SoundTrack[] = [];
   private _engine?: Engine;
   private _wasPlayingOnHidden: boolean = false;
   private _playbackRate = 1.0;
+  private _pitch = 0;
+  private _maxConcurrentTracks?: number;
   private _audioContext = AudioContextFactory.create();
+  /**
+   * Output gain shared by every track of this sound, created on first use
+   */
+  private _output?: GainNode;
 
   /**
-   * @param options
+   * Construct a Sound from an options object with an explicit `name`. The class
+   * generic `TName` is inferred from the `name` literal when one is provided.
    */
-  constructor(options: SoundOptions);
+  public constructor(options: SoundOptions & { name: TName; paths: string[] });
   /**
-   * @param paths A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
+   * Construct a Sound from an options object. `TName` defaults to `string` when
+   * no explicit `name` is given (use {@apilink createSound} to infer the name
+   * from a path literal).
    */
-  constructor(...paths: string[]);
-  constructor(...pathsOrSoundOption: string[] | SoundOptions[]) {
+  public constructor(options: SoundOptions & { paths: string[] });
+  /**
+   * Construct a Sound from a variadic list of audio source paths. `TName`
+   * defaults to `string` (use {@apilink createSound} to infer the name from a
+   * path literal).
+   */
+  public constructor(...paths: string[]);
+  constructor(...pathsOrSoundOption: any[]) {
     let options: SoundOptions;
     if (isSoundOptions(pathsOrSoundOption)) {
       options = pathsOrSoundOption[0];
@@ -228,9 +362,9 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
         paths: pathsOrSoundOption as string[]
       };
     }
-    this._resource = new Resource('', ExResponse.type.arraybuffer);
+    this._resource = new Resource('', 'arraybuffer');
 
-    const { volume, position, playbackRate, loop, bustCache, duration } = options;
+    const { volume, position, playbackRate, loop, bustCache, duration, pitch, maxConcurrentTracks, onPlay, name } = options;
 
     this.volume = volume ?? this.volume;
     this.playbackRate = playbackRate ?? this.playbackRate;
@@ -238,6 +372,9 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
     this.duration = duration ?? this.duration;
     this.bustCache = bustCache ?? this.bustCache;
     this.position = position ?? this.position;
+    this._pitch = pitch ?? this._pitch;
+    this._maxConcurrentTracks = maxConcurrentTracks;
+    this.onPlay = onPlay;
 
     /**
      * Chrome : MP3, WAV, Ogg
@@ -255,8 +392,44 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
     if (!this.path) {
       this.logger.warn('This browser does not support any of the audio files specified:', options.paths.join(', '));
       this.logger.warn('Attempting to use', options.paths[0]);
-      this.path = options.paths[0]; // select the first specified
+      this.path = options.paths[0] ?? ''; // select the first specified
     }
+
+    this.name = (name ?? basenameWithoutExt(this.path)) as TName;
+  }
+
+  /**
+   * Optional hook to wire custom Web Audio nodes between this sound's source
+   * and its output, runs each time a track (re)starts. See {@apilink AudioGraphBuilder}.
+   */
+  public onPlay?: AudioGraphBuilder;
+
+  /**
+   * Pitch shift in cents (semitones are 100 cents). Default 0 (no change).
+   * Backed by {@apilink AudioBufferSourceNode.detune}; composes with
+   * {@apilink Sound.playbackRate}. Note: changing pitch also affects playback
+   * speed (this is a Web Audio limitation).
+   */
+  public get pitch(): number {
+    return this._pitch;
+  }
+  public set pitch(pitch: number) {
+    this._pitch = pitch;
+    for (const track of this._tracks) {
+      track.pitch = this._pitch;
+    }
+  }
+
+  /**
+   * Maximum number of simultaneously playing tracks allowed for this single
+   * Sound. When the cap is reached, new `play()` calls are dropped and resolve
+   * to `false`. Default unset (unbounded).
+   */
+  public get maxConcurrentTracks(): number | undefined {
+    return this._maxConcurrentTracks;
+  }
+  public set maxConcurrentTracks(value: number | undefined) {
+    this._maxConcurrentTracks = value;
   }
 
   public isLoaded() {
@@ -268,7 +441,7 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
       return this.data;
     }
     const arraybuffer = await this._resource.load();
-    const audiobuffer = await this.decodeAudio(arraybuffer.slice(0));
+    const audiobuffer = await this.decodeAudio(arraybuffer);
     this._duration = this._duration ?? audiobuffer?.duration ?? undefined;
     this.events.emit('processed', new NativeSoundProcessedEvent(this, audiobuffer));
     return (this.data = audiobuffer);
@@ -276,6 +449,7 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
 
   public async decodeAudio(data: ArrayBuffer): Promise<AudioBuffer> {
     try {
+      // decodeAudioData detaches the buffer it is given, decode a copy so the caller keeps theirs
       return await this._audioContext.decodeAudioData(data.slice(0));
     } catch (e) {
       this.logger.error(
@@ -288,7 +462,7 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
   }
 
   public wireEngine(engine: Engine) {
-    if (engine) {
+    if (engine && this._engine !== engine) {
       this._engine = engine;
 
       this._engine.on('hidden', () => {
@@ -301,7 +475,7 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
       this._engine.on('visible', () => {
         if (engine.pauseAudioWhenHidden && this._wasPlayingOnHidden) {
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          this.play();
+          this.resume();
           this._wasPlayingOnHidden = false;
         }
       });
@@ -318,10 +492,23 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
   }
 
   /**
-   * Returns how many instances of the sound are currently playing
+   * Returns how many tracks of the sound currently exist (playing or paused)
    */
   public instanceCount(): number {
     return this._tracks.length;
+  }
+
+  /**
+   * Returns how many tracks of the sound are currently playing
+   */
+  public playingCount(): number {
+    let count = 0;
+    for (const track of this._tracks) {
+      if (track.isPlaying()) {
+        count++;
+      }
+    }
+    return count;
   }
 
   /**
@@ -340,38 +527,105 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
   }
 
   /**
-   * Play the sound, returns a promise that resolves when the sound is done playing
-   * An optional volume argument can be passed in to play the sound. Max volume is 1.0
+   * Play a new track of this sound, returns a promise that resolves when that track is done
+   * playing (false if the play was dropped, e.g. by {@apilink Sound.maxConcurrentTracks}).
+   *
+   * Options apply to this track only and never change the Sound's own configuration:
+   *
+   * ```typescript
+   * sound.play();                                   // the sound as configured
+   * sound.play({ volume: 0.3, pitch: -200 });       // quieter and lower, this time only
+   * sound.play({ position: 2, duration: 1 });       // one second starting two seconds in
+   * ```
+   *
+   * To continue paused tracks use {@apilink Sound.resume}, to get a handle on the track
+   * use {@apilink Sound.start}.
    */
-  public play(volumeOrConfig?: number | PlayOptions): Promise<boolean> {
+  public play(options?: PlayOptions): Promise<boolean>;
+  /**
+   * Play a new track at a volume [0-1] (multiplied with {@apilink Sound.volume}) for this track only
+   * @deprecated Use `play({ volume })` instead. Will be removed in v0.34
+   */
+  public play(volume: number): Promise<boolean>;
+  public play(volumeOrOptions?: number | PlayOptions): Promise<boolean> {
+    const track = this.start(volumeOrOptions as PlayOptions);
+    return track ? track.done : Promise.resolve(false);
+  }
+
+  /**
+   * Like {@apilink Sound.play} but returns the {@apilink SoundTrack} synchronously so it can be
+   * stopped, seeked or adjusted while it plays. Returns `null` if the play was dropped.
+   *
+   * ```typescript
+   * const footstep = sound.start({ volume: 0.5 });
+   * footstep?.stop();
+   * await footstep?.done;
+   * ```
+   */
+  public start(options?: PlayOptions): SoundTrack | null {
     if (!this.isLoaded()) {
       this.logger.warn('Cannot start playing. Resource', this.path, 'is not loaded yet');
-
-      return Promise.resolve(true);
+      return null;
     }
 
     if (this._isStopped) {
       this.logger.warn('Cannot start playing. Engine is in a stopped state.');
-      return Promise.resolve(false);
+      return null;
     }
 
-    let scheduledStart = 0;
-    if (volumeOrConfig instanceof Object) {
-      const { volume, scheduledStartTime } = volumeOrConfig;
-      scheduledStart = (scheduledStartTime ?? 0) / 1000 || scheduledStart;
-      this.volume = volume ?? this.volume;
-    } else {
-      this.volume = volumeOrConfig ?? this.volume;
+    if (this._maxConcurrentTracks != null && this.playingCount() >= this._maxConcurrentTracks) {
+      this.logger.warnOnce(`Sound "${this.name}" has reached maxConcurrentTracks (${this._maxConcurrentTracks}); dropping play.`);
+      return null;
     }
 
-    if (this.isPaused()) {
-      return this._resumePlayback();
-    } else {
-      if (this.position) {
-        this.seek(this.position);
+    const overrides: PlayOptions = typeof options === 'number' ? { volume: options } : (options ?? {});
+    const track = this._createTrack(overrides);
+    track.scheduledStartTime = (overrides.scheduledStartTime ?? 0) / 1000;
+    const position = overrides.position ?? this.position;
+    if (position) {
+      track.seek(position);
+    }
+
+    // the completion future never rejects
+    void track
+      .play(() => {
+        this.events.emit('playbackstart', new NativeSoundEvent(this, track));
+        this.logger.debug('Playing new instance for sound', this.path);
+      })
+      .then(() => {
+        this.events.emit('playbackend', new NativeSoundEvent(this, track));
+        this._removeTrack(track);
+      });
+
+    return track;
+  }
+
+  /**
+   * Resume every paused (or seeked) track, resolves when they are done playing.
+   * Resolves `false` immediately if nothing was paused.
+   */
+  public async resume(): Promise<boolean> {
+    const resumed: Promise<boolean>[] = [];
+    for (const track of this._tracks) {
+      if (!track.isPaused()) {
+        continue;
       }
-      return this._startPlayback(scheduledStart);
+      resumed.push(
+        track.play().then((complete) => {
+          this._removeTrack(track);
+          return complete;
+        })
+      );
     }
+    if (resumed.length === 0) {
+      return false;
+    }
+
+    this.events.emit('resume', new NativeSoundEvent(this));
+    this.logger.debug('Resuming paused instances for sound', this.path, this._tracks);
+
+    await Promise.all(resumed);
+    return true;
   }
 
   /**
@@ -416,12 +670,17 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
     });
   }
 
+  /**
+   * Seek a track to a position in seconds, the track is paused until the next {@apilink Sound.resume}.
+   *
+   * If no track exists one is created so that `seek(); resume()` starts from the position.
+   */
   public seek(position: number, trackId = 0) {
     if (this._tracks.length === 0) {
-      this._getTrackInstance(this.data);
+      this._createTrack();
     }
 
-    this._tracks[trackId].seek(position);
+    this._tracks[trackId]?.seek(position);
   }
 
   public getTotalPlaybackDuration() {
@@ -442,77 +701,53 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
    * @param trackId
    */
   public getPlaybackPosition(trackId = 0) {
-    if (this._tracks.length) {
-      return this._tracks[trackId].getPlaybackPosition();
-    }
-    return 0;
+    return this._tracks[trackId]?.getPlaybackPosition() ?? 0;
   }
 
   /**
-   * Get Id of provided AudioInstance in current trackList
-   * @param track {@apilink Audio} which Id is to be given
+   * Get Id of provided {@apilink SoundTrack} in current trackList
+   * @param track {@apilink SoundTrack} which Id is to be given
    */
-  public getTrackId(track: WebAudioInstance): number {
+  public getTrackId(track: SoundTrack): number {
     return this._tracks.indexOf(track);
   }
 
-  private async _resumePlayback(scheduledStart: number = 0): Promise<boolean> {
-    if (this.isPaused()) {
-      const resumed: Promise<boolean>[] = [];
-      // ensure we resume *current* tracks (if paused)
-      for (const track of this._tracks) {
-        track.scheduledStartTime = scheduledStart;
-        resumed.push(
-          track.play().then(() => {
-            this._tracks.splice(this.getTrackId(track), 1);
-            return true;
-          })
-        );
-      }
-
-      this.events.emit('resume', new NativeSoundEvent(this));
-
-      this.logger.debug('Resuming paused instances for sound', this.path, this._tracks);
-      // resolve when resumed tracks are done
-      await Promise.all(resumed);
-    }
-    return true;
-  }
-
-  /**
-   * Starts playback, returns a promise that resolves when playback is complete
-   */
-  private async _startPlayback(scheduledStartTime: number = 0): Promise<boolean> {
-    const track = this._getTrackInstance(this.data);
-    track.scheduledStartTime = scheduledStartTime;
-
-    const complete = await track.play(() => {
-      this.events.emit('playbackstart', new NativeSoundEvent(this, track));
-      this.logger.debug('Playing new instance for sound', this.path);
-    });
-
-    this.events.emit('playbackend', new NativeSoundEvent(this, track));
-
-    // cleanup any done tracks
-    const trackId = this.getTrackId(track);
+  private _removeTrack(track: SoundTrack) {
+    const trackId = this._tracks.indexOf(track);
     if (trackId !== -1) {
       this._tracks.splice(trackId, 1);
     }
-
-    return complete;
   }
 
-  private _getTrackInstance(data: AudioBuffer): WebAudioInstance {
-    const newTrack = new WebAudioInstance(data);
+  /**
+   * The {@apilink GainNode} every track of this sound is mixed into, carrying {@apilink Sound.volume}.
+   * Connected straight to the audio context destination until a {@apilink SoundManager} re-routes it
+   * through its mixer graph.
+   */
+  public get output(): GainNode {
+    if (!this._output) {
+      this._output = this._audioContext.createGain();
+      this._output.gain.value = this._volume;
+      this._output.connect(this._audioContext.destination);
+    }
+    return this._output;
+  }
 
-    newTrack.loop = this.loop;
-    newTrack.volume = this.volume;
-    newTrack.duration = this.duration ?? 0;
-    newTrack.playbackRate = this._playbackRate;
+  /**
+   * Snapshot the sound's configuration, overlaid with per-play overrides, into a new track
+   */
+  private _createTrack(overrides: PlayOptions = {}): SoundTrack {
+    const track = new SoundTrack(this.data, this.output, overrides.onPlay ?? this.onPlay);
 
-    this._tracks.push(newTrack);
+    track.volume = overrides.volume ?? 1;
+    track.loop = overrides.loop ?? this._loop;
+    track.duration = overrides.duration ?? this._duration;
+    track.playbackRate = overrides.playbackRate ?? this._playbackRate;
+    track.pitch = overrides.pitch ?? this._pitch;
 
-    return newTrack;
+    this._tracks.push(track);
+
+    return track;
   }
 
   public emit<TEventName extends EventKey<SoundEvents>>(eventName: TEventName, event: SoundEvents[TEventName]): void;

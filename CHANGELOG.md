@@ -7,6 +7,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- Sound: the audio implementation abstraction has been removed and Web Audio is the only implementation. `ex.WebAudioInstance` is replaced by `ex.SoundTrack` (returned by `Sound.instances` and `NativeSoundEvent.track`), and the `ex.Audio`, `ex.AudioImplementation`, `ex.ExResponse`, `ex.ExResponseType` and `ex.ExResponseTypesLookup` exports are gone (pass the response type string to `new ex.Resource(path, 'arraybuffer')` instead). Per-track volume moved to the owning `Sound`, so `SoundTrack` has no `volume`.
+- `Sound.play()` always starts a new track and never changes the Sound's configuration. Previously `play()` resumed paused tracks, and `play(volume)`/`play({ volume })` permanently set `Sound.volume`. Use the new `Sound.resume()` to continue paused (or seeked) tracks, and `play({ volume, pitch, playbackRate, loop, position, duration, scheduledStartTime, onPlay })` for one-off overrides that apply to that track only (`volume` multiplies `Sound.volume`). `play(volume: number)` still works as a one-off volume but is deprecated. The unused `Sound.scheduledStartTime` property is removed, use the play option. The `onPlay` hook's `source` is now the track's per-play volume gain (an `AudioNode`); the buffer source is available as `bufferSource` for param automation.
+- `SoundManager.play(name, volume)` is now `play(name, options?)` taking the same `PlayOptions`, and `SoundConfig.channels` (a list) is now a single `channel`.
+- `SoundManager` is now a real Web Audio mixer (`Sound.output → mix gain → SoundChannel → SoundManager.output → speakers`) instead of multiplying volumes into `Sound.volume` on each play:
+  - A sound routes through a single `channel` (`SoundConfig.channel`, `SoundManager.setChannel()`) rather than a list of `channels`; `addChannel()`/`removeChannel()` are removed. Channel volume and mute apply to the whole channel via `SoundChannel` (`manager.getChannel('music')`, `manager.channel.setVolume/mute/...`).
+  - `SoundManager.volume` is the master volume (`defaultVolume` is removed) and `play(name, volume)` passes `volume` through to `Sound.play()` untouched; `setVolume`/`getVolume` read and write the sound's mix gain and never write `Sound.volume`.
+  - Muting (sound, channel or master) silences playback instead of pausing it, so muted sounds still play and are audible mid-clip when unmuted. `mute()`/`unmute()`/`toggle()` with no argument act on the master output.
+  - `SoundManager.play()` and `SoundManager.channel.play()` resolve to a `boolean` (false when the sound was unknown or dropped by a concurrency cap) instead of `void`. `ChannelCollection` is constructed with only the manager, and the quasi-internal `_muted`, `_isMuted()`, `_getEffectiveVolume()` and `_activeTrackCount()` members are replaced by `isMuted()` and `playingCount()`.
 - Behavior change - Excalibur screen space is now consistently rooted at the top-left of the safe content area (`Screen.contentArea`) across the whole API. Previously the clipping display modes (`FitScreenAndFill`, `FitContainerAndFill`, `FitScreenAndZoom`, `FitContainerAndZoom`) disagreed about where screen space started: `CoordPlane.Screen` entities and pointer events were rooted at the content area's corner, but `Screen.worldToScreenCoordinates` returned raw canvas/resolution coordinates and `Screen.contentArea.left/top` carried the canvas-space inset. Every API now shares the single content-area-rooted definition, which fixes several pointer, transition, and `unsafeArea` bugs in the clipping display modes, but is a breaking change for code that relied on the old canvas-rooted values:
   - `Screen.worldToScreenCoordinates(point)` now returns coordinates rooted at the content area (previously the raw camera projection in canvas/resolution coordinates). `Screen.screenToWorldCoordinates` is the exact inverse, as before.
   - `Screen.contentArea` is now always rooted at `(0, 0)`, and `Screen.unsafeArea.topLeft` is negative by the clip amount. The canvas-space inset that `contentArea.left/top` used to carry is available from the new `Screen.contentAreaOffset`.
@@ -48,6 +56,34 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Sounds expose their Web Audio graph through an `onPlay` hook (`new ex.Sound({ paths, onPlay })`, `sound.onPlay = ...`, or per play with `sound.play({ onPlay })`). The hook receives `{ audioContext, source, destination, track }` each time a track (re)starts and wires `source` to `destination` through any nodes it likes, enabling spatial audio, filters, reverb, analysers and other custom effects:
+
+  ```typescript
+  const sound = new ex.Sound({
+    paths: ['/sfx/explosion.ogg'],
+    onPlay: ({ audioContext, source, destination }) => {
+      const panner = audioContext.createPanner();
+      panner.positionX.value = 10;
+      source.connect(panner).connect(destination);
+    }
+  });
+  ```
+- `Sound.pitch` (and `sound.play({ pitch })`) shifts pitch in cents via `AudioBufferSourceNode.detune`.
+- `Sound.maxConcurrentTracks` and `SoundManager.maxConcurrentTracks` cap the number of simultaneously playing tracks, dropping new plays (which resolve to `false`) once reached. `Sound.playingCount()` and `SoundManager.playingCount()` report the current number.
+- `Sound.start(options?)` plays like `play()` but returns the `SoundTrack` synchronously (or `null` if dropped) so a single playback can be stopped, seeked or adjusted; `track.done` resolves when it finishes. `SoundManager.start(name, options?)` does the same for managed sounds, and every `SoundTrack` has a `volume` and a monotonically increasing `id`.
+- `SoundManager` channels can be configured with `{ name, volume, maxConcurrentTracks, onConnect }` in `channels`, adding a per-channel cap on simultaneously playing tracks alongside the manager-wide `maxConcurrentTracks`. With `voiceStealing: true` a cap stops the oldest playing track in that scope instead of dropping the new play.
+- `onConnect` lifecycle hooks on `SoundManager` options and channel configs receive `{ audioContext, input, output }` when the bus is created, to insert effects for a whole channel or the master output (for example a compressor), and `SoundManager.input` exposes the master bus input.
+- `SoundManager` is `Loadable`: `loader.addResource(manager)` loads (and wires to the engine) every sound it manages, including sounds tracked later.
+- `SoundChannel` exposes its `input` and `output` gain nodes so effects can be inserted for a whole channel, and `Sound.output` exposes the sound's own gain node for custom routing:
+
+  ```typescript
+  const music = manager.getChannel('music');
+  const muffle = music.audioContext.createBiquadFilter();
+  muffle.type = 'lowpass';
+  music.input.disconnect();
+  music.input.connect(muffle).connect(music.output);
+  ```
+- `Sound.name` (an explicit `name` option, or the file's basename without extension) is the default key when a sound is registered with a `SoundManager`, so `sounds` accepts an array of `Sound`/`SoundConfig` as well as the record form, and `track(sound)`/`track(config)` work without a name. `ex.createSound(path)` and `ex.createSoundManager(options)` infer literal name types so `manager.play('coin')` is checked at compile time. `SoundManager` methods also accept a `Sound` instance in place of a name.
 - Added an optional `System.dispose(world, scene)` lifecycle hook, called by the `SystemManager` when a system is removed after having been initialized — use it to release resources the system provisioned in `initialize` (entities it added, observable subscriptions, etc.). The `LightingSystem` uses it to remove its provisioned overlay and unsubscribe its component queries when lighting is disabled at runtime
 - Added multipass **shader pipelines** for composing shader effects that need more than one pass (blur, bloom, glow), built on an explicit source→destination dataflow with no hidden bind state:
   - New `ex.Framebuffer` and `ex.MultisampleFramebuffer` primitives that are both a render destination and a texture source (`framebuffer.texture`, `framebuffer.glFramebuffer`, `framebuffer.texelSize`), with `resize()`, `clear()`, and `dispose()`. These replace the internal (never exported) `RenderTarget`/`RenderSource` classes inside the WebGL context. Reading a `MultisampleFramebuffer.texture` resolves the MSAA samples automatically.
@@ -163,6 +199,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed `SoundManager.channel.setVolume()` doing nothing (it passed the channel name where a sound was expected), `SoundManager.unmute()` starting every managed sound, and `SoundManager.untrack()` leaving the sound in its channels.
+- Fixed `Sound.wireEngine()` registering duplicate engine handlers when called twice with the same engine.
+- Fixed `Sound` with `position` set creating two tracks and starting from the beginning.
+- Fixed `SoundManagerOptions` no longer rejecting channel names in `sounds` that were not declared in `channels`.
 - Fixed issue where `rotateBy({…})` would not rotate at all for a full-turn offset (`2 * Math.PI` normalized to a zero-length rotation) and would rotate the wrong way for offsets larger than `Math.PI`. When no `rotationType` is provided, `rotateBy` now rotates by exactly the signed offset given, preserving full and multiple turns; when a `rotationType` is provided, the offset determines the target orientation and the type picks the travel path as before. Also fixed an angular velocity spike of ±2π on frames where a multi-turn rotation wrapped past the canonical angle range
 - Fixed issue where a pointer's normalized id could change mid-contact. `PointerEventReceiver` normalized native pointer ids by sorting all active native ids and using the array index, so an already-tracked pointer (e.g. a touch in a multi-touch gesture) was silently re-assigned a different id when another pointer went down or up, routing its subsequent events to the wrong `PointerAbstraction`. Normalized ids are now stable for the lifetime of the contact; the smallest freed id is reused for new contacts (so a lone new touch always lands back on `pointers.primary`); cancelled contacts (`pointercancel`/`touchcancel`) free their id and clear their down state instead of leaking; and the mouse keeps its id reserved after mouse-up since it persists as a hover pointer
 - Fixed issue where a cancelled pointer (`pointercancel`/`touchcancel`) left entities in a phantom hover/drag state. Entities now receive `pointerleave` (and `pointerdragend`/`pointerdragleave` when the cancelled contact was dragging) before `pointercancel`, mirroring the pointer-up flow and the browser's own post-cancel event order, since the browser never sends another move/up event for a cancelled pointer
