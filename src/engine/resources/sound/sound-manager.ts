@@ -701,8 +701,8 @@ export class SoundManager<Channel extends string, SoundName extends string> impl
     }
 
     const sound = config instanceof Sound ? config : config.sound;
-    const volume = config instanceof Sound ? undefined : config.volume;
-    const channel = config instanceof Sound ? undefined : config.channel;
+    const volume = config instanceof Sound ? null : config.volume;
+    const channel = config instanceof Sound ? null : config.channel;
     name ??= config instanceof Sound ? config.name : (config.name ?? config.sound.name);
 
     if (this._sounds.has(name)) {

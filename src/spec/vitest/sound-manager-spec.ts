@@ -120,7 +120,7 @@ describe('A SoundManager', () => {
       expect(mix.disconnect).toHaveBeenCalled();
       expect(mix.connect).toHaveBeenLastCalledWith(sm.getChannel('sfx').input);
 
-      sm.setChannel('test', undefined);
+      sm.setChannel('test', null);
       expect(sm.getSoundsForChannel('sfx')).toEqual([]);
       expect(mix.connect).toHaveBeenLastCalledWith(sm.input);
     });
