@@ -42,10 +42,10 @@ describe('A Graphics ECS System', () => {
     const world = engine.currentScene.world;
     const sut = new ex.GraphicsSystem(world);
     engine.currentScene._initialize(engine);
-    sut.initialize(world, engine.currentScene);
+    sut.onInitialize(world, engine.currentScene);
     const es = [...entities];
     es.forEach((e) => sut.query.entityAdded$.notifyAll(e));
-    sut.preupdate();
+    sut.onPreUpdate();
     expect(sut.sortedTransforms.map((t) => t.owner)).toEqual(entities.reverse());
   });
 
@@ -57,8 +57,8 @@ describe('A Graphics ECS System', () => {
       engine.currentScene.camera.update(engine, 1);
       engine.currentScene._initialize(engine);
       engine.screen.setCurrentCamera(engine.currentScene.camera);
-      offscreenSystem.initialize(world, engine.currentScene);
-      sut.initialize(world, engine.currentScene);
+      offscreenSystem.onInitialize(world, engine.currentScene);
+      sut.onInitialize(world, engine.currentScene);
 
       const rect = new ex.Rectangle({
         width: 25,
@@ -103,10 +103,10 @@ describe('A Graphics ECS System', () => {
       entities.forEach((e) => offscreenSystem.query.checkAndModify(e));
       entities.forEach((e) => sut.query.checkAndModify(e));
 
-      offscreenSystem.update();
+      offscreenSystem.onUpdate();
 
-      sut.preupdate();
-      sut.update(1);
+      sut.onPreUpdate();
+      sut.onUpdate(1);
 
       expect(rect.draw).toHaveBeenCalled();
       expect(circle.draw).toHaveBeenCalled();
@@ -124,8 +124,8 @@ describe('A Graphics ECS System', () => {
       engine.currentScene.camera.update(engine, 1);
       engine.currentScene._initialize(engine);
       engine.screen.setCurrentCamera(engine.currentScene.camera);
-      offscreenSystem.initialize(world, engine.currentScene);
-      sut.initialize(world, engine.currentScene);
+      offscreenSystem.onInitialize(world, engine.currentScene);
+      sut.onInitialize(world, engine.currentScene);
 
       engine.graphicsContext.opacity = 0.5;
 
@@ -141,11 +141,11 @@ describe('A Graphics ECS System', () => {
       sut.query.checkAndModify(actor);
 
       offscreenSystem.query.checkAndModify(actor);
-      offscreenSystem.update();
+      offscreenSystem.onUpdate();
 
       engine.graphicsContext.clear();
-      sut.preupdate();
-      sut.update(1);
+      sut.onPreUpdate();
+      sut.onUpdate(1);
 
       engine.graphicsContext.flush();
       await expect(engine.canvas).toEqualImage('/src/spec/assets/images/graphics-system-spec/graphics-context-opacity.png');
@@ -158,8 +158,8 @@ describe('A Graphics ECS System', () => {
       engine.currentScene.camera.update(engine, 1);
       engine.currentScene._initialize(engine);
       engine.screen.setCurrentCamera(engine.currentScene.camera);
-      offscreenSystem.initialize(world, engine.currentScene);
-      sut.initialize(world, engine.currentScene);
+      offscreenSystem.onInitialize(world, engine.currentScene);
+      sut.onInitialize(world, engine.currentScene);
 
       const sword = new ex.ImageSource('/src/spec/assets/images/graphics-system-spec/sword.png');
       await sword.load();
@@ -175,11 +175,11 @@ describe('A Graphics ECS System', () => {
 
       sut.query.checkAndModify(actor);
 
-      offscreenSystem.update();
+      offscreenSystem.onUpdate();
 
       engine.graphicsContext.clear();
-      sut.preupdate();
-      sut.update(1);
+      sut.onPreUpdate();
+      sut.onUpdate(1);
 
       engine.graphicsContext.flush();
       await expect(engine.canvas).toEqualImage('/src/spec/assets/images/graphics-system-spec/sword-flip-horizontal.png');
@@ -192,8 +192,8 @@ describe('A Graphics ECS System', () => {
       engine.currentScene.camera.update(engine, 1);
       engine.currentScene._initialize(engine);
       engine.screen.setCurrentCamera(engine.currentScene.camera);
-      offscreenSystem.initialize(world, engine.currentScene);
-      sut.initialize(world, engine.currentScene);
+      offscreenSystem.onInitialize(world, engine.currentScene);
+      sut.onInitialize(world, engine.currentScene);
 
       const sword = new ex.ImageSource('/src/spec/assets/images/graphics-system-spec/sword.png');
       await sword.load();
@@ -209,11 +209,11 @@ describe('A Graphics ECS System', () => {
 
       sut.query.checkAndModify(actor);
 
-      offscreenSystem.update();
+      offscreenSystem.onUpdate();
 
       engine.graphicsContext.clear();
-      sut.preupdate();
-      sut.update(1);
+      sut.onPreUpdate();
+      sut.onUpdate(1);
 
       engine.graphicsContext.flush();
       await expect(engine.canvas).toEqualImage('/src/spec/assets/images/graphics-system-spec/sword-flip-vertical.png');
@@ -226,8 +226,8 @@ describe('A Graphics ECS System', () => {
       engine.currentScene.camera.update(engine, 1);
       engine.currentScene._initialize(engine);
       engine.screen.setCurrentCamera(engine.currentScene.camera);
-      offscreenSystem.initialize(world, engine.currentScene);
-      sut.initialize(world, engine.currentScene);
+      offscreenSystem.onInitialize(world, engine.currentScene);
+      sut.onInitialize(world, engine.currentScene);
 
       const sword = new ex.ImageSource('/src/spec/assets/images/graphics-system-spec/sword.png');
       await sword.load();
@@ -244,11 +244,11 @@ describe('A Graphics ECS System', () => {
 
       sut.query.checkAndModify(actor);
 
-      offscreenSystem.update();
+      offscreenSystem.onUpdate();
 
       engine.graphicsContext.clear();
-      sut.preupdate();
-      sut.update(1);
+      sut.onPreUpdate();
+      sut.onUpdate(1);
 
       engine.graphicsContext.flush();
       await expect(engine.canvas).toEqualImage('/src/spec/assets/images/graphics-system-spec/sword-flip-both.png');
@@ -261,8 +261,8 @@ describe('A Graphics ECS System', () => {
       engine.currentScene.camera.update(engine, 1);
       engine.currentScene._initialize(engine);
       engine.screen.setCurrentCamera(engine.currentScene.camera);
-      offscreenSystem.initialize(world, engine.currentScene);
-      sut.initialize(world, engine.currentScene);
+      offscreenSystem.onInitialize(world, engine.currentScene);
+      sut.onInitialize(world, engine.currentScene);
 
       const sword = new ex.ImageSource('/src/spec/assets/images/graphics-system-spec/sword.png');
       await sword.load();
@@ -280,11 +280,11 @@ describe('A Graphics ECS System', () => {
 
       sut.query.checkAndModify(actor);
 
-      offscreenSystem.update();
+      offscreenSystem.onUpdate();
 
       engine.graphicsContext.clear();
-      sut.preupdate();
-      sut.update(1);
+      sut.onPreUpdate();
+      sut.onUpdate(1);
 
       engine.graphicsContext.flush();
       await expect(engine.canvas).toEqualImage('/src/spec/assets/images/graphics-system-spec/sword-flip-both-offset.png');
@@ -312,12 +312,12 @@ describe('A Graphics ECS System', () => {
     vi.spyOn(game.graphicsContext, 'scale');
 
     const graphicsSystem = new ex.GraphicsSystem(game.currentScene.world);
-    graphicsSystem.initialize(game.currentScene.world, game.currentScene);
-    graphicsSystem.preupdate();
+    graphicsSystem.onInitialize(game.currentScene.world, game.currentScene);
+    graphicsSystem.onPreUpdate();
     graphicsSystem.query.checkAndModify(actor);
 
     game.currentFrameLagMs = 8; // current lag in a 30 fps frame
-    graphicsSystem.update(30);
+    graphicsSystem.onUpdate(30);
 
     expect(game.graphicsContext.translate).toHaveBeenCalledWith(24, 24);
     game.dispose();
@@ -350,12 +350,12 @@ describe('A Graphics ECS System', () => {
     vi.spyOn(game.graphicsContext, 'scale');
 
     const graphicsSystem = new ex.GraphicsSystem(game.currentScene.world);
-    graphicsSystem.initialize(game.currentScene.world, game.currentScene);
-    graphicsSystem.preupdate();
+    graphicsSystem.onInitialize(game.currentScene.world, game.currentScene);
+    graphicsSystem.onPreUpdate();
     graphicsSystem.query.checkAndModify(actor);
 
     game.currentFrameLagMs = 1000 / 30 / 2; // current lag in a 30 fps frame
-    graphicsSystem.update(16);
+    graphicsSystem.onUpdate(16);
 
     expect(translateSpy.mock.calls[0]).toEqual([10, 10]);
     expect(translateSpy.mock.calls[1]).toEqual([45, 45]); // 45 because the parent offsets by (-10, -10)
@@ -383,13 +383,13 @@ describe('A Graphics ECS System', () => {
     vi.spyOn(game.graphicsContext, 'scale');
 
     const graphicsSystem = new ex.GraphicsSystem(game.currentScene.world);
-    graphicsSystem.initialize(game.currentScene.world, game.currentScene);
-    graphicsSystem.preupdate();
+    graphicsSystem.onInitialize(game.currentScene.world, game.currentScene);
+    graphicsSystem.onPreUpdate();
     graphicsSystem.query.checkAndModify(actor);
 
     actor.body.enableFixedUpdateInterpolate = false;
     game.currentFrameLagMs = 8; // current lag in a 30 fps frame
-    graphicsSystem.update(30);
+    graphicsSystem.onUpdate(30);
 
     expect(game.graphicsContext.translate).toHaveBeenCalledWith(100, 100);
     game.dispose();
@@ -401,8 +401,8 @@ describe('A Graphics ECS System', () => {
     engine.currentScene.camera.update(engine, 1);
     engine.currentScene._initialize(engine);
     engine.screen.setCurrentCamera(engine.currentScene.camera);
-    sut.initialize(world, engine.currentScene);
-    sut.preupdate();
+    sut.onInitialize(world, engine.currentScene);
+    sut.onPreUpdate();
 
     const parent = new ex.Entity();
     const child = new ex.Entity();
@@ -413,7 +413,7 @@ describe('A Graphics ECS System', () => {
     sut.query.checkAndModify(parent);
     sut.query.checkAndModify(child);
 
-    expect(() => sut.update(1)).not.toThrow();
+    expect(() => sut.onUpdate(1)).not.toThrow();
   });
 
   describe('offscreen ticking', () => {
@@ -424,8 +424,8 @@ describe('A Graphics ECS System', () => {
       engine.currentScene.camera.update(engine, 1);
       engine.currentScene._initialize(engine);
       engine.screen.setCurrentCamera(engine.currentScene.camera);
-      offscreenSystem.initialize(world, engine.currentScene);
-      sut.initialize(world, engine.currentScene);
+      offscreenSystem.onInitialize(world, engine.currentScene);
+      sut.onInitialize(world, engine.currentScene);
 
       const anim = new ex.Animation({
         frames: [{ graphic: new ex.Rectangle({ width: 10, height: 10, color: ex.Color.Red }) }]
@@ -438,10 +438,10 @@ describe('A Graphics ECS System', () => {
 
       offscreenSystem.query.checkAndModify(offscreenEntity);
       sut.query.checkAndModify(offscreenEntity);
-      offscreenSystem.update();
+      offscreenSystem.onUpdate();
 
-      sut.preupdate();
-      sut.update(16);
+      sut.onPreUpdate();
+      sut.onUpdate(16);
 
       expect(tickSpy).not.toHaveBeenCalled();
     });
@@ -453,8 +453,8 @@ describe('A Graphics ECS System', () => {
       engine.currentScene.camera.update(engine, 1);
       engine.currentScene._initialize(engine);
       engine.screen.setCurrentCamera(engine.currentScene.camera);
-      offscreenSystem.initialize(world, engine.currentScene);
-      sut.initialize(world, engine.currentScene);
+      offscreenSystem.onInitialize(world, engine.currentScene);
+      sut.onInitialize(world, engine.currentScene);
 
       const anim = new ex.Animation({
         frames: [{ graphic: new ex.Rectangle({ width: 10, height: 10, color: ex.Color.Red }) }],
@@ -468,10 +468,10 @@ describe('A Graphics ECS System', () => {
 
       offscreenSystem.query.checkAndModify(offscreenEntity);
       sut.query.checkAndModify(offscreenEntity);
-      offscreenSystem.update();
+      offscreenSystem.onUpdate();
 
-      sut.preupdate();
-      sut.update(16);
+      sut.onPreUpdate();
+      sut.onUpdate(16);
 
       expect(tickSpy).toHaveBeenCalled();
     });
@@ -483,8 +483,8 @@ describe('A Graphics ECS System', () => {
       engine.currentScene.camera.update(engine, 1);
       engine.currentScene._initialize(engine);
       engine.screen.setCurrentCamera(engine.currentScene.camera);
-      offscreenSystem.initialize(world, engine.currentScene);
-      sut.initialize(world, engine.currentScene);
+      offscreenSystem.onInitialize(world, engine.currentScene);
+      sut.onInitialize(world, engine.currentScene);
 
       const anim = new ex.Animation({
         frames: [{ graphic: new ex.Rectangle({ width: 10, height: 10, color: ex.Color.Red }) }]
@@ -499,10 +499,10 @@ describe('A Graphics ECS System', () => {
 
       offscreenSystem.query.checkAndModify(offscreenEntity);
       sut.query.checkAndModify(offscreenEntity);
-      offscreenSystem.update();
+      offscreenSystem.onUpdate();
 
-      sut.preupdate();
-      sut.update(16);
+      sut.onPreUpdate();
+      sut.onUpdate(16);
 
       expect(tickSpy).toHaveBeenCalled();
     });
@@ -514,8 +514,8 @@ describe('A Graphics ECS System', () => {
       engine.currentScene.camera.update(engine, 1);
       engine.currentScene._initialize(engine);
       engine.screen.setCurrentCamera(engine.currentScene.camera);
-      offscreenSystem.initialize(world, engine.currentScene);
-      sut.initialize(world, engine.currentScene);
+      offscreenSystem.onInitialize(world, engine.currentScene);
+      sut.onInitialize(world, engine.currentScene);
 
       const anim = new ex.Animation({
         frames: [{ graphic: new ex.Rectangle({ width: 10, height: 10, color: ex.Color.Red }) }]
@@ -529,10 +529,10 @@ describe('A Graphics ECS System', () => {
 
       offscreenSystem.query.checkAndModify(entity);
       sut.query.checkAndModify(entity);
-      offscreenSystem.update();
+      offscreenSystem.onUpdate();
 
-      sut.preupdate();
-      sut.update(16);
+      sut.onPreUpdate();
+      sut.onUpdate(16);
 
       expect(tickSpy).not.toHaveBeenCalled();
     });
