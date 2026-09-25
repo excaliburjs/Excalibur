@@ -78,6 +78,38 @@ class MyCustomGraphic extends ex.Graphic {
 
 The ExcaliburGraphicsContext gives access to several methods.
 
+## Providing Size and Bounds
+
+Notice the `super({ width: 64, height: 64 })` call above — it's not just a nicety. A [[Graphic]]'s
+[[Graphic.localBounds]] are derived from its `width` and `height`, and both **default to `0`**.
+When you skip the size, several systems see a zero-sized object:
+
+- **Pointer/collision picking** — the physics query and collision-pair logic short-circuit on zero bounds,
+  so the actor won't receive pointer events and won't collide.
+- **Offscreen culling** — the renderer treats a zero-size graphic as a single point, so it's typically
+  never culled from view (which is benign) or culled too aggressively depending on position.
+- **Anchor math** — the default anchor-offset recalculation collapses when `width`/`height` are zero,
+  meaning the graphic won't center the way you expect.
+
+The built-in subclasses choose one of three strategies to keep bounds valid. Match whichever fits your
+graphic:
+
+1. **Pass a fixed size through `super(options)`** — simplest; use this for any graphic with a known pixel
+   footprint. The base class then computes `localBounds` for you (`BoundingBox.fromDimension(width, height)`).
+   This is what the example above does.
+2. **Override `width` and `height`** when the size is dynamic and depends on internal state. [[Animation]]
+   does this so the size tracks the currently displayed frame.
+3. **Override `localBounds`** when the bounds are not simply `width × height` from the top-left. [[Raster]],
+   [[Text]], [[Line]], and [[GraphicsGroup]] take this route to include padding, line endpoints, and the union
+   of all members respectively.
+
+:::warning
+If you genuinely want a zero-size graphic (an [[Animation]] with no current frame returns `0`, for
+example), that's permitted — but be aware the systems above will treat the actor as a point.
+:::
+
+The ExcaliburGraphicsContext gives access to several methods.
+
 - drawRectangle
 - drawCircle
 - drawImage

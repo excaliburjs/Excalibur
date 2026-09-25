@@ -55,3 +55,8 @@ actor.on('postcollision', () => {...})
 // or
 actor.body.collider.on('postcollision', () => {...})
 ```
+
+:::tip
+If your actor sticks on tile seams while walking across a solid tilemap, see
+[Solving Tile-Seam Sticking](/docs/tilemap#solving-tile-seam-sticking) for the `contactSolveBias` option.
+:::

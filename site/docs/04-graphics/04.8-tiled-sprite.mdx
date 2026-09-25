@@ -1,0 +1,198 @@
+---
+title: Tiled Sprite
+slug: /tiled-sprite
+section: Graphics
+---
+
+```twoslash include ex
+// @module: esnext
+// @allowUmdGlobalAccess
+/// <reference path="../src/engine/excalibur.d.ts" />
+```
+
+## Overview
+
+A [[TiledSprite]] repeats an image source across a region of a given `width` and `height`. This is useful
+for scrolling backgrounds, repeating ground textures, tiled floors, and any case where a single sprite
+should fill a larger area by repetition rather than scaling.
+
+Under the hood, `TiledSprite` draws the source image into a fresh `<canvas>` and wraps it in a new
+[[ImageSource]] using the requested [[ImageWrapping]] mode — by default [[ImageWrapping.Repeat]], which is
+what makes it "tile". This differs from a plain [[Sprite]], whose [[ImageSource]] defaults to
+[[ImageWrapping.Clamp]] (no repetition).
+
+The [Excalibird tutorial](/docs/step-14-ground-graphics) uses this pattern to tile the ground png across
+the bottom of the screen.
+
+## Configuration
+
+[[TiledSprite]] extends [[Sprite]] and accepts a [[TiledSpriteOptions]] object:
+
+```typescript
+export interface TiledSpriteOptions {
+  /** Image source to tile */
+  image: ImageSource;
+  /** Optionally crop a sub-region of the source image */
+  sourceView?: SourceView;
+  /** Optionally override the pixel filtering mode */
+  filtering?: ImageFiltering;
+  /**
+   * Optionally override the image wrapping mode. The default wrapping for TiledSprite is Repeat.
+   * Pass an { x, y } pair to control each axis independently.
+   */
+  wrapping?: ImageWrapConfiguration | ImageWrapping;
+  /** Total width in pixels to tile the image across */
+  width: number;
+  /** Total height in pixels to tile the image across */
+  height: number;
+}
+```
+
+The `width` and `height` fields define the full destination region; the source image is repeated to fill
+that region. Because `TiledSprite` extends [[Sprite]], you can use it anywhere a [[Graphic]] is accepted —
+on an actor via `this.graphics.use(...)` or inside a [[GraphicsGroup]].
+
+## Wrapping Modes
+
+The [[ImageWrapping]] enum controls how the source image repeats:
+
+```typescript
+export enum ImageWrapping {
+  Clamp = 'Clamp',     // No repetition; edges clamp (default for ImageSource)
+  Repeat = 'Repeat',   // Tile the image end-to-end (default for TiledSprite)
+  Mirror = 'Mirror'    // Tile, flipping the image each repetition
+}
+```
+
+You can pass a single `ImageWrapping` value to apply the same mode on both axes, or an
+`ImageWrapConfiguration` (`{ x, y }`) to control each axis independently:
+
+```ts twoslash
+// @include: ex
+// ---cut---
+const groundImage = new ex.ImageSource('./ground.png');
+const bannerImage = new ex.ImageSource('./banner.png');
+const patternImage = new ex.ImageSource('./pattern.png');
+
+// Repeat on both axes (the default)
+const ground = new ex.TiledSprite({ image: groundImage, width: 800, height: 200 });
+
+// Repeat horizontally, clamp vertically (useful for ground that should not stack)
+const banner = new ex.TiledSprite({
+  image: bannerImage,
+  width: 1000,
+  height: 64,
+  wrapping: { x: ex.ImageWrapping.Repeat, y: ex.ImageWrapping.Clamp }
+});
+
+// Mirror each repetition for a seamless pattern
+const backdrop = new ex.TiledSprite({
+  image: patternImage,
+  width: 1024,
+  height: 768,
+  wrapping: ex.ImageWrapping.Mirror
+});
+```
+
+## Usage
+
+The most direct way is to construct a [[TiledSprite]] from a loaded [[ImageSource]]. The Excalibird
+tutorial's `ground.png` is a good candidate — it's a 64-pixel-tall image designed to repeat horizontally:
+
+```ts twoslash
+// @include: ex
+// ---cut---
+// From Excalibird, see https://excaliburjs.com/docs/step-14-ground-graphics
+const groundImage = new ex.ImageSource('./ground.png');
+
+class GroundActor extends ex.Actor {
+  constructor() {
+    super({ pos: ex.vec(0, 0), anchor: ex.vec(0, 0) });
+    // Tile the 64-tall ground across the full screen width
+    const tiled = new ex.TiledSprite({
+      image: groundImage,
+      width: 800,
+      height: 64,
+      wrapping: { x: ex.ImageWrapping.Repeat, y: ex.ImageWrapping.Clamp }
+    });
+    this.graphics.use(tiled);
+  }
+}
+```
+
+### Scrolling the tile
+
+To make the ground appear to scroll, animate the `sourceView.x` of the underlying sprite — the wrapping
+mode handles the wrap-around for you:
+
+```ts twoslash
+// @include: ex
+// ---cut---
+const groundImage = new ex.ImageSource('./ground.png');
+
+class ScrollingGround extends ex.Actor {
+  private _tiled: ex.TiledSprite;
+  private _speed = -100; // pixels per second
+
+  constructor() {
+    super({ pos: ex.vec(0, 0), anchor: ex.vec(0, 0) });
+    this._tiled = new ex.TiledSprite({
+      image: groundImage,
+      width: 800,
+      height: 64,
+      wrapping: { x: ex.ImageWrapping.Repeat, y: ex.ImageWrapping.Clamp }
+    });
+    this.graphics.use(this._tiled);
+  }
+
+  public onPostUpdate(_engine: ex.Engine, elapsedMs: number) {
+    this._tiled.sourceView.x += this._speed * (elapsedMs / 1000);
+    this._tiled.sourceView.x = this._tiled.sourceView.x % groundImage.width;
+  }
+}
+```
+
+:::note
+This is the same scroll trick used in the [Excalibird ground step](/docs/step-14-ground-graphics) —
+but with `TiledSprite` you no longer need to also set `destSize.width` to match `sourceView.width`, because
+`TiledSprite` already manages the destination region for you via its `width`/`height` options.
+:::
+
+### From an existing Sprite
+
+Use [[TiledSprite.fromSprite]] to wrap a sprite you already have:
+
+```ts twoslash
+// @include: ex
+// ---cut---
+const groundImage = new ex.ImageSource('./ground.png');
+const sprite = new ex.Sprite({ image: groundImage });
+const tiled = ex.TiledSprite.fromSprite(sprite, { width: 800, height: 64 });
+```
+
+### From a SpriteSheet frame
+
+[[SpriteSheet.getTiledSprite]] builds a [[TiledSprite]] from a specific cell in a sprite sheet — handy when
+your tile graphics live in an atlas:
+
+```ts twoslash
+// @include: ex
+// ---cut---
+const groundImage = new ex.ImageSource('./ground.png');
+const sheet = ex.SpriteSheet.fromImageSource({
+  image: groundImage,
+  grid: { rows: 1, columns: 1, spriteWidth: 64, spriteHeight: 64 }
+});
+
+const tiledGround = sheet.getTiledSprite(0, 0, {
+  width: 800,
+  height: 64,
+  wrapping: { x: ex.ImageWrapping.Repeat, y: ex.ImageWrapping.Clamp }
+});
+```
+
+## Animations
+
+For a tiling **animation** (each frame repeated across the region), use [[TiledAnimation]] which applies the
+same wrapping strategy to every frame of an [[Animation]]. Like `TiledSprite`, its wrapping defaults to
+[[ImageWrapping.Repeat]].

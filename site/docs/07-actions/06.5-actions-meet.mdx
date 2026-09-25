@@ -16,6 +16,19 @@ This action could possibly never complete! Any actions chained off of it will no
 
 :::
 
+:::warning
+
+`Meet` writes the actor's [[MotionComponent.vel]] directly every frame and zeroes it on completion
+or `stop()`. If you also set velocity elsewhere (custom movement code, a separate action, an integrator
+input), `Meet` will clobber it — pick one or the other.
+
+`Meet` does **not** automatically stop when the actor dies. Killing the actor removes it from the
+[[ActionsSystem]] queue, but `Meet.stop()` is never invoked, so any velocity state it last wrote lingers on
+the [[MotionComponent]]. If you pool or revive actors, call `.clearActions()` (or stop the action explicitly)
+from `kill`/`_prekill` so the next rent gets a clean velocity.
+
+:::
+
 ```typescript
 const missile = new ex.Actor({...});
 
