@@ -1,4 +1,5 @@
 import * as ex from '@excalibur';
+import { SoundTrack } from '../../engine/resources/sound/sound-track';
 import { canPlayFile, canPlayMime } from '../../engine/util/sound';
 import { delay } from '../../engine/util/util';
 import { WebAudio } from '../../engine/util/web-audio';
@@ -10,6 +11,16 @@ import { page } from 'vitest/browser';
 // also note that webkit cant play ogg files so only use supported formats here!
 describe('Sound resource', () => {
   let sut: ex.Sound;
+
+  /**
+   * Play and resolve once the given event fires, handing back the (unawaited) completion promise
+   */
+  const playAndAwait = async (event: 'playbackstart' | 'resume', config?: number | ex.PlayOptions) => {
+    const fired = new Promise<void>((done) => sut.once(event, () => done()));
+    const complete = event === 'resume' ? sut.resume() : sut.play(config as ex.PlayOptions);
+    await fired;
+    return { complete };
+  };
 
   beforeAll(async () => {
     // automate user interaction to allow WebAudio to unlock
@@ -121,7 +132,7 @@ describe('Sound resource', () => {
 
     sut.once('playbackstart', () => {
       sut.pause();
-      sut.play();
+      sut.resume();
     });
 
     sut.loop = false;
@@ -206,42 +217,40 @@ describe('Sound resource', () => {
   it('should not provide a duration if looping', async () => {
     await sut.load();
 
-    const webaudio = new ex.WebAudioInstance(sut.data);
-    vi.spyOn(webaudio as any, '_createNewBufferSource').mockImplementation(() => void 0);
-    const instance = {
+    const track = new SoundTrack(sut.data, ex.AudioContextFactory.create().createGain());
+    const source = {
       start: vi.fn()
     } as any;
-    (webaudio as any)._instance = instance;
-    webaudio.loop = true;
-    webaudio.play();
+    vi.spyOn(track as any, '_createSource').mockImplementation(() => source);
+    track.loop = true;
+    track.play();
 
-    expect((webaudio as any)._createNewBufferSource).toHaveBeenCalled();
-    expect(instance.start).toHaveBeenCalledWith(0, 0);
+    expect((track as any)._createSource).toHaveBeenCalled();
+    expect(source.start).toHaveBeenCalledWith(0, 0);
   });
 
   it('should provide a duration if not looping', async () => {
     await sut.load();
 
-    const webaudio = new ex.WebAudioInstance(sut.data);
-    vi.spyOn(webaudio as any, '_createNewBufferSource').mockImplementation(() => void 0);
-    const instance = {
+    const track = new SoundTrack(sut.data, ex.AudioContextFactory.create().createGain());
+    const source = {
       start: vi.fn()
     } as any;
-    (webaudio as any)._instance = instance;
-    webaudio.loop = false;
-    webaudio.play();
+    vi.spyOn(track as any, '_createSource').mockImplementation(() => source);
+    track.loop = false;
+    track.play();
 
-    expect((webaudio as any)._createNewBufferSource).toHaveBeenCalled();
-    expect(instance.start).toHaveBeenCalledWith(0, 0, sut.duration);
+    expect((track as any)._createSource).toHaveBeenCalled();
+    expect(source.start).toHaveBeenCalledWith(0, 0, sut.duration);
   });
 
-  it('should set tracks volume value same as own', () =>
+  it('should apply its volume to the output gain', () =>
     new Promise<void>((done) => {
       sut.load().then(() => {
         sut.volume = 0.5;
 
         sut.once('playbackstart', () => {
-          expect(sut.instances[0].volume).toBe(sut.volume);
+          expect((sut as any)._output.gain.value).toBeCloseTo(0.5);
           done();
         });
 
@@ -249,12 +258,12 @@ describe('Sound resource', () => {
       });
     }));
 
-  it('should set volume with argument sent to play', () =>
+  it('should apply a volume argument sent to play to that track only', () =>
     new Promise<void>((done) => {
       sut.load().then(() => {
         sut.once('playbackstart', () => {
-          expect(sut.volume).toBe(0.5);
-          expect(sut.instances[0].volume).toBe(sut.volume);
+          expect(sut.volume).toBe(1);
+          expect(sut.instances[0].volume).toBe(0.5);
           done();
         });
 
@@ -441,6 +450,419 @@ describe('Sound resource', () => {
     await sut.load();
     sut.seek(6.5);
     expect(sut.getPlaybackPosition()).toBe(6.5);
+  });
+
+  describe('name derivation', () => {
+    it('derives name from basename-without-extension', () => {
+      expect(new ex.Sound('/sfx/coin.mp3').name).toBe('coin');
+      expect(new ex.Sound('/a/b/c.mp3?v=2').name).toBe('c');
+      expect(new ex.Sound('/a/b/c.mp3#frag').name).toBe('c');
+      expect(new ex.Sound('/x/coin.f74d9d70.mp3').name).toBe('coin.f74d9d70');
+      expect(new ex.Sound('c.wav').name).toBe('c');
+      expect(new ex.Sound('/sfx/.hidden').name).toBe('.hidden');
+      expect(new ex.Sound('/sfx/.hidden.mp3').name).toBe('.hidden');
+    });
+
+    it('uses an explicit name option', () => {
+      expect(new ex.Sound({ name: 'jump', paths: ['/x/jump.ogg'] }).name).toBe('jump');
+    });
+
+    it('infers the name type from the name option (new Sound)', () => {
+      const jump = new ex.Sound({ name: 'jump', paths: ['/x/jump.ogg'] });
+      const check: 'jump' = jump.name;
+      void check;
+    });
+
+    it('createSound infers the name type from a path literal', () => {
+      const coin = ex.createSound('/sfx/coin.mp3');
+      expect(coin.name).toBe('coin');
+      const check: 'coin' = coin.name;
+      void check;
+
+      const hashed = ex.createSound('/x/coin.f74d9d70.mp3?v=2');
+      const check2: 'coin.f74d9d70' = hashed.name;
+      void check2;
+
+      const hidden = ex.createSound('/sfx/.hidden.mp3');
+      const check3: '.hidden' = hidden.name;
+      void check3;
+    });
+  });
+
+  describe('pitch', () => {
+    it('has pitch 0 and unbounded maxConcurrentTracks by default', () => {
+      expect(sut.pitch).toBe(0);
+      expect(sut.maxConcurrentTracks).toBeUndefined();
+    });
+
+    it('accepts pitch and maxConcurrentTracks options', () => {
+      const s = new ex.Sound({ paths: ['/x/coin.mp3'], pitch: 100, maxConcurrentTracks: 3 });
+      expect(s.pitch).toBe(100);
+      expect(s.maxConcurrentTracks).toBe(3);
+    });
+
+    it('applies pitch to the playing track', async () => {
+      sut = new ex.Sound('/src/spec/assets/images/sound-spec/preview.mp3');
+      sut.loop = true;
+      await sut.load();
+      sut.pitch = 100;
+
+      await new Promise<void>((done) => {
+        sut.once('playbackstart', () => {
+          expect(sut.instances[0].pitch).toBe(100);
+          sut.stop();
+          done();
+        });
+        sut.play();
+      });
+    });
+
+    it('applies a per-play pitch override', async () => {
+      sut = new ex.Sound('/src/spec/assets/images/sound-spec/preview.mp3');
+      sut.loop = true;
+      sut.pitch = 50;
+      await sut.load();
+
+      await new Promise<void>((done) => {
+        sut.once('playbackstart', () => {
+          expect(sut.instances[0].pitch).toBe(200);
+          sut.stop();
+          done();
+        });
+        sut.play({ pitch: 200 });
+      });
+    });
+
+    it('accounts for pitch in the playback position', async () => {
+      sut = new ex.Sound('/src/spec/assets/images/sound-spec/preview.mp3');
+      await sut.load();
+      sut.pitch = 1200; // one octave up doubles the speed
+      sut.play();
+      await delay(500);
+      const position = sut.getPlaybackPosition();
+      expect(position, 'an octave up plays twice as fast').toBeGreaterThanOrEqual(0.9);
+
+      sut.pause();
+      expect(sut.getPlaybackPosition(), 'pause keeps the pitched position').toBeGreaterThanOrEqual(position);
+      sut.stop();
+    });
+  });
+
+  describe('maxConcurrentTracks', () => {
+    it('drops new plays once the cap is reached', async () => {
+      sut = new ex.Sound('/src/spec/assets/images/sound-spec/preview.mp3');
+      sut.loop = true;
+      sut.maxConcurrentTracks = 1;
+      await sut.load();
+
+      await new Promise<void>((done) => {
+        sut.once('playbackstart', async () => {
+          expect(sut.instanceCount()).toBe(1);
+          const result = await sut.play();
+          expect(result).toBe(false);
+          expect(sut.instanceCount()).toBe(1);
+          sut.stop();
+          done();
+        });
+        sut.play();
+      });
+    });
+
+    it('is unbounded by default', async () => {
+      sut = new ex.Sound('/src/spec/assets/images/sound-spec/preview.mp3');
+      sut.loop = true;
+      await sut.load();
+
+      await new Promise<void>((done) => {
+        sut.once('playbackstart', () => {
+          // a second simultaneous play is allowed, the track is pushed synchronously
+          sut.play();
+          expect(sut.instanceCount()).toBe(2);
+          sut.stop();
+          done();
+        });
+        sut.play();
+      });
+    });
+  });
+
+  describe('position and seeking', () => {
+    it('starts a single new track from the configured position', async () => {
+      sut = new ex.Sound({ paths: ['/src/spec/assets/images/sound-spec/preview.mp3'], position: 5, loop: true });
+      await sut.load();
+
+      await new Promise<void>((done) => {
+        sut.once('playbackstart', () => {
+          expect(sut.instanceCount()).toBe(1);
+          expect(sut.isPaused()).toBe(false);
+          expect(sut.getPlaybackPosition()).toBeGreaterThanOrEqual(5);
+          sut.stop();
+          done();
+        });
+        sut.play();
+      });
+    });
+
+    it('resumes a seeked track with a single track', async () => {
+      sut = new ex.Sound('/src/spec/assets/images/sound-spec/preview.mp3');
+      sut.loop = true;
+      await sut.load();
+      sut.seek(6.5);
+      expect(sut.isPaused()).toBe(true);
+
+      await new Promise<void>((done) => {
+        sut.once('resume', () => {
+          expect(sut.instanceCount()).toBe(1);
+          expect(sut.isPlaying()).toBe(true);
+          expect(sut.getPlaybackPosition()).toBeGreaterThanOrEqual(6.5);
+          sut.stop();
+          done();
+        });
+        sut.resume();
+      });
+    });
+
+    it('stops a track when it ends naturally', async () => {
+      sut = new ex.Sound('/src/spec/assets/images/sound-spec/preview.mp3');
+      sut.duration = 0.2;
+      await sut.load();
+      const track = await new Promise<ex.SoundTrack>((done) => {
+        sut.once('playbackstart', (evt) => done(evt.track!));
+        sut.play();
+      });
+      await delay(500);
+      expect(track.isStopped()).toBe(true);
+      expect(sut.instanceCount()).toBe(0);
+    });
+  });
+
+  describe('track bookkeeping', () => {
+    it('keeps a live track when a paused-and-resumed sibling ends', async () => {
+      sut = new ex.Sound('/src/spec/assets/images/sound-spec/preview.mp3');
+      await sut.load();
+
+      sut.duration = 0.5;
+      const { complete: first } = await playAndAwait('playbackstart');
+      const firstTrack = sut.instances[0];
+
+      sut.duration = 3;
+      await playAndAwait('playbackstart');
+      const secondTrack = sut.instances[1];
+      expect(sut.instanceCount()).toBe(2);
+
+      sut.pause();
+      expect(sut.isPaused()).toBe(true);
+      sut.resume();
+
+      await first;
+      expect(firstTrack.isStopped()).toBe(true);
+      expect(sut.instanceCount(), 'the second track must survive the first ending').toBe(1);
+      expect(sut.instances[0]).toBe(secondTrack);
+      expect(sut.isPlaying()).toBe(true);
+      sut.stop();
+    });
+  });
+
+  describe('one-off play options', () => {
+    it('snapshots the sound config overlaid with the options without mutating the sound', async () => {
+      sut = new ex.Sound({ paths: ['/src/spec/assets/images/sound-spec/preview.mp3'], volume: 0.8, pitch: 100, loop: true });
+      await sut.load();
+
+      const track = sut.start({ volume: 0.5, pitch: -200, playbackRate: 2, loop: false, duration: 3, position: 1 })!;
+      expect(track).toBeInstanceOf(ex.SoundTrack);
+      expect(track.volume).toBe(0.5);
+      expect(track.pitch).toBe(-200);
+      expect(track.playbackRate).toBe(2);
+      expect(track.loop).toBe(false);
+      expect(track.duration).toBe(3);
+      expect(track.getPlaybackPosition()).toBeGreaterThanOrEqual(1);
+
+      expect(sut.volume).toBe(0.8);
+      expect(sut.pitch).toBe(100);
+      expect(sut.playbackRate).toBe(1);
+      expect(sut.loop).toBe(true);
+      expect(sut.position).toBeUndefined();
+      sut.stop();
+    });
+
+    it('falls back to the sound config for unset options', async () => {
+      sut = new ex.Sound({ paths: ['/src/spec/assets/images/sound-spec/preview.mp3'], pitch: 100, loop: true, playbackRate: 1.5 });
+      await sut.load();
+      const track = sut.start({ volume: 0.25 })!;
+      expect(track.volume).toBe(0.25);
+      expect(track.pitch).toBe(100);
+      expect(track.loop).toBe(true);
+      expect(track.playbackRate).toBe(1.5);
+      sut.stop();
+    });
+
+    it('start() returns the track whose done promise matches play()', async () => {
+      sut = new ex.Sound('/src/spec/assets/images/sound-spec/preview.mp3');
+      await sut.load();
+      const track = sut.start({ duration: 0.2 })!;
+      expect(sut.instances).toEqual([track]);
+      expect(track.isPlaying()).toBe(true);
+      await expect(track.done).resolves.toBe(true);
+      expect(sut.instanceCount()).toBe(0);
+
+      const stopped = sut.start()!;
+      stopped.stop();
+      await expect(stopped.done).resolves.toBe(true);
+    });
+
+    it('start() returns undefined when the play is dropped', () => {
+      expect(sut.start(), 'not loaded').toBe(null);
+    });
+
+    it('play() always starts a new track, even while another is paused', async () => {
+      sut = new ex.Sound('/src/spec/assets/images/sound-spec/preview.mp3');
+      sut.loop = true;
+      await sut.load();
+      const first = sut.start()!;
+      sut.pause();
+      expect(first.isPaused()).toBe(true);
+
+      const second = sut.start()!;
+      expect(second).not.toBe(first);
+      expect(first.isPaused()).toBe(true);
+      expect(second.isPlaying()).toBe(true);
+      expect(sut.instanceCount()).toBe(2);
+      sut.stop();
+    });
+
+    it('resume() resolves false when nothing is paused', async () => {
+      sut = new ex.Sound('/src/spec/assets/images/sound-spec/preview.mp3');
+      await sut.load();
+      expect(await sut.resume()).toBe(false);
+    });
+  });
+
+  describe('onPlay audio graph hook', () => {
+    it('hands the hook the source, destination, context and track', async () => {
+      sut = new ex.Sound('/src/spec/assets/images/sound-spec/preview.mp3');
+      sut.loop = true;
+      await sut.load();
+      let ctx: ex.AudioGraphContext | undefined;
+      sut.onPlay = (c) => {
+        ctx = c;
+        c.source.connect(c.destination);
+      };
+
+      await new Promise<void>((done) => {
+        sut.once('playbackstart', () => {
+          expect(ctx).toBeDefined();
+          expect(ctx!.audioContext).toBe(ex.AudioContextFactory.create());
+          expect(ctx!.source).toBeInstanceOf(GainNode);
+          expect(ctx!.bufferSource).toBeInstanceOf(AudioBufferSourceNode);
+          expect(ctx!.destination).toBe(sut.output);
+          expect(ctx!.track).toBe(sut.instances[0]);
+          expect(sut.instances[0]).toBeInstanceOf(ex.SoundTrack);
+          sut.stop();
+          done();
+        });
+        sut.play();
+      });
+    });
+
+    it('configures the source before the hook runs', async () => {
+      sut = new ex.Sound({ paths: ['/src/spec/assets/images/sound-spec/preview.mp3'], loop: true, playbackRate: 2, pitch: 100 });
+      await sut.load();
+      let seen: { rate: number; detune: number; loop: boolean; trackRate: number } | undefined;
+      sut.onPlay = ({ source, bufferSource, destination, track }) => {
+        seen = {
+          rate: bufferSource.playbackRate.value,
+          detune: bufferSource.detune.value,
+          loop: bufferSource.loop,
+          trackRate: track.playbackRate
+        };
+        source.connect(destination);
+      };
+
+      await new Promise<void>((done) => {
+        sut.once('playbackstart', () => {
+          expect(seen).toEqual({ rate: 2, detune: 100, loop: true, trackRate: 2 });
+          sut.stop();
+          done();
+        });
+        sut.play();
+      });
+    });
+
+    it('runs the hook again when a paused track resumes', async () => {
+      sut = new ex.Sound('/src/spec/assets/images/sound-spec/preview.mp3');
+      sut.loop = true;
+      await sut.load();
+      const hook = vi.fn(({ source, destination }: ex.AudioGraphContext) => {
+        source.connect(destination);
+      });
+      sut.onPlay = hook;
+
+      await playAndAwait('playbackstart');
+      expect(hook).toHaveBeenCalledTimes(1);
+
+      sut.pause();
+      await playAndAwait('resume');
+      expect(hook).toHaveBeenCalledTimes(2);
+      expect(sut.instanceCount()).toBe(1);
+      sut.stop();
+    });
+
+    it('uses a per-play hook for that track, including on resume', async () => {
+      sut = new ex.Sound('/src/spec/assets/images/sound-spec/preview.mp3');
+      sut.loop = true;
+      await sut.load();
+      const soundHook = vi.fn(({ source, destination }: ex.AudioGraphContext) => source.connect(destination));
+      const playHook = vi.fn(({ source, destination }: ex.AudioGraphContext) => source.connect(destination));
+      sut.onPlay = soundHook;
+
+      await playAndAwait('playbackstart', { onPlay: playHook });
+      sut.pause();
+      await playAndAwait('resume');
+
+      expect(playHook).toHaveBeenCalledTimes(2);
+      expect(soundHook).not.toHaveBeenCalled();
+      sut.stop();
+    });
+
+    it('never disconnects nodes the hook wired, so shared effects survive other tracks stopping', async () => {
+      sut = new ex.Sound('/src/spec/assets/images/sound-spec/preview.mp3');
+      sut.loop = true;
+      await sut.load();
+      const shared = ex.AudioContextFactory.create().createGain();
+      const disconnect = vi.spyOn(shared, 'disconnect');
+      sut.onPlay = ({ source, destination }) => {
+        source.connect(shared).connect(destination);
+      };
+
+      await playAndAwait('playbackstart');
+      await playAndAwait('playbackstart');
+      expect(sut.instanceCount()).toBe(2);
+
+      sut.instances[0].stop();
+      expect(disconnect).not.toHaveBeenCalled();
+      sut.stop();
+      expect(disconnect).not.toHaveBeenCalled();
+    });
+
+    it('logs and falls back to the default graph if the hook throws', async () => {
+      sut = new ex.Sound('/src/spec/assets/images/sound-spec/preview.mp3');
+      sut.loop = true;
+      await sut.load();
+      const error = vi.spyOn(ex.Logger.getInstance(), 'error');
+      sut.onPlay = () => {
+        throw new Error('boom');
+      };
+
+      await new Promise<void>((done) => {
+        sut.once('playbackstart', () => {
+          expect(error).toHaveBeenCalled();
+          expect(sut.isPlaying()).toBe(true);
+          sut.stop();
+          done();
+        });
+        sut.play();
+      });
+    });
   });
 
   describe('wire engine', () => {
