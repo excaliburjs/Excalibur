@@ -80,11 +80,11 @@ export interface GoToOptions<TActivationData = any> {
   /**
    * Optionally supply destination scene "in" transition, this will override any previously defined transition
    */
-  destinationIn?: Transition;
+  destinationIn?: Transition | null;
   /**
    * Optionally supply source scene "out" transition, this will override any previously defined transition
    */
-  sourceOut?: Transition;
+  sourceOut?: Transition | null;
   /**
    * Optionally supply a different loader for the destination scene, this will override any previously defined loader
    */
@@ -102,8 +102,8 @@ export interface GoToOptions<TActivationData = any> {
 export class Director<TKnownScenes extends string = any> {
   public events = new EventEmitter<DirectorEvents>();
   private _logger = Logger.getInstance();
-  private _deferredGoto?: string;
-  private _deferredTransition?: Transition;
+  private _deferredGoto: string | null = null;
+  private _deferredTransition: Transition | null = null;
   private _initialized = false;
 
   /**
@@ -117,7 +117,7 @@ export class Director<TKnownScenes extends string = any> {
   /**
    * Current transition if any
    */
-  currentTransition?: Transition;
+  currentTransition: Transition | null = null;
 
   /**
    * All registered scenes in Excalibur
@@ -181,9 +181,9 @@ export class Director<TKnownScenes extends string = any> {
       this._initialized = true;
       if (this._deferredGoto) {
         const deferredScene = this._deferredGoto;
-        this._deferredGoto = undefined;
+        this._deferredGoto = null;
         const deferredTransition = this._deferredTransition;
-        this._deferredTransition = undefined;
+        this._deferredTransition = null;
         const deferredSceneInstance = this.getSceneInstance(deferredScene);
         if (deferredSceneInstance && deferredTransition) {
           deferredTransition._addToTargetScene(this._engine, deferredSceneInstance);
@@ -224,7 +224,7 @@ export class Director<TKnownScenes extends string = any> {
       this.mainLoader = new Loader();
     }
 
-    let maybeStartTransition: Transition | undefined;
+    let maybeStartTransition: Transition | null = null;
 
     if (options?.inTransition) {
       const { inTransition } = options;
@@ -261,24 +261,24 @@ export class Director<TKnownScenes extends string = any> {
     return this._sceneToLoader.get(sceneName);
   }
 
-  private _getInTransition(sceneName: string): Transition | undefined {
+  private _getInTransition(sceneName: string): Transition | null {
     const sceneOrRoute = this.scenes[sceneName as TKnownScenes];
     if (sceneOrRoute instanceof Scene || isSceneConstructor(sceneOrRoute)) {
-      return undefined;
+      return null;
     }
-    return sceneOrRoute?.transitions?.in;
+    return sceneOrRoute?.transitions?.in ?? null;
   }
 
-  private _getOutTransition(sceneName: string): Transition | undefined {
+  private _getOutTransition(sceneName: string): Transition | null {
     const sceneOrRoute = this.scenes[sceneName as TKnownScenes];
     if (sceneOrRoute instanceof Scene || isSceneConstructor(sceneOrRoute)) {
-      return undefined;
+      return null;
     }
-    return sceneOrRoute?.transitions?.out;
+    return sceneOrRoute?.transitions?.out ?? null;
   }
 
   getDeferredScene() {
-    const maybeDeferred = this.getSceneDefinition(this._deferredGoto);
+    const maybeDeferred = this._deferredGoto ? this.getSceneDefinition(this._deferredGoto) : null;
     if (this._deferredGoto && maybeDeferred) {
       return maybeDeferred;
     }
@@ -289,14 +289,14 @@ export class Director<TKnownScenes extends string = any> {
    * Returns a scene by name if it exists, might be the constructor and not the instance of a scene
    * @param name
    */
-  getSceneDefinition(name?: string): Scene | SceneConstructor | undefined {
+  getSceneDefinition(name?: string): Scene | SceneConstructor | null {
     const maybeScene = this.scenes[name as TKnownScenes];
     if (maybeScene instanceof Scene || isSceneConstructor(maybeScene)) {
       return maybeScene;
     } else if (maybeScene) {
       return maybeScene.scene;
     }
-    return undefined;
+    return null;
   }
 
   /**
@@ -497,10 +497,10 @@ export class Director<TKnownScenes extends string = any> {
    * This will call any constructors that were given as a definition
    * @param scene
    */
-  getSceneInstance(scene: string): Scene | undefined {
+  getSceneInstance(scene: string): Scene | null {
     const sceneDefinition = this.getSceneDefinition(scene);
     if (!sceneDefinition) {
-      return undefined;
+      return null;
     }
     if (this._sceneToInstance.has(scene)) {
       return this._sceneToInstance.get(scene) as Scene;
@@ -564,7 +564,7 @@ export class Director<TKnownScenes extends string = any> {
     }
     this.currentTransition?.kill();
     this.currentTransition?.reset();
-    this.currentTransition = undefined;
+    this.currentTransition = null;
   }
 
   /**
@@ -587,7 +587,7 @@ export class Director<TKnownScenes extends string = any> {
     if (maybeDest) {
       const previousScene = this.currentScene;
       const nextScene = maybeDest;
-      let previousSceneData: any = undefined;
+      let previousSceneData: any = null;
 
       this._logger.debug('Going to scene:', destinationScene);
       // only deactivate when initialized

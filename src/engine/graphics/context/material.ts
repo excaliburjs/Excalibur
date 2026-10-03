@@ -232,10 +232,10 @@ export class Material {
 
   private _graphicsContext?: ExcaliburGraphicsContextWebGL;
   private _passes?: ShaderPassLike[] | ShaderPipelineLike;
-  private _pipeline?: ShaderPipelineLike;
+  private _pipeline: ShaderPipelineLike | null = null;
   private _padding: number = 0;
   private _seedFramebuffer?: Framebuffer;
-  private _outputFramebuffer?: Framebuffer;
+  private _outputFramebuffer: Framebuffer | null = null;
 
   constructor(options: MaterialOptions) {
     const { color, name, vertexSource, fragmentSource, passes, padding, graphicsContext, images, uniforms } = options;
@@ -375,7 +375,7 @@ export class Material {
   /**
    * The multipass pipeline run on the graphic before the composite fragment, if any
    */
-  get pipeline(): ShaderPipelineLike | undefined {
+  get pipeline(): ShaderPipelineLike | null {
     return this._pipeline;
   }
 
@@ -408,11 +408,11 @@ export class Material {
    * Lazily creates/resizes the final output for compositing
    * @internal
    */
-  public getOutputFramebuffer(width: number, height: number, filtering?: ImageFiltering): Framebuffer {
+  public getOutputFramebuffer(width: number, height: number, filtering?: ImageFiltering | null): Framebuffer {
     const resolvedFiltering = filtering ?? this._outputFramebuffer?.filtering ?? ImageFiltering.Blended;
     if (this._outputFramebuffer && this._outputFramebuffer.filtering !== resolvedFiltering) {
       this._outputFramebuffer.dispose();
-      this._outputFramebuffer = undefined;
+      this._outputFramebuffer = null;
     }
     if (!this._outputFramebuffer) {
       this._outputFramebuffer = new Framebuffer({

@@ -155,7 +155,7 @@ export abstract class Component {
     }
 
     // Skip non-serializable objects
-    return undefined;
+    return null;
   }
 
   protected _deserializeValue(data: any, existingValue?: any): any {

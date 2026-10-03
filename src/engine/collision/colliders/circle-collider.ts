@@ -61,7 +61,7 @@ export class CircleCollider extends Collider {
     this._syncedOffsetY = this.offset.y;
     tx.matrix.clone(this._globalMatrix);
     this._globalMatrix.translate(this.offset.x, this.offset.y);
-    this._radius = undefined;
+    this._radius = null;
     this._worldVersion++;
   }
 
@@ -77,13 +77,13 @@ export class CircleCollider extends Collider {
 
   private _naturalRadius!: number;
 
-  private _radius: number | undefined;
+  private _radius: number | null = null;
   /**
    * Get the radius of the circle
    */
   public get radius(): number {
     this._ensureWorld();
-    if (this._radius) {
+    if (this._radius !== null) {
       return this._radius;
     }
     const tx = this._transform;

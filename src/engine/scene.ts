@@ -253,9 +253,9 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
    *
    * This can be used to configure custom transitions for a scene dynamically
    */
-  public onTransition(direction: 'in' | 'out'): Transition | undefined {
+  public onTransition(direction: 'in' | 'out'): Transition | null {
     // will be overridden
-    return undefined;
+    return null;
   }
 
   /**
@@ -702,7 +702,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
    * @param entity
    */
   public transfer(entity: any): void {
-    let scene: Scene | undefined = undefined;
+    let scene: Scene | null = null;
     if (entity instanceof Entity && entity.scene && entity.scene !== this) {
       scene = entity.scene;
       entity.scene.world.remove(entity, false);

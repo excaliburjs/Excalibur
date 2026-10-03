@@ -160,9 +160,9 @@ export class ShaderPass {
 
   private _graphicsContext: ExcaliburGraphicsContextWebGL;
   private _fragmentSource: string;
-  private _initialUniforms?: UniformDictionary;
-  private _shader?: Shader;
-  private _layout?: VertexLayout;
+  private _initialUniforms: UniformDictionary | null = null;
+  private _shader: Shader | null = null;
+  private _layout: VertexLayout | null = null;
   private _disposed = false;
 
   constructor(options: ShaderPassOptions) {
@@ -170,7 +170,7 @@ export class ShaderPass {
     this._graphicsContext = graphicsContext;
     this.name = name ?? 'anonymous shader pass';
     this._fragmentSource = fragmentSource ? fragmentSource : defaultPassthroughFragment;
-    this._initialUniforms = uniforms;
+    this._initialUniforms = uniforms ?? null;
     this.scale = scale ?? 1;
     this.filtering = filtering ?? ImageFiltering.Blended;
 
@@ -207,7 +207,7 @@ export class ShaderPass {
       ],
       suppressWarnings: true
     });
-    this._initialUniforms = undefined;
+    this._initialUniforms = null;
   }
 
   /**
@@ -243,7 +243,7 @@ export class ShaderPass {
       }
       const image = source.image;
       const maybeFiltering = image.getAttribute(ImageSourceAttributeConstants.Filtering);
-      const filtering = maybeFiltering ? parseImageFiltering(maybeFiltering) : undefined;
+      const filtering = maybeFiltering ? parseImageFiltering(maybeFiltering) : null;
       const wrapX = parseImageWrapping(image.getAttribute(ImageSourceAttributeConstants.WrappingX) as any);
       const wrapY = parseImageWrapping(image.getAttribute(ImageSourceAttributeConstants.WrappingY) as any);
       const texture = this._graphicsContext.textureLoader.load(image, { filtering, wrapping: { x: wrapX, y: wrapY } });
@@ -345,8 +345,8 @@ export class ShaderPass {
     if (!this._disposed) {
       this._disposed = true;
       this._shader?.dispose();
-      this._shader = undefined;
-      this._layout = undefined;
+      this._shader = null;
+      this._layout = null;
     }
   }
 }

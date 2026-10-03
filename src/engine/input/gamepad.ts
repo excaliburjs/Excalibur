@@ -100,13 +100,9 @@ export class Gamepads {
     if (!pad) {
       return false;
     }
-    const axesLength = pad.axes.filter((value) => {
-      return typeof value !== undefined;
-    }).length;
+    const axesLength = pad.axes.length;
 
-    const buttonLength = pad.buttons.filter((value) => {
-      return typeof value !== undefined;
-    }).length;
+    const buttonLength = pad.buttons.length;
     return axesLength >= this._minimumConfiguration.axis && buttonLength >= this._minimumConfiguration.buttons && pad.connected;
   }
 

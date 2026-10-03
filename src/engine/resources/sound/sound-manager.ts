@@ -214,10 +214,10 @@ export class SoundManager<Channel extends string, SoundName extends string> impl
     return sound.play(effectiveVolume) as unknown as Promise<void>;
   }
 
-  public getSound(soundName: SoundName | AnyString): Sound | undefined {
+  public getSound(soundName: SoundName | AnyString): Sound | null {
     const soundSound = this._nameToConfig.get(soundName);
     if (!soundSound) {
-      return undefined;
+      return null;
     }
 
     const { sound } = soundSound;

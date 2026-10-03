@@ -267,7 +267,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     return this._drawTarget;
   }
 
-  private _screenQuadBuffer?: VertexBuffer;
+  private _screenQuadBuffer: VertexBuffer | null = null;
   /**
    * Shared static clip-space quad (interleaved [x, y, u, v] * 6 vertices) used by every
    * {@apilink ShaderPass} on this context, meant for internal use only.
@@ -504,7 +504,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._drawTarget = this._msaaTarget ?? this._renderTarget;
 
     // drop the shared screen quad so it is rebuilt against a restored context
-    this._screenQuadBuffer = undefined;
+    this._screenQuadBuffer = null;
 
     this.debug = new ExcaliburGraphicsContextWebGLDebug(this);
 
@@ -522,7 +522,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._lazyRenderersFactory.set(type, renderer);
   }
 
-  public get(rendererName: string): RendererPlugin | undefined {
+  public get(rendererName: string): RendererPlugin | null {
     let maybeRenderer = this._renderers.get(rendererName);
     if (!maybeRenderer) {
       const lazyFactory = this._lazyRenderersFactory.get(rendererName);
@@ -532,7 +532,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
         this.register(maybeRenderer);
       }
     }
-    return maybeRenderer;
+    return maybeRenderer ?? null;
   }
 
   private _currentRenderer: RendererPlugin | undefined;

@@ -165,8 +165,8 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
 
   public set mass(newMass: number) {
     this._mass = newMass;
-    this._cachedInertia = undefined as any;
-    this._cachedInverseInertia = undefined as any;
+    this._cachedInertia = null;
+    this._cachedInverseInertia = null;
   }
 
   /**
@@ -261,12 +261,12 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     }
   }
 
-  private _cachedInertia!: number;
+  private _cachedInertia: number | null = null;
   /**
    * Get the moment of inertia from the {@apilink ColliderComponent}
    */
   public get inertia() {
-    if (this._cachedInertia) {
+    if (this._cachedInertia !== null) {
       return this._cachedInertia;
     }
 
@@ -274,10 +274,10 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     const collider = this.owner!.get(ColliderComponent);
     if (collider) {
       collider.$colliderAdded.subscribe(() => {
-        this._cachedInertia = null as any;
+        this._cachedInertia = null;
       });
       collider.$colliderRemoved.subscribe(() => {
-        this._cachedInertia = null as any;
+        this._cachedInertia = null;
       });
       const maybeCollider = collider.get();
       if (maybeCollider) {
@@ -287,12 +287,12 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     return 0;
   }
 
-  private _cachedInverseInertia!: number;
+  private _cachedInverseInertia: number | null = null;
   /**
    * Get the inverse moment of inertial from the {@apilink ColliderComponent}. If {@apilink CollisionType.Fixed} this is 0, meaning "infinite" mass
    */
   public get inverseInertia() {
-    if (this._cachedInverseInertia) {
+    if (this._cachedInverseInertia !== null) {
       return this._cachedInverseInertia;
     }
     return (this._cachedInverseInertia = this.collisionType === CollisionType.Fixed ? 0 : 1 / this.inertia);

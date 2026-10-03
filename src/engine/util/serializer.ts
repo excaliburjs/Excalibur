@@ -35,7 +35,7 @@ export interface EntityData extends SerializedData {
   tags: string[];
   components: ComponentData[];
   children: EntityData[];
-  customInstance?: string;
+  customInstance?: string | null;
 }
 
 /**
@@ -428,7 +428,7 @@ export class Serializer {
 
     // is actor custom actor
 
-    let customInstance: string | undefined = undefined;
+    let customInstance: string | null = null;
 
     for (const [key, ctor] of Serializer._ACTORREGISTRY.entries()) {
       if (actor instanceof ctor) {
