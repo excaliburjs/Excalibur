@@ -155,6 +155,58 @@ describe('A TileMap', () => {
     expect(colliders[1].bounds.bottom).toBe(264);
   });
 
+  it('moves tile colliders when the tilemap moves after cells are made solid', () => {
+    const tm = new ex.TileMap({
+      pos: ex.vec(0, 0),
+      tileWidth: 32,
+      tileHeight: 32,
+      columns: 4,
+      rows: 4
+    });
+    tm._initialize(engine);
+
+    tm.getTile(0, 0).solid = true;
+    tm.flagCollidersDirty();
+    tm.update(engine, 1);
+
+    tm.pos = ex.vec(512, 0);
+    tm.update(engine, 1);
+
+    const collider = tm.get(ex.ColliderComponent);
+    const composite = collider.get() as ex.CompositeCollider;
+    const box = composite.getColliders()[0];
+    expect(box.bounds.left).toBe(512);
+    expect(box.bounds.top).toBe(0);
+    expect(box.bounds.right).toBe(544);
+    expect(box.bounds.bottom).toBe(32);
+  });
+
+  it('builds tile colliders at the moved position when solidifying after the move', () => {
+    const tm = new ex.TileMap({
+      pos: ex.vec(0, 0),
+      tileWidth: 32,
+      tileHeight: 32,
+      columns: 4,
+      rows: 4
+    });
+    tm._initialize(engine);
+
+    tm.pos = ex.vec(512, 0);
+    tm.update(engine, 1);
+
+    tm.getTile(0, 0).solid = true;
+    tm.flagCollidersDirty();
+    tm.update(engine, 1);
+
+    const collider = tm.get(ex.ColliderComponent);
+    const composite = collider.get() as ex.CompositeCollider;
+    const box = composite.getColliders()[0];
+    expect(box.bounds.left).toBe(512);
+    expect(box.bounds.top).toBe(0);
+    expect(box.bounds.right).toBe(544);
+    expect(box.bounds.bottom).toBe(32);
+  });
+
   it('can store arbitrary data in cells', () => {
     const tm = new ex.TileMap({
       pos: ex.vec(0, 0),
