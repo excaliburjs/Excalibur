@@ -954,6 +954,201 @@ describe('Action', () => {
   });
 
   describe('repeatForever', () => {
+    it.each([false, true])('can reset from a child callback (stop first: %s)', (stopFirst) => {
+      const calls: string[] = [];
+      let hasReset = false;
+      const repeat = new ex.RepeatForever(actor, (ctx) => {
+        ctx
+          .callMethod(() => calls.push('first'))
+          .callMethod(() => {
+            calls.push('reset');
+            if (!hasReset) {
+              hasReset = true;
+              if (stopFirst) {
+                repeat.stop();
+              }
+              repeat.reset();
+            }
+          })
+          .callMethod(() => calls.push('last'));
+      });
+      actor.actions.runAction(repeat);
+
+      for (let i = 0; i < 3; i++) {
+        scene.update(engine, 1);
+      }
+      expect(calls).toEqual(['first', 'reset', 'first']);
+      scene.update(engine, 1);
+      scene.update(engine, 1);
+      expect(calls).toEqual(['first', 'reset', 'first', 'reset', 'last']);
+    });
+
+    it('honors stop after a reset request in a child callback', () => {
+      const skipped = vi.fn();
+      const next = vi.fn();
+      const repeat = new ex.RepeatForever(actor, (ctx) => {
+        ctx
+          .callMethod(() => {
+            repeat.reset();
+            repeat.stop();
+          })
+          .callMethod(skipped);
+      });
+      actor.actions.runAction(repeat).callMethod(next);
+
+      scene.update(engine, 1);
+      scene.update(engine, 1);
+      expect(repeat.isComplete()).toBe(true);
+      expect(skipped).not.toHaveBeenCalled();
+      expect(next).toHaveBeenCalledTimes(1);
+    });
+
+    it('can resume a stopped repeat after reset', () => {
+      const callback = vi.fn();
+      const repeat = new ex.RepeatForever(actor, (ctx) => ctx.delay(100).callMethod(callback));
+      actor.actions.runAction(repeat);
+
+      scene.update(engine, 50);
+      repeat.stop();
+      expect(repeat.isComplete()).toBe(true);
+      repeat.reset();
+      expect(repeat.isComplete()).toBe(false);
+
+      scene.update(engine, 100);
+      scene.update(engine, 1);
+      expect(callback).toHaveBeenCalledTimes(1);
+      scene.update(engine, 100);
+      scene.update(engine, 1);
+      expect(callback).toHaveBeenCalledTimes(2);
+    });
+
+    it('can run a stopped repeat again through runAction', () => {
+      const repeat = new ex.RepeatForever(actor, (ctx) => ctx.moveBy(10, 0, 10));
+      actor.actions.runAction(repeat);
+      scene.update(engine, 500);
+      expect(actor.pos.x).toBe(5);
+
+      actor.actions.clearActions();
+      scene.update(engine, 500);
+      expect(actor.pos.x).toBe(5);
+
+      actor.actions.runAction(repeat);
+      scene.update(engine, 1000);
+      expect(actor.pos.x).toBe(15);
+      expect(repeat.isComplete()).toBe(false);
+    });
+
+    it('stops current movement and restarts at the first action from the current position', () => {
+      actor.actions.repeatForever((ctx) => ctx.moveTo(20, 0, 10).moveTo(0, 0, 10));
+      const repeat = actor.actions.getQueue().getActions()[0] as ex.RepeatForever;
+      scene.update(engine, 1000);
+      scene.update(engine, 1000);
+      scene.update(engine, 1);
+      scene.update(engine, 1000);
+      expect(actor.pos.x).toBe(10);
+      expect(actor.vel.x).toBe(-10);
+
+      repeat.reset();
+      expect(actor.pos.x).toBe(10);
+      expect(actor.vel).toBeVector(ex.Vector.Zero);
+      scene.update(engine, 1000);
+      expect(actor.pos.x).toBe(20);
+      scene.update(engine, 1);
+      scene.update(engine, 1000);
+      expect(actor.pos.x).toBe(10);
+    });
+
+    it('restarts an in-progress delay with its full duration', () => {
+      const callback = vi.fn();
+      actor.actions.repeatForever((ctx) => ctx.delay(200).callMethod(callback));
+      const repeat = actor.actions.getQueue().getActions()[0] as ex.RepeatForever;
+      scene.update(engine, 100);
+
+      repeat.reset();
+      scene.update(engine, 100);
+      scene.update(engine, 1);
+      expect(callback).not.toHaveBeenCalled();
+      scene.update(engine, 99);
+      scene.update(engine, 1);
+      expect(callback).toHaveBeenCalledTimes(1);
+    });
+
+    it('rebuilds completed and pending actions in builder order without accumulating actions', () => {
+      const calls: string[] = [];
+      const builder = vi.fn((ctx: ex.ActionContext) => {
+        ctx
+          .callMethod(() => calls.push('first'))
+          .delay(100)
+          .callMethod(() => calls.push('last'));
+      });
+      actor.actions.repeatForever(builder);
+      const repeat = actor.actions.getQueue().getActions()[0] as ex.RepeatForever;
+      expect(builder).toHaveBeenCalledTimes(1);
+      scene.update(engine, 1);
+      scene.update(engine, 50);
+      expect(calls).toEqual(['first']);
+
+      for (let i = 0; i < 3; i++) {
+        repeat.reset();
+        expect(builder).toHaveBeenCalledTimes(i + 2);
+        scene.update(engine, 1);
+        scene.update(engine, 100);
+        scene.update(engine, 1);
+        expect(calls).toEqual(['first', ...Array.from({ length: i + 1 }, () => ['first', 'last']).flat()]);
+      }
+
+      scene.update(engine, 1);
+      expect(calls).toEqual(['first', 'first', 'last', 'first', 'last', 'first', 'last', 'first']);
+      expect(builder).toHaveBeenCalledTimes(5);
+    });
+
+    it('can reset an empty repeat without completing it', () => {
+      const repeat = new ex.RepeatForever(actor, vi.fn());
+      repeat.stop();
+      expect(repeat.isComplete()).toBe(true);
+      repeat.reset();
+      repeat.update(16);
+      expect(repeat.isComplete()).toBe(false);
+      repeat.stop();
+      repeat.update(16);
+      expect(repeat.isComplete()).toBe(true);
+    });
+
+    it('can restart a completed outer queue containing a stopped repeat', () => {
+      const callback = vi.fn();
+      actor.actions.repeatForever((ctx) => ctx.callMethod(callback));
+      const queue = actor.actions.getQueue();
+      const repeat = queue.getActions()[0] as ex.RepeatForever;
+      scene.update(engine, 1);
+      expect(callback).toHaveBeenCalledTimes(1);
+
+      repeat.stop();
+      scene.update(engine, 1);
+      expect(queue.isComplete()).toBe(true);
+      queue.reset();
+      scene.update(engine, 1);
+      expect(callback).toHaveBeenCalledTimes(2);
+      expect(queue.isComplete()).toBe(false);
+    });
+
+    it.each(['parallel', 'sequence'])('can reuse a stopped repeat inside %s actions', (composition) => {
+      const repeat = new ex.RepeatForever(actor, (ctx) => ctx.moveBy(10, 0, 10));
+      const action =
+        composition === 'parallel' ? new ex.ParallelActions([repeat]) : new ex.ActionSequence(actor, (ctx) => ctx.runAction(repeat));
+      actor.actions.runAction(action);
+      scene.update(engine, 500);
+      expect(actor.pos.x).toBe(5);
+
+      actor.actions.clearActions();
+      scene.update(engine, 500);
+      expect(actor.pos.x).toBe(5);
+
+      actor.actions.runAction(action);
+      scene.update(engine, 1000);
+      expect(actor.pos.x).toBe(15);
+      expect(repeat.isComplete()).toBe(false);
+    });
+
     it('can repeat previous actions forever', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
