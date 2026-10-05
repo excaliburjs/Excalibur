@@ -54,7 +54,7 @@ export interface AudioBusContext {
  * apply to every sound on the bus:
  *
  * ```typescript
- * const manager = ex.createSoundManager({
+ * const manager = new ex.SoundManager({
  *   channels: [
  *     'sfx',
  *     {
@@ -92,11 +92,6 @@ export interface SoundChannelOptions<Channel extends string = string> {
   onConnect?: AudioBusBuilder;
 }
 
-/**
- * The channel name of a `channels` entry, which is either a string or a {@apilink SoundChannelOptions}
- */
-export type ChannelName<T> = T extends string ? T : T extends { name: infer N extends string } ? N : never;
-
 export interface SoundManagerOptions<Channel extends string = string, SoundName extends string = string> {
   /**
    * Optionally specify the possible channels to avoid typo's, as names or {@apilink SoundChannelOptions}
@@ -131,38 +126,10 @@ export interface SoundManagerOptions<Channel extends string = string, SoundName 
    * registered name) or an array of {@apilink Sound} / {@apilink SoundConfig}
    * (auto-keyed by each sound's {@apilink Sound.name}).
    */
-  sounds: Record<SoundName, Sound | SoundConfig<NoInfer<Channel>>> | readonly (Sound | SoundConfig<NoInfer<Channel>>)[];
+  sounds:
+    | Record<SoundName, Sound<SoundName> | SoundConfig<NoInfer<Channel>, SoundName>>
+    | readonly (Sound<SoundName> | SoundConfig<NoInfer<Channel>, SoundName>)[];
 }
-
-export type PossibleChannels<TSoundManagerOptions> = TSoundManagerOptions extends SoundManagerOptions<infer Channels> ? Channels : never;
-
-/**
- * Extract the possible sound names from a {@apilink SoundManagerOptions}. For
- * the record form this is the keys; for the array form it is the union of each
- * sound's inferred name.
- */
-export type PossibleSounds<TSoundManagerOptions> = TSoundManagerOptions extends SoundManagerOptions<any, infer SName> ? SName : never;
-
-/**
- * Extract the registered name type of a {@apilink Sound} or {@apilink SoundConfig}.
- *
- * ```typescript
- * const coin = ex.createSound('/sfx/coin.mp3');   // Sound<'coin'>
- * type N = ex.SoundName<typeof coin>;             // 'coin'
- * ```
- */
-export type SoundName<T> = T extends Sound<infer N> ? N : T extends SoundConfig<any, infer N> ? N : string;
-
-/**
- * Infer the union of registered sound names from an array-form `sounds` option.
- */
-export type ArraySoundsNames<T> = T extends readonly (infer E)[]
-  ? E extends Sound<infer N>
-    ? N
-    : E extends SoundConfig<any, infer N>
-      ? N
-      : never
-  : never;
 
 /**
  * Wire a bus `input → output`, through the builder's effects if one is given
@@ -801,28 +768,4 @@ export class SoundManager<Channel extends string, SoundName extends string> impl
       this._applyMix(mix);
     }
   }
-}
-
-/**
- * Factory for constructing a strongly-typed {@apilink SoundManager}. Prefer
- * this over `new SoundManager(...)` when using the array-form `sounds` option
- * so the inferred sound-name union is captured. Every sound in the array needs
- * a literal name type ({@apilink createSound} or an explicit `name`) or the
- * union widens to `string`.
- *
- * ```typescript
- * const coin = ex.createSound('/sfx/coin.mp3');   // Sound<'coin'>
- * const jump = ex.createSound('/sfx/jump.ogg');    // Sound<'jump'>
- * const mgr = ex.createSoundManager({ channels: ['sfx'], sounds: [coin, { sound: jump, channel: 'sfx' }] });
- * mgr.play('coin');   // ✓
- * mgr.play('coinn');  // ✗ compile error
- * ```
- */
-export function createSoundManager<
-  const S extends readonly (Sound<any> | SoundConfig<ChannelName<C[number]>, any>)[],
-  const C extends readonly (string | SoundChannelOptions<string>)[] = readonly string[]
->(
-  options: SoundManagerOptions<ChannelName<C[number]>, ArraySoundsNames<S>> & { sounds: S; channels?: C }
-): SoundManager<ChannelName<C[number]>, ArraySoundsNames<S>> {
-  return new SoundManager<ChannelName<C[number]>, ArraySoundsNames<S>>(options);
 }

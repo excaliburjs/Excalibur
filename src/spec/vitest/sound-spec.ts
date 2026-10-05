@@ -472,21 +472,6 @@ describe('Sound resource', () => {
       const check: 'jump' = jump.name;
       void check;
     });
-
-    it('createSound infers the name type from a path literal', () => {
-      const coin = ex.createSound('/sfx/coin.mp3');
-      expect(coin.name).toBe('coin');
-      const check: 'coin' = coin.name;
-      void check;
-
-      const hashed = ex.createSound('/x/coin.f74d9d70.mp3?v=2');
-      const check2: 'coin.f74d9d70' = hashed.name;
-      void check2;
-
-      const hidden = ex.createSound('/sfx/.hidden.mp3');
-      const check3: '.hidden' = hidden.name;
-      void check3;
-    });
   });
 
   describe('pitch', () => {

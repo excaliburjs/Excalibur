@@ -5,9 +5,9 @@ import { Logger } from '../../util/log';
 import { clamp } from '../../math/util';
 
 /**
- * Context handed to an {@apilink AudioGraphBuilder} each time a {@apilink SoundTrack}
- * (re)starts. The builder is responsible for connecting `source` to `destination`,
- * optionally through any Web Audio nodes it likes (panners, filters, convolvers, analysers...).
+ * Context handed to an {@apilink AudioGraphBuilder} each time a {@apilink SoundTrack} starts or resumes
+ * The builder is responsible for connecting `source` to `destination` through any Web Audio nodes it likes
+ * (panners, filters, convolvers, analysers...).
  */
 export interface AudioGraphContext {
   /**
@@ -273,6 +273,7 @@ export class SoundTrack {
   public get pitch(): number {
     return this._pitch;
   }
+
   public set pitch(pitch: number) {
     this._pitch = pitch;
     if (this._source) {
@@ -290,6 +291,7 @@ export class SoundTrack {
   public get duration(): number {
     return this._duration ?? this.getTotalPlaybackDuration();
   }
+
   public set duration(duration: number | undefined) {
     this._duration = duration;
   }

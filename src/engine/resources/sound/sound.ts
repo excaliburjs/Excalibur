@@ -188,24 +188,6 @@ function basenameWithoutExt(path: string): string {
 }
 
 /**
- * Factory for constructing a {@apilink Sound} with an inferred name type. Unlike
- * `new Sound(...)` (whose name type defaults to `string`), `createSound`
- * captures the basename-without-extension of a path literal — or an explicit
- * `name` literal — as the `TName` type parameter.
- *
- * ```typescript
- * const coin = createSound('/sfx/coin.mp3');        // Sound<'coin'>
- * const jump = createSound({ name: 'jump', paths: ['/sfx/jump.ogg'] }); // Sound<'jump'>
- * const plain = new Sound('/sfx/coin.mp3');          // Sound<string>
- * ```
- */
-export function createSound<const TPath extends string>(...paths: TPath[]): Sound<Basename<TPath>>;
-export function createSound<const TName extends string>(options: SoundOptions & { name: TName; paths: string[] }): Sound<TName>;
-export function createSound(...pathsOrOptions: any[]): Sound<any> {
-  return new Sound(...pathsOrOptions);
-}
-
-/**
  * The {@apilink Sound} object allows games built in Excalibur to load audio
  * components, from soundtracks to sound effects. {@apilink Sound} is an {@apilink Loadable}
  * which means it can be passed to a {@apilink Loader} to pre-load before a game or level.
@@ -215,7 +197,7 @@ export function createSound(...pathsOrOptions: any[]): Sound<any> {
  * selected path. It is inferred from constructor arguments when string literals
  * are passed.
  */
-export class Sound<TName extends string = string> implements Loadable<AudioBuffer> {
+export class Sound<const TName extends string = string> implements Loadable<AudioBuffer> {
   public events = new EventEmitter<SoundEvents>();
   public logger: Logger = Logger.getInstance();
   public data!: AudioBuffer;
@@ -342,15 +324,11 @@ export class Sound<TName extends string = string> implements Loadable<AudioBuffe
    */
   public constructor(options: SoundOptions & { name: TName; paths: string[] });
   /**
-   * Construct a Sound from an options object. `TName` defaults to `string` when
-   * no explicit `name` is given (use {@apilink createSound} to infer the name
-   * from a path literal).
+   * Construct a Sound from an options object. `TName` defaults to `string`
    */
   public constructor(options: SoundOptions & { paths: string[] });
   /**
-   * Construct a Sound from a variadic list of audio source paths. `TName`
-   * defaults to `string` (use {@apilink createSound} to infer the name from a
-   * path literal).
+   * Construct a Sound from a variadic list of audio source paths. `TName` defaults to `string`
    */
   public constructor(...paths: string[]);
   constructor(...pathsOrSoundOption: any[]) {

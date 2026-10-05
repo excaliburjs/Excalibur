@@ -24,15 +24,20 @@ var loader = new ex.Loader();
 
 // Maybe make sound manager a loadable
 
-var soundManager = ex.createSoundManager({
+var testsnd = new ex.Sound({ name: 'test', paths: ['./jump.mp3'] });
+var jumpsnd = new ex.Sound({ name: 'jump', paths: ['./jump.mp3'] });
+var loopforest = new ex.Sound({ name: 'loop-forest', paths: ['./loop-forest.mp3'] });
+
+var soundManager = new ex.SoundManager({
   channels: ['fx', 'music', 'background'],
   sounds: [
-    { sound: ex.createSound('./jump.mp3'), volume: 0.4, channel: 'fx' },
-    { sound: ex.createSound('./loop-forest.mp3'), volume: 0.2, channel: 'music' },
-    { sound: ex.createSound('./challengeloopfixed.mp3'), volume: 0.2, channel: 'music' },
-    { sound: ex.createSound('./loop-guitar.mp3'), volume: 0.2, channel: 'music' }
+    { sound: jumpsnd, volume: 0.4, channel: 'fx' },
+    { sound: loopforest, volume: 0.2, channel: 'music' },
+    { sound: new ex.Sound({ name: 'challengeloopfixed', paths: ['./challengeloopfixed.mp3'] }), volume: 0.2, channel: 'music' },
+    { sound: new ex.Sound({ name: 'loop-guitar', paths: ['./loop-guitar.mp3'] }), volume: 0.2, channel: 'music' }
   ]
 });
+
 loader.addResource(soundManager);
 
 // var soundManager = new ex.SoundManger({
