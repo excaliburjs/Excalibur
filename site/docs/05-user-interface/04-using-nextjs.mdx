@@ -1,0 +1,97 @@
+---
+title: Using NextJS
+slug: /nextjs
+section: User Interface
+---
+
+## Starting a new project
+
+Start a new project with [NextJS](https://nextjs.org/docs/getting-started/installation) with your favorite package manager or use the command:
+
+```bash
+npx create-next-app@latest
+```
+
+Once this is done you can follow the remainder of the guide for [an existing project](#existing-nextjs-projects).
+
+## Existing NextJS projects
+
+:::note
+
+This guide is very similar to the [SolidJS](./05-using-solidjs.mdx) guide and so it may be helpful to look at that guide for more or different information.
+
+:::
+
+Install ExcaliburJS with your package manager
+
+```bash
+npm install excalibur
+```
+
+Create a client component that houses your game. It should look something like:
+
+#### Entry.tsx
+
+```typescript
+"use client";
+import { type Engine } from "excalibur";
+import React from "react";
+import { intializeGame } from "./game";
+
+export default function Game() {
+	const gameCanvas = React.useRef<HTMLCanvasElement>(null);
+	const gameRef = React.useRef<Engine>();
+
+	React.useEffect(() => {
+		if (!gameRef.current && gameCanvas.current) {
+			gameRef.current = intializeGame(gameCanvas.current);
+		}
+	}, []);
+
+	return (
+		<canvas ref={gameCanvas} id="gameCanvas" width={800} height={600}></canvas>
+	);
+}
+```
+
+and create a page that uses the component:
+
+#### page.tsx
+
+```typescript
+"use client";
+
+import dynamic from "next/dynamic";
+
+const Game = dynamic(() => import("./Game"), { ssr: false });
+
+export default function GamePage() {
+	return <Game />;
+}
+```
+
+Note that we have to dynamically import the game component to prevent it from being server side rendered.
+
+Finally, create a function that initializes and renders the game:
+
+#### game.ts
+
+```typescript
+import { DisplayMode, Engine } from "excalibur";
+
+export const intializeGame = (gameCanvas: HTMLCanvasElement) => {
+	const game = new Engine({
+		canvasElement: gameCanvas,
+		displayMode: DisplayMode.FitContainerAndFill,
+	});
+
+	game.start().catch((e) => console.error(e));
+	return game;
+};
+```
+
+From here, you can start the game by running `npm run dev` and navigating to the page that you created. All the rest of the ExcaliburJS API and documentation should work as expected.
+
+## Adding UI on top of your game
+
+Once your game is loading, you'll likely want to render score displays, menus, or other UI on top of the canvas using React itself. Bridging Excalibur's game loop with a component framework's render cycle involves some non-obvious tradeoffs (when to re-render, how to avoid fighting the framework's diffing), so rather than prescribe one way to do it here, see [Combining Excalibur with a Reactive UI Framework](/blog/bridging-excalibur-and-a-reactive-ui-framework) on the blog for a worked example and the pitfalls to watch for. For simpler cases, plain [HTML/CSS UI](/docs/html) overlaid on the canvas is often all you need.
