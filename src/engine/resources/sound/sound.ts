@@ -30,7 +30,7 @@ export const SoundEvents = {
   PlaybackStart: 'playbackstart'
 };
 
-export interface SoundOptions {
+export interface SoundOptions<TName extends string = string> {
   /**
    * Optional explicit name for this sound. Used as the default key when this
    * Sound is registered with a {@apilink SoundManager} (otherwise the basename
@@ -39,7 +39,7 @@ export interface SoundOptions {
    * If passed as a string literal, it is inferred as the {@apilink Sound}'s
    * name type parameter for strong typing.
    */
-  name?: string;
+  name?: TName;
   /**
    * @param paths A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
    */
@@ -152,25 +152,6 @@ export interface PlayOptions {
 function isSoundOptions(x: any): x is SoundOptions[] {
   return !!x[0]?.paths;
 }
-
-/**
- * Compile-time basename-without-extension of a path string literal, mirroring
- * the runtime derivation in {@apilink Sound}'s constructor so inferred names
- * stay strongly typed.
- *
- * `/sfx/coin.mp3?v=2` → `coin`, `/sfx/coin.<hash>.mp3` → `coin.<hash>`, `.env` → `.env`.
- */
-export type Basename<S extends string> = StripLastExt<StripHash<StripQuery<LastPath<S>>>>;
-type StripQuery<S extends string> = S extends `${infer B}?${string}` ? B : S;
-type StripHash<S extends string> = S extends `${infer B}#${string}` ? B : S;
-type LastPath<S extends string, Orig extends string = S> = S extends `${string}/${infer R}` ? (R extends '' ? Orig : LastPath<R, Orig>) : S;
-type StripLastExt<S extends string> = S extends `${infer Pre}.${infer Post}`
-  ? Post extends `${string}.${string}`
-    ? `${Pre}.${StripLastExt<Post>}`
-    : Pre extends ''
-      ? S
-      : Pre
-  : S;
 
 /**
  * Derive a sound's default name from its path: basename without extension,
@@ -322,11 +303,7 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
    * Construct a Sound from an options object with an explicit `name`. The class
    * generic `TName` is inferred from the `name` literal when one is provided.
    */
-  public constructor(options: SoundOptions & { name: TName; paths: string[] });
-  /**
-   * Construct a Sound from an options object. `TName` defaults to `string`
-   */
-  public constructor(options: SoundOptions & { paths: string[] });
+  public constructor(options: SoundOptions<TName>);
   /**
    * Construct a Sound from a variadic list of audio source paths. `TName` defaults to `string`
    */
