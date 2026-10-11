@@ -87,6 +87,12 @@ export interface SoundChannelOptions<Channel extends string = string> {
    */
   maxConcurrentTracks?: number;
   /**
+   * What happens when a `maxConcurrentTracks` cap
+   * *`false` (default) drops the new play
+   * *`true` stops the oldest playing track in that scope to make room for it.
+   */
+  voiceStealing?: boolean;
+  /**
    * Wire the channel's `input` to its `output` through effects, see {@apilink AudioBusBuilder}
    */
   onConnect?: AudioBusBuilder;
@@ -116,9 +122,9 @@ export interface SoundManagerOptions<Channel extends string = string, SoundName 
    */
   maxConcurrentTracks?: number;
   /**
-   * What happens when a `maxConcurrentTracks` cap (channel or manager) is reached:
-   * `false` (default) drops the new play, `true` stops the oldest playing track in that
-   * scope to make room for it.
+   * What happens when a `maxConcurrentTracks` cap
+   * *`false` (default) drops the new play
+   * *`true` stops the oldest playing track in that scope to make room for it.
    */
   voiceStealing?: boolean;
   /**
@@ -174,14 +180,23 @@ export class SoundChannel {
    * Gain node every sound in the channel connects to
    */
   public readonly input: GainNode;
+
   /**
    * Output gain node that carries the channel volume and mute, connected to the manager's master input
    */
   public readonly output: GainNode;
+
   /**
-   * Maximum number of simultaneously playing tracks in this channel, default unbounded
+   * Maximum number of simultaneously playing tracks in this channel, default Infinity
    */
   public maxConcurrentTracks: number = Infinity;
+
+  /**
+   * What happens when a `maxConcurrentTracks` cap
+   * *`false` (default) drops the new play
+   * *`true` stops the oldest playing track in that scope to make room for it.
+   */
+  public voiceStealing: boolean = false;
   private _sounds: Sound[] = [];
   private _volume = 1;
   private _muted = false;
@@ -201,6 +216,7 @@ export class SoundChannel {
       this._volume = clamp(options.volume, 0, 1);
       this.output.gain.value = this._volume;
     }
+    this.voiceStealing = options?.voiceStealing ?? this.voiceStealing;
   }
 
   /**
@@ -565,13 +581,13 @@ export class SoundManager<const Channel extends string, const SoundName extends 
     }
 
     const channel = this._soundChannel.get(sound);
-    if (channel && !this._makeRoom(channel.sounds, channel.playingCount(), channel.maxConcurrentTracks)) {
+    if (channel && !this._makeRoom(channel.sounds, channel.playingCount(), channel.maxConcurrentTracks, channel.voiceStealing)) {
       this._logger.warnOnce(
         `SoundManager: channel "${channel.name}" maxConcurrentTracks (${channel.maxConcurrentTracks}) reached: dropping "${sound.name}".`
       );
       return null;
     }
-    if (!this._makeRoom(this.getSounds(), this.playingCount(), this.maxConcurrentTracks)) {
+    if (!this._makeRoom(this.getSounds(), this.playingCount(), this.maxConcurrentTracks, this.voiceStealing)) {
       this._logger.warnOnce(`SoundManager: maxConcurrentTracks (${this.maxConcurrentTracks}) reached: dropping "${sound.name}".`);
       return null;
     }
@@ -581,15 +597,16 @@ export class SoundManager<const Channel extends string, const SoundName extends 
 
   /**
    * Returns whether a new track fits under `max`, stopping the oldest playing track among
-   * `sounds` first when {@apilink SoundManager.voiceStealing} is on
+   * `sounds` first when voiceStealing is on
    */
-  private _makeRoom(sounds: readonly Sound[], playing: number, max: number): boolean {
+  private _makeRoom(sounds: readonly Sound[], playing: number, max: number, voiceStealing: boolean): boolean {
     if (playing < max) {
       return true;
     }
-    if (!this.voiceStealing) {
+    if (!voiceStealing) {
       return false;
     }
+
     let oldest: SoundTrack | null = null;
     for (const sound of sounds) {
       for (const track of sound.instances) {

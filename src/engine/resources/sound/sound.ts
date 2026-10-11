@@ -92,6 +92,13 @@ export interface SoundOptions<TName extends string = string> {
   maxConcurrentTracks?: number;
 
   /**
+   * What happens when a `maxConcurrentTracks` cap
+   * *`false` (default) drops the new play
+   * *`true` stops the oldest playing track in that scope to make room for it.
+   */
+  voiceStealing?: boolean;
+
+  /**
    * Optional hook to wire custom Web Audio nodes (spatial panners, filters,
    * reverb, analysers...) between this sound's source and its output. Runs each
    * time a track (re)starts. See {@apilink AudioGraphBuilder}.
@@ -287,7 +294,10 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
   private _wasPlayingOnHidden: boolean = false;
   private _playbackRate = 1.0;
   private _pitch = 0;
-  private _maxConcurrentTracks?: number;
+  private _maxConcurrentTracks: number = Infinity;
+
+  public voiceStealing: boolean = false;
+
   private _audioContext = AudioContextFactory.create();
   /**
    * Output gain shared by every track of this sound, created on first use
@@ -314,7 +324,7 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
     }
     this._resource = new Resource('', 'arraybuffer');
 
-    const { volume, position, playbackRate, loop, bustCache, duration, pitch, maxConcurrentTracks, onPlay, name } = options;
+    const { volume, position, playbackRate, loop, bustCache, duration, pitch, maxConcurrentTracks, voiceStealing, onPlay, name } = options;
 
     this.volume = volume ?? this.volume;
     this.playbackRate = playbackRate ?? this.playbackRate;
@@ -323,7 +333,8 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
     this.bustCache = bustCache ?? this.bustCache;
     this.position = position ?? this.position;
     this._pitch = pitch ?? this._pitch;
-    this._maxConcurrentTracks = maxConcurrentTracks;
+    this._maxConcurrentTracks = maxConcurrentTracks ?? this._maxConcurrentTracks;
+    this.voiceStealing = voiceStealing ?? this.voiceStealing;
     this.onPlay = onPlay;
 
     /**
@@ -408,12 +419,12 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
   /**
    * Maximum number of simultaneously playing tracks allowed for this single
    * Sound. When the cap is reached, new `play()` calls are dropped and resolve
-   * to `false`. Default unset (unbounded).
+   * to `false`. Default Infinity (unbounded).
    */
-  public get maxConcurrentTracks(): number | undefined {
+  public get maxConcurrentTracks(): number {
     return this._maxConcurrentTracks;
   }
-  public set maxConcurrentTracks(value: number | undefined) {
+  public set maxConcurrentTracks(value: number) {
     this._maxConcurrentTracks = value;
   }
 
@@ -537,6 +548,25 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
     return track ? track.done : Promise.resolve(false);
   }
 
+  private _makeRoom(playing: number, max: number, voiceStealing: boolean): boolean {
+    if (playing < max) {
+      return true;
+    }
+
+    if (!voiceStealing) {
+      return false;
+    }
+
+    let oldest: SoundTrack | null = null;
+    for (const track of this.instances) {
+      if (track.isPlaying() && (!oldest || track.id < oldest.id)) {
+        oldest = track;
+      }
+    }
+    oldest?.stop();
+    return playing - 1 < max;
+  }
+
   /**
    * Like {@apilink Sound.play} but returns the {@apilink SoundTrack} synchronously so it can be
    * stopped, seeked or adjusted while it plays. Returns `null` if the play was dropped.
@@ -558,7 +588,7 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
       return null;
     }
 
-    if (this._maxConcurrentTracks != null && this.playingCount() >= this._maxConcurrentTracks) {
+    if (!this._makeRoom(this.playingCount(), this._maxConcurrentTracks, this.voiceStealing)) {
       this.logger.warnOnce(`Sound "${this.name}" has reached maxConcurrentTracks (${this._maxConcurrentTracks}); dropping play.`);
       return null;
     }
