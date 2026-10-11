@@ -2,7 +2,6 @@ import { Resource } from '../resource';
 import { SoundTrack, type AudioGraphBuilder } from './sound-track';
 import { AudioContextFactory } from './audio-context';
 import { NativeSoundEvent, NativeSoundProcessedEvent } from '../../events/media-events';
-import { canPlayFile, canPlayMime } from '../../util/sound';
 import type { Loadable } from '../../interfaces/index';
 import type { Engine } from '../../engine';
 import { Logger } from '../../util/log';
@@ -173,10 +172,6 @@ function basenameWithoutExt(path: string): string {
  * components, from soundtracks to sound effects. {@apilink Sound} is an {@apilink Loadable}
  * which means it can be passed to a {@apilink Loader} to pre-load before a game or level.
  *
- * The optional `TName` type parameter is the sound's registered name — either
- * the `name` option if provided, or the basename-without-extension of the
- * selected path. It is inferred from constructor arguments when string literals
- * are passed.
  */
 export class Sound<const TName extends string = string> implements Loadable<AudioBuffer> {
   public events = new EventEmitter<SoundEvents>();
@@ -338,7 +333,7 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
      * Safari MP3, WAV, Ogg
      */
     for (const path of options.paths) {
-      if (canPlayFile(path)) {
+      if (Sound.canPlayFile(path)) {
         this.path = path;
         break;
       }
@@ -351,6 +346,41 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
     }
 
     this.name = (name ?? basenameWithoutExt(this.path)) as TName;
+  }
+
+  /**
+   * Whether or not the browser can play this file as HTML5 Audio
+   */
+  static canPlayFile(file: string): boolean {
+    try {
+      const a = new Audio();
+      const filetype = /.*\.([A-Za-z0-9]+)(?=[?#]|$)/;
+      const type = file.match(filetype)![1];
+      if (a.canPlayType('audio/' + type)) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      Logger.getInstance().warn('Cannot determine audio support, assuming no support for the Audio Tag', e);
+      return false;
+    }
+  }
+
+  static canPlayMime(mime: string): boolean {
+    try {
+      const a = new Audio();
+      const mimeMatch = /.*audio\/([A-Za-z0-9]+);?/;
+      const extractedMime = mime.match(mimeMatch)![1];
+      if (a.canPlayType(`audio/${extractedMime}`)) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      Logger.getInstance().warn('Cannot determine audio support via blob mime type.', e);
+      return false;
+    }
   }
 
   /**
@@ -731,7 +761,7 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
   }
 
   public static async fromBlob(blob: Blob) {
-    if (!canPlayMime(blob.type)) {
+    if (!Sound.canPlayMime(blob.type)) {
       Logger.getInstance().warn('Blob mime type is unsupported.');
     }
 

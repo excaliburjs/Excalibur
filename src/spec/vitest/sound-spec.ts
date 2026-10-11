@@ -1,6 +1,5 @@
 import * as ex from '@excalibur';
 import { SoundTrack } from '../../engine/resources/sound/sound-track';
-import { canPlayFile, canPlayMime } from '../../engine/util/sound';
 import { delay } from '../../engine/util/util';
 import { WebAudio } from '../../engine/util/web-audio';
 import { TestUtils } from '../__util__/test-utils';
@@ -39,27 +38,27 @@ describe('Sound resource', () => {
   });
 
   it('can detect playability of files', () => {
-    expect(canPlayFile('coin.mp3')).toBe(true);
+    expect(ex.Sound.canPlayFile('coin.mp3')).toBe(true);
   });
 
   it('can detect playability of files', () => {
-    expect(canPlayFile('coin.mp3?12234')).toBe(true);
+    expect(ex.Sound.canPlayFile('coin.mp3?12234')).toBe(true);
   });
 
   it('can detect playability of files with multiple dots', () => {
-    expect(canPlayFile('coin.f74d9d70.mp3')).toBe(true);
+    expect(ex.Sound.canPlayFile('coin.f74d9d70.mp3')).toBe(true);
   });
 
   it('can detect playability of files with querystrings', () => {
-    expect(canPlayFile('coin.f74d9d70.mp3?1678266496281')).toBe(true);
+    expect(ex.Sound.canPlayFile('coin.f74d9d70.mp3?1678266496281')).toBe(true);
   });
 
   it('can detect playability of files with hash', () => {
-    expect(canPlayFile('coin.f74d9d70.mp3#1678266496281')).toBe(true);
+    expect(ex.Sound.canPlayFile('coin.f74d9d70.mp3#1678266496281')).toBe(true);
   });
 
   it('can detect playability of files with querystring and hash', () => {
-    expect(canPlayFile('coin.f74d9d70.mp3?_=1234#1678266496281')).toBe(true);
+    expect(ex.Sound.canPlayFile('coin.f74d9d70.mp3?_=1234#1678266496281')).toBe(true);
   });
 
   it('should fire processed event', async () => {
@@ -984,22 +983,22 @@ describe('Sound resource', () => {
     });
 
     it('Allows ogg type', () => {
-      expect(canPlayMime('audio/ogg; codec=test')).toBe(true);
-      expect(canPlayMime('audio/ogg')).toBe(true);
-      expect(canPlayMime('audio/ogg;')).toBe(true);
+      expect(ex.Sound.canPlayMime('audio/ogg; codec=test')).toBe(true);
+      expect(ex.Sound.canPlayMime('audio/ogg')).toBe(true);
+      expect(ex.Sound.canPlayMime('audio/ogg;')).toBe(true);
     });
 
     it('Allows wav type', () => {
-      expect(canPlayMime('audio/wav; coded=test')).toBe(true);
+      expect(ex.Sound.canPlayMime('audio/wav; coded=test')).toBe(true);
     });
 
     it('Allows mp3 type', () => {
-      expect(canPlayMime('audio/mp3; coded=test')).toBe(true);
+      expect(ex.Sound.canPlayMime('audio/mp3; coded=test')).toBe(true);
     });
 
     it('Warns for an unsupported type', () => {
-      expect(canPlayMime('audio/unsupported; codec=test')).toBe(false);
-      expect(canPlayMime('none')).toBe(false);
+      expect(ex.Sound.canPlayMime('audio/unsupported; codec=test')).toBe(false);
+      expect(ex.Sound.canPlayMime('none')).toBe(false);
     });
 
     it('Creates an instance', async () => {
@@ -1012,7 +1011,7 @@ describe('Sound resource', () => {
       const instance = await ex.Sound.fromBlob(testBlob);
 
       expect(instance.data).toEqual(mockBuffer);
-      expect(instance._duration).toEqual(duration);
+      expect(instance.duration).toEqual(duration);
     });
   });
 });
