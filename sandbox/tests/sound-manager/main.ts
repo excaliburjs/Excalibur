@@ -33,11 +33,25 @@ var loopforest = new ex.Sound({ name: 'loop-forest', paths: ['./loop-forest.mp3'
 var soundManager = new ex.SoundManager({
   channels: ['fx', 'music', 'background'],
   sounds: [
-    { sound: jumpsnd, volume: 0.4, channel: 'fx' },
-    { sound: loopforest, volume: 0.2, channel: 'music' },
-    { sound: new ex.Sound({ name: 'challengeloopfixed', paths: ['./challengeloopfixed.mp3'] }), volume: 0.2, channel: 'music' },
-    { sound: new ex.Sound({ name: 'loop-guitar', paths: ['./loop-guitar.mp3'] }), volume: 0.2, channel: 'music' }
+    testsnd,
+    {
+      sound: jumpsnd,
+      volume: 0.4,
+      channel: 'fx'
+    }
   ]
+  // sounds: [
+  //   { sound: jumpsnd, volume: 0.4, channel: 'fx' } as ex.SoundConfig<'fx', 'jump'>,
+  //   { sound: loopforest, volume: 0.2, channel: 'music' } as ex.SoundConfig<'music', 'loop-forest'>,
+  //   { sound: new ex.Sound({
+  //     name: 'challengeloopfixed',
+  //     paths: ['./challengeloopfixed.mp3'],
+  //   }), volume: 0.2, channel: 'music' } as ex.SoundConfig<'music', 'challengeloopfixed'>,
+  //   { sound: new ex.Sound({
+  //     name: 'loop-guitar',
+  //     paths: ['./loop-guitar.mp3'],
+  //   }), volume: 0.2, channel: 'music' } as ex.SoundConfig<'music', 'loop-guitar'>
+  // ]
 });
 
 loader.addResource(soundManager);
@@ -60,7 +74,7 @@ toggleMusic.on('pointerdown', () => {
   soundManager.channel.toggle('music');
 });
 game.add(toggleMusic);
-soundManager.getVolume(jumpSnd);
+soundManager.getVolume(jumpsnd);
 console.log('getSounds()', soundManager.getSounds());
 console.log('channel count', soundManager.getSoundsForChannel('music'));
 

@@ -97,6 +97,12 @@ export interface SoundManagerOptions<Channel extends string = string, SoundName 
    * Optionally specify the possible channels to avoid typo's, as names or {@apilink SoundChannelOptions}
    */
   channels?: readonly (Channel | SoundChannelOptions<Channel>)[];
+
+  /**
+   * The sounds to manage, each optionally with a mix `volume` and a `channel`.
+   */
+  sounds: readonly (SoundConfig<NoInfer<Channel>, SoundName> | Sound<SoundName>)[];
+
   /**
    * Master volume [0-1] for every sound in this manager
    *
@@ -119,16 +125,6 @@ export interface SoundManagerOptions<Channel extends string = string, SoundName 
    * Wire the master `input` to `output` through effects (e.g. a compressor), see {@apilink AudioBusBuilder}
    */
   onConnect?: AudioBusBuilder;
-  /**
-   * The sounds to manage, each optionally with a mix `volume` and a `channel`.
-   *
-   * Accepts either a record keyed by sound name (the key is used as the
-   * registered name) or an array of {@apilink Sound} / {@apilink SoundConfig}
-   * (auto-keyed by each sound's {@apilink Sound.name}).
-   */
-  sounds:
-    | Record<SoundName, Sound<SoundName> | SoundConfig<NoInfer<Channel>, SoundName>>
-    | readonly (Sound<SoundName> | SoundConfig<NoInfer<Channel>, SoundName>)[];
 }
 
 /**
@@ -359,7 +355,8 @@ export class ChannelCollection<Channel extends string> implements SoundManagerAp
  * playback rather than a pause and none of it touches {@apilink Sound.volume}. A SoundManager is
  * {@apilink Loadable}, add it to a {@apilink Loader} to load every sound it manages.
  */
-export class SoundManager<Channel extends string, SoundName extends string> implements SoundManagerApi, Loadable<AudioBuffer[]> {
+export class SoundManager<const Channel extends string, const SoundName extends string>
+  implements SoundManagerApi, Loadable<AudioBuffer[]> {
   private _audioContext = AudioContextFactory.create();
   /**
    * Master bus input every channel (and channel-less sound) is mixed into
@@ -419,10 +416,6 @@ export class SoundManager<Channel extends string, SoundName extends string> impl
     if (Array.isArray(options.sounds)) {
       for (const s of options.sounds as readonly (Sound | SoundConfig)[]) {
         this.track(s);
-      }
-    } else {
-      for (const [name, soundOrConfig] of Object.entries<Sound | SoundConfig>(options.sounds)) {
-        this.track(name, soundOrConfig);
       }
     }
   }
