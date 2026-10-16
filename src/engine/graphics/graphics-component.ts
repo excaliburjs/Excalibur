@@ -39,7 +39,7 @@ export interface GraphicsComponentData {
           offset?: { x: number; y: number };
           anchor?: { x: number; y: number };
         }
-      | undefined;
+      | null;
   };
   isVisible: boolean;
   opacity: number;
@@ -122,7 +122,7 @@ export class GraphicsComponent extends Component {
 
   private _current: string = 'default';
   private _graphics: Record<string, Graphic> = {};
-  private _options: Record<string, GraphicsShowOptions | undefined> = {};
+  private _options: Record<string, GraphicsShowOptions | null> = {};
 
   public material: Material | null = null;
 
@@ -134,7 +134,7 @@ export class GraphicsComponent extends Component {
   /**
    * Draws after the entity transform has been applied, and after graphics component graphics has been drawn
    */
-  public onPostDraw?: (ctx: ExcaliburGraphicsContext, elapsed: number) => void;
+  public onPostDraw: ((ctx: ExcaliburGraphicsContext, elapsed: number) => void) | null = null;
 
   /**
    * Draws before the entity transform has been applied before any any graphics component drawing
@@ -260,7 +260,7 @@ export class GraphicsComponent extends Component {
         this._graphics[key] = graphicOrOptions;
       } else {
         this._graphics[key] = graphicOrOptions.graphic;
-        this._options[key] = graphicOrOptions.options;
+        this._options[key] = graphicOrOptions.options ?? null;
       }
     }
 
@@ -285,7 +285,7 @@ export class GraphicsComponent extends Component {
   public getGraphic(name: string): Graphic | undefined {
     return this._graphics[name];
   }
-  public getOptions(name: string): GraphicsShowOptions | undefined {
+  public getOptions(name: string): GraphicsShowOptions | null {
     return this._options[name];
   }
 
@@ -306,7 +306,7 @@ export class GraphicsComponent extends Component {
   /**
    * Returns the currently displayed graphic offsets
    */
-  public get currentOptions(): GraphicsShowOptions | undefined {
+  public get currentOptions(): GraphicsShowOptions | null {
     return this._options[this._current];
   }
 
@@ -320,7 +320,7 @@ export class GraphicsComponent extends Component {
   /**
    * Returns all graphics options associated with this component
    */
-  public get options(): { [graphicName: string]: GraphicsShowOptions | undefined } {
+  public get options(): { [graphicName: string]: GraphicsShowOptions | null } {
     return this._options;
   }
 
@@ -333,15 +333,15 @@ export class GraphicsComponent extends Component {
   public add(nameOrGraphic: string | Graphic, graphicOrOptions?: Graphic | GraphicsShowOptions, options?: GraphicsShowOptions): Graphic {
     let name = 'default';
     let graphicToSet: Graphic | null = null;
-    let optionsToSet: GraphicsShowOptions | undefined = undefined;
+    let optionsToSet: GraphicsShowOptions | null = null;
     if (typeof nameOrGraphic === 'string' && graphicOrOptions instanceof Graphic) {
       name = nameOrGraphic;
       graphicToSet = graphicOrOptions;
-      optionsToSet = options;
+      optionsToSet = options ?? null;
     }
     if (nameOrGraphic instanceof Graphic && !(graphicOrOptions instanceof Graphic)) {
       graphicToSet = nameOrGraphic;
-      optionsToSet = graphicOrOptions;
+      optionsToSet = graphicOrOptions ?? null;
     }
 
     if (!graphicToSet) {
@@ -383,10 +383,10 @@ export class GraphicsComponent extends Component {
       }
       this._current = 'default';
       this._graphics[this._current] = graphic;
-      this._options[this._current] = options;
+      this._options[this._current] = options ?? null;
     } else {
       this._current = nameOrGraphic;
-      this._options[this._current] = options;
+      this._options[this._current] = options ?? null;
       if (!(this._current in this._graphics)) {
         this._logger.warn(
           `Graphic ${this._current} is not registered with the graphics component owned by ${this.owner?.name}. Nothing will be drawn.`
@@ -575,7 +575,7 @@ export class GraphicsComponent extends Component {
           anchor: option.anchor ? { x: option.anchor.x, y: option.anchor.y } : undefined
         };
       } else {
-        data.options[name] = undefined;
+        data.options[name] = null;
       }
     }
 
@@ -632,7 +632,7 @@ export class GraphicsComponent extends Component {
           anchor: option.anchor ? ({ x: option.anchor.x, y: option.anchor.y } as Vector) : undefined
         };
       } else {
-        this._options[name] = undefined;
+        this._options[name] = null;
       }
     }
   }

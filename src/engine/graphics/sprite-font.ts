@@ -41,10 +41,10 @@ export class SpriteFont extends Graphic implements FontRenderer {
   public alphabet: string = '';
   public spriteSheet: SpriteSheet;
 
-  public shadow?: { offset: Vector } = undefined;
+  public shadow: { offset: Vector } | null = null;
   public caseInsensitive = false;
   public spacing: number = 0;
-  public lineHeight: number | undefined = undefined;
+  public lineHeight: number | null = null;
 
   private _logger = Logger.getInstance();
 

@@ -21,7 +21,7 @@ export enum LogLevel {
  * Derive from {@apilink Appender} to create your own logging appenders.
  */
 export class Logger {
-  private static _INSTANCE?: Logger = undefined;
+  private static _INSTANCE: Logger | null = null;
   private _appenders: Appender[] = [];
 
   constructor() {

@@ -130,7 +130,7 @@ export class Font extends Graphic implements FontRenderer {
   /**
    * Font line height in pixels, default line height if unset
    */
-  public lineHeight: number | undefined = undefined;
+  public lineHeight: number | null = null;
   public size: number = 10;
   public shadow?: { blur?: number; offset?: Vector; color?: Color };
 
@@ -193,7 +193,7 @@ export class Font extends Graphic implements FontRenderer {
     const textInstance = FontCache.getTextInstance(text, this, colorOverride);
 
     // Apply affine transformations
-    this._textBounds = textInstance.dimensions;
+    this._textBounds = textInstance.dimensions!;
     this._preDraw(ex, x, y);
 
     textInstance.render(ex, x, y, maxWidth);

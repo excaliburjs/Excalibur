@@ -470,9 +470,9 @@ export interface ExcaliburGraphicsContext {
    * on first access.
    *
    * @param rendererName The unique renderer type name
-   * @returns The renderer plugin, or `undefined` if not found
+   * @returns The renderer plugin, or `null` if not found
    */
-  get(rendererName: string): RendererPlugin | undefined;
+  get(rendererName: string): RendererPlugin | null;
 
   /**
    * Issue a draw command to a named renderer plugin.

@@ -34,7 +34,7 @@ export interface ShaderPipelinePostProcessorOptions {
 export class ShaderPipelinePostProcessor implements PostProcessor {
   public readonly name: string;
   private _passes: ShaderPassLike[] | ShaderPipelineLike;
-  private _pipeline?: ShaderPipelineLike;
+  private _pipeline: ShaderPipelineLike | null = null;
   private _elapsed = 0;
 
   constructor(options: ShaderPipelinePostProcessorOptions) {
@@ -83,6 +83,6 @@ export class ShaderPipelinePostProcessor implements PostProcessor {
 
   public dispose(): void {
     this._pipeline?.dispose?.();
-    this._pipeline = undefined;
+    this._pipeline = null;
   }
 }
