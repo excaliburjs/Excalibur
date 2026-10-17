@@ -372,8 +372,8 @@ export class ChannelCollection<Channel extends string> implements SoundManagerAp
  * {@apilink Loadable}, add it to a {@apilink Loader} to load every sound it manages.
  */
 export class SoundManager<const Channel extends string, const SoundName extends string>
-  implements SoundManagerApi, Loadable<AudioBuffer[]>
-{
+  implements SoundManagerApi, Loadable<AudioBuffer[]> {
+   
   private _audioContext = AudioContextFactory.create();
   /**
    * Master bus input every channel (and channel-less sound) is mixed into
