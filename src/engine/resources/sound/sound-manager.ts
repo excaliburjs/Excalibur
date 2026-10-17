@@ -252,11 +252,19 @@ export class SoundChannel {
     return this._muted;
   }
 
+  /**
+   * Global mute, mutes all sounds managed by the SoundManager by muting the master output node
+   */
   public mute() {
     this._muted = true;
     this._apply();
   }
 
+  /**
+   *
+   * Global unmute, unmutes all sounds managed by the SoundManager by setting the gain on the master output node to SoundManager.volume.
+   * **Warning** Does not unmute specifically muted channels
+   */
   public unmute() {
     this._muted = false;
     this._apply();

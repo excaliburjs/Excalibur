@@ -432,15 +432,15 @@ describe('A SoundManager', () => {
     });
 
     it('stops the oldest track in scope to make room when voiceStealing is on', async () => {
-      const s1 = new ex.Sound(PREVIEW);
-      const s2 = new ex.Sound(TEST);
+      const preview = new ex.Sound(PREVIEW);
+      const test = new ex.Sound(TEST);
       const mgr = new ex.SoundManager({
         voiceStealing: true,
         maxConcurrentTracks: 2,
         channels: [{ name: 'sfx', maxConcurrentTracks: 1 }, 'music'],
         sounds: [
-          { sound: s1, channel: 'sfx' },
-          { sound: s2, channel: 'music' }
+          { sound: preview, channel: 'sfx' },
+          { sound: test, channel: 'music' }
         ]
       });
       await mgr.load();

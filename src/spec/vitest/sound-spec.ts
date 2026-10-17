@@ -476,7 +476,7 @@ describe('Sound resource', () => {
   describe('pitch', () => {
     it('has pitch 0 and unbounded maxConcurrentTracks by default', () => {
       expect(sut.pitch).toBe(0);
-      expect(sut.maxConcurrentTracks).toBeUndefined();
+      expect(sut.maxConcurrentTracks).toBe(Infinity);
     });
 
     it('accepts pitch and maxConcurrentTracks options', () => {

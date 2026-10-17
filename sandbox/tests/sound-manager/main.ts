@@ -8,13 +8,13 @@ var loader = new ex.Loader();
 var testsnd = new ex.Sound({ name: 'test', paths: ['./jump.mp3'] });
 var jumpsnd = new ex.Sound({
   name: 'jump',
-  paths: ['./jump.mp3'],
-  maxConcurrentTracks: 2
+  paths: ['./jump.mp3']
+  // maxConcurrentTracks: 2
 });
 var loopforest = new ex.Sound({ name: 'loop-forest', paths: ['./loop-forest.mp3'] });
 var soundManager = new ex.SoundManager({
-  voiceStealing: true,
-  maxConcurrentTracks: 1,
+  // voiceStealing: true,
+  // maxConcurrentTracks: 1,
   channels: ['fx', 'music', 'background'],
   sounds: [
     {
@@ -33,20 +33,28 @@ var soundManager = new ex.SoundManager({
         loop: true,
         paths: ['./challengeloopfixed.mp3']
       }),
-      volume: 0.2,
-      channel: 'music'
-    },
-    {
-      sound: new ex.Sound({
-        name: 'loop-guitar',
-        paths: ['./loop-guitar.mp3'],
-        loop: true
-      }),
-      volume: 0.2,
-      channel: 'music'
+      volume: 0.6,
+      channel: 'music',
+      maxConcurrentTracks: 1,
+      voiceStealing: true
     }
+    // {
+    //   sound: new ex.Sound({
+    //     name: 'loop-guitar',
+    //     paths: ['./loop-guitar.mp3'],
+    //     loop: true
+    //   }),
+    //   volume: 0.2,
+    //   channel: 'music'
+    // }
   ]
 });
+
+soundManager.getChannel('fx').voiceStealing = true;
+soundManager.getChannel('fx').maxConcurrentTracks = 1;
+
+soundManager.getChannel('music').voiceStealing = true;
+soundManager.getChannel('music').maxConcurrentTracks = 2;
 
 loader.addResource(soundManager);
 
