@@ -53,7 +53,7 @@ export interface PostProcessor {
 
   /**
    * @deprecated implement {@apilink PostProcessor.process} instead, the single-pass
-   * shader/layout path will be removed in v1.x
+   * shader/layout path will be removed in v1.x.
    */
   getLayout?(): VertexLayout;
 
