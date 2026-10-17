@@ -294,7 +294,7 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
   private _wasPlayingOnHidden: boolean = false;
   private _playbackRate = 1.0;
   private _pitch = 0;
-  private _maxConcurrentTracks: number = Infinity;
+  public maxConcurrentTracks: number = Infinity;
 
   public voiceStealing: boolean = false;
 
@@ -333,7 +333,7 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
     this.bustCache = bustCache ?? this.bustCache;
     this.position = position ?? this.position;
     this._pitch = pitch ?? this._pitch;
-    this._maxConcurrentTracks = maxConcurrentTracks ?? this._maxConcurrentTracks;
+    this.maxConcurrentTracks = maxConcurrentTracks ?? this.maxConcurrentTracks;
     this.voiceStealing = voiceStealing ?? this.voiceStealing;
     this.onPlay = onPlay;
 
@@ -414,18 +414,6 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
     for (const track of this._tracks) {
       track.pitch = this._pitch;
     }
-  }
-
-  /**
-   * Maximum number of simultaneously playing tracks allowed for this single
-   * Sound. When the cap is reached, new `play()` calls are dropped and resolve
-   * to `false`. Default Infinity (unbounded).
-   */
-  public get maxConcurrentTracks(): number {
-    return this._maxConcurrentTracks;
-  }
-  public set maxConcurrentTracks(value: number) {
-    this._maxConcurrentTracks = value;
   }
 
   public isLoaded() {
@@ -588,8 +576,8 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
       return null;
     }
 
-    if (!this._makeRoom(this.playingCount(), this._maxConcurrentTracks, this.voiceStealing)) {
-      this.logger.warnOnce(`Sound "${this.name}" has reached maxConcurrentTracks (${this._maxConcurrentTracks}); dropping play.`);
+    if (!this._makeRoom(this.playingCount(), this.maxConcurrentTracks, this.voiceStealing)) {
+      this.logger.warnOnce(`Sound "${this.name}" has reached maxConcurrentTracks (${this.maxConcurrentTracks}); dropping play.`);
       return null;
     }
 
