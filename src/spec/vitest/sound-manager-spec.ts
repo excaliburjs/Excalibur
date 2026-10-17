@@ -49,9 +49,7 @@ describe('A SoundManager', () => {
     expect(() => {
       const sm = new ex.SoundManager({
         channels: ['test'],
-        sounds: {
-          snd: { sound: new ex.Sound(TEST), volume: 0.4, channel: 'test' }
-        }
+        sounds: [{ sound: new ex.Sound(TEST), volume: 0.4, channel: 'test' }]
       });
       void sm;
     }).not.toThrow();
@@ -67,7 +65,7 @@ describe('A SoundManager', () => {
 
       const sm = new ex.SoundManager({
         channels: ['sfx'],
-        sounds: { snd: { sound, volume: 0.4, channel: 'sfx' } }
+        sounds: [{ sound, volume: 0.4, channel: 'sfx' }]
       });
       const sfx = sm.getChannel('sfx');
       const [masterInput, master, channelInput, channelOutput, mix] = gains;
@@ -156,7 +154,7 @@ describe('A SoundManager', () => {
       const sm = new ex.SoundManager({
         volume: 0.8,
         channels: ['test'],
-        sounds: { snd: { sound, volume: 0.4, channel: 'test' } }
+        sounds: [{ sound, name: 'snd', volume: 0.4, channel: 'test' }]
       });
 
       expect(sm.volume).toBe(0.8);
@@ -178,7 +176,7 @@ describe('A SoundManager', () => {
       const start = vi.spyOn(sound, 'start').mockReturnValue(null);
       const sm = new ex.SoundManager({
         channels: ['test'],
-        sounds: { snd: { sound, volume: 0.4, channel: 'test' } }
+        sounds: [{ sound, name: 'snd', volume: 0.4, channel: 'test' }]
       });
 
       sm.play('snd');
@@ -275,13 +273,6 @@ describe('A SoundManager', () => {
       expect(mgr.getSound('coin')).toBe(coin);
       expect(mgr.getSound('jump')).toBe(jump);
       expect(mgr.getSound(coin)).toBe(coin);
-    });
-
-    it('uses the record key as the name in record form', () => {
-      const coin = new ex.Sound('/sfx/coin.mp3');
-      const mgr = new ex.SoundManager({ sounds: { myKey: coin } });
-      expect(mgr.getSound('myKey')).toBe(coin);
-      expect(mgr.getSound('coin')).toBe(null);
     });
 
     it('supports track(sound), track(config) and track(name, sound)', () => {
@@ -437,7 +428,7 @@ describe('A SoundManager', () => {
       const mgr = new ex.SoundManager({
         voiceStealing: true,
         maxConcurrentTracks: 2,
-        channels: [{ name: 'sfx', maxConcurrentTracks: 1 }, 'music'],
+        channels: [{ name: 'sfx', maxConcurrentTracks: 1, voiceStealing: true }, 'music'],
         sounds: [
           { sound: preview, channel: 'sfx' },
           { sound: test, channel: 'music' }

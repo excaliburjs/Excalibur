@@ -540,7 +540,7 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
   public play(options?: PlayOptions): Promise<boolean>;
   /**
    * Play a new track at a volume [0-1] (multiplied with {@apilink Sound.volume}) for this track only
-   * @deprecated Use `play({ volume })` instead. Will be removed in v0.34
+   * @deprecated Use `play({ volume })` instead. Will be removed in v1.x
    */
   public play(volume: number): Promise<boolean>;
   public play(volumeOrOptions?: number | PlayOptions): Promise<boolean> {

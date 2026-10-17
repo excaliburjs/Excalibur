@@ -266,7 +266,7 @@ describe('Sound resource', () => {
           done();
         });
 
-        sut.play(0.5);
+        sut.play({ volume: 0.5 });
       });
     }));
 
@@ -406,7 +406,7 @@ describe('Sound resource', () => {
         // start playing first track
 
         sut.once('playbackstart', (ev: ex.NativeSoundEvent) => {
-          if (sut.getTrackId(ev.track) === 0) {
+          if (sut.getTrackId(ev.track!) === 0) {
             sut.play();
           }
           sut.stop();
@@ -860,7 +860,7 @@ describe('Sound resource', () => {
     afterEach(() => {
       engine.stop();
       engine.dispose();
-      engine = null;
+      engine = null as any;
     });
 
     it('should stop all tracks when engine is stopped', () =>
