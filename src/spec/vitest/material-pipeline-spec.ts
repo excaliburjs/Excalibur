@@ -92,7 +92,7 @@ describe('A Material with a shader pipeline', () => {
       void main() { color = vec4(1.0, 0.0, 0.0, 1.0); }`
     });
 
-    expect(material.pipeline).toBeUndefined();
+    expect(material.pipeline).toBeNull();
   });
 
   it('resolves u_image as a synonym for u_graphic with no pipeline', async () => {

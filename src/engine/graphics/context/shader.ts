@@ -268,7 +268,7 @@ export interface ShaderOptions {
   /**
    * Set initial uniforms
    */
-  uniforms?: UniformDictionary;
+  uniforms?: UniformDictionary | null;
 
   /**
    * Set initial images as uniform sampler2D
@@ -519,7 +519,7 @@ export class Shader {
   private _loadImageSource(image: ImageSource): WebGLTexture | null {
     const imageElement = image.image;
     const maybeFiltering = imageElement.getAttribute(ImageSourceAttributeConstants.Filtering);
-    const filtering = maybeFiltering ? parseImageFiltering(maybeFiltering) : undefined;
+    const filtering = maybeFiltering ? parseImageFiltering(maybeFiltering) : null;
     const wrapX = parseImageWrapping(imageElement.getAttribute(ImageSourceAttributeConstants.WrappingX) as any);
     const wrapY = parseImageWrapping(imageElement.getAttribute(ImageSourceAttributeConstants.WrappingY) as any);
 
