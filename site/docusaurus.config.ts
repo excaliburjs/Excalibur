@@ -152,7 +152,7 @@ const config: Config = {
         packages: [
           {
             path: '',
-            entry: 'index.ts'
+            entry: 'src/engine/index.ts'
           }
         ]
       } satisfies DocusaurusPluginTypeDocApiOptions
