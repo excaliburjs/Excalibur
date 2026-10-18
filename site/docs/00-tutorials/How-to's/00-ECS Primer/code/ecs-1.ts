@@ -24,7 +24,7 @@ class PlayerMovementComponent extends ex.Component {
 }
 
 // System Definition
-class KeyboardControlSystem extends  ex.System {
+class KeyboardControlSystem extends ex.System {
   public systemType =  ex.SystemType.Update;
   query:  ex.Query<typeof PlayerMovementComponent | typeof  ex.MotionComponent>;
 
@@ -34,7 +34,7 @@ class KeyboardControlSystem extends  ex.System {
     this.query = world.query([PlayerMovementComponent,  ex.MotionComponent]);
   }
 
-  update() {
+  onUpdate() {
     for (const entity of this.query.entities) {
       // get your components
       const keyboardControl = entity.get(PlayerMovementComponent);
