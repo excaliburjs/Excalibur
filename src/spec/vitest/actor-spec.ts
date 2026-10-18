@@ -38,15 +38,15 @@ describe('A game actor', () => {
     await engine.start();
     const clock = engine.clock as ex.TestClock;
     clock.step(1);
-    collisionSystem.initialize(scene.world, scene);
-    scene.world.systemManager.get(ex.PointerSystem).initialize(scene.world, scene);
+    collisionSystem.onInitialize(scene.world, scene);
+    scene.world.systemManager.get(ex.PointerSystem)?.onInitialize(scene.world, scene);
   });
 
   afterEach(() => {
     engine.stop();
     engine.dispose();
-    actor = null;
-    engine = null;
+    actor = null as any;
+    engine = null as any;
   });
 
   it('should be loaded', () => {
@@ -238,7 +238,7 @@ describe('A game actor', () => {
     expect((actor.graphics.current as ex.Circle).radius).toBe(10);
     expect((actor.graphics.current as ex.Circle).color).toEqual(ex.Color.Red);
     expect(actor.collider.get()).toBeInstanceOf(ex.CircleCollider);
-    expect(actor.collider.get().offset).toBeVector(ex.vec(0, 0));
+    expect(actor.collider.get()!.offset).toBeVector(ex.vec(0, 0));
   });
 
   it('can be created with a width/height with default rectangle collider and graphic', () => {
@@ -253,7 +253,7 @@ describe('A game actor', () => {
   it('can be created with a custom collider', () => {
     const actor = new ex.Actor({
       pos: ex.vec(10, 10),
-      collider: ex.Shape.Circle(10)
+      collider: ex.Colliders.Circle(10)
     });
 
     expect(actor.collider.bounds).toEqual(ex.BoundingBox.fromDimension(20, 20, ex.Vector.Half).translate(ex.vec(10, 10)));
@@ -264,7 +264,7 @@ describe('A game actor', () => {
     actor.pos = ex.vec(10, 10);
     actor.vel = ex.vec(10, 10);
 
-    motionSystem.update(1000);
+    motionSystem.onUpdate(1000);
 
     expect(actor.oldPos.x).toBe(10);
     expect(actor.oldPos.y).toBe(10);
@@ -283,7 +283,7 @@ describe('A game actor', () => {
     expect(child.globalPos.x).toBe(20);
     expect(child.globalPos.y).toBe(20);
 
-    motionSystem.update(1000);
+    motionSystem.onUpdate(1000);
 
     expect(child.oldGlobalPos.x).toBe(20);
     expect(child.oldGlobalPos.y).toBe(20);
@@ -308,11 +308,11 @@ describe('A game actor', () => {
     expect(actor.pos.x).toBe(0);
     expect(actor.pos.y).toBe(0);
 
-    motionSystem.update(1000);
+    motionSystem.onUpdate(1000);
     expect(actor.pos.x).toBe(-10);
     expect(actor.pos.y).toBe(10);
 
-    motionSystem.update(1000);
+    motionSystem.onUpdate(1000);
     expect(actor.pos.x).toBe(-20);
     expect(actor.pos.y).toBe(20);
   });
@@ -322,7 +322,7 @@ describe('A game actor', () => {
     actor.vel = ex.vec(10, 10);
     actor.acc = ex.vec(10, 10);
 
-    motionSystem.update(1000);
+    motionSystem.onUpdate(1000);
 
     expect(actor.oldVel.x).toBe(10);
     expect(actor.oldVel.y).toBe(10);
@@ -518,8 +518,8 @@ describe('A game actor', () => {
 
     scene.add(actor);
     scene.add(other);
-    collisionSystem.update(20);
-    collisionSystem.update(20);
+    collisionSystem.onUpdate(20);
+    collisionSystem.onUpdate(20);
     scene.update(engine, 20);
     scene.update(engine, 20);
 
@@ -536,7 +536,7 @@ describe('A game actor', () => {
     const child = new ex.Actor({ x: 10, y: 0, width: 10, height: 10 }); // (20, 10)
 
     actor.addChild(child);
-    motionSystem.update(100);
+    motionSystem.onUpdate(100);
 
     expect(child.globalPos.x).toBeCloseTo(10, 0.001);
     expect(child.globalPos.y).toBeCloseTo(20, 0.001);
@@ -553,7 +553,7 @@ describe('A game actor', () => {
 
     actor.addChild(child);
     child.addChild(grandchild);
-    motionSystem.update(100);
+    motionSystem.onUpdate(100);
 
     expect(grandchild.globalRotation).toBe(rotation);
     expect(grandchild.globalPos.x).toBeCloseTo(10, 0.001);
@@ -568,7 +568,7 @@ describe('A game actor', () => {
     const child = new ex.Actor({ x: 10, y: 10, width: 10, height: 10 });
 
     actor.addChild(child);
-    motionSystem.update(100);
+    motionSystem.onUpdate(100);
 
     expect(child.globalPos.x).toBe(30);
     expect(child.globalPos.y).toBe(30);
@@ -584,7 +584,7 @@ describe('A game actor', () => {
 
     actor.addChild(child);
     child.addChild(grandchild);
-    motionSystem.update(100);
+    motionSystem.onUpdate(100);
 
     // Logic:
     // p = (10, 10)
@@ -604,7 +604,7 @@ describe('A game actor', () => {
     const child = new ex.Actor({ x: 10, y: 0, width: 10, height: 10 }); // (30, 10)
 
     actor.addChild(child);
-    motionSystem.update(100);
+    motionSystem.onUpdate(100);
 
     expect(child.globalPos.x).toBeCloseTo(10, 0.001);
     expect(child.globalPos.y).toBeCloseTo(30, 0.001);
@@ -622,7 +622,7 @@ describe('A game actor', () => {
 
     actor.addChild(child);
     child.addChild(grandchild);
-    motionSystem.update(100);
+    motionSystem.onUpdate(100);
 
     expect(grandchild.globalPos.x).toBeCloseTo(10, 0.001);
     expect(grandchild.globalPos.y).toBeCloseTo(50, 0.001);
@@ -640,10 +640,10 @@ describe('A game actor', () => {
     actionSystem.query.checkAndModify(actor);
 
     actor.actions.moveTo(10, 15, 1000);
-    actionSystem.update(1000);
-    motionSystem.update(1000);
-    actionSystem.update(1);
-    motionSystem.update(1);
+    actionSystem.onUpdate(1000);
+    motionSystem.onUpdate(1000);
+    actionSystem.onUpdate(1);
+    motionSystem.onUpdate(1);
 
     expect(childActor.globalPos.x).toBe(60);
     expect(childActor.globalPos.y).toBe(65);
@@ -701,7 +701,7 @@ describe('A game actor', () => {
   it('once killed is not drawn', async () => {
     engine.stop();
     engine.dispose();
-    engine = null;
+    engine = null as any;
     engine = TestUtils.engine({ width: 100, height: 100 });
     await TestUtils.runToReady(engine);
     actor = new ex.Actor();
@@ -759,7 +759,7 @@ describe('A game actor', () => {
   it('@visual can be drawn with a z-index', async () => {
     engine.stop();
     engine.dispose();
-    engine = null;
+    engine = null as any;
 
     engine = TestUtils.engine({
       width: 100,
@@ -801,7 +801,7 @@ describe('A game actor', () => {
   it('@visual can have a graphic drawn at an opacity', async () => {
     engine.stop();
     engine.dispose();
-    engine = null;
+    engine = null as any;
 
     engine = TestUtils.engine({
       width: 62,
@@ -1360,7 +1360,7 @@ describe('A game actor', () => {
   });
 
   describe('lifecycle overrides', () => {
-    let actor: ex.Actor = null;
+    let actor: ex.Actor = null as any;
 
     beforeEach(() => {
       actor = new ex.Actor({
