@@ -4,6 +4,8 @@ import type { ResolvedConfig } from 'vite';
 import { defineConfig, mergeConfig } from 'vite';
 import banner from 'vite-plugin-banner';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
+
+// @ts-ignore
 import versioner from './version';
 
 const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
