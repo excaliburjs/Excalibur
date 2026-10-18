@@ -10,7 +10,7 @@ import { MemoryReporter } from './src/spec/__util__/reporters/memory';
 import { ImageDiffReporter } from './src/spec/__util__/reporters/image-diff-reporter';
 
 export default defineConfig(
-  mergeConfig(commonConfig, {
+  mergeConfig(commonConfig as any, {
     // our image urls have always been relative from root in tests. would be nice to
     // have a better place of where served files go for tests and then we just use /images/xyz.png
     publicDir: import.meta.dirname,

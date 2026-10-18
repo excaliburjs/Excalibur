@@ -46,7 +46,7 @@ export function isLoaderConstructor(x: any): x is LoaderConstructor {
 }
 
 export class DefaultLoader implements Loadable<Loadable<any>[]> {
-  public data!: Loadable<any>[];
+  public data: Loadable<any>[] = [];
   public events = new EventEmitter<LoaderEvents>();
   public canvas: Canvas = new Canvas({
     filtering: ImageFiltering.Blended,

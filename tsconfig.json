@@ -9,6 +9,7 @@
     "removeComments": false,
     "incremental": true,
     "tsBuildInfoFile": ".tsbuildinfo",
+
     "noImplicitAny": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
@@ -18,6 +19,13 @@
     "noUnusedParameters": false,
     "allowUnreachableCode": false,
     "skipLibCheck": true,
+
+    "strict": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "noUncheckedSideEffectImports": true,
+    "moduleDetection": "force",
+
     "lib": ["dom", "dom.iterable", "es5", "es2018", "es2021.weakref"],
     "types": ["node"],
     "rootDir": ".",
