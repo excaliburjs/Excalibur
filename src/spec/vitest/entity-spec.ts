@@ -358,7 +358,7 @@ describe('An entity', () => {
 
     class TestSystem extends ex.System {
       systemType = ex.SystemType.Update;
-      update(elapsed: number): void {
+      onUpdate(elapsed: number): void {
         e.kill();
       }
     }
