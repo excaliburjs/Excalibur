@@ -21,7 +21,7 @@ const playgroundUrl = process.env.PLAYGROUND_URL || 'https://excaliburjs.com/pla
 const lightCodeTheme = themes.github;
 const darkCodeTheme = themes.dracula;
 
-const typedocProjectRoot = path.join(__dirname, '..', 'src', 'engine');
+const typedocProjectRoot = path.join(__dirname, '..');
 const excaliburTypesPath = path.join(__dirname, '..', 'build', 'esm', 'excalibur.d.ts');
 const rehypeRawOptions = {
   passThrough: ['mdxjsEsm', 'mdxJsxTextElement', 'mdxJsxFlowElement', 'mdxFlowExpression']
