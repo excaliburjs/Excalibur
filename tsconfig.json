@@ -1,1 +1,30 @@
-{}
+{
+  "compilerOptions": {
+    "outDir": "build/esm",
+    "sourceMap": true,
+    "target": "es2018",
+    "moduleResolution": "bundler",
+    "module": "esnext",
+    "declaration": true,
+    "removeComments": false,
+    "incremental": true,
+    "tsBuildInfoFile": ".tsbuildinfo",
+    "noImplicitAny": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noImplicitOverride": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": false,
+    "allowUnreachableCode": false,
+    "skipLibCheck": true,
+    "lib": ["dom", "dom.iterable", "es5", "es2018", "es2021.weakref"],
+    "types": ["node"],
+    "rootDir": ".",
+    "paths": {
+      "@excalibur": ["./src/engine/"]
+    }
+  },
+  "include": ["./src/engine/**/*.ts"],
+  "files": ["vite.config.ts", "vitest.config.ts"]
+}

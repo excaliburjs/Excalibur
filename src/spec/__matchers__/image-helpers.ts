@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* eslint-disable no-console */
 import pixelmatch from 'pixelmatch';
 
@@ -15,6 +16,7 @@ export const convertSourceVisualToImageData = async (visual: ImageVisual): Promi
   if (typeof visual === 'string') {
     return await convertFilePath(visual);
   }
+  throw new Error('invalid visual');
 };
 
 export const flushSourceToImageData = async (source: Visual) => {
@@ -132,14 +134,14 @@ const convertContext = (visual: CanvasRenderingContext2D): ImageData => {
 };
 
 const convertCanvas = (canvas: HTMLCanvasElement): ImageData => {
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d')!;
   const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
   return data;
 };
 
 const convertFilePath = async (imagePath: string, baseImagePath: string = ''): Promise<ImageData> => {
   const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d')!;
 
   const img = new Image();
   img.decoding = 'sync';
@@ -173,7 +175,7 @@ const convertImage = async (image: HTMLImageElement): Promise<ImageData> => {
 
   canvas.width = image.width;
   canvas.height = image.height;
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d')!;
   ctx.drawImage(image, 0, 0);
 
   return ctx.getImageData(0, 0, image.width, image.height);

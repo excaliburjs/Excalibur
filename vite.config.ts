@@ -11,6 +11,7 @@ const now = new Date();
 const dt = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
 const version = process.env.release ? versioner.getReleaseVersion() : versioner.getAlphaVersion();
 
+// @ts-ignore
 import commonConfig from './vite.config.common';
 
 export default defineConfig(({ mode }) => {
@@ -19,7 +20,7 @@ export default defineConfig(({ mode }) => {
   // eslint-disable-next-line no-console
   console.log(`[version] ${version}.js`);
 
-  return mergeConfig(commonConfig, {
+  return mergeConfig(commonConfig as any, {
     build: {
       target: 'es2018',
       outDir: path.resolve(__dirname, 'build'),
@@ -27,7 +28,7 @@ export default defineConfig(({ mode }) => {
       lib: {
         formats: ['es'],
         name: 'ex',
-        fileName(format) {
+        fileName(format: string) {
           let fileName = 'excalibur';
 
           if (config.build.minify) {
@@ -53,7 +54,7 @@ export default defineConfig(({ mode }) => {
       // callbacks
       {
         name: 'get-config',
-        configResolved(v) {
+        configResolved(v: ResolvedConfig) {
           config = v;
         }
       },

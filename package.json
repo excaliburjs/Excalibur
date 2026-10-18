@@ -59,6 +59,7 @@
     "lint": "npm run eslint",
     "lint:fix": "npm run eslint -- --fix",
     "type-check": "cd src/engine && tsc --noEmit",
+    "type-check:tests": "cd src/spec && tsc --noEmit",
     "eslint": "eslint .",
     "visual": "storybook dev -p 6006",
     "build-storybook": "storybook build -o build-storybook",

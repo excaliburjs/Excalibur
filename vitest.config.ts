@@ -1,7 +1,10 @@
 import * as path from 'path';
 import type { ViteUserConfig } from 'vitest/config';
 import { defineConfig, mergeConfig } from 'vitest/config';
+
+// @ts-ignore
 import commonConfig from './vite.config.common';
+
 import { EngineInstanceReporter } from './src/spec/__util__/reporters/engine-instance';
 import { MemoryReporter } from './src/spec/__util__/reporters/memory';
 import { ImageDiffReporter } from './src/spec/__util__/reporters/image-diff-reporter';
@@ -10,12 +13,13 @@ export default defineConfig(
   mergeConfig(commonConfig, {
     // our image urls have always been relative from root in tests. would be nice to
     // have a better place of where served files go for tests and then we just use /images/xyz.png
-    publicDir: __dirname,
+    publicDir: import.meta.dirname,
     resolve: {
       alias: {
-        '@excalibur': path.resolve(__dirname, './src/engine/')
+        '@excalibur': path.resolve(import.meta.dirname, './src/engine/')
       }
     },
+    plugins: [],
     test: {
       api: { host: '127.0.0.1' },
       silent: 'passed-only',
@@ -25,10 +29,13 @@ export default defineConfig(
       coverage: {
         include: ['src/engine/**/*.ts'],
         provider: 'istanbul',
-        reporter: [['html'], ['lcov', { projectRoot: __dirname }], ['text-summary']],
-        reportsDirectory: path.join(__dirname, 'coverage')
+        reporter: [['html'], ['lcov', { projectRoot: import.meta.dirname }], ['text-summary']],
+        reportsDirectory: path.join(import.meta.dirname, 'coverage')
       },
-      projects: [path.resolve(__dirname, './src/spec/vitest.config.unit.ts'), path.resolve(__dirname, './src/spec/vitest.config.visual.ts')]
+      projects: [
+        path.resolve(import.meta.dirname, './src/spec/vitest.config.unit.ts'),
+        path.resolve(import.meta.dirname, './src/spec/vitest.config.visual.ts')
+      ]
     }
   } satisfies ViteUserConfig)
 );

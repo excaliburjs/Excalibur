@@ -11,7 +11,7 @@ export function setupMemoryReporter() {
     afterEach(async (ctx) => {
       // run garbage collector if exposed in browser
       if ('gc' in window) {
-        await window.gc({ execution: 'async' });
+        await window.gc!({ execution: 'async' });
       }
 
       const currentMemory = window.performance.memory;

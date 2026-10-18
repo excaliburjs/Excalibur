@@ -1,3 +1,4 @@
+// @ts-nocheck
 // port of excalibur-jasmine for jest. might be a good idea to publish this as its own package.
 import type { ExcaliburVisual } from './image-helpers';
 import { convertSourceVisualToImageData, compareImageData } from './image-helpers';
