@@ -34,12 +34,10 @@ export interface GraphicsComponentData {
   current: string;
   graphicRefs: string[]; // List of graphic IDs used by this component
   options: {
-    [name: string]:
-      | {
-          offset?: { x: number; y: number };
-          anchor?: { x: number; y: number };
-        }
-      | null;
+    [name: string]: {
+      offset?: { x: number; y: number };
+      anchor?: { x: number; y: number };
+    } | null;
   };
   isVisible: boolean;
   opacity: number;
