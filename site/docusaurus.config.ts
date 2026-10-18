@@ -21,7 +21,7 @@ const playgroundUrl = process.env.PLAYGROUND_URL || 'https://excaliburjs.com/pla
 const lightCodeTheme = themes.github;
 const darkCodeTheme = themes.dracula;
 
-const typedocProjectRoot = path.join(__dirname, '..');
+const typedocProjectRoot = path.join(__dirname, '..', 'src', 'engine');
 const excaliburTypesPath = path.join(__dirname, '..', 'build', 'esm', 'excalibur.d.ts');
 const rehypeRawOptions = {
   passThrough: ['mdxjsEsm', 'mdxJsxTextElement', 'mdxJsxFlowElement', 'mdxFlowExpression']
@@ -152,7 +152,7 @@ const config: Config = {
         packages: [
           {
             path: '',
-            entry: 'src/engine/index.ts'
+            entry: 'index.ts'
           }
         ]
       } satisfies DocusaurusPluginTypeDocApiOptions
