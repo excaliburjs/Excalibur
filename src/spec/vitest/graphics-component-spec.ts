@@ -157,7 +157,7 @@ describe('A Graphics ECS Component', () => {
 
     sut.use('rect');
     expect(sut.current).toEqual(rect);
-    expect(sut.currentOptions).toEqual(undefined);
+    expect(sut.currentOptions).toBeNull();
 
     sut.remove('rect');
 
@@ -183,7 +183,7 @@ describe('A Graphics ECS Component', () => {
     expect(sut.current).toBeUndefined();
     sut.use('some-gfx-2');
     expect(sut.current).toEqual(rect);
-    expect(sut.currentOptions).toBeUndefined();
+    expect(sut.currentOptions).toBeNull();
 
     const none = sut.use('made-up-name');
     expect(none).toBeUndefined();
@@ -212,7 +212,7 @@ describe('A Graphics ECS Component', () => {
     sut.use(rect2);
 
     expect(sut.current).toEqual(rect2);
-    expect(sut.currentOptions).toBeUndefined();
+    expect(sut.currentOptions).toBeNull();
   });
 
   it('can hide graphics', () => {

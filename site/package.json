@@ -31,8 +31,8 @@
     "@docusaurus/utils": "3.10.2",
     "@mdx-js/react": "3.1.1",
     "@stackblitz/sdk": "^1.11.0",
-    "@typescript/twoslash": "3.2.12",
-    "@typescript/vfs": "1.6.4",
+    "@typescript/twoslash": "3.2.13",
+    "@typescript/vfs": "1.6.5",
     "@vscode/codicons": "^0.0.45",
     "clsx": "^2.1.1",
     "docusaurus-preset-shiki-twoslash": "^1.1.41",
@@ -52,8 +52,8 @@
   },
   "overrides": {
     "remark-shiki-twoslash": {
-      "@typescript/twoslash": "3.2.12",
-      "@typescript/vfs": "1.6.4"
+      "@typescript/twoslash": "3.2.13",
+      "@typescript/vfs": "1.6.5"
     }
   },
   "devDependencies": {

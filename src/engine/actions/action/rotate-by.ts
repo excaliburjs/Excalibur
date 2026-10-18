@@ -136,18 +136,18 @@ export class RotateBy implements Action {
   private _motion: MotionComponent;
   public x!: number;
   public y!: number;
-  private _start!: number;
+  private _start: number | null = null;
   private _end!: number;
   private _speed: number;
   private _offset: number;
 
   private _rotationType: RotationType;
   private _direction!: number;
-  private _distance!: number;
+  private _distance: number | null = null;
   private _shortDistance!: number;
   private _longDistance!: number;
   private _shortestPathIsPositive!: boolean;
-  private _currentNonCannonAngle!: number;
+  private _currentNonCannonAngle: number | null = null;
   private _started = false;
   private _stopped = false;
   constructor(entity: Entity, angleRadiansOffset: number, speed: number, rotationType?: RotationType) {
@@ -214,7 +214,7 @@ export class RotateBy implements Action {
     }
 
     this._motion.angularVelocity = this._direction * this._speed;
-    this._currentNonCannonAngle += this._direction * this._speed * (elapsed / 1000);
+    this._currentNonCannonAngle! += this._direction * this._speed * (elapsed / 1000);
 
     if (this.isComplete()) {
       this._tx.rotation = this._end;
@@ -224,7 +224,10 @@ export class RotateBy implements Action {
   }
 
   public isComplete(): boolean {
-    const distanceTraveled = Math.abs(this._currentNonCannonAngle - this._start);
+    if (this._distance === null) {
+      return this._stopped;
+    }
+    const distanceTraveled = Math.abs(this._currentNonCannonAngle! - this._start!);
     return this._stopped || distanceTraveled >= Math.abs(this._distance);
   }
 
@@ -237,8 +240,8 @@ export class RotateBy implements Action {
   public reset(): void {
     this._started = false;
     this._stopped = false;
-    this._start = undefined as any;
-    this._currentNonCannonAngle = undefined as any;
-    this._distance = undefined as any;
+    this._start = null;
+    this._currentNonCannonAngle = null;
+    this._distance = null;
   }
 }

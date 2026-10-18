@@ -116,11 +116,14 @@ export interface ExcaliburGraphicsContext2DOptions extends ExcaliburGraphicsCont
 }
 
 export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContext {
+  private _ctx: CanvasRenderingContext2D | null = null;
   /**
    * Meant for internal use only. Access the internal context at your own risk and no guarantees this will exist in the future.
    * @internal
    */
-  public __ctx!: CanvasRenderingContext2D;
+  public get __ctx(): CanvasRenderingContext2D {
+    return this._ctx!;
+  }
   public get width() {
     return this.__ctx.canvas.width;
   }
@@ -171,12 +174,12 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
 
   constructor(options: ExcaliburGraphicsContext2DOptions) {
     const { canvasElement, context, enableTransparency, snapToPixel, antialiasing: smoothing, backgroundColor } = options;
-    this.__ctx =
+    this._ctx =
       context ??
       (canvasElement.getContext('2d', {
         alpha: enableTransparency ?? true
       }) as CanvasRenderingContext2D);
-    if (!this.__ctx) {
+    if (!this._ctx) {
       throw new Error('Cannot build new ExcaliburGraphicsContext2D for some reason!');
     }
     this.backgroundColor = backgroundColor ?? this.backgroundColor;
@@ -381,9 +384,9 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     // WebGL only - no-op in Canvas 2D fallback
   }
 
-  public get(_rendererName: string): RendererPlugin | undefined {
+  public get(_rendererName: string): RendererPlugin | null {
     // WebGL only - no renderers in Canvas 2D fallback
-    return undefined;
+    return null;
   }
 
   public draw<TRenderer extends RendererPlugin>(_rendererName: TRenderer['type'], ..._args: Parameters<TRenderer['draw']>): void {
@@ -427,6 +430,6 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
   }
 
   dispose(): void {
-    this.__ctx = undefined as any;
+    this._ctx = null;
   }
 }

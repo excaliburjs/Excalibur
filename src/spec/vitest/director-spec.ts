@@ -187,17 +187,17 @@ describe('A Director', () => {
     });
 
     sut.remove('scene1');
-    expect(sut.getSceneDefinition('scene1')).toBe(undefined);
-    expect(sut.getSceneInstance('scene1')).toBe(undefined);
+    expect(sut.getSceneDefinition('scene1')).toBeNull();
+    expect(sut.getSceneInstance('scene1')).toBeNull();
     sut.remove('scene2');
-    expect(sut.getSceneDefinition('scene2')).toBe(undefined);
-    expect(sut.getSceneInstance('scene2')).toBe(undefined);
+    expect(sut.getSceneDefinition('scene2')).toBeNull();
+    expect(sut.getSceneInstance('scene2')).toBeNull();
     sut.remove('scene3');
-    expect(sut.getSceneDefinition('scene3')).toBe(undefined);
-    expect(sut.getSceneInstance('scene3')).toBe(undefined);
+    expect(sut.getSceneDefinition('scene3')).toBeNull();
+    expect(sut.getSceneInstance('scene3')).toBeNull();
     sut.remove('scene4');
-    expect(sut.getSceneDefinition('scene4')).toBe(undefined);
-    expect(sut.getSceneInstance('scene4')).toBe(undefined);
+    expect(sut.getSceneDefinition('scene4')).toBeNull();
+    expect(sut.getSceneInstance('scene4')).toBeNull();
     engine.dispose();
   });
 
