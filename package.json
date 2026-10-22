@@ -124,7 +124,7 @@
     "rimraf": "5.0.10",
     "serve": "14.2.6",
     "source-map-support": "0.5.21",
-    "storybook": "10.6.1",
+    "storybook": "10.6.2",
     "sync-request": "6.1.0",
     "ts-loader": "9.5.7",
     "typescript": "6.0.3",
