@@ -199,6 +199,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed `RepeatForever.reset()` doing nothing. Reset now stops the active child action and rebuilds the repeat sequence from the entity's current state, allowing stopped repeats to be reused
 - Fixed `SoundManager.channel.setVolume()` doing nothing (it passed the channel name where a sound was expected), `SoundManager.unmute()` starting every managed sound, and `SoundManager.untrack()` leaving the sound in its channels.
 - Fixed `Sound.wireEngine()` registering duplicate engine handlers when called twice with the same engine.
 - Fixed `Sound` with `position` set creating two tracks and starting from the beginning.
