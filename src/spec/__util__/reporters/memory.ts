@@ -22,7 +22,7 @@ export class MemoryReporter implements Reporter {
     }
   }
 
-  onTestRunEnd(testModules: TestModule[]) {
+  onTestRunEnd(testModules: readonly TestModule[]) {
     this.specs.sort((a, b) => {
       return b.memory - a.memory;
     });

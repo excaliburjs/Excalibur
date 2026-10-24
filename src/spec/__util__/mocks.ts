@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import * as ex from '@excalibur';
 
 export namespace Mocks {
@@ -134,7 +136,7 @@ export namespace Mocks {
             }
           },
 
-          pointers: new ex.PointerEventReceiver(window, null),
+          pointers: new ex.PointerEventReceiver(window, null as any),
           gamepads: {
             update: function () {
               /* do nothing */

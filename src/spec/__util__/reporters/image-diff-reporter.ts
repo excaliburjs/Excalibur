@@ -1,4 +1,4 @@
-import type { Reporter, TestCase, TestModule } from 'vitest/node';
+import type { Reporter, TestCase } from 'vitest/node';
 import * as fs from 'fs';
 import * as path from 'path';
 

@@ -4,6 +4,8 @@ import type { ResolvedConfig } from 'vite';
 import { defineConfig, mergeConfig } from 'vite';
 import banner from 'vite-plugin-banner';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
+
+// @ts-ignore
 import versioner from './version';
 
 const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
@@ -11,6 +13,7 @@ const now = new Date();
 const dt = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
 const version = process.env.release ? versioner.getReleaseVersion() : versioner.getAlphaVersion();
 
+// @ts-ignore
 import commonConfig from './vite.config.common';
 
 export default defineConfig(({ mode }) => {
@@ -19,7 +22,7 @@ export default defineConfig(({ mode }) => {
   // eslint-disable-next-line no-console
   console.log(`[version] ${version}.js`);
 
-  return mergeConfig(commonConfig, {
+  return mergeConfig(commonConfig as any, {
     build: {
       target: 'es2018',
       outDir: path.resolve(__dirname, 'build'),
@@ -27,7 +30,7 @@ export default defineConfig(({ mode }) => {
       lib: {
         formats: ['es'],
         name: 'ex',
-        fileName(format) {
+        fileName(format: string) {
           let fileName = 'excalibur';
 
           if (config.build.minify) {
@@ -53,7 +56,7 @@ export default defineConfig(({ mode }) => {
       // callbacks
       {
         name: 'get-config',
-        configResolved(v) {
+        configResolved(v: ResolvedConfig) {
           config = v;
         }
       },
@@ -61,7 +64,7 @@ export default defineConfig(({ mode }) => {
         targets: [
           {
             src: 'src/engine/excalibur.d.ts',
-            dest: 'esm/',
+            dest: 'esm/src/engine/',
             rename: { stripBase: true }
           }
         ]

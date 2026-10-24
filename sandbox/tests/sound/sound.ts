@@ -38,7 +38,11 @@ var play = new ex.Actor({
   collisionType: ex.CollisionType.PreventCollision
 });
 play.on('pointerdown', () => {
-  sound.play();
+  if (sound.isPaused()) {
+    sound.resume();
+  } else {
+    sound.play();
+  }
 });
 game.currentScene.add(play);
 
@@ -81,6 +85,8 @@ playbackRate.oninput = () => {
 };
 
 game.currentScene.onPostUpdate = () => {
+  // FIXME This seems to be busted now
+  // this is because the track has advanced now with pause(), play() starts a new track now, resume() is the correct way to resume
   currentTimeLabel.text = 'Current Time: ' + sound.getPlaybackPosition().toFixed(2);
   totalTimeLabel.text = 'Total Time: ' + sound.getTotalPlaybackDuration().toFixed(2);
 };
