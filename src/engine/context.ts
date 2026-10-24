@@ -46,7 +46,7 @@ export function createContext<TValue>() {
         ctx.value = old;
       }
     },
-    value: undefined
+    value: undefined as TValue // FIXME this is the wrong thing
   };
   return ctx;
 }

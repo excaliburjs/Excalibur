@@ -12,14 +12,14 @@ export class Follow implements Action {
   private _followTx: TransformComponent;
   private _followMotion: MotionComponent;
 
-  public x: number;
-  public y: number;
+  public x!: number;
+  public y!: number;
   private _current: Vector;
   private _end: Vector;
-  private _dir: Vector;
+  private _dir!: Vector;
   private _speed: number;
   private _maximumDistance: number;
-  private _distanceBetween: number;
+  private _distanceBetween!: number;
   private _started = false;
   private _stopped = false;
 

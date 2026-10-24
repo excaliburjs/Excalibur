@@ -64,7 +64,7 @@ export enum DegreeOfFreedom {
 export class BodyComponent extends Component implements Clonable<BodyComponent> {
   // @ts-ignore
   private static _NAME = 'BodyComponent';
-  public dependencies = [TransformComponent, MotionComponent];
+  public override dependencies = [TransformComponent, MotionComponent];
   public static _ID = 0;
   public readonly id: Id<'body'> = createId('body', BodyComponent._ID++);
   public events = new EventEmitter();
@@ -88,7 +88,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   private static _DEFAULT_CONFIG: BodyConfig = {
     ...getDefaultPhysicsConfig().bodies
   };
-  public wakeThreshold: number;
+  public wakeThreshold!: number;
   public sleepTime: number = 0;
 
   constructor(options?: BodyComponentOptions) {
@@ -107,7 +107,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
       };
     }
     this.updatePhysicsConfig(this._bodyConfig);
-    this._mass = BodyComponent._DEFAULT_CONFIG.defaultMass;
+    this._mass = BodyComponent._DEFAULT_CONFIG!.defaultMass;
   }
 
   public get matrix() {
@@ -130,7 +130,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   }
 
   public get canFallAsleep() {
-    return this.canSleep && this.collisionType === CollisionType.Active && this.sleepMotion < this._bodyConfig.sleepEpsilon;
+    return this.canSleep && this.collisionType === CollisionType.Active && this.sleepMotion < this._bodyConfig!.sleepEpsilon;
   }
 
   public get canWakeUp() {
@@ -165,8 +165,8 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
 
   public set mass(newMass: number) {
     this._mass = newMass;
-    this._cachedInertia = undefined;
-    this._cachedInverseInertia = undefined;
+    this._cachedInertia = null;
+    this._cachedInverseInertia = null;
   }
 
   /**
@@ -179,7 +179,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   /**
    * Amount of "motion" the body has before sleeping. If below {@apilink Physics.sleepEpsilon} it goes to "sleep"
    */
-  public sleepMotion: number;
+  public sleepMotion!: number;
 
   /**
    * Can this body sleep, by default bodies do not sleep
@@ -187,13 +187,6 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   public canSleep: boolean = this.collisionType === CollisionType.Active;
 
   private _sleeping = false;
-  /**
-   * Whether this body is sleeping or not
-   * @deprecated use isSleeping
-   */
-  public get sleeping(): boolean {
-    return this.isSleeping;
-  }
 
   /**
    * Whether this body is sleeping or not
@@ -202,21 +195,12 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     return this.canSleep && this._sleeping;
   }
 
-  /**
-   * Set the sleep state of the body
-   * @param sleeping
-   * @deprecated use isSleeping
-   */
-  public setSleeping(sleeping: boolean) {
-    this.isSleeping = sleeping;
-  }
-
   public wake() {
     if (this._sleeping && this.collisionType === CollisionType.Active) {
       this._sleeping = false;
       this.owner?.removeTag('ex.is_sleeping');
       // Give it a kick to keep it from falling asleep immediately
-      this.sleepMotion = this._bodyConfig.sleepEpsilon * 2;
+      this.sleepMotion = this._bodyConfig!.sleepEpsilon * 2;
       this.sleepTime = 0;
     }
   }
@@ -262,14 +246,14 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     const currentMotion = vel * vel + omega * omega;
 
     // Bias is frame duration dependent (sleepBias is smeared over 1-s frames
-    const bias = Math.pow(this._bodyConfig.sleepBias, duration / 1000);
+    const bias = Math.pow(this._bodyConfig!.sleepBias, duration / 1000);
 
     // Rolling average of previous motion to keep things from sleeping if they stop abruptly but were just moving fast
     const previousMotion = this.sleepMotion;
     this.sleepMotion = bias * previousMotion + (1.0 - bias) * currentMotion;
 
     // Clamp motion to a maximum
-    this.sleepMotion = clamp(this.sleepMotion, 0, 10 * this._bodyConfig.sleepEpsilon);
+    this.sleepMotion = clamp(this.sleepMotion, 0, 10 * this._bodyConfig!.sleepEpsilon);
 
     // Low energy bodies go to sleep, just like real life ;)
     if (this.canFallAsleep) {
@@ -277,17 +261,17 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     }
   }
 
-  private _cachedInertia: number;
+  private _cachedInertia: number | null = null;
   /**
    * Get the moment of inertia from the {@apilink ColliderComponent}
    */
   public get inertia() {
-    if (this._cachedInertia) {
+    if (this._cachedInertia !== null) {
       return this._cachedInertia;
     }
 
     // Inertia is a property of the geometry, so this is a little goofy but seems to be okay?
-    const collider = this.owner.get(ColliderComponent);
+    const collider = this.owner!.get(ColliderComponent);
     if (collider) {
       collider.$colliderAdded.subscribe(() => {
         this._cachedInertia = null;
@@ -303,12 +287,12 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     return 0;
   }
 
-  private _cachedInverseInertia: number;
+  private _cachedInverseInertia: number | null = null;
   /**
    * Get the inverse moment of inertial from the {@apilink ColliderComponent}. If {@apilink CollisionType.Fixed} this is 0, meaning "infinite" mass
    */
   public get inverseInertia() {
-    if (this._cachedInverseInertia) {
+    if (this._cachedInverseInertia !== null) {
       return this._cachedInverseInertia;
     }
     return (this._cachedInverseInertia = this.collisionType === CollisionType.Fixed ? 0 : 1 / this.inertia);
@@ -342,32 +326,17 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
 
   /**
    * Returns if the owner is active
-   * @deprecated use isActive
-   */
-  public get active() {
-    return !!this.owner?.isActive;
-  }
-
-  /**
-   * Returns if the owner is active
    */
   public get isActive() {
     return !!this.owner?.isActive;
   }
 
-  /**
-   * @deprecated Use globalPos
-   */
-  public get center() {
-    return this.globalPos;
-  }
-
-  public transform: TransformComponent;
-  public motion: MotionComponent;
+  public transform!: TransformComponent;
+  public motion!: MotionComponent;
 
   override onAdd(owner: Entity<any>): void {
-    this.transform = this.owner?.get(TransformComponent);
-    this.motion = this.owner?.get(MotionComponent);
+    this.transform = this.owner?.get(TransformComponent)!;
+    this.motion = this.owner?.get(MotionComponent)!;
   }
 
   public get pos(): Vector {
@@ -541,6 +510,39 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   }
 
   /**
+   * Apply an impulse (impulseX, impulseY) at a lever arm (offsetX, offsetY) from the body's center.
+   *
+   * Scalar variant of {@apilink BodyComponent.applyImpulse} used by the collision solver hot loops, it allocates nothing
+   * @param offsetX
+   * @param offsetY
+   * @param impulseX
+   * @param impulseY
+   */
+  public applyImpulseAtOffset(offsetX: number, offsetY: number, impulseX: number, impulseY: number): void {
+    if (this.collisionType !== CollisionType.Active) {
+      return; // only active objects participate in the simulation
+    }
+    const inverseMass = this.inverseMass;
+    const vel = this.motion.vel;
+    const dof = this.limitDegreeOfFreedom;
+    if (dof.length === 0) {
+      vel.x += impulseX * inverseMass;
+      vel.y += impulseY * inverseMass;
+      this.motion.angularVelocity += this.inverseInertia * (offsetX * impulseY - offsetY * impulseX);
+      return;
+    }
+    if (!dof.includes(DegreeOfFreedom.X)) {
+      vel.x += impulseX * inverseMass;
+    }
+    if (!dof.includes(DegreeOfFreedom.Y)) {
+      vel.y += impulseY * inverseMass;
+    }
+    if (!dof.includes(DegreeOfFreedom.Rotation)) {
+      this.motion.angularVelocity += this.inverseInertia * (offsetX * impulseY - offsetY * impulseX);
+    }
+  }
+
+  /**
    * Apply only linear impulse to the body
    * @param impulse
    */
@@ -591,12 +593,12 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     this.oldGlobalPos.setTo(this.globalPos.x, this.globalPos.y);
   }
 
-  public clone(): BodyComponent {
+  public override clone(): BodyComponent {
     const component = super.clone() as BodyComponent;
     return component;
   }
 
-  public serialize(): BodyComponentData {
+  public override serialize(): BodyComponentData {
     const type = this.constructor.name;
 
     return {
@@ -627,7 +629,7 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   /**
    * Custom deserialization
    */
-  public deserialize(data: BodyComponentData): void {
+  public override deserialize(data: BodyComponentData): void {
     // Restore physics settings
     this.collisionType = CollisionType[data.collisionType as keyof typeof CollisionType];
     this._mass = data.mass;

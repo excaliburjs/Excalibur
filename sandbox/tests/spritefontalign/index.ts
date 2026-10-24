@@ -150,7 +150,7 @@ var text1 = new ex.Text({
 
 textNormalCA.graphics.use(text1);
 game.currentScene.camera.pos = textNormalCA.pos.add(ex.vec(50, 0));
-// game.currentScene.camera.zoom = 4;
+game.currentScene.camera.zoom = 4;
 game.onPostDraw = () => {
   ex.Debug.drawLine(textNormalCA.pos, textNormalCA.pos.add(ex.vec(300, 0)), { color: ex.Color.Red });
   // ex.Debug.drawText(sutf.textAlign, textNormalCA.pos);

@@ -17,13 +17,13 @@ import { PointerEventsToObjectDispatcher } from './pointer-events-to-object-disp
  * the {@apilink Collider}'s shape for pointer events.
  */
 export class PointerSystem extends System {
-  static priority = SystemPriority.Higher;
+  static override priority = SystemPriority.Higher;
 
   public readonly systemType = SystemType.Update;
 
-  private _engine: Engine;
-  private _receivers: PointerEventReceiver[];
-  private _engineReceiver: PointerEventReceiver;
+  private _engine!: Engine;
+  private _receivers!: PointerEventReceiver[];
+  private _engineReceiver!: PointerEventReceiver;
   private _graphicsHashGrid = new SparseHashGrid<GraphicsComponent>({ size: 100 });
   private _graphics: GraphicsComponent[] = [];
   private _entityToPointer = new Map<Entity, PointerComponent>();
@@ -57,7 +57,7 @@ export class PointerSystem extends System {
         this._graphicsHashGrid.track(maybeGfx);
       }
       this._sortedTransforms.push(tx);
-      this._sortedEntities.push(tx.owner);
+      this._sortedEntities.push(tx.owner!);
       tx.zIndexChanged$.subscribe(this._zIndexUpdate);
       this._zHasChanged = true;
     });
@@ -92,9 +92,9 @@ export class PointerSystem extends System {
    */
   public overrideUseGraphicsBounds = false;
 
-  private _scene: Scene<unknown>;
+  private _scene!: Scene<unknown>;
 
-  public initialize(world: World, scene: Scene): void {
+  public override onInitialize(world: World, scene: Scene): void {
     this._engine = scene.engine;
     this._scene = scene;
   }
@@ -107,7 +107,7 @@ export class PointerSystem extends System {
     this._zHasChanged = true;
   };
 
-  public preupdate(): void {
+  public override onPreUpdate(): void {
     if (this._scene.camera.hasChanged()) {
       // if the camera has changed we want to force a transform update so pointers can be correctly calc'd
       this._scene.camera.updateTransform(this._scene.camera.pos);
@@ -120,12 +120,12 @@ export class PointerSystem extends System {
       this._sortedTransforms.sort((a, b) => {
         return b.z - a.z;
       });
-      this._sortedEntities = this._sortedTransforms.map((t) => t.owner);
+      this._sortedEntities = this._sortedTransforms.map((t) => t.owner!);
       this._zHasChanged = false;
     }
   }
 
-  public update(): void {
+  public onUpdate(): void {
     // Update graphics
     this._graphicsHashGrid.update(this._graphics);
 
@@ -134,10 +134,10 @@ export class PointerSystem extends System {
       const colliders = this._scene.physics.query(pos.worldPos);
       for (let i = 0; i < colliders.length; i++) {
         const collider = colliders[i];
-        const maybePointer = this._entityToPointer.get(collider.owner);
+        const maybePointer = this._entityToPointer.get(collider.owner!);
         if (maybePointer && (maybePointer.useColliderShape || this.overrideUseColliderShape)) {
           if (collider.contains(pos.worldPos)) {
-            this._pointerEventDispatcher.addPointerToObject(collider.owner, pointerId);
+            this._pointerEventDispatcher.addPointerToObject(collider.owner!, pointerId);
           }
         }
       }
@@ -145,9 +145,9 @@ export class PointerSystem extends System {
       const graphics = this._graphicsHashGrid.query(pos.worldPos);
       for (let i = 0; i < graphics.length; i++) {
         const graphic = graphics[i];
-        const maybePointer = this._entityToPointer.get(graphic.owner);
+        const maybePointer = this._entityToPointer.get(graphic.owner!);
         if (maybePointer && (maybePointer.useGraphicsBounds || this.overrideUseGraphicsBounds)) {
-          this._pointerEventDispatcher.addPointerToObject(graphic.owner, pointerId);
+          this._pointerEventDispatcher.addPointerToObject(graphic.owner!, pointerId);
         }
       }
     }

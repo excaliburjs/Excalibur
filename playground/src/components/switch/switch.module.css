@@ -1,0 +1,70 @@
+.root {
+  align-items: center;
+  color: var(--color-zinc-200);
+  display: flex;
+  font-family: var(--font-family);
+  font-size: 11px;
+  gap: 8px;
+
+  :global(html[data-theme='light']) & {
+    color: var(--color-zinc-700);
+  }
+}
+
+.switch {
+  border: 1px solid var(--color-zinc-700);
+  border-radius: 18px;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: flex;
+  flex-shrink: 0;
+  height: 28px;
+  margin: 0;
+  overflow: hidden;
+  padding: 0;
+  transition: background-color 150ms ease;
+  width: 46px;
+
+  :global(html[data-theme='light']) & {
+    border: 1px solid var(--color-zinc-500);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-zinc-700);
+    outline-offset: 2px;
+  }
+}
+
+.thumb {
+  align-items: center;
+  background-color: var(--color-zinc-400);
+  border-radius: 50%;
+  color: var(--color-white);
+  display: flex;
+  height: 22px;
+  justify-content: center;
+  left: 2px;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  top: 2px;
+  transition:
+    translate 150ms ease,
+    background-color 150ms ease;
+  width: 22px;
+
+  &[data-checked] {
+    background-color: var(--color-purple-700);
+    translate: 18px 0;
+  }
+}
+
+.active .thumb {
+  background-color: var(--color-purple-700);
+}
+
+.thumb svg {
+  height: 14px;
+  opacity: 0.9;
+  width: 14px;
+}

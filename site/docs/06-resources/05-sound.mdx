@@ -9,9 +9,9 @@ Plenty of times you'll want sound effects in your game. The [[Sound]] resource w
 ## Audio with the Sound Resource
 
 Excalibur supports any audio the browser supports like `.wav`, `.mp3`, and `.ogg`. Due to mixed browser support you may wish to specify a list of
-source files and codecs, the order of the files specifies order of preference (we recommend mp3, wav).
+source files and codecs, the order of the files specifies order of preference.
 
-Major Browser support table [documented on MDN](https://developer.mozilla.org/en-US/docs/Web/Guide/Audio_and_video_delivery/Cross-browser_audio_basics#audio_codec_support)
+A list of per-browser supported audio codecs is available [here](https://caniuse.com/?search=audio+format). As of 2026, the major codecs which are widely available are: mp3, wav and flac.
 
 Pass an instance of [[Sound]] to a [[Loader]] to preload it. Once a sound
 is loaded, you can [[Sound.play|play]] it. You can pass an argument from 0.0 - 1.0

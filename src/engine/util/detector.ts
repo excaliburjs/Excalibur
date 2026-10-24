@@ -41,7 +41,7 @@ interface WarningTests {
  * Excalibur internal feature detection helper class
  */
 export class Detector {
-  private _features: DetectedFeatures = null;
+  private _features?: DetectedFeatures;
 
   public failedTests: string[] = [];
 
@@ -55,7 +55,7 @@ export class Detector {
    * support if it has not previously been done.
    */
   public getBrowserFeatures(): DetectedFeatures {
-    if (this._features === null) {
+    if (!this._features) {
       this._features = this._loadBrowserFeatures();
     }
     return this._features;

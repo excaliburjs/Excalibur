@@ -87,7 +87,7 @@ class MyWeapon extends ex.Actor {
     });
   }
 
-  onInitialize(engine: ex.Engine): void {
+  override onInitialize(engine: ex.Engine): void {
     this.actions.runAction(new AttackAction(this));
     this.on('actioncomplete', (a: ex.ActionCompleteEvent) => {
       if (a.action instanceof AttackAction) {
@@ -115,7 +115,7 @@ class MyPlayer extends ex.Actor {
     });
   }
 
-  onInitialize(engine: ex.Engine): void {
+  override onInitialize(engine: ex.Engine): void {
     engine.input.keyboard.on('press', (e) => {
       if (e.key === ex.Keys.Enter) {
         if (this.children.length > 0) return;

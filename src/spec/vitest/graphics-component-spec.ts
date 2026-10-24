@@ -11,7 +11,7 @@ describe('A Graphics ECS Component', () => {
     expect(sut.anchor).toBeVector(ex.vec(0.5, 0.5));
     expect(sut.offset).toBeVector(ex.vec(0, 0));
     expect(sut.opacity).toBe(1);
-    expect(sut.visible).toBe(true);
+    expect(sut.isVisible).toBe(true);
     expect(sut.current).toBeUndefined();
     expect(sut.graphics).toEqual({});
   });
@@ -32,7 +32,7 @@ describe('A Graphics ECS Component', () => {
     graphics.anchor = ex.vec(0, 0);
     graphics.offset = ex.vec(1, 1);
     graphics.opacity = 0.2;
-    graphics.visible = false;
+    graphics.isVisible = false;
     graphics.copyGraphics = true;
     graphics.onPreDraw = () => {
       /* do nothing */
@@ -50,7 +50,7 @@ describe('A Graphics ECS Component', () => {
     expect(sut.anchor).toBeVector(graphics.anchor);
     expect(sut.offset).toBeVector(graphics.offset);
     expect(sut.opacity).toEqual(graphics.opacity);
-    expect(sut.visible).toEqual(graphics.visible);
+    expect(sut.isVisible).toEqual(graphics.isVisible);
     expect(sut.copyGraphics).toEqual(graphics.copyGraphics);
     expect(sut.onPreDraw).toBe(sut.onPreDraw);
     expect(sut.onPostDraw).toBe(sut.onPostDraw);
@@ -97,7 +97,7 @@ describe('A Graphics ECS Component', () => {
     expect(sut.anchor).toBeVector(ex.vec(0, 0));
     expect(sut.offset).toBeVector(ex.vec(10, 11));
     expect(sut.opacity).toBe(0.5);
-    expect(sut.visible).toBe(false);
+    expect(sut.isVisible).toBe(false);
     expect(sut.current).not.toBeNull();
     expect(sut.graphics).toEqual({
       'some-gfx': rect
@@ -157,7 +157,7 @@ describe('A Graphics ECS Component', () => {
 
     sut.use('rect');
     expect(sut.current).toEqual(rect);
-    expect(sut.currentOptions).toEqual(undefined);
+    expect(sut.currentOptions).toBeNull();
 
     sut.remove('rect');
 
@@ -183,7 +183,7 @@ describe('A Graphics ECS Component', () => {
     expect(sut.current).toBeUndefined();
     sut.use('some-gfx-2');
     expect(sut.current).toEqual(rect);
-    expect(sut.currentOptions).toBeUndefined();
+    expect(sut.currentOptions).toBeNull();
 
     const none = sut.use('made-up-name');
     expect(none).toBeUndefined();
@@ -212,7 +212,7 @@ describe('A Graphics ECS Component', () => {
     sut.use(rect2);
 
     expect(sut.current).toEqual(rect2);
-    expect(sut.currentOptions).toBeUndefined();
+    expect(sut.currentOptions).toBeNull();
   });
 
   it('can hide graphics', () => {
@@ -384,6 +384,38 @@ describe('A Graphics ECS Component', () => {
         right: 700,
         top: 890,
         bottom: 910
+      })
+    );
+  });
+
+  it('correctly calculates screen-space bounds with a content area offset and zoomed camera', () => {
+    const tx = new ex.TransformComponent();
+    tx.coordPlane = ex.CoordPlane.Screen;
+    tx.pos = ex.vec(100, 100);
+    const sut = new ex.GraphicsComponent();
+    const rect = new ex.Rectangle({
+      width: 20,
+      height: 20
+    });
+    sut.add(rect);
+
+    const entity = new ex.Entity([tx, sut]);
+
+    // zoom 2 camera rooted at the canvas origin: world = screenPoint / 2.
+    // The content-area offset must pass through the camera inverse's linear
+    // part, i.e. world = inverse(screenPoint + offset), matching
+    // Screen.screenToWorldCoordinates.
+    const camera = { inverse: ex.AffineMatrix.identity().scale(0.5, 0.5) };
+    const screen = { contentAreaOffset: ex.vec(87.5, 0) };
+    entity.scene = { camera, engine: { screen } } as any;
+
+    // screen-frame bounds are (90,90)-(110,110)
+    expect(sut.bounds).toEqual(
+      new ex.BoundingBox({
+        left: (90 + 87.5) / 2,
+        right: (110 + 87.5) / 2,
+        top: 45,
+        bottom: 55
       })
     );
   });

@@ -21,7 +21,7 @@ export class FadeInOut extends Transition {
     this.color = options.color ?? Color.Black;
   }
 
-  public onInitialize(engine: Engine): void {
+  public override onInitialize(engine: Engine): void {
     this.transform.pos = engine.screen.unsafeArea.topLeft;
     this.screenCover = new Rectangle({
       width: engine.screen.resolution.width,

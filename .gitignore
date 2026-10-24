@@ -60,3 +60,6 @@ browserstack.err
 
 *storybook.log
 storybook-static
+image-diffs
+vitest-image-failures.json
+site/generated

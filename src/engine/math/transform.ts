@@ -214,18 +214,39 @@ export class Transform {
   }
 
   private _scratch = AffineMatrix.identity();
+  // sin/cos of the last rotation the matrix was built with, position only changes (the common case in the
+  // collision position solver) rebuild the matrix without touching trig
+  private _trigRotation = NaN;
+  private _cos = 1;
+  private _sin = 0;
+
   private _calculateMatrix(): AffineMatrix {
-    this._scratch.data[0] = Math.cos(this._rotation);
-    this._scratch.data[1] = Math.sin(this._rotation);
-    this._scratch.data[2] = -Math.sin(this._rotation);
-    this._scratch.data[3] = Math.cos(this.rotation);
+    if (this._rotation !== this._trigRotation) {
+      this._trigRotation = this._rotation;
+      this._cos = Math.cos(this._rotation);
+      this._sin = Math.sin(this._rotation);
+    }
+    this._scratch.data[0] = this._cos;
+    this._scratch.data[1] = this._sin;
+    this._scratch.data[2] = -this._sin;
+    this._scratch.data[3] = this._cos;
     this._scratch.data[4] = this._pos.x;
     this._scratch.data[5] = this._pos.y;
     this._scratch.scale(this._scale.x, this._scale.y);
     return this._scratch;
   }
 
+  private _version = 0;
+  /**
+   * Increments every time this transform (or one of its parents) changes, cheap change detection for caches built
+   * from this transform
+   */
+  public get version(): number {
+    return this._version;
+  }
+
   public flagDirty() {
+    this._version++;
     this._isDirty = true;
     this._isInverseDirty = true;
     for (let i = 0; i < this._children.length; i++) {

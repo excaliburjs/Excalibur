@@ -17,13 +17,13 @@ class MyPlayer extends ex.Actor {
     });
   }
 
-  onCollisionStart(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
+  override onCollisionStart(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
     if (other.owner instanceof MyPrize) {
       other.owner.kill();
     }
   }
 
-  onPreUpdate(engine: ex.Engine, elapsed: number): void {
+  override onPreUpdate(engine: ex.Engine, elapsed: number): void {
     let tracked_velocity = ex.Vector.Zero;
     if (engine.input.keyboard.isHeld(ex.Keys.A)) {
       tracked_velocity.x = -this.speed;

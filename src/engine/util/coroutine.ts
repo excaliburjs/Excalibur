@@ -160,7 +160,7 @@ export function coroutine(...args: any[]): CoroutineInstance {
   let started = false;
   let completed = false;
   let cancelled = false;
-  const generatorFcn = coroutineGenerator.bind(thisArg) as CoroutineGenerator;
+  const generatorFcn = coroutineGenerator!.bind(thisArg) as CoroutineGenerator;
   const generator = generatorFcn();
   let loop: (elapsed: number) => void;
   const complete = new Promise<void>((resolve, reject) => {

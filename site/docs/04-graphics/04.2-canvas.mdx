@@ -10,7 +10,7 @@ section: Graphics
 
 For drawing hooks the `ExcaliburGraphicsContext` replaces the browser `CanvasRenderingContext2D`. However, if you need to do some custom drawing using the `CanvasRenderingContext2D` the new [[Canvas]] graphic has your back.
 
-The canvas is a special type of graphic that acts like a shim between direct CanvasRenderingContext2D drawing and the [ExcaliburGraphicsContext](#ExcaliburGraphicsContext).
+The canvas is a special type of graphic that acts like a shim between direct CanvasRenderingContext2D drawing and the [ExcaliburGraphicsContext](/docs/graphics-context).
 
 This type of graphic is re-rendered every time the graphic is drawn, thus it should be used sparingly due to this inefficiency. It is recommended you use the `cache: true` property and call `flagDirty()` when there is something new to draw.
 

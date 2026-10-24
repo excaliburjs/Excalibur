@@ -1,23 +1,34 @@
 # Website
 
-This website is built using [Docusaurus 2](https://docusaurus.io/), a modern static website generator.
+This website is built using [Docusaurus 3](https://docusaurus.io/), a modern static website generator.
 
-### Installation
+In order to do our TypeDoc includes we've forked the 
+[docusaurus-plugin-typedoc-plugin](https://github.com/excaliburjs/docusaurus-plugin-typedoc-api) and vendor/ it as a submodule
 
+## Local Dev
+
+Be sure the core excalibur types have been generated in the root directory (requires a build)
+
+```sh
+> cd .. && npm run build && cd site/
 ```
-$ yarn
+
+Initialize the submodule for the typedoc plugin
+
+```sh
+> git submodule init
+> git submodule update
 ```
 
-### Local Development
+NPM install and run the dev server
 
+```sh
+> npm install
+> npm run start
 ```
-$ yarn start
-```
-
-This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
 
 
-#### Playground integration
+### Playground integration
 
 While working on the docs locally, you may want to also use a local version of the Playground. 
 This is easily achieved with the `PLAYGROUND_URL` environment variable. 
@@ -40,29 +51,3 @@ Run the site as usual:
 npm start
 ```
  
-
-
-
-### Build
-
-```
-$ yarn build
-```
-
-This command generates static content into the `build` directory and can be served using any static contents hosting service.
-
-### Deployment
-
-Using SSH:
-
-```
-$ USE_SSH=true yarn deploy
-```
-
-Not using SSH:
-
-```
-$ GIT_USER=<Your GitHub username> yarn deploy
-```
-
-If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.

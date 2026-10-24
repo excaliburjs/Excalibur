@@ -1,26 +1,26 @@
 import type { Sound } from '../resources/sound/sound';
+import type { SoundTrack } from '../resources/sound/sound-track';
 import type { Actor } from '../actor';
-import type { WebAudioInstance } from '../resources/sound/web-audio-instance';
 import { GameEvent } from '../';
 
 export class MediaEvent extends GameEvent<Sound> {
   /**
    * Media event cannot bubble
    */
-  public set bubbles(_value: boolean) {
+  public override set bubbles(_value: boolean) {
     // stubbed
   }
   /**
    * Media event cannot bubble
    */
-  public get bubbles(): boolean {
+  public override get bubbles(): boolean {
     return false;
   }
   /**
    * Media event cannot bubble, so they have no path
    */
   protected get _path(): Actor[] {
-    return null;
+    return [];
   }
   /**
    * Media event cannot bubble, so they have no path
@@ -30,7 +30,7 @@ export class MediaEvent extends GameEvent<Sound> {
   }
 
   constructor(
-    public target: Sound,
+    public override target: Sound,
     protected _name: string = 'MediaEvent'
   ) {
     super();
@@ -39,7 +39,7 @@ export class MediaEvent extends GameEvent<Sound> {
   /**
    * Prevents event from bubbling
    */
-  public stopPropagation(): void {
+  public override stopPropagation(): void {
     /**
      * Stub
      */
@@ -71,7 +71,7 @@ export class MediaEvent extends GameEvent<Sound> {
 export class NativeSoundEvent extends MediaEvent {
   constructor(
     target: Sound,
-    public track?: WebAudioInstance
+    public track?: SoundTrack
   ) {
     super(target, 'NativeSoundEvent');
   }

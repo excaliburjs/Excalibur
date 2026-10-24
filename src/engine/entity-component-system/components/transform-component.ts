@@ -36,7 +36,7 @@ export class TransformComponent extends Component {
       childTxComponent._parentComponent = this;
     }
   };
-  onAdd(owner: Entity): void {
+  override onAdd(owner: Entity): void {
     for (const child of owner.children) {
       this._addChildTransform(child);
     }
@@ -49,7 +49,7 @@ export class TransformComponent extends Component {
       }
     });
   }
-  onRemove(_previousOwner: Entity): void {
+  override onRemove(_previousOwner: Entity): void {
     this._transform.parent = null;
     this._parentComponent = null;
   }
@@ -154,7 +154,7 @@ export class TransformComponent extends Component {
     return this._transform.apply(v);
   }
 
-  clone(): TransformComponent {
+  override clone(): TransformComponent {
     const component = new TransformComponent();
     component._transform = this._transform.clone();
     return component;
@@ -164,7 +164,7 @@ export class TransformComponent extends Component {
    * Custom serialization - only store local transform values
    * Private fields (_transform, _parentComponent) are automatically excluded
    */
-  public serialize(): TransformComponentData {
+  public override serialize(): TransformComponentData {
     const type = this.constructor.name;
     const data: TransformComponentData = {
       type,
@@ -185,7 +185,7 @@ export class TransformComponent extends Component {
   /**
    * Restore state from serialized data
    */
-  public deserialize(data: TransformComponentData): void {
+  public override deserialize(data: TransformComponentData): void {
     // Set local transform values
     this.pos = { x: data.pos.x, y: data.pos.y } as Vector;
     this.rotation = data.rotation;

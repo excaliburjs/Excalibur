@@ -62,9 +62,9 @@ describe('A QueryManager', () => {
     world.entityManager.addEntity(entity2);
 
     // Query for all entities that have type A components
-    const queryA = world.queryTags(['A']);
+    const queryA = world.query({ tags: { all: ['A'] } });
     // Query for all entities that have type A & B components
-    const queryAB = world.queryTags(['A', 'B']);
+    const queryAB = world.query({ tags: { all: ['A', 'B'] } });
 
     expect(queryA.getEntities(), 'Both entities have component A').toEqual([entity1, entity2]);
     expect(queryAB.getEntities(), 'Only entity1 has both A+B').toEqual([entity1]);
@@ -112,7 +112,7 @@ describe('A QueryManager', () => {
     entity2.addTag('A');
     entity2.addTag('B');
 
-    const queryAB = world.queryTags(['A', 'B']);
+    const queryAB = world.query({ tags: { all: ['A', 'B'] } });
     expect(queryAB.getEntities()).toEqual([]);
 
     world.queryManager.addEntity(entity1);
@@ -245,7 +245,7 @@ describe('A QueryManager', () => {
     entity2.addTag('A');
     entity2.addTag('B');
 
-    const queryAB = world.queryTags(['A', 'B']);
+    const queryAB = world.query({ tags: { all: ['A', 'B'] } });
     world.queryManager.addEntity(entity1);
     world.queryManager.addEntity(entity2);
     expect(queryAB.getEntities()).toEqual([entity1, entity2]);
@@ -272,8 +272,8 @@ describe('A QueryManager', () => {
 
     world.query([FakeComponentA]);
     world.query([FakeComponentB]);
-    world.queryTags(['A']);
-    world.queryTags(['B']);
+    world.query({ tags: { all: ['A'] } });
+    world.query({ tags: { all: ['B'] } });
 
     expect(entity.componentAdded$.subscriptions.length).toBe(1);
     expect(entity.componentRemoved$.subscriptions.length).toBe(1);
@@ -327,7 +327,7 @@ describe('A QueryManager', () => {
     entity2.addTag('A');
     entity2.addTag('B');
 
-    const queryAB = world.queryTags(['A', 'B']);
+    const queryAB = world.query({ tags: { all: ['A', 'B'] } });
     world.queryManager.addEntity(entity1);
     world.queryManager.addEntity(entity2);
 

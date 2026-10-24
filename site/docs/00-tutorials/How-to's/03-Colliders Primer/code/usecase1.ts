@@ -16,21 +16,21 @@ class MyPlayer extends ex.Actor {
     });
   }
 
-  onCollisionStart(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
+  override onCollisionStart(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
     //match blocks velocity if they collide with player
     if (other.owner instanceof MyBlock) {
       this.speed = other.owner.speed;
     }
   }
 
-  onCollisionEnd(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
+  override onCollisionEnd(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
     //match blocks velocity if they collide with player
     if (other.owner instanceof MyBlock) {
       this.speed = 100
     }
   }
 
-  onPreUpdate(engine: ex.Engine, elapsed: number): void {
+  override onPreUpdate(engine: ex.Engine, elapsed: number): void {
     let tracked_velocity = ex.Vector.Zero;
     if (engine.input.keyboard.isHeld(ex.Keys.A)) {
       tracked_velocity.x = -this.speed;
@@ -69,7 +69,7 @@ class MyBlock extends ex.Actor {
   }
 
   // collider start
-  onCollisionStart(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
+  override onCollisionStart(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
     if (!this.isMoving && other.owner instanceof MyPlayer) {
       this.isMoving = true;
       switch (side) {
@@ -96,7 +96,7 @@ class MyBlock extends ex.Actor {
 
   }
 
-  onCollisionEnd(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
+  override onCollisionEnd(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
     if (this.isMoving && other.owner instanceof MyPlayer) {
       this.isMoving = false;
       this.moveDirection = ex.Vector.Zero;
@@ -105,7 +105,7 @@ class MyBlock extends ex.Actor {
 
 
 
-  onPreUpdate(engine: ex.Engine, elapsed: number): void {
+  override onPreUpdate(engine: ex.Engine, elapsed: number): void {
     if (this.isMoving) {
       this.vel = this.moveDirection;
     } else {

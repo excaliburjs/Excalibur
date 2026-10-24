@@ -2,6 +2,7 @@ import type { Vector } from '../../math/vector';
 import type { Collider } from '../colliders/collider';
 import { Pair } from './pair';
 import type { SeparationInfo } from '../colliders/separating-axis';
+import { cloneSeparationInfo } from '../colliders/separating-axis';
 import { BodyComponent } from '../body-component';
 
 /**
@@ -58,6 +59,22 @@ export class CollisionContact {
 
   bodyA: BodyComponent | null = null;
   bodyB: BodyComponent | null = null;
+
+  private _persisted = false;
+
+  /**
+   * Takes ownership of the pooled narrowphase data so this contact can be carried across frames without being
+   * detected again, used for contacts between bodies that can't move (asleep, or asleep against fixed geometry)
+   */
+  public persist(): void {
+    if (this._persisted) {
+      return;
+    }
+    this._persisted = true;
+    if (this.info) {
+      this.info = cloneSeparationInfo(this.info);
+    }
+  }
 
   constructor(
     colliderA: Collider,

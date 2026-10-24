@@ -51,8 +51,8 @@ export class SystemManager {
     this.systems.sort((a, b) => (a.constructor as typeof System).priority - (b.constructor as typeof System).priority);
     // If systems are added and the manager has already been init'd
     // then immediately init the system
-    if (this.initialized && system.initialize) {
-      system.initialize(this._world, this._world.scene);
+    if (this.initialized && system.onInitialize) {
+      system.onInitialize(this._world, this._world.scene);
     }
   }
 
@@ -61,7 +61,10 @@ export class SystemManager {
    * @param system
    */
   public removeSystem(system: System) {
-    removeItemFromArray(system, this.systems);
+    const removed = removeItemFromArray(system, this.systems);
+    if (removed && this.initialized && system.dispose) {
+      system.dispose(this._world, this._world.scene);
+    }
   }
 
   /**
@@ -73,8 +76,8 @@ export class SystemManager {
     if (!this.initialized) {
       this.initialized = true;
       for (const s of this.systems) {
-        if (s.initialize) {
-          s.initialize(this._world, this._world.scene);
+        if (s.onInitialize) {
+          s.onInitialize(this._world, this._world.scene);
         }
       }
     }
@@ -94,9 +97,9 @@ export class SystemManager {
     const systemsLength = systems.length;
 
     for (let i = 0; i < systemsLength; i++) {
-      if (systems[i].preupdate) {
+      if (systems[i].onPreUpdate) {
         startTime = performance.now();
-        systems[i].preupdate!(scene, elapsed);
+        systems[i].onPreUpdate!(scene, elapsed);
         endTime = performance.now();
         stats.systemDuration[`${type}:${systems[i].constructor.name}.preupdate`] = endTime - startTime;
       }
@@ -104,15 +107,15 @@ export class SystemManager {
 
     for (let i = 0; i < systemsLength; i++) {
       startTime = performance.now();
-      systems[i].update(elapsed);
+      systems[i].onUpdate(elapsed);
       endTime = performance.now();
       stats.systemDuration[`${type}:${systems[i].constructor.name}.update`] = endTime - startTime;
     }
 
     for (let i = 0; i < systemsLength; i++) {
-      if (systems[i].postupdate) {
+      if (systems[i].onPostUpdate) {
         startTime = performance.now();
-        systems[i].postupdate!(scene, elapsed);
+        systems[i].onPostUpdate!(scene, elapsed);
         endTime = performance.now();
         stats.systemDuration[`${type}:${systems[i].constructor.name}.postupdate`] = endTime - startTime;
       }

@@ -43,7 +43,7 @@ export class LineSegment {
     return this.begin.y - this.slope * this.begin.x;
   }
 
-  private _normal: Vector;
+  private _normal!: Vector;
   /**
    * Gets the normal of the line
    */
@@ -54,7 +54,7 @@ export class LineSegment {
     return (this._normal = this.end.sub(this.begin).normal());
   }
 
-  private _dir: Vector;
+  private _dir!: Vector;
   public dir(): Vector {
     if (this._dir) {
       return this._dir;
@@ -66,7 +66,7 @@ export class LineSegment {
     return [this.begin, this.end];
   }
 
-  private _slope: Vector;
+  private _slope!: Vector;
   /**
    * Returns the slope of the line in the form of a vector of length 1
    */
@@ -127,7 +127,7 @@ export class LineSegment {
    * @param sideVector Vector that traces the line
    * @param length Length to clip along side
    */
-  public clip(sideVector: Vector, length: number, normalize = true): LineSegment {
+  public clip(sideVector: Vector, length: number, normalize = true): LineSegment | null {
     let dir = sideVector;
     if (normalize) {
       dir = dir.normalize();
@@ -195,13 +195,13 @@ export class LineSegment {
    * @param y The known Y value of the target point
    * @returns A new point with the other calculated axis value
    */
-  public findPoint(x: number = null, y: number = null): Vector {
+  public findPoint(x?: number, y?: number): Vector {
     const m = this.slope;
     const b = this.intercept;
 
-    if (x !== null) {
+    if (x != null) {
       return new Vector(x, m * x + b);
-    } else if (y !== null) {
+    } else if (y != null) {
       return new Vector((y - b) / m, y);
     } else {
       throw new Error('You must provide an X or a Y value');

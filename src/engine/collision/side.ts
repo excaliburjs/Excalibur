@@ -11,7 +11,7 @@ export enum Side {
   Right = 'Right'
 }
 
-export module Side {
+export namespace Side {
   /**
    * Returns the opposite side from the current
    */

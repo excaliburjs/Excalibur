@@ -5,7 +5,7 @@ import { PauseComponentTag } from '../entity-component-system/components/pause-c
 import { ActionsComponent } from './actions-component';
 
 export class ActionsSystem extends System {
-  static priority = SystemPriority.Higher;
+  static override priority = SystemPriority.Higher;
 
   systemType = SystemType.Update;
   private _actions: ActionsComponent[] = [];
@@ -27,7 +27,7 @@ export class ActionsSystem extends System {
       }
     });
   }
-  update(elapsed: number): void {
+  onUpdate(elapsed: number): void {
     for (let i = 0; i < this._actions.length; i++) {
       const action = this._actions[i];
       action.update(elapsed);

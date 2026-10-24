@@ -37,22 +37,53 @@ export class CircleCollider extends Collider {
   /**
    * Position of the circle relative to the collider, by default (0, 0).
    */
-  public offset: Vector = Vector.Zero;
+  public override offset: Vector = Vector.Zero;
 
   private _globalMatrix: AffineMatrix = AffineMatrix.identity();
+  private _syncedVersion = -1;
+  private _syncedOffsetX: number | null = null;
+  private _syncedOffsetY: number | null = null;
+
+  /**
+   * Rebuilds the world matrix from the owner transform if it (or the offset) changed since the last sync
+   */
+  private _ensureWorld(): void {
+    const tx = this._transform;
+    if (!tx) {
+      return;
+    }
+    const version = tx.version;
+    if (version === this._syncedVersion && this.offset.x === this._syncedOffsetX && this.offset.y === this._syncedOffsetY) {
+      return;
+    }
+    this._syncedVersion = version;
+    this._syncedOffsetX = this.offset.x;
+    this._syncedOffsetY = this.offset.y;
+    tx.matrix.clone(this._globalMatrix);
+    this._globalMatrix.translate(this.offset.x, this.offset.y);
+    this._radius = null;
+    this._worldVersion++;
+  }
+
+  public override get worldVersion(): number {
+    this._ensureWorld();
+    return this._worldVersion;
+  }
 
   public get worldPos(): Vector {
+    this._ensureWorld();
     return this._globalMatrix.getPosition();
   }
 
-  private _naturalRadius: number;
+  private _naturalRadius!: number;
 
-  private _radius: number | undefined;
+  private _radius: number | null = null;
   /**
    * Get the radius of the circle
    */
   public get radius(): number {
-    if (this._radius) {
+    this._ensureWorld();
+    if (this._radius !== null) {
       return this._radius;
     }
     const tx = this._transform;
@@ -73,7 +104,7 @@ export class CircleCollider extends Collider {
     this._radius = val;
   }
 
-  private _transform: Transform;
+  private _transform!: Transform;
 
   constructor(options: CircleColliderOptions) {
     super();
@@ -96,6 +127,7 @@ export class CircleCollider extends Collider {
    * Get the center of the collider in world coordinates
    */
   public get center(): Vector {
+    this._ensureWorld();
     return this._globalMatrix.getPosition();
   }
 
@@ -141,7 +173,7 @@ export class CircleCollider extends Collider {
             point,
             normal: point.sub(c).normalize(),
             collider: this,
-            body: this.owner?.get(BodyComponent),
+            body: this.owner?.get(BodyComponent)!,
             distance: toi
           } satisfies RayCastHit;
         }
@@ -169,7 +201,7 @@ export class CircleCollider extends Collider {
             point,
             normal: point.sub(c).normalize(),
             collider: this,
-            body: this.owner?.get(BodyComponent),
+            body: this.owner?.get(BodyComponent)!,
             distance: minToi
           } satisfies RayCastHit;
         }
@@ -225,11 +257,12 @@ export class CircleCollider extends Collider {
    * Get the axis aligned bounding box for the circle collider in world coordinates
    */
   public get bounds(): BoundingBox {
+    this._ensureWorld();
     return this.localBounds.transform(this._globalMatrix);
   }
 
   private _localBoundsDirty = true;
-  private _localBounds: BoundingBox;
+  private _localBounds!: BoundingBox;
   /**
    * Get the axis aligned bounding box for the circle collider in local coordinates
    */
@@ -258,11 +291,11 @@ export class CircleCollider extends Collider {
 
   /* istanbul ignore next */
   public update(transform: Transform): void {
-    this._transform = transform;
-    const globalMat = transform.matrix ?? this._globalMatrix;
-    globalMat.clone(this._globalMatrix);
-    this._globalMatrix.translate(this.offset.x, this.offset.y);
-    this._radius = undefined;
+    if (transform !== this._transform) {
+      this._transform = transform;
+      this._syncedVersion = -1;
+    }
+    this._ensureWorld();
   }
 
   /**

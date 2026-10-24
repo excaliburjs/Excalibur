@@ -24,7 +24,7 @@ const runSheet = ex.SpriteSheet.fromImageSource({
 
 const runAnim = ex.Animation.fromSpriteSheetCoordinates({
   spriteSheet: runSheet,
-  durationPerFrameMs: 200,
+  durationPerFrame: 200,
   frameCoordinates: [
     {x: 1, y: 0},
     {x: 2, y: 0},

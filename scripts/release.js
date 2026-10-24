@@ -53,12 +53,12 @@ async function main() {
       [
         'hub release create -d',
         '--file ./pending-release.md',
-        '--attach ./build/dist/excalibur.js',
-        '--attach ./build/dist/excalibur.d.ts',
-        '--attach ./build/dist/excalibur.min.js',
-        '--attach ./build/dist/excalibur.min.js.map',
-        `--attach ./build/dist/Excalibur.${version}.nupkg`,
-        `--attach ./build/dist.${version}.zip`,
+        '--attach ./build/esm/excalibur.js',
+        '--attach ./build/esm/excalibur.d.ts',
+        '--attach ./build/esm/excalibur.min.js',
+        '--attach ./build/esm/excalibur.min.js.map',
+        `--attach ./build/esm/Excalibur.${version}.nupkg`,
+        `--attach ./build/esm.${version}.zip`,
         `v${version}`
       ].join(' ')
     ).toString();
@@ -83,7 +83,7 @@ async function main() {
   if (answer) {
     console.log(
       execSync(
-        `.\\src\\tools\\NuGet.exe push ./build/dist/Excalibur.${version}.nupkg -Source https://api.nuget.org/v3/index.json`
+        `.\\src\\tools\\NuGet.exe push ./build/esm/Excalibur.${version}.nupkg -Source https://api.nuget.org/v3/index.json`
       ).toString()
     );
   } else {

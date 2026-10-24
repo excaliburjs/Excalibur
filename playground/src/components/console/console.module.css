@@ -1,0 +1,49 @@
+.root {
+  --color: var(--color-zinc-500);
+
+  :global(html[data-theme='light']) & {
+    --color: var(--color-zinc-700);
+  }
+}
+
+.log {
+  --accent: var(--color-zinc-100);
+
+  :global(html[data-theme='light']) & {
+    --accent: var(--color-zinc-900);
+  }
+}
+
+.info {
+  --accent: var(--color-sky-300);
+
+  :global(html[data-theme='light']) & {
+    --accent: var(--color-sky-800);
+  }
+}
+
+.warn {
+  --accent: var(--color-amber-300);
+
+  :global(html[data-theme='light']) & {
+    --accent: var(--color-amber-800);
+  }
+}
+
+.root {
+  margin: 0;
+  padding: 16px 24px;
+  text-align: left;
+  width: 100%;
+}
+
+.line {
+  color: var(--color);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.line > span {
+  color: var(--accent);
+  font-weight: 600;
+}

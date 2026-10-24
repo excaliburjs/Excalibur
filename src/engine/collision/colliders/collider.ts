@@ -30,6 +30,15 @@ export abstract class Collider implements Clonable<Collider> {
   public composite: CompositeCollider | null = null;
   public events = new EventEmitter();
 
+  protected _worldVersion = 0;
+  /**
+   * Increments whenever this collider's world space geometry changes (owner transform, offset or shape), cheap change
+   * detection for spatial data structures
+   */
+  public get worldVersion(): number {
+    return this._worldVersion;
+  }
+
   /**
    * Returns a boolean indicating whether this body collided with
    * or was in stationary contact with
@@ -46,7 +55,7 @@ export abstract class Collider implements Clonable<Collider> {
     return false;
   }
 
-  public owner: Entity;
+  public owner: Entity | null = null;
 
   /**
    * Pixel offset of the collision collider relative to the collider, by default (0, 0) meaning the collider is positioned

@@ -7,10 +7,10 @@ import { vec, Vector } from '../math';
 import { combineHashes, hashString } from '../util/string';
 
 export class FontTextInstance {
-  public canvas: HTMLCanvasElement;
-  public ctx: CanvasRenderingContext2D;
+  public canvas: HTMLCanvasElement | null = null;
+  public ctx: CanvasRenderingContext2D | null = null;
   private _textFragments: { x: number; y: number; canvas: HTMLCanvasElement }[] = [];
-  public dimensions: BoundingBox;
+  public dimensions: BoundingBox | null = null;
   public disposed: boolean = false;
   private _lastHashCode: number;
   /**
@@ -57,13 +57,13 @@ export class FontTextInstance {
       lines = text.split('\n');
     }
 
-    this._applyFont(this.ctx); // font must be applied to the context to measure it
+    this._applyFont(this.ctx!); // font must be applied to the context to measure it
     let maxWidthLine = 0;
     let maxAscent = 0;
     let maxDescent = 0;
     const adjustedPadding = this.font.padding / this.font.quality;
     for (let i = 0; i < lines.length; i++) {
-      const metrics = this.ctx.measureText(lines[i]);
+      const metrics = this.ctx!.measureText(lines[i]);
       const width = metrics.width + adjustedPadding * 2;
       maxWidthLine = Math.max(maxWidthLine, width);
       maxAscent = Math.max(maxAscent, metrics.actualBoundingBoxAscent);
@@ -137,14 +137,14 @@ export class FontTextInstance {
     switch (this.font.textAlign) {
       case 'left':
       case 'start':
-        x = ltr ? 0 : this.canvas.width;
+        x = ltr ? 0 : this.canvas!.width;
         break;
       case 'center':
-        x = this.canvas.width / 2;
+        x = this.canvas!.width / 2;
         break;
       case 'right':
       case 'end':
-        x = ltr ? this.canvas.width : 0;
+        x = ltr ? this.canvas!.width : 0;
         break;
       default:
         x = 0;
@@ -281,13 +281,13 @@ export class FontTextInstance {
     // Calculate image chunks
     if (this._dirty) {
       this.dimensions = this.measureText(this.text, maxWidth);
-      this._setDimension(this.dimensions, this.ctx);
+      this._setDimension(this.dimensions, this.ctx!);
       const lines = this._getLinesFromText(this.text, maxWidth);
 
       const lineHeight = !this.font.lineHeight ? (this.dimensions.height - this._maxAscent) / lines.length : this.font.lineHeight;
 
       // draws the text to the main bitmap
-      this._drawText(this.ctx, lines, lineHeight);
+      this._drawText(this.ctx!, lines, lineHeight);
 
       // clear any out old fragments
       if (ex instanceof ExcaliburGraphicsContextWebGL) {
@@ -297,7 +297,7 @@ export class FontTextInstance {
       }
 
       // splits to < 4k fragments for large text
-      this._textFragments = this._splitTextBitmap(this.ctx);
+      this._textFragments = this._splitTextBitmap(this.ctx!);
 
       if (ex instanceof ExcaliburGraphicsContextWebGL) {
         for (const frag of this._textFragments) {
@@ -309,7 +309,7 @@ export class FontTextInstance {
     }
 
     const adjustedPadding = this.font.padding / this.font.quality; // text space
-    const destWidth = this.canvas.width / this.font.quality - adjustedPadding; // text space
+    const destWidth = this.canvas!.width / this.font.quality - adjustedPadding; // text space
     const destHeight = this._totalHeight; // text space
 
     const alignmentFromAnchor = this._xAnchorFromAlignment() * destWidth + adjustedPadding;
@@ -336,9 +336,9 @@ export class FontTextInstance {
 
   dispose() {
     this.disposed = true;
-    this.dimensions = undefined as any;
-    this.canvas = undefined as any;
-    this.ctx = undefined as any;
+    this.dimensions = null;
+    this.canvas = null;
+    this.ctx = null;
     if (this._ex instanceof ExcaliburGraphicsContextWebGL) {
       for (const frag of this._textFragments) {
         this._ex.textureLoader.delete(frag.canvas);

@@ -32,7 +32,7 @@ export interface GarbageCollectorOptions {
 }
 
 export class GarbageCollector {
-  private _collectHandle: number;
+  private _collectHandle!: number;
   private _running = false;
   private _collectionMap = new Map<any, [type: string, time: number]>();
   private _collectors = new Map<string, [(resource: any) => boolean, interval: number]>();

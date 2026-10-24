@@ -14,7 +14,7 @@ Timers do not start until they are explicitly started with `.start()` and added 
 
 ```typescript
 const timer = new ex.Timer({
-  fcn: () => console.log('Every 100 ms'),
+  action: () => console.log('Every 100 ms'),
   repeats: true,
   interval: 100,
 })

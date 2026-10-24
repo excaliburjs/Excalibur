@@ -79,7 +79,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
     const searchAllColliders = options?.searchAllColliders ?? false;
     this._dynamicCollisionTree.rayCastQuery(ray, maxDistance, (collider) => {
       const owner = collider.owner;
-      const maybeBody = owner.get(BodyComponent);
+      const maybeBody = owner!.get(BodyComponent)!;
 
       if (options?.ignoreCollisionGroupAll && maybeBody.group === CollisionGroup.All) {
         return false;
@@ -179,7 +179,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
     // Retrieve the list of potential colliders, exclude killed, prevented, and self
     const potentialColliders = targets.filter((other) => {
       const body = other.owner?.get(BodyComponent);
-      return other.owner?.isActive && body.collisionType !== CollisionType.PreventCollision;
+      return other.owner?.isActive && body!.collisionType !== CollisionType.PreventCollision;
     });
 
     // clear old list of collision pairs
@@ -209,7 +209,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
     // Fast moving objects are those moving at least there smallest bound per frame
     if (this._config.continuous.checkForFastBodies) {
       for (const collider of potentialColliders) {
-        const body = collider.owner.get(BodyComponent);
+        const body = collider.owner!.get(BodyComponent);
         // Skip non-active objects. Does not make sense on other collision types
         if (body?.collisionType !== CollisionType.Active) {
           continue;
@@ -254,7 +254,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
             return false;
           });
 
-          if (minCollider && Vector.isValid(minTranslate)) {
+          if (minCollider! && Vector.isValid(minTranslate)) {
             const pair = new Pair(collider, minCollider);
             if (!this._pairs.has(pair.id)) {
               this._pairs.add(pair.id);

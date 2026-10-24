@@ -2,7 +2,7 @@
 slug: Dual Tilemap Autotiling Technique
 title: Dual Tilemap Autotiling Technique
 authors: [justin]
-tags: [gamedev tilemap tiling autotiling tooling]
+tags: [gamedev, tilemap, tiling, autotiling, tooling]
 ---
 
 

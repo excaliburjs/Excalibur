@@ -143,7 +143,7 @@ export default tseslint.config(
       radix: 'error',
       eqeqeq: ['error', 'smart'],
       'no-irregular-whitespace': 'error',
-      'brace-style': ['error', '1tbs'],
+      // 'brace-style': ['error', '1tbs'],
 
       'no-unused-expressions': [
         'error',
@@ -190,11 +190,7 @@ export default tseslint.config(
 
     languageOptions: {
       ecmaVersion: 5,
-      sourceType: 'module',
-
-      parserOptions: {
-        project: false
-      }
+      sourceType: 'module'
     }
   },
   {
@@ -202,11 +198,7 @@ export default tseslint.config(
 
     languageOptions: {
       ecmaVersion: 5,
-      sourceType: 'module',
-
-      parserOptions: {
-        project: true
-      }
+      sourceType: 'module'
     }
   }
 );

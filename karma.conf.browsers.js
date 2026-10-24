@@ -4,7 +4,7 @@ const fs = require('fs')
 process.env.CHROME_BIN = require('puppeteer').executablePath();
 
 
-if (!fs.existsSync('build/dist/excalibur.js')) {
+if (!fs.existsSync('build/esm/excalibur.js')) {
   throw new Error('Excalibur build not found. Please run "npm run build" first');
 }
 
@@ -32,11 +32,12 @@ module.exports = (config) => {
       '/build/': '/base/build/'
     },
     files: [
-      'build/dist/excalibur.js',
+      'build/esm/excalibur.js',
       'src/spec/karma/browser-support-spec.ts',
     ],
     mime: { 'text/x-typescript': ['ts', 'tsx'] },
     preprocessors: {
+      'build/esm/excalibur.js': ['webpack'],
       'src/spec/karma/**/*.ts': ['webpack']
     },
     webpack: {

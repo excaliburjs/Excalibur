@@ -5,6 +5,28 @@ describe('DebugText', () => {
     expect(ex.DebugText);
   });
 
+  it('can measure text dimensions with scale', async () => {
+    const canvasElement = document.createElement('canvas');
+    canvasElement.width = 100;
+    canvasElement.height = 100;
+    const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+
+    const debugText = new ex.DebugText();
+    await debugText.load();
+
+    const small = debugText.measureText('some text', 1);
+    const tiny = debugText.measureText('some text', 0.5);
+
+    expect(small.width).toBeGreaterThan(0);
+    expect(small.height).toBeGreaterThan(0);
+    expect(tiny.width).toBeCloseTo(small.width / 2, 0);
+    expect(tiny.height).toBeCloseTo(small.height / 2, 0);
+
+    const viaCtx = ctx.debug.measureText('some text', 1);
+    expect(viaCtx.width).toBe(small.width);
+    expect(viaCtx.height).toBe(small.height);
+  });
+
   describe('@visual', () => {
     it('can write text (2DCanvas)', async () => {
       const canvasElement = document.createElement('canvas');

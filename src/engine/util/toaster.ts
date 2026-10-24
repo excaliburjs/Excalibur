@@ -4,8 +4,8 @@ import toasterCss from './toaster.css?inline';
  * The Toaster is only meant to be called from inside Excalibur to display messages to players
  */
 export class Toaster {
-  private _styleBlock: HTMLStyleElement;
-  private _container: HTMLDivElement;
+  private _styleBlock!: HTMLStyleElement;
+  private _container!: HTMLDivElement;
   private _toasterCss: string = toasterCss;
 
   private _isInitialized = false;
@@ -23,9 +23,9 @@ export class Toaster {
   }
 
   public dispose() {
-    this._container.parentElement.removeChild(this._container);
+    this._container?.parentElement?.removeChild(this._container);
 
-    this._styleBlock.parentElement.removeChild(this._styleBlock);
+    this._styleBlock?.parentElement?.removeChild(this._styleBlock);
 
     this._isInitialized = false;
   }

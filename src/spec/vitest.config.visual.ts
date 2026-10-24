@@ -20,52 +20,48 @@ export default defineConfig(
       },
       browser: {
         enabled: true,
-        provider: playwright(),
-        fileWriting: true, // Enable file writing for screenshot attachments
-
-        // Run in windowed mode with Xvfb - fixes rendering issues in CI
-        // Xvfb provides the display, so we don't need headless mode
         headless: false,
+        provider: playwright({
+          launchOptions: {
+            channel: 'chromium',
+            // we pass in a whole bunch of args to try and make rendering as consistent as possible across
+            // operating systems.
+            ignoreDefaultArgs: ['--disable-render-backgrounding', '--disable-remote-fonts', '--font-render-hinting'],
+            args: [
+              '--no-default-browser-check',
+              '--no-first-run',
+              '--disable-default-apps',
+              '--disable-popup-blocking',
+              '--disable-translate',
+              '--disable-background-timer-throttling',
+              // --disable-gpu removed: Xvfb provides virtual display, GPU acceleration works
+              '--disable-dev-shm-usage',
 
+              // on macOS, disable-background-timer-throttling is not enough
+              // and we need disable-renderer-backgrounding too
+              // see https://github.com/karma-runner/karma-chrome-launcher/issues/123
+              '--disable-renderer-backgrounding',
+              '--disable-device-discovery-notifications',
+
+              '--autoplay-policy=no-user-gesture-required',
+              '--mute-audio',
+              '--no-sandbox',
+              '--enable-precise-memory-info',
+              '--js-flags="--max_old_space_size=8192" --expose-gc',
+
+              // Additional flags for better rendering in CI
+              '--force-device-scale-factor=1',
+              '--window-size=1920,1080',
+              '--use-gl=swiftshader'
+            ]
+          }
+        }),
         instances: [
           {
             browser: 'chromium',
             provide: {
               browser: 'chromium',
               platform: os.platform()
-            },
-            launch: {
-              channel: 'chromium',
-              // we pass in a whole bunch of args to try and make rendering as consistent as possible across
-              // operating systems.
-              ignoreDefaultArgs: ['--disable-render-backgrounding', '--disable-remote-fonts', '--font-render-hinting'],
-              args: [
-                '--no-default-browser-check',
-                '--no-first-run',
-                '--disable-default-apps',
-                '--disable-popup-blocking',
-                '--disable-translate',
-                '--disable-background-timer-throttling',
-                // --disable-gpu removed: Xvfb provides virtual display, GPU acceleration works
-                '--disable-dev-shm-usage',
-
-                // on macOS, disable-background-timer-throttling is not enough
-                // and we need disable-renderer-backgrounding too
-                // see https://github.com/karma-runner/karma-chrome-launcher/issues/123
-                '--disable-renderer-backgrounding',
-                '--disable-device-discovery-notifications',
-
-                '--autoplay-policy=no-user-gesture-required',
-                '--mute-audio',
-                '--no-sandbox',
-                '--enable-precise-memory-info',
-                '--js-flags="--max_old_space_size=8192" --expose-gc',
-
-                // Additional flags for better rendering in CI
-                '--force-device-scale-factor=1',
-                '--window-size=1920,1080',
-                '--use-gl=swiftshader'
-              ].filter(Boolean)
             }
           }
         ]

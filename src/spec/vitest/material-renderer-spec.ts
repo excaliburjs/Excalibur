@@ -55,6 +55,29 @@ describe('A Material', () => {
     expect(warnSpy).toHaveBeenCalledWith(
       'Material named "override-test" is overriding built in image u_graphic, is this on purpose? If so ignore this warning.'
     );
+    expect(material.isOverridingGraphic).toBe(true);
+  });
+
+  it('will warn if you override built in u_image, the same as u_graphic', () => {
+    const warnSpy = vi.spyOn(ex.Logger.getInstance(), 'warn');
+    const material = new ex.Material({
+      name: 'override-test-2',
+      graphicsContext,
+      fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0, 0.0, 0.0, 1.0);
+      }`,
+      images: {
+        u_image: new ex.ImageSource('')
+      }
+    });
+
+    expect(warnSpy).toHaveBeenCalledWith(
+      'Material named "override-test-2" is overriding built in image u_image, is this on purpose? If so ignore this warning.'
+    );
+    expect(material.isOverridingGraphic).toBe(true);
   });
 
   it('does not throw when use() is called after ctor', () => {
@@ -70,6 +93,51 @@ describe('A Material', () => {
     });
 
     expect(() => material.use()).not.toThrow();
+  });
+
+  it('has a unique id and exposes its sources', () => {
+    const fragmentSource = `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0, 0.0, 0.0, 1.0);
+      }`;
+    const material1 = new ex.Material({
+      name: 'test-1',
+      graphicsContext,
+      fragmentSource
+    });
+    const material2 = new ex.Material({
+      name: 'test-2',
+      graphicsContext,
+      fragmentSource
+    });
+
+    expect(material1.id).not.toBe(material2.id);
+    expect(material1.fragmentSource).toBe(fragmentSource);
+    expect(material1.vertexSource).toContain('void main()');
+  });
+
+  it('is registered with the graphics context on construction', () => {
+    const webgl = graphicsContext as ex.ExcaliburGraphicsContextWebGL;
+    const fragmentSource = `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0, 0.0, 0.0, 1.0);
+      }`;
+    const direct = new ex.Material({
+      name: 'direct',
+      graphicsContext,
+      fragmentSource
+    });
+    const created = webgl.createMaterial({
+      name: 'created',
+      fragmentSource
+    });
+
+    expect(webgl.materials).toContain(direct);
+    expect(webgl.materials).toContain(created);
   });
 
   describe('@visual', () => {
@@ -197,8 +265,8 @@ describe('A Material', () => {
       context.clear();
       context.save();
       context.material = material;
-      material.update((shader) => {
-        shader.setUniformFloatColor('customcolor', ex.Color.Red);
+      material.update((context) => {
+        context.uniforms.customcolor = ex.Color.Red;
       });
       context.drawImage(tex.image, 0, 0);
       context.flush();

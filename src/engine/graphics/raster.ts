@@ -140,10 +140,10 @@ export abstract class Raster extends Graphic {
    *
    * Any `padding`s or `quality` set will be factored into the width
    */
-  public get width() {
+  public override get width() {
     return Math.abs(this._getTotalWidth() * this.scale.x);
   }
-  public set width(value: number) {
+  public override set width(value: number) {
     value /= Math.abs(this.scale.x);
     this._bitmap.width = value;
     this._originalWidth = value;
@@ -157,11 +157,11 @@ export abstract class Raster extends Graphic {
    *
    * Any `padding` or `quality` set will be factored into the height
    */
-  public get height() {
+  public override get height() {
     return Math.abs(this._getTotalHeight() * this.scale.y);
   }
 
-  public set height(value: number) {
+  public override set height(value: number) {
     value /= Math.abs(this.scale.y);
     this._bitmap.height = value;
     this._originalHeight = value;
@@ -179,7 +179,7 @@ export abstract class Raster extends Graphic {
   /**
    * Returns the local bounds of the Raster including the padding
    */
-  public get localBounds() {
+  public override get localBounds() {
     return BoundingBox.fromDimension(this._getTotalWidth() * this.scale.x, this._getTotalHeight() * this.scale.y, Vector.Zero);
   }
 

@@ -23,6 +23,8 @@ export class Island {
   updateSleepState(elapsed: number) {
     let islandHasMotion = false;
     let allBodiesCanSleep = true;
+    let anyAwake = false;
+    let anySleeping = false;
 
     for (const body of this.bodies) {
       body.updateMotion(elapsed);
@@ -33,10 +35,17 @@ export class Island {
       if (body.canWakeUp) {
         islandHasMotion ||= true;
       }
+      if (body.isSleeping) {
+        anySleeping = true;
+      } else {
+        anyAwake = true;
+      }
     }
 
-    // Wake entire island if ANY body has motion
-    if (islandHasMotion) {
+    // Wake entire island if ANY body has motion, or if the island is only partially asleep.
+    // Bodies in an island share a sleep state, mixed islands would let awake bodies push into
+    // sleeping (never integrated) bodies
+    if (islandHasMotion || (anyAwake && anySleeping)) {
       this.wake();
 
       // Put entire island to sleep if ALL bodies are below threshold
@@ -47,7 +56,7 @@ export class Island {
       }
 
       // Only sleep if the ENTIRE island has been still long enough
-      if (minSleepTime > this.config.sleepTimeThreshold) {
+      if (minSleepTime > this!.config!.sleepTimeThreshold) {
         this.sleep();
       }
     }
@@ -63,7 +72,7 @@ export function buildContactIslands(config: BodyConfig, bodies: BodyComponent[],
       parent.set(body, body);
     }
     if (parent.get(body) !== body) {
-      parent.set(body, find(parent.get(body)));
+      parent.set(body, find(parent.get(body)!)!);
     }
     return parent.get(body);
   }
@@ -72,31 +81,31 @@ export function buildContactIslands(config: BodyConfig, bodies: BodyComponent[],
     const rootA = find(bodyA);
     const rootB = find(bodyB);
     if (rootA !== rootB) {
-      parent.set(rootA, rootB);
+      parent.set(rootA!, rootB!);
     }
   }
 
   const bodyToContacts = new Map<BodyComponent, CollisionContact[]>();
   // Connect bodies through contacts
   for (const contact of contacts) {
-    if (contact.bodyA.collisionType === CollisionType.Active && contact.bodyB.collisionType === CollisionType.Active) {
+    if (contact?.bodyA?.collisionType === CollisionType.Active && contact?.bodyB?.collisionType === CollisionType.Active) {
       union(contact.bodyA, contact.bodyB);
     }
 
-    if (!bodyToContacts.has(contact.bodyA)) {
-      bodyToContacts.set(contact.bodyA, []);
+    if (!bodyToContacts.has(contact.bodyA!)) {
+      bodyToContacts.set(contact.bodyA!, []);
     }
 
-    if (!bodyToContacts.has(contact.bodyB)) {
-      bodyToContacts.set(contact.bodyB, []);
+    if (!bodyToContacts.has(contact.bodyB!)) {
+      bodyToContacts.set(contact.bodyB!, []);
     }
 
-    if (contact.bodyA.collisionType === CollisionType.Active) {
-      bodyToContacts.get(contact.bodyA).push(contact);
+    if (contact?.bodyA?.collisionType === CollisionType.Active) {
+      bodyToContacts.get(contact.bodyA!)!.push(contact);
     }
 
-    if (contact.bodyB.collisionType === CollisionType.Active) {
-      bodyToContacts.get(contact.bodyB).push(contact);
+    if (contact?.bodyB?.collisionType === CollisionType.Active) {
+      bodyToContacts.get(contact.bodyB!)!.push(contact);
     }
   }
 
@@ -107,17 +116,17 @@ export function buildContactIslands(config: BodyConfig, bodies: BodyComponent[],
       continue;
     }
     const root = find(body);
-    if (!islandMap.has(root)) {
-      islandMap.set(root, []);
+    if (!islandMap.has(root!)) {
+      islandMap.set(root!, []);
     }
-    islandMap.get(root).push(body);
+    islandMap.get(root!)!.push(body);
   }
 
   return Array.from(islandMap.values()).map((bodies) => {
     const island = new Island(config);
     island.bodies = bodies;
     bodies.forEach((b) => (b.island = island));
-    island.contacts = Array.from(new Set(bodies.flatMap((b) => bodyToContacts.get(b))));
+    island.contacts = Array.from(new Set(bodies.flatMap((b) => bodyToContacts.get(b)!)));
     return island;
   });
 }

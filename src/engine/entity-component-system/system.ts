@@ -53,25 +53,33 @@ export abstract class System {
    * Optionally specify an initialize handler
    * @param scene
    */
-  initialize?(world: World, scene: Scene): void;
+  onInitialize?(world: World, scene: Scene): void;
+
+  /**
+   * Optionally specify a dispose handler, called when the system is removed from the
+   * {@apilink SystemManager} after having been initialized. Use it to release any resources the
+   * system provisioned in `initialize` (entities it added, observable subscriptions, etc.)
+   * @param scene
+   */
+  dispose?(world: World, scene: Scene): void;
 
   /**
    * Update all entities that match this system's types
    * @param elapsed Time in milliseconds
    */
-  abstract update(elapsed: number): void;
+  abstract onUpdate(elapsed: number): void;
 
   /**
    * Optionally run a preupdate before the system processes matching entities
    * @param scene
    * @param elapsed Time in milliseconds since the last frame
    */
-  preupdate?(scene: Scene, elapsed: number): void;
+  onPreUpdate?(scene: Scene, elapsed: number): void;
 
   /**
    * Optionally run a postupdate after the system processes matching entities
    * @param scene
    * @param elapsed Time in milliseconds since the last frame
    */
-  postupdate?(scene: Scene, elapsed: number): void;
+  onPostUpdate?(scene: Scene, elapsed: number): void;
 }

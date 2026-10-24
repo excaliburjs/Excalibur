@@ -31,7 +31,7 @@ export class ArcadeSolver implements CollisionSolver {
 
     // Locate collision bias order
     let bias: ContactBias;
-    switch (this.config.contactSolveBias) {
+    switch (this.config!.contactSolveBias) {
       case ContactSolveBias.HorizontalFirst: {
         bias = HorizontalFirst;
         break;
@@ -49,10 +49,10 @@ export class ArcadeSolver implements CollisionSolver {
     // Sort contacts by distance to avoid artifacts with seams
     // It's important to solve in a specific order
     contacts.sort((a, b) => {
-      const aDir = this.directionMap.get(a.id);
-      const bDir = this.directionMap.get(b.id);
-      const aDist = this.distanceMap.get(a.id);
-      const bDist = this.distanceMap.get(b.id);
+      const aDir = this.directionMap.get(a.id)!;
+      const bDir = this.directionMap.get(b.id)!;
+      const aDist = this.distanceMap.get(a.id)!;
+      const bDist = this.distanceMap.get(b.id)!;
       return bias[aDir] - bias[bDir] || aDist - bDist;
     });
 

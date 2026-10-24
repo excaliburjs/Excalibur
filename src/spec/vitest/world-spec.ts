@@ -9,7 +9,7 @@ class FakeSystem extends ex.System {
     super();
     this.query = world.query([FakeComponent]);
   }
-  public update() {
+  public onUpdate() {
     // nothing
   }
 }

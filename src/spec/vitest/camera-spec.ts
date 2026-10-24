@@ -427,8 +427,8 @@ describe('A camera', () => {
 
   it('can lerp over time', () =>
     new Promise<void>((done) => {
-      engine.currentScene.camera.move(new ex.Vector(100, 100), 1000, ex.EasingFunctions.EaseOutCubic).then(() => {
-        engine.currentScene.camera.move(new ex.Vector(200, 200), 1000, ex.EasingFunctions.Linear).then(() => {
+      engine.currentScene.camera.move(new ex.Vector(100, 100), 1000, ex.easeOutCubic).then(() => {
+        engine.currentScene.camera.move(new ex.Vector(200, 200), 1000, ex.linear).then(() => {
           expect(engine.currentScene.camera.pos.x).toBe(200);
           expect(engine.currentScene.camera.pos.y).toBe(200);
           done();

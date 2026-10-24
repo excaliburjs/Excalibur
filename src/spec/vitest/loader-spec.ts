@@ -286,13 +286,52 @@ describe('A loader', () => {
 
     const oldPos = [loader.playButtonRootElement.style.left, loader.playButtonRootElement.style.top];
 
-    engine.screen.viewport = { width: 100, height: 100 };
+    const originalGetBoundingClientRect = engine.canvas.getBoundingClientRect;
+    engine.canvas.getBoundingClientRect = () => ({
+      x: 0,
+      y: 0,
+      width: 500,
+      height: 500,
+      top: 0,
+      left: 0,
+      right: 500,
+      bottom: 500,
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      toJSON: () => {}
+    });
 
     engine.browser.window.nativeComponent.dispatchEvent(new Event('resize'));
 
     const newPos = [loader.playButtonRootElement.style.left, loader.playButtonRootElement.style.top];
 
+    engine.canvas.getBoundingClientRect = originalGetBoundingClientRect;
+
     expect(oldPos).not.toEqual(newPos);
+  });
+
+  it('does not clobber the Screen resize handler during the play-button flow (resize still works after)', () => {
+    engine.dispose();
+    engine = null;
+    engine = new ex.Engine({ width: 1000, height: 1000, displayMode: ex.DisplayMode.FitScreen });
+    const loader = new ex.Loader([, , , ,]);
+    loader.onInitialize(engine);
+    loader.markResourceComplete();
+    loader.markResourceComplete();
+    loader.markResourceComplete();
+    loader.markResourceComplete();
+    loader.showPlayButton();
+
+    (loader.playButtonElement as unknown as HTMLButtonElement).click();
+
+    const resizeSpy = vi.fn();
+    engine.screen.events.on('resize', resizeSpy);
+
+    Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1600 });
+    Object.defineProperty(window, 'innerHeight', { writable: true, configurable: true, value: 1200 });
+    engine.browser.window.nativeComponent.dispatchEvent(new Event('resize'));
+
+    expect(resizeSpy).toHaveBeenCalled();
+    expect(engine.screen.viewport.width).toBeGreaterThan(1000);
   });
 
   it('should not load more than once when added to the engine and scene', async () => {

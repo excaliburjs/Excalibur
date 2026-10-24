@@ -6,7 +6,8 @@ const game = new ex.Engine({
     canvasElementId: 'preview-canvas',
     displayMode: ex.DisplayMode.FitContainer,
     width: 600,
-    height: 400
+    height: 400,
+    suppressConsoleBootMessage: true,
 });
 
 const a = new ex.Actor({
@@ -18,4 +19,5 @@ const a = new ex.Actor({
 
 game.add(a);
 game.start();
-`;
+
+`.trim();

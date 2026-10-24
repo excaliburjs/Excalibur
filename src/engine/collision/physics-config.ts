@@ -236,6 +236,14 @@ export interface PhysicsConfig {
      * Default true
      */
     warmStart?: boolean;
+
+    /**
+     * Largest single position correction allowed per position iteration, in pixels. Prevents large overlaps
+     * from causing a single too-large correction (popping)
+     *
+     * Default -5
+     */
+    maxPositionCorrection?: number;
   };
 }
 
@@ -282,6 +290,7 @@ export const getDefaultPhysicsConfig: () => DeepRequired<PhysicsConfig> = () => 
     velocityIterations: 8,
     slop: 1,
     steeringFactor: 0.2,
-    warmStart: true
+    warmStart: true,
+    maxPositionCorrection: -5
   }
 });

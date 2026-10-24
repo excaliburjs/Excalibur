@@ -28,8 +28,8 @@ const material = actor.graphics.material = game.graphicsContext.createMaterial({
 
 game.input.pointers.primary.on('move', evt => {
   actor.pos = evt.worldPos;
-  material.update(shader => {
-    shader.trySetUniformFloatVector('iMouse', evt.worldPos);
+  material.update(context => {
+    context.uniforms.iMouse = evt.worldPos;
   });
 });
 

@@ -6,7 +6,7 @@ import type { SpriteFont } from './graphics';
 import { GraphicsComponent } from './graphics';
 import { Font } from './graphics/font';
 import { Actor } from './actor';
-import type { ActorArgs } from './actor';
+import type { ActorOptions } from './actor';
 
 /**
  * Option for creating a label
@@ -77,7 +77,7 @@ export class Label extends Actor {
   }
 
   public override get color(): Color {
-    return this._text.color;
+    return this._text.color!;
   }
 
   public override set color(color: Color) {
@@ -94,7 +94,7 @@ export class Label extends Actor {
     this.graphics.opacity = opacity;
   }
 
-  private _spriteFont: SpriteFont;
+  private _spriteFont!: SpriteFont;
   /**
    * The {@apilink SpriteFont} to use, if any. Overrides {@apilink Font | `font`} if present.
    */
@@ -113,9 +113,9 @@ export class Label extends Actor {
    * Build a new label
    * @param options
    */
-  constructor(options?: LabelOptions & ActorArgs) {
+  constructor(options?: LabelOptions & ActorOptions) {
     super(options);
-    const { text, pos, x, y, spriteFont, font, color, maxWidth } = { text: '', ...options };
+    const { text, pos, x, y, spriteFont, font, color, maxWidth } = { text: '', ...options! };
 
     this.pos = pos ?? (x && y ? vec(x, y) : this.pos);
     this.text = text ?? this.text;
@@ -128,7 +128,7 @@ export class Label extends Actor {
     gfx.use(this._text);
   }
 
-  public _initialize(engine: Engine) {
+  public override _initialize(engine: Engine) {
     super._initialize(engine);
   }
 

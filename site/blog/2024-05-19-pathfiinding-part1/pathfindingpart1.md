@@ -2,7 +2,7 @@
 slug: Pathfinding Algorithms Part 1
 title: Pathfinding Part 1 with Dijkstra's Algorithm
 authors: [justin]
-tags: [dijkstra pathfinding graph]
+tags: [dijkstra, pathfinding, graph]
 ---
 
 One of the most common problems that need solved in game development is navigating from one tile to a separate tile somewhere else. Or

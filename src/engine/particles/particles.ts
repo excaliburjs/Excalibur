@@ -61,7 +61,7 @@ export class Particle extends Entity {
   public paused: PauseComponent = new PauseComponent({ canPause: true });
   public particleTransform = ParticleTransform.Global;
 
-  public name = `Particle#${this.id}`;
+  public override name = `Particle#${this.id}`;
 
   constructor(options: ParticleConfig) {
     super();
@@ -73,6 +73,7 @@ export class Particle extends Entity {
   }
 
   private _emitter?: ParticleEmitter;
+  private _isDead = false;
   registerEmitter(emitter: ParticleEmitter) {
     this._emitter = emitter;
     if (this.particleTransform === ParticleTransform.Global) {
@@ -116,7 +117,7 @@ export class Particle extends Entity {
     }
     if (this.graphic) {
       this.graphics.use(this.graphic);
-      this.graphics.onPostDraw = undefined;
+      this.graphics.onPostDraw = null;
     } else {
       this.graphics.localBounds = BoundingBox.fromDimension(this.size, this.size, Vector.Half);
       this.graphics.onPostDraw = (ctx) => {
@@ -129,6 +130,10 @@ export class Particle extends Entity {
   }
 
   public override kill() {
+    if (this._isDead) {
+      return;
+    }
+    this._isDead = true;
     if (this._emitter?.isActive) {
       this._emitter.removeParticle(this);
     } else {
@@ -136,7 +141,7 @@ export class Particle extends Entity {
     }
   }
 
-  public update(engine: Engine, elapsed: number) {
+  public override update(engine: Engine, elapsed: number) {
     this.life = this.life - elapsed;
 
     if (this.life < 0) {
@@ -300,7 +305,7 @@ export enum ParticleTransform {
   Local = 'local'
 }
 
-export interface ParticleEmitterArgs {
+export interface ParticleEmitterOptions {
   particle?: ParticleConfig;
   x?: number;
   y?: number;
@@ -328,3 +333,8 @@ export interface ParticleEmitterArgs {
   radius?: number;
   random?: Random;
 }
+
+/**
+ * @deprecated use ParticleEmitterOptions
+ */
+export type ParticleEmitterArgs = ParticleEmitterOptions;

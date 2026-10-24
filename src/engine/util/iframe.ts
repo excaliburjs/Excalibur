@@ -14,8 +14,8 @@ export function isCrossOriginIframe() {
     const noop = () => {
       return;
     };
-    window.top.addEventListener('blur', noop);
-    window.top.removeEventListener('blur', noop);
+    window.top!.addEventListener('blur', noop);
+    window.top!.removeEventListener('blur', noop);
   } catch {
     return true;
   }
@@ -38,7 +38,7 @@ export function getDefaultGlobal(): GlobalEventHandlers {
     global = window;
     Logger.getInstance().warnOnce('Excalibur might be in a iframe, in order to receive keyboard events it must be in focus');
   } else {
-    global = window.top;
+    global = window.top!;
   }
 
   return global;

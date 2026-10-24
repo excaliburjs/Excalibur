@@ -5,7 +5,7 @@ import { Random } from '../math/random';
 import { CollisionType } from '../collision/collision-type';
 import { randomInRange } from '../math/util';
 import { EmitterType } from './emitter-type';
-import type { ParticleEmitterArgs, ParticleConfig } from './particles';
+import type { ParticleConfig, ParticleEmitterOptions } from './particles';
 import { Particle, ParticleTransform } from './particles';
 import { RentalPool } from '../util/rental-pool';
 
@@ -74,7 +74,7 @@ export class ParticleEmitter extends Actor {
   /**
    * @param config particle emitter options bag
    */
-  constructor(config: ParticleEmitterArgs) {
+  constructor(config: ParticleEmitterOptions) {
     super({ width: config.width ?? 0, height: config.height ?? 0 });
 
     const { particle, x, y, z, pos, isEmitting, emitRate, emitterType, radius, random } = { ...config };
@@ -177,7 +177,7 @@ export class ParticleEmitter extends Actor {
     return p;
   }
 
-  public update(engine: Engine, elapsed: number) {
+  public override update(engine: Engine, elapsed: number) {
     super.update(engine, elapsed);
 
     if (this.isEmitting) {
@@ -190,11 +190,15 @@ export class ParticleEmitter extends Actor {
 
     // deferred removal
     for (let i = 0; i < this.deadParticles.length; i++) {
+      const p = this.deadParticles[i];
       if (this?.scene?.world) {
-        this.scene.world.remove(this.deadParticles[i], false);
-        this._particlePool.return(this.deadParticles[i]);
+        if (p.particleTransform === ParticleTransform.Local) {
+          this.removeChild(p);
+        }
+        this.scene.world.remove(p, false);
+        this._particlePool.return(p);
       }
-      const index = this._activeParticles.indexOf(this.deadParticles[i]);
+      const index = this._activeParticles.indexOf(p);
       if (index > -1) {
         this._activeParticles.splice(index, 1);
       }

@@ -17,7 +17,7 @@ class FakeSystemPriority1 extends ex.System {
     super();
     this.query = this.world.query(types);
   }
-  update(elapsedMs: number): void {
+  onUpdate(elapsedMs: number): void {
     // fake
   }
 }
@@ -34,7 +34,7 @@ class FakeSystemPriority2 extends ex.System {
     super();
     this.query = this.world.query(types);
   }
-  update(elapsedMs: number): void {
+  onUpdate(elapsedMs: number): void {
     // fake
   }
 }
@@ -51,7 +51,7 @@ class FakeSystemPriority3 extends ex.System {
     super();
     this.query = this.world.query(types);
   }
-  update(elapsedMs: number): void {
+  onUpdate(elapsedMs: number): void {
     // fake
   }
 }
@@ -104,16 +104,16 @@ describe('A SystemManager', () => {
     const world = new ex.World(null);
     const sm = world.systemManager;
     const system = new FakeSystemPriority2(world, 'System3', [FakeComponentC], SystemType.Update);
-    system.preupdate = () => {}; // eslint-disable-line @typescript-eslint/no-empty-function
-    system.postupdate = () => {}; // eslint-disable-line @typescript-eslint/no-empty-function
-    vi.spyOn(system, 'preupdate');
-    vi.spyOn(system, 'postupdate');
-    vi.spyOn(system, 'update');
+    system.onPreUpdate = () => {}; // eslint-disable-line @typescript-eslint/no-empty-function
+    system.onPostUpdate = () => {}; // eslint-disable-line @typescript-eslint/no-empty-function
+    vi.spyOn(system, 'onPreUpdate');
+    vi.spyOn(system, 'onPostUpdate');
+    vi.spyOn(system, 'onUpdate');
     sm.addSystem(system);
     sm.updateSystems(SystemType.Update, null, 10);
-    expect(system.preupdate).toHaveBeenCalledTimes(1);
-    expect(system.update).toHaveBeenCalledTimes(1);
-    expect(system.postupdate).toHaveBeenCalledTimes(1);
+    expect(system.onPreUpdate).toHaveBeenCalledTimes(1);
+    expect(system.onUpdate).toHaveBeenCalledTimes(1);
+    expect(system.onPostUpdate).toHaveBeenCalledTimes(1);
   });
 
   it('can update systems with the correct entities', () => {
@@ -122,7 +122,7 @@ describe('A SystemManager', () => {
     const qm = world.queryManager;
     const em = world.entityManager;
     const system = new FakeSystemPriority2(world, 'System3', [FakeComponentA, FakeComponentC], SystemType.Update);
-    vi.spyOn(system, 'update');
+    vi.spyOn(system, 'onUpdate');
     sm.addSystem(system);
 
     const e1 = new ex.Entity();
@@ -145,7 +145,7 @@ describe('A SystemManager', () => {
 
     sm.updateSystems(SystemType.Update, null, 10);
 
-    expect(system.update).toHaveBeenCalledWith(10);
+    expect(system.onUpdate).toHaveBeenCalledWith(10);
   });
 
   it('only updates system of the specified system type', () => {
@@ -154,15 +154,15 @@ describe('A SystemManager', () => {
     const qm = world.queryManager;
     const em = world.entityManager;
     const system1 = new FakeSystemPriority2(world, 'System1', [FakeComponentA, FakeComponentC], SystemType.Update);
-    vi.spyOn(system1, 'update');
+    vi.spyOn(system1, 'onUpdate');
     sm.addSystem(system1);
     const system2 = new FakeSystemPriority2(world, 'System1', [FakeComponentA, FakeComponentC], SystemType.Draw);
-    vi.spyOn(system2, 'update');
+    vi.spyOn(system2, 'onUpdate');
     sm.addSystem(system2);
 
     sm.updateSystems(SystemType.Draw, null, 10);
 
-    expect(system1.update).not.toHaveBeenCalled();
-    expect(system2.update).toHaveBeenCalledWith(10);
+    expect(system1.onUpdate).not.toHaveBeenCalled();
+    expect(system2.onUpdate).toHaveBeenCalledWith(10);
   });
 });

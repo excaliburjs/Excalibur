@@ -34,7 +34,7 @@ export class KeyboardControlSystem extends System {
     this.query = world.query([PlayerMovementComponent, MotionComponent]);
   }
 
-   update() {
+  onUpdate() {
     for (const entity of this.query.entities) {
       // get your components
       const keyboardControl = entity.get(PlayerMovementComponent);

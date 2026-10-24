@@ -15,3 +15,5 @@ export * from './util';
 export * from './rotation-type';
 export * from './graph';
 export * from './easings';
+export * from './vector3';
+export * from './vector4';

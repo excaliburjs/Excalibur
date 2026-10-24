@@ -10,22 +10,22 @@ export class WatchVector extends Vector {
   ) {
     super(original.x, original.y);
   }
-  public get x() {
+  public override get x() {
     return (this._x = this.original.x);
   }
 
-  public set x(newX: number) {
+  public override set x(newX: number) {
     if (newX !== this._x) {
       this.change(newX, this._y);
       this._x = this.original.x = newX;
     }
   }
 
-  public get y() {
+  public override get y() {
     return (this._y = this.original.y);
   }
 
-  public set y(newY: number) {
+  public override set y(newY: number) {
     if (newY !== this._y) {
       this.change(this._x, newY);
       this._y = this.original.y = newY;

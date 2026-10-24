@@ -294,6 +294,13 @@ export class PointerEventsToObjectDispatcher<TObject extends { events: EventEmit
     // cancel
     for (const event of receiver.currentFrameCancel) {
       if (event.active && object.active() && this._objectCurrentlyUnderPointer(object, event.pointerId)) {
+        object.events.emit('pointerleave', event as any);
+        if (receiver.isDragging(event.pointerId)) {
+          object.events.emit('pointerdragleave', event as any);
+        }
+        if (receiver.isDragEnd(event.pointerId)) {
+          object.events.emit('pointerdragend', event as any);
+        }
         object.events.emit('pointercancel', event as any);
       }
     }

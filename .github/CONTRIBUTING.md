@@ -20,6 +20,7 @@ Have questions? Ask them in our [forum]!
   - [Code](#code)
   - [Commit Messages](#commit-messages)
   - [Tests](#tests)
+  - [Benchmarks](#benchmarks)
   - [Documentation](#documentation)
 - [Issue Labels](#issue-labels)
 
@@ -186,6 +187,10 @@ describe('a monkey', () => {
   });
 });
 ```
+
+### Benchmarks
+
+Every pull request runs an informational performance comparison of its build against the latest published release (the `Benchmark` workflow). The results are posted as a single comment on the PR, updated on every run: per test, the median and p95 frame time for the baseline and for your build, with the relative change. Rows more than 20% slower are flagged ⚠️, rows more than 20% faster 🚀. Shared CI runners are noisy and have no GPU, so treat the numbers as a hint and look for changes that persist across runs; per-frame charts and the full error text are in the run's job summary and `benchmark-results` artifact. Collaborators can comment `/benchmark` on a PR to re-run it.
 
 ### Visual Examples
 

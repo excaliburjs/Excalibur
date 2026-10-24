@@ -7,34 +7,168 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- Sound: the audio implementation abstraction has been removed and Web Audio is the only implementation. `ex.WebAudioInstance` is replaced by `ex.SoundTrack` (returned by `Sound.instances` and `NativeSoundEvent.track`), and the `ex.Audio`, `ex.AudioImplementation`, `ex.ExResponse`, `ex.ExResponseType` and `ex.ExResponseTypesLookup` exports are gone (pass the response type string to `new ex.Resource(path, 'arraybuffer')` instead). Per-track volume moved to the owning `Sound`, so `SoundTrack` has no `volume`.
+- `Sound.play()` always starts a new track and never changes the Sound's configuration. Previously `play()` resumed paused tracks, and `play(volume)`/`play({ volume })` permanently set `Sound.volume`. Use the new `Sound.resume()` to continue paused (or seeked) tracks, and `play({ volume, pitch, playbackRate, loop, position, duration, scheduledStartTime, onPlay })` for one-off overrides that apply to that track only (`volume` multiplies `Sound.volume`). `play(volume: number)` still works as a one-off volume but is deprecated. The unused `Sound.scheduledStartTime` property is removed, use the play option. The `onPlay` hook's `source` is now the track's per-play volume gain (an `AudioNode`); the buffer source is available as `bufferSource` for param automation.
+- `SoundManager.play(name, volume)` is now `play(name, options?)` taking the same `PlayOptions`, and `SoundConfig.channels` (a list) is now a single `channel`.
+- `SoundManager` is now a real Web Audio mixer (`Sound.output → mix gain → SoundChannel → SoundManager.output → speakers`) instead of multiplying volumes into `Sound.volume` on each play:
+  - A sound routes through a single `channel` (`SoundConfig.channel`, `SoundManager.setChannel()`) rather than a list of `channels`; `addChannel()`/`removeChannel()` are removed. Channel volume and mute apply to the whole channel via `SoundChannel` (`manager.getChannel('music')`, `manager.channel.setVolume/mute/...`).
+  - `SoundManager.volume` is the master volume (`defaultVolume` is removed) and `play(name, volume)` passes `volume` through to `Sound.play()` untouched; `setVolume`/`getVolume` read and write the sound's mix gain and never write `Sound.volume`.
+  - Muting (sound, channel or master) silences playback instead of pausing it, so muted sounds still play and are audible mid-clip when unmuted. `mute()`/`unmute()`/`toggle()` with no argument act on the master output.
+  - `SoundManager.play()` and `SoundManager.channel.play()` resolve to a `boolean` (false when the sound was unknown or dropped by a concurrency cap) instead of `void`. `ChannelCollection` is constructed with only the manager, and the quasi-internal `_muted`, `_isMuted()`, `_getEffectiveVolume()` and `_activeTrackCount()` members are replaced by `isMuted()` and `playingCount()`.
+- Behavior change - Excalibur screen space is now consistently rooted at the top-left of the safe content area (`Screen.contentArea`) across the whole API. Previously the clipping display modes (`FitScreenAndFill`, `FitContainerAndFill`, `FitScreenAndZoom`, `FitContainerAndZoom`) disagreed about where screen space started: `CoordPlane.Screen` entities and pointer events were rooted at the content area's corner, but `Screen.worldToScreenCoordinates` returned raw canvas/resolution coordinates and `Screen.contentArea.left/top` carried the canvas-space inset. Every API now shares the single content-area-rooted definition, which fixes several pointer, transition, and `unsafeArea` bugs in the clipping display modes, but is a breaking change for code that relied on the old canvas-rooted values:
+  - `Screen.worldToScreenCoordinates(point)` now returns coordinates rooted at the content area (previously the raw camera projection in canvas/resolution coordinates). `Screen.screenToWorldCoordinates` is the exact inverse, as before.
+  - `Screen.contentArea` is now always rooted at `(0, 0)`, and `Screen.unsafeArea.topLeft` is negative by the clip amount. The canvas-space inset that `contentArea.left/top` used to carry is available from the new `Screen.contentAreaOffset`.
+  - Display modes that never clip (`Fixed`, `FitScreen`, `FillScreen`, `FitContainer`, `FillContainer`) have a `(0, 0)` offset and are unaffected.
+
+  If you need the old canvas-rooted values, for example to position an HTML overlay over the canvas, shim them by adding `Screen.contentAreaOffset` back:
+
+  ```typescript
+  // Before: worldToScreenCoordinates returned canvas coordinates
+  const canvasPos = engine.screen.worldToScreenCoordinates(actor.pos).add(engine.screen.contentAreaOffset);
+
+  // Before: contentArea.topLeft was the safe area corner in canvas coordinates
+  const safeAreaCorner = engine.screen.contentAreaOffset.clone();
+  ```
+- Behavior change - `rotateBy({angleRadiansOffset, duration})` with no `rotationType` now rotates by exactly the signed offset provided, preserving full and multiple turns, instead of taking the shortest path to the canonicalized target orientation. Offsets larger than `Math.PI` now travel in the direction of their sign (previously they rotated the shorter way around), and `2 * Math.PI` performs a full revolution (previously a no-op). Pass an explicit `rotationType` to keep path-based behavior
 - Behavior change - TileMap now uses 'separate' as the `compositeStrategy` as a better default. Commonly TileMap is used to build levels, so this default aligns with the common use.
+- Removed old legacy `ex.EasingFunctions` in favor of the [0, 1] common easing functions 
+- Removed EaseTo/EaseBy/actor.actions.(easeTo|easeBy) Action in favor of MoveTo/MoveBy/actor.actions.(moveTo|moveBy) Action with easing support
+- Removed `body.sleeping` in favor of `isSleeping`
+- Removed `entity.active` in favor of `isActive`
+- Removed `actor.getGlobalPos()` in favor of `actor.globalPos` getter/setter
+- Removed `actor.getGlobalRotation()` in favor of `actor.globalRotation` getter/setter
+- Removed `actor.getGlobalScale()` in favor of `actor.globalScale` getter/setter
+- Removed `BoundingBox.draw` in favor of `BoundingBox.debug`
+- Removed typo in `engine.isFullScreen` now `engine.isFullscreen`
+- Removed unused `tag-query.ts`
+- Removed `world.queryTags`, `world.query(...)` can query tags
+- Removed `Animation.durationPerFrameMs` in favor of `Animation.durationPerFrame`
+- Removed `Vector.size` in favor of `Vector.magnitude`
 - Behavior change - Font/Text now render more accurately and faster be using less texture space, this unfortunately is a breaking change becuase text will render slightly different.
+- Breaking change - `Material.update()` now passes a `MaterialContext` to its callback instead of the composite `Shader`. The context carries the material's declarative `uniforms` dictionary (the recommended way to change values — they reach the composite shader and are forwarded to every pipeline pass), plus `shaders`/`shadersByName` for direct access to every compiled shader the material drives. Update code like `material.update(shader => shader.trySetUniformFloatVector('iMouse', pos))` to `material.update(context => context.uniforms.iMouse = pos)`
+- Build: Docusaurus now throws the build on broken markdown links, broken anchors, and broken markdown images instead of warning. Any custom docs/blog content must have valid internal links, anchors, and images.
+- Build: The engine `tsconfig.json` now uses `module: "esnext"` with `moduleResolution: "bundler"` (previously `module: "es2015"` / `moduleResolution: "node"`), and `downlevelIteration` has been removed. The per-package `tsconfig.json` overrides in `director`, `entity-component-system`, `graphics`, and `resources` have been removed in favor of the single engine `tsconfig.json`. Consumers importing source directly may need bundler-compatible tooling.
+- Build: TypeDoc runner has been replaced by `site/scripts/gen-typedoc-api.mjs`.
 
 ### Deprecated
 
-- 
+- `ex.Pool` renamed to `ex.ArenaPool`
 
 ### Added
 
-- Added `shouldAlwaysTick` option to `Animation`, `GraphicsGroup`, and `GraphicsComponent` to allow animations to continue ticking even when offscreen. This is useful for keeping animations synchronized across your game scene without causing performance regressions in the default case.
+- Sounds expose their Web Audio graph through an `onPlay` hook (`new ex.Sound({ paths, onPlay })`, `sound.onPlay = ...`, or per play with `sound.play({ onPlay })`). The hook receives `{ audioContext, source, destination, track }` each time a track (re)starts and wires `source` to `destination` through any nodes it likes, enabling spatial audio, filters, reverb, analysers and other custom effects:
+
   ```typescript
-  // Per-animation opt-in
-  const anim = new ex.Animation({
-    frames: [...],
-    shouldAlwaysTick: true
-  });
-
-  // Per-component opt-in
-  actor.graphics = new ex.GraphicsComponent({
-    shouldAlwaysTick: true
-  });
-
-  // Per-graphics-group opt-in
-  const group = new ex.GraphicsGroup({
-    members: [...],
-    shouldAlwaysTick: true
+  const sound = new ex.Sound({
+    paths: ['/sfx/explosion.ogg'],
+    onPlay: ({ audioContext, source, destination }) => {
+      const panner = audioContext.createPanner();
+      panner.positionX.value = 10;
+      source.connect(panner).connect(destination);
+    }
   });
   ```
+- `Sound.pitch` (and `sound.play({ pitch })`) shifts pitch in cents via `AudioBufferSourceNode.detune`.
+- `Sound.maxConcurrentTracks` and `SoundManager.maxConcurrentTracks` cap the number of simultaneously playing tracks, dropping new plays (which resolve to `false`) once reached. `Sound.playingCount()` and `SoundManager.playingCount()` report the current number.
+- `Sound.start(options?)` plays like `play()` but returns the `SoundTrack` synchronously (or `null` if dropped) so a single playback can be stopped, seeked or adjusted; `track.done` resolves when it finishes. `SoundManager.start(name, options?)` does the same for managed sounds, and every `SoundTrack` has a `volume` and a monotonically increasing `id`.
+- `SoundManager` channels can be configured with `{ name, volume, maxConcurrentTracks, onConnect }` in `channels`, adding a per-channel cap on simultaneously playing tracks alongside the manager-wide `maxConcurrentTracks`. With `voiceStealing: true` a cap stops the oldest playing track in that scope instead of dropping the new play.
+- `onConnect` lifecycle hooks on `SoundManager` options and channel configs receive `{ audioContext, input, output }` when the bus is created, to insert effects for a whole channel or the master output (for example a compressor), and `SoundManager.input` exposes the master bus input.
+- `SoundManager` is `Loadable`: `loader.addResource(manager)` loads (and wires to the engine) every sound it manages, including sounds tracked later.
+- `SoundChannel` exposes its `input` and `output` gain nodes so effects can be inserted for a whole channel, and `Sound.output` exposes the sound's own gain node for custom routing:
+
+  ```typescript
+  const music = manager.getChannel('music');
+  const muffle = music.audioContext.createBiquadFilter();
+  muffle.type = 'lowpass';
+  music.input.disconnect();
+  music.input.connect(muffle).connect(music.output);
+  ```
+- `Sound.name` (an explicit `name` option) is the default key when a sound is registered with a `SoundManager`, so `sounds` accepts an array of `Sound`/`SoundConfig` as well as the record form, and `track(sound)`/`track(config)` work without a name. 
+- Added an optional `System.dispose(world, scene)` lifecycle hook, called by the `SystemManager` when a system is removed after having been initialized — use it to release resources the system provisioned in `initialize` (entities it added, observable subscriptions, etc.). The `LightingSystem` uses it to remove its provisioned overlay and unsubscribe its component queries when lighting is disabled at runtime
+- Added multipass **shader pipelines** for composing shader effects that need more than one pass (blur, bloom, glow), built on an explicit source→destination dataflow with no hidden bind state:
+  - New `ex.Framebuffer` and `ex.MultisampleFramebuffer` primitives that are both a render destination and a texture source (`framebuffer.texture`, `framebuffer.glFramebuffer`, `framebuffer.texelSize`), with `resize()`, `clear()`, and `dispose()`. These replace the internal (never exported) `RenderTarget`/`RenderSource` classes inside the WebGL context. Reading a `MultisampleFramebuffer.texture` resolves the MSAA samples automatically.
+  - New `ex.ShaderPass`: applies a fragment shader to an image, framebuffer, or texture and produces a new image — the building block for custom effects. `pass.draw(source, destination)` for the simple case, or `pass.draw({ sources: { u_smaller: quarterResolution, u_larger: halfResolution }, destination, uniforms })` for multiple named sampler sources and per-draw uniforms. Convention uniforms are provided (`u_image`, `u_resolution`, `u_texelSize`, `u_time_ms`, `u_elapsed_ms`) and fragments are authored with the `glsl` tag's straight-alpha conventions.
+  - New `ex.ShaderPipeline` linear chain (`source → pass0 → pass1 → ... → destination`) with per-pass `scale` for downsample/upsample and `u_original` bound for composite passes. Any object implementing `ex.ShaderPipelineLike` (`process(source, destination)`) can be used instead for custom non-linear graphs.
+  - `ex.Material` can now run multipass pipelines, with `MaterialOptions` typed as a union so only valid combinations compile:
+    - `fragmentSource` only — single-pass custom shading of the graphic, exactly as before
+    - `passes` only — run a multipass effect (fragment strings, `ShaderPass`es, or an effect object like `BloomEffect`) on the graphic offscreen; a default passthrough composite draws the result
+    - `passes` + `fragmentSource` — the fragment shader becomes the **final composite**: it draws the pipeline's output (bound as `u_graphic`) on screen, which is where screen-space work like `u_screen_texture` belongs
+    - `padding` (with `passes`) — extra transparent source pixels around the graphic so blur/glow halos are not clipped to the quad
+    - the material's custom `uniforms` and built-ins (`u_opacity`, `u_color`, `u_graphic_resolution`, `u_size`) are forwarded to every pass
+  - `ex.PostProcessor` is now built around a single `process(source, destination)` hook (`initialize` is optional, so `ShaderPipelineLike` effect objects can be added with `addPostProcessor` directly); the legacy `getShader`/`getLayout` single-pass path still works but is deprecated for removal in v1. `ex.ShaderPipelinePostProcessor` builds a fullscreen post processor from `passes` (mirroring `Material`: a list of fragment sources/`ShaderPass`es, or a `ShaderPipelineLike` effect), chaining with other post processors in order. `ColorBlindnessPostProcessor` is now implemented on `ShaderPass` internally.
+  - New built-in effects usable per-graphic or fullscreen, each a `ShaderPipelineLike` object with live-tunable settings:
+    - `ex.BlurEffect({ graphicsContext, scale, strength })` — separable gaussian blur, animate `blur.strength` any time
+    - `ex.GlowEffect({ graphicsContext, color, scale, strength, intensity })` — outer glow: the graphic's silhouette is tinted, blurred, and composited back under the original (pair with `Material` `padding` so the halo has room); `color`/`strength`/`intensity` are live properties
+    - `ex.BloomEffect({ graphicsContext, threshold, intensity, levels })` — progressive downsample/upsample ladder bloom implemented as a custom pass graph, with live-tunable `threshold`/`intensity`
+    - The underlying pass factories `ex.createBlurPasses(...)`/`ex.createGlowPasses(...)` are also exported for splicing into custom pass chains
+
+  ```typescript
+  const blur = new ex.BlurEffect({ graphicsContext, strength: 2 });
+  actor.graphics.material = new ex.Material({
+    graphicsContext,
+    passes: blur,
+    padding: 16 // blur can bleed 16px outside the sprite without clipping
+  });
+  blur.strength = 4; // live-tunable any time
+
+  // fullscreen: effects can be added as post processors directly
+  game.graphicsContext.addPostProcessor(new ex.BloomEffect({ graphicsContext, threshold: 0.6 }));
+  ```
+
+- Added an opt-in 2D lighting simulation, enabled with the new `lighting: true` engine option (default `false`). When enabled every scene gets a `FlickerSystem` and `LightingSystem` that render darkness veils, point/cone lights with flicker, and occluder shadows via the new `DarknessComponent`, `PointLightComponent`, `ConeLightComponent`, and `LightOccluderComponent` components. The overlay is rasterized with the 2D Canvas API and re-uploaded to the GPU every frame, which carries a performance penalty — this is why the feature is off by default. The systems can also be added manually to individual scenes with `scene.world.add(new ex.LightingSystem())` without enabling the engine option.
+
+  ```typescript
+  const game = new ex.Engine({ lighting: true });
+  const lamp = new ex.Actor({ pos: ex.vec(100, 100) });
+  lamp.addComponent(new ex.PointLightComponent({ color: ex.Color.fromRGB(255, 200, 80), radius: 200 }));
+  ```
+
+  Pass a `LightingConfig` object instead of `true` to tune the simulation's defaults — including the ambient brightness floor/color assumed everywhere a scene has no explicit `DarknessComponent` override:
+
+  ```typescript
+  const game = new ex.Engine({
+    lighting: {
+      enabled: true,
+      zIndex: 100, // z-index of the lighting overlay
+      cullPadding: 64, // world-pixel padding around the camera frustum when culling lights/occluders
+      ambientIntensity: 0.1, // ambient brightness floor (0.0 to 1.0)
+      ambientColor: ex.Color.fromRGB(60, 60, 200), // tints the darkness veil toward this color
+      tintAlphaFactor: 0.35, // fraction of a light's intensity used for its colored tint
+      shadowNearOpacity: 0.92, // occluder shadow opacity at the occluder's edge
+      shadowMidOpacity: 0.6 // occluder shadow opacity at 40% of the shadow's reach
+    }
+  });
+  ```
+
+  Any entity with a collider-like shape can cast a dynamic shadow by adding a `LightOccluderComponent`:
+
+  ```typescript
+  const crate = new ex.Actor({ pos: ex.vec(300, 200), width: 40, height: 40 });
+  crate.addComponent(new ex.LightOccluderComponent({ shape: { kind: 'box', width: 40, height: 40 } }));
+  ```
+- Materials are now enumerable for debugging and tooling (like the Excalibur Dev Tools browser extension): every `Material` has a unique `material.id` and public `material.vertexSource`/`material.fragmentSource` getters, and is automatically registered with its context, retrievable via `game.graphicsContext.materials`. The registry holds materials weakly so it does not prevent garbage collection.
+- Added the `ex.glsl` tagged template literal for authoring `Material` fragment shaders. It lights up GLSL syntax highlighting, adds the `#version`/`precision` boilerplate, injects the `pixel_texture()` pixel art filter on demand, and handles alpha premultiplication automatically.
+
+  Excalibur's pipeline is premultiplied end to end, which makes hand written shaders easy to get subtly wrong in both directions: introducing your own alpha without premultiplying blends too bright, and premultiplying a `texture()` sample that is already premultiplied darkens antialiased edges. Shaders written with the tag instead get a straight (un-premultiplied) alpha authoring space, so ordinary alpha math just works:
+
+  ```typescript
+  const material = game.graphicsContext.createMaterial({
+    name: 'fade',
+    fragmentSource: ex.glsl`
+      in vec2 v_uv;
+      uniform sampler2D u_graphic;
+      out vec4 fragColor;
+
+      void main() {
+        vec4 color = texture(u_graphic, v_uv);
+        color.a *= 0.5; // no manual premultiply needed
+        fragColor = color;
+      }`
+  });
+  ```
+
+  Sample non-color data with `ex_texture_raw(tex, uv)` to bypass the conversion, or add `#pragma excalibur premultiply(off)` to opt a shader out entirely.
+
 - Added new lerp modes for color which can be chosen by aptional parameter in `Color.lerp` or by calling different methods:
   ```typescript
   Color.lerp(colorA, colorB, t); // 'hsl' by default
@@ -55,22 +189,59 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   const sound = await Sound.fromBlob(instanceOfBlob)
   sound.play()
   ```
+- Docs: The API documentation pipeline has been rebuilt around a vendored fork of `docusaurus-plugin-typedoc-api` (added as a git submodule under `site/vendor/docusaurus-plugin-typedoc-api`). The new `site/scripts/gen-typedoc-api.mjs` generates TypeDoc output and an `api-symbol-index.json` consumed by the docs site.
+  ```bash
+  # in site/
+  npm run build:docusaurus-plugin-typedoc-api  # build the vendored plugin
+  npm run api:generate                         # run typedoc + normalize
+  ```
+- Docs: New `remark-api-symbol-links` plugin (`site/plugins/remark-api-symbol-links.mjs`) resolves `[[Symbol]]` markdown links to the generated TypeDoc API pages using the symbol index, replacing the external `remark-typedoc-symbol-links` package.
 
 ### Fixed
 
+- Fixed issue where moving a `TileMap` after making cells solid left the tile collision boundaries behind at the old position. `Tile.defaultGeometry` returned a cached world-space bounding box that was never invalidated when the tilemap moved, so `_updateColliders()` rebuilt colliders from stale geometry on every move; making cells solid after the move had the same effect. `defaultGeometry` now recalculates when the tile is flagged dirty, matching the existing `pos`/`center` getters, so collision boundaries track `tilemap.pos` in any order (issue #3494)
+- Fixed `RepeatForever.reset()` doing nothing. Reset now stops the active child action and rebuilds the repeat sequence from the entity's current state, allowing stopped repeats to be reused
+- Fixed `SoundManager.channel.setVolume()` doing nothing (it passed the channel name where a sound was expected), `SoundManager.unmute()` starting every managed sound, and `SoundManager.untrack()` leaving the sound in its channels.
+- Fixed `Sound.wireEngine()` registering duplicate engine handlers when called twice with the same engine.
+- Fixed `Sound` with `position` set creating two tracks and starting from the beginning.
+- Fixed `SoundManagerOptions` no longer rejecting channel names in `sounds` that were not declared in `channels`.
+- Fixed issue where `rotateBy({…})` would not rotate at all for a full-turn offset (`2 * Math.PI` normalized to a zero-length rotation) and would rotate the wrong way for offsets larger than `Math.PI`. When no `rotationType` is provided, `rotateBy` now rotates by exactly the signed offset given, preserving full and multiple turns; when a `rotationType` is provided, the offset determines the target orientation and the type picks the travel path as before. Also fixed an angular velocity spike of ±2π on frames where a multi-turn rotation wrapped past the canonical angle range
+- Fixed issue where a pointer's normalized id could change mid-contact. `PointerEventReceiver` normalized native pointer ids by sorting all active native ids and using the array index, so an already-tracked pointer (e.g. a touch in a multi-touch gesture) was silently re-assigned a different id when another pointer went down or up, routing its subsequent events to the wrong `PointerAbstraction`. Normalized ids are now stable for the lifetime of the contact; the smallest freed id is reused for new contacts (so a lone new touch always lands back on `pointers.primary`); cancelled contacts (`pointercancel`/`touchcancel`) free their id and clear their down state instead of leaking; and the mouse keeps its id reserved after mouse-up since it persists as a hover pointer
+- Fixed issue where a cancelled pointer (`pointercancel`/`touchcancel`) left entities in a phantom hover/drag state. Entities now receive `pointerleave` (and `pointerdragend`/`pointerdragleave` when the cancelled contact was dragging) before `pointercancel`, mirroring the pointer-up flow and the browser's own post-cancel event order, since the browser never sends another move/up event for a cancelled pointer
+- Fixed issue where the post processor `u_time_ms` uniform accumulated elapsed time once per post processor per update, advancing N times too fast with N post processors installed
+- Fixed issue where Local-space particles could be double-returned to the object pool, causing the same Particle instance to be active in two slots simultaneously
+- Fixed issue where window resize events were handled twice when using window-based display modes (FitScreen, FitScreenAndFill, FitScreenAndZoom, FillScreen), causing double resolution/viewport computation and double canvas size writes
+- Fixed Matrix and AffineMatrix scale/rotation decomposition bug where getScaleX/getScaleY used wrong basis components for non-uniform scale combined with rotation, causing swapped scale values and corrupt transforms. Also fixed setRotation and setScaleX/setScaleY to operate on correct column basis vectors.
+- Fixed issue where `Resource.load()` would hang forever on network errors (DNS failure, CORS block, offline), deadlocking the loader and all scene navigation. The promise now rejects with a `ResourceLoadingError` containing the resource path and a descriptive message
+- Fixed issue where `ImageSource.load()` would hang forever below 100% with nothing logged when a response could not be decoded as an image, for example a corrupt image, or a `200 OK` that returned HTML/error content with a content type other than `text/html`. The `HTMLImageElement.onerror` is now handled so `ImageSource.load()` and `ImageSource.ready` reject with an error that is also logged to the console, which lets the `Loader` fail fast instead of deadlocking. `ImageSource.fromHtmlCanvasElement()` no longer hangs when a canvas cannot be turned into a blob, and blob object urls from failed decodes are now released
+- Fixed issue where `Gif.isLoaded()` always returned `true` because it checked `!!this.data` on an empty array, causing Gifs to be silently skipped by the loader and never parsed
 - Fixed issue where `scaleTo({…})` and `scaleBy({…})` actions would cause entities to keep scaling indefinitely after the action completed, due to a copy-paste bug that zeroed `angularVelocity` instead of `scaleFactor`
 - Fixed issue where `scaleTo({…})` and `scaleBy({…})` actions used a live reference to the entity's scale vector as the interpolation start point, causing the easing curve to be corrupted if the entity's scale changed during the action
 - Fixed issue where the first action in a sequence would not execute after calling `clearActions()` mid-execution. All action types now properly reset their initialization state when stopped, resolving issue #3468
 - Performance: Font/Text now use smaller texture sizes, improving performance on Safari especially when rendering text
 - Fixed issue #3356 where removing the `PointerSystem` from a scene caused the `PointerEventReceiver`'s per-frame event arrays to grow unbounded (a memory leak), because clearing those arrays was only performed by the `PointerSystem`. The receiver is now always flushed once per frame by the `InputHost`, independent of whether a `PointerSystem` is active.
+- Fixed `Color.screen()` blend mode bug where both operands were incorrectly using the parameter color instead of `this` and the parameter
+- Fixed `Color.toRGBA()` logic error in alpha check condition (`||` changed to `&&`)
+- Fixed `Color.toHSLA()` to output valid CSS format with degrees for hue and percentages for saturation/lightness
+- Fixed `Color.toHex()` to properly clamp RGB values to 0-255 range
+- Docs: Fixed broken internal links, anchors, and `[[Symbol]]` references across the docs and blog (e.g. `#sprites` → `/docs/sprites`, `#ExcaliburGraphicsContext` → `/docs/graphics-context`), and replaced invalid `[[Actor.update]]` symbol links with plain `Actor.update` references where the member is not part of the public API surface
+- Docs: Fixed incorrect JSDoc `@param`/`@returns` tags and removed dead commented-out code blocks in engine source (e.g. `CollisionSolver`, `BoundingBox.draw`) that produced invalid TypeDoc output
+- Fixed `BoundingBox.intersect()` return type to be explicitly `Vector | null` (callers already null-checked, but the type was not reflected)
 
 ### Updates
 
--
+- Deps: Upgraded to TypeScript 6.0.3 (from 5.6.3) and typescript-eslint 8.63.0 (from 8.38.0); engine source updated for TS6 strictness (non-null assertions, `null` → `undefined` defaults, optional fields)
+- Deps: Upgraded to Docusaurus 3.10.1 (from 3.5.2) across the docs site, including `@docusaurus/*` packages, theme/preset packages, and the mdx-loader
+- Deps: Upgraded to TypeDoc 0.28.19 (vendored plugin) and removed the top-level `typedoc` devDependency / `overrides`
+- Deps: Upgraded Vitest 4.1.8 → 4.1.10 and Vite 8.0.16 → 8.1.4; browser API is now enabled with `allowWrite`/`allowExec` in the unit config, and the Vitest API host was changed from `0.0.0.0` to `127.0.0.1`
+- Deps: Upgraded `coveralls-next` 6.0.1 → 6.0.2
+- Deps: Removed unused `@types/marked` devDependency and `wallaby.js` test runner config
+- CI: API doc generation now runs as part of `npm run all:ci` (via `npm run apidocs` → `site/scripts/gen-typedoc-api.mjs`); the dedicated `typedoc` CI job in the build workflow has been removed
+- CI: The `eslint` config dropped the obsolete `parserOptions.project` overrides now that typescript-eslint handles project context differently
 
 ### Changed
 
-- 
+- API documentation are now generated into the Docusaurus build directory (`site/generated/`, gitignored) and copied into `.docusaurus/generated/` during `site` build, instead of the legacy `docs/api/` output location
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
@@ -1351,11 +1522,18 @@ const hits = engine.currentScene.physics.rayCast(
 
 ### Updates
 
-- 
+- Deps: Upgraded to TypeScript 6.0.3 (from 5.6.3) and typescript-eslint 8.63.0 (from 8.38.0); engine source updated for TS6 strictness (non-null assertions, `null` → `undefined` defaults, optional fields)
+- Deps: Upgraded to Docusaurus 3.10.1 (from 3.5.2) across the docs site, including `@docusaurus/*` packages, theme/preset packages, and the mdx-loader
+- Deps: Upgraded to TypeDoc 0.28.19 (vendored plugin) and removed the top-level `typedoc` devDependency / `overrides`
+- Deps: Upgraded Vitest 4.1.8 → 4.1.10 and Vite 8.0.16 → 8.1.4; browser API is now enabled with `allowWrite`/`allowExec` in the unit config, and the Vitest API host was changed from `0.0.0.0` to `127.0.0.1`
+- Deps: Upgraded `coveralls-next` 6.0.1 → 6.0.2
+- Deps: Removed unused `@types/marked` devDependency and `wallaby.js` test runner config
+- CI: API doc generation now runs as part of `npm run all:ci` (via `npm run apidocs` → `site/scripts/gen-typedoc-api.mjs`); the dedicated `typedoc` CI job in the build workflow has been removed
+- CI: The `eslint` config dropped the obsolete `parserOptions.project` overrides now that typescript-eslint handles project context differently
 
 ### Changed
 
-- 
+- API documentation are now generated into the Docusaurus build directory (`site/generated/`, gitignored) and copied into `.docusaurus/generated/` during `site` build, instead of the legacy `docs/api/` output location
 
 ## [v0.28.2]
 

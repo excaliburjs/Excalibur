@@ -34,12 +34,10 @@ export interface GraphicsComponentData {
   current: string;
   graphicRefs: string[]; // List of graphic IDs used by this component
   options: {
-    [name: string]:
-      | {
-          offset?: { x: number; y: number };
-          anchor?: { x: number; y: number };
-        }
-      | undefined;
+    [name: string]: {
+      offset?: { x: number; y: number };
+      anchor?: { x: number; y: number };
+    } | null;
   };
   isVisible: boolean;
   opacity: number;
@@ -122,7 +120,7 @@ export class GraphicsComponent extends Component {
 
   private _current: string = 'default';
   private _graphics: Record<string, Graphic> = {};
-  private _options: Record<string, GraphicsShowOptions | undefined> = {};
+  private _options: Record<string, GraphicsShowOptions | null> = {};
 
   public material: Material | null = null;
 
@@ -134,7 +132,7 @@ export class GraphicsComponent extends Component {
   /**
    * Draws after the entity transform has been applied, and after graphics component graphics has been drawn
    */
-  public onPostDraw?: (ctx: ExcaliburGraphicsContext, elapsed: number) => void;
+  public onPostDraw: ((ctx: ExcaliburGraphicsContext, elapsed: number) => void) | null = null;
 
   /**
    * Draws before the entity transform has been applied before any any graphics component drawing
@@ -146,22 +144,6 @@ export class GraphicsComponent extends Component {
    */
   public onPostTransformDraw?: (ctx: ExcaliburGraphicsContext, elapsed: number) => void;
   private _color?: Color;
-
-  /**
-   * Sets or gets wether any drawing should be visible in this component
-   * @deprecated use isVisible
-   */
-  public get visible(): boolean {
-    return this.isVisible;
-  }
-
-  /**
-   * Sets or gets wether any drawing should be visible in this component
-   * @deprecated use isVisible
-   */
-  public set visible(val: boolean) {
-    this.isVisible = val;
-  }
 
   /**
    * Sets or gets wether any drawing should be visible in this component
@@ -263,6 +245,7 @@ export class GraphicsComponent extends Component {
       graphics,
       offset,
       copyGraphics,
+      material,
       onPreDraw,
       onPostDraw,
       onPreTransformDraw,
@@ -275,7 +258,7 @@ export class GraphicsComponent extends Component {
         this._graphics[key] = graphicOrOptions;
       } else {
         this._graphics[key] = graphicOrOptions.graphic;
-        this._options[key] = graphicOrOptions.options;
+        this._options[key] = graphicOrOptions.options ?? null;
       }
     }
 
@@ -284,6 +267,7 @@ export class GraphicsComponent extends Component {
     this.anchor = anchor ?? this.anchor;
     this.color = color ?? this.color;
     this.copyGraphics = copyGraphics ?? this.copyGraphics;
+    this.material = material ?? this.material;
     this.onPreDraw = onPreDraw ?? this.onPreDraw;
     this.onPostDraw = onPostDraw ?? this.onPostDraw;
     this.onPreTransformDraw = onPreTransformDraw ?? this.onPreTransformDraw;
@@ -299,7 +283,7 @@ export class GraphicsComponent extends Component {
   public getGraphic(name: string): Graphic | undefined {
     return this._graphics[name];
   }
-  public getOptions(name: string): GraphicsShowOptions | undefined {
+  public getOptions(name: string): GraphicsShowOptions | null {
     return this._options[name];
   }
 
@@ -320,7 +304,7 @@ export class GraphicsComponent extends Component {
   /**
    * Returns the currently displayed graphic offsets
    */
-  public get currentOptions(): GraphicsShowOptions | undefined {
+  public get currentOptions(): GraphicsShowOptions | null {
     return this._options[this._current];
   }
 
@@ -334,7 +318,7 @@ export class GraphicsComponent extends Component {
   /**
    * Returns all graphics options associated with this component
    */
-  public get options(): { [graphicName: string]: GraphicsShowOptions | undefined } {
+  public get options(): { [graphicName: string]: GraphicsShowOptions | null } {
     return this._options;
   }
 
@@ -347,15 +331,15 @@ export class GraphicsComponent extends Component {
   public add(nameOrGraphic: string | Graphic, graphicOrOptions?: Graphic | GraphicsShowOptions, options?: GraphicsShowOptions): Graphic {
     let name = 'default';
     let graphicToSet: Graphic | null = null;
-    let optionsToSet: GraphicsShowOptions | undefined = undefined;
+    let optionsToSet: GraphicsShowOptions | null = null;
     if (typeof nameOrGraphic === 'string' && graphicOrOptions instanceof Graphic) {
       name = nameOrGraphic;
       graphicToSet = graphicOrOptions;
-      optionsToSet = options;
+      optionsToSet = options ?? null;
     }
     if (nameOrGraphic instanceof Graphic && !(graphicOrOptions instanceof Graphic)) {
       graphicToSet = nameOrGraphic;
-      optionsToSet = graphicOrOptions;
+      optionsToSet = graphicOrOptions ?? null;
     }
 
     if (!graphicToSet) {
@@ -397,10 +381,10 @@ export class GraphicsComponent extends Component {
       }
       this._current = 'default';
       this._graphics[this._current] = graphic;
-      this._options[this._current] = options;
+      this._options[this._current] = options ?? null;
     } else {
       this._current = nameOrGraphic;
-      this._options[this._current] = options;
+      this._options[this._current] = options ?? null;
       if (!(this._current in this._graphics)) {
         this._logger.warn(
           `Graphic ${this._current} is not registered with the graphics component owned by ${this.owner?.name}. Nothing will be drawn.`
@@ -482,14 +466,20 @@ export class GraphicsComponent extends Component {
         if (camera && screen) {
           // For speed
           // dubious transform by tampering with the camera inverse then putting it back
-          const topLeft = screen.contentArea.topLeft;
-          const oldX = camera.inverse.data[4];
-          const oldY = camera.inverse.data[5];
-          camera.inverse.data[4] += topLeft.x;
-          camera.inverse.data[5] += topLeft.y;
-          bounds.transform(camera.inverse, bounds);
-          camera.inverse.data[4] = oldX;
-          camera.inverse.data[5] = oldY;
+          // Screen space is rooted at contentArea.topLeft; the offset moves
+          // the local (0,0) into resolution space where the camera inverse
+          // then maps to world space. Composing inverse ∘ translate(offset)
+          // means the offset passes through the inverse's linear part
+          // (zoom/rotation) before landing in the translation column.
+          const topLeft = screen.contentAreaOffset;
+          const inv = camera.inverse;
+          const oldX = inv.data[4];
+          const oldY = inv.data[5];
+          inv.data[4] += inv.data[0] * topLeft.x + inv.data[2] * topLeft.y;
+          inv.data[5] += inv.data[1] * topLeft.x + inv.data[3] * topLeft.y;
+          bounds.transform(inv, bounds);
+          inv.data[4] = oldX;
+          inv.data[5] = oldY;
         }
         return bounds;
       }
@@ -524,7 +514,7 @@ export class GraphicsComponent extends Component {
     }
   }
 
-  public clone(): GraphicsComponent {
+  public override clone(): GraphicsComponent {
     const graphics = new GraphicsComponent();
     graphics._graphics = { ...this._graphics };
     graphics._options = { ...this._options };
@@ -532,13 +522,20 @@ export class GraphicsComponent extends Component {
     if (this.color) {
       graphics.color = this.color.clone();
     }
+    if (this.current) {
+      this.use(this.current);
+    }
     graphics.opacity = this.opacity;
     graphics.anchor = this.anchor.clone();
     graphics.copyGraphics = this.copyGraphics;
+    graphics.material = this.material;
+    graphics.forceOnScreen = this.forceOnScreen;
     graphics.onPreDraw = this.onPreDraw;
     graphics.onPostDraw = this.onPostDraw;
     graphics.isVisible = this.isVisible;
     graphics.shouldAlwaysTick = this.shouldAlwaysTick;
+    graphics.onPreTransformDraw = this.onPreTransformDraw;
+    graphics.onPostTransformDraw = this.onPostTransformDraw;
 
     return graphics;
   }
@@ -546,7 +543,7 @@ export class GraphicsComponent extends Component {
   /**
    * Custom serialization - stores graphic references instead of graphic data
    */
-  public serialize(): GraphicsComponentData {
+  public override serialize(): GraphicsComponentData {
     const type = this.constructor.name;
     const data: GraphicsComponentData = {
       type,
@@ -576,7 +573,7 @@ export class GraphicsComponent extends Component {
           anchor: option.anchor ? { x: option.anchor.x, y: option.anchor.y } : undefined
         };
       } else {
-        data.options[name] = undefined;
+        data.options[name] = null;
       }
     }
 
@@ -605,7 +602,7 @@ export class GraphicsComponent extends Component {
    * Custom deserialization
    * NOTE - This only restores the component's settings, it does NOT restore the graphics themselves.
    */
-  public deserialize(data: GraphicsComponentData): void {
+  public override deserialize(data: GraphicsComponentData): void {
     this._current = data.current ?? 'default';
     this.isVisible = data.isVisible ?? true;
     this.opacity = data.opacity ?? 1;
@@ -633,7 +630,7 @@ export class GraphicsComponent extends Component {
           anchor: option.anchor ? ({ x: option.anchor.x, y: option.anchor.y } as Vector) : undefined
         };
       } else {
-        this._options[name] = undefined;
+        this._options[name] = null;
       }
     }
   }

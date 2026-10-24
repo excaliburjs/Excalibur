@@ -34,13 +34,6 @@ export class World {
   }
 
   /**
-   * @deprecated
-   */
-  queryTags<TKnownTags extends string>(requiredTags: TKnownTags[]): Query<any, any> {
-    return this.queryManager.createQuery({ tags: { all: requiredTags } }) as any;
-  }
-
-  /**
    * Update systems by type and time elapsed in milliseconds
    */
   update(type: SystemType, elapsed: number) {
