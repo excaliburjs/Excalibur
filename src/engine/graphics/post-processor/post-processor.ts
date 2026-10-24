@@ -45,7 +45,7 @@ export interface PostProcessor {
 
   /**
    * @deprecated implement {@apilink PostProcessor.process} instead, the single-pass
-   * shader/layout path will be removed in v1. The screen texture is bound to slot 0 as
+   * shader/layout path will be removed in v1.x. The screen texture is bound to slot 0 as
    * `uniform sampler2D u_image` and default uniforms (`u_time_ms`, `u_elapsed_ms`,
    * `u_resolution`) are set when declared.
    */
@@ -53,7 +53,7 @@ export interface PostProcessor {
 
   /**
    * @deprecated implement {@apilink PostProcessor.process} instead, the single-pass
-   * shader/layout path will be removed in v1
+   * shader/layout path will be removed in v1.x.
    */
   getLayout?(): VertexLayout;
 

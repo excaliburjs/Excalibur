@@ -163,7 +163,7 @@ export class MaterialRenderer implements RendererPlugin {
       const seedWidth = sw + 2 * pad;
       const seedHeight = sh + 2 * pad;
       const maybeFiltering = image.getAttribute(ImageSourceAttributeConstants.Filtering);
-      const graphicFiltering = maybeFiltering ? parseImageFiltering(maybeFiltering) : undefined;
+      const graphicFiltering = maybeFiltering ? parseImageFiltering(maybeFiltering) : null;
       const seed = material.getSeedFramebuffer(seedWidth, seedHeight);
       const output = material.getOutputFramebuffer(seedWidth, seedHeight, graphicFiltering);
 
@@ -296,7 +296,7 @@ export class MaterialRenderer implements RendererPlugin {
 
   private _addImageAsTexture(image: HTMLImageSource) {
     const maybeFiltering = image.getAttribute(ImageSourceAttributeConstants.Filtering);
-    const filtering = maybeFiltering ? parseImageFiltering(maybeFiltering) : undefined;
+    const filtering = maybeFiltering ? parseImageFiltering(maybeFiltering) : null;
     const wrapX = parseImageWrapping(image.getAttribute(ImageSourceAttributeConstants.WrappingX) as any);
     const wrapY = parseImageWrapping(image.getAttribute(ImageSourceAttributeConstants.WrappingY) as any);
 

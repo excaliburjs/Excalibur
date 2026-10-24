@@ -10,6 +10,8 @@ const version = process.env.release ? versioner.getReleaseVersion() : versioner.
 /**
  * Common config needed to build excalibur for either testing or production build. Anything
  * that is needed to run excalibur at all should be put in here.
+ *
+ * @import {defineConfig} from 'vite'
  */
 export default defineConfig({
   define: {

@@ -20,7 +20,12 @@ export default defineConfig(
       },
       browser: {
         enabled: true,
-        provider: playwright(),
+        provider: playwright({
+          launchOptions: {
+            channel: 'chromium',
+            args: ['--mute-audio', '--enable-precise-memory-info', '--js-flags="--max_old_space_size=8192" --expose-gc']
+          }
+        }),
         headless: process.env.CI === 'true' ? true : undefined,
         api: {
           allowWrite: true,
@@ -32,10 +37,6 @@ export default defineConfig(
             provide: {
               browser: 'chromium',
               platform: os.platform()
-            },
-            launch: {
-              channel: 'chromium',
-              args: ['--mute-audio', '--enable-precise-memory-info', '--js-flags="--max_old_space_size=8192" --expose-gc'].filter(Boolean)
             }
           }
         ]

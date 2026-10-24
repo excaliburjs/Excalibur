@@ -8,7 +8,6 @@ import { themes } from 'prism-react-renderer';
 import { remarkApiSymbolLinks } from './plugins/remark-api-symbol-links.mjs';
 import rehypeRaw from 'rehype-raw';
 import { loadEnvFile } from 'node:process';
-import { fileURLToPath } from 'node:url';
 import { DocusaurusPluginTypeDocApiOptions } from './vendor/docusaurus-plugin-typedoc-api/lib/types.js';
 
 try {

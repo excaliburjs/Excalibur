@@ -20,12 +20,12 @@ export class FlickerSystem extends System {
   private _coneQuery!: Query<typeof ConeLightComponent>;
   private _elapsed = 0;
 
-  public override initialize(world: World): void {
+  public override onInitialize(world: World): void {
     this._pointQuery = world.query([PointLightComponent]);
     this._coneQuery = world.query([ConeLightComponent]);
   }
 
-  public update(elapsed: number): void {
+  public onUpdate(elapsed: number): void {
     this._elapsed += elapsed / 1000;
     const t = this._elapsed;
 

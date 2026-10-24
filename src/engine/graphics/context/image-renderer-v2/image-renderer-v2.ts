@@ -219,7 +219,7 @@ export class ImageRendererV2 implements RendererPlugin {
       return;
     }
     const maybeFiltering = image.getAttribute(ImageSourceAttributeConstants.Filtering);
-    const filtering = maybeFiltering ? parseImageFiltering(maybeFiltering) : undefined;
+    const filtering = maybeFiltering ? parseImageFiltering(maybeFiltering) : null;
     const wrapX = parseImageWrapping(image.getAttribute(ImageSourceAttributeConstants.WrappingX) as any);
     const wrapY = parseImageWrapping(image.getAttribute(ImageSourceAttributeConstants.WrappingY) as any);
 

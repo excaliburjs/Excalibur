@@ -20,7 +20,7 @@ describe('A DynamicTree', () => {
 
   it('can be constructed with default world bounds', () => {
     const tree = new ex.DynamicTree(defaultConfig);
-    expect(tree.root).toBeUndefined();
+    expect(tree.root).toBeNull();
     expect(tree.getHeight()).toBe(0);
     expect(tree.getNodes()).toEqual([]);
   });

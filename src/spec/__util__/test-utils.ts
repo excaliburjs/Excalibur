@@ -99,7 +99,7 @@ export namespace TestUtils {
     const canvas = document.createElement('canvas');
     canvas.width = source.width;
     canvas.height = source.height;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d')!;
     ctx.drawImage(source, 0, 0);
     return canvas;
   }
