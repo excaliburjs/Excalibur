@@ -200,6 +200,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 - Fixed issue where moving a `TileMap` after making cells solid left the tile collision boundaries behind at the old position. `Tile.defaultGeometry` returned a cached world-space bounding box that was never invalidated when the tilemap moved, so `_updateColliders()` rebuilt colliders from stale geometry on every move; making cells solid after the move had the same effect. `defaultGeometry` now recalculates when the tile is flagged dirty, matching the existing `pos`/`center` getters, so collision boundaries track `tilemap.pos` in any order (issue #3494)
+- Fixed `RepeatForever.reset()` doing nothing. Reset now stops the active child action and rebuilds the repeat sequence from the entity's current state, allowing stopped repeats to be reused
 - Fixed `SoundManager.channel.setVolume()` doing nothing (it passed the channel name where a sound was expected), `SoundManager.unmute()` starting every managed sound, and `SoundManager.untrack()` leaving the sound in its channels.
 - Fixed `Sound.wireEngine()` registering duplicate engine handlers when called twice with the same engine.
 - Fixed `Sound` with `position` set creating two tracks and starting from the beginning.
