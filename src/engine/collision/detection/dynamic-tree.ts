@@ -12,17 +12,17 @@ import type { DynamicTreeConfig } from '../physics-config';
  * Dynamic Tree Node used for tracking bounds within the tree
  */
 export class TreeNode<T> {
-  public left?: TreeNode<T>;
-  public right?: TreeNode<T>;
+  public left: TreeNode<T> | null = null;
+  public right: TreeNode<T> | null = null;
   public bounds: BoundingBox;
   public height: number;
-  public data?: T;
-  constructor(public parent?: TreeNode<T>) {
-    this.parent = parent || undefined;
-    this.data = undefined;
+  public data: T | null = null;
+  constructor(public parent: TreeNode<T> | null = null) {
+    this.parent = parent || null;
+    this.data = null;
     this.bounds = new BoundingBox();
-    this.left = undefined;
-    this.right = undefined;
+    this.left = null;
+    this.right = null;
     this.height = 0;
   }
 
@@ -45,13 +45,13 @@ export interface ColliderProxy<T> {
  * Every non-leaf node is a bounding box that contains child bounding boxes.
  */
 export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
-  public root?: TreeNode<TProxy>;
+  public root: TreeNode<TProxy> | null = null;
   public nodes: Record<number, TreeNode<TProxy>>;
   constructor(
     private _config: Required<DynamicTreeConfig>,
     public worldBounds: BoundingBox = new BoundingBox(-Number.MAX_VALUE, -Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE)
   ) {
-    this.root = undefined;
+    this.root = null;
     this.nodes = {};
   }
 
@@ -62,7 +62,7 @@ export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
     // If there are no nodes in the tree, make this the root leaf
     if (!this.root) {
       this.root = leaf;
-      this.root.parent = undefined;
+      this.root.parent = null;
       return;
     }
 
@@ -172,7 +172,7 @@ export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
    */
   private _remove(leaf: TreeNode<TProxy>) {
     if (leaf === this.root) {
-      this.root = undefined;
+      this.root = null;
       return;
     }
 
@@ -203,7 +203,7 @@ export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
       }
     } else {
       this.root = sibling;
-      sibling.parent = undefined;
+      sibling.parent = null;
     }
   }
 

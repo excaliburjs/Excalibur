@@ -18,7 +18,7 @@ export class EngineInstanceReporter implements Reporter {
     }
   }
 
-  onTestRunEnd(testModules: TestModule[]) {
+  onTestRunEnd(testModules: readonly TestModule[]) {
     if (this.leaks.length > 0) {
       let leakString = '============   Engine leaks ==================\n';
       for (const leak of this.leaks) {

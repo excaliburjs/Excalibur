@@ -92,11 +92,11 @@ export class CollisionSystem extends System {
     });
   }
 
-  override initialize(world: World, scene: Scene) {
+  override onInitialize(world: World, scene: Scene) {
     this._engine = scene.engine;
   }
 
-  update(elapsed: number): void {
+  onUpdate(elapsed: number): void {
     if (!this._physics.config.enabled) {
       return;
     }
@@ -140,7 +140,7 @@ export class CollisionSystem extends System {
       if (step > 0) {
         // first step is run by the MotionSystem when configured, so skip 0th
         // elapsed is used here because step size is calcluated in motion system
-        this._motionSystem.update(elapsed);
+        this._motionSystem.onUpdate(elapsed);
         // colliders sync lazily from their owner transform, so the substep narrowphase and solver lever arms
         // always see the integrated/position-corrected body transforms without an explicit refresh
 
@@ -205,7 +205,7 @@ export class CollisionSystem extends System {
     }
   }
 
-  override postupdate(): void {
+  override onPostUpdate(): void {
     SeparatingAxis.SeparationPool.done();
   }
 

@@ -10,7 +10,7 @@ import { ImageWrapping } from './wrapping';
 import type { GraphicOptions } from './graphic';
 
 export interface ImageSourceOptions {
-  filtering?: ImageFiltering;
+  filtering?: ImageFiltering | null;
   wrapping?: ImageWrapConfiguration | ImageWrapping;
   bustCache?: boolean;
 }
@@ -89,7 +89,7 @@ export class ImageSource implements Loadable<HTMLImageElement> {
    * @param filtering {ImageFiltering} Optionally override the image filtering set by {@apilink EngineOptions.antialiasing}
    */
   constructor(pathOrBase64: string, bustCache: boolean, filtering?: ImageFiltering);
-  constructor(pathOrBase64: string, bustCacheOrOptions: boolean | ImageSourceOptions | undefined, filtering?: ImageFiltering) {
+  constructor(pathOrBase64: string, bustCacheOrOptions: boolean | ImageSourceOptions | undefined, filtering?: ImageFiltering | null) {
     this.path = pathOrBase64;
     let bustCache: boolean | undefined = false;
     let wrapping: ImageWrapConfiguration | ImageWrapping | undefined;

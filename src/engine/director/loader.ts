@@ -331,7 +331,7 @@ export class Loader extends DefaultLoader {
     }
   }
 
-  override data!: Loadable<any>[];
+  override data: Loadable<any>[] = [];
 
   public override async onUserAction(): Promise<void> {
     // short delay in showing the button for aesthetics

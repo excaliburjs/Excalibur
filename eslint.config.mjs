@@ -143,7 +143,7 @@ export default tseslint.config(
       radix: 'error',
       eqeqeq: ['error', 'smart'],
       'no-irregular-whitespace': 'error',
-      'brace-style': ['error', '1tbs'],
+      // 'brace-style': ['error', '1tbs'],
 
       'no-unused-expressions': [
         'error',

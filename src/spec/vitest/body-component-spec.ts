@@ -24,8 +24,8 @@ describe('A body component', () => {
     expect((actor.body as any)._cachedInverseInertia).toBeCloseTo(0.0006, 0);
 
     actor.body.mass = 1;
-    expect((actor.body as any)._cachedInertia).toBe(undefined);
-    expect((actor.body as any)._cachedInverseInertia).toBe(undefined);
+    expect((actor.body as any)._cachedInertia).toBeNull();
+    expect((actor.body as any)._cachedInverseInertia).toBeNull();
   });
 
   it('will reflect the transform positions', () => {

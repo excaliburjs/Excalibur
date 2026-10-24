@@ -27,7 +27,7 @@ export class ActionsSystem extends System {
       }
     });
   }
-  update(elapsed: number): void {
+  onUpdate(elapsed: number): void {
     for (let i = 0; i < this._actions.length; i++) {
       const action = this._actions[i];
       action.update(elapsed);

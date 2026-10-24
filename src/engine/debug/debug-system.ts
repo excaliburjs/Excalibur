@@ -35,14 +35,14 @@ export class DebugSystem extends System {
     this.query = this.world.query([TransformComponent]);
   }
 
-  public override initialize(world: World, scene: Scene): void {
+  public override onInitialize(world: World, scene: Scene): void {
     this._graphicsContext = scene.engine.graphicsContext;
     this._camera = scene.camera;
     this._engine = scene.engine;
     this._collisionSystem = world.systemManager.get(CollisionSystem)!;
   }
 
-  update(): void {
+  onUpdate(): void {
     if (!this._engine.isDebug) {
       return;
     }
@@ -389,7 +389,7 @@ export class DebugSystem extends System {
     }
   }
 
-  override postupdate(engine: Scene<unknown>, elapsed: number): void {
+  override onPostUpdate(engine: Scene<unknown>, elapsed: number): void {
     if (this._engine.isDebug) {
       this._graphicsContext.save();
       if (this._camera) {
