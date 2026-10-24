@@ -1,5 +1,10 @@
-!build/dist/**/*.*
-!build/esm/**/*.*
+src/
+!build/**/*.*
+build/esm/vite.config.d.ts
+build/esm/src/spec/**/*.*
+build/esm/vitest.config.d.ts
+notes/
+image-diffs/
 .github/
 .storybook/
 .vscode/
@@ -10,7 +15,6 @@ coverage/
 docs/
 sandbox/
 playground/
-src/
 site/
 docker/
 sandbox/
