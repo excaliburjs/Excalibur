@@ -10,11 +10,11 @@
   "author": "https://github.com/excaliburjs/Excalibur/graphs/contributors",
   "homepage": "https://github.com/excaliburjs/Excalibur",
   "main": "build/esm/excalibur.min.js",
-  "typings": "build/esm/excalibur.d.ts",
+  "typings": "build/esm/src/engine/excalibur.d.ts",
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "types": "./build/esm/excalibur.d.ts",
+      "types": "./build/esm/src/engine/excalibur.d.ts",
       "development": {
         "import": "./build/esm/excalibur.development.js"
       },

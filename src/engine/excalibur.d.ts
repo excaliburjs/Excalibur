@@ -1,2 +1,2 @@
-export * from './src/engine/index';
+export * from './index';
 export as namespace ex;
