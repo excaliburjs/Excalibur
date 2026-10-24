@@ -961,6 +961,10 @@ export class Tile {
   }
 
   public get defaultGeometry(): BoundingBox {
+    if (this._posDirty) {
+      this._recalculate();
+      this._posDirty = false;
+    }
     return this._geometry;
   }
 
