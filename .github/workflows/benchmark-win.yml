@@ -89,25 +89,20 @@ jobs:
       - name: Run benchmarks
         working-directory: benchmark
         run: |
-          node bench.mjs run --candidate ../build/esm/excalibur.js `
-            --baseline "${BENCHMARK_BASELINE}" `
-            --repeat "${BENCHMARK_REPEAT}" `
-            --tests "${BENCHMARK_TESTS}" `
-            --out ../bench-results/results.json `
-            --charts ../bench-results/charts
+          node bench.mjs run --candidate ../build/esm/excalibur.js --baseline "${env:BENCHMARK_BASELINE}" --repeat "${env:BENCHMARK_REPEAT}" --tests "${env:BENCHMARK_TESTS}" --out ../bench-results/results.json --charts ../bench-results/charts
 
       - name: Report
         if: always()
         working-directory: benchmark
         run: |
           mkdir -p ../bench-results
-          echo "Benchmarked commit \`${BENCHMARK_HEAD_SHA}\` against \`${BENCHMARK_BASELINE}\`" >> "${GITHUB_STEP_SUMMARY}"
-          echo "" >> "${GITHUB_STEP_SUMMARY}"
+          echo "Benchmarked commit ${env:BENCHMARK_HEAD_SHA} against ${env:BENCHMARK_BASELINE}" >> "${env:GITHUB_STEP_SUMMARY}"
+          echo "" >> "${env:GITHUB_STEP_SUMMARY}"
           if [ -f ../bench-results/results.json ]; then
-            node bench.mjs report ../bench-results/results.json --markdown --warn "${BENCHMARK_WARN_PERCENT}" --charts ../bench-results/charts > ../bench-results/report.md
-            cat ../bench-results/report.md >> "${GITHUB_STEP_SUMMARY}"
+            node bench.mjs report ../bench-results/results.json --markdown --warn "${env:BENCHMARK_WARN_PERCENT}" --charts ../bench-results/charts > ../bench-results/report.md
+            cat ../bench-results/report.md >> "${env:GITHUB_STEP_SUMMARY}"
           else
-            echo "Benchmark produced no results" >> "${GITHUB_STEP_SUMMARY}"
+            echo "Benchmark produced no results" >> "${env:GITHUB_STEP_SUMMARY}"
           fi
 
       - name: Upload results
