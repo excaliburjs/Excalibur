@@ -89,7 +89,7 @@ jobs:
       - name: Run benchmarks
         working-directory: benchmark
         run: |
-          node bench.mjs run --mode realtime --candidate ../build/esm/excalibur.js --baseline "${env:BENCHMARK_BASELINE}" --repeat "${env:BENCHMARK_REPEAT}" --out ../bench-results/results.json --charts ../bench-results/charts
+          node bench.mjs run --mode step --candidate ../build/esm/excalibur.js --baseline "${env:BENCHMARK_BASELINE}" --repeat "${env:BENCHMARK_REPEAT}" --out ../bench-results/results.json --charts ../bench-results/charts
 
       - name: Report
         if: always()
