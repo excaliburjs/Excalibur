@@ -89,13 +89,13 @@ jobs:
       - name: Run benchmarks
         working-directory: benchmark
         run: |
-          node bench.mjs run --candidate ../build/esm/excalibur.js --baseline "${env:BENCHMARK_BASELINE}" --repeat "${env:BENCHMARK_REPEAT}" --out ../bench-results/results.json --charts ../bench-results/charts
+          node bench.mjs run --mode realtime --candidate ../build/esm/excalibur.js --baseline "${env:BENCHMARK_BASELINE}" --repeat "${env:BENCHMARK_REPEAT}" --out ../bench-results/results.json --charts ../bench-results/charts
 
       - name: Report
         if: always()
         working-directory: benchmark
         run: |
-          mkdir -p ../bench-results
+          New-Item -ItemType Directory -Path ../bench-results -Force
           echo "Benchmarked commit ${env:BENCHMARK_HEAD_SHA} against ${env:BENCHMARK_BASELINE}" >> "${env:GITHUB_STEP_SUMMARY}"
           echo "" >> "${env:GITHUB_STEP_SUMMARY}"
           if ( Test-Path -Path "../bench-results/results.json" )
