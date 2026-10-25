@@ -98,12 +98,15 @@ jobs:
           mkdir -p ../bench-results
           echo "Benchmarked commit ${env:BENCHMARK_HEAD_SHA} against ${env:BENCHMARK_BASELINE}" >> "${env:GITHUB_STEP_SUMMARY}"
           echo "" >> "${env:GITHUB_STEP_SUMMARY}"
-          if [ -f ../bench-results/results.json ]; then
+          if ( Test-Path -Path "../bench-results/results.json" )
+          {
             node bench.mjs report ../bench-results/results.json --markdown --warn "${env:BENCHMARK_WARN_PERCENT}" --charts ../bench-results/charts > ../bench-results/report.md
             cat ../bench-results/report.md >> "${env:GITHUB_STEP_SUMMARY}"
+          }
           else
+          {
             echo "Benchmark produced no results" >> "${env:GITHUB_STEP_SUMMARY}"
-          fi
+          }
 
       - name: Upload results
         if: always()
