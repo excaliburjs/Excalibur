@@ -55,7 +55,7 @@ env:
 
 jobs:
   benchmark:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     # untrusted code runs here: read-only token, no secrets
     permissions:

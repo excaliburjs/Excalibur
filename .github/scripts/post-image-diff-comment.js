@@ -51,7 +51,7 @@ module.exports = async ({ github, context }) => {
 
   // Collect failures from all platforms
   const platforms = [
-    { name: 'ubuntu-latest', emoji: '🐧 Ubuntu', path: './ubuntu-diffs/vitest-image-failures.json' },
+    { name: 'ubuntu-24.04', emoji: '🐧 Ubuntu', path: './ubuntu-diffs/vitest-image-failures.json' },
     { name: 'windows-2025', emoji: '🪟 Windows', path: './windows-diffs/vitest-image-failures.json' }
   ];
 

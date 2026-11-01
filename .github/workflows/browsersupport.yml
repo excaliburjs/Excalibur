@@ -7,7 +7,7 @@ on:
     branches: [main]
 jobs:
   browser_support:
-    runs-on: [ubuntu-latest]
+    runs-on: [ubuntu-24.04]
     timeout-minutes: 15
 
     steps:

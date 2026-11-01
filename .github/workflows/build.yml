@@ -17,7 +17,7 @@ on:
 
 jobs:
   lint:
-    runs-on: [ubuntu-latest]
+    runs-on: [ubuntu-24.04]
     env:
       CI: true
     steps:
@@ -35,7 +35,7 @@ jobs:
         run: npm run lint
 
   build:
-    runs-on: [ubuntu-latest]
+    runs-on: [ubuntu-24.04]
     env:
       CI: true
     steps:
@@ -54,7 +54,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runner: [ubuntu-latest, windows-2025]
+        runner: [ubuntu-24.04, windows-2025]
     runs-on: ${{ matrix.runner }}
     env:
       CI: true
@@ -85,9 +85,9 @@ jobs:
       - name: Tests
         run: |
           if [ "$RUNNER_OS" == "Linux" ]; then
-            xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24 -ac +extension GLX +render -noreset" npm run test:ci -- --coverage=${{ matrix.runner == 'ubuntu-latest' }}
+            xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24 -ac +extension GLX +render -noreset" npm run test:ci -- --coverage=${{ matrix.runner == 'ubuntu-24.04' }}
           else
-            npm run test:ci -- --coverage=${{ matrix.runner == 'ubuntu-latest' }}
+            npm run test:ci -- --coverage=${{ matrix.runner == 'ubuntu-24.04' }}
           fi
         shell: bash
         env:
@@ -105,7 +105,7 @@ jobs:
           retention-days: 7
 
       - name: Coveralls
-        if: ${{ matrix.runner == 'ubuntu-latest'}}
+        if: ${{ matrix.runner == 'ubuntu-24.04'}}
         uses: coverallsapp/github-action@v2.3.8
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -130,7 +130,7 @@ jobs:
       - run: npm run build-storybook
 
   comment-image-diffs:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: tests
     if: failure() && github.event_name == 'pull_request'
     permissions:

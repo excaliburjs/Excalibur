@@ -16,7 +16,7 @@ on:
 jobs:
   rerun:
     if: github.event.issue.pull_request && startsWith(github.event.comment.body, '/benchmark')
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:
       contents: read # checkout of the script from the default branch

@@ -11,7 +11,7 @@ jobs:
     permissions:
       contents: read # for TimonVS/pr-labeler-action to read config file
       pull-requests: write # for TimonVS/pr-labeler-action to add labels in PR
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: TimonVS/pr-labeler-action@v5
         with:
