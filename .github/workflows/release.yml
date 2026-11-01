@@ -13,7 +13,7 @@ jobs:
   deploy_release:
     name: Publish npm package
     needs: [build]
-    runs-on: [ubuntu-latest]
+    runs-on: [ubuntu-24.04]
     permissions:
       contents: write
       id-token: write

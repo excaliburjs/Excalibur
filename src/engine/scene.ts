@@ -441,6 +441,10 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
     this.input.toggleEnabled(false);
     const result = await this.onDeactivate(context);
 
+    this.world.entityManager.findEntitiesForRemoval();
+    this.world.entityManager.processComponentRemovals();
+    this.world.entityManager.processEntityRemovals();
+
     for (const plugin of this.engine.plugins) {
       plugin.onScenePostDeactivate?.(this);
     }
