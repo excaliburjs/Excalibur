@@ -2,7 +2,7 @@
 import { env } from 'process';
 import { existsSync } from 'fs';
 import { executablePath } from 'puppeteer';
-env.CHROME_BIN = await executablePath();
+env.CHROME_BIN = executablePath();
 
 
 if (!existsSync('build/esm/excalibur.js')) {
