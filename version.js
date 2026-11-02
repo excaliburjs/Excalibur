@@ -1,16 +1,16 @@
-const { execSync } = require('child_process');
-const packageJson = require('./package.json');
+import { execSync } from 'child_process';
+import pkg from './package.json' with { type: 'json' };
 
 function getCurrentCommit() {
   const commit = execSync('git rev-parse HEAD').toString().trim();
   return commit;
 }
 
-function getNextVersion() {
-  return packageJson.exNextVersion;
+export function getNextVersion() {
+  return pkg.exNextVersion;
 }
 
-function getAlphaVersion() {
+export function getAlphaVersion() {
   let commit = getCurrentCommit();
   let version = getNextVersion();
   if (process.env.GITHUB_RUN_NUMBER) {
@@ -20,11 +20,6 @@ function getAlphaVersion() {
   }
 }
 
-function getReleaseVersion() {
-  return packageJson.version;
+export function getReleaseVersion() {
+  return pkg.version;
 }
-
-module.exports = {
-  getAlphaVersion: getAlphaVersion,
-  getReleaseVersion: getReleaseVersion
-};

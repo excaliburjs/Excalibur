@@ -6,12 +6,11 @@ import banner from 'vite-plugin-banner';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 // @ts-ignore
-import versioner from './version';
-
+import { getReleaseVersion, getAlphaVersion } from './version.js';
 const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
 const now = new Date();
 const dt = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
-const version = process.env.release ? versioner.getReleaseVersion() : versioner.getAlphaVersion();
+const version = process.env.release ? getReleaseVersion() : getAlphaVersion();
 
 // @ts-ignore
 import commonConfig from './vite.config.common';
