@@ -67,7 +67,7 @@
     "micromark-extension-mdxjs": "^3.0.0",
     "patch-package": "^8.0.0",
     "rimraf": "^5.0.5",
-    "ts-loader": "9.5.7",
+    "ts-loader": "9.6.2",
     "typescript": "6.0.3",
     "url-loader": "4.1.1"
   },
