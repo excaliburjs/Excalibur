@@ -1,20 +1,21 @@
 // Karma configuration
-const process = require('process');
-const fs = require('fs')
-process.env.CHROME_BIN = require('puppeteer').executablePath();
+import { env } from 'process';
+import { existsSync } from 'fs';
+import { puppeteer } from 'puppeteer';
+env.CHROME_BIN = puppeteer.executablePath();
 
 
-if (!fs.existsSync('build/esm/excalibur.js')) {
+if (!existsSync('build/esm/excalibur.js')) {
   throw new Error('Excalibur build not found. Please run "npm run build" first');
 }
 
-module.exports = (config) => {
+export default (config) => {
   config.set({
     // global config of your BrowserStack account
     browserStack: {
       project: 'Excalibur',
-      username: process.env.BS_USERNAME,
-      accessKey: process.env.BS_PASSWORD,
+      username: env.BS_USERNAME,
+      accessKey: env.BS_PASSWORD,
       timeout: 600
     },
     singleRun: true,
