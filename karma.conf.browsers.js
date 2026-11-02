@@ -1,8 +1,8 @@
 // Karma configuration
 import { env } from 'process';
 import { existsSync } from 'fs';
-import { puppeteer } from 'puppeteer';
-env.CHROME_BIN = puppeteer.executablePath();
+import { executablePath } from 'puppeteer';
+env.CHROME_BIN = await executablePath();
 
 
 if (!existsSync('build/esm/excalibur.js')) {
