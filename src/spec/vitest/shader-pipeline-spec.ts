@@ -54,7 +54,7 @@ describe('A ShaderPipeline', () => {
     source.dispose();
     destination.dispose();
     context.dispose();
-    context = null;
+    context = null as any;
   });
 
   it('exists', () => {
@@ -62,7 +62,7 @@ describe('A ShaderPipeline', () => {
   });
 
   it('throws without at least 1 pass', () => {
-    expect(() => new ex.ShaderPipeline({ graphicsContext: context, passes: [] })).toThrowError(/at least 1 pass/);
+    expect(() => new ex.ShaderPipeline({ graphicsContext: context, passes: [] })).toThrow(/at least 1 pass/);
   });
 
   it('auto-wraps bare fragment strings into passes', () => {
@@ -193,6 +193,6 @@ describe('A ShaderPipeline', () => {
   it('throws when processed after dispose', () => {
     const pipeline = new ex.ShaderPipeline({ graphicsContext: context, passes: [fillRed] });
     pipeline.dispose();
-    expect(() => pipeline.process(source, destination)).toThrowError(/disposed/);
+    expect(() => pipeline.process(source, destination)).toThrow(/disposed/);
   });
 });

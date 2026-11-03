@@ -34,20 +34,21 @@ describe('A Sparse Hash Grid Broadphase', () => {
 
   it('can find collision pairs for actors that are potentially colliding', () => {
     const dt = new ex.SparseHashGridCollisionProcessor({ size: 50 });
-    dt.track(actorA.collider.get());
-    dt.track(actorB.collider.get());
-    dt.track(actorC.collider.get());
+    dt.track(actorA.collider.get()!);
+    dt.track(actorB.collider.get()!);
+    dt.track(actorC.collider.get()!);
 
     // only should be 1 pair since C is very far away
-    const pairs = dt.broadphase([actorA.collider.get(), actorB.collider.get(), actorC.collider.get()], 100);
+    const pairs = dt.broadphase([actorA.collider.get()!, actorB.collider.get()!, actorC.collider.get()!], 100);
 
     expect(pairs.length).toBe(1);
   });
 
   it('should not find pairs for a composite collider', () => {
-    const circle = ex.Shape.Circle(50);
-    const box = ex.Shape.Box(200, 10);
+    const circle = ex.Colliders.Circle(50);
+    const box = ex.Colliders.Box(200, 10);
     const compCollider = new ex.CompositeCollider([circle, box]);
+    // @ts-ignore
     const actor = new ex.Actor({ collider: compCollider });
     const dt = new ex.SparseHashGridCollisionProcessor({ size: 50 });
     dt.track(compCollider);
@@ -57,8 +58,8 @@ describe('A Sparse Hash Grid Broadphase', () => {
   });
 
   it('should not find pairs for a composite collider when moving fast', () => {
-    const circle = ex.Shape.Circle(50);
-    const box = ex.Shape.Box(200, 10);
+    const circle = ex.Colliders.Circle(50);
+    const box = ex.Colliders.Box(200, 10);
     const compCollider = new ex.CompositeCollider([circle, box]);
     const actor = new ex.Actor({ collider: compCollider, collisionType: ex.CollisionType.Active });
     actor.body.vel = ex.vec(2000, 0); // extra fast to trigger the fast object detection
@@ -71,9 +72,9 @@ describe('A Sparse Hash Grid Broadphase', () => {
 
   it('should allow for bespoke collider queries', () => {
     const dt = new ex.SparseHashGridCollisionProcessor({ size: 50 });
-    dt.track(actorA.collider.get());
-    dt.track(actorB.collider.get());
-    dt.track(actorC.collider.get());
+    dt.track(actorA.collider.get()!);
+    dt.track(actorB.collider.get()!);
+    dt.track(actorC.collider.get()!);
 
     const colliders = dt.query(actorA.collider.bounds);
 
@@ -83,9 +84,9 @@ describe('A Sparse Hash Grid Broadphase', () => {
   it('can rayCast with default options, only 1 hit is returned, searches all groups', () => {
     const sut = new ex.SparseHashGridCollisionProcessor({ size: 50 });
     const actor1 = new ex.Actor({ x: 100, y: 0, width: 50, height: 50 });
-    sut.track(actor1.collider.get());
+    sut.track(actor1.collider.get()!);
     const actor2 = new ex.Actor({ x: 200, y: 0, width: 50, height: 50 });
-    sut.track(actor2.collider.get());
+    sut.track(actor2.collider.get()!);
 
     const ray = new ex.Ray(ex.vec(0, 0), ex.Vector.Right);
     const hits = sut.rayCast(ray);
@@ -100,9 +101,9 @@ describe('A Sparse Hash Grid Broadphase', () => {
   it('can rayCast with searchAllColliders on, all hits is returned, searches all groups', () => {
     const sut = new ex.SparseHashGridCollisionProcessor({ size: 50 });
     const actor1 = new ex.Actor({ x: 100, y: 0, width: 50, height: 50 });
-    sut.track(actor1.collider.get());
+    sut.track(actor1.collider.get()!);
     const actor2 = new ex.Actor({ x: 200, y: 0, width: 50, height: 50 });
-    sut.track(actor2.collider.get());
+    sut.track(actor2.collider.get()!);
 
     const ray = new ex.Ray(ex.vec(0, 0), ex.Vector.Right);
     const hits = sut.rayCast(ray, {
@@ -127,9 +128,9 @@ describe('A Sparse Hash Grid Broadphase', () => {
     const collisionGroup1 = ex.CollisionGroupManager.create('somegroup1');
     const collisionGroup2 = ex.CollisionGroupManager.create('somegroup2');
     const actor1 = new ex.Actor({ x: 100, y: 0, width: 50, height: 50, collisionGroup: collisionGroup1 });
-    sut.track(actor1.collider.get());
+    sut.track(actor1.collider.get()!);
     const actor2 = new ex.Actor({ x: 200, y: 0, width: 50, height: 50, collisionGroup: collisionGroup2 });
-    sut.track(actor2.collider.get());
+    sut.track(actor2.collider.get()!);
 
     const ray = new ex.Ray(ex.vec(0, 0), ex.Vector.Right);
     const hits = sut.rayCast(ray, {
@@ -150,9 +151,9 @@ describe('A Sparse Hash Grid Broadphase', () => {
     const collisionGroup1 = ex.CollisionGroupManager.create('somegroup1');
     const collisionGroup2 = ex.CollisionGroupManager.create('somegroup2');
     const actor1 = new ex.Actor({ x: 100, y: 0, width: 50, height: 50, collisionGroup: collisionGroup1 });
-    sut.track(actor1.collider.get());
+    sut.track(actor1.collider.get()!);
     const actor2 = new ex.Actor({ x: 200, y: 0, width: 50, height: 50, collisionGroup: collisionGroup2 });
-    sut.track(actor2.collider.get());
+    sut.track(actor2.collider.get()!);
 
     const ray = new ex.Ray(ex.vec(0, 0), ex.Vector.Right);
     const hits = sut.rayCast(ray, {
@@ -174,9 +175,9 @@ describe('A Sparse Hash Grid Broadphase', () => {
   it('can rayCast with searchAllColliders on and max distance set, returns 1 hit', () => {
     const sut = new ex.SparseHashGridCollisionProcessor({ size: 50 });
     const actor1 = new ex.Actor({ x: 100, y: 0, width: 50, height: 50 });
-    sut.track(actor1.collider.get());
+    sut.track(actor1.collider.get()!);
     const actor2 = new ex.Actor({ x: 200, y: 0, width: 50, height: 50 });
-    sut.track(actor2.collider.get());
+    sut.track(actor2.collider.get()!);
 
     const ray = new ex.Ray(ex.vec(0, 0), ex.Vector.Right);
     const hits = sut.rayCast(ray, {
@@ -194,11 +195,11 @@ describe('A Sparse Hash Grid Broadphase', () => {
   it('can rayCast with ignoreCollisionGroupAll, returns 1 hit', () => {
     const sut = new ex.SparseHashGridCollisionProcessor({ size: 50 });
     const actor1 = new ex.Actor({ x: 100, y: 0, width: 50, height: 50 });
-    sut.track(actor1.collider.get());
+    sut.track(actor1.collider.get()!);
     const actor2 = new ex.Actor({ x: 200, y: 0, width: 50, height: 50 });
-    sut.track(actor2.collider.get());
+    sut.track(actor2.collider.get()!);
     const actor3 = new ex.Actor({ x: 300, y: 0, width: 50, height: 50, collisionGroup: new ex.CollisionGroup('test', 0b1, ~0b1) });
-    sut.track(actor3.collider.get());
+    sut.track(actor3.collider.get()!);
 
     const ray = new ex.Ray(ex.vec(0, 0), ex.Vector.Right);
     const hits = sut.rayCast(ray, {
@@ -217,11 +218,11 @@ describe('A Sparse Hash Grid Broadphase', () => {
   it('can rayCast with filter, returns 1 hit', () => {
     const sut = new ex.SparseHashGridCollisionProcessor({ size: 50 });
     const actor1 = new ex.Actor({ x: 100, y: 0, width: 50, height: 50 });
-    sut.track(actor1.collider.get());
+    sut.track(actor1.collider.get()!);
     const actor2 = new ex.Actor({ x: 200, y: 0, width: 50, height: 50 });
-    sut.track(actor2.collider.get());
+    sut.track(actor2.collider.get()!);
     const actor3 = new ex.Actor({ x: 300, y: 0, width: 50, height: 50, collisionGroup: new ex.CollisionGroup('test', 0b1, ~0b1) });
-    sut.track(actor3.collider.get());
+    sut.track(actor3.collider.get()!);
 
     const ray = new ex.Ray(ex.vec(0, 0), ex.Vector.Right);
     const hits = sut.rayCast(ray, {
@@ -241,11 +242,11 @@ describe('A Sparse Hash Grid Broadphase', () => {
   it('can rayCast with filter and search all colliders false, returns 1 hit', () => {
     const sut = new ex.SparseHashGridCollisionProcessor({ size: 50 });
     const actor1 = new ex.Actor({ x: 100, y: 0, width: 50, height: 50 });
-    sut.track(actor1.collider.get());
+    sut.track(actor1.collider.get()!);
     const actor2 = new ex.Actor({ x: 200, y: 0, width: 50, height: 50 });
-    sut.track(actor2.collider.get());
+    sut.track(actor2.collider.get()!);
     const actor3 = new ex.Actor({ x: 300, y: 0, width: 50, height: 50, collisionGroup: new ex.CollisionGroup('test', 0b1, ~0b1) });
-    sut.track(actor3.collider.get());
+    sut.track(actor3.collider.get()!);
 
     const ray = new ex.Ray(ex.vec(0, 0), ex.Vector.Right);
     const hits = sut.rayCast(ray, {
@@ -265,11 +266,11 @@ describe('A Sparse Hash Grid Broadphase', () => {
   it('can rayCast and have the right first collider returned regardless of track order', () => {
     const sut = new ex.SparseHashGridCollisionProcessor({ size: 200 });
     const actor3 = new ex.Actor({ x: 300, y: 0, width: 50, height: 50 });
-    sut.track(actor3.collider.get());
+    sut.track(actor3.collider.get()!);
     const actor2 = new ex.Actor({ x: 200, y: 0, width: 50, height: 50 });
-    sut.track(actor2.collider.get());
+    sut.track(actor2.collider.get()!);
     const actor1 = new ex.Actor({ x: 100, y: 0, width: 50, height: 50 });
-    sut.track(actor1.collider.get());
+    sut.track(actor1.collider.get()!);
 
     const ray = new ex.Ray(ex.vec(0, 0), ex.Vector.Right);
     const hits = sut.rayCast(ray, {
@@ -286,11 +287,11 @@ describe('A Sparse Hash Grid Broadphase', () => {
   it('can rayCast and have the right ordering returned regardless of track order', () => {
     const sut = new ex.SparseHashGridCollisionProcessor({ size: 200 });
     const actor3 = new ex.Actor({ x: 300, y: 0, width: 50, height: 50 });
-    sut.track(actor3.collider.get());
+    sut.track(actor3.collider.get()!);
     const actor2 = new ex.Actor({ x: 200, y: 0, width: 50, height: 50 });
-    sut.track(actor2.collider.get());
+    sut.track(actor2.collider.get()!);
     const actor1 = new ex.Actor({ x: 100, y: 0, width: 50, height: 50 });
-    sut.track(actor1.collider.get());
+    sut.track(actor1.collider.get()!);
 
     const ray = new ex.Ray(ex.vec(0, 0), ex.Vector.Right);
     const hits = sut.rayCast(ray, {
@@ -317,11 +318,11 @@ describe('A Sparse Hash Grid Broadphase', () => {
   it('can rayCast to max distance and have the right ordering returned regardless of track order', () => {
     const sut = new ex.SparseHashGridCollisionProcessor({ size: 200 });
     const actor3 = new ex.Actor({ x: 300, y: 0, width: 50, height: 50 });
-    sut.track(actor3.collider.get());
+    sut.track(actor3.collider.get()!);
     const actor2 = new ex.Actor({ x: 200, y: 0, radius: 25 });
-    sut.track(actor2.collider.get());
+    sut.track(actor2.collider.get()!);
     const actor1 = new ex.Actor({ x: 100, y: 0, radius: 25 });
-    sut.track(actor1.collider.get());
+    sut.track(actor1.collider.get()!);
 
     const ray = new ex.Ray(ex.vec(0, 0), ex.Vector.Right);
     const hits = sut.rayCast(ray, {
@@ -344,14 +345,15 @@ describe('A Sparse Hash Grid Broadphase', () => {
   it('calls filter in hit order', () => {
     const sut = new ex.SparseHashGridCollisionProcessor({ size: 200 });
     const actor3 = new ex.Actor({ x: 104, y: 0, width: 50, height: 50 });
-    sut.track(actor3.collider.get());
+    sut.track(actor3.collider.get()!);
     const actor2 = new ex.Actor({ x: 102, y: 0, radius: 25 });
-    sut.track(actor2.collider.get());
+    sut.track(actor2.collider.get()!);
     const actor1 = new ex.Actor({ x: 100, y: 0, radius: 25 });
-    sut.track(actor1.collider.get());
+    sut.track(actor1.collider.get()!);
 
     const ray = new ex.Ray(ex.vec(0, 0), ex.Vector.Right);
     const filter = vi.fn(() => true);
+    // @ts-ignore
     const hits = sut.rayCast(ray, {
       searchAllColliders: true,
       filter

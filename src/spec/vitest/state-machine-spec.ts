@@ -29,6 +29,7 @@ describe('A StateMachine', () => {
 
   it('will throw on an invalid state machine', () => {
     expect(() => {
+      // @ts-ignore
       const machine = ex.StateMachine.create({
         start: 'STOPPED',
         states: {
@@ -177,11 +178,11 @@ describe('A StateMachine', () => {
       }
     );
     machine.go('PONG');
-    expect(machine.data.data).toBe(43);
+    expect(machine.data!.data).toBe(43);
     machine.go('PING');
-    expect(machine.data.data).toBe(44);
+    expect(machine.data!.data).toBe(44);
     machine.go('PONG');
-    expect(machine.data.data).toBe(45);
+    expect(machine.data!.data).toBe(45);
 
     machine.save('my-machine-state');
 
@@ -210,6 +211,6 @@ describe('A StateMachine', () => {
 
     newMachine.restore('my-machine-state');
     expect(newMachine.currentState.name).toBe('PONG');
-    expect(newMachine.data.data).toBe(45);
+    expect(newMachine.data!.data).toBe(45);
   });
 });

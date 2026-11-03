@@ -56,10 +56,8 @@ export function isRemovedComponent(x: Message<EntityComponent>): x is RemovedCom
  */
 export interface EntityEvents {
   initialize: InitializeEvent;
-  //@ts-ignore
-  add: AddEvent;
-  //@ts-ignore
-  remove: RemoveEvent;
+  add: AddEvent<Entity>;
+  remove: RemoveEvent<Entity>;
   preupdate: PreUpdateEvent;
   postupdate: PostUpdateEvent;
   kill: KillEvent;

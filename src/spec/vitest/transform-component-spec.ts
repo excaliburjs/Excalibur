@@ -283,7 +283,7 @@ describe('A TransformComponent', () => {
   });
 
   it('can be parented to a previously deleted entity with transform component', () => {
-    const entityManager = new ex.EntityManager(new ex.World(null));
+    const entityManager = new ex.EntityManager(new ex.World(null as any));
 
     const child1 = new ex.Entity([new TransformComponent()]);
     const child2 = new ex.Entity([new TransformComponent()]);

@@ -8,11 +8,11 @@ import { Entity, Logger } from '@excalibur';
 class MockComponent extends Component {
   public value: number = 0;
 
-  serialize() {
+  override serialize() {
     return { value: this.value };
   }
 
-  deserialize(data: any) {
+  override deserialize(data: any) {
     this.value = data.value;
   }
 }

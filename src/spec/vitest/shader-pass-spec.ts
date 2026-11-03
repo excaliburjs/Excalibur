@@ -31,7 +31,7 @@ describe('A ShaderPass', () => {
 
   afterEach(() => {
     context.dispose();
-    context = null;
+    context = null as any;
   });
 
   it('exists', () => {
@@ -184,7 +184,7 @@ describe('A ShaderPass', () => {
     const source = new ex.Framebuffer({ graphicsContext: context, width: 8, height: 8 });
     const pass = new ex.ShaderPass({ graphicsContext: context });
     pass.dispose();
-    expect(() => pass.draw(source, null)).toThrowError(/disposed/);
+    expect(() => pass.draw(source, null)).toThrow(/disposed/);
     source.dispose();
   });
 

@@ -16,7 +16,7 @@ void main() {
 `;
 
 class MockPostProcessor implements ex.PostProcessor {
-  private _shader: ex.ScreenShader;
+  private _shader!: ex.ScreenShader;
   initialize(graphicsContext: ex.ExcaliburGraphicsContextWebGL): void {
     this._shader = new ex.ScreenShader(graphicsContext, source);
   }
@@ -85,7 +85,7 @@ describe('A PostProcessor', () => {
     });
 
     const invalid = { initialize: vi.fn() } as unknown as ex.PostProcessor;
-    expect(() => context.addPostProcessor(invalid)).toThrowError(/process\(\)/);
+    expect(() => context.addPostProcessor(invalid)).toThrow(/process\(\)/);
   });
 
   describe('with a process() multipass post processor', () => {
@@ -199,13 +199,13 @@ describe('A PostProcessor', () => {
     }
 
     it('throws without passes', () => {
-      expect(() => new ex.ShaderPipelinePostProcessor({} as any)).toThrowError(/must be provided passes/);
-      expect(() => new ex.ShaderPipelinePostProcessor({ passes: [] })).toThrowError(/must be provided passes/);
+      expect(() => new ex.ShaderPipelinePostProcessor({} as any)).toThrow(/must be provided passes/);
+      expect(() => new ex.ShaderPipelinePostProcessor({ passes: [] })).toThrow(/must be provided passes/);
     });
 
     it('throws accessing the pipeline before initialize', () => {
       const pp = new ex.ShaderPipelinePostProcessor({ passes: ['out vec4 fragColor; void main() { fragColor = vec4(1.); }'] });
-      expect(() => pp.pipeline).toThrowError(/not initialized/);
+      expect(() => pp.pipeline).toThrow(/not initialized/);
     });
 
     it('builds a pipeline from passes and forwards elapsed to process', () => {
@@ -256,7 +256,7 @@ describe('A PostProcessor', () => {
     });
 
     it('applies a fullscreen 2-pass tint pipeline end to end', () => {
-      const { canvas, context } = createContext(4, 4);
+      const { context } = createContext(4, 4);
       // paint the frame solid white then run red-channel and green-channel passes
       context.backgroundColor = ex.Color.White;
       const redOnly = `#version 300 es

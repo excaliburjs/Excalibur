@@ -1,11 +1,9 @@
 import * as ex from '@excalibur';
 import { TestUtils } from '../__util__/test-utils';
-import { Mocks } from '../__util__/mocks';
 
 describe('A scaled and rotated actor', () => {
   let actor: ex.Actor;
   let engine: ex.Engine;
-  const mock = new Mocks.Mocker();
 
   beforeEach(() => {
     actor = new ex.ScreenElement({ x: 50, y: 50, width: 100, height: 50 });

@@ -142,8 +142,8 @@ describe('A random number', () => {
     const random1 = new ex.Random(10);
     const array = ['one', 'two', 'three', 'four'];
 
-    expect(() => random1.pickSet(array, 5)).toThrowError('Invalid number of elements to pick, must pick a value 0 < n <= length');
-    expect(() => random1.pickSet(array, -1)).toThrowError('Invalid number of elements to pick, must pick a value 0 < n <= length');
+    expect(() => random1.pickSet(array, 5)).toThrow('Invalid number of elements to pick, must pick a value 0 < n <= length');
+    expect(() => random1.pickSet(array, -1)).toThrow('Invalid number of elements to pick, must pick a value 0 < n <= length');
     expect(random1.pickSet(array, 0).length).toBe(0);
     expect(random1.pickSet(array, 2).length).toBe(2);
   });
@@ -176,7 +176,7 @@ describe('A random number', () => {
     const newSet = random1.pickSet(array, numCounts, true);
 
     for (let i = 0; i < numCounts; i++) {
-      const element = counts[newSet[i]];
+      const element = (counts as any)[newSet[i]];
 
       if (!element) {
         throw Error('Invalid element!!!');
@@ -223,7 +223,7 @@ describe('A random number', () => {
     const expectedValue = (0 + 4) / 2;
 
     const average =
-      randomArray.reduce((acc, curr, i, arr) => {
+      randomArray.reduce((acc, curr) => {
         return acc + curr;
       }, 0) / 1000;
 

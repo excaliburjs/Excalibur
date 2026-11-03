@@ -21,7 +21,7 @@ describe('The engine', () => {
   afterEach(() => {
     engine.stop();
     engine.dispose();
-    engine = null;
+    engine = null as any;
   });
 
   it('should default to a timescale of 1.0', () => {

@@ -14,8 +14,8 @@ describe('An ArcadeSolver', () => {
 
     const player = new ex.Actor({ x: 50, y: 99, width: 100, height: 100, collisionType: ex.CollisionType.Active });
 
-    const pair1 = new ex.Pair(player.collider.get(), wall1.collider.get());
-    const pair2 = new ex.Pair(player.collider.get(), wall2.collider.get());
+    const pair1 = new ex.Pair(player.collider.get()!, wall1.collider.get()!);
+    const pair2 = new ex.Pair(player.collider.get()!, wall2.collider.get()!);
 
     const contacts = [...pair1.collide(), ...pair2.collide()];
     expect(contacts.length).toBe(2);
@@ -111,28 +111,28 @@ describe('An ArcadeSolver', () => {
 
     // 1 pixel overlap
     const contact = new ex.CollisionContact(
-      player.collider.get(),
-      block.collider.get(),
+      player.collider.get()!,
+      block.collider.get()!,
       ex.Vector.Down,
       ex.Vector.Down,
       ex.Vector.Down.perpendicular(),
       [],
       [],
-      null
+      null as any
     );
     arcadeSolver.solvePosition(contact);
     expect(player.pos).toBeVector(ex.vec(0, -1));
 
     // No more overlap
     const contact2 = new ex.CollisionContact(
-      player.collider.get(),
-      block.collider.get(),
+      player.collider.get()!,
+      block.collider.get()!,
       ex.Vector.Down,
       ex.Vector.Down,
       ex.Vector.Down.perpendicular(),
       [],
       [],
-      null
+      null as any
     );
     arcadeSolver.solvePosition(contact2);
     expect(contact2.isCanceled()).toBe(true);
@@ -162,14 +162,14 @@ describe('An ArcadeSolver', () => {
 
     // Player moving away from contact
     const contact = new ex.CollisionContact(
-      player.collider.get(),
-      block.collider.get(),
+      player.collider.get()!,
+      block.collider.get()!,
       ex.Vector.Down,
       ex.Vector.Down,
       ex.Vector.Up.perpendicular(),
       [],
       [],
-      null
+      null as any
     );
     arcadeSolver.solveVelocity(contact);
     expect(contact.isCanceled()).toBe(false);
@@ -178,14 +178,14 @@ describe('An ArcadeSolver', () => {
     // Player moving towards contact
     player.vel = player.vel.negate();
     const contact2 = new ex.CollisionContact(
-      player.collider.get(),
-      block.collider.get(),
+      player.collider.get()!,
+      block.collider.get()!,
       ex.Vector.Down,
       ex.Vector.Down,
       ex.Vector.Down.perpendicular(),
       [],
       [],
-      null
+      null as any
     );
 
     arcadeSolver.solveVelocity(contact2);
@@ -215,14 +215,14 @@ describe('An ArcadeSolver', () => {
     });
 
     const contact = new ex.CollisionContact(
-      player.collider.get(),
-      block.collider.get(),
+      player.collider.get()!,
+      block.collider.get()!,
       ex.Vector.Down.scale(0.00009),
       ex.Vector.Down,
       ex.Vector.Up.perpendicular(),
       [],
       [],
-      null
+      null as any
     );
 
     arcadeSolver.solvePosition(contact);
@@ -252,14 +252,14 @@ describe('An ArcadeSolver', () => {
     });
 
     const contact = new ex.CollisionContact(
-      player.collider.get(),
-      block.collider.get(),
+      player.collider.get()!,
+      block.collider.get()!,
       ex.Vector.Down,
       ex.Vector.Down,
       ex.Vector.Up.perpendicular(),
       [],
       [],
-      null
+      null as any
     );
 
     arcadeSolver.solvePosition(contact);
@@ -289,14 +289,14 @@ describe('An ArcadeSolver', () => {
     });
 
     const contact = new ex.CollisionContact(
-      player.collider.get(),
-      block.collider.get(),
+      player.collider.get()!,
+      block.collider.get()!,
       ex.Vector.Down,
       ex.Vector.Down,
       ex.Vector.Up.perpendicular(),
       [],
       [],
-      null
+      null as any
     );
 
     contact.mtv = ex.vec(-0, 0);

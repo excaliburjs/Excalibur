@@ -130,8 +130,8 @@ describe('A Graphics Animation', () => {
 
     expect(anim.strategy).toBe(ex.AnimationStrategy.Freeze);
     expect(anim.frames[0].duration).toBe(100);
-    expect(anim.frames[0].graphic.flipHorizontal).toBe(true);
-    expect(anim.frames[1].graphic.flipVertical).toBe(true);
+    expect(anim.frames[0].graphic?.flipHorizontal).toBe(true);
+    expect(anim.frames[1].graphic?.flipVertical).toBe(true);
     expect(anim.frames.length).toBe(4);
   });
 

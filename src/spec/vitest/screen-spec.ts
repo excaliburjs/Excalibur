@@ -834,7 +834,7 @@ describe('A Screen', () => {
     const styleProxy = new Proxy(
       {},
       {
-        set: function (object, property, value) {
+        set: function (object: any, property: any, value) {
           if (property === 'imageRendering' && value === 'pixelated') {
             object[property] = '';
             return true;
@@ -1239,7 +1239,7 @@ describe('A Screen', () => {
   it('should only register window resize listener once for Window parent (not twice)', () => {
     const addEventListenerSpy = vi.spyOn(window, 'addEventListener');
 
-    const sut = new ex.Screen({
+    new ex.Screen({
       canvas,
       context,
       browser,

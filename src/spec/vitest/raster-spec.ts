@@ -17,7 +17,7 @@ class TestRaster extends ex.Raster {
   }
 
   clone(): ex.Graphic {
-    return null;
+    return null as any;
   }
 }
 
