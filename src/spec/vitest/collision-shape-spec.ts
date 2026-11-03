@@ -122,6 +122,38 @@ describe('Collision Shape', () => {
       expect(sut.center).toBeVector(ex.vec(0, 100));
     });
 
+    it('can collide when the transform changes the winding (mirrored)', () => {
+      const circleA = new ex.CircleCollider({
+        offset: ex.Vector.Zero.clone(),
+        radius: 10
+      });
+
+      const circleB = new ex.CircleCollider({
+        offset: new ex.Vector(10, 0),
+        radius: 10
+      });
+
+      const mirrorTransform = new ex.Transform();
+      mirrorTransform.scale = ex.vec(-1, 1);
+      circleA.update(mirrorTransform);
+
+      const directionOfBodyB = circleB.center.sub(circleA.center);
+
+      const contact = circleA.collide(circleB)[0];
+
+      // there should be a collision
+      expect(contact, 'There should be a collision').not.toBeFalsy();
+
+      // normal and mtv should point away from bodyA
+      expect(directionOfBodyB.dot(contact.mtv)).toBeGreaterThan(0);
+      expect(directionOfBodyB.dot(contact.normal)).toBeGreaterThan(0);
+
+      expect(contact.mtv.x).toBeCloseTo(10, 0.01);
+      expect(contact.normal.x).toBeCloseTo(1, 0.01);
+      expect(contact.mtv.y).toBeCloseTo(0, 0.01);
+      expect(contact.normal.y).toBeCloseTo(0, 0.01);
+    });
+
     it('has bounds', () => {
       actor.pos = ex.vec(400, 400);
       actor.collider.update();

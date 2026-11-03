@@ -89,7 +89,7 @@ export class CircleCollider extends Collider {
     const tx = this._transform;
     const scale = tx?.globalScale ?? Vector.One;
     // This is a trade off, the alternative is retooling circles to support ellipse collisions
-    return (this._radius = this._naturalRadius * Math.min(scale.x, scale.y));
+    return (this._radius = this._naturalRadius * Math.min(Math.abs(scale.x), Math.abs(scale.y)));
   }
 
   /**
@@ -99,7 +99,7 @@ export class CircleCollider extends Collider {
     const tx = this._transform;
     const scale = tx?.globalScale ?? Vector.One;
     // This is a trade off, the alternative is retooling circles to support ellipse collisions
-    this._naturalRadius = val / Math.min(scale.x, scale.y);
+    this._naturalRadius = val / Math.min(Math.abs(scale.x), Math.abs(scale.y));
     this._localBoundsDirty = true;
     this._radius = val;
   }
