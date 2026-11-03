@@ -337,7 +337,7 @@ export class Camera implements CanUpdate, CanInitialize {
   /**
    * Has the position changed since the last update
    */
-  public hasChanged(): boolean {
+  public get hasChanged(): boolean {
     return this._posChanged;
   }
   /**
@@ -654,7 +654,7 @@ export class Camera implements CanUpdate, CanInitialize {
 
       const currentRes = this._screen.contentArea;
       let center = vec(currentRes.width / 2, currentRes.height / 2);
-      if (!this._engine.loadingComplete) {
+      if (!this._engine.isLoaded) {
         // If there was a loading screen, we peek the configured resolution
         const res = this._screen.peekResolution();
         if (res) {

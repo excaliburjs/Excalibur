@@ -833,7 +833,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   /**
    * Indicates whether the actor has been killed.
    */
-  public override isKilled(): boolean {
+  public override get isKilled(): boolean {
     return !this.isActive;
   }
 

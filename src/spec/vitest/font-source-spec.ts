@@ -70,7 +70,7 @@ describe('A FontSource', () => {
 
     const font = await fontSource.load();
 
-    expect(fontSource.isLoaded()).toBe(true);
+    expect(fontSource.isLoaded).toBe(true);
     const alreadyLoadedFont = await fontSource.load();
 
     expect(font).toBe(alreadyLoadedFont);

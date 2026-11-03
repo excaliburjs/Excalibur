@@ -180,7 +180,7 @@ export class DebugConfig {
    */
   public useTestClock(): TestClock {
     const clock = this._engine.clock;
-    const wasRunning = clock.isRunning();
+    const wasRunning = clock.isRunning;
     clock.stop();
 
     const testClock = clock.toTestClock();
@@ -200,7 +200,7 @@ export class DebugConfig {
    */
   public useStandardClock(): StandardClock {
     const currentClock = this._engine.clock;
-    const wasRunning = currentClock.isRunning();
+    const wasRunning = currentClock.isRunning;
     currentClock.stop();
 
     const standardClock = currentClock.toStandardClock();

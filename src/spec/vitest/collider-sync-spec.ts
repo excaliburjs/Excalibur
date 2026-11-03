@@ -79,10 +79,10 @@ describe('Collider world geometry sync', () => {
     const proxy = processor.hashGrid.objectToProxy.get(collider)!;
     expect((processor as any).update([collider])).toBe(0);
     // unchanged transform: no bounds refresh, no cell comparison
-    expect(proxy.hasChanged()).toBe(false);
+    expect(proxy.hasChanged).toBe(false);
 
     // moving into a new cell is still picked up
     actor.pos = ex.vec(500, 500);
-    expect(proxy.hasChanged()).toBe(true);
+    expect(proxy.hasChanged).toBe(true);
   });
 });

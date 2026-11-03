@@ -56,7 +56,7 @@ export class Resource<T> implements Loadable<T> {
    * Returns true if the Resource is completely loaded and is ready
    * to be drawn.
    */
-  public isLoaded(): boolean {
+  public get isLoaded(): boolean {
     return !!this.data;
   }
 

@@ -13,7 +13,7 @@ describe('A generic Resource', () => {
   });
 
   it('should not be loaded by default', () => {
-    expect(resource.isLoaded()).toBe(false);
+    expect(resource.isLoaded).toBe(false);
   });
 
   it('should log failure when not found', () =>
@@ -39,7 +39,7 @@ describe('A generic Resource', () => {
       const emptyLoader = new ex.Loader();
       const game = TestUtils.engine();
       await game.start();
-      expect(emptyLoader.isLoaded()).toBe(true);
+      expect(emptyLoader.isLoaded).toBe(true);
       game.dispose();
     });
   });
@@ -50,7 +50,7 @@ describe('A generic Resource', () => {
     });
 
     it('should be loaded immediately', () => {
-      expect(resource.isLoaded()).toBe(true);
+      expect(resource.isLoaded).toBe(true);
     });
 
     it('should return the processed data', () => {

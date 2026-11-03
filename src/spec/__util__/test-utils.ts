@@ -54,7 +54,7 @@ export namespace TestUtils {
       queueMicrotask(() => {
         clock.step(500);
       });
-      await engine.isReady();
+      await engine.ready;
     }
     await start;
   }

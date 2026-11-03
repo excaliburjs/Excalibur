@@ -226,7 +226,7 @@ export class SoundTrack {
   public set volume(value: number) {
     this._volume = clamp(value, 0, 1);
     const gain = this._gain.gain;
-    if (this.isPlaying() && gain.setTargetAtTime) {
+    if (this.isPlaying && gain.setTargetAtTime) {
       // https://developer.mozilla.org/en-US/docs/Web/API/AudioParam/setTargetAtTime
       // After each .1 seconds timestep, the target value will ~63.2% closer to the target value.
       // This exponential ramp provides a more pleasant transition in gain
@@ -308,15 +308,15 @@ export class SoundTrack {
     return this._playingFuture.promise;
   }
 
-  public isPlaying() {
+  public get isPlaying() {
     return this._stateMachine.in('PLAYING');
   }
 
-  public isPaused() {
+  public get isPaused() {
     return this._stateMachine.in('PAUSED') || this._stateMachine.in('SEEK');
   }
 
-  public isStopped() {
+  public get isStopped() {
     return this._stateMachine.in('STOPPED');
   }
 
@@ -353,7 +353,7 @@ export class SoundTrack {
    * Current position in the buffer in seconds
    */
   public getPlaybackPosition() {
-    if (!this.isPlaying()) {
+    if (!this.isPlaying) {
       return this._offset;
     }
     // detune changes speed by 2^(cents/1200) on top of playbackRate

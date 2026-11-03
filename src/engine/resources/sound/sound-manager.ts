@@ -470,8 +470,8 @@ export class SoundManager<const Channel extends string, const SoundName extends 
     return (this.data = await Promise.all(this.getSounds().map((s) => s.load())));
   }
 
-  public isLoaded(): boolean {
-    return this.getSounds().every((s) => s.isLoaded());
+  public get isLoaded(): boolean {
+    return this.getSounds().every((s) => s.isLoaded);
   }
 
   /**
@@ -619,7 +619,7 @@ export class SoundManager<const Channel extends string, const SoundName extends 
     let oldest: SoundTrack | null = null;
     for (const sound of sounds) {
       for (const track of sound.instances) {
-        if (track.isPlaying() && (!oldest || track.id < oldest.id)) {
+        if (track.isPlaying && (!oldest || track.id < oldest.id)) {
           oldest = track;
         }
       }

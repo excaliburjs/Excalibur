@@ -274,7 +274,7 @@ export class Transform {
   /**
    * Returns true if the transform has a negative x scale or y scale, but not both
    */
-  public isMirrored(): boolean {
+  public get isMirrored(): boolean {
     const signBitX = sign(this.scale.x) >>> 31;
     const signBitY = sign(this.scale.y) >>> 31;
     const mirrored = signBitX ^ signBitY;

@@ -19,13 +19,13 @@ describe('A Gif', () => {
   });
 
   it('should not be loaded by default (C6 regression)', () => {
-    expect(gif.isLoaded()).toBe(false);
+    expect(gif.isLoaded).toBe(false);
   });
 
   it('should be loaded after load() completes (C6 regression)', async () => {
-    expect(gif.isLoaded()).toBe(false);
+    expect(gif.isLoaded).toBe(false);
     await gif.load();
-    expect(gif.isLoaded()).toBe(true);
+    expect(gif.isLoaded).toBe(true);
   });
 
   it('should parse gif files correctly', () =>
@@ -43,7 +43,7 @@ describe('A Gif', () => {
       await sut.load();
 
       const sprite = sut.toSprite(20)!;
-      expect(sut.isLoaded()).toBe(true);
+      expect(sut.isLoaded).toBe(true);
 
       sprite.draw(engine.graphicsContext, 0, 0);
       engine.graphicsContext.flush();
@@ -54,7 +54,7 @@ describe('A Gif', () => {
     it('should parse gifs that have animations with sub frames', async () => {
       const sut = new ex.Gif('/src/spec/assets/images/gif-spec/stoplight.gif');
       await sut.load();
-      expect(sut.isLoaded()).toBe(true);
+      expect(sut.isLoaded).toBe(true);
 
       const sprite2 = sut.toSprite(2)!;
       sprite2.draw(engine.graphicsContext, 0, 0);
@@ -85,7 +85,7 @@ describe('A Gif', () => {
       expect(spriteFrame.width).toBe(100);
 
       let sprite: ex.Sprite = gif.toSprite()!;
-      expect(gif.isLoaded()).toBe(true);
+      expect(gif.isLoaded).toBe(true);
       sprite.draw(engine.graphicsContext, 0, 0);
       engine.graphicsContext.flush();
 
@@ -94,7 +94,7 @@ describe('A Gif', () => {
       engine.graphicsContext.clear();
 
       sprite = gif.toSprite(1)!;
-      expect(gif.isLoaded()).toBe(true);
+      expect(gif.isLoaded).toBe(true);
       sprite.draw(engine.graphicsContext, 0, 0);
       engine.graphicsContext.flush();
 

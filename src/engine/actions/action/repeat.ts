@@ -25,7 +25,7 @@ export class Repeat implements Action {
   }
 
   public update(elapsed: number): void {
-    if (this._actionQueue.isComplete()) {
+    if (this._actionQueue.isComplete) {
       this._actionQueue.clearActions();
       this._repeatBuilder(this._repeatContext);
       this._repeat--;
@@ -34,7 +34,7 @@ export class Repeat implements Action {
   }
 
   public isComplete(): boolean {
-    return this._stopped || (this._repeat <= 0 && this._actionQueue.isComplete());
+    return this._stopped || (this._repeat <= 0 && this._actionQueue.isComplete);
   }
 
   public stop(): void {

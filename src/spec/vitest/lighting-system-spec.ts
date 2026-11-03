@@ -776,7 +776,7 @@ describe('A Lighting System', () => {
       engine.currentScene.world.remove(lighting);
       engine.currentScene.update(engine, 16);
 
-      expect(customHost.isKilled()).toBe(false);
+      expect(customHost.isKilled).toBe(false);
       expect(customHost.graphics.current).toBeFalsy();
     });
 

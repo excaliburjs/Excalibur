@@ -52,7 +52,7 @@ export class ImageSource implements Loadable<HTMLImageElement> {
    * Returns true if the Texture is completely loaded and is ready
    * to be drawn.
    */
-  public isLoaded(): boolean {
+  public get isLoaded(): boolean {
     if (!this._src) {
       // this boosts speed of access
       this._src = this.data.src;
@@ -238,7 +238,7 @@ export class ImageSource implements Loadable<HTMLImageElement> {
    * Begins loading the image and returns a promise that resolves when the image is loaded
    */
   async load(): Promise<HTMLImageElement> {
-    if (this.isLoaded()) {
+    if (this.isLoaded) {
       return this.data;
     }
     let objectUrl: string | null = null;

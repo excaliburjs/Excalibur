@@ -237,7 +237,7 @@ export class ShaderPass {
       return { name, texture: source.texture, width: source.width, height: source.height };
     }
     if (source instanceof ImageSource) {
-      if (!source.isLoaded()) {
+      if (!source.isLoaded) {
         this._logger.warnOnce(`ShaderPass "${this.name}" source "${name}" is an ImageSource that is not loaded, it will sample black`);
         return { name, texture: null };
       }

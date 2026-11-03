@@ -135,7 +135,7 @@ describe('An ArcadeSolver', () => {
       null as any
     );
     arcadeSolver.solvePosition(contact2);
-    expect(contact2.isCanceled()).toBe(true);
+    expect(contact2.isCanceled).toBe(true);
   });
 
   it('should NOT cancel collisions where the bodies are moving away from the contact', () => {
@@ -172,7 +172,7 @@ describe('An ArcadeSolver', () => {
       null as any
     );
     arcadeSolver.solveVelocity(contact);
-    expect(contact.isCanceled()).toBe(false);
+    expect(contact.isCanceled).toBe(false);
     expect(player.vel).toBeVector(ex.vec(0, -10)); // Velocity is not adjusted
 
     // Player moving towards contact
@@ -189,7 +189,7 @@ describe('An ArcadeSolver', () => {
     );
 
     arcadeSolver.solveVelocity(contact2);
-    expect(contact2.isCanceled()).toBe(false);
+    expect(contact2.isCanceled).toBe(false);
     expect(player.vel).toBeVector(ex.Vector.Zero); // Velocity is adjusted
   });
 
@@ -227,7 +227,7 @@ describe('An ArcadeSolver', () => {
 
     arcadeSolver.solvePosition(contact);
 
-    expect(contact.isCanceled()).toBe(true);
+    expect(contact.isCanceled).toBe(true);
   });
 
   it('should cancel near zero overlap collisions', () => {
@@ -264,7 +264,7 @@ describe('An ArcadeSolver', () => {
 
     arcadeSolver.solvePosition(contact);
     // Considers infinitesimally overlapping to no longer be overlapping and thus cancels the contact
-    expect(contact.isCanceled()).toBe(true);
+    expect(contact.isCanceled).toBe(true);
   });
 
   it('should cancel zero overlap collisions during presolve', () => {
@@ -303,7 +303,7 @@ describe('An ArcadeSolver', () => {
 
     arcadeSolver.preSolve([contact]);
     // Considers infinitesimally overlapping to no longer be overlapping and thus cancels the contact
-    expect(contact.isCanceled()).toBe(true);
+    expect(contact.isCanceled).toBe(true);
   });
 
   it('should allow solver bias and solve certain contacts first', async () => {

@@ -61,7 +61,7 @@ describe('A Trigger', () => {
 
     // Assert
     expect(trigger.action).toHaveBeenCalledTimes(1);
-    expect(trigger.isKilled()).toBe(true);
+    expect(trigger.isKilled).toBe(true);
   });
 
   it.skip('can be triggered multiple times', () => {
@@ -123,7 +123,7 @@ describe('A Trigger', () => {
     expect(trigger.action).toHaveBeenCalledTimes(3);
     expect(enterSpy).toHaveBeenCalledTimes(3);
     expect(exitSpy).toHaveBeenCalledTimes(3);
-    expect(trigger.isKilled()).toBe(true);
+    expect(trigger.isKilled).toBe(true);
   });
 
   it.skip('fires an event when an actor enters the trigger once', () => {

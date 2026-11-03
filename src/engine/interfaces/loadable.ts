@@ -16,5 +16,5 @@ export interface Loadable<T> {
   /**
    * Returns true if the loadable is loaded
    */
-  isLoaded(): boolean;
+  readonly isLoaded: boolean;
 }

@@ -429,7 +429,7 @@ export class Shader {
     gl.useProgram(null);
   }
 
-  isCurrentlyBound() {
+  get isCurrentlyBound() {
     return Shader._ACTIVE_SHADER_INSTANCE === this;
   }
 
@@ -546,7 +546,7 @@ export class Shader {
     // first 2 textures slots are usually taken by 1 default graphic 2 screen texture
     let textureSlot = this._startingTextureSlot;
     for (const [textureName, image] of Object.entries(this.images)) {
-      if (!image.isLoaded()) {
+      if (!image.isLoaded) {
         if (!suppressWarning) {
           this._logger.warnOnce(
             `Image named ${textureName} in not loaded, nothing will be uploaded to the shader.` +
@@ -708,7 +708,7 @@ export class Shader {
     if (!this._compiled) {
       throw Error(`Must compile shader before setting a uniform block ${name}`);
     }
-    if (!this.isCurrentlyBound()) {
+    if (!this.isCurrentlyBound) {
       throw Error(
         'Currently accessed shader instance is not the current active shader in WebGL,' +
           ' must call `shader.use()` before setting uniforms'
@@ -764,7 +764,7 @@ export class Shader {
       this._logger.warn(`Must compile shader before setting a uniform block ${name} at binding point ${bindingPoint}`);
       return false;
     }
-    if (!this.isCurrentlyBound()) {
+    if (!this.isCurrentlyBound) {
       this._logger.warn(
         'Currently accessed shader instance is not the current active shader in WebGL,' +
           ' must call `shader.use()` before setting uniforms'
@@ -1023,7 +1023,7 @@ export class Shader {
     if (!this._compiled) {
       throw Error(`Must compile shader before setting a uniform ${uniformType}:${name}`);
     }
-    if (!this.isCurrentlyBound()) {
+    if (!this.isCurrentlyBound) {
       throw Error(
         'Currently accessed shader instance is not the current active shader in WebGL,' +
           ' must call `shader.use()` before setting uniforms'
@@ -1061,7 +1061,7 @@ export class Shader {
       this._logger.warn(`Must compile shader before setting a uniform ${uniformType}:${name}`);
       return false;
     }
-    if (!this.isCurrentlyBound()) {
+    if (!this.isCurrentlyBound) {
       this._logger.warn(
         'Currently accessed shader instance is not the current active shader in WebGL,' +
           ' must call `shader.use()` before setting uniforms'

@@ -38,7 +38,7 @@ var play = new ex.Actor({
   collisionType: ex.CollisionType.PreventCollision
 });
 play.on('pointerdown', () => {
-  if (sound.isPaused()) {
+  if (sound.isPaused) {
     sound.resume();
   } else {
     sound.play();

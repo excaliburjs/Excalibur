@@ -142,7 +142,7 @@ export class DebugLineRenderer implements RendererPlugin {
     return false;
   }
 
-  hasPendingDraws(): boolean {
+  get hasPendingDraws(): boolean {
     return this._lineCount !== 0;
   }
 

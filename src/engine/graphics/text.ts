@@ -110,7 +110,7 @@ export class Text extends Graphic {
   }
 
   protected override _preDraw(ex: ExcaliburGraphicsContext, x: number, y: number): void {
-    if (this.isStale() || this.font.isStale()) {
+    if (this.isStale || this.font.isStale) {
       this.font.flipHorizontal = this.flipHorizontal;
       this.font.flipVertical = this.flipVertical;
       this.font.rotation = this.rotation;

@@ -811,10 +811,10 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
    * Tests whether a {@apilink Timer} is active in the scene
    */
   public isTimerActive(timer: Timer): boolean {
-    return this._timers.indexOf(timer) > -1 && !timer.complete;
+    return this._timers.indexOf(timer) > -1 && !timer.isComplete;
   }
 
-  public isCurrentScene(): boolean {
+  public get isCurrentScene(): boolean {
     if (this.engine) {
       return this.engine.currentScene === this;
     }

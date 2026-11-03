@@ -50,7 +50,7 @@ export class TiledSprite extends Sprite {
     });
     this._options = options;
 
-    if (this.image.isLoaded()) {
+    if (this.image.isLoaded) {
       this._applyTiling();
     } else {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises

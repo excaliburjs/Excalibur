@@ -33,7 +33,7 @@ export class Pair {
     }
 
     // if the pair has a member with zero dimension don't collide
-    if (colliderA.localBounds.hasZeroDimensions() || colliderB.localBounds.hasZeroDimensions()) {
+    if (colliderA.localBounds.hasZeroDimensions || colliderB.localBounds.hasZeroDimensions) {
       return false;
     }
 

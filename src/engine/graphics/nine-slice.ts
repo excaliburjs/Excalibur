@@ -236,7 +236,7 @@ export class NineSlice extends Graphic {
    *  Draws the 9 slices to the canvas
    */
   protected _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number): void {
-    if (this._imgSource.isLoaded()) {
+    if (this._imgSource.isLoaded) {
       // Top left, no stretching
 
       this._drawTile(

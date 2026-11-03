@@ -387,7 +387,7 @@ export class ImageRendererV2 implements RendererPlugin {
     vertexBuffer[this._vertexIndex++] = tint.a;
   }
 
-  hasPendingDraws(): boolean {
+  get hasPendingDraws(): boolean {
     return this._imageCount !== 0;
   }
 

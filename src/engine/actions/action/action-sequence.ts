@@ -26,7 +26,7 @@ export class ActionSequence implements Action {
   }
 
   public isComplete(): boolean {
-    return this._stopped || this._actionQueue.isComplete();
+    return this._stopped || this._actionQueue.isComplete;
   }
 
   public stop(): void {

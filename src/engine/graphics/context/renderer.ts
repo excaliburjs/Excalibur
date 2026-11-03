@@ -32,7 +32,7 @@ export interface RendererPlugin {
   /**
    * @returns if there are any pending draws in the renderer
    */
-  hasPendingDraws(): boolean;
+  readonly hasPendingDraws: boolean;
 
   /**
    * Flush any pending graphics draws to the screen

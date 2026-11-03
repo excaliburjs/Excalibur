@@ -112,7 +112,7 @@ export class ParticleRenderer implements RendererPlugin {
 
     renderer.draw(gl);
   }
-  hasPendingDraws(): boolean {
+  get hasPendingDraws(): boolean {
     return false;
   }
   flush(): void {

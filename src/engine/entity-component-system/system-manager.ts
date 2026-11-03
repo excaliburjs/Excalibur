@@ -24,7 +24,7 @@ export class SystemManager {
    * List of systems, to add a new system call {@apilink SystemManager.addSystem}
    */
   public systems: System[] = [];
-  public initialized = false;
+  public isInitialized = false;
   constructor(private _world: World) {}
 
   /**
@@ -51,7 +51,7 @@ export class SystemManager {
     this.systems.sort((a, b) => (a.constructor as typeof System).priority - (b.constructor as typeof System).priority);
     // If systems are added and the manager has already been init'd
     // then immediately init the system
-    if (this.initialized && system.onInitialize) {
+    if (this.isInitialized && system.onInitialize) {
       system.onInitialize(this._world, this._world.scene);
     }
   }
@@ -62,7 +62,7 @@ export class SystemManager {
    */
   public removeSystem(system: System) {
     const removed = removeItemFromArray(system, this.systems);
-    if (removed && this.initialized && system.dispose) {
+    if (removed && this.isInitialized && system.dispose) {
       system.dispose(this._world, this._world.scene);
     }
   }
@@ -73,8 +73,8 @@ export class SystemManager {
    * Systems added after initialize() will be initialized on add
    */
   public initialize() {
-    if (!this.initialized) {
-      this.initialized = true;
+    if (!this.isInitialized) {
+      this.isInitialized = true;
       for (const s of this.systems) {
         if (s.onInitialize) {
           s.onInitialize(this._world, this._world.scene);

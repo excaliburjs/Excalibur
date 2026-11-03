@@ -26,7 +26,7 @@ export class TreeNode<T> {
     this.height = 0;
   }
 
-  public isLeaf(): boolean {
+  public get isLeaf(): boolean {
     return !this.left && !this.right;
   }
 }
@@ -69,7 +69,7 @@ export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
     // Search the tree for a node that is not a leaf and find the best place to insert
     const leafAABB = leaf.bounds;
     let currentRoot = this.root;
-    while (!currentRoot.isLeaf()) {
+    while (!currentRoot.isLeaf) {
       const left = currentRoot!.left;
       const right = currentRoot!.right;
 
@@ -88,7 +88,7 @@ export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
       const leftCombined = leafAABB.combine(left!.bounds);
       let newArea;
       let oldArea;
-      if (left?.isLeaf()) {
+      if (left?.isLeaf) {
         leftCost = leftCombined.getPerimeter() + inheritanceCost;
       } else {
         oldArea = left?.bounds.getPerimeter();
@@ -98,7 +98,7 @@ export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
 
       let rightCost = 0;
       const rightCombined = leafAABB.combine(right!.bounds);
-      if (right!.isLeaf()) {
+      if (right!.isLeaf) {
         rightCost = rightCombined.getPerimeter() + inheritanceCost;
       } else {
         oldArea = right!.bounds.getPerimeter();
@@ -297,7 +297,7 @@ export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
       throw new Error('Cannot balance at null node');
     }
 
-    if (node.isLeaf() || node.height < 2) {
+    if (node.isLeaf || node.height < 2) {
       return node;
     }
 
@@ -427,7 +427,7 @@ export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
     const bounds = collider.bounds;
     const helper = (currentNode: TreeNode<TProxy>): boolean => {
       if (currentNode && currentNode.bounds.overlaps(bounds)) {
-        if (currentNode.isLeaf() && currentNode.data !== collider) {
+        if (currentNode.isLeaf && currentNode.data !== collider) {
           if (callback.call(collider, currentNode.data!)) {
             return true;
           }
@@ -451,7 +451,7 @@ export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
   public rayCastQuery(ray: Ray, max: number = Infinity, callback: (other: TProxy) => boolean): void {
     const helper = (currentNode: TreeNode<TProxy>): boolean => {
       if (currentNode && currentNode.bounds.rayCast(ray, max)) {
-        if (currentNode.isLeaf()) {
+        if (currentNode.isLeaf) {
           if (callback.call(ray, currentNode.data!)) {
             // ray hit a leaf! return the body
             return true;
@@ -481,7 +481,7 @@ export class DynamicTree<TProxy extends ColliderProxy<Entity>> {
     // draw all the nodes in the Dynamic Tree
     const helper = (currentNode: TreeNode<TProxy>) => {
       if (currentNode) {
-        if (currentNode.isLeaf()) {
+        if (currentNode.isLeaf) {
           currentNode.bounds.debug(ex, { color: Color.Green });
         } else {
           currentNode.bounds.debug(ex, { color: Color.White });

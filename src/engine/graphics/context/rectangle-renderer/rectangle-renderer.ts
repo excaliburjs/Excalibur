@@ -340,7 +340,7 @@ export class RectangleRenderer implements RendererPlugin {
     vertexBuffer[this._vertexIndex++] = strokeThickness;
   }
 
-  hasPendingDraws(): boolean {
+  get hasPendingDraws(): boolean {
     return this._rectangleCount !== 0;
   }
 

@@ -67,7 +67,7 @@ export class HashColliderProxy extends HashGridProxy<Collider> {
     super(collider, gridSize);
     this.gridSize = gridSize;
     const bounds = collider.bounds;
-    this.hasZeroBounds = bounds.hasZeroDimensions();
+    this.hasZeroBounds = bounds.hasZeroDimensions;
     this.leftX = Math.floor(bounds.left / this.gridSize);
     this.rightX = Math.floor(bounds.right / this.gridSize);
     this.bottomY = Math.floor(bounds.bottom / this.gridSize);
@@ -82,13 +82,13 @@ export class HashColliderProxy extends HashGridProxy<Collider> {
   /**
    * Skips the bounds refresh and cell comparison entirely when the collider's world geometry hasn't changed
    */
-  override hasChanged(): boolean {
+  override get hasChanged(): boolean {
     const version = this.collider.worldVersion;
     if (version === this._lastWorldVersion) {
       return false;
     }
     this._lastWorldVersion = version;
-    return super.hasChanged();
+    return super.hasChanged;
   }
 
   /**
@@ -98,7 +98,7 @@ export class HashColliderProxy extends HashGridProxy<Collider> {
     super.update();
     this.body = this.owner?.get(BodyComponent);
     this.collisionType = this.body?.collisionType ?? CollisionType.PreventCollision;
-    this.hasZeroBounds = this.collider.localBounds.hasZeroDimensions();
+    this.hasZeroBounds = this.collider.localBounds.hasZeroDimensions;
   }
 }
 

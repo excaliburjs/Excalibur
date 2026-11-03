@@ -146,7 +146,7 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
   /**
    * Returns true if the loader has completely loaded all resources
    */
-  public isLoaded() {
+  public get isLoaded() {
     return this._loaded || this._resources.length === 0;
   }
 
@@ -211,7 +211,7 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
     if (this._isLoading) {
       return this._loaderCompleteFuture.promise;
     }
-    if (this.isLoaded()) {
+    if (this.isLoaded) {
       // Already loaded quick exit
       return (this.data = this._resources);
     }
@@ -224,7 +224,7 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
     await Promise.all(
       this._resources
         .filter((r) => {
-          return !r.isLoaded();
+          return !r.isLoaded;
         })
         .map(async (r) => {
           this.events.emit('loadresourcestart', r);

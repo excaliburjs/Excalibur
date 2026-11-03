@@ -31,7 +31,7 @@ export class RepeatForever implements Action {
       return;
     }
 
-    if (this._actionQueue.isComplete()) {
+    if (this._actionQueue.isComplete) {
       this._actionQueue.clearActions();
       this._repeatBuilder(this._repeatContext);
     }

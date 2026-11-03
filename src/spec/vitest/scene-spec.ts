@@ -749,7 +749,7 @@ describe('A scene', () => {
 
     scene.remove(actor);
 
-    expect(actor.isKilled()).toBe(true);
+    expect(actor.isKilled).toBe(true);
     expect(actor.kill).toHaveBeenCalledTimes(1);
   });
 
@@ -770,7 +770,7 @@ describe('A scene', () => {
     actor.kill();
     scene.update(engine, 100);
     expect(scene.actors).not.toContain(actor);
-    expect(actor.isKilled()).toBe(true);
+    expect(actor.isKilled).toBe(true);
   });
 
   it('will update TileMaps that were added in a Timer callback', () => {
@@ -804,12 +804,12 @@ describe('A scene', () => {
 
   it('will return true if it is the current engine scene', () => {
     engine.goToScene('root');
-    expect(scene.isCurrentScene()).toBe(true);
+    expect(scene.isCurrentScene).toBe(true);
   });
 
   it('will not be the current scene if no engine is given', () => {
     const otherScene = new ex.Scene();
-    expect(otherScene.isCurrentScene()).toBe(false);
+    expect(otherScene.isCurrentScene).toBe(false);
   });
 
   it('will not be the current scene if the scene was switched', async () => {
@@ -818,8 +818,8 @@ describe('A scene', () => {
     engine.addScene('secondaryScene', otherScene);
     await engine.goToScene('secondaryScene');
 
-    expect(scene.isCurrentScene()).toBe(false);
-    expect(otherScene.isCurrentScene()).toBe(true);
+    expect(scene.isCurrentScene).toBe(false);
+    expect(otherScene.isCurrentScene).toBe(true);
   });
 
   describe('lifecycle overrides', () => {

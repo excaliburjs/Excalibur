@@ -24,7 +24,7 @@ describe('A Transition', () => {
     expect(sut.easing).toBe(ex.easeInOutCubic);
 
     expect(sut.progress).toBe(1);
-    expect(sut.complete).toBe(false);
+    expect(sut.isComplete).toBe(false);
     expect(sut.started).toBe(false);
   });
 
@@ -40,7 +40,7 @@ describe('A Transition', () => {
     expect(sut.easing).toBe(ex.linear);
 
     expect(sut.progress).toBe(0);
-    expect(sut.complete).toBe(false);
+    expect(sut.isComplete).toBe(false);
     expect(sut.started).toBe(false);
   });
 
@@ -72,7 +72,7 @@ describe('A Transition', () => {
     sut.updateTransition(engine, 3200 - 32);
     sut._execute();
     expect(onEndSpy).toHaveBeenCalledWith(1);
-    expect(sut.complete).toBe(true);
+    expect(sut.isComplete).toBe(true);
 
     sut.updateTransition(engine, 4000);
     sut._execute();
@@ -111,17 +111,17 @@ describe('A Transition', () => {
     sut.updateTransition(engine, 3200 - 32);
     sut._execute();
     expect(onEndSpy).toHaveBeenCalledWith(1);
-    expect(sut.complete).toBe(true);
+    expect(sut.isComplete).toBe(true);
 
     sut.updateTransition(engine, 4000);
     sut._execute();
 
-    expect(sut.complete).toBe(true);
+    expect(sut.isComplete).toBe(true);
 
     sut.onReset = vi.fn();
     sut.reset();
 
-    expect(sut.complete).toBe(false);
+    expect(sut.isComplete).toBe(false);
     expect(sut.started).toBe(false);
     expect(sut.onReset).toHaveBeenCalledTimes(1);
     engine.dispose();

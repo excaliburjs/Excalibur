@@ -87,7 +87,7 @@ describe('A Timer', () => {
     sut.resume();
     scene.update(engine, 40);
     expect(timerSpy).toHaveBeenCalledTimes(1);
-    expect(sut.complete).toBe(true);
+    expect(sut.isComplete).toBe(true);
     expect(sut.isRunning).toBe(false);
     expect(sut.timeToNextAction).toBe(0);
     expect(sut.timeElapsedTowardNextAction).toBe(0);
@@ -123,7 +123,7 @@ describe('A Timer', () => {
     sut.stop();
     expect(sut.timeElapsedTowardNextAction).toBe(0);
     expect(sut.timeToNextAction).toBe(42);
-    expect(sut.complete).toBe(false);
+    expect(sut.isComplete).toBe(false);
     expect(sut.isRunning).toBe(false);
 
     sut.start();
@@ -141,7 +141,7 @@ describe('A Timer', () => {
     sut.start();
     sut.update(501);
     sut.update(501);
-    expect(sut.complete).toBe(true);
+    expect(sut.isComplete).toBe(true);
     expect(timerSpy).toHaveBeenCalledTimes(1);
   });
 
@@ -221,7 +221,7 @@ describe('A Timer', () => {
     scene.addTimer(timer!);
     timer!.start();
     scene.update(engine, 501);
-    expect(timer!.complete).toBeTruthy();
+    expect(timer!.isComplete).toBeTruthy();
   });
 
   it('has no completed state when running forever', () => {
@@ -237,17 +237,17 @@ describe('A Timer', () => {
     scene.update(engine, 501);
     expect(timerSpy).toHaveBeenCalledTimes(1);
     expect(timer.repeats).toBeTruthy();
-    expect(timer.complete).toBeFalsy();
+    expect(timer.isComplete).toBeFalsy();
 
     scene.update(engine, 501);
     expect(timerSpy).toHaveBeenCalledTimes(2);
     expect(timer.repeats).toBeTruthy();
-    expect(timer.complete).toBeFalsy();
+    expect(timer.isComplete).toBeFalsy();
 
     scene.update(engine, 501);
     expect(timerSpy).toHaveBeenCalledTimes(3);
     expect(timer.repeats).toBeTruthy();
-    expect(timer.complete).toBeFalsy();
+    expect(timer.isComplete).toBeFalsy();
   });
 
   it('can be reset at the same interval', () => {
@@ -268,12 +268,12 @@ describe('A Timer', () => {
     // tick the timer again, but it shouldn't fire until reset
     scene.update(engine, 501);
     expect(timerSpy).toHaveBeenCalledTimes(1);
-    expect(timer.complete).toBe(true);
+    expect(timer.isComplete).toBe(true);
 
     // once reset the timer should fire again
     timer.reset();
     timer.start();
-    expect(timer.complete).toBe(false);
+    expect(timer.isComplete).toBe(false);
     scene.update(engine, 501);
     expect(timerSpy).toHaveBeenCalledTimes(2);
   });
@@ -298,12 +298,12 @@ describe('A Timer', () => {
     // tick the timer again, but it shouldn't fire until reset
     scene.update(engine, 501);
     expect(count).toBe(1);
-    expect(timer.complete).toBe(true);
+    expect(timer.isComplete).toBe(true);
 
     // once reset at a larger the timer should fire again
     timer.reset(900);
     timer.start();
-    expect(timer.complete).toBe(false);
+    expect(timer.isComplete).toBe(false);
     scene.update(engine, 901);
     expect(count).toBe(2);
   });
@@ -330,7 +330,7 @@ describe('A Timer', () => {
     for (let i = 0; i < 100; i++) {
       scene.update(engine, 31);
       expect(count).toBe(2 + i);
-      expect(timer.complete).toBe(false);
+      expect(timer.isComplete).toBe(false);
     }
   });
 
@@ -357,12 +357,12 @@ describe('A Timer', () => {
     // tick the timer again, but it shouldn't fire until reset
     scene.update(engine, 501);
     expect(timer.timesRepeated).toBe(3);
-    expect(timer.complete).toBe(true);
+    expect(timer.isComplete).toBe(true);
 
     // once reset the timer should fire again
     timer.reset(500, 4);
     timer.start();
-    expect(timer.complete).toBe(false);
+    expect(timer.isComplete).toBe(false);
     scene.update(engine, 501);
     scene.update(engine, 501);
     scene.update(engine, 501);
@@ -386,7 +386,7 @@ describe('A Timer', () => {
     scene.update(engine, 501);
     scene.update(engine, 501);
     expect(timerSpy).toHaveBeenCalledTimes(3);
-    expect(timer.complete).toBe(false);
+    expect(timer.isComplete).toBe(false);
 
     // Reset with numberOfRepeats = 2
     timer.reset(500, 2);
@@ -397,7 +397,7 @@ describe('A Timer', () => {
     scene.update(engine, 501); // Should not fire - limit reached
 
     expect(timer.timesRepeated).toBe(2);
-    expect(timer.complete).toBe(true);
+    expect(timer.isComplete).toBe(true);
   });
 
   it('can be paused', () => {
@@ -419,7 +419,7 @@ describe('A Timer', () => {
 
     // assert
     expect(count).toBe(0);
-    expect(timer.complete).toBe(false);
+    expect(timer.isComplete).toBe(false);
   });
 
   it('can be unpaused', () => {
@@ -444,7 +444,7 @@ describe('A Timer', () => {
 
     // assert
     expect(count).toBe(2);
-    expect(timer.complete).toBe(false);
+    expect(timer.isComplete).toBe(false);
   });
 
   it('it can be initialized with without a callback function and add one later', () => {
@@ -562,7 +562,7 @@ describe('A Timer', () => {
     });
     scene.add(timer);
     timer.start();
-    expect(timer.complete).toBe(false);
+    expect(timer.isComplete).toBe(false);
     scene.update(engine, 100);
     expect(timer.interval).toBeGreaterThanOrEqual(100);
     expect(timer.interval).toBeLessThanOrEqual(300);

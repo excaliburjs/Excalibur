@@ -151,21 +151,21 @@ export class Gamepads {
       if (!gamepads[i]) {
         const gamepad = this.at(i);
         // If was connected, but now isn't emit the disconnect event
-        if (gamepad.connected) {
+        if (gamepad.isConnected) {
           this.events.emit('disconnect', new GamepadDisconnectEvent(i, gamepad));
           gamepad.events.unpipe(this.events);
         }
         // Reset connection status
-        gamepad.connected = false;
+        gamepad._connected = false;
         continue;
       } else {
         const gamepad = this.at(i)!;
-        if (!this.at(i).connected && this._isGamepadValid(gamepads[i]!)) {
+        if (!this.at(i).isConnected && this._isGamepadValid(gamepads[i]!)) {
           gamepad.events.pipe(this.events);
           this.events.emit('connect', new GamepadConnectEvent(i, this.at(i)));
         }
         // Set connection status
-        this.at(i).connected = true;
+        this.at(i)._connected = true;
       }
 
       this.at(i).update();
@@ -244,7 +244,7 @@ export class Gamepads {
     this._enableAndUpdate();
     const result: Gamepad[] = [];
     for (let i = 0; i < this._pads.length; i++) {
-      if (this._isGamepadValid(this.at(i).navigatorGamepad) && this.at(i).connected) {
+      if (this._isGamepadValid(this.at(i).navigatorGamepad) && this.at(i).isConnected) {
         result.push(this.at(i));
       }
     }
@@ -255,7 +255,7 @@ export class Gamepads {
    * Gets the number of connected gamepads
    */
   public count() {
-    return this._pads.filter((p) => p.connected).length;
+    return this._pads.filter((p) => p.isConnected).length;
   }
 
   private _clonePads(pads: NavigatorGamepad[]): Gamepad[] {
@@ -296,7 +296,12 @@ export class Gamepads {
  */
 export class Gamepad {
   public events = new EventEmitter<GamepadEvents>();
-  public connected = false;
+  /** @internal */
+  public _connected = false;
+  /** True while a physical gamepad is connected to this slot */
+  public get isConnected(): boolean {
+    return this._connected;
+  }
   public navigatorGamepad!: NavigatorGamepad;
   private _axes: number[] = new Array(4);
   private _buttons: number[] = new Array(16);

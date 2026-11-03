@@ -49,7 +49,7 @@ describe('A camera', () => {
     });
     engine.screen.pushResolutionAndViewport();
     engine.screen.resolution = { width: 100, height: 1000 };
-    vi.spyOn(engine, 'loadingComplete', 'get').mockImplementation(() => false);
+    vi.spyOn(engine, 'isLoaded', 'get').mockImplementation(() => false);
     vi.spyOn(engine.screen, 'peekResolution');
 
     const sut = new ex.Camera();
@@ -101,7 +101,7 @@ describe('A camera', () => {
       resolution: { width: 1000, height: 1200 }
     });
 
-    vi.spyOn(engine, 'loadingComplete', 'get').mockImplementation(() => true);
+    vi.spyOn(engine, 'isLoaded', 'get').mockImplementation(() => true);
     vi.spyOn(engine.screen, 'peekResolution');
     const sut = new ex.Camera();
     sut.zoom = 2; // zoom should not change the center position

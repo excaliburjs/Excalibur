@@ -96,7 +96,7 @@ describe('The engine', () => {
       override async load(): Promise<ex.Loadable<any>[]> {
         throw new Error('I failed');
       }
-      override isLoaded(): boolean {
+      override get isLoaded(): boolean {
         return false;
       }
     }
@@ -485,19 +485,19 @@ describe('The engine', () => {
   });
 
   it('should tell engine is running', () => {
-    const status = engine.isRunning();
+    const status = engine.isRunning;
     expect(status).toBe(true);
   });
 
   it('should tell engine is paused', () => {
     engine.stop();
-    const status = engine.isRunning();
+    const status = engine.isRunning;
     expect(status).toBe(false);
   });
 
   it('should again tell engine is running', () => {
     engine.start();
-    const status = engine.isRunning();
+    const status = engine.isRunning;
     expect(status).toBe(true);
   });
 
@@ -999,7 +999,7 @@ describe('The engine', () => {
     it('can have onPostUpdate overridden safely', async () => {
       await engine.start();
       const clock = engine.clock as ex.TestClock;
-      expect(engine.clock.isRunning()).toBe(true);
+      expect(engine.clock.isRunning).toBe(true);
 
       engine.onPostUpdate = (engine, elapsedMs) => {
         expect(engine).not.toBe(null);
@@ -1019,7 +1019,7 @@ describe('The engine', () => {
     it('can have onPreUpdate overridden safely', async () => {
       await engine.start();
       const clock = engine.clock as ex.TestClock;
-      expect(engine.clock.isRunning()).toBe(true);
+      expect(engine.clock.isRunning).toBe(true);
 
       engine.onPreUpdate = (engine, elapsedMs) => {
         expect(engine).not.toBe(null);
@@ -1039,7 +1039,7 @@ describe('The engine', () => {
     it('can have onPreDraw overridden safely', async () => {
       await engine.start();
       const clock = engine.clock as ex.TestClock;
-      expect(engine.clock.isRunning()).toBe(true);
+      expect(engine.clock.isRunning).toBe(true);
 
       engine.currentScene._initialize(engine);
       engine.onPreDraw = (ctx, elapsedMs) => {
@@ -1059,7 +1059,7 @@ describe('The engine', () => {
     it('can have onPostDraw overridden safely', async () => {
       await engine.start();
       const clock = engine.clock as ex.TestClock;
-      expect(engine.clock.isRunning()).toBe(true);
+      expect(engine.clock.isRunning).toBe(true);
 
       engine.currentScene._initialize(engine);
       engine.onPostDraw = (ctx, elapsedMs) => {

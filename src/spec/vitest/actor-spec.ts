@@ -1065,12 +1065,12 @@ describe('A game actor', () => {
   it('is no longer killed when re-added to the game', () => {
     const actor = new ex.Actor();
     scene.add(actor);
-    expect(actor.isKilled()).toBeFalsy();
+    expect(actor.isKilled).toBeFalsy();
     actor.kill();
     scene.update(engine, 100);
-    expect(actor.isKilled()).toBeTruthy();
+    expect(actor.isKilled).toBeTruthy();
     scene.add(actor);
-    expect(actor.isKilled()).toBeFalsy();
+    expect(actor.isKilled).toBeFalsy();
   });
 
   it('fires initialize event when before the first update', () =>

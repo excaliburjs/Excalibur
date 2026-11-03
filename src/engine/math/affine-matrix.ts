@@ -407,7 +407,7 @@ export class AffineMatrix {
     this.setScaleY(scale.y);
   }
 
-  public isIdentity(): boolean {
+  public get isIdentity(): boolean {
     return this.data[0] === 1 && this.data[1] === 0 && this.data[2] === 0 && this.data[3] === 1 && this.data[4] === 0 && this.data[5] === 0;
   }
 

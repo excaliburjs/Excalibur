@@ -360,7 +360,7 @@ describe('A ImageSource', () => {
     const spriteFontImage = new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png');
     const image = await spriteFontImage.load();
 
-    expect(spriteFontImage.isLoaded()).toBe(true);
+    expect(spriteFontImage.isLoaded).toBe(true);
     const alreadyLoadedImage = await spriteFontImage.load();
 
     expect(image).toBe(alreadyLoadedImage);
@@ -372,7 +372,7 @@ describe('A ImageSource', () => {
     );
     await base64Image.load();
 
-    expect(base64Image.isLoaded()).toBe(true);
+    expect(base64Image.isLoaded).toBe(true);
     expect(base64Image.image.src).toBe(
       'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg=='
     );
@@ -393,7 +393,7 @@ describe('A ImageSource', () => {
       /Error loading ImageSource from path '.*corrupt\.png' with error \[the response could not be decoded as an image/
     );
     expect(logger.error).toHaveBeenCalledTimes(1);
-    expect(sut.isLoaded()).toBe(false);
+    expect(sut.isLoaded).toBe(false);
     await expect(sut.ready).rejects.toThrowError(/could not be decoded as an image/);
   });
 

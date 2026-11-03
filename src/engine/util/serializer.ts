@@ -93,7 +93,7 @@ export class Serializer {
     Serializer._INITIALIZED = true;
   }
 
-  static isInitialized(): boolean {
+  static get isInitialized(): boolean {
     return Serializer._INITIALIZED;
   }
 
