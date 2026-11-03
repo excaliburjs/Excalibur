@@ -42,8 +42,8 @@
     "simple"
   ],
   "scripts": {
-    "all": "npm run format && npm run lint && npm run build && npm run test",
-    "all:ci": "npm run format && npm run lint && npm run apidocs && npm run test:ci && npm run build",
+    "all": "npm run format && npm run lint && npm run build && npm run type-check:tests && npm run test",
+    "all:ci": "npm run format && npm run lint && npm run apidocs && npm run test:ci && npm run build && npm run type-check:tests",
     "clean": "rimraf ./build",
     "linux:ci": "npm run clean && npm run all:ci && npm run coveralls",
     "appveyor": "npm run all:ci && npm run nuget 0.0.1",
