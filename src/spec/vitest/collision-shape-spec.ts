@@ -1217,7 +1217,7 @@ describe('Collision Shape', () => {
       vi.spyOn(logger, 'warn');
       ex.Colliders.Capsule(100, 100);
       expect(logger.warn).toHaveBeenCalledWith(
-        'A capsule collider with equal width and height is a circle, consider using a ex.Shape.Circle or ex.CircleCollider'
+        'A capsule collider with equal width and height is a circle, consider using a ex.Colliders.Circle or ex.CircleCollider'
       );
     });
 
