@@ -209,18 +209,18 @@ export class LimitCameraBoundsStrategy implements CameraStrategy<BoundingBox> {
    * @param target The bounding box to limit the camera to
    */
 
-  boundSizeChecked: boolean = false; // Check and warn only once
+  private _boundSizeChecked: boolean = false; // Check and warn only once
 
   constructor(public target: BoundingBox) {}
 
   public action = (target: BoundingBox, cam: Camera, _eng: Engine, elapsed: number) => {
     const focus = cam.getFocus();
 
-    if (!this.boundSizeChecked) {
+    if (!this._boundSizeChecked) {
       if (target.bottom - target.top < _eng.drawHeight || target.right - target.left < _eng.drawWidth) {
         Logger.getInstance().warn('Camera bounds should not be smaller than the engine viewport');
       }
-      this.boundSizeChecked = true;
+      this._boundSizeChecked = true;
     }
 
     let focusX = focus.x;

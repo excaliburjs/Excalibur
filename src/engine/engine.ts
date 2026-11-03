@@ -1430,7 +1430,7 @@ O|===|* >________________>\n\
       this._disposed = true;
       this.stop();
       this._garbageCollector.forceCollectAll();
-      this.input.toggleEnabled(false);
+      this.input.setEnabled(false);
       this.input.pointers.detach();
       this.director.dispose();
 
@@ -1714,7 +1714,7 @@ O|===|* >________________>\n\
 
   public toggleInputEnabled(enabled: boolean) {
     this._inputEnabled = enabled;
-    this.input.toggleEnabled(this._inputEnabled);
+    this.input.setEnabled(this._inputEnabled);
   }
 
   public onInitialize(engine: Engine) {

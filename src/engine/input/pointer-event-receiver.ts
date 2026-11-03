@@ -96,7 +96,7 @@ export class PointerEventReceiver {
     public engine: Engine
   ) {}
 
-  public toggleEnabled(enabled: boolean) {
+  public setEnabled(enabled: boolean) {
     this._enabled = enabled;
   }
 

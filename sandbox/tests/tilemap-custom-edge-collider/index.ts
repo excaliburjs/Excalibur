@@ -18,7 +18,7 @@ tilemap.tiles.forEach((tile) => {
     // Graphic symbolizing a path
     // tile.addGraphic(tilesheet.getSprite(4, 1));
     // This works right but copies bounds of the tile
-    tile.solid = true;
+    tile.isSolid = true;
     tile.addCollider(
       new ex.EdgeCollider({
         begin: new ex.Vector(0, 0),

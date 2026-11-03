@@ -81,7 +81,7 @@ export interface GraphicsComponentOptions {
   /**
    * Optional visible flag, if the graphics component is not visible it will not be displayed
    */
-  visible?: boolean;
+  isVisible?: boolean;
 
   /**
    * Optional opacity
@@ -231,7 +231,7 @@ export class GraphicsComponent extends Component {
     super();
     // Defaults
     options = {
-      visible: this.isVisible,
+      isVisible: this.isVisible,
       graphics: {},
       ...options
     };
@@ -241,7 +241,7 @@ export class GraphicsComponent extends Component {
       anchor,
       color,
       opacity,
-      visible,
+      isVisible,
       graphics,
       offset,
       copyGraphics,
@@ -272,7 +272,7 @@ export class GraphicsComponent extends Component {
     this.onPostDraw = onPostDraw ?? this.onPostDraw;
     this.onPreTransformDraw = onPreTransformDraw ?? this.onPreTransformDraw;
     this.onPostTransformDraw = onPostTransformDraw ?? this.onPostTransformDraw;
-    this.isVisible = !!visible;
+    this.isVisible = !!isVisible;
     this.shouldAlwaysTick = !!shouldAlwaysTick;
     this._current = current ?? this._current;
     if (current && this._graphics[current]) {

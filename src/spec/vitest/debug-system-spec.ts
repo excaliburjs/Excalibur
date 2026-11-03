@@ -252,7 +252,7 @@ describe('DebugSystem', () => {
         rows: 10,
         columns: 10
       });
-      tilemap.tiles[0].solid = true;
+      tilemap.tiles[0].isSolid = true;
       tilemap.update(engine, 1);
       debugSystem.query.checkAndModify(tilemap);
       debugSystem.onUpdate();

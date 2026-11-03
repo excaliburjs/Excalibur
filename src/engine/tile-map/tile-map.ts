@@ -439,7 +439,7 @@ export class TileMap extends Entity implements HasNestedPointerEvents {
       for (let j = 0; j < this.rows; j++) {
         const tile = this.tiles[i + j * this.columns];
         // Current tile in column is solid build up current collider
-        if (tile.solid) {
+        if (tile.isSolid) {
           // Use custom collider otherwise bounding box
           if (tile.getColliders().length > 0) {
             // tile with custom collider interrupting the current run
@@ -744,7 +744,7 @@ export interface TileOptions {
    */
   y: number;
   map: TileMap;
-  solid?: boolean;
+  isSolid?: boolean;
   graphics?: Graphic[];
 }
 
@@ -812,13 +812,13 @@ export class Tile {
   /**
    * Wether this tile should be treated as solid by the tilemap
    */
-  public get solid(): boolean {
+  public get isSolid(): boolean {
     return this._solid;
   }
   /**
    * Wether this tile should be treated as solid by the tilemap
    */
-  public set solid(val: boolean) {
+  public set isSolid(val: boolean) {
     this.map?.flagCollidersDirty();
     this._solid = val;
   }
@@ -887,9 +887,9 @@ export class Tile {
   /**
    * Adds a custom collider to the {@apilink Tile} to use instead of it's bounds
    *
-   * If no collider is set but {@apilink Tile.solid} is set, the tile bounds are used as a collider.
+   * If no collider is set but {@apilink Tile.isSolid} is set, the tile bounds are used as a collider.
    *
-   * **Note!** the {@apilink Tile.solid} must be set to true for it to act as a "fixed" collider
+   * **Note!** the {@apilink Tile.isSolid} must be set to true for it to act as a "fixed" collider
    * @param collider
    */
   public addCollider(collider: Collider) {
@@ -928,7 +928,7 @@ export class Tile {
     this.map = options.map;
     this._width = options.map.tileWidth * this.map.scale.x;
     this._height = options.map.tileHeight * this.map.scale.y;
-    this.solid = options.solid ?? this.solid;
+    this.isSolid = options.isSolid ?? this.isSolid;
     this._graphics = options.graphics ?? [];
     this._recalculate();
   }

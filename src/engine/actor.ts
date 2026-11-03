@@ -124,7 +124,7 @@ export type ActorOptions = ColliderArgs & {
   /**
    * Optionally set the visibility of the actor
    */
-  visible?: boolean;
+  isVisible?: boolean;
   /**
    * Optionally set the anchor for graphics in the actor
    */
@@ -295,10 +295,10 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   public body: BodyComponent;
 
   /**
-   * The physics body the is associated with this actor. The body is the container for all physical properties, like position, velocity,
-   * acceleration, mass, inertia, etc.
+   * The component that tracks this actor's pause state. Most code should use {@apilink Actor.canPause} and
+   * {@apilink Actor.isPaused} instead of reaching into the component.
    */
-  public paused: PauseComponent;
+  public readonly pauseComponent: PauseComponent;
 
   /**
    * Access the Actor's built in {@apilink TransformComponent}
@@ -461,16 +461,23 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     this.get(TransformComponent).scale = scale;
   }
 
+  /**
+   * Whether this actor is paused when its scene is paused, default `true`. Set to `false` to keep the actor
+   * updating while the scene is paused (menus, HUD).
+   */
   public get canPause(): boolean {
-    return this.paused.canPause;
+    return this.pauseComponent.canPause;
   }
 
   public set canPause(canPause: boolean) {
-    this.paused.canPause = canPause;
+    this.pauseComponent.canPause = canPause;
   }
 
+  /**
+   * True while this actor is paused because its scene is paused and {@apilink Actor.canPause} is `true`
+   */
   public get isPaused(): boolean {
-    return this.paused.paused;
+    return this.pauseComponent.isPaused;
   }
 
   private _anchor: Vector = watch(Vector.Half, (v) => this._handleAnchorChange(v));
@@ -524,7 +531,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   /**
    * Indicates whether the actor is physically in the viewport
    */
-  public get isOffScreen(): boolean {
+  public get isOffscreen(): boolean {
     return this.hasTag('ex.offscreen');
   }
 
@@ -569,7 +576,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
       angularVelocity,
       z,
       color,
-      visible,
+      isVisible,
       opacity,
       anchor,
       offset,
@@ -619,8 +626,8 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
       this.body.group = collisionGroup;
     }
 
-    this.paused = new PauseComponent({ canPause });
-    this.addComponent(this.paused);
+    this.pauseComponent = new PauseComponent({ canPause });
+    this.addComponent(this.pauseComponent);
 
     if (color) {
       this.color = color;
@@ -661,7 +668,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
       }
     }
 
-    this.graphics.isVisible = visible ?? true;
+    this.graphics.isVisible = isVisible ?? true;
     if (graphic) {
       this.graphics.use(graphic);
     }

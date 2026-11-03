@@ -19,36 +19,36 @@ var tm = new ex.TileMap({
   meshingLookBehind: Infinity
 });
 
-tm.getTile(0, 0).solid = true;
-tm.getTile(0, 1).solid = true;
-tm.getTile(0, 2).solid = true;
-tm.getTile(0, 3).solid = true;
+tm.getTile(0, 0).isSolid = true;
+tm.getTile(0, 1).isSolid = true;
+tm.getTile(0, 2).isSolid = true;
+tm.getTile(0, 3).isSolid = true;
 
-tm.getTile(1, 0).solid = false;
-tm.getTile(1, 1).solid = false;
-tm.getTile(1, 2).solid = false;
-tm.getTile(1, 3).solid = false;
+tm.getTile(1, 0).isSolid = false;
+tm.getTile(1, 1).isSolid = false;
+tm.getTile(1, 2).isSolid = false;
+tm.getTile(1, 3).isSolid = false;
 
-tm.getTile(2, 0).solid = false;
-tm.getTile(2, 1).solid = false;
-tm.getTile(2, 2).solid = false;
-tm.getTile(2, 3).solid = false;
+tm.getTile(2, 0).isSolid = false;
+tm.getTile(2, 1).isSolid = false;
+tm.getTile(2, 2).isSolid = false;
+tm.getTile(2, 3).isSolid = false;
 
-tm.getTile(3, 0).solid = true;
-tm.getTile(3, 1).solid = true;
-tm.getTile(3, 2).solid = true;
-tm.getTile(3, 3).solid = true;
+tm.getTile(3, 0).isSolid = true;
+tm.getTile(3, 1).isSolid = true;
+tm.getTile(3, 2).isSolid = true;
+tm.getTile(3, 3).isSolid = true;
 
-tm.getTile(4, 0).solid = true;
-tm.getTile(4, 1).solid = true;
-tm.getTile(4, 2).solid = true;
-tm.getTile(4, 3).solid = true;
+tm.getTile(4, 0).isSolid = true;
+tm.getTile(4, 1).isSolid = true;
+tm.getTile(4, 2).isSolid = true;
+tm.getTile(4, 3).isSolid = true;
 
 game.add(tm);
 game.input.pointers.primary.on('down', (evt: ex.PointerEvent) => {
   const tile = tm.getTileByPoint(evt.worldPos);
   if (tile) {
-    tile.solid = !tile.solid;
+    tile.isSolid = !tile.isSolid;
   }
 });
 

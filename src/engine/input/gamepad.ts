@@ -65,7 +65,7 @@ export class Gamepads {
     }
   }
 
-  public toggleEnabled(enabled: boolean) {
+  public setEnabled(enabled: boolean) {
     this._enabled = enabled;
   }
 

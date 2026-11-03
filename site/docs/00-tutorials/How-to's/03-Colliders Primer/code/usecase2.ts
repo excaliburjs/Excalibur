@@ -77,7 +77,7 @@ const setupTileMap = () => {
   let tileIndex = 0;
   for (const tile of myTileMap.tiles) {
     if (isEdgeTile(tileIndex, myTileMap.columns, myTileMap.tiles.length)) {
-      tile.solid = true;
+      tile.isSolid = true;
       tile.addGraphic(greyTile);
     } else {
       tile.addGraphic(whiteTile);

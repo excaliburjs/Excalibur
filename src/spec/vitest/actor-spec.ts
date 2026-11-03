@@ -80,7 +80,7 @@ describe('A game actor', () => {
       angularVelocity: 0.1,
       z: 10,
       color: ex.Color.Red,
-      visible: false
+      isVisible: false
     });
 
     const actor2 = new ex.Actor({
@@ -1350,13 +1350,13 @@ describe('A game actor', () => {
     scene.update(engine, 100);
     scene.draw(engine.graphicsContext, 100);
 
-    expect(actor.isOffScreen, 'Actor should be onscreen').toBe(false);
+    expect(actor.isOffscreen, 'Actor should be onscreen').toBe(false);
 
     actor.pos.x = 106;
     scene.update(engine, 100);
     scene.draw(engine.graphicsContext, 100);
 
-    expect(actor.isOffScreen, 'Actor should be offscreen').toBe(true);
+    expect(actor.isOffscreen, 'Actor should be offscreen').toBe(true);
   });
 
   describe('lifecycle overrides', () => {

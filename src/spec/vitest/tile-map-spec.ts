@@ -110,30 +110,30 @@ describe('A TileMap', () => {
     });
     tm._initialize(engine);
 
-    tm.getTile(0, 0)!.solid = true;
-    tm.getTile(0, 1)!.solid = true;
-    tm.getTile(0, 2)!.solid = true;
-    tm.getTile(0, 3)!.solid = true;
+    tm.getTile(0, 0)!.isSolid = true;
+    tm.getTile(0, 1)!.isSolid = true;
+    tm.getTile(0, 2)!.isSolid = true;
+    tm.getTile(0, 3)!.isSolid = true;
 
-    tm.getTile(1, 0)!.solid = false;
-    tm.getTile(1, 1)!.solid = false;
-    tm.getTile(1, 2)!.solid = false;
-    tm.getTile(1, 3)!.solid = false;
+    tm.getTile(1, 0)!.isSolid = false;
+    tm.getTile(1, 1)!.isSolid = false;
+    tm.getTile(1, 2)!.isSolid = false;
+    tm.getTile(1, 3)!.isSolid = false;
 
-    tm.getTile(2, 0)!.solid = false;
-    tm.getTile(2, 1)!.solid = false;
-    tm.getTile(2, 2)!.solid = false;
-    tm.getTile(2, 3)!.solid = false;
+    tm.getTile(2, 0)!.isSolid = false;
+    tm.getTile(2, 1)!.isSolid = false;
+    tm.getTile(2, 2)!.isSolid = false;
+    tm.getTile(2, 3)!.isSolid = false;
 
-    tm.getTile(3, 0)!.solid = true;
-    tm.getTile(3, 1)!.solid = true;
-    tm.getTile(3, 2)!.solid = true;
-    tm.getTile(3, 3)!.solid = true;
+    tm.getTile(3, 0)!.isSolid = true;
+    tm.getTile(3, 1)!.isSolid = true;
+    tm.getTile(3, 2)!.isSolid = true;
+    tm.getTile(3, 3)!.isSolid = true;
 
-    tm.getTile(4, 0)!.solid = true;
-    tm.getTile(4, 1)!.solid = true;
-    tm.getTile(4, 2)!.solid = true;
-    tm.getTile(4, 3)!.solid = true;
+    tm.getTile(4, 0)!.isSolid = true;
+    tm.getTile(4, 1)!.isSolid = true;
+    tm.getTile(4, 2)!.isSolid = true;
+    tm.getTile(4, 3)!.isSolid = true;
 
     tm.flagCollidersDirty();
 
@@ -165,7 +165,7 @@ describe('A TileMap', () => {
     });
     tm._initialize(engine);
 
-    tm.getTile(0, 0)!.solid = true;
+    tm.getTile(0, 0)!.isSolid = true;
     tm.flagCollidersDirty();
     tm.update(engine, 1);
 
@@ -194,7 +194,7 @@ describe('A TileMap', () => {
     tm.pos = ex.vec(512, 0);
     tm.update(engine, 1);
 
-    tm.getTile(0, 0)!.solid = true;
+    tm.getTile(0, 0)!.isSolid = true;
     tm.flagCollidersDirty();
     tm.update(engine, 1);
 
@@ -291,7 +291,7 @@ describe('A TileMap', () => {
         }
       });
       tm.tiles.forEach(function (cell: ex.Tile) {
-        cell.solid = true;
+        cell.isSolid = true;
         cell.addGraphic(spriteTiles.sprites[0]);
       });
       tm._initialize(engine);
@@ -317,7 +317,7 @@ describe('A TileMap', () => {
         height: 64
       });
       tm.tiles.forEach(function (cell: ex.Tile) {
-        cell.solid = true;
+        cell.isSolid = true;
         cell.addGraphic(tileGraphic);
       });
       tm._initialize(engine);
@@ -344,7 +344,7 @@ describe('A TileMap', () => {
         height: 64
       });
       tm.tiles.forEach(function (cell: ex.Tile) {
-        cell.solid = true;
+        cell.isSolid = true;
         cell.addGraphic(tileGraphic);
       });
       tm._initialize(engine);
@@ -374,7 +374,7 @@ describe('A TileMap', () => {
         }
       });
       tm.tiles.forEach(function (cell: ex.Tile) {
-        cell.solid = true;
+        cell.isSolid = true;
         cell.addGraphic(spriteTiles.sprites[0]);
       });
       tm._initialize(engine);
@@ -407,7 +407,7 @@ describe('A TileMap', () => {
         }
       });
       tm.tiles.forEach(function (cell: ex.Tile) {
-        cell.solid = true;
+        cell.isSolid = true;
         cell.addGraphic(spriteTiles.sprites[0]);
       });
       tm._initialize(engine);
@@ -530,7 +530,7 @@ describe('A TileMap', () => {
     });
 
     const tile = sut.getTile(0, 0)!;
-    tile.solid = true;
+    tile.isSolid = true;
 
     const box = ex.Colliders.Box(10, 10);
 
@@ -547,7 +547,7 @@ describe('A TileMap', () => {
     expect(tile.getColliders().length).toBe(1);
 
     tile.clearColliders();
-    tile.solid = false;
+    tile.isSolid = false;
     sut.update(engine, 0);
 
     expect(tile.getColliders().length).toBe(0);
@@ -635,7 +635,7 @@ describe('A TileMap', () => {
         columns: 10
       });
       tm.tiles.forEach(function (cell: ex.Tile) {
-        cell.solid = true;
+        cell.isSolid = true;
       });
     });
 

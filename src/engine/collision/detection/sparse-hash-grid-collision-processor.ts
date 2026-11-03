@@ -82,13 +82,13 @@ export class HashColliderProxy extends HashGridProxy<Collider> {
   /**
    * Skips the bounds refresh and cell comparison entirely when the collider's world geometry hasn't changed
    */
-  override get hasChanged(): boolean {
+  override refreshAndCheckChanged(): boolean {
     const version = this.collider.worldVersion;
     if (version === this._lastWorldVersion) {
       return false;
     }
     this._lastWorldVersion = version;
-    return super.hasChanged;
+    return super.refreshAndCheckChanged();
   }
 
   /**

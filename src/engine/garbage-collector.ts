@@ -108,7 +108,7 @@ export class GarbageCollector {
     }
   }
 
-  running(): boolean {
+  get isRunning(): boolean {
     return this._running;
   }
 

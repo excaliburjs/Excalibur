@@ -109,7 +109,7 @@ describe('A scene', () => {
     scene.update(engine, 100);
     scene.draw(engine.graphicsContext, 100);
 
-    expect(actor.isOffScreen).toBe(false);
+    expect(actor.isOffscreen).toBe(false);
     expect(actor.graphics.onPostDraw).toHaveBeenCalled();
   });
 
@@ -129,7 +129,7 @@ describe('A scene', () => {
     scene.update(engine, 100);
     scene.draw(engine.graphicsContext, 100);
 
-    expect(actor.isOffScreen, 'Actor should be onscreen').toBe(false);
+    expect(actor.isOffscreen, 'Actor should be onscreen').toBe(false);
     expect(actor.graphics.onPostDraw).toHaveBeenCalled();
   });
   it('does not draw offscreen Actors left', () => {
@@ -147,7 +147,7 @@ describe('A scene', () => {
     scene.update(engine, 100);
     scene.draw(engine.graphicsContext, 100);
 
-    expect(actor.isOffScreen, 'Actor should be offscreen').toBe(true);
+    expect(actor.isOffscreen, 'Actor should be offscreen').toBe(true);
     expect(actor.graphics.onPostDraw).not.toHaveBeenCalled();
   });
 
@@ -166,7 +166,7 @@ describe('A scene', () => {
     scene.update(engine, 100);
     scene.draw(engine.graphicsContext, 100);
 
-    expect(actor.isOffScreen, 'Actor should be onscreen').toBe(false);
+    expect(actor.isOffscreen, 'Actor should be onscreen').toBe(false);
     expect(actor.graphics.onPostDraw).toHaveBeenCalled();
   });
 
@@ -185,7 +185,7 @@ describe('A scene', () => {
     scene.update(engine, 100);
     scene.draw(engine.graphicsContext, 100);
 
-    expect(actor.isOffScreen, 'Actor should be offscreen').toBe(true);
+    expect(actor.isOffscreen, 'Actor should be offscreen').toBe(true);
     expect(actor.graphics.onPostDraw).not.toHaveBeenCalled();
   });
 
@@ -204,7 +204,7 @@ describe('A scene', () => {
     scene.update(engine, 100);
     scene.draw(engine.graphicsContext, 100);
 
-    expect(actor.isOffScreen, 'Actor should be onscreen').toBe(false);
+    expect(actor.isOffscreen, 'Actor should be onscreen').toBe(false);
     expect(actor.graphics.onPostDraw).toHaveBeenCalled();
   });
 
@@ -223,7 +223,7 @@ describe('A scene', () => {
     scene.update(engine, 100);
     scene.draw(engine.graphicsContext, 100);
 
-    expect(actor.isOffScreen, 'Actor should be offscreen').toBe(true);
+    expect(actor.isOffscreen, 'Actor should be offscreen').toBe(true);
     expect(actor.graphics.onPostDraw).not.toHaveBeenCalled();
   });
 
@@ -242,7 +242,7 @@ describe('A scene', () => {
     scene.update(engine, 100);
     scene.draw(engine.graphicsContext, 100);
 
-    expect(actor.isOffScreen, 'Actor should be onscreen').toBe(false);
+    expect(actor.isOffscreen, 'Actor should be onscreen').toBe(false);
     expect(actor.graphics.onPostDraw).toHaveBeenCalled();
   });
 
@@ -261,7 +261,7 @@ describe('A scene', () => {
     scene.update(engine, 100);
     scene.draw(engine.graphicsContext, 100);
 
-    expect(actor.isOffScreen, 'Actor should be offscreen').toBe(true);
+    expect(actor.isOffscreen, 'Actor should be offscreen').toBe(true);
     expect(actor.graphics.onPostDraw).not.toHaveBeenCalled();
   });
 
@@ -274,7 +274,7 @@ describe('A scene', () => {
     actor.pos.x = 1000;
     actor.pos.y = 1000;
     scene.update(engine, 100);
-    expect(actor.isOffScreen).toBeFalsy();
+    expect(actor.isOffscreen).toBeFalsy();
 
     actor.pos.x = 1010;
     actor.pos.y = 1010;
@@ -290,7 +290,7 @@ describe('A scene', () => {
     expect(engine.drawWidth).toBe(100);
     expect(engine.drawHeight).toBe(100);
 
-    expect(actor.isOffScreen).toBeTruthy();
+    expect(actor.isOffscreen).toBeTruthy();
   });
 
   it('draws visible Actors', () => {

@@ -562,7 +562,7 @@ var blocks = ex.Sprite.from(imageBlocks);
 //   ]
 // })
 tileMap.tiles.forEach(function (cell: ex.Tile) {
-  cell.solid = true;
+  cell.isSolid = true;
   cell.addGraphic(spriteTiles.sprites[0]);
 });
 
@@ -1133,11 +1133,11 @@ game.add(trigger);
 game.input.pointers.primary.on('down', (evt: ex.PointerEvent) => {
   var c = tileMap.getTileByPoint(evt.worldPos);
   if (c) {
-    if (c.solid) {
-      c.solid = false;
+    if (c.isSolid) {
+      c.isSolid = false;
       c.clearGraphics();
     } else {
-      c.solid = true;
+      c.isSolid = true;
       c.addGraphic(spriteTiles.sprites[0]);
     }
   }

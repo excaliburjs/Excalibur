@@ -110,7 +110,7 @@ export class PolygonCollider extends Collider {
     this._transform.pos.y += this.offset.y;
     this.points = options.points;
 
-    if (!this.isConvex) {
+    if (!this.checkConvex()) {
       if (!options.suppressConvexWarning) {
         this._logger.warn(
           'Excalibur only supports convex polygon colliders and will not behave properly.' +
@@ -142,7 +142,7 @@ export class PolygonCollider extends Collider {
    * Returns if the polygon collider is convex, Excalibur does not handle non-convex collision shapes.
    * Call {@apilink Polygon.triangulate} to generate a {@apilink CompositeCollider} from this non-convex shape
    */
-  public get isConvex(): boolean {
+  public checkConvex(): boolean {
     // From SO: https://stackoverflow.com/a/45372025
     if (this.points.length < 3) {
       return false;

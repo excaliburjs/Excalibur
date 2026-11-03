@@ -408,7 +408,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   public async _activate(context: SceneActivationContext<TActivationData>) {
     try {
       this._logger.debug('Scene.onActivate', this);
-      this.input.toggleEnabled(true);
+      this.input.setEnabled(true);
 
       for (const plugin of this.engine.plugins) {
         plugin.onScenePreActivate?.(this);
@@ -438,7 +438,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
       plugin.onScenePreDeactivate?.(this);
     }
 
-    this.input.toggleEnabled(false);
+    this.input.setEnabled(false);
     const result = await this.onDeactivate(context);
 
     this.world.entityManager.findEntitiesForRemoval();

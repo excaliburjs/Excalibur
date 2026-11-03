@@ -545,13 +545,13 @@ describe('Collision Shape', () => {
       const convex = new ex.PolygonCollider({
         points: [ex.vec(0, 0), ex.vec(10, 10), ex.vec(10, 0)]
       });
-      expect(convex.isConvex, 'Triangles are always convex').toBe(true);
+      expect(convex.checkConvex(), 'Triangles are always convex').toBe(true);
 
       const concave = new ex.PolygonCollider({
         points: [ex.vec(0, 0), ex.vec(5, 5), ex.vec(0, 10), ex.vec(10, 10), ex.vec(10, 0)]
       });
 
-      expect(concave.isConvex, 'Should be concave').toBe(false);
+      expect(concave.checkConvex(), 'Should be concave').toBe(false);
     });
 
     it('can triangulate', () => {
@@ -567,7 +567,7 @@ describe('Collision Shape', () => {
       expect(colliders[1].points).toEqual([ex.vec(0, 10), ex.vec(5, 5), ex.vec(10, 0)]);
       expect(colliders[2].points).toEqual([ex.vec(10, 0), ex.vec(10, 10), ex.vec(0, 10)]);
 
-      expect(concave.isConvex, 'Should be concave').toBe(false);
+      expect(concave.checkConvex(), 'Should be concave').toBe(false);
     });
 
     it('can tesselate', () => {

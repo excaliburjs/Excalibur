@@ -198,7 +198,7 @@ In this example the tile art asset has a width of 111 pixels and a height of 128
 
 :::warning
 
-IsometricTile's need to be set to `solid = true` for them to act as `CollisionType.Fixed` colliders.
+IsometricTile's need to be set to `isSolid = true` for them to act as `CollisionType.Fixed` colliders.
 
 :::
 
@@ -211,7 +211,7 @@ const isoMap = new ex.IsometricMap({
 });
 
 for (let tile of isoMap.tiles) {
-  tile.solid = true;
+  tile.isSolid = true;
   tile.addCollider(ex.Shape.Polygon([ex.vec(0, 95), ex.vec(55, -32 + 95), ex.vec(111, 95), ex.vec(55, 32 + 95)]));
 }
 ```

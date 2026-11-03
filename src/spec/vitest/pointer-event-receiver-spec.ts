@@ -67,11 +67,11 @@ describe('A PointerEventReceiver', () => {
       expect(receiver.wasDown(999)).toBe(false);
     });
 
-    it('all report false when disabled via toggleEnabled(false)', () => {
+    it('all report false when disabled via setEnabled(false)', () => {
       const receiver = engine.input.pointers;
       receiver.currentFramePointerDown.set(0, true);
       receiver.lastFramePointerDown.set(0, true);
-      receiver.toggleEnabled(false);
+      receiver.setEnabled(false);
 
       expect(receiver.isDown(0)).toBe(false);
       expect(receiver.wasDown(0)).toBe(false);
@@ -79,7 +79,7 @@ describe('A PointerEventReceiver', () => {
       expect(receiver.isDragStart(0)).toBe(false);
       expect(receiver.isDragEnd(0)).toBe(false);
 
-      receiver.toggleEnabled(true);
+      receiver.setEnabled(true);
     });
   });
 

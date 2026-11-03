@@ -43,17 +43,17 @@ export class PauseSystem extends System {
       const paused = this.isPaused && pauseComponent.canPause;
       if (!this.wasPaused && paused) {
         // only add on the first pause
-        if (!pauseComponent.paused) {
+        if (!pauseComponent.isPaused) {
           this._pausedCount++;
         }
-        pauseComponent.paused = true;
+        pauseComponent._isPaused = true;
         pauseEntity.addTag(PauseComponentTag);
-      } else if ((this.wasPaused && !this.isPaused) || (pauseComponent.paused && !pauseComponent.canPause)) {
+      } else if ((this.wasPaused && !this.isPaused) || (pauseComponent.isPaused && !pauseComponent.canPause)) {
         // only remove on the first unpause
-        if (pauseComponent.paused) {
+        if (pauseComponent.isPaused) {
           this._pausedCount--;
         }
-        pauseComponent.paused = false;
+        pauseComponent._isPaused = false;
         pauseEntity.removeTag(PauseComponentTag);
       }
     }

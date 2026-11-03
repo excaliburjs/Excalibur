@@ -41,11 +41,11 @@ export class InputHost {
     return this._enabled;
   }
 
-  toggleEnabled(enabled: boolean) {
+  setEnabled(enabled: boolean) {
     this._enabled = enabled;
-    this.keyboard.toggleEnabled(this._enabled);
-    this.pointers.toggleEnabled(this._enabled);
-    this.gamepads.toggleEnabled(this._enabled);
+    this.keyboard.setEnabled(this._enabled);
+    this.pointers.setEnabled(this._enabled);
+    this.gamepads.setEnabled(this._enabled);
   }
 
   update() {
