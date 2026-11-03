@@ -85,7 +85,7 @@ var game = new ex.Engine({
   }
 });
 
-game.currentScene.onTransition = () => {
+game.currentScene.onTransition = (_) => {
   console.log('initial scene transition');
 };
 
@@ -1118,7 +1118,7 @@ var trigger = new ex.Trigger({
       game.addTimer(
         new ex.Timer({
           interval: 2000,
-          fcn: () => {
+          action: () => {
             emitter.isEmitting = false;
             exploding = false;
           }
@@ -1157,7 +1157,7 @@ for (let i = 0; i < tileMap.tiles.length; i++) {
   });
 }
 
-game.input.keyboard.on('up', (evt?: ex.KeyEvent) => {
+game.input.keyboard.on('release', (evt: ex.KeyEvent) => {
   if (evt.key == ex.Keys.F) {
     jump.play();
   }
