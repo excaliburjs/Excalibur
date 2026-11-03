@@ -63,6 +63,9 @@ export class Particle extends Entity {
 
   public override name = `Particle#${this.id}`;
 
+  private _emitter?: ParticleEmitter;
+  private _isDead = false;
+
   constructor(options: ParticleConfig) {
     super();
     this.addComponent((this.transform = new TransformComponent()));
@@ -72,8 +75,6 @@ export class Particle extends Entity {
     this.configure(options);
   }
 
-  private _emitter?: ParticleEmitter;
-  private _isDead = false;
   registerEmitter(emitter: ParticleEmitter) {
     this._emitter = emitter;
     if (this.particleTransform === ParticleTransform.Global) {
@@ -84,6 +85,7 @@ export class Particle extends Entity {
   }
 
   configure(options: ParticleConfig) {
+    this._isDead = false;
     this.particleTransform = options.transform ?? this.particleTransform;
     this.life = options.life ?? this.life;
     this.fade = options.fade ?? this.fade;
