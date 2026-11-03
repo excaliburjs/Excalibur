@@ -244,15 +244,43 @@ export interface KeyboardInitOptions {
 }
 
 export interface KeyEvents {
+  /**
+   * Synonymous with key release
+   */
+  up: KeyEvent;
+  /**
+   * Synonymouse with key press
+   */
+  down: KeyEvent;
+  /**
+   * Synonymouse with key down
+   */
   press: KeyEvent;
   hold: KeyEvent;
+  /**
+   * Synonymouse with key up
+   */
   release: KeyEvent;
 }
 
 export const KeyEvents = {
+  /**
+   * Synonymouse with key down
+   */
   Press: 'press',
   Hold: 'hold',
-  Release: 'release'
+  /**
+   * Synonymouse with key up
+   */
+  Release: 'release',
+  /**
+   * Synonymous with release
+   */
+  Up: 'up',
+  /**
+   * Synonymouse with press
+   */
+  Down: 'down'
 };
 
 /**
