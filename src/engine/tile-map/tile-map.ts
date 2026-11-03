@@ -131,6 +131,7 @@ export class TileMap extends Entity implements HasNestedPointerEvents {
 
   private _collidersDirty = true;
   private _pointerEventDispatcher: PointerEventsToObjectDispatcher<Tile>;
+  private _strategy: CompositeStrategy = 'separate';
   public flagCollidersDirty() {
     this._collidersDirty = true;
   }
@@ -305,7 +306,8 @@ export class TileMap extends Entity implements HasNestedPointerEvents {
     this._motion = this.get(MotionComponent);
     this.collider = this.get(ColliderComponent);
     this._composite = this.collider.useCompositeCollider([]);
-    this._composite.compositeStrategy = options.compositeStrategy ?? 'separate';
+    this._strategy = options.compositeStrategy ?? this._strategy;
+    this._composite.compositeStrategy = this._strategy;
 
     this.transform.pos = options.pos ?? Vector.Zero;
     this._oldPos = this.transform.pos.clone();
@@ -381,6 +383,7 @@ export class TileMap extends Entity implements HasNestedPointerEvents {
     this._composite.clearColliders();
     const colliders: BoundingBox[] = [];
     this._composite = this.collider.useCompositeCollider([]);
+    this._composite.compositeStrategy = this._strategy;
     let current: BoundingBox | null = null;
 
     /**

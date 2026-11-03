@@ -420,7 +420,7 @@ describe('Collision Shape', () => {
         radius: 30
       });
 
-      const box = ex.Shape.Box(40, 40, ex.Vector.Zero, new ex.Vector(200, 100));
+      const box = ex.Colliders.Box(40, 40, ex.Vector.Zero, new ex.Vector(200, 100));
 
       const line = circle.getClosestLineBetween(box);
 
@@ -434,7 +434,7 @@ describe('Collision Shape', () => {
         radius: 30
       });
 
-      const edge = ex.Shape.Edge(new ex.Vector(200, 50), new ex.Vector(200, 150));
+      const edge = ex.Colliders.Edge(new ex.Vector(200, 50), new ex.Vector(200, 150));
 
       const line = circle.getClosestLineBetween(edge);
 
@@ -479,7 +479,7 @@ describe('Collision Shape', () => {
       const action = () => {
         new ex.PolygonCollider({ points: [ex.Vector.One] });
       };
-      expect(action).toThrowError('PolygonCollider cannot be created with less that 3 points');
+      expect(action).toThrow('PolygonCollider cannot be created with less that 3 points');
     });
 
     it('can be cloned', () => {
@@ -539,7 +539,7 @@ describe('Collision Shape', () => {
     });
 
     it('can tesselate', () => {
-      const box = ex.Shape.Box(10, 10);
+      const box = ex.Colliders.Box(10, 10);
 
       const composite = box.tessellate();
 
@@ -830,7 +830,7 @@ describe('Collision Shape', () => {
     it('@visual can be drawn with actor', async () => {
       const polygonActor = new ex.Actor({
         pos: new ex.Vector(150, 100),
-        collider: ex.Shape.Polygon([new ex.Vector(0, -100), new ex.Vector(-100, 50), new ex.Vector(100, 50)])
+        collider: ex.Colliders.Polygon([new ex.Vector(0, -100), new ex.Vector(-100, 50), new ex.Vector(100, 50)])
       });
 
       scene.add(polygonActor);
@@ -841,7 +841,7 @@ describe('Collision Shape', () => {
     });
 
     it('can calculate the distance to another circle', () => {
-      const poly = ex.Shape.Box(40, 40, ex.Vector.Half, new ex.Vector(100, 100));
+      const poly = ex.Colliders.Box(40, 40, ex.Vector.Half, new ex.Vector(100, 100));
 
       const circle = new ex.CircleCollider({
         offset: new ex.Vector(200, 100),
@@ -855,9 +855,9 @@ describe('Collision Shape', () => {
     });
 
     it('can calculate the distance to another polygon', () => {
-      const poly = ex.Shape.Box(40, 40, ex.Vector.Half, new ex.Vector(100, 100));
+      const poly = ex.Colliders.Box(40, 40, ex.Vector.Half, new ex.Vector(100, 100));
 
-      const box = ex.Shape.Box(40, 40, ex.Vector.Zero, new ex.Vector(200, 100));
+      const box = ex.Colliders.Box(40, 40, ex.Vector.Zero, new ex.Vector(200, 100));
 
       const line = poly.getClosestLineBetween(box);
 
@@ -866,10 +866,10 @@ describe('Collision Shape', () => {
     });
 
     it('can calculate the distance to angled edge on polygon', () => {
-      const box = ex.Shape.Box(40, 40, ex.Vector.Zero);
+      const box = ex.Colliders.Box(40, 40, ex.Vector.Zero);
 
       // triangle, angled edge facing box
-      const poly = ex.Shape.Polygon([new ex.Vector(0, 0), new ex.Vector(0, 40), new ex.Vector(-40, 40)], ex.vec(90, 0));
+      const poly = ex.Colliders.Polygon([new ex.Vector(0, 0), new ex.Vector(0, 40), new ex.Vector(-40, 40)], ex.vec(90, 0));
 
       const line = box.getClosestLineBetween(poly);
 
@@ -878,9 +878,9 @@ describe('Collision Shape', () => {
     });
 
     it('can calculate the distance to another edge', () => {
-      const poly = ex.Shape.Box(40, 40, ex.Vector.Half, new ex.Vector(100, 100));
+      const poly = ex.Colliders.Box(40, 40, ex.Vector.Half, new ex.Vector(100, 100));
 
-      const edge = ex.Shape.Edge(new ex.Vector(200, 50), new ex.Vector(200, 150));
+      const edge = ex.Colliders.Edge(new ex.Vector(200, 50), new ex.Vector(200, 150));
 
       const line = poly.getClosestLineBetween(edge);
 
@@ -1064,7 +1064,7 @@ describe('Collision Shape', () => {
     it('@visual can be drawn with actor', async () => {
       const edgeActor = new ex.Actor({
         pos: new ex.Vector(150, 100),
-        collider: ex.Shape.Edge(ex.Vector.Zero, new ex.Vector(300, 300))
+        collider: ex.Colliders.Edge(ex.Vector.Zero, new ex.Vector(300, 300))
       });
 
       scene.add(edgeActor);
@@ -1075,7 +1075,7 @@ describe('Collision Shape', () => {
     });
 
     it('can calculate the distance to another circle', () => {
-      const edge = ex.Shape.Edge(new ex.Vector(100, 50), new ex.Vector(100, 150));
+      const edge = ex.Colliders.Edge(new ex.Vector(100, 50), new ex.Vector(100, 150));
 
       const circle = new ex.CircleCollider({
         offset: new ex.Vector(200, 100),
@@ -1089,9 +1089,9 @@ describe('Collision Shape', () => {
     });
 
     it('can calculate the distance to another polygon', () => {
-      const edge = ex.Shape.Edge(new ex.Vector(100, 50), new ex.Vector(100, 150));
+      const edge = ex.Colliders.Edge(new ex.Vector(100, 50), new ex.Vector(100, 150));
 
-      const box = ex.Shape.Box(40, 40, ex.Vector.Zero, new ex.Vector(200, 100));
+      const box = ex.Colliders.Box(40, 40, ex.Vector.Zero, new ex.Vector(200, 100));
 
       const line = edge.getClosestLineBetween(box);
 
@@ -1100,9 +1100,9 @@ describe('Collision Shape', () => {
     });
 
     it('can calculate the distance to another edge', () => {
-      const edge = ex.Shape.Edge(new ex.Vector(100, 50), new ex.Vector(100, 150));
+      const edge = ex.Colliders.Edge(new ex.Vector(100, 50), new ex.Vector(100, 150));
 
-      const edge2 = ex.Shape.Edge(new ex.Vector(200, 50), new ex.Vector(200, 150));
+      const edge2 = ex.Colliders.Edge(new ex.Vector(200, 50), new ex.Vector(200, 150));
 
       const line = edge.getClosestLineBetween(edge2);
 
@@ -1111,8 +1111,8 @@ describe('Collision Shape', () => {
     });
 
     it('can collide with a circle center edge', () => {
-      const edge = ex.Shape.Edge(ex.vec(-100, 30), ex.vec(100, 30));
-      const circle = ex.Shape.Circle(30);
+      const edge = ex.Colliders.Edge(ex.vec(-100, 30), ex.vec(100, 30));
+      const circle = ex.Colliders.Circle(30);
       const contact = circle.collide(edge)[0];
       expect(contact.normal, 'Circle/Edge normals point away from circle').toBeVector(ex.Vector.Down);
       expect(contact.points[0]).toBeVector(ex.vec(0, 30));
@@ -1124,8 +1124,8 @@ describe('Collision Shape', () => {
     });
 
     it('can collide with a circle, left edge', () => {
-      const edge = ex.Shape.Edge(ex.vec(30, 0), ex.vec(100, 0));
-      const circle = ex.Shape.Circle(30);
+      const edge = ex.Colliders.Edge(ex.vec(30, 0), ex.vec(100, 0));
+      const circle = ex.Colliders.Circle(30);
       const contact = circle.collide(edge)[0];
       expect(contact.normal, 'Circle/Edge normals point away from circle').toBeVector(ex.Vector.Right);
       expect(contact.points[0]).toBeVector(ex.vec(30, 0));
@@ -1137,8 +1137,8 @@ describe('Collision Shape', () => {
     });
 
     it('can collide with a circle, right edge', () => {
-      const edge = ex.Shape.Edge(ex.vec(-100, 0), ex.vec(-30, 0));
-      const circle = ex.Shape.Circle(30);
+      const edge = ex.Colliders.Edge(ex.vec(-100, 0), ex.vec(-30, 0));
+      const circle = ex.Colliders.Circle(30);
       const contact = circle.collide(edge)[0];
       expect(contact.normal, 'Circle/Edge normals point away from circle').toBeVector(ex.Vector.Left);
       expect(contact.points[0]).toBeVector(ex.vec(-30, 0));
@@ -1150,8 +1150,8 @@ describe('Collision Shape', () => {
     });
 
     it('can collide with a circle, bottom edge', () => {
-      const edge = ex.Shape.Edge(ex.vec(-100, -30), ex.vec(100, -30));
-      const circle = ex.Shape.Circle(30);
+      const edge = ex.Colliders.Edge(ex.vec(-100, -30), ex.vec(100, -30));
+      const circle = ex.Colliders.Circle(30);
       const contact = circle.collide(edge)[0];
       expect(contact.normal, 'Circle/Edge normals point away from circle').toBeVector(ex.Vector.Up);
       expect(contact.points[0]).toBeVector(ex.vec(0, -30));
@@ -1163,8 +1163,8 @@ describe('Collision Shape', () => {
     });
 
     it('can collide with a polygon, center edge', () => {
-      const edge = ex.Shape.Edge(ex.vec(-100, 10), ex.vec(100, 10));
-      const rect = ex.Shape.Box(40, 20, ex.Vector.Half);
+      const edge = ex.Colliders.Edge(ex.vec(-100, 10), ex.vec(100, 10));
+      const rect = ex.Colliders.Box(40, 20, ex.Vector.Half);
       const contact = rect.collide(edge)[0];
       expect(contact.normal, 'Rect/Edge normal point away from edge').toBeVector(ex.Vector.Down);
       expect(contact.points[0]).toBeVector(ex.vec(20, 10));
@@ -1175,8 +1175,8 @@ describe('Collision Shape', () => {
     });
 
     it('can collide with a polygon, right edge', () => {
-      const edge = ex.Shape.Edge(ex.vec(10, 10), ex.vec(100, 10));
-      const rect = ex.Shape.Box(40, 20, ex.Vector.Half);
+      const edge = ex.Colliders.Edge(ex.vec(10, 10), ex.vec(100, 10));
+      const rect = ex.Colliders.Box(40, 20, ex.Vector.Half);
       const contact = rect.collide(edge)[0];
       expect(contact.normal, 'Rect/Edge normal point away from edge').toBeVector(ex.Vector.Down);
       expect(contact.points[0]).toBeVector(ex.vec(20, 10));
@@ -1187,8 +1187,8 @@ describe('Collision Shape', () => {
     });
 
     it('can collide with a polygon, right edge', () => {
-      const edge = ex.Shape.Edge(ex.vec(-100, 10), ex.vec(0, 10));
-      const rect = ex.Shape.Box(40, 20, ex.Vector.Half);
+      const edge = ex.Colliders.Edge(ex.vec(-100, 10), ex.vec(0, 10));
+      const rect = ex.Colliders.Box(40, 20, ex.Vector.Half);
       const contact = rect.collide(edge)[0];
       expect(contact.normal, 'Rect/Edge normal point away from edge').toBeVector(ex.Vector.Down);
       expect(contact.points[0]).toBeVector(ex.vec(-20, 10));
@@ -1201,13 +1201,13 @@ describe('Collision Shape', () => {
 
   describe('a Capsule', () => {
     it('can be constructed vertically', () => {
-      const sut = ex.Shape.Capsule(100, 200);
+      const sut = ex.Colliders.Capsule(100, 200);
       expect(sut.bounds.width).toBe(100);
       expect(sut.bounds.height).toBe(200);
     });
 
     it('can be constructed horizontally', () => {
-      const sut = ex.Shape.Capsule(200, 100);
+      const sut = ex.Colliders.Capsule(200, 100);
       expect(sut.bounds.width).toBe(200);
       expect(sut.bounds.height).toBe(100);
     });
@@ -1215,13 +1215,14 @@ describe('Collision Shape', () => {
     it('will warn if should use a circle', () => {
       const logger = ex.Logger.getInstance();
       vi.spyOn(logger, 'warn');
+      ex.Colliders.Capsule(100, 100);
       expect(logger.warn).toHaveBeenCalledWith(
         'A capsule collider with equal width and height is a circle, consider using a ex.Shape.Circle or ex.CircleCollider'
       );
     });
 
     it('can be defined with an offset horizontally', () => {
-      const sut = ex.Shape.Capsule(200, 100, ex.vec(0, -100));
+      const sut = ex.Colliders.Capsule(200, 100, ex.vec(0, -100));
       expect(sut.bounds.top).toEqual(-150);
       expect(sut.bounds.left).toEqual(-100);
       expect(sut.bounds.right).toEqual(100);
@@ -1229,7 +1230,7 @@ describe('Collision Shape', () => {
     });
 
     it('can be defined with an offset vertically', () => {
-      const sut = ex.Shape.Capsule(100, 200, ex.vec(0, -100));
+      const sut = ex.Colliders.Capsule(100, 200, ex.vec(0, -100));
       expect(sut.bounds.top).toEqual(-200);
       expect(sut.bounds.left).toEqual(-50);
       expect(sut.bounds.right).toEqual(50);

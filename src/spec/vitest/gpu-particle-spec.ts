@@ -78,7 +78,7 @@ describe('A GPU particle', () => {
     expect(emitter.particle.maxSize).toBe(3);
     expect(emitter.particle.beginColor!.toString()).toBe(ex.Color.Red.clone().toString());
     expect(emitter.particle.endColor!.toString()).toBe(ex.Color.Blue.clone().toString());
-    expect(emitter.particle.graphic).toBe(null);
+    expect(emitter.particle.graphic).toBeUndefined();
     expect(emitter.emitterType).toBe(ex.EmitterType.Circle);
     expect(emitter.radius).toBe(20);
     expect(emitter.particle.angularVelocity).toBe(3);
