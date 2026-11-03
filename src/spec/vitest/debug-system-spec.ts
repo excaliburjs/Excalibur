@@ -16,7 +16,7 @@ describe('DebugSystem', () => {
   afterEach(() => {
     engine.stop();
     engine.dispose();
-    engine = null;
+    engine = null as any;
   });
 
   it('exists', () => {

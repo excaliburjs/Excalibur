@@ -49,7 +49,7 @@ describe('A CrossFade transition', () => {
 
     const onDeactivateSpy = vi.fn(() => Promise.resolve());
 
-    engine.director.getSceneInstance('root').onDeactivate = onDeactivateSpy;
+    engine.director.getSceneInstance('root')!.onDeactivate = onDeactivateSpy;
 
     const sut = new ex.CrossFade({ duration: 1000 });
     const scene = new ex.Scene();
@@ -63,7 +63,7 @@ describe('A CrossFade transition', () => {
     );
     engine.addScene('newScene', { scene, transitions: { in: sut } });
 
-    const goto = engine.goToScene('newScene', { destinationIn: sut });
+    engine.goToScene('newScene', { destinationIn: sut });
     clock.step(1);
     await nextMicroTask();
     clock.step(1);

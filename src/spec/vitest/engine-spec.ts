@@ -10,7 +10,7 @@ function flushWebGLCanvasTo2D(source: HTMLCanvasElement): HTMLCanvasElement {
   canvas.width = source.width;
   canvas.height = source.height;
   const ctx = canvas.getContext('2d');
-  ctx.drawImage(source, 0, 0);
+  ctx!.drawImage(source, 0, 0);
   return canvas;
 }
 describe('The engine', () => {
@@ -20,12 +20,12 @@ describe('The engine', () => {
   const reset = () => {
     engine.stop();
     engine.dispose();
-    engine = null;
+    engine = null as any;
     (<any>window).devicePixelRatio = 1;
     const playButton = document.getElementById('excalibur-play');
     if (playButton) {
-      const body = playButton.parentNode.parentNode;
-      body.removeChild(playButton.parentNode);
+      const body = playButton.parentNode!.parentNode!;
+      body.removeChild(playButton.parentNode!);
     }
   };
 
@@ -91,12 +91,12 @@ describe('The engine', () => {
 
   it('should log if loading fails', async () => {
     class FailedLoader extends ex.DefaultLoader {
-      data = undefined;
+      override data: any = undefined;
       // eslint-disable-next-line require-await
-      async load(): Promise<ex.Loadable<any>[]> {
+      override async load(): Promise<ex.Loadable<any>[]> {
         throw new Error('I failed');
       }
-      isLoaded(): boolean {
+      override isLoaded(): boolean {
         return false;
       }
     }
@@ -104,17 +104,17 @@ describe('The engine', () => {
     vi.spyOn(logger, 'error');
 
     engine.dispose();
-    engine = null;
+    engine = null as any;
     engine = TestUtils.engine();
 
-    await engine.load(new FailedLoader());
+    await engine.load(new FailedLoader() as any);
 
     expect(logger.error).toHaveBeenCalledWith('Error loading resources, things may not behave properly', new Error('I failed'));
   });
 
   it('can switch to the canvas fallback on command', () => {
     engine.dispose();
-    engine = null;
+    engine = null as any;
     engine = TestUtils.engine({
       suppressPlayButton: false
     });
@@ -135,7 +135,7 @@ describe('The engine', () => {
 
   it('can switch to the canvas fallback on poor performance', async () => {
     engine.dispose();
-    engine = null;
+    engine = null as any;
 
     engine = TestUtils.engine({
       suppressPlayButton: false,
@@ -160,7 +160,7 @@ describe('The engine', () => {
 
   it('can use a fixed update fps and can catch up', async () => {
     engine.dispose();
-    engine = null;
+    engine = null as any;
     engine = TestUtils.engine({
       fixedUpdateFps: 30
     });
@@ -180,7 +180,7 @@ describe('The engine', () => {
 
   it('can use a fixed update fps and will skip updates', async () => {
     engine.dispose();
-    engine = null;
+    engine = null as any;
     engine = TestUtils.engine({
       fixedUpdateFps: 30
     });
@@ -202,7 +202,7 @@ describe('The engine', () => {
 
   it('can flag on to the canvas fallback', async () => {
     engine.dispose();
-    engine = null;
+    engine = null as any;
     engine = TestUtils.engine(
       {
         suppressPlayButton: false
@@ -216,7 +216,7 @@ describe('The engine', () => {
 
   it('should update the frame stats every tick', async () => {
     engine.dispose();
-    engine = null;
+    engine = null as any;
     engine = TestUtils.engine();
     await TestUtils.runToReady(engine);
     const testClock = engine.clock as ex.TestClock;
@@ -238,7 +238,7 @@ describe('The engine', () => {
 
   it('should hint the texture loader image filter to Blended when aa=true', () => {
     engine.dispose();
-    engine = null;
+    engine = null as any;
     engine = TestUtils.engine({
       antialiasing: true
     });
@@ -247,7 +247,7 @@ describe('The engine', () => {
 
   it('should hint the texture loader image filter to Pixel when aa=false', () => {
     engine.dispose();
-    engine = null;
+    engine = null as any;
     engine = TestUtils.engine({
       antialiasing: false
     });
@@ -286,7 +286,7 @@ describe('The engine', () => {
 
   it('can set snapToPixel', () => {
     engine.dispose();
-    engine = null;
+    engine = null as any;
     engine = TestUtils.engine({ width: 100, height: 100 });
     expect(engine.snapToPixel).toBe(false);
 
@@ -298,7 +298,7 @@ describe('The engine', () => {
 
   it('can set pixelRatio', () => {
     engine.dispose();
-    engine = null;
+    engine = null as any;
     engine = TestUtils.engine({ width: 100, height: 100, pixelRatio: 5, suppressHiDPIScaling: false });
     expect(engine.pixelRatio).toBe(5);
     expect(engine.screen.pixelRatio).toBe(5);
@@ -308,12 +308,12 @@ describe('The engine', () => {
 
   it('can use draw sorting', () => {
     engine.dispose();
-    engine = null;
+    engine = null as any;
     engine = TestUtils.engine({ width: 100, height: 100, useDrawSorting: false }, []);
     expect(engine.graphicsContext.useDrawSorting).toBe(false);
 
     engine.dispose();
-    engine = null;
+    engine = null as any;
     engine = TestUtils.engine({ width: 100, height: 100, useDrawSorting: true }, []);
     expect(engine.graphicsContext.useDrawSorting).toBe(true);
   });
@@ -472,7 +472,7 @@ describe('The engine', () => {
 
   it('should NOT prevent the context menu from opening when enableCanvasContextMenu set to true', () => {
     engine.dispose();
-    engine = null;
+    engine = null as any;
     engine = TestUtils.engine({ width: 100, height: 100, enableCanvasContextMenu: true });
     const mockEvent = new Event('contextmenu', {
       cancelable: true,
@@ -580,15 +580,11 @@ describe('The engine', () => {
   it('should detect hidpi when the device pixel ratio is greater than 1', () =>
     new Promise<void>((done) => {
       // Arrange
-      const oldWidth = 100;
-      const oldHeight = 100;
 
       (<any>window).devicePixelRatio = 2;
-      const newWidth = oldWidth * (<any>window).devicePixelRatio;
-      const newHeight = oldHeight * (<any>window).devicePixelRatio;
 
       engine.dispose();
-      engine = null;
+      engine = null as any;
       engine = TestUtils.engine({
         width: 100,
         height: 100,
@@ -607,16 +603,12 @@ describe('The engine', () => {
   it('should not detect hidpi with a device pixel ratio equal to 1', () =>
     new Promise<void>((done) => {
       // Arrange
-      const oldWidth = 100;
-      const oldHeight = 100;
 
       (<any>window).devicePixelRatio = 1;
-      const newWidth = oldWidth * (<any>window).devicePixelRatio;
-      const newHeight = oldHeight * (<any>window).devicePixelRatio;
 
       // Act
       engine.dispose();
-      engine = null;
+      engine = null as any;
       engine = TestUtils.engine({
         width: 100,
         height: 100,
@@ -637,7 +629,7 @@ describe('The engine', () => {
 
       // Act
       engine.dispose();
-      engine = null;
+      engine = null as any;
       engine = TestUtils.engine({
         width: 100,
         height: 100,
@@ -815,7 +807,7 @@ describe('The engine', () => {
 
     it('can screen shot and match the anti-aliasing with a half pixel when pixelRatio != 1.0', async ({ skip }) => {
       // safari inconsistencies
-      if (inject('browser') === 'webkit') {
+      if ((inject as any)('browser') === 'webkit') {
         skip();
       }
 
@@ -980,7 +972,7 @@ describe('The engine', () => {
     afterEach(() => {
       engine.stop();
       engine.dispose();
-      engine = null;
+      engine = null as any;
     });
 
     it('can have onInitialize overridden safely', async () => {

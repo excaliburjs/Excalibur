@@ -1,12 +1,10 @@
 import * as ex from '@excalibur';
 import { TestUtils } from '../__util__/test-utils';
-import { Mocks } from '../__util__/mocks';
 import type { TestClock } from '@excalibur';
 
 describe('The engine', () => {
   let engine: ex.Engine;
   let scene: ex.Scene;
-  const mock = new Mocks.Mocker();
   let actor: ex.Actor;
   let stats: ex.FrameStats;
 
@@ -30,7 +28,7 @@ describe('The engine', () => {
   afterEach(() => {
     engine.stop();
     engine.dispose();
-    engine = null;
+    engine = null as any;
   });
 
   it('should have current and previous frame stats defined', () => {

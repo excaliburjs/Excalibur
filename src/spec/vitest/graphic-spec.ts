@@ -35,10 +35,10 @@ class TestGraphic extends ex.Graphic {
   }
 
   getSource(): ex.HTMLImageSource {
-    return null;
+    return null as any;
   }
   clone(): ex.Graphic {
-    return null;
+    return null as any;
   }
 }
 
@@ -78,7 +78,7 @@ describe('A Graphic', () => {
     const sut = new TestGraphic(options);
 
     for (const prop in options) {
-      expect(sut[prop]).toEqual(options[prop]);
+      expect((sut as any)[prop]).toEqual((options as any)[prop]);
     }
   });
 

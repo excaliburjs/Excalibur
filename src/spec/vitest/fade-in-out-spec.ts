@@ -28,7 +28,7 @@ describe('A FadeInOut transition', () => {
 
     const onDeactivateSpy = vi.fn(() => Promise.resolve());
 
-    engine.director.getSceneInstance('root').onDeactivate = onDeactivateSpy;
+    engine.director.getSceneInstance('root')!.onDeactivate = onDeactivateSpy;
 
     const sut = new ex.FadeInOut({ duration: 1000, direction: 'in' });
     const scene = new ex.Scene();
@@ -42,7 +42,7 @@ describe('A FadeInOut transition', () => {
     );
     engine.addScene('newScene', { scene, transitions: { in: sut } });
 
-    const goto = engine.goToScene('newScene');
+    engine.goToScene('newScene');
     await TestUtils.flushMicrotasks(clock, 15);
     clock.step(500);
     await Promise.resolve();
@@ -76,7 +76,7 @@ describe('A FadeInOut transition', () => {
     );
     engine.addScene('newScene', scene);
 
-    const goto = engine.goToScene('newScene', { sourceOut: sut });
+    engine.goToScene('newScene', { sourceOut: sut });
     await TestUtils.flushMicrotasks(clock, 3);
     clock.step(900);
     await Promise.resolve();

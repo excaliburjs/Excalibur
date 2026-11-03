@@ -29,7 +29,7 @@ describe('The BrowserEvents facade', () => {
 
   it('can pause handlers on window', () => {
     browser.window.on('somewindowevent', () => {
-      fail();
+      expect.fail();
     });
 
     browser.pause();
@@ -47,7 +47,7 @@ describe('The BrowserEvents facade', () => {
 
   it('can pause handlers on document', () => {
     browser.document.on('somedocumentevent', () => {
-      fail();
+      expect.fail();
     });
 
     browser.pause();
@@ -56,7 +56,7 @@ describe('The BrowserEvents facade', () => {
 
   it('can clear handlers on window', () => {
     browser.window.on('somewindowevent2', () => {
-      fail();
+      expect.fail();
     });
 
     browser.clear();
@@ -65,7 +65,7 @@ describe('The BrowserEvents facade', () => {
 
   it('can clear handlers on window', () => {
     browser.document.on('somedocevent2', () => {
-      fail();
+      expect.fail();
     });
 
     browser.clear();

@@ -2,8 +2,8 @@ import * as ex from '@excalibur';
 import { Mocks } from '../__util__/mocks';
 
 describe('A keyboard', () => {
-  let mockWindow = null;
-  let keyboard: ex.Keyboard = null;
+  let mockWindow: any = null;
+  let keyboard: ex.Keyboard = null as any;
   const mocker = new Mocks.Mocker();
 
   beforeEach(() => {
@@ -20,7 +20,7 @@ describe('A keyboard', () => {
   it('should fire keydown events', () => {
     let eventFired = false;
 
-    keyboard.on('down', function (ev: ex.KeyEvent) {
+    keyboard.on('down', function (ev: any) {
       if (ev.key === ex.Keys.Up && ev.value === ex.Keys.Up) {
         eventFired = true;
       }
@@ -34,7 +34,7 @@ describe('A keyboard', () => {
   it('should fire keypress events', () => {
     let eventFired = false;
 
-    keyboard.on('press', function (ev: ex.KeyEvent) {
+    keyboard.on('press', function (ev: any) {
       if (ev.key === ex.Keys.Up && ev.value === ex.Keys.Up) {
         eventFired = true;
       }
@@ -49,7 +49,7 @@ describe('A keyboard', () => {
   it('should fire keyup events', () => {
     let eventFired = false;
 
-    keyboard.on('up', function (ev: ex.KeyEvent) {
+    keyboard.on('up', function (ev: any) {
       if (ev.key === ex.Keys.Up && ev.value === ex.Keys.Up) {
         eventFired = true;
       }
@@ -63,7 +63,7 @@ describe('A keyboard', () => {
   it('should fire keyboard event with actual value and physical key', () => {
     let eventFired = false;
 
-    keyboard.on('up', function (ev: ex.KeyEvent) {
+    keyboard.on('up', function (ev: any) {
       if (ev.key === ex.Keys.Digit9 && ev.value === '(') {
         eventFired = true;
       }

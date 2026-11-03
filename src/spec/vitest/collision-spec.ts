@@ -3,10 +3,10 @@ import { TestUtils } from '../__util__/test-utils';
 import { getDefaultPhysicsConfig } from '../../engine/collision/physics-config';
 
 describe('A Collision', () => {
-  let actor1: ex.Actor = null;
-  let actor2: ex.Actor = null;
-  let engine: ex.Engine = null;
-  let clock: ex.TestClock = null;
+  let actor1: ex.Actor = null as any;
+  let actor2: ex.Actor = null as any;
+  let engine: ex.Engine = null as any;
+  let clock: ex.TestClock = null as any;
 
   beforeEach(async () => {
     engine = TestUtils.engine({
@@ -31,16 +31,16 @@ describe('A Collision', () => {
   afterEach(() => {
     engine.stop();
     engine.dispose();
-    engine = null;
-    actor1 = null;
-    actor2 = null;
+    engine = null as any;
+    actor1 = null as any;
+    actor2 = null as any;
   });
 
   it('should throw one event for each actor participating', () => {
     let actor1Collision = 0;
     let actor2Collision = 0;
     actor1.on('precollision', (e: ex.PreCollisionEvent) => {
-      e.other.owner.kill();
+      e.other.owner!.kill();
       actor1Collision++;
     });
 
@@ -61,14 +61,14 @@ describe('A Collision', () => {
 
     actor1.body.collisionType = ex.CollisionType.Active;
     actor2.body.collisionType = ex.CollisionType.Active;
-    collisionTree.track(actor1.collider.get());
-    collisionTree.track(actor2.collider.get());
+    collisionTree.track(actor1.collider.get()!);
+    collisionTree.track(actor2.collider.get()!);
 
-    let pairs = collisionTree.broadphase([actor1.collider.get(), actor2.collider.get()], 16);
+    let pairs = collisionTree.broadphase([actor1.collider.get()!, actor2.collider.get()!], 16);
 
     expect(pairs.length).toBe(1);
 
-    pairs = collisionTree.broadphase([actor2.collider.get(), actor1.collider.get()], 16);
+    pairs = collisionTree.broadphase([actor2.collider.get()!, actor1.collider.get()!], 16);
 
     expect(pairs.length).toBe(1);
   });
@@ -80,14 +80,14 @@ describe('A Collision', () => {
 
     actor1.body.collisionType = ex.CollisionType.Active;
     actor2.body.collisionType = ex.CollisionType.Passive;
-    collisionTree.track(actor1.collider.get());
-    collisionTree.track(actor2.collider.get());
+    collisionTree.track(actor1.collider.get()!);
+    collisionTree.track(actor2.collider.get()!);
 
-    let pairs = collisionTree.broadphase([actor1.collider.get(), actor2.collider.get()], 200);
+    let pairs = collisionTree.broadphase([actor1.collider.get()!, actor2.collider.get()!], 200);
 
     expect(pairs.length).toBe(1);
 
-    pairs = collisionTree.broadphase([actor2.collider.get(), actor1.collider.get()], 200);
+    pairs = collisionTree.broadphase([actor2.collider.get()!, actor1.collider.get()!], 200);
 
     expect(pairs.length).toBe(1);
   });
@@ -97,14 +97,14 @@ describe('A Collision', () => {
 
     actor1.body.collisionType = ex.CollisionType.Active;
     actor2.body.collisionType = ex.CollisionType.PreventCollision;
-    collisionTree.track(actor1.collider.get());
-    collisionTree.track(actor2.collider.get());
+    collisionTree.track(actor1.collider.get()!);
+    collisionTree.track(actor2.collider.get()!);
 
-    let pairs = collisionTree.broadphase([actor1.collider.get(), actor2.collider.get()], 200);
+    let pairs = collisionTree.broadphase([actor1.collider.get()!, actor2.collider.get()!], 200);
 
     expect(pairs.length).toBe(0);
 
-    pairs = collisionTree.broadphase([actor2.collider.get(), actor1.collider.get()], 200);
+    pairs = collisionTree.broadphase([actor2.collider.get()!, actor1.collider.get()!], 200);
 
     expect(pairs.length).toBe(0);
   });
@@ -114,14 +114,14 @@ describe('A Collision', () => {
 
     actor1.body.collisionType = ex.CollisionType.Active;
     actor2.body.collisionType = ex.CollisionType.Fixed;
-    collisionTree.track(actor1.collider.get());
-    collisionTree.track(actor2.collider.get());
+    collisionTree.track(actor1.collider.get()!);
+    collisionTree.track(actor2.collider.get()!);
 
-    let pairs = collisionTree.broadphase([actor1.collider.get(), actor2.collider.get()], 200);
+    let pairs = collisionTree.broadphase([actor1.collider.get()!, actor2.collider.get()!], 200);
 
     expect(pairs.length).toBe(1);
 
-    pairs = collisionTree.broadphase([actor2.collider.get(), actor1.collider.get()], 200);
+    pairs = collisionTree.broadphase([actor2.collider.get()!, actor1.collider.get()!], 200);
 
     expect(pairs.length).toBe(1);
   });
@@ -131,14 +131,14 @@ describe('A Collision', () => {
 
     actor1.body.collisionType = ex.CollisionType.Fixed;
     actor2.body.collisionType = ex.CollisionType.Fixed;
-    collisionTree.track(actor1.collider.get());
-    collisionTree.track(actor2.collider.get());
+    collisionTree.track(actor1.collider.get()!);
+    collisionTree.track(actor2.collider.get()!);
 
-    let pairs = collisionTree.broadphase([actor1.collider.get(), actor2.collider.get()], 200);
+    let pairs = collisionTree.broadphase([actor1.collider.get()!, actor2.collider.get()!], 200);
 
     expect(pairs.length).toBe(0);
 
-    pairs = collisionTree.broadphase([actor2.collider.get(), actor1.collider.get()], 200);
+    pairs = collisionTree.broadphase([actor2.collider.get()!, actor1.collider.get()!], 200);
 
     expect(pairs.length).toBe(0);
   });
@@ -147,7 +147,7 @@ describe('A Collision', () => {
     let actor1Collision = 0;
     let actor2Collision = 0;
     actor1.on('precollision', (e: ex.PreCollisionEvent) => {
-      e.other.owner.kill();
+      e.other.owner!.kill();
       actor1Collision++;
     });
 
@@ -185,7 +185,7 @@ describe('A Collision', () => {
   it('should recognize when actor bodies are touching', () => {
     let touching = false;
     actor1.on('postupdate', function () {
-      if (actor1.collider.get().touching(actor2.collider.get())) {
+      if (actor1.collider.get()!.touching(actor2.collider.get()!)) {
         touching = true;
       }
     });

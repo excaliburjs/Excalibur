@@ -31,9 +31,9 @@ describe('A ImageSource', () => {
   it('logs a warning on image type not supported', () => {
     const logger = ex.Logger.getInstance();
     vi.spyOn(logger, 'warn');
-    const image1 = new ex.ImageSource('base/404/img.svg');
+    new ex.ImageSource('base/404/img.svg');
     expect(logger.warn).toHaveBeenCalledTimes(0);
-    const image2 = new ex.ImageSource('base/404/img.gif');
+    new ex.ImageSource('base/404/img.gif');
     expect(logger.warn).toHaveBeenCalledTimes(1);
   });
 
@@ -85,7 +85,7 @@ describe('A ImageSource', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    const webgl = new ex.ExcaliburGraphicsContextWebGL({
+    new ex.ExcaliburGraphicsContextWebGL({
       canvasElement: canvasElement,
       enableTransparency: false,
       backgroundColor: ex.Color.White
@@ -111,7 +111,7 @@ describe('A ImageSource', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    const webgl = new ex.ExcaliburGraphicsContextWebGL({
+    new ex.ExcaliburGraphicsContextWebGL({
       canvasElement: canvasElement,
       enableTransparency: false,
       backgroundColor: ex.Color.White
@@ -342,7 +342,7 @@ describe('A ImageSource', () => {
     expect(sprite.width).toBe(32);
     expect(sprite.height).toBe(32);
 
-    const image = await spriteFontImage.load();
+    await spriteFontImage.load();
     await spriteFontImage.ready;
     expect(sprite.width).toBe(32);
     expect(sprite.height).toBe(32);

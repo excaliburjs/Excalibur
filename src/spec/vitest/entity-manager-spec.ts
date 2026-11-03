@@ -1,23 +1,17 @@
 import * as ex from '@excalibur';
 
-class FakeComponent extends ex.Component {
-  constructor(public type: string) {
-    super();
-  }
-}
-
 describe('An EntityManager', () => {
   it('exists', () => {
     expect(ex.EntityManager).toBeDefined();
   });
 
   it('can be created', () => {
-    const entityManager = new ex.EntityManager(new ex.World(null));
+    const entityManager = new ex.EntityManager(new ex.World(null as any));
     expect(entityManager).not.toBeNull();
   });
 
   it('can have entities added and removed from it', () => {
-    const entityManager = new ex.EntityManager(new ex.World(null));
+    const entityManager = new ex.EntityManager(new ex.World(null as any));
     const entity = new ex.Entity();
     expect(entityManager.entities).toEqual([]);
 
@@ -40,8 +34,8 @@ describe('An EntityManager', () => {
   });
 
   it('can find entities by name', () => {
-    const entityManager = new ex.EntityManager(new ex.World(null));
-    const entity = new ex.Entity([], 'some-e');
+    const entityManager = new ex.EntityManager(new ex.World(null as any));
+    const entity = new ex.Entity([] as any, 'some-e');
     const entity2 = new ex.Entity();
     entityManager.addEntity(entity);
     entityManager.addEntity(entity2);
@@ -50,8 +44,8 @@ describe('An EntityManager', () => {
   });
 
   it('can clear entities', () => {
-    const entityManager = new ex.EntityManager(new ex.World(null));
-    const entity = new ex.Entity([], 'some-e');
+    const entityManager = new ex.EntityManager(new ex.World(null as any));
+    const entity = new ex.Entity([] as any, 'some-e');
     const entity2 = new ex.Entity();
     entityManager.addEntity(entity);
     entityManager.addEntity(entity2);
@@ -66,7 +60,7 @@ describe('An EntityManager', () => {
   });
 
   it('should only remove the handlers that the manager added on removal', () => {
-    const entityManager = new ex.EntityManager(new ex.World(null));
+    const entityManager = new ex.EntityManager(new ex.World(null as any));
     const entity = new ex.Entity([new ex.TransformComponent()], 'some-e');
     // Transform component listens to child add/remove
     const entity2 = new ex.Entity();

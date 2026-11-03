@@ -21,8 +21,8 @@ describe('A CollisionContact', () => {
 
     actorB.body.collisionType = ex.CollisionType.Active;
 
-    colliderA = actorA.collider.get();
-    colliderB = actorB.collider.get();
+    colliderA = actorA.collider.get()!;
+    colliderB = actorB.collider.get()!;
   });
 
   it('exists', () => {
@@ -115,7 +115,7 @@ describe('A CollisionContact', () => {
       ex.Vector.Right.perpendicular(),
       [new ex.Vector(10, 0)],
       [new ex.Vector(10, 0)],
-      null
+      null as any
     );
     // slop is normally 1 pixel, we are testing at a pixel scale here
     const solver = new ex.RealisticSolver({ ...getDefaultPhysicsConfig().realistic, slop: 0 });
@@ -160,7 +160,7 @@ describe('A CollisionContact', () => {
       ex.Vector.Right.perpendicular(),
       [new ex.Vector(10, 0)],
       [new ex.Vector(10, 0)],
-      null
+      null as any
     );
     // slop is normally 1 pixel, we are testing at a pixel scale here
     const solver = new ex.RealisticSolver({ ...getDefaultPhysicsConfig().realistic, slop: 0 });
@@ -205,7 +205,7 @@ describe('A CollisionContact', () => {
       ex.Vector.Right.perpendicular(),
       [new ex.Vector(10, 0), new ex.Vector(10, 10)],
       [new ex.Vector(10, 0), new ex.Vector(10, 10)],
-      null
+      null as any
     );
     const solver = new ex.RealisticSolver({ ...getDefaultPhysicsConfig().realistic });
     solver.solve([cc]);
@@ -242,7 +242,7 @@ describe('A CollisionContact', () => {
       ex.Vector.Right.perpendicular(),
       [new ex.Vector(10, 0), new ex.Vector(10, 10)],
       [new ex.Vector(10, 0), new ex.Vector(10, 10)],
-      null
+      null as any
     );
     const solver = new ex.RealisticSolver({
       ...getDefaultPhysicsConfig().realistic,
@@ -281,7 +281,7 @@ describe('A CollisionContact', () => {
       ex.Vector.Right.perpendicular(),
       [new ex.Vector(10, 0), new ex.Vector(10, 10)],
       [new ex.Vector(10, 0), new ex.Vector(10, 10)],
-      null
+      null as any
     );
 
     // slop is normally 1 pixel, we are testing at a pixel scale here
@@ -320,7 +320,7 @@ describe('A CollisionContact', () => {
       ex.Vector.Right.perpendicular(),
       [new ex.Vector(10, 0)],
       [new ex.Vector(10, 0)],
-      null
+      null as any
     );
 
     const solver = new ex.RealisticSolver({ ...getDefaultPhysicsConfig().realistic });
@@ -339,7 +339,7 @@ describe('A CollisionContact', () => {
       ex.Vector.Right.perpendicular(),
       [new ex.Vector(10, 0)],
       [new ex.Vector(10, 0)],
-      null
+      null as any
     );
 
     cc.bias(colliderB);

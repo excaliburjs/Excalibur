@@ -19,14 +19,12 @@ describe('Lines', () => {
 
   it('can have a slope value of infinity', () => {
     const line = new ex.LineSegment(new ex.Vector(1, 0), new ex.Vector(1, 1));
-    const slope = line.slope;
 
     expect(line.slope).toBe(Infinity);
   });
 
   it('can have a slope value of 0', () => {
     const line = new ex.LineSegment(new ex.Vector(1, 1), new ex.Vector(2, 1));
-    const slope = line.slope;
 
     expect(line.slope).toBe(0);
   });
@@ -83,7 +81,7 @@ describe('Lines', () => {
 
   it('can find a point by Y value', () => {
     const line = new ex.LineSegment(new ex.Vector(0, 0), new ex.Vector(2, 2));
-    const t = line.findPoint(null, 1);
+    const t = line.findPoint(null as any, 1);
 
     expect(t.x).toBe(1);
   });

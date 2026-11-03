@@ -48,8 +48,8 @@ describe('A Material with a shader pipeline', () => {
 
   afterEach(() => {
     context.dispose();
-    context = null;
-    canvas = null;
+    context = null as any;
+    canvas = null as any;
   });
 
   it('throws without fragmentSource or passes', () => {

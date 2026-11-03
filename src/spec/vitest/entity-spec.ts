@@ -40,7 +40,7 @@ describe('An entity', () => {
   });
 
   it('can have a name', () => {
-    const e = new ex.Entity([], 'my-name');
+    const e = new ex.Entity([] as any, 'my-name');
     expect(e.name).toBe('my-name');
   });
 
@@ -201,7 +201,7 @@ describe('An entity', () => {
         done();
       };
 
-      entity._initialize(null);
+      entity._initialize(null as any);
     }));
 
   it('has an event initialize handler', () =>
@@ -211,7 +211,7 @@ describe('An entity', () => {
         done();
       });
 
-      entity._initialize(null);
+      entity._initialize(null as any);
     }));
 
   it('has an overridable preupdate lifecycle handler', () =>
@@ -221,7 +221,7 @@ describe('An entity', () => {
         done();
       };
 
-      entity._preupdate(null, 1);
+      entity._preupdate(null as any, 1);
     }));
 
   it('has an event preupdate handler', () =>
@@ -231,7 +231,7 @@ describe('An entity', () => {
         done();
       });
 
-      entity._preupdate(null, 1);
+      entity._preupdate(null as any, 1);
     }));
 
   it('has an overridable postupdate lifecycle handler', () =>
@@ -241,7 +241,7 @@ describe('An entity', () => {
         done();
       };
 
-      entity._postupdate(null, 1);
+      entity._postupdate(null as any, 1);
     }));
 
   it('has an event postupdate handler', () =>
@@ -251,7 +251,7 @@ describe('An entity', () => {
         done();
       });
 
-      entity._postupdate(null, 1);
+      entity._postupdate(null as any, 1);
     }));
 
   it('can be parented', () => {
@@ -393,9 +393,9 @@ describe('An entity', () => {
   });
 
   it('will inherit scene from a parent entity', () => {
-    const e = new ex.Entity([], 'e');
-    const child = new ex.Entity([], 'child');
-    const grandchild = new ex.Entity([], 'grandchild');
+    const e = new ex.Entity([] as any, 'e');
+    const child = new ex.Entity([] as any, 'child');
+    const grandchild = new ex.Entity([] as any, 'grandchild');
 
     const scene = new ex.Scene();
     e.addChild(child.addChild(grandchild));
@@ -429,8 +429,8 @@ describe('An entity', () => {
   });
 
   it('will inherit the scene from the parent entity after being added', () => {
-    const parent = new ex.Entity([], 'parent');
-    const child = new ex.Entity([], 'child');
+    const parent = new ex.Entity([] as any, 'parent');
+    const child = new ex.Entity([] as any, 'child');
 
     const scene = new ex.Scene();
 

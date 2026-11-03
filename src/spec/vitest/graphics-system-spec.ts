@@ -31,7 +31,7 @@ describe('A Graphics ECS System', () => {
   afterEach(() => {
     engine.stop();
     engine.dispose();
-    engine = null;
+    engine = null as any;
   });
 
   it('exists', () => {

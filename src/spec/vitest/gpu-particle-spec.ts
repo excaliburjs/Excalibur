@@ -22,7 +22,7 @@ describe('A GPU particle', () => {
   afterEach(() => {
     engine.stop();
     engine.dispose();
-    engine = null;
+    engine = null as any;
   });
 
   it('should have props set by the constructor', () => {
@@ -46,7 +46,7 @@ describe('A GPU particle', () => {
         maxSize: 3,
         beginColor: ex.Color.Red.clone(),
         endColor: ex.Color.Blue.clone(),
-        graphic: null,
+        graphic: undefined,
         angularVelocity: 3,
         randomRotation: false
       },
@@ -76,8 +76,8 @@ describe('A GPU particle', () => {
     expect(emitter.particle.endSize).toBe(10);
     expect(emitter.particle.minSize).toBe(1);
     expect(emitter.particle.maxSize).toBe(3);
-    expect(emitter.particle.beginColor.toString()).toBe(ex.Color.Red.clone().toString());
-    expect(emitter.particle.endColor.toString()).toBe(ex.Color.Blue.clone().toString());
+    expect(emitter.particle.beginColor!.toString()).toBe(ex.Color.Red.clone().toString());
+    expect(emitter.particle.endColor!.toString()).toBe(ex.Color.Blue.clone().toString());
     expect(emitter.particle.graphic).toBe(null);
     expect(emitter.emitterType).toBe(ex.EmitterType.Circle);
     expect(emitter.radius).toBe(20);
@@ -107,12 +107,12 @@ describe('A GPU particle', () => {
           endSize: 40,
           beginColor: ex.Color.Red.clone(),
           endColor: ex.Color.Blue.clone(),
-          graphic: null,
+          graphic: undefined,
           angularVelocity: 3,
           randomRotation: false
         },
-        focus: null,
-        focusAccel: null,
+        focus: undefined,
+        focusAccel: undefined,
         emitterType: ex.EmitterType.Circle,
         radius: 20,
         random: new ex.Random(1337)
@@ -149,12 +149,12 @@ describe('A GPU particle', () => {
           endSize: 40,
           beginColor: ex.Color.Red.clone(),
           endColor: ex.Color.Blue.clone(),
-          graphic: null,
+          graphic: undefined,
           angularVelocity: 3,
           randomRotation: false
         },
-        focus: null,
-        focusAccel: null,
+        focus: undefined,
+        focusAccel: undefined,
         emitterType: ex.EmitterType.Circle,
         radius: 20,
         random: new ex.Random(1337)
@@ -193,12 +193,12 @@ describe('A GPU particle', () => {
           endSize: 40,
           beginColor: ex.Color.Red.clone(),
           endColor: ex.Color.Blue.clone(),
-          graphic: null,
+          graphic: undefined,
           angularVelocity: 3,
           randomRotation: false
         },
-        focus: null,
-        focusAccel: null,
+        focus: undefined,
+        focusAccel: undefined,
         emitterType: ex.EmitterType.Circle,
         radius: 20,
         random: new ex.Random(1337)
@@ -249,12 +249,12 @@ describe('A GPU particle', () => {
           endSize: 40,
           beginColor: ex.Color.Red.clone(),
           endColor: ex.Color.Blue.clone(),
-          graphic: null,
+          graphic: undefined,
           angularVelocity: 3,
           randomRotation: false
         },
-        focus: null,
-        focusAccel: null,
+        focus: undefined,
+        focusAccel: undefined,
         emitterType: ex.EmitterType.Circle,
         radius: 20,
         random: new ex.Random(1337)
@@ -296,7 +296,7 @@ describe('A GPU particle', () => {
         endSize: 40,
         beginColor: ex.Color.Red.clone(),
         endColor: ex.Color.Blue.clone(),
-        graphic: null,
+        graphic: undefined,
         angularVelocity: 3,
         randomRotation: false
       },
@@ -305,8 +305,8 @@ describe('A GPU particle', () => {
       height: 30,
       isEmitting: true,
       emitRate: 5,
-      focus: null,
-      focusAccel: null,
+      focus: undefined,
+      focusAccel: undefined,
       emitterType: ex.EmitterType.Circle,
       radius: 20,
       random: new ex.Random(1337)
@@ -340,7 +340,7 @@ describe('A GPU particle', () => {
         endSize: 40,
         beginColor: ex.Color.Red.clone(),
         endColor: ex.Color.Blue.clone(),
-        graphic: null,
+        graphic: undefined,
         angularVelocity: 3,
         randomRotation: false
       },
@@ -349,8 +349,8 @@ describe('A GPU particle', () => {
       height: 30,
       isEmitting: true,
       emitRate: 5,
-      focus: null,
-      focusAccel: null,
+      focus: undefined,
+      focusAccel: undefined,
       emitterType: ex.EmitterType.Circle,
       radius: 20,
       random: new ex.Random(1337)

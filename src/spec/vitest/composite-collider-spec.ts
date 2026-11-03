@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-import { BoundingBox, GameEvent, LineSegment, Projection, Ray, vec, Vector } from '@excalibur';
+import { BoundingBox, GameEvent, Projection, Ray, vec, Vector } from '@excalibur';
 
 import { getDefaultPhysicsConfig } from '../../engine/collision/physics-config';
 
@@ -207,22 +207,22 @@ describe('A CompositeCollider', () => {
 
     const rayRight = new Ray(vec(-200, 0), Vector.Right);
 
-    const leftBox = compCollider.rayCast(rayRight).point;
+    const leftBox = compCollider.rayCast(rayRight)!.point;
     expect(leftBox).toEqual(vec(-100, 0));
 
     const rayDown = new Ray(vec(0, -200), Vector.Down);
-    const topCircle = compCollider.rayCast(rayDown).point;
+    const topCircle = compCollider.rayCast(rayDown)!.point;
     expect(topCircle).toEqual(vec(0, -50));
 
     const rayUp = new Ray(vec(0, 200), Vector.Up);
-    const bottomCircle = compCollider.rayCast(rayUp).point;
+    const bottomCircle = compCollider.rayCast(rayUp)!.point;
     expect(bottomCircle).toEqual(vec(0, 50));
 
     const rayLeft = new Ray(vec(200, 0), Vector.Left);
-    const rightBox = compCollider.rayCast(rayLeft).point;
+    const rightBox = compCollider.rayCast(rayLeft)!.point;
     expect(rightBox).toEqual(vec(100, 0));
 
-    const hit = compCollider.rayCast(rayLeft);
+    const hit = compCollider.rayCast(rayLeft)!;
     expect(hit.normal).toBeVector(Vector.Right);
     expect(hit.distance).toBe(100);
     expect(hit.body).toBe(undefined);

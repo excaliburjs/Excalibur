@@ -196,7 +196,7 @@ describe('A IsometricMap', () => {
       rows: 15
     });
 
-    const tile = sut.getTile(0, 0);
+    const tile = sut.getTile(0, 0)!;
     expect(tile.center).toBeVector(ex.vec(250, 10 + 8));
   });
 
@@ -278,25 +278,25 @@ describe('A IsometricMap', () => {
       rows: 15
     });
 
-    expect(sut.getTile(0, 0).pos).toBeVector(ex.vec(250, 10));
-    expect(sut.getTile(14, 0).pos).toBeVector(ex.vec(474, 122));
-    expect(sut.getTile(0, 14).pos).toBeVector(ex.vec(26, 122));
-    expect(sut.getTile(14, 14).pos).toBeVector(ex.vec(250, 234));
+    expect(sut.getTile(0, 0)!.pos).toBeVector(ex.vec(250, 10));
+    expect(sut.getTile(14, 0)!.pos).toBeVector(ex.vec(474, 122));
+    expect(sut.getTile(0, 14)!.pos).toBeVector(ex.vec(26, 122));
+    expect(sut.getTile(14, 14)!.pos).toBeVector(ex.vec(250, 234));
 
     expect(sut.getTile(-1, -1)).toBeNull();
     expect(sut.getTile(15, 15)).toBeNull();
 
-    expect(sut.getTileByPoint(ex.vec(250, 10)).x).toBe(0);
-    expect(sut.getTileByPoint(ex.vec(250, 10)).y).toBe(0);
+    expect(sut.getTileByPoint(ex.vec(250, 10))!.x).toBe(0);
+    expect(sut.getTileByPoint(ex.vec(250, 10))!.y).toBe(0);
 
-    expect(sut.getTileByPoint(ex.vec(474, 122)).x).toBe(14);
-    expect(sut.getTileByPoint(ex.vec(474, 122)).y).toBe(0);
+    expect(sut.getTileByPoint(ex.vec(474, 122))!.x).toBe(14);
+    expect(sut.getTileByPoint(ex.vec(474, 122))!.y).toBe(0);
 
-    expect(sut.getTileByPoint(ex.vec(26, 122)).x).toBe(0);
-    expect(sut.getTileByPoint(ex.vec(26, 122)).y).toBe(14);
+    expect(sut.getTileByPoint(ex.vec(26, 122))!.x).toBe(0);
+    expect(sut.getTileByPoint(ex.vec(26, 122))!.y).toBe(14);
 
-    expect(sut.getTileByPoint(ex.vec(250, 234)).x).toBe(14);
-    expect(sut.getTileByPoint(ex.vec(250, 234)).y).toBe(14);
+    expect(sut.getTileByPoint(ex.vec(250, 234))!.x).toBe(14);
+    expect(sut.getTileByPoint(ex.vec(250, 234))!.y).toBe(14);
   });
 
   it('can respond to pointer events', async () => {
@@ -311,7 +311,7 @@ describe('A IsometricMap', () => {
     });
     engine.add(sut);
 
-    const tile = sut.getTile(0, 0);
+    const tile = sut.getTile(0, 0)!;
 
     const pointerdown = vi.fn();
     const pointerup = vi.fn();
