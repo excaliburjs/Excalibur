@@ -12,8 +12,8 @@ describe('A Material', () => {
   afterEach(() => {
     engine.stop();
     engine.dispose();
-    engine = null;
-    graphicsContext = null;
+    engine = null as any;
+    graphicsContext = null as any;
   });
 
   it('exists', () => {

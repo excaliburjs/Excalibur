@@ -22,7 +22,7 @@ describe('A particle', () => {
   afterEach(() => {
     engine.stop();
     engine.dispose();
-    engine = null;
+    engine = null as any;
   });
 
   it('should have props set by the constructor', () => {
@@ -46,7 +46,7 @@ describe('A particle', () => {
         maxSize: 3,
         beginColor: ex.Color.Red.clone(),
         endColor: ex.Color.Blue.clone(),
-        graphic: null,
+        graphic: undefined,
         angularVelocity: 3,
         randomRotation: false
       },
@@ -76,9 +76,9 @@ describe('A particle', () => {
     expect(emitter.particle.endSize).toBe(10);
     expect(emitter.particle.minSize).toBe(1);
     expect(emitter.particle.maxSize).toBe(3);
-    expect(emitter.particle.beginColor.toString()).toBe(ex.Color.Red.clone().toString());
-    expect(emitter.particle.endColor.toString()).toBe(ex.Color.Blue.clone().toString());
-    expect(emitter.particle.graphic).toBe(null);
+    expect(emitter.particle.beginColor!.toString()).toBe(ex.Color.Red.clone().toString());
+    expect(emitter.particle.endColor!.toString()).toBe(ex.Color.Blue.clone().toString());
+    expect(emitter.particle.graphic).toBeUndefined();
     expect(emitter.emitterType).toBe(ex.EmitterType.Circle);
     expect(emitter.radius).toBe(20);
     expect(emitter.particle.angularVelocity).toBe(3);
@@ -107,12 +107,12 @@ describe('A particle', () => {
           endSize: 40,
           beginColor: ex.Color.Red.clone(),
           endColor: ex.Color.Blue.clone(),
-          graphic: null,
+          graphic: undefined,
           angularVelocity: 3,
           randomRotation: false
         },
-        focus: null,
-        focusAccel: null,
+        focus: undefined,
+        focusAccel: undefined,
         emitterType: ex.EmitterType.Circle,
         radius: 20,
         random: new ex.Random(1337)
@@ -149,12 +149,12 @@ describe('A particle', () => {
           endSize: 40,
           beginColor: ex.Color.Red.clone(),
           endColor: ex.Color.Blue.clone(),
-          graphic: null,
+          graphic: undefined,
           angularVelocity: 3,
           randomRotation: false
         },
-        focus: null,
-        focusAccel: null,
+        focus: undefined,
+        focusAccel: undefined,
         emitterType: ex.EmitterType.Circle,
         radius: 20,
         random: new ex.Random(1337)
@@ -192,12 +192,12 @@ describe('A particle', () => {
           endSize: 40,
           beginColor: ex.Color.Red.clone(),
           endColor: ex.Color.Blue.clone(),
-          graphic: null,
+          graphic: undefined,
           angularVelocity: 3,
           randomRotation: false
         },
-        focus: null,
-        focusAccel: null,
+        focus: undefined,
+        focusAccel: undefined,
         emitterType: ex.EmitterType.Circle,
         radius: 20,
         random: new ex.Random(1337)
@@ -239,7 +239,7 @@ describe('A particle', () => {
         endSize: 40,
         beginColor: ex.Color.Red.clone(),
         endColor: ex.Color.Blue.clone(),
-        graphic: null,
+        graphic: undefined,
         angularVelocity: 3,
         randomRotation: false
       },
@@ -248,8 +248,8 @@ describe('A particle', () => {
       height: 30,
       isEmitting: true,
       emitRate: 5,
-      focus: null,
-      focusAccel: null,
+      focus: undefined,
+      focusAccel: undefined,
       emitterType: ex.EmitterType.Circle,
       radius: 20,
       random: new ex.Random(1337)
@@ -276,7 +276,7 @@ describe('A particle', () => {
         endSize: 40,
         beginColor: ex.Color.Red.clone(),
         endColor: ex.Color.Blue.clone(),
-        graphic: null,
+        graphic: undefined,
         angularVelocity: 3,
         randomRotation: false
       },
@@ -286,8 +286,8 @@ describe('A particle', () => {
       height: 30,
       isEmitting: true,
       emitRate: 5,
-      focus: null,
-      focusAccel: null,
+      focus: undefined,
+      focusAccel: undefined,
       emitterType: ex.EmitterType.Circle,
       radius: 20,
       random: new ex.Random(1337)
@@ -354,7 +354,7 @@ describe('A particle', () => {
     });
     engine.add(emitter);
     emitter.emitParticles(3);
-    const initialPoolSize = emitter._particlePool._pool.length;
+    const initialPoolSize = (emitter as any)._particlePool._pool.length;
 
     // Manually simulate death
     const particles = [...emitter.children] as ex.Particle[];
@@ -364,12 +364,12 @@ describe('A particle', () => {
     emitter.update(engine, 16);
 
     // Pool should have exactly 3 more items (no duplicates)
-    const finalPoolSize = emitter._particlePool._pool.length;
+    const finalPoolSize = (emitter as any)._particlePool._pool.length;
     expect(finalPoolSize - initialPoolSize).toBe(3);
 
     // Calling update again should not add more (deadParticles already cleared)
     emitter.update(engine, 16);
-    expect(emitter._particlePool._pool.length).toBe(finalPoolSize);
+    expect((emitter as any)._particlePool._pool.length).toBe(finalPoolSize);
   });
 
   it('clearParticles properly unparents local particles', async () => {
@@ -420,7 +420,6 @@ describe('A particle', () => {
 
     // Emit particles that will die quickly
     emitter.emitParticles(3);
-    const firstBatch = [...emitter._activeParticles];
 
     // Manually simulate death and process
     const particles = [...emitter.children] as ex.Particle[];
@@ -429,7 +428,7 @@ describe('A particle', () => {
 
     // Emit again - should get recycled instances
     emitter.emitParticles(3);
-    const secondBatch = [...emitter._activeParticles];
+    const secondBatch = [...(emitter as any)._activeParticles];
 
     // No instance should appear twice in the active set
     const allActive = new Set(secondBatch);

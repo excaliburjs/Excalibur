@@ -2,9 +2,7 @@ import * as ex from '@excalibur';
 import { TestUtils } from '../__util__/test-utils';
 
 describe('A label', () => {
-  let label: ex.Label;
   let engine: ex.Engine;
-  let scene: ex.Scene;
 
   beforeEach(() => {
     engine = TestUtils.engine({
@@ -16,7 +14,7 @@ describe('A label', () => {
   afterEach(() => {
     engine.stop();
     engine.dispose();
-    engine = null;
+    engine = null as any;
   });
 
   it('exists', () => {
@@ -30,7 +28,7 @@ describe('A label', () => {
 
   it('can construct with empty text', () => {
     expect(() => {
-      const sut = new ex.Label();
+      new ex.Label();
     }).not.toThrow();
   });
 

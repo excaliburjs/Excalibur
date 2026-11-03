@@ -7,9 +7,10 @@ describe('A BezierCurve', () => {
 
   it('only supports cubic', () => {
     const throws = () => {
+      //@ts-expect-error
       const curve = new ex.BezierCurve({ controlPoints: [] as any });
     };
-    expect(throws).toThrowError('Only cubic bezier curves are supported');
+    expect(throws).toThrow('Only cubic bezier curves are supported');
   });
 
   it('can build a cubic bezier curve', () => {

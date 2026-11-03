@@ -21,7 +21,7 @@ describe('A Trigger', () => {
   afterEach(() => {
     engine.stop();
     engine.dispose();
-    engine = null;
+    engine = null as any;
   });
 
   it('should exist', () => {
@@ -142,7 +142,7 @@ describe('A Trigger', () => {
     actor.body.collisionType = ex.CollisionType.Active;
     actor.vel.y = 10;
 
-    trigger.on('collisionstart', (evt: ex.EnterTriggerEvent) => {
+    trigger.on('collisionstart', (evt: ex.CollisionStartEvent) => {
       fired++;
     });
 

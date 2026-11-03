@@ -203,14 +203,14 @@ describe('A Graph', () => {
     });
 
     it('should return empty array for BFS with invalid start node', () => {
-      const nodeA = graph.addNode('A');
+      graph.addNode('A');
       const invalidNode = new ex.Node('Invalid');
 
       expect(graph.bfs(invalidNode)).toEqual([]);
     });
 
     it('should return empty array for DFS with invalid start node', () => {
-      const nodeA = graph.addNode('A');
+      graph.addNode('A');
       const invalidNode = new ex.Node('Invalid');
 
       expect(graph.dfs(invalidNode)).toEqual([]);
@@ -279,7 +279,7 @@ describe('A Graph', () => {
       // Find shortest path between A and E
       const result = graph.shortestPathDijkstra(nodeA, nodeE);
 
-      expect(result.path.length).toBe(4);
+      expect(result.path!.length).toBe(4);
       expect(result.path[0]).toBe(nodeA);
       expect(result.path[1]).toBe(nodeB);
       expect(result.path[2]).toBe(nodeD);
@@ -325,7 +325,7 @@ describe('A Graph', () => {
       graph.addEdge(nodeD, nodeE, { weight: 3 });
 
       const result = graph.shortestPathDijkstra(nodeA, nodeE);
-      expect(result.path.length).toBe(4);
+      expect(result.path!.length).toBe(4);
       expect(result.path[0]).toBe(nodeA);
       expect(result.path[1]).toBe(nodeB);
       expect(result.path[2]).toBe(nodeD);
@@ -338,7 +338,7 @@ describe('A Graph', () => {
       const nodeB = graph.addNode('B');
 
       const result = graph.shortestPathDijkstra(nodeA, nodeB);
-      expect(result.path.length).toBe(0);
+      expect(result.path!.length).toBe(0);
       expect(result.distance).toBe(Infinity);
     });
   });
@@ -393,7 +393,7 @@ describe('A Graph', () => {
       const result = graph.aStar(nodeA as ex.PositionNode<string>, nodeB as ex.PositionNode<string>);
 
       //path will be empty array and distance will be Infinity
-      expect(result.path.length).toBe(0);
+      expect(result.path!.length).toBe(0);
       expect(result.pathSteps).toBe(0);
       expect(result.distance).toBe(Infinity);
     });

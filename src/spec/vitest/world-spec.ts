@@ -24,12 +24,12 @@ describe('A World', () => {
   });
 
   it('can be created', () => {
-    const world = new ex.World(null);
-    expect(world).not.toBe(null);
+    const world = new ex.World(null as any);
+    expect(world).not.toBe(null as any);
   });
 
   it('can add entities', () => {
-    const world = new ex.World(null);
+    const world = new ex.World(null as any);
     vi.spyOn(world.entityManager, 'addEntity');
 
     const entity = new ex.Entity();
@@ -39,7 +39,7 @@ describe('A World', () => {
   });
 
   it('can remove entities', () => {
-    const world = new ex.World(null);
+    const world = new ex.World(null as any);
     vi.spyOn(world.entityManager, 'removeEntity');
 
     const entity = new ex.Entity();
@@ -50,7 +50,7 @@ describe('A World', () => {
   });
 
   it('can add systems', () => {
-    const world = new ex.World(null);
+    const world = new ex.World(null as any);
     vi.spyOn(world.systemManager, 'addSystem');
 
     const system = new FakeSystem(world);
@@ -60,7 +60,7 @@ describe('A World', () => {
   });
 
   it('can remove systems', () => {
-    const world = new ex.World(null);
+    const world = new ex.World(null as any);
     vi.spyOn(world.systemManager, 'removeSystem');
 
     const system = new FakeSystem(world);
@@ -71,7 +71,7 @@ describe('A World', () => {
   });
 
   it('can clear entities and systems', () => {
-    const world = new ex.World(null);
+    const world = new ex.World(null as any);
     vi.spyOn(world.systemManager, 'clear');
     vi.spyOn(world.entityManager, 'clear');
 

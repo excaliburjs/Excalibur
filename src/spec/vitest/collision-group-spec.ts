@@ -85,9 +85,9 @@ describe('A Collision Group', () => {
 
   it('should throw if 2 groups of the same name are created', () => {
     ex.CollisionGroupManager.reset();
-    const maybeA = ex.CollisionGroupManager.create('A', 0b1);
+    ex.CollisionGroupManager.create('A', 0b1);
     expect(() => {
-      const maybeAAlso = ex.CollisionGroupManager.create('A', 0b10);
+      ex.CollisionGroupManager.create('A', 0b10);
     }).toThrowError('Collision group A already exists with a different mask!');
   });
 
@@ -111,9 +111,9 @@ describe('A Collision Group', () => {
     }
 
     for (let i = 0; i < 32; i++) {
-      const groupI = ex.CollisionGroupManager.groupByName('group' + i);
+      const groupI = ex.CollisionGroupManager.groupByName('group' + i)!;
       for (let j = 0; j < 32; j++) {
-        const groupJ = ex.CollisionGroupManager.groupByName('group' + j);
+        const groupJ = ex.CollisionGroupManager.groupByName('group' + j)!;
         if (i === j) {
           expect(groupI.canCollide(groupJ)).toBe(false);
         } else {

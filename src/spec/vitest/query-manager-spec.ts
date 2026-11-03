@@ -10,12 +10,12 @@ describe('A QueryManager', () => {
   });
 
   it('can be created', () => {
-    const queryManager = new ex.QueryManager(new ex.World(null));
+    const queryManager = new ex.QueryManager(new ex.World(null as any));
     expect(queryManager).not.toBeNull();
   });
 
   it('can create queries for entities', () => {
-    const world = new ex.World(null);
+    const world = new ex.World(null as any);
     const entity1 = new ex.Entity();
     entity1.addComponent(new FakeComponentA());
     entity1.addComponent(new FakeComponentB());
@@ -50,7 +50,7 @@ describe('A QueryManager', () => {
   });
 
   it('can create tag queries for entities', () => {
-    const world = new ex.World(null);
+    const world = new ex.World(null as any);
     const entity1 = new ex.Entity();
     entity1.addTag('A');
     entity1.addTag('B');
@@ -83,7 +83,7 @@ describe('A QueryManager', () => {
   });
 
   it('can add entities to queries', () => {
-    const world = new ex.World(null);
+    const world = new ex.World(null as any);
     const entity1 = new ex.Entity();
     entity1.addComponent(new FakeComponentA());
     entity1.addComponent(new FakeComponentB());
@@ -103,7 +103,7 @@ describe('A QueryManager', () => {
   });
 
   it('can add entities to tag queries', () => {
-    const world = new ex.World(null);
+    const world = new ex.World(null as any);
     const entity1 = new ex.Entity();
     entity1.addTag('A');
     entity1.addTag('B');
@@ -123,7 +123,7 @@ describe('A QueryManager', () => {
   });
 
   it('can remove entities from queries', () => {
-    const world = new ex.World(null);
+    const world = new ex.World(null as any);
     const entity1 = new ex.Entity();
     entity1.addComponent(new FakeComponentA());
     entity1.addComponent(new FakeComponentB());
@@ -145,7 +145,7 @@ describe('A QueryManager', () => {
   });
 
   it('can remove entities from queries that have components and not(tags)', () => {
-    const world = new ex.World(null);
+    const world = new ex.World(null as any);
     const entity1 = new ex.Entity();
     entity1.addComponent(new FakeComponentA());
     entity1.addComponent(new FakeComponentB());
@@ -177,7 +177,7 @@ describe('A QueryManager', () => {
   });
 
   it('can remove entities from queries that have components and not(components)', () => {
-    const world = new ex.World(null);
+    const world = new ex.World(null as any);
     const entity1 = new ex.Entity();
     entity1.addComponent(new FakeComponentA());
     entity1.addComponent(new FakeComponentB());
@@ -207,7 +207,7 @@ describe('A QueryManager', () => {
   });
 
   it('can add entities queries that have 1 and(component) + or(components)', () => {
-    const world = new ex.World(null);
+    const world = new ex.World(null as any);
     const entity1 = new ex.Entity();
     entity1.addComponent(new FakeComponentA());
     entity1.addComponent(new FakeComponentC());
@@ -236,7 +236,7 @@ describe('A QueryManager', () => {
   });
 
   it('can remove entities from tag queries', () => {
-    const world = new ex.World(null);
+    const world = new ex.World(null as any);
     const entity1 = new ex.Entity();
     entity1.addTag('A');
     entity1.addTag('B');
@@ -258,7 +258,7 @@ describe('A QueryManager', () => {
   });
 
   it('does not duplicate entity subscriptions when creating queries after entities exist', () => {
-    const world = new ex.World(null);
+    const world = new ex.World(null as any);
     const entity = new ex.Entity();
     entity.addComponent(new FakeComponentA());
     entity.addTag('A');
@@ -282,7 +282,7 @@ describe('A QueryManager', () => {
   });
 
   it('does not duplicate entity subscriptions when addEntity is called more than once', () => {
-    const world = new ex.World(null);
+    const world = new ex.World(null as any);
     const entity = new ex.Entity();
 
     world.queryManager.addEntity(entity);
@@ -295,7 +295,7 @@ describe('A QueryManager', () => {
   });
 
   it('can update queries when a component is removed', () => {
-    const world = new ex.World(null);
+    const world = new ex.World(null as any);
     const entity1 = new ex.Entity();
     entity1.addComponent(new FakeComponentA());
     entity1.addComponent(new FakeComponentB());
@@ -318,7 +318,7 @@ describe('A QueryManager', () => {
   });
 
   it('can update tag queries when a component is removed', () => {
-    const world = new ex.World(null);
+    const world = new ex.World(null as any);
     const entity1 = new ex.Entity();
     entity1.addTag('A');
     entity1.addTag('B');
@@ -344,7 +344,7 @@ describe('A QueryManager', () => {
   });
 
   it("removing components unrelated to the query doesn't remove the entity", () => {
-    const world = new ex.World(null);
+    const world = new ex.World(null as any);
     const entity1 = new ex.Entity();
     entity1.addComponent(new FakeComponentA());
     entity1.addComponent(new FakeComponentB());
@@ -369,7 +369,7 @@ describe('A QueryManager', () => {
 
   it('will be notified when entity components are added', () =>
     new Promise<void>((done) => {
-      const world = new ex.World(null);
+      const world = new ex.World(null as any);
       const entity = new ex.Entity();
       world.add(entity);
 
@@ -386,7 +386,7 @@ describe('A QueryManager', () => {
 
   it('will be notified when entity components are removed', () =>
     new Promise<void>((done) => {
-      const world = new ex.World(null);
+      const world = new ex.World(null as any);
       const entity = new ex.Entity();
       world.add(entity);
       const componentA = new FakeComponentA();

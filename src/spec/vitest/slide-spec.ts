@@ -27,7 +27,7 @@ describe('A Slide transition', () => {
 
       const onDeactivateSpy = vi.fn();
 
-      engine.director.getSceneInstance('root').onDeactivate = onDeactivateSpy;
+      engine.director.getSceneInstance('root')!.onDeactivate = onDeactivateSpy;
 
       const sut = new ex.Slide({ duration: 1000, slideDirection: 'down' });
       const scene = new ex.Scene();
@@ -40,8 +40,8 @@ describe('A Slide transition', () => {
         })
       );
       engine.addScene('newScene', { scene, transitions: { in: sut } });
+      engine.goToScene('newScene')!;
 
-      const goto = engine.goToScene('newScene');
       await TestUtils.flushMicrotasks(clock, 15);
       await TestUtils.untilMacrotask(() => engine.currentSceneName !== 'root');
       clock.step(500);
@@ -66,7 +66,7 @@ describe('A Slide transition', () => {
 
       const onDeactivateSpy = vi.fn();
 
-      engine.director.getSceneInstance('root').onDeactivate = onDeactivateSpy;
+      engine.director.getSceneInstance('root')!.onDeactivate = onDeactivateSpy;
 
       const sut = new ex.Slide({ duration: 1000, slideDirection: 'right' });
       const scene = new ex.Scene();
@@ -78,9 +78,10 @@ describe('A Slide transition', () => {
           color: ex.Color.Violet
         })
       );
-      engine.addScene('newScene', { scene, transitions: { in: sut } });
 
-      const goto = engine.goToScene('newScene');
+      engine.addScene('newScene', { scene, transitions: { in: sut } });
+      engine.goToScene('newScene');
+
       await TestUtils.flushMicrotasks(clock, 15);
       await TestUtils.untilMacrotask(() => engine.currentSceneName !== 'root');
       clock.step(500);
@@ -105,7 +106,7 @@ describe('A Slide transition', () => {
 
       const onDeactivateSpy = vi.fn();
 
-      engine.director.getSceneInstance('root').onDeactivate = onDeactivateSpy;
+      engine.director.getSceneInstance('root')!.onDeactivate = onDeactivateSpy;
 
       const sut = new ex.Slide({ duration: 1000, slideDirection: 'left' });
       const scene = new ex.Scene();
@@ -118,8 +119,8 @@ describe('A Slide transition', () => {
         })
       );
       engine.addScene('newScene', { scene, transitions: { in: sut } });
+      engine.goToScene('newScene');
 
-      const goto = engine.goToScene('newScene');
       await TestUtils.flushMicrotasks(clock, 15);
       await TestUtils.untilMacrotask(() => engine.currentSceneName !== 'root');
       clock.step(500);
@@ -144,7 +145,7 @@ describe('A Slide transition', () => {
 
       const onDeactivateSpy = vi.fn();
 
-      engine.director.getSceneInstance('root').onDeactivate = onDeactivateSpy;
+      engine.director.getSceneInstance('root')!.onDeactivate = onDeactivateSpy;
 
       const sut = new ex.Slide({ duration: 1000, slideDirection: 'up' });
       const scene = new ex.Scene();
@@ -157,8 +158,8 @@ describe('A Slide transition', () => {
         })
       );
       engine.addScene('newScene', { scene, transitions: { in: sut } });
+      engine.goToScene('newScene');
 
-      const goto = engine.goToScene('newScene');
       await TestUtils.flushMicrotasks(clock, 15);
       await TestUtils.untilMacrotask(() => engine.currentSceneName !== 'root');
       clock.step(500);
@@ -183,7 +184,7 @@ describe('A Slide transition', () => {
 
       const onDeactivateSpy = vi.fn();
 
-      engine.director.getSceneInstance('root').onDeactivate = onDeactivateSpy;
+      engine.director.getSceneInstance('root')!.onDeactivate = onDeactivateSpy;
 
       const sut = new ex.Slide({
         duration: 1000,
@@ -200,8 +201,8 @@ describe('A Slide transition', () => {
         })
       );
       engine.addScene('newScene', { scene, transitions: { in: sut } });
+      engine.goToScene('newScene');
 
-      const goto = engine.goToScene('newScene');
       await TestUtils.flushMicrotasks(clock, 15);
       await TestUtils.untilMacrotask(() => engine.currentSceneName !== 'root');
       clock.step(700);

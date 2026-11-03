@@ -2,7 +2,7 @@ import * as ex from '@excalibur';
 import { TestUtils } from '../__util__/test-utils';
 
 describe('A Timer', () => {
-  let timer;
+  let timer: ex.Timer | null = null;
   let scene: ex.Scene;
   let engine: ex.Engine;
 
@@ -26,7 +26,7 @@ describe('A Timer', () => {
   afterEach(() => {
     engine.stop();
     engine.dispose();
-    engine = null;
+    engine = null as any;
   });
 
   it('has a unique id', () => {
@@ -36,8 +36,8 @@ describe('A Timer', () => {
         /*do nothing*/
       }
     });
-    expect(timer.id).not.toBe(newtimer.id);
-    expect(timer.id).toBe(newtimer.id - 1);
+    expect(timer!.id).not.toBe(newtimer.id);
+    expect(timer!.id).toBe(newtimer.id - 1);
 
     const newtimer2 = new ex.Timer({
       interval: 500,
@@ -45,8 +45,8 @@ describe('A Timer', () => {
         /*do nothing*/
       }
     });
-    expect(timer.id).not.toBe(newtimer2.id);
-    expect(timer.id).toBe(newtimer2.id - 2);
+    expect(timer!.id).not.toBe(newtimer2.id);
+    expect(timer!.id).toBe(newtimer2.id - 2);
   });
 
   it('does not start when added to a scene', () => {
@@ -181,10 +181,10 @@ describe('A Timer', () => {
   });
 
   it('can return how long it has been running', () => {
-    timer.start();
-    timer.update(372);
+    timer!.start();
+    timer!.update(372);
 
-    expect(timer.getTimeRunning()).toEqual(372);
+    expect(timer!.getTimeRunning()).toEqual(372);
   });
 
   it('can be canceled', () => {
@@ -209,19 +209,19 @@ describe('A Timer', () => {
   });
 
   it('is no longer active in the scene when it is completed', () => {
-    scene.addTimer(timer);
-    timer.start();
+    scene.addTimer(timer!);
+    timer!.start();
 
-    expect(scene.isTimerActive(timer)).toBeTruthy();
+    expect(scene.isTimerActive(timer!)).toBeTruthy();
     scene.update(engine, 501);
-    expect(scene.isTimerActive(timer)).toBeFalsy();
+    expect(scene.isTimerActive(timer!)).toBeFalsy();
   });
 
   it('is in the completed state once it is finished', () => {
-    scene.addTimer(timer);
-    timer.start();
+    scene.addTimer(timer!);
+    timer!.start();
     scene.update(engine, 501);
-    expect(timer.complete).toBeTruthy();
+    expect(timer!.complete).toBeTruthy();
   });
 
   it('has no completed state when running forever', () => {
@@ -339,6 +339,7 @@ describe('A Timer', () => {
     timer = new ex.Timer({
       interval: 500,
       action: function () {
+        // @ts-ignore
         const dummy = 0;
       },
       repeats: true,

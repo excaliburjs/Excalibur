@@ -1,6 +1,5 @@
 import * as ex from '@excalibur';
 import { delay } from '../../engine/util/util';
-import { inject } from 'vitest';
 
 declare global {
   interface Document {

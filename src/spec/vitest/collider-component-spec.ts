@@ -33,7 +33,7 @@ describe('A ColliderComponent', () => {
     const sut = clone.get(ex.ColliderComponent);
 
     // Should be same value
-    expect(sut.get().bounds).toEqual(collider.get().bounds);
+    expect(sut.get()!.bounds).toEqual(collider.get()!.bounds);
     expect(sut.bounds).toEqual(collider.bounds);
 
     // Should be new refs
@@ -44,8 +44,11 @@ describe('A ColliderComponent', () => {
 
     // Original handler should fire not the clone
     collider
-      .get()
-      .events.emit('collisionstart', new ex.CollisionStartEvent<ex.Collider>(ex.Shape.Circle(50), ex.Shape.Circle(50), null, null));
+      .get()!
+      .events.emit(
+        'collisionstart',
+        new ex.CollisionStartEvent<ex.Collider>(ex.Shape.Circle(50), ex.Shape.Circle(50), null as any, null as any)
+      );
 
     expect(originalCollisionHandler).toHaveBeenCalledTimes(1);
     expect(cloneCollisionHandler).not.toHaveBeenCalled();
@@ -118,7 +121,7 @@ describe('A ColliderComponent', () => {
     const logger = ex.Logger.getInstance();
     vi.spyOn(logger, 'warnOnce');
 
-    const result = comp.set(undefined);
+    const result = comp.set(undefined as any);
 
     expect(result).toBeNull();
     expect(comp.get()).toBeNull();
@@ -130,7 +133,7 @@ describe('A ColliderComponent', () => {
     const logger = ex.Logger.getInstance();
     vi.spyOn(logger, 'warnOnce');
 
-    const result = comp.set(undefined);
+    const result = comp.set(undefined as any);
 
     expect(result).toBeNull();
     expect(logger.warnOnce).not.toHaveBeenCalled();

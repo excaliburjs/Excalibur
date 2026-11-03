@@ -31,7 +31,7 @@ describe('A TileMap', () => {
   afterEach(() => {
     engine.stop();
     engine.dispose();
-    engine = null;
+    engine = null as any;
   });
 
   it('exists', () => {
@@ -110,30 +110,30 @@ describe('A TileMap', () => {
     });
     tm._initialize(engine);
 
-    tm.getTile(0, 0).solid = true;
-    tm.getTile(0, 1).solid = true;
-    tm.getTile(0, 2).solid = true;
-    tm.getTile(0, 3).solid = true;
+    tm.getTile(0, 0)!.solid = true;
+    tm.getTile(0, 1)!.solid = true;
+    tm.getTile(0, 2)!.solid = true;
+    tm.getTile(0, 3)!.solid = true;
 
-    tm.getTile(1, 0).solid = false;
-    tm.getTile(1, 1).solid = false;
-    tm.getTile(1, 2).solid = false;
-    tm.getTile(1, 3).solid = false;
+    tm.getTile(1, 0)!.solid = false;
+    tm.getTile(1, 1)!.solid = false;
+    tm.getTile(1, 2)!.solid = false;
+    tm.getTile(1, 3)!.solid = false;
 
-    tm.getTile(2, 0).solid = false;
-    tm.getTile(2, 1).solid = false;
-    tm.getTile(2, 2).solid = false;
-    tm.getTile(2, 3).solid = false;
+    tm.getTile(2, 0)!.solid = false;
+    tm.getTile(2, 1)!.solid = false;
+    tm.getTile(2, 2)!.solid = false;
+    tm.getTile(2, 3)!.solid = false;
 
-    tm.getTile(3, 0).solid = true;
-    tm.getTile(3, 1).solid = true;
-    tm.getTile(3, 2).solid = true;
-    tm.getTile(3, 3).solid = true;
+    tm.getTile(3, 0)!.solid = true;
+    tm.getTile(3, 1)!.solid = true;
+    tm.getTile(3, 2)!.solid = true;
+    tm.getTile(3, 3)!.solid = true;
 
-    tm.getTile(4, 0).solid = true;
-    tm.getTile(4, 1).solid = true;
-    tm.getTile(4, 2).solid = true;
-    tm.getTile(4, 3).solid = true;
+    tm.getTile(4, 0)!.solid = true;
+    tm.getTile(4, 1)!.solid = true;
+    tm.getTile(4, 2)!.solid = true;
+    tm.getTile(4, 3)!.solid = true;
 
     tm.flagCollidersDirty();
 
@@ -165,7 +165,7 @@ describe('A TileMap', () => {
     });
     tm._initialize(engine);
 
-    tm.getTile(0, 0).solid = true;
+    tm.getTile(0, 0)!.solid = true;
     tm.flagCollidersDirty();
     tm.update(engine, 1);
 
@@ -194,7 +194,7 @@ describe('A TileMap', () => {
     tm.pos = ex.vec(512, 0);
     tm.update(engine, 1);
 
-    tm.getTile(0, 0).solid = true;
+    tm.getTile(0, 0)!.solid = true;
     tm.flagCollidersDirty();
     tm.update(engine, 1);
 
@@ -217,15 +217,15 @@ describe('A TileMap', () => {
     });
 
     const cell = tm.getTile(4, 2);
-    cell.data.set('some_value', 'anything');
+    cell!.data.set('some_value', 'anything');
 
     const otherCell = tm.getTile(4, 2);
 
-    expect(otherCell.data.get('some_value')).toBe('anything');
+    expect(otherCell!.data.get('some_value')).toBe('anything');
 
     const otherCell2 = tm.getTile(0, 0);
 
-    expect(otherCell2.data.get('some_vale')).not.toBeDefined();
+    expect(otherCell2!.data.get('some_vale')).not.toBeDefined();
   });
 
   describe('@visual', () => {
@@ -257,7 +257,7 @@ describe('A TileMap', () => {
         ]
       });
 
-      cell.addGraphic(animation);
+      cell!.addGraphic(animation);
 
       drawWithTransform(engine.graphicsContext, tm, 99);
       engine.graphicsContext.flush();
@@ -418,7 +418,7 @@ describe('A TileMap', () => {
       engine.currentScene.draw(engine.graphicsContext, 100);
       engine.graphicsContext.flush();
 
-      expect(tm.getTile(0, 0).bounds).toEqual(
+      expect(tm.getTile(0, 0)!.bounds).toEqual(
         new ex.BoundingBox({
           left: 100,
           top: 100,
@@ -427,7 +427,7 @@ describe('A TileMap', () => {
         })
       );
 
-      expect(tm.getTile(1, 0).bounds).toEqual(
+      expect(tm.getTile(1, 0)!.bounds).toEqual(
         new ex.BoundingBox({
           left: 228,
           top: 100,
@@ -450,7 +450,7 @@ describe('A TileMap', () => {
     });
 
     expect(sut.pos).toBeVector(ex.vec(-100, -100));
-    const tile = sut.getTile(19, 19);
+    const tile = sut.getTile(19, 19)!;
     expect(tile.x).toBe(19);
     expect(tile.y).toBe(19);
     expect(tile.pos).toBeVector(ex.vec(19 * 64 - 100, 19 * 48 - 100));
@@ -458,8 +458,8 @@ describe('A TileMap', () => {
     const nullTile = sut.getTile(20, 20);
     expect(nullTile).toBeNull();
 
-    expect(sut.getTileByPoint(ex.vec(19 * 64 - 100, 19 * 48 - 100)).x).toBe(19);
-    expect(sut.getTileByPoint(ex.vec(19 * 64 - 100, 19 * 48 - 100)).y).toBe(19);
+    expect(sut.getTileByPoint(ex.vec(19 * 64 - 100, 19 * 48 - 100))!.x).toBe(19);
+    expect(sut.getTileByPoint(ex.vec(19 * 64 - 100, 19 * 48 - 100))!.y).toBe(19);
     expect(sut.getTileByPoint(ex.vec(19 * 64, 19 * 48))).toBeNull();
 
     expect(sut.getTileByIndex(20 * 20 - 1)).toBe(tile);
@@ -477,7 +477,7 @@ describe('A TileMap', () => {
     sut.flagTilesDirty();
 
     expect(sut.pos).toBeVector(ex.vec(-100, -100));
-    const tile = sut.getTile(19, 19);
+    const tile = sut.getTile(19, 19)!;
     expect(tile.x).toBe(19);
     expect(tile.y).toBe(19);
     expect(tile.pos).toBeVector(ex.vec(19 * 64 * 2 - 100, 19 * 48 * 2 - 100));
@@ -485,8 +485,8 @@ describe('A TileMap', () => {
     const nullTile = sut.getTile(20, 20);
     expect(nullTile).toBeNull();
 
-    expect(sut.getTileByPoint(ex.vec(19 * 64 * 2 - 100, 19 * 48 * 2 - 100)).x).toBe(19);
-    expect(sut.getTileByPoint(ex.vec(19 * 64 * 2 - 100, 19 * 48 * 2 - 100)).y).toBe(19);
+    expect(sut.getTileByPoint(ex.vec(19 * 64 * 2 - 100, 19 * 48 * 2 - 100))!.x).toBe(19);
+    expect(sut.getTileByPoint(ex.vec(19 * 64 * 2 - 100, 19 * 48 * 2 - 100))!.y).toBe(19);
     expect(sut.getTileByPoint(ex.vec(19 * 64 * 2, 19 * 48 * 2))).toBeNull();
 
     expect(sut.getTileByIndex(20 * 20 - 1)).toBe(tile);
@@ -503,7 +503,7 @@ describe('A TileMap', () => {
       rows: 20,
       columns: 20
     });
-    const tile = sut.getTile(0, 0);
+    const tile = sut.getTile(0, 0)!;
 
     tile.addGraphic(sprite);
     tile.addGraphic(sprite.clone());
@@ -529,10 +529,10 @@ describe('A TileMap', () => {
       columns: 20
     });
 
-    const tile = sut.getTile(0, 0);
+    const tile = sut.getTile(0, 0)!;
     tile.solid = true;
 
-    const box = ex.Shape.Box(10, 10);
+    const box = ex.Colliders.Box(10, 10);
 
     tile.addCollider(box);
     tile.addCollider(box.clone());
@@ -565,7 +565,7 @@ describe('A TileMap', () => {
       columns: 20
     });
 
-    const tile = sut.getTile(0, 0);
+    const tile = sut.getTile(0, 0)!;
     expect(tile.bounds).toEqual(
       new ex.BoundingBox({
         left: 100,
@@ -585,7 +585,7 @@ describe('A TileMap', () => {
       columns: 20
     });
 
-    const tile = sut.getTile(0, 0);
+    const tile = sut.getTile(0, 0)!;
     expect(tile.center).toBeVector(ex.vec(132, 124));
   });
 
@@ -601,7 +601,7 @@ describe('A TileMap', () => {
     });
     engine.add(sut);
 
-    const tile = sut.getTile(0, 0);
+    const tile = sut.getTile(0, 0)!;
 
     const pointerdown = vi.fn();
     const pointerup = vi.fn();

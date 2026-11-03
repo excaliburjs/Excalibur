@@ -1,7 +1,7 @@
 import * as ex from '@excalibur';
 
 describe('A color', () => {
-  let color;
+  let color: ex.Color;
   beforeEach(() => {
     color = new ex.Color(0, 0, 0);
   });

@@ -24,7 +24,7 @@ describe('A Graphics ECS Component', () => {
       height: 40,
       color: ex.Color.Red
     });
-    const rect2 = new ex.Rectangle({
+    new ex.Rectangle({
       width: 40,
       height: 40,
       color: ex.Color.Blue
@@ -376,7 +376,7 @@ describe('A Graphics ECS Component', () => {
     rec2.scale = ex.vec(2, 2);
     sut.add(rec2);
 
-    const entity = new ex.Entity([tx, sut]);
+    new ex.Entity([tx, sut]);
 
     expect(sut.bounds).toEqual(
       new ex.BoundingBox({

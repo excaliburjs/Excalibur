@@ -7,15 +7,15 @@ describe('The ExcaliburGraphicsContext', () => {
     let testContext: CanvasRenderingContext2D;
     beforeAll(() => {
       testCanvasElement = document.createElement('canvas');
-      testContext = testCanvasElement.getContext('2d');
+      testContext = testCanvasElement.getContext('2d')!;
       document.body.appendChild(testCanvasElement);
     });
     afterAll(() => {
       document.body.removeChild(testCanvasElement);
       testCanvasElement.width = 0;
       testCanvasElement.height = 0;
-      testCanvasElement = null;
-      testContext = null;
+      testCanvasElement = null as any;
+      testContext = null as any;
     });
 
     it('exists', () => {
@@ -255,8 +255,8 @@ describe('The ExcaliburGraphicsContext', () => {
     afterAll(() => {
       testCanvasElement.width = 0;
       testCanvasElement.height = 0;
-      testCanvasElement = null;
-      testContext = null;
+      testCanvasElement = null as any;
+      testContext = null as any;
     });
     beforeEach(() => {
       TextureLoader.filtering = ex.ImageFiltering.Pixel;
@@ -551,11 +551,11 @@ describe('The ExcaliburGraphicsContext', () => {
         const tex = new ex.ImageSource('/src/spec/assets/images/excalibur-graphics-context-spec/sword.png');
         await tex.load();
 
-        const circleRenderer = sut.get('ex.circle');
+        const circleRenderer = sut.get('ex.circle')!;
         vi.spyOn(circleRenderer, 'flush');
-        const imageRenderer = sut.get('ex.image-v2');
+        const imageRenderer = sut.get('ex.image-v2')!;
         vi.spyOn(imageRenderer, 'flush');
-        const rectangleRenderer = sut.get('ex.rectangle');
+        const rectangleRenderer = sut.get('ex.rectangle')!;
         vi.spyOn(rectangleRenderer, 'flush');
 
         sut.clear();
@@ -608,11 +608,11 @@ describe('The ExcaliburGraphicsContext', () => {
         const tex = new ex.ImageSource('/src/spec/assets/images/excalibur-graphics-context-spec/sword.png');
         await tex.load();
 
-        const circleRenderer = sut.get('ex.circle');
+        const circleRenderer = sut.get('ex.circle')!;
         vi.spyOn(circleRenderer, 'flush');
-        const imageRenderer = sut.get('ex.image');
+        const imageRenderer = sut.get('ex.image')!;
         vi.spyOn(imageRenderer, 'flush');
-        const rectangleRenderer = sut.get('ex.rectangle');
+        const rectangleRenderer = sut.get('ex.rectangle')!;
         vi.spyOn(rectangleRenderer, 'flush');
 
         sut.clear();
@@ -664,11 +664,11 @@ describe('The ExcaliburGraphicsContext', () => {
         const tex = new ex.ImageSource('/src/spec/assets/images/excalibur-graphics-context-spec/sword.png');
         await tex.load();
 
-        const circleRenderer = sut.get('ex.circle');
+        const circleRenderer = sut.get('ex.circle')!;
         vi.spyOn(circleRenderer, 'flush');
-        const imageRenderer = sut.get('ex.image-v2');
+        const imageRenderer = sut.get('ex.image-v2')!;
         vi.spyOn(imageRenderer, 'flush');
-        const rectangleRenderer = sut.get('ex.rectangle');
+        const rectangleRenderer = sut.get('ex.rectangle')!;
         vi.spyOn(rectangleRenderer, 'flush');
 
         sut.clear();
@@ -717,11 +717,11 @@ describe('The ExcaliburGraphicsContext', () => {
         const tex = new ex.ImageSource('/src/spec/assets/images/excalibur-graphics-context-spec/sword.png');
         await tex.load();
 
-        const circleRenderer = sut.get('ex.circle');
+        const circleRenderer = sut.get('ex.circle')!;
         vi.spyOn(circleRenderer, 'flush');
-        const imageRenderer = sut.get('ex.image');
+        const imageRenderer = sut.get('ex.image')!;
         vi.spyOn(imageRenderer, 'flush');
-        const rectangleRenderer = sut.get('ex.rectangle');
+        const rectangleRenderer = sut.get('ex.rectangle')!;
         vi.spyOn(rectangleRenderer, 'flush');
 
         sut.clear();
@@ -872,7 +872,7 @@ describe('The ExcaliburGraphicsContext', () => {
         sut.useDrawSorting = false;
         sut.clear();
 
-        const circleRenderer = sut.get('ex.circle');
+        const circleRenderer = sut.get('ex.circle')!;
         vi.spyOn(circleRenderer, 'flush');
         for (let i = 0; i < 10922; i++) {
           sut.drawCircle(ex.vec(50, 50), 50, ex.Color.Blue);
@@ -902,7 +902,7 @@ describe('The ExcaliburGraphicsContext', () => {
         sut.useDrawSorting = true;
         sut.clear();
 
-        const circleRenderer = sut.get('ex.circle');
+        const circleRenderer = sut.get('ex.circle')!;
         vi.spyOn(circleRenderer, 'flush');
         for (let i = 0; i < 10922; i++) {
           sut.drawCircle(ex.vec(50, 50), 50, ex.Color.Blue);
@@ -933,7 +933,7 @@ describe('The ExcaliburGraphicsContext', () => {
 
         sut.clear();
 
-        const rectangleRenderer = sut.get('ex.rectangle');
+        const rectangleRenderer = sut.get('ex.rectangle')!;
         vi.spyOn(rectangleRenderer, 'flush');
         for (let i = 0; i < 10922; i++) {
           sut.drawRectangle(ex.vec(50, 50), 50, 50, ex.Color.Blue);
@@ -965,7 +965,7 @@ describe('The ExcaliburGraphicsContext', () => {
 
         sut.clear();
 
-        const rectangleRenderer = sut.get('ex.rectangle');
+        const rectangleRenderer = sut.get('ex.rectangle')!;
         vi.spyOn(rectangleRenderer, 'flush');
         for (let i = 0; i < 10922; i++) {
           sut.drawRectangle(ex.vec(50, 50), 50, 50, ex.Color.Blue);
@@ -999,7 +999,7 @@ describe('The ExcaliburGraphicsContext', () => {
         const tex = new ex.ImageSource('/src/spec/assets/images/excalibur-graphics-context-spec/sword.png');
         await tex.load();
 
-        const imageRenderer = sut.get('ex.image');
+        const imageRenderer = sut.get('ex.image')!;
         vi.spyOn(imageRenderer, 'flush');
         for (let i = 0; i < 10922; i++) {
           sut.drawImage(tex.image, 0, 0);
@@ -1033,7 +1033,7 @@ describe('The ExcaliburGraphicsContext', () => {
         const tex = new ex.ImageSource('/src/spec/assets/images/excalibur-graphics-context-spec/sword.png');
         await tex.load();
 
-        const imageRenderer = sut.get('ex.image');
+        const imageRenderer = sut.get('ex.image')!;
         vi.spyOn(imageRenderer, 'flush');
         for (let i = 0; i < 10922; i++) {
           sut.drawImage(tex.image, 0, 0);

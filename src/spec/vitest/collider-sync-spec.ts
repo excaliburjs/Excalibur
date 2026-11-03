@@ -77,7 +77,7 @@ describe('Collider world geometry sync', () => {
     processor.track(collider);
 
     const proxy = processor.hashGrid.objectToProxy.get(collider)!;
-    expect(processor.update([collider])).toBe(0);
+    expect((processor as any).update([collider])).toBe(0);
     // unchanged transform: no bounds refresh, no cell comparison
     expect(proxy.hasChanged()).toBe(false);
 

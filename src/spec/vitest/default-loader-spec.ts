@@ -10,7 +10,7 @@ describe('A DefaultLoader', () => {
   afterEach(() => {
     engine.stop();
     engine.dispose();
-    engine = null;
+    engine = null as any;
   });
 
   it('exists', () => {
@@ -39,7 +39,7 @@ describe('A DefaultLoader', () => {
 
   it('@visual can draw', async () => {
     const sut = new ex.DefaultLoader({
-      loadables: [, , ,]
+      loadables: [, , ,] as any
     });
     sut.onInitialize(engine);
     sut.markResourceComplete();

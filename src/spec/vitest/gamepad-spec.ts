@@ -19,7 +19,7 @@ describe('A gamepad', () => {
   afterEach(() => {
     engine.stop();
     engine.dispose();
-    engine = null;
+    engine = null as any;
   });
 
   it('should fire an event on connect', () => {

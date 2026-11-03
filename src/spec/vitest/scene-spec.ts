@@ -24,7 +24,7 @@ describe('A scene', () => {
   afterEach(() => {
     engine.stop();
     engine.dispose();
-    engine = null;
+    engine = null as any;
   });
 
   it('should be loaded', () => {
@@ -415,7 +415,7 @@ describe('A scene', () => {
     new Promise<void>((done) => {
       engine.stop();
       engine.dispose();
-      engine = null;
+      engine = null as any;
       engine = TestUtils.engine({ width: 100, height: 100 });
       const scene = new ex.Scene();
 
@@ -423,9 +423,10 @@ describe('A scene', () => {
       engine.addScene('otherScene', scene);
 
       let initialized = false;
-      scene.once('initialize', (evt: ex.InitializeEvent) => {
+      scene.once('initialize', (evt: ex.InitializeEvent<ex.Scene<unknown>>) => {
         initialized = true;
       });
+
       scene.once('activate', (evt: ex.ActivateEvent) => {
         expect(initialized, 'Initialization should happen before activation').toBe(true);
         done();
@@ -441,18 +442,15 @@ describe('A scene', () => {
     new Promise<void>((done) => {
       engine.stop();
       engine.dispose();
-      engine = null;
+      engine = null as any;
       engine = TestUtils.engine({ width: 100, height: 100 });
       scene = new ex.Scene();
 
       engine.removeScene('otherScene');
       engine.addScene('otherScene', scene);
 
-      let sceneInitialized = false;
-      const sceneActivated = false;
       let actorInitialized = false;
       scene.once('initialize', (evt) => {
-        sceneInitialized = true;
         expect(actorInitialized, 'Actor should be initialized before scene initialization').toBe(true);
       });
       const actor = new ex.Actor();
@@ -476,7 +474,7 @@ describe('A scene', () => {
   it('can only be initialized once', async () => {
     engine.stop();
     engine.dispose();
-    engine = null;
+    engine = null as any;
     engine = TestUtils.engine({ width: 100, height: 100 });
     await TestUtils.runToReady(engine);
     scene = new ex.Scene();
@@ -499,7 +497,7 @@ describe('A scene', () => {
   it('should initialize before actors in the scene', async () => {
     engine.stop();
     engine.dispose();
-    engine = null;
+    engine = null as any;
     engine = TestUtils.engine({ width: 100, height: 100 });
     await TestUtils.runToReady(engine);
     const clock = engine.clock as ex.TestClock;
@@ -837,8 +835,8 @@ describe('A scene', () => {
     afterEach(() => {
       engine.stop();
       engine.dispose();
-      engine = null;
-      scene = null;
+      engine = null as any;
+      scene = null as any;
     });
 
     it('can have onInitialize overridden safely', async () => {

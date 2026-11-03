@@ -2,7 +2,7 @@ import * as ex from '@excalibur';
 import { TestUtils } from '../__util__/test-utils';
 
 describe('A pointer', () => {
-  let engine: ex.Engine = null;
+  let engine: ex.Engine = null as any;
 
   /**
    * Helper to make a mouse event in the test
@@ -12,7 +12,13 @@ describe('A pointer', () => {
    * @param x
    * @param y
    */
-  function executeMouseEvent(type: string, target: HTMLElement, button: ex.NativePointerButton = null, x: number = 0, y: number = 0) {
+  function executeMouseEvent(
+    type: string,
+    target: HTMLElement,
+    button: ex.NativePointerButton = null as any,
+    x: number = 0,
+    y: number = 0
+  ) {
     const evt = new PointerEvent(type, {
       clientX: x,
       clientY: y,
@@ -35,7 +41,7 @@ describe('A pointer', () => {
   afterEach(() => {
     engine.stop();
     engine.dispose();
-    engine = null;
+    engine = null as any;
   });
 
   it('should detect pointer event', () => {
@@ -112,20 +118,20 @@ describe('A pointer', () => {
   });
 
   it('should update last position on down and move', () => {
-    executeMouseEvent('pointerdown', <any>document, null, 10, 800);
+    executeMouseEvent('pointerdown', <any>document, null as any, 10, 800);
     // process pointer events
     engine.currentScene.update(engine, 0);
     expect(engine.input.pointers.primary.lastPagePos.x).toBe(10);
     expect(engine.input.pointers.primary.lastPagePos.y).toBe(800);
 
-    executeMouseEvent('pointermove', <any>document, null, 100, 200);
+    executeMouseEvent('pointermove', <any>document, null as any, 100, 200);
     // process pointer events
     engine.currentScene.update(engine, 0);
 
     expect(engine.input.pointers.primary.lastPagePos.x).toBe(100);
     expect(engine.input.pointers.primary.lastPagePos.y).toBe(200);
 
-    executeMouseEvent('pointermove', <any>document, null, 300, 400);
+    executeMouseEvent('pointermove', <any>document, null as any, 300, 400);
     // process pointer events
     engine.currentScene.update(engine, 0);
 
@@ -134,7 +140,7 @@ describe('A pointer', () => {
   });
 
   it('should dispatch events in z order high to low', () => {
-    const actualOrder = [];
+    const actualOrder = [] as any;
 
     const actor1 = new ex.Actor({ x: 50, y: 50, width: 100, height: 100 });
     actor1.z = 0;
@@ -162,7 +168,7 @@ describe('A pointer', () => {
     engine.add(actor3);
     engine.add(actor4);
 
-    executeMouseEvent('pointerdown', <any>document, null, 50, 50);
+    executeMouseEvent('pointerdown', <any>document, null as any, 50, 50);
 
     // process pointer events
     engine.currentScene.update(engine, 0);
@@ -181,23 +187,23 @@ describe('A pointer', () => {
 
     engine.add(actor1);
 
-    executeMouseEvent('pointerdown', <any>document, null, 100, 100);
+    executeMouseEvent('pointerdown', <any>document, null as any, 100, 100);
     engine.currentScene.update(engine, 0);
     expect(pointerSpy).not.toHaveBeenCalled();
 
-    executeMouseEvent('pointerdown', <any>document, null, 0, 0);
+    executeMouseEvent('pointerdown', <any>document, null as any, 0, 0);
     engine.currentScene.update(engine, 0);
     expect(pointerSpy).not.toHaveBeenCalled();
 
-    executeMouseEvent('pointerdown', <any>document, null, 50, 50);
+    executeMouseEvent('pointerdown', <any>document, null as any, 50, 50);
     engine.currentScene.update(engine, 0);
     expect(pointerSpy).toHaveBeenCalledWith(ex.vec(50, 50));
 
-    executeMouseEvent('pointerdown', <any>document, null, Math.cos(0) * 50, 0);
+    executeMouseEvent('pointerdown', <any>document, null as any, Math.cos(0) * 50, 0);
     engine.currentScene.update(engine, 0);
     expect(pointerSpy).toHaveBeenCalledWith(ex.vec(Math.cos(0) * 50, 0));
 
-    executeMouseEvent('pointerdown', <any>document, null, Math.cos(0) * 50.1, 0);
+    executeMouseEvent('pointerdown', <any>document, null as any, Math.cos(0) * 50.1, 0);
     engine.currentScene.update(engine, 0);
     expect(pointerSpy).not.toHaveBeenCalledWith(ex.vec(Math.cos(0) * 50.1, 0));
   });
@@ -240,10 +246,10 @@ describe('A pointer', () => {
     engine.input.pointers.primary.on('wheel', spyTopLevelPointerWheel);
     engine.input.pointers.on('wheel', spyTopLevelPointerWheel);
 
-    executeMouseEvent('pointerdown', <any>document, null, 50, 50);
-    executeMouseEvent('pointerup', <any>document, null, 50, 50);
-    executeMouseEvent('pointermove', <any>document, null, 50, 50);
-    executeMouseEvent('wheel', <any>document, null, 50, 50);
+    executeMouseEvent('pointerdown', <any>document, null as any, 50, 50);
+    executeMouseEvent('pointerup', <any>document, null as any, 50, 50);
+    executeMouseEvent('pointermove', <any>document, null as any, 50, 50);
+    executeMouseEvent('wheel', <any>document, null as any, 50, 50);
 
     // process pointer events
     engine.currentScene.update(engine, 0);
@@ -266,7 +272,7 @@ describe('A pointer', () => {
     const oldPadding = document.body.style.padding;
     document.body.style.margin = '0';
     document.body.style.padding = '0';
-    executeMouseEvent('pointerdown', <any>document, null, 10, 10);
+    executeMouseEvent('pointerdown', <any>document, null as any, 10, 10);
     engine.currentScene.update(engine, 0);
     expect(engine.input.pointers.primary.lastWorldPos).toEqual(ex.vec(10, 10));
     expect(engine.input.pointers.primary.lastScreenPos).toEqual(ex.vec(10, 10));
@@ -297,11 +303,11 @@ describe('A pointer', () => {
 
     engine.add(screenElement);
 
-    executeMouseEvent('pointerdown', <any>document, null, 50, 50);
-    executeMouseEvent('pointerdown', <any>document, null, 50, 150);
-    executeMouseEvent('pointerdown', <any>document, null, 150, 50);
-    executeMouseEvent('pointerdown', <any>document, null, 150, 150);
-    executeMouseEvent('pointerdown', <any>document, null, 100, 100);
+    executeMouseEvent('pointerdown', <any>document, null as any, 50, 50);
+    executeMouseEvent('pointerdown', <any>document, null as any, 50, 150);
+    executeMouseEvent('pointerdown', <any>document, null as any, 150, 50);
+    executeMouseEvent('pointerdown', <any>document, null as any, 150, 150);
+    executeMouseEvent('pointerdown', <any>document, null as any, 100, 100);
 
     engine.currentScene.update(engine, 0);
 
@@ -309,10 +315,10 @@ describe('A pointer', () => {
 
     pointerDownSpy.mockReset();
 
-    executeMouseEvent('pointerdown', <any>document, null, 49, 49);
-    executeMouseEvent('pointerdown', <any>document, null, 49, 151);
-    executeMouseEvent('pointerdown', <any>document, null, 151, 49);
-    executeMouseEvent('pointerdown', <any>document, null, 151, 151);
+    executeMouseEvent('pointerdown', <any>document, null as any, 49, 49);
+    executeMouseEvent('pointerdown', <any>document, null as any, 49, 151);
+    executeMouseEvent('pointerdown', <any>document, null as any, 151, 49);
+    executeMouseEvent('pointerdown', <any>document, null as any, 151, 151);
 
     engine.currentScene.update(engine, 0);
 
@@ -320,7 +326,7 @@ describe('A pointer', () => {
   });
 
   it('can have pointer event canceled', () => {
-    const actualOrder = [];
+    const actualOrder = [] as any;
 
     const actor1 = new ex.Actor({ x: 50, y: 50, width: 100, height: 100 });
     actor1.z = 0;
@@ -349,7 +355,7 @@ describe('A pointer', () => {
     engine.add(actor3);
     engine.add(actor4);
 
-    executeMouseEvent('pointerdown', <any>document, null, 50, 50);
+    executeMouseEvent('pointerdown', <any>document, null as any, 50, 50);
 
     // process pointer events
     engine.currentScene.update(engine, 0);
@@ -371,7 +377,7 @@ describe('A pointer', () => {
 
     engine.add(actor1);
 
-    executeMouseEvent('pointerdown', <any>document, null, 50, 50);
+    executeMouseEvent('pointerdown', <any>document, null as any, 50, 50);
 
     engine.currentScene.update(engine, 0);
     // process pointer events
@@ -383,7 +389,7 @@ describe('A pointer', () => {
       const upHandler = vi.fn();
       engine.input.pointers.on('up', upHandler);
 
-      executeMouseEvent('pointerup', <any>document, null, 50, 50);
+      executeMouseEvent('pointerup', <any>document, null as any, 50, 50);
 
       // process pointer events
       engine.currentScene.update(engine, 0);
@@ -395,7 +401,7 @@ describe('A pointer', () => {
       const downHandler = vi.fn();
       engine.input.pointers.on('down', downHandler);
 
-      executeMouseEvent('pointerdown', <any>document, null, 50, 50);
+      executeMouseEvent('pointerdown', <any>document, null as any, 50, 50);
 
       // process pointer events
       engine.currentScene.update(engine, 0);
@@ -407,7 +413,7 @@ describe('A pointer', () => {
       const moveHandler = vi.fn();
       engine.input.pointers.on('move', moveHandler);
 
-      executeMouseEvent('pointermove', <any>document, null, 50, 50);
+      executeMouseEvent('pointermove', <any>document, null as any, 50, 50);
 
       // process pointer events
       engine.currentScene.update(engine, 0);
@@ -419,7 +425,7 @@ describe('A pointer', () => {
       const wheelHandler = vi.fn();
       engine.input.pointers.on('wheel', wheelHandler);
 
-      executeMouseEvent('wheel', <any>document, null, 50, 50);
+      executeMouseEvent('wheel', <any>document, null as any, 50, 50);
 
       // process pointer events
       engine.currentScene.update(engine, 0);
@@ -453,7 +459,7 @@ describe('A pointer', () => {
 
       // Remove the PointerSystem from the scene - previously this meant nothing cleared the
       // receiver's currentFrame* arrays, leaking memory on every native pointer event.
-      const pointerSystem = engine.currentScene.world.get(ex.PointerSystem);
+      const pointerSystem = engine.currentScene.world.get(ex.PointerSystem)!;
       engine.currentScene.world.remove(pointerSystem);
       expect(engine.currentScene.world.get(ex.PointerSystem)).toBeFalsy();
 
@@ -461,7 +467,7 @@ describe('A pointer', () => {
 
       for (let i = 0; i < 5; i++) {
         executeMouseEvent('pointerdown', <any>document, ex.NativePointerButton.Left, 10, 10);
-        executeMouseEvent('pointermove', <any>document, null, 15, 15);
+        executeMouseEvent('pointermove', <any>document, null as any, 15, 15);
         executeMouseEvent('pointerup', <any>document, ex.NativePointerButton.Left, 10, 10);
         // advance a full frame
         clock.step(16);

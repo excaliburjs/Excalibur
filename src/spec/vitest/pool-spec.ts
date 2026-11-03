@@ -31,7 +31,7 @@ describe('An object Pool', () => {
     const logger = ex.Logger.getInstance();
     vi.spyOn(logger, 'warn');
     for (let i = 0; i < 10; i++) {
-      const instance = pool.get();
+      pool.get();
     }
 
     expect(pool.totalAllocations).toBe(10);

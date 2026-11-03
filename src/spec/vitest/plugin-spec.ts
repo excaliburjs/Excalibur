@@ -5,78 +5,78 @@ import { TestUtils } from '../__util__/test-utils';
  * A test plugin that records the order in which its lifecycle hooks are called.
  */
 class TrackingPlugin extends ex.Plugin {
-  name = 'test.tracking';
-  priority = 0;
+  override name = 'test.tracking';
+  override priority = 0;
 
   calls: string[] = [];
 
-  onLoad = vi.fn((): Promise<void> => {
+  override onLoad = vi.fn((): Promise<void> => {
     this.calls.push('onLoad');
     return Promise.resolve();
   });
 
-  onLoadComplete = vi.fn((): Promise<void> => {
+  override onLoadComplete = vi.fn((): Promise<void> => {
     this.calls.push('onLoadComplete');
     return Promise.resolve();
   });
 
-  onEnginePreConfig = vi.fn((engine: ex.Engine, options: ex.EngineOptions) => {
+  override onEnginePreConfig = vi.fn((engine: ex.Engine, options: ex.EngineOptions) => {
     this.calls.push('onEnginePreConfig');
   });
 
-  onEnginePostConfig = vi.fn((engine: ex.Engine, options: ex.EngineOptions) => {
+  override onEnginePostConfig = vi.fn((engine: ex.Engine, options: ex.EngineOptions) => {
     this.calls.push('onEnginePostConfig');
   });
 
-  onEnginePreInitialize = vi.fn((engine: ex.Engine) => {
+  override onEnginePreInitialize = vi.fn((engine: ex.Engine) => {
     this.calls.push('onEnginePreInitialize');
   });
 
-  onEnginePostInitialize = vi.fn((engine: ex.Engine) => {
+  override onEnginePostInitialize = vi.fn((engine: ex.Engine) => {
     this.calls.push('onEnginePostInitialize');
   });
 
-  onGraphicsPreConfig = vi.fn((context: ex.ExcaliburGraphicsContext, options: ex.ExcaliburGraphicsContextOptions) => {
+  override onGraphicsPreConfig = vi.fn((context: ex.ExcaliburGraphicsContext, options: ex.ExcaliburGraphicsContextOptions) => {
     this.calls.push('onGraphicsPreConfig');
   });
 
-  onGraphicsPostConfig = vi.fn((context: ex.ExcaliburGraphicsContext, options: ex.ExcaliburGraphicsContextOptions) => {
+  override onGraphicsPostConfig = vi.fn((context: ex.ExcaliburGraphicsContext, options: ex.ExcaliburGraphicsContextOptions) => {
     this.calls.push('onGraphicsPostConfig');
   });
 
-  onGraphicsPreInitialize = vi.fn((context: ex.ExcaliburGraphicsContext) => {
+  override onGraphicsPreInitialize = vi.fn((context: ex.ExcaliburGraphicsContext) => {
     this.calls.push('onGraphicsPreInitialize');
   });
 
-  onGraphicsPostInitialize = vi.fn((context: ex.ExcaliburGraphicsContext) => {
+  override onGraphicsPostInitialize = vi.fn((context: ex.ExcaliburGraphicsContext) => {
     this.calls.push('onGraphicsPostInitialize');
   });
 
-  onScenePreInitialize = vi.fn((scene: ex.Scene) => {
+  override onScenePreInitialize = vi.fn((scene: ex.Scene) => {
     this.calls.push('onScenePreInitialize');
   });
 
-  onScenePostInitialize = vi.fn((scene: ex.Scene) => {
+  override onScenePostInitialize = vi.fn((scene: ex.Scene) => {
     this.calls.push('onScenePostInitialize');
   });
 
-  onScenePreActivate = vi.fn((scene: ex.Scene) => {
+  override onScenePreActivate = vi.fn((scene: ex.Scene) => {
     this.calls.push('onScenePreActivate');
   });
 
-  onScenePostActivate = vi.fn((scene: ex.Scene) => {
+  override onScenePostActivate = vi.fn((scene: ex.Scene) => {
     this.calls.push('onScenePostActivate');
   });
 
-  onScenePreDeactivate = vi.fn((scene: ex.Scene) => {
+  override onScenePreDeactivate = vi.fn((scene: ex.Scene) => {
     this.calls.push('onScenePreDeactivate');
   });
 
-  onScenePostDeactivate = vi.fn((scene: ex.Scene) => {
+  override onScenePostDeactivate = vi.fn((scene: ex.Scene) => {
     this.calls.push('onScenePostDeactivate');
   });
 
-  dispose = vi.fn(() => {
+  override dispose = vi.fn(() => {
     this.calls.push('dispose');
   });
 }
@@ -88,7 +88,7 @@ describe('A Plugin', () => {
     if (engine) {
       engine.stop();
       engine.dispose();
-      engine = null;
+      engine = null as any;
     }
   });
 
@@ -97,7 +97,7 @@ describe('A Plugin', () => {
   });
 
   it('can be installed via constructor options', () => {
-    const plugin = new TrackingPlugin();
+    const plugin = new TrackingPlugin('test.tracking');
     engine = TestUtils.engine({ plugins: [plugin] });
 
     expect(engine.plugins).toContain(plugin);
@@ -106,9 +106,9 @@ describe('A Plugin', () => {
 
   it('warns and skips duplicate plugin names via constructor', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-    const plugin1 = new TrackingPlugin();
+    const plugin1 = new TrackingPlugin('test.duplicate');
     plugin1.name = 'test.duplicate';
-    const plugin2 = new TrackingPlugin();
+    const plugin2 = new TrackingPlugin('test.duplicate');
     plugin2.name = 'test.duplicate';
 
     engine = TestUtils.engine({ plugins: [plugin1, plugin2] });
@@ -120,7 +120,7 @@ describe('A Plugin', () => {
   });
 
   it('calls onEnginePreConfig during construction', () => {
-    const plugin = new TrackingPlugin();
+    const plugin = new TrackingPlugin('test.duplicate');
     engine = TestUtils.engine({ plugins: [plugin] });
 
     expect(plugin.onEnginePreConfig).toHaveBeenCalledTimes(1);
@@ -128,14 +128,14 @@ describe('A Plugin', () => {
   });
 
   it('calls onEnginePostConfig during construction', () => {
-    const plugin = new TrackingPlugin();
+    const plugin = new TrackingPlugin('test.duplicate');
     engine = TestUtils.engine({ plugins: [plugin] });
 
     expect(plugin.onEnginePostConfig).toHaveBeenCalledTimes(1);
   });
 
   it('calls onGraphicsPreConfig and onGraphicsPostConfig during construction', () => {
-    const plugin = new TrackingPlugin();
+    const plugin = new TrackingPlugin('test.duplicate');
     engine = TestUtils.engine({ plugins: [plugin] });
 
     expect(plugin.onGraphicsPreConfig).toHaveBeenCalledTimes(1);
@@ -143,7 +143,7 @@ describe('A Plugin', () => {
   });
 
   it('calls onGraphicsPreInitialize and onGraphicsPostInitialize during construction', () => {
-    const plugin = new TrackingPlugin();
+    const plugin = new TrackingPlugin('test.duplicate');
     engine = TestUtils.engine({ plugins: [plugin] });
 
     expect(plugin.onGraphicsPreInitialize).toHaveBeenCalledTimes(1);
@@ -151,7 +151,7 @@ describe('A Plugin', () => {
   });
 
   it('calls onEnginePreInitialize and onEnginePostInitialize during start', async () => {
-    const plugin = new TrackingPlugin();
+    const plugin = new TrackingPlugin('test.duplicate');
     engine = TestUtils.engine({ plugins: [plugin] });
 
     await TestUtils.runToReady(engine);
@@ -161,7 +161,7 @@ describe('A Plugin', () => {
   });
 
   it('calls onLoad and onLoadComplete during start', async () => {
-    const plugin = new TrackingPlugin();
+    const plugin = new TrackingPlugin('test.duplicate');
     engine = TestUtils.engine({ plugins: [plugin] });
 
     await TestUtils.runToReady(engine);
@@ -173,7 +173,7 @@ describe('A Plugin', () => {
   });
 
   it('calls onLoad before onLoadComplete before onEnginePreInitialize', async () => {
-    const plugin = new TrackingPlugin();
+    const plugin = new TrackingPlugin('test.duplicate');
     engine = TestUtils.engine({ plugins: [plugin] });
 
     await TestUtils.runToReady(engine);
@@ -187,7 +187,7 @@ describe('A Plugin', () => {
   });
 
   it('calls onScenePreInitialize and onScenePostInitialize when a scene initializes', async () => {
-    const plugin = new TrackingPlugin();
+    const plugin = new TrackingPlugin('test.duplicate');
     engine = TestUtils.engine({ plugins: [plugin] });
 
     const scene = new ex.Scene();
@@ -200,7 +200,7 @@ describe('A Plugin', () => {
   });
 
   it('calls onScenePreActivate and onScenePostActivate when a scene is activated', async () => {
-    const plugin = new TrackingPlugin();
+    const plugin = new TrackingPlugin('test.duplicate');
     engine = TestUtils.engine({ plugins: [plugin] });
 
     const scene = new ex.Scene();
@@ -213,7 +213,7 @@ describe('A Plugin', () => {
   });
 
   it('calls onScenePreDeactivate and onScenePostDeactivate when a scene is deactivated', async () => {
-    const plugin = new TrackingPlugin();
+    const plugin = new TrackingPlugin('test.duplicate');
     engine = TestUtils.engine({ plugins: [plugin] });
 
     const sceneA = new ex.Scene();
@@ -234,23 +234,23 @@ describe('A Plugin', () => {
   });
 
   it('calls dispose when the engine is disposed', () => {
-    const plugin = new TrackingPlugin();
+    const plugin = new TrackingPlugin('test.duplicate');
     engine = TestUtils.engine({ plugins: [plugin] });
 
     engine.dispose();
-    engine = null;
+    engine = null as any;
 
     expect(plugin.dispose).toHaveBeenCalledTimes(1);
   });
 
   it('sorts plugins by priority (lower runs first)', () => {
-    const plugin1 = new TrackingPlugin();
+    const plugin1 = new TrackingPlugin('test.plugin1');
     plugin1.name = 'test.plugin1';
     plugin1.priority = 10;
-    const plugin2 = new TrackingPlugin();
+    const plugin2 = new TrackingPlugin('test.plugin2');
     plugin2.name = 'test.plugin2';
     plugin2.priority = 1;
-    const plugin3 = new TrackingPlugin();
+    const plugin3 = new TrackingPlugin('test.plugin3');
     plugin3.name = 'test.plugin3';
     plugin3.priority = 5;
 
@@ -264,7 +264,7 @@ describe('A Plugin', () => {
   describe('addPlugin', () => {
     it('can add a plugin after construction', () => {
       engine = TestUtils.engine();
-      const plugin = new TrackingPlugin();
+      const plugin = new TrackingPlugin('test.plugin');
 
       const added = engine.addPlugin(plugin);
 
@@ -275,9 +275,9 @@ describe('A Plugin', () => {
 
     it('warns and returns false for a duplicate name', () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-      const plugin1 = new TrackingPlugin();
+      const plugin1 = new TrackingPlugin('test.dup');
       plugin1.name = 'test.dup';
-      const plugin2 = new TrackingPlugin();
+      const plugin2 = new TrackingPlugin('test.dup');
       plugin2.name = 'test.dup';
 
       engine = TestUtils.engine({ plugins: [plugin1] });
@@ -294,7 +294,7 @@ describe('A Plugin', () => {
       // Engine construction has already happened, so onEnginePreConfig, onEnginePostConfig,
       // onGraphicsPreConfig, onGraphicsPostConfig, onGraphicsPreInitialize, onGraphicsPostInitialize
       // should all be called when addPlugin is invoked.
-      const plugin = new TrackingPlugin();
+      const plugin = new TrackingPlugin('test.dup');
 
       engine.addPlugin(plugin);
 
@@ -310,7 +310,7 @@ describe('A Plugin', () => {
       engine = TestUtils.engine();
       await TestUtils.runToReady(engine);
 
-      const plugin = new TrackingPlugin();
+      const plugin = new TrackingPlugin('test.dup');
       engine.addPlugin(plugin);
 
       expect(plugin.onEnginePreInitialize).toHaveBeenCalledTimes(1);
@@ -319,10 +319,10 @@ describe('A Plugin', () => {
 
     it('maintains priority sort order after adding', () => {
       engine = TestUtils.engine();
-      const lowPriority = new TrackingPlugin();
+      const lowPriority = new TrackingPlugin('test.low');
       lowPriority.name = 'test.low';
       lowPriority.priority = 1;
-      const highPriority = new TrackingPlugin();
+      const highPriority = new TrackingPlugin('test.high');
       highPriority.name = 'test.high';
       highPriority.priority = 10;
 
@@ -336,7 +336,7 @@ describe('A Plugin', () => {
 
   describe('removePlugin', () => {
     it('can remove a plugin by name', () => {
-      const plugin = new TrackingPlugin();
+      const plugin = new TrackingPlugin('test.tracking');
       engine = TestUtils.engine({ plugins: [plugin] });
 
       const removed = engine.removePlugin('test.tracking');
@@ -346,7 +346,7 @@ describe('A Plugin', () => {
     });
 
     it('calls dispose when removing a plugin', () => {
-      const plugin = new TrackingPlugin();
+      const plugin = new TrackingPlugin('test.tracking');
       engine = TestUtils.engine({ plugins: [plugin] });
 
       engine.removePlugin('test.tracking');
@@ -365,7 +365,7 @@ describe('A Plugin', () => {
 
   describe('hasPlugin', () => {
     it('returns true for an installed plugin', () => {
-      const plugin = new TrackingPlugin();
+      const plugin = new TrackingPlugin('test.tracking');
       engine = TestUtils.engine({ plugins: [plugin] });
 
       expect(engine.hasPlugin('test.tracking')).toBe(true);
@@ -380,15 +380,15 @@ describe('A Plugin', () => {
 
   describe('graphics context hooks', () => {
     it('receives the graphics context in onGraphicsPostInitialize', () => {
-      const plugin = new TrackingPlugin();
+      const plugin = new TrackingPlugin('test.tracking');
       engine = TestUtils.engine({ plugins: [plugin] });
 
       expect(plugin.onGraphicsPostInitialize).toHaveBeenCalledWith(engine.graphicsContext);
     });
 
     it('can register a custom renderer via onGraphicsPostInitialize', () => {
-      const plugin = new ex.Plugin();
-      plugin.name = 'test.renderer';
+      class CustomRenderer extends ex.Plugin {}
+      const plugin = new CustomRenderer('test.renderer');
       plugin.onGraphicsPostInitialize = (context: ex.ExcaliburGraphicsContext) => {
         context.lazyRegister('test.custom-renderer', () => new TestRenderer());
       };
@@ -404,8 +404,8 @@ describe('A Plugin', () => {
 
   describe('Flags can be modified in onEnginePreConfig', () => {
     it('allows plugins to enable feature flags before Flags.freeze()', () => {
-      const plugin = new ex.Plugin();
-      plugin.name = 'test.flags';
+      class CustomRenderer extends ex.Plugin {}
+      const plugin = new CustomRenderer('test.flags');
       plugin.onEnginePreConfig = () => {
         ex.Flags.enable('test-custom-flag');
       };

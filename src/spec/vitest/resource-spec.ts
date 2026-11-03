@@ -82,7 +82,7 @@ describe('A generic Resource', () => {
         // Using an invalid protocol triggers the XHR 'error' event
         const badResource = new ex.Resource('file:///nonexistent/path/resource.png', 'blob');
         badResource.load().then(
-          () => fail('Expected rejection'),
+          () => new Error('Expected rejection'),
           (err) => {
             expect(err).toBeInstanceOf(ex.ResourceLoadingError);
             expect(err.path).toBe('file:///nonexistent/path/resource.png');

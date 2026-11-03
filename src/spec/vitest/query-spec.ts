@@ -28,8 +28,8 @@ describe('A query', () => {
     const entity2 = new ex.Entity();
     entity2.addComponent(compA);
 
-    expect(queryAB.matches(entity1)).toBe(true, 'entity1 should match has both components A, B');
-    expect(queryAB.matches(entity2)).toBe(false, 'entity2 should not match, only has 1 component A');
+    expect(queryAB.matches(entity1)).toBe(true); //, 'entity1 should match has both components A, B');
+    expect(queryAB.matches(entity2)).toBe(false); //, 'entity2 should not match, only has 1 component A');
   });
 
   it('can only add entities that match', () => {

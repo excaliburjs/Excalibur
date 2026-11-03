@@ -78,10 +78,10 @@ describe('A DynamicTree', () => {
         expect(node.bounds.right).toBeGreaterThanOrEqual(node.right!.bounds.right);
         expect(node.bounds.bottom).toBeGreaterThanOrEqual(node.right!.bounds.bottom);
       }
-      verifyInvariants(node.left);
-      verifyInvariants(node.right);
+      verifyInvariants(node.left!);
+      verifyInvariants(node.right!);
     };
-    verifyInvariants(tree.root);
+    verifyInvariants(tree.root!);
   });
 
   it('untracks a collider, removing it from the tree', () => {

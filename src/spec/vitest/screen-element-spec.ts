@@ -6,7 +6,6 @@ describe('A ScreenElement', () => {
   let screenElement: ex.ScreenElement;
   let engine: ex.Engine;
   let scene: ex.Scene;
-  let clock: ex.TestClock;
 
   beforeEach(async () => {
     screenElement = new ex.ScreenElement({
@@ -23,21 +22,19 @@ describe('A ScreenElement', () => {
     engine.goToScene('test');
 
     await TestUtils.runToReady(engine);
-
-    clock = engine.clock as ex.TestClock;
   });
 
   afterEach(() => {
     engine.stop();
     engine.dispose();
-    engine = null;
+    engine = null as any;
   });
 
   it('can be constructed with zero args without a warning', () => {
     const logger = ex.Logger.getInstance();
     vi.spyOn(logger, 'warn');
 
-    const sut = new ScreenElement();
+    new ScreenElement();
 
     expect(logger.warn).not.toHaveBeenCalled();
   });
@@ -51,29 +48,29 @@ describe('A ScreenElement', () => {
 
     expect(sut.anchor).toBeVector(ex.vec(0.5, 0.5));
     expect(sut.collider.get()).toBeInstanceOf(ex.PolygonCollider);
-    expect(sut.collider.get().bounds.width).toBe(100);
-    expect(sut.collider.get().bounds.height).toBe(100);
-    expect(sut.collider.get().bounds.left).toBe(-50);
-    expect(sut.collider.get().bounds.right).toBe(50);
-    expect(sut.collider.get().bounds.top).toBe(-50);
-    expect(sut.collider.get().bounds.bottom).toBe(50);
+    expect(sut.collider.get()!.bounds.width).toBe(100);
+    expect(sut.collider.get()!.bounds.height).toBe(100);
+    expect(sut.collider.get()!.bounds.left).toBe(-50);
+    expect(sut.collider.get()!.bounds.right).toBe(50);
+    expect(sut.collider.get()!.bounds.top).toBe(-50);
+    expect(sut.collider.get()!.bounds.bottom).toBe(50);
   });
 
   it('can be constructed with a non-default collider', () => {
     const sut = new ScreenElement({
       collisionType: ex.CollisionType.Active,
-      collider: ex.Shape.Circle(50)
+      collider: ex.Colliders.Circle(50)
     });
 
     expect(sut.anchor).toBeVector(ex.vec(0, 0));
     expect(sut.body.collisionType).toBe(ex.CollisionType.Active);
     expect(sut.collider.get()).toBeInstanceOf(ex.CircleCollider);
-    expect(sut.collider.get().bounds.width).toBe(100);
-    expect(sut.collider.get().bounds.height).toBe(100);
-    expect(sut.collider.get().bounds.left).toBe(-50);
-    expect(sut.collider.get().bounds.right).toBe(50);
-    expect(sut.collider.get().bounds.top).toBe(-50);
-    expect(sut.collider.get().bounds.bottom).toBe(50);
+    expect(sut.collider.get()!.bounds.width).toBe(100);
+    expect(sut.collider.get()!.bounds.height).toBe(100);
+    expect(sut.collider.get()!.bounds.left).toBe(-50);
+    expect(sut.collider.get()!.bounds.right).toBe(50);
+    expect(sut.collider.get()!.bounds.top).toBe(-50);
+    expect(sut.collider.get()!.bounds.bottom).toBe(50);
   });
 
   it('captures pointer by default', () => {
@@ -122,7 +119,6 @@ describe('A ScreenElement', () => {
   describe('@visual', () => {
     it('is drawn on the top left with empty constructor', async () => {
       const game = TestUtils.engine({ width: 720, height: 480 });
-      const clock = game.clock as ex.TestClock;
       const bg = new ex.ImageSource('/src/spec/assets/images/screen-element-spec/emptyctor.png');
       const loader = new ex.Loader([bg]);
       await TestUtils.runToReady(game, loader);

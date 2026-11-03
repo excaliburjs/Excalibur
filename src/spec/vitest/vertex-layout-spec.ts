@@ -38,6 +38,7 @@ describe('A VertexLayout', () => {
     });
 
     expect(() => {
+      //@ts-ignore
       const sut = new ex.VertexLayout({
         gl,
         shader,
@@ -48,6 +49,7 @@ describe('A VertexLayout', () => {
   });
 
   it('requires a shader to use', () => {
+    //@ts-ignore
     const shader = new ex.Shader({
       graphicsContext,
       vertexSource: `
@@ -73,7 +75,7 @@ describe('A VertexLayout', () => {
         attributes: [['a_position', 2]]
       });
       sut.use();
-    }).toThrowError('No shader is associated with this vertex layout, a shader must be set');
+    }).toThrow('No shader is associated with this vertex layout, a shader must be set');
   });
 
   it('requires a shader to be bound to use', () => {
@@ -104,7 +106,7 @@ describe('A VertexLayout', () => {
         attributes: [['a_position', 2]]
       });
       sut.use();
-    }).toThrowError('Shader associated with this vertex layout is not active! Call shader.use() before layout.use()');
+    }).toThrow('Shader associated with this vertex layout is not active! Call shader.use() before layout.use()');
   });
 
   it('requires a compiled shader', () => {
@@ -127,13 +129,14 @@ describe('A VertexLayout', () => {
       type: 'dynamic'
     });
     expect(() => {
+      // @ts-ignore
       const sut = new ex.VertexLayout({
         gl,
         shader,
         vertexBuffer,
         attributes: [['a_position', 2]]
       });
-    }).toThrowError('Shader not compiled, shader must be compiled before defining a vertex layout');
+    }).toThrow('Shader not compiled, shader must be compiled before defining a vertex layout');
   });
 
   it('will throw on invalid attribute name', () => {
@@ -157,13 +160,14 @@ describe('A VertexLayout', () => {
       type: 'dynamic'
     });
     expect(() => {
+      // @ts-ignore
       const sut = new ex.VertexLayout({
         gl,
         shader,
         vertexBuffer,
         attributes: [['a_invalid', 2]]
       });
-    }).toThrowError(/(attribute named: a_invalid size 2 not found)/);
+    }).toThrow(/(attribute named: a_invalid size 2 not found)/);
   });
 
   it('will throw on invalid attribute size', () => {
@@ -187,13 +191,14 @@ describe('A VertexLayout', () => {
       type: 'dynamic'
     });
     expect(() => {
+      // @ts-ignore
       const sut = new ex.VertexLayout({
         gl,
         shader,
         vertexBuffer,
         attributes: [['a_position', 4]]
       });
-    }).toThrowError(new RegExp('VertexLayout size definition for attribute: \\[a_position, 4\\]'));
+    }).toThrow(new RegExp('VertexLayout size definition for attribute: \\[a_position, 4\\]'));
   });
 
   it('will calculate vertex size and webgl vbo correctly', () => {

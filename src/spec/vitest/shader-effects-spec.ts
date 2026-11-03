@@ -36,7 +36,7 @@ describe('A BloomEffect', () => {
     source.dispose();
     destination.dispose();
     context.dispose();
-    context = null;
+    context = null as any;
   });
 
   it('exists', () => {
@@ -101,7 +101,7 @@ describe('A BloomEffect', () => {
   it('throws when processed after dispose', () => {
     const bloom = new ex.BloomEffect({ graphicsContext: context });
     bloom.dispose();
-    expect(() => bloom.process(source, destination)).toThrowError(/disposed/);
+    expect(() => bloom.process(source, destination)).toThrow(/disposed/);
   });
 
   it('plugs into a ShaderPipelinePostProcessor as a custom pipeline', () => {
@@ -148,7 +148,7 @@ describe('Glow passes', () => {
     source.dispose();
     destination.dispose();
     context.dispose();
-    context = null;
+    context = null as any;
   });
 
   it('exists', () => {
@@ -209,7 +209,7 @@ describe('A BlurEffect', () => {
     source.dispose();
     destination.dispose();
     context.dispose();
-    context = null;
+    context = null as any;
   });
 
   it('exists', () => {
@@ -280,7 +280,7 @@ describe('A GlowEffect', () => {
     source.dispose();
     destination.dispose();
     context.dispose();
-    context = null;
+    context = null as any;
   });
 
   it('exists', () => {

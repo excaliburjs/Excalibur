@@ -16,9 +16,9 @@ describe('A Collision Pair', () => {
       height: 20
     });
 
-    const sut = new ex.Pair(actor1.collider.get(), actor2.collider.get());
+    const sut = new ex.Pair(actor1.collider.get()!, actor2.collider.get()!);
 
-    expect(sut.id).toBe(`#${actor1.collider.get().id.value}+${actor2.collider.get().id.value}`);
+    expect(sut.id).toBe(`#${actor1.collider.get()!.id.value}+${actor2.collider.get()!.id.value}`);
   });
 
   it('cannot collide without a body', () => {
@@ -33,7 +33,7 @@ describe('A Collision Pair', () => {
     });
     actor2.removeComponent(ex.BodyComponent, true);
 
-    const sut = ex.Pair.canCollide(actor1.collider.get(), actor2.collider.get());
+    const sut = ex.Pair.canCollide(actor1.collider.get()!, actor2.collider.get()!);
 
     expect(sut).toBe(false);
   });
@@ -44,7 +44,7 @@ describe('A Collision Pair', () => {
       height: 10
     });
 
-    const sut = ex.Pair.canCollide(actor1.collider.get(), actor1.collider.get());
+    const sut = ex.Pair.canCollide(actor1.collider.get()!, actor1.collider.get()!);
 
     expect(sut).toBe(false);
   });
@@ -69,7 +69,7 @@ describe('A Collision Pair', () => {
     const actor2 = new ex.Actor();
     actor2.collider.useBoxCollider(0, 0);
 
-    const sut = ex.Pair.canCollide(actor1.collider.get(), actor2.collider.get());
+    const sut = ex.Pair.canCollide(actor1.collider.get()!, actor2.collider.get()!);
 
     expect(sut).toBe(false);
   });
@@ -88,7 +88,7 @@ describe('A Collision Pair', () => {
     });
     actor2.body.group = group;
 
-    const sut = ex.Pair.canCollide(actor1.collider.get(), actor2.collider.get());
+    const sut = ex.Pair.canCollide(actor1.collider.get()!, actor2.collider.get()!);
 
     expect(sut).toBe(false);
   });

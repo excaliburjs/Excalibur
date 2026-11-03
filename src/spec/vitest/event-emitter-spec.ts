@@ -295,7 +295,7 @@ describe('An EventEmitter', () => {
     expect(eventHistory).toEqual(subscriptions);
 
     pubsub.off('event'); // clear all handlers
-    subscriptions.push(subscriptions.shift());
+    subscriptions.push(subscriptions.shift()!);
 
     eventHistory = [];
     subscriptions.forEach((i) => pubsub.on('event', () => eventHistory.push(i)));

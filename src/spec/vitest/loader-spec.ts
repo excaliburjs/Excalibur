@@ -8,12 +8,12 @@ describe('A loader', () => {
   const reset = () => {
     engine.stop();
     engine.dispose();
-    engine = null;
+    engine = null as any;
     (<any>window).devicePixelRatio = 1;
     const playButton = document.getElementById('excalibur-play');
     if (playButton) {
-      const body = playButton.parentNode.parentNode;
-      body.removeChild(playButton.parentNode);
+      const body = playButton.parentNode!.parentNode!;
+      body.removeChild(playButton.parentNode!);
     }
   };
   beforeEach(() => {
@@ -23,7 +23,7 @@ describe('A loader', () => {
   afterEach(() => {
     engine.stop();
     engine.dispose();
-    engine = null;
+    engine = null as any;
   });
 
   it('exists', () => {
@@ -41,12 +41,12 @@ describe('A loader', () => {
   });
 
   it('can report progress, loader start at 0', () => {
-    const loader = new ex.Loader([, , ,]);
+    const loader = new ex.Loader([, , ,] as any);
     expect(loader.progress).toBe(0);
   });
 
   it('can report progress', () => {
-    const loader = new ex.Loader([, , , ,]);
+    const loader = new ex.Loader([, , , ,] as any);
     expect(loader.progress).toBe(0);
     loader.markResourceComplete();
     expect(loader.progress).toBe(0.25);
@@ -60,7 +60,7 @@ describe('A loader', () => {
 
   it('can be drawn at 0', () =>
     new Promise<void>((done) => {
-      const loader = new ex.Loader([, , , ,]);
+      const loader = new ex.Loader([, , , ,] as any);
       (loader as any)._image.onload = () => {
         loader.onInitialize(engine);
         loader.onDraw(loader.canvas.ctx);
@@ -74,7 +74,7 @@ describe('A loader', () => {
 
   it('can be drawn at 50', () =>
     new Promise<void>((done) => {
-      const loader = new ex.Loader([, , , ,]);
+      const loader = new ex.Loader([, , , ,] as any);
       (loader as any)._image.onload = () => {
         loader.markResourceComplete();
         loader.markResourceComplete();
@@ -91,7 +91,7 @@ describe('A loader', () => {
 
   it('can be drawn at 100', () =>
     new Promise<void>((done) => {
-      const loader = new ex.Loader([, , , ,]);
+      const loader = new ex.Loader([, , , ,] as any);
       (loader as any)._image.onload = () => {
         loader.markResourceComplete();
         loader.markResourceComplete();
@@ -110,7 +110,7 @@ describe('A loader', () => {
 
   it('does not show progress when the play button is shown', () =>
     new Promise<void>((done) => {
-      const loader = new ex.Loader([, , , ,]);
+      const loader = new ex.Loader([, , , ,] as any);
       (loader as any)._image.onload = () => {
         loader.markResourceComplete();
         loader.markResourceComplete();
@@ -129,7 +129,7 @@ describe('A loader', () => {
     }));
 
   it('can have the play button position customized', () => {
-    const loader = new ex.Loader([, , , ,]);
+    const loader = new ex.Loader([, , , ,] as any);
     loader.onInitialize(engine);
     loader.playButtonPosition = ex.vec(42, 77);
     loader.showPlayButton();
@@ -142,7 +142,7 @@ describe('A loader', () => {
 
   it('can have the logo position customized', () =>
     new Promise<void>((done) => {
-      const loader = new ex.Loader([, , , ,]);
+      const loader = new ex.Loader([, , , ,] as any);
       (loader as any)._image.onload = () => {
         loader.onInitialize(engine);
         loader.logoPosition = ex.vec(0, 0);
@@ -158,7 +158,7 @@ describe('A loader', () => {
 
   it('can have the loader customized', () =>
     new Promise<void>((done) => {
-      const loader = new ex.Loader([, , , ,]);
+      const loader = new ex.Loader([, , , ,] as any);
       loader.loadingBarPosition = ex.vec(0, 0);
       loader.loadingBarColor = ex.Color.Red;
       (loader as any)._image.onload = () => {
@@ -177,7 +177,7 @@ describe('A loader', () => {
     }));
 
   it('play button shows up after done loading', () => {
-    const loader = new ex.Loader([, , , ,]);
+    const loader = new ex.Loader([, , , ,] as any);
     loader.loadingBarPosition = ex.vec(0, 0);
     loader.loadingBarColor = ex.Color.Red;
     loader.markResourceComplete();
@@ -190,7 +190,7 @@ describe('A loader', () => {
   });
 
   it('play button is cleaned up on dispose', () => {
-    const loader = new ex.Loader([, , , ,]);
+    const loader = new ex.Loader([, , , ,] as any);
     loader.loadingBarPosition = ex.vec(0, 0);
     loader.loadingBarColor = ex.Color.Red;
     loader.markResourceComplete();
@@ -204,7 +204,7 @@ describe('A loader', () => {
 
   it('can have the enter key pressed to start', () =>
     new Promise<void>((done) => {
-      const loader = new ex.Loader([, , , ,]);
+      const loader = new ex.Loader([, , , ,] as any);
       loader.onInitialize(engine);
       loader.loadingBarPosition = ex.vec(0, 0);
       loader.loadingBarColor = ex.Color.Red;
@@ -220,7 +220,7 @@ describe('A loader', () => {
     }));
 
   it('can reload without building root elements', () => {
-    const loader = new ex.Loader([, , ,]);
+    const loader = new ex.Loader([, , ,] as any);
     loader.showPlayButton();
     loader.showPlayButton();
     loader.showPlayButton();
@@ -233,7 +233,13 @@ describe('A loader', () => {
   /**
    *
    */
-  function executeMouseEvent(type: string, target: HTMLElement, button: ex.NativePointerButton = null, x: number = 0, y: number = 0) {
+  function executeMouseEvent(
+    type: string,
+    target: HTMLElement,
+    button: ex.NativePointerButton = null as any,
+    x: number = 0,
+    y: number = 0
+  ) {
     const evt = new PointerEvent(type, {
       clientX: x,
       clientY: y,
@@ -246,14 +252,14 @@ describe('A loader', () => {
 
   it('does not propagate the start button click to pointers', async () => {
     engine.dispose();
-    engine = null;
+    engine = null as any;
     engine = new ex.Engine({ width: 1000, height: 1000 });
     (ex.WebAudio as any)._UNLOCKED = true;
     const clock = (engine.clock = engine.clock.toTestClock());
     const pointerHandler = vi.fn();
     engine.input.pointers.primary.on('up', pointerHandler);
     const loader = new ex.Loader([new ex.ImageSource('/src/spec/assets/images/graphics-text-spec/spritefont.png')]);
-    const start = engine.start(loader);
+    engine.start(loader);
 
     await loader.areResourcesLoaded();
     clock.step(200);
@@ -270,9 +276,9 @@ describe('A loader', () => {
 
   it('updates the play button position on resize', () => {
     engine.dispose();
-    engine = null;
+    engine = null as any;
     engine = new ex.Engine({ width: 1000, height: 1000 });
-    const loader = new ex.Loader([, , , ,]);
+    const loader = new ex.Loader([, , , ,] as any);
     loader.onInitialize(engine);
     loader.markResourceComplete();
     loader.markResourceComplete();
@@ -284,7 +290,7 @@ describe('A loader', () => {
 
     engine.browser.window.nativeComponent.dispatchEvent(new Event('resize'));
 
-    const oldPos = [loader.playButtonRootElement.style.left, loader.playButtonRootElement.style.top];
+    const oldPos = [loader.playButtonRootElement!.style.left, loader.playButtonRootElement!.style.top];
 
     const originalGetBoundingClientRect = engine.canvas.getBoundingClientRect;
     engine.canvas.getBoundingClientRect = () => ({
@@ -302,7 +308,7 @@ describe('A loader', () => {
 
     engine.browser.window.nativeComponent.dispatchEvent(new Event('resize'));
 
-    const newPos = [loader.playButtonRootElement.style.left, loader.playButtonRootElement.style.top];
+    const newPos = [loader.playButtonRootElement!.style.left, loader.playButtonRootElement!.style.top];
 
     engine.canvas.getBoundingClientRect = originalGetBoundingClientRect;
 
@@ -311,9 +317,9 @@ describe('A loader', () => {
 
   it('does not clobber the Screen resize handler during the play-button flow (resize still works after)', () => {
     engine.dispose();
-    engine = null;
+    engine = null as any;
     engine = new ex.Engine({ width: 1000, height: 1000, displayMode: ex.DisplayMode.FitScreen });
-    const loader = new ex.Loader([, , , ,]);
+    const loader = new ex.Loader([, , , ,] as any);
     loader.onInitialize(engine);
     loader.markResourceComplete();
     loader.markResourceComplete();
@@ -359,7 +365,7 @@ describe('A loader', () => {
       /**
        *
        */
-      function drawRandomCircleOnContext(ctx) {
+      function drawRandomCircleOnContext(ctx: any) {
         const x = Math.floor(Math.random() * 100);
         const y = Math.floor(Math.random() * 100);
         const radius = Math.floor(Math.random() * 20);
@@ -384,7 +390,7 @@ describe('A loader', () => {
         canvas.height = 100;
 
         const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, 100, 100);
+        ctx!.clearRect(0, 0, 100, 100);
 
         for (let i = 0; i < 20; i++) {
           drawRandomCircleOnContext(ctx);
@@ -414,14 +420,14 @@ describe('A loader', () => {
       });
       loader.addResources(images);
 
-      const ready = TestUtils.runToReady(game, loader)
+      TestUtils.runToReady(game, loader)
         .then(() => {
           expect(logger.error).not.toHaveBeenCalled();
           game.dispose();
           done();
         })
         .catch(() => {
-          fail();
+          throw new Error('fail');
         });
     }));
 

@@ -19,7 +19,7 @@ describe('A Coroutine', () => {
     await engine.scope(async () => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
-      const result = ex.coroutine(function* () {
+      const result = ex.coroutine(function* (this: any) {
         const elapsed = yield;
         expect(this).toBe(globalThis);
         expect(elapsed).toBe(100);
@@ -34,7 +34,7 @@ describe('A Coroutine', () => {
   it('can should throw without engine outside scope ', () => {
     ex.Engine.Context.scope(null, () => {
       expect(() => {
-        const result = ex.coroutine(function* () {
+        ex.coroutine(function* (this: any) {
           const elapsed = yield;
           expect(this).toBe(globalThis);
           expect(elapsed).toBe(100);
@@ -53,7 +53,7 @@ describe('A Coroutine', () => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
       const myThis = { super: 'cool' };
-      const result = ex.coroutine(myThis, function* () {
+      const result = ex.coroutine(myThis, function* (this: any) {
         const elapsed = yield;
         expect(this).toBe(myThis);
         expect(elapsed).toBe(100);
@@ -71,7 +71,7 @@ describe('A Coroutine', () => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
       const myThis = { super: 'cool' };
-      const result = ex.coroutine(myThis, engine, function* () {
+      const result = ex.coroutine(myThis, engine, function* (this: any) {
         const elapsed = yield;
         expect(this).toBe(myThis);
         expect(elapsed).toBe(100);
@@ -88,7 +88,7 @@ describe('A Coroutine', () => {
     await engine.scope(async () => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
-      const result = ex.coroutine(engine, function* () {
+      const result = ex.coroutine(engine, function* (this: any) {
         const elapsed = yield;
         expect(this).toBe(globalThis);
         expect(elapsed).toBe(100);
@@ -109,7 +109,7 @@ describe('A Coroutine', () => {
       const calls = vi.fn();
 
       const preframe = ex.coroutine(
-        function* () {
+        function* (this: any) {
           const elapsed = yield;
           calls('preframe');
           expect(elapsed).toBe(100);
@@ -119,7 +119,7 @@ describe('A Coroutine', () => {
       );
 
       const postframe = ex.coroutine(
-        function* () {
+        function* (this: any) {
           const elapsed = yield;
           calls('postframe');
           expect(elapsed).toBe(100);
@@ -129,7 +129,7 @@ describe('A Coroutine', () => {
       );
 
       const preupdate = ex.coroutine(
-        function* () {
+        function* (this: any) {
           const elapsed = yield;
           calls('preupdate');
           expect(elapsed).toBe(100);
@@ -139,7 +139,7 @@ describe('A Coroutine', () => {
       );
 
       const postupdate = ex.coroutine(
-        function* () {
+        function* (this: any) {
           const elapsed = yield;
           calls('postupdate');
           expect(elapsed).toBe(100);
@@ -149,7 +149,7 @@ describe('A Coroutine', () => {
       );
 
       const predraw = ex.coroutine(
-        function* () {
+        function* (this: any) {
           const elapsed = yield;
           calls('predraw');
           expect(elapsed).toBe(100);
@@ -159,7 +159,7 @@ describe('A Coroutine', () => {
       );
 
       const postdraw = ex.coroutine(
-        function* () {
+        function* (this: any) {
           const elapsed = yield;
           calls('postdraw');
           expect(elapsed).toBe(100);
@@ -185,7 +185,7 @@ describe('A Coroutine', () => {
     const clock = engine.clock as ex.TestClock;
     clock.start();
     await engine.scope(async () => {
-      const result = ex.coroutine(function* () {
+      const result = ex.coroutine(function* (this: any) {
         const elapsed = yield 200;
         expect(elapsed).toBe(200);
         yield;
@@ -203,7 +203,7 @@ describe('A Coroutine', () => {
     await engine.scope(async () => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
-      const result = ex.coroutine(function* () {
+      const result = ex.coroutine(function* (this: any) {
         const elapsed = yield ex.Util.delay(1000, clock);
         expect(elapsed).toBe(1);
         yield;
@@ -226,7 +226,7 @@ describe('A Coroutine', () => {
     await engine.scope(async () => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
-      const result = ex.coroutine(function* () {
+      const result = ex.coroutine(function* (this: any) {
         const elapsed = yield ex.Util.delay(1000, clock);
         expect(elapsed).toBe(1);
         yield;
@@ -250,7 +250,7 @@ describe('A Coroutine', () => {
     engine.scope(() => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
-      const result = ex.coroutine(function* () {
+      const result = ex.coroutine(function* (this: any) {
         yield 100;
         yield 100;
         yield 100;
@@ -275,7 +275,7 @@ describe('A Coroutine', () => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
       const result = ex.coroutine(
-        function* () {
+        function* (this: any) {
           yield 100;
           yield 100;
           yield 100;
@@ -302,9 +302,9 @@ describe('A Coroutine', () => {
     engine.scope(() => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
-      const result = ex.coroutine(function* () {
+      const result = ex.coroutine(function* (this: any) {
         yield 100;
-        yield* ex.coroutine(function* () {
+        yield* ex.coroutine(function* (this: any) {
           const elapsed = yield 99;
           expect(elapsed).toBe(99);
         });
@@ -325,11 +325,11 @@ describe('A Coroutine', () => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
       const result = ex.coroutine(
-        function* () {
+        function* (this: any) {
           yield 100;
           yield 200;
           yield 300;
-          yield* ex.coroutine(function* () {
+          yield* ex.coroutine(function* (this: any) {
             yield;
             yield 400;
           });
@@ -352,11 +352,11 @@ describe('A Coroutine', () => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
       const result = ex.coroutine(
-        function* () {
+        function* (this: any) {
           yield 100;
           yield 200;
           yield 300;
-          yield* ex.coroutine(function* () {
+          yield* ex.coroutine(function* (this: any) {
             yield;
             yield 400;
           });
@@ -366,7 +366,7 @@ describe('A Coroutine', () => {
 
       let i = 0;
       const results = [100, 200, 300, 400];
-      for (const val of result) {
+      for (const val of result as any) {
         expect(val).toBe(results[i++]);
       }
 

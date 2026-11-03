@@ -32,12 +32,13 @@ export class QuadTree<TItem extends QuadTreeItem> {
   public topRight: QuadTree<TItem> | null = null;
   public bottomLeft: QuadTree<TItem> | null = null;
   public bottomRight: QuadTree<TItem> | null = null;
+  public options = this._defaultOptions;
 
   constructor(
     public bounds: BoundingBox,
-    public options: QuadTreeOptions
+    options?: QuadTreeOptions
   ) {
-    this.options = { ...this._defaultOptions, ...options };
+    this.options = { ...this._defaultOptions, ...(options ?? {}) } as QuadTreeOptions;
     this.halfWidth = bounds.width / 2;
     this.halfHeight = bounds.height / 2;
   }

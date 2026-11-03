@@ -7,7 +7,7 @@ describe('A Lighting System', () => {
   afterEach(() => {
     engine.stop();
     engine.dispose();
-    engine = null;
+    engine = null as any;
   });
 
   describe('engine gating', () => {
@@ -70,8 +70,8 @@ describe('A Lighting System', () => {
 
       const graphics = lightingEntity.get(ex.GraphicsComponent);
       expect(graphics.current).toBeInstanceOf(ex.Canvas);
-      expect(graphics.current.width).toBe(engine.screen.resolution.width);
-      expect(graphics.current.height).toBe(engine.screen.resolution.height);
+      expect(graphics.current!.width).toBe(engine.screen.resolution.width);
+      expect(graphics.current!.height).toBe(engine.screen.resolution.height);
     });
 
     it('respects a fixed size option and does not resync to the screen', async () => {
@@ -85,8 +85,8 @@ describe('A Lighting System', () => {
       engine.currentScene.draw(engine.graphicsContext, 16);
 
       const [lightingEntity] = engine.currentScene.world.entityManager.getByName('lighting');
-      expect(lightingEntity.get(ex.GraphicsComponent).current.width).toBe(32);
-      expect(lightingEntity.get(ex.GraphicsComponent).current.height).toBe(16);
+      expect(lightingEntity.get(ex.GraphicsComponent).current!.width).toBe(32);
+      expect(lightingEntity.get(ex.GraphicsComponent).current!.height).toBe(16);
     });
 
     it('respects a fixed pos option and does not resync to the screen unsafe area', async () => {
@@ -154,7 +154,7 @@ describe('A Lighting System', () => {
       const raster = document.createElement('canvas');
       raster.width = 100;
       raster.height = 100;
-      const ctx = raster.getContext('2d');
+      const ctx = raster.getContext('2d')!;
       (lighting as any)._renderLightingCanvas(ctx);
 
       const [r, g, b, a] = ctx.getImageData(50, 50, 1, 1).data;
@@ -183,7 +183,7 @@ describe('A Lighting System', () => {
       const raster = document.createElement('canvas');
       raster.width = 100;
       raster.height = 100;
-      const ctx = raster.getContext('2d');
+      const ctx = raster.getContext('2d')!;
       (lighting as any)._renderLightingCanvas(ctx);
 
       const [, , , a] = ctx.getImageData(50, 50, 1, 1).data;
@@ -209,7 +209,7 @@ describe('A Lighting System', () => {
       const raster = document.createElement('canvas');
       raster.width = 100;
       raster.height = 100;
-      const ctx = raster.getContext('2d');
+      const ctx = raster.getContext('2d')!;
       (lighting as any)._renderLightingCanvas(ctx);
 
       const [r, g, b, a] = ctx.getImageData(50, 50, 1, 1).data;
@@ -242,7 +242,7 @@ describe('A Lighting System', () => {
       const raster = document.createElement('canvas');
       raster.width = 100;
       raster.height = 100;
-      const ctx = raster.getContext('2d');
+      const ctx = raster.getContext('2d')!;
 
       engine.currentScene.update(engine, 16);
       (lighting as any)._renderLightingCanvas(ctx);
@@ -282,7 +282,7 @@ describe('A Lighting System', () => {
       const raster = document.createElement('canvas');
       raster.width = 100;
       raster.height = 100;
-      const ctx = raster.getContext('2d');
+      const ctx = raster.getContext('2d')!;
       (lighting as any)._renderLightingCanvas(ctx);
 
       // direction 0 rotated by the parent's PI/2 -> the beam points down (+y)
@@ -308,7 +308,7 @@ describe('A Lighting System', () => {
       const raster = document.createElement('canvas');
       raster.width = 100;
       raster.height = 100;
-      const ctx = raster.getContext('2d');
+      const ctx = raster.getContext('2d')!;
       (lighting as any)._renderLightingCanvas(ctx);
 
       // Was inside the unrotated (wide) rect, now outside the rotated (narrow) one
@@ -332,7 +332,7 @@ describe('A Lighting System', () => {
       const raster = document.createElement('canvas');
       raster.width = 100;
       raster.height = 100;
-      const ctx = raster.getContext('2d');
+      const ctx = raster.getContext('2d')!;
       (lighting as any)._renderLightingCanvas(ctx);
       expect(ctx.getImageData(50, 50, 1, 1).data[3]).toBeGreaterThan(200); // room center - dark
 
@@ -370,7 +370,7 @@ describe('A Lighting System', () => {
       const raster = document.createElement('canvas');
       raster.width = 100;
       raster.height = 100;
-      const ctx = raster.getContext('2d');
+      const ctx = raster.getContext('2d')!;
       (lighting as any)._renderLightingCanvas(ctx);
 
       // Within the light's raw radius but outside the rotated (narrow) room - must stay clipped/dark
@@ -408,7 +408,7 @@ describe('A Lighting System', () => {
       const raster = document.createElement('canvas');
       raster.width = 100;
       raster.height = 100;
-      const ctx = raster.getContext('2d');
+      const ctx = raster.getContext('2d')!;
       (lighting as any)._renderLightingCanvas(ctx);
 
       // Between the light and the occluder's near edge - nothing blocks it, should be lit
@@ -441,7 +441,7 @@ describe('A Lighting System', () => {
       const raster = document.createElement('canvas');
       raster.width = 100;
       raster.height = 100;
-      const ctx = raster.getContext('2d');
+      const ctx = raster.getContext('2d')!;
       (lighting as any)._renderLightingCanvas(ctx);
 
       expect(ctx.getImageData(45, 50, 1, 1).data[3]).toBeLessThan(200); // before the pillar - lit
@@ -479,7 +479,7 @@ describe('A Lighting System', () => {
       const raster = document.createElement('canvas');
       raster.width = 100;
       raster.height = 100;
-      const ctx = raster.getContext('2d');
+      const ctx = raster.getContext('2d')!;
       (lighting as any)._renderLightingCanvas(ctx);
 
       // Directly behind the pillar - shadowed regardless of tangent geometry
@@ -513,7 +513,7 @@ describe('A Lighting System', () => {
       const raster = document.createElement('canvas');
       raster.width = 100;
       raster.height = 100;
-      const ctx = raster.getContext('2d');
+      const ctx = raster.getContext('2d')!;
 
       expect(() => (lighting as any)._renderLightingCanvas(ctx)).not.toThrow();
       expect(ctx.getImageData(50, 50, 1, 1).data[3]).toBeLessThan(200);
@@ -544,7 +544,7 @@ describe('A Lighting System', () => {
       const raster = document.createElement('canvas');
       raster.width = 100;
       raster.height = 100;
-      const ctx = raster.getContext('2d');
+      const ctx = raster.getContext('2d')!;
       (lighting as any)._renderLightingCanvas(ctx);
 
       // Only the light's own gradient - the out-of-range occluder's shadow gradient is skipped
@@ -575,7 +575,7 @@ describe('A Lighting System', () => {
       const raster = document.createElement('canvas');
       raster.width = 100;
       raster.height = 100;
-      const ctx = raster.getContext('2d');
+      const ctx = raster.getContext('2d')!;
       (lighting as any)._renderLightingCanvas(ctx);
 
       // Beyond the (shadow-disabled) crate - should still be lit since it casts no shadow
@@ -598,7 +598,7 @@ describe('A Lighting System', () => {
       const raster = document.createElement('canvas');
       raster.width = 100;
       raster.height = 100;
-      const ctx = raster.getContext('2d');
+      const ctx = raster.getContext('2d')!;
       (lighting as any)._renderLightingCanvas(ctx);
 
       const [r, g, b, a] = ctx.getImageData(50, 50, 1, 1).data;
@@ -624,7 +624,7 @@ describe('A Lighting System', () => {
       const raster = document.createElement('canvas');
       raster.width = 100;
       raster.height = 100;
-      const ctx = raster.getContext('2d');
+      const ctx = raster.getContext('2d')!;
       (lighting as any)._renderLightingCanvas(ctx);
 
       // Inside the wedge (direction 0 = right)
@@ -656,7 +656,7 @@ describe('A Lighting System', () => {
       const raster = document.createElement('canvas');
       raster.width = 100;
       raster.height = 100;
-      const ctx = raster.getContext('2d');
+      const ctx = raster.getContext('2d')!;
 
       expect(() => (lighting as any)._renderLightingCanvas(ctx)).not.toThrow();
       expect(ctx.getImageData(50, 50, 1, 1).data[3]).toBeGreaterThan(200);
@@ -686,7 +686,7 @@ describe('A Lighting System', () => {
       const raster = document.createElement('canvas');
       raster.width = 100;
       raster.height = 100;
-      const ctx = raster.getContext('2d');
+      const ctx = raster.getContext('2d')!;
       (lighting as any)._renderLightingCanvas(ctx);
 
       expect(ctx.getImageData(50, 50, 1, 1).data[3]).toBeGreaterThan(200);
@@ -710,7 +710,7 @@ describe('A Lighting System', () => {
       const raster = document.createElement('canvas');
       raster.width = 100;
       raster.height = 100;
-      const ctx = raster.getContext('2d');
+      const ctx = raster.getContext('2d')!;
       (lighting as any)._renderLightingCanvas(ctx);
       expect(ctx.getImageData(50, 50, 1, 1).data[3]).toBeLessThan(200);
 
@@ -726,14 +726,14 @@ describe('A Lighting System', () => {
       engine.screen.setCurrentCamera(engine.currentScene.camera);
 
       const [lightingEntity] = engine.currentScene.world.entityManager.getByName('lighting');
-      expect(lightingEntity.get(ex.GraphicsComponent).current.width).toBe(100);
+      expect(lightingEntity.get(ex.GraphicsComponent).current!.width).toBe(100);
 
       engine.screen.resolution = { width: 150, height: 80 };
       engine.currentScene.update(engine, 16);
       engine.currentScene.draw(engine.graphicsContext, 16);
 
-      expect(lightingEntity.get(ex.GraphicsComponent).current.width).toBe(150);
-      expect(lightingEntity.get(ex.GraphicsComponent).current.height).toBe(80);
+      expect(lightingEntity.get(ex.GraphicsComponent).current!.width).toBe(150);
+      expect(lightingEntity.get(ex.GraphicsComponent).current!.height).toBe(80);
     });
 
     it('removes the lighting overlay and unsubscribes queries when lighting is disabled at runtime', async () => {
@@ -797,7 +797,7 @@ describe('A Lighting System', () => {
       const raster = document.createElement('canvas');
       raster.width = 100;
       raster.height = 100;
-      const ctx = raster.getContext('2d');
+      const ctx = raster.getContext('2d')!;
       (lighting as any)._renderLightingCanvas(ctx);
       const firstCornerX = (lighting as any)._darknessEntries[0].cached.screenCorners[0].x;
 
@@ -833,7 +833,7 @@ describe('A Lighting System', () => {
       const raster = document.createElement('canvas');
       raster.width = 100;
       raster.height = 100;
-      const ctx = raster.getContext('2d');
+      const ctx = raster.getContext('2d')!;
       (lighting as any)._renderLightingCanvas(ctx);
       expect(ctx.getImageData(50, 50, 1, 1).data[3]).toBeLessThan(200);
 
@@ -864,7 +864,7 @@ describe('A Lighting System', () => {
       const raster = document.createElement('canvas');
       raster.width = 100;
       raster.height = 100;
-      const ctx = raster.getContext('2d');
+      const ctx = raster.getContext('2d')!;
       (lighting as any)._renderLightingCanvas(ctx);
       const first = Array.from(ctx.getImageData(0, 0, 100, 100).data);
 

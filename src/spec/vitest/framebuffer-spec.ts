@@ -31,7 +31,7 @@ describe('A Framebuffer', () => {
 
   afterEach(() => {
     context.dispose();
-    context = null;
+    context = null as any;
   });
 
   it('exists', () => {

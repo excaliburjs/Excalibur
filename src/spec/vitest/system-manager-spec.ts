@@ -6,7 +6,7 @@ class FakeComponentB extends ex.Component {}
 class FakeComponentC extends ex.Component {}
 
 class FakeSystemPriority1 extends ex.System {
-  static priority = 1;
+  static override priority = 1;
   query: ex.Query<ex.ComponentCtor<ex.Component>>;
   constructor(
     public world: ex.World,
@@ -23,24 +23,7 @@ class FakeSystemPriority1 extends ex.System {
 }
 
 class FakeSystemPriority2 extends ex.System {
-  static priority = 2;
-  query: ex.Query<ex.ComponentCtor<ex.Component>>;
-  constructor(
-    public world: ex.World,
-    public name: string,
-    public types: ex.ComponentCtor[],
-    public systemType: ex.SystemType
-  ) {
-    super();
-    this.query = this.world.query(types);
-  }
-  onUpdate(elapsedMs: number): void {
-    // fake
-  }
-}
-
-class FakeSystemPriority3 extends ex.System {
-  static priority = 3;
+  static override priority = 2;
   query: ex.Query<ex.ComponentCtor<ex.Component>>;
   constructor(
     public world: ex.World,
@@ -62,11 +45,12 @@ describe('A SystemManager', () => {
   });
 
   it('can be created', () => {
-    const sm = new ex.SystemManager(null);
+    // @ts-ignore
+    const sm = new ex.SystemManager(null as any);
   });
 
   it('can add systems', () => {
-    const world = new ex.World(null);
+    const world = new ex.World(null as any);
     const sm = world.systemManager;
 
     // Lower priority
@@ -82,7 +66,7 @@ describe('A SystemManager', () => {
   });
 
   it('can remove systems', () => {
-    const world = new ex.World(null);
+    const world = new ex.World(null as any);
     const sm = world.systemManager;
 
     // Lower priority
@@ -101,7 +85,7 @@ describe('A SystemManager', () => {
   });
 
   it('can update systems', () => {
-    const world = new ex.World(null);
+    const world = new ex.World(null as any);
     const sm = world.systemManager;
     const system = new FakeSystemPriority2(world, 'System3', [FakeComponentC], SystemType.Update);
     system.onPreUpdate = () => {}; // eslint-disable-line @typescript-eslint/no-empty-function
@@ -110,14 +94,14 @@ describe('A SystemManager', () => {
     vi.spyOn(system, 'onPostUpdate');
     vi.spyOn(system, 'onUpdate');
     sm.addSystem(system);
-    sm.updateSystems(SystemType.Update, null, 10);
+    sm.updateSystems(SystemType.Update, null as any, 10);
     expect(system.onPreUpdate).toHaveBeenCalledTimes(1);
     expect(system.onUpdate).toHaveBeenCalledTimes(1);
     expect(system.onPostUpdate).toHaveBeenCalledTimes(1);
   });
 
   it('can update systems with the correct entities', () => {
-    const world = new ex.World(null);
+    const world = new ex.World(null as any);
     const sm = world.systemManager;
     const qm = world.queryManager;
     const em = world.entityManager;
@@ -143,15 +127,17 @@ describe('A SystemManager', () => {
     const query = qm.createQuery([FakeComponentA, FakeComponentC]);
     expect(query.getEntities()).toEqual([e1, e3]);
 
-    sm.updateSystems(SystemType.Update, null, 10);
+    sm.updateSystems(SystemType.Update, null as any, 10);
 
     expect(system.onUpdate).toHaveBeenCalledWith(10);
   });
 
   it('only updates system of the specified system type', () => {
-    const world = new ex.World(null);
+    const world = new ex.World(null as any);
     const sm = world.systemManager;
+    // @ts-ignore
     const qm = world.queryManager;
+    // @ts-ignore
     const em = world.entityManager;
     const system1 = new FakeSystemPriority2(world, 'System1', [FakeComponentA, FakeComponentC], SystemType.Update);
     vi.spyOn(system1, 'onUpdate');
@@ -160,7 +146,7 @@ describe('A SystemManager', () => {
     vi.spyOn(system2, 'onUpdate');
     sm.addSystem(system2);
 
-    sm.updateSystems(SystemType.Draw, null, 10);
+    sm.updateSystems(SystemType.Draw, null as any, 10);
 
     expect(system1.onUpdate).not.toHaveBeenCalled();
     expect(system2.onUpdate).toHaveBeenCalledWith(10);

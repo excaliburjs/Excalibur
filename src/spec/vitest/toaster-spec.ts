@@ -17,7 +17,7 @@ describe('A Toaster', () => {
 
     const toastContainer = document.getElementById('ex-toast-container');
 
-    expect(toastContainer.textContent).toContain('Some Toast Message');
+    expect(toastContainer!.textContent).toContain('Some Toast Message');
     sut.dispose();
   });
 
@@ -28,9 +28,9 @@ describe('A Toaster', () => {
 
     const toastContainer = document.getElementById('ex-toast-container');
 
-    expect(toastContainer.textContent).toContain('Link');
+    expect(toastContainer!.textContent).toContain('Link');
 
-    expect(toastContainer.textContent).toContain('excalibur-link');
+    expect(toastContainer!.textContent).toContain('excalibur-link');
 
     sut.dispose();
   });
@@ -42,9 +42,9 @@ describe('A Toaster', () => {
 
     const toastContainer = document.getElementById('ex-toast-container');
 
-    expect(toastContainer.textContent).toContain('Link');
+    expect(toastContainer!.textContent).toContain('Link');
 
-    expect(toastContainer.textContent).toContain('https://excaliburjs.com');
+    expect(toastContainer!.textContent).toContain('https://excaliburjs.com');
 
     sut.dispose();
   });
@@ -56,11 +56,11 @@ describe('A Toaster', () => {
 
     const toastContainer = document.getElementById('ex-toast-container');
 
-    expect(toastContainer.textContent).toContain('Dismiss');
+    expect(toastContainer!.textContent).toContain('Dismiss');
 
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
 
-    expect(toastContainer.textContent).not.toContain('Dismiss');
+    expect(toastContainer!.textContent).not.toContain('Dismiss');
 
     sut.dispose();
   });
@@ -71,9 +71,9 @@ describe('A Toaster', () => {
     sut.toast('Dismiss');
     const toastContainer = document.getElementById('ex-toast-container');
 
-    expect(toastContainer.textContent).toContain('Dismiss');
+    expect(toastContainer!.textContent).toContain('Dismiss');
 
-    const toastButton = toastContainer.getElementsByTagName('button')[0];
+    const toastButton = toastContainer!.getElementsByTagName('button')[0];
 
     expect(toastButton.textContent).toContain('x');
 
@@ -81,7 +81,7 @@ describe('A Toaster', () => {
 
     const toastMessageGone = document.getElementById('ex-toast-container');
 
-    expect(toastMessageGone.textContent).not.toContain('Dismiss');
+    expect(toastMessageGone!.textContent).not.toContain('Dismiss');
 
     sut.dispose();
   });

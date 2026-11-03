@@ -15,7 +15,7 @@ describe('A Gif', () => {
   afterEach(() => {
     engine.stop();
     engine.dispose();
-    engine = null;
+    engine = null as any;
   });
 
   it('should not be loaded by default (C6 regression)', () => {
@@ -42,7 +42,7 @@ describe('A Gif', () => {
       const sut = new ex.Gif('/src/spec/assets/images/gif-spec/loading-screen.gif');
       await sut.load();
 
-      const sprite = sut.toSprite(20);
+      const sprite = sut.toSprite(20)!;
       expect(sut.isLoaded()).toBe(true);
 
       sprite.draw(engine.graphicsContext, 0, 0);
@@ -56,19 +56,19 @@ describe('A Gif', () => {
       await sut.load();
       expect(sut.isLoaded()).toBe(true);
 
-      const sprite2 = sut.toSprite(2);
+      const sprite2 = sut.toSprite(2)!;
       sprite2.draw(engine.graphicsContext, 0, 0);
       engine.graphicsContext.flush();
 
       await expect(engine.canvas).toEqualImage('/src/spec/assets/images/gif-spec/stoplight-frame-3.png');
 
-      const sprite1 = sut.toSprite(1);
+      const sprite1 = sut.toSprite(1)!;
       sprite1.draw(engine.graphicsContext, 0, 0);
       engine.graphicsContext.flush();
 
       await expect(engine.canvas).toEqualImage('/src/spec/assets/images/gif-spec/stoplight-frame-2.png');
 
-      const sprite0 = sut.toSprite(0);
+      const sprite0 = sut.toSprite(0)!;
       sprite0.draw(engine.graphicsContext, 0, 0);
       engine.graphicsContext.flush();
 
@@ -79,12 +79,12 @@ describe('A Gif', () => {
       await gif.load();
       expect(gif).toBeDefined();
 
-      const spriteFrame: ex.Sprite = gif.toSprite();
+      const spriteFrame: ex.Sprite = gif.toSprite()!;
       expect(spriteFrame).toBeDefined();
       expect(spriteFrame.height).toBe(100);
       expect(spriteFrame.width).toBe(100);
 
-      let sprite: ex.Sprite = gif.toSprite();
+      let sprite: ex.Sprite = gif.toSprite()!;
       expect(gif.isLoaded()).toBe(true);
       sprite.draw(engine.graphicsContext, 0, 0);
       engine.graphicsContext.flush();
@@ -93,7 +93,7 @@ describe('A Gif', () => {
       engine.graphicsContext.backgroundColor = ex.Color.Transparent;
       engine.graphicsContext.clear();
 
-      sprite = gif.toSprite(1);
+      sprite = gif.toSprite(1)!;
       expect(gif.isLoaded()).toBe(true);
       sprite.draw(engine.graphicsContext, 0, 0);
       engine.graphicsContext.flush();
@@ -104,7 +104,7 @@ describe('A Gif', () => {
     it('should be read as a SpriteSheet', async () => {
       await gif.load();
       expect(gif).toBeDefined();
-      const spriteSheet: ex.SpriteSheet = gif.toSpriteSheet();
+      const spriteSheet: ex.SpriteSheet = gif.toSpriteSheet()!;
       const sprite = spriteSheet.getSprite(0, 0);
       sprite.draw(engine.graphicsContext, 0, 0);
       engine.graphicsContext.flush();
@@ -115,13 +115,12 @@ describe('A Gif', () => {
     it('should be read as an Animation', async () => {
       await gif.load();
       expect(gif).toBeDefined();
-      const animation: ex.Animation = gif.toAnimation(500);
+      const animation: ex.Animation = gif.toAnimation(500)!;
 
       expect(animation.frames.length).toBe(2);
-      const frame1 = animation.frames[0];
       const frame2 = animation.frames[1];
 
-      frame2.graphic.draw(engine.graphicsContext, 0, 0);
+      frame2.graphic!.draw(engine.graphicsContext, 0, 0);
       engine.graphicsContext.flush();
 
       await expect(engine.canvas).toEqualImage('/src/spec/assets/images/gif-spec/frame2.png');

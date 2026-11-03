@@ -3,14 +3,14 @@ import * as ex from '@excalibur';
 class Dep extends ex.Component {}
 
 class ComponentImplementation extends ex.Component {
-  public dependencies = [Dep];
+  public override dependencies = [Dep];
   public otherprop = 'somestring';
   constructor(public clonable: ex.Vector = ex.Vector.Zero) {
     super();
   }
 
-  onAdd = vi.fn();
-  onRemove = vi.fn();
+  override onAdd = vi.fn();
+  override onRemove = vi.fn();
 }
 
 describe('A Component', () => {

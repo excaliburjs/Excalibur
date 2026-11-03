@@ -148,8 +148,10 @@ describe('Vectors', () => {
     const upLeft = ex.vec(-1, -1);
     const upRight = ex.vec(1, -1);
     const downRightAngle = downRight.toAngle();
+    // @ts-ignore
     const downLeftAngle = downLeft.toAngle();
     const upLeftAngle = upLeft.toAngle();
+    // @ts-ignore
     const upRightAngle = upRight.toAngle();
 
     const testCases: TestCaseParameters[] = [
@@ -297,8 +299,8 @@ describe('Vectors', () => {
   });
 
   it('can be checked for validity on null or undefined vectors', () => {
-    const invalidNull: ex.Vector = null;
-    const invalidUndef: ex.Vector = undefined;
+    const invalidNull: ex.Vector = null as any;
+    const invalidUndef: ex.Vector = undefined as any;
 
     expect(ex.Vector.isValid(invalidNull), 'Null vectors should be invalid').toBe(false);
     expect(ex.Vector.isValid(invalidUndef), 'undefined vectors should be invalid').toBe(false);

@@ -256,7 +256,7 @@ describe('A Director', () => {
     sut.configureStart('root');
 
     sut.onInitialize();
-    await engine.load(sut.mainLoader);
+    await engine.load(sut.mainLoader!);
     await (engine as any)._overrideInitialize(engine);
 
     await sut.goToScene('scene2');
