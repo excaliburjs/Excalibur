@@ -534,54 +534,6 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   public logger: Logger = Logger.getInstance();
 
   /**
-   * Draggable helper
-   */
-  private _draggable: boolean = false;
-  private _dragging: boolean = false;
-
-  private _pointerDragStartHandler = () => {
-    this._dragging = true;
-  };
-
-  private _pointerDragEndHandler = () => {
-    this._dragging = false;
-  };
-
-  private _pointerDragMoveHandler = (pe: PointerEvent) => {
-    if (this._dragging) {
-      this.pos = pe.worldPos;
-    }
-  };
-
-  private _pointerDragLeaveHandler = (pe: PointerEvent) => {
-    if (this._dragging) {
-      this.pos = pe.worldPos;
-    }
-  };
-
-  public get draggable(): boolean {
-    return this._draggable;
-  }
-
-  public set draggable(isDraggable: boolean) {
-    if (isDraggable) {
-      if (isDraggable && !this._draggable) {
-        this.events.on('pointerdragstart', this._pointerDragStartHandler);
-        this.events.on('pointerdragend', this._pointerDragEndHandler);
-        this.events.on('pointerdragmove', this._pointerDragMoveHandler);
-        this.events.on('pointerdragleave', this._pointerDragLeaveHandler);
-      } else if (!isDraggable && this._draggable) {
-        this.events.off('pointerdragstart', this._pointerDragStartHandler);
-        this.events.off('pointerdragend', this._pointerDragEndHandler);
-        this.events.off('pointerdragmove', this._pointerDragMoveHandler);
-        this.events.off('pointerdragleave', this._pointerDragLeaveHandler);
-      }
-
-      this._draggable = isDraggable;
-    }
-  }
-
-  /**
    * Sets the color of the actor's current graphic
    */
   public get color(): Color {
