@@ -253,9 +253,9 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
    *
    * This can be used to configure custom transitions for a scene dynamically
    */
-  public onTransition(direction: 'in' | 'out'): Transition | null {
+  public onTransition(direction: 'in' | 'out'): Transition | void {
     // will be overridden
-    return null;
+    return;
   }
 
   /**

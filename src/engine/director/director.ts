@@ -430,8 +430,8 @@ export class Director<TKnownScenes extends string = any> {
     const engineInputEnabled = this._engine.input?.enabled ?? true;
     this._isTransitioning = true;
 
-    const maybeSourceOut = this.getSceneInstance(sourceScene)?.onTransition('out');
-    const maybeDestinationIn = maybeDest?.onTransition('in');
+    const maybeSourceOut = this.getSceneInstance(sourceScene)?.onTransition('out') ?? null;
+    const maybeDestinationIn = maybeDest?.onTransition('in') ?? null;
 
     options = {
       // Engine configuration then dynamic scene transitions
